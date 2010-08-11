@@ -28,9 +28,10 @@
 
 WGEZoomTrackballManipulator::WGEZoomTrackballManipulator():
     TrackballManipulator(),
-    m_allowThrow( false )
+    m_zoom( 1.0 ),
+    m_allowThrow( false ),
+    m_paintMode( 0 )
 {
-    m_zoom = 1.0;
     setTrackballSize( .3 ); // changes the effect of a mouse move for rotation
     WPreferences::getPreference( "ge.zoomTrackballManipulator.allowThrow", &m_allowThrow );
 }
@@ -135,12 +136,28 @@ bool WGEZoomTrackballManipulator::handle( const osgGA::GUIEventAdapter& ea, osgG
     }
     // NOTE: we need to ignore the right mouse-button drag! This manipulates the underlying Trackball Manipulator while, at the same time, is
     // used for moving ROIS! Zooming is done using Scroll Wheel or +/- keys.
-    else if ( ( ea.getEventType() == osgGA::GUIEventAdapter::DRAG ) && ( ea.getButtonMask() == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON ) )
+    else if ( ( ea.getEventType() == osgGA::GUIEventAdapter::DRAG ) || ( ea.getEventType() == osgGA::GUIEventAdapter::PUSH ) )
     {
-        return true;
+        if ( ea.getButtonMask() == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON )
+        {
+            return true;
+        }
+        else if (  ( ea.getButtonMask() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON ) && ( m_paintMode == 1 ) )
+        {
+            return true;
+        }
+        else
+        {
+            return TrackballManipulator::handle( ea, us );
+        }
     }
     else
     {
         return TrackballManipulator::handle( ea, us );
     }
+}
+
+void WGEZoomTrackballManipulator::setPaintMode( int mode )
+{
+    m_paintMode = mode;
 }

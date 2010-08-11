@@ -339,9 +339,16 @@ wmath::WVector3D WGridRegular3D::worldCoordToTexCoord( wmath::WPosition point )
 {
     wmath::WVector3D r( wmath::transformPosition3DWithMatrix4D( m_matrixInverse, point ) );
 
+    // Scale to [0,1]
     r[0] = r[0] / m_nbPosX;
     r[1] = r[1] / m_nbPosY;
     r[2] = r[2] / m_nbPosZ;
+
+    // Correct the coordinates to have the position at the center of the texture voxel.
+    r[0] += 0.5 / m_nbPosX;
+    r[1] += 0.5 / m_nbPosY;
+    r[2] += 0.5 / m_nbPosZ;
+
 
     return r;
 }
@@ -539,6 +546,134 @@ std::vector< size_t > WGridRegular3D::getNeighbours( size_t id ) const
     }
     return neighbours;
 }
+
+std::vector< size_t > WGridRegular3D::getNeighbours27( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // for every neighbour we must check if its not on the boundary, it will be skipped otherwise
+    if( x > 0 )
+    {
+        neighbours.push_back( id - 1 );
+        if( y > 0 )
+        {
+            neighbours.push_back( id - m_nbPosX - 1 );
+        }
+        if( y < m_nbPosY - 1 )
+        {
+            neighbours.push_back( id + m_nbPosX - 1 );
+        }
+    }
+    if( x < m_nbPosX - 1 )
+    {
+        neighbours.push_back( id + 1 );
+        if( y > 0 )
+        {
+            neighbours.push_back( id - m_nbPosX + 1 );
+        }
+        if( y < m_nbPosY - 1 )
+        {
+            neighbours.push_back( id + m_nbPosX + 1 );
+        }
+    }
+    if( y > 0 )
+    {
+        neighbours.push_back( id - m_nbPosX );
+    }
+    if( y < m_nbPosY - 1 )
+    {
+        neighbours.push_back( id + m_nbPosX );
+    }
+    if( z > 0 )
+    {
+        int tempId =  id - ( m_nbPosX * m_nbPosY );
+        neighbours.push_back( tempId );
+        if( x > 0 )
+        {
+            neighbours.push_back( tempId - 1 );
+            if( y > 0 )
+            {
+                neighbours.push_back( tempId - m_nbPosX - 1 );
+            }
+            if( y < m_nbPosY - 1 )
+            {
+                neighbours.push_back( tempId + m_nbPosX - 1 );
+            }
+        }
+        if( x < m_nbPosX - 1 )
+        {
+            neighbours.push_back( tempId + 1 );
+            if( y > 0 )
+            {
+                neighbours.push_back( tempId - m_nbPosX + 1 );
+            }
+            if( y < m_nbPosY - 1 )
+            {
+                neighbours.push_back( tempId + m_nbPosX + 1 );
+            }
+        }
+        if( y > 0 )
+        {
+            neighbours.push_back( tempId - m_nbPosX );
+        }
+        if( y < m_nbPosY - 1 )
+        {
+            neighbours.push_back( tempId + m_nbPosX );
+        }
+    }
+    if( z < m_nbPosZ - 1 )
+    {
+        int tempId =  id + ( m_nbPosX * m_nbPosY );
+         neighbours.push_back( tempId );
+         if( x > 0 )
+         {
+             neighbours.push_back( tempId - 1 );
+             if( y > 0 )
+             {
+                 neighbours.push_back( tempId - m_nbPosX - 1 );
+             }
+             if( y < m_nbPosY - 1 )
+             {
+                 neighbours.push_back( tempId + m_nbPosX - 1 );
+             }
+         }
+         if( x < m_nbPosX - 1 )
+         {
+             neighbours.push_back( tempId + 1 );
+             if( y > 0 )
+             {
+                 neighbours.push_back( tempId - m_nbPosX + 1 );
+             }
+             if( y < m_nbPosY - 1 )
+             {
+                 neighbours.push_back( tempId + m_nbPosX + 1 );
+             }
+         }
+         if( y > 0 )
+         {
+             neighbours.push_back( tempId - m_nbPosX );
+         }
+         if( y < m_nbPosY - 1 )
+         {
+             neighbours.push_back( tempId + m_nbPosX );
+         }
+    }
+    return neighbours;
+}
+
+
 
 bool WGridRegular3D::encloses( const wmath::WPosition& pos ) const
 {

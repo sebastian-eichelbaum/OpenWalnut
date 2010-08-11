@@ -29,6 +29,8 @@
 #include "WKernel.h"
 #include "../common/math/WLinearAlgebraFunctions.h"
 
+#include "../graphicsEngine/WGEZoomTrackballManipulator.h"
+
 #include "WSelectionManager.h"
 
 using wmath::WVector3D;
@@ -36,7 +38,10 @@ using wmath::WPosition;
 using wmath::WMatrix;
 
 
-WSelectionManager::WSelectionManager()
+WSelectionManager::WSelectionManager() :
+    m_paintMode( PAINTMODE_NONE ),
+    m_textureOpacity( 1.0 ),
+    m_useTexture( false )
 {
     m_crosshair = boost::shared_ptr< WCrosshair >( new WCrosshair() );
 }
@@ -105,4 +110,64 @@ int WSelectionManager::getFrontSector()
         }
     }
     return quadrant;
+}
+
+void WSelectionManager::setPaintMode( WPaintMode mode )
+{
+    m_paintMode = mode;
+
+    osg::static_pointer_cast<WGEZoomTrackballManipulator>(
+            WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCameraManipulator() )->setPaintMode( mode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getPickHandler()->setPaintMode( mode );
+}
+
+WPaintMode WSelectionManager::getPaintMode()
+{
+    return m_paintMode;
+}
+
+void WSelectionManager::setTexture( osg::ref_ptr< osg::Texture3D > texture, boost::shared_ptr< WGridRegular3D >grid )
+{
+    m_texture = texture;
+    m_textureGrid = grid;
+}
+
+
+osg::ref_ptr< osg::Texture3D > WSelectionManager::getTexture()
+{
+    return m_texture;
+}
+
+boost::shared_ptr< WGridRegular3D >WSelectionManager::getGrid()
+{
+    return m_textureGrid;
+}
+
+void WSelectionManager::setUseTexture( bool flag )
+{
+    m_useTexture = flag;
+}
+
+bool WSelectionManager::getUseTexture()
+{
+    return m_useTexture;
+}
+
+
+float WSelectionManager::getTextureOpacity()
+{
+    return m_textureOpacity;
+}
+
+void WSelectionManager::setTextureOpacity( float value )
+{
+    if ( value < 0.0 )
+    {
+        value = 0.0;
+    }
+    if ( value > 1.0 )
+    {
+        value = 1.0;
+    }
+    m_textureOpacity = value;
 }
