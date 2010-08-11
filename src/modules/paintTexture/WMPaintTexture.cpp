@@ -138,8 +138,8 @@ void WMPaintTexture::propertyChanged( boost::shared_ptr< WPropertyBase > propert
 
 void WMPaintTexture::moduleMain()
 {
-    WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getPickHandler()->getPickSignal()->connect(
-            boost::bind( &WMPaintTexture::queuePaint, this, _1 ) );
+    boost::signals2::connection con = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getPickHandler()->getPickSignal()->
+        connect( boost::bind( &WMPaintTexture::queuePaint, this, _1 ) );
 
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
@@ -206,7 +206,10 @@ void WMPaintTexture::moduleMain()
     debugLog() << "Shutting down...";
 
     WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( false );
+    WKernel::getRunningKernel()->getSelectionManager()->setPaintMode( PAINTMODE_NONE );
     WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+
+    con.disconnect();
 
     debugLog() << "Finished! Good Bye!";
 }
