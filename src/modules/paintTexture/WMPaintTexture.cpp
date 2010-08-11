@@ -246,6 +246,20 @@ void WMPaintTexture::doPaint()
                     }
                     break;
                 }
+                case 2:
+                {
+                    data[ voxelNum ] = m_paintIndex->get();
+                    std::vector< size_t > ids = m_grid->getNeighbours27( voxelNum );
+                    for ( size_t i = 0; i < ids.size(); ++i )
+                    {
+                        std::vector< size_t > allIds = m_grid->getNeighbours27( ids[i] );
+                        for ( size_t k = 0; k < ids.size(); ++k )
+                        {
+                            data[ allIds[k] ] = m_paintIndex->get();
+                        }
+                    }
+                    break;
+                }
                 default:
                     break;
             }
