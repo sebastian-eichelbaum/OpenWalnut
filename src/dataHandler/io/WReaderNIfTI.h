@@ -33,7 +33,7 @@
 #include "../WDataSet.h"
 #include "../../common/math/WMatrix.h"
 
-#include "nifti/nifti1_io.h"
+#include "../../ext/nifti/nifti1_io.h"
 
 /**
  * Reader for the NIfTI file format. For NIfTI just see http://nifti.nimh.nih.gov/.
