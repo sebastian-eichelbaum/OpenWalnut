@@ -277,7 +277,7 @@ public:
        \endverbatim
      *
      * Please note the first voxel has only 1/8 of the size a normal voxel
-     * would have since all positions outside the grid does not belonging
+     * would have since all positions outside the grid do not belong
      * to any voxel. Note: a cell is different to a voxel in terms of position.
      * A voxel has a grid point as center whereas a cell has grid points as
      * corners.
@@ -338,7 +338,8 @@ public:
     wmath::WValue< int > getVoxelCoord( const wmath::WPosition& pos ) const;
 
     /**
-     * Computes the id of the cell containing the position pos.
+     * Computes the id of the cell containing the position pos. Note that the upper
+     * bound of the grid does not belong to any cell
      *
      * \param pos The position selecting the cell.
      * \param success True if the position pos is inside the grid.

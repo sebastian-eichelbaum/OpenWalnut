@@ -396,7 +396,7 @@ int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) c
                  break;
         default : WAssert( false, "Invalid axis selected, must be between 0 and 2, including 0 and 2." );
     }
-    if( result < 0 || result > offsetAxis * ( nbAxisPos - 1 ) )
+    if( result < 0 || result >= offsetAxis * ( nbAxisPos - 1 ) )
     {
         return -1;
     }

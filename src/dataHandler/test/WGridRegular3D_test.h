@@ -564,9 +564,24 @@ public:
     void testEnclosesQuery( void )
     {
         WGridRegular3D g( 2, 2, 2, 1., 1., 1. );
+
+        // Test bounds for X direction
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0 - wlimits::FLT_EPS, 0, 0 ) ) );
         TS_ASSERT( g.encloses( wmath::WPosition( 0, 0, 0 ) ) );
-        TS_ASSERT( g.encloses( wmath::WPosition( 1, 1, 1 ) ) );
-        TS_ASSERT( !g.encloses( wmath::WPosition( 1, 1, 1.0 + wlimits::DBL_EPS ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 1.0 - wlimits::FLT_EPS, 0.5, 0.5 ) ) );
+        TS_ASSERT( !g.encloses( wmath::WPosition( 1, 0.5, 0.5 ) ) );
+
+        // Test bounds for Y direction
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0, 0 - wlimits::FLT_EPS, 0 ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0, 0, 0 ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0.5, 1.0 - wlimits::FLT_EPS, 0.5 ) ) );
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0.5, 1.0, 0.5 ) ) );
+
+        // Test bounds for Z direction
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0, 0, 0 - wlimits::FLT_EPS ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0, 0, 0 ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0.5, 0.5, 1.0 - wlimits::FLT_EPS ) ) );
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0.5, 0.5, 1 ) ) );
     }
 
 private:
