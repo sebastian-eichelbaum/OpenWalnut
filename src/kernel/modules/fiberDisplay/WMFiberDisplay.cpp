@@ -187,6 +187,12 @@ void WMFiberDisplay::create()
     osg::ref_ptr< osg::Group > osgNodeNew = osg::ref_ptr< osg::Group >( new osg::Group );
 
     m_tubeDrawable = osg::ref_ptr< WTubeDrawable >( new WTubeDrawable );
+    m_tubeDrawable->setBoundingBox( osg::BoundingBox( m_dataset->getBoundingBox().first[0],
+                                                      m_dataset->getBoundingBox().first[1],
+                                                      m_dataset->getBoundingBox().first[2],
+                                                      m_dataset->getBoundingBox().second[0],
+                                                      m_dataset->getBoundingBox().second[1],
+                                                      m_dataset->getBoundingBox().second[2] ) );
     m_tubeDrawable->setDataset( m_dataset );
     m_tubeDrawable->setUseDisplayList( false );
     m_tubeDrawable->setDataVariance( osg::Object::DYNAMIC );

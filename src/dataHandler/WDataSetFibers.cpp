@@ -24,6 +24,7 @@
 
 #include <string>
 #include <algorithm>
+#include <utility>
 #include <vector>
 #include <iostream>
 #include <boost/filesystem/fstream.hpp>
@@ -48,13 +49,16 @@ WDataSetFibers::WDataSetFibers()
 WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertices,
                 boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
                 boost::shared_ptr< std::vector< size_t > > lineLengths,
-                boost::shared_ptr< std::vector< size_t > > verticesReverse )
+                boost::shared_ptr< std::vector< size_t > > verticesReverse,
+                std::pair< wmath::WPosition, wmath::WPosition > boundingBox )
     : WDataSet(),
     m_vertices( vertices ),
     m_localColors( boost::shared_ptr< std::vector< float > >() ),
     m_lineStartIndexes( lineStartIndexes ),
     m_lineLengths( lineLengths ),
-    m_verticesReverse( verticesReverse )
+    m_verticesReverse( verticesReverse ),
+    m_bbMin( boundingBox.first ),
+    m_bbMax( boundingBox.second )
 
 {
     m_tangents = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
@@ -292,4 +296,9 @@ void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std:
     {
         ofs << vBuffer[i];
     }
+}
+
+std::pair< wmath::WPosition, wmath::WPosition > WDataSetFibers::getBoundingBox() const
+{
+    return std::make_pair( m_bbMin, m_bbMax );
 }
