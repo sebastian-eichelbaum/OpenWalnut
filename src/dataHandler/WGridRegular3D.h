@@ -407,6 +407,18 @@ public:
     std::vector< size_t > getNeighbours( size_t id ) const;
 
     /**
+     * Return the list of all neighbour voxels.
+     *
+     * \throw WOutOfBounds If the voxel id is outside of the grid.
+     *
+     * \param id Number of the voxel for which the neighbours should be computed
+     *
+     * \return Vector of voxel ids which are all neighboured
+     */
+    std::vector< size_t > getNeighbours27( size_t id ) const;
+
+
+    /**
      * Decides whether a certain position is inside this grid or not.
      *
      * \param pos Position to test
