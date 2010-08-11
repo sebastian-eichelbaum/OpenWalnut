@@ -87,9 +87,9 @@ void WMCoordinateHUD::properties()
 
     // list of alternatives:
     m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_possibleSelections->addItem( "colorfull axis", "colorfull coordinate axis", option_1_xpm );
+    m_possibleSelections->addItem( "colored axis", "colorfull coordinate axis", option_1_xpm );
     m_possibleSelections->addItem( "b/w axis", "black & white coordinate axis", option_2_xpm );
-    m_possibleSelections->addItem( "colorfull cube", "colorfull coordinate cube", option_3_xpm );
+    m_possibleSelections->addItem( "colored cube", "colorfull coordinate cube", option_3_xpm );
     m_possibleSelections->addItem( "b/w cube", "black & white coordinate cube", option_4_xpm );
 
     m_aSingleSelection = m_properties->addProperty( "HUD structure",
@@ -98,6 +98,8 @@ void WMCoordinateHUD::properties()
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelection );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_aSingleSelection );
+
+    // set the x axis color if in color axis or color cube mode
 }
 
 void WMCoordinateHUD::moduleMain()
@@ -145,7 +147,7 @@ void WMCoordinateHUD::moduleMain()
             WItemSelector s = m_aSingleSelection->get( true );
             infoLog() << "New mode selected: " << s.at( 0 ).name;
 
-            if ( s.at( 0 ).name == "colorfull axis" )
+            if ( s.at( 0 ).name == "colored axis" )
             {
                 buildColorAxis();
             }
@@ -153,7 +155,7 @@ void WMCoordinateHUD::moduleMain()
             {
                 buildBWAxis();
             }
-            else if ( s.at( 0 ).name == "colorfull cube" )
+            else if ( s.at( 0 ).name == "colored cube" )
             {
                 buildColorCube();
             }
@@ -164,6 +166,7 @@ void WMCoordinateHUD::moduleMain()
 
             //update node
             m_rootNode->clear();
+            m_rootNode->setCullingActive( false ); // this disables frustrum culling for the geode to avoid the coordinate system to disappear.
             m_rootNode->insert( m_geode );
             //m_rootNode->insert( m_txtGeode );
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
