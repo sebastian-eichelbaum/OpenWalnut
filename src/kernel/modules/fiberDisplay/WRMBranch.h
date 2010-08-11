@@ -34,12 +34,14 @@
 #include "./../../../common/WProperties.h"
 #include "WRMROIRepresentation.h"
 
+#include "../../WExportKernel.h"
+
 class WROIManagerFibers;
 
 /**
  * implements a branch in the tree like structure for rois
  */
-class WRMBranch : public boost::enable_shared_from_this< WRMBranch >
+class OWKERNEL_EXPORT WRMBranch : public boost::enable_shared_from_this< WRMBranch >
 {
 public:
     /**

@@ -50,7 +50,8 @@ FTensor TensorField::getInterpolatedVector(float x, float y, float z)
              "Only implemented for 3D Vectors so far." );
     wmath::WPosition pos( x, y, z );
     WAssert( grid->encloses( pos ), "Grid does not enclose position to interpolate" );
-    std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );
+    bool isInside = true; // TODO(all): check for isInside here. How will we handle it?
+    std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos, &isInside ) );
 
     float xMult = x - (int)x;
     float yMult = y - (int)y;

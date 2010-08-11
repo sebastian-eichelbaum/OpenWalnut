@@ -118,9 +118,9 @@ void WMDistanceMapIsosurface::moduleMain()
 
     // NOTE: you can use the WModuleContainer::applyModule functions here, which, in this case, is possible, since the connectors
     // can be connected unambiguously (one to one connection). But to show how hard wiring works, we do it manually here.
-    m_marchingCubesModule->getInputConnector( "in" )->connect( m_distanceMapModule->getOutputConnector( "out" ) );
+    m_marchingCubesModule->getInputConnector( "values" )->connect( m_distanceMapModule->getOutputConnector( "out" ) );
     // this is the same as doing it the other way around.
-    // m_distanceMapModule->getOutputConnector( "out" )->connect( m_marchingCubesModule->getInputConnector( "in" ) );
+    // m_distanceMapModule->getOutputConnector( "out" )->connect( m_marchingCubesModule->getInputConnector( "values" ) );
     // simple, isn't it? ;-)
 
     //////////////////////////////////////////////////////////////////////////////////

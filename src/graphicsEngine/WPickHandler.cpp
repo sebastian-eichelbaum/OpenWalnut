@@ -34,6 +34,7 @@ WPickHandler::WPickHandler()
     : m_hitResult( WPickInfo() ),
       m_startPick( WPickInfo() ),
       m_shift( false ),
+      m_ctrl( false ),
       m_viewerName( "" )
 {
 }
@@ -42,6 +43,7 @@ WPickHandler::WPickHandler( std::string viewerName )
     : m_hitResult( WPickInfo() ),
       m_startPick( WPickInfo() ),
       m_shift( false ),
+      m_ctrl( false ),
       m_viewerName( viewerName )
 {
 }
@@ -90,6 +92,7 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
         case osgGA::GUIEventAdapter::KEYUP : // Key on keyboard released.
         {
             m_shift = false;
+            m_ctrl = false;
             return false;
         }
         case osgGA::GUIEventAdapter::KEYDOWN : // Key on keyboard pushed.
@@ -108,6 +111,10 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
             if ( ea.getKey() == osgGA::GUIEventAdapter::KEY_Shift_L )
             {
                 m_shift = true;
+            }
+            if ( ea.getKey() == osgGA::GUIEventAdapter::KEY_Control_L ||  ea.getKey() == osgGA::GUIEventAdapter::KEY_Control_R )
+            {
+                m_ctrl = true;
             }
             return false;
         }
@@ -173,10 +180,32 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         assert( intersections.size() );
         hitr = intersections.begin();
 
-        // Skip proxy geometry of Direct Volume Rendering
-        if(  extractSuitableName( intersections.begin() ) == "DVR Proxy Cube" )
+        bool ignoreFirst = m_ctrl;
+
+        while ( hitr != intersections.end() )
         {
-            ++hitr;
+            std::string nodeName = extractSuitableName( hitr );
+            // now we skip everything that starts with an underscore
+            if(  nodeName[0] == '_' )
+            {
+                ++hitr;
+            }
+            // if ctrl is pressed we skip the first thing that gets hit by the pick
+            else if ( ignoreFirst )
+            {
+                ++hitr;
+                ignoreFirst = false;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if ( hitr == intersections.end() )
+        {
+            // after everything was ignored nothing pickable remained
+            return;
         }
 
         // if we have a previous pick we search for it in the list

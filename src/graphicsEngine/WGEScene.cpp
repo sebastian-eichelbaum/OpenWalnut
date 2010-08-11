@@ -29,18 +29,23 @@
 #include "WGEScene.h"
 
 WGEScene::WGEScene():
-    WGEGroupNode()
+    WGEGroupNode(), firstHomePositionRequest( true )
 {
     WLogger::getLogger()->addLogMessage( "Initializing OpenSceneGraph Root Node", "GE", LL_INFO );
-
-    // TODO(all): we definitely need a reference coordinate system on which everybody can rely
-    setInitialBound( osg::BoundingSphere( osg::Vec3( 80.0, 100.0, 80.0 ), 100.0 ) );
 }
 
 WGEScene::~WGEScene()
 {
     WLogger::getLogger()->addLogMessage( "Shutting down OpenSceneGraph Root Node", "GE", LL_INFO );
+}
 
-    // cleanup
+bool WGEScene::isHomePositionRequested()
+{
+    if( firstHomePositionRequest && getNumChildren() > 0 )
+    {
+        firstHomePositionRequest = false;
+        return true;
+    }
+    return false;
 }
 

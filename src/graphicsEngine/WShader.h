@@ -35,11 +35,12 @@
 #include <osg/Program>
 
 #include "../common/WPathHelper.h"
+#include "WExportWGE.h"
 
 /**
  * Class encapsulating the OSG Program class for a more convenient way of adding and modifying shader.
  */
-class WShader: public osg::Program
+class WGE_EXPORT WShader: public osg::Program
 {
 public:
 

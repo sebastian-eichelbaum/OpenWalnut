@@ -42,9 +42,10 @@
 
 #include "box.xpm"
 #include "question.xpm"
-#include "o.xpm"
 
 #include "moduleBusy.xpm"
 #include "moduleCrashed.xpm"
+
+#include "tango/preferences-system.xpm"
 
 #endif  // WICONS_H

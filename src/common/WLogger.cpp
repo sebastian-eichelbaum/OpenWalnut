@@ -33,6 +33,7 @@
 /**
  * Used for program wide access to the logger.
  */
+
 WLogger* logger = NULL;
 
 WLogger::WLogger( std::string fileName, LogLevel level ):

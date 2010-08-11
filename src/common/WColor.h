@@ -31,10 +31,12 @@
 #include <string>
 #include <vector>
 
+#include "WExportCommon.h"
+
 /**
  * Represents a RGBA Color
  */
-class WColor
+class OWCOMMON_EXPORT WColor
 {
 public:
 

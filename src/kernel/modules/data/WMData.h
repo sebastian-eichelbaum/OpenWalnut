@@ -38,12 +38,14 @@
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../dataHandler/WDataSetSingle.h"
 
+#include "../../WExportKernel.h"
+
 /**
  * Module for encapsulating WDataSets. It can encapsulate almost everything, but is intended to be used with WDataSets and its
  * inherited classes. This class builds a "source" in OpenWalnut's DataFlow Network.
  * \ingroup modules
  */
-class WMData: public WModule
+class OWKERNEL_EXPORT WMData: public WModule
 {
 public:
 

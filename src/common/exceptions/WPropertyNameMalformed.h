@@ -28,11 +28,12 @@
 #include <string>
 
 #include "../WException.h"
+#include "../WExportCommon.h"
 
 /**
  * Indicates invalid property name.
  */
-class WPropertyNameMalformed : public WException
+class OWCOMMON_EXPORT WPropertyNameMalformed : public WException
 {
 public:
     /**

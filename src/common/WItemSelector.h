@@ -33,6 +33,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WItemSelection.h"
+#include "WExportCommon.h"
 
 /**
  * This class represents a subset of a WItemSelection. It is a class for managing selections. The class is kept very restrictive. The selection
@@ -46,7 +47,7 @@
  * \note the protected constructor avoids instance creation of classes not the WItemSelection. This is restrictive but needed. Nobody can create
  * instances of it, changing the underlying WItemSelection and using it as selector for another ItemSelection instance.
  */
-class WItemSelector
+class OWCOMMON_EXPORT WItemSelector // NOLINT
 {
 friend class WItemSelection;
 public:

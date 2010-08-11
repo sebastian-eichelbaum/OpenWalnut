@@ -101,6 +101,22 @@ public:
         return m_dataType;
     }
 
+    /**
+     * This method returns the smallest value in the valueset. It does not handle vectors, matrices and so on well. It simply returns the
+     * smallest value in the data array. This is especially useful for texture scaling or other statistic tools (histograms).
+     *
+     * \return the smallest value in the data.
+     */
+    virtual double getMinimumValue() const = 0;
+
+    /**
+     * This method returns the largest value in the valueset. It does not handle vectors, matrices and so on well. It simply returns the
+     * largest value in the data array. This is especially useful for texture scaling or other statistic tools (histograms).
+     *
+     * \return the largest value in the data.
+     */
+    virtual double getMaximumValue() const = 0;
+
 protected:
     /**
      * The order of the tensors for this ValueSet

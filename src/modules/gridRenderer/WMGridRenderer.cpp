@@ -175,7 +175,6 @@ void WMGridRenderer::render()
     m_gridGeode->addDrawable( gridGeometry );
     m_moduleNode->insert( m_gridGeode );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
-
 }
 
 void WMGridRenderer::activate()

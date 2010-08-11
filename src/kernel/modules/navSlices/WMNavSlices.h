@@ -40,11 +40,13 @@
 #include "../../WModuleConnector.h"
 #include "../../WModuleInputData.h"
 
+#include "../../WExportKernel.h"
+
 /**
  * Navigation slice module
  * \ingroup modules
  */
-class WMNavSlices: public WModule, public osg::Referenced
+class OWKERNEL_EXPORT WMNavSlices: public WModule, public osg::Referenced
 {
 public:
 
@@ -253,9 +255,14 @@ private:
     osg::ref_ptr< WGEGroupNode > m_rootNode;
 
     /**
-    * the root node for the slices
-    */
+     * the root node for the slices
+     */
     osg::ref_ptr< WGEGroupNode > m_slicesNode;
+
+    /**
+     * Allows to activate and deactivate slices very easy.
+     */
+    osg::ref_ptr< osg::Switch > m_slicesSwitchNode;
 
     /**
      * nodes for each slice, to be reused in other widgets

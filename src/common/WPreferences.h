@@ -36,10 +36,11 @@
 #include "WProperties.h"
 #include "WLogger.h"
 
+#include "WExportCommon.h"
 /**
  * Fetches and caches preferences set in file.
  */
-class WPreferences
+class OWCOMMON_EXPORT WPreferences
 {
 public:
     /**

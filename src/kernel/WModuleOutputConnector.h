@@ -36,10 +36,12 @@
 #include "../common/WPrototyped.h"
 #include "../common/WTransferable.h"
 
+#include "WExportKernel.h"
+
 /**
  * Class implementing output connection functionality between modules.
  */
-class WModuleOutputConnector: public WModuleConnector
+class OWKERNEL_EXPORT WModuleOutputConnector: public WModuleConnector
 {
 public:
 

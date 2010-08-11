@@ -33,11 +33,13 @@
 #include <osg/ShapeDrawable>
 #include <osg/Group>
 
+#include "../../WExportKernel.h"
+
 class WDataSetFibers;
 /**
  * TODO(schurade): Document this!
  */
-class WTubeDrawable: public osg::Drawable
+class OWKERNEL_EXPORT WTubeDrawable: public osg::Drawable
 {
 public:
 

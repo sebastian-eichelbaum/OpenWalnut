@@ -37,6 +37,7 @@
 #include "../common/math/WPosition.h"
 #include "../common/math/WLine.h"
 
+#include "WExportWGE.h"
 
 namespace wge
 {
@@ -49,7 +50,9 @@ namespace wge
      *
      * \return The OSG geode containing the 12 edges of the box.
      */
-    osg::ref_ptr< osg::Geode > generateBoundingBoxGeode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color );
+    osg::ref_ptr< osg::Geode > WGE_EXPORT generateBoundingBoxGeode( const wmath::WPosition& pos1,
+                                                                         const wmath::WPosition& pos2,
+                                                                         const WColor& color );
 
     /**
      * Generates an OSG node for the specified bounding box. It uses solid faces. This actually returns a MatrixTransform node and is especially
@@ -62,8 +65,10 @@ namespace wge
      *
      * \return The OSG node containing the 12 edges of the box.
      */
-    osg::ref_ptr< osg::Node > generateSolidBoundingBoxNode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color,
-                                                            bool threeDTexCoords = true );
+    osg::ref_ptr< osg::Node > WGE_EXPORT generateSolidBoundingBoxNode( const wmath::WPosition& pos1,
+                                                                            const wmath::WPosition& pos2,
+                                                                            const WColor& color,
+                                                                            bool threeDTexCoords = true );
 
     /**
      * Creates a osg::Geometry containing an unit cube, having 3D texture coordinates.
@@ -72,7 +77,7 @@ namespace wge
      *
      * \return the geometry
      */
-    osg::ref_ptr< osg::Geometry > createUnitCube( const WColor& color );
+    osg::ref_ptr< osg::Geometry > WGE_EXPORT createUnitCube( const WColor& color );
 
     /**
      * Extract the vertices and triangles from a WTriangleMesh and save them
@@ -83,7 +88,7 @@ namespace wge
      *                       them into the geometry.
      * \return an osg::Geometry containing the mesh
      */
-    osg::ref_ptr< osg::Geometry > convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals = false );
+    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals = false );
 
     /**
      * Generates a line geode with thickness and color as parameters.
@@ -94,9 +99,9 @@ namespace wge
      *
      * \return The new assembled geode for this line
      */
-    osg::ref_ptr< osg::Geode > generateLineStripGeode( const wmath::WLine& line,
-                                                       const float thickness = 3.0f,
-                                                       const WColor& color = WColor( 0, 0, 0, 0 ) );
+    osg::ref_ptr< osg::Geode > WGE_EXPORT generateLineStripGeode( const wmath::WLine& line,
+                                                                       const float thickness = 3.0f,
+                                                                       const WColor& color = WColor( 0, 0, 0, 0 ) );
 
     /**
      * helper function to add a label somewhere
@@ -105,7 +110,7 @@ namespace wge
      * \param text text
      * \return a positionattitudetransfom object containing the label
      */
-    osg::ref_ptr< osg::PositionAttitudeTransform > addLabel( osg::Vec3 position, std::string text );
+    osg::ref_ptr< osg::PositionAttitudeTransform > WGE_EXPORT addLabel( osg::Vec3 position, std::string text );
 
     /**
      * helper function to add a label with it's position vector
@@ -113,7 +118,7 @@ namespace wge
      * \param position position of the label
      * \return a positionattitudetransfom object containing the label
      */
-    osg::ref_ptr< osg::PositionAttitudeTransform > vector2label( osg::Vec3 position );
+    osg::ref_ptr< osg::PositionAttitudeTransform > WGE_EXPORT vector2label( osg::Vec3 position );
 
 } // end of namespace wge
 

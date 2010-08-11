@@ -30,6 +30,7 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/WDataSetSphericalHarmonics.h"
+#include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -110,17 +111,41 @@ private:
      */
     boost::shared_ptr< WCondition > m_recompute;
 
-    WPropInt m_glyphIdProp; //!< Property holding the glyph ID
-
     /**
      * Just a preliminary function to avoid polluting moduleMain()
      */
     void execute();
 
+    /**
+     * Gets signaled from the properties object when something was changed. Now, only m_active is used. This method therefore simply
+     * activates/deactivates the glyphs.
+     */
+    void activate();
+
+    /**
+     * Renders all glyphs for the given slice
+     * \param sliceId The number of the slice to be rendered.
+     */
+    void renderSlice( size_t sliceId );
+
+    /**
+     * Makes the radii of the glyph be distributed between [0,1]
+     * \param glyph The glyph thta will be normalized given as teem's limnPolyData.
+     */
+    void minMaxNormalization( limnPolyData *glyph );
+
+
+    osg::ref_ptr< WShader > m_shader; //!< The shader used for the glyph surfaces
+
+    boost::shared_ptr< WItemSelection > m_sliceOrientations; //!< A list of the selectable slice orientations, i.e  x, y and z.
+    WPropSelection m_sliceOrientationSelection; //!< To choose whether to x, y or z slice.
     WPropBool m_usePolarPlotProp; //!< Property indicating whether to use polar plot instead of HOME glyph
+    WPropDouble m_glyphSizeProp; //!< Property holding the size of the displayed glyphs
+    WPropInt m_sliceIdProp; //!< Property holding the slice ID
 
     osg::ref_ptr< osg::Geode > m_glyphsGeode; //!< Pointer to geode containing the glyphs.
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
+    static const size_t m_nbVertCoords; //!< The teem limn data structure has 4 values for a coordinate: x, y, z, w.
 };
 
 #endif  // WMHOMEGLYPHS_H

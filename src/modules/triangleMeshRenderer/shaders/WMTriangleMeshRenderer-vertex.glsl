@@ -1,6 +1,6 @@
 varying vec4 VaryingTexCoord0;
 
-#include "WGELighting.glsl"
+#include "WGELighting-vertex.glsl"
 
 void main()
 {

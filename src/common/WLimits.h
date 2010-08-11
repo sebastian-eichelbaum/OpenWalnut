@@ -68,7 +68,7 @@ namespace wlimits
 
     const int32_t MAX_INT32_T = std::numeric_limits< int32_t >::max(); //!< Maximum int32_t value
 
-    const double MIN_DOUBLE = std::numeric_limits< double >::min(); //!< Minimum double value
+    const double MIN_DOUBLE = std::numeric_limits< double >::min(); //!< Positive minimum double value
 
     /**
      * Smallest double such: 1.0 + DBL_EPS == 1.0 is still true.

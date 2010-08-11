@@ -30,6 +30,8 @@
 
 #include <boost/filesystem.hpp>
 
+#include "WExportCommon.h"
+
 /**
  * This class loads shared libraries and provides function pointers. This is especially useful for dynamic loading of shared libraries during
  * runtime. This works on Windows, Linux and Mac OS and is based on the openbug shared_lib implementation by
@@ -39,7 +41,7 @@
  * \warning Because the POSIX standard does not enforce thread safety for the functions dlopen, dlclose, dlerror, and dlsym, these should not
  *          be used simultaneously with variables of this class.
  */
-class WSharedLib
+class OWCOMMON_EXPORT WSharedLib // NOLINT
 {
 public:
 

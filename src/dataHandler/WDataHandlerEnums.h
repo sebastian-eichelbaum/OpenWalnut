@@ -25,6 +25,8 @@
 #ifndef WDATAHANDLERENUMS_H
 #define WDATAHANDLERENUMS_H
 
+#include <stdint.h>
+
 /**
  *  Dataset types and number values taken from the nifti1.h, at this point it's unknown if it makes sense
  *  to keep the bit coding, but it doesn't hurt either
@@ -54,6 +56,114 @@ enum dataType
     W_DT_COMPLEX128      =     1792,     /* double pair (128 bits)       */
     W_DT_COMPLEX256      =     2048,     /* long double pair (256 bits)  */
     W_DT_RGBA32          =     2304     /* 4 byte RGBA (32 bits/voxel)  */
+};
+
+/**
+ * An object that knows an appropriate dataType flag for the typename T.
+ */
+template< typename T >
+struct DataType
+{
+};
+
+/**
+ * Specialization for a specific datatype.
+ */
+template<>
+struct DataType< char >
+{
+    //! the dataType flag
+    static dataType const type = W_DT_INT8;
+};
+
+/**
+ * Specialization for a specific datatype.
+ */
+template<>
+struct DataType< unsigned char >
+{
+    //! the dataType flag
+    static dataType const type = W_DT_UINT8;
+};
+
+/**
+ * Specialization for a specific datatype.
+ */
+template<>
+struct DataType< int16_t >
+{
+    //! the dataType flag
+    static dataType const type = W_DT_INT16;
+};
+
+/**
+ * Specialization for a specific datatype.
+ */
+template<>
+struct DataType< uint16_t >
+{
+    //! the dataType flag
+    static dataType const type = W_DT_UINT16;
+};
+
+/**
+ * Specialization for a specific datatype.
+ */
+template<>
+struct DataType< int >
+{
+    //! the dataType flag
+    static dataType const type = W_DT_SIGNED_INT;
+};
+
+/**
+ * Specialization for a specific datatype.
+ */
+template<>
+struct DataType< unsigned int >
+{
+    //! the dataType flag
+    static dataType const type = W_DT_UINT32;
+};
+
+/**
+ * Specialization for a specific datatype.
+ */
+template<>
+struct DataType< int64_t >
+{
+    //! the dataType flag
+    static dataType const type = W_DT_INT64;
+};
+
+/**
+ * Specialization for a specific datatype.
+ */
+template<>
+struct DataType< uint64_t >
+{
+    //! the dataType flag
+    static dataType const type = W_DT_UINT64;
+};
+
+/**
+ * Specialization for a specific datatype.
+ */
+template<>
+struct DataType< float >
+{
+    //! the dataType flag
+    static dataType const type = W_DT_FLOAT;
+};
+
+/**
+ * Specialization for a specific datatype.
+ */
+template<>
+struct DataType< double >
+{
+    //! the dataType flag
+    static dataType const type = W_DT_DOUBLE;
 };
 
 enum qformOrientation

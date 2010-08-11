@@ -81,8 +81,7 @@ boost::shared_ptr< WDataSetFibers > WMoriThread::WFiberAccumulator::buildDataSet
 }
 
 WMoriThread::WMoriThread( boost::shared_ptr< WGridRegular3D > grid,
-                          boost::shared_ptr< std::vector< wmath::WVector3D > > eigenVectors,
-                          boost::shared_ptr< std::vector< double > > fa,
+                          boost::shared_ptr< WDataSetSingle > eigenField,
                           double const minFA,
                           unsigned int const minPoints,
                           double const minCos,
@@ -90,8 +89,7 @@ WMoriThread::WMoriThread( boost::shared_ptr< WGridRegular3D > grid,
                           uint32_t const index,
                           boost::shared_ptr< WFiberAccumulator > fiberAccu )
     : m_grid( grid ),
-      m_eigenVectors( eigenVectors ),
-      m_FA( fa ),
+      m_eigenSet( boost::shared_dynamic_cast< WValueSet< double > >( eigenField->getValueSet() ) ),
       m_minFA( minFA ),
       m_minPoints( minPoints ),
       m_minCos( minCos ),
@@ -103,6 +101,8 @@ WMoriThread::WMoriThread( boost::shared_ptr< WGridRegular3D > grid,
       m_gridTransform( 3, 3 ),
       m_invGridTransform( 3, 3 )
 {
+    WAssert( m_eigenSet, "" );
+
     m_gridSize[ 0 ] = m_grid->getNbCoordsX();
     m_gridSize[ 1 ] = m_grid->getNbCoordsY();
     m_gridSize[ 2 ] = m_grid->getNbCoordsZ();
@@ -360,10 +360,14 @@ wmath::WVector3D WMoriThread::getEigenAt( wmath::WValue< size_t > const& coords 
             return res;
         }
     }
-    return m_eigenVectors->at( coords[ 0 ] + coords[ 1 ] * m_gridSize[ 0 ] + coords[ 2 ] * m_gridSize[ 0 ] * m_gridSize[ 1 ] );
+    std::size_t c = coords[ 0 ] + coords[ 1 ] * m_gridSize[ 0 ] + coords[ 2 ] * m_gridSize[ 0 ] * m_gridSize[ 1 ];
+    double const* ptr = m_eigenSet->rawData();
+    return wmath::WVector3D( ptr[ 4 * c ], ptr[ 4 * c + 1 ], ptr[ 4 * c + 2 ] );
 }
 
 bool WMoriThread::testFA( wmath::WValue< size_t > const& coords ) const
 {
-    return m_minFA < m_FA->at( coords[ 0 ] + coords[ 1 ] * m_gridSize[ 0 ] + coords[ 2 ] * m_gridSize[ 0 ] * m_gridSize[ 1 ] );
+    std::size_t c = coords[ 0 ] + coords[ 1 ] * m_gridSize[ 0 ] + coords[ 2 ] * m_gridSize[ 0 ] * m_gridSize[ 1 ];
+    double const* ptr = m_eigenSet->rawData();
+    return m_minFA < ptr[ 4 * c + 3 ];
 }

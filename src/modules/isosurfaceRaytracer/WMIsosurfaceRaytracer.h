@@ -115,11 +115,6 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
 
     /**
-     * This is a pointer to the dataset the module is currently working on.
-     */
-    boost::shared_ptr< WDataSetScalar > m_dataSet;
-
-    /**
      * The Isovalue used in the case m_isoSurface is true.
      */
     WPropInt m_isoValue;

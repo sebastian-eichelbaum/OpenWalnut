@@ -38,6 +38,7 @@
 #include "WPropertyBase.h"
 #include "WPropertyTypes.h"
 #include "WPropertyVariable.h"
+#include "WExportCommon.h"
 
 /**
  * Class to manage properties of an object and to provide convenience methods for easy access and manipulation. It also allows
@@ -46,7 +47,7 @@
  * is the property with the name "property" in the group "you" which against is in the group "hello".
  * \note The root group of each module does not have a name.
  */
-class WProperties: public WPropertyBase
+class OWCOMMON_EXPORT WProperties: public WPropertyBase
 {
 friend class WPropertiesTest;
 public:

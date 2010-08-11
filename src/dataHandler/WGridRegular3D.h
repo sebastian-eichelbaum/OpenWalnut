@@ -41,6 +41,8 @@
  * A grid that has parallelepiped cells which all have the same proportion. I.e.
  * the samples along a single axis are equidistant. The distance of samples may
  * vary between axes.
+ *
+ * \warning Positions on the upper bounddaries in x, y and z are considered outside the grid.
  * \ingroup dataHandler
  */
 class WGridRegular3D : public WGrid
@@ -275,7 +277,7 @@ public:
        \endverbatim
      *
      * Please note the first voxel has only 1/8 of the size a normal voxel
-     * would have since all positions outside the grid does not belonging
+     * would have since all positions outside the grid do not belong
      * to any voxel. Note: a cell is different to a voxel in terms of position.
      * A voxel has a grid point as center whereas a cell has grid points as
      * corners.
@@ -336,11 +338,13 @@ public:
     wmath::WValue< int > getVoxelCoord( const wmath::WPosition& pos ) const;
 
     /**
-     * Computes the id of the cell containing the position pos.
+     * Computes the id of the cell containing the position pos. Note that the upper
+     * bound of the grid does not belong to any cell
      *
      * \param pos The position selecting the cell.
+     * \param success True if the position pos is inside the grid.
      */
-    size_t getCellId( const wmath::WPosition& pos ) const;
+    size_t getCellId( const wmath::WPosition& pos, bool* success ) const;
 
     /**
      * Computes the ids of the vertices of a cell given by its id.

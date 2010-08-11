@@ -48,11 +48,14 @@
 
 #include "../common/math/WPosition.h"
 #include "WPickInfo.h"
+#include "WExportWGE.h"
 
 /**
- * class to handle events with a pick
+ * Class to handle events with a pick.
+ *
+ * The handler ignores any geometry whose name starts with an underscore ("_").
  */
-class WPickHandler: public osgGA::GUIEventHandler
+class WGE_EXPORT WPickHandler: public osgGA::GUIEventHandler
 {
 public:
 
@@ -112,6 +115,7 @@ protected:
     WPickInfo m_hitResult; //!< Textual representation of the result of a pick.
     WPickInfo m_startPick; //!< indicates what was first picked. Should be "" after unpick.
     bool m_shift; //!< is shift pressed?
+    bool m_ctrl; //!< is ctrl pressed?
     std::string m_viewerName; //!< which viewer sends the signal
 
 private:

@@ -40,9 +40,15 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost
     m_changeCondition( new WCondition() ),
     m_globalActive( true ),
     m_interpolation( true ),
-    m_cmap( 0 )
+    m_cmap( 0 ),
+    m_minValue( static_cast< float >( valueSet->getMinimumValue() ) ),
+    m_maxValue( static_cast< float >( valueSet->getMaximumValue() ) ),
+    m_scale( m_maxValue - m_minValue )
 {
     // initialize members
+    wlog::debug( "WDataTexture3D" ) << "Texture scaling information for data in [" << m_minValue << ", "<< m_maxValue <<
+                                       "]: scaling factor=" << m_scale;
+    wlog::debug( "WDataTexture3D" ) << "Resolution is " <<  m_grid->getNbCoordsX() << "x" << m_grid->getNbCoordsY() << "x" << m_grid->getNbCoordsZ();
 }
 
 WDataTexture3D::~WDataTexture3D()
@@ -110,8 +116,6 @@ osg::ref_ptr< osg::Texture3D > WDataTexture3D::getTexture()
 
 osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( unsigned char* source, int components )
 {
-    findMinMax( source, components );
-
     osg::ref_ptr< osg::Image > ima = new osg::Image;
 
     if ( components == 1 )
@@ -149,8 +153,6 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( unsigned char* sourc
 
 osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int components )
 {
-    findMinMax( source, components );
-
     osg::ref_ptr< osg::Image > ima = new osg::Image;
     if( components == 1 )
     {
@@ -225,8 +227,6 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int
 
 osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int* source, int components )
 {
-    findMinMax( source, components );
-
     osg::ref_ptr< osg::Image > ima = new osg::Image;
     if( components == 1 )
     {
@@ -264,7 +264,6 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int c
     osg::ref_ptr< osg::Image > ima = new osg::Image;
     if ( components == 1)
     {
-        findMinMax( source, components );
         wlog::debug( "WDataTexture3D" ) << "Texture for scalar float data set.";
         // OpenGL just supports float textures
         ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_FLOAT );
@@ -278,7 +277,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int c
     }
     else if ( components == 3 )
     {
-        // we cannot use findMinMax her because of the possibly negative values.
+        // we cannot use m_minValue and m_maxValue here because of the possibly negative values.
         m_scale = 1.;
         m_minValue = 0.;
         m_maxValue = 1.;
@@ -300,7 +299,6 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int c
     }
     else if ( components == 4 )
     {
-        findMinMax( source, components );
         wlog::debug( "WDataTexture3D" ) << "Texture for 4-vector float data set.";
         // OpenGL just supports float textures
         ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGBA, GL_FLOAT );
@@ -327,8 +325,6 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int c
 
 osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int components )
 {
-    findMinMax( source, components );
-
     osg::ref_ptr< osg::Image > ima = new osg::Image;
     if ( components == 1)
     {
@@ -340,6 +336,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int 
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
         {
             data[i] = scaleInterval( static_cast< float >( source[i] ) );
+            //std::cout << static_cast< float >( source[i] ) << " - " << data[i] << std::endl;
         }
     }
     else if ( components == 3)
@@ -381,116 +378,6 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int 
     }
 
     return ima;
-}
-
-void WDataTexture3D::findMinMax( double* source, int components )
-{
-    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset.";
-
-    double minV = source[ 0 ];
-    double maxV = source[ 0 ];
-
-    // Go through each value and find min/max
-    for ( unsigned int i = 0; i < components * m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
-    {
-        double val = source[ i ];
-        minV = val < minV ? val : minV;
-        maxV = val > maxV ? val : maxV;
-    }
-
-    m_scale = static_cast< float >( maxV - minV );
-    m_minValue = static_cast< float >( minV );
-    m_maxValue = static_cast< float >( maxV );
-
-    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset: done! Values are in [" << m_minValue << "," << m_maxValue << "].";
-}
-
-void WDataTexture3D::findMinMax( unsigned char* source, int components )
-{
-    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset.";
-
-    double minV = source[ 0 ];
-    double maxV = source[ 0 ];
-
-    // Go through each value and find min/max
-    for ( unsigned int i = 0; i < components * m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
-    {
-        double val = source[ i ];
-        minV = val < minV ? val : minV;
-        maxV = val > maxV ? val : maxV;
-    }
-
-    m_scale = static_cast< float >( maxV - minV );
-    m_minValue = static_cast< float >( minV );
-    m_maxValue = static_cast< float >( maxV );
-
-    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset: done! Values are in [" << m_minValue << "," << m_maxValue << "].";
-}
-
-void WDataTexture3D::findMinMax( int16_t* source, int components )
-{
-    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset.";
-
-    double minV = source[ 0 ];
-    double maxV = source[ 0 ];
-
-    // Go through each value and find min/max
-    for ( unsigned int i = 0; i < components * m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
-    {
-        double val = source[ i ];
-        minV = val < minV ? val : minV;
-        maxV = val > maxV ? val : maxV;
-    }
-
-    m_scale = static_cast< float >( maxV - minV );
-    m_minValue = static_cast< float >( minV );
-    m_maxValue = static_cast< float >( maxV );
-
-    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset: done! Values are in [" << m_minValue << "," << m_maxValue << "].";
-}
-
-void WDataTexture3D::findMinMax( int* source, int components )
-{
-    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset.";
-
-    double minV = source[ 0 ];
-    double maxV = source[ 0 ];
-
-    // Go through each value and find min/max
-    for ( unsigned int i = 0; i < components * m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
-    {
-        double val = source[ i ];
-        minV = val < minV ? val : minV;
-        maxV = val > maxV ? val : maxV;
-    }
-
-    m_scale = static_cast< float >( maxV - minV );
-    m_minValue = static_cast< float >( minV );
-    m_maxValue = static_cast< float >( maxV );
-
-    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset: done! Values are in [" << m_minValue << "," << m_maxValue << "].";
-}
-
-void WDataTexture3D::findMinMax( float* source, int components )
-{
-    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset.";
-
-    float minV = source[ 0 ];
-    float maxV = source[ 0 ];
-
-    // Go through each value and find min/max
-    for ( unsigned int i = 0; i < components * m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
-    {
-        float val = source[ i ];
-        minV = val < minV ? val : minV;
-        maxV = val > maxV ? val : maxV;
-    }
-
-    m_scale = maxV - minV;
-    m_minValue = minV;
-    m_maxValue = maxV;
-
-    wlog::debug( "WDataTexture3D" ) << "Calculating min/max values for dataset: done! Values are in [" << m_minValue << "," << m_maxValue << "].";
 }
 
 void WDataTexture3D::createTexture()
