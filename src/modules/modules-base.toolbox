@@ -2,6 +2,7 @@
 
 ADD_SUBDIRECTORY( arbitraryRois )
 ADD_SUBDIRECTORY( boundingBox )
+ADD_SUBDIRECTORY( coordinateHUD )
 ADD_SUBDIRECTORY( coordinateSystem )
 ADD_SUBDIRECTORY( distanceMap )
 ADD_SUBDIRECTORY( distanceMapIsosurface )
@@ -15,4 +16,3 @@ ADD_SUBDIRECTORY( template )
 ADD_SUBDIRECTORY( triangleMeshRenderer )
 ADD_SUBDIRECTORY( vectorPlot )
 ADD_SUBDIRECTORY( voxelizer )
-ADD_SUBDIRECTORY( coordinateHUD )
