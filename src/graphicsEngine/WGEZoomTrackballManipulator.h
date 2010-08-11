@@ -81,6 +81,14 @@ public:
      */
     void setZoom( double zoom );
 
+    /**
+     * setter for paint mode
+     * when set to something different from 0, a left drag should move the scene
+     *
+     * \param mode the mode
+     */
+    void setPaintMode( int mode );
+
 protected:
 private:
 
@@ -93,6 +101,8 @@ private:
 
     double m_zoom; //!< Zoom factor.
     bool m_allowThrow; //!< Do we want the auto-rotation thingy?
+
+    int m_paintMode; //!<paint mode
 };
 
 inline double WGEZoomTrackballManipulator::getZoom() const

@@ -438,9 +438,9 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         return;
     }
 
-    if ( pickInfo.getName() == "Axial Slice"
+    if ( ( pickInfo.getName() == "Axial Slice"
          ||  pickInfo.getName() == "Coronal Slice"
-         ||  pickInfo.getName() == "Sagittal Slice" )
+         ||  pickInfo.getName() == "Sagittal Slice" ) && pickInfo.getMouseButton() == WPickInfo::MOUSE_RIGHT )
     {
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
@@ -548,9 +548,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     float ySlice = static_cast< float >( m_coronalPos->get( true ) );
     float zSlice = static_cast< float >( m_axialPos->get( true ) );
 
-    float xPos = xSlice + 0.5f;
-    float yPos = ySlice + 0.5f;
-    float zPos = zSlice + 0.5f;
+    float xPos = xSlice;
+    float yPos = ySlice;
+    float zPos = zSlice;
 
     osg::ref_ptr<osg::Geometry> sliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
 

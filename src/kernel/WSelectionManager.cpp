@@ -29,6 +29,8 @@
 #include "WKernel.h"
 #include "../common/math/WLinearAlgebraFunctions.h"
 
+#include "../graphicsEngine/WGEZoomTrackballManipulator.h"
+
 #include "WSelectionManager.h"
 
 using wmath::WVector3D;
@@ -36,7 +38,8 @@ using wmath::WPosition;
 using wmath::WMatrix;
 
 
-WSelectionManager::WSelectionManager()
+WSelectionManager::WSelectionManager() :
+    m_paintMode( PAINTMODE_NONE )
 {
     m_crosshair = boost::shared_ptr< WCrosshair >( new WCrosshair() );
 }
@@ -106,3 +109,18 @@ int WSelectionManager::getFrontSector()
     }
     return quadrant;
 }
+
+void WSelectionManager::setPaintMode( WPaintMode mode )
+{
+    m_paintMode = mode;
+
+    osg::static_pointer_cast<WGEZoomTrackballManipulator>(
+            WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCameraManipulator() )->setPaintMode( mode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getPickHandler()->setPaintMode( mode );
+}
+
+WPaintMode WSelectionManager::getPaintMode()
+{
+    return m_paintMode;
+}
+

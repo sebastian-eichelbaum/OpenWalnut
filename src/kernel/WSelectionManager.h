@@ -31,6 +31,13 @@
 
 #include "WExportKernel.h"
 
+typedef enum
+{
+    PAINTMODE_NONE = 0,
+    PAINTMODE_PAINT = 1
+}
+WPaintMode;
+
 /**
  * manages the several selection tools
  */
@@ -59,9 +66,25 @@ public:
      */
     int getFrontSector();
 
+    /**
+     * setter for paint mode, also forwards it to the graphics engine
+     *
+     * \param mode
+     */
+    void setPaintMode( WPaintMode mode );
+
+    /**
+     * getter for paint mode
+     *
+     * \return the mode
+     */
+    WPaintMode getPaintMode();
+
 protected:
 private:
     boost::shared_ptr< WCrosshair >m_crosshair; //!< stores pointer to crosshair
+
+    WPaintMode m_paintMode; //!< stores the currently selected paint mode
 };
 
 #endif  // WSELECTIONMANAGER_H
