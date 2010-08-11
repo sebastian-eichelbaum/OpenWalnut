@@ -29,6 +29,7 @@
 #include "../../kernel/WKernel.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WSubject.h"
 #include "../../common/WPropertyHelper.h"
 
 
@@ -86,6 +87,9 @@ void WMPaintTexture::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    // use this callback for the other properties
+    WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMPaintTexture::propertyChanged, this, _1 );
+
     m_painting = m_properties->addProperty( "Paint", "If active, left click in the scene with pressed ctrl key"
                                                       " will paint something.", false, m_propCondition );
 
@@ -100,15 +104,8 @@ void WMPaintTexture::properties()
     m_paintIndex->setMin( 0 );
     m_paintIndex->setMax( 255 );
 
-    // these are taken from WMData
-    m_interpolation = m_properties->addProperty( "Interpolation",
-                                                  "If active, the boundaries of single voxels"
-                                                  " will not be visible in colormaps. The transition between"
-                                                  " them will be smooth by using interpolation then.",
-                                                  false,
-                                                  m_propCondition );
     m_opacity = m_properties->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
-                                            " values from several data sets.", 100, m_propCondition );
+                                            " values from several data sets.", 100, propertyCallback );
     m_opacity->setMax( 100 );
     m_opacity->setMin( 0 );
 
@@ -125,6 +122,18 @@ void WMPaintTexture::properties()
 
     m_queueAdded = m_properties->addProperty( "Something paint", "", false, m_propCondition );
     m_queueAdded->setHidden();
+
+    m_buttonUpdateOutput = m_properties->addProperty( "Update output", "Updates the output connector",
+            WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+}
+
+void WMPaintTexture::propertyChanged( boost::shared_ptr< WPropertyBase > property )
+{
+    if ( property == m_opacity )
+    {
+        WKernel::getRunningKernel()->getSelectionManager()->setTextureOpacity( m_opacity->get( true ) / 100.0 );
+        WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+    }
 }
 
 void WMPaintTexture::moduleMain()
@@ -159,29 +168,11 @@ void WMPaintTexture::moduleMain()
                 WAssert( m_dataSet, "" );
                 WAssert( m_dataSet->getValueSet(), "" );
 
-                if( m_outData )
-                {
-                    WDataHandler::deregisterDataSet( m_outData );
-                }
+                createTexture();
 
-                m_outData = createNewOutTexture();
-
-                if( m_outData )
-                {
-                    setOutputProps();
-                    m_outData->setFileName( std::string( "painted" ) );
-                    WDataHandler::registerDataSet( m_outData );
-                }
-
-                m_output->updateData( m_outData );
+                updateOutDataset();
             }
-            else
-            {
-                if( m_outData )
-                {
-                    setOutputProps();
-                }
-            }
+
             if ( m_painting->changed() )
             {
                 if ( m_painting->get( true ) )
@@ -197,99 +188,58 @@ void WMPaintTexture::moduleMain()
         else // case !dataValid
         {
             if( m_outData )
-            {
-                WDataHandler::deregisterDataSet( m_outData );
-            }
             m_outData = boost::shared_ptr< WDataSetScalar >();
             m_output->updateData( m_outData );
         }
         if ( m_queueAdded->changed() && m_queueAdded->get( true ) )
         {
-            boost::shared_ptr< WDataSetScalar > old;
-            if( m_outData )
-            {
-                old = m_outData;
-            }
-            m_outData = doPaint();
+            doPaint();
+        }
 
-            WDataHandler::registerDataSet( m_outData );
-            WDataHandler::deregisterDataSet( old );
-            m_output->updateData( m_outData );
+        if ( m_buttonUpdateOutput->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            updateOutDataset();
+            m_buttonUpdateOutput->set( WPVBaseTypes::PV_TRIGGER_READY, false );
         }
     }
 
     debugLog() << "Shutting down...";
 
-    if( m_outData )
-    {
-        WDataHandler::deregisterDataSet( m_outData );
-    }
+    WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( false );
+    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
 
     debugLog() << "Finished! Good Bye!";
 }
 
 void WMPaintTexture::activate()
 {
-    if( m_outData )
-    {
-        m_outData->getTexture()->setGloballyActive( m_active->get() );
-    }
     WModule::activate();
 }
 
-void WMPaintTexture::setOutputProps()
+void WMPaintTexture::doPaint()
 {
-    if( m_outData )
-    {
-        m_outData->getTexture()->setThreshold( 0 );
-        m_outData->getTexture()->setOpacity( m_opacity->get() );
-        m_outData->getTexture()->setInterpolation( m_interpolation->get() );
-        m_outData->getTexture()->setSelectedColormap( m_colorMapSelection->get( true ).getItemIndexOfSelected( 0 ) );
-    }
-}
-
-boost::shared_ptr< WDataSetScalar > WMPaintTexture::createNewOutTexture()
-{
-    WAssert( m_dataSet, "" );
-    WAssert( m_dataSet->getValueSet(), "" );
-    WAssert( m_dataSet->getGrid(), "" );
-
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-    WAssert( grid, "" );
-
-    m_values.resize( m_dataSet->getGrid()->size(), 0 );
-    m_values[0] = 255;
-
-    boost::shared_ptr< WValueSet< unsigned char > > vs =
-        boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >( 0, 1, m_values, W_DT_UINT8 ) );
-
-    return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, grid ) );
-}
-
-boost::shared_ptr< WDataSetScalar > WMPaintTexture::doPaint()
-{
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_outData->getGrid() );
+    unsigned char* data = m_texture->getImage()->data();
 
     while ( !m_paintQueue.empty() )
     {
         wmath::WPosition paintPosition = m_paintQueue.front();
         m_paintQueue.pop();
 
-        int voxelNum = grid->getVoxelNum( paintPosition );
+        int voxelNum = m_grid->getVoxelNum( paintPosition );
         if ( voxelNum != -1 )
         {
             switch ( m_pencilSelection->get( true ).getItemIndexOfSelected( 0 ) )
             {
                 case 0:
-                    m_values[ voxelNum ] = m_paintIndex->get();
+                    data[ voxelNum ] = m_paintIndex->get();
                     break;
                 case 1:
                 {
-                    m_values[ voxelNum ] = m_paintIndex->get();
-                    std::vector< size_t > ids = grid->getNeighbours27( voxelNum );
+                    data[ voxelNum ] = m_paintIndex->get();
+                    std::vector< size_t > ids = m_grid->getNeighbours27( voxelNum );
                     for ( size_t i = 0; i < ids.size(); ++i )
                     {
-                        m_values[ ids[i] ] = m_paintIndex->get();
+                        data[ ids[i] ] = m_paintIndex->get();
                     }
                     break;
                 }
@@ -300,10 +250,7 @@ boost::shared_ptr< WDataSetScalar > WMPaintTexture::doPaint()
     }
     m_queueAdded->set( false );
 
-    boost::shared_ptr< WValueSet< unsigned char > > vs =
-                        boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >( 0, 1, m_values, W_DT_UINT8 ) );
-
-    return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, grid ) );
+    m_texture->dirtyTextureObject();
 }
 
 void WMPaintTexture::queuePaint( WPickInfo pickInfo )
@@ -318,14 +265,17 @@ void WMPaintTexture::queuePaint( WPickInfo pickInfo )
 
 void WMPaintTexture::createTexture()
 {
-    osg::ref_ptr< osg::Image > ima = new osg::Image;
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    m_grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
-    ima->allocateImage( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(), GL_LUMINANCE, GL_UNSIGNED_BYTE );
+    m_values.resize( m_grid->size(), 0 );
+    m_values[0] = 255;
+
+    osg::ref_ptr< osg::Image > ima = new osg::Image;
+    ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_UNSIGNED_BYTE );
 
     unsigned char* data = ima->data();
 
-    for ( unsigned int i = 0; i < grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ(); ++i )
+    for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
     {
         data[i] = m_values[i];
     }
@@ -338,4 +288,32 @@ void WMPaintTexture::createTexture()
     m_texture->setWrap( osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_BORDER );
     m_texture->setImage( ima );
     m_texture->setResizeNonPowerOfTwoHint( false );
+
+    WKernel::getRunningKernel()->getSelectionManager()->setTexture( m_texture, m_grid );
+    WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( true );
+
+    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+}
+
+void WMPaintTexture::updateOutDataset()
+{
+    WAssert( m_dataSet, "" );
+    WAssert( m_dataSet->getValueSet(), "" );
+    WAssert( m_dataSet->getGrid(), "" );
+
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    WAssert( grid, "" );
+
+    unsigned char* data = m_texture->getImage()->data();
+
+    for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
+    {
+        m_values[i] = data[i];
+    }
+
+    boost::shared_ptr< WValueSet< unsigned char > > vs =
+        boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >( 0, 1, m_values, W_DT_UINT8 ) );
+
+    m_outData = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, grid ) );
+    m_output->updateData( m_outData );
 }

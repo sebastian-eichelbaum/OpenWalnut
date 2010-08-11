@@ -114,14 +114,9 @@ protected:
 
 private:
     /**
-     * Write property values to output dataset.
-     */
-    void setOutputProps();
-
-    /**
      * this function listens to the pick handler, if the paint flag is true it will write into the out texture
      */
-    boost::shared_ptr< WDataSetScalar > doPaint();
+    void doPaint();
 
     /**
      * this function listens to the pick handler, if the paint flag is true it will add the paint position to the
@@ -132,17 +127,21 @@ private:
     void queuePaint( WPickInfo pickInfo );
 
     /**
-     * creates a new dataset scalar from the output field
-     * TODO (schurade): this is too slow and needs to be replaced by a direct texture generation from the field
-     *
-     * \return the new dataset
-     */
-    boost::shared_ptr< WDataSetScalar > createNewOutTexture();
-
-    /**
      * creates a new texture
      */
     void createTexture();
+
+    /**
+     * Called whenever a property changes.
+     *
+     * \param property the property that has been changed
+     */
+    void propertyChanged( boost::shared_ptr< WPropertyBase > property );
+
+    /**
+     * updates the output connector
+     */
+    void updateOutDataset();
 
     /**
      * Interpolation?
@@ -163,13 +162,6 @@ private:
      * specifies the value we paint into the output texture
      */
     WPropInt m_paintIndex;
-
-
-    // the following 5 members are taken from WMData
-    /**
-     * Interpolation?
-     */
-    WPropBool m_interpolation;
 
     /**
      * A list of color map selection types
@@ -227,14 +219,24 @@ private:
     boost::shared_ptr< WDataSetScalar > m_outData;
 
     /**
+     * stores a pointer to the texture we paint in
+     */
+    osg::ref_ptr<osg::Texture3D>m_texture;
+
+    /**
+     * stores a pointer to the grid we use;
+     */
+    boost::shared_ptr< WGridRegular3D > m_grid;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
-     * The output texture.
+     * updates the output connector on demand, as we don't want to do this every paint command
      */
-    osg::ref_ptr< osg::Texture3D > m_texture;
+    WPropTrigger m_buttonUpdateOutput;
 };
 
 #endif  // WMPAINTTEXTURE_H

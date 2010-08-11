@@ -283,6 +283,21 @@ void WMArbitraryPlane::updatePlane()
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
     int c = 0;
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+    {
+        boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
+        osg::Vec3Array* texCoords = new osg::Vec3Array;
+
+        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v0 ) ) );
+        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v1 ) ) );
+        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v2 ) ) );
+        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v3 ) ) );
+
+        planeGeometry->setTexCoordArray( c, texCoords );
+        ++c;
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////
     for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
     {
         boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
@@ -357,6 +372,25 @@ void WMArbitraryPlane::updateTextures()
 
             // for each texture -> apply
             int c = 0;
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+            {
+                osg::ref_ptr<osg::Texture3D> texture3D = WKernel::getRunningKernel()->getSelectionManager()->getTexture();
+
+
+                m_typeUniforms[c]->set( W_DT_UNSIGNED_CHAR  );
+                m_thresholdUniforms[c]->set( 0.0f );
+                m_alphaUniforms[c]->set( WKernel::getRunningKernel()->getSelectionManager()->getTextureOpacity() );
+                m_cmapUniforms[c]->set( 4 );
+
+                texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+                texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+
+                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+                ++c;
+            }
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
                 osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
