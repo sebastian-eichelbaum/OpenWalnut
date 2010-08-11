@@ -39,9 +39,6 @@
 #include <QtGui/QShortcut>
 #include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
-#include <QtGui/QGraphicsView>
-#include <QtGui/QGraphicsScene>
-#include <QtGui/QGraphicsEllipseItem>
 
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
@@ -250,6 +247,7 @@ void WMainWindow::setupGUI()
 
     setupPermanentToolBar();
 
+    //network Editor
     m_networkEditor = new WQtNetworkEditor( "Network Editor", this );
     m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
     addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );

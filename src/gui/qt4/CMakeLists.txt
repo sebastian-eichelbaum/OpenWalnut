@@ -15,7 +15,6 @@ SET(GUI_QT4_MOC_HDRS
 	WQtConfigWidget.h
     WQtNavGLWidget.h
     WQtCombinerToolbar.h
-    WQtNetworkEditor.h
     guiElements/WQtPushButton.h
     guiElements/WQtModuleOneToOneCombinerAction.h
     guiElements/WQtPropertyBoolAction.h
@@ -38,6 +37,8 @@ SET(GUI_QT4_MOC_HDRS
     datasetbrowser/WQtTreeWidget.h
     datasetbrowser/WQtTreeItem.h
     datasetbrowser/WQtTextureSorter.h
+    WQtNetworkEditor.h
+    WQtNetworkScene.h
 )
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
