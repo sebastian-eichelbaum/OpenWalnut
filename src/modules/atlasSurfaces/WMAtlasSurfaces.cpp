@@ -43,6 +43,7 @@
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 
 #include "WMAtlasSurfaces.h"
+#include "atlas.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMAtlasSurfaces )
@@ -67,10 +68,15 @@ boost::shared_ptr< WModule > WMAtlasSurfaces::factory() const
     return boost::shared_ptr< WModule >( new WMAtlasSurfaces() );
 }
 
+const char** WMAtlasSurfaces::getXPMIcon() const
+{
+    return atlas_xpm;
+}
+
 const std::string WMAtlasSurfaces::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
-    return "AtlasSurfaces";
+    return "Atlas Surfaces";
 }
 
 const std::string WMAtlasSurfaces::getDescription() const
