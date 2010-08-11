@@ -286,7 +286,7 @@ boost::shared_ptr< WDataSetScalar > WMPaintTexture::doPaint()
                 case 1:
                 {
                     m_values[ voxelNum ] = m_paintIndex->get();
-                    std::vector< size_t > ids = grid->getNeighbours( voxelNum );
+                    std::vector< size_t > ids = grid->getNeighbours27( voxelNum );
                     for ( size_t i = 0; i < ids.size(); ++i )
                     {
                         m_values[ ids[i] ] = m_paintIndex->get();
@@ -314,4 +314,28 @@ void WMPaintTexture::queuePaint( WPickInfo pickInfo )
     }
     m_paintQueue.push( pickInfo.getPickPosition() );
     m_queueAdded->set( true );
+}
+
+void WMPaintTexture::createTexture()
+{
+    osg::ref_ptr< osg::Image > ima = new osg::Image;
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+
+    ima->allocateImage( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(), GL_LUMINANCE, GL_UNSIGNED_BYTE );
+
+    unsigned char* data = ima->data();
+
+    for ( unsigned int i = 0; i < grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ(); ++i )
+    {
+        data[i] = m_values[i];
+    }
+
+    m_texture = osg::ref_ptr<osg::Texture3D>( new osg::Texture3D );
+    m_texture->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
+    m_texture->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
+    m_texture->setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER );
+    m_texture->setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER );
+    m_texture->setWrap( osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_BORDER );
+    m_texture->setImage( ima );
+    m_texture->setResizeNonPowerOfTwoHint( false );
 }

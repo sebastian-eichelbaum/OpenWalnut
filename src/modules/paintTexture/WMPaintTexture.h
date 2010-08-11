@@ -140,6 +140,11 @@ private:
     boost::shared_ptr< WDataSetScalar > createNewOutTexture();
 
     /**
+     * creates a new texture
+     */
+    void createTexture();
+
+    /**
      * Interpolation?
      */
     WPropBool m_painting;
@@ -225,6 +230,11 @@ private:
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * The output texture.
+     */
+    osg::ref_ptr< osg::Texture3D > m_texture;
 };
 
 #endif  // WMPAINTTEXTURE_H
