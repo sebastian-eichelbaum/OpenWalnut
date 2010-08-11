@@ -91,7 +91,7 @@ void WMCoordinateHUD::properties()
     m_possibleSelections->addItem( "colored cube", "colorfull coordinate cube", option_3_xpm );
 
     m_aSingleSelection = m_properties->addProperty( "HUD structure",
-            "Which look should the coordinateHUD have?", m_possibleSelections->getSelectorFirst(),
+            "Which look should the coordinateHUD have?", m_possibleSelections->getSelector( 2 ),
             m_propCondition );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelection );
@@ -108,6 +108,7 @@ void WMCoordinateHUD::moduleMain()
     m_rootNode = new WGEManagedGroupNode( m_active );
     m_rootNode->setName( "coordHUDNode" );
     m_shader->apply( m_rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
     // let the main loop awake if the properties changed.
     debugLog() << "Entering moduleMain()";
@@ -118,16 +119,30 @@ void WMCoordinateHUD::moduleMain()
     ready();
     debugLog() << "Module is now ready.";
 
-    // default visualisation
-    buildColorAxis();
-    m_rootNode->insert( m_geode );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
-    //buildCaption();
-    //m_rootNode->insert( m_txtGeode );
-    //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_txtGeode );
-
     while( !m_shutdownFlag() )
     {
+        WItemSelector s = m_aSingleSelection->get( true );
+        debugLog() << "New mode selected: " << s.at( 0 ).name;
+
+        if ( s.at( 0 ).name == "colored axis" )
+        {
+            buildColorAxis();
+        }
+        else if ( s.at( 0 ).name == "b/w axis" )
+        {
+            buildBWAxis();
+        }
+        else if ( s.at( 0 ).name == "colored cube" )
+        {
+            buildColorCube();
+        }
+
+        //update node
+        m_rootNode->clear();
+        m_geode->setCullingActive( false ); // this disables frustrum culling for the geode to avoid the coordinate system to disappear.
+        m_rootNode->setCullingActive( false );
+        m_rootNode->insert( m_geode );
+
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
@@ -136,40 +151,8 @@ void WMCoordinateHUD::moduleMain()
         {
             break;
         }
-
-        // select choosen mode
-        if ( m_aSingleSelection->changed() )
-        {
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
-
-            WItemSelector s = m_aSingleSelection->get( true );
-            infoLog() << "New mode selected: " << s.at( 0 ).name;
-
-            if ( s.at( 0 ).name == "colored axis" )
-            {
-                buildColorAxis();
-            }
-            else if ( s.at( 0 ).name == "b/w axis" )
-            {
-                buildBWAxis();
-            }
-            else if ( s.at( 0 ).name == "colored cube" )
-            {
-                buildColorCube();
-            }
-
-            //update node
-            m_rootNode->clear();
-            m_geode->setCullingActive( false ); // this disables frustrum culling for the geode to avoid the coordinate system to disappear.
-            m_rootNode->insert( m_geode );
-
-            //m_rootNode->insert( m_txtGeode );
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
-        }
     }
 
-    // Since the modules run in a separate thread: wait
-    waitForStop();
     // remove the node from the graph
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
@@ -278,12 +261,12 @@ void WMCoordinateHUD::buildColorCube()
     vertices = buildCubeVertices();
 
     // Colors
-    osg::Vec4 x_color( 1.0f, 0.0f, 0.0f, 1.0f );        // red
-    osg::Vec4 xl_color( 1.0f, 0.9f, 0.9f, 1.0f );       // lightred
-    osg::Vec4 y_color( 0.0f, 1.0f, 0.0f, 1.0f );        // green
-    osg::Vec4 yl_color( 0.9f, 1.0f, 0.9f, 1.0f );       // lightgreen
-    osg::Vec4 z_color( 0.0f, 0.0f, 1.0f, 1.0f );        // blue
-    osg::Vec4 zl_color( 0.9f, 0.9f, 1.0f, 1.0f );       // lightblue
+    osg::Vec4 x_color( 0.9f, 0.0f, 0.0f, 1.0f );        // red
+    osg::Vec4 xl_color( 1.0f, 0.7f, 0.7f, 1.0f );       // lightred
+    osg::Vec4 y_color( 0.0f, 0.9f, 0.0f, 1.0f );        // green
+    osg::Vec4 yl_color( 0.7f, 1.0f, 0.7f, 1.0f );       // lightgreen
+    osg::Vec4 z_color( 0.0f, 0.0f, 0.9f, 1.0f );        // blue
+    osg::Vec4 zl_color( 0.7f, 0.7f, 1.0f, 1.0f );       // lightblue
     osg::Vec4 neg_color( 1.0f, 1.0f, 1.0f, 1.0f );      // white
 
     // x direction transition from red to lightred
@@ -370,7 +353,7 @@ osg::Vec3Array* WMCoordinateHUD::buildCubeVertices()
     return vertices;
 }
 
-// TODO(Sebastian Eichelbaum):
+// TODO(ebaum):
 // text only shown as huge rectangle with the WMCoordinateHUD shader
 // up: kranial, bottom: kaudal, front: anterior, back: posterior,
 // left: sinistra, right: dexter
