@@ -349,7 +349,6 @@ void WMPaintTexture::doPaint()
                             {
                                 data[ allIds[k] ] = m_paintIndex->get();
                             }
-
                         }
                     }
                     if ( pickInfo.getName() == "Sagittal Slice" )
