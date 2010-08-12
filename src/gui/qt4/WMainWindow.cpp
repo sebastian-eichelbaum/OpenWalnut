@@ -191,19 +191,19 @@ void WMainWindow::setupGUI()
         bool hideWidget;
         if( !( WPreferences::getPreference( "qt4gui.hideAxial", &hideWidget ) && hideWidget) )
         {
-            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "axial", this, "Axial Slice" ) );
+            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", this, "Axial Slice" ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
         {
-            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "coronal", this, "Coronal Slice" ) );
+            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", this, "Coronal Slice" ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
         {
-            m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "sagittal", this, "Sagittal Slice" ) );
+            m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", this, "Sagittal Slice" ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
         }
@@ -257,14 +257,14 @@ void WMainWindow::setupPermanentToolBar()
     // NOTE: this only works if the toolbar is used with QActions instead of buttons and other widgets
     m_permanentToolBar->setToolButtonStyle( getToolbarStyle() );
 
-    m_iconManager.addIcon( std::string( "ROI" ), box_xpm );
-    m_iconManager.addIcon( std::string( "axial" ), axial_xpm );
-    m_iconManager.addIcon( std::string( "coronal" ), cor_xpm );
-    m_iconManager.addIcon( std::string( "sagittal" ), sag_xpm );
+    m_iconManager.addIcon( std::string( "ROI icon" ), box_xpm );
+    m_iconManager.addIcon( std::string( "axial icon" ), axial_xpm );
+    m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
+    m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
 
     // TODO(all): this should be QActions to allow the toolbar style to work properly
     m_loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
-    WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI" ), "ROI", m_permanentToolBar );
+    WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
     WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
     WQtPushButton* projectSaveButton = new WQtPushButton( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
 
@@ -382,7 +382,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             WQtPropertyBoolAction* a = new WQtPropertyBoolAction( prop->toPropBool(), m_permanentToolBar );
             a->setToolTip( "Toggle Axial Slice" );
             a->setText( "Toggle Axial Slice" );
-            a->setIcon( m_iconManager.getIcon( "axial" ) );
+            a->setIcon( m_iconManager.getIcon( "axial icon" ) );
             m_permanentToolBar->addAction( a );
         }
 
@@ -398,7 +398,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             WQtPropertyBoolAction* a = new WQtPropertyBoolAction( prop->toPropBool(), m_permanentToolBar );
             a->setToolTip( "Toggle Coronal Slice" );
             a->setText( "Toggle Coronal Slice" );
-            a->setIcon( m_iconManager.getIcon( "coronal" ) );
+            a->setIcon( m_iconManager.getIcon( "coronal icon" ) );
             m_permanentToolBar->addAction( a );
         }
 
@@ -414,7 +414,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             WQtPropertyBoolAction* a = new WQtPropertyBoolAction( prop->toPropBool(), m_permanentToolBar );
             a->setToolTip( "Toggle Saggital Slice" );
             a->setText( "Toggle Saggital Slice" );
-            a->setIcon( m_iconManager.getIcon( "sagittal" ) );
+            a->setIcon( m_iconManager.getIcon( "sagittal icon" ) );
             m_permanentToolBar->addAction( a );
         }
 

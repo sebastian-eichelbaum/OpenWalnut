@@ -63,7 +63,7 @@
 #include "WQtDatasetBrowser.h"
 
 WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
-    : QDockWidget( "Dataset Browser", parent ),
+    : QDockWidget( "Control Panel", parent ),
     m_ignoreSelectionChange( false )
 {
     m_mainWindow = parent;
