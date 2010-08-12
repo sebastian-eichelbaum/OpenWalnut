@@ -25,6 +25,8 @@
 #ifndef WSHAREDSEQUENCECONTAINER_H
 #define WSHAREDSEQUENCECONTAINER_H
 
+#include <algorithm>
+
 #include <boost/thread.hpp>
 
 #include "WSharedObject.h"
@@ -94,6 +96,54 @@ public:
      */
     size_t size();
 
+    /**
+     * Get item at position n. Uses the [] operator of the underlying container. Please do not use this for iteration as it locks every access.
+     * Use iterators and read/write tickets for fast iteration.
+     *
+     * \param n the item index
+     *
+     * \return reference to element at the specified position
+     */
+    typename S::value_type& operator[] ( size_t n );
+
+    /**
+     * Get item at position n. Uses the [] operator of the underlying container. Please do not use this for iteration as it locks every access.
+     * Use iterators and read/write tickets for fast iteration.
+     *
+     * \param n the item index
+     *
+     * \return reference to element at the specified position
+     */
+    const typename S::value_type& operator[] ( size_t n ) const;
+
+    /**
+     * Searches and removes the specified element. If it is not found, nothing happens. It mainly is a comfortable forwarder for std::remove.
+     *
+     * \param element the element to remove
+     *
+     * \return the new end iterator.
+     */
+    Iterator erase( const typename S::value_type& element );
+
+    /**
+     * Erase the element at the specified position. Read your STL reference for more details.
+     *
+     * \param position where to erase
+     *
+     * \return A random access iterator pointing to the new location of the element that followed the last element erased by the function call.
+     */
+    Iterator erase( Iterator position );
+
+    /**
+     * Erase the specified range of elements. Read your STL reference for more details.
+     *
+     * \param first Iterators specifying a range within the vector to be removed: [first,last).
+     * \param last Iterators specifying a range within the vector to be removed: [first,last).
+     *
+     * \return A random access iterator pointing to the new location of the element that followed the last element erased by the function call.
+     */
+    Iterator erase( Iterator first, Iterator last );
+
 protected:
 
 private:
@@ -143,6 +193,46 @@ size_t WSharedSequenceContainer< S >::size()
     typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();
     size_t size = a->get().size();
     return size;
+}
+
+template < typename S >
+typename S::value_type& WSharedSequenceContainer< S >::operator[]( size_t n )
+{
+    typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();
+    return a->get().operator[]( n );
+}
+
+template < typename S >
+const typename S::value_type& WSharedSequenceContainer< S >::operator[]( size_t n ) const
+{
+    typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();
+    return a->get().operator[]( n );
+}
+
+    template < typename S >
+typename WSharedSequenceContainer< S >::Iterator WSharedSequenceContainer< S >::erase( const typename S::value_type& element )
+{
+    // Lock, if "a" looses focus -> look is freed
+    typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
+    return std::remove( a->get().begin(), a->get().end(), element );
+}
+
+template < typename S >
+typename WSharedSequenceContainer< S >::Iterator WSharedSequenceContainer< S >::erase( typename WSharedSequenceContainer< S >::Iterator position )
+{
+    // Lock, if "a" looses focus -> look is freed
+    typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
+    return a->get().erase( position );
+}
+
+template < typename S >
+typename WSharedSequenceContainer< S >::Iterator WSharedSequenceContainer< S >::erase(
+        typename WSharedSequenceContainer< S >::Iterator first,
+        typename WSharedSequenceContainer< S >::Iterator last )
+{
+    // Lock, if "a" looses focus -> look is freed
+    typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
+    return a->get().erase( first, last );
 }
 
 #endif  // WSHAREDSEQUENCECONTAINER_H
