@@ -388,10 +388,11 @@ void WMPaintTexture::doPaint()
 
 void WMPaintTexture::queuePaint( WPickInfo pickInfo )
 {
-    if ( !m_painting->get() || ( pickInfo.getMouseButton() != WPickInfo::MOUSE_LEFT ) )
+    if ( !m_painting->get() || ( pickInfo.getMouseButton() != WPickInfo::MOUSE_LEFT ) || ( pickInfo.getName() == "unpick" ) )
     {
         return;
     }
+
     m_paintQueue.push( pickInfo );
     m_queueAdded->set( true );
 }
