@@ -123,6 +123,9 @@ void WMPaintTexture::properties()
     m_queueAdded = m_properties->addProperty( "Something paint", "", false, m_propCondition );
     m_queueAdded->setHidden();
 
+    m_buttonCopyFromInput = m_properties->addProperty( "Copy from input", "Copies data from the input dataset into the paint texture",
+                WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+
     m_buttonUpdateOutput = m_properties->addProperty( "Update output", "Updates the output connector",
             WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
 }
@@ -203,6 +206,12 @@ void WMPaintTexture::moduleMain()
                     WKernel::getRunningKernel()->getSelectionManager()->setPaintMode( PAINTMODE_NONE );
                     WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
                 }
+            }
+
+            if ( m_buttonCopyFromInput->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+            {
+                copyFromInput();
+                m_buttonCopyFromInput->set( WPVBaseTypes::PV_TRIGGER_READY, false );
             }
         }
         else // case !dataValid
@@ -353,4 +362,20 @@ void WMPaintTexture::updateOutDataset()
 
     m_outData = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, grid ) );
     m_output->updateData( m_outData );
+}
+
+void WMPaintTexture::copyFromInput()
+{
+    m_grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+
+    unsigned char* data = m_texture->getImage()->data();
+
+    boost::shared_ptr< WValueSet< unsigned char > > vals;
+    vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( m_dataSet->getValueSet() );
+
+    for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
+    {
+        data[i] = vals->getScalar( i );
+    }
+    m_texture->dirtyTextureObject();
 }

@@ -144,6 +144,11 @@ private:
     void updateOutDataset();
 
     /**
+     * copies data from the input dataset into the paint texture
+     */
+    void copyFromInput();
+
+    /**
      * Interpolation?
      */
     WPropBool m_painting;
@@ -232,6 +237,11 @@ private:
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * copies the input dataset into the paint texture, this allows to continue work
+     */
+    WPropTrigger m_buttonCopyFromInput;
 
     /**
      * updates the output connector on demand, as we don't want to do this every paint command
