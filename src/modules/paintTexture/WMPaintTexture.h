@@ -149,6 +149,11 @@ private:
     void copyFromInput();
 
     /**
+     * creates a ROI from the currently selected paint value
+     */
+    void createROI();
+
+    /**
      * Interpolation?
      */
     WPropBool m_painting;
@@ -187,11 +192,6 @@ private:
      * true when a new paint coordinate is added to the queue
      */
     WPropBool m_queueAdded;
-
-    /**
-     * field that stores the new values
-     */
-    std::vector< unsigned char > m_values;
 
     /**
      * new paint coordinates get added here
@@ -247,6 +247,11 @@ private:
      * updates the output connector on demand, as we don't want to do this every paint command
      */
     WPropTrigger m_buttonUpdateOutput;
+
+    /**
+     * updates the output connector on demand, as we don't want to do this every paint command
+     */
+    WPropTrigger m_buttonCreateRoi;
 };
 
 #endif  // WMPAINTTEXTURE_H
