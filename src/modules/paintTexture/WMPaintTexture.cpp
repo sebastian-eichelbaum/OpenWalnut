@@ -144,6 +144,7 @@ void WMPaintTexture::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
+    m_moduleState.add( m_active->getUpdateCondition() );
 
     ready();
 
@@ -182,6 +183,25 @@ void WMPaintTexture::moduleMain()
                 else
                 {
                     WKernel::getRunningKernel()->getSelectionManager()->setPaintMode( PAINTMODE_NONE );
+                }
+            }
+
+            if ( m_active->changed() )
+            {
+                if ( m_active->get( true ) )
+                {
+                    if ( m_painting->get( true ) )
+                    {
+                        WKernel::getRunningKernel()->getSelectionManager()->setPaintMode( PAINTMODE_PAINT );
+                    }
+                    WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( true );
+                    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+                }
+                else
+                {
+                    WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( false );
+                    WKernel::getRunningKernel()->getSelectionManager()->setPaintMode( PAINTMODE_NONE );
+                    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
                 }
             }
         }
