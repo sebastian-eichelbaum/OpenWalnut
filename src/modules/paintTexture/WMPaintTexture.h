@@ -196,7 +196,7 @@ private:
     /**
      * new paint coordinates get added here
      */
-    std::queue< wmath::WPosition >m_paintQueue;
+    std::queue< WPickInfo >m_paintQueue;
 
     /**
      * An input connector that accepts order 1 datasets.

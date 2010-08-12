@@ -378,6 +378,16 @@ int WGridRegular3D::getVoxelNum( const wmath::WPosition& pos ) const
          + zVoxelCoord * ( m_nbPosX ) * ( m_nbPosY );
 }
 
+int WGridRegular3D::getVoxelNum( const size_t x, const size_t y, const size_t z ) const
+{
+    // since we use size_t here only a check for the upper bounds is needed
+    if ( x > m_nbPosX || y > m_nbPosY || z > m_nbPosZ )
+    {
+        return -1;
+    }
+    return x + y * ( m_nbPosX ) + z * ( m_nbPosX ) * ( m_nbPosY );
+}
+
 int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const
 {
     double result = pos[ axis ] - m_origin[ axis ];
@@ -670,6 +680,196 @@ std::vector< size_t > WGridRegular3D::getNeighbours27( size_t id ) const
              neighbours.push_back( tempId + m_nbPosX );
          }
     }
+    return neighbours;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours9XY( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // for every neighbour we must check if its not on the boundary, it will be skipped otherwise
+    int vNum;
+
+    size_t test = 0;
+
+    vNum = getVoxelNum( x - 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    return neighbours;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours9YZ( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // for every neighbour we must check if its not on the boundary, it will be skipped otherwise
+    int vNum;
+
+    vNum = getVoxelNum( x, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+
+    return neighbours;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours9XZ( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // for every neighbour we must check if its not on the boundary, it will be skipped otherwise
+    int vNum;
+
+    vNum = getVoxelNum( x, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+
     return neighbours;
 }
 

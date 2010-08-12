@@ -97,6 +97,8 @@ void WMPaintTexture::properties()
     m_pencilSelectionsList->addItem( "1x1", "" );
     m_pencilSelectionsList->addItem( "3x3", "" );
     m_pencilSelectionsList->addItem( "5x5", "" );
+    m_pencilSelectionsList->addItem( "3x1 (only works on orthogonal slices)", "" );
+    m_pencilSelectionsList->addItem( "5x1 (only works on orthogonal slices)", "" );
     m_pencilSelection = m_properties->addProperty( "Pencil",  "Pencil type.", m_pencilSelectionsList->getSelectorFirst() );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_pencilSelection );
 
@@ -254,7 +256,8 @@ void WMPaintTexture::doPaint()
 
     while ( !m_paintQueue.empty() )
     {
-        wmath::WPosition paintPosition = m_paintQueue.front();
+        WPickInfo pickInfo = m_paintQueue.front();
+        wmath::WPosition paintPosition = pickInfo.getPickPosition();
         m_paintQueue.pop();
 
         int voxelNum = m_grid->getVoxelNum( paintPosition );
@@ -282,13 +285,89 @@ void WMPaintTexture::doPaint()
                     for ( size_t i = 0; i < ids.size(); ++i )
                     {
                         std::vector< size_t > allIds = m_grid->getNeighbours27( ids[i] );
-                        for ( size_t k = 0; k < ids.size(); ++k )
+                        for ( size_t k = 0; k < allIds.size(); ++k )
                         {
                             data[ allIds[k] ] = m_paintIndex->get();
                         }
                     }
                     break;
                 }
+                case 3:
+                {
+                    if ( pickInfo.getName() == "Axial Slice" )
+                    {
+                        data[ voxelNum ] = m_paintIndex->get();
+                        std::vector< size_t > ids = m_grid->getNeighbours9XY( voxelNum );
+                        for ( size_t i = 0; i < ids.size(); ++i )
+                        {
+                            data[ ids[i] ] = m_paintIndex->get();
+                        }
+                    }
+                    if ( pickInfo.getName() == "Coronal Slice" )
+                    {
+                        data[ voxelNum ] = m_paintIndex->get();
+                        std::vector< size_t > ids = m_grid->getNeighbours9XZ( voxelNum );
+                        for ( size_t i = 0; i < ids.size(); ++i )
+                        {
+                            data[ ids[i] ] = m_paintIndex->get();
+                        }
+                    }
+                    if ( pickInfo.getName() == "Sagittal Slice" )
+                    {
+                        data[ voxelNum ] = m_paintIndex->get();
+                        std::vector< size_t > ids = m_grid->getNeighbours9YZ( voxelNum );
+                        for ( size_t i = 0; i < ids.size(); ++i )
+                        {
+                            data[ ids[i] ] = m_paintIndex->get();
+                        }
+                    }
+                    break;
+                }
+                case 4:
+                {
+                    if ( pickInfo.getName() == "Axial Slice" )
+                    {
+                        data[ voxelNum ] = m_paintIndex->get();
+                        std::vector< size_t > ids = m_grid->getNeighbours9XY( voxelNum );
+                        for ( size_t i = 0; i < ids.size(); ++i )
+                        {
+                            std::vector< size_t > allIds = m_grid->getNeighbours9XY( ids[i] );
+                            for ( size_t k = 0; k < allIds.size(); ++k )
+                            {
+                                data[ allIds[k] ] = m_paintIndex->get();
+                            }
+                        }
+                    }
+                    if ( pickInfo.getName() == "Coronal Slice" )
+                    {
+                        data[ voxelNum ] = m_paintIndex->get();
+                        std::vector< size_t > ids = m_grid->getNeighbours9XZ( voxelNum );
+                        for ( size_t i = 0; i < ids.size(); ++i )
+                        {
+                            std::vector< size_t > allIds = m_grid->getNeighbours9XZ( ids[i] );
+                            for ( size_t k = 0; k < allIds.size(); ++k )
+                            {
+                                data[ allIds[k] ] = m_paintIndex->get();
+                            }
+
+                        }
+                    }
+                    if ( pickInfo.getName() == "Sagittal Slice" )
+                    {
+                        data[ voxelNum ] = m_paintIndex->get();
+                        std::vector< size_t > ids = m_grid->getNeighbours9YZ( voxelNum );
+                        for ( size_t i = 0; i < ids.size(); ++i )
+                        {
+                            std::vector< size_t > allIds = m_grid->getNeighbours9YZ( ids[i] );
+                            for ( size_t k = 0; k < allIds.size(); ++k )
+                            {
+                                data[ allIds[k] ] = m_paintIndex->get();
+                            }
+                        }
+                    }
+                    break;
+                }
+
                 default:
                     break;
             }
@@ -305,7 +384,7 @@ void WMPaintTexture::queuePaint( WPickInfo pickInfo )
     {
         return;
     }
-    m_paintQueue.push( pickInfo.getPickPosition() );
+    m_paintQueue.push( pickInfo );
     m_queueAdded->set( true );
 }
 
