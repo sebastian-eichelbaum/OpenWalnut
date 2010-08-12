@@ -200,7 +200,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         while ( hitr != intersections.end() )
         {
             std::string nodeName = extractSuitableName( hitr );
-            // now we skip everything that starts with an underscore
+            // now we skip everything that starts with an underscore if not in paint mode
             if(  nodeName[0] == '_' && ( m_paintMode == 0  ) )
             {
                 ++hitr;
