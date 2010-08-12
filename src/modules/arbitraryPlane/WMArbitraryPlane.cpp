@@ -209,6 +209,8 @@ void WMArbitraryPlane::moduleMain()
             break;
         }
     }
+    con.disconnect();
+
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
@@ -218,7 +220,7 @@ void WMArbitraryPlane::initPlane()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     m_geode = new osg::Geode();
     m_geode->setName( "_arbitraryPlane" );
-    m_geode->addUpdateCallback( new SafeUpdateCallback( this ) );
+    m_rootNode->addUpdateCallback( new SafeUpdateCallback( this ) );
     m_rootNode->insert( m_geode );
 
     wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
