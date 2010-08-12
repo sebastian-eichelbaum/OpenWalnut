@@ -49,6 +49,13 @@ WItemSelector WItemSelector::newSelector( IndexList selected ) const
     return WItemSelector( m_selection, selected );
 }
 
+WItemSelector WItemSelector::newSelector( size_t selected ) const
+{
+    IndexList n = m_selected;
+    n.push_back( selected );
+    return WItemSelector( m_selection, n );
+}
+
 WItemSelector WItemSelector::newSelector( const std::string asString ) const
 {
     std::vector<std::string> tokens;

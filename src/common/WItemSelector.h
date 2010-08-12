@@ -73,6 +73,15 @@ public:
     WItemSelector newSelector( IndexList selected ) const;
 
     /**
+     * Creates a new valid instance with the specified items selected. This can be useful to add a certain index.
+     *
+     * \param selected the selected item (the index in WItemSelection).
+     *
+     * \return the new selector instance
+     */
+    WItemSelector newSelector( size_t selected ) const;
+
+    /**
      * Creates a new valid instance with the specified items selected. This is especially useful to simply create a new selection if only the
      * string representing it is known. This somehow correlates to the << operator.
      *
