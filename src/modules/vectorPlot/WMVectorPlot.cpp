@@ -97,15 +97,15 @@ void WMVectorPlot::properties()
                                                    "used to place them. Thus their "
                                                    "representation is tangential to the surface.",
                                                    false );
-    m_coloringMode   = m_properties->addProperty( "Direction Coloring",
+    m_coloringMode   = m_properties->addProperty( "Direction coloring",
                                                    "Draw each vector in a color indicating its direction. ", false );
     m_aColor         = m_properties->addProperty( "Color",
                                                    "This color is used if direction coloring is deactivated.",
                                                    WColor( 1.0, 0.0, 0.0, 1.0 ) );
 
-    m_showonX        = m_properties->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true );
-    m_showonY        = m_properties->addProperty( "Show Coronal", "Show vectors on coronal slice.", true );
-    m_showonZ        = m_properties->addProperty( "Show Axial", "Show vectors on axial slice.", true );
+    m_showonX        = m_properties->addProperty( "Show sagittal", "Show vectors on sagittal slice.", true );
+    m_showonY        = m_properties->addProperty( "Show coronal", "Show vectors on coronal slice.", true );
+    m_showonZ        = m_properties->addProperty( "Show axial", "Show vectors on axial slice.", true );
 
     m_xPos->setMin( 0 );
     m_xPos->setMax( 160 );

@@ -156,15 +156,15 @@ void WMSplineSurface::properties()
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 
-    m_useTextureProp = m_properties->addProperty( "Use Texture", "Use texturing of the surface?", false );
+    m_useTextureProp = m_properties->addProperty( "Use texture", "Use texturing of the surface?", false );
 
-    m_surfaceColor = m_properties->addProperty( "Surface Color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
+    m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
 
     m_savePropGroup = m_properties->addPropertyGroup( "Save Surface", "" );
-    m_saveTriggerProp = m_savePropGroup->addProperty( "Do Save", "Press!", WPVBaseTypes::PV_TRIGGER_READY );
+    m_saveTriggerProp = m_savePropGroup->addProperty( "Do save", "Press!", WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMSplineSurface::save, this ) );
 
-    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
+    m_meshFile = m_savePropGroup->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
 }
 
 void WMSplineSurface::renderMesh()

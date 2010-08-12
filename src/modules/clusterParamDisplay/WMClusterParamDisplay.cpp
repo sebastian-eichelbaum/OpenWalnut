@@ -57,7 +57,7 @@ void WMClusterParamDisplay::connectors()
 
 void WMClusterParamDisplay::properties()
 {
-    m_isoValue = m_properties->addProperty( "Iso Value", "", 0.01 );
+    m_isoValue = m_properties->addProperty( "Iso value", "", 0.01 );
 }
 
 void WMClusterParamDisplay::moduleMain()
@@ -79,8 +79,8 @@ void WMClusterParamDisplay::moduleMain()
 
         if( m_isoValue->changed() )
         {
-            m_isoSurface->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
-            m_clusterSlicer->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get( true ) );
+            m_isoSurface->getProperties()->getProperty( "Iso value" )->toPropDouble()->set( m_isoValue->get() );
+            m_clusterSlicer->getProperties()->getProperty( "Iso value" )->toPropDouble()->set( m_isoValue->get( true ) );
         }
     }
 }

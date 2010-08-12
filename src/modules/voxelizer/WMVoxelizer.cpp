@@ -153,7 +153,7 @@ void WMVoxelizer::properties()
     m_drawVoxels      = m_properties->addProperty( "Display Voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
     m_rasterAlgo      = m_properties->addProperty( "Raster Algo", "Specifies the algorithm you may want to use for voxelization.",
                                                     std::string( "WBresenham" ), m_fullUpdate );
-    m_voxelsPerUnit   = m_properties->addProperty( "Voxels per Unit", "Specified the number of voxels per unit in the coordinate system. This "
+    m_voxelsPerUnit   = m_properties->addProperty( "Voxels per unit", "Specified the number of voxels per unit in the coordinate system. This "
                                                                        "is useful to increase the resolution of the grid", 1, m_fullUpdate );
     m_parameterAlgo   = m_properties->addProperty( "Parameterization", "Select the parameterization algorithm.",
                                                    m_paramAlgoSelections->getSelectorFirst(), m_fullUpdate );
