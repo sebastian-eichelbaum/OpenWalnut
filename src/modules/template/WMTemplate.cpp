@@ -571,6 +571,12 @@ void WMTemplate::moduleMain()
             possibleSelections->addItem( "Beer2", "Cold and fresh.", template_bier_xpm );          // NOTE: you can add XPM images here.
             possibleSelections->addItem( "Steaks2", "Medium please.",  template_steak_xpm );
             possibleSelections->addItem( "Sausages2", "With Sauerkraut.", template_wurst_xpm );
+
+            // to ensure no old selector (basing on the old selection) gets set to the m_aSingleSelection property, all these selectors need to
+            // be marked as invalid.
+            m_possibleSelections->invalidateSelectors();
+
+            // Now we set the new selection and selector.
             m_aSingleSelection->set( possibleSelections->getSelectorFirst() );
 
             // Update the output property
