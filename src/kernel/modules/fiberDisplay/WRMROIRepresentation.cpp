@@ -38,16 +38,33 @@
 #include "WRMROIRepresentation.h"
 
 WRMROIRepresentation::WRMROIRepresentation( osg::ref_ptr< WROI > roi, boost::shared_ptr< WRMBranch > branch  ) :
+    m_dirty( true ),
     m_roi( roi ),
     m_branch( branch )
 {
+    m_size = m_branch->getRoiManager()->size();
+
+    m_currentArray = m_branch->getRoiManager()->getDataSet()->getVertices();
+    m_currentReverse = m_branch->getRoiManager()->getDataSet()->getVerticesReverse();
+    m_kdTree = m_branch->getRoiManager()->getKdTree();
+
+    properties();
+
     roi->getSignalIsModified()->connect( boost::bind( &WRMROIRepresentation::setDirty, this ) );
-    setDirty();
+}
+
+WRMROIRepresentation::~WRMROIRepresentation()
+{
+    removeFromGE();
+}
+
+void WRMROIRepresentation::properties()
+{
     m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "This ROI's properties" ) );
-    m_isNot = m_properties->addProperty( "NOT", "description", false, boost::bind( &WRMROIRepresentation::slotToggleNot, this ) );
-    m_threshold = m_properties->addProperty( "Threshold", "description", 0., boost::bind( &WRMROIRepresentation::slotChangeThreshold, this ) );
+    m_isNot = m_properties->addProperty( "NOT", "description", false, boost::bind( &WRMROIRepresentation::propertyChanged, this ) );
+    m_threshold = m_properties->addProperty( "Threshold", "description", 0., boost::bind( &WRMROIRepresentation::propertyChanged, this ) );
     m_threshold->setHidden( true );
-    m_isActive = m_properties->addProperty( "active", "description", true, boost::bind( &WRMROIRepresentation::slotToggleNot, this ) );
+    m_isActive = m_properties->addProperty( "active", "description", true, boost::bind( &WRMROIRepresentation::propertyChanged, this ) );
     m_isActive->setHidden( true );
 
     if ( osg::dynamic_pointer_cast<WROIArbitrary>( m_roi ).get() )
@@ -58,10 +75,27 @@ WRMROIRepresentation::WRMROIRepresentation( osg::ref_ptr< WROI > roi, boost::sha
     }
 }
 
-WRMROIRepresentation::~WRMROIRepresentation()
+void WRMROIRepresentation::propertyChanged()
 {
-    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_roi );
+    m_roi->setNot( m_isNot->get() );
+    m_roi->setActive( m_isActive->get() );
+
+    if ( m_isActive->get() )
+    {
+        m_roi->setNodeMask( 0xFFFFFFFF );
+    }
+    else
+    {
+        m_roi->setNodeMask( 0x0 );
+    }
+    if ( osg::dynamic_pointer_cast< WROIArbitrary >( m_roi ).get() )
+    {
+        osg::dynamic_pointer_cast< WROIArbitrary >( m_roi ).get()->setThreshold( m_threshold->get() );
+        setDirty();
+    }
+    setDirty();
 }
+
 
 void WRMROIRepresentation::removeFromGE()
 {
@@ -79,26 +113,12 @@ boost::shared_ptr< std::vector< bool > > WRMROIRepresentation::getBitField()
     {
         recalculate();
     }
-    return m_bitField;
-}
-
-void WRMROIRepresentation::addBitField( size_t size )
-{
-    boost::shared_ptr< std::vector< bool > >bf = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( size, false ) );
-    m_bitField = bf;
-    setDirty();
+    return m_outputBitfield;
 }
 
 void WRMROIRepresentation::recalculate()
 {
-    m_currentBitfield = m_bitField;
-    size_t size = m_currentBitfield->size();
-    m_currentBitfield->clear();
-    m_currentBitfield->resize( size, false );
-
-    m_currentArray = m_branch->getRoiManager()->getDataSet()->getVertices();
-    m_currentReverse = m_branch->getRoiManager()->getDataSet()->getVerticesReverse();
-    m_kdTree = m_branch->getRoiManager()->getKdTree();
+    m_workerBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, false ) );
 
     if ( osg::dynamic_pointer_cast<WROIBox>( m_roi ).get() )
     {
@@ -133,10 +153,6 @@ void WRMROIRepresentation::recalculate()
 
         for ( size_t i = 0; i < m_currentArray->size()/3; ++i )
         {
-            //int x = wxMin( nx - 1, wxMax(0, (int)m_pointArray[i * 3 ])) / dx;
-            //int y = wxMin( ny - 1, wxMax(0, (int)m_pointArray[i * 3 + 1])) / dy;
-            //int z = wxMin( nz - 1, wxMax(0, (int)m_pointArray[i * 3 + 2])) / dz;
-
             size_t x = static_cast<size_t>( ( *m_currentArray )[i * 3 ] / dx );
             size_t y = static_cast<size_t>( ( *m_currentArray )[i * 3 + 1] / dy );
             size_t z = static_cast<size_t>( ( *m_currentArray )[i * 3 + 2] / dz );
@@ -144,11 +160,12 @@ void WRMROIRepresentation::recalculate()
 
             if ( static_cast<float>( roi->getValue( index ) ) - threshold > 0.1 )
             {
-                ( *m_currentBitfield )[getLineForPoint( i )] = 1;
+                ( *m_workerBitfield )[getLineForPoint( i )] = 1;
             }
         }
     }
     m_dirty = false;
+    m_outputBitfield = m_workerBitfield;
 }
 
 void WRMROIRepresentation::boxTest( int left, int right, int axis )
@@ -176,21 +193,11 @@ void WRMROIRepresentation::boxTest( int left, int right, int axis )
                 >= m_boxMin[axis1] && ( *m_currentArray )[pointIndex + axis2] <= m_boxMax[axis2]
                 && ( *m_currentArray )[pointIndex + axis2] >= m_boxMin[axis2] )
         {
-            ( *m_currentBitfield )[getLineForPoint( m_kdTree->m_tree[root] )] = 1;
+            ( *m_workerBitfield )[getLineForPoint( m_kdTree->m_tree[root] )] = 1;
         }
         boxTest( left, root - 1, axis1 );
         boxTest( root + 1, right, axis1 );
     }
-}
-
-size_t WRMROIRepresentation::getLineForPoint( size_t point )
-{
-    return ( *m_currentReverse )[point];
-}
-
-bool WRMROIRepresentation::isDirty()
-{
-    return m_dirty;
 }
 
 void WRMROIRepresentation::setDirty()
@@ -198,32 +205,6 @@ void WRMROIRepresentation::setDirty()
     m_dirty = true;
     m_branch->setDirty();
 }
-
-void WRMROIRepresentation::slotToggleNot()
-{
-    m_roi->setNot( m_isNot->get() );
-    m_roi->setActive( m_isActive->get() );
-
-    if ( m_isActive->get() )
-    {
-        m_roi->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_roi->setNodeMask( 0x0 );
-    }
-    setDirty();
-}
-
-void WRMROIRepresentation::slotChangeThreshold()
-{
-    if ( osg::dynamic_pointer_cast< WROIArbitrary >( m_roi ).get() )
-    {
-        osg::dynamic_pointer_cast< WROIArbitrary >( m_roi ).get()->setThreshold( m_threshold->get() );
-        setDirty();
-    }
-}
-
 
 boost::shared_ptr< WProperties > WRMROIRepresentation::getProperties()
 {
@@ -233,9 +214,4 @@ boost::shared_ptr< WProperties > WRMROIRepresentation::getProperties()
 boost::shared_ptr< WRMBranch > WRMROIRepresentation::getBranch()
 {
     return m_branch;
-}
-
-bool WRMROIRepresentation::isActive()
-{
-    return m_isActive->get();
 }

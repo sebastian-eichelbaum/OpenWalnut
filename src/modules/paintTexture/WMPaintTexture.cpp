@@ -221,6 +221,7 @@ void WMPaintTexture::moduleMain()
 
             if ( m_buttonCreateRoi->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
             {
+                m_painting->set( false );
                 createROI();
                 m_buttonCreateRoi->set( WPVBaseTypes::PV_TRIGGER_READY, false );
             }
@@ -494,10 +495,12 @@ void WMPaintTexture::createROI()
 
         if ( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
         {
+            std::cout << " new roi without parent " << std::endl;
             WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
         }
         else
         {
+            std::cout << " new roi with parent " << std::endl;
             WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi()->getROI() );
         }
     }
