@@ -565,6 +565,14 @@ void WMTemplate::moduleMain()
             // Now that the trigger has the state "triggered", a time consuming operation can be done here.
             debugLog() << "User triggered an important and time consuming operation.";
 
+            // We can exchange the list used for selection properties. This of course invalidates the current user selection. You should avoid
+            // changing this too often and too fast as it might confuse the user.
+            boost::shared_ptr< WItemSelection > possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+            possibleSelections->addItem( "Beer2", "Cold and fresh.", template_bier_xpm );          // NOTE: you can add XPM images here.
+            possibleSelections->addItem( "Steaks2", "Medium please.",  template_steak_xpm );
+            possibleSelections->addItem( "Sausages2", "With Sauerkraut.", template_wurst_xpm );
+            m_aSingleSelection->set( possibleSelections->getSelectorFirst() );
+
             // Update the output property
             m_aTriggerOutput->set( WPVBaseTypes::PV_TRIGGER_TRIGGERED );
 
