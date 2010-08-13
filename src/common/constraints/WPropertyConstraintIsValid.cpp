@@ -22,25 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPROPERTYCONSTRAINTTYPES_H
-#define WPROPERTYCONSTRAINTTYPES_H
+#include "WPropertyConstraintIsValid.h"
+#include "../WPropertyVariable.h"
 
-/**
- * IDs for simple identification of the real constraint type.
- * \note If you modify this list, also adopt WPropertyVariable::WPropertyConstraint::create() in an appropriate way.
- */
-typedef enum
-{
-    PC_UNKNOWN,          // type ID for arbitrary WPropertyConstraint
-    PC_MIN,              // type ID for WPropertyConstraintMin
-    PC_MAX,              // type ID for WPropertyConstraintMax
-    PC_NOTEMPTY,         // type ID for WPropertyConstraintNotEmpty
-    PC_PATHEXISTS,       // type ID for WPropertyConstraintPathExists
-    PC_ISDIRECTORY,      // type ID for WPropertyConstraintIsDirectory
-    PC_SELECTONLYONE,    // type ID for WPropertyConstraintSelectOnlyOne
-    PC_SELECTATLEASTONE, // type ID for WPropertyConstraintSelectAtLeastOne
-    PC_ISVALID           // type ID for WPropertyConstraintIsValid
-}
-PROPERTYCONSTRAINT_TYPE;
-
-#endif  // WPROPERTYCONSTRAINTTYPES_H

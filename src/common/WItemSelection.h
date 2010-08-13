@@ -31,6 +31,7 @@
 
 #include <boost/tuple/tuple.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
 #include "WExportCommon.h"
@@ -121,6 +122,12 @@ public:
     virtual WItemSelector getSelector( size_t item );
 
     /**
+     * Invalidates all selectors currently existing somewhere. This is especially useful with properties when the underlying selection changes
+     * for a property to ensure nobody can set the property to an old selection.
+     */
+    void invalidateSelectors();
+
+    /**
      * The number of selectable items.
      *
      * \return the number of items.
@@ -137,6 +144,16 @@ public:
      */
     virtual Item& at( size_t index ) const;
 
+    /**
+     * Subscribes the specified callback to the invalidation signal getting emitted whenever this selection got invalidated. All selectors using
+     * this selection subscribe to this signal.
+     *
+     * \param invalidationCallback the callback
+     *
+     * \return connection. The subscriber needs to disconnect it.
+     */
+    boost::signals2::connection subscribeInvalidationSignal( boost::function< void ( void) > invalidationCallback );
+
 protected:
 
     /**
@@ -148,6 +165,11 @@ protected:
      * True if the selection can be modified.
      */
     bool m_modifyable;
+
+    /**
+     * This signal is emitted whenever the selection gets invalidated. All created selectors subscribed to it.
+     */
+    boost::signals2::signal< void ( void ) > signal_invalidate;
 
 private:
 };

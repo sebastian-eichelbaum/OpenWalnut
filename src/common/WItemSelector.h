@@ -31,6 +31,7 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
 
 #include "WItemSelection.h"
 #include "WExportCommon.h"
@@ -56,6 +57,22 @@ public:
      * The type used for storing index lists. It is a list of integer correlating with the elements in the managed WItemSelection class.
      */
     typedef  std::vector< size_t > IndexList;
+
+    /**
+     * Copy constructor. Creates a new copy of the selector and ensure proper signal subscriptions to the underlying selection.
+     *
+     * \param other the selector to copy
+     */
+    WItemSelector( const WItemSelector& other );
+
+    /**
+     * Copy assignment. Creates a new copy of the selector and ensure proper signal subscriptions to the underlying selection.
+     *
+     * \param other the selector to copy
+     *
+     * \return this.
+     */
+    WItemSelector& operator=( const WItemSelector & other );
 
     /**
      * Destructor.
@@ -160,6 +177,15 @@ public:
      */
     virtual size_t getItemIndexOfSelected( size_t index ) const;
 
+    /**
+     * Checks whether the selection is valid anymore. If a selector is not valid anymore, you should ask the one providing the selectors (most
+     * probably a WPropSelection) for a new one. What you should keep in mind is that the selector (even if it is marked as invalid) can be used
+     * at all extend. Just setting it somewhere (i.e. in a Property) is not possibly anymore.
+     *
+     * \return true if valid.
+     */
+    virtual bool isValid() const;
+
 protected:
 
     /**
@@ -180,7 +206,31 @@ protected:
      */
     IndexList m_selected;
 
+    /**
+     * Stores the connection made using WItemSelection::subscribeInvalidateSignal.
+     */
+    boost::signals2::connection m_invalidateSignalConnection;
+
 private:
+
+    /**
+     * Creates a new selector instance using the specified index list. Handles all needed signal subscription stuff.
+     *
+     * \param selected the index list of selected items
+     *
+     * \return new selector
+     */
+    WItemSelector createSelector( const IndexList& selected ) const;
+
+    /**
+     * Handles the case of invalidation.
+     */
+    void invalidate();
+
+    /**
+     * If true the selector is valid.
+     */
+    bool m_valid;
 };
 
 /**

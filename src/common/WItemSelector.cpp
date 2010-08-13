@@ -34,26 +34,52 @@
 
 WItemSelector::WItemSelector( boost::shared_ptr< WItemSelection > selection, IndexList selected ):
     m_selection( selection ),
-    m_selected( selected )
+    m_selected( selected ),
+    m_invalidateSignalConnection(),
+    m_valid( true )
 {
     // initialize members
+}
+
+WItemSelector::WItemSelector( const WItemSelector& other ):
+    m_selection( other.m_selection ),
+    m_selected( other.m_selected ),
+    m_valid( other.m_valid )
+{
+    m_invalidateSignalConnection = m_selection->subscribeInvalidationSignal( boost::bind( &WItemSelector::invalidate, this ) );
+}
+
+WItemSelector& WItemSelector::operator=( const WItemSelector & other )
+{
+    if ( this != &other ) // protect against invalid self-assignment
+    {
+        m_selection = other.m_selection;
+        m_selected = other.m_selected;
+        m_valid = other.m_valid;
+
+        m_invalidateSignalConnection = m_selection->subscribeInvalidationSignal( boost::bind( &WItemSelector::invalidate, this ) );
+    }
+
+    // by convention, always return *this
+    return *this;
 }
 
 WItemSelector::~WItemSelector()
 {
     // cleanup
+    m_invalidateSignalConnection.disconnect();
 }
 
 WItemSelector WItemSelector::newSelector( IndexList selected ) const
 {
-    return WItemSelector( m_selection, selected );
+    return createSelector( selected );
 }
 
 WItemSelector WItemSelector::newSelector( size_t selected ) const
 {
     IndexList n = m_selected;
     n.push_back( selected );
-    return WItemSelector( m_selection, n );
+    return createSelector( n );
 }
 
 WItemSelector WItemSelector::newSelector( const std::string asString ) const
@@ -67,7 +93,7 @@ WItemSelector WItemSelector::newSelector( const std::string asString ) const
         l.push_back( boost::lexical_cast< size_t >( tokens[i] ) );
     }
 
-    return newSelector( l );
+    return createSelector( l );
 }
 
 std::ostream& WItemSelector::operator<<( std::ostream& out ) const
@@ -123,3 +149,20 @@ bool WItemSelector::empty() const
     return ( size() == 0 );
 }
 
+void WItemSelector::invalidate()
+{
+    m_valid = false;
+}
+
+bool WItemSelector::isValid() const
+{
+    return m_valid;
+}
+
+WItemSelector WItemSelector::createSelector( const IndexList& selected ) const
+{
+    WItemSelector s = WItemSelector( m_selection, selected );
+    s.m_invalidateSignalConnection = s.m_selection->subscribeInvalidationSignal( boost::bind( &WItemSelector::invalidate, &s ) );
+
+    return s;
+}

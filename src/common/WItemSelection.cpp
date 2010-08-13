@@ -99,6 +99,16 @@ WItemSelector WItemSelection::getSelector( size_t item )
     return WItemSelector( shared_from_this(), l );
 }
 
+void WItemSelection::invalidateSelectors()
+{
+    signal_invalidate();
+}
+
+boost::signals2::connection WItemSelection::subscribeInvalidationSignal( boost::function< void ( void) > invalidationCallback )
+{
+    return signal_invalidate.connect( invalidationCallback );
+}
+
 size_t WItemSelection::size() const
 {
     return m_items.size();
