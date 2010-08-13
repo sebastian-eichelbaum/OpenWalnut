@@ -104,7 +104,7 @@ public:
      *
      * \return reference to element at the specified position
      */
-    typename S::value_type& operator[] ( size_t n );
+    typename S::value_type& operator[]( size_t n );
 
     /**
      * Get item at position n. Uses the [] operator of the underlying container. Please do not use this for iteration as it locks every access.
@@ -114,7 +114,27 @@ public:
      *
      * \return reference to element at the specified position
      */
-    const typename S::value_type& operator[] ( size_t n ) const;
+    const typename S::value_type& operator[]( size_t n ) const;
+
+    /**
+     * Get item at position n. Uses the at-method of the underlying container. Please do not use this for iteration as it locks every access.
+     * Use iterators and read/write tickets for fast iteration.
+     *
+     * \param n the item index
+     *
+     * \return reference to element at the specified position
+     */
+    typename S::value_type& at( size_t n );
+
+    /**
+     * Get item at position n. Uses the at-method of the underlying container. Please do not use this for iteration as it locks every access.
+     * Use iterators and read/write tickets for fast iteration.
+     *
+     * \param n the item index
+     *
+     * \return reference to element at the specified position
+     */
+    const typename S::value_type& at( size_t n ) const;
 
     /**
      * Searches and removes the specified element. If it is not found, nothing happens. It mainly is a comfortable forwarder for std::remove.
@@ -209,7 +229,21 @@ const typename S::value_type& WSharedSequenceContainer< S >::operator[]( size_t 
     return a->get().operator[]( n );
 }
 
-    template < typename S >
+template < typename S >
+typename S::value_type& WSharedSequenceContainer< S >::at( size_t n )
+{
+    typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();
+    return a->get().at( n );
+}
+
+template < typename S >
+const typename S::value_type& WSharedSequenceContainer< S >::at( size_t n ) const
+{
+    typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();
+    return a->get().at( n );
+}
+
+template < typename S >
 typename WSharedSequenceContainer< S >::Iterator WSharedSequenceContainer< S >::erase( const typename S::value_type& element )
 {
     // Lock, if "a" looses focus -> look is freed
