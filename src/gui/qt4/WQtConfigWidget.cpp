@@ -326,7 +326,51 @@ void WQtConfigWidget::registerComponents()
 
 boost::shared_ptr< WProperties > WQtConfigWidget::copyProperties( boost::shared_ptr< WProperties > from )
 {
-    return boost::shared_static_cast< WProperties >( from->clone() );
+    boost::shared_ptr< WProperties > res = boost::shared_static_cast< WProperties >( from->clone() );
+
+    std::list< boost::shared_ptr< WProperties > > propertyStack;
+    std::list< WProperties::PropertyIterator > iteratorStack;
+
+    propertyStack.push_back( res );
+
+    WProperties::PropertyIterator iter;
+    WProperties::PropertyAccessType accessObject = propertyStack.back()->getAccessObject();
+    // Temporarily disabled since locking causes several problems here :-/
+    // accessObject->beginRead();
+
+    iter = accessObject->get().begin();
+    iteratorStack.push_back( iter );
+
+    while ( !propertyStack.empty() )
+    {
+        // check if at the end of group, if so pop and continue
+        if ( iteratorStack.back() == propertyStack.back()->getAccessObject()->get().end() )
+        {
+            propertyStack.pop_back();
+            iteratorStack.pop_back();
+            continue;
+        }
+
+        // add group to stack, and move iterator
+        if ( ( *( iteratorStack.back() ) )->getType() == PV_GROUP )
+        {
+            propertyStack.push_back( ( *iteratorStack.back() )->toPropGroup() );
+            ++iteratorStack.back();
+            iteratorStack.push_back( propertyStack.back()->getAccessObject()->get().begin() );
+            continue;
+        }
+        else
+        {
+            boost::shared_ptr< WProperties > prop = ( *( iteratorStack.back() ) )->toPropGroup();
+
+            m_configState.add( prop->getUpdateCondition() );
+            
+        } // END property is not a group
+
+        ++iteratorStack.back();
+    } // LOOP over properties
+
+    return res;
 }
 
 void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > from, boost::shared_ptr< WProperties > to, bool lock )

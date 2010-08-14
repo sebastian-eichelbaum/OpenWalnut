@@ -196,7 +196,7 @@ public:
     *
     * \result as string
     */
-    static std::string getAsString( const std::string line );
+    static std::string getAsString( const std::string line, bool useColon = false );
 
     /**
     * convert a property value to a string
@@ -210,7 +210,7 @@ public:
     *
     * \result property variable as string
     */
-    static std::string getPropValAsString( boost::shared_ptr< WProperties > prop );
+    static std::string getPropValAsString( boost::shared_ptr< WProperties > prop, bool useColon = false );
 private:
 };
 

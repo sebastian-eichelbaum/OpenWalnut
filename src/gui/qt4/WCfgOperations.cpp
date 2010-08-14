@@ -309,19 +309,22 @@ bool WCfgOperations::isString( const std::string line )
     return res;
 }
 
-std::string WCfgOperations::getAsString( const std::string line )
+std::string WCfgOperations::getAsString( const std::string line, bool useColon )
 {
     std::string res = line;
-    if ( !isString( line ) )
+    if ( useColon )
     {
-        return std::string( "" );
+        if ( !isString( line ) )
+        {
+            return std::string( "" );
+        }
+        res.erase( 0, 1 );
+        res.erase( res.length() - 1, 1 );
     }
-    res.erase( 0, 1 );
-    res.erase( res.length() - 1, 1 );
     return res;
 }
 
-std::string WCfgOperations::getPropValAsString( boost::shared_ptr< WProperties > prop )
+std::string WCfgOperations::getPropValAsString( boost::shared_ptr< WProperties > prop, bool useColon )
 {
     std::string result = "";
 
@@ -329,7 +332,9 @@ std::string WCfgOperations::getPropValAsString( boost::shared_ptr< WProperties >
     {
     case PV_STRING:
         {
-            result = "\"" + prop->toPropString()->get() + "\"";
+            result = prop->toPropString()->get();
+            if ( useColon ) 
+                result = "\"" + result + "\"";
             break;
         }
     case PV_BOOL:
