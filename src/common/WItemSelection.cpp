@@ -44,7 +44,7 @@ WItemSelection::~WItemSelection()
 void WItemSelection::addItem( std::string name, std::string description, const char** icon )
 {
     ItemListType::WriteTicket w = m_items.getWriteTicket(); // this ensures that invalidation is only triggered when no one else is currently
-    // reading the selection
+    // reading the selection while we write it is not allowed
     invalidateSelectors();
 
     Item* i = new Item;   // NOLINT  <-- initialize the struct this way is far more comfortable
@@ -52,6 +52,13 @@ void WItemSelection::addItem( std::string name, std::string description, const c
     i->description = description;
     i->icon = icon;
     w->get().push_back( i );
+}
+
+void WItemSelection::removeItem( std::string name )
+{
+    ItemListType::WriteTicket w = m_items.getWriteTicket(); // this ensures that invalidation is only triggered when no one else is currently
+
+    // TODO(ebaum): implement me
 }
 
 WItemSelector WItemSelection::getSelectorAll()

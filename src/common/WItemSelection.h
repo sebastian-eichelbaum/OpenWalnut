@@ -86,11 +86,18 @@ public:
      * Adds an item to the list of selectable items. If there are any selectors created (using ::getSelectorAll, ::getSelectorFirst,
      * ::getSelectorNone or ::getSelector) previously, there are marked as invalid.
      *
-     * \param name the name
-     * \param description the description
+     * \param name the name, it is not required to be unique.
+     * \param description the description.
      * \param icon an icon to show together with this item. Useful to illustrate the selection options.
      */
     virtual void addItem( std::string name, std::string description, const char** icon = NULL );
+
+    /**
+     * Removes the items with the given name. If the item does not exist in the list, nothing happens.
+     *
+     * \param name the name of the item to remove
+     */
+    virtual void removeItem( std::string name );
 
     /**
      * Creates an default selection (all items selected). The selector gets invalid if another item is added.
