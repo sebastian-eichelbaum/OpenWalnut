@@ -103,7 +103,7 @@ void WItemSelection::invalidateSelectors()
     signal_invalidate();
 }
 
-boost::signals2::connection WItemSelection::subscribeInvalidationSignal( boost::function< void ( void) > invalidationCallback )
+boost::signals2::connection WItemSelection::subscribeInvalidationSignal( boost::function< void( void ) > invalidationCallback )
 {
     return signal_invalidate.connect( invalidationCallback );
 }

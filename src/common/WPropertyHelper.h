@@ -119,7 +119,6 @@ namespace WPropertyHelper
          */
         void OWCOMMON_EXPORT addTo( WPropSelection prop );
     }
-
 }
 
 #endif  // WPROPERTYHELPER_H

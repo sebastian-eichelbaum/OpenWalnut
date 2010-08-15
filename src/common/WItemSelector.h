@@ -188,7 +188,7 @@ public:
     /**
      * Read locks the underlying selection. This ensure, that the selection stays fixed as long as this selector is locked. This also ensures
      * that no invalidation can be issued as long as this selector has the lock. BUT it is possible that an invalidation occurs while this
-     * selector waits. So please always check for validity of the selector after locking.
+     * selector waits. So please always check for validity of the selector ater locking.
      */
     void lock();
 
@@ -242,6 +242,11 @@ private:
      * If true the selector is valid.
      */
     bool m_valid;
+
+    /**
+     * This locks prevents the selection to be modified during selector iteration.
+     */
+    WItemSelection::ItemListType::ReadTicket m_lock;
 };
 
 /**

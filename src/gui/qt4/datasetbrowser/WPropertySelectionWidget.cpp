@@ -134,6 +134,14 @@ void WPropertySelectionWidget::update()
 
     WItemSelector s = m_selectionProperty->get();
 
+    // we need to read-lock the whole selection to ensure that the underlying selection can't be changed while creating the items
+    s.lock();
+    // we also need to check whether the selector is valid. Only valid selectors are allowed to use. You can check validity by calling
+    // WItemSelector::isValid. The simpler way is to get a new selector directly as selectors in properties are always valid (due to the
+    // WPropertyConstraintIsValid - constraint).
+    // NOTE: do NOT overwrite the current selector in "s" as it keeps the lock.
+    WItemSelector sValid = m_selectionProperty->get();
+
     //apply selection
     if ( m_combo )
     {
@@ -142,15 +150,14 @@ void WPropertySelectionWidget::update()
         m_combo->clear();
 
         // add all items from the selection set:
-        WItemSelector s = m_selectionProperty->get();
-        for ( size_t i = 0; i < s.sizeAll(); ++i )
+        for ( size_t i = 0; i < sValid.sizeAll(); ++i )
         {
-            m_combo->addItem( QString::fromStdString( s.atAll( i ).name ) );
+            m_combo->addItem( QString::fromStdString( sValid.atAll( i ).name ) );
             // if there is an icon -> show it
-            if ( s.atAll( i ).icon )
+            if ( sValid.atAll( i ).icon )
             {
                 // scale the pixmap to a maximum size if larger
-                QPixmap pix = ensureSize( QPixmap( s.atAll( i ).icon ) );
+                QPixmap pix = ensureSize( QPixmap( sValid.atAll( i ).icon ) );
 
                 // set icon
                 m_combo->setItemIcon( i, QIcon( pix ) );
@@ -159,14 +166,14 @@ void WPropertySelectionWidget::update()
         }
 
         // mark the currently selected item. Just take care that there might be no item selected.
-        if ( s.size() == 0 )
+        if ( sValid.size() == 0 )
         {
             m_combo->setCurrentIndex( -1 );
         }
         else
         {
             // as there is the SELECTONLYONE constraint -> if something is selected, it always is the first one
-            m_combo->setCurrentIndex( s.getItemIndexOfSelected( 0 ) );
+            m_combo->setCurrentIndex( sValid.getItemIndexOfSelected( 0 ) );
         }
 
         connect( m_combo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( comboSelectionChanged( int ) ) );
@@ -179,8 +186,7 @@ void WPropertySelectionWidget::update()
         m_list->clear();
 
         // add all items from the selection set:
-        WItemSelector s = m_selectionProperty->get();
-        for ( size_t i = 0; i < s.sizeAll(); ++i )
+        for ( size_t i = 0; i < sValid.sizeAll(); ++i )
         {
             // Create a custom widget which contains the name and description
             QWidget* widget = new QWidget( m_list );
@@ -188,23 +194,23 @@ void WPropertySelectionWidget::update()
 
             int column = 0;
             // if there is an icon -> show it
-            if ( s.atAll( i ).icon )
+            if ( sValid.atAll( i ).icon )
             {
                 QLabel* icon = new QLabel();
                 QSizePolicy sizePolicy( QSizePolicy::Maximum, QSizePolicy::Preferred ); // <-- scale it down
                 icon->setSizePolicy( sizePolicy );
-                icon->setPixmap( ensureSize( QPixmap( s.atAll( i ).icon ) ) );
+                icon->setPixmap( ensureSize( QPixmap( sValid.atAll( i ).icon ) ) );
                 layoutWidget->addWidget( icon, 0, 0, 2, 1 );
 
                 ++column;
             }
 
             // Add Name and Description
-            layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( s.atAll( i ).name )+ "</b>" ), 0, column );
+            layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( sValid.atAll( i ).name )+ "</b>" ), 0, column );
             // if there is no description -> no widget added to save space
-            if ( !s.atAll( i ).description.empty() )
+            if ( !sValid.atAll( i ).description.empty() )
             {
-                layoutWidget->addWidget(  new QLabel( QString::fromStdString( s.atAll( i ).description ) ), 1, column );
+                layoutWidget->addWidget(  new QLabel( QString::fromStdString( sValid.atAll( i ).description ) ), 1, column );
             }
 
             layoutWidget->setSizeConstraint( QLayout::SetMaximumSize );
@@ -219,9 +225,9 @@ void WPropertySelectionWidget::update()
         }
 
         // select all items
-        for ( size_t i = 0; i < s.size(); ++i )
+        for ( size_t i = 0; i < sValid.size(); ++i )
         {
-            m_list->item( s.getItemIndexOfSelected( i ) )->setSelected( true );
+            m_list->item( sValid.getItemIndexOfSelected( i ) )->setSelected( true );
         }
 
         connect( m_list, SIGNAL( itemSelectionChanged() ), this, SLOT( listSelectionChanged() ) );

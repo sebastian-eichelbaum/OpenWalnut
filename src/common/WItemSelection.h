@@ -153,7 +153,7 @@ public:
      *
      * \return connection. The subscriber needs to disconnect it.
      */
-    boost::signals2::connection subscribeInvalidationSignal( boost::function< void ( void) > invalidationCallback );
+    boost::signals2::connection subscribeInvalidationSignal( boost::function< void( void ) > invalidationCallback );
 
 protected:
     /**
@@ -169,10 +169,7 @@ protected:
     /**
      * This signal is emitted whenever the selection gets invalidated. All created selectors subscribed to it.
      */
-    boost::signals2::signal< void ( void ) > signal_invalidate;
-
-    void selectorLock();
-    void selectorUnlock();
+    boost::signals2::signal< void( void ) > signal_invalidate;
 
 private:
 };

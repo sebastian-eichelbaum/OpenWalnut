@@ -168,11 +168,13 @@ WItemSelector WItemSelector::createSelector( const IndexList& selected ) const
 
 void WItemSelector::lock()
 {
-    m_selection->selectorLock();
+    // NOTE: it is not needed to check whether lock() has been called earlier. The old lock gets freed in the moment m_lock gets overwritten as
+    // ReadTickets are reference counted.
+    m_lock = m_selection->m_items.getReadTicket();
 }
 
 void WItemSelector::unlock()
 {
-    m_selection->selectorUnlock();
+    m_lock.reset();
 }
 
