@@ -31,8 +31,7 @@
 
 #include "WItemSelection.h"
 
-WItemSelection::WItemSelection():
-    m_modifyable( true )
+WItemSelection::WItemSelection()
 {
     // initialize members
 }
@@ -44,25 +43,23 @@ WItemSelection::~WItemSelection()
 
 void WItemSelection::addItem( std::string name, std::string description, const char** icon )
 {
-    if ( m_modifyable )
-    {
-        Item* i = new Item;   // NOLINT  <-- initialize the struct this way is far more comfortable
-        i->name = name;
-        i->description = description;
-        i->icon = icon;
-        m_items.push_back( i );
-    }
-    else
-    {
-        wlog::warn( "WItemSelection " ) << "You can not modify the selection list after a selector has been created.";
-    }
+    ItemListType::WriteTicket w = m_items.getWriteTicket(); // this ensures that invalidation is only triggered when no one else is currently
+    // reading the selection
+    invalidateSelectors();
+
+    Item* i = new Item;   // NOLINT  <-- initialize the struct this way is far more comfortable
+    i->name = name;
+    i->description = description;
+    i->icon = icon;
+    w->get().push_back( i );
 }
 
 WItemSelector WItemSelection::getSelectorAll()
 {
-    m_modifyable = false;
     WItemSelector::IndexList l;
-    for ( size_t i = 0; i < m_items.size(); ++i )
+    ItemListType::ReadTicket r = m_items.getReadTicket();
+
+    for ( size_t i = 0; i < r->get().size(); ++i )
     {
         l.push_back( i );
     }
@@ -71,16 +68,17 @@ WItemSelector WItemSelection::getSelectorAll()
 
 WItemSelector WItemSelection::getSelectorNone()
 {
-    m_modifyable = false;
     WItemSelector::IndexList l;
+    ItemListType::ReadTicket r = m_items.getReadTicket();
     return WItemSelector( shared_from_this(), l );
 }
 
 WItemSelector WItemSelection::getSelectorFirst()
 {
-    m_modifyable = false;
     WItemSelector::IndexList l;
-    if ( m_items.size() >= 1 )
+    ItemListType::ReadTicket r = m_items.getReadTicket();
+
+    if ( r->get().size() >= 1 )
     {
         l.push_back( 0 );
     }
@@ -89,9 +87,10 @@ WItemSelector WItemSelection::getSelectorFirst()
 
 WItemSelector WItemSelection::getSelector( size_t item )
 {
-    m_modifyable = false;
     WItemSelector::IndexList l;
-    if ( m_items.size() <= item )
+    ItemListType::ReadTicket r = m_items.getReadTicket();
+
+    if ( r->get().size() <= item )
     {
         throw WOutOfBounds( "The specified item does not exist." );
     }

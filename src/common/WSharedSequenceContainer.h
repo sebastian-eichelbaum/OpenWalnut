@@ -94,7 +94,7 @@ public:
      * \note: be aware that the size can change at every moment after getting the size, since the read lock got freed. Better use
      * access objects to lock the container and use size() on the container directly.
      */
-    size_t size();
+    size_t size() const;
 
     /**
      * Get item at position n. Uses the [] operator of the underlying container. Please do not use this for iteration as it locks every access.
@@ -207,7 +207,7 @@ void WSharedSequenceContainer< S >::clear()
 }
 
 template < typename S >
-size_t WSharedSequenceContainer< S >::size()
+size_t WSharedSequenceContainer< S >::size() const
 {
     // Lock, if "a" looses focus -> look is freed
     typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();

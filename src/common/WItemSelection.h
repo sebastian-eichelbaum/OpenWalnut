@@ -34,6 +34,7 @@
 #include <boost/signals2/signal.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+#include "WSharedSequenceContainer.h"
 #include "WExportCommon.h"
 
 class WItemSelector;
@@ -42,11 +43,12 @@ class WItemSelector;
  * A class containing a list of named items. It is mainly a container for an std::vector but with the difference that there can be so called
  * Selectors which are able to select some subset of the item set. This is especially useful in properties where item selection is needed. The
  * class is kept very restrictive to keep the interface clean and sleek and to keep the item set consistent among several threads. So please do
- * not implement any function that might change the item list. The would cause odd behaviour of all the WItemSelector instances. Items can only
- * be added until the first Selector instance is created.
+ * not implement any function that might change the item list, use the provided ones. If the item list changes, existing selectors get invalid
+ * automatically.
  */
 class OWCOMMON_EXPORT WItemSelection: public boost::enable_shared_from_this< WItemSelection >
 {
+    friend class WItemSelector; // for proper locking and unlocking
 public:
     /**
      * For shortening, it is the type of an item.
@@ -81,7 +83,8 @@ public:
     virtual ~WItemSelection();
 
     /**
-     * Adds an item to the list of selectable items.
+     * Adds an item to the list of selectable items. If there are any selectors created (using ::getSelectorAll, ::getSelectorFirst,
+     * ::getSelectorNone or ::getSelector) previously, there are marked as invalid.
      *
      * \param name the name
      * \param description the description
@@ -90,30 +93,28 @@ public:
     virtual void addItem( std::string name, std::string description, const char** icon = NULL );
 
     /**
-     * Creates an default selection (all items selected). After the first call of this function, no more items can be added using \ref addItem.
+     * Creates an default selection (all items selected). The selector gets invalid if another item is added.
      *
      * \return an selector.
      */
     virtual WItemSelector getSelectorAll();
 
     /**
-     * Creates an default selection (no items selected). After the first call of this function, no more items can be added using \ref addItem.
+     * Creates an default selection (no items selected). The selector gets invalid if another item is added.
      *
      * \return an selector.
      */
     virtual WItemSelector getSelectorNone();
 
     /**
-     * Creates an default selection (first item selected). After the first call of this function, no more items can be added using \ref addItem.
-     * If no item is in the selection, nothing is selected.
+     * Creates an default selection (first item selected). The selector gets invalid if another item is added.
      *
      * \return an selector.
      */
     virtual WItemSelector getSelectorFirst();
 
     /**
-     * Creates an default selection (a specified items selected). After the first call of this function, no more items can be added
-     * using \ref addItem.
+     * Creates an default selection (a specified items selected). The selector gets invalid if another item is added.
      *
      * \param item the item to select.
      *
@@ -155,21 +156,23 @@ public:
     boost::signals2::connection subscribeInvalidationSignal( boost::function< void ( void) > invalidationCallback );
 
 protected:
+    /**
+     * Shortcut for the list type
+     */
+    typedef WSharedSequenceContainer< std::vector< Item* > > ItemListType;
 
     /**
      * List of items.
      */
-    std::vector< Item* > m_items;
-
-    /**
-     * True if the selection can be modified.
-     */
-    bool m_modifyable;
+    ItemListType m_items;
 
     /**
      * This signal is emitted whenever the selection gets invalidated. All created selectors subscribed to it.
      */
     boost::signals2::signal< void ( void ) > signal_invalidate;
+
+    void selectorLock();
+    void selectorUnlock();
 
 private:
 };

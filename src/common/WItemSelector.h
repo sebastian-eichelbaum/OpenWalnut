@@ -179,12 +179,23 @@ public:
 
     /**
      * Checks whether the selection is valid anymore. If a selector is not valid anymore, you should ask the one providing the selectors (most
-     * probably a WPropSelection) for a new one. What you should keep in mind is that the selector (even if it is marked as invalid) can be used
-     * at all extend. Just setting it somewhere (i.e. in a Property) is not possibly anymore.
+     * probably a WPropSelection) for a new one.
      *
      * \return true if valid.
      */
     virtual bool isValid() const;
+
+    /**
+     * Read locks the underlying selection. This ensure, that the selection stays fixed as long as this selector is locked. This also ensures
+     * that no invalidation can be issued as long as this selector has the lock. BUT it is possible that an invalidation occurs while this
+     * selector waits. So please always check for validity of the selector after locking.
+     */
+    void lock();
+
+    /**
+     * Unlocks the selection again. Always call this after a lock.
+     */
+    void unlock();
 
 protected:
 

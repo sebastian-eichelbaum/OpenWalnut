@@ -573,7 +573,8 @@ void WMTemplate::moduleMain()
             possibleSelections->addItem( "Sausages2", "With Sauerkraut.", template_wurst_xpm );
 
             // to ensure no old selector (basing on the old selection) gets set to the m_aSingleSelection property, all these selectors need to
-            // be marked as invalid.
+            // be marked as invalid. If you do not mark them, it is possible to set a WItemSelector instance which has been created using
+            // m_possibleSelections.
             m_possibleSelections->invalidateSelectors();
 
             // Now we set the new selection and selector.

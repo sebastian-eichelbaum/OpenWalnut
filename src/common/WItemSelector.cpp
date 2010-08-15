@@ -39,6 +39,7 @@ WItemSelector::WItemSelector( boost::shared_ptr< WItemSelection > selection, Ind
     m_valid( true )
 {
     // initialize members
+    m_invalidateSignalConnection = m_selection->subscribeInvalidationSignal( boost::bind( &WItemSelector::invalidate, this ) );
 }
 
 WItemSelector::WItemSelector( const WItemSelector& other ):
@@ -162,7 +163,16 @@ bool WItemSelector::isValid() const
 WItemSelector WItemSelector::createSelector( const IndexList& selected ) const
 {
     WItemSelector s = WItemSelector( m_selection, selected );
-    s.m_invalidateSignalConnection = s.m_selection->subscribeInvalidationSignal( boost::bind( &WItemSelector::invalidate, &s ) );
-
     return s;
 }
+
+void WItemSelector::lock()
+{
+    m_selection->selectorLock();
+}
+
+void WItemSelector::unlock()
+{
+    m_selection->selectorUnlock();
+}
+
