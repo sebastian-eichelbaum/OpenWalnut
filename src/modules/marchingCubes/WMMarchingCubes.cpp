@@ -475,7 +475,7 @@ bool WMMarchingCubes::save() const
     }
 
     const char* c_file = m_meshFile->get().file_string().c_str();
-    std::ofstream dataFile( c_file );
+    std::ofstream dataFile( c_file, std::ios_base::binary );
 
     if ( dataFile )
     {
