@@ -394,8 +394,26 @@ void WMPaintTexture::queuePaint( WPickInfo pickInfo )
         return;
     }
 
+    if ( pickInfo.getModifierKey() == WPickInfo::SHIFT )
+    {
+        setColorFromPick( pickInfo );
+        return;
+    }
+
     m_paintQueue.push( pickInfo );
     m_queueAdded->set( true );
+}
+
+void WMPaintTexture::setColorFromPick( WPickInfo pickInfo )
+{
+    wmath::WPosition paintPosition = pickInfo.getPickPosition();
+    int voxelNum = m_grid->getVoxelNum( paintPosition );
+
+    if ( voxelNum != -1 )
+    {
+        unsigned char* data = m_texture->getImage()->data();
+        m_paintIndex->set( data[ voxelNum ] );
+    }
 }
 
 void WMPaintTexture::createTexture()
