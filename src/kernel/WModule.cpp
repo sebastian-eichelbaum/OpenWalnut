@@ -44,12 +44,14 @@
 #include "exceptions/WModuleConnectorNotFound.h"
 #include "exceptions/WModuleUninitialized.h"
 #include "../common/WException.h"
+#include "../common/exceptions/WNameNotUnique.h"
 #include "../common/WLogger.h"
 #include "../common/WCondition.h"
 #include "../common/WConditionOneShot.h"
 #include "../common/WConditionSet.h"
 #include "../common/WPathHelper.h"
 #include "../common/WProgressCombiner.h"
+#include "../common/WPredicateHelper.h"
 
 #include "WModule.h"
 
@@ -102,18 +104,40 @@ WModule::~WModule()
 
 void WModule::addConnector( boost::shared_ptr< WModuleInputConnector > con )
 {
-    if ( std::count( m_inputConnectors.begin(), m_inputConnectors.end(), con ) == 0 )
+    size_t c = std::count_if( m_inputConnectors.begin(), m_inputConnectors.end(),
+                              WPredicateHelper::Name< boost::shared_ptr< WModuleInputConnector > >( con->getName() )
+    );
+    // well ... we want it to be unique in both:
+    c += std::count_if( m_outputConnectors.begin(), m_outputConnectors.end(),
+                        WPredicateHelper::Name< boost::shared_ptr< WModuleOutputConnector > >( con->getName() )
+    );
+
+    // if there already is one ... exception
+    if ( c )
     {
-        m_inputConnectors.push_back( con );
+        throw WNameNotUnique( std::string( "Could not add the connector " + con->getCanonicalName() + " since names must be unique." ) );
     }
+
+    m_inputConnectors.push_back( con );
 }
 
 void WModule::addConnector( boost::shared_ptr< WModuleOutputConnector > con )
 {
-    if ( std::count( m_outputConnectors.begin(), m_outputConnectors.end(), con ) == 0 )
+    size_t c = std::count_if( m_inputConnectors.begin(), m_inputConnectors.end(),
+                              WPredicateHelper::Name< boost::shared_ptr< WModuleInputConnector > >( con->getName() )
+    );
+    // well ... we want it to be unique in both:
+    c += std::count_if( m_outputConnectors.begin(), m_outputConnectors.end(),
+                        WPredicateHelper::Name< boost::shared_ptr< WModuleOutputConnector > >( con->getName() )
+    );
+
+    // if there already is one ... exception
+    if ( c )
     {
-        m_outputConnectors.push_back( con );
+        throw WNameNotUnique( std::string( "Could not add the connector " + con->getCanonicalName() + " since names must be unique." ) );
     }
+
+    m_outputConnectors.push_back( con );
 }
 
 void WModule::disconnect()
