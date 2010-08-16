@@ -72,7 +72,7 @@ const char** WMArbitraryPlane::getXPMIcon() const
 const std::string WMArbitraryPlane::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
-    return "ArbitraryPlane";
+    return "Arbitrary Plane";
 }
 
 const std::string WMArbitraryPlane::getDescription() const

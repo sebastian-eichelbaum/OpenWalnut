@@ -85,8 +85,8 @@ void WMMeshReader::properties()
     // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_meshFile = m_properties->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
-    m_readTriggerProp = m_properties->addProperty( "Do Read",  "Press!",
+    m_meshFile = m_properties->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
+    m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 }
 

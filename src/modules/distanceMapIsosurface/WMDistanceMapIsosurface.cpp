@@ -81,18 +81,18 @@ void WMDistanceMapIsosurface::moduleMain()
     // now wait for it to be ready
     m_marchingCubesModule->isReady().wait();
     boost::shared_ptr< WProperties >  mcProps = m_marchingCubesModule->getProperties();
-    m_isoValueProp = mcProps->getProperty( "Iso Value" )->toPropDouble();
+    m_isoValueProp = mcProps->getProperty( "Iso value" )->toPropDouble();
     m_isoValueProp->set( 0.2 );
     m_isoValueProp->setMin( 0.0 );
     m_isoValueProp->setMax( 1.0 );
     m_properties->addProperty( m_isoValueProp );
 
 
-    m_useTextureProp = mcProps->getProperty( "Use Texture" )->toPropBool();
+    m_useTextureProp = mcProps->getProperty( "Use texture" )->toPropBool();
     m_useTextureProp->set( true );
     m_properties->addProperty( m_useTextureProp );
 
-    m_surfaceColorProp = mcProps->getProperty( "Surface Color" )->toPropColor();
+    m_surfaceColorProp = mcProps->getProperty( "Surface color" )->toPropColor();
     m_properties->addProperty( m_surfaceColorProp );
 
     m_opacityProp = mcProps->getProperty( "Opacity %" )->toPropInt();

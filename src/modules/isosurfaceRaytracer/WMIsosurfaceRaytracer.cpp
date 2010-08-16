@@ -101,10 +101,10 @@ void WMIsosurfaceRaytracer::properties()
 
     m_isoValue      = m_properties->addProperty( "Isovalue",         "The isovalue used whenever the isosurface Mode is turned on.",
                                                                       50 );
-    m_isoColor      = m_properties->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
+    m_isoColor      = m_properties->addProperty( "Iso color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
                       m_propCondition );
 
-    m_stepCount     = m_properties->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value "
+    m_stepCount     = m_properties->addProperty( "Step count",       "The number of steps to walk along the ray during raycasting. A low value "
                                                                       "may cause artifacts whilst a high value slows down rendering.", 250 );
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );
@@ -113,10 +113,10 @@ void WMIsosurfaceRaytracer::properties()
 
     // Lighting
     m_shadingSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_shadingSelections->addItem( "Emphasize Cortex", "Emphasize the cortex. Inner parts are not that well lighten." );
-    m_shadingSelections->addItem( "Depth Only",       "Only show the depth of the surface along the ray." );
+    m_shadingSelections->addItem( "Emphasize cortex", "Emphasize the cortex. Inner parts are not that well lighten." );
+    m_shadingSelections->addItem( "Depth only",       "Only show the depth of the surface along the ray." );
     m_shadingSelections->addItem( "Phong",            "Phong lighting. Slower but more realistic lighting" );
-    m_shadingSelections->addItem( "Phong + Depth",    "Phong lighting in combination with depth cueing." );
+    m_shadingSelections->addItem( "Phong + depth",    "Phong lighting in combination with depth cueing." );
     m_shadingAlgo   = m_properties->addProperty( "Shading", "The shading algorithm.", m_shadingSelections->getSelectorFirst(), m_propCondition );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_shadingAlgo );

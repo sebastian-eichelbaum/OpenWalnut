@@ -1158,17 +1158,17 @@ bool WQtConfigWidget::setWalnutFromProperties()
     {
         view->setBgColor( color );
     }
-    view = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
+    view = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
     if ( view )
     {
         view->setBgColor( color );
     }
-    view = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
+    view = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
     if ( view )
     {
         view->setBgColor( color );
     }
-    view = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
+    view = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
     if ( view )
     {
         view->setBgColor( color );
