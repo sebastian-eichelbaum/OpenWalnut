@@ -26,11 +26,11 @@
 
 #include "WBSpline.h"
 
-WBSpline::WBSpline( int order, std::vector< std::vector< double > > deBoorPoints )
+WBSpline::WBSpline( int order, std::vector< wmath::WVector3D > deBoorPoints )
 {
-    this->m_deBoorPoints = deBoorPoints;
-    int n = this->m_deBoorPoints.size();
-    int k = this->m_order = order;
+    m_deBoorPoints = deBoorPoints;
+    int n = m_deBoorPoints.size();
+    int k = m_order = order;
 
     //define a normalized knotVector
     for( int i = 0; i < (n + k); i++)
@@ -47,11 +47,11 @@ WBSpline::WBSpline( int order, std::vector< std::vector< double > > deBoorPoints
     }
 }
 
-WBSpline::WBSpline( int order, std::vector< std::vector< double > > deBoorPoints, std::vector<double> knots )
+WBSpline::WBSpline( int order, std::vector< wmath::WVector3D > deBoorPoints, std::vector<double> knots )
 {
-    this->m_order = order;
-    this->m_deBoorPoints = deBoorPoints;
-    this->m_knots = knots;
+    m_order = order;
+    m_deBoorPoints = deBoorPoints;
+    m_knots = knots;
 }
 
 WBSpline::~WBSpline()
@@ -102,37 +102,37 @@ wmath::WVector3D WBSpline::f( double _t )
     return result;
 }
 
-std::vector< std::vector< double > > WBSpline::getDeBoorPoints()
+std::vector< wmath::WVector3D > WBSpline::getDeBoorPoints()
 {
     return m_deBoorPoints;
 }
 
 std::vector<double> WBSpline::getKnots()
 {
-    return this->m_knots;
+    return m_knots;
 }
 
 int WBSpline::getOrder()
 {
-    return this->m_order;
+    return m_order;
 }
 
-void WBSpline::setDeBoorPoints( std::vector< std::vector< double > > deBoorPoints )
+void WBSpline::setDeBoorPoints( std::vector< wmath::WVector3D > deBoorPoints )
 {
-    this->m_deBoorPoints = deBoorPoints;
+    m_deBoorPoints = deBoorPoints;
 }
 
 void WBSpline::setKnots( std::vector<double> knots )
 {
-    this->m_knots = knots;
+    m_knots = knots;
 }
 
 void WBSpline::setOrder( int order )
 {
-    this->m_order = order;
+    m_order = order;
 }
 
-void WBSpline::samplePoints( std::vector< std::vector< double > > *points, double resolution )
+void WBSpline::samplePoints( std::vector< wmath::WVector3D > *points, double resolution )
 {
     double deltaT = resolution;
     double currentT = m_knots[0];
@@ -141,13 +141,9 @@ void WBSpline::samplePoints( std::vector< std::vector< double > > *points, doubl
 
     for( int step = 0; step < steps; step++ )
     {
-        std::vector< double > dummy;
         currentT = m_knots[0] + step * deltaT;
         wmath::WVector3D samplePoint = f( currentT );
-        dummy.push_back( samplePoint[0] );
-        dummy.push_back( samplePoint[1] );
-        dummy.push_back( samplePoint[2] );
-        points->push_back( dummy );
+        points->push_back( samplePoint );
     }
 }
 
