@@ -184,10 +184,11 @@ public:
     * determine if a line is a string ( beginning and ending with a quote )
     *
     * \param line line
+    * \param useColon consider a colon at the beginning and end of the string
     *
     * \result is string
     */
-    static bool isString( const std::string line );
+    static bool isString( const std::string line, bool useColon = false );
 
     /**
     * get the line as a string

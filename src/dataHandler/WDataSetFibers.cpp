@@ -290,7 +290,7 @@ void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std:
     vBuffer.push_back( '\n' );
 
     boost::filesystem::path p( filename );
-    boost::filesystem::ofstream ofs( p );
+    boost::filesystem::ofstream ofs( p, std::ios_base::binary );
 
     for ( unsigned int i = 0; i < vBuffer.size(); ++i )
     {

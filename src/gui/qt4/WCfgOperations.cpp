@@ -55,7 +55,7 @@ std::vector< std::string > WCfgOperations::readCfg( const std::string fileName )
 
 void WCfgOperations::writeCfg( const std::string fileName, const std::vector< std::string > lines )
 {
-    std::ofstream ofs( fileName.c_str(), std::ofstream::out );
+    std::ofstream ofs( fileName.c_str(), std::ofstream::out | std::ios_base::binary );
 
     std::stringstream mendl;
     mendl << std::endl;
@@ -299,12 +299,19 @@ double WCfgOperations::getAsDouble( const std::string line )
     return res;
 }
 
-bool WCfgOperations::isString( const std::string line )
+bool WCfgOperations::isString( const std::string line, bool useColon )
 {
     bool res = false;
-    if ( line.length() > 1 && line[0] == '\"' && line[line.length() - 1] == '\"' )
+    if ( useColon )
     {
-        res = true;
+        if ( line.length() > 1 && line[0] == '\"' && line[line.length() - 1] == '\"' )
+        {
+            res = true;
+        }
+    }
+    else
+    {
+        res = line.length() > 0;
     }
     return res;
 }
