@@ -125,6 +125,12 @@ public:
      */
     bool getColoringMode() const;
 
+    /**
+     * Set the bounding box of all fibers.
+     * \param bb The new bounding box.
+     */
+    void setBoundingBox( const osg::BoundingBox & bb );
+
 protected:
 private:
     /**

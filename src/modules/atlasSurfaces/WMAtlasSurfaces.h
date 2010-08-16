@@ -93,6 +93,11 @@ public:
      */
     void updateGraphics();
 
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
 
     /**

@@ -28,7 +28,7 @@
 
 extern "C"
 {
-    #include "libeep/cnt/cnt.h"
+    #include "../../ext/libeep/cnt/cnt.h"
 }
 
 #include "../../common/WLogger.h"

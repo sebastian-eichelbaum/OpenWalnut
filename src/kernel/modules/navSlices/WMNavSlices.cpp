@@ -438,9 +438,9 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         return;
     }
 
-    if ( pickInfo.getName() == "Axial Slice"
+    if ( ( pickInfo.getName() == "Axial Slice"
          ||  pickInfo.getName() == "Coronal Slice"
-         ||  pickInfo.getName() == "Sagittal Slice" )
+         ||  pickInfo.getName() == "Sagittal Slice" ) && pickInfo.getMouseButton() == WPickInfo::MOUSE_RIGHT )
     {
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
@@ -548,9 +548,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     float ySlice = static_cast< float >( m_coronalPos->get( true ) );
     float zSlice = static_cast< float >( m_axialPos->get( true ) );
 
-    float xPos = xSlice + 0.5f;
-    float yPos = ySlice + 0.5f;
-    float zPos = zSlice + 0.5f;
+    float xPos = xSlice;
+    float yPos = ySlice;
+    float zPos = zSlice;
 
     osg::ref_ptr<osg::Geometry> sliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
 
@@ -581,6 +581,20 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+                if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+                {
+                    boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
+                    osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    for( size_t i = 0; i < nbVerts; ++i )
+                    {
+                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                    }
+                    sliceGeometry->setTexCoordArray( c, texCoords );
+                    ++c;
+                }
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+
                 for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
                 {
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
@@ -610,6 +624,20 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+                if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+                {
+                    boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
+                    osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    for( size_t i = 0; i < nbVerts; ++i )
+                    {
+                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                    }
+                    sliceGeometry->setTexCoordArray( c, texCoords );
+                    ++c;
+                }
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+
                 for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
                 {
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
@@ -639,6 +667,20 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+                if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+                {
+                    boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
+                    osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    for( size_t i = 0; i < nbVerts; ++i )
+                    {
+                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                    }
+                    sliceGeometry->setTexCoordArray( c, texCoords );
+                    ++c;
+                }
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+
                 for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
                 {
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
@@ -817,6 +859,26 @@ void WMNavSlices::updateTextures()
 
             // for each texture -> apply
             int c = 0;
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+            {
+                osg::ref_ptr<osg::Texture3D> texture3D = WKernel::getRunningKernel()->getSelectionManager()->getTexture();
+
+
+                m_typeUniforms[c]->set( W_DT_UNSIGNED_CHAR  );
+                m_thresholdUniforms[c]->set( 0.0f );
+                m_alphaUniforms[c]->set( WKernel::getRunningKernel()->getSelectionManager()->getTextureOpacity() );
+                m_cmapUniforms[c]->set( 4 );
+
+                texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+                texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+
+                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+                ++c;
+            }
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
                 osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();

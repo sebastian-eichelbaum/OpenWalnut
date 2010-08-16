@@ -38,11 +38,12 @@
 
 #include "../../common/WAssert.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "../../kernel/WKernel.h"
 
-#include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
-
 #include "WMAtlasSurfaces.h"
+#include "atlas.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMAtlasSurfaces )
@@ -67,10 +68,15 @@ boost::shared_ptr< WModule > WMAtlasSurfaces::factory() const
     return boost::shared_ptr< WModule >( new WMAtlasSurfaces() );
 }
 
+const char** WMAtlasSurfaces::getXPMIcon() const
+{
+    return atlas_xpm;
+}
+
 const std::string WMAtlasSurfaces::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
-    return "AtlasSurfaces";
+    return "Atlas Surfaces";
 }
 
 const std::string WMAtlasSurfaces::getDescription() const
@@ -308,28 +314,7 @@ void WMAtlasSurfaces::createOSGNode()
         // colors
         osg::Vec4Array* colors = new osg::Vec4Array;
 
-        float r = 0.0;
-        float g = 0.0;
-        float b = 0.0;
-
-        if ( ( ( i + 1 ) & 1 ) == 1 )
-            r = 0.4;
-        if ( ( ( i + 1 ) & 2 ) == 2 )
-            g = 0.4;
-        if ( ( ( i + 1 ) & 4 ) == 4 )
-            b = 0.4;
-        if ( ( ( i + 1 ) & 8 ) == 8 )
-            b += 0.3;
-        if ( ( ( i + 1 ) & 16 ) == 16 )
-            r += 0.3;
-        if ( ( ( i + 1 ) & 32 ) == 32 )
-            g += 0.3;
-        if ( ( ( i + 1 ) & 64 ) == 64 )
-            r += 0.3;
-        if ( ( ( i + 1 ) & 128 ) == 128 )
-            b += 0.3;
-
-        colors->push_back( osg::Vec4( r, g, b, 1.0f ) );
+        colors->push_back( wge::osgColor( wge::createColorFromIndex( i + 1 ) ) );
 
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );

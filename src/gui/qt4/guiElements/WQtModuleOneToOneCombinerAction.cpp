@@ -59,8 +59,8 @@ WQtModuleOneToOneCombinerAction::WQtModuleOneToOneCombinerAction( QWidget* paren
         targetName += " (" + m_combiner->getTargetModule()->getName() + ")";
     }
 
-    from = srcName + ":" + m_combiner->getSrcConnector() + " -> ";
-    std::string tooltip = from + targetName + ":" + m_combiner->getTargetConnector();
+    from = srcName + ": <i>" + m_combiner->getSrcConnector() + "</i> &nbsp;&nbsp;&#10140;&nbsp;&nbsp; ";
+    std::string tooltip = "<b>" + targetName + "</b><br><nobr>" + from + targetName + ": <i>" + m_combiner->getTargetConnector() + "</i></nobr>";
     setToolTip( tooltip.c_str() );
     setText( advancedText ? tooltip.c_str() : targetName.c_str() );
     setIconText( advancedText ? tooltip.c_str() : targetName.c_str() );
