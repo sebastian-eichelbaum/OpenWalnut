@@ -289,6 +289,18 @@ public:
     int getVoxelNum( const wmath::WPosition& pos ) const;
 
     /**
+     * returns the voxel index for a given discrete position in the grid
+     *
+     * \param x Position for which we want to have the voxel number.
+     * \param y Position for which we want to have the voxel number.
+     * \param z Position for which we want to have the voxel number.
+     *
+     * \return Voxel number or -1 if the position refers to a point outside of
+     * the grid.
+     */
+    int getVoxelNum( const size_t x, const size_t y, const size_t z ) const;
+
+    /**
      * Computes the X coordinate of that voxel that contains the
      * position pos.
      *
@@ -417,6 +429,38 @@ public:
      */
     std::vector< size_t > getNeighbours27( size_t id ) const;
 
+    /**
+     * Return the list of all neighbour voxels.
+     *
+     * \throw WOutOfBounds If the voxel id is outside of the grid.
+     *
+     * \param id Number of the voxel for which the neighbours should be computed
+     *
+     * \return Vector of voxel ids which are all neighboured along the XY plane
+     */
+    std::vector< size_t > getNeighbours9XY( size_t id ) const;
+
+    /**
+     * Return the list of all neighbour voxels.
+     *
+     * \throw WOutOfBounds If the voxel id is outside of the grid.
+     *
+     * \param id Number of the voxel for which the neighbours should be computed
+     *
+     * \return Vector of voxel ids which are all neighboured along the YZ plane
+     */
+    std::vector< size_t > getNeighbours9YZ( size_t id ) const;
+
+    /**
+     * Return the list of all neighbour voxels.
+     *
+     * \throw WOutOfBounds If the voxel id is outside of the grid.
+     *
+     * \param id Number of the voxel for which the neighbours should be computed
+     *
+     * \return Vector of voxel ids which are all neighboured along the XZ plane
+     */
+    std::vector< size_t > getNeighbours9XZ( size_t id ) const;
 
     /**
      * Decides whether a certain position is inside this grid or not.

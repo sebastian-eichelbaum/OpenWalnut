@@ -85,13 +85,6 @@ public:
     boost::shared_ptr< std::vector< bool > > getBitField();
 
     /**
-     * creates and adds a bitfield to the list
-     *
-     * \param size of the bitfield
-     */
-    void addBitField( size_t size );
-
-    /**
      * updates the branch bitfield for this branch
      */
     void recalculate();
@@ -101,7 +94,7 @@ public:
      *
      * \return the dirty flag
      */
-    bool isDirty();
+    bool dirty();
 
     /**
      * sets dirty flag true and notifies the branch
@@ -111,7 +104,7 @@ public:
     /**
      * returns whether the branch is empty
      */
-    bool isEmpty();
+    bool empty();
 
     /**
      * returns a pointer to the first roi in the branch
@@ -135,24 +128,31 @@ public:
 
 protected:
     /**
-     * slot gets called when a property has changed
-     *
+     * initializes properties
      */
-    void slotToggleNot();
+    void properties();
 
     /**
      * slot gets called when a property has changed
      *
      */
-    void slotChangeBundleColor();
-
-
+    void propertyChanged();
 private:
     bool m_dirty; //!< dirty flag to indicate the bit field must be recalculated
 
+    size_t m_size; //!< number of fibers in the dataset
+
     boost::shared_ptr< WROIManagerFibers > m_roiManager; //!< stores a pointer to the roi manager
 
-    boost::shared_ptr< std::vector<bool> >m_bitField; //!< list of bit fields for each fiber dataset
+    /**
+     * pointer to the bitfield that represents the current selection by the roi
+     */
+    boost::shared_ptr< std::vector<bool> >m_outputBitfield;
+
+    /**
+     * pointer to the bitfield we work on
+     */
+    boost::shared_ptr< std::vector<bool> >m_workerBitfield;
 
     std::list< boost::shared_ptr< WRMROIRepresentation> > m_rois; //!< list of rois in this this branch,
                                                                   // first in the list is the master roi
@@ -176,5 +176,15 @@ private:
      */
     WPropColor m_bundleColor;
 };
+
+inline bool WRMBranch::empty()
+{
+    return m_rois.empty();
+}
+
+inline bool WRMBranch::dirty()
+{
+    return m_dirty;
+}
 
 #endif  // WRMBRANCH_H

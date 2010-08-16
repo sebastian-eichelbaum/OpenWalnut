@@ -47,17 +47,20 @@ void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFiberVector > 
     {
         throw WDHIOFailure( "Invalid file, or permission: " + m_fname );
     }
-    out << "# vtk DataFile Version 3.0" << std::endl;
-    out << "Fibers from OpenWalnut" << std::endl;
-    out << "BINARY" << std::endl;
-    out << "DATASET POLYDATA" << std::endl;
+    // We use '\n' as line delimiter so also files written under windows (having '\r\n' as delimtier) may be read anywhere
+    char lineDelimiter = '\n';
+
+    out << "# vtk DataFile Version 3.0" << lineDelimiter;
+    out << "Fibers from OpenWalnut" << lineDelimiter;
+    out << "BINARY" << lineDelimiter;
+    out << "DATASET POLYDATA" << lineDelimiter;
     unsigned int numPoints = 0;
     unsigned int numLines = fiberDS->size();
     for( size_t i = 0; i < fiberDS->size(); ++i )
     {
         numPoints += (*fiberDS)[i].size();
     }
-    out << "POINTS " << numPoints << " float" << std::endl;
+    out << "POINTS " << numPoints << " float" << lineDelimiter;
     unsigned int *rawLineData = new unsigned int[numPoints + numLines];
     float *rawPointData = new float[numPoints * 3];
 
@@ -82,9 +85,9 @@ void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFiberVector > 
     wiotools::switchByteOrderOfArray< float >( rawPointData, numPoints * 3 );
     wiotools::switchByteOrderOfArray< unsigned int >( rawLineData, numLines + numPoints );
     out.write( reinterpret_cast< char* >( rawPointData ), sizeof( float ) * numPoints * 3 );
-    out << std::endl;
-    out << "LINES " << numLines << " " << numPoints + numLines << std::endl;
+    out << lineDelimiter;
+    out << "LINES " << numLines << " " << numPoints + numLines << lineDelimiter;
     out.write( reinterpret_cast< char* >( rawLineData ), sizeof( unsigned int ) * ( numPoints + numLines ) );
-    out << std::endl;
+    out << lineDelimiter;
     out.close();
 }

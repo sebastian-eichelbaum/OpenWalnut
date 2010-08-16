@@ -378,6 +378,16 @@ int WGridRegular3D::getVoxelNum( const wmath::WPosition& pos ) const
          + zVoxelCoord * ( m_nbPosX ) * ( m_nbPosY );
 }
 
+int WGridRegular3D::getVoxelNum( const size_t x, const size_t y, const size_t z ) const
+{
+    // since we use size_t here only a check for the upper bounds is needed
+    if ( x > m_nbPosX || y > m_nbPosY || z > m_nbPosZ )
+    {
+        return -1;
+    }
+    return x + y * ( m_nbPosX ) + z * ( m_nbPosX ) * ( m_nbPosY );
+}
+
 int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const
 {
     double result = pos[ axis ] - m_origin[ axis ];
@@ -564,112 +574,233 @@ std::vector< size_t > WGridRegular3D::getNeighbours27( size_t id ) const
         throw WOutOfBounds( ss.str() );
     }
     // for every neighbour we must check if its not on the boundary, it will be skipped otherwise
-    if( x > 0 )
+    std::vector< int >tempResult;
+
+    tempResult.push_back( getVoxelNum( x    , y    , z ) );
+    tempResult.push_back( getVoxelNum( x    , y - 1, z ) );
+    tempResult.push_back( getVoxelNum( x    , y + 1, z ) );
+    tempResult.push_back( getVoxelNum( x - 1, y    , z ) );
+    tempResult.push_back( getVoxelNum( x - 1, y - 1, z ) );
+    tempResult.push_back( getVoxelNum( x - 1, y + 1, z ) );
+    tempResult.push_back( getVoxelNum( x + 1, y    , z ) );
+    tempResult.push_back( getVoxelNum( x + 1, y - 1, z ) );
+    tempResult.push_back( getVoxelNum( x + 1, y + 1, z ) );
+
+    tempResult.push_back( getVoxelNum( x    , y    , z - 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y - 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y + 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y    , z - 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y - 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y + 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y    , z - 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y - 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y + 1, z - 1 ) );
+
+    tempResult.push_back( getVoxelNum( x    , y    , z + 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y - 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y + 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y    , z + 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y - 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y + 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y    , z + 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y - 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y + 1, z + 1 ) );
+
+    for ( size_t k = 0; k < tempResult.size(); ++k )
     {
-        neighbours.push_back( id - 1 );
-        if( y > 0 )
+        if ( tempResult[k] != -1 )
         {
-            neighbours.push_back( id - m_nbPosX - 1 );
-        }
-        if( y < m_nbPosY - 1 )
-        {
-            neighbours.push_back( id + m_nbPosX - 1 );
+            neighbours.push_back( tempResult[k] );
         }
     }
-    if( x < m_nbPosX - 1 )
+    return neighbours;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours9XY( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
     {
-        neighbours.push_back( id + 1 );
-        if( y > 0 )
-        {
-            neighbours.push_back( id - m_nbPosX + 1 );
-        }
-        if( y < m_nbPosY - 1 )
-        {
-            neighbours.push_back( id + m_nbPosX + 1 );
-        }
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
     }
-    if( y > 0 )
+    // boundary check now happens in the getVoxelNum function
+    int vNum;
+
+    vNum = getVoxelNum( x - 1, y, z );
+    if ( vNum != -1 )
     {
-        neighbours.push_back( id - m_nbPosX );
+        neighbours.push_back( vNum );
     }
-    if( y < m_nbPosY - 1 )
+    vNum = getVoxelNum( x - 1, y - 1, z );
+    if ( vNum != -1 )
     {
-        neighbours.push_back( id + m_nbPosX );
+        neighbours.push_back( vNum );
     }
-    if( z > 0 )
+    vNum = getVoxelNum( x, y - 1, z );
+    if ( vNum != -1 )
     {
-        int tempId =  id - ( m_nbPosX * m_nbPosY );
-        neighbours.push_back( tempId );
-        if( x > 0 )
-        {
-            neighbours.push_back( tempId - 1 );
-            if( y > 0 )
-            {
-                neighbours.push_back( tempId - m_nbPosX - 1 );
-            }
-            if( y < m_nbPosY - 1 )
-            {
-                neighbours.push_back( tempId + m_nbPosX - 1 );
-            }
-        }
-        if( x < m_nbPosX - 1 )
-        {
-            neighbours.push_back( tempId + 1 );
-            if( y > 0 )
-            {
-                neighbours.push_back( tempId - m_nbPosX + 1 );
-            }
-            if( y < m_nbPosY - 1 )
-            {
-                neighbours.push_back( tempId + m_nbPosX + 1 );
-            }
-        }
-        if( y > 0 )
-        {
-            neighbours.push_back( tempId - m_nbPosX );
-        }
-        if( y < m_nbPosY - 1 )
-        {
-            neighbours.push_back( tempId + m_nbPosX );
-        }
+        neighbours.push_back( vNum );
     }
-    if( z < m_nbPosZ - 1 )
+    vNum = getVoxelNum( x + 1, y - 1, z );
+    if ( vNum != -1 )
     {
-        int tempId =  id + ( m_nbPosX * m_nbPosY );
-         neighbours.push_back( tempId );
-         if( x > 0 )
-         {
-             neighbours.push_back( tempId - 1 );
-             if( y > 0 )
-             {
-                 neighbours.push_back( tempId - m_nbPosX - 1 );
-             }
-             if( y < m_nbPosY - 1 )
-             {
-                 neighbours.push_back( tempId + m_nbPosX - 1 );
-             }
-         }
-         if( x < m_nbPosX - 1 )
-         {
-             neighbours.push_back( tempId + 1 );
-             if( y > 0 )
-             {
-                 neighbours.push_back( tempId - m_nbPosX + 1 );
-             }
-             if( y < m_nbPosY - 1 )
-             {
-                 neighbours.push_back( tempId + m_nbPosX + 1 );
-             }
-         }
-         if( y > 0 )
-         {
-             neighbours.push_back( tempId - m_nbPosX );
-         }
-         if( y < m_nbPosY - 1 )
-         {
-             neighbours.push_back( tempId + m_nbPosX );
-         }
+        neighbours.push_back( vNum );
     }
+    vNum = getVoxelNum( x + 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    return neighbours;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours9YZ( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // boundary check now happens in the getVoxelNum function
+    int vNum;
+
+    vNum = getVoxelNum( x, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+
+    return neighbours;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours9XZ( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // boundary check now happens in the getVoxelNum function
+    int vNum;
+
+    vNum = getVoxelNum( x, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+
     return neighbours;
 }
 

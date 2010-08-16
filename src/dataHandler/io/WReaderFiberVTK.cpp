@@ -203,7 +203,9 @@ std::string WReaderFiberVTK::getLine( const std::string& desc )
     std::string line;
     try
     {
-        std::getline( *m_ifs, line );
+        // we use '\n' as line termination under every platform so our files (which are most likely to be generated on Unix systems)
+        // can be read from all platforms not having those line termination symbols like e.g. windows ('\r\n').
+        std::getline( *m_ifs, line, '\n' );
     }
     catch( const std::ios_base::failure &e )
     {

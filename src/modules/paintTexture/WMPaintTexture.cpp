@@ -26,12 +26,13 @@
 #include <sstream>
 #include <vector>
 
-#include "../../kernel/WKernel.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WSubject.h"
-#include "../../common/WPropertyHelper.h"
-
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WROIArbitrary.h"
+#include "../../kernel/WKernel.h"
 
 #include "paintTexture.xpm" // Please put a real icon here.
 
@@ -97,6 +98,8 @@ void WMPaintTexture::properties()
     m_pencilSelectionsList->addItem( "1x1", "" );
     m_pencilSelectionsList->addItem( "3x3", "" );
     m_pencilSelectionsList->addItem( "5x5", "" );
+    m_pencilSelectionsList->addItem( "3x1 (only works on orthogonal slices)", "" );
+    m_pencilSelectionsList->addItem( "5x1 (only works on orthogonal slices)", "" );
     m_pencilSelection = m_properties->addProperty( "Pencil",  "Pencil type.", m_pencilSelectionsList->getSelectorFirst() );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_pencilSelection );
 
@@ -123,8 +126,13 @@ void WMPaintTexture::properties()
     m_queueAdded = m_properties->addProperty( "Something paint", "", false, m_propCondition );
     m_queueAdded->setHidden();
 
+    m_buttonCopyFromInput = m_properties->addProperty( "Copy from input", "Copies data from the input dataset into the paint texture",
+                WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+
     m_buttonUpdateOutput = m_properties->addProperty( "Update output", "Updates the output connector",
             WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+    m_buttonCreateRoi = m_properties->addProperty( "Create ROI", "Create a ROI from the currently selected paint value",
+                WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
 }
 
 void WMPaintTexture::propertyChanged( boost::shared_ptr< WPropertyBase > property )
@@ -144,6 +152,7 @@ void WMPaintTexture::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
+    m_moduleState.add( m_active->getUpdateCondition() );
 
     ready();
 
@@ -183,6 +192,38 @@ void WMPaintTexture::moduleMain()
                 {
                     WKernel::getRunningKernel()->getSelectionManager()->setPaintMode( PAINTMODE_NONE );
                 }
+            }
+
+            if ( m_active->changed() )
+            {
+                if ( m_active->get( true ) )
+                {
+                    if ( m_painting->get( true ) )
+                    {
+                        WKernel::getRunningKernel()->getSelectionManager()->setPaintMode( PAINTMODE_PAINT );
+                    }
+                    WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( true );
+                    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+                }
+                else
+                {
+                    WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( false );
+                    WKernel::getRunningKernel()->getSelectionManager()->setPaintMode( PAINTMODE_NONE );
+                    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+                }
+            }
+
+            if ( m_buttonCopyFromInput->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+            {
+                copyFromInput();
+                m_buttonCopyFromInput->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+            }
+
+            if ( m_buttonCreateRoi->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+            {
+                m_painting->set( false );
+                createROI();
+                m_buttonCreateRoi->set( WPVBaseTypes::PV_TRIGGER_READY, false );
             }
         }
         else // case !dataValid
@@ -225,7 +266,8 @@ void WMPaintTexture::doPaint()
 
     while ( !m_paintQueue.empty() )
     {
-        wmath::WPosition paintPosition = m_paintQueue.front();
+        WPickInfo pickInfo = m_paintQueue.front();
+        wmath::WPosition paintPosition = pickInfo.getPickPosition();
         m_paintQueue.pop();
 
         int voxelNum = m_grid->getVoxelNum( paintPosition );
@@ -253,13 +295,88 @@ void WMPaintTexture::doPaint()
                     for ( size_t i = 0; i < ids.size(); ++i )
                     {
                         std::vector< size_t > allIds = m_grid->getNeighbours27( ids[i] );
-                        for ( size_t k = 0; k < ids.size(); ++k )
+                        for ( size_t k = 0; k < allIds.size(); ++k )
                         {
                             data[ allIds[k] ] = m_paintIndex->get();
                         }
                     }
                     break;
                 }
+                case 3:
+                {
+                    if ( pickInfo.getName() == "Axial Slice" )
+                    {
+                        data[ voxelNum ] = m_paintIndex->get();
+                        std::vector< size_t > ids = m_grid->getNeighbours9XY( voxelNum );
+                        for ( size_t i = 0; i < ids.size(); ++i )
+                        {
+                            data[ ids[i] ] = m_paintIndex->get();
+                        }
+                    }
+                    if ( pickInfo.getName() == "Coronal Slice" )
+                    {
+                        data[ voxelNum ] = m_paintIndex->get();
+                        std::vector< size_t > ids = m_grid->getNeighbours9XZ( voxelNum );
+                        for ( size_t i = 0; i < ids.size(); ++i )
+                        {
+                            data[ ids[i] ] = m_paintIndex->get();
+                        }
+                    }
+                    if ( pickInfo.getName() == "Sagittal Slice" )
+                    {
+                        data[ voxelNum ] = m_paintIndex->get();
+                        std::vector< size_t > ids = m_grid->getNeighbours9YZ( voxelNum );
+                        for ( size_t i = 0; i < ids.size(); ++i )
+                        {
+                            data[ ids[i] ] = m_paintIndex->get();
+                        }
+                    }
+                    break;
+                }
+                case 4:
+                {
+                    if ( pickInfo.getName() == "Axial Slice" )
+                    {
+                        data[ voxelNum ] = m_paintIndex->get();
+                        std::vector< size_t > ids = m_grid->getNeighbours9XY( voxelNum );
+                        for ( size_t i = 0; i < ids.size(); ++i )
+                        {
+                            std::vector< size_t > allIds = m_grid->getNeighbours9XY( ids[i] );
+                            for ( size_t k = 0; k < allIds.size(); ++k )
+                            {
+                                data[ allIds[k] ] = m_paintIndex->get();
+                            }
+                        }
+                    }
+                    if ( pickInfo.getName() == "Coronal Slice" )
+                    {
+                        data[ voxelNum ] = m_paintIndex->get();
+                        std::vector< size_t > ids = m_grid->getNeighbours9XZ( voxelNum );
+                        for ( size_t i = 0; i < ids.size(); ++i )
+                        {
+                            std::vector< size_t > allIds = m_grid->getNeighbours9XZ( ids[i] );
+                            for ( size_t k = 0; k < allIds.size(); ++k )
+                            {
+                                data[ allIds[k] ] = m_paintIndex->get();
+                            }
+                        }
+                    }
+                    if ( pickInfo.getName() == "Sagittal Slice" )
+                    {
+                        data[ voxelNum ] = m_paintIndex->get();
+                        std::vector< size_t > ids = m_grid->getNeighbours9YZ( voxelNum );
+                        for ( size_t i = 0; i < ids.size(); ++i )
+                        {
+                            std::vector< size_t > allIds = m_grid->getNeighbours9YZ( ids[i] );
+                            for ( size_t k = 0; k < allIds.size(); ++k )
+                            {
+                                data[ allIds[k] ] = m_paintIndex->get();
+                            }
+                        }
+                    }
+                    break;
+                }
+
                 default:
                     break;
             }
@@ -272,29 +389,45 @@ void WMPaintTexture::doPaint()
 
 void WMPaintTexture::queuePaint( WPickInfo pickInfo )
 {
-    if ( !m_painting->get() || ( pickInfo.getMouseButton() != WPickInfo::MOUSE_LEFT ) )
+    if ( !m_painting->get() || ( pickInfo.getMouseButton() != WPickInfo::MOUSE_LEFT ) || ( pickInfo.getName() == "unpick" ) )
     {
         return;
     }
-    m_paintQueue.push( pickInfo.getPickPosition() );
+
+    if ( pickInfo.getModifierKey() == WPickInfo::SHIFT )
+    {
+        setColorFromPick( pickInfo );
+        return;
+    }
+
+    m_paintQueue.push( pickInfo );
     m_queueAdded->set( true );
+}
+
+void WMPaintTexture::setColorFromPick( WPickInfo pickInfo )
+{
+    wmath::WPosition paintPosition = pickInfo.getPickPosition();
+    int voxelNum = m_grid->getVoxelNum( paintPosition );
+
+    if ( voxelNum != -1 )
+    {
+        unsigned char* data = m_texture->getImage()->data();
+        m_paintIndex->set( data[ voxelNum ] );
+    }
 }
 
 void WMPaintTexture::createTexture()
 {
     m_grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
 
-    m_values.resize( m_grid->size(), 0 );
-    m_values[0] = 255;
-
     osg::ref_ptr< osg::Image > ima = new osg::Image;
     ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_UNSIGNED_BYTE );
 
     unsigned char* data = ima->data();
 
-    for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
+    for ( unsigned int i = 0; i < m_grid->size(); ++i )
     {
-        data[i] = m_values[i];
+        data[i] = 0.0;
     }
 
     m_texture = osg::ref_ptr<osg::Texture3D>( new osg::Texture3D );
@@ -318,19 +451,75 @@ void WMPaintTexture::updateOutDataset()
     WAssert( m_dataSet->getValueSet(), "" );
     WAssert( m_dataSet->getGrid(), "" );
 
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-    WAssert( grid, "" );
-
     unsigned char* data = m_texture->getImage()->data();
+    std::vector<unsigned char>values( m_grid->size(), 0.0 );
 
-    for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
+    for ( unsigned int i = 0; i < m_grid->size(); ++i )
     {
-        m_values[i] = data[i];
+        values[i] = data[i];
     }
 
     boost::shared_ptr< WValueSet< unsigned char > > vs =
-        boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >( 0, 1, m_values, W_DT_UINT8 ) );
+        boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >( 0, 1, values, W_DT_UINT8 ) );
 
-    m_outData = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, grid ) );
+    m_outData = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_grid ) );
     m_output->updateData( m_outData );
+}
+
+void WMPaintTexture::copyFromInput()
+{
+    m_grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+
+    unsigned char* data = m_texture->getImage()->data();
+
+    boost::shared_ptr< WValueSet< unsigned char > > vals;
+    vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( m_dataSet->getValueSet() );
+
+    for ( unsigned int i = 0; i < m_grid->size(); ++i )
+    {
+        data[i] = vals->getScalar( i );
+    }
+    m_texture->dirtyTextureObject();
+}
+
+void WMPaintTexture::createROI()
+{
+    if( !WKernel::getRunningKernel()->getRoiManager()->getBitField() )
+    {
+        wlog::warn( "WMPaintTexture" ) << "Refused to add ROI, as ROIManager does not have computed its bitfield yet.";
+        return;
+    }
+
+    bool valid = false;
+    std::vector<float>roiVals( m_grid->size(), 0 );
+    unsigned char index = m_paintIndex->get();
+
+    unsigned char* data = m_texture->getImage()->data();
+
+    for ( size_t i = 0; i < m_grid->size(); ++i )
+    {
+        if ( data[i] == index )
+        {
+            roiVals[i] = 1.0;
+            valid = true;
+        }
+    }
+
+    if ( valid )
+    {
+        osg::ref_ptr< WROI > newRoi = osg::ref_ptr< WROI >(
+                new WROIArbitrary( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+                                   m_grid->getTransformationMatrix(), roiVals, 1.0, wge::createColorFromIndex( index ) ) );
+
+        if ( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
+        {
+            std::cout << " new roi without parent " << std::endl;
+            WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
+        }
+        else
+        {
+            std::cout << " new roi with parent " << std::endl;
+            WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi()->getROI() );
+        }
+    }
 }

@@ -144,6 +144,23 @@ private:
     void updateOutDataset();
 
     /**
+     * copies data from the input dataset into the paint texture
+     */
+    void copyFromInput();
+
+    /**
+     * creates a ROI from the currently selected paint value
+     */
+    void createROI();
+
+    /**
+     * get the paint index at the picked voexel fromt he out texture and sets m_paintIndex accordingly
+     *
+     * \param pickInfo the pickInfo object for the pick
+     */
+    void setColorFromPick( WPickInfo pickInfo );
+
+    /**
      * Interpolation?
      */
     WPropBool m_painting;
@@ -184,14 +201,9 @@ private:
     WPropBool m_queueAdded;
 
     /**
-     * field that stores the new values
-     */
-    std::vector< unsigned char > m_values;
-
-    /**
      * new paint coordinates get added here
      */
-    std::queue< wmath::WPosition >m_paintQueue;
+    std::queue< WPickInfo >m_paintQueue;
 
     /**
      * An input connector that accepts order 1 datasets.
@@ -234,9 +246,19 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
+     * copies the input dataset into the paint texture, this allows to continue work
+     */
+    WPropTrigger m_buttonCopyFromInput;
+
+    /**
      * updates the output connector on demand, as we don't want to do this every paint command
      */
     WPropTrigger m_buttonUpdateOutput;
+
+    /**
+     * updates the output connector on demand, as we don't want to do this every paint command
+     */
+    WPropTrigger m_buttonCreateRoi;
 };
 
 #endif  // WMPAINTTEXTURE_H

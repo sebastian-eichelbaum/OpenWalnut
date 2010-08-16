@@ -71,6 +71,23 @@ public:
                    WColor color );
 
     /**
+     * constructor
+     * \param nbCoordsX number of vertices in X direction
+     * \param nbCoordsY number of vertices in Y direction
+     * \param nbCoordsZ number of vertices in Z direction
+     * \param mat the matrix transforming the vertices from canonical space
+     * \param vals the values at the vertices
+     * \param maxThreshold The maximum of the values.
+     * \param color the color to use for the ROI.
+     */
+    WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
+                   const wmath::WMatrix< double >& mat,
+                   const std::vector< float >& vals,
+                   float maxThreshold,
+                   WColor color );
+
+
+    /**
      * destructor
      */
     virtual ~WROIArbitrary();

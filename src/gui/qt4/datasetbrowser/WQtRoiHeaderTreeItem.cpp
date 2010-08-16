@@ -32,7 +32,7 @@
 WQtRoiHeaderTreeItem::WQtRoiHeaderTreeItem( QTreeWidget * parent ) :
     QTreeWidgetItem( parent, ROIHEADER )
 {
-    setFlags( Qt::ItemIsEnabled );
+    setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable );
 }
 
 WQtRoiHeaderTreeItem::~WQtRoiHeaderTreeItem()
