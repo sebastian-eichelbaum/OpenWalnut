@@ -609,13 +609,13 @@ void WMTemplate::moduleMain()
             // The single selector allows only one selected item and requires one item to be selected all the time. So accessing it by index
             // is trivial:
             WItemSelector s = m_aSingleSelection->get( true );
-            infoLog() << "The user likes " << s.at( 0 ).getName() << " the most.";
+            infoLog() << "The user likes " << s.at( 0 )->getName() << " the most.";
 
             // The multi property allows the selection of several items. So, iteration needs to be done here:
             s = m_aMultiSelection->get( true );
             for ( size_t i = 0; i < s.size(); ++i )
             {
-                infoLog() << "The user likes " << s.at( i ).getName();
+                infoLog() << "The user likes " << s.at( i )->getName();
             }
         }
     }

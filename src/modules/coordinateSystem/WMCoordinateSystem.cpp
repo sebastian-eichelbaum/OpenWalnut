@@ -162,7 +162,7 @@ void WMCoordinateSystem::propertyChanged()
     if ( m_csSelection->changed() )
     {
         WItemSelector s = m_csSelection->get( true );
-        infoLog() << "Selected " << s.at( 0 ).getName() << " coordinate system.";
+        infoLog() << "Selected " << s.at( 0 )->getName() << " coordinate system.";
         m_coordConverter->setCoordinateSystemMode( static_cast< coordinateSystemMode > ( s.getItemIndexOfSelected( 0 ) ) );
     }
 

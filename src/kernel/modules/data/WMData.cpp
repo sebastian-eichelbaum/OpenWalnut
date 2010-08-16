@@ -402,6 +402,17 @@ void WMData::moduleMain()
 
     debugLog() << "Loading data done.";
 
+    // register the dataset properties
+    m_properties->addProperty( m_dataSet->getProperties() );
+    m_infoProperties->addProperty( m_dataSet->getInformationProperties() );
+
+    // textures also provide properties
+    if ( m_dataSet->isTexture() )
+    {
+        m_properties->addProperty( m_dataSet->getTexture()->getProperties() );
+        m_infoProperties->addProperty( m_dataSet->getTexture()->getInformationProperties() );
+    }
+
     // i am interested in the active property ( manually subscribe signal )
     m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );
 

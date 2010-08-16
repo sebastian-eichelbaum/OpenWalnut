@@ -48,7 +48,7 @@ class WItemSelector;
  * automatically using the change condition of the inherited WSharedSequenceContainer.
  */
 class OWCOMMON_EXPORT WItemSelection: public boost::enable_shared_from_this< WItemSelection >,
-                                      public WSharedSequenceContainer< std::vector< WItemSelectionItem > >
+                                      public WSharedSequenceContainer< std::vector< boost::shared_ptr< WItemSelectionItem > > >
 {
 friend class WItemSelector; // for proper locking and unlocking
 public:
@@ -101,9 +101,9 @@ public:
      *
      * \return the Item.
      */
-    static WItemSelectionItem Item( std::string name, std::string description = "", const char** icon = NULL )
+    static boost::shared_ptr< WItemSelectionItem > Item( std::string name, std::string description = "", const char** icon = NULL )
     {
-        return WItemSelectionItem( name, description, icon );
+        return boost::shared_ptr< WItemSelectionItem >( new WItemSelectionItem( name, description, icon ) );
     }
 
     /**

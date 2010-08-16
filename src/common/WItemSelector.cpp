@@ -145,12 +145,12 @@ size_t WItemSelector::size() const
     return m_selected.size();
 }
 
-const WItemSelectionItem& WItemSelector::atAll( size_t index ) const
+const boost::shared_ptr< WItemSelectionItem > WItemSelector::atAll( size_t index ) const
 {
     return m_selection->at( index );
 }
 
-const WItemSelectionItem& WItemSelector::at( size_t index ) const
+const boost::shared_ptr< WItemSelectionItem > WItemSelector::at( size_t index ) const
 {
     return m_selection->at( getItemIndexOfSelected( index ) );
 }

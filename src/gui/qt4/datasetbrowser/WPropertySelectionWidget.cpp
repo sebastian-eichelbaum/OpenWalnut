@@ -152,12 +152,12 @@ void WPropertySelectionWidget::update()
         // add all items from the selection set:
         for ( size_t i = 0; i < sValid.sizeAll(); ++i )
         {
-            m_combo->addItem( QString::fromStdString( sValid.atAll( i ).getName() ) );
+            m_combo->addItem( QString::fromStdString( sValid.atAll( i )->getName() ) );
             // if there is an icon -> show it
-            if ( sValid.atAll( i ).getIcon() )
+            if ( sValid.atAll( i )->getIcon() )
             {
                 // scale the pixmap to a maximum size if larger
-                QPixmap pix = ensureSize( QPixmap( sValid.atAll( i ).getIcon() ) );
+                QPixmap pix = ensureSize( QPixmap( sValid.atAll( i )->getIcon() ) );
 
                 // set icon
                 m_combo->setItemIcon( i, QIcon( pix ) );
@@ -194,23 +194,23 @@ void WPropertySelectionWidget::update()
 
             int column = 0;
             // if there is an icon -> show it
-            if ( sValid.atAll( i ).getIcon() )
+            if ( sValid.atAll( i )->getIcon() )
             {
                 QLabel* icon = new QLabel();
                 QSizePolicy sizePolicy( QSizePolicy::Maximum, QSizePolicy::Preferred ); // <-- scale it down
                 icon->setSizePolicy( sizePolicy );
-                icon->setPixmap( ensureSize( QPixmap( sValid.atAll( i ).getIcon() ) ) );
+                icon->setPixmap( ensureSize( QPixmap( sValid.atAll( i )->getIcon() ) ) );
                 layoutWidget->addWidget( icon, 0, 0, 2, 1 );
 
                 ++column;
             }
 
             // Add Name and Description
-            layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( sValid.atAll( i ).getName() )+ "</b>" ), 0, column );
+            layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( sValid.atAll( i )->getName() )+ "</b>" ), 0, column );
             // if there is no description -> no widget added to save space
-            if ( !sValid.atAll( i ).getDescription().empty() )
+            if ( !sValid.atAll( i )->getDescription().empty() )
             {
-                layoutWidget->addWidget(  new QLabel( QString::fromStdString( sValid.atAll( i ).getDescription() ) ), 1, column );
+                layoutWidget->addWidget(  new QLabel( QString::fromStdString( sValid.atAll( i )->getDescription() ) ), 1, column );
             }
 
             layoutWidget->setSizeConstraint( QLayout::SetMaximumSize );

@@ -32,7 +32,8 @@
 
 #include "WItemSelection.h"
 
-WItemSelection::WItemSelection()
+WItemSelection::WItemSelection():
+    WSharedSequenceContainer< std::vector< boost::shared_ptr< WItemSelectionItem > > >()
 {
     // initialize members
 }
@@ -88,6 +89,6 @@ WItemSelector WItemSelection::getSelector( size_t item )
 
 void WItemSelection::addItem( std::string name, std::string description, const char** icon )
 {
-    push_back( WItemSelectionItem( name, description, icon ) );
+    push_back( boost::shared_ptr< WItemSelectionItem >( new WItemSelectionItem( name, description, icon ) ) );
 }
 

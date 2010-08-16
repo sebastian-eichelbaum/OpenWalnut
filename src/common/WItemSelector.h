@@ -176,7 +176,7 @@ public:
      *
      * \return the item
      */
-    virtual const WItemSelectionItem& atAll( size_t index ) const;
+    virtual const boost::shared_ptr< WItemSelectionItem > atAll( size_t index ) const;
 
     /**
      * Gets the selected item with the given index. This is not the same index as the element has in the corresponding WItemSelection!
@@ -186,7 +186,7 @@ public:
      *
      * \return the item
      */
-    virtual const WItemSelectionItem& at( size_t index ) const;
+    virtual const boost::shared_ptr< WItemSelectionItem > at( size_t index ) const;
 
     /**
      * Helps to get the index of an selected item in the WItemSelection. This is somehow similar to \ref at, but does not return the item but the
