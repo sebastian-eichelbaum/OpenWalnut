@@ -39,7 +39,7 @@ WItemSelector::WItemSelector( boost::shared_ptr< WItemSelection > selection, Ind
     m_valid( true )
 {
     // initialize members
-    m_invalidateSignalConnection = m_selection->subscribeInvalidationSignal( boost::bind( &WItemSelector::invalidate, this ) );
+    m_invalidateSignalConnection = m_selection->getChangeCondition()->subscribeSignal( boost::bind( &WItemSelector::invalidate, this ) );
 }
 
 WItemSelector::WItemSelector( const WItemSelector& other ):
@@ -47,7 +47,7 @@ WItemSelector::WItemSelector( const WItemSelector& other ):
     m_selected( other.m_selected ),
     m_valid( other.m_valid )
 {
-    m_invalidateSignalConnection = m_selection->subscribeInvalidationSignal( boost::bind( &WItemSelector::invalidate, this ) );
+    m_invalidateSignalConnection = m_selection->getChangeCondition()->subscribeSignal( boost::bind( &WItemSelector::invalidate, this ) );
 }
 
 WItemSelector& WItemSelector::operator=( const WItemSelector & other )
@@ -58,7 +58,7 @@ WItemSelector& WItemSelector::operator=( const WItemSelector & other )
         m_selected = other.m_selected;
         m_valid = other.m_valid;
 
-        m_invalidateSignalConnection = m_selection->subscribeInvalidationSignal( boost::bind( &WItemSelector::invalidate, this ) );
+        m_invalidateSignalConnection = m_selection->getChangeCondition()->subscribeSignal( boost::bind( &WItemSelector::invalidate, this ) );
     }
 
     // by convention, always return *this
@@ -97,6 +97,21 @@ WItemSelector WItemSelector::newSelector( const std::string asString ) const
     return createSelector( l );
 }
 
+WItemSelector WItemSelector::newSelector() const
+{
+    WItemSelector s( *this );
+    s.m_valid = true;
+    // iterate selected items to remove items with invalid index
+    for ( IndexList::iterator i = s.m_selected.begin(); i != s.m_selected.end(); ++i )
+    {
+        if ( ( *i ) >= m_selection->size() )
+        {
+            s.m_selected.erase( i );
+        }
+    }
+    return s;
+}
+
 std::ostream& WItemSelector::operator<<( std::ostream& out ) const
 {
     for ( WItemSelector::IndexList::const_iterator iter = m_selected.begin(); iter != m_selected.end(); ++iter )
@@ -117,7 +132,7 @@ std::ostream& operator<<( std::ostream& out, const WItemSelector& other )
 
 bool WItemSelector::operator==( const WItemSelector& other ) const
 {
-    return ( ( m_selection == other.m_selection ) && ( m_selected == other.m_selected ) );
+    return ( ( m_selection == other.m_selection ) && ( m_selected == other.m_selected ) && ( m_valid == other.m_valid ) );
 }
 
 size_t WItemSelector::sizeAll() const
@@ -130,12 +145,12 @@ size_t WItemSelector::size() const
     return m_selected.size();
 }
 
-const WItemSelection::Item& WItemSelector::atAll( size_t index ) const
+const WItemSelectionItem& WItemSelector::atAll( size_t index ) const
 {
     return m_selection->at( index );
 }
 
-const WItemSelection::Item& WItemSelector::at( size_t index ) const
+const WItemSelectionItem& WItemSelector::at( size_t index ) const
 {
     return m_selection->at( getItemIndexOfSelected( index ) );
 }
@@ -170,7 +185,7 @@ void WItemSelector::lock()
 {
     // NOTE: it is not needed to check whether lock() has been called earlier. The old lock gets freed in the moment m_lock gets overwritten as
     // ReadTickets are reference counted.
-    m_lock = m_selection->m_items.getReadTicket();
+    m_lock = m_selection->getReadTicket();
 }
 
 void WItemSelector::unlock()

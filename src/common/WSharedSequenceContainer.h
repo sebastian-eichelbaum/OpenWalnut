@@ -53,6 +53,11 @@ public:
     typedef typename S::iterator         Iterator;
 
     /**
+     * The type of the elements
+     */
+    typedef typename S::value_type value_type;
+
+    /**
      * Default constructor.
      */
     WSharedSequenceContainer();
@@ -104,7 +109,7 @@ public:
      *
      * \return reference to element at the specified position
      */
-    typename S::value_type& operator[]( size_t n );
+    typename S::value_type& operator[]( size_t n ) ;
 
     /**
      * Get item at position n. Uses the [] operator of the underlying container. Please do not use this for iteration as it locks every access.
@@ -137,13 +142,12 @@ public:
     const typename S::value_type& at( size_t n ) const;
 
     /**
-     * Searches and removes the specified element. If it is not found, nothing happens. It mainly is a comfortable forwarder for std::remove.
+     * Searches and removes the specified element. If it is not found, nothing happens. It mainly is a comfortable forwarder for std::remove and
+     * S::erase.
      *
      * \param element the element to remove
-     *
-     * \return the new end iterator.
      */
-    Iterator erase( const typename S::value_type& element );
+    void remove( const typename S::value_type& element );
 
     /**
      * Erase the element at the specified position. Read your STL reference for more details.
@@ -163,6 +167,24 @@ public:
      * \return A random access iterator pointing to the new location of the element that followed the last element erased by the function call.
      */
     Iterator erase( Iterator first, Iterator last );
+
+    /**
+     * Replaces the specified old value by a new one. If the old one does not exist, nothing happens. This is a comfortable forwarder for
+     * std::replace.
+     *
+     * \param oldValue the old value to replace
+     * \param newValue the new value
+     */
+    void replace( const typename S::value_type& oldValue, const typename S::value_type& newValue );
+
+    /**
+     * Counts the number of occurrences of the specified value inside the container. This is a comfortable forwarder for std::count.
+     *
+     * \param value the value to count
+     *
+     * \return the number of items found.
+     */
+    size_t count( const value_type& value );
 
 protected:
 
@@ -219,7 +241,8 @@ template < typename S >
 typename S::value_type& WSharedSequenceContainer< S >::operator[]( size_t n )
 {
     typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();
-    return a->get().operator[]( n );
+    return const_cast< S& >( a->get() ).operator[]( n );    // read tickets return the handled object const. This is bad here although in most cases
+    // it is useful and needed.
 }
 
 template < typename S >
@@ -233,7 +256,8 @@ template < typename S >
 typename S::value_type& WSharedSequenceContainer< S >::at( size_t n )
 {
     typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();
-    return a->get().at( n );
+    return const_cast< S& >( a->get() ).at( n );    // read tickets return the handled object const. This is bad here although in most cases it
+    // is useful and needed.
 }
 
 template < typename S >
@@ -244,11 +268,11 @@ const typename S::value_type& WSharedSequenceContainer< S >::at( size_t n ) cons
 }
 
 template < typename S >
-typename WSharedSequenceContainer< S >::Iterator WSharedSequenceContainer< S >::erase( const typename S::value_type& element )
+void WSharedSequenceContainer< S >::remove( const typename S::value_type& element )
 {
     // Lock, if "a" looses focus -> look is freed
     typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
-    return std::remove( a->get().begin(), a->get().end(), element );
+    a->get().erase( std::remove( a->get().begin(), a->get().end(), element ), a->get().end() );
 }
 
 template < typename S >
@@ -267,6 +291,20 @@ typename WSharedSequenceContainer< S >::Iterator WSharedSequenceContainer< S >::
     // Lock, if "a" looses focus -> look is freed
     typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
     return a->get().erase( first, last );
+}
+
+template < typename S >
+void WSharedSequenceContainer< S >::replace( const typename S::value_type& oldValue, const typename S::value_type& newValue )
+{
+    typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
+    std::replace( a->get().begin(), a->get().end(), oldValue, newValue );
+}
+
+template < typename S >
+size_t WSharedSequenceContainer< S >::count( const value_type& value )
+{
+    typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();
+    return std::count( a->get().begin(), a->get().end(), value );
 }
 
 #endif  // WSHAREDSEQUENCECONTAINER_H

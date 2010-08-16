@@ -170,8 +170,12 @@ void WDataSetFibers::addColorScheme( WDataSetFibers::ColorArray colors, std::str
 
 void WDataSetFibers::removeColorScheme( WDataSetFibers::ColorArray colors )
 {
-    m_colors.erase( colors );
-    //addColorScheme( colors, std::string name, std::string description );
+    m_colors.remove( colors );
+}
+
+void WDataSetFibers::replaceColorScheme( WDataSetFibers::ColorArray oldColors, WDataSetFibers::ColorArray newColors )
+{
+    m_colors.replace( oldColors, newColors );
 }
 
 wmath::WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const

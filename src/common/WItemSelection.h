@@ -35,6 +35,7 @@
 #include <boost/enable_shared_from_this.hpp>
 
 #include "WSharedSequenceContainer.h"
+#include "WItemSelectionItem.h"
 #include "WExportCommon.h"
 
 class WItemSelector;
@@ -44,34 +45,13 @@ class WItemSelector;
  * Selectors which are able to select some subset of the item set. This is especially useful in properties where item selection is needed. The
  * class is kept very restrictive to keep the interface clean and sleek and to keep the item set consistent among several threads. So please do
  * not implement any function that might change the item list, use the provided ones. If the item list changes, existing selectors get invalid
- * automatically.
+ * automatically using the change condition of the inherited WSharedSequenceContainer.
  */
-class OWCOMMON_EXPORT WItemSelection: public boost::enable_shared_from_this< WItemSelection >
+class OWCOMMON_EXPORT WItemSelection: public boost::enable_shared_from_this< WItemSelection >,
+                                      public WSharedSequenceContainer< std::vector< WItemSelectionItem > >
 {
-    friend class WItemSelector; // for proper locking and unlocking
+friend class WItemSelector; // for proper locking and unlocking
 public:
-    /**
-     * For shortening, it is the type of an item.
-     */
-    typedef struct
-    {
-        /**
-         * Name
-         */
-        std::string name;
-
-        /**
-         * Description, can be empty.
-         */
-        std::string description;
-
-        /**
-         * Icon shown in the item selection box. Can be NULL.
-         */
-        const char** icon;
-    }
-    Item;
-
     /**
      * Default constructor.
      */
@@ -81,23 +61,6 @@ public:
      * Destructor.
      */
     virtual ~WItemSelection();
-
-    /**
-     * Adds an item to the list of selectable items. If there are any selectors created (using ::getSelectorAll, ::getSelectorFirst,
-     * ::getSelectorNone or ::getSelector) previously, there are marked as invalid.
-     *
-     * \param name the name, it is not required to be unique.
-     * \param description the description.
-     * \param icon an icon to show together with this item. Useful to illustrate the selection options.
-     */
-    virtual void addItem( std::string name, std::string description, const char** icon = NULL );
-
-    /**
-     * Removes the items with the given name. If the item does not exist in the list, nothing happens.
-     *
-     * \param name the name of the item to remove
-     */
-    virtual void removeItem( std::string name );
 
     /**
      * Creates an default selection (all items selected). The selector gets invalid if another item is added.
@@ -130,53 +93,28 @@ public:
     virtual WItemSelector getSelector( size_t item );
 
     /**
-     * Invalidates all selectors currently existing somewhere. This is especially useful with properties when the underlying selection changes
-     * for a property to ensure nobody can set the property to an old selection.
-     */
-    void invalidateSelectors();
-
-    /**
-     * The number of selectable items.
+     * Convenience method to create a new item.
      *
-     * \return the number of items.
-     */
-    virtual size_t size() const;
-
-    /**
-     * Gets the item with the given index. This is not the same index as the element has in the corresponding WItemSelector!
-     * This method is especially useful to iterate the through all items.
+     * \param name name of the item
+     * \param description the description, can be empty
+     * \param icon the icon, can be NULL
      *
-     * \param index the index
+     * \return the Item.
+     */
+    static WItemSelectionItem Item( std::string name, std::string description = "", const char** icon = NULL )
+    {
+        return WItemSelectionItem( name, description, icon );
+    }
+
+    /**
+     * Convenience method to add a new item.
      *
-     * \return the item
-     */
-    virtual Item& at( size_t index ) const;
-
-    /**
-     * Subscribes the specified callback to the invalidation signal getting emitted whenever this selection got invalidated. All selectors using
-     * this selection subscribe to this signal.
+     * \param name name of the item
+     * \param description the description, can be empty
+     * \param icon the icon, can be NULL
      *
-     * \param invalidationCallback the callback
-     *
-     * \return connection. The subscriber needs to disconnect it.
      */
-    boost::signals2::connection subscribeInvalidationSignal( boost::function< void( void ) > invalidationCallback );
-
-protected:
-    /**
-     * Shortcut for the list type
-     */
-    typedef WSharedSequenceContainer< std::vector< Item* > > ItemListType;
-
-    /**
-     * List of items.
-     */
-    ItemListType m_items;
-
-    /**
-     * This signal is emitted whenever the selection gets invalidated. All created selectors subscribed to it.
-     */
-    boost::signals2::signal< void( void ) > signal_invalidate;
+    void addItem( std::string name, std::string description = "", const char** icon = NULL );
 
 private:
 };

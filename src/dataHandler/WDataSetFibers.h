@@ -193,9 +193,18 @@ public:
 
     /**
      * This method removes the specified color scheme from the list and triggers an update.
+     *
      * \param colors the color array.
      */
     void removeColorScheme( ColorArray colors );
+
+    /**
+     * Replaces the specified old color scheme by the new color scheme. If the old color scheme did not exist, nothing happens.
+     *
+     * \param oldColors old colors to remove
+     * \param newColors new colors to set
+     */
+    void replaceColorScheme( WDataSetFibers::ColorArray oldColors, WDataSetFibers::ColorArray newColors );
 
     /**
      * returns the position in space for a vertex of a given fiber

@@ -34,6 +34,7 @@
 #include <boost/signals2/signal.hpp>
 
 #include "WItemSelection.h"
+#include "WItemSelectionItem.h"
 #include "WExportCommon.h"
 
 /**
@@ -83,6 +84,9 @@ public:
      * Creates a new valid instance with the specified items selected. This is especially useful to simply create a new selection if only the old
      * selection is known.
      *
+     * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
+     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.
+     *
      * \param selected the selected items (their index in WItemSelection).
      *
      * \return the new selector instance
@@ -91,6 +95,9 @@ public:
 
     /**
      * Creates a new valid instance with the specified items selected. This can be useful to add a certain index.
+     *
+     * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
+     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.
      *
      * \param selected the selected item (the index in WItemSelection).
      *
@@ -102,11 +109,25 @@ public:
      * Creates a new valid instance with the specified items selected. This is especially useful to simply create a new selection if only the
      * string representing it is known. This somehow correlates to the << operator.
      *
+     * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
+     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.
+     *
      * \param asString the selected items
      *
      * \return the new selector instance
      */
     WItemSelector newSelector( const std::string asString ) const;
+
+    /**
+     * Creates a new selector, but basing on this instance as old one. The new selector tries to keep the old selection but makes the internal
+     * selection list valid with the current underlying selection.
+     *
+     * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
+     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.
+     *
+     * \return the new (valid) selector.
+     */
+    WItemSelector newSelector() const;
 
     /**
      * Compares two selector. They are assumed to be equal if the selected items are equal and if the underlying WItemSelection is the same.
@@ -155,7 +176,7 @@ public:
      *
      * \return the item
      */
-    virtual const WItemSelection::Item& atAll( size_t index ) const;
+    virtual const WItemSelectionItem& atAll( size_t index ) const;
 
     /**
      * Gets the selected item with the given index. This is not the same index as the element has in the corresponding WItemSelection!
@@ -165,7 +186,7 @@ public:
      *
      * \return the item
      */
-    virtual const WItemSelection::Item& at( size_t index ) const;
+    virtual const WItemSelectionItem& at( size_t index ) const;
 
     /**
      * Helps to get the index of an selected item in the WItemSelection. This is somehow similar to \ref at, but does not return the item but the
@@ -246,7 +267,7 @@ private:
     /**
      * This locks prevents the selection to be modified during selector iteration.
      */
-    WItemSelection::ItemListType::ReadTicket m_lock;
+    WItemSelection::ReadTicket m_lock;
 };
 
 /**
