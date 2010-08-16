@@ -93,6 +93,11 @@ void WMFiberDisplay::moduleMain()
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
 
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
         initCullBox();
 
         /////////////////////////////////////////////////////////////////////////////////////////
@@ -138,6 +143,8 @@ void WMFiberDisplay::moduleMain()
             }
         }
     }
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
 }
 
 void WMFiberDisplay::update()
@@ -455,15 +462,14 @@ void WMFiberDisplay::initUniforms( osg::StateSet* rootState )
     m_uniformCullBoxUBZ = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "cullBoxUBZ", static_cast<float>( zMax ) ) );
 
     rootState->addUniform( m_uniformUseCullBox );
+    rootState->addUniform( m_uniformInsideCullBox );
+
     rootState->addUniform( m_uniformCullBoxLBX );
     rootState->addUniform( m_uniformCullBoxLBY );
     rootState->addUniform( m_uniformCullBoxLBZ );
     rootState->addUniform( m_uniformCullBoxUBX );
     rootState->addUniform( m_uniformCullBoxUBY );
     rootState->addUniform( m_uniformCullBoxUBZ );
-
-    rootState->addUniform( m_uniformUseCullBox );
-    rootState->addUniform( m_uniformInsideCullBox );
 }
 
 void WMFiberDisplay::notifyTextureChange()
