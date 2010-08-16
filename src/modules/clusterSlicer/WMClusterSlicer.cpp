@@ -75,7 +75,7 @@ void WMClusterSlicer::connectors()
 
 void WMClusterSlicer::properties()
 {
-    m_drawISOVoxels = m_properties->addProperty( "Show or Hide ISO Voxels", "En/Disables to draw the voxels withing a given ISOSurface.", true );
+    m_drawISOVoxels = m_properties->addProperty( "Show or hide iso voxels", "En/Disables to draw the voxels within a given isourface.", true );
     m_isoValue      = m_properties->addProperty( "Iso value", "", 0.01 );
 }
 

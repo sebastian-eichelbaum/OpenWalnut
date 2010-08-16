@@ -175,10 +175,10 @@ void WMEffectiveConnectivityCluster::moduleMain()
 
     // set/forward some props
     props = m_voxelizer->getProperties();
-    props->getProperty( "Center Line" )->toPropBool()->set( false );
+    props->getProperty( "Center line" )->toPropBool()->set( false );
     props->getProperty( "active" )->toPropBool()->set( false );
-    props->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
-    props->getProperty( "Display Voxels" )->toPropBool()->set( false );
+    props->getProperty( "Fiber tracts" )->toPropBool()->set( false );
+    props->getProperty( "Display voxels" )->toPropBool()->set( false );
     props->getProperty( "Lighting" )->toPropBool()->set( false );
 
     // set longest line based parameterization
