@@ -32,6 +32,8 @@
 #include "WDataTexture3D.h"
 
 WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost::shared_ptr<WGrid> grid ):
+    m_properties( boost::shared_ptr< WProperties >( new WProperties( "Data Texture Properties", "Properties of a texture." ) ) ),
+    m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Data Texture Info Properties", "Texture's information properties." ) ) ),
     m_alpha( 1.0 ),
     m_threshold( 0.0 ),
     m_texture( osg::ref_ptr< osg::Texture3D >() ),
@@ -499,5 +501,15 @@ void WDataTexture3D::setSelectedColormap( int cmap )
 {
     m_cmap = cmap;
     notifyChange();
+}
+
+boost::shared_ptr< WProperties > WDataTexture3D::getProperties() const
+{
+    return m_properties;
+}
+
+boost::shared_ptr< WProperties > WDataTexture3D::getInformationProperties() const
+{
+    return m_infoProperties;
 }
 
