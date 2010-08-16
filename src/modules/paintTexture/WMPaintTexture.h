@@ -154,6 +154,13 @@ private:
     void createROI();
 
     /**
+     * get the paint index at the picked voexel fromt he out texture and sets m_paintIndex accordingly
+     *
+     * \param pickInfo the pickInfo object for the pick
+     */
+    void setColorFromPick( WPickInfo pickInfo );
+
+    /**
      * Interpolation?
      */
     WPropBool m_painting;
