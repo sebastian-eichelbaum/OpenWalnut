@@ -32,6 +32,7 @@
 #include "WCfgOperations.h"
 #include "../../kernel/WModuleFactory.h"
 #include "../../common/WConditionOneShot.h"
+#include "../../common/WPathHelper.h"
 
 #include "WQtConfigWidget.h"
 
@@ -335,8 +336,6 @@ boost::shared_ptr< WProperties > WQtConfigWidget::copyProperties( boost::shared_
 
     WProperties::PropertyIterator iter;
     WProperties::PropertyAccessType accessObject = propertyStack.back()->getAccessObject();
-    // Temporarily disabled since locking causes several problems here :-/
-    // accessObject->beginRead();
 
     iter = accessObject->get().begin();
     iteratorStack.push_back( iter );
@@ -364,8 +363,7 @@ boost::shared_ptr< WProperties > WQtConfigWidget::copyProperties( boost::shared_
             boost::shared_ptr< WProperties > prop = ( *( iteratorStack.back() ) )->toPropGroup();
 
             m_configState.add( prop->getUpdateCondition() );
-            
-        } // END property is not a group
+        }
 
         ++iteratorStack.back();
     } // LOOP over properties
@@ -971,15 +969,15 @@ void WQtConfigWidget::saveToConfig()
         }
     } // END write not finished loop
 
-    WCfgOperations::writeCfg( "walnut.cfg", configOut );
+    WCfgOperations::writeCfg( WPathHelper::getConfigFile().file_string(), configOut );
 }
 
 void WQtConfigWidget::loadConfigFile()
 {
     namespace fs = boost::filesystem;
-    if ( fs::exists( fs::path( std::string( "walnut.cfg" ) ) ) )
+    if ( fs::exists( WPathHelper::getConfigFile() ) )
     {
-        m_configLines = WCfgOperations::readCfg( "walnut.cfg" );
+        m_configLines = WCfgOperations::readCfg( WPathHelper::getConfigFile().file_string() );
     }
     // copy all default properties into the loaded properties
     m_loadedProperties = copyProperties( m_defaultProperties );

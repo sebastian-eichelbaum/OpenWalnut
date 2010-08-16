@@ -333,7 +333,7 @@ std::string WCfgOperations::getPropValAsString( boost::shared_ptr< WProperties >
     case PV_STRING:
         {
             result = prop->toPropString()->get();
-            if ( useColon ) 
+            if ( useColon )
                 result = "\"" + result + "\"";
             break;
         }

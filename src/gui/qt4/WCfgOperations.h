@@ -193,6 +193,7 @@ public:
     * get the line as a string
     *
     * \param line line
+    * \param useColon consider a colon at the beginning and end of the string
     *
     * \result as string
     */
@@ -207,6 +208,7 @@ public:
     * to have a consistent writing in the config file
     *
     * \param prop property variable
+    * \param useColon consider a colon at the beginning and end of the string
     *
     * \result property variable as string
     */
