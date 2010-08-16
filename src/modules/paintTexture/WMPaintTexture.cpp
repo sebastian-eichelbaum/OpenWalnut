@@ -221,6 +221,7 @@ void WMPaintTexture::moduleMain()
 
             if ( m_buttonCreateRoi->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
             {
+                m_painting->set( false );
                 createROI();
                 m_buttonCreateRoi->set( WPVBaseTypes::PV_TRIGGER_READY, false );
             }
@@ -393,8 +394,26 @@ void WMPaintTexture::queuePaint( WPickInfo pickInfo )
         return;
     }
 
+    if ( pickInfo.getModifierKey() == WPickInfo::SHIFT )
+    {
+        setColorFromPick( pickInfo );
+        return;
+    }
+
     m_paintQueue.push( pickInfo );
     m_queueAdded->set( true );
+}
+
+void WMPaintTexture::setColorFromPick( WPickInfo pickInfo )
+{
+    wmath::WPosition paintPosition = pickInfo.getPickPosition();
+    int voxelNum = m_grid->getVoxelNum( paintPosition );
+
+    if ( voxelNum != -1 )
+    {
+        unsigned char* data = m_texture->getImage()->data();
+        m_paintIndex->set( data[ voxelNum ] );
+    }
 }
 
 void WMPaintTexture::createTexture()
@@ -494,10 +513,12 @@ void WMPaintTexture::createROI()
 
         if ( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
         {
+            std::cout << " new roi without parent " << std::endl;
             WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
         }
         else
         {
+            std::cout << " new roi with parent " << std::endl;
             WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi()->getROI() );
         }
     }

@@ -74,13 +74,6 @@ public:
     boost::shared_ptr< std::vector< bool > > getBitField();
 
     /**
-     * adds a bit field of a given size to the list of bit fields
-     *
-     * \param size
-     */
-    void addBitField( size_t size );
-
-    /**
      * updates the bit fields with the fibers selected by the associated roi
      */
     void recalculate();
@@ -90,7 +83,7 @@ public:
      *
      * \return dirty flag
      */
-    bool isDirty();
+    bool dirty();
 
     /**
      * sets dirty flag true and notifies the branch
@@ -113,7 +106,7 @@ public:
      *
      * \return roi is active
      */
-    bool isActive();
+    bool active();
 
     /**
      * removes the graphical representation from the graphics engine
@@ -123,14 +116,15 @@ public:
 
 protected:
     /**
-     * slot gets called when a property has changed
+     * initialize the properties
      */
-    void slotToggleNot();
+    void properties();
 
     /**
      * slot gets called when a property has changed
      */
-    void slotChangeThreshold();
+    void propertyChanged();
+
 private:
     /**
      * tests the kd tree for intersections with the roi
@@ -149,18 +143,21 @@ private:
 
     bool m_dirty; //!< dirty flag, indicates the bit fields need updating
 
+    size_t m_size; //!< number of fibers in the dataset
+
     osg::ref_ptr< WROI > m_roi; //!< stores a pointer to the associated roi
 
     boost::shared_ptr< WRMBranch > m_branch; //!< stores a pointer to the branch this roi belongs to
 
-    boost::shared_ptr< std::vector<bool> >m_bitField; //!< list of bit fields, one for each loaded
-                                                                    // fiber dataset
+    /**
+     * pointer to the bitfield that represents the current selection by the roi
+     */
+    boost::shared_ptr< std::vector<bool> >m_outputBitfield;
 
     /**
-     * pointer to the bitfield, that is currently updated
-     * this is used for the recursive update function, to reduce the amount of function parameters
+     * pointer to the bitfield we work on
      */
-    boost::shared_ptr< std::vector<bool> >m_currentBitfield;
+    boost::shared_ptr< std::vector<bool> >m_workerBitfield;
 
     /**
      * pointer to the array that is used for updating
@@ -204,5 +201,20 @@ private:
      */
     WPropBool m_isActive;
 };
+
+inline bool WRMROIRepresentation::dirty()
+{
+    return m_dirty;
+}
+
+inline bool WRMROIRepresentation::active()
+{
+    return m_isActive->get();
+}
+
+inline size_t WRMROIRepresentation::getLineForPoint( size_t point )
+{
+    return ( *m_currentReverse )[point];
+}
 
 #endif  // WRMROIREPRESENTATION_H
