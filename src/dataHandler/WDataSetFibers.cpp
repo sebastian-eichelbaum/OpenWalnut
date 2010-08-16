@@ -32,6 +32,7 @@
 
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
+#include "../common/WPropertyHelper.h"
 #include "../graphicsEngine/WGEUtils.h"
 #include "WDataSet.h"
 #include "WDataSetFibers.h"
@@ -92,10 +93,20 @@ WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
     delete t4;
 
     // add both arrays to m_colors
-    m_colors.push_back( globalColors );
-    m_colors.push_back( localColors );
+    m_colors = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_colors->push_back( boost::shared_ptr< WItemSelectionItem >(
+            new WColorSelectionItem( "Global Color", "Colors direction by using start and end vertex per fiber.", NULL, globalColors )
+        )
+    );
+    m_colors->push_back( boost::shared_ptr< WItemSelectionItem >(
+            new WColorSelectionItem( "Local Color", "Colors direction by using start and end vertex per segment.", NULL, localColors )
+        )
+    );
 
     // the colors can be selected by properties
+    m_colorProp = m_properties->addProperty( "Color Scheme", "Determines the coloring scheme to use for this data.", m_colors->getSelectorFirst() );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorProp );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_colorProp );
 }
 
 bool WDataSetFibers::isTexture() const
@@ -155,27 +166,47 @@ WDataSetFibers::TangentArray WDataSetFibers::getTangents() const
 
 WDataSetFibers::ColorArray WDataSetFibers::getGlobalColors() const
 {
-    return m_colors[0];
+    return boost::shared_static_cast< const WColorSelectionItem >( ( *m_colors )[0] )->getColor();
 }
 
 WDataSetFibers::ColorArray WDataSetFibers::getLocalColors() const
 {
-    return m_colors[1];
+    return boost::shared_static_cast< const WColorSelectionItem >( ( *m_colors )[1] )->getColor();
 }
 
 void WDataSetFibers::addColorScheme( WDataSetFibers::ColorArray colors, std::string name, std::string description )
 {
-    m_colors.push_back( colors );
+    m_colors->push_back( boost::shared_ptr< WItemSelectionItem >(
+        new WColorSelectionItem( name, description, NULL, colors )
+        )
+    );
 }
 
 void WDataSetFibers::removeColorScheme( WDataSetFibers::ColorArray colors )
 {
-    m_colors.remove( colors );
+    // this is nearly the smae like std::remove_if
+    WItemSelection::WriteTicket l = m_colors->getWriteTicket();
+    for ( WItemSelection::Iterator i = l->get().begin(); i != l->get().end(); ++i )
+    {
+        if ( boost::shared_static_cast< const WColorSelectionItem >( *i )->getColor() == colors )
+        {
+            l->get().erase( i );
+        }
+    }
 }
 
 void WDataSetFibers::replaceColorScheme( WDataSetFibers::ColorArray oldColors, WDataSetFibers::ColorArray newColors )
 {
-    m_colors.replace( oldColors, newColors );
+    // this is nearly the same as std::replace_if
+    WItemSelection::WriteTicket l = m_colors->getWriteTicket();
+    for ( WItemSelection::Iterator i = l->get().begin(); i != l->get().end(); ++i )
+    {
+        boost::shared_ptr< WColorSelectionItem > ci = boost::shared_static_cast< WColorSelectionItem >( *i );
+        if (ci->getColor() == oldColors )
+        {
+            ci->setColor( newColors );
+        }
+    }
 }
 
 wmath::WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
@@ -228,7 +259,8 @@ void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std:
 
             linesToSave.push_back( ( *m_lineLengths )[l] );
 
-            boost::shared_ptr< std::vector< float > > localColors = m_colors[1];
+            boost::shared_ptr< std::vector< float > > localColors =
+                boost::shared_static_cast< const WColorSelectionItem >( ( *m_colors )[1] )->getColor();
 
             for ( size_t j = 0; j < ( *m_lineLengths )[l]; ++j )
             {

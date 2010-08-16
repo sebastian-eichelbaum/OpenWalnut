@@ -33,6 +33,7 @@
 #include <boost/tuple/tuple.hpp>
 
 #include "../common/math/WPosition.h"
+#include "../common/WProperties.h"
 
 #include "WDataSet.h"
 
@@ -256,29 +257,61 @@ private:
     // the following typedefs are for convenience.
 
     /**
-     * For shortening: a type defining a shared vector of color arrays.
+     * Item used in the selection below also containing color info.
      */
-    typedef std::vector< ColorArray > ColorArrayContainerType;
+    class WColorSelectionItem: public WItemSelectionItem
+    {
+    public:
+        /**
+         * Constructor. Creates new item.
+         *
+         * \param name name, name of item.
+         * \param description description of item. Can be empty.
+         * \param icon icon, can be NULL
+         * \param color the color array of this item.
+         */
+        WColorSelectionItem( std::string name, std::string description, const char** icon, ColorArray color ):
+            WItemSelectionItem( name, description, icon ),
+            m_color( color )
+        {
+        };
 
-    /**
-     * The alias for a shared container.
-     */
-    typedef WSharedSequenceContainer< ColorArrayContainerType > ColorArraySharedContainerType;
+        /**
+         * Get the color.
+         *
+         * \return the color array.
+         */
+        ColorArray getColor() const
+        {
+            return m_color;
+        };
 
-    /**
-     * The const iterator type of the container.
-     */
-    typedef ColorArrayContainerType::const_iterator ColorArrayConstIterator;
+        /**
+         * Sets the color array for this item.
+         *
+         * \param color the color to set.
+         */
+        void setColor( ColorArray color )
+        {
+            m_color = color;
+        };
 
-    /**
-     * The iterator type of the container.
-     */
-    typedef ColorArrayContainerType::iterator ColorIterator;
+    private:
+        /**
+         * The color array associated with the item.
+         */
+        ColorArray m_color;
+    };
 
     /**
      * An array of color arrays. The first two elements are: 0: global color, 1: local color
      */
-    ColorArraySharedContainerType m_colors;
+    boost::shared_ptr< WItemSelection > m_colors;
+
+    /**
+     * Property keeping track of the active color in m_colors.
+     */
+    WPropSelection m_colorProp;
 
     /**
      * Line vector that contains the start index of its first point for each line.
