@@ -150,7 +150,7 @@ void WMainWindow::setupGUI()
     fileMenu->addSeparator();
     fileMenu->addAction( m_iconManager.getIcon( "config" ), "Config", this, SLOT( openConfigDialog() ) );
     fileMenu->addSeparator();
-    // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
+    // TODO(all): If all distributions provide a newer QT version we should  use QKeySequence::Quit here
     //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
 
@@ -247,6 +247,11 @@ void WMainWindow::setupGUI()
     }
 
     setupPermanentToolBar();
+
+    //network Editor
+    m_networkEditor = new WQtNetworkEditor( "Network Editor", this );
+    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
 }
 
 void WMainWindow::setupPermanentToolBar()

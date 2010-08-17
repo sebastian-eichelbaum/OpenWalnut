@@ -50,6 +50,7 @@
 #include "WQtNavGLWidget.h"
 #include "WQtToolBar.h"
 #include "WQtCombinerToolbar.h"
+#include "networkEditor/WQtNetworkEditor.h"
 
 // forward declarations
 class QMenuBar;
@@ -311,6 +312,8 @@ private:
     WQtPushButton* m_loadButton; //!< the load Data Button
 
     WQtDatasetBrowser* m_datasetBrowser; //!< dataset browser
+
+    WQtNetworkEditor* m_networkEditor; //!< network editor
 
     boost::shared_ptr<WQtGLWidget> m_mainGLWidget; //!< the main GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI
