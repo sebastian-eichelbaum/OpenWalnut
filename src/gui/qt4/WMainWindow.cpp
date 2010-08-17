@@ -98,6 +98,8 @@ void WMainWindow::setupGUI()
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
+    setupPermanentToolBar();
+
     // the dataset browser instance is needed for the menu
     m_datasetBrowser = new WQtDatasetBrowser( this );
     m_datasetBrowser->setFeatures( QDockWidget::AllDockWidgetFeatures );
@@ -246,7 +248,6 @@ void WMainWindow::setupGUI()
         }
     }
 
-    setupPermanentToolBar();
 }
 
 void WMainWindow::setupPermanentToolBar()

@@ -154,6 +154,10 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
 
     QShortcut* shortcut = new QShortcut( QKeySequence( Qt::Key_Delete ), m_roiTreeWidget );
     connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
+
+    // we want the upper most tree item to be selected. This helps to make the always compatible modules
+    // show up in the tool bar from the beginning. And ... it doesn't hurt.
+    m_tiModules->setSelected( true );
 }
 
 WQtDatasetBrowser::~WQtDatasetBrowser()
