@@ -170,31 +170,12 @@ void WSurface::getSplineSurfaceDeBoorPoints( std::vector< wmath::WVector3D > &gi
     return;
 }
 
-boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
+void WSurface::execute()
 {
-    std::vector< wmath::WVector3D > givenPoints;
-
-    for( int y = 0; y < 11; ++y )
-    {
-        for( int z = 0; z < 11; ++z )
-        {
-            float pi = 3.14159265;
-            float pi2 = pi * 2;
-            float yy = pi2 * y / 10.;
-            float zz = pi2 * z / 10.;
-
-            wmath::WVector3D p;
-            p[0] = 60. + sin( yy ) * 10 + cos( zz ) * 10;
-            p[1] = y * 20.;
-            p[2] = z * 16.;
-            givenPoints.push_back( p );
-        }
-    }
-
     std::vector< wmath::WVector3D > deBoorPoints;
     m_splinePoints.clear();
 
-    wmath::WTensorSym< 2, 3, double > myTensor = getCovarianceMatrix( givenPoints );
+    wmath::WTensorSym< 2, 3, double > myTensor = getCovarianceMatrix( m_supportPoints );
 
     std::vector< double > eigenValues( 3 );
     std::vector< wmath::WVector3D > eigenVectors( 3 );
@@ -232,7 +213,7 @@ boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
     std::vector< wmath::WVector3D >::iterator pointsIt;
 
     //translate and orientate given points to origin
-    for( pointsIt = givenPoints.begin(); pointsIt != givenPoints.end(); ++pointsIt )
+    for( pointsIt = m_supportPoints.begin(); pointsIt != m_supportPoints.end(); ++pointsIt )
     {
         ( *pointsIt )[0] -= m_xAverage;
         ( *pointsIt )[1] -= m_yAverage;
@@ -247,7 +228,7 @@ boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
     }
 
     //get de Boor points using shepard's method
-    getSplineSurfaceDeBoorPoints( givenPoints, deBoorPoints, m_numDeBoorRows, m_numDeBoorCols );
+    getSplineSurfaceDeBoorPoints( m_supportPoints, deBoorPoints, m_numDeBoorRows, m_numDeBoorCols );
 
     //translate and orientate de Boor points back
     transMatrix = wmath::invertMatrix3x3( transMatrix );
@@ -268,8 +249,6 @@ boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
     WBSplineSurface splineSurface( m_order, m_order, deBoorPoints, m_numDeBoorCols, m_numDeBoorRows );
 
     splineSurface.samplePoints( &m_splinePoints, m_sampleRateT, m_sampleRateU );
-
-    std::vector< double > positions;
 
     m_renderpointsPerCol = splineSurface.getNumSamplePointsU();
     m_renderpointsPerRow = splineSurface.getNumSamplePointsT();
@@ -297,8 +276,6 @@ boost::shared_ptr< WTriangleMesh2 > WSurface::execute()
     }
 
     m_tMesh = newMesh;
-
-    return m_tMesh;
 }
 
 std::vector< wmath::WVector3D > WSurface::getSplinePoints()
@@ -312,3 +289,16 @@ void WSurface::setSetSampleRate( float r )
     execute();
 }
 
+void WSurface::setSupportPoints( std::vector< wmath::WVector3D> supportPoints, bool forceUpdate )
+{
+    m_supportPoints = supportPoints;
+    if ( forceUpdate )
+    {
+        execute();
+    }
+}
+
+boost::shared_ptr< WTriangleMesh2 > WSurface::getTriangleMesh()
+{
+    return m_tMesh;
+}

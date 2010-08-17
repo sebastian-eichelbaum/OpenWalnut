@@ -53,7 +53,7 @@ public:
      *
      * \return a triangle mesh of the constructed spline surface
      */
-    boost::shared_ptr< WTriangleMesh2 > execute();
+    void execute();
 
     /**
      * Returns a copy of the spline point vector.
@@ -68,6 +68,19 @@ public:
      * \param r the new sample rate
      */
     void setSetSampleRate( float r );
+
+    /**
+     * sets the vector of support points the surface is calculated from
+     * \param supportPoints vector of support points
+     * \param forceUpdate if true the surface will be updated with the new support points
+     */
+    void setSupportPoints( std::vector< wmath::WVector3D> supportPoints, bool forceUpdate = false );
+
+    /**
+     * getter
+     * \return the triangle mesh representing the surface
+     */
+    boost::shared_ptr< WTriangleMesh2 > getTriangleMesh();
 
 private:
     /**
@@ -101,7 +114,9 @@ private:
     double m_yAverage; //!< global mean of y values for covariance matrix
     double m_zAverage; //!< global mean of z values for covariance matrix
 
-    std::vector< wmath::WVector3D > m_splinePoints; //!< stores the input points
+    std::vector< wmath::WVector3D > m_supportPoints; //!< stores the support points
+
+    std::vector< wmath::WVector3D > m_splinePoints; //!< stores the input points ????
 
     int m_renderpointsPerCol; //!< resolution of the output mesh
     int m_renderpointsPerRow; //!< resolution of the output mesh
