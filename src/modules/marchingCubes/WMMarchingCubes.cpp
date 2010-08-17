@@ -196,7 +196,7 @@ void WMMarchingCubes::properties()
     m_nbVertices = m_infoProperties->addProperty( "Vertices", "The number of vertices in the produced mesh.", 0 );
     m_nbVertices->setMax( std::numeric_limits< int >::max() );
 
-    m_isoValueProp = m_properties->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
+    m_isoValueProp = m_properties->addProperty( "Iso value", "The surface will show the area that has this value.", 100., m_recompute );
     m_isoValueProp->setMin( wlimits::MIN_DOUBLE );
     m_isoValueProp->setMax( wlimits::MAX_DOUBLE );
     {
@@ -212,16 +212,16 @@ void WMMarchingCubes::properties()
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 
-    m_useTextureProp = m_properties->addProperty( "Use Texture", "Use texturing of the surface?", false );
+    m_useTextureProp = m_properties->addProperty( "Use texture", "Use texturing of the surface?", false );
 
-    m_surfaceColor = m_properties->addProperty( "Surface Color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
+    m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
 
     m_savePropGroup = m_properties->addPropertyGroup( "Save Surface",  "" );
-    m_saveTriggerProp = m_savePropGroup->addProperty( "Do Save",  "Press!",
+    m_saveTriggerProp = m_savePropGroup->addProperty( "Do save",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMMarchingCubes::save, this ) );
 
-    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
+    m_meshFile = m_savePropGroup->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )
@@ -475,7 +475,7 @@ bool WMMarchingCubes::save() const
     }
 
     const char* c_file = m_meshFile->get().file_string().c_str();
-    std::ofstream dataFile( c_file );
+    std::ofstream dataFile( c_file, std::ios_base::binary );
 
     if ( dataFile )
     {

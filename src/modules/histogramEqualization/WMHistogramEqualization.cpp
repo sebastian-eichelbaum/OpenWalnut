@@ -96,7 +96,7 @@ void WMHistogramEqualization::properties()
     m_clamp = m_clamping->addProperty( "Clamp values?", "Values below the specified threshold are clamped to min and max respectively.",
                                         true, m_propCondition );
 
-    m_histogramResolution = m_clamping->addProperty( "Histogram Resolution", "How many buckets should be used for the initial data histogram?",
+    m_histogramResolution = m_clamping->addProperty( "Histogram resolution", "How many buckets should be used for the initial data histogram?",
                                                        10000, m_propCondition );
     m_histogramResolution->setMin( 10 );
     m_histogramResolution->setMax( 1000000 );
@@ -109,10 +109,10 @@ void WMHistogramEqualization::properties()
     // equalizing related props
     m_equalizing = m_properties->addPropertyGroup( "Equalizing",  "Equalizing values in the dataset." );
 
-    m_equalize  = m_equalizing->addProperty( "Equalize Histogram", "If true, the dataset's cumulative histogram gets linearized.",
+    m_equalize  = m_equalizing->addProperty( "Equalize histogram", "If true, the dataset's cumulative histogram gets linearized.",
                                              true, m_propCondition );
 
-    m_cdfResolution = m_equalizing->addProperty( "CDF Histogram Resolution",
+    m_cdfResolution = m_equalizing->addProperty( "CDF histogram resolution",
                                                  "How many buckets should be used for the data histogram used for equalizing?",
                                                  10000, m_propCondition );
     m_cdfResolution->setMin( 10 );

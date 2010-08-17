@@ -92,7 +92,7 @@ namespace wge
      * \param index unsigned char that indexes the color
      * \return the color
      */
-    WColor createColorFromIndex( int index );
+    WColor WGE_EXPORT createColorFromIndex( int index );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )

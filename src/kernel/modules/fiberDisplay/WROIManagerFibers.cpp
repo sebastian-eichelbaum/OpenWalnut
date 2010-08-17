@@ -87,7 +87,7 @@ void WROIManagerFibers::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi
 {
     while ( m_recalcLock )
     {
-        sleep( 10 );
+        boost::this_thread::sleep( boost::posix_time::seconds( 10 ) );
     }
     m_recalcLock = true;
 
@@ -118,7 +118,7 @@ void WROIManagerFibers::removeBranch( boost::shared_ptr< WRMROIRepresentation > 
 {
     while ( m_recalcLock )
     {
-        sleep( 10 );
+        boost::this_thread::sleep( boost::posix_time::seconds( 10 ) );
     }
     m_recalcLock = true;
 
@@ -170,7 +170,7 @@ void WROIManagerFibers::recalculate()
 {
     while ( m_recalcLock )
     {
-        sleep( 10 );
+        boost::this_thread::sleep( boost::posix_time::seconds( 10 ) );
     }
     m_recalcLock = true;
 

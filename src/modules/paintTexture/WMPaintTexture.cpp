@@ -62,7 +62,7 @@ const char** WMPaintTexture::getXPMIcon() const
 }
 const std::string WMPaintTexture::getName() const
 {
-    return "PaintTexture";
+    return "Paint Texture";
 }
 
 const std::string WMPaintTexture::getDescription() const

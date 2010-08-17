@@ -101,10 +101,10 @@ void WMArbitraryRois::connectors()
 
 void WMArbitraryRois::properties()
 {
-    m_aTrigger = m_properties->addProperty( "Create", "Create a roi", WPVBaseTypes::PV_TRIGGER_READY  );
-    m_bTrigger = m_properties->addProperty( "Finalize", "finalize and add to roi manager", WPVBaseTypes::PV_TRIGGER_READY  );
-    m_threshold = m_properties->addProperty( "threshold", "Threshold", 0. );
-    m_surfaceColor = m_properties->addProperty( "Surface Color", "Description.", WColor( 1.0, 0.3, 0.3, 1.0 ) );
+    m_aTrigger = m_properties->addProperty( "Create", "Create a ROI", WPVBaseTypes::PV_TRIGGER_READY  );
+    m_bTrigger = m_properties->addProperty( "Finalize", "Finalize and add to ROI manager", WPVBaseTypes::PV_TRIGGER_READY  );
+    m_threshold = m_properties->addProperty( "Threshold", "", 0. );
+    m_surfaceColor = m_properties->addProperty( "Surface color", "", WColor( 1.0, 0.3, 0.3, 1.0 ) );
 }
 
 void WMArbitraryRois::moduleMain()
@@ -155,6 +155,7 @@ void WMArbitraryRois::moduleMain()
 
         //m_moduleState.wait();
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
 void WMArbitraryRois::initSelectionRoi()

@@ -132,7 +132,7 @@ void WMWriteNIfTI::properties()
 {
     m_filename = m_properties->addProperty( "Filename", "Filename where to write the NIfTI file to.",
                                              WPathHelper::getAppPath() );
-    m_saveTriggerProp = m_properties->addProperty( "Do Save",  "Press!",
+    m_saveTriggerProp = m_properties->addProperty( "Do save",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMWriteNIfTI::writeToFile, this ) );
 }
