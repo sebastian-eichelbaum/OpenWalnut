@@ -37,13 +37,18 @@ SET(GUI_QT4_MOC_HDRS
     datasetbrowser/WQtTreeWidget.h
     datasetbrowser/WQtTreeItem.h
     datasetbrowser/WQtTextureSorter.h
-    WQtNetworkEditor.h
-    WQtNetworkScene.h
+    networkEditor/WQtNetworkEditor.h
+    networkEditor/WQtNetworkScene.h
+    networkEditor/WQtNetworkItem.h
+    networkEditor/WQtNetworkPort.h
+    networkEditor/WQtNetworkArrow.h
 )
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 
-FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "datasetbrowser/*.cpp" "ribbonMenu/*.cpp" "events/*.cpp" "*.h" "guiElements/*.h" "datasetbrowser/*.h" "ribbonMenu/*.h" "events/*.h" )
+FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "datasetbrowser/*.cpp"
+"ribbonMenu/*.cpp" "events/*.cpp" "networkEditor/*.cpp" "*.h" "guiElements/*.h" "datasetbrowser/*.h"
+"ribbonMenu/*.h" "events/*.h" "networkEditor/*.h" )
 
 ADD_LIBRARY( OWguiqt4 ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
 TARGET_LINK_LIBRARIES( OWguiqt4 OWcommon OWgui OWge OWkernel ${QT_LIBS} ${Boost_LIBRARIES} )

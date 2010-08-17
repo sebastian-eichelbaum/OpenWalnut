@@ -50,7 +50,7 @@
 #include "WQtNavGLWidget.h"
 #include "WQtToolBar.h"
 #include "WQtCombinerToolbar.h"
-#include "WQtNetworkEditor.h"
+#include "networkEditor/WQtNetworkEditor.h"
 
 // forward declarations
 class QMenuBar;
