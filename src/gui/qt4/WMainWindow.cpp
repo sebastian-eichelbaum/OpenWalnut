@@ -247,7 +247,6 @@ void WMainWindow::setupGUI()
             }
         }
     }
-
 }
 
 void WMainWindow::setupPermanentToolBar()
