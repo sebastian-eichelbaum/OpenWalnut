@@ -100,6 +100,12 @@ public:
      */
     boost::signals2::signal1< void, WPickInfo >* getPickSignal();
 
+    /**
+     * setter for paint mode
+     * \param mode the paint mode
+     */
+    void setPaintMode( int mode );
+
 protected:
     /**
      * Virtual destructor needed because of virtual function.
@@ -117,6 +123,9 @@ protected:
     bool m_shift; //!< is shift pressed?
     bool m_ctrl; //!< is ctrl pressed?
     std::string m_viewerName; //!< which viewer sends the signal
+    int m_paintMode; //!< the paint mode
+    WPickInfo::WMouseButton m_mouseButton; //!< stores mouse button that initiated the pick
+
 
 private:
     boost::signals2::signal1<void, WPickInfo > m_pickSignal; //!< One can register to this signal to receive pick events.

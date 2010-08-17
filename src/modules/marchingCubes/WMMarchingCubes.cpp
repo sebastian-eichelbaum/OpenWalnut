@@ -196,7 +196,7 @@ void WMMarchingCubes::properties()
     m_nbVertices = m_infoProperties->addProperty( "Vertices", "The number of vertices in the produced mesh.", 0 );
     m_nbVertices->setMax( std::numeric_limits< int >::max() );
 
-    m_isoValueProp = m_properties->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
+    m_isoValueProp = m_properties->addProperty( "Iso value", "The surface will show the area that has this value.", 100., m_recompute );
     m_isoValueProp->setMin( wlimits::MIN_DOUBLE );
     m_isoValueProp->setMax( wlimits::MAX_DOUBLE );
     {
@@ -212,16 +212,16 @@ void WMMarchingCubes::properties()
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 
-    m_useTextureProp = m_properties->addProperty( "Use Texture", "Use texturing of the surface?", false );
+    m_useTextureProp = m_properties->addProperty( "Use texture", "Use texturing of the surface?", false );
 
-    m_surfaceColor = m_properties->addProperty( "Surface Color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
+    m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
 
     m_savePropGroup = m_properties->addPropertyGroup( "Save Surface",  "" );
-    m_saveTriggerProp = m_savePropGroup->addProperty( "Do Save",  "Press!",
+    m_saveTriggerProp = m_savePropGroup->addProperty( "Do save",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMMarchingCubes::save, this ) );
 
-    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
+    m_meshFile = m_savePropGroup->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )
@@ -475,7 +475,7 @@ bool WMMarchingCubes::save() const
     }
 
     const char* c_file = m_meshFile->get().file_string().c_str();
-    std::ofstream dataFile( c_file );
+    std::ofstream dataFile( c_file, std::ios_base::binary );
 
     if ( dataFile )
     {
@@ -586,6 +586,37 @@ void WMMarchingCubes::updateGraphics()
 
             // for each texture -> apply
             int c = 0;
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+            {
+                boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
+                osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
+                osg::Vec3Array* texCoords = new osg::Vec3Array;
+
+                for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
+                {
+                    osg::Vec3 vertPos = m_triMesh->getVertex( i );
+                    texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) ) );
+                }
+                surfaceGeometry->setTexCoordArray( c, texCoords );
+
+                osg::ref_ptr<osg::Texture3D> texture3D = WKernel::getRunningKernel()->getSelectionManager()->getTexture();
+
+                m_typeUniforms[c]->set( W_DT_UNSIGNED_CHAR  );
+                m_thresholdUniforms[c]->set( 0.0f );
+                m_alphaUniforms[c]->set( WKernel::getRunningKernel()->getSelectionManager()->getTextureOpacity() );
+                m_cmapUniforms[c]->set( 4 );
+
+                texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+                texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+
+                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+
+                ++c;
+            }
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
                 if( localTextureChangedFlag )

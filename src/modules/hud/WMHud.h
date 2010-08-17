@@ -163,7 +163,7 @@ private:
         {
             osg::ref_ptr< WMHud > module = static_cast< WMHud* > ( node->getUserData() );
 
-            if ( module )
+            if( module )
             {
                 module->update();
             }

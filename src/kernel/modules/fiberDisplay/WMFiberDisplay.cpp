@@ -93,6 +93,11 @@ void WMFiberDisplay::moduleMain()
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
 
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
         initCullBox();
 
         /////////////////////////////////////////////////////////////////////////////////////////
@@ -138,6 +143,8 @@ void WMFiberDisplay::moduleMain()
             }
         }
     }
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
 }
 
 void WMFiberDisplay::update()
@@ -187,6 +194,12 @@ void WMFiberDisplay::create()
     osg::ref_ptr< osg::Group > osgNodeNew = osg::ref_ptr< osg::Group >( new osg::Group );
 
     m_tubeDrawable = osg::ref_ptr< WTubeDrawable >( new WTubeDrawable );
+    m_tubeDrawable->setBoundingBox( osg::BoundingBox( m_dataset->getBoundingBox().first[0],
+                                                      m_dataset->getBoundingBox().first[1],
+                                                      m_dataset->getBoundingBox().first[2],
+                                                      m_dataset->getBoundingBox().second[0],
+                                                      m_dataset->getBoundingBox().second[1],
+                                                      m_dataset->getBoundingBox().second[2] ) );
     m_tubeDrawable->setDataset( m_dataset );
     m_tubeDrawable->setUseDisplayList( false );
     m_tubeDrawable->setDataVariance( osg::Object::DYNAMIC );
@@ -249,27 +262,27 @@ void WMFiberDisplay::activate()
 
 void WMFiberDisplay::properties()
 {
-    m_customColoring = m_properties->addProperty( "Custom Coloring", "Switches the coloring between custom and predefined.", false );
-    m_coloring = m_properties->addProperty( "Global or Local Coloring", "Switches the coloring between global and local.", true );
+    m_customColoring = m_properties->addProperty( "Custom coloring", "Switches the coloring between custom and predefined.", false );
+    m_coloring = m_properties->addProperty( "Global or local coloring", "Switches the coloring between global and local.", true );
 
-    m_useTubesProp = m_properties->addProperty( "Use Tubes", "Draw fiber tracts as fake tubes.", false );
-    m_useTextureProp = m_properties->addProperty( "Use Texture", "Texture fibers with the texture on top of the list.", false );
-    m_tubeThickness = m_properties->addProperty( "Tube Thickness", "Adjusts the thickness of the tubes.", 50.,
+    m_useTubesProp = m_properties->addProperty( "Use tubes", "Draw fiber tracts as fake tubes.", false );
+    m_useTextureProp = m_properties->addProperty( "Use texture", "Texture fibers with the texture on top of the list.", false );
+    m_tubeThickness = m_properties->addProperty( "Tube thickness", "Adjusts the thickness of the tubes.", 50.,
             boost::bind( &WMFiberDisplay::adjustTubes, this ) );
     m_tubeThickness->setMin( 0 );
     m_tubeThickness->setMax( 300 );
 
-    m_save = m_properties->addProperty( "Save", "saves the selected fiber bundles.", false, boost::bind( &WMFiberDisplay::saveSelected, this ) );
-    m_saveFileName = m_properties->addProperty( "File Name", "no description yet", WPathHelper::getAppPath() );
-    m_updateOC = m_properties->addProperty( "Update Output Conn.",
+    m_save = m_properties->addProperty( "Save", "Saves the selected fiber bundles.", false, boost::bind( &WMFiberDisplay::saveSelected, this ) );
+    m_saveFileName = m_properties->addProperty( "File name", "", WPathHelper::getAppPath() );
+    m_updateOC = m_properties->addProperty( "Update output conn.",
                                             "Updates the output connector with the currently selected fibers",
                                             WPVBaseTypes::PV_TRIGGER_READY,
                                             boost::bind( &WMFiberDisplay::updateOutput, this ) );
 
     m_cullBoxGroup = m_properties->addPropertyGroup( "Box Culling",  "Properties only related to the box culling." );
-    m_activateCullBox = m_cullBoxGroup->addProperty( "Activate", "activates the cull box", false );
-    m_showCullBox = m_cullBoxGroup->addProperty( "Show Cull Box", "shows/hides the cull box", false );
-    m_insideCullBox = m_cullBoxGroup->addProperty( "Inside - Outside", "show fibers inside or outside the cull box", true );
+    m_activateCullBox = m_cullBoxGroup->addProperty( "Activate", "Activates the cull box", false );
+    m_showCullBox = m_cullBoxGroup->addProperty( "Show cull box", "Shows/hides the cull box", false );
+    m_insideCullBox = m_cullBoxGroup->addProperty( "Inside - outside", "Show fibers inside or outside the cull box", true );
 }
 
 void WMFiberDisplay::updateRenderModes()
@@ -449,15 +462,14 @@ void WMFiberDisplay::initUniforms( osg::StateSet* rootState )
     m_uniformCullBoxUBZ = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "cullBoxUBZ", static_cast<float>( zMax ) ) );
 
     rootState->addUniform( m_uniformUseCullBox );
+    rootState->addUniform( m_uniformInsideCullBox );
+
     rootState->addUniform( m_uniformCullBoxLBX );
     rootState->addUniform( m_uniformCullBoxLBY );
     rootState->addUniform( m_uniformCullBoxLBZ );
     rootState->addUniform( m_uniformCullBoxUBX );
     rootState->addUniform( m_uniformCullBoxUBY );
     rootState->addUniform( m_uniformCullBoxUBZ );
-
-    rootState->addUniform( m_uniformUseCullBox );
-    rootState->addUniform( m_uniformInsideCullBox );
 }
 
 void WMFiberDisplay::notifyTextureChange()

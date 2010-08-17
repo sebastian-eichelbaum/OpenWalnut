@@ -53,14 +53,14 @@ public:
      *
      * \return a triangle mesh of the constructed spline surface
      */
-    boost::shared_ptr< WTriangleMesh2 > execute();
+    void execute();
 
     /**
      * Returns a copy of the spline point vector.
      *
      * \return points
      */
-    std::vector< std::vector< double > > getSplinePoints();
+    std::vector< wmath::WVector3D > getSplinePoints();
 
     /**
      * SEts the sample rate for the splines.
@@ -69,6 +69,19 @@ public:
      */
     void setSetSampleRate( float r );
 
+    /**
+     * sets the vector of support points the surface is calculated from
+     * \param supportPoints vector of support points
+     * \param forceUpdate if true the surface will be updated with the new support points
+     */
+    void setSupportPoints( std::vector< wmath::WVector3D> supportPoints, bool forceUpdate = false );
+
+    /**
+     * getter
+     * \return the triangle mesh representing the surface
+     */
+    boost::shared_ptr< WTriangleMesh2 > getTriangleMesh();
+
 private:
     /**
      * Calculates the covariance matrix for a given number of points inspace.
@@ -76,7 +89,7 @@ private:
      * \param points vector of points
      * \return the matrix
      */
-    wmath::WTensorSym< 2, 3, double > getCovarianceMatrix( std::vector< std::vector< double > > points );
+    wmath::WTensorSym< 2, 3, double > getCovarianceMatrix( std::vector< wmath::WVector3D > points );
 
     /**
      * Calculates numRows*numCols deBoor points from given input points.
@@ -86,7 +99,7 @@ private:
      * \param numRows number of points in first direction of spline surface
      * \param numCols number of points in second direction of spline surface
      */
-    void getSplineSurfaceDeBoorPoints( std::vector< std::vector< double > > &givenPoints, std::vector< std::vector< double > > &deBoorPoints, int numRows, int numCols ); // NOLINT
+    void getSplineSurfaceDeBoorPoints( std::vector< wmath::WVector3D > &givenPoints, std::vector< wmath::WVector3D > &deBoorPoints, int numRows, int numCols ); // NOLINT
 
     boost::shared_ptr< WTriangleMesh2 > m_tMesh; //!< Triangle mesh of the surface
 
@@ -101,7 +114,9 @@ private:
     double m_yAverage; //!< global mean of y values for covariance matrix
     double m_zAverage; //!< global mean of z values for covariance matrix
 
-    std::vector< std::vector< double > > m_splinePoints; //!< stores the input points
+    std::vector< wmath::WVector3D > m_supportPoints; //!< stores the support points
+
+    std::vector< wmath::WVector3D > m_splinePoints; //!< stores the input points ????
 
     int m_renderpointsPerCol; //!< resolution of the output mesh
     int m_renderpointsPerRow; //!< resolution of the output mesh

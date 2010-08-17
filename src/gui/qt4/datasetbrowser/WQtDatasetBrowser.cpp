@@ -63,7 +63,7 @@
 #include "WQtDatasetBrowser.h"
 
 WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
-    : QDockWidget( "Dataset Browser", parent ),
+    : QDockWidget( "Control Panel", parent ),
     m_ignoreSelectionChange( false )
 {
     m_mainWindow = parent;
@@ -526,29 +526,21 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     WQtBranchTreeItem* branchItem;
 
     m_tiRois->setExpanded( true );
+    bool found = false;
 
-    if ( m_roiTreeWidget->selectedItems().count() != 0 )
+    // go through all branches
+    for( int branchID = 0; branchID < m_tiRois->childCount(); ++branchID )
     {
-        switch ( m_roiTreeWidget->selectedItems().at( 0 )->type() )
+        branchItem = dynamic_cast< WQtBranchTreeItem* >( m_tiRois->child( branchID ) );
+        // if branch == roi branch
+        if ( branchItem->getBranch() == roi->getBranch() )
         {
-            case ROI :
-            {
-                branchItem =( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 )->parent() ) );
-                break;
-            }
-            case ROIBRANCH :
-            {
-                branchItem =( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) );
-                break;
-            }
-            default:
-            {
-                branchItem = m_tiRois->addBranch( roi->getBranch() );
-                break;
-            }
+            found = true;
+            break;
         }
     }
-    else
+
+    if ( !found )
     {
         branchItem = m_tiRois->addBranch( roi->getBranch() );
     }
@@ -558,6 +550,7 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     newItem = branchItem->addRoiItem( roi );
     newItem->setDisabled( false );
     newItem->setSelected( true );
+    WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
 }
 
 void WQtDatasetBrowser::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi )
@@ -581,6 +574,7 @@ void WQtDatasetBrowser::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi
             }
         }
     }
+    WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
 }
 
 boost::shared_ptr< WModule > WQtDatasetBrowser::getSelectedModule()
@@ -727,18 +721,20 @@ void WQtDatasetBrowser::selectRoiTreeItem()
             case MODULEHEADER:
             case MODULE:
             case ROIHEADER:
+                WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
                 break;
             case ROIBRANCH:
                 props = ( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getBranch()->getProperties();
+                WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
                 break;
             case ROI:
                 props = ( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties();
+                WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
                 break;
             default:
                 break;
         }
     }
-    WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
     buildPropTab( props, boost::shared_ptr< WProperties >() );
 }
 

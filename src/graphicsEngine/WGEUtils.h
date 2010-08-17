@@ -85,6 +85,14 @@ namespace wge
      * \param v the vector to convert.
      */
     osg::Vec3 wv3D2ov3( wmath::WVector3D v );
+
+    /**
+     * creates the same color as the atlas colormap shader from the index
+     *
+     * \param index unsigned char that indexes the color
+     * \return the color
+     */
+    WColor WGE_EXPORT createColorFromIndex( int index );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )

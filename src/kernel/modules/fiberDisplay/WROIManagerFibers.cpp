@@ -30,10 +30,9 @@
 #include "WROIManagerFibers.h"
 #include "../../../graphicsEngine/WROIBox.h"
 
-WROIManagerFibers::WROIManagerFibers()
+WROIManagerFibers::WROIManagerFibers() :
+    m_recalcLock( false )
 {
-    m_activeBitField = 0;
-    m_recalcLock = false;
 }
 
 WROIManagerFibers::~WROIManagerFibers()
@@ -44,21 +43,18 @@ boost::shared_ptr< WRMROIRepresentation > WROIManagerFibers::addRoi( osg::ref_pt
 {
     // create new branch
     boost::shared_ptr< WRMBranch > newBranch = boost::shared_ptr< WRMBranch >( new WRMBranch( shared_from_this() ) );
+    // add branch to list
+    m_branches.push_back( newBranch );
     // create roi
     boost::shared_ptr< WRMROIRepresentation > rroi = boost::shared_ptr< WRMROIRepresentation >( new WRMROIRepresentation( newRoi, newBranch ) );
     // add roi to branch
     newBranch->addRoi( rroi );
-    // add branch to list
-    m_branches.push_back( newBranch );
-    // add bit fields
-    newBranch->addBitField( m_fibers.get()->size() );
 
     for ( std::list< boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > >::iterator iter = m_addNotifiers.begin();
             iter != m_addNotifiers.end(); ++iter )
     {
         ( *iter )( rroi );
     }
-
     return rroi;
 }
 
@@ -75,8 +71,6 @@ boost::shared_ptr< WRMROIRepresentation > WROIManagerFibers::addRoi( osg::ref_pt
     }
     // create roi
     boost::shared_ptr< WRMROIRepresentation > rroi = boost::shared_ptr< WRMROIRepresentation >( new WRMROIRepresentation( newRoi, branch ) );
-    // add bit fields
-    rroi->addBitField( m_fibers.get()->size() );
     // add roi to branch
     branch->addRoi( rroi );
 
@@ -91,8 +85,10 @@ boost::shared_ptr< WRMROIRepresentation > WROIManagerFibers::addRoi( osg::ref_pt
 
 void WROIManagerFibers::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi )
 {
-    if ( m_recalcLock )
-        return;
+    while ( m_recalcLock )
+    {
+        boost::this_thread::sleep( boost::posix_time::seconds( 10 ) );
+    }
     m_recalcLock = true;
 
     roi->removeFromGE();
@@ -101,7 +97,7 @@ void WROIManagerFibers::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi
     {
         ( *iter )->removeRoi( roi );
 
-        if ( (*iter )->isEmpty() )
+        if ( (*iter )->empty() )
         {
             m_branches.erase( iter );
             break;
@@ -120,8 +116,10 @@ void WROIManagerFibers::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi
 
 void WROIManagerFibers::removeBranch( boost::shared_ptr< WRMROIRepresentation > roi )
 {
-    if ( m_recalcLock )
-        return;
+    while ( m_recalcLock )
+    {
+        boost::this_thread::sleep( boost::posix_time::seconds( 10 ) );
+    }
     m_recalcLock = true;
 
     for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
@@ -131,7 +129,7 @@ void WROIManagerFibers::removeBranch( boost::shared_ptr< WRMROIRepresentation > 
             ( *iter )->removeAllRois();
         }
 
-        if ( (*iter )->isEmpty() )
+        if ( (*iter )->empty() )
         {
             m_branches.erase( iter );
             break;
@@ -146,10 +144,12 @@ void WROIManagerFibers::addFiberDataset( boost::shared_ptr< const WDataSetFibers
 {
     m_fibers = fibers;
 
+    m_size = fibers->size();
+
     boost::shared_ptr< std::vector< float > > verts = fibers->getVertices();
     m_kdTree = boost::shared_ptr< WKdTree >( new WKdTree( verts->size() / 3, &( ( *verts )[0] ) ) );
 
-    addBitField( fibers->size() );
+    m_outputBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, false ) );
     createCustomColorArray();
 
     setDirty();
@@ -163,91 +163,40 @@ void WROIManagerFibers::removeFiberDataset( boost::shared_ptr< const WDataSetFib
 boost::shared_ptr< std::vector< bool > > WROIManagerFibers::getBitField()
 {
     m_dirty = false;
-    if ( m_activeBitField == 0 )
-    {
-        return m_bitField;
-    }
-    else
-    {
-        return m_bitField2;
-    }
-}
-
-void WROIManagerFibers::addBitField( size_t size )
-{
-    boost::shared_ptr< std::vector< bool > > bf = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( size, false ) );
-    m_bitField = bf;
-    boost::shared_ptr< std::vector< bool > > bf2 = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( size, false ) );
-    m_bitField2 = bf2;
-
-    for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
-    {
-        ( *iter ).get()->addBitField( size );
-    }
-    setDirty();
+    return m_outputBitfield;
 }
 
 void WROIManagerFibers::recalculate()
 {
-//    boost::unique_lock<boost::shared_mutex> slock;
-//    slock = boost::unique_lock<boost::shared_mutex>( m_updateLock );
-    if ( m_recalcLock )
-        return;
+    while ( m_recalcLock )
+    {
+        boost::this_thread::sleep( boost::posix_time::seconds( 10 ) );
+    }
     m_recalcLock = true;
-
-    boost::shared_ptr< std::vector< bool > > mbf;
-    if ( m_activeBitField == 0 )
-    {
-        mbf = m_bitField2;
-    }
-    else
-    {
-        mbf = m_bitField;
-    }
-
-    int size = mbf->size();
-    mbf->clear();
 
     if ( m_branches.empty() )
     {
-        mbf->resize( size, true );
-        if ( m_activeBitField == 0 )
-        {
-            m_activeBitField = 1;
-        }
-        else
-        {
-            m_activeBitField = 0;
-        }
+        m_outputBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, true ) );
         m_recalcLock = false;
-        //slock.unlock();
         return;
     }
     else
     {
-        mbf->resize( size, false );
+        m_workerBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, false ) );
     }
 
     for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
         boost::shared_ptr< std::vector< bool > > bf = ( *iter )->getBitField();
 
-        for ( size_t i = 0; i < mbf->size(); ++i )
+        for ( size_t i = 0; i < m_size; ++i )
         {
-            mbf->at( i ) = mbf->at( i ) | bf->at( i );
+            ( *m_workerBitfield )[i] = ( *m_workerBitfield )[i] | ( *bf )[i];
         }
     }
-    if ( m_activeBitField == 0 )
-    {
-        m_activeBitField = 1;
-    }
-    else
-    {
-        m_activeBitField = 0;
-    }
-    m_dirty = true;
 
-    //slock.unlock();
+    m_outputBitfield = m_workerBitfield;
+    m_dirty = true;
     m_recalcLock = false;
 }
 
@@ -292,11 +241,6 @@ boost::shared_ptr< const WDataSetFibers > WROIManagerFibers::getDataSet()
 boost::shared_ptr< WKdTree > WROIManagerFibers::getKdTree()
 {
     return m_kdTree;
-}
-
-bool WROIManagerFibers::isDirty()
-{
-    return m_dirty;
 }
 
 void WROIManagerFibers::addAddNotifier( boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > notifier )

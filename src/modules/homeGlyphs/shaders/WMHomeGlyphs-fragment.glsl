@@ -26,7 +26,7 @@ void main()
         10.0,                               // shinines
         1.0,                                // light diffuse
         0.75,                               // light ambient
-        normalize( v_normal ),                  // normal
+        normalize( v_normal ),              // normal
         normalize( v_ray ),                 // view direction
         normalize( v_lightSource )          // light source position
         );

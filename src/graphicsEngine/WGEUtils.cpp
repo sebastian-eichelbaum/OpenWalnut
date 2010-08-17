@@ -45,3 +45,77 @@ osg::Vec3 wge::unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::C
 {
     return screen * osg::Matrix::inverse( camera->getViewMatrix() * camera->getProjectionMatrix() * camera->getViewport()->computeWindowMatrix() );
 }
+
+WColor wge::createColorFromIndex( int index )
+{
+    float r = 0.0;
+    float g = 0.0;
+    float b = 0.0;
+    float mult = 1.0;
+
+    if ( index == 0 )
+    {
+        return WColor( 0.0, 0.0, 0.0 );
+    }
+
+    if ( ( index & 1 ) == 1 )
+    {
+        b = 1.0;
+    }
+    if ( ( index & 2 ) == 2 )
+    {
+        g = 1.0;
+    }
+    if ( ( index & 4 ) == 4 )
+    {
+        r = 1.0;
+    }
+    if ( ( index & 8 ) == 8 )
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            r = 1.0;
+            g = 1.0;
+        }
+    }
+    if ( ( index & 16 ) == 16 )
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            b = 1.0;
+            g = 1.0;
+        }
+    }
+    if ( ( index & 32 ) == 32 )
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            r = 1.0;
+            b = 1.0;
+        }
+    }
+    if ( ( index & 64 ) == 64 )
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            g = 1.0;
+        }
+    }
+    if ( ( index & 128 ) == 128 )
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            r = 1.0;
+        }
+    }
+    r *= mult;
+    g *= mult;
+    b *= mult;
+
+    return WColor( r, g, b );
+}

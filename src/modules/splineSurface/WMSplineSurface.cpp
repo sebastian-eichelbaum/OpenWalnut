@@ -117,7 +117,30 @@ void WMSplineSurface::moduleMain()
         debugLog() << "Computing surface ...";
 
         WSurface surf;
-        m_triMesh = surf.execute();
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
+        std::vector< wmath::WVector3D > givenPoints;
+        for( int y = 0; y < 11; ++y )
+        {
+            for( int z = 0; z < 11; ++z )
+            {
+                float pi = 3.14159265;
+                float pi2 = pi * 2;
+                float yy = pi2 * y / 10.;
+                float zz = pi2 * z / 10.;
+
+                wmath::WVector3D p;
+                p[0] = 60. + sin( yy ) * 10 + cos( zz ) * 10;
+                p[1] = y * 20.;
+                p[2] = z * 16.;
+                givenPoints.push_back( p );
+            }
+        }
+        surf.setSupportPoints( givenPoints );
+        //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        surf.execute();
+        m_triMesh = surf.getTriangleMesh();
 
         debugLog() << "Rendering surface ...";
 
@@ -135,6 +158,8 @@ void WMSplineSurface::moduleMain()
         m_moduleState.wait();
     }
 
+    con.disconnect();
+
     WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getScene()->remove( m_moduleNode );
 }
 
@@ -142,7 +167,7 @@ void WMSplineSurface::connectors()
 {
     // initialize connectors
     m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > >( new WModuleOutputData< WTriangleMesh2 > ( shared_from_this(), "out",
-            "The mesh representing the isosurface." ) );
+            "The mesh representing the spline surface." ) );
 
     addConnector( m_output );
 
@@ -156,15 +181,15 @@ void WMSplineSurface::properties()
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 
-    m_useTextureProp = m_properties->addProperty( "Use Texture", "Use texturing of the surface?", false );
+    m_useTextureProp = m_properties->addProperty( "Use texture", "Use texturing of the surface?", false );
 
-    m_surfaceColor = m_properties->addProperty( "Surface Color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
+    m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
 
     m_savePropGroup = m_properties->addPropertyGroup( "Save Surface", "" );
-    m_saveTriggerProp = m_savePropGroup->addProperty( "Do Save", "Press!", WPVBaseTypes::PV_TRIGGER_READY );
+    m_saveTriggerProp = m_savePropGroup->addProperty( "Do save", "Press!", WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMSplineSurface::save, this ) );
 
-    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
+    m_meshFile = m_savePropGroup->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
 }
 
 void WMSplineSurface::renderMesh()
@@ -174,7 +199,7 @@ void WMSplineSurface::renderMesh()
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
-    m_surfaceGeode->setName( "iso surface" );
+    m_surfaceGeode->setName( "spline surface" );
 
     surfaceGeometry->setVertexArray( m_triMesh->getVertexArray() );
 
@@ -418,6 +443,8 @@ void WMSplineSurface::updateGraphics()
     {
         bool localTextureChangedFlag = m_textureChanged;
         m_textureChanged = false;
+        m_opacityProp->get( true );
+        m_useTextureProp->get( true );
 
         // grab a list of data textures
         std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );

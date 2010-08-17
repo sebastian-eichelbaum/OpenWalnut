@@ -134,27 +134,70 @@ vec3 atlasColorMap ( in float value )
     float r = 0.0;
     float g = 0.0;
     float b = 0.0;
+    float mult = 1.0;
+    
+    if ( val == 0.0 )
+    {
+        return vec3( 0.0 );
+    }
 
     if ( isBitSet( val, 0.0 ) )
-        r = 0.4;
+        b = 1.0;
     if ( isBitSet( val, 1.0 ) )
-        g = 0.4;
+        g = 1.0;
     if ( isBitSet( val, 2.0 ) )
-        b = 0.4;
+        r = 1.0;
     if ( isBitSet( val, 3.0 ) )
-        b += 0.3;
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            r = 1.0;
+            g = 1.0;
+        }
+    }
     if ( isBitSet( val, 4.0 ) )
-        r += 0.3;
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            b = 1.0;
+            g = 1.0;
+        }
+        
+    }
     if ( isBitSet( val, 5.0 ) )
-        g += 0.3;
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            r = 1.0;
+            b = 1.0;
+        }
+        
+    }
     if ( isBitSet( val, 6.0 ) )
-        r += 0.3;
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            g = 1.0;
+        }
+        
+    }
     if ( isBitSet( val, 7.0 ) )
-        b += 0.3;
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            r = 1.0;
+        }
+        
+    }
 
-    r *= 1.5;
-    g *= 1.5;
-    b *= 1.5;
+    r *= mult;
+    g *= mult;
+    b *= mult;
 
     clamp( r, 0., 1.);
     clamp( g, 0., 1.);
@@ -162,6 +205,8 @@ vec3 atlasColorMap ( in float value )
 
     return vec3( r, g, b );
 }
+
+
 
 vec3 colorMap5( in float value )
 {

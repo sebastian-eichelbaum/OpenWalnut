@@ -26,6 +26,7 @@
 #define WDATASETFIBERS_H
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -65,11 +66,13 @@ public:
      * \param lineStartIndexes the index in which the fiber start (index of the 3D-vertex, not the index of the float in the vertices vector)
      * \param lineLengths how many vertices belong to a fiber
      * \param verticesReverse stores for each vertex the index of the corresponding fiber
+     * \param boundingBox The bounding box of the fibers (first minimum, secon maximum). If not given both are (0,0,0).
      */
     WDataSetFibers( boost::shared_ptr< std::vector< float > >vertices,
                     boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
                     boost::shared_ptr< std::vector< size_t > > lineLengths,
-                    boost::shared_ptr< std::vector< size_t > > verticesReverse );
+                    boost::shared_ptr< std::vector< size_t > > verticesReverse,
+                    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = std::make_pair( wmath::WPosition(), wmath::WPosition() )  );
 
     /**
      * Constructs a new set of WFibers. The constructed instance is not usable.
@@ -171,6 +174,12 @@ public:
      * \param active bitfield of the fiber selection
      */
     void saveSelected( std::string filename, boost::shared_ptr< std::vector< bool > > active ) const;
+
+    /**
+     * Get the bounding box as pair of WPositions.
+     */
+    std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const;
+
 protected:
 
     /**
@@ -216,6 +225,9 @@ private:
      * Reverse lookup table for which point belongs to which fiber
      */
     boost::shared_ptr< std::vector< size_t > > m_verticesReverse;
+
+    wmath::WPosition m_bbMin; //!< Minimum position of bounding box of all fibers.
+    wmath::WPosition m_bbMax; //!< Maximum position of bounding box of all fibers.
 };
 
 #endif  // WDATASETFIBERS_H

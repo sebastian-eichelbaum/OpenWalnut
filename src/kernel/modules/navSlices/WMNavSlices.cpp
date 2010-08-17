@@ -163,19 +163,19 @@ void WMNavSlices::moduleMain()
     WAssert( m_viewer, "Requested viewer not found." );
     m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
 
-    m_viewer = ge->getViewerByName( "axial" );
+    m_viewer = ge->getViewerByName( "Axial View" );
     if( m_viewer )
     {
         m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
     }
 
-    m_viewer = ge->getViewerByName( "sagittal" );
+    m_viewer = ge->getViewerByName( "Sagittal View" );
     if( m_viewer )
     {
         m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
     }
 
-    m_viewer = ge->getViewerByName( "coronal" );
+    m_viewer = ge->getViewerByName( "Coronal View" );
     if( m_viewer )
     {
         m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
@@ -205,21 +205,21 @@ void WMNavSlices::moduleMain()
     // NOTE: ALAWAYS remove your osg nodes!
     // Please, please always check for NULL
     boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
     if( viewer )
     {
         viewer->getScene()->remove( m_zSliceNode );
         viewer->getScene()->remove( m_zCrossNode );
     }
 
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
     if( viewer )
     {
         viewer->getScene()->remove( m_xSliceNode );
         viewer->getScene()->remove( m_xCrossNode );
     }
 
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
     if( viewer )
     {
         viewer->getScene()->remove( m_ySliceNode );
@@ -300,7 +300,7 @@ void WMNavSlices::create()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_slicesNode );
 
     // Please, please always check for NULL
-    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
+    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
     if( viewer )
     {
         viewer->getScene()->insert( m_zSliceNode );
@@ -308,7 +308,7 @@ void WMNavSlices::create()
         viewer->setCameraManipulator( 0 );
     }
 
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
     if( viewer )
     {
         viewer->getScene()->insert( m_xSliceNode );
@@ -316,7 +316,7 @@ void WMNavSlices::create()
         viewer->setCameraManipulator( 0 );
     }
 
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
     if( viewer )
     {
         viewer->getScene()->insert( m_ySliceNode );
@@ -330,15 +330,16 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
     // handle the pick information on the slice views
     if ( pickInfo.getViewerName() != "main" && pickInfo.getViewerName() != "" )
     {
-        osg::ref_ptr< osg::Viewport > port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" )->getCamera()->getViewport();
+        osg::ref_ptr< osg::Viewport > port;
+        port= WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" )->getCamera()->getViewport();
         float axialWidgetWidth = port->width();
         float axialWidgetHeight = port->height();
 
-        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" )->getCamera()->getViewport();
+        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" )->getCamera()->getViewport();
         float sagittalWidgetWidth = port->width();
         float sagittalWidgetHeight = port->height();
 
-        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" )->getCamera()->getViewport();
+        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" )->getCamera()->getViewport();
         float coronalWidgetWidth = port->width();
         float coronalWidgetHeight = port->height();
 
@@ -354,7 +355,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         float height;
         float left, top;
         // z slice
-        if ( pickInfo.getViewerName() == "axial" )
+        if ( pickInfo.getViewerName() == "Axial View" )
         {
             width = m_bb.second[0] - m_bb.first[0];
             height = m_bb.second[1] - m_bb.first[1];
@@ -381,7 +382,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         }
 
         // x slice
-        if ( pickInfo.getViewerName() == "sagittal" )
+        if ( pickInfo.getViewerName() == "Sagittal View" )
         {
             width = m_bb.second[1] - m_bb.first[1];
             height = m_bb.second[2] - m_bb.first[2];
@@ -409,7 +410,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         }
 
         // y slice
-        if ( pickInfo.getViewerName() == "coronal" )
+        if ( pickInfo.getViewerName() == "Coronal View" )
         {
             width = m_bb.second[0] - m_bb.first[0];
             height = m_bb.second[2] - m_bb.first[2];
@@ -438,9 +439,9 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         return;
     }
 
-    if ( pickInfo.getName() == "Axial Slice"
+    if ( ( pickInfo.getName() == "Axial Slice"
          ||  pickInfo.getName() == "Coronal Slice"
-         ||  pickInfo.getName() == "Sagittal Slice" )
+         ||  pickInfo.getName() == "Sagittal Slice" ) && pickInfo.getMouseButton() == WPickInfo::MOUSE_RIGHT )
     {
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
@@ -548,9 +549,9 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     float ySlice = static_cast< float >( m_coronalPos->get( true ) );
     float zSlice = static_cast< float >( m_axialPos->get( true ) );
 
-    float xPos = xSlice + 0.5f;
-    float yPos = ySlice + 0.5f;
-    float zPos = zSlice + 0.5f;
+    float xPos = xSlice;
+    float yPos = ySlice;
+    float zPos = zSlice;
 
     osg::ref_ptr<osg::Geometry> sliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
 
@@ -581,6 +582,20 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+                if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+                {
+                    boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
+                    osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    for( size_t i = 0; i < nbVerts; ++i )
+                    {
+                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                    }
+                    sliceGeometry->setTexCoordArray( c, texCoords );
+                    ++c;
+                }
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+
                 for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
                 {
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
@@ -610,6 +625,20 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+                if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+                {
+                    boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
+                    osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    for( size_t i = 0; i < nbVerts; ++i )
+                    {
+                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                    }
+                    sliceGeometry->setTexCoordArray( c, texCoords );
+                    ++c;
+                }
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+
                 for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
                 {
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
@@ -639,6 +668,20 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 sliceGeometry->setVertexArray( sliceVertices );
 
                 int c = 0;
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+                if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+                {
+                    boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
+                    osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    for( size_t i = 0; i < nbVerts; ++i )
+                    {
+                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                    }
+                    sliceGeometry->setTexCoordArray( c, texCoords );
+                    ++c;
+                }
+                //////////////////////////////////////////////////////////////////////////////////////////////////
+
                 for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
                 {
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
@@ -817,6 +860,26 @@ void WMNavSlices::updateTextures()
 
             // for each texture -> apply
             int c = 0;
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+            {
+                osg::ref_ptr<osg::Texture3D> texture3D = WKernel::getRunningKernel()->getSelectionManager()->getTexture();
+
+
+                m_typeUniforms[c]->set( W_DT_UNSIGNED_CHAR  );
+                m_thresholdUniforms[c]->set( 0.0f );
+                m_alphaUniforms[c]->set( WKernel::getRunningKernel()->getSelectionManager()->getTextureOpacity() );
+                m_cmapUniforms[c]->set( 4 );
+
+                texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+                texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+
+                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+                ++c;
+            }
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
                 osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
@@ -954,7 +1017,7 @@ void WMNavSlices::updateViewportMatrix()
     double scale;
     boost::shared_ptr< WGEViewer > viewer;
     osg::ref_ptr< WGEGroupNode > currentScene;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
     if( viewer )
     {
         currentScene = viewer->getScene();
@@ -993,7 +1056,7 @@ void WMNavSlices::updateViewportMatrix()
         currentScene->setMatrix( tm );
     }
 
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
     if( viewer )
     {
         currentScene = viewer->getScene();
@@ -1034,7 +1097,7 @@ void WMNavSlices::updateViewportMatrix()
         currentScene->setMatrix( tm );
     }
 
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
     if( viewer )
     {
         currentScene = viewer->getScene();

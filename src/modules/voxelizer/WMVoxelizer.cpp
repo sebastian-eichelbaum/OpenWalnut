@@ -34,9 +34,10 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
+#include "../../common/datastructures/WFiber.h"
+#include "../../common/WAssert.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
-#include "../../common/datastructures/WFiber.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
@@ -44,13 +45,13 @@
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
+#include "voxelizer.xpm"
 #include "WBresenham.h"
 #include "WBresenhamDBL.h"
+#include "WCenterlineParameterization.h"
+#include "WIntegrationParameterization.h"
 #include "WMVoxelizer.h"
 #include "WRasterAlgorithm.h"
-#include "WIntegrationParameterization.h"
-#include "WCenterlineParameterization.h"
-#include "voxelizer.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMVoxelizer )
@@ -146,14 +147,14 @@ void WMVoxelizer::properties()
     m_paramAlgoSelections->addItem( "By Integration", "Integrate along the voxelized line." );
 
     m_antialiased     = m_properties->addProperty( "Antialiasing", "Enable/Disable antialiased drawing of voxels.", true, m_fullUpdate );
-    m_drawfibers      = m_properties->addProperty( "Fiber Tracts", "Enable/Disable drawing of the fibers of a cluster.", true, m_fullUpdate );
-    m_drawBoundingBox = m_properties->addProperty( "Bounding Box Enable Feature", "Enable/Disable drawing of a clusters BoundingBox.", true );
-    m_drawCenterLine  = m_properties->addProperty( "Center Line", "Enable/Disable display of the center line", true );
+    m_drawfibers      = m_properties->addProperty( "Fiber tracts", "Enable/Disable drawing of the fibers of a cluster.", true, m_fullUpdate );
+    m_drawBoundingBox = m_properties->addProperty( "Bounding box enable feature", "Enable/Disable drawing of a clusters BoundingBox.", true );
+    m_drawCenterLine  = m_properties->addProperty( "Center line", "Enable/Disable display of the center line", true );
     m_lighting        = m_properties->addProperty( "Lighting", "Enable/Disable lighting.", true );
-    m_drawVoxels      = m_properties->addProperty( "Display Voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
-    m_rasterAlgo      = m_properties->addProperty( "Raster Algo", "Specifies the algorithm you may want to use for voxelization.",
+    m_drawVoxels      = m_properties->addProperty( "Display voxels", "Enable/Disable drawing of marked voxels.", true, m_fullUpdate );
+    m_rasterAlgo      = m_properties->addProperty( "Raster algo", "Specifies the algorithm you may want to use for voxelization.",
                                                     std::string( "WBresenham" ), m_fullUpdate );
-    m_voxelsPerUnit   = m_properties->addProperty( "Voxels per Unit", "Specified the number of voxels per unit in the coordinate system. This "
+    m_voxelsPerUnit   = m_properties->addProperty( "Voxels per unit", "Specified the number of voxels per unit in the coordinate system. This "
                                                                        "is useful to increase the resolution of the grid", 1, m_fullUpdate );
     m_parameterAlgo   = m_properties->addProperty( "Parameterization", "Select the parameterization algorithm.",
                                                    m_paramAlgoSelections->getSelectorFirst(), m_fullUpdate );
@@ -190,9 +191,9 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
     const std::list< size_t >& fiberIDs = m_clusters->getIndices();
     std::list< size_t >::const_iterator cit = fiberIDs.begin();
 
-    assert( fibs.size() > 0 && "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
-    assert( fibs[0].size() > 0 && "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
-    assert( fiberIDs.size() > 0 && "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fibs.size() > 0, "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fibs[0].size() > 0, "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fiberIDs.size() > 0, "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
 
     for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
     {
@@ -236,7 +237,7 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
 
 void WMVoxelizer::updateFibers()
 {
-    assert( m_osgNode );
+    WAssert( m_osgNode, "No geode present for updating" );
     // TODO(math): instead of recompute the fiber geode, hide/unhide would be cool, but when data has changed recomputation is necessary
     if( m_drawfibers->get( true ) )
     {
@@ -251,7 +252,7 @@ void WMVoxelizer::updateFibers()
 
 void WMVoxelizer::updateCenterLine()
 {
-    assert( m_osgNode );
+    WAssert( m_osgNode, "No geode present for updating" );
     if( m_drawCenterLine->get( true ) )
     {
         boost::shared_ptr< wmath::WFiber > centerLine = m_clusters->getCenterLine();
@@ -373,9 +374,9 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
     debugLog() << "Cluster indices to voxelize: " << fiberIDs;
     debugLog() << "Using: " << m_clusters->getDataSetReference() << " as fiber dataset";
 
-    assert( fibs.size() > 0 && "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
-    assert( fibs[0].size() > 0 && "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
-    assert( fiberIDs.size() > 0 && "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fibs.size() > 0, "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fibs[0].size() > 0, "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fiberIDs.size() > 0, "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
 
     for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
     {
@@ -414,9 +415,9 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
     const std::list< size_t >& fiberIDs = cluster.getIndices();
     std::list< size_t >::const_iterator cit = fiberIDs.begin();
 
-    assert( fibs.size() > 0 && "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
-    assert( fibs[0].size() > 0 && "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
-    assert( fiberIDs.size() > 0 && "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fibs.size() > 0, "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fibs[0].size() > 0, "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fiberIDs.size() > 0, "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
 
     wmath::WPosition fll = fibs[0][0]; // front lower left corner ( initialize with first WPosition of first fiber )
     wmath::WPosition bur = fibs[0][0]; // back upper right corner ( initialize with first WPosition of first fiber )
@@ -445,9 +446,9 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
 
     // cycle through all positions in the dataSet
     boost::shared_ptr< WValueSet< double > > valueset = boost::shared_dynamic_cast< WValueSet< double > >( dataset->getValueSet() );
-    assert( valueset != 0 );
+    WAssert( valueset != 0, "No scalar double valueset was given while generating the dataset geode" );
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataset->getGrid() );
-    assert( grid != 0 );
+    WAssert( grid != 0, "No WGridRegular3D was given while generating the dataset geode"  );
     const std::vector< double >& values = *valueset->rawDataVectorPointer();
     for( size_t i = 0; i < values.size(); ++i )
     {

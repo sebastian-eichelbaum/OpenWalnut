@@ -1,5 +1,6 @@
 # Needed because libeep has includes of form #include <cnt/cnt.h>
 INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext/libeep )
+INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext )
 
 ADD_SUBDIRECTORY( io )
 ADD_SUBDIRECTORY( datastructures )

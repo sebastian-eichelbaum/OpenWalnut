@@ -121,13 +121,6 @@ public:
     boost::shared_ptr< WKdTree > getKdTree();
 
     /**
-     * adds a bit field list of bit fields
-     *
-     * \param size
-     */
-    void addBitField( size_t size );
-
-    /**
      * sets the dirty flag which will cause recalculation of the bit field
      */
     void setDirty();
@@ -136,7 +129,7 @@ public:
      *  getter
      *  \return the dirty flag
      */
-    bool isDirty();
+    bool dirty();
 
     /**
      * Add a specified notifier to the list of default notifiers which get connected to each added roi.
@@ -186,21 +179,26 @@ public:
      */
     boost::shared_ptr< WRMROIRepresentation > getSelectedRoi();
 
+    /**
+     * getter
+     */
+    size_t size();
+
 protected:
 private:
     bool m_dirty; //!< dirty flag
 
-    int m_activeBitField; //!< indicates which bitfield is currently used for fiber selection
+    size_t m_size; //!< number of fibers in the dataset
 
     boost::shared_ptr< const WDataSetFibers >m_fibers; //!< registered fiber dataset
 
-    boost::shared_ptr< std::vector< bool > >m_bitField; //!< bit field of activated fibers
+    boost::shared_ptr< std::vector< bool > >m_outputBitfield; //!< bit field of activated fibers
 
-    boost::shared_ptr< std::vector< bool > >m_bitField2; //!< bit field of activated fibers
+    boost::shared_ptr< std::vector< bool > >m_workerBitfield; //!< bit field of activated fibers
 
     std::list< boost::shared_ptr< WRMBranch > > m_branches; //!< list of branches in the logical tree structure
 
-    std::list< boost::shared_ptr< WUpdateThread > > m_updateThreads; //!< list ofcurrent update threads.
+    std::list< boost::shared_ptr< WUpdateThread > > m_updateThreads; //!< list of currently running update threads.
 
     boost::shared_mutex m_updateListLock; //!< Lock to prevent concurrent threads trying to update the list
 
@@ -238,5 +236,15 @@ private:
 
     boost::shared_ptr< WRMROIRepresentation > m_selectedRoi; //!< stores a pointer to the currently selected roi
 };
+
+inline bool WROIManagerFibers::dirty()
+{
+    return m_dirty;
+}
+
+inline size_t WROIManagerFibers::size()
+{
+    return m_size;
+}
 
 #endif  // WROIMANAGERFIBERS_H
