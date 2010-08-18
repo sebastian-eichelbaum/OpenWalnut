@@ -134,9 +134,12 @@ void WMFiberDisplaySimple::moduleMain()
         osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
         // needed arrays for iterating the fibers
-        boost::shared_ptr< std::vector< size_t > > fibStart = fibers->getLineStartIndexes();
-        boost::shared_ptr< std::vector< size_t > > fibLen   = fibers->getLineLengths();
-        boost::shared_ptr< std::vector< float > >  fibVerts = fibers->getVertices();
+        WDataSetFibers::IndexArray  fibStart = fibers->getLineStartIndexes();
+        WDataSetFibers::LengthArray fibLen   = fibers->getLineLengths();
+        WDataSetFibers::VertexArray fibVerts = fibers->getVertices();
+        // get current color scheme - the mode is important as it defines the number of floats in the color array per vertex.
+        WDataSetFibers::ColorScheme::ColorMode fibColorMode = fibers->getColorScheme()->getMode();
+        WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
 
         // progress indication
         boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Adding fibers to geode", fibStart->size() ) );
@@ -151,6 +154,7 @@ void WMFiberDisplaySimple::moduleMain()
 
             // the start vertex index
             size_t sidx = fibStart->at( fidx ) * 3;
+            size_t csidx = fibStart->at( fidx ) * fibColorMode;
 
             // the length of the fiber
             size_t len = fibLen->at( fidx );
@@ -162,22 +166,48 @@ void WMFiberDisplaySimple::moduleMain()
                                                 fibVerts->at( ( 3 * k ) + sidx + 1 ),
                                                 fibVerts->at( ( 3 * k ) + sidx + 2 ) ) );
 
+                // for correctly indexing the color array, the offset depends on the color mode.
+                colors->push_back( osg::Vec4( fibColors->at( ( fibColorMode * k ) + csidx + ( 0 % fibColorMode ) ),
+                                              fibColors->at( ( fibColorMode * k ) + csidx + ( 1 % fibColorMode ) ),
+                                              fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
+                                              fibColors->at( ( fibColorMode * k ) + csidx + ( 3 % fibColorMode ) ) ) );
+
             }
 
-            // add the above linestrip
+            // add the above line-strip
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, currentStart, len ) );
             currentStart += len;
         }
 
         geometry->setVertexArray( vertices );
-        colors->push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) );
         geometry->setColorArray( colors );
-        geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
 
         geode->addDrawable( geometry );
 
-        // disable light for this geode as lines can't be lit properly
         osg::StateSet* state = geode->getOrCreateStateSet();
+
+        // enable blending, select transparent bin if RGBA mode is used
+        if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
+        {
+            state->setMode( GL_BLEND, osg::StateAttribute::ON );
+            state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+            // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
+            state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
+
+            // Conversely, disable writing to depth buffer so that a transparent polygon will allow polygons behind it to shine through.
+            // OSG renders transparent polygons after opaque ones.
+            osg::Depth* depth = new osg::Depth;
+            depth->setWriteMask( false );
+            state->setAttributeAndModes( depth, osg::StateAttribute::ON );
+        }
+        else
+        {
+            state->setMode( GL_BLEND, osg::StateAttribute::OFF );
+        }
+
+        // disable light for this geode as lines can't be lit properly
         state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
 
         // add geode to module node

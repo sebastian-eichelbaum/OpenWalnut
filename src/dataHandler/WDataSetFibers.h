@@ -90,6 +90,85 @@ public:
     typedef boost::shared_ptr< std::vector< float > > ColorArray;
 
     /**
+     * Item used in the selection below also containing color info.
+     */
+    class ColorScheme: public WItemSelectionItem
+    {
+    friend class WDataSetFibers;
+    public:
+
+        /**
+         * different kinds of color arrays can be used in this class. This enum defines their possible types.
+         */
+        typedef enum
+        {
+            GRAY = 1,   //!< gray value per vertex
+            RGB  = 3,   //!< rgb per vertex
+            RGBA = 4    //!< rgba per vertex
+        }
+        ColorMode;
+
+        /**
+         * Constructor. Creates new item.
+         *
+         * \param name name, name of item.
+         * \param description description of item. Can be empty.
+         * \param icon icon, can be NULL
+         * \param color the color array of this item.
+         */
+        ColorScheme( std::string name, std::string description, const char** icon, ColorArray color, ColorMode mode = RGB ):
+            WItemSelectionItem( name, description, icon ),
+            m_color( color ),
+            m_mode( mode )
+        {
+        };
+
+        /**
+         * Get the color.
+         *
+         * \return the color array.
+         */
+        ColorArray getColor() const
+        {
+            return m_color;
+        };
+
+        /**
+         * Returns the mode of the color scheme.
+         *
+         * \return the mode.
+         */
+        ColorMode getMode() const
+        {
+            return m_mode;
+        };
+
+    protected:
+
+        /**
+         * Sets the color array for this item.
+         *
+         * \param color the color to set.
+         */
+        void setColor( ColorArray color, ColorMode mode = RGB )
+        {
+            m_color = color;
+            m_mode = mode;
+        };
+
+    private:
+        /**
+         * The color array associated with the item.
+         */
+        ColorArray m_color;
+
+        /**
+         * Coloring mode.
+         */
+        ColorMode m_mode;
+    };
+
+    /**
      * Constructs a new set of fibers, usage of WFiber here is for backward compatibility and should be removed
      *
      * \param vertices the vertices of the fibers, stored in x1,y1,z1,x2,y2,z2, ..., xn,yn,zn scheme
@@ -170,14 +249,14 @@ public:
     /**
      * Reference to the vector storing the global colors.
      *
-     * \return Pointer to the float array.
+     * \return Pointer to the float array. This always is RGB.
      */
     ColorArray getGlobalColors() const;
 
     /**
      * Reference to the vector storing the local colors.
      *
-     * \return Pointer to the float array.
+     * \return Pointer to the float array. This always is RGB.
      */
     ColorArray getLocalColors() const;
 
@@ -206,6 +285,40 @@ public:
      * \param newColors new colors to set
      */
     void replaceColorScheme( WDataSetFibers::ColorArray oldColors, WDataSetFibers::ColorArray newColors );
+
+    /**
+     * Get the color scheme with the specified name. If it is not found, an exception gets thrown.
+     *
+     * \param name the name of the color scheme
+     *
+     * \return the color scheme
+     * \throw WDHNoSuchDataSet if the name could not be found.
+     */
+    const boost::shared_ptr< ColorScheme > getColorScheme( std::string name ) const;
+
+    /**
+     * Get the color scheme with the specified ID. If the index is invalid, an exception gets thrown.
+     *
+     * \param idx the index
+     *
+     * \return the color scheme
+     */
+    const boost::shared_ptr< ColorScheme > getColorScheme( size_t idx ) const;
+
+    /**
+     * Convenience method returning the currently selected scheme. This is a comfortable alternative to using the color scheme selection
+     * property.
+     *
+     * \return the current active color scheme
+     */
+    const boost::shared_ptr< ColorScheme > getColorScheme() const;
+
+    /**
+     * Returns the property controlling the color scheme selection.
+     *
+     * \return the property.
+     */
+    const WPropSelection getColorSchemeProperty() const;
 
     /**
      * returns the position in space for a vertex of a given fiber
@@ -255,53 +368,6 @@ private:
     TangentArray m_tangents;
 
     // the following typedefs are for convenience.
-
-    /**
-     * Item used in the selection below also containing color info.
-     */
-    class WColorSelectionItem: public WItemSelectionItem
-    {
-    public:
-        /**
-         * Constructor. Creates new item.
-         *
-         * \param name name, name of item.
-         * \param description description of item. Can be empty.
-         * \param icon icon, can be NULL
-         * \param color the color array of this item.
-         */
-        WColorSelectionItem( std::string name, std::string description, const char** icon, ColorArray color ):
-            WItemSelectionItem( name, description, icon ),
-            m_color( color )
-        {
-        };
-
-        /**
-         * Get the color.
-         *
-         * \return the color array.
-         */
-        ColorArray getColor() const
-        {
-            return m_color;
-        };
-
-        /**
-         * Sets the color array for this item.
-         *
-         * \param color the color to set.
-         */
-        void setColor( ColorArray color )
-        {
-            m_color = color;
-        };
-
-    private:
-        /**
-         * The color array associated with the item.
-         */
-        ColorArray m_color;
-    };
 
     /**
      * An array of color arrays. The first two elements are: 0: global color, 1: local color
