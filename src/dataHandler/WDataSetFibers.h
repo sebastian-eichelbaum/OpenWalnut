@@ -115,6 +115,7 @@ public:
          * \param description description of item. Can be empty.
          * \param icon icon, can be NULL
          * \param color the color array of this item.
+         * \param mode the mode of the color array. This defines whether the colors are luminance, RGB or RGBA
          */
         ColorScheme( std::string name, std::string description, const char** icon, ColorArray color, ColorMode mode = RGB ):
             WItemSelectionItem( name, description, icon ),
@@ -149,6 +150,7 @@ public:
          * Sets the color array for this item.
          *
          * \param color the color to set.
+         * \param mode the mode of the color array. This defines whether the colors are luminance, RGB or RGBA
          */
         void setColor( ColorArray color, ColorMode mode = RGB )
         {

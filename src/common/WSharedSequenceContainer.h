@@ -109,7 +109,7 @@ public:
      *
      * \return reference to element at the specified position
      */
-    typename S::value_type& operator[]( size_t n ) ;
+    typename S::value_type& operator[]( size_t n );
 
     /**
      * Get item at position n. Uses the [] operator of the underlying container. Please do not use this for iteration as it locks every access.

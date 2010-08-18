@@ -219,7 +219,7 @@ const boost::shared_ptr< WDataSetFibers::ColorScheme > WDataSetFibers::getColorS
     );
     if ( i == l->get().end() )
     {
-        throw WDHNoSuchDataSet( std::string( "Color scheme with specified name could not be found." ) ) ;
+        throw WDHNoSuchDataSet( std::string( "Color scheme with specified name could not be found." ) );
     }
 
     return boost::shared_static_cast< ColorScheme >( *i );

@@ -171,7 +171,6 @@ void WMFiberDisplaySimple::moduleMain()
                                               fibColors->at( ( fibColorMode * k ) + csidx + ( 1 % fibColorMode ) ),
                                               fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
                                               fibColors->at( ( fibColorMode * k ) + csidx + ( 3 % fibColorMode ) ) ) );
-
             }
 
             // add the above line-strip
@@ -221,6 +220,5 @@ void WMFiberDisplaySimple::moduleMain()
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
     // allocated memory and remove all OSG nodes.
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
-
 }
 

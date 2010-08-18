@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WItemSelectionItem.h"
 
 WItemSelectionItem::WItemSelectionItem( std::string name, std::string description, const char** icon ):

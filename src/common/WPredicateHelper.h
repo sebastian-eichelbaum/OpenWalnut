@@ -35,7 +35,6 @@
  */
 namespace WPredicateHelper
 {
-
     /**
      * This class tests against the getName() method of the instances of type T. Many, many, many many many classes in OpenWalnut provide a getName()
      * method. This predicate can check against a defined name. Useful for searching.
@@ -49,7 +48,7 @@ namespace WPredicateHelper
          *
          * \param check the string to check against.
          */
-        Name( std::string check ):
+        explicit Name( std::string check ):
             m_check( check )
         {
         };
@@ -88,7 +87,7 @@ namespace WPredicateHelper
          *
          * \param check the string to check against.
          */
-        Name( std::string check ):
+        explicit Name( std::string check ):
             m_check( check )
         {
         };
@@ -112,7 +111,6 @@ namespace WPredicateHelper
          */
         std::string m_check;
     };
-
 }
 
 #endif  // WPREDICATEHELPER_H
