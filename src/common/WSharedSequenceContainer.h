@@ -156,7 +156,7 @@ public:
      *
      * \return A random access iterator pointing to the new location of the element that followed the last element erased by the function call.
      */
-    Iterator erase( Iterator position );
+    typename WSharedSequenceContainer< S >::Iterator erase( typename WSharedSequenceContainer< S >::Iterator position );
 
     /**
      * Erase the specified range of elements. Read your STL reference for more details.
@@ -166,7 +166,8 @@ public:
      *
      * \return A random access iterator pointing to the new location of the element that followed the last element erased by the function call.
      */
-    Iterator erase( Iterator first, Iterator last );
+    typename WSharedSequenceContainer< S >::Iterator erase( typename WSharedSequenceContainer< S >::Iterator first,
+                                                            typename WSharedSequenceContainer< S >::Iterator last );
 
     /**
      * Replaces the specified old value by a new one. If the old one does not exist, nothing happens. This is a comfortable forwarder for
