@@ -57,7 +57,7 @@ void WMClusterParamDisplay::connectors()
 
 void WMClusterParamDisplay::properties()
 {
-    m_isoValue = m_properties->addProperty( "Iso Value", "", 0.01 );
+    m_isoValue = m_properties->addProperty( "Iso value", "", 0.01 );
 }
 
 void WMClusterParamDisplay::moduleMain()
@@ -79,8 +79,8 @@ void WMClusterParamDisplay::moduleMain()
 
         if( m_isoValue->changed() )
         {
-            m_isoSurface->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
-            m_clusterSlicer->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get( true ) );
+            m_isoSurface->getProperties()->getProperty( "Iso value" )->toPropDouble()->set( m_isoValue->get() );
+            m_clusterSlicer->getProperties()->getProperty( "Iso value" )->toPropDouble()->set( m_isoValue->get( true ) );
         }
     }
 }
@@ -119,13 +119,13 @@ void WMClusterParamDisplay::initSubModules()
 
     // preset properties
     m_fiberClustering->getProperties()->getProperty( "Invisible fibers" )->toPropBool()->set( true );
-    m_voxelizer->getProperties()->getProperty( "Fiber Tracts" )->toPropBool()->set( false );
-    m_voxelizer->getProperties()->getProperty( "Display Voxels" )->toPropBool()->set( false );
+    m_voxelizer->getProperties()->getProperty( "Fiber tracts" )->toPropBool()->set( false );
+    m_voxelizer->getProperties()->getProperty( "Display voxels" )->toPropBool()->set( false );
 
     // forward properties
     m_properties->addProperty( m_fiberClustering->getProperties()->getProperty( "Output cluster ID" ) );
     m_properties->addProperty( m_fiberClustering->getProperties()->getProperty( "Go" ) );
-    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Fiber Tracts" ) );
+    m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Fiber tracts" ) );
     m_properties->addProperty( m_gaussFiltering->getProperties()->getProperty( "Iterations" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show or Hide ISO Voxels" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show or hide iso voxels" ) );
 }

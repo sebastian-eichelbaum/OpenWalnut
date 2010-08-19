@@ -163,19 +163,19 @@ void WMNavSlices::moduleMain()
     WAssert( m_viewer, "Requested viewer not found." );
     m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
 
-    m_viewer = ge->getViewerByName( "axial" );
+    m_viewer = ge->getViewerByName( "Axial View" );
     if( m_viewer )
     {
         m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
     }
 
-    m_viewer = ge->getViewerByName( "sagittal" );
+    m_viewer = ge->getViewerByName( "Sagittal View" );
     if( m_viewer )
     {
         m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
     }
 
-    m_viewer = ge->getViewerByName( "coronal" );
+    m_viewer = ge->getViewerByName( "Coronal View" );
     if( m_viewer )
     {
         m_viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMNavSlices::setSlicePosFromPick, this, _1 ) );
@@ -205,21 +205,21 @@ void WMNavSlices::moduleMain()
     // NOTE: ALAWAYS remove your osg nodes!
     // Please, please always check for NULL
     boost::shared_ptr< WGEViewer > viewer;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
     if( viewer )
     {
         viewer->getScene()->remove( m_zSliceNode );
         viewer->getScene()->remove( m_zCrossNode );
     }
 
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
     if( viewer )
     {
         viewer->getScene()->remove( m_xSliceNode );
         viewer->getScene()->remove( m_xCrossNode );
     }
 
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
     if( viewer )
     {
         viewer->getScene()->remove( m_ySliceNode );
@@ -300,7 +300,7 @@ void WMNavSlices::create()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_slicesNode );
 
     // Please, please always check for NULL
-    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
+    boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
     if( viewer )
     {
         viewer->getScene()->insert( m_zSliceNode );
@@ -308,7 +308,7 @@ void WMNavSlices::create()
         viewer->setCameraManipulator( 0 );
     }
 
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
     if( viewer )
     {
         viewer->getScene()->insert( m_xSliceNode );
@@ -316,7 +316,7 @@ void WMNavSlices::create()
         viewer->setCameraManipulator( 0 );
     }
 
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
     if( viewer )
     {
         viewer->getScene()->insert( m_ySliceNode );
@@ -330,15 +330,16 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
     // handle the pick information on the slice views
     if ( pickInfo.getViewerName() != "main" && pickInfo.getViewerName() != "" )
     {
-        osg::ref_ptr< osg::Viewport > port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" )->getCamera()->getViewport();
+        osg::ref_ptr< osg::Viewport > port;
+        port= WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" )->getCamera()->getViewport();
         float axialWidgetWidth = port->width();
         float axialWidgetHeight = port->height();
 
-        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" )->getCamera()->getViewport();
+        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" )->getCamera()->getViewport();
         float sagittalWidgetWidth = port->width();
         float sagittalWidgetHeight = port->height();
 
-        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" )->getCamera()->getViewport();
+        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" )->getCamera()->getViewport();
         float coronalWidgetWidth = port->width();
         float coronalWidgetHeight = port->height();
 
@@ -354,7 +355,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         float height;
         float left, top;
         // z slice
-        if ( pickInfo.getViewerName() == "axial" )
+        if ( pickInfo.getViewerName() == "Axial View" )
         {
             width = m_bb.second[0] - m_bb.first[0];
             height = m_bb.second[1] - m_bb.first[1];
@@ -381,7 +382,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         }
 
         // x slice
-        if ( pickInfo.getViewerName() == "sagittal" )
+        if ( pickInfo.getViewerName() == "Sagittal View" )
         {
             width = m_bb.second[1] - m_bb.first[1];
             height = m_bb.second[2] - m_bb.first[2];
@@ -409,7 +410,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         }
 
         // y slice
-        if ( pickInfo.getViewerName() == "coronal" )
+        if ( pickInfo.getViewerName() == "Coronal View" )
         {
             width = m_bb.second[0] - m_bb.first[0];
             height = m_bb.second[2] - m_bb.first[2];
@@ -1016,7 +1017,7 @@ void WMNavSlices::updateViewportMatrix()
     double scale;
     boost::shared_ptr< WGEViewer > viewer;
     osg::ref_ptr< WGEGroupNode > currentScene;
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "axial" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
     if( viewer )
     {
         currentScene = viewer->getScene();
@@ -1055,7 +1056,7 @@ void WMNavSlices::updateViewportMatrix()
         currentScene->setMatrix( tm );
     }
 
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "sagittal" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
     if( viewer )
     {
         currentScene = viewer->getScene();
@@ -1096,7 +1097,7 @@ void WMNavSlices::updateViewportMatrix()
         currentScene->setMatrix( tm );
     }
 
-    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "coronal" );
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
     if( viewer )
     {
         currentScene = viewer->getScene();

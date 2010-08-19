@@ -196,7 +196,7 @@ void WMHud::init()
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
-    if ( m_active->get() )
+    if( m_active->get() )
     {
         m_rootNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -208,7 +208,7 @@ void WMHud::init()
     // connect updateGFX with picking
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
     WAssert( viewer, "Requested viewer (main) not found." );
-    if (viewer->getPickHandler() )
+    if(viewer->getPickHandler() )
         viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
 }
 
@@ -241,7 +241,7 @@ void WMHud::update()
 
 void WMHud::activate()
 {
-    if ( m_active->get() )
+    if( m_active->get() )
     {
         m_rootNode->setNodeMask( 0xFFFFFFFF );
     }

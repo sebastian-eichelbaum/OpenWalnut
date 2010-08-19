@@ -1,3 +1,4 @@
+ADD_SUBDIRECTORY( exportGeometry )
 ADD_SUBDIRECTORY( meshReader )
 ADD_SUBDIRECTORY( writeNIfTI )
 ADD_SUBDIRECTORY( writeTracts )

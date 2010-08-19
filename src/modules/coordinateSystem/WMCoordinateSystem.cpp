@@ -121,36 +121,36 @@ void WMCoordinateSystem::properties()
 {
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMCoordinateSystem::propertyChanged, this );
 
-    m_showAxial = m_properties->addProperty( "show rulers on axial", "Does exactly what it says", true, propertyCallback );
-    m_showCoronal = m_properties->addProperty( "show rulers on coronal", "Does exactly what it says", false, propertyCallback );
-    m_showSagittal = m_properties->addProperty( "show rulers on sagittal", "Does exactly what it says", false, propertyCallback );
+    m_showAxial = m_properties->addProperty( "Show rulers on axial", "", true, propertyCallback );
+    m_showCoronal = m_properties->addProperty( "Show rulers on coronal", "", false, propertyCallback );
+    m_showSagittal = m_properties->addProperty( "Show rulers on sagittal", "", false, propertyCallback );
 
     m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_possibleSelections->addItem( "world", "" ); // NOTE: you can add XPM images here.
-    m_possibleSelections->addItem( "canonical", "" );
-    m_possibleSelections->addItem( "talairach", "" );
+    m_possibleSelections->addItem( "World", "" ); // NOTE: you can add XPM images here.
+    m_possibleSelections->addItem( "Canonical", "" );
+    m_possibleSelections->addItem( "Talairach", "" );
 
     m_csSelection = m_properties->addProperty( "Select coordinate system", "", m_possibleSelections->getSelectorFirst(), propertyCallback );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_csSelection );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_csSelection );
 
-    m_showGridAxial = m_properties->addProperty( "show grid on axial", "Does exactly what it says", false, propertyCallback );
-    m_showGridCoronal = m_properties->addProperty( "show grid on coronal", "Does exactly what it says", false, propertyCallback );
-    m_showGridSagittal = m_properties->addProperty( "show grid on sagittal", "Does exactly what it says", false, propertyCallback );
+    m_showGridAxial = m_properties->addProperty( "Show grid on axial", "", false, propertyCallback );
+    m_showGridCoronal = m_properties->addProperty( "Show grid on coronal", "", false, propertyCallback );
+    m_showGridSagittal = m_properties->addProperty( "Show grid on sagittal", "", false, propertyCallback );
 
-    m_showNumbersOnRulers = m_properties->addProperty( "show numbers on rulers", "Does exactly what it says", true, propertyCallback );
+    m_showNumbersOnRulers = m_properties->addProperty( "Show numbers on rulers", "Does exactly what it says", true, propertyCallback );
 
     wmath::WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    m_crosshair = m_properties->addProperty( "crosshair", "Description.", ch );
+    m_crosshair = m_properties->addProperty( "Crosshair", "", ch );
     // initialize the properties with a certain standard set
     // those properties will be updatet as soon as the first dataset is looaded
-    m_flt = m_infoProperties->addProperty( "front left top", "Description.", wmath::WPosition( 0.0, 0.0, 0.0 ) );
-    m_brb = m_infoProperties->addProperty( "bottom right back", "Description.", wmath::WPosition( 160.0, 200.0, 160.0 ) );
+    m_flt = m_infoProperties->addProperty( "Front left top", "", wmath::WPosition( 0.0, 0.0, 0.0 ) );
+    m_brb = m_infoProperties->addProperty( "Bottom right back", "", wmath::WPosition( 160.0, 200.0, 160.0 ) );
 
-    m_ac = m_infoProperties->addProperty( "anterior commisure", "Description.", wmath::WPosition( 80.0, 119.0, 80.0 ) );
-    m_pc = m_infoProperties->addProperty( "posterior commisure", "Description.", wmath::WPosition( 80.0, 80.0, 80.0 ) );
-    m_ihp = m_infoProperties->addProperty( "interhemispherical point", "Description.", wmath::WPosition( 80.0, 119.0, 110.0 ) );
+    m_ac = m_infoProperties->addProperty( "Anterior commisure", "", wmath::WPosition( 80.0, 119.0, 80.0 ) );
+    m_pc = m_infoProperties->addProperty( "Posterior commisure", "", wmath::WPosition( 80.0, 80.0, 80.0 ) );
+    m_ihp = m_infoProperties->addProperty( "Interhemispherical point", "", wmath::WPosition( 80.0, 119.0, 110.0 ) );
 
     m_acTrigger = m_properties->addProperty( "Set AC", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );
     m_pcTrigger = m_properties->addProperty( "Set PC", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );

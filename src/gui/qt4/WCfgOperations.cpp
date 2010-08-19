@@ -55,7 +55,7 @@ std::vector< std::string > WCfgOperations::readCfg( const std::string fileName )
 
 void WCfgOperations::writeCfg( const std::string fileName, const std::vector< std::string > lines )
 {
-    std::ofstream ofs( fileName.c_str(), std::ofstream::out );
+    std::ofstream ofs( fileName.c_str(), std::ofstream::out | std::ios_base::binary );
 
     std::stringstream mendl;
     mendl << std::endl;
@@ -299,29 +299,39 @@ double WCfgOperations::getAsDouble( const std::string line )
     return res;
 }
 
-bool WCfgOperations::isString( const std::string line )
+bool WCfgOperations::isString( const std::string line, bool useColon )
 {
     bool res = false;
-    if ( line.length() > 1 && line[0] == '\"' && line[line.length() - 1] == '\"' )
+    if ( useColon )
     {
-        res = true;
+        if ( line.length() > 1 && line[0] == '\"' && line[line.length() - 1] == '\"' )
+        {
+            res = true;
+        }
+    }
+    else
+    {
+        res = line.length() > 0;
     }
     return res;
 }
 
-std::string WCfgOperations::getAsString( const std::string line )
+std::string WCfgOperations::getAsString( const std::string line, bool useColon )
 {
     std::string res = line;
-    if ( !isString( line ) )
+    if ( useColon )
     {
-        return std::string( "" );
+        if ( !isString( line ) )
+        {
+            return std::string( "" );
+        }
+        res.erase( 0, 1 );
+        res.erase( res.length() - 1, 1 );
     }
-    res.erase( 0, 1 );
-    res.erase( res.length() - 1, 1 );
     return res;
 }
 
-std::string WCfgOperations::getPropValAsString( boost::shared_ptr< WProperties > prop )
+std::string WCfgOperations::getPropValAsString( boost::shared_ptr< WProperties > prop, bool useColon )
 {
     std::string result = "";
 
@@ -329,7 +339,9 @@ std::string WCfgOperations::getPropValAsString( boost::shared_ptr< WProperties >
     {
     case PV_STRING:
         {
-            result = "\"" + prop->toPropString()->get() + "\"";
+            result = prop->toPropString()->get();
+            if ( useColon )
+                result = "\"" + result + "\"";
             break;
         }
     case PV_BOOL:
