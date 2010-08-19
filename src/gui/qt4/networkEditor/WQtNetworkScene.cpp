@@ -59,7 +59,12 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
          {
              WQtNetworkItem *netItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
              
-             foreach( WQtNetworkPort *port, netItem->getPorts() )
+             foreach( WQtNetworkPort *port, netItem->getInPorts() )
+             {
+                 port->removeArrows();
+                 delete port;
+             }
+             foreach( WQtNetworkPort *port, netItem->getOutPorts() )
              {
                  port->removeArrows();
                  delete port;

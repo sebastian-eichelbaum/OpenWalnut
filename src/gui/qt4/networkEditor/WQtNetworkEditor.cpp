@@ -65,6 +65,7 @@ WQtNetworkEditor::WQtNetworkEditor( QString title, WMainWindow* parent )
     addModule(/*Qpoint, String*/);
 
     addModule();
+    addModule();
 
     this->setAllowedAreas( Qt::RightDockWidgetArea );
     this->setWidget( m_panel );
@@ -79,24 +80,29 @@ void WQtNetworkEditor::addModule()
     WQtNetworkItem *netItem = new WQtNetworkItem();
 
     WQtNetworkPort *port = new WQtNetworkPort();
-    port->setType( true );
+    port->setType( false );
     port->setParentItem( netItem );
     WQtNetworkPort *iport = new WQtNetworkPort();
-    iport->setType( true );
+    iport->setType( false );
     iport->setParentItem( netItem );
+
+    WQtNetworkPort *pport = new WQtNetworkPort();
+    pport->setType( true );
+    pport->setParentItem( netItem );
+    WQtNetworkPort *ipport = new WQtNetworkPort();
+    ipport->setType( true );
+    ipport->setParentItem( netItem );
 
     netItem->setFlag( QGraphicsItem::ItemIsMovable );
     netItem->setFlag( QGraphicsItem::ItemIsSelectable );
     netItem->addPort( port );
     netItem->addPort( iport );
+    netItem->addPort( pport );
+    netItem->addPort( ipport );
 
     netItem->fitLook();
 
     m_scene->addItem( netItem );
-
-    WQtNetworkPort *tport = new WQtNetworkPort();
-    tport->setType( false );
-    m_scene->addItem( tport );
 
     //QGraphicsTextItem *text = new QGraphicsTextItem( "test.." , rect, 0 );
 }

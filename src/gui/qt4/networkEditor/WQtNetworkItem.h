@@ -39,16 +39,16 @@ class WQtNetworkItem : public QGraphicsRectItem
 
         void addPort( WQtNetworkPort *port );
 
-        QList< WQtNetworkPort *> getPorts();
+        QList< WQtNetworkPort *> getInPorts();
+        QList< WQtNetworkPort *> getOutPorts();
 
         void fitLook();
     protected:
 
 //        QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
-        void removePort( WQtNetworkPort *port );
-
-        void removePorts();
+//        void removePort( WQtNetworkPort *port );
+//        void removePorts();
 
 //        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
         void mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent );
@@ -56,7 +56,8 @@ class WQtNetworkItem : public QGraphicsRectItem
 
     private:
 
-        QList< WQtNetworkPort *> m_ports;
+        QList< WQtNetworkPort *> m_inPorts; // input ports
+        QList< WQtNetworkPort *> m_outPorts; // output ports
 
         float m_width;
         float m_heigth;

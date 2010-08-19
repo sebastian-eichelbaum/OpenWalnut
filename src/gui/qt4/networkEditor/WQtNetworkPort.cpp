@@ -94,8 +94,8 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
             WQtNetworkPort *endPort = qgraphicsitem_cast<WQtNetworkPort *>( endItems.first() );
 
             if( endPort->m_arrows.size() < 1 &&
-                    endPort->portType() == true &&
-                    startPort->portType() == false )
+                    endPort->portType() == false &&
+                    startPort->portType() == true )
             {
                 std::cout << "draw" << std::endl;
 
@@ -135,7 +135,7 @@ void WQtNetworkPort::removeArrows()
     foreach( WQtNetworkArrow *arrow, m_arrows )
     {
         arrow->getStartPort()->removeArrow( arrow );
-        arrow->getStartPort()->removeArrow( arrow );
+        arrow->getEndPort()->removeArrow( arrow );
         scene()->removeItem( arrow );
         delete arrow;
     }
@@ -159,12 +159,15 @@ bool WQtNetworkPort::portType()
     return m_portType;
 }
 
-void WQtNetworkPort::alignPosition( int size, int portNumber, float width )
+void WQtNetworkPort::alignPosition( int size, int portNumber, float width, bool inOut )
 {
-    setPos( width/( size+1 ) * portNumber - 5.0, 0.0 );
+    if( inOut == false )
+    {
+        setPos( width/( size+1 ) * portNumber - 5.0, 0.0 );
+    }
+    else if( inOut == true )
+    {
+    
+        setPos( width/( size+1 ) * portNumber - 5.0, 45 );
+    }
 }
-
-//QPointF WQtNetworkPort::getCentre()
-//{
-//    return
-//}

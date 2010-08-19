@@ -57,9 +57,7 @@ class WQtNetworkPort : public QGraphicsRectItem
 
         void removeArrows();
 
-        void alignPosition( int size, int portNumber, float width );
-
-        //QPointF getCentre();
+        void alignPosition( int size, int portNumber, float width, bool inOut );
 
         void setType( bool type );
         bool portType();

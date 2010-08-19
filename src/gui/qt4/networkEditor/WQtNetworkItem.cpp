@@ -48,6 +48,8 @@ WQtNetworkItem::WQtNetworkItem()
     setPen( QPen( Qt::white, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
     setAcceptsHoverEvents( false );
     setFlag( QGraphicsItem::ItemIsMovable );
+
+    fitLook();
 }
 
 WQtNetworkItem::~WQtNetworkItem()
@@ -62,7 +64,11 @@ WQtNetworkItem::~WQtNetworkItem()
 void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
     QGraphicsItem::mouseMoveEvent( mouseEvent );
-    foreach( WQtNetworkPort *port, m_ports )
+    foreach( WQtNetworkPort *port, m_inPorts )
+    {
+        port->update();
+    }
+    foreach( WQtNetworkPort *port, m_outPorts )
     {
         port->update();
     }
@@ -90,9 +96,10 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 
 void WQtNetworkItem::addPort( WQtNetworkPort *port )
 {
-    m_ports.append( port );
+    if( port->portType() == false ) m_inPorts.append( port );
+    else if( port->portType() == true ) m_outPorts.append( port );
 }
-
+/*
 void WQtNetworkItem::removePort( WQtNetworkPort *port )
 {
     int index = m_ports.indexOf( port );
@@ -108,18 +115,31 @@ void WQtNetworkItem::removePorts()
         port->update();
     }
 }
+*/
 
-QList< WQtNetworkPort *> WQtNetworkItem::getPorts()
+QList< WQtNetworkPort *> WQtNetworkItem::getInPorts()
 {
-    return m_ports;
+    return m_inPorts;
+}
+
+QList< WQtNetworkPort *> WQtNetworkItem::getOutPorts()
+{
+    return m_outPorts;
 }
 
 void WQtNetworkItem::fitLook()
 {
     int portNumber = 1;
-    foreach( WQtNetworkPort *port, m_ports )
+    foreach( WQtNetworkPort *port, m_inPorts )
     {
-        port->alignPosition( m_ports.size(), portNumber, m_width );
+        port->alignPosition( m_inPorts.size(), portNumber, m_width, false );
+        portNumber++;
+    }
+    
+    portNumber = 1;
+    foreach( WQtNetworkPort *port, m_outPorts )
+    {
+        port->alignPosition( m_outPorts.size(), portNumber, m_width, true );
         portNumber++;
     }
 }
