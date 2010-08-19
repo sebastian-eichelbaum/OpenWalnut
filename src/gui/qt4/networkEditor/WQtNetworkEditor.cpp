@@ -50,7 +50,7 @@ WQtNetworkEditor::WQtNetworkEditor( QString title, WMainWindow* parent )
     //setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
 
     m_view = new QGraphicsView();
-    //m_scene = new QGraphicsScene;
+    
     m_scene = new WQtNetworkScene();
     m_scene->setSceneRect( -100.0, -100.0, 200.0, 200.0 );
 
@@ -77,16 +77,25 @@ WQtNetworkEditor::~WQtNetworkEditor()
 void WQtNetworkEditor::addModule()
 {
     WQtNetworkItem *netItem = new WQtNetworkItem();
+
     WQtNetworkPort *port = new WQtNetworkPort();
+    port->setType( true );
     port->setParentItem( netItem );
+    WQtNetworkPort *iport = new WQtNetworkPort();
+    iport->setType( true );
+    iport->setParentItem( netItem );
+
     netItem->setFlag( QGraphicsItem::ItemIsMovable );
     netItem->setFlag( QGraphicsItem::ItemIsSelectable );
-
     netItem->addPort( port );
+    netItem->addPort( iport );
+
+    netItem->fitLook();
 
     m_scene->addItem( netItem );
 
     WQtNetworkPort *tport = new WQtNetworkPort();
+    tport->setType( false );
     m_scene->addItem( tport );
 
     //QGraphicsTextItem *text = new QGraphicsTextItem( "test.." , rect, 0 );

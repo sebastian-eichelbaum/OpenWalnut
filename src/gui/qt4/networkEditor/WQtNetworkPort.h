@@ -36,14 +36,15 @@ class WQtNetworkArrow;
 class WQtNetworkPort : public QGraphicsRectItem
 {
     public:
-        enum
-        {
-            Type = UserType + 10
-        };
 
         explicit WQtNetworkPort();
 
         virtual ~WQtNetworkPort();
+        
+        enum
+        {
+            Type = UserType + 10
+        };
 
         int type() const
         {
@@ -52,6 +53,16 @@ class WQtNetworkPort : public QGraphicsRectItem
 
         void update();
 
+        void removeArrow( WQtNetworkArrow *arrow );
+
+        void removeArrows();
+
+        void alignPosition( int size, int portNumber, float width );
+
+        //QPointF getCentre();
+
+        void setType( bool type );
+        bool portType();
 
     protected:
 
@@ -64,13 +75,13 @@ class WQtNetworkPort : public QGraphicsRectItem
         //QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
         void addArrow( WQtNetworkArrow *arrow );
-        void removeArrows();
-        void removeArrow( WQtNetworkArrow *arrow );
 
     private:
 
         QGraphicsLineItem *line;
         QPointF startPoint;
+
+        bool m_portType; // 0-input , 1-output
 
         QList< WQtNetworkArrow *> m_arrows;
 };

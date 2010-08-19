@@ -29,11 +29,11 @@
 
 #include "WQtNetworkArrow.h"
 
-WQtNetworkArrow::WQtNetworkArrow( WQtNetworkPort *outPort, WQtNetworkPort *inPort )
+WQtNetworkArrow::WQtNetworkArrow( WQtNetworkPort *startPort, WQtNetworkPort *endPort )
     : QGraphicsLineItem()
 {
-    m_outPort = outPort;
-    m_inPort = inPort;
+    m_startPort = startPort;
+    m_endPort = endPort;
 
     setFlag( QGraphicsItem::ItemIsSelectable, true );
     setPen( QPen( Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
@@ -45,6 +45,19 @@ WQtNetworkArrow::~WQtNetworkArrow()
 
 void WQtNetworkArrow::updatePosition()
 {
-    QLineF line( mapFromItem( m_outPort, 0, 0 ), mapFromItem( m_inPort, 0, 0 ) );
+    QRectF sRect = m_startPort->rect();
+    QRectF eRect = m_startPort->rect();
+    QLineF line( mapFromItem( m_startPort, sRect.bottomRight()/2 ),
+                    mapFromItem( m_endPort, eRect.bottomRight()/2 ) );
     setLine( line );
+}
+
+WQtNetworkPort* WQtNetworkArrow::getStartPort()
+{
+    return m_startPort;
+}
+
+WQtNetworkPort* WQtNetworkArrow::getEndPort()
+{
+    return m_endPort;
 }

@@ -48,9 +48,40 @@ WQtNetworkScene::~WQtNetworkScene()
 {
 }
 
-//void WQtNetworkScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
+void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
+{
+    if( keyEvent->key() == Qt::Key_Delete )
+    {
+        std::cout << "delete" << std::endl;
+    
+        foreach (QGraphicsItem *item, this->selectedItems()) {
+         if ( item->type() == WQtNetworkItem::Type)
+         {
+             WQtNetworkItem *netItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
+             
+             foreach( WQtNetworkPort *port, netItem->getPorts() )
+             {
+                 port->removeArrows();
+                 delete port;
+             }
+ 
+             removeItem( item );
+         }
+         else if( item->type() == WQtNetworkArrow::Type)
+         {
+             WQtNetworkArrow *netArrow = qgraphicsitem_cast<WQtNetworkArrow *>( item );
+             netArrow->getStartPort()->removeArrow( netArrow );
+             netArrow->getEndPort()->removeArrow( netArrow );
+             removeItem( item );
+         }
+         delete item;
+     }
+    }
+}
+
+//void WQtNetworkScene::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 //{
-//    QGraphicsItem* item = itemAt(mouseEvent->pos());
+//    QGraphicsItem* item = itemAt( mouseEvent->pos() );
 //    if ( item->type() == WQtNetworkPort::Type ){
 //        std::cout << "ja" << std::endl;
 //    } else {
@@ -60,10 +91,10 @@ WQtNetworkScene::~WQtNetworkScene()
 //    std::cout << WQtNetworkPort::Type << std::endl;
 //}
 
-//void WQtNetworkScene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
+//void WQtNetworkScene::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 //{
 //}
 
-//void WQtNetworkScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
+//void WQtNetworkScene::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
 //{
 //}

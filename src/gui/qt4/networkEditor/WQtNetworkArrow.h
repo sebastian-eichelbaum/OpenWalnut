@@ -55,20 +55,14 @@ class WQtNetworkArrow : public QGraphicsLineItem
 
         void updatePosition();
 
-        WQtNetworkPort *startItem() const
-        {
-            return m_outPort;
-        }
+        WQtNetworkPort* getStartPort();
 
-        WQtNetworkPort *endItem() const
-        {
-            return m_inPort;
-        }
+        WQtNetworkPort* getEndPort();
 
     protected:
 
     private:
-        WQtNetworkPort *m_outPort;
-        WQtNetworkPort *m_inPort;
+        WQtNetworkPort *m_startPort;
+        WQtNetworkPort *m_endPort;
 };
 #endif  // WQTNETWORKARROW_H

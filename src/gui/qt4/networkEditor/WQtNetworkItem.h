@@ -38,6 +38,10 @@ class WQtNetworkItem : public QGraphicsRectItem
         virtual ~WQtNetworkItem();
 
         void addPort( WQtNetworkPort *port );
+
+        QList< WQtNetworkPort *> getPorts();
+
+        void fitLook();
     protected:
 
 //        QVariant itemChange( GraphicsItemChange change, const QVariant &value );
@@ -53,5 +57,8 @@ class WQtNetworkItem : public QGraphicsRectItem
     private:
 
         QList< WQtNetworkPort *> m_ports;
+
+        float m_width;
+        float m_heigth;
 };
 #endif  // WQTNETWORKITEM_H

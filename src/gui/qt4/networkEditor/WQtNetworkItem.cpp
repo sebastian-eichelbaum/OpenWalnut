@@ -35,12 +35,15 @@
 WQtNetworkItem::WQtNetworkItem()
     : QGraphicsRectItem()
 {
+    m_width = 100.0;
+    m_heigth = 50.0;
+
     QLinearGradient lg( 0, 0, 0, 50 );
     lg.setColorAt( 0.0, Qt::gray );
     lg.setColorAt( 0.5, Qt::black );
     lg.setColorAt( 1.0, Qt::gray );
 
-    setRect( 0.0, 0.0, 100.0, 50.0 );
+    setRect( 0.0, 0.0, m_width, m_heigth );
     setBrush( lg );
     setPen( QPen( Qt::white, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
     setAcceptsHoverEvents( false );
@@ -59,11 +62,9 @@ WQtNetworkItem::~WQtNetworkItem()
 void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
     QGraphicsItem::mouseMoveEvent( mouseEvent );
-
-     foreach( WQtNetworkPort *port, m_ports )
-     {
+    foreach( WQtNetworkPort *port, m_ports )
+    {
         port->update();
-        std::cout << "mousemove update" << std::endl;
     }
 }
 
@@ -75,9 +76,11 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 //QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
 //        const QVariant &value )
 //{
-//     foreach ( WQtNetworkPort *port, m_ports ) {
-//        port->update();
-//        std::cout << "update" << std::endl;
+//    if (change == QGraphicsItem::ItemPositionChange) {
+//        foreach ( WQtNetworkPort *port, m_ports ) {
+//            port->update();
+//            std::cout << "update" << std::endl;
+//        }
 //    }
 //
 //    std::cout << "verschoben" << std::endl;
@@ -106,3 +109,17 @@ void WQtNetworkItem::removePorts()
     }
 }
 
+QList< WQtNetworkPort *> WQtNetworkItem::getPorts()
+{
+    return m_ports;
+}
+
+void WQtNetworkItem::fitLook()
+{
+    int portNumber = 1;
+    foreach( WQtNetworkPort *port, m_ports )
+    {
+        port->alignPosition( m_ports.size(), portNumber, m_width );
+        portNumber++;
+    }
+}
