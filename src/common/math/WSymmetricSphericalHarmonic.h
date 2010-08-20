@@ -87,6 +87,19 @@ public:
      */
     size_t getOrder() const;
 
+
+    static void calcLj( size_t order );
+    static std::vector<size_t> m_lj;
+
+    static wmath::WMatrix<double> getSHFittingMatrix( const std::vector< wmath::WVector3D >& orientations, int order, double lambda, bool withFRT );
+    static wmath::WMatrix<double> getSHFittingMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations,
+                                                      int order,
+                                                      double lambda,
+                                                      bool withFRT );
+
+    static wmath::WMatrix<double> calcBMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations, int order );
+    static wmath::WMatrix<double> calcSmoothingMatrix( size_t order );
+    static wmath::WMatrix<double> calcFRTMatrix( size_t order );
 protected:
 
 private:
