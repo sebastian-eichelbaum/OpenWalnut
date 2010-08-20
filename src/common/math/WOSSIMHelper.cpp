@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#ifdef USEOSSIM
+
 #include <ossim/matrix/newmat.h>
 #include <ossim/matrix/newmatap.h>
 
@@ -29,7 +31,6 @@
 
 #include "WOSSIMHelper.h"
 
-#ifdef USEOSSIM
 boost::shared_ptr< NEWMAT::Matrix > wmath::WOSSIMHelper::OWMatrixToOSSIMMatrix( const wmath::WMatrix<double> &input )
 {
   boost::shared_ptr< NEWMAT::Matrix > result( new NEWMAT::Matrix( input.getNbRows(), input.getNbCols() ) );
