@@ -40,7 +40,9 @@
 #include "WProperties.h"
 
 WProperties::WProperties( std::string name, std::string description ):
-    WPropertyBase( name, description )
+    WPropertyBase( name, description ),
+    m_properties(),
+    m_childUpdateCondition( new WConditionSet() )
 {
     m_updateCondition->add( m_properties.getChangeCondition() );
 }
@@ -51,7 +53,8 @@ WProperties::~WProperties()
 
 WProperties::WProperties( const WProperties& from ):
     WPropertyBase( from ),
-    m_properties()
+    m_properties(),
+    m_childUpdateCondition( new WConditionSet() )
 {
     // copy the properties inside
 
@@ -138,6 +141,9 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
     // INFORMATION properties are allowed inside PARAMETER groups -> do not set the properties purpose.
 
     l->get().push_back( prop );
+
+    // add the child's update condition to the list
+    m_childUpdateCondition->add( prop->getUpdateCondition() );
 }
 
 void WProperties::removeProperty( boost::shared_ptr< WPropertyBase > prop )
@@ -145,6 +151,7 @@ void WProperties::removeProperty( boost::shared_ptr< WPropertyBase > prop )
     // lock, unlocked if l looses focus
     PropertySharedContainerType::WriteTicket l = m_properties.getWriteTicket();
     l->get().erase( std::remove( l->get().begin(), l->get().end(), prop ), l->get().end() );
+    m_childUpdateCondition->remove( prop->getUpdateCondition() );
 }
 
 boost::shared_ptr< WPropertyBase > WProperties::findProperty( WProperties* props, std::string name )
@@ -232,6 +239,11 @@ WProperties::PropertySharedContainerType::WSharedAccess WProperties::getAccessOb
     return m_properties.getAccessObject();
 }
 
+WProperties::PropertySharedContainerType::ReadTicket WProperties::getReadTicket() const
+{
+    return m_properties.getReadTicket();
+}
+
 WPropGroup WProperties::addPropertyGroup( std::string name, std::string description, bool hide )
 {
     WPropGroup p = WPropGroup( new WProperties( name, description ) );
@@ -245,6 +257,11 @@ void WProperties::clear()
     // lock, unlocked if l looses focus
     PropertySharedContainerType::WriteTicket l = m_properties.getWriteTicket();
     l->get().clear();
+}
+
+boost::shared_ptr< WCondition > WProperties::getChildUpdateCondition() const
+{
+    return m_childUpdateCondition;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

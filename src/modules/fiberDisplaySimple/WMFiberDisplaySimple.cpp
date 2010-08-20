@@ -27,6 +27,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
+#include "../../common/WPropertyObserver.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 
@@ -102,6 +103,10 @@ void WMFiberDisplaySimple::moduleMain()
     m_rootNode = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
+    // needed to observe the properties of the input connector data
+    boost::shared_ptr< WPropertyObserver > propObserver = WPropertyObserver::create();
+    m_moduleState.add( propObserver );
+
     // main loop
     while ( !m_shutdownFlag() )
     {
@@ -118,10 +123,15 @@ void WMFiberDisplaySimple::moduleMain()
         bool dataUpdated = m_fiberInput->updated();
         boost::shared_ptr< WDataSetFibers > fibers = m_fiberInput->getData();
         bool dataValid = ( fibers );
-        if ( !dataValid || !dataUpdated )
+        bool dataPropertiesUpdated = propObserver->updated();
+        if ( !( dataValid && ( dataPropertiesUpdated || dataUpdated ) ) )
         {
             continue;
         }
+
+        // update the prop observer if new data is available
+        propObserver->observe( fibers->getProperties() );
+        propObserver->handled();
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // Create new fiber geode
