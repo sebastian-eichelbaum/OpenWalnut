@@ -37,8 +37,10 @@ WQtNetworkPort::WQtNetworkPort()
     : QGraphicsRectItem()
 {
     setRect( 0.0, 0.0, 10.0, 10.0 );
-    setBrush( Qt::green );
-    setPen( QPen( Qt::red, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+    setBrush( Qt::gray );
+    setPen( QPen( Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+    
+    setAcceptsHoverEvents(true);
 }
 
 WQtNetworkPort::~WQtNetworkPort()
@@ -47,10 +49,17 @@ WQtNetworkPort::~WQtNetworkPort()
 
 void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
+    if( m_portType == true )
+    {
         line = new QGraphicsLineItem( QLineF( mouseEvent->scenePos(),
                     mouseEvent->scenePos() ) );
         line->setPen( QPen( Qt::red, 2 ) );
         scene()->addItem( line );
+    }
+    else if( m_portType == false )
+    {
+        mouseEvent->ignore();
+    }
 }
 
 void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )

@@ -38,18 +38,60 @@ WQtNetworkItem::WQtNetworkItem()
     m_width = 100.0;
     m_heigth = 50.0;
 
-    QLinearGradient lg( 0, 0, 0, 50 );
-    lg.setColorAt( 0.0, Qt::gray );
-    lg.setColorAt( 0.5, Qt::black );
-    lg.setColorAt( 1.0, Qt::gray );
+    m_gradient.setStart( 0, 0 );
+    m_gradient.setFinalStop( 0, m_heigth );
+
+    m_color = Qt::gray;
+    m_gradient.setColorAt( 0.0, m_color );
+    m_gradient.setColorAt( 0.5, Qt::black );
+    m_gradient.setColorAt( 1.0, m_color );
 
     setRect( 0.0, 0.0, m_width, m_heigth );
-    setBrush( lg );
+    setBrush( m_gradient );
     setPen( QPen( Qt::white, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
-    setAcceptsHoverEvents( false );
+    setAcceptsHoverEvents( true );
     setFlag( QGraphicsItem::ItemIsMovable );
 
     fitLook();
+}
+
+void WQtNetworkItem::hoverEnterEvent(QGraphicsSceneHoverEvent  *event)
+{
+    m_color = Qt::yellow;
+    m_gradient.setColorAt( 0.0, m_color );
+    m_gradient.setColorAt( 0.5, Qt::black );
+    m_gradient.setColorAt( 1.0, m_color );
+    setBrush( m_gradient );
+}
+void WQtNetworkItem::hoverLeaveEvent(QGraphicsSceneHoverEvent  *event)
+{
+    m_color = Qt::gray;
+    m_gradient.setColorAt( 0.0, m_color );
+    m_gradient.setColorAt( 0.5, Qt::black );
+    m_gradient.setColorAt( 1.0, m_color );
+    setBrush( m_gradient );
+}
+
+void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* )
+{
+    if( isSelected() && m_color != Qt::green )
+    {
+    m_color = Qt::green;
+    m_gradient.setColorAt( 0.0, m_color );
+    m_gradient.setColorAt( 0.5, Qt::black );
+    m_gradient.setColorAt( 1.0, m_color );
+    setBrush( m_gradient );
+    }
+ 
+    QGraphicsRectItem::paint( painter, option, 0 );
+
+    //glass highlight
+    painter->setBrush(QBrush(Qt::white));
+    painter->setPen(QPen(QBrush(Qt::white), 0.01));
+    painter->setOpacity(0.30);
+    QRectF rect(0,0,m_width, m_heigth/2.0);
+    painter->drawRect(rect);
+
 }
 
 WQtNetworkItem::~WQtNetworkItem()
@@ -79,20 +121,22 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 //    QGraphicsItem::mouseReleaseEvent( mouseEvent );
 //}
 
-//QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
-//        const QVariant &value )
-//{
-//    if (change == QGraphicsItem::ItemPositionChange) {
-//        foreach ( WQtNetworkPort *port, m_ports ) {
-//            port->update();
-//            std::cout << "update" << std::endl;
-//        }
-//    }
-//
-//    std::cout << "verschoben" << std::endl;
-//
-//    return value;
-//}
+QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
+        const QVariant &value )
+{
+    if( change == QGraphicsItem::ItemSelectedHasChanged )
+    {
+//        update( sceneBoundingRect() );
+        m_color = Qt::gray;
+        m_gradient.setColorAt( 0.0, m_color );
+    m_gradient.setColorAt( 0.5, Qt::black );
+    m_gradient.setColorAt( 1.0, m_color );
+    setBrush( m_gradient );
+     
+        std::cout << "selection has changed " << std::endl;
+    }
+    return value;
+}
 
 void WQtNetworkItem::addPort( WQtNetworkPort *port )
 {

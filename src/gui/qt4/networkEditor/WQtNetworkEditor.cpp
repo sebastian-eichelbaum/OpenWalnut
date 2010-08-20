@@ -50,6 +50,8 @@ WQtNetworkEditor::WQtNetworkEditor( QString title, WMainWindow* parent )
     //setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
 
     m_view = new QGraphicsView();
+    m_view->setDragMode( QGraphicsView::RubberBandDrag );
+    m_view->setMinimumSize( QSize(200, 200 ) );
     
     m_scene = new WQtNetworkScene();
     m_scene->setSceneRect( -100.0, -100.0, 200.0, 200.0 );

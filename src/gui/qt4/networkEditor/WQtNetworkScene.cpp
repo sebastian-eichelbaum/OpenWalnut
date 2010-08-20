@@ -86,14 +86,6 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
 
 //void WQtNetworkScene::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 //{
-//    QGraphicsItem* item = itemAt( mouseEvent->pos() );
-//    if ( item->type() == WQtNetworkPort::Type ){
-//        std::cout << "ja" << std::endl;
-//    } else {
-//        QGraphicsScene::mousePressEvent( mouseEvent );
-//    }
-//    std::cout << item->type() << std::endl;
-//    std::cout << WQtNetworkPort::Type << std::endl;
 //}
 
 //void WQtNetworkScene::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
@@ -102,4 +94,5 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
 
 //void WQtNetworkScene::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
 //{
+//    QGraphicsScene::mousePressEvent( mouseEvent );
 //}

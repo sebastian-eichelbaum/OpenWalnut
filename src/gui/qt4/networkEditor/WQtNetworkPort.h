@@ -74,6 +74,14 @@ class WQtNetworkPort : public QGraphicsRectItem
 
         void addArrow( WQtNetworkArrow *arrow );
 
+        void hoverEnterEvent ( QGraphicsSceneHoverEvent * event )
+        {
+            QString str = QString("testToolTip");
+            if (toolTip() != str){
+                setToolTip(str);
+            }
+        }
+
     private:
 
         QGraphicsLineItem *line;

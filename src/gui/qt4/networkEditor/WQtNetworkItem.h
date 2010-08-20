@@ -25,8 +25,10 @@
 #ifndef WQTNETWORKITEM_H
 #define WQTNETWORKITEM_H
 
+#include <QtGui/QGraphicsItem>
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsScene>
+#include <QtGui/QPainter>
 
 #include "WQtNetworkPort.h"
 
@@ -45,7 +47,7 @@ class WQtNetworkItem : public QGraphicsRectItem
         void fitLook();
     protected:
 
-//        QVariant itemChange( GraphicsItemChange change, const QVariant &value );
+        QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
 //        void removePort( WQtNetworkPort *port );
 //        void removePorts();
@@ -53,11 +55,19 @@ class WQtNetworkItem : public QGraphicsRectItem
 //        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
         void mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent );
 //        void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
+        
+        void hoverEnterEvent(QGraphicsSceneHoverEvent  *event);
+        void hoverLeaveEvent(QGraphicsSceneHoverEvent  *event);
+        void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget=0 );
+
 
     private:
 
         QList< WQtNetworkPort *> m_inPorts; // input ports
         QList< WQtNetworkPort *> m_outPorts; // output ports
+
+        QLinearGradient m_gradient;
+        QColor m_color;
 
         float m_width;
         float m_heigth;
