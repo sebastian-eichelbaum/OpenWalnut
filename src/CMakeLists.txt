@@ -98,6 +98,20 @@ IF( Teem_FOUND )    # we need to add the include path and lib path to allow the 
     LINK_DIRECTORIES( ${LINK_DIRECTORIES} ${Teem_LIBRARY_DIRS} )
 ENDIF()
 
+### OSSIM ###
+FIND_PACKAGE( OSSIM QUIET )
+IF( OSSIM_FOUND )
+  MESSAGE( STATUS "Found OSSIM." )
+  ADD_DEFINITIONS( -DUSEOSSIM )
+  INCLUDE_DIRECTORIES( ${OSSIM_INCLUDE_DIR} )
+  LINK_LIBRARIES( ${OSSIM_LIBRARY} )
+# TODO(math): is an entry in link directories necessary?
+#   LINK_DIRECTORIES( ${OSSIM_LIBDIR} )
+  MARK_AS_ADVANCED( OSSIM_INCLUDEDIR )
+  MARK_AS_ADVANCED( OSSIM_LIBRARIES )
+#   MARK_AS_ADVANCED( OSSIM_LIBDIR )
+ENDIF()
+
 # other options:
 #---------------
 # Set default build type
