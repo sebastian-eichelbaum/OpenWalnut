@@ -27,10 +27,12 @@
 
 #include <string>
 
+#include "WExportCommon.h"
+
 /**
  * Class for keeping a single named item in a WItemSelection.
  */
-class WItemSelectionItem
+class OWCOMMON_EXPORT WItemSelectionItem 
 {
 public:
 
