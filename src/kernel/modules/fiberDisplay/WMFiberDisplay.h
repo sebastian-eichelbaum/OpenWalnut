@@ -129,6 +129,18 @@ protected:
      */
     void notifyTextureChange();
 
+    /**
+    * switches between fiber display and tube representation,
+    * texturing and box culling
+    * activates the neccesary shaders
+    */
+    void updateRenderModes();
+
+    /**
+    * Enable disable global or local coloring
+    */
+    void toggleColoring();
+
 private:
     /**
      * Updates the output with the current selection and generates a WFiberCluster out of it.
@@ -246,17 +258,6 @@ private:
 
     osg::ref_ptr< WROIBox > m_cullBox; //!< stores a pointer to the cull box
 
-    /**
-     * switches between fiber display and tube representation,
-     * texturing and box culling
-     * activates the neccesary shaders
-     */
-    void updateRenderModes();
-
-    /**
-     * Enable disable global or local coloring
-     */
-    void toggleColoring();
 
     /**
      * changes tube parameters
@@ -284,6 +285,20 @@ private:
      */
     void initCullBox();
 
+    class userData: public osg::Referenced
+    {
+    public:
+        userData( boost::shared_ptr< WMFiberDisplay > _parent )
+        {
+            parent = _parent;
+        }
+        void update();
+        void updateRenderModes();
+        void toggleColoring();
+    private:
+        boost::shared_ptr< WMFiberDisplay > parent;
+    };
+
 
     /**
      * Node callback to handle updates properly
@@ -299,7 +314,7 @@ private:
          */
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
-            osg::ref_ptr< WMFiberDisplay > module = static_cast< WMFiberDisplay* > ( node->getUserData() );
+            osg::ref_ptr< userData > module = static_cast< userData* > ( node->getUserData() );
 
             if ( module )
             {
