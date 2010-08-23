@@ -52,12 +52,13 @@ WQtNetworkEditor::WQtNetworkEditor( QString title, WMainWindow* parent )
     m_view = new QGraphicsView();
     m_view->setDragMode( QGraphicsView::RubberBandDrag );
     m_view->setMinimumSize( QSize(200, 200 ) );
+    m_view->setRenderHint(QPainter::Antialiasing);
     
     m_scene = new WQtNetworkScene();
     m_scene->setSceneRect( -100.0, -100.0, 200.0, 200.0 );
+    m_scene->setSceneRect(m_scene->itemsBoundingRect());
 
     m_view->setScene( m_scene );
-    m_view->setRenderHints( QPainter::Antialiasing );
 
     m_layout = new QVBoxLayout;
     m_layout->addWidget( m_view );
@@ -84,6 +85,7 @@ void WQtNetworkEditor::addModule()
     WQtNetworkPort *port = new WQtNetworkPort();
     port->setType( false );
     port->setParentItem( netItem );
+    port->setName( "input" );
     WQtNetworkPort *iport = new WQtNetworkPort();
     iport->setType( false );
     iport->setParentItem( netItem );
@@ -95,8 +97,13 @@ void WQtNetworkEditor::addModule()
     ipport->setType( true );
     ipport->setParentItem( netItem );
 
+    QGraphicsTextItem *text = new QGraphicsTextItem( "Module " );
+    text->setParentItem( netItem );
+    text->setDefaultTextColor( Qt::white );
+
     netItem->setFlag( QGraphicsItem::ItemIsMovable );
     netItem->setFlag( QGraphicsItem::ItemIsSelectable );
+    netItem->setTextItem( text );
     netItem->addPort( port );
     netItem->addPort( iport );
     netItem->addPort( pport );
@@ -106,5 +113,4 @@ void WQtNetworkEditor::addModule()
 
     m_scene->addItem( netItem );
 
-    //QGraphicsTextItem *text = new QGraphicsTextItem( "test.." , rect, 0 );
 }

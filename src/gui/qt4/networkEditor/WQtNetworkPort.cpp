@@ -53,7 +53,7 @@ void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
     {
         line = new QGraphicsLineItem( QLineF( mouseEvent->scenePos(),
                     mouseEvent->scenePos() ) );
-        line->setPen( QPen( Qt::red, 2 ) );
+        line->setPen( QPen( Qt::black, 2 ) );
         scene()->addItem( line );
     }
     else if( m_portType == false )
@@ -66,7 +66,40 @@ void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
     if( line != 0 )
     {
+ 
         QLineF newLine( line->line().p1(), mouseEvent->scenePos() );
+
+        QList<QGraphicsItem *> endItem = scene()->items( mouseEvent->scenePos() );
+        // because line is first item below the curser
+        if( !endItem.isEmpty() &&
+                endItem.first()->type() == QGraphicsLineItem::Type )
+        {
+            endItem.removeFirst();
+        }
+ 
+        if( !endItem.isEmpty() )
+        {
+            if( endItem.first()->type() == WQtNetworkPort::Type )
+            {
+                WQtNetworkPort *endPort = qgraphicsitem_cast<WQtNetworkPort *>( endItem.first() );
+                if( endPort->portType() == false )
+                {
+                   line->setPen( QPen( Qt::green, 2 ) );
+                }
+                else
+                {
+                   line->setPen( QPen( Qt::red, 2 ) );
+                }
+            }
+            else
+            {
+                line->setPen( QPen( Qt::black, 2 ) );
+            }
+        }
+        else
+        {
+            line->setPen( QPen( Qt::black, 2 ) );
+        }
         line->setLine( newLine );
     }
 }
@@ -97,7 +130,7 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
         if( !endItems.isEmpty() &&
              !startItems.isEmpty() &&
              endItems.first()->type() == WQtNetworkPort::Type &&
-             startItems.first() != endItems.first() )
+             startItems.first()->parentItem() != endItems.first()->parentItem() )
         {
             WQtNetworkPort *startPort = qgraphicsitem_cast<WQtNetworkPort *>( startItems.first() );
             WQtNetworkPort *endPort = qgraphicsitem_cast<WQtNetworkPort *>( endItems.first() );
@@ -106,10 +139,8 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
                     endPort->portType() == false &&
                     startPort->portType() == true )
             {
-                std::cout << "draw" << std::endl;
-
                 WQtNetworkArrow *arrow = new WQtNetworkArrow( startPort, endPort );
-                arrow->setZValue( 1000.0 );
+                arrow->setZValue( -1000.0 );
 
                 startPort->addArrow( arrow );
                 endPort->addArrow( arrow );
@@ -117,11 +148,6 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
                 scene()->addItem( arrow );
                 arrow->updatePosition();
             }
-            else
-            {
-                std::cout << "dont draw" << std::endl;
-            }
-
         }
     }
 }
@@ -168,15 +194,35 @@ bool WQtNetworkPort::portType()
     return m_portType;
 }
 
-void WQtNetworkPort::alignPosition( int size, int portNumber, float width, bool inOut )
+void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool inOut )
 {
     if( inOut == false )
     {
-        setPos( width/( size+1 ) * portNumber - 5.0, 0.0 );
+        setPos( rect.width() / ( size+1 ) * portNumber - 5.0, 0.0 );
     }
     else if( inOut == true )
     {
     
-        setPos( width/( size+1 ) * portNumber - 5.0, 45 );
+        setPos( rect.width() / ( size+1 ) * portNumber - 5.0, rect.height() - 5 );
     }
+} 
+
+void WQtNetworkPort::hoverEnterEvent ( QGraphicsSceneHoverEvent * event )
+{
+    event->accept();
+
+    QString str = "Name: " + getName() + "\nPortType:";
+    if (toolTip() != str){
+        setToolTip(str);
+    }
+}
+
+QString WQtNetworkPort::getName()
+{
+    return m_name;
+}
+
+void WQtNetworkPort::setName( QString str )
+{
+    m_name = str;
 }

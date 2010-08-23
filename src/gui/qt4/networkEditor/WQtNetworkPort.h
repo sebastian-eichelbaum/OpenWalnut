@@ -57,10 +57,13 @@ class WQtNetworkPort : public QGraphicsRectItem
 
         void removeArrows();
 
-        void alignPosition( int size, int portNumber, float width, bool inOut );
+        void alignPosition( int size, int portNumber, QRectF rect, bool inOut );
 
         void setType( bool type );
         bool portType();
+
+        QString getName();
+        void setName( QString str );
 
     protected:
 
@@ -74,13 +77,8 @@ class WQtNetworkPort : public QGraphicsRectItem
 
         void addArrow( WQtNetworkArrow *arrow );
 
-        void hoverEnterEvent ( QGraphicsSceneHoverEvent * event )
-        {
-            QString str = QString("testToolTip");
-            if (toolTip() != str){
-                setToolTip(str);
-            }
-        }
+        void hoverEnterEvent ( QGraphicsSceneHoverEvent * event );
+
 
     private:
 
@@ -90,5 +88,7 @@ class WQtNetworkPort : public QGraphicsRectItem
         bool m_portType; // 0-input , 1-output
 
         QList< WQtNetworkArrow *> m_arrows;
+
+        QString m_name;
 };
 #endif  // WQTNETWORKPORT_H

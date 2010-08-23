@@ -52,8 +52,6 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
 {
     if( keyEvent->key() == Qt::Key_Delete )
     {
-        std::cout << "delete" << std::endl;
-    
         foreach (QGraphicsItem *item, this->selectedItems()) {
          if ( item->type() == WQtNetworkItem::Type)
          {

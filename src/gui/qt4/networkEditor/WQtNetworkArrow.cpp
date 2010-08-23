@@ -24,10 +24,13 @@
 
 #include <string>
 #include <iostream>
+#include <math.h>
 
 #include <QtGui/QGraphicsLineItem>
 
 #include "WQtNetworkArrow.h"
+
+const qreal Pi = 3.14;
 
 WQtNetworkArrow::WQtNetworkArrow( WQtNetworkPort *startPort, WQtNetworkPort *endPort )
     : QGraphicsLineItem()
@@ -37,6 +40,8 @@ WQtNetworkArrow::WQtNetworkArrow( WQtNetworkPort *startPort, WQtNetworkPort *end
 
     setFlag( QGraphicsItem::ItemIsSelectable, true );
     setPen( QPen( Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+
+    setAcceptsHoverEvents( true );
 }
 
 WQtNetworkArrow::~WQtNetworkArrow()
@@ -60,4 +65,65 @@ WQtNetworkPort* WQtNetworkArrow::getStartPort()
 WQtNetworkPort* WQtNetworkArrow::getEndPort()
 {
     return m_endPort;
+}
+
+void WQtNetworkArrow::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* )
+{
+    if( isSelected() &&
+            m_color != Qt::green )
+    {
+        m_color = Qt::green;
+    }
+    else if ( !isSelected() &&
+            m_color != Qt::black )
+    {
+        m_color = Qt::black;
+    }
+
+setPen( QPen( m_color, 2, Qt::SolidLine ) );
+painter->setBrush( m_color );
+
+    QGraphicsLineItem::paint( painter, option, 0 );
+
+    qreal arrowSize = 10;
+    double angle = ::acos(line().dx() / line().length());
+    if (line().dy() >= 0)
+        angle = (Pi * 2) - angle;
+
+    QPointF arrowP1 = line().p2() - QPointF(sin(angle + Pi / 3) * arrowSize,
+            cos(angle + Pi / 3) * arrowSize);
+    QPointF arrowP2 = line().p2() - QPointF(sin(angle + Pi - Pi / 3) * arrowSize,
+            cos(angle + Pi - Pi / 3) * arrowSize);
+
+    arrowHead.clear();
+    arrowHead << line().p2() << arrowP1 << arrowP2;
+
+    painter->setPen( QPen( m_color, 1, Qt::SolidLine ) );
+    painter->setBrush( m_color );
+
+    painter->drawPolygon(arrowHead);
+}
+
+ QRectF WQtNetworkArrow::boundingRect() const
+ {
+    QRectF rect = shape().boundingRect();
+
+    // add a few extra pixels for the arrow and the pen
+    qreal penWidth = 1;
+    qreal extra = (penWidth + 10) / 2.0;
+    rect.adjust(-extra, -extra, extra, extra);
+
+    return rect;
+}
+
+ QPainterPath WQtNetworkArrow::shape() const
+ {
+     QPainterPath path = QGraphicsLineItem::shape();
+     path.addPolygon(arrowHead);
+     return path;
+ }
+        
+void WQtNetworkArrow::hoverEnterEvent ( QGraphicsSceneHoverEvent * event )
+{
+    event->accept();
 }

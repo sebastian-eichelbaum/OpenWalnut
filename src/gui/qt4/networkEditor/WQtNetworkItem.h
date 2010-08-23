@@ -27,8 +27,10 @@
 
 #include <QtGui/QGraphicsItem>
 #include <QtGui/QGraphicsRectItem>
+#include <QtGui/QGraphicsTextItem>
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QPainter>
+#include <QtGui/QColor>
 
 #include "WQtNetworkPort.h"
 
@@ -45,6 +47,9 @@ class WQtNetworkItem : public QGraphicsRectItem
         QList< WQtNetworkPort *> getOutPorts();
 
         void fitLook();
+        
+        void setTextItem( QGraphicsTextItem *text );
+
     protected:
 
         QVariant itemChange( GraphicsItemChange change, const QVariant &value );
@@ -60,6 +65,8 @@ class WQtNetworkItem : public QGraphicsRectItem
         void hoverLeaveEvent(QGraphicsSceneHoverEvent  *event);
         void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget=0 );
 
+        void changeColor( QColor color );
+
 
     private:
 
@@ -69,7 +76,10 @@ class WQtNetworkItem : public QGraphicsRectItem
         QLinearGradient m_gradient;
         QColor m_color;
 
+        QRectF m_rect;
         float m_width;
-        float m_heigth;
+        float m_height;
+
+        QGraphicsTextItem *m_text;
 };
 #endif  // WQTNETWORKITEM_H

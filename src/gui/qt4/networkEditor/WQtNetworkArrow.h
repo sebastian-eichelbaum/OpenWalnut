@@ -28,8 +28,10 @@
 #include <string>
 #include <iostream>
 
+#include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QGraphicsLineItem>
 #include <QtGui/QGraphicsScene>
+#include <QtGui/QPainter>
 
 #include "WQtNetworkPort.h"
 
@@ -59,10 +61,21 @@ class WQtNetworkArrow : public QGraphicsLineItem
 
         WQtNetworkPort* getEndPort();
 
+        QRectF boundingRect() const;
+        QPainterPath shape() const;
+
     protected:
+
+        void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget=0 );
+ 
+        void hoverEnterEvent ( QGraphicsSceneHoverEvent * event );
+
 
     private:
         WQtNetworkPort *m_startPort;
         WQtNetworkPort *m_endPort;
+
+        QColor m_color;
+        QPolygonF arrowHead;
 };
 #endif  // WQTNETWORKARROW_H
