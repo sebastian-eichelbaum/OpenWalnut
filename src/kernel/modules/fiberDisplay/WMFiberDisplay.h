@@ -285,17 +285,39 @@ private:
      */
     void initCullBox();
 
+    /**
+    * Wrapper class for userData to prevent cyclic destructor calls
+    */
     class userData: public osg::Referenced
     {
     public:
+        /**
+        * userData Constructur with shared pointer to module
+        * \param _parent pointer to the module 
+        */
         explicit userData( boost::shared_ptr< WMFiberDisplay > _parent )
         {
             parent = _parent;
         }
+
+        /**
+        * update wrapper Function
+        */
         void update();
+
+        /**
+        * updateRenderModes wrapper Function
+        */
         void updateRenderModes();
+
+        /**
+        * toggleColoring wrapper Function
+        */
         void toggleColoring();
     private:
+        /**
+        * shared pointer to the module
+        */
         boost::shared_ptr< WMFiberDisplay > parent;
     };
 

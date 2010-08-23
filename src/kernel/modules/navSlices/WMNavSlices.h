@@ -342,31 +342,65 @@ private:
 
     static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
 
+    /**
+    * Current width of the axial widget
+    */
     int m_axialWidgetWidth;
 
+    /**
+    * Current height of the axial widget
+    */
     int m_axialWidgetHeight;
 
+    /**
+    * Current width of the sagittal widget
+    */
     int m_sagittalWidgetWidth;
 
+    /**
+    * Current height of the sagittal widget
+    */
     int m_sagittalWidgetHeight;
 
+    /**
+    * Current width of the coronal widget
+    */
     int m_coronalWidgetWidth;
 
+    /**
+    * Current height of the coronal widget
+    */
     int m_coronalWidgetHeight;
 
+    /**
+    * Wrapper class for userData to prevent cyclic destructor calls
+    */
     class userData: public osg::Referenced
     {
         friend class WMNavSlices;
     public:
+        /**
+        * userData Constructur with shared pointer to module
+        * \param _parent pointer to the module 
+        */
         explicit userData( boost::shared_ptr< WMNavSlices > _parent )
         {
             parent = _parent;
         }
 
+        /**
+        * updateGeometry wrapper Function
+        */
         void updateGeometry();
 
+        /**
+        * updateTextures wrapper Function
+        */
         void updateTextures();
     private:
+        /**
+        * shared pointer to the module
+        */
         boost::shared_ptr< WMNavSlices > parent;
     };
 
