@@ -199,7 +199,7 @@ public:
         A( 2, 2 ) = i;
         wmath::WMatrix<double> Ainvers( wmath::pseudoInverse( A ) );
         wmath::WMatrix<double> I( A*Ainvers );
-        
+
         for ( size_t row = 0; row < I.getNbRows(); row++ )
         {
           for ( size_t col = 0; col < I.getNbCols(); col++ )

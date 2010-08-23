@@ -22,11 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include "stdint.h"
-
 #include<vector>
 
 #include <boost/math/special_functions/spherical_harmonic.hpp>
+
+#include "stdint.h"
 
 #include "WLinearAlgebraFunctions.h"
 #include "WUnitSphereCoordinates.h"
@@ -37,7 +37,6 @@
 
 namespace wmath
 {
-
 std::vector<size_t> wmath::WSymmetricSphericalHarmonic::m_lj;
 
 WSymmetricSphericalHarmonic::WSymmetricSphericalHarmonic() :
@@ -213,7 +212,8 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcBMatrix( const std::vect
       for ( int m = 1; m <= k; m++ )
       {
         j = ( k*k+k+2 ) / 2 + m;
-        B( row, j-1 ) = rootOf2 * static_cast<double>( std::pow( static_cast<double>( -1 ), m+1 ) ) * boost::math::spherical_harmonic_i( k, m, theta, phi );
+        B( row, j-1 ) = rootOf2 * static_cast<double>( std::pow( static_cast<double>( -1 ), m+1 ) )
+            * boost::math::spherical_harmonic_i( k, m, theta, phi );
       }
       // m = 0
       B( row, ( k*k+k+2 ) / 2 - 1 ) = boost::math::spherical_harmonic_r( k, 0, theta, phi );
@@ -289,5 +289,4 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order 
   }
   return result;
 }
-
 } // Namespace WMath

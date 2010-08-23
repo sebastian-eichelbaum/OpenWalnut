@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <algorithm>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
@@ -287,14 +288,18 @@ void WMNavSlices::create()
 
     rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
-    m_rootNode->setUserData( this );
-    m_slicesNode->setUserData( this );
-    m_xSliceNode->setUserData( this );
-    m_ySliceNode->setUserData( this );
-    m_zSliceNode->setUserData( this );
-    m_xCrossNode->setUserData( this );
-    m_yCrossNode->setUserData( this );
-    m_zCrossNode->setUserData( this );
+    osg::ref_ptr< userData > usrData = osg::ref_ptr< userData >(
+        new userData( boost::shared_dynamic_cast< WMNavSlices >( shared_from_this() ) )
+        );
+
+    m_rootNode->setUserData( usrData );
+    m_slicesNode->setUserData( usrData );
+    m_xSliceNode->setUserData( usrData );
+    m_ySliceNode->setUserData( usrData );
+    m_zSliceNode->setUserData( usrData );
+    m_xCrossNode->setUserData( usrData );
+    m_yCrossNode->setUserData( usrData );
+    m_zCrossNode->setUserData( usrData );
     m_slicesNode->addUpdateCallback( new sliceNodeCallback );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_slicesNode );
@@ -339,21 +344,6 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
     // handle the pick information on the slice views
     if ( pickInfo.getViewerName() != "main" && pickInfo.getViewerName() != "" )
     {
-/*
-        osg::ref_ptr< osg::Viewport > port;
-        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" )->getCamera()->getViewport();
-        float axialWidgetWidth = port->width();
-        float axialWidgetHeight = port->height();
-
-        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" )->getCamera()->getViewport();
-        float sagittalWidgetWidth = port->width();
-        float sagittalWidgetHeight = port->height();
-
-        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" )->getCamera()->getViewport();
-        float coronalWidgetWidth = port->width();
-        float coronalWidgetHeight = port->height();
-*/
-
         // this uses fixed windows size of 150x150 pixel
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
@@ -389,7 +379,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
                 MStPY = 240.0 / static_cast< double >( m_axialWidgetHeight );
                 scale1 = 240.0 * aspectR / width;
                 scale2 = 240.0 / height;
-                m1 = height * scale1 / MStPY; 
+                m1 = height * scale1 / MStPY;
                 m2 = width  * scale2 / MStPX;
 
                 if( m1 <= static_cast< double >( m_axialWidgetHeight ) && m2 <= static_cast< double >( m_axialWidgetWidth ) )
@@ -429,7 +419,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
                 MStPY = 240.0 / static_cast< double >( m_sagittalWidgetHeight );
                 scale1 = 240.0 * aspectR / width;
                 scale2 = 240.0 / height;
-                m1 = height * scale1 / MStPY; 
+                m1 = height * scale1 / MStPY;
                 m2 = width  * scale2 / MStPX;
 
                 if( m1 <= static_cast< double >( m_sagittalWidgetHeight ) && m2 <= static_cast< double >( m_sagittalWidgetWidth ) )
@@ -469,7 +459,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
                 MStPY = 240.0 / static_cast< double >( m_coronalWidgetHeight );
                 scale1 = 240.0 * aspectR / width;
                 scale2 = 240.0 / height;
-                m1 = height * scale1 / MStPY; 
+                m1 = height * scale1 / MStPY;
                 m2 = width  * scale2 / MStPX;
 
                 if( m1 <= static_cast< double >( m_sagittalWidgetHeight ) && m2 <= static_cast< double >( m_coronalWidgetWidth ) )
@@ -1121,7 +1111,7 @@ void WMNavSlices::updateViewportMatrix()
             double MStPY = 240.0 / static_cast< double >( m_axialWidgetHeight );
             double scale1 = 240.0 * aspectR / width;
             double scale2 = 240.0 / height;
-            double m1 = height * scale1 / MStPY; 
+            double m1 = height * scale1 / MStPY;
             double m2 = width  * scale2 / MStPX;
 
             if( m1 <= static_cast< double >( m_axialWidgetHeight ) && m2 <= static_cast< double >( m_axialWidgetWidth ) )
@@ -1168,7 +1158,7 @@ void WMNavSlices::updateViewportMatrix()
             double MStPY = 240.0 / static_cast< double >( m_sagittalWidgetHeight );
             double scale1 = 240.0 * aspectR / width;
             double scale2 = 240.0 / height;
-            double m1 = height * scale1 / MStPY; 
+            double m1 = height * scale1 / MStPY;
             double m2 = width  * scale2 / MStPX;
 
             if( m1 <= static_cast< double >( m_sagittalWidgetHeight ) && m2 <= static_cast< double >( m_sagittalWidgetWidth ) )
@@ -1217,7 +1207,7 @@ void WMNavSlices::updateViewportMatrix()
             double MStPY = 240.0 / static_cast< double >( m_coronalWidgetHeight );
             double scale1 = 240.0 * aspectR / width;
             double scale2 = 240.0 / height;
-            double m1 = height * scale1 / MStPY; 
+            double m1 = height * scale1 / MStPY;
             double m2 = width  * scale2 / MStPX;
 
             if( m1 <= static_cast< double >( m_coronalWidgetHeight ) && m2 <= static_cast< double >( m_coronalWidgetWidth ) )
@@ -1247,3 +1237,12 @@ void WMNavSlices::updateViewportMatrix()
     }
 }
 
+void WMNavSlices::userData::updateGeometry()
+{
+    parent->updateGeometry();
+}
+
+void WMNavSlices::userData::updateTextures()
+{
+    parent->updateTextures();
+}

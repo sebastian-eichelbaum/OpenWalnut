@@ -56,7 +56,7 @@ public:
         A( 2, 0 ) = g;
         A( 2, 1 ) = h;
         A( 2, 2 ) = i;
- 
+
         wmath::WMatrix< double > U( nbRows, nbCols );
         wmath::WMatrix< double > V( nbCols, nbCols );
         wmath::WValue< double > S( nbCols );
@@ -64,12 +64,12 @@ public:
         wmath::WOSSIMHelper::computeSVD( A, U, V, S );
 
         wmath::WMatrix< double > Sm( nbRows, nbCols );
-        Sm( 0,0 ) = S[0];
-        Sm( 1,1 ) = S[1];
-        Sm( 2,2 ) = S[2];
+        Sm( 0, 0 ) = S[0];
+        Sm( 1, 1 ) = S[1];
+        Sm( 2, 2 ) = S[2];
 
         wmath::WMatrix<double> svd( U*Sm*V.transposed() );
-        
+
         for ( size_t row = 0; row < svd.getNbRows(); row++ )
         {
           for ( size_t col = 0; col < svd.getNbCols(); col++ )
@@ -88,7 +88,7 @@ public:
 //                      d = 4.5, e = 5.6, f = 6.7,
 //                      g = 3.4, h = 1.2, i = 7.0;
 //         wmath::WMatrix< double > A( nbRows, nbCols );
-// 
+//
 //         A( 0, 0 ) = a;
 //         A( 0, 1 ) = b;
 //         A( 0, 2 ) = c;
@@ -98,10 +98,10 @@ public:
 //         A( 2, 0 ) = g;
 //         A( 2, 1 ) = h;
 //         A( 2, 2 ) = i;
-// 
+//
 //         wmath::WMatrix<double> Ainvers( wmath::WOSSIMHelper::pseudoInverse( A ) );
 //         wmath::WMatrix<double> I( A*Ainvers );
-//         
+//
 //         for ( size_t row = 0; row < I.getNbRows(); row++ )
 //         {
 //           for ( size_t col = 0; col < I.getNbCols(); col++ )

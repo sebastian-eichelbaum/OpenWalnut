@@ -288,7 +288,7 @@ private:
     class userData: public osg::Referenced
     {
     public:
-        userData( boost::shared_ptr< WMFiberDisplay > _parent )
+        explicit userData( boost::shared_ptr< WMFiberDisplay > _parent )
         {
             parent = _parent;
         }

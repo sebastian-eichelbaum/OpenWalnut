@@ -46,7 +46,7 @@
  * Navigation slice module
  * \ingroup modules
  */
-class OWKERNEL_EXPORT WMNavSlices: public WModule, public osg::Referenced
+class OWKERNEL_EXPORT WMNavSlices: public WModule
 {
 public:
 
@@ -354,6 +354,22 @@ private:
 
     int m_coronalWidgetHeight;
 
+    class userData: public osg::Referenced
+    {
+        friend class WMNavSlices;
+    public:
+        explicit userData( boost::shared_ptr< WMNavSlices > _parent )
+        {
+            parent = _parent;
+        }
+
+        void updateGeometry();
+
+        void updateTextures();
+    private:
+        boost::shared_ptr< WMNavSlices > parent;
+    };
+
     /**
      * Node callback to handle updates properly
      */
@@ -368,7 +384,7 @@ private:
          */
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
-            osg::ref_ptr< WMNavSlices > module = static_cast< WMNavSlices* > ( node->getUserData() );
+            osg::ref_ptr< userData > module = static_cast< userData* > ( node->getUserData() );
 
             if ( module )
             {
