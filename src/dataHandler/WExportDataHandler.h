@@ -22,43 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADER_H
-#define WREADER_H
+#ifndef WEXPORTDATAHANDLER_H
+#define WEXPORTDATAHANDLER_H
 
-#include <string>
+#ifdef _MSC_VER
 
-#include "../exceptions/WDHNoSuchFile.h"
-#include "../WExportDataHandler.h"
+    #pragma warning( disable: 4251 )
 
-/**
- * Read some data from a given file. This base class is just for file
- * management (file exists, etc.) Subclasses may use those mechanisms and
- * specify their file format which is not the purpose of this base class.
- * \ingroup dataHandler
- */
-class OWDATAHANDLER_EXPORT WReader // NOLINT
-{
-public:
-    /**
-     * Creates a read object for file reading.
-     *
-     * \param fname path to file which should be loaded
-     * \throws WDHNoSuchFile
-     */
-    explicit WReader( std::string fname ) throw( WDHNoSuchFile );
+    #ifdef OWdataHandler_EXPORTS
+    #define OWDATAHANDLER_EXPORT __declspec( dllexport )
+    #else
+    #define OWDATAHANDLER_EXPORT __declspec( dllimport )
+    #endif
 
-    /**
-     * Reset the file name and checks if it exists.
-     *
-     * \param fname file name
-     * \throws WDHNoSuchFile
-     */
-    void setFileName( std::string fname ) throw( WDHNoSuchFile );
+#else
 
-protected:
-    std::string m_fname; //!< Absolute path of the file to read from
+    #define OWDATAHANDLER_EXPORT
 
-private:
-};
+#endif // _MSC_VER
 
-#endif  // WREADER_H
+#endif  // WEXPORTDATAHANDLER_H
+

@@ -27,12 +27,14 @@
 
 #include <string>
 
+#include "../WExportDataHandler.h"
+
 /**
  * Write some data to the given file. This base class is just for file
  * management (file exists, etc.) Subclasses may use those mechanisms and
  * specify their file format which is not the purpose of this base class.
  */
-class WWriter
+class OWDATAHANDLER_EXPORT WWriter // NOLINT
 {
 public:
     /**

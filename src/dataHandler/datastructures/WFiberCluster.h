@@ -35,11 +35,12 @@
 #include "../../common/WColor.h"
 #include "../../common/WTransferable.h"
 #include "../WDataSetFiberVector.h"
+#include "../WExportDataHandler.h"
 
 /**
  * Represents a cluster of indices of a WDataSetFiberVector.
  */
-class WFiberCluster : public WTransferable
+class OWDATAHANDLER_EXPORT WFiberCluster : public WTransferable // NOLINT
 {
 friend class WFiberClusterTest;
 public:

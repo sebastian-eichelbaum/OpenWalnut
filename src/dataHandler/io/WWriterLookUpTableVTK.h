@@ -32,10 +32,12 @@
 
 #include "WWriter.h"
 
+#include "../WExportDataHandler.h"
+
 /**
  * Can write a look up table to a file in VTK format.
  */
-class WWriterLookUpTableVTK : public WWriter
+class OWDATAHANDLER_EXPORT WWriterLookUpTableVTK : public WWriter // NOLINT
 {
 public:
     /**

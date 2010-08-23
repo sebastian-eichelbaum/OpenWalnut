@@ -33,6 +33,7 @@
 
 #include "../../common/WTransferable.h"
 #include "../WDataSetSingle.h"
+#include "../WExportDataHandler.h"
 
 /**
  * Processes a dataset for join tree computation. This is a part of those famous contur trees.
@@ -50,7 +51,7 @@
  * biggest ISO surface for a given ISO value. Then you don't need "simulation of simplicity" to make the
  * data points disjoint also you don't need simplicial meshes.
  */
-class WJoinContourTree : public WTransferable
+class OWDATAHANDLER_EXPORT WJoinContourTree : public WTransferable // NOLINT
 {
 friend class WJoinContourTreeTest;
 public:

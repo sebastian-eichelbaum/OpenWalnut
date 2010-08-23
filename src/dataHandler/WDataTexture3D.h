@@ -36,6 +36,7 @@
 #include "WDataHandlerEnums.h"
 #include "WValueSetBase.h"
 #include "WGridRegular3D.h"
+#include "WExportDataHandler.h"
 
 class WCondition;
 
@@ -45,7 +46,7 @@ class WCondition;
  * scaled from [min,max] to [0,1]. The values min and max can be retrieved by getMinValue and getMaxValue. Your shader should get them as
  * uniforms to unscale the texture to have the real value.
  */
-class WDataTexture3D
+class OWDATAHANDLER_EXPORT WDataTexture3D // NOLINT
 {
 public:
     /**

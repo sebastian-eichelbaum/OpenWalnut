@@ -36,6 +36,7 @@
 #include "../common/WProperties.h"
 
 #include "WDataSet.h"
+#include "WExportDataHandler.h"
 
 /**
  * converts an integer into a byte array and back
@@ -58,7 +59,7 @@ union converterByteFloat
 /**
  * Represents a simple set of WFibers.
  */
-class WDataSetFibers : public WDataSet
+class OWDATAHANDLER_EXPORT WDataSetFibers : public WDataSet // NOLINT
 {
 public:
 

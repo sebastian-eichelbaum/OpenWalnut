@@ -36,6 +36,7 @@
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
 #include "WGrid.h"
+#include "WExportDataHandler.h"
 
 /**
  * A grid that has parallelepiped cells which all have the same proportion. I.e.
@@ -45,7 +46,7 @@
  * \warning Positions on the upper bounddaries in x, y and z are considered outside the grid.
  * \ingroup dataHandler
  */
-class WGridRegular3D : public WGrid
+class OWDATAHANDLER_EXPORT WGridRegular3D : public WGrid // NOLINT
 {
     /**
      * Only test are allowed as friends.
