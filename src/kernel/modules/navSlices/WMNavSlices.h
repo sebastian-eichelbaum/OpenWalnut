@@ -342,6 +342,18 @@ private:
 
     static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
 
+    int m_axialWidgetWidth;
+
+    int m_axialWidgetHeight;
+
+    int m_sagittalWidgetWidth;
+
+    int m_sagittalWidgetHeight;
+
+    int m_coronalWidgetWidth;
+
+    int m_coronalWidgetHeight;
+
     /**
      * Node callback to handle updates properly
      */
