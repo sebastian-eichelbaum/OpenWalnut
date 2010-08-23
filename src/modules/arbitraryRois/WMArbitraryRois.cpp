@@ -120,6 +120,13 @@ void WMArbitraryRois::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
+        m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
+
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
         if( m_dataSet != m_input->getData() )
         {
             // acquire data from the input connector
