@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include "stdint.h"
+
 #include<vector>
 
 #include <boost/math/special_functions/spherical_harmonic.hpp>
@@ -33,7 +35,8 @@
 
 #include "WSymmetricSphericalHarmonic.h"
 
-using wmath::WSymmetricSphericalHarmonic;
+namespace wmath
+{
 
 std::vector<size_t> wmath::WSymmetricSphericalHarmonic::m_lj;
 
@@ -69,7 +72,7 @@ double WSymmetricSphericalHarmonic::getValue( double theta, double phi ) const
     {
       j = ( k*k+k+2 ) / 2 + m;
       result += m_SHCoefficients[ j-1 ] * rootOf2 *
-                  static_cast<double>( std::pow( -1, m+1 ) ) * boost::math::spherical_harmonic_i( k, m, theta, phi );
+                  static_cast<double>( std::pow( -1.0, m+1 ) ) * boost::math::spherical_harmonic_i( k, m, theta, phi );
     }
     // m = 0
     result += m_SHCoefficients[ ( k*k+k+2 ) / 2 - 1 ] * boost::math::spherical_harmonic_r( k, 0, theta, phi );
@@ -127,7 +130,7 @@ void WSymmetricSphericalHarmonic::applyFunkRadonTransformation()
 //     ljDbl = static_cast<double>( lj );
 //     std::cerr << "j: " << j << " lj: " << ljDbl << std::endl;
     // lj is always even!
-    factor = 2.0 * wmath::piDouble * static_cast<double>( std::pow( -1, ( lj / 2 ) ) ) *
+    factor = 2.0 * wmath::piDouble * static_cast<double>( std::pow( static_cast<double>( -1.0 ), static_cast<double>( lj / 2 ) ) ) *
                   static_cast<double>( wmath::oddFactorial( ( lj <= 1 ) ? 1 : lj-1 ) ) / static_cast<double>( wmath::evenFactorial( lj ) );
 // the following line is the (wrong) first calculation
 //                   static_cast<double>( wmath::oddFactorial( ( lj == 1 ) ? lj-1 : 1 ) ) / static_cast<double>( wmath::evenFactorial( lj ) );
@@ -200,7 +203,7 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcBMatrix( const std::vect
   // calc B Matrix like in the 2007 Descoteaux paper ("Regularized, Fast, and Robust Analytical Q-Ball Imaging")
   int j = 0;
   const double rootOf2 = std::sqrt( 2.0 );
-  for (uint row = 0; row < orientations.size(); row++ )
+  for (uint32_t row = 0; row < orientations.size(); row++ )
   {
     const double theta = orientations[row].getTheta();
     const double phi = orientations[row].getPhi();
@@ -210,7 +213,7 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcBMatrix( const std::vect
       for ( int m = 1; m <= k; m++ )
       {
         j = ( k*k+k+2 ) / 2 + m;
-        B( row, j-1 ) = rootOf2 * static_cast<double>( std::pow( -1, m+1 ) ) * boost::math::spherical_harmonic_i( k, m, theta, phi );
+        B( row, j-1 ) = rootOf2 * static_cast<double>( std::pow( static_cast<double>( -1 ), m+1 ) ) * boost::math::spherical_harmonic_i( k, m, theta, phi );
       }
       // m = 0
       B( row, ( k*k+k+2 ) / 2 - 1 ) = boost::math::spherical_harmonic_r( k, 0, theta, phi );
@@ -281,8 +284,10 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order 
   {
     size_t lj = WSymmetricSphericalHarmonic::m_lj[j];
     // lj is always even!
-    result( j, j ) = 2.0 * wmath::piDouble * static_cast<double>( std::pow( -1, ( lj / 2 ) ) ) *
+    result( j, j ) = 2.0 * wmath::piDouble * static_cast<double>( std::pow( static_cast<double>( -1 ), static_cast<double>( lj / 2 ) ) ) *
                   static_cast<double>( wmath::oddFactorial( ( lj <= 1 ) ? 1 : lj-1 ) ) / static_cast<double>( wmath::evenFactorial( lj ) );
   }
   return result;
 }
+
+} // Namespace WMath
