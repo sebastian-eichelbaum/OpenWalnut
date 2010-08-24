@@ -136,6 +136,7 @@ void WMVoxelizer::moduleMain()
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
 }
 
 void WMVoxelizer::properties()
