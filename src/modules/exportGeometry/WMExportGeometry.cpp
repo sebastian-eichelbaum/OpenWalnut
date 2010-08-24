@@ -116,7 +116,7 @@ void WMExportGeometry::writeFile()
 {
     boost::shared_ptr< WTriangleMesh2 > mesh = m_input->getData();
     using std::fstream;
-    fstream out( m_savePath->get().file_string().c_str(), fstream::out | fstream::in | fstream::trunc );
+    fstream out( m_savePath->get().file_string().c_str(), fstream::out | fstream::in | fstream::trunc | fstream::binary );
     if( !out || out.bad() )
     {
         throw WException( "Invalid file, or permission: " + m_savePath->get().file_string() );
