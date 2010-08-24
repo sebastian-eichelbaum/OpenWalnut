@@ -189,7 +189,11 @@ void WMHud::init()
     m_osgPickText->setColor( osg::Vec4( 0, 0, 0, 1 ) );
     m_osgPickText->setDataVariance( osg::Object::DYNAMIC );
 
-    m_rootNode->setUserData( this );
+    osg::ref_ptr< userData > usrData = osg::ref_ptr< userData >(
+        new userData( boost::shared_dynamic_cast< WMHud >( shared_from_this() ) )
+        );
+
+    m_rootNode->setUserData( usrData );
     m_rootNode->setUpdateCallback( new HUDNodeCallback );
 
     HUDGeode->addDrawable( m_osgPickText );
@@ -253,3 +257,8 @@ void WMHud::activate()
     WModule::activate();
 }
 
+
+void WMHud::userData::update()
+{
+    m_parent->update();
+}

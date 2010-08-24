@@ -45,7 +45,7 @@
  *
  * \ingroup modules
  */
-class OWKERNEL_EXPORT WMFiberDisplay : public WModule, public osg::Referenced
+class OWKERNEL_EXPORT WMFiberDisplay : public WModule
 {
 public:
     /**

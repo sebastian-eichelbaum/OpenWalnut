@@ -40,7 +40,7 @@ class WSymmetricSphericalHarmonicTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * 
+     * testCalcFRTMatrix
      * 
      */
     void testCalcFRTMatrix( void )
@@ -62,7 +62,7 @@ public:
     }
 
     /**
-     * 
+     * testCalcSmoothingMatrix
      * 
      */
     void testCalcSmoothingMatrix( void )

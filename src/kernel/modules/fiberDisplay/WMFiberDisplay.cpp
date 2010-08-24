@@ -56,6 +56,7 @@ WMFiberDisplay::WMFiberDisplay()
 
 WMFiberDisplay::~WMFiberDisplay()
 {
+    m_fiberDisplayRunning = false;
 }
 
 boost::shared_ptr< WModule > WMFiberDisplay::factory() const

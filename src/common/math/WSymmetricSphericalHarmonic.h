@@ -88,17 +88,60 @@ public:
     size_t getOrder() const;
 
 
+    /**
+    * calcLj
+    * \param order order
+    */
     static void calcLj( size_t order );
+
+    /**
+    * m_lj
+    */
     static std::vector<size_t> m_lj;
 
+    /**
+    * getSHFittingMatrix
+    * \param orientations orientations
+    * \param order order
+    * \param lambda lambda
+    * \param withFRT withFRT
+    * \return Matrix
+    */
     static wmath::WMatrix<double> getSHFittingMatrix( const std::vector< wmath::WVector3D >& orientations, int order, double lambda, bool withFRT );
+
+    /**
+    * getSHFittingMatrix
+    * \param orientations orientations
+    * \param order order
+    * \param lambda lambda
+    * \param withFRT withFRT
+    * \return Matrix
+    */
     static wmath::WMatrix<double> getSHFittingMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations,
                                                       int order,
                                                       double lambda,
                                                       bool withFRT );
 
+    /**
+    * calcBMatrix
+    * \param orientations orientations
+    * \param order order
+    * \return Matrix
+    */
     static wmath::WMatrix<double> calcBMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations, int order );
+
+    /**
+    * calcSmoothingMatrix
+    * \param order order
+    * \return Matrix
+    */
     static wmath::WMatrix<double> calcSmoothingMatrix( size_t order );
+
+    /**
+    * calcFRTMatrix
+    * \param order order
+    * \return Matrix
+    */
     static wmath::WMatrix<double> calcFRTMatrix( size_t order );
 protected:
 
