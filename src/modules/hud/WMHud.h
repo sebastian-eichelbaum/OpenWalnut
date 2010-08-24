@@ -41,7 +41,7 @@
  * This module implements several onscreen status displays
  * \ingroup modules
  */
-class WMHud : public WModule, public osg::Referenced
+class WMHud : public WModule
 {
 public:
     /**

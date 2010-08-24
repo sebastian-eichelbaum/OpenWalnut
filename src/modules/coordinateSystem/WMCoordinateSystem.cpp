@@ -89,6 +89,13 @@ void WMCoordinateSystem::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
+        m_moduleState.wait();
+
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
         if ( m_dataSet != m_input->getData() )
         {
             // acquire data from the input connector
@@ -99,9 +106,6 @@ void WMCoordinateSystem::moduleMain()
             m_dirty = true;
         }
     }
-    // Since the modules run in a separate thread: wait
-    waitForStop();
-
     // clean up stuff
     // NOTE: ALWAYS remove your osg nodes!
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
@@ -218,7 +222,11 @@ void WMCoordinateSystem::createGeometry()
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
-    m_rootNode->setUserData( this );
+    osg::ref_ptr< userData > usrData = osg::ref_ptr< userData >(
+        new userData( boost::shared_dynamic_cast< WMCoordinateSystem >( shared_from_this() ) )
+        );
+
+    m_rootNode->setUserData( usrData );
     m_rootNode->addUpdateCallback( new coordinateNodeCallback );
 
     if ( m_active->get() )
@@ -729,4 +737,9 @@ void WMCoordinateSystem::addAxialGrid( float position )
     gridGeode->addDrawable( geometry );
 
     m_rulerNode->addChild( gridGeode );
+}
+
+void WMCoordinateSystem::userData::updateGeometry()
+{
+    m_parent->updateGeometry();
 }
