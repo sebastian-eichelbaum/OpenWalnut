@@ -44,7 +44,6 @@ W_LOADABLE_MODULE( WMVectorPlot )
 WMVectorPlot::WMVectorPlot():
     WModule(), m_mat( 4, 4 )
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMVectorPlot", m_localPath ) );
 }
 
 WMVectorPlot::~WMVectorPlot()
@@ -161,6 +160,7 @@ void WMVectorPlot::moduleMain()
             m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
             m_rootNode->addUpdateCallback( new SafeUpdateCallback( this ) );
 
+            m_shader = osg::ref_ptr< WShader > ( new WShader( "WMVectorPlot", m_localPath ) );
             m_shader->apply( m_rootNode );
 
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
