@@ -212,6 +212,7 @@ void WMLIC::moduleMain()
             progress->finish();
         }
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
 boost::shared_ptr< WDataSetVector > WMLIC::searchVectorDS() const
