@@ -65,6 +65,7 @@ WMMarchingCubes::WMMarchingCubes():
     m_dataSet(),
     m_shaderUseLighting( false ),
     m_shaderUseTransparency( false ),
+    m_firstDataProcessed( false ),
     m_moduleNode( new WGEGroupNode() ),
     m_surfaceGeode( 0 )
 {
@@ -136,7 +137,10 @@ void WMMarchingCubes::moduleMain()
             // set appropriate constraints for properties
             m_isoValueProp->setMin( m_dataSet->getMin() );
             m_isoValueProp->setMax( m_dataSet->getMax() );
-            m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ), true );
+            if( !m_firstDataProcessed )
+            {
+                m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ), true );
+            }
         }
 
         // update ISO surface
@@ -159,6 +163,8 @@ void WMMarchingCubes::moduleMain()
 
         debugLog() << "Done!";
         progress->finish();
+
+        m_firstDataProcessed = true;
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
