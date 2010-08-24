@@ -122,6 +122,7 @@ void WMTriangleMeshRenderer::moduleMain()
 
         renderMesh( mesh );
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
 void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
