@@ -148,6 +148,34 @@ private:
     void activate();
 
     /**
+    * Wrapper class for userData to prevent cyclic destructor calls
+    */
+    class userData: public osg::Referenced
+    {
+        friend class WMHud;
+    public:
+        /**
+        * userData Constructur with shared pointer to module
+        * \param _parent pointer to the module 
+        */
+        explicit userData( boost::shared_ptr< WMHud > _parent )
+        {
+            m_parent = _parent;
+        }
+
+        /**
+        * update wrapper Function
+        */
+        void update();
+
+    private:
+        /**
+        * shared pointer to the module
+        */
+        boost::shared_ptr< WMHud > m_parent;
+    };
+
+    /**
      * Node callback to handle updates properly
      */
     class HUDNodeCallback : public osg::NodeCallback
