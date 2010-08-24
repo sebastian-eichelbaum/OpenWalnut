@@ -192,6 +192,7 @@ void WMHomeGlyphs::moduleMain()
 
         m_moduleState.wait();
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
 void  WMHomeGlyphs::renderSlice( size_t sliceId )

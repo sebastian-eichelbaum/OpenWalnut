@@ -117,6 +117,7 @@ void WMDetTractClustering::moduleMain()
             updateOutput();
         }
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
 }
 
 void WMDetTractClustering::properties()
