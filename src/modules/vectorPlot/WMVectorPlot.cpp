@@ -222,8 +222,8 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 
                     if ( !m_projectOnSlice->get( true ) )
                     {
-                        vertices->push_back( osg::Vec3( x + 0.5f - xx, y + 0.5f - yy, zPos + 0.5f - zz ) );
-                        vertices->push_back( osg::Vec3( x + 0.5f + xx, y + 0.5f + yy, zPos + 0.5f + zz ) );
+                        vertices->push_back( osg::Vec3( x - xx, y - yy, zPos - zz ) );
+                        vertices->push_back( osg::Vec3( x + xx, y + yy, zPos + zz ) );
                         if ( m_coloringMode->get( true ) )
                         {
                             colors->push_back( osg::Vec4( fabs( xx ), fabs( yy ), fabs( zz ), 1.0 ) );
@@ -237,10 +237,10 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
                     }
                     else
                     {
-                        vertices->push_back( osg::Vec3( x + 0.5f - xx, y + 0.5f - yy, zPos + 0.4f ) );
-                        vertices->push_back( osg::Vec3( x + 0.5f + xx, y + 0.5f + yy, zPos + 0.4f ) );
-                        vertices->push_back( osg::Vec3( x + 0.5f - xx, y + 0.5f - yy, zPos + 0.6f ) );
-                        vertices->push_back( osg::Vec3( x + 0.5f + xx, y + 0.5f + yy, zPos + 0.6f ) );
+                        vertices->push_back( osg::Vec3( x - xx, y - yy, zPos + 0.4f ) );
+                        vertices->push_back( osg::Vec3( x + xx, y + yy, zPos + 0.4f ) );
+                        vertices->push_back( osg::Vec3( x - xx, y - yy, zPos + 0.6f ) );
+                        vertices->push_back( osg::Vec3( x + xx, y + yy, zPos + 0.6f ) );
                         if ( m_coloringMode->get( true ) )
                         {
                             colors->push_back( osg::Vec4( fabs( xx ), fabs( yy ), fabs( zz ), 1.0 ) );
@@ -274,8 +274,8 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 
                     if ( !m_projectOnSlice->get( true ) )
                     {
-                        vertices->push_back( osg::Vec3( x + 0.5f - xx, yPos + 0.5f - yy, z + 0.5f - zz ) );
-                        vertices->push_back( osg::Vec3( x + 0.5f + xx, yPos + 0.5f + yy, z + 0.5f + zz ) );
+                        vertices->push_back( osg::Vec3( x - xx, yPos - yy, z - zz ) );
+                        vertices->push_back( osg::Vec3( x + xx, yPos + yy, z + zz ) );
                         if ( m_coloringMode->get( true ) )
                         {
                             colors->push_back( osg::Vec4( fabs( xx ), fabs( yy ), fabs( zz ), 1.0 ) );
@@ -289,10 +289,10 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
                     }
                     else
                     {
-                        vertices->push_back( osg::Vec3( x + 0.5f - xx, yPos + 0.4f, z + 0.5f - zz ) );
-                        vertices->push_back( osg::Vec3( x + 0.5f + xx, yPos + 0.4f, z + 0.5f + zz ) );
-                        vertices->push_back( osg::Vec3( x + 0.5f - xx, yPos + 0.6f, z + 0.5f - zz ) );
-                        vertices->push_back( osg::Vec3( x + 0.5f + xx, yPos + 0.6f, z + 0.5f + zz ) );
+                        vertices->push_back( osg::Vec3( x - xx, yPos + 0.4f, z - zz ) );
+                        vertices->push_back( osg::Vec3( x + xx, yPos + 0.4f, z + zz ) );
+                        vertices->push_back( osg::Vec3( x - xx, yPos + 0.6f, z - zz ) );
+                        vertices->push_back( osg::Vec3( x + xx, yPos + 0.6f, z + zz ) );
                         if ( m_coloringMode->get( true ) )
                         {
                             colors->push_back( osg::Vec4( fabs( xx ), fabs( yy ), fabs( zz ), 1.0 ) );
@@ -326,8 +326,8 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 
                     if ( !m_projectOnSlice->get( true ) )
                     {
-                        vertices->push_back( osg::Vec3( xPos + 0.5f + xx, y + 0.5f + yy, z + 0.5f + zz ) );
-                        vertices->push_back( osg::Vec3( xPos + 0.5f - xx, y + 0.5f - yy, z + 0.5f - zz ) );
+                        vertices->push_back( osg::Vec3( xPos + xx, y + yy, z + zz ) );
+                        vertices->push_back( osg::Vec3( xPos - xx, y - yy, z - zz ) );
                         if ( m_coloringMode->get( true ) )
                         {
                             colors->push_back( osg::Vec4( fabs( xx ), fabs( yy ), fabs( zz ), 1.0 ) );
@@ -341,10 +341,10 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
                     }
                     else
                     {
-                        vertices->push_back( osg::Vec3( xPos + 0.4f, y + 0.5f + yy, z + 0.5f + zz ) );
-                        vertices->push_back( osg::Vec3( xPos + 0.4f, y + 0.5f - yy, z + 0.5f - zz ) );
-                        vertices->push_back( osg::Vec3( xPos + 0.6f, y + 0.5f + yy, z + 0.5f + zz ) );
-                        vertices->push_back( osg::Vec3( xPos + 0.6f, y + 0.5f - yy, z + 0.5f - zz ) );
+                        vertices->push_back( osg::Vec3( xPos + 0.4f, y + yy, z + zz ) );
+                        vertices->push_back( osg::Vec3( xPos + 0.4f, y - yy, z - zz ) );
+                        vertices->push_back( osg::Vec3( xPos + 0.6f, y + yy, z + zz ) );
+                        vertices->push_back( osg::Vec3( xPos + 0.6f, y - yy, z - zz ) );
                         if ( m_coloringMode->get( true ) )
                         {
                             colors->push_back( osg::Vec4( fabs( xx ), fabs( yy ), fabs( zz ), 1.0 ) );
