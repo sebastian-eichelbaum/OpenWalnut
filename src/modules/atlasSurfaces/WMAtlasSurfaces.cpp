@@ -147,7 +147,6 @@ void WMAtlasSurfaces::moduleMain()
                     WAssert( false, "Wrong data type in AtlasSurfaces module" );
             }
         }
-
     }
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
