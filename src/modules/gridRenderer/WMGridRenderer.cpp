@@ -99,6 +99,7 @@ void WMGridRenderer::moduleMain()
 
         m_moduleState.wait();
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
 void WMGridRenderer::render()
