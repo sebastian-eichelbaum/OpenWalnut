@@ -52,33 +52,35 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
 {
     if( keyEvent->key() == Qt::Key_Delete )
     {
-        foreach (QGraphicsItem *item, this->selectedItems()) {
-         if ( item->type() == WQtNetworkItem::Type)
-         {
-             WQtNetworkItem *netItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
-             
-             foreach( WQtNetworkPort *port, netItem->getInPorts() )
-             {
-                 port->removeArrows();
-                 delete port;
-             }
-             foreach( WQtNetworkPort *port, netItem->getOutPorts() )
-             {
-                 port->removeArrows();
-                 delete port;
-             }
- 
-             removeItem( item );
-         }
-         else if( item->type() == WQtNetworkArrow::Type)
-         {
-             WQtNetworkArrow *netArrow = qgraphicsitem_cast<WQtNetworkArrow *>( item );
-             netArrow->getStartPort()->removeArrow( netArrow );
-             netArrow->getEndPort()->removeArrow( netArrow );
-             removeItem( item );
-         }
-         delete item;
-     }
+        QList< WQtNetworkItem *> itemList;
+        QList< WQtNetworkArrow *> arrowList;
+        foreach ( QGraphicsItem *item, this->selectedItems() )
+        {
+            if ( item->type() == WQtNetworkItem::Type )
+            {
+                  WQtNetworkItem *netItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
+                  itemList.append( netItem );
+            }
+            else if( item->type() == WQtNetworkArrow::Type )
+            {
+                  WQtNetworkArrow *netArrow = qgraphicsitem_cast<WQtNetworkArrow *>( item );
+                  arrowList.append( netArrow );
+            }
+        }
+
+        foreach( WQtNetworkArrow *ar, arrowList )
+        {
+            removeItem( ar );
+            delete ar;
+        }
+        
+        foreach( WQtNetworkItem *it, itemList )
+        {
+            removeItem( it );
+            delete it;
+        }
+        itemList.clear();
+        arrowList.clear();
     }
 }
 

@@ -35,10 +35,12 @@
 
 #include "WQtNetworkScene.h"
 
+// forward declaration
 class WMainWindow;
 
 /**
- * container widget to hold as GL widget and a slider
+ * container widget to hold the qgraphicsscene
+ *
  */
 class WQtNetworkEditor : public QDockWidget
 {
@@ -50,7 +52,6 @@ public:
      *
      * \param title Title will be displayed above the widget
      * \param parent The widget that manages this widget
-     * \param sliderTitle Name of the slider corresponding to the property it manipulates
      */
     explicit WQtNetworkEditor( QString title, WMainWindow* parent );
 
@@ -59,11 +60,11 @@ public:
      */
     virtual ~WQtNetworkEditor();
 
+    /**
+     * Simple method to create static test "modules"
+     */
     void addModule();
-    //void addModuleInput();
-    //void addModuleOutput();
 
-    //void itemSelected( QGraphicsItem *item );
 protected:
 
     /**
@@ -73,13 +74,13 @@ protected:
 
 private:
 
-    WQtNetworkScene* m_scene; //!< GraphicsScene
+    WQtNetworkScene* m_scene; //!< QGraphicsScene
 
-    QGraphicsView* m_view; //!< GraphicsView
+    QGraphicsView* m_view; //!< QGraphicsView
 
     QWidget* m_panel; //!< panel
 
-    QVBoxLayout* m_layout; //!< Layout
+    QVBoxLayout* m_layout; //!< layout
 };
 
 #endif  // WQTNETWORKEDITOR_H

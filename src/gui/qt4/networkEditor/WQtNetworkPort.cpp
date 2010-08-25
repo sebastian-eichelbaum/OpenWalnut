@@ -33,7 +33,7 @@
 
 #include "WQtNetworkPort.h"
 
-WQtNetworkPort::WQtNetworkPort()
+WQtNetworkPort::WQtNetworkPort( QString name)
     : QGraphicsRectItem()
 {
     setRect( 0.0, 0.0, 10.0, 10.0 );
@@ -41,22 +41,36 @@ WQtNetworkPort::WQtNetworkPort()
     setPen( QPen( Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
     
     setAcceptsHoverEvents(true);
+ 
+    setPortName( name );
+
+    QString str = "Name: " + getPortName() + "\nPortType:";
+    if (toolTip() != str){
+        setToolTip(str);
+    }
 }
 
 WQtNetworkPort::~WQtNetworkPort()
 {
+    std::cout << "delete Port" << std::endl;
+    removeArrows();
+}
+ 
+int WQtNetworkPort::type() const
+{
+    return Type;
 }
 
 void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
-    if( m_portType == true )
+    if( m_isOutPort == true )
     {
         line = new QGraphicsLineItem( QLineF( mouseEvent->scenePos(),
                     mouseEvent->scenePos() ) );
         line->setPen( QPen( Qt::black, 2 ) );
         scene()->addItem( line );
     }
-    else if( m_portType == false )
+    else if( m_isOutPort == false )
     {
         mouseEvent->ignore();
     }
@@ -82,7 +96,11 @@ void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
             if( endItem.first()->type() == WQtNetworkPort::Type )
             {
                 WQtNetworkPort *endPort = qgraphicsitem_cast<WQtNetworkPort *>( endItem.first() );
-                if( endPort->portType() == false )
+
+                if( endPort->isOutPort() == false &&
+                    endPort->parentItem() != this->parentItem() &&
+                    endPort->getPortName() == this->getPortName() &&
+                    endPort->m_arrows.size() < 1 )
                 {
                    line->setPen( QPen( Qt::green, 2 ) );
                 }
@@ -136,10 +154,12 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
             WQtNetworkPort *endPort = qgraphicsitem_cast<WQtNetworkPort *>( endItems.first() );
 
             if( endPort->m_arrows.size() < 1 &&
-                    endPort->portType() == false &&
-                    startPort->portType() == true )
+                    endPort->isOutPort() == false &&
+                    startPort->isOutPort() == true &&
+                    endPort->getPortName() == startPort->getPortName() )
             {
                 WQtNetworkArrow *arrow = new WQtNetworkArrow( startPort, endPort );
+                
                 arrow->setZValue( -1000.0 );
 
                 startPort->addArrow( arrow );
@@ -159,24 +179,28 @@ void WQtNetworkPort::addArrow( WQtNetworkArrow *arrow )
 
 void WQtNetworkPort::removeArrow( WQtNetworkArrow *arrow )
 {
+    std::cout << "removeArrow" << std::endl;
     int index = m_arrows.indexOf( arrow );
 
     if (index != -1)
         m_arrows.removeAt( index );
 }
 
+//private
 void WQtNetworkPort::removeArrows()
 {
+    std::cout << "removeArrows" << std::endl;
     foreach( WQtNetworkArrow *arrow, m_arrows )
-    {
-        arrow->getStartPort()->removeArrow( arrow );
-        arrow->getEndPort()->removeArrow( arrow );
-        scene()->removeItem( arrow );
-        delete arrow;
+    {        
+        int index = m_arrows.indexOf( arrow );
+        if (index != -1){
+            m_arrows.removeAt( index );
+            delete arrow;
+        }
     }
 }
 
-void WQtNetworkPort::update()
+void WQtNetworkPort::updateArrows()
 {
     foreach( WQtNetworkArrow *arrow, m_arrows )
     {
@@ -184,45 +208,35 @@ void WQtNetworkPort::update()
     }
 }
 
-void WQtNetworkPort::setType( bool type )
+void WQtNetworkPort::setOutPort( bool type )
 {
-    m_portType = type;
+    m_isOutPort = type;
 }
 
-bool WQtNetworkPort::portType()
+bool WQtNetworkPort::isOutPort()
 {
-    return m_portType;
+    return m_isOutPort;
 }
 
-void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool inOut )
+void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool outPort )
 {
-    if( inOut == false )
+    if( outPort == false )
     {
         setPos( rect.width() / ( size+1 ) * portNumber - 5.0, 0.0 );
     }
-    else if( inOut == true )
+    else if( outPort == true )
     {
     
         setPos( rect.width() / ( size+1 ) * portNumber - 5.0, rect.height() - 5 );
     }
 } 
 
-void WQtNetworkPort::hoverEnterEvent ( QGraphicsSceneHoverEvent * event )
-{
-    event->accept();
-
-    QString str = "Name: " + getName() + "\nPortType:";
-    if (toolTip() != str){
-        setToolTip(str);
-    }
-}
-
-QString WQtNetworkPort::getName()
+QString WQtNetworkPort::getPortName()
 {
     return m_name;
 }
 
-void WQtNetworkPort::setName( QString str )
+void WQtNetworkPort::setPortName( QString str )
 {
     m_name = str;
 }

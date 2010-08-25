@@ -35,47 +35,122 @@
 
 #include "WQtNetworkPort.h"
 
+// forward declaration
 class WQtNetworkPort;
 
+/**
+ * This Class is needed for connecting two ports, and drawing a line between
+ * them.
+ */
 class WQtNetworkArrow : public QGraphicsLineItem
 {
     public:
-
+        
+        /**
+         * This customize the return value of type()
+         */
         enum
         {
            Type = UserType + 4
         };
 
+        /**
+         * Constructor
+         */
         explicit WQtNetworkArrow( WQtNetworkPort *outPort, WQtNetworkPort *inPort );
 
+        /**
+         * Destructor
+         */ 
         ~WQtNetworkArrow();
 
-        int type() const
-        {
-            return Type;
-        }
+        /**
+         * Reimplementation from QGraphicsItem
+         * \return the type of the item as int
+         */
+        int type() const;
 
+        /**
+         * Calculated the new position of the lines endpoints in the scene.
+         * Is called everytime the parentItem is changed or after construction.
+         */
         void updatePosition();
 
+        /**
+         * Returns the start port.
+         *\return the port where the connection starts
+         */
         WQtNetworkPort* getStartPort();
 
+        /**
+         * Returns the end port.
+         *\return the port where the connection ends
+         */
         WQtNetworkPort* getEndPort();
 
+        /**
+         * Reimplementation form QGraphicsItem, because the arrowhead is added
+         * to the line. Its needed that QGraphicsView knows which area needs to
+         * be redrawn.
+         * \return a rect that bounds the drawn object
+         */
         QRectF boundingRect() const;
+
+        /**
+         * Reimplementation from QGraphicsItem.
+         * Return the shape of this item as a QPainterPath in local coordinates
+         * \return shape of this
+         */
         QPainterPath shape() const;
 
-    protected:
+        /**
+         * If the item is changed we want to get notified.
+         *
+         * \param change
+         * \param value
+         * \return
+         */
+        QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
-        void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget=0 );
+    protected:
  
+        /**
+         * Draw some customized stuff in the scene.
+         *
+         * \param painter
+         * \param option
+         * \param w
+         */
+        void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
+ 
+         /**
+         * If the cursor enters the arrow, the arrow becomes geen.
+         *
+         * \param event the hover event
+         */
         void hoverEnterEvent ( QGraphicsSceneHoverEvent * event );
+ 
+        /**
+         * If the cursor leaves the arrow, the arrow gets his default color.
+         *
+         * \param event the hover event
+         */
+        void hoverLeaveEvent ( QGraphicsSceneHoverEvent * event );
 
 
     private:
-        WQtNetworkPort *m_startPort;
-        WQtNetworkPort *m_endPort;
+ 
+        /**
+         * This method changes the color of the arrow.
+         * 
+         * \param color the choosen color
+         */
+        void changeColor( QColor color );
 
-        QColor m_color;
-        QPolygonF arrowHead;
+        WQtNetworkPort *m_startPort; //!< the start port
+        WQtNetworkPort *m_endPort; //!< the end port
+
+        QColor m_color; //!< the current color
+        QPolygonF arrowHead; //!< the arrowhead
 };
 #endif  // WQTNETWORKARROW_H

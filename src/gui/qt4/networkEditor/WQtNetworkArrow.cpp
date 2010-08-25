@@ -27,6 +27,7 @@
 #include <math.h>
 
 #include <QtGui/QGraphicsLineItem>
+#include <QtGui/QStyleOptionGraphicsItem>
 
 #include "WQtNetworkArrow.h"
 
@@ -46,14 +47,24 @@ WQtNetworkArrow::WQtNetworkArrow( WQtNetworkPort *startPort, WQtNetworkPort *end
 
 WQtNetworkArrow::~WQtNetworkArrow()
 {
+    std::cout << "delete arrow" << std::endl;
+    m_startPort->removeArrow( this );
+    m_endPort->removeArrow( this );
 }
+
+int WQtNetworkArrow::type() const
+{
+    return Type;
+}
+
 
 void WQtNetworkArrow::updatePosition()
 {
     QRectF sRect = m_startPort->rect();
     QRectF eRect = m_startPort->rect();
-    QLineF line( mapFromItem( m_startPort, sRect.bottomRight()/2 ),
+    QLineF tmpLine( mapFromItem( m_startPort, sRect.bottomRight()/2 ),
                     mapFromItem( m_endPort, eRect.bottomRight()/2 ) );
+    QLineF line( tmpLine.x1(), tmpLine.y1()+5, tmpLine.x2(), tmpLine.y2()-5 );
     setLine( line );
 }
 
@@ -67,23 +78,27 @@ WQtNetworkPort* WQtNetworkArrow::getEndPort()
     return m_endPort;
 }
 
-void WQtNetworkArrow::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* )
+QVariant WQtNetworkArrow::itemChange( GraphicsItemChange change,
+        const QVariant &value )
+{
+    if( change == QGraphicsItem::ItemSelectedHasChanged )
+    {
+        changeColor( Qt::black );
+    }
+    return value;
+}
+void WQtNetworkArrow::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w )
 {
     if( isSelected() &&
-            m_color != Qt::green )
+        m_color != Qt::green )
     {
-        m_color = Qt::green;
+        changeColor( Qt::green );
     }
-    else if ( !isSelected() &&
-            m_color != Qt::black )
-    {
-        m_color = Qt::black;
-    }
-
-setPen( QPen( m_color, 2, Qt::SolidLine ) );
-painter->setBrush( m_color );
-
-    QGraphicsLineItem::paint( painter, option, 0 );
+    
+    QStyleOptionGraphicsItem *o = const_cast<QStyleOptionGraphicsItem*>(option);
+    o->state &= ~QStyle::State_Selected;
+    
+    QGraphicsLineItem::paint( painter, o, w );
 
     qreal arrowSize = 10;
     double angle = ::acos(line().dx() / line().length());
@@ -94,13 +109,11 @@ painter->setBrush( m_color );
             cos(angle + Pi / 3) * arrowSize);
     QPointF arrowP2 = line().p2() - QPointF(sin(angle + Pi - Pi / 3) * arrowSize,
             cos(angle + Pi - Pi / 3) * arrowSize);
-
     arrowHead.clear();
     arrowHead << line().p2() << arrowP1 << arrowP2;
 
     painter->setPen( QPen( m_color, 1, Qt::SolidLine ) );
     painter->setBrush( m_color );
-
     painter->drawPolygon(arrowHead);
 }
 
@@ -125,5 +138,18 @@ painter->setBrush( m_color );
         
 void WQtNetworkArrow::hoverEnterEvent ( QGraphicsSceneHoverEvent * event )
 {
-    event->accept();
+    std::cout << "color changed " << std::endl;
+    changeColor( Qt::green );
+    updatePosition();
+}
+
+void WQtNetworkArrow::hoverLeaveEvent ( QGraphicsSceneHoverEvent * event )
+{
+    changeColor( Qt::black );
+}
+
+void WQtNetworkArrow::changeColor( QColor color )
+{
+    m_color = color;
+    setPen( QPen( m_color, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
 }

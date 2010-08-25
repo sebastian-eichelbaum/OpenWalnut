@@ -28,6 +28,8 @@
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsRectItem>
+#include <QtGui/QStyleOptionGraphicsItem>
+
 
 #include "WQtNetworkItem.h"
 #include "WQtNetworkArrow.h"
@@ -40,17 +42,26 @@ WQtNetworkItem::WQtNetworkItem()
 {
 
     m_text=0;
-    //m_width = 100;
-    //m_height = 50;
-    //setRect(0,0,100,50);
-
-    //
-    //
 
     setAcceptsHoverEvents( true );
     setFlag( QGraphicsItem::ItemIsMovable );
 
     fitLook();
+}
+
+WQtNetworkItem::~WQtNetworkItem()
+{
+    std::cout << "delete item" << std::endl;
+
+    foreach( WQtNetworkPort *port, m_inPorts )
+    {
+        delete port;
+    }
+
+    foreach( WQtNetworkPort *port, m_outPorts )
+    {
+        delete port;
+    }
 }
 
 void WQtNetworkItem::hoverEnterEvent(QGraphicsSceneHoverEvent  *event)
@@ -73,14 +84,16 @@ void WQtNetworkItem::hoverLeaveEvent(QGraphicsSceneHoverEvent  *event)
     }
 }
 
-void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* )
+void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w )
 {
     if( isSelected() && m_color != Qt::darkGreen )
     {
         changeColor( Qt::darkGreen );
     }
- 
-    QGraphicsRectItem::paint( painter, option, 0 );
+  
+    QStyleOptionGraphicsItem *o = const_cast<QStyleOptionGraphicsItem*>(option);
+    o->state &= ~QStyle::State_Selected;
+    QGraphicsRectItem::paint( painter, o, w );
 
     //glass highlight
     //voreen
@@ -89,12 +102,8 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
     painter->setOpacity(0.30);
     QRectF rect( 0, 0, m_width, m_height/2.0 );
     painter->drawRect( rect );
-
 }
 
-WQtNetworkItem::~WQtNetworkItem()
-{
-}
 
 //void WQtNetworkItem::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 //{
@@ -106,11 +115,11 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
     QGraphicsItem::mouseMoveEvent( mouseEvent );
     foreach( WQtNetworkPort *port, m_inPorts )
     {
-        port->update();
+        port->updateArrows();
     }
     foreach( WQtNetworkPort *port, m_outPorts )
     {
-        port->update();
+        port->updateArrows();
     }
 }
 
@@ -131,8 +140,8 @@ QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
 
 void WQtNetworkItem::addPort( WQtNetworkPort *port )
 {
-    if( port->portType() == false ) m_inPorts.append( port );
-    else if( port->portType() == true ) m_outPorts.append( port );
+    if( port->isOutPort() == false ) m_inPorts.append( port );
+    else if( port->isOutPort() == true ) m_outPorts.append( port );
 }
 /*
 void WQtNetworkItem::removePort( WQtNetworkPort *port )

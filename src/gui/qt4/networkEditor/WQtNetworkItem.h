@@ -34,52 +34,115 @@
 
 #include "WQtNetworkPort.h"
 
+/**
+ * This class represents a WModule as graphicitem and
+ * contain a reference to its in- and outports as well as
+ */
 class WQtNetworkItem : public QGraphicsRectItem
 {
     public:
+        /**
+         * Constructor of the item.
+         */
         explicit WQtNetworkItem();
 
+        /**
+         * Destructor.
+         */
         virtual ~WQtNetworkItem();
 
+        /**
+         * Add a port to the item.
+         */
         void addPort( WQtNetworkPort *port );
 
+        /**
+         * Returns the item inports.
+         * \return the item inports
+         */
         QList< WQtNetworkPort *> getInPorts();
+
+        /**
+         * Returns the item outports
+         * \return the item outports
+         */
         QList< WQtNetworkPort *> getOutPorts();
 
+        /**
+         * This method aligns the in- and outports as well as the modulename
+         * in a regular way.
+         */
         void fitLook();
         
+        /**
+         * Set the QGraphicsTextItem ( the caption ) of the item
+         */
         void setTextItem( QGraphicsTextItem *text );
 
     protected:
 
+        /**
+         * If the item is changed we want to get notified.
+         *
+         * \param change
+         * \param value
+         * \return
+         */
         QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
-//        void removePort( WQtNetworkPort *port );
-//        void removePorts();
-
-//        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
+        /**
+         * If the WQtNetworkItem is moved, then the contained ports have to update
+         * the connected WQtNetworkArrows for correct alignment.
+         *
+         * \param mouseEvent the mouse event
+         */
         void mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent );
+//        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
 //        void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
         
+        /**
+         * If the cursor enters the item, the item gets a green color.
+         *
+         * \param event the hover event
+         */
         void hoverEnterEvent(QGraphicsSceneHoverEvent  *event);
+        
+        /**
+         * If the cursor leaves the item, the item gets his default color.
+         *
+         * \param event the hover event
+         */
         void hoverLeaveEvent(QGraphicsSceneHoverEvent  *event);
-        void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget=0 );
 
+        /**
+         * This method changes the coloration of gradient.
+         * 
+         * \param color the choosen color
+         */
         void changeColor( QColor color );
+        
+        /**
+         * Draw some customized stuff in the scene.
+         *
+         * \param painter
+         * \param option
+         * \param w
+         */
+        void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
 
 
     private:
 
-        QList< WQtNetworkPort *> m_inPorts; // input ports
-        QList< WQtNetworkPort *> m_outPorts; // output ports
+        QList< WQtNetworkPort *> m_inPorts; //!< the input ports of the item
+        QList< WQtNetworkPort *> m_outPorts; //!< the output ports of the item
 
-        QLinearGradient m_gradient;
-        QColor m_color;
+        QLinearGradient m_gradient; //!< the gradient for a nice coloring of the item
+        QColor m_color; //!< the current color
 
-        QRectF m_rect;
-        float m_width;
-        float m_height;
+        QRectF m_rect; //!< the size of the items rect
+        float m_width; //!< the width of the rect
+        float m_height; //!< the height of the rect
 
-        QGraphicsTextItem *m_text;
+        QGraphicsTextItem *m_text; //!< the caption
 };
 #endif  // WQTNETWORKITEM_H

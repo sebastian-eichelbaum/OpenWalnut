@@ -82,20 +82,25 @@ void WQtNetworkEditor::addModule()
 {
     WQtNetworkItem *netItem = new WQtNetworkItem();
 
-    WQtNetworkPort *port = new WQtNetworkPort();
-    port->setType( false );
+    WQtNetworkPort *port = new WQtNetworkPort( "A" );
+    port->setOutPort( false );
     port->setParentItem( netItem );
-    port->setName( "input" );
-    WQtNetworkPort *iport = new WQtNetworkPort();
-    iport->setType( false );
+//    port->setPortName( "A" );
+    
+    WQtNetworkPort *iport = new WQtNetworkPort( "B" );
+    iport->setOutPort( false );
     iport->setParentItem( netItem );
+//    iport->setPortName( "B" );
 
-    WQtNetworkPort *pport = new WQtNetworkPort();
-    pport->setType( true );
+    WQtNetworkPort *pport = new WQtNetworkPort( "A" );
+    pport->setOutPort( true );
     pport->setParentItem( netItem );
-    WQtNetworkPort *ipport = new WQtNetworkPort();
-    ipport->setType( true );
+//    pport->setPortName( "A" );
+
+    WQtNetworkPort *ipport = new WQtNetworkPort( "B" );
+    ipport->setOutPort( true );
     ipport->setParentItem( netItem );
+//    ipport->setPortName( "B" );
 
     QGraphicsTextItem *text = new QGraphicsTextItem( "Module " );
     text->setParentItem( netItem );
@@ -110,6 +115,8 @@ void WQtNetworkEditor::addModule()
     netItem->addPort( ipport );
 
     netItem->fitLook();
+
+    WQtNetworkArrow *arrow = new WQtNetworkArrow( ipport, pport );
 
     m_scene->addItem( netItem );
 
