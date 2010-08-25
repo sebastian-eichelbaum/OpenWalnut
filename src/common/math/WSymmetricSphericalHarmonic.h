@@ -40,7 +40,6 @@ namespace wmath
  */
 class OWCOMMON_EXPORT WSymmetricSphericalHarmonic  // NOLINT
 {
-// TODO(all): implement test
 // friend class WSymmetricSphericalHarmonicTest;
 public:
     /**
@@ -73,7 +72,7 @@ public:
     double getValue( const WUnitSphereCoordinates& coordinates ) const;
 
     /**
-     * Returns the used coefficients (stored like in the mentioned Descoteaux paper).
+     * Returns the used coefficients (stored like in the mentioned 2007 Descoteaux paper).
      */
     const wmath::WValue<double>& getCoefficients() const;
 
@@ -89,33 +88,37 @@ public:
 
 
     /**
-    * calcLj
+    * This calculates the l_j array (std::vector) for the given order.
     * \param order order
     */
     static void calcLj( size_t order );
 
     /**
-    * m_lj
+    * The l_j array stores the order to the index.
+    * index: j={1,2,3,4,5,6,7,8, ...} order l_j={0,2,2,2,2,2,4,4,...}
     */
     static std::vector<size_t> m_lj;
 
     /**
-    * getSHFittingMatrix
-    * \param orientations orientations
-    * \param order order
-    * \param lambda lambda
-    * \param withFRT withFRT
-    * \return Matrix
+    * This calculates the transformation/fitting matrix T like in the 2007 Descoteaux paper. The orientations are given as wmath::WVector3D.
+    * \param orientations The vector with the used orientation on the unit sphere (usually the gradients of the HARDI)
+    * \param order The order of the spherical harmonics intented to create
+    * \param lambda Regularisation parameter for smoothing matrix
+    * \param withFRT include the Funk-Radon-Transformation?
+    * \return Transformation matrix
     */
-    static wmath::WMatrix<double> getSHFittingMatrix( const std::vector< wmath::WVector3D >& orientations, int order, double lambda, bool withFRT );
+    static wmath::WMatrix<double> getSHFittingMatrix( const std::vector< wmath::WVector3D >& orientations,
+                                                      int order,
+                                                      double lambda,
+                                                      bool withFRT );
 
     /**
-    * getSHFittingMatrix
-    * \param orientations orientations
-    * \param order order
-    * \param lambda lambda
-    * \param withFRT withFRT
-    * \return Matrix
+    * This calculates the transformation/fitting matrix T like in the 2007 Descoteaux paper. The orientations are given as wmath::WUnitSphereCoordinates .
+    * \param orientations The vector with the used orientation on the unit sphere (usually the gradients of the HARDI)
+    * \param order The order of the spherical harmonics intented to create
+    * \param lambda Regularisation parameter for smoothing matrix
+    * \param withFRT include the Funk-Radon-Transformation?
+    * \return Transformation matrix
     */
     static wmath::WMatrix<double> getSHFittingMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations,
                                                       int order,
@@ -123,24 +126,24 @@ public:
                                                       bool withFRT );
 
     /**
-    * calcBMatrix
-    * \param orientations orientations
-    * \param order order
-    * \return Matrix
+    * Calculates the base matrix B like in the diss of Descoteaux.
+    * \param orientations The vector with the used orientation on the unit sphere (usually the gradients of the HARDI)
+    * \param order The order of the spherical harmonics intented to create
+    * \return The base Matrix B
     */
-    static wmath::WMatrix<double> calcBMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations, int order );
+    static wmath::WMatrix<double> calcBaseMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations, int order );
 
     /**
-    * calcSmoothingMatrix
-    * \param order order
-    * \return Matrix
+    * This calcs the smoothing matrix L from the 2007 Descoteaux Paper "Regularized, Fast, and Robust Analytical Q-Ball Imaging"
+    * \param order The order of the spherical harmonic
+    * \return The smoothing matrix L
     */
     static wmath::WMatrix<double> calcSmoothingMatrix( size_t order );
 
     /**
-    * calcFRTMatrix
-    * \param order order
-    * \return Matrix
+    * Calculates the Funk-Radon-Transformation-Matrix P from the 2007 Descoteaux Paper "Regularized, Fast, and Robust Analytical Q-Ball Imaging"
+    * \param order The order of the spherical harmonic
+    * \return The Funk-Radon-Matrix P
     */
     static wmath::WMatrix<double> calcFRTMatrix( size_t order );
 protected:
