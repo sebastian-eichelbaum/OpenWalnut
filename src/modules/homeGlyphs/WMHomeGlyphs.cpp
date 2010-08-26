@@ -31,6 +31,8 @@
 #include "../../common/WAssert.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../common/WLimits.h"
+#include "../../common/WThreadedFunction.h"
+#include "../../common/WConditionOneShot.h"
 #include "../../kernel/WKernel.h"
 #include "home.xpm"
 
@@ -167,11 +169,14 @@ void WMHomeGlyphs::properties()
     m_sliceIdProp->setMax( 128 );
 
     m_usePolarPlotProp = m_properties->addProperty( "Use polar plot", "Use polar plot for glyph instead of HOME?", true, m_recompute );
-    m_useNormalization = m_properties->addProperty( "Radius normalization", "Scale the radius of each glyph to be in [0,1].", true, m_recompute );
+    m_useNormalizationProp = m_properties->addProperty( "Radius normalization", "Scale the radius of each glyph to be in [0,1].", true, m_recompute );
 }
 
 void WMHomeGlyphs::moduleMain()
 {
+    // TODO(wiebel): remove this as soon as wmath::WSymmetricSphericalHarmonic is thread save
+    wmath::WSymmetricSphericalHarmonic::calcLj( 4 );
+
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_recompute );
 
@@ -187,8 +192,9 @@ void WMHomeGlyphs::moduleMain()
             m_moduleState.wait();
             continue;
         }
-//        execute();
+        debugLog() << "-------- Enter renderSlice...";
         renderSlice( m_sliceIdProp->get() );
+        debugLog() << "-------- Exit renderSlice...";
 
         m_moduleState.wait();
     }
@@ -197,12 +203,9 @@ void WMHomeGlyphs::moduleMain()
 
 void  WMHomeGlyphs::renderSlice( size_t sliceId )
 {
-    enum sliceTypeEnum
-    {
-        xSlice = 0,
-        ySlice,
-        zSlice
-    };
+    boost::shared_ptr< WProgress > progress;
+    progress = boost::shared_ptr< WProgress >( new WProgress( "Glyph Generation", 2 ) );
+    m_progress->addSubProgress( progress );
 
     size_t sliceType = m_sliceOrientationSelection->get( true ).getItemIndexOfSelected( 0 );
 
@@ -213,214 +216,36 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
     }
 
-    boost::shared_ptr< WDataSetSphericalHarmonics > dataSet = boost::shared_dynamic_cast< WDataSetSphericalHarmonics >( m_input->getData() );
-
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
-
-    // convenience names for grid dimensions
-    size_t nX =  grid->getNbCoordsX();
-    size_t nY =  grid->getNbCoordsY();
-    size_t nZ =  grid->getNbCoordsZ();
-    WAssert( sliceId < nX, "Slice id to large." );
-
-    unsigned int level = 3; // subdivision level of sphere
-    unsigned int infoBitFlag = ( 1 << limnPolyDataInfoNorm ) | ( 1 << limnPolyDataInfoRGBA );
-    limnPolyData *sphere = limnPolyDataNew();
-    limnPolyDataIcoSphere( sphere, infoBitFlag, level );
-
-    const tijk_type *type = tijk_4o3d_sym;
-
-    // memory for the tensor and spherical harmonics data.
-    float* ten = new float[type->num];
-    float* res = new float[type->num];
-    float* esh = new float[type->num];
-
-    // preparation of osg stuff for the glyphs
-    m_moduleNode = new WGEGroupNode();
-
-    debugLog() << "start loop ... " << sliceId;
-    size_t nA = 0; // initialized to quiet compiler
-    size_t nB = 0; // initialized to quiet compiler
-    switch( sliceType )
-    {
-        case xSlice:
-            nA = nY;
-            nB = nZ;
-            break;
-        case ySlice:
-            nA = nX;
-            nB = nZ;
-            break;
-        case zSlice:
-            nA = nX;
-            nB = nY;
-            break;
-    }
-
-    size_t nbGlyphs = nA *nB;
-
-
-    osg::Geometry* glyphGeometry = new osg::Geometry();
-    m_glyphsGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
-    m_glyphsGeode->setName( "glyphs" );
-    osg::StateSet* state = m_glyphsGeode->getOrCreateStateSet();
-    osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
-    lightModel->setTwoSided( true );
-    state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
-    state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
-
-    WAssert( sphere->xyzwNum == sphere->normNum, "Wrong size of arrays." );
-    WAssert( sphere->xyzwNum == sphere->rgbaNum, "Wrong size of arrays." );
-    size_t nbVerts = sphere->xyzwNum;
-
-    osg::ref_ptr< osg::Vec3Array > vertArray = new osg::Vec3Array( nbVerts * nbGlyphs );
-    osg::ref_ptr< osg::Vec3Array > normals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( nbVerts * nbGlyphs ) );
-    osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array( nbVerts * nbGlyphs ) );
-
-    osg::ref_ptr< osg::DrawElementsUInt > glyphElements =
-        osg::ref_ptr< osg::DrawElementsUInt >( new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 ) );
-    glyphElements->reserve( sphere->indxNum * nbGlyphs );
-
-    bool usePolar = m_usePolarPlotProp->get();
+    //-----------------------------------------------------------
     // run through the positions in the slice and draw the glyphs
-    for( size_t aId = 0; aId < nA; ++aId )
-    {
-        for( size_t bId = 0; bId < nB; ++bId )
-        {
-            size_t glyphId = aId * nB + bId;
-            size_t vertsUpToCurrentIteration = glyphId * nbVerts;
+    boost::shared_ptr< GlyphGeneration > generator;
+    generator = boost::shared_ptr< GlyphGeneration >(
+                  new GlyphGeneration( boost::shared_dynamic_cast< WDataSetSphericalHarmonics >( m_input->getData() ),
+                                       sliceId,
+                                       sliceType,
+                                       m_usePolarPlotProp->get(),
+                                       m_glyphSizeProp->get(),
+                                       m_useNormalizationProp->get() ) );
+    WThreadedFunction< GlyphGeneration > generatorThreaded( 0, generator );
+    generatorThreaded.run();
+    generatorThreaded.wait();
 
-            size_t posId = 0; // initialized to quiet compiler
-            switch( sliceType )
-            {
-                case xSlice:
-                    posId = sliceId + aId * nX + bId * nX * nY;
-                    break;
-                case ySlice:
-                    posId = aId + sliceId * nX + bId * nX * nY;
-                    break;
-                case zSlice:
-                    posId = aId + bId * nX + sliceId * nX * nY;
-                    break;
-            }
+    ++*progress;
 
-            wmath::WValue< double > coeffs = dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
-            WAssert( coeffs.size() == 15,
-                     "This module can handle only 4th order spherical harmonics."
-                     "Thus the input has to be 15 dimensional vectors." );
-
-            for( size_t coeffId = 0; coeffId < 15; coeffId++ )
-            {
-                esh[coeffId] = coeffs[coeffId];
-            }
-            // convert even-order spherical harmonics to higher-order tensor
-            tijk_esh_to_3d_sym_f( ten, esh, 4 );
-
-            // create positive approximation of the tensor
-            tijk_refine_rankk_parm *parm = tijk_refine_rankk_parm_new();
-            parm->pos = 1;
-            int ret = tijk_approx_rankk_3d_f( NULL, NULL, res, ten, type, 6, parm );
-            WAssert( ret == 0, "Error condition in call." );
-            parm = tijk_refine_rankk_parm_nix( parm );
-            tijk_sub_f( ten, ten, res, type );
-
-            const char normalize = 0;
-
-            limnPolyData *glyph = limnPolyDataNew();
-            limnPolyDataCopy( glyph, sphere );
-
-            double radius = 1.0; // some initialization
-            if( usePolar )
-            {
-                char isdef = 3; // some initialization
-                radius = elfGlyphPolar( glyph, 1, ten, type, &isdef, 0, normalize, NULL, NULL );
-                WAssert( isdef != 0, "Tensor is non positive definite. Think about that." );
-            }
-            else
-            {
-                radius = elfGlyphHOME( glyph, 1, ten, type, NULL, normalize );
-            }
-
-            // -------------------------------------------------------------------------------------------------------
-            // One can insert per-peak coloring here (see http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.html )
-            // -------------------------------------------------------------------------------------------------------
-
-            float scale = m_glyphSizeProp->get(); // glyph size
-
-            if( m_useNormalization->get() )
-            {
-                minMaxNormalization( glyph );
-            }
-            else
-            {
-                scale = scale / radius;
-            }
-            estimateNormalsAntipodal( glyph, normalize );
-            wmath::WPosition glyphPos = grid->getPosition( posId );
+    m_moduleNode = new WGEGroupNode();
+    osg::ref_ptr< osg::Geode > glyphsGeode = generator->getGraphics();
+    m_moduleNode->insert( glyphsGeode );
 
 
-            //-------------------------------
-            // vertex indices
-            for( unsigned int vertId = 0; vertId < glyph->indxNum; ++vertId )
-            {
-                glyphElements->push_back( vertsUpToCurrentIteration + glyph->indx[vertId] );
-            }
-
-
-            for( unsigned int vertId = 0; vertId < glyph->xyzwNum; ++vertId )
-            {
-                //-------------------------------
-                // vertices
-                ( *vertArray )[vertsUpToCurrentIteration+vertId][0] = glyph->xyzw[m_nbVertCoords*vertId  ] * scale + glyphPos[0];
-                ( *vertArray )[vertsUpToCurrentIteration+vertId][1] = glyph->xyzw[m_nbVertCoords*vertId+1] * scale + glyphPos[1];
-                ( *vertArray )[vertsUpToCurrentIteration+vertId][2] = glyph->xyzw[m_nbVertCoords*vertId+2] * scale + glyphPos[2];
-
-                // ------------------------------------------------
-                // normals
-                ( *normals )[vertsUpToCurrentIteration+vertId][0] = glyph->norm[3*vertId];
-                ( *normals )[vertsUpToCurrentIteration+vertId][1] = glyph->norm[3*vertId+1];
-                ( *normals )[vertsUpToCurrentIteration+vertId][2] = glyph->norm[3*vertId+2];
-                ( *normals )[vertsUpToCurrentIteration+vertId].normalize();
-
-                // ------------------------------------------------
-                // colors
-                const size_t nbColCoords = 4;
-                ( *colors )[vertsUpToCurrentIteration+vertId][0] = glyph->rgba[nbColCoords*vertId] / 255.0;
-                ( *colors )[vertsUpToCurrentIteration+vertId][1] = glyph->rgba[nbColCoords*vertId+1] / 255.0;
-                ( *colors )[vertsUpToCurrentIteration+vertId][2] = glyph->rgba[nbColCoords*vertId+2] / 255.0;
-                ( *colors )[vertsUpToCurrentIteration+vertId][3] = glyph->rgba[nbColCoords*vertId+3] / 255.0;
-            }
-
-            // free memory
-            glyph = limnPolyDataNix( glyph );
-        }
-    }
     debugLog() << "end loop ... " << sliceId;
 
-    glyphGeometry->setVertexArray( vertArray );
-    glyphGeometry->addPrimitiveSet( glyphElements );
-    glyphGeometry->setNormalArray( normals );
-    glyphGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
-    glyphGeometry->setColorArray( colors );
-    glyphGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
-
-    m_glyphsGeode->addDrawable( glyphGeometry );
-
     m_shader = osg::ref_ptr< WShader > ( new WShader( "WMHomeGlyphs", m_localPath ) );
-    m_shader->apply( m_glyphsGeode );
-
-    m_moduleNode->insert( m_glyphsGeode );
+    m_shader->apply( glyphsGeode );
 
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
-
-    // free memory
-    sphere = limnPolyDataNix( sphere );
-
-    delete[] ten;
-    delete[] res;
-    delete[] esh;
+    progress->finish();
 }
 
 
@@ -440,7 +265,7 @@ void WMHomeGlyphs::activate()
     WModule::activate();
 }
 
-void WMHomeGlyphs::minMaxNormalization( limnPolyData *glyph )
+void WMHomeGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph )
 {
     double min = wlimits::MAX_DOUBLE;
     double max = -wlimits::MAX_DOUBLE;
@@ -474,4 +299,242 @@ void WMHomeGlyphs::minMaxNormalization( limnPolyData *glyph )
         }
     }
     // else do nothing because all values are equal.
+}
+
+WMHomeGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSphericalHarmonics > dataSet,
+                                                const size_t& sliceId,
+                                                const size_t& sliceType,
+                                                const bool& usePolar,
+                                                const float& scale,
+                                                const bool& useNormalization ) :
+    m_dataSet( dataSet ),
+    m_grid( boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() ) ),
+    m_sliceType( sliceType ),
+    m_usePolar( usePolar ),
+    m_scale( scale ),
+    m_useNormalization( useNormalization )
+{
+    enum sliceTypeEnum
+    {
+        xSlice = 0,
+        ySlice,
+        zSlice
+    };
+
+    // convenience names for grid dimensions
+    m_nX =  m_grid->getNbCoordsX();
+    m_nY =  m_grid->getNbCoordsY();
+    m_nZ =  m_grid->getNbCoordsZ();
+    WAssert( sliceId < m_nX, "Slice id to large." );
+    m_sliceId = sliceId;
+
+    // preparation of osg stuff for the glyphs
+    m_generatorNode = new WGEGroupNode();
+
+    switch( sliceType )
+    {
+        case xSlice:
+            m_nA = m_nY;
+            m_nB = m_nZ;
+            break;
+        case ySlice:
+            m_nA = m_nX;
+            m_nB = m_nZ;
+            break;
+        case zSlice:
+            m_nA = m_nX;
+            m_nB = m_nY;
+            break;
+    }
+
+    m_glyphGeometry = new osg::Geometry();
+    m_glyphsGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    m_glyphsGeode->setName( "glyphs" );
+    osg::StateSet* state = m_glyphsGeode->getOrCreateStateSet();
+    osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
+    lightModel->setTwoSided( true );
+    state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+    state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
+
+    size_t nbGlyphs = m_nA * m_nB;
+
+    const unsigned int level = 3; // subdivision level of sphere
+    unsigned int infoBitFlag = ( 1 << limnPolyDataInfoNorm ) | ( 1 << limnPolyDataInfoRGBA );
+
+    m_sphere = limnPolyDataNew();
+    limnPolyDataIcoSphere( m_sphere, infoBitFlag, level );
+    size_t nbVerts = m_sphere->xyzwNum;
+
+    m_vertArray = new osg::Vec3Array( nbVerts * nbGlyphs );
+    m_normals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( nbVerts * nbGlyphs ) );
+    m_colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array( nbVerts * nbGlyphs ) );
+
+    m_glyphElements = osg::ref_ptr< osg::DrawElementsUInt >( new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 ) );
+    m_glyphElements->resize( m_sphere->indxNum * nbGlyphs );
+}
+
+WMHomeGlyphs::GlyphGeneration::~GlyphGeneration()
+{
+    // free memory
+    m_sphere = limnPolyDataNix( m_sphere );
+}
+
+void WMHomeGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WBoolFlag& /*b*/ )
+{
+    enum sliceTypeEnum
+    {
+        xSlice = 0,
+        ySlice,
+        zSlice
+    };
+
+
+    WAssert( m_sphere->xyzwNum == m_sphere->normNum, "Wrong size of arrays." );
+    WAssert( m_sphere->xyzwNum == m_sphere->rgbaNum, "Wrong size of arrays." );
+    size_t nbVerts = m_sphere->xyzwNum;
+
+    const tijk_type *type = tijk_4o3d_sym;
+
+    // memory for the tensor and spherical harmonics data.
+    float* ten = new float[type->num];
+    float* res = new float[type->num];
+    float* esh = new float[type->num];
+
+    size_t chunkSize = m_nA;
+    if( numThreads > 1 )
+    {
+        chunkSize = m_nA / ( numThreads - 1 );
+    }
+    size_t first = id * chunkSize;
+    size_t last = ( id + 1 ) * chunkSize - 1;
+    //std::cout << "I am still running " << id << "/" << numThreads << " (" << first << " ... " << last << ")" << chunkSize << std::endl;
+
+    for( size_t aId = first; aId <= last && aId < m_nA; ++aId )
+    {
+        for( size_t bId = 0; bId < m_nB; ++bId )
+        {
+            size_t glyphId = aId * m_nB + bId;
+            size_t vertsUpToCurrentIteration = glyphId * nbVerts;
+            size_t idsUpToCurrentIteration = glyphId * m_sphere->indxNum;
+
+            size_t posId = 0; // initialized to quiet compiler
+            switch( m_sliceType )
+            {
+                case xSlice:
+                    posId = m_sliceId + aId * m_nX + bId * m_nX * m_nY;
+                    break;
+                case ySlice:
+                    posId = aId + m_sliceId * m_nX + bId * m_nX * m_nY;
+                    break;
+                case zSlice:
+                    posId = aId + bId * m_nX + m_sliceId * m_nX * m_nY;
+                    break;
+            }
+
+            wmath::WValue< double > coeffs = m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
+            WAssert( coeffs.size() == 15,
+                     "This module can handle only 4th order spherical harmonics."
+                     "Thus the input has to be 15 dimensional vectors." );
+
+            for( size_t coeffId = 0; coeffId < 15; coeffId++ )
+            {
+                esh[coeffId] = coeffs[coeffId];
+            }
+            // convert even-order spherical harmonics to higher-order tensor
+            tijk_esh_to_3d_sym_f( ten, esh, 4 );
+
+            // create positive approximation of the tensor
+            tijk_refine_rankk_parm *parm = tijk_refine_rankk_parm_new();
+            parm->pos = 1;
+            int ret = tijk_approx_rankk_3d_f( NULL, NULL, res, ten, type, 6, parm );
+            WAssert( ret == 0, "Error condition in call." );
+            parm = tijk_refine_rankk_parm_nix( parm );
+            tijk_sub_f( ten, ten, res, type );
+
+            const char normalize = 0;
+
+            limnPolyData *glyph = limnPolyDataNew();
+            limnPolyDataCopy( glyph, m_sphere );
+
+            double radius = 1.0; // some initialization
+            if( m_usePolar )
+            {
+                char isdef = 3; // some initialization
+                radius = elfGlyphPolar( glyph, 1, ten, type, &isdef, 0, normalize, NULL, NULL );
+                WAssert( isdef != 0, "Tensor is non positive definite. Think about that." );
+            }
+            else
+            {
+                radius = elfGlyphHOME( glyph, 1, ten, type, NULL, normalize );
+            }
+
+            // -------------------------------------------------------------------------------------------------------
+            // One can insert per-peak coloring here (see http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.html )
+            // -------------------------------------------------------------------------------------------------------
+
+
+            if( m_useNormalization )
+            {
+                minMaxNormalization( glyph );
+            }
+            else
+            {
+                m_scale = m_scale / radius;
+            }
+            estimateNormalsAntipodal( glyph, normalize );
+            wmath::WPosition glyphPos = m_grid->getPosition( posId );
+
+            //-------------------------------
+            // vertex indices
+            for( unsigned int vertId = 0; vertId < glyph->indxNum; ++vertId )
+            {
+                 ( *m_glyphElements )[idsUpToCurrentIteration+vertId] = ( vertsUpToCurrentIteration + glyph->indx[vertId] );
+            }
+
+
+            for( unsigned int vertId = 0; vertId < glyph->xyzwNum; ++vertId )
+            {
+                size_t globalVertexId = vertsUpToCurrentIteration + vertId;
+                //-------------------------------
+                // vertices
+                ( *m_vertArray )[globalVertexId][0] = glyph->xyzw[m_nbVertCoords*vertId  ] * m_scale + glyphPos[0];
+                ( *m_vertArray )[globalVertexId][1] = glyph->xyzw[m_nbVertCoords*vertId+1] * m_scale + glyphPos[1];
+                ( *m_vertArray )[globalVertexId][2] = glyph->xyzw[m_nbVertCoords*vertId+2] * m_scale + glyphPos[2];
+
+                // ------------------------------------------------
+                // normals
+                ( *m_normals )[globalVertexId][0] = glyph->norm[3*vertId];
+                ( *m_normals )[globalVertexId][1] = glyph->norm[3*vertId+1];
+                ( *m_normals )[globalVertexId][2] = glyph->norm[3*vertId+2];
+                ( *m_normals )[globalVertexId].normalize();
+
+                // ------------------------------------------------
+                // colors
+                const size_t nbColCoords = 4;
+                ( *m_colors )[globalVertexId][0] = glyph->rgba[nbColCoords*vertId] / 255.0;
+                ( *m_colors )[globalVertexId][1] = glyph->rgba[nbColCoords*vertId+1] / 255.0;
+                ( *m_colors )[globalVertexId][2] = glyph->rgba[nbColCoords*vertId+2] / 255.0;
+                ( *m_colors )[globalVertexId][3] = glyph->rgba[nbColCoords*vertId+3] / 255.0;
+            }
+
+            // free memory
+            glyph = limnPolyDataNix( glyph );
+        }
+    }
+    delete[] ten;
+    delete[] res;
+    delete[] esh;
+}
+
+osg::ref_ptr< osg::Geode > WMHomeGlyphs::GlyphGeneration::getGraphics()
+{
+    m_glyphGeometry->setVertexArray( m_vertArray );
+    m_glyphGeometry->addPrimitiveSet( m_glyphElements );
+    m_glyphGeometry->setNormalArray( m_normals );
+    m_glyphGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+    m_glyphGeometry->setColorArray( m_colors );
+    m_glyphGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+
+    m_glyphsGeode->addDrawable( m_glyphGeometry );
+    return m_glyphsGeode;
 }
