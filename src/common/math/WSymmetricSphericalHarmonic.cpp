@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
 #include "stdint.h"
@@ -147,9 +149,9 @@ size_t WSymmetricSphericalHarmonic::getOrder() const
 void WSymmetricSphericalHarmonic::calcLj( size_t order )
 {
   m_lj.clear();
-  for ( size_t k=0; k<=order; k+=2 )
+  for ( size_t k = 0; k <= order; k += 2 )
   {
-    for ( int m=-k; m<=static_cast<int>( k ); m++ )
+    for ( int m = -k; m <= static_cast<int>( k ); ++m )
     {
       m_lj.push_back( k );
     }
@@ -157,7 +159,10 @@ void WSymmetricSphericalHarmonic::calcLj( size_t order )
 }
 
 
-wmath::WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< wmath::WVector3D >& orientations, int order, double lambda, bool withFRT )
+wmath::WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< wmath::WVector3D >& orientations,
+                                                                        int order,
+                                                                        double lambda,
+                                                                        bool withFRT )
 {
   // convert euclid 3d orientations/gradients to sphere coordinates
   std::vector< wmath::WUnitSphereCoordinates > sphereCoordinates;
@@ -168,7 +173,10 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const st
   return WSymmetricSphericalHarmonic::getSHFittingMatrix( sphereCoordinates, order, lambda, withFRT );
 }
 
-wmath::WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations, int order, double lambda, bool withFRT )
+wmath::WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations,
+                                                                        int order,
+                                                                        double lambda,
+                                                                        bool withFRT )
 {
   wmath::WMatrix<double> B( WSymmetricSphericalHarmonic::calcBaseMatrix( orientations, order ) );
   wmath::WMatrix<double> Bt( B.transposed() );
@@ -176,7 +184,7 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const st
   if ( lambda != 0.0 )
   {
     wmath::WMatrix<double> L( WSymmetricSphericalHarmonic::calcSmoothingMatrix( order ) );
-    result += lambda*L; 
+    result += lambda*L;
   }
   result = wmath::pseudoInverse( result )*Bt;
 //   result *= Bt;
@@ -188,9 +196,10 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const st
   return result;
 }
 
-wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcBaseMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations, int order )
+wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcBaseMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations,
+                                                                    int order )
 {
-  wmath::WMatrix<double> B( orientations.size(), ((order+1)*(order+2))/2 );
+  wmath::WMatrix<double> B( orientations.size(), ( ( order + 1 ) * ( order + 2 ) ) / 2 );
 
   // calc B Matrix like in the 2007 Descoteaux paper ("Regularized, Fast, and Robust Analytical Q-Ball Imaging")
   int j = 0;
@@ -204,15 +213,16 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcBaseMatrix( const std::v
       // m = 1 .. k
       for ( int m = 1; m <= k; m++ )
       {
-        j = ( k*k+k+2 ) / 2 + m;
-        B( row, j-1 ) = rootOf2 * static_cast<double>( std::pow( static_cast<double>( -1 ), m+1 ) ) * boost::math::spherical_harmonic_i( k, m, theta, phi );
+        j = ( k * k + k + 2 ) / 2 + m;
+        B( row, j-1 ) = rootOf2 * static_cast<double>( std::pow( static_cast<double>( -1 ), m + 1 ) )
+                        * boost::math::spherical_harmonic_i( k, m, theta, phi );
       }
       // m = 0
-      B( row, (k*k+k+2)/2-1 ) = boost::math::spherical_harmonic_r( k, 0, theta, phi );
+      B( row, ( k * k + k + 2 ) / 2 - 1 ) = boost::math::spherical_harmonic_r( k, 0, theta, phi );
       // m = -k .. -1
       for ( int m = -k; m < 0; m++ )
       {
-        j = (k*k+k+2)/2+m;
+        j = ( k * k + k + 2 ) / 2 + m;
         B( row, j-1 ) = rootOf2*boost::math::spherical_harmonic_r( k, -m, theta, phi );
       }
     }
@@ -220,7 +230,7 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcBaseMatrix( const std::v
   return B;
 //   old implementation
 //   wmath::WMatrix<double> B( orientations.size(), ((order+1)*(order+2))/2 );
-// 
+//
 //   // calc B Matrix like in the 2007 Descoteaux paper ("Regularized, Fast, and Robust Analytical Q-Ball Imaging")
 //   int j = 0;
 //   for (uint row = 0; row < orientations.size(); row++ )
@@ -253,14 +263,14 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcSmoothingMatrix( size_t 
 {
   std::vector<int> lj;
   lj.clear();
-  for ( size_t k=0; k<=order; k+=2 )
+  for ( size_t k = 0; k <= order; k += 2 )
   {
-    for ( int m=-k; m<=static_cast<int>( k ); m++ )
+    for ( int m = -k; m <= static_cast<int>( k ); ++m )
     {
       lj.push_back( k );
     }
   }
-  size_t R = ( (order+1) * (order+2) ) / 2;
+  size_t R = ( ( order + 1 ) * ( order + 2 ) ) / 2;
   wmath::WMatrix<double> L( R, R );
   for ( size_t i = 0; i < R; i++ ) L( i, i ) = static_cast<double> ( lj[i] * lj[i] * ( lj[i] + 1) * ( lj[i] + 1) );
   return L;
@@ -270,7 +280,7 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order 
 {
   size_t dim = ( order + 1 ) * ( order + 2 ) / 2;
   if ( WSymmetricSphericalHarmonic::m_lj.size() < dim ) WSymmetricSphericalHarmonic::calcLj( order );
-  
+
   wmath::WMatrix<double> result( dim, dim );
   for ( size_t j = 0; j < dim; j++ )
   {
