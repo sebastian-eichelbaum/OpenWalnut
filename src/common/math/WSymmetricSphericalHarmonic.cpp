@@ -272,7 +272,6 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order 
   if ( WSymmetricSphericalHarmonic::m_lj.size() < dim ) WSymmetricSphericalHarmonic::calcLj( order );
   
   wmath::WMatrix<double> result( dim, dim );
-  double factor = 0.0;
   for ( size_t j = 0; j < dim; j++ )
   {
     size_t lj = WSymmetricSphericalHarmonic::m_lj[j];
