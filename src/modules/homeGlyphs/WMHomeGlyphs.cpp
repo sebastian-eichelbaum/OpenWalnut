@@ -174,9 +174,6 @@ void WMHomeGlyphs::properties()
 
 void WMHomeGlyphs::moduleMain()
 {
-    // TODO(wiebel): remove this as soon as wmath::WSymmetricSphericalHarmonic is thread save
-    wmath::WSymmetricSphericalHarmonic::calcLj( 4 );
-
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_recompute );
 
