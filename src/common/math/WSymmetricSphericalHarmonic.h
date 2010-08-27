@@ -77,27 +77,17 @@ public:
     const wmath::WValue<double>& getCoefficients() const;
 
     /**
-     * Applies the Funk-Radon-Transformation.
+     * Applies the Funk-Radon-Transformation. This is faster than matrix multiplication.
+     * ( O(n) instead of O(n²) )
+     *
+     * \param frtMat the frt matrix as calculated by calcFRTMatrix()
      */
-    void applyFunkRadonTransformation();
+    void applyFunkRadonTransformation( wmath::WMatrix< double > const& frtMat );
 
     /**
      * Return the order of the spherical harmonic.
      */
     size_t getOrder() const;
-
-
-    /**
-    * This calculates the l_j array (std::vector) for the given order.
-    * \param order order
-    */
-    static void calcLj( size_t order );
-
-    /**
-    * The l_j array stores the order to the index.
-    * index: j={1,2,3,4,5,6,7,8, ...} order l_j={0,2,2,2,2,2,4,4,...}
-    */
-    static std::vector<size_t> m_lj;
 
     /**
     * This calculates the transformation/fitting matrix T like in the 2007 Descoteaux paper. The orientations are given as wmath::WVector3D.
@@ -151,6 +141,7 @@ protected:
 private:
     /** order of the spherical harmonic */
     size_t m_order;
+
     /** coefficients of the spherical harmonic */
     WValue<double> m_SHCoefficients;
 };

@@ -37,8 +37,6 @@
 
 namespace wmath
 {
-std::vector<size_t> wmath::WSymmetricSphericalHarmonic::m_lj;
-
 WSymmetricSphericalHarmonic::WSymmetricSphericalHarmonic() :
   m_order( 0 ),
   m_SHCoefficients( 0 )
@@ -52,7 +50,6 @@ WSymmetricSphericalHarmonic::WSymmetricSphericalHarmonic( const WValue<double>& 
   // - this is done by reversing the R=(l+1)*(l+2)/2 formula from the Descoteaux paper
   double q = std::sqrt( 0.25 + 2.0 * static_cast<double>( m_SHCoefficients.size() ) ) - 1.5;
   m_order = static_cast<size_t>( q );
-  if ( WSymmetricSphericalHarmonic::m_lj.size() < m_SHCoefficients.size() ) WSymmetricSphericalHarmonic::calcLj( m_order );
 }
 
 WSymmetricSphericalHarmonic::~WSymmetricSphericalHarmonic()
@@ -83,27 +80,6 @@ double WSymmetricSphericalHarmonic::getValue( double theta, double phi ) const
     }
   }
   return result;
-//   old implementation
-//   double result = 0.0;
-//   int j = 0;
-//   for ( int k = 0; k <= static_cast<int>( m_order ); k+=2 )
-//   {
-//     // m = 1 .. k
-//     for ( int m = 1; m <= k; m++ )
-//     {
-//       j = ( k*k+k+2 ) / 2 + m;
-//       result += m_SHCoefficients[ j-1 ] * std::sqrt( 2.0 ) * boost::math::spherical_harmonic_i( k, m, theta, phi );
-//     }
-//     // m = 0
-//     result += m_SHCoefficients[ ( k*k+k+2 ) / 2 - 1 ] * boost::math::spherical_harmonic_r( k, 0, theta, phi );
-//     // m = -k .. -1
-//     for ( int m = -k; m < 0; m++ )
-//     {
-//       j = ( k*k+k+2 ) / 2 + m;
-//       result += m_SHCoefficients[ j-1 ] * std::sqrt( 2.0 ) * boost::math::spherical_harmonic_r( k, m, theta, phi );
-//     }
-//   }
-//   return result;
 }
 
 double WSymmetricSphericalHarmonic::getValue( const WUnitSphereCoordinates& coordinates ) const
@@ -116,48 +92,21 @@ const wmath::WValue<double>& WSymmetricSphericalHarmonic::getCoefficients() cons
   return m_SHCoefficients;
 }
 
-void WSymmetricSphericalHarmonic::applyFunkRadonTransformation()
+void WSymmetricSphericalHarmonic::applyFunkRadonTransformation( wmath::WMatrix< double > const& frtMat )
 {
-  // Funk-Radon-Transformation like in the 2007 Descoteaux paper
-  // TODO(philips): implement
-  size_t lj = 0;
-//   double ljDbl = 0.0;
-  double factor = 0.0;
-  for ( size_t j = 0; j < m_SHCoefficients.size(); j++ )
-  {
-//     lj = 2 * ( ( j == 1 ) ? 1 : ( j+2 )/4  );
-    lj = WSymmetricSphericalHarmonic::m_lj[j];
-//     ljDbl = static_cast<double>( lj );
-//     std::cerr << "j: " << j << " lj: " << ljDbl << std::endl;
-    // lj is always even!
-    factor = 2.0 * wmath::piDouble * static_cast<double>( std::pow( static_cast<double>( -1.0 ), static_cast<double>( lj / 2 ) ) ) *
-                  static_cast<double>( wmath::oddFactorial( ( lj <= 1 ) ? 1 : lj-1 ) ) / static_cast<double>( wmath::evenFactorial( lj ) );
-// the following line is the (wrong) first calculation
-//                   static_cast<double>( wmath::oddFactorial( ( lj == 1 ) ? lj-1 : 1 ) ) / static_cast<double>( wmath::evenFactorial( lj ) );
-
-//     factor = (double) std::pow( -1, ( lj / 2 ) ) * (double)wmath::oddFaculty( lj ) / (double)wmath::evenFaculty( lj );
-//     std::cerr << "factor: " << factor << std::endl;
-    m_SHCoefficients[ j ] = m_SHCoefficients[ j ] * factor;
-  }
+    WAssert( frtMat.getNbCols() == m_SHCoefficients.size(), "" );
+    WAssert( frtMat.getNbRows() == m_SHCoefficients.size(), "" );
+    // Funk-Radon-Transformation as in Descoteaux's thesis
+    for ( size_t j = 0; j < m_SHCoefficients.size(); j++ )
+    {
+        m_SHCoefficients[ j ] *= frtMat( j, j );
+    }
 }
 
 size_t WSymmetricSphericalHarmonic::getOrder() const
 {
   return m_order;
 }
-
-void WSymmetricSphericalHarmonic::calcLj( size_t order )
-{
-  m_lj.clear();
-  for ( size_t k = 0; k <= order; k += 2 )
-  {
-    for ( int m = -k; m <= static_cast<int>( k ); ++m )
-    {
-      m_lj.push_back( k );
-    }
-  }
-}
-
 
 wmath::WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< wmath::WVector3D >& orientations,
                                                                         int order,
@@ -228,67 +177,40 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcBaseMatrix( const std::v
     }
   }
   return B;
-//   old implementation
-//   wmath::WMatrix<double> B( orientations.size(), ((order+1)*(order+2))/2 );
-//
-//   // calc B Matrix like in the 2007 Descoteaux paper ("Regularized, Fast, and Robust Analytical Q-Ball Imaging")
-//   int j = 0;
-//   for (uint row = 0; row < orientations.size(); row++ )
-//   {
-//     const double theta = orientations[row].getTheta();
-//     const double phi = orientations[row].getPhi();
-//     for ( int k = 0; k <= order; k+=2 )
-//     {
-//       // m = 1 .. k
-//       for ( int m = 1; m <= k; m++ )
-//       {
-//         j = (k*k+k+2)/2+m;
-//         B( row, j-1 ) = std::sqrt(2.0)*boost::math::spherical_harmonic_i( k, m, theta, phi );
-//       }
-//       // m = 0
-//       B( row, (k*k+k+2)/2-1 ) = boost::math::spherical_harmonic_r( k, 0, theta, phi );
-//       // m = -k .. -1
-//       for ( int m = -k; m < 0; m++ )
-//       {
-//         j = (k*k+k+2)/2+m;
-//         B( row, j-1 ) = std::sqrt(2.0)*boost::math::spherical_harmonic_r( k, m, theta, phi );
-//       }
-//     }
-//   }
-//   return B;
 }
 
 
 wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcSmoothingMatrix( size_t order )
 {
-  std::vector<int> lj;
-  lj.clear();
-  for ( size_t k = 0; k <= order; k += 2 )
-  {
-    for ( int m = -k; m <= static_cast<int>( k ); ++m )
+    size_t R = ( ( order + 1 ) * ( order + 2 ) ) / 2;
+    std::size_t i = 0;
+    wmath::WMatrix<double> L( R, R );
+    for ( size_t k = 0; k <= order; k += 2 )
     {
-      lj.push_back( k );
+        for ( int m = -k; m <= static_cast< int >( k ); ++m )
+        {
+            L( i, i ) = static_cast< double > ( k * k * ( k + 1 ) * ( k + 1 ) );
+            ++i;
+        }
     }
-  }
-  size_t R = ( ( order + 1 ) * ( order + 2 ) ) / 2;
-  wmath::WMatrix<double> L( R, R );
-  for ( size_t i = 0; i < R; i++ ) L( i, i ) = static_cast<double> ( lj[i] * lj[i] * ( lj[i] + 1) * ( lj[i] + 1) );
-  return L;
+    return L;
 }
 
 wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order )
 {
-  size_t dim = ( order + 1 ) * ( order + 2 ) / 2;
-  if ( WSymmetricSphericalHarmonic::m_lj.size() < dim ) WSymmetricSphericalHarmonic::calcLj( order );
-
-  wmath::WMatrix<double> result( dim, dim );
-  for ( size_t j = 0; j < dim; j++ )
-  {
-    size_t lj = WSymmetricSphericalHarmonic::m_lj[j];
-    // lj is always even!
-    result( j, j ) = 2.0 * wmath::piDouble * static_cast<double>( std::pow( static_cast<double>( -1 ), static_cast<double>( lj / 2 ) ) ) *
-                  static_cast<double>( wmath::oddFactorial( ( lj <= 1 ) ? 1 : lj-1 ) ) / static_cast<double>( wmath::evenFactorial( lj ) );
-  }
-  return result;
+    size_t R = ( ( order + 1 ) * ( order + 2 ) ) / 2;
+    std::size_t i = 0;
+    wmath::WMatrix< double > result( R, R );
+    for ( size_t k = 0; k <= order; k += 2 )
+    {
+        double h = 2.0 * wmath::piDouble * static_cast< double >( std::pow( static_cast< double >( -1 ), static_cast< double >( k / 2 ) ) ) *
+                    static_cast< double >( wmath::oddFactorial( ( k <= 1 ) ? 1 : k - 1 ) ) / static_cast<double>( wmath::evenFactorial( k ) );
+        for ( int m = -k; m <= static_cast< int >( k ); ++m )
+        {
+            result( i, i ) = h;
+            ++i;
+        }
+    }
+    return result;
 }
 } // Namespace WMath
