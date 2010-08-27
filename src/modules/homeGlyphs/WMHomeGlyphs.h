@@ -138,7 +138,6 @@ private:
 
     osg::ref_ptr< osg::Geode > m_glyphsGeode; //!< Pointer to geode containing the glyphs.
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
-    static const size_t m_nbVertCoords; //!< The teem limn data structure has 4 values for a coordinate: x, y, z, w.
 
     /**
      * This class actually generated the glyph geometry. This class has () operator that the work.
@@ -186,9 +185,10 @@ private:
 
         /**
          * Makes the radii of the glyph be distributed between [0,1]
-         * \param glyph The glyph thta will be normalized given as teem's limnPolyData.
+         * \param glyph The glyph that will be normalized given as teem's limnPolyData.
+         * \param nbVertCoords Number of coords per vertex for the glyph polydata
          */
-        void minMaxNormalization( limnPolyData *glyph );
+        void minMaxNormalization( limnPolyData *glyph, const size_t& nbVertCoords );
 
         size_t m_nA; //!< Internal variable holding the number of glyphs in the first  direction of the slice.
         size_t m_nB; //!< Internal variable holding the number of glyphs in the second direction of the slice.
