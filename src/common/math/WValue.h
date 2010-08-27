@@ -25,6 +25,7 @@
 #ifndef WVALUE_H
 #define WVALUE_H
 
+#include <algorithm>
 #include <cmath>
 #include <vector>
 
