@@ -37,6 +37,9 @@
 #include "../../common/WProgress.h"
 #include "../../common/WAssert.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMDistanceMap )
+
 WMDistanceMap::WMDistanceMap():
     WModule()
 {

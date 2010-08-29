@@ -27,16 +27,20 @@
 
 #include <string>
 
+#include <boost/thread/locks.hpp>
+
 #include "WModule.h"
 #include "WModuleConnector.h"
 #include "WModuleConnectorSignals.h"
 
 #include "../common/WCondition.h"
 
+#include "WExportKernel.h"
+
 /**
  * Class implementing input connection functionality between modules.
  */
-class WModuleInputConnector: public WModuleConnector
+class OWKERNEL_EXPORT WModuleInputConnector: public WModuleConnector
 {
 public:
 
@@ -94,6 +98,20 @@ public:
      */
     virtual bool isOutputConnector() const;
 
+    /**
+     * Denotes whether the connected output was updated. This does NOT denote an actual change in the current data!
+     *
+     * \return true if there has been an update.
+     */
+    virtual bool updated();
+
+    /**
+     * Resets the updated-flag. Call this from your module to reset the value of updated().
+     *
+     * \return the update flag before reset. Useful to get the flag and reset it in one call.
+     */
+    virtual bool handledUpdate();
+
 protected:
 
     /**
@@ -127,6 +145,11 @@ protected:
      */
     virtual void notifyConnectionEstablished( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there );
 
+    /**
+     * Sets the update flag (use updated() to query it)to true. This is normally called by the notifyDataChange callback.
+     */
+    virtual void setUpdated();
+
 private:
 
     /**
@@ -145,6 +168,16 @@ private:
      * Connection for Data Changed signal of the connected output connector.
      */
     boost::signals2::connection m_DataChangedConnection;
+
+    /**
+     * This lock protects the m_updated flag.
+     */
+    boost::shared_mutex m_updatedLock;
+
+    /**
+     * A flag denoting that an update was received. It does not denote a real change in the value!
+     */
+    bool m_updated;
 };
 
 #endif  // WMODULEINPUTCONNECTOR_H

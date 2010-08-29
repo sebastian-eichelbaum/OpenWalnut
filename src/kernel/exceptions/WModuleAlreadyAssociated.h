@@ -29,11 +29,12 @@
 
 #include "WModuleException.h"
 
+#include "../WExportKernel.h"
 /**
  * General purpose exception and therefore base class for all kernel related exceptions.
  * \ingroup kernel
  */
-class WModuleAlreadyAssociated: public WModuleException
+class OWKERNEL_EXPORT WModuleAlreadyAssociated: public WModuleException
 {
 public:
 

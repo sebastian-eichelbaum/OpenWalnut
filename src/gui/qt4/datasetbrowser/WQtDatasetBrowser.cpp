@@ -42,7 +42,7 @@
 #include "../../../kernel/WModuleCombiner.h"
 #include "../../../kernel/WModuleCombinerTypes.h"
 #include "../../../kernel/WModuleFactory.h"
-#include "../../../modules/data/WMData.h"
+#include "../../../kernel/modules/data/WMData.h"
 #include "../events/WEventTypes.h"
 #include "../events/WModuleAssocEvent.h"
 #include "../events/WModuleDeleteEvent.h"
@@ -63,7 +63,7 @@
 #include "WQtDatasetBrowser.h"
 
 WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
-    : QDockWidget( "Dataset Browser", parent ),
+    : QDockWidget( "Control Panel", parent ),
     m_ignoreSelectionChange( false )
 {
     m_mainWindow = parent;
@@ -154,6 +154,10 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
 
     QShortcut* shortcut = new QShortcut( QKeySequence( Qt::Key_Delete ), m_roiTreeWidget );
     connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
+
+    // we want the upper most tree item to be selected. This helps to make the always compatible modules
+    // show up in the tool bar from the beginning. And ... it doesn't hurt.
+    m_tiModules->setSelected( true );
 }
 
 WQtDatasetBrowser::~WQtDatasetBrowser()
@@ -206,7 +210,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         if ( e2 )
         {
             addRoi( e2->getRoi() );
-            WLogger::getLogger()->addLogMessage( "Inserting roi to dataset browser.", "DatasetBrowser", LL_DEBUG );
+            WLogger::getLogger()->addLogMessage( "Inserting ROI to dataset browser.", "DatasetBrowser", LL_DEBUG );
         }
 
         return true;
@@ -217,7 +221,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         if( e3 )
         {
             removeRoi( e3->getRoi() );
-            WLogger::getLogger()->addLogMessage( "Removing roi from dataset browser.", "DatasetBrowser", LL_DEBUG );
+            WLogger::getLogger()->addLogMessage( "Removing ROI from dataset browser.", "DatasetBrowser", LL_DEBUG );
         }
 
         return true;
@@ -254,7 +258,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         WModuleReadyEvent* e = dynamic_cast< WModuleReadyEvent* >( event );     // NOLINT
         if ( !e )
         {
-            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            // this should never happen, since the type is set to WQT_READY_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModueReadyEvent although its type claims it. Ignoring event.",
                                                  "DatasetBrowser", LL_WARNING );
 
@@ -283,7 +287,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         WModuleConnectEvent* e = dynamic_cast< WModuleConnectEvent* >( event );     // NOLINT
         if ( !e )
         {
-            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            // this should never happen, since the type is set to WQT_MODULE_CONNECT_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleConnectEvent although its type claims it. Ignoring event.",
                                                  "DatasetBrowser", LL_WARNING );
             return true;
@@ -325,7 +329,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         WModuleDisconnectEvent* e = dynamic_cast< WModuleDisconnectEvent* >( event );     // NOLINT
         if ( !e )
         {
-            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            // this should never happen, since the type is set to WQT_MODULE_DISCONNECT_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleDisconnectEvent although its type claims it. Ignoring event.",
                                                  "DatasetBrowser", LL_WARNING );
             return true;
@@ -375,10 +379,10 @@ bool WQtDatasetBrowser::event( QEvent* event )
     // a module tree item should be deleted
     if ( event->type() == WQT_MODULE_DELETE_EVENT )
     {
-        WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );     // NOLINT
+        WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );
         if ( !e )
         {
-            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            // this should never happen, since the type is set to WQT_MODULE_DELETE_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleDeleteEvent although its type claims it. Ignoring event.",
                                                  "DatasetBrowser", LL_WARNING );
             return true;
@@ -406,10 +410,10 @@ bool WQtDatasetBrowser::event( QEvent* event )
     // a module was removed from the container
     if ( event->type() == WQT_MODULE_REMOVE_EVENT )
     {
-        WModuleRemovedEvent* e = dynamic_cast< WModuleRemovedEvent* >( event );     // NOLINT
+        WModuleRemovedEvent* e = dynamic_cast< WModuleRemovedEvent* >( event );
         if ( !e )
         {
-            // this should never happen, since the type is set to WQT_Ready_EVENT.
+            // this should never happen, since the type is set to WQT_MODULE_REMOVE_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleRemovedEvent although its type claims it. Ignoring event.",
                                                  "DatasetBrowser", LL_WARNING );
             return true;
@@ -526,29 +530,21 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     WQtBranchTreeItem* branchItem;
 
     m_tiRois->setExpanded( true );
+    bool found = false;
 
-    if ( m_roiTreeWidget->selectedItems().count() != 0 )
+    // go through all branches
+    for( int branchID = 0; branchID < m_tiRois->childCount(); ++branchID )
     {
-        switch ( m_roiTreeWidget->selectedItems().at( 0 )->type() )
+        branchItem = dynamic_cast< WQtBranchTreeItem* >( m_tiRois->child( branchID ) );
+        // if branch == roi branch
+        if ( branchItem->getBranch() == roi->getBranch() )
         {
-            case ROI :
-            {
-                branchItem =( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 )->parent() ) );
-                break;
-            }
-            case ROIBRANCH :
-            {
-                branchItem =( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) );
-                break;
-            }
-            default:
-            {
-                branchItem = m_tiRois->addBranch( roi->getBranch() );
-                break;
-            }
+            found = true;
+            break;
         }
     }
-    else
+
+    if ( !found )
     {
         branchItem = m_tiRois->addBranch( roi->getBranch() );
     }
@@ -558,6 +554,7 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     newItem = branchItem->addRoiItem( roi );
     newItem->setDisabled( false );
     newItem->setSelected( true );
+    WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
 }
 
 void WQtDatasetBrowser::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi )
@@ -581,6 +578,7 @@ void WQtDatasetBrowser::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi
             }
         }
     }
+    WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
 }
 
 boost::shared_ptr< WModule > WQtDatasetBrowser::getSelectedModule()
@@ -727,18 +725,20 @@ void WQtDatasetBrowser::selectRoiTreeItem()
             case MODULEHEADER:
             case MODULE:
             case ROIHEADER:
+                WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
                 break;
             case ROIBRANCH:
                 props = ( static_cast< WQtBranchTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getBranch()->getProperties();
+                WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
                 break;
             case ROI:
                 props = ( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi()->getProperties();
+                WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
                 break;
             default:
                 break;
         }
     }
-    WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
     buildPropTab( props, boost::shared_ptr< WProperties >() );
 }
 

@@ -34,6 +34,7 @@
 #include "WValueSet.h"
 
 #include "WDataSet.h"
+#include "WExportDataHandler.h"
 
 class WDataTexture3D;
 
@@ -41,10 +42,9 @@ class WDataTexture3D;
  * A data set consisting of a set of values based on a grid.
  * \ingroup dataHandler
  */
-class WDataSetSingle : public WDataSet
+class OWDATAHANDLER_EXPORT WDataSetSingle : public WDataSet // NOLINT
 {
 public:
-
     /**
      * Constructs an instance out of a value set and a grid.
      *

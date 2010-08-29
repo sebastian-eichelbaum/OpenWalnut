@@ -39,10 +39,12 @@
 #include "WMSuperquadricGlyphs.h"
 #include "superquadricglyphs.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMSuperquadricGlyphs )
+
 WMSuperquadricGlyphs::WMSuperquadricGlyphs():
     WModule()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "gpuSuperQuadrics" ) );
     m_output = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
 }
 
@@ -91,9 +93,9 @@ void WMSuperquadricGlyphs::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // The slice positions. These get update externally
-    m_xPos           = m_properties->addProperty( "Sagittal Position", "Slice X position.", 80, m_propCondition );
-    m_yPos           = m_properties->addProperty( "Coronal Position", "Slice Y position.", 100, m_propCondition );
-    m_zPos           = m_properties->addProperty( "Axial Position", "Slice Z position.", 80, m_propCondition );
+    m_xPos           = m_properties->addProperty( "Sagittal position", "Slice X position.", 80, m_propCondition );
+    m_yPos           = m_properties->addProperty( "Coronal position", "Slice Y position.", 100, m_propCondition );
+    m_zPos           = m_properties->addProperty( "Axial position", "Slice Z position.", 80, m_propCondition );
     m_xPos->setMin( 0 );
     m_xPos->setMax( 159 );
     m_yPos->setMin( 0 );
@@ -102,16 +104,16 @@ void WMSuperquadricGlyphs::properties()
     m_zPos->setMax( 159 );
 
     // Flags denoting whether the glyphs should be shown on the specific slice
-    m_showonX        = m_properties->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true, m_propCondition );
-    m_showonY        = m_properties->addProperty( "Show Coronal", "Show vectors on coronal slice.", true, m_propCondition );
-    m_showonZ        = m_properties->addProperty( "Show Axial", "Show vectors on axial slice.", true, m_propCondition );
+    m_showonX        = m_properties->addProperty( "Show sagittal", "Show vectors on sagittal slice.", true, m_propCondition );
+    m_showonY        = m_properties->addProperty( "Show coronal", "Show vectors on coronal slice.", true, m_propCondition );
+    m_showonZ        = m_properties->addProperty( "Show axial", "Show vectors on axial slice.", true, m_propCondition );
 
     // Thresholding for filtering glyphs
-    m_evThreshold = m_properties->addProperty( "Eigenvalue Threshold",
+    m_evThreshold = m_properties->addProperty( "Eigenvalue threshold",
                                                "Clip Glyphs whose smallest eigenvalue is below the given threshold.", 0.01 );
     m_evThreshold->setMin( 0.0 );
     m_evThreshold->setMax( 1.0 );
-    m_faThreshold = m_properties->addProperty( "FA Threshold",
+    m_faThreshold = m_properties->addProperty( "FA threshold",
                                                "Clip Glyphs whose fractional anisotropy is below the given threshold.", 0.01 );
     m_faThreshold->setMin( 0.0 );
     m_faThreshold->setMax( 1.0 );
@@ -124,7 +126,7 @@ void WMSuperquadricGlyphs::properties()
     m_scaling->setMin( 0.0 );
     m_scaling->setMax( 2.0 );
 
-    m_unifyEV = m_properties->addProperty( "Unify Eigenvalues", "Unify the eigenvalues?.", false );
+    m_unifyEV = m_properties->addProperty( "Unify eigenvalues", "Unify the eigenvalues?.", false );
 }
 
 inline void WMSuperquadricGlyphs::addGlyph( osg::Vec3 position, osg::ref_ptr< osg::Vec3Array > vertices, osg::ref_ptr< osg::Vec3Array > orientation )
@@ -399,11 +401,12 @@ void WMSuperquadricGlyphs::moduleMain()
     ready();
 
     // create all these geodes we need
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
     osg::ref_ptr< osg::StateSet > sset = m_output->getOrCreateStateSet();
     sset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
 
     // add shader
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMSuperquadricGlyphs", m_localPath ) );
     m_shader->apply( m_output );
 
     // set uniform callbacks and uniforms

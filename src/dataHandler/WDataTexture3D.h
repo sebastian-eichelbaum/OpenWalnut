@@ -32,9 +32,11 @@
 
 #include <osg/Texture3D>
 
+#include "../common/WProperties.h"
 #include "WDataHandlerEnums.h"
 #include "WValueSetBase.h"
 #include "WGridRegular3D.h"
+#include "WExportDataHandler.h"
 
 class WCondition;
 
@@ -44,7 +46,7 @@ class WCondition;
  * scaled from [min,max] to [0,1]. The values min and max can be retrieved by getMinValue and getMaxValue. Your shader should get them as
  * uniforms to unscale the texture to have the real value.
  */
-class WDataTexture3D
+class OWDATAHANDLER_EXPORT WDataTexture3D // NOLINT
 {
 public:
     /**
@@ -183,7 +185,34 @@ public:
      */
     void setSelectedColormap( int cmap );
 
+    /**
+     * Return a pointer to the properties object of the dataset. Add all the modifiable settings here. This allows the user to modify several
+     * properties of a dataset.
+     *
+     * \return the properties.
+     */
+    boost::shared_ptr< WProperties > getProperties() const;
+
+    /**
+     * Return a pointer to the information properties object of the dataset. The dataset intends these properties to not be modified.
+     *
+     * \return the properties.
+     */
+    boost::shared_ptr< WProperties > getInformationProperties() const;
+
 protected:
+
+    /**
+     * The property object for the dataset.
+     */
+    boost::shared_ptr< WProperties > m_properties;
+
+    /**
+     * The property object for the dataset containing only props whose purpose is "PV_PURPOSE_INFORMNATION". It is useful to define some property
+     * to only be of informational nature. The GUI does not modify them. As it is a WProperties instance, you can use it the same way as
+     * m_properties.
+     */
+    boost::shared_ptr< WProperties > m_infoProperties;
 
     /**
      * Creates a 3d texture from a dataset. This function will be overloaded for the
@@ -206,6 +235,18 @@ protected:
      * \param components Number of values used in a Voxel, usually 1, 3 or 4
      */
     osg::ref_ptr< osg::Image > createTexture3D( int16_t* source, int components = 1 );
+
+    /**
+     * Creates a 3d texture from a dataset. This function will be overloaded for the
+     * various data types. A template function is not recommended due to the different commands
+     * in the image creation.
+     *
+     *
+     * \param source Pointer to the raw data of a dataset
+     * \param components Number of values used in a Voxel, usually 1, 3 or 4
+     */
+    osg::ref_ptr< osg::Image > createTexture3D( int* source, int components = 1 );
+
 
     /**
      * Creates a 3d texture from a dataset. This function will be overloaded for the
@@ -288,38 +329,6 @@ protected:
      * indicates which colormap to use
      */
     int m_cmap;
-
-    /**
-     * This method finds the minimum and maximum value of a dataset. These values get used to scale the texture to use the maximum precision.
-     *
-     * \param source the data
-     * \param components the number of components
-     */
-    virtual void findMinMax( float* source, int components );
-
-    /**
-     * This method finds the minimum and maximum value of a dataset. These values get used to scale the texture to use the maximum precision.
-     *
-     * \param source the data
-     * \param components the number of components
-     */
-    virtual void findMinMax( double* source, int components );
-
-    /**
-     * This method finds the minimum and maximum value of a dataset. These values get used to scale the texture to use the maximum precision.
-     *
-     * \param source the data
-     * \param components the number of components
-     */
-    virtual void findMinMax( unsigned char* source, int components );
-
-    /**
-     * This method finds the minimum and maximum value of a dataset. These values get used to scale the texture to use the maximum precision.
-     *
-     * \param source the data
-     * \param components the number of components
-     */
-    virtual void findMinMax( int16_t* source, int components );
 
     /**
      * The smallest value inside the dataset

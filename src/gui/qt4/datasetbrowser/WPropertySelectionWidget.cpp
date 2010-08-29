@@ -74,25 +74,7 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
     // Lists are used if the selection of multiple elements is allowed
     if ( m_selectionProperty->countConstraint( PC_SELECTONLYONE ) != 0 )
     {
-        // TODO(all): how to show the icon inside a combobox?
         m_combo = new QComboBox( &m_parameterWidgets );
-
-        // add all items from the selection set:
-        WItemSelector s = m_selectionProperty->get();
-        for ( size_t i = 0; i < s.sizeAll(); ++i )
-        {
-            m_combo->addItem( QString::fromStdString( s.atAll( i ).name ) );
-            // if there is an icon -> show it
-            if ( s.atAll( i ).icon )
-            {
-                // scale the pixmap to a maximum size if larger
-                QPixmap pix = ensureSize( QPixmap( s.atAll( i ).icon ) );
-
-                // set icon
-                m_combo->setItemIcon( i, QIcon( pix ) );
-                m_combo->setIconSize( QSize( pix.width(), pix.height() ) );
-            }
-        }
 
         // layout
         m_layout.addWidget( m_combo, 0, 0 );
@@ -104,46 +86,6 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
     {
         m_list = new QListWidget( &m_parameterWidgets );
         m_list->setSelectionMode( QAbstractItemView::ExtendedSelection );
-
-        // add all items from the selection set:
-        WItemSelector s = m_selectionProperty->get();
-        for ( size_t i = 0; i < s.sizeAll(); ++i )
-        {
-            // Create a custom widget which contains the name and description
-            QWidget* widget = new QWidget( m_list );
-            QGridLayout* layoutWidget = new QGridLayout();
-
-            int column = 0;
-            // if there is an icon -> show it
-            if ( s.atAll( i ).icon )
-            {
-                QLabel* icon = new QLabel();
-                QSizePolicy sizePolicy( QSizePolicy::Maximum, QSizePolicy::Preferred ); // <-- scale it down
-                icon->setSizePolicy( sizePolicy );
-                icon->setPixmap( ensureSize( QPixmap( s.atAll( i ).icon ) ) );
-                layoutWidget->addWidget( icon, 0, 0, 2, 1 );
-
-                ++column;
-            }
-
-            // Add Name and Description
-            layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( s.atAll( i ).name )+ "</b>" ), 0, column );
-            // if there is no description -> no widget added to save space
-            if ( !s.atAll( i ).description.empty() )
-            {
-                layoutWidget->addWidget(  new QLabel( QString::fromStdString( s.atAll( i ).description ) ), 1, column );
-            }
-
-            layoutWidget->setSizeConstraint( QLayout::SetMaximumSize );
-            widget->setLayout( layoutWidget );
-
-            // add Item
-            QListWidgetItem* item = new QListWidgetItem();
-            item->setSizeHint( widget->sizeHint() );
-            m_list->addItem( item );
-            m_list->setItemWidget( item, widget );
-            m_list->setMinimumHeight( 150 );
-        }
 
         // layout
         m_layout.addWidget( m_list, 0, 0 );
@@ -192,30 +134,103 @@ void WPropertySelectionWidget::update()
 
     WItemSelector s = m_selectionProperty->get();
 
+    // we need to read-lock the whole selection to ensure that the underlying selection can't be changed while creating the items
+    s.lock();
+    // we also need to check whether the selector is valid. Only valid selectors are allowed to use. You can check validity by calling
+    // WItemSelector::isValid. The simpler way is to get a new selector directly as selectors in properties are always valid (due to the
+    // WPropertyConstraintIsValid - constraint).
+    // NOTE: do NOT overwrite the current selector in "s" as it keeps the lock.
+    WItemSelector sValid = m_selectionProperty->get();
+
     //apply selection
     if ( m_combo )
     {
+        disconnect( m_combo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( comboSelectionChanged( int ) ) );
+
+        m_combo->clear();
+
+        // add all items from the selection set:
+        for ( size_t i = 0; i < sValid.sizeAll(); ++i )
+        {
+            m_combo->addItem( QString::fromStdString( sValid.atAll( i )->getName() ) );
+            // if there is an icon -> show it
+            if ( sValid.atAll( i )->getIcon() )
+            {
+                // scale the pixmap to a maximum size if larger
+                QPixmap pix = ensureSize( QPixmap( sValid.atAll( i )->getIcon() ) );
+
+                // set icon
+                m_combo->setItemIcon( i, QIcon( pix ) );
+                m_combo->setIconSize( QSize( pix.width(), pix.height() ) );
+            }
+        }
+
         // mark the currently selected item. Just take care that there might be no item selected.
-        if ( s.size() == 0 )
+        if ( sValid.size() == 0 )
         {
             m_combo->setCurrentIndex( -1 );
         }
         else
         {
             // as there is the SELECTONLYONE constraint -> if something is selected, it always is the first one
-            m_combo->setCurrentIndex( s.getItemIndexOfSelected( 0 ) );
+            m_combo->setCurrentIndex( sValid.getItemIndexOfSelected( 0 ) );
         }
+
+        connect( m_combo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( comboSelectionChanged( int ) ) );
     }
     else
     {
+        disconnect( m_list, SIGNAL( itemSelectionChanged() ), this, SLOT( listSelectionChanged() ) );
+
         m_list->clearSelection();
+        m_list->clear();
+
+        // add all items from the selection set:
+        for ( size_t i = 0; i < sValid.sizeAll(); ++i )
+        {
+            // Create a custom widget which contains the name and description
+            QWidget* widget = new QWidget( m_list );
+            QGridLayout* layoutWidget = new QGridLayout();
+
+            int column = 0;
+            // if there is an icon -> show it
+            if ( sValid.atAll( i )->getIcon() )
+            {
+                QLabel* icon = new QLabel();
+                QSizePolicy sizePolicy( QSizePolicy::Maximum, QSizePolicy::Preferred ); // <-- scale it down
+                icon->setSizePolicy( sizePolicy );
+                icon->setPixmap( ensureSize( QPixmap( sValid.atAll( i )->getIcon() ) ) );
+                layoutWidget->addWidget( icon, 0, 0, 2, 1 );
+
+                ++column;
+            }
+
+            // Add Name and Description
+            layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( sValid.atAll( i )->getName() )+ "</b>" ), 0, column );
+            // if there is no description -> no widget added to save space
+            if ( !sValid.atAll( i )->getDescription().empty() )
+            {
+                layoutWidget->addWidget(  new QLabel( QString::fromStdString( sValid.atAll( i )->getDescription() ) ), 1, column );
+            }
+
+            layoutWidget->setSizeConstraint( QLayout::SetMaximumSize );
+            widget->setLayout( layoutWidget );
+
+            // add Item
+            QListWidgetItem* item = new QListWidgetItem();
+            item->setSizeHint( widget->sizeHint() );
+            m_list->addItem( item );
+            m_list->setItemWidget( item, widget );
+            m_list->setMinimumHeight( 150 );
+        }
 
         // select all items
-        WItemSelector s = m_selectionProperty->get();
-        for ( size_t i = 0; i < s.size(); ++i )
+        for ( size_t i = 0; i < sValid.size(); ++i )
         {
-            m_list->item( s.getItemIndexOfSelected( i ) )->setSelected( true );
+            m_list->item( sValid.getItemIndexOfSelected( i ) )->setSelected( true );
         }
+
+        connect( m_list, SIGNAL( itemSelectionChanged() ), this, SLOT( listSelectionChanged() ) );
     }
 
     m_update = false;

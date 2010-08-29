@@ -32,11 +32,12 @@
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
 #include "../WGridRegular3D.h"
+#include "../WExportDataHandler.h"
 
 /**
  * Represents a plane with a normal vector and a position in space.
  */
-class WPlane
+class OWDATAHANDLER_EXPORT WPlane // NOLINT
 {
 public:
     /**

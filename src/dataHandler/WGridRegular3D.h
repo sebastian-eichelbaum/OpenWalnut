@@ -36,14 +36,17 @@
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
 #include "WGrid.h"
+#include "WExportDataHandler.h"
 
 /**
  * A grid that has parallelepiped cells which all have the same proportion. I.e.
  * the samples along a single axis are equidistant. The distance of samples may
  * vary between axes.
+ *
+ * \warning Positions on the upper bounddaries in x, y and z are considered outside the grid.
  * \ingroup dataHandler
  */
-class WGridRegular3D : public WGrid
+class OWDATAHANDLER_EXPORT WGridRegular3D : public WGrid // NOLINT
 {
     /**
      * Only test are allowed as friends.
@@ -93,6 +96,29 @@ public:
                    unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                    const wmath::WMatrix< double >& mat,
                    double offsetX, double offsetY, double offsetZ );
+
+    /**
+     * Defines the number of samples in each coordinate direction as ints,
+     * and the position of the origin of the grid and the offset between the
+     * samples in the different coordinate directions as one 4x4 transformation
+     * matrix using homogeneous coordinates (but only affine transformations are
+     * allowed).
+     * \param nbPosX number of positions along first axis
+     * \param nbPosY number of positions along second axis
+     * \param nbPosZ number of positions along third axis
+     * \param qFormMat 4x4 transformation matrix using homogeneous coordinates
+     * \param sFormMat 4x4 transformation matrix using homogeneous coordinates
+     * \param offsetX distance of samples along first axis
+     * \param offsetY distance of samples along second axis
+     * \param offsetZ distance of samples along third axis
+     */
+    WGridRegular3D(
+                   unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                   const wmath::WMatrix< double >& qFormMat,
+                   const wmath::WMatrix< double >& sFormMat,
+                   double offsetX, double offsetY, double offsetZ );
+
+
 
     /**
      * Defines the position of the origin of the grid, the number of
@@ -252,7 +278,7 @@ public:
        \endverbatim
      *
      * Please note the first voxel has only 1/8 of the size a normal voxel
-     * would have since all positions outside the grid does not belonging
+     * would have since all positions outside the grid do not belong
      * to any voxel. Note: a cell is different to a voxel in terms of position.
      * A voxel has a grid point as center whereas a cell has grid points as
      * corners.
@@ -262,6 +288,18 @@ public:
      * the grid.
      */
     int getVoxelNum( const wmath::WPosition& pos ) const;
+
+    /**
+     * returns the voxel index for a given discrete position in the grid
+     *
+     * \param x Position for which we want to have the voxel number.
+     * \param y Position for which we want to have the voxel number.
+     * \param z Position for which we want to have the voxel number.
+     *
+     * \return Voxel number or -1 if the position refers to a point outside of
+     * the grid.
+     */
+    int getVoxelNum( const size_t x, const size_t y, const size_t z ) const;
 
     /**
      * Computes the X coordinate of that voxel that contains the
@@ -313,11 +351,13 @@ public:
     wmath::WValue< int > getVoxelCoord( const wmath::WPosition& pos ) const;
 
     /**
-     * Computes the id of the cell containing the position pos.
+     * Computes the id of the cell containing the position pos. Note that the upper
+     * bound of the grid does not belong to any cell
      *
      * \param pos The position selecting the cell.
+     * \param success True if the position pos is inside the grid.
      */
-    size_t getCellId( const wmath::WPosition& pos ) const;
+    size_t getCellId( const wmath::WPosition& pos, bool* success ) const;
 
     /**
      * Computes the ids of the vertices of a cell given by its id.
@@ -380,6 +420,50 @@ public:
     std::vector< size_t > getNeighbours( size_t id ) const;
 
     /**
+     * Return the list of all neighbour voxels.
+     *
+     * \throw WOutOfBounds If the voxel id is outside of the grid.
+     *
+     * \param id Number of the voxel for which the neighbours should be computed
+     *
+     * \return Vector of voxel ids which are all neighboured
+     */
+    std::vector< size_t > getNeighbours27( size_t id ) const;
+
+    /**
+     * Return the list of all neighbour voxels.
+     *
+     * \throw WOutOfBounds If the voxel id is outside of the grid.
+     *
+     * \param id Number of the voxel for which the neighbours should be computed
+     *
+     * \return Vector of voxel ids which are all neighboured along the XY plane
+     */
+    std::vector< size_t > getNeighbours9XY( size_t id ) const;
+
+    /**
+     * Return the list of all neighbour voxels.
+     *
+     * \throw WOutOfBounds If the voxel id is outside of the grid.
+     *
+     * \param id Number of the voxel for which the neighbours should be computed
+     *
+     * \return Vector of voxel ids which are all neighboured along the YZ plane
+     */
+    std::vector< size_t > getNeighbours9YZ( size_t id ) const;
+
+    /**
+     * Return the list of all neighbour voxels.
+     *
+     * \throw WOutOfBounds If the voxel id is outside of the grid.
+     *
+     * \param id Number of the voxel for which the neighbours should be computed
+     *
+     * \return Vector of voxel ids which are all neighboured along the XZ plane
+     */
+    std::vector< size_t > getNeighbours9XZ( size_t id ) const;
+
+    /**
      * Decides whether a certain position is inside this grid or not.
      *
      * \param pos Position to test
@@ -413,6 +497,20 @@ public:
      * \param rot the angles for each axis
      */
     void rotate( wmath::WPosition rot );
+
+    /**
+     * sets the active matrix
+     *
+     * \param matrix which matrix to use
+     */
+    void setActiveMatrix( int matrix );
+
+    /**
+     * gets the active matrix
+     *
+     * \return matrix in use
+     */
+    int getActiveMatrix();
 
 protected:
 
@@ -449,6 +547,10 @@ private:
     double m_offsetY; //!< Offset between samples along y axis
     double m_offsetZ; //!< Offset between samples along z axis
 
+    double m_offsetXorig; //!< Offset between samples along x axis, stores the original value for manipulation
+    double m_offsetYorig; //!< Offset between samples along y axis, stores the original value for manipulation
+    double m_offsetZorig; //!< Offset between samples along z axis, stores the original value for manipulation
+
     /**
      * Matrix storing the transformation of the grid. This is redundant.
      * Please use m_origin and m_direction? for all normal computations.
@@ -458,16 +560,31 @@ private:
      */
     wmath::WMatrix<double> m_matrix;
 
-    /**
-     * Matrix storing the transformation of the grid. This is redundant.
-     * Please use m_origin and m_direction? for all normal computations.
-     * Use matrix only where you really need a matrix for multiplication.
-     *
-     * This matrix is used to store the initial value
-     */
-    wmath::WMatrix<double> m_matrixOrig;
-
     wmath::WMatrix<double> m_matrixInverse; //!< Inverse of m_matrix
+
+    /**
+     * Matrix storing the original stretch and translation
+     */
+    wmath::WMatrix<double> m_matrixNoMatrix;
+
+    /**
+     * Matrix storing the original qform matrix from the niftii file header
+     */
+    wmath::WMatrix<double> m_matrixQForm;
+
+    /**
+     * Matrix storing the original sform matrix from the niftii file header
+     */
+    wmath::WMatrix<double> m_matrixSForm;
+
+    /**
+     * indicates which transformation matrix is used
+     *
+     * 0 = no matrix, just stretch and translation
+     * 1 = matrix 0, usually the qform matrix
+     * 2 = matrix 1, usually the sform matrix
+     */
+    int m_matrixActive;
 
     wmath::WPosition m_translate; //!< stores the translation vector
 

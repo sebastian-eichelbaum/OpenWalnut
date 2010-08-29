@@ -34,7 +34,7 @@ namespace wmath
  * The access function are row-major, which means that the rows
  * are the first parameter or index.
  */
-template< typename T > class WMatrix : WValue< T >
+template< typename T > class WMatrix : public WValue< T >
 {
 public:
     /**

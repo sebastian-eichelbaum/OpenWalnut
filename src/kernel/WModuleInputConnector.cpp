@@ -22,7 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
 #include <string>
 
 #include "WModule.h"
@@ -32,7 +31,8 @@
 #include "WModuleInputConnector.h"
 
 WModuleInputConnector::WModuleInputConnector( boost::shared_ptr< WModule > module, std::string name, std::string description ):
-    WModuleConnector( module, name, description )
+    WModuleConnector( module, name, description ),
+    m_updated( false )
 {
     // initialize members
 
@@ -95,6 +95,8 @@ boost::signals2::connection WModuleInputConnector::subscribeSignal( MODULE_CONNE
 void WModuleInputConnector::notifyDataChange( boost::shared_ptr<WModuleConnector> /*input*/,
                                               boost::shared_ptr<WModuleConnector> output )
 {
+    setUpdated();
+
     // since the output connector is not able to fill the parameter "input" we need to forward this message and fill it with the
     // proper information
     signal_DataChanged( shared_from_this(), output );
@@ -126,3 +128,24 @@ bool WModuleInputConnector::isOutputConnector() const
 {
     return false;
 }
+
+bool WModuleInputConnector::updated()
+{
+    boost::lock_guard<boost::shared_mutex> lock( m_updatedLock );
+    return m_updated;
+}
+
+void WModuleInputConnector::setUpdated()
+{
+    boost::lock_guard<boost::shared_mutex> lock( m_updatedLock );
+    m_updated = true;
+}
+
+bool WModuleInputConnector::handledUpdate()
+{
+    boost::lock_guard<boost::shared_mutex> lock( m_updatedLock );
+    bool old = m_updated;
+    m_updated = false;
+    return old;
+}
+

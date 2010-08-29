@@ -37,7 +37,7 @@
 
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../graphicsEngine/WROI.h"
-#include "../../../modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
 #include "../WQtCombinerToolbar.h"
 #include "WQtDSBWidget.h"
 #include "WQtModuleHeaderTreeItem.h"

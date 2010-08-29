@@ -35,11 +35,12 @@
 #include "../common/WAssert.h"
 #include "../common/WColor.h"
 #include "../common/WTransferable.h"
+#include "WExportWGE.h"
 
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.
  */
-class WTriangleMesh2  : public WTransferable
+class WGE_EXPORT WTriangleMesh2  : public WTransferable
 {
 public:
     /**
@@ -523,20 +524,20 @@ private:
 
     bool m_neighborsCalculated; //!< flag indicating whether the neighbor information has been calculated yet
 
-    osg::ref_ptr< osg::Vec3Array >m_verts; //!< array containing the vertexes
+    osg::ref_ptr< osg::Vec3Array > m_verts; //!< array containing the vertices
 
-    osg::ref_ptr< osg::Vec3Array >m_vertNormals; //!< array containing the vertex normals
+    osg::ref_ptr< osg::Vec3Array > m_vertNormals; //!< array containing the vertex normals
 
-    osg::ref_ptr< osg::Vec4Array >m_vertColors; //!< array containing vertex colors
+    osg::ref_ptr< osg::Vec4Array > m_vertColors; //!< array containing vertex colors
 
-    std::vector< size_t >m_triangles; //!< array containing the triangles
+    std::vector< size_t > m_triangles; //!< array containing the triangles
 
-    osg::ref_ptr< osg::Vec3Array >m_triangleNormals; //!< array containing the triangle normals
+    osg::ref_ptr< osg::Vec3Array > m_triangleNormals; //!< array containing the triangle normals
 
-    osg::ref_ptr< osg::Vec4Array >m_triangleColors; //!< array containing the triangle colors
+    osg::ref_ptr< osg::Vec4Array > m_triangleColors; //!< array containing the triangle colors
 
     // helper structures
-    std::vector < std::vector< size_t > >m_vertexIsInTriangle; //!< for each vertex, list of triangles it is part of
+    std::vector < std::vector< size_t > > m_vertexIsInTriangle; //!< for each vertex, list of triangles it is part of
 
     std::vector< std::vector< size_t > > m_triangleNeighbors; //!< edge neighbors for each triangle
 

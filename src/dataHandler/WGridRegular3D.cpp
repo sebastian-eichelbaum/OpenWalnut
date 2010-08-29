@@ -51,9 +51,15 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetX( offsetX ),
       m_offsetY( offsetY ),
       m_offsetZ( offsetZ ),
+      m_offsetXorig( offsetX ),
+      m_offsetYorig( offsetY ),
+      m_offsetZorig( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixOrig( 4, 4 ),
       m_matrixInverse( 3, 3 ),
+      m_matrixNoMatrix( 4, 4 ),
+      m_matrixQForm( 4, 4 ),
+      m_matrixSForm( 4, 4 ),
+      m_matrixActive( 0 ),
       m_translate( 0, 0, 0 ),
       m_stretch( 1, 1, 1 ),
       m_rotation( 0, 0, 0 )
@@ -72,7 +78,12 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrix( 2, 3 ) = originZ;
 
     m_matrix( 3, 3 ) = 1.;
-    m_matrixOrig = m_matrix;
+    m_matrixNoMatrix = m_matrix;
+    /**
+     * qform and sform matrixes are initialized but will not be used
+     */
+    m_matrixQForm = m_matrix;
+    m_matrixSForm = m_matrix;
 
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
@@ -87,9 +98,15 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetX( offsetX ),
       m_offsetY( offsetY ),
       m_offsetZ( offsetZ ),
+      m_offsetXorig( offsetX ),
+      m_offsetYorig( offsetY ),
+      m_offsetZorig( offsetZ ),
       m_matrix( wmath::WMatrix<double>( mat ) ),
-      m_matrixOrig( 4, 4 ),
       m_matrixInverse( 3, 3 ),
+      m_matrixNoMatrix( 4, 4 ),
+      m_matrixQForm( 4, 4 ),
+      m_matrixSForm( 4, 4 ),
+      m_matrixActive( 1 ),
       m_translate( 0, 0, 0 ),
       m_stretch( 1, 1, 1 ),
       m_rotation( 0, 0, 0 )
@@ -105,11 +122,81 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_directionZ = WVector3D( mat( 0, 2 ) / mat( 3, 3 ), mat( 1, 2 ) / mat( 3, 3 ), mat( 2, 2 ) / mat( 3, 3 ) );
 
     m_matrix = mat;
-    m_matrixOrig = m_matrix;
+
+    /**
+     * both qform and sform are initialized with the given matrix, need to call setActiveMatrix to name the
+     * correct matrix
+     */
+    m_matrixQForm = m_matrix;
+    m_matrixSForm = m_matrix;
 
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+
+    m_matrixNoMatrix.makeIdentity();
+    m_matrixNoMatrix( 0, 0 ) = fabs( offsetX );
+    m_matrixNoMatrix( 1, 1 ) = fabs( offsetY );
+    m_matrixNoMatrix( 2, 2 ) = fabs( offsetZ );
 }
 
+WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                                const WMatrix< double >& qFormMat,
+                                const WMatrix< double >& sFormMat,
+                                double offsetX, double offsetY, double offsetZ )
+    : WGrid( nbPosX * nbPosY * nbPosZ ),
+      m_nbPosX( nbPosX ),
+      m_nbPosY( nbPosY ),
+      m_nbPosZ( nbPosZ ),
+      m_offsetX( offsetX ),
+      m_offsetY( offsetY ),
+      m_offsetZ( offsetZ ),
+      m_offsetXorig( offsetX ),
+      m_offsetYorig( offsetY ),
+      m_offsetZorig( offsetZ ),
+      m_matrix( 4, 4 ),
+      m_matrixInverse( 3, 3 ),
+      m_matrixNoMatrix( 4, 4 ),
+      m_matrixQForm( 4, 4 ),
+      m_matrixSForm( 4, 4 ),
+      m_matrixActive( 1 ),
+      m_translate( 0, 0, 0 ),
+      m_stretch( 1, 1, 1 ),
+      m_rotation( 0, 0, 0 )
+{
+    m_matrixQForm = qFormMat;
+    m_matrixSForm = sFormMat;
+
+    // Check if matrix is completely zero and replace it by identity if so
+    if ( fabs( m_matrixQForm( 0, 0 ) ) + fabs( m_matrixQForm( 0, 1 ) ) + fabs( m_matrixQForm( 0, 2 ) ) + fabs( m_matrixQForm( 0, 3 ) ) +
+         fabs( m_matrixQForm( 1, 0 ) ) + fabs( m_matrixQForm( 1, 1 ) ) + fabs( m_matrixQForm( 1, 2 ) ) + fabs( m_matrixQForm( 1, 3 ) ) +
+         fabs( m_matrixQForm( 2, 0 ) ) + fabs( m_matrixQForm( 2, 1 ) ) + fabs( m_matrixQForm( 2, 2 ) ) + fabs( m_matrixQForm( 2, 3 ) ) +
+         fabs( m_matrixQForm( 3, 0 ) ) + fabs( m_matrixQForm( 3, 1 ) ) + fabs( m_matrixQForm( 3, 2 ) ) + fabs( m_matrixQForm( 3, 3 ) ) == 0 )
+    {
+        m_matrixQForm.makeIdentity();
+    }
+
+    // Check if matrix is completely zero and replace it by identity if so
+    if ( fabs( m_matrixSForm( 0, 0 ) ) + fabs( m_matrixSForm( 0, 1 ) ) + fabs( m_matrixSForm( 0, 2 ) ) + fabs( m_matrixSForm( 0, 3 ) ) +
+         fabs( m_matrixSForm( 1, 0 ) ) + fabs( m_matrixSForm( 1, 1 ) ) + fabs( m_matrixSForm( 1, 2 ) ) + fabs( m_matrixSForm( 1, 3 ) ) +
+         fabs( m_matrixSForm( 2, 0 ) ) + fabs( m_matrixSForm( 2, 1 ) ) + fabs( m_matrixSForm( 2, 2 ) ) + fabs( m_matrixSForm( 2, 3 ) ) +
+         fabs( m_matrixSForm( 3, 0 ) ) + fabs( m_matrixSForm( 3, 1 ) ) + fabs( m_matrixSForm( 3, 2 ) ) + fabs( m_matrixSForm( 3, 3 ) ) == 0 )
+    {
+        m_matrixSForm.makeIdentity();
+    }
+
+    m_matrixNoMatrix.makeIdentity();
+    m_matrixNoMatrix( 0, 0 ) = fabs( m_offsetX );
+    m_matrixNoMatrix( 1, 1 ) = fabs( m_offsetY );
+    m_matrixNoMatrix( 2, 2 ) = fabs( m_offsetZ );
+
+    m_matrix = m_matrixNoMatrix;
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+    m_matrixActive = 0;
+
+    m_directionX = WVector3D( 1, 0, 0 );
+    m_directionY = WVector3D( 0, 1, 0 );
+    m_directionZ = WVector3D( 0, 0, 1 );
+    m_origin = WPosition( 0. , 0. , 0. );
+}
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                                 double originX, double originY, double originZ,
@@ -125,9 +212,15 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetX( offsetX ),
       m_offsetY( offsetY ),
       m_offsetZ( offsetZ ),
+      m_offsetXorig( offsetX ),
+      m_offsetYorig( offsetY ),
+      m_offsetZorig( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixOrig( 4, 4 ),
       m_matrixInverse( 3, 3 ),
+      m_matrixNoMatrix( 4, 4 ),
+      m_matrixQForm( 4, 4 ),
+      m_matrixSForm( 4, 4 ),
+      m_matrixActive( 0 ),
       m_translate( 0, 0, 0 ),
       m_stretch( 1, 1, 1 ),
       m_rotation( 0, 0, 0 )
@@ -140,7 +233,9 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrix( 2, 3 ) = originZ;
 
     m_matrix( 3, 3 ) = 1.;
-    m_matrixOrig = m_matrix;
+    m_matrixNoMatrix = m_matrix;
+    m_matrixQForm = m_matrix;
+    m_matrixSForm = m_matrix;
 
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
@@ -159,9 +254,15 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetX( offsetX ),
       m_offsetY( offsetY ),
       m_offsetZ( offsetZ ),
+      m_offsetXorig( offsetX ),
+      m_offsetYorig( offsetY ),
+      m_offsetZorig( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixOrig( 4, 4 ),
       m_matrixInverse( 3, 3 ),
+      m_matrixNoMatrix( 4, 4 ),
+      m_matrixQForm( 4, 4 ),
+      m_matrixSForm( 4, 4 ),
+      m_matrixActive( 0 ),
       m_translate( 0, 0, 0 ),
       m_stretch( 1, 1, 1 ),
       m_rotation( 0, 0, 0 )
@@ -174,7 +275,9 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrix( 2, 3 ) = origin[2];
 
     m_matrix( 3, 3 ) = 1.;
-    m_matrixOrig = m_matrix;
+    m_matrixNoMatrix = m_matrix;
+    m_matrixQForm = m_matrix;
+    m_matrixSForm = m_matrix;
 
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
@@ -192,9 +295,15 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetX( offsetX ),
       m_offsetY( offsetY ),
       m_offsetZ( offsetZ ),
+      m_offsetXorig( offsetX ),
+      m_offsetYorig( offsetY ),
+      m_offsetZorig( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixOrig( 4, 4 ),
       m_matrixInverse( 3, 3 ),
+      m_matrixNoMatrix( 4, 4 ),
+      m_matrixQForm( 4, 4 ),
+      m_matrixSForm( 4, 4 ),
+      m_matrixActive( 0 ),
       m_translate( 0, 0, 0 ),
       m_stretch( 1, 1, 1 ),
       m_rotation( 0, 0, 0 )
@@ -204,7 +313,9 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrix( 2, 2 ) = offsetZ;
 
     m_matrix( 3, 3 ) = 1.;
-    m_matrixOrig = m_matrix;
+    m_matrixNoMatrix = m_matrix;
+    m_matrixQForm = m_matrix;
+    m_matrixSForm = m_matrix;
 
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
@@ -228,9 +339,16 @@ wmath::WVector3D WGridRegular3D::worldCoordToTexCoord( wmath::WPosition point )
 {
     wmath::WVector3D r( wmath::transformPosition3DWithMatrix4D( m_matrixInverse, point ) );
 
+    // Scale to [0,1]
     r[0] = r[0] / m_nbPosX;
     r[1] = r[1] / m_nbPosY;
     r[2] = r[2] / m_nbPosZ;
+
+    // Correct the coordinates to have the position at the center of the texture voxel.
+    r[0] += 0.5 / m_nbPosX;
+    r[1] += 0.5 / m_nbPosY;
+    r[2] += 0.5 / m_nbPosZ;
+
 
     return r;
 }
@@ -260,6 +378,16 @@ int WGridRegular3D::getVoxelNum( const wmath::WPosition& pos ) const
          + zVoxelCoord * ( m_nbPosX ) * ( m_nbPosY );
 }
 
+int WGridRegular3D::getVoxelNum( const size_t x, const size_t y, const size_t z ) const
+{
+    // since we use size_t here only a check for the upper bounds is needed
+    if ( x > m_nbPosX || y > m_nbPosY || z > m_nbPosZ )
+    {
+        return -1;
+    }
+    return x + y * ( m_nbPosX ) + z * ( m_nbPosX ) * ( m_nbPosY );
+}
+
 int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const
 {
     double result = pos[ axis ] - m_origin[ axis ];
@@ -278,7 +406,7 @@ int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) c
                  break;
         default : WAssert( false, "Invalid axis selected, must be between 0 and 2, including 0 and 2." );
     }
-    if( result < 0 || result > offsetAxis * ( nbAxisPos - 1 ) )
+    if( result < 0 || result >= offsetAxis * ( nbAxisPos - 1 ) )
     {
         return -1;
     }
@@ -330,15 +458,17 @@ bool WGridRegular3D::isNotRotatedOrSheared() const
     return onlyTranslatedOrScaled;
 }
 
-size_t WGridRegular3D::getCellId( const wmath::WPosition& pos ) const
+size_t WGridRegular3D::getCellId( const wmath::WPosition& pos, bool* success ) const
 {
     WAssert( isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
 
     wmath::WPosition posRelativeToOrigin = pos - m_origin;
 
-    size_t xCellId = floor( posRelativeToOrigin[0] / m_offsetX );
-    size_t yCellId = floor( posRelativeToOrigin[1] / m_offsetY );
-    size_t zCellId = floor( posRelativeToOrigin[2] / m_offsetZ );
+    double xCellId = floor( posRelativeToOrigin[0] / m_offsetX );
+    double yCellId = floor( posRelativeToOrigin[1] / m_offsetY );
+    double zCellId = floor( posRelativeToOrigin[2] / m_offsetZ );
+
+    *success = xCellId >= 0 && yCellId >=0 && zCellId >= 0 && xCellId < m_nbPosX - 1 && yCellId < m_nbPosY -1 && zCellId < m_nbPosZ -1;
 
     return xCellId + yCellId * ( m_nbPosX - 1 ) + zCellId * ( m_nbPosX - 1 ) * ( m_nbPosY - 1 );
 }
@@ -427,6 +557,255 @@ std::vector< size_t > WGridRegular3D::getNeighbours( size_t id ) const
     return neighbours;
 }
 
+std::vector< size_t > WGridRegular3D::getNeighbours27( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // for every neighbour we must check if its not on the boundary, it will be skipped otherwise
+    std::vector< int >tempResult;
+
+    tempResult.push_back( getVoxelNum( x    , y    , z ) );
+    tempResult.push_back( getVoxelNum( x    , y - 1, z ) );
+    tempResult.push_back( getVoxelNum( x    , y + 1, z ) );
+    tempResult.push_back( getVoxelNum( x - 1, y    , z ) );
+    tempResult.push_back( getVoxelNum( x - 1, y - 1, z ) );
+    tempResult.push_back( getVoxelNum( x - 1, y + 1, z ) );
+    tempResult.push_back( getVoxelNum( x + 1, y    , z ) );
+    tempResult.push_back( getVoxelNum( x + 1, y - 1, z ) );
+    tempResult.push_back( getVoxelNum( x + 1, y + 1, z ) );
+
+    tempResult.push_back( getVoxelNum( x    , y    , z - 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y - 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y + 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y    , z - 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y - 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y + 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y    , z - 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y - 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y + 1, z - 1 ) );
+
+    tempResult.push_back( getVoxelNum( x    , y    , z + 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y - 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y + 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y    , z + 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y - 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y + 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y    , z + 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y - 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y + 1, z + 1 ) );
+
+    for ( size_t k = 0; k < tempResult.size(); ++k )
+    {
+        if ( tempResult[k] != -1 )
+        {
+            neighbours.push_back( tempResult[k] );
+        }
+    }
+    return neighbours;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours9XY( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // boundary check now happens in the getVoxelNum function
+    int vNum;
+
+    vNum = getVoxelNum( x - 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    return neighbours;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours9YZ( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // boundary check now happens in the getVoxelNum function
+    int vNum;
+
+    vNum = getVoxelNum( x, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+
+    return neighbours;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours9XZ( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // boundary check now happens in the getVoxelNum function
+    int vNum;
+
+    vNum = getVoxelNum( x, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+
+    return neighbours;
+}
+
+
+
 bool WGridRegular3D::encloses( const wmath::WPosition& pos ) const
 {
     return getVoxelNum( pos ) != -1; // note this is an integer comparision, hence it should be numerical stable!
@@ -436,10 +815,10 @@ std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox()
 {
     // Get the transformed corner points of the regular grid
     std::vector< wmath::WPosition > cornerPs;
-    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                0.0,                0.0                ) ) );
-    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, 0.0,                0.0                ) ) );
-    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                getNbCoordsY() - 1, 0.0                ) ) );
-    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, 0.0                ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                0.0,                0.0            ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, 0.0,                0.0            ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                getNbCoordsY() - 1, 0.0            ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, 0.0            ) ) );
     cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                0.0,                getNbCoordsZ() - 1 ) ) );
     cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, 0.0,                getNbCoordsZ() - 1 ) ) );
     cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
@@ -481,7 +860,34 @@ void WGridRegular3D::rotate( wmath::WPosition rot )
 
 void WGridRegular3D::doCustomTransformations()
 {
-    m_matrix = m_matrixOrig;
+    switch ( m_matrixActive )
+    {
+        case 0:
+            m_matrix = m_matrixNoMatrix;
+            break;
+        case 1:
+            m_matrix = m_matrixSForm;
+            break;
+        default:
+            m_matrix = m_matrixQForm;
+            break;
+    }
+
+    m_matrix( 0, 3 ) = m_matrix( 0, 3 ) + m_translate[0];
+    m_matrix( 1, 3 ) = m_matrix( 1, 3 ) + m_translate[1];
+    m_matrix( 2, 3 ) = m_matrix( 2, 3 ) + m_translate[2];
+
+    m_offsetX = m_offsetXorig * m_stretch[0];
+    m_offsetY = m_offsetYorig * m_stretch[1];
+    m_offsetZ = m_offsetZorig * m_stretch[2];
+
+    wmath::WMatrix<double> stretchmat( 4, 4 );
+    stretchmat.makeIdentity();
+    stretchmat( 0, 0 ) = m_stretch[0];
+    stretchmat( 1, 1 ) = m_stretch[1];
+    stretchmat( 2, 2 ) = m_stretch[2];
+
+    m_matrix = m_matrix * stretchmat;
 
     wmath::WMatrix<double> rotmat( 4, 4 );
     rotmat.makeIdentity();
@@ -505,13 +911,46 @@ void WGridRegular3D::doCustomTransformations()
     rotmat( 1, 1 ) = cos( m_rotation[2] );
     m_matrix = m_matrix * rotmat;
 
-    m_matrix( 0, 3 ) = m_matrix( 0, 3 ) + m_translate[0];
-    m_matrix( 1, 3 ) = m_matrix( 1, 3 ) + m_translate[1];
-    m_matrix( 2, 3 ) = m_matrix( 2, 3 ) + m_translate[2];
-
-    m_matrix( 0, 0 ) = m_matrix( 0, 0 ) * m_stretch[0];
-    m_matrix( 1, 1 ) = m_matrix( 1, 1 ) * m_stretch[1];
-    m_matrix( 2, 2 ) = m_matrix( 2, 2 ) * m_stretch[2];
 
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+}
+
+void WGridRegular3D::setActiveMatrix( int matrix )
+{
+    if ( matrix < 0 || matrix > 2 )
+    {
+        matrix = 0;
+    }
+    m_matrixActive = matrix;
+
+    switch ( m_matrixActive )
+    {
+        case 0:
+            m_matrix = m_matrixNoMatrix;
+            break;
+        case 1:
+            m_matrix = m_matrixQForm;
+            //std::cout << "qform" << std::endl;
+            break;
+        case 2:
+            m_matrix = m_matrixSForm;
+            //std::cout << "sform" << std::endl;
+            break;
+    }
+    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+
+    m_directionX = WVector3D( m_matrix( 0, 0 ) / m_matrix( 3, 3 ), m_matrix( 1, 0 ) / m_matrix( 3, 3 ), m_matrix( 2, 0 ) / m_matrix( 3, 3 ) );
+    m_directionY = WVector3D( m_matrix( 0, 1 ) / m_matrix( 3, 3 ), m_matrix( 1, 1 ) / m_matrix( 3, 3 ), m_matrix( 2, 1 ) / m_matrix( 3, 3 ) );
+    m_directionZ = WVector3D( m_matrix( 0, 2 ) / m_matrix( 3, 3 ), m_matrix( 1, 2 ) / m_matrix( 3, 3 ), m_matrix( 2, 2 ) / m_matrix( 3, 3 ) );
+
+    m_origin = WPosition( m_matrix( 0, 3 ) / m_matrix( 3, 3 ),
+                          m_matrix( 1, 3 ) / m_matrix( 3, 3 ),
+                          m_matrix( 2, 3 ) / m_matrix( 3, 3 ) );
+
+    doCustomTransformations();
+}
+
+int WGridRegular3D::getActiveMatrix()
+{
+    return m_matrixActive;
 }

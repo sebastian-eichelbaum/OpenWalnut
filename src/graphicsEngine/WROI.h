@@ -33,13 +33,14 @@
 #include <osg/Geode>
 
 #include "../common/WColor.h"
+#include "WExportWGE.h"
 
 class WPickHandler;
 
 /**
  * Superclass for different ROI (region of interest) types.
  */
-class WROI : public osg::Geode
+class WGE_EXPORT WROI : public osg::Geode
 {
 public:
     WROI();
@@ -83,6 +84,16 @@ public:
      * \param active
      */
     void setActive( bool active );
+
+    /**
+     * hides the roi in the scene
+     */
+    void hide();
+
+    /**
+     * unhides the roi in the scene
+     */
+    void unhide();
 
     /**
      * Getter for modified flag

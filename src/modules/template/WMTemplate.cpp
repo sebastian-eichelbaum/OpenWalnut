@@ -31,10 +31,10 @@
 //   * think about a name for your module
 //   * rename the files from WMTemplate.cpp and WMTemplate.h to WMYourModuleName.cpp and WMYourModuleName.h
 //   * rename the class inside these files to WMYourModuleName
+//   * rename the class inside "W_LOADABLE_MODULE" to WMYourModuleName
 //   * change WMYourModuleName::getName() to a unique name, like "Your Module Name"
-//   * add a new prototype of your module to src/kernel/WModuleFactory.cpp -> search for m_prototypes.insert
+//   * add a your module to src/modules/CMakeLists.txt
 //     * analogously to the other modules, add yours
-//     * Note: this step will be automated in some time
 //   * run CMake and compile
 //   * read the documentation in this module and modify it to your needs
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,6 +60,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../common/WColor.h"
+#include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/WGEUtils.h"
 
@@ -68,6 +69,9 @@
 #include "icons/wurst.xpm"
 #include "icons/steak.xpm"
 #include "WMTemplate.h"
+
+// This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
+W_LOADABLE_MODULE( WMTemplate )
 
 WMTemplate::WMTemplate():
     WModule()
@@ -177,7 +181,7 @@ void WMTemplate::connectors()
     // As above: make it known.
     addConnector( m_output );
 
-    // call WModules initialization
+    // call WModule's initialization
     WModule::connectors();
 }
 
@@ -193,17 +197,17 @@ void WMTemplate::properties()
     // world. As with connectors, a property which not has been added to m_properties is not visible for others. Now, how to add a new property?
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_aTrigger         = m_properties->addProperty( "Do It Now!",               "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY,
+    m_aTrigger         = m_properties->addProperty( "Do it now!",               "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY,
                                                     m_propCondition );
 
-    m_enableFeature    = m_properties->addProperty( "Enable Feature",           "Description.", true );
-    m_anInteger        = m_properties->addProperty( "Number of Shape Rows",     "Number of shape rows.", 10, m_propCondition );
-    m_anIntegerClone   = m_properties->addProperty( "CLONE!Number of Shape Rows",
+    m_enableFeature    = m_properties->addProperty( "Enable feature",           "Description.", true );
+    m_anInteger        = m_properties->addProperty( "Number of shape rows",     "Number of shape rows.", 10, m_propCondition );
+    m_anIntegerClone   = m_properties->addProperty( "CLONE!Number of shape rows",
                                                     "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
-    m_aDouble          = m_properties->addProperty( "Shape Radii",              "Shape radii.", 20.0, m_propCondition );
-    m_aString          = m_properties->addProperty( "A String",                 "Something.", std::string( "hello" ), m_propCondition );
-    m_aFile            = m_properties->addProperty( "A Filenname",              "Description.", WKernel::getAppPathObject(), m_propCondition );
-    m_aColor           = m_properties->addProperty( "A Color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
+    m_aDouble          = m_properties->addProperty( "Shape radii",              "Shape radii.", 20.0, m_propCondition );
+    m_aString          = m_properties->addProperty( "A string",                 "Something.", std::string( "hello" ), m_propCondition );
+    m_aFile            = m_properties->addProperty( "A filenname",              "Description.", WPathHelper::getAppPath(), m_propCondition );
+    m_aColor           = m_properties->addProperty( "A color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
     m_aPosition        = m_properties->addProperty( "Somewhere",                "Description.", wmath::WPosition( 0.0, 0.0, 0.0 ) );
 
     // These lines create some new properties and add them to the property list of this module. The specific type to create is determined by the
@@ -226,8 +230,8 @@ void WMTemplate::properties()
     // is simply ugly. Therefore, properties of type WPropSelection are available. First you need to define a list of alternatives:
     m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_possibleSelections->addItem( "Beer", "Cold and fresh.", template_bier_xpm );          // NOTE: you can add XPM images here.
-    m_possibleSelections->addItem( "Steaks", "Medium please",  template_steak_xpm );
-    m_possibleSelections->addItem( "Sausages", "With Sauerkraut", template_wurst_xpm );
+    m_possibleSelections->addItem( "Steaks", "Medium please.",  template_steak_xpm );
+    m_possibleSelections->addItem( "Sausages", "With Sauerkraut.", template_wurst_xpm );
 
     // This list of alternatives is NOT the actual property value. It is the list on which so called "WItemSelector" instances work. These
     // selectors are the actual property. After you created the first selector instance from the list, it can't be modified anymore. This ensures
@@ -241,9 +245,9 @@ void WMTemplate::properties()
     // Adding a lot of properties might confuse the user. Using WPropGroup, you have the possibility to group your properties together. A
     // WPropGroup needs a name and can provide a description. As with properties, the name should not contain any "/" and must be unique.
 
-    m_group1        = m_properties->addPropertyGroup( "Group 1",  "A nice group for grouping stuff." );
+    m_group1        = m_properties->addPropertyGroup( "First Group",  "A nice group for grouping stuff." );
     m_group1a       = m_group1->addPropertyGroup(     "Group 1a", "A group nested into \"Group 1\"." );
-    m_group2        = m_properties->addPropertyGroup( "Group 2",  "Another nice group for grouping stuff." );
+    m_group2        = m_properties->addPropertyGroup( "Second Group",  "Another nice group for grouping stuff." );
 
     // To understand how the groups can be used, you should consider that m_properties itself is a WPropGroup! This means, you can use your newly
     // created groups exactly in the same way as you would use m_properties.
@@ -298,7 +302,7 @@ void WMTemplate::properties()
     // special properties serve another purpose. They are used for information output. Your module already provides another property list only
     // for these kind of properties. m_infoProperties can be used in the same way as m_properties. The only difference is that each property and
     // property group added here can't be modified from the outside world. Here is an example:
-    m_aIntegerOutput = m_infoProperties->addProperty( "Run Count", "Number of run cycles the module made so far.", 0 );
+    m_aIntegerOutput = m_infoProperties->addProperty( "Run count", "Number of run cycles the module made so far.", 0 );
     // Later on, we will use this property to provide the number of run cycles to the user.
     // In more detail, the purpose type of the property gets set to PV_PURPOSE_INFORMATION automatically by m_infoProperties. You can, of course,
     // add information properties to your custom groups or m_properties too. There, you need to set the purpose flag of the property manually:
@@ -306,7 +310,7 @@ void WMTemplate::properties()
                           std::string( "<font color=\"#00f\" size=15>html</font> formatted strings, colors and " ) +
                           std::string( "so on using <font color=\"#ff0000\">properties</font>! Isn't it <b>amazing</b>?" );
 
-    m_aStringOutput = m_group1a->addProperty( "A Message", "A message to the user.", message );
+    m_aStringOutput = m_group1a->addProperty( "A message", "A message to the user.", message );
     m_aStringOutput->setPurpose( PV_PURPOSE_INFORMATION );
     // This adds the property m_aStringOutput to your group and sets its purpose. The default purpose for all properties is always
     // "PV_PURPOSE_PARAMETER". It simply denotes the meaning of the property - its meant to be used as modifier for the module's behaviour; a
@@ -314,11 +318,11 @@ void WMTemplate::properties()
     //
     // Some more examples. Please note: Although every property type can be used as information property, not everything is really useful.
     m_infoProperties->addProperty( m_aStringOutput );   // we can also re-add properties
-    m_aTriggerOutput = m_infoProperties->addProperty( "A Trigger", "Trigger As String", WPVBaseTypes::PV_TRIGGER_READY );
-    m_aDoubleOutput = m_infoProperties->addProperty( "Some Double", "a Double. Nice isn't it?", 3.1415 );
-    m_aColorOutput = m_infoProperties->addProperty( "A Color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
-    m_aFilenameOutput = m_infoProperties->addProperty( "Nice File", "a Double. Nice isn't it?", WKernel::getAppPathObject() );
-    m_aSelectionOutput = m_infoProperties->addProperty( "A Selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
+    m_aTriggerOutput = m_infoProperties->addProperty( "A trigger", "Trigger As String", WPVBaseTypes::PV_TRIGGER_READY );
+    m_aDoubleOutput = m_infoProperties->addProperty( "Some double", "a Double. Nice isn't it?", 3.1415 );
+    m_aColorOutput = m_infoProperties->addProperty( "A color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
+    m_aFilenameOutput = m_infoProperties->addProperty( "Nice file", "a Double. Nice isn't it?", WPathHelper::getAppPath() );
+    m_aSelectionOutput = m_infoProperties->addProperty( "A selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
 }
 
 void WMTemplate::moduleMain()
@@ -400,33 +404,36 @@ void WMTemplate::moduleMain()
         // After collection, the calculation work can be done.
 
 
-        // Now, we can check the input, whether it changed the data. Therefore, we try to grab some data and check whether it is different from
-        // the currently used data. Of course, you do not need to check whether the data really is different, but you should do it as you do not
-        // want permanent recalculation which is actually not needed.
-        //
-        // Note: do not call m_input->getData() twice; one for checking if it is different and on for copying the pointer, since the result of
-        // getData might be different among both calls.
-        boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
-        bool dataChanged = ( m_dataSet != newDataSet );
-        bool dataValid   = ( newDataSet );
+        // Now, we can check the input, whether there is an update enqueued for us. But first, we need to understand the meaning of an update on
+        // an input connector:
+        //  * a module updates its output connector with some new data -> updated
+        //  * a module triggers an update on its output connector without an actual data change -> updated
+        //  * our own input connector got connected to an output connector -> updated
+        //  * our own input connector got DISconnected from an output connector -> NO update
+        // You now might ask: "Why can modules trigger updates if they did not change the data?". The answer is simple. Some modules change the
+        // grid without actually changing the data for example. They translate the grid in space. This results in an update although the actual
+        // data stayed the same.
 
-        // To check validity of multiple inputs at once, you can also use dataChanged and dataValid:
-        // bool dataChanged = ( m_dataSet != newDataSet ) || ( m_dataSet2 != newDataSet2 ) || ( m_dataSet3 != newDataSet3 );
-        // bool dataValid   = newDataSet && newDataSet2 && newDataSet3;
-        // This way, you can easily ensure that ALL your inputs are set and the module can do its job
+        // To query whether an input was updated, simply ask the input:
+        bool dataUpdated = m_input->updated();
 
-        // now, copy the new data to out local member variables
-        if ( dataChanged && dataValid )
-        // this condition will become true whenever the new data is different from the current one or our actual data is NULL. This handles all
-        // cases.
+        // Remember the above criteria. We now need to check if the data is valid. After a connect-update, it might be NULL.
+        boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
+        bool dataValid = ( dataSet );
+        // After calling getData(), the update flag is reset and false again. Please keep in mind, that the module lives in an multi-threaded
+        // world where the update flag and data can change at any time. DO NEVER use getData directly in several places of your module as the
+        // data returned may change between two consecutive calls! Always grab it into a local variable and use this variable.
+
+        // Another important hint. For grabbing the data, use a local variable wherever possible. If you use a member variable, the data might
+        // never be freed if nobody uses the data anymore because your module holds the last reference. If you need to use a member variable for
+        // the received data, subscribe the your input's disconnect signal or overwrite WModule::notifyConnectionClosed and reset your variable
+        // there to ensure its proper deletion.
+
+        // do something with the data
+        if ( dataUpdated && dataValid )
         {
-            // The data is different. Copy it to our internal data variable:
+            // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
             debugLog() << "Received Data.";
-            m_dataSet = newDataSet;
-
-            // For multiple inputs:
-            // m_dataSet2 = newDataSet2;
-            // m_dataSet3 = newDataSet3;
         }
 
         // Here we collect our properties. You, as with input connectors, always check if a property really has changed. You most probably do not
@@ -443,7 +450,7 @@ void WMTemplate::moduleMain()
             // This is a simple example for doing an operation which is not depending on any other property.
             debugLog() << "Doing an operation on the file \"" << m_aFile->get( true ).file_string() << "\".";
 
-            // NOTE: be careful if you want to use m_dataSet here, as it might be unset. Verify data validity using dataChanged && dataValid.
+            // NOTE: be careful if you want to use dataSet here, as it might be unset. Verify data validity using dataUpdated && dataValid.
         }
 
         // m_aFile got handled above. Now, handle two properties which together are used as parameters for an operation.
@@ -453,12 +460,12 @@ void WMTemplate::moduleMain()
             debugLog() << "Doing an operation basing on m_aString ... ";
             debugLog() << "m_aString: " << m_aString->get( true );
 
-            // NOTE: be careful if you want to use m_dataSet here, as it might be unset. Verify data validity using dataChanged && dataValid.
+            // NOTE: be careful if you want to use dataSet here, as it might be unset. Verify data validity using dataUpdated && dataValid.
         }
 
         // This example code now shows how to modify your OSG nodes basing on changes in your dataset or properties.
         // The if statement also checks for data validity as it uses the data! You should also always do that.
-        if ( ( m_anInteger->changed() || m_aDouble->changed() || dataChanged  ) && dataValid )
+        if ( ( m_anInteger->changed() || m_aDouble->changed() || dataUpdated  ) && dataValid )
         {
             debugLog() << "Creating new OSG node";
 
@@ -474,7 +481,7 @@ void WMTemplate::moduleMain()
 
             debugLog() << "Number of Rows: " << rows;
             debugLog() << "Radii: " << radii;
-            debugLog() << "Current dataset: " << m_dataSet->getFileName() << " with name: " << m_dataSet->getName();
+            debugLog() << "Current dataset: " << dataSet->getFileName() << " with name: " << dataSet->getName();
 
             // This block will be executed whenever we have a new dataset or the m_anInteger property has changed. This example codes produces
             // some shapes and replaces the existing root node by a new (updated) one. Therefore, a new root node is needed:
@@ -513,13 +520,13 @@ void WMTemplate::moduleMain()
 
         // Now we updated the visualization after the dataset has changed. Your module might also calculate some other datasets basing on the
         // input data.
-        // To ensure that all datasets are valid, check dataChanged and dataValid. If both are true, you can safely use the data.
-        if ( dataChanged && dataValid )
+        // To ensure that all datasets are valid, check dataUpdated and dataValid. If both are true, you can safely use the data.
+        if ( dataUpdated && dataValid )
         {
             debugLog() << "Data changed. Recalculating output.";
 
             // Calculate your new data here. This example just forwards the input to the output ;-).
-            boost::shared_ptr< WDataSetSingle > newData = m_dataSet;
+            boost::shared_ptr< WDataSetSingle > newData = dataSet;
 
             // Doing a lot of work without notifying the user visually is not a good idea. So how is it possible to report progress? Therefore,
             // the WModule class provides a member m_progress which is of type WPropgressCombiner. You can create own progress objects and count
@@ -558,6 +565,19 @@ void WMTemplate::moduleMain()
             // Now that the trigger has the state "triggered", a time consuming operation can be done here.
             debugLog() << "User triggered an important and time consuming operation.";
 
+            // We can exchange the list used for selection properties. This of course invalidates the current user selection. You should avoid
+            // changing this too often and too fast as it might confuse the user.
+            m_possibleSelections->addItem( "Beer2", "Cold and fresh.", template_bier_xpm );          // NOTE: you can add XPM images here.
+            m_possibleSelections->addItem( "Steaks2", "Medium please.",  template_steak_xpm );
+            m_possibleSelections->addItem( "Sausages2", "With Sauerkraut.", template_wurst_xpm );
+            // Each of the above write operations trigger an invalidation of all currently exiting selectors. You can create a new selector
+            // basing on an old invalid one and set it as new value for the selections:
+
+            // Now we set the new selection and selector. Calling newSelector without any argument copies the old selector and tries to resize
+            // the selection to match the new size
+            m_aSingleSelection->set( m_aSingleSelection->get().newSelector() );
+            m_aMultiSelection->set( m_aMultiSelection->get().newSelector() );
+
             // Update the output property
             m_aTriggerOutput->set( WPVBaseTypes::PV_TRIGGER_TRIGGERED );
 
@@ -589,13 +609,13 @@ void WMTemplate::moduleMain()
             // The single selector allows only one selected item and requires one item to be selected all the time. So accessing it by index
             // is trivial:
             WItemSelector s = m_aSingleSelection->get( true );
-            infoLog() << "The user likes " << s.at( 0 ).name << " the most.";
+            infoLog() << "The user likes " << s.at( 0 )->getName() << " the most.";
 
             // The multi property allows the selection of several items. So, iteration needs to be done here:
             s = m_aMultiSelection->get( true );
             for ( size_t i = 0; i < s.size(); ++i )
             {
-                infoLog() << "The user likes " << s.at( i ).name;
+                infoLog() << "The user likes " << s.at( i )->getName();
             }
         }
     }

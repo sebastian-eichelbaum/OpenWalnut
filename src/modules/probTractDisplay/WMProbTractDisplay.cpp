@@ -41,6 +41,9 @@
 #include "WMProbTractDisplay.h"
 #include "directvolumerendering.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMProbTractDisplay )
+
 WMProbTractDisplay::WMProbTractDisplay():
     WModule(),
     m_rootNode( new osg::Node() )
@@ -94,23 +97,23 @@ void WMProbTractDisplay::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_isoSurface    = m_properties->addProperty( "Isosurface Mode",  "If enabled, the Volume Renderer will render an isosurface and ignores the "
+    m_isoSurface    = m_properties->addProperty( "Isosurface mode",  "If enabled, the Volume Renderer will render an isosurface and ignores the "
                                                                       "transfer function.", true );
     m_isoValue0     = m_properties->addProperty( "Isovalue 0",       "The isovalue used whenever the isosurface Mode is turned on.", 50 );
     m_isoValue1     = m_properties->addProperty( "Isovalue 1",       "The isovalue used whenever the isosurface Mode is turned on.", 50 );
     m_isoValue2     = m_properties->addProperty( "Isovalue 2",       "The isovalue used whenever the isosurface Mode is turned on.", 50 );
     m_isoValue3     = m_properties->addProperty( "Isovalue 3",       "The isovalue used whenever the isosurface Mode is turned on.", 50 );
 
-    m_isoColor0     = m_properties->addProperty( "Iso Color 0",   "The color to blend the 0'th isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
+    m_isoColor0     = m_properties->addProperty( "Iso color 0",   "The color to blend the 0'th isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
                       m_propCondition );
-    m_isoColor1     = m_properties->addProperty( "Iso Color 1",   "The color to blend the 1'th isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
+    m_isoColor1     = m_properties->addProperty( "Iso color 1",   "The color to blend the 1'th isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
                       m_propCondition );
-    m_isoColor2     = m_properties->addProperty( "Iso Color 2",   "The color to blend the 2'th isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
+    m_isoColor2     = m_properties->addProperty( "Iso color 2",   "The color to blend the 2'th isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
                       m_propCondition );
-    m_isoColor3     = m_properties->addProperty( "Iso Color 3",   "The color to blend the 3'th isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
+    m_isoColor3     = m_properties->addProperty( "Iso color 3",   "The color to blend the 3'th isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
                       m_propCondition );
 
-    m_stepCount     = m_properties->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value "
+    m_stepCount     = m_properties->addProperty( "Step count",       "The number of steps to walk along the ray during raycasting. A low value "
                                                                       "may cause artifacts whilst a high value slows down rendering.", 250 );
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );
@@ -120,12 +123,12 @@ void WMProbTractDisplay::properties()
     m_alpha2         = m_properties->addProperty( "Opacity % 2",  "The opacity in %. Transparency = 100 - Opacity for the 2'th isosurface", 100 );
     m_alpha3         = m_properties->addProperty( "Opacity % 3",  "The opacity in %. Transparency = 100 - Opacity for the 3'th isosurface", 100 );
 
-    m_useSimpleDepthColoring = m_properties->addProperty( "Use Depth Cueing", "Enable it to have simple depth dependent coloring only.", false );
+    m_useSimpleDepthColoring = m_properties->addProperty( "Use depth cueing", "Enable it to have simple depth dependent coloring only.", false );
 }
 
 void WMProbTractDisplay::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "PTDRaycast" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMProbTractDisplay", m_localPath ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );

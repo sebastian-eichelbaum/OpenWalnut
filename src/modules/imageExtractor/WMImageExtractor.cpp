@@ -34,6 +34,9 @@
 #include "imageExtractor.xpm"
 #include "WMImageExtractor.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMImageExtractor )
+
 WMImageExtractor::WMImageExtractor():
     WModule()
 {
@@ -108,6 +111,15 @@ void WMImageExtractor::properties()
 
     m_colorMapSelection = m_properties->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
+}
+
+void WMImageExtractor::activate()
+{
+    if( m_outData )
+    {
+        m_outData->getTexture()->setGloballyActive( m_active->get() );
+    }
+    WModule::activate();
 }
 
 void WMImageExtractor::moduleMain()

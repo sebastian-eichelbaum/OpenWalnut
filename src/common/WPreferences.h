@@ -29,16 +29,18 @@
 #include <iostream>
 #include <fstream>
 
+#include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
-#include "../common/WIOTools.h"
+#include "WIOTools.h"
 #include "WProperties.h"
 #include "WLogger.h"
 
+#include "WExportCommon.h"
 /**
  * Fetches and caches preferences set in file.
  */
-class WPreferences
+class OWCOMMON_EXPORT WPreferences
 {
 public:
     /**
@@ -48,9 +50,25 @@ public:
      * \return True if value could be found, false otherwise.
      */
     template< typename T> static bool getPreference( std::string prefName, T* retVal );
+
+    /**
+     * Sets the configuration file globally.
+     *
+     * \param cfg the config file to use.
+     */
+    static void setPreferenceFile( boost::filesystem::path cfg )
+    {
+        m_preferenceFile = cfg;
+    }
+
 protected:
 private:
     static WProperties m_preferences; //!< Structure for caching the preferences.
+
+    /**
+     * The file containing the config options.
+     */
+    static boost::filesystem::path m_preferenceFile;
 };
 
 template< typename T > bool WPreferences::getPreference( std::string prefName, T* retVal )
@@ -76,7 +94,7 @@ template< typename T > bool WPreferences::getPreference( std::string prefName, T
     configurationDescription.add_options()
         ( prefName.c_str(), po::value< T >() );
 
-    std::string cfgFileName( "walnut.cfg" );
+    std::string cfgFileName = m_preferenceFile.file_string();
 
     boost::program_options::variables_map configuration;
     if( wiotools::fileExists( cfgFileName ) )

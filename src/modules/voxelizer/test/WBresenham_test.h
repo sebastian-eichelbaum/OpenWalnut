@@ -174,8 +174,9 @@ public:
         m_algo->m_values[7] = 0.0;
 
         wmath::WLine k;
+        // These two are supposed to be the voxel centers.
         k.push_back( wmath::WPosition( 0.0, 0.0, 0.0 ) );
-        k.push_back( wmath::WPosition( 1.0, 2.0, 0.0 ) );
+        k.push_back( wmath::WPosition( 1.0, 2.0 - wlimits::DBL_EPS , 0.0 ) );
         m_algo->raster( k );
         TS_ASSERT_EQUALS( m_algo->m_values, expected );
     }

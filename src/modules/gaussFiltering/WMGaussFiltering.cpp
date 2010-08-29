@@ -24,22 +24,24 @@
 
 #include <stdint.h>
 
-#include <iostream>
+#include <cmath>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 
-#include <cmath>
-
-#include "../../common/WStringUtils.h"
-#include "../../common/WProgress.h"
-#include "../../common/WAssert.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../kernel/WKernel.h"
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
-#include "WMGaussFiltering.h"
+#include "../../common/WAssert.h"
+#include "../../common/WProgress.h"
+#include "../../common/WStringUtils.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "../../kernel/WKernel.h"
 #include "gaussfiltering.xpm"
+#include "WMGaussFiltering.h"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMGaussFiltering )
 
 WMGaussFiltering::WMGaussFiltering() :
     WModule()
@@ -123,7 +125,7 @@ std::vector<double> WMGaussFiltering::filterField( boost::shared_ptr< WValueSet<
     size_t nY = grid->getNbCoordsY();
     size_t nZ = grid->getNbCoordsZ();
 
-    if ( m_mode->get(true) )
+    if( m_mode->get(true) )
     {
         std::vector<double> newVals( vals->elementsPerValue() * nX * nY * nZ, 0. );
 
@@ -134,7 +136,7 @@ std::vector<double> WMGaussFiltering::filterField( boost::shared_ptr< WValueSet<
             {
                 for( size_t x = 1; x < nX - 1; x++ )
                 {
-                    for ( size_t offset = 0; offset < vals->elementsPerValue(); ++offset )
+                    for( size_t offset = 0; offset < vals->elementsPerValue(); ++offset )
                     {
                         newVals[getId( nX, nY, nZ, x, y, z, offset, vals->elementsPerValue() )] =
                             filterAtPosition( vals, nX, nY, nZ, x, y, z, offset );
@@ -163,12 +165,12 @@ void WMGaussFiltering::filterField1D( std::vector<double>* newVals,
                                       boost::shared_ptr< WProgress > prog,
                                       size_t nX, size_t nY, size_t nZ, size_t dx, size_t dy, size_t dz )
 {
-    for ( size_t z = 1; z < nZ - 1; ++z )
+    for( size_t z = 1; z < nZ - 1; ++z )
     {
         ++*prog;
-        for ( size_t y = 1; y < nY - 1; ++y )
+        for( size_t y = 1; y < nY - 1; ++y )
         {
-            for ( size_t x = 1; x < nX - 1; ++x )
+            for( size_t x = 1; x < nX - 1; ++x )
             {
                 size_t id = x*dx + y*dy + z*dz;
                 ( *newVals )[ id ] =
@@ -184,12 +186,12 @@ void WMGaussFiltering::filterField1D( std::vector<T>* newVals,
                                       boost::shared_ptr< WProgress > prog,
                                       size_t nX, size_t nY, size_t nZ, size_t dx, size_t dy, size_t dz )
 {
-    for ( size_t z = 1; z < nZ - 1; ++z )
+    for( size_t z = 1; z < nZ - 1; ++z )
     {
         ++*prog;
-        for ( size_t y = 1; y < nY - 1; ++y )
+        for( size_t y = 1; y < nY - 1; ++y )
         {
-            for ( size_t x = 1; x < nX - 1; ++x )
+            for( size_t x = 1; x < nX - 1; ++x )
             {
                 size_t id = x*dx + y*dy + z*dz;
                 ( *newVals )[ id ] =
@@ -209,7 +211,7 @@ boost::shared_ptr< WValueSet< double > > WMGaussFiltering::iterativeFilterField(
     // use a custom progress combiner
     boost::shared_ptr< WProgress > prog;
 
-    if ( m_mode->get() )
+    if( m_mode->get() )
     {
     prog = boost::shared_ptr< WProgress >(
         new WProgress( "Gauss Filter Iteration", iterations * grid->getNbCoordsZ() ) );
@@ -225,7 +227,7 @@ boost::shared_ptr< WValueSet< double > > WMGaussFiltering::iterativeFilterField(
     boost::shared_ptr< WValueSet< double > > valueSet = boost::shared_ptr< WValueSet< double > >(
         new WValueSet<double> ( vals->order(), vals->dimension(), filterField( vals, grid, prog ), W_DT_DOUBLE )
     );
-    for ( unsigned int i = 1; i < iterations; ++i )    // this only runs if iter > 1
+    for( unsigned int i = 1; i < iterations; ++i )    // this only runs if iter > 1
     {
         valueSet = boost::shared_ptr< WValueSet< double > >(
             new WValueSet<double> ( valueSet->order(), valueSet->dimension(), filterField( valueSet, grid, prog ), W_DT_DOUBLE )
@@ -259,7 +261,7 @@ void WMGaussFiltering::moduleMain()
         m_moduleState.wait();
 
         // woke up since the module is requested to finish
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -267,7 +269,7 @@ void WMGaussFiltering::moduleMain()
         // has the data changed?
         boost::shared_ptr< WDataSetScalar > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
-        if ( dataChanged || !m_dataSet )
+        if( dataChanged || !m_dataSet )
         // this condition will become true whenever the new data is different from the current one or our actual data is NULL. This handles all
         // cases.
         {
@@ -276,7 +278,7 @@ void WMGaussFiltering::moduleMain()
             m_dataSet = newDataSet;
 
             // invalid data
-            if ( !m_dataSet )
+            if( !m_dataSet )
             {
                 debugLog() << "Invalid Data. Disabling.";
                 continue;
@@ -284,19 +286,19 @@ void WMGaussFiltering::moduleMain()
         }
 
         // m_iterations changed
-        if ( m_iterations->changed() )
+        if( m_iterations->changed() )
         {
             // a changed number of iteration also requires recalculation
             iterations = m_iterations->get( true );
             dataChanged = ( iterations >= 1 );
         }
 
-        if ( m_mode->changed() )
+        if( m_mode->changed() )
         {
             dataChanged = true;
         }
 
-        if ( dataChanged )
+        if( dataChanged )
         {
             boost::shared_ptr< WValueSet< double > >  newValueSet;
 
@@ -350,7 +352,7 @@ void WMGaussFiltering::moduleMain()
         }
 
         // if the number of iterations is 0 -> simply set the input as output
-        if ( iterations == 0 )
+        if( iterations == 0 )
         {
             m_output->updateData( m_dataSet );
         }

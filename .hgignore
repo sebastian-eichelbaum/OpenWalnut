@@ -24,6 +24,9 @@ syntax: regexp
 ^src/tags
 ^src/cscope.out
 
+# files geneterated by build system
+^src/version.h
+
 # local vim rc
 ^lvimrc
 
@@ -37,6 +40,8 @@ syntax: regexp
 ^tools/numCores/Makefile$
 ^tools/numCores/cmake_install.cmake$
 
+# user toolboxes are not versioned
+^src/modules/modules-user.toolbox$
 
 syntax: glob
 .project

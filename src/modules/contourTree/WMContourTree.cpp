@@ -35,6 +35,10 @@
 #include "../../dataHandler/datastructures/WJoinContourTree.h"
 #include "../../kernel/WKernel.h"
 #include "WMContourTree.h"
+#include "contourTree.xpm"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMContourTree )
 
 WMContourTree::WMContourTree():
     WModule()
@@ -48,6 +52,11 @@ WMContourTree::~WMContourTree()
 boost::shared_ptr< WModule > WMContourTree::factory() const
 {
     return boost::shared_ptr< WModule >( new WMContourTree() );
+}
+
+const char** WMContourTree::getXPMIcon() const
+{
+    return contourTree_xpm;
 }
 
 const std::string WMContourTree::getName() const

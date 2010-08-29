@@ -37,6 +37,7 @@
 #include "../exceptions/WDHNoSuchFile.h"
 #include "../exceptions/WDHParseError.h"
 #include "WReader.h"
+#include "../WExportDataHandler.h"
 
 /**
  * Reads fibers from a VTK file. For VTK just see http://www.vtk.org.
@@ -46,7 +47,7 @@
  *
  * \ingroup dataHandler
  */
-class WReaderFiberVTK : public WReader
+class OWDATAHANDLER_EXPORT WReaderFiberVTK : public WReader // NOLINT
 {
 friend class WReaderFiberVTKTest;
 public:
@@ -121,6 +122,9 @@ private:
      * \return Next line as string.
      */
     std::string getLine( const std::string& desc );
+
+    wmath::WPosition m_bbMin; //!< Minimum position of bounding box of all fibers.
+    wmath::WPosition m_bbMax; //!< Maximum position of bounding box of all fibers.
 
     /**
      * Try to cast from the given string to the template value T. If the cast fails a

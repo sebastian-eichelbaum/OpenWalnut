@@ -33,6 +33,9 @@
 #include "WMTriangleMeshRenderer.h"
 #include "trianglemeshrenderer.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMTriangleMeshRenderer )
+
 WMTriangleMeshRenderer::WMTriangleMeshRenderer():
     WModule(),
     m_moduleNode( new WGEGroupNode() ),
@@ -119,6 +122,7 @@ void WMTriangleMeshRenderer::moduleMain()
 
         renderMesh( mesh );
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
 void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
@@ -187,7 +191,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh2 > mes
     }
 
     m_moduleNode->insert( m_surfaceGeode );
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "triangleMeshRenderer" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMTriangleMeshRenderer", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );

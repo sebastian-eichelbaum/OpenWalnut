@@ -511,8 +511,51 @@ public:
     void testGetCellId( void )
     {
         WGridRegular3D g( 5, 3, 3, 0, 0, 0, 1, 1, 1 );
-        size_t cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 0.78 ) );
+        bool isInside = true;
+
+        // Test some value
+        size_t cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 0.78 ), &isInside );
         TS_ASSERT_EQUALS( cellId, 7 );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        // Test bounds for X direction
+        cellId = g.getCellId( wmath::WPosition( 4.0, 1.75, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, false );
+
+        cellId = g.getCellId( wmath::WPosition( 4.0 - wlimits::FLT_EPS, 1.75, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        cellId = g.getCellId( wmath::WPosition( 0.0, 1.75, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        cellId = g.getCellId( wmath::WPosition( 0.0 - wlimits::FLT_EPS, 1.75, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, false );
+
+        // Test bounds for Y direction
+        cellId = g.getCellId( wmath::WPosition( 3.3, 2.0, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, false );
+
+        cellId = g.getCellId( wmath::WPosition( 3.3, 2.0 - wlimits::FLT_EPS, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        cellId = g.getCellId( wmath::WPosition( 3.3, 0.0, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        cellId = g.getCellId( wmath::WPosition( 3.3, 0.0 - wlimits::FLT_EPS, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, false );
+
+        // Test bounds for Z direction
+        cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 2.0 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, false );
+
+        cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 2.0 - wlimits::FLT_EPS ), &isInside );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 0.0 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 0.0 - wlimits::FLT_EPS ), &isInside );
+        TS_ASSERT_EQUALS( isInside, false );
     }
 
     /**
@@ -521,9 +564,24 @@ public:
     void testEnclosesQuery( void )
     {
         WGridRegular3D g( 2, 2, 2, 1., 1., 1. );
+
+        // Test bounds for X direction
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0 - wlimits::FLT_EPS, 0, 0 ) ) );
         TS_ASSERT( g.encloses( wmath::WPosition( 0, 0, 0 ) ) );
-        TS_ASSERT( g.encloses( wmath::WPosition( 1, 1, 1 ) ) );
-        TS_ASSERT( !g.encloses( wmath::WPosition( 1, 1, 1.0 + wlimits::DBL_EPS ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 1.0 - wlimits::FLT_EPS, 0.5, 0.5 ) ) );
+        TS_ASSERT( !g.encloses( wmath::WPosition( 1, 0.5, 0.5 ) ) );
+
+        // Test bounds for Y direction
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0, 0 - wlimits::FLT_EPS, 0 ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0, 0, 0 ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0.5, 1.0 - wlimits::FLT_EPS, 0.5 ) ) );
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0.5, 1.0, 0.5 ) ) );
+
+        // Test bounds for Z direction
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0, 0, 0 - wlimits::FLT_EPS ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0, 0, 0 ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0.5, 0.5, 1.0 - wlimits::FLT_EPS ) ) );
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0.5, 0.5, 1 ) ) );
     }
 
 private:

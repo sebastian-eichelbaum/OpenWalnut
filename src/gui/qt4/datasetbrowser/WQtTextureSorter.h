@@ -86,7 +86,7 @@ private:
     QPushButton* m_upButton; //!< button up
 
     typedef std::vector< boost::shared_ptr< WDataSet > > DatasetContainerType; //!< Short for container we want to access b< WSharedSequenceContainer
-    typedef WSharedSequenceContainer< boost::shared_ptr< WDataSet >, DatasetContainerType > DatasetSharedContainerType; //!< The SharedContainer
+    typedef WSharedSequenceContainer< DatasetContainerType > DatasetSharedContainerType; //!< The SharedContainer
     typedef DatasetSharedContainerType::WSharedAccess DatasetAccess; //!< Shorthand for the access handler.
     DatasetSharedContainerType m_textures; //!< Local list of of the textures to sort.
 

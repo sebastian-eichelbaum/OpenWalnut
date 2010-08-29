@@ -43,6 +43,9 @@
 #include "WMIsosurfaceRaytracer.h"
 #include "isosurfaceraytracer.xpm"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMIsosurfaceRaytracer )
+
 WMIsosurfaceRaytracer::WMIsosurfaceRaytracer():
     WModule(),
     m_rootNode( new osg::Node() )
@@ -98,10 +101,10 @@ void WMIsosurfaceRaytracer::properties()
 
     m_isoValue      = m_properties->addProperty( "Isovalue",         "The isovalue used whenever the isosurface Mode is turned on.",
                                                                       50 );
-    m_isoColor      = m_properties->addProperty( "Iso Color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
+    m_isoColor      = m_properties->addProperty( "Iso color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
                       m_propCondition );
 
-    m_stepCount     = m_properties->addProperty( "Step Count",       "The number of steps to walk along the ray during raycasting. A low value "
+    m_stepCount     = m_properties->addProperty( "Step count",       "The number of steps to walk along the ray during raycasting. A low value "
                                                                       "may cause artifacts whilst a high value slows down rendering.", 250 );
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );
@@ -110,10 +113,10 @@ void WMIsosurfaceRaytracer::properties()
 
     // Lighting
     m_shadingSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_shadingSelections->addItem( "Emphasize Cortex", "Emphasize the cortex. Inner parts are not that well lighten." );
-    m_shadingSelections->addItem( "Depth Only",       "Only show the depth of the surface along the ray." );
+    m_shadingSelections->addItem( "Emphasize cortex", "Emphasize the cortex. Inner parts are not that well lighten." );
+    m_shadingSelections->addItem( "Depth only",       "Only show the depth of the surface along the ray." );
     m_shadingSelections->addItem( "Phong",            "Phong lighting. Slower but more realistic lighting" );
-    m_shadingSelections->addItem( "Phong + Depth",    "Phong lighting in combination with depth cueing." );
+    m_shadingSelections->addItem( "Phong + depth",    "Phong lighting in combination with depth cueing." );
     m_shadingAlgo   = m_properties->addProperty( "Shading", "The shading algorithm.", m_shadingSelections->getSelectorFirst(), m_propCondition );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_shadingAlgo );
@@ -122,7 +125,7 @@ void WMIsosurfaceRaytracer::properties()
 
 void WMIsosurfaceRaytracer::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "IsosurfaceRaytracer" ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMIsosurfaceRaytracer", m_localPath ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -149,33 +152,25 @@ void WMIsosurfaceRaytracer::moduleMain()
             break;
         }
 
-        // has the data changed?
-        boost::shared_ptr< WDataSetScalar > newDataSet = m_input->getData();
-        bool dataChanged = ( m_dataSet != newDataSet );
-        bool dataValid   = ( newDataSet );
-
-        // are there new valid data?
-        if ( dataChanged && dataValid )
-        {
-            // The data is different. Copy it to our internal data variable:
-            debugLog() << "Received Data.";
-            m_dataSet = newDataSet;
-        }
+        // was there an update?
+        bool dataUpdated = m_input->updated();
+        boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
+        bool dataValid   = ( dataSet );
 
         // m_isoColor or shading changed
         if ( m_isoColor->changed() || m_shadingAlgo->changed() )
         {
             // a new color requires the proxy geometry to be rebuild as we store it as color in this geometry
-            dataChanged = true;
+            dataUpdated = true;
         }
 
         // As the data has changed, we need to recreate the texture.
-        if ( dataChanged && dataValid )
+        if ( dataUpdated && dataValid )
         {
             debugLog() << "Data changed. Uploading new data as texture.";
 
             // First, grab the grid
-            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
             if ( !grid )
             {
                 errorLog() << "The dataset does not provide a regular grid. Ignoring dataset.";
@@ -190,11 +185,12 @@ void WMIsosurfaceRaytracer::moduleMain()
 
             // use the OSG Shapes, create unit cube
             osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb.first, bb.second, m_isoColor->get( true ) );
-            cube->asTransform()->getChild( 0 )->setName( "DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
+            cube->asTransform()->getChild( 0 )->setName( "_DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
+                                                                              // because of the underscore in front it won't be picked
             m_shader->apply( cube );
 
             // bind the texture to the node
-            osg::ref_ptr< osg::Texture3D > texture3D = m_dataSet->getTexture()->getTexture();
+            osg::ref_ptr< osg::Texture3D > texture3D = dataSet->getTexture()->getTexture();
             osg::StateSet* rootState = cube->getOrCreateStateSet();
             rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
 

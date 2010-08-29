@@ -121,7 +121,7 @@ public:
         boost::unique_lock< boost::shared_mutex > m_writeLock;
 
         /**
-         * The write lock. Used by beginWrite and endWrite.
+         * The read lock. Used by beginRead and endRead.
          */
         boost::shared_lock< boost::shared_mutex > m_readLock;
 

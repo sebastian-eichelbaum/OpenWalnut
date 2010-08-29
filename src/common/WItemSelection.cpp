@@ -23,16 +23,18 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include "WLogger.h"
 
 #include "exceptions/WOutOfBounds.h"
+#include "exceptions/WNameNotUnique.h"
 #include "WItemSelector.h"
 
 #include "WItemSelection.h"
 
 WItemSelection::WItemSelection():
-    m_modifyable( true )
+    WSharedSequenceContainer< std::vector< boost::shared_ptr< WItemSelectionItem > > >()
 {
     // initialize members
 }
@@ -42,27 +44,12 @@ WItemSelection::~WItemSelection()
     // cleanup
 }
 
-void WItemSelection::addItem( std::string name, std::string description, const char** icon )
-{
-    if ( m_modifyable )
-    {
-        Item* i = new Item;   // NOLINT  <-- initialize the struct this way is far more comfortable
-        i->name = name;
-        i->description = description;
-        i->icon = icon;
-        m_items.push_back( i );
-    }
-    else
-    {
-        wlog::warn( "WItemSelection " ) << "You can not modify the selection list after a selector has been created.";
-    }
-}
-
 WItemSelector WItemSelection::getSelectorAll()
 {
-    m_modifyable = false;
     WItemSelector::IndexList l;
-    for ( size_t i = 0; i < m_items.size(); ++i )
+    ReadTicket r = getReadTicket();
+
+    for ( size_t i = 0; i < r->get().size(); ++i )
     {
         l.push_back( i );
     }
@@ -71,16 +58,17 @@ WItemSelector WItemSelection::getSelectorAll()
 
 WItemSelector WItemSelection::getSelectorNone()
 {
-    m_modifyable = false;
     WItemSelector::IndexList l;
+    ReadTicket r = getReadTicket();
     return WItemSelector( shared_from_this(), l );
 }
 
 WItemSelector WItemSelection::getSelectorFirst()
 {
-    m_modifyable = false;
     WItemSelector::IndexList l;
-    if ( m_items.size() >= 1 )
+    ReadTicket r = getReadTicket();
+
+    if ( r->get().size() >= 1 )
     {
         l.push_back( 0 );
     }
@@ -89,9 +77,10 @@ WItemSelector WItemSelection::getSelectorFirst()
 
 WItemSelector WItemSelection::getSelector( size_t item )
 {
-    m_modifyable = false;
     WItemSelector::IndexList l;
-    if ( m_items.size() <= item )
+    ReadTicket r = getReadTicket();
+
+    if ( r->get().size() <= item )
     {
         throw WOutOfBounds( "The specified item does not exist." );
     }
@@ -99,13 +88,8 @@ WItemSelector WItemSelection::getSelector( size_t item )
     return WItemSelector( shared_from_this(), l );
 }
 
-size_t WItemSelection::size() const
+void WItemSelection::addItem( std::string name, std::string description, const char** icon )
 {
-    return m_items.size();
-}
-
-WItemSelection::Item& WItemSelection::at( size_t index ) const
-{
-    return *m_items.at( index );
+    push_back( boost::shared_ptr< WItemSelectionItem >( new WItemSelectionItem( name, description, icon ) ) );
 }
 

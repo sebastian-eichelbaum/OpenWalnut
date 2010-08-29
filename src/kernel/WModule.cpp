@@ -44,11 +44,14 @@
 #include "exceptions/WModuleConnectorNotFound.h"
 #include "exceptions/WModuleUninitialized.h"
 #include "../common/WException.h"
+#include "../common/exceptions/WNameNotUnique.h"
 #include "../common/WLogger.h"
 #include "../common/WCondition.h"
 #include "../common/WConditionOneShot.h"
 #include "../common/WConditionSet.h"
+#include "../common/WPathHelper.h"
 #include "../common/WProgressCombiner.h"
+#include "../common/WPredicateHelper.h"
 
 #include "WModule.h"
 
@@ -63,7 +66,8 @@ WModule::WModule():
     m_isReadyOrCrashed( new WConditionSet(), false ),
     m_isRunning( new WCondition(), false ),
     m_readyProgress( boost::shared_ptr< WProgress >( new WProgress( "Initializing Module" ) ) ),
-    m_moduleState()
+    m_moduleState(),
+    m_localPath( WPathHelper::getSharePath() )
 {
     // initialize members
     m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "Module's properties" ) );
@@ -100,18 +104,40 @@ WModule::~WModule()
 
 void WModule::addConnector( boost::shared_ptr< WModuleInputConnector > con )
 {
-    if ( std::count( m_inputConnectors.begin(), m_inputConnectors.end(), con ) == 0 )
+    size_t c = std::count_if( m_inputConnectors.begin(), m_inputConnectors.end(),
+                              WPredicateHelper::Name< boost::shared_ptr< WModuleInputConnector > >( con->getName() )
+    );
+    // well ... we want it to be unique in both:
+    c += std::count_if( m_outputConnectors.begin(), m_outputConnectors.end(),
+                        WPredicateHelper::Name< boost::shared_ptr< WModuleOutputConnector > >( con->getName() )
+    );
+
+    // if there already is one ... exception
+    if ( c )
     {
-        m_inputConnectors.push_back( con );
+        throw WNameNotUnique( std::string( "Could not add the connector " + con->getCanonicalName() + " since names must be unique." ) );
     }
+
+    m_inputConnectors.push_back( con );
 }
 
 void WModule::addConnector( boost::shared_ptr< WModuleOutputConnector > con )
 {
-    if ( std::count( m_outputConnectors.begin(), m_outputConnectors.end(), con ) == 0 )
+    size_t c = std::count_if( m_inputConnectors.begin(), m_inputConnectors.end(),
+                              WPredicateHelper::Name< boost::shared_ptr< WModuleInputConnector > >( con->getName() )
+    );
+    // well ... we want it to be unique in both:
+    c += std::count_if( m_outputConnectors.begin(), m_outputConnectors.end(),
+                        WPredicateHelper::Name< boost::shared_ptr< WModuleOutputConnector > >( con->getName() )
+    );
+
+    // if there already is one ... exception
+    if ( c )
     {
-        m_outputConnectors.push_back( con );
+        throw WNameNotUnique( std::string( "Could not add the connector " + con->getCanonicalName() + " since names must be unique." ) );
     }
+
+    m_outputConnectors.push_back( con );
 }
 
 void WModule::disconnect()
@@ -520,3 +546,14 @@ wlog::WStreamedLogger WModule::warnLog() const
 {
     return wlog::warn( getName() );
 }
+
+void WModule::setLocalPath( boost::filesystem::path path )
+{
+    m_localPath = path;
+}
+
+boost::filesystem::path WModule::getLocalPath() const
+{
+    return m_localPath;
+}
+

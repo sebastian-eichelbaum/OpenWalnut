@@ -69,3 +69,12 @@ bool WROI::isModified()
     return tmp;
 }
 
+void WROI::hide()
+{
+    setNodeMask( 0x0 );
+}
+
+void WROI::unhide()
+{
+    setNodeMask( 0xFFFFFFFF );
+}

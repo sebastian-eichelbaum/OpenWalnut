@@ -12,7 +12,14 @@ allowOnlyOneFiberDataSet = yes # This will prevent you from accidently loading m
 # default=HUD
 ## A list of modules that will be provided through the GUI. 
 ## If the list is empty all available modules are provided.
-whiteList = Isosurface,Bounding Box,Isosurface Raytracer,Distance Map Isosurface,Gauss Filtering,HUD,Vector Plot,Write NIfTI,Mesh Reader,Triangle Mesh Renderer,Arbitrary Rois,LIC,Voxelizer,Superquadric Glyphs
+whiteList = Arbitrary Plane,Coordinate System,Image Extractor,Paint Texture,Arbitrary Rois,Bounding Box,Distance Map Isosurface,Gauss Filtering,HUD,Isosurface,Isosurface Raytracer,LIC,Mesh Reader,Voxelizer,Superquadric Glyphs,Triangle Mesh Renderer,Vector Plot,Write NIfTI
+
+## Specify a ";" separated list of additional paths for modules. The order of appearance is the order of loading. The following additional rules apply here:
+## 1. if the directory contains one or more libOWmodule_XYZ it/they get loaded
+## 2. if the directory does not contain any libOWmodule_XYZ, the subdirectories get searched.
+## 3. DO NOT use this string thing --> " <-- to enclose the string!
+## NOTE: you do not need to specify the global module path as it gets search automatically
+#path = /home/user/otherModules;/usr/local/OpenWalnut/niceModule/
 
 [qt4gui]
 ####################################################################

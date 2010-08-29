@@ -25,11 +25,16 @@
 #include <string>
 #include <vector>
 
+#include "../../common/WPathHelper.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../kernel/WKernel.h"
 #include "../../graphicsEngine/WTriangleMesh2.h"
 
 #include "WMMeshReader.h"
 #include "meshreader.xpm"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMMeshReader )
 
 WMMeshReader::WMMeshReader():
     WModule()
@@ -81,9 +86,10 @@ void WMMeshReader::properties()
     // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
 
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    m_meshFile = m_properties->addProperty( "Mesh File", "", WKernel::getAppPathObject() );
-    m_readTriggerProp = m_properties->addProperty( "Do Read",  "Press!",
+    m_meshFile = m_properties->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
+    m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    WPropertyHelper::PC_PATHEXISTS::addTo( m_meshFile );
 }
 
 void WMMeshReader::moduleMain()

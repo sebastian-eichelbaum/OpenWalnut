@@ -22,9 +22,26 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+
+#include <osg/Matrix>
+
+#include "WKernel.h"
+#include "../common/math/WLinearAlgebraFunctions.h"
+
+#include "../graphicsEngine/WGEZoomTrackballManipulator.h"
+
 #include "WSelectionManager.h"
 
-WSelectionManager::WSelectionManager()
+using wmath::WVector3D;
+using wmath::WPosition;
+using wmath::WMatrix;
+
+
+WSelectionManager::WSelectionManager() :
+    m_paintMode( PAINTMODE_NONE ),
+    m_textureOpacity( 1.0 ),
+    m_useTexture( false )
 {
     m_crosshair = boost::shared_ptr< WCrosshair >( new WCrosshair() );
 }
@@ -36,4 +53,121 @@ WSelectionManager::~WSelectionManager()
 boost::shared_ptr< WCrosshair >WSelectionManager::getCrosshair()
 {
     return m_crosshair;
+}
+
+int WSelectionManager::getFrontSector()
+{
+    boost::shared_ptr< WGEViewer > viewer;
+    viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
+    viewer->getCamera()->getViewMatrix();
+    osg::Matrix rm = viewer->getCamera()->getViewMatrix();
+
+    WMatrix< double > rotMat( 4, 4 );
+    for( size_t i = 0; i < 4; ++i )
+    {
+        for( size_t j = 0; j < 4; ++j )
+        {
+            rotMat( i, j ) = rm( i, j );
+        }
+    }
+    WPosition v1( 0, 0, 1 );
+    WPosition view;
+    view = transformPosition3DWithMatrix4D( rotMat, v1 );
+
+    std::vector<float> dots( 8 );
+    WPosition v2( 1, 1, 1 );
+    dots[0] = v2.dotProduct( view );
+
+    v2[2] = -1;
+    dots[1] = v2.dotProduct( view );
+
+    v2[1] = -1;
+    dots[2] = v2.dotProduct( view );
+
+    v2[2] = 1;
+    dots[3] = v2.dotProduct( view );
+
+    v2[0] = -1;
+    dots[4] = v2.dotProduct( view );
+
+    v2[2] = -1;
+    dots[5] = v2.dotProduct( view );
+
+    v2[1] = 1;
+    dots[6] = v2.dotProduct( view );
+
+    v2[2] = 1;
+    dots[7] = v2.dotProduct( view );
+
+    float max = 0.0;
+    int quadrant = 0;
+    for ( int i = 0; i < 8; ++i )
+    {
+        if ( dots[i] > max )
+        {
+            max = dots[i];
+            quadrant = i;
+        }
+    }
+    return quadrant;
+}
+
+void WSelectionManager::setPaintMode( WPaintMode mode )
+{
+    m_paintMode = mode;
+
+    osg::static_pointer_cast<WGEZoomTrackballManipulator>(
+            WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCameraManipulator() )->setPaintMode( mode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getPickHandler()->setPaintMode( mode );
+}
+
+WPaintMode WSelectionManager::getPaintMode()
+{
+    return m_paintMode;
+}
+
+void WSelectionManager::setTexture( osg::ref_ptr< osg::Texture3D > texture, boost::shared_ptr< WGridRegular3D >grid )
+{
+    m_texture = texture;
+    m_textureGrid = grid;
+}
+
+
+osg::ref_ptr< osg::Texture3D > WSelectionManager::getTexture()
+{
+    return m_texture;
+}
+
+boost::shared_ptr< WGridRegular3D >WSelectionManager::getGrid()
+{
+    return m_textureGrid;
+}
+
+void WSelectionManager::setUseTexture( bool flag )
+{
+    m_useTexture = flag;
+}
+
+bool WSelectionManager::getUseTexture()
+{
+    return m_useTexture;
+}
+
+
+float WSelectionManager::getTextureOpacity()
+{
+    return m_textureOpacity;
+}
+
+void WSelectionManager::setTextureOpacity( float value )
+{
+    if ( value < 0.0 )
+    {
+        value = 0.0;
+    }
+    if ( value > 1.0 )
+    {
+        value = 1.0;
+    }
+    m_textureOpacity = value;
 }

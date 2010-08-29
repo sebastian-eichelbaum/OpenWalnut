@@ -1,4 +1,6 @@
-See the "doc" directory for more information.
+------------------------------------------------------
+
+     See the "doc" directory for more information.
 
 ------------------------------------------------------
 
@@ -12,4 +14,5 @@ Directory Structure:
   -src
      The sources, i.e. code, icons, ...
   -tools
-     Tools used during development and building (e.g. style checker)
+     Tools used during development and building 
+     (e.g. style checker)

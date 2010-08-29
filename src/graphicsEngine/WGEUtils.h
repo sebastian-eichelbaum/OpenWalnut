@@ -34,6 +34,7 @@
 
 #include "../common/WColor.h"
 #include "../common/math/WPosition.h"
+#include "WExportWGE.h"
 
 namespace wge
 {
@@ -69,7 +70,7 @@ namespace wge
      *
      * \return Refernce to the same vector but as osg::Vec3Array.
      */
-    osg::ref_ptr< osg::Vec3Array > osgVec3Array( const std::vector< wmath::WPosition >& posArray );
+    osg::ref_ptr< osg::Vec3Array > WGE_EXPORT osgVec3Array( const std::vector< wmath::WPosition >& posArray );
 
     /**
      * Converts screen coordinates into Camera coordinates.
@@ -77,13 +78,21 @@ namespace wge
      * \param screen the screen coordinates
      * \param camera The matrices of this camera will used for unprojecting.
      */
-    osg::Vec3 unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera  );
+    osg::Vec3 WGE_EXPORT unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera  );
 
     /**
      * Conversion of WVector3D to osg::Vec3
      * \param v the vector to convert.
      */
     osg::Vec3 wv3D2ov3( wmath::WVector3D v );
+
+    /**
+     * creates the same color as the atlas colormap shader from the index
+     *
+     * \param index unsigned char that indexes the color
+     * \return the color
+     */
+    WColor WGE_EXPORT createColorFromIndex( int index );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )

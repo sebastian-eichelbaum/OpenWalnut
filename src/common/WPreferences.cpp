@@ -24,4 +24,5 @@
 
 #include "WPreferences.h"
 
+boost::filesystem::path WPreferences::m_preferenceFile = boost::filesystem::path( "walnut.cfg" );
 WProperties WPreferences::m_preferences( "Preferences" );

@@ -26,12 +26,16 @@
 #include <string>
 #include <vector>
 
-#include "../../kernel/WKernel.h"
+#include "../../common/WAssert.h"
 #include "../../common/WColor.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/WGEGeometryUtils.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../kernel/WKernel.h"
 #include "WMClusterSlicer.h"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMClusterSlicer )
 
 WMClusterSlicer::WMClusterSlicer()
     : WModule(),
@@ -71,8 +75,8 @@ void WMClusterSlicer::connectors()
 
 void WMClusterSlicer::properties()
 {
-    m_drawISOVoxels = m_properties->addProperty( "Show or Hide ISO Voxels", "En/Disables to draw the voxels withing a given ISOSurface.", true );
-    m_isoValue      = m_properties->addProperty( "Iso Value", "", 0.01 );
+    m_drawISOVoxels = m_properties->addProperty( "Show or hide iso voxels", "En/Disables to draw the voxels within a given isourface.", true );
+    m_isoValue      = m_properties->addProperty( "Iso value", "", 0.01 );
 }
 
 void WMClusterSlicer::moduleMain()
@@ -109,14 +113,14 @@ void WMClusterSlicer::moduleMain()
                 continue;
             }
 
-            assert( m_dataSet && "Invalid dataset to compute JoinTree on" );
+            WAssert( m_dataSet, "Invalid dataset to compute JoinTree on" );
             m_joinTree = boost::shared_ptr< WJoinContourTree >( new WJoinContourTree( m_dataSet ) );
             m_joinTree->buildJoinTree();
         }
 
         if( ( m_isoValue->changed() || dataChanged ) && m_joinTree )
         {
-            assert( m_dataSet && "JoinTree cannot be valid since there is no valid m_dataSet." );
+            WAssert( m_dataSet, "JoinTree cannot be valid since there is no valid m_dataSet." );
             m_isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByISOSurface( m_isoValue->get() );
         }
 
@@ -139,7 +143,7 @@ void WMClusterSlicer::updateDisplay()
 
     if( m_drawISOVoxels->get( true ) )
     {
-        assert( m_isoVoxels && "JoinTree cannot be valid since there is no valid m_dataSet." );
+        WAssert( m_isoVoxels, "JoinTree cannot be valid since there is no valid m_dataSet." );
         m_isoVoxelGeode = generateISOVoxelGeode();
         m_rootNode->insert( m_isoVoxelGeode );
     }
@@ -154,7 +158,7 @@ osg::ref_ptr< osg::Geode > WMClusterSlicer::generateISOVoxelGeode() const
     ref_ptr< osg::Vec3Array > normals = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-    assert( grid != 0 );
+    WAssert( grid != 0, "No valid regualr 3d grid given!" );
     std::set< size_t >::const_iterator cit;
     for( cit = m_isoVoxels->begin(); cit != m_isoVoxels->end(); ++cit )
     {

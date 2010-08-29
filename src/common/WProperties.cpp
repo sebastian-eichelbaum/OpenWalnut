@@ -40,7 +40,9 @@
 #include "WProperties.h"
 
 WProperties::WProperties( std::string name, std::string description ):
-    WPropertyBase( name, description )
+    WPropertyBase( name, description ),
+    m_properties(),
+    m_childUpdateCondition( new WConditionSet() )
 {
     m_updateCondition->add( m_properties.getChangeCondition() );
 }
@@ -51,7 +53,8 @@ WProperties::~WProperties()
 
 WProperties::WProperties( const WProperties& from ):
     WPropertyBase( from ),
-    m_properties()
+    m_properties(),
+    m_childUpdateCondition( new WConditionSet() )
 {
     // copy the properties inside
 
@@ -138,6 +141,9 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
     // INFORMATION properties are allowed inside PARAMETER groups -> do not set the properties purpose.
 
     l->get().push_back( prop );
+
+    // add the child's update condition to the list
+    m_childUpdateCondition->add( prop->getUpdateCondition() );
 }
 
 void WProperties::removeProperty( boost::shared_ptr< WPropertyBase > prop )
@@ -145,6 +151,7 @@ void WProperties::removeProperty( boost::shared_ptr< WPropertyBase > prop )
     // lock, unlocked if l looses focus
     PropertySharedContainerType::WriteTicket l = m_properties.getWriteTicket();
     l->get().erase( std::remove( l->get().begin(), l->get().end(), prop ), l->get().end() );
+    m_childUpdateCondition->remove( prop->getUpdateCondition() );
 }
 
 boost::shared_ptr< WPropertyBase > WProperties::findProperty( WProperties* props, std::string name )
@@ -232,6 +239,11 @@ WProperties::PropertySharedContainerType::WSharedAccess WProperties::getAccessOb
     return m_properties.getAccessObject();
 }
 
+WProperties::PropertySharedContainerType::ReadTicket WProperties::getReadTicket() const
+{
+    return m_properties.getReadTicket();
+}
+
 WPropGroup WProperties::addPropertyGroup( std::string name, std::string description, bool hide )
 {
     WPropGroup p = WPropGroup( new WProperties( name, description ) );
@@ -245,6 +257,11 @@ void WProperties::clear()
     // lock, unlocked if l looses focus
     PropertySharedContainerType::WriteTicket l = m_properties.getWriteTicket();
     l->get().clear();
+}
+
+boost::shared_ptr< WCondition > WProperties::getChildUpdateCondition() const
+{
+    return m_childUpdateCondition;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -288,7 +305,9 @@ WPropFilename WProperties::addProperty( std::string name, std::string descriptio
 
 WPropSelection WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, hide );
+    WPropSelection p = addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, hide );
+    WPropertyHelper::PC_ISVALID::addTo( p );
+    return p;
 }
 
 WPropPosition WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial, bool hide )
@@ -354,7 +373,9 @@ WPropFilename WProperties::addProperty( std::string name, std::string descriptio
 WPropSelection WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
                                           boost::shared_ptr< WCondition > condition, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, condition, hide );
+    WPropSelection p = addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, condition, hide );
+    WPropertyHelper::PC_ISVALID::addTo( p );
+    return p;
 }
 
 WPropPosition WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
@@ -423,7 +444,9 @@ WPropFilename WProperties::addProperty( std::string name, std::string descriptio
 WPropSelection WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
                                           WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, notifier, hide );
+    WPropSelection p = addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, notifier, hide );
+    WPropertyHelper::PC_ISVALID::addTo( p );
+    return p;
 }
 
 WPropPosition WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
@@ -499,7 +522,9 @@ WPropSelection WProperties::addProperty( std::string name, std::string descripti
                                           boost::shared_ptr< WCondition > condition,
                                           WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, condition, notifier, hide );
+    WPropSelection p = addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, condition, notifier, hide );
+    WPropertyHelper::PC_ISVALID::addTo( p );
+    return p;
 }
 
 WPropPosition WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,

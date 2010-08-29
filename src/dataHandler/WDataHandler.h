@@ -36,6 +36,7 @@
 #include "../common/WSharedSequenceContainer.h"
 
 #include "WDataSet.h"
+#include "WExportDataHandler.h"
 
 class WSubject;
 
@@ -46,7 +47,7 @@ class WSubject;
  *
  * \ingroup dataHandler
  */
-class WDataHandler
+class OWDATAHANDLER_EXPORT WDataHandler // NOLINT
 {
 /**
  * Only UnitTests may be friends.
@@ -63,7 +64,7 @@ public:
     /**
      * The alias for a shared container.
      */
-    typedef WSharedSequenceContainer< boost::shared_ptr< WSubject >, SubjectContainerType > SubjectSharedContainerType;
+    typedef WSharedSequenceContainer< SubjectContainerType > SubjectSharedContainerType;
 
     /**
      * Iterator for subjects.

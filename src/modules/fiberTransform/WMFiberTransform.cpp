@@ -24,27 +24,24 @@
 
 #include <string>
 
-#include <boost/filesystem/path.hpp>
-#include <boost/shared_ptr.hpp>
-
-#include "../../common/WAssert.h"
-#include "../../common/WCondition.h"
-#include "../../common/WProgress.h"
-#include "../../common/WPropertyTypes.h"
 #include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
 #include "WMFiberTransform.h"
 #include "fiberTransform.xpm"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMFiberTransform )
 
 WMFiberTransform::WMFiberTransform()
     : WModule(),
       m_recompute( new WCondition() )
 {
+}
+
+WMFiberTransform::~WMFiberTransform()
+{
+    // cleanup
+    removeConnectors();
 }
 
 boost::shared_ptr< WModule > WMFiberTransform::factory() const
@@ -198,3 +195,16 @@ boost::filesystem::path WMFiberTransform::saveFileName( std::string dataFileName
     boost::filesystem::path fibFileName( dataFileName );
     return fibFileName.replace_extension( ".transformed.fib" );
 }
+inline const std::string WMFiberTransform::getName() const
+{
+    // Specify your module name here. This name must be UNIQUE!
+    return std::string( "Fiber Transform" );
+}
+
+inline const std::string WMFiberTransform::getDescription() const
+{
+    // Specify your module description here. Be detailed. This text is read by the user.
+    // See "src/modules/template/" for an extensively documented example.
+    return std::string( "Transforms a fiber dataset" );
+}
+

@@ -39,8 +39,8 @@
 #include "../../common/math/WVector3D.h"
 
 /**
- * This module is intended to be a simple template and example module. It can be used for fast creation of new modules by copying and refactoring
- * the files. It shows the basic usage of properties, update callbacks and how to wait for data.
+ * Show an glyph plot (in this case the glyphs are arrows) of a vector data set.
+ * \warning Selectable slices are limited to [0,160]x[0,200]x[0,160] so far.
  * \ingroup modules
  */
 class WMVectorPlot: public WModule
@@ -115,6 +115,12 @@ private:
      */
     osg::ref_ptr<osg::Geometry> buildPlotSlices();
 
+    /**
+     * Transforms the given vertices according to m_matrix
+     * \param verts These vertices will be transformed.
+     */
+    void transformVerts( osg::ref_ptr< osg::Vec3Array > verts );
+
 
     /**
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
@@ -135,11 +141,11 @@ private:
 
     WPropBool     m_coloringMode; //!< indicates a set color or direction color coding.
 
-    WPropInt      m_xPos; //!< x posistion of the slice
+    WPropInt      m_xSlice; //!< x posistion of the slice
 
-    WPropInt      m_yPos; //!< y posistion of the slice
+    WPropInt      m_ySlice; //!< y posistion of the slice
 
-    WPropInt      m_zPos; //!< z posistion of the slice
+    WPropInt      m_zSlice; //!< z posistion of the slice
 
     WPropBool     m_showonX; //!< in dicates whether the vector should be shown on slice X
 
@@ -151,6 +157,8 @@ private:
     WPropColor    m_aColor; //!< color
 
     osg::ref_ptr< WShader > m_shader; //!< the shader object for this module
+
+    wmath::WMatrix< double > m_mat; //!< The 4x4 transformation matrix for the glyph vertices.
 
     /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in

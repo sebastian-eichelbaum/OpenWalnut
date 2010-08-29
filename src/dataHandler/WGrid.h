@@ -29,12 +29,13 @@
 #include <utility>
 
 #include "../common/math/WPosition.h"
+#include "WExportDataHandler.h"
 
 /**
  * Base class to all grid types, e.g. a regular grid.
  * \ingroup dataHandler
  */
-class WGrid
+class OWDATAHANDLER_EXPORT WGrid // NOLINT
 {
 public:
     /**

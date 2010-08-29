@@ -25,18 +25,17 @@
 #ifndef WQTCONFIGWIDGET_H
 #define WQTCONFIGWIDGET_H
 
-#include <Qt/qobject.h>
-
 #include <map>
 #include <string>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
+#include <QtCore/QObject>
 #include <QtGui/QWidget>
 #include <QtGui/QTabWidget>
 #include <QtGui/QPushButton>
 #include <QtGui/QClipboardEvent>
-
-#include <boost/shared_ptr.hpp>
 
 #include "../../common/WProperties.h"
 #include "../../common/WThreadedRunner.h"

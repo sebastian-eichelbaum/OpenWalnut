@@ -52,6 +52,9 @@
 #include "detTractClustering.xpm"
 #include "WMDetTractClustering.h"
 
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMDetTractClustering )
+
 WMDetTractClustering::WMDetTractClustering()
     : WModule(),
       m_lastTractsSize( 0 ),
@@ -114,6 +117,7 @@ void WMDetTractClustering::moduleMain()
             updateOutput();
         }
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
 }
 
 void WMDetTractClustering::properties()
@@ -137,7 +141,7 @@ void WMDetTractClustering::properties()
     m_numValidClusters = m_infoProperties->addProperty( "#Clusters used:", "Number of clusters beeing bigger than the given threshold", 0 );
     m_numValidClusters->setMin( 0 );
     m_numValidClusters->setMax( wlimits::MAX_INT32_T );
-    m_clusterSizes = m_infoProperties->addProperty( "Cluster Sizes:", "Size of each valid cluster", std::string() );
+    m_clusterSizes = m_infoProperties->addProperty( "Cluster sizes:", "Size of each valid cluster", std::string() );
 }
 
 void WMDetTractClustering::updateOutput()

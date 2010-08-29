@@ -28,11 +28,14 @@
 #include <osg/Projection>
 
 #include "../../common/WAssert.h"
+#include "../../common/WPathHelper.h"
 #include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WGEResourceManager.h"
 
 #include "WMHud.h"
 #include "hud.xpm"
+
+// This line is needed by the module loader to actually find your module.
+W_LOADABLE_MODULE( WMHud )
 
 WMHud::WMHud()
 {
@@ -179,21 +182,25 @@ void WMHud::init()
     // when setting the font, a variable is cleared which osg is already using -> crash
 
     m_osgPickText->setCharacterSize( 14 );
-    m_osgPickText->setFont( WGEResourceManager::getResourceManager()->getDefaultFont() );
+    m_osgPickText->setFont( WPathHelper::getAllFonts().Default.file_string() );
     m_osgPickText->setText( "nothing picked" );
     m_osgPickText->setAxisAlignment( osgText::Text::SCREEN );
     m_osgPickText->setPosition( osg::Vec3( 600, 80, -1.5 ) );
     m_osgPickText->setColor( osg::Vec4( 0, 0, 0, 1 ) );
     m_osgPickText->setDataVariance( osg::Object::DYNAMIC );
 
-    m_rootNode->setUserData( this );
+    osg::ref_ptr< userData > usrData = osg::ref_ptr< userData >(
+        new userData( boost::shared_dynamic_cast< WMHud >( shared_from_this() ) )
+        );
+
+    m_rootNode->setUserData( usrData );
     m_rootNode->setUpdateCallback( new HUDNodeCallback );
 
     HUDGeode->addDrawable( m_osgPickText );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
-    if ( m_active->get() )
+    if( m_active->get() )
     {
         m_rootNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -205,7 +212,7 @@ void WMHud::init()
     // connect updateGFX with picking
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
     WAssert( viewer, "Requested viewer (main) not found." );
-    if (viewer->getPickHandler() )
+    if(viewer->getPickHandler() )
         viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
 }
 
@@ -238,7 +245,7 @@ void WMHud::update()
 
 void WMHud::activate()
 {
-    if ( m_active->get() )
+    if( m_active->get() )
     {
         m_rootNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -250,3 +257,8 @@ void WMHud::activate()
     WModule::activate();
 }
 
+
+void WMHud::userData::update()
+{
+    m_parent->update();
+}

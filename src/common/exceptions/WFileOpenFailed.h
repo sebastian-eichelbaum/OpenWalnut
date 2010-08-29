@@ -28,11 +28,12 @@
 #include <string>
 
 #include "../WException.h"
+#include "../WExportCommon.h"
 
 /**
  * Thrown whenever a file could not be opened.
  */
-class WFileOpenFailed : public WException
+class OWCOMMON_EXPORT WFileOpenFailed : public WException
 {
 public:
     /**

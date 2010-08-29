@@ -51,13 +51,14 @@
 #include "WGEScene.h"
 #include "WGEViewer.h"
 #include "WGESignals.h"
+#include "WExportWGE.h"
 
 /**
  * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
  * engine.
  * \ingroup ge
  */
-class WGraphicsEngine: public WThreadedRunner
+class WGE_EXPORT WGraphicsEngine: public WThreadedRunner
 {
 public:
 
@@ -77,34 +78,6 @@ public:
      * \return the root node.
      */
     osg::ref_ptr<WGEScene> getScene();
-
-    /**
-     * Return the path where the shaders are expected to be located.
-     *
-     * \return shader path
-     */
-    std::string getShaderPath() const;
-
-    /**
-     * Sets the shader path.
-     *
-     * \param path path to shaders.
-     */
-    void setShaderPath( std::string path );
-
-    /**
-     * Return the path where the fonts are expected to be located.
-     *
-     * \return font path
-     */
-    std::string getFontPath() const;
-
-    /**
-     * Sets the font path.
-     *
-     * \param path path to fonts.
-     */
-    void setFontPath( std::string path );
 
     /**
      * Creates a new viewer. Does basic initialization and sets the default scene.
@@ -144,15 +117,6 @@ public:
      * \return the viewer for the default scene.
      */
     boost::shared_ptr< WGEViewer > getViewer();
-
-    /**
-     * Returns the currently selected default font usable in osgText nodes.
-     *
-     * \return Filename of the default font.
-     *
-     * \note this also contains the absolute path.
-     */
-    std::string getDefaultFont();
 
     /**
      * Returns instance of the graphics engine. If it does not exists, it will be created.
@@ -202,13 +166,6 @@ protected:
      * Mutex used to lock the map of viewers.
      */
     boost::mutex m_viewersLock;
-
-    /**
-     * Path to the shaders.
-     */
-    std::string m_shaderPath;
-
-    std::string m_fontPath; //!< Path where the fonts are expected.
 
     /**
      * OpenSceneGraph composite viewer. Contains all created osgViewer::Views.
