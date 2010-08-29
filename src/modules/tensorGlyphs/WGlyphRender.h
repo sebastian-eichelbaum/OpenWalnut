@@ -45,7 +45,8 @@ class WGlyphRender: public OpenCLRender
 		*/
 		WGlyphRender(const boost::shared_ptr<WDataSetSingle>& data,const int& order,
 					 const int& sliceX, const int& sliceY, const int& sliceZ,
-					 const bool& enabledX,const bool& enabledY,const bool& enabledZ);
+					 const bool& enabledX,const bool& enabledY,const bool& enabledZ,
+					 const boost::filesystem::path& search);
 
 		/**
 		*	Copy constructor.

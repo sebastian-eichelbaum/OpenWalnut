@@ -235,7 +235,8 @@ void WMTensorGlyphs::moduleMain()
 					(
 						dataSet,newOrder,
 						m_slices[0]->get(),m_slices[1]->get(),m_slices[2]->get(),
-						m_sliceEnabled[0]->get(),m_sliceEnabled[1]->get(),m_sliceEnabled[2]->get()
+						m_sliceEnabled[0]->get(),m_sliceEnabled[1]->get(),m_sliceEnabled[2]->get(),
+						m_localPath
 					);
 
 					if (!renderObject->isSourceRead())

@@ -29,7 +29,6 @@
 #include "../../common/WLogger.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WValueSet.h"
-#include "../../graphicsEngine/WGraphicsEngine.h"
 
 #include "WGlyphRender.h"
 
@@ -95,12 +94,8 @@ inline float* calcFactors(const unsigned int& order,const unsigned int& numOfCoe
 	return factorSet;
 }
 
-inline bool readKernelSource(std::string& kernelSource)
+inline bool readKernelSource(std::string& kernelSource,const std::string& filePath)
 {
-	std::string filePath = WGraphicsEngine::getGraphicsEngine()->getShaderPath() + "/GlyphKernel.cl";
-
-	filePath = boost::filesystem::path(filePath).file_string();
-
 	std::ifstream sourceFile(filePath.c_str());
 
 	if (!sourceFile.is_open())
@@ -206,8 +201,9 @@ WGlyphRender::CLObjects::~CLObjects()
 }
 
 WGlyphRender::WGlyphRender(const boost::shared_ptr<WDataSetSingle>& data,const int& order,
-						   const int& sliceX, const int& sliceY, const int& sliceZ,
-						   const bool& enabledX,const bool& enabledY,const bool& enabledZ): 
+						   const int& sliceX,const int& sliceY,const int& sliceZ,
+						   const bool& enabledX,const bool& enabledY,const bool& enabledZ,
+						   const boost::filesystem::path& search): 
 	OpenCLRender(),
 	m_order(order),
 	m_tensorData(data),
@@ -215,7 +211,7 @@ WGlyphRender::WGlyphRender(const boost::shared_ptr<WDataSetSingle>& data,const i
 {
 	/* load kernel source code */
 
-	if (readKernelSource(m_kernelSource))
+	if (readKernelSource(m_kernelSource,(search / "GlyphKernel.cl").file_string()))
 	{
 		m_sourceRead = true;
 	}
@@ -270,8 +266,6 @@ WGlyphRender::~WGlyphRender()
 
 osg::BoundingBox WGlyphRender::computeBound() const
 {
-	osg::BoundingBox box(osg::Vec3(0.0f,0.0f,0.0f),osg::Vec3(m_numOfTensors[0],m_numOfTensors[1],m_numOfTensors[2]));
-/*
 	int numHalf[3] = {m_numOfTensors[0] / 2,m_numOfTensors[1] / 2,m_numOfTensors[2] / 2};
 
 	osg::BoundingBox box
@@ -279,7 +273,7 @@ osg::BoundingBox WGlyphRender::computeBound() const
 		osg::Vec3(-numHalf[0],-numHalf[1],-numHalf[2]),
 		osg::Vec3(m_numOfTensors[0] - numHalf[0],m_numOfTensors[1] - numHalf[1],m_numOfTensors[2] - numHalf[2])
 	);
-*/
+
 	return box;
 }
 
@@ -453,14 +447,14 @@ void WGlyphRender::render(const OpenCLRender::CLViewInformation& clViewInfo,
 	getViewProperties(props,state);
 
 	/* set camera position relative to the center of the data set beginning at (0,0,0) */
-/*
+
 	props.origin += osg::Vec3f
 	(
 		m_numOfTensors[0] / 2,
 		m_numOfTensors[1] / 2,
 		m_numOfTensors[2] / 2
 	);
-*/
+
 	/* set kernel view arguments */
 
 	clSetKernelArg(clObjects.clRenderKernel,0,4 * sizeof(float),osg::Vec4f(props.origin,0.0f).ptr());
