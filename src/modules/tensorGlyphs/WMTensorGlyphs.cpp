@@ -29,7 +29,7 @@
 
 WMTensorGlyphs::WMTensorGlyphs()
 {
-	m_output = new osg::Geode();
+	renderGeode = new osg::Geode();
 }
 
 WMTensorGlyphs::~WMTensorGlyphs()
@@ -76,7 +76,17 @@ void WMTensorGlyphs::properties()
 {
 	m_propertyChanged = boost::shared_ptr<WCondition>(new WCondition());
 
-	// etc. pp.
+	m_slices[0] = m_properties->addProperty("Sagittal Position","Slice X position.",0,m_propertyChanged,true);
+	m_slices[1] = m_properties->addProperty("Coronal Position","Slice Y position.",0,m_propertyChanged,true);
+	m_slices[2] = m_properties->addProperty("Axial Position","Slice Z position.",0,m_propertyChanged,true);
+
+	m_slices[0]->setMin(0);
+	m_slices[1]->setMin(0);
+	m_slices[2]->setMin(0);
+
+	m_sliceEnabled[0] = m_properties->addProperty("Show Sagittal","Show vectors on sagittal slice.",true,m_propertyChanged,true);
+	m_sliceEnabled[1] = m_properties->addProperty("Show Coronal","Show vectors on coronal slice.",true,m_propertyChanged,true);
+	m_sliceEnabled[2] = m_properties->addProperty("Show Axial","Show vectors on axial slice.",true,m_propertyChanged,true);
 }
 
 void WMTensorGlyphs::moduleMain()
@@ -85,27 +95,21 @@ void WMTensorGlyphs::moduleMain()
 
 	m_moduleState.setResetable(true,true);
 	m_moduleState.add(m_input->getDataChangedCondition());
-	//m_moduleState.add(m_propertyChanged);
+	m_moduleState.add(m_propertyChanged);
 
 	ready();
 
 	/* add render object */
 
-	osg::ref_ptr<WGlyphRender> renderObject = new WGlyphRender();
+	osg::ref_ptr<WGlyphRender> renderObject;
 
-	if (!renderObject->isSourceRead())
-	{
-		return;
-	}
-
-	m_output->addDrawable(renderObject.get());
-
-	WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert(m_output);
+	boost::shared_ptr<WDataSetSingle> dataSet;
 
 	boost::shared_ptr<WDataSetSingle> newDataSet;
 	WValueSetBase* newValueSet;
-	unsigned int newDimension;
-	unsigned int newOrder;
+	int newDimension;
+	int newOrder;
+
 	bool dataChanged;
 	bool dataValid;
 
@@ -123,7 +127,7 @@ void WMTensorGlyphs::moduleMain()
 		/* test for data changes */
 
 		newDataSet = m_input->getData();
-		dataChanged = (m_dataSet != newDataSet);
+		dataChanged = (dataSet != newDataSet);
 
 		/* test for data validity */
 
@@ -133,7 +137,7 @@ void WMTensorGlyphs::moduleMain()
 
 		if (!dataValid)
 		{
-			warnLog()<<"Dataset does not have a valid data set. Ignoring Data.";
+			warnLog() << "Dataset does not have a valid data set. Ignoring Data.";
 		}
 
 		if (dataValid)
@@ -161,7 +165,7 @@ void WMTensorGlyphs::moduleMain()
 				newOrder += 2;
 			}
 
-			if (newOrder == 0) 
+			if (newOrder == 0)
 			{
 				dataValid = false;
 			}
@@ -173,9 +177,9 @@ void WMTensorGlyphs::moduleMain()
 
 			if (!dataValid)
 			{
-				warnLog()<<"Received data with order="<< newDataSet->getValueSet()->order()
-						<<" and dimension="<<newDataSet->getValueSet()->dimension()
-						<<" not compatible with this module. Ignoring Data.";
+				warnLog() << "Received data with order="<< newDataSet->getValueSet()->order() 
+						  << " and dimension="<<newDataSet->getValueSet()->dimension() 
+						  << " not compatible with this module. Ignoring Data.";
 			}
 
 			/* check the grid validity */
@@ -184,47 +188,106 @@ void WMTensorGlyphs::moduleMain()
 
 			if (!dataValid)
 			{
-				warnLog()<<"Dataset does not have a regular 3D grid. Ignoring Data.";
+				warnLog() << "Dataset does not have a regular 3D grid. Ignoring Data.";
 			}
 		}
-		
-		/* handle data */
 
-		if (dataChanged && dataValid)
+		if (dataValid)
 		{
-			debugLog() << "Received Data.";
+			/* handle data */
 
-			m_dataSet = newDataSet;
-
-			renderObject->setTensorData(m_dataSet.get());
-		}
-		else
-		{
-			if (!m_dataSet)
+			if (dataChanged)
 			{
-				continue;
+				debugLog() << "Received Data.";
+
+				dataSet = newDataSet;
+
+				WGridRegular3D* grid = static_cast<WGridRegular3D*>(dataSet->getGrid().get());
+
+				int numOfTensorsX = grid->getNbCoordsX();
+				int numOfTensorsY = grid->getNbCoordsY();
+				int numOfTensorsZ = grid->getNbCoordsZ();
+
+				m_slices[0]->setMax(numOfTensorsX - 1);
+				m_slices[1]->setMax(numOfTensorsY - 1);
+				m_slices[2]->setMax(numOfTensorsZ - 1);
+
+				m_slices[0]->set((numOfTensorsX / 2),true);
+				m_slices[1]->set((numOfTensorsY / 2),true);
+				m_slices[2]->set((numOfTensorsZ / 2),true);
+
+				m_sliceEnabled[0]->set(true,true);
+				m_sliceEnabled[1]->set(true,true);
+				m_sliceEnabled[2]->set(true,true);
+
+				if (renderObject.valid())
+				{
+					renderObject->setTensorData
+					(
+						dataSet,newOrder,
+						m_slices[0]->get(),m_slices[1]->get(),m_slices[2]->get(),
+						m_sliceEnabled[0]->get(),m_sliceEnabled[1]->get(),m_sliceEnabled[2]->get()
+					);
+				}
+				else
+				{
+					renderObject = new WGlyphRender
+					(
+						dataSet,newOrder,
+						m_slices[0]->get(),m_slices[1]->get(),m_slices[2]->get(),
+						m_sliceEnabled[0]->get(),m_sliceEnabled[1]->get(),m_sliceEnabled[2]->get()
+					);
+
+					if (!renderObject->isSourceRead())
+					{
+						return;
+					}
+
+					renderGeode->addDrawable(renderObject.get());
+
+					WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert(renderGeode);
+
+					m_slices[0]->setHidden(false);
+					m_slices[1]->setHidden(false);
+					m_slices[2]->setHidden(false);
+
+					m_sliceEnabled[0]->setHidden(false);
+					m_sliceEnabled[0]->setHidden(false);
+					m_sliceEnabled[0]->setHidden(false);
+				}
+			}
+
+			/* property changes */
+
+			if (m_slices[0]->changed() || m_slices[1]->changed() || m_slices[2]->changed() ||
+				m_sliceEnabled[0]->changed() || m_sliceEnabled[1]->changed() || m_sliceEnabled[2]->changed())
+			{
+				renderObject->setSlices
+				(
+					m_slices[0]->get(true),m_slices[1]->get(true),m_slices[2]->get(true),
+					m_sliceEnabled[0]->get(true),m_sliceEnabled[1]->get(true),m_sliceEnabled[2]->get(true)
+				);
 			}
 		}
-
-		/* property changes */
-
-		// etc. pp.
 	}
 
-	WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove(m_output);
+	if (renderObject.valid())
+	{
+		WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove(renderGeode);
+	}
 }
 
 void WMTensorGlyphs::activate()
 {
-	if (m_output)
+	if (renderGeode.valid())
 	{
 		if (m_active->get())
 		{
-			m_output->setNodeMask(0xFFFFFFFF);
+			renderGeode->setNodeMask(0xFFFFFFFF);
 		}
 		else
 		{
-			m_output->setNodeMask(0x0);
+			renderGeode->setNodeMask(0x0);
 		}
 	}
 

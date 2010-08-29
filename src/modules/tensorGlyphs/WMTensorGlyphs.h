@@ -103,7 +103,7 @@ class WMTensorGlyphs: public WModule
 		/**
 		*	The root node used for this modules graphics.
 		*/
-		osg::ref_ptr<osg::Geode> m_output;
+		osg::ref_ptr<osg::Geode> renderGeode;
 
 	private:
 
@@ -113,14 +113,19 @@ class WMTensorGlyphs: public WModule
 		boost::shared_ptr<WModuleInputData<WDataSetSingle>> m_input;
 
 		/**
-		*	The currently used tensor dataset.
-		*/
-		boost::shared_ptr<WDataSetSingle> m_dataSet; // local ???
-
-		/**
 		*	A condition used to notify about changes in several properties.
 		*/
 		boost::shared_ptr<WCondition> m_propertyChanged;
+
+		/**
+		*	Slice positions.
+		*/
+		WPropInt m_slices[3];
+
+		/**
+		*	Show slices.
+		*/
+		WPropBool m_sliceEnabled[3];
 };
 
 #endif

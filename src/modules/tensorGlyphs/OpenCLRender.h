@@ -1,3 +1,27 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
 #ifndef OPENCLRENDER_H
 #define OPENCLRENDER_H
 
@@ -16,9 +40,10 @@
 class PerContextGLObjects;
 
 /**
-*	Abstract base class for OpenCL rendering and integration into OpenSceneGraph. OpenCLRender diplays objects, rendered by OpenCL,
-*	in an OSG scene. Derive from this class to implement your render functionality. You just have to care to write your color and depth
-*	data into colorBuffer and depthBuffer respectively. Since this is a Drawable, it has to be attached to a Geode.
+*	Abstract base class for OpenCL rendering and integration into OpenSceneGraph.
+*	OpenCLRender diplays objects, rendered by OpenCL, in an OSG scene. Derive from this class to implement
+*	your render functionality. You just have to write your color and depth data into colorBuffer and
+*	depthBuffer respectively. Since this is a Drawable, it has to be attached to a Geode.
 */
 class OpenCLRender: public osg::Drawable
 {
@@ -33,6 +58,16 @@ class OpenCLRender: public osg::Drawable
 		*	Copy construcor.
 		*/
 		OpenCLRender(const OpenCLRender& openCLRender,const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+
+		/**
+		*	Overrides Object::cloneType.
+		*/
+		virtual osg::Object* cloneType() const = 0;
+
+		/**
+		*	Overrides Object::clone.
+		*/
+		virtual osg::Object* clone(const osg::CopyOp& copyop) const = 0;
 
 		/**
 		*	Overrides Object::isSameKindAs.
@@ -60,15 +95,17 @@ class OpenCLRender: public osg::Drawable
 		virtual void resizeGLObjectBuffers(unsigned int maxSize);
 
 		/**
-		*	Resets GL and CL objects of the OpenCLRender object. This method has to be called whenever you destroy a GL context,
-		*	that has been used to render an OpenCLRender object and you plan to reuse it with one or more new contexts.
+		*	Resets GL and CL objects of the OpenCLRender object. This method has to be called whenever you
+		*	destroy a GL context, that has been used to render an OpenCLRender object and you plan to reuse
+		*	the object with one or more new contexts.
 		*	After calling this method all CL objects will be reinitialized during the first render cycle.
-		*	Recompiling a CL kernel will always take some time dependig on its code size.
+		*	Recompiling a CL kernel will always take some time dependig on its code complexity.
 		*/
 		void reset() const;
 
 		/**
-		*	Check whether the initialization for any context failed. If so, you have to invoke reset() to start a new attempt.
+		*	Check whether the initialization for any context failed. If so, you have to invoke reset()
+		*	to start a new attempt.
 		*/
 		bool initializationFailed() const;
 
@@ -95,19 +132,19 @@ class OpenCLRender: public osg::Drawable
 		{
 			public:
 
-				osg::Vec3 origin;
-				osg::Vec3 origin2LowerLeft;
-				osg::Vec3 edgeX;
-				osg::Vec3 edgeY;
+				osg::Vec3f origin;
+				osg::Vec3f origin2LowerLeft;
+				osg::Vec3f edgeX;
+				osg::Vec3f edgeY;
 				ProjectionType type;
 				float planeNear;
 				float planeFar;
 		};
 
 		/**
-		*	Contains the viewport resolution and the CL context, device and command queue, as well as the colorBuffer
-		*	and depthBuffer. colorBuffer and depthBuffer both are 2D images in CL_RGBA format with CL_FLOAT components.
-		*	Depth data are stored within the depthBuffer's Alpha component.
+		*	Contains the viewport resolution and the CL context, device and command queue, as well as the
+		*	colorBuffer and depthBuffer. colorBuffer and depthBuffer are 2D images in CL_RGBA and CL_R format
+		*	with CL_FLOAT components. Depth data are stored within the depthBuffer's Red component.
 		*/
 		class CLViewInformation
 		{
@@ -126,11 +163,35 @@ class OpenCLRender: public osg::Drawable
 				unsigned int height;
 		};
 
+	private:
+
+		class PerContextInformation;
+
+	protected:
+
 		/**
-		*	Basic class to store your CL objects. Derive from it and add your data. Also add a destructor that releases all
-		*	CL objects if they have been successfully created.
+		*	Basic class to store your CL objects. Derive from it and add your data.
+		*	Also add a destructor that releases all CL objects if they have been successfully created.
 		*/
-		class CLProgramDataSet {};
+		class CLProgramDataSet
+		{
+			protected:
+
+				virtual ~CLProgramDataSet();
+
+			friend class PerContextInformation;
+		};
+
+		/**
+		*	Abstract Callback you have to implement, if you want to change your CL objects.
+		*	It has to be used in conjuntion with changeDataSet().
+		*/
+		class CLDataChangeCallback
+		{
+			public:
+
+				virtual void change(CLProgramDataSet* clProgramDataSet) const = 0;
+		};
 
 		/**
 		*	This Function gives the following view properties:
@@ -158,13 +219,13 @@ class OpenCLRender: public osg::Drawable
 		*
 		*		perspective projections:
 		*
-		*		direction = origin2LowerLeft + edgeX * (get_global_id(0) / width) + edgeY * (get_global_id(1) / height)
+		*		direction = origin2LowerLeft + edgeX * (pixel.x / width) + edgeY * (pixel.y / height)
 		*		inititialPoint = origin
 		*
 		*		orthographic projections:
 		*
 		*		direction = origin2LowerLeft
-		*		inititialPoint = origin + edgeX * (get_global_id(0) / width) + edgeY * (get_global_id(1) / height)
+		*		inititialPoint = origin + edgeX * (pixel.x / width) + edgeY * (pixel.y / height)
 		*
 		*	Let p be a point to render and t be a float, so that p = ray(t) = direction * t + inititialPoint.
 		*	Then the depth value of p is calculated as follows:
@@ -176,31 +237,42 @@ class OpenCLRender: public osg::Drawable
 		*	by setting depth to 1.
 		*/
 		void getViewProperties(ViewProperties& properties,const osg::State& state) const;
+
+		/**
+		*	Use this method with an appropriate DataChangeCallback, if you want to change data concerning
+		*	your CL objects. Your callback is automatically applied to every per context instance.
+		*/
+		void changeDataSet(const CLDataChangeCallback& callback) const;
 		
 	private:
 
 		/**
-		*	Override this method to initialize your CL program(s) and kernel(s). You may also create static CL memory objects or set
-		*	static kernel arguments. 
-		*	Return your Cl objects in a new CLProgramDataSet. Return 0 if the creation of your CL objects fails.
+		*	Override this method to initialize your CL program(s) and kernel(s).
+		*	You may also create CL memory objects or set static kernel arguments. 
+		*	Return your CL objects in a new CLProgramDataSet.
+		*	Return 0 if the creation of your CL objects fails.
 		*/
 		virtual CLProgramDataSet* initProgram(const CLViewInformation& clViewInfo) const = 0;
 
 		/**
-		*	Override this method to set the colorBuffer and depthbuffer kernel arguments. You should not use this method to set any
-		*	other kernel arguments.
+		*	Override this method to set the colorBuffer and depthbuffer kernel arguments.
+		*	You may also set width and height arguments. Do not use this method to set any other kernel
+		*	arguments or change CL objects.
 		*/
-		virtual void setBuffers(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet) const = 0;
+		virtual void setBuffers(const CLViewInformation& clViewInfo,
+								CLProgramDataSet* clProgramDataSet) const = 0;
 
 		/**
-		*	Override this method to execute your kernel(s), set kernel arguments (except colorBuffer and depthBuffer) and create or
-		*	change CL memory objects. colorBuffer and depthBuffer will always have the approriate size for the rendering cycle.
+		*	Override this method to execute your kernel(s), set kernel arguments
+		*	(except colorBuffer and depthBuffer) and create or change CL memory objects.
+		*	ColorBuffer and depthBuffer will always have the approriate size for the rendering cycle.
 		*	You may use getViewProperties to aquire the necessary view information.
 		*/
-		virtual void render(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet,const osg::State& state) const = 0;
+		virtual void render(const CLViewInformation& clViewInfo,
+							CLProgramDataSet* clProgramDataSet,const osg::State& state) const = 0;
 
 		/**
-		*	Contains per GL context data.
+		*	Contains data per GL context.
 		*/
 		class PerContextInformation
 		{
@@ -240,7 +312,10 @@ class OpenCLRender: public osg::Drawable
 		*/
 		void initBuffers(PerContextInformation& perContextInfo) const;
 
-		mutable osg::buffered_object<PerContextInformation> perContextInformation;
+		/**
+		*	Per GL context data.
+		*/
+		mutable osg::buffered_object<PerContextInformation> m_perContextInformation;
 };
 
 inline bool OpenCLRender::isSameKindAs(const osg::Object* obj) const

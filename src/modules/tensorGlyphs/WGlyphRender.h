@@ -30,7 +30,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../dataHandler/WDataSetSingle.h"
-#include "../../dataHandler/WValueSet.h"
 
 #include "OpenCLRender.h"
 
@@ -42,9 +41,11 @@ class WGlyphRender: public OpenCLRender
 	public:
 
 		/**
-		*	Standard constructor.
+		*	Constructor.
 		*/
-		WGlyphRender();
+		WGlyphRender(const boost::shared_ptr<WDataSetSingle>& data,const int& order,
+					 const int& sliceX, const int& sliceY, const int& sliceZ,
+					 const bool& enabledX,const bool& enabledY,const bool& enabledZ);
 
 		/**
 		*	Copy constructor.
@@ -77,6 +78,11 @@ class WGlyphRender: public OpenCLRender
         virtual const char* className() const;
 
 		/**
+		*	Overrides Drawable::computeBound.
+		*/
+		virtual osg::BoundingBox computeBound() const;
+
+		/**
 		*	Has the kernel source code successfully been read?
 		*/
 		bool isSourceRead() const;
@@ -84,7 +90,15 @@ class WGlyphRender: public OpenCLRender
 		/**
 		*	Set the new tensor data to render. This method assumes data validity.
 		*/
-		void setTensorData(WDataSetSingle* data);
+		void setTensorData(const boost::shared_ptr<WDataSetSingle>& data,const int& order,
+						   const int& sliceX, const int& sliceY, const int& sliceZ,
+						   const bool& enabledX,const bool& enabledY,const bool& enabledZ);
+
+		/**
+		*	Set the slice properties to render.
+		*/
+		void setSlices(const int& sliceX, const int& sliceY, const int& sliceZ,
+					   const bool& enabledX,const bool& enabledY,const bool& enabledZ);
 
 	protected:
 
@@ -94,6 +108,42 @@ class WGlyphRender: public OpenCLRender
 		virtual ~WGlyphRender();
 
 	private:
+
+		/**
+		*	Callback used to update the data thread-safe without removing and readding the glyph render
+		*	object from the scene graph.
+		*/
+		class DataChangeCallback: public UpdateCallback
+		{
+			public:
+
+				DataChangeCallback();
+
+				virtual void update(osg::NodeVisitor*,osg::Drawable* drawable);
+
+				bool m_changed;
+				bool m_dataChanged;
+
+				int m_order;
+				int m_slices[3];
+				int m_sliceEnabled[3];
+
+				boost::shared_ptr<WDataSetSingle> m_tensorData;
+		};
+
+		/**
+		*	Callback used to update the CL objects.
+		*/
+		class ReloadCallback: public CLDataChangeCallback
+		{
+			public:
+
+				ReloadCallback(bool reloadFactors);
+
+				virtual void change(CLProgramDataSet* clProgramDataSet) const;
+
+				bool factors;
+		};
 
 		/**
 		*	Derives from OpenCLRender::CLProgramDataSet.
@@ -107,10 +157,14 @@ class WGlyphRender: public OpenCLRender
 				~CLObjects();
 
 				cl_program clProgram;
-				cl_kernel clKernel;
+				cl_kernel clScaleKernel;
+				cl_kernel clRenderKernel;
 				cl_mem tensorData;
+				cl_mem factors;
 
 				bool dataCreated;
+				bool reloadData;
+				bool reloadAuxData;
 		};
 
 		/**
@@ -121,34 +175,59 @@ class WGlyphRender: public OpenCLRender
 		/**
 		*	Overrides OpenCLRender::setBuffers.
 		*/
-		virtual void setBuffers(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet) const;
+		virtual void setBuffers(const CLViewInformation& clViewInfo,
+								CLProgramDataSet* clProgramDataSet) const;
 
 		/**
 		*	Overrides OpenCLRender::render.
 		*/
-		virtual void render(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet,const osg::State& state) const;
+		virtual void render(const CLViewInformation& clViewInfo,
+							CLProgramDataSet* clProgramDataSet,const osg::State& state) const;
 
 		/**
 		*	Loads new data to GPU memory.
 		*/
 		void loadCLData(const CLViewInformation& clViewInfo,CLObjects& clObjects) const;
 
-		unsigned int m_numOfCoeffs;
-		unsigned int m_numOfTensors;
+		/**
+		*	Tensor order.
+		*/
+		int m_order;
 
-		boost::shared_ptr<WValueSet<float>> m_tensorData;
+		/**
+		*	Number of tensors in grid's x, y and z direction.
+		*/
+		int m_numOfTensors[3];
 
-		bool m_dataInitialized;
+		/**
+		*	Slice positions.
+		*/
+		int m_slices[3];
 
-		mutable bool m_sourceRead;
-		mutable bool m_dataChanged;
+		/**
+		*	Show slices.
+		*/
+		int m_sliceEnabled[3];
 
+		/**
+		*	The tensor data set.
+		*/
+		boost::shared_ptr<WDataSetSingle> m_tensorData;
+
+		/**
+		*	The kernel source code.
+		*/
 		std::string m_kernelSource;
+
+		/**
+		*	Has the kernel source code successfully been read?
+		*/
+		mutable bool m_sourceRead;
 };
 
 inline osg::Object* WGlyphRender::cloneType() const
 {
-	return new WGlyphRender();
+	return 0;
 }
 
 inline osg::Object* WGlyphRender::clone(const osg::CopyOp& copyop) const
@@ -169,6 +248,11 @@ inline const char* WGlyphRender::libraryName() const
 inline const char* WGlyphRender::className() const
 {
 	return "WGlyphRender";
+}
+
+inline bool WGlyphRender::isSourceRead() const
+{
+	return m_sourceRead;
 }
 
 #endif

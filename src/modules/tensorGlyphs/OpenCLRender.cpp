@@ -1,10 +1,34 @@
-#include "OpenCLRender.h"
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
 
 #include <OpenThreads/Mutex>
 #include <OpenThreads/ScopedLock>
 #include <osg/GLExtensions>
 #include <osg/Matrix>
 #include <osg/Notify>
+
+#include "OpenCLRender.h"
 
 #if defined (__APPLE__) || defined (MACOSX)
 	#include <Carbon/Carbon.h>
@@ -29,7 +53,7 @@
 #define GL_ARRAY_BUFFER 0x8892
 #define GL_STATIC_DRAW 0x88E4
 
-#define GL_ALPHA32F 0x8816
+#define GL_R32F 0x822E
 #define GL_RGBA32F 0x8814
 
 typedef ptrdiff_t GLsizeiptr;
@@ -124,25 +148,90 @@ GLRenderExtensions::GLRenderExtensions(): initialized(false) {}
 
 bool GLRenderExtensions::initExtensions()
 {
-	if (initialized) return true;
+	if (initialized)
+	{
+		return true;
+	}
 
-	if (!osg::setGLExtensionFuncPtr(glGenBuffers,"glGenBuffers")) return false;
-	if (!osg::setGLExtensionFuncPtr(glBindBuffer,"glBindBuffer")) return false;
-	if (!osg::setGLExtensionFuncPtr(glBufferData,"glBufferData")) return false;
-	if (!osg::setGLExtensionFuncPtr(glDeleteBuffers,"glDeleteBuffers")) return false;
+	if (!osg::setGLExtensionFuncPtr(glGenBuffers,"glGenBuffers"))
+	{
+		return false;
+	}
 
-	if (!osg::setGLExtensionFuncPtr(glAttachShader,"glAttachShader")) return false;
-	if (!osg::setGLExtensionFuncPtr(glCompileShader,"glCompileShader")) return false;
-	if (!osg::setGLExtensionFuncPtr(glCreateProgram,"glCreateProgram")) return false;
-	if (!osg::setGLExtensionFuncPtr(glCreateShader,"glCreateShader")) return false;
-	if (!osg::setGLExtensionFuncPtr(glDeleteProgram,"glDeleteProgram")) return false;
-	if (!osg::setGLExtensionFuncPtr(glDeleteShader,"glDeleteShader")) return false;
-	if (!osg::setGLExtensionFuncPtr(glDetachShader,"glDetachShader")) return false;
-	if (!osg::setGLExtensionFuncPtr(glGetUniformLocation,"glGetUniformLocation")) return false;
-	if (!osg::setGLExtensionFuncPtr(glLinkProgram,"glLinkProgram")) return false;
-	if (!osg::setGLExtensionFuncPtr(glShaderSource,"glShaderSource")) return false;
-	if (!osg::setGLExtensionFuncPtr(glUniform1i,"glUniform1i")) return false;
-	if (!osg::setGLExtensionFuncPtr(glUseProgram,"glUseProgram")) return false;
+	if (!osg::setGLExtensionFuncPtr(glBindBuffer,"glBindBuffer"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glBufferData,"glBufferData"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glDeleteBuffers,"glDeleteBuffers"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glAttachShader,"glAttachShader"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glCompileShader,"glCompileShader"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glCreateProgram,"glCreateProgram"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glCreateShader,"glCreateShader"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glDeleteProgram,"glDeleteProgram"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glDeleteShader,"glDeleteShader"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glDetachShader,"glDetachShader"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glGetUniformLocation,"glGetUniformLocation"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glLinkProgram,"glLinkProgram"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glShaderSource,"glShaderSource"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glUniform1i,"glUniform1i"))
+	{
+		return false;
+	}
+
+	if (!osg::setGLExtensionFuncPtr(glUseProgram,"glUseProgram"))
+	{
+		return false;
+	}
 
 	initialized = true;
 
@@ -274,10 +363,13 @@ const char* fragmentShaderSource =
 "void main()"
 "{"
 "	gl_FragColor = texture2D(texture0,gl_TexCoord[0].st);"
-"	gl_FragDepth = texture2D(texture1,gl_TexCoord[0].st).a;"
+"	gl_FragDepth = texture2D(texture1,gl_TexCoord[0].st).r;"
 "}";
 
 OpenCLRender::CLViewInformation::CLViewInformation(): width(0),height(0)
+{}
+
+OpenCLRender::CLProgramDataSet::~CLProgramDataSet()
 {}
 
 OpenCLRender::PerContextInformation::PerContextInformation(): 
@@ -314,8 +406,6 @@ void OpenCLRender::PerContextInformation::reset()
 
 		cglInitialized = false;
 
-		OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
-
 		glInitializedInstances--;
 
 		/* release GL objects if required */
@@ -324,7 +414,7 @@ void OpenCLRender::PerContextInformation::reset()
 		{
 			unsigned int size = perContextGLObjects.size();
 
-			for (unsigned int i = 0;i < size;i++)
+			for (unsigned int i = 0; i < size; i++)
 			{
 				PerContextGLObjects& perContextGLObs = perContextGLObjects[i];
 
@@ -367,11 +457,14 @@ void OpenCLRender::drawImplementation(osg::RenderInfo& renderInfo) const
 
 	unsigned int contextID = state.getContextID();
 
-	PerContextInformation& perContextInfo = perContextInformation[contextID];
+	PerContextInformation& perContextInfo = m_perContextInformation[contextID];
 
 	/* do nothing if an initialization attempt has already failed */
 
-	if (perContextInfo.initializationError) return;
+	if (perContextInfo.initializationError)
+	{
+		return;
+	}
 
 	/* initialize CL and GL objects of required */
 
@@ -430,7 +523,10 @@ void OpenCLRender::drawImplementation(osg::RenderInfo& renderInfo) const
 		initBuffers(perContextInfo);
 	}
 
-	if (!perContextInfo.buffersInitialized) return;
+	if (!perContextInfo.buffersInitialized)
+	{
+		return;
+	}
 
 	state.setCurrentVertexBufferObject(0);
 
@@ -482,7 +578,7 @@ void OpenCLRender::drawImplementation(osg::RenderInfo& renderInfo) const
 
 		/* load rendered content to main memory */
 
-		void* colorData = new float[4*perContextInfo.clViewInfo.width*perContextInfo.clViewInfo.height];
+		void* colorData = new float[4 * perContextInfo.clViewInfo.width*perContextInfo.clViewInfo.height];
 		void* depthData = new float[perContextInfo.clViewInfo.width*perContextInfo.clViewInfo.height];
 
 		size_t origin[3] = {0,0,0};
@@ -534,7 +630,7 @@ void OpenCLRender::drawImplementation(osg::RenderInfo& renderInfo) const
 		(
 			GL_TEXTURE_2D,0,0,0,
 			perContextInfo.clViewInfo.width,perContextInfo.clViewInfo.height,
-			GL_ALPHA,GL_FLOAT,depthData
+			GL_RED,GL_FLOAT,depthData
 		);
 		delete[] depthData;
 	}
@@ -562,25 +658,31 @@ void OpenCLRender::drawImplementation(osg::RenderInfo& renderInfo) const
 
 void OpenCLRender::resizeGLObjectBuffers(unsigned int maxSize)
 {
-	perContextInformation.resize(maxSize);
+	m_perContextInformation.resize(maxSize);
 
 	Drawable::resizeGLObjectBuffers(maxSize);
 }
 
 void OpenCLRender::reset() const
 {
-	unsigned int size = perContextInformation.size();
+	unsigned int size = m_perContextInformation.size();
 
-	for (unsigned int i = 0;i < size;i++) perContextInformation[i].reset();
+	for (unsigned int i = 0; i < size; i++)
+	{
+		m_perContextInformation[i].reset();
+	}
 }
 
 bool OpenCLRender::initializationFailed() const
 {
-	unsigned int size = perContextInformation.size();
+	unsigned int size = m_perContextInformation.size();
 
-	for (unsigned int i = 0;i < size;i++)
+	for (unsigned int i = 0; i < size; i++)
 	{
-		if (perContextInformation[i].initializationError) return true;
+		if (m_perContextInformation[i].initializationError)
+		{
+			return true;
+		}
 	}
 
 	return false;
@@ -738,6 +840,21 @@ void OpenCLRender::getViewProperties(ViewProperties& properties,const osg::State
 	);
 }
 
+void OpenCLRender::changeDataSet(const CLDataChangeCallback& callback) const
+{
+	unsigned int size = m_perContextInformation.size();
+
+	for (unsigned int i = 0; i < size; i++)
+	{
+		PerContextInformation& perContextInfo = m_perContextInformation[i];
+		
+		if (perContextInfo.cglInitialized)
+		{
+			callback.change(perContextInfo.clProgramDataSet);
+		}
+	}
+}
+
 bool OpenCLRender::initGL(PerContextInformation& perContextInfo,PerContextGLObjects& perContextGLObjects) const
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
@@ -842,7 +959,7 @@ bool OpenCLRender::initCL(PerContextInformation& perContextInfo) const
 
 	/* get available CL devices */
 
-	for (unsigned int i = 0;i < numOfPlatforms;i++)
+	for (unsigned int i = 0; i < numOfPlatforms; i++)
 	{
 		clGetDeviceIDs(platforms[i],CL_DEVICE_TYPE_GPU,0,0,&numOfDevices[i]);
 
@@ -881,9 +998,9 @@ bool OpenCLRender::initCL(PerContextInformation& perContextInfo) const
 
 	/* create CL context sharing GL objects */
 							
-	for (unsigned int i = 0;i < numOfPlatforms;i++)
+	for (unsigned int i = 0; i < numOfPlatforms; i++)
 	{
-		for (unsigned int j = 0;j < numOfDevices[i];j++)
+		for (unsigned int j = 0; j < numOfDevices[i]; j++)
 		{
 			properties[1] = reinterpret_cast<cl_context_properties>(platforms[i]);
 
@@ -908,9 +1025,9 @@ bool OpenCLRender::initCL(PerContextInformation& perContextInfo) const
 
 		/* create CL context not sharing GL objects */
 		
-		for (unsigned int i = 0;i < numOfPlatforms;i++)
+		for (unsigned int i = 0; i < numOfPlatforms; i++)
 		{
-			for (unsigned int j = 0;j < numOfDevices[i];j++)
+			for (unsigned int j = 0; j < numOfDevices[i]; j++)
 			{
 				properties[1] = reinterpret_cast<cl_context_properties>(platforms[i]);
 
@@ -928,7 +1045,7 @@ bool OpenCLRender::initCL(PerContextInformation& perContextInfo) const
 		}
 	}
 		
-	for (unsigned int i = 0;i < numOfPlatforms;i++)
+	for (unsigned int i = 0; i < numOfPlatforms; i++)
 	{
 		delete[] devices[i];
 	}
@@ -990,9 +1107,9 @@ void OpenCLRender::initBuffers(PerContextInformation& perContextInfo) const
 	glBindTexture(GL_TEXTURE_2D,perContextInfo.depthTexture);
 	glTexImage2D
 	(
-		GL_TEXTURE_2D,0,GL_RGBA32F,
+		GL_TEXTURE_2D,0,GL_R32F,
 		perContextInfo.clViewInfo.width,perContextInfo.clViewInfo.height,
-		0,GL_RGBA,GL_FLOAT,0
+		0,GL_RED,GL_FLOAT,0
 	);
 
 	cl_int clError;
@@ -1053,7 +1170,7 @@ void OpenCLRender::initBuffers(PerContextInformation& perContextInfo) const
 			return;
 		}
 
-		format.image_channel_order = CL_A;
+		format.image_channel_order = CL_R;
 
 		perContextInfo.clViewInfo.depthBuffer = clCreateImage2D
 		(
