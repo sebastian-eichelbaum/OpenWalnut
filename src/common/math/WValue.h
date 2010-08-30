@@ -25,6 +25,7 @@
 #ifndef WVALUE_H
 #define WVALUE_H
 
+#include <algorithm>
 #include <cmath>
 #include <vector>
 
@@ -270,6 +271,31 @@ public:
         WValue result = *this;
         result.normalize();
         return result;
+    }
+
+    /**
+     * Returns the mean value of all values stored in this WValue.
+     */
+    T mean() const
+    {
+        WAssert( !m_components.empty(), "WValue has no entries." );
+        T sum = 0;
+        for ( typename std::vector< T >::const_iterator it = m_components.begin(); it != m_components.end(); it++  )
+        {
+            sum += ( *it );
+        }
+        return ( sum / static_cast< T >( m_components.size() ) );
+    }
+
+    /**
+     * Returns the median of all values stored in this WValue.
+     */
+    T median() const
+    {
+        WAssert( !m_components.empty(), "WValue has no entries. " );
+        std::vector< T > components( m_components );
+        std::sort( components.begin(), components.end() );
+        return components[ components.size() / 2 ];
     }
 
 protected:
