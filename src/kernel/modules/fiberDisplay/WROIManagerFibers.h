@@ -184,10 +184,48 @@ public:
      */
     size_t size();
 
+    /**
+     * setter for the external bitfield, the bitfield must have the same size as the fiber dataset and will
+     * be used like the master bitfield calculated from all rois when active
+     *
+     * \param bitfield
+     */
+    void setExternalBitfield( boost::shared_ptr< std::vector< bool > > bitfield );
+
+    /**
+     * setter if true the external bitfield will be used
+     *
+     * \param flag
+     */
+    void setUseExternalBitfield( bool flag );
+
+    /**
+     * getter
+     * \return the bitfield calculated from all active rois
+     */
+    boost::shared_ptr< std::vector< bool > > getRoiBitfield();
+
+    /**
+     * getter for the properties object
+     * \return the properties object
+     */
+    boost::shared_ptr< WProperties > getProperties();
+
+    /**
+     * getter for the line start index array
+     * \return line starts
+     */
+    boost::shared_ptr< std::vector< size_t > > getStarts();
+
+    /**
+     * getter for the line length array
+     * \return line lengths
+     */
+    boost::shared_ptr< std::vector< size_t > > getLengths();
+
+
 protected:
 private:
-    bool m_dirty; //!< dirty flag
-
     size_t m_size; //!< number of fibers in the dataset
 
     boost::shared_ptr< const WDataSetFibers >m_fibers; //!< registered fiber dataset
@@ -235,16 +273,48 @@ private:
     boost::shared_ptr< std::vector< float > >m_customColors; //!< vector to store custom colors
 
     boost::shared_ptr< WRMROIRepresentation > m_selectedRoi; //!< stores a pointer to the currently selected roi
+
+
+    boost::shared_ptr< std::vector< bool > >m_externalBitfield; //!< bit field of activated fibers
+
+    bool m_useExternalBitfield; //!< flag controlling the use of an external bitfield
+
+    /**
+     * The property object for the module.
+     */
+    boost::shared_ptr< WProperties > m_properties;
+
+
+    /**
+     * dirty flag
+     */
+    WPropBool m_dirty;
 };
 
 inline bool WROIManagerFibers::dirty()
 {
-    return m_dirty;
+    return m_dirty->get();
 }
 
 inline size_t WROIManagerFibers::size()
 {
     return m_size;
 }
+
+inline boost::shared_ptr< WProperties > WROIManagerFibers::getProperties()
+{
+    return m_properties;
+}
+
+inline boost::shared_ptr< std::vector< size_t > > WROIManagerFibers::getStarts()
+{
+    return m_fibers->getLineStartIndexes();
+}
+
+inline boost::shared_ptr< std::vector< size_t > > WROIManagerFibers::getLengths()
+{
+    return m_fibers->getLineLengths();
+}
+
 
 #endif  // WROIMANAGERFIBERS_H
