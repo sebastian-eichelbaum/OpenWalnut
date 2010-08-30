@@ -55,7 +55,7 @@ WGEViewer::WGEViewer( std::string name, int x, int y,
 {
     try
     {
-        m_View = new osgViewer::Viewer();
+        m_View = osg::ref_ptr<osgViewer::Viewer>( new osgViewer::Viewer() );
         m_View->setCamera( new WGECamera( width, height, projectionMode ) );
         m_View->getCamera()->setGraphicsContext( m_GraphicsWindow.get() );
 
@@ -95,7 +95,7 @@ WGEViewer::~WGEViewer()
     close();
 }
 
-osg::ref_ptr<osgViewer::View> WGEViewer::getView()
+osg::ref_ptr<osgViewer::Viewer> WGEViewer::getView()
 {
     return m_View;
 }
