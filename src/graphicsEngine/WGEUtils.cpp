@@ -119,3 +119,45 @@ WColor wge::createColorFromIndex( int index )
 
     return WColor( r, g, b );
 }
+
+WColor wge::createColorFromHSV( int h, float s, float v )
+{
+    h = h % 360;
+
+    int hi = h / 60;
+    float f =  ( static_cast<float>( h ) / 60.0 ) - hi;
+
+    float p = v * ( 1.0 - s );
+    float q = v * ( 1.0 - s * f );
+    float t = v * ( 1.0 - s * ( 1.0 - f ) );
+
+    switch ( hi )
+    {
+        case 0:
+            return WColor( v, t, p, 1.0 );
+        case 1:
+            return WColor( q, v, p, 1.0 );
+        case 2:
+            return WColor( p, v, t, 1.0 );
+        case 3:
+            return WColor( p, q, v, 1.0 );
+        case 4:
+            return WColor( t, p, v, 1.0 );
+        case 5:
+            return WColor( v, p, q, 1.0 );
+        case 6:
+            return WColor( v, t, p, 1.0 );
+        default:
+            return WColor( v, t, p, 1.0 );
+    }
+}
+
+WColor wge::getNthHSVColor( int n, int parts )
+{
+    if ( parts > 360 )
+    {
+        parts = 360;
+    }
+    int frac = 360 / parts;
+    return createColorFromHSV( n * frac );
+}
