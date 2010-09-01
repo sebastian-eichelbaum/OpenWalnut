@@ -157,6 +157,11 @@ private:
     /**
      * function to handle user input
      */
+    void handleOffsetChanged();
+
+    /**
+     * function to handle user input
+     */
     void handleSelectedLevelChanged();
 
     /**

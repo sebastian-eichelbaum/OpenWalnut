@@ -380,9 +380,14 @@ void WMClusterDisplay::moduleMain()
            break;
         }
 
-        if( m_propSelectedCluster->changed() || m_propSelectedClusterOffset->changed() )
+        if( m_propSelectedCluster->changed() )
         {
             handleSelectedClusterChanged();
+        }
+
+        if ( m_propSelectedClusterOffset->changed() )
+        {
+            handleOffsetChanged();
         }
 
         if( m_propSubClusters->changed() )
@@ -420,6 +425,20 @@ void WMClusterDisplay::moduleMain()
 }
 
 void WMClusterDisplay::handleSelectedClusterChanged()
+{
+    m_rootCluster = m_propSelectedCluster->get( true );
+    m_propSelectedClusterOffset->setMax( m_tree.getMaxLevel() - m_tree.getLevel( m_propSelectedCluster->get() ) );
+    m_propSelectedClusterOffset->setMin( 0 - m_tree.getLevel( m_propSelectedCluster->get() ) );
+    m_propSelectedClusterOffset->set( 0 );
+    m_propSelectedClusterOffset->get( true );
+
+    WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( m_rootCluster ) );
+    m_propSubLevelsToColor->setMax( m_tree.getLevel( m_rootCluster ) );
+
+    m_dendrogramDirty = true;
+}
+
+void WMClusterDisplay::handleOffsetChanged()
 {
     if ( m_propSelectedClusterOffset->get( true ) == 0 )
     {
