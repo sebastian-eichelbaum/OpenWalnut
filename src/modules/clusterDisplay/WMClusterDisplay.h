@@ -177,6 +177,12 @@ private:
     /**
      * function to handle user input
      */
+    void handleMinSizeChanged();
+
+
+    /**
+     * function to handle user input
+     */
     void handleRoiChanged();
 
     /**

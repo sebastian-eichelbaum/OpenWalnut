@@ -44,13 +44,14 @@ public:
      *
      * \param tree reference to the tree object to work on
      * \param cluster root cluster for the dendrogram
+     * \param minClusterSize minimum for cluster to be drawn, when i the whole tree is drawn
      * \param xSize number of pixel to scale the tree on along the x axis
      * \param ySize number of pixel to scale the tree on along the y axis
      * \param xOffset translation alogn the x axis
      * \param yOffset translation alogn the y axis
      *
      */
-    WDendrogram( WHierarchicalTree* tree, size_t cluster, float xSize = 1000.f, float ySize = 500.f, float xOffset = 0.0f, float yOffset = 0.0f );
+    WDendrogram( WHierarchicalTree* tree, size_t cluster, size_t minClusterSize = 1, float xSize = 1000.f, float ySize = 500.f, float xOffset = 0.0f, float yOffset = 0.0f );
 
     /**
      * destructor
@@ -82,6 +83,8 @@ private:
     osg::Vec3Array* m_vertexArray; //!< vertex array
 
     osg::DrawElementsUInt* m_lineArray; //!< line array
+
+    size_t m_minClusterSize; //!< minimum cluster size to be considered while laying out the dendrogram
 
     float m_xSize; //!< x size in pixel of the final dendrogram
     float m_ySize; //!< y size in pixel of the final dendrogram

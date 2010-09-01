@@ -30,10 +30,11 @@
 /**
  * Class implements a dendrogram as an osg geode
  */
-WDendrogram::WDendrogram( WHierarchicalTree* tree, size_t cluster, float xSize, float ySize, float xOffset, float yOffset ) :
+WDendrogram::WDendrogram( WHierarchicalTree* tree, size_t cluster, size_t minClusterSize, float xSize, float ySize, float xOffset, float yOffset ) :
     osg::Geode(),
     m_tree( tree ),
     m_rootCluster( cluster ),
+    m_minClusterSize( minClusterSize ),
     m_xSize( xSize ),
     m_ySize( ySize ),
     m_xOff( xOffset ),
@@ -99,7 +100,7 @@ void WDendrogram::layout( size_t cluster, float left, float right )
         float rightHeight = m_tree->getLevel( rightCluster );
         float rightSize = static_cast<float>( m_tree->size( rightCluster ) );
 
-        if ( ( leftSize / rightSize ) > 100. )
+        if ( ( leftSize >= m_minClusterSize ) &&  ( rightSize < m_minClusterSize ) )
         //if ( rightSize < 2 )
         {
             // left cluster is much bigger, draw only left
@@ -114,7 +115,7 @@ void WDendrogram::layout( size_t cluster, float left, float right )
 
             layout( leftCluster, left, right );
         }
-        else if ( ( rightSize / leftSize ) > 100. )
+        else if ( ( rightSize >= m_minClusterSize ) &&  ( leftSize < m_minClusterSize ) )
         //else if ( leftSize < 2 )
         {
             // right cluster is much bigger, draw only right

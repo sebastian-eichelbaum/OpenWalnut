@@ -395,9 +395,14 @@ void WMClusterDisplay::moduleMain()
             handleBiggestClustersChanged();
         }
 
-        if ( m_propSubLevelsToColor->changed() || m_propMinSizeToColor->changed() )
+        if ( m_propSubLevelsToColor->changed() )
         {
             handleColoringChanged();
+        }
+
+        if ( m_propMinSizeToColor->changed() )
+        {
+            handleMinSizeChanged();
         }
 
         if ( m_propBoxClusterRatio->changed() || m_propMaxSubClusters->changed() )
@@ -434,7 +439,7 @@ void WMClusterDisplay::handleSelectedClusterChanged()
 
     WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( m_rootCluster ) );
     m_propSubLevelsToColor->setMax( m_tree.getLevel( m_rootCluster ) );
-
+    colorClusters( m_propSelectedCluster->get( true ) );
     m_dendrogramDirty = true;
 }
 
@@ -513,6 +518,11 @@ void WMClusterDisplay::handleColoringChanged()
     m_propSubLevelsToColor->get( true );
     m_propMinSizeToColor->get( true );
     colorClusters( m_propSelectedCluster->get( true ) );
+    m_dendrogramDirty = true;
+}
+
+void WMClusterDisplay::handleMinSizeChanged()
+{
     m_dendrogramDirty = true;
 }
 
@@ -642,7 +652,7 @@ void WMClusterDisplay::updateWidgets()
 
         if ( m_propShowDendrogram->get( true ) )
         {
-            m_dendrogramGeode = new WDendrogram( &m_tree, m_rootCluster, width - 120, height / 2 , 100 );
+            m_dendrogramGeode = new WDendrogram( &m_tree, m_rootCluster, m_propMinSizeToColor->get(), width - 120, height / 2 , 100 );
             m_camera->addChild( m_dendrogramGeode );
         }
         m_dendrogramDirty = false;
