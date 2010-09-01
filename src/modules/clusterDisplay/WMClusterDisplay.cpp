@@ -227,7 +227,7 @@ void WMClusterDisplay::initWidgets()
 
     m_rootNode = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
 
-    m_wm = new osgWidget::WindowManager( viewer, 0.0f, 0.0f, MASK_2D, osgWidget::WindowManager::WM_PICK_DEBUG );
+    m_wm = new osgWidget::WindowManager( viewer, 0.0f, 0.0f, MASK_2D );
 
     float xorig = 100.f;
     float yorig = 300.f;
