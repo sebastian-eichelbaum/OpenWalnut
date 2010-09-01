@@ -220,6 +220,11 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
 
 void WHierarchicalTree::sortList( std::list<size_t> &input ) //NOLINT
 {
+    if ( input.size() == 0 )
+    {
+        return;
+    }
+
     std::vector<size_t>vec;
     std::list<size_t>::iterator it;
 
