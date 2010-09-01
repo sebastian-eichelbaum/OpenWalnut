@@ -51,7 +51,8 @@ public:
      * \param yOffset translation alogn the y axis
      *
      */
-    WDendrogram( WHierarchicalTree* tree, size_t cluster, size_t minClusterSize = 1, float xSize = 1000.f, float ySize = 500.f, float xOffset = 0.0f, float yOffset = 0.0f );
+    WDendrogram( WHierarchicalTree* tree, size_t cluster, size_t minClusterSize = 1, float xSize = 1000.f,
+            float ySize = 500.f, float xOffset = 0.0f, float yOffset = 0.0f );
 
     /**
      * destructor

@@ -42,7 +42,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "../../kernel/WKernel.h"
-#include "../emptyIcon.xpm" // Please put a real icon here.
+#include "clusterDisplay.xpm" // Please put a real icon here.
 
 #include "WMClusterDisplay.h"
 
@@ -71,7 +71,7 @@ boost::shared_ptr< WModule > WMClusterDisplay::factory() const
 
 const char** WMClusterDisplay::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return clusterDisplay_xpm; // Please put a real icon here.
 }
 const std::string WMClusterDisplay::getName() const
 {
@@ -94,6 +94,7 @@ void WMClusterDisplay::connectors()
 
     m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
 
+    addConnector( m_fiberInput );
     // call WModules initialization
     WModule::connectors();
 }
@@ -105,6 +106,19 @@ std::vector< std::string > WMClusterDisplay::readFile( const std::string fileNam
     std::vector< std::string > lines;
 
     std::string line;
+
+    if ( ifs.is_open() )
+    {
+        debugLog() << "trying to load " << fileName;
+        debugLog() << "file exists";
+    }
+    else
+    {
+        debugLog() << "trying to load " << fileName;
+        debugLog() << "file doesn\'t exist";
+        ifs.close();
+        return lines;
+    }
 
     while ( !ifs.eof() )
     {
@@ -118,7 +132,7 @@ std::vector< std::string > WMClusterDisplay::readFile( const std::string fileNam
     return lines;
 }
 
-void WMClusterDisplay::loadTreeAscii( std::string fileName )
+bool WMClusterDisplay::loadTreeAscii( std::string fileName )
 {
     std::vector<std::string> lines;
 
@@ -126,7 +140,12 @@ void WMClusterDisplay::loadTreeAscii( std::string fileName )
 
     lines = readFile( fileName );
 
-    for ( size_t i = 0; i < lines.size() -1; ++i )
+    if ( lines.size() == 0 )
+    {
+        return false;
+    }
+
+    for ( size_t i = 0; i < lines.size() - 1; ++i )
     {
         std::string &ls = lines[i];
 
@@ -181,12 +200,19 @@ void WMClusterDisplay::loadTreeAscii( std::string fileName )
             if ( svec[k] != ")" )
             {
                 std::cout << "parse error" << std::endl;
+                return false;
             }
         }
     }
     debugLog() << m_tree.getClusterCount() << " clusters created.";
 
     debugLog() << "finished parsing tree file...";
+
+    if ( m_tree.getLeafCount() == m_fiberInput->getData()->size() )
+    {
+        return true;
+    }
+    return false;
 }
 
 void WMClusterDisplay::initWidgets()
@@ -322,26 +348,54 @@ void WMClusterDisplay::properties()
 
 void WMClusterDisplay::moduleMain()
 {
-    ready();
-
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
     m_moduleState.add( m_active->getUpdateCondition() );
+    m_moduleState.add( m_fiberInput->getDataChangedCondition() );
 
+    ready();
+
+    bool treeLoaded = false;
+
+    // no text file was found, wait for the user to manually load on
     while ( !m_shutdownFlag() )
     {
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
         m_moduleState.wait();
+
+        if ( m_dataSet != m_fiberInput->getData() )
+        {
+            m_dataSet = m_fiberInput->getData();
+            std::string fn = m_dataSet->getFileName();
+            std::string ext( ".fib" );
+            std::string csvExt( "_hie.txt" );
+            fn.replace( fn.find( ext ), ext.size(), csvExt );
+            treeLoaded = loadTreeAscii( fn );
+            if ( treeLoaded )
+            {
+                break;
+            }
+        }
+
+
         if ( m_readTriggerProp->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             std::string fileName = m_propTreeFile->get().file_string().c_str();
-            loadTreeAscii( fileName );
-            m_readTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, false );
-            break;
+            treeLoaded = loadTreeAscii( fileName );
+            m_readTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+            if ( treeLoaded )
+            {
+                break;
+            }
         }
     }
 
-    //std::string fn = "/SCR/schurade/data/alfred/HN1T_fibers_10_hie.txt";
-
+    m_propTreeFile->setHidden( true );
+    m_readTriggerProp->setHidden( true );
 
     m_propSelectedCluster->setMin( m_tree.getLeafCount() );
     m_propSelectedCluster->setMax( m_tree.getClusterCount() - 1 );
@@ -371,6 +425,7 @@ void WMClusterDisplay::moduleMain()
     m_propSubLevelsToColor->get( true );
     m_propMinSizeToColor->get( true );
 
+    // main loop
     while ( !m_shutdownFlag() )
     {
         m_moduleState.wait();

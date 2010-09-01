@@ -118,7 +118,7 @@ private:
      * helper function to load and parse a tree file, the tree is stored in the member variable m_tree
      * \param fileName
      */
-    void loadTreeAscii( std::string fileName );
+    bool loadTreeAscii( std::string fileName );
 
     /**
      * inits the cluster navigation widgets
@@ -197,6 +197,8 @@ private:
      * Input connector for a fiber dataset.
      */
     boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_fiberInput;
+
+    boost::shared_ptr< const WDataSetFibers > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
 
     /**
      * A condition used to notify about changes in several properties.
