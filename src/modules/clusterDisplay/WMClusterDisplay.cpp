@@ -193,8 +193,11 @@ void WMClusterDisplay::initWidgets()
 {
     osg::ref_ptr<osgViewer::Viewer> viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView();
 
-    float height = viewer->getCamera()->getViewport()->height();
-    float width = viewer->getCamera()->getViewport()->width();
+    int height = viewer->getCamera()->getViewport()->height();
+    int width = viewer->getCamera()->getViewport()->width();
+
+    m_oldViewHeight = height;
+    m_oldViewWidth = width;
 
     m_rootNode = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
 
@@ -516,6 +519,20 @@ void WMClusterDisplay::handleRoiChanged()
 
 void WMClusterDisplay::updateWidgets()
 {
+    osg::ref_ptr<osgViewer::Viewer> viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView();
+
+    int height = viewer->getCamera()->getViewport()->height();
+    int width = viewer->getCamera()->getViewport()->width();
+
+    if ( ( height != m_oldViewHeight ) || width != m_oldViewWidth )
+    {
+        m_oldViewHeight = height;
+        m_oldViewWidth = width;
+
+        m_dendrogramDirty = true;
+    }
+
+
     if ( !widgetClicked() && !m_widgetDirty && !m_dendrogramDirty )
     {
         return;
@@ -606,7 +623,7 @@ void WMClusterDisplay::updateWidgets()
 
         if ( m_propShowDendrogram->get( true ) )
         {
-            m_dendrogramGeode = new WDendrogram( &m_tree, m_rootCluster, 900, 500, 100 );
+            m_dendrogramGeode = new WDendrogram( &m_tree, m_rootCluster, width - 120, height / 2 , 100 );
             m_camera->addChild( m_dendrogramGeode );
         }
         m_dendrogramDirty = false;
