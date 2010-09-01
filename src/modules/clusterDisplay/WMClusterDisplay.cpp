@@ -322,11 +322,11 @@ void WMClusterDisplay::properties()
     m_propSubClusters->setMin( 1 );
     m_propSubClusters->setMax( 50 );
 
-    m_propSubLevelsToColor = m_properties->addProperty( "Sublevels to Color", "Number of subclusters to color differently", 4, m_propCondition );
+    m_propSubLevelsToColor = m_properties->addProperty( "Sublevels to Color", "Number of subclusters to color differently", 0, m_propCondition );
     m_propSubLevelsToColor->setMin( 0 );
     m_propSubLevelsToColor->setMax( 0 );
 
-    m_propMinSizeToColor = m_properties->addProperty( "Min size to Color", "Specifies a minimum size for a cluster so that too small cluster wont get an own color", 4, m_propCondition ); // NOLINT
+    m_propMinSizeToColor = m_properties->addProperty( "Min size to Color", "Specifies a minimum size for a cluster so that too small cluster wont get an own color", 1, m_propCondition ); // NOLINT
     m_propMinSizeToColor->setMin( 1 );
     m_propMinSizeToColor->setMax( 200 );
 
@@ -597,6 +597,11 @@ void WMClusterDisplay::handleRoiChanged()
 
         m_widgetDirty = true;
         m_biggestClusterButtonsChanged = true;
+    }
+
+    if ( ( m_propMaxSubClusters->get( true ) == 1 ) && ( m_biggestClusters.size() > 0 ) )
+    {
+        m_propSelectedCluster->set( m_biggestClusters[0] );
     }
 }
 
