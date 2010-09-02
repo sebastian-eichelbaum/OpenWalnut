@@ -59,6 +59,14 @@ public:
      */
     ~WDendrogram();
 
+    /**
+     * calculate which cluster was clicked from given pixel coordinates
+     * \param xClick the x coordinate
+     * \param yClick the y coordinate
+     * \return the cluster id, will return the root cluster if no cluster can be determinded
+     */
+    size_t getClickedCluster( int xClick, int yClick );
+
 protected:
 private:
     /**
@@ -74,6 +82,14 @@ private:
      */
     void layout( size_t cluster, float left, float right );
 
+    /**
+     * recurse function that follows the layout to determine the cluster from pixel coordinates
+     *
+     * \param cluster cluster to check against coordinates
+     * \param left left boundary of cluster
+     * \param right right boundary of cluster
+     */
+    void getClickClusterRecursive( size_t cluster, float left, float right );
 
     WHierarchicalTree* m_tree; //!< the tree to work on
 
@@ -93,6 +109,11 @@ private:
     float m_yOff; //!< y offset
     float m_xMult; //!< helper variable for the recursive function
     float m_yMult; //!< helper variable for the recursive function
+
+    int m_xClicked; //!< stores the click position for use int he recursive function
+    int m_yClicked; //!< stores the click position for use int he recursive function
+
+    size_t m_clickedCluster; //!< the clicked cluster
 };
 
 #endif  // WDENDROGRAM_H

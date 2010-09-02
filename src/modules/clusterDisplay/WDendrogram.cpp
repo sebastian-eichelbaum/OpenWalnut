@@ -158,3 +158,61 @@ void WDendrogram::layout( size_t cluster, float left, float right )
         }
     }
 }
+
+size_t WDendrogram::getClickedCluster( int xClick, int yClick )
+{
+    m_xClicked = ( xClick - m_xOff ) / m_xSize * ( m_tree->size( m_rootCluster ) - 1 );
+    m_yClicked = ( yClick - m_yOff ) / m_ySize * ( m_tree->getLevel( m_rootCluster ) - 1 );
+
+    getClickClusterRecursive( m_rootCluster, 0.0f, static_cast<float>( m_tree->size( m_rootCluster ) - 1 ) );
+
+    std::cout << xClick << "," << yClick << "  :  " << m_xClicked << "," << m_yClicked << std::endl;
+
+    return m_clickedCluster;
+}
+
+void WDendrogram::getClickClusterRecursive( size_t cluster, float left, float right )
+{
+    int height = m_tree->getLevel( cluster );
+
+    if ( height == m_yClicked )
+    {
+        m_clickedCluster = cluster;
+        return;
+    }
+
+    int size = right - left;
+
+    if ( m_tree->getLevel( cluster ) > 0 )
+    {
+        size_t leftCluster = m_tree->getChildren( cluster ).first;
+        size_t rightCluster = m_tree->getChildren( cluster ).second;
+
+        float leftSize = static_cast<float>( m_tree->size( leftCluster ) );
+        float rightSize = static_cast<float>( m_tree->size( rightCluster ) );
+
+        if ( ( leftSize >= m_minClusterSize ) &&  ( rightSize < m_minClusterSize ) )
+        {
+            // left cluster is much bigger, draw only left
+            getClickClusterRecursive( leftCluster, left, right );
+        }
+        else if ( ( rightSize >= m_minClusterSize ) &&  ( leftSize < m_minClusterSize ) )
+        {
+            // right cluster is much bigger, draw only right
+            layout( rightCluster, left, right );
+        }
+        else
+        {
+            float mult = size / ( leftSize + rightSize );
+
+            if ( m_xClicked < left + leftSize * mult )
+            {
+                getClickClusterRecursive( leftCluster, left, left + leftSize * mult );
+            }
+            else
+            {
+                getClickClusterRecursive( rightCluster, right - rightSize * mult, right );
+            }
+        }
+    }
+}

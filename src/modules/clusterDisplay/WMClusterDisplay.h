@@ -194,6 +194,11 @@ private:
     std::string createLabel( size_t id );
 
     /**
+     * listenes to the pickhandler and determines if a click into the dendrogram happened
+     */
+    void dendrogramClick( WPickInfo pickInfo );
+
+    /**
      * Input connector for a fiber dataset.
      */
     boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_fiberInput;

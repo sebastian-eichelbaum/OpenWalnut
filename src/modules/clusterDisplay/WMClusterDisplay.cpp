@@ -338,7 +338,7 @@ void WMClusterDisplay::properties()
     m_propBoxClusterRatio->setMin( 0.0 );
     m_propBoxClusterRatio->setMax( 1.0 );
 
-    m_propShowTree = m_properties->addProperty( "Show tree", "", true, m_propCondition );
+    m_propShowTree = m_properties->addProperty( "Show widget", "", false, m_propCondition );
     m_propShowDendrogram = m_properties->addProperty( "Show dendrogram", "", true, m_propCondition );
 
     m_propTreeFile = m_properties->addProperty( "Tree file", "", WPathHelper::getAppPath() );
@@ -348,6 +348,9 @@ void WMClusterDisplay::properties()
 
 void WMClusterDisplay::moduleMain()
 {
+    boost::signals2::connection con = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getPickHandler()->getPickSignal()->
+            connect( boost::bind( &WMClusterDisplay::dendrogramClick, this, _1 ) );
+
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
     m_moduleState.add( m_active->getUpdateCondition() );
@@ -480,6 +483,7 @@ void WMClusterDisplay::moduleMain()
             WKernel::getRunningKernel()->getRoiManager()->setUseExternalBitfield( m_active->get( true ) );
         }
     }
+    con.disconnect();
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
@@ -494,7 +498,7 @@ void WMClusterDisplay::handleSelectedClusterChanged()
 
     WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( m_rootCluster ) );
     m_propSubLevelsToColor->setMax( m_tree.getLevel( m_rootCluster ) );
-    colorClusters( m_propSelectedCluster->get( true ) );
+    //colorClusters( m_propSelectedCluster->get( true ) );
     m_dendrogramDirty = true;
 }
 
@@ -898,4 +902,16 @@ void WMClusterDisplay::setColor( std::vector<size_t> clusters, WColor color )
             (*colorField)[k*3+2] = color.getBlue();
         }
     }
+}
+
+void WMClusterDisplay::dendrogramClick( WPickInfo pickInfo )
+{
+    if ( !m_propShowDendrogram->get() || !( pickInfo.getName() == "nothing" ) )
+    {
+        return;
+    }
+    int x = pickInfo.getPickPixelPosition().first;
+    int y = pickInfo.getPickPixelPosition().second;
+
+    m_propSelectedCluster->set( m_dendrogramGeode->getClickedCluster( x, y ) );
 }
