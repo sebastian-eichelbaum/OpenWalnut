@@ -199,7 +199,7 @@ void WDendrogram::getClickClusterRecursive( size_t cluster, float left, float ri
         else if ( ( rightSize >= m_minClusterSize ) &&  ( leftSize < m_minClusterSize ) )
         {
             // right cluster is much bigger, draw only right
-            layout( rightCluster, left, right );
+            getClickClusterRecursive( rightCluster, left, right );
         }
         else
         {
