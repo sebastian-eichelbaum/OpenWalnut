@@ -326,7 +326,7 @@ void WMClusterDisplay::properties()
     m_propSubLevelsToColor->setMin( 0 );
     m_propSubLevelsToColor->setMax( 0 );
 
-    m_propMinSizeToColor = m_properties->addProperty( "Min size to Color", "Specifies a minimum size for a cluster so that too small cluster wont get an own color", 1, m_propCondition ); // NOLINT
+    m_propMinSizeToColor = m_properties->addProperty( "Min size to show", "Specifies a minimum size for a cluster to be drawn", 1, m_propCondition ); // NOLINT
     m_propMinSizeToColor->setMin( 1 );
     m_propMinSizeToColor->setMax( 200 );
 
@@ -705,6 +705,26 @@ void WMClusterDisplay::updateWidgets()
             m_biggestClustersButtonList.push_back( newButton );
             newButton->setBackgroundColor( wge::getNthHSVColor( i, m_biggestClusters.size() ) );
         }
+        osg::ref_ptr<WOSGButton> newButton1 = osg::ref_ptr<WOSGButton>( new WOSGButton( std::string( "" ),
+                osgWidget::Box::VERTICAL, true, false ) );
+        newButton1->setPosition( osg::Vec3( 10.f,  m_biggestClusters.size() * 20.f, 0 ) );
+        newButton1->setId( 10000000 + m_propSelectedCluster->get() );
+        newButton1->setLabel( std::string( " S " ) );
+        newButton1->managed( m_wm );
+        m_wm->addChild( newButton1 );
+        m_biggestClustersButtonList.push_back( newButton1 );
+        newButton1->setBackgroundColor( WColor( 0.4, 0.4, 0.4, 1.0 ) );
+
+        osg::ref_ptr<WOSGButton> newButton = osg::ref_ptr<WOSGButton>( new WOSGButton( std::string( "" ),
+                        osgWidget::Box::VERTICAL, true, true ) );
+        newButton->setPosition( osg::Vec3( 35.f,  m_biggestClusters.size() * 20.f, 0 ) );
+        newButton->setId( m_propSelectedCluster->get() );
+        newButton->setLabel( createLabel( m_propSelectedCluster->get() ) );
+        newButton->managed( m_wm );
+        m_wm->addChild( newButton );
+
+        m_biggestClustersButtonList.push_back( newButton );
+        newButton->setBackgroundColor( WColor( 0.4, 0.4, 0.4, 1.0 ) );
         m_biggestClusterButtonsChanged = false;
     }
     m_wm->resizeAllWindows();
