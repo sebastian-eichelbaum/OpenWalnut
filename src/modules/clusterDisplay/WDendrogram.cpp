@@ -166,7 +166,7 @@ size_t WDendrogram::getClickedCluster( int xClick, int yClick )
 
     getClickClusterRecursive( m_rootCluster, 0.0f, static_cast<float>( m_tree->size( m_rootCluster ) - 1 ) );
 
-    std::cout << xClick << "," << yClick << "  :  " << m_xClicked << "," << m_yClicked << std::endl;
+    //std::cout << xClick << "," << yClick << "  :  " << m_xClicked << "," << m_yClicked << std::endl;
 
     return m_clickedCluster;
 }
