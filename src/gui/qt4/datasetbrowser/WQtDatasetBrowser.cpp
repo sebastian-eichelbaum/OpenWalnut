@@ -37,30 +37,25 @@
 #include "../../../common/WLogger.h"
 #include "../../../common/WPreferences.h"
 #include "../../../dataHandler/WDataSet.h"
+#include "../../../kernel/modules/data/WMData.h"
 #include "../../../kernel/WKernel.h"
 #include "../../../kernel/WModule.h"
-#include "../../../kernel/WModuleCombiner.h"
-#include "../../../kernel/WModuleCombinerTypes.h"
 #include "../../../kernel/WModuleFactory.h"
-#include "../../../kernel/modules/data/WMData.h"
 #include "../events/WEventTypes.h"
 #include "../events/WModuleAssocEvent.h"
+#include "../events/WModuleConnectEvent.h"
 #include "../events/WModuleDeleteEvent.h"
+#include "../events/WModuleDisconnectEvent.h"
 #include "../events/WModuleReadyEvent.h"
 #include "../events/WModuleRemovedEvent.h"
-#include "../events/WModuleConnectEvent.h"
-#include "../events/WModuleDisconnectEvent.h"
 #include "../events/WRoiAssocEvent.h"
 #include "../events/WRoiRemoveEvent.h"
 #include "../WMainWindow.h"
 #include "../WQt4Gui.h"
 #include "../WQtCombinerActionList.h"
 #include "WQtBranchTreeItem.h"
-#include "WQtNumberEdit.h"
-#include "WQtNumberEditDouble.h"
-#include "WQtTextureSorter.h"
-
 #include "WQtDatasetBrowser.h"
+#include "WQtTextureSorter.h"
 
 WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     : QDockWidget( "Control Panel", parent ),
@@ -187,11 +182,9 @@ void WQtDatasetBrowser::addToolbar( QToolBar* tb )
 WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )
 {
     WQtSubjectTreeItem* subject = new WQtSubjectTreeItem( m_moduleTreeWidget );
-    subject->setText( 0, QString( name.c_str() ) );
-    subject->setToolTip( 0, QString( ( std::string( "" )
-                                       + "All data and modules that are children of this tree item belong to the subject \""
-                                       + name
-                                       + "\"." ).c_str() ) );
+    subject->setText( 0, QString::fromStdString( name ) );
+    subject->setToolTip( 0, QString::fromStdString( "All data and modules that are children of this tree item belong to the subject \"" +
+                name + "\"." ) );
 
     return subject;
 }

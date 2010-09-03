@@ -102,7 +102,7 @@ void WPropertyIntWidget::update()
     // Same as in WPropertyDouble.cpp: This does not work as expected on Mac OS X => reset to default
 
     // set the initial values
-    QString valStr = QString( boost::lexical_cast< std::string >( m_intProperty->get() ).c_str() );
+    QString valStr = QString::number( m_intProperty->get() );
     m_edit.setText( valStr );
     m_slider.setValue( m_intProperty->get() );
 
@@ -113,7 +113,7 @@ void WPropertyIntWidget::update()
 void WPropertyIntWidget::sliderChanged( int value )
 {
     // set the value in the line edit
-    m_edit.setText( QString( boost::lexical_cast< std::string >( value ).c_str() ) );
+    m_edit.setText( QString::number( value ) );
 
     // set to the property
     invalidate( !m_intProperty->set( value ) );    // NOTE: set automatically checks the validity of the value

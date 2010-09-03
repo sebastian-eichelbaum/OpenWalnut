@@ -24,10 +24,9 @@
 
 #include <string>
 
-#include "WTreeItemTypes.h"
-#include "WQtRoiTreeItem.h"
-
 #include "WQtRoiHeaderTreeItem.h"
+#include "WQtRoiTreeItem.h"
+#include "WTreeItemTypes.h"
 
 WQtRoiHeaderTreeItem::WQtRoiHeaderTreeItem( QTreeWidget * parent ) :
     QTreeWidgetItem( parent, ROIHEADER )
@@ -42,7 +41,7 @@ WQtRoiHeaderTreeItem::~WQtRoiHeaderTreeItem()
 WQtBranchTreeItem* WQtRoiHeaderTreeItem::addBranch( boost::shared_ptr< WRMBranch> branch )
 {
     WQtBranchTreeItem* rti = new WQtBranchTreeItem( this, branch );
-    std::string name = "Branch";
-    rti->setText( 0, QString( name.c_str() ) );
+
+    rti->setText( 0, QString( "Branch" ) );
     return rti;
 }
