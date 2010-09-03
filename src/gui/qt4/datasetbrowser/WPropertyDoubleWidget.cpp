@@ -22,15 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include <sstream>
 #include <cmath>
+#include <sstream>
 #include <string>
 
 #include <boost/lexical_cast.hpp>
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPropertyVariable.h"
-
 #include "WPropertyDoubleWidget.h"
 
 WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout* propertyGrid, QWidget* parent ):
@@ -56,28 +55,13 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
 
     // connect the modification signal of the edit and slider with our callback
     connect( &m_slider, SIGNAL( sliderMoved( int ) ), this, SLOT( sliderChanged( int ) ) );
-    connect( &m_edit, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
+    connect( &m_edit, SIGNAL( editingFinished() ), this, SLOT( editChanged() ) );
     connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
 }
 
 WPropertyDoubleWidget::~WPropertyDoubleWidget()
 {
     // cleanup
-}
-
-/**
- * Helper function converting a double into a nice formatted string.
- *
- * \param value the value to convert
- *
- * \return a string containing the double in a nicely formatted way.
- */
-std::string toString( double value )
-{
-    std::ostringstream o;
-    o.precision( 5 );
-    o << value;
-    return o.str();
 }
 
 void WPropertyDoubleWidget::update()
@@ -91,10 +75,8 @@ void WPropertyDoubleWidget::update()
     }
     else
     {
-        WLogger::getLogger()->addLogMessage(
-                std::string( "The property has no minimum constraint. You should define it to avoid unexpected behaviour." ) +
-                std::string( "Using default (" + boost::lexical_cast< std::string >( m_min ) + ")." ),
-                "PropertyWidget( " + m_doubleProperty->getName() + " )", LL_WARNING );
+        wlog::warn( "PropertyWidget( " + m_doubleProperty->getName() + " )" ) << "The property has no minimum constraint. " <<
+            "You should define it to avoid unexpected behaviour. Using default (" << m_min << ").";
     }
 
     // get the max constraint
@@ -106,10 +88,8 @@ void WPropertyDoubleWidget::update()
     }
     else
     {
-        WLogger::getLogger()->addLogMessage(
-                std::string( "The property has no maximum constraint. You should define it to avoid unexpected behaviour." ) +
-                std::string( "Using default (" + boost::lexical_cast< std::string >( m_max ) + ")." ),
-                "PropertyWidget( " + m_doubleProperty->getName() + " )", LL_WARNING );
+        wlog::warn( "PropertyWidget( " + m_doubleProperty->getName() + " )" ) << "The property has no maximum constraint. " <<
+            "You should define it to avoid unexpected behaviour. Using default (" << m_max << ").";
     }
 
     // setup the slider
@@ -120,7 +100,7 @@ void WPropertyDoubleWidget::update()
     // // XXX: this is not the optimal way but works for now
     // NO, it doesn't work on Mac OS X: You won't be able to any digits in it!, So I reset it to default which should work on other platforms too
 
-    QString valStr = QString( toString( m_doubleProperty->get() ).c_str() );
+    QString valStr = QString::number( m_doubleProperty->get() );
     m_edit.setText( valStr );
     m_slider.setValue( toPercent( m_doubleProperty->get() ) );
 
@@ -144,7 +124,7 @@ void WPropertyDoubleWidget::sliderChanged( int value )
     invalidate( !m_doubleProperty->set( fromPercent( value ) ) );    // NOTE: set automatically checks the validity of the value
 
     // set the value in the line edit
-    m_edit.setText( QString( toString( m_doubleProperty->get() ).c_str() ) );
+    m_edit.setText( QString::number( m_doubleProperty->get() ) );
 }
 
 void WPropertyDoubleWidget::editChanged()

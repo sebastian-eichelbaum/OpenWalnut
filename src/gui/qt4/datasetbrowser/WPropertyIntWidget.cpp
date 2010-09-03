@@ -56,7 +56,7 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
 
     // connect the modification signal of the edit and slider with our callback
     connect( &m_slider, SIGNAL( sliderMoved( int ) ), this, SLOT( sliderChanged( int ) ) );
-    connect( &m_edit, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
+    connect( &m_edit, SIGNAL( editingFinished() ), this, SLOT( editChanged() ) );
     connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
 }
 
@@ -76,10 +76,8 @@ void WPropertyIntWidget::update()
     }
     else
     {
-        WLogger::getLogger()->addLogMessage(
-                std::string( "The property has no minimum constraint. You should define it to avoid unexpected behaviour." ) +
-                std::string( "Using default (" + boost::lexical_cast< std::string >( min ) + ")." ),
-                "PropertyWidget( " + m_intProperty->getName() + " )", LL_WARNING );
+        wlog::warn( "PropertyWidget( " + m_intProperty->getName() + " )" ) << "The property has no minimum constraint. " <<
+            "You should define it to avoid unexpected behaviour. Using default (" << min << ").";
     }
 
     // get the max constraint
@@ -91,10 +89,8 @@ void WPropertyIntWidget::update()
     }
     else
     {
-        WLogger::getLogger()->addLogMessage(
-                std::string( "The property has no maximum constraint. You should define it to avoid unexpected behaviour." ) +
-                std::string( "Using default (" + boost::lexical_cast< std::string >( max ) + ")." ),
-                "PropertyWidget( " + m_intProperty->getName() + " )", LL_WARNING );
+        wlog::warn( "PropertyWidget( " + m_intProperty->getName() + " )" ) << "The property has no maximum constraint. " <<
+            "You should define it to avoid unexpected behaviour. Using default (" << max << ").";
     }
 
     // setup the slider
