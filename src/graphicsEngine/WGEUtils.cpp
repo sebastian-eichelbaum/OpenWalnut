@@ -155,7 +155,7 @@ WColor wge::createColorFromHSV( int h, float s, float v )
 
 WColor wge::getNthHSVColor( int n, int parts )
 {
-    parts = std::max( 1, parts );
+    parts = (std::max)( 1, parts );
     if ( parts > 360 )
     {
         parts = 360;
