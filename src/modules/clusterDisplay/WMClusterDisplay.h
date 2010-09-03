@@ -186,6 +186,11 @@ private:
     void handleRoiChanged();
 
     /**
+     * function to handle user input
+     */
+    void handleCreateRoi();
+
+    /**
      * creates a label depending ont he current labeling setting
      *
      * \param id of the cluster to create the label for
@@ -195,6 +200,7 @@ private:
 
     /**
      * listenes to the pickhandler and determines if a click into the dendrogram happened
+     * \param pickInfo the pickInfo object as sent out by the pickhandler
      */
     void dendrogramClick( WPickInfo pickInfo );
 
@@ -259,6 +265,7 @@ private:
     WPropTrigger  m_readTriggerProp; //!< This property triggers the actual reading,
     WPropFilename m_propTreeFile; //!< The tree will be read from this file, i hope we will get a real load button some time
 
+    WPropTrigger m_createRoiTrigger; //!< when triggered the selected cluster will be transfered into a WRoiBitfield
 
     /**
      * stores the tree object

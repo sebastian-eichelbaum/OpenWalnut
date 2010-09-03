@@ -38,7 +38,7 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 
-#include "../../graphicsEngine/WROISphere.h"
+#include "../../graphicsEngine/WROIBitfield.h"
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "../../kernel/WKernel.h"
@@ -344,6 +344,8 @@ void WMClusterDisplay::properties()
     m_propTreeFile = m_properties->addProperty( "Tree file", "", WPathHelper::getAppPath() );
     m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     WPropertyHelper::PC_PATHEXISTS::addTo( m_propTreeFile );
+
+    m_createRoiTrigger = m_properties->addProperty( "Create Roi",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 }
 
 void WMClusterDisplay::moduleMain()
@@ -482,6 +484,12 @@ void WMClusterDisplay::moduleMain()
         {
             WKernel::getRunningKernel()->getRoiManager()->setUseExternalBitfield( m_active->get( true ) );
         }
+
+        if ( m_createRoiTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            handleCreateRoi();
+            m_createRoiTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+        }
     }
     con.disconnect();
 
@@ -495,10 +503,12 @@ void WMClusterDisplay::handleSelectedClusterChanged()
     m_propSelectedClusterOffset->setMin( 0 - m_tree.getLevel( m_propSelectedCluster->get() ) );
     m_propSelectedClusterOffset->set( 0 );
     m_propSelectedClusterOffset->get( true );
+    m_propMinSizeToColor->setMax( m_tree.size( m_biggestClusters.back() ) );
 
     WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( m_rootCluster ) );
     m_propSubLevelsToColor->setMax( m_tree.getLevel( m_rootCluster ) );
     //colorClusters( m_propSelectedCluster->get( true ) );
+
     m_dendrogramDirty = true;
 }
 
@@ -555,9 +565,12 @@ void WMClusterDisplay::handleBiggestClustersChanged()
 {
     m_biggestClusters = m_tree.findXBiggestClusters( m_propSelectedCluster->get(), m_propSubClusters->get( true ) );
 
+    m_propMinSizeToColor->setMax( m_tree.size( m_biggestClusters.back() ) );
+
     WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( m_biggestClusters ) );
 
     m_tree.colorCluster( m_tree.getClusterCount() - 1, WColor( 0.3, 0.3, 0.3, 1.0 ) );
+    setColor( m_tree.getLeafesForCluster( m_rootCluster ), WColor( 0.3, 0.3, 0.3, 1.0 ) );
 
     for ( size_t k = 0; k < m_biggestClusters.size(); ++k )
     {
@@ -606,9 +619,21 @@ void WMClusterDisplay::handleRoiChanged()
     if ( ( m_propMaxSubClusters->get( true ) == 1 ) && ( m_biggestClusters.size() > 0 ) )
     {
         m_propSelectedCluster->set( m_biggestClusters[0] );
+
+        m_tree.colorCluster( m_tree.getClusterCount() - 1, WColor( 0.3, 0.3, 0.3, 1.0 ) );
+        setColor( m_tree.getLeafesForCluster( m_rootCluster ), WColor( 0.3, 0.3, 0.3, 1.0 ) );
+
+        m_tree.colorCluster( m_propSelectedCluster->get(), WColor( 1.0, 0.3, 0.3, 1.0 ) );
+        setColor( m_tree.getLeafesForCluster( m_propSelectedCluster->get() ), WColor( 1.0, 0.3, 0.3, 1.0 ) );
     }
 }
 
+void WMClusterDisplay::handleCreateRoi()
+{
+    osg::ref_ptr< WROI > newRoi = osg::ref_ptr< WROI >( new WROIBitfield( m_tree.getOutputBitfield( m_propSelectedCluster->get() ) ) );
+
+    WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
+}
 
 void WMClusterDisplay::updateWidgets()
 {
@@ -736,7 +761,7 @@ void WMClusterDisplay::updateWidgets()
 
         if ( m_propShowDendrogram->get( true ) )
         {
-            m_dendrogramGeode = new WDendrogram( &m_tree, m_rootCluster, m_propMinSizeToColor->get(), width - 120, height / 2 , 100 );
+            m_dendrogramGeode = new WDendrogram( &m_tree, m_tree.getClusterCount() - 1, m_propMinSizeToColor->get(), width - 120, height / 2 , 100 );
             m_camera->addChild( m_dendrogramGeode );
         }
         m_dendrogramDirty = false;

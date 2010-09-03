@@ -31,6 +31,7 @@
 #include "../../../graphicsEngine/WGraphicsEngine.h"
 #include "../../../graphicsEngine/WROIBox.h"
 #include "../../../graphicsEngine/WROIArbitrary.h"
+#include "../../../graphicsEngine/WROIBitfield.h"
 
 #include "WRMBranch.h"
 #include "WROIManagerFibers.h"
@@ -164,6 +165,13 @@ void WRMROIRepresentation::recalculate()
             }
         }
     }
+
+    if ( osg::dynamic_pointer_cast<WROIBitfield>( m_roi ).get() )
+    {
+        osg::ref_ptr<WROIBitfield>roi = osg::dynamic_pointer_cast<WROIBitfield>( m_roi );
+        m_workerBitfield = roi->getBitfield();
+    }
+
     m_dirty = false;
     m_outputBitfield = m_workerBitfield;
 }
