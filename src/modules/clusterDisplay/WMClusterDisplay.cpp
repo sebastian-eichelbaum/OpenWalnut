@@ -339,7 +339,25 @@ void WMClusterDisplay::properties()
     m_propBoxClusterRatio->setMax( 1.0 );
 
     m_propShowTree = m_properties->addProperty( "Show widget", "", false, m_propCondition );
-    m_propShowDendrogram = m_properties->addProperty( "Show dendrogram", "", true, m_propCondition );
+
+    m_groupDendrogram = m_properties->addPropertyGroup( "Dendrogram",  "Properties only related to the dendrogram." );
+
+    m_propShowDendrogram = m_groupDendrogram->addProperty( "Show dendrogram", "", true, m_propCondition );
+
+    m_propResizeWithWindow = m_groupDendrogram->addProperty( "Resize with window", "", true, m_propCondition );
+
+    m_propDendrogramSizeX = m_groupDendrogram->addProperty( "Width", "", 100, m_propCondition );
+    m_propDendrogramSizeX->setMin( 0 );
+    m_propDendrogramSizeX->setMax( 10000 );
+    m_propDendrogramSizeY = m_groupDendrogram->addProperty( "Height", "", 100, m_propCondition );
+    m_propDendrogramSizeY->setMin( 0 );
+    m_propDendrogramSizeY->setMax( 10000 );
+    m_propDendrogramOffsetX = m_groupDendrogram->addProperty( "Horizontal position", "", 100, m_propCondition );
+    m_propDendrogramOffsetX->setMin( -9000 );
+    m_propDendrogramOffsetX->setMax( 1000 );
+    m_propDendrogramOffsetY = m_groupDendrogram->addProperty( "Verctical position", "", 100, m_propCondition );
+    m_propDendrogramOffsetY->setMin( -9000 );
+    m_propDendrogramOffsetY->setMax( 1000 );
 
     m_propTreeFile = m_properties->addProperty( "Tree file", "", WPathHelper::getAppPath() );
     m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
@@ -475,7 +493,8 @@ void WMClusterDisplay::moduleMain()
             m_widgetDirty = true;
         }
 
-        if ( m_propShowDendrogram->changed() )
+        if ( m_propShowDendrogram->changed() || m_propResizeWithWindow->changed() || m_propDendrogramSizeX->changed() ||
+                m_propDendrogramSizeY->changed() || m_propDendrogramOffsetX->changed() || m_propDendrogramOffsetY->changed() )
         {
             m_dendrogramDirty = true;
         }
@@ -759,9 +778,23 @@ void WMClusterDisplay::updateWidgets()
         //m_camera->removeChild( m_dendrogramGeode );
         m_camera->removeChild( 1, 1 );
 
+        int dwidth = m_propDendrogramSizeX->get( true );
+        int dheight = m_propDendrogramSizeY->get( true );
+        int dxOff = m_propDendrogramOffsetX->get( true );
+        int dyOff = m_propDendrogramOffsetY->get( true );
+
         if ( m_propShowDendrogram->get( true ) )
         {
-            m_dendrogramGeode = new WDendrogram( &m_tree, m_tree.getClusterCount() - 1, m_propMinSizeToColor->get(), width - 120, height / 2 , 100 );
+            if ( m_propResizeWithWindow->get( true ) )
+            {
+                m_dendrogramGeode = new WDendrogram( &m_tree, m_tree.getClusterCount() - 1,
+                        m_propMinSizeToColor->get(), width - 120, height / 2 , 100 );
+            }
+            else
+            {
+                m_dendrogramGeode = new WDendrogram( &m_tree, m_tree.getClusterCount() - 1,
+                        m_propMinSizeToColor->get(), dwidth, dheight, dxOff, dyOff );
+            }
             m_camera->addChild( m_dendrogramGeode );
         }
         m_dendrogramDirty = false;

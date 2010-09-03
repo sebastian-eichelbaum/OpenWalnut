@@ -258,9 +258,25 @@ private:
     WPropBool m_propShowTree;
 
     /**
+     * grouping the dendrogram manipulation properties
+     */
+    WPropGroup m_groupDendrogram;
+
+    /**
      * controls the display of the dendrogram overlay
      */
     WPropBool m_propShowDendrogram;
+
+    /**
+     * if true position and size sliders will have no effect
+     */
+    WPropBool m_propResizeWithWindow;
+
+    WPropInt m_propDendrogramSizeX; //!< controls the width of the dendrogram
+    WPropInt m_propDendrogramSizeY; //!< controls the height of the dendrogram
+    WPropInt m_propDendrogramOffsetX; //!< controls the horizontal origin of the dendrogram
+    WPropInt m_propDendrogramOffsetY; //!< controls the vertical origin of the dendrogram
+
 
     WPropTrigger  m_readTriggerProp; //!< This property triggers the actual reading,
     WPropFilename m_propTreeFile; //!< The tree will be read from this file, i hope we will get a real load button some time
