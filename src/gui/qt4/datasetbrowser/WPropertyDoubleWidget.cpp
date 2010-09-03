@@ -42,10 +42,6 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     m_asText( &m_informationWidgets ),
     m_infoLayout( &m_informationWidgets )
 {
-    // initialize members
-    m_edit.resize( m_edit.minimumSizeHint().width() *.8 , m_edit.size().height() );
-    m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() );
-
     // layout both against each other
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );
@@ -120,24 +116,10 @@ void WPropertyDoubleWidget::update()
     m_slider.setMinimum( 0 );
     m_slider.setMaximum( 100 );
 
-    // calculate maximum size of the text widget.
-    // XXX: this is not the optimal way but works for now
-    // int length = m_min < 0 ? 5 : 4;   // reserve some extra space for the "-" in negative numbers
-    // double fmax = std::max( std::abs( m_min ), std::abs( m_max ) );    // use the number with the most numbers
-    // while ( ( fmax / 10 ) >= 1.0 )
-    // {
-    //     ++length;
-    //     fmax /= 10.0;
-    // }
-    int length = 6; // use fixed length to have a uniform look among several widgets
+    // // calculate maximum size of the text widget.
+    // // XXX: this is not the optimal way but works for now
+    // NO, it doesn't work on Mac OS X: You won't be able to any digits in it!, So I reset it to default which should work on other platforms too
 
-    // resize the text widget
-    //m_edit.setMaxLength( length );
-    m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() * length / 2 );
-//     m_edit.setMinimumWidth( m_edit.minimumSizeHint().width() * length / 4 );
-//     m_edit.resize( m_edit.minimumSizeHint().width() * length / 2, m_edit.size().height() );
-
-    // set the initial values
     QString valStr = QString( toString( m_doubleProperty->get() ).c_str() );
     m_edit.setText( valStr );
     m_slider.setValue( toPercent( m_doubleProperty->get() ) );

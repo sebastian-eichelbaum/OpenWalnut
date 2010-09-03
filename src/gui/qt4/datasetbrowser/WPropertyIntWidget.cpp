@@ -43,10 +43,6 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     m_asText( &m_informationWidgets ),
     m_infoLayout( &m_informationWidgets )
 {
-    // initialize members
-    m_edit.resize( m_edit.minimumSizeHint().width(), m_edit.size().height() );
-    m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() );
-
     // layout both against each other
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );
@@ -105,22 +101,9 @@ void WPropertyIntWidget::update()
     m_slider.setMinimum( min );
     m_slider.setMaximum( max );
 
-    // calculate maximum size of the text widget.
-    // XXX: this is not the optimal way but works for now
-    // int length = min < 0 ? 3 : 2;   // reserve some extra space for the "-" in negative numbers
-    // float fmax = static_cast<float>( std::max( std::abs( min ), std::abs( max ) ) );    // use the number with the most numbers
-    // while ( ( fmax / 10 ) >= 1.0 )
-    // {
-    //     ++length;
-    //     fmax /= 10.0;
-    // }
-    int length = 6; // use fixed length to have a uniform look among several widgets
-
-    // resize the text widget
-    // m_edit.setMaxLength( length );
-    m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() * length / 2 );
-    // m_edit.setMinimumWidth( m_edit.minimumSizeHint().width() * length / 4 );
-    // m_edit.resize( m_edit.minimumSizeHint().width() * length / 4, m_edit.size().height() );
+    // // calculate maximum size of the text widget.
+    // // XXX: this is not the optimal way but works for now
+    // Same as in WPropertyDouble.cpp: This does not work as expected on Mac OS X => reset to default
 
     // set the initial values
     QString valStr = QString( boost::lexical_cast< std::string >( m_intProperty->get() ).c_str() );
