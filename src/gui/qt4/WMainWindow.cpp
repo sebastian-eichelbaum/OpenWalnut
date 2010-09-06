@@ -98,13 +98,18 @@ void WMainWindow::setupGUI()
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
-    setupPermanentToolBar();
 
     // the dataset browser instance is needed for the menu
     m_datasetBrowser = new WQtDatasetBrowser( this );
     m_datasetBrowser->setFeatures( QDockWidget::AllDockWidgetFeatures );
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
     m_datasetBrowser->addSubject( "Default Subject" );
+
+    setupPermanentToolBar();
+
+    // we want the upper most tree item to be selected. This helps to make the always compatible modules
+    // show up in the tool bar from the beginning. And ... it doesn't hurt.
+    m_datasetBrowser->selectUpperMostEntry();
 
     // set the size of the dsb according to config file
     int dsbWidth = 250;
