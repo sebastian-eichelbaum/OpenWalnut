@@ -26,12 +26,13 @@
 #define WMPROBTRACTDISPLAY_H
 
 #include <string>
+#include <vector>
 
 #include <osg/Node>
 #include <osg/Uniform>
 
 #include "../../graphicsEngine/WShader.h"
-#include "../../kernel/WModule.h"
+#include "../../kernel/WModuleContainer.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
@@ -40,7 +41,7 @@
  * transfer functions.
  * \ingroup modules
  */
-class WMProbTractDisplay: public WModule
+class WMProbTractDisplay: public WModuleContainer
 {
 public:
 
@@ -106,10 +107,25 @@ protected:
      */
     virtual void activate();
 
-private:
+    /**
+     * In order to use sub modules we need to create, initialize (properties) and wire them.
+     */
+    void initSubModules();
 
     /**
-     * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
+     * Update the submodules incase there has been additionally or less modules selected for isosurface generation.
+     */
+    void updateSubmoduleInstances();
+
+    /**
+     * Update the properties for each isosurface incase the number of isosurfaces has changed.
+     */
+    void updateProperties();
+
+private:
+    /**
+     * Scalar dataset representing the probability field either in real numbers in [0,1] or gray values or just simply the connectivity
+     * score (\#visits per voxel).
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
 
@@ -119,111 +135,29 @@ private:
     boost::shared_ptr< WDataSetScalar > m_dataSet;
 
     /**
-     * If this property is true, as special shader is used which emulates isosurfaces using the m_isoValue property.
+     * The number of ISO-Surfaces.
      */
-    WPropBool m_isoSurface;
-
-    WPropInt m_isoValue0; //!< The Isovalue used in the case m_isoSurface is true for the 0'th isosurface.
-    WPropInt m_isoValue1; //!< The Isovalue used in the case m_isoSurface is true for the 1'th isosurface.
-    WPropInt m_isoValue2; //!< The Isovalue used in the case m_isoSurface is true for the 2'th isosurface.
-    WPropInt m_isoValue3; //!< The Isovalue used in the case m_isoSurface is true for the 3'th isosurface.
-
-    WPropColor m_isoColor0; //!< The color used when in isosurface mode for blending for the 0'th isosurface.
-    WPropColor m_isoColor1; //!< The color used when in isosurface mode for blending for the 1'th isosurface.
-    WPropColor m_isoColor2; //!< The color used when in isosurface mode for blending for the 2'th isosurface.
-    WPropColor m_isoColor3; //!< The color used when in isosurface mode for blending for the 3'th isosurface.
+    WPropInt m_numSurfaces;
 
     /**
-     * The number of steps to walk along the ray.
+     * For each surface its corresponding isovalue.
      */
-    WPropInt m_stepCount;
-
-    WPropInt m_alpha0; //!< The alpha transparency used for the rendering
-    WPropInt m_alpha1; //!< The alpha transparency used for the rendering
-    WPropInt m_alpha2; //!< The alpha transparency used for the rendering
-    WPropInt m_alpha3; //!< The alpha transparency used for the rendering
+    std::vector< WPropDouble > m_isoValues;
 
     /**
-     * If true, the shader will only color using the depth of the point on the surface.
+     * The color for each isosurface.
      */
-    WPropBool m_useSimpleDepthColoring;
+    std::vector< WPropColor > m_colors;
 
     /**
-     * A condition used to notify about changes in several properties.
+     * The alpha values for each isosurface.
      */
-    boost::shared_ptr< WCondition > m_propCondition;
+    std::vector< WPropDouble > m_alphaValues;
 
     /**
-     * the PTD shader.
+     * Submodules for the iso surface generation.
      */
-    osg::ref_ptr< WShader > m_shader;
-
-    /**
-     * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
-     * moduleMain().
-     */
-    class SafeUpdateCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUpdateCallback( WMProbTractDisplay* module ): m_module( module ), m_initialUpdate( true )
-        {
-        };
-
-        /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         */
-        WMProbTractDisplay* m_module;
-
-        /**
-         * Denotes whether the update callback is called the first time.
-         */
-        bool m_initialUpdate;
-    };
-
-    /**
-     * Class handling uniform update during render traversal
-     */
-    class SafeUniformCallback: public osg::Uniform::Callback
-    {
-    public:
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUniformCallback( WMProbTractDisplay* module ): m_module( module )
-        {
-        };
-
-        /**
-         * The callback. Called every render traversal for the uniform.
-         *
-         * \param uniform the uniform for which this callback is.
-         * \param nv the visitor.
-         */
-        virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         */
-        WMProbTractDisplay* m_module;
-    };
+    std::vector< boost::shared_ptr< WModule > > m_isoSurfaces;
 };
 
 #endif  // WMPROBTRACTDISPLAY_H
-

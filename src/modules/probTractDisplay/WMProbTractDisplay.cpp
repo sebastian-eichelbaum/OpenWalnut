@@ -24,6 +24,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 #include <osg/ShapeDrawable>
 #include <osg/Group>
@@ -38,22 +39,20 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WKernel.h"
-#include "WMProbTractDisplay.h"
 #include "directvolumerendering.xpm"
+#include "WMProbTractDisplay.h"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMProbTractDisplay )
 
 WMProbTractDisplay::WMProbTractDisplay():
-    WModule(),
+    WModuleContainer(),
     m_rootNode( new osg::Node() )
 {
-    // Initialize members
 }
 
 WMProbTractDisplay::~WMProbTractDisplay()
 {
-    // Cleanup!
 }
 
 boost::shared_ptr< WModule > WMProbTractDisplay::factory() const
@@ -68,86 +67,61 @@ const char** WMProbTractDisplay::getXPMIcon() const
 
 const std::string WMProbTractDisplay::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "Probabilistic Tract Rendering";
+    return "Probabilistic Tract Rendering with multi transparent iso surfaces.";
 }
 
 const std::string WMProbTractDisplay::getDescription() const
 {
-    // Specify your module description here. Be detailed. This text is read by the user.
-    return "This module shows a direct volume rendering of the specified scalar dataset.";
+    return "This module display probabilistic DTI tractograms with iso surfaces.";
 }
 
 void WMProbTractDisplay::connectors()
 {
-    // PTD needs one input: the scalar dataset
     m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar  > >(
-        new WModuleInputData< WDataSetScalar >( shared_from_this(), "in", "The scalar dataset shown using PTD." )
+        new WModuleInputData< WDataSetScalar >( shared_from_this(), "probTract", "The probabilistic tractogram as scalar dataset." )
     );
 
-    // As properties, every connector needs to be added to the list of connectors.
     addConnector( m_input );
-
-    // call WModules initialization
     WModule::connectors();
 }
 
 void WMProbTractDisplay::properties()
 {
-    // Initialize the properties
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_numSurfaces    = m_properties->addProperty( "#Surfaces", "The number of how many surfaces should be used for display", 2 );
+    m_numSurfaces->setMin( 1 );
+    updateSubmoduleInstances();
+}
 
-    m_isoSurface    = m_properties->addProperty( "Isosurface mode",  "If enabled, the Volume Renderer will render an isosurface and ignores the "
-                                                                      "transfer function.", true );
-    m_isoValue0     = m_properties->addProperty( "Isovalue 0",       "The isovalue used whenever the isosurface Mode is turned on.", 50 );
-    m_isoValue1     = m_properties->addProperty( "Isovalue 1",       "The isovalue used whenever the isosurface Mode is turned on.", 50 );
-    m_isoValue2     = m_properties->addProperty( "Isovalue 2",       "The isovalue used whenever the isosurface Mode is turned on.", 50 );
-    m_isoValue3     = m_properties->addProperty( "Isovalue 3",       "The isovalue used whenever the isosurface Mode is turned on.", 50 );
+void WMProbTractDisplay::updateSubmoduleInstances()
+{
+    for( int i = 0; i < m_numSurfaces->get(); ++i )
+    {
+        m_isoSurfaces.push_back( WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Isosurface" ) ) ); //NOLINT
+        add( m_isoSurfaces.back() );
+        m_isoSurfaces.back()->isReady().wait();
+    }
+}
 
-    m_isoColor0     = m_properties->addProperty( "Iso color 0",   "The color to blend the 0'th isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
-                      m_propCondition );
-    m_isoColor1     = m_properties->addProperty( "Iso color 1",   "The color to blend the 1'th isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
-                      m_propCondition );
-    m_isoColor2     = m_properties->addProperty( "Iso color 2",   "The color to blend the 2'th isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
-                      m_propCondition );
-    m_isoColor3     = m_properties->addProperty( "Iso color 3",   "The color to blend the 3'th isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
-                      m_propCondition );
-
-    m_stepCount     = m_properties->addProperty( "Step count",       "The number of steps to walk along the ray during raycasting. A low value "
-                                                                      "may cause artifacts whilst a high value slows down rendering.", 250 );
-    m_stepCount->setMin( 1 );
-    m_stepCount->setMax( 1000 );
-
-    m_alpha0         = m_properties->addProperty( "Opacity % 0",  "The opacity in %. Transparency = 100 - Opacity for the 0'th isosurface", 100 );
-    m_alpha1         = m_properties->addProperty( "Opacity % 1",  "The opacity in %. Transparency = 100 - Opacity for the 1'th isosurface", 100 );
-    m_alpha2         = m_properties->addProperty( "Opacity % 2",  "The opacity in %. Transparency = 100 - Opacity for the 2'th isosurface", 100 );
-    m_alpha3         = m_properties->addProperty( "Opacity % 3",  "The opacity in %. Transparency = 100 - Opacity for the 3'th isosurface", 100 );
-
-    m_useSimpleDepthColoring = m_properties->addProperty( "Use depth cueing", "Enable it to have simple depth dependent coloring only.", false );
+void WMProbTractDisplay::updateProperties()
+{
 }
 
 void WMProbTractDisplay::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMProbTractDisplay", m_localPath ) );
-
-    // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
-    m_moduleState.add( m_propCondition );
-
-    // Signal ready state.
+    initSubModules();
     ready();
     debugLog() << "Module is now ready.";
-
-    // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
-    // connectors or on changed in your properties.
-    debugLog() << "Entering main loop";
     while ( !m_shutdownFlag() )
     {
-        // Now, the moduleState variable comes into play. The module can wait for the condition, which gets fired whenever the input receives data
-        // or an property changes. The main loop now waits until something happens.
         debugLog() << "Waiting ...";
         m_moduleState.wait();
+
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
 
         // has the data changed?
         boost::shared_ptr< WDataSetScalar > newDataSet = m_input->getData();
@@ -167,199 +141,86 @@ void WMProbTractDisplay::moduleMain()
                 continue;
             }
         }
-
-        // m_isoColor changed
-        if( m_isoColor0->changed() || m_isoColor1->changed() || m_isoColor2->changed() || m_isoColor3->changed() )
-        {
-            // a new color requires the proxy geometry to be rebuild as we store it as color in this geometry
-            dataChanged = true;
-        }
-
-        // As the data has changed, we need to recreate the texture.
-        if ( dataChanged )
-        {
-            debugLog() << "Data changed. Uploading new data as texture.";
-
-            // First, grab the grid
-            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-            if ( !grid )
-            {
-                errorLog() << "The dataset does not provide a regular grid. Ignoring dataset.";
-                continue;
-            }
-
-            // get the BBox
-            std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
-
-            // use the OSG Shapes, create unit cube
-            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb.first, bb.second, m_isoColor3->get( true ) );
-            cube->asTransform()->getChild( 0 )->setName( "PTD Proxy Cube" ); // Be aware that this name is used in the pick handler.
-            m_shader->apply( cube );
-
-            // bind the texture to the node
-            osg::ref_ptr< osg::Texture3D > texture3D = m_dataSet->getTexture()->getTexture();
-            osg::StateSet* rootState = cube->getOrCreateStateSet();
-            rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
-
-            // enable transparency
-            rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
-
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // setup all those uniforms
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-            // for the texture, also bind the appropriate uniforms
-            rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
-
-            osg::ref_ptr< osg::Uniform > isovalue0 = new osg::Uniform( "u_isovalue0", static_cast< float >( m_isoValue0->get() / 100.0 ) );
-            isovalue0->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > isovalue1 = new osg::Uniform( "u_isovalue1", static_cast< float >( m_isoValue1->get() / 100.0 ) );
-            isovalue1->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > isovalue2 = new osg::Uniform( "u_isovalue2", static_cast< float >( m_isoValue2->get() / 100.0 ) );
-            isovalue2->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > isovalue3 = new osg::Uniform( "u_isovalue3", static_cast< float >( m_isoValue3->get() / 100.0 ) );
-            isovalue3->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > isosurface = new osg::Uniform( "u_isosurface", m_isoSurface->get() );
-            isosurface->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
-            steps->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > alpha0 = new osg::Uniform( "u_alpha0", static_cast< float >( m_alpha0->get() / 100.0 ) );
-            alpha0->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > alpha1 = new osg::Uniform( "u_alpha1", static_cast< float >( m_alpha1->get() / 100.0 ) );
-            alpha1->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > alpha2 = new osg::Uniform( "u_alpha2", static_cast< float >( m_alpha2->get() / 100.0 ) );
-            alpha2->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > alpha3 = new osg::Uniform( "u_alpha3", static_cast< float >( m_alpha3->get() / 100.0 ) );
-            alpha3->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > depthCueingOnly = new osg::Uniform( "u_depthCueingOnly", m_useSimpleDepthColoring->get() );
-            depthCueingOnly->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > isocolor0 = new osg::Uniform( "u_isocolor0", wge::osgColor( m_isoColor0->get() ) );
-            isocolor0->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > isocolor1 = new osg::Uniform( "u_isocolor1", wge::osgColor( m_isoColor1->get() ) );
-            isocolor1->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > isocolor2 = new osg::Uniform( "u_isocolor2", wge::osgColor( m_isoColor2->get() ) );
-            isocolor2->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > isocolor3 = new osg::Uniform( "u_isocolor3", wge::osgColor( m_isoColor3->get() ) );
-            isocolor3->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            rootState->addUniform( isovalue0 );
-            rootState->addUniform( isovalue1 );
-            rootState->addUniform( isovalue2 );
-            rootState->addUniform( isovalue3 );
-            rootState->addUniform( isosurface );
-            rootState->addUniform( steps );
-            rootState->addUniform( alpha0 );
-            rootState->addUniform( alpha1 );
-            rootState->addUniform( alpha2 );
-            rootState->addUniform( alpha3 );
-            rootState->addUniform( isocolor0 );
-            rootState->addUniform( isocolor1 );
-            rootState->addUniform( isocolor2 );
-            rootState->addUniform( isocolor3 );
-            rootState->addUniform( depthCueingOnly );
-
-            // update node
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
-            m_rootNode = cube;
-            m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
-            debugLog() << "Adding new rendering.";
-            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
-        }
     }
 
-    // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
-    // allocated memory and remove all OSG nodes.
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
-void WMProbTractDisplay::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+void WMProbTractDisplay::initSubModules()
 {
-    // currently, there is nothing to update
-    traverse( node, nv );
-}
+//   m_isoSurface = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Isosurface" ) );
+//   add( m_isoSurface );
+//   m_isoSurface->isReady().wait();
 
-void WMProbTractDisplay::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
-{
-    // update some uniforms:
-    if ( m_module->m_isoValue0->changed() && ( uniform->getName() == "u_isovalue0" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_isoValue0->get( true ) / 100.0 ) );
-    }
-    if ( m_module->m_isoValue1->changed() && ( uniform->getName() == "u_isovalue1" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_isoValue1->get( true ) / 100.0 ) );
-    }
-    if ( m_module->m_isoValue2->changed() && ( uniform->getName() == "u_isovalue2" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_isoValue2->get( true ) / 100.0 ) );
-    }
-    if ( m_module->m_isoValue3->changed() && ( uniform->getName() == "u_isovalue3" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_isoValue3->get( true ) / 100.0 ) );
-    }
-    if ( m_module->m_isoSurface->changed() && ( uniform->getName() == "u_isosurface" ) )
-    {
-        uniform->set( m_module->m_isoSurface->get( true ) );
-    }
-    if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
-    {
-        uniform->set( m_module->m_stepCount->get( true ) );
-    }
-    if ( m_module->m_alpha0->changed() && ( uniform->getName() == "u_alpha0" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_alpha0->get( true ) / 100.0 ) );
-    }
-    if ( m_module->m_alpha1->changed() && ( uniform->getName() == "u_alpha1" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_alpha1->get( true ) / 100.0 ) );
-    }
-    if ( m_module->m_alpha2->changed() && ( uniform->getName() == "u_alpha2" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_alpha2->get( true ) / 100.0 ) );
-    }
-    if ( m_module->m_alpha3->changed() && ( uniform->getName() == "u_alpha3" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_alpha3->get( true ) / 100.0 ) );
-    }
-    if( m_module->m_isoColor0->changed() && ( uniform->getName() == "u_isocolor0" ) )
-    {
-        uniform->set( wge::osgColor( m_module->m_isoColor0->get( true ) ) );
-    }
-    if( m_module->m_isoColor1->changed() && ( uniform->getName() == "u_isocolor1" ) )
-    {
-        uniform->set( wge::osgColor( m_module->m_isoColor1->get( true ) ) );
-    }
-    if( m_module->m_isoColor2->changed() && ( uniform->getName() == "u_isocolor2" ) )
-    {
-        uniform->set( wge::osgColor( m_module->m_isoColor2->get( true ) ) );
-    }
-    if( m_module->m_isoColor3->changed() && ( uniform->getName() == "u_isocolor3" ) )
-    {
-        uniform->set( wge::osgColor( m_module->m_isoColor3->get( true ) ) );
-    }
-    if ( m_module->m_useSimpleDepthColoring->changed() && ( uniform->getName() == "u_depthCueingOnly" ) )
-    {
-        uniform->set( m_module->m_useSimpleDepthColoring->get( true ) );
-    }
+//   m_clusterSlicer = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Cluster Slicer" ) );
+//   add( m_clusterSlicer );
+//   m_clusterSlicer->isReady().wait();
+
+//   m_meshRenderer = WModuleFactory::getModuleFactory()->create( WModuleFactory::getModuleFactory()->getPrototypeByName( "Triangle Mesh Renderer" ) ); // NOLINT
+//   add( m_meshRenderer );
+//   m_meshRenderer->isReady().wait();
+
+//   // preset properties
+//   debugLog() << "Start step submodule properties";
+//   m_detTractClustering->getProperties()->getProperty( "active" )->toPropBool()->set( false, true );
+//   m_voxelizer->getProperties()->getProperty( "Fiber Tracts" )->toPropBool()->set( false, true );
+//   m_voxelizer->getProperties()->getProperty( "Display Voxels" )->toPropBool()->set( false, true );
+//   m_voxelizer->getProperties()->getProperty( "Bounding Box Enable Feature" )->toPropBool()->set( false, true );
+//   m_voxelizer->getProperties()->getProperty( "Lighting" )->toPropBool()->set( false, true );
+//   m_gaussFiltering->getProperties()->getProperty( "Iterations" )->toPropInt()->set( 3, true );
+//   m_clusterSlicer->getProperties()->getProperty( "Show|Hide ISO Voxels" )->toPropBool()->set( false );
+//   m_clusterSlicer->getProperties()->getProperty( "Biggest Component Only" )->toPropBool()->set( false );
+//   m_isoSurface->getProperties()->getProperty( "active" )->toPropBool()->set( false, true );
+//   m_isoSurface->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( 0.2, true );
+//   m_clusterSlicer->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set(  0.2, true );
+//   debugLog() << "Submodule properties set";
+
+//   // wiring
+//   debugLog() << "Start wiring";
+//   m_paramDS->forward( m_clusterSlicer->getInputConnector( "paramDS" ) );
+
+//   m_gaussFiltering->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
+//   m_isoSurface->getInputConnector( "values" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
+//   m_clusterSlicer->getInputConnector( "cluster" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
+//   m_clusterSlicer->getInputConnector( "clusterDS" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
+//   m_clusterSlicer->getInputConnector( "meshIN" )->connect( m_isoSurface->getOutputConnector( "surface mesh" ) );
+//   m_meshRenderer->getInputConnector( "mesh" )->connect( m_clusterSlicer->getOutputConnector( "meshOUT" ) );
+//   m_meshRenderer->getInputConnector( "colorMap" )->connect( m_clusterSlicer->getOutputConnector( "colorMap" ) );
+
+//   m_voxelizer->getInputConnector( "voxelInput" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
+//   m_fibers->forward( m_detTractClustering->getInputConnector( "tractInput" ) ); // init rippling
+//   debugLog() << "Wiring done";
+
+//   // forward properties
+//   m_properties->addProperty( m_detTractClustering->getProperties()->getProperty( "Output cluster ID" ) );
+//   m_properties->addProperty( m_detTractClustering->getProperties()->getProperty( "Max cluster distance" ) );
+//   m_properties->addProperty( m_detTractClustering->getProperties()->getProperty( "Min point distance" ) );
+//   m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Fiber Tracts" ) );
+//   m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Center Line" ) );
+//   m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Lighting" ) );
+//   m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Fiber Transparency" ) );
+//   m_properties->addProperty( m_gaussFiltering->getProperties()->getProperty( "Iterations" ) );
+//   m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Opacity %" ) );
+//   m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Mesh Color" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show|Hide ISO Voxels" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Mean Type" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show|Hide Slices" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Planes #X-SamplePoints" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Planes #Y-SamplePoints" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Planes Step Width" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "#Planes" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Biggest Component Only" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Custom Scale" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "MinScale" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "MaxScale" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "MinScaleColor" ) );
+//   m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "MaxScaleColor" ) );
+//   m_properties->addProperty( m_voxelizer->getProperties()->getProperty( "Voxels per Unit" ) );
+//   m_properties->addProperty( m_detTractClustering->getProperties()->getProperty( "Start clustering" ) );
 }
 
 void WMProbTractDisplay::activate()
 {
-    // Activate/Deactivate the PTD
     if ( m_rootNode )
     {
         if ( m_active->get() )
@@ -372,7 +233,6 @@ void WMProbTractDisplay::activate()
         }
     }
 
-    // Always call WModule's activate!
     WModule::activate();
 }
 
