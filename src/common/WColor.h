@@ -128,6 +128,10 @@ public:
      */
     bool operator!=( const WColor &rhs ) const;
 
+    static const WColor green; //!< Default for green
+    static const WColor red; //!< Default for red
+    static const WColor blue; //!< Default for blue
+
 protected:
 private:
     float m_red; //!< Red channel

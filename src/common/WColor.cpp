@@ -223,3 +223,7 @@ bool WColor::operator!=( const WColor &rhs ) const
 {
     return !( *this == rhs );
 }
+
+const WColor WColor::green( 0.0, 1.0, 0.0, 1.0 );
+const WColor WColor::red( 1.0, 0.0, 0.0, 1.0 );
+const WColor WColor::blue( 0.0, 0.0, 1.0, 1.0 );
