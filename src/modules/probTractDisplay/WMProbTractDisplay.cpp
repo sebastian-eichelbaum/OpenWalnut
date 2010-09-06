@@ -39,7 +39,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WKernel.h"
-#include "directvolumerendering.xpm"
+#include "probtractdisplay.xpm"
 #include "WMProbTractDisplay.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -62,7 +62,7 @@ boost::shared_ptr< WModule > WMProbTractDisplay::factory() const
 
 const char** WMProbTractDisplay::getXPMIcon() const
 {
-    return directvolumerendering_xpm;
+    return probtractdisplay_xpm;
 }
 
 const std::string WMProbTractDisplay::getName() const
