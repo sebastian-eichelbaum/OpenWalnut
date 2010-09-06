@@ -67,6 +67,14 @@ public:
     virtual void apply( osg::ref_ptr< osg::Node > node );
 
     /**
+     * If enabled, activate our program in the GL pipeline, performing any rebuild operations that might be pending. In addition to the standard
+     * OSG functionality, it also loads/reloads the shader source from file.
+     *
+     * \param state the state to apply the shader program to.
+     */
+    virtual void applyDirect( osg::State& state );  // NOLINT <- ensure this matches the official OSG API by using a non-const ref
+
+    /**
      * Removes the shader from the specified node.
      *
      * \param node the node where the program is registered to.
@@ -112,6 +120,16 @@ protected:
      * \return the processed source.
      */
     std::string processShader( const std::string filename, bool optional = false, int level = 0 );
+
+    /**
+     * This completely reloads the shader file and processes it. It also resets m_reload to false.
+     */
+    void reloadShader();
+
+    /**
+     * Handles all state changes in m_reload and m_deactivated. It ensure that the shader programs are bound properly or deactivated.
+     */
+    void updatePrograms();
 
     /**
      * String that stores the location of all shader files
