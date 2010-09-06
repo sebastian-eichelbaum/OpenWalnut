@@ -91,13 +91,13 @@ bool WGEZoomTrackballManipulator::zoom( const osgGA::GUIEventAdapter& ea, osgGA:
         switch( ea.getScrollingMotion() )
         {
             case osgGA::GUIEventAdapter::SCROLL_UP:
-                zoomDelta = -0.05;
-                break;
-            case osgGA::GUIEventAdapter::SCROLL_DOWN:
                 zoomDelta = 0.05;
                 break;
+            case osgGA::GUIEventAdapter::SCROLL_DOWN:
+                zoomDelta = -0.05;
+                break;
             case osgGA::GUIEventAdapter::SCROLL_2D:
-                zoomDelta = -0.05 / 120.0 * ea.getScrollingDeltaY();
+                zoomDelta = 0.05 / 120.0 * ea.getScrollingDeltaY();
                 break;
                 // case osgGA::GUIEventAdapter::SCROLL_LEFT:
                 // case osgGA::GUIEventAdapter::SCROLL_RIGHT:
