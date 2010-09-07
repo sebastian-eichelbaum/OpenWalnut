@@ -192,13 +192,16 @@ public:
             boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
 
             wtracking::WTrackingUtility::JobType j;
-            j.first = wmath::WVector3D( 1.0, 0.0, 0.0 ); // the starting point
+            j.first = wmath::WVector3D( 1.0, 0.0, 0.0 ) + ( wlimits::FLT_EPS + 0.7 ) * ( x + y + z ); // the starting point
             j.second = x; // initial direction
+            TS_ASSERT( g->enclosesRotated( j.first ) );
 
             wmath::WVector3D v = j.first;
 
             TS_ASSERT( wtracking::WTrackingUtility::followToNextVoxel( ds, j, boost::bind( &This::simpleDirFunc, this, _1, _2 ) ) );
-            v += x * 0.5;
+            TS_ASSERT( !wtracking::WTrackingUtility::onBoundary( g, j.first ) );
+            TS_ASSERT( g->enclosesRotated( j.first ) );
+            v += x * 0.8;
             TS_ASSERT_DELTA( ( j.first - v ).norm(), 0.0, 2.0 * TRACKING_EPS );
         }
     }
