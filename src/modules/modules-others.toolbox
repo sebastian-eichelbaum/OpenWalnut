@@ -20,5 +20,8 @@ ADD_SUBDIRECTORY( splineSurface )
 ADD_SUBDIRECTORY( surfaceParameterAnimator )
 
 IF( Teem_FOUND )
+  IF( OSSIM_FOUND )
+	ADD_SUBDIRECTORY( bermanTracking )
+  ENDIF()
   ADD_SUBDIRECTORY( homeGlyphs )
 ENDIF()
