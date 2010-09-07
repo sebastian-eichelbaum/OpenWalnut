@@ -257,7 +257,6 @@ void WMIsosurfaceRaytracer::moduleMain()
                 rootInserted = true;
                 WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
             }
-
         }
     }
 
