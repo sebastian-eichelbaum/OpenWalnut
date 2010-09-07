@@ -846,17 +846,37 @@ void WMNavSlices::updateGeometry()
 {
     {
         osg::ref_ptr< osg::Viewport > port;
-        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" )->getCamera()->getViewport();
-        int axialWidgetWidth = static_cast< int >( port->width() );
-        int axialWidgetHeight = static_cast< int >( port->height() );
+        boost::shared_ptr< WGEViewer > viewer;
+        int axialWidgetWidth = 0;
+        int axialWidgetHeight = 0;
+        int sagittalWidgetWidth = 0;
+        int sagittalWidgetHeight = 0;
+        int coronalWidgetWidth = 0;
+        int coronalWidgetHeight = 0;
+        // the view might not exists. Check for NULL here.
+        viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
+        if ( viewer )
+        {
+            port = viewer->getCamera()->getViewport();
+            axialWidgetWidth = static_cast< int >( port->width() );
+            axialWidgetHeight = static_cast< int >( port->height() );
+        }
 
-        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" )->getCamera()->getViewport();
-        int sagittalWidgetWidth = static_cast< int >( port->width() );
-        int sagittalWidgetHeight = static_cast< int >( port->height() );
+        viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
+        if ( viewer )
+        {
+            port = viewer->getCamera()->getViewport();
+            sagittalWidgetWidth = static_cast< int >( port->width() );
+            sagittalWidgetHeight = static_cast< int >( port->height() );
+        }
 
-        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" )->getCamera()->getViewport();
-        int coronalWidgetWidth = static_cast< int >( port->width() );
-        int coronalWidgetHeight = static_cast< int >( port->height() );
+        viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
+        if ( viewer )
+        {
+            port = viewer->getCamera()->getViewport();
+            coronalWidgetWidth = static_cast< int >( port->width() );
+            coronalWidgetHeight = static_cast< int >( port->height() );
+        }
 
         if ( axialWidgetWidth    != m_axialWidgetWidth    || axialWidgetHeight    != m_axialWidgetHeight    ||
              sagittalWidgetWidth != m_sagittalWidgetWidth || sagittalWidgetHeight != m_sagittalWidgetHeight ||
