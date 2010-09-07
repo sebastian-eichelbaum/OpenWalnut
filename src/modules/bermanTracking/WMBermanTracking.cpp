@@ -246,7 +246,6 @@ void WMBermanTracking::moduleMain()
             m_currentMinFA = m_minFA->get( true );
             m_currentMinPoints = static_cast< std::size_t >( m_minPoints->get( true ) );
             m_currentMinCos = m_minCos->get( true );
-            m_currentKeepFibers = m_keepFibers->get( true );
             m_currentProbabilistic = m_probabilistic->get( true );
             m_currentRatio = m_ratio->get( true );
             m_currentEpsImpr = m_epsImpr->get( true );
@@ -435,7 +434,7 @@ void WMBermanTracking::resetProgress( std::size_t todo )
     m_progress->addSubProgress( m_currentProgress );
 }
 
-wmath::WVector3D WMBermanTracking::getDirFunc( boost::shared_ptr< WDataSetSingle const > ds, wtracking::WTrackingUtility::JobType const& j )
+wmath::WVector3D WMBermanTracking::getDirFunc( boost::shared_ptr< WDataSetSingle const >, wtracking::WTrackingUtility::JobType const& j )
 {
     boost::shared_ptr< WGridRegular3D > g( boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() ) );
     // extract fiber directions from odf
@@ -491,7 +490,7 @@ wmath::WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_
     for( std::size_t k = 0; k < v.getNbRows(); ++k )
     {
         int z = static_cast< int >( static_cast< double >( ( *m_random )() ) / ( 1.0 + static_cast< double >( 0u - 1u ) ) * ( v.getNbRows() ) );
-        WAssert( z >= 0 && z < v.getNbRows(), "" );
+        WAssert( z >= 0 && z < static_cast< int >( v.getNbRows() ), "" );
 
         // "-", because the residuals in the input dataset have differing sign
         q( k, 0 ) = v( k, 0 ) - ( m_dataSetResidual->getValueAt( i * v.getNbRows() + z ) / ( sqrt( 1.0 - m_HMat( k, k ) ) ) );
@@ -654,6 +653,6 @@ void WMBermanTracking::fiberVis( std::vector< wmath::WVector3D > const& fiber )
     ++*m_currentProgress;
 }
 
-void WMBermanTracking::pointVis( wmath::WVector3D const& point )
+void WMBermanTracking::pointVis( wmath::WVector3D const& )
 {
 }

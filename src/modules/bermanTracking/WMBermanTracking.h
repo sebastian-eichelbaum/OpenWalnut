@@ -136,11 +136,10 @@ private:
     /**
      * A function that calculates the direction in which to continue fiber integration.
      *
-     * \param ds The dataset.
      * \param j The job.
      * \return The direction in which to continue.
      */
-    wmath::WVector3D getDirFunc( boost::shared_ptr< WDataSetSingle const > ds, wtracking::WTrackingUtility::JobType const& j );
+    wmath::WVector3D getDirFunc( boost::shared_ptr< WDataSetSingle const >, wtracking::WTrackingUtility::JobType const& j );
 
     /**
      * The fiber visitor. Gets called whenever the tracking function finishes integrating a fiber.
@@ -151,10 +150,8 @@ private:
 
     /**
      * The point visitor. Gets called whenever the tracking function finds a new point for a fiber.
-     *
-     * \param point The point.
      */
-    void pointVis( wmath::WVector3D const& point );
+    void pointVis( wmath::WVector3D const& );
 
     /**
      * Handle an exception that was thrown by the tracking function in any worker thread.
