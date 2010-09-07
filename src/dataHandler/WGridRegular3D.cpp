@@ -433,6 +433,33 @@ int WGridRegular3D::getZVoxelCoord( const wmath::WPosition& pos ) const
     return getNVoxelCoord( pos, 2 );
 }
 
+int WGridRegular3D::getXVoxelCoordRotated( const wmath::WPosition& pos ) const
+{
+    wmath::WVector3D v = pos - m_origin;
+    v[ 2 ] = v.dotProduct( m_directionX ) / getOffsetX() / getOffsetX();
+    v[ 0 ] = modf( v[ 2 ] + 0.5, &v[ 1 ] );
+    int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosX - 1.0 );
+    return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
+}
+
+int WGridRegular3D::getYVoxelCoordRotated( const wmath::WPosition& pos ) const
+{
+    wmath::WVector3D v = pos - m_origin;
+    v[ 2 ] = v.dotProduct( m_directionY ) / getOffsetY() / getOffsetY();
+    v[ 0 ] = modf( v[ 2 ] + 0.5, &v[ 1 ] );
+    int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosY - 1.0 );
+    return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
+}
+
+int WGridRegular3D::getZVoxelCoordRotated( const wmath::WPosition& pos ) const
+{
+    wmath::WVector3D v = pos - m_origin;
+    v[ 2 ] = v.dotProduct( m_directionZ ) / getOffsetZ() / getOffsetZ();
+    v[ 0 ] = modf( v[ 2 ] + 0.5, &v[ 1 ] );
+    int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosZ - 1.0 );
+    return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
+}
+
 wmath::WValue< int > WGridRegular3D::getVoxelCoord( const wmath::WPosition& pos ) const
 {
     wmath::WValue< int > result( 3 );
@@ -804,11 +831,30 @@ std::vector< size_t > WGridRegular3D::getNeighbours9XZ( size_t id ) const
     return neighbours;
 }
 
-
-
 bool WGridRegular3D::encloses( const wmath::WPosition& pos ) const
 {
     return getVoxelNum( pos ) != -1; // note this is an integer comparision, hence it should be numerical stable!
+}
+
+bool WGridRegular3D::enclosesRotated( wmath::WPosition const& pos ) const
+{
+    wmath::WVector3D v = pos - m_origin;
+    double d = v.dotProduct( m_directionX ) / getOffsetX() / getOffsetX();
+    if( d < 0.0 || d > m_nbPosX - 1 )
+    {
+        return false;
+    }
+    d = v.dotProduct( m_directionY ) / getOffsetY() / getOffsetY();
+    if( d < 0.0 || d > m_nbPosY - 1 )
+    {
+        return false;
+    }
+    d = v.dotProduct( m_directionZ ) / getOffsetZ() / getOffsetZ();
+    if( d < 0.0 || d > m_nbPosZ - 1 )
+    {
+        return false;
+    }
+    return true;
 }
 
 std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox() const
