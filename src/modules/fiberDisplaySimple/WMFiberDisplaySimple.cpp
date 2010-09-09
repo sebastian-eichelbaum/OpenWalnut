@@ -149,6 +149,7 @@ void WMFiberDisplaySimple::moduleMain()
         WDataSetFibers::VertexArray fibVerts = fibers->getVertices();
         // get current color scheme - the mode is important as it defines the number of floats in the color array per vertex.
         WDataSetFibers::ColorScheme::ColorMode fibColorMode = fibers->getColorScheme()->getMode();
+        debugLog() << "Color mode is " << fibColorMode << ".";
         WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
 
         // progress indication
