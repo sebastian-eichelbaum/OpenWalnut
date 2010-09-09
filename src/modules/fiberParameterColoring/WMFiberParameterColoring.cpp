@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath>
 #include <vector>
 #include <string>
 
@@ -97,6 +98,24 @@ void WMFiberParameterColoring::properties()
     WModule::properties();
 }
 
+inline double getSegmentVector( size_t segment, size_t offset, boost::shared_ptr< std::vector< float > > verts, double* vec )
+{
+    // get segment coordinates
+    double x = verts->at( ( 3 * segment ) + offset + 0 ) - verts->at( ( 3 * ( segment + 1 ) ) + offset + 0 );
+    double y = verts->at( ( 3 * segment ) + offset + 1 ) - verts->at( ( 3 * ( segment + 1 ) ) + offset + 1 );
+    double z = verts->at( ( 3 * segment ) + offset + 2 ) - verts->at( ( 3 * ( segment + 1 ) ) + offset + 2 );
+
+    // get length
+    double len = std::sqrt( x * x + y * y + z * z );
+
+    // create vector from this and the previous point
+    vec[0] = x / len;
+    vec[1] = y / len;
+    vec[2] = z / len;
+
+    return len;
+}
+
 void WMFiberParameterColoring::moduleMain()
 {
     // get notified about data changes
@@ -128,8 +147,113 @@ void WMFiberParameterColoring::moduleMain()
             continue;
         }
 
-        // update coloring
-        dataSet->getVertices()->size();
+        // get the fiber definitions
+        boost::shared_ptr< std::vector< size_t > > fibStart = dataSet->getLineStartIndexes();
+        boost::shared_ptr< std::vector< size_t > > fibLen   = dataSet->getLineLengths();
+        boost::shared_ptr< std::vector< float > >  fibVerts = dataSet->getVertices();
+        WDataSetFibers::ColorArray fibColors = WDataSetFibers::ColorArray( new WDataSetFibers::ColorArray::element_type() );
+        WDataSetFibers::ColorScheme::ColorMode colorMode = WDataSetFibers::ColorScheme::RGBA;
+        fibColors->resize( colorMode * ( fibVerts->size() / 3  ), 0.0 ); // create an RGBA coloring
+
+        // progress indication
+        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Coloring fibers.",
+                                                                                                  fibStart->size() ) );
+        m_progress->addSubProgress( progress1 );
+
+        // for each fiber:
+        debugLog() << "Iterating over all fibers.";
+        double angleMax = 0.0;
+        std::vector< double > fibMaxAngles;
+        fibMaxAngles.resize( fibStart->size(), 1.0 );
+        for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
+        {
+            ++*progress1;
+
+            // the start vertex index
+            size_t sidx = fibStart->at( fidx ) * 3;
+            size_t cidx = fibStart->at( fidx ) * colorMode;
+
+            // the length of the fiber, if a fiber is smaller than two segments, skip it ( it already is colored white by default )
+            size_t len = fibLen->at( fidx );
+            if ( len < 3 )
+            {
+                continue;
+            }
+
+            // get the first vector and second vertex
+            double prev[3];
+            // we do not need zero length segments
+            if ( getSegmentVector( 0, sidx, fibVerts, &prev[0] ) == 0.0 )
+            {
+                continue;
+            }
+
+            // walk along the fiber
+            double angleSum = 0.0;
+            double angleLast = 0.0;
+            double lenSum = 0.0;
+            double lenLast = 0.0;
+            for ( size_t k = 1; k < len - 1; ++k )  // len -1 because we interpret it as segments
+            {
+                // get the vector of this segment
+                double current[3];
+                // we do not need zero length segments
+                double segLen = getSegmentVector( k, sidx, fibVerts, &current[0] );
+                if ( segLen == 0.0 )
+                {
+                    continue;
+                }
+
+                lenSum += segLen;
+
+                // calculate angle between both segments
+                double dot = ( current[0] * prev[0] ) + ( current[1] * prev[1] ) + ( current[2] * prev[2] );
+                dot = std::max( -1.0, std::min( dot, 1.0 ) ); // dot must not be larger than 1. Unfortunately it might get larger in the 10th number after .
+
+#define PI 3.1415926535897932384626433832795
+
+                double angle = std::acos( dot ) * 180.0 / PI ;
+                angleSum += angle;
+                angleMax = std::max( angle, angleMax );
+
+                ( *fibColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
+                ( *fibColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
+                ( *fibColors )[ ( colorMode * k ) + cidx + 2 ] = 0.0;
+                ( *fibColors )[ ( colorMode * k ) + cidx + 0 ] = std::abs( ( angleLast - angle ) / ( lenLast - segLen ) );
+
+                prev[0] = current[0];
+                prev[1] = current[1];
+                prev[2] = current[2];
+                angleLast = angle;
+                lenLast = segLen;
+            }
+            fibMaxAngles[ fidx ] = angleSum;
+        }
+
+        for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
+        {
+            // the start vertex index
+            size_t cidx = fibStart->at( fidx ) * colorMode;
+
+            // the length of the fiber, if a fiber is smaller than two segments, skip it ( it already is colored white by default )
+            size_t len = fibLen->at( fidx );
+
+            // walk along the fiber
+            for ( size_t k = 0; k < len; ++k )
+            {
+                //double cur = ( *fibColors )[ ( colorMode * k ) + cidx + 3 ] / ( 1.5 * fibMaxAngles[ fidx ] );
+                ( *fibColors )[ ( colorMode * k ) + cidx + 0 ] /= 10.0;
+            }
+        }
+
+        // add the new scheme
+        dataSet->addColorScheme( fibColors, "Angle based", "The angle between consecutive segments represents the color." );
+
+        // forward the data
+        m_fiberOutput->updateData( dataSet );
+
+        progress1->finish();
+        m_progress->removeSubProgress( progress1 );
 
         debugLog() << "Done";
     }
