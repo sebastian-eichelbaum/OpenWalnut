@@ -266,7 +266,7 @@ public:
     /**
      * This method adds a new color scheme to the list of available colors. The color scheme needs to have a name and description to allow the
      * user to identify which color has which meaning. If the specified color array already exists, only an update is triggered and the name and
-     * description is ignored
+     * description is ignored. It detects the type of colors by its size.
      *
      * \param colors the color array. Needs to have exactly getVertices()->size() items.
      * \param name name of the color scheme. Should be a telling name.
