@@ -46,7 +46,7 @@ class WDataSetTimeSeriesTest;
  *
  * \note Only works for scalar datasets at the moment!
  */
-class WDataSetTimeSeries : public WTransferable, public boost::enable_shared_from_this< WDataSetTimeSeries > // NOLINT
+class WDataSetTimeSeries : public WDataSet
 {
     //! the test is a friend
     friend class WDataSetTimeSeriesTest;
