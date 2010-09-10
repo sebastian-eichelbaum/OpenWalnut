@@ -91,13 +91,13 @@ void WMBoundingBox::moduleMain()
     ready();
 
     // loop until the module container requests the module to quit
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         bool dataUpdated = m_input->updated();
         boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
         bool dataValid = ( dataSet );
 
-        if ( !dataValid )
+        if( !dataValid )
         {
             // OK, the output has not yet sent data
             // NOTE: see comment at the end of this while loop for m_moduleState
@@ -106,7 +106,7 @@ void WMBoundingBox::moduleMain()
             continue;
         }
 
-        if ( dataUpdated )
+        if( dataUpdated )
         {
             createGFX();
         }
@@ -177,9 +177,9 @@ void WMBoundingBox::properties()
 
 void WMBoundingBox::activate()
 {
-    if ( m_bBoxNode )
+    if( m_bBoxNode )
     {
-        if ( m_active->get() )
+        if( m_active->get() )
         {
             m_bBoxNode->setNodeMask( 0xFFFFFFFF );
         }
