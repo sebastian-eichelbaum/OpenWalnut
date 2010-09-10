@@ -101,6 +101,13 @@ public:
      */
     virtual const std::string getDescription() const;
 
+    /**
+     * Get the orientations.
+     *
+     * \return A vector of orientations.
+     */
+    std::vector< wmath::WVector3D > const& getOrientations() const;
+
 protected:
 
     /**

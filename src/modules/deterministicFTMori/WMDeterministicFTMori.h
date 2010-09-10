@@ -41,21 +41,28 @@
 #include "../../common/math/WMatrix.h"
 #include "../../common/WThreadedFunction.h"
 #include "../../dataHandler/WThreadedPerVoxelOperation.h"
+#include "../../dataHandler/WThreadedTrackingFunction.h"
+#include "../../dataHandler/WFiberAccumulator.h"
+
+#define WM_MORI_NUM_CORES 0
 
 /**
+ * \class WMDeterministicFTMori
+ *
  * This module implements the simple fiber tracking algorithm by Mori et al.
  *
  * S. Mori, B. Crain, V. Chacko, and P. van Zijl,
  * "Three-dimensional tracking of axonal projections in the brain by magnetic resonance imaging",
- * Annals of Neurology 45, pp. 265-269, 1999
+ * Annals of Neurology 45, pp. 265-269, 1999
  *
- * \class WMDeterministicFTMori
  * \ingroup modules
  */
 class WMDeterministicFTMori: public WModule
 {
-public:
+    //! the class itself
+    typedef WMDeterministicFTMori This;
 
+public:
     /**
      * Standard Constructor.
      */
@@ -68,6 +75,7 @@ public:
 
     /**
      * Returns a new instance of this module.
+     *
      * \return A new instance of this module.
      */
     virtual boost::shared_ptr< WModule > factory() const;
@@ -79,12 +87,14 @@ public:
 
     /**
      * Return the name of this module.
+     *
      * \return The name of this module.
      */
     virtual const std::string getName() const;
 
     /**
      * Return the description of this module.
+     *
      * \return This module's description.
      */
     virtual const std::string getDescription() const;
@@ -113,10 +123,10 @@ protected:
 
 private:
 
-    //! the threaded per-voxel function
+    //! the threaded per-voxel function for the eigenvector computation
     typedef WThreadedPerVoxelOperation< float, 6, double, 4 > TPVO;
 
-    //! the thread pool type
+    //! the thread pool type for the eigencomputation
     typedef WThreadedFunction< TPVO > EigenFunctionType;
 
     //! the input of the per-voxel operation
@@ -128,30 +138,55 @@ private:
     //! the valueset type
     typedef WValueSet< double > FloatValueSetType;
 
+    //! the fiber type
+    typedef std::vector< wmath::WVector3D > FiberType;
+
+    //! the threaded tracking functor
+    typedef wtracking::WThreadedTrackingFunction Tracking;
+
+    //! the tracking threadpool
+    typedef WThreadedFunction< Tracking > TrackingFuncType;
+
     /**
-     * The function that computes the eigenvectors.
+     * The function that computes the eigenvectors from the input tensor field.
      *
      * \param input A subarray of a valueset that consists of the 6 floats that make up the tensor.
-     * \return The components of the largest eigenvector and the fa value in a 4-float array.
+     * \return The components of the largest eigenvector and the fa value in a 4-double array.
      */
     EigenOutArrayType const eigenFunc( EigenInArrayType const& input );
+
+    /**
+     * Calculate the direction of the eigenvector with largest magnitude.
+     *
+     * \param ds The dataset.
+     * \param j The job, that means the current position and direction of the last fiber segment.
+     *
+     * \return The direction to follow. 
+     */
+    wmath::WVector3D getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
+                                        wtracking::WTrackingUtility::JobType const& j );
+
+	/**
+	 * The fiber visitor. Adds a fiber to the result data and increment the progress.
+	 *
+	 * \param f The fiber.
+	 */
+    void fiberVis( FiberType const& f );
+
+	/**
+	 * The point visitor. Does nothing.
+	 */
+    void pointVis( wmath::WVector3D const& );
+
+	/**
+	 * Reset the tracking function and abort the current one, if there is a current one.
+	 */
+    void resetTracking();
 
     /**
      * Resets the threaded function/threadpool.
      */
     void resetEigenFunction();
-
-    /**
-     * Calculate fibers using the fiber tracking algorithm by Mori et al.
-     * The calculation is spread over multiple threads.
-     *
-     * \see WMoriThread
-     *
-     * \param minFA The fractional anisotropy threshold.
-     * \param minPoints Minimum number of points per fiber.
-     * \param minCos The minimum cosine of the angle between two adjacent segments of a fiber.
-     */
-    void doMori( double const minFA, unsigned int const minPoints, double minCos );
 
     /**
      * Resets the current progress to 0.
@@ -187,6 +222,12 @@ private:
     //! The threadpool for the eigenvector and fa computations.
     boost::shared_ptr< EigenFunctionType > m_eigenPool;
 
+    //! The threadpool for the tracking
+    boost::shared_ptr< TrackingFuncType > m_trackingPool;
+
+    //! The fiber accumulator
+    WFiberAccumulator m_fiberAccu;
+
     //! The minimum FA property.
     WPropDouble m_minFA;
 
@@ -195,6 +236,15 @@ private:
 
     //! The minimum cosine property.
     WPropDouble m_minCos;
+
+    //! The current minimum FA property.
+    double m_currentMinFA;
+
+    //! The current minimum number of points property.
+    std::size_t m_currentMinPoints;
+
+    //! The current minimum cosine property.
+    double m_currentMinCos;
 };
 
 #endif  // WMDETERMINISTICFTMORI_H

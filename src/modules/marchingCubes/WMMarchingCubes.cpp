@@ -67,6 +67,7 @@ WMMarchingCubes::WMMarchingCubes():
     m_shaderUseTransparency( false ),
     m_firstDataProcessed( false ),
     m_moduleNode( new WGEGroupNode() ),
+    m_moduleNodeInserted( false ),
     m_surfaceGeode( 0 )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -354,8 +355,6 @@ void WMMarchingCubes::renderMesh()
     osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
-    state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
-
     {
         osg::ref_ptr< osg::Material > material = new osg::Material();
         material->setDiffuse(   osg::Material::FRONT, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
@@ -364,6 +363,27 @@ void WMMarchingCubes::renderMesh()
         material->setEmission(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
         material->setShininess( osg::Material::FRONT, 25.0 );
         state->setAttribute( material );
+    }
+
+    // Enable blending, select transparent bin.
+    if ( m_shaderUseTransparency )
+    {
+        state->setMode( GL_BLEND, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
+        state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+        // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
+        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
+
+        // Conversely, disable writing to depth buffer so that
+        // a transparent polygon will allow polygons behind it to shine thru.
+        // OSG renders transparent polygons after opaque ones.
+        osg::Depth* depth = new osg::Depth;
+        depth->setWriteMask( false );
+        state->setAttributeAndModes( depth, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
+
+        // Disable conflicting modes.
+        state->setMode( GL_LIGHTING,  osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF );
+        state->setMode( GL_CULL_FACE, osg::StateAttribute::OFF );
     }
 
     surfaceGeometry->setUseDisplayList( false );
@@ -454,7 +474,11 @@ void WMMarchingCubes::renderMesh()
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
+    if ( !m_moduleNodeInserted )
+    {
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
+        m_moduleNodeInserted = true;
+    }
 
     m_moduleNode->addUpdateCallback( new SurfaceNodeCallback( this ) );
 }

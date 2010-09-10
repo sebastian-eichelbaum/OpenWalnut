@@ -73,6 +73,11 @@ const wmath::WVector3D& WDataSetRawHARDI::getGradient( size_t index ) const
 #endif
 }
 
+std::vector< wmath::WVector3D > const& WDataSetRawHARDI::getOrientations() const
+{
+    return *m_gradients;
+}
+
 std::size_t WDataSetRawHARDI::getNumberOfMeasurements() const
 {
   return m_gradients->size();
