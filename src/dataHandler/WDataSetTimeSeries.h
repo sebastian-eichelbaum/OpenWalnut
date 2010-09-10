@@ -73,6 +73,13 @@ public:
     std::string const getDescription() const;
 
     /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
+    /**
      * Construct time series from multiple 3D datasets. They do not have to be sorted by time.
      *
      * \param datasets A list of datasets to add.
@@ -183,6 +190,11 @@ private:
     boost::shared_ptr< WValueSetBase > calcInterpolatedValueSet( float lb, float ub, float time ) const;
 
     /**
+     * Standard constructor.
+     */
+    WDataSetTimeSeries();
+
+    /**
      * A compare functor for time slices.
      */
     class TimeSliceCompare
@@ -218,6 +230,9 @@ private:
 
     //! the datasets that compose the time series
     std::vector< TimeSlice > m_dataSets;
+
+    //! The prototype as singleton.
+    static boost::shared_ptr< WPrototyped > m_prototype;
 };
 
 template< typename Data_T >
