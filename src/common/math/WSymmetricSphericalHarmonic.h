@@ -29,6 +29,7 @@
 
 #include "WMath.h"
 #include "WUnitSphereCoordinates.h"
+#include "WMatrix.h"
 #include "WValue.h"
 #include "../WExportCommon.h"
 
