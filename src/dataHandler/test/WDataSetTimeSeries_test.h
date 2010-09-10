@@ -28,6 +28,7 @@
 #include <vector>
 #include <limits>
 #include <algorithm>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 #include <cxxtest/TestSuite.h>
@@ -358,31 +359,32 @@ public:
 
         boost::shared_ptr< WDataSetScalar const > null;
         boost::shared_ptr< WDataSetScalar const > ds;
+        std::string name( "a name" );
 
-        ds = ts.calcDataSetAtTime( -std::numeric_limits< float >::infinity() );
+        ds = ts.calcDataSetAtTime( -std::numeric_limits< float >::infinity(), name );
         TS_ASSERT_EQUALS( ds, null );
 
-        ds = ts.calcDataSetAtTime( -wlimits::FLT_EPS );
+        ds = ts.calcDataSetAtTime( -wlimits::FLT_EPS, name );
         TS_ASSERT_EQUALS( ds, null );
 
-        ds = ts.calcDataSetAtTime( std::numeric_limits< float >::infinity() );
+        ds = ts.calcDataSetAtTime( std::numeric_limits< float >::infinity(), name );
         TS_ASSERT_EQUALS( ds, null );
 
-        ds = ts.calcDataSetAtTime( 2.0f + 2.0f * wlimits::FLT_EPS );
+        ds = ts.calcDataSetAtTime( 2.0f + 2.0f * wlimits::FLT_EPS, name );
         TS_ASSERT_EQUALS( ds, null );
 
-        ds = ts.calcDataSetAtTime( 0.0f );
+        ds = ts.calcDataSetAtTime( 0.0f, name );
         TS_ASSERT_EQUALS( ds, d[ 0 ] );
 
-        ds = ts.calcDataSetAtTime( 1.0f );
+        ds = ts.calcDataSetAtTime( 1.0f, name );
         TS_ASSERT_EQUALS( ds, d[ 1 ] );
 
-        ds = ts.calcDataSetAtTime( 2.0f );
+        ds = ts.calcDataSetAtTime( 2.0f, name );
         TS_ASSERT_EQUALS( ds, d[ 2 ] );
 
         {
             std::vector< double > v( 27, 1.35 );
-            ds = ts.calcDataSetAtTime( 0.35f );
+            ds = ts.calcDataSetAtTime( 0.35f, name );
             TS_ASSERT( ds );
             boost::shared_ptr< WValueSet< double > > vs = boost::shared_dynamic_cast< WValueSet< double > >( ds->getValueSet() );
             TS_ASSERT( vs );
@@ -393,7 +395,7 @@ public:
         }
         {
             std::vector< double > v( 27, 1.99 );
-            ds = ts.calcDataSetAtTime( 0.99f );
+            ds = ts.calcDataSetAtTime( 0.99f, name );
             TS_ASSERT( ds );
             boost::shared_ptr< WValueSet< double > > vs = boost::shared_dynamic_cast< WValueSet< double > >( ds->getValueSet() );
             TS_ASSERT( vs );
@@ -404,7 +406,7 @@ public:
         }
         {
             std::vector< double > v( 27, 2.598 );
-            ds = ts.calcDataSetAtTime( 1.598f );
+            ds = ts.calcDataSetAtTime( 1.598f, name );
             TS_ASSERT( ds );
             boost::shared_ptr< WValueSet< double > > vs = boost::shared_dynamic_cast< WValueSet< double > >( ds->getValueSet() );
             TS_ASSERT( vs );

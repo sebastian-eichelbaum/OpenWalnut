@@ -118,7 +118,7 @@ boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::getDataSetPtrAtTim
     return boost::shared_ptr< WDataSetScalar const >();
 }
 
-boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::calcDataSetAtTime( float time ) const
+boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::calcDataSetAtTime( float time, std::string const& name ) const
 {
     WAssert( !boost::math::isnan( time ), "" );
     if( time < getMinTime() || time > getMaxTime() )
@@ -170,7 +170,9 @@ boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::calcDataSetAtTime(
         throw WException( "Unsupported datatype in WDataSetTimeSeries::calcDataSetAtTime()" );
         break;
     }
-    return boost::shared_ptr< WDataSetScalar const >( new WDataSetScalar( vs, m_dataSets.front().first->getGrid() ) );
+    boost::shared_ptr< WDataSetScalar > ds( new WDataSetScalar( vs, m_dataSets.front().first->getGrid() ) );
+    ds->setFileName( name );
+    return ds;
 }
 
 bool WDataSetTimeSeries::TimeSliceCompare::operator() ( TimeSlice const& t0, TimeSlice const& t1 )

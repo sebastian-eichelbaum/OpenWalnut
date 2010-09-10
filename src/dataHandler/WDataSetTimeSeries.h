@@ -144,9 +144,10 @@ public:
      * a NULL-pointer will be returned.
      *
      * \param time The time.
+     * \param name The name of the new dataset.
      * \return A new interpolated dataset.
      */
-    boost::shared_ptr< WDataSetScalar const > calcDataSetAtTime( float time ) const;
+    boost::shared_ptr< WDataSetScalar const > calcDataSetAtTime( float time, std::string const& name ) const;
 
     /**
      * Interpolate a value for a single point in space and time.
