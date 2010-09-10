@@ -178,8 +178,18 @@ WDataSetFibers::ColorArray WDataSetFibers::getLocalColors() const
 
 void WDataSetFibers::addColorScheme( WDataSetFibers::ColorArray colors, std::string name, std::string description )
 {
+    ColorScheme::ColorMode mode = ColorScheme::GRAY;
+    if ( colors->size() % 3 == 0 )
+    {
+        mode = ColorScheme::RGB;
+    }
+    else if ( colors->size() % 4 == 0 )
+    {
+        mode = ColorScheme::RGBA;
+    }
+
     m_colors->push_back( boost::shared_ptr< WItemSelectionItem >(
-        new ColorScheme( name, description, NULL, colors )
+        new ColorScheme( name, description, NULL, colors, mode )
         )
     );
 }
