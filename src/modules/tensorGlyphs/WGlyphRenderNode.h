@@ -22,28 +22,27 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGLYPHRENDER_H
-#define WGLYPHRENDER_H
+#ifndef WGlyphRenderNode_H
+#define WGlyphRenderNode_H
 
 #include <string>
 
 #include <boost/shared_ptr.hpp>
 
 #include "../../dataHandler/WDataSetSingle.h"
-
-#include "OpenCLRender.h"
+#include "../../graphicsEngine/WCLRenderNode.h"
 
 /**
-*	An osg::Drawable for rendering high order tensor glyphs with OpenCL.
+*	A Node for rendering high order tensor glyphs with OpenCL.
 */
-class WGlyphRender: public OpenCLRender
+class WGlyphRenderNode: public WCLRenderNode
 {
 	public:
 
 		/**
 		*	Constructor.
 		*/
-		WGlyphRender(const boost::shared_ptr<WDataSetSingle>& data,const int& order,
+		WGlyphRenderNode(const boost::shared_ptr<WDataSetSingle>& data,const int& order,
 					 const int& sliceX, const int& sliceY, const int& sliceZ,
 					 const bool& enabledX,const bool& enabledY,const bool& enabledZ,
 					 const boost::filesystem::path& search);
@@ -51,7 +50,7 @@ class WGlyphRender: public OpenCLRender
 		/**
 		*	Copy constructor.
 		*/
-		WGlyphRender(const WGlyphRender& wGlyphRender,const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+		WGlyphRenderNode(const WGlyphRenderNode& WGlyphRenderNode,const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
 
 		/**
 		*	Overrides Object::cloneType.
@@ -79,9 +78,9 @@ class WGlyphRender: public OpenCLRender
         virtual const char* className() const;
 
 		/**
-		*	Overrides Drawable::computeBound.
+		*	Overrides WCLRenderNode::computeBoundingBox.
 		*/
-		virtual osg::BoundingBox computeBound() const;
+		virtual osg::BoundingBox computeBoundingBox() const;
 
 		/**
 		*	Has the kernel source code successfully been read?
@@ -106,7 +105,7 @@ class WGlyphRender: public OpenCLRender
 		/**
 		*	Destructor.
 		*/
-		virtual ~WGlyphRender();
+		virtual ~WGlyphRenderNode();
 
 	private:
 
@@ -114,13 +113,13 @@ class WGlyphRender: public OpenCLRender
 		*	Callback used to update the data thread-safe without removing and readding the glyph render
 		*	object from the scene graph.
 		*/
-		class DataChangeCallback: public UpdateCallback
+		class DataChangeCallback: public osg::NodeCallback
 		{
 			public:
 
 				DataChangeCallback();
 
-				virtual void update(osg::NodeVisitor*,osg::Drawable* drawable);
+				virtual void operator()(osg::Node* node,osg::NodeVisitor* nv);
 
 				bool m_changed;
 				bool m_dataChanged;
@@ -147,7 +146,7 @@ class WGlyphRender: public OpenCLRender
 		};
 
 		/**
-		*	Derives from OpenCLRender::CLProgramDataSet.
+		*	Derives from WCLRenderNode::CLProgramDataSet.
 		*/
 		class CLObjects: public CLProgramDataSet
 		{
@@ -169,21 +168,19 @@ class WGlyphRender: public OpenCLRender
 		};
 
 		/**
-		*	Overrides OpenCLRender::initProgram.
+		*	Overrides WCLRenderNode::initProgram.
 		*/
 		virtual CLProgramDataSet* initProgram(const CLViewInformation& clViewInfo) const;
 
 		/**
-		*	Overrides OpenCLRender::setBuffers.
+		*	Overrides WCLRenderNode::setBuffers.
 		*/
-		virtual void setBuffers(const CLViewInformation& clViewInfo,
-								CLProgramDataSet* clProgramDataSet) const;
+		virtual void setBuffers(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet) const;
 
 		/**
-		*	Overrides OpenCLRender::render.
+		*	Overrides WCLRenderNode::render.
 		*/
-		virtual void render(const CLViewInformation& clViewInfo,
-							CLProgramDataSet* clProgramDataSet,const osg::State& state) const;
+		virtual void render(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet) const;
 
 		/**
 		*	Loads new data to GPU memory.
@@ -226,32 +223,32 @@ class WGlyphRender: public OpenCLRender
 		mutable bool m_sourceRead;
 };
 
-inline osg::Object* WGlyphRender::cloneType() const
+inline osg::Object* WGlyphRenderNode::cloneType() const
 {
 	return 0;
 }
 
-inline osg::Object* WGlyphRender::clone(const osg::CopyOp& copyop) const
+inline osg::Object* WGlyphRenderNode::clone(const osg::CopyOp& copyop) const
 {
-	return new WGlyphRender(*this,copyop);
+	return new WGlyphRenderNode(*this,copyop);
 }
 
-inline bool WGlyphRender::isSameKindAs(const osg::Object* obj) const
+inline bool WGlyphRenderNode::isSameKindAs(const osg::Object* obj) const
 {
-	return dynamic_cast<const WGlyphRender*>(obj) != 0;
+	return dynamic_cast<const WGlyphRenderNode*>(obj) != 0;
 }
 
-inline const char* WGlyphRender::libraryName() const
+inline const char* WGlyphRenderNode::libraryName() const
 {
 	return "tensorGlyphs";
 }
 
-inline const char* WGlyphRender::className() const
+inline const char* WGlyphRenderNode::className() const
 {
-	return "WGlyphRender";
+	return "WGlyphRenderNode";
 }
 
-inline bool WGlyphRender::isSourceRead() const
+inline bool WGlyphRenderNode::isSourceRead() const
 {
 	return m_sourceRead;
 }

@@ -28,9 +28,7 @@
 #include "WMTensorGlyphs.h"
 
 WMTensorGlyphs::WMTensorGlyphs()
-{
-	renderGeode = new osg::Geode();
-}
+{}
 
 WMTensorGlyphs::~WMTensorGlyphs()
 {}
@@ -99,12 +97,7 @@ void WMTensorGlyphs::moduleMain()
 
 	ready();
 
-	/* add render object */
-
-	osg::ref_ptr<WGlyphRender> renderObject;
-
 	boost::shared_ptr<WDataSetSingle> dataSet;
-
 	boost::shared_ptr<WDataSetSingle> newDataSet;
 	WValueSetBase* newValueSet;
 	int newDimension;
@@ -220,9 +213,9 @@ void WMTensorGlyphs::moduleMain()
 				m_sliceEnabled[1]->set(true,true);
 				m_sliceEnabled[2]->set(true,true);
 
-				if (renderObject.valid())
+				if (renderNode.valid())
 				{
-					renderObject->setTensorData
+					renderNode->setTensorData
 					(
 						dataSet,newOrder,
 						m_slices[0]->get(),m_slices[1]->get(),m_slices[2]->get(),
@@ -231,7 +224,7 @@ void WMTensorGlyphs::moduleMain()
 				}
 				else
 				{
-					renderObject = new WGlyphRender
+					renderNode = new WGlyphRenderNode
 					(
 						dataSet,newOrder,
 						m_slices[0]->get(),m_slices[1]->get(),m_slices[2]->get(),
@@ -239,14 +232,12 @@ void WMTensorGlyphs::moduleMain()
 						m_localPath
 					);
 
-					if (!renderObject->isSourceRead())
+					if (!renderNode->isSourceRead())
 					{
 						return;
 					}
 
-					renderGeode->addDrawable(renderObject.get());
-
-					WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert(renderGeode);
+					WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert(renderNode);
 
 					m_slices[0]->setHidden(false);
 					m_slices[1]->setHidden(false);
@@ -263,7 +254,7 @@ void WMTensorGlyphs::moduleMain()
 			if (m_slices[0]->changed() || m_slices[1]->changed() || m_slices[2]->changed() ||
 				m_sliceEnabled[0]->changed() || m_sliceEnabled[1]->changed() || m_sliceEnabled[2]->changed())
 			{
-				renderObject->setSlices
+				renderNode->setSlices
 				(
 					m_slices[0]->get(true),m_slices[1]->get(true),m_slices[2]->get(true),
 					m_sliceEnabled[0]->get(true),m_sliceEnabled[1]->get(true),m_sliceEnabled[2]->get(true)
@@ -272,23 +263,23 @@ void WMTensorGlyphs::moduleMain()
 		}
 	}
 
-	if (renderObject.valid())
+	if (renderNode.valid())
 	{
-		WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove(renderGeode);
+		WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove(renderNode);
 	}
 }
 
 void WMTensorGlyphs::activate()
 {
-	if (renderGeode.valid())
+	if (renderNode.valid())
 	{
 		if (m_active->get())
 		{
-			renderGeode->setNodeMask(0xFFFFFFFF);
+			renderNode->setNodeMask(0xFFFFFFFF);
 		}
 		else
 		{
-			renderGeode->setNodeMask(0x0);
+			renderNode->setNodeMask(0x0);
 		}
 	}
 

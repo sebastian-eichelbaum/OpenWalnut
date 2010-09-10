@@ -34,7 +34,7 @@
 
 #include "../../dataHandler/WDataSetSingle.h"
 
-#include "WGlyphRender.h"
+#include "WGlyphRenderNode.h"
 
 /**
 *	Module for the GPU-based rendering of high order tensor glyphs.
@@ -103,7 +103,7 @@ class WMTensorGlyphs: public WModule
 		/**
 		*	The root node used for this modules graphics.
 		*/
-		osg::ref_ptr<osg::Geode> renderGeode;
+		osg::ref_ptr<WGlyphRenderNode> renderNode;
 
 	private:
 
