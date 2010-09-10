@@ -29,8 +29,8 @@
 #include "stdint.h"
 
 #include "WLinearAlgebraFunctions.h"
-#include "WUnitSphereCoordinates.h"
 #include "WMatrix.h"
+#include "WUnitSphereCoordinates.h"
 #include "WValue.h"
 
 #include "WSymmetricSphericalHarmonic.h"
@@ -90,6 +90,100 @@ double WSymmetricSphericalHarmonic::getValue( const WUnitSphereCoordinates& coor
 const wmath::WValue<double>& WSymmetricSphericalHarmonic::getCoefficients() const
 {
   return m_SHCoefficients;
+}
+
+double WSymmetricSphericalHarmonic::calcGFA( std::vector< wmath::WUnitSphereCoordinates > const& orientations ) const
+{
+    double n = static_cast< double >( orientations.size() );
+    double d = 0.0;
+    double gfa = 0.0;
+    double mean = 0.0;
+    double v[ 15 ];
+
+    for( std::size_t i = 0; i < orientations.size(); ++i )
+    {
+        v[ i ] = getValue( orientations[ i ] );
+        mean += v[ i ];
+    }
+    mean /= n;
+
+    for( std::size_t i = 0; i < orientations.size(); ++i )
+    {
+        double f = v[ i ];
+        // we use gfa as a temporary here
+        gfa += f * f;
+        f -= mean;
+        d += f * f;
+    }
+
+    if( gfa == 0.0 || n <= 1.0 )
+    {
+        return 0.0;
+    }
+    // this is the real gfa
+    gfa = sqrt( ( n * d ) / ( ( n - 1.0 ) * gfa ) );
+
+    WAssert( gfa >= -0.01 && gfa <= 1.01, "" );
+    if( gfa < 0.0 )
+    {
+        return 0.0;
+    }
+    else if( gfa > 1.0 )
+    {
+        return 1.0;
+    }
+    return gfa;
+}
+
+double WSymmetricSphericalHarmonic::calcGFA( wmath::WMatrix< double > const& B ) const
+{
+    // sh coeffs
+    wmath::WMatrix< double > s( B.getNbCols(), 1 );
+    WAssert( B.getNbCols() == m_SHCoefficients.size(), "" );
+    for( std::size_t k = 0; k < B.getNbCols(); ++k )
+    {
+        s( k, 0 ) = m_SHCoefficients[ k ];
+    }
+    s = B * s;
+    WAssert( s.getNbRows() == B.getNbRows(), "" );
+    WAssert( s.getNbCols() == 1u, "" );
+
+    double n = static_cast< double >( s.getNbRows() );
+    double d = 0.0;
+    double gfa = 0.0;
+    double mean = 0.0;
+    for( std::size_t i = 0; i < s.getNbRows(); ++i )
+    {
+        mean += s( i, 0 );
+    }
+    mean /= n;
+
+    for( std::size_t i = 0; i < s.getNbRows(); ++i )
+    {
+        double f = s( i, 0 );
+        // we use gfa as a temporary here
+        gfa += f * f;
+        f -= mean;
+        d += f * f;
+    }
+
+    if( gfa == 0.0 || n <= 1.0 )
+    {
+        return 0.0;
+    }
+    // this is the real gfa
+    gfa = sqrt( ( n * d ) / ( ( n - 1.0 ) * gfa ) );
+
+    WAssert( gfa >= -0.01 && gfa <= 1.01, "" );
+    if( gfa < 0.0 )
+    {
+        return 0.0;
+    }
+    else if( gfa > 1.0 )
+    {
+        return 1.0;
+    }
+    return gfa;
 }
 
 void WSymmetricSphericalHarmonic::applyFunkRadonTransformation( wmath::WMatrix< double > const& frtMat )
