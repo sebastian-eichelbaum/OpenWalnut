@@ -25,13 +25,14 @@
 #ifndef WDATASETTIMESERIES_H
 #define WDATASETTIMESERIES_H
 
-#include <vector>
-#include <string>
 #include <limits>
+#include <string>
 #include <utility>
+#include <vector>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/math/special_functions/fpclassify.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
@@ -224,8 +225,8 @@ Data_T WDataSetTimeSeries::interpolate( wmath::WVector3D const& pos, float time,
 {
     static const float inf = std::numeric_limits< float >::infinity();
     WAssert( success, "" );
-    WAssert( !isnan( pos.norm() ), "" );
-    WAssert( !isnan( time ), "" );
+    WAssert( !boost::math::isnan( pos.norm() ), "" );
+    WAssert( !boost::math::isnan( time ), "" );
     if( time < getMinTime() || time > getMaxTime() )
     {
         throw WException( "The provided time is not in the interval of this time series." );

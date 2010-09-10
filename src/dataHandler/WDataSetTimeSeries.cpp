@@ -27,8 +27,9 @@
 #include <string>
 #include <vector>
 
-#include "../common/WAssert.h"
+#include <boost/math/special_functions/fpclassify.hpp> // isnan
 
+#include "../common/WAssert.h"
 #include "WDataSetTimeSeries.h"
 
 WDataSetTimeSeries::WDataSetTimeSeries( std::vector< boost::shared_ptr< WDataSetScalar const > > datasets,
@@ -46,7 +47,7 @@ WDataSetTimeSeries::WDataSetTimeSeries( std::vector< boost::shared_ptr< WDataSet
     {
         WAssert( *dit, "" );
         WAssert( g == boost::shared_dynamic_cast< WGridRegular3D >( ( *dit )->getGrid() ), "" );
-        WAssert( !isnan( *tit ), "" );
+        WAssert( !boost::math::isnan( *tit ), "" );
         WAssert( d == ( *dit )->getValueSet()->getDataType(), "" );
         WAssert( ( *dit )->getValueSet()->dimension() == 1, "" );
         WAssert( ( *dit )->getValueSet()->order() == 0, "" );
@@ -84,7 +85,7 @@ bool WDataSetTimeSeries::isTimeSlice( float time ) const
 
 float WDataSetTimeSeries::findNearestTimeSlice( float time ) const
 {
-    WAssert( !isnan( time ), "" );
+    WAssert( !boost::math::isnan( time ), "" );
     if( time > getMaxTime() )
     {
         return getMaxTime();
@@ -106,7 +107,7 @@ boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::getDataSetPtrAtTim
 
 boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::calcDataSetAtTime( float time ) const
 {
-    WAssert( !isnan( time ), "" );
+    WAssert( !boost::math::isnan( time ), "" );
     if( time < getMinTime() || time > getMaxTime() )
     {
         return boost::shared_ptr< WDataSetScalar const >();
