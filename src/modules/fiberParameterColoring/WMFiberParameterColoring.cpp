@@ -28,6 +28,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
+#include "../../common/math/WMath.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 
@@ -162,9 +163,6 @@ void WMFiberParameterColoring::moduleMain()
 
         // for each fiber:
         debugLog() << "Iterating over all fibers.";
-        double angleMax = 0.0;
-        std::vector< double > fibMaxAngles;
-        fibMaxAngles.resize( fibStart->size(), 1.0 );
         for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
         {
             ++*progress1;
@@ -189,9 +187,6 @@ void WMFiberParameterColoring::moduleMain()
             }
 
             // walk along the fiber
-            double angleSum = 0.0;
-            double angleLast = 0.0;
-            double lenSum = 0.0;
             double lenLast = 0.0;
             for ( size_t k = 1; k < len - 1; ++k )  // len -1 because we interpret it as segments
             {
@@ -204,45 +199,34 @@ void WMFiberParameterColoring::moduleMain()
                     continue;
                 }
 
-                lenSum += segLen;
+                // how to calculate the curvature?
+                // -------------------------------
+                // Variant 1:
 
                 // calculate angle between both segments
-                double dot = ( current[0] * prev[0] ) + ( current[1] * prev[1] ) + ( current[2] * prev[2] );
-                dot = std::max( -1.0, std::min( dot, 1.0 ) ); // dot must not be larger than 1. Unfortunately it might get larger in the 10th number after .
+                // double dot = ( current[0] * prev[0] ) + ( current[1] * prev[1] ) + ( current[2] * prev[2] );
+                // dot = std::max( -1.0, std::min( dot, 1.0 ) ); // dot must not be larger than 1. Unfortunately it might get larger in the 10th number after .
 
-#define PI 3.1415926535897932384626433832795
+                // get angle and curvature
+                // double angleRad = std::acos( dot );
+                // double curvature2 = 2.0 * angleRad / ( lenLast + segLen );
 
-                double angle = std::acos( dot ) * 180.0 / PI ;
-                angleSum += angle;
-                angleMax = std::max( angle, angleMax );
+                // Variant 2:
 
-                ( *fibColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
+                double x = ( 2.0 / ( lenLast + segLen ) ) * ( current[0] - prev[0] );
+                double y = ( 2.0 / ( lenLast + segLen ) ) * ( current[1] - prev[1] );
+                double z = ( 2.0 / ( lenLast + segLen ) ) * ( current[2] - prev[2] );
+                double curvature = std::sqrt( x*x + y*y + z*z );
+
+                ( *fibColors )[ ( colorMode * k ) + cidx + 0 ] = 1.5 * curvature;
                 ( *fibColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
                 ( *fibColors )[ ( colorMode * k ) + cidx + 2 ] = 0.0;
-                ( *fibColors )[ ( colorMode * k ) + cidx + 0 ] = std::abs( ( angleLast - angle ) / ( lenLast - segLen ) );
+                ( *fibColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;//curvature;
 
                 prev[0] = current[0];
                 prev[1] = current[1];
                 prev[2] = current[2];
-                angleLast = angle;
                 lenLast = segLen;
-            }
-            fibMaxAngles[ fidx ] = angleSum;
-        }
-
-        for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
-        {
-            // the start vertex index
-            size_t cidx = fibStart->at( fidx ) * colorMode;
-
-            // the length of the fiber, if a fiber is smaller than two segments, skip it ( it already is colored white by default )
-            size_t len = fibLen->at( fidx );
-
-            // walk along the fiber
-            for ( size_t k = 0; k < len; ++k )
-            {
-                //double cur = ( *fibColors )[ ( colorMode * k ) + cidx + 3 ] / ( 1.5 * fibMaxAngles[ fidx ] );
-                ( *fibColors )[ ( colorMode * k ) + cidx + 0 ] /= 10.0;
             }
         }
 
