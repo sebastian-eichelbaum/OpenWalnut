@@ -32,6 +32,9 @@
 #include "../common/WAssert.h"
 #include "WDataSetTimeSeries.h"
 
+// prototype instance as singleton
+boost::shared_ptr< WPrototyped > WDataSetTimeSeries::m_prototype = boost::shared_ptr< WPrototyped >();
+
 WDataSetTimeSeries::WDataSetTimeSeries( std::vector< boost::shared_ptr< WDataSetScalar const > > datasets,
                                         std::vector< float > times )
     : m_dataSets()
@@ -75,6 +78,16 @@ std::string const WDataSetTimeSeries::getName() const
 std::string const WDataSetTimeSeries::getDescription() const
 {
     return std::string( "A time series." );
+}
+
+boost::shared_ptr< WPrototyped > WDataSetTimeSeries::getPrototype()
+{
+    if ( !m_prototype )
+    {
+        m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetTimeSeries() );
+    }
+
+    return m_prototype;
 }
 
 bool WDataSetTimeSeries::isTimeSlice( float time ) const
@@ -200,4 +213,9 @@ float WDataSetTimeSeries::getUBTimeSlice( float time ) const
         t = g->second;
     }
     return t;
+}
+
+WDataSetTimeSeries::WDataSetTimeSeries()
+    : m_dataSets()
+{
 }
