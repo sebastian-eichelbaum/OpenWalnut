@@ -420,6 +420,42 @@ public:
      */
     void testInterpolate()
     {
+        double data[] = { 1.0, 2.0, 3.0 };
+        DataSetPtrVector d;
+        TimesVector t;
+
+        createData( data, 3, d, t );
+        WDataSetTimeSeries ts( d, t );
+
+        float inf = std::numeric_limits< float >::infinity();
+        bool success;
+        double h;
+
+        // test invalid times
+        wmath::WVector3D pos( 1.0, 0.5, 1.0 );
+
+        TS_ASSERT_THROWS( h = ts.interpolate< double >( pos, -inf, &success ), WException );
+        TS_ASSERT( !success );
+        TS_ASSERT_THROWS( h = ts.interpolate< double >( pos, -3.0f, &success ), WException );
+        TS_ASSERT( !success );
+        TS_ASSERT_THROWS( h = ts.interpolate< double >( pos, -wlimits::FLT_EPS, &success ), WException );
+        TS_ASSERT( !success );
+        TS_ASSERT_THROWS( h = ts.interpolate< double >( pos, 2.0f + 2.0f * wlimits::FLT_EPS, &success ), WException );
+        TS_ASSERT( !success );
+        TS_ASSERT_THROWS( h = ts.interpolate< double >( pos, inf, &success ), WException );
+        TS_ASSERT( !success );
+
+        // test invalid position
+        float time = 0.99f;
+        pos[ 0 ] = -wlimits::FLT_EPS;
+        h = ts.interpolate< double >( pos, time, &success );
+        TS_ASSERT( !success );
+
+        // now test some valid cases
+        pos[ 0 ] = 1.0f;
+        h = ts.interpolate< double >( pos, time, &success );
+        TS_ASSERT( success );
+        TS_ASSERT_DELTA( h, 1.99, wlimits::FLT_EPS );
     }
 
     /**

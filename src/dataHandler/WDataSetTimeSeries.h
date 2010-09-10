@@ -229,6 +229,7 @@ Data_T WDataSetTimeSeries::interpolate( wmath::WVector3D const& pos, float time,
     WAssert( !boost::math::isnan( time ), "" );
     if( time < getMinTime() || time > getMaxTime() )
     {
+        *success = false;
         throw WException( "The provided time is not in the interval of this time series." );
     }
     float lb = getLBTimeSlice( time );
