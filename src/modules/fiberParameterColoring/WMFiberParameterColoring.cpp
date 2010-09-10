@@ -205,7 +205,8 @@ void WMFiberParameterColoring::moduleMain()
 
                 // calculate angle between both segments
                 // double dot = ( current[0] * prev[0] ) + ( current[1] * prev[1] ) + ( current[2] * prev[2] );
-                // dot = std::max( -1.0, std::min( dot, 1.0 ) ); // dot must not be larger than 1. Unfortunately it might get larger in the 10th number after .
+                // dot = std::max( -1.0, std::min( dot, 1.0 ) ); // dot must not be larger than 1. Unfortunately it might get
+                // larger in the 10^-10th.
 
                 // get angle and curvature
                 // double angleRad = std::acos( dot );
@@ -221,7 +222,7 @@ void WMFiberParameterColoring::moduleMain()
                 ( *fibColors )[ ( colorMode * k ) + cidx + 0 ] = 1.5 * curvature;
                 ( *fibColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
                 ( *fibColors )[ ( colorMode * k ) + cidx + 2 ] = 0.0;
-                ( *fibColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;//curvature;
+                ( *fibColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
 
                 prev[0] = current[0];
                 prev[1] = current[1];
@@ -231,7 +232,7 @@ void WMFiberParameterColoring::moduleMain()
         }
 
         // add the new scheme
-        dataSet->addColorScheme( fibColors, "Angle based", "The angle between consecutive segments represents the color." );
+        dataSet->addColorScheme( fibColors, "Curvature Coloring", "The speed of changing angles between consecutive segments represents the color." );
 
         // forward the data
         m_fiberOutput->updateData( dataSet );
