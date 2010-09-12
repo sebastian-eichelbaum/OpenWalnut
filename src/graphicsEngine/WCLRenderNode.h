@@ -140,9 +140,8 @@ class WGE_EXPORT WCLRenderNode: public osg::Node
 		bool initializationFailed() const;
 
 		/**
-		*	Resets the CL objects of the WCLRenderNode. After calling this method all CL objects will be
+		*	Resets all CL objects of the WCLRenderNode. After calling this method all CL objects will be
 		*	reinitialized before the next render stage.
-		*	Recompiling a CL kernel will always take some time dependig on its code size.
 		*/
 		void reset() const;
 
@@ -170,7 +169,7 @@ class WGE_EXPORT WCLRenderNode: public osg::Node
 		/**
 		*	Contains view properties, see CLViewInformation::getViewProperties.
 		*/
-		class ViewProperties
+		class WGE_EXPORT ViewProperties
 		{
 			public:
 
@@ -296,7 +295,7 @@ class WGE_EXPORT WCLRenderNode: public osg::Node
 
 	private:
 
-		class PerContextInformation;
+		class WGE_EXPORT PerContextInformation;
 
 	protected:
 
@@ -320,7 +319,7 @@ class WGE_EXPORT WCLRenderNode: public osg::Node
 		*	Abstract Callback you have to implement, if you want to change your CL objects.
 		*	It has to be used in conjuntion with changeDataSet().
 		*/
-		class CLDataChangeCallback
+		class WGE_EXPORT CLDataChangeCallback
 		{
 			public:
 
@@ -364,7 +363,7 @@ class WGE_EXPORT WCLRenderNode: public osg::Node
 		/**
 		*	Contains data per GL context.
 		*/
-		class PerContextInformation
+		class WGE_EXPORT PerContextInformation
 		{
 			public:
 
@@ -379,9 +378,14 @@ class WGE_EXPORT WCLRenderNode: public osg::Node
 				~PerContextInformation();
 
 				/**
-				*	Reset to uninitialized state.
+				*	Release all CL objets.
 				*/
 				void reset();
+
+				/**
+				*	Release clProgramDataSet.
+				*/
+				void resetProgramDataSet();
 
 				/**
 				*	The view information and basic CL objects.
@@ -548,7 +552,7 @@ class WGE_EXPORT WCLRenderNode: public osg::Node
 		/**
 		*	Initializes colorBuffer and depthBuffer.
 		*/
-		void initBuffers(PerContextInformation& perContextInfo,osg::State& state) const;
+		bool initBuffers(PerContextInformation& perContextInfo,osg::State& state) const;
 
 		/**
 		*	Bounding box surrounding renderable objects.

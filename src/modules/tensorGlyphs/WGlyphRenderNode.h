@@ -138,11 +138,7 @@ class WGlyphRenderNode: public WCLRenderNode
 		{
 			public:
 
-				ReloadCallback(bool reloadFactors);
-
 				virtual void change(CLProgramDataSet* clProgramDataSet) const;
-
-				bool factors;
 		};
 
 		/**
@@ -162,9 +158,7 @@ class WGlyphRenderNode: public WCLRenderNode
 				cl_mem tensorData;
 				cl_mem factors;
 
-				bool dataCreated;
 				bool reloadData;
-				bool reloadAuxData;
 		};
 
 		/**
@@ -185,7 +179,7 @@ class WGlyphRenderNode: public WCLRenderNode
 		/**
 		*	Loads new data to GPU memory.
 		*/
-		void loadCLData(const CLViewInformation& clViewInfo,CLObjects& clObjects) const;
+		bool loadCLData(const CLViewInformation& clViewInfo,CLObjects& clObjects) const;
 
 		/**
 		*	Tensor order.

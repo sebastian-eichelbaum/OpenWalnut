@@ -38,7 +38,6 @@
 
 /**
 *	Module for the GPU-based rendering of high order tensor glyphs.
-*	TODO: include slices
 */
 class WMTensorGlyphs: public WModule
 {

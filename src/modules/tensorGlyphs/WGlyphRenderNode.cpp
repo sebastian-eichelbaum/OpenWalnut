@@ -25,6 +25,7 @@
 #include <fstream>
 
 #include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "../../common/WLogger.h"
 #include "../../dataHandler/WGridRegular3D.h"
@@ -94,6 +95,8 @@ inline float* calcFactors(const unsigned int& order,const unsigned int& numOfCoe
 	return factorSet;
 }
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 inline bool readKernelSource(std::string& kernelSource,const std::string& filePath)
 {
 	std::ifstream sourceFile(filePath.c_str());
@@ -123,8 +126,12 @@ inline bool readKernelSource(std::string& kernelSource,const std::string& filePa
 	return true;
 }
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 WGlyphRenderNode::DataChangeCallback::DataChangeCallback(): m_dataChanged(false)
 {}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 void WGlyphRenderNode::DataChangeCallback::operator()(osg::Node* node,osg::NodeVisitor* nv)
 {
@@ -138,11 +145,11 @@ void WGlyphRenderNode::DataChangeCallback::operator()(osg::Node* node,osg::NodeV
 		{
 			if (renderNode.m_order != m_order)
 			{
-				renderNode.changeDataSet(ReloadCallback(true));
+				renderNode.reset();
 			}
 			else
 			{
-				renderNode.changeDataSet(ReloadCallback(false));
+				renderNode.changeDataSet(ReloadCallback());
 			}
 
 			WGridRegular3D* grid = static_cast<WGridRegular3D*>(m_tensorData->getGrid().get());
@@ -173,23 +180,25 @@ void WGlyphRenderNode::DataChangeCallback::operator()(osg::Node* node,osg::NodeV
 	}
 }
 
-WGlyphRenderNode::ReloadCallback::ReloadCallback(bool reloadFactors): factors(reloadFactors)
-{}
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 void WGlyphRenderNode::ReloadCallback::change(CLProgramDataSet* clProgramDataSet) const
 {
 	CLObjects& clObjects = *static_cast<CLObjects*>(clProgramDataSet);
 
 	clObjects.reloadData = true;
-	clObjects.reloadAuxData = factors;
 }
 
-WGlyphRenderNode::CLObjects::CLObjects(): dataCreated(false),reloadData(true),reloadAuxData(true)
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+WGlyphRenderNode::CLObjects::CLObjects(): reloadData(false)
 {}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 WGlyphRenderNode::CLObjects::~CLObjects()
 {
-	if (dataCreated)
+	if (!reloadData)
 	{
 		clReleaseMemObject(tensorData);
 		clReleaseMemObject(factors);
@@ -199,6 +208,8 @@ WGlyphRenderNode::CLObjects::~CLObjects()
 	clReleaseKernel(clRenderKernel);
 	clReleaseProgram(clProgram);
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 WGlyphRenderNode::WGlyphRenderNode(const boost::shared_ptr<WDataSetSingle>& data,const int& order,
 						   const int& sliceX,const int& sliceY,const int& sliceZ,
@@ -241,6 +252,8 @@ WGlyphRenderNode::WGlyphRenderNode(const boost::shared_ptr<WDataSetSingle>& data
 	setUpdateCallback(new DataChangeCallback());
 }
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 WGlyphRenderNode::WGlyphRenderNode(const WGlyphRenderNode& WGlyphRenderNode,const osg::CopyOp& copyop): 
 	WCLRenderNode(WGlyphRenderNode,copyop),
 	m_order(WGlyphRenderNode.m_order),
@@ -261,21 +274,27 @@ WGlyphRenderNode::WGlyphRenderNode(const WGlyphRenderNode& WGlyphRenderNode,cons
 	m_sliceEnabled[2] = WGlyphRenderNode.m_sliceEnabled[2];
 }
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 WGlyphRenderNode::~WGlyphRenderNode()
 {}
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 osg::BoundingBox WGlyphRenderNode::computeBoundingBox() const
 {
-	int numHalf[3] = {m_numOfTensors[0] / 2,m_numOfTensors[1] / 2,m_numOfTensors[2] / 2};
+	int numHalf[3] = {(m_numOfTensors[0] / 2),(m_numOfTensors[1] / 2),(m_numOfTensors[2] / 2)};
 
 	osg::BoundingBox box
 	(
 		osg::Vec3(-numHalf[0],-numHalf[1],-numHalf[2]),
-		osg::Vec3(m_numOfTensors[0] - numHalf[0],m_numOfTensors[1] - numHalf[1],m_numOfTensors[2] - numHalf[2])
+		osg::Vec3((m_numOfTensors[0] - numHalf[0]),(m_numOfTensors[1] - numHalf[1]),(m_numOfTensors[2] - numHalf[2]))
 	);
 
 	return box;
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 void WGlyphRenderNode::setTensorData(const boost::shared_ptr<WDataSetSingle>& data,const int& order,
 								 const int& sliceX, const int& sliceY, const int& sliceZ,
@@ -300,6 +319,8 @@ void WGlyphRenderNode::setTensorData(const boost::shared_ptr<WDataSetSingle>& da
 	changeCallback.m_dataChanged = true;
 }
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 void WGlyphRenderNode::setSlices(const int& sliceX, const int& sliceY, const int& sliceZ,
 							 const bool& enabledX,const bool& enabledY,const bool& enabledZ)
 {
@@ -318,6 +339,8 @@ void WGlyphRenderNode::setSlices(const int& sliceX, const int& sliceY, const int
 	changeCallback.m_changed = true;
 }
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 WCLRenderNode::CLProgramDataSet* WGlyphRenderNode::initProgram(const WCLRenderNode::CLViewInformation& clViewInfo) const
 {
 	if (!m_sourceRead)
@@ -333,6 +356,8 @@ WCLRenderNode::CLProgramDataSet* WGlyphRenderNode::initProgram(const WCLRenderNo
 	cl_program clProgram;
 	cl_kernel clScaleKernel;
 	cl_kernel clRenderKernel;
+	cl_mem tensorData;
+	cl_mem factors;
 
 	const cl_context& clContext = clViewInfo.clContext;
 	const cl_device_id& clDevice = clViewInfo.clDevice;
@@ -350,7 +375,9 @@ WCLRenderNode::CLProgramDataSet* WGlyphRenderNode::initProgram(const WCLRenderNo
 
 	/* build CL program */
 
-	clError = clBuildProgram(clProgram,0,0,0,0,0);
+	std::string options = std::string("-D Order=") + boost::lexical_cast<std::string,unsigned int>(m_order);
+
+	clError = clBuildProgram(clProgram,0,0,options.c_str(),0,0);
 
 	if (clError != CL_SUCCESS)
 	{
@@ -403,14 +430,111 @@ WCLRenderNode::CLProgramDataSet* WGlyphRenderNode::initProgram(const WCLRenderNo
 		return 0;
 	}
 
+	/* load data set */
+
+	WValueSet<float>* valueSet = static_cast<WValueSet<float>*>(m_tensorData->getValueSet().get());
+
+	unsigned int numOfCoeffs = valueSet->rawSize();
+
+	tensorData = clCreateBuffer
+	(
+		clViewInfo.clContext,
+		CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR|CL_MEM_ALLOC_HOST_PTR,
+		(numOfCoeffs * sizeof(float)),const_cast<float*>(valueSet->rawData()),&clError
+	);
+
+	if (clError != CL_SUCCESS)
+	{
+		osg::notify(osg::FATAL) << "Could not load the data to GPU memory: " << getCLError(clError) << std::endl;
+
+		clReleaseKernel(clRenderKernel);
+		clReleaseKernel(clScaleKernel);
+		clReleaseProgram(clProgram);
+
+		return 0;
+	}
+
+	/* load factors */
+
+	float* auxData = calcFactors(m_order,numOfCoeffs);
+
+	factors = clCreateBuffer
+	(
+		clViewInfo.clContext,
+		CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR|CL_MEM_ALLOC_HOST_PTR,
+		(numOfCoeffs * sizeof(float)),auxData,&clError
+	);
+
+	delete[] auxData;
+
+	if (clError != CL_SUCCESS)
+	{
+		osg::notify(osg::FATAL) << "Could not load the aux data to GPU memory: " << getCLError(clError) << std::endl;
+
+		clReleaseMemObject(tensorData);
+		clReleaseKernel(clRenderKernel);
+		clReleaseKernel(clScaleKernel);
+		clReleaseProgram(clProgram);
+
+		return 0;
+	}
+
+	/* set kernel arguments */
+
+	int numOfTensors[4] = {m_numOfTensors[0],m_numOfTensors[1],m_numOfTensors[2],0};
+
+	clSetKernelArg(clRenderKernel,10,(4 * sizeof(int)),numOfTensors);
+	clSetKernelArg(clRenderKernel,11,sizeof(cl_mem),&tensorData);
+
+	/* scale tensors */
+
+	clSetKernelArg(clScaleKernel,0,sizeof(cl_mem),&tensorData);
+	clSetKernelArg(clScaleKernel,1,sizeof(cl_mem),&factors);
+	clSetKernelArg(clScaleKernel,2,(4 * sizeof(int)),numOfTensors);
+
+	size_t gwsX = (numOfTensors[0] / 16) * 16;
+	size_t gwsY = (numOfTensors[1] / 16) * 16;
+
+	if (gwsX != numOfTensors[0])
+	{
+		gwsX += 16;
+	}
+
+	if (gwsY != numOfTensors[1])
+	{
+		gwsY += 16;
+	}
+
+	size_t gws[3] = {gwsX,gwsY,numOfTensors[2]};
+	size_t lws[3] = {16,16,1};
+
+	clError = clEnqueueNDRangeKernel(clViewInfo.clCommQueue,clScaleKernel,3,0,gws,lws,0,0,0);
+
+	if (clError != CL_SUCCESS)
+	{
+		osg::notify(osg::FATAL) << "Could not run the scaling kernel: " << getCLError(clError) << std::endl;
+
+		clReleaseMemObject(factors);
+		clReleaseMemObject(tensorData);
+		clReleaseKernel(clRenderKernel);
+		clReleaseKernel(clScaleKernel);
+		clReleaseProgram(clProgram);
+
+		return 0;
+	}
+
 	CLObjects* clObjects = new CLObjects();
 
 	clObjects->clProgram = clProgram;
 	clObjects->clScaleKernel = clScaleKernel;
 	clObjects->clRenderKernel = clRenderKernel;
+	clObjects->tensorData = tensorData;
+	clObjects->factors = factors;
 
 	return clObjects;
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 void WGlyphRenderNode::setBuffers(const WCLRenderNode::CLViewInformation& clViewInfo,
 								  WCLRenderNode::CLProgramDataSet* clProgramDataSet) const
@@ -432,12 +556,12 @@ void WGlyphRenderNode::render(const WCLRenderNode::CLViewInformation& clViewInfo
 
 	if (clObjects.reloadData)
 	{
-		loadCLData(clViewInfo,clObjects);
-	}
+		if (!loadCLData(clViewInfo,clObjects))
+		{
+			return;
+		}
 
-	if (clObjects.reloadData)
-	{
-		return;
+		clObjects.reloadData = false;
 	}
 
 	/* get view properties */
@@ -450,36 +574,40 @@ void WGlyphRenderNode::render(const WCLRenderNode::CLViewInformation& clViewInfo
 
 	props.origin += osg::Vec3f
 	(
-		m_numOfTensors[0] / 2,
-		m_numOfTensors[1] / 2,
-		m_numOfTensors[2] / 2
+		(m_numOfTensors[0] / 2),
+		(m_numOfTensors[1] / 2),
+		(m_numOfTensors[2] / 2)
 	);
 
 	/* set kernel view arguments */
 
-	clSetKernelArg(clObjects.clRenderKernel,0,4 * sizeof(float),osg::Vec4f(props.origin,0.0f).ptr());
-	clSetKernelArg(clObjects.clRenderKernel,1,4 * sizeof(float),osg::Vec4f(props.origin2LowerLeft,0.0f).ptr());
-	clSetKernelArg(clObjects.clRenderKernel,2,4 * sizeof(float),osg::Vec4f(props.edgeX,0.0f).ptr());
-	clSetKernelArg(clObjects.clRenderKernel,3,4 * sizeof(float),osg::Vec4f(props.edgeY,0.0f).ptr());
+	clSetKernelArg(clObjects.clRenderKernel,0,(4 * sizeof(float)),osg::Vec4f(props.origin,0.0f).ptr());
+	clSetKernelArg(clObjects.clRenderKernel,1,(4 * sizeof(float)),osg::Vec4f(props.origin2LowerLeft,0.0f).ptr());
+	clSetKernelArg(clObjects.clRenderKernel,2,(4 * sizeof(float)),osg::Vec4f(props.edgeX,0.0f).ptr());
+	clSetKernelArg(clObjects.clRenderKernel,3,(4 * sizeof(float)),osg::Vec4f(props.edgeY,0.0f).ptr());
 	clSetKernelArg(clObjects.clRenderKernel,4,sizeof(float),&props.planeNear);
 	clSetKernelArg(clObjects.clRenderKernel,5,sizeof(float),&props.planeFar);
 
 	int slices[4] = {m_slices[0],m_slices[1],m_slices[2],0};
 	int sliceEnabled[4] = {m_sliceEnabled[0],m_sliceEnabled[1],m_sliceEnabled[2],0};
 
-	clSetKernelArg(clObjects.clRenderKernel,8,4 * sizeof(int),slices);
-	clSetKernelArg(clObjects.clRenderKernel,9,4 * sizeof(int),sliceEnabled);
+	clSetKernelArg(clObjects.clRenderKernel,8,(4 * sizeof(int)),slices);
+	clSetKernelArg(clObjects.clRenderKernel,9,(4 * sizeof(int)),sliceEnabled);
 
 	/* global work size has to be a multiple of local work size */
 
-	size_t gwsX = clViewInfo.width / 16;
-	size_t gwsY = clViewInfo.height / 16;
+	size_t gwsX = (clViewInfo.width / 16) * 16;
+	size_t gwsY = (clViewInfo.height / 16) * 16;
 
-	if ((gwsX * 16) != clViewInfo.width) gwsX++;
-	if ((gwsY * 16) != clViewInfo.height) gwsY++;
+	if (gwsX != clViewInfo.width)
+	{
+		gwsX += 16;
+	}
 
-	gwsX *= 16;
-	gwsY *= 16;
+	if (gwsY != clViewInfo.height)
+	{
+		gwsY += 16;
+	}
 
 	size_t gws[2] = {gwsX,gwsY};
 	size_t lws[2] = {16,16};
@@ -496,117 +624,59 @@ void WGlyphRenderNode::render(const WCLRenderNode::CLViewInformation& clViewInfo
 	}
 }
 
-void WGlyphRenderNode::loadCLData(const CLViewInformation& clViewInfo,CLObjects& clObjects) const
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+bool WGlyphRenderNode::loadCLData(const CLViewInformation& clViewInfo,CLObjects& clObjects) const
 {
 	cl_int clError;
+
+	/* release existing data */
+
+	clReleaseMemObject(clObjects.tensorData);
 
 	/* load new data set */
 
 	WValueSet<float>* valueSet = static_cast<WValueSet<float>*>(m_tensorData->getValueSet().get());
 
-	cl_mem tensorData = clCreateBuffer
+	clObjects.tensorData = clCreateBuffer
 	(
 		clViewInfo.clContext,
 		CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR|CL_MEM_ALLOC_HOST_PTR,
-		valueSet->rawSize() * sizeof(float),const_cast<float*>(valueSet->rawData()),&clError
+		(valueSet->rawSize() * sizeof(float)),
+		const_cast<float*>(valueSet->rawData()),&clError
 	);
 
 	if (clError != CL_SUCCESS)
 	{
 		osg::notify(osg::FATAL) << "Could not load the data to GPU memory: " << getCLError(clError) << std::endl;
 
-		return;
+		return false;
 	}
-
-	/* load auxiliary data if required */
-
-	if (clObjects.reloadAuxData)
-	{
-		unsigned int numOfCoeffs = valueSet->dimension();
-
-		/* load new factors */
-
-		float* auxData = calcFactors(m_order,numOfCoeffs);
-
-		cl_mem factors = clCreateBuffer
-		(
-			clViewInfo.clContext,
-			CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR|CL_MEM_ALLOC_HOST_PTR,
-			numOfCoeffs * sizeof(float),auxData,&clError
-		);
-
-		delete[] auxData;
-
-		if (clError != CL_SUCCESS)
-		{
-			osg::notify(osg::FATAL) << "Could not load the aux data to GPU memory: " << getCLError(clError) << std::endl;
-
-			clReleaseMemObject(tensorData);
-
-			return;
-		}
-
-		if (clError != CL_SUCCESS)
-		{
-			osg::notify(osg::FATAL) << "Could not load the aux data to GPU memory: " << getCLError(clError) << std::endl;
-
-			clReleaseMemObject(tensorData);
-			clReleaseMemObject(factors);
-
-			return;
-		}
-
-		/* release existing auxiliary data if required */
-
-		if (clObjects.dataCreated)
-		{
-			clReleaseMemObject(clObjects.factors);
-		}
-
-		clObjects.factors = factors;
-
-		/* set new kernel arguments */
-
-		clSetKernelArg(clObjects.clScaleKernel,1,sizeof(cl_mem),&clObjects.factors);
-
-		clObjects.reloadAuxData = false;
-	}
-
-	/* release existing data if required */
-
-	if (clObjects.dataCreated)
-	{
-		clReleaseMemObject(clObjects.tensorData);
-	}
-	else
-	{
-		clObjects.dataCreated = true;
-	}
-
-	clObjects.tensorData = tensorData;
 
 	/* set new kernel arguments */
 
 	int numOfTensors[4] = {m_numOfTensors[0],m_numOfTensors[1],m_numOfTensors[2],0};
 
-	clSetKernelArg(clObjects.clRenderKernel,10,4 * sizeof(int),numOfTensors);
+	clSetKernelArg(clObjects.clRenderKernel,10,(4 * sizeof(int)),numOfTensors);
 	clSetKernelArg(clObjects.clRenderKernel,11,sizeof(cl_mem),&clObjects.tensorData);
-
-	clObjects.reloadData = false;
 
 	/* scale tensors */
 
 	clSetKernelArg(clObjects.clScaleKernel,0,sizeof(cl_mem),&clObjects.tensorData);
-	clSetKernelArg(clObjects.clScaleKernel,2,4 * sizeof(int),numOfTensors);
+	clSetKernelArg(clObjects.clScaleKernel,2,(4 * sizeof(int)),numOfTensors);
 
-	size_t gwsX = numOfTensors[0] / 16;
-	size_t gwsY = numOfTensors[1] / 16;
+	size_t gwsX = (numOfTensors[0] / 16) * 16;
+	size_t gwsY = (numOfTensors[1] / 16) * 16;
 
-	if ((gwsX * 16) != numOfTensors[0]) gwsX++;
-	if ((gwsY * 16) != numOfTensors[1]) gwsY++;
+	if (gwsX != numOfTensors[0])
+	{
+		gwsX += 16;
+	}
 
-	gwsX *= 16;
-	gwsY *= 16;
+	if (gwsY != numOfTensors[1])
+	{
+		gwsY += 16;
+	}
 
 	size_t gws[3] = {gwsX,gwsY,numOfTensors[2]};
 	size_t lws[3] = {16,16,1};
@@ -616,5 +686,13 @@ void WGlyphRenderNode::loadCLData(const CLViewInformation& clViewInfo,CLObjects&
 	if (clError != CL_SUCCESS)
 	{
 		osg::notify(osg::FATAL) << "Could not run the scaling kernel: " << getCLError(clError) << std::endl;
+
+		clReleaseMemObject(clObjects.tensorData);
+
+		return false;
 	}
+
+	return true;
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/

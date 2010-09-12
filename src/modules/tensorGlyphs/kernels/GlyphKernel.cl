@@ -1,7 +1,6 @@
 
-/* passed by clBuildProgram */
+/* Order passed by clBuildProgram */
 
-#define Order 4
 #define NumOfCoeffs ((Order + 1)*(Order + 2) / 2)
 
 __kernel void scaleGlyphs(__global float* tensorData,__constant float* factors,int4 numOfTensors)

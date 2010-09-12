@@ -27,31 +27,45 @@
 #include "glyph.xpm"
 #include "WMTensorGlyphs.h"
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 WMTensorGlyphs::WMTensorGlyphs()
 {}
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 WMTensorGlyphs::~WMTensorGlyphs()
 {}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 boost::shared_ptr<WModule> WMTensorGlyphs::factory() const
 {
 	return boost::shared_ptr<WModule>(new WMTensorGlyphs());
 }
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 const char** WMTensorGlyphs::getXPMIcon() const
 {
 	return glyph_xpm;
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 const std::string WMTensorGlyphs::getName() const
 {
 	return "Tensor Glyphs";
 }
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 const std::string WMTensorGlyphs::getDescription() const
 {
 	return "GPU based raytracing of high order tensor glyphs.";
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 void WMTensorGlyphs::connectors()
 {
@@ -70,6 +84,8 @@ void WMTensorGlyphs::connectors()
 	WModule::connectors();
 }
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 void WMTensorGlyphs::properties()
 {
 	m_propertyChanged = boost::shared_ptr<WCondition>(new WCondition());
@@ -86,6 +102,8 @@ void WMTensorGlyphs::properties()
 	m_sliceEnabled[1] = m_properties->addProperty("Show Coronal","Show vectors on coronal slice.",true,m_propertyChanged,true);
 	m_sliceEnabled[2] = m_properties->addProperty("Show Axial","Show vectors on axial slice.",true,m_propertyChanged,true);
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 void WMTensorGlyphs::moduleMain()
 {
@@ -120,7 +138,7 @@ void WMTensorGlyphs::moduleMain()
 		/* test for data changes */
 
 		newDataSet = m_input->getData();
-		dataChanged = (dataSet != newDataSet);
+		dataChanged = dataSet != newDataSet;
 
 		/* test for data validity */
 
@@ -170,8 +188,8 @@ void WMTensorGlyphs::moduleMain()
 
 			if (!dataValid)
 			{
-				warnLog() << "Received data with order="<< newDataSet->getValueSet()->order() 
-						  << " and dimension="<<newDataSet->getValueSet()->dimension() 
+				warnLog() << "Received data with order=" << newDataSet->getValueSet()->order() 
+						  << " and dimension=" << newDataSet->getValueSet()->dimension() 
 						  << " not compatible with this module. Ignoring Data.";
 			}
 
@@ -269,6 +287,8 @@ void WMTensorGlyphs::moduleMain()
 	}
 }
 
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 void WMTensorGlyphs::activate()
 {
 	if (renderNode.valid())
@@ -285,3 +305,5 @@ void WMTensorGlyphs::activate()
 
 	WModule::activate();
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/

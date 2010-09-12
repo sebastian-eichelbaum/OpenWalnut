@@ -248,8 +248,7 @@ WCLRenderNode::PerContextInformation::PerContextInformation():
 	contextSharing(true),
 	clInitialized(false),
 	buffersInitialized(false),
-	initializationError(false),
-	clProgramDataSet(0)
+	initializationError(false)
 {}
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -274,8 +273,6 @@ void WCLRenderNode::PerContextInformation::reset()
 	if (clInitialized)
 	{
 		delete clProgramDataSet;
-
-		clProgramDataSet = 0;
 
 		clReleaseCommandQueue(clViewInfo.clCommQueue);
 		clReleaseContext(clViewInfo.clContext);
@@ -813,27 +810,23 @@ void WCLRenderNode::renderStart(osg::State& state) const
 	perContextInfo.clViewInfo.m_modelViewMatrix = &state.getModelViewMatrix();
 	perContextInfo.clViewInfo.m_projectionMatrix = &state.getProjectionMatrix();
 
-	/* do nothing if an initialization attempt has already failed */
+	/* do nothing if an initialization attempt has failed already */
 
 	if (perContextInfo.initializationError)
 	{
 		return;
 	}
 
-	/* initialize CL and GL objects of required */
+	/* initialize CL objects if required */
 
 	if (!perContextInfo.clInitialized)
 	{
-		/* initialize CL objects */
-
 		if (!initCL(perContextInfo))
 		{
 			perContextInfo.initializationError = true;
 
 			return;
 		}
-
-		/* initialize program(s) */
 
 		perContextInfo.clProgramDataSet = initProgram(perContextInfo.clViewInfo);
 
@@ -844,12 +837,10 @@ void WCLRenderNode::renderStart(osg::State& state) const
 			return;
 		}
 
-		/* set CL and GL initialized */
-
 		perContextInfo.clInitialized = true;
 	}
 
-	/* initialize or reset buffers if required */
+	/* initialize or refit buffers if required */
 
 	const osg::Viewport* currentViewport = state.getCurrentViewport();
 
@@ -863,21 +854,23 @@ void WCLRenderNode::renderStart(osg::State& state) const
 		perContextInfo.clViewInfo.width = currentWidth;
 		perContextInfo.clViewInfo.height = currentHeight;
 
-		initBuffers(perContextInfo,state);
-	}
+		if (!initBuffers(perContextInfo,state))
+		{
+			perContextInfo.initializationError = true;
 
-	if (!perContextInfo.buffersInitialized)
-	{
-		return;
+			return;
+		}
+
+		perContextInfo.buffersInitialized = true;
 	}
 
 	/* start rendering */
 
-	cl_int clError;
-
 	if (perContextInfo.contextSharing)
 	{
 		glFinish();
+
+		cl_int clError;
 
 		cl_mem glObjects[2] = {perContextInfo.clViewInfo.colorBuffer,perContextInfo.clViewInfo.depthBuffer};
 
@@ -913,7 +906,7 @@ void WCLRenderNode::draw(osg::State& state) const
 {
 	PerContextInformation& perContextInfo = m_perContextInformation[state.getContextID()];
 
-	/* do nothing if an initialization attempt has already failed */
+	/* do nothing if an initialization attempt has failed already */
 
 	if (perContextInfo.initializationError)
 	{
@@ -922,8 +915,6 @@ void WCLRenderNode::draw(osg::State& state) const
 
 	/* draw */
 
-	cl_int clError;
-
 	if (perContextInfo.contextSharing)
 	{
 		clFinish(perContextInfo.clViewInfo.clCommQueue);
@@ -931,6 +922,8 @@ void WCLRenderNode::draw(osg::State& state) const
 	else
 	{
 		/* load rendered content to main memory */
+
+		cl_int clError;
 
 		void* colorData = new float[perContextInfo.clViewInfo.width * perContextInfo.clViewInfo.height * 4];
 		void* depthData = new float[perContextInfo.clViewInfo.width * perContextInfo.clViewInfo.height];
@@ -1060,7 +1053,7 @@ bool WCLRenderNode::initCL(PerContextInformation& perContextInfo) const
 
 	properties[0] = CL_CONTEXT_PLATFORM;
 
-	/* create CL context sharing GL objects */
+	/* create CL context with GL context sharing */
 							
 	for (unsigned int i = 0; i < numOfPlatforms; i++)
 	{
@@ -1081,13 +1074,13 @@ bool WCLRenderNode::initCL(PerContextInformation& perContextInfo) const
 		}
 	}
 
+	/* create CL context without GL context sharing if context creation failed */
+
 	if (clError != CL_SUCCESS)
 	{
 		perContextInfo.contextSharing = false;
 
 		properties[2] = 0;
-
-		/* create CL context not sharing GL objects */
 		
 		for (unsigned int i = 0; i < numOfPlatforms; i++)
 		{
@@ -1148,7 +1141,7 @@ bool WCLRenderNode::initCL(PerContextInformation& perContextInfo) const
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-void WCLRenderNode::initBuffers(PerContextInformation& perContextInfo,osg::State& state) const
+bool WCLRenderNode::initBuffers(PerContextInformation& perContextInfo,osg::State& state) const
 {
 	/* release existing buffers */
 
@@ -1156,8 +1149,6 @@ void WCLRenderNode::initBuffers(PerContextInformation& perContextInfo,osg::State
 	{
 		clReleaseMemObject(perContextInfo.clViewInfo.colorBuffer);
 		clReleaseMemObject(perContextInfo.clViewInfo.depthBuffer);
-
-		perContextInfo.buffersInitialized = false;
 	}
 
 	/* resize color and depth texture */
@@ -1199,7 +1190,7 @@ void WCLRenderNode::initBuffers(PerContextInformation& perContextInfo,osg::State
 		{
 			osg::notify(osg::FATAL) << "Could not create the color buffer: " << getCLError(clError) << std::endl;
 
-			return;
+			return false;
 		}
 
 		perContextInfo.clViewInfo.depthBuffer = clCreateFromGLTexture2D
@@ -1215,7 +1206,7 @@ void WCLRenderNode::initBuffers(PerContextInformation& perContextInfo,osg::State
 
 			clReleaseMemObject(perContextInfo.clViewInfo.colorBuffer);
 
-			return;
+			return false;
 		}
 	}
 	else
@@ -1237,7 +1228,7 @@ void WCLRenderNode::initBuffers(PerContextInformation& perContextInfo,osg::State
 		{
 			osg::notify(osg::FATAL) << "Could not create the color buffer: " << getCLError(clError) << std::endl;
 
-			return;
+			return false;
 		}
 
 		format.image_channel_order = CL_R;
@@ -1256,7 +1247,7 @@ void WCLRenderNode::initBuffers(PerContextInformation& perContextInfo,osg::State
 
 			clReleaseMemObject(perContextInfo.clViewInfo.colorBuffer);
 
-			return;
+			return false;
 		}
 	}
 
@@ -1264,7 +1255,7 @@ void WCLRenderNode::initBuffers(PerContextInformation& perContextInfo,osg::State
 
 	setBuffers(perContextInfo.clViewInfo,perContextInfo.clProgramDataSet);
 
-	perContextInfo.buffersInitialized = true;
+	return true;
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
