@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <cmath>
+#include <algorithm>
 #include <vector>
 #include <string>
 
@@ -152,17 +153,24 @@ void WMFiberParameterColoring::moduleMain()
         boost::shared_ptr< std::vector< size_t > > fibStart = dataSet->getLineStartIndexes();
         boost::shared_ptr< std::vector< size_t > > fibLen   = dataSet->getLineLengths();
         boost::shared_ptr< std::vector< float > >  fibVerts = dataSet->getVertices();
-        WDataSetFibers::ColorArray fibColors = WDataSetFibers::ColorArray( new WDataSetFibers::ColorArray::element_type() );
+        WDataSetFibers::ColorArray fibCurvatureColors = WDataSetFibers::ColorArray( new WDataSetFibers::ColorArray::element_type() );
+        WDataSetFibers::ColorArray fibLengthColors = WDataSetFibers::ColorArray( new WDataSetFibers::ColorArray::element_type() );
         WDataSetFibers::ColorScheme::ColorMode colorMode = WDataSetFibers::ColorScheme::RGBA;
-        fibColors->resize( colorMode * ( fibVerts->size() / 3  ), 0.0 ); // create an RGBA coloring
+        fibCurvatureColors->resize( colorMode * ( fibVerts->size() / 3  ), 0.0 ); // create an RGBA coloring
+        fibLengthColors->resize( colorMode * ( fibVerts->size() / 3  ), 0.0 ); // create an RGBA coloring
 
         // progress indication
         boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Coloring fibers.",
                                                                                                   fibStart->size() ) );
+        boost::shared_ptr< WProgress > progress2 = boost::shared_ptr< WProgress >( new WProgress( "Scaling Colors.",
+                                                                                                  fibStart->size() ) );
         m_progress->addSubProgress( progress1 );
+        m_progress->addSubProgress( progress2 );
 
         // for each fiber:
         debugLog() << "Iterating over all fibers.";
+        std::vector< double > maxSegLengths;
+        maxSegLengths.resize( fibStart->size(), 0.0 );
         for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
         {
             ++*progress1;
@@ -188,6 +196,7 @@ void WMFiberParameterColoring::moduleMain()
 
             // walk along the fiber
             double lenLast = 0.0;
+            double lenMax = 0.0;
             for ( size_t k = 1; k < len - 1; ++k )  // len -1 because we interpret it as segments
             {
                 // get the vector of this segment
@@ -219,26 +228,64 @@ void WMFiberParameterColoring::moduleMain()
                 double z = ( 2.0 / ( lenLast + segLen ) ) * ( current[2] - prev[2] );
                 double curvature = std::sqrt( x*x + y*y + z*z );
 
-                ( *fibColors )[ ( colorMode * k ) + cidx + 0 ] = 1.5 * curvature;
-                ( *fibColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
-                ( *fibColors )[ ( colorMode * k ) + cidx + 2 ] = 0.0;
-                ( *fibColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
+                ( *fibCurvatureColors )[ ( colorMode * k ) + cidx + 0 ] = 1.5 * curvature;
+                ( *fibCurvatureColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
+                ( *fibCurvatureColors )[ ( colorMode * k ) + cidx + 2 ] = 0.0;
+                ( *fibCurvatureColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
+
+                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] = segLen;
+                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
+                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 2 ] = 0.0;
+                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
 
                 prev[0] = current[0];
                 prev[1] = current[1];
                 prev[2] = current[2];
                 lenLast = segLen;
+                lenMax = std::max( segLen, lenMax );
+            }
+            maxSegLengths[ fidx ] = lenMax;
+        }
+        progress1->finish();
+
+        // finally, apply the global scalings needed
+        debugLog() << "Iterating over all fibers for scaling per fiber.";
+        for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
+        {
+            ++*progress2;
+
+            // the start vertex index
+            size_t cidx = fibStart->at( fidx ) * colorMode;
+            size_t len = fibLen->at( fidx );
+            if ( len < 3 )
+            {
+                continue;
+            }
+
+            // walk along the fiber
+            for ( size_t k = 1; k < len - 1; ++k )  // len -1 because we interpret it as segments
+            {
+                double relSegLen = ( *fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] / maxSegLengths[ fidx ];
+                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] = relSegLen;
+                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 1 ] = relSegLen;
+                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 2 ] = relSegLen;
+                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
             }
         }
+        progress2->finish();
 
         // add the new scheme
-        dataSet->addColorScheme( fibColors, "Curvature Coloring", "The speed of changing angles between consecutive segments represents the color." );
+        dataSet->addColorScheme( fibCurvatureColors, "Curvature Coloring",
+                                 "The speed of changing angles between consecutive segments represents the color." );
+        dataSet->addColorScheme( fibLengthColors, "Segment Length Coloring",
+                                 "The length of a segment in relation to the longest segment in a the fiber." );
 
         // forward the data
         m_fiberOutput->updateData( dataSet );
 
-        progress1->finish();
+        // remove the progress indicators
         m_progress->removeSubProgress( progress1 );
+        m_progress->removeSubProgress( progress2 );
 
         debugLog() << "Done";
     }
