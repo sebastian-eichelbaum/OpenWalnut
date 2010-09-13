@@ -250,6 +250,7 @@ WGlyphRenderNode::WGlyphRenderNode(const boost::shared_ptr<WDataSetSingle>& data
 	/* create callback for data changes */
 
 	setUpdateCallback(new DataChangeCallback());
+	setDataVariance(DYNAMIC);
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
