@@ -46,7 +46,7 @@ class WDataSetTimeSeriesTest;
  *
  * \note Only works for scalar datasets at the moment!
  */
-class WDataSetTimeSeries : public WDataSet
+class OWDATAHANDLER_EXPORT WDataSetTimeSeries : public WDataSet
 {
     //! the test is a friend
     friend class WDataSetTimeSeriesTest;

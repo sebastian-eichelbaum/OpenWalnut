@@ -51,7 +51,7 @@ namespace wtracking // note that this is not final
      *
      * A class that provides untility functions and typedefs for tracking algorithms.
      */
-    class WTrackingUtility
+    class OWDATAHANDLER_EXPORT WTrackingUtility
     {
     public:
 
@@ -138,7 +138,7 @@ namespace wtracking // note that this is not final
      * Note that voxels at the first (0) and last (grid->getNbCoords*()) position in any direction are
      * invalid seeding voxels as they are partially outside of the grid.
      */
-    class WThreadedTrackingFunction : public WThreadedJobs< WTrackingUtility::DataSetType, WTrackingUtility::JobType >
+    class OWDATAHANDLER_EXPORT WThreadedTrackingFunction : public WThreadedJobs< WTrackingUtility::DataSetType, WTrackingUtility::JobType >
     {
     //! make the test a friend
     friend class ::WThreadedTrackingFunctionTest;

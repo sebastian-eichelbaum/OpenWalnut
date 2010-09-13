@@ -37,7 +37,7 @@
 /**
  * A class that encapsulates the data needed to construct a WDataSetFibers.
  */
-class WFiberAccumulator
+class OWDATAHANDLER_EXPORT WFiberAccumulator
 {
     public:
 

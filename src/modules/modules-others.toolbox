@@ -18,6 +18,7 @@ ADD_SUBDIRECTORY( probTractDisplay )
 ADD_SUBDIRECTORY( scalarSegmentation )
 ADD_SUBDIRECTORY( splineSurface )
 ADD_SUBDIRECTORY( surfaceParameterAnimator )
+ADD_SUBDIRECTORY( tensorGlyphs )
 
 IF( Teem_FOUND )
   IF( OSSIM_FOUND )
