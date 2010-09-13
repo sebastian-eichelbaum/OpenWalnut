@@ -24,42 +24,36 @@
 
 #include <string>
 
-#include "WQtNumberEditDouble.h"
+#include "WOSGButtonLabel.h"
 
-WQtNumberEditDouble::WQtNumberEditDouble( QString name, QWidget* parent )
-    : QLineEdit( parent ),
-      m_name( name )
+#include "WOSGButton.h"
+
+WOSGButton::WOSGButton( std::string name, osgWidget::Box::BoxType type, bool resize_hint, bool pushable ) :
+    osgWidget::Box( name, type, resize_hint )
 {
-    connect( this, SIGNAL( returnPressed() ), this, SLOT( numberChanged() ) );
+    getBackground()->setColor( 0.8f, 0.8f, 0.8f, 0.8f );
+
+    m_label = new WOSGButtonLabel( pushable );
+    m_label->setLabel( name );
+    m_label->setName( std::string( "Button_" ) + name );
+    addWidget( m_label );
 }
 
-WQtNumberEditDouble::~WQtNumberEditDouble()
+WOSGButton::~WOSGButton()
 {
 }
 
-void WQtNumberEditDouble::setName( QString name )
+void WOSGButton::setLabel( std::string label )
 {
-    m_name = name;
+    m_label->setLabel( label );
 }
 
-
-void WQtNumberEditDouble::setDouble( double number )
+void WOSGButton::setId( size_t id )
 {
-    setText( QString::number( number ) );
-    emit signalNumberWithName( m_name, number );
+    m_id = id;
 }
 
-void WQtNumberEditDouble::numberChanged()
+void WOSGButton::setBackgroundColor( WColor color )
 {
-    bool ok;
-    double number = text().toDouble( &ok );
-    if ( ok )
-    {
-        emit signalNumberWithName( m_name, number );
-    }
-    else
-    {
-        setText( QString::number( 0 ) );
-        emit signalNumberWithName( m_name, 0 );
-    }
+    m_label->setColor( color.getRed(), color.getGreen(), color.getBlue(), 1.0f );
 }

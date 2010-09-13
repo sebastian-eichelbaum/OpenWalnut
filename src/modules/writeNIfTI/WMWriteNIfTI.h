@@ -121,7 +121,7 @@ private:
     WPropFilename m_filename;
     WPropTrigger  m_saveTriggerProp; //!< This property triggers the actual writing,
 
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
-    boost::shared_ptr< WDataSetScalar > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.
 };
 #endif  // WMWRITENIFTI_H

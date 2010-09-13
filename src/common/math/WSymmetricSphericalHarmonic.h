@@ -29,6 +29,7 @@
 
 #include "WMath.h"
 #include "WUnitSphereCoordinates.h"
+#include "WMatrix.h"
 #include "WValue.h"
 #include "../WExportCommon.h"
 
@@ -88,6 +89,35 @@ public:
      * Return the order of the spherical harmonic.
      */
     size_t getOrder() const;
+
+    /**
+     * Calculate the generalized fractional anisotropy for this odf.
+     *
+     * See: David S. Tuch, "Q-Ball Imaging", Magn. Reson. Med. 52, 2004, 1358-1372
+     *
+     * \note this only makes sense if this is an ODF, meaning funk-radon-transform was applied etc.
+     *
+     * \param orientations A vector of unit sphere coordinates.
+     *
+     * \return The generalized fractional anisotropy.
+     */
+    double calcGFA( std::vector< wmath::WUnitSphereCoordinates > const& orientations ) const;
+
+    /**
+     * Calculate the generalized fractional anisotropy for this odf. This version of
+     * the function uses precomputed base functions (because calculating the base function values
+     * is rather expensive). Use this version if you want to compute the gfa for multiple ODFs
+     * with the same base functions. The base function Matrix can be computed using \see calcBMatrix().
+     *
+     * See: David S. Tuch, "Q-Ball Imaging", Magn. Reson. Med. 52, 2004, 1358-1372
+     *
+     * \note this only makes sense if this is an ODF, meaning funk-radon-transform was applied etc.
+     *
+     * \param B The matrix of SH base functions.
+     *
+     * \return The generalized fractional anisotropy.
+     */
+    double calcGFA( wmath::WMatrix< double > const& B ) const;
 
     /**
     * This calculates the transformation/fitting matrix T like in the 2007 Descoteaux paper. The orientations are given as wmath::WVector3D.

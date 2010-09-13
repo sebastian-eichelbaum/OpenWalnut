@@ -22,16 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// Varyings
-// Used in vertex and fragment shader
-/////////////////////////////////////////////////////////////////////////////
+#include <vector>
 
-// The ray's starting point in texture space
-varying vec3 v_rayStart;
+#include "WROIBitfield.h"
 
-// The ray direction in texture space
-varying vec3 v_ray;
+WROIBitfield::WROIBitfield( boost::shared_ptr< std::vector<bool> > bitfield ) :
+    WROI(),
+    m_bitfield( bitfield )
+{
+}
 
-// the Surface normal at this point
-varying vec3 v_normal;
+WROIBitfield::~WROIBitfield()
+{
+}
+
+void WROIBitfield::updateGFX()
+{
+}

@@ -22,61 +22,51 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTLINEEDIT_H
-#define WQTLINEEDIT_H
+#ifndef WROIBITFIELD_H
+#define WROIBITFIELD_H
 
-#include <string>
+#include <vector>
 
-#include <QtGui/QLineEdit>
+#include "WROI.h"
 
 /**
- * implements a QLineEdit with a boost signal
+ * defines a roi by a simple bitfield that never changes
+ * while a normal roi computes it's bitfield from it's location in space and the fibers passing through,
+ * this roi simply stores a bitfield of previously selected fibers
  */
-class WQtLineEdit : public QLineEdit
+class WROIBitfield : public WROI
 {
-    Q_OBJECT
-
 public:
     /**
-     * standard constructor
+     * constructor
+     * \param bitfield pointer to a bitfield
      */
-    WQtLineEdit();
+    explicit WROIBitfield( boost::shared_ptr< std::vector<bool> > bitfield );
 
     /**
      * destructor
      */
-    virtual ~WQtLineEdit();
+    virtual ~WROIBitfield();
 
     /**
-     * Setter for name.
-     *
-     * \param name the new name for the line edit
+     * getter
+     * \return the bitfield of selected fibers
      */
-    void setName( QString name );
+    boost::shared_ptr< std::vector<bool> >getBitfield();
 
+protected:
 private:
-
     /**
-     * Name of the edit and its value.
+     * does nothing but had to be implemented beccause it's pure virtual in WROI
      */
-    QString m_name;
+    void updateGFX();
 
-public slots:
-
-    /**
-     * Value of the edit field changed.
-     */
-    void emitStateChanged();
-
-signals:
-
-    /**
-     * Signal a state change in the line edit.
-     *
-     * \param name name of the line edit.
-     * \param text new text inside the edit field.
-     */
-    void lineEditStateChanged( QString name, QString text );
+    boost::shared_ptr< std::vector<bool> >m_bitfield; //!< stores pointer to the bitfield
 };
 
-#endif  // WQTLINEEDIT_H
+inline boost::shared_ptr< std::vector<bool> >WROIBitfield::getBitfield()
+{
+    return m_bitfield;
+}
+
+#endif  // WROIBITFIELD_H

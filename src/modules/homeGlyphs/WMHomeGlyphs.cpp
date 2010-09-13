@@ -24,6 +24,7 @@
 
 #include <teem/elf.h>
 
+#include <sstream>
 #include <string>
 
 #include <osg/LightModel>
@@ -40,8 +41,6 @@
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMHomeGlyphs )
-
-const size_t WMHomeGlyphs::m_nbVertCoords = 4;
 
 WMHomeGlyphs::WMHomeGlyphs():
     WModule(),
@@ -74,7 +73,7 @@ void estimateNormalsAntipodal( limnPolyData *glyph, const char normalize )
         ELL_3V_INCR( glyph->norm+3*faces[3*f+1], cross );
         ELL_3V_INCR( glyph->norm+3*faces[3*f+2], cross );
         /* same for anti-face */
-        if ( faces[3*f]%2 == 0 )
+        if( faces[3*f]%2 == 0 )
         {
             ELL_3V_SUB( glyph->norm+3*faces[3*f]+3, glyph->norm+3*faces[3*f]+3, cross );
         }
@@ -82,7 +81,7 @@ void estimateNormalsAntipodal( limnPolyData *glyph, const char normalize )
         {
             ELL_3V_SUB( glyph->norm+3*faces[3*f]-3, glyph->norm+3*faces[3*f]-3, cross );
         }
-        if ( faces[3*f+1]%2 == 0 )
+        if( faces[3*f+1]%2 == 0 )
         {
             ELL_3V_SUB( glyph->norm+3*faces[3*f+1]+3, glyph->norm+3*faces[3*f+1]+3, cross );
         }
@@ -90,7 +89,7 @@ void estimateNormalsAntipodal( limnPolyData *glyph, const char normalize )
         {
             ELL_3V_SUB( glyph->norm+3*faces[3*f+1]-3, glyph->norm+3*faces[3*f+1]-3, cross );
         }
-        if ( faces[3*f+2]%2 == 0 )
+        if( faces[3*f+2]%2 == 0 )
         {
             ELL_3V_SUB( glyph->norm+3*faces[3*f+2]+3, glyph->norm+3*faces[3*f+2]+3, cross );
         }
@@ -99,11 +98,11 @@ void estimateNormalsAntipodal( limnPolyData *glyph, const char normalize )
             ELL_3V_SUB( glyph->norm+3*faces[3*f+2]-3, glyph->norm+3*faces[3*f+2]-3, cross );
         }
     }
-    if ( normalize )
+    if( normalize )
     {
         float len;
         unsigned int i;
-        for ( i = 0; i < glyph->normNum; i++ )
+        for( i = 0; i < glyph->normNum; i++ )
         {
             ELL_3V_NORM_TT( glyph->norm + 3*i, float, glyph->norm + 3*i, len );
         }
@@ -182,7 +181,7 @@ void WMHomeGlyphs::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
-        if ( !m_input->getData().get() )
+        if( !m_input->getData().get() )
         {
             // OK, the output has not yet sent data
             debugLog() << "Waiting for data ...";
@@ -248,9 +247,9 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
 
 void WMHomeGlyphs::activate()
 {
-    if ( m_moduleNode )
+    if( m_moduleNode )
     {
-        if ( m_active->get() )
+        if( m_active->get() )
         {
             m_moduleNode->setNodeMask( 0xFFFFFFFF );
         }
@@ -262,13 +261,15 @@ void WMHomeGlyphs::activate()
     WModule::activate();
 }
 
-void WMHomeGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph )
+void WMHomeGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, const size_t& nbVertCoords )
 {
-    double min = wlimits::MAX_DOUBLE;
-    double max = -wlimits::MAX_DOUBLE;
-    for( size_t i = 0; i < glyph->xyzwNum; ++i )
+    // double min = wlimits::MAX_DOUBLE;
+    // double max = -wlimits::MAX_DOUBLE;
+    double min = 1e15;
+    double max = -1e15;
+    for( size_t vertID = 0; vertID < glyph->xyzwNum; ++vertID )
     {
-        wmath::WPosition pos( glyph->xyzw[m_nbVertCoords*i], glyph->xyzw[m_nbVertCoords*i+1],  glyph->xyzw[m_nbVertCoords*i+2] );
+        wmath::WPosition pos( glyph->xyzw[nbVertCoords*vertID], glyph->xyzw[nbVertCoords*vertID+1],  glyph->xyzw[nbVertCoords*vertID+2] );
         double norm = pos.norm();
         if( norm < min )
         {
@@ -285,15 +286,19 @@ void WMHomeGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph )
     {
         WAssert( dist > 0, "Max has to be larger than min." );
 
-        for( size_t i = 0; i < glyph->xyzwNum; ++i )
-        {
-            wmath::WPosition pos( glyph->xyzw[m_nbVertCoords*i], glyph->xyzw[m_nbVertCoords*i+1],  glyph->xyzw[m_nbVertCoords*i+2] );
-            double norm = pos.norm();
-            wmath::WPosition newPos = ( ( norm - min ) / dist ) * pos.normalized();
-            glyph->xyzw[m_nbVertCoords*i] = newPos[0];
-            glyph->xyzw[m_nbVertCoords*i+1] = newPos[1];
-            glyph->xyzw[m_nbVertCoords*i+2] = newPos[2];
-        }
+         for( size_t i = 0; i < glyph->xyzwNum; ++i )
+         {
+             size_t coordIdBase = nbVertCoords * i;
+             wmath::WPosition pos( glyph->xyzw[coordIdBase], glyph->xyzw[coordIdBase+1],  glyph->xyzw[coordIdBase+2] );
+             double norm = pos.norm();
+             const double epsilon = 1e-9;
+             wmath::WPosition newPos;
+//             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos.normalized();
+             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos / norm;
+             glyph->xyzw[coordIdBase] = newPos[0];
+             glyph->xyzw[coordIdBase+1] = newPos[1];
+             glyph->xyzw[coordIdBase+2] = newPos[2];
+         }
     }
     // else do nothing because all values are equal.
 }
@@ -378,6 +383,9 @@ WMHomeGlyphs::GlyphGeneration::~GlyphGeneration()
 
 void WMHomeGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WBoolFlag& /*b*/ )
 {
+    const size_t nbVertCoords = 4; //The teem limn data structure has 4 values for a coordinate: x, y, z, w.
+    limnPolyData *localSphere = limnPolyDataNew();
+    limnPolyDataCopy( localSphere, m_sphere );
     enum sliceTypeEnum
     {
         xSlice = 0,
@@ -397,16 +405,19 @@ void WMHomeGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
     float* res = new float[type->num];
     float* esh = new float[type->num];
 
-    size_t chunkSize = m_nA;
-    if( numThreads > 1 )
-    {
-        chunkSize = m_nA / ( numThreads - 1 );
-    }
+    size_t chunkSize = m_nA / numThreads;
     size_t first = id * chunkSize;
     size_t last = ( id + 1 ) * chunkSize - 1;
-    //std::cout << "I am still running " << id << "/" << numThreads << " (" << first << " ... " << last << ")" << chunkSize << std::endl;
+    if( id == numThreads - 1 )
+    {
+        last = m_nA - 1;
+    }
 
-    for( size_t aId = first; aId <= last && aId < m_nA; ++aId )
+    std::stringstream ss;
+    ss << id << "/" << numThreads <<" (" << first << " ... " << last << ")[" << chunkSize << "/" << m_nA << "]" << std::endl;
+    WLogger::getLogger()->addLogMessage( ss.str(), "______", LL_DEBUG );
+
+    for( size_t aId = first; aId <= last; ++aId )
     {
         for( size_t bId = 0; bId < m_nB; ++bId )
         {
@@ -444,14 +455,14 @@ void WMHomeGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             tijk_refine_rankk_parm *parm = tijk_refine_rankk_parm_new();
             parm->pos = 1;
             int ret = tijk_approx_rankk_3d_f( NULL, NULL, res, ten, type, 6, parm );
-            WAssert( ret == 0, "Error condition in call." );
+            WAssert( ret == 0, "Error condition in call to tijk_approx_rankk_3d_f." );
             parm = tijk_refine_rankk_parm_nix( parm );
             tijk_sub_f( ten, ten, res, type );
 
             const char normalize = 0;
 
             limnPolyData *glyph = limnPolyDataNew();
-            limnPolyDataCopy( glyph, m_sphere );
+            limnPolyDataCopy( glyph, localSphere );
 
             double radius = 1.0; // some initialization
             if( m_usePolar )
@@ -472,13 +483,14 @@ void WMHomeGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
 
             if( m_useNormalization )
             {
-                minMaxNormalization( glyph );
+                    minMaxNormalization( glyph, nbVertCoords );
             }
             else
             {
                 m_scale = m_scale / radius;
             }
             estimateNormalsAntipodal( glyph, normalize );
+
             wmath::WPosition glyphPos = m_grid->getPosition( posId );
 
             //-------------------------------
@@ -494,9 +506,9 @@ void WMHomeGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
                 size_t globalVertexId = vertsUpToCurrentIteration + vertId;
                 //-------------------------------
                 // vertices
-                ( *m_vertArray )[globalVertexId][0] = glyph->xyzw[m_nbVertCoords*vertId  ] * m_scale + glyphPos[0];
-                ( *m_vertArray )[globalVertexId][1] = glyph->xyzw[m_nbVertCoords*vertId+1] * m_scale + glyphPos[1];
-                ( *m_vertArray )[globalVertexId][2] = glyph->xyzw[m_nbVertCoords*vertId+2] * m_scale + glyphPos[2];
+                ( *m_vertArray )[globalVertexId][0] = glyph->xyzw[nbVertCoords*vertId  ] * m_scale + glyphPos[0];
+                ( *m_vertArray )[globalVertexId][1] = glyph->xyzw[nbVertCoords*vertId+1] * m_scale + glyphPos[1];
+                ( *m_vertArray )[globalVertexId][2] = glyph->xyzw[nbVertCoords*vertId+2] * m_scale + glyphPos[2];
 
                 // ------------------------------------------------
                 // normals
@@ -518,6 +530,10 @@ void WMHomeGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             glyph = limnPolyDataNix( glyph );
         }
     }
+
+    // free memory
+    localSphere = limnPolyDataNix( localSphere );
+
     delete[] ten;
     delete[] res;
     delete[] esh;

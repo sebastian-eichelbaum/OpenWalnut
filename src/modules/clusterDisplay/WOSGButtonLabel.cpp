@@ -22,58 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTNUMBEREDIT_H
-#define WQTNUMBEREDIT_H
+#include "WOSGButtonLabel.h"
 
-#include <string>
-
-#include <QtGui/QLineEdit>
-
-/**
- * a QLineEdit modified to deal only with integer numbers
- */
-class WQtNumberEdit : public QLineEdit
+WOSGButtonLabel::WOSGButtonLabel( bool pushable ) :
+    osgWidget::Label( "", "" ),
+    m_clicked( false ),
+    m_pushable( pushable ),
+    m_pushed( false )
 {
-    Q_OBJECT
+    setFontSize( 14 );
+    setFontColor( 1.0f, 1.0f, 1.0f, 1.0f );
+    setColor( 0.3f, 0.3f, 0.3f, 1.0f );
+    addHeight( 18.0f );
+    setCanFill( true );
+    setEventMask( osgWidget::EVENT_MOUSE_PUSH  );
+}
 
-public:
-    /**
-     * Default constructor
-     *
-     * \param parent The parent widget of this widget, i.e. the widget that manages it.
-     */
-    explicit WQtNumberEdit( QWidget* parent = 0 );
+WOSGButtonLabel::~WOSGButtonLabel()
+{
+}
 
-    /**
-     * destructor
-     */
-    virtual ~WQtNumberEdit();
+bool WOSGButtonLabel::mousePush( double, double, osgWidget::WindowManager* )
+{
+    m_clicked = true;
+    if ( m_pushable )
+    {
+        m_pushed = !m_pushed;
 
-public slots:
-
-    /**
-     * Set the value of the number edit.
-     *
-     * \param number the new number of the number edit.
-     */
-    void setInt( int number );
-
-    /**
-     * Slot getting called whenever the value of the edit changed.
-     */
-    void numberChanged();
-
-signals:
-
-    /**
-     * Signals a new value of the edit
-     *
-     * \param value the new value.
-     */
-    void signalNumber( int value );
-
-protected:
-private:
-};
-
-#endif  // WQTNUMBEREDIT_H
+        if ( m_pushed )
+        {
+            setFontColor( 0.0f, 0.0f, 0.0f, 1.0f );
+        }
+        else
+        {
+            setFontColor( 1.0f, 1.0f, 1.0f, 1.0f );
+        }
+    }
+    return true;
+}
