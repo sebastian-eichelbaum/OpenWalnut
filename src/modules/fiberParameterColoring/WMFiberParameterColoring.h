@@ -110,6 +110,16 @@ private:
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * The colors encoding the curvature
+     */
+    WDataSetFibers::ColorArray m_fibCurvatureColors;
+
+    /**
+     * The colors encoding the segment length
+     */
+    WDataSetFibers::ColorArray m_fibLengthColors;
 };
 
 #endif  // WMFIBERPARAMETERCOLORING_H

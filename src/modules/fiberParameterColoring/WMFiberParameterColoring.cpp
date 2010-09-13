@@ -128,6 +128,9 @@ void WMFiberParameterColoring::moduleMain()
 
     ready();
 
+    m_fibCurvatureColors = WDataSetFibers::ColorArray();
+    m_fibLengthColors = WDataSetFibers::ColorArray();
+
     // main loop
     while ( !m_shutdownFlag() )
     {
@@ -141,23 +144,27 @@ void WMFiberParameterColoring::moduleMain()
         }
 
         // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_fiberInput->updated();
+        bool dataUpdated = m_fiberInput->handledUpdate();
         boost::shared_ptr< WDataSetFibers > dataSet = m_fiberInput->getData();
         bool dataValid = ( dataSet );
-        if ( !dataValid && !dataUpdated )
+        if ( !dataValid || ( dataValid && !dataUpdated ) )
         {
             continue;
         }
+
+        // remove old colorings
+        dataSet->removeColorScheme( m_fibCurvatureColors );     // this can be safely used with NULL pointers
+        dataSet->removeColorScheme( m_fibLengthColors );
 
         // get the fiber definitions
         boost::shared_ptr< std::vector< size_t > > fibStart = dataSet->getLineStartIndexes();
         boost::shared_ptr< std::vector< size_t > > fibLen   = dataSet->getLineLengths();
         boost::shared_ptr< std::vector< float > >  fibVerts = dataSet->getVertices();
-        WDataSetFibers::ColorArray fibCurvatureColors = WDataSetFibers::ColorArray( new WDataSetFibers::ColorArray::element_type() );
-        WDataSetFibers::ColorArray fibLengthColors = WDataSetFibers::ColorArray( new WDataSetFibers::ColorArray::element_type() );
+        m_fibCurvatureColors = WDataSetFibers::ColorArray( new WDataSetFibers::ColorArray::element_type() );
+        m_fibLengthColors = WDataSetFibers::ColorArray( new WDataSetFibers::ColorArray::element_type() );
         WDataSetFibers::ColorScheme::ColorMode colorMode = WDataSetFibers::ColorScheme::RGBA;
-        fibCurvatureColors->resize( colorMode * ( fibVerts->size() / 3  ), 0.0 ); // create an RGBA coloring
-        fibLengthColors->resize( colorMode * ( fibVerts->size() / 3  ), 0.0 ); // create an RGBA coloring
+        m_fibCurvatureColors->resize( colorMode * ( fibVerts->size() / 3  ), 0.0 ); // create an RGBA coloring
+        m_fibLengthColors->resize( colorMode * ( fibVerts->size() / 3  ), 0.0 ); // create an RGBA coloring
 
         // progress indication
         boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Coloring fibers.",
@@ -228,15 +235,15 @@ void WMFiberParameterColoring::moduleMain()
                 double z = ( 2.0 / ( lenLast + segLen ) ) * ( current[2] - prev[2] );
                 double curvature = std::sqrt( x*x + y*y + z*z );
 
-                ( *fibCurvatureColors )[ ( colorMode * k ) + cidx + 0 ] = 1.5 * curvature;
-                ( *fibCurvatureColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
-                ( *fibCurvatureColors )[ ( colorMode * k ) + cidx + 2 ] = 0.0;
-                ( *fibCurvatureColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
+                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 0 ] = 1.5 * curvature;
+                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
+                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 2 ] = 0.0;
+                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
 
-                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] = segLen;
-                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
-                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 2 ] = 0.0;
-                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
+                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] = segLen;
+                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
+                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 2 ] = 0.0;
+                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
 
                 prev[0] = current[0];
                 prev[1] = current[1];
@@ -265,20 +272,20 @@ void WMFiberParameterColoring::moduleMain()
             // walk along the fiber
             for ( size_t k = 1; k < len - 1; ++k )  // len -1 because we interpret it as segments
             {
-                double relSegLen = ( *fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] / maxSegLengths[ fidx ];
-                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] = relSegLen;
-                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 1 ] = relSegLen;
-                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 2 ] = relSegLen;
-                ( *fibLengthColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
+                double relSegLen = ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] / maxSegLengths[ fidx ];
+                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] = relSegLen;
+                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 1 ] = relSegLen;
+                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 2 ] = relSegLen;
+                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
             }
         }
         progress2->finish();
 
         // add the new scheme
-        dataSet->addColorScheme( fibCurvatureColors, "Curvature Coloring",
+        dataSet->addColorScheme( m_fibCurvatureColors, "Curvature Coloring",
                                  "The speed of changing angles between consecutive segments represents the color." );
-        dataSet->addColorScheme( fibLengthColors, "Segment Length Coloring",
-                                 "The length of a segment in relation to the longest segment in a the fiber." );
+        dataSet->addColorScheme( m_fibLengthColors, "Segment Length Coloring",
+                                 "The length of a segment in relation to the longest segment in the fiber." );
 
         // forward the data
         m_fiberOutput->updateData( dataSet );
