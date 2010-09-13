@@ -27,6 +27,8 @@
 #include "glyph.xpm"
 #include "WMTensorGlyphs.h"
 
+W_LOADABLE_MODULE(WMTensorGlyphs)
+
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 WMTensorGlyphs::WMTensorGlyphs()
