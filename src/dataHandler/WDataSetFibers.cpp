@@ -196,13 +196,19 @@ void WDataSetFibers::addColorScheme( WDataSetFibers::ColorArray colors, std::str
 
 void WDataSetFibers::removeColorScheme( WDataSetFibers::ColorArray colors )
 {
-    // this is nearly the smae like std::remove_if
+    // this is nearly the same like std::remove_if
     WItemSelection::WriteTicket l = m_colors->getWriteTicket();
-    for ( WItemSelection::Iterator i = l->get().begin(); i != l->get().end(); ++i )
+
+    WItemSelection::Iterator i = l->get().begin();
+    while ( i != l->get().end() )
     {
         if ( boost::shared_static_cast< const ColorScheme >( *i )->getColor() == colors )
         {
-            l->get().erase( i );
+            i = l->get().erase( i );
+        }
+        else
+        {
+            ++i;
         }
     }
 }
