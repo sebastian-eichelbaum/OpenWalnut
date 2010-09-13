@@ -43,10 +43,6 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     m_asText( &m_informationWidgets ),
     m_infoLayout( &m_informationWidgets )
 {
-    // initialize members
-    m_edit.resize( m_edit.minimumSizeHint().width(), m_edit.size().height() );
-    m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() );
-
     // layout both against each other
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );
@@ -60,7 +56,7 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
 
     // connect the modification signal of the edit and slider with our callback
     connect( &m_slider, SIGNAL( sliderMoved( int ) ), this, SLOT( sliderChanged( int ) ) );
-    connect( &m_edit, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
+    connect( &m_edit, SIGNAL( editingFinished() ), this, SLOT( editChanged() ) );
     connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
 }
 
@@ -80,10 +76,8 @@ void WPropertyIntWidget::update()
     }
     else
     {
-        WLogger::getLogger()->addLogMessage(
-                std::string( "The property has no minimum constraint. You should define it to avoid unexpected behaviour." ) +
-                std::string( "Using default (" + boost::lexical_cast< std::string >( min ) + ")." ),
-                "PropertyWidget( " + m_intProperty->getName() + " )", LL_WARNING );
+        wlog::warn( "PropertyWidget( " + m_intProperty->getName() + " )" ) << "The property has no minimum constraint. " <<
+            "You should define it to avoid unexpected behaviour. Using default (" << min << ").";
     }
 
     // get the max constraint
@@ -95,35 +89,20 @@ void WPropertyIntWidget::update()
     }
     else
     {
-        WLogger::getLogger()->addLogMessage(
-                std::string( "The property has no maximum constraint. You should define it to avoid unexpected behaviour." ) +
-                std::string( "Using default (" + boost::lexical_cast< std::string >( max ) + ")." ),
-                "PropertyWidget( " + m_intProperty->getName() + " )", LL_WARNING );
+        wlog::warn( "PropertyWidget( " + m_intProperty->getName() + " )" ) << "The property has no maximum constraint. " <<
+            "You should define it to avoid unexpected behaviour. Using default (" << max << ").";
     }
 
     // setup the slider
     m_slider.setMinimum( min );
     m_slider.setMaximum( max );
 
-    // calculate maximum size of the text widget.
-    // XXX: this is not the optimal way but works for now
-    // int length = min < 0 ? 3 : 2;   // reserve some extra space for the "-" in negative numbers
-    // float fmax = static_cast<float>( std::max( std::abs( min ), std::abs( max ) ) );    // use the number with the most numbers
-    // while ( ( fmax / 10 ) >= 1.0 )
-    // {
-    //     ++length;
-    //     fmax /= 10.0;
-    // }
-    int length = 6; // use fixed length to have a uniform look among several widgets
-
-    // resize the text widget
-    // m_edit.setMaxLength( length );
-    m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() * length / 2 );
-    // m_edit.setMinimumWidth( m_edit.minimumSizeHint().width() * length / 4 );
-    // m_edit.resize( m_edit.minimumSizeHint().width() * length / 4, m_edit.size().height() );
+    // // calculate maximum size of the text widget.
+    // // XXX: this is not the optimal way but works for now
+    // Same as in WPropertyDouble.cpp: This does not work as expected on Mac OS X => reset to default
 
     // set the initial values
-    QString valStr = QString( boost::lexical_cast< std::string >( m_intProperty->get() ).c_str() );
+    QString valStr = QString::number( m_intProperty->get() );
     m_edit.setText( valStr );
     m_slider.setValue( m_intProperty->get() );
 
@@ -134,7 +113,7 @@ void WPropertyIntWidget::update()
 void WPropertyIntWidget::sliderChanged( int value )
 {
     // set the value in the line edit
-    m_edit.setText( QString( boost::lexical_cast< std::string >( value ).c_str() ) );
+    m_edit.setText( QString::number( value ) );
 
     // set to the property
     invalidate( !m_intProperty->set( value ) );    // NOTE: set automatically checks the validity of the value

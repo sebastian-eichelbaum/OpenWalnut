@@ -189,14 +189,18 @@ void WMHud::init()
     m_osgPickText->setColor( osg::Vec4( 0, 0, 0, 1 ) );
     m_osgPickText->setDataVariance( osg::Object::DYNAMIC );
 
-    m_rootNode->setUserData( this );
+    osg::ref_ptr< userData > usrData = osg::ref_ptr< userData >(
+        new userData( boost::shared_dynamic_cast< WMHud >( shared_from_this() ) )
+        );
+
+    m_rootNode->setUserData( usrData );
     m_rootNode->setUpdateCallback( new HUDNodeCallback );
 
     HUDGeode->addDrawable( m_osgPickText );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
-    if ( m_active->get() )
+    if( m_active->get() )
     {
         m_rootNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -208,7 +212,7 @@ void WMHud::init()
     // connect updateGFX with picking
     boost::shared_ptr< WGEViewer > viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
     WAssert( viewer, "Requested viewer (main) not found." );
-    if (viewer->getPickHandler() )
+    if(viewer->getPickHandler() )
         viewer->getPickHandler()->getPickSignal()->connect( boost::bind( &WMHud::updatePickText, this, _1 ) );
 }
 
@@ -241,7 +245,7 @@ void WMHud::update()
 
 void WMHud::activate()
 {
-    if ( m_active->get() )
+    if( m_active->get() )
     {
         m_rootNode->setNodeMask( 0xFFFFFFFF );
     }
@@ -253,3 +257,8 @@ void WMHud::activate()
     WModule::activate();
 }
 
+
+void WMHud::userData::update()
+{
+    m_parent->update();
+}

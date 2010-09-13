@@ -26,11 +26,12 @@
 #define WGEZOOMTRACKBALLMANIPULATOR_H
 
 #include <osgGA/TrackballManipulator>
+#include "WExportWGE.h"
 
 /**
  * New OSG manipulator: TrackballManipulator with added mouse wheel zoom.
  */
-class WGEZoomTrackballManipulator: public osgGA::TrackballManipulator
+class WGE_EXPORT WGEZoomTrackballManipulator: public osgGA::TrackballManipulator
 {
 public:
     /**
@@ -48,6 +49,13 @@ public:
      * Get the position of the manipulator as 4x4 matrix.
      */
     virtual osg::Matrixd getMatrix() const;
+
+    /**
+     * Get the manipulator only containing rotation and translation.
+     *
+     * \return the matrix with translation and rotation.
+     */
+    virtual osg::Matrixd getMatrixWithoutZoom() const;
 
     /**
      * Get the position of the manipulator as a inverse matrix of the
@@ -80,6 +88,14 @@ public:
      */
     void setZoom( double zoom );
 
+    /**
+     * setter for paint mode
+     * when set to something different from 0, a left drag should move the scene
+     *
+     * \param mode the mode
+     */
+    void setPaintMode( int mode );
+
 protected:
 private:
 
@@ -92,6 +108,8 @@ private:
 
     double m_zoom; //!< Zoom factor.
     bool m_allowThrow; //!< Do we want the auto-rotation thingy?
+
+    int m_paintMode; //!<paint mode
 };
 
 inline double WGEZoomTrackballManipulator::getZoom() const

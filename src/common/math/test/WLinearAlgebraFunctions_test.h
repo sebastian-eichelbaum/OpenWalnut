@@ -175,6 +175,47 @@ public:
         TS_ASSERT( wmath::linearIndependent( v, u ) );
         TS_ASSERT( !wmath::linearIndependent( u, u ) );
     }
+
+    /**
+     * Test pseudoInverse calculation
+     */
+    void testPseudoInverse( void )
+    {
+#ifdef USEOSSIM
+        const size_t nbRows = 3, nbCols = 3;
+        const double a = 1.2, b = 2.3, c = 3.4,
+                     d = 4.5, e = 5.6, f = 6.7,
+                     g = 3.4, h = 1.2, i = 7.0;
+        wmath::WMatrix< double > A( nbRows, nbCols );
+
+        A( 0, 0 ) = a;
+        A( 0, 1 ) = b;
+        A( 0, 2 ) = c;
+        A( 1, 0 ) = d;
+        A( 1, 1 ) = e;
+        A( 1, 2 ) = f;
+        A( 2, 0 ) = g;
+        A( 2, 1 ) = h;
+        A( 2, 2 ) = i;
+        wmath::WMatrix<double> Ainvers( wmath::pseudoInverse( A ) );
+        wmath::WMatrix<double> I( A*Ainvers );
+
+        for ( size_t row = 0; row < I.getNbRows(); row++ )
+        {
+          for ( size_t col = 0; col < I.getNbCols(); col++ )
+          {
+            if ( row == col )
+            {
+              TS_ASSERT_DELTA( I( row, col ), 1.0, 0.0001 );
+            }
+            else
+            {
+              TS_ASSERT_DELTA( I( row, col ), 0.0, 0.0001 );
+            }
+          }
+        }
+#endif
+    }
 };
 
 #endif  // WLINEARALGEBRAFUNCTIONS_TEST_H

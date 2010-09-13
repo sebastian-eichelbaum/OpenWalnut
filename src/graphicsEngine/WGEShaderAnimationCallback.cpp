@@ -22,21 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
-#include <ctime>
-
-#include "boost/date_time/posix_time/posix_time.hpp"
-
 #include "WGEShaderAnimationCallback.h"
 
 WGEShaderAnimationCallback::WGEShaderAnimationCallback( int ticksPerSecond ):
     osg::Uniform::Callback(),
     m_ticksPerSec( ticksPerSecond )
 {
-    // TODO(ebaum): make this stuff compatible to windows
-    timeval tv;
-    gettimeofday( &tv, 0L );
-
-    m_startUsec = tv.tv_sec * 1000000 + tv.tv_usec;
+    m_timer.restart();
 }
 
 WGEShaderAnimationCallback::~WGEShaderAnimationCallback()
@@ -46,12 +38,8 @@ WGEShaderAnimationCallback::~WGEShaderAnimationCallback()
 
 void WGEShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
 {
-    // TODO(ebaum): make this stuff compatible to windows
-    timeval tv;
-    gettimeofday( &tv, 0L );
-
-    int64_t currentUSecs = tv.tv_sec * 1000000 + tv.tv_usec;
-    int milli = static_cast< int >( ( currentUSecs - m_startUsec ) / ( 1000000 / m_ticksPerSec ) );
-    uniform->set( milli );
+    // boost::timer measures seconds ...
+    int ticks = static_cast< int >( m_timer.elapsed() * m_ticksPerSec );
+    uniform->set( ticks );
 }
 

@@ -59,10 +59,14 @@ WQtModuleOneToOneCombinerAction::WQtModuleOneToOneCombinerAction( QWidget* paren
         targetName += " (" + m_combiner->getTargetModule()->getName() + ")";
     }
 
-    from = srcName + ":" + m_combiner->getSrcConnector() + " -> ";
-    std::string tooltip = from + targetName + ":" + m_combiner->getTargetConnector();
+    from = srcName + ": <i>" + m_combiner->getSrcConnector() + "</i> &nbsp;&nbsp;&#10140;&nbsp;&nbsp; ";
+    std::string tooltip = "<b>" + targetName + "</b><br><nobr>" + from + targetName + ": <i>" + m_combiner->getTargetConnector() + "</i></nobr>";
+
+    // We need this because menu items seem not to support HTNL
+    std::string advancedTextString = srcName + ":" + m_combiner->getSrcConnector() + " -> " + targetName + ":" + m_combiner->getTargetConnector();
+
     setToolTip( tooltip.c_str() );
-    setText( advancedText ? tooltip.c_str() : targetName.c_str() );
+    setText( advancedText ? advancedTextString.c_str() : targetName.c_str() );
     setIconText( advancedText ? tooltip.c_str() : targetName.c_str() );
     setIcon( iconManager->getIcon( m_combiner->getTargetModule()->getName().c_str() ) );
 

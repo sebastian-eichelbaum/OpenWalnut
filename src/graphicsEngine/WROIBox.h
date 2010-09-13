@@ -35,11 +35,12 @@
 #include "WGEViewer.h"
 
 #include "WROI.h"
+#include "WExportWGE.h"
 
 /**
  * A box representing a region of interest.
  */
-class WROIBox : public WROI
+class WGE_EXPORT WROIBox : public WROI
 {
 public:
     /**
@@ -62,14 +63,14 @@ public:
     wmath::WPosition getMaxPos() const;
 
     /**
-     * setter
-     * \param color
+     * Setter for standard color
+     * \param color The new color.
      */
     void setColor( osg::Vec4 color );
 
     /**
-     * setter
-     * \param color
+     * Setter for color in negated state
+     * \param color The new color.
      */
     void setNotColor( osg::Vec4 color );
 

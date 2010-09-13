@@ -53,6 +53,8 @@
 #include "../common/WPrototyped.h"
 #include "../common/WThreadedRunner.h"
 
+#include "WExportKernel.h"
+
 class WModuleConnector;
 class WModuleContainer;
 class WModuleFactory;
@@ -63,9 +65,9 @@ class WModuleOutputConnector;
  * Class representing a single module of OpenWalnut.
  * \ingroup kernel
  */
-class WModule: public WThreadedRunner,
-               public WPrototyped,
-               public boost::enable_shared_from_this< WModule >
+class OWKERNEL_EXPORT WModule: public WThreadedRunner,
+                               public WPrototyped,
+                               public boost::enable_shared_from_this< WModule >
 {
 friend class WModuleConnector;  // requires access to notify members
 friend class WModuleFactory;    // for proper creation of module instaces, the factory needs access to protected functions.
@@ -596,8 +598,13 @@ private:
  * \note we need the module instance to be created using a shared_ptr as WModule is derived from enable_shared_from_this. Removing the shared
  *       pointer causes segmentation faults during load.
  */
+#ifdef _MSC_VER
 #define W_LOADABLE_MODULE( MODULECLASS ) \
-extern "C" boost::shared_ptr< WModule > WLoadModule() { return boost::shared_ptr< WModule >( new MODULECLASS ); } // NOLINT
+extern "C" __declspec(dllexport) void WLoadModule( boost::shared_ptr< WModule > &m ) { m = boost::shared_ptr< WModule >( new MODULECLASS ); }  // NOLINT
+#else
+#define W_LOADABLE_MODULE( MODULECLASS ) \
+extern "C"                       void WLoadModule( boost::shared_ptr< WModule > &m ) { m = boost::shared_ptr< WModule >( new MODULECLASS ); }  // NOLINT
+#endif
 
 /**
  * The corresponding symbol name.

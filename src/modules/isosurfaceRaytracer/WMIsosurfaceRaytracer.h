@@ -97,16 +97,6 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
-     */
-    osg::ref_ptr< osg::Node > m_rootNode;
-
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
-
 private:
 
     /**

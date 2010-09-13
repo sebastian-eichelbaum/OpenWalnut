@@ -39,11 +39,12 @@
 #include "../math/WPosition.h"
 #include "../math/WVector3D.h"
 #include "../WTransferable.h"
+#include "../WExportCommon.h"
 
 /**
  * A triangle consisting of 3 id of vertices that represent its corners
  */
-struct Triangle
+struct OWCOMMON_EXPORT Triangle
 {
     size_t pointID[3]; //!< the ID of the vertices representing the triangle corners
 
@@ -64,45 +65,35 @@ inline bool Triangle::operator==( const Triangle& rhs ) const
 
 class WTriangleMesh;
 
-///**
-// * TriangleMesh utils
-// */
-//namespace tm_utils
-//{
-//    /**
-//     * Decompose the given mesh into connected components.
-//     *
-//     * \param mesh The triangle mesh to decompose
-//     *
-//     * \return List of components where each of them is a WTriangleMesh again.
-//     */
-//    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > componentDecomposition( const WTriangleMesh& mesh );
-//
-//    /**
-//     * Compute all vertices which are involed with triangles intersecting the given plane.
-//     *
-//     * \param mesh The mesh
-//     * \param plane The plane
-//     *
-//     * \return Set of vertices indices which triangles intersects the plane
-//     */
-//    boost::shared_ptr< std::set< size_t > > intersection( const WTriangleMesh& mesh, const WPlane& plane );
-//
-//    /**
-//     * Prints for each mesh \#vertices and \#triangles, as well as each triangle with its positions. No point IDs are printed.
-//     *
-//     * \param os Output stream to print on.
-//     * \param rhs The mesh instance.
-//     *
-//     * \return The output stream again for further usage.
-//     */
-//    std::ostream& operator<<( std::ostream& os, const WTriangleMesh& rhs );
-//}
+/**
+ * TriangleMesh utils
+ */
+namespace tm_utils
+{
+    /**
+     * Decompose the given mesh into connected components.
+     *
+     * \param mesh The triangle mesh to decompose
+     *
+     * \return List of components where each of them is a WTriangleMesh again.
+     */
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > OWCOMMON_EXPORT componentDecomposition( const WTriangleMesh& mesh );
+
+    /**
+     * Prints for each mesh \#vertices and \#triangles, as well as each triangle with its positions. No point IDs are printed.
+     *
+     * \param os Output stream to print on.
+     * \param rhs The mesh instance.
+     *
+     * \return The output stream again for further usage.
+     */
+    std::ostream& operator<<( std::ostream& os, const WTriangleMesh& rhs );
+}
 
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.
  */
-class WTriangleMesh : public WTransferable
+class OWCOMMON_EXPORT WTriangleMesh : public WTransferable
 {
 /**
  * Only UnitTests may be friends.

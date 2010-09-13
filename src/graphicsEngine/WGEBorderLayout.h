@@ -32,12 +32,13 @@
 
 #include "WGEGroupNode.h"
 #include "WGELabel.h"
+#include "WExportWGE.h"
 
 /**
  * This class contains a label layout for positioning labels at the side of the screen. There is a line from the point of interest to the label
  * on the side of the screen.
  */
-class WGEBorderLayout: public WGEGroupNode
+class WGE_EXPORT WGEBorderLayout: public WGEGroupNode
 {
 friend class SafeUpdateCallback;
 public:

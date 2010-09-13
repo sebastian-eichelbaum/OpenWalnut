@@ -61,9 +61,6 @@ WROISphere::WROISphere( wmath::WPosition position, float radius ) :
     m_isModified = true;
     m_isNot = false;
 
-    assert( WGraphicsEngine::getGraphicsEngine() );
-    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
-
     setUserData( this );
     setUpdateCallback( osg::ref_ptr<ROISphereNodeCallback>( new ROISphereNodeCallback ) );
 }

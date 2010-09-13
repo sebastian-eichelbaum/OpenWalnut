@@ -30,13 +30,14 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WReaderEEG.h"
+#include "../WExportDataHandler.h"
 
 
 /**
  * Reader for EEG data in ASCII fromat.
  * \ingroup dataHandler
  */
-class WReaderEEGASCII : public WReaderEEG
+class OWDATAHANDLER_EXPORT WReaderEEGASCII : public WReaderEEG // NOLINT
 {
 public:
     /**

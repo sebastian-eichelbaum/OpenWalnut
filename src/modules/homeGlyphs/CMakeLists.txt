@@ -10,7 +10,7 @@ SET( MODULE_NAME    "OWmodule_${MODULE_NAME}" )      # prefix all module names w
 
 # Build module lib 
 ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
-TARGET_LINK_LIBRARIES( ${MODULE_NAME} OWkernel teem )
+TARGET_LINK_LIBRARIES( ${MODULE_NAME} OWkernel ${Teem_LIBRARIES} )
 
 # Copy local shaders to module target directory
 IF( OW_COPY_SHADERS AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/shaders )    # copy shaders only if the user wants it

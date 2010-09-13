@@ -34,10 +34,12 @@
 #include <boost/thread/locks.hpp>
 #include <boost/thread.hpp>
 
+#include "WConditionSet.h"
 #include "WSharedSequenceContainer.h"
 #include "WPropertyBase.h"
 #include "WPropertyTypes.h"
 #include "WPropertyVariable.h"
+#include "WExportCommon.h"
 
 /**
  * Class to manage properties of an object and to provide convenience methods for easy access and manipulation. It also allows
@@ -46,7 +48,7 @@
  * is the property with the name "property" in the group "you" which against is in the group "hello".
  * \note The root group of each module does not have a name.
  */
-class WProperties: public WPropertyBase
+class OWCOMMON_EXPORT WProperties: public WPropertyBase
 {
 friend class WPropertiesTest;
 public:
@@ -162,6 +164,14 @@ public:
      * \return the access control object.
      */
     PropertySharedContainerType::WSharedAccess getAccessObject();
+
+    /**
+     * Returns an read ticket for the properties. This, and only this, has to be used for external iteration of properties.
+     *
+     * \see WSharedObjectTicketRead
+     * \return the read ticket.
+     */
+    PropertySharedContainerType::ReadTicket getReadTicket() const;
 
     /**
      * Searches the property with a given name. It does not throw any exception. It simply returns NULL if it can't be found.
@@ -914,6 +924,13 @@ public:
                                 boost::shared_ptr< WCondition > condition,
                                 WPropertyBase::PropertyChangeNotifierType notifier, bool hide = false );
 
+    /**
+     * This returns the condition fired whenever one children fires its update condition. Useful to get notified about all changes that happen.
+     *
+     * \return the condition fired if a child fires its update condition.
+     */
+    virtual boost::shared_ptr< WCondition > getChildUpdateCondition() const;
+
 protected:
 
    /**
@@ -933,6 +950,14 @@ private:
      * The set of proerties. This uses the operators ==,<,> WProperty to determine equalness.
      */
     PropertySharedContainerType m_properties;
+
+    /**
+     * Condition notified whenever a property inside this group fires its WPropertyBase::m_updateCondition. This is especially useful to get a
+     * notification if something updates without further knowledge what changed. Useful if you want to listen for updates in modules for example.
+     *
+     * \see getChildUpdateCondition
+     */
+    boost::shared_ptr< WConditionSet > m_childUpdateCondition;
 
     /**
      * Compares the names of two properties and returns true if they are equal.

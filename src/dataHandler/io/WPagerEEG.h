@@ -32,13 +32,14 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../WEEGValueMatrix.h"
+#include "../WExportDataHandler.h"
 
 
 /**
  * Abstract class to load an EEG file and keep it open to support paging.
  * \ingroup dataHandler
  */
-class WPagerEEG
+class OWDATAHANDLER_EXPORT WPagerEEG // NOLINT
 {
 public:
     /**

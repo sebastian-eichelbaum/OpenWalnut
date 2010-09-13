@@ -27,19 +27,9 @@
 
 #include <string>
 
-#include <boost/filesystem/path.hpp>
-#include <boost/shared_ptr.hpp>
-
-#include "../../common/WCondition.h"
-#include "../../common/WPropertyTypes.h"
-#include "../../common/math/WMatrix.h"
-#include "../../common/math/WVector3D.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-
 
 /**
  * Transforms a fiber dataset
@@ -52,6 +42,11 @@ public:
      * Constructor
      */
     WMFiberTransform();
+
+    /**
+    * Destructor
+    */
+    virtual ~WMFiberTransform();
 
     /**
      * Gives back the name of this module.
@@ -123,18 +118,5 @@ private:
      */
     boost::filesystem::path saveFileName( std::string dataFileName ) const;
 };
-
-inline const std::string WMFiberTransform::getName() const
-{
-    // Specify your module name here. This name must be UNIQUE!
-    return std::string( "Fiber Transform" );
-}
-
-inline const std::string WMFiberTransform::getDescription() const
-{
-    // Specify your module description here. Be detailed. This text is read by the user.
-    // See "src/modules/template/" for an extensively documented example.
-    return std::string( "Transforms a fiber dataset" );
-}
 
 #endif  // WMFIBERTRANSFORM_H

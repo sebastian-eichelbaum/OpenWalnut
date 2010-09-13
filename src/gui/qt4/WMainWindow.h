@@ -282,8 +282,9 @@ public slots:
 
     /**
      * Sets that a fiber data set has already been loaded. Thi shelps to prevent multiple fiber data sets to be loaded.
+     * \param flag Indicates how to set the internal state.
      */
-    void setFibersLoaded();
+    void setFibersLoaded( bool flag );
 
     /**
      * Gets called when menu option or toolbar button load is activated

@@ -443,6 +443,63 @@ public:
     }
 
     /**
+     * The correct voxel numbers should be returned in a rotated grid.
+     */
+    void testRotatedVoxelNum()
+    {
+        wmath::WVector3D x( 0.707, 0.707, 0.0 );
+        wmath::WVector3D y( -0.707, 0.707, 0.0 );
+        wmath::WVector3D z( 0.0, 0.0, 1.0 );
+        x.normalize();
+        y.normalize();
+        y *= 2.0;
+        z *= 1.5;
+
+        WGridRegular3D g( 5, 5, 5, 1.0, 0.0, 0.0, x, y, z, 1.0, 1.0, 1.0 );
+
+        wmath::WVector3D v = wmath::WVector3D( 1.0, 0.0, 0.0 ) + 0.3 * z + 2.4 * y + 2.9 * x;
+
+        TS_ASSERT_EQUALS( g.getXVoxelCoordRotated( v ), 3 );
+        TS_ASSERT_EQUALS( g.getYVoxelCoordRotated( v ), 2 );
+        TS_ASSERT_EQUALS( g.getZVoxelCoordRotated( v ), 0 );
+    }
+
+    /**
+     * Positions outside of a rotated grid should return voxel positions of -1.
+     */
+    void testRotatedVoxelOutOfGrid()
+    {
+        wmath::WVector3D x( 0.707, 0.707, 0.0 );
+        wmath::WVector3D y( -0.707, 0.707, 0.0 );
+        wmath::WVector3D z( 0.0, 0.0, 1.0 );
+        x.normalize();
+        y.normalize();
+        y *= 2.0;
+        z *= 1.5;
+
+        WGridRegular3D g( 5, 5, 5, 1.0, 0.0, 0.0, x, y, z, 1.0, 1.0, 1.0 );
+
+        wmath::WVector3D v( 1.0, 0.0, 0.0 );
+        v -= wlimits::FLT_EPS * x;
+
+        TS_ASSERT_EQUALS( g.getXVoxelCoordRotated( v ), -1 );
+        TS_ASSERT_DIFFERS( g.getYVoxelCoordRotated( v ), -1 );
+        TS_ASSERT_DIFFERS( g.getZVoxelCoordRotated( v ), -1 );
+
+        v -= wlimits::FLT_EPS * z;
+
+        TS_ASSERT_EQUALS( g.getXVoxelCoordRotated( v ), -1 );
+        TS_ASSERT_DIFFERS( g.getYVoxelCoordRotated( v ), -1 );
+        TS_ASSERT_EQUALS( g.getZVoxelCoordRotated( v ), -1 );
+
+        v = wmath::WVector3D( 1.0, 0.0, 0.0 ) + ( 4.0 + wlimits::FLT_EPS ) * y;
+
+        TS_ASSERT_DIFFERS( g.getXVoxelCoordRotated( v ), -1 );
+        TS_ASSERT_EQUALS( g.getYVoxelCoordRotated( v ), -1 );
+        TS_ASSERT_DIFFERS( g.getZVoxelCoordRotated( v ), -1 );
+    }
+
+    /**
      * A voxel with voxel-coordinates 0,0,0 has only three neighbours: 1,0,0; 0,1,0 and 0,0,1.
      */
     void testNeighboursOnFrontLowerLeft( void )
@@ -504,8 +561,51 @@ public:
     void testGetCellId( void )
     {
         WGridRegular3D g( 5, 3, 3, 0, 0, 0, 1, 1, 1 );
-        size_t cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 0.78 ) );
+        bool isInside = true;
+
+        // Test some value
+        size_t cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 0.78 ), &isInside );
         TS_ASSERT_EQUALS( cellId, 7 );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        // Test bounds for X direction
+        cellId = g.getCellId( wmath::WPosition( 4.0, 1.75, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, false );
+
+        cellId = g.getCellId( wmath::WPosition( 4.0 - wlimits::FLT_EPS, 1.75, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        cellId = g.getCellId( wmath::WPosition( 0.0, 1.75, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        cellId = g.getCellId( wmath::WPosition( 0.0 - wlimits::FLT_EPS, 1.75, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, false );
+
+        // Test bounds for Y direction
+        cellId = g.getCellId( wmath::WPosition( 3.3, 2.0, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, false );
+
+        cellId = g.getCellId( wmath::WPosition( 3.3, 2.0 - wlimits::FLT_EPS, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        cellId = g.getCellId( wmath::WPosition( 3.3, 0.0, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        cellId = g.getCellId( wmath::WPosition( 3.3, 0.0 - wlimits::FLT_EPS, 0.3 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, false );
+
+        // Test bounds for Z direction
+        cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 2.0 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, false );
+
+        cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 2.0 - wlimits::FLT_EPS ), &isInside );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 0.0 ), &isInside );
+        TS_ASSERT_EQUALS( isInside, true );
+
+        cellId = g.getCellId( wmath::WPosition( 3.3, 1.75, 0.0 - wlimits::FLT_EPS ), &isInside );
+        TS_ASSERT_EQUALS( isInside, false );
     }
 
     /**
@@ -514,9 +614,64 @@ public:
     void testEnclosesQuery( void )
     {
         WGridRegular3D g( 2, 2, 2, 1., 1., 1. );
+
+        // Test bounds for X direction
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0 - wlimits::FLT_EPS, 0, 0 ) ) );
         TS_ASSERT( g.encloses( wmath::WPosition( 0, 0, 0 ) ) );
-        TS_ASSERT( g.encloses( wmath::WPosition( 1, 1, 1 ) ) );
-        TS_ASSERT( !g.encloses( wmath::WPosition( 1, 1, 1.0 + wlimits::DBL_EPS ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 1.0 - wlimits::FLT_EPS, 0.5, 0.5 ) ) );
+        TS_ASSERT( !g.encloses( wmath::WPosition( 1, 0.5, 0.5 ) ) );
+
+        // Test bounds for Y direction
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0, 0 - wlimits::FLT_EPS, 0 ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0, 0, 0 ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0.5, 1.0 - wlimits::FLT_EPS, 0.5 ) ) );
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0.5, 1.0, 0.5 ) ) );
+
+        // Test bounds for Z direction
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0, 0, 0 - wlimits::FLT_EPS ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0, 0, 0 ) ) );
+        TS_ASSERT( g.encloses( wmath::WPosition( 0.5, 0.5, 1.0 - wlimits::FLT_EPS ) ) );
+        TS_ASSERT( !g.encloses( wmath::WPosition( 0.5, 0.5, 1 ) ) );
+    }
+
+    /**
+     * If a point is inside of the boundary of a grid encloses should return true, otherwise false.
+     */
+    void testEnclosesRotated()
+    {
+        wmath::WVector3D x( 0.707, 0.707, 0.0 );
+        wmath::WVector3D y( -0.707, 0.707, 0.0 );
+        wmath::WVector3D z( 0.0, 0.0, 1.0 );
+        x.normalize();
+        y.normalize();
+        y *= 2.0;
+        z *= 1.5;
+
+        WGridRegular3D g( 5, 5, 5, 1.0, 0.0, 0.0, x, y, z, 1.0, 1.0, 1.0 );
+
+        wmath::WVector3D o = wmath::WVector3D( 1.0, 0.0, 0.0 ) + 2.0 * wlimits::FLT_EPS * ( x + y + z );
+        wmath::WVector3D v = o - 4.0 * wlimits::FLT_EPS * x;
+        TS_ASSERT( !g.enclosesRotated( v ) );
+        v = o;
+        TS_ASSERT( g.enclosesRotated( v ) );
+        v = o + ( 4.0 - 4.0 * wlimits::FLT_EPS ) * x;
+        TS_ASSERT( g.enclosesRotated( v ) );
+        v += 4.0 *  wlimits::FLT_EPS * x;
+        TS_ASSERT( !g.enclosesRotated( v ) );
+
+        v = o - 4.0 * wlimits::FLT_EPS * y;
+        TS_ASSERT( !g.enclosesRotated( v ) );
+        v = o + ( 4.0 - 4.0 * wlimits::FLT_EPS ) * y;
+        TS_ASSERT( g.enclosesRotated( v ) );
+        v += 4.0 * wlimits::FLT_EPS * y;
+        TS_ASSERT( !g.enclosesRotated( v ) );
+
+        v = o - 4.0 * wlimits::FLT_EPS * z;
+        TS_ASSERT( !g.enclosesRotated( v ) );
+        v = o + ( 4.0 - 4.0 * wlimits::FLT_EPS ) * z;
+        TS_ASSERT( g.enclosesRotated( v ) );
+        v += 4.0 * wlimits::FLT_EPS * z;
+        TS_ASSERT( !g.enclosesRotated( v ) );
     }
 
 private:

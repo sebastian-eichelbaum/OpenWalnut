@@ -238,3 +238,7 @@ void WColor::average( const WColor& other )
     m_green = ( m_green + other.getGreen() ) / 2.0;
     m_blue = ( m_blue + other.getBlue() ) / 2.0;
 }
+
+const WColor WColor::green( 0.0, 1.0, 0.0, 1.0 );
+const WColor WColor::red( 1.0, 0.0, 0.0, 1.0 );
+const WColor WColor::blue( 0.0, 0.0, 1.0, 1.0 );

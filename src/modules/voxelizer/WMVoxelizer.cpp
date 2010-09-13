@@ -430,9 +430,9 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
     const std::list< size_t >& fiberIDs = cluster.getIndices();
     std::list< size_t >::const_iterator cit = fiberIDs.begin();
 
-    assert( fibs.size() > 0 && "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
-    assert( fibs[0].size() > 0 && "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
-    assert( fiberIDs.size() > 0 && "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fibs.size() > 0, "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fibs[0].size() > 0, "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fiberIDs.size() > 0, "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
 
     wmath::WPosition fll = fibs[0][0]; // front lower left corner ( initialize with first WPosition of first fiber )
     wmath::WPosition bur = fibs[0][0]; // back upper right corner ( initialize with first WPosition of first fiber )
@@ -461,9 +461,9 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
 
     // cycle through all positions in the dataSet
     boost::shared_ptr< WValueSet< double > > valueset = boost::shared_dynamic_cast< WValueSet< double > >( dataset->getValueSet() );
-    assert( valueset != 0 );
+    WAssert( valueset != 0, "No scalar double valueset was given while generating the dataset geode" );
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataset->getGrid() );
-    assert( grid != 0 );
+    WAssert( grid != 0, "No WGridRegular3D was given while generating the dataset geode"  );
     const std::vector< double >& values = *valueset->rawDataVectorPointer();
     for( size_t i = 0; i < values.size(); ++i )
     {
@@ -492,6 +492,25 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     geometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry );
+
+    osg::StateSet* state = geode->getOrCreateStateSet();
+
+    // Enable blending, select transparent bin.
+    state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+    // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
+
+    // Conversely, disable writing to depth buffer so that a transparent polygon will allow polygons behind it to shine through.
+    // OSG renders transparent polygons after opaque ones.
+    osg::Depth* depth = new osg::Depth;
+    depth->setWriteMask( false );
+    state->setAttributeAndModes( depth, osg::StateAttribute::ON );
+
+    // disable light for this geode as lines can't be lit properly
+    state->setMode( GL_LIGHTING, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
+
     return geode;
 }
 

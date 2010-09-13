@@ -33,10 +33,12 @@
 #include "../WModuleCombiner.h"
 #include "../WModuleCombinerTypes.h"
 
+#include "../WExportKernel.h"
+
 /**
  * Base class for all combiners which apply one connection between two connectors of two modules.
  */
-class WModuleOneToOneCombiner: public WModuleCombiner
+class OWKERNEL_EXPORT WModuleOneToOneCombiner: public WModuleCombiner
 {
 public:
 

@@ -28,13 +28,15 @@
 #include <boost/shared_ptr.hpp>
 #include "../common/math/WVector3D.h"
 
+#include "WExportKernel.h"
+
 /**
  * This class stores the position of the crossing navigation slices,
  * which is also represented as crosshairs in the navigation widgets.
  * It can be used for placing things. An example are the ROIBoxes which
  * are placed at the crosshairs position at the moment I am writing this.
  */
-class WCrosshair
+class OWKERNEL_EXPORT WCrosshair
 {
 public:
     /**

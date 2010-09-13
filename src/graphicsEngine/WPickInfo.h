@@ -30,11 +30,13 @@
 
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
+#include "WExportWGE.h"
+
 
 /**
  * Encapsulates info for pick action.
  */
-class WPickInfo
+class WGE_EXPORT WPickInfo
 {
 public:
     /**
@@ -50,12 +52,27 @@ public:
     };
 
     /**
+     * Different types of mouse buttons.
+     */
+    typedef enum
+    {
+        NOMOUSE,
+        MOUSE_LEFT,
+        MOUSE_RIGHT,
+        MOUSE_MIDDLE,
+        MOUSE4,
+        MOUSE5
+    }
+    WMouseButton;
+
+    /**
      * Creates an object with the needed information.
      * \param name name of picked object
      * \param viewerName name of the viewer
      * \param pickPosition position where object was hit
      * \param pixelCoords pixel coordinates of the mouse
      * \param modKey relevant modifier key pressed during the pick
+     * \param mButton mouse button that initiated the pick
      * \param pickNormal normal at position where object was hit. (0,0,0) means not set.
      */
     inline WPickInfo( std::string name,
@@ -63,6 +80,7 @@ public:
                       wmath::WPosition pickPosition,
                       std::pair< float, float > pixelCoords,
                       modifierKey modKey,
+                      WMouseButton mButton = WPickInfo::MOUSE_LEFT,
                       wmath::WVector3D pickNormal = wmath::WVector3D() );
 
     /**
@@ -76,10 +94,22 @@ public:
     inline modifierKey getModifierKey() const;
 
     /**
+     * Get the mouse button associated with the pick
+     */
+    inline WMouseButton getMouseButton() const;
+
+    /**
      * Set the modifier key associated with the pick
      * \param modKey new modifier key
      */
     inline void setModifierKey( const modifierKey& modKey );
+
+    /**
+     * Set the modifier key associated with the pick
+     * \param mButton new mouse button
+     */
+    inline void setMouseButton( const WMouseButton& mButton );
+
 
     /**
     * Get name of picked object.
@@ -126,6 +156,7 @@ private:
     wmath::WPosition m_pickPosition; //!< position where object was hit.
     std::pair< float, float > m_pixelCoords; //!< Pixel coordinates of the mouse.
     modifierKey m_modKey; //!< modifier key associated with the pick
+    WMouseButton m_mouseButton; //!< which mouse button was used for the pick
     wmath::WVector3D m_pickNormal; //!< normal at position where object was hit.
 };
 
@@ -134,12 +165,14 @@ WPickInfo::WPickInfo( std::string name,
                       wmath::WPosition pickPosition,
                       std::pair< float, float > pixelCoords,
                       modifierKey modKey,
+                      WMouseButton mButton,
                       wmath::WVector3D pickNormal ) :
     m_name( name ),
     m_viewerName( viewerName ),
     m_pickPosition( pickPosition ),
     m_pixelCoords( pixelCoords ),
     m_modKey( modKey ),
+    m_mouseButton( mButton ),
     m_pickNormal( pickNormal )
 {
 }
@@ -149,7 +182,8 @@ WPickInfo::WPickInfo() :
     m_viewerName( "" ),
     m_pickPosition( wmath::WPosition() ),
     m_pixelCoords( std::make_pair( 0, 0 ) ),
-    m_modKey( WPickInfo::NONE )
+    m_modKey( WPickInfo::NONE ),
+    m_mouseButton( WPickInfo::MOUSE_LEFT )
 {
 }
 
@@ -163,6 +197,15 @@ void WPickInfo::setModifierKey( const modifierKey& modKey )
     m_modKey = modKey;
 }
 
+WPickInfo::WMouseButton WPickInfo::getMouseButton() const
+{
+    return m_mouseButton;
+}
+
+void WPickInfo::setMouseButton( const WMouseButton& mButton )
+{
+    m_mouseButton = mButton;
+}
 
 std::string WPickInfo::getName() const
 {

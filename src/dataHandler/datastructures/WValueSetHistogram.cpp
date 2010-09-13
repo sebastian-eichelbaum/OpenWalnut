@@ -22,11 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <cstring> // memset()
+#include <numeric>
 #include <utility>
 
 #include "../../common/WAssert.h"
 #include "../../common/WLimits.h"
+#include "../../common/exceptions/WOutOfBounds.h"
 #include "../WDataHandlerEnums.h"
 
 #include "WValueSetHistogram.h"
@@ -34,45 +37,36 @@
 WValueSetHistogram::WValueSetHistogram( boost::shared_ptr< WValueSetBase > valueSet, size_t buckets ):
     WHistogram( valueSet->getMinimumValue(), valueSet->getMaximumValue(), buckets )
 {
-    // create base histogram
-    WAssert( buckets > 1, "WValueSetHistogram::WValueSetHistogram : number of buckets needs to be larger than 1." );
-    m_nInitialBuckets = buckets - 1;
-    m_initialBucketSize = ( m_maximum - m_minimum ) / static_cast< double >( m_nInitialBuckets );
-    WAssert( m_initialBucketSize > 0.0, "WValueSetHistogram::WValueSetHistogram() : m_initialBucketSize to small." );
-
-    // NOTE: as all the intervals are right-open, we need an additional slot in our array for the last interval [m_maximum,\infinity). For the
-    // calculation of interval sizes, the value must not be incremented
-    m_nInitialBuckets++;
-
-    // create and initialize array to zero which finally contains the counts
-    size_t* initialBuckets = new size_t[ m_nInitialBuckets ];
-    memset( initialBuckets, 0, m_nInitialBuckets * sizeof( size_t ) );
-    // *initialBuckets = { 0 }; // this should works with C++0x (instead memset), TEST IT!
-
-    // the array can be shared among several instances of WValueSetHistogram.
-    m_initialBuckets = boost::shared_array< size_t >( initialBuckets );
-
-    // no mapping applied yet. Initial and mapped are equal
-    m_nMappedBuckets = m_nInitialBuckets;
-    m_mappedBuckets = m_initialBuckets;
-    m_mappedBucketSize = m_initialBucketSize;
-
-    // and finally create the histogram
-    for( size_t i = 0; i < valueSet->size(); ++i )
-    {
-        double tmp = valueSet->getScalarDouble( i );
-        insert( tmp );
-    }
+    buildHistogram( *valueSet );
 }
 
 WValueSetHistogram::WValueSetHistogram( const WValueSetBase& valueSet, size_t buckets ):
     WHistogram( valueSet.getMinimumValue(), valueSet.getMaximumValue(), buckets )
 {
+    buildHistogram( valueSet );
+}
+
+WValueSetHistogram::WValueSetHistogram( boost::shared_ptr< WValueSetBase > valueSet, double min, double max, size_t buckets ):
+    WHistogram( min, max, buckets )
+{
+    buildHistogram( *valueSet );
+}
+
+WValueSetHistogram::WValueSetHistogram( const WValueSetBase& valueSet, double min, double max, size_t buckets ):
+    WHistogram( min, max, buckets )
+{
+    buildHistogram( valueSet );
+}
+
+void WValueSetHistogram::buildHistogram( const WValueSetBase& valueSet )
+{
+    m_nbTotalElements = 0;
+
     // create base histogram
-    WAssert( buckets > 1, "WValueSetHistogram::WValueSetHistogram : number of buckets needs to be larger than 1." );
-    m_nInitialBuckets = buckets - 1;
+    WAssert( m_nbBuckets > 1, "WValueSetHistogram::buildHistogram : number of buckets needs to be larger than 1." );
+    m_nInitialBuckets = m_nbBuckets - 1;
     m_initialBucketSize = ( m_maximum - m_minimum ) / static_cast< double >( m_nInitialBuckets );
-    WAssert( m_initialBucketSize > 0.0, "WValueSetHistogram::WValueSetHistogram() : m_initialBucketSize to small." );
+    WAssert( m_initialBucketSize > 0.0, "WValueSetHistogram::buildHistogram() : m_initialBucketSize to small." );
 
     // NOTE: as all the intervals are right-open, we need an additional slot in our array for the last interval [m_maximum,\infinity). For the
     // calculation of interval sizes, the value must not be incremented
@@ -97,6 +91,8 @@ WValueSetHistogram::WValueSetHistogram( const WValueSetBase& valueSet, size_t bu
         double tmp = valueSet.getScalarDouble( i );
         insert( tmp );
     }
+
+    m_nbTotalElements = valueSet.size();
 }
 
 WValueSetHistogram::WValueSetHistogram( const WValueSetHistogram& histogram, size_t buckets ):
@@ -106,7 +102,8 @@ WValueSetHistogram::WValueSetHistogram( const WValueSetHistogram& histogram, siz
     m_nInitialBuckets( histogram.m_nInitialBuckets ),
     m_mappedBuckets( histogram.m_mappedBuckets ),
     m_nMappedBuckets( histogram.m_nMappedBuckets ),
-    m_mappedBucketSize( histogram.m_mappedBucketSize )
+    m_mappedBucketSize( histogram.m_mappedBucketSize ),
+    m_nbTotalElements( histogram.m_nbTotalElements )
 {
     // apply modification of the histogram bucket size?
     if( ( buckets == 0 ) || ( buckets == m_nMappedBuckets ) )
@@ -193,8 +190,7 @@ double WValueSetHistogram::getBucketSize( size_t /* index */ ) const
 
 void WValueSetHistogram::insert( double value )
 {
-    size_t index = static_cast< size_t >( ( value - m_minimum ) / static_cast< double >( m_mappedBucketSize ) );
-    m_mappedBuckets[ index ]++;
+    m_mappedBuckets[ getIndexForValue( value ) ]++;
 }
 
 size_t WValueSetHistogram::operator[]( size_t index ) const
@@ -216,11 +212,39 @@ size_t WValueSetHistogram::size() const
     return m_nMappedBuckets;    // overwrite the WHistogram::size here as we have our own size.
 }
 
+size_t WValueSetHistogram::getTotalElementCount() const
+{
+    return m_nbTotalElements;
+}
+
 std::pair< double, double > WValueSetHistogram::getIntervalForIndex( size_t index ) const
 {
     double first = m_minimum + m_mappedBucketSize * index;
     double second =  m_minimum + m_mappedBucketSize * ( index + 1 );
     return std::make_pair( first, second );
+}
+
+size_t WValueSetHistogram::accumulate( size_t startIndex, size_t endIndex ) const
+{
+    if ( startIndex > endIndex )
+    {
+        std::swap( startIndex, endIndex );
+    }
+
+    // valid index?
+    if ( endIndex > size() )    // as endIndex is exclusive, it is allowed to equal size()
+    {
+        throw WOutOfBounds( "The specified endIndex is out of bounds." );
+    }
+
+    // unfortunately, shared_array can't be used for std::accumulate
+    size_t acc = 0;
+    while ( startIndex != endIndex )
+    {
+        acc += m_mappedBuckets[ startIndex++ ];
+    }
+
+    return acc;
 }
 
 std::ostream& operator<<( std::ostream& out, const WValueSetHistogram& h )

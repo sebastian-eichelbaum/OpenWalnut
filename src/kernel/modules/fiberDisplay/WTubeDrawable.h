@@ -33,11 +33,13 @@
 #include <osg/ShapeDrawable>
 #include <osg/Group>
 
+#include "../../WExportKernel.h"
+
 class WDataSetFibers;
 /**
  * TODO(schurade): Document this!
  */
-class WTubeDrawable: public osg::Drawable
+class OWKERNEL_EXPORT WTubeDrawable: public osg::Drawable
 {
 public:
 
@@ -122,6 +124,12 @@ public:
      * \return True for global, false for local coloring
      */
     bool getColoringMode() const;
+
+    /**
+     * Set the bounding box of all fibers.
+     * \param bb The new bounding box.
+     */
+    void setBoundingBox( const osg::BoundingBox & bb );
 
 protected:
 private:

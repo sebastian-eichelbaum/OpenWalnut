@@ -82,6 +82,11 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
 
     /**
@@ -136,6 +141,14 @@ protected:
      */
     void notifyTextureChange();
 
+    /**
+     * getter for the position of the center manipulator
+     *
+     * \return center position
+     */
+    wmath::WPosition getCenterPosition();
+
+
 private:
     /**
      * A condition used to notify about changes in several properties.
@@ -152,6 +165,30 @@ private:
      * True if the manipulator spheres should be shown
      */
     WPropBool m_showManipulators;
+
+    /**
+     * If true the center position will move with the nav slice selection
+     */
+    WPropBool m_attach2Crosshair;
+
+
+    /**
+     * When triggered the center manipulator is set to the nav slice position and the plane is aligned along
+     * the axial slice
+     */
+    WPropTrigger m_buttonReset2Axial;
+
+    /**
+     * When triggered the center manipulator is set to the nav slice position and the plane is aligned along
+     * the coronal slice
+     */
+    WPropTrigger m_buttonReset2Coronal;
+
+    /**
+     * When triggered the center manipulator is set to the nav slice position and the plane is aligned along
+     * the axial slice
+     */
+    WPropTrigger m_buttonReset2Sagittal;
 
 
     /**
@@ -213,6 +250,9 @@ private:
 
     static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
 
+    /**
+     * Node callback to change position and appearance of the plane within the OSG thread
+     */
     class SafeUpdateCallback : public osg::NodeCallback
     {
     public: // NOLINT

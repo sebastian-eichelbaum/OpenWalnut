@@ -26,6 +26,7 @@
 #define WTHREADEDPERVOXELOPERATION_H
 
 #include <vector>
+#include <string>
 
 #include <boost/array.hpp>
 #include <boost/shared_ptr.hpp>
@@ -46,7 +47,7 @@ class WThreadedPerVoxelOperationTest;
  * \class WThreadedPerVoxelOperation
  *
  * A template that performs an operation on a per voxel basis. This
- * template is intended to be used in combination with WThreadedFunction.
+ * template is intended to be used in combination with \see WThreadedFunction.
  *
  * The template parameters are the internal datatype of the input datasets valueset,
  * the number of input data elements per voxel, the type of the output data and the number of
@@ -55,6 +56,13 @@ class WThreadedPerVoxelOperationTest;
  * Example: Suppose one wants to calculate the largest eigenvector of a symmetric tensor of order
  * 2 per voxel, where the input tensors are stored als 6 floats. The output could be 3 double values.
  * The corresponding template parameters would be float, 6, double, 3.
+ *
+ * A function that converts the input values to output values needs to be given via a boost::function
+ * object. The correct 'signature' is:
+ *
+ * boost::array< Output_T, numOutputs > func( WValueSet< Value_T >::SubArray const& );
+ *
+ * The subarray will have exactly numInputs entries.
  */
 template< typename Value_T, std::size_t numValues, typename Output_T, std::size_t numOutputs >
 class WThreadedPerVoxelOperation : public WThreadedJobs< WValueSet< Value_T >, std::size_t >
@@ -112,6 +120,7 @@ public:
 
     /**
      * Get the output dataset.
+     *
      * \return The oupput dataset.
      */
     boost::shared_ptr< WDataSetSingle > getResult();
@@ -145,27 +154,27 @@ WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::WThreade
 {
     if( !dataset )
     {
-        throw WException( "No input dataset." );
+        throw WException( std::string( "No input dataset." ) );
     }
     if( !dataset->getValueSet() )
     {
-        throw WException( "The input dataset has no valueset." );
+        throw WException( std::string( "The input dataset has no valueset." ) );
     }
     if( !dataset->getGrid() )
     {
-        throw WException( "The input dataset has no grid." );
+        throw WException( std::string( "The input dataset has no grid." ) );
     }
     if( dataset->getValueSet()->order() > 1 )
     {
-        throw WException( "An order of 2 or more is currently not supported." );
+        throw WException( std::string( "An order of 2 or more is currently not supported." ) );
     }
     if( dataset->getValueSet()->dimension() != numValues )
     {
-        throw WException( "Invalid valueset dimension." );
+        throw WException( std::string( "Invalid valueset dimension." ) );
     }
     if( !func )
     {
-        throw WException( "No valid function provided." );
+        throw WException( std::string( "No valid function provided." ) );
     }
 
     m_position.getWriteTicket()->get() = 0;
@@ -177,7 +186,7 @@ WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::WThreade
     }
     catch( std::exception const& e )
     {
-        throw WException( e.what() );
+        throw WException( std::string( e.what() ) );
     }
     m_func = func;
     m_grid = dataset->getGrid();

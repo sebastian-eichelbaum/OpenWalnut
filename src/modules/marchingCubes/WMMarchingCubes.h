@@ -177,8 +177,10 @@ private:
 
     bool m_shaderUseLighting; //!< shall the shader use lighting?
     bool m_shaderUseTransparency; //!< shall the shader use transparency?
+    bool m_firstDataProcessed; //!< Indicates if we already processed the first arrived data. This helps us to reset the isovalue only the first time.
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node. We need it to be able to update it when callback is invoked.
+    bool m_moduleNodeInserted; //!< ensures that the above module node gets inserted once the first triangle mesh has been calculated.
 
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
 

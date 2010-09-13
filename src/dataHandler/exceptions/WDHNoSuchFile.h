@@ -29,11 +29,12 @@
 #include <string>
 
 #include "WDHException.h"
+#include "../WExportDataHandler.h"
 
 /**
  * File not found exception.
  */
-class WDHNoSuchFile : public WDHException
+class OWDATAHANDLER_EXPORT WDHNoSuchFile : public WDHException // NOLINT
 {
 public:
     /**

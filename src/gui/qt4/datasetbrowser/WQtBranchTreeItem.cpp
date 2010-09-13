@@ -43,8 +43,7 @@ WQtRoiTreeItem* WQtBranchTreeItem::addRoiItem( boost::shared_ptr< WRMROIRepresen
 {
     WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi, ROI );
 
-    std::string name = "ROI";
-    rti->setText( 0, QString( name.c_str() ) );
+    rti->setText( 0, QString( "ROI" ) );
     return rti;
 }
 

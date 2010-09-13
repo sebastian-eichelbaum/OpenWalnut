@@ -31,10 +31,12 @@
 #include <string>
 #include <vector>
 
+#include "WExportCommon.h"
+
 /**
  * Represents a RGBA Color
  */
-class WColor
+class OWCOMMON_EXPORT WColor
 {
 public:
 
@@ -137,6 +139,10 @@ public:
      * red, green, blue and alpha
      */
     bool operator!=( const WColor &rhs ) const;
+
+    static const WColor green; //!< Default for green
+    static const WColor red; //!< Default for red
+    static const WColor blue; //!< Default for blue
 
 protected:
 private:

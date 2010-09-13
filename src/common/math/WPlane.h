@@ -29,13 +29,15 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/math/WPosition.h"
-#include "../../common/math/WVector3D.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "../../dataHandler/WExportDataHandler.h"
+#include "WPosition.h"
+#include "WVector3D.h"
 
 /**
  * Represents a plane with a normal vector and a position in space.
  */
-class WPlane
+class OWDATAHANDLER_EXPORT WPlane // NOLINT
 {
 public:
     /**
@@ -81,6 +83,17 @@ public:
      * \param newPos New Position (point in plane).
      */
     void resetPosition( wmath::WPosition newPos );
+
+    /**
+     * Computes sample points on that plane.
+     *
+     * \param grid
+     * \param stepWidth
+     *
+     * \return Set of positions on the plane
+     */
+    boost::shared_ptr< std::set< wmath::WPosition > > samplePoints( const WGridRegular3D& grid, double stepWidth );
+
 
     /**
      * Computes with relative coordinates a point in this plane. (0,0) means its position is returned.

@@ -162,6 +162,11 @@ public:
      */
     void addToolbar( QToolBar* tb );
 
+    /**
+     * Selects the uppermost entry in the module tree.
+     */
+    void selectUpperMostEntry();
+
 protected:
 
     /**

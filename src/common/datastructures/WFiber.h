@@ -29,6 +29,7 @@
 
 #include "../math/WLine.h"
 #include "../math/WPosition.h"
+#include "../WExportCommon.h"
 
 // we need this to find the WFiberTest class which is not inside wmath namespace
 // Additionally I found no way to put the WFiberTest class into wmath and CXXTest
@@ -40,7 +41,7 @@ namespace wmath
 /**
  * Represents a neural pathway.
  */
-class WFiber : public WLine
+class OWCOMMON_EXPORT WFiber : public WLine
 {
 friend class WFiberTest;
 public:

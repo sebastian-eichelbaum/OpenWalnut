@@ -65,6 +65,30 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
     setUpdateCallback( osg::ref_ptr<ROIArbNodeCallback>( new ROIArbNodeCallback ) );
 }
 
+WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
+        const wmath::WMatrix< double >& mat,
+        const std::vector< float >& vals,
+        float maxThreshold,
+        WColor color ) :
+    WROI(),
+    m_nbCoordsVec( 3 ),
+    m_matrix( mat ),
+    m_vals( vals ),
+    m_threshold( 0.01 ),
+    m_maxThreshold( maxThreshold ),
+    m_color( color )
+{
+    m_nbCoordsVec[0] = nbCoordsX;
+    m_nbCoordsVec[1] = nbCoordsY;
+    m_nbCoordsVec[2] = nbCoordsZ;
+
+    updateGFX();
+    m_isModified = true;
+    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
+    setUserData( this );
+    setUpdateCallback( osg::ref_ptr< ROIArbNodeCallback >( new ROIArbNodeCallback ) );
+}
+
 WROIArbitrary::~WROIArbitrary()
 {
 //    std::cout << "destructor called" << std::endl;

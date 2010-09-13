@@ -58,6 +58,11 @@ public:
      */
     virtual ~WSharedAssociativeContainer();
 
+    /**
+     * Clears the container.
+     */
+    void clear();
+
 protected:
 private:
 };
@@ -73,6 +78,13 @@ template < typename T >
 WSharedAssociativeContainer< T >::~WSharedAssociativeContainer()
 {
     // clean up
+}
+
+template < typename T >
+void WSharedAssociativeContainer< T >::clear()
+{
+    typename WSharedAssociativeContainer< T >::WriteTicket w = WSharedObject< T >::getWriteTicket();
+    w->get().clear();
 }
 
 #endif  // WSHAREDASSOCIATIVECONTAINER_H

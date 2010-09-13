@@ -351,8 +351,6 @@ void WMMarchingCubes::renderMesh()
     osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
-    state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
-
     {
         osg::ref_ptr< osg::Material > material = new osg::Material();
         material->setDiffuse(   osg::Material::FRONT, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
@@ -361,6 +359,27 @@ void WMMarchingCubes::renderMesh()
         material->setEmission(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
         material->setShininess( osg::Material::FRONT, 25.0 );
         state->setAttribute( material );
+    }
+
+    // Enable blending, select transparent bin.
+    if ( m_shaderUseTransparency )
+    {
+        state->setMode( GL_BLEND, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
+        state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+        // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
+        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
+
+        // Conversely, disable writing to depth buffer so that
+        // a transparent polygon will allow polygons behind it to shine thru.
+        // OSG renders transparent polygons after opaque ones.
+        osg::Depth* depth = new osg::Depth;
+        depth->setWriteMask( false );
+        state->setAttributeAndModes( depth, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
+
+        // Disable conflicting modes.
+        state->setMode( GL_LIGHTING,  osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF );
+        state->setMode( GL_CULL_FACE, osg::StateAttribute::OFF );
     }
 
     surfaceGeometry->setUseDisplayList( false );
@@ -451,7 +470,11 @@ void WMMarchingCubes::renderMesh()
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
+    if ( !m_moduleNodeInserted )
+    {
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
+        m_moduleNodeInserted = true;
+    }
 
     m_moduleNode->addUpdateCallback( new SurfaceNodeCallback( this ) );
 }
@@ -478,7 +501,7 @@ bool WMMarchingCubes::save() const
     }
 
     const char* c_file = m_meshFile->get().file_string().c_str();
-    std::ofstream dataFile( c_file );
+    std::ofstream dataFile( c_file, std::ios_base::binary );
 
     if ( dataFile )
     {
@@ -589,6 +612,37 @@ void WMMarchingCubes::updateGraphics()
 
             // for each texture -> apply
             int c = 0;
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+            if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+            {
+                boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
+                osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
+                osg::Vec3Array* texCoords = new osg::Vec3Array;
+
+                for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
+                {
+                    osg::Vec3 vertPos = m_triMesh->getVertex( i );
+                    texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) ) );
+                }
+                surfaceGeometry->setTexCoordArray( c, texCoords );
+
+                osg::ref_ptr<osg::Texture3D> texture3D = WKernel::getRunningKernel()->getSelectionManager()->getTexture();
+
+                m_typeUniforms[c]->set( W_DT_UNSIGNED_CHAR  );
+                m_thresholdUniforms[c]->set( 0.0f );
+                m_alphaUniforms[c]->set( WKernel::getRunningKernel()->getSelectionManager()->getTextureOpacity() );
+                m_cmapUniforms[c]->set( 4 );
+
+                texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
+                texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+
+                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
+
+                ++c;
+            }
+            //////////////////////////////////////////////////////////////////////////////////////////////////
+
+
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
                 if( localTextureChangedFlag )

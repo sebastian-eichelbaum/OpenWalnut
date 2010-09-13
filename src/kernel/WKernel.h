@@ -42,6 +42,8 @@
 #include "WModuleContainer.h"
 #include "WModuleFactory.h"
 
+#include "WExportKernel.h"
+
 class WThreadedRunner;
 
 /**
@@ -57,7 +59,7 @@ class WThreadedRunner;
  * GUI, GE and DataHandler
  * \ingroup kernel
  */
-class WKernel: public WThreadedRunner
+class OWKERNEL_EXPORT WKernel: public WThreadedRunner
 {
 public:
 

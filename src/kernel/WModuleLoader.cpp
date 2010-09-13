@@ -64,12 +64,13 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                 WSharedLib l( i->path() );
 
                 // get instantiation function
-                typedef boost::shared_ptr< WModule > ( *createInstanceFunc )( void );
+                typedef void ( *createInstanceFunc )( boost::shared_ptr< WModule > & );
                 createInstanceFunc f;
                 l.fetchFunction< createInstanceFunc >( W_LOADABLE_MODULE_SYMBOL, f );
 
                 // get the first prototype
-                boost::shared_ptr< WModule > m = f();
+                boost::shared_ptr< WModule > m;
+                f( m );
 
                 // could the prototype be created?
                 if( !m )
@@ -100,6 +101,19 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
             // if it a dir -> traverse down
             load( ticket, *i, level + 1 );
         }
+        // this little construct will enable vc to find the dll's in the correct build mode we are in
+#ifdef _MSC_VER
+        else if ( ( level == 1 ) &&
+#ifdef _DEBUG
+            boost::filesystem::path( *i ).filename() == "Debug"
+#else // _DEBUG
+            boost::filesystem::path( *i ).filename() == "Release"
+#endif // _DEBUG
+            )
+        {
+            load( ticket, *i, level + 1 );
+        }
+#endif // _MSC_VER
     }
 }
 

@@ -109,7 +109,7 @@ private:
     /**
      * This is a pointer to the dataset the module is currently working on.
      */
-    boost::shared_ptr< WDataSetScalar > m_dataSet;
+    boost::shared_ptr< WDataSetScalar > m_lastOutputDataSet;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -120,6 +120,36 @@ private:
      * If true, histogram equalization is turned on.
      */
     WPropBool m_equalize;
+
+    /**
+     * True if the values should be clamped before further processing
+     */
+    WPropBool m_clamp;
+
+    /**
+     * How many percent should be clamped from the histogram.
+     */
+    WPropDouble m_clampPerc;
+
+    /**
+     * Resolution of the initial histogram.
+     */
+    WPropInt m_histogramResolution;
+
+    /**
+     * Resolution with which the CDF gets calculated.
+     */
+    WPropInt m_cdfResolution;
+
+    /**
+     * Group for keeping all the clamping related props
+     */
+    WPropGroup m_clamping;
+
+    /**
+     * Group for keeping all the equalizing-related props
+     */
+    WPropGroup m_equalizing;
 };
 
 #endif  // WMHISTOGRAMEQUALIZATION_H

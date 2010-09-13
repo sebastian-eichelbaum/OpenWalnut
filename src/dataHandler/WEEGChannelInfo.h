@@ -35,6 +35,7 @@
 #include "WEEGPositionsLibrary.h"
 #include "exceptions/WDHException.h"
 #include "io/WPagerEEG.h"
+#include "WExportDataHandler.h"
 
 
 /**
@@ -42,7 +43,7 @@
  * from a WPagerEEG.
  * \ingroup dataHandler
  */
-class WEEGChannelInfo
+class OWDATAHANDLER_EXPORT WEEGChannelInfo // NOLINT
 {
 public:
     /**
