@@ -126,7 +126,7 @@ void WMJoinTreeTester::moduleMain()
         if( m_dbl->changed() && dataValid )
         {
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
-            boost::shared_ptr< std::set< size_t > > isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByISOSurface( m_dbl->get() );
+            boost::shared_ptr< std::set< size_t > > isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByIsoSurface( m_dbl->get() );
             boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
             assert( grid );
             boost::shared_ptr< std::set< wmath::WPosition > > points;

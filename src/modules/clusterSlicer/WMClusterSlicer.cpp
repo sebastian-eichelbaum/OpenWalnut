@@ -105,7 +105,7 @@ void WMClusterSlicer::connectors()
 
 void WMClusterSlicer::properties()
 {
-    m_drawISOVoxels     = m_properties->addProperty( "Show|Hide ISO Voxels", "Show|Hide voxels withing a given ISOSurface.", true );
+    m_drawIsoVoxels     = m_properties->addProperty( "Show|Hide Iso Voxels", "Show|Hide voxels withing a given isosurface.", true );
     m_drawSlices        = m_properties->addProperty( "Show|Hide Slices", "Show|Hide slices along center line", false );
     m_isoValue          = m_properties->addProperty( "Iso Value", "", 0.01 );
     m_meanSelector      = m_properties->addProperty( "Mean Type", "Selects the mean type, must be on of:"
@@ -144,7 +144,7 @@ void WMClusterSlicer::moduleMain()
     m_moduleState.add( m_paramDataSetInput->getDataChangedCondition() );
     m_moduleState.add( m_triangleMeshInput->getDataChangedCondition() );
     m_moduleState.add( m_drawSlices->getCondition() );
-    m_moduleState.add( m_drawISOVoxels->getCondition() );
+    m_moduleState.add( m_drawIsoVoxels->getCondition() );
     m_moduleState.add( m_fullUpdate );
     m_moduleState.add( m_selectBiggestComponentOnly->getCondition() );
 
@@ -200,7 +200,7 @@ void WMClusterSlicer::moduleMain()
                     debugLog() << "Finished building Join Tree";
                 }
                 // when the mesh has changed the isoValue must have had changed too
-                m_isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByISOSurface( m_isoValue->get() );
+                m_isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByIsoSurface( m_isoValue->get() );
                 if( m_selectBiggestComponentOnly->get( true ) )
                 {
                     debugLog() << "Start mesh decomposition";
@@ -220,7 +220,7 @@ void WMClusterSlicer::moduleMain()
             updateDisplay( true ); // force display update here (erasing invalid planes)
             debugLog() << "Full update done.";
         }
-        else if( m_drawSlices->changed() || m_drawISOVoxels->changed() )
+        else if( m_drawSlices->changed() || m_drawIsoVoxels->changed() )
         {
             updateDisplay();
         }
@@ -542,14 +542,14 @@ WColor WMClusterSlicer::colorFromPlanePair( const wmath::WPosition& vertex, cons
 void WMClusterSlicer::updateDisplay( bool force )
 {
     debugLog() << "Forced updating display: " << force;
-    if( m_drawISOVoxels->changed() || force )
+    if( m_drawIsoVoxels->changed() || force )
     {
         m_rootNode->remove( m_isoVoxelGeode );
         m_isoVoxelGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() ); // discard old geode
-        if( m_drawISOVoxels->get( true ) )
+        if( m_drawIsoVoxels->get( true ) )
         {
             assert( m_isoVoxels && "JoinTree cannot be valid since there is no valid m_clusterDS." );
-            m_isoVoxelGeode = generateISOVoxelGeode();
+            m_isoVoxelGeode = generateIsoVoxelGeode();
             m_rootNode->insert( m_isoVoxelGeode );
         }
     }
@@ -576,7 +576,7 @@ void WMClusterSlicer::updateDisplay( bool force )
     }
 }
 
-osg::ref_ptr< osg::Geode > WMClusterSlicer::generateISOVoxelGeode() const
+osg::ref_ptr< osg::Geode > WMClusterSlicer::generateIsoVoxelGeode() const
 {
     boost::shared_ptr< std::set< wmath::WPosition > > points( new std::set< wmath::WPosition > );
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_clusterDS->getGrid() );
