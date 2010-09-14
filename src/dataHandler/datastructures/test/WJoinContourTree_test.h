@@ -30,7 +30,19 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "../../../common/WLogger.h"
+
 #include "../WJoinContourTree.h"
+
+/**
+ * The logger instance used by some tests
+ */
+static WLogger logger;
+
+/**
+ * True if the logger has been initialized in the past.
+ */
+static bool loggerInitialized = false;
 
 /**
  * Unit tests the Join Tree of the Contour Tree!
@@ -38,6 +50,7 @@
 class WJoinContourTreeTest : public CxxTest::TestSuite
 {
 public:
+
     /**
      * TODO(lmath): Document this!
      */
@@ -83,8 +96,8 @@ public:
     }
 
     /**
-     * All voxels enclosed by the biggest ISO surface are contained in the biggest component
-     * of the JoinTree above the given ISO value the in in the JoinTree.
+     * All voxels enclosed by the biggest isosurface are contained in the biggest component
+     * of the JoinTree above the given isovalue the in in the JoinTree.
      */
     void testGetVolumeVoxelsEnclosedByISOSurfaceWithOutMerge( void )
     {
@@ -98,7 +111,7 @@ public:
     }
 
     /**
-     * All voxels enclosed by the biggest ISO Surface are contained in the biggest component
+     * All voxels enclosed by the biggest isoSurface are contained in the biggest component
      * which may be created with some merges of the join tree.
      */
     void testGetVolumeVoxelsEnclosedByISOSurfaceWithMerges( void )
@@ -118,7 +131,18 @@ protected:
      */
     void setUp( void )
     {
-        // ISO Values:           Point id's:
+        if ( !loggerInitialized )
+        {
+            std::cout << "Initialize logger." << std::endl;
+            logger.setColored( false );
+
+            // NOTE: the logger does not need to be run, since the logger main thread just prints the messages. If compiled in
+            // debug mode, the messages will be printed directly, without the logger thread.
+            //logger.run();
+            loggerInitialized = true;
+        }
+
+        // isovalues:           Point id's:
         //   2--- 4--- 8---14     12---13---14---15
         //   |    |    |    |      |    |    |    |
         //   |    |    |    |      |    |    |    |

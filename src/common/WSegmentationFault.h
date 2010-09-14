@@ -35,6 +35,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "WException.h"
+#include "WExportCommon.h"
 
 #ifdef __linux__
 // This is highly platform dependent. Used for backtrace functionality.
@@ -76,7 +77,7 @@ private:
  * recoverable, which means it can NOT be catched!
  * Also note that this will only work on Linux.
  */
-class WSegmentationFault: public WException
+class OWCOMMON_EXPORT WSegmentationFault: public WException
 {
 public:
 

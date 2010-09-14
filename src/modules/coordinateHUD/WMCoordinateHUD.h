@@ -33,6 +33,7 @@
 #include "../../common/WItemSelector.h"
 
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "../../graphicsEngine/WShader.h"
 
 #include "../../kernel/WModule.h"
@@ -40,194 +41,132 @@
 #include "../../kernel/WModuleOutputData.h"
 
 /**
- * This module is intended to be a simple template and example module. It can be used for fast creation of new modules by copying and refactoring
- * the files. It shows the basic usage of properties, update callbacks and how to wait for data.
- *
- * \ingroup modules
+ * This module shows a coordinatesystem as HUD.
+ * The attenuation can be customized to users needs.
  */
 class WMCoordinateHUD: public WModule, public osg::Referenced
 {
-public:
-
-    /**
-     * Default constructor.
-     */
-    WMCoordinateHUD();
-
-    /**
-     * Destructor.
-     */
-    virtual ~WMCoordinateHUD();
-
-    /**
-     * Gives back the name of this module.
-     * \return the module's name.
-     */
-    virtual const std::string getName() const;
-
-    /**
-     * Gives back a description of this module.
-     * \return description to module.
-     */
-    virtual const std::string getDescription() const;
-
-    /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
-     *
-     * \return the prototype used to create every module in OpenWalnut.
-     */
-    virtual boost::shared_ptr< WModule > factory() const;
-
-    /**
-     * Get the icon for this module in XPM format.
-     */
-    virtual const char** getXPMIcon() const;
-
-protected:
-
-    /**
-     * Entry point after loading the module. Runs in separate thread.
-     */
-    virtual void moduleMain();
-
-    /**
-     * Initialize the connectors this module is using.
-     */
-    virtual void connectors();
-
-    /**
-     * Initialize the properties for this module.
-     */
-    virtual void properties();
-
-    /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
-     */
-//    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
-    osg::ref_ptr< osg::Geode > m_rootNode;   
-    
-    /**
-     * The geometry rendered by this module.
-     */
-    osg::ref_ptr< osg::Geode > m_geode;
-
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
-
-private:
-
-    /**
-     * the shader
-     */
-    osg::ref_ptr< WShader > m_shader;
-
-    /**
-     * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
-     * moduleMain().
-     */
-    class SafeUpdateCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
+    public:
 
         /**
-         * Constructor.
+         * Default constructor.
+         */
+        WMCoordinateHUD();
+
+        /**
+         * Destructor.
+         */
+        virtual ~WMCoordinateHUD();
+
+        /**
+         * Gives back the name of this module.
+         * \return the module's name.
+         */
+        virtual const std::string getName() const;
+
+        /**
+         * Gives back a description of this module.
+         * \return description to module.
+         */
+        virtual const std::string getDescription() const;
+
+        /**
+         * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
+         * should never be initialized or modified in some other way. A simple new instance is required.
          *
-         * \param module just set the creating module as pointer for later reference.
+         * \return the prototype used to create every module in OpenWalnut.
          */
-        explicit SafeUpdateCallback( WMCoordinateHUD* module ): m_module( module ), m_initialUpdate( true )
-        {
-        };
+        virtual boost::shared_ptr< WModule > factory() const;
 
         /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
+         * Get the icon for this module in XPM format.
          */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
+        virtual const char** getXPMIcon() const;
+
+    protected:
 
         /**
-         * Pointer used to access members of the module to modify the node.
-         * Please do not use shared_ptr here as this would prevent deletion of the module as the callback contains
-         * a reference to it. It is safe to use a simple pointer here as callback get deleted before the module.
+         * Entry point after loading the module. Runs in separate thread.
          */
-        WMCoordinateHUD* m_module;
+        virtual void moduleMain();
 
         /**
-         * Denotes whether the update callback is called the first time. It is especially useful
-         * to set some initial value even if the property has not yet changed.
+         * Initialize the connectors this module is using.
          */
-        bool m_initialUpdate;
-    };
-
-
-    /**
-     * Node callback to change the position of the shapes in the coordinate system of the scene.
-     * For more details on this class, refer to the documentation in moduleMain().
-     */
-    class TranslateCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
+        virtual void connectors();
 
         /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
+         * Initialize the properties for this module.
          */
-        explicit TranslateCallback( WMCoordinateHUD* module ): m_module( module ), m_initialUpdate( true )
-        {
-        };
+        virtual void properties();
 
         /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
+         * Build the geode for colorfull coordinate axis
          */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
+        virtual void buildColorAxis();
 
         /**
-         * Pointer used to access members of the module to modify the node.
-         * Please do not use shared_ptr here as this would prevent deletion of the module as the callback contains
-         * a reference to it. It is safe to use a simple pointer here as callback get deleted before the module.
+         * build the geode for black & white coordinate axis
          */
-        WMCoordinateHUD* m_module;
+        virtual void buildBWAxis();
 
         /**
-         * Denotes whether the update callback is called the first time. It is especially useful
-         * to set some initial value even if the property has not yet changed.
+         * build the geode for black & white coordinate cube
          */
-        bool m_initialUpdate;
-    };
-
-    /**
-     * This shows how to write custom constraints for your modules. Please refer to the documentation in properties() for more details.
-     *
-     * \note: always use WPVBaseTypes to specialize the PropertyVariable template.
-     */
-    class StringLength: public WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstraint
-    {
-        /**
-         * You need to overwrite this method. It decides whether the specified new value should be accepted or not.
-         *
-         * \param property the property thats going to be changed.
-         * \param value the new value
-         *
-         * \return true if the new value is OK.
-         */
-        virtual bool accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING > >  property, WPVBaseTypes::PV_STRING value );
+        virtual void buildColorCube();
 
         /**
-         * Method to clone the constraint and create a new one with the correct dynamic type.
-         *
-         * \return the constraint.
+         * build the geometry of the cube
          */
-        virtual boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING >::PropertyConstraint > clone();
-    };
+        virtual osg::Vec3Array* buildCubeVertices();
+
+        /**
+         * build the geometry of the axis
+         */
+        virtual osg::Vec3Array* buildAxisVertices();
+
+        /**
+         * create caption for medical plane
+         */
+        virtual void buildCaption();
+
+        /**
+         * The root node used for this modules graphics.
+         */
+        osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+
+        /**
+         * The geometry rendered by this module.
+         */
+        osg::ref_ptr< osg::Geode > m_geode;
+
+        /**
+         * The caption rendered by this module.
+         */
+        osg::ref_ptr< osg::Geode > m_txtGeode;
+
+
+    private:
+
+        /**
+         * the shader
+         */
+        osg::ref_ptr< WShader > m_shader;
+
+        /**
+         * A condition used to notify about changes in several properties.
+         */
+        boost::shared_ptr< WCondition > m_propCondition;
+
+        /**
+         * A property allowing the user to select ONE item of some list
+         */
+        WPropSelection m_aSingleSelection;
+
+        /**
+         * A list of items that can be selected using m_aSingleSelection or m_aMultiSelection.
+         */
+        boost::shared_ptr< WItemSelection > m_possibleSelections;
 };
 
-#endif  // WMTEMPLATE_H
-
+#endif  // WMCOORDINATEHUD_H

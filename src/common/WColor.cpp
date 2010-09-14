@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath>
 #include <cassert>
 #include <string>
 #include <vector>
@@ -223,3 +224,21 @@ bool WColor::operator!=( const WColor &rhs ) const
 {
     return !( *this == rhs );
 }
+
+void WColor::inverse()
+{
+    m_red = std::abs( 1. - m_red );
+    m_green = std::abs( 1. - m_green );
+    m_blue = std::abs( 1. - m_blue );
+}
+
+void WColor::average( const WColor& other )
+{
+    m_red = ( m_red + other.getRed() ) / 2.0;
+    m_green = ( m_green + other.getGreen() ) / 2.0;
+    m_blue = ( m_blue + other.getBlue() ) / 2.0;
+}
+
+const WColor WColor::green( 0.0, 1.0, 0.0, 1.0 );
+const WColor WColor::red( 1.0, 0.0, 0.0, 1.0 );
+const WColor WColor::blue( 0.0, 0.0, 1.0, 1.0 );

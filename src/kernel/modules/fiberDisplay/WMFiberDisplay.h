@@ -31,17 +31,21 @@
 
 #include "../../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../../dataHandler/WDataSetFibers.h"
+#include "../../../graphicsEngine/WROI.h"
+#include "../../../graphicsEngine/WROIBox.h"
 #include "../../../graphicsEngine/WShader.h"
 #include "../../WModule.h"
 #include "../../WModuleInputData.h"
 #include "WTubeDrawable.h"
 
+#include "../../WExportKernel.h"
+
 /**
- * Test module for drawing fibers
+ * Module for drawing fibers
  *
  * \ingroup modules
  */
-class WMFiberDisplay : public WModule, public osg::Referenced
+class OWKERNEL_EXPORT WMFiberDisplay : public WModule
 {
 public:
     /**
@@ -125,6 +129,18 @@ protected:
      */
     void notifyTextureChange();
 
+    /**
+    * switches between fiber display and tube representation,
+    * texturing and box culling
+    * activates the neccesary shaders
+    */
+    void updateRenderModes();
+
+    /**
+    * Enable disable global or local coloring
+    */
+    void toggleColoring();
+
 private:
     /**
      * Updates the output with the current selection and generates a WFiberCluster out of it.
@@ -141,6 +157,11 @@ private:
     WPropTrigger m_updateOC; //!< updates the output connector
 
     WBoolFlag m_noData; //!< Flag indicating whether there is data to display.
+
+    WPropGroup m_cullBoxGroup; //!< property group for box culling
+    WPropBool m_activateCullBox; //!< if true fibers are culled depending on a cull box
+    WPropBool m_showCullBox; //!< Enable/Disable showing of the cull box
+    WPropBool m_insideCullBox; //!< if true fibers inside the cull box are shown, outside if false
 
     /**
      * Input connector for a fiber dataset.
@@ -191,6 +212,11 @@ private:
     bool m_textureChanged;
 
     /**
+     * boolean to notify the shader to use the texture instead of glColor
+     */
+    osg::ref_ptr<osg::Uniform> m_uniformUseTexture;
+
+    /**
      * uniform for type of texture
      */
     osg::ref_ptr<osg::Uniform> m_uniformType;
@@ -214,20 +240,24 @@ private:
     osg::ref_ptr<osg::Uniform> m_uniformDimY; //!< y dimension of the dataset for calculating the texture coord in the shader
     osg::ref_ptr<osg::Uniform> m_uniformDimZ; //!< z dimension of the dataset for calculating the texture coord in the shader
 
+    osg::ref_ptr<osg::Uniform> m_uniformUseCullBox; //!< notify shader that cull box is activated
+    osg::ref_ptr<osg::Uniform> m_uniformInsideCullBox; //!< notify shader that fibers insider or outside cull box are shown
+
+
+    osg::ref_ptr<osg::Uniform> m_uniformCullBoxLBX; //!< cull box lower bound
+    osg::ref_ptr<osg::Uniform> m_uniformCullBoxLBY; //!< cull box lower bound
+    osg::ref_ptr<osg::Uniform> m_uniformCullBoxLBZ; //!< cull box lower bound
+    osg::ref_ptr<osg::Uniform> m_uniformCullBoxUBX; //!< cull box upper bound
+    osg::ref_ptr<osg::Uniform> m_uniformCullBoxUBY; //!< cull box upper bound
+    osg::ref_ptr<osg::Uniform> m_uniformCullBoxUBZ; //!< cull box upper bound
+
     /**
      * To avoid multiple instances of the fiber display.
      */
     static bool m_fiberDisplayRunning;
 
-    /**
-     * switches between fiber display and tube representation
-     */
-    void toggleTubes();
+    osg::ref_ptr< WROIBox > m_cullBox; //!< stores a pointer to the cull box
 
-    /**
-     * Enable disable global or local coloring
-     */
-    void toggleColoring();
 
     /**
      * changes tube parameters
@@ -251,6 +281,48 @@ private:
     void updateTexture();
 
     /**
+     * create a selection box to cull the fibers
+     */
+    void initCullBox();
+
+    /**
+    * Wrapper class for userData to prevent cyclic destructor calls
+    */
+    class userData: public osg::Referenced
+    {
+    public:
+        /**
+        * userData Constructur with shared pointer to module
+        * \param _parent pointer to the module 
+        */
+        explicit userData( boost::shared_ptr< WMFiberDisplay > _parent )
+        {
+            parent = _parent;
+        }
+
+        /**
+        * update wrapper Function
+        */
+        void update();
+
+        /**
+        * updateRenderModes wrapper Function
+        */
+        void updateRenderModes();
+
+        /**
+        * toggleColoring wrapper Function
+        */
+        void toggleColoring();
+    private:
+        /**
+        * shared pointer to the module
+        */
+        boost::shared_ptr< WMFiberDisplay > parent;
+    };
+
+
+    /**
      * Node callback to handle updates properly
      */
     class fdNodeCallback : public osg::NodeCallback
@@ -264,12 +336,12 @@ private:
          */
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
-            osg::ref_ptr< WMFiberDisplay > module = static_cast< WMFiberDisplay* > ( node->getUserData() );
+            osg::ref_ptr< userData > module = static_cast< userData* > ( node->getUserData() );
 
             if ( module )
             {
                 module->update();
-                module->toggleTubes();
+                module->updateRenderModes();
                 module->toggleColoring();
             }
             traverse( node, nv );

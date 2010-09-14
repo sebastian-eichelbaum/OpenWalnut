@@ -31,15 +31,16 @@
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../dataHandler/WDataSetSingle.h"
 #include "../../../dataHandler/WDataSetScalar.h"
+#include "../../../dataHandler/WDataSetTimeSeries.h"
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WDataHandler.h"
 #include "../../../dataHandler/WDataTexture3D.h"
 #include "../../../dataHandler/WEEG2.h"
 #include "../../../dataHandler/exceptions/WDHException.h"
-#include "../../../dataHandler/io/WLoaderBiosig.h"
-#include "../../../dataHandler/io/WLoaderEEGASCII.h"
-#include "../../../dataHandler/io/WLoaderLibeep.h"
-#include "../../../dataHandler/io/WLoaderNIfTI.h"
+#include "../../../dataHandler/io/WReaderBiosig.h"
+#include "../../../dataHandler/io/WReaderEEGASCII.h"
+#include "../../../dataHandler/io/WReaderLibeep.h"
+#include "../../../dataHandler/io/WReaderNIfTI.h"
 #include "../../../dataHandler/io/WPagerEEGLibeep.h"
 #include "../../../dataHandler/io/WReaderELC.h"
 #include "../../../dataHandler/io/WReaderFiberVTK.h"
@@ -156,11 +157,11 @@ void WMData::properties()
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
 
     m_matrixSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_matrixSelectionsList->addItem( "no matrix", "" );
+    m_matrixSelectionsList->addItem( "No matrix", "" );
     m_matrixSelectionsList->addItem( "qform", "" );
     m_matrixSelectionsList->addItem( "sform", "" );
 
-    m_matrixSelection = m_groupTexManip->addProperty( "Transformation Matrix",  "matrix",
+    m_matrixSelection = m_groupTexManip->addProperty( "Transformation matrix",  "matrix",
             m_matrixSelectionsList->getSelectorFirst(), propertyCallback );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_matrixSelection );
 
@@ -174,13 +175,13 @@ void WMData::properties()
     m_translationZ->setMax( 300 );
     m_translationZ->setMin( -300 );
 
-    m_stretchX = m_groupTexManip->addProperty( "voxel size X", "", 1.0, propertyCallback );
+    m_stretchX = m_groupTexManip->addProperty( "Voxel size X", "", 1.0, propertyCallback );
     m_stretchX->setMax( 10. );
     m_stretchX->setMin( -10. );
-    m_stretchY = m_groupTexManip->addProperty( "voxel size Y", "", 1.0, propertyCallback );
+    m_stretchY = m_groupTexManip->addProperty( "Voxel size Y", "", 1.0, propertyCallback );
     m_stretchY->setMax( 10. );
     m_stretchY->setMin( -10. );
-    m_stretchZ = m_groupTexManip->addProperty( "voxel size Z", "", 1.0, propertyCallback );
+    m_stretchZ = m_groupTexManip->addProperty( "Voxel size Z", "", 1.0, propertyCallback );
     m_stretchZ->setMax( 10. );
     m_stretchZ->setMin( -10. );
 
@@ -225,6 +226,7 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
             wmath::WPosition pos( m_translationX->get(), m_translationY->get(), m_translationZ->get() );
             grid->translate( pos );
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+            m_output->triggerUpdate();
         }
         else if ( property == m_stretchX || property == m_stretchY || property == m_stretchZ )
         {
@@ -232,6 +234,7 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
             wmath::WPosition str( m_stretchX->get(), m_stretchY->get(), m_stretchZ->get() );
             grid->stretch( str );
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+            m_output->triggerUpdate();
         }
         else if ( property == m_rotationX || property == m_rotationY || property == m_rotationZ )
         {
@@ -244,12 +247,14 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
             wmath::WPosition rot( rotx, roty, rotz );
             grid->rotate( rot );
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+            m_output->triggerUpdate();
         }
         else if ( property == m_matrixSelection )
         {
             boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
             grid->setActiveMatrix( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) );
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+            m_output->triggerUpdate();
         }
     }
     else
@@ -328,50 +333,53 @@ void WMData::moduleMain()
 
         m_isTexture = true;
 
-        WLoaderNIfTI niiLoader( fileName );
+        WReaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
 
-        if( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet ) )
+        if( !boost::shared_dynamic_cast< WDataSetTimeSeries >( m_dataSet ) )
         {
-            m_threshold->setMin( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
-            m_threshold->setMax( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMax() );
-            m_threshold->set( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
-        }
-
-        boost::shared_ptr< WDataSetSingle > dss;
-        dss =  boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
-        if( dss )
-        {
-            switch( (*dss).getValueSet()->getDataType() )
+            if( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet ) )
             {
-                case W_DT_UNSIGNED_CHAR:
-                case W_DT_INT16:
-                case W_DT_SIGNED_INT:
-                    m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 0 ) );
-                    break;
-                case W_DT_FLOAT:
-                case W_DT_DOUBLE:
-                    m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 5 ) );
-                    break;
-                default:
-                    WAssert( false, "Unknow data type in Data module" );
+                m_threshold->setMin( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
+                m_threshold->setMax( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMax() );
+                m_threshold->set( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
             }
+
+            boost::shared_ptr< WDataSetSingle > dss;
+            dss =  boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+            if( dss )
+            {
+                switch( (*dss).getValueSet()->getDataType() )
+                {
+                    case W_DT_UNSIGNED_CHAR:
+                    case W_DT_INT16:
+                    case W_DT_SIGNED_INT:
+                        m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 0 ) );
+                        break;
+                    case W_DT_FLOAT:
+                    case W_DT_DOUBLE:
+                        m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 5 ) );
+                        break;
+                    default:
+                        WAssert( false, "Unknow data type in Data module" );
+                }
+            }
+            else
+            {
+                WAssert( false, "WDataSetSingle needed at this position." );
+            }
+            boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
+            m_matrixSelection->set( m_matrixSelectionsList->getSelector( grid->getActiveMatrix() ) );
         }
-        else
-        {
-            WAssert( false, "WDataSetSingle needed at this position." );
-        }
-        boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
-        m_matrixSelection->set( m_matrixSelectionsList->getSelector( grid->getActiveMatrix() ) );
     }
     else if( suffix == ".edf" )
     {
-        WLoaderBiosig biosigLoader( fileName );
+        WReaderBiosig biosigLoader( fileName );
         m_dataSet = biosigLoader.load();
     }
     else if( suffix == ".asc" )
     {
-        WLoaderEEGASCII eegAsciiLoader( fileName );
+        WReaderEEGASCII eegAsciiLoader( fileName );
         m_dataSet = eegAsciiLoader.load();
     }
     else if( suffix == ".cnt" )
@@ -393,10 +401,21 @@ void WMData::moduleMain()
     }
     else
     {
-        throw WDHException( "Unknown file type: '" + suffix + "'" );
+        throw WDHException( std::string( "Unknown file type: '" + suffix + "'" ) );
     }
 
     debugLog() << "Loading data done.";
+
+    // register the dataset properties
+    m_properties->addProperty( m_dataSet->getProperties() );
+    m_infoProperties->addProperty( m_dataSet->getInformationProperties() );
+
+    // textures also provide properties
+    if ( m_dataSet->isTexture() )
+    {
+        m_properties->addProperty( m_dataSet->getTexture()->getProperties() );
+        m_infoProperties->addProperty( m_dataSet->getTexture()->getInformationProperties() );
+    }
 
     // i am interested in the active property ( manually subscribe signal )
     m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );

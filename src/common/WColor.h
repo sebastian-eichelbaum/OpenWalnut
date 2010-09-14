@@ -31,10 +31,12 @@
 #include <string>
 #include <vector>
 
+#include "WExportCommon.h"
+
 /**
  * Represents a RGBA Color
  */
-class WColor
+class OWCOMMON_EXPORT WColor
 {
 public:
 
@@ -107,6 +109,18 @@ public:
      */
     void setRGB( double r, double g, double b );
 
+    /**
+     * Computes the inverse of this color in means of RGB space.
+     */
+    void inverse();
+
+    /**
+     * Computes the arithmetic mean of this and the other color. This is done component wisely.
+     * For example red mixed with green will become yellow.
+     *
+     * \param other The other color to mix in here :D.
+     */
+    void average( const WColor& other );
 
     /**
      * Compares two WColor instances on all four channels.
@@ -125,6 +139,10 @@ public:
      * red, green, blue and alpha
      */
     bool operator!=( const WColor &rhs ) const;
+
+    static const WColor green; //!< Default for green
+    static const WColor red; //!< Default for red
+    static const WColor blue; //!< Default for blue
 
 protected:
 private:

@@ -25,10 +25,13 @@
 #ifndef WLINEARALGEBRAFUNCTIONS_H
 #define WLINEARALGEBRAFUNCTIONS_H
 
+#include "../WExportCommon.h"
+
 namespace wmath
 {
     class WVector3D;
     typedef WVector3D WPosition;
+    template< typename > class WValue;
     template< typename > class WMatrix;
 
     /**
@@ -37,7 +40,7 @@ namespace wmath
      * \param mat 3x3 matrix
      * \param vec vector
      */
-    WVector3D multMatrixWithVector3D( WMatrix<double> mat, WVector3D vec );
+    WVector3D OWCOMMON_EXPORT multMatrixWithVector3D( WMatrix<double> mat, WVector3D vec );
 
     /**
      * Applies a coordinate transformation in homogenous coordinates to a vector.
@@ -46,7 +49,7 @@ namespace wmath
      * \param mat 4x4 matrix
      * \param vec vector
      */
-    WVector3D transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3D vec );
+    WVector3D OWCOMMON_EXPORT transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3D vec );
 
     /**
      * Applies a coordinate transformation in homogenous coordinates to a position.
@@ -55,7 +58,7 @@ namespace wmath
      * \param mat 4x4 matrix
      * \param vec vector
      */
-    WVector3D transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec );
+    WVector3D OWCOMMON_EXPORT transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec );
 
     /**
      * helper routine to invert a 3x3 matrix
@@ -64,7 +67,7 @@ namespace wmath
      *
      * \return inverted 3x3 matrix
      */
-    WMatrix<double> invertMatrix3x3( WMatrix<double> mat );
+    WMatrix<double> OWCOMMON_EXPORT invertMatrix3x3( WMatrix<double> mat );
 
     /**
      * helper routine to invert a 4x4 matrix
@@ -73,7 +76,7 @@ namespace wmath
      *
      * \return inverted 4x4 matrix
      */
-    WMatrix<double> invertMatrix4x4( WMatrix<double> mat );
+    WMatrix<double> OWCOMMON_EXPORT invertMatrix4x4( WMatrix<double> mat );
 
     /**
      * Checks if the given two vectors are linearly independent.
@@ -85,7 +88,32 @@ namespace wmath
      *
      * \note This check is performed with the cross product != (0,0,0) but in numerical stability with FLT_EPS.
      */
-    bool linearIndependent( const wmath::WVector3D& u, const wmath::WVector3D& v );
+    bool OWCOMMON_EXPORT linearIndependent( const wmath::WVector3D& u, const wmath::WVector3D& v );
+
+    /**
+     * Computes the SVD for the Matrix \param A
+     *
+     * A=U*S*V^T
+     *
+     * \param A Input Matrix
+     * \param U Output Matrix
+     * \param S Output of the entries in the diagonal matrix
+     * \param V Output Matrix
+     *
+     * \note This function needs the OSSIM library.
+     */
+    void OWCOMMON_EXPORT computeSVD( const wmath::WMatrix< double >& A, wmath::WMatrix< double >& U,
+                     wmath::WMatrix< double >& V, wmath::WValue< double >& S );
+
+    /**
+     * Calculates for a matrix the pseudo inverse.
+     *
+     * \param input Matrix to invert
+     *
+     * \return Inverted Matrix
+     *
+     */
+    wmath::WMatrix< double > OWCOMMON_EXPORT pseudoInverse( const WMatrix<double>& input );
 }
 
 #endif  // WLINEARALGEBRAFUNCTIONS_H

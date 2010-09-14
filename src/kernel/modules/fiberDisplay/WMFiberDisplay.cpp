@@ -56,6 +56,7 @@ WMFiberDisplay::WMFiberDisplay()
 
 WMFiberDisplay::~WMFiberDisplay()
 {
+    m_fiberDisplayRunning = false;
 }
 
 boost::shared_ptr< WModule > WMFiberDisplay::factory() const
@@ -92,6 +93,13 @@ void WMFiberDisplay::moduleMain()
         debugLog() << "Waiting for event";
 
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
+
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        initCullBox();
 
         /////////////////////////////////////////////////////////////////////////////////////////
         // what caused wait to return?
@@ -136,6 +144,8 @@ void WMFiberDisplay::moduleMain()
             }
         }
     }
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
 }
 
 void WMFiberDisplay::update()
@@ -151,6 +161,32 @@ void WMFiberDisplay::update()
             m_osgNode->setNodeMask( 0xFFFFFFFF );
         }
     }
+
+    if( !m_showCullBox->get() )
+    {
+        m_cullBox->setNodeMask( 0x0 );
+    }
+    else
+    {
+        m_cullBox->setNodeMask( 0xFFFFFFFF );
+    }
+
+    float xMin = m_cullBox->getMinPos()[0];
+    float yMin = m_cullBox->getMinPos()[1];
+    float zMin = m_cullBox->getMinPos()[2];
+    float xMax = m_cullBox->getMaxPos()[0];
+    float yMax = m_cullBox->getMaxPos()[1];
+    float zMax = m_cullBox->getMaxPos()[2];
+
+    m_uniformUseCullBox->set( m_activateCullBox->get() );
+    m_uniformInsideCullBox->set( m_insideCullBox->get() );
+
+    m_uniformCullBoxLBX->set( static_cast<float>( xMin ) );
+    m_uniformCullBoxLBY->set( static_cast<float>( yMin ) );
+    m_uniformCullBoxLBZ->set( static_cast<float>( zMin ) );
+    m_uniformCullBoxUBX->set( static_cast<float>( xMax ) );
+    m_uniformCullBoxUBY->set( static_cast<float>( yMax ) );
+    m_uniformCullBoxUBZ->set( static_cast<float>( zMax ) );
 }
 
 void WMFiberDisplay::create()
@@ -159,6 +195,12 @@ void WMFiberDisplay::create()
     osg::ref_ptr< osg::Group > osgNodeNew = osg::ref_ptr< osg::Group >( new osg::Group );
 
     m_tubeDrawable = osg::ref_ptr< WTubeDrawable >( new WTubeDrawable );
+    m_tubeDrawable->setBoundingBox( osg::BoundingBox( m_dataset->getBoundingBox().first[0],
+                                                      m_dataset->getBoundingBox().first[1],
+                                                      m_dataset->getBoundingBox().first[2],
+                                                      m_dataset->getBoundingBox().second[0],
+                                                      m_dataset->getBoundingBox().second[1],
+                                                      m_dataset->getBoundingBox().second[2] ) );
     m_tubeDrawable->setDataset( m_dataset );
     m_tubeDrawable->setUseDisplayList( false );
     m_tubeDrawable->setDataVariance( osg::Object::DYNAMIC );
@@ -169,9 +211,10 @@ void WMFiberDisplay::create()
     osgNodeNew->addChild( geode );
 
     osgNodeNew->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( osgNodeNew.get() );
 
-    osgNodeNew->setUserData( this );
+    osgNodeNew->setUserData( osg::ref_ptr< userData >(
+        new userData( boost::shared_dynamic_cast< WMFiberDisplay >( shared_from_this() ) )
+        ) );
     osgNodeNew->addUpdateCallback( new fdNodeCallback );
 
     // remove previous nodes if there are any
@@ -183,6 +226,8 @@ void WMFiberDisplay::create()
 
     osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
     initUniforms( rootState );
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
 }
 
 void WMFiberDisplay::connectors()
@@ -221,25 +266,30 @@ void WMFiberDisplay::activate()
 
 void WMFiberDisplay::properties()
 {
-    m_customColoring = m_properties->addProperty( "Custom Coloring", "Switches the coloring between custom and predefined.", false );
-    m_coloring = m_properties->addProperty( "Global or Local Coloring", "Switches the coloring between global and local.", true );
+    m_customColoring = m_properties->addProperty( "Custom coloring", "Switches the coloring between custom and predefined.", false );
+    m_coloring = m_properties->addProperty( "Global or local coloring", "Switches the coloring between global and local.", true );
 
-    m_useTubesProp = m_properties->addProperty( "Use Tubes", "Draw fiber tracts as fake tubes.", false );
-    m_useTextureProp = m_properties->addProperty( "Use Texture", "Texture fibers with the texture on top of the list.", false );
-    m_tubeThickness = m_properties->addProperty( "Tube Thickness", "Adjusts the thickness of the tubes.", 50.,
+    m_useTubesProp = m_properties->addProperty( "Use tubes", "Draw fiber tracts as fake tubes.", false );
+    m_useTextureProp = m_properties->addProperty( "Use texture", "Texture fibers with the texture on top of the list.", false );
+    m_tubeThickness = m_properties->addProperty( "Tube thickness", "Adjusts the thickness of the tubes.", 50.,
             boost::bind( &WMFiberDisplay::adjustTubes, this ) );
     m_tubeThickness->setMin( 0 );
     m_tubeThickness->setMax( 300 );
 
-    m_save = m_properties->addProperty( "Save", "saves the selected fiber bundles.", false, boost::bind( &WMFiberDisplay::saveSelected, this ) );
-    m_saveFileName = m_properties->addProperty( "File Name", "no description yet", WPathHelper::getAppPath() );
-    m_updateOC = m_properties->addProperty( "Update Output Conn.",
+    m_save = m_properties->addProperty( "Save", "Saves the selected fiber bundles.", false, boost::bind( &WMFiberDisplay::saveSelected, this ) );
+    m_saveFileName = m_properties->addProperty( "File name", "", WPathHelper::getAppPath() );
+    m_updateOC = m_properties->addProperty( "Update output conn.",
                                             "Updates the output connector with the currently selected fibers",
                                             WPVBaseTypes::PV_TRIGGER_READY,
                                             boost::bind( &WMFiberDisplay::updateOutput, this ) );
+
+    m_cullBoxGroup = m_properties->addPropertyGroup( "Box Culling",  "Properties only related to the box culling." );
+    m_activateCullBox = m_cullBoxGroup->addProperty( "Activate", "Activates the cull box", false );
+    m_showCullBox = m_cullBoxGroup->addProperty( "Show cull box", "Shows/hides the cull box", false );
+    m_insideCullBox = m_cullBoxGroup->addProperty( "Inside - outside", "Show fibers inside or outside the cull box", true );
 }
 
-void WMFiberDisplay::toggleTubes()
+void WMFiberDisplay::updateRenderModes()
 {
     osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
 
@@ -249,7 +299,7 @@ void WMFiberDisplay::toggleTubes()
         updateTexture();
     }
 
-    if( m_useTubesProp->changed() || m_useTextureProp->changed() )
+    if( m_useTubesProp->changed() || m_useTextureProp->changed() || m_activateCullBox->changed() )
     {
         if ( m_useTubesProp->get( true ) )
         {
@@ -262,12 +312,13 @@ void WMFiberDisplay::toggleTubes()
             rootState->addUniform( m_uniformTubeThickness );
             rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_useTextureProp->get() ) ) );
         }
-        else if ( m_useTextureProp->get( true ) && !m_useTubesProp->get( true ) )
+        else if ( ( m_useTextureProp->get( true ) && !m_useTubesProp->get( true ) ) || m_activateCullBox->get( true) )
         {
             m_tubeDrawable->setUseTubes( false );
             updateTexture();
             m_shaderTubes->deactivate( m_osgNode );
             m_shaderTexturedFibers->apply( m_osgNode );
+            m_uniformUseTexture->set( m_useTextureProp->get() );
         }
         else
         {
@@ -376,6 +427,7 @@ void WMFiberDisplay::updateTexture()
 
 void WMFiberDisplay::initUniforms( osg::StateSet* rootState )
 {
+    m_uniformUseTexture = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", false ) );
     m_uniformSampler = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex", 0 ) );
     m_uniformType = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type", 0 ) );
     m_uniformThreshold = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold", 0.0f ) );
@@ -385,6 +437,7 @@ void WMFiberDisplay::initUniforms( osg::StateSet* rootState )
     m_uniformDimY = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "dimY", 1 ) );
     m_uniformDimZ = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "dimZ", 1 ) );
 
+    rootState->addUniform( m_uniformUseTexture );
     rootState->addUniform( m_uniformSampler );
     rootState->addUniform( m_uniformType );
     rootState->addUniform( m_uniformThreshold );
@@ -393,9 +446,62 @@ void WMFiberDisplay::initUniforms( osg::StateSet* rootState )
     rootState->addUniform( m_uniformDimX );
     rootState->addUniform( m_uniformDimY );
     rootState->addUniform( m_uniformDimZ );
+
+    // cull box info
+    float xMin = m_cullBox->getMinPos()[0];
+    float yMin = m_cullBox->getMinPos()[1];
+    float zMin = m_cullBox->getMinPos()[2];
+    float xMax = m_cullBox->getMaxPos()[0];
+    float yMax = m_cullBox->getMaxPos()[1];
+    float zMax = m_cullBox->getMaxPos()[2];
+
+    m_uniformUseCullBox = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCullBox", false ) );
+    m_uniformInsideCullBox = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "insideCullBox", false ) );
+
+    m_uniformCullBoxLBX = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "cullBoxLBX", static_cast<float>( xMin ) ) );
+    m_uniformCullBoxLBY = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "cullBoxLBY", static_cast<float>( yMin ) ) );
+    m_uniformCullBoxLBZ = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "cullBoxLBZ", static_cast<float>( zMin ) ) );
+    m_uniformCullBoxUBX = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "cullBoxUBX", static_cast<float>( xMax ) ) );
+    m_uniformCullBoxUBY = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "cullBoxUBY", static_cast<float>( yMax ) ) );
+    m_uniformCullBoxUBZ = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "cullBoxUBZ", static_cast<float>( zMax ) ) );
+
+    rootState->addUniform( m_uniformUseCullBox );
+    rootState->addUniform( m_uniformInsideCullBox );
+
+    rootState->addUniform( m_uniformCullBoxLBX );
+    rootState->addUniform( m_uniformCullBoxLBY );
+    rootState->addUniform( m_uniformCullBoxLBZ );
+    rootState->addUniform( m_uniformCullBoxUBX );
+    rootState->addUniform( m_uniformCullBoxUBY );
+    rootState->addUniform( m_uniformCullBoxUBZ );
 }
 
 void WMFiberDisplay::notifyTextureChange()
 {
     m_textureChanged = true;
+}
+
+void WMFiberDisplay::initCullBox()
+{
+    wmath::WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    wmath::WPosition minROIPos = crossHairPos - wmath::WPosition( 10., 10., 10. );
+    wmath::WPosition maxROIPos = crossHairPos + wmath::WPosition( 10., 10., 10. );
+
+    m_cullBox = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
+    m_cullBox->setColor( osg::Vec4( 1.0, 0., 1.0, 0.4 ) );
+}
+
+void WMFiberDisplay::userData::update()
+{
+    parent->update();
+}
+
+void WMFiberDisplay::userData::updateRenderModes()
+{
+    parent->updateRenderModes();
+}
+
+void WMFiberDisplay::userData::toggleColoring()
+{
+    parent->toggleColoring();
 }

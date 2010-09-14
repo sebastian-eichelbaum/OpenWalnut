@@ -184,19 +184,21 @@ public:
     * determine if a line is a string ( beginning and ending with a quote )
     *
     * \param line line
+    * \param useColon consider a colon at the beginning and end of the string
     *
     * \result is string
     */
-    static bool isString( const std::string line );
+    static bool isString( const std::string line, bool useColon = false );
 
     /**
     * get the line as a string
     *
     * \param line line
+    * \param useColon consider a colon at the beginning and end of the string
     *
     * \result as string
     */
-    static std::string getAsString( const std::string line );
+    static std::string getAsString( const std::string line, bool useColon = false );
 
     /**
     * convert a property value to a string
@@ -207,10 +209,11 @@ public:
     * to have a consistent writing in the config file
     *
     * \param prop property variable
+    * \param useColon consider a colon at the beginning and end of the string
     *
     * \result property variable as string
     */
-    static std::string getPropValAsString( boost::shared_ptr< WProperties > prop );
+    static std::string getPropValAsString( boost::shared_ptr< WProperties > prop, bool useColon = false );
 private:
 };
 

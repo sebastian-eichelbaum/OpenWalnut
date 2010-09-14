@@ -339,9 +339,16 @@ wmath::WVector3D WGridRegular3D::worldCoordToTexCoord( wmath::WPosition point )
 {
     wmath::WVector3D r( wmath::transformPosition3DWithMatrix4D( m_matrixInverse, point ) );
 
+    // Scale to [0,1]
     r[0] = r[0] / m_nbPosX;
     r[1] = r[1] / m_nbPosY;
     r[2] = r[2] / m_nbPosZ;
+
+    // Correct the coordinates to have the position at the center of the texture voxel.
+    r[0] += 0.5 / m_nbPosX;
+    r[1] += 0.5 / m_nbPosY;
+    r[2] += 0.5 / m_nbPosZ;
+
 
     return r;
 }
@@ -371,6 +378,16 @@ int WGridRegular3D::getVoxelNum( const wmath::WPosition& pos ) const
          + zVoxelCoord * ( m_nbPosX ) * ( m_nbPosY );
 }
 
+int WGridRegular3D::getVoxelNum( const size_t x, const size_t y, const size_t z ) const
+{
+    // since we use size_t here only a check for the upper bounds is needed
+    if ( x > m_nbPosX || y > m_nbPosY || z > m_nbPosZ )
+    {
+        return -1;
+    }
+    return x + y * ( m_nbPosX ) + z * ( m_nbPosX ) * ( m_nbPosY );
+}
+
 int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const
 {
     double result = pos[ axis ] - m_origin[ axis ];
@@ -389,7 +406,7 @@ int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) c
                  break;
         default : WAssert( false, "Invalid axis selected, must be between 0 and 2, including 0 and 2." );
     }
-    if( result < 0 || result > offsetAxis * ( nbAxisPos - 1 ) )
+    if( result < 0 || result >= offsetAxis * ( nbAxisPos - 1 ) )
     {
         return -1;
     }
@@ -414,6 +431,33 @@ int WGridRegular3D::getYVoxelCoord( const wmath::WPosition& pos ) const
 int WGridRegular3D::getZVoxelCoord( const wmath::WPosition& pos ) const
 {
     return getNVoxelCoord( pos, 2 );
+}
+
+int WGridRegular3D::getXVoxelCoordRotated( const wmath::WPosition& pos ) const
+{
+    wmath::WVector3D v = pos - m_origin;
+    v[ 2 ] = v.dotProduct( m_directionX ) / getOffsetX() / getOffsetX();
+    v[ 0 ] = modf( v[ 2 ] + 0.5, &v[ 1 ] );
+    int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosX - 1.0 );
+    return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
+}
+
+int WGridRegular3D::getYVoxelCoordRotated( const wmath::WPosition& pos ) const
+{
+    wmath::WVector3D v = pos - m_origin;
+    v[ 2 ] = v.dotProduct( m_directionY ) / getOffsetY() / getOffsetY();
+    v[ 0 ] = modf( v[ 2 ] + 0.5, &v[ 1 ] );
+    int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosY - 1.0 );
+    return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
+}
+
+int WGridRegular3D::getZVoxelCoordRotated( const wmath::WPosition& pos ) const
+{
+    wmath::WVector3D v = pos - m_origin;
+    v[ 2 ] = v.dotProduct( m_directionZ ) / getOffsetZ() / getOffsetZ();
+    v[ 0 ] = modf( v[ 2 ] + 0.5, &v[ 1 ] );
+    int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosZ - 1.0 );
+    return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
 }
 
 wmath::WValue< int > WGridRegular3D::getVoxelCoord( const wmath::WPosition& pos ) const
@@ -441,15 +485,17 @@ bool WGridRegular3D::isNotRotatedOrSheared() const
     return onlyTranslatedOrScaled;
 }
 
-size_t WGridRegular3D::getCellId( const wmath::WPosition& pos ) const
+size_t WGridRegular3D::getCellId( const wmath::WPosition& pos, bool* success ) const
 {
     WAssert( isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
 
     wmath::WPosition posRelativeToOrigin = pos - m_origin;
 
-    size_t xCellId = floor( posRelativeToOrigin[0] / m_offsetX );
-    size_t yCellId = floor( posRelativeToOrigin[1] / m_offsetY );
-    size_t zCellId = floor( posRelativeToOrigin[2] / m_offsetZ );
+    double xCellId = floor( posRelativeToOrigin[0] / m_offsetX );
+    double yCellId = floor( posRelativeToOrigin[1] / m_offsetY );
+    double zCellId = floor( posRelativeToOrigin[2] / m_offsetZ );
+
+    *success = xCellId >= 0 && yCellId >=0 && zCellId >= 0 && xCellId < m_nbPosX - 1 && yCellId < m_nbPosY -1 && zCellId < m_nbPosZ -1;
 
     return xCellId + yCellId * ( m_nbPosX - 1 ) + zCellId * ( m_nbPosX - 1 ) * ( m_nbPosY - 1 );
 }
@@ -538,23 +584,291 @@ std::vector< size_t > WGridRegular3D::getNeighbours( size_t id ) const
     return neighbours;
 }
 
+std::vector< size_t > WGridRegular3D::getNeighbours27( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // for every neighbour we must check if its not on the boundary, it will be skipped otherwise
+    std::vector< int >tempResult;
+
+    tempResult.push_back( getVoxelNum( x    , y    , z ) );
+    tempResult.push_back( getVoxelNum( x    , y - 1, z ) );
+    tempResult.push_back( getVoxelNum( x    , y + 1, z ) );
+    tempResult.push_back( getVoxelNum( x - 1, y    , z ) );
+    tempResult.push_back( getVoxelNum( x - 1, y - 1, z ) );
+    tempResult.push_back( getVoxelNum( x - 1, y + 1, z ) );
+    tempResult.push_back( getVoxelNum( x + 1, y    , z ) );
+    tempResult.push_back( getVoxelNum( x + 1, y - 1, z ) );
+    tempResult.push_back( getVoxelNum( x + 1, y + 1, z ) );
+
+    tempResult.push_back( getVoxelNum( x    , y    , z - 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y - 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y + 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y    , z - 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y - 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y + 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y    , z - 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y - 1, z - 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y + 1, z - 1 ) );
+
+    tempResult.push_back( getVoxelNum( x    , y    , z + 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y - 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x    , y + 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y    , z + 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y - 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x - 1, y + 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y    , z + 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y - 1, z + 1 ) );
+    tempResult.push_back( getVoxelNum( x + 1, y + 1, z + 1 ) );
+
+    for ( size_t k = 0; k < tempResult.size(); ++k )
+    {
+        if ( tempResult[k] != -1 )
+        {
+            neighbours.push_back( tempResult[k] );
+        }
+    }
+    return neighbours;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours9XY( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // boundary check now happens in the getVoxelNum function
+    int vNum;
+
+    vNum = getVoxelNum( x - 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    return neighbours;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours9YZ( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // boundary check now happens in the getVoxelNum function
+    int vNum;
+
+    vNum = getVoxelNum( x, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y - 1, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y + 1, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+
+    return neighbours;
+}
+
+std::vector< size_t > WGridRegular3D::getNeighbours9XZ( size_t id ) const
+{
+    std::vector< size_t > neighbours;
+    size_t x = id % m_nbPosX;
+    size_t y = ( id / m_nbPosX ) % m_nbPosY;
+    size_t z = id / ( m_nbPosX * m_nbPosY );
+
+    if( x >= m_nbPosX || y >= m_nbPosY || z >= m_nbPosZ )
+    {
+        std::stringstream ss;
+        ss << "This point: " << id << " is not part of this grid: ";
+        ss << " nbPosX: " << m_nbPosX;
+        ss << " nbPosY: " << m_nbPosY;
+        ss << " nbPosZ: " << m_nbPosZ;
+        throw WOutOfBounds( ss.str() );
+    }
+    // boundary check now happens in the getVoxelNum function
+    int vNum;
+
+    vNum = getVoxelNum( x, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x - 1, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z + 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+    vNum = getVoxelNum( x + 1, y, z - 1 );
+    if ( vNum != -1 )
+    {
+        neighbours.push_back( vNum );
+    }
+
+    return neighbours;
+}
+
 bool WGridRegular3D::encloses( const wmath::WPosition& pos ) const
 {
     return getVoxelNum( pos ) != -1; // note this is an integer comparision, hence it should be numerical stable!
+}
+
+bool WGridRegular3D::enclosesRotated( wmath::WPosition const& pos ) const
+{
+    wmath::WVector3D v = pos - m_origin;
+    double d = v.dotProduct( m_directionX ) / getOffsetX() / getOffsetX();
+    if( d < 0.0 || d > m_nbPosX - 1 )
+    {
+        return false;
+    }
+    d = v.dotProduct( m_directionY ) / getOffsetY() / getOffsetY();
+    if( d < 0.0 || d > m_nbPosY - 1 )
+    {
+        return false;
+    }
+    d = v.dotProduct( m_directionZ ) / getOffsetZ() / getOffsetZ();
+    if( d < 0.0 || d > m_nbPosZ - 1 )
+    {
+        return false;
+    }
+    return true;
 }
 
 std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox() const
 {
     // Get the transformed corner points of the regular grid
     std::vector< wmath::WPosition > cornerPs;
-    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,            0.0,            0.0            ) ) );
-    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX(), 0.0,            0.0            ) ) );
-    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,            getNbCoordsY(), 0.0            ) ) );
-    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX(), getNbCoordsY(), 0.0            ) ) );
-    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,            0.0,            getNbCoordsZ() ) ) );
-    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX(), 0.0,            getNbCoordsZ() ) ) );
-    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,            getNbCoordsY(), getNbCoordsZ() ) ) );
-    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX(), getNbCoordsY(), getNbCoordsZ() ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                0.0,                0.0            ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, 0.0,                0.0            ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                getNbCoordsY() - 1, 0.0            ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, 0.0            ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                0.0,                getNbCoordsZ() - 1 ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, 0.0,                getNbCoordsZ() - 1 ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( 0.0,                getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
+    cornerPs.push_back( transformPosition3DWithMatrix4D( m_matrix, wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
 
     wmath::WPosition minBB( wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE );
     wmath::WPosition maxBB( wlimits::MIN_DOUBLE, wlimits::MIN_DOUBLE, wlimits::MIN_DOUBLE );

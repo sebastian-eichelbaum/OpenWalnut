@@ -29,11 +29,12 @@
 #include <string>
 
 #include "WDHException.h"
+#include "../WExportDataHandler.h"
 
 /**
  * Use this for IO error handling.
  */
-class WDHParseError : public WDHException
+class OWDATAHANDLER_EXPORT WDHParseError : public WDHException // NOLINT
 {
 public:
     /**

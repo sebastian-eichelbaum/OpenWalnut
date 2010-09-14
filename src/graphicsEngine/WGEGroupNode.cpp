@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
 #include <set>
 
 #include <osg/ShapeDrawable>
@@ -39,7 +40,7 @@ WGEGroupNode::WGEGroupNode():
 
     // setup an update callback
     m_nodeUpdater = osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback() );
-    setUpdateCallback( m_nodeUpdater );
+    addUpdateCallback( m_nodeUpdater );
 
     osg::Matrix m;
     m.makeIdentity();
@@ -54,7 +55,7 @@ WGEGroupNode::~WGEGroupNode()
 void WGEGroupNode::insert( osg::ref_ptr< osg::Node > node )
 {
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
-    m_childOperationQueue.push( ChildOperation( true, node ) );
+    m_childOperationQueue.push( ChildOperation( INSERT, node ) );
     m_childOperationQueueDirty = true;
     lock.unlock();
 }
@@ -62,7 +63,7 @@ void WGEGroupNode::insert( osg::ref_ptr< osg::Node > node )
 void WGEGroupNode::remove( osg::ref_ptr< osg::Node > node )
 {
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
-    m_childOperationQueue.push( ChildOperation( false, node ) );
+    m_childOperationQueue.push( ChildOperation( REMOVE, node ) );
     m_childOperationQueueDirty = true;
     lock.unlock();
 }
@@ -70,7 +71,7 @@ void WGEGroupNode::remove( osg::ref_ptr< osg::Node > node )
 void WGEGroupNode::clear()
 {
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
-    m_childOperationQueue.push( ChildOperation( false, osg::ref_ptr< osg::Node >() ) ); // this encodes the remove all feature
+    m_childOperationQueue.push( ChildOperation( CLEAR, osg::ref_ptr< osg::Node >() ) ); // this encodes the remove all feature
     m_childOperationQueueDirty = true;
     lock.unlock();
 }
@@ -91,20 +92,22 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
         while ( !rootNode->m_childOperationQueue.empty() )
         {
             // remove or insert or remove all?
-            if ( ( !rootNode->m_childOperationQueue.front().first ) && ( !rootNode->m_childOperationQueue.front().second ) )
-            {
-                // remove all
-                rootNode->removeChild( 0, rootNode->getNumChildren() );
-            }
-            else if ( rootNode->m_childOperationQueue.front().first )
+            if ( rootNode->m_childOperationQueue.front().first == INSERT )
             {
                 // add specified child
                 rootNode->addChild( rootNode->m_childOperationQueue.front().second );
             }
-            else
+
+            if ( rootNode->m_childOperationQueue.front().first == REMOVE )
             {
                 // remove specified child
                 rootNode->removeChild( rootNode->m_childOperationQueue.front().second );
+            }
+
+            if ( rootNode->m_childOperationQueue.front().first == CLEAR )
+            {
+                // remove all
+                rootNode->removeChild( 0, rootNode->getNumChildren() );
             }
 
             // pop item

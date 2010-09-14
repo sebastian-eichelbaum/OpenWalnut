@@ -31,6 +31,7 @@
 
 #include "../WMixinVector.h"
 #include "WPosition.h"
+#include "../WExportCommon.h"
 
 // we need this to find the WLineTest class which is not inside wmath namespace
 class WLineTest;
@@ -41,7 +42,7 @@ namespace wmath
      * A line is an ordered sequence of WPositions.
      */
 //    typedef WMixinVector< WPosition > WLine;
-    class WLine : public WMixinVector< WPosition >
+    class OWCOMMON_EXPORT WLine : public WMixinVector< WPosition >
     {
     public:
         /**

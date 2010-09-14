@@ -35,6 +35,7 @@
 #include "../common/WSharedSequenceContainer.h"
 
 #include "WPersonalInformation.h"
+#include "WExportDataHandler.h"
 
 class WDataSet;
 class WDataTexture3D;
@@ -43,7 +44,7 @@ class WDataTexture3D;
  * Container for all WDataSets belonging to one subject or patient.
  * \ingroup dataHandler
  */
-class WSubject
+class OWDATAHANDLER_EXPORT WSubject // NOLINT
 {
     /**
      * Only tests are allowed as friends.

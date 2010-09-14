@@ -24,20 +24,8 @@
 
 #include <string>
 
-#include <boost/filesystem/path.hpp>
-#include <boost/shared_ptr.hpp>
-
-#include "../../common/WAssert.h"
-#include "../../common/WCondition.h"
-#include "../../common/WProgress.h"
-#include "../../common/WPropertyTypes.h"
 #include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
 #include "WMFiberTransform.h"
 #include "fiberTransform.xpm"
 
@@ -48,6 +36,12 @@ WMFiberTransform::WMFiberTransform()
     : WModule(),
       m_recompute( new WCondition() )
 {
+}
+
+WMFiberTransform::~WMFiberTransform()
+{
+    // cleanup
+    removeConnectors();
 }
 
 boost::shared_ptr< WModule > WMFiberTransform::factory() const
@@ -84,7 +78,7 @@ void WMFiberTransform::properties()
     m_savePath = m_properties->addProperty( "Save path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
     m_run      = m_properties->addProperty( "Run", "Do the transformation", WPVBaseTypes::PV_TRIGGER_READY, m_recompute );
     m_run->get( true ); // reset so no initial run occurs
-    WPropertyHelper::PC_PATHEXISTS::addTo( m_savePath );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_savePath );
 
     m_translationProp = m_properties->addProperty( "Translation",
                                                    "Translation part of the transformation. You need to press enter to make the values effective.",
@@ -201,3 +195,16 @@ boost::filesystem::path WMFiberTransform::saveFileName( std::string dataFileName
     boost::filesystem::path fibFileName( dataFileName );
     return fibFileName.replace_extension( ".transformed.fib" );
 }
+inline const std::string WMFiberTransform::getName() const
+{
+    // Specify your module name here. This name must be UNIQUE!
+    return std::string( "Fiber Transform" );
+}
+
+inline const std::string WMFiberTransform::getDescription() const
+{
+    // Specify your module description here. Be detailed. This text is read by the user.
+    // See "src/modules/template/" for an extensively documented example.
+    return std::string( "Transforms a fiber dataset" );
+}
+

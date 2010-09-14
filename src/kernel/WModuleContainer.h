@@ -47,13 +47,15 @@ class WBatchLoader;
 class WModule;
 class WMData;
 
+#include "WExportKernel.h"
+
 /**
  * Class able to contain other modules. It manages several tasks like finding appropriate modules, managing data modules and
  * module initialization.
  *
  * \ingroup Kernel
  */
-class WModuleContainer: public WModule
+class OWKERNEL_EXPORT WModuleContainer: public WModule
 {
 public:
 

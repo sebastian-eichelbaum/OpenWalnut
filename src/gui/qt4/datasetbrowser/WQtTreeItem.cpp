@@ -114,27 +114,29 @@ void WQtTreeItem::updateTooltip( std::string progress )
 
     // also list the connectors
     std::string conList = "";
-    WModule::InputConnectorList cons = m_module->getInputConnectors();
+    WModule::InputConnectorList consIn = m_module->getInputConnectors();
     WModule::OutputConnectorList consOut = m_module->getOutputConnectors();
-    conList += "<table><tr><th>Name</th><th>Description</th><th>Connected</th></tr>";
+    conList += "<table><tr><th>Name</th><th>Description</th><th>Type (I/O)</th><th>Connected</th></tr>";
     int conCount = 0;
-    for ( WModule::InputConnectorList::const_iterator it = cons.begin(); it != cons.end(); ++it )
+    for ( WModule::InputConnectorList::const_iterator it = consIn.begin(); it != consIn.end(); ++it )
     {
         ++conCount;
-        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>&nbsp;" + ( *it )->getDescription() + "&nbsp;</td>";
-        conList += ( *it )->isConnected() ? "<td>&nbsp;yes&nbsp;</td>" : "<td>&nbsp;no&nbsp;</td>";
+        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>" + ( *it )->getDescription() + "&nbsp;</td>";
+        conList += "<td><center>In</center></td>";
+        conList += ( *it )->isConnected() ? "<td><center>Yes</center></td>" : "<td><center>No</center></td>";
         conList += "</tr>";
     }
     for ( WModule::OutputConnectorList::const_iterator it = consOut.begin(); it != consOut.end(); ++it )
     {
         ++conCount;
-        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>&nbsp;" + ( *it )->getDescription() + "&nbsp;</td>";
-        conList += ( *it )->isConnected() ? "<td>&nbsp;yes&nbsp;</td>" : "<td>&nbsp;no&nbsp;</td>";
+        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>" + ( *it )->getDescription() + "&nbsp;</td>";
+        conList += "<td><center>Out</center></td>";
+        conList += ( *it )->isConnected() ? "<td></center>Yes</center></td>" : "<td><center>No</center></td>";
         conList += "</tr>";
     }
     conList += "</table>";
 
-    tooltip += conCount ? "yes" + conList + "<br/><br/>" : "none<br/>";
+    tooltip += conCount ? "Yes" + conList + "<br/><br/>" : "None<br/>";
     tooltip += "<b>Module Description: </b><br/>" + m_module->getDescription();
 
     setToolTip( 0, tooltip.c_str() );
@@ -155,14 +157,14 @@ void WQtTreeItem::updateState()
     std::string connInfo = "";
     if ( ( m_handledOutput != "" ) && ( m_handledInput != "" ) )
     {
-        connInfo = "(" + m_handledOutput + "->" + m_handledInput + ") ";
+        connInfo = " (" + m_handledOutput + "->" + m_handledInput + ") ";
     }
 
     // is it pending?
-    std::string progress = "waiting";
+    std::string progress = "Waiting";
     if ( m_module->isCrashed()() )
     {
-        setText( 0, ( connInfo + m_name + " (problem occurred)" ).c_str() );
+        setText( 0, ( m_name + " (problem occurred)"  + connInfo ).c_str() );
 
         // strike out the name of the module to show the crash visually.
         QFont curFont = font( 0 );
@@ -188,12 +190,12 @@ void WQtTreeItem::updateState()
             title << "Pending";
         }
 
-        setText( 0, ( connInfo + m_name + " - " + title.str() ).c_str() );
+        setText( 0, ( m_name + " - " + title.str() + connInfo ).c_str() );
     }
     else
     {
         setIcon( 0, QIcon() );
-        setText( 0, ( connInfo + m_name ).c_str() );
+        setText( 0, ( m_name + connInfo ).c_str() );
     }
 
     // if the user requested it to be deleted: disable and color it

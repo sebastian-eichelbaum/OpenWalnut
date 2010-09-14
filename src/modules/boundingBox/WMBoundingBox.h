@@ -112,8 +112,12 @@ private:
      */
     void activate();
 
+    /**
+     * creates the actual bounding box graphics with coordinate labels at the corners
+     */
+    void createGFX();
+
     osg::ref_ptr< WGEGroupNode > m_bBoxNode; //!< OSG root node for this module
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
-    boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the treated data set in the whole module.
 };
 #endif  // WMBOUNDINGBOX_H

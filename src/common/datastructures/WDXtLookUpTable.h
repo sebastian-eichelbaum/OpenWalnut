@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "../exceptions/WOutOfBounds.h"
+#include "../WExportCommon.h"
 
 /**
  * Represents a symmetric matrix-like look up table, meaning it stores only
@@ -38,7 +39,7 @@
  * The reason why this is named DXt look up table is, since is it used as
  * look up table for dSt and dLt fiber distance metrics.
  */
-class WDXtLookUpTable
+class OWCOMMON_EXPORT WDXtLookUpTable
 {
 friend class WDXtLookUpTableTest;
 public:

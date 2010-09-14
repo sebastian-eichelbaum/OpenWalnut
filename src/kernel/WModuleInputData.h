@@ -79,6 +79,8 @@ public:
         // get a lock
         boost::shared_lock<boost::shared_mutex> lock = boost::shared_lock<boost::shared_mutex>( m_connectionListLock );
 
+        handledUpdate();
+
         // is there something in the list?
         if ( m_connected.begin() == m_connected.end() )
         {

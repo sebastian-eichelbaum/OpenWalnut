@@ -31,7 +31,6 @@
 #include <osg/Uniform>
 
 #include "../../graphicsEngine/WShader.h"
-
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -97,27 +96,12 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
-     */
-    osg::ref_ptr< osg::Node > m_rootNode;
-
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
-
 private:
 
     /**
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
-
-    /**
-     * This is a pointer to the dataset the module is currently working on.
-     */
-    boost::shared_ptr< WDataSetScalar > m_dataSet;
 
     /**
      * The Isovalue used in the case m_isoSurface is true.

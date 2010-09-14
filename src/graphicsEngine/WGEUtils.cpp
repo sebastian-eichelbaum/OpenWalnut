@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <vector>
 
 #include <osg/Array>
@@ -44,4 +45,121 @@ osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< wmath::WPos
 osg::Vec3 wge::unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera )
 {
     return screen * osg::Matrix::inverse( camera->getViewMatrix() * camera->getProjectionMatrix() * camera->getViewport()->computeWindowMatrix() );
+}
+
+WColor wge::createColorFromIndex( int index )
+{
+    float r = 0.0;
+    float g = 0.0;
+    float b = 0.0;
+    float mult = 1.0;
+
+    if ( index == 0 )
+    {
+        return WColor( 0.0, 0.0, 0.0 );
+    }
+
+    if ( ( index & 1 ) == 1 )
+    {
+        b = 1.0;
+    }
+    if ( ( index & 2 ) == 2 )
+    {
+        g = 1.0;
+    }
+    if ( ( index & 4 ) == 4 )
+    {
+        r = 1.0;
+    }
+    if ( ( index & 8 ) == 8 )
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            r = 1.0;
+            g = 1.0;
+        }
+    }
+    if ( ( index & 16 ) == 16 )
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            b = 1.0;
+            g = 1.0;
+        }
+    }
+    if ( ( index & 32 ) == 32 )
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            r = 1.0;
+            b = 1.0;
+        }
+    }
+    if ( ( index & 64 ) == 64 )
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            g = 1.0;
+        }
+    }
+    if ( ( index & 128 ) == 128 )
+    {
+        mult -= 0.15;
+        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        {
+            r = 1.0;
+        }
+    }
+    r *= mult;
+    g *= mult;
+    b *= mult;
+
+    return WColor( r, g, b );
+}
+
+WColor wge::createColorFromHSV( int h, float s, float v )
+{
+    h = h % 360;
+
+    int hi = h / 60;
+    float f =  ( static_cast<float>( h ) / 60.0 ) - hi;
+
+    float p = v * ( 1.0 - s );
+    float q = v * ( 1.0 - s * f );
+    float t = v * ( 1.0 - s * ( 1.0 - f ) );
+
+    switch ( hi )
+    {
+        case 0:
+            return WColor( v, t, p, 1.0 );
+        case 1:
+            return WColor( q, v, p, 1.0 );
+        case 2:
+            return WColor( p, v, t, 1.0 );
+        case 3:
+            return WColor( p, q, v, 1.0 );
+        case 4:
+            return WColor( t, p, v, 1.0 );
+        case 5:
+            return WColor( v, p, q, 1.0 );
+        case 6:
+            return WColor( v, t, p, 1.0 );
+        default:
+            return WColor( v, t, p, 1.0 );
+    }
+}
+
+WColor wge::getNthHSVColor( int n, int parts )
+{
+    parts = (std::max)( 1, parts );
+    if ( parts > 360 )
+    {
+        parts = 360;
+    }
+    int frac = 360 / parts;
+    return createColorFromHSV( n * frac );
 }

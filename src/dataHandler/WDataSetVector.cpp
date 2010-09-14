@@ -72,14 +72,15 @@ wmath::WVector3D WDataSetVector::interpolate( const wmath::WPosition& pos, bool 
     WAssert( ( m_valueSet->order() == 1 &&  m_valueSet->dimension() == 3 ),
              "Only implemented for 3D Vectors so far." );
 
-    *success = grid->encloses( pos );
+    bool isInside = true;
+    size_t cellId = grid->getCellId( pos, &isInside );
 
-    if( !*success )
+    if( !isInside )
     {
-        return wmath::WVector3D( 0, 0, 0 );
+        *success = false;
+        return wmath::WVector3D();
     }
-
-    std::vector< size_t > vertexIds = grid->getCellVertexIds( grid->getCellId( pos ) );
+    std::vector< size_t > vertexIds = grid->getCellVertexIds( cellId );
 
     wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
 

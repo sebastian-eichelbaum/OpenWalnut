@@ -22,14 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGEZoomTrackballManipulator.h"
 #include "../common/WPreferences.h"
+#include "WGEZoomTrackballManipulator.h"
+#include "WGraphicsEngine.h"
 
 WGEZoomTrackballManipulator::WGEZoomTrackballManipulator():
     TrackballManipulator(),
-    m_allowThrow( false )
+    m_zoom( 1.0 ),
+    m_allowThrow( false ),
+    m_paintMode( 0 )
 {
-    m_zoom = 1.0;
     setTrackballSize( .3 ); // changes the effect of a mouse move for rotation
     WPreferences::getPreference( "ge.zoomTrackballManipulator.allowThrow", &m_allowThrow );
 }
@@ -39,17 +41,22 @@ void WGEZoomTrackballManipulator::setByMatrix( const osg::Matrixd& matrix )
     m_zoom = 1.0 / matrix.getScale()[0];
 
     // The zoom needs to be undone before forwarding the matrix.
-    TrackballManipulator::setByMatrix( osg::Matrixd::inverse( osg::Matrixd::scale( 1.0 / m_zoom, 1.0 / m_zoom, 1.0 ) ) * matrix );
+    TrackballManipulator::setByMatrix( osg::Matrixd::inverse( osg::Matrixd::scale( 1.0 / m_zoom, 1.0 / m_zoom, 1.0 / m_zoom ) ) * matrix );
 }
 
 osg::Matrixd WGEZoomTrackballManipulator::getMatrix() const
 {
-    return osg::Matrixd::scale( 1.0 / m_zoom, 1.0 / m_zoom, 1.0 ) * TrackballManipulator::getMatrix();
+    return osg::Matrixd::scale( 1.0 / m_zoom, 1.0 / m_zoom, 1.0 / m_zoom ) * TrackballManipulator::getMatrix();
+}
+
+osg::Matrixd WGEZoomTrackballManipulator::getMatrixWithoutZoom() const
+{
+    return TrackballManipulator::getMatrix();
 }
 
 osg::Matrixd WGEZoomTrackballManipulator::getInverseMatrix() const
 {
-    return TrackballManipulator::getInverseMatrix() * osg::Matrixd::scale( m_zoom, m_zoom, 1.0 );
+    return TrackballManipulator::getInverseMatrix() * osg::Matrixd::scale( m_zoom, m_zoom, m_zoom );
 }
 
 void WGEZoomTrackballManipulator::home( double /* currentTime */ )
@@ -84,13 +91,13 @@ bool WGEZoomTrackballManipulator::zoom( const osgGA::GUIEventAdapter& ea, osgGA:
         switch( ea.getScrollingMotion() )
         {
             case osgGA::GUIEventAdapter::SCROLL_UP:
-                zoomDelta = -0.05;
-                break;
-            case osgGA::GUIEventAdapter::SCROLL_DOWN:
                 zoomDelta = 0.05;
                 break;
+            case osgGA::GUIEventAdapter::SCROLL_DOWN:
+                zoomDelta = -0.05;
+                break;
             case osgGA::GUIEventAdapter::SCROLL_2D:
-                zoomDelta = -0.05 / 120.0 * ea.getScrollingDeltaY();
+                zoomDelta = 0.05 / 120.0 * ea.getScrollingDeltaY();
                 break;
                 // case osgGA::GUIEventAdapter::SCROLL_LEFT:
                 // case osgGA::GUIEventAdapter::SCROLL_RIGHT:
@@ -116,18 +123,41 @@ bool WGEZoomTrackballManipulator::handle( const osgGA::GUIEventAdapter& ea, osgG
 {
     _thrown &= m_allowThrow; // By default we do not want the auto-rotation thingy.
 
-    if( ea.getEventType() == osgGA::GUIEventAdapter::SCROLL || ea.getKey() == 45 ||  ea.getKey() == 43 )
+    if( WGraphicsEngine::getGraphicsEngine()->getScene()->isHomePositionRequested() )
+    {
+        // We set the scene to the manipulator home position if the scene
+        // requests to do so. See WGEScene for more details.
+        home( 0 );
+        return true;
+    }
+    else if( ea.getEventType() == osgGA::GUIEventAdapter::SCROLL || ea.getKey() == 45 ||  ea.getKey() == 43 )
     {
         return zoom( ea, us );
     }
     // NOTE: we need to ignore the right mouse-button drag! This manipulates the underlying Trackball Manipulator while, at the same time, is
     // used for moving ROIS! Zooming is done using Scroll Wheel or +/- keys.
-    else if ( ( ea.getEventType() == osgGA::GUIEventAdapter::DRAG ) && ( ea.getButtonMask() == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON ) )
+    else if ( ( ea.getEventType() == osgGA::GUIEventAdapter::DRAG ) || ( ea.getEventType() == osgGA::GUIEventAdapter::PUSH ) )
     {
-        return true;
+        if ( ea.getButtonMask() == osgGA::GUIEventAdapter::RIGHT_MOUSE_BUTTON )
+        {
+            return true;
+        }
+        else if (  ( ea.getButtonMask() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON ) && ( m_paintMode == 1 ) )
+        {
+            return true;
+        }
+        else
+        {
+            return TrackballManipulator::handle( ea, us );
+        }
     }
     else
     {
         return TrackballManipulator::handle( ea, us );
     }
+}
+
+void WGEZoomTrackballManipulator::setPaintMode( int mode )
+{
+    m_paintMode = mode;
 }

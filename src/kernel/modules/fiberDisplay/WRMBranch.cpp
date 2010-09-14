@@ -31,22 +31,40 @@
 
 
 WRMBranch::WRMBranch( boost::shared_ptr< WROIManagerFibers > roiManager ) :
+    m_dirty( true ),
     m_roiManager( roiManager )
 {
-    setDirty();
-    m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "This branch's properties" ) );
-    m_isNot = m_properties->addProperty( "NOT", "description", false, boost::bind( &WRMBranch::slotToggleNot, this ) );
-    m_bundleColor = m_properties->addProperty( "Bundle Color", "description", WColor( 1.0, 0.0, 0.0, 1.0 ),
-            boost::bind( &WRMBranch::slotChangeBundleColor, this ) );
+    m_size = m_roiManager->size();
+
+    properties();
 }
 
 WRMBranch::~WRMBranch()
 {
 }
 
+void WRMBranch::properties()
+{
+    m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "This branch's properties" ) );
+    m_isNot = m_properties->addProperty( "NOT", "description", false, boost::bind( &WRMBranch::propertyChanged, this ) );
+    m_bundleColor = m_properties->addProperty( "Bundle Color", "description", WColor( 1.0, 0.0, 0.0, 1.0 ),
+            boost::bind( &WRMBranch::propertyChanged, this ) );
+}
+
+void WRMBranch::propertyChanged()
+{
+    if ( m_bundleColor->changed() )
+    {
+        m_roiManager->updateBundleColor( shared_from_this(), m_bundleColor->get( true ) );
+    }
+    setDirty();
+}
+
+
 void WRMBranch::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
 {
     m_rois.push_back( roi );
+    setDirty();
 }
 
 void WRMBranch::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi )
@@ -73,84 +91,64 @@ boost::shared_ptr< std::vector< bool > > WRMBranch::getBitField()
     {
         recalculate();
     }
-    return m_bitField;
-}
-
-void WRMBranch::addBitField( size_t size )
-{
-    boost::shared_ptr< std::vector< bool > >bf = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( size, false ) );
-    m_bitField = bf;
-    for( std::list< boost::shared_ptr< WRMROIRepresentation> >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
-    {
-        ( *iter )->addBitField( size );
-    }
-    setDirty();
+    return m_outputBitfield;
 }
 
 void WRMBranch::recalculate()
 {
-//    boost::shared_lock<boost::shared_mutex> slock;
-//    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
-    boost::shared_ptr< std::vector<bool> > mbf = m_bitField;
-    int size = mbf->size();
-    mbf->clear();
+    bool atLeastOneActive = false;
 
-
-    if ( m_rois.size() == 1 && !m_rois.front()->isActive() )
+    for( std::list< boost::shared_ptr< WRMROIRepresentation > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
-        mbf->resize( size, false );
+        if ( ( *iter )->active() )
+        {
+            atLeastOneActive = true;
+        }
     }
-    else
+
+    if ( atLeastOneActive )
     {
-        mbf->resize( size, true );
+        m_workerBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, true ) );
+
         for( std::list< boost::shared_ptr< WRMROIRepresentation > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
         {
-            if ( ( *iter )->isActive() )
+            if ( ( *iter )->active() )
             {
                 boost::shared_ptr< std::vector<bool> > bf = ( *iter )->getBitField();
                 bool isnot = ( *iter )->getROI()->isNot();
                 if ( !isnot )
                 {
-                    for ( size_t i = 0 ; i < mbf->size() ; ++i )
+                    for ( size_t i = 0 ; i < m_size ; ++i )
                     {
-                        ( *mbf )[i] = ( *mbf )[i] & ( *bf )[i];
+                        ( *m_workerBitfield )[i] = ( *m_workerBitfield )[i] & ( *bf )[i];
                     }
                 }
                 else
                 {
-                    for ( size_t i = 0 ; i < mbf->size() ; ++i )
+                    for ( size_t i = 0 ; i < m_size ; ++i )
                     {
-                        ( *mbf )[i] = ( *mbf )[i] & !( *bf )[i];
+                        ( *m_workerBitfield )[i] = ( *m_workerBitfield )[i] & !( *bf )[i];
                     }
                 }
             }
         }
-    }
 
-    if ( m_isNot->get() )
-    {
-       for ( size_t i = 0 ; i < mbf->size() ; ++i )
+        if ( m_isNot->get() )
         {
-            ( *mbf )[i] = !( *mbf )[i];
+           for ( size_t i = 0 ; i < m_size ; ++i )
+            {
+                ( *m_workerBitfield )[i] = !( *m_workerBitfield )[i];
+            }
         }
     }
-
-//    int counter = 0;
-//    for (int i = 0 ; i < mbf->size() ; ++i)
-//    {
-//        if ( mbf->at(i) )
-//            ++counter;
-//    }
-//    std::cout << "active fibers in branch :" << counter << std::endl;
+    else
+    {
+        m_workerBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, false ) );
+    }
 
     m_dirty = false;
 
-//    slock.unlock();
-}
-
-bool WRMBranch::isDirty()
-{
-    return m_dirty;
+    m_outputBitfield = m_workerBitfield;
 }
 
 void WRMBranch::setDirty()
@@ -169,23 +167,7 @@ boost::shared_ptr< WROIManagerFibers > WRMBranch::getRoiManager()
     return m_roiManager;
 }
 
-bool WRMBranch::isEmpty()
-{
-    return m_rois.empty();
-}
-
-void WRMBranch::slotToggleNot()
-{
-    //std::cout << "toggle not " << (m_isNot->get() ? "true" : "false") << std::endl;
-    setDirty();
-}
-
 boost::shared_ptr< WProperties > WRMBranch::getProperties()
 {
     return m_properties;
-}
-
-void WRMBranch::slotChangeBundleColor()
-{
-    m_roiManager->updateBundleColor( shared_from_this(), m_bundleColor->get() );
 }

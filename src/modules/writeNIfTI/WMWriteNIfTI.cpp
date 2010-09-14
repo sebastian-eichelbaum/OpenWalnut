@@ -36,11 +36,13 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
+#include "../../dataHandler/WDataSetRawHARDI.h"
 #include "../../kernel/WKernel.h"
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
-#include "../../dataHandler/io/nifti/nifti1_io.h"
+#include "../../ext/nifti/nifti1_io.h"
 #include "WMWriteNIfTI.h"
+#include "../../kernel/WModule.h"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMWriteNIfTI )
@@ -118,7 +120,7 @@ void WMWriteNIfTI::moduleMain()
 void WMWriteNIfTI::connectors()
 {
     // this module works for scalar data sets only so far
-    m_input = boost::shared_ptr< WModuleInputData< WDataSetScalar > >( new WModuleInputData< WDataSetScalar > (
+    m_input = boost::shared_ptr< WModuleInputData< WDataSetSingle > >( new WModuleInputData< WDataSetSingle > (
                     shared_from_this(), "in", "The dataset to filter" ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -132,21 +134,31 @@ void WMWriteNIfTI::properties()
 {
     m_filename = m_properties->addProperty( "Filename", "Filename where to write the NIfTI file to.",
                                              WPathHelper::getAppPath() );
-    m_saveTriggerProp = m_properties->addProperty( "Do Save",  "Press!",
+    m_saveTriggerProp = m_properties->addProperty( "Do save",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMWriteNIfTI::writeToFile, this ) );
 }
 
 template< typename T > void WMWriteNIfTI::castData( void*& returnData )
 {
+    // cast valueset
     boost::shared_ptr< WValueSetBase > valsB = ( *m_dataSet ).getValueSet();
     boost::shared_ptr< WValueSet< T > > vals = boost::shared_dynamic_cast< WValueSet< T > >( ( *m_dataSet ).getValueSet() );
     WAssert( vals, "Seems that value set type is not yet supported." );
+    const size_t vDim = vals->dimension();
+    // cast grid
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    const size_t countVoxels = grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ();
+    WAssert( grid, "Seems that grid is of wrong type." );
 
-    T* data = new T[vals->size()];
-    for( unsigned int i = 0; i < vals->size(); ++i )
+    // copy data
+    T* data = new T[vals->rawSize()];
+    for( size_t i = 0; i < countVoxels; ++i )
     {
-        data[i] = static_cast< T > ( vals->getScalar( i ) );
+        for ( size_t j = 0; j < vDim; ++j )
+        {
+            data[( j * countVoxels ) + i] = static_cast< T > ( vals->getScalar( i * vDim + j ) );
+        }
     }
     returnData = static_cast< void* > ( data );
 }
@@ -169,8 +181,7 @@ void WMWriteNIfTI::writeToFile()
     WAssert( grid->getNbCoordsX() * grid->getNbCoordsY() * grid->getNbCoordsZ() == nbValues,
              "Overall size incompatible with size in axis directions." );
 
-    outField->nt = 1;
-    outField->nvox = nbValues;
+    outField->nvox = nbValues*m_dataSet->getValueSet()->dimension();
 
     outField->dx = grid->getOffsetX();
     outField->dy = grid->getOffsetY();
@@ -184,6 +195,21 @@ void WMWriteNIfTI::writeToFile()
 
     outField->qform_code = 1;
     outField->sform_code = 0;
+
+    // TODO(philips): solve ticket 334
+    // set time dimension to 1
+    // wrong, according to nifti specs
+    outField->nt = m_dataSet->getValueSet()->dimension();
+    outField->dim[0] = 4;
+    // right, according to nifti specs
+
+    // wrong, according to nifti specs
+    outField->ndim = 4;
+    // right, according to nifti specs
+    std::string description = m_dataSet->getName();
+    // a description max. 80 char
+    description.copy( outField->descrip, 80 );
+
 
     wmath::WMatrix< double > matrix = grid->getTransformationMatrix();
     for( size_t i = 0; i < 4; ++i )
@@ -205,7 +231,6 @@ void WMWriteNIfTI::writeToFile()
     }
 
     outField->qto_ijk = nifti_mat44_inverse( outField->qto_xyz );
-
 
     void* data = 0;
     switch( ( *m_dataSet ).getValueSet()->getDataType() )
@@ -255,13 +280,29 @@ void WMWriteNIfTI::writeToFile()
     }
     outField->data = data;
 
-
-    if( nifti_set_filenames( outField, m_filename->get().file_string().c_str(), 0, 1 ) )
+    std::string s = m_filename->get().file_string();
+    if( nifti_set_filenames( outField, s.c_str(), 0, 1 ) )
     {
         throw WException( std::string( "NIfTI filename Problem" ) );
     }
 
     nifti_image_write( outField );
+
+    boost::shared_ptr< WDataSetRawHARDI > h = boost::shared_dynamic_cast< WDataSetRawHARDI >( m_dataSet );
+    if( h )
+    {
+        std::fstream f( ( s + ".bvec" ).c_str(), std::ios_base::out );
+        for( std::size_t i = 0; i < 3; ++i )
+        {
+            for( std::size_t k = 0; k < h->getNumberOfMeasurements(); ++k )
+            {
+                f << h->getGradient( k )[ i ] << " ";
+            }
+            f << std::endl;
+        }
+        f.close();
+    }
+
     nifti_image_free( outField );
     infoLog() << "Writing data completed.";
 }

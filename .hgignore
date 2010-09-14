@@ -40,6 +40,8 @@ syntax: regexp
 ^tools/numCores/Makefile$
 ^tools/numCores/cmake_install.cmake$
 
+# user toolboxes are not versioned
+^src/modules/modules-user.toolbox$
 
 syntax: glob
 .project

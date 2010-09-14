@@ -26,13 +26,17 @@
 #include <cassert>
 #include <string>
 
+#ifdef _WIN32
+#include <iostream>
+#include <windows.h>        // NOLINT
+#endif
+
 #include "exceptions/WLibraryFetchFailed.h"
 #include "exceptions/WLibraryLoadFailed.h"
 
 #include "WSharedLib.h"
 
 #ifdef _WIN32
-#include <windows.h>        // NOLINT
 
 /**
  * Simple class holding an opened library.
@@ -62,7 +66,7 @@ struct WSharedLib::data
     {
         if ( !m_hDLL )
         {
-            throw WLibraryLoadFailed( "Could not load library \"" + m_path + "\" due to the error: " + errmsg() );
+            throw WLibraryLoadFailed( std::string( "Could not load library \"" + m_path + "\" due to the error: " + errmsg() ) );
         }
     }
 
@@ -88,7 +92,7 @@ struct WSharedLib::data
         func_ptr_type func_ptr = reinterpret_cast< func_ptr_type >( GetProcAddress( m_hDLL, name.c_str() ) );
         if ( !func_ptr )
         {
-            throw WLibraryFetchFailed( "Could not fetch symbol \"" + name + "\"" + " due to the error: " + errmsg() );
+            throw WLibraryFetchFailed( std::string( "Could not fetch symbol \"" + name + "\"" + " due to the error: " + errmsg() ) );
         }
         return func_ptr;
     }
@@ -184,7 +188,7 @@ struct WSharedLib::data
         m_dl = dlopen( m_path.c_str(), RTLD_LAZY );
         if ( !m_dl )
         {
-            throw WLibraryLoadFailed( "Could not load library \"" + m_path + "\" due to the error: " + dlerror() );
+            throw WLibraryLoadFailed( std::string( "Could not load library \"" + m_path + "\" due to the error: " + dlerror() ) );
         }
     }
 
@@ -220,7 +224,7 @@ struct WSharedLib::data
         const char *err = dlerror();
         if ( err )
         {
-            throw WLibraryFetchFailed( "Could not fetch symbol \"" + name + "\"" + " due to the error: " + err );
+            throw WLibraryFetchFailed( std::string( "Could not fetch symbol \"" + name + "\"" + " due to the error: " + err ) );
         }
         return variable_ptr;
     }
@@ -264,6 +268,19 @@ void* WSharedLib::findVariable( const std::string& name ) const
     return m_data->findVariable( name );
 }
 
+#ifdef _MSC_VER
+// easier this way because VC has problems with quote in command line. So we can not get this information by #define from CMake.
+// Maybe you have to spend another 500 bucks to have your VC support nearly trivial stuff.
+std::string WSharedLib::getSystemPrefix()
+{
+    return "";
+}
+
+std::string WSharedLib::getSystemSuffix()
+{
+    return ".dll";
+}
+#else
 std::string WSharedLib::getSystemPrefix()
 {
     return W_LIB_PREFIX;
@@ -273,6 +290,7 @@ std::string WSharedLib::getSystemSuffix()
 {
     return W_LIB_SUFFIX;
 }
+#endif
 
 std::string WSharedLib::getSystemLibPath()
 {

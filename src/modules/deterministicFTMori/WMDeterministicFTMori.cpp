@@ -26,14 +26,13 @@
 #include <string>
 #include <vector>
 
+#include "../../common/math/WTensorSym.h"
+#include "../../common/math/WTensorFunctions.h"
 #include "../../common/WAssert.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../dataHandler/WValueSet.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
-
-#include "WEigenThread.h"
-#include "WMoriThread.h"
 
 #include "WMDeterministicFTMori.h"
 #include "moriTracking.xpm"
@@ -44,7 +43,10 @@ W_LOADABLE_MODULE( WMDeterministicFTMori )
 WMDeterministicFTMori::WMDeterministicFTMori()
     : WModule(),
       m_dataSet(),
-      m_fiberSet()
+      m_fiberSet(),
+      m_eigenField(),
+      m_eigenOperation(),
+      m_eigenPool()
 {
 }
 
@@ -82,7 +84,19 @@ void WMDeterministicFTMori::moduleMain()
 
     while ( !m_shutdownFlag() )
     {
+        debugLog() << "Waiting.";
         m_moduleState.wait();
+
+        if( m_trackingPool && m_trackingPool->status() == W_THREADS_FINISHED )
+        {
+            m_fiberSet = m_fiberAccu.buildDataSet();
+            m_fiberAccu.clear();
+            m_currentProgress->finish();
+            debugLog() << "Tracking done.";
+            // forward result
+            m_output->updateData( m_fiberSet );
+            m_trackingPool = boost::shared_ptr< TrackingFuncType >();
+        }
 
         boost::shared_ptr< WDataSetSingle > inData = m_input->getData();
         bool dataChanged = ( m_dataSet != inData );
@@ -95,25 +109,71 @@ void WMDeterministicFTMori::moduleMain()
             }
         }
 
-        if( dataChanged || m_minFA->changed() || m_minPoints->changed() || m_minCos->changed() || m_run->changed() )
+        if( dataChanged )
         {
-            bool run = m_run->get( true );
+            resetEigenFunction();
+            // start the eigenvector computation
+            // when the computation finishes, we'll be notified by the threadspool's
+            // threadsDoneCondition
+            resetProgress( m_dataSet->getValueSet()->size() );
+            m_eigenPool->run();
+            debugLog() << "Running computation of eigenvectors.";
+        }
+        else if( m_eigenPool && m_eigenPool->status() == W_THREADS_FINISHED )
+        {
+            // the computation of the eigenvectors has finished
+            // we have a new eigenvectorfield
+            m_currentProgress->finish();
+            WAssert( m_eigenOperation, "" );
+            m_eigenField = m_eigenOperation->getResult();
+            m_eigenPool = boost::shared_ptr< EigenFunctionType >();
+            debugLog() << "Eigenvectors computed.";
 
-            double minFA = m_minFA->get( true );
-            unsigned int minPoints = static_cast< unsigned int >( m_minPoints->get( true ) );
-            double minCos = m_minCos->get( true );
+            m_currentMinFA = m_minFA->get( true );
+            m_currentMinPoints = static_cast< std::size_t >( m_minPoints->get( true ) );
+            m_currentMinCos = m_minCos->get( true );
 
-            if( dataChanged )
-            {
-                doEigen();
-            }
+            // perform the actual tracking
+            resetTracking();
+            resetProgress( m_dataSet->getValueSet()->size() );
+            m_trackingPool->run();
+            debugLog() << "Running tracking function.";
+        }
+        else if( !m_eigenPool && ( m_minFA->changed() || m_minPoints->changed() || m_minCos->changed() ) )
+        {
+            m_currentMinFA = m_minFA->get( true );
+            m_currentMinPoints = static_cast< std::size_t >( m_minPoints->get( true ) );
+            m_currentMinCos = m_minCos->get( true );
 
-            if( run )
-            {
-                doMori( minFA, minPoints, minCos );
-            }
+            // if there are no new eigenvectors or datasets,
+            // restart the tracking, as there are changes to the parameters
+            resetTracking();
+            boost::shared_ptr< WGridRegular3D > g( boost::shared_dynamic_cast< WGridRegular3D >( m_eigenField->getGrid() ) );
+            std::size_t todo = ( g->getNbCoordsX() - 2 ) * ( g->getNbCoordsY() - 2 ) * ( g->getNbCoordsZ() - 2 );
+            resetProgress( todo );
+            m_trackingPool->run();
+            debugLog() << "Running tracking function.";
+        }
+    }
 
-            m_output->updateData( m_fiberSet );
+    // module shutdown
+    debugLog() << "Shutting down module.";
+    if( m_eigenPool )
+    {
+        if( m_eigenPool->status() == W_THREADS_RUNNING || m_eigenPool->status() == W_THREADS_STOP_REQUESTED )
+        {
+            m_eigenPool->stop();
+            m_eigenPool->wait();
+            debugLog() << "Aborting computation of eigenvalues because the module was ordered to shut down.";
+        }
+    }
+    if( m_trackingPool )
+    {
+        if( m_trackingPool->status() == W_THREADS_RUNNING || m_trackingPool->status() == W_THREADS_STOP_REQUESTED )
+        {
+            m_trackingPool->stop();
+            m_trackingPool->wait();
+            debugLog() << "Aborting fiber tracking because the module was ordered to shut down.";
         }
     }
 }
@@ -151,8 +211,6 @@ void WMDeterministicFTMori::properties()
                                            " adjacent fiber segments.", 0.80, m_propCondition );
     m_minCos->setMax( 1.0 );
     m_minCos->setMin( 0.0 );
-
-    m_run = m_properties->addProperty( "Start the Algorithm", "Starts the algorithm using the given paratemers.", false, m_propCondition );
 }
 
 void WMDeterministicFTMori::activate()
@@ -160,107 +218,174 @@ void WMDeterministicFTMori::activate()
     WModule::activate();
 }
 
-void WMDeterministicFTMori::doEigen()
+void WMDeterministicFTMori::resetEigenFunction()
 {
-    WAssert( m_dataSet, "" );
-    WAssert( m_dataSet->getValueSet(), "" );
-    WAssert( m_dataSet->getGrid(), "" );
-
-    size_t num_positions = m_dataSet->getGrid()->size();
-
-    if( m_dataSet->getValueSet()->getDataType() != W_DT_FLOAT )
+    // check if we need to stop the currently running eigencomputation
+    if( m_eigenPool )
     {
-        m_eigenVectors = boost::shared_ptr< std::vector< wmath::WVector3D > >();
-        warnLog() << "This module needs float type tensors. Input ignored.";
-        return;
+        debugLog() << "Stopping eigencomputation.";
+        WThreadedFunctionStatus s = m_eigenPool->status();
+        if( s != W_THREADS_FINISHED && s != W_THREADS_ABORTED )
+        {
+            m_eigenPool->stop();
+            m_eigenPool->wait();
+            s = m_eigenPool->status();
+            WAssert( s == W_THREADS_FINISHED || s == W_THREADS_ABORTED, "" );
+        }
+        m_moduleState.remove( m_eigenPool->getThreadsDoneCondition() );
     }
-    else if( m_dataSet->getValueSet()->dimension() != 6 || m_dataSet->getValueSet()->order() != 1 )
+    // the threadpool should have finished computing by now
+
+    // create a new one
+    m_eigenOperation = boost::shared_ptr< TPVO >( new TPVO( m_dataSet, boost::bind( &WMDeterministicFTMori::eigenFunc, this, _1 ) ) );
+    m_eigenPool = boost::shared_ptr< EigenFunctionType >( new EigenFunctionType( WM_MORI_NUM_CORES, m_eigenOperation ) );
+    m_moduleState.add( m_eigenPool->getThreadsDoneCondition() );
+}
+
+void WMDeterministicFTMori::resetTracking()
+{
+    // check if we need to stop the currently running tracking
+    if( m_trackingPool )
     {
-        m_eigenVectors = boost::shared_ptr< std::vector< wmath::WVector3D > >();
-        warnLog() << "This module needs symmetric tensors. Input ignored.";
-        return;
+        debugLog() << "Stopping tracking.";
+        WThreadedFunctionStatus s = m_trackingPool->status();
+        if( s != W_THREADS_FINISHED && s != W_THREADS_ABORTED )
+        {
+            m_trackingPool->stop();
+            m_trackingPool->wait();
+            s = m_trackingPool->status();
+            WAssert( s == W_THREADS_FINISHED || s == W_THREADS_ABORTED, "" );
+        }
+        m_moduleState.remove( m_trackingPool->getThreadsDoneCondition() );
     }
+    // the threadpool should have finished computing by now
 
-    m_eigenVectors = boost::shared_ptr< std::vector< wmath::WVector3D > >( new std::vector< wmath::WVector3D >() );
-    m_FA = boost::shared_ptr< std::vector< double > >( new std::vector< double >() );
+    m_fiberAccu.clear();
 
-    boost::shared_ptr< WValueSet< float > > values = boost::shared_dynamic_cast< WValueSet< float > >( m_dataSet->getValueSet() );
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+    // create a new one
+    boost::shared_ptr< Tracking > t( new Tracking( m_eigenField,
+                                                   boost::bind( &This::getEigenDirection, this, _1, _2 ),
+                                                   boost::bind( &wtracking::WTrackingUtility::followToNextVoxel, _1, _2, _3 ),
+                                                   boost::bind( &This::fiberVis, this, _1 ),
+                                                   boost::bind( &This::pointVis, this, _1 ) ) );
+    m_trackingPool = boost::shared_ptr< TrackingFuncType >( new TrackingFuncType( WM_MORI_NUM_CORES, t ) );
+    m_moduleState.add( m_trackingPool->getThreadsDoneCondition() );
+}
 
-    if( grid->size() == 0 )
+wmath::WVector3D WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
+                                                           wtracking::WTrackingUtility::JobType const& j )
+{
+    WAssert( ds, "" );
+    WAssert( ds->getGrid(), "" );
+    WAssert( ds->getValueSet(), "" );
+    boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+    int i = g->getVoxelNum( j.first );
+    WAssert( i != -1, "" );
+    boost::shared_ptr< WValueSet< double > > vs = boost::shared_dynamic_cast< WValueSet< double > >( ds->getValueSet() );
+    WAssert( vs, "" );
+    if( vs->rawData()[ 4 * i + 3 ] < m_currentMinFA )
     {
-        warnLog() << "No data positions! Input ignored.";
-        return;
+        return wmath::WVector3D( 0.0, 0.0, 0.0 );
     }
     else
     {
-        debugLog() << "Grid size: " << grid->getNbCoordsX() << "x" << grid->getNbCoordsY() << "x"
-                   << grid->getNbCoordsZ() << " (" << grid->size() << ").";
+        wmath::WVector3D v;
+        v[ 0 ] = vs->rawData()[ 4 * i + 0 ];
+        v[ 1 ] = vs->rawData()[ 4 * i + 1 ];
+        v[ 2 ] = vs->rawData()[ 4 * i + 2 ];
+        v.normalize();
+        if( j.second.norm() == 0 )
+        {
+            return v;
+        }
+        else if( v.dotProduct( j.second ) > m_currentMinCos )
+        {
+            return v;
+        }
+        else if( j.second.dotProduct( v * -1.0 ) > m_currentMinCos )
+        {
+            return v * -1.0;
+        }
+        else
+        {
+            return wmath::WVector3D( 0.0, 0.0, 0.0 );
+        }
     }
-
-    m_eigenVectors->resize( num_positions );
-    m_FA->resize( num_positions );
-
-    boost::shared_ptr< WProgress > pro( new WProgress( "det Mori FT - eigendecomposition", num_positions ) );
-    m_progress->addSubProgress( pro );
-
-    // TODO( reichenbach ): the number of threads should depend on the number of processors available
-    size_t numThreads = 8;
-
-    std::vector< boost::shared_ptr< WEigenThread > > threads( numThreads );
-
-    for( size_t k = 0; k < numThreads; ++k )
-    {
-        threads[ k ] = boost::shared_ptr< WEigenThread >( new WEigenThread( grid, values, pro, k, m_eigenVectors, m_FA ) );
-        threads[ k ]->run();
-    }
-
-    for( size_t k = 0; k < numThreads; ++k )
-    {
-        threads[ k ]->wait();
-    }
-
-    pro->finish();
 }
 
-void WMDeterministicFTMori::doMori( double const minFA, unsigned int const minPoints, double minCos )
+void WMDeterministicFTMori::fiberVis( FiberType const& f )
 {
-    if( !m_eigenVectors )
+    if( f.size() >= m_currentMinPoints )
     {
-        return;
+        m_fiberAccu.add( f );
     }
-
-    WAssert( m_dataSet->getGrid(), "" );
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-
-    size_t jobSize = ( grid->getNbCoordsX() - 2 ) * ( grid->getNbCoordsY() - 2 ) * ( grid->getNbCoordsZ() - 2 );
-
-    boost::shared_ptr< WProgress > pro( new WProgress( "det Mori FT - tracking", jobSize ) );
-    m_progress->addSubProgress( pro );
-
-    boost::shared_ptr< WMoriThread::WFiberAccumulator > accu = boost::shared_ptr< WMoriThread::WFiberAccumulator >(
-                                                                                            new WMoriThread::WFiberAccumulator() );
-
-    size_t numThreads = 8;
-
-    std::vector< boost::shared_ptr< WMoriThread > > threads( numThreads );
-
-    for( size_t k = 0; k < numThreads; ++k )
-    {
-        threads[ k ] = boost::shared_ptr< WMoriThread >( new WMoriThread( grid, m_eigenVectors, m_FA, minFA, minPoints,
-                                                                          minCos, pro, k, accu ) );
-        threads[ k ]->run();
-    }
-
-    for( size_t k = 0; k < numThreads; ++k )
-    {
-        threads[ k ]->wait();
-    }
-
-    pro->finish();
-
-    m_fiberSet = accu->buildDataSet();
-
-    debugLog() << "Done!";
+    ++*m_currentProgress;
 }
 
+void WMDeterministicFTMori::pointVis( wmath::WVector3D const& )
+{
+}
+
+WMDeterministicFTMori::EigenOutArrayType const WMDeterministicFTMori::eigenFunc( EigenInArrayType const& input )
+{
+    EigenOutArrayType a;
+
+    wmath::WTensorSym< 2, 3, double > m;
+    m( 0, 0 ) = static_cast< double >( input[ 0 ] );
+    m( 0, 1 ) = static_cast< double >( input[ 1 ] );
+    m( 0, 2 ) = static_cast< double >( input[ 2 ] );
+    m( 1, 1 ) = static_cast< double >( input[ 3 ] );
+    m( 1, 2 ) = static_cast< double >( input[ 4 ] );
+    m( 2, 2 ) = static_cast< double >( input[ 5 ] );
+
+    std::vector< double > ev( 3 );
+    std::vector< wmath::WVector3D > t( 3 );
+
+    // calc eigenvectors
+    wmath::jacobiEigenvector3D( m, &ev, &t );
+
+    // find the eigenvector with largest absolute eigenvalue
+    int u = 0;
+    double h = 0.0;
+    for( int n = 0; n < 3; ++n )
+    {
+        if( fabs( ev[ n ] ) > h )
+        {
+            h = fabs( ev[ n ] );
+            u = n;
+        }
+    }
+
+    // copy them to the output
+    a[ 0 ] = t[ u ][ 0 ];
+    a[ 1 ] = t[ u ][ 1 ];
+    a[ 2 ] = t[ u ][ 2 ];
+
+    // calc fa
+    double d = ev[ 0 ] * ev[ 0 ] + ev[ 1 ] * ev[ 1 ] + ev[ 2 ] * ev[ 2 ];
+    if( fabs( d ) == 0.0 )
+    {
+        a[ 3 ] = 0.0;
+    }
+    else
+    {
+        double trace = ( ev[ 0 ] + ev[ 1 ] + ev[ 2 ] ) / 3;
+        a[ 3 ] = sqrt( 1.5 * ( ( ev[ 0 ] - trace ) * ( ev[ 0 ] - trace )
+                             + ( ev[ 1 ] - trace ) * ( ev[ 1 ] - trace )
+                             + ( ev[ 2 ] - trace ) * ( ev[ 2 ] - trace ) ) / d );
+    }
+
+    ++*m_currentProgress;
+
+    return a;
+}
+
+void WMDeterministicFTMori::resetProgress( std::size_t todo )
+{
+    if( m_currentProgress )
+    {
+        m_currentProgress->finish();
+    }
+    m_currentProgress = boost::shared_ptr< WProgress >( new WProgress( "det Mori FT", todo ) );
+    m_progress->addSubProgress( m_currentProgress );
+}

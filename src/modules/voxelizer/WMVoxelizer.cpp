@@ -57,6 +57,10 @@ W_LOADABLE_MODULE( WMVoxelizer )
 
 WMVoxelizer::WMVoxelizer()
     : WModule(),
+      m_osgNode( new WGEGroupNode ),
+      m_fiberGeode( new osg::Geode ),
+      m_centerLineGeode( new osg::Geode ),
+      m_boundingBoxGeode( new osg::Geode ),
       m_fullUpdate( new WCondition() )
 {
 }
@@ -80,6 +84,7 @@ void WMVoxelizer::moduleMain()
     m_moduleState.setResetable();
     m_moduleState.add( m_input->getDataChangedCondition() );  // additional fire-condition: "data changed" flag
     m_moduleState.add( m_fullUpdate );
+    m_moduleState.add( m_drawCenterLine->getCondition() );
 
     ready();
 
@@ -87,7 +92,11 @@ void WMVoxelizer::moduleMain()
     {
         if ( !m_input->getData() ) // ok, the output has not yet sent data
         {
-            m_moduleState.wait();
+            // since there is no data yet we will eat property changes
+            m_drawVoxels->get( true );
+            m_rasterAlgo->get( true );
+            m_antialiased->get( true );
+            m_drawfibers->get( true );
             continue;
         }
         if ( m_input->getData()->size() == 0 )
@@ -102,12 +111,8 @@ void WMVoxelizer::moduleMain()
 
         ++*progress;
         // full update
-        if( m_antialiased->changed() ||
-            m_drawVoxels->changed() ||
-            m_rasterAlgo->changed() ||
-            m_voxelsPerUnit->changed() ||
-            m_clusters != m_input->getData() ||
-            m_parameterAlgo->changed() )
+        if( m_antialiased->changed() || m_drawVoxels->changed() || m_rasterAlgo->changed() || m_voxelsPerUnit->changed() ||
+                m_clusters != m_input->getData() || m_parameterAlgo->changed() )
         {
             m_drawVoxels->get( true );
             m_rasterAlgo->get( true );
@@ -118,7 +123,7 @@ void WMVoxelizer::moduleMain()
 
         ++*progress;
 
-        if( m_drawfibers->changed() )
+        if( m_drawfibers->changed() || m_explicitFiberColor->changed() || m_fiberTransparency->changed() )
         {
             updateFibers();
         }
@@ -159,6 +164,10 @@ void WMVoxelizer::properties()
                                                    m_paramAlgoSelections->getSelectorFirst(), m_fullUpdate );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_parameterAlgo );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_parameterAlgo );
+    m_fiberTransparency = m_properties->addProperty( "Fiber Transparency", "", 1.0, m_fullUpdate );
+    m_fiberTransparency->setMin( 0.0 );
+    m_fiberTransparency->setMax( 1.0 );
+    m_explicitFiberColor = m_properties->addProperty( "Explicit Fiber Color", "", WColor( 0.2, 0.2, 0.2 ), m_fullUpdate );
 }
 
 void WMVoxelizer::activate()
@@ -201,7 +210,13 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
         for( size_t i = 1; i < fib.size(); ++i )
         {
             vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
-            colors->push_back( wge::osgColor( wge::getRGBAColorFromDirection( fib[i], fib[i-1] ) ) );
+            WColor col = m_explicitFiberColor->get( true );
+            if( m_explicitFiberColor->get() == WColor( 0.2, 0.2, 0.2 ) )
+            {
+                col = wge::getRGBAColorFromDirection( fib[i], fib[i-1] );
+            }
+            col.setAlpha( m_fiberTransparency->get( true ) );
+            colors->push_back( wge::osgColor( col ) );
         }
         colors->push_back( colors->back() );
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fib.size(), fib.size() ) );
@@ -230,16 +245,17 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
     boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX,
                                                                   nbVoxelsPerUnit * nbPosY,
                                                                   nbVoxelsPerUnit * nbPosZ,
-                                                                  bb.first, 1.0/nbVoxelsPerUnit, 1.0/nbVoxelsPerUnit, 1.0/nbVoxelsPerUnit ) );
+                                                                  bb.first, 1.0 / nbVoxelsPerUnit, 1.0 / nbVoxelsPerUnit, 1.0 / nbVoxelsPerUnit ) );
     return grid;
 }
 
 void WMVoxelizer::updateFibers()
 {
+    debugLog() << "Fiber Update";
     assert( m_osgNode );
-    // TODO(math): instead of recompute the fiber geode, hide/unhide would be cool, but when data has changed recomputation is necessary
     if( m_drawfibers->get( true ) )
     {
+        m_osgNode->remove( m_fiberGeode );
         m_fiberGeode = genFiberGeode();
         m_osgNode->insert( m_fiberGeode );
     }
@@ -257,7 +273,7 @@ void WMVoxelizer::updateCenterLine()
         boost::shared_ptr< wmath::WFiber > centerLine = m_clusters->getCenterLine();
         if( centerLine )
         {
-            m_centerLineGeode = wge::generateLineStripGeode( *centerLine, 2.f );
+            m_centerLineGeode = wge::generateLineStripGeode( *centerLine, 3.f );
         }
         else
         {
@@ -414,9 +430,9 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
     const std::list< size_t >& fiberIDs = cluster.getIndices();
     std::list< size_t >::const_iterator cit = fiberIDs.begin();
 
-    assert( fibs.size() > 0 && "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
-    assert( fibs[0].size() > 0 && "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
-    assert( fiberIDs.size() > 0 && "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fibs.size() > 0, "no empty fiber dataset for clusters allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fibs[0].size() > 0, "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
+    WAssert( fiberIDs.size() > 0, "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
 
     wmath::WPosition fll = fibs[0][0]; // front lower left corner ( initialize with first WPosition of first fiber )
     wmath::WPosition bur = fibs[0][0]; // back upper right corner ( initialize with first WPosition of first fiber )
@@ -435,7 +451,7 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
     return std::make_pair( fll, bur );
 }
 
-osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDataSetSingle > dataset ) const
+osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDataSetScalar > dataset ) const
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
@@ -445,9 +461,9 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
 
     // cycle through all positions in the dataSet
     boost::shared_ptr< WValueSet< double > > valueset = boost::shared_dynamic_cast< WValueSet< double > >( dataset->getValueSet() );
-    assert( valueset != 0 );
+    WAssert( valueset != 0, "No scalar double valueset was given while generating the dataset geode" );
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataset->getGrid() );
-    assert( grid != 0 );
+    WAssert( grid != 0, "No WGridRegular3D was given while generating the dataset geode"  );
     const std::vector< double >& values = *valueset->rawDataVectorPointer();
     for( size_t i = 0; i < values.size(); ++i )
     {
@@ -476,6 +492,25 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     geometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
     geode->addDrawable( geometry );
+
+    osg::StateSet* state = geode->getOrCreateStateSet();
+
+    // Enable blending, select transparent bin.
+    state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+    // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
+
+    // Conversely, disable writing to depth buffer so that a transparent polygon will allow polygons behind it to shine through.
+    // OSG renders transparent polygons after opaque ones.
+    osg::Depth* depth = new osg::Depth;
+    depth->setWriteMask( false );
+    state->setAttributeAndModes( depth, osg::StateAttribute::ON );
+
+    // disable light for this geode as lines can't be lit properly
+    state->setMode( GL_LIGHTING, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
+
     return geode;
 }
 

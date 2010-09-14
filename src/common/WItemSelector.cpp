@@ -34,19 +34,53 @@
 
 WItemSelector::WItemSelector( boost::shared_ptr< WItemSelection > selection, IndexList selected ):
     m_selection( selection ),
-    m_selected( selected )
+    m_selected( selected ),
+    m_invalidateSignalConnection(),
+    m_valid( true )
 {
     // initialize members
+    m_invalidateSignalConnection = m_selection->getChangeCondition()->subscribeSignal( boost::bind( &WItemSelector::invalidate, this ) );
+}
+
+WItemSelector::WItemSelector( const WItemSelector& other ):
+    m_selection( other.m_selection ),
+    m_selected( other.m_selected ),
+    m_valid( other.m_valid )
+{
+    m_invalidateSignalConnection = m_selection->getChangeCondition()->subscribeSignal( boost::bind( &WItemSelector::invalidate, this ) );
+}
+
+WItemSelector& WItemSelector::operator=( const WItemSelector & other )
+{
+    if ( this != &other ) // protect against invalid self-assignment
+    {
+        m_selection = other.m_selection;
+        m_selected = other.m_selected;
+        m_valid = other.m_valid;
+
+        m_invalidateSignalConnection = m_selection->getChangeCondition()->subscribeSignal( boost::bind( &WItemSelector::invalidate, this ) );
+    }
+
+    // by convention, always return *this
+    return *this;
 }
 
 WItemSelector::~WItemSelector()
 {
     // cleanup
+    m_invalidateSignalConnection.disconnect();
 }
 
 WItemSelector WItemSelector::newSelector( IndexList selected ) const
 {
-    return WItemSelector( m_selection, selected );
+    return createSelector( selected );
+}
+
+WItemSelector WItemSelector::newSelector( size_t selected ) const
+{
+    IndexList n = m_selected;
+    n.push_back( selected );
+    return createSelector( n );
 }
 
 WItemSelector WItemSelector::newSelector( const std::string asString ) const
@@ -60,7 +94,22 @@ WItemSelector WItemSelector::newSelector( const std::string asString ) const
         l.push_back( boost::lexical_cast< size_t >( tokens[i] ) );
     }
 
-    return newSelector( l );
+    return createSelector( l );
+}
+
+WItemSelector WItemSelector::newSelector() const
+{
+    WItemSelector s( *this );
+    s.m_valid = true;
+    // iterate selected items to remove items with invalid index
+    for ( IndexList::iterator i = s.m_selected.begin(); i != s.m_selected.end(); ++i )
+    {
+        if ( ( *i ) >= m_selection->size() )
+        {
+            s.m_selected.erase( i );
+        }
+    }
+    return s;
 }
 
 std::ostream& WItemSelector::operator<<( std::ostream& out ) const
@@ -83,7 +132,7 @@ std::ostream& operator<<( std::ostream& out, const WItemSelector& other )
 
 bool WItemSelector::operator==( const WItemSelector& other ) const
 {
-    return ( ( m_selection == other.m_selection ) && ( m_selected == other.m_selected ) );
+    return ( ( m_selection == other.m_selection ) && ( m_selected == other.m_selected ) && ( m_valid == other.m_valid ) );
 }
 
 size_t WItemSelector::sizeAll() const
@@ -96,12 +145,12 @@ size_t WItemSelector::size() const
     return m_selected.size();
 }
 
-const WItemSelection::Item& WItemSelector::atAll( size_t index ) const
+const boost::shared_ptr< WItemSelectionItem > WItemSelector::atAll( size_t index ) const
 {
     return m_selection->at( index );
 }
 
-const WItemSelection::Item& WItemSelector::at( size_t index ) const
+const boost::shared_ptr< WItemSelectionItem > WItemSelector::at( size_t index ) const
 {
     return m_selection->at( getItemIndexOfSelected( index ) );
 }
@@ -114,5 +163,33 @@ size_t WItemSelector::getItemIndexOfSelected( size_t index ) const
 bool WItemSelector::empty() const
 {
     return ( size() == 0 );
+}
+
+void WItemSelector::invalidate()
+{
+    m_valid = false;
+}
+
+bool WItemSelector::isValid() const
+{
+    return m_valid;
+}
+
+WItemSelector WItemSelector::createSelector( const IndexList& selected ) const
+{
+    WItemSelector s = WItemSelector( m_selection, selected );
+    return s;
+}
+
+void WItemSelector::lock()
+{
+    // NOTE: it is not needed to check whether lock() has been called earlier. The old lock gets freed in the moment m_lock gets overwritten as
+    // ReadTickets are reference counted.
+    m_lock = m_selection->getReadTicket();
+}
+
+void WItemSelector::unlock()
+{
+    m_lock.reset();
 }
 

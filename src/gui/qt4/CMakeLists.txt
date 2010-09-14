@@ -12,14 +12,14 @@ SET( QT_LIBS ${QT_QTCORE_LIBRARY}
 # add here all classes that inherit from QObject 
 SET(GUI_QT4_MOC_HDRS
     WMainWindow.h
-	WQtConfigWidget.h
+    WQtConfigWidget.h
     WQtNavGLWidget.h
     WQtCombinerToolbar.h
     guiElements/WQtPushButton.h
     guiElements/WQtModuleOneToOneCombinerAction.h
     guiElements/WQtPropertyBoolAction.h
     datasetbrowser/WPropertyWidget.h
-    datasetbrowser/WPropertyBoolWidget.h 
+    datasetbrowser/WPropertyBoolWidget.h
     datasetbrowser/WPropertyIntWidget.h
     datasetbrowser/WPropertyDoubleWidget.h
     datasetbrowser/WPropertyStringWidget.h
@@ -30,18 +30,21 @@ SET(GUI_QT4_MOC_HDRS
     datasetbrowser/WPropertyPositionWidget.h
     datasetbrowser/WQtDatasetBrowser.h
     datasetbrowser/WQtDSBWidget.h
-    datasetbrowser/WQtLineEdit.h
-    datasetbrowser/WQtSliderWithEdit.h
-    datasetbrowser/WQtNumberEdit.h
-    datasetbrowser/WQtNumberEditDouble.h
     datasetbrowser/WQtTreeWidget.h
     datasetbrowser/WQtTreeItem.h
     datasetbrowser/WQtTextureSorter.h
+    networkEditor/WQtNetworkEditor.h
+    networkEditor/WQtNetworkScene.h
+    networkEditor/WQtNetworkItem.h
+    networkEditor/WQtNetworkPort.h
+    networkEditor/WQtNetworkArrow.h
 )
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 
-FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "datasetbrowser/*.cpp" "ribbonMenu/*.cpp" "events/*.cpp" "*.h" "guiElements/*.h" "datasetbrowser/*.h" "ribbonMenu/*.h" "events/*.h" )
+FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "datasetbrowser/*.cpp"
+"ribbonMenu/*.cpp" "events/*.cpp" "networkEditor/*.cpp" "*.h" "guiElements/*.h" "datasetbrowser/*.h"
+"ribbonMenu/*.h" "events/*.h" "networkEditor/*.h" )
 
 ADD_LIBRARY( OWguiqt4 ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
 TARGET_LINK_LIBRARIES( OWguiqt4 OWcommon OWgui OWge OWkernel ${QT_LIBS} ${Boost_LIBRARIES} )

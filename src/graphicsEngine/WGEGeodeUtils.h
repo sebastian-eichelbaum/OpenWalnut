@@ -25,18 +25,26 @@
 #ifndef WGEGEODEUTILS_H
 #define WGEGEODEUTILS_H
 
+#include <vector>
 #include <string>
 
+#include <osg/Array>
 #include <osg/Geode>
+#include <osg/Geometry>
 #include <osg/MatrixTransform>
 #include <osg/PositionAttitudeTransform>
 #include <osgText/Text>
+#include <osg/Vec3>
 
 #include "../common/datastructures/WTriangleMesh.h"
-#include "../common/WColor.h"
-#include "../common/math/WPosition.h"
 #include "../common/math/WLine.h"
+#include "../common/math/WPlane.h"
+#include "../common/math/WPosition.h"
+#include "../common/WColor.h"
+#include "WGEGeometryUtils.h"
+#include "WGEUtils.h"
 
+#include "WExportWGE.h"
 
 namespace wge
 {
@@ -49,7 +57,9 @@ namespace wge
      *
      * \return The OSG geode containing the 12 edges of the box.
      */
-    osg::ref_ptr< osg::Geode > generateBoundingBoxGeode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color );
+    osg::ref_ptr< osg::Geode > WGE_EXPORT generateBoundingBoxGeode( const wmath::WPosition& pos1,
+                                                                         const wmath::WPosition& pos2,
+                                                                         const WColor& color );
 
     /**
      * Generates an OSG node for the specified bounding box. It uses solid faces. This actually returns a MatrixTransform node and is especially
@@ -62,8 +72,10 @@ namespace wge
      *
      * \return The OSG node containing the 12 edges of the box.
      */
-    osg::ref_ptr< osg::Node > generateSolidBoundingBoxNode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color,
-                                                            bool threeDTexCoords = true );
+    osg::ref_ptr< osg::Node > WGE_EXPORT generateSolidBoundingBoxNode( const wmath::WPosition& pos1,
+                                                                            const wmath::WPosition& pos2,
+                                                                            const WColor& color,
+                                                                            bool threeDTexCoords = true );
 
     /**
      * Creates a osg::Geometry containing an unit cube, having 3D texture coordinates.
@@ -72,7 +84,7 @@ namespace wge
      *
      * \return the geometry
      */
-    osg::ref_ptr< osg::Geometry > createUnitCube( const WColor& color );
+    osg::ref_ptr< osg::Geometry > WGE_EXPORT createUnitCube( const WColor& color );
 
     /**
      * Extract the vertices and triangles from a WTriangleMesh and save them
@@ -83,7 +95,7 @@ namespace wge
      *                       them into the geometry.
      * \return an osg::Geometry containing the mesh
      */
-    osg::ref_ptr< osg::Geometry > convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals = false );
+    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals = false );
 
     /**
      * Generates a line geode with thickness and color as parameters.
@@ -94,9 +106,9 @@ namespace wge
      *
      * \return The new assembled geode for this line
      */
-    osg::ref_ptr< osg::Geode > generateLineStripGeode( const wmath::WLine& line,
-                                                       const float thickness = 3.0f,
-                                                       const WColor& color = WColor( 0, 0, 0, 0 ) );
+    osg::ref_ptr< osg::Geode > WGE_EXPORT generateLineStripGeode( const wmath::WLine& line,
+                                                                  const float thickness = 3.0f,
+                                                                  const WColor& color = WColor( 0, 0, 0, 0 ) );
 
     /**
      * helper function to add a label somewhere
@@ -105,7 +117,7 @@ namespace wge
      * \param text text
      * \return a positionattitudetransfom object containing the label
      */
-    osg::ref_ptr< osg::PositionAttitudeTransform > addLabel( osg::Vec3 position, std::string text );
+    osg::ref_ptr< osg::PositionAttitudeTransform > WGE_EXPORT addLabel( osg::Vec3 position, std::string text );
 
     /**
      * helper function to add a label with it's position vector
@@ -113,8 +125,80 @@ namespace wge
      * \param position position of the label
      * \return a positionattitudetransfom object containing the label
      */
-    osg::ref_ptr< osg::PositionAttitudeTransform > vector2label( osg::Vec3 position );
+    osg::ref_ptr< osg::PositionAttitudeTransform > WGE_EXPORT vector2label( osg::Vec3 position );
 
+    /**
+     * Generates a geode out of a Plane with a fixed size in direction of the vectors which span that plane.
+     *
+     * \param xSize how far the plane from its center along the x-axis should be drawn (both directions)
+     * \param ySize how far the plane from its center along the y-axis should be drawn (both directions)
+     * \param p The plane instance
+     * \param color The color of the plane
+     * \param border If true than a border around each plane is drawn in inverse color of the plane
+     *
+     * \return The new assembled geode for this plane
+     */
+
+    osg::ref_ptr< osg::Geode > WGE_EXPORT genFinitePlane( double xSize,
+                                                          double ySize,
+                                                          const WPlane& p,
+                                                          const WColor& color = WColor( 0, 0.7, 0.7 ),
+                                                          bool border = false );
+
+    /**
+     * For each points in the STL container generate small cubes.
+     *
+     * \param points Center point of the cubes
+     * \param size The size of the cubes
+     * \param color The color of the cubes
+     * \tparam An STL container with wmath::WPositions as elements ( don't try it with different than vector, set, list or queue )
+     *
+     * \return Geode with as many cubes as points in the container where each cube is around a certain position.
+     */
+    template< class Container > osg::ref_ptr< osg::Geode > WGE_EXPORT genPointBlobs( boost::shared_ptr< Container > points,
+                                                                                     double size,
+                                                                                     const WColor& color = WColor( 1, 0, 0 ) );
 } // end of namespace wge
 
+template< class Container > inline osg::ref_ptr< osg::Geode > wge::genPointBlobs( boost::shared_ptr< Container > points,
+                                                                                  double size,
+                                                                                  const WColor& color )
+{
+    osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    osg::ref_ptr< osg::Vec4Array > colors   = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    osg::ref_ptr< osg::Geometry >  geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
+    osg::ref_ptr< osg::Vec3Array > normals  = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+
+    for( typename Container::const_iterator point = points->begin(); point != points->end(); ++point )
+    {
+        const wmath::WPosition& pos = *point;
+        std::vector< wmath::WPosition > corners;
+        corners.reserve( 8 );
+        double halfSize = size / 2.0;
+        corners.push_back( wmath::WPosition( pos[0] - halfSize, pos[1] - halfSize, pos[2] - halfSize ) );
+        corners.push_back( wmath::WPosition( pos[0] + halfSize, pos[1] - halfSize, pos[2] - halfSize ) );
+        corners.push_back( wmath::WPosition( pos[0] + halfSize, pos[1] - halfSize, pos[2] + halfSize ) );
+        corners.push_back( wmath::WPosition( pos[0] - halfSize, pos[1] - halfSize, pos[2] + halfSize ) );
+        corners.push_back( wmath::WPosition( pos[0] - halfSize, pos[1] + halfSize, pos[2] - halfSize ) );
+        corners.push_back( wmath::WPosition( pos[0] + halfSize, pos[1] + halfSize, pos[2] - halfSize ) );
+        corners.push_back( wmath::WPosition( pos[0] + halfSize, pos[1] + halfSize, pos[2] + halfSize ) );
+        corners.push_back( wmath::WPosition( pos[0] - halfSize, pos[1] + halfSize, pos[2] + halfSize ) );
+
+        osg::ref_ptr< osg::Vec3Array > ver = generateCuboidQuads( corners );
+        vertices->insert( vertices->end(), ver->begin(), ver->end() );
+        osg::ref_ptr< osg::Vec3Array > nor = generateCuboidQuadNormals( corners );
+        normals->insert( normals->end(), nor->begin(), nor->end() );
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, vertices->size() - ver->size(), ver->size() ) );
+    }
+
+    geometry->setVertexArray( vertices );
+    colors->push_back( wge::osgColor( color ) );
+    geometry->setColorArray( colors );
+    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    geometry->setNormalArray( normals );
+    geometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    geode->addDrawable( geometry );
+    return geode;
+}
 #endif  // WGEGEODEUTILS_H

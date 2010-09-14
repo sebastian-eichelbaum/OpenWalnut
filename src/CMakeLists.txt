@@ -76,9 +76,10 @@ IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
   FIND_PACKAGE( osgText ${MIN_OSG_VERSION} REQUIRED )
   FIND_PACKAGE( osgGA ${MIN_OSG_VERSION} REQUIRED )
   FIND_PACKAGE( osgSim ${MIN_OSG_VERSION} REQUIRED )
+  FIND_PACKAGE( osgWidget ${MIN_OSG_VERSION} REQUIRED )
   FIND_PACKAGE( OpenThreads ${MIN_OSG_VERSION} REQUIRED )
-  SET( OPENSCENEGRAPH_LIBRARIES ${OSGDB_LIBRARY} ${OSGTEXT_LIBRARY} ${OSGGA_LIBRARY} ${OSGUTIL_LIBRARY} ${OSGVIEWER_LIBRARY} ${OSG_LIBRARY} ${OSGSIM_LIBRARY} ${OPENTHREADS_LIBRARY} )
-  SET( OPENSCENEGRAPH_INCLUDE_DIRS ${OSG_INCLUDE_DIR} ${OSGDB_INCLUDE_DIR} ${OSGTEXT_INCLUDE_DIR} ${OSGGA_INCLUDE_DIR} ${OSGVIEWER_INCLUDE_DIR} ${OSGUTIL_INCLUDE_DIR} ${OSGSIM_INCLUDE_DIR} ${OPENTHREADS_INCLUDE_DIR} )
+  SET( OPENSCENEGRAPH_LIBRARIES ${OSGDB_LIBRARY} ${OSGTEXT_LIBRARY} ${OSGGA_LIBRARY} ${OSGUTIL_LIBRARY} ${OSGVIEWER_LIBRARY} ${OSG_LIBRARY} ${OSGSIM_LIBRARY} ${OSGWIDGET_LIBRARY} ${OPENTHREADS_LIBRARY} )
+  SET( OPENSCENEGRAPH_INCLUDE_DIRS ${OSG_INCLUDE_DIR} ${OSGDB_INCLUDE_DIR} ${OSGTEXT_INCLUDE_DIR} ${OSGGA_INCLUDE_DIR} ${OSGVIEWER_INCLUDE_DIR} ${OSGUTIL_INCLUDE_DIR} ${OSGSIM_INCLUDE_DIR} ${OSGWIDGET_INCLUDE_DIR} ${OPENTHREADS_INCLUDE_DIR} )
   # When new cmake version available >=2.6.4 we may use this the line below instead the stuff above
   # FIND_PACKAGE( OpenSceneGraph 2.8.0 REQUIRED osgDB osgUtil osgGA osgViewer osgSim OpenThreads )
   INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
@@ -88,6 +89,28 @@ ELSE()
   ENDIF()
   FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgUtil osgDB osgViewer osgText osgGA osgSim )
   INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
+ENDIF()
+
+# some modules need the teem library (http://teem.sourceforge.net/)
+find_package( Teem PATHS /usr/local/lib /opt/teem/lib QUIET )
+IF( Teem_FOUND )    # we need to add the include path and lib path to allow the compiler and linker to find teem even if it was not installed to
+                    # /usr/local
+    INCLUDE_DIRECTORIES( ${Teem_INCLUDE_DIRS} )
+    LINK_DIRECTORIES( ${LINK_DIRECTORIES} ${Teem_LIBRARY_DIRS} )
+ENDIF()
+
+### OSSIM ###
+FIND_PACKAGE( OSSIM QUIET )
+IF( OSSIM_FOUND )
+  MESSAGE( STATUS "Found OSSIM." )
+  ADD_DEFINITIONS( -DUSEOSSIM )
+  INCLUDE_DIRECTORIES( ${OSSIM_INCLUDE_DIR} )
+  LINK_LIBRARIES( ${OSSIM_LIBRARY} )
+# TODO(math): is an entry in link directories necessary?
+#   LINK_DIRECTORIES( ${OSSIM_LIBDIR} )
+  MARK_AS_ADVANCED( OSSIM_INCLUDEDIR )
+  MARK_AS_ADVANCED( OSSIM_LIBRARIES )
+#   MARK_AS_ADVANCED( OSSIM_LIBDIR )
 ENDIF()
 
 # other options:
@@ -139,15 +162,25 @@ ADD_SUBDIRECTORY( gui )
 ADD_SUBDIRECTORY( kernel )
 ADD_SUBDIRECTORY( common )
 ADD_SUBDIRECTORY( modules )
+ADD_SUBDIRECTORY( ext ) # The needed external libraries
 
 #-------------------------------------------------------------------------------------------------------------
 # Writes information about the revision of the current code to the file version.h which then gets included by OpenWalnut.cpp
-add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
-                    MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
-                    COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\"' > ${PROJECT_SOURCE_DIR}/version.h
-                    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                    COMMENT "Creating version.h"
-                 )
+IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
+	add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
+						MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
+						COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\"' > ${PROJECT_SOURCE_DIR}/version.h
+						WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+						COMMENT "Creating version.h"
+					 )
+ELSE()
+	add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
+						MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
+						COMMAND hg parents --template "\"#define W_VERSION \"\"{node|short} {rev} {branches} {tags}\"\"\"" > ${PROJECT_SOURCE_DIR}/version.h
+						WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+						COMMENT "Creating version.h"
+					 )
+ENDIF()
 
 # finally, build walnut
 ADD_EXECUTABLE( walnut OpenWalnut.cpp version.h )
@@ -251,7 +284,7 @@ ADD_CUSTOM_TARGET( numCores
 FILE( GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.cpp )
 FILE( GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h )
 # Set dirs to exclude from stylecheck
-SET( EXCLUDE_DIRS "/dataHandler/io/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosigWin/;/dataHandler/io/biosig/XMLParser/;/dataHandler/io/biosigWin/XMLParser/;/dataHandler/io/libeep/avr/;/dataHandler/io/libeep/cnt/;/dataHandler/io/libeep/eep/;/common/platformDependent/visualStudio/;/modules/lic/fibernavigator/;/modules/lic/fantom/" )
+SET( EXCLUDE_DIRS "/ext/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosigWin/;/dataHandler/io/biosig/XMLParser/;/dataHandler/io/biosigWin/XMLParser/;/ext/libeep/avr/;/ext/libeep/cnt/;/ext/libeep/eep/;/common/platformDependent/visualStudio/;/modules/lic/fibernavigator/;/modules/lic/fantom/" )
 FOREACH( dirname ${EXCLUDE_DIRS} )
     FILE( GLOB EXCLUDE_H   ${PROJECT_SOURCE_DIR}${dirname}*.h )
     FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}*.cpp )

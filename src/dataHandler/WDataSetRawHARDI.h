@@ -30,12 +30,13 @@
 
 #include "WDataSetSingle.h"
 #include "../common/math/WVector3D.h"
+#include "WExportDataHandler.h"
 
 /**
  * This data set type contains raw HARDI and its gradients.
  * \ingroup dataHandler
  */
-class WDataSetRawHARDI : public WDataSetSingle
+class OWDATAHANDLER_EXPORT WDataSetRawHARDI : public WDataSetSingle // NOLINT
 {
 public:
 
@@ -99,6 +100,13 @@ public:
      * \return the description
      */
     virtual const std::string getDescription() const;
+
+    /**
+     * Get the orientations.
+     *
+     * \return A vector of orientations.
+     */
+    std::vector< wmath::WVector3D > const& getOrientations() const;
 
 protected:
 

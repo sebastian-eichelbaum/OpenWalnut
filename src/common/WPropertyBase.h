@@ -36,11 +36,12 @@
 #include "WPropertyTypes.h"
 #include "WCondition.h"
 #include "WConditionSet.h"
+#include "WExportCommon.h"
 
 /**
  * Abstract base class for all properties. Simply provides name and type information.
  */
-class WPropertyBase: public boost::enable_shared_from_this< WPropertyBase >
+class OWCOMMON_EXPORT WPropertyBase: public boost::enable_shared_from_this< WPropertyBase >
 {
 public:
 
@@ -159,6 +160,7 @@ public:
      * \li WPropertyVariable::addConstraint is called
      * \li WPropertyVariable::removeConstraints is called
      * \li WProperties::addProperty is called
+     * \li WProperties::removeProperty is called
      * \li WProperties::addPropertyGroup is called
      * This is especially useful if you simply want to know that something has happened.
      *

@@ -28,11 +28,12 @@
 #include <vector>
 
 #include "../common/WThreadedRunner.h"
+#include "WExportDataHandler.h"
 
 /**
  * implements a thread that updates the fiber selection bit field
  */
-class WCreateColorArraysThread: public WThreadedRunner
+class OWDATAHANDLER_EXPORT WCreateColorArraysThread: public WThreadedRunner // NOLINT
 {
 public:
     /**
