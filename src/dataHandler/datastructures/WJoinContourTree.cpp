@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <set>
+#include <string>
 #include <vector>
 
 #include "../../common/WStringUtils.h"

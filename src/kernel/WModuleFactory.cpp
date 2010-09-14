@@ -84,7 +84,8 @@ void WModuleFactory::load()
         // that should not happen. Names should not occur multiple times since they are unique
         if ( names.count( ( *listIter )->getName() ) )
         {
-            throw WPrototypeNotUnique( std::string( "Module \"" + ( *listIter )->getName() + "\" is not unique. Modules have to have a unique name." ) );
+            throw WPrototypeNotUnique( std::string( "Module \"" + ( *listIter )->getName()
+                                                    + "\" is not unique. Modules have to have a unique name." ) );
         }
         names.insert( ( *listIter )->getName() );
 

@@ -177,9 +177,7 @@ void WMFiberResampling::moduleMain()
                 current[2] = ( *fibVerts )[ ( 3 * k ) + sidx + 2 ];
 
                 // get next parameter value:
-
             }
-
         }
 
         // create final dataset and forward the data

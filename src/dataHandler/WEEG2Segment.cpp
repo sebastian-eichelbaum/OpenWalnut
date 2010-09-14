@@ -25,6 +25,7 @@
 #include <cstddef>
 
 #include <sstream>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 

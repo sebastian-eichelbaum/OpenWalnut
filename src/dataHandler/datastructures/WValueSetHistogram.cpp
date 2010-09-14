@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <cstring> // memset()
 #include <numeric>
+#include <string>
 #include <utility>
 
 #include "../../common/WAssert.h"

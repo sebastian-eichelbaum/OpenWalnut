@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <limits>
+#include <string>
 #include <vector>
 
 #include <boost/math/special_functions/fpclassify.hpp>

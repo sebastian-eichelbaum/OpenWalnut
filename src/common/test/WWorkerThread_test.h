@@ -25,6 +25,8 @@
 #ifndef WWORKERTHREAD_TEST_H
 #define WWORKERTHREAD_TEST_H
 
+#include <string>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WWorkerThread.h"

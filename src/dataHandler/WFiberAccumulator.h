@@ -38,9 +38,9 @@
 /**
  * A class that encapsulates the data needed to construct a WDataSetFibers.
  */
-class OWDATAHANDLER_EXPORT WFiberAccumulator
+class OWDATAHANDLER_EXPORT WFiberAccumulator        // NOLINT
 {
-    public:
+public:
 
     /**
      * Constructor.
