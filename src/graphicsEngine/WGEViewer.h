@@ -101,7 +101,7 @@ public:
      *
      * \return the OSG Viewer instance.
      */
-    osg::ref_ptr<osgViewer::View> getView();
+    osg::ref_ptr<osgViewer::Viewer> getView();
 
     /**
      * Resets the view using the installed manipulator.

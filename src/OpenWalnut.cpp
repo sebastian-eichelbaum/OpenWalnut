@@ -47,7 +47,7 @@ int main( int argc, char** argv )
 {
     std::cout << "OpenWalnut ( http://www.openwalnut.org )" << std::endl <<
     "Build from: " << W_VERSION << std::endl << std::endl <<
-    "Copyright (C) 2009-2010 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS\n"
+    "Copyright 2009-2010 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS\n"
     "For more information see http://www.openwalnut.org/copying\n"
     "This program comes with ABSOLUTELY NO WARRANTY.\n"
     "This is free software, and you are welcome to redistribute it\n"

@@ -31,6 +31,7 @@ namespace wmath
 {
     class WVector3D;
     typedef WVector3D WPosition;
+    template< typename > class WValue;
     template< typename > class WMatrix;
 
     /**
@@ -88,6 +89,31 @@ namespace wmath
      * \note This check is performed with the cross product != (0,0,0) but in numerical stability with FLT_EPS.
      */
     bool OWCOMMON_EXPORT linearIndependent( const wmath::WVector3D& u, const wmath::WVector3D& v );
+
+    /**
+     * Computes the SVD for the Matrix \param A
+     *
+     * A=U*S*V^T
+     *
+     * \param A Input Matrix
+     * \param U Output Matrix
+     * \param S Output of the entries in the diagonal matrix
+     * \param V Output Matrix
+     *
+     * \note This function needs the OSSIM library.
+     */
+    void OWCOMMON_EXPORT computeSVD( const wmath::WMatrix< double >& A, wmath::WMatrix< double >& U,
+                     wmath::WMatrix< double >& V, wmath::WValue< double >& S );
+
+    /**
+     * Calculates for a matrix the pseudo inverse.
+     *
+     * \param input Matrix to invert
+     *
+     * \return Inverted Matrix
+     *
+     */
+    wmath::WMatrix< double > OWCOMMON_EXPORT pseudoInverse( const WMatrix<double>& input );
 }
 
 #endif  // WLINEARALGEBRAFUNCTIONS_H

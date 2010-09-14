@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -45,7 +46,7 @@ size_t WUnionFind::find( size_t x )
 {
     if( x >= m_component.size() )
     {
-        throw WOutOfBounds( "Element index in UnionFind greater than overall elements!" );
+        throw WOutOfBounds( std::string( "Element index in UnionFind greater than overall elements!" ) );
     }
     if ( m_component[x] == x ) // we are the root
     {
@@ -60,7 +61,7 @@ void WUnionFind::merge( size_t i, size_t j )
 {
     if( i >= m_component.size() || j >= m_component.size() )
     {
-        throw WOutOfBounds( "Element index in UnionFind greater than overall elements!" );
+        throw WOutOfBounds( std::string( "Element index in UnionFind greater than overall elements!" ) );
     }
     if( i == j )
     {

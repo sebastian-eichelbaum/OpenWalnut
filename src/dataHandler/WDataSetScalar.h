@@ -32,12 +32,13 @@
 #include "datastructures/WValueSetHistogram.h"
 
 #include "WDataSetSingle.h"
+#include "WExportDataHandler.h"
 
 /**
  * This data set type contains scalars as values.
  * \ingroup dataHandler
  */
-class WDataSetScalar : public WDataSetSingle
+class OWDATAHANDLER_EXPORT WDataSetScalar : public WDataSetSingle // NOLINT
 {
 public:
 

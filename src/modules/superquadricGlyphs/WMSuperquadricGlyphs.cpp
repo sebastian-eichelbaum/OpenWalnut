@@ -45,7 +45,6 @@ W_LOADABLE_MODULE( WMSuperquadricGlyphs )
 WMSuperquadricGlyphs::WMSuperquadricGlyphs():
     WModule()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMSuperquadricGlyphs", m_localPath ) );
     m_output = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
 }
 
@@ -407,6 +406,7 @@ void WMSuperquadricGlyphs::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
 
     // add shader
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMSuperquadricGlyphs", m_localPath ) );
     m_shader->apply( m_output );
 
     // set uniform callbacks and uniforms

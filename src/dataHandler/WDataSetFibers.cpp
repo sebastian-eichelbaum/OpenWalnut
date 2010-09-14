@@ -32,7 +32,10 @@
 
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
+#include "../common/WPredicateHelper.h"
+#include "../common/WPropertyHelper.h"
 #include "../graphicsEngine/WGEUtils.h"
+#include "exceptions/WDHNoSuchDataSet.h"
 #include "WDataSet.h"
 #include "WDataSetFibers.h"
 #include "WCreateColorArraysThread.h"
@@ -46,14 +49,13 @@ WDataSetFibers::WDataSetFibers()
     // default constructor used by the prototype mechanism
 }
 
-WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertices,
-                boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
-                boost::shared_ptr< std::vector< size_t > > lineLengths,
-                boost::shared_ptr< std::vector< size_t > > verticesReverse,
+WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
+                WDataSetFibers::IndexArray lineStartIndexes,
+                WDataSetFibers::LengthArray lineLengths,
+                WDataSetFibers::IndexArray verticesReverse,
                 std::pair< wmath::WPosition, wmath::WPosition > boundingBox )
     : WDataSet(),
     m_vertices( vertices ),
-    m_localColors( boost::shared_ptr< std::vector< float > >() ),
     m_lineStartIndexes( lineStartIndexes ),
     m_lineLengths( lineLengths ),
     m_verticesReverse( verticesReverse ),
@@ -63,19 +65,20 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
 {
     m_tangents = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
     m_tangents->resize( m_vertices->size() );
-    m_globalColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
-    m_globalColors->resize( m_vertices->size() );
-    m_localColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
-    m_localColors->resize( m_vertices->size() );
+    boost::shared_ptr< std::vector< float > > globalColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
+    globalColors->resize( m_vertices->size() );
+    boost::shared_ptr< std::vector< float > > localColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
+    localColors->resize( m_vertices->size() );
 
+    // TODO(all): use the new WThreadedJobs functionality
     WCreateColorArraysThread* t1 = new WCreateColorArraysThread( 0, m_lineLengths->size()/4, m_vertices,
-            m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
+            m_lineStartIndexes, m_lineLengths, globalColors, localColors, m_tangents );
     WCreateColorArraysThread* t2 = new WCreateColorArraysThread( m_lineLengths->size()/4+1, m_lineLengths->size()/2, m_vertices,
-            m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
+            m_lineStartIndexes, m_lineLengths, globalColors, localColors, m_tangents );
     WCreateColorArraysThread* t3 = new WCreateColorArraysThread( m_lineLengths->size()/2+1, m_lineLengths->size()/4*3, m_vertices,
-            m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
+            m_lineStartIndexes, m_lineLengths, globalColors, localColors, m_tangents );
     WCreateColorArraysThread* t4 = new WCreateColorArraysThread( m_lineLengths->size()/4*3+1, m_lineLengths->size()-1, m_vertices,
-            m_lineStartIndexes, m_lineLengths, m_globalColors, m_localColors, m_tangents );
+            m_lineStartIndexes, m_lineLengths, globalColors, localColors, m_tangents );
     t1->run();
     t2->run();
     t3->run();
@@ -90,6 +93,22 @@ WDataSetFibers::WDataSetFibers( boost::shared_ptr< std::vector< float > >vertice
     delete t2;
     delete t3;
     delete t4;
+
+    // add both arrays to m_colors
+    m_colors = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_colors->push_back( boost::shared_ptr< WItemSelectionItem >(
+            new ColorScheme( "Global Color", "Colors direction by using start and end vertex per fiber.", NULL, globalColors, ColorScheme::RGB )
+        )
+    );
+    m_colors->push_back( boost::shared_ptr< WItemSelectionItem >(
+            new ColorScheme( "Local Color", "Colors direction by using start and end vertex per segment.", NULL, localColors, ColorScheme::RGB )
+        )
+    );
+
+    // the colors can be selected by properties
+    m_colorProp = m_properties->addProperty( "Color Scheme", "Determines the coloring scheme to use for this data.", m_colors->getSelectorFirst() );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorProp );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_colorProp );
 }
 
 bool WDataSetFibers::isTexture() const
@@ -122,39 +141,120 @@ boost::shared_ptr< WPrototyped > WDataSetFibers::getPrototype()
     return m_prototype;
 }
 
-boost::shared_ptr< std::vector< float > > WDataSetFibers::getVertices() const
+WDataSetFibers::VertexArray WDataSetFibers::getVertices() const
 {
     return m_vertices;
 }
 
-boost::shared_ptr< std::vector< size_t > > WDataSetFibers::getLineStartIndexes() const
+WDataSetFibers::IndexArray WDataSetFibers::getLineStartIndexes() const
 {
     return m_lineStartIndexes;
 }
 
-boost::shared_ptr< std::vector< size_t > > WDataSetFibers::getLineLengths() const
+WDataSetFibers::LengthArray WDataSetFibers::getLineLengths() const
 {
     return m_lineLengths;
 }
 
-boost::shared_ptr< std::vector< size_t > > WDataSetFibers::getVerticesReverse() const
+WDataSetFibers::IndexArray WDataSetFibers::getVerticesReverse() const
 {
     return m_verticesReverse;
 }
 
-boost::shared_ptr< std::vector< float > > WDataSetFibers::getTangents() const
+WDataSetFibers::TangentArray WDataSetFibers::getTangents() const
 {
     return m_tangents;
 }
 
-boost::shared_ptr< std::vector< float > > WDataSetFibers::getGlobalColors() const
+WDataSetFibers::ColorArray WDataSetFibers::getGlobalColors() const
 {
-    return m_globalColors;
+    return boost::shared_static_cast< const ColorScheme >( ( *m_colors )[0] )->getColor();
 }
 
-boost::shared_ptr< std::vector< float > > WDataSetFibers::getLocalColors() const
+WDataSetFibers::ColorArray WDataSetFibers::getLocalColors() const
 {
-    return m_localColors;
+    return boost::shared_static_cast< const ColorScheme >( ( *m_colors )[1] )->getColor();
+}
+
+void WDataSetFibers::addColorScheme( WDataSetFibers::ColorArray colors, std::string name, std::string description )
+{
+    ColorScheme::ColorMode mode = ColorScheme::GRAY;
+    if ( colors->size() % 3 == 0 )
+    {
+        mode = ColorScheme::RGB;
+    }
+    else if ( colors->size() % 4 == 0 )
+    {
+        mode = ColorScheme::RGBA;
+    }
+
+    m_colors->push_back( boost::shared_ptr< WItemSelectionItem >(
+        new ColorScheme( name, description, NULL, colors, mode )
+        )
+    );
+}
+
+void WDataSetFibers::removeColorScheme( WDataSetFibers::ColorArray colors )
+{
+    // this is nearly the same like std::remove_if
+    WItemSelection::WriteTicket l = m_colors->getWriteTicket();
+
+    WItemSelection::Iterator i = l->get().begin();
+    while ( i != l->get().end() )
+    {
+        if ( boost::shared_static_cast< const ColorScheme >( *i )->getColor() == colors )
+        {
+            i = l->get().erase( i );
+        }
+        else
+        {
+            ++i;
+        }
+    }
+}
+
+void WDataSetFibers::replaceColorScheme( WDataSetFibers::ColorArray oldColors, WDataSetFibers::ColorArray newColors )
+{
+    // this is nearly the same as std::replace_if
+    WItemSelection::WriteTicket l = m_colors->getWriteTicket();
+    for ( WItemSelection::Iterator i = l->get().begin(); i != l->get().end(); ++i )
+    {
+        boost::shared_ptr< ColorScheme > ci = boost::shared_static_cast< ColorScheme >( *i );
+        if (ci->getColor() == oldColors )
+        {
+            ci->setColor( newColors );
+        }
+    }
+}
+
+const boost::shared_ptr< WDataSetFibers::ColorScheme > WDataSetFibers::getColorScheme( std::string name ) const
+{
+    WItemSelection::ReadTicket l = m_colors->getReadTicket();
+    WItemSelection::ConstIterator i = std::find_if( l->get().begin(), l->get().end(),
+            WPredicateHelper::Name< boost::shared_ptr< WItemSelectionItem > >( name )
+    );
+    if ( i == l->get().end() )
+    {
+        throw WDHNoSuchDataSet( std::string( "Color scheme with specified name could not be found." ) );
+    }
+
+    return boost::shared_static_cast< ColorScheme >( *i );
+}
+
+const boost::shared_ptr< WDataSetFibers::ColorScheme > WDataSetFibers::getColorScheme( size_t idx ) const
+{
+    WItemSelection::ReadTicket l = m_colors->getReadTicket();
+    return boost::shared_static_cast< ColorScheme >( l->get()[ idx ] );
+}
+
+const boost::shared_ptr< WDataSetFibers::ColorScheme > WDataSetFibers::getColorScheme() const
+{
+    return boost::shared_static_cast< ColorScheme >( m_colorProp->get().at( 0 ) );
+}
+
+const WPropSelection WDataSetFibers::getColorSchemeProperty() const
+{
+    return m_colorProp;
 }
 
 wmath::WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
@@ -207,17 +307,20 @@ void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std:
 
             linesToSave.push_back( ( *m_lineLengths )[l] );
 
+            boost::shared_ptr< std::vector< float > > localColors =
+                boost::shared_static_cast< const ColorScheme >( ( *m_colors )[1] )->getColor();
+
             for ( size_t j = 0; j < ( *m_lineLengths )[l]; ++j )
             {
                 // TODO(schurade): replace this with a permanent solution
                 pointsToSave.push_back( 160 - ( *m_vertices )[pc] );
-                colorsToSave.push_back( static_cast<unsigned char> ( ( *m_localColors )[pc] * 255 ) );
+                colorsToSave.push_back( static_cast<unsigned char> ( ( *localColors )[pc] * 255 ) );
                 ++pc;
                 pointsToSave.push_back( 200 - ( *m_vertices )[pc] );
-                colorsToSave.push_back( static_cast<unsigned char> ( ( *m_localColors )[pc] * 255 ) );
+                colorsToSave.push_back( static_cast<unsigned char> ( ( *localColors )[pc] * 255 ) );
                 ++pc;
                 pointsToSave.push_back( ( *m_vertices )[pc] );
-                colorsToSave.push_back( static_cast<unsigned char> ( ( *m_localColors )[pc] * 255 ) );
+                colorsToSave.push_back( static_cast<unsigned char> ( ( *localColors )[pc] * 255 ) );
                 ++pc;
                 linesToSave.push_back( pointIndex );
                 ++pointIndex;

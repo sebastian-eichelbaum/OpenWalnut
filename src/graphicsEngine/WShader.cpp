@@ -83,6 +83,12 @@ void WShader::apply( osg::ref_ptr< osg::Node > node )
     node->addUpdateCallback( osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback( this ) ) );
 }
 
+void WShader::applyDirect( osg::State& state ) // NOLINT <- ensure this matches the official OSG API by using a non-const ref
+{
+    updatePrograms();
+    osg::Program::apply( state );
+}
+
 void WShader::deactivate( osg::ref_ptr< osg::Node > node )
 {
     // set the shader attribute
@@ -102,6 +108,77 @@ void WShader::reload()
     m_reload = true;
 }
 
+void WShader::reloadShader()
+{
+    try
+    {
+        // remove the shaders
+        removeShader( m_vertexShader );
+        removeShader( m_fragmentShader );
+        removeShader( m_geometryShader );
+
+        // reload the sources and set the shader
+        // vertex shader
+        WLogger::getLogger()->addLogMessage( "Reloading vertex shader \"" + m_name + "-vertex.glsl\"", "WShader", LL_DEBUG );
+        std::string source = processShader( m_name + "-vertex.glsl" );
+        if ( source != "" )
+        {
+            m_vertexShader->setShaderSource( source );
+            addShader( m_vertexShader );
+        }
+
+        // fragment shader
+        WLogger::getLogger()->addLogMessage( "Reloading fragment shader \"" + m_name + "-fragment.glsl\"", "WShader", LL_DEBUG );
+        source = processShader( m_name + "-fragment.glsl" );
+        if ( source != "" )
+        {
+            m_fragmentShader->setShaderSource( source );
+            addShader( m_fragmentShader );
+        }
+
+        // Geometry Shader
+        WLogger::getLogger()->addLogMessage( "Reloading geometry shader \"" + m_name + "-geometry.glsl\"", "WShader", LL_DEBUG );
+        source = processShader( m_name + "-geometry.glsl", true );
+        if ( source != "" )
+        {
+            m_geometryShader->setShaderSource( source );
+            addShader( m_geometryShader );
+        }
+
+        m_shaderLoaded = true;
+    }
+    catch( const std::exception& e )
+    {
+        m_shaderLoaded = false;
+
+        WLogger::getLogger()->addLogMessage( "Problem loading shader.", "WShader", LL_ERROR );
+
+        // clean up the mess
+        removeShader( m_vertexShader );
+        removeShader( m_fragmentShader );
+        removeShader( m_geometryShader );
+    }
+
+    // everything done now.
+    m_reload = false;
+}
+
+void WShader::updatePrograms()
+{
+    // is it needed to do something here?
+    if ( m_deactivated )
+    {
+        // remove the shaders
+        removeShader( m_vertexShader );
+        removeShader( m_fragmentShader );
+        removeShader( m_geometryShader );
+    }
+    else if ( m_reload )
+    {
+        reloadShader();
+    }
+}
+
 WShader::SafeUpdaterCallback::SafeUpdaterCallback( WShader* shader ):
     m_shader( shader )
 {
@@ -109,69 +186,7 @@ WShader::SafeUpdaterCallback::SafeUpdaterCallback( WShader* shader ):
 
 void WShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
-    // is it needed to do something here?
-    if ( m_shader->m_deactivated )
-    {
-        // remove the shaders
-        m_shader->removeShader( m_shader->m_vertexShader );
-        m_shader->removeShader( m_shader->m_fragmentShader );
-        m_shader->removeShader( m_shader->m_geometryShader );
-    }
-
-    else if ( m_shader->m_reload )
-    {
-        try
-        {
-            // remove the shaders
-            m_shader->removeShader( m_shader->m_vertexShader );
-            m_shader->removeShader( m_shader->m_fragmentShader );
-            m_shader->removeShader( m_shader->m_geometryShader );
-
-            // reload the sources and set the shader
-            // vertex shader
-            WLogger::getLogger()->addLogMessage( "Reloading vertex shader \"" + m_shader->m_name + "-vertex.glsl\"", "WShader", LL_DEBUG );
-            std::string source = m_shader->processShader( m_shader->m_name + "-vertex.glsl" );
-            if ( source != "" )
-            {
-                m_shader->m_vertexShader->setShaderSource( source );
-                m_shader->addShader( m_shader->m_vertexShader );
-            }
-
-            // fragment shader
-            WLogger::getLogger()->addLogMessage( "Reloading fragment shader \"" + m_shader->m_name + "-fragment.glsl\"", "WShader", LL_DEBUG );
-            source = m_shader->processShader( m_shader->m_name + "-fragment.glsl" );
-            if ( source != "" )
-            {
-                m_shader->m_fragmentShader->setShaderSource( source );
-                m_shader->addShader( m_shader->m_fragmentShader );
-            }
-
-            // Geometry Shader
-            WLogger::getLogger()->addLogMessage( "Reloading geometry shader \"" + m_shader->m_name + "-geometry.glsl\"", "WShader", LL_DEBUG );
-            source = m_shader->processShader( m_shader->m_name + "-geometry.glsl", true );
-            if ( source != "" )
-            {
-                m_shader->m_geometryShader->setShaderSource( source );
-                m_shader->addShader( m_shader->m_geometryShader );
-            }
-
-            m_shader->m_shaderLoaded = true;
-        }
-        catch( const std::exception& e )
-        {
-            m_shader->m_shaderLoaded = false;
-
-            WLogger::getLogger()->addLogMessage( "Problem loading shader.", "WShader", LL_ERROR );
-
-            // clean up the mess
-            m_shader->removeShader( m_shader->m_vertexShader );
-            m_shader->removeShader( m_shader->m_fragmentShader );
-            m_shader->removeShader( m_shader->m_geometryShader );
-        }
-
-        // everything done now.
-        m_shader->m_reload = false;
-    }
+    m_shader->updatePrograms();
 
     // forward the call
     traverse( node, nv );

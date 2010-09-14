@@ -28,8 +28,9 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
-
+#include "../common/WProperties.h"
 #include "../common/WTransferable.h"
+#include "WExportDataHandler.h"
 
 class WDataTexture3D;
 class WCondition;
@@ -42,7 +43,7 @@ class WDataSetVector;
  * steps) respectively.
  * \ingroup dataHandler
  */
-class WDataSet: public WTransferable, public boost::enable_shared_from_this< WDataSet >
+class OWDATAHANDLER_EXPORT WDataSet: public WTransferable, public boost::enable_shared_from_this< WDataSet > // NOLINT
 {
 public:
     /**
@@ -117,8 +118,24 @@ public:
      * Gets the condition which is fired whenever the dataset gets some kind of dirty (threshold, opacity, ...)
      *
      * \return the condition, or NULL if the dataset has no texture.
+     * \deprecated this is deprecated. Use dataset properties instead.
      */
     boost::shared_ptr< WCondition > getChangeCondition();
+
+    /**
+     * Return a pointer to the properties object of the dataset. Add all the modifiable settings here. This allows the user to modify several
+     * properties of a dataset.
+     *
+     * \return the properties.
+     */
+    boost::shared_ptr< WProperties > getProperties() const;
+
+    /**
+     * Return a pointer to the information properties object of the dataset. The dataset intends these properties to not be modified.
+     *
+     * \return the properties.
+     */
+    boost::shared_ptr< WProperties > getInformationProperties() const;
 
 protected:
 
@@ -126,6 +143,18 @@ protected:
      * The prototype as singleton.
      */
     static boost::shared_ptr< WPrototyped > m_prototype;
+
+    /**
+     * The property object for the dataset.
+     */
+    boost::shared_ptr< WProperties > m_properties;
+
+    /**
+     * The property object for the dataset containing only props whose purpose is "PV_PURPOSE_INFORMNATION". It is useful to define some property
+     * to only be of informational nature. The GUI does not modify them. As it is a WProperties instance, you can use it the same way as
+     * m_properties.
+     */
+    boost::shared_ptr< WProperties > m_infoProperties;
 
 private:
     /**

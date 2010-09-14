@@ -31,8 +31,11 @@
 #include "../../../graphicsEngine/WROIBox.h"
 
 WROIManagerFibers::WROIManagerFibers() :
-    m_recalcLock( false )
+    m_recalcLock( false ),
+    m_useExternalBitfield( false )
 {
+    m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "Module's properties" ) );
+    m_dirty = m_properties->addProperty( "dirty", "dirty flag", true );
 }
 
 WROIManagerFibers::~WROIManagerFibers()
@@ -162,7 +165,12 @@ void WROIManagerFibers::removeFiberDataset( boost::shared_ptr< const WDataSetFib
 
 boost::shared_ptr< std::vector< bool > > WROIManagerFibers::getBitField()
 {
-    m_dirty = false;
+    m_dirty->set( false );
+    if ( m_useExternalBitfield )
+    {
+        return m_externalBitfield;
+    }
+
     return m_outputBitfield;
 }
 
@@ -196,7 +204,7 @@ void WROIManagerFibers::recalculate()
     }
 
     m_outputBitfield = m_workerBitfield;
-    m_dirty = true;
+    m_dirty->set( true );
     m_recalcLock = false;
 }
 
@@ -303,4 +311,29 @@ void WROIManagerFibers::setSelectedRoi( boost::shared_ptr< WRMROIRepresentation 
 boost::shared_ptr< WRMROIRepresentation > WROIManagerFibers::getSelectedRoi()
 {
     return m_selectedRoi;
+}
+
+void WROIManagerFibers::setExternalBitfield( boost::shared_ptr< std::vector< bool > > bitfield )
+{
+    m_externalBitfield = bitfield;
+    //m_dirty->set( true );
+}
+
+void WROIManagerFibers::setUseExternalBitfield( bool flag )
+{
+    m_useExternalBitfield = flag;
+
+    if ( !flag )
+    {
+        setDirty();
+    }
+    else
+    {
+        m_dirty->set( true );
+    }
+}
+
+boost::shared_ptr< std::vector< bool > > WROIManagerFibers::getRoiBitfield()
+{
+    return m_outputBitfield;
 }

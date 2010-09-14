@@ -122,17 +122,17 @@ void WMCoordinateHUD::moduleMain()
     while( !m_shutdownFlag() )
     {
         WItemSelector s = m_aSingleSelection->get( true );
-        debugLog() << "New mode selected: " << s.at( 0 ).name;
+        debugLog() << "New mode selected: " << s.at( 0 )->getName();
 
-        if ( s.at( 0 ).name == "colored axis" )
+        if ( s.at( 0 )->getName() == "colored axis" )
         {
             buildColorAxis();
         }
-        else if ( s.at( 0 ).name == "b/w axis" )
+        else if ( s.at( 0 )->getName() == "b/w axis" )
         {
             buildBWAxis();
         }
-        else if ( s.at( 0 ).name == "colored cube" )
+        else if ( s.at( 0 )->getName() == "colored cube" )
         {
             buildColorCube();
         }
@@ -177,15 +177,15 @@ void WMCoordinateHUD::buildColorAxis()
     // y direction transition from green to white
     // z direction transition from blue to white
     osg::Vec4Array* color = new osg::Vec4Array( 12 );
-    (*color)[0] = y_color;
-    (*color)[1] = y_color;
-    (*color)[2] = x_color;
-    (*color)[3] = x_color;
+    (*color)[0] = x_color;
+    (*color)[1] = x_color;
+    (*color)[2] = y_color;
+    (*color)[3] = y_color;
     (*color)[4] = z_color;
     (*color)[5] = z_color;
-    (*color)[6] = y_color;
+    (*color)[6] = x_color;
     (*color)[7] = neg_color;
-    (*color)[8] = x_color;
+    (*color)[8] = y_color;
     (*color)[9] = neg_color;
     (*color)[10] = z_color;
     (*color)[11] = neg_color;
@@ -273,13 +273,13 @@ void WMCoordinateHUD::buildColorCube()
     // y direction transition from green to lightgreen
     // z direction transition from blue to lightblue
     osg::Vec4Array* color = new osg::Vec4Array( 12 );
-    (*color)[0] = (*color)[1] = y_color;
+    (*color)[0] = (*color)[1] = x_color;
     (*color)[2] = (*color)[3] = z_color;
-    (*color)[4] = (*color)[5] = x_color;
+    (*color)[4] = (*color)[5] = y_color;
 
-    (*color)[6] = (*color)[7] = yl_color;
+    (*color)[6] = (*color)[7] = xl_color;
     (*color)[8] = (*color)[9] = zl_color;
-    (*color)[10] = (*color)[11] = xl_color;
+    (*color)[10] = (*color)[11] = yl_color;
 
     // add color to geometry
     coordGeom->setColorArray( color );

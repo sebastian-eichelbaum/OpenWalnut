@@ -56,6 +56,7 @@ WMFiberDisplay::WMFiberDisplay()
 
 WMFiberDisplay::~WMFiberDisplay()
 {
+    m_fiberDisplayRunning = false;
 }
 
 boost::shared_ptr< WModule > WMFiberDisplay::factory() const
@@ -210,9 +211,10 @@ void WMFiberDisplay::create()
     osgNodeNew->addChild( geode );
 
     osgNodeNew->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( osgNodeNew.get() );
 
-    osgNodeNew->setUserData( this );
+    osgNodeNew->setUserData( osg::ref_ptr< userData >(
+        new userData( boost::shared_dynamic_cast< WMFiberDisplay >( shared_from_this() ) )
+        ) );
     osgNodeNew->addUpdateCallback( new fdNodeCallback );
 
     // remove previous nodes if there are any
@@ -224,6 +226,8 @@ void WMFiberDisplay::create()
 
     osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
     initUniforms( rootState );
+
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
 }
 
 void WMFiberDisplay::connectors()
@@ -485,4 +489,19 @@ void WMFiberDisplay::initCullBox()
 
     m_cullBox = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
     m_cullBox->setColor( osg::Vec4( 1.0, 0., 1.0, 0.4 ) );
+}
+
+void WMFiberDisplay::userData::update()
+{
+    parent->update();
+}
+
+void WMFiberDisplay::userData::updateRenderModes()
+{
+    parent->updateRenderModes();
+}
+
+void WMFiberDisplay::userData::toggleColoring()
+{
+    parent->toggleColoring();
 }

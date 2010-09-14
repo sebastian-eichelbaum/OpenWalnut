@@ -46,7 +46,7 @@ boost::shared_ptr< WDataSet > WReaderEEGASCII::load()
 {
     std::ifstream in( m_fname.c_str() );
     if( in.fail() )
-        throw WException( "Could not read file \"" + m_fname + "\"" );
+        throw WException( std::string( "Could not read file \"" + m_fname + "\"" ) );
 
     std::string tmp;
     getline( in, tmp );

@@ -28,12 +28,13 @@
 #include <cstddef>
 #include <cmath>
 #include "WDataHandlerEnums.h"
+#include "WExportDataHandler.h"
 
 /**
  * Abstract base class to all WValueSets. This class doesn't provide any genericness.
  * \ingroup dataHandler
  */
-class WValueSetBase
+class OWDATAHANDLER_EXPORT WValueSetBase // NOLINT
 {
 public:
     /**

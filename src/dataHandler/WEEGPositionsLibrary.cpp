@@ -46,7 +46,7 @@ wmath::WPosition WEEGPositionsLibrary::getPosition( std::string label ) const th
 
     if( iter == m_positions.end() )
     {
-        throw WOutOfBounds( "EEG Positions Library doesn't contain a position for electrode " + label );
+        throw WOutOfBounds( std::string( "EEG Positions Library doesn't contain a position for electrode " + label ) );
     }
 
     return iter->second;

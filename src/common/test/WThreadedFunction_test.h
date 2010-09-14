@@ -25,12 +25,16 @@
 #ifndef WTHREADEDFUNCTION_TEST_H
 #define WTHREADEDFUNCTION_TEST_H
 
+#include <string>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WThreadedFunction.h"
 #include "../WSharedObject.h"
 
 /**
+ * \class WThreadedFunctionTest
+ *
  * Tests the WThreadedFunction class.
  */
 class WThreadedFunctionTest : public CxxTest::TestSuite
@@ -79,6 +83,7 @@ class WThreadedFunctionTest : public CxxTest::TestSuite
 
         /**
          * Check if the thread was ordered to stop.
+         *
          * \return true, if the thread was ordered to stop
          */
         bool stopped()
@@ -127,13 +132,14 @@ class WThreadedFunctionTest : public CxxTest::TestSuite
          */
         void operator() ( std::size_t, std::size_t, WBoolFlag& )
         {
-            throw WException( "Test!" );
+            throw WException( std::string( "Test!" ) );
         }
     };
 
 public:
     /**
-     * Test function computation with multiple threads.
+     * A function computed by multiple threads should correctly set
+     * its status and compute the correct results.
      */
     void testMultipleThreads()
     {
@@ -193,7 +199,7 @@ public:
     }
 
     /**
-     * Test stopping threads.
+     * Status should be set correctly when threads are ordered to stop.
      */
     void testStopThreads()
     {
@@ -213,13 +219,12 @@ public:
     }
 
     /**
-     * Test stop condition.
+     * The stop condition should be notified correctly.
      */
     void testStopCondition()
     {
         boost::shared_ptr< FuncType > func( new FuncType( 5 ) );
         WThreadedFunction< FuncType > f( 6, func );
-
 
         TS_ASSERT_EQUALS( f.status(), W_THREADS_INITIALIZED );
         f.run();
@@ -232,7 +237,8 @@ public:
     }
 
     /**
-     * Test exception handling.
+     * Exceptions should lead to the status beeing changed to W_THREADS_ABORTED. Also,
+     * exceptions should be forwarded to the exception handler.
      */
     void testExceptionHandling()
     {

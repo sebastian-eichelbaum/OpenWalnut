@@ -28,6 +28,7 @@
 #include <string>
 
 #include "../exceptions/WDHNoSuchFile.h"
+#include "../WExportDataHandler.h"
 
 /**
  * Read some data from a given file. This base class is just for file
@@ -35,7 +36,7 @@
  * specify their file format which is not the purpose of this base class.
  * \ingroup dataHandler
  */
-class WReader
+class OWDATAHANDLER_EXPORT WReader // NOLINT
 {
 public:
     /**

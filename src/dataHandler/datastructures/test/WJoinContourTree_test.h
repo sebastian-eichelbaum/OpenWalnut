@@ -96,8 +96,8 @@ public:
     }
 
     /**
-     * All voxels enclosed by the biggest ISO surface are contained in the biggest component
-     * of the JoinTree above the given ISO value the in in the JoinTree.
+     * All voxels enclosed by the biggest isosurface are contained in the biggest component
+     * of the JoinTree above the given isovalue the in in the JoinTree.
      */
     void testGetVolumeVoxelsEnclosedByISOSurfaceWithOutMerge( void )
     {
@@ -111,7 +111,7 @@ public:
     }
 
     /**
-     * All voxels enclosed by the biggest ISO Surface are contained in the biggest component
+     * All voxels enclosed by the biggest isoSurface are contained in the biggest component
      * which may be created with some merges of the join tree.
      */
     void testGetVolumeVoxelsEnclosedByISOSurfaceWithMerges( void )
@@ -142,7 +142,7 @@ protected:
             loggerInitialized = true;
         }
 
-        // ISO Values:           Point id's:
+        // isovalues:           Point id's:
         //   2--- 4--- 8---14     12---13---14---15
         //   |    |    |    |      |    |    |    |
         //   |    |    |    |      |    |    |    |

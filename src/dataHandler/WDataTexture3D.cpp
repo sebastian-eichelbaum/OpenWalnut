@@ -32,6 +32,8 @@
 #include "WDataTexture3D.h"
 
 WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost::shared_ptr<WGrid> grid ):
+    m_properties( boost::shared_ptr< WProperties >( new WProperties( "Data Texture Properties", "Properties of a texture." ) ) ),
+    m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Data Texture Info Properties", "Texture's information properties." ) ) ),
     m_alpha( 1.0 ),
     m_threshold( 0.0 ),
     m_texture( osg::ref_ptr< osg::Texture3D >() ),
@@ -382,6 +384,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int 
 
 void WDataTexture3D::createTexture()
 {
+    WAssert( m_minValue <= m_maxValue, "" );
     boost::unique_lock< boost::shared_mutex > lock( m_creationLock );
     if ( !m_texture )
     {
@@ -467,6 +470,16 @@ float WDataTexture3D::getMaxValue()
     return m_maxValue;
 }
 
+void WDataTexture3D::setMinValue( float min )
+{
+    m_minValue = min;
+}
+
+void WDataTexture3D::setMaxValue( float max )
+{
+    m_maxValue = max;
+}
+
 float WDataTexture3D::getMinMaxScale()
 {
     createTexture();
@@ -499,5 +512,15 @@ void WDataTexture3D::setSelectedColormap( int cmap )
 {
     m_cmap = cmap;
     notifyChange();
+}
+
+boost::shared_ptr< WProperties > WDataTexture3D::getProperties() const
+{
+    return m_properties;
+}
+
+boost::shared_ptr< WProperties > WDataTexture3D::getInformationProperties() const
+{
+    return m_infoProperties;
 }
 

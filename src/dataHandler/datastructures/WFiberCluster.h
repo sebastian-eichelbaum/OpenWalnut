@@ -35,11 +35,12 @@
 #include "../../common/WColor.h"
 #include "../../common/WTransferable.h"
 #include "../WDataSetFiberVector.h"
+#include "../WExportDataHandler.h"
 
 /**
  * Represents a cluster of indices of a WDataSetFiberVector.
  */
-class WFiberCluster : public WTransferable
+class OWDATAHANDLER_EXPORT WFiberCluster : public WTransferable // NOLINT
 {
 friend class WFiberClusterTest;
 public:
@@ -154,6 +155,33 @@ public:
      */
     bool operator!=( const WFiberCluster& other ) const;
 
+    /**
+     * Copy assignment operator which does NOT copy the mutex's!!!
+     *
+     * \param other The instance to copy.
+     *
+     * \return itself
+     */
+    WFiberCluster& operator=( const WFiberCluster& other )
+    {
+        WTransferable::operator=( other );
+        m_memberIndices = other.m_memberIndices;
+        m_fibs = other.m_fibs;
+        m_color = other.m_color;
+        m_centerLineCreationLock = new boost::shared_mutex();
+        m_longestLineCreationLock = new boost::shared_mutex();
+        // copy them only if they exist
+        if ( other.m_centerLine )
+        {
+            m_centerLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_centerLine.get() ) );
+        }
+        if ( other.m_longestLine )
+        {
+            m_longestLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_longestLine.get() ) );
+        }
+        return *this;
+    }
+
     // TODO(math): The only reason why we store here a Reference to the fiber
     // dataset is, we need it in the WMVoxelizer module as well as the clustering
     // information. Since we don't have the possibility of multiple
@@ -206,6 +234,16 @@ protected:
     void unifyDirection( boost::shared_ptr< WDataSetFiberVector > fibs ) const;
 
 private:
+    /**
+     * The centerline may be shortened due to the averaging of outliers. To
+     * nevertheless color almost the whole bundle surface we need a surface
+     * parameterization (given via the centerline) upto the endings of the
+     * bundle. Therefore the centerline is stepwise elongated with the last
+     * known direction, until no perpendicular plane intersects any of the
+     * tracts inside of the bundle.
+     */
+    void elongateCenterLine() const;
+
     /**
      * All indices in this set are members of this cluster
      */

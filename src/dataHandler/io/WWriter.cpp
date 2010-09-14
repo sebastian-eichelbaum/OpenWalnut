@@ -39,6 +39,6 @@ void WWriter::setFileName( std::string fname )
     m_fname = fname;
     if( !m_overwrite && wiotools::fileExists( m_fname ) )
     {
-        throw WDHIOFailure( "File '" + m_fname + "' already exists, skip writing" );
+        throw WDHIOFailure( std::string( "File '" + m_fname + "' already exists, skip writing" ) );
     }
 }

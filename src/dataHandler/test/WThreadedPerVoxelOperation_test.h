@@ -27,6 +27,8 @@
 
 #include <vector>
 
+#include <cxxtest/TestSuite.h>
+
 #include "../../common/WThreadedFunction.h"
 #include "../../common/WLogger.h"
 #include "../WDataHandlerEnums.h"

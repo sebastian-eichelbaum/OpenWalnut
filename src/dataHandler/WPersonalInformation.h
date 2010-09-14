@@ -29,12 +29,13 @@
 
 #include <string>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+#include "WExportDataHandler.h"
 
 /**
  * A structure that holds all relevant information about the subject.
  * \ingroup dataHandler
  */
-class WPersonalInformation
+class OWDATAHANDLER_EXPORT WPersonalInformation // NOLINT
 {
     /**
      * Only tests are allowed as friends.

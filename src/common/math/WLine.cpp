@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <string>
 #include <vector>
 
 #include "../WLimits.h"
@@ -48,7 +49,7 @@ const wmath::WPosition& WLine::midPoint() const
 {
     if( empty() )
     {
-        throw WOutOfBounds( "There is no midpoint for an empty line." );
+        throw WOutOfBounds( std::string( "There is no midpoint for an empty line." ) );
     }
     return at( ( size() - 1 ) / 2 );
 }

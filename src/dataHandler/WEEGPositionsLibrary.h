@@ -30,13 +30,14 @@
 
 #include "../common/exceptions/WOutOfBounds.h"
 #include "../common/math/WPosition.h"
+#include "WExportDataHandler.h"
 
 
 /**
  * Class which contains the positions of EEG electrodes by label.
  * \ingroup dataHandler
  */
-class WEEGPositionsLibrary
+class OWDATAHANDLER_EXPORT WEEGPositionsLibrary // NOLINT
 {
 public:
     /**
