@@ -212,9 +212,9 @@ WGlyphRenderNode::CLObjects::~CLObjects()
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 WGlyphRenderNode::WGlyphRenderNode(const boost::shared_ptr<WDataSetSingle>& data,const int& order,
-						   const int& sliceX,const int& sliceY,const int& sliceZ,
-						   const bool& enabledX,const bool& enabledY,const bool& enabledZ,
-						   const boost::filesystem::path& search): 
+								   const int& sliceX,const int& sliceY,const int& sliceZ,
+								   const bool& enabledX,const bool& enabledY,const bool& enabledZ,
+								   const boost::filesystem::path& search): 
 	WCLRenderNode(),
 	m_order(order),
 	m_tensorData(data),
@@ -222,7 +222,7 @@ WGlyphRenderNode::WGlyphRenderNode(const boost::shared_ptr<WDataSetSingle>& data
 {
 	/* load kernel source code */
 
-	if (readKernelSource(m_kernelSource,(search / "GlyphKernel.cl").file_string()))
+	if (readKernelSource(m_kernelSource,(search / "kernels" / "GlyphKernel.cl").file_string()))
 	{
 		m_sourceRead = true;
 	}
@@ -298,8 +298,8 @@ osg::BoundingBox WGlyphRenderNode::computeBoundingBox() const
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 void WGlyphRenderNode::setTensorData(const boost::shared_ptr<WDataSetSingle>& data,const int& order,
-								 const int& sliceX, const int& sliceY, const int& sliceZ,
-								 const bool& enabledX,const bool& enabledY,const bool& enabledZ)
+									 const int& sliceX, const int& sliceY, const int& sliceZ,
+									 const bool& enabledX,const bool& enabledY,const bool& enabledZ)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 
@@ -323,7 +323,7 @@ void WGlyphRenderNode::setTensorData(const boost::shared_ptr<WDataSetSingle>& da
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 void WGlyphRenderNode::setSlices(const int& sliceX, const int& sliceY, const int& sliceZ,
-							 const bool& enabledX,const bool& enabledY,const bool& enabledZ)
+								 const bool& enabledX,const bool& enabledY,const bool& enabledZ)
 {
 	OpenThreads::ScopedLock<OpenThreads::Mutex> lock(mutex);
 

@@ -12,13 +12,13 @@ SET( MODULE_NAME    "OWmodule_${MODULE_NAME}" )      # prefix all module names w
 ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
 TARGET_LINK_LIBRARIES( ${MODULE_NAME} OWkernel )
 
-# Copy local shaders to module target directory
-IF( OW_COPY_SHADERS AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/kernels )    # copy shaders only if the user wants it
-    ADD_CUSTOM_TARGET( ${MODULE_NAME}_CopyShaders
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/kernels ${MODULE_TARGET_DIR}/shaders/ 
+# Copy local kernels to module target directory
+IF( OW_COPY_SHADERS AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/kernels )    # copy kernels only if the user wants it
+    ADD_CUSTOM_TARGET( ${MODULE_NAME}_CopyKernels
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/kernels ${MODULE_TARGET_DIR}/kernels/ 
         COMMENT "Copy kernels of ${MODULE_NAME}"
     )
-    ADD_DEPENDENCIES( ${MODULE_NAME} ${MODULE_NAME}_CopyShaders )
+    ADD_DEPENDENCIES( ${MODULE_NAME} ${MODULE_NAME}_CopyKernels )
 ENDIF()
 
 # Build unit tests

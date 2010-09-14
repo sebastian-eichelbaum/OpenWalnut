@@ -33,6 +33,7 @@
 
 #include <boost/math/constants/constants.hpp>
 
+#include "../WExportCommon.h"
 #include "WPosition.h"
 #include "WVector3D.h"
 #include "WPlane.h"
@@ -45,10 +46,10 @@ namespace wmath
 {
 //   Pi constants - we dont use the macro M_PI, because it is not part of the C++-standard.
 //   ref.: http://stackoverflow.com/questions/1727881/how-to-use-the-pi-constant-in-c
-  /** the pi constant in float format */
-  const float piFloat = boost::math::constants::pi<float>();
-  /** the pi constant in double format */
-  const double piDouble = boost::math::constants::pi<double>();
+    /** the pi constant in float format */
+    const float piFloat = boost::math::constants::pi<float>();
+    /** the pi constant in double format */
+    const double piDouble = boost::math::constants::pi<double>();
 
     /**
      * Tests whether the number stored in the parameter is finite.
@@ -77,7 +78,7 @@ namespace wmath
      *
      * \return True if both intersects otherwise false.
      */
-    bool testIntersectTriangle( const wmath::WPosition& p1, const wmath::WPosition& p2, const wmath::WPosition& p3, const WPlane& p );
+    OWCOMMON_EXPORT bool testIntersectTriangle( const wmath::WPosition& p1, const wmath::WPosition& p2, const wmath::WPosition& p3, const WPlane& p );
 
     /**
      * Checks if the given segment intersects with the plane or not. Even if
@@ -93,7 +94,7 @@ namespace wmath
      *
      * \return True if an intersection was detected, false otherwise.
      */
-    bool intersectPlaneSegment( const WPlane& p,
+    OWCOMMON_EXPORT bool intersectPlaneSegment( const WPlane& p,
                                 const wmath::WPosition& p1,
                                 const wmath::WPosition& p2,
                                 boost::shared_ptr< wmath::WPosition > pointOfIntersection );
@@ -109,7 +110,7 @@ namespace wmath
      *
      * \return True if an intersection was detected, false otherwise.
      */
-    bool intersectPlaneLineNearCP( const WPlane& p, const wmath::WLine& l, boost::shared_ptr< wmath::WPosition > cutPoint );
+    OWCOMMON_EXPORT bool intersectPlaneLineNearCP( const WPlane& p, const wmath::WLine& l, boost::shared_ptr< wmath::WPosition > cutPoint );
 
     /**
      * Computes the signum for the given value.

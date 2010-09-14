@@ -31,13 +31,14 @@
 
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WExportDataHandler.h"
+#include "../WExportCommon.h"
 #include "WPosition.h"
 #include "WVector3D.h"
 
 /**
  * Represents a plane with a normal vector and a position in space.
  */
-class OWDATAHANDLER_EXPORT WPlane // NOLINT
+class OWCOMMON_EXPORT WPlane // NOLINT
 {
 public:
     /**
