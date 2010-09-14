@@ -87,7 +87,7 @@ ELSE()
   IF( NOT VERSION LESS 2.6.3 )
     SET ( CMAKE_PREFIX_PATH "$ENV{ProgramFiles}/OpenSceneGraph" )
   ENDIF()
-  FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgUtil osgDB osgViewer osgText osgGA osgSim )
+  FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgUtil osgDB osgViewer osgText osgGA osgSim osgWidget )
   INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 ENDIF()
 
@@ -267,15 +267,17 @@ ADD_CUSTOM_TARGET( tags DEPENDS ctags DEPENDS cscope )
 
 #-------------------------------------------------------------------------------------------------------------
 # Determines the number of cores available on this machine
-SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
-SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
-SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
-ADD_CUSTOM_TARGET( numCores
+IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
+	SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
+	SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
+	SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
+	ADD_CUSTOM_TARGET( numCores
                    COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
                    COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
                    COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
                    COMMENT "Determines the number of cores available on this machine"
                  )
+ENDIF()
 
 #-------------------------------------------------------------------------------------------------------------
 # Checks style guide lines via the BrainLint tool against all source code files

@@ -571,7 +571,7 @@ namespace tm_utils
      *
      * \return List of components where each of them is a WTriangleMesh again.
      */
-    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > componentDecomposition( const WTriangleMesh2& mesh );
+    WGE_EXPORT boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > componentDecomposition( const WTriangleMesh2& mesh );
 
     /**
      * Prints for each mesh \#vertices and \#triangles, as well as each triangle with its positions. No point IDs are printed.
@@ -581,7 +581,7 @@ namespace tm_utils
      *
      * \return The output stream again for further usage.
      */
-    std::ostream& operator<<( std::ostream& os, const WTriangleMesh2& rhs );
+    WGE_EXPORT std::ostream& operator<<( std::ostream& os, const WTriangleMesh2& rhs );
 }
 
 inline bool WTriangleMesh2::operator==( const WTriangleMesh2& rhs ) const

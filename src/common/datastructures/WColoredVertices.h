@@ -31,10 +31,12 @@
 #include "../WTransferable.h"
 #include "../WColor.h"
 
+#include "../WExportCommon.h"
+
 /**
  * Represents a std::map where for each vertex ID a color is stored.
  */
-class WColoredVertices : public WTransferable
+class OWCOMMON_EXPORT WColoredVertices : public WTransferable // NOLINT
 {
 public:
     /**

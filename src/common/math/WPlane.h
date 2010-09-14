@@ -30,14 +30,14 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WExportDataHandler.h"
 #include "WPosition.h"
 #include "WVector3D.h"
+#include "../WExportCommon.h"
 
 /**
  * Represents a plane with a normal vector and a position in space.
  */
-class OWDATAHANDLER_EXPORT WPlane // NOLINT
+class OWCOMMON_EXPORT WPlane // NOLINT
 {
 public:
     /**

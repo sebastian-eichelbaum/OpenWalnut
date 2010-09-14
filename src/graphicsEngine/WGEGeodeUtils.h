@@ -155,7 +155,7 @@ namespace wge
      *
      * \return Geode with as many cubes as points in the container where each cube is around a certain position.
      */
-    template< class Container > osg::ref_ptr< osg::Geode > WGE_EXPORT genPointBlobs( boost::shared_ptr< Container > points,
+    template< class Container > osg::ref_ptr< osg::Geode > genPointBlobs( boost::shared_ptr< Container > points,
                                                                                      double size,
                                                                                      const WColor& color = WColor( 1, 0, 0 ) );
 } // end of namespace wge
