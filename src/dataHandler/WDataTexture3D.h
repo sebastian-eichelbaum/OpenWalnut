@@ -155,6 +155,24 @@ public:
     float getMaxValue();
 
     /**
+     * Sets the minimum value in the texture. Use this if the default
+     * texture scaling is not applicable. This has no effect if the texture was
+     * already uploaded.
+     *
+     * \param min the min.
+     */
+    void setMinValue( float min );
+
+    /**
+     * Sets the maximum value in the texture. Use this if the default
+     * texture scaling is not applicable. This has no effect if the texture was
+     * already uploaded.
+     *
+     * \param max the max.
+     */
+    void setMaxValue( float max );
+
+    /**
      * Gets the scaling factor to unscale [0,1] to [0, max-min]
      *
      * \return the scaling factor.

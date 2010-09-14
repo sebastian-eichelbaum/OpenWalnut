@@ -384,6 +384,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int 
 
 void WDataTexture3D::createTexture()
 {
+    WAssert( m_minValue <= m_maxValue, "" );
     boost::unique_lock< boost::shared_mutex > lock( m_creationLock );
     if ( !m_texture )
     {
@@ -467,6 +468,16 @@ float WDataTexture3D::getMaxValue()
 {
     createTexture();
     return m_maxValue;
+}
+
+void WDataTexture3D::setMinValue( float min )
+{
+    m_minValue = min;
+}
+
+void WDataTexture3D::setMaxValue( float max )
+{
+    m_maxValue = max;
 }
 
 float WDataTexture3D::getMinMaxScale()
