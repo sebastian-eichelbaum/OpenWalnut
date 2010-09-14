@@ -290,7 +290,7 @@ WMatrix<double> invertMatrix4x4( WMatrix<double> mat )
 bool linearIndependent( const wmath::WVector3D& u, const wmath::WVector3D& v )
 {
     wmath::WVector3D cp = u.crossProduct( v );
-    if( std::abs( cp[0] ) < wlimits::FLT_EPS && std::abs( cp[1] ) < wlimits::FLT_EPS && std::abs( cp[2] ) < wlimits::FLT_EPS )
+    if( std::fabs( cp[0] ) < wlimits::DBL_EPS && std::fabs( cp[1] ) < wlimits::DBL_EPS && std::fabs( cp[2] ) < wlimits::DBL_EPS )
     {
         return false;
     }
@@ -306,6 +306,7 @@ void wmath::computeSVD( const wmath::WMatrix< double >& A,
 #ifdef USEOSSIM
       wmath::WOSSIMHelper::computeSVD( A, U, V, S );
 #else
+      (void) A; (void) U; (void) V; (void) S; // NOLINT to prevent "unused variable" warnings
       WAssert( false, "OpenWalnut must be compiled with OSSIM to support SVD." );
 #endif
 }

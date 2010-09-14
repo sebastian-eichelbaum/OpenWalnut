@@ -99,7 +99,7 @@ public:
      * All voxels enclosed by the biggest isosurface are contained in the biggest component
      * of the JoinTree above the given isovalue the in in the JoinTree.
      */
-    void testGetVolumeVoxelsEnclosedByIsoSurfaceWithOutMerge( void )
+    void testGetVolumeVoxelsEnclosedByISOSurfaceWithOutMerge( void )
     {
         size_t data[] = { 0, 4, 5, 1 }; // NOLINT
         std::set< size_t > expected( data, data + 4 );
@@ -107,14 +107,14 @@ public:
         WJoinContourTree jt( m_dataset );
         jt.buildJoinTree();
         using string_utils::operator<<;
-        TS_ASSERT_EQUALS( expected, *jt.getVolumeVoxelsEnclosedByIsoSurface( 8.3 ) );
+        TS_ASSERT_EQUALS( expected, *jt.getVolumeVoxelsEnclosedByISOSurface( 8.3 ) );
     }
 
     /**
      * All voxels enclosed by the biggest isoSurface are contained in the biggest component
      * which may be created with some merges of the join tree.
      */
-    void testGetVolumeVoxelsEnclosedByIsoSurfaceWithMerges( void )
+    void testGetVolumeVoxelsEnclosedByISOSurfaceWithMerges( void )
     {
         size_t data[] = { 0, 4, 5, 1, 10, 11, 14, 15, 13, 9 }; // NOLINT
         std::set< size_t > expected( data, data + 10 );
@@ -122,7 +122,7 @@ public:
         WJoinContourTree jt( m_dataset );
         jt.buildJoinTree();
         using string_utils::operator<<;
-        TS_ASSERT_EQUALS( expected, *jt.getVolumeVoxelsEnclosedByIsoSurface( 4.0 ) );
+        TS_ASSERT_EQUALS( expected, *jt.getVolumeVoxelsEnclosedByISOSurface( 4.0 ) );
     }
 
 protected:

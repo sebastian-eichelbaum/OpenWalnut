@@ -31,7 +31,6 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -136,7 +135,7 @@ protected:
      *
      * \return OSG Geode with the voxels as cuboids.
      */
-    osg::ref_ptr< osg::Geode > genDataSetGeode( boost::shared_ptr< WDataSetSingle > dataset ) const;
+    osg::ref_ptr< osg::Geode > genDataSetGeode( boost::shared_ptr< WDataSetScalar > dataset ) const;
 
     /**
      * Performs rasterization with the given algorithm.
@@ -197,6 +196,9 @@ private:
     WPropBool m_drawVoxels; //!< Enable/Disable drawing of marked voxels (this is not hide/unhide since its expensive computation time too!)
     WPropString m_rasterAlgo; //!< Specifies the algorithm you may want to use for voxelization
     WPropInt  m_voxelsPerUnit;  //!< The number of voxels per unit in the coordinate system
+
+    WPropDouble m_fiberTransparency; //!< Trancparency of the fibers
+    WPropColor m_explicitFiberColor; //!< If set not to 0.2 0.2 0.2 all fiber having this color
 
     /**
      * The available parameterization algorithms.

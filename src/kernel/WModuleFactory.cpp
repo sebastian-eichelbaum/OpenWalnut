@@ -29,12 +29,12 @@
 #include <typeinfo>
 #include <vector>
 
-#include "WModule.h"
-#include "WModuleCombiner.h"
 #include "../common/WLogger.h"
 #include "combiner/WApplyCombiner.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
+#include "WModule.h"
+#include "WModuleCombiner.h"
 #include "WModuleFactory.h"
 
 // factory instance as singleton

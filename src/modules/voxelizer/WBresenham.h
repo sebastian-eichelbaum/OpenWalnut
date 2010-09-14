@@ -124,6 +124,16 @@ protected:
      */
     std::vector< double > computeDistances( const size_t voxelNum, const wmath::WPosition& start, const wmath::WPosition& end ) const;
 
+    /**
+     * Compose the new value for a voxel out of a new computed value and the already existing marking.
+     *
+     * \param newValue Newly computed value
+     * \param existingValue The mark already existing for the voxel (aka previous mark or markSoFar)
+     *
+     * \return The new mark for that voxel
+     */
+    double composeValue( double newValue, double existingValue ) const;
+
     bool m_antialiased; //!< If true also some supporting voxels are marked
 
 private:

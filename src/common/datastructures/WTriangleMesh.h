@@ -28,15 +28,17 @@
 #include <algorithm>
 #include <iostream>
 #include <list>
+#include <set>
 #include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
+#include "../math/WLine.h"
+#include "../math/WPlane.h"
 #include "../math/WPosition.h"
 #include "../math/WVector3D.h"
 #include "../WTransferable.h"
-
 #include "../WExportCommon.h"
 
 /**
