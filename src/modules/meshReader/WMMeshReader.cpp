@@ -96,11 +96,11 @@ void WMMeshReader::moduleMain()
 {
     m_moduleState.add( m_propCondition );
     ready();
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }

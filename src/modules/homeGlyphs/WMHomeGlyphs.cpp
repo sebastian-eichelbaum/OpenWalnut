@@ -73,7 +73,7 @@ void estimateNormalsAntipodal( limnPolyData *glyph, const char normalize )
         ELL_3V_INCR( glyph->norm+3*faces[3*f+1], cross );
         ELL_3V_INCR( glyph->norm+3*faces[3*f+2], cross );
         /* same for anti-face */
-        if ( faces[3*f]%2 == 0 )
+        if( faces[3*f]%2 == 0 )
         {
             ELL_3V_SUB( glyph->norm+3*faces[3*f]+3, glyph->norm+3*faces[3*f]+3, cross );
         }
@@ -81,7 +81,7 @@ void estimateNormalsAntipodal( limnPolyData *glyph, const char normalize )
         {
             ELL_3V_SUB( glyph->norm+3*faces[3*f]-3, glyph->norm+3*faces[3*f]-3, cross );
         }
-        if ( faces[3*f+1]%2 == 0 )
+        if( faces[3*f+1]%2 == 0 )
         {
             ELL_3V_SUB( glyph->norm+3*faces[3*f+1]+3, glyph->norm+3*faces[3*f+1]+3, cross );
         }
@@ -89,7 +89,7 @@ void estimateNormalsAntipodal( limnPolyData *glyph, const char normalize )
         {
             ELL_3V_SUB( glyph->norm+3*faces[3*f+1]-3, glyph->norm+3*faces[3*f+1]-3, cross );
         }
-        if ( faces[3*f+2]%2 == 0 )
+        if( faces[3*f+2]%2 == 0 )
         {
             ELL_3V_SUB( glyph->norm+3*faces[3*f+2]+3, glyph->norm+3*faces[3*f+2]+3, cross );
         }
@@ -98,11 +98,11 @@ void estimateNormalsAntipodal( limnPolyData *glyph, const char normalize )
             ELL_3V_SUB( glyph->norm+3*faces[3*f+2]-3, glyph->norm+3*faces[3*f+2]-3, cross );
         }
     }
-    if ( normalize )
+    if( normalize )
     {
         float len;
         unsigned int i;
-        for ( i = 0; i < glyph->normNum; i++ )
+        for( i = 0; i < glyph->normNum; i++ )
         {
             ELL_3V_NORM_TT( glyph->norm + 3*i, float, glyph->norm + 3*i, len );
         }
@@ -181,7 +181,7 @@ void WMHomeGlyphs::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
-        if ( !m_input->getData().get() )
+        if( !m_input->getData().get() )
         {
             // OK, the output has not yet sent data
             debugLog() << "Waiting for data ...";
@@ -247,9 +247,9 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
 
 void WMHomeGlyphs::activate()
 {
-    if ( m_moduleNode )
+    if( m_moduleNode )
     {
-        if ( m_active->get() )
+        if( m_active->get() )
         {
             m_moduleNode->setNodeMask( 0xFFFFFFFF );
         }
