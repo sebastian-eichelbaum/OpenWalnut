@@ -82,7 +82,7 @@ WItemSelector WItemSelection::getSelector( size_t item )
 
     if ( r->get().size() <= item )
     {
-        throw WOutOfBounds( "The specified item does not exist." );
+        throw WOutOfBounds( std::string( "The specified item does not exist." ) );
     }
     l.push_back( item );
     return WItemSelector( shared_from_this(), l );

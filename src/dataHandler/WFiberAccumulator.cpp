@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <fstream>
+#include <string>
 #include <vector>
 
 #include "../../common/WAssert.h"

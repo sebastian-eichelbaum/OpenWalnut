@@ -27,6 +27,8 @@
 
 #include <vector>
 
+#include "WExportWGE.h"
+
 #include "WROI.h"
 
 /**
@@ -34,7 +36,7 @@
  * while a normal roi computes it's bitfield from it's location in space and the fibers passing through,
  * this roi simply stores a bitfield of previously selected fibers
  */
-class WROIBitfield : public WROI
+class WGE_EXPORT WROIBitfield : public WROI
 {
 public:
     /**

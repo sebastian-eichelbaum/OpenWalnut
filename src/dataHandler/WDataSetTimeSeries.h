@@ -37,6 +37,7 @@
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
 #include "WDataSetScalar.h"
+#include "WExportDataHandler.h"
 
 //! forward declaration
 class WDataSetTimeSeriesTest;
@@ -46,7 +47,7 @@ class WDataSetTimeSeriesTest;
  *
  * \note Only works for scalar datasets at the moment!
  */
-class WDataSetTimeSeries : public WDataSet
+class OWDATAHANDLER_EXPORT WDataSetTimeSeries : public WDataSet
 {
     //! the test is a friend
     friend class WDataSetTimeSeriesTest;
@@ -246,7 +247,7 @@ Data_T WDataSetTimeSeries::interpolate( wmath::WVector3D const& pos, float time,
     if( time < getMinTime() || time > getMaxTime() )
     {
         *success = false;
-        throw WException( "The provided time is not in the interval of this time series." );
+        throw WException( std::string( "The provided time is not in the interval of this time series." ) );
     }
     float lb = getLBTimeSlice( time );
     float ub = getUBTimeSlice( time );

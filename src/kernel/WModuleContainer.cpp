@@ -404,7 +404,8 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
     // is this module already associated with another container?
     if ( applyOn->isAssociated()() && ( applyOn->getAssociatedContainer() != shared_from_this() ) )
     {
-        throw WModuleAlreadyAssociated( "The specified module \"" + applyOn->getName() + "\" is associated with another container." );
+        throw WModuleAlreadyAssociated( std::string( "The specified module \"" ) + applyOn->getName() +
+                                        std::string( "\" is associated with another container." ) );
     }
 
     // create a new initialized instance of the module

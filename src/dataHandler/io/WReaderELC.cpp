@@ -53,7 +53,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
     ifs.open( m_fname.c_str(), std::ifstream::in );
     if( !ifs || ifs.bad() )
     {
-        throw WDHNoSuchFile( "Problem loading file " + m_fname + ". Probably file not found." );
+        throw WDHNoSuchFile( std::string( "Problem loading file " + m_fname + ". Probably file not found." ) );
     }
 
     std::string line;
@@ -62,7 +62,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
         std::getline( ifs, line );
         if( !ifs.good() )
         {
-            throw WDHIOFailure( "Unexpected end of file " + m_fname );
+            throw WDHIOFailure( std::string( "Unexpected end of file " + m_fname ) );
         }
     }
 
@@ -74,7 +74,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
         std::getline( ifs, line );
         if( !ifs.good() )
         {
-            throw WDHIOFailure( "Unexpected end of file " + m_fname );
+            throw WDHIOFailure( std::string( "Unexpected end of file " + m_fname ) );
         }
     }
 
@@ -86,7 +86,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
         std::getline( ifs, line );
         if( !ifs.good() )
         {
-            throw WDHIOFailure( "Unexpected end of file " + m_fname );
+            throw WDHIOFailure( std::string( "Unexpected end of file " + m_fname ) );
         }
         else
         {
@@ -103,7 +103,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
 
     if( positions.size() != numPositions )
     {
-        throw WDHParseError( "Could not find correct number of Positions regarding to NumberPositions statement in file " + m_fname );
+        throw WDHParseError( std::string( "Could not find correct number of Positions regarding to NumberPositions statement in file " + m_fname ) );
     }
 
     while( ifs.good() && line.substr( 0, 6 )  != "Labels" )  // go to line before start of labels
@@ -111,7 +111,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
         std::getline( ifs, line );
         if( !ifs.good() )
         {
-            throw WDHIOFailure( "Unexpected end of file " + m_fname );
+            throw WDHIOFailure( std::string( "Unexpected end of file " + m_fname ) );
         }
     }
 
@@ -122,7 +122,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
         std::getline( ifs, line );
         if( ifs.fail() )
         {
-            throw WDHIOFailure( "Unexpected end of file " + m_fname );
+            throw WDHIOFailure( std::string( "Unexpected end of file " + m_fname ) );
         }
         else
         {
@@ -137,7 +137,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
 
     if( positionsMap.size() != numPositions )
     {
-        throw WDHParseError( "Could not find correct number of Labels regarding to NumberPositions statement in file " + m_fname );
+        throw WDHParseError( std::string( "Could not find correct number of Labels regarding to NumberPositions statement in file " + m_fname ) );
     }
 
     ifs.close();

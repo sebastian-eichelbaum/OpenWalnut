@@ -62,7 +62,7 @@ bool WDataSet::isTexture() const
 
 boost::shared_ptr< WDataTexture3D > WDataSet::getTexture()
 {
-    throw WDHException( "This dataset does not provide a texture." );
+    throw WDHException( std::string( "This dataset does not provide a texture." ) );
 }
 
 const std::string WDataSet::getName() const

@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMFIBERPARAMETERCOLORING_H
-#define WMFIBERPARAMETERCOLORING_H
+#ifndef WMFIBERRESAMPLING_H
+#define WMFIBERRESAMPLING_H
 
 #include <string>
 
@@ -34,23 +34,24 @@
 #include "../../kernel/WModuleOutputData.h"
 
 /**
- * This modules takes a dataset and equalizes its histogram.
+ * This modules takes a fiber dataset and samples it in regular steps. This is useful when importing fiber datasets from other tools sampled at
+ * different steps sizes.
  *
  * \ingroup modules
  */
-class WMFiberParameterColoring: public WModule
+class WMFiberResampling: public WModule
 {
 public:
 
     /**
      * Default constructor.
      */
-    WMFiberParameterColoring();
+    WMFiberResampling();
 
     /**
      * Destructor.
      */
-    virtual ~WMFiberParameterColoring();
+    virtual ~WMFiberResampling();
 
     /**
      * Gives back the name of this module.
@@ -110,17 +111,7 @@ private:
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
-
-    /**
-     * The colors encoding the curvature
-     */
-    WDataSetFibers::ColorArray m_fibCurvatureColors;
-
-    /**
-     * The colors encoding the segment length
-     */
-    WDataSetFibers::ColorArray m_fibLengthColors;
 };
 
-#endif  // WMFIBERPARAMETERCOLORING_H
+#endif  // WMFIBERRESAMPLING_H
 

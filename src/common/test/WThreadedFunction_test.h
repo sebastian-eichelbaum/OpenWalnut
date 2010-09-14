@@ -25,6 +25,8 @@
 #ifndef WTHREADEDFUNCTION_TEST_H
 #define WTHREADEDFUNCTION_TEST_H
 
+#include <string>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WThreadedFunction.h"
@@ -130,7 +132,7 @@ class WThreadedFunctionTest : public CxxTest::TestSuite
          */
         void operator() ( std::size_t, std::size_t, WBoolFlag& )
         {
-            throw WException( "Test!" );
+            throw WException( std::string( "Test!" ) );
         }
     };
 

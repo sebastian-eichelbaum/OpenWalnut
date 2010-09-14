@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <limits>
+#include <string>
 #include <vector>
 
 #include "../common/WLimits.h"
@@ -175,7 +176,7 @@ namespace wtracking
         // dataset != 0 is tested by the base constructor
         if( !m_grid )
         {
-            throw WException( "Cannot find WGridRegular3D. Are you sure the dataset has the correct grid type?" );
+            throw WException( std::string( "Cannot find WGridRegular3D. Are you sure the dataset has the correct grid type?" ) );
         }
 
         m_maxPoints = static_cast< std::size_t >( 5 * pow( static_cast< double >( m_grid->size() ), 1.0 / 3.0 ) );
