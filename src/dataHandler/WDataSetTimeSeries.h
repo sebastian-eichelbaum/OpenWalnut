@@ -31,9 +31,9 @@
 #include <vector>
 
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "../common/WLimits.h"
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
 #include "WDataSetScalar.h"
@@ -242,8 +242,8 @@ Data_T WDataSetTimeSeries::interpolate( wmath::WVector3D const& pos, float time,
 {
     static const float inf = std::numeric_limits< float >::infinity();
     WAssert( success, "" );
-    WAssert( !boost::math::isnan( pos.norm() ), "" );
-    WAssert( !boost::math::isnan( time ), "" );
+    WAssert( !wlimits::isnan( pos.norm() ), "" );
+    WAssert( !wlimits::isnan( time ), "" );
     if( time < getMinTime() || time > getMaxTime() )
     {
         *success = false;

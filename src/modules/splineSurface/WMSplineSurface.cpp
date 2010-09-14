@@ -113,7 +113,7 @@ void WMSplineSurface::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
-        // update ISO surface
+        // update isosurface
         debugLog() << "Computing surface ...";
 
         WSurface surf;

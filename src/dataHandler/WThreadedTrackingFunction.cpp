@@ -26,8 +26,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/math/special_functions/fpclassify.hpp>
-
+#include "../common/WLimits.h"
 #include "WThreadedTrackingFunction.h"
 
 namespace wtracking
@@ -50,8 +49,7 @@ namespace wtracking
 
         // find t such that job.first() + t * dir is a point on the boundary of the current voxel
         double t = getDistanceToBoundary( g, job.first, dir );
-        // Note: on Mac OSX this might not compile with cmath's isnan.. don't know why so using boost's isnan will overcome this
-        WAssert( !boost::math::isinf( t ) && !boost::math::isnan( t ), "Warning in WTrackingUtility::followToNextVoxel NaN's or INF's occured" );
+        WAssert( !wlimits::isinf( t ) && !wlimits::isnan( t ), "Warning in WTrackingUtility::followToNextVoxel NaN's or INF's occured" );
         WAssert( t > 0.0, "" );
         WAssert( onBoundary( g, job.first + dir * t ), "" );
 
