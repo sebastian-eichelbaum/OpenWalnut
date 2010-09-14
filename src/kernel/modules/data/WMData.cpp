@@ -401,7 +401,7 @@ void WMData::moduleMain()
     }
     else
     {
-        throw WDHException( "Unknown file type: '" + suffix + "'" );
+        throw WDHException( std::string( "Unknown file type: '" + suffix + "'" ) );
     }
 
     debugLog() << "Loading data done.";

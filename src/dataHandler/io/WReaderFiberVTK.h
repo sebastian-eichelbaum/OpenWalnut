@@ -147,7 +147,7 @@ template< typename T > inline T WReaderFiberVTK::getLexicalCast( std::string str
     }
     catch( const boost::bad_lexical_cast &e )
     {
-        throw WDHParseError( "Cast error in VTK fiber file: " + m_fname + ": " + errMsg + ": " + stringValue );
+        throw WDHParseError( std::string( "Cast error in VTK fiber file: " + m_fname + ": " + errMsg + ": " + stringValue ) );
     }
 
     return result;

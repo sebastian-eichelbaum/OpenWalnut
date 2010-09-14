@@ -30,8 +30,8 @@
 #include <cxxtest/TestSuite.h>
 #include <cxxtest/ValueTraits.h>
 
-#include "../../test/WTraitsBase.h"
-#include "../WTriangleMesh.h"
+#include "../../common/test/WTraitsBase.h"
+#include "../WTriangleMesh2.h"
 
 #ifdef CXXTEST_RUNNING
 namespace CxxTest
@@ -41,13 +41,13 @@ CXXTEST_TEMPLATE_INSTANTIATION
  * Enables better UnitTest OutPut if something fails with WTriangleMeshs, so you see
  * immedeatly what is failing.
  */
-class ValueTraits< WTriangleMesh > : public WTraitsBase
+class ValueTraits< WTriangleMesh2 > : public WTraitsBase
 {
 public:
     /**
-     * Constructs a new ValueTrait of a WTriangleMesh for better test output
+     * Constructs a new ValueTrait of a WTriangleMesh2 for better test output
      */
-    explicit ValueTraits( const WTriangleMesh &mesh )
+    explicit ValueTraits( const WTriangleMesh2 &mesh )
     {
         std::stringstream ss;
         using tm_utils::operator<<;

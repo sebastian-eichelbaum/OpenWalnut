@@ -35,14 +35,14 @@
 #include "../../common/WThreadedFunction.h"
 #include "../../common/WConditionOneShot.h"
 #include "../../kernel/WKernel.h"
-#include "home.xpm"
+#include "teemGlyphs.xpm"
 
-#include "WMHomeGlyphs.h"
+#include "WMTeemGlyphs.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
-W_LOADABLE_MODULE( WMHomeGlyphs )
+W_LOADABLE_MODULE( WMTeemGlyphs )
 
-WMHomeGlyphs::WMHomeGlyphs():
+WMTeemGlyphs::WMTeemGlyphs():
     WModule(),
     m_recompute( boost::shared_ptr< WCondition >( new WCondition() ) )
 {
@@ -110,33 +110,33 @@ void estimateNormalsAntipodal( limnPolyData *glyph, const char normalize )
 }
 }
 
-WMHomeGlyphs::~WMHomeGlyphs()
+WMTeemGlyphs::~WMTeemGlyphs()
 {
     // Cleanup!
 }
 
-boost::shared_ptr< WModule > WMHomeGlyphs::factory() const
+boost::shared_ptr< WModule > WMTeemGlyphs::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMHomeGlyphs() );
+    return boost::shared_ptr< WModule >( new WMTeemGlyphs() );
 }
 
-const char** WMHomeGlyphs::getXPMIcon() const
+const char** WMTeemGlyphs::getXPMIcon() const
 {
-    return home_xpm;
+    return teemGlyphs_xpm;
 }
 
 
-const std::string WMHomeGlyphs::getName() const
+const std::string WMTeemGlyphs::getName() const
 {
-    return "HOME Glyphs";
+    return "Teem Glyphs";
 }
 
-const std::string WMHomeGlyphs::getDescription() const
+const std::string WMTeemGlyphs::getDescription() const
 {
     return "Higher-Order Tensor Glyphs as described at http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.html";
 }
 
-void WMHomeGlyphs::connectors()
+void WMTeemGlyphs::connectors()
 {
     m_input = boost::shared_ptr< WModuleInputData < WDataSetSphericalHarmonics > >(
         new WModuleInputData< WDataSetSphericalHarmonics >( shared_from_this(), "in", "The input dataset." ) );
@@ -147,7 +147,7 @@ void WMHomeGlyphs::connectors()
     WModule::connectors();
 }
 
-void WMHomeGlyphs::properties()
+void WMTeemGlyphs::properties()
 {
     m_sliceOrientations = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_sliceOrientations->addItem( "x", "x-slice" );
@@ -171,7 +171,7 @@ void WMHomeGlyphs::properties()
     m_useNormalizationProp = m_properties->addProperty( "Radius normalization", "Scale the radius of each glyph to be in [0,1].", true, m_recompute );
 }
 
-void WMHomeGlyphs::moduleMain()
+void WMTeemGlyphs::moduleMain()
 {
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_recompute );
@@ -197,7 +197,7 @@ void WMHomeGlyphs::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
-void  WMHomeGlyphs::renderSlice( size_t sliceId )
+void  WMTeemGlyphs::renderSlice( size_t sliceId )
 {
     boost::shared_ptr< WProgress > progress;
     progress = boost::shared_ptr< WProgress >( new WProgress( "Glyph Generation", 2 ) );
@@ -235,7 +235,7 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
 
     debugLog() << "end loop ... " << sliceId;
 
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMHomeGlyphs", m_localPath ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMTeemGlyphs", m_localPath ) );
     m_shader->apply( glyphsGeode );
 
 
@@ -245,7 +245,7 @@ void  WMHomeGlyphs::renderSlice( size_t sliceId )
 }
 
 
-void WMHomeGlyphs::activate()
+void WMTeemGlyphs::activate()
 {
     if( m_moduleNode )
     {
@@ -261,7 +261,7 @@ void WMHomeGlyphs::activate()
     WModule::activate();
 }
 
-void WMHomeGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, const size_t& nbVertCoords )
+void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, const size_t& nbVertCoords )
 {
     // double min = wlimits::MAX_DOUBLE;
     // double max = -wlimits::MAX_DOUBLE;
@@ -303,7 +303,7 @@ void WMHomeGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
     // else do nothing because all values are equal.
 }
 
-WMHomeGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSphericalHarmonics > dataSet,
+WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSphericalHarmonics > dataSet,
                                                 const size_t& sliceId,
                                                 const size_t& sliceType,
                                                 const bool& usePolar,
@@ -375,13 +375,13 @@ WMHomeGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
     m_glyphElements->resize( m_sphere->indxNum * nbGlyphs );
 }
 
-WMHomeGlyphs::GlyphGeneration::~GlyphGeneration()
+WMTeemGlyphs::GlyphGeneration::~GlyphGeneration()
 {
     // free memory
     m_sphere = limnPolyDataNix( m_sphere );
 }
 
-void WMHomeGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WBoolFlag& /*b*/ )
+void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WBoolFlag& /*b*/ )
 {
     const size_t nbVertCoords = 4; //The teem limn data structure has 4 values for a coordinate: x, y, z, w.
     limnPolyData *localSphere = limnPolyDataNew();
@@ -539,7 +539,7 @@ void WMHomeGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
     delete[] esh;
 }
 
-osg::ref_ptr< osg::Geode > WMHomeGlyphs::GlyphGeneration::getGraphics()
+osg::ref_ptr< osg::Geode > WMTeemGlyphs::GlyphGeneration::getGraphics()
 {
     m_glyphGeometry->setVertexArray( m_vertArray );
     m_glyphGeometry->addPrimitiveSet( m_glyphElements );

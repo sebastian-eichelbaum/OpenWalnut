@@ -31,12 +31,13 @@
 #include <vector>
 
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "../common/WLimits.h"
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
 #include "WDataSetScalar.h"
+#include "WExportDataHandler.h"
 
 //! forward declaration
 class WDataSetTimeSeriesTest;
@@ -160,6 +161,20 @@ public:
     template< typename Data_T >
     Data_T interpolate( wmath::WVector3D const& pos, float time, bool* success ) const;
 
+    /**
+     * Get the smallest value in all datasets.
+     *
+     * \return The smallest value.
+     */
+    double getMinValue();
+
+    /**
+     * Get the largest value in all datasets.
+     *
+     * \return The largest value.
+     */
+    double getMaxValue();
+
 private:
     /**
      * Find the largest time slice position that is smaller than or equal to time,
@@ -234,6 +249,12 @@ private:
 
     //! The prototype as singleton.
     static boost::shared_ptr< WPrototyped > m_prototype;
+
+    //! the smallest value
+    double m_minValue;
+
+    //! the largest value
+    double m_maxValue;
 };
 
 template< typename Data_T >
@@ -241,12 +262,12 @@ Data_T WDataSetTimeSeries::interpolate( wmath::WVector3D const& pos, float time,
 {
     static const float inf = std::numeric_limits< float >::infinity();
     WAssert( success, "" );
-    WAssert( !boost::math::isnan( pos.norm() ), "" );
-    WAssert( !boost::math::isnan( time ), "" );
+    WAssert( !wlimits::isnan( pos.norm() ), "" );
+    WAssert( !wlimits::isnan( time ), "" );
     if( time < getMinTime() || time > getMaxTime() )
     {
         *success = false;
-        throw WException( "The provided time is not in the interval of this time series." );
+        throw WException( std::string( "The provided time is not in the interval of this time series." ) );
     }
     float lb = getLBTimeSlice( time );
     float ub = getUBTimeSlice( time );

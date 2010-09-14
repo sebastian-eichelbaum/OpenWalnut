@@ -77,7 +77,7 @@ WGEViewer::WGEViewer( std::string name, int x, int y,
                 // no manipulators nor gui handlers
                 break;
             default:
-                throw WGEInitFailed( "Unknown projection mode" );
+                throw WGEInitFailed( std::string( "Unknown projection mode" ) );
         }
 
         // add the stats handler
@@ -85,7 +85,7 @@ WGEViewer::WGEViewer( std::string name, int x, int y,
     }
     catch( ... )
     {
-        throw WGEInitFailed( "Initialization of WGEViewer failed" );
+        throw WGEInitFailed( std::string( "Initialization of WGEViewer failed" ) );
     }
 }
 

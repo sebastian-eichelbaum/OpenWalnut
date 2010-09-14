@@ -32,6 +32,7 @@
 
 #include <osg/Geode>
 
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/datastructures/WJoinContourTree.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
@@ -94,16 +95,18 @@ protected:
     virtual void initSubModules();
 
 private:
-    boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_input;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputForwardData< WDataSetFibers > > m_fibers;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputForwardData< WDataSetScalar > > m_paramDS;  //!< Input connector for the parameter dataset
 
-    boost::shared_ptr< WModule > m_fiberClustering; //!< Submodule doing clustering of the fibers and center line generation
+    boost::shared_ptr< WModule > m_detTractClustering; //!< Submodule doing clustering of the fibers and center line generation
     boost::shared_ptr< WModule > m_voxelizer; //!< Submodule doing voxelization of a cluster
     boost::shared_ptr< WModule > m_gaussFiltering; //!< Submodule blurring the generated voxelized dataset
-    boost::shared_ptr< WModule > m_isoSurface; //!< Selects the appropriate ISO value
+    boost::shared_ptr< WModule > m_isoSurface; //!< Selects the appropriate isovalue
     boost::shared_ptr< WModule > m_clusterSlicer; //!< Module slicing the cluster volume
+    boost::shared_ptr< WModule > m_meshRenderer; //!< Renders the triangle Mesh with a certain color
 
-    // TODO(math): forward this to all submodules which needs this: isoSurface, clusterSlicer
-     WPropDouble m_isoValue; //!< ISO Value for selecting the volume
+    WPropDouble m_isoValue; //!< Isovalue for selecting the volume
+    WPropBool   m_drawIsoSurface; //!< En/Disable the display of the isosurface
 };
 
 #endif  // WMCLUSTERPARAMDISPLAY_H

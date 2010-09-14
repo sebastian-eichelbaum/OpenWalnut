@@ -27,9 +27,8 @@
 #include <string>
 #include <vector>
 
-#include <boost/math/special_functions/fpclassify.hpp> // isnan
-
 #include "../common/WAssert.h"
+#include "../common/WLimits.h"
 #include "WDataSetTimeSeries.h"
 
 // prototype instance as singleton
@@ -46,22 +45,32 @@ WDataSetTimeSeries::WDataSetTimeSeries( std::vector< boost::shared_ptr< WDataSet
     boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( datasets.front()->getGrid() );
     WAssert( g, "" );
     dataType d = datasets.front()->getValueSet()->getDataType();
+    m_minValue = datasets.front()->getMin();
+    m_maxValue = datasets.front()->getMax();
     for( dit = datasets.begin(), tit = times.begin(); dit != datasets.end() && tit != times.end(); ++dit, ++tit )
     {
         WAssert( *dit, "" );
         WAssert( g == boost::shared_dynamic_cast< WGridRegular3D >( ( *dit )->getGrid() ), "" );
-        WAssert( !boost::math::isnan( *tit ), "" );
+        WAssert( !wlimits::isnan( *tit ), "" );
         WAssert( d == ( *dit )->getValueSet()->getDataType(), "" );
         WAssert( ( *dit )->getValueSet()->dimension() == 1, "" );
         WAssert( ( *dit )->getValueSet()->order() == 0, "" );
         m_dataSets.push_back( TimeSlice( *dit, *tit ) );
+        if( m_minValue > ( *dit )->getMin() )
+        {
+            m_minValue = ( *dit )->getMin();
+        }
+        if( m_maxValue < ( *dit )->getMax() )
+        {
+            m_maxValue = ( *dit )->getMax();
+        }
     }
     std::sort( m_dataSets.begin(), m_dataSets.end(), TimeSliceCompare() );
     for( std::size_t k = 1; k < m_dataSets.size(); ++k )
     {
         if( m_dataSets[ k ].second == m_dataSets[ k - 1 ].second )
         {
-			throw WException( std::string( "There are multiple time slices at the same point in time!" ) );
+            throw WException( std::string( "There are multiple time slices at the same point in time!" ) );
         }
     }
 }
@@ -98,7 +107,7 @@ bool WDataSetTimeSeries::isTimeSlice( float time ) const
 
 float WDataSetTimeSeries::findNearestTimeSlice( float time ) const
 {
-    WAssert( !boost::math::isnan( time ), "" );
+    WAssert( !wlimits::isnan( time ), "" );
     if( time > getMaxTime() )
     {
         return getMaxTime();
@@ -120,7 +129,7 @@ boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::getDataSetPtrAtTim
 
 boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::calcDataSetAtTime( float time, std::string const& name ) const
 {
-    WAssert( !boost::math::isnan( time ), "" );
+    WAssert( !wlimits::isnan( time ), "" );
     if( time < getMinTime() || time > getMaxTime() )
     {
         return boost::shared_ptr< WDataSetScalar const >();
@@ -167,7 +176,7 @@ boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::calcDataSetAtTime(
         vs = calcInterpolatedValueSet< double >( lb, ub, time );
         break;
     default:
-		throw WException( std::string( "Unsupported datatype in WDataSetTimeSeries::calcDataSetAtTime()" ) );
+        throw WException( std::string( "Unsupported datatype in WDataSetTimeSeries::calcDataSetAtTime()" ) );
         break;
     }
     boost::shared_ptr< WDataSetScalar > ds( new WDataSetScalar( vs, m_dataSets.front().first->getGrid() ) );
@@ -220,4 +229,14 @@ float WDataSetTimeSeries::getUBTimeSlice( float time ) const
 WDataSetTimeSeries::WDataSetTimeSeries()
     : m_dataSets()
 {
+}
+
+double WDataSetTimeSeries::getMinValue()
+{
+    return m_minValue;
+}
+
+double WDataSetTimeSeries::getMaxValue()
+{
+    return m_maxValue;
 }

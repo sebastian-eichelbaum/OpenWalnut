@@ -27,6 +27,8 @@
 
 #include <vector>
 
+#include "WExportWGE.h"
+
 #include "WROI.h"
 
 /**

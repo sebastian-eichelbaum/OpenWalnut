@@ -25,24 +25,23 @@
 #include <string>
 #include <utility>
 
-#include <osg/ShapeDrawable>
-#include <osg/Group>
 #include <osg/Geode>
+#include <osg/Group>
 #include <osg/Material>
+#include <osg/ShapeDrawable>
 #include <osg/StateAttribute>
 
-#include "../../kernel/WKernel.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataTexture3D.h"
 #include "../../common/WColor.h"
 #include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/WGEUtils.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WShader.h"
-
-#include "WMIsosurfaceRaytracer.h"
+#include "../../kernel/WKernel.h"
 #include "isosurfaceraytracer.xpm"
+#include "WMIsosurfaceRaytracer.h"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMIsosurfaceRaytracer )

@@ -33,6 +33,7 @@
 #include "../common/math/WVector3D.h"
 #include "../common/WSharedObject.h"
 #include "../common/WThreadedJobs.h"
+#include "WExportDataHandler.h"
 #include "WDataSetSingle.h"
 
 class WThreadedTrackingFunctionTest; //! forward declaration

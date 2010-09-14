@@ -1,5 +1,5 @@
 /* XPM */
-static const char * home_xpm[] = {
+static const char * teemGlyphs_xpm[] = {
 "32 32 648 2",
 "  	c #E5E5E5",
 ". 	c #E4E4E4",

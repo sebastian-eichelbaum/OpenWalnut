@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <set>
+#include <string>
 #include <vector>
 
 #include "../../common/WStringUtils.h"
@@ -46,17 +47,17 @@ WJoinContourTree::WJoinContourTree( boost::shared_ptr< WDataSetSingle > dataset 
 {
     if( dataset->getValueSet()->order() != 0 || dataset->getValueSet()->dimension() != 1 )
     {
-        throw WNotImplemented( "ATM there is only support for scalar fields" );
+        throw WNotImplemented( std::string( "ATM there is only support for scalar fields" ) );
     }
     m_valueSet = boost::shared_dynamic_cast< WValueSet< double > >( dataset->getValueSet() );
     if( !m_valueSet )
     {
-        throw WNotImplemented( "ATM there is only support for scalar fields with doubles as scalars" );
+        throw WNotImplemented( std::string( "ATM there is only support for scalar fields with doubles as scalars" ) );
     }
     m_grid = boost::shared_dynamic_cast< WGridRegular3D >( dataset->getGrid() );
     if( !m_grid )
     {
-        throw WNotImplemented( "Only WGridRegular3D is supported, despite that its not a simplicial mesh!" );
+        throw WNotImplemented( std::string( "Only WGridRegular3D is supported, despite that its not a simplicial mesh!" ) );
     }
     for( size_t i = 0; i < m_elementIndices.size(); ++i )
     {
@@ -83,7 +84,7 @@ void WJoinContourTree::buildJoinTree()
         std::vector< size_t >::const_iterator n = neighbours.begin();
         for( ; n != neighbours.end(); ++n )
         {
-            if( m_valueSet->getScalar( *n ) < m_valueSet->getScalar( m_elementIndices[i] ) || uf.find( m_elementIndices[i] ) == uf.find( *n ) )
+            if( uf.find( m_elementIndices[i] ) == uf.find( *n ) || m_valueSet->getScalar( *n ) <= m_valueSet->getScalar( m_elementIndices[i] ) )
             {
                 continue;
             }
@@ -97,17 +98,24 @@ void WJoinContourTree::buildJoinTree()
     }
 }
 
-boost::shared_ptr< std::set< size_t > > WJoinContourTree::getVolumeVoxelsEnclosedByISOSurface( const double isoValue ) const
+boost::shared_ptr< std::set< size_t > > WJoinContourTree::getVolumeVoxelsEnclosedByIsoSurface( const double isoValue ) const
 {
     boost::shared_ptr< std::vector< size_t > > result( new std::vector< size_t >( m_elementIndices ) );
     WUnionFind uf( m_elementIndices.size() );
 
+    // using string_utils::operator<<;
+    // std::cout << "m_element: " << m_elementIndices << std::endl;
+
+    //std::stringstream ss;
     // assume the m_elementIndices array is still sorted descending on its iso values in the valueset
     for( size_t i = 0; i < m_elementIndices.size() && m_valueSet->getScalar( m_elementIndices[i] ) >= isoValue; ++i )
     {
         // std::cout << "processing element: " << i << std::endl;
         // std::cout << "having index: " << m_elementIndices[i] << std::endl;
+        // using string_utils::operator<<;
+        // std::cout << "xyz: " << m_grid->getNeighbours( m_elementIndices[i] ) << std::endl;
         // std::cout << "having isovalue: " << m_valueSet->getScalar( m_elementIndices[i] ) << std::endl;
+        // ss << " m_elementIndices[i]:isovalue=" << m_valueSet->getScalar( m_elementIndices[i] ) << ", ";
         size_t target = m_joinTree[ m_elementIndices[i] ];
         // std::cout << "having edge to: " << target << std::endl;
         if( m_valueSet->getScalar( target ) >= isoValue )
@@ -115,6 +123,7 @@ boost::shared_ptr< std::set< size_t > > WJoinContourTree::getVolumeVoxelsEnclose
             uf.merge( target, m_elementIndices[i] );
         }
     }
+    //std::cout << ss.str() << std::endl;
     return uf.getMaxSet();
 }
 

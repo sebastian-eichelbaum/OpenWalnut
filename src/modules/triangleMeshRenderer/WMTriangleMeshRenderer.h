@@ -29,12 +29,13 @@
 
 #include <osg/Geode>
 
+#include "../../common/datastructures/WColoredVertices.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-class WTriangleMesh;
 class WTriangleMesh2;
 
 /**
@@ -119,9 +120,12 @@ private:
     /**
      * An input connector used to get mehses from other modules. The connection management between connectors must not be handled by the module.
      */
-    boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_input;
+    boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_meshInput;
+    boost::shared_ptr< WModuleInputData< WColoredVertices > > m_colorMapInput; //!< for each vertex ID in that container a special color is given.
 
+    WPropColor m_meshColor; //!< The color of the mesh
     WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
+    WPropBool m_mainComponentOnly; //!< En/Disable display of only the main component (biggest vertices number)
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
 

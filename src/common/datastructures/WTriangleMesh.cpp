@@ -25,12 +25,16 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
+#include "../math/WLine.h"
+#include "../math/WMath.h"
+#include "../math/WPlane.h"
 #include "WTriangleMesh.h"
 #include "WUnionFind.h"
 
@@ -251,96 +255,117 @@ void WTriangleMesh::computeVertNormals()
     m_computedVertNormals = true;
 }
 
-std::ostream& tm_utils::operator<<( std::ostream& os, const WTriangleMesh& rhs )
-{
-    std::stringstream ss;
-    ss << "WTriangleMesh( #vertices=" << rhs.getNumVertices() << " #triangles=" << rhs.getNumTriangles() << " )" << std::endl;
-    using string_utils::operator<<;
-    size_t count = 0;
-    ss << std::endl;
-    const std::vector< Triangle > triangles = rhs.getTriangles();
-    const std::vector< wmath::WPosition > vertices = rhs.getVertices();
-    for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle, ++count )
-    {
-        std::stringstream prefix;
-        prefix << "triangle: " << count << "[ ";
-        std::string indent( prefix.str().size(), ' ' );
-        ss << prefix.str() << vertices[ triangle->pointID[0] ] << std::endl;
-        ss << indent << vertices[ triangle->pointID[1] ] << std::endl;
-        ss << indent << vertices[ triangle->pointID[2] ] << std::endl;
-        ss << std::string( indent.size() - 2, ' ' ) << "]" << std::endl;
-    }
-    return os << ss.str();
-}
-
-boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > tm_utils::componentDecomposition( const WTriangleMesh& mesh )
-{
-    WUnionFind uf( mesh.getNumVertices() ); // idea: every vertex in own component, then successivley join in accordance with the triangles
-
-    const std::vector< Triangle >& triangles = mesh.getTriangles();
-    for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle )
-    {
-        uf.merge( triangle->pointID[0], triangle->pointID[1] );
-        uf.merge( triangle->pointID[0], triangle->pointID[2] ); // uf.merge( triangle->pointID[2], triangle->pointID[1] ); they are already in same
-    }
-
-    // ATTENTION: The reason for using the complex BucketType instead of pasting vertices directly into a new WTriangleMesh
-    // is performance! For example: If there are many vertices reused inside the former WTriangleMesh mesh, then we want
-    // to reuse them in the new components too. Hence we must determine if a certain vertex is already inside the new component.
-    // Since the vertices are organized in a vector, we can use std::find( v.begin, v.end(), vertexToLookUp ) which results
-    // in O(N^2) or we could use faster lookUp via key and value leading to the map and the somehow complicated BucketType.
-    typedef std::map< wmath::WPosition, size_t > VertexType; // look up fast if a vertex is already inside the new mesh!
-    typedef std::vector< Triangle > TriangleType;
-    typedef std::pair< VertexType, TriangleType > BucketType; // Later on the Bucket will be transformed into the new WTriangleMesh component
-    std::map< size_t, BucketType > buckets; // Key identify with the cannonical element from UnionFind the new connected component
-
-    const std::vector< wmath::WPosition >& vertices = mesh.getVertices();
-    for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle )
-    {
-        size_t component = uf.find( triangle->pointID[0] );
-        if( buckets.find( component ) == buckets.end() )
-        {
-            buckets[ component ] = BucketType( VertexType(), TriangleType() ); // create new bucket
-        }
-
-        // Note: We discard the order of the points and indices, but semantically the structure remains the same
-        VertexType& mapRef = buckets[ component ].first; // short hand alias
-        Triangle x = { { 0, 0, 0 } }; // NOLINT
-        for( int i = 0; i < 3; ++i )
-        {
-            size_t id = 0;
-            const wmath::WPosition& vertex = vertices[ triangle->pointID[i] ];
-            if( mapRef.find( vertex ) == mapRef.end() )
-            {
-                id = mapRef.size(); // since size might change in next line
-                mapRef[ vertex ] = id;
-            }
-            else
-            {
-                id = mapRef[ vertex ];
-            }
-            x.pointID[i] = id;
-        }
-
-        buckets[ component ].second.push_back( x );
-    }
-
-    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > result( new std::list< boost::shared_ptr< WTriangleMesh > >() );
-    for( std::map< size_t, BucketType >::const_iterator cit = buckets.begin(); cit != buckets.end(); ++cit )
-    {
-        std::vector< wmath::WPosition > newVertices;
-        newVertices.resize( cit->second.first.size() );
-        for( VertexType::const_iterator vit = cit->second.first.begin(); vit != cit->second.first.end(); ++vit )
-        {
-            newVertices.at( vit->second ) = vit->first; // if you are sure that vit->second is always valid replace at() call with operator[]
-        }
-        boost::shared_ptr< WTriangleMesh > newMesh( new WTriangleMesh() );
-        newMesh->resizeVertices( newVertices.size() );
-        newMesh->setVertices( newVertices );
-        newMesh->resizeTriangles( cit->second.second.size() );
-        newMesh->setTriangles( cit->second.second );
-        result->push_back( newMesh );
-    }
-
-    return result;
-}
+//std::ostream& tm_utils::operator<<( std::ostream& os, const WTriangleMesh& rhs )
+//{
+//    std::stringstream ss;
+//    ss << "WTriangleMesh( #vertices=" << rhs.getNumVertices() << " #triangles=" << rhs.getNumTriangles() << " )" << std::endl;
+//    using string_utils::operator<<;
+//    size_t count = 0;
+//    ss << std::endl;
+//    const std::vector< Triangle > triangles = rhs.getTriangles();
+//    const std::vector< wmath::WPosition > vertices = rhs.getVertices();
+//    for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle, ++count )
+//    {
+//        std::stringstream prefix;
+//        prefix << "triangle: " << count << "[ ";
+//        std::string indent( prefix.str().size(), ' ' );
+//        ss << prefix.str() << vertices[ triangle->pointID[0] ] << std::endl;
+//        ss << indent << vertices[ triangle->pointID[1] ] << std::endl;
+//        ss << indent << vertices[ triangle->pointID[2] ] << std::endl;
+//        ss << std::string( indent.size() - 2, ' ' ) << "]" << std::endl;
+//    }
+//    return os << ss.str();
+//}
+//
+//boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > tm_utils::componentDecomposition( const WTriangleMesh& mesh )
+//{
+//    WUnionFind uf( mesh.getNumVertices() ); // idea: every vertex in own component, then successivley join in accordance with the triangles
+//
+//    const std::vector< Triangle >& triangles = mesh.getTriangles();
+//    for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle )
+//    {
+//        uf.merge( triangle->pointID[0], triangle->pointID[1] );
+//        uf.merge( triangle->pointID[0], triangle->pointID[2] ); // uf.merge( triangle->pointID[2], triangle->pointID[1] ); they are already in same
+//    }
+//
+//    // ATTENTION: The reason for using the complex BucketType instead of pasting vertices directly into a new WTriangleMesh
+//    // is performance! For example: If there are many vertices reused inside the former WTriangleMesh mesh, then we want
+//    // to reuse them in the new components too. Hence we must determine if a certain vertex is already inside the new component.
+//    // Since the vertices are organized in a vector, we can use std::find( v.begin, v.end(), vertexToLookUp ) which results
+//    // in O(N^2) or we could use faster lookUp via key and value leading to the map and the somehow complicated BucketType.
+//    typedef std::map< wmath::WPosition, size_t > VertexType; // look up fast if a vertex is already inside the new mesh!
+//    typedef std::vector< Triangle > TriangleType;
+//    typedef std::pair< VertexType, TriangleType > BucketType; // Later on the Bucket will be transformed into the new WTriangleMesh component
+//    std::map< size_t, BucketType > buckets; // Key identify with the cannonical element from UnionFind the new connected component
+//
+//    const std::vector< wmath::WPosition >& vertices = mesh.getVertices();
+//    for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle )
+//    {
+//        size_t component = uf.find( triangle->pointID[0] );
+//        if( buckets.find( component ) == buckets.end() )
+//        {
+//            buckets[ component ] = BucketType( VertexType(), TriangleType() ); // create new bucket
+//        }
+//
+//        // Note: We discard the order of the points and indices, but semantically the structure remains the same
+//        VertexType& mapRef = buckets[ component ].first; // short hand alias
+//        Triangle x = { { 0, 0, 0 } }; // NOLINT
+//        for( int i = 0; i < 3; ++i )
+//        {
+//            size_t id = 0;
+//            const wmath::WPosition& vertex = vertices[ triangle->pointID[i] ];
+//            if( mapRef.find( vertex ) == mapRef.end() )
+//            {
+//                id = mapRef.size(); // since size might change in next line
+//                mapRef[ vertex ] = id;
+//            }
+//            else
+//            {
+//                id = mapRef[ vertex ];
+//            }
+//            x.pointID[i] = id;
+//        }
+//
+//        buckets[ component ].second.push_back( x );
+//    }
+//
+//    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > result( new std::list< boost::shared_ptr< WTriangleMesh > >() );
+//    for( std::map< size_t, BucketType >::const_iterator cit = buckets.begin(); cit != buckets.end(); ++cit )
+//    {
+//        std::vector< wmath::WPosition > newVertices;
+//        newVertices.resize( cit->second.first.size() );
+//        for( VertexType::const_iterator vit = cit->second.first.begin(); vit != cit->second.first.end(); ++vit )
+//        {
+//            newVertices.at( vit->second ) = vit->first; // if you are sure that vit->second is always valid replace at() call with operator[]
+//        }
+//        boost::shared_ptr< WTriangleMesh > newMesh( new WTriangleMesh() );
+//        newMesh->resizeVertices( newVertices.size() );
+//        newMesh->setVertices( newVertices );
+//        newMesh->resizeTriangles( cit->second.second.size() );
+//        newMesh->setTriangles( cit->second.second );
+//        result->push_back( newMesh );
+//    }
+//
+//    return result;
+//}
+//
+//boost::shared_ptr< std::set< size_t > > tm_utils::intersection( const WTriangleMesh& mesh, const WPlane& plane )
+//{
+//    boost::shared_ptr< std::set< size_t > > result( new std::set< size_t > );
+//    const std::vector< wmath::WPosition >& vertices = mesh.getVertices();
+//    const std::vector< Triangle >& triangles = mesh.getTriangles();
+//    for( std::vector< Triangle >::const_iterator triangle = triangles.begin(); triangle != triangles.end(); ++triangle )
+//    {
+//        if( wmath::testIntersectTriangle( vertices[ triangle->pointID[0] ],
+//                                          vertices[ triangle->pointID[1] ],
+//                                          vertices[ triangle->pointID[2] ],
+//                                          plane ) )
+//        {
+//            result->insert( triangle->pointID[0] );
+//            result->insert( triangle->pointID[1] );
+//            result->insert( triangle->pointID[2] );
+//        }
+//    }
+//
+//    return result;
+//}

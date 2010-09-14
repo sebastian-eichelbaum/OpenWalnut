@@ -119,7 +119,7 @@ void WMExportGeometry::writeFile()
     fstream out( m_savePath->get().file_string().c_str(), fstream::out | fstream::in | fstream::trunc | fstream::binary );
     if( !out || out.bad() )
     {
-        throw WException( "Invalid file, or permission: " + m_savePath->get().file_string() );
+        throw WException( std::string( "Invalid file, or permission: " ) + m_savePath->get().file_string() );
     }
 
     std::string appearance = ""

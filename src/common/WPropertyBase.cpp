@@ -45,8 +45,8 @@ WPropertyBase::WPropertyBase( std::string name, std::string description ):
     // check name validity
     if ( ( m_name.find( std::string( "/" ) ) != std::string::npos ) || m_name.empty() )
     {
-        throw WPropertyNameMalformed( "Property name \"" + name +
-                                      "\" is malformed. Do not use slashes (\"/\") or empty strings in property names." );
+        throw WPropertyNameMalformed( std::string( "Property name \"" + name +
+                                      "\" is malformed. Do not use slashes (\"/\") or empty strings in property names." ) );
     }
 }
 

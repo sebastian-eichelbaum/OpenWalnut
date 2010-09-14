@@ -43,12 +43,12 @@ WEEGChannelInfo::WEEGChannelInfo( std::size_t channelID,
 {
     if( !pager )
     {
-        throw WDHException( "Couldn't construct new EEG channel info: pager invalid" );
+        throw WDHException( std::string( "Couldn't construct new EEG channel info: pager invalid" ) );
     }
 
     if( !positionsLibrary )
     {
-        throw WDHException( "Couldn't construct new EEG channel info: positions library invalid" );
+        throw WDHException( std::string( "Couldn't construct new EEG channel info: positions library invalid" ) );
     }
 
     if( channelID >= pager->getNumberOfChannels() )
@@ -90,6 +90,6 @@ wmath::WPosition WEEGChannelInfo::getPosition() const throw( WDHException )
     }
     else
     {
-        throw WDHException( "The position of this electrode is unknown." );
+        throw WDHException( std::string( "The position of this electrode is unknown." ) );
     }
 }
