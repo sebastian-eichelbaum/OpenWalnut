@@ -121,10 +121,10 @@ void WMFiberResampling::moduleMain()
         }
 
         // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_fiberInput->updated();
+        bool dataUpdated = m_fiberInput->handledUpdate();
         boost::shared_ptr< WDataSetFibers > dataSet = m_fiberInput->getData();
         bool dataValid = ( dataSet );
-        if ( !dataValid && !dataUpdated )
+        if ( !dataValid || ( dataValid && !dataUpdated ) )
         {
             continue;
         }
@@ -134,6 +134,12 @@ void WMFiberResampling::moduleMain()
         boost::shared_ptr< std::vector< size_t > > fibLen   = dataSet->getLineLengths();
         boost::shared_ptr< std::vector< float > >  fibVerts = dataSet->getVertices();
 
+        // create a new dataset
+        WDataSetFibers::IndexArray newFibStart     = WDataSetFibers::IndexArray( new WDataSetFibers::IndexArray::element_type() );
+        WDataSetFibers::LengthArray newFibLen      = WDataSetFibers::LengthArray( new WDataSetFibers::LengthArray::element_type() );
+        WDataSetFibers::VertexArray newFibVerts    = WDataSetFibers::VertexArray( new WDataSetFibers::VertexArray::element_type() );
+        WDataSetFibers::IndexArray newFibVertsRev  = WDataSetFibers::IndexArray( new WDataSetFibers::IndexArray::element_type() );
+
         // progress indication
         boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Coloring fibers.",
                                                                                                   fibStart->size() ) );
@@ -141,14 +147,46 @@ void WMFiberResampling::moduleMain()
 
         // for each fiber:
         debugLog() << "Iterating over all fibers.";
-        for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
+        for ( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
         {
             ++*progress1;
 
+            // the start vertex index
+            size_t sidx = fibStart->at( fidx ) * 3;
+            size_t len = fibLen->at( fidx );
+
+            // parameterize the fiber
+            double s = 0.0;     // the value parameterizes the fiber if interpreted as curve f(s)
+            double sLast = 0.0; // the first parameter value
+            double last[3];     // last point on curve
+            double current[3];  // current point on curve
+
+            // first vertex
+            last[0] = ( *fibVerts )[ sidx + 0 ];
+            last[1] = ( *fibVerts )[ sidx + 1 ];
+            last[2] = ( *fibVerts )[ sidx + 2 ];
+
+            // walk along the fiber
+            for ( size_t k = 1; k < len; ++k )
+            {
+                sLast = s;
+
+                // get current vertex
+                current[0] = ( *fibVerts )[ ( 3 * k ) + sidx + 0 ];
+                current[1] = ( *fibVerts )[ ( 3 * k ) + sidx + 1 ];
+                current[2] = ( *fibVerts )[ ( 3 * k ) + sidx + 2 ];
+
+                // get next parameter value:
+
+            }
+
         }
 
-        // forward the data
-        m_fiberOutput->updateData( dataSet );
+        // create final dataset and forward the data
+        boost::shared_ptr< WDataSetFibers > newData = boost::shared_ptr< WDataSetFibers >(
+            new WDataSetFibers( newFibVerts, newFibStart, newFibLen, newFibVertsRev, dataSet->getBoundingBox() )
+        );
+        m_fiberOutput->updateData( newData );
 
         progress1->finish();
         m_progress->removeSubProgress( progress1 );
