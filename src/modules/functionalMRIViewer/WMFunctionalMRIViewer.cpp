@@ -27,6 +27,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataTexture3D.h"
 
 #include "WMFunctionalMRIViewer.h"
 
@@ -121,7 +122,10 @@ void WMFunctionalMRIViewer::moduleMain()
             std::stringstream s;
             s << m_dataSet->getFileName() << "_time" << time;
             boost::shared_ptr< WDataSetScalar const > ds = m_dataSet->calcDataSetAtTime( time, s.str() );
+            // get rid of the const
             m_dataSetAtTime = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( ds->getValueSet(), ds->getGrid() ) );
+            m_dataSetAtTime->getTexture()->setMinValue( static_cast< float >( m_dataSet->getMinValue() ) );
+            m_dataSetAtTime->getTexture()->setMaxValue( static_cast< float >( m_dataSet->getMaxValue() ) );
             WDataHandler::registerDataSet( m_dataSetAtTime );
         }
     }
