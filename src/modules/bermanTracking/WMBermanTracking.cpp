@@ -27,11 +27,10 @@
 #include <string>
 #include <vector>
 
-#include <boost/math/special_functions/fpclassify.hpp> // isnan
-
 #include <teem/elf.h> // NOLINT: the stylechecker interprets this as c-header which is not true!
 
 #include "../../common/math/WSymmetricSphericalHarmonic.h"
+#include "../../common/WLimits.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WThreadedPerVoxelOperation.h"
@@ -496,7 +495,7 @@ wmath::WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_
         // "-", because the residuals in the input dataset have differing sign
         q( k, 0 ) = v( k, 0 ) - ( m_dataSetResidual->getValueAt( i * v.getNbRows() + z ) / ( sqrt( 1.0 - m_HMat( k, k ) ) ) );
 
-        WAssert( !boost::math::isnan( q( k, 0 ) ), "" );
+        WAssert( !wlimits::isnan( q( k, 0 ) ), "" );
     }
 
     // now calc new sh coeffs from the resampled hardi data
