@@ -107,7 +107,7 @@ protected:
      *
      * \return Newly constructed geode
      */
-    osg::ref_ptr< osg::Geode > generateISOVoxelGeode() const;
+    osg::ref_ptr< osg::Geode > generateIsoVoxelGeode() const;
 
     osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node used for this modules graphics.
 
@@ -122,10 +122,10 @@ protected:
     boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Dataset derived from a voxelized cluster
 
     boost::shared_ptr< WJoinContourTree > m_joinTree; //!< Stores the JoinTree
-    boost::shared_ptr< std::set< size_t > > m_isoVoxels; //!< Stores the voxels belonging to the cluster volume of a certain iso value
+    boost::shared_ptr< std::set< size_t > > m_isoVoxels; //!< Stores the voxels belonging to the cluster volume of a certain isovalue
 
-    WPropBool   m_drawISOVoxels; //!< En/Disable the display of cluster volume voxels
-    WPropDouble m_isoValue; //!< The ISO value selecting the size of the cluster volume
+    WPropBool   m_drawIsoVoxels; //!< En/Disable the display of cluster volume voxels
+    WPropDouble m_isoValue; //!< The isovalue selecting the size of the cluster volume
 private:
 };
 

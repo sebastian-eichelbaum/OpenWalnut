@@ -97,12 +97,12 @@ void WJoinContourTree::buildJoinTree()
     }
 }
 
-boost::shared_ptr< std::set< size_t > > WJoinContourTree::getVolumeVoxelsEnclosedByISOSurface( const double isoValue ) const
+boost::shared_ptr< std::set< size_t > > WJoinContourTree::getVolumeVoxelsEnclosedByIsoSurface( const double isoValue ) const
 {
     boost::shared_ptr< std::vector< size_t > > result( new std::vector< size_t >( m_elementIndices ) );
     WUnionFind uf( m_elementIndices.size() );
 
-    // assume the m_elementIndices array is still sorted descending on its iso values in the valueset
+    // assume the m_elementIndices array is still sorted descending on its isovalues in the valueset
     for( size_t i = 0; i < m_elementIndices.size() && m_valueSet->getScalar( m_elementIndices[i] ) >= isoValue; ++i )
     {
         // std::cout << "processing element: " << i << std::endl;

@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMHOMEGLYPHS_H
-#define WMHOMEGLYPHS_H
+#ifndef WMTEEMGLYPHS_H
+#define WMTEEMGLYPHS_H
 
 #include <string>
 
@@ -43,19 +43,19 @@
  * \warning Not yet in useful state.
  * \ingroup modules
  */
-class WMHomeGlyphs: public WModule
+class WMTeemGlyphs: public WModule
 {
 public:
 
     /**
      * Nothing special with this constructor.
      */
-    WMHomeGlyphs();
+    WMTeemGlyphs();
 
     /**
      * Nothing special with this constructor.
      */
-    virtual ~WMHomeGlyphs();
+    virtual ~WMTeemGlyphs();
 
     /**
      * Gives back the name of this module.
@@ -215,4 +215,4 @@ private:
     };
 };
 
-#endif  // WMHOMEGLYPHS_H
+#endif  // WMTEEMGLYPHS_H

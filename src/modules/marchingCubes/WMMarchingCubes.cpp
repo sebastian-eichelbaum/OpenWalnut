@@ -144,7 +144,7 @@ void WMMarchingCubes::moduleMain()
             }
         }
 
-        // update ISO surface
+        // update isosurface
         debugLog() << "Computing surface ...";
 
         boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", 2 ) );

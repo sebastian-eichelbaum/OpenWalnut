@@ -75,7 +75,7 @@ void WMClusterSlicer::connectors()
 
 void WMClusterSlicer::properties()
 {
-    m_drawISOVoxels = m_properties->addProperty( "Show or hide iso voxels", "En/Disables to draw the voxels within a given isourface.", true );
+    m_drawIsoVoxels = m_properties->addProperty( "Show or hide iso voxels", "En/Disables to draw the voxels within a given isourface.", true );
     m_isoValue      = m_properties->addProperty( "Iso value", "", 0.01 );
 }
 
@@ -86,7 +86,7 @@ void WMClusterSlicer::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_inputDataSet->getDataChangedCondition() );
     m_moduleState.add( m_isoValue->getCondition() );
-    m_moduleState.add( m_drawISOVoxels->getCondition() );
+    m_moduleState.add( m_drawIsoVoxels->getCondition() );
 
     ready();
 
@@ -121,10 +121,10 @@ void WMClusterSlicer::moduleMain()
         if( ( m_isoValue->changed() || dataChanged ) && m_joinTree )
         {
             WAssert( m_dataSet, "JoinTree cannot be valid since there is no valid m_dataSet." );
-            m_isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByISOSurface( m_isoValue->get() );
+            m_isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByIsoSurface( m_isoValue->get() );
         }
 
-        if( m_drawISOVoxels->changed() || m_isoValue->changed() || dataChanged )
+        if( m_drawIsoVoxels->changed() || m_isoValue->changed() || dataChanged )
         {
             if( dataValid )
             {
@@ -141,15 +141,15 @@ void WMClusterSlicer::updateDisplay()
     m_rootNode->remove( m_isoVoxelGeode );
     m_isoVoxelGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() ); // discard old geode
 
-    if( m_drawISOVoxels->get( true ) )
+    if( m_drawIsoVoxels->get( true ) )
     {
         WAssert( m_isoVoxels, "JoinTree cannot be valid since there is no valid m_dataSet." );
-        m_isoVoxelGeode = generateISOVoxelGeode();
+        m_isoVoxelGeode = generateIsoVoxelGeode();
         m_rootNode->insert( m_isoVoxelGeode );
     }
 }
 
-osg::ref_ptr< osg::Geode > WMClusterSlicer::generateISOVoxelGeode() const
+osg::ref_ptr< osg::Geode > WMClusterSlicer::generateIsoVoxelGeode() const
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
