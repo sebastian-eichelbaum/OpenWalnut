@@ -234,7 +234,7 @@ size_t WValueSetHistogram::accumulate( size_t startIndex, size_t endIndex ) cons
     // valid index?
     if ( endIndex > size() )    // as endIndex is exclusive, it is allowed to equal size()
     {
-        throw WOutOfBounds( "The specified endIndex is out of bounds." );
+        throw WOutOfBounds( std::string( "The specified endIndex is out of bounds." ) );
     }
 
     // unfortunately, shared_array can't be used for std::accumulate

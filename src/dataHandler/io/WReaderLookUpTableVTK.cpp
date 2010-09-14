@@ -62,14 +62,14 @@ void WReaderLookUpTableVTK::readTable( boost::shared_ptr< std::vector< double > 
             std::getline( ifs, line );
             if( !ifs.good() )
             {
-                throw WDHException( "Unexpected end of file: " + m_fname );
+                throw WDHException( std::string( "Unexpected end of file: " + m_fname ) );
             }
             header.push_back( line );
         }
     }
     catch( const std::ios_base::failure &e )
     {
-        throw WDHIOFailure( "Reading first 4 lines of '" + m_fname + "': " + e.what() );
+        throw WDHIOFailure( std::string( "Reading first 4 lines of '" + m_fname + "': " + e.what() ) );
     }
     WAssert( header[0] == "# vtk DataFile Version 3.0", "Wrong string in file header found." );
     WAssert( header[1] == "DXtLookUpTable from OpenWalnut", "Wrong string in file header found." );
@@ -82,14 +82,14 @@ void WReaderLookUpTableVTK::readTable( boost::shared_ptr< std::vector< double > 
     }
     catch( const std::ios_base::failure &e )
     {
-        throw WDHIOFailure( "Error reading DISTANCES field '" + m_fname + "': " + e.what() );
+        throw WDHIOFailure( std::string( "Error reading DISTANCES field '" + m_fname + "': " + e.what() ) );
     }
     namespace su = string_utils;
     size_t numDistances = 0;
     std::vector< std::string > tokens = su::tokenize( line );
     if( tokens.size() != 4 || su::toLower( tokens.at( 3 ) ) != "float" )
     {
-        throw WDHException( "Invalid DISTANCES declaration: " + line );
+        throw WDHException( std::string( "Invalid DISTANCES declaration: " + line ) );
     }
     try
     {
@@ -97,7 +97,7 @@ void WReaderLookUpTableVTK::readTable( boost::shared_ptr< std::vector< double > 
     }
     catch( const boost::bad_lexical_cast &e )
     {
-        throw WDHException( "Invalid number of distances: " + tokens.at( 1 ) );
+        throw WDHException( std::string( "Invalid number of distances: " + tokens.at( 1 ) ) );
     }
 
     float *data = new float[ numDistances ];
@@ -107,7 +107,7 @@ void WReaderLookUpTableVTK::readTable( boost::shared_ptr< std::vector< double > 
     }
     catch( const std::ios_base::failure &e )
     {
-        throw WDHIOFailure( "Error reading distances in VTK DISTANCES field '" + m_fname + "': " + e.what() );
+        throw WDHIOFailure( std::string( "Error reading distances in VTK DISTANCES field '" + m_fname + "': " + e.what() ) );
     }
 
     // all 4 bytes of each float are in wrong order we need to reorder them

@@ -30,14 +30,15 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
+#include "../common/math/WVector3D.h"
 #include "WDataSetFiberVector.h"
 #include "WDataSetFibers.h"
-#include "../common/math/WVector3D.h"
+#include "WExportDataHandler.h"
 
 /**
  * A class that encapsulates the data needed to construct a WDataSetFibers.
  */
-class WFiberAccumulator
+class OWDATAHANDLER_EXPORT WFiberAccumulator
 {
     public:
 

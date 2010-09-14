@@ -125,11 +125,11 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
         // oh oh, this property name is not unique in this group
         if ( !getName().empty() )
         {
-            throw WPropertyNotUnique( "Property \"" + prop->getName() + "\" is not unique in this group (\"" + getName() + "\")." );
+            throw WPropertyNotUnique( std::string( "Property \"" + prop->getName() + "\" is not unique in this group (\"" + getName() + "\")." ) );
         }
         else
         {
-            throw WPropertyNotUnique( "Property \"" + prop->getName() + "\" is not unique in this group (unnamed root)." );
+            throw WPropertyNotUnique( std::string( "Property \"" + prop->getName() + "\" is not unique in this group (unnamed root)." ) );
         }
     }
 
@@ -222,7 +222,7 @@ boost::shared_ptr< WPropertyBase > WProperties::getProperty( std::string name )
     boost::shared_ptr< WPropertyBase > p = findProperty( name );
     if ( p == boost::shared_ptr< WPropertyBase >() )
     {
-        throw WPropertyUnknown( "Property \"" + name + "\" can't be found." );
+        throw WPropertyUnknown( std::string( "Property \"" + name + "\" can't be found." ) );
     }
 
     return p;

@@ -67,7 +67,7 @@ void WGECamera::reset()
             setProjectionResizePolicy( osg::Camera::FIXED );
             break;
         default:
-            throw WGEInitFailed( "Unknown projection mode" );
+            throw WGEInitFailed( std::string( "Unknown projection mode" ) );
     }
 }
 

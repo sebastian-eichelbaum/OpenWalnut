@@ -61,7 +61,7 @@ WDataSetTimeSeries::WDataSetTimeSeries( std::vector< boost::shared_ptr< WDataSet
     {
         if( m_dataSets[ k ].second == m_dataSets[ k - 1 ].second )
         {
-            throw WException( "There are multiple time slices at the same point in time!" );
+            throw WException( std::string( "There are multiple time slices at the same point in time!" ) );
         }
     }
 }
@@ -167,7 +167,7 @@ boost::shared_ptr< WDataSetScalar const > WDataSetTimeSeries::calcDataSetAtTime(
         vs = calcInterpolatedValueSet< double >( lb, ub, time );
         break;
     default:
-        throw WException( "Unsupported datatype in WDataSetTimeSeries::calcDataSetAtTime()" );
+        throw WException( std::string( "Unsupported datatype in WDataSetTimeSeries::calcDataSetAtTime()" ) );
         break;
     }
     boost::shared_ptr< WDataSetScalar > ds( new WDataSetScalar( vs, m_dataSets.front().first->getGrid() ) );

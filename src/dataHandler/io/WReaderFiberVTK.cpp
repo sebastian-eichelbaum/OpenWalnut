@@ -59,7 +59,7 @@ boost::shared_ptr< WDataSetFibers > WReaderFiberVTK::read()
         m_ifs->open( m_fname.c_str(), std::ifstream::in | std::ifstream::binary );
         if( !m_ifs || m_ifs->bad() )
         {
-            throw WDHIOFailure( "internal error while opening" );
+            throw WDHIOFailure( std::string( "internal error while opening" ) );
         }
         readHeader();
         readPoints();
@@ -121,7 +121,7 @@ void WReaderFiberVTK::readPoints()
     std::vector< std::string > tokens = string_utils::tokenize( line );
     if( tokens.size() != 3 || string_utils::toLower( tokens.at( 2 ) ) != "float" )
     {
-        throw WDHParseError( "Invalid POINTS declaration: " + line + ", expected float." );
+        throw WDHParseError( std::string( "Invalid POINTS declaration: " + line + ", expected float." ) );
     }
 
     size_t numPoints = getLexicalCast< size_t >( tokens.at( 1 ), "Invalid number of points" );
@@ -160,7 +160,7 @@ void WReaderFiberVTK::readLines()
     std::vector< std::string > tokens = string_utils::tokenize( line );
     if( tokens.size() != 3 || string_utils::toUpper( tokens.at( 0 ) ) != "LINES" )
     {
-        throw WDHException( "Invalid VTK LINES declaration: " + line );
+        throw WDHException( std::string( "Invalid VTK LINES declaration: " + line ) );
     }
     size_t numLines = getLexicalCast< size_t >( tokens.at( 1 ), "Invalid number of lines in LINES delclaration" );
     size_t linesSize = getLexicalCast< size_t >( tokens.at( 2 ), "Invalid size of lines in LINES delclaration" );
@@ -209,11 +209,11 @@ std::string WReaderFiberVTK::getLine( const std::string& desc )
     }
     catch( const std::ios_base::failure &e )
     {
-        throw WDHIOFailure( "IO error while " + desc + " of VTK fiber file: " + m_fname + ", " + e.what() );
+        throw WDHIOFailure( std::string( "IO error while " + desc + " of VTK fiber file: " + m_fname + ", " + e.what() ) );
     }
     if( !m_ifs->good() )
     {
-        throw WDHParseError( "Unexpected end of VTK fiber file: " + m_fname );
+        throw WDHParseError( std::string( "Unexpected end of VTK fiber file: " + m_fname ) );
     }
     return line;
 }

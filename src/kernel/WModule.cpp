@@ -219,7 +219,8 @@ void WModule::initialize()
     // doing it twice is not allowed
     if ( isInitialized()() )
     {
-        throw WModuleConnectorInitFailed( "Could not initialize connectors for Module " + getName() + ". Reason: already initialized." );
+        throw WModuleConnectorInitFailed( std::string( "Could not initialize connectors for Module " ) + getName() +
+                                          std::string( ". Reason: already initialized." ) );
     }
 
     // set the module name as default runtime name
@@ -291,7 +292,8 @@ boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::stri
 
     if ( !p )
     {
-        throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
+        throw WModuleConnectorNotFound( std::string( "The connector \"" ) + name +
+                                        std::string( "\" does not exist in the module \"" ) + getName() + std::string( "\"." ) );
     }
 
     return p;
@@ -319,7 +321,9 @@ boost::shared_ptr< WModuleOutputConnector > WModule::getOutputConnector( std::st
 
     if ( !p )
     {
-        throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
+        throw WModuleConnectorNotFound( std::string( "The connector \"" ) + name +
+                                        std::string( "\" does not exist in the module \"" ) + getName() +
+                                        std::string( "\"." ) );
     }
 
     return p;
@@ -344,7 +348,9 @@ boost::shared_ptr< WModuleConnector > WModule::getConnector( std::string name )
 
     if ( !p )
     {
-        throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
+        throw WModuleConnectorNotFound( std::string( "The connector \"" ) + name +
+                                        std::string( "\" does not exist in the module \"" ) + getName() +
+                                        std::string( "\"." ) );
     }
 
     return p;

@@ -152,7 +152,7 @@ WTriangleMesh wge::triangulate( const std::vector< wmath::WPosition >& points, d
         }
         else
         {
-            throw WGEException( "Error in triangulation" );
+            throw WGEException( std::string( "Error in triangulation" ) );
         }
     }
 

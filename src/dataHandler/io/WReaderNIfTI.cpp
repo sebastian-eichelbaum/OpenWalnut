@@ -272,7 +272,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
                 }
                 break;
             default:
-                throw WException( "Unsupported datatype in WReaderNIfTI" );
+                throw WException( std::string( "Unsupported datatype in WReaderNIfTI" ) );
                 break;
             }
             ds.push_back( boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, newGrid ) ) );

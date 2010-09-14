@@ -42,7 +42,7 @@ WEEG2Segment::WEEG2Segment( std::size_t segmentID, boost::shared_ptr< WPagerEEG 
 {
     if( !m_pager )
     {
-        throw WDHException( "Couldn't construct new EEG segment: pager invalid" );
+        throw WDHException( std::string( "Couldn't construct new EEG segment: pager invalid" ) );
     }
 
     if( m_segmentID >= m_pager->getNumberOfSegments() )
@@ -55,7 +55,7 @@ WEEG2Segment::WEEG2Segment( std::size_t segmentID, boost::shared_ptr< WPagerEEG 
     m_nbSamples = m_pager->getNumberOfSamples( m_segmentID );
     if( m_nbSamples <= 0 || wlimits::MAX_RECORDING_SAMPLES < m_nbSamples )
     {
-        throw WDHException( "Couldn't construct new EEG segment: invalid number of samples" );
+        throw WDHException( std::string( "Couldn't construct new EEG segment: invalid number of samples" ) );
     }
 }
 

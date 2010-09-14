@@ -43,7 +43,7 @@ void WWriterLookUpTableVTK::writeTable( const std::vector< double > &table, size
     fstream out( m_fname.c_str(), fstream::out | fstream::in | fstream::trunc );
     if( !out || out.bad() )
     {
-        throw WDHIOFailure( "Invalid file, or permission: " + m_fname );
+        throw WDHIOFailure( std::string( "Invalid file, or permission: " + m_fname ) );
     }
     out << "# vtk DataFile Version 3.0" << std::endl;
     out << "DXtLookUpTable from OpenWalnut" << std::endl;

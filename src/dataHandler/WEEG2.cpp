@@ -46,30 +46,30 @@ WEEG2::WEEG2( boost::shared_ptr< WPagerEEG > pager, boost::shared_ptr< WEEGPosit
 {
     if( !pager )
     {
-        throw WDHException( "Couldn't construct new EEG: pager invalid" );
+        throw WDHException( std::string( "Couldn't construct new EEG: pager invalid" ) );
     }
 
     if( !positionsLibrary )
     {
-        throw WDHException( "Couldn't construct new EEG: positions library invalid" );
+        throw WDHException( std::string( "Couldn't construct new EEG: positions library invalid" ) );
     }
 
     std::size_t nbSegments = pager->getNumberOfSegments();
     if( nbSegments <= 0 || wlimits::MAX_RECORDING_SEGMENTS < nbSegments )
     {
-        throw WDHException( "Couldn't construct new EEG: invalid number of segments" );
+        throw WDHException( std::string( "Couldn't construct new EEG: invalid number of segments" ) );
     }
 
     std::size_t nbChannels = pager->getNumberOfChannels();
     if( nbChannels <= 0 || wlimits::MAX_RECORDING_CHANNELS < nbChannels )
     {
-        throw WDHException( "Couldn't construct new EEG: invalid number of channels" );
+        throw WDHException( std::string( "Couldn't construct new EEG: invalid number of channels" ) );
     }
 
     m_samplingRate = pager->getSamplingRate();
     if( m_samplingRate <= 0.0 || wlimits::MAX_RECORDING_SAMPLING_FREQUENCY < m_samplingRate )
     {
-        throw WDHException( "Couldn't construct new EEG: invalid sampling rate" );
+        throw WDHException( std::string( "Couldn't construct new EEG: invalid sampling rate" ) );
     }
 
     setFileName( pager->getFileName() );

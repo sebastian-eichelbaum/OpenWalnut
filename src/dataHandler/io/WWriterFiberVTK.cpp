@@ -45,7 +45,7 @@ void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFiberVector > 
     fstream out( m_fname.c_str(), fstream::out | fstream::in | fstream::trunc );
     if( !out || out.bad() )
     {
-        throw WDHIOFailure( "Invalid file, or permission: " + m_fname );
+        throw WDHIOFailure( std::string( "Invalid file, or permission: " + m_fname ) );
     }
     // We use '\n' as line delimiter so also files written under windows (having '\r\n' as delimtier) may be read anywhere
     char lineDelimiter = '\n';

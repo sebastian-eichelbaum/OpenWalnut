@@ -130,7 +130,7 @@ class WThreadedFunctionTest : public CxxTest::TestSuite
          */
         void operator() ( std::size_t, std::size_t, WBoolFlag& )
         {
-            throw WException( "Test!" );
+            throw WException( std::string( "Test!" ) );
         }
     };
 
