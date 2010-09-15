@@ -109,6 +109,9 @@ private:
     //! The current time.
     WPropDouble m_time;
 
+    //! True, iff all textures should be scaled to the same intervall.
+    WPropBool m_texScaleNormalized;
+
     //! A condition for property changes.
     boost::shared_ptr< WCondition > m_propCondition;
 };
