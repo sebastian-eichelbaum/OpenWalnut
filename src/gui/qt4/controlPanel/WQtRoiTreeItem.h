@@ -34,7 +34,7 @@
 #include "WQtTreeItem.h"
 
 /**
- * a tree widget item to represent a roi in the dataset browser
+ * a tree widget item to represent a roi in the control panel
  */
 class WQtRoiTreeItem : public QTreeWidgetItem
 {

@@ -280,12 +280,12 @@ void WQtConfigWidget::registerComponents()
     ctbpos->setMax( 5 );
     m_defaultProperties->addProperty( "qt4gui.hideMenuBar", "Hide the menu bar.", false, m_propCondition );
 
-    WPropInt dsbWidth = m_defaultProperties->addProperty( "qt4gui.dsbWidth", "The width of the dataset browser.", 250, m_propCondition );
+    WPropInt dsbWidth = m_defaultProperties->addProperty( "qt4gui.dsbWidth", "The width of the control panel.", 250, m_propCondition );
     dsbWidth->setMin( 0 );
     dsbWidth->setMax( 1000 );
 
-    m_defaultProperties->addProperty( "qt4gui.dsbInvisibleByDefault", "Hide the dataset browser on startup?", false, m_propCondition );
-    m_defaultProperties->addProperty( "qt4gui.dsbFloatingByDefault", "Undock the dataset browser on startup?", false, m_propCondition );
+    m_defaultProperties->addProperty( "qt4gui.dsbInvisibleByDefault", "Hide the control panel on startup?", false, m_propCondition );
+    m_defaultProperties->addProperty( "qt4gui.dsbFloatingByDefault", "Undock the control panel on startup?", false, m_propCondition );
 
     WPropGroup moduleWhiteList =  m_defaultProperties->addPropertyGroup( "modules.whiteListGroup", "moduleWhiteList" );
     m_skipPropertyWrite.push_back( "modules.whiteListGroup" );
@@ -1043,14 +1043,14 @@ WQtDSBWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr< WProperti
                 tab->addProp( ( *iter )->toPropFilename() );
                 break;
             case PV_SELECTION:
-                WLogger::getLogger()->addLogMessage( "This property type \"PV_SELECTION\" is not yet supported by the GUI.", "DatasetBrowser",
+                WLogger::getLogger()->addLogMessage( "This property type \"PV_SELECTION\" is not yet supported by the GUI.", "ControlPanel",
                     LL_WARNING );
                 break;
             case PV_COLOR:
                 tab->addProp( ( *iter )->toPropColor() );
                 break;
             case PV_POSITION:
-                WLogger::getLogger()->addLogMessage( "This property type \"PV_POSITION\" is not yet supported by the GUI.", "DatasetBrowser",
+                WLogger::getLogger()->addLogMessage( "This property type \"PV_POSITION\" is not yet supported by the GUI.", "ControlPanel",
                     LL_WARNING );
                 break;
             case PV_TRIGGER:
@@ -1060,7 +1060,7 @@ WQtDSBWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr< WProperti
                 tab->addGroup( createTabForSection( ( *iter )->toPropGroup(), sectionName ), true );
                 break;
             default:
-                WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "DatasetBrowser", LL_WARNING );
+                WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "ControlPanel", LL_WARNING );
                 break;
             }
         }

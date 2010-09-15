@@ -28,7 +28,7 @@ SET(GUI_QT4_MOC_HDRS
     controlPanel/WPropertyTriggerWidget.h
     controlPanel/WPropertySelectionWidget.h
     controlPanel/WPropertyPositionWidget.h
-    controlPanel/WQtDatasetBrowser.h
+    controlPanel/WQtControlPanel.h
     controlPanel/WQtDSBWidget.h
     controlPanel/WQtTreeWidget.h
     controlPanel/WQtTreeItem.h

@@ -66,7 +66,7 @@ public:
     virtual int run();
 
     /**
-     * returns a pointer to the selected module in the dataset browser
+     * returns a pointer to the selected module in the control panel
      *
      * \return the module
      */

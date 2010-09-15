@@ -33,7 +33,7 @@
 #include "../../../kernel/WModule.h"
 
 /**
- * Tree widget item to represent a module in the dataset browser tree widget. This class is currently empty as all the functionality has been
+ * Tree widget item to represent a module in the control panel tree widget. This class is currently empty as all the functionality has been
  * generalized and moved to WQtTreeItem. This class should be removed.
  */
 class WQtModuleTreeItem: public WQtTreeItem

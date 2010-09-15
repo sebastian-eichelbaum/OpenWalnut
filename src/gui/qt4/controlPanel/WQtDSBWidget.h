@@ -43,7 +43,7 @@
 #include "../../../common/WPropertyVariable.h"
 
 /**
- * Container widget to contain the context widget for the dataset browser.
+ * Container widget to contain the context widget for the control panel.
  */
 class WQtDSBWidget : public QWidget
 {

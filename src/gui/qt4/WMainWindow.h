@@ -42,7 +42,7 @@
 
 #include "../../common/WProjectFileIO.h"
 #include "../../kernel/WModule.h"
-#include "controlPanel/WQtDatasetBrowser.h"
+#include "controlPanel/WQtControlPanel.h"
 #include "ribbonMenu/WQtRibbonMenu.h"
 #include "WIconManager.h"
 #include "WQtConfigWidget.h"
@@ -75,9 +75,9 @@ public:
     void setupGUI();
 
     /**
-     * returns a pointer to the dataset browser object
+     * returns a pointer to the control panel object
      */
-    WQtDatasetBrowser* getDatasetBrowser();
+    WQtControlPanel* getControlPanel();
 
     /**
      *  returns a pointer to the ribbon menu object
@@ -310,7 +310,7 @@ private:
 
     WQtPushButton* m_loadButton; //!< the load Data Button
 
-    WQtDatasetBrowser* m_datasetBrowser; //!< dataset browser
+    WQtControlPanel* m_controlPanel; //!< control panel
 
     boost::shared_ptr<WQtGLWidget> m_mainGLWidget; //!< the main GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI

@@ -28,7 +28,7 @@
 #include <QtGui/QTreeWidget>
 
 /**
- * tree widget for the dataset browser
+ * tree widget for the control panel
  */
 class WQtTreeWidget  : public QTreeWidget
 {
