@@ -51,7 +51,7 @@ class WQtPropertyGroupWidget : public QWidget
 
 public:
     /**
-     * Creates new data set browser widget
+     * Creates new widget for a property group
      * \param name Name of the widget
      * \param parent The widget managing this widget
      */
