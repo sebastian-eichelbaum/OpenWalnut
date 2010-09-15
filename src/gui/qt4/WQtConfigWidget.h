@@ -39,7 +39,7 @@
 
 #include "../../common/WProperties.h"
 #include "../../common/WThreadedRunner.h"
-#include "datasetbrowser/WQtDSBWidget.h"
+#include "controlPanel/WQtDSBWidget.h"
 
 /**
 * Class that provides registration, loading and writing of the standard config file walnut.cfg

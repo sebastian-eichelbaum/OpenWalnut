@@ -55,7 +55,7 @@
 #include "../../kernel/modules/data/WMData.h"
 #include "../../kernel/modules/navSlices/WMNavSlices.h"
 #include "../icons/WIcons.h"
-#include "datasetbrowser/WPropertyBoolWidget.h"
+#include "controlPanel/WPropertyBoolWidget.h"
 #include "events/WEventTypes.h"
 #include "events/WModuleCrashEvent.h"
 #include "events/WModuleReadyEvent.h"

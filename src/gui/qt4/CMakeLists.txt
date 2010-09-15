@@ -18,26 +18,26 @@ SET(GUI_QT4_MOC_HDRS
     guiElements/WQtPushButton.h
     guiElements/WQtModuleOneToOneCombinerAction.h
     guiElements/WQtPropertyBoolAction.h
-    datasetbrowser/WPropertyWidget.h
-    datasetbrowser/WPropertyBoolWidget.h
-    datasetbrowser/WPropertyIntWidget.h
-    datasetbrowser/WPropertyDoubleWidget.h
-    datasetbrowser/WPropertyStringWidget.h
-    datasetbrowser/WPropertyColorWidget.h
-    datasetbrowser/WPropertyFilenameWidget.h
-    datasetbrowser/WPropertyTriggerWidget.h
-    datasetbrowser/WPropertySelectionWidget.h
-    datasetbrowser/WPropertyPositionWidget.h
-    datasetbrowser/WQtDatasetBrowser.h
-    datasetbrowser/WQtDSBWidget.h
-    datasetbrowser/WQtTreeWidget.h
-    datasetbrowser/WQtTreeItem.h
-    datasetbrowser/WQtTextureSorter.h
+    controlPanel/WPropertyWidget.h
+    controlPanel/WPropertyBoolWidget.h
+    controlPanel/WPropertyIntWidget.h
+    controlPanel/WPropertyDoubleWidget.h
+    controlPanel/WPropertyStringWidget.h
+    controlPanel/WPropertyColorWidget.h
+    controlPanel/WPropertyFilenameWidget.h
+    controlPanel/WPropertyTriggerWidget.h
+    controlPanel/WPropertySelectionWidget.h
+    controlPanel/WPropertyPositionWidget.h
+    controlPanel/WQtDatasetBrowser.h
+    controlPanel/WQtDSBWidget.h
+    controlPanel/WQtTreeWidget.h
+    controlPanel/WQtTreeItem.h
+    controlPanel/WQtTextureSorter.h
 )
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 
-FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "datasetbrowser/*.cpp" "ribbonMenu/*.cpp" "events/*.cpp" "*.h" "guiElements/*.h" "datasetbrowser/*.h" "ribbonMenu/*.h" "events/*.h" )
+FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "controlPanel/*.cpp" "ribbonMenu/*.cpp" "events/*.cpp" "*.h" "guiElements/*.h" "controlPanel/*.h" "ribbonMenu/*.h" "events/*.h" )
 
 ADD_LIBRARY( OWguiqt4 ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
 TARGET_LINK_LIBRARIES( OWguiqt4 OWcommon OWgui OWge OWkernel ${QT_LIBS} ${Boost_LIBRARIES} )

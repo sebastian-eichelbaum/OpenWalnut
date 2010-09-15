@@ -42,7 +42,7 @@
 
 #include "../../common/WProjectFileIO.h"
 #include "../../kernel/WModule.h"
-#include "datasetbrowser/WQtDatasetBrowser.h"
+#include "controlPanel/WQtDatasetBrowser.h"
 #include "ribbonMenu/WQtRibbonMenu.h"
 #include "WIconManager.h"
 #include "WQtConfigWidget.h"
