@@ -156,7 +156,7 @@ public:
     QAction* toggleViewAction() const;
 
     /**
-     * Add the specified toolbar to the top of the dsb.
+     * Add the specified toolbar to the top of the control panel.
      *
      * \param tb the toolbar to add
      */

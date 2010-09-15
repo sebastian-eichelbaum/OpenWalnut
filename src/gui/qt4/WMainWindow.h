@@ -129,7 +129,7 @@ public:
         Left,
         Right,
         Hide,
-        InDSB
+        InControlPanel
     }
     ToolBarPosition;
 
@@ -148,7 +148,7 @@ public:
     static ToolBarPosition getCompatiblesToolbarPos();
 
     /**
-     * Converts the specified position to the appropriate qt toolbar area constant. Unknown positions (InDSB, Hide) are converted to
+     * Converts the specified position to the appropriate qt toolbar area constant. Unknown positions (InControlPanel, Hide) are converted to
      * Qt::NoToolBarArea.
      *
      * \param pos the position to convert.

@@ -111,26 +111,26 @@ void WMainWindow::setupGUI()
     // show up in the tool bar from the beginning. And ... it doesn't hurt.
     m_controlPanel->selectUpperMostEntry();
 
-    // set the size of the dsb according to config file
-    int dsbWidth = 250;
-    if( WPreferences::getPreference( "qt4gui.dsbWidth", &dsbWidth ) )
+    // set the size of the control panel according to config file
+    int controlPanelWidth = 250;
+    if( WPreferences::getPreference( "qt4gui.dsbWidth", &controlPanelWidth ) )
     {
         m_controlPanel->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
-        m_controlPanel->setMinimumWidth( dsbWidth );
+        m_controlPanel->setMinimumWidth( controlPanelWidth );
     }
 
-    // hide the DSB by default?
-    bool dsbInvisibleByDefault = false;
-    if( WPreferences::getPreference( "qt4gui.dsbInvisibleByDefault", &dsbInvisibleByDefault ) )
+    // hide the control panel by default?
+    bool controlPanelInvisibleByDefault = false;
+    if( WPreferences::getPreference( "qt4gui.dsbInvisibleByDefault", &controlPanelInvisibleByDefault ) )
     {
-        m_controlPanel->setVisible( !dsbInvisibleByDefault );
+        m_controlPanel->setVisible( !controlPanelInvisibleByDefault );
     }
 
-    // undock the DSB by default?
-    bool dsbFloatingByDefault = false;
-    if( WPreferences::getPreference( "qt4gui.dsbFloatingByDefault", &dsbFloatingByDefault ) )
+    // undock the control panel by default?
+    bool controlPanelFloatingByDefault = false;
+    if( WPreferences::getPreference( "qt4gui.dsbFloatingByDefault", &controlPanelFloatingByDefault ) )
     {
-        m_controlPanel->setFloating( dsbFloatingByDefault );
+        m_controlPanel->setFloating( controlPanelFloatingByDefault );
     }
 
     // NOTE: Please be aware that not every menu needs a shortcut key. If you add a shortcut, you should use one of the
@@ -165,13 +165,13 @@ void WMainWindow::setupGUI()
     // directly -> set shortcuts, and some further properties using QAction's interface
     QMenu* viewMenu = m_menuBar->addMenu( "View" );
 
-    QAction* dsbTrigger = m_controlPanel->toggleViewAction();
-    QList< QKeySequence > dsbShortcut;
-    dsbShortcut.append( QKeySequence( Qt::Key_F9 ) );
-    dsbTrigger->setShortcuts( dsbShortcut );
-    viewMenu->addAction( dsbTrigger );
+    QAction* controlPanelTrigger = m_controlPanel->toggleViewAction();
+    QList< QKeySequence > controlPanelShortcut;
+    controlPanelShortcut.append( QKeySequence( Qt::Key_F9 ) );
+    controlPanelTrigger->setShortcuts( controlPanelShortcut );
+    viewMenu->addAction( controlPanelTrigger );
     viewMenu->addSeparator();
-    this->addAction( dsbTrigger );  // this enables the action even if the menu bar is invisible
+    this->addAction( controlPanelTrigger );  // this enables the action even if the menu bar is invisible
 
     // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
@@ -303,7 +303,7 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addWidget( roiButton );
     m_permanentToolBar->addSeparator();
 
-    if( getToolbarPos() == InDSB )
+    if( getToolbarPos() == InControlPanel )
     {
         m_controlPanel->addToolbar( m_permanentToolBar );
         //m_controlPanel->setTitleBarWidget( m_permanentToolBar );
@@ -522,7 +522,7 @@ Qt::ToolBarArea WMainWindow::toQtToolBarArea( ToolBarPosition pos )
         case Right:
             return Qt::RightToolBarArea;
             break;
-        case InDSB:
+        case InControlPanel:
             return Qt::RightToolBarArea;
         default:
             return Qt::NoToolBarArea;

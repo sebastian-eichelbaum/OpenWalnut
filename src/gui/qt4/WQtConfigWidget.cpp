@@ -280,9 +280,9 @@ void WQtConfigWidget::registerComponents()
     ctbpos->setMax( 5 );
     m_defaultProperties->addProperty( "qt4gui.hideMenuBar", "Hide the menu bar.", false, m_propCondition );
 
-    WPropInt dsbWidth = m_defaultProperties->addProperty( "qt4gui.dsbWidth", "The width of the control panel.", 250, m_propCondition );
-    dsbWidth->setMin( 0 );
-    dsbWidth->setMax( 1000 );
+    WPropInt controlPanelWidth = m_defaultProperties->addProperty( "qt4gui.dsbWidth", "The width of the control panel.", 250, m_propCondition );
+    controlPanelWidth->setMin( 0 );
+    controlPanelWidth->setMax( 1000 );
 
     m_defaultProperties->addProperty( "qt4gui.dsbInvisibleByDefault", "Hide the control panel on startup?", false, m_propCondition );
     m_defaultProperties->addProperty( "qt4gui.dsbFloatingByDefault", "Undock the control panel on startup?", false, m_propCondition );
