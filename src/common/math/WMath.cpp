@@ -96,7 +96,7 @@ bool wmath::intersectPlaneLineNearCP( const WPlane& p, const wmath::WLine& l, bo
         if( intersectPlaneSegment( p, l[i-1], l[i], cP ) )
         {
             result = true;
-            double dist = ( *cP - p.getPosition() ).normSquare();
+            double dist = WVector3D( *cP - p.getPosition() ).normSquare();
             if( dist < minDistance )
             {
                 minDistance = dist;
