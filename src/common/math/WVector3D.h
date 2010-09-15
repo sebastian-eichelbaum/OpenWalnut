@@ -40,6 +40,8 @@ namespace wmath
 /**
  * Efficient three-dimensional vector that allows many vector algebra operations.
  * It is based on osg::vec3d
+ *
+ * \warning Do not introduce any virtual functions to this class! It might reduce performance significantly.
  */
 class OWCOMMON_EXPORT WVector3D : public osg::Vec3d
 {
@@ -93,17 +95,17 @@ public:
      * Compute the dot product of the current WValue with the parameter.
      * \param factor2 This vector will be multiplied with the current vector. (right hand side of the product)
      */
-    inline double dotProduct( const WVector3D& factor2 ) const;
+    inline osg::Vec3d::value_type dotProduct( const WVector3D& factor2 ) const;
 
     /**
      * Sum of squares of elements.
      */
-    inline double normSquare() const;
+    inline osg::Vec3d::value_type normSquare() const;
 
     /**
      * Return number of elements.
      */
-    inline double size() const;
+    inline size_t size() const;
 
     /**
      * Componentwise subtraction.
@@ -161,7 +163,7 @@ inline std::istream& operator>>( std::istream& in, WVector3D &rhs )
  * \param lhs left hand side of product
  * \param rhs right hand side of product
  */
-inline const WVector3D operator*( double lhs, const WVector3D& rhs )
+inline const WVector3D operator*( osg::Vec3d::value_type lhs, const WVector3D& rhs )
 {
     WVector3D result( rhs );
     result *= lhs;
@@ -190,17 +192,17 @@ inline const WVector3D WVector3D::operator-( const WVector3D& subtrahend ) const
     return result;
 }
 
-inline double WVector3D::size() const
+inline size_t WVector3D::size() const
 {
     return num_components;
 }
 
-inline double WVector3D::normSquare() const
+inline osg::Vec3d::value_type WVector3D::normSquare() const
 {
     return this->length2();
 }
 
-inline double WVector3D::dotProduct( const WVector3D& factor2 ) const
+inline osg::Vec3d::value_type WVector3D::dotProduct( const WVector3D& factor2 ) const
 {
     return *this * factor2;
 }
