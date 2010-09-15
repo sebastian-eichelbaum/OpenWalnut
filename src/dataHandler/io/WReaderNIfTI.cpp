@@ -88,11 +88,6 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
 {
     nifti_image* header = nifti_image_read( m_fname.c_str(), 0 );
 
-    for( int k = 0; k < 8; ++k )
-    {
-        std::cout << k << " " << header->dim[ k ] << std::endl;
-    }
-
     WAssert( header, "Error during file access to NIfTI file. This probably means that the file is corrupted." );
 
     WAssert( header->ndim >= 3,
@@ -121,7 +116,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
     unsigned int countVoxels = columns * rows * frames;
 
     // don't rearrange if this is a time series
-    if( header->dim[ 5 ] == 1 )
+    if( header->dim[ 5 ] <= 1 )
     {
         switch( header->datatype )
         {
@@ -183,8 +178,6 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
 //         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSegmentation( newValueSet, newGrid ) );
 //     }
 //     else
-
-    std::cout << "dim[ 5 ] = " << header->dim[ 5 ] << std::endl;
 
     if ( !description.compare( "WDataSetSphericalHarmonics" ) )
     {
