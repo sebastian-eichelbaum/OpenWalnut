@@ -39,7 +39,7 @@
 #include "../../../graphicsEngine/WROI.h"
 #include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
 #include "../WQtCombinerToolbar.h"
-#include "WQtDSBWidget.h"
+#include "WQtPropertyGroupWidget.h"
 #include "WQtModuleHeaderTreeItem.h"
 #include "WQtModuleTreeItem.h"
 #include "WQtRoiHeaderTreeItem.h"
@@ -76,7 +76,7 @@ public:
      *
      * \return the index of the new tab
      */
-    int addTabWidgetContent( WQtDSBWidget* content );
+    int addTabWidgetContent( WQtPropertyGroupWidget* content );
 
     /**
      * Adds a subject entry to the tree widget
@@ -297,7 +297,7 @@ private slots:
      *
      * \param props the properties.
      */
-    WQtDSBWidget* buildPropWidget( boost::shared_ptr< WProperties > props );
+    WQtPropertyGroupWidget* buildPropWidget( boost::shared_ptr< WProperties > props );
 
     /**
      * function gets called when a change to a tree item, eg. check box status, occurs

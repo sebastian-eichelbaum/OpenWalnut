@@ -1000,7 +1000,7 @@ void WQtConfigWidget::updateGui( boost::shared_ptr< WProperties > properties )
     updatePropertyGroups( properties, "modules.defaultList", true );
 }
 
-WQtDSBWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr< WProperties > from, std::string sectionName )
+WQtPropertyGroupWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr< WProperties > from, std::string sectionName )
 {
     WProperties::PropertyAccessType accesObject = from->getAccessObject();
     // Temporarily disabled since locking causes several problems here :-/
@@ -1012,7 +1012,7 @@ WQtDSBWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr< WProperti
         name = from->getName();
     }
 
-    WQtDSBWidget* tab = new WQtDSBWidget( name );
+    WQtPropertyGroupWidget* tab = new WQtPropertyGroupWidget( name );
 
     WProperties::PropertyIterator iter;
     for ( iter = accesObject->get().begin(); iter != accesObject->get().end(); ++iter )

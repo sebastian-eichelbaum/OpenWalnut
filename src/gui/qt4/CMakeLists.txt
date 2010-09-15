@@ -29,7 +29,7 @@ SET(GUI_QT4_MOC_HDRS
     controlPanel/WPropertySelectionWidget.h
     controlPanel/WPropertyPositionWidget.h
     controlPanel/WQtControlPanel.h
-    controlPanel/WQtDSBWidget.h
+    controlPanel/WQtPropertyGroupWidget.h
     controlPanel/WQtTreeWidget.h
     controlPanel/WQtTreeItem.h
     controlPanel/WQtTextureSorter.h

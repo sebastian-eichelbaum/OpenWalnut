@@ -756,9 +756,9 @@ void WQtControlPanel::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
     selectTreeItem();
 }
 
-WQtDSBWidget*  WQtControlPanel::buildPropWidget( boost::shared_ptr< WProperties > props )
+WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( boost::shared_ptr< WProperties > props )
 {
-    WQtDSBWidget* tab = new WQtDSBWidget( props->getName() );
+    WQtPropertyGroupWidget* tab = new WQtPropertyGroupWidget( props->getName() );
 
     if ( props.get() )
     {
@@ -818,8 +818,8 @@ WQtDSBWidget*  WQtControlPanel::buildPropWidget( boost::shared_ptr< WProperties 
 
 void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps )
 {
-    WQtDSBWidget* tab = NULL;
-    WQtDSBWidget* infoTab = NULL;
+    WQtPropertyGroupWidget* tab = NULL;
+    WQtPropertyGroupWidget* infoTab = NULL;
     if ( props )
     {
         tab = buildPropWidget( props );
@@ -905,7 +905,7 @@ void WQtControlPanel::changeRoiTreeItem()
     }
 }
 
-int WQtControlPanel::addTabWidgetContent( WQtDSBWidget* content )
+int WQtControlPanel::addTabWidgetContent( WQtPropertyGroupWidget* content )
 {
     if ( !content || content->isEmpty() )
     {

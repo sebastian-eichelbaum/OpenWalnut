@@ -28,9 +28,9 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QScrollArea>
 
-#include "WQtDSBWidget.h"
+#include "WQtPropertyGroupWidget.h"
 
-WQtDSBWidget::WQtDSBWidget( std::string name, QWidget* parent  )
+WQtPropertyGroupWidget::WQtPropertyGroupWidget( std::string name, QWidget* parent  )
     : QWidget( parent ),
     m_name( name.c_str() ),
 //    m_controlLayout(),
@@ -44,74 +44,74 @@ WQtDSBWidget::WQtDSBWidget( std::string name, QWidget* parent  )
     m_pageLayout->addLayout( m_controlLayout );
 }
 
-WQtDSBWidget::~WQtDSBWidget()
+WQtPropertyGroupWidget::~WQtPropertyGroupWidget()
 {
 }
 
-WPropertyBoolWidget* WQtDSBWidget::addProp( WPropBool property )
+WPropertyBoolWidget* WQtPropertyGroupWidget::addProp( WPropBool property )
 {
     ++m_numberOfWidgets;
 
     return new WPropertyBoolWidget( property, m_controlLayout, this );
 }
 
-WPropertyIntWidget* WQtDSBWidget::addProp( WPropInt property )
+WPropertyIntWidget* WQtPropertyGroupWidget::addProp( WPropInt property )
 {
     ++m_numberOfWidgets;
 
     return new WPropertyIntWidget( property, m_controlLayout, this );
 }
 
-WPropertyDoubleWidget* WQtDSBWidget::addProp( WPropDouble property )
+WPropertyDoubleWidget* WQtPropertyGroupWidget::addProp( WPropDouble property )
 {
     ++m_numberOfWidgets;
 
     return new WPropertyDoubleWidget( property, m_controlLayout, this );
 }
 
-WPropertyStringWidget* WQtDSBWidget::addProp( WPropString property )
+WPropertyStringWidget* WQtPropertyGroupWidget::addProp( WPropString property )
 {
     ++m_numberOfWidgets;
 
     return new WPropertyStringWidget( property, m_controlLayout, this );
 }
 
-WPropertyColorWidget* WQtDSBWidget::addProp( WPropColor property )
+WPropertyColorWidget* WQtPropertyGroupWidget::addProp( WPropColor property )
 {
     ++m_numberOfWidgets;
 
     return new WPropertyColorWidget( property, m_controlLayout, this );
 }
 
-WPropertyFilenameWidget* WQtDSBWidget::addProp( WPropFilename property )
+WPropertyFilenameWidget* WQtPropertyGroupWidget::addProp( WPropFilename property )
 {
     ++m_numberOfWidgets;
 
     return new WPropertyFilenameWidget( property, m_controlLayout, this );
 }
 
-WPropertyTriggerWidget* WQtDSBWidget::addProp( WPropTrigger property )
+WPropertyTriggerWidget* WQtPropertyGroupWidget::addProp( WPropTrigger property )
 {
     ++m_numberOfWidgets;
 
     return new WPropertyTriggerWidget( property, m_controlLayout, this );
 }
 
-WPropertyPositionWidget* WQtDSBWidget::addProp( WPropPosition property )
+WPropertyPositionWidget* WQtPropertyGroupWidget::addProp( WPropPosition property )
 {
     ++m_numberOfWidgets;
 
     return new WPropertyPositionWidget( property, m_controlLayout, this );
 }
 
-WPropertySelectionWidget* WQtDSBWidget::addProp( WPropSelection property )
+WPropertySelectionWidget* WQtPropertyGroupWidget::addProp( WPropSelection property )
 {
     ++m_numberOfWidgets;
 
     return new WPropertySelectionWidget( property, m_controlLayout, this );
 }
 
-void WQtDSBWidget::addGroup( WQtDSBWidget* widget, bool asScrollArea )
+void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea )
 {
     ++m_numberOfWidgets;
 
@@ -172,23 +172,23 @@ void WQtDSBWidget::addGroup( WQtDSBWidget* widget, bool asScrollArea )
     m_controlLayout->addWidget( box, row, 0, 1, 2 );
 }
 
-void WQtDSBWidget::addSpacer()
+void WQtPropertyGroupWidget::addSpacer()
 {
     m_pageLayout->addStretch();
     setLayout( m_pageLayout );
 }
 
-QString WQtDSBWidget::getName()
+QString WQtPropertyGroupWidget::getName()
 {
     return m_name;
 }
 
-void WQtDSBWidget::setName( QString name )
+void WQtPropertyGroupWidget::setName( QString name )
 {
     m_name = name;
 }
 
-bool WQtDSBWidget::isEmpty() const
+bool WQtPropertyGroupWidget::isEmpty() const
 {
     return !m_numberOfWidgets;
 }

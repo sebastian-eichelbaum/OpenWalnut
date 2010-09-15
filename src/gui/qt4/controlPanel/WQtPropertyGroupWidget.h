@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTDSBWIDGET_H
-#define WQTDSBWIDGET_H
+#ifndef WQTPROPERTYGROUPWIDGET_H
+#define WQTPROPERTYGROUPWIDGET_H
 
 #include <string>
 
@@ -43,9 +43,9 @@
 #include "../../../common/WPropertyVariable.h"
 
 /**
- * Container widget to contain the context widget for the control panel.
+ * Container widget to contain a number of properties for the module context in the control panel.
  */
-class WQtDSBWidget : public QWidget
+class WQtPropertyGroupWidget : public QWidget
 {
     Q_OBJECT
 
@@ -55,12 +55,12 @@ public:
      * \param name Name of the widget
      * \param parent The widget managing this widget
      */
-    explicit WQtDSBWidget( std::string name, QWidget* parent = 0 );
+    explicit WQtPropertyGroupWidget( std::string name, QWidget* parent = 0 );
 
     /**
      * destructor
      */
-    virtual ~WQtDSBWidget();
+    virtual ~WQtPropertyGroupWidget();
 
     /**
      * True if there are no widgets inside.
@@ -76,7 +76,7 @@ public:
     QPushButton* addPushButton( QString label );
 
     /**
-     * Adds a new bool property to the DSB.
+     * Adds a new bool property to the PropertyGroup.
      *
      * \param property the property to add.
      *
@@ -85,7 +85,7 @@ public:
     WPropertyBoolWidget* addProp( WPropBool property );
 
     /**
-     * Adds a new int property to the DSB.
+     * Adds a new int property to the PropertyGroup.
      *
      * \param property the property to add.
      *
@@ -94,7 +94,7 @@ public:
     WPropertyIntWidget* addProp( WPropInt property );
 
     /**
-     * Adds a new double property to the DSB.
+     * Adds a new double property to the PropertyGroup.
      *
      * \param property the property to add.
      *
@@ -103,7 +103,7 @@ public:
     WPropertyDoubleWidget* addProp( WPropDouble property );
 
     /**
-     * Adds a new string property to the DSB.
+     * Adds a new string property to the PropertyGroup.
      *
      * \param property the property to add.
      *
@@ -112,7 +112,7 @@ public:
     WPropertyStringWidget* addProp( WPropString property );
 
     /**
-     * Adds a new path property to the DSB.
+     * Adds a new path property to the PropertyGroup.
      *
      * \param property the property to add.
      *
@@ -121,7 +121,7 @@ public:
     WPropertyFilenameWidget* addProp( WPropFilename property );
 
     /**
-     * Adds a new list property to the DSB.
+     * Adds a new list property to the PropertyGroup.
      *
      * \param property the property to add.
      *
@@ -130,7 +130,7 @@ public:
     WPropertySelectionWidget* addProp( WPropSelection property );
 
     /**
-     * Adds a new position property to the DSB.
+     * Adds a new position property to the PropertyGroup.
      *
      * \param property the property to add.
      *
@@ -139,7 +139,7 @@ public:
     WPropertyPositionWidget* addProp( WPropPosition property );
 
     /**
-     * Adds a new color property to the DSB.
+     * Adds a new color property to the PropertyGroup.
      *
      * \param property the property to add.
      *
@@ -148,7 +148,7 @@ public:
     WPropertyColorWidget* addProp( WPropColor property );
 
     /**
-     * Adds a new trigger property to the DSB.
+     * Adds a new trigger property to the PropertyGroup.
      *
      * \param property the property to add.
      *
@@ -162,7 +162,7 @@ public:
      * \param widget the widget
      * \param asScrollArea true if the group should be embedded into a scroll area
      */
-    void addGroup( WQtDSBWidget* widget, bool asScrollArea = false );
+    void addGroup( WQtPropertyGroupWidget* widget, bool asScrollArea = false );
 
     /**
      * helper function to add a spacer at the end
@@ -205,4 +205,4 @@ private:
     unsigned int m_numberOfWidgets;
 };
 
-#endif  // WQTDSBWIDGET_H
+#endif  // WQTPROPERTYGROUPWIDGET_H
