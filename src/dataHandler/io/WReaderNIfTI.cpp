@@ -88,6 +88,11 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
 {
     nifti_image* header = nifti_image_read( m_fname.c_str(), 0 );
 
+    for( int k = 0; k < 8; ++k )
+    {
+        std::cout << k << " " << header->dim[ k ] << std::endl;
+    }
+
     WAssert( header, "Error during file access to NIfTI file. This probably means that the file is corrupted." );
 
     WAssert( header->ndim >= 3,
@@ -115,7 +120,8 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
     unsigned int order = ( ( vDim == 1 ) ? 0 : 1 );  // TODO(all): Does recognize vectors and scalars only so far.
     unsigned int countVoxels = columns * rows * frames;
 
-    if( header->dim[ 0 ] <= 4 )
+    // don't rearrange if this is a time series
+    if( header->dim[ 5 ] == 1 )
     {
         switch( header->datatype )
         {
@@ -177,18 +183,23 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
 //         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSegmentation( newValueSet, newGrid ) );
 //     }
 //     else
+
+    std::cout << "dim[ 5 ] = " << header->dim[ 5 ] << std::endl;
+
     if ( !description.compare( "WDataSetSphericalHarmonics" ) )
     {
         wlog::debug( "WReaderNIfTI" ) << "Load as spherical harmonics" << std::endl;
         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSphericalHarmonics( newValueSet, newGrid ) );
     }
     // 4th dimension is the time
-    else if( header->dim[ 0 ] == 4 )
+    // note that in the nifti standard, dim[ 4 ] is the temporal dimension
+    // we use dim[ 5 ] here
+    else if( header->dim[ 5 ] > 1 )
     {
-        WAssert( header->dim[ 5 ] == 1, "Only scalar datasets are supported for time series so far." );
+        WAssert( header->dim[ 4 ] == 1, "Only scalar datasets are supported for time series so far." );
         wlog::debug( "WReaderNIfTI" ) << "Load as time series";
-        std::size_t numTimeSlices = header->dim[ 4 ];
-        float tw = header->dim[ 6 ];
+        std::size_t numTimeSlices = header->dim[ 5 ];
+        float tw = header->pixdim[ 5 ];
         WAssert( tw != 0.0f, "" );
 
         std::vector< boost::shared_ptr< WDataSetScalar const > > ds;
