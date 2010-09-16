@@ -29,6 +29,7 @@
 
 #include "../../dataHandler/WDataSetVector.h"
 #include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -98,6 +99,13 @@ protected:
 private:
 
     /**
+     * Initializes the needed geodes, transformations and vertex arrays. This needs to be done once for each new dataset.
+     *
+     * \param grid the grid to places the slices in
+     */
+    void initOSG( boost::shared_ptr< WGridRegular3D > grid );
+
+    /**
      * The input connector containing the vector field.
      */
     boost::shared_ptr< WModuleInputData< WDataSetVector > > m_vectorsIn;
@@ -108,9 +116,51 @@ private:
     boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_meshIn;
 
     /**
+     * A property allowing the user to select whether the slices or the mesh should be used
+     */
+    WPropSelection m_geometrySelection;
+
+    /**
+     * A list of items that can be selected using m_geometrySelection.
+     */
+    boost::shared_ptr< WItemSelection > m_geometrySelections;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * The Geode containing all the slices and the mesh
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_output;
+
+    /**
+     * The transformation node moving the X slice through the dataset space if the sliders are used
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_xSlice;
+
+    /**
+     * The transformation node moving the Y slice through the dataset space if the sliders are used
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_ySlice;
+
+    /**
+     * The transformation node moving the Z slice through the dataset space if the sliders are used
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_zSlice;
+
+    WPropInt      m_xPos; //!< x position of the slice
+
+    WPropInt      m_yPos; //!< y position of the slice
+
+    WPropInt      m_zPos; //!< z position of the slice
+
+    WPropBool     m_showonX; //!< indicates whether the vector should be shown on slice X
+
+    WPropBool     m_showonY; //!< indicates whether the vector should be shown on slice Y
+
+    WPropBool     m_showonZ; //!< indicates whether the vector should be shown on slice Z
 };
 
 #endif  // WMIMAGESPACELIC_H
