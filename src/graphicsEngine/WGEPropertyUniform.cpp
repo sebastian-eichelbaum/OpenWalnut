@@ -22,5 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGELinearTranslationCallback.h"
+#include "WGEPropertyUniform.h"
 

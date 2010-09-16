@@ -35,6 +35,7 @@
 #include "../../kernel/WKernel.h"
 
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGEPropertyUniform.h"
 
 #include "WMSuperquadricGlyphs.h"
 #include "superquadricglyphs.xpm"
@@ -392,16 +393,11 @@ void WMSuperquadricGlyphs::moduleMain()
     m_shader->apply( m_output );
 
     // set uniform callbacks and uniforms
-    osg::ref_ptr< osg::Uniform > evThreshold = new osg::Uniform( "u_evThreshold", static_cast< float >( m_evThreshold->get() ) );
-    evThreshold->setUpdateCallback( new SafeUniformCallback( this ) );
-    osg::ref_ptr< osg::Uniform > faThreshold = new osg::Uniform( "u_faThreshold", static_cast< float >( m_faThreshold->get() ) );
-    faThreshold->setUpdateCallback( new SafeUniformCallback( this ) );
-    osg::ref_ptr< osg::Uniform > unifyEV = new osg::Uniform( "u_unifyEV", m_unifyEV->get() );
-    unifyEV->setUpdateCallback( new SafeUniformCallback( this ) );
-    osg::ref_ptr< osg::Uniform > scaling = new osg::Uniform( "u_scaling", static_cast< float >( m_scaling->get() ) );
-    scaling->setUpdateCallback( new SafeUniformCallback( this ) );
-    osg::ref_ptr< osg::Uniform > gamma = new osg::Uniform( "u_gamma", static_cast< float >( m_gamma->get() ) );
-    gamma->setUpdateCallback( new SafeUniformCallback( this ) );
+    osg::ref_ptr< osg::Uniform > evThreshold = new WGEPropertyUniform< WPropDouble >( "u_evThreshold", m_evThreshold );
+    osg::ref_ptr< osg::Uniform > faThreshold = new WGEPropertyUniform< WPropDouble >( "u_faThreshold", m_faThreshold );
+    osg::ref_ptr< osg::Uniform > unifyEV = new WGEPropertyUniform< WPropBool >( "u_unifyEV", m_unifyEV );
+    osg::ref_ptr< osg::Uniform > scaling = new WGEPropertyUniform< WPropDouble >( "u_scaling", m_scaling );
+    osg::ref_ptr< osg::Uniform > gamma = new WGEPropertyUniform< WPropDouble >( "u_gamma", m_gamma );
 
     sset->addUniform( evThreshold );
     sset->addUniform( faThreshold );
@@ -564,48 +560,5 @@ void WMSuperquadricGlyphs::moduleMain()
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
     // allocated memory and remove all OSG nodes.
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
-}
-
-void WMSuperquadricGlyphs::activate()
-{
-    if ( m_output )   // always ensure the root node exists
-    {
-        if ( m_active->get() )
-        {
-            m_output->setNodeMask( 0xFFFFFFFF );
-        }
-        else
-        {
-            m_output->setNodeMask( 0x0 );
-        }
-    }
-
-    // Always call WModule's activate!
-    WModule::activate();
-}
-
-void WMSuperquadricGlyphs::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
-{
-    // update some uniforms:
-    if ( m_module->m_evThreshold->changed()  && ( uniform->getName() == "u_evThreshold" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_evThreshold->get( true ) ) );
-    }
-    if ( m_module->m_faThreshold->changed()  && ( uniform->getName() == "u_faThreshold" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_faThreshold->get( true ) ) );
-    }
-    if ( m_module->m_gamma->changed()  && ( uniform->getName() == "u_gamma" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_gamma->get( true ) ) );
-    }
-    if ( m_module->m_scaling->changed()  && ( uniform->getName() == "u_scaling" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_scaling->get( true ) ) );
-    }
-    if ( m_module->m_unifyEV->changed()  && ( uniform->getName() == "u_unifyEV" ) )
-    {
-        uniform->set( m_module->m_unifyEV->get( true ) );
-    }
 }
 

@@ -104,11 +104,6 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
-
 private:
 
     /**
@@ -250,37 +245,6 @@ private:
      * \param offdiag the off-diagonal array
      */
     inline void addTensor( size_t idx, osg::Vec3Array* diag, osg::Vec3Array* offdiag );
-
-    /**
-     * Class handling uniform update during render traversal
-     */
-    class SafeUniformCallback: public osg::Uniform::Callback
-    {
-    public:
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUniformCallback( WMSuperquadricGlyphs* module ): m_module( module )
-        {
-        };
-
-        /**
-         * The callback. Called every render traversal for the uniform.
-         *
-         * \param uniform the uniform for which this callback is.
-         * \param nv the visitor.
-         */
-        virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         */
-        WMSuperquadricGlyphs* m_module;
-    };
-
 
     /**
      * Node callback to handle updates in the glyph tensor data

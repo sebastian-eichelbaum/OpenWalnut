@@ -96,7 +96,7 @@ WGELinearTranslationCallback< T >::WGELinearTranslationCallback( osg::Vec3 axe, 
 template< typename T >
 WGELinearTranslationCallback< T >::~WGELinearTranslationCallback()
 {
- // cleanup
+    // cleanup
 }
 
 template< typename T >
