@@ -161,6 +161,20 @@ public:
     template< typename Data_T >
     Data_T interpolate( wmath::WVector3D const& pos, float time, bool* success ) const;
 
+    /**
+     * Get the smallest value in all datasets.
+     *
+     * \return The smallest value.
+     */
+    double getMinValue();
+
+    /**
+     * Get the largest value in all datasets.
+     *
+     * \return The largest value.
+     */
+    double getMaxValue();
+
 private:
     /**
      * Find the largest time slice position that is smaller than or equal to time,
@@ -235,6 +249,12 @@ private:
 
     //! The prototype as singleton.
     static boost::shared_ptr< WPrototyped > m_prototype;
+
+    //! the smallest value
+    double m_minValue;
+
+    //! the largest value
+    double m_maxValue;
 };
 
 template< typename Data_T >

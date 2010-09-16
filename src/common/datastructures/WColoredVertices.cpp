@@ -22,46 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTROITREEITEM_H
-#define WQTROITREEITEM_H
+#include <map>
 
-#include <QtCore/QTimer>
-#include <QtGui/QProgressBar>
-#include <QtGui/QTreeWidgetItem>
+#include <boost/shared_ptr.hpp>
 
-#include "../../../graphicsEngine/WROI.h"
-#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
-#include "WQtTreeItem.h"
+#include "WColoredVertices.h"
 
-/**
- * a tree widget item to represent a roi in the dataset browser
- */
-class WQtRoiTreeItem : public QTreeWidgetItem
+// init _static_ member variable and provide a linker reference to it
+boost::shared_ptr< WPrototyped > WColoredVertices::m_prototype = boost::shared_ptr< WPrototyped >();
+
+boost::shared_ptr< WPrototyped > WColoredVertices::getPrototype()
 {
-public:
-    /**
-     * constructor
-     *
-     * \param parent
-     * \param roi
-     * \param type
-     */
-    WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, WTreeItemType type = ROI );
+    if ( !m_prototype )
+    {
+         m_prototype = boost::shared_ptr< WPrototyped >( new WColoredVertices() );
+    }
+    return m_prototype;
+}
 
-    /**
-     * destructor
-     */
-    virtual ~WQtRoiTreeItem();
+WColoredVertices::WColoredVertices()
+{
+}
 
-    /**
-     * getter
-     * \return the roi representation object
-     */
-    boost::shared_ptr< WRMROIRepresentation > getRoi();
+WColoredVertices::WColoredVertices( const std::map< size_t, WColor >& data )
+    : m_data( data )
+{
+}
 
-protected:
-private:
-    boost::shared_ptr< WRMROIRepresentation > m_roi; //!< roi
-};
-
-#endif  // WQTROITREEITEM_H
+WColoredVertices::~WColoredVertices()
+{
+}

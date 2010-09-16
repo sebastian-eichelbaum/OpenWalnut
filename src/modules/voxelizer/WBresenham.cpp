@@ -185,6 +185,12 @@ std::vector< double > WBresenham::computeDistances( const size_t voxelNum,
     return result;
 }
 
+double WBresenham::composeValue( double newValue, double existingValue ) const
+{
+    return std::max( newValue, existingValue );
+    // return newValue + existingValue;
+}
+
 void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, const wmath::WPosition& start, const wmath::WPosition& end )
 {
     size_t nbX  = m_grid->getNbCoordsX();
@@ -198,7 +204,7 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
     if( m_antialiased )
     {
         distances = computeDistances( idx, start, end );
-        m_values[ idx ] = filter( distances[0] );
+        m_values[ idx ] = composeValue( filter( distances[0] ), m_values[ idx ] );
         parameterizeVoxel( voxel, idx, axis, m_values[ idx ], start, end );
     }
     else
@@ -233,10 +239,10 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
     switch( axis )
     {
         case 0 :
-                m_values[ idx + nbX ] = std::max( filter( distances[3] ), m_values[ idx + nbX ] );
-                m_values[ idx - nbX ] = std::max( filter( distances[4] ), m_values[ idx - nbX ] );
-                m_values[ idx + nbXY ] = std::max( filter( distances[5] ), m_values[ idx + nbXY ] );
-                m_values[ idx - nbXY ] = std::max( filter( distances[6] ), m_values[ idx - nbXY ] );
+                m_values[ idx + nbX ] = composeValue( filter( distances[3] ), m_values[ idx + nbX ] );
+                m_values[ idx - nbX ] = composeValue( filter( distances[4] ), m_values[ idx - nbX ] );
+                m_values[ idx + nbXY ] = composeValue( filter( distances[5] ), m_values[ idx + nbXY ] );
+                m_values[ idx - nbXY ] = composeValue( filter( distances[6] ), m_values[ idx - nbXY ] );
 
                 parameterizeVoxel( voxel, idx + nbX, axis, m_values[ idx + nbX ], start, end );
                 parameterizeVoxel( voxel, idx - nbX, axis, m_values[ idx - nbX ], start, end );
@@ -245,10 +251,10 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
 
                 break;
         case 1 :
-                m_values[ idx + 1 ] = std::max( filter( distances[1] ), m_values[ idx + 1 ] );
-                m_values[ idx - 1 ] = std::max( filter( distances[2] ), m_values[ idx - 1 ] );
-                m_values[ idx + nbXY ] = std::max( filter( distances[5] ), m_values[ idx + nbXY ] );
-                m_values[ idx - nbXY ] = std::max( filter( distances[6] ), m_values[ idx - nbXY ] );
+                m_values[ idx + 1 ] = composeValue( filter( distances[1] ), m_values[ idx + 1 ] );
+                m_values[ idx - 1 ] = composeValue( filter( distances[2] ), m_values[ idx - 1 ] );
+                m_values[ idx + nbXY ] = composeValue( filter( distances[5] ), m_values[ idx + nbXY ] );
+                m_values[ idx - nbXY ] = composeValue( filter( distances[6] ), m_values[ idx - nbXY ] );
 
                 parameterizeVoxel( voxel, idx + 1, axis, m_values[ idx + 1 ], start, end );
                 parameterizeVoxel( voxel, idx - 1, axis, m_values[ idx - 1 ], start, end );
@@ -257,11 +263,10 @@ void WBresenham::markVoxel( const wmath::WValue< int >& voxel, const int axis, c
 
                 break;
         case 2 :
-                m_values[ idx + 1 ] = std::max( filter( distances[1] ), m_values[ idx + 1 ] );
-                m_values[ idx - 1 ] = std::max( filter( distances[2] ), m_values[ idx - 1 ] );
-                m_values[ idx + nbX ] = std::max( filter( distances[3] ), m_values[ idx + nbX ] );
-                m_values[ idx - nbX ] = std::max( filter( distances[4] ), m_values[ idx - nbX ] );
-
+                m_values[ idx + 1 ] = composeValue( filter( distances[1] ), m_values[ idx + 1 ] );
+                m_values[ idx - 1 ] = composeValue( filter( distances[2] ), m_values[ idx - 1 ] );
+                m_values[ idx + nbX ] = composeValue( filter( distances[3] ), m_values[ idx + nbX ] );
+                m_values[ idx - nbX ] = composeValue( filter( distances[4] ), m_values[ idx - nbX ] );
                 parameterizeVoxel( voxel, idx + 1, axis, m_values[ idx + 1 ], start, end );
                 parameterizeVoxel( voxel, idx - 1, axis, m_values[ idx - 1 ], start, end );
                 parameterizeVoxel( voxel, idx + nbX, axis, m_values[ idx + nbX ], start, end );

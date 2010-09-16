@@ -65,9 +65,7 @@ WMMarchingCubes::WMMarchingCubes():
     m_dataSet(),
     m_shaderUseLighting( false ),
     m_shaderUseTransparency( false ),
-    m_firstDataProcessed( false ),
     m_moduleNode( new WGEGroupNode() ),
-    m_moduleNodeInserted( false ),
     m_surfaceGeode( 0 )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -135,11 +133,11 @@ void WMMarchingCubes::moduleMain()
             // acquire data from the input connector
             m_dataSet = m_input->getData();
 
-            // set appropriate constraints for properties
-            m_isoValueProp->setMin( m_dataSet->getMin() );
-            m_isoValueProp->setMax( m_dataSet->getMax() );
-            if( !m_firstDataProcessed )
+            if( m_isoValueProp->get() >= m_dataSet->getMax() || m_isoValueProp->get() <= m_dataSet->getMin() )
             {
+                // set appropriate constraints for properties
+                m_isoValueProp->setMin( m_dataSet->getMin() );
+                m_isoValueProp->setMax( m_dataSet->getMax() );
                 m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ), true );
             }
         }
@@ -164,8 +162,6 @@ void WMMarchingCubes::moduleMain()
 
         debugLog() << "Done!";
         progress->finish();
-
-        m_firstDataProcessed = true;
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
@@ -203,7 +199,7 @@ void WMMarchingCubes::properties()
     m_nbVertices = m_infoProperties->addProperty( "Vertices", "The number of vertices in the produced mesh.", 0 );
     m_nbVertices->setMax( std::numeric_limits< int >::max() );
 
-    m_isoValueProp = m_properties->addProperty( "Iso value", "The surface will show the area that has this value.", 100., m_recompute );
+    m_isoValueProp = m_properties->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
     m_isoValueProp->setMin( wlimits::MIN_DOUBLE );
     m_isoValueProp->setMax( wlimits::MAX_DOUBLE );
     {
@@ -219,16 +215,16 @@ void WMMarchingCubes::properties()
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 
-    m_useTextureProp = m_properties->addProperty( "Use texture", "Use texturing of the surface?", false );
+    m_useTextureProp = m_properties->addProperty( "Use Texture", "Use texturing of the surface?", false );
 
-    m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
+    m_surfaceColor = m_properties->addProperty( "Surface Color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
 
     m_savePropGroup = m_properties->addPropertyGroup( "Save Surface",  "" );
-    m_saveTriggerProp = m_savePropGroup->addProperty( "Do save",  "Press!",
+    m_saveTriggerProp = m_savePropGroup->addProperty( "Do Save",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMMarchingCubes::save, this ) );
 
-    m_meshFile = m_savePropGroup->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
+    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )

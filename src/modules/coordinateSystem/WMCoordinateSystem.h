@@ -166,7 +166,7 @@ private:
     void createGeometry();
 
     /**
-     * helper function that finds the bounding box of the topmost dataset in the datasetbrowser
+     * helper function that computes the innerBoundingBox for the actual data
      */
     void findBoundingBox();
 

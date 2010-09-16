@@ -22,39 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WTRIANGLEMESHTRAITS_H
-#define WTRIANGLEMESHTRAITS_H
+#ifndef WQTMODULETREEITEM_H
+#define WQTMODULETREEITEM_H
 
-#include <sstream>
+#include <QtGui/QTreeWidgetItem>
+#include <QtGui/QProgressBar>
+#include <QtCore/QTimer>
 
-#include <cxxtest/TestSuite.h>
-#include <cxxtest/ValueTraits.h>
+#include "WQtTreeItem.h"
+#include "../../../kernel/WModule.h"
 
-#include "../../test/WTraitsBase.h"
-#include "../WTriangleMesh.h"
-
-#ifdef CXXTEST_RUNNING
-namespace CxxTest
-{
-CXXTEST_TEMPLATE_INSTANTIATION
 /**
- * Enables better UnitTest OutPut if something fails with WTriangleMeshs, so you see
- * immedeatly what is failing.
+ * Tree widget item to represent a module in the control panel tree widget. This class is currently empty as all the functionality has been
+ * generalized and moved to WQtTreeItem. This class should be removed.
  */
-class ValueTraits< WTriangleMesh > : public WTraitsBase
+class WQtModuleTreeItem: public WQtTreeItem
 {
 public:
+
     /**
-     * Constructs a new ValueTrait of a WTriangleMesh for better test output
+     * Constructor
+     *
+     * \param parent The parent widget that manages this widget.
+     * \param module The module that will be represented by the item.
      */
-    explicit ValueTraits( const WTriangleMesh &mesh )
-    {
-        std::stringstream ss;
-        using tm_utils::operator<<;
-        ss << mesh;
-        m_s = ss.str();
-    }
+    WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
+
+    /**
+     * Destructor.
+     */
+    virtual ~WQtModuleTreeItem();
+
+protected:
+
+private:
 };
-}
-#endif  // CXXTEST_RUNNING
-#endif  // WTRIANGLEMESHTRAITS_H
+
+#endif  // WQTMODULETREEITEM_H

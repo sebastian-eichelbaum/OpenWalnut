@@ -39,7 +39,7 @@
 
 #include "../../common/WProperties.h"
 #include "../../common/WThreadedRunner.h"
-#include "datasetbrowser/WQtDSBWidget.h"
+#include "controlPanel/WQtPropertyGroupWidget.h"
 
 /**
 * Class that provides registration, loading and writing of the standard config file walnut.cfg
@@ -176,7 +176,7 @@ private:
     *
     * \result pointer to the widget
     */
-    WQtDSBWidget *createTabForSection( boost::shared_ptr< WProperties > from, std::string sectionName );
+    WQtPropertyGroupWidget *createTabForSection( boost::shared_ptr< WProperties > from, std::string sectionName );
 
     /**
     * creates the whole gui for a give property group

@@ -45,6 +45,8 @@ WDataSetTimeSeries::WDataSetTimeSeries( std::vector< boost::shared_ptr< WDataSet
     boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( datasets.front()->getGrid() );
     WAssert( g, "" );
     dataType d = datasets.front()->getValueSet()->getDataType();
+    m_minValue = datasets.front()->getMin();
+    m_maxValue = datasets.front()->getMax();
     for( dit = datasets.begin(), tit = times.begin(); dit != datasets.end() && tit != times.end(); ++dit, ++tit )
     {
         WAssert( *dit, "" );
@@ -54,6 +56,14 @@ WDataSetTimeSeries::WDataSetTimeSeries( std::vector< boost::shared_ptr< WDataSet
         WAssert( ( *dit )->getValueSet()->dimension() == 1, "" );
         WAssert( ( *dit )->getValueSet()->order() == 0, "" );
         m_dataSets.push_back( TimeSlice( *dit, *tit ) );
+        if( m_minValue > ( *dit )->getMin() )
+        {
+            m_minValue = ( *dit )->getMin();
+        }
+        if( m_maxValue < ( *dit )->getMax() )
+        {
+            m_maxValue = ( *dit )->getMax();
+        }
     }
     std::sort( m_dataSets.begin(), m_dataSets.end(), TimeSliceCompare() );
     for( std::size_t k = 1; k < m_dataSets.size(); ++k )
@@ -219,4 +229,14 @@ float WDataSetTimeSeries::getUBTimeSlice( float time ) const
 WDataSetTimeSeries::WDataSetTimeSeries()
     : m_dataSets()
 {
+}
+
+double WDataSetTimeSeries::getMinValue()
+{
+    return m_minValue;
+}
+
+double WDataSetTimeSeries::getMaxValue()
+{
+    return m_maxValue;
 }

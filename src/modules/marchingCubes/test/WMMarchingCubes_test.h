@@ -30,9 +30,9 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../../common/WLogger.h"
 #include "../../../common/math/WPosition.h"
 #include "../../../common/WIOTools.h"
+#include "../../../common/WLogger.h"
 #include "../../../graphicsEngine/WTriangleMesh2.h"
 #include "../WMMarchingCubes.h"
 
