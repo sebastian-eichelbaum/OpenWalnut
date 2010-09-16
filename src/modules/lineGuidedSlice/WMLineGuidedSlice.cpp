@@ -36,6 +36,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMLineGuidedSlice.h"
+#include "lineGuidedSlice.xpm"
 
 W_LOADABLE_MODULE( WMLineGuidedSlice )
 
@@ -44,7 +45,7 @@ WMLineGuidedSlice::WMLineGuidedSlice():
     m_textureChanged( true ),
     m_isPicked( false )
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "lineGuidedSlice" ) );
+    m_shader = osg::ref_ptr< WShader >( new WShader( "lineGuidedSlice" ) );
 }
 
 WMLineGuidedSlice::~WMLineGuidedSlice()
@@ -54,6 +55,11 @@ WMLineGuidedSlice::~WMLineGuidedSlice()
 boost::shared_ptr< WModule > WMLineGuidedSlice::factory() const
 {
     return boost::shared_ptr< WModule >( new WMLineGuidedSlice() );
+}
+
+const char** WMLineGuidedSlice::getXPMIcon() const
+{
+    return lineGuidedSlice_xpm;
 }
 
 const std::string WMLineGuidedSlice::getName() const
@@ -106,9 +112,9 @@ void WMLineGuidedSlice::moduleMain()
 
     m_rootNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        if ( !m_input->getData() ) // ok, the output has not yet sent data
+        if( !m_input->getData() ) // ok, the output has not yet sent data
         {
             m_moduleState.wait();
             continue;
@@ -242,10 +248,10 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
     {
         const double radius = 100;
         std::vector< wmath::WPosition > vertices;
-        vertices.push_back( startPos + radius * (      sliceVec1 + sliceVec2 ) );
-        vertices.push_back( startPos + radius * ( -1 * sliceVec1 + sliceVec2 ) );
-        vertices.push_back( startPos + radius * ( -1 * sliceVec1 - sliceVec2 ) );
-        vertices.push_back( startPos + radius * (      sliceVec1 - sliceVec2 ) );
+        vertices.push_back( startPos + (      sliceVec1 + sliceVec2 ) * radius );
+        vertices.push_back( startPos + ( -1 * sliceVec1 + sliceVec2 ) * radius );
+        vertices.push_back( startPos + ( -1 * sliceVec1 - sliceVec2 ) * radius );
+        vertices.push_back( startPos + (      sliceVec1 - sliceVec2 ) * radius );
 
         const size_t nbVerts = 4;
         for( size_t i = 0; i < nbVerts; ++i )
@@ -299,17 +305,17 @@ void WMLineGuidedSlice::updateGeometry()
 void WMLineGuidedSlice::updateTextures()
 {
     osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
-    if ( m_textureChanged )
+    if( m_textureChanged )
     {
         m_textureChanged = false;
 
         // grab a list of data textures
         std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
-        if ( tex.size() > 0 )
+        if( tex.size() > 0 )
         {
             // reset all uniforms
-            for ( int i = 0; i < 2; ++i )
+            for( int i = 0; i < 2; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
@@ -359,7 +365,7 @@ void WMLineGuidedSlice::initUniforms( osg::StateSet* sliceState )
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex0", 0 ) ) );
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex1", 1 ) ) );
 
-    for ( int i = 0; i < 2; ++i )
+    for( int i = 0; i < 2; ++i )
     {
         sliceState->addUniform( m_typeUniforms[i] );
         sliceState->addUniform( m_thresholdUniforms[i] );
