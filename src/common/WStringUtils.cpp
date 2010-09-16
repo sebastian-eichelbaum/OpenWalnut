@@ -78,7 +78,7 @@ std::vector< std::string > string_utils::tokenize( const std::string& source,
         compression = ba::token_compress_off;
     }
     ba::split( result, source, ba::is_any_of( delim ), compression );
-    if( result.back() == "" )
+    if( !result.empty() && result.back() == "" )
     {
         result.pop_back();
     }
