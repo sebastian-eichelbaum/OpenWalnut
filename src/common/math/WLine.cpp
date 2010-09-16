@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+#include "../WAssert.h"
 #include "../WLimits.h"
 #include "../WStringUtils.h"
 #include "../exceptions/WOutOfBounds.h"

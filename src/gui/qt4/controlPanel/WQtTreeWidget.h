@@ -22,40 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTMODULETREEITEM_H
-#define WQTMODULETREEITEM_H
+#ifndef WQTTREEWIDGET_H
+#define WQTTREEWIDGET_H
 
-#include <QtGui/QTreeWidgetItem>
-#include <QtGui/QProgressBar>
-#include <QtCore/QTimer>
-
-#include "WQtTreeItem.h"
-#include "../../../kernel/WModule.h"
+#include <QtGui/QTreeWidget>
 
 /**
- * Tree widget item to represent a module in the dataset browser tree widget. This class is currently empty as all the functionality has been
- * generalized and moved to WQtTreeItem. This class should be removed.
+ * tree widget for the control panel
  */
-class WQtModuleTreeItem: public WQtTreeItem
+class WQtTreeWidget  : public QTreeWidget
 {
+    Q_OBJECT
+
 public:
+    /**
+     * default constructor
+     * \param parent the parent widget of this widget, i.e. the widget that manages this widget
+     */
+    explicit WQtTreeWidget( QWidget* parent = 0 );
 
     /**
-     * Constructor
-     *
-     * \param parent The parent widget that manages this widget.
-     * \param module The module that will be represented by the item.
+     * destructor
      */
-    WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
+    virtual ~WQtTreeWidget();
 
-    /**
-     * Destructor.
-     */
-    virtual ~WQtModuleTreeItem();
+   /**
+    * Deletes an entry from the tree
+    * \param item The given item will be removed from the tree
+    */
+    void deleteItem( QTreeWidgetItem* item );
+
+public slots:
+    //void keyPressEvent(QKeyEvent *e);
 
 protected:
-
 private:
 };
 
-#endif  // WQTMODULETREEITEM_H
+#endif  // WQTTREEWIDGET_H

@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTDATASETBROWSER_H
-#define WQTDATASETBROWSER_H
+#ifndef WQTCONTROLPANEL_H
+#define WQTCONTROLPANEL_H
 
 #include <list>
 #include <string>
@@ -39,7 +39,7 @@
 #include "../../../graphicsEngine/WROI.h"
 #include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
 #include "../WQtCombinerToolbar.h"
-#include "WQtDSBWidget.h"
+#include "WQtPropertyGroupWidget.h"
 #include "WQtModuleHeaderTreeItem.h"
 #include "WQtModuleTreeItem.h"
 #include "WQtRoiHeaderTreeItem.h"
@@ -52,7 +52,7 @@ class WMainWindow;
 /**
  * container widget for a tree widget with context menu and some control widgets
  */
-class WQtDatasetBrowser : public QDockWidget
+class WQtControlPanel : public QDockWidget
 {
     Q_OBJECT
 
@@ -62,12 +62,12 @@ public:
      *
      * \param parent Parent widget.
      */
-    explicit WQtDatasetBrowser( WMainWindow* parent = 0 );
+    explicit WQtControlPanel( WMainWindow* parent = 0 );
 
     /**
      * Default Destructor.
      */
-    virtual ~WQtDatasetBrowser();
+    virtual ~WQtControlPanel();
 
     /**
      * Adds a page to the context widget
@@ -76,7 +76,7 @@ public:
      *
      * \return the index of the new tab
      */
-    int addTabWidgetContent( WQtDSBWidget* content );
+    int addTabWidgetContent( WQtPropertyGroupWidget* content );
 
     /**
      * Adds a subject entry to the tree widget
@@ -97,23 +97,23 @@ public:
     WQtDatasetTreeItem* addDataset( boost::shared_ptr< WModule > module, int subjectId = 0 );
 
     /**
-     * Adds a module to the dataset browser.
+     * Adds a module to the control panel.
      *
      * \param module the module to add.
      *
-     * \return the representation in dataset browser.
+     * \return the representation in control panel.
      */
     WQtModuleTreeItem* addModule( boost::shared_ptr< WModule > module );
 
     /**
-     * Adds a roi entry to the dataset browser
+     * Adds a roi entry to the control panel
      *
      * \param roi pointer to the roi representation object
      */
     void addRoi( boost::shared_ptr< WRMROIRepresentation > roi );
 
     /**
-     * Removes a roi entry from the dataset browser
+     * Removes a roi entry from the control panel
      *
      * \param roi pointer to the roi representation object
      */
@@ -125,7 +125,7 @@ public:
     void connectSlots();
 
     /**
-     * Returns the module currently selected in dataset browser.
+     * Returns the module currently selected in control panel.
      *
      * \return the module.
      */
@@ -156,7 +156,7 @@ public:
     QAction* toggleViewAction() const;
 
     /**
-     * Add the specified toolbar to the top of the dsb.
+     * Add the specified toolbar to the top of the control panel.
      *
      * \param tb the toolbar to add
      */
@@ -297,7 +297,7 @@ private slots:
      *
      * \param props the properties.
      */
-    WQtDSBWidget* buildPropWidget( boost::shared_ptr< WProperties > props );
+    WQtPropertyGroupWidget* buildPropWidget( boost::shared_ptr< WProperties > props );
 
     /**
      * function gets called when a change to a tree item, eg. check box status, occurs
@@ -320,4 +320,4 @@ private slots:
     void deleteModuleTreeItem();
 };
 
-#endif  // WQTDATASETBROWSER_H
+#endif  // WQTCONTROLPANEL_H

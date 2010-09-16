@@ -22,46 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTROITREEITEM_H
-#define WQTROITREEITEM_H
+#ifndef WQTDATASETTREEITEM_H
+#define WQTDATASETTREEITEM_H
 
-#include <QtCore/QTimer>
-#include <QtGui/QProgressBar>
 #include <QtGui/QTreeWidgetItem>
 
-#include "../../../graphicsEngine/WROI.h"
-#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../../../kernel/WModule.h"
 #include "WQtTreeItem.h"
 
 /**
- * a tree widget item to represent a roi in the dataset browser
+ * Tree widget item to represent a dataset in the control panel tree widget. This class is currently empty as all the functionality has been
+ * generalized and moved to WQtTreeItem. This class should be removed.
  */
-class WQtRoiTreeItem : public QTreeWidgetItem
+class WQtDatasetTreeItem : public WQtTreeItem
 {
 public:
+
     /**
-     * constructor
+     * Constructor
      *
-     * \param parent
-     * \param roi
-     * \param type
+     * \param parent The parent widget that manages this widget.
+     * \param module The module that will be represented by the item.
      */
-    WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, WTreeItemType type = ROI );
+    WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
 
     /**
-     * destructor
+     * Destructor
      */
-    virtual ~WQtRoiTreeItem();
-
-    /**
-     * getter
-     * \return the roi representation object
-     */
-    boost::shared_ptr< WRMROIRepresentation > getRoi();
+    virtual ~WQtDatasetTreeItem();
 
 protected:
+
 private:
-    boost::shared_ptr< WRMROIRepresentation > m_roi; //!< roi
 };
 
-#endif  // WQTROITREEITEM_H
+#endif  // WQTDATASETTREEITEM_H

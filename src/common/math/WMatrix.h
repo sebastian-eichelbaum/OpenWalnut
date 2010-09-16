@@ -26,6 +26,7 @@
 #define WMATRIX_H
 
 #include "WValue.h"
+#include "WVector3D.h"
 
 namespace wmath
 {
@@ -164,6 +165,12 @@ public:
     WValue< T > operator*( const WValue< T >& rhs ) const;
 
     /**
+     * Multiplication with a vector.
+     * \param rhs The right hand side of the multiplication
+     */
+    WVector3D operator*( const WVector3D& rhs ) const;
+
+    /**
      * Returns the transposed matrix.
      */
     WMatrix transposed() const
@@ -204,6 +211,21 @@ template< typename T > WValue< T > WMatrix< T >::operator*( const WValue< T >& r
 {
     WAssert( rhs.size() == getNbCols(), "Incompatible number of rows of rhs and columns of lhs." );
     WValue< T > result( getNbRows() );
+
+    for( size_t r = 0; r < getNbRows(); ++r)
+    {
+        for( size_t i = 0; i < getNbCols(); ++i )
+        {
+            result[r] += ( *this )( r, i ) * rhs[i];
+        }
+    }
+    return result;
+}
+
+template< typename T > WVector3D WMatrix< T >::operator*( const WVector3D& rhs ) const
+{
+    WAssert( rhs.num_components == getNbCols(), "Incompatible number of rows of rhs and columns of lhs." );
+    WVector3D result;
 
     for( size_t r = 0; r < getNbRows(); ++r)
     {

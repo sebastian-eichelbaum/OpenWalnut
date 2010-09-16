@@ -27,6 +27,7 @@
 
 #include <cxxtest/TestSuite.h>
 #include "../WVector3D.h"
+#include "../WValue.h"
 
 using wmath::WVector3D;
 
@@ -77,15 +78,6 @@ public:
     }
 
     /**
-     * Instantiation with right sized WValue should throw nothing.
-     */
-    void testInstantiationWithCastConstructor( void )
-    {
-        wmath::WValue< double > arrayToCopy( 3 );
-        TS_ASSERT_THROWS_NOTHING( WVector3D vec( arrayToCopy ) );
-    }
-
-    /**
      * Standard constructor should set values to zero
      */
     void testInitializationWithStandardConstructor( void )
@@ -120,22 +112,12 @@ public:
         TS_ASSERT_EQUALS( vec[0], vecToCopy[0] );
         TS_ASSERT_EQUALS( vec[1], vecToCopy[1] );
         TS_ASSERT_EQUALS( vec[2], vecToCopy[2] );
-    }
 
-    /**
-     * Cast constructor should copy values
-     */
-    void testInitializationWithCastConstructor( void )
-    {
-        wmath::WValue< double > arrayToCopy( 3 );
-        arrayToCopy[0] = 32.32;
-        arrayToCopy[1] = 42.42;
-        arrayToCopy[2] = 23.23;
-
-        WVector3D vec( arrayToCopy );
-        TS_ASSERT_EQUALS( vec[0], arrayToCopy[0] );
-        TS_ASSERT_EQUALS( vec[1], arrayToCopy[1] );
-        TS_ASSERT_EQUALS( vec[2], arrayToCopy[2] );
+        osg::Vec3d osgVecToCopy( 32.32, 42.42, 23.23 );
+        WVector3D vec2( osgVecToCopy );
+        TS_ASSERT_EQUALS( vec2[0], osgVecToCopy[0] );
+        TS_ASSERT_EQUALS( vec2[1], osgVecToCopy[1] );
+        TS_ASSERT_EQUALS( vec2[2], osgVecToCopy[2] );
     }
 
     /**

@@ -41,10 +41,10 @@ namespace wmath
  * For example, t(i,j) = t(j,i) for a tensor of order 2, and t(i,j,k) = t(j,i,k) = t(i,k,j)
  * = t(j,k,i) = t(k,i,j) = t(k,j,i) for a tensor of order 3.
  *
- * The first template parameter is the order of the tensor.
- * The second template parameter is the dimension of the tensor, i.e. the number of components
+ * \tparam order The order of the tensor.
+ * \tparam dim The dimension of the tensor, i.e. the number of components
  * in each direction.
- * The third template parameter is the datatype of the components, which is double by default.
+ * \tparam Data_T The datatype of the components, double by default.
  *
  * \note The dimension may never be 0.
  * \note The type Data_T may not throw exceptions on construction, destruction or

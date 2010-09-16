@@ -192,7 +192,8 @@ public:
             boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
 
             wtracking::WTrackingUtility::JobType j;
-            j.first = wmath::WVector3D( 1.0, 0.0, 0.0 ) + ( wlimits::FLT_EPS + 0.7 ) * ( x + y + z ); // the starting point
+            // TODO(wiebel): somehow changing the order of the last multiplication does not find the desired operator*
+            j.first = wmath::WVector3D( 1.0, 0.0, 0.0 ) + ( x + y + z ) * ( wlimits::FLT_EPS + 0.7 ); // the starting point
             j.second = x; // initial direction
             TS_ASSERT( g->enclosesRotated( j.first ) );
 

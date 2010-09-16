@@ -437,7 +437,9 @@ int WGridRegular3D::getXVoxelCoordRotated( const wmath::WPosition& pos ) const
 {
     wmath::WVector3D v = pos - m_origin;
     v[ 2 ] = v.dotProduct( m_directionX ) / getOffsetX() / getOffsetX();
-    v[ 0 ] = modf( v[ 2 ] + 0.5, &v[ 1 ] );
+    double tmp;
+    v[ 0 ] = modf( v[ 2 ] + 0.5, &tmp );
+    v[1] = tmp;
     int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosX - 1.0 );
     return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
 }
@@ -446,7 +448,9 @@ int WGridRegular3D::getYVoxelCoordRotated( const wmath::WPosition& pos ) const
 {
     wmath::WVector3D v = pos - m_origin;
     v[ 2 ] = v.dotProduct( m_directionY ) / getOffsetY() / getOffsetY();
-    v[ 0 ] = modf( v[ 2 ] + 0.5, &v[ 1 ] );
+    double tmp;
+    v[ 0 ] = modf( v[ 2 ] + 0.5, &tmp );
+    v[1] = tmp;
     int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosY - 1.0 );
     return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
 }
@@ -455,7 +459,9 @@ int WGridRegular3D::getZVoxelCoordRotated( const wmath::WPosition& pos ) const
 {
     wmath::WVector3D v = pos - m_origin;
     v[ 2 ] = v.dotProduct( m_directionZ ) / getOffsetZ() / getOffsetZ();
-    v[ 0 ] = modf( v[ 2 ] + 0.5, &v[ 1 ] );
+    double tmp;
+    v[ 0 ] = modf( v[ 2 ] + 0.5, &tmp );
+    v[1] = tmp;
     int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosZ - 1.0 );
     return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
 }

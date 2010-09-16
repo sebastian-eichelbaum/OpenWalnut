@@ -197,7 +197,7 @@ public:
         expected.push_back( WPosition( 0, 0, 0 ) );
         expected.push_back( WPosition( 1.5, 0.5, 0 ) );
         expected.push_back( WPosition( 3, 1, 0 ) );
-        assert_equals_delta( line, expected );
+        assert_equals_delta( line, expected, 2 * wlimits::DBL_EPS );
     }
 
     /**

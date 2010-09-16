@@ -55,7 +55,7 @@
 #include "../../kernel/modules/data/WMData.h"
 #include "../../kernel/modules/navSlices/WMNavSlices.h"
 #include "../icons/WIcons.h"
-#include "datasetbrowser/WPropertyBoolWidget.h"
+#include "controlPanel/WPropertyBoolWidget.h"
 #include "events/WEventTypes.h"
 #include "events/WModuleCrashEvent.h"
 #include "events/WModuleReadyEvent.h"
@@ -99,38 +99,38 @@ void WMainWindow::setupGUI()
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
 
-    // the dataset browser instance is needed for the menu
-    m_datasetBrowser = new WQtDatasetBrowser( this );
-    m_datasetBrowser->setFeatures( QDockWidget::AllDockWidgetFeatures );
-    addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
-    m_datasetBrowser->addSubject( "Default Subject" );
+    // the control panel instance is needed for the menu
+    m_controlPanel = new WQtControlPanel( this );
+    m_controlPanel->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
+    m_controlPanel->addSubject( "Default Subject" );
 
     setupPermanentToolBar();
 
     // we want the upper most tree item to be selected. This helps to make the always compatible modules
     // show up in the tool bar from the beginning. And ... it doesn't hurt.
-    m_datasetBrowser->selectUpperMostEntry();
+    m_controlPanel->selectUpperMostEntry();
 
-    // set the size of the dsb according to config file
-    int dsbWidth = 250;
-    if( WPreferences::getPreference( "qt4gui.dsbWidth", &dsbWidth ) )
+    // set the size of the control panel according to config file
+    int controlPanelWidth = 250;
+    if( WPreferences::getPreference( "qt4gui.dsbWidth", &controlPanelWidth ) )
     {
-        m_datasetBrowser->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
-        m_datasetBrowser->setMinimumWidth( dsbWidth );
+        m_controlPanel->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
+        m_controlPanel->setMinimumWidth( controlPanelWidth );
     }
 
-    // hide the DSB by default?
-    bool dsbInvisibleByDefault = false;
-    if( WPreferences::getPreference( "qt4gui.dsbInvisibleByDefault", &dsbInvisibleByDefault ) )
+    // hide the control panel by default?
+    bool controlPanelInvisibleByDefault = false;
+    if( WPreferences::getPreference( "qt4gui.dsbInvisibleByDefault", &controlPanelInvisibleByDefault ) )
     {
-        m_datasetBrowser->setVisible( !dsbInvisibleByDefault );
+        m_controlPanel->setVisible( !controlPanelInvisibleByDefault );
     }
 
-    // undock the DSB by default?
-    bool dsbFloatingByDefault = false;
-    if( WPreferences::getPreference( "qt4gui.dsbFloatingByDefault", &dsbFloatingByDefault ) )
+    // undock the control panel by default?
+    bool controlPanelFloatingByDefault = false;
+    if( WPreferences::getPreference( "qt4gui.dsbFloatingByDefault", &controlPanelFloatingByDefault ) )
     {
-        m_datasetBrowser->setFloating( dsbFloatingByDefault );
+        m_controlPanel->setFloating( controlPanelFloatingByDefault );
     }
 
     // NOTE: Please be aware that not every menu needs a shortcut key. If you add a shortcut, you should use one of the
@@ -165,13 +165,13 @@ void WMainWindow::setupGUI()
     // directly -> set shortcuts, and some further properties using QAction's interface
     QMenu* viewMenu = m_menuBar->addMenu( "View" );
 
-    QAction* dsbTrigger = m_datasetBrowser->toggleViewAction();
-    QList< QKeySequence > dsbShortcut;
-    dsbShortcut.append( QKeySequence( Qt::Key_F9 ) );
-    dsbTrigger->setShortcuts( dsbShortcut );
-    viewMenu->addAction( dsbTrigger );
+    QAction* controlPanelTrigger = m_controlPanel->toggleViewAction();
+    QList< QKeySequence > controlPanelShortcut;
+    controlPanelShortcut.append( QKeySequence( Qt::Key_F9 ) );
+    controlPanelTrigger->setShortcuts( controlPanelShortcut );
+    viewMenu->addAction( controlPanelTrigger );
     viewMenu->addSeparator();
-    this->addAction( dsbTrigger );  // this enables the action even if the menu bar is invisible
+    this->addAction( controlPanelTrigger );  // this enables the action even if the menu bar is invisible
 
     // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
@@ -303,10 +303,10 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addWidget( roiButton );
     m_permanentToolBar->addSeparator();
 
-    if( getToolbarPos() == InDSB )
+    if( getToolbarPos() == InControlPanel )
     {
-        m_datasetBrowser->addToolbar( m_permanentToolBar );
-        //m_datasetBrowser->setTitleBarWidget( m_permanentToolBar );
+        m_controlPanel->addToolbar( m_permanentToolBar );
+        //m_controlPanel->setTitleBarWidget( m_permanentToolBar );
     }
     else if( getToolbarPos() == Hide )
     {
@@ -522,7 +522,7 @@ Qt::ToolBarArea WMainWindow::toQtToolBarArea( ToolBarPosition pos )
         case Right:
             return Qt::RightToolBarArea;
             break;
-        case InDSB:
+        case InControlPanel:
             return Qt::RightToolBarArea;
         default:
             return Qt::NoToolBarArea;
@@ -569,9 +569,9 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
     addToolBar( toQtToolBarArea( getCompatiblesToolbarPos() ), m_currentCompatiblesToolbar );
 }
 
-WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
+WQtControlPanel* WMainWindow::getControlPanel()
 {
-    return m_datasetBrowser;
+    return m_controlPanel;
 }
 
 void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
@@ -977,7 +977,7 @@ void WMainWindow::newRoi()
     wmath::WPosition minROIPos = crossHairPos - wmath::WPosition( 10., 10., 10. );
     wmath::WPosition maxROIPos = crossHairPos + wmath::WPosition( 10., 10., 10. );
 
-    if( m_datasetBrowser->getFirstRoiInSelectedBranch().get() == NULL )
+    if( m_controlPanel->getFirstRoiInSelectedBranch().get() == NULL )
     {
         osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
@@ -985,7 +985,7 @@ void WMainWindow::newRoi()
     else
     {
         osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
-        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, m_datasetBrowser->getFirstRoiInSelectedBranch()->getROI() );
+        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, m_controlPanel->getFirstRoiInSelectedBranch()->getROI() );
     }
 }
 

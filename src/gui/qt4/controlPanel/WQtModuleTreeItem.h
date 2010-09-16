@@ -22,19 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTDATASETTREEITEM_H
-#define WQTDATASETTREEITEM_H
+#ifndef WQTMODULETREEITEM_H
+#define WQTMODULETREEITEM_H
 
 #include <QtGui/QTreeWidgetItem>
+#include <QtGui/QProgressBar>
+#include <QtCore/QTimer>
 
-#include "../../../kernel/WModule.h"
 #include "WQtTreeItem.h"
+#include "../../../kernel/WModule.h"
 
 /**
- * Tree widget item to represent a dataset in the dataset browser tree widget. This class is currently empty as all the functionality has been
+ * Tree widget item to represent a module in the control panel tree widget. This class is currently empty as all the functionality has been
  * generalized and moved to WQtTreeItem. This class should be removed.
  */
-class WQtDatasetTreeItem : public WQtTreeItem
+class WQtModuleTreeItem: public WQtTreeItem
 {
 public:
 
@@ -44,16 +46,16 @@ public:
      * \param parent The parent widget that manages this widget.
      * \param module The module that will be represented by the item.
      */
-    WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
+    WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
 
     /**
-     * Destructor
+     * Destructor.
      */
-    virtual ~WQtDatasetTreeItem();
+    virtual ~WQtModuleTreeItem();
 
 protected:
 
 private:
 };
 
-#endif  // WQTDATASETTREEITEM_H
+#endif  // WQTMODULETREEITEM_H
