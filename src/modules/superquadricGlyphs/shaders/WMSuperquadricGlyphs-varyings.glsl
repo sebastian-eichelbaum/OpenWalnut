@@ -76,9 +76,6 @@ varying vec4 v_alphaBeta;
 // scale glyphs
 uniform float u_scaling;
 
-// unify largest eigenvalue ?
-uniform bool u_unifyEV;
-
 // fractional anisotropy threshold to skip some glyphs
 uniform float u_faThreshold;
 

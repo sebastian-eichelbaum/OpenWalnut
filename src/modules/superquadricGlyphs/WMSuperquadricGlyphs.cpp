@@ -127,8 +127,6 @@ void WMSuperquadricGlyphs::properties()
     m_scaling = m_properties->addProperty( "Scaling", "Scaling of Glyphs.", 0.5 );
     m_scaling->setMin( 0.0 );
     m_scaling->setMax( 2.0 );
-
-    m_unifyEV = m_properties->addProperty( "Unify eigenvalues", "Unify the eigenvalues?.", false );
 }
 
 inline void WMSuperquadricGlyphs::addGlyph( osg::Vec3 position, osg::ref_ptr< osg::Vec3Array > vertices, osg::ref_ptr< osg::Vec3Array > orientation )
@@ -395,13 +393,11 @@ void WMSuperquadricGlyphs::moduleMain()
     // set uniform callbacks and uniforms
     osg::ref_ptr< osg::Uniform > evThreshold = new WGEPropertyUniform< WPropDouble >( "u_evThreshold", m_evThreshold );
     osg::ref_ptr< osg::Uniform > faThreshold = new WGEPropertyUniform< WPropDouble >( "u_faThreshold", m_faThreshold );
-    osg::ref_ptr< osg::Uniform > unifyEV = new WGEPropertyUniform< WPropBool >( "u_unifyEV", m_unifyEV );
     osg::ref_ptr< osg::Uniform > scaling = new WGEPropertyUniform< WPropDouble >( "u_scaling", m_scaling );
     osg::ref_ptr< osg::Uniform > gamma = new WGEPropertyUniform< WPropDouble >( "u_gamma", m_gamma );
 
     sset->addUniform( evThreshold );
     sset->addUniform( faThreshold );
-    sset->addUniform( unifyEV );
     sset->addUniform( scaling );
     sset->addUniform( gamma );
 

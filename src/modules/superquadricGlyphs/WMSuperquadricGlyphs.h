@@ -224,11 +224,6 @@ private:
     WPropDouble   m_scaling;
 
     /**
-     * True if the EV should be normalized
-     */
-    WPropBool     m_unifyEV;
-
-    /**
      * Adds a cube to the vertex array.
      *
      * \param position the position in world
