@@ -37,7 +37,6 @@
 #include "../WAssert.h"
 
 // TODO(reichenbach): Remove vectors (because of the enum dataSize).
-// TODO(reichenbach): Add casts to WVector3D, WValue and WMatrix. <-- cast to value or const value?
 
 // forward declaration of the test classes
 class WTensorFuncTest;
