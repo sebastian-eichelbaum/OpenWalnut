@@ -36,6 +36,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMLineGuidedSlice.h"
+#include "lineGuidedSlice.xpm"
 
 W_LOADABLE_MODULE( WMLineGuidedSlice )
 
@@ -54,6 +55,11 @@ WMLineGuidedSlice::~WMLineGuidedSlice()
 boost::shared_ptr< WModule > WMLineGuidedSlice::factory() const
 {
     return boost::shared_ptr< WModule >( new WMLineGuidedSlice() );
+}
+
+const char** WMLineGuidedSlice::getXPMIcon() const
+{
+    return lineGuidedSlice_xpm;
 }
 
 const std::string WMLineGuidedSlice::getName() const
