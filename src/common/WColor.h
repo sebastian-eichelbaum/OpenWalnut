@@ -25,16 +25,15 @@
 #ifndef WCOLOR_H
 #define WCOLOR_H
 
-#include <osg/Vec4>
-
 #include <cassert>
 #include <istream>
 #include <ostream>
 #include <string>
 #include <vector>
 
-#include "math/WVector3D.h"
+#include <osg/Vec4>
 
+#include "math/WVector3D.h"
 #include "WExportCommon.h"
 
 /**
