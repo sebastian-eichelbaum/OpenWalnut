@@ -22,57 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGESHADERANIMATIONCALLBACK_H
-#define WGESHADERANIMATIONCALLBACK_H
+#ifndef WQTMODULETREEITEM_H
+#define WQTMODULETREEITEM_H
 
-#include "stdint.h"
+#include <QtGui/QTreeWidgetItem>
+#include <QtGui/QProgressBar>
+#include <QtCore/QTimer>
 
-#include <boost/timer.hpp>
-#include <osg/Uniform>
-
-#include "WExportWGE.h"
+#include "WQtTreeItem.h"
+#include "../../../kernel/WModule.h"
 
 /**
- * This is a uniform callback setting the uniform to the current time in milliseconds, hundredth of a second or tenth of a second.
+ * Tree widget item to represent a module in the control panel tree widget. This class is currently empty as all the functionality has been
+ * generalized and moved to WQtTreeItem. This class should be removed.
  */
-class WGE_EXPORT WGEShaderAnimationCallback: public osg::Uniform::Callback
+class WQtModuleTreeItem: public WQtTreeItem
 {
 public:
 
     /**
-     * Default constructor. Creates a new instance and sets the precision
+     * Constructor
      *
-     * \param ticksPerSecond the uniform will increase by 1 every hundredth second if =100, every 10th second if =10 and every second if =1.
+     * \param parent The parent widget that manages this widget.
+     * \param module The module that will be represented by the item.
      */
-    explicit WGEShaderAnimationCallback( int ticksPerSecond = 100 );
+    WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
 
     /**
      * Destructor.
      */
-    virtual ~WGEShaderAnimationCallback();
-
-    /**
-     * Operator called on uniform update.
-     *
-     * \param uniform the uniform to update
-     * \param nv the visitor.
-     */
-    virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
+    virtual ~WQtModuleTreeItem();
 
 protected:
-
-    /**
-    * Timer that stops the time hopefully OS independent
-    */
-    boost::timer m_timer;
-
-    /**
-     * Number of ticks to count per second.
-     */
-    int m_ticksPerSec;
 
 private:
 };
 
-#endif  // WGESHADERANIMATIONCALLBACK_H
-
+#endif  // WQTMODULETREEITEM_H

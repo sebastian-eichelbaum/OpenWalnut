@@ -22,46 +22,57 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTROITREEITEM_H
-#define WQTROITREEITEM_H
+#ifndef WGESHADERANIMATIONCALLBACK_H
+#define WGESHADERANIMATIONCALLBACK_H
 
-#include <QtCore/QTimer>
-#include <QtGui/QProgressBar>
-#include <QtGui/QTreeWidgetItem>
+#include "stdint.h"
 
-#include "../../../graphicsEngine/WROI.h"
-#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
-#include "WQtTreeItem.h"
+#include <boost/timer.hpp>
+#include <osg/Uniform>
+
+#include "../WExportWGE.h"
 
 /**
- * a tree widget item to represent a roi in the dataset browser
+ * This is a uniform callback setting the uniform to the current time in milliseconds, hundredth of a second or tenth of a second.
  */
-class WQtRoiTreeItem : public QTreeWidgetItem
+class WGE_EXPORT WGEShaderAnimationCallback: public osg::Uniform::Callback
 {
 public:
+
     /**
-     * constructor
+     * Default constructor. Creates a new instance and sets the precision
      *
-     * \param parent
-     * \param roi
-     * \param type
+     * \param ticksPerSecond the uniform will increase by 1 every hundredth second if =100, every 10th second if =10 and every second if =1.
      */
-    WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, WTreeItemType type = ROI );
+    explicit WGEShaderAnimationCallback( int ticksPerSecond = 100 );
 
     /**
-     * destructor
+     * Destructor.
      */
-    virtual ~WQtRoiTreeItem();
+    virtual ~WGEShaderAnimationCallback();
 
     /**
-     * getter
-     * \return the roi representation object
+     * Operator called on uniform update.
+     *
+     * \param uniform the uniform to update
+     * \param nv the visitor.
      */
-    boost::shared_ptr< WRMROIRepresentation > getRoi();
+    virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
 
 protected:
+
+    /**
+    * Timer that stops the time hopefully OS independent
+    */
+    boost::timer m_timer;
+
+    /**
+     * Number of ticks to count per second.
+     */
+    int m_ticksPerSec;
+
 private:
-    boost::shared_ptr< WRMROIRepresentation > m_roi; //!< roi
 };
 
-#endif  // WQTROITREEITEM_H
+#endif  // WGESHADERANIMATIONCALLBACK_H
+

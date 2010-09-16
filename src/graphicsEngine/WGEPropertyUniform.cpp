@@ -22,47 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMODULEDELETEEVENT_H
-#define WMODULEDELETEEVENT_H
-
-#include <QtCore/QEvent>
-
-#include "../controlPanel/WQtTreeItem.h"
-
-/**
- * Event signalling a module item should be deleted.
- */
-class WModuleDeleteEvent: public QEvent
-{
-public:
-
-    /**
-     * Creates a new event instance denoting that the specified module got deleted in the root container.
-     *
-     * \param treeItem the tree item that switched its state.
-     */
-    explicit WModuleDeleteEvent( WQtTreeItem* treeItem );
-
-    /**
-     * Destructor.
-     */
-    virtual ~WModuleDeleteEvent();
-
-    /**
-     * Getter for the tree item that got outdated.
-     *
-     * \return the tree item
-     */
-    WQtTreeItem* getTreeItem();
-
-protected:
-
-    /**
-     * The tree item sent this event.
-     */
-    WQtTreeItem* m_item;
-private:
-};
-
-#endif  // WMODULEDELETEEVENT_H
+#include "WGEPropertyUniform.h"
 

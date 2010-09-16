@@ -37,7 +37,6 @@
 #include "../WAssert.h"
 
 // TODO(reichenbach): Remove vectors (because of the enum dataSize).
-// TODO(reichenbach): Add casts to WVector3D, WValue and WMatrix. <-- cast to value or const value?
 
 // forward declaration of the test classes
 class WTensorFuncTest;
@@ -122,8 +121,10 @@ inline void positionIterateSortedOneStep( std::vector< std::size_t >& pos ) // N
 /**
  * Normal tensor base class.
  *
- * Template parameters are the order, the dimension of the tensor and
- * the datatype of the elements.
+ * \tparam order The order of the tensor.
+ * \tparam dim The dimension of the tensor, i.e. the number of components
+ * in each direction.
+ * \tparam Data_T The datatype of the components, double by default.
  *
  * \note The type Data_T may not throw exceptions on construction, destruction or
  * during any assignment operator.
@@ -401,6 +402,10 @@ bool WTensorBase< order, dim, Data_T >::operator != ( WTensorBase const& other )
 // ######################### WTensorBase for order == 0 ##########################
 
 /**
+ * \tparam dim The dimension of the tensor, i.e. the number of components
+ * in each direction.
+ * \tparam Data_T The datatype of the components, double by default.
+
  * Specialization for order = 0. This essentially encapsulates a scalar. The purpose of
  * this specialization is compatibility for generic tensor functions.
  */
@@ -598,8 +603,10 @@ private:
 /**
  * Symmetric tensor base class.
  *
- * Template parameters are the order, the dimension of the tensor and
- * the datatype of the elements.
+ * \tparam order The order of the tensor.
+ * \tparam dim The dimension of the tensor, i.e. the number of components
+ * in each direction.
+ * \tparam Data_T The datatype of the components, double by default.
  *
  * \note The type Data_T may not throw exceptions on construction, destruction or
  * during any assignment operator.
@@ -915,6 +922,10 @@ bool WTensorBaseSym< order, dim, Data_T >::operator != ( WTensorBaseSym const& o
 // ######################### WTensorBaseSym for order == 0 ##########################
 
 /**
+ * \tparam dim The dimension of the tensor, i.e. the number of components
+ * in each direction.
+ * \tparam Data_T The datatype of the components, double by default.
+
  * Specialization for order = 0. This essentially encapsulates a scalar. The purpose of
  * this specialization is compatibility for generic tensor functions.
  */
@@ -1072,6 +1083,12 @@ private:
 
 /**
  * Implements functions that should only be defined for certain values of order.
+ *
+ * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
+ * \tparam order The order of the tensor.
+ * \tparam dim The dimension of the tensor, i.e. the number of components
+ * in each direction.
+ * \tparam Data_T The datatype of the components, double by default.
  */
 //next line is nolint because brainlint cannot find the declaration of TensorBase_T
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T > //NOLINT
@@ -1084,6 +1101,11 @@ class WTensorFunc : public TensorBase_T< order, dim, Data_T >
 
 /**
  * Implements the operator () for an order of 6.
+ * 
+ * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
+ * \tparam dim The dimension of the tensor, i.e. the number of components
+ * in each direction.
+ * \tparam Data_T The datatype of the components, double by default.
  */
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc< TensorBase_T, 6, dim, Data_T > : public TensorBase_T< 6, dim, Data_T >
@@ -1138,6 +1160,11 @@ Data_T const& WTensorFunc< TensorBase_T, 6, dim, Data_T >::operator() ( std::siz
 
 /**
  * Implements the operator () for an order of 5.
+ * 
+ * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
+ * \tparam dim The dimension of the tensor, i.e. the number of components
+ * in each direction.
+ * \tparam Data_T The datatype of the components, double by default.
  */
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc< TensorBase_T, 5, dim, Data_T > : public TensorBase_T< 5, dim, Data_T >
@@ -1190,6 +1217,11 @@ Data_T const& WTensorFunc< TensorBase_T, 5, dim, Data_T >::operator() ( std::siz
 
 /**
  * Implements the operator () for an order of 4.
+ * 
+ * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
+ * \tparam dim The dimension of the tensor, i.e. the number of components
+ * in each direction.
+ * \tparam Data_T The datatype of the components, double by default.
  */
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc< TensorBase_T, 4, dim, Data_T > : public TensorBase_T< 4, dim, Data_T >
@@ -1237,6 +1269,11 @@ Data_T const& WTensorFunc< TensorBase_T, 4, dim, Data_T >::operator() ( std::siz
 
 /**
  * Implements the operator () for an order of 3.
+ * 
+ * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
+ * \tparam dim The dimension of the tensor, i.e. the number of components
+ * in each direction.
+ * \tparam Data_T The datatype of the components, double by default.
  */
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc< TensorBase_T, 3, dim, Data_T > : public TensorBase_T< 3, dim, Data_T >
@@ -1282,6 +1319,11 @@ Data_T const& WTensorFunc< TensorBase_T, 3, dim, Data_T >::operator() ( std::siz
 
 /**
  * Implements the operator () for an order of 2 as well as casts to WMatrix.
+ * 
+ * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
+ * \tparam dim The dimension of the tensor, i.e. the number of components
+ * in each direction.
+ * \tparam Data_T The datatype of the components, double by default.
  */
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc< TensorBase_T, 2, dim, Data_T > : public TensorBase_T< 2, dim, Data_T >
@@ -1342,6 +1384,11 @@ WTensorFunc< TensorBase_T, 2, dim, Data_T >::operator WMatrix< Data_T > () const
 
 /**
  * Implements the operator () for an order of 1 as well as a cast to WValue.
+ * 
+ * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
+ * \tparam dim The dimension of the tensor, i.e. the number of components
+ * in each direction.
+ * \tparam Data_T The datatype of the components, double by default.
  */
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc< TensorBase_T, 1, dim, Data_T > : public TensorBase_T< 1, dim, Data_T >
@@ -1399,6 +1446,11 @@ WTensorFunc< TensorBase_T, 1, dim, Data_T >::operator WValue< Data_T > () const
 
 /**
  * Implements the operator () for an order of 0 and a cast to Data_T.
+ *
+ * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
+ * \tparam dim The dimension of the tensor, i.e. the number of components
+ * in each direction.
+ * \tparam Data_T The datatype of the components, double by default.
  */
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc< TensorBase_T, 0, dim, Data_T > : public TensorBase_T< 0, dim, Data_T >

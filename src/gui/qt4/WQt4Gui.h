@@ -66,7 +66,7 @@ public:
     virtual int run();
 
     /**
-     * returns a pointer to the selected module in the dataset browser
+     * returns a pointer to the selected module in the control panel
      *
      * \return the module
      */
@@ -84,35 +84,35 @@ public:
      *
      * \note This can be used to add datasets or other modules.
      */
-    virtual void slotAddDatasetOrModuleToBrowser( boost::shared_ptr< WModule > module );
+    virtual void slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module );
 
     /**
      * Slot gets called whenever a new roi is added.
      *
      * \param roi the roi to be added
      */
-    virtual void slotAddRoiToBrowser( boost::shared_ptr< WRMROIRepresentation > roi );
+    virtual void slotAddRoiToTree( boost::shared_ptr< WRMROIRepresentation > roi );
 
     /**
      * Slot gets called whenever a roi is removed.
      *
      * \param roi the roi to be removed
      */
-    virtual void slotRemoveRoiFromBrowser( boost::shared_ptr< WRMROIRepresentation > roi );
+    virtual void slotRemoveRoiFromTree( boost::shared_ptr< WRMROIRepresentation > roi );
 
     /**
      * Slot gets called whenever a module switches its state to "ready".
      *
      * \param module the module.
      */
-    virtual void slotActivateDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module );
+    virtual void slotActivateDatasetOrModuleInTree( boost::shared_ptr< WModule > module );
 
     /**
      * Slot gets called whenever a module has been removed from the root container.
      *
      * \param module the module
      */
-    virtual void slotRemoveDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module );
+    virtual void slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > module );
 
     /**
      * Slot gets called whenever a connector pair got connected.

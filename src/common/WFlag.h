@@ -35,6 +35,10 @@ template < typename T >
 class WFlag
 {
 public:
+    /**
+     * The type for later access.
+     */
+    typedef T ValueType;
 
     /**
      * Constructor. Uses a given condition to realize the wait/notify functionality. By using this constructor, the specified

@@ -35,7 +35,7 @@
 #include "../../../kernel/WModule.h"
 
 /**
- * Base class for all items in the dataset browser.
+ * Base class for all items in the control panel tree.
  */
 class WQtTreeItem: public QObject,
                    public QTreeWidgetItem

@@ -22,41 +22,46 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTTREEWIDGET_H
-#define WQTTREEWIDGET_H
+#ifndef WQTROITREEITEM_H
+#define WQTROITREEITEM_H
 
-#include <QtGui/QTreeWidget>
+#include <QtCore/QTimer>
+#include <QtGui/QProgressBar>
+#include <QtGui/QTreeWidgetItem>
+
+#include "../../../graphicsEngine/WROI.h"
+#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
+#include "WQtTreeItem.h"
 
 /**
- * tree widget for the dataset browser
+ * a tree widget item to represent a roi in the control panel
  */
-class WQtTreeWidget  : public QTreeWidget
+class WQtRoiTreeItem : public QTreeWidgetItem
 {
-    Q_OBJECT
-
 public:
     /**
-     * default constructor
-     * \param parent the parent widget of this widget, i.e. the widget that manages this widget
+     * constructor
+     *
+     * \param parent
+     * \param roi
+     * \param type
      */
-    explicit WQtTreeWidget( QWidget* parent = 0 );
+    WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, WTreeItemType type = ROI );
 
     /**
      * destructor
      */
-    virtual ~WQtTreeWidget();
+    virtual ~WQtRoiTreeItem();
 
-   /**
-    * Deletes an entry from the tree
-    * \param item The given item will be removed from the tree
-    */
-    void deleteItem( QTreeWidgetItem* item );
-
-public slots:
-    //void keyPressEvent(QKeyEvent *e);
+    /**
+     * getter
+     * \return the roi representation object
+     */
+    boost::shared_ptr< WRMROIRepresentation > getRoi();
 
 protected:
 private:
+    boost::shared_ptr< WRMROIRepresentation > m_roi; //!< roi
 };
 
-#endif  // WQTTREEWIDGET_H
+#endif  // WQTROITREEITEM_H

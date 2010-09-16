@@ -42,7 +42,7 @@
 
 #include "../../common/WProjectFileIO.h"
 #include "../../kernel/WModule.h"
-#include "datasetbrowser/WQtDatasetBrowser.h"
+#include "controlPanel/WQtControlPanel.h"
 #include "ribbonMenu/WQtRibbonMenu.h"
 #include "WIconManager.h"
 #include "WQtConfigWidget.h"
@@ -75,9 +75,9 @@ public:
     void setupGUI();
 
     /**
-     * returns a pointer to the dataset browser object
+     * returns a pointer to the control panel object
      */
-    WQtDatasetBrowser* getDatasetBrowser();
+    WQtControlPanel* getControlPanel();
 
     /**
      *  returns a pointer to the ribbon menu object
@@ -129,7 +129,7 @@ public:
         Left,
         Right,
         Hide,
-        InDSB
+        InControlPanel
     }
     ToolBarPosition;
 
@@ -148,7 +148,7 @@ public:
     static ToolBarPosition getCompatiblesToolbarPos();
 
     /**
-     * Converts the specified position to the appropriate qt toolbar area constant. Unknown positions (InDSB, Hide) are converted to
+     * Converts the specified position to the appropriate qt toolbar area constant. Unknown positions (InControlPanel, Hide) are converted to
      * Qt::NoToolBarArea.
      *
      * \param pos the position to convert.
@@ -310,7 +310,7 @@ private:
 
     WQtPushButton* m_loadButton; //!< the load Data Button
 
-    WQtDatasetBrowser* m_datasetBrowser; //!< dataset browser
+    WQtControlPanel* m_controlPanel; //!< control panel
 
     boost::shared_ptr<WQtGLWidget> m_mainGLWidget; //!< the main GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI

@@ -22,47 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMODULEDELETEEVENT_H
-#define WMODULEDELETEEVENT_H
+#ifndef WQTDATASETTREEITEM_H
+#define WQTDATASETTREEITEM_H
 
-#include <QtCore/QEvent>
+#include <QtGui/QTreeWidgetItem>
 
-#include "../controlPanel/WQtTreeItem.h"
+#include "../../../kernel/WModule.h"
+#include "WQtTreeItem.h"
 
 /**
- * Event signalling a module item should be deleted.
+ * Tree widget item to represent a dataset in the control panel tree widget. This class is currently empty as all the functionality has been
+ * generalized and moved to WQtTreeItem. This class should be removed.
  */
-class WModuleDeleteEvent: public QEvent
+class WQtDatasetTreeItem : public WQtTreeItem
 {
 public:
 
     /**
-     * Creates a new event instance denoting that the specified module got deleted in the root container.
+     * Constructor
      *
-     * \param treeItem the tree item that switched its state.
+     * \param parent The parent widget that manages this widget.
+     * \param module The module that will be represented by the item.
      */
-    explicit WModuleDeleteEvent( WQtTreeItem* treeItem );
+    WQtDatasetTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
 
     /**
-     * Destructor.
+     * Destructor
      */
-    virtual ~WModuleDeleteEvent();
-
-    /**
-     * Getter for the tree item that got outdated.
-     *
-     * \return the tree item
-     */
-    WQtTreeItem* getTreeItem();
+    virtual ~WQtDatasetTreeItem();
 
 protected:
 
-    /**
-     * The tree item sent this event.
-     */
-    WQtTreeItem* m_item;
 private:
 };
 
-#endif  // WMODULEDELETEEVENT_H
-
+#endif  // WQTDATASETTREEITEM_H

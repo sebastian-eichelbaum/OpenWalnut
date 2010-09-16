@@ -649,7 +649,7 @@ public:
 
         WGridRegular3D g( 5, 5, 5, 1.0, 0.0, 0.0, x, y, z, 1.0, 1.0, 1.0 );
 
-        wmath::WVector3D o = wmath::WVector3D( 1.0, 0.0, 0.0 ) + 2.0 * wlimits::FLT_EPS * ( x + y + z );
+        wmath::WVector3D o = wmath::WVector3D( 1.0, 0.0, 0.0 ) + ( x + y + z ) * 2.0 * wlimits::FLT_EPS;
         wmath::WVector3D v = o - 4.0 * wlimits::FLT_EPS * x;
         TS_ASSERT( !g.enclosesRotated( v ) );
         v = o;

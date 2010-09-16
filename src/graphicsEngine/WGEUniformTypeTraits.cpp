@@ -22,40 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTMODULETREEITEM_H
-#define WQTMODULETREEITEM_H
+#include "WGEUniformTypeTraits.h"
 
-#include <QtGui/QTreeWidgetItem>
-#include <QtGui/QProgressBar>
-#include <QtCore/QTimer>
-
-#include "WQtTreeItem.h"
-#include "../../../kernel/WModule.h"
-
-/**
- * Tree widget item to represent a module in the dataset browser tree widget. This class is currently empty as all the functionality has been
- * generalized and moved to WQtTreeItem. This class should be removed.
- */
-class WQtModuleTreeItem: public WQtTreeItem
-{
-public:
-
-    /**
-     * Constructor
-     *
-     * \param parent The parent widget that manages this widget.
-     * \param module The module that will be represented by the item.
-     */
-    WQtModuleTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WModule > module );
-
-    /**
-     * Destructor.
-     */
-    virtual ~WQtModuleTreeItem();
-
-protected:
-
-private:
-};
-
-#endif  // WQTMODULETREEITEM_H

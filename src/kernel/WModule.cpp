@@ -35,6 +35,8 @@
 
 #include "WModuleInputConnector.h"
 #include "WModuleOutputConnector.h"
+#include "WModuleInputData.h"
+#include "WModuleOutputData.h"
 #include "WModuleConnectorSignals.h"
 #include "WModuleContainer.h"
 #include "WModuleFactory.h"

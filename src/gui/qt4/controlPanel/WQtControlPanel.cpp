@@ -54,10 +54,10 @@
 #include "../WQt4Gui.h"
 #include "../WQtCombinerActionList.h"
 #include "WQtBranchTreeItem.h"
-#include "WQtDatasetBrowser.h"
+#include "WQtControlPanel.h"
 #include "WQtTextureSorter.h"
 
-WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
+WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     : QDockWidget( "Control Panel", parent ),
     m_ignoreSelectionChange( false )
 {
@@ -151,11 +151,11 @@ WQtDatasetBrowser::WQtDatasetBrowser( WMainWindow* parent )
     connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
 }
 
-WQtDatasetBrowser::~WQtDatasetBrowser()
+WQtControlPanel::~WQtControlPanel()
 {
 }
 
-void WQtDatasetBrowser::connectSlots()
+void WQtControlPanel::connectSlots()
 {
     connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
     // connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectTreeItem() ) );
@@ -170,12 +170,12 @@ void WQtDatasetBrowser::connectSlots()
              this, SLOT( selectDataModule( boost::shared_ptr< WDataSet > ) ) );
 }
 
-void WQtDatasetBrowser::addToolbar( QToolBar* tb )
+void WQtControlPanel::addToolbar( QToolBar* tb )
 {
     m_layout->insertWidget( 0, tb );
 }
 
-WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )
+WQtSubjectTreeItem* WQtControlPanel::addSubject( std::string name )
 {
     WQtSubjectTreeItem* subject = new WQtSubjectTreeItem( m_moduleTreeWidget );
     subject->setText( 0, QString::fromStdString( name ) );
@@ -185,7 +185,7 @@ WQtSubjectTreeItem* WQtDatasetBrowser::addSubject( std::string name )
     return subject;
 }
 
-bool WQtDatasetBrowser::event( QEvent* event )
+bool WQtControlPanel::event( QEvent* event )
 {
     // a subject singals a newly registered data set
     if ( event->type() == WQT_UPDATE_TEXTURE_SORTER_EVENT )
@@ -199,7 +199,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         if ( e2 )
         {
             addRoi( e2->getRoi() );
-            WLogger::getLogger()->addLogMessage( "Inserting ROI to dataset browser.", "DatasetBrowser", LL_DEBUG );
+            WLogger::getLogger()->addLogMessage( "Inserting ROI to control panel.", "ControlPanel", LL_DEBUG );
         }
 
         return true;
@@ -210,7 +210,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         if( e3 )
         {
             removeRoi( e3->getRoi() );
-            WLogger::getLogger()->addLogMessage( "Removing ROI from dataset browser.", "DatasetBrowser", LL_DEBUG );
+            WLogger::getLogger()->addLogMessage( "Removing ROI from control panel.", "ControlPanel", LL_DEBUG );
         }
 
         return true;
@@ -223,8 +223,8 @@ bool WQtDatasetBrowser::event( QEvent* event )
         WModuleAssocEvent* e1 = dynamic_cast< WModuleAssocEvent* >( event );     // NOLINT
         if ( e1 )
         {
-            WLogger::getLogger()->addLogMessage( "Inserting module " + e1->getModule()->getName() + " to dataset browser.",
-                                                 "DatasetBrowser", LL_DEBUG );
+            WLogger::getLogger()->addLogMessage( "Inserting module " + e1->getModule()->getName() + " to control panel.",
+                                                 "ControlPanel", LL_DEBUG );
 
             // finally add the module
             // TODO(schurade): is this differentiation between data and "normal" modules really needed?
@@ -240,7 +240,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         return true;
     }
 
-    // a module changed its state to "ready" -> activate it in dataset browser
+    // a module changed its state to "ready" -> activate it in control panel
     if ( event->type() == WQT_READY_EVENT )
     {
         // convert event to assoc event
@@ -249,13 +249,13 @@ bool WQtDatasetBrowser::event( QEvent* event )
         {
             // this should never happen, since the type is set to WQT_READY_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModueReadyEvent although its type claims it. Ignoring event.",
-                                                 "DatasetBrowser", LL_WARNING );
+                                                 "ControlPanel", LL_WARNING );
 
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Activating module " + e->getModule()->getName() + " in dataset browser.",
-                                             "DatasetBrowser", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Activating module " + e->getModule()->getName() + " in control panel.",
+                                             "ControlPanel", LL_DEBUG );
 
         // search all the item matching the module
         std::list< WQtTreeItem* > items = findItemsByModule( e->getModule() );
@@ -278,7 +278,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         {
             // this should never happen, since the type is set to WQT_MODULE_CONNECT_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleConnectEvent although its type claims it. Ignoring event.",
-                                                 "DatasetBrowser", LL_WARNING );
+                                                 "ControlPanel", LL_WARNING );
             return true;
         }
 
@@ -320,7 +320,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         {
             // this should never happen, since the type is set to WQT_MODULE_DISCONNECT_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleDisconnectEvent although its type claims it. Ignoring event.",
-                                                 "DatasetBrowser", LL_WARNING );
+                                                 "ControlPanel", LL_WARNING );
             return true;
         }
 
@@ -373,14 +373,14 @@ bool WQtDatasetBrowser::event( QEvent* event )
         {
             // this should never happen, since the type is set to WQT_MODULE_DELETE_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleDeleteEvent although its type claims it. Ignoring event.",
-                                                 "DatasetBrowser", LL_WARNING );
+                                                 "ControlPanel", LL_WARNING );
             return true;
         }
 
         // grab the module reference and print some info
         boost::shared_ptr< WModule > module = e->getTreeItem()->getModule();
         WLogger::getLogger()->addLogMessage( "Deleting module \"" + module->getName() + "\" from Tree.",
-                                             "DatasetBrowser", LL_DEBUG );
+                                             "ControlPanel", LL_DEBUG );
 
         // remove it from the tree and free last ref count
         m_moduleTreeWidget->deleteItem( e->getTreeItem() );
@@ -389,7 +389,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         bool lastTreeItem = !findItemsByModule( module ).size();
         if ( lastTreeItem && ( module.use_count() != 1 ) )
         {
-            wlog::warn( "DatasetBrowser" ) << "Removed module has strange usage count: " << module.use_count() << ". Should be 1 here. " <<
+            wlog::warn( "ControlPanel" ) << "Removed module has strange usage count: " << module.use_count() << ". Should be 1 here. " <<
                                               "Module reference is held by someone else.";
         }
 
@@ -404,7 +404,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
         {
             // this should never happen, since the type is set to WQT_MODULE_REMOVE_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleRemovedEvent although its type claims it. Ignoring event.",
-                                                 "DatasetBrowser", LL_WARNING );
+                                                 "ControlPanel", LL_WARNING );
             return true;
         }
 
@@ -416,12 +416,12 @@ bool WQtDatasetBrowser::event( QEvent* event )
         }
 
         // be nice and print some info
-        WLogger::getLogger()->addLogMessage( "Removing module \"" + e->getModule()->getName() + "\" from Tree.", "DatasetBrowser", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Removing module \"" + e->getModule()->getName() + "\" from Tree.", "ControlPanel", LL_DEBUG );
 
         // stop the module
         e->getModule()->requestStop();
         WLogger::getLogger()->addLogMessage( "Waiting for module \"" + e->getModule()->getName() + "\" to finish before deleting.",
-                                             "DatasetBrowser", LL_DEBUG );
+                                             "ControlPanel", LL_DEBUG );
 
         return true;
     }
@@ -429,7 +429,7 @@ bool WQtDatasetBrowser::event( QEvent* event )
     return QDockWidget::event( event );
 }
 
-std::list< WQtTreeItem* > WQtDatasetBrowser::findItemsByModule( boost::shared_ptr< WModule > module, QTreeWidgetItem* where )
+std::list< WQtTreeItem* > WQtControlPanel::findItemsByModule( boost::shared_ptr< WModule > module, QTreeWidgetItem* where )
 {
     std::list< WQtTreeItem* > l;
 
@@ -462,12 +462,12 @@ std::list< WQtTreeItem* > WQtDatasetBrowser::findItemsByModule( boost::shared_pt
     return l;
 }
 
-std::list< WQtTreeItem* > WQtDatasetBrowser::findItemsByModule( boost::shared_ptr< WModule > module )
+std::list< WQtTreeItem* > WQtControlPanel::findItemsByModule( boost::shared_ptr< WModule > module )
 {
     return findItemsByModule( module, m_moduleTreeWidget->invisibleRootItem() );
 }
 
-WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > module, int subjectId )
+WQtDatasetTreeItem* WQtControlPanel::addDataset( boost::shared_ptr< WModule > module, int subjectId )
 {
     int c = getFirstSubject();
     WQtSubjectTreeItem* subject = static_cast< WQtSubjectTreeItem* >( m_moduleTreeWidget->topLevelItem( subjectId + c ) );
@@ -479,7 +479,7 @@ WQtDatasetTreeItem* WQtDatasetBrowser::addDataset( boost::shared_ptr< WModule > 
     return item;
 }
 
-WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > module )
+WQtModuleTreeItem* WQtControlPanel::addModule( boost::shared_ptr< WModule > module )
 {
     m_tiModules->setExpanded( true );
     WQtModuleTreeItem* item;
@@ -513,7 +513,7 @@ WQtModuleTreeItem* WQtDatasetBrowser::addModule( boost::shared_ptr< WModule > mo
     return item;
 }
 
-void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
+void WQtControlPanel::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
 {
     WQtRoiTreeItem* newItem;
     WQtBranchTreeItem* branchItem;
@@ -546,7 +546,7 @@ void WQtDatasetBrowser::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
 }
 
-void WQtDatasetBrowser::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi )
+void WQtControlPanel::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi )
 {
     for( int branchID = 0; branchID < m_tiRois->childCount(); ++branchID )
     {
@@ -570,7 +570,7 @@ void WQtDatasetBrowser::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi
     WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
 }
 
-boost::shared_ptr< WModule > WQtDatasetBrowser::getSelectedModule()
+boost::shared_ptr< WModule > WQtControlPanel::getSelectedModule()
 {
     if ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == 1 )
     {
@@ -584,7 +584,7 @@ boost::shared_ptr< WModule > WQtDatasetBrowser::getSelectedModule()
     return boost::shared_ptr< WModule >();
 }
 
-void WQtDatasetBrowser::selectTreeItem()
+void WQtControlPanel::selectTreeItem()
 {
     if ( m_ignoreSelectionChange )
     {
@@ -696,7 +696,7 @@ void WQtDatasetBrowser::selectTreeItem()
     buildPropTab( props, infoProps );
 }
 
-void WQtDatasetBrowser::selectRoiTreeItem()
+void WQtControlPanel::selectRoiTreeItem()
 {
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
@@ -731,7 +731,7 @@ void WQtDatasetBrowser::selectRoiTreeItem()
     buildPropTab( props, boost::shared_ptr< WProperties >() );
 }
 
-void WQtDatasetBrowser::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
+void WQtControlPanel::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
 {
     m_moduleTreeWidget->clearSelection();
 
@@ -756,9 +756,9 @@ void WQtDatasetBrowser::selectDataModule( boost::shared_ptr< WDataSet > dataSet 
     selectTreeItem();
 }
 
-WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WProperties > props )
+WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( boost::shared_ptr< WProperties > props )
 {
-    WQtDSBWidget* tab = new WQtDSBWidget( props->getName() );
+    WQtPropertyGroupWidget* tab = new WQtPropertyGroupWidget( props->getName() );
 
     if ( props.get() )
     {
@@ -805,7 +805,7 @@ WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WPropertie
                         tab->addGroup( buildPropWidget( ( *iter )->toPropGroup() ) );
                         break;
                     default:
-                        WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "DatasetBrowser", LL_WARNING );
+                        WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "ControlPanel", LL_WARNING );
                         break;
                 }
             }
@@ -816,10 +816,10 @@ WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WPropertie
     return tab;
 }
 
-void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps )
+void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps )
 {
-    WQtDSBWidget* tab = NULL;
-    WQtDSBWidget* infoTab = NULL;
+    WQtPropertyGroupWidget* tab = NULL;
+    WQtPropertyGroupWidget* infoTab = NULL;
     if ( props )
     {
         tab = buildPropWidget( props );
@@ -845,7 +845,7 @@ void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props, bo
     }
 }
 
-WQtCombinerToolbar* WQtDatasetBrowser::createCompatibleButtons( boost::shared_ptr< WModule >module )
+WQtCombinerToolbar* WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule >module )
 {
     // every module may have compatibles: create ribbon menu entry
     // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
@@ -881,7 +881,7 @@ WQtCombinerToolbar* WQtDatasetBrowser::createCompatibleButtons( boost::shared_pt
     return new WQtCombinerToolbar( m_mainWindow, comps );
 }
 
-void WQtDatasetBrowser::changeTreeItem()
+void WQtControlPanel::changeTreeItem()
 {
     if ( m_moduleTreeWidget->selectedItems().size() == 1 && m_moduleTreeWidget->selectedItems().at( 0 )->type() == DATASET )
     {
@@ -896,7 +896,7 @@ void WQtDatasetBrowser::changeTreeItem()
     }
 }
 
-void WQtDatasetBrowser::changeRoiTreeItem()
+void WQtControlPanel::changeRoiTreeItem()
 {
     if ( m_roiTreeWidget->selectedItems().size() == 1 && m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
     {
@@ -905,7 +905,7 @@ void WQtDatasetBrowser::changeRoiTreeItem()
     }
 }
 
-int WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
+int WQtControlPanel::addTabWidgetContent( WQtPropertyGroupWidget* content )
 {
     if ( !content || content->isEmpty() )
     {
@@ -919,7 +919,7 @@ int WQtDatasetBrowser::addTabWidgetContent( WQtDSBWidget* content )
     return m_tabWidget->addTab( sa, content->getName() );
 }
 
-int WQtDatasetBrowser::getFirstSubject()
+int WQtControlPanel::getFirstSubject()
 {
     int c = 0;
     for ( int i = 0; i < m_moduleTreeWidget->topLevelItemCount() ; ++i )
@@ -933,7 +933,7 @@ int WQtDatasetBrowser::getFirstSubject()
     return c;
 }
 
-boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getSelectedRoi()
+boost::shared_ptr< WRMROIRepresentation > WQtControlPanel::getSelectedRoi()
 {
     boost::shared_ptr< WRMROIRepresentation >roi;
     if ( m_roiTreeWidget->selectedItems().count() == 0 )
@@ -947,7 +947,7 @@ boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getSelectedRoi()
     return roi;
 }
 
-boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getFirstRoiInSelectedBranch()
+boost::shared_ptr< WRMROIRepresentation > WQtControlPanel::getFirstRoiInSelectedBranch()
 {
     boost::shared_ptr< WRMROIRepresentation >roi;
     if ( m_roiTreeWidget->selectedItems().count() == 0 )
@@ -970,7 +970,7 @@ boost::shared_ptr< WRMROIRepresentation > WQtDatasetBrowser::getFirstRoiInSelect
     return roi;
 }
 
-QAction* WQtDatasetBrowser::toggleViewAction() const
+QAction* WQtControlPanel::toggleViewAction() const
 {
     QAction* result = QDockWidget::toggleViewAction();
     QList< QKeySequence > shortcut;
@@ -983,7 +983,7 @@ QAction* WQtDatasetBrowser::toggleViewAction() const
     return result;
 }
 
-void WQtDatasetBrowser::deleteModuleTreeItem()
+void WQtControlPanel::deleteModuleTreeItem()
 {
     if ( m_moduleTreeWidget->selectedItems().count() > 0 )
     {
@@ -1001,7 +1001,7 @@ void WQtDatasetBrowser::deleteModuleTreeItem()
     }
 }
 
-void WQtDatasetBrowser::deleteROITreeItem()
+void WQtControlPanel::deleteROITreeItem()
 {
     boost::shared_ptr< WRMROIRepresentation >roi;
     if ( m_roiTreeWidget->selectedItems().count() > 0 )
@@ -1029,7 +1029,7 @@ void WQtDatasetBrowser::deleteROITreeItem()
     WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getFirstRoiInSelectedBranch() );
 }
 
-void WQtDatasetBrowser::selectUpperMostEntry()
+void WQtControlPanel::selectUpperMostEntry()
 {
     m_tiModules->setSelected( true );
 }
