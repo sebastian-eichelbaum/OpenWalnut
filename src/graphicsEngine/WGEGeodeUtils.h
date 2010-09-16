@@ -138,12 +138,61 @@ namespace wge
      *
      * \return The new assembled geode for this plane
      */
-
     osg::ref_ptr< osg::Geode > WGE_EXPORT genFinitePlane( double xSize,
                                                           double ySize,
                                                           const WPlane& p,
                                                           const WColor& color = WColor( 0, 0.7, 0.7 ),
                                                           bool border = false );
+
+    /**
+     * Generates a geode out of two vectors and an origin position.
+     *
+     * \param base the origin position. NOT the center.
+     * \param a the first vector spanning the plane
+     * \param b the second vector spanning the plane
+     *
+     * \return the geode
+     */
+    osg::ref_ptr< osg::Geode > WGE_EXPORT genFinitePlane( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b )
+    {
+        // the stuff needed by the OSG to create a geometry instance
+        osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array;
+        osg::ref_ptr< osg::Vec3Array > texcoords0 = new osg::Vec3Array;
+        osg::ref_ptr< osg::Vec3Array > normals = new osg::Vec3Array;
+
+        osg::Vec3 aPlusB = a + b;
+
+        vertices->push_back( base );
+        vertices->push_back( base + a );
+        vertices->push_back( base + aPlusB );
+        vertices->push_back( base + b );
+
+        osg::Vec3 aCrossB = a ^ b;
+        aCrossB.normalize();
+        aPlusB.normalize();
+        osg::Vec3 aNorm = a;
+        aNorm.normalize();
+        osg::Vec3 bNorm = b;
+        bNorm.normalize();
+
+        normals->push_back( aCrossB );
+        texcoords0->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+        texcoords0->push_back( aNorm );
+        texcoords0->push_back( aPlusB );
+        texcoords0->push_back( bNorm );
+
+        // put it all together
+        osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry();
+        geometry->setVertexArray( vertices );
+        geometry->setTexCoordArray( 0, texcoords0 );
+        geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
+        geometry->setNormalArray( normals );
+        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
+
+        osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+        geode->addDrawable( geometry );
+        return geode;
+    }
 
     /**
      * For each points in the STL container generate small cubes.

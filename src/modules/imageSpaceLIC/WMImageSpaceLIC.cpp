@@ -34,9 +34,11 @@
 #include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../common/math/WMath.h"
+#include "../../common/math/WPlane.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
+#include "../../graphicsEngine/WGEGeodeUtils.h"
 
 #include "WMImageSpaceLIC.h"
 #include "WMImageSpaceLIC.xpm"
@@ -114,45 +116,6 @@ void WMImageSpaceLIC::properties()
     WModule::properties();
 }
 
-osg::ref_ptr< osg::Geometry > generateSlice( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b )
-{
-    // the stuff needed by the OSG to create a geometry instance
-    osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array;
-    osg::ref_ptr< osg::Vec3Array > texcoords0 = new osg::Vec3Array;
-    osg::ref_ptr< osg::Vec3Array > normals = new osg::Vec3Array;
-
-    osg::Vec3 aPlusB = a + b;
-
-    vertices->push_back( base );
-    vertices->push_back( base + a );
-    vertices->push_back( base + aPlusB );
-    vertices->push_back( base + b );
-
-    osg::Vec3 aCrossB = a ^ b;
-    aCrossB.normalize();
-    aPlusB.normalize();
-    osg::Vec3 aNorm = a;
-    aNorm.normalize();
-    osg::Vec3 bNorm = b;
-    bNorm.normalize();
-
-    normals->push_back( aCrossB );
-    texcoords0->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
-    texcoords0->push_back( aNorm );
-    texcoords0->push_back( aPlusB );
-    texcoords0->push_back( bNorm );
-
-    // put it all together
-    osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry();
-    geometry->setVertexArray( vertices );
-    geometry->setTexCoordArray( 0, texcoords0 );
-    geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
-    geometry->setNormalArray( normals );
-    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
-
-    return geometry;
-}
-
 void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid )
 {
     // remove the old slices
@@ -169,15 +132,14 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid )
     m_zSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos ) );
 
     // create a new geode containing the slices
-    osg::ref_ptr< osg::Geode > geode = new osg::Geode();
-    geode->addDrawable( generateSlice( osg::Vec3( 0.0, 1.0, 0.0 ), osg::Vec3( 0.0, 1.0, 0.0 ), osg::Vec3( 0.0, 0.0, 1.0 ) ) );
-    m_xSlice->addChild( geode );
-    geode = new osg::Geode();
-    geode->addDrawable( generateSlice( osg::Vec3( 0.0, 1.0, 0.0 ), osg::Vec3( 0.0, 1.0, 0.0 ), osg::Vec3( 0.0, 0.0, 1.0 ) ) );
-    m_ySlice->addChild( geode );
-    geode = new osg::Geode();
-    geode->addDrawable( generateSlice( osg::Vec3( 0.0, 1.0, 0.0 ), osg::Vec3( 0.0, 1.0, 0.0 ), osg::Vec3( 0.0, 0.0, 1.0 ) ) );
-    m_zSlice->addChild( geode );
+    m_xSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
+                                                                grid->getNbCoordsZ() * grid->getDirectionZ() ) );
+
+    m_ySlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
+                                                                grid->getNbCoordsZ() * grid->getDirectionZ() ) );
+
+    m_zSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
+                                                                grid->getNbCoordsY() * grid->getDirectionY() ) );
 
     // add the transformation nodes to the output group
     m_output->insert( m_xSlice );
