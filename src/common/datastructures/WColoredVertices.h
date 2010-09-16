@@ -28,15 +28,14 @@
 #include <map>
 #include <string>
 
+#include "../WExportCommon.h"
 #include "../WTransferable.h"
 #include "../WColor.h"
-
-#include "../WExportCommon.h"
 
 /**
  * Represents a std::map where for each vertex ID a color is stored.
  */
-class OWCOMMON_EXPORT WColoredVertices : public WTransferable // NOLINT
+class OWCOMMON_EXPORT WColoredVertices : public WTransferable
 {
 public:
     /**

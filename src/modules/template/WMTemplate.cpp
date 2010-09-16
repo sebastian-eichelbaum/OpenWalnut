@@ -170,6 +170,10 @@ void WMTemplate::connectors()
     // As properties, every connector needs to be added to the list of connectors.
     addConnector( m_input );
 
+    // For all the lazy programmers, the creation and addition of the connector can be simplified to one type-less-compatible step:
+    // m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to display" );
+    // This is fully equivalent to the above calls and works for output connectors too.
+
     // Now, lets add an output connector. We want to provide data calculated here to other modules. The output connector is initialized the same
     // way as input connectors. You need the type, the module-wide unique name and the description. The type you specify here also determines
     // which input connectors can be connected to this output connector: only connectors with a type equal or lower in class hierarchy.

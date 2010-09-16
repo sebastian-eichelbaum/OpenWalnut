@@ -60,6 +60,8 @@ class WModuleContainer;
 class WModuleFactory;
 class WModuleInputConnector;
 class WModuleOutputConnector;
+template < typename T > class WModuleInputData;
+template < typename T > class WModuleOutputData;
 
 /**
  * Class representing a single module of OpenWalnut.
@@ -70,6 +72,8 @@ class OWKERNEL_EXPORT WModule: public WThreadedRunner,
                                public boost::enable_shared_from_this< WModule >
 {
 friend class WModuleConnector;  // requires access to notify members
+template< typename T > friend class WModuleInputData;  // requires access for convenience functions to automatically add a created connector
+template< typename T > friend class WModuleOutputData;  // requires access for convenience functions to automatically add a created connector
 friend class WModuleFactory;    // for proper creation of module instaces, the factory needs access to protected functions.
                                 // (especially initialize)
 friend class WModuleContainer;  // for proper management of m_container WModuleContainer needs access.
