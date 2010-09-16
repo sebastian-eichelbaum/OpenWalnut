@@ -45,12 +45,12 @@
  */
 namespace wmath
 {
-//   Pi constants - we dont use the macro M_PI, because it is not part of the C++-standard.
-//   ref.: http://stackoverflow.com/questions/1727881/how-to-use-the-pi-constant-in-c
-  /** the pi constant in float format */
-  const float piFloat = boost::math::constants::pi<float>();
-  /** the pi constant in double format */
-  const double piDouble = boost::math::constants::pi<double>();
+    // Pi constants - we dont use the macro M_PI, because it is not part of the C++-standard.
+    // ref.: http://stackoverflow.com/questions/1727881/how-to-use-the-pi-constant-in-c
+    /** the pi constant in float format */
+    const float piFloat = boost::math::constants::pi<float>();
+    /** the pi constant in double format */
+    const double piDouble = boost::math::constants::pi<double>();
 
     /**
      * Tests whether the number stored in the parameter is finite.
