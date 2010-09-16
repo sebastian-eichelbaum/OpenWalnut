@@ -242,10 +242,10 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
     {
         const double radius = 100;
         std::vector< wmath::WPosition > vertices;
-        vertices.push_back( startPos + radius * (      sliceVec1 + sliceVec2 ) );
-        vertices.push_back( startPos + radius * ( -1 * sliceVec1 + sliceVec2 ) );
-        vertices.push_back( startPos + radius * ( -1 * sliceVec1 - sliceVec2 ) );
-        vertices.push_back( startPos + radius * (      sliceVec1 - sliceVec2 ) );
+        vertices.push_back( startPos + (      sliceVec1 + sliceVec2 ) * radius );
+        vertices.push_back( startPos + ( -1 * sliceVec1 + sliceVec2 ) * radius );
+        vertices.push_back( startPos + ( -1 * sliceVec1 - sliceVec2 ) * radius );
+        vertices.push_back( startPos + (      sliceVec1 - sliceVec2 ) * radius );
 
         const size_t nbVerts = 4;
         for( size_t i = 0; i < nbVerts; ++i )
