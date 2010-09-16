@@ -30,7 +30,6 @@
 #include <osg/Node>
 #include <osg/Geode>
 #include <osg/Uniform>
-#include <osg/MatrixTransform>
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -38,11 +37,12 @@
 
 #include "../../dataHandler/WDataSetSingle.h"
 
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WShader.h"
 
 /**
- * Rendering of GPU bases Superquadric Glyphs. These glyphs are completely raytraced on the GPU.
+ * Rendering of GPU bases Superquadric Glyphs. These glyphs are completely ray-traced on the GPU.
  *
  * \ingroup modules
  */
@@ -119,22 +119,22 @@ private:
     /**
      * The Geode containing all the glyphs. In fact it only contains a quad per glyph on which the raytracing is done.
      */
-    osg::ref_ptr< WGEGroupNode > m_output;
+    osg::ref_ptr< WGEManagedGroupNode > m_output;
 
     /**
      * The transformation node moving the X slice through the dataset space if the sliders are used
      */
-    osg::ref_ptr< osg::MatrixTransform > m_xSlice;
+    osg::ref_ptr< WGEManagedGroupNode > m_xSlice;
 
     /**
      * The transformation node moving the Y slice through the dataset space if the sliders are used
      */
-    osg::ref_ptr< osg::MatrixTransform > m_ySlice;
+    osg::ref_ptr< WGEManagedGroupNode > m_ySlice;
 
     /**
      * The transformation node moving the Z slice through the dataset space if the sliders are used
      */
-    osg::ref_ptr< osg::MatrixTransform > m_zSlice;
+    osg::ref_ptr< WGEManagedGroupNode > m_zSlice;
 
     /**
      * The input dataset. It contains the second order tensor data needed here.
@@ -351,73 +351,6 @@ private:
      * The update callback of m_zSlice glphs.
      */
     osg::ref_ptr< GlyphGeometryNodeCallback > m_zSliceGlyphCallback;
-
-    /**
-     * Node callback to handle updates in the slice position properly
-     */
-    class SliceNodeCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-
-        /**
-         * Constructor.
-         *
-         * \param mt the transform node.
-         * \param axe the axe to translate along
-         * \param property the property containing the value
-         */
-        SliceNodeCallback( osg::MatrixTransform* mt, osg::Vec3 axe, WPropInt property ):
-            osg::NodeCallback(),
-            m_axe( axe ),
-            m_pos( property ),
-            m_oldPos( -1 ),
-            m_slice( mt )
-        {
-        }
-
-        /**
-         * This operator gets called by OSG every update cycle.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-        /**
-         * The axis to transform along.
-         */
-        osg::Vec3 m_axe;
-
-        /**
-         * The position
-         */
-        WPropInt m_pos;
-
-        /**
-         * Cache the old position for proper update
-         */
-        int m_oldPos;
-
-        /**
-         * The transform node to handle here
-         */
-        osg::MatrixTransform* m_slice;
-    };
-
-    /**
-     * The update callback of m_xSlice.
-     */
-    osg::ref_ptr< SliceNodeCallback > m_xSliceCallback;
-
-    /**
-     * The update callback of m_ySlice.
-     */
-    osg::ref_ptr< SliceNodeCallback > m_ySliceCallback;
-
-    /**
-     * The update callback of m_zSlice.
-     */
-    osg::ref_ptr< SliceNodeCallback > m_zSliceCallback;
 };
 
 #endif  // WMSUPERQUADRICGLYPHS_H

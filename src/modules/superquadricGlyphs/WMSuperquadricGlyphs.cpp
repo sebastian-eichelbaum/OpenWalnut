@@ -45,7 +45,7 @@ W_LOADABLE_MODULE( WMSuperquadricGlyphs )
 WMSuperquadricGlyphs::WMSuperquadricGlyphs():
     WModule()
 {
-    m_output = osg::ref_ptr< WGEGroupNode > ( new WGEGroupNode() );
+    // initialize members
 }
 
 WMSuperquadricGlyphs::~WMSuperquadricGlyphs()
@@ -72,7 +72,7 @@ const std::string WMSuperquadricGlyphs::getName() const
 
 const std::string WMSuperquadricGlyphs::getDescription() const
 {
-    return "GPU based raytracing of second order, superquadric tensor glyphs.";
+    return "GPU based ray-tracing of second order, superquadric tensor glyphs.";
 }
 
 void WMSuperquadricGlyphs::connectors()
@@ -104,9 +104,10 @@ void WMSuperquadricGlyphs::properties()
     m_zPos->setMax( 159 );
 
     // Flags denoting whether the glyphs should be shown on the specific slice
-    m_showonX        = m_properties->addProperty( "Show sagittal", "Show vectors on sagittal slice.", true, m_propCondition );
-    m_showonY        = m_properties->addProperty( "Show coronal", "Show vectors on coronal slice.", true, m_propCondition );
-    m_showonZ        = m_properties->addProperty( "Show axial", "Show vectors on axial slice.", true, m_propCondition );
+    // NOTE: the showon* properties do not need to notify m_propCondition as they get handled by the slice's osg node.
+    m_showonX        = m_properties->addProperty( "Show sagittal", "Show vectors on sagittal slice.", true );
+    m_showonY        = m_properties->addProperty( "Show coronal", "Show vectors on coronal slice.", true );
+    m_showonZ        = m_properties->addProperty( "Show axial", "Show vectors on axial slice.", true );
 
     // Thresholding for filtering glyphs
     m_evThreshold = m_properties->addProperty( "Eigenvalue threshold",
@@ -223,11 +224,11 @@ void WMSuperquadricGlyphs::initOSG()
     m_output->remove( m_zSlice );
 
     // create all the transformation nodes
-    m_xSlice = new osg::MatrixTransform();
+    m_xSlice = new WGEManagedGroupNode( m_showonX );
     m_xSlice->setMatrix( osg::Matrixd::identity() );
-    m_ySlice = new osg::MatrixTransform();
+    m_ySlice = new WGEManagedGroupNode( m_showonY );
     m_ySlice->setMatrix( osg::Matrixd::identity() );
-    m_zSlice = new osg::MatrixTransform();
+    m_zSlice = new WGEManagedGroupNode( m_showonZ );
     m_zSlice->setMatrix( osg::Matrixd::identity() );
 
     // init the vertex arrays
@@ -272,8 +273,7 @@ void WMSuperquadricGlyphs::initOSG()
     // set some callbacks
     m_xSliceGlyphCallback = new GlyphGeometryNodeCallback( geometry );
     geometry->setUpdateCallback( m_xSliceGlyphCallback );
-    m_xSliceCallback = new SliceNodeCallback( m_xSlice, osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos );
-    m_xSlice->addUpdateCallback( m_xSliceCallback );
+    m_xSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos ) );
     m_xSlice->addChild( geode );
 
     ///////////////
@@ -307,8 +307,7 @@ void WMSuperquadricGlyphs::initOSG()
     // set some callbacks
     m_ySliceGlyphCallback = new GlyphGeometryNodeCallback( geometry );
     geometry->setUpdateCallback( m_ySliceGlyphCallback );
-    m_ySliceCallback = new SliceNodeCallback( m_ySlice, osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos );
-    m_ySlice->addUpdateCallback( m_ySliceCallback );
+    m_ySlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos ) );
     m_ySlice->addChild( geode );
 
     ///////////////
@@ -342,31 +341,13 @@ void WMSuperquadricGlyphs::initOSG()
     // set some callbacks
     m_zSliceGlyphCallback = new GlyphGeometryNodeCallback( geometry );
     geometry->setUpdateCallback( m_zSliceGlyphCallback );
-    m_zSliceCallback = new SliceNodeCallback( m_zSlice, osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos );
-    m_zSlice->addUpdateCallback( m_zSliceCallback );
+    m_zSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos ) );
     m_zSlice->addChild( geode );
-
-    m_xSlice->setNodeMask( m_showonX->get( true ) ? 0xFFFFFFFF : 0x0 );
-    m_ySlice->setNodeMask( m_showonY->get( true ) ? 0xFFFFFFFF : 0x0 );
-    m_zSlice->setNodeMask( m_showonZ->get( true ) ? 0xFFFFFFFF : 0x0 );
 
     // add the transformation nodes to the output group
     m_output->insert( m_xSlice );
     m_output->insert( m_ySlice );
     m_output->insert( m_zSlice );
-}
-
-void WMSuperquadricGlyphs::SliceNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    // this node is a MatrixTransform
-    int newPos = m_pos->get();
-    if ( newPos != m_oldPos )
-    {
-        m_oldPos = m_pos->get();
-        m_slice->setMatrix( osg::Matrix::translate( m_axe * static_cast< double >( m_oldPos ) ) );
-    }
-
-    traverse( node, nv );
 }
 
 void WMSuperquadricGlyphs::GlyphGeometryNodeCallback::update( osg::NodeVisitor* /*nv*/, osg::Drawable* /*d*/ )
@@ -401,6 +382,7 @@ void WMSuperquadricGlyphs::moduleMain()
     ready();
 
     // create all these geodes we need
+    m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
     osg::ref_ptr< osg::StateSet > sset = m_output->getOrCreateStateSet();
     sset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
@@ -449,7 +431,7 @@ void WMSuperquadricGlyphs::moduleMain()
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
         // TODO(ebaum): as long as we do not have a proper second order tensor field:
-        if ( ( newDataSet->getValueSet()->order() != 1 ) && ( newDataSet->getValueSet()->dimension() != 6 ) )
+        if ( dataValid && ( newDataSet->getValueSet()->order() != 1 ) && ( newDataSet->getValueSet()->dimension() != 6 ) )
         {
             warnLog() << "Received data with order=" <<  newDataSet->getValueSet()->order() <<
                          " and dimension=" << newDataSet->getValueSet()->dimension() << " not compatible with this module. Ignoring!";
@@ -483,19 +465,6 @@ void WMSuperquadricGlyphs::moduleMain()
             // new data -> update OSG Stuff
             initOSG();
             progress1->finish();
-        }
-
-        if ( dataValid && m_showonX->changed() )
-        {
-            m_xSlice->setNodeMask( m_showonX->get( true ) ? 0xFFFFFFFF : 0x0 );
-        }
-        if ( dataValid && m_showonY->changed() )
-        {
-            m_ySlice->setNodeMask( m_showonY->get( true ) ? 0xFFFFFFFF : 0x0 );
-        }
-        if ( dataValid && m_showonZ->changed() )
-        {
-            m_zSlice->setNodeMask( m_showonZ->get( true ) ? 0xFFFFFFFF : 0x0 );
         }
 
         if ( dataValid && m_xPos->changed() )
@@ -573,7 +542,7 @@ void WMSuperquadricGlyphs::moduleMain()
             offdiag->reserve( m_nbGlyphsX * 6 * 4 );
 
             // z = const -> handle zPos property
-            size_t fixedZ = m_zPos->get( true );
+            size_t fixedZ = static_cast< size_t >( m_zPos->get( true ) );
             size_t fixedZOffset = fixedZ * m_maxX * m_maxY;
             for ( size_t y = 0; y < m_maxY; ++y )
             {

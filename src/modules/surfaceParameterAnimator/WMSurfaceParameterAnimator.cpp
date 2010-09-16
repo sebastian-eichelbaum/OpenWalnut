@@ -39,7 +39,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WGEShaderAnimationCallback.h"
+#include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 
 #include "WMSurfaceParameterAnimator.h"
 #include "surfaceParameterAnimator.xpm"
