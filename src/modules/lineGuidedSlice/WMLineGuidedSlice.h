@@ -190,7 +190,7 @@ private:
         {
             osg::ref_ptr< WMLineGuidedSlice > module = static_cast< WMLineGuidedSlice* > ( node->getUserData() );
 
-            if ( module )
+            if( module )
             {
                 module->updateGeometry();
                 module->updateTextures();
