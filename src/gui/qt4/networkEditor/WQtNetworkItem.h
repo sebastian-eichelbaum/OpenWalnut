@@ -73,11 +73,16 @@ class WQtNetworkItem : public QGraphicsRectItem
          * in a regular way.
          */
         void fitLook();
-        
+
         /**
          * Set the QGraphicsTextItem ( the caption ) of the item
          */
         void setTextItem( QGraphicsTextItem *text );
+
+        /**
+         * Get the caption as QString
+         */
+        QString getText();
 
     protected:
 
@@ -99,20 +104,20 @@ class WQtNetworkItem : public QGraphicsRectItem
         void mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent );
 //        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
 //        void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
-        
+
         /**
          * If the cursor enters the item, the item gets a green color.
          *
          * \param event the hover event
          */
-        void hoverEnterEvent(QGraphicsSceneHoverEvent  *event);
-        
+        void hoverEnterEvent( QGraphicsSceneHoverEvent  *event );
+
         /**
          * If the cursor leaves the item, the item gets his default color.
          *
          * \param event the hover event
          */
-        void hoverLeaveEvent(QGraphicsSceneHoverEvent  *event);
+        void hoverLeaveEvent( QGraphicsSceneHoverEvent  *event );
 
         /**
          * This method changes the coloration of gradient.
@@ -120,7 +125,7 @@ class WQtNetworkItem : public QGraphicsRectItem
          * \param color the choosen color
          */
         void changeColor( QColor color );
-        
+
         /**
          * Draw some customized stuff in the scene.
          *

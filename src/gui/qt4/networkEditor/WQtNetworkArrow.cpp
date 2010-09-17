@@ -22,9 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <math.h>
 #include <string>
 #include <iostream>
-#include <math.h>
 
 #include <QtGui/QGraphicsLineItem>
 #include <QtGui/QStyleOptionGraphicsItem>
@@ -94,56 +94,55 @@ void WQtNetworkArrow::paint( QPainter* painter, const QStyleOptionGraphicsItem* 
     {
         changeColor( Qt::green );
     }
-    
-    QStyleOptionGraphicsItem *o = const_cast<QStyleOptionGraphicsItem*>(option);
+
+    QStyleOptionGraphicsItem *o = const_cast<QStyleOptionGraphicsItem*>( option );
     o->state &= ~QStyle::State_Selected;
-    
+
     QGraphicsLineItem::paint( painter, o, w );
 
     qreal arrowSize = 10;
-    double angle = ::acos(line().dx() / line().length());
-    if (line().dy() >= 0)
-        angle = (Pi * 2) - angle;
+    double angle = ::acos( line().dx() / line().length() );
+    if ( line().dy() >= 0 )
+        angle = ( Pi * 2 ) - angle;
 
-    QPointF arrowP1 = line().p2() - QPointF(sin(angle + Pi / 3) * arrowSize,
-            cos(angle + Pi / 3) * arrowSize);
-    QPointF arrowP2 = line().p2() - QPointF(sin(angle + Pi - Pi / 3) * arrowSize,
-            cos(angle + Pi - Pi / 3) * arrowSize);
+    QPointF arrowP1 = line().p2() - QPointF( sin( angle + Pi / 3 ) * arrowSize,
+            cos( angle + Pi / 3 ) * arrowSize );
+    QPointF arrowP2 = line().p2() - QPointF( sin( angle + Pi - Pi / 3 ) * arrowSize,
+            cos( angle + Pi - Pi / 3 ) * arrowSize );
     arrowHead.clear();
     arrowHead << line().p2() << arrowP1 << arrowP2;
 
     painter->setPen( QPen( m_color, 1, Qt::SolidLine ) );
     painter->setBrush( m_color );
-    painter->drawPolygon(arrowHead);
+    painter->drawPolygon( arrowHead );
 }
 
- QRectF WQtNetworkArrow::boundingRect() const
- {
+QRectF WQtNetworkArrow::boundingRect() const
+{
     QRectF rect = shape().boundingRect();
 
     // add a few extra pixels for the arrow and the pen
     qreal penWidth = 1;
-    qreal extra = (penWidth + 10) / 2.0;
-    rect.adjust(-extra, -extra, extra, extra);
+    qreal extra = ( penWidth + 10 ) / 2.0;
+    rect.adjust( -extra, -extra, extra, extra );
 
     return rect;
 }
 
- QPainterPath WQtNetworkArrow::shape() const
- {
-     QPainterPath path = QGraphicsLineItem::shape();
-     path.addPolygon(arrowHead);
-     return path;
- }
-        
-void WQtNetworkArrow::hoverEnterEvent ( QGraphicsSceneHoverEvent * event )
+QPainterPath WQtNetworkArrow::shape() const
 {
-    std::cout << "color changed " << std::endl;
+     QPainterPath path = QGraphicsLineItem::shape();
+     path.addPolygon( arrowHead );
+     return path;
+}
+
+void WQtNetworkArrow::hoverEnterEvent( QGraphicsSceneHoverEvent * event )
+{
     changeColor( Qt::green );
     updatePosition();
 }
 
-void WQtNetworkArrow::hoverLeaveEvent ( QGraphicsSceneHoverEvent * event )
+void WQtNetworkArrow::hoverLeaveEvent( QGraphicsSceneHoverEvent * event )
 {
     changeColor( Qt::black );
 }

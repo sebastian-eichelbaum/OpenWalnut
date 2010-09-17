@@ -40,8 +40,7 @@ const float MINHEIGHT = 50;
 WQtNetworkItem::WQtNetworkItem()
     : QGraphicsRectItem()
 {
-
-    m_text=0;
+    m_text = 0;
 
     setAcceptsHoverEvents( true );
     setFlag( QGraphicsItem::ItemIsMovable );
@@ -64,19 +63,20 @@ WQtNetworkItem::~WQtNetworkItem()
     }
 }
 
-void WQtNetworkItem::hoverEnterEvent(QGraphicsSceneHoverEvent  *event)
+void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent  *event )
 {
     if( m_color != Qt::darkBlue )
     {
         changeColor( Qt::darkBlue );
     }
-    
-    QString str = "Name: ";// + getName() + "\nDescription: ";
-    if (toolTip() != str){
-        setToolTip(str);
+
+    QString str = "Name: " + getText() + "\nDescription: ";
+    if ( toolTip() != str )
+    {
+        setToolTip( str );
     }
 }
-void WQtNetworkItem::hoverLeaveEvent(QGraphicsSceneHoverEvent  *event)
+void WQtNetworkItem::hoverLeaveEvent( QGraphicsSceneHoverEvent *event )
 {
     if( m_color != Qt::gray )
     {
@@ -90,8 +90,8 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
     {
         changeColor( Qt::darkGreen );
     }
-  
-    QStyleOptionGraphicsItem *o = const_cast<QStyleOptionGraphicsItem*>(option);
+
+    QStyleOptionGraphicsItem *o = const_cast<QStyleOptionGraphicsItem*>( option );
     o->state &= ~QStyle::State_Selected;
     QGraphicsRectItem::paint( painter, o, w );
 
@@ -99,7 +99,7 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
     //voreen
     painter->setBrush( QBrush( Qt::white ) );
     painter->setPen( QPen( QBrush( Qt::white ), 0.01 ) );
-    painter->setOpacity(0.30);
+    painter->setOpacity( 0.30 );
     QRectF rect( 0, 0, m_width, m_height/2.0 );
     painter->drawRect( rect );
 }
@@ -133,7 +133,7 @@ QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
 {
     if( change == QGraphicsItem::ItemSelectedHasChanged )
     {
-        changeColor( Qt::gray );     
+        changeColor( Qt::gray );
     }
     return value;
 }
@@ -173,7 +173,8 @@ QList< WQtNetworkPort *> WQtNetworkItem::getOutPorts()
 
 void WQtNetworkItem::fitLook()
 {
-    if( m_text != 0){  
+    if( m_text != 0)
+    {
         m_width = m_text->boundingRect().width() + 10;
         m_height = m_text->boundingRect().height() + 10;
         if( m_width < MINWIDTH ) m_width = MINWIDTH;
@@ -193,7 +194,7 @@ void WQtNetworkItem::fitLook()
         port->alignPosition( m_inPorts.size(), portNumber, m_rect, false );
         portNumber++;
     }
-    
+
     portNumber = 1;
     foreach( WQtNetworkPort *port, m_outPorts )
     {
@@ -202,12 +203,16 @@ void WQtNetworkItem::fitLook()
     }
 
     changeColor( Qt::gray );
-    
 }
 
 void WQtNetworkItem::setTextItem( QGraphicsTextItem *text )
 {
-    m_text = text ;
+    m_text = text;
+}
+
+QString WQtNetworkItem::getText()
+{
+    return m_text->toPlainText();
 }
 
 void WQtNetworkItem::changeColor( QColor color )
@@ -215,7 +220,7 @@ void WQtNetworkItem::changeColor( QColor color )
     m_color = color;
     m_gradient.setStart( 0, 0 );
     m_gradient.setFinalStop( 0, m_height );
-    
+
     m_gradient.setColorAt( 0.0, m_color );
     m_gradient.setColorAt( 0.3, Qt::black );
     m_gradient.setColorAt( 0.7, Qt::black );

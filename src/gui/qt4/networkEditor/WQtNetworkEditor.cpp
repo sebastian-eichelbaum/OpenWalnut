@@ -51,12 +51,12 @@ WQtNetworkEditor::WQtNetworkEditor( QString title, WMainWindow* parent )
 
     m_view = new QGraphicsView();
     m_view->setDragMode( QGraphicsView::RubberBandDrag );
-    m_view->setMinimumSize( QSize(200, 200 ) );
-    m_view->setRenderHint(QPainter::Antialiasing);
-    
+    m_view->setMinimumSize( QSize( 200, 200 ) );
+    m_view->setRenderHint( QPainter::Antialiasing );
+
     m_scene = new WQtNetworkScene();
     m_scene->setSceneRect( -100.0, -100.0, 200.0, 200.0 );
-    m_scene->setSceneRect(m_scene->itemsBoundingRect());
+    m_scene->setSceneRect( m_scene->itemsBoundingRect() );
 
     m_view->setScene( m_scene );
 
@@ -82,25 +82,17 @@ void WQtNetworkEditor::addModule()
 {
     WQtNetworkItem *netItem = new WQtNetworkItem();
 
-    WQtNetworkPort *port = new WQtNetworkPort( "A" );
-    port->setOutPort( false );
+    WQtNetworkPort *port = new WQtNetworkPort( "A", false );
     port->setParentItem( netItem );
-//    port->setPortName( "A" );
-    
-    WQtNetworkPort *iport = new WQtNetworkPort( "B" );
-    iport->setOutPort( false );
+
+    WQtNetworkPort *iport = new WQtNetworkPort( "B", false );
     iport->setParentItem( netItem );
-//    iport->setPortName( "B" );
 
-    WQtNetworkPort *pport = new WQtNetworkPort( "A" );
-    pport->setOutPort( true );
+    WQtNetworkPort *pport = new WQtNetworkPort( "A", true );
     pport->setParentItem( netItem );
-//    pport->setPortName( "A" );
 
-    WQtNetworkPort *ipport = new WQtNetworkPort( "B" );
-    ipport->setOutPort( true );
+    WQtNetworkPort *ipport = new WQtNetworkPort( "B", true );
     ipport->setParentItem( netItem );
-//    ipport->setPortName( "B" );
 
     QGraphicsTextItem *text = new QGraphicsTextItem( "Module " );
     text->setParentItem( netItem );
@@ -116,8 +108,5 @@ void WQtNetworkEditor::addModule()
 
     netItem->fitLook();
 
-    WQtNetworkArrow *arrow = new WQtNetworkArrow( ipport, pport );
-
     m_scene->addItem( netItem );
-
 }

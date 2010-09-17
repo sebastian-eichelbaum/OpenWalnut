@@ -45,13 +45,13 @@ class WQtNetworkPort : public QGraphicsRectItem
         /**
          * Constructor
          */
-        explicit WQtNetworkPort( QString name );
+        explicit WQtNetworkPort( QString name, bool outPort );
 
         /**
          * Destructor
          */
         virtual ~WQtNetworkPort();
-        
+
         /**
          * This customize the return value of type()
          */
@@ -59,7 +59,7 @@ class WQtNetworkPort : public QGraphicsRectItem
         {
             Type = UserType + 10
         };
- 
+
         /**
          * Reimplementation from QGraphicsItem
          * \return the type of the item as int

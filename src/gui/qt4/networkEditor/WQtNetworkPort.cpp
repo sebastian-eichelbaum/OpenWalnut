@@ -24,6 +24,7 @@
 
 #include <string>
 #include <iostream>
+#include <boost/shared_ptr.hpp>
 
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QGraphicsView>
@@ -33,20 +34,28 @@
 
 #include "WQtNetworkPort.h"
 
-WQtNetworkPort::WQtNetworkPort( QString name)
+WQtNetworkPort::WQtNetworkPort( QString name, bool outPort )
     : QGraphicsRectItem()
 {
     setRect( 0.0, 0.0, 10.0, 10.0 );
     setBrush( Qt::gray );
     setPen( QPen( Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
-    
-    setAcceptsHoverEvents(true);
- 
-    setPortName( name );
 
-    QString str = "Name: " + getPortName() + "\nPortType:";
-    if (toolTip() != str){
-        setToolTip(str);
+    setAcceptsHoverEvents( true );
+
+    setPortName( name );
+    setOutPort( outPort );
+
+    QString tmp;
+    if( isOutPort() == true ) tmp = "output";
+    else if( isOutPort() == false ) tmp = "input";
+    else
+        tmp = "undefined";
+
+    QString str = "Name: " + getPortName() + "\nPortType: " + tmp;
+    if( toolTip() != str )
+    {
+        setToolTip( str );
     }
 }
 
@@ -55,7 +64,7 @@ WQtNetworkPort::~WQtNetworkPort()
     std::cout << "delete Port" << std::endl;
     removeArrows();
 }
- 
+
 int WQtNetworkPort::type() const
 {
     return Type;
@@ -80,7 +89,6 @@ void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
     if( line != 0 )
     {
- 
         QLineF newLine( line->line().p1(), mouseEvent->scenePos() );
 
         QList<QGraphicsItem *> endItem = scene()->items( mouseEvent->scenePos() );
@@ -90,7 +98,7 @@ void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
         {
             endItem.removeFirst();
         }
- 
+
         if( !endItem.isEmpty() )
         {
             if( endItem.first()->type() == WQtNetworkPort::Type )
@@ -159,7 +167,7 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
                     endPort->getPortName() == startPort->getPortName() )
             {
                 WQtNetworkArrow *arrow = new WQtNetworkArrow( startPort, endPort );
-                
+
                 arrow->setZValue( -1000.0 );
 
                 startPort->addArrow( arrow );
@@ -191,9 +199,10 @@ void WQtNetworkPort::removeArrows()
 {
     std::cout << "removeArrows" << std::endl;
     foreach( WQtNetworkArrow *arrow, m_arrows )
-    {        
+    {
         int index = m_arrows.indexOf( arrow );
-        if (index != -1){
+        if ( index != -1 )
+        {
             m_arrows.removeAt( index );
             delete arrow;
         }
@@ -226,10 +235,9 @@ void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool 
     }
     else if( outPort == true )
     {
-    
         setPos( rect.width() / ( size+1 ) * portNumber - 5.0, rect.height() - 5 );
     }
-} 
+}
 
 QString WQtNetworkPort::getPortName()
 {

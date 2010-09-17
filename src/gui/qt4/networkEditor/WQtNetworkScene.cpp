@@ -54,7 +54,7 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
     {
         QList< WQtNetworkItem *> itemList;
         QList< WQtNetworkArrow *> arrowList;
-        foreach ( QGraphicsItem *item, this->selectedItems() )
+        foreach( QGraphicsItem *item, this->selectedItems() )
         {
             if ( item->type() == WQtNetworkItem::Type )
             {
@@ -73,7 +73,7 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
             removeItem( ar );
             delete ar;
         }
-        
+
         foreach( WQtNetworkItem *it, itemList )
         {
             removeItem( it );
