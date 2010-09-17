@@ -37,14 +37,19 @@
 #include <osg/Texture2D>
 #include <osgUtil/RenderStage>
 
-#include "WExportWGE.h"
+#include "../WExportWGE.h"
 
-#if defined (__APPLE__) || defined (MACOSX)
+#if defined (__APPLE__) || defined (MACOSX)         // MacOS X
     #include <OpenCL/opencl.h>
-	#include <OpenGL/gl.h>
+  	#include <OpenGL/gl.h>
 #else
+	#if defined (__linux__)                           // Linux TODO(all): should work on all Unix.
+    #include <CL/cl.h>
+    #include <GL/gl.h>
+	#else                                             // Windows
     #include <CL/opencl.h>
-	#include <GL/gl.h>
+    #include <GL/gl.h>
+	#endif
 #endif
 
 /**
@@ -334,12 +339,12 @@ class WGE_EXPORT WCLRenderNode: public osg::Node
 		*	your CL objects. Your callback is automatically applied to every per context instance.
 		*/
 		void changeDataSet(const CLDataChangeCallback& callback);
-		
+
 	private:
 
 		/**
 		*	Override this method to initialize your CL program(s) and kernel(s).
-		*	You may also create CL memory objects or set static kernel arguments. 
+		*	You may also create CL memory objects or set static kernel arguments.
 		*	Return your CL objects in a new CLProgramDataSet.
 		*	Return 0 if the creation of your CL objects fails.
 		*/

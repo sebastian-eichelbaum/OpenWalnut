@@ -35,7 +35,7 @@
 #if defined (__APPLE__) || defined (MACOSX)
 	#include <Carbon/Carbon.h>
 #else
-	#ifdef UNIX
+	#if defined (__linux__)
 		#include <GL/glx.h>
 	#else
 		#include <windows.h>
@@ -57,14 +57,14 @@
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-static const char* vertexShaderSource = 
+static const char* vertexShaderSource =
 "void main()"
 "{"
 "	gl_TexCoord[0] = gl_MultiTexCoord0;"
 "	gl_Position = gl_Vertex;"
 "}";
 
-static const char* fragmentShaderSource = 
+static const char* fragmentShaderSource =
 "uniform sampler2D colorBuffer;"
 "uniform sampler2D depthBuffer;"
 ""
@@ -96,7 +96,7 @@ void WCLRenderNode::CLViewInformation::getViewProperties(ViewProperties& propert
 		/* perspective projection */
 
 		/*
-		*	PMatrix = 
+		*	PMatrix =
 		*	(
 		*		2 * near / (right - left)		|0									|0								|0
 		*		0								|2 * near / (top - bottom)			|0								|0
@@ -121,7 +121,7 @@ void WCLRenderNode::CLViewInformation::getViewProperties(ViewProperties& propert
 		/* orthographic projection */
 
 		/*
-		*	PMatrix = 
+		*	PMatrix =
 		*	(
 		*		2 / (right - left)				|0									|0								|0
 		*		0								|2 / (top - bottom)					|0								|0
@@ -148,7 +148,7 @@ void WCLRenderNode::CLViewInformation::getViewProperties(ViewProperties& propert
 	const osg::Matrix& MVMatrix = *m_modelViewMatrix;
 
 	/*
-	*	MVMatrix = 
+	*	MVMatrix =
 	*	(
 	*		R(0,0)	R(0,1)	R(0,2)	0
 	*		R(1,0)	R(1,1)	R(1,2)	0
@@ -164,7 +164,7 @@ void WCLRenderNode::CLViewInformation::getViewProperties(ViewProperties& propert
 	double tzNew = -(MVMatrix(2,0) * MVMatrix(3,0) + MVMatrix(2,1) * MVMatrix(3,1) + MVMatrix(2,2) * MVMatrix(3,2));
 
 	/*
-	*	ModelViewMatrixInverse = 
+	*	ModelViewMatrixInverse =
 	*	(
 	*		R(0,0)	R(1,0)	R(2,0)	0
 	*		R(0,1)	R(1,1)	R(2,1)	0
@@ -172,7 +172,7 @@ void WCLRenderNode::CLViewInformation::getViewProperties(ViewProperties& propert
 	*		txNew	tyNew	tzNew	1
 	*	)
 	*
-	*	Inverse[ModelViewMatrix] = 
+	*	Inverse[ModelViewMatrix] =
 	*	(
 	*		MVMatrix(0,0)	MVMatrix(1,0)	MVMatrix(2,0)	0
 	*		MVMatrix(0,1)	MVMatrix(1,1)	MVMatrix(2,1)	0
@@ -244,7 +244,7 @@ WCLRenderNode::CLProgramDataSet::~CLProgramDataSet()
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-WCLRenderNode::PerContextInformation::PerContextInformation(): 
+WCLRenderNode::PerContextInformation::PerContextInformation():
 	contextSharing(true),
 	clInitialized(false),
 	buffersInitialized(false),
@@ -350,7 +350,7 @@ void WCLRenderNode::DrawQuad::releaseQuad()
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-WCLRenderNode::CLRenderBin::CLRenderBin(osg::RefMatrix* modelView,osg::RefMatrix* projection): 
+WCLRenderNode::CLRenderBin::CLRenderBin(osg::RefMatrix* modelView,osg::RefMatrix* projection):
 	RenderBin(),
 	modelView(modelView),
 	projection(projection)
@@ -563,7 +563,7 @@ WCLRenderNode::WCLRenderNode(): Node()
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-WCLRenderNode::WCLRenderNode(const WCLRenderNode& node,const osg::CopyOp& copyop): 
+WCLRenderNode::WCLRenderNode(const WCLRenderNode& node,const osg::CopyOp& copyop):
 	Node(node,copyop),
 	m_box(node.m_box),
 	m_colorBuffer(new osg::Texture2D(*node.m_colorBuffer,copyop)),
@@ -653,7 +653,7 @@ osg::BoundingSphere WCLRenderNode::computeBound() const
 void WCLRenderNode::resizeGLObjectBuffers(unsigned int maxSize)
 {
 	m_perContextInformation.resize(maxSize);
-	
+
 	m_colorBuffer->resizeGLObjectBuffers(maxSize);
 	m_depthBuffer->resizeGLObjectBuffers(maxSize);
 
@@ -847,8 +847,8 @@ void WCLRenderNode::renderStart(osg::State& state) const
 	unsigned int currentWidth = currentViewport->width();
 	unsigned int currentHeight = currentViewport->height();
 
-	if (!perContextInfo.buffersInitialized || 
-		(currentWidth != perContextInfo.clViewInfo.width) || 
+	if (!perContextInfo.buffersInitialized ||
+		(currentWidth != perContextInfo.clViewInfo.width) ||
 		(currentHeight != perContextInfo.clViewInfo.height))
 	{
 		perContextInfo.clViewInfo.width = currentWidth;
@@ -1009,7 +1009,7 @@ bool WCLRenderNode::initCL(PerContextInformation& perContextInfo) const
 	devices = new cl_device_id*[numOfPlatforms];
 
 	/* get available CL platforms */
-	
+
 	clGetPlatformIDs(numOfPlatforms,platforms,0);
 
 	cl_uint* numOfDevices = new cl_uint[numOfPlatforms];
@@ -1027,14 +1027,14 @@ bool WCLRenderNode::initCL(PerContextInformation& perContextInfo) const
 
 	#if defined (__APPLE__) || defined (MACOSX)
 		cl_context_properties properties[5];
-		
+
 		properties[2] = CL_CGL_SHAREGROUP_KHR;
 		properties[3] = reinterpret_cast<cl_context_properties>(CGLGetCurrentContext());
 		properties[4] = 0;
 	#else
 		#ifdef UNIX
 			cl_context_properties properties[7];
-			
+
 			properties[2] = CL_GL_CONTEXT_KHR;
 			properties[3] = reinterpret_cast<cl_context_properties>(glXGetCurrentContext());
 			properties[4] = CL_GLX_DISPLAY_KHR;
@@ -1054,7 +1054,7 @@ bool WCLRenderNode::initCL(PerContextInformation& perContextInfo) const
 	properties[0] = CL_CONTEXT_PLATFORM;
 
 	/* create CL context with GL context sharing */
-							
+
 	for (unsigned int i = 0; i < numOfPlatforms; i++)
 	{
 		for (unsigned int j = 0; j < numOfDevices[i]; j++)
@@ -1081,7 +1081,7 @@ bool WCLRenderNode::initCL(PerContextInformation& perContextInfo) const
 		perContextInfo.contextSharing = false;
 
 		properties[2] = 0;
-		
+
 		for (unsigned int i = 0; i < numOfPlatforms; i++)
 		{
 			for (unsigned int j = 0; j < numOfDevices[i]; j++)
@@ -1101,12 +1101,12 @@ bool WCLRenderNode::initCL(PerContextInformation& perContextInfo) const
 			}
 		}
 	}
-		
+
 	for (unsigned int i = 0; i < numOfPlatforms; i++)
 	{
 		delete[] devices[i];
 	}
-	
+
 	delete[] devices;
 	delete[] platforms;
 	delete[] numOfDevices;
@@ -1215,7 +1215,7 @@ bool WCLRenderNode::initBuffers(PerContextInformation& perContextInfo,osg::State
 
 		format.image_channel_order = CL_RGBA;
 		format.image_channel_data_type = CL_FLOAT;
-		
+
 		perContextInfo.clViewInfo.colorBuffer = clCreateImage2D
 		(
 			perContextInfo.clViewInfo.clContext,

@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../dataHandler/WDataSetSingle.h"
-#include "../../graphicsEngine/WCLRenderNode.h"
+#include "../../graphicsEngine/OpenCL/WCLRenderNode.h"
 
 /**
 *	A Node for rendering high order tensor glyphs with OpenCL.
