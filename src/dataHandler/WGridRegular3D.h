@@ -36,6 +36,7 @@
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
 #include "WGrid.h"
+#include "WExportDataHandler.h"
 
 /**
  * A grid that has parallelepiped cells which all have the same proportion. I.e.
@@ -45,7 +46,7 @@
  * \warning Positions on the upper bounddaries in x, y and z are considered outside the grid.
  * \ingroup dataHandler
  */
-class WGridRegular3D : public WGrid
+class OWDATAHANDLER_EXPORT WGridRegular3D : public WGrid // NOLINT
 {
     /**
      * Only test are allowed as friends.
@@ -337,6 +338,42 @@ public:
     int getZVoxelCoord( const wmath::WPosition& pos ) const;
 
     /**
+     * Computes the X coordinate of that voxel that contains the
+     * position pos. Works on rotated grids.
+     *
+     * \param pos The position which selects the voxel for which the X
+     * coordinate is computed.
+     *
+     * \return The X coordinate or -1 if pos refers to point outside of the
+     * grid.
+     */
+    int getXVoxelCoordRotated( const wmath::WPosition& pos ) const;
+
+    /**
+     * Computes the Y coordinate of that voxel that contains the
+     * position pos. Works on rotated grids.
+     *
+     * \param pos The position which selects the voxel for which the Y
+     * coordinate is computed.
+     *
+     * \return The Y coordinate or -1 if pos refers to point outside of the
+     * grid.
+     */
+    int getYVoxelCoordRotated( const wmath::WPosition& pos ) const;
+
+    /**
+     * Computes the Z coordinate of that voxel that contains the
+     * position pos. Works on rotated grids.
+     *
+     * \param pos The position which selects the voxel for which the Z
+     * coordinate is computed.
+     *
+     * \return The Z coordinate or -1 if pos refers to point outside of the
+     * grid.
+     */
+    int getZVoxelCoordRotated( const wmath::WPosition& pos ) const;
+
+    /**
      * Computes the voxel coordinates of that voxel which contains
      * the position pos.
      *
@@ -470,6 +507,15 @@ public:
      * \return True if and only if the given point is inside or on boundary of this grid, otherwise false.
      */
     bool encloses( const wmath::WPosition& pos ) const;
+
+    /**
+     * Decides whether a certain position is inside this grid or not. Works on rotated grids.
+     *
+     * \param pos Position to test
+     *
+     * \return True if and only if the given point is inside or on boundary of this grid, otherwise false.
+     */
+    bool enclosesRotated( wmath::WPosition const& pos ) const;
 
     /**
      * Return whether the transformations of the grid are only translation and/or scaling

@@ -31,8 +31,10 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
 
 #include "WItemSelection.h"
+#include "WItemSelectionItem.h"
 #include "WExportCommon.h"
 
 /**
@@ -58,6 +60,22 @@ public:
     typedef  std::vector< size_t > IndexList;
 
     /**
+     * Copy constructor. Creates a new copy of the selector and ensure proper signal subscriptions to the underlying selection.
+     *
+     * \param other the selector to copy
+     */
+    WItemSelector( const WItemSelector& other );
+
+    /**
+     * Copy assignment. Creates a new copy of the selector and ensure proper signal subscriptions to the underlying selection.
+     *
+     * \param other the selector to copy
+     *
+     * \return this.
+     */
+    WItemSelector& operator=( const WItemSelector & other );
+
+    /**
      * Destructor.
      */
     virtual ~WItemSelector();
@@ -66,6 +84,9 @@ public:
      * Creates a new valid instance with the specified items selected. This is especially useful to simply create a new selection if only the old
      * selection is known.
      *
+     * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
+     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.
+     *
      * \param selected the selected items (their index in WItemSelection).
      *
      * \return the new selector instance
@@ -73,14 +94,40 @@ public:
     WItemSelector newSelector( IndexList selected ) const;
 
     /**
+     * Creates a new valid instance with the specified items selected. This can be useful to add a certain index.
+     *
+     * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
+     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.
+     *
+     * \param selected the selected item (the index in WItemSelection).
+     *
+     * \return the new selector instance
+     */
+    WItemSelector newSelector( size_t selected ) const;
+
+    /**
      * Creates a new valid instance with the specified items selected. This is especially useful to simply create a new selection if only the
      * string representing it is known. This somehow correlates to the << operator.
+     *
+     * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
+     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.
      *
      * \param asString the selected items
      *
      * \return the new selector instance
      */
     WItemSelector newSelector( const std::string asString ) const;
+
+    /**
+     * Creates a new selector, but basing on this instance as old one. The new selector tries to keep the old selection but makes the internal
+     * selection list valid with the current underlying selection.
+     *
+     * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
+     * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.
+     *
+     * \return the new (valid) selector.
+     */
+    WItemSelector newSelector() const;
 
     /**
      * Compares two selector. They are assumed to be equal if the selected items are equal and if the underlying WItemSelection is the same.
@@ -129,7 +176,7 @@ public:
      *
      * \return the item
      */
-    virtual const WItemSelection::Item& atAll( size_t index ) const;
+    virtual const boost::shared_ptr< WItemSelectionItem > atAll( size_t index ) const;
 
     /**
      * Gets the selected item with the given index. This is not the same index as the element has in the corresponding WItemSelection!
@@ -139,7 +186,7 @@ public:
      *
      * \return the item
      */
-    virtual const WItemSelection::Item& at( size_t index ) const;
+    virtual const boost::shared_ptr< WItemSelectionItem > at( size_t index ) const;
 
     /**
      * Helps to get the index of an selected item in the WItemSelection. This is somehow similar to \ref at, but does not return the item but the
@@ -150,6 +197,26 @@ public:
      * \return the index in WItemSelection.
      */
     virtual size_t getItemIndexOfSelected( size_t index ) const;
+
+    /**
+     * Checks whether the selection is valid anymore. If a selector is not valid anymore, you should ask the one providing the selectors (most
+     * probably a WPropSelection) for a new one.
+     *
+     * \return true if valid.
+     */
+    virtual bool isValid() const;
+
+    /**
+     * Read locks the underlying selection. This ensure, that the selection stays fixed as long as this selector is locked. This also ensures
+     * that no invalidation can be issued as long as this selector has the lock. BUT it is possible that an invalidation occurs while this
+     * selector waits. So please always check for validity of the selector ater locking.
+     */
+    void lock();
+
+    /**
+     * Unlocks the selection again. Always call this after a lock.
+     */
+    void unlock();
 
 protected:
 
@@ -171,7 +238,36 @@ protected:
      */
     IndexList m_selected;
 
+    /**
+     * Stores the connection made using WItemSelection::subscribeInvalidateSignal.
+     */
+    boost::signals2::connection m_invalidateSignalConnection;
+
 private:
+
+    /**
+     * Creates a new selector instance using the specified index list. Handles all needed signal subscription stuff.
+     *
+     * \param selected the index list of selected items
+     *
+     * \return new selector
+     */
+    WItemSelector createSelector( const IndexList& selected ) const;
+
+    /**
+     * Handles the case of invalidation.
+     */
+    void invalidate();
+
+    /**
+     * If true the selector is valid.
+     */
+    bool m_valid;
+
+    /**
+     * This locks prevents the selection to be modified during selector iteration.
+     */
+    WItemSelection::ReadTicket m_lock;
 };
 
 /**

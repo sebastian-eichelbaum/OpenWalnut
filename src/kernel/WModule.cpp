@@ -44,12 +44,14 @@
 #include "exceptions/WModuleConnectorNotFound.h"
 #include "exceptions/WModuleUninitialized.h"
 #include "../common/WException.h"
+#include "../common/exceptions/WNameNotUnique.h"
 #include "../common/WLogger.h"
 #include "../common/WCondition.h"
 #include "../common/WConditionOneShot.h"
 #include "../common/WConditionSet.h"
 #include "../common/WPathHelper.h"
 #include "../common/WProgressCombiner.h"
+#include "../common/WPredicateHelper.h"
 
 #include "WModule.h"
 
@@ -102,18 +104,40 @@ WModule::~WModule()
 
 void WModule::addConnector( boost::shared_ptr< WModuleInputConnector > con )
 {
-    if ( std::count( m_inputConnectors.begin(), m_inputConnectors.end(), con ) == 0 )
+    size_t c = std::count_if( m_inputConnectors.begin(), m_inputConnectors.end(),
+                              WPredicateHelper::Name< boost::shared_ptr< WModuleInputConnector > >( con->getName() )
+    );
+    // well ... we want it to be unique in both:
+    c += std::count_if( m_outputConnectors.begin(), m_outputConnectors.end(),
+                        WPredicateHelper::Name< boost::shared_ptr< WModuleOutputConnector > >( con->getName() )
+    );
+
+    // if there already is one ... exception
+    if ( c )
     {
-        m_inputConnectors.push_back( con );
+        throw WNameNotUnique( std::string( "Could not add the connector " + con->getCanonicalName() + " since names must be unique." ) );
     }
+
+    m_inputConnectors.push_back( con );
 }
 
 void WModule::addConnector( boost::shared_ptr< WModuleOutputConnector > con )
 {
-    if ( std::count( m_outputConnectors.begin(), m_outputConnectors.end(), con ) == 0 )
+    size_t c = std::count_if( m_inputConnectors.begin(), m_inputConnectors.end(),
+                              WPredicateHelper::Name< boost::shared_ptr< WModuleInputConnector > >( con->getName() )
+    );
+    // well ... we want it to be unique in both:
+    c += std::count_if( m_outputConnectors.begin(), m_outputConnectors.end(),
+                        WPredicateHelper::Name< boost::shared_ptr< WModuleOutputConnector > >( con->getName() )
+    );
+
+    // if there already is one ... exception
+    if ( c )
     {
-        m_outputConnectors.push_back( con );
+        throw WNameNotUnique( std::string( "Could not add the connector " + con->getCanonicalName() + " since names must be unique." ) );
     }
+
+    m_outputConnectors.push_back( con );
 }
 
 void WModule::disconnect()
@@ -195,7 +219,8 @@ void WModule::initialize()
     // doing it twice is not allowed
     if ( isInitialized()() )
     {
-        throw WModuleConnectorInitFailed( "Could not initialize connectors for Module " + getName() + ". Reason: already initialized." );
+        throw WModuleConnectorInitFailed( std::string( "Could not initialize connectors for Module " ) + getName() +
+                                          std::string( ". Reason: already initialized." ) );
     }
 
     // set the module name as default runtime name
@@ -267,7 +292,8 @@ boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::stri
 
     if ( !p )
     {
-        throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
+        throw WModuleConnectorNotFound( std::string( "The connector \"" ) + name +
+                                        std::string( "\" does not exist in the module \"" ) + getName() + std::string( "\"." ) );
     }
 
     return p;
@@ -295,7 +321,9 @@ boost::shared_ptr< WModuleOutputConnector > WModule::getOutputConnector( std::st
 
     if ( !p )
     {
-        throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
+        throw WModuleConnectorNotFound( std::string( "The connector \"" ) + name +
+                                        std::string( "\" does not exist in the module \"" ) + getName() +
+                                        std::string( "\"." ) );
     }
 
     return p;
@@ -320,7 +348,9 @@ boost::shared_ptr< WModuleConnector > WModule::getConnector( std::string name )
 
     if ( !p )
     {
-        throw WModuleConnectorNotFound( "The connector \"" + name + "\" does not exist in the module \"" + getName() + "\"." );
+        throw WModuleConnectorNotFound( std::string( "The connector \"" ) + name +
+                                        std::string( "\" does not exist in the module \"" ) + getName() +
+                                        std::string( "\"." ) );
     }
 
     return p;

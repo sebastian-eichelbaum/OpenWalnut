@@ -31,6 +31,7 @@
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../dataHandler/WDataSetSingle.h"
 #include "../../../dataHandler/WDataSetScalar.h"
+#include "../../../dataHandler/WDataSetTimeSeries.h"
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WDataHandler.h"
 #include "../../../dataHandler/WDataTexture3D.h"
@@ -335,38 +336,41 @@ void WMData::moduleMain()
         WReaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
 
-        if( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet ) )
+        if( !boost::shared_dynamic_cast< WDataSetTimeSeries >( m_dataSet ) )
         {
-            m_threshold->setMin( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
-            m_threshold->setMax( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMax() );
-            m_threshold->set( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
-        }
-
-        boost::shared_ptr< WDataSetSingle > dss;
-        dss =  boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
-        if( dss )
-        {
-            switch( (*dss).getValueSet()->getDataType() )
+            if( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet ) )
             {
-                case W_DT_UNSIGNED_CHAR:
-                case W_DT_INT16:
-                case W_DT_SIGNED_INT:
-                    m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 0 ) );
-                    break;
-                case W_DT_FLOAT:
-                case W_DT_DOUBLE:
-                    m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 5 ) );
-                    break;
-                default:
-                    WAssert( false, "Unknow data type in Data module" );
+                m_threshold->setMin( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
+                m_threshold->setMax( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMax() );
+                m_threshold->set( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
             }
+
+            boost::shared_ptr< WDataSetSingle > dss;
+            dss =  boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+            if( dss )
+            {
+                switch( (*dss).getValueSet()->getDataType() )
+                {
+                    case W_DT_UNSIGNED_CHAR:
+                    case W_DT_INT16:
+                    case W_DT_SIGNED_INT:
+                        m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 0 ) );
+                        break;
+                    case W_DT_FLOAT:
+                    case W_DT_DOUBLE:
+                        m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 5 ) );
+                        break;
+                    default:
+                        WAssert( false, "Unknow data type in Data module" );
+                }
+            }
+            else
+            {
+                WAssert( false, "WDataSetSingle needed at this position." );
+            }
+            boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
+            m_matrixSelection->set( m_matrixSelectionsList->getSelector( grid->getActiveMatrix() ) );
         }
-        else
-        {
-            WAssert( false, "WDataSetSingle needed at this position." );
-        }
-        boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
-        m_matrixSelection->set( m_matrixSelectionsList->getSelector( grid->getActiveMatrix() ) );
     }
     else if( suffix == ".edf" )
     {
@@ -397,10 +401,21 @@ void WMData::moduleMain()
     }
     else
     {
-        throw WDHException( "Unknown file type: '" + suffix + "'" );
+        throw WDHException( std::string( "Unknown file type: '" + suffix + "'" ) );
     }
 
     debugLog() << "Loading data done.";
+
+    // register the dataset properties
+    m_properties->addProperty( m_dataSet->getProperties() );
+    m_infoProperties->addProperty( m_dataSet->getInformationProperties() );
+
+    // textures also provide properties
+    if ( m_dataSet->isTexture() )
+    {
+        m_properties->addProperty( m_dataSet->getTexture()->getProperties() );
+        m_infoProperties->addProperty( m_dataSet->getTexture()->getInformationProperties() );
+    }
 
     // i am interested in the active property ( manually subscribe signal )
     m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );

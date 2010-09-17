@@ -26,7 +26,12 @@
 
 #include "WLinearAlgebraFunctions.h"
 
+#ifdef USEOSSIM
+#include "WOSSIMHelper.h"
+#endif
+
 #include "WMatrix.h"
+#include "WValue.h"
 #include "WVector3D.h"
 #include "../WAssert.h"
 
@@ -285,10 +290,40 @@ WMatrix<double> invertMatrix4x4( WMatrix<double> mat )
 bool linearIndependent( const wmath::WVector3D& u, const wmath::WVector3D& v )
 {
     wmath::WVector3D cp = u.crossProduct( v );
-    if( std::abs( cp[0] ) < wlimits::FLT_EPS && std::abs( cp[1] ) < wlimits::FLT_EPS && std::abs( cp[2] ) < wlimits::FLT_EPS )
+    if( std::fabs( cp[0] ) < wlimits::DBL_EPS && std::fabs( cp[1] ) < wlimits::DBL_EPS && std::fabs( cp[2] ) < wlimits::DBL_EPS )
     {
         return false;
     }
     return true;
 }
+}
+
+void wmath::computeSVD( const wmath::WMatrix< double >& A,
+                        wmath::WMatrix< double >& U,
+                        wmath::WMatrix< double >& V,
+                        wmath::WValue< double >& S )
+{
+#ifdef USEOSSIM
+      wmath::WOSSIMHelper::computeSVD( A, U, V, S );
+#else
+      (void) A; (void) U; (void) V; (void) S; // NOLINT to prevent "unused variable" warnings
+      WAssert( false, "OpenWalnut must be compiled with OSSIM to support SVD." );
+#endif
+}
+
+wmath::WMatrix<double> wmath::pseudoInverse( const WMatrix<double>& input )
+{
+            // calc pseudo inverse
+            wmath::WMatrix< double > U( input.getNbRows(), input.getNbCols() );
+            wmath::WMatrix< double > V( input.getNbCols(), input.getNbCols() );
+            wmath::WValue< double > Svec( input.getNbCols() );
+            wmath::computeSVD( input, U, V, Svec );
+
+            // create diagonal matrix S
+            wmath::WMatrix< double > S( input.getNbCols(), input.getNbCols() );
+
+            for ( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
+              S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
+
+            return wmath::WMatrix< double >( V*S*U.transposed() );
 }

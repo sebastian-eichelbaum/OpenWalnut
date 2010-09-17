@@ -25,6 +25,8 @@
 #ifndef WWORKERTHREAD_TEST_H
 #define WWORKERTHREAD_TEST_H
 
+#include <string>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WWorkerThread.h"
@@ -127,7 +129,7 @@ class WWorkerThreadTest : public CxxTest::TestSuite
          */
         void operator() ( std::size_t, std::size_t, WBoolFlag& )
         {
-            throw WException( "Test!" );
+            throw WException( std::string( "Test!" ) );
         }
     };
 

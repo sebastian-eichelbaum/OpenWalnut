@@ -133,13 +133,16 @@ void WMMarchingCubes::moduleMain()
             // acquire data from the input connector
             m_dataSet = m_input->getData();
 
-            // set appropriate constraints for properties
-            m_isoValueProp->setMin( m_dataSet->getMin() );
-            m_isoValueProp->setMax( m_dataSet->getMax() );
-            m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ), true );
+            if( m_isoValueProp->get() >= m_dataSet->getMax() || m_isoValueProp->get() <= m_dataSet->getMin() )
+            {
+                // set appropriate constraints for properties
+                m_isoValueProp->setMin( m_dataSet->getMin() );
+                m_isoValueProp->setMax( m_dataSet->getMax() );
+                m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ), true );
+            }
         }
 
-        // update ISO surface
+        // update isosurface
         debugLog() << "Computing surface ...";
 
         boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", 2 ) );
@@ -196,7 +199,7 @@ void WMMarchingCubes::properties()
     m_nbVertices = m_infoProperties->addProperty( "Vertices", "The number of vertices in the produced mesh.", 0 );
     m_nbVertices->setMax( std::numeric_limits< int >::max() );
 
-    m_isoValueProp = m_properties->addProperty( "Iso value", "The surface will show the area that has this value.", 100., m_recompute );
+    m_isoValueProp = m_properties->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
     m_isoValueProp->setMin( wlimits::MIN_DOUBLE );
     m_isoValueProp->setMax( wlimits::MAX_DOUBLE );
     {
@@ -212,16 +215,16 @@ void WMMarchingCubes::properties()
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 
-    m_useTextureProp = m_properties->addProperty( "Use texture", "Use texturing of the surface?", false );
+    m_useTextureProp = m_properties->addProperty( "Use Texture", "Use texturing of the surface?", false );
 
-    m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
+    m_surfaceColor = m_properties->addProperty( "Surface Color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
 
     m_savePropGroup = m_properties->addPropertyGroup( "Save Surface",  "" );
-    m_saveTriggerProp = m_savePropGroup->addProperty( "Do save",  "Press!",
+    m_saveTriggerProp = m_savePropGroup->addProperty( "Do Save",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMMarchingCubes::save, this ) );
 
-    m_meshFile = m_savePropGroup->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
+    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )
@@ -348,8 +351,6 @@ void WMMarchingCubes::renderMesh()
     osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
-    state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
-
     {
         osg::ref_ptr< osg::Material > material = new osg::Material();
         material->setDiffuse(   osg::Material::FRONT, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
@@ -358,6 +359,27 @@ void WMMarchingCubes::renderMesh()
         material->setEmission(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
         material->setShininess( osg::Material::FRONT, 25.0 );
         state->setAttribute( material );
+    }
+
+    // Enable blending, select transparent bin.
+    if ( m_shaderUseTransparency )
+    {
+        state->setMode( GL_BLEND, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
+        state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+        // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
+        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
+
+        // Conversely, disable writing to depth buffer so that
+        // a transparent polygon will allow polygons behind it to shine thru.
+        // OSG renders transparent polygons after opaque ones.
+        osg::Depth* depth = new osg::Depth;
+        depth->setWriteMask( false );
+        state->setAttributeAndModes( depth, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
+
+        // Disable conflicting modes.
+        state->setMode( GL_LIGHTING,  osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF );
+        state->setMode( GL_CULL_FACE, osg::StateAttribute::OFF );
     }
 
     surfaceGeometry->setUseDisplayList( false );
@@ -448,7 +470,11 @@ void WMMarchingCubes::renderMesh()
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
+    if ( !m_moduleNodeInserted )
+    {
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
+        m_moduleNodeInserted = true;
+    }
 
     m_moduleNode->addUpdateCallback( new SurfaceNodeCallback( this ) );
 }

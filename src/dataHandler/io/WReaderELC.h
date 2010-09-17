@@ -31,13 +31,14 @@
 
 #include "WReader.h"
 #include "../WEEGPositionsLibrary.h"
+#include "../WExportDataHandler.h"
 
 
 /**
  * Read electrode positions from an ELC file.
  * \ingroup dataHandler
  */
-class WReaderELC : public WReader
+class OWDATAHANDLER_EXPORT WReaderELC : public WReader // NOLINT
 {
 public:
     /**

@@ -443,6 +443,63 @@ public:
     }
 
     /**
+     * The correct voxel numbers should be returned in a rotated grid.
+     */
+    void testRotatedVoxelNum()
+    {
+        wmath::WVector3D x( 0.707, 0.707, 0.0 );
+        wmath::WVector3D y( -0.707, 0.707, 0.0 );
+        wmath::WVector3D z( 0.0, 0.0, 1.0 );
+        x.normalize();
+        y.normalize();
+        y *= 2.0;
+        z *= 1.5;
+
+        WGridRegular3D g( 5, 5, 5, 1.0, 0.0, 0.0, x, y, z, 1.0, 1.0, 1.0 );
+
+        wmath::WVector3D v = wmath::WVector3D( 1.0, 0.0, 0.0 ) + 0.3 * z + 2.4 * y + 2.9 * x;
+
+        TS_ASSERT_EQUALS( g.getXVoxelCoordRotated( v ), 3 );
+        TS_ASSERT_EQUALS( g.getYVoxelCoordRotated( v ), 2 );
+        TS_ASSERT_EQUALS( g.getZVoxelCoordRotated( v ), 0 );
+    }
+
+    /**
+     * Positions outside of a rotated grid should return voxel positions of -1.
+     */
+    void testRotatedVoxelOutOfGrid()
+    {
+        wmath::WVector3D x( 0.707, 0.707, 0.0 );
+        wmath::WVector3D y( -0.707, 0.707, 0.0 );
+        wmath::WVector3D z( 0.0, 0.0, 1.0 );
+        x.normalize();
+        y.normalize();
+        y *= 2.0;
+        z *= 1.5;
+
+        WGridRegular3D g( 5, 5, 5, 1.0, 0.0, 0.0, x, y, z, 1.0, 1.0, 1.0 );
+
+        wmath::WVector3D v( 1.0, 0.0, 0.0 );
+        v -= wlimits::FLT_EPS * x;
+
+        TS_ASSERT_EQUALS( g.getXVoxelCoordRotated( v ), -1 );
+        TS_ASSERT_DIFFERS( g.getYVoxelCoordRotated( v ), -1 );
+        TS_ASSERT_DIFFERS( g.getZVoxelCoordRotated( v ), -1 );
+
+        v -= wlimits::FLT_EPS * z;
+
+        TS_ASSERT_EQUALS( g.getXVoxelCoordRotated( v ), -1 );
+        TS_ASSERT_DIFFERS( g.getYVoxelCoordRotated( v ), -1 );
+        TS_ASSERT_EQUALS( g.getZVoxelCoordRotated( v ), -1 );
+
+        v = wmath::WVector3D( 1.0, 0.0, 0.0 ) + ( 4.0 + wlimits::FLT_EPS ) * y;
+
+        TS_ASSERT_DIFFERS( g.getXVoxelCoordRotated( v ), -1 );
+        TS_ASSERT_EQUALS( g.getYVoxelCoordRotated( v ), -1 );
+        TS_ASSERT_DIFFERS( g.getZVoxelCoordRotated( v ), -1 );
+    }
+
+    /**
      * A voxel with voxel-coordinates 0,0,0 has only three neighbours: 1,0,0; 0,1,0 and 0,0,1.
      */
     void testNeighboursOnFrontLowerLeft( void )
@@ -493,16 +550,9 @@ public:
     void testGetCellVertexIds( void )
     {
         WGridRegular3D g( 5, 3, 3, 0, 0, 0, 1, 1, 1 );
-        std::vector< size_t > vertexIds = g.getCellVertexIds( 5 );
-        TS_ASSERT_EQUALS( vertexIds.size(), 8 );
-        TS_ASSERT_EQUALS( vertexIds[0], 6 );
-        TS_ASSERT_EQUALS( vertexIds[1], 7 );
-        TS_ASSERT_EQUALS( vertexIds[2], 11 );
-        TS_ASSERT_EQUALS( vertexIds[3], 12 );
-        TS_ASSERT_EQUALS( vertexIds[4], 21 );
-        TS_ASSERT_EQUALS( vertexIds[5], 22 );
-        TS_ASSERT_EQUALS( vertexIds[6], 26 );
-        TS_ASSERT_EQUALS( vertexIds[7], 27 );
+        size_t ids[] = { 23, 24, 28, 29, 38, 39, 43, 44 }; // NOLINT
+        std::vector< size_t > expected( ids, ids + 8 );
+        TS_ASSERT_EQUALS(  g.getCellVertexIds( 15 ), expected );
     }
 
     /**
@@ -582,6 +632,46 @@ public:
         TS_ASSERT( g.encloses( wmath::WPosition( 0, 0, 0 ) ) );
         TS_ASSERT( g.encloses( wmath::WPosition( 0.5, 0.5, 1.0 - wlimits::FLT_EPS ) ) );
         TS_ASSERT( !g.encloses( wmath::WPosition( 0.5, 0.5, 1 ) ) );
+    }
+
+    /**
+     * If a point is inside of the boundary of a grid encloses should return true, otherwise false.
+     */
+    void testEnclosesRotated()
+    {
+        wmath::WVector3D x( 0.707, 0.707, 0.0 );
+        wmath::WVector3D y( -0.707, 0.707, 0.0 );
+        wmath::WVector3D z( 0.0, 0.0, 1.0 );
+        x.normalize();
+        y.normalize();
+        y *= 2.0;
+        z *= 1.5;
+
+        WGridRegular3D g( 5, 5, 5, 1.0, 0.0, 0.0, x, y, z, 1.0, 1.0, 1.0 );
+
+        wmath::WVector3D o = wmath::WVector3D( 1.0, 0.0, 0.0 ) + 2.0 * wlimits::FLT_EPS * ( x + y + z );
+        wmath::WVector3D v = o - 4.0 * wlimits::FLT_EPS * x;
+        TS_ASSERT( !g.enclosesRotated( v ) );
+        v = o;
+        TS_ASSERT( g.enclosesRotated( v ) );
+        v = o + ( 4.0 - 4.0 * wlimits::FLT_EPS ) * x;
+        TS_ASSERT( g.enclosesRotated( v ) );
+        v += 4.0 *  wlimits::FLT_EPS * x;
+        TS_ASSERT( !g.enclosesRotated( v ) );
+
+        v = o - 4.0 * wlimits::FLT_EPS * y;
+        TS_ASSERT( !g.enclosesRotated( v ) );
+        v = o + ( 4.0 - 4.0 * wlimits::FLT_EPS ) * y;
+        TS_ASSERT( g.enclosesRotated( v ) );
+        v += 4.0 * wlimits::FLT_EPS * y;
+        TS_ASSERT( !g.enclosesRotated( v ) );
+
+        v = o - 4.0 * wlimits::FLT_EPS * z;
+        TS_ASSERT( !g.enclosesRotated( v ) );
+        v = o + ( 4.0 - 4.0 * wlimits::FLT_EPS ) * z;
+        TS_ASSERT( g.enclosesRotated( v ) );
+        v += 4.0 * wlimits::FLT_EPS * z;
+        TS_ASSERT( !g.enclosesRotated( v ) );
     }
 
 private:

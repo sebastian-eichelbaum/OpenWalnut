@@ -234,6 +234,10 @@ void WMArbitraryPlane::initPlane()
     m_s2 = boost::shared_ptr<WROISphere>( new WROISphere( m_p2, 2.5 ) );
     m_s2->setLockX();
 
+    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s0 ) );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s1 ) );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s2 ) );
+
     m_s0->getSignalIsModified()->connect( boost::bind( &WMArbitraryPlane::setDirty, this ) );
     m_s1->getSignalIsModified()->connect( boost::bind( &WMArbitraryPlane::setDirty, this ) );
     m_s2->getSignalIsModified()->connect( boost::bind( &WMArbitraryPlane::setDirty, this ) );

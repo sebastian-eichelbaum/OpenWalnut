@@ -169,10 +169,21 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
     float x = ea.getX(); // pixel position in x direction
     float y = ea.getY(); // pixel position in x direction
 
+    WPickInfo pickInfo;
+
+    if( m_shift )
+    {
+        pickInfo.setModifierKey( WPickInfo::SHIFT );
+    }
+
+    if ( m_ctrl )
+    {
+        pickInfo.setModifierKey( WPickInfo::STRG );
+    }
+
     // if we are in another viewer than the main view we just need the pixel position
     if ( m_viewerName != "" && m_viewerName != "main" )
     {
-        WPickInfo pickInfo;
         pickInfo = WPickInfo( "", m_viewerName, m_startPick.getPickPosition(), std::make_pair( x, y ),
                               m_startPick.getModifierKey(), m_mouseButton, m_startPick.getPickNormal() );
         m_hitResult = pickInfo;
@@ -238,9 +249,17 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
             }
         }
     }
+    else // if( intersetionsExist )
+    {
+        pickInfo = WPickInfo( "nothing", m_viewerName, wmath::WPosition( 0.0, 0.0, 0.0 ), std::make_pair( x, y ),
+                                      m_startPick.getModifierKey(), m_mouseButton, wmath::WVector3D( 0.0, 0.0, 0.0 ) );
+
+        m_hitResult = pickInfo;
+        m_pickSignal( getHitResult() );
+        return;
+    }
 
     // Set the new pickInfo if the previously picked is still in list or we have a pick in conjunction with previously no pick
-    WPickInfo pickInfo;
     if( startPickIsStillInList || ( intersetionsExist && ( m_startPick.getName() == "unpick" || m_startPick.getName() == "" ) ) )
     {
         // if nothing was picked before, or the previously picked was found: set new pickInfo
@@ -262,11 +281,6 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
     {
         pickInfo = WPickInfo( m_startPick.getName(), m_viewerName, m_startPick.getPickPosition(), std::make_pair( x, y ),
                               m_startPick.getModifierKey(), m_mouseButton, m_startPick.getPickNormal() );
-    }
-
-    if( m_shift )
-    {
-        pickInfo.setModifierKey( WPickInfo::SHIFT );
     }
 
     m_hitResult = pickInfo;

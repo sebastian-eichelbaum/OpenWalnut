@@ -68,7 +68,7 @@ WPropertyStringWidget::~WPropertyStringWidget()
 
 void WPropertyStringWidget::update()
 {
-    QString val = QString( m_stringProperty->get().c_str() );
+    QString val = QString::fromStdString( m_stringProperty->get() );
     m_edit.setText( val );
     m_asText.setText( val );
 }

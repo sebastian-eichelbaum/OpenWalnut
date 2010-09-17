@@ -31,8 +31,11 @@
 
 #include <boost/tuple/tuple.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+#include "WSharedSequenceContainer.h"
+#include "WItemSelectionItem.h"
 #include "WExportCommon.h"
 
 class WItemSelector;
@@ -41,34 +44,14 @@ class WItemSelector;
  * A class containing a list of named items. It is mainly a container for an std::vector but with the difference that there can be so called
  * Selectors which are able to select some subset of the item set. This is especially useful in properties where item selection is needed. The
  * class is kept very restrictive to keep the interface clean and sleek and to keep the item set consistent among several threads. So please do
- * not implement any function that might change the item list. The would cause odd behaviour of all the WItemSelector instances. Items can only
- * be added until the first Selector instance is created.
+ * not implement any function that might change the item list, use the provided ones. If the item list changes, existing selectors get invalid
+ * automatically using the change condition of the inherited WSharedSequenceContainer.
  */
-class OWCOMMON_EXPORT WItemSelection: public boost::enable_shared_from_this< WItemSelection >
+class OWCOMMON_EXPORT WItemSelection: public boost::enable_shared_from_this< WItemSelection >,
+                                      public WSharedSequenceContainer< std::vector< boost::shared_ptr< WItemSelectionItem > > >
 {
+friend class WItemSelector; // for proper locking and unlocking
 public:
-    /**
-     * For shortening, it is the type of an item.
-     */
-    typedef struct
-    {
-        /**
-         * Name
-         */
-        std::string name;
-
-        /**
-         * Description, can be empty.
-         */
-        std::string description;
-
-        /**
-         * Icon shown in the item selection box. Can be NULL.
-         */
-        const char** icon;
-    }
-    Item;
-
     /**
      * Default constructor.
      */
@@ -80,39 +63,28 @@ public:
     virtual ~WItemSelection();
 
     /**
-     * Adds an item to the list of selectable items.
-     *
-     * \param name the name
-     * \param description the description
-     * \param icon an icon to show together with this item. Useful to illustrate the selection options.
-     */
-    virtual void addItem( std::string name, std::string description, const char** icon = NULL );
-
-    /**
-     * Creates an default selection (all items selected). After the first call of this function, no more items can be added using \ref addItem.
+     * Creates an default selection (all items selected). The selector gets invalid if another item is added.
      *
      * \return an selector.
      */
     virtual WItemSelector getSelectorAll();
 
     /**
-     * Creates an default selection (no items selected). After the first call of this function, no more items can be added using \ref addItem.
+     * Creates an default selection (no items selected). The selector gets invalid if another item is added.
      *
      * \return an selector.
      */
     virtual WItemSelector getSelectorNone();
 
     /**
-     * Creates an default selection (first item selected). After the first call of this function, no more items can be added using \ref addItem.
-     * If no item is in the selection, nothing is selected.
+     * Creates an default selection (first item selected). The selector gets invalid if another item is added.
      *
      * \return an selector.
      */
     virtual WItemSelector getSelectorFirst();
 
     /**
-     * Creates an default selection (a specified items selected). After the first call of this function, no more items can be added
-     * using \ref addItem.
+     * Creates an default selection (a specified items selected). The selector gets invalid if another item is added.
      *
      * \param item the item to select.
      *
@@ -121,33 +93,28 @@ public:
     virtual WItemSelector getSelector( size_t item );
 
     /**
-     * The number of selectable items.
+     * Convenience method to create a new item.
      *
-     * \return the number of items.
+     * \param name name of the item
+     * \param description the description, can be empty
+     * \param icon the icon, can be NULL
+     *
+     * \return the Item.
      */
-    virtual size_t size() const;
+    static boost::shared_ptr< WItemSelectionItem > Item( std::string name, std::string description = "", const char** icon = NULL )
+    {
+        return boost::shared_ptr< WItemSelectionItem >( new WItemSelectionItem( name, description, icon ) );
+    }
 
     /**
-     * Gets the item with the given index. This is not the same index as the element has in the corresponding WItemSelector!
-     * This method is especially useful to iterate the through all items.
+     * Convenience method to add a new item.
      *
-     * \param index the index
+     * \param name name of the item
+     * \param description the description, can be empty
+     * \param icon the icon, can be NULL
      *
-     * \return the item
      */
-    virtual Item& at( size_t index ) const;
-
-protected:
-
-    /**
-     * List of items.
-     */
-    std::vector< Item* > m_items;
-
-    /**
-     * True if the selection can be modified.
-     */
-    bool m_modifyable;
+    void addItem( std::string name, std::string description = "", const char** icon = NULL );
 
 private:
 };

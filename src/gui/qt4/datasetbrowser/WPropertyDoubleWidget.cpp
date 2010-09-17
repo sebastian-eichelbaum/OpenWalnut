@@ -22,15 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include <sstream>
 #include <cmath>
+#include <sstream>
 #include <string>
 
 #include <boost/lexical_cast.hpp>
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPropertyVariable.h"
-
 #include "WPropertyDoubleWidget.h"
 
 WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout* propertyGrid, QWidget* parent ):
@@ -42,10 +41,6 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     m_asText( &m_informationWidgets ),
     m_infoLayout( &m_informationWidgets )
 {
-    // initialize members
-    m_edit.resize( m_edit.minimumSizeHint().width() *.8 , m_edit.size().height() );
-    m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() );
-
     // layout both against each other
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );
@@ -60,28 +55,13 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
 
     // connect the modification signal of the edit and slider with our callback
     connect( &m_slider, SIGNAL( sliderMoved( int ) ), this, SLOT( sliderChanged( int ) ) );
-    connect( &m_edit, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
+    connect( &m_edit, SIGNAL( editingFinished() ), this, SLOT( editChanged() ) );
     connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
 }
 
 WPropertyDoubleWidget::~WPropertyDoubleWidget()
 {
     // cleanup
-}
-
-/**
- * Helper function converting a double into a nice formatted string.
- *
- * \param value the value to convert
- *
- * \return a string containing the double in a nicely formatted way.
- */
-std::string toString( double value )
-{
-    std::ostringstream o;
-    o.precision( 5 );
-    o << value;
-    return o.str();
 }
 
 void WPropertyDoubleWidget::update()
@@ -95,10 +75,8 @@ void WPropertyDoubleWidget::update()
     }
     else
     {
-        WLogger::getLogger()->addLogMessage(
-                std::string( "The property has no minimum constraint. You should define it to avoid unexpected behaviour." ) +
-                std::string( "Using default (" + boost::lexical_cast< std::string >( m_min ) + ")." ),
-                "PropertyWidget( " + m_doubleProperty->getName() + " )", LL_WARNING );
+        wlog::warn( "PropertyWidget( " + m_doubleProperty->getName() + " )" ) << "The property has no minimum constraint. " <<
+            "You should define it to avoid unexpected behaviour. Using default (" << m_min << ").";
     }
 
     // get the max constraint
@@ -110,35 +88,19 @@ void WPropertyDoubleWidget::update()
     }
     else
     {
-        WLogger::getLogger()->addLogMessage(
-                std::string( "The property has no maximum constraint. You should define it to avoid unexpected behaviour." ) +
-                std::string( "Using default (" + boost::lexical_cast< std::string >( m_max ) + ")." ),
-                "PropertyWidget( " + m_doubleProperty->getName() + " )", LL_WARNING );
+        wlog::warn( "PropertyWidget( " + m_doubleProperty->getName() + " )" ) << "The property has no maximum constraint. " <<
+            "You should define it to avoid unexpected behaviour. Using default (" << m_max << ").";
     }
 
     // setup the slider
     m_slider.setMinimum( 0 );
     m_slider.setMaximum( 100 );
 
-    // calculate maximum size of the text widget.
-    // XXX: this is not the optimal way but works for now
-    // int length = m_min < 0 ? 5 : 4;   // reserve some extra space for the "-" in negative numbers
-    // double fmax = std::max( std::abs( m_min ), std::abs( m_max ) );    // use the number with the most numbers
-    // while ( ( fmax / 10 ) >= 1.0 )
-    // {
-    //     ++length;
-    //     fmax /= 10.0;
-    // }
-    int length = 6; // use fixed length to have a uniform look among several widgets
+    // // calculate maximum size of the text widget.
+    // // XXX: this is not the optimal way but works for now
+    // NO, it doesn't work on Mac OS X: You won't be able to any digits in it!, So I reset it to default which should work on other platforms too
 
-    // resize the text widget
-    //m_edit.setMaxLength( length );
-    m_edit.setMaximumWidth( m_edit.minimumSizeHint().width() * length / 2 );
-//     m_edit.setMinimumWidth( m_edit.minimumSizeHint().width() * length / 4 );
-//     m_edit.resize( m_edit.minimumSizeHint().width() * length / 2, m_edit.size().height() );
-
-    // set the initial values
-    QString valStr = QString( toString( m_doubleProperty->get() ).c_str() );
+    QString valStr = QString::number( m_doubleProperty->get() );
     m_edit.setText( valStr );
     m_slider.setValue( toPercent( m_doubleProperty->get() ) );
 
@@ -162,7 +124,7 @@ void WPropertyDoubleWidget::sliderChanged( int value )
     invalidate( !m_doubleProperty->set( fromPercent( value ) ) );    // NOTE: set automatically checks the validity of the value
 
     // set the value in the line edit
-    m_edit.setText( QString( toString( m_doubleProperty->get() ).c_str() ) );
+    m_edit.setText( QString::number( m_doubleProperty->get() ) );
 }
 
 void WPropertyDoubleWidget::editChanged()

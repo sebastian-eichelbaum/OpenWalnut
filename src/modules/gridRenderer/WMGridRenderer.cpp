@@ -86,9 +86,9 @@ void WMGridRenderer::moduleMain()
     ready();
 
     // loop until the module container requests the module to quit
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
-        if ( !m_input->getData().get() )
+        if( !m_input->getData().get() )
         {
             // OK, the output has not yet sent data
             debugLog() << "Waiting for data ...";
@@ -99,6 +99,7 @@ void WMGridRenderer::moduleMain()
 
         m_moduleState.wait();
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
 void WMGridRenderer::render()
@@ -179,9 +180,9 @@ void WMGridRenderer::render()
 
 void WMGridRenderer::activate()
 {
-    if ( m_gridGeode )
+    if( m_gridGeode )
     {
-        if ( m_active->get() )
+        if( m_active->get() )
         {
             m_gridGeode->setNodeMask( 0xFFFFFFFF );
         }

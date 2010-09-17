@@ -45,7 +45,7 @@
  *
  * \ingroup modules
  */
-class OWKERNEL_EXPORT WMFiberDisplay : public WModule, public osg::Referenced
+class OWKERNEL_EXPORT WMFiberDisplay : public WModule
 {
 public:
     /**
@@ -128,6 +128,18 @@ protected:
      * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
      */
     void notifyTextureChange();
+
+    /**
+    * switches between fiber display and tube representation,
+    * texturing and box culling
+    * activates the neccesary shaders
+    */
+    void updateRenderModes();
+
+    /**
+    * Enable disable global or local coloring
+    */
+    void toggleColoring();
 
 private:
     /**
@@ -246,17 +258,6 @@ private:
 
     osg::ref_ptr< WROIBox > m_cullBox; //!< stores a pointer to the cull box
 
-    /**
-     * switches between fiber display and tube representation,
-     * texturing and box culling
-     * activates the neccesary shaders
-     */
-    void updateRenderModes();
-
-    /**
-     * Enable disable global or local coloring
-     */
-    void toggleColoring();
 
     /**
      * changes tube parameters
@@ -284,6 +285,42 @@ private:
      */
     void initCullBox();
 
+    /**
+    * Wrapper class for userData to prevent cyclic destructor calls
+    */
+    class userData: public osg::Referenced
+    {
+    public:
+        /**
+        * userData Constructur with shared pointer to module
+        * \param _parent pointer to the module 
+        */
+        explicit userData( boost::shared_ptr< WMFiberDisplay > _parent )
+        {
+            parent = _parent;
+        }
+
+        /**
+        * update wrapper Function
+        */
+        void update();
+
+        /**
+        * updateRenderModes wrapper Function
+        */
+        void updateRenderModes();
+
+        /**
+        * toggleColoring wrapper Function
+        */
+        void toggleColoring();
+    private:
+        /**
+        * shared pointer to the module
+        */
+        boost::shared_ptr< WMFiberDisplay > parent;
+    };
+
 
     /**
      * Node callback to handle updates properly
@@ -299,7 +336,7 @@ private:
          */
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
-            osg::ref_ptr< WMFiberDisplay > module = static_cast< WMFiberDisplay* > ( node->getUserData() );
+            osg::ref_ptr< userData > module = static_cast< userData* > ( node->getUserData() );
 
             if ( module )
             {

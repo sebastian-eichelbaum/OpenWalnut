@@ -32,9 +32,11 @@
 
 #include <osg/Texture3D>
 
+#include "../common/WProperties.h"
 #include "WDataHandlerEnums.h"
 #include "WValueSetBase.h"
 #include "WGridRegular3D.h"
+#include "WExportDataHandler.h"
 
 class WCondition;
 
@@ -44,7 +46,7 @@ class WCondition;
  * scaled from [min,max] to [0,1]. The values min and max can be retrieved by getMinValue and getMaxValue. Your shader should get them as
  * uniforms to unscale the texture to have the real value.
  */
-class WDataTexture3D
+class OWDATAHANDLER_EXPORT WDataTexture3D // NOLINT
 {
 public:
     /**
@@ -153,6 +155,24 @@ public:
     float getMaxValue();
 
     /**
+     * Sets the minimum value in the texture. Use this if the default
+     * texture scaling is not applicable. This has no effect if the texture was
+     * already uploaded.
+     *
+     * \param min the min.
+     */
+    void setMinValue( float min );
+
+    /**
+     * Sets the maximum value in the texture. Use this if the default
+     * texture scaling is not applicable. This has no effect if the texture was
+     * already uploaded.
+     *
+     * \param max the max.
+     */
+    void setMaxValue( float max );
+
+    /**
      * Gets the scaling factor to unscale [0,1] to [0, max-min]
      *
      * \return the scaling factor.
@@ -183,7 +203,34 @@ public:
      */
     void setSelectedColormap( int cmap );
 
+    /**
+     * Return a pointer to the properties object of the dataset. Add all the modifiable settings here. This allows the user to modify several
+     * properties of a dataset.
+     *
+     * \return the properties.
+     */
+    boost::shared_ptr< WProperties > getProperties() const;
+
+    /**
+     * Return a pointer to the information properties object of the dataset. The dataset intends these properties to not be modified.
+     *
+     * \return the properties.
+     */
+    boost::shared_ptr< WProperties > getInformationProperties() const;
+
 protected:
+
+    /**
+     * The property object for the dataset.
+     */
+    boost::shared_ptr< WProperties > m_properties;
+
+    /**
+     * The property object for the dataset containing only props whose purpose is "PV_PURPOSE_INFORMNATION". It is useful to define some property
+     * to only be of informational nature. The GUI does not modify them. As it is a WProperties instance, you can use it the same way as
+     * m_properties.
+     */
+    boost::shared_ptr< WProperties > m_infoProperties;
 
     /**
      * Creates a 3d texture from a dataset. This function will be overloaded for the

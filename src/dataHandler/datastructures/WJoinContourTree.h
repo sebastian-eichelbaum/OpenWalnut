@@ -33,6 +33,7 @@
 
 #include "../../common/WTransferable.h"
 #include "../WDataSetSingle.h"
+#include "../WExportDataHandler.h"
 
 /**
  * Processes a dataset for join tree computation. This is a part of those famous contur trees.
@@ -47,10 +48,10 @@
  *  - All data points are pairwise disjoint
  *
  * \note You may use this join tree also for finding the vertices belonging to the volume enclosed by the
- * biggest ISO surface for a given ISO value. Then you don't need "simulation of simplicity" to make the
+ * biggest isosurface for a given isovalue. Then you don't need "simulation of simplicity" to make the
  * data points disjoint also you don't need simplicial meshes.
  */
-class WJoinContourTree : public WTransferable
+class OWDATAHANDLER_EXPORT WJoinContourTree : public WTransferable // NOLINT
 {
 friend class WJoinContourTreeTest;
 public:
@@ -71,9 +72,9 @@ public:
     void buildJoinTree();
 
     /**
-     * For a given ISO value all the voxel which are enclosed by the biggest ISO surface are computed.
+     * For a given isovalue all the voxel which are enclosed by the biggest isosurface are computed.
      *
-     * \param isoValue The ISO value
+     * \param isoValue The isovalue
      *
      * \return Set of voxel indices
      */
@@ -110,7 +111,7 @@ protected:
 
 private:
     boost::shared_ptr< WGridRegular3D > m_grid; //!< Stores the reference to the grid of the given dataset to get the neighbours of a voxel
-    boost::shared_ptr< WValueSet< double > > m_valueSet; //!< Stores reference to the ISO values, so we may sort them indirect on their value
+    boost::shared_ptr< WValueSet< double > > m_valueSet; //!< Stores reference to the isovalues, so we may sort them indirect on their value
 
     std::vector< size_t > m_elementIndices; //!< Stores the component number for the i'th vertex in the value set
     std::vector< size_t > m_joinTree; //!< For each index stores which node it is connected to
@@ -130,7 +131,7 @@ private:
         explicit IndirectCompare( boost::shared_ptr< WValueSet< double > > valueSet );
 
         /**
-         * Compares the ISO value of the elments with index i and j.
+         * Compares the isovalue of the elments with index i and j.
          *
          * \param i The index of the first element
          * \param j The index of the other element
@@ -141,7 +142,7 @@ private:
         bool operator()( size_t i, size_t j );
 
     private: // NOLINT
-        boost::shared_ptr< WValueSet < double > > m_valueSet; //!< Reference to the ISO values
+        boost::shared_ptr< WValueSet < double > > m_valueSet; //!< Reference to the isovalues
     };
 };
 

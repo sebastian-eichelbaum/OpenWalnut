@@ -22,16 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
+#include <map>
 #include <string>
+#include <vector>
 
 #include <osg/LightModel>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/datastructures/WTriangleMesh.h"
+#include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WTriangleMesh2.h"
-
-#include "WMTriangleMeshRenderer.h"
+#include "../../kernel/WKernel.h"
 #include "trianglemeshrenderer.xpm"
+#include "WMTriangleMeshRenderer.h"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMTriangleMeshRenderer )
@@ -72,11 +74,17 @@ const std::string WMTriangleMeshRenderer::getDescription() const
 
 void WMTriangleMeshRenderer::connectors()
 {
-    m_input = boost::shared_ptr< WModuleInputData < WTriangleMesh2  > >(
-        new WModuleInputData< WTriangleMesh2 >( shared_from_this(), "in", "The mesh to display" )
+    m_meshInput = boost::shared_ptr< WModuleInputData < WTriangleMesh2 > >(
+        new WModuleInputData< WTriangleMesh2 >( shared_from_this(), "mesh", "The mesh to display" )
         );
 
-    addConnector( m_input );
+    addConnector( m_meshInput );
+
+    m_colorMapInput = boost::shared_ptr< WModuleInputData < WColoredVertices > >(
+        new WModuleInputData< WColoredVertices >( shared_from_this(), "colorMap", "The special colors" )
+        );
+
+    addConnector( m_colorMapInput );
 
     // call WModules initialization
     WModule::connectors();
@@ -84,16 +92,40 @@ void WMTriangleMeshRenderer::connectors()
 
 void WMTriangleMeshRenderer::properties()
 {
+    m_meshColor   = m_properties->addProperty( "Mesh Color", "Color of the mesh.", WColor( .9f, .9f, 0.9f ) );
+    m_mainComponentOnly = m_properties->addProperty( "Main Component", "Main component only", false );
     m_opacityProp = m_properties->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 }
 
+/**
+ * Compares two WTrianglesMeshes on their size of vertices. This is private here since it makes sense only to this module ATM.
+ */
+struct WMeshSizeComp
+{
+    /**
+     * Comparator on num vertex of two WTriangleMeshes
+     *
+     * \param m First Mesh
+     * \param n Second Mesh
+     *
+     * \return True if and only if the first Mesh has less vertices as the second mesh.
+     */
+    bool operator()( const boost::shared_ptr< WTriangleMesh2 >& m, const boost::shared_ptr< WTriangleMesh2 >& n ) const
+    {
+        return m->vertSize() < n->vertSize();
+    }
+};
+
 void WMTriangleMeshRenderer::moduleMain()
 {
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_meshInput->getDataChangedCondition() );
+    m_moduleState.add( m_colorMapInput->getDataChangedCondition() );
+    m_moduleState.add( m_meshColor->getCondition() );
+    m_moduleState.add( m_mainComponentOnly->getCondition() );
 
     // signal ready state
     ready();
@@ -113,15 +145,27 @@ void WMTriangleMeshRenderer::moduleMain()
             break;
         }
         // invalid data
-        boost::shared_ptr< WTriangleMesh2 > mesh = m_input->getData();
+        boost::shared_ptr< WTriangleMesh2 > mesh = m_meshInput->getData();
         if ( !mesh )
         {
             debugLog() << "Invalid Data. Disabling.";
             continue;
         }
-
-        renderMesh( mesh );
+        debugLog() << "Start rendering Mesh";
+        if( m_mainComponentOnly->get( true ) )
+        {
+            debugLog() << "Start mesh decomposition";
+            boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > m_components = tm_utils::componentDecomposition( *mesh );
+            debugLog() << "Decomposing mesh done";
+            renderMesh( *std::max_element( m_components->begin(), m_components->end(), WMeshSizeComp() ) );
+        }
+        else
+        {
+            renderMesh( mesh );
+        }
+        debugLog() << "Rendering Mesh done";
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
 void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
@@ -130,49 +174,61 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh2 > mes
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
-    osg::Vec3Array* vertices = new osg::Vec3Array;
-    for( size_t i = 0; i < mesh->vertSize(); ++i )
-    {
-        // wmath::WPosition vertPos;
-        // vertPos = mesh->getVertex( i );
-        vertices->push_back( mesh->getVertex( i ) );
-    }
-    surfaceGeometry->setVertexArray( vertices );
+    surfaceGeometry->setVertexArray( mesh->getVertexArray() );
 
     osg::DrawElementsUInt* surfaceElement;
 
     surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
-    for( unsigned int triId = 0; triId < mesh->triangleSize(); ++triId )
+
+    std::vector< size_t > tris = mesh->getTriangles();
+    surfaceElement->reserve( tris.size() );
+
+    for( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
     {
-            surfaceElement->push_back( mesh->getTriVertId0( triId ) );
-            surfaceElement->push_back( mesh->getTriVertId1( triId ) );
-            surfaceElement->push_back( mesh->getTriVertId2( triId ) );
+        surfaceElement->push_back( tris[vertId] );
     }
     surfaceGeometry->addPrimitiveSet( surfaceElement );
 
     // ------------------------------------------------
     // normals
-    // osg::ref_ptr< osg::Vec3Array> normals( new osg::Vec3Array() );
-
-    // mesh->computeVertNormals(); // time consuming
-    // for( unsigned int vertId = 0; vertId < mesh->getNumVertices(); ++vertId )
-    // {
-    //     wmath::WVector3D tmpNormal = mesh->getVertexNormal( vertId );
-    //     normals->push_back( osg::Vec3( tmpNormal[0], tmpNormal[1], tmpNormal[2] ) );
-    // }
     surfaceGeometry->setNormalArray( mesh->getVertexNormalArray() );
     surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
     m_surfaceGeode->addDrawable( surfaceGeometry );
     osg::StateSet* state = m_surfaceGeode->getOrCreateStateSet();
 
+
     // ------------------------------------------------
     // colors
-    osg::Vec4Array* colors = new osg::Vec4Array;
+    osg::ref_ptr< osg::Vec4Array > colors   = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    boost::shared_ptr< WColoredVertices > colorMap = m_colorMapInput->getData();
 
-    colors->push_back( osg::Vec4( .3f, .3f, 0.3f, 1.0f ) );
-    surfaceGeometry->setColorArray( colors );
-    surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    if( !colorMap.get() || m_meshColor->changed() )
+    {
+        debugLog() << "No Color Map found, using a single color";
+        colors->push_back( wge::osgColor( m_meshColor->get( true ) ) );
+        surfaceGeometry->setColorArray( colors );
+        surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    }
+    else
+    {
+        debugLog() << "Color Map found... using it";
+        for( size_t i = 0; i < mesh->vertSize(); ++i )
+        {
+            colors->push_back( wge::osgColor( m_meshColor->get() ) );
+        }
+        for( std::map< size_t, WColor >::const_iterator vc = colorMap->getData().begin(); vc != colorMap->getData().end(); ++vc )
+        {
+            // ATTENTION: the colormap might not be available and hence an old one, but the new mesh might have triggered the update
+            if( vc->first < colors->size() )
+            {
+                colors->at( vc->first ) = wge::osgColor( vc->second );
+            }
+        }
+
+        surfaceGeometry->setColorArray( colors );
+        surfaceGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    }
 
     osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
     lightModel->setTwoSided( true );
@@ -189,9 +245,12 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh2 > mes
         state->setAttribute( material );
     }
 
+    state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", m_opacityProp->get( true ) ) ) );
+
     m_moduleNode->insert( m_surfaceGeode );
     m_shader = osg::ref_ptr< WShader > ( new WShader( "WMTriangleMeshRenderer", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
+
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 

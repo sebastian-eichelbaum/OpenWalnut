@@ -30,6 +30,8 @@
 #include <cstddef>
 #include <limits>
 
+#include <boost/math/special_functions/fpclassify.hpp> // isnan, isinf
+
 /**
  * Project wide limits for different quantitities.
  */
@@ -79,6 +81,38 @@ namespace wlimits
      * Smallest float such: 1.0 + FLT_EPS == 1.0 is still true.
      */
     const float FLT_EPS = std::numeric_limits< float >::epsilon();
+
+    /**
+     * Determines if a number is considered as NaN (aka Not a Number) or not.
+     *
+     * \note The reason for using here a wrapper to cmath's isnan is that it is only included in C99 which is not part of any existing C++ standard yet.
+     *
+     * \param value The value to be checked
+     *
+     * \return True if the value is a NaN, false otherwise.
+     */
+    template< typename T > bool isnan( T value );
+
+    /**
+     * Determines if a number is considered as infinity or not.
+     *
+     * \note The reason for using here a wrapper to cmath's isinf is that it is only included in C99 which is not part of any existing C++ standard yet.
+     *
+     * \param value The value to be checked
+     *
+     * \return True if the value is infinity, false otherwise.
+     */
+    template< typename T > bool isinf( T value );
+}
+
+template< typename T > bool wlimits::isnan( T value )
+{
+    return boost::math::isnan( value );
+}
+
+template< typename T > bool wlimits::isinf( T value )
+{
+    return boost::math::isinf( value );
 }
 
 #endif  // WLIMITS_H

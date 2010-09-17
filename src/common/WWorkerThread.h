@@ -36,7 +36,7 @@
 #include "WThreadedRunner.h"
 
 /**
- * A worker thread that belongs to a WThreadedFunction object.
+ * A worker thread that belongs to a \see WThreadedFunction object.
  */
 template< class Function_T >
 class WWorkerThread : public WThreadedRunner

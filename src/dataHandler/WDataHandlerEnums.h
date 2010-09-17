@@ -70,7 +70,7 @@ struct DataType
  * Specialization for a specific datatype.
  */
 template<>
-struct DataType< char >
+struct DataType< signed char >
 {
     //! the dataType flag
     static dataType const type = W_DT_INT8;

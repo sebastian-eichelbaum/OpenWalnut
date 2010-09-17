@@ -37,6 +37,7 @@
 #include "../exceptions/WDHNoSuchFile.h"
 #include "../exceptions/WDHParseError.h"
 #include "WReader.h"
+#include "../WExportDataHandler.h"
 
 /**
  * Reads fibers from a VTK file. For VTK just see http://www.vtk.org.
@@ -46,7 +47,7 @@
  *
  * \ingroup dataHandler
  */
-class WReaderFiberVTK : public WReader
+class OWDATAHANDLER_EXPORT WReaderFiberVTK : public WReader // NOLINT
 {
 friend class WReaderFiberVTKTest;
 public:
@@ -146,7 +147,7 @@ template< typename T > inline T WReaderFiberVTK::getLexicalCast( std::string str
     }
     catch( const boost::bad_lexical_cast &e )
     {
-        throw WDHParseError( "Cast error in VTK fiber file: " + m_fname + ": " + errMsg + ": " + stringValue );
+        throw WDHParseError( std::string( "Cast error in VTK fiber file: " + m_fname + ": " + errMsg + ": " + stringValue ) );
     }
 
     return result;

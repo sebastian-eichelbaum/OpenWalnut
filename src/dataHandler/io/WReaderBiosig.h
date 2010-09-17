@@ -37,13 +37,14 @@
 #include "biosig/biosig.h"
 #endif
 
+#include "../WExportDataHandler.h"
 
 /**
  * Reader for several formats for biological signal.
  * Uses BiosigC++ 4.
  * \ingroup dataHandler
  */
-class WReaderBiosig : public WReaderEEG
+class OWDATAHANDLER_EXPORT WReaderBiosig : public WReaderEEG // NOLINT
 {
 public:
     /**

@@ -55,7 +55,7 @@ WGEViewer::WGEViewer( std::string name, int x, int y,
 {
     try
     {
-        m_View = new osgViewer::Viewer();
+        m_View = osg::ref_ptr<osgViewer::Viewer>( new osgViewer::Viewer() );
         m_View->setCamera( new WGECamera( width, height, projectionMode ) );
         m_View->getCamera()->setGraphicsContext( m_GraphicsWindow.get() );
 
@@ -77,7 +77,7 @@ WGEViewer::WGEViewer( std::string name, int x, int y,
                 // no manipulators nor gui handlers
                 break;
             default:
-                throw WGEInitFailed( "Unknown projection mode" );
+                throw WGEInitFailed( std::string( "Unknown projection mode" ) );
         }
 
         // add the stats handler
@@ -85,7 +85,7 @@ WGEViewer::WGEViewer( std::string name, int x, int y,
     }
     catch( ... )
     {
-        throw WGEInitFailed( "Initialization of WGEViewer failed" );
+        throw WGEInitFailed( std::string( "Initialization of WGEViewer failed" ) );
     }
 }
 
@@ -95,7 +95,7 @@ WGEViewer::~WGEViewer()
     close();
 }
 
-osg::ref_ptr<osgViewer::View> WGEViewer::getView()
+osg::ref_ptr<osgViewer::Viewer> WGEViewer::getView()
 {
     return m_View;
 }

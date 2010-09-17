@@ -43,7 +43,7 @@
  * class that implements the various coordinate systems as overlays within the 3D view
  * \ingroup modules
  */
-class WMCoordinateSystem : public WModule, public osg::Referenced
+class WMCoordinateSystem : public WModule
 {
 public:
     /**
@@ -206,6 +206,33 @@ private:
     // boost::shared_ptr< WShader >m_shader;
 
     /**
+    * Wrapper class for userData to prevent cyclic destructor calls
+    */
+    class userData: public osg::Referenced
+    {
+        friend class WMCoordinateSystem;
+    public:
+        /**
+        * userData Constructur with shared pointer to module
+        * \param _parent pointer to the module 
+        */
+        explicit userData( boost::shared_ptr< WMCoordinateSystem > _parent )
+        {
+            m_parent = _parent;
+        }
+
+        /**
+        * updateGeometry wrapper Function
+        */
+        void updateGeometry();
+    private:
+        /**
+        * shared pointer to the module
+        */
+        boost::shared_ptr< WMCoordinateSystem > m_parent;
+    };
+
+    /**
      * Node callback to handle updates properly
      */
     class coordinateNodeCallback : public osg::NodeCallback
@@ -219,7 +246,7 @@ private:
          */
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
-            osg::ref_ptr< WMCoordinateSystem > module = static_cast< WMCoordinateSystem* > ( node->getUserData() );
+            osg::ref_ptr< userData > module = static_cast< userData* > ( node->getUserData() );
             if ( module )
             {
                 module->updateGeometry();

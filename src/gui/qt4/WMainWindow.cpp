@@ -98,11 +98,18 @@ void WMainWindow::setupGUI()
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
+
     // the dataset browser instance is needed for the menu
     m_datasetBrowser = new WQtDatasetBrowser( this );
     m_datasetBrowser->setFeatures( QDockWidget::AllDockWidgetFeatures );
     addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
     m_datasetBrowser->addSubject( "Default Subject" );
+
+    setupPermanentToolBar();
+
+    // we want the upper most tree item to be selected. This helps to make the always compatible modules
+    // show up in the tool bar from the beginning. And ... it doesn't hurt.
+    m_datasetBrowser->selectUpperMostEntry();
 
     // set the size of the dsb according to config file
     int dsbWidth = 250;
@@ -150,7 +157,7 @@ void WMainWindow::setupGUI()
     fileMenu->addSeparator();
     fileMenu->addAction( m_iconManager.getIcon( "config" ), "Config", this, SLOT( openConfigDialog() ) );
     fileMenu->addSeparator();
-    // TODO(all): If all distributions provide a newer QT version we should  use QKeySequence::Quit here
+    // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
     //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
 
@@ -169,12 +176,13 @@ void WMainWindow::setupGUI()
     // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
     // statistics ).
-    viewMenu->addAction( "Left", this, SLOT( setPresetViewLeft() ),           QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
-    viewMenu->addAction( "Right", this, SLOT( setPresetViewRight() ),         QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
-    viewMenu->addAction( "Superior", this, SLOT( setPresetViewSuperior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
-    viewMenu->addAction( "Inferior", this, SLOT( setPresetViewInferior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
-    viewMenu->addAction( "Anterior", this, SLOT( setPresetViewAnterior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
-    viewMenu->addAction( "Posterior", this, SLOT( setPresetViewPosterior() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
+    // By additionally adding the action to the main window, we ensure the action can be triggered even if the menu bar is hidden.
+    this->addAction( viewMenu->addAction( "Left", this, SLOT( setPresetViewLeft() ),           QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) ) );
+    this->addAction( viewMenu->addAction( "Right", this, SLOT( setPresetViewRight() ),         QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) ) );
+    this->addAction( viewMenu->addAction( "Superior", this, SLOT( setPresetViewSuperior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) ) );
+    this->addAction( viewMenu->addAction( "Inferior", this, SLOT( setPresetViewInferior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) ) );
+    this->addAction( viewMenu->addAction( "Anterior", this, SLOT( setPresetViewAnterior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) ) );
+    this->addAction( viewMenu->addAction( "Posterior", this, SLOT( setPresetViewPosterior() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) ) );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
     helpMenu->addAction( m_iconManager.getIcon( "help" ), "About OpenWalnut", this, SLOT( openAboutDialog() ),
@@ -212,8 +220,10 @@ void WMainWindow::setupGUI()
     // we do not need the dummy widget if there are no other widgets.
     if( m_navAxial || m_navCoronal || m_navSagittal )
     {
-        m_dummyWidget = new QDockWidget( this );
-        m_dummyWidget->setFeatures( QDockWidget::NoDockWidgetFeatures );
+        m_dummyWidget = new QDockWidget( "Spacer", this );
+        QWidget* tmp = new QWidget( m_dummyWidget );
+        m_dummyWidget->setTitleBarWidget( tmp );
+        m_dummyWidget->setFeatures( QDockWidget::DockWidgetClosable );
         m_dummyWidget->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Ignored );
         addDockWidget( Qt::LeftDockWidgetArea, m_dummyWidget );
     }
@@ -245,8 +255,6 @@ void WMainWindow::setupGUI()
             }
         }
     }
-
-    setupPermanentToolBar();
 
     //network Editor
     m_networkEditor = new WQtNetworkEditor( "Network Editor", this );
@@ -737,7 +745,7 @@ void WMainWindow::openAboutDialog()
 {
     QMessageBox::about( this, "About OpenWalnut",
                         "OpenWalnut ( http://www.openwalnut.org )\n\n"
-                        "Copyright (C) 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS. "
+                        "Copyright 2009-2010 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS. "
                         "For more information see http://www.openwalnut.org/copying.\n\n"
                         "This program comes with ABSOLUTELY NO WARRANTY. "
                         "This is free software, and you are welcome to redistribute it "

@@ -25,6 +25,7 @@
 #ifndef WUNIONFIND_TEST_H
 #define WUNIONFIND_TEST_H
 
+#include <set>
 #include <vector>
 
 #include <cxxtest/TestSuite.h>
@@ -51,6 +52,22 @@ public:
         uf.merge( 1, 3 );
         expected[1] = 3;
         TS_ASSERT_EQUALS( uf.m_component, expected );
+    }
+
+    /**
+     * Ensure that only the maximal set is returned, and nothing else.
+     */
+    void testMaxSet( void )
+    {
+        WUnionFind uf( 10 );
+        uf.merge( 0, 1 );
+        for( int i = 2; i < 6; ++i )
+        {
+            uf.merge( i, i + 1 );
+        }
+        size_t data[] = { 2, 3, 4, 5, 6 };
+        std::set< size_t > expected( data, data + 5 );
+        TS_ASSERT_EQUALS( *uf.getMaxSet(), expected );
     }
 };
 

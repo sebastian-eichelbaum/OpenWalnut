@@ -61,6 +61,7 @@ WMDetTractClustering::WMDetTractClustering()
       m_dLtTableExists( false ),
       m_update( new WCondition() )
 {
+    m_osgNode = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
 }
 
 WMDetTractClustering::~WMDetTractClustering()
@@ -117,6 +118,7 @@ void WMDetTractClustering::moduleMain()
             updateOutput();
         }
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
 }
 
 void WMDetTractClustering::properties()
@@ -286,7 +288,7 @@ void WMDetTractClustering::cluster()
     m_dLtTableExists = true;
 
     boost::shared_ptr< WProgress > eraseProgress( new WProgress( "Erasing clusters", 1 ) );
-    m_progress->addSubProgress( eraseProgress );
+//    m_progress->addSubProgress( eraseProgress );
 
     // remove empty clusters
     WFiberCluster emptyCluster;

@@ -565,6 +565,19 @@ void WMTemplate::moduleMain()
             // Now that the trigger has the state "triggered", a time consuming operation can be done here.
             debugLog() << "User triggered an important and time consuming operation.";
 
+            // We can exchange the list used for selection properties. This of course invalidates the current user selection. You should avoid
+            // changing this too often and too fast as it might confuse the user.
+            m_possibleSelections->addItem( "Beer2", "Cold and fresh.", template_bier_xpm );          // NOTE: you can add XPM images here.
+            m_possibleSelections->addItem( "Steaks2", "Medium please.",  template_steak_xpm );
+            m_possibleSelections->addItem( "Sausages2", "With Sauerkraut.", template_wurst_xpm );
+            // Each of the above write operations trigger an invalidation of all currently exiting selectors. You can create a new selector
+            // basing on an old invalid one and set it as new value for the selections:
+
+            // Now we set the new selection and selector. Calling newSelector without any argument copies the old selector and tries to resize
+            // the selection to match the new size
+            m_aSingleSelection->set( m_aSingleSelection->get().newSelector() );
+            m_aMultiSelection->set( m_aMultiSelection->get().newSelector() );
+
             // Update the output property
             m_aTriggerOutput->set( WPVBaseTypes::PV_TRIGGER_TRIGGERED );
 
@@ -596,13 +609,13 @@ void WMTemplate::moduleMain()
             // The single selector allows only one selected item and requires one item to be selected all the time. So accessing it by index
             // is trivial:
             WItemSelector s = m_aSingleSelection->get( true );
-            infoLog() << "The user likes " << s.at( 0 ).name << " the most.";
+            infoLog() << "The user likes " << s.at( 0 )->getName() << " the most.";
 
             // The multi property allows the selection of several items. So, iteration needs to be done here:
             s = m_aMultiSelection->get( true );
             for ( size_t i = 0; i < s.size(); ++i )
             {
-                infoLog() << "The user likes " << s.at( i ).name;
+                infoLog() << "The user likes " << s.at( i )->getName();
             }
         }
     }

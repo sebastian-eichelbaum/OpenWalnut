@@ -639,6 +639,24 @@ std::ostream& tm_utils::operator<<( std::ostream& os, const WTriangleMesh2& rhs 
 
 boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > tm_utils::componentDecomposition( const WTriangleMesh2& mesh )
 {
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > result( new std::list< boost::shared_ptr< WTriangleMesh2 > >() );
+    if( mesh.vertSize() <= 0 ) // no component possible
+    {
+        return result;
+    }
+    if( mesh.triangleSize() < 3 )
+    {
+        if( mesh.vertSize() > 0 )
+        {
+            // there are vertices but no triangles
+            WAssert( false, "Not implemented the decomposition of a TriangleMesh without any triangles" );
+        }
+        else // no component possible
+        {
+            return result;
+        }
+    }
+
     WUnionFind uf( mesh.vertSize() ); // idea: every vertex in own component, then successivley join in accordance with the triangles
 
     const std::vector< size_t >& triangles = mesh.getTriangles();
@@ -686,10 +704,9 @@ boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > tm_utils::
         }
     }
 
-    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > result( new std::list< boost::shared_ptr< WTriangleMesh2 > >() );
     for( std::map< size_t, BucketType >::const_iterator cit = buckets.begin(); cit != buckets.end(); ++cit )
     {
-        osg::ref_ptr< osg::Vec3Array > newVertices;
+        osg::ref_ptr< osg::Vec3Array > newVertices( new osg::Vec3Array );
         newVertices->resize( cit->second.first.size() );
         for( VertexType::const_iterator vit = cit->second.first.begin(); vit != cit->second.first.end(); ++vit )
         {

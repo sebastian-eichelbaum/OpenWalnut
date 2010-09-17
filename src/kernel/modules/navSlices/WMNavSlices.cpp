@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <algorithm>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
@@ -287,14 +288,18 @@ void WMNavSlices::create()
 
     rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
-    m_rootNode->setUserData( this );
-    m_slicesNode->setUserData( this );
-    m_xSliceNode->setUserData( this );
-    m_ySliceNode->setUserData( this );
-    m_zSliceNode->setUserData( this );
-    m_xCrossNode->setUserData( this );
-    m_yCrossNode->setUserData( this );
-    m_zCrossNode->setUserData( this );
+    osg::ref_ptr< userData > usrData = osg::ref_ptr< userData >(
+        new userData( boost::shared_dynamic_cast< WMNavSlices >( shared_from_this() ) )
+        );
+
+    m_rootNode->setUserData( usrData );
+    m_slicesNode->setUserData( usrData );
+    m_xSliceNode->setUserData( usrData );
+    m_ySliceNode->setUserData( usrData );
+    m_zSliceNode->setUserData( usrData );
+    m_xCrossNode->setUserData( usrData );
+    m_yCrossNode->setUserData( usrData );
+    m_zCrossNode->setUserData( usrData );
     m_slicesNode->addUpdateCallback( new sliceNodeCallback );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_slicesNode );
@@ -306,6 +311,9 @@ void WMNavSlices::create()
         viewer->getScene()->insert( m_zSliceNode );
         viewer->getScene()->insert( m_zCrossNode );
         viewer->setCameraManipulator( 0 );
+
+        m_axialWidgetWidth = static_cast< int >( viewer->getCamera()->getViewport()->width() );
+        m_axialWidgetHeight = static_cast< int >( viewer->getCamera()->getViewport()->height() );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
@@ -314,6 +322,9 @@ void WMNavSlices::create()
         viewer->getScene()->insert( m_xSliceNode );
         viewer->getScene()->insert( m_xCrossNode );
         viewer->setCameraManipulator( 0 );
+
+        m_sagittalWidgetWidth = static_cast< int >( viewer->getCamera()->getViewport()->width() );
+        m_sagittalWidgetHeight = static_cast< int >( viewer->getCamera()->getViewport()->height() );
     }
 
     viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
@@ -322,6 +333,9 @@ void WMNavSlices::create()
         viewer->getScene()->insert( m_ySliceNode );
         viewer->getScene()->insert( m_yCrossNode );
         viewer->setCameraManipulator( 0 );
+
+        m_coronalWidgetWidth = static_cast< int >( viewer->getCamera()->getViewport()->width() );
+        m_coronalWidgetHeight = static_cast< int >( viewer->getCamera()->getViewport()->height() );
     }
 }
 
@@ -330,48 +344,58 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
     // handle the pick information on the slice views
     if ( pickInfo.getViewerName() != "main" && pickInfo.getViewerName() != "" )
     {
-        osg::ref_ptr< osg::Viewport > port;
-        port= WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" )->getCamera()->getViewport();
-        float axialWidgetWidth = port->width();
-        float axialWidgetHeight = port->height();
-
-        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" )->getCamera()->getViewport();
-        float sagittalWidgetWidth = port->width();
-        float sagittalWidgetHeight = port->height();
-
-        port = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" )->getCamera()->getViewport();
-        float coronalWidgetWidth = port->width();
-        float coronalWidgetHeight = port->height();
-
         // this uses fixed windows size of 150x150 pixel
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
-        float x = pickInfo.getPickPixelPosition().first;
-        float y = pickInfo.getPickPixelPosition().second;
-        float xPos;
-        float yPos;
-        float width;
-        float height;
-        float left, top;
+        double x = static_cast< double >( pickInfo.getPickPixelPosition().first );
+        double y = static_cast< double >( pickInfo.getPickPixelPosition().second );
+        double xPos = 0.0;
+        double yPos = 0.0;
+        double width;
+        double height;
+        double left, top;
+        double aspectR;
+        double scale;
+        double MStPX;
+        double MStPY;
+        double scale1;
+        double scale2;
+        double m1;
+        double m2;
+        double sizeX;
+        double sizeY;
         // z slice
         if ( pickInfo.getViewerName() == "Axial View" )
         {
-            width = m_bb.second[0] - m_bb.first[0];
-            height = m_bb.second[1] - m_bb.first[1];
+            width = m_bb.second[0] - m_bb.first[0] + 1;
+            height = m_bb.second[1] - m_bb.first[1] + 1;
             left = m_bb.first[0];
             top = m_bb.first[1];
 
-            if ( width > height )
+            aspectR = static_cast< double >( m_axialWidgetWidth ) / static_cast< double >( m_axialWidgetHeight );
             {
-                xPos = ( x / axialWidgetWidth ) * width + left;
-                yPos = ( y / axialWidgetHeight ) * width - ( width - height ) / 2 + top;
+                MStPX = 240.0 * aspectR / static_cast< double >( m_axialWidgetWidth );
+                MStPY = 240.0 / static_cast< double >( m_axialWidgetHeight );
+                scale1 = 240.0 * aspectR / width;
+                scale2 = 240.0 / height;
+                m1 = height * scale1 / MStPY;
+                m2 = width  * scale2 / MStPX;
+
+                if( m1 <= static_cast< double >( m_axialWidgetHeight ) && m2 <= static_cast< double >( m_axialWidgetWidth ) )
+                    scale = std::max( scale1, scale2 );
+                else
+                    if ( m2 > static_cast< double >( m_axialWidgetWidth ) )
+                        scale = scale1;
+                    else
+                        scale = scale2;
+
+                sizeX = width * scale / MStPX;
+                sizeY = height * scale / MStPY;
+                xPos = ( ( x - ( static_cast< double >( m_axialWidgetWidth ) - sizeX ) / 2 ) / sizeX ) * width + left;
+                yPos = ( ( y - ( static_cast< double >( m_axialWidgetHeight ) - sizeY ) / 2 ) / sizeY ) * height + top;
             }
-            else
-            {
-                xPos = ( x / axialWidgetWidth ) * height - ( height - width ) / 2 + left;
-                yPos = ( y / axialWidgetHeight ) * height + top;
-            }
+
             xPos = xPos < m_bb.first[0] ? m_bb.first[0] : xPos;
             xPos = xPos > m_bb.second[0] ? m_bb.second[0] : xPos;
             yPos = yPos < m_bb.first[1] ? m_bb.first[1] : yPos;
@@ -384,20 +408,32 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         // x slice
         if ( pickInfo.getViewerName() == "Sagittal View" )
         {
-            width = m_bb.second[1] - m_bb.first[1];
-            height = m_bb.second[2] - m_bb.first[2];
+            width = m_bb.second[1] - m_bb.first[1] + 1;
+            height = m_bb.second[2] - m_bb.first[2] + 1;
             left = m_bb.first[1];
             top = m_bb.first[2];
 
-            if ( width > height )
+            aspectR = static_cast< double >( m_sagittalWidgetWidth ) / static_cast< double >( m_sagittalWidgetHeight );
             {
-                xPos = ( x / sagittalWidgetWidth ) * width + left;
-                yPos = ( y / sagittalWidgetHeight ) * width - ( width - height ) / 2 + top;
-            }
-            else
-            {
-                xPos = ( x / sagittalWidgetWidth ) * height - ( height - width ) / 2 + left;
-                yPos = ( y / sagittalWidgetHeight ) * height + top;
+                MStPX = 240.0 * aspectR / static_cast< double >( m_sagittalWidgetWidth );
+                MStPY = 240.0 / static_cast< double >( m_sagittalWidgetHeight );
+                scale1 = 240.0 * aspectR / width;
+                scale2 = 240.0 / height;
+                m1 = height * scale1 / MStPY;
+                m2 = width  * scale2 / MStPX;
+
+                if( m1 <= static_cast< double >( m_sagittalWidgetHeight ) && m2 <= static_cast< double >( m_sagittalWidgetWidth ) )
+                    scale = std::max( scale1, scale2 );
+                else
+                    if ( m2 > static_cast< double >( m_sagittalWidgetWidth ) )
+                        scale = scale1;
+                    else
+                        scale = scale2;
+
+                sizeX = width * scale / MStPX;
+                sizeY = height * scale / MStPY;
+                xPos = ( ( x - ( static_cast< double >( m_sagittalWidgetWidth ) - sizeX ) / 2 ) / sizeX ) * width + left;
+                yPos = ( ( y - ( static_cast< double >( m_sagittalWidgetHeight ) - sizeY ) / 2 ) / sizeY ) * height + top;
             }
             xPos = m_bb.second[1] - xPos + left;
             xPos = xPos < m_bb.first[1] ? m_bb.first[1] : xPos;
@@ -412,20 +448,32 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         // y slice
         if ( pickInfo.getViewerName() == "Coronal View" )
         {
-            width = m_bb.second[0] - m_bb.first[0];
-            height = m_bb.second[2] - m_bb.first[2];
+            width = m_bb.second[0] - m_bb.first[0] + 1;
+            height = m_bb.second[2] - m_bb.first[2] + 1;
             left = m_bb.first[0];
             top = m_bb.first[2];
 
-            if ( width > height )
+            aspectR = static_cast< double >( m_coronalWidgetWidth ) / static_cast< double >( m_coronalWidgetHeight );
             {
-                xPos = ( x / coronalWidgetWidth ) * width + left;
-                yPos = ( y / coronalWidgetHeight ) * width - ( width - height ) / 2 + top;
-            }
-            else
-            {
-                xPos = ( x / coronalWidgetWidth ) * height - ( height - width ) / 2 + left;
-                yPos = ( y / coronalWidgetHeight ) * height + top;
+                MStPX = 240.0 * aspectR / static_cast< double >( m_coronalWidgetWidth );
+                MStPY = 240.0 / static_cast< double >( m_coronalWidgetHeight );
+                scale1 = 240.0 * aspectR / width;
+                scale2 = 240.0 / height;
+                m1 = height * scale1 / MStPY;
+                m2 = width  * scale2 / MStPX;
+
+                if( m1 <= static_cast< double >( m_sagittalWidgetHeight ) && m2 <= static_cast< double >( m_coronalWidgetWidth ) )
+                    scale = std::max( scale1, scale2 );
+                else
+                    if ( m2 > static_cast< double >( m_coronalWidgetWidth ) )
+                        scale = scale1;
+                    else
+                        scale = scale2;
+
+                sizeX = width * scale / MStPX;
+                sizeY = height * scale / MStPY;
+                xPos = ( ( x - ( static_cast< double >( m_coronalWidgetWidth ) - sizeX ) / 2 ) / sizeX ) * width + left;
+                yPos = ( ( y - ( static_cast< double >( m_coronalWidgetHeight ) - sizeY ) / 2 ) / sizeY ) * height + top;
             }
             xPos = xPos < m_bb.first[0] ? m_bb.first[0] : xPos;
             xPos = xPos > m_bb.second[0] ? m_bb.second[0] : xPos;
@@ -740,26 +788,26 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
     {
     case 0:
         {
-            vertices.push_back( wmath::WPosition( xPos - 0.5f, miny, zPos ) );
-            vertices.push_back( wmath::WPosition( xPos - 0.5f, maxy, zPos ) );
-            vertices.push_back( wmath::WPosition( xPos - 0.5f, yPos, minz ) );
-            vertices.push_back( wmath::WPosition( xPos - 0.5f, yPos, maxz ) );
+            vertices.push_back( wmath::WPosition( xPos - 1.0f, miny, zPos ) );
+            vertices.push_back( wmath::WPosition( xPos - 1.0f, maxy, zPos ) );
+            vertices.push_back( wmath::WPosition( xPos - 1.0f, yPos, minz ) );
+            vertices.push_back( wmath::WPosition( xPos - 1.0f, yPos, maxz ) );
             break;
         }
     case 1:
         {
-            vertices.push_back( wmath::WPosition( minx, yPos - 0.5f, zPos ) );
-            vertices.push_back( wmath::WPosition( maxx, yPos - 0.5f, zPos ) );
-            vertices.push_back( wmath::WPosition( xPos, yPos - 0.5f, minz ) );
-            vertices.push_back( wmath::WPosition( xPos, yPos - 0.5f, maxz ) );
+            vertices.push_back( wmath::WPosition( minx, yPos - 1.0f, zPos ) );
+            vertices.push_back( wmath::WPosition( maxx, yPos - 1.0f, zPos ) );
+            vertices.push_back( wmath::WPosition( xPos, yPos - 1.0f, minz ) );
+            vertices.push_back( wmath::WPosition( xPos, yPos - 1.0f, maxz ) );
             break;
         }
     case 2:
         {
-            vertices.push_back( wmath::WPosition( minx, yPos, zPos + 0.5f ) );
-            vertices.push_back( wmath::WPosition( maxx, yPos, zPos + 0.5f ) );
-            vertices.push_back( wmath::WPosition( xPos, miny, zPos + 0.5f ) );
-            vertices.push_back( wmath::WPosition( xPos, maxy, zPos + 0.5f ) );
+            vertices.push_back( wmath::WPosition( minx, yPos, zPos + 1.0f ) );
+            vertices.push_back( wmath::WPosition( maxx, yPos, zPos + 1.0f ) );
+            vertices.push_back( wmath::WPosition( xPos, miny, zPos + 1.0f ) );
+            vertices.push_back( wmath::WPosition( xPos, maxy, zPos + 1.0f ) );
             break;
         }
     }
@@ -796,6 +844,54 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
 
 void WMNavSlices::updateGeometry()
 {
+    {
+        osg::ref_ptr< osg::Viewport > port;
+        boost::shared_ptr< WGEViewer > viewer;
+        int axialWidgetWidth = 0;
+        int axialWidgetHeight = 0;
+        int sagittalWidgetWidth = 0;
+        int sagittalWidgetHeight = 0;
+        int coronalWidgetWidth = 0;
+        int coronalWidgetHeight = 0;
+        // the view might not exists. Check for NULL here.
+        viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
+        if ( viewer )
+        {
+            port = viewer->getCamera()->getViewport();
+            axialWidgetWidth = static_cast< int >( port->width() );
+            axialWidgetHeight = static_cast< int >( port->height() );
+        }
+
+        viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
+        if ( viewer )
+        {
+            port = viewer->getCamera()->getViewport();
+            sagittalWidgetWidth = static_cast< int >( port->width() );
+            sagittalWidgetHeight = static_cast< int >( port->height() );
+        }
+
+        viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
+        if ( viewer )
+        {
+            port = viewer->getCamera()->getViewport();
+            coronalWidgetWidth = static_cast< int >( port->width() );
+            coronalWidgetHeight = static_cast< int >( port->height() );
+        }
+
+        if ( axialWidgetWidth    != m_axialWidgetWidth    || axialWidgetHeight    != m_axialWidgetHeight    ||
+             sagittalWidgetWidth != m_sagittalWidgetWidth || sagittalWidgetHeight != m_sagittalWidgetHeight ||
+             coronalWidgetWidth  != m_coronalWidgetWidth  || coronalWidgetHeight  != m_coronalWidgetHeight )
+        {
+            m_axialWidgetWidth     = axialWidgetWidth;
+            m_axialWidgetHeight    = axialWidgetHeight;
+            m_sagittalWidgetWidth  = sagittalWidgetWidth;
+            m_sagittalWidgetHeight = sagittalWidgetHeight;
+            m_coronalWidgetWidth   = coronalWidgetWidth;
+            m_coronalWidgetHeight  = coronalWidgetHeight;
+            updateViewportMatrix();
+        }
+    }
+
     if ( m_textureChanged // Depends on call order of update routines in callback.
          || m_sagittalPos->changed()
          || m_coronalPos->changed()
@@ -1012,6 +1108,7 @@ void WMNavSlices::initUniforms( osg::StateSet* rootState )
 void WMNavSlices::updateViewportMatrix()
 {
     setMaxMinFromBoundingBox();
+
     double aspectR;
     double top, left, width, height;
     double scale;
@@ -1021,21 +1118,29 @@ void WMNavSlices::updateViewportMatrix()
     if( viewer )
     {
         currentScene = viewer->getScene();
-        aspectR = viewer->getCamera()->getViewport()->aspectRatio();
+        //aspectR = viewer->getCamera()->getViewport()->aspectRatio();
 
         left = m_bb.first[0];
         top = m_bb.first[1];
         width = m_bb.second[0] - m_bb.first[0];
         height = m_bb.second[1] - m_bb.first[1];
-        if ( width > height )
+        aspectR = static_cast< double >( m_axialWidgetWidth ) / static_cast< double >( m_axialWidgetHeight );
+
         {
-            double windowWidht = 240 * aspectR;
-            scale = windowWidht / width;
-        }
-        else
-        {
-            double windowHeight = 240;
-            scale = windowHeight / height;
+            double MStPX = 240.0 * aspectR / static_cast< double >( m_axialWidgetWidth );
+            double MStPY = 240.0 / static_cast< double >( m_axialWidgetHeight );
+            double scale1 = 240.0 * aspectR / width;
+            double scale2 = 240.0 / height;
+            double m1 = height * scale1 / MStPY;
+            double m2 = width  * scale2 / MStPX;
+
+            if( m1 <= static_cast< double >( m_axialWidgetHeight ) && m2 <= static_cast< double >( m_axialWidgetWidth ) )
+                scale = std::max( scale1, scale2 );
+            else
+            if ( m2 > static_cast< double >( m_axialWidgetWidth ) )
+                scale = scale1;
+            else
+                scale = scale2;
         }
 
         // 1. translate to center
@@ -1066,15 +1171,23 @@ void WMNavSlices::updateViewportMatrix()
         top = m_bb.first[2];
         width = m_bb.second[1] - m_bb.first[1];
         height = m_bb.second[2] - m_bb.first[2];
-        if ( width > height )
+        aspectR = static_cast< double >( m_sagittalWidgetWidth ) / static_cast< double >( m_sagittalWidgetHeight );
+
         {
-            double windowWidht = 240;
-            scale = windowWidht / height;
-        }
-        else
-        {
-            double windowHeight = 240 / aspectR;
-            scale = windowHeight / width;
+            double MStPX = 240.0 * aspectR / static_cast< double >( m_sagittalWidgetWidth );
+            double MStPY = 240.0 / static_cast< double >( m_sagittalWidgetHeight );
+            double scale1 = 240.0 * aspectR / width;
+            double scale2 = 240.0 / height;
+            double m1 = height * scale1 / MStPY;
+            double m2 = width  * scale2 / MStPX;
+
+            if( m1 <= static_cast< double >( m_sagittalWidgetHeight ) && m2 <= static_cast< double >( m_sagittalWidgetWidth ) )
+                scale = std::max( scale1, scale2 );
+            else
+                if ( m2 > static_cast< double >( m_sagittalWidgetWidth ) )
+                    scale = scale1;
+                else
+                    scale = scale2;
         }
 
         osg::Matrix rm;
@@ -1107,15 +1220,23 @@ void WMNavSlices::updateViewportMatrix()
         top = m_bb.first[2];
         width = m_bb.second[0] - m_bb.first[0];
         height = m_bb.second[2] - m_bb.first[2];
-        if ( width > height )
+        aspectR = static_cast< double >( m_coronalWidgetWidth ) / static_cast< double >( m_coronalWidgetHeight );
+
         {
-            double windowWidht = 240 * aspectR;
-            scale = windowWidht / width;
-        }
-        else
-        {
-            double windowHeight = 240;
-            scale = windowHeight / height;
+            double MStPX = 240.0 * aspectR / static_cast< double >( m_coronalWidgetWidth );
+            double MStPY = 240.0 / static_cast< double >( m_coronalWidgetHeight );
+            double scale1 = 240.0 * aspectR / width;
+            double scale2 = 240.0 / height;
+            double m1 = height * scale1 / MStPY;
+            double m2 = width  * scale2 / MStPX;
+
+            if( m1 <= static_cast< double >( m_coronalWidgetHeight ) && m2 <= static_cast< double >( m_coronalWidgetWidth ) )
+                scale = std::max( scale1, scale2 );
+            else
+                if ( m2 > static_cast< double >( m_coronalWidgetWidth ) )
+                    scale = scale1;
+                else
+                    scale = scale2;
         }
 
         osg::Matrix sm;
@@ -1136,3 +1257,12 @@ void WMNavSlices::updateViewportMatrix()
     }
 }
 
+void WMNavSlices::userData::updateGeometry()
+{
+    parent->updateGeometry();
+}
+
+void WMNavSlices::userData::updateTextures()
+{
+    parent->updateTextures();
+}
