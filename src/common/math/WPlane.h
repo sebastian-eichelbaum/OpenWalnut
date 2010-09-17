@@ -30,7 +30,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WExportDataHandler.h"
 #include "../WExportCommon.h"
 #include "WPosition.h"
 #include "WVector3D.h"

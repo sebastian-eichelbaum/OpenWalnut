@@ -33,19 +33,20 @@
 
 #include <boost/math/constants/constants.hpp>
 
-#include "../WExportCommon.h"
 #include "WPosition.h"
 #include "WVector3D.h"
 #include "WPlane.h"
 #include "WLine.h"
+
+#include "../WExportCommon.h"
 
 /**
  * Classes and functions of math module of OpenWalnut.
  */
 namespace wmath
 {
-//   Pi constants - we dont use the macro M_PI, because it is not part of the C++-standard.
-//   ref.: http://stackoverflow.com/questions/1727881/how-to-use-the-pi-constant-in-c
+    // Pi constants - we dont use the macro M_PI, because it is not part of the C++-standard.
+    // ref.: http://stackoverflow.com/questions/1727881/how-to-use-the-pi-constant-in-c
     /** the pi constant in float format */
     const float piFloat = boost::math::constants::pi<float>();
     /** the pi constant in double format */
