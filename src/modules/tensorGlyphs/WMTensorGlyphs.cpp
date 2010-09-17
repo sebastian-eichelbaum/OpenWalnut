@@ -71,7 +71,7 @@ const std::string WMTensorGlyphs::getDescription() const
 
 void WMTensorGlyphs::connectors()
 {
-	m_input = boost::shared_ptr<WModuleInputData<WDataSetSingle>>
+	m_input = boost::shared_ptr<WModuleInputData<WDataSetSingle> >
 	(
 		new WModuleInputData<WDataSetSingle>
 		(
@@ -168,7 +168,7 @@ void WMTensorGlyphs::moduleMain()
 					break;
 				}
 
-				if (newDimension < (((newOrder + 1) * (newOrder + 2)) / 2)) 
+				if (newDimension < (((newOrder + 1) * (newOrder + 2)) / 2))
 				{
 					dataValid = false;
 
@@ -190,8 +190,8 @@ void WMTensorGlyphs::moduleMain()
 
 			if (!dataValid)
 			{
-				warnLog() << "Received data with order=" << newDataSet->getValueSet()->order() 
-						  << " and dimension=" << newDataSet->getValueSet()->dimension() 
+				warnLog() << "Received data with order=" << newDataSet->getValueSet()->order()
+						  << " and dimension=" << newDataSet->getValueSet()->dimension()
 						  << " not compatible with this module. Ignoring Data.";
 			}
 

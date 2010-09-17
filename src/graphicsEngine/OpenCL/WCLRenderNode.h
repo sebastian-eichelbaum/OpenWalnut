@@ -45,6 +45,7 @@
 #else
 	#if defined (__linux__)                           // Linux TODO(all): should work on all Unix.
     #include <CL/cl.h>
+    #include <CL/cl_gl.h>
     #include <GL/gl.h>
 	#else                                             // Windows
     #include <CL/opencl.h>
@@ -488,7 +489,7 @@ class WGE_EXPORT WCLRenderNode: public osg::Node
 				/**
 				*	The WCLRenderNodes to draw.
 				*/
-				std::vector<osg::ref_ptr<WCLRenderNode>> nodes;
+				std::vector<osg::ref_ptr<WCLRenderNode> > nodes;
 
 				/**
 				*	The model view matrix to use.
@@ -531,7 +532,7 @@ class WGE_EXPORT WCLRenderNode: public osg::Node
 				/**
 				*	The WCLRenderNodes to draw.
 				*/
-				std::vector<osg::ref_ptr<WCLRenderNode>> nodes;
+				std::vector<osg::ref_ptr<WCLRenderNode> > nodes;
 
 				/**
 				*	The Number of dynamic WCLRenderNodes.

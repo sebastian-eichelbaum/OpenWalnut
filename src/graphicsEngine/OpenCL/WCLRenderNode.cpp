@@ -369,7 +369,7 @@ void WCLRenderNode::CLRenderBin::draw(osg::RenderInfo& renderInfo,osgUtil::Rende
 
 	/* initialize rendering */
 
-	for (std::vector<osg::ref_ptr<WCLRenderNode>>::iterator it = nodes.begin(); it != nodes.end(); it++)
+	for (std::vector<osg::ref_ptr<WCLRenderNode> >::iterator it = nodes.begin(); it != nodes.end(); it++)
 	{
 		(*it)->renderStart(state);
 	}
@@ -445,7 +445,7 @@ void WCLRenderNode::CLDrawBin::draw(osg::RenderInfo& renderInfo,osgUtil::RenderL
 	state.setVertexPointer(WCLRenderNode::m_drawQuad.vertices);
 	state.setTexCoordPointer(0,WCLRenderNode::m_drawQuad.coordinates);
 
-	for (std::vector<osg::ref_ptr<WCLRenderNode>>::iterator it = nodes.begin(); it != nodes.end(); it++)
+	for (std::vector<osg::ref_ptr<WCLRenderNode> >::iterator it = nodes.begin(); it != nodes.end(); it++)
 	{
 		WCLRenderNode* node = *it;
 
@@ -1032,7 +1032,7 @@ bool WCLRenderNode::initCL(PerContextInformation& perContextInfo) const
 		properties[3] = reinterpret_cast<cl_context_properties>(CGLGetCurrentContext());
 		properties[4] = 0;
 	#else
-		#ifdef UNIX
+		#ifdef __linux__
 			cl_context_properties properties[7];
 
 			properties[2] = CL_GL_CONTEXT_KHR;

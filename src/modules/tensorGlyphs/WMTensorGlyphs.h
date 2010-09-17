@@ -109,7 +109,7 @@ class WMTensorGlyphs: public WModule
 		/**
 		*	The input dataset containing the tensor data.
 		*/
-		boost::shared_ptr<WModuleInputData<WDataSetSingle>> m_input;
+		boost::shared_ptr<WModuleInputData<WDataSetSingle> > m_input;
 
 		/**
 		*	A condition used to notify about changes in several properties.
