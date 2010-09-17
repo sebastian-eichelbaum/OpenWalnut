@@ -36,6 +36,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMLineGuidedSlice.h"
+#include "lineGuidedSlice.xpm"
 
 W_LOADABLE_MODULE( WMLineGuidedSlice )
 
@@ -44,7 +45,7 @@ WMLineGuidedSlice::WMLineGuidedSlice():
     m_textureChanged( true ),
     m_isPicked( false )
 {
-    m_shader = osg::ref_ptr< WShader >( new WShader( "lineGuidedSlice" ) );
+    m_shader = osg::ref_ptr< WShader >( new WShader( "WMLineGuidedSlice" ) );
 }
 
 WMLineGuidedSlice::~WMLineGuidedSlice()
@@ -54,6 +55,11 @@ WMLineGuidedSlice::~WMLineGuidedSlice()
 boost::shared_ptr< WModule > WMLineGuidedSlice::factory() const
 {
     return boost::shared_ptr< WModule >( new WMLineGuidedSlice() );
+}
+
+const char** WMLineGuidedSlice::getXPMIcon() const
+{
+    return lineGuidedSlice_xpm;
 }
 
 const std::string WMLineGuidedSlice::getName() const
@@ -242,10 +248,10 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
     {
         const double radius = 100;
         std::vector< wmath::WPosition > vertices;
-        vertices.push_back( startPos + radius * (      sliceVec1 + sliceVec2 ) );
-        vertices.push_back( startPos + radius * ( -1 * sliceVec1 + sliceVec2 ) );
-        vertices.push_back( startPos + radius * ( -1 * sliceVec1 - sliceVec2 ) );
-        vertices.push_back( startPos + radius * (      sliceVec1 - sliceVec2 ) );
+        vertices.push_back( startPos + (      sliceVec1 + sliceVec2 ) * radius );
+        vertices.push_back( startPos + ( -1 * sliceVec1 + sliceVec2 ) * radius );
+        vertices.push_back( startPos + ( -1 * sliceVec1 - sliceVec2 ) * radius );
+        vertices.push_back( startPos + (      sliceVec1 - sliceVec2 ) * radius );
 
         const size_t nbVerts = 4;
         for( size_t i = 0; i < nbVerts; ++i )

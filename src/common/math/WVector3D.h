@@ -120,6 +120,7 @@ private:
  * Define WPosition as an alias for WVector3D
  */
 typedef WVector3D WPosition;
+
 /**
  * Writes a meaningful representation of that object to the given stream.
  *
@@ -163,7 +164,7 @@ inline std::istream& operator>>( std::istream& in, WVector3D &rhs )
  * \param lhs left hand side of product
  * \param rhs right hand side of product
  */
-inline const WVector3D operator*( osg::Vec3d::value_type lhs, const WVector3D& rhs )
+inline WVector3D operator*( osg::Vec3d::value_type lhs, const WVector3D& rhs )
 {
     WVector3D result( rhs );
     result *= lhs;

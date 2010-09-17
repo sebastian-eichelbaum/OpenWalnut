@@ -82,6 +82,11 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
 
     /**
@@ -185,7 +190,7 @@ private:
         {
             osg::ref_ptr< WMLineGuidedSlice > module = static_cast< WMLineGuidedSlice* > ( node->getUserData() );
 
-            if ( module )
+            if( module )
             {
                 module->updateGeometry();
                 module->updateTextures();

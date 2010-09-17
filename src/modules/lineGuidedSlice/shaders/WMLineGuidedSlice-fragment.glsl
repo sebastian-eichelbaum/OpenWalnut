@@ -32,13 +32,13 @@ void main()
     vec4 colFib = vec4(0.0, 0.0, 0.0, 1.0);
     vec4 colFA = vec4(0.0, 0.0, 0.0, 1.0);
 
-    if ( type1 > 0 )
+    if( type1 > 0 )
     {
         parameterColorMap( colFA, tex1, VaryingTexCoord1.xyz );
     }
     col = clamp( colFA, 0.0, 1.0 );
 
-    if ( texture3D( tex0, VaryingTexCoord0.xyz ).r < 0.2 )
+    if( texture3D( tex0, VaryingTexCoord0.xyz ).r < 0.2 )
     {
 //         if(
 //             VaryingTexCoord0.x < 0.001 || VaryingTexCoord0.x > 0.9

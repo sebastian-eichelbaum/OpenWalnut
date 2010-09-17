@@ -380,7 +380,7 @@ void WMTemplate::moduleMain()
     // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
     // connectors or on changed in your properties.
     debugLog() << "Entering main loop";
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         // Now, the moduleState variable comes into play. The module can wait for the condition, which gets fired whenever the input receives data
         // or an property changes. The main loop now waits until something happens.
@@ -397,7 +397,7 @@ void WMTemplate::moduleMain()
         // After waking up, the module has to check whether the shutdownFlag fired. If yes, simply quit the module.
 
         // woke up since the module is requested to finish
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -434,7 +434,7 @@ void WMTemplate::moduleMain()
         // there to ensure its proper deletion.
 
         // do something with the data
-        if ( dataUpdated && dataValid )
+        if( dataUpdated && dataValid )
         {
             // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
             debugLog() << "Received Data.";
@@ -446,7 +446,7 @@ void WMTemplate::moduleMain()
         //
         // To check whether a property changed, WPropertyVariable provides a changed() method which is true whenever the property has changed.
         // Please note: creating the property with addProperty( ... ) will set changed to true.
-        if ( m_aFile->changed() )
+        if( m_aFile->changed() )
         {
             // To reset the changed flag, supply a "true" to the get method. This resets the changed-flag and next loop you can again check
             // whether it has been changed externally.
@@ -458,7 +458,7 @@ void WMTemplate::moduleMain()
         }
 
         // m_aFile got handled above. Now, handle two properties which together are used as parameters for an operation.
-        if ( m_aString->changed() )
+        if( m_aString->changed() )
         {
             // This is a simple example for doing an operation which is depends on all, but m_anFile,  properties.
             debugLog() << "Doing an operation basing on m_aString ... ";
@@ -469,7 +469,7 @@ void WMTemplate::moduleMain()
 
         // This example code now shows how to modify your OSG nodes basing on changes in your dataset or properties.
         // The if statement also checks for data validity as it uses the data! You should also always do that.
-        if ( ( m_anInteger->changed() || m_aDouble->changed() || dataUpdated  ) && dataValid )
+        if( ( m_anInteger->changed() || m_aDouble->changed() || dataUpdated  ) && dataValid )
         {
             debugLog() << "Creating new OSG node";
 
@@ -492,7 +492,7 @@ void WMTemplate::moduleMain()
             osg::ref_ptr< osg::Geode > newGeode = new osg::Geode();
             // When working with the OpenSceneGraph, always use ref_ptr to store pointers to OSG objects. This allows OpenSceneGraph to manage
             // its resources automatically.
-            for ( int32_t i = 0; i < rows; ++i )
+            for( int32_t i = 0; i < rows; ++i )
             {
                 newGeode->addDrawable(
                         new osg::ShapeDrawable( new osg::Box(             osg::Vec3(  25, 128, i * 15 ), radii ) ) );
@@ -525,7 +525,7 @@ void WMTemplate::moduleMain()
         // Now we updated the visualization after the dataset has changed. Your module might also calculate some other datasets basing on the
         // input data.
         // To ensure that all datasets are valid, check dataUpdated and dataValid. If both are true, you can safely use the data.
-        if ( dataUpdated && dataValid )
+        if( dataUpdated && dataValid )
         {
             debugLog() << "Data changed. Recalculating output.";
 
@@ -539,7 +539,7 @@ void WMTemplate::moduleMain()
             int steps = 10;
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Doing work 1", steps ) );
             m_progress->addSubProgress( progress1 );
-            for ( int i = 0; i < steps; ++i )
+            for( int i = 0; i < steps; ++i )
             {
                 ++*progress1;
                 sleep( 1 );
@@ -564,7 +564,7 @@ void WMTemplate::moduleMain()
 
         // As we provided our condition to m_aTrigger too, the main thread will wake up if it changes. The GUI can change the trigger only to the
         // state "PV_TRIGGER_TRIGGERED" (this is the case if the user presses the button).
-        if ( m_aTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_aTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             // Now that the trigger has the state "triggered", a time consuming operation can be done here.
             debugLog() << "User triggered an important and time consuming operation.";
@@ -589,7 +589,7 @@ void WMTemplate::moduleMain()
             int steps = 10;
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Doing something important", steps ) );
             m_progress->addSubProgress( progress1 );
-            for ( int i = 0; i < steps; ++i )
+            for( int i = 0; i < steps; ++i )
             {
                 ++*progress1;
                 sleep( 1 );
@@ -608,7 +608,7 @@ void WMTemplate::moduleMain()
         }
 
         // This checks the selections.
-        if ( m_aMultiSelection->changed() ||  m_aSingleSelection->changed() )
+        if( m_aMultiSelection->changed() ||  m_aSingleSelection->changed() )
         {
             // The single selector allows only one selected item and requires one item to be selected all the time. So accessing it by index
             // is trivial:
@@ -617,7 +617,7 @@ void WMTemplate::moduleMain()
 
             // The multi property allows the selection of several items. So, iteration needs to be done here:
             s = m_aMultiSelection->get( true );
-            for ( size_t i = 0; i < s.size(); ++i )
+            for( size_t i = 0; i < s.size(); ++i )
             {
                 infoLog() << "The user likes " << s.at( i )->getName();
             }
@@ -638,7 +638,7 @@ void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisit
     // One note about m_aColor: As you might have notices, changing one of the properties, which recreate the OSG node, causes the material to be
     // gray again. This is simply caused by m_aColor->changed() is still false! To resolve this problem, use some m_osgNeedsUpdate boolean which
     // gets set in your thread main and checked here or, as done in this module, by checking whether the callback is called the first time.
-    if ( m_module->m_aColor->changed() || m_initialUpdate )
+    if( m_module->m_aColor->changed() || m_initialUpdate )
     {
         // Grab the color
         WColor c = m_module->m_aColor->get( true );
@@ -654,7 +654,7 @@ void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisit
 void WMTemplate::TranslateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     // Update the transformation matrix according to m_aPosition if it has changed.
-    if ( m_module->m_aPosition->changed() || m_initialUpdate )
+    if( m_module->m_aPosition->changed() || m_initialUpdate )
     {
         // The node to which this callback has been attached needs to be an osg::MatrixTransform:
         osg::ref_ptr< osg::MatrixTransform > transform = static_cast< osg::MatrixTransform* >( node );
@@ -694,7 +694,7 @@ void WMTemplate::activate()
 {
     // This method gets called, whenever the m_active property changes. Your module should always handle this if you do not use the
     // WGEManagedGroupNode for your scene. The user can (de-)activate modules in his GUI and you can handle this case here:
-    if ( m_active->get() )
+    if( m_active->get() )
     {
         debugLog() << "Activate.";
     }
