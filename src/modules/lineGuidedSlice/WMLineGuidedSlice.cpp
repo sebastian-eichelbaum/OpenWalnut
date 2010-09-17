@@ -45,7 +45,7 @@ WMLineGuidedSlice::WMLineGuidedSlice():
     m_textureChanged( true ),
     m_isPicked( false )
 {
-    m_shader = osg::ref_ptr< WShader >( new WShader( "lineGuidedSlice" ) );
+    m_shader = osg::ref_ptr< WShader >( new WShader( "WMLineGuidedSlice" ) );
 }
 
 WMLineGuidedSlice::~WMLineGuidedSlice()
