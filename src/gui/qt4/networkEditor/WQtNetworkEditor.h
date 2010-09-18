@@ -33,6 +33,7 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
 
+#include "../../../kernel/modules/data/WMData.h"
 #include "WQtNetworkScene.h"
 
 // forward declaration
@@ -63,6 +64,7 @@ public:
     /**
      * Simple method to create static test "modules"
      */
+    void addModule( WModule *module );
     void addModule();
 
 protected:
@@ -71,6 +73,8 @@ protected:
      * Reference to the main window of the application.
      */
     WMainWindow* m_mainWindow;
+
+    virtual bool event( QEvent* event );
 
 private:
 

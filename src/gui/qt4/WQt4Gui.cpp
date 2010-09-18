@@ -280,6 +280,7 @@ void WQt4Gui::slotAddDatasetOrModuleToBrowser( boost::shared_ptr< WModule > modu
 {
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleAssocEvent( module ) );
+    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleAssocEvent( module ) );
 }
 
 void WQt4Gui::slotAddRoiToBrowser( boost::shared_ptr< WRMROIRepresentation > roi )

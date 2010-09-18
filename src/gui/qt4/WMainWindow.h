@@ -79,6 +79,11 @@ public:
      * returns a pointer to the dataset browser object
      */
     WQtDatasetBrowser* getDatasetBrowser();
+ 
+    /**
+     * returns a pointer to the network editor object
+     */
+    WQtNetworkEditor* getNetworkEditor();
 
     /**
      *  returns a pointer to the ribbon menu object

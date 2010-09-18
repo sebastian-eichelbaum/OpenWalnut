@@ -38,6 +38,19 @@
 #include "WQtNetworkItem.h"
 #include "WQtNetworkPort.h"
 
+#include "../../../kernel/WKernel.h"
+#include "../../../kernel/WModule.h"
+#include "../../../kernel/WModuleFactory.h"
+#include "../events/WEventTypes.h"
+#include "../events/WModuleAssocEvent.h"
+#include "../events/WModuleConnectEvent.h"
+#include "../events/WModuleDeleteEvent.h"
+#include "../events/WModuleDisconnectEvent.h"
+#include "../events/WModuleReadyEvent.h"
+#include "../events/WModuleRemovedEvent.h"
+#include "../events/WRoiAssocEvent.h"
+#include "../events/WRoiRemoveEvent.h"
+
 
 WQtNetworkEditor::WQtNetworkEditor( QString title, WMainWindow* parent )
     : QDockWidget( title, parent )
@@ -65,10 +78,10 @@ WQtNetworkEditor::WQtNetworkEditor( QString title, WMainWindow* parent )
 
     m_panel->setLayout( m_layout );
 
-    addModule(/*Qpoint, String*/);
+    //addModule(/*Qpoint, String*/);
 
     addModule();
-    addModule();
+    //addModule();
 
     this->setAllowedAreas( Qt::RightDockWidgetArea );
     this->setWidget( m_panel );
@@ -78,7 +91,7 @@ WQtNetworkEditor::~WQtNetworkEditor()
 {
 }
 
-void WQtNetworkEditor::addModule()
+void WQtNetworkEditor::addModule( )
 {
     WQtNetworkItem *netItem = new WQtNetworkItem();
 
@@ -94,7 +107,7 @@ void WQtNetworkEditor::addModule()
     WQtNetworkPort *ipport = new WQtNetworkPort( "B", true );
     ipport->setParentItem( netItem );
 
-    QGraphicsTextItem *text = new QGraphicsTextItem( "Module " );
+    QGraphicsTextItem *text = new QGraphicsTextItem( "test" );
     text->setParentItem( netItem );
     text->setDefaultTextColor( Qt::white );
 
@@ -109,4 +122,82 @@ void WQtNetworkEditor::addModule()
     netItem->fitLook();
 
     m_scene->addItem( netItem );
+}
+
+void WQtNetworkEditor::addModule( WModule *module )
+{
+    WQtNetworkItem *netItem = new WQtNetworkItem();
+
+    QGraphicsTextItem *text = new QGraphicsTextItem( module->getName().c_str() );
+    text->setParentItem( netItem );
+    text->setDefaultTextColor( Qt::white );
+
+    WModule::InputConnectorList cons = module->getInputConnectors();
+    for ( WModule::InputConnectorList::const_iterator iter = cons.begin(); iter != cons.end(); ++iter )
+    {        
+        WQtNetworkPort *port = new WQtNetworkPort( iter->get()->getName().c_str(),
+                                                  iter->get()->isOutputConnector() );
+        port->setParentItem( netItem );
+        netItem->addPort( port );
+    }
+ 
+    WModule::OutputConnectorList outCons = module->getOutputConnectors();
+    for ( WModule::OutputConnectorList::const_iterator iter = outCons.begin(); iter != outCons.end(); ++iter )
+    {        
+        WQtNetworkPort *port = new WQtNetworkPort( iter->get()->getName().c_str(),
+                                                  iter->get()->isOutputConnector() );
+        port->setParentItem( netItem );
+        netItem->addPort( port );
+    }
+
+/*
+    WQtNetworkPort *port = new WQtNetworkPort( "A", false );
+    port->setParentItem( netItem );
+
+    WQtNetworkPort *iport = new WQtNetworkPort( "B", false );
+    iport->setParentItem( netItem );
+
+    WQtNetworkPort *pport = new WQtNetworkPort( "A", true );
+    pport->setParentItem( netItem );
+
+    WQtNetworkPort *ipport = new WQtNetworkPort( "B", true );
+    ipport->setParentItem( netItem );
+
+    netItem->addPort( port );
+    netItem->addPort( iport );
+    netItem->addPort( pport );
+    netItem->addPort( ipport );
+*/
+
+    netItem->setFlag( QGraphicsItem::ItemIsMovable );
+    netItem->setFlag( QGraphicsItem::ItemIsSelectable );
+    netItem->setTextItem( text );
+    
+    netItem->fitLook();
+
+    m_scene->addItem( netItem );
+}
+    
+
+bool WQtNetworkEditor::event( QEvent* event )
+{    
+    // a module got associated with the root container -> add it to the list
+    if ( event->type() == WQT_ASSOC_EVENT )
+    {
+        // convert event to assoc event
+        WModuleAssocEvent* e1 = dynamic_cast< WModuleAssocEvent* >( event );     // NOLINT
+        if ( e1 )
+        {
+            WLogger::getLogger()->addLogMessage( "Inserting module " + e1->getModule()->getName() +
+                                                " to network editor.",
+                                                 "NetworkEditor", LL_DEBUG );
+            addModule( ( e1->getModule() ).get() );
+        }
+        return true;
+    }
+    else
+    {
+        event->ignore();
+        return false;
+    }
 }

@@ -579,6 +579,11 @@ WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
     return m_datasetBrowser;
 }
 
+WQtNetworkEditor* WMainWindow::getNetworkEditor()
+{
+    return m_networkEditor;
+}
+
 void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
 {
     QFileDialog fd;
