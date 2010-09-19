@@ -34,7 +34,7 @@
 #include "WExportWGE.h"
 
 /**
- * Class implementing an uniform which can be controlled by an property instance. This is mainly a convenience class for
+ * Class implementing a uniform which can be controlled by a property instance. This is mainly a convenience class for
  * WGEPropertyUniformCallback (which is used here).
  *
  * \tparam the class used as controlling mechanism. The class needs to be a boost::shared_ptr to a type supporting get() method: T->get()
