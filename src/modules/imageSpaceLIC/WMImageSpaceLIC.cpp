@@ -175,7 +175,8 @@ void WMImageSpaceLIC::moduleMain()
     {
         for( unsigned int y = 0; y < resY; y++ )
         {
-            randomLuminance[ ( y * resY ) + x ] = ( unsigned char )( std::rand() % 255 );
+            randomLuminance[ ( y * resY ) + x ] = ( unsigned char )( std::rand() % 255 );       // NOLINT - stylechecker says "use rand_r" but I
+                                                                                                // am not sure about portability.
         }
     }
 

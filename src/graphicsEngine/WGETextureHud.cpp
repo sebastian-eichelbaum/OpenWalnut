@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <string>
 
 #include <osg/Camera>
 #include <osg/Geode>
@@ -135,11 +136,6 @@ void WGETextureHud::coupleViewportWithTextureViewport( bool couple )
     m_coupleTexViewport = couple;
 }
 
-class TexCoordUpdate: public osg::StateAttribute::Callback
-{
-
-};
-
 WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, std::string name, bool transparency ):
     osg::MatrixTransform(),
     m_texture( texture ),
@@ -198,8 +194,8 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
 
     // enable texture coordinate manipulation via texture matrices
     m_texMat = new osg::TexMat;
-	m_texMat->setMatrix( osg::Matrixd::identity() );
-	state->setTextureAttributeAndModes( 0, m_texMat, osg::StateAttribute::ON );
+    m_texMat->setMatrix( osg::Matrixd::identity() );
+    state->setTextureAttributeAndModes( 0, m_texMat, osg::StateAttribute::ON );
 
     // This disables colorblending of the texture with the underlying quad
     // osg::TexEnv* decalState = new osg::TexEnv();
