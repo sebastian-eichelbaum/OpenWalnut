@@ -37,7 +37,7 @@
 #include "../../kernel/WModuleOutputData.h"
 
 /**
- * Spherical harmonics glyphs usingf teem (http://teem.sourceforge.net/).
+ * Spherical harmonics glyphs using teem (http://teem.sourceforge.net/).
  * According to http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
  * Thanks to Thomas Schultz.
  *
@@ -103,7 +103,7 @@ protected:
 
 private:
     /**
-     * An input connector that accepts sperical harmonics datasets.
+     * An input connector that accepts spherical harmonics datasets.
      */
     boost::shared_ptr< WModuleInputData< WDataSetSphericalHarmonics > > m_input;
 
@@ -193,7 +193,7 @@ private:
         /**
          * Makes the radii of the glyph be distributed between [0,1]
          * \param glyph The glyph that will be normalized given as teem's limnPolyData.
-         * \param nbVertCoords Number of coords per vertex for the glyph polydata
+         * \param nbVertCoords Number of coordinates per vertex for the glyph poly-data
          */
         void minMaxNormalization( limnPolyData *glyph, const size_t& nbVertCoords );
 
