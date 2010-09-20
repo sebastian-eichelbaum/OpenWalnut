@@ -142,6 +142,11 @@ void WMTeemGlyphs::connectors()
         new WModuleInputData< WDataSetSphericalHarmonics >( shared_from_this(), "in", "The input dataset." ) );
     addConnector( m_input );
 
+    m_inputGFA = boost::shared_ptr< WModuleInputData< WDataSetScalar > >( new WModuleInputData< WDataSetScalar >( shared_from_this(),
+                "inGFA", "Generalized fractional anisotropy." )
+            );
+    addConnector( m_inputGFA );
+
 
     // call WModules initialization
     WModule::connectors();
@@ -158,6 +163,14 @@ void WMTeemGlyphs::properties()
                                                              m_sliceOrientations->getSelector( 1 ),
                                                              m_recompute );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_sliceOrientationSelection );
+
+    m_GFAThresholdProp = m_properties->addProperty( "GFA threshold", "Show only glyphs at voxels above the given generalized fractional"
+                                                    " anisotropy (GFA) threshold"
+                                                    " (if GFA data is present at input connector).",
+                                                    0.0,
+                                                    m_recompute );
+    m_GFAThresholdProp->setMin( 0 );
+    m_GFAThresholdProp->setMax( 1. );
 
     m_glyphSizeProp = m_properties->addProperty( "Glyph size", "Size of the displayed glyphs.", 0.5, m_recompute );
     m_glyphSizeProp->setMin( 0 );
@@ -217,12 +230,14 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
     boost::shared_ptr< GlyphGeneration > generator;
     generator = boost::shared_ptr< GlyphGeneration >(
                   new GlyphGeneration( boost::shared_dynamic_cast< WDataSetSphericalHarmonics >( m_input->getData() ),
+                                       boost::shared_dynamic_cast< WDataSetScalar >( m_inputGFA->getData() ),
+                                       m_GFAThresholdProp->get(),
                                        sliceId,
                                        sliceType,
                                        m_usePolarPlotProp->get(),
                                        m_glyphSizeProp->get(),
                                        m_useNormalizationProp->get() ) );
-    WThreadedFunction< GlyphGeneration > generatorThreaded( 0, generator );
+    WThreadedFunction< GlyphGeneration > generatorThreaded( W_AUTOMATIC_NB_THREADS, generator );
     generatorThreaded.run();
     generatorThreaded.wait();
 
@@ -304,13 +319,17 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
 }
 
 WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSphericalHarmonics > dataSet,
+                                                boost::shared_ptr< WDataSetScalar > dataGFA,
+                                                double thresholdGFA,
                                                 const size_t& sliceId,
                                                 const size_t& sliceType,
                                                 const bool& usePolar,
                                                 const float& scale,
                                                 const bool& useNormalization ) :
     m_dataSet( dataSet ),
+    m_dataGFA( dataGFA ),
     m_grid( boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() ) ),
+    m_thresholdGFA( thresholdGFA ),
     m_sliceType( sliceType ),
     m_usePolar( usePolar ),
     m_scale( scale ),
@@ -367,11 +386,14 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
     limnPolyDataIcoSphere( m_sphere, infoBitFlag, level );
     size_t nbVerts = m_sphere->xyzwNum;
 
-    m_vertArray = new osg::Vec3Array( nbVerts * nbGlyphs );
-    m_normals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( nbVerts * nbGlyphs ) );
-    m_colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array( nbVerts * nbGlyphs ) );
+    m_vertArray = new osg::Vec3Array();
+    m_normals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array() );
+    m_colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array() );
+    m_vertArray->resize( nbVerts * nbGlyphs );
+    m_normals->resize( nbVerts * nbGlyphs );
+    m_colors->resize( nbVerts * nbGlyphs, osg::Vec4( 0, 0, 0, 1.0 ) );
 
-    m_glyphElements = osg::ref_ptr< osg::DrawElementsUInt >( new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 ) );
+    m_glyphElements = osg::ref_ptr< osg::DrawElementsUInt >( new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES ) );
     m_glyphElements->resize( m_sphere->indxNum * nbGlyphs );
 }
 
@@ -422,6 +444,8 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
         for( size_t bId = 0; bId < m_nB; ++bId )
         {
             size_t glyphId = aId * m_nB + bId;
+
+
             size_t vertsUpToCurrentIteration = glyphId * nbVerts;
             size_t idsUpToCurrentIteration = glyphId * m_sphere->indxNum;
 
@@ -437,6 +461,22 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
                 case zSlice:
                     posId = aId + bId * m_nX + m_sliceId * m_nX * m_nY;
                     break;
+            }
+
+            //-------------------------------
+            // vertex indices
+            // We have to set them also if we do not darw the glyph becaus otherwise we would leave their
+            // to be zero. If many indices are zero, they block each other because of synchronized
+            // memory access to the same memory address.
+            for( unsigned int vertId = 0; vertId < localSphere->indxNum; ++vertId )
+            {
+                ( *m_glyphElements )[idsUpToCurrentIteration+vertId] = ( vertsUpToCurrentIteration + localSphere->indx[vertId] );
+            }
+
+            // do not compute positions of vertices if GFA below threshold
+            if(  m_dataGFA && boost::shared_static_cast< WDataSetSingle >( m_dataGFA )->getValueAt( posId ) < m_thresholdGFA )
+            {
+                continue;
             }
 
             wmath::WValue< double > coeffs = m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
@@ -483,7 +523,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
 
             if( m_useNormalization )
             {
-                    minMaxNormalization( glyph, nbVertCoords );
+                minMaxNormalization( glyph, nbVertCoords );
             }
             else
             {
@@ -492,13 +532,6 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             estimateNormalsAntipodal( glyph, normalize );
 
             wmath::WPosition glyphPos = m_grid->getPosition( posId );
-
-            //-------------------------------
-            // vertex indices
-            for( unsigned int vertId = 0; vertId < glyph->indxNum; ++vertId )
-            {
-                 ( *m_glyphElements )[idsUpToCurrentIteration+vertId] = ( vertsUpToCurrentIteration + glyph->indx[vertId] );
-            }
 
 
             for( unsigned int vertId = 0; vertId < glyph->xyzwNum; ++vertId )

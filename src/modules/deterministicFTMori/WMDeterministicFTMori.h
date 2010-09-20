@@ -44,7 +44,7 @@
 #include "../../dataHandler/WThreadedTrackingFunction.h"
 #include "../../dataHandler/WFiberAccumulator.h"
 
-#define WM_MORI_NUM_CORES 0
+#define WM_MORI_NUM_CORES W_AUTOMATIC_NB_THREADS
 
 /**
  * \class WMDeterministicFTMori
