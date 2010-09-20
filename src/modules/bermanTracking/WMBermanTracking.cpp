@@ -69,14 +69,14 @@ const char** WMBermanTracking::getXPMIcon() const
 const std::string WMBermanTracking::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
-    return "BermanTracking";
+    return "Berman Probabilistic Tracking";
 }
 
 const std::string WMBermanTracking::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
     // See "src/modules/template/" for an extensively documented example.
-    return "";
+    return "Implements the probabilistic tracking algorithm with residual bootstrapping by Berman et al.";
 }
 
 void WMBermanTracking::connectors()
