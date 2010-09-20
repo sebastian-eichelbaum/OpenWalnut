@@ -39,6 +39,8 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/WGEOffscreenRenderPass.h"
+#include "../../graphicsEngine/WGEOffscreenRenderNode.h"
 
 #include "WMImageSpaceLIC.h"
 #include "WMImageSpaceLIC.xpm"
@@ -158,9 +160,47 @@ void WMImageSpaceLIC::moduleMain()
 
     ready();
 
-    // init OSG Stuff
+    // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
+
+    // the WGEOffscreenRenderNode manages each of the render-passes for us
+    osg::ref_ptr< WGEOffscreenRenderNode > offscreen = new WGEOffscreenRenderNode(
+        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera(),
+        1024,
+        1024
+    );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
+
+    // setup all the passes needed for image space advection
+    osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass( m_output );
+    /*osg::ref_ptr< WGEOffscreen > edgeDetection = new WGEOffscreen( WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera(), 1 );
+    osg::ref_ptr< WGEOffscreen > advection = new WGEOffscreen( WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera(), 2 );
+    osg::ref_ptr< WGEOffscreen > blending = new WGEOffscreen( WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera(), 3 );*/
+    // the first render-pass needs the geometry
+  //  transformation->addChild( m_output );
+    // the others need a slice as large as the viewport on which the textures are projected so that the fragment shader can pass each fragment
+
+    // each pass needs to be rendered. The order of rendering is defined by the second construction argument
+    //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( transformation );
+    //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( edgeDetection );
+    //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( advection );
+    //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( blending );
+
+    // hardwire the textures to use for each pass:
+
+    // Transformation Pass, needs Geometry
+    //  * Creates 2D projected Vectors in RG
+    //  * Lighting in B
+    //  * Noise mapping in A
+    //  * Depth
+    osg::ref_ptr< osg::Texture2D > transformationOut1  = transformation->attach( osg::Camera::COLOR_BUFFER0 );
+    osg::ref_ptr< osg::Texture2D > transformationDepth = transformation->attach( osg::Camera::DEPTH_BUFFER );
+
+    // Edge Detection Pass, needs Depth
+    //  * Depth in R
+    //  * Edges in G
+//    osg::ref_ptr< osg::Texture2D > edgeDetectionOut1 = edgeDetection->attach( COLOR_BUFFER0 );
 
     // main loop
     while ( !m_shutdownFlag() )
@@ -196,6 +236,7 @@ void WMImageSpaceLIC::moduleMain()
     }
 
     // clean up
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
+    offscreen->clear();
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( offscreen );
 }
 

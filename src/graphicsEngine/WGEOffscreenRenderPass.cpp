@@ -25,51 +25,89 @@
 #include <osg/Texture>
 #include <osg/Texture2D>
 
-#include "WGEOffscreen.h"
+#include "WGETextureHud.h"
 
-WGEOffscreen::WGEOffscreen( osg::ref_ptr< osg::Camera > reference, int num ):
+#include "WGEOffscreenRenderPass.h"
+
+WGEOffscreenRenderPass::WGEOffscreenRenderPass( size_t textureWidth, size_t textureHeight, int num ):
     osg::Camera(),
-    m_referenceCamera( reference ),
-    m_fbo( new osg::FrameBufferObject() )
+    m_width( textureWidth ),
+    m_height( textureHeight ),
+    m_fbo( new osg::FrameBufferObject() ),
+    m_hud( NULL )
 {
     // initialize members
-    setClearColor( reference->getClearColor() );
-    setClearMask( reference->getClearMask() );
+    setClearColor( osg::Vec4( 0.0, 0.0, 0.0, 0.0 ) );
+    setClearMask( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     setReferenceFrame( osg::Transform::RELATIVE_RF );
     setRenderTargetImplementation( osg::Camera::FRAME_BUFFER_OBJECT );
     setRenderOrder( osg::Camera::PRE_RENDER, num );
 }
 
-WGEOffscreen::~WGEOffscreen()
+WGEOffscreenRenderPass::WGEOffscreenRenderPass( size_t textureWidth, size_t textureHeight, osg::ref_ptr< WGETextureHud > hud, int num ):
+    osg::Camera(),
+    m_width( textureWidth ),
+    m_height( textureHeight ),
+    m_fbo( new osg::FrameBufferObject() ),
+    m_hud( hud )
+{
+    // initialize members
+    setClearColor( osg::Vec4( 0.0, 0.0, 0.0, 0.0 ) );
+    setClearMask( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    setReferenceFrame( osg::Transform::RELATIVE_RF );
+    setRenderTargetImplementation( osg::Camera::FRAME_BUFFER_OBJECT );
+    setRenderOrder( osg::Camera::PRE_RENDER, num );
+}
+
+WGEOffscreenRenderPass::~WGEOffscreenRenderPass()
 {
     // cleanup
 }
 
-void WGEOffscreen::attach( BufferComponent buffer, osg::ref_ptr< osg::Texture2D > texture )
+void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::Texture2D > texture )
 {
     m_fbo->setAttachment( buffer, osg::FrameBufferAttachment( texture ) );
+
+    if ( m_hud )
+    {
+        m_hud->addTexture( new WGETextureHud::WGETextureHudEntry( texture ) );
+    }
 
     osg::Camera::attach( buffer, texture );
 }
 
-osg::ref_ptr< osg::Texture2D > WGEOffscreen::attach( BufferComponent buffer )
+osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::attach( BufferComponent buffer )
 {
-    osg::ref_ptr< osg::Texture2D > tex = createTexture();
+    osg::ref_ptr< osg::Texture2D > tex;
+    if ( buffer == DEPTH_BUFFER )   // depth buffers need a special texture type (else: FBO status = 0x8cd6 (FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT))
+    {
+        tex = createTexture( GL_DEPTH_COMPONENT );
+    }
+    else
+    {
+        tex = createTexture();
+    }
     attach( buffer, tex );
     return tex;
 }
 
-void WGEOffscreen::detach( BufferComponent buffer )
+void WGEOffscreenRenderPass::detach( BufferComponent buffer )
 {
+    // remove the texture from hud if existing
+    if ( m_hud && osg::Camera::getBufferAttachmentMap().count( buffer ) )
+    {
+        m_hud->removeTexture( osg::Camera::getBufferAttachmentMap()[ buffer ]._texture );
+    }
+
     m_fbo->setAttachment( buffer, osg::FrameBufferAttachment() );
 
     osg::Camera::detach( buffer );
 }
 
-osg::ref_ptr< osg::Texture2D > WGEOffscreen::createTexture( GLint internalFormat )
+osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::createTexture( GLint internalFormat )
 {
     osg::ref_ptr< osg::Texture2D > tex = new osg::Texture2D;
-    tex->setTextureSize( m_referenceCamera->getViewport()->width(), m_referenceCamera->getViewport()->height() );
+    tex->setTextureSize( m_width, m_height );
     tex->setInternalFormat( internalFormat );
 
     // setup interpolation

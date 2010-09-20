@@ -113,6 +113,13 @@ public:
     void removeTexture( osg::ref_ptr< WGETextureHudEntry > texture );
 
     /**
+     * Remove the texture from the HUD.
+     *
+     * \param texture the texture to remove.
+     */
+    void removeTexture( osg::ref_ptr< osg::Texture > texture );
+
+    /**
      * Gets the maximum width of a tex element.
      *
      * \return the maximum width.
@@ -125,6 +132,14 @@ public:
      * \param width the new width
      */
     void setMaxElementWidth( unsigned int width );
+
+    /**
+     * Sets the viewport of the camera housing this HUD. It is needed to have proper scaling of each texture tile. You can use
+     * \ref WGEViewportCallback to handle this automatically.
+     *
+     * \param viewport the viewport
+     */
+    void setViewport( osg::Viewport* viewport );
 
 protected:
 
@@ -139,6 +154,10 @@ protected:
      */
     unsigned int m_maxElementWidth;
 
+    /**
+     * The current viewport of
+     */
+    osg::Viewport* m_viewport;
 private:
 
     /**

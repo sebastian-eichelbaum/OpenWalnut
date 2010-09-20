@@ -35,7 +35,8 @@
 WGETextureHud::WGETextureHud():
     osg::Projection(),
     m_group( new WGEGroupNode ),
-    m_maxElementWidth( 256 )
+    m_maxElementWidth( 256 ),
+    m_viewport( new osg::Viewport() )
 {
     getOrCreateStateSet()->setRenderBinDetails( 1000, "RenderBin" );
     m_group->addUpdateCallback( new SafeUpdateCallback( this ) );
@@ -53,8 +54,8 @@ void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
     // TODO(ebaum): use shader to selectively render channels ( if one only wants to see the alpha channel for example).
 
     // set the new size of the widget (how can we get this data?)
-    unsigned int screenWidth = 1024;
-    unsigned int screenHeight = 768;
+    unsigned int screenWidth = m_hud->m_viewport->width();
+    unsigned int screenHeight = m_hud->m_viewport->height();
     m_hud->setMatrix( osg::Matrix::ortho2D( 0, screenWidth, 0, screenHeight ) );
 
     // border around each element
@@ -105,6 +106,16 @@ void WGETextureHud::addTexture( osg::ref_ptr< WGETextureHudEntry > texture )
 void WGETextureHud::removeTexture( osg::ref_ptr< WGETextureHudEntry > texture )
 {
     m_group->remove( texture );
+}
+
+void WGETextureHud::removeTexture( osg::ref_ptr< osg::Texture > texture )
+{
+    // TODO(ebaum): implement me.
+}
+
+void WGETextureHud::setViewport( osg::Viewport* viewport )
+{
+    m_viewport = viewport;
 }
 
 WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, bool transparency ):
