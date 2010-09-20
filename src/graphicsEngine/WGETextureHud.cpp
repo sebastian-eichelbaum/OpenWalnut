@@ -36,7 +36,8 @@ WGETextureHud::WGETextureHud():
     osg::Projection(),
     m_group( new WGEGroupNode ),
     m_maxElementWidth( 256 ),
-    m_viewport( new osg::Viewport() )
+    m_viewport( new osg::Viewport() ),
+    m_coupleTexViewport( false )
 {
     getOrCreateStateSet()->setRenderBinDetails( 1000, "RenderBin" );
     m_group->addUpdateCallback( new SafeUpdateCallback( this ) );
@@ -50,9 +51,6 @@ WGETextureHud::~WGETextureHud()
 
 void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
-    // TODO(ebaum): all those values (viewport, size of textures) are hardcoded. This is ugly but works for now.
-    // TODO(ebaum): use shader to selectively render channels ( if one only wants to see the alpha channel for example).
-
     // set the new size of the widget (how can we get this data?)
     unsigned int screenWidth = m_hud->m_viewport->width();
     unsigned int screenHeight = m_hud->m_viewport->height();
@@ -74,7 +72,18 @@ void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
         WGETextureHudEntry* tex = static_cast< WGETextureHudEntry* >( group->getChild( i ) );
 
         // scale the height of the quad (texture) to have proper aspect ratio
-        double height = m_hud->getMaxElementWidth() * tex->getRealHeight() / tex->getRealWidth();
+        float height = static_cast< float >( m_hud->getMaxElementWidth() * tex->getRealHeight() ) / static_cast< float >( tex->getRealWidth() );
+
+        // scale texture if needed
+        if ( m_hud->m_coupleTexViewport )
+        {
+            osg::ref_ptr< osg::TexMat > texMat = tex->getTextureMatrix();
+            texMat->setMatrix( osg::Matrixd::scale( static_cast< float >( screenWidth ) / static_cast< float >( tex->getRealWidth() ),
+                                                    static_cast< float >( screenHeight )/ static_cast< float >( tex->getRealHeight() ), 1.0 ) );
+
+            // this also changes the aspect ratio in the texture:
+            height = static_cast< float >( m_hud->getMaxElementWidth() * screenHeight ) / static_cast< float >( screenWidth );
+        }
 
         // scale them to their final size
         osg::Matrixd scale = osg::Matrixd::scale( m_hud->getMaxElementWidth(), height, 1.0 );
@@ -108,7 +117,7 @@ void WGETextureHud::removeTexture( osg::ref_ptr< WGETextureHudEntry > texture )
     m_group->remove( texture );
 }
 
-void WGETextureHud::removeTexture( osg::ref_ptr< osg::Texture > texture )
+void WGETextureHud::removeTexture( osg::ref_ptr< osg::Texture > /* texture */ )
 {
     // TODO(ebaum): implement me.
 }
@@ -117,6 +126,16 @@ void WGETextureHud::setViewport( osg::Viewport* viewport )
 {
     m_viewport = viewport;
 }
+
+void WGETextureHud::coupleViewportWithTextureViewport( bool couple )
+{
+    m_coupleTexViewport = couple;
+}
+
+class TexCoordUpdate: public osg::StateAttribute::Callback
+{
+
+};
 
 WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, bool transparency ):
     osg::MatrixTransform(),
@@ -170,6 +189,11 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
     state->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED );
     state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
+    // enable texture coordinate manipulation via texture matrices
+    m_texMat = new osg::TexMat;
+	m_texMat->setMatrix( osg::Matrixd::identity() );
+	state->setTextureAttributeAndModes( 0, m_texMat, osg::StateAttribute::ON );
+
     // This disables colorblending of the texture with the underlying quad
     // osg::TexEnv* decalState = new osg::TexEnv();
     // decalState->setMode( osg::TexEnv::DECAL );
@@ -205,6 +229,11 @@ unsigned int WGETextureHud::WGETextureHudEntry::getRealWidth()
 unsigned int WGETextureHud::WGETextureHudEntry::getRealHeight()
 {
     return m_texture->getTextureHeight();
+}
+
+osg::ref_ptr< osg::TexMat > WGETextureHud::WGETextureHudEntry::getTextureMatrix()
+{
+    return m_texMat;
 }
 
 unsigned int WGETextureHud::getMaxElementWidth()

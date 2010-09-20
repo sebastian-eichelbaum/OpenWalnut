@@ -33,7 +33,7 @@ class WGETextureHud;
 /**
  * This class encapsulates an OSG Camera and a corresponding framebuffer object. It is especially useful for offscreen renderings. It is a camera
  * which, by default, is the same as the camera in the this instance nesting graph. It allows simple attachment of textures to a offscreen
- * rendering as well as easy texture creation. It builds the base for \ref WGEOffscreenRenderPassGeometry and \ref WGEOffscreenRenderPassTexture.
+ * rendering as well as easy texture creation.
  */
 class WGEOffscreenRenderPass: public osg::Camera
 {

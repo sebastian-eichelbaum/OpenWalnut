@@ -38,6 +38,7 @@ WGEOffscreenRenderNode::WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > refe
     if ( !noHud )
     {
         m_hud->addUpdateCallback( new WGEViewportCallback< WGETextureHud >( m_referenceCamera ) );
+        m_hud->coupleViewportWithTextureViewport();
         insert( m_hud );
     }
 }
@@ -49,10 +50,18 @@ WGEOffscreenRenderNode::~WGEOffscreenRenderNode()
 
 osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRenderPass( osg::ref_ptr< osg::Node > node )
 {
+    // create a new pass
     osg::ref_ptr< WGEOffscreenRenderPass > pass = new WGEOffscreenRenderPass( m_textureWidth, m_textureHeight, m_hud, m_nextPassNum );
     m_nextPassNum++;
+
+    // this node needs to keep all the pass instances. Only this way, the OSG traverses and renders these nodes in the order specified by
+    // m_nextPassNum.
     pass->addChild( node );
     insert( pass );   // insert into this group
+
+    // set clear mask and color according to reference cam
+    pass->setClearMask( m_referenceCamera->getClearMask() );
+    pass->setClearColor( m_referenceCamera->getClearColor() );
 
     // ensure proper propagation of viewport changes
     pass->addUpdateCallback( new WGEViewportCallback< WGEOffscreenRenderPass >( m_referenceCamera ) );
@@ -75,19 +84,5 @@ osg::ref_ptr< WGEOffscreenRenderPass >  WGEOffscreenRenderNode::addTextureProces
     // ensure proper propagation of viewport changes
     pass->addUpdateCallback( new WGEViewportCallback< WGEOffscreenRenderPass >( m_referenceCamera ) );
     return pass;
-}
-
-WGEOffscreenRenderNode::ViewportUpdate::ViewportUpdate( osg::ref_ptr< osg::Camera > reference ):
-    osg::NodeCallback(),
-    m_reference( reference )
-{
-    // initialize members
-}
-
-void WGEOffscreenRenderNode::ViewportUpdate::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    osg::ref_ptr< osg::Camera > cam = dynamic_cast< osg::Camera* >( node );
-    cam->setViewport( m_reference->getViewport() );
-    traverse( node, nv );
 }
 

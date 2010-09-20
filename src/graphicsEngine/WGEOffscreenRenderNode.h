@@ -33,9 +33,9 @@
 
 /**
  * This type of node basically is a convenience class for managing and creating offscreen renderings. The children of this node should be of type
- * \ref WGEOffscreenPass. This class provides factories to create offscreen-render-pass instances with proper sizes with a coupling to a
+ * \ref WGEOffscreenRenderPass. This class provides factories to create offscreen-render-pass instances with proper sizes with a coupling to a
  * reference camera. This is useful to provide automatic viewport scaling etc. to each render-pass. You do not explicitly need this class to
- * create offscreen-renderings at all. You can manually manage multiple WGEOffscreenPass instances.
+ * create offscreen-renderings at all. You can manually manage multiple WGEOffscreenRenderPass instances.
  *
  * It is important to understand, that the graph (your scene) must not be a children of this node. This node can be placed somewhere in your
  * scene. The OSG collects all the cameras (and offscreen-cameras) and render then independently from their position in the graph (except for
@@ -113,36 +113,6 @@ private:
      * The number of the next pass getting added.
      */
     size_t m_nextPassNum;
-
-    /**
-     * Callback which sets the viewport of the camera to the viewport of the reference camera. It gets added to each created render pass to
-     * ensure proper viewport adoption.
-     */
-    class ViewportUpdate: public osg::NodeCallback
-    {
-    public:     // NOLINT
-        /**
-         * Creates new instance of viewport callback.
-         *
-         * \param reference set the viewport to the one of the reference camera.
-         */
-        explicit ViewportUpdate( osg::ref_ptr< osg::Camera > reference );
-
-        /**
-         * This operator gets called by OSG every update cycle. It applies the viewport.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-    private:    // NOLINT
-
-        /**
-         * The reference camera to use.
-         */
-        osg::ref_ptr< osg::Camera > m_reference;
-    };
 };
 
 #endif  // WGEOFFSCREENRENDERNODE_H

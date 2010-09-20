@@ -32,9 +32,9 @@
 #include <osg/Projection>
 #include <osg/Geode>
 #include <osg/Texture2D>
+#include <osg/TexMat>
 
 #include "WGEGroupNode.h"
-
 
 /**
  * This class implements a HUD showing several textures on screen. This is especially useful as debugging tool during offscreen rendering. It is
@@ -89,12 +89,23 @@ public:
          */
         unsigned int getRealHeight();
 
+        /**
+         * Get the texture matrix state for this entry.
+         *
+         * \return the texture matrix state
+         */
+        osg::ref_ptr< osg::TexMat > getTextureMatrix();
     protected:
 
         /**
          * The texture.
          */
         osg::ref_ptr< osg::Texture2D > m_texture;
+
+        /**
+         * The texture matrix for this entry.
+         */
+        osg::ref_ptr< osg::TexMat > m_texMat;
     private:
     };
 
@@ -141,6 +152,14 @@ public:
      */
     void setViewport( osg::Viewport* viewport );
 
+    /**
+     * Set the viewport to be used for textures too. This is useful if an offscreen rendering renders only into a part of the texture. If
+     * coupling is disabled, the whole texture gets rendered.
+     *
+     * \param couple if true, the viewport set by \ref setViewport gets also used for texture space.
+     */
+    void coupleViewportWithTextureViewport( bool couple = true );
+
 protected:
 
     /**
@@ -158,6 +177,12 @@ protected:
      * The current viewport of
      */
     osg::Viewport* m_viewport;
+
+    /**
+     * The viewport in texture space to allow viewing parts of the texture.
+     */
+    bool m_coupleTexViewport;
+
 private:
 
     /**
