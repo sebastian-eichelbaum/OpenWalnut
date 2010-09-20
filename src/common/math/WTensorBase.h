@@ -713,7 +713,7 @@ public:
     /**
      * Compare this WTensorBaseSym to another one.
      *
-     * \param other The WBensorBaseSym to compare to.
+     * \param other The WTensorBaseSym to compare to.
      *
      * \return True, iff this tensors' elements are equal to another tensors' elements.
      */
@@ -722,7 +722,7 @@ public:
     /**
      * Compare this WTensorBaseSym to another one.
      *
-     * \param other The WBensorBaseSym to compare to.
+     * \param other The WTensorBaseSym to compare to.
      *
      * \return True, iff this tensors' elements are not equal to another tensors' elements.
      */

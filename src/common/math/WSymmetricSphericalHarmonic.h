@@ -91,7 +91,7 @@ public:
     size_t getOrder() const;
 
     /**
-     * Calculate the generalized fractional anisotropy for this odf.
+     * Calculate the generalized fractional anisotropy for this ODF.
      *
      * See: David S. Tuch, "Q-Ball Imaging", Magn. Reson. Med. 52, 2004, 1358-1372
      *
@@ -104,9 +104,9 @@ public:
     double calcGFA( std::vector< wmath::WUnitSphereCoordinates > const& orientations ) const;
 
     /**
-     * Calculate the generalized fractional anisotropy for this odf. This version of
+     * Calculate the generalized fractional anisotropy for this ODF. This version of
      * the function uses precomputed base functions (because calculating the base function values
-     * is rather expensive). Use this version if you want to compute the gfa for multiple ODFs
+     * is rather expensive). Use this version if you want to compute the GFA for multiple ODFs
      * with the same base functions. The base function Matrix can be computed using \see calcBMatrix().
      *
      * See: David S. Tuch, "Q-Ball Imaging", Magn. Reson. Med. 52, 2004, 1358-1372
@@ -122,8 +122,8 @@ public:
     /**
     * This calculates the transformation/fitting matrix T like in the 2007 Descoteaux paper. The orientations are given as wmath::WVector3D.
     * \param orientations The vector with the used orientation on the unit sphere (usually the gradients of the HARDI)
-    * \param order The order of the spherical harmonics intented to create
-    * \param lambda Regularisation parameter for smoothing matrix
+    * \param order The order of the spherical harmonics intended to create
+    * \param lambda Regularization parameter for smoothing matrix
     * \param withFRT include the Funk-Radon-Transformation?
     * \return Transformation matrix
     */
@@ -135,8 +135,8 @@ public:
     /**
     * This calculates the transformation/fitting matrix T like in the 2007 Descoteaux paper. The orientations are given as wmath::WUnitSphereCoordinates .
     * \param orientations The vector with the used orientation on the unit sphere (usually the gradients of the HARDI)
-    * \param order The order of the spherical harmonics intented to create
-    * \param lambda Regularisation parameter for smoothing matrix
+    * \param order The order of the spherical harmonics intended to create
+    * \param lambda Regularization parameter for smoothing matrix
     * \param withFRT include the Funk-Radon-Transformation?
     * \return Transformation matrix
     */
@@ -146,9 +146,9 @@ public:
                                                       bool withFRT );
 
     /**
-    * Calculates the base matrix B like in the diss of Descoteaux.
+    * Calculates the base matrix B like in the dissertation of Descoteaux.
     * \param orientations The vector with the used orientation on the unit sphere (usually the gradients of the HARDI)
-    * \param order The order of the spherical harmonics intented to create
+    * \param order The order of the spherical harmonics intended to create
     * \return The base Matrix B
     */
     static wmath::WMatrix<double> calcBaseMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations, int order );
