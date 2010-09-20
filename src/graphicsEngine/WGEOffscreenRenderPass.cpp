@@ -22,6 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
+#include <boost/lexical_cast.hpp>
+
 #include <osg/Texture>
 #include <osg/Texture2D>
 
@@ -44,12 +48,14 @@ WGEOffscreenRenderPass::WGEOffscreenRenderPass( size_t textureWidth, size_t text
     setRenderOrder( osg::Camera::PRE_RENDER, num );
 }
 
-WGEOffscreenRenderPass::WGEOffscreenRenderPass( size_t textureWidth, size_t textureHeight, osg::ref_ptr< WGETextureHud > hud, int num ):
+WGEOffscreenRenderPass::WGEOffscreenRenderPass( size_t textureWidth, size_t textureHeight, osg::ref_ptr< WGETextureHud > hud, std::string name,
+                                                int num ):
     osg::Camera(),
     m_width( textureWidth ),
     m_height( textureHeight ),
     m_fbo( new osg::FrameBufferObject() ),
-    m_hud( hud )
+    m_hud( hud ),
+    m_name( name )
 {
     // initialize members
     setClearColor( osg::Vec4( 0.0, 0.0, 0.0, 0.0 ) );
@@ -70,7 +76,7 @@ void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::
 
     if ( m_hud )
     {
-        m_hud->addTexture( new WGETextureHud::WGETextureHudEntry( texture ) );
+        m_hud->addTexture( new WGETextureHud::WGETextureHudEntry( texture, m_name + " " + boost::lexical_cast< std::string >( buffer ) ) );
     }
 
     osg::Camera::attach( buffer, texture );
@@ -119,5 +125,10 @@ osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::createTexture( GLint inte
     tex->setWrap( osg::Texture::WRAP_T, osg::Texture::REPEAT );
 
     return tex;
+}
+
+std::string WGEOffscreenRenderPass::getName() const
+{
+    return m_name;
 }
 

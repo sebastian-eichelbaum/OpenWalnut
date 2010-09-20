@@ -25,6 +25,8 @@
 #ifndef WGEOFFSCREENRENDERPASS_H
 #define WGEOFFSCREENRENDERPASS_H
 
+#include <string>
+
 #include <osg/Camera>
 #include <osg/FrameBufferObject>
 
@@ -59,8 +61,9 @@ public:
      *                     viewport size.*
      * \param num the order number. This camera gets rendered at the num'th place in the pre render queue of the subgraph it is attached to.
      * \param hud the hud that gets notified about attached and detached textures. Useful for debugging.
+     * \param name the name of this render pass. This is a nice debugging feature in conjunction with WGETextureHud as it gets displayed there.
      */
-    WGEOffscreenRenderPass( size_t textureWidth, size_t textureHeight, osg::ref_ptr< WGETextureHud > hud, int num = 0 );
+    WGEOffscreenRenderPass( size_t textureWidth, size_t textureHeight, osg::ref_ptr< WGETextureHud > hud, std::string name, int num = 0 );
 
     /**
      * Destructor.
@@ -106,6 +109,13 @@ public:
      */
     osg::ref_ptr< osg::Texture2D > createTexture( GLint internalFormat = GL_RGBA );
 
+    /**
+     * Returns the name of this render pass.
+     *
+     * \return the name
+     */
+    std::string getName() const;
+
 protected:
 
     /**
@@ -128,6 +138,10 @@ protected:
      */
     osg::ref_ptr< WGETextureHud > m_hud;
 
+    /**
+     * The name if the rendering pass. Especially useful in conjunction with m_hud.
+     */
+    std::string m_name;
 private:
 };
 

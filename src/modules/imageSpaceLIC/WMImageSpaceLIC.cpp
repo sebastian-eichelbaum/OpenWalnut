@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <cmath>
+#include <cstdlib>
 #include <vector>
 #include <string>
 
@@ -158,7 +159,39 @@ void WMImageSpaceLIC::moduleMain()
     // Remember the condition provided to some properties in properties()? The condition can now be used with this condition set.
     m_moduleState.add( m_propCondition );
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Preparation 1: create noise texture
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // we need a noise texture with a sufficient resolution. Create it.
+    const size_t resX = 2048;
+    const size_t resY = 2048;
+    std::srand( time( 0 ) );
+
+    osg::ref_ptr< osg::Image > randImage = new osg::Image();
+    randImage->allocateImage( resX, resY, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
+    unsigned char *randomLuminance = randImage->data();  // should be 4 megs
+    for( unsigned int x = 0; x < resX; x++ )
+    {
+        for( unsigned int y = 0; y < resY; y++ )
+        {
+            randomLuminance[ ( y * resY ) + x ] = ( unsigned char )( std::rand() % 255 );
+        }
+    }
+
+    // finally, create a texture from the image
+    osg::ref_ptr< osg::Texture2D > randTexture = new osg::Texture2D();
+    randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR );
+    randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR );
+    randTexture->setImage( randImage );
+    randTexture->setResizeNonPowerOfTwoHint( false );
+
+    // done.
     ready();
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Preparation 2: initialize offscreen renderer and hardwire it
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
@@ -166,26 +199,15 @@ void WMImageSpaceLIC::moduleMain()
     // the WGEOffscreenRenderNode manages each of the render-passes for us
     osg::ref_ptr< WGEOffscreenRenderNode > offscreen = new WGEOffscreenRenderNode(
         WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera(),
-        1024,
-        1024
+        resX,
+        resY
     );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
 
     // setup all the passes needed for image space advection
-    osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass( m_output );
-    /*osg::ref_ptr< WGEOffscreen > edgeDetection = new WGEOffscreen( WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera(), 1 );
-    osg::ref_ptr< WGEOffscreen > advection = new WGEOffscreen( WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera(), 2 );
-    osg::ref_ptr< WGEOffscreen > blending = new WGEOffscreen( WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera(), 3 );*/
-    // the first render-pass needs the geometry
-  //  transformation->addChild( m_output );
-    // the others need a slice as large as the viewport on which the textures are projected so that the fragment shader can pass each fragment
-
-    // each pass needs to be rendered. The order of rendering is defined by the second construction argument
-    //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( transformation );
-    //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( edgeDetection );
-    //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( advection );
-    //WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( blending );
+    osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass( m_output, "Transformation" );
+    osg::ref_ptr< WGEOffscreenRenderPass > edgeDetection =  offscreen->addTextureProcessingPass( "Edge Detection" );
 
     // hardwire the textures to use for each pass:
 
@@ -197,10 +219,16 @@ void WMImageSpaceLIC::moduleMain()
     osg::ref_ptr< osg::Texture2D > transformationOut1  = transformation->attach( osg::Camera::COLOR_BUFFER0 );
     osg::ref_ptr< osg::Texture2D > transformationDepth = transformation->attach( osg::Camera::DEPTH_BUFFER );
 
-    // Edge Detection Pass, needs Depth
+    // Edge Detection Pass, needs Depth as input
     //  * Depth in R
     //  * Edges in G
-//    osg::ref_ptr< osg::Texture2D > edgeDetectionOut1 = edgeDetection->attach( COLOR_BUFFER0 );
+    osg::ref_ptr< osg::Texture2D > edgeDetectionOut1 = edgeDetection->attach( osg::Camera::COLOR_BUFFER0 );
+    osg::StateSet* state = edgeDetection->getOrCreateStateSet();
+    state->setTextureAttributeAndModes( 0, transformationDepth, osg::StateAttribute::ON );
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Main loop
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // main loop
     while ( !m_shutdownFlag() )

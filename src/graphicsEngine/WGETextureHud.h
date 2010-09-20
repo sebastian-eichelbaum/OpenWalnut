@@ -26,6 +26,7 @@
 #define WGETEXTUREHUD_H
 
 #include <list>
+#include <string>
 
 #include <boost/thread.hpp>
 
@@ -66,9 +67,10 @@ public:
          * Constructor.
          *
          * \param texture the texture to show in the HUD
+         * \param name a telling name to support the illustrative function of the HUD
          * \param transparency true if transparency should be shown
          */
-        WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, bool transparency = false );
+        WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, std::string name, bool transparency = false );
 
         /**
          * Destructor.
@@ -80,21 +82,29 @@ public:
          *
          * \return the real width.
          */
-        unsigned int getRealWidth();
+        unsigned int getRealWidth() const;
 
         /**
          * Returns the real height of the contained texture.
          *
          * \return the real height.
          */
-        unsigned int getRealHeight();
+        unsigned int getRealHeight() const;
 
         /**
          * Get the texture matrix state for this entry.
          *
          * \return the texture matrix state
          */
-        osg::ref_ptr< osg::TexMat > getTextureMatrix();
+        osg::ref_ptr< osg::TexMat > getTextureMatrix() const;
+
+        /**
+         * Returns the name of the entry.
+         *
+         * \return name of the entry.
+         */
+        std::string getName() const;
+
     protected:
 
         /**
@@ -106,6 +116,12 @@ public:
          * The texture matrix for this entry.
          */
         osg::ref_ptr< osg::TexMat > m_texMat;
+
+        /**
+         * The name for this HUD entry.
+         */
+        std::string m_name;
+
     private:
     };
 
@@ -135,7 +151,7 @@ public:
      *
      * \return the maximum width.
      */
-    unsigned int getMaxElementWidth();
+    unsigned int getMaxElementWidth() const;
 
     /**
      * Sets the new maximum width of a texture column.

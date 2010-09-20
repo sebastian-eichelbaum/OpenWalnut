@@ -29,6 +29,9 @@
 #include <osg/Geometry>
 #include <osg/MatrixTransform>
 #include <osg/TexEnv>
+#include <osgText/Text>
+
+#include "../common/WPathHelper.h"
 
 #include "WGETextureHud.h"
 
@@ -88,7 +91,7 @@ void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
         // scale them to their final size
         osg::Matrixd scale = osg::Matrixd::scale( m_hud->getMaxElementWidth(), height, 1.0 );
 
-        // need to add a "linebreak"?
+        // need to add a "line-break"?
         if ( nextY + height + border > screenHeight )
         {
             nextX += m_hud->getMaxElementWidth() + border;
@@ -99,7 +102,7 @@ void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
         osg::Matrixd translate = osg::Matrixd::translate( static_cast< double >( nextX ), static_cast< double >( nextY ), 0.0 );
         tex->setMatrix( scale * translate );
 
-        // calc the y position of the next texture
+        // calculate the y position of the next texture
         nextY += height + border;
     }
 
@@ -137,12 +140,16 @@ class TexCoordUpdate: public osg::StateAttribute::Callback
 
 };
 
-WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, bool transparency ):
+WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, std::string name, bool transparency ):
     osg::MatrixTransform(),
-    m_texture( texture )
+    m_texture( texture ),
+    m_name( name )
 {
     setMatrix( osg::Matrixd::identity() );
     setReferenceFrame( osg::Transform::ABSOLUTE_RF );
+
+    //////////////////////////////////////////////////
+    // Texture Quad
 
     osg::Geode* geode = new osg::Geode();
 
@@ -214,6 +221,22 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
 
     // add the geode
     addChild( geode );
+
+    //////////////////////////////////////////////////
+    // Text
+    osg::ref_ptr< osg::Geode > textGeode = new osg::Geode();
+    state = textGeode->getOrCreateStateSet();
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+    addChild( textGeode );
+    osgText::Text* label = new osgText::Text();
+    label->setFont( WPathHelper::getAllFonts().Default.file_string() );
+    label->setBackdropType( osgText::Text::OUTLINE );
+    label->setCharacterSize( 15 );
+    label->setText( m_name );
+    label->setAxisAlignment( osgText::Text::SCREEN );
+    label->setPosition( osg::Vec3( 0.01, 0.01, -1.0 ) );
+    label->setColor( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+    textGeode->addDrawable( label );
 }
 
 WGETextureHud::WGETextureHudEntry::~WGETextureHudEntry()
@@ -221,22 +244,27 @@ WGETextureHud::WGETextureHudEntry::~WGETextureHudEntry()
     // cleanup
 }
 
-unsigned int WGETextureHud::WGETextureHudEntry::getRealWidth()
+unsigned int WGETextureHud::WGETextureHudEntry::getRealWidth() const
 {
     return m_texture->getTextureWidth();
 }
 
-unsigned int WGETextureHud::WGETextureHudEntry::getRealHeight()
+unsigned int WGETextureHud::WGETextureHudEntry::getRealHeight() const
 {
     return m_texture->getTextureHeight();
 }
 
-osg::ref_ptr< osg::TexMat > WGETextureHud::WGETextureHudEntry::getTextureMatrix()
+osg::ref_ptr< osg::TexMat > WGETextureHud::WGETextureHudEntry::getTextureMatrix() const
 {
     return m_texMat;
 }
 
-unsigned int WGETextureHud::getMaxElementWidth()
+std::string WGETextureHud::WGETextureHudEntry::getName() const
+{
+    return m_name;
+}
+
+unsigned int WGETextureHud::getMaxElementWidth() const
 {
     return m_maxElementWidth;
 }
