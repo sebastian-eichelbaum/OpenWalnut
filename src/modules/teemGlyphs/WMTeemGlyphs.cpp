@@ -222,7 +222,7 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
                                        m_usePolarPlotProp->get(),
                                        m_glyphSizeProp->get(),
                                        m_useNormalizationProp->get() ) );
-    WThreadedFunction< GlyphGeneration > generatorThreaded( 0, generator );
+    WThreadedFunction< GlyphGeneration > generatorThreaded( W_AUTOMATIC_NB_THREADS, generator );
     generatorThreaded.run();
     generatorThreaded.wait();
 

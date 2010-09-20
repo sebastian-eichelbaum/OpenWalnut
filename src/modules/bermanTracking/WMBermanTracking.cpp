@@ -314,7 +314,7 @@ void WMBermanTracking::calcGFA()
 
     resetProgress( m_dataSet->getGrid()->size() );
 
-    ThreadPool t( 0, gfafunc );
+    ThreadPool t( W_AUTOMATIC_NB_THREADS, gfafunc );
     t.subscribeExceptionSignal( boost::bind( &This::handleException, this, _1 ) );
     t.run();
     t.wait();
