@@ -53,14 +53,14 @@ public:
     WColor( float red = 0.0, float green = 0.0, float blue = 0.0, float alpha = 1.0 );
 
     /**
-     * Casts a color to an vector comfortably.
+     * Casts a color to a vector comfortably.
      *
      * \return vector instance
      */
     inline operator osg::Vec4f() const;
 
     /**
-     * Casts a color to an vector comfortably. As the returned vector is three-dimensional, the alpha value is omitted.
+     * Casts a color to a vector comfortably. As the returned vector is three-dimensional, the alpha value is omitted.
      *
      * \return vector instance
      */

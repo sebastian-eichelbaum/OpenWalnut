@@ -33,15 +33,9 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-/** 
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "wiebel".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
- *
+/**
+ * This module writes the fiber cluster at its connector to a file.
+ * 
  * \ingroup modules
  */
 class WMWriteTracts: public WModule

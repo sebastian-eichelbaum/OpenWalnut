@@ -124,6 +124,24 @@ public:
         TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0.5, 0.5, 0.5 ), &success )[2], 33.5, 1e-9 );
         TS_ASSERT( success );
     }
+
+    /**
+     * A test for ticket #313
+     */
+    void testBoundary_ticket313( void )
+    {
+        boost::shared_ptr< WGridRegular3D > grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( 3, 4, 5, 1, 1, 1 ) );
+        bool success = false;
+        std::vector< double > data( grid->size() * 3 );
+        for( size_t i = 0; i < grid->size() * 3; ++i )
+        {
+            data[i] = i;
+        }
+        boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 1, 3, data, W_DT_DOUBLE ) );
+        WDataSetVector ds( valueSet, grid );
+        ds.interpolate( wmath::WPosition( 2.0, 3.0, 4.0 ), &success );
+        TS_ASSERT( !success );
+    }
 };
 
 #endif  // WDATASETVECTOR_TEST_H

@@ -38,8 +38,8 @@
 #include "WRasterAlgorithm.h"
 
 /**
- * Traces a given set of deterministic tracts as given by a WFiberCluster in a voxelwise manner.
- * Every voxel which is hit by one or more tracts or tract-segements is marked with a scalar.
+ * Traces a given set of deterministic tracts as given by a WFiberCluster in a voxel-wise manner.
+ * Every voxel which is hit by one or more tracts or tract-segments is marked with a scalar.
  * \ingroup modules
  */
 class WMVoxelizer : public WModule
@@ -140,7 +140,7 @@ protected:
     /**
      * Performs rasterization with the given algorithm.
      *
-     * \param algo The algorithm which actualy rasters every fiber.
+     * \param algo The algorithm which actually rasters every fiber.
      */
     void raster( boost::shared_ptr< WRasterAlgorithm > algo ) const;
 
@@ -188,7 +188,7 @@ private:
 
     boost::shared_ptr< WCondition > m_fullUpdate; //!< module is performing an expensive update
 
-    WPropBool m_antialiased; //!< Enable/Disable antialiased drawing of voxels
+    WPropBool m_antialiased; //!< Enable/Disable anti-aliased drawing of voxels
     WPropBool m_drawfibers; //!< Enable/Disable drawing of the fibers of a cluster
     WPropBool m_drawBoundingBox; //!< Enable/Disable drawing of a clusters BoundingBox
     WPropBool m_drawCenterLine; //!< Enable/Disable drawing of the current clusters CenterLine
@@ -197,7 +197,7 @@ private:
     WPropString m_rasterAlgo; //!< Specifies the algorithm you may want to use for voxelization
     WPropInt  m_voxelsPerUnit;  //!< The number of voxels per unit in the coordinate system
 
-    WPropDouble m_fiberTransparency; //!< Trancparency of the fibers
+    WPropDouble m_fiberTransparency; //!< Transparency of the fibers
     WPropColor m_explicitFiberColor; //!< If set not to 0.2 0.2 0.2 all fiber having this color
 
     /**

@@ -68,7 +68,7 @@ public:
     inline WVector3D( osg::Vec3d::value_type x, osg::Vec3d::value_type y, osg::Vec3d::value_type z );
 
     /**
-     * Calculate euclidean square distance between this Position and another one.
+     * Calculate Euclidean square distance between this Position and another one.
      *
      * \param other The other position.
      * \return Square distance.
@@ -81,18 +81,18 @@ public:
     inline osg::Vec3d::value_type norm() const;
 
     /**
-     * Returns a noralized vecrsion of the vector
+     * Returns a normalized version of the vector
      */
     inline WVector3D normalized() const;
 
     /**
-     * Compute the cross product of the current WValue with the parameter.
+     * Compute the cross product of the current WVector3D with the parameter.
      * \param factor2 This vector will be multiplied with the current vector. (right hand side of the product)
      */
     const WVector3D crossProduct( const WVector3D& factor2 ) const;
 
     /**
-     * Compute the dot product of the current WValue with the parameter.
+     * Compute the dot product of the current WVector3D with the parameter.
      * \param factor2 This vector will be multiplied with the current vector. (right hand side of the product)
      */
     inline osg::Vec3d::value_type dotProduct( const WVector3D& factor2 ) const;
@@ -108,7 +108,7 @@ public:
     inline size_t size() const;
 
     /**
-     * Componentwise subtraction.
+     * Component-wise subtraction.
      * \param subtrahend The right hand side of the subtraction
      */
     inline const WVector3D operator-( const WVector3D& subtrahend ) const;
@@ -120,13 +120,14 @@ private:
  * Define WPosition as an alias for WVector3D
  */
 typedef WVector3D WPosition;
+
 /**
  * Writes a meaningful representation of that object to the given stream.
  *
  * \param os The operator will write to this stream.
  * \param rhs This will be written to the stream.
  *
- * \return the outputstream
+ * \return the output stream
  */
 
 inline std::ostream& operator<<( std::ostream& os, const WVector3D &rhs )
@@ -137,12 +138,12 @@ inline std::ostream& operator<<( std::ostream& os, const WVector3D &rhs )
 }
 
 /**
- * Write an input stream into a WValue.
+ * Write an input stream into a WVector3D.
  *
  * \param in the input stream
  * \param rhs the value to where to write the stream
  *
- * \return the inputstream
+ * \return the input stream
  */
 inline std::istream& operator>>( std::istream& in, WVector3D &rhs )
 {
@@ -163,7 +164,7 @@ inline std::istream& operator>>( std::istream& in, WVector3D &rhs )
  * \param lhs left hand side of product
  * \param rhs right hand side of product
  */
-inline const WVector3D operator*( osg::Vec3d::value_type lhs, const WVector3D& rhs )
+inline WVector3D operator*( osg::Vec3d::value_type lhs, const WVector3D& rhs )
 {
     WVector3D result( rhs );
     result *= lhs;
