@@ -24,7 +24,10 @@
 
 #include <string>
 
+#include <osg/Geode>
+
 #include "callbacks/WGEViewportCallback.h"
+#include "WGEGeodeUtils.h"
 
 #include "WGEOffscreenRenderNode.h"
 
@@ -78,16 +81,22 @@ osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRender
     return pass;
 }
 
-osg::ref_ptr< WGEOffscreenRenderPass >  WGEOffscreenRenderNode::addTextureProcessingPass( std::string name )
+osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addTextureProcessingPass( std::string name )
 {
     osg::ref_ptr< WGEOffscreenRenderPass > pass = addRenderPass( name );
 
     // we need to create a nice quad for texture processing spanning the whole texture space
+    osg::ref_ptr< osg::Geode > geode = wge::genFinitePlane( osg::Vec3( 0.0, 0.0, -1.0 ),
+                                                            osg::Vec3( 0.0, 1.0, -1.0 ),
+                                                            osg::Vec3( 1.0, 0.0, -1.0 ) );
+    // add the slice to the geode
+    pass->addChild( geode );
 
+    // setup 2D projection
+    pass->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
+    pass->setProjectionMatrixAsOrtho2D( 0.0, m_textureWidth, 0.0, m_textureHeight );
 
-
-
-
+    // viewport update callback already added by addRenderPass
     return pass;
 }
 
