@@ -105,6 +105,13 @@ public:
          */
         std::string getName() const;
 
+        /**
+         * Gets the texture associated with the entry.
+         *
+         * \return the texture
+         */
+        osg::ref_ptr< osg::Texture2D > getTexture() const;
+
     protected:
 
         /**

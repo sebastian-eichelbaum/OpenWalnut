@@ -76,7 +76,7 @@ void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::
 
     if ( m_hud )
     {
-        m_hud->addTexture( new WGETextureHud::WGETextureHudEntry( texture, m_name + " " + boost::lexical_cast< std::string >( buffer ) ) );
+        m_hud->addTexture( new WGETextureHud::WGETextureHudEntry( texture, m_name + " - " + getBufferName( buffer ) ) );
     }
 
     osg::Camera::attach( buffer, texture );
@@ -130,5 +130,54 @@ osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::createTexture( GLint inte
 std::string WGEOffscreenRenderPass::getName() const
 {
     return m_name;
+}
+
+std::string WGEOffscreenRenderPass::getBufferName( BufferComponent buffer )
+{
+    switch ( buffer )
+    {
+        case DEPTH_BUFFER:
+            return "Depth";
+        case STENCIL_BUFFER:
+            return "Stencil";
+        case PACKED_DEPTH_STENCIL_BUFFER:
+            return "Depth+Stencil";
+        case COLOR_BUFFER:
+            return "Color 0";
+        case COLOR_BUFFER0:
+            return "Color 0";
+        case COLOR_BUFFER1:
+            return "Color 1";
+        case COLOR_BUFFER2:
+            return "Color 2";
+        case COLOR_BUFFER3:
+            return "Color 3";
+        case COLOR_BUFFER4:
+            return "Color 4";
+        case COLOR_BUFFER5:
+            return "Color 5";
+        case COLOR_BUFFER6:
+            return "Color 6";
+        case COLOR_BUFFER7:
+            return "Color 7";
+        case COLOR_BUFFER8:
+            return "Color 8";
+        case COLOR_BUFFER9:
+            return "Color 9";
+        case COLOR_BUFFER10:
+            return "Color 10";
+        case COLOR_BUFFER11:
+            return "Color 11";
+        case COLOR_BUFFER12:
+            return "Color 12";
+        case COLOR_BUFFER13:
+            return "Color 13";
+        case COLOR_BUFFER14:
+            return "Color 14";
+        case COLOR_BUFFER15:
+            return "Color 15";
+        default:
+            return "Unknown";
+    }
 }
 

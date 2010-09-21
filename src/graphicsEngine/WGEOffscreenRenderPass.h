@@ -116,6 +116,15 @@ public:
      */
     std::string getName() const;
 
+    /**
+     * Returns the buffer name. This is useful for debugging messages and so on as it maps a buffer constant to its name.
+     *
+     * \param buffer the buffer to get the name for
+     *
+     * \return the name
+     */
+    static std::string getBufferName( BufferComponent buffer );
+
 protected:
 
     /**

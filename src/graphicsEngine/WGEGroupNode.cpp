@@ -68,6 +68,14 @@ void WGEGroupNode::remove( osg::ref_ptr< osg::Node > node )
     lock.unlock();
 }
 
+void WGEGroupNode::remove_if( boost::shared_ptr< WGEGroupNode::NodePredicate > predicate )
+{
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
+    m_childOperationQueue.push( ChildOperation( REMOVE_IF, predicate ) );
+    m_childOperationQueueDirty = true;
+    lock.unlock();
+}
+
 void WGEGroupNode::clear()
 {
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
@@ -92,19 +100,25 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
         while ( !rootNode->m_childOperationQueue.empty() )
         {
             // remove or insert or remove all?
-            if ( rootNode->m_childOperationQueue.front().first == INSERT )
+            if ( rootNode->m_childOperationQueue.front().m_operation == INSERT )
             {
                 // add specified child
-                rootNode->addChild( rootNode->m_childOperationQueue.front().second );
+                rootNode->addChild( rootNode->m_childOperationQueue.front().m_item );
             }
 
-            if ( rootNode->m_childOperationQueue.front().first == REMOVE )
+            if ( rootNode->m_childOperationQueue.front().m_operation == REMOVE )
             {
                 // remove specified child
-                rootNode->removeChild( rootNode->m_childOperationQueue.front().second );
+                rootNode->removeChild( rootNode->m_childOperationQueue.front().m_item );
             }
 
-            if ( rootNode->m_childOperationQueue.front().first == CLEAR )
+            if ( rootNode->m_childOperationQueue.front().m_operation == REMOVE_IF )
+            {
+                // remove children where m_predicate is true
+            //    rootNode->removeChild( rootNode->m_childOperationQueue.front().second );
+            }
+
+            if ( rootNode->m_childOperationQueue.front().m_operation == CLEAR )
             {
                 // remove all
                 rootNode->removeChild( 0, rootNode->getNumChildren() );
