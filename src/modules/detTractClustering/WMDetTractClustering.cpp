@@ -90,10 +90,16 @@ void WMDetTractClustering::moduleMain()
     {
         m_moduleState.wait();
 
+        if ( m_shutdownFlag() ) // in case of shutdown => abort
+        {
+            break;
+        }
+
         if ( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
         {
             continue;
         }
+
         if( m_rawTracts != m_tractInput->getData() ) // in case data has changed
         {
             m_rawTracts = m_tractInput->getData();
@@ -288,7 +294,6 @@ void WMDetTractClustering::cluster()
     m_dLtTableExists = true;
 
     boost::shared_ptr< WProgress > eraseProgress( new WProgress( "Erasing clusters", 1 ) );
-//    m_progress->addSubProgress( eraseProgress );
 
     // remove empty clusters
     WFiberCluster emptyCluster;
