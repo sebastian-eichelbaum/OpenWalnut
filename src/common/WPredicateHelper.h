@@ -147,7 +147,7 @@ namespace WPredicateHelper
          *
          * \return true if predicate evaluates to true
          */
-        virtual bool operator()( T& inst ) const = 0;
+        virtual bool operator()( T const& inst ) const = 0;
     };
 
     /**
@@ -166,7 +166,7 @@ namespace WPredicateHelper
          *
          * \param predicate the predicate used for checking
          */
-        ArbitraryPredicate( Predicate predicate ):
+        explicit ArbitraryPredicate( Predicate predicate ):
             ArbitraryPredicateBase< T >(),
             m_predicate( predicate )
         {
@@ -186,7 +186,7 @@ namespace WPredicateHelper
          *
          * \return true if predicate evaluates to true
          */
-        virtual bool operator()( T& inst ) const
+        virtual bool operator()( T const& inst ) const
         {
             return m_predicate( inst );
         };

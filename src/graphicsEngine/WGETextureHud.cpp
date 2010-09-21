@@ -150,7 +150,9 @@ bool hudEntryPredicate( osg::ref_ptr< osg::Texture > tex, osg::ref_ptr< osg::Nod
 void WGETextureHud::removeTexture( osg::ref_ptr< osg::Texture > texture )
 {
     typedef WPredicateHelper::ArbitraryPredicate< osg::ref_ptr< osg::Node > const,
-                                                  boost::function< bool ( osg::ref_ptr< osg::Node > const& ) > > TexCheck;
+                                                  boost::function< bool ( osg::ref_ptr< osg::Node > const& ) > > TexCheck;  // NOLINT - if the
+    // space after bool is removed (as the stylechecker want) it interprets it as old-style cast and complains about it. This is valid syntax for
+    // boost::function.
 
     m_group->remove_if(
         boost::shared_ptr< WGEGroupNode::NodePredicate >(

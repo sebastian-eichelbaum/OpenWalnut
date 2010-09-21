@@ -88,7 +88,7 @@ public:
      *
      * \param predicate the predicate.
      */
-    void remove_if( boost::shared_ptr< NodePredicate > predicate );
+    void remove_if( boost::shared_ptr< WGEGroupNode::NodePredicate > predicate );
 
     /**
      * Removes all children from this node.
@@ -164,9 +164,9 @@ protected:
         {
         };
 
-        ChildOperationType m_operation;                     //! the operation
-        osg::ref_ptr< osg::Node > m_item;                   //! the item to delete/add
-        boost::shared_ptr< NodePredicate > m_predicate;     //! the predicate used by conditional operations
+        ChildOperationType m_operation;                     //!< the operation to take
+        osg::ref_ptr< osg::Node > m_item;                   //!< the item to delete/add
+        boost::shared_ptr< NodePredicate > m_predicate;     //!< the predicate used by conditional operations
     };
 
     /**
