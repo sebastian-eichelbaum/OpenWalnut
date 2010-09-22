@@ -37,94 +37,99 @@
 #include "WGlyphRenderNode.h"
 
 /**
-*	Module for the GPU-based rendering of high order tensor glyphs.
-*/
+ * Module for the GPU-based rendering of high order tensor glyphs.
+ */
 class WMTensorGlyphs: public WModule
 {
-	public:
 
-		/**
-		*	Default constructor.
-		*/
-		WMTensorGlyphs();
+public:
 
-		/**
-		*	Destructor.
-		*/
-		virtual ~WMTensorGlyphs();
+    /**
+     * Default constructor.
+     */
+    WMTensorGlyphs();
 
-		/**
-		*	Gives back the name of this module.
-		*
-		*	\return the module's name.
-		*/
-		virtual const std::string getName() const;
+    /**
+     * Destructor.
+     */
+    virtual ~WMTensorGlyphs();
 
-		/**
-		*	Gives back a description of this module.
-		*
-		*	\return description to module.
-		*/
-		virtual const std::string getDescription() const;
+    /**
+     * Overrides WModule::getName().
+     *
+     * @return The module's name.
+     */
+    virtual const std::string getName() const;
 
-		/**
-		*	Overrides WModule::factory.
-		*/
-		virtual boost::shared_ptr<WModule> factory() const;
+    /**
+     * Overrides WModule::getDescription().
+     *
+     * @return The module's description.
+     */
+    virtual const std::string getDescription() const;
 
-		/**
-		*	Overrides WModule::getXPMIcon.
-		*/
-		virtual const char** getXPMIcon() const;
+    /**
+     * Overrides WModule::factory().
+     *
+     * @return An instance of this module.
+     */
+    virtual boost::shared_ptr< WModule > factory() const;
 
-	protected:
+    /**
+     * Overrides WModule::getXPMIcon().
+     *
+     * @return The module's icon.
+     */
+    virtual const char** getXPMIcon() const;
 
-		/**
-		*	Overrides WModule::moduleMain.
-		*/
-		virtual void moduleMain();
+protected:
 
-		/**
-		*	Overrides WModule::connectors.
-		*/
-		virtual void connectors();
+    /**
+     * Overrides WModule::moduleMain().
+     */
+    virtual void moduleMain();
 
-		/**
-		*	Overrides WModule::properties.
-		*/
-		virtual void properties();
+    /**
+     * Overrides WModule::connectors().
+     */
+    virtual void connectors();
 
-		/**
-		*	Overrides WModule::activate.
-		*/
-		virtual void activate();
+    /**
+     * Overrides WModule::properties().
+     */
+    virtual void properties();
 
-		/**
-		*	The root node used for this modules graphics.
-		*/
-		osg::ref_ptr<WGlyphRenderNode> renderNode;
+    /**
+     * Overrides WModule::activate().
+     */
+    virtual void activate();
 
-	private:
+    /**
+     * The root node used for this modules graphics.
+     */
+    osg::ref_ptr< WGlyphRenderNode > renderNode;
 
-		/**
-		*	The input dataset containing the tensor data.
-		*/
-		boost::shared_ptr<WModuleInputData<WDataSetSingle> > m_input;
+private:
 
-		/**
-		*	A condition used to notify about changes in several properties.
-		*/
-		boost::shared_ptr<WCondition> m_propertyChanged;
+    /**
+     * The input dataset containing the tensor data.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetSingle> > m_input;
 
-		/**
-		*	Slice positions.
-		*/
-		WPropInt m_slices[3];
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propertyChanged;
 
-		/**
-		*	Show slices.
-		*/
-		WPropBool m_sliceEnabled[3];
+    /**
+     * Slice positions.
+     */
+    WPropInt m_slices[3];
+
+    /**
+     * Show slices.
+     */
+    WPropBool m_sliceEnabled[3];
 };
 
 #endif

@@ -33,218 +33,356 @@
 #include "../../graphicsEngine/OpenCL/WCLRenderNode.h"
 
 /**
-*	A Node for rendering high order tensor glyphs with OpenCL.
-*/
+ * A Node for rendering high order tensor glyphs with OpenCL.
+ */
 class WGlyphRenderNode: public WCLRenderNode
 {
-	public:
 
-		/**
-		*	Constructor.
-		*/
-		WGlyphRenderNode(const boost::shared_ptr<WDataSetSingle>& data,const int& order,
-					 const int& sliceX, const int& sliceY, const int& sliceZ,
-					 const bool& enabledX,const bool& enabledY,const bool& enabledZ,
-					 const boost::filesystem::path& search);
+public:
 
-		/**
-		*	Copy constructor.
-		*/
-		WGlyphRenderNode(const WGlyphRenderNode& WGlyphRenderNode,const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+    /**
+     * Constructor.
+     *
+     * @param data The tensor data.
+     * @param order The tensor order.
+     * @param sliceX The x slice to display.
+     * @param sliceY The y slice to display.
+     * @param sliceZ The z slice to display.
+     * @param enabledX States whether the x slice is to be drawn.
+     * @param enabledY States whether the y slice is to be drawn.
+     * @param enabledZ States whether the z slice is to be drawn.
+     * @param path The path of the kernel file.
+     */
+    WGlyphRenderNode(const boost::shared_ptr< WDataSetSingle >& data,const int& order,
+                     const int& sliceX, const int& sliceY, const int& sliceZ,
+                     const bool& enabledX,const bool& enabledY,const bool& enabledZ,
+                     const boost::filesystem::path& search);
 
-		/**
-		*	Overrides Object::cloneType.
-		*/
-		virtual osg::Object* cloneType() const;
+    /**
+     * Copy constructor.
+     */
+    WGlyphRenderNode(const WGlyphRenderNode& WGlyphRenderNode,const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
 
-		/**
-		*	Overrides Object::clone.
-		*/
-		virtual osg::Object* clone(const osg::CopyOp& copyop) const;
+     /**
+     * Overrides osg::Object::cloneType().
+     *
+     * @return The cloned node.
+     */
+    virtual osg::Object* cloneType() const;
 
-		/**
-		*	Overrides Object::isSameKindAs.
-		*/
-		virtual bool isSameKindAs(const osg::Object* obj) const;
+    /**
+     * Overrides osg::Object::clone().
+     *
+     * @param copyop The optional OSG copy operator.
+     *
+     * @return The cloned node.
+     */
+    virtual osg::Object* clone(const osg::CopyOp& copyop) const;
 
-		/**
-		*	Overrides Object::libraryName.
-		*/
-        virtual const char* libraryName() const;
+    /**
+     * Overrides osg::Object::isSameKindAs().
+     *
+     * @param copyop The optional OSG copy operator.
+     *
+     * @return States whether this node and obj are of same type.
+     */
+    virtual bool isSameKindAs(const osg::Object* obj) const;
 
-		/**
-		*	Overrides Object::className.
-		*/
-        virtual const char* className() const;
+    /**
+     * Overrides osg::Object::libraryName().
+     *
+     * @return Gives this node's library name.
+     */
+    virtual const char* libraryName() const;
 
-		/**
-		*	Overrides WCLRenderNode::computeBoundingBox.
-		*/
-		virtual osg::BoundingBox computeBoundingBox() const;
+    /**
+     * Overrides osg::Object::className().
+     *
+     * @return Gives this node's class name.
+     */
+    virtual const char* className() const;
 
-		/**
-		*	Has the kernel source code successfully been read?
-		*/
-		bool isSourceRead() const;
+    /**
+     * Overrides osg::Node::traverse().
+     *
+     * @param nv The traversal's node visitor.
+     */
+    virtual osg::BoundingBox computeBoundingBox() const;
 
-		/**
-		*	Set the new tensor data to render. This method assumes data validity.
-		*/
-		void setTensorData(const boost::shared_ptr<WDataSetSingle>& data,const int& order,
-						   const int& sliceX, const int& sliceY, const int& sliceZ,
-						   const bool& enabledX,const bool& enabledY,const bool& enabledZ);
+    /**
+     * Has the kernel source code successfully been read?
+     *
+     * @return States whether the source file has been read.
+     */
+    bool isSourceRead() const;
 
-		/**
-		*	Set the slice properties to render.
-		*/
-		void setSlices(const int& sliceX, const int& sliceY, const int& sliceZ,
-					   const bool& enabledX,const bool& enabledY,const bool& enabledZ);
+    /**
+     * Set the new tensor data to render. This method assumes data validity.
+     *
+     * @param data The tensor data.
+     * @param order The tensor order.
+     * @param sliceX The x slice to display.
+     * @param sliceY The y slice to display.
+     * @param sliceZ The z slice to display.
+     * @param enabledX States whether the x slice is to be drawn.
+     * @param enabledY States whether the y slice is to be drawn.
+     * @param enabledZ States whether the z slice is to be drawn.
+     */
+    void setTensorData(const boost::shared_ptr< WDataSetSingle >& data,const int& order,
+                       const int& sliceX, const int& sliceY, const int& sliceZ,
+                       const bool& enabledX,const bool& enabledY,const bool& enabledZ);
 
-	protected:
+    /**
+     * Set the slice properties to render.
+     *
+     * @param sliceX The x slice to display.
+     * @param sliceY The y slice to display.
+     * @param sliceZ The z slice to display.
+     * @param enabledX States whether the x slice is to be drawn.
+     * @param enabledY States whether the y slice is to be drawn.
+     * @param enabledZ States whether the z slice is to be drawn.
+     */
+    void setSlices(const int& sliceX, const int& sliceY, const int& sliceZ,
+                   const bool& enabledX,const bool& enabledY,const bool& enabledZ);
 
-		/**
-		*	Destructor.
-		*/
-		virtual ~WGlyphRenderNode();
+protected:
 
-	private:
+    /**
+     * Destructor.
+     */
+    virtual ~WGlyphRenderNode();
 
-		/**
-		*	Callback used to update the data thread-safe without removing and readding the glyph render
-		*	object from the scene graph.
-		*/
-		class DataChangeCallback: public osg::NodeCallback
-		{
-			public:
+private:
 
-				DataChangeCallback();
+    /**
+     * Callback used to update the data thread-safe without removing and readding the glyph render
+     * object from the scene graph.
+     */
+    class DataChangeCallback: public osg::NodeCallback
+    {
 
-				virtual void operator()(osg::Node* node,osg::NodeVisitor* nv);
+    public:
 
-				bool m_changed;
-				bool m_dataChanged;
+        /**
+         * Constructor.
+         */
+        DataChangeCallback();
 
-				int m_order;
-				int m_slices[3];
-				int m_sliceEnabled[3];
+        /**
+         * Overrides osg::NodeCallback::operator().
+         *
+         * @param node The node to change.
+         * @param nv The traversal's NodeVisitor.
+         */
+        virtual void operator()(osg::Node* node,osg::NodeVisitor* nv);
 
-				boost::shared_ptr<WDataSetSingle> m_tensorData;
-		};
+        /**
+         * Data or slices changed.
+         */
+        bool m_changed;
 
-		/**
-		*	Callback used to update the CL objects.
-		*/
-		class ReloadCallback: public CLDataChangeCallback
-		{
-			public:
+        /**
+         * Data changed.
+         */
+        bool m_dataChanged;
 
-				virtual void change(CLProgramDataSet* clProgramDataSet) const;
-		};
+        /**
+         * The new data's tensor order.
+         */
+        int m_order;
 
-		/**
-		*	Derives from WCLRenderNode::CLProgramDataSet.
-		*/
-		class CLObjects: public CLProgramDataSet
-		{
-			public:
+        /**
+         * The new slice positions.
+         */
+        int m_slices[3];
 
-				CLObjects();
+        /**
+         * The new slice status.
+         */
+        int m_sliceEnabled[3];
 
-				~CLObjects();
+        /**
+         * The new tensor data.
+         */
+        boost::shared_ptr< WDataSetSingle > m_tensorData;
+    };
 
-				cl_program clProgram;
-				cl_kernel clScaleKernel;
-				cl_kernel clRenderKernel;
-				cl_mem tensorData;
-				cl_mem factors;
+    /**
+     * Callback used to update the CL objects.
+     */
+    class ReloadCallback: public CLDataChangeCallback
+    {
 
-				bool reloadData;
-		};
+    public:
 
-		/**
-		*	Overrides WCLRenderNode::initProgram.
-		*/
-		virtual CLProgramDataSet* initProgram(const CLViewInformation& clViewInfo) const;
+        /**
+         * Overrides WCLRenderNode::CLDataChangeCallback::change().
+         *
+         * @param clProgramDataSet The CLProgramDataSet to be changed.
+         */
+        virtual void change(CLProgramDataSet* clProgramDataSet) const;
+    };
 
-		/**
-		*	Overrides WCLRenderNode::setBuffers.
-		*/
-		virtual void setBuffers(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet) const;
+    /**
+     * Derives from WCLRenderNode::CLProgramDataSet.
+     */
+    class CLObjects: public CLProgramDataSet
+    {
 
-		/**
-		*	Overrides WCLRenderNode::render.
-		*/
-		virtual void render(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet) const;
+    public:
 
-		/**
-		*	Loads new data to GPU memory.
-		*/
-		bool loadCLData(const CLViewInformation& clViewInfo,CLObjects& clObjects) const;
+        /**
+         * Constructor.
+         */
+        CLObjects();
 
-		/**
-		*	Tensor order.
-		*/
-		int m_order;
+        /**
+         * Destructor.
+         */
+        ~CLObjects();
 
-		/**
-		*	Number of tensors in grid's x, y and z direction.
-		*/
-		int m_numOfTensors[3];
+        /**
+         * The CL program containing scaling and rendering kernel.
+         */
+        cl_program clProgram;
 
-		/**
-		*	Slice positions.
-		*/
-		int m_slices[3];
+        /**
+         * The scaling kernel.
+         */
+        cl_kernel clScaleKernel;
 
-		/**
-		*	Show slices.
-		*/
-		int m_sliceEnabled[3];
+        /**
+         * The rendering kernel.
+         */
+        cl_kernel clRenderKernel;
 
-		/**
-		*	The tensor data set.
-		*/
-		boost::shared_ptr<WDataSetSingle> m_tensorData;
+        /**
+         * The tensor data.
+         */
+        cl_mem tensorData;
 
-		/**
-		*	The kernel source code.
-		*/
-		std::string m_kernelSource;
+        /**
+         * The multinomial factors.
+         */
+        cl_mem factors;
 
-		/**
-		*	Has the kernel source code successfully been read?
-		*/
-		mutable bool m_sourceRead;
+        /**
+         * Data has to be reloaded.
+         */
+        bool reloadData;
+    };
+
+    /**
+     * Overrides WCLRenderNode::initProgram().
+     *
+     * @param clViewInfo The CLViewInformation.
+     *
+     * @return A CLProgramDataSet containing CL objects.
+     */
+    virtual CLProgramDataSet* initProgram(const CLViewInformation& clViewInfo) const;
+
+    /**
+     * Overrides WCLRenderNode::setBuffers().
+     *
+     * @param clViewInfo The CLViewInformation.
+     * @param clProgramDataSet The CLProgramDataSet.
+     */
+    virtual void setBuffers(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet) const;
+
+    /**
+     * Overrides WCLRenderNode::render().
+     *
+     * @param clViewInfo The CLViewInformation.
+     * @param clProgramDataSet The CLProgramDataSet.
+     */
+    virtual void render(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet) const;
+
+    /**
+     * Loads new data to GPU memory.
+     *
+     * @param clViewInfo The CLViewInformation needed for data loading.
+     * @param clObjects The CL objects.
+     */
+    bool loadCLData(const CLViewInformation& clViewInfo,CLObjects& clObjects) const;
+
+    /**
+     * Tensor order.
+     */
+    int m_order;
+
+    /**
+     * Number of tensors in grid's x, y and z direction.
+     */
+    int m_numOfTensors[3];
+
+    /**
+     * Slice positions.
+     */
+    int m_slices[3];
+
+    /**
+     * Show slices.
+     */
+    int m_sliceEnabled[3];
+
+    /**
+     * The tensor data set.
+     */
+    boost::shared_ptr< WDataSetSingle > m_tensorData;
+
+    /**
+     * The kernel source code.
+     */
+    std::string m_kernelSource;
+
+    /**
+     * Has the kernel source code successfully been read?
+     */
+    mutable bool m_sourceRead;
 };
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 inline osg::Object* WGlyphRenderNode::cloneType() const
 {
-	return 0;
+    return 0;
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 inline osg::Object* WGlyphRenderNode::clone(const osg::CopyOp& copyop) const
 {
-	return new WGlyphRenderNode(*this,copyop);
+    return new WGlyphRenderNode(*this,copyop);
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 inline bool WGlyphRenderNode::isSameKindAs(const osg::Object* obj) const
 {
-	return dynamic_cast<const WGlyphRenderNode*>(obj) != 0;
+    return dynamic_cast< const WGlyphRenderNode* >(obj) != 0;
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 inline const char* WGlyphRenderNode::libraryName() const
 {
-	return "tensorGlyphs";
+    return "tensorGlyphs";
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 inline const char* WGlyphRenderNode::className() const
 {
-	return "WGlyphRenderNode";
+    return "WGlyphRenderNode";
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 inline bool WGlyphRenderNode::isSourceRead() const
 {
-	return m_sourceRead;
+    return m_sourceRead;
 }
+
+/*-------------------------------------------------------------------------------------------------------------------*/
 
 #endif
