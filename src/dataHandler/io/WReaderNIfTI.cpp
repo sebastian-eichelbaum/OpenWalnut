@@ -299,7 +299,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
         else if( vDim > 20 && header->dim[ 5 ] <= 1 ) // hardi data, order 1
         {
             wlog::debug( "WReaderNIfTI" ) << "Load as WDataSetRawHARDI";
-            
+
             std::string gradientFileName = m_fname;
             using wiotools::getSuffix;
             std::string suffix = getSuffix( m_fname );
