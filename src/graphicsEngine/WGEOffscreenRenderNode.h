@@ -31,7 +31,9 @@
 
 #include "WGEGroupNode.h"
 #include "WGEOffscreenRenderPass.h"
+#include "WGEOffscreenTexturePass.h"
 #include "WGETextureHud.h"
+#include "callbacks/WGEViewportCallback.h"
 
 /**
  * This type of node basically is a convenience class for managing and creating offscreen renderings. The children of this node should be of type
@@ -88,7 +90,7 @@ public:
      *
      * \return the texture processing pass created.
      */
-    virtual osg::ref_ptr< WGEOffscreenRenderPass >  addTextureProcessingPass( std::string name = "Unnamed" );
+    virtual osg::ref_ptr< WGEOffscreenTexturePass >  addTextureProcessingPass( std::string name = "Unnamed" );
 
     /**
      * Creates a new offscreen-render-pass coupled with the reference camera. This pass actually does nothing. The method is useful for custom
@@ -97,8 +99,11 @@ public:
      * \param name the name of the render pass. You should specify it to enable the nice debugging feature of WGETextureHud.
      *
      * \return new instance of a plain render pass
+     *
+     * \tparam T the type of pass to create.
      */
-    virtual osg::ref_ptr< WGEOffscreenRenderPass >  addRenderPass( std::string name = "Unnamed" );
+    template < typename T >
+    osg::ref_ptr< T >  addRenderPass( std::string name = "Unnamed" );
 
 protected:
 
@@ -130,6 +135,27 @@ private:
      */
     size_t m_nextPassNum;
 };
+
+template < typename T >
+osg::ref_ptr< T > WGEOffscreenRenderNode::addRenderPass( std::string name )
+{
+    // create a new pass
+    osg::ref_ptr< T > pass = new T( m_textureWidth, m_textureHeight, m_hud, name, m_nextPassNum );
+    m_nextPassNum++;
+
+    // this node needs to keep all the pass instances. Only this way, the OSG traverses and renders these nodes in the order specified by
+    // m_nextPassNum.
+    insert( pass );   // insert into this group
+
+    // ensure proper propagation of viewport changes
+    pass->addUpdateCallback( new WGEViewportCallback< T >( m_referenceCamera ) );
+
+    // set clear mask and color according to reference cam
+    pass->setClearMask( m_referenceCamera->getClearMask() );
+    pass->setClearColor( m_referenceCamera->getClearColor() );
+
+    return pass;
+}
 
 #endif  // WGEOFFSCREENRENDERNODE_H
 

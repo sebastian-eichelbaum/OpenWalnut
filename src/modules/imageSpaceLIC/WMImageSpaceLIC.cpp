@@ -224,8 +224,7 @@ void WMImageSpaceLIC::moduleMain()
     //  * Depth in R
     //  * Edges in G
     osg::ref_ptr< osg::Texture2D > edgeDetectionOut1 = edgeDetection->attach( osg::Camera::COLOR_BUFFER0 );
-    osg::StateSet* state = edgeDetection->getOrCreateStateSet();
-    state->setTextureAttributeAndModes( 0, transformationDepth, osg::StateAttribute::ON );
+    edgeDetection->bind( 0, transformationDepth );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Main loop

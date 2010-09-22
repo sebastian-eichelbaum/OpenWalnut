@@ -101,6 +101,16 @@ public:
     void detach( BufferComponent buffer );
 
     /**
+     * Binds the specified texture to the specified unit.
+     *
+     * \param unit the unit to use
+     * \param texture the texture to use.
+     * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
+     */
+    template < typename T >
+    void bind( size_t unit, osg::ref_ptr< T > texture );
+
+    /**
      * Creates a new texture suitable for this offscreen rendering instance. The texture will have the same size as the viewport of this camera.
      *
      * \param internalFormat the format to use for the texture.
@@ -124,6 +134,20 @@ public:
      * \return the name
      */
     static std::string getBufferName( BufferComponent buffer );
+
+    /**
+     * Get the size of the underlying texture.
+     *
+     * \return the width
+     */
+    size_t getTextureWidth() const;
+
+    /**
+     * Get the size of the underlying texture.
+     *
+     * \return the height
+     */
+    size_t getTextureHeight() const;
 
 protected:
 
@@ -153,6 +177,12 @@ protected:
     std::string m_name;
 private:
 };
+
+template < typename T >
+void WGEOffscreenRenderPass::bind( size_t unit, osg::ref_ptr< T > texture )
+{
+    getOrCreateStateSet()->setTextureAttributeAndModes( unit, texture, osg::StateAttribute::ON );
+}
 
 #endif  // WGEOFFSCREENRENDERPASS_H
 

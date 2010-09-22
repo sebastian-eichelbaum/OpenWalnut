@@ -55,7 +55,7 @@ WGEGroupNode::~WGEGroupNode()
 void WGEGroupNode::insert( osg::ref_ptr< osg::Node > node )
 {
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
-    m_childOperationQueue.push( ChildOperation( INSERT, node ) );
+    m_childOperationQueue.push( new ChildOperation( INSERT, node ) );
     m_childOperationQueueDirty = true;
     lock.unlock();
 }
@@ -63,7 +63,7 @@ void WGEGroupNode::insert( osg::ref_ptr< osg::Node > node )
 void WGEGroupNode::remove( osg::ref_ptr< osg::Node > node )
 {
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
-    m_childOperationQueue.push( ChildOperation( REMOVE, node ) );
+    m_childOperationQueue.push( new ChildOperation( REMOVE, node ) );
     m_childOperationQueueDirty = true;
     lock.unlock();
 }
@@ -71,7 +71,7 @@ void WGEGroupNode::remove( osg::ref_ptr< osg::Node > node )
 void WGEGroupNode::remove_if( boost::shared_ptr< WGEGroupNode::NodePredicate > predicate )
 {
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
-    m_childOperationQueue.push( ChildOperation( REMOVE_IF, predicate ) );
+    m_childOperationQueue.push( new ChildOperation( REMOVE_IF, predicate ) );
     m_childOperationQueueDirty = true;
     lock.unlock();
 }
@@ -79,7 +79,7 @@ void WGEGroupNode::remove_if( boost::shared_ptr< WGEGroupNode::NodePredicate > p
 void WGEGroupNode::clear()
 {
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
-    m_childOperationQueue.push( ChildOperation( CLEAR, osg::ref_ptr< osg::Node >() ) ); // this encodes the remove all feature
+    m_childOperationQueue.push( new ChildOperation( CLEAR, osg::ref_ptr< osg::Node >() ) ); // this encodes the remove all feature
     m_childOperationQueueDirty = true;
     lock.unlock();
 }
@@ -100,25 +100,35 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
         while ( !rootNode->m_childOperationQueue.empty() )
         {
             // remove or insert or remove all?
-            if ( rootNode->m_childOperationQueue.front().m_operation == INSERT )
+            if ( rootNode->m_childOperationQueue.front()->m_operation == INSERT )
             {
                 // add specified child
-                rootNode->addChild( rootNode->m_childOperationQueue.front().m_item );
+                rootNode->addChild( rootNode->m_childOperationQueue.front()->m_item );
             }
 
-            if ( rootNode->m_childOperationQueue.front().m_operation == REMOVE )
+            if ( rootNode->m_childOperationQueue.front()->m_operation == REMOVE )
             {
                 // remove specified child
-                rootNode->removeChild( rootNode->m_childOperationQueue.front().m_item );
+                rootNode->removeChild( rootNode->m_childOperationQueue.front()->m_item );
             }
 
-            if ( rootNode->m_childOperationQueue.front().m_operation == REMOVE_IF )
+            if ( rootNode->m_childOperationQueue.front()->m_operation == REMOVE_IF )
             {
                 // remove children where m_predicate is true
-            //    rootNode->removeChild( rootNode->m_childOperationQueue.front().second );
+                for ( size_t i = 0; i < rootNode->getNumChildren(); )
+                {
+                    if ( ( *rootNode->m_childOperationQueue.front()->m_predicate )( rootNode->getChild( i ) ) )
+                    {
+                        // remove item but do not increment index
+                        rootNode->removeChild( i );
+                    }
+
+                    // this was not removed. Go to next one.
+                    ++i;
+                }
             }
 
-            if ( rootNode->m_childOperationQueue.front().m_operation == CLEAR )
+            if ( rootNode->m_childOperationQueue.front()->m_operation == CLEAR )
             {
                 // remove all
                 rootNode->removeChild( 0, rootNode->getNumChildren() );

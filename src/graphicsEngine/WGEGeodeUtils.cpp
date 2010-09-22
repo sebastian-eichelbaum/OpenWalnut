@@ -352,6 +352,7 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( osg::Vec3 const& base, osg::Vec3
     osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array;
     osg::ref_ptr< osg::Vec3Array > texcoords0 = new osg::Vec3Array;
     osg::ref_ptr< osg::Vec3Array > normals = new osg::Vec3Array;
+    osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
 
     osg::Vec3 aPlusB = a + b;
 
@@ -362,16 +363,16 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( osg::Vec3 const& base, osg::Vec3
 
     osg::Vec3 aCrossB = a ^ b;
     aCrossB.normalize();
-    aPlusB.normalize();
     osg::Vec3 aNorm = a;
     aNorm.normalize();
     osg::Vec3 bNorm = b;
     bNorm.normalize();
 
     normals->push_back( aCrossB );
+    colors->push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
     texcoords0->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
     texcoords0->push_back( aNorm );
-    texcoords0->push_back( aPlusB );
+    texcoords0->push_back( aNorm + bNorm );
     texcoords0->push_back( bNorm );
 
     // put it all together
@@ -379,7 +380,9 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( osg::Vec3 const& base, osg::Vec3
     geometry->setVertexArray( vertices );
     geometry->setTexCoordArray( 0, texcoords0 );
     geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
+    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     geometry->setNormalArray( normals );
+    geometry->setColorArray( colors );
     geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
 
     osg::ref_ptr< osg::Geode > geode = new osg::Geode();

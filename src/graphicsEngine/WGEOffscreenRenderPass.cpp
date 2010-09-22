@@ -132,6 +132,16 @@ std::string WGEOffscreenRenderPass::getName() const
     return m_name;
 }
 
+size_t WGEOffscreenRenderPass::getTextureWidth() const
+{
+    return m_width;
+}
+
+size_t WGEOffscreenRenderPass::getTextureHeight() const
+{
+    return m_height;
+}
+
 std::string WGEOffscreenRenderPass::getBufferName( BufferComponent buffer )
 {
     switch ( buffer )

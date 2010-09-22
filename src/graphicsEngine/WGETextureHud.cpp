@@ -42,7 +42,7 @@
 
 WGETextureHud::WGETextureHud():
     osg::Projection(),
-    m_group( new WGEGroupNode ),
+    m_group( new WGEGroupNode() ),
     m_maxElementWidth( 256 ),
     m_viewport( new osg::Viewport() ),
     m_coupleTexViewport( false )
