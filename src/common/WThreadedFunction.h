@@ -36,7 +36,9 @@
 #include "WWorkerThread.h"
 #include "WSharedObject.h"
 
-//! an enum indicating the status of a multithreaded computation
+/**
+ * An enum indicating the status of a multithreaded computation
+ */
 enum WThreadedFunctionStatus
 {
     W_THREADS_INITIALIZED,      //! the status after constructing the function
@@ -45,6 +47,15 @@ enum WThreadedFunctionStatus
     W_THREADS_ABORTED,          //! at least one thread was aborted due to a stop request or an exception
     W_THREADS_FINISHED          //! all threads completed their work successfully
 };
+
+/**
+ * An enum indicating the number of threads used
+ */
+enum WThreadedFunctionNbThreads
+{
+    W_AUTOMATIC_NB_THREADS = 0      //!< Use half the available cores as number of threads
+};
+
 
 /**
  * \class WThreadedFunction
@@ -201,7 +212,7 @@ WThreadedFunction< Function_T >::WThreadedFunction( std::size_t numThreads, boos
     }
 
     // find a suitable number of threads
-    if( m_numThreads == 0 )
+    if( m_numThreads == W_AUTOMATIC_NB_THREADS )
     {
         m_numThreads = 1;
         while( m_numThreads < boost::thread::hardware_concurrency() / 2 && m_numThreads < 1024 )

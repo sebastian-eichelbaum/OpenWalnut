@@ -30,13 +30,14 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/WDataSetSphericalHarmonics.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
 /**
- * Spherical harmonics glyphs usingf teem (http://teem.sourceforge.net/).
+ * Spherical harmonics glyphs using teem (http://teem.sourceforge.net/).
  * According to http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
  * Thanks to Thomas Schultz.
  *
@@ -102,7 +103,7 @@ protected:
 
 private:
     /**
-     * An input connector that accepts sperical harmonics datasets.
+     * An input connector that accepts spherical harmonics datasets.
      */
     boost::shared_ptr< WModuleInputData< WDataSetSphericalHarmonics > > m_input;
 
@@ -128,11 +129,13 @@ private:
      */
     void renderSlice( size_t sliceId );
 
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputGFA; //!< The input for the GFA.
     osg::ref_ptr< WShader > m_shader; //!< The shader used for the glyph surfaces
     boost::shared_ptr< WItemSelection > m_sliceOrientations; //!< A list of the selectable slice orientations, i.e  x, y and z.
     WPropSelection m_sliceOrientationSelection; //!< To choose whether to x, y or z slice.
     WPropBool m_usePolarPlotProp; //!< Property indicating whether to use polar plot instead of HOME glyph
     WPropBool m_useNormalizationProp; //!< Indicates whether to us radius normalization.
+    WPropDouble m_GFAThresholdProp; //!< Property holding the threshold of GFA above which glyphs should be drawn.
     WPropDouble m_glyphSizeProp; //!< Property holding the size of the displayed glyphs
     WPropInt m_sliceIdProp; //!< Property holding the slice ID
 
@@ -150,6 +153,8 @@ private:
          * Constructor setting the data pointers and the properties from the module.
          *
          * \param dataSet Pointer to the treated data set.
+         * \param dataGFA GFA data for dataSet.
+         * \param thresholdGFA Threshold of GFA below which we will not draw the glyphs
          * \param sliceId Rendered slice
          * \param sliceType Slice direction (sagittal, coronal, axial )
          * \param usePolar Use polar glyphs (HOME otherwise)
@@ -157,6 +162,8 @@ private:
          * \param useNormalization Scale minimum and maximum radius to [0,1].
          */
         GlyphGeneration(  boost::shared_ptr< WDataSetSphericalHarmonics > dataSet,
+                          boost::shared_ptr< WDataSetScalar > dataGFA,
+                          double thresholdGFA,
                           const size_t& sliceId,
                           const size_t& sliceType,
                           const bool& usePolar,
@@ -186,7 +193,7 @@ private:
         /**
          * Makes the radii of the glyph be distributed between [0,1]
          * \param glyph The glyph that will be normalized given as teem's limnPolyData.
-         * \param nbVertCoords Number of coords per vertex for the glyph polydata
+         * \param nbVertCoords Number of coordinates per vertex for the glyph poly-data
          */
         void minMaxNormalization( limnPolyData *glyph, const size_t& nbVertCoords );
 
@@ -196,6 +203,7 @@ private:
         size_t m_nY; //!< Number of voxels in y direction.
         size_t m_nZ; //!< Number of voxels in z direction.
         boost::shared_ptr< WDataSetSphericalHarmonics > m_dataSet; //!< Pointer to the treated data set.
+        boost::shared_ptr< WDataSetScalar > m_dataGFA; //!< Pointer to possible GFA data set.
         boost::shared_ptr< WGridRegular3D > m_grid; //!< Pointer to the grid of the treated data set.
         osg::Geometry* m_glyphGeometry; //!< All glyphs.
         osg::ref_ptr< osg::Geode > m_glyphsGeode; //!< The geode containing the glyphs.
@@ -205,6 +213,7 @@ private:
         osg::ref_ptr< osg::DrawElementsUInt > m_glyphElements; //!< Indices of the vertices of the triangles of the glyphs.
         osg::ref_ptr< WGEGroupNode > m_generatorNode; //!< Pointer to the generators group node.
 
+        double m_thresholdGFA; //!< Stores the GFA threshold from the property.
         size_t m_sliceId; //!< Stores option from property.
         size_t m_sliceType; //!< Stores option from property.
         bool m_usePolar; //!< Stores option from property.

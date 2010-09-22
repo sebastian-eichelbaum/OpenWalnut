@@ -61,7 +61,7 @@ public:
     }
 
     /**
-     * Makes the matix contain the identity matrix, i.e. 1 on the diagonal.
+     * Makes the matrix contain the identity matrix, i.e. 1 on the diagonal.
      */
     WMatrix& makeIdentity()
     {
@@ -100,7 +100,7 @@ public:
     }
 
     /**
-     * Returns a reference to the component an row i, colums j in order to
+     * Returns a reference to the component an row i, columns j in order to
      * provide access to the component.
      * \param i row
      * \param j column
@@ -112,7 +112,7 @@ public:
     }
 
     /**
-     * Returns a const reference to the component an row i, colums j in order to
+     * Returns a const reference to the component an row i, columns j in order to
      * provide read-only access to the component.
      * \param i row
      * \param j column

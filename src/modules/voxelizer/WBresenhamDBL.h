@@ -44,7 +44,7 @@ public:
      *
      * \param grid The grid which defines the voxels which should be marked.
      * \param antialiased If true then all voxels of a line are supported with
-     * antialiasing voxels around
+     * anti-aliasing voxels around
      */
     WBresenhamDBL( boost::shared_ptr< WGridRegular3D > grid, bool antialiased = true );
 
@@ -55,15 +55,15 @@ public:
 
 protected:
     /**
-     * Scans a line segement for voxels which are hit.
+     * Scans a line segment for voxels which are hit.
      *
-     * \warning Not every voxel which is hitten by the segement will be marked
-     * but at least so many voxels so that the segement is represented by those
+     * \warning Not every voxel which is hit by the segment will be marked
+     * but at least so many voxels so that the segment is represented by those
      * voxels.
      *
      * \note This algorithm may be slow since using double operations.
-     * \param start Start point of the line segement
-     * \param stop End point of the line segement
+     * \param start Start point of the line segment
+     * \param stop End point of the line segment
      */
     void rasterSegment( const wmath::WPosition& start, const wmath::WPosition& stop );
 

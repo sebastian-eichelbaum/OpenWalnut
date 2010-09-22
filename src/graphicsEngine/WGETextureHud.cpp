@@ -23,19 +23,25 @@
 //---------------------------------------------------------------------------
 
 #include <iostream>
+#include <string>
 
 #include <osg/Camera>
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/MatrixTransform>
 #include <osg/TexEnv>
+#include <osgText/Text>
+
+#include "../common/WPathHelper.h"
 
 #include "WGETextureHud.h"
 
 WGETextureHud::WGETextureHud():
     osg::Projection(),
     m_group( new WGEGroupNode ),
-    m_maxElementWidth( 256 )
+    m_maxElementWidth( 256 ),
+    m_viewport( new osg::Viewport() ),
+    m_coupleTexViewport( false )
 {
     getOrCreateStateSet()->setRenderBinDetails( 1000, "RenderBin" );
     m_group->addUpdateCallback( new SafeUpdateCallback( this ) );
@@ -49,12 +55,9 @@ WGETextureHud::~WGETextureHud()
 
 void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
-    // TODO(ebaum): all those values (viewport, size of textures) are hardcoded. This is ugly but works for now.
-    // TODO(ebaum): use shader to selectively render channels ( if one only wants to see the alpha channel for example).
-
     // set the new size of the widget (how can we get this data?)
-    unsigned int screenWidth = 1024;
-    unsigned int screenHeight = 768;
+    unsigned int screenWidth = m_hud->m_viewport->width();
+    unsigned int screenHeight = m_hud->m_viewport->height();
     m_hud->setMatrix( osg::Matrix::ortho2D( 0, screenWidth, 0, screenHeight ) );
 
     // border around each element
@@ -73,12 +76,23 @@ void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
         WGETextureHudEntry* tex = static_cast< WGETextureHudEntry* >( group->getChild( i ) );
 
         // scale the height of the quad (texture) to have proper aspect ratio
-        double height = m_hud->getMaxElementWidth() * tex->getRealHeight() / tex->getRealWidth();
+        float height = static_cast< float >( m_hud->getMaxElementWidth() * tex->getRealHeight() ) / static_cast< float >( tex->getRealWidth() );
+
+        // scale texture if needed
+        if ( m_hud->m_coupleTexViewport )
+        {
+            osg::ref_ptr< osg::TexMat > texMat = tex->getTextureMatrix();
+            texMat->setMatrix( osg::Matrixd::scale( static_cast< float >( screenWidth ) / static_cast< float >( tex->getRealWidth() ),
+                                                    static_cast< float >( screenHeight )/ static_cast< float >( tex->getRealHeight() ), 1.0 ) );
+
+            // this also changes the aspect ratio in the texture:
+            height = static_cast< float >( m_hud->getMaxElementWidth() * screenHeight ) / static_cast< float >( screenWidth );
+        }
 
         // scale them to their final size
         osg::Matrixd scale = osg::Matrixd::scale( m_hud->getMaxElementWidth(), height, 1.0 );
 
-        // need to add a "linebreak"?
+        // need to add a "line-break"?
         if ( nextY + height + border > screenHeight )
         {
             nextX += m_hud->getMaxElementWidth() + border;
@@ -89,7 +103,7 @@ void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
         osg::Matrixd translate = osg::Matrixd::translate( static_cast< double >( nextX ), static_cast< double >( nextY ), 0.0 );
         tex->setMatrix( scale * translate );
 
-        // calc the y position of the next texture
+        // calculate the y position of the next texture
         nextY += height + border;
     }
 
@@ -107,12 +121,31 @@ void WGETextureHud::removeTexture( osg::ref_ptr< WGETextureHudEntry > texture )
     m_group->remove( texture );
 }
 
-WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, bool transparency ):
+void WGETextureHud::removeTexture( osg::ref_ptr< osg::Texture > /* texture */ )
+{
+    // TODO(ebaum): implement me.
+}
+
+void WGETextureHud::setViewport( osg::Viewport* viewport )
+{
+    m_viewport = viewport;
+}
+
+void WGETextureHud::coupleViewportWithTextureViewport( bool couple )
+{
+    m_coupleTexViewport = couple;
+}
+
+WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, std::string name, bool transparency ):
     osg::MatrixTransform(),
-    m_texture( texture )
+    m_texture( texture ),
+    m_name( name )
 {
     setMatrix( osg::Matrixd::identity() );
     setReferenceFrame( osg::Transform::ABSOLUTE_RF );
+
+    //////////////////////////////////////////////////
+    // Texture Quad
 
     osg::Geode* geode = new osg::Geode();
 
@@ -159,6 +192,11 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
     state->setMode( GL_LIGHTING, osg::StateAttribute::PROTECTED );
     state->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
+    // enable texture coordinate manipulation via texture matrices
+    m_texMat = new osg::TexMat;
+    m_texMat->setMatrix( osg::Matrixd::identity() );
+    state->setTextureAttributeAndModes( 0, m_texMat, osg::StateAttribute::ON );
+
     // This disables colorblending of the texture with the underlying quad
     // osg::TexEnv* decalState = new osg::TexEnv();
     // decalState->setMode( osg::TexEnv::DECAL );
@@ -179,6 +217,22 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
 
     // add the geode
     addChild( geode );
+
+    //////////////////////////////////////////////////
+    // Text
+    osg::ref_ptr< osg::Geode > textGeode = new osg::Geode();
+    state = textGeode->getOrCreateStateSet();
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+    addChild( textGeode );
+    osgText::Text* label = new osgText::Text();
+    label->setFont( WPathHelper::getAllFonts().Default.file_string() );
+    label->setBackdropType( osgText::Text::OUTLINE );
+    label->setCharacterSize( 15 );
+    label->setText( m_name );
+    label->setAxisAlignment( osgText::Text::SCREEN );
+    label->setPosition( osg::Vec3( 0.01, 0.01, -1.0 ) );
+    label->setColor( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+    textGeode->addDrawable( label );
 }
 
 WGETextureHud::WGETextureHudEntry::~WGETextureHudEntry()
@@ -186,17 +240,27 @@ WGETextureHud::WGETextureHudEntry::~WGETextureHudEntry()
     // cleanup
 }
 
-unsigned int WGETextureHud::WGETextureHudEntry::getRealWidth()
+unsigned int WGETextureHud::WGETextureHudEntry::getRealWidth() const
 {
     return m_texture->getTextureWidth();
 }
 
-unsigned int WGETextureHud::WGETextureHudEntry::getRealHeight()
+unsigned int WGETextureHud::WGETextureHudEntry::getRealHeight() const
 {
     return m_texture->getTextureHeight();
 }
 
-unsigned int WGETextureHud::getMaxElementWidth()
+osg::ref_ptr< osg::TexMat > WGETextureHud::WGETextureHudEntry::getTextureMatrix() const
+{
+    return m_texMat;
+}
+
+std::string WGETextureHud::WGETextureHudEntry::getName() const
+{
+    return m_name;
+}
+
+unsigned int WGETextureHud::getMaxElementWidth() const
 {
     return m_maxElementWidth;
 }

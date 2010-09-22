@@ -151,7 +151,7 @@ void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat,
 
 /**
  * Calculate eigenvectors via the characteristic polynomial. This is essentially the same
- * function as in the gpu glyph shaders. This is for 3 dimensions only.
+ * function as in the GPU glyph shaders. This is for 3 dimensions only.
  *
  * \param m The symmetric matrix to calculate the eigenvalues from.
  * \return A std::vector of 3 eigenvalues in descending order.

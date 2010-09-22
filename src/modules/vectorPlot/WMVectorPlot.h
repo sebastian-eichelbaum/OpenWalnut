@@ -141,17 +141,17 @@ private:
 
     WPropBool     m_coloringMode; //!< indicates a set color or direction color coding.
 
-    WPropInt      m_xSlice; //!< x posistion of the slice
+    WPropInt      m_xSlice; //!< x position of the slice
 
-    WPropInt      m_ySlice; //!< y posistion of the slice
+    WPropInt      m_ySlice; //!< y position of the slice
 
-    WPropInt      m_zSlice; //!< z posistion of the slice
+    WPropInt      m_zSlice; //!< z position of the slice
 
-    WPropBool     m_showonX; //!< in dicates whether the vector should be shown on slice X
+    WPropBool     m_showonX; //!< indicates whether the vector should be shown on slice X
 
-    WPropBool     m_showonY; //!< in dicates whether the vector should be shown on slice Y
+    WPropBool     m_showonY; //!< indicates whether the vector should be shown on slice Y
 
-    WPropBool     m_showonZ; //!< in dicates whether the vector should be shown on slice Z
+    WPropBool     m_showonZ; //!< indicates whether the vector should be shown on slice Z
 
 
     WPropColor    m_aColor; //!< color
@@ -193,4 +193,3 @@ private:
 };
 
 #endif  // WMVECTORPLOT_H
-
