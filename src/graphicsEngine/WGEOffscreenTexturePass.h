@@ -91,6 +91,8 @@ private:
 
         /**
          * Constructor.
+         *
+         * \param pass the pass to which this callback is applied. Needed for accessing some mebers.
          */
         explicit TextureMatrixUpdateCallback( WGEOffscreenTexturePass* pass ): m_pass( pass )
         {
@@ -104,6 +106,9 @@ private:
          */
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
 
+        /**
+         * The pass used in conjunction with this callback.
+         */
         WGEOffscreenTexturePass* m_pass;
     };
 };
