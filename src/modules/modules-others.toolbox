@@ -20,6 +20,10 @@ ADD_SUBDIRECTORY( scalarSegmentation )
 ADD_SUBDIRECTORY( splineSurface )
 ADD_SUBDIRECTORY( surfaceParameterAnimator )
 
+IF( OSSIM_FOUND )
+  ADD_SUBDIRECTORY( calculateGFA )
+ENDIF()
+
 IF( Teem_FOUND )
   IF( OSSIM_FOUND )
 	ADD_SUBDIRECTORY( bermanTracking )

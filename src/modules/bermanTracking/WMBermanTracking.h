@@ -46,7 +46,7 @@
  * Jeffrey I. Berman, SungWon Chung, Pratik Mukherjee, Christopher P. Hess, Eric T. Han, Roland G. Henry,
  * "Probabilistic streamline q-ball tractography using the residual bootstrap",
  * NeuroImage, Volume 39, Issue 1, 1 January 2008, Pages 215-222
- * 
+ *
  * \ingroup modules
  */
 class WMBermanTracking: public WModule
@@ -161,15 +161,6 @@ private:
     void handleException( WException const& e );
 
     /**
-     * A function that gets called for every voxel in the input SH-dataset. Calculates a
-     * fractional anisotropy measure.
-     *
-     * \param s An array of SH-coefficients.
-     * \return A boost::array of size 1 that contains the result for the given voxel.
-     */
-    boost::array< double, 1 > perVoxelGFAFunc( WValueSet< double >::SubArray const& s );
-
-    /**
      * Calculate the spherical harmonics fitting matrix.
      */
     void calcSHFittingMatrix();
@@ -191,11 +182,6 @@ private:
      * \return A random spherical harmonic.
      */
     wmath::WSymmetricSphericalHarmonic createRandomODF( std::size_t i );
-
-    /**
-     * Calculate the gfa measure for every voxel of the current input data.
-     */
-    void calcGFA();
 
     //! Stores the gfa measure for the input data.
     boost::shared_ptr< WDataSetSingle > m_gfa;
@@ -241,9 +227,6 @@ private:
 
     //! The fiber output, used for testing.
     boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_outputFibers;
-
-    //! An output connector for the gfa data.
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_outputGFA;
 
     //! The input Connector for the SH data.
     boost::shared_ptr< WModuleInputData< WDataSetSphericalHarmonics > > m_input;

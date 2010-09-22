@@ -33,7 +33,6 @@
 #include "../../common/WLimits.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
-#include "../../dataHandler/WThreadedPerVoxelOperation.h"
 #include "../../kernel/WKernel.h"
 #include "bermanTracking.xpm"
 #include "WMBermanTracking.h"
@@ -103,10 +102,6 @@ void WMBermanTracking::connectors()
                 "outFibers", "The probabilistic fibers." )
             );
 
-    m_outputGFA = boost::shared_ptr< WModuleOutputData< WDataSetSingle > >( new WModuleOutputData< WDataSetSingle >( shared_from_this(),
-                "outGFA", "The generalized fractional anisotropy map." )
-            );
-
     addConnector( m_input );
     addConnector( m_inputResidual );
 
@@ -116,7 +111,6 @@ void WMBermanTracking::connectors()
 
     // temporary
     addConnector( m_outputFibers );
-    addConnector( m_outputGFA );
 
     // call WModules initialization
     WModule::connectors();
@@ -222,19 +216,11 @@ void WMBermanTracking::moduleMain()
                 m_HMat = m_BMat * wmath::WSymmetricSphericalHarmonic::getSHFittingMatrix( c, 4, 0.0, false );
                 WAssert( m_HMat.getNbCols() == m_HMat.getNbRows(), "" );
 
-                // calculate the generalized fractional anisotropy for the whole dataset
-                if( !m_inputGFA->getData() )
-                {
-                    calcGFA();
-                }
-                else
-                {
-                    m_gfa = m_inputGFA->getData();
-                }
+                m_gfa = m_inputGFA->getData();
             }
         }
 
-        if( m_dataSet && m_dataSetResidual && ( dataChanged || m_startTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
+        if( m_dataSet && m_dataSetResidual && m_gfa && ( dataChanged || m_startTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
         {
             m_startTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
             if( m_result )
@@ -296,60 +282,6 @@ void WMBermanTracking::moduleMain()
             debugLog() << "Aborting fiber tracking because the module was ordered to shut down.";
         }
     }
-}
-
-void WMBermanTracking::calcGFA()
-{
-    if( m_gfa )
-    {
-        WDataHandler::deregisterDataSet( m_gfa );
-    }
-    m_gfa = boost::shared_ptr< WDataSetSingle >();
-    typedef WThreadedPerVoxelOperation< double, 15, double, 1 > GFAFunc;
-    typedef WThreadedFunction< GFAFunc > ThreadPool;
-
-    boost::shared_ptr< GFAFunc > gfafunc( new GFAFunc( m_dataSet, boost::bind( &This::perVoxelGFAFunc, this, _1 ) ) );
-
-    debugLog() << "Starting GFA computation.";
-
-    resetProgress( m_dataSet->getGrid()->size() );
-
-    ThreadPool t( W_AUTOMATIC_NB_THREADS, gfafunc );
-    t.subscribeExceptionSignal( boost::bind( &This::handleException, this, _1 ) );
-    t.run();
-    t.wait();
-
-    m_currentProgress->finish();
-
-    if( m_lastException )
-    {
-        throw WException( *m_lastException );
-    }
-
-    WAssert( t.status() == W_THREADS_FINISHED, "" );
-
-    debugLog() << "GFA computation finished.";
-
-    m_gfa = gfafunc->getResult();
-    m_gfa->getTexture()->setInterpolation( false );
-    m_gfa->setFileName( "generalized fractional anisotropy" );
-    m_outputGFA->updateData( m_gfa );
-    WDataHandler::registerDataSet( m_gfa );
-}
-
-boost::array< double, 1 > WMBermanTracking::perVoxelGFAFunc( WValueSet< double >::SubArray const& s )
-{
-    ++*m_currentProgress;
-    boost::array< double, 1 > a;
-    wmath::WValue< double > w( 15 );
-    for( int i = 0; i < 15; ++i )
-    {
-        w[ i ] = s[ i ];
-    }
-    wmath::WSymmetricSphericalHarmonic h( w );
-    a[ 0 ] = h.calcGFA( m_BMat );
-
-    return a;
 }
 
 void WMBermanTracking::resetTracking()
