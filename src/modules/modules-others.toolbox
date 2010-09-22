@@ -1,6 +1,7 @@
 ADD_SUBDIRECTORY( applyMask )
 ADD_SUBDIRECTORY( arbitraryPlane )
 ADD_SUBDIRECTORY( atlasSurfaces )
+ADD_SUBDIRECTORY( calculateGFA )
 ADD_SUBDIRECTORY( clusterDisplay )
 ADD_SUBDIRECTORY( clusterParamDisplay )
 ADD_SUBDIRECTORY( clusterSlicer )
@@ -19,10 +20,6 @@ ADD_SUBDIRECTORY( probTractDisplay )
 ADD_SUBDIRECTORY( scalarSegmentation )
 ADD_SUBDIRECTORY( splineSurface )
 ADD_SUBDIRECTORY( surfaceParameterAnimator )
-
-IF( OSSIM_FOUND )
-  ADD_SUBDIRECTORY( calculateGFA )
-ENDIF()
 
 IF( Teem_FOUND )
   IF( OSSIM_FOUND )
