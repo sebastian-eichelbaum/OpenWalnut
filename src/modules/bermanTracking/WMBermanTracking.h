@@ -37,6 +37,7 @@
 #include "../../dataHandler/WDataSetSphericalHarmonics.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetRawHARDI.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WThreadedTrackingFunction.h"
 #include "../../dataHandler/WFiberAccumulator.h"
 
@@ -184,7 +185,7 @@ private:
     wmath::WSymmetricSphericalHarmonic createRandomODF( std::size_t i );
 
     //! Stores the gfa measure for the input data.
-    boost::shared_ptr< WDataSetSingle > m_gfa;
+    boost::shared_ptr< WDataSetScalar > m_gfa;
 
     //! Stores a matrix representing the funk-radon-transform.
     wmath::WMatrix< double > m_frtMat;
@@ -214,7 +215,7 @@ private:
     boost::shared_ptr< WDataSetRawHARDI > m_dataSetResidual;
 
     //! The output dataset.
-    boost::shared_ptr< WDataSetSingle > m_result;
+    boost::shared_ptr< WDataSetScalar > m_result;
 
     //! Stores the number of hits for a voxel.
     boost::shared_ptr< std::vector< float > > m_hits;
@@ -223,7 +224,7 @@ private:
     boost::shared_ptr< WDataSetFibers > m_fiberSet;
 
     //! The output Connector.
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output;
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
 
     //! The fiber output, used for testing.
     boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_outputFibers;
@@ -235,7 +236,7 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetRawHARDI > > m_inputResidual;
 
     //! The input for the gfa.
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_inputGFA;
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputGFA;
 
     //! The threadpool for the tracking.
     boost::shared_ptr< TrackingFuncType > m_trackingPool;
