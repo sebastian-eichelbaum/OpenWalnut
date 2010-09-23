@@ -55,6 +55,11 @@ uniform int u_texture2SizeY;
 uniform int u_texture2SizeZ;
 
 /**
+ * The blending ratio between noise and advected noise
+ */
+uniform float u_noiseRatio;
+
+/**
  * Main. Calculates the Laplace Filter for each pixel.
  */
 void main()
@@ -82,8 +87,8 @@ void main()
     {
         n = noise;
     }
-    float noiseBlend = 0.1;
-    
-    gl_FragColor = vec4( ( n * ( 1.0 - noiseBlend ) ) + ( noise * noiseBlend ) );
+
+    // finally, blend noise and old noise
+    gl_FragColor = vec4( ( n * ( 1.0 - u_noiseRatio ) ) + ( noise * u_noiseRatio ) );
 }
 

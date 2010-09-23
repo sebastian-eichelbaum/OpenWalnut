@@ -71,6 +71,13 @@ public:
     virtual ~WGEOffscreenRenderNode();
 
     /**
+     * Returns the instance of the texture HUD.
+     *
+     * \return the HUD
+     */
+    osg::ref_ptr< WGETextureHud > getTextureHUD() const;
+
+    /**
      * Creates a new offscreen-render-pass coupled with the reference camera which renders a specified OSG graph to a texture.
      *
      * \param node the node which represents the subgraph.

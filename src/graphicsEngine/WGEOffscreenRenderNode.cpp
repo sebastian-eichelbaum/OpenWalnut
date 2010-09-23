@@ -95,3 +95,8 @@ osg::ref_ptr< WGEOffscreenFinalPass > WGEOffscreenRenderNode::addFinalOnScreenPa
     return pass;
 }
 
+osg::ref_ptr< WGETextureHud > WGEOffscreenRenderNode::getTextureHUD() const
+{
+    return m_hud;
+}
+

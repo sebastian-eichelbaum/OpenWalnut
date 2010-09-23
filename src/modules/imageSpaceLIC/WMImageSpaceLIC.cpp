@@ -40,10 +40,12 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
+#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../graphicsEngine/WGEOffscreenRenderPass.h"
 #include "../../graphicsEngine/WGEOffscreenRenderNode.h"
+#include "../../graphicsEngine/WGEPropertyUniform.h"
 
 #include "WMImageSpaceLIC.h"
 #include "WMImageSpaceLIC.xpm"
@@ -104,21 +106,34 @@ void WMImageSpaceLIC::properties()
 
     // enable slices
     // Flags denoting whether the glyphs should be shown on the specific slice
-    m_showonX        = m_properties->addProperty( "Show sagittal", "Show vectors on sagittal slice.", true );
-    m_showonY        = m_properties->addProperty( "Show coronal", "Show vectors on coronal slice.", true );
-    m_showonZ        = m_properties->addProperty( "Show axial", "Show vectors on axial slice.", true );
+    m_showonX        = m_properties->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true );
+    m_showonY        = m_properties->addProperty( "Show Coronal", "Show vectors on coronal slice.", true );
+    m_showonZ        = m_properties->addProperty( "Show Axial", "Show vectors on axial slice.", true );
 
     // The slice positions. These get update externally.
     // TODO(all): this should somehow be connected to the nav slices.
-    m_xPos           = m_properties->addProperty( "Sagittal position", "Slice X position.", 80 );
-    m_yPos           = m_properties->addProperty( "Coronal position", "Slice Y position.", 100 );
-    m_zPos           = m_properties->addProperty( "Axial position", "Slice Z position.", 80 );
+    m_xPos           = m_properties->addProperty( "Sagittal Position", "Slice X position.", 80 );
+    m_yPos           = m_properties->addProperty( "Coronal Position", "Slice Y position.", 100 );
+    m_zPos           = m_properties->addProperty( "Axial Position", "Slice Z position.", 80 );
     m_xPos->setMin( 0 );
     m_xPos->setMax( 159 );
     m_yPos->setMin( 0 );
     m_yPos->setMax( 199 );
     m_zPos->setMin( 0 );
     m_zPos->setMax( 159 );
+
+    // show hud?
+    m_showHUD        = m_properties->addProperty( "Show HUD", "Check to enable the debugging texture HUD.", false );
+
+    m_useLight       = m_properties->addProperty( "Use Light", "Check to enable lightning using the Phong model.", false );
+
+    m_useEdges       = m_properties->addProperty( "Edges", "Check to enable blending in edges.", true );
+
+    // some shader stuff
+    m_noiseRatio     = m_properties->addProperty( "Noise Ratio", "Ratio between noise and advected noise during advection.", 0.1 );
+    m_noiseRatio->setMin( 0.0 );
+    m_noiseRatio->setMax( 0.5 );
+
 
     // call WModule's initialization
     WModule::properties();
@@ -221,6 +236,9 @@ void WMImageSpaceLIC::moduleMain()
     );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
 
+    // allow en-/disabling the HUD:
+    offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
+
     // setup all the passes needed for image space advection
     osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass(
         m_output,
@@ -277,9 +295,17 @@ void WMImageSpaceLIC::moduleMain()
     advectionBA->bind( advectionOutA,      2 );
     advectionAB->bind( advectionOutB,      2 );
 
+    // advection needs some uniforms controlled by properties
+    osg::ref_ptr< osg::Uniform > noiseRatio = new WGEPropertyUniform< WPropDouble >( "u_noiseRatio", m_noiseRatio );
+    advectionAB->addUniform( noiseRatio );
+    advectionBA->addUniform( noiseRatio );
+
     // Final clipping and blending phase, needs Advected Noise, Edges, Depth and Light
     clipBlend->bind( advectionOutB, 0 );
     clipBlend->bind( edgeDetectionOut1, 1 );
+    // final pass needs some uniforms controlled by properties
+    clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useEdges", m_useEdges ) );
+    clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useLight", m_useLight ) );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Main loop
@@ -314,6 +340,8 @@ void WMImageSpaceLIC::moduleMain()
         initOSG( grid );
 
         // prepare offscreen render chain
+
+        edgeDetection->bind( randTexture,         1 );
         transformation->bind( dataSet->getTexture()->getTexture() );
 
         debugLog() << "Done";

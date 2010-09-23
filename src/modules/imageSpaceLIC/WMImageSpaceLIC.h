@@ -167,6 +167,14 @@ private:
     WPropBool     m_showonY; //!< indicates whether the vector should be shown on slice Y
 
     WPropBool     m_showonZ; //!< indicates whether the vector should be shown on slice Z
+
+    WPropBool     m_showHUD; //!< indicates whether to show the texture HUD
+
+    WPropBool     m_useEdges; //!< indicates whether to show the edges
+
+    WPropBool     m_useLight; //!< indicates whether to use Phong
+
+    WPropDouble   m_noiseRatio; //!< the ratio between noise and advected noise.
 };
 
 #endif  // WMIMAGESPACELIC_H

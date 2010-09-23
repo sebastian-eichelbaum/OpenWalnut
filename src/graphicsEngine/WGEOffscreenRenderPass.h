@@ -153,6 +153,12 @@ public:
      */
     size_t getTextureHeight() const;
 
+    /**
+     * The uniform to add. This is a shortcut for this->getOrCreateStateSet()->addUniform( uniform ).
+     *
+     * \param uniform the uniform to add
+     */
+    virtual void addUniform( osg::ref_ptr< osg::Uniform > uniform );
 protected:
 
     /**

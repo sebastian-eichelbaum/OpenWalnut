@@ -35,12 +35,23 @@ uniform sampler2D u_texture0Sampler;
 uniform sampler2D u_texture1Sampler;
 
 /**
+ * Used to en-/disable lighting.
+ */
+uniform bool u_useLight;
+
+/**
+ * Used to en-/disable blending of edges.
+ */
+uniform bool u_useEdges;
+
+/**
  * Main. Clips and Blends the final image space rendering with the previously acquired 3D information
  */
 void main()
 {
     vec2 texCoord = gl_TexCoord[0].st;
-    float edge  = texture2D( u_texture1Sampler, texCoord ).r;
+    float edge  = texture2D( u_texture1Sampler, texCoord ).r * ( u_useEdges ? 1.0 : 0.0 );
+    float light  = texture2D( u_texture1Sampler, texCoord ).b * ( u_useLight ? 1.0 : 0.0 );
     float depth  = texture2D( u_texture1Sampler, texCoord ).g;
     float advected  = texture2D( u_texture0Sampler, texCoord ).r;
 

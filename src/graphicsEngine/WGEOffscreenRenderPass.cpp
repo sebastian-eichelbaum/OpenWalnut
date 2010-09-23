@@ -142,6 +142,11 @@ size_t WGEOffscreenRenderPass::getTextureHeight() const
     return m_height;
 }
 
+void WGEOffscreenRenderPass::addUniform( osg::ref_ptr< osg::Uniform > uniform )
+{
+    this->getOrCreateStateSet()->addUniform( uniform );
+}
+
 std::string WGEOffscreenRenderPass::getBufferName( BufferComponent buffer )
 {
     switch ( buffer )
