@@ -32,6 +32,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMSliceContext.h"
+#include "WTransparentLinesDrawable.h"
 #include "slicecontext.xpm"
 
 // This line is needed by the module loader to actually find your module.
@@ -173,25 +174,41 @@ osg::ref_ptr< osg::Geode > WMSliceContext::genTractGeode( const std::vector< siz
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-    ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
-
+    ref_ptr< WTransparentLinesDrawable > geometry = ref_ptr< WTransparentLinesDrawable >( new WTransparentLinesDrawable );
 
     boost::shared_ptr< std::vector < size_t > > lineLengths = m_tracts->getLineLengths();
     size_t  insideCountLocal = m_insideCountProp->get();
+
+    // for( size_t fiberId = 0; fiberId < selectedTracts.size(); ++fiberId )
+    // {
+    //     if( selectedTracts[fiberId] >= insideCountLocal )
+    //     {
+    //         size_t fiberLength = ( *lineLengths )[fiberId];
+    //         for( size_t posId = 0; posId < fiberLength; ++posId )
+    //         {
+    //             wmath::WPosition pos;
+    //             vertices->push_back( m_tracts->getPosition( fiberId, posId     ) );
+
+    //         }
+    //         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fiberLength, fiberLength ) );
+    //     }
+    // }
 
     for( size_t fiberId = 0; fiberId < selectedTracts.size(); ++fiberId )
     {
         if( selectedTracts[fiberId] >= insideCountLocal )
         {
             size_t fiberLength = ( *lineLengths )[fiberId];
-            for( size_t posId = 0; posId < fiberLength; ++posId )
+            for( size_t posId = 0; posId < fiberLength - 1 ; ++posId )
             {
-                wmath::WPosition pos = m_tracts->getPosition( fiberId, posId );
-                vertices->push_back( osg::Vec3( pos[0], pos[1], pos[2] ) );
+                wmath::WPosition pos;
+                vertices->push_back( m_tracts->getPosition( fiberId, posId     ) );
+                vertices->push_back( m_tracts->getPosition( fiberId, posId + 1 ) );
+
             }
-            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fiberLength, fiberLength ) );
         }
     }
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size()  ) );
 
     geometry->setVertexArray( vertices );
 
