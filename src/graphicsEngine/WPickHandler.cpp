@@ -248,8 +248,8 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
                 }
             }
         }
-    }// end of if( intersetionsExist )
-    else 
+    } // end of if( intersetionsExist )
+    else
     {
         // if we found no intersection and we have noting pickecd befor
         // we want to return "nothing" in order to provide the pixel coordinates
