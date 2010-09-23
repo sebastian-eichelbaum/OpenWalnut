@@ -55,7 +55,7 @@ void main()
     float depth  = texture2D( u_texture1Sampler, texCoord ).g;
     float advected  = texture2D( u_texture0Sampler, texCoord ).r;
 
-    gl_FragColor = vec4( vec3( edge + advected ), 1.0 );
+    gl_FragColor = vec4( vec3( edge + 2. * advected * advected ), 1.0 );
     gl_FragDepth = depth;
 }
 

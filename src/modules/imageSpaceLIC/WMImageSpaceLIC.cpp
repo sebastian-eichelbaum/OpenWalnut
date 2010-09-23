@@ -104,17 +104,19 @@ void WMImageSpaceLIC::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    m_sliceGroup      = m_properties->addPropertyGroup( "Slices",  "Slice based LIC." );
+
     // enable slices
     // Flags denoting whether the glyphs should be shown on the specific slice
-    m_showonX        = m_properties->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true );
-    m_showonY        = m_properties->addProperty( "Show Coronal", "Show vectors on coronal slice.", true );
-    m_showonZ        = m_properties->addProperty( "Show Axial", "Show vectors on axial slice.", true );
+    m_showonX        = m_sliceGroup->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true );
+    m_showonY        = m_sliceGroup->addProperty( "Show Coronal", "Show vectors on coronal slice.", true );
+    m_showonZ        = m_sliceGroup->addProperty( "Show Axial", "Show vectors on axial slice.", true );
 
     // The slice positions. These get update externally.
     // TODO(all): this should somehow be connected to the nav slices.
-    m_xPos           = m_properties->addProperty( "Sagittal Position", "Slice X position.", 80 );
-    m_yPos           = m_properties->addProperty( "Coronal Position", "Slice Y position.", 100 );
-    m_zPos           = m_properties->addProperty( "Axial Position", "Slice Z position.", 80 );
+    m_xPos           = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 80 );
+    m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 100 );
+    m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 80 );
     m_xPos->setMin( 0 );
     m_xPos->setMax( 159 );
     m_yPos->setMin( 0 );
@@ -122,15 +124,17 @@ void WMImageSpaceLIC::properties()
     m_zPos->setMin( 0 );
     m_zPos->setMax( 159 );
 
+    m_licGroup      = m_properties->addPropertyGroup( "LIC",  "LIC properties." );
+
     // show hud?
-    m_showHUD        = m_properties->addProperty( "Show HUD", "Check to enable the debugging texture HUD.", false );
+    m_showHUD        = m_licGroup->addProperty( "Show HUD", "Check to enable the debugging texture HUD.", false );
 
-    m_useLight       = m_properties->addProperty( "Use Light", "Check to enable lightning using the Phong model.", false );
+    m_useLight       = m_licGroup->addProperty( "Use Light", "Check to enable lightning using the Phong model.", false );
 
-    m_useEdges       = m_properties->addProperty( "Edges", "Check to enable blending in edges.", true );
+    m_useEdges       = m_licGroup->addProperty( "Edges", "Check to enable blending in edges.", true );
 
     // some shader stuff
-    m_noiseRatio     = m_properties->addProperty( "Noise Ratio", "Ratio between noise and advected noise during advection.", 0.1 );
+    m_noiseRatio     = m_licGroup->addProperty( "Noise Ratio", "Ratio between noise and advected noise during advection.", 0.1 );
     m_noiseRatio->setMin( 0.0 );
     m_noiseRatio->setMax( 0.5 );
 
@@ -215,8 +219,8 @@ void WMImageSpaceLIC::moduleMain()
 
     // finally, create a texture from the image
     osg::ref_ptr< osg::Texture2D > randTexture = new osg::Texture2D();
-    randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR );
-    randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR );
+    randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
+    randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
     randTexture->setImage( randImage );
     randTexture->setResizeNonPowerOfTwoHint( false );
 
@@ -340,8 +344,7 @@ void WMImageSpaceLIC::moduleMain()
         initOSG( grid );
 
         // prepare offscreen render chain
-
-        edgeDetection->bind( randTexture,         1 );
+        edgeDetection->bind( randTexture, 1 );
         transformation->bind( dataSet->getTexture()->getTexture() );
 
         debugLog() << "Done";

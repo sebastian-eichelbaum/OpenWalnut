@@ -75,14 +75,22 @@ void main()
     // last advection:
     float last = texture2D( u_texture2Sampler, texCoord ).r;
 
-    vec2 advectedPosition = gl_TexCoord[0].st - vec2( vec.x / u_texture2SizeX, vec.y / u_texture2SizeY );
-    vec2 advectedPositionNeg = gl_TexCoord[0].st + vec2( vec.x / u_texture2SizeX, vec.y / u_texture2SizeY );
+    vec2 lastVec = vec;
+    vec2 lastPos = gl_TexCoord[0].st;
+    float sum = 0.0;
+    int maxIter = 5;
+    for ( int i = 0; i < maxIter; ++i )
+    {
+        vec2 newPos = lastPos - vec2( lastVec.x / u_texture2SizeX, lastVec.y / u_texture2SizeY );
+        vec2 newVec = normalize( 2.0 * ( texture2D( u_texture0Sampler, newPos ).rg - vec2( 0.5, 0.5 ) ) );
 
+        sum += float( maxIter - i ) / maxIter * texture2D( u_texture2Sampler, newPos ).r;
 
-    float advectedNoise = texture2D( u_texture2Sampler, advectedPosition ).r;
-    float advectedNoiseNeg = texture2D( u_texture2Sampler, advectedPositionNeg ).r;
+        lastPos = newPos;
+        lastVec = newVec;
+    }
     
-    float n = ( advectedNoise  );
+    float n = sum / 3.;
     if ( depth > 0.99 )
     {
         n = noise;

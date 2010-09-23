@@ -156,6 +156,10 @@ private:
      */
     osg::ref_ptr< WGEManagedGroupNode > m_zSlice;
 
+    WPropGroup    m_sliceGroup; //!< the group contains several slice properties
+
+    WPropGroup    m_licGroup; //!< the group contains several LIC properties
+
     WPropInt      m_xPos; //!< x position of the slice
 
     WPropInt      m_yPos; //!< y position of the slice
