@@ -25,7 +25,10 @@
 #ifndef WGEUTILS_H
 #define WGEUTILS_H
 
+#include <string>
 #include <vector>
+
+#include <boost/lexical_cast.hpp>
 
 #include <osg/Array>
 #include <osg/Vec3>
@@ -37,6 +40,8 @@
 #include "../common/math/WPosition.h"
 #include "../common/math/WMatrix.h"
 #include "WExportWGE.h"
+
+template < typename T > class WGEScaledTexture;
 
 namespace wge
 {
@@ -122,6 +127,40 @@ namespace wge
      * \return the osg matrix.
      */
     osg::Matrixd WGE_EXPORT toOSGMatrix( const wmath::WMatrix<double>& matrix );
+
+    /**
+     * Binds the specified texture to the specified unit. It automatically adds several uniforms which then can be utilized in the shader:
+     * - u_textureXUnit: the unit number (useful for accessing correct gl_TexCoord and so on)
+     * - u_textureXSampler: the needed sampler
+     * - u_textureXSizeX: width of the texture in pixels
+     * - u_textureXSizeY: height of the texture in pixels
+     * - u_textureXSizeZ: depth of the texture in pixels
+     *
+     * \param node where to bind
+     * \param unit the unit to use
+     * \param texture the texture to use.
+     * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
+     */
+    template < typename T >
+    void WGE_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture, size_t unit = 0 );
+
+    /**
+     * Binds the specified texture to the specified unit. It automatically adds several uniforms which then can be utilized in the shader:
+     * - u_textureXUnit: the unit number (useful for accessing correct gl_TexCoord and so on)
+     * - u_textureXSampler: the needed sampler
+     * - u_textureXSizeX: width of the texture in pixels
+     * - u_textureXSizeY: height of the texture in pixels
+     * - u_textureXSizeZ: depth of the texture in pixels
+     * If the specified texture is a WGEScaledTexture, it additionally adds u_textureXMin and u_textureXScale for unscaling.
+     *
+     * \param node where to bind
+     * \param unit the unit to use
+     * \param texture the texture to use.
+     * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
+     */
+    template < typename T >
+    void WGE_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEScaledTexture< T > > texture, size_t unit = 0 );
+
 }
 
 inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )
@@ -170,4 +209,32 @@ inline osg::Matrixd WGE_EXPORT wge::toOSGMatrix( const wmath::WMatrix<double>& m
     }
 }
 
+template < typename T >
+void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture, size_t unit )
+{
+    std::string prefix = "u_texture" + boost::lexical_cast< std::string >( unit );
+
+    osg::StateSet* state = node->getOrCreateStateSet();
+    state->setTextureAttributeAndModes( unit, texture, osg::StateAttribute::ON );
+    state->addUniform( new osg::Uniform( ( prefix + "Sampler" ).c_str(), static_cast< int >( unit ) ) );
+    state->addUniform( new osg::Uniform( ( prefix + "Unit" ).c_str(), static_cast< int >( unit ) ) );
+    state->addUniform( new osg::Uniform( ( prefix + "SizeX" ).c_str(), static_cast< int >( texture->getTextureWidth() ) ) );
+    state->addUniform( new osg::Uniform( ( prefix + "SizeY" ).c_str(), static_cast< int >( texture->getTextureHeight() ) ) );
+    state->addUniform( new osg::Uniform( ( prefix + "SizeZ" ).c_str(), static_cast< int >( texture->getTextureDepth() ) ) );
+}
+
+template < typename T >
+void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEScaledTexture< T > > texture, size_t unit )
+{
+    wge::bindTexture< T >( node, osg::ref_ptr< T >( texture ), unit );
+
+    std::string prefix = "u_texture" + boost::lexical_cast< std::string >( unit );
+
+    // add some additional uniforms containing scaling information
+    osg::StateSet* state = node->getOrCreateStateSet();
+    state->addUniform( new osg::Uniform( ( prefix + "Min" ).c_str(), static_cast< float >( texture->getMin() ) ) );
+    state->addUniform( new osg::Uniform( ( prefix + "Scale" ).c_str(), static_cast< float >( texture->getScale() ) ) );
+}
+
 #endif  // WGEUTILS_H
+

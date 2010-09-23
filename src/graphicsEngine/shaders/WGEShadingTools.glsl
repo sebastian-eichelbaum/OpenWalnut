@@ -1,17 +1,17 @@
 /** 
  * Function to calculate lighting based on "Real-Time Volume Graphics, p 119, chapter 5.4, Listing 5.1".
  *
- * @param ambient   materials ambient color
- * @param diffuse   materials diffuse color
- * @param specular  materials specular color
- * @param shininess material shininess
- * @param lightColor  the light color
- * @param ambientLight the ambient light color
- * @param normalDir the normal
- * @param viewDir   viewing direction
- * @param lightDir  light direction
+ * \param ambient   materials ambient color
+ * \param diffuse   materials diffuse color
+ * \param specular  materials specular color
+ * \param shininess material shininess
+ * \param lightColor  the light color
+ * \param ambientLight the ambient light color
+ * \param normalDir the normal
+ * \param viewDir   viewing direction
+ * \param lightDir  light direction
  * 
- * @return the color.
+ * \return the color.
  */
 vec4 blinnPhongIllumination( vec3 ambient, vec3 diffuse, vec3 specular, float shininess, 
 							 vec3 lightColor, vec3 ambientLight, 
@@ -35,21 +35,21 @@ vec4 blinnPhongIllumination( vec3 ambient, vec3 diffuse, vec3 specular, float sh
 }
 
 /** 
- * @brief Function to calculate lighting intensitybased on "Real-Time Volume Graphics, p 119, chapter 5.4, Listing 5.1".
+ * Function to calculate lighting intensitybased on "Real-Time Volume Graphics, p 119, chapter 5.4, Listing 5.1".
  * It is basically the same as blinnPhongIllumination function above. But it is faster if you just need 
  * the intensity.
  *
- * @param ambient   materials ambient intensity
- * @param diffuse   materials diffuse intensity
- * @param specular  materials specular intensity
- * @param shininess material shininess
- * @param lightIntensity  the light intensity
- * @param ambientIntensity the ambient light intensity
- * @param normalDir the normal
- * @param viewDir   viewing direction
- * @param lightDir  light direction
+ * \param ambient   materials ambient intensity
+ * \param diffuse   materials diffuse intensity
+ * \param specular  materials specular intensity
+ * \param shininess material shininess
+ * \param lightIntensity  the light intensity
+ * \param ambientIntensity the ambient light intensity
+ * \param normalDir the normal
+ * \param viewDir   viewing direction
+ * \param lightDir  light direction
  * 
- * @return the light intensity.
+ * \return the light intensity.
  */
 float blinnPhongIlluminationIntensity(float ambient, float diffuse, float specular, float shininess, 
 						              float lightIntensity, float ambientIntensity, 

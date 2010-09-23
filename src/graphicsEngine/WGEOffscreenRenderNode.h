@@ -33,6 +33,7 @@
 #include "WGEOffscreenRenderPass.h"
 #include "WGEOffscreenTexturePass.h"
 #include "WGETextureHud.h"
+#include "WShader.h"
 #include "callbacks/WGEViewportCallback.h"
 
 /**
@@ -81,6 +82,20 @@ public:
     virtual osg::ref_ptr< WGEOffscreenRenderPass > addGeometryRenderPass( osg::ref_ptr< osg::Node > node, std::string name = "Unnamed" );
 
     /**
+     * Creates a new offscreen-render-pass coupled with the reference camera which renders a specified OSG graph to a texture.
+     *
+     * \param node the node which represents the subgraph.
+     * \param name the name of the render pass. You should specify it to enable the nice debugging feature of WGETextureHud.
+     * \param shader the shader to add.
+     *
+     * \note never forget to remove the returned node if not used anymore or use WGEGroup::clean.
+     *
+     * \return the geometry render pass.
+     */
+    virtual osg::ref_ptr< WGEOffscreenRenderPass > addGeometryRenderPass( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader,
+                                                                          std::string name = "Unnamed" );
+
+    /**
      * Creates a new offscreen-render-pass coupled with the reference camera which simply processes textures. All the in- and output textures
      * have to be specified manually.
      *
@@ -91,6 +106,19 @@ public:
      * \return the texture processing pass created.
      */
     virtual osg::ref_ptr< WGEOffscreenTexturePass >  addTextureProcessingPass( std::string name = "Unnamed" );
+
+    /**
+     * Creates a new offscreen-render-pass coupled with the reference camera which simply processes textures. All the in- and output textures
+     * have to be specified manually.
+     *
+     * \note never forget to remove the returned node if not used anymore or use WGEGroup::clean.
+     *
+     * \param name the name of the render pass. You should specify it to enable the nice debugging feature of WGETextureHud.
+     * \param shader the shader to add.
+     *
+     * \return the texture processing pass created.
+     */
+    virtual osg::ref_ptr< WGEOffscreenTexturePass >  addTextureProcessingPass( osg::ref_ptr< WShader > shader, std::string name = "Unnamed" );
 
     /**
      * Creates a new offscreen-render-pass coupled with the reference camera. This pass actually does nothing. The method is useful for custom

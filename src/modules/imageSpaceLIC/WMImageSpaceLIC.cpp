@@ -38,8 +38,10 @@
 #include "../../common/math/WPlane.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WGridRegular3D.h"
+#include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/WShader.h"
 #include "../../graphicsEngine/WGEOffscreenRenderPass.h"
 #include "../../graphicsEngine/WGEOffscreenRenderNode.h"
 
@@ -85,6 +87,9 @@ void WMImageSpaceLIC::connectors()
     // vector input
     m_vectorsIn = WModuleInputData< WDataSetVector >::createAndAdd( shared_from_this(), "vectors", "The vector dataset."
                                                                                                     "Needs to be in the same grid as the mesh." );
+    // scalar input
+    m_scalarIn = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "scalars", "The scalar dataset."
+                                                                                                    "Needs to be in the same grid as the mesh." );
 
     // mesh input
     m_meshIn = WModuleInputData< WTriangleMesh2 >::createAndAdd( shared_from_this(), "surface", "The optional surface to use." );
@@ -126,13 +131,25 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid )
     m_output->remove( m_ySlice );
     m_output->remove( m_zSlice );
 
+    // we want the tex matrix for each slice to be modified too,
+    osg::ref_ptr< osg::TexMat > texMat;
+
     // create all the transformation nodes
     m_xSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonX ) );
     m_ySlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonY ) );
     m_zSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonZ ) );
-    m_xSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos ) );
-    m_ySlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos ) );
-    m_zSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos ) );
+
+    texMat = new osg::TexMat();
+    m_xSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos, texMat ) );
+    m_xSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
+
+    texMat = new osg::TexMat();
+    m_ySlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos, texMat ) );
+    m_ySlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
+
+    texMat = new osg::TexMat();
+    m_zSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos, texMat ) );
+    m_zSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
 
     // create a new geode containing the slices
     m_xSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
@@ -155,6 +172,7 @@ void WMImageSpaceLIC::moduleMain()
     // get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_vectorsIn->getDataChangedCondition() );
+    m_moduleState.add( m_scalarIn->getDataChangedCondition() );
     m_moduleState.add( m_meshIn->getDataChangedCondition() );
     // Remember the condition provided to some properties in properties()? The condition can now be used with this condition set.
     m_moduleState.add( m_propCondition );
@@ -164,26 +182,29 @@ void WMImageSpaceLIC::moduleMain()
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // we need a noise texture with a sufficient resolution. Create it.
-    const size_t resX = 2048;
-    const size_t resY = 2048;
+    const size_t resX = 256;
     std::srand( time( 0 ) );
 
     osg::ref_ptr< osg::Image > randImage = new osg::Image();
-    randImage->allocateImage( resX, resY, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
+    randImage->allocateImage( resX, resX, resX, GL_LUMINANCE, GL_UNSIGNED_BYTE );
     unsigned char *randomLuminance = randImage->data();  // should be 4 megs
     for( unsigned int x = 0; x < resX; x++ )
     {
-        for( unsigned int y = 0; y < resY; y++ )
+        for( unsigned int y = 0; y < resX; y++ )
         {
-            randomLuminance[ ( y * resY ) + x ] = ( unsigned char )( std::rand() % 255 );       // NOLINT - stylechecker says "use rand_r" but I
-                                                                                                // am not sure about portability.
+            for( unsigned int z = 0; z < resX; z++ )
+            {
+
+                randomLuminance[ ( resX * resX * z ) + ( y * resX ) + x ] = ( unsigned char )( std::rand() % 255 );       // NOLINT
+                // - stylechecker says "use rand_r" but I am not sure about portability.
+            }
         }
     }
 
     // finally, create a texture from the image
-    osg::ref_ptr< osg::Texture2D > randTexture = new osg::Texture2D();
-    randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR );
-    randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR );
+    osg::ref_ptr< osg::Texture3D > randTexture = new osg::Texture3D();
+    randTexture->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
+    randTexture->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
     randTexture->setImage( randImage );
     randTexture->setResizeNonPowerOfTwoHint( false );
 
@@ -199,16 +220,20 @@ void WMImageSpaceLIC::moduleMain()
 
     // the WGEOffscreenRenderNode manages each of the render-passes for us
     osg::ref_ptr< WGEOffscreenRenderNode > offscreen = new WGEOffscreenRenderNode(
-        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera(),
-        resX,
-        resY
+        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
     );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
 
     // setup all the passes needed for image space advection
-    osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass( m_output, "Transformation" );
-    osg::ref_ptr< WGEOffscreenRenderPass > edgeDetection =  offscreen->addTextureProcessingPass( "Edge Detection" );
+    osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass(
+        m_output,
+        new WShader( "WMImageSpaceLIC-Transformation", m_localPath ),
+        "Transformation"
+    );
+    osg::ref_ptr< WGEOffscreenRenderPass > edgeDetection =  offscreen->addTextureProcessingPass(
+        new WShader( "WMImageSpaceLIC-Edge", m_localPath ),
+        "Edge Detection"
+    );
 
     // hardwire the textures to use for each pass:
 
@@ -224,7 +249,7 @@ void WMImageSpaceLIC::moduleMain()
     //  * Depth in R
     //  * Edges in G
     osg::ref_ptr< osg::Texture2D > edgeDetectionOut1 = edgeDetection->attach( osg::Camera::COLOR_BUFFER0 );
-    edgeDetection->bind( 0, transformationDepth );
+    edgeDetection->bind( transformationDepth );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Main loop
@@ -243,7 +268,7 @@ void WMImageSpaceLIC::moduleMain()
         }
 
         // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_vectorsIn->handledUpdate();
+        bool dataUpdated = m_scalarIn->handledUpdate();
         boost::shared_ptr< WDataSetVector > dataSet = m_vectorsIn->getData();
         bool dataValid = ( dataSet );
         if ( !dataValid || ( dataValid && !dataUpdated ) )
@@ -259,6 +284,7 @@ void WMImageSpaceLIC::moduleMain()
         initOSG( grid );
 
         // prepare offscreen render chain
+        transformation->bind( dataSet->getTexture()->getTexture() );
 
         debugLog() << "Done";
     }

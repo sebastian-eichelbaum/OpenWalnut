@@ -30,6 +30,9 @@
 #include <osg/Camera>
 #include <osg/FrameBufferObject>
 
+#include "WGEUtils.h"
+#include "WGEScaledTexture.h"
+
 class WGETextureHud;
 
 /**
@@ -101,14 +104,14 @@ public:
     void detach( BufferComponent buffer );
 
     /**
-     * Binds the specified texture to the specified unit.
+     * This is a shortcut for wge::bindTexture. See \ref wge::bindTexture for details.
      *
      * \param unit the unit to use
      * \param texture the texture to use.
      * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
      */
     template < typename T >
-    void bind( size_t unit, osg::ref_ptr< T > texture );
+    void bind( osg::ref_ptr< T > texture, size_t unit = 0 );
 
     /**
      * Creates a new texture suitable for this offscreen rendering instance. The texture will have the same size as the viewport of this camera.
@@ -179,9 +182,9 @@ private:
 };
 
 template < typename T >
-void WGEOffscreenRenderPass::bind( size_t unit, osg::ref_ptr< T > texture )
+void WGEOffscreenRenderPass::bind( osg::ref_ptr< T > texture, size_t unit )
 {
-    getOrCreateStateSet()->setTextureAttributeAndModes( unit, texture, osg::StateAttribute::ON );
+    wge::bindTexture( this, texture, unit );
 }
 
 #endif  // WGEOFFSCREENRENDERPASS_H

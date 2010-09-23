@@ -28,6 +28,7 @@
 #include <string>
 
 #include "../../dataHandler/WDataSetVector.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 
@@ -109,6 +110,11 @@ private:
      * The input connector containing the vector field.
      */
     boost::shared_ptr< WModuleInputData< WDataSetVector > > m_vectorsIn;
+
+    /**
+     * The input connector containing the scalar field whose derived field is used for LIC.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_scalarIn;
 
     /**
      * The input containing the surface on which the LIC should be applied on
