@@ -82,3 +82,16 @@ osg::ref_ptr< WGEOffscreenTexturePass > WGEOffscreenRenderNode::addTextureProces
     return pass;
 }
 
+osg::ref_ptr< WGEOffscreenFinalPass > WGEOffscreenRenderNode::addFinalOnScreenPass( std::string name )
+{
+    osg::ref_ptr< WGEOffscreenFinalPass > pass = addRenderPass< WGEOffscreenFinalPass >( name );
+    return pass;
+}
+
+osg::ref_ptr< WGEOffscreenFinalPass > WGEOffscreenRenderNode::addFinalOnScreenPass( osg::ref_ptr< WShader > shader, std::string name )
+{
+    osg::ref_ptr< WGEOffscreenFinalPass > pass = addRenderPass< WGEOffscreenFinalPass >( name );
+    shader->apply( pass );
+    return pass;
+}
+

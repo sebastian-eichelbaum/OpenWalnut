@@ -182,28 +182,26 @@ void WMImageSpaceLIC::moduleMain()
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // we need a noise texture with a sufficient resolution. Create it.
-    const size_t resX = 256;
+    const size_t resX = 1024;
     std::srand( time( 0 ) );
 
     osg::ref_ptr< osg::Image > randImage = new osg::Image();
-    randImage->allocateImage( resX, resX, resX, GL_LUMINANCE, GL_UNSIGNED_BYTE );
+    randImage->allocateImage( resX, resX, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
     unsigned char *randomLuminance = randImage->data();  // should be 4 megs
     for( unsigned int x = 0; x < resX; x++ )
     {
         for( unsigned int y = 0; y < resX; y++ )
         {
-            for( unsigned int z = 0; z < resX; z++ )
-            {
-                randomLuminance[ ( resX * resX * z ) + ( y * resX ) + x ] = ( unsigned char )( std::rand() % 255 );       // NOLINT
-                // - stylechecker says "use rand_r" but I am not sure about portability.
-            }
+            unsigned char r = ( unsigned char )( std::rand() % 255 );
+            randomLuminance[ ( y * resX ) + x ] = r > 150 ? 255 : ( r < 100 ? 0 : r );       // NOLINT
+            // - stylechecker says "use rand_r" but I am not sure about portability.
         }
     }
 
     // finally, create a texture from the image
-    osg::ref_ptr< osg::Texture3D > randTexture = new osg::Texture3D();
-    randTexture->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
-    randTexture->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
+    osg::ref_ptr< osg::Texture2D > randTexture = new osg::Texture2D();
+    randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::LINEAR );
+    randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::LINEAR );
     randTexture->setImage( randImage );
     randTexture->setResizeNonPowerOfTwoHint( false );
 
@@ -234,21 +232,54 @@ void WMImageSpaceLIC::moduleMain()
         "Edge Detection"
     );
 
+    // we use two advection passes per frame as the input A of the first produces the output B whereas the second pass uses B as input and
+    // produces A as output. This way we can use A as input for the next step (clipping and blending).
+    osg::ref_ptr< WGEOffscreenRenderPass > advectionAB =  offscreen->addTextureProcessingPass(
+        new WShader( "WMImageSpaceLIC-Advection", m_localPath ),
+        "Advection AB"
+    );
+    osg::ref_ptr< WGEOffscreenRenderPass > advectionBA =  offscreen->addTextureProcessingPass(
+        new WShader( "WMImageSpaceLIC-Advection", m_localPath ),
+        "Advection BA"
+    );
+
+    // finally, put it back on screen, clip it, color it and apply depth buffer to on-screen buffer
+    osg::ref_ptr< WGEOffscreenRenderPass > clipBlend =  offscreen->addFinalOnScreenPass(
+        new WShader( "WMImageSpaceLIC-ClipBlend", m_localPath ),
+        "Clip & Blend"
+    );
+
     // hardwire the textures to use for each pass:
 
     // Transformation Pass, needs Geometry
     //  * Creates 2D projected Vectors in RG
     //  * Lighting in B
-    //  * Noise mapping in A
     //  * Depth
     osg::ref_ptr< osg::Texture2D > transformationOut1  = transformation->attach( osg::Camera::COLOR_BUFFER0 );
     osg::ref_ptr< osg::Texture2D > transformationDepth = transformation->attach( osg::Camera::DEPTH_BUFFER );
 
     // Edge Detection Pass, needs Depth as input
-    //  * Depth in R
-    //  * Edges in G
+    //  * Edges in R
+    //  * Depth in G
+    //  * Un-advected Noise in B
     osg::ref_ptr< osg::Texture2D > edgeDetectionOut1 = edgeDetection->attach( osg::Camera::COLOR_BUFFER0 );
-    edgeDetection->bind( transformationDepth );
+    edgeDetection->bind( transformationDepth, 0 );
+    edgeDetection->bind( randTexture,         1 );
+
+    // Advection Pass, needs edges and projected vectors as well as noise texture
+    //  * Advected noise in luminance channel
+    osg::ref_ptr< osg::Texture2D > advectionOutA  = advectionAB->attach( osg::Camera::COLOR_BUFFER0, GL_LUMINANCE );
+    advectionAB->bind( transformationOut1, 0 );
+    advectionAB->bind( edgeDetectionOut1,  1 );
+    osg::ref_ptr< osg::Texture2D > advectionOutB  = advectionBA->attach( osg::Camera::COLOR_BUFFER0, GL_LUMINANCE );
+    advectionBA->bind( transformationOut1, 0 );
+    advectionBA->bind( edgeDetectionOut1,  1 );
+    advectionBA->bind( advectionOutA,      2 );
+    advectionAB->bind( advectionOutB,      2 );
+
+    // Final clipping and blending phase, needs Advected Noise, Edges, Depth and Light
+    clipBlend->bind( advectionOutB, 0 );
+    clipBlend->bind( edgeDetectionOut1, 1 );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Main loop
@@ -267,7 +298,7 @@ void WMImageSpaceLIC::moduleMain()
         }
 
         // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_scalarIn->handledUpdate();
+        bool dataUpdated = m_vectorsIn->handledUpdate();
         boost::shared_ptr< WDataSetVector > dataSet = m_vectorsIn->getData();
         bool dataValid = ( dataSet );
         if ( !dataValid || ( dataValid && !dataUpdated ) )

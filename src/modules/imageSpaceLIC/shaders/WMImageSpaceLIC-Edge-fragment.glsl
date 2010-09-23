@@ -25,9 +25,14 @@
 #version 120
 
 /**
- * The texture Unit
+ * The texture Unit for the depth field
  */
 uniform sampler2D u_texture0Sampler;
+
+/**
+ * The texture Unit for the 2D noise
+ */
+uniform sampler2D u_texture1Sampler;
 
 /**
  * Size of texture in pixels
@@ -82,6 +87,6 @@ void main()
             0.0 * tl +  1.0 * t + 0.0 * tr +
             1.0 * l  + -4.0 * c + 1.0 * r  +
             0.0 * bl +  1.0 * b + 0.0 * br
-        ).r, c.r, 0.0, 1.0 );
+        ).r, c.r, texture2D( u_texture1Sampler, texCoord ).r, 1.0 );    // also store noise in this texture
 }
 

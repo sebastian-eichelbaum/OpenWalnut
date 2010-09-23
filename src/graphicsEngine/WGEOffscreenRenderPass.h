@@ -87,12 +87,13 @@ public:
      * This method attaches a texture to the given buffer. The texture gets created with the resolution of the FBO.
      *
      * \param buffer the buffer to attach the new texture to
+     * \param internalFormat the format to use. By default, RGBA
      *
      * \note if the node is added to the graph, these functions should only be called from within an update callback.
      *
      * \return the newly created texture.
      */
-    osg::ref_ptr< osg::Texture2D > attach( BufferComponent buffer );
+    osg::ref_ptr< osg::Texture2D > attach( BufferComponent buffer, GLint internalFormat = GL_RGBA );
 
     /**
      * Detaches the texture currently bound to the specified buffer.
