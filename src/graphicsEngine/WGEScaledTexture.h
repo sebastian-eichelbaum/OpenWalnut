@@ -46,7 +46,10 @@ class WGEScaledTexture: public TextureType
 {
 public:
     /**
-     * Default constructor.
+     * Default constructor. Creates an empty instance of the texture.
+     *
+     * \param scale the scaling factor needed for de-scaling the texture values
+     * \param min the minimum value allowing negative values too.
      */
     WGEScaledTexture( double scale = 1.0, double min = 0.0 );
 
@@ -54,8 +57,10 @@ public:
      * Creates texture from given image. Scaling is set to identity.
      *
      * \param image the image to use as texture
+     * \param scale the scaling factor needed for de-scaling the texture values
+     * \param min the minimum value allowing negative values too.
      */
- 	WGEScaledTexture( osg::Image* image, double scale = 1.0, double min = 0.0 );
+    WGEScaledTexture( osg::Image* image, double scale = 1.0, double min = 0.0 );
 
     /**
      * Copy the texture.
@@ -63,7 +68,7 @@ public:
      * \param texture the texture to copy
      * \param copyop
      */
- 	WGEScaledTexture( const WGEScaledTexture< TextureType >& texture, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY );
+    WGEScaledTexture( const WGEScaledTexture< TextureType >& texture, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY );
 
     /**
      * Destructor.
@@ -88,7 +93,6 @@ public:
      * Binds the texture to the specified node and texture unit. It also adds two uniforms: u_textureXMin and u_textureXScale, where X
      * is the unit number. This can be used in shaders to unscale it.
      *
-     * \param texture the texture to bind
      * \param node the node where to bind the texture to
      * \param unit the unit, by default 0
      */
