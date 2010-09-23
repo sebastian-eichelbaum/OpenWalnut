@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGENODEMASKUPDATE_H
-#define WGENODEMASKUPDATE_H
+#ifndef WGENODEMASKCALLBACK_H
+#define WGENODEMASKCALLBACK_H
 
 #include <boost/signals2.hpp>
 
@@ -47,7 +47,7 @@ public:
     /**
      * Creates new instance.
      *
-     * \param property the bool property which controls activation.
+     * \param flag the bool property which controls activation.
      */
     explicit WGENodeMaskCallback( boost::shared_ptr< WBoolFlag > flag );
 
@@ -95,8 +95,7 @@ private:
      * Gets called if m_flag changes. This handles activation of the node.
      */
     virtual void activate();
-
 };
 
-#endif  // WGENODEMASKUPDATE_H
+#endif  // WGENODEMASKCALLBACK_H
 
