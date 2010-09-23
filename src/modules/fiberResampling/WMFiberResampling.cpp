@@ -23,18 +23,16 @@
 //---------------------------------------------------------------------------
 
 #include <cmath>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../common/math/WMath.h"
 #include "../../dataHandler/WDataHandler.h"
-
 #include "WMFiberResampling.h"
-#include "WMFiberResampling.xpm"
+#include "fiberResampling.xpm"
 
-// This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMFiberResampling )
 
 WMFiberResampling::WMFiberResampling():
@@ -44,7 +42,6 @@ WMFiberResampling::WMFiberResampling():
 
 WMFiberResampling::~WMFiberResampling()
 {
-    // Cleanup!
 }
 
 boost::shared_ptr< WModule > WMFiberResampling::factory() const
@@ -83,10 +80,8 @@ void WMFiberResampling::connectors()
                                         "out", "The fiber dataset re-sampled." )
     );
 
-    // As above: make it known.
     addConnector( m_fiberOutput );
 
-    // call WModule's initialization
     WModule::connectors();
 }
 
@@ -108,13 +103,11 @@ void WMFiberResampling::moduleMain()
 
     ready();
 
-    // main loop
     while ( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
-        // woke up since the module is requested to finish?
         if ( m_shutdownFlag() )
         {
             break;
@@ -141,8 +134,7 @@ void WMFiberResampling::moduleMain()
         WDataSetFibers::IndexArray newFibVertsRev  = WDataSetFibers::IndexArray( new WDataSetFibers::IndexArray::element_type() );
 
         // progress indication
-        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Coloring fibers.",
-                                                                                                  fibStart->size() ) );
+        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Resampling fibers.", fibStart->size() ) );
         m_progress->addSubProgress( progress1 );
 
         // for each fiber:

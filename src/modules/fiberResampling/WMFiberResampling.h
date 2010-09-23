@@ -28,7 +28,6 @@
 #include <string>
 
 #include "../../dataHandler/WDataSetScalar.h"
-
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
