@@ -78,7 +78,7 @@ void main()
 
     // laplace filter kernel
     gl_FragColor = vec4( 
-        abs( 
+        10.0 * abs( 
             0.0 * tl +  1.0 * t + 0.0 * tr +
             1.0 * l  + -4.0 * c + 1.0 * r  +
             0.0 * bl +  1.0 * b + 0.0 * br
