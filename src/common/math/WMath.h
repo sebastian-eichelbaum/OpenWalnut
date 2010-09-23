@@ -45,7 +45,7 @@
  */
 namespace wmath
 {
-    // Pi constants - we dont use the macro M_PI, because it is not part of the C++-standard.
+    // Pi constants - we don't use the macro M_PI, because it is not part of the C++-standard.
     // ref.: http://stackoverflow.com/questions/1727881/how-to-use-the-pi-constant-in-c
     /** the pi constant in float format */
     const float piFloat = boost::math::constants::pi<float>();
@@ -69,7 +69,7 @@ namespace wmath
 #endif
     }
     /**
-     * Checks if the triangle intersects with the given plane. If you are interessted in the points of
+     * Checks if the triangle intersects with the given plane. If you are interested in the points of
      * intersection if any \see intersection().
      *
      * \param p1 first point of the triangle
@@ -84,13 +84,13 @@ namespace wmath
     /**
      * Checks if the given segment intersects with the plane or not. Even if
      * just one endpoint intersects with the plane it should be returned as
-     * point of intersection. If the segement is totally inside of that plane
+     * point of intersection. If the segment is totally inside of that plane
      * the first endpoint (which was given: p1 ) should be returned in the
      * cutPoint parameter.
      *
      * \param p The plane to test with intersection
-     * \param p1 The first endpoint of the line segement
-     * \param p2 The second endpoint of the line segement
+     * \param p1 The first endpoint of the line segment
+     * \param p2 The second endpoint of the line segment
      * \param pointOfIntersection The point of intersection if any, otherwise 0,0,0
      *
      * \return True if an intersection was detected, false otherwise.
@@ -101,12 +101,12 @@ namespace wmath
                                 boost::shared_ptr< wmath::WPosition > pointOfIntersection );
 
     /**
-     * Checks a line (consecutive line segements) on intersection with a plane
+     * Checks a line (consecutive line segments) on intersection with a plane
      * and selects (if there are more than one point of intersection) the
      * closest to the base point of the plane.
      *
      * \param p The plane to test with intersection
-     * \param l The line segements
+     * \param l The line segments
      * \param cutPoint The return parameter for the point of intersection
      *
      * \return True if an intersection was detected, false otherwise.
