@@ -73,18 +73,18 @@ void WTransparentLinesDrawable::drawImplementation( osg::RenderInfo &renderInfo 
 
 
     // osg::ref_ptr< osg::Vec3Array > tmp( new osg::Vec3Array( _vertexData.array->getNumElements() ) );
-    osg::Vec3Array* oldVec = new  osg::Vec3Array( *(dynamic_cast<osg::Vec3Array*>( _vertexData.array.get() ) ), osg::CopyOp::DEEP_COPY_ALL );
+    osg::ref_ptr< osg::Vec3Array > oldVec = new  osg::Vec3Array( *dynamic_cast<osg::Vec3Array*>(  _vertexData.array.get() ), osg::CopyOp::DEEP_COPY_ALL );
+    osg::Vec3Array* oldVec2 = oldVec.get();
     osg::Vec3Array* tmpVec = const_cast< osg::Vec3Array* >( (dynamic_cast< const osg::Vec3Array*>( _vertexData.array.get()) ) );
-    osg::Vec3Array* oldTexCoords = new  osg::Vec3Array( *(dynamic_cast<osg::Vec3Array*>( getTexCoordData(0).array.get() ) ), osg::CopyOp::DEEP_COPY_ALL );
+    osg::ref_ptr< osg::Vec3Array > oldTexCoords = new  osg::Vec3Array( *dynamic_cast<osg::Vec3Array*>(  getTexCoordData(0).array.get() ), osg::CopyOp::DEEP_COPY_ALL );
+    osg::Vec3Array* oldTexCoords2 = oldTexCoords.get();
+    // osg::Vec3Array* oldTexCoords = new  osg::Vec3Array( *(dynamic_cast<osg::Vec3Array*>( getTexCoordData(0).array.get() ) ), osg::CopyOp::DEEP_COPY_ALL );
     osg::Vec3Array* tmpTexCoords = const_cast< osg::Vec3Array* >( (dynamic_cast< const osg::Vec3Array*>( getTexCoordData(0).array.get()) ) );
     for( size_t i = 0; i < _vertexData.array->getNumElements(); ++i )
     {
-        (*tmpTexCoords)[i] = (*oldTexCoords)[ depthVals[i].second ];
-        (*tmpVec)[i] = (*oldVec)[ depthVals[i].second ];
+        (*tmpTexCoords)[i] = (*oldTexCoords2)[ depthVals[i].second ];
+        (*tmpVec)[i] = (*oldVec2)[ depthVals[i].second ];
     }
-
-    // delete oldVec;
-    // delete oldTexCoords;
 
     osg::Geometry::drawImplementation( renderInfo );
 }
