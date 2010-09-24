@@ -27,6 +27,7 @@
 
 #include "WDataSetSingle.h"
 #include "../common/WLogger.h"
+#include "../common/WLimits.h"
 #include "../common/WCondition.h"
 
 #include "WDataTexture3D.h"
@@ -51,6 +52,12 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost
     wlog::debug( "WDataTexture3D" ) << "Texture scaling information for data in [" << m_minValue << ", "<< m_maxValue <<
                                        "]: scaling factor=" << m_scale;
     wlog::debug( "WDataTexture3D" ) << "Resolution is " <<  m_grid->getNbCoordsX() << "x" << m_grid->getNbCoordsY() << "x" << m_grid->getNbCoordsZ();
+    WAssert( m_grid->getNbCoordsX() <= wlimits::MAX_TEXTURE_DIMENSION, "Cannot create a texture with more"
+                                                                       " than 2048 pixels/voxels in one dimension." );
+    WAssert( m_grid->getNbCoordsY() <= wlimits::MAX_TEXTURE_DIMENSION, "Cannot create a texture with more"
+                                                                       " than 2048 pixels/voxels in one dimension." );
+    WAssert( m_grid->getNbCoordsZ() <= wlimits::MAX_TEXTURE_DIMENSION, "Cannot create a texture with more"
+                                                                       " than 2048 pixels/voxels in one dimension." );
 }
 
 WDataTexture3D::~WDataTexture3D()
