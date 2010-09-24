@@ -46,7 +46,10 @@ public:
     void testLineIntegration( void )
     {
         WSimpleResampler r( 0 );
-        TS_ASSERT_EQUALS( r.lineIntegration( m_equiTractVerts, m_startIdx, m_length ), std::sqrt( 3.0 ) * 4.0 );
+        TS_ASSERT_DELTA( r.lineIntegration( m_equiTractVerts, m_startIdx, m_length ), std::sqrt( 3.0 ) * 4.0, 1.0e-10 );
+        TS_ASSERT_DELTA( r.lineIntegration( m_nonEquiTractVerts, m_startIdx, m_length ),
+                         2 * std::sqrt( 0.05 * 0.05 + 0.9 * 0.9 ) + 2 * std::sqrt( 0.2 * 0.2 + 0.1 * 0.1 ),
+                         1.0e-10 );
     }
 
     /**
@@ -54,7 +57,7 @@ public:
      * be resampled equidistantly into \c n-1 segments when having \c n new
      * sample points.
      */
-    void testResamplingWithGivenNumberOfNewSamplePoints( void )
+    void testResamplingWithGivenNumberOfNewSamplePointsOnEquidistantSampledTract( void )
     {
         WSimpleResampler r( 3 );
         boost::shared_ptr< std::vector< double > > newTractVerts( new std::vector< double >( 9*3, -1.0 ) );
@@ -77,21 +80,30 @@ public:
         }
     }
 
-//    /**
-//     * When a given new segment length is given, resample the fiber in segments
-//     * of this length, the last segment may be not that length.
-//     * TODO(math): please talk to sebastian, if that really makes sense??
-//     */
-//    void testResampleWithGivenSegmentLength( void )
-//    {
-//    }
-
     /**
-     * If the tract is not equidistant sampled than this should work:
-     * TODO(math): describe the drawbacks of the simple resampler
+     * If the tract is not equidistant sampled than this should work too.
      */
     void testResamplingOnNonEquidistantTract( void )
     {
+        WSimpleResampler r( 3 );
+        boost::shared_ptr< std::vector< double > > newTractVerts( new std::vector< double >( 9*3, -1.0 ) );
+        r.resample( m_nonEquiTractVerts, m_startIdx, m_length, newTractVerts, 3 );
+        double verts[] = { -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  // NOLINT
+                            0.75,  0.0,  0.0,
+                            1.0,  1.0,  0.0,
+                            1.25,  0.0,  0.0,
+                           -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0 };  // NOLINT
+        std::vector< double > expected( verts, verts + sizeof( verts ) / sizeof( double ) );
+        TS_ASSERT_EQUALS( expected.size(), newTractVerts->size() );
+        for( size_t i = 0; i < expected.size(); ++i )
+        {
+            if( std::abs( expected[i] - (*newTractVerts)[i] ) > 1.0e-10 )
+            {
+                std::stringstream ss;
+                ss << "Positions differ in index: " << i << " with expected: " << expected[i] << " but got " << (*newTractVerts)[i];
+                TS_FAIL( ss.str() );
+            }
+        }
     }
 
     /**
