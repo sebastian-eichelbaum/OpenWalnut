@@ -26,10 +26,10 @@
 #include "../../graphicsEngine/WGEViewer.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "WTransparentLinesDrawable.h"
-
+#include <iomanip>
 namespace
 {
-    float depth( osg::Vec3f pos, wmath::WPosition viewDir )
+    double depth( osg::Vec3f pos, wmath::WPosition viewDir )
     {
         return ( pos - wmath::WPosition() ) * viewDir;
     }
@@ -37,7 +37,7 @@ namespace
     class MySorting
     {
     public:
-        int operator()( std::pair< float, size_t > p1 , std::pair< float, size_t > p2 )
+        int operator()( std::pair< double, size_t > p1 , std::pair< double, size_t > p2 )
             {
                 return ( p1.first < p2.first );
             }
@@ -53,26 +53,38 @@ void WTransparentLinesDrawable::drawImplementation( osg::RenderInfo &renderInfo 
     wmath::WPosition startPos = wmath::WPosition( wge::unprojectFromScreen( wmath::WPosition(), viewer->getCamera() ) );
     wmath::WPosition viewDir = ( endPos - startPos ).normalized();
 
-    std::vector< std::pair< float, size_t > > depthVals( _vertexData.array->getNumElements() );
+    std::vector< std::pair< double, size_t > > depthVals( _vertexData.array->getNumElements() );
+    // std::cout<<"HALLO"<<depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[0], viewDir )<<std::endl;
+    // std::cout<<"HALLO"<<depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[1], viewDir )<<std::endl;
+    // std::cout<<"HALLO"<<depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[2], viewDir )<<std::endl;
+    // std::cout<<"HALLO"<<depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[3], viewDir )<<std::endl;
+    // std::cout<<"HALLO"<<depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[4], viewDir )<<std::endl;
+    // std::cout<< depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[0], viewDir )<<std::endl;
     for( size_t i = 0; i < _vertexData.array->getNumElements(); i += 2 )
     {
         // std::cout << viewDir << " depth: " << depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[i], viewDir ) << std::endl;
-        float myDepth = depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[i], viewDir );
+        double myDepth = -1 * depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[i], viewDir );
+        // TODO(wiebel): improve this unidication of values
         depthVals[i]   = std::make_pair( myDepth, i );
         depthVals[i+1] = std::make_pair( myDepth, i+1 );
     }
 
-    sort( depthVals.begin(), depthVals.end(), MySorting() );
+    std::stable_sort( depthVals.begin(), depthVals.end(), MySorting() );
 
-    osg::ref_ptr< osg::Vec3Array > tmp( new osg::Vec3Array( _vertexData.array->getNumElements() ) );
+
+    // osg::ref_ptr< osg::Vec3Array > tmp( new osg::Vec3Array( _vertexData.array->getNumElements() ) );
+    osg::Vec3Array* oldVec = new  osg::Vec3Array( *(dynamic_cast<osg::Vec3Array*>( _vertexData.array.get() ) ), osg::CopyOp::DEEP_COPY_ALL );
+    osg::Vec3Array* tmpVec = const_cast< osg::Vec3Array* >( (dynamic_cast< const osg::Vec3Array*>( _vertexData.array.get()) ) );
+    osg::Vec3Array* oldTexCoords = new  osg::Vec3Array( *(dynamic_cast<osg::Vec3Array*>( getTexCoordData(0).array.get() ) ), osg::CopyOp::DEEP_COPY_ALL );
+    osg::Vec3Array* tmpTexCoords = const_cast< osg::Vec3Array* >( (dynamic_cast< const osg::Vec3Array*>( getTexCoordData(0).array.get()) ) );
     for( size_t i = 0; i < _vertexData.array->getNumElements(); ++i )
     {
-        (*tmp)[i] = (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[ depthVals[i].second ];
+        (*tmpTexCoords)[i] = (*oldTexCoords)[ depthVals[i].second ];
+        (*tmpVec)[i] = (*oldVec)[ depthVals[i].second ];
     }
 
-    setVertexArray( tmp );
-    // _vertexData.array = tmp;
-
+    // delete oldVec;
+    // delete oldTexCoords;
 
     osg::Geometry::drawImplementation( renderInfo );
 }

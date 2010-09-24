@@ -175,6 +175,8 @@ osg::ref_ptr< osg::Geode > WMSliceContext::genTractGeode( const std::vector< siz
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     ref_ptr< WTransparentLinesDrawable > geometry = ref_ptr< WTransparentLinesDrawable >( new WTransparentLinesDrawable );
+    geometry->setDataVariance( osg::Object::DYNAMIC );
+
 
     boost::shared_ptr< std::vector < size_t > > lineLengths = m_tracts->getLineLengths();
     size_t  insideCountLocal = m_insideCountProp->get();
@@ -232,6 +234,7 @@ osg::ref_ptr< osg::Geode > WMSliceContext::genTractGeode( const std::vector< siz
     state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
 
     m_shaderFibers->apply( geode );
+    geode->setDataVariance( osg::Object::DYNAMIC );
 
     return geode;
 }
