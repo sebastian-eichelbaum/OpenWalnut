@@ -30,7 +30,7 @@
 #include "../../common/WColor.h"
 #include "../../common/WPropertyHelper.h"
 
-#include "scalarSegmentation.xpm"
+#include "WMScalarSegmentation.xpm"
 #include "WMScalarSegmentation.h"
 
 // This line is needed by the module loader to actually find your module.

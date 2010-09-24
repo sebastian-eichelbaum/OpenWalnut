@@ -42,7 +42,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "../../kernel/WKernel.h"
-#include "clusterDisplay.xpm" // Please put a real icon here.
+#include "WMClusterDisplay.xpm" // Please put a real icon here.
 
 #include "WMClusterDisplay.h"
 

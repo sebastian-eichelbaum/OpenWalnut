@@ -40,7 +40,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "WMArbitraryPlane.h"
-#include "arbitraryPlane.xpm"
+#include "WMArbitraryPlane.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMArbitraryPlane )

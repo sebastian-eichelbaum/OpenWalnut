@@ -36,7 +36,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMLineGuidedSlice.h"
-#include "lineGuidedSlice.xpm"
+#include "WMLineGuidedSlice.xpm"
 
 W_LOADABLE_MODULE( WMLineGuidedSlice )
 

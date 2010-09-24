@@ -28,7 +28,7 @@
 #include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../kernel/WKernel.h"
 #include "WMWriteTracts.h"
-#include "writeTracts.xpm"
+#include "WMWriteTracts.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMWriteTracts )

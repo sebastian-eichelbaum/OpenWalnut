@@ -48,7 +48,7 @@
 #include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../kernel/WKernel.h"
 #include "WMClusterSlicer.h"
-#include "clusterSlicer.xpm"
+#include "WMClusterSlicer.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMClusterSlicer )

@@ -80,7 +80,7 @@ void WSimpleResampler::resample( boost::shared_ptr< const std::vector< double > 
         }
         // upto this point it may occur that the remaining length ( of the last new segment ) is smaller than the newSegmentLength
         // so we add simply the last point of the old tract
-       if( std::abs( remainingLength ) > 0.001 ) // In case there is much of the length left but smaller than the new segment length, the last segment should be placed anyway...
+       if( std::abs( remainingLength ) > 0.001 )
        {
            ( *newVerts )[j    ] = next[0];
            ( *newVerts )[j + 1] = next[1];

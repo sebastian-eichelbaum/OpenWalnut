@@ -35,7 +35,7 @@
 #include "../../common/math/WLinearAlgebraFunctions.h"
 
 #include "WMDeterministicFTMori.h"
-#include "moriTracking.xpm"
+#include "WMDeterministicFTMori.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMDeterministicFTMori )

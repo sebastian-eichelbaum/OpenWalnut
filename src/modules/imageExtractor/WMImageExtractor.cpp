@@ -31,7 +31,7 @@
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../common/WPropertyHelper.h"
 
-#include "imageExtractor.xpm"
+#include "WMImageExtractor.xpm"
 #include "WMImageExtractor.h"
 
 // This line is needed by the module loader to actually find your module.

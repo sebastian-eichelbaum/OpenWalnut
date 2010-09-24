@@ -34,7 +34,7 @@
 #include "../../graphicsEngine/WROIArbitrary.h"
 #include "../../kernel/WKernel.h"
 
-#include "paintTexture.xpm" // Please put a real icon here.
+#include "WMPaintTexture.xpm" // Please put a real icon here.
 
 #include "WMPaintTexture.h"
 

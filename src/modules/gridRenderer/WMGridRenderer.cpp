@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "gridRenderer.xpm"
+#include "WMGridRenderer.xpm"
 #include "../../kernel/WKernel.h"
 
 #include "WMGridRenderer.h"

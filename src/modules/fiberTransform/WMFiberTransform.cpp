@@ -27,7 +27,7 @@
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "WMFiberTransform.h"
-#include "fiberTransform.xpm"
+#include "WMFiberTransform.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMFiberTransform )

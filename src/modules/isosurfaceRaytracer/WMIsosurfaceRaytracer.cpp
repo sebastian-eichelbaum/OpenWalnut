@@ -40,7 +40,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WKernel.h"
-#include "isosurfaceraytracer.xpm"
+#include "WMIsosurfaceRaytracer.xpm"
 #include "WMIsosurfaceRaytracer.h"
 
 // This line is needed by the module loader to actually find your module.

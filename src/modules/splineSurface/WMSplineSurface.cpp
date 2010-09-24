@@ -29,7 +29,7 @@
 
 #include <cmath>
 
-#include "spline_surface.xpm"
+#include "WMSplineSurface.xpm"
 #include "../../common/WLimits.h"
 #include "../../common/WAssert.h"
 

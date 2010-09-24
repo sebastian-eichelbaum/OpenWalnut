@@ -64,7 +64,7 @@
 #include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/WGEUtils.h"
 
-#include "template.xpm"
+#include "WMTemplate.xpm"
 #include "icons/bier.xpm"
 #include "icons/wurst.xpm"
 #include "icons/steak.xpm"

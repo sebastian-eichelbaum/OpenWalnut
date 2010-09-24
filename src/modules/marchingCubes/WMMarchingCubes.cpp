@@ -28,7 +28,7 @@
 #include <vector>
 #include <limits>
 
-#include "iso_surface.xpm"
+#include "WMMarchingCubes.xpm"
 #include "../../common/WLimits.h"
 #include "../../common/WAssert.h"
 

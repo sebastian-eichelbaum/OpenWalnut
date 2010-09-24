@@ -80,6 +80,15 @@ public:
                    const size_t newStartIdx ) const;
 
 protected:
+    /**
+     * Accumulates all line segment lengths of a certain tract.
+     *
+     * \param verts Vertex array of all tracts
+     * \param startIdx Idx where the specific tract starts
+     * \param length How many vertices are used.
+     *
+     * \return The sum of all line segement lengths
+     */
     double lineIntegration( boost::shared_ptr< const std::vector< double > > verts,
                             const size_t startIdx,
                             const size_t length ) const;

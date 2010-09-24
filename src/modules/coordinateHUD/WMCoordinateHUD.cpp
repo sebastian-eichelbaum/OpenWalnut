@@ -40,7 +40,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "WMCoordinateHUD.h"
-#include "coordinateHUD.xpm"
+#include "WMCoordinateHUD.xpm"
 #include "option_1.xpm"
 #include "option_2.xpm"
 #include "option_3.xpm"

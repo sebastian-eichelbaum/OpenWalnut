@@ -43,7 +43,7 @@
 #include "../../common/math/WVector3D.h"
 #include "../../kernel/modules/data/WMData.h"
 #include "WMBoundingBox.h"
-#include "boundingbox.xpm"
+#include "WMBoundingBox.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMBoundingBox )

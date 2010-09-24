@@ -35,7 +35,7 @@
 #include "../../common/WThreadedFunction.h"
 #include "../../common/WConditionOneShot.h"
 #include "../../kernel/WKernel.h"
-#include "teemGlyphs.xpm"
+#include "WMTeemGlyphs.xpm"
 
 #include "WMTeemGlyphs.h"
 

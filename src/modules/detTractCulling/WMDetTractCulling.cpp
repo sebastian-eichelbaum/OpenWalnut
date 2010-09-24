@@ -39,7 +39,7 @@
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../kernel/WKernel.h"
-#include "detTractCulling.xpm"
+#include "WMDetTractCulling.xpm"
 #include "WMDetTractCulling.h"
 
 // This line is needed by the module loader to actually find your module.

@@ -28,7 +28,7 @@
 #include <vector>
 
 #include "WMDistanceMap.h"
-#include "distancemap.xpm"
+#include "WMDistanceMap.xpm"
 
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleFactory.h"

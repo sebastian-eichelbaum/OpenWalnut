@@ -38,7 +38,7 @@
 #include "../../common/WColor.h"
 
 #include "WMFiberSelection.h"
-#include "fiberSelection.xpm"
+#include "WMFiberSelection.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMFiberSelection )

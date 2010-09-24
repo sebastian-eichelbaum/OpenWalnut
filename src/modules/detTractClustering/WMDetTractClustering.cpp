@@ -50,7 +50,7 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-#include "detTractClustering.xpm"
+#include "WMDetTractClustering.xpm"
 #include "WMDetTractClustering.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -271,7 +271,9 @@ void WMDetTractClustering::cluster()
 
     if( !m_dLtTableExists )
     {
-        boost::shared_ptr< SimilarityMatrixComputation > threadInstance( new SimilarityMatrixComputation( m_dLtTable, m_tracts, proximity_t * proximity_t, m_shutdownFlag ) );
+        boost::shared_ptr< SimilarityMatrixComputation > threadInstance( new SimilarityMatrixComputation( m_dLtTable,
+                                                                                                          m_tracts, proximity_t * proximity_t,
+                                                                                                          m_shutdownFlag ) );
         WThreadedFunction< SimilarityMatrixComputation > threadPool( 2, threadInstance );
         threadPool.run();
         threadPool.wait();
@@ -446,7 +448,7 @@ WMDetTractClustering::SimilarityMatrixComputation::SimilarityMatrixComputation(
 {
 }
 
-void WMDetTractClustering::SimilarityMatrixComputation::operator()( size_t id, size_t numThreads, WBoolFlag& b )
+void WMDetTractClustering::SimilarityMatrixComputation::operator()( size_t id, size_t numThreads, WBoolFlag& b ) // NOLINT const ref
 {
     wlog::debug( "WMDetTractClustering::SimilarityMatrixComputation" ) << "Thread: " << id << " starting its work";
     ( void ) b; // NOLINT for removing the warning about unused variables

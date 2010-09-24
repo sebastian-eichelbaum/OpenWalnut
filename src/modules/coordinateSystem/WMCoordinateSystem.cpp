@@ -40,7 +40,7 @@
 #include "../../kernel/WKernel.h"
 
 #include "WTalairachConverter.h"
-#include "coordinateSystem.xpm"
+#include "WMCoordinateSystem.xpm"
 
 #include "WMCoordinateSystem.h"
 

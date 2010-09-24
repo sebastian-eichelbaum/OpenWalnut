@@ -43,7 +43,7 @@
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 
 #include "WMArbitraryRois.h"
-#include "arbitraryROI.xpm"
+#include "WMArbitraryRois.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMArbitraryRois )

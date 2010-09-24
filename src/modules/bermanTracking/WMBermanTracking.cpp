@@ -34,7 +34,7 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
-#include "bermanTracking.xpm"
+#include "WMBermanTracking.xpm"
 #include "WMBermanTracking.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
