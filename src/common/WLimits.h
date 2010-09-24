@@ -103,6 +103,9 @@ namespace wlimits
      * \return True if the value is infinity, false otherwise.
      */
     template< typename T > bool isinf( T value );
+
+    //! The maximum texture dimension.
+    static std::size_t const MAX_TEXTURE_DIMENSION = 2048;
 }
 
 template< typename T > bool wlimits::isnan( T value )
