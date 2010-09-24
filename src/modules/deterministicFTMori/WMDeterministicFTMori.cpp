@@ -211,6 +211,8 @@ void WMDeterministicFTMori::properties()
                                            " adjacent fiber segments.", 0.80, m_propCondition );
     m_minCos->setMax( 1.0 );
     m_minCos->setMin( 0.0 );
+
+    WModule::properties();
 }
 
 void WMDeterministicFTMori::activate()

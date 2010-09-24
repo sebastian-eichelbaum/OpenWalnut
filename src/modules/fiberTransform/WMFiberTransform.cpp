@@ -92,6 +92,8 @@ void WMFiberTransform::properties()
     m_matrix2Prop = m_properties->addProperty( "M Row 2",
                                                "Row 2 of matrix part of the transformation. You need to press enter to make the values effective.",
                                                wmath::WPosition( 0.0, 0.0, 1.0 ) );
+
+    WModule::properties();
 }
 
 void WMFiberTransform::moduleMain()

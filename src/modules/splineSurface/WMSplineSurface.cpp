@@ -190,6 +190,8 @@ void WMSplineSurface::properties()
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMSplineSurface::save, this ) );
 
     m_meshFile = m_savePropGroup->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
+
+    WModule::properties();
 }
 
 void WMSplineSurface::renderMesh()

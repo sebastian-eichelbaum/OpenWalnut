@@ -81,6 +81,8 @@ void WMWriteTracts::properties()
 {
     m_savePath         = m_properties->addProperty( "Save Path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_savePath );
+
+    WModule::properties();
 }
 
 void WMWriteTracts::moduleMain()

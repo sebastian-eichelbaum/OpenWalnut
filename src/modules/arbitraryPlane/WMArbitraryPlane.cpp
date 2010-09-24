@@ -102,6 +102,8 @@ void WMArbitraryPlane::properties()
     m_buttonReset2Axial = m_properties->addProperty( "Axial", "Resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
     m_buttonReset2Coronal = m_properties->addProperty( "Coronal", "Resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
     m_buttonReset2Sagittal = m_properties->addProperty( "Sagittal", "Resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+
+    WModule::properties();
 }
 
 void WMArbitraryPlane::moduleMain()

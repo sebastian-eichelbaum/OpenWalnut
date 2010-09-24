@@ -96,8 +96,9 @@ void WMCoordinateHUD::properties()
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelection );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_aSingleSelection );
-
     // set the x axis color if in color axis or color cube mode
+
+    WModule::properties();
 }
 
 void WMCoordinateHUD::moduleMain()

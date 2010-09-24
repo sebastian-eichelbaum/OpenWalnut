@@ -102,6 +102,7 @@ void WMLIC::connectors()
 
 void WMLIC::properties()
 {
+    WModule::properties();
 }
 
 void WMLIC::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )

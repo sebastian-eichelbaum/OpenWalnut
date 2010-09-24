@@ -182,6 +182,7 @@ void WMApplyMask::connectors()
 
 void WMApplyMask::properties()
 {
+    WModule::properties();
 }
 
 template< typename T > void WMApplyMask::applyMask( boost::shared_ptr< WValueSet< T > > valSet, dataType type )

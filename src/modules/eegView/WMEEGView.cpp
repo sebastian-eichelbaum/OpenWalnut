@@ -152,6 +152,8 @@ void WMEEGView::properties()
     m_ySensitivity->setMax( 100.0 );
     m_colorSensitivity->setMin( 0.01 );
     m_colorSensitivity->setMax( 10000.0 );
+
+    WModule::properties();
 }
 
 void WMEEGView::notifyConnectionEstablished(

@@ -114,6 +114,8 @@ void WMVectorPlot::properties()
     m_ySlice->setMax( 200 );
     m_zSlice->setMin( 0 );
     m_zSlice->setMax( 160 );
+
+    WModule::properties();
 }
 
 void WMVectorPlot::moduleMain()

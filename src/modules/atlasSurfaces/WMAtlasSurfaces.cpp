@@ -103,6 +103,8 @@ void WMAtlasSurfaces::properties()
 {
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMAtlasSurfaces::propertyChanged, this );
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    WModule::properties();
 }
 
 void WMAtlasSurfaces::moduleMain()

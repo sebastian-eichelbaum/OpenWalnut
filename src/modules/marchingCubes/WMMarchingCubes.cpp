@@ -225,6 +225,8 @@ void WMMarchingCubes::properties()
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMMarchingCubes::save, this ) );
 
     m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
+
+    WModule::properties();
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )

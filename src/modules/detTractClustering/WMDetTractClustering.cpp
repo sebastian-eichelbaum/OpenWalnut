@@ -150,6 +150,8 @@ void WMDetTractClustering::properties()
     m_numValidClusters->setMin( 0 );
     m_numValidClusters->setMax( wlimits::MAX_INT32_T );
     m_clusterSizes = m_infoProperties->addProperty( "Cluster sizes:", "Size of each valid cluster", std::string() );
+
+    WModule::properties();
 }
 
 void WMDetTractClustering::updateOutput()

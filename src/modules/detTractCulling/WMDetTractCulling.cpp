@@ -135,6 +135,8 @@ void WMDetTractCulling::properties()
     m_numTracts = m_infoProperties->addProperty( "#Tracts", "Number of tracts beeing processed", 0 );
     m_numTracts->setMin( 0 );
     m_numTracts->setMax( wlimits::MAX_INT32_T );
+
+    WModule::properties();
 }
 
 void WMDetTractCulling::cullOutTracts()

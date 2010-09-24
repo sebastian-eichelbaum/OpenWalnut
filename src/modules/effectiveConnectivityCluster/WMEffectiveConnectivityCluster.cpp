@@ -404,6 +404,8 @@ void WMEffectiveConnectivityCluster::properties()
     m_voi2Name = m_properties->addProperty( "Name of VOI2", "The name of the VOI2.", std::string( "" ), m_propCondition );
 
     m_labelCharacterSize = m_properties->addProperty( "Font size", "The size of the label fonts.", 20, m_propCondition );
+
+    WModule::properties();
 }
 
 void WMEffectiveConnectivityCluster::activate()

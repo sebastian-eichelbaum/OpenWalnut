@@ -71,6 +71,8 @@ void WMClusterParamDisplay::properties()
     m_isoValue->setMin( 0.0 );
     m_isoValue->setMax( 100.0 );
     m_drawIsoSurface = m_properties->addProperty( "Iso Surface", "En/Disables the display of the iso surface", true );
+
+    WModule::properties();
 }
 
 void WMClusterParamDisplay::moduleMain()

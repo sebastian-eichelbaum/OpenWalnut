@@ -177,6 +177,7 @@ void WMDataTypeConversion::connectors()
 
 void WMDataTypeConversion::properties()
 {
+    WModule::properties();
 }
 
 

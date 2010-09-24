@@ -90,6 +90,8 @@ void WMLineGuidedSlice::properties()
     m_pos = m_properties->addProperty( "Slice Position", "Position of ths slice along the line.", 0., true );
     m_pos->setMin( 0. );
     m_pos->setMax( 1. );
+
+    WModule::properties();
 }
 
 void WMLineGuidedSlice::moduleMain()

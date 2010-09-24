@@ -75,6 +75,7 @@ void WMProbTractDisplay::connectors()
 
 void WMProbTractDisplay::properties()
 {
+    WModule::properties();
 }
 
 void WMProbTractDisplay::moduleMain()

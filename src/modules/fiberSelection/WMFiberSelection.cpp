@@ -140,6 +140,8 @@ void WMFiberSelection::properties()
 
     m_preferShortestPath = m_properties->addProperty( "Prefer shortest path", "Determines whether the fibers should be cut on the entry and "
                             "exit of a VOI. This should prevent the fibers from going deep into the VOI's.", false, m_propCondition );
+
+    WModule::properties();
 }
 
 /**

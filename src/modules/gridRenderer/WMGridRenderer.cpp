@@ -76,7 +76,7 @@ void WMGridRenderer::connectors()
 
 void WMGridRenderer::properties()
 {
-    // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
+    WModule::properties();
 }
 
 void WMGridRenderer::moduleMain()

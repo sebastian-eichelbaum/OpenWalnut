@@ -327,6 +327,8 @@ void WMTemplate::properties()
     m_aColorOutput = m_infoProperties->addProperty( "A color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
     m_aFilenameOutput = m_infoProperties->addProperty( "Nice file", "a Double. Nice isn't it?", WPathHelper::getAppPath() );
     m_aSelectionOutput = m_infoProperties->addProperty( "A selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
+
+    WModule::properties();
 }
 
 void WMTemplate::moduleMain()

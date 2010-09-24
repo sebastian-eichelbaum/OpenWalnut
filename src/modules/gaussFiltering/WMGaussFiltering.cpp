@@ -390,4 +390,6 @@ void WMGaussFiltering::properties()
     m_iterations->setMax( 100 );
 
     m_mode            = m_properties->addProperty( "Mode", "", false, m_propCondition );
+
+    WModule::properties();
 }

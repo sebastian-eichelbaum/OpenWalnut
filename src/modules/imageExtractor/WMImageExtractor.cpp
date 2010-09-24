@@ -111,6 +111,8 @@ void WMImageExtractor::properties()
 
     m_colorMapSelection = m_properties->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
+
+    WModule::properties();
 }
 
 void WMImageExtractor::activate()

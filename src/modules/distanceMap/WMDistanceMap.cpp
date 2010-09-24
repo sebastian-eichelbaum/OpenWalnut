@@ -139,7 +139,7 @@ void WMDistanceMap::connectors()
 
 void WMDistanceMap::properties()
 {
-    // no properties
+    WModule::properties();
 }
 
 template< typename T > boost::shared_ptr< WValueSet< float > > makeFloatValueSetHelper( boost::shared_ptr< WValueSet< T > > inSet )

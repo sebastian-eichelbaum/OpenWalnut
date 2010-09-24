@@ -90,6 +90,8 @@ void WMMeshReader::properties()
     m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     WPropertyHelper::PC_PATHEXISTS::addTo( m_meshFile );
+
+    WModule::properties();
 }
 
 void WMMeshReader::moduleMain()

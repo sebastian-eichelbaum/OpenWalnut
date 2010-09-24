@@ -120,6 +120,8 @@ void WMIsosurfaceRaytracer::properties()
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_shadingAlgo );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_shadingAlgo );
+
+    WModule::properties();
 }
 
 void WMIsosurfaceRaytracer::moduleMain()

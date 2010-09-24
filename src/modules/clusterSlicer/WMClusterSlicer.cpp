@@ -140,6 +140,8 @@ void WMClusterSlicer::properties()
     m_maxScale->setMax( 1.0 );
     m_minScaleColor     = m_properties->addProperty( "MinScaleColor", "", WColor( 1.0, 0.0, 0.0, 1.0 ), m_fullUpdate );
     m_maxScaleColor     = m_properties->addProperty( "MaxScaleColor", "", WColor( 1.0, 0.0, 0.0, 1.0 ), m_fullUpdate );
+
+    WModule::properties();
 }
 
 void WMClusterSlicer::moduleMain()

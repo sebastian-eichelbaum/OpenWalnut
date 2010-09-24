@@ -149,6 +149,8 @@ void WMBermanTracking::properties()
 
     m_ratio = m_properties->addProperty( "Ratio?", "Temporary", 3.0, m_propCondition );
     m_epsImpr = m_properties->addProperty( "EpsImpr?", "Temporary", 1.0, m_propCondition );
+
+    WModule::properties();
 }
 
 void WMBermanTracking::moduleMain()
