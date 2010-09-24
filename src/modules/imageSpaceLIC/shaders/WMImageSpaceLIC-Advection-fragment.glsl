@@ -60,6 +60,11 @@ uniform int u_texture2SizeZ;
 uniform float u_noiseRatio;
 
 /**
+ * Number of iterations per frame.
+ */
+uniform int u_numIter;
+
+/**
  * Main. Calculates the Laplace Filter for each pixel.
  */
 void main()
@@ -78,19 +83,19 @@ void main()
     vec2 lastVec = vec;
     vec2 lastPos = gl_TexCoord[0].st;
     float sum = 0.0;
-    int maxIter = 5;
-    for ( int i = 0; i < maxIter; ++i )
+    int maxIter = 50;
+    for ( int i = 0; i < u_numIter; ++i )
     {
         vec2 newPos = lastPos - vec2( lastVec.x / u_texture2SizeX, lastVec.y / u_texture2SizeY );
         vec2 newVec = normalize( 2.0 * ( texture2D( u_texture0Sampler, newPos ).rg - vec2( 0.5, 0.5 ) ) );
 
-        sum += float( maxIter - i ) / maxIter * texture2D( u_texture2Sampler, newPos ).r;
+        sum += /* float( maxIter - i ) / maxIter * */ texture2D( u_texture1Sampler, newPos ).b;
 
         lastPos = newPos;
         lastVec = newVec;
     }
     
-    float n = sum / 3.;
+    float n = sum / float( u_numIter );
     if ( depth > 0.99 )
     {
         n = noise;

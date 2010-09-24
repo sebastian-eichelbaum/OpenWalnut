@@ -179,6 +179,8 @@ private:
     WPropBool     m_useLight; //!< indicates whether to use Phong
 
     WPropDouble   m_noiseRatio; //!< the ratio between noise and advected noise.
+
+    WPropInt      m_numIters; //! the number of iterations done per frame
 };
 
 #endif  // WMIMAGESPACELIC_H

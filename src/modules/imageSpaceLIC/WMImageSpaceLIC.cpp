@@ -138,6 +138,9 @@ void WMImageSpaceLIC::properties()
     m_noiseRatio->setMin( 0.0 );
     m_noiseRatio->setMax( 0.5 );
 
+    m_numIters     = m_licGroup->addProperty( "Number of Iterations", "How much iterations along a streamline should be done per frame.", 50 );
+    m_numIters->setMin( 0 );
+    m_numIters->setMax( 100 );
 
     // call WModule's initialization
     WModule::properties();
@@ -213,7 +216,7 @@ void WMImageSpaceLIC::moduleMain()
         {
             // - stylechecker says "use rand_r" but I am not sure about portability.
             unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
-            randomLuminance[ ( y * resX ) + x ] = r > 150 ? 255 : ( r < 100 ? 0 : r );
+            randomLuminance[ ( y * resX ) + x ] = r;// > 150 ? 255 : ( r < 100 ? 0 : r );
         }
     }
 
@@ -301,8 +304,11 @@ void WMImageSpaceLIC::moduleMain()
 
     // advection needs some uniforms controlled by properties
     osg::ref_ptr< osg::Uniform > noiseRatio = new WGEPropertyUniform< WPropDouble >( "u_noiseRatio", m_noiseRatio );
+    osg::ref_ptr< osg::Uniform > numIters = new WGEPropertyUniform< WPropInt >( "u_numIter", m_numIters );
     advectionAB->addUniform( noiseRatio );
     advectionBA->addUniform( noiseRatio );
+    advectionAB->addUniform( numIters );
+    advectionBA->addUniform( numIters );
 
     // Final clipping and blending phase, needs Advected Noise, Edges, Depth and Light
     clipBlend->bind( advectionOutB, 0 );
