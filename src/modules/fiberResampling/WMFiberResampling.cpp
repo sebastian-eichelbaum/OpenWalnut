@@ -31,7 +31,7 @@
 #include "../../common/math/WMath.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "WMFiberResampling.h"
-#include "fiberResampling.xpm"
+#include "WMFiberResampling.xpm"
 
 W_LOADABLE_MODULE( WMFiberResampling )
 
@@ -87,9 +87,8 @@ void WMFiberResampling::connectors()
 
 void WMFiberResampling::properties()
 {
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_newSamples = m_properties->addProperty( "#Sample Points", "The is the new number of which the tracts are resampled to", 20 );
 
-    // call WModule's initialization
     WModule::properties();
 }
 
@@ -98,8 +97,6 @@ void WMFiberResampling::moduleMain()
     // get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
-    // Remember the condition provided to some properties in properties()? The condition can now be used with this condition set.
-    m_moduleState.add( m_propCondition );
 
     ready();
 

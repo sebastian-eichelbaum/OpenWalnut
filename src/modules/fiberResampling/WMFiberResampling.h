@@ -107,9 +107,9 @@ private:
     boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_fiberOutput;
 
     /**
-     * A condition used to notify about changes in several properties.
+     * Number of new sample points all tracts are resampled to.
      */
-    boost::shared_ptr< WCondition > m_propCondition;
+    WPropInt m_newSamples;
 };
 
 #endif  // WMFIBERRESAMPLING_H
