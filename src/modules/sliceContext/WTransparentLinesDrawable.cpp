@@ -22,11 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
+#include <utility>
+#include <vector>
+
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEViewer.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "WTransparentLinesDrawable.h"
-#include <iomanip>
+
 namespace
 {
     double depth( osg::Vec3f pos, wmath::WPosition viewDir )
@@ -54,16 +57,9 @@ void WTransparentLinesDrawable::drawImplementation( osg::RenderInfo &renderInfo 
     wmath::WPosition viewDir = ( endPos - startPos ).normalized();
 
     std::vector< std::pair< double, size_t > > depthVals( _vertexData.array->getNumElements() );
-    // std::cout<<"HALLO"<<depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[0], viewDir )<<std::endl;
-    // std::cout<<"HALLO"<<depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[1], viewDir )<<std::endl;
-    // std::cout<<"HALLO"<<depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[2], viewDir )<<std::endl;
-    // std::cout<<"HALLO"<<depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[3], viewDir )<<std::endl;
-    // std::cout<<"HALLO"<<depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[4], viewDir )<<std::endl;
-    // std::cout<< depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[0], viewDir )<<std::endl;
     for( size_t i = 0; i < _vertexData.array->getNumElements(); i += 2 )
     {
-        // std::cout << viewDir << " depth: " << depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[i], viewDir ) << std::endl;
-        double myDepth = -1 * depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[i], viewDir );
+        double myDepth = -1 * depth( ( *( dynamic_cast< osg::Vec3Array* >( _vertexData.array.get() ) ) )[i], viewDir );
         // TODO(wiebel): improve this unidication of values
         depthVals[i]   = std::make_pair( myDepth, i );
         depthVals[i+1] = std::make_pair( myDepth, i+1 );
@@ -73,17 +69,18 @@ void WTransparentLinesDrawable::drawImplementation( osg::RenderInfo &renderInfo 
 
 
     // osg::ref_ptr< osg::Vec3Array > tmp( new osg::Vec3Array( _vertexData.array->getNumElements() ) );
-    osg::ref_ptr< osg::Vec3Array > oldVec = new  osg::Vec3Array( *dynamic_cast<osg::Vec3Array*>(  _vertexData.array.get() ), osg::CopyOp::DEEP_COPY_ALL );
+    osg::ref_ptr< osg::Vec3Array > oldVec =
+        new  osg::Vec3Array( *dynamic_cast<osg::Vec3Array*>(  _vertexData.array.get() ), osg::CopyOp::DEEP_COPY_ALL );
     osg::Vec3Array* oldVec2 = oldVec.get();
-    osg::Vec3Array* tmpVec = const_cast< osg::Vec3Array* >( (dynamic_cast< const osg::Vec3Array*>( _vertexData.array.get()) ) );
-    osg::ref_ptr< osg::Vec3Array > oldTexCoords = new  osg::Vec3Array( *dynamic_cast<osg::Vec3Array*>(  getTexCoordData(0).array.get() ), osg::CopyOp::DEEP_COPY_ALL );
+    osg::Vec3Array* tmpVec = const_cast< osg::Vec3Array* >( ( dynamic_cast< const osg::Vec3Array*>( _vertexData.array.get() ) ) );
+    osg::ref_ptr< osg::Vec3Array > oldTexCoords =
+        new  osg::Vec3Array( *dynamic_cast<osg::Vec3Array*>(  getTexCoordData( 0 ).array.get() ), osg::CopyOp::DEEP_COPY_ALL );
     osg::Vec3Array* oldTexCoords2 = oldTexCoords.get();
-    // osg::Vec3Array* oldTexCoords = new  osg::Vec3Array( *(dynamic_cast<osg::Vec3Array*>( getTexCoordData(0).array.get() ) ), osg::CopyOp::DEEP_COPY_ALL );
-    osg::Vec3Array* tmpTexCoords = const_cast< osg::Vec3Array* >( (dynamic_cast< const osg::Vec3Array*>( getTexCoordData(0).array.get()) ) );
+    osg::Vec3Array* tmpTexCoords = const_cast< osg::Vec3Array* >( ( dynamic_cast< const osg::Vec3Array*>( getTexCoordData( 0 ).array.get() ) ) );
     for( size_t i = 0; i < _vertexData.array->getNumElements(); ++i )
     {
-        (*tmpTexCoords)[i] = (*oldTexCoords2)[ depthVals[i].second ];
-        (*tmpVec)[i] = (*oldVec2)[ depthVals[i].second ];
+        ( *tmpTexCoords )[i] = ( *oldTexCoords2 )[ depthVals[i].second ];
+        ( *tmpVec )[i] = ( *oldVec2 )[ depthVals[i].second ];
     }
 
     osg::Geometry::drawImplementation( renderInfo );
