@@ -22,9 +22,57 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGEViewer.h"
+#include "../../graphicsEngine/WGraphicsEngine.h"
 #include "WTransparentLinesDrawable.h"
 
-void WTransparentLinesDrawable::drawImplementation( osg::RenderInfo &renderInfo ) const
+namespace
 {
+    float depth( osg::Vec3f pos, wmath::WPosition viewDir )
+    {
+        return ( pos - wmath::WPosition() ) * viewDir;
+    }
+
+    class MySorting
+    {
+    public:
+        int operator()( std::pair< float, size_t > p1 , std::pair< float, size_t > p2 )
+            {
+                return ( p1.first < p2.first );
+            }
+    };
+}
+
+void WTransparentLinesDrawable::drawImplementation( osg::RenderInfo &renderInfo ) const //NOLINT
+{
+    boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
+    boost::shared_ptr< WGEViewer > viewer; //!< Stores reference to the main viewer
+    viewer = ge->getViewerByName( "main" );
+    wmath::WPosition endPos = wmath::WPosition( wge::unprojectFromScreen( wmath::WPosition( 0.0, 0.0, 1.0 ), viewer->getCamera() ) );
+    wmath::WPosition startPos = wmath::WPosition( wge::unprojectFromScreen( wmath::WPosition(), viewer->getCamera() ) );
+    wmath::WPosition viewDir = ( endPos - startPos ).normalized();
+
+    std::vector< std::pair< float, size_t > > depthVals( _vertexData.array->getNumElements() );
+    for( size_t i = 0; i < _vertexData.array->getNumElements(); i += 2 )
+    {
+        // std::cout << viewDir << " depth: " << depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[i], viewDir ) << std::endl;
+        float myDepth = depth( (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[i], viewDir );
+        depthVals[i]   = std::make_pair( myDepth, i );
+        depthVals[i+1] = std::make_pair( myDepth, i+1 );
+    }
+
+    sort( depthVals.begin(), depthVals.end(), MySorting() );
+
+    osg::ref_ptr< osg::Vec3Array > tmp( new osg::Vec3Array( _vertexData.array->getNumElements() ) );
+    for( size_t i = 0; i < _vertexData.array->getNumElements(); ++i )
+    {
+        (*tmp)[i] = (*(dynamic_cast<osg::Vec3Array*>(_vertexData.array.get())))[ depthVals[i].second ];
+    }
+
+    setVertexArray( tmp );
+    // _vertexData.array = tmp;
+
+
     osg::Geometry::drawImplementation( renderInfo );
 }

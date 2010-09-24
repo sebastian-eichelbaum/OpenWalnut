@@ -204,12 +204,12 @@ osg::ref_ptr< osg::Geode > WMSliceContext::genTractGeode( const std::vector< siz
                 wmath::WPosition pos;
                 vertices->push_back( m_tracts->getPosition( fiberId, posId     ) );
                 vertices->push_back( m_tracts->getPosition( fiberId, posId + 1 ) );
-
             }
         }
     }
     geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, 0, vertices->size()  ) );
-
+    geometry->setUseDisplayList( false );
+    geometry->setUseVertexBufferObjects( false );
     geometry->setVertexArray( vertices );
 
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );

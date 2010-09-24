@@ -37,8 +37,9 @@ class WTransparentLinesDrawable : public osg::Geometry
 public:
     /**
      * The actual sorting before drawing is done here. This method calls osg::Geometry::drawImplementation
+     * \param renderInfo This is also not documented in OSG docu
      */
-    virtual void drawImplementation( osg::RenderInfo &renderInfo ) const;
+    virtual void drawImplementation( osg::RenderInfo &renderInfo ) const; //NOLINT
 protected:
 private:
 };
