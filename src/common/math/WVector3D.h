@@ -109,7 +109,7 @@ public:
 
     /**
      * Component-wise addition.
-     * \param subtrahend The right hand side of the addition
+     * \param addend The right hand side of the addition
      */
     inline const WVector3D operator+( const WVector3D& addend ) const;
 
