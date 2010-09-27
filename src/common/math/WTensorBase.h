@@ -1111,10 +1111,30 @@ private:
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc : public TensorBase_T< order, dim, Data_T >
 {
+    /**
+     * Default constructor.
+     */
+    WTensorFunc();
+
+    /**
+     * Initializes the tensor with the given data.
+     *
+     * \param data Components in same ordering as the components of the TensorBase class.
+     */
+    explicit WTensorFunc( const WValue< Data_T >& data );
 };
 
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T >
+WTensorFunc< TensorBase_T, order, dim, Data_T >::WTensorFunc()
+    : TensorBase_T< order, dim, Data_T >()
+{
+}
 
-
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T >
+WTensorFunc< TensorBase_T, order, dim, Data_T >::WTensorFunc( const WValue< Data_T >& data )
+    : TensorBase_T< order, dim, Data_T >( data )
+{
+}
 
 /**
  * Implements the operator () for an order of 6.
