@@ -637,6 +637,14 @@ public:
     WTensorBaseSym();
 
     /**
+     * Constructs the symmetrical tensor and initialize with the given data.
+     *
+     * \param data The components of the symmetrical tensor: Take care of the
+     * ordering of the components to match the ordering in \see m_data.
+     */
+    explicit WTensorBaseSym( const WValue< Data_T >& data );
+
+    /**
      * Copy constructor.
      *
      * \param t The tensor to copy from.
@@ -730,7 +738,9 @@ public:
 
 private:
     /**
-     * Stores the elements of this tensor.
+     * Stores the elements of this tensor lexicographical ordered on their
+     * indices, where for each set of permutations the lexicographical lowest
+     * index is used.
      */
     std::vector< Data_T > m_data;
 
@@ -849,6 +859,13 @@ template< std::size_t order, std::size_t dim, typename Data_T >
 WTensorBaseSym< order, dim, Data_T >::WTensorBaseSym()
     : m_data( dataSize, Data_T() )
 {
+}
+
+template< std::size_t order, std::size_t dim, typename Data_T >
+WTensorBaseSym< order, dim, Data_T >::WTensorBaseSym( const WValue< Data_T >& data )
+    : m_data( &data[0], &data[0] + data.size() )
+{
+    WAssert( dataSize == m_data.size(), "Number of given components does not match the order and dimension of this symmetric tensor" );
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
@@ -1101,7 +1118,7 @@ class WTensorFunc : public TensorBase_T< order, dim, Data_T >
 
 /**
  * Implements the operator () for an order of 6.
- * 
+ *
  * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
  * \tparam dim The dimension of the tensor, i.e. the number of components
  * in each direction.
@@ -1160,7 +1177,7 @@ Data_T const& WTensorFunc< TensorBase_T, 6, dim, Data_T >::operator() ( std::siz
 
 /**
  * Implements the operator () for an order of 5.
- * 
+ *
  * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
  * \tparam dim The dimension of the tensor, i.e. the number of components
  * in each direction.
@@ -1217,7 +1234,7 @@ Data_T const& WTensorFunc< TensorBase_T, 5, dim, Data_T >::operator() ( std::siz
 
 /**
  * Implements the operator () for an order of 4.
- * 
+ *
  * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
  * \tparam dim The dimension of the tensor, i.e. the number of components
  * in each direction.
@@ -1269,7 +1286,7 @@ Data_T const& WTensorFunc< TensorBase_T, 4, dim, Data_T >::operator() ( std::siz
 
 /**
  * Implements the operator () for an order of 3.
- * 
+ *
  * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
  * \tparam dim The dimension of the tensor, i.e. the number of components
  * in each direction.
@@ -1319,7 +1336,7 @@ Data_T const& WTensorFunc< TensorBase_T, 3, dim, Data_T >::operator() ( std::siz
 
 /**
  * Implements the operator () for an order of 2 as well as casts to WMatrix.
- * 
+ *
  * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
  * \tparam dim The dimension of the tensor, i.e. the number of components
  * in each direction.
@@ -1384,7 +1401,7 @@ WTensorFunc< TensorBase_T, 2, dim, Data_T >::operator WMatrix< Data_T > () const
 
 /**
  * Implements the operator () for an order of 1 as well as a cast to WValue.
- * 
+ *
  * \tparam TensorBase_T Either WTensorBase<> or WTensorBaseSym<>
  * \tparam dim The dimension of the tensor, i.e. the number of components
  * in each direction.
