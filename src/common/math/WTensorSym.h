@@ -71,7 +71,35 @@ namespace wmath
 template< std::size_t order, std::size_t dim, typename Data_T = double >
 class WTensorSym : public WTensorFunc< WTensorBaseSym, order, dim, Data_T >
 {
+public:
+    /**
+     * Default constructor of the symmetric tensor.
+     */
+    WTensorSym();
+
+    /**
+     * Constructs and initializes the symmetrical Tensor with a WValue.
+     *
+     * \note The same ordering as for the data member is required.
+     *
+     * \param data The components in same ordering as for the data member \c m_data is required, (\see m_data).
+     */
+    explicit WTensorSym( const WValue< Data_T >& data );
+protected:
+private:
 };
+
+template< std::size_t order, std::size_t dim, typename Data_T >
+WTensorSym< order, dim, Data_T >::WTensorSym()
+    : WTensorFunc< WTensorBaseSym, order, dim, Data_T >()
+{
+}
+
+template< std::size_t order, std::size_t dim, typename Data_T >
+WTensorSym< order, dim, Data_T >::WTensorSym( const WValue< Data_T >& data )
+    : WTensorFunc< WTensorBaseSym, order, dim, Data_T >( data )
+{
+}
 
 }  // namespace wmath
 
