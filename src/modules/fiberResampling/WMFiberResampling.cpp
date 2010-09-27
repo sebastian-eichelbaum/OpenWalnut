@@ -89,7 +89,8 @@ void WMFiberResampling::connectors()
 void WMFiberResampling::properties()
 {
     m_newSamples = m_properties->addProperty( "#Sample Points", "The is the new number of which the tracts are resampled to", 20 );
-
+    m_newSamples->setMin( 2 );
+    m_newSamples->setMax( 200 );
     WModule::properties();
 }
 
@@ -116,14 +117,16 @@ void WMFiberResampling::moduleMain()
         bool dataUpdated = m_fiberInput->handledUpdate();
         boost::shared_ptr< WDataSetFibers > dataSet = m_fiberInput->getData();
         bool dataValid = ( dataSet );
-        if ( !dataValid || ( dataValid && !dataUpdated ) )
+        if( m_newSamples->get() <= 1 )
+        {
+            warnLog() << "Resampling lines to have only 1 or less points is not supported, skipping this action";
+        }
+        if ( !dataValid || ( m_newSamples->get() <= 1 ) ) // resampling with just one vertex will lead to points not to lines
         {
             continue;
         }
 
         WAssert( m_newSamples->changed() || ( dataValid && dataUpdated ), "Bug: Think! I though this could never happen!" );
-
-        resample( m_newSamples->get( true ), dataSet );
 
         m_fiberOutput->updateData( resample( m_newSamples->get( true ), dataSet ) );
 
@@ -150,16 +153,34 @@ boost::shared_ptr< WDataSetFibers > WMFiberResampling::resample( size_t numSampl
     boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Resampling fibers.", fibStart->size() ) );
     m_progress->addSubProgress( progress1 );
 
+    // dynamic space allocation before the threads starting
+    newFibStart->resize( fibStart->size() );
+    newFibLen->resize( fibStart->size() );
+    newFibVerts->resize( numSamples * 3 * fibStart->size() );
+    newFibVertsRev->resize( numSamples * 3 * fibStart->size() );
+
+    // init resampler
     WSimpleResampler resampler( numSamples );
 
+    // do resampling
     for ( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
     {
         ++*progress1;
 
-        // the start vertex index
-        size_t sidx = fibStart->at( fidx ) * 3;
-        size_t len = fibLen->at( fidx );
-        // resampler.resample(
+        // Note: The reason why the memory is not allocated inside of the
+        // resample method is: multithreading, see header file of
+        // WSimpleResampler::resample for further details
+        resampler.resample( fibVerts,                                       // vertices of all old tracts
+                            static_cast< size_t >( fibStart->at( fidx ) ),  // where the old tract starts
+                            static_cast< size_t >( fibLen->at( fidx ) ),    // how long the old tract is
+                            newFibVerts,                                    // where to save the vertices of all new tracts
+                            fidx * numSamples );                            // where to start saving this new tract
+        for( size_t i = 0; i < numSamples; i++ )
+        {
+            newFibVertsRev->at( fidx * numSamples + i ) = fidx;
+        }
+        newFibLen->at( fidx ) = numSamples;
+        newFibStart->at( fidx ) = fidx * numSamples;
     }
 
     progress1->finish();

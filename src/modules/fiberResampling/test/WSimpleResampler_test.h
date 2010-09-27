@@ -30,6 +30,7 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "../../../common/WStringUtils.h"
 #include "../WSimpleResampler.h"
 
 /**
@@ -46,10 +47,10 @@ public:
     void testLineIntegration( void )
     {
         WSimpleResampler r( 0 );
-        TS_ASSERT_DELTA( r.lineIntegration( m_equiTractVerts, m_startIdx, m_length ), std::sqrt( 3.0 ) * 4.0, 1.0e-10 );
+        TS_ASSERT_DELTA( r.lineIntegration( m_equiTractVerts, m_startIdx, m_length ), std::sqrt( 3.0 ) * 4.0, 1.0e-6 );
         TS_ASSERT_DELTA( r.lineIntegration( m_nonEquiTractVerts, m_startIdx, m_length ),
                          2 * std::sqrt( 0.05 * 0.05 + 0.9 * 0.9 ) + 2 * std::sqrt( 0.2 * 0.2 + 0.1 * 0.1 ),
-                         1.0e-10 );
+                         1.0e-6 );
     }
 
     /**
@@ -60,18 +61,18 @@ public:
     void testResamplingWithGivenNumberOfNewSamplePointsOnEquidistantSampledTract( void )
     {
         WSimpleResampler r( 3 );
-        boost::shared_ptr< std::vector< double > > newTractVerts( new std::vector< double >( 9*3, -1.0 ) );
+        boost::shared_ptr< std::vector< float > > newTractVerts( new std::vector< float >( 9*3, -1.0 ) );
         r.resample( m_equiTractVerts, m_startIdx, m_length, newTractVerts, 3 );
-        double verts[] = { -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  // NOLINT
+        float verts[] = { -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  // NOLINT
                             0.0,  0.0,  0.0,
                             2.0,  2.0,  2.0,
                             4.0,  4.0,  4.0,
                            -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0 };  // NOLINT
-        std::vector< double > expected( verts, verts + sizeof( verts ) / sizeof( double ) );
+        std::vector< float > expected( verts, verts + sizeof( verts ) / sizeof( float ) );
         TS_ASSERT_EQUALS( expected.size(), newTractVerts->size() );
         for( size_t i = 0; i < expected.size(); ++i )
         {
-            if( std::abs( expected[i] - (*newTractVerts)[i] ) > 1.0e-10 )
+            if( std::abs( expected[i] - (*newTractVerts)[i] ) > 1.0e-6 )
             {
                 std::stringstream ss;
                 ss << "Positions differ in index: " << i << " with expected: " << expected[i] << " but got " << (*newTractVerts)[i];
@@ -86,21 +87,24 @@ public:
     void testResamplingOnNonEquidistantTract( void )
     {
         WSimpleResampler r( 3 );
-        boost::shared_ptr< std::vector< double > > newTractVerts( new std::vector< double >( 9*3, -1.0 ) );
+        boost::shared_ptr< std::vector< float > > newTractVerts( new std::vector< float >( 9*3, -1.0 ) );
         r.resample( m_nonEquiTractVerts, m_startIdx, m_length, newTractVerts, 3 );
-        double verts[] = { -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  // NOLINT
+        float verts[] = { -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  // NOLINT
                             0.75,  0.0,  0.0,
                             1.0,  1.0,  0.0,
                             1.25,  0.0,  0.0,
                            -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0 };  // NOLINT
-        std::vector< double > expected( verts, verts + sizeof( verts ) / sizeof( double ) );
+        std::vector< float > expected( verts, verts + sizeof( verts ) / sizeof( float ) );
         TS_ASSERT_EQUALS( expected.size(), newTractVerts->size() );
         for( size_t i = 0; i < expected.size(); ++i )
         {
-            if( std::abs( expected[i] - (*newTractVerts)[i] ) > 1.0e-10 )
+            if( std::abs( expected[i] - (*newTractVerts)[i] ) > 1.0e-6 )
             {
+                using string_utils::operator<<;
                 std::stringstream ss;
                 ss << "Positions differ in index: " << i << " with expected: " << expected[i] << " but got " << (*newTractVerts)[i];
+                ss << std::endl << expected << std::endl;
+                ss << std::endl << *newTractVerts << std::endl;
                 TS_FAIL( ss.str() );
             }
         }
@@ -120,24 +124,24 @@ public:
      */
     void setUp( void )
     {
-        double vertsE[] = { -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  // NOLINT array init list
+        float vertsE[] = { -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  // NOLINT array init list
                              0.0,  0.0,  0.0,
                              1.0,  1.0,  1.0,
                              2.0,  2.0,  2.0,
                              3.0,  3.0,  3.0,
                              4.0,  4.0,  4.0,
                             -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0 };  // NOLINT array init list
-        m_equiTractVerts = boost::shared_ptr< std::vector< double > >( new std::vector< double >( vertsE, vertsE + sizeof( vertsE ) / sizeof( double ) ) ); // NOLINT long line
+        m_equiTractVerts = boost::shared_ptr< std::vector< float > >( new std::vector< float >( vertsE, vertsE + sizeof( vertsE ) / sizeof( float ) ) ); // NOLINT long line
         m_startIdx = 5;
         m_length = 5;
-        double vertsNE[] = { -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  // NOLINT array init list
+        float vertsNE[] = { -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0,  // NOLINT array init list
                               0.75, 0.0,  0.0,
                               0.8,  0.9,  0.0,
                               1.0,  1.0,  0.0,
                               1.2,  0.9,  0.0,
                               1.25, 0.0,  0.0,
                              -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0 };  // NOLINT array init list
-        m_nonEquiTractVerts = boost::shared_ptr< std::vector< double > >( new std::vector< double >( vertsNE, vertsNE + sizeof( vertsNE ) / sizeof( double ) ) ); // NOLINT long line
+        m_nonEquiTractVerts = boost::shared_ptr< std::vector< float > >( new std::vector< float >( vertsNE, vertsNE + sizeof( vertsNE ) / sizeof( float ) ) ); // NOLINT long line
     }
 
     /**
@@ -157,13 +161,13 @@ private:
      * Simulates a vertex array of equidistant sampled tracts as you will have
      * with WDataSetFibers.
      */
-    boost::shared_ptr< std::vector< double > > m_equiTractVerts;
+    boost::shared_ptr< std::vector< float > > m_equiTractVerts;
 
     /**
      * Simulates a vertex array of non equidistant sampled tracts as you maybe
      * will have with WDataSetFibers.
      */
-    boost::shared_ptr< std::vector< double > > m_nonEquiTractVerts;
+    boost::shared_ptr< std::vector< float > > m_nonEquiTractVerts;
 
     /**
      * Simulates the start index of the a tract inside of the vertex array.

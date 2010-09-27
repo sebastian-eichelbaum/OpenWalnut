@@ -55,28 +55,27 @@ public:
      *
      * \param verts Pointer to the original vertices array
      *
-     * \param startIdx Start position of the first vertex.
+     * \param startIdx Start position of the first VERTEX.
      *
-     * \param length The number of VERTICES (not components nor doubles) the
+     * \param length The number of VERTICES (not components nor floats) the
      * tract is about.
      *
      * \param newVerts The place where to save the new sample points. Since all
      * new tracts will have the same length the start index can be derived from
      * startIdx.
      *
-     * \param newStartIdx The new offset where to write the new sample points.
-     * This is also a direct component or double index (as startIdx is) but not
-     * a vertex index.
+     * \param newStartIdx The new offset where to write the new VERTEX.
+     * sample points.
      *
-     * \note The only reason for the fourth argument is that the memory can be
-     * allocated before the sampling takes places which could lead to
-     * performance losses when multithreading and dynamic allocation comes into
-     * play.
+     * \note The only reason for the fourth and fith argument is that the
+     * memory can be allocated before the sampling takes places which could
+     * lead to performance losses when multithreading and dynamic allocation
+     * come into play.
      */
-    void resample( boost::shared_ptr< const std::vector< double > > verts,
+    void resample( boost::shared_ptr< const std::vector< float > > verts,
                    const size_t startIdx,
                    const size_t length,
-                   boost::shared_ptr< std::vector< double > > newVerts,
+                   boost::shared_ptr< std::vector< float > > newVerts,
                    const size_t newStartIdx ) const;
 
 protected:
@@ -89,7 +88,7 @@ protected:
      *
      * \return The sum of all line segement lengths
      */
-    double lineIntegration( boost::shared_ptr< const std::vector< double > > verts,
+    float lineIntegration( boost::shared_ptr< const std::vector< float > > verts,
                             const size_t startIdx,
                             const size_t length ) const;
 

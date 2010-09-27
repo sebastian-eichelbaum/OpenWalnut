@@ -34,13 +34,13 @@ WSimpleResampler::WSimpleResampler( size_t numSamples )
 {
 }
 
-void WSimpleResampler::resample( boost::shared_ptr< const std::vector< double > > verts,
+void WSimpleResampler::resample( boost::shared_ptr< const std::vector< float > > verts,
                                  const size_t startIdx,
                                  const size_t length,
-                                 boost::shared_ptr< std::vector< double > > newVerts,
+                                 boost::shared_ptr< std::vector< float > > newVerts,
                                  const size_t newStartIdx ) const
 {
-    if( length != m_numSamples && length > 0 && m_numSamples > 0 )
+    if( length != m_numSamples && length > 0 && m_numSamples > 1 )
     {
         // 1. compute length of tract
         // 2. compute new segment length
@@ -80,7 +80,7 @@ void WSimpleResampler::resample( boost::shared_ptr< const std::vector< double > 
         }
         // upto this point it may occur that the remaining length ( of the last new segment ) is smaller than the newSegmentLength
         // so we add simply the last point of the old tract
-       if( std::abs( remainingLength ) > 0.001 )
+       if( std::abs( remainingLength ) > 0.00001 )
        {
            ( *newVerts )[j    ] = next[0];
            ( *newVerts )[j + 1] = next[1];
@@ -91,9 +91,9 @@ void WSimpleResampler::resample( boost::shared_ptr< const std::vector< double > 
     }
 }
 
-double WSimpleResampler::lineIntegration( boost::shared_ptr< const std::vector< double > > verts,
-                                          const size_t startIdx,
-                                          const size_t length ) const
+float WSimpleResampler::lineIntegration( boost::shared_ptr< const std::vector< float > > verts,
+                                         const size_t startIdx,
+                                         const size_t length ) const
 {
     double result = 0.0;
     size_t start = startIdx * 3;
