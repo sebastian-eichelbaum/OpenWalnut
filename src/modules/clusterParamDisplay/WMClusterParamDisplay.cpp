@@ -28,7 +28,7 @@
 #include "../../common/WColor.h"
 #include "../../kernel/WKernel.h"
 #include "WMClusterParamDisplay.h"
-#include "clusterParamDisplay.xpm"
+#include "WMClusterParamDisplay.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMClusterParamDisplay )
@@ -71,6 +71,8 @@ void WMClusterParamDisplay::properties()
     m_isoValue->setMin( 0.0 );
     m_isoValue->setMax( 100.0 );
     m_drawIsoSurface = m_properties->addProperty( "Iso Surface", "En/Disables the display of the iso surface", true );
+
+    WModule::properties();
 }
 
 void WMClusterParamDisplay::moduleMain()

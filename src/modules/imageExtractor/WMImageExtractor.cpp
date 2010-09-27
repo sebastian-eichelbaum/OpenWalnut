@@ -31,7 +31,7 @@
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../common/WPropertyHelper.h"
 
-#include "imageExtractor.xpm"
+#include "WMImageExtractor.xpm"
 #include "WMImageExtractor.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -111,6 +111,8 @@ void WMImageExtractor::properties()
 
     m_colorMapSelection = m_properties->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
+
+    WModule::properties();
 }
 
 void WMImageExtractor::activate()

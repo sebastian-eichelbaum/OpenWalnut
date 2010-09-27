@@ -36,7 +36,7 @@
 #include "../../common/WColor.h"
 
 #include "WMVectorPlot.h"
-#include "vectorplot.xpm"
+#include "WMVectorPlot.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMVectorPlot )
@@ -114,6 +114,8 @@ void WMVectorPlot::properties()
     m_ySlice->setMax( 200 );
     m_zSlice->setMin( 0 );
     m_zSlice->setMax( 160 );
+
+    WModule::properties();
 }
 
 void WMVectorPlot::moduleMain()

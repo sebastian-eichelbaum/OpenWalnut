@@ -23,18 +23,17 @@
 //---------------------------------------------------------------------------
 
 #include <cmath>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WPropertyHelper.h"
 #include "../../common/math/WMath.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataHandler.h"
-
+#include "../../kernel/WKernel.h"
 #include "WMFiberResampling.h"
 #include "WMFiberResampling.xpm"
+#include "WSimpleResampler.h"
 
-// This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMFiberResampling )
 
 WMFiberResampling::WMFiberResampling():
@@ -44,7 +43,6 @@ WMFiberResampling::WMFiberResampling():
 
 WMFiberResampling::~WMFiberResampling()
 {
-    // Cleanup!
 }
 
 boost::shared_ptr< WModule > WMFiberResampling::factory() const
@@ -83,18 +81,16 @@ void WMFiberResampling::connectors()
                                         "out", "The fiber dataset re-sampled." )
     );
 
-    // As above: make it known.
     addConnector( m_fiberOutput );
 
-    // call WModule's initialization
     WModule::connectors();
 }
 
 void WMFiberResampling::properties()
 {
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-
-    // call WModule's initialization
+    m_newSamples = m_properties->addProperty( "#Sample Points", "The is the new number of which the tracts are resampled to", 20 );
+    m_newSamples->setMin( 2 );
+    m_newSamples->setMax( 200 );
     WModule::properties();
 }
 
@@ -103,18 +99,15 @@ void WMFiberResampling::moduleMain()
     // get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
-    // Remember the condition provided to some properties in properties()? The condition can now be used with this condition set.
-    m_moduleState.add( m_propCondition );
+    m_moduleState.add( m_newSamples->getCondition() );
 
     ready();
 
-    // main loop
     while ( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
-        // woke up since the module is requested to finish?
         if ( m_shutdownFlag() )
         {
             break;
@@ -124,72 +117,79 @@ void WMFiberResampling::moduleMain()
         bool dataUpdated = m_fiberInput->handledUpdate();
         boost::shared_ptr< WDataSetFibers > dataSet = m_fiberInput->getData();
         bool dataValid = ( dataSet );
-        if ( !dataValid || ( dataValid && !dataUpdated ) )
+        if( m_newSamples->get() <= 1 )
+        {
+            warnLog() << "Resampling lines to have only 1 or less points is not supported, skipping this action";
+        }
+        if ( !dataValid || ( m_newSamples->get() <= 1 ) ) // resampling with just one vertex will lead to points not to lines
         {
             continue;
         }
 
-        // get the fiber definitions
-        boost::shared_ptr< std::vector< size_t > > fibStart = dataSet->getLineStartIndexes();
-        boost::shared_ptr< std::vector< size_t > > fibLen   = dataSet->getLineLengths();
-        boost::shared_ptr< std::vector< float > >  fibVerts = dataSet->getVertices();
+        WAssert( m_newSamples->changed() || ( dataValid && dataUpdated ), "Bug: Think! I though this could never happen!" );
 
-        // create a new dataset
-        WDataSetFibers::IndexArray newFibStart     = WDataSetFibers::IndexArray( new WDataSetFibers::IndexArray::element_type() );
-        WDataSetFibers::LengthArray newFibLen      = WDataSetFibers::LengthArray( new WDataSetFibers::LengthArray::element_type() );
-        WDataSetFibers::VertexArray newFibVerts    = WDataSetFibers::VertexArray( new WDataSetFibers::VertexArray::element_type() );
-        WDataSetFibers::IndexArray newFibVertsRev  = WDataSetFibers::IndexArray( new WDataSetFibers::IndexArray::element_type() );
-
-        // progress indication
-        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Coloring fibers.",
-                                                                                                  fibStart->size() ) );
-        m_progress->addSubProgress( progress1 );
-
-        // for each fiber:
-        debugLog() << "Iterating over all fibers.";
-        for ( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
-        {
-            ++*progress1;
-
-            // the start vertex index
-            size_t sidx = fibStart->at( fidx ) * 3;
-            size_t len = fibLen->at( fidx );
-
-            // parameterize the fiber
-            double s = 0.0;     // the value parameterizes the fiber if interpreted as curve f(s)
-            double sLast = 0.0; // the first parameter value
-            double last[3];     // last point on curve
-            double current[3];  // current point on curve
-
-            // first vertex
-            last[0] = ( *fibVerts )[ sidx + 0 ];
-            last[1] = ( *fibVerts )[ sidx + 1 ];
-            last[2] = ( *fibVerts )[ sidx + 2 ];
-
-            // walk along the fiber
-            for ( size_t k = 1; k < len; ++k )
-            {
-                sLast = s;
-
-                // get current vertex
-                current[0] = ( *fibVerts )[ ( 3 * k ) + sidx + 0 ];
-                current[1] = ( *fibVerts )[ ( 3 * k ) + sidx + 1 ];
-                current[2] = ( *fibVerts )[ ( 3 * k ) + sidx + 2 ];
-
-                // get next parameter value:
-            }
-        }
-
-        // create final dataset and forward the data
-        boost::shared_ptr< WDataSetFibers > newData = boost::shared_ptr< WDataSetFibers >(
-            new WDataSetFibers( newFibVerts, newFibStart, newFibLen, newFibVertsRev, dataSet->getBoundingBox() )
-        );
-        m_fiberOutput->updateData( newData );
-
-        progress1->finish();
-        m_progress->removeSubProgress( progress1 );
+        m_fiberOutput->updateData( resample( m_newSamples->get( true ), dataSet ) );
 
         debugLog() << "Done";
     }
+}
+
+boost::shared_ptr< WDataSetFibers > WMFiberResampling::resample( size_t numSamples, boost::shared_ptr< const WDataSetFibers > dataSet ) const
+{
+    debugLog() << "Start resampling: " << dataSet->getLineStartIndexes()->size() << " tracts";
+
+    // get the fiber definitions
+    boost::shared_ptr< std::vector< size_t > > fibStart = dataSet->getLineStartIndexes();
+    boost::shared_ptr< std::vector< size_t > > fibLen   = dataSet->getLineLengths();
+    boost::shared_ptr< std::vector< float > >  fibVerts = dataSet->getVertices();
+
+    // create a new dataset
+    WDataSetFibers::IndexArray  newFibStart     = WDataSetFibers::IndexArray( new WDataSetFibers::IndexArray::element_type() );
+    WDataSetFibers::LengthArray newFibLen       = WDataSetFibers::LengthArray( new WDataSetFibers::LengthArray::element_type() );
+    WDataSetFibers::VertexArray newFibVerts     = WDataSetFibers::VertexArray( new WDataSetFibers::VertexArray::element_type() );
+    WDataSetFibers::IndexArray  newFibVertsRev  = WDataSetFibers::IndexArray( new WDataSetFibers::IndexArray::element_type() );
+
+    // progress indication
+    boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Resampling fibers.", fibStart->size() ) );
+    m_progress->addSubProgress( progress1 );
+
+    // dynamic space allocation before the threads starting
+    newFibStart->resize( fibStart->size() );
+    newFibLen->resize( fibStart->size() );
+    newFibVerts->resize( numSamples * 3 * fibStart->size() );
+    newFibVertsRev->resize( numSamples * 3 * fibStart->size() );
+
+    // init resampler
+    WSimpleResampler resampler( numSamples );
+
+    // do resampling
+    for ( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
+    {
+        ++*progress1;
+
+        // Note: The reason why the memory is not allocated inside of the
+        // resample method is: multithreading, see header file of
+        // WSimpleResampler::resample for further details
+        resampler.resample( fibVerts,                                       // vertices of all old tracts
+                            static_cast< size_t >( fibStart->at( fidx ) ),  // where the old tract starts
+                            static_cast< size_t >( fibLen->at( fidx ) ),    // how long the old tract is
+                            newFibVerts,                                    // where to save the vertices of all new tracts
+                            fidx * numSamples );                            // where to start saving this new tract
+        for( size_t i = 0; i < numSamples; i++ )
+        {
+            newFibVertsRev->at( fidx * numSamples + i ) = fidx;
+        }
+        newFibLen->at( fidx ) = numSamples;
+        newFibStart->at( fidx ) = fidx * numSamples;
+    }
+
+    progress1->finish();
+    m_progress->removeSubProgress( progress1 );
+
+    return boost::shared_ptr< WDataSetFibers >( new WDataSetFibers( newFibVerts,
+                                                                    newFibStart,
+                                                                    newFibLen,
+                                                                    newFibVertsRev,
+                                                                    dataSet->getBoundingBox() ) );
 }
 

@@ -85,6 +85,8 @@ void WMFunctionalMRIViewer::properties()
     m_time->setMin( 0.0 );
 
     m_texScaleNormalized = m_properties->addProperty( "Norm. Tex Scale", "Use the same texture scaling for all textures.", true, m_propCondition );
+
+    WModule::properties();
 }
 
 void WMFunctionalMRIViewer::moduleMain()

@@ -42,7 +42,7 @@
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 
 #include "WMSurfaceParameterAnimator.h"
-#include "surfaceParameterAnimator.xpm"
+#include "WMSurfaceParameterAnimator.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMSurfaceParameterAnimator )
@@ -130,6 +130,8 @@ void WMSurfaceParameterAnimator::properties()
     m_speed2         = m_properties->addProperty( "Beam2 speed",     "The relative speed of the beam. This speed relates to the clock used.", 25 );
     m_parameterScale = m_properties->addProperty( "Parameter scale", "Scaling the parameter space on the fly creates consistently sized and fast "
                                                                       "beams over multiple WMSurfaceParameterAnimator instances.", 1.0 );
+
+    WModule::properties();
 }
 
 osg::ref_ptr< osg::Node > WMSurfaceParameterAnimator::renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox )

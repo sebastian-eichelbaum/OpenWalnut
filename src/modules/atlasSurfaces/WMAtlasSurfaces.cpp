@@ -43,7 +43,7 @@
 #include "../../kernel/WKernel.h"
 
 #include "WMAtlasSurfaces.h"
-#include "atlas.xpm"
+#include "WMAtlasSurfaces.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMAtlasSurfaces )
@@ -103,6 +103,8 @@ void WMAtlasSurfaces::properties()
 {
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMAtlasSurfaces::propertyChanged, this );
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    WModule::properties();
 }
 
 void WMAtlasSurfaces::moduleMain()

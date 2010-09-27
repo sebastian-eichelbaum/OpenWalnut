@@ -50,7 +50,7 @@
 #include "WRasterAlgorithm.h"
 #include "WIntegrationParameterization.h"
 #include "WCenterlineParameterization.h"
-#include "voxelizer.xpm"
+#include "WMVoxelizer.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMVoxelizer )
@@ -168,6 +168,8 @@ void WMVoxelizer::properties()
     m_fiberTransparency->setMin( 0.0 );
     m_fiberTransparency->setMax( 1.0 );
     m_explicitFiberColor = m_properties->addProperty( "Explicit Fiber Color", "", WColor( 0.2, 0.2, 0.2 ), m_fullUpdate );
+
+    WModule::properties();
 }
 
 void WMVoxelizer::activate()

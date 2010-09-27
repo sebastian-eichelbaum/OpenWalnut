@@ -34,7 +34,7 @@
 #include "../../graphicsEngine/WROIArbitrary.h"
 #include "../../kernel/WKernel.h"
 
-#include "paintTexture.xpm" // Please put a real icon here.
+#include "WMPaintTexture.xpm" // Please put a real icon here.
 
 #include "WMPaintTexture.h"
 
@@ -133,6 +133,8 @@ void WMPaintTexture::properties()
             WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
     m_buttonCreateRoi = m_properties->addProperty( "Create ROI", "Create a ROI from the currently selected paint value",
                 WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+
+    WModule::properties();
 }
 
 void WMPaintTexture::propertyChanged( boost::shared_ptr< WPropertyBase > property )

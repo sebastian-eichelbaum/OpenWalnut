@@ -47,7 +47,7 @@ double& WDXtLookUpTable::operator()( size_t i, size_t j ) throw( WOutOfBounds )
     {
         std::swap( i, j );
     }
-    return m_data.at( i * m_dim + j - ( i + 1 ) * ( i + 2 ) / 2 );
+    return m_data[( i * m_dim + j - ( i + 1 ) * ( i + 2 ) / 2 )];
 }
 
 size_t WDXtLookUpTable::size() const

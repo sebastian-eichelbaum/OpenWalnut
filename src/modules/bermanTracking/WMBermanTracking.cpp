@@ -34,7 +34,7 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
-#include "bermanTracking.xpm"
+#include "WMBermanTracking.xpm"
 #include "WMBermanTracking.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
@@ -149,6 +149,8 @@ void WMBermanTracking::properties()
 
     m_ratio = m_properties->addProperty( "Ratio?", "Temporary", 3.0, m_propCondition );
     m_epsImpr = m_properties->addProperty( "EpsImpr?", "Temporary", 1.0, m_propCondition );
+
+    WModule::properties();
 }
 
 void WMBermanTracking::moduleMain()

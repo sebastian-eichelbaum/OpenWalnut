@@ -32,7 +32,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../kernel/WKernel.h"
-#include "trianglemeshrenderer.xpm"
+#include "WMTriangleMeshRenderer.xpm"
 #include "WMTriangleMeshRenderer.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -97,6 +97,8 @@ void WMTriangleMeshRenderer::properties()
     m_opacityProp = m_properties->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
+
+    WModule::properties();
 }
 
 /**

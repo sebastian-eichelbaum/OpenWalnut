@@ -38,7 +38,7 @@
 #include "../../common/WColor.h"
 
 #include "WMFiberSelection.h"
-#include "fiberSelection.xpm"
+#include "WMFiberSelection.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMFiberSelection )
@@ -140,6 +140,8 @@ void WMFiberSelection::properties()
 
     m_preferShortestPath = m_properties->addProperty( "Prefer shortest path", "Determines whether the fibers should be cut on the entry and "
                             "exit of a VOI. This should prevent the fibers from going deep into the VOI's.", false, m_propCondition );
+
+    WModule::properties();
 }
 
 /**

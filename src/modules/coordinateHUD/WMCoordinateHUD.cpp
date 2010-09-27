@@ -40,7 +40,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "WMCoordinateHUD.h"
-#include "coordinateHUD.xpm"
+#include "WMCoordinateHUD.xpm"
 #include "option_1.xpm"
 #include "option_2.xpm"
 #include "option_3.xpm"
@@ -96,8 +96,9 @@ void WMCoordinateHUD::properties()
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelection );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_aSingleSelection );
-
     // set the x axis color if in color axis or color cube mode
+
+    WModule::properties();
 }
 
 void WMCoordinateHUD::moduleMain()

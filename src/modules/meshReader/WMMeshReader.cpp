@@ -31,7 +31,7 @@
 #include "../../graphicsEngine/WTriangleMesh2.h"
 
 #include "WMMeshReader.h"
-#include "meshreader.xpm"
+#include "WMMeshReader.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMMeshReader )
@@ -90,6 +90,8 @@ void WMMeshReader::properties()
     m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     WPropertyHelper::PC_PATHEXISTS::addTo( m_meshFile );
+
+    WModule::properties();
 }
 
 void WMMeshReader::moduleMain()
