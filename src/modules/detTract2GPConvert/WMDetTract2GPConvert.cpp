@@ -25,7 +25,7 @@
 #include <string>
 
 #include "../../kernel/WKernel.h"
-#include "detTract2GPConvert.xpm"
+#include "WMDetTract2GPConvert.xpm"
 #include "WMDetTract2GPConvert.h"
 
 W_LOADABLE_MODULE( WMDetTract2GPConvert )
@@ -46,7 +46,7 @@ boost::shared_ptr< WModule > WMDetTract2GPConvert::factory() const
 
 const char** WMDetTract2GPConvert::getXPMIcon() const
 {
-    return detTract2GPConvert_xpm;
+    return WMDetTract2GPConvert_xpm;
 }
 const std::string WMDetTract2GPConvert::getName() const
 {
