@@ -1111,30 +1111,7 @@ private:
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T > //NOLINT
 class WTensorFunc : public TensorBase_T< order, dim, Data_T >
 {
-    /**
-     * Default constructor.
-     */
-    WTensorFunc();
-
-    /**
-     * Initializes the tensor with the given data.
-     *
-     * \param data Components in same ordering as the components of the TensorBase class.
-     */
-    explicit WTensorFunc( const WValue< Data_T >& data );
 };
-
-template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T >
-WTensorFunc< TensorBase_T, order, dim, Data_T >::WTensorFunc()
-    : TensorBase_T< order, dim, Data_T >()
-{
-}
-
-template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T >
-WTensorFunc< TensorBase_T, order, dim, Data_T >::WTensorFunc( const WValue< Data_T >& data )
-    : TensorBase_T< order, dim, Data_T >( data )
-{
-}
 
 /**
  * Implements the operator () for an order of 6.
@@ -1352,8 +1329,6 @@ Data_T const& WTensorFunc< TensorBase_T, 3, dim, Data_T >::operator() ( std::siz
     return TensorBase_T< 3, dim, Data_T >::operator[] ( p );
 }
 
-
-
 /**
  * Implements the operator () for an order of 2 as well as casts to WMatrix.
  *
@@ -1366,6 +1341,18 @@ template< template< std::size_t, std::size_t, typename > class TensorBase_T, std
 class WTensorFunc< TensorBase_T, 2, dim, Data_T > : public TensorBase_T< 2, dim, Data_T >
 {
 public:
+    /**
+     * Default constructor.
+     */
+    WTensorFunc();
+
+    /**
+     * Initializes the tensor with the given data.
+     *
+     * \param data Components in same ordering as the components of the TensorBase class.
+     */
+    explicit WTensorFunc( const WValue< Data_T >& data );
+
     /**
      * Access operator.
      *
@@ -1391,6 +1378,18 @@ public:
      */
     operator WMatrix< Data_T >() const;
 };
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T >
+WTensorFunc< TensorBase_T, 2, dim, Data_T >::WTensorFunc()
+    : TensorBase_T< 2, dim, Data_T >()
+{
+}
+
+template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T >
+WTensorFunc< TensorBase_T, 2, dim, Data_T >::WTensorFunc( const WValue< Data_T >& data )
+    : TensorBase_T< 2, dim, Data_T >( data )
+{
+}
 
 template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
 Data_T& WTensorFunc< TensorBase_T, 2, dim, Data_T >::operator() ( std::size_t i0, std::size_t i1 )
