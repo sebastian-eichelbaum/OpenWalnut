@@ -29,6 +29,8 @@
 
 #include <osg/Geode>
 
+#include "../../dataHandler/WDataSetDTI.h"
+#include "../../dataHandler/WDataSetGP.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -64,8 +66,9 @@ public:
     virtual const std::string getDescription() const;
 
     /**
-     * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
-     * should never be initialized or modified in some other way. A simple new instance is required.
+     * Due to the prototype design pattern used to build modules, this method returns a new instance
+     * of this method. NOTE: it should never be initialized or modified in some other way. A simple
+     * new instance is required.
      *
      * \return the prototype used to create every module in OpenWalnut.
      */
@@ -93,6 +96,22 @@ protected:
     virtual void properties();
 
 private:
+    /**
+     * Input connector for the deterministic tract dataset which is going to be converted into
+     * gaussian processes.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_tractIC;
+
+    /**
+     * Input connector for the 2nd order tensor field, which is needed for creation of the Gaussian
+     * Processes.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetDTI > > m_tensorIC;
+
+    /**
+     * Output connector for the tracts converted into Gaussian Proccesses.
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetGP > > m_gpOC;
 };
 
 #endif  // WMDETTRACT2GPCONVERT_H
