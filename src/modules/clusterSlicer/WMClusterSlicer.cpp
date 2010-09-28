@@ -113,7 +113,7 @@ void WMClusterSlicer::properties()
 {
     m_drawIsoVoxels     = m_properties->addProperty( "Show|Hide Iso Voxels", "Show|Hide voxels withing a given isosurface.", true );
     m_drawSlices        = m_properties->addProperty( "Show|Hide Slices", "Show|Hide slices along center line", false );
-    m_isoValue          = m_properties->addProperty( "Iso Value", "", 0.01 );
+    m_isoValue          = m_properties->addProperty( "Iso value", "", 0.01 );
     m_meanSelector      = m_properties->addProperty( "Mean Type", "Selects the mean type, must be on of:"
                                                                    " 0==arithmetic, 1==geometric, 2==median", 2, m_fullUpdate );
     m_planeNumX         = m_properties->addProperty( "Planes #X-SamplePoints", "#samplePoints in first direction", 40, m_fullUpdate );

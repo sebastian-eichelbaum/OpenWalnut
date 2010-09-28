@@ -52,7 +52,8 @@ public:
      */
     WDataSetRawHARDI( boost::shared_ptr< WValueSetBase > newValueSet,
                       boost::shared_ptr< WGrid > newGrid,
-                      boost::shared_ptr< std::vector< wmath::WVector3D > > newGradients );
+                      boost::shared_ptr< std::vector< wmath::WVector3D > > newGradients,
+                      double diffussionBValue = 1.0 );
 
     /**
      * Construct an empty and unusable instance. This is needed for the prototype mechanism.
@@ -108,6 +109,8 @@ public:
      */
     std::vector< wmath::WVector3D > const& getOrientations() const;
 
+    double getDiffussionBValue() const;
+
 protected:
 
     /**
@@ -117,6 +120,7 @@ protected:
 
 private:
     boost::shared_ptr< std::vector< wmath::WVector3D > > m_gradients; //!< Gradients of measurements
+    double m_diffussionBValue;
 };
 
 #endif  // WDATASETRAWHARDI_H

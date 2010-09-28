@@ -340,7 +340,7 @@ void WMLineGuidedSlice::updateTextures()
                 ++c;
             }
 
-            bool useTexture = m_properties->getProperty( "Use Texture" )->toPropBool()->get();
+            bool useTexture = m_properties->getProperty( "Use texture" )->toPropBool()->get();
             sliceState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", useTexture ) ) );
         }
     }
