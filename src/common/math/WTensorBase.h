@@ -949,10 +949,7 @@ bool WTensorBaseSym< order, dim, Data_T >::operator != ( WTensorBaseSym const& o
 template< std::size_t dim, typename Data_T >
 class WTensorBaseSym< 0, dim, Data_T >
 {
-    // make the test class a friend
     friend class ::WTensorBaseSymTest;
-
-    // make the func test class a friend
     friend class ::WTensorFuncTest;
 
 public:

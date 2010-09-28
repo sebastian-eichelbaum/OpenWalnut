@@ -29,9 +29,10 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "../../common/math/test/WTensorTraits.h"
 #include "../../common/WLogger.h"
-#include "../WGridRegular3D.h"
 #include "../WDataSetDTI.h"
+#include "../WGridRegular3D.h"
 
 static WLogger logger;
 

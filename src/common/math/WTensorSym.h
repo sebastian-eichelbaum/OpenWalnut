@@ -85,6 +85,7 @@ public:
      * \param data The components in same ordering as for the data member \c m_data is required, (\see m_data).
      */
     explicit WTensorSym( const WValue< Data_T >& data );
+
 protected:
 private:
 };
@@ -100,6 +101,64 @@ WTensorSym< order, dim, Data_T >::WTensorSym( const WValue< Data_T >& data )
     : WTensorFunc< WTensorBaseSym, order, dim, Data_T >( data )
 {
 }
+// ######################## stream output operators #################################
+
+/**
+ * Write a symmetric tensor of order 0 to an output stream.
+ *
+ * \param o An output stream.
+ * \param t A WTensorSym.
+ *
+ * \return The output stream.
+ */
+template< std::size_t dim, typename Data_T >
+std::ostream& operator << ( std::ostream& o, WTensorSym< 0, dim, Data_T > const& t )
+{
+    o << t() << std::endl;
+    return o;
+}
+
+/**
+ * Write a symmetric tensor of order 1 to an output stream.
+ *
+ * \param o An output stream.
+ * \param t A WTensorSym.
+ *
+ * \return The output stream.
+ */
+template< std::size_t dim, typename Data_T >
+std::ostream& operator << ( std::ostream& o, WTensorSym< 1, dim, Data_T > const& t )
+{
+    for( std::size_t k = 0; k < dim; ++k )
+    {
+        o << t( k ) << " ";
+    }
+    o << std::endl;
+    return o;
+}
+
+/**
+ * Write a symmetric tensor of order 2 to an output stream.
+ *
+ * \param o An output stream.
+ * \param t A WTensorSym.
+ *
+ * \return The output stream.
+ */
+template< std::size_t dim, typename Data_T >
+std::ostream& operator << ( std::ostream& o, WTensorSym< 2, dim, Data_T > const& t )
+{
+    for( std::size_t k = 0; k < dim; ++k )
+    {
+        for( std::size_t l = 0; l < dim; ++l )
+        {
+            o << t( k, l ) << " ";
+        }
+        o << std::endl;
+    }
+    return o;
+}
+
 
 }  // namespace wmath
 
