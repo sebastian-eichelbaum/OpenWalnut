@@ -52,5 +52,13 @@ void main()
 
     // transform position
     gl_Position = ftransform();
+
+    // TODO(ebaum): make this nice
+    VaryingTexCoord0 = gl_TexCoord[0];
+    VaryingTexCoord1 = gl_TexCoord[0];
+    VaryingTexCoord2 = gl_TexCoord[0];
+    VaryingTexCoord3 = gl_TexCoord[0];
+    VaryingTexCoord4 = gl_TexCoord[0];
+    VaryingTexCoord5 = gl_TexCoord[0];
 }
 

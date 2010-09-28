@@ -150,6 +150,10 @@ void WMHistogramEqualization::moduleMain()
 
         // Remember the above criteria. We now need to check if the data is valid. After a connect-update, it might be NULL.
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
+        if ( !dataSet )
+        {
+            continue;
+        }
         boost::shared_ptr< WValueSetBase > valueSet = dataSet->getValueSet();
         dataUpdated = dataUpdated && dataSet;
 
