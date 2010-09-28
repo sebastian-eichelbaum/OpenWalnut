@@ -137,6 +137,10 @@ void WMNavSlices::properties()
     m_coronalPos->setHidden();
     m_sagittalPos->setHidden();
 
+    WKernel::getRunningKernel()->getSelectionManager()->setPropAxialPos( m_axialPos );
+    WKernel::getRunningKernel()->getSelectionManager()->setPropCoronalPos( m_coronalPos );
+    WKernel::getRunningKernel()->getSelectionManager()->setPropSagittalPos( m_sagittalPos );
+
     // Print some nice output: the current nav slice position
     m_currentPosition = m_infoProperties->addProperty( "Position", "Current position of the navigation slices.",
             wmath::WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
@@ -966,7 +970,7 @@ void WMNavSlices::updateTextures()
                 m_typeUniforms[c]->set( W_DT_UNSIGNED_CHAR  );
                 m_thresholdUniforms[c]->set( 0.0f );
                 m_alphaUniforms[c]->set( WKernel::getRunningKernel()->getSelectionManager()->getTextureOpacity() );
-                m_cmapUniforms[c]->set( 4 );
+                m_cmapUniforms[c]->set( WKernel::getRunningKernel()->getSelectionManager()->getShader() );
 
                 texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
                 texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
