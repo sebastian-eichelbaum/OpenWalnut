@@ -42,7 +42,7 @@ float zeroTollerance = 0.01;
 /////////////////////////////////////////////////////////////////////////////////////////////
 float sPow( float x, float y )
 {
-    if (y==0.0)
+    if( y == 0.0 )
     {
         return 1.0;
     }
@@ -90,7 +90,7 @@ float superquadric( vec3 viewDir, vec3 planePoint, float t, out vec3 ray, out ve
     // If we derive sign(x)*pow(abs(x),y) we use product rule to get:
     //                    sign' * pow + sign * pow'
     // Well the derived sign function is nothing else than the unit impulse delta.
-    // It is              delta<>0 iff x=0 
+    // It is              delta<>0 iff x=0
     // And also           x=0 -> pow(x, y)=0
     // so delta(x)*pow(x) will allways be 0 ... we can drop it
     //
@@ -145,7 +145,7 @@ float superquadric( vec3 viewDir, vec3 planePoint, float t )
 /////////////////////////////////////////////////////////////////////////////////////////////
 // GPU Super Quadrics -- fragment shader -- main
 /////////////////////////////////////////////////////////////////////////////////////////////
-void main(void)
+void main( void )
 {
     // filter out glyphs whose anisotropy is smaller than the threshold or where the eigenvalues
     // are below the threshold (alphaBeta.w is != if this is the case)
@@ -230,7 +230,7 @@ void main(void)
     }
 
     // there will be a solution
-    hit=true; 
+    hit = true;
 
     // use solution formula
     float twoAinv = 1.0 / ( 2.0 * A );
@@ -274,7 +274,7 @@ void main(void)
             v_lightDir.xyz );                      // light direction
     }
     else // no hit: discard
-    {   
+    {
         // want to see the bounding box? uncomment this line
         // gl_FragColor=vec4(0.5, 0.5, 1., 1.0);
         discard;

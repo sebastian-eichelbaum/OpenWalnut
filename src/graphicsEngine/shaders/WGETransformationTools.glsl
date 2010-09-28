@@ -25,9 +25,9 @@
 /**
  * Projects a given point to screen-space, where (0,0) is the lower left corner and (1,1) the upper right. The Depth
  * is stored in the returned vector's Z value.
- * 
+ *
  * \param point the point to project
- * 
+ *
  * \return the projected point, the Z value is the depth
  */
 vec3 project( vec4 point )
@@ -37,29 +37,29 @@ vec3 project( vec4 point )
 
     // 2: scale to screen space and [0,1]
     pointProjected.x /= pointProjected.w;
-    pointProjected.x  = pointProjected.x * 0.5 + 0.5 ;
+    pointProjected.x  = pointProjected.x * 0.5 + 0.5;
     pointProjected.y /= pointProjected.w;
-    pointProjected.y  = pointProjected.y * 0.5 + 0.5 ;
+    pointProjected.y  = pointProjected.y * 0.5 + 0.5;
     pointProjected.z /= pointProjected.w;
-    pointProjected.z  = pointProjected.z * 0.5 + 0.5 ;
+    pointProjected.z  = pointProjected.z * 0.5 + 0.5;
 
     return pointProjected.xyz;
 }
 
 /**
  * Projects a given vector to screen-space. It does not scale the final vector to [0,1] as project() would have done.
- * 
+ *
  * \param vector the vector to project
- * 
+ *
  * \return the projected vector in unscaled screen-space ( [-1,1] per component )
  */
 vec3 projectVector( vec4 vector )
 {
     vec4 base = vec4( 0.0, 0.0, 0.0, 1.0 );
     vec4 diff = vector;
-  
-    vec4 diffP=gl_ModelViewProjectionMatrix * diff;
-    vec4 baseP=gl_ModelViewProjectionMatrix * base;
+
+    vec4 diffP = gl_ModelViewProjectionMatrix * diff;
+    vec4 baseP = gl_ModelViewProjectionMatrix * base;
 
     // scale by w
     diffP.x /= diffP.w;
@@ -75,9 +75,9 @@ vec3 projectVector( vec4 vector )
 
 /**
  * Projects a given vector to screen-space. It does not scale the final vector to [0,1] as project() would have done.
- * 
+ *
  * \param vector the vector to project
- * 
+ *
  * \return the projected vector in unscaled screen-space ( [-1,1] per component )
  *
  * \note This assumes the homogeneous coordinate to be 1.
@@ -90,9 +90,9 @@ vec3 projectVector( vec3 vector )
 /**
  * Projects a given point to screen-space, where (0,0) is the lower left corner and (1,1) the upper right. The Depth
  * is stored in the returned vector's Z value.
- * 
+ *
  * \param point the point to project
- * 
+ *
  * \return the projected point, the Z value is the depth
  *
  * \note This projects a vec3 by applying 1.0 to the homogeneous coordinate
@@ -103,11 +103,11 @@ vec3 project( vec3 point )
 }
 
 /**
- * This function transforms a point which is in world space, to a point in the local coordinate system of the object 
+ * This function transforms a point which is in world space, to a point in the local coordinate system of the object
  * currently getting rendered.
- * 
+ *
  * \param point the point in world coordinates
- * 
+ *
  * \return the point in local coordinates
  */
 vec4 worldToLocal( vec4 point )
@@ -116,11 +116,11 @@ vec4 worldToLocal( vec4 point )
 }
 
 /**
- * This function transforms a point which is in world space, to a point in the local coordinate system of the object 
+ * This function transforms a point which is in world space, to a point in the local coordinate system of the object
  * currently getting rendered.
- * 
+ *
  * \param point the point in world coordinates
- * 
+ *
  * \return the point in local coordinates
  *
  * \note This assumes the homogeneous part to be 1.0
@@ -131,12 +131,12 @@ vec4 worldToLocal( vec3 point )
 }
 
 /**
- * This function transforms a vector which is in world space, to a point in the local coordinate system of the object 
+ * This function transforms a vector which is in world space, to a point in the local coordinate system of the object
  * currently getting rendered.
- * 
+ *
  * \param point1 the vector point in world coordinates
  * \param point2 the vector direction point in world coordinates
- * 
+ *
  * \return the vector in local coordinates
  */
 vec4 worldToLocal( vec4 point1, vec4 point2 )
@@ -145,12 +145,12 @@ vec4 worldToLocal( vec4 point1, vec4 point2 )
 }
 
 /**
- * This function transforms a vector which is in world space, to a point in the local coordinate system of the object 
+ * This function transforms a vector which is in world space, to a point in the local coordinate system of the object
  * currently getting rendered.
- * 
+ *
  * \param point1 the vector point in world coordinates
  * \param point2 the vector direction point in world coordinates
- * 
+ *
  * \return the vector in local coordinates
  *
  * \note This assumes the homogeneous part to be 1.0

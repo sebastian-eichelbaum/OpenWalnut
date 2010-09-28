@@ -76,7 +76,7 @@ Syntax: brainlint.py [--verbose=#] [--output=vs7] [--filter=-x,+y,...]
   end of the line.
 
   The files passed in will be linted; at least one file must be provided.
-  Linted extensions are .cc, .cpp, and .h.  Other file types will be ignored.
+  Linted extensions are .cc, .cpp, .h and .glsl.  Other file types will be ignored.
 
   Flags:
 
@@ -613,7 +613,7 @@ class FileInfo:
 
   def IsSource(self):
     """File has a source file extension."""
-    return self.Extension()[1:] in ('c', 'cc', 'cpp', 'cxx')
+    return self.Extension()[1:] in ('c', 'cc', 'cpp', 'cxx', 'glsl' )
 
 
 def _ShouldPrintError(category, confidence):
@@ -2210,23 +2210,23 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension, include_state,
       error(filename, linenum, 'runtime/references', 2,
             'Is this a non-const reference? '
             'If so, make const or use a pointer.')
-
-  # Check to see if they're using an conversion function cast.
-  # I just try to capture the most common basic types, though there are more.
-  # Parameterless conversion functions, such as bool(), are allowed as they are
-  # probably a member operator declaration or default constructor.
-  match = Search(
-      r'\b(int|float|double|bool|char|int32|uint32|int64|uint64)\([^)]', line)
-  if match:
-    # gMock methods are defined using some variant of MOCK_METHODx(name, type)
-    # where type may be float(), int(string), etc.  Without context they are
-    # virtually indistinguishable from int(x) casts.
-    if not Match(r'^\s*MOCK_(CONST_)?METHOD\d+(_T)?\(', line):
-      error(filename, linenum, 'readability/casting', 4,
-            'Using deprecated casting style.  '
-            'Use static_cast<%s>(...) instead' %
-            match.group(1))
-
+  
+  if not file_extension == 'glsl': # Do not check casts for shaders.  
+    # Check to see if they're using an conversion function cast.
+    # I just try to capture the most common basic types, though there are more.
+    # Parameterless conversion functions, such as bool(), are allowed as they are
+    # probably a member operator declaration or default constructor.
+    match = Search( r'\b(int|float|double|bool|char|int32|uint32|int64|uint64)\([^)]', line)
+    if match:
+      # gMock methods are defined using some variant of MOCK_METHODx(name, type)
+      # where type may be float(), int(string), etc.  Without context they are
+      # virtually indistinguishable from int(x) casts.
+      if not Match(r'^\s*MOCK_(CONST_)?METHOD\d+(_T)?\(', line):
+        error(filename, linenum, 'readability/casting', 4,
+              'Using deprecated casting style.  '
+              'Use static_cast<%s>(...) instead' %
+              match.group(1))
+        
   CheckCStyleCast(filename, linenum, line, clean_lines.raw_lines[linenum],
                   'static_cast',
                   r'\((int|float|double|bool|char|u?int(16|32|64))\)',
@@ -2524,7 +2524,7 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error):
   less<> in a .h file, only one (the latter in the file) of these will be
   reported as a reason to include the <functional>.
 
-  We only check headers. We do not check inside cc-files. .cc files should be
+  We only check headers. We do not check inside cpp-files. .cpp files should be
   able to depend on their respective header files for includes.  However, there
   is no simple way of producing this logic here.
 
@@ -2534,7 +2534,9 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error):
     include_state: An _IncludeState instance.
     error: The function to call with any errors found.
   """
-  if filename.endswith('.cc'):
+  if filename.endswith('.cpp'):
+    return
+  if filename.endswith('.glsl'): # Do not includes for shaders.  
     return
 
   required = {}  # A map of header name to linenumber and the template entity.
@@ -2694,8 +2696,8 @@ def ProcessFile(filename, vlevel):
   # When reading from stdin, the extension is unknown, so no cpplint tests
   # should rely on the extension.
   if (filename != '-' and file_extension != 'cc' and file_extension != 'h' and file_extension != 'hpp'
-      and file_extension != 'cpp'):
-    sys.stderr.write('Ignoring %s; not a .cc or .h file\n' % filename)
+      and file_extension != 'cpp' and file_extension != 'glsl'):
+    sys.stderr.write('Ignoring %s; not a .glsl, .cpp or .h file\n' % filename)
   else:
     ProcessFileData(filename, file_extension, lines, Error)
     if carriage_return_found and os.linesep != '\r\n':
