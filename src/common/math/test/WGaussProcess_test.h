@@ -30,16 +30,17 @@
 #include "../WGaussProcess.h"
 
 /**
- * TODO(math): Document this!
+ * Testsuite for the gaussian process class.
  */
 class WGaussProcessTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * TODO(math): Document this!
+     * The mean function of a gaussian process is a mapping: R^3 -> R
      */
-    void testSomething( void )
+    void testMeanFunctionTest( void )
     {
+        // TODO(math): implement this
     }
 };
 

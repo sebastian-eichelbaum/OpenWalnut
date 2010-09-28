@@ -52,7 +52,7 @@ class WJoinContourTreeTest : public CxxTest::TestSuite
 public:
 
     /**
-     * TODO(lmath): Document this!
+     * The construction of a Join Tree is done via a special index array.
      */
     void testbuildJoinTreeOnRegular2DGrid( void )
     {

@@ -28,20 +28,20 @@
 namespace wmath
 {
 /**
- * TODO(math): Document this!
+ * Represents a basic gaussian process with its mean- and covariance function.
  */
 class WGaussProcess
 {
 public:
     /**
-     * TODO(math): Document this!
+     * Default constructor.
      */
     WGaussProcess();
 
     /**
-     * TODO(math): Document this!
+     * Default destructor.
      */
-    ~WGaussProcess();
+    virtual ~WGaussProcess();
 
 protected:
 private:

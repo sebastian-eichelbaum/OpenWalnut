@@ -40,7 +40,7 @@ namespace CxxTest
  * Enables better UnitTest OutPut if something fails with symmetric tensors of order 2 and , so you see
  * immedeatly what is failing.
  */
-template< template< size_t, size_t, typename > class TensorBase_T, size_t order, size_t dim, typename Data_T >
+template< template< size_t, size_t, typename > class TensorBase_T, size_t order, size_t dim, typename Data_T > // NOLINT incomplete declaration (multiline?)
 class ValueTraits< TensorBase_T< order, dim, Data_T> > : public WTraitsBase
 {
 public:
