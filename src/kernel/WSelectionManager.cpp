@@ -171,3 +171,45 @@ void WSelectionManager::setTextureOpacity( float value )
     }
     m_textureOpacity = value;
 }
+
+void WSelectionManager::setPropAxialPos( WPropInt prop )
+{
+    m_axialPos = prop;
+}
+
+void WSelectionManager::setPropCoronalPos( WPropInt prop )
+{
+    m_coronalPos = prop;
+}
+
+void WSelectionManager::setPropSagittalPos( WPropInt prop )
+{
+    m_sagittalPos = prop;
+}
+
+WPropInt WSelectionManager::getPropAxialPos()
+{
+    return m_axialPos;
+}
+
+WPropInt WSelectionManager::getPropCoronalPos()
+{
+    return m_coronalPos;
+}
+
+WPropInt WSelectionManager::getPropSagittalPos()
+{
+    return m_sagittalPos;
+}
+
+void WSelectionManager::setShader( int shader )
+{
+    m_shader = shader;
+}
+
+int WSelectionManager::getShader()
+{
+    return m_shader;
+}
+
+

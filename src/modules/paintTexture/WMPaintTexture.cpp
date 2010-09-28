@@ -442,6 +442,7 @@ void WMPaintTexture::createTexture()
     m_texture->setResizeNonPowerOfTwoHint( false );
 
     WKernel::getRunningKernel()->getSelectionManager()->setTexture( m_texture, m_grid );
+    WKernel::getRunningKernel()->getSelectionManager()->setShader( 4 );
     WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( true );
 
     WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
