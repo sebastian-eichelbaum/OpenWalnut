@@ -133,14 +133,13 @@ void WMImageSpaceLIC::properties()
 
     m_useEdges       = m_licGroup->addProperty( "Edges", "Check to enable blending in edges.", true );
 
-    // some shader stuff
-    m_noiseRatio     = m_licGroup->addProperty( "Noise Ratio", "Ratio between noise and advected noise during advection.", 0.1 );
-    m_noiseRatio->setMin( 0.0 );
-    m_noiseRatio->setMax( 0.5 );
-
     m_numIters     = m_licGroup->addProperty( "Number of Iterations", "How much iterations along a streamline should be done per frame.", 50 );
-    m_numIters->setMin( 0 );
+    m_numIters->setMin( 1 );
     m_numIters->setMax( 100 );
+
+    m_cmapRatio    = m_licGroup->addProperty( "Ratio Colormap to LIC", "Blending ratio between LIC and colormap.", 0.5 );
+    m_cmapRatio->setMin( 0.0 );
+    m_cmapRatio->setMax( 1.0 );
 
     // call WModule's initialization
     WModule::properties();
@@ -237,6 +236,8 @@ void WMImageSpaceLIC::moduleMain()
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
 
+    setupTexturing();
+
     // the WGEOffscreenRenderNode manages each of the render-passes for us
     osg::ref_ptr< WGEOffscreenRenderNode > offscreen = new WGEOffscreenRenderNode(
         WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
@@ -247,9 +248,10 @@ void WMImageSpaceLIC::moduleMain()
     offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
 
     // setup all the passes needed for image space advection
+    osg::ref_ptr< WShader > transformationShader = new WShader( "WMImageSpaceLIC-Transformation", m_localPath );
     osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass(
         m_output,
-        new WShader( "WMImageSpaceLIC-Transformation", m_localPath ),
+        transformationShader,
         "Transformation"
     );
     osg::ref_ptr< WGEOffscreenRenderPass > edgeDetection =  offscreen->addTextureProcessingPass(
@@ -259,13 +261,9 @@ void WMImageSpaceLIC::moduleMain()
 
     // we use two advection passes per frame as the input A of the first produces the output B whereas the second pass uses B as input and
     // produces A as output. This way we can use A as input for the next step (clipping and blending).
-    osg::ref_ptr< WGEOffscreenRenderPass > advectionAB =  offscreen->addTextureProcessingPass(
+    osg::ref_ptr< WGEOffscreenRenderPass > advection =  offscreen->addTextureProcessingPass(
         new WShader( "WMImageSpaceLIC-Advection", m_localPath ),
-        "Advection AB"
-    );
-    osg::ref_ptr< WGEOffscreenRenderPass > advectionBA =  offscreen->addTextureProcessingPass(
-        new WShader( "WMImageSpaceLIC-Advection", m_localPath ),
-        "Advection BA"
+        "Advection"
     );
 
     // finally, put it back on screen, clip it, color it and apply depth buffer to on-screen buffer
@@ -281,6 +279,7 @@ void WMImageSpaceLIC::moduleMain()
     //  * Lighting in B
     //  * Depth
     osg::ref_ptr< osg::Texture2D > transformationOut1  = transformation->attach( osg::Camera::COLOR_BUFFER0 );
+    osg::ref_ptr< osg::Texture2D > transformationColormapped  = transformation->attach( osg::Camera::COLOR_BUFFER1 );
     osg::ref_ptr< osg::Texture2D > transformationDepth = transformation->attach( osg::Camera::DEPTH_BUFFER );
 
     // Edge Detection Pass, needs Depth as input
@@ -293,29 +292,22 @@ void WMImageSpaceLIC::moduleMain()
 
     // Advection Pass, needs edges and projected vectors as well as noise texture
     //  * Advected noise in luminance channel
-    osg::ref_ptr< osg::Texture2D > advectionOutA  = advectionAB->attach( osg::Camera::COLOR_BUFFER0, GL_LUMINANCE );
-    advectionAB->bind( transformationOut1, 0 );
-    advectionAB->bind( edgeDetectionOut1,  1 );
-    osg::ref_ptr< osg::Texture2D > advectionOutB  = advectionBA->attach( osg::Camera::COLOR_BUFFER0, GL_LUMINANCE );
-    advectionBA->bind( transformationOut1, 0 );
-    advectionBA->bind( edgeDetectionOut1,  1 );
-    advectionBA->bind( advectionOutA,      2 );
-    advectionAB->bind( advectionOutB,      2 );
+    osg::ref_ptr< osg::Texture2D > advectionOutA  = advection->attach( osg::Camera::COLOR_BUFFER0, GL_LUMINANCE );
+    advection->bind( transformationOut1, 0 );
+    advection->bind( edgeDetectionOut1,  1 );
 
     // advection needs some uniforms controlled by properties
-    osg::ref_ptr< osg::Uniform > noiseRatio = new WGEPropertyUniform< WPropDouble >( "u_noiseRatio", m_noiseRatio );
     osg::ref_ptr< osg::Uniform > numIters = new WGEPropertyUniform< WPropInt >( "u_numIter", m_numIters );
-    advectionAB->addUniform( noiseRatio );
-    advectionBA->addUniform( noiseRatio );
-    advectionAB->addUniform( numIters );
-    advectionBA->addUniform( numIters );
+    advection->addUniform( numIters );
 
     // Final clipping and blending phase, needs Advected Noise, Edges, Depth and Light
-    clipBlend->bind( advectionOutB, 0 );
+    clipBlend->bind( advectionOutA, 0 );
     clipBlend->bind( edgeDetectionOut1, 1 );
+    clipBlend->bind( transformationColormapped, 2 );
     // final pass needs some uniforms controlled by properties
     clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useEdges", m_useEdges ) );
     clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useLight", m_useLight ) );
+    clipBlend->addUniform( new WGEPropertyUniform< WPropDouble >( "u_cmapRatio", m_cmapRatio ) );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Main loop
@@ -334,24 +326,49 @@ void WMImageSpaceLIC::moduleMain()
         }
 
         // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_vectorsIn->handledUpdate();
-        boost::shared_ptr< WDataSetVector > dataSet = m_vectorsIn->getData();
-        bool dataValid = ( dataSet );
+        bool dataUpdated = m_vectorsIn->handledUpdate() || m_scalarIn->handledUpdate();
+        boost::shared_ptr< WDataSetVector > dataSetVec = m_vectorsIn->getData();
+        boost::shared_ptr< WDataSetScalar > dataSetScal = m_scalarIn->getData();
+
+        bool dataValid = ( dataSetVec || dataSetScal );
         if ( !dataValid || ( dataValid && !dataUpdated ) )
         {
             continue;
         }
 
-        // get grid and prepare OSG
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
-        m_xPos->setMax( grid->getNbCoordsX() - 1 );
-        m_yPos->setMax( grid->getNbCoordsY() - 1 );
-        m_zPos->setMax( grid->getNbCoordsZ() - 1 );
-        initOSG( grid );
+        // prefer vector dataset if existing
+        if ( dataSetVec )
+        {
+            debugLog() << "Using vector data";
 
-        // prepare offscreen render chain
-        edgeDetection->bind( randTexture, 1 );
-        transformation->bind( dataSet->getTexture()->getTexture() );
+            // get grid and prepare OSG
+            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSetVec->getGrid() );
+            m_xPos->setMax( grid->getNbCoordsX() - 1 );
+            m_yPos->setMax( grid->getNbCoordsY() - 1 );
+            m_zPos->setMax( grid->getNbCoordsZ() - 1 );
+            initOSG( grid );
+
+            // prepare offscreen render chain
+            edgeDetection->bind( randTexture, 1 );
+            transformationShader->setDefine( "VECTORDATA" );
+            transformation->bind( dataSetVec->getTexture()->getTexture(), 0 );
+        }
+        else if ( dataSetScal )
+        {
+            debugLog() << "Using scalar data";
+
+            // get grid and prepare OSG
+            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSetScal->getGrid() );
+            m_xPos->setMax( grid->getNbCoordsX() - 1 );
+            m_yPos->setMax( grid->getNbCoordsY() - 1 );
+            m_zPos->setMax( grid->getNbCoordsZ() - 1 );
+            initOSG( grid );
+
+            // prepare offscreen render chain
+            edgeDetection->bind( randTexture, 1 );
+            transformationShader->setDefine( "SCALARDATA" );
+            transformation->bind( dataSetScal->getTexture()->getTexture(), 0 );
+        }
 
         debugLog() << "Done";
     }

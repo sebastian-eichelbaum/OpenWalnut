@@ -35,24 +35,19 @@ uniform sampler2D u_texture0Sampler;
 uniform sampler2D u_texture1Sampler;
 
 /**
- * The texture Unit for the last advection
+ * Size of advection texture in pixels
  */
-uniform sampler2D u_texture2Sampler;
+uniform int u_texture0SizeX;
 
 /**
  * Size of advection texture in pixels
  */
-uniform int u_texture2SizeX;
+uniform int u_texture0SizeY;
 
 /**
  * Size of advection texture in pixels
  */
-uniform int u_texture2SizeY;
-
-/**
- * Size of advection texture in pixels
- */
-uniform int u_texture2SizeZ;
+uniform int u_texture0SizeZ;
 
 /**
  * The blending ratio between noise and advected noise
@@ -77,25 +72,24 @@ void main()
     float noise  = texture2D( u_texture1Sampler, texCoord ).b;
     vec2 vec = normalize( 2.0 * ( texture2D( u_texture0Sampler, texCoord ).rg - vec2( 0.5, 0.5 ) ) );
 
-    // last advection:
-    float last = texture2D( u_texture2Sampler, texCoord ).r;
-
+    // simply iterate along the line using the vector at each point
     vec2 lastVec = vec;
     vec2 lastPos = gl_TexCoord[0].st;
     float sum = 0.0;
-    int maxIter = 50;
     for ( int i = 0; i < u_numIter; ++i )
     {
-        vec2 newPos = lastPos - vec2( lastVec.x / u_texture2SizeX, lastVec.y / u_texture2SizeY );
+        vec2 newPos = lastPos - vec2( lastVec.x / u_texture0SizeX, lastVec.y / u_texture0SizeY );
         vec2 newVec = normalize( 2.0 * ( texture2D( u_texture0Sampler, newPos ).rg - vec2( 0.5, 0.5 ) ) );
 
-        sum += /* float( maxIter - i ) / maxIter * */ texture2D( u_texture1Sampler, newPos ).b;
+        // it is also possible to scale using a Geometric progression: float( u_numIter - i ) / u_numIter * texture2D
+        sum += texture2D( u_texture1Sampler, newPos ).b;
 
         lastPos = newPos;
         lastVec = newVec;
     }
-    
-    float n = sum / float( u_numIter );
+
+    // the sum needs to be scaled to [0,1] again
+    float n = ( sum ) / float( u_numIter );
     if ( depth > 0.99 )
     {
         n = noise;

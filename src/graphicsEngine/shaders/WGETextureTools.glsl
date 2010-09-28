@@ -84,7 +84,7 @@ vec4 texture1DUnscaled( sampler1D texture, float point, float minimum, float sca
 vec4 textureNormalize( vec4 point )
 {
     float maxC = max( abs( point.x ), max( abs( point.y ), max( abs( point.z ), abs( point.w ) ) ) );
-    return point / maxC;
+    return 0.5 + ( 0.5 * point / maxC );
 }
 
 /**
@@ -98,7 +98,7 @@ vec4 textureNormalize( vec4 point )
 vec3 textureNormalize( vec3 point )
 {
     float maxC = max( abs( point.x), max( abs( point.y ), abs( point.z ) ) );
-    return point / maxC;
+    return 0.5 + ( 0.5 * point / maxC );
 }
 
 /**
@@ -111,7 +111,7 @@ vec3 textureNormalize( vec3 point )
  */
 vec2 textureNormalize( vec2 point )
 {
-    float maxC = max( abs( point.x), abs( point.y ) );
-    return point / maxC;
+    float maxC = max( abs( point.x ), abs( point.y ) );
+    return 0.5 + ( 0.5 * point / maxC );
 }
 

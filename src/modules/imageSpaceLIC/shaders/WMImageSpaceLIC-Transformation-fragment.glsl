@@ -36,6 +36,8 @@
  */
 uniform sampler3D u_texture0Sampler;
 
+uniform sampler3D tex1;
+
 /**
  * Scaling factor to unscale the texture
  */
@@ -51,6 +53,9 @@ uniform float u_texture0Min;
  */
 void main()
 {
+    vec2 vecProjectedScaled;    // contains the final vector at each fragment
+
+#ifdef VECTORDATA
     // get the current vector at this position
     vec3 vec = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz, u_texture0Min, u_texture0Scale ).rgb;
 
@@ -64,12 +69,19 @@ void main()
     vec2 vecProjected = projectVector( vec ).xy;
 
     // scale it 
-    vec2 vecProjectedScaled = textureNormalize( vecProjected );
+    vecProjectedScaled = textureNormalize( vecProjected );
+
+#endif
+#ifdef SCALARDATA
+
+#endif
 
     // calculate lighting for the surface
     // TODO(ebaum): material properties should be used instead
     float light = blinnPhongIlluminationIntensity( 0.5, 0.3, 0.3, 10.0, 1.0, 0.5, v_normal, v_viewDir, v_lightSource );
     
-    gl_FragColor = vec4( abs(vecProjectedScaled), light, 1.0 );
+    gl_FragData[0] = vec4( vecProjectedScaled, light, 1.0 );
+    gl_FragData[1] = vec4( texture3D( tex1, gl_TexCoord[0].xyz ).rgb , 1.0 );
+
 }
 

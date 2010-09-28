@@ -35,6 +35,11 @@ uniform sampler2D u_texture0Sampler;
 uniform sampler2D u_texture1Sampler;
 
 /**
+ * The texture Unit for the edge, depht texture
+ */
+uniform sampler2D u_texture2Sampler;
+
+/**
  * Used to en-/disable lighting.
  */
 uniform bool u_useLight;
@@ -43,6 +48,11 @@ uniform bool u_useLight;
  * Used to en-/disable blending of edges.
  */
 uniform bool u_useEdges;
+
+/**
+ * Ratio between colormap and advected noise
+ */
+uniform float u_cmapRatio;
 
 /**
  * Main. Clips and Blends the final image space rendering with the previously acquired 3D information
@@ -54,8 +64,10 @@ void main()
     float light  = texture2D( u_texture1Sampler, texCoord ).b * ( u_useLight ? 1.0 : 0.0 );
     float depth  = texture2D( u_texture1Sampler, texCoord ).g;
     float advected  = texture2D( u_texture0Sampler, texCoord ).r;
+    vec4 cmap = texture2D( u_texture2Sampler, texCoord );
 
-    gl_FragColor = vec4( vec3( edge + 2. * advected * advected ), 1.0 );
+    gl_FragColor = u_cmapRatio * cmap +
+                   ( 1.0 - u_cmapRatio ) * vec4( vec3( edge + 2.0 * advected * advected ), 1.0 );
     gl_FragDepth = depth;
 }
 
