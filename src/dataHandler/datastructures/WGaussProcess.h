@@ -25,11 +25,10 @@
 #ifndef WGAUSSPROCESS_H
 #define WGAUSSPROCESS_H
 
-//#include "../datastructures/WFiber.h"
-//#include "WMatrix.h"
+#include "../../common/datastructures/WFiber.h"
+#include "../../common/math/WMatrix.h"
+#include "../WDataSetDTI.h"
 
-namespace wmath
-{
 /**
  * Represents a basic gaussian process with its mean- and covariance function. Basically this aims
  * to implement a part of the gaussian process framework as presented by Wasserman et. al:
@@ -43,32 +42,31 @@ public:
      */
     WGaussProcess();
 
-//    /**
-//     * Constructs a gaussian process out of a fiber with the help of underlying diffusion tensor
-//     * information.
-//     *
-//     * \param tract One deterministic tractogram
-//     * \param tensors All 2nd order diffusion tensors
-//     */
-//    WGaussProcess( const wmath::WFiber& tract, const WDataSetDTI& tensors );
+    /**
+     * Constructs a gaussian process out of a fiber with the help of underlying diffusion tensor
+     * information.
+     *
+     * \param tract One deterministic tractogram
+     * \param tensors All 2nd order diffusion tensors
+     */
+    WGaussProcess( const wmath::WFiber& tract, const WDataSetDTI& tensors );
 
     /**
      * Default destructor.
      */
     virtual ~WGaussProcess();
 
-//    /**
-//     * Adds up two gaussian processes with adding the mean- and covariance fucntions.
-//     *
-//     * \param other The other gaussian process.
-//     *
-//     * \return
-//     */
-//    WGaussProcess operator+( const WGaussProcess& other );
+    /**
+     * Adds up two gaussian processes with adding the mean- and covariance fucntions.
+     *
+     * \param other The other gaussian process
+     *
+     * \return The new Gaussian Process adding this two processes
+     */
+    WGaussProcess operator+( const WGaussProcess& other ) const;
 
 protected:
 private:
 };
 
-} // end of wmath namespace
 #endif  // WGAUSSPROCESS_H

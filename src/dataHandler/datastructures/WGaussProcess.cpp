@@ -23,13 +23,21 @@
 //---------------------------------------------------------------------------
 
 #include "WGaussProcess.h"
-namespace wmath
-{
+
 WGaussProcess::WGaussProcess()
+{
+}
+
+WGaussProcess::WGaussProcess( const wmath::WFiber& tract, const WDataSetDTI& tensors )
 {
 }
 
 WGaussProcess::~WGaussProcess()
 {
 }
-} // end of wmath namespace
+
+WGaussProcess WGaussProcess::operator+( const WGaussProcess& other ) const
+{
+    WGaussProcess result;
+    return result;
+}

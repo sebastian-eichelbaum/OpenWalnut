@@ -26,7 +26,7 @@
 
 // TODO(math): uncomment if we have more other constructors (we need to be default-constructable)
 // WDataSetGP::WDataSetGP()
-//     : WMixinVector< wmath::WGaussProcess >(),
+//     : WMixinVector< WGaussProcess >(),
 //       WDataSet()
 // {
 // }
