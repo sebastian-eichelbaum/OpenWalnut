@@ -70,7 +70,7 @@ struct DataType
  * Specialization for a specific datatype.
  */
 template<>
-struct DataType< signed char >
+struct DataType< int8_t >
 {
     //! the dataType flag
     static dataType const type = W_DT_INT8;
@@ -80,7 +80,7 @@ struct DataType< signed char >
  * Specialization for a specific datatype.
  */
 template<>
-struct DataType< unsigned char >
+struct DataType< uint8_t >
 {
     //! the dataType flag
     static dataType const type = W_DT_UINT8;
@@ -110,7 +110,7 @@ struct DataType< uint16_t >
  * Specialization for a specific datatype.
  */
 template<>
-struct DataType< int >
+struct DataType< int32_t >
 {
     //! the dataType flag
     static dataType const type = W_DT_SIGNED_INT;
@@ -120,7 +120,7 @@ struct DataType< int >
  * Specialization for a specific datatype.
  */
 template<>
-struct DataType< unsigned int >
+struct DataType< uint32_t >
 {
     //! the dataType flag
     static dataType const type = W_DT_UINT32;
