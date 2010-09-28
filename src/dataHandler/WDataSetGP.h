@@ -32,6 +32,9 @@
 #include "WDataSet.h"
 #include "WExportDataHandler.h"
 
+/**
+ * Stores many Gaussian processes.
+ */
 class OWDATAHANDLER_EXPORT WDataSetGP : public WMixinVector< wmath::WGaussProcess >, public WDataSet
 {
 public:
@@ -40,13 +43,6 @@ public:
 //     * Default constructor.
 //     */
 //    WDataSetGP();
-//
-//    /**
-//     * Constructs new Gaussian Process dataset out of the given gaussian processes.
-//     *
-//     * \param processes Vector of gaussian processes.
-//     */
-//    explicit WDataSetGP( boost::shared_ptr< const std::vector< wmath::WGaussProcess > > processes );
 
     /**
      * Determines whether this dataset can be used as a texture.

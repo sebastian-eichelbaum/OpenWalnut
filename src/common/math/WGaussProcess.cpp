@@ -25,7 +25,6 @@
 #include "WGaussProcess.h"
 namespace wmath
 {
-
 WGaussProcess::WGaussProcess()
 {
 }
@@ -33,5 +32,4 @@ WGaussProcess::WGaussProcess()
 WGaussProcess::~WGaussProcess()
 {
 }
-
 } // end of wmath namespace
