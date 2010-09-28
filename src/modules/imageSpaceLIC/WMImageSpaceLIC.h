@@ -252,16 +252,16 @@ void initUniforms( osg::StateSet* rootState )
     m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold8", 0.0f ) ) );
     m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold9", 0.0f ) ) );
 
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex0", 1 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex1", 2 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex2", 3 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex3", 4 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex4", 5 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex5", 6 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex6", 7 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex7", 8 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex8", 9 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex9", 10 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex0", 2 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex1", 3 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex2", 4 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex3", 5 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex4", 6 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex5", 7 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex6", 8 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex7", 9 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex8", 10 ) ) );
+    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex9", 11 ) ) );
 
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap0", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap1", 0 ) ) );
@@ -371,7 +371,7 @@ void updateTextures()
                 texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
                 texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
 
-                rootState->setTextureAttributeAndModes( c+1, texture3D, osg::StateAttribute::ON );
+                rootState->setTextureAttributeAndModes( c + 2, texture3D, osg::StateAttribute::ON );
                 ++c;
             }
             //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -390,7 +390,7 @@ void updateTextures()
                     texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
                     texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
                 }
-                rootState->setTextureAttributeAndModes( c+1, texture3D, osg::StateAttribute::ON );
+                rootState->setTextureAttributeAndModes( c + 2, texture3D, osg::StateAttribute::ON );
 
                 // set threshold/opacity as uniforms
                 float minValue = ( *iter )->getMinValue();

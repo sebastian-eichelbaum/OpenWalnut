@@ -23,6 +23,9 @@
 //---------------------------------------------------------------------------
 
 #version 120
+#extension GL_EXT_gpu_shader4 : enable
+
+#include "WGEUtils.glsl"
 
 /**
  * The texture Unit for the projected vectors
@@ -68,9 +71,9 @@ void main()
     
     // get some needed values
     float edge  = texture2D( u_texture1Sampler, texCoord ).r;
-    float depth  = texture2D( u_texture1Sampler, texCoord ).g;
-    float noise  = texture2D( u_texture1Sampler, texCoord ).b;
-    vec2 vec = normalize( 2.0 * ( texture2D( u_texture0Sampler, texCoord ).rg - vec2( 0.5, 0.5 ) ) );
+    float depth = texture2D( u_texture1Sampler, texCoord ).g;
+    float noise = texture2D( u_texture1Sampler, texCoord ).b;
+    vec2 vec    = ( 2.0 * ( texture2D( u_texture0Sampler, texCoord ).rg - vec2( 0.5, 0.5 ) ) );
 
     // simply iterate along the line using the vector at each point
     vec2 lastVec = vec;
@@ -78,8 +81,10 @@ void main()
     float sum = 0.0;
     for ( int i = 0; i < u_numIter; ++i )
     {
-        vec2 newPos = lastPos - vec2( lastVec.x / u_texture0SizeX, lastVec.y / u_texture0SizeY );
-        vec2 newVec = normalize( 2.0 * ( texture2D( u_texture0Sampler, newPos ).rg - vec2( 0.5, 0.5 ) ) );
+        vec2 newPos = lastPos - vec2( lastVec.x / ( 2.0 * u_texture0SizeX), lastVec.y / ( 2.0 * u_texture0SizeY) );
+        vec2 newVec = ( 2.0 * ( texture2D( u_texture0Sampler, newPos ).rg - vec2( 0.5, 0.5 ) ) );
+        if ( length( newVec ) < 0.01 )
+            break;
 
         // it is also possible to scale using a Geometric progression: float( u_numIter - i ) / u_numIter * texture2D
         sum += texture2D( u_texture1Sampler, newPos ).b;

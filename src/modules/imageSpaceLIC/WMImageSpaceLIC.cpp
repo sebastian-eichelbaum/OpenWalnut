@@ -41,6 +41,7 @@
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../graphicsEngine/WGEOffscreenRenderPass.h"
@@ -350,6 +351,7 @@ void WMImageSpaceLIC::moduleMain()
 
             // prepare offscreen render chain
             edgeDetection->bind( randTexture, 1 );
+            transformationShader->eraseDefine( "SCALARDATA" );
             transformationShader->setDefine( "VECTORDATA" );
             transformation->bind( dataSetVec->getTexture()->getTexture(), 0 );
         }
@@ -366,8 +368,10 @@ void WMImageSpaceLIC::moduleMain()
 
             // prepare offscreen render chain
             edgeDetection->bind( randTexture, 1 );
+            transformationShader->eraseDefine( "VECTORDATA" );
             transformationShader->setDefine( "SCALARDATA" );
             transformation->bind( dataSetScal->getTexture()->getTexture(), 0 );
+            transformation->bind( randTexture, 1 );
         }
 
         debugLog() << "Done";

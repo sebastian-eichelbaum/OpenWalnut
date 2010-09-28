@@ -35,6 +35,7 @@
  * The texture unit sampler
  */
 uniform sampler3D u_texture0Sampler;
+uniform sampler3D u_texture1Sampler;
 
 uniform sampler3D tex1;
 
@@ -49,11 +50,26 @@ uniform float u_texture0Scale;
 uniform float u_texture0Min;
 
 /**
+ * Size of input texture in pixels
+ */
+uniform int u_texture0SizeX;
+
+/**
+ * Size of input texture in pixels
+ */
+uniform int u_texture0SizeY;
+
+/**
+ * Size of input texture in pixels
+ */
+uniform int u_texture0SizeZ;
+
+/**
  * Transforms each vector on each pixel to image space.
  */
 void main()
 {
-    vec2 vecProjectedScaled;    // contains the final vector at each fragment
+    vec2 vecProjected;    // contains the final vector at each fragment
 
 #ifdef VECTORDATA
     // get the current vector at this position
@@ -66,13 +82,32 @@ void main()
     }
 
     // project the vectors to image space
-    vec2 vecProjected = projectVector( vec ).xy;
-
-    // scale it 
-    vecProjectedScaled = textureNormalize( vecProjected );
-
+    vecProjected = projectVector( vec ).xy;
+    
 #endif
 #ifdef SCALARDATA
+
+    // do central differences to get the vector
+    // project the vectors to image space
+    
+    float sx = 1.0 / u_texture0SizeX;
+    float sy = 1.0 / u_texture0SizeY;
+    float sz = 1.0 / u_texture0SizeZ;
+    float valueXP = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz + vec3( sx, 0.0, 0.0 ), u_texture0Min, u_texture0Scale ).r;
+    float valueXM = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz - vec3( sx, 0.0, 0.0 ), u_texture0Min, u_texture0Scale ).r;
+    float valueYP = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz + vec3( 0.0, sy, 0.0 ), u_texture0Min, u_texture0Scale ).r;
+    float valueYM = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz - vec3( 0.0, sy, 0.0 ), u_texture0Min, u_texture0Scale ).r;
+    float valueZP = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz + vec3( 0.0, 0.0, sz ), u_texture0Min, u_texture0Scale ).r;
+    float valueZM = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz - vec3( 0.0, 0.0, sz ), u_texture0Min, u_texture0Scale ).r;
+
+    vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM );
+
+    // zero length vectors are uninteresting. discard them
+    vecProjected = projectVector( dir ).xy;    
+    if ( isZero( length( dir ), 0.01 ) )
+    {
+        discard;
+    }
 
 #endif
 
@@ -80,7 +115,9 @@ void main()
     // TODO(ebaum): material properties should be used instead
     float light = blinnPhongIlluminationIntensity( 0.5, 0.3, 0.3, 10.0, 1.0, 0.5, v_normal, v_viewDir, v_lightSource );
     
-    gl_FragData[0] = vec4( vecProjectedScaled, light, 1.0 );
+    float noise = texture3D( u_texture1Sampler, gl_TexCoord[0].xyz ).r;
+
+    gl_FragData[0] = vec4( textureNormalize( vecProjected ), noise, 1.0 );
     gl_FragData[1] = vec4( texture3D( tex1, gl_TexCoord[0].xyz ).rgb , 1.0 );
 
 }
