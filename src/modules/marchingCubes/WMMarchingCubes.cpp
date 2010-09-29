@@ -66,6 +66,7 @@ WMMarchingCubes::WMMarchingCubes():
     m_shaderUseLighting( false ),
     m_shaderUseTransparency( false ),
     m_moduleNode( new WGEGroupNode() ),
+    m_moduleNodeInserted( false ),
     m_surfaceGeode( 0 )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -312,7 +313,6 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
 
 void WMMarchingCubes::renderMesh()
 {
-//    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()
     m_moduleNode->remove( m_surfaceGeode );
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
