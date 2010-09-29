@@ -25,19 +25,17 @@
 #include "WGaussProcess.h"
 
 WGaussProcess::WGaussProcess()
+    : m_CffInverse( 0, 0 )
 {
 }
 
-WGaussProcess::WGaussProcess( const wmath::WFiber& tract, const WDataSetDTI& tensors )
+WGaussProcess::WGaussProcess( const wmath::WFiber& tract, boost::shared_ptr< const WDataSetDTI > tensors )
+    : m_tensors( tensors ),
+      m_tract( tract ),
+      m_CffInverse( tract.size(), 0.0 )
 {
 }
 
 WGaussProcess::~WGaussProcess()
 {
-}
-
-WGaussProcess WGaussProcess::operator+( const WGaussProcess& other ) const
-{
-    WGaussProcess result;
-    return result;
 }
