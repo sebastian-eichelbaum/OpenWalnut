@@ -28,6 +28,7 @@
 #include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataTexture3D.h"
 
 #include "WMDerive.h"
 #include "WMDerive.xpm"
@@ -82,6 +83,11 @@ void WMDerive::connectors()
 
 void WMDerive::properties()
 {
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    // normalizing?
+    m_normalize = m_properties->addProperty( "Normalize", "If true, vectors get normalized.", true );
+
     // call WModule's initialization
     WModule::properties();
 }
@@ -91,6 +97,8 @@ void WMDerive::moduleMain()
     // get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_scalarIn->getDataChangedCondition() );
+    // Remember the condition provided to some properties in properties()? The condition can now be used with this condition set.
+    m_moduleState.add( m_propCondition );
 
     ready();
 
@@ -107,7 +115,7 @@ void WMDerive::moduleMain()
         }
 
         // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_scalarIn->handledUpdate();
+        bool dataUpdated = m_scalarIn->handledUpdate() || m_normalize->changed();
         boost::shared_ptr< WDataSetScalar > dataSet = m_scalarIn->getData();
 
         bool dataValid = ( dataSet );
@@ -182,13 +190,76 @@ void WMDerive::moduleMain()
     }
 }
 
+size_t getId( size_t xDim, size_t yDim, size_t /*zDim*/, size_t x, size_t y, size_t z, size_t offset = 0, size_t elements = 1 )
+{
+    return offset + ( elements * ( z * xDim * yDim + y * xDim + x ) );
+}
+
 template< typename T >
 void WMDerive::derive( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WValueSet< T > > values )
 {
-    boost::shared_ptr< WValueSet< double > > vectors;
+    size_t nX = grid->getNbCoordsX();
+    size_t nY = grid->getNbCoordsY();
+    size_t nZ = grid->getNbCoordsZ();
 
+    std::vector< double > vectors( 3 * nX * nY * nZ, 0.0 );
 
+    // iterate field
+    for( size_t z = 1; z < nZ - 1; z++ )
+    {
+        for( size_t y = 1; y < nY - 1; y++ )
+        {
+            for( size_t x = 1; x < nX - 1; x++ )
+            {
+                // TODO(ebaum): improve performance
+                // this loop should be quite slow but it works for now. Sorry.
+                float xp = values->getScalar( getId( nX, nY, nZ, x + 1, y, z ) );
+                float xm = values->getScalar( getId( nX, nY, nZ, x - 1, y, z ) );
+                float yp = values->getScalar( getId( nX, nY, nZ, x, y + 1, z ) );
+                float ym = values->getScalar( getId( nX, nY, nZ, x, y - 1, z ) );
+                float zp = values->getScalar( getId( nX, nY, nZ, x, y, z + 1 ) );
+                float zm = values->getScalar( getId( nX, nY, nZ, x, y, z - 1 ) );
 
-    //m_vectorOut->updateData( boost::shared_ptr< WDataSetVector >( new WDataSetVector( vectors, grid ) ) );
+                float vx = xp - xm;
+                float vy = yp - ym;
+                float vz = zp - zm;
+
+                float sqsum = vx * vx + vy * vy + vz * vz;
+                float len = sqrt( sqsum );
+                float scal = m_normalize->get( true ) ? 1.0 / len : 1.0;
+                if ( len == 0.0 )
+                    scal = 0.0;
+
+                vectors[ getId( nX, nY, nZ, x, y, z, 0, 3 ) ] = scal * vx;
+                vectors[ getId( nX, nY, nZ, x, y, z, 1, 3 ) ] = scal * vy;
+                vectors[ getId( nX, nY, nZ, x, y, z, 2, 3 ) ] = scal * vz;
+            }
+        }
+    }
+
+    // de-register at datahandler
+    if ( m_lastOutputDataSet )
+    {
+        WDataHandler::deregisterDataSet( m_lastOutputDataSet );
+    }
+
+    boost::shared_ptr< WValueSet< double > > valueset = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 1, 3, vectors, W_DT_DOUBLE ) );
+    m_lastOutputDataSet = boost::shared_ptr< WDataSetVector >( new WDataSetVector( valueset, grid ) );
+
+    // register new
+    WDataHandler::registerDataSet( m_lastOutputDataSet );
+    m_vectorOut->updateData( m_lastOutputDataSet );
+}
+
+void WMDerive::activate()
+{
+    // deactivate the output if wanted
+    if ( m_lastOutputDataSet )
+    {
+        m_lastOutputDataSet->getTexture()->setGloballyActive( m_active->get( true ) );
+    }
+
+    // Always call WModule's activate!
+    WModule::activate();
 }
 
