@@ -76,25 +76,36 @@ void main()
     vec2 vec    = ( 2.0 * ( texture2D( u_texture0Sampler, texCoord ).rg - vec2( 0.5, 0.5 ) ) );
 
     // simply iterate along the line using the vector at each point
-    vec2 lastVec = vec;
-    vec2 lastPos = gl_TexCoord[0].st;
+    vec2 lastVec1 = vec;
+    vec2 lastPos1 = gl_TexCoord[0].st;
+    vec2 lastVec2 = vec;
+    vec2 lastPos2 = gl_TexCoord[0].st;
     float sum = 0.0;
+    int m = 2 * u_numIter;
     for ( int i = 0; i < u_numIter; ++i )
     {
-        vec2 newPos = lastPos - vec2( lastVec.x / ( 2.0 * u_texture0SizeX), lastVec.y / ( 2.0 * u_texture0SizeY) );
-        vec2 newVec = ( 2.0 * ( texture2D( u_texture0Sampler, newPos ).rg - vec2( 0.5, 0.5 ) ) );
-        if ( length( newVec ) < 0.01 )
+        vec2 newPos1 = lastPos1 + vec2( lastVec1.x / ( 2.0 * u_texture0SizeX), lastVec1.y / ( 2.0 * u_texture0SizeY ) );
+        vec2 newPos2 = lastPos2 - vec2( lastVec2.x / ( 2.0 * u_texture0SizeX), lastVec2.y / ( 2.0 * u_texture0SizeY ) );
+        vec2 newVec1 = ( 2.0 * ( texture2D( u_texture0Sampler, newPos1 ).rg - vec2( 0.5, 0.5 ) ) );
+        vec2 newVec2 = ( 2.0 * ( texture2D( u_texture0Sampler, newPos2 ).rg - vec2( 0.5, 0.5 ) ) );
+        if ( ( length( newVec1 ) < 0.01 ) || ( length( newVec2 )  < 0.01 ) )
+        {
+            m = 2 * i;
             break;
+        }
 
         // it is also possible to scale using a Geometric progression: float( u_numIter - i ) / u_numIter * texture2D
-        sum += texture2D( u_texture1Sampler, newPos ).b;
+        sum += texture2D( u_texture1Sampler, newPos1 ).b;
+        sum += texture2D( u_texture1Sampler, newPos2 ).b;
 
-        lastPos = newPos;
-        lastVec = newVec;
+        lastPos1 = newPos1;
+        lastVec1 = newVec1;
+        lastPos2 = newPos2;
+        lastVec2 = newVec2;
     }
 
     // the sum needs to be scaled to [0,1] again
-    float n = ( sum ) / float( u_numIter );
+    float n = sum / float( m );
     if ( depth > 0.99 )
     {
         n = noise;

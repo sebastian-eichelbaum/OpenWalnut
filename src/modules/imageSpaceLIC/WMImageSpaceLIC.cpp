@@ -105,7 +105,11 @@ void WMImageSpaceLIC::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_sliceGroup      = m_properties->addPropertyGroup( "Slices",  "Slice based LIC." );
+    m_geometryGroup   = m_properties->addPropertyGroup( "Geometry",  "Selection of used geometry to apply LIC to." );
+
+    m_useSlices       = m_geometryGroup->addProperty( "Use Slices", "Show vectors on slices.", true, m_propCondition );
+
+    m_sliceGroup      = m_geometryGroup->addPropertyGroup( "Slices",  "Slice based LIC." );
 
     // enable slices
     // Flags denoting whether the glyphs should be shown on the specific slice
@@ -134,7 +138,7 @@ void WMImageSpaceLIC::properties()
 
     m_useEdges       = m_licGroup->addProperty( "Edges", "Check to enable blending in edges.", true );
 
-    m_numIters     = m_licGroup->addProperty( "Number of Iterations", "How much iterations along a streamline should be done per frame.", 50 );
+    m_numIters     = m_licGroup->addProperty( "Number of Iterations", "How much iterations along a streamline should be done per frame.", 30 );
     m_numIters->setMin( 1 );
     m_numIters->setMax( 100 );
 
@@ -146,47 +150,55 @@ void WMImageSpaceLIC::properties()
     WModule::properties();
 }
 
-void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid )
+void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WTriangleMesh2 > mesh )
 {
     // remove the old slices
-    m_output->remove( m_xSlice );
-    m_output->remove( m_ySlice );
-    m_output->remove( m_zSlice );
+    m_output->clear();
 
-    // we want the tex matrix for each slice to be modified too,
-    osg::ref_ptr< osg::TexMat > texMat;
+    if ( mesh && !m_useSlices->get( true ) )
+    {
+        // we have a mesh and want to use it
 
-    // create all the transformation nodes
-    m_xSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonX ) );
-    m_ySlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonY ) );
-    m_zSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonZ ) );
+    }
+    else
+    {
+        m_useSlices->set( true );   // there is no mesh -> use slices
 
-    texMat = new osg::TexMat();
-    m_xSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos, texMat ) );
-    m_xSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
+        // we want the tex matrix for each slice to be modified too,
+        osg::ref_ptr< osg::TexMat > texMat;
 
-    texMat = new osg::TexMat();
-    m_ySlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos, texMat ) );
-    m_ySlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
+        // create all the transformation nodes
+        m_xSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonX ) );
+        m_ySlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonY ) );
+        m_zSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonZ ) );
 
-    texMat = new osg::TexMat();
-    m_zSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos, texMat ) );
-    m_zSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
+        texMat = new osg::TexMat();
+        m_xSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos, texMat ) );
+        m_xSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
 
-    // create a new geode containing the slices
-    m_xSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
-                                                                grid->getNbCoordsZ() * grid->getDirectionZ() ) );
+        texMat = new osg::TexMat();
+        m_ySlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos, texMat ) );
+        m_ySlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
 
-    m_ySlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
-                                                                grid->getNbCoordsZ() * grid->getDirectionZ() ) );
+        texMat = new osg::TexMat();
+        m_zSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos, texMat ) );
+        m_zSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
 
-    m_zSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
-                                                                grid->getNbCoordsY() * grid->getDirectionY() ) );
+        // create a new geode containing the slices
+        m_xSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
+                                                                    grid->getNbCoordsZ() * grid->getDirectionZ() ) );
 
-    // add the transformation nodes to the output group
-    m_output->insert( m_xSlice );
-    m_output->insert( m_ySlice );
-    m_output->insert( m_zSlice );
+        m_ySlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
+                                                                    grid->getNbCoordsZ() * grid->getDirectionZ() ) );
+
+        m_zSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
+                                                                    grid->getNbCoordsY() * grid->getDirectionY() ) );
+
+        // add the transformation nodes to the output group
+        m_output->insert( m_xSlice );
+        m_output->insert( m_ySlice );
+        m_output->insert( m_zSlice );
+    }
 }
 
 void WMImageSpaceLIC::moduleMain()
@@ -327,12 +339,14 @@ void WMImageSpaceLIC::moduleMain()
         }
 
         // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_vectorsIn->handledUpdate() || m_scalarIn->handledUpdate();
+        bool dataUpdated = m_vectorsIn->handledUpdate() || m_scalarIn->handledUpdate() || m_meshIn->handledUpdate();
+        bool propertyUpdated = m_useSlices->changed();
         boost::shared_ptr< WDataSetVector > dataSetVec = m_vectorsIn->getData();
         boost::shared_ptr< WDataSetScalar > dataSetScal = m_scalarIn->getData();
+        boost::shared_ptr< WTriangleMesh2 > mesh = m_meshIn->getData();
 
         bool dataValid = ( dataSetVec || dataSetScal );
-        if ( !dataValid || ( dataValid && !dataUpdated ) )
+        if ( !dataValid || ( dataValid && !dataUpdated && !propertyUpdated ) )
         {
             continue;
         }
@@ -347,7 +361,7 @@ void WMImageSpaceLIC::moduleMain()
             m_xPos->setMax( grid->getNbCoordsX() - 1 );
             m_yPos->setMax( grid->getNbCoordsY() - 1 );
             m_zPos->setMax( grid->getNbCoordsZ() - 1 );
-            initOSG( grid );
+            initOSG( grid, mesh );
 
             // prepare offscreen render chain
             edgeDetection->bind( randTexture, 1 );
@@ -364,7 +378,7 @@ void WMImageSpaceLIC::moduleMain()
             m_xPos->setMax( grid->getNbCoordsX() - 1 );
             m_yPos->setMax( grid->getNbCoordsY() - 1 );
             m_zPos->setMax( grid->getNbCoordsZ() - 1 );
-            initOSG( grid );
+            initOSG( grid, mesh );
 
             // prepare offscreen render chain
             edgeDetection->bind( randTexture, 1 );

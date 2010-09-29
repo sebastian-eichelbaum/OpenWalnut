@@ -104,8 +104,9 @@ private:
      * Initializes the needed geodes, transformations and vertex arrays. This needs to be done once for each new dataset.
      *
      * \param grid the grid to places the slices in
+     * \param mesh the mesh to use if not NULL and m_useSlices is false
      */
-    void initOSG( boost::shared_ptr< WGridRegular3D > grid );
+    void initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WTriangleMesh2 > mesh );
 
     /**
      * The input connector containing the vector field.
@@ -159,7 +160,11 @@ private:
 
     WPropGroup    m_sliceGroup; //!< the group contains several slice properties
 
+    WPropGroup    m_geometryGroup; //!< the group contains several input geometry parameters
+
     WPropGroup    m_licGroup; //!< the group contains several LIC properties
+
+    WPropBool     m_useSlices; //!< indicates whether the vector should be shown on slices or input geometry
 
     WPropInt      m_xPos; //!< x position of the slice
 
