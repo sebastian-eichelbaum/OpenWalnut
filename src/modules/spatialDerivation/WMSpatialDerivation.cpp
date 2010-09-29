@@ -69,11 +69,10 @@ const std::string WMSpatialDerivation::getDescription() const
 void WMSpatialDerivation::connectors()
 {
     // the dataset to process. Only accept scalar data.
-
-   // vector input
     m_scalarIn = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "scalars", "The scalar dataset."
                                                                                                     "Needs to be in the same grid as the mesh." );
 
+    // output vector data
     m_vectorOut = WModuleOutputData< WDataSetVector >::createAndAdd( shared_from_this(), "derived", "The vector dataset representing spatial"
                                                                                                     " derivate of the input field." );
 
@@ -243,7 +242,9 @@ void WMSpatialDerivation::derive( boost::shared_ptr< WGridRegular3D > grid, boos
         WDataHandler::deregisterDataSet( m_lastOutputDataSet );
     }
 
-    boost::shared_ptr< WValueSet< double > > valueset = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 1, 3, vectors, W_DT_DOUBLE ) );
+    boost::shared_ptr< WValueSet< double > > valueset = boost::shared_ptr< WValueSet< double > >(
+                                                            new WValueSet< double >( 1, 3, vectors, W_DT_DOUBLE )
+                                                        );
     m_lastOutputDataSet = boost::shared_ptr< WDataSetVector >( new WDataSetVector( valueset, grid ) );
 
     // register new

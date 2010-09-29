@@ -157,29 +157,30 @@ void WMHistogramEqualization::properties()
 void WMHistogramEqualization::propertyChanged( boost::shared_ptr< WPropertyBase > property )
 {
     if ( !m_lastOutputDataSet )
+    {
         return;
+    }
 
-        if ( property == m_threshold )
-        {
-            m_lastOutputDataSet->getTexture()->setThreshold( m_threshold->get() );
-        }
-        else if ( property == m_opacity )
-        {
-            m_lastOutputDataSet->getTexture()->setOpacity( m_opacity->get() );
-        }
-        else if ( property == m_active )
-        {
-            m_lastOutputDataSet->getTexture()->setGloballyActive( m_active->get() );
-        }
-        else if ( property == m_interpolation )
-        {
-            m_lastOutputDataSet->getTexture()->setInterpolation( m_interpolation->get() );
-        }
-        else if ( property == m_colorMapSelection )
-        {
-            m_lastOutputDataSet->getTexture()->setSelectedColormap( m_colorMapSelection->get( true ).getItemIndexOfSelected( 0 ) );
-        }
-
+    if ( property == m_threshold )
+    {
+        m_lastOutputDataSet->getTexture()->setThreshold( m_threshold->get() );
+    }
+    else if ( property == m_opacity )
+    {
+        m_lastOutputDataSet->getTexture()->setOpacity( m_opacity->get() );
+    }
+    else if ( property == m_active )
+    {
+        m_lastOutputDataSet->getTexture()->setGloballyActive( m_active->get() );
+    }
+    else if ( property == m_interpolation )
+    {
+        m_lastOutputDataSet->getTexture()->setInterpolation( m_interpolation->get() );
+    }
+    else if ( property == m_colorMapSelection )
+    {
+        m_lastOutputDataSet->getTexture()->setSelectedColormap( m_colorMapSelection->get( true ).getItemIndexOfSelected( 0 ) );
+    }
 }
 
 void WMHistogramEqualization::moduleMain()

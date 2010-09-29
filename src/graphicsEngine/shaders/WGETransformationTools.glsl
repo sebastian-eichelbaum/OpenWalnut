@@ -59,7 +59,7 @@ vec3 projectVector( vec4 vector )
     vec.w = 0.0;    // ensure w is zero
 
     vec4 vecP = gl_ModelViewProjectionMatrix * vec;
-   
+
     return vecP.xyz;
 }
 

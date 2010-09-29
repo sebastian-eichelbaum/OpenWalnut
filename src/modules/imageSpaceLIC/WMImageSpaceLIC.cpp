@@ -185,7 +185,7 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
 
         // render
         surfaceGeode->addDrawable( surfaceGeometry );
-        m_output->insert( surfaceGeode ) ;
+        m_output->insert( surfaceGeode );
     }
     else
     {
@@ -255,7 +255,7 @@ void WMImageSpaceLIC::moduleMain()
         {
             // - stylechecker says "use rand_r" but I am not sure about portability.
             unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
-            randomLuminance[ ( y * resX ) + x ] = r;// > 150 ? 255 : ( r < 100 ? 0 : r );
+            randomLuminance[ ( y * resX ) + x ] = r; // > 150 ? 255 : ( r < 100 ? 0 : r );
         }
     }
 

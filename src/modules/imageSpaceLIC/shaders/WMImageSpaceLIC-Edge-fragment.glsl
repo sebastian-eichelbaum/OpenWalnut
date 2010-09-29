@@ -60,9 +60,9 @@ void main()
     // Get surrounding texels; needed for ALL filters
     /////////////////////////////////////////////////////////////////////////////////////////////
 
-    // get data of surrounding textels    
+    // get data of surrounding textels
     float offsetW = 2.0 / u_texture0SizeX;
-    float offsetH = 2.0 / u_texture0SizeY; 
+    float offsetH = 2.0 / u_texture0SizeY;
 
     vec2 texCoord = gl_TexCoord[0].st;
     vec4 c  = texture2D( u_texture0Sampler, texCoord );
@@ -82,8 +82,8 @@ void main()
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // laplace filter kernel
-    gl_FragColor = vec4( 
-        10.0 * abs( 
+    gl_FragColor = vec4(
+        10.0 * abs(
             0.0 * tl +  1.0 * t + 0.0 * tr +
             1.0 * l  + -4.0 * c + 1.0 * r  +
             0.0 * bl +  1.0 * b + 0.0 * br

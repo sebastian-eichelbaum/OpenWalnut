@@ -163,7 +163,7 @@ private:
      */
     WPropGroup m_equalizing;
 
-    // TODO(ebaum): sauber machen
+    // TODO(ebaum): cleanup -> belongs to some central place
     /**
      * grouping the texture display properties
      */

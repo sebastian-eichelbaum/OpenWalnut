@@ -75,9 +75,9 @@ vec4 blinnPhongIllumination( vec3 ambient, vec3 diffuse, vec3 specular, float sh
  *
  * \return the light intensity.
  */
-float blinnPhongIlluminationIntensity(float ambient, float diffuse, float specular, float shininess,
-                                      float lightIntensity, float ambientIntensity,
-                                      vec3 normalDir, vec3 viewDir, vec3 lightDir )
+float blinnPhongIlluminationIntensity( float ambient, float diffuse, float specular, float shininess,
+                                       float lightIntensity, float ambientIntensity,
+                                       vec3 normalDir, vec3 viewDir, vec3 lightDir )
 {
   vec3 H =  normalize( lightDir + viewDir );
 

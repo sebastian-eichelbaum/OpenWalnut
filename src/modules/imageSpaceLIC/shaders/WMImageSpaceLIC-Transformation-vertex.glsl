@@ -43,7 +43,7 @@ void main()
     vec4 lpos = gl_LightSource[0].position; // this simply doesn't work well with OSG
     lpos = vec4( 0.0, 0.0, 1000.0, 1.0 );
     v_lightSource = worldToLocal( lpos ).xyz;
- 
+
     // transform the view direction to texture space, which equals object space
     // Therefore use two points, as we transform a vector
     vec4 camLookAt = vec4( 0.0, 0.0, -1.0, 1.0 );

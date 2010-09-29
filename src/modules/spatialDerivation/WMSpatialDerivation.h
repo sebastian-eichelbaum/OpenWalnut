@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDERIVE_H
-#define WMDERIVE_H
+#ifndef WMSPATIALDERIVATION_H
+#define WMSPATIALDERIVATION_H
 
 #include <string>
 
@@ -139,5 +139,5 @@ private:
     void derive( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WValueSet< T > > values );
 };
 
-#endif  // WMDERIVE_H
+#endif  // WMSPATIALDERIVATION_H
 

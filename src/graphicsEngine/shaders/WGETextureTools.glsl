@@ -58,14 +58,14 @@ vec4 texture2DUnscaled( sampler2D texture, vec2 point, float minimum, float scal
 
 /**
  * Grabs and unscales the value inside the texture and returns it.
- * 
+ *
  * \param texture the texture unit to use
  * \param point   the texture coordinates
  * \param minimum the minumum value of all values inside the texture
  * \param scale   the scaling value for all values inside the texture
  *
  * \note The minimum and scale values are normally transferred to the shader using uniforms, as the CPU scales the textures
- * 
+ *
  * \return the value at the given point
  */
 vec4 texture1DUnscaled( sampler1D texture, float point, float minimum, float scale )
@@ -97,7 +97,7 @@ vec4 textureNormalize( vec4 point )
  */
 vec3 textureNormalize( vec3 point )
 {
-    float maxC = max( abs( point.x), max( abs( point.y ), abs( point.z ) ) );
+    float maxC = max( abs( point.x ), max( abs( point.y ), abs( point.z ) ) );
     return 0.5 + ( 0.5 * point / maxC );
 }
 
