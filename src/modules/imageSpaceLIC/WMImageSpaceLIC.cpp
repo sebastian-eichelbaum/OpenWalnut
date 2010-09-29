@@ -159,6 +159,33 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
     {
         // we have a mesh and want to use it
 
+        // create geometry and geode
+        osg::Geometry* surfaceGeometry = new osg::Geometry();
+        osg::ref_ptr< osg::Geode > surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+
+        surfaceGeometry->setVertexArray( mesh->getVertexArray() );
+        osg::DrawElementsUInt* surfaceElement;
+        surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
+        std::vector< size_t > tris = mesh->getTriangles();
+        surfaceElement->reserve( tris.size() );
+        for( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
+        {
+            surfaceElement->push_back( tris[vertId] );
+        }
+        surfaceGeometry->addPrimitiveSet( surfaceElement );
+
+
+        // normals
+        surfaceGeometry->setNormalArray( mesh->getVertexNormalArray() );
+        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+
+        // texture coordinates
+        surfaceGeometry->setNormalArray( mesh->getVertexNormalArray() );
+        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+
+        // render
+        surfaceGeode->addDrawable( surfaceGeometry );
+        m_output->insert( surfaceGeode ) ;
     }
     else
     {
