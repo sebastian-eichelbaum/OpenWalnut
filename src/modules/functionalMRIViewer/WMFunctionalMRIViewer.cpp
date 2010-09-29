@@ -71,7 +71,12 @@ void WMFunctionalMRIViewer::connectors()
                                 "in", "A time series." )
             );
 
+    m_output = boost::shared_ptr< WModuleOutputData< WDataSetScalar > >(
+                            new WModuleOutputData< WDataSetScalar >( shared_from_this(),
+                                "out", "The selected time slice." ) );
+
     addConnector( m_input );
+    addConnector( m_output );
 
     WModule::connectors();
 }
@@ -103,7 +108,7 @@ void WMFunctionalMRIViewer::moduleMain()
 
         boost::shared_ptr< WDataSetTimeSeries > inData = m_input->getData();
         bool dataChanged = ( m_dataSet != inData );
-        if( dataChanged && inData )
+        if( ( dataChanged && inData ) || ( m_dataSet && m_time->changed() ) )
         {
             // remove old texture
             if( m_dataSetAtTime )
@@ -115,9 +120,7 @@ void WMFunctionalMRIViewer::moduleMain()
             m_time->setMin( m_dataSet->getMinTime() );
             m_time->setMax( m_dataSet->getMaxTime() );
             m_time->ensureValidity( m_dataSet->getMinTime() );
-        }
-        if( m_dataSet )
-        {
+
             float time = m_time->get( true );
             if( m_dataSetAtTime )
             {
@@ -134,6 +137,13 @@ void WMFunctionalMRIViewer::moduleMain()
                 m_dataSetAtTime->getTexture()->setMaxValue( static_cast< float >( m_dataSet->getMaxValue() ) );
             }
             WDataHandler::registerDataSet( m_dataSetAtTime );
+            m_output->updateData( m_dataSetAtTime );
         }
+    }
+
+    if( m_dataSetAtTime )
+    {
+        WDataHandler::deregisterDataSet( m_dataSetAtTime );
+        m_dataSetAtTime = boost::shared_ptr< WDataSetScalar >();
     }
 }

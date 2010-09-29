@@ -391,7 +391,6 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int 
 
 void WDataTexture3D::createTexture()
 {
-    //wlog::debug( "WDataTexture3D" ) << "Creating texture, min/max is " << m_minValue << "/" << m_maxValue;
     WAssert( m_minValue <= m_maxValue, "" );
     boost::unique_lock< boost::shared_mutex > lock( m_creationLock );
     if ( !m_texture )
@@ -481,11 +480,13 @@ float WDataTexture3D::getMaxValue()
 void WDataTexture3D::setMinValue( float min )
 {
     m_minValue = min;
+    m_scale = m_maxValue - m_minValue;
 }
 
 void WDataTexture3D::setMaxValue( float max )
 {
     m_maxValue = max;
+    m_scale = m_maxValue - m_minValue;
 }
 
 float WDataTexture3D::getMinMaxScale()
@@ -497,7 +498,7 @@ float WDataTexture3D::getMinMaxScale()
 float WDataTexture3D::scaleInterval( float value ) const
 {
     //return value;
-    return ( value - m_minValue ) / m_scale;
+    return ( std::min( std::max( value, m_minValue ), m_maxValue ) - m_minValue ) / m_scale;
 }
 
 bool WDataTexture3D::isInterpolated()

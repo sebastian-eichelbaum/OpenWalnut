@@ -87,6 +87,14 @@ void WMImageExtractor::properties()
     m_selectedImage->setMin( 0 );
     m_selectedImage->setMax( 0 );
 
+    m_minValuePct = m_properties->addProperty( "Min %", "The data value percent that maps to 0.0 in the texture.", 0.0, m_propCondition );
+    m_minValuePct->setMin( 0.0 );
+    m_minValuePct->setMax( 100.0 );
+
+    m_maxValuePct = m_properties->addProperty( "Max %", "The data value percent that maps to 1.0 in the texture.", 100.0, m_propCondition );
+    m_maxValuePct->setMin( 0.0 );
+    m_maxValuePct->setMax( 100.0 );
+
     // these are taken from WMData
     m_interpolation = m_properties->addProperty( "Interpolation",
                                                   "If active, the boundaries of single voxels"
@@ -147,7 +155,7 @@ void WMImageExtractor::moduleMain()
 
         if( dataValid )
         {
-            if( dataChanged || m_selectedImage->changed() )
+            if( dataChanged || m_selectedImage->changed() || m_minValuePct->changed() || m_maxValuePct->changed() )
             {
                 m_dataSet = newDataSet;
                 WAssert( m_dataSet, "" );
@@ -173,9 +181,9 @@ void WMImageExtractor::moduleMain()
                 {
                     if( m_outData != oldOut )
                     {
-                        m_threshold->setMin( m_outData->getMin() );
+                        m_threshold->setMin( m_outData->getMin() - 1 );
                         m_threshold->setMax( m_outData->getMax() );
-                        m_threshold->set( m_outData->getMin() );
+                        m_threshold->set( m_outData->getMin() - 1 );
                     }
 
                     setOutputProps();
@@ -372,9 +380,16 @@ void WMImageExtractor::setOutputProps()
 {
     if( m_outData )
     {
-        m_outData->getTexture()->setThreshold( m_threshold->get() );
-        m_outData->getTexture()->setOpacity( m_opacity->get() );
-        m_outData->getTexture()->setInterpolation( m_interpolation->get() );
+        double min = m_outData->getMin();
+        double max = m_outData->getMax();
+        float fmin = static_cast< float >( min + ( max - min ) * m_minValuePct->get( true ) * 0.01 );
+        float fmax = static_cast< float >( min + ( max - min ) * m_maxValuePct->get( true ) * 0.01 );
+
+        m_outData->getTexture()->setMinValue( fmin );
+        m_outData->getTexture()->setMaxValue( std::max( fmax, fmin + 1.0f ) );
+        m_outData->getTexture()->setThreshold( m_threshold->get( true ) );
+        m_outData->getTexture()->setOpacity( m_opacity->get( true ) );
+        m_outData->getTexture()->setInterpolation( m_interpolation->get( true ) );
         m_outData->getTexture()->setSelectedColormap( m_colorMapSelection->get( true ).getItemIndexOfSelected( 0 ) );
     }
 }
