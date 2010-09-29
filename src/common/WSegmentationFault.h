@@ -48,16 +48,16 @@ template <class SignalExceptionClass> class SignalTranslator
 public:
     SignalTranslator()
     {
-        static SingleTonTranslator s_objTranslator;
+        static SingletonTranslator s_objTranslator;
     }
 
 protected:
 
 private:
-    class SingleTonTranslator
+    class SingletonTranslator
     {
     public:  // NOLINT
-        SingleTonTranslator()
+        SingletonTranslator()
         {
             signal( SignalExceptionClass::getSignalNumber(), SignalHandler );
         }
