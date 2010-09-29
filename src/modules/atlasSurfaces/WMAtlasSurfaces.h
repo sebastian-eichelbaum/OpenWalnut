@@ -146,23 +146,12 @@ private:
      */
     void loadLabels( std::string fileName );
 
-    /**
-     * This function takes a dataset and marksvoxel with the specified number, all other voxel will be unmarked
-     *
-     * \param inGrid
-     * \param vals
-     * \param number
-     */
-    template< typename T > std::vector< float > cutArea( boost::shared_ptr< WGrid > inGrid,
-            boost::shared_ptr< WValueSet< T > > vals, unsigned int number );
 
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
 
     boost::shared_ptr< const WDataSetScalar > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
 
-    std::vector< size_t >m_regionMeshIds; //!< stores the real id of a mesh, needed if the dataset contains unused numbers
-
-    std::vector< boost::shared_ptr< WTriangleMesh2 > >m_regionMeshes; //!< stores pointers to all triangle meshes
+    boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh2 > > >m_regionMeshes2; //!< stores pointers to all triangle meshes
 
     std::map< size_t, std::pair< std::string, std::string > >m_labels; //!< the labels with their id
 
