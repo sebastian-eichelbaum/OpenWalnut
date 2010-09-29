@@ -50,7 +50,7 @@
 #include "WRasterAlgorithm.h"
 #include "WIntegrationParameterization.h"
 #include "WCenterlineParameterization.h"
-#include "voxelizer.xpm"
+#include "WMVoxelizer.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMVoxelizer )
@@ -168,6 +168,8 @@ void WMVoxelizer::properties()
     m_fiberTransparency->setMin( 0.0 );
     m_fiberTransparency->setMax( 1.0 );
     m_explicitFiberColor = m_properties->addProperty( "Explicit Fiber Color", "", WColor( 0.2, 0.2, 0.2 ), m_fullUpdate );
+
+    WModule::properties();
 }
 
 void WMVoxelizer::activate()
@@ -409,7 +411,7 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
 void WMVoxelizer::connectors()
 {
     typedef WModuleInputData< const WFiberCluster > InputType; // just an alias
-    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "voxelInput", "A loaded dataset with grid." ) );
+    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "Tracts", "A cluster of tracts." ) );
     addConnector( m_input );
 
     typedef WModuleOutputData< WDataSetScalar > OutputType; // just an alias

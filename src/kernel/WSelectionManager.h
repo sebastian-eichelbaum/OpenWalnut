@@ -124,9 +124,73 @@ public:
      */
     void setTextureOpacity( float value );
 
+    /**
+     * setter
+     * \param prop
+     */
+    void setPropAxialPos( WPropInt prop );
+
+    /**
+     * setter
+     * \param prop
+     */
+    void setPropCoronalPos( WPropInt prop );
+
+    /**
+     * setter
+     * \param prop
+     */
+    void setPropSagittalPos( WPropInt prop );
+
+    /**
+     * getter
+     * \return property
+     */
+    WPropInt getPropAxialPos();
+
+    /**
+     * getter
+     * \return property
+     */
+    WPropInt getPropCoronalPos();
+
+    /**
+     * getter
+     * \return property
+     */
+    WPropInt getPropSagittalPos();
+
+    /**
+     * setter for the shader index to be used with the custom texture
+     * \param shader the index of the shader
+     */
+    void setShader( int shader );
+
+    /**
+     * getter
+     * \return shader index
+     */
+    int getShader();
+
 protected:
 private:
     boost::shared_ptr< WCrosshair >m_crosshair; //!< stores pointer to crosshair
+
+    /**
+     * Axial slice position.
+     */
+    WPropInt m_axialPos;
+
+    /**
+     * Coronal slice position.
+     */
+    WPropInt m_coronalPos;
+
+    /**
+     * Sagittal slice position.
+     */
+    WPropInt m_sagittalPos;
+
 
     WPaintMode m_paintMode; //!< stores the currently selected paint mode
 
@@ -150,6 +214,11 @@ private:
      * flag indicating if this additional texture should be used.
      */
     bool m_useTexture;
+
+    /**
+     * index of the shader to use with the texture
+     */
+    int m_shader;
 };
 
 #endif  // WSELECTIONMANAGER_H

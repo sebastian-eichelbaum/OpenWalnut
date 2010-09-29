@@ -27,6 +27,7 @@
 
 #include "WDataSetSingle.h"
 #include "../common/WLogger.h"
+#include "../common/WLimits.h"
 #include "../common/WCondition.h"
 
 #include "../graphicsEngine/WGEScaledTexture.h"
@@ -52,6 +53,12 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost
     wlog::debug( "WDataTexture3D" ) << "Texture scaling information for data in [" << m_minValue << ", "<< m_maxValue <<
                                        "]: scaling factor=" << m_scale;
     wlog::debug( "WDataTexture3D" ) << "Resolution is " <<  m_grid->getNbCoordsX() << "x" << m_grid->getNbCoordsY() << "x" << m_grid->getNbCoordsZ();
+    WAssert( m_grid->getNbCoordsX() <= wlimits::MAX_TEXTURE_DIMENSION, "Cannot create a texture with more"
+                                                                       " than 2048 pixels/voxels in one dimension." );
+    WAssert( m_grid->getNbCoordsY() <= wlimits::MAX_TEXTURE_DIMENSION, "Cannot create a texture with more"
+                                                                       " than 2048 pixels/voxels in one dimension." );
+    WAssert( m_grid->getNbCoordsZ() <= wlimits::MAX_TEXTURE_DIMENSION, "Cannot create a texture with more"
+                                                                       " than 2048 pixels/voxels in one dimension." );
 }
 
 WDataTexture3D::~WDataTexture3D()
@@ -380,7 +387,6 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int 
 
 void WDataTexture3D::createTexture()
 {
-    wlog::debug( "WDataTexture3D" ) << "Creating texture, min/max is " << m_minValue << "/" << m_maxValue;
     WAssert( m_minValue <= m_maxValue, "" );
     boost::unique_lock< boost::shared_mutex > lock( m_creationLock );
     if ( !m_texture )
@@ -471,11 +477,13 @@ float WDataTexture3D::getMaxValue()
 void WDataTexture3D::setMinValue( float min )
 {
     m_minValue = min;
+    m_scale = m_maxValue - m_minValue;
 }
 
 void WDataTexture3D::setMaxValue( float max )
 {
     m_maxValue = max;
+    m_scale = m_maxValue - m_minValue;
 }
 
 float WDataTexture3D::getMinMaxScale()
@@ -487,7 +495,7 @@ float WDataTexture3D::getMinMaxScale()
 float WDataTexture3D::scaleInterval( float value ) const
 {
     //return value;
-    return ( value - m_minValue ) / m_scale;
+    return ( std::min( std::max( value, m_minValue ), m_maxValue ) - m_minValue ) / m_scale;
 }
 
 bool WDataTexture3D::isInterpolated()

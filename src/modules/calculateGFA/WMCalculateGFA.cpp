@@ -86,6 +86,8 @@ void WMCalculateGFA::connectors()
 void WMCalculateGFA::properties()
 {
     m_exceptionCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    WModule::properties();
 }
 
 void WMCalculateGFA::moduleMain()

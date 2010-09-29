@@ -29,7 +29,7 @@
 
 #include <cmath>
 
-#include "spline_surface.xpm"
+#include "WMSplineSurface.xpm"
 #include "../../common/WLimits.h"
 #include "../../common/WAssert.h"
 
@@ -165,7 +165,12 @@ void WMSplineSurface::moduleMain()
 
 void WMSplineSurface::connectors()
 {
-    // initialize connectors
+    // TODO(someone): This connector should be used as soon as the module gets more functionality.
+    // The surface will aligned to these tracts.
+    typedef WModuleInputData< const WFiberCluster > InputType; // just an alias
+    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "Tracts", "A cluster of tracts." ) );
+    addConnector( m_input );
+
     m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > >( new WModuleOutputData< WTriangleMesh2 > ( shared_from_this(), "out",
             "The mesh representing the spline surface." ) );
 
@@ -190,6 +195,8 @@ void WMSplineSurface::properties()
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMSplineSurface::save, this ) );
 
     m_meshFile = m_savePropGroup->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
+
+    WModule::properties();
 }
 
 void WMSplineSurface::renderMesh()

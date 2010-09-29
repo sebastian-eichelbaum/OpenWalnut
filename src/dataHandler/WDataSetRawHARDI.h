@@ -49,10 +49,12 @@ public:
      * \param newValueSet the vector value set to use
      * \param newGrid the grid which maps world space to the value set
      * \param newGradients the Gradients of the
+     * \param diffussionBValue Strength of the gradient
      */
     WDataSetRawHARDI( boost::shared_ptr< WValueSetBase > newValueSet,
                       boost::shared_ptr< WGrid > newGrid,
-                      boost::shared_ptr< std::vector< wmath::WVector3D > > newGradients );
+                      boost::shared_ptr< std::vector< wmath::WVector3D > > newGradients,
+                      double diffussionBValue = 1.0 );
 
     /**
      * Construct an empty and unusable instance. This is needed for the prototype mechanism.
@@ -108,6 +110,13 @@ public:
      */
     std::vector< wmath::WVector3D > const& getOrientations() const;
 
+    /**
+     * Returns the \e b-value of the diffusion.
+     *
+     * \return b-value as double
+     */
+    double getDiffussionBValue() const;
+
 protected:
 
     /**
@@ -117,6 +126,11 @@ protected:
 
 private:
     boost::shared_ptr< std::vector< wmath::WVector3D > > m_gradients; //!< Gradients of measurements
+
+    /**
+     * Strength (b-value) of the so-called magnetic diffusion gradient.
+     */
+    double m_diffussionBValue;
 };
 
 #endif  // WDATASETRAWHARDI_H

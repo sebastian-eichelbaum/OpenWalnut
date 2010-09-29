@@ -28,7 +28,6 @@
 #include <string>
 
 #include "../../dataHandler/WDataSetScalar.h"
-
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -95,6 +94,16 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Resamples all tracts with a resampler instance for example the WSimpleResampler.
+     *
+     * \param numSamples How many sample points all tracts should have
+     * \param dataSet Which dataset should be resampled
+     *
+     * \return The resampled dataset.
+     */
+    boost::shared_ptr< WDataSetFibers > resample( size_t numSamples, boost::shared_ptr< const WDataSetFibers > dataSet ) const;
+
 private:
 
     /**
@@ -108,9 +117,9 @@ private:
     boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_fiberOutput;
 
     /**
-     * A condition used to notify about changes in several properties.
+     * Number of new sample points all tracts are resampled to.
      */
-    boost::shared_ptr< WCondition > m_propCondition;
+    WPropInt m_newSamples;
 };
 
 #endif  // WMFIBERRESAMPLING_H

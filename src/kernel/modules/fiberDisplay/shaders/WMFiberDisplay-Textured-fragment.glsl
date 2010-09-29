@@ -1,3 +1,27 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
 varying vec4 myColor;
 varying vec4 VaryingTexCoord0;
 
@@ -43,24 +67,26 @@ float lookupTex()
 void checkCullBox()
 {
     vec3 pos = VaryingTexCoord0.xyz;
-    
+
     if ( insideCullBox )
     {
         if ( pos.x < cullBoxLBX || pos.x > cullBoxUBX )
             discard;
         if ( pos.y < cullBoxLBY || pos.y > cullBoxUBY )
-            discard; 
+            discard;
         if ( pos.z < cullBoxLBZ || pos.z > cullBoxUBZ )
             discard;
     }
     else
     {
-        if ( ( pos.x > cullBoxLBX && pos.x < cullBoxUBX ) && ( pos.y > cullBoxLBY && pos.y < cullBoxUBY ) && ( pos.z > cullBoxLBZ && pos.z < cullBoxUBZ ) )
+        if ( ( pos.x > cullBoxLBX && pos.x < cullBoxUBX )
+             && ( pos.y > cullBoxLBY && pos.y < cullBoxUBY )
+             && ( pos.z > cullBoxLBZ && pos.z < cullBoxUBZ ) )
             discard;
-    } 
+    }
 }
 
-/*
+/**
  * simple fragment shader that uses a texture on fibers
  */
 void main()
@@ -73,10 +99,10 @@ void main()
     if ( useTexture )
     {
         float value = lookupTex();
-        colorMap(color.rgb, value, cMap );
+        colorMap( color.rgb, value, cMap );
         color.a = 1.0;
     }
-    
+
     gl_FragColor = color;
 }
 

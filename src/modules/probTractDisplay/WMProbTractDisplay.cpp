@@ -28,7 +28,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../../dataHandler/WDataSetScalar.h"
-#include "probtractdisplay.xpm"
+#include "WMProbTractDisplay.xpm"
 #include "WMProbTractDisplay.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -75,6 +75,7 @@ void WMProbTractDisplay::connectors()
 
 void WMProbTractDisplay::properties()
 {
+    WModule::properties();
 }
 
 void WMProbTractDisplay::moduleMain()
@@ -84,12 +85,12 @@ void WMProbTractDisplay::moduleMain()
     initSubModules();
     ready();
     debugLog() << "Module is now ready.";
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }

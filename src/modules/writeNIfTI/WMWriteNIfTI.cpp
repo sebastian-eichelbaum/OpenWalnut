@@ -137,6 +137,8 @@ void WMWriteNIfTI::properties()
     m_saveTriggerProp = m_properties->addProperty( "Do save",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMWriteNIfTI::writeToFile, this ) );
+
+    WModule::properties();
 }
 
 template< typename T > void WMWriteNIfTI::castData( void*& returnData )

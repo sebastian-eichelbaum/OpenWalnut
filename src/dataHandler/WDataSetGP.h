@@ -22,25 +22,42 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDETTRACTCLUSTERING_TEST_H
-#define WMDETTRACTCLUSTERING_TEST_H
+#ifndef WDATASETGP_H
+#define WDATASETGP_H
 
-#include <cxxtest/TestSuite.h>
+#include <boost/shared_ptr.hpp>
 
-#include "../WMDetTractClustering.h"
+#include "../common/WMixinVector.h"
+#include "datastructures/WGaussProcess.h"
+#include "WDataSet.h"
+#include "WExportDataHandler.h"
 
 /**
- * TODO(math): Document this!
+ * Stores many Gaussian processes.
  */
-class WMFiberClusteringTest : public CxxTest::TestSuite
+class OWDATAHANDLER_EXPORT WDataSetGP : public WMixinVector< WGaussProcess >, public WDataSet
 {
 public:
+// TODO(math): uncomment if we have more other constructors (we need to be default-constructable)
+//    /**
+//     * Default constructor.
+//     */
+//    WDataSetGP();
+
     /**
-     * TODO(math): Document this!
+     * Determines whether this dataset can be used as a texture.
+     *
+     * \return true if usable as texture.
      */
-    void testSomething( void )
-    {
-    }
+    virtual bool isTexture() const;
+
+protected:
+private:
 };
 
-#endif  // WMDETTRACTCLUSTERING_TEST_H
+bool WDataSetGP::isTexture() const
+{
+    return false;
+}
+
+#endif  // WDATASETGP_H

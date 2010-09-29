@@ -28,7 +28,7 @@
 #include "../../common/WColor.h"
 #include "../../kernel/WKernel.h"
 #include "WMClusterParamDisplay.h"
-#include "clusterParamDisplay.xpm"
+#include "WMClusterParamDisplay.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMClusterParamDisplay )
@@ -67,10 +67,12 @@ void WMClusterParamDisplay::connectors()
 
 void WMClusterParamDisplay::properties()
 {
-    m_isoValue = m_properties->addProperty( "Iso Value", "", 0.2 );
+    m_isoValue = m_properties->addProperty( "Iso value", "", 0.2 );
     m_isoValue->setMin( 0.0 );
     m_isoValue->setMax( 100.0 );
     m_drawIsoSurface = m_properties->addProperty( "Iso Surface", "En/Disables the display of the iso surface", true );
+
+    WModule::properties();
 }
 
 void WMClusterParamDisplay::moduleMain()
@@ -98,8 +100,8 @@ void WMClusterParamDisplay::moduleMain()
         if( m_isoValue->changed() )
         {
             std::cout <<  m_isoValue->get() << std::endl;
-            m_isoSurface->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
-            m_clusterSlicer->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get( true ) );
+            m_isoSurface->getProperties()->getProperty( "Iso value" )->toPropDouble()->set( m_isoValue->get() );
+            m_clusterSlicer->getProperties()->getProperty( "Iso value" )->toPropDouble()->set( m_isoValue->get( true ) );
         }
 
         if( m_drawIsoSurface->changed() )
@@ -147,8 +149,8 @@ void WMClusterParamDisplay::initSubModules()
     m_clusterSlicer->getProperties()->getProperty( "Show|Hide Iso Voxels" )->toPropBool()->set( false );
     m_clusterSlicer->getProperties()->getProperty( "Biggest Component Only" )->toPropBool()->set( false );
     m_isoSurface->getProperties()->getProperty( "active" )->toPropBool()->set( false, true );
-    m_isoSurface->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( 0.2, true );
-    m_clusterSlicer->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set(  0.2, true );
+    m_isoSurface->getProperties()->getProperty( "Iso value" )->toPropDouble()->set( 0.2, true );
+    m_clusterSlicer->getProperties()->getProperty( "Iso value" )->toPropDouble()->set(  0.2, true );
     debugLog() << "Submodule properties set";
 
     // wiring

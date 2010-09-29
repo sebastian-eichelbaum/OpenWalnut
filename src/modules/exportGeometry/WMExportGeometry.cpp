@@ -84,6 +84,8 @@ void WMExportGeometry::properties()
 {
     m_savePath         = m_properties->addProperty( "Save Path", "Where to save the result", boost::filesystem::path( "/tmp/test.wrl" ) );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_savePath );
+
+    WModule::properties();
 }
 
 void WMExportGeometry::moduleMain()

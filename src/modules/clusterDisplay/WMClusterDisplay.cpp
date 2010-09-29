@@ -42,7 +42,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "../../kernel/WKernel.h"
-#include "clusterDisplay.xpm" // Please put a real icon here.
+#include "WMClusterDisplay.xpm" // Please put a real icon here.
 
 #include "WMClusterDisplay.h"
 
@@ -364,6 +364,8 @@ void WMClusterDisplay::properties()
     WPropertyHelper::PC_PATHEXISTS::addTo( m_propTreeFile );
 
     m_createRoiTrigger = m_properties->addProperty( "Create Roi",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+
+    WModule::properties();
 }
 
 void WMClusterDisplay::moduleMain()
