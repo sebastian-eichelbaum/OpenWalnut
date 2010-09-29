@@ -25,15 +25,24 @@
 #include "WGaussProcess.h"
 
 WGaussProcess::WGaussProcess()
-    : m_CffInverse( 0, 0 )
+    : m_CffInverse( 0 )
 {
 }
 
 WGaussProcess::WGaussProcess( const wmath::WFiber& tract, boost::shared_ptr< const WDataSetDTI > tensors )
     : m_tensors( tensors ),
       m_tract( tract ),
-      m_CffInverse( tract.size(), 0.0 )
+      m_CffInverse( tract.size() )
 {
+    using wmath::WFiber;
+    size_t i = 0, j = 0;
+    for( WFiber::const_iterator cit = tract.begin(); cit != tract.end(); ++cit, ++i )
+    {
+        for( WFiber::const_iterator cit2 = tract.begin(); cit2 != tract.end(); ++cit2, ++j )
+        {
+            m_CffInverse( i, j ) = cov( *cit, *cit2 );
+        }
+    }
 }
 
 WGaussProcess::~WGaussProcess()
