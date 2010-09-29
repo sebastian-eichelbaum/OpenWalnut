@@ -293,3 +293,15 @@ void WMHistogramEqualization::moduleMain()
     }
 }
 
+void WMHistogramEqualization::activate()
+{
+    // deactivate the output if wanted
+    if ( m_lastOutputDataSet )
+    {
+        m_lastOutputDataSet->getTexture()->setGloballyActive( m_active->get() );
+    }
+
+    // Always call WModule's activate!
+    WModule::activate();
+}
+
