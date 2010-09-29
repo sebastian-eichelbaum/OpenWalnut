@@ -416,6 +416,8 @@ private:
      * \param coVert1
      * \param coVert2
      * \param triangleNum
+     *
+     * \return the number of the neighboring triangle.
      */
     size_t getNeighbor( const size_t coVert1, const size_t coVert2, const size_t triangleNum );
 

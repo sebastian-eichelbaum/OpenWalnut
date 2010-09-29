@@ -189,17 +189,17 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosit
     return transform;
 }
 
-osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals )
+osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh2* mesh, bool includeNormals )
 {
-    osg::ref_ptr< osg::Vec3Array > vertices = wge::osgVec3Array( mesh->getVertices() );
+    osg::ref_ptr< osg::Vec3Array > vertices = mesh->getVertexArray();
 
     osg::DrawElementsUInt* triangles = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES );
-    triangles->reserve( 3 * mesh->getNumTriangles() );
-    for( size_t triangleID = 0; triangleID < mesh->getNumTriangles(); ++triangleID )
+    triangles->reserve( 3 * mesh->triangleSize() );
+    for( size_t triangleID = 0; triangleID < mesh->triangleSize(); ++triangleID )
     {
-        triangles->push_back( mesh->getTriangleVertexId( triangleID, 0 ) );
-        triangles->push_back( mesh->getTriangleVertexId( triangleID, 1 ) );
-        triangles->push_back( mesh->getTriangleVertexId( triangleID, 2 ) );
+        triangles->push_back( mesh->getTriVertId0( triangleID ) );
+        triangles->push_back( mesh->getTriVertId1( triangleID ) );
+        triangles->push_back( mesh->getTriVertId2( triangleID ) );
     }
 
     osg::ref_ptr< osg::Geometry> geometry( new osg::Geometry );
@@ -208,15 +208,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bo
 
     if( includeNormals )
     {
-        mesh->computeVertNormals();
-        osg::Vec3Array* normals = new osg::Vec3Array();
-        normals->reserve( mesh->getNumVertices() );
-        for( size_t vertexID = 0; vertexID < mesh->getNumVertices(); ++vertexID )
-        {
-            normals->push_back( wge::osgVec3( mesh->getVertexNormal( vertexID ) ) );
-        }
-
-        geometry->setNormalArray( normals );
+        geometry->setNormalArray( mesh->getVertexNormalArray( true ) );
         geometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
     }
 
