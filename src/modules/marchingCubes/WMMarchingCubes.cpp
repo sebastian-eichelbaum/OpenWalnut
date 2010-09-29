@@ -65,7 +65,6 @@ WMMarchingCubes::WMMarchingCubes():
     m_dataSet(),
     m_shaderUseLighting( false ),
     m_shaderUseTransparency( false ),
-    m_moduleNode( new WGEGroupNode() ),
     m_moduleNodeInserted( false ),
     m_surfaceGeode( 0 )
 {
@@ -111,6 +110,8 @@ void WMMarchingCubes::moduleMain()
 
     // signal ready state
     ready();
+
+    m_moduleNode = new WGEManagedGroupNode( m_active );
 
     // now, to watch changing/new textures use WSubject's change condition
     boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal(
@@ -313,7 +314,9 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
 
 void WMMarchingCubes::renderMesh()
 {
+    // std::cout<<"COUT REM"<<std::endl;
     m_moduleNode->remove( m_surfaceGeode );
+    // std::cout<<"COUT REM"<<std::endl;
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
@@ -560,17 +563,8 @@ bool WMMarchingCubes::save() const
     return true;
 }
 
-void WMMarchingCubes::updateGraphics()
+void WMMarchingCubes::updateGraphicsForCallback()
 {
-    if ( m_active->get() )
-    {
-        m_surfaceGeode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_surfaceGeode->setNodeMask( 0x0 );
-    }
-
     if( m_surfaceColor->changed() )
     {
         osg::Vec4Array* colors = new osg::Vec4Array;
@@ -645,10 +639,12 @@ void WMMarchingCubes::updateGraphics()
             //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+            // std::cout<<m_surfaceGeode->getNumDrawables()<<"---"<<std::endl;
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
                 if( localTextureChangedFlag )
                 {
+                    // std::cout<<m_surfaceGeode->getNumDrawables()<<"..-."<<std::endl;
                     osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
