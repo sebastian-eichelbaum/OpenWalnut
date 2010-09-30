@@ -25,11 +25,9 @@
 #ifndef WTENSORFUNCTIONS_H
 #define WTENSORFUNCTIONS_H
 
-#include <sstream>
 #include <vector>
 #include <cmath>
 
-#include "../WStringUtils.h"
 #include "WVector3D.h"
 #include "WTensor.h"
 #include "WTensorSym.h"
