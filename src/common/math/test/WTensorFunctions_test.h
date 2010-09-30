@@ -30,6 +30,10 @@
 #include <algorithm>
 
 #include <cxxtest/TestSuite.h>
+
+#include "../../WAssert.h"
+#include "../../WLimits.h"
+#include "../../WStringUtils.h"
 #include "../WTensorFunctions.h"
 
 /**
@@ -38,6 +42,37 @@
 class WTensorFunctionsTest : public CxxTest::TestSuite
 {
 public:
+    /**
+     * The eigenvalue of the symmetrical matrix:
+     * 0.000179516, 2.09569e-05, 2.76557e-06, 0.000170189, -5.52619e-07, 0.00015239
+     * (0.000196397;0.000155074;0.000150625)
+     */
+    void testSpecialSymMatrixEigenvalueTestCaseNumericalPansenStability( void )
+    {
+        wmath::WTensorSym< 2, 3 > t;
+        std::vector< double > vals( 3, 0 );
+        std::vector< wmath::WVector3D > vecs( 3 );
+        t( 0, 0 ) =  0.000179516;
+        t( 0, 1 ) =  2.09569e-05;
+        t( 0, 2 ) =  2.76557e-06;
+        t( 1, 1 ) =  0.000170189;
+        t( 1, 2 ) = -5.52619e-07;
+        t( 2, 2 ) =  0.00015239;
+        wmath::jacobiEigenvector3D( t, &vals, &vecs );
+        WAssert( !wlimits::isnan( vals[0] ), "Damn!" );
+        // Note: We don't use TS_ASSERT_DELTA here since its output is restricted to 4 digits after the point aka comma.
+        double delta = 1.0e-8;
+        if( std::abs( vals[0] - 0.000196397 ) > delta ||
+            std::abs( vals[1] - 0.000155074 ) > delta ||
+            std::abs( vals[2] - 0.000150625 ) > delta )
+        {
+            TS_FAIL( "The eigenvalues are incorrect: " );
+            using string_utils::operator<<;
+            std::cout << std::fixed << std::setprecision( 16 ) << std::endl << vals << std::endl;
+            std::cout << "but got:" << std::endl << 0.000196397 << " " << 0.000155074 << " " << 0.00015062 << std::endl;
+        }
+    }
+
     /**
      * Test the jacobi eigenvector calculation.
      */
