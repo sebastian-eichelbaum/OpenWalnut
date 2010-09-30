@@ -28,7 +28,7 @@
 #include "../../common/datastructures/WFiber.h"
 #include "../../common/math/WMatrix.h"
 #include "../../common/math/WValue.h"
-#include "../WDataSetDTI.h"
+#include "../../dataHandler/WDataSetDTI.h"
 
 /**
  * Represents a basic gaussian process with its mean- and covariance function. Basically this aims
@@ -76,11 +76,13 @@ private:
      *
      * \param p1 First point
      * \param p2 Second point
+     * \param t The tau parameter as described in equation (13) in the Wasserman parameter.
+     * TODO(math): A more elaborate description would be nice.
      *
      * \return Real number indicating the covariance between two points representing the diffusion
      * associated blurring.
      */
-    double cov_d( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
+    double cov_d( const wmath::WPosition& p1, const wmath::WPosition& p2, const double t = 1.0 ) const;
 
     /**
      * Covariance function of this gaussian process.
@@ -121,8 +123,13 @@ inline double WGaussProcess::cov_s( const wmath::WPosition& p1, const wmath::WPo
     return 2 * std::abs( r * r * r ) - 3 * R * r * r + R * R * R;
 }
 
-inline double WGaussProcess::cov_d( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const
+inline double WGaussProcess::cov_d( const wmath::WPosition& p1, const wmath::WPosition& p2, const double t ) const
 {
+    //WTensorSym< 2, 3 > t1 = m_tensors->interpolate( p1 );
+    //WTensorSym< 2, 3 > t2 = m_tensors->interpolate( p2 );
+    //WTensorSym< 2, 3 > t = t1 + t2;
+
+    // return std::exp( -1/( 4 * t ) (p1-p2)^T ;
     return 0.0;
 }
 

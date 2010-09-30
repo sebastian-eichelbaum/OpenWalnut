@@ -30,10 +30,10 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/WDataSetDTI.h"
-#include "../../dataHandler/WDataSetGP.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
+#include "WDataSetGP.h"
 
 /**
  * Converts each deterministic tract to a gaussian process using the DTI information.

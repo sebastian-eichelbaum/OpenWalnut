@@ -27,15 +27,14 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../common/WMixinVector.h"
-#include "datastructures/WGaussProcess.h"
-#include "WDataSet.h"
-#include "WExportDataHandler.h"
+#include "../../common/WMixinVector.h"
+#include "WGaussProcess.h"
+#include "../../dataHandler/WDataSet.h"
 
 /**
  * Stores many Gaussian processes.
  */
-class OWDATAHANDLER_EXPORT WDataSetGP : public WMixinVector< WGaussProcess >, public WDataSet
+class WDataSetGP : public WMixinVector< WGaussProcess >, public WDataSet
 {
 public:
 // TODO(math): uncomment if we have more other constructors (we need to be default-constructable)
@@ -55,7 +54,7 @@ protected:
 private:
 };
 
-bool WDataSetGP::isTexture() const
+inline bool WDataSetGP::isTexture() const
 {
     return false;
 }
