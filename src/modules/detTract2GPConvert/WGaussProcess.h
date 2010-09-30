@@ -25,6 +25,8 @@
 #ifndef WGAUSSPROCESS_H
 #define WGAUSSPROCESS_H
 
+#include <Eigen/Core>
+
 #include "../../common/datastructures/WFiber.h"
 #include "../../common/math/WMatrix.h"
 #include "../../common/math/WValue.h"
@@ -110,7 +112,7 @@ private:
     /**
      * Covariance matrix of all pairs of sample points of the tract using the \see cov function.
      */
-    wmath::WMatrix< double > m_CffInverse;
+    Eigen::MatrixXd m_CffInverse;
 };
 
 inline double WGaussProcess::cov_s( const wmath::WPosition& p1, const wmath::WPosition& p2, const double R ) const
@@ -125,11 +127,6 @@ inline double WGaussProcess::cov_s( const wmath::WPosition& p1, const wmath::WPo
 
 inline double WGaussProcess::cov_d( const wmath::WPosition& p1, const wmath::WPosition& p2, const double t ) const
 {
-    //WTensorSym< 2, 3 > t1 = m_tensors->interpolate( p1 );
-    //WTensorSym< 2, 3 > t2 = m_tensors->interpolate( p2 );
-    //WTensorSym< 2, 3 > t = t1 + t2;
-
-    // return std::exp( -1/( 4 * t ) (p1-p2)^T ;
     return 0.0;
 }
 
