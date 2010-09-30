@@ -58,14 +58,14 @@ vec4 texture2DUnscaled( sampler2D texture, vec2 point, float minimum, float scal
 
 /**
  * Grabs and unscales the value inside the texture and returns it.
- * 
+ *
  * \param texture the texture unit to use
  * \param point   the texture coordinates
  * \param minimum the minumum value of all values inside the texture
  * \param scale   the scaling value for all values inside the texture
  *
  * \note The minimum and scale values are normally transferred to the shader using uniforms, as the CPU scales the textures
- * 
+ *
  * \return the value at the given point
  */
 vec4 texture1DUnscaled( sampler1D texture, float point, float minimum, float scale )
@@ -83,8 +83,8 @@ vec4 texture1DUnscaled( sampler1D texture, float point, float minimum, float sca
  */
 vec4 textureNormalize( vec4 point )
 {
-    float maxC = max( point.x, max( point.y, max( point.z, point.w ) ) );
-    return point / maxC;
+    float maxC = max( abs( point.x ), max( abs( point.y ), max( abs( point.z ), abs( point.w ) ) ) );
+    return 0.5 + ( 0.5 * point / maxC );
 }
 
 /**
@@ -97,7 +97,21 @@ vec4 textureNormalize( vec4 point )
  */
 vec3 textureNormalize( vec3 point )
 {
-    float maxC = max( point.x, max( point.y, point.z ) );
-    return point / maxC;
+    float maxC = max( abs( point.x ), max( abs( point.y ), abs( point.z ) ) );
+    return 0.5 + ( 0.5 * point / maxC );
+}
+
+/**
+ * This method normalizes a given point/vector in a special way. It scales it so that the largest component is exactly 1.
+ * This way the other components can profit from the whole precision in textures (where all values are clamped if >1).
+ * 
+ * \param point the point to scale
+ * 
+ * \return the scaled point, where max( { point.x, point.y, point.z } ) = 1
+ */
+vec2 textureNormalize( vec2 point )
+{
+    float maxC = max( abs( point.x ), abs( point.y ) );
+    return 0.5 + ( 0.5 * point / maxC );
 }
 

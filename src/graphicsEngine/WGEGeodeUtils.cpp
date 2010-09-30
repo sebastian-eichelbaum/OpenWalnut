@@ -189,17 +189,17 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosit
     return transform;
 }
 
-osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals )
+osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh2* mesh, bool includeNormals )
 {
-    osg::ref_ptr< osg::Vec3Array > vertices = wge::osgVec3Array( mesh->getVertices() );
+    osg::ref_ptr< osg::Vec3Array > vertices = mesh->getVertexArray();
 
     osg::DrawElementsUInt* triangles = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES );
-    triangles->reserve( 3 * mesh->getNumTriangles() );
-    for( size_t triangleID = 0; triangleID < mesh->getNumTriangles(); ++triangleID )
+    triangles->reserve( 3 * mesh->triangleSize() );
+    for( size_t triangleID = 0; triangleID < mesh->triangleSize(); ++triangleID )
     {
-        triangles->push_back( mesh->getTriangleVertexId( triangleID, 0 ) );
-        triangles->push_back( mesh->getTriangleVertexId( triangleID, 1 ) );
-        triangles->push_back( mesh->getTriangleVertexId( triangleID, 2 ) );
+        triangles->push_back( mesh->getTriVertId0( triangleID ) );
+        triangles->push_back( mesh->getTriVertId1( triangleID ) );
+        triangles->push_back( mesh->getTriVertId2( triangleID ) );
     }
 
     osg::ref_ptr< osg::Geometry> geometry( new osg::Geometry );
@@ -208,15 +208,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bo
 
     if( includeNormals )
     {
-        mesh->computeVertNormals();
-        osg::Vec3Array* normals = new osg::Vec3Array();
-        normals->reserve( mesh->getNumVertices() );
-        for( size_t vertexID = 0; vertexID < mesh->getNumVertices(); ++vertexID )
-        {
-            normals->push_back( wge::osgVec3( mesh->getVertexNormal( vertexID ) ) );
-        }
-
-        geometry->setNormalArray( normals );
+        geometry->setNormalArray( mesh->getVertexNormalArray( true ) );
         geometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
     }
 
@@ -345,3 +337,48 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( double xSize, double ySize, cons
     }
     return geode;
 }
+
+osg::ref_ptr< osg::Geode > wge::genFinitePlane( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b )
+{
+    // the stuff needed by the OSG to create a geometry instance
+    osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array;
+    osg::ref_ptr< osg::Vec3Array > texcoords0 = new osg::Vec3Array;
+    osg::ref_ptr< osg::Vec3Array > normals = new osg::Vec3Array;
+    osg::ref_ptr< osg::Vec4Array > colors = new osg::Vec4Array;
+
+    osg::Vec3 aPlusB = a + b;
+
+    vertices->push_back( base );
+    vertices->push_back( base + a );
+    vertices->push_back( base + aPlusB );
+    vertices->push_back( base + b );
+
+    osg::Vec3 aCrossB = a ^ b;
+    aCrossB.normalize();
+    osg::Vec3 aNorm = a;
+    aNorm.normalize();
+    osg::Vec3 bNorm = b;
+    bNorm.normalize();
+
+    normals->push_back( aCrossB );
+    colors->push_back( osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
+    texcoords0->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+    texcoords0->push_back( aNorm );
+    texcoords0->push_back( aNorm + bNorm );
+    texcoords0->push_back( bNorm );
+
+    // put it all together
+    osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry();
+    geometry->setVertexArray( vertices );
+    geometry->setTexCoordArray( 0, texcoords0 );
+    geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
+    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    geometry->setNormalArray( normals );
+    geometry->setColorArray( colors );
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
+
+    osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+    geode->addDrawable( geometry );
+    return geode;
+}
+

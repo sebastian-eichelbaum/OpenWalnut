@@ -65,7 +65,7 @@ WMMarchingCubes::WMMarchingCubes():
     m_dataSet(),
     m_shaderUseLighting( false ),
     m_shaderUseTransparency( false ),
-    m_moduleNode( new WGEGroupNode() ),
+    m_moduleNodeInserted( false ),
     m_surfaceGeode( 0 )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -110,6 +110,8 @@ void WMMarchingCubes::moduleMain()
 
     // signal ready state
     ready();
+
+    m_moduleNode = new WGEManagedGroupNode( m_active );
 
     // now, to watch changing/new textures use WSubject's change condition
     boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal(
@@ -312,8 +314,16 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
 
 void WMMarchingCubes::renderMesh()
 {
-//    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()
-    m_moduleNode->remove( m_surfaceGeode );
+    {
+        // Remove the previous node in a thread save way.
+        boost::unique_lock< boost::shared_mutex > lock;
+        lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
+
+        m_moduleNode->remove( m_surfaceGeode );
+
+        lock.unlock();
+    }
+
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
@@ -560,16 +570,10 @@ bool WMMarchingCubes::save() const
     return true;
 }
 
-void WMMarchingCubes::updateGraphics()
+void WMMarchingCubes::updateGraphicsForCallback()
 {
-    if ( m_active->get() )
-    {
-        m_surfaceGeode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_surfaceGeode->setNodeMask( 0x0 );
-    }
+    boost::unique_lock< boost::shared_mutex > lock;
+    lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
     if( m_surfaceColor->changed() )
     {
@@ -683,5 +687,6 @@ void WMMarchingCubes::updateGraphics()
             }
         }
     }
+    lock.unlock();
 }
 

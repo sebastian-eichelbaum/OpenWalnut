@@ -105,6 +105,13 @@ public:
          */
         std::string getName() const;
 
+        /**
+         * Gets the texture associated with the entry.
+         *
+         * \return the texture
+         */
+        osg::ref_ptr< osg::Texture2D > getTexture() const;
+
     protected:
 
         /**
@@ -213,7 +220,7 @@ private:
          *
          * \param hud just set the creating HUD as pointer for later reference.
          */
-        explicit SafeUpdateCallback( osg::ref_ptr< WGETextureHud > hud ): m_hud( hud )
+        explicit SafeUpdateCallback( WGETextureHud* hud ): m_hud( hud )
         {
         };
 
@@ -228,7 +235,7 @@ private:
         /**
          * Pointer used to access members of the hud. This is faster than casting the first parameter of operator() to WGETextureHud.
          */
-        osg::ref_ptr< WGETextureHud > m_hud;
+        WGETextureHud* m_hud;
     };
 };
 

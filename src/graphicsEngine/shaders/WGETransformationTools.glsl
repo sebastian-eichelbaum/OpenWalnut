@@ -49,28 +49,18 @@ vec3 project( vec4 point )
 /**
  * Projects a given vector to screen-space. It does not scale the final vector to [0,1] as project() would have done.
  *
- * \param vector the vector to project
+ * \param vector the vector to project, the w component needs to be zero.
  *
  * \return the projected vector in unscaled screen-space ( [-1,1] per component )
  */
 vec3 projectVector( vec4 vector )
 {
-    vec4 base = vec4( 0.0, 0.0, 0.0, 1.0 );
-    vec4 diff = vector;
+    vec4 vec = vector;
+    vec.w = 0.0;    // ensure w is zero
 
-    vec4 diffP = gl_ModelViewProjectionMatrix * diff;
-    vec4 baseP = gl_ModelViewProjectionMatrix * base;
+    vec4 vecP = gl_ModelViewProjectionMatrix * vec;
 
-    // scale by w
-    diffP.x /= diffP.w;
-    diffP.y /= diffP.w;
-    diffP.z /= diffP.w;
-
-    baseP.x /= baseP.w;
-    baseP.y /= baseP.w;
-    baseP.z /= baseP.w;
-
-    return ( diffP - baseP ).xyz;
+    return vecP.xyz;
 }
 
 /**
@@ -105,7 +95,8 @@ vec3 project( vec3 point )
 /**
  * This function transforms a point which is in world space, to a point in the local coordinate system of the object
  * currently getting rendered.
- *
+ * \note you can use this method with point.w == 0.0 for vector projection too.
+ * 
  * \param point the point in world coordinates
  *
  * \return the point in local coordinates
