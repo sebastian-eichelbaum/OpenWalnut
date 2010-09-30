@@ -625,7 +625,7 @@ inline bool WTriangleMesh2::operator==( const WTriangleMesh2& rhs ) const
 
 inline void WTriangleMesh2::addTextureCoordinate( osg::Vec3 texCoord )
 {
-    m_textureCoordinates->push_back( texCoord );
+    ( *m_textureCoordinates )[m_countVerts-1] = texCoord;
 }
 
 inline void WTriangleMesh2::addTextureCoordinate( float x, float y, float z )
@@ -639,6 +639,11 @@ inline void WTriangleMesh2::addVertex( osg::Vec3 vert )
     {
         ( *m_verts ).resize( m_countVerts + 1 );
     }
+    if ( ( *m_textureCoordinates ).size() == m_countVerts )
+    {
+        ( *m_textureCoordinates ).resize( m_countVerts + 1 );
+    }
+
     ( *m_verts )[m_countVerts] = vert;
     ++m_countVerts;
 }
