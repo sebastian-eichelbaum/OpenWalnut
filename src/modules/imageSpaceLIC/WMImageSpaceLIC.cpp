@@ -189,10 +189,12 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
         surfaceGeode->addDrawable( surfaceGeometry );
         m_output->insert( surfaceGeode );
     }
+    else if ( !mesh && !m_useSlices->get( true ) )
+    {
+        warnLog() << "No surface connected to input but surface render mode enabled. Nothing rendered.";
+    }
     else
     {
-        m_useSlices->set( true );   // there is no mesh -> use slices
-
         // we want the tex matrix for each slice to be modified too,
         osg::ref_ptr< osg::TexMat > texMat;
 
@@ -289,7 +291,6 @@ void WMImageSpaceLIC::moduleMain()
 
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
-
     setupTexturing();
 
     // the WGEOffscreenRenderNode manages each of the render-passes for us
