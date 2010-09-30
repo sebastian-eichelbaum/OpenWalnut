@@ -35,7 +35,7 @@ void main()
 {
     // for easy access to texture coordinates
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-     
+
     // some light precalculations
     v_normal = gl_Normal;
 

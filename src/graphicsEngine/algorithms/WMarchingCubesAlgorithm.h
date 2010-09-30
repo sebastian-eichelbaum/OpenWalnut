@@ -342,7 +342,9 @@ template<typename T> boost::shared_ptr<WTriangleMesh2> WMarchingCubesAlgorithm::
     ID2WPointXYZId::iterator mapIterator = m_idToVertices.begin();
     while ( mapIterator != m_idToVertices.end() )
     {
-        wmath::WPosition texCoord = wmath::WPosition( mapIterator->second.x / nbCoordsX, mapIterator->second.y / nbCoordsY, mapIterator->second.z / nbCoordsZ );
+        wmath::WPosition texCoord = wmath::WPosition( mapIterator->second.x / nbCoordsX,
+                                                      mapIterator->second.y / nbCoordsY,
+                                                      mapIterator->second.z / nbCoordsZ );
 
         // transform from grid coordinate system to world coordinates
         wmath::WPosition pos = wmath::WPosition( mapIterator->second.x, mapIterator->second.y, mapIterator->second.z );
