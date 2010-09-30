@@ -228,6 +228,13 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
     }
 }
 
+/**
+ * Generates a white noise texture with given resolution.
+ *
+ * \param resX the resolution
+ *
+ * \return a image with resX*resX resolution.
+ */
 osg::ref_ptr< osg::Image > genWhiteNoise( size_t resX )
 {
     std::srand( time( 0 ) );
@@ -247,148 +254,6 @@ osg::ref_ptr< osg::Image > genWhiteNoise( size_t resX )
 
     return randImage;
 }
-
-  /**
-   * Calculates a reaction diffusion texture using turings method.
-   *
-   * \param tileWidth   the width of one tile
-   * \param tileHeight  the height of one tile
-   * \param width       the width of the target mem
-   * \param height      the height of the target mem
-   * \param iterations  the number of iterations to use
-   * \param spotSize    the size of the spots - [0,1]
-   * \param spotIrregularity  value specifying irregularity of the spots - [0,1]
-   */
-osg::ref_ptr< osg::Image > genReactionDiffusion( unsigned int tileWidth, unsigned int tileHeight, unsigned int width, unsigned int height, unsigned int iterations, float spotSize, float spotIrregularity )
-{
-
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    // 1: get memory
-    /////////////////////////////////////////////////////////////////////////////////////////////
-
-    // at first create some mem
-    // FIXME clean up this mess. There may be a way to reduce memory cost
-    float grid1[tileWidth][tileHeight];
-    float grid1Min= 3.0;
-    float grid1Max= 5.0;
-    float grid1Base= 4.0;
-
-    float grid2[tileWidth][tileHeight];
-    float grid2Base= 4.0;
-
-    float delta1[tileWidth][tileHeight];
-    float delta2[tileWidth][tileHeight];
-
-    float noise[tileWidth][tileHeight];
-
-    float noiseRangeMin=0.1;
-    float noiseRangeMax=5.0;
-
-    float noiseRange= noiseRangeMin + ((noiseRangeMax - noiseRangeMin)*spotIrregularity); // the highter the more irregular "spots"
-    float noiseBase=12.0;
-
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    // 2: init the grids and create random seed used during turing iteration
-    /////////////////////////////////////////////////////////////////////////////////////////////
-
-    // init grids
-    std::srand( time( 0 ) );
-    for (unsigned int y=0; y<tileHeight; y++)
-      for( unsigned int x=0; x<tileWidth; x++ )
-      {
-        grid1[x][y]=grid1Base;
-        grid2[x][y]=grid2Base;
-        noise[x][y]=noiseBase + (-noiseRange + ( std::rand() * 2.0 * noiseRange));
-        delta1[x][y]=0.0;
-        delta2[x][y]=0.0;
-      }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    // 3: turing iteration
-    /////////////////////////////////////////////////////////////////////////////////////////////
-
-    float kaMin = 0.02;
-    float kaMax = 0.6;
-    float ka = (kaMin + ((kaMax - kaMin) * (1.0-spotSize))) / 15.0;        // size of spots
-    float d1= 0.25 / 2.0;
-    float d2= 0.0625 / 2.0;
-    float speed = 1.0;
-
-    for (unsigned int iteration = 0; iteration<iterations; iteration++)
-    {
-      // go through each cell in grid
-      for (unsigned int i = 0; i < tileWidth; i++)
-      {
-        // this ensures we have an "endless" plane -> creates seamless textures
-        unsigned int iPrev = (i + tileWidth - 1) % tileWidth;
-        unsigned int iNext = (i + 1) % tileWidth;
-
-        for (unsigned int j = 0; j < tileHeight; j++)
-        {
-          // this ensures we have an "endless" plane -> creates seamless textures
-          unsigned int jPrev = (j + tileHeight - 1) % tileHeight;
-          unsigned int jNext = (j + 1) % tileHeight;
-
-          /*
-          // try the other laplacian filter
-          float laplacian1=  grid1[iPrev][jPrev] +      grid1[i][jPrev]  + grid1[iNext][jPrev] +
-                             grid1[iPrev][j]     - (8.0*grid1[i][j])     + grid1[iNext][j] +
-                             grid1[iPrev][jNext] +      grid1[i][jNext]  + grid1[iNext][jNext];
-
-          float laplacian2=  grid2[iPrev][jPrev] +      grid2[i][jPrev]  + grid2[iNext][jPrev] +
-                             grid2[iPrev][j]     - (8.0*grid2[i][j])     + grid2[iNext][j] +
-                             grid2[iPrev][jNext] +      grid2[i][jNext]  + grid2[iNext][jNext];
-          */
-
-          // apply laplace filter around current grid point
-          float laplacian1=grid1[i][jPrev] + grid1[i][jNext] + grid1[iPrev][j] + grid1[iNext][j] - 4.0 * grid1[i][j];
-          float laplacian2=grid2[i][jPrev] + grid2[i][jNext] + grid2[iPrev][j] + grid2[iNext][j] - 4.0 * grid2[i][j];
-
-          // diffusion reaction
-          delta1[i][j] = ka * (16 - grid1[i][j] * grid2[i][j]) + d1 * laplacian1;
-          delta2[i][j] = ka * (grid1[i][j] * grid2[i][j] - grid2[i][j] - noise[i][j]) + d2 * laplacian2;
-        }
-      }
-
-      // apply delta and find min and max value
-      grid1Min= 1e20;
-      grid1Max=-1e20;
-
-      for (unsigned int i = 0; i < tileWidth; i++)
-        for (unsigned int j = 0; j < tileHeight; j++)
-        {
-          grid1[i][j]+=(speed * delta1[i][j]);
-          grid2[i][j]+=(speed * delta2[i][j]);
-          if (grid2[i][j] < 0)
-            grid2[i][j] = 0;
-
-          if (grid1[i][j] < grid1Min)
-            grid1Min=grid1[i][j];
-          if (grid1[i][j] > grid1Max)
-            grid1Max=grid1[i][j];
-        }
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    // 4: scale grid and copy to target
-    /////////////////////////////////////////////////////////////////////////////////////////////
-
-    osg::ref_ptr< osg::Image > randImage = new osg::Image();
-    randImage->allocateImage( width, width, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
-    unsigned char *randomLuminance = randImage->data();  // should be 4 megs
-
-    for (unsigned int x = 0; x < tileWidth; x++)
-    {
-      for (unsigned int y = 0; y < tileHeight; y++)
-      {
-        randomLuminance[ ( y * width ) + x ] =255.0*(grid1[x][y] - grid1Min) / (grid1Max - grid1Min);
-
-      }
-    }
-    return randImage;
-
-}
-
 
 void WMImageSpaceLIC::moduleMain()
 {
@@ -411,10 +276,8 @@ void WMImageSpaceLIC::moduleMain()
     osg::ref_ptr< osg::Texture2D > randTexture = new osg::Texture2D();
     randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
     randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
-    //randTexture->setImage( genWhiteNoise( resX ) );
-    randTexture->setImage( genReactionDiffusion( 100, 100, resX, resX, 1000, 2.0, 2.0 ) );
+    randTexture->setImage( genWhiteNoise( resX ) );
     randTexture->setResizeNonPowerOfTwoHint( false );
-
     // done.
     ready();
 
