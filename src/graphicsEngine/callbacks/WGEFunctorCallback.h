@@ -46,9 +46,11 @@ public:
     typedef boost::function< void ( osg::Node* )> FunctorType;
 
     /**
-     * Default constructor.
+     * Default constructor. Creates the callback and sets the specified functor instance.
+     *
+     * \param functor the function pointer.
      */
-    WGEFunctorCallback( FunctorType functor );
+    explicit WGEFunctorCallback( FunctorType functor );
 
     /**
      * Destructor.
