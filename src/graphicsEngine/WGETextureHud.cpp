@@ -25,10 +25,14 @@
 #include <iostream>
 #include <string>
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include <osg/Camera>
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/MatrixTransform>
+#include <osg/Node>
 #include <osg/TexEnv>
 #include <osgText/Text>
 
@@ -38,7 +42,7 @@
 
 WGETextureHud::WGETextureHud():
     osg::Projection(),
-    m_group( new WGEGroupNode ),
+    m_group( new WGEGroupNode() ),
     m_maxElementWidth( 256 ),
     m_viewport( new osg::Viewport() ),
     m_coupleTexViewport( false )
@@ -121,9 +125,40 @@ void WGETextureHud::removeTexture( osg::ref_ptr< WGETextureHudEntry > texture )
     m_group->remove( texture );
 }
 
-void WGETextureHud::removeTexture( osg::ref_ptr< osg::Texture > /* texture */ )
+/**
+ * This method compares a specified texture with the specified node. If the node is an WGETextureHudEntry instance, the containied textures
+ * get compared.
+ *
+ * \param tex the texture to compare to
+ * \param node the node
+ *
+ * \return true if node->m_texture == tex.
+ */
+bool hudEntryPredicate( osg::ref_ptr< osg::Texture > tex, osg::ref_ptr< osg::Node > const& node )
 {
-    // TODO(ebaum): implement me.
+    // is the node an WGETextureHudEntry?
+    WGETextureHud::WGETextureHudEntry const* e = dynamic_cast< WGETextureHud::WGETextureHudEntry const* >( node.get() );
+    if ( !e )
+    {
+        return false;
+    }
+
+    // check if textures are equal
+    return e->getTexture() == tex;
+}
+
+void WGETextureHud::removeTexture( osg::ref_ptr< osg::Texture > texture )
+{
+    typedef WPredicateHelper::ArbitraryPredicate< osg::ref_ptr< osg::Node > const,
+                                                  boost::function< bool ( osg::ref_ptr< osg::Node > const& ) > > TexCheck;  // NOLINT - if the
+    // space after bool is removed (as the stylechecker want) it interprets it as old-style cast and complains about it. This is valid syntax for
+    // boost::function.
+
+    m_group->remove_if(
+        boost::shared_ptr< WGEGroupNode::NodePredicate >(
+            new TexCheck( boost::bind( &hudEntryPredicate, texture, _1 ) )
+        )
+    );
 }
 
 void WGETextureHud::setViewport( osg::Viewport* viewport )
@@ -268,5 +303,10 @@ unsigned int WGETextureHud::getMaxElementWidth() const
 void WGETextureHud::setMaxElementWidth( unsigned int width )
 {
     m_maxElementWidth = width;
+}
+
+osg::ref_ptr< osg::Texture2D > WGETextureHud::WGETextureHudEntry::getTexture() const
+{
+    return m_texture;
 }
 

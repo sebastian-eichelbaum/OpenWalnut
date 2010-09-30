@@ -27,10 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <osg/NodeCallback>
-
 #include "WGEGroupNode.h"
-#include "../common/WCondition.h"
 #include "../common/WFlag.h"
 #include "WExportWGE.h"
 
@@ -56,53 +53,6 @@ public:
     virtual ~WGEManagedGroupNode();
 
 protected:
-
-    /**
-     * Update callback which sets the node mask of the node according to the specified property.
-     */
-    class NodeMaskCallback : public osg::NodeCallback
-    {
-    public:
-        /**
-         * Constructor.
-         *
-         * \param flag the flag denoting whether the node should be active or not
-         */
-        explicit NodeMaskCallback( boost::shared_ptr< WBoolFlag > flag ): m_activeFlag( flag )
-        {
-        };
-
-        /**
-         * Callback method called by the NodeVisitor when visiting a node.
-         * Sets the nodemask of the node according to the specified property.
-         *
-         * \param node the node calling this update
-         * \param nv The node visitor which performs the traversal. Should be an
-         * update visitor.
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-        /**
-         * Flag denoting whether the node is turned on or off. We store the copy here to avoid permanent cast to WGEManagedGroupNode.
-         */
-        boost::shared_ptr< WBoolFlag > m_activeFlag;
-    };
-
-    /**
-     * Gets called if m_activeFlag changes. This handles activation of the node.
-     */
-    virtual void activate();
-
-    /**
-     * Flag denoting whether the node is turned on or off
-     */
-    boost::shared_ptr< WBoolFlag > m_activeFlag;
-
-    /**
-     * The subscription to the change signal of m_activeFlag.
-     */
-    boost::signals2::connection m_connection;
-
 private:
 };
 

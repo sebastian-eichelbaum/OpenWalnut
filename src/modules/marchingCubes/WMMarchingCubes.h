@@ -33,6 +33,7 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../kernel/WModule.h"
@@ -40,7 +41,6 @@
 #include "../../kernel/WModuleOutputData.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
 
 /**
  * Module implementing the marching cubes algorithm with consistent triangulation for data
@@ -91,9 +91,9 @@ public:
     virtual const char** getXPMIcon() const;
 
     /**
-     *  updates textures and shader parameters
+     *  updates textures and shader parameters when called (usually from the callback)
      */
-    void updateGraphics();
+    void updateGraphicsForCallback();
 
 protected:
     /**
@@ -141,6 +141,8 @@ private:
      */
     void generateSurfacePre( double isoValue );
 
+    boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
+
     WPropInt m_nbTriangles; //!< Info-property showing the number of triangles in the mesh.
     WPropInt m_nbVertices; //!< Info-property showing the number of vertices in the mesh.
 
@@ -179,7 +181,7 @@ private:
     bool m_shaderUseTransparency; //!< shall the shader use transparency?
     bool m_firstDataProcessed; //!< Indicates if we already processed the first arrived data. This helps us to reset the isovalue only the first time.
 
-    osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node. We need it to be able to update it when callback is invoked.
+    osg::ref_ptr< WGEManagedGroupNode > m_moduleNode; //!< Pointer to the module's group node. We need it to be able to update it for callback.
     bool m_moduleNodeInserted; //!< ensures that the above module node gets inserted once the first triangle mesh has been calculated.
 
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
@@ -230,7 +232,7 @@ inline void SurfaceNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* 
 {
     if ( m_module )
     {
-        m_module->updateGraphics();
+        m_module->updateGraphicsForCallback();
     }
     traverse( node, nv );
 }

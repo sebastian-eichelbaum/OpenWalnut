@@ -56,6 +56,7 @@ WTriangleMesh2::WTriangleMesh2( size_t vertNum, size_t triangleNum )
       m_neighborsCalculated( false )
 {
     m_verts = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( vertNum ) );
+    m_textureCoordinates = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( vertNum ) );
     m_vertNormals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array( vertNum ) );
     m_vertColors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array( vertNum ) );
 
@@ -70,6 +71,7 @@ WTriangleMesh2::WTriangleMesh2( osg::ref_ptr< osg::Vec3Array > vertices, const s
       m_meshDirty( true ),
       m_neighborsCalculated( false ),
       m_verts( vertices ),
+      m_textureCoordinates( new osg::Vec3Array( vertices->size() ) ),
       m_vertNormals( new osg::Vec3Array( vertices->size() ) ),
       m_vertColors( new osg::Vec4Array( vertices->size() ) ),
       m_triangles( triangles ),
@@ -158,6 +160,16 @@ osg::ref_ptr< osg::Vec3Array >WTriangleMesh2::getVertexArray()
 osg::ref_ptr< const osg::Vec3Array >WTriangleMesh2::getVertexArray() const
 {
     return m_verts;
+}
+
+osg::ref_ptr< osg::Vec3Array > WTriangleMesh2::getTextureCoordinateArray()
+{
+    return m_textureCoordinates;
+}
+
+osg::ref_ptr< const osg::Vec3Array > WTriangleMesh2::getTextureCoordinateArray() const
+{
+    return m_textureCoordinates;
 }
 
 osg::ref_ptr< osg::Vec3Array >WTriangleMesh2::getVertexNormalArray( bool forceRecalc )

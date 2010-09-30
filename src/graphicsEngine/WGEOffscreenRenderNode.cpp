@@ -24,14 +24,14 @@
 
 #include <string>
 
-#include "callbacks/WGEViewportCallback.h"
+#include <osg/Geode>
 
 #include "WGEOffscreenRenderNode.h"
 
 WGEOffscreenRenderNode::WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > reference, size_t width, size_t height, bool noHud ):
     WGEGroupNode(),
     m_referenceCamera( reference ),
-    m_hud( new WGETextureHud() ),
+    m_hud(),
     m_textureWidth( width ),
     m_textureHeight( height ),
     m_nextPassNum( 0 )
@@ -39,6 +39,7 @@ WGEOffscreenRenderNode::WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > refe
     // initialize members
     if ( !noHud )
     {
+        m_hud = new WGETextureHud();
         m_hud->addUpdateCallback( new WGEViewportCallback< WGETextureHud >( m_referenceCamera ) );
         m_hud->coupleViewportWithTextureViewport();
         insert( m_hud );
@@ -50,44 +51,52 @@ WGEOffscreenRenderNode::~WGEOffscreenRenderNode()
     // cleanup
 }
 
-osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addRenderPass( std::string name )
-{
-    // create a new pass
-    osg::ref_ptr< WGEOffscreenRenderPass > pass = new WGEOffscreenRenderPass( m_textureWidth, m_textureHeight, m_hud, name, m_nextPassNum );
-    m_nextPassNum++;
-
-    // this node needs to keep all the pass instances. Only this way, the OSG traverses and renders these nodes in the order specified by
-    // m_nextPassNum.
-    insert( pass );   // insert into this group
-
-    // ensure proper propagation of viewport changes
-    pass->addUpdateCallback( new WGEViewportCallback< WGEOffscreenRenderPass >( m_referenceCamera ) );
-
-    // set clear mask and color according to reference cam
-    pass->setClearMask( m_referenceCamera->getClearMask() );
-    pass->setClearColor( m_referenceCamera->getClearColor() );
-
-    return pass;
-}
-
 osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRenderPass( osg::ref_ptr< osg::Node > node, std::string name )
 {
     // create a plain render pass and add some geometry
-    osg::ref_ptr< WGEOffscreenRenderPass > pass = addRenderPass( name );
+    osg::ref_ptr< WGEOffscreenRenderPass > pass = addRenderPass< WGEOffscreenRenderPass >( name );
     pass->addChild( node );
     return pass;
 }
 
-osg::ref_ptr< WGEOffscreenRenderPass >  WGEOffscreenRenderNode::addTextureProcessingPass( std::string name )
+osg::ref_ptr< WGEOffscreenTexturePass > WGEOffscreenRenderNode::addTextureProcessingPass( std::string name )
 {
-    osg::ref_ptr< WGEOffscreenRenderPass > pass = addRenderPass( name );
-
-    // we need to create a nice quad for texture processing spanning the whole texture space
-
-
-
-
-
+    osg::ref_ptr< WGEOffscreenTexturePass > pass = addRenderPass< WGEOffscreenTexturePass >( name );
     return pass;
+}
+
+osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRenderPass( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader,
+                                                                                      std::string name )
+{
+    // create a plain render pass and add some geometry
+    osg::ref_ptr< WGEOffscreenRenderPass > pass = addRenderPass< WGEOffscreenRenderPass >( name );
+    pass->addChild( node );
+    shader->apply( pass );
+    return pass;
+}
+
+osg::ref_ptr< WGEOffscreenTexturePass > WGEOffscreenRenderNode::addTextureProcessingPass( osg::ref_ptr< WShader > shader, std::string name )
+{
+    osg::ref_ptr< WGEOffscreenTexturePass > pass = addRenderPass< WGEOffscreenTexturePass >( name );
+    shader->apply( pass );
+    return pass;
+}
+
+osg::ref_ptr< WGEOffscreenFinalPass > WGEOffscreenRenderNode::addFinalOnScreenPass( std::string name )
+{
+    osg::ref_ptr< WGEOffscreenFinalPass > pass = addRenderPass< WGEOffscreenFinalPass >( name );
+    return pass;
+}
+
+osg::ref_ptr< WGEOffscreenFinalPass > WGEOffscreenRenderNode::addFinalOnScreenPass( osg::ref_ptr< WShader > shader, std::string name )
+{
+    osg::ref_ptr< WGEOffscreenFinalPass > pass = addRenderPass< WGEOffscreenFinalPass >( name );
+    shader->apply( pass );
+    return pass;
+}
+
+osg::ref_ptr< WGETextureHud > WGEOffscreenRenderNode::getTextureHUD() const
+{
+    return m_hud;
 }
 

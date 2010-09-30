@@ -30,6 +30,9 @@
 #include <osg/Camera>
 #include <osg/FrameBufferObject>
 
+#include "WGEUtils.h"
+#include "WGEScaledTexture.h"
+
 class WGETextureHud;
 
 /**
@@ -84,12 +87,13 @@ public:
      * This method attaches a texture to the given buffer. The texture gets created with the resolution of the FBO.
      *
      * \param buffer the buffer to attach the new texture to
+     * \param internalFormat the format to use. By default, RGBA
      *
      * \note if the node is added to the graph, these functions should only be called from within an update callback.
      *
      * \return the newly created texture.
      */
-    osg::ref_ptr< osg::Texture2D > attach( BufferComponent buffer );
+    osg::ref_ptr< osg::Texture2D > attach( BufferComponent buffer, GLint internalFormat = GL_RGBA );
 
     /**
      * Detaches the texture currently bound to the specified buffer.
@@ -99,6 +103,16 @@ public:
      * \note if the node is added to the graph, these functions should only be called from within an update callback.
      */
     void detach( BufferComponent buffer );
+
+    /**
+     * This is a shortcut for wge::bindTexture. See \ref wge::bindTexture for details.
+     *
+     * \param unit the unit to use
+     * \param texture the texture to use.
+     * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
+     */
+    template < typename T >
+    void bind( osg::ref_ptr< T > texture, size_t unit = 0 );
 
     /**
      * Creates a new texture suitable for this offscreen rendering instance. The texture will have the same size as the viewport of this camera.
@@ -116,6 +130,35 @@ public:
      */
     std::string getName() const;
 
+    /**
+     * Returns the buffer name. This is useful for debugging messages and so on as it maps a buffer constant to its name.
+     *
+     * \param buffer the buffer to get the name for
+     *
+     * \return the name
+     */
+    static std::string getBufferName( BufferComponent buffer );
+
+    /**
+     * Get the size of the underlying texture.
+     *
+     * \return the width
+     */
+    size_t getTextureWidth() const;
+
+    /**
+     * Get the size of the underlying texture.
+     *
+     * \return the height
+     */
+    size_t getTextureHeight() const;
+
+    /**
+     * The uniform to add. This is a shortcut for this->getOrCreateStateSet()->addUniform( uniform ).
+     *
+     * \param uniform the uniform to add
+     */
+    virtual void addUniform( osg::ref_ptr< osg::Uniform > uniform );
 protected:
 
     /**
@@ -144,6 +187,12 @@ protected:
     std::string m_name;
 private:
 };
+
+template < typename T >
+void WGEOffscreenRenderPass::bind( osg::ref_ptr< T > texture, size_t unit )
+{
+    wge::bindTexture( this, texture, unit );
+}
 
 #endif  // WGEOFFSCREENRENDERPASS_H
 
