@@ -85,20 +85,3 @@ unsigned int WMarchingCubesAlgorithm::getVertexID( unsigned int nX, unsigned int
     return nZ * ( m_nCellsY + 1 ) * ( m_nCellsX + 1) + nY * ( m_nCellsX + 1 ) + nX;
 }
 
-void WMarchingCubesAlgorithm::transformPositions( ID2WPointXYZId* positions )
-{
-    for( ID2WPointXYZId::iterator it = positions->begin(); it != positions->end(); ++it )
-    {
-        wmath::WPosition pos = wmath::WPosition( it->second.x, it->second.y, it->second.z );
-
-        std::vector< double > resultPos4D( 4 );
-        resultPos4D[0] = m_matrix( 0, 0 ) * pos[0] + m_matrix( 0, 1 ) * pos[1] + m_matrix( 0, 2 ) * pos[2] + m_matrix( 0, 3 ) * 1;
-        resultPos4D[1] = m_matrix( 1, 0 ) * pos[0] + m_matrix( 1, 1 ) * pos[1] + m_matrix( 1, 2 ) * pos[2] + m_matrix( 1, 3 ) * 1;
-        resultPos4D[2] = m_matrix( 2, 0 ) * pos[0] + m_matrix( 2, 1 ) * pos[1] + m_matrix( 2, 2 ) * pos[2] + m_matrix( 2, 3 ) * 1;
-        resultPos4D[3] = m_matrix( 3, 0 ) * pos[0] + m_matrix( 3, 1 ) * pos[1] + m_matrix( 3, 2 ) * pos[2] + m_matrix( 3, 3 ) * 1;
-
-        it->second.x = resultPos4D[0] / resultPos4D[3];
-        it->second.y = resultPos4D[1] / resultPos4D[3];
-        it->second.z = resultPos4D[2] / resultPos4D[3];
-    }
-}

@@ -86,7 +86,6 @@ public:
      */
     virtual const std::string getDescription() const;
 
-
     /**
      * adds a vertex position to the mesh
      *
@@ -109,6 +108,22 @@ public:
      * \param vert
      */
     void addVertex( wmath::WPosition vert );
+
+    /**
+     * Adds a texture coordinate for the vertex.
+     *
+     * \param texCoord the texture coordinate
+     */
+    void addTextureCoordinate( osg::Vec3 texCoord );
+
+    /**
+     * Adds a texture coordinate for the vertex.
+     *
+     * \param x texture coordinate X
+     * \param y texture coordinate Y
+     * \param z texture coordinate Z
+     */
+    void addTextureCoordinate( float x, float y, float z );
 
     /**
      * adds a tringle to the mesh
@@ -204,6 +219,20 @@ public:
      * \return vertex array
      */
     osg::ref_ptr< const osg::Vec3Array >getVertexArray() const;
+
+    /**
+     * Returns a reference pointer to the texture coordinate array.
+     *
+     * \return texture coordinate array
+     */
+    osg::ref_ptr< osg::Vec3Array > getTextureCoordinateArray();
+
+    /**
+     * Returns a const reference pointer to the texture coordinate array.
+     *
+     * \return texture coordinate array
+     */
+    osg::ref_ptr< const osg::Vec3Array > getTextureCoordinateArray() const;
 
     /**
      * getter
@@ -541,6 +570,8 @@ private:
 
     osg::ref_ptr< osg::Vec3Array > m_verts; //!< array containing the vertices
 
+    osg::ref_ptr< osg::Vec3Array > m_textureCoordinates; //!< array containing the texture coordinates
+
     osg::ref_ptr< osg::Vec3Array > m_vertNormals; //!< array containing the vertex normals
 
     osg::ref_ptr< osg::Vec4Array > m_vertColors; //!< array containing vertex colors
@@ -592,6 +623,15 @@ inline bool WTriangleMesh2::operator==( const WTriangleMesh2& rhs ) const
            std::equal( m_triangles.begin(), m_triangles.end(), rhs.m_triangles.begin() );
 }
 
+inline void WTriangleMesh2::addTextureCoordinate( osg::Vec3 texCoord )
+{
+    m_textureCoordinates->push_back( texCoord );
+}
+
+inline void WTriangleMesh2::addTextureCoordinate( float x, float y, float z )
+{
+    addTextureCoordinate( osg::Vec3( x, y, z ) );
+}
 
 inline void WTriangleMesh2::addVertex( osg::Vec3 vert )
 {
