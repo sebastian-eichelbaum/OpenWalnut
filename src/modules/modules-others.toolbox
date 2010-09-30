@@ -31,3 +31,7 @@ IF( Teem_FOUND )
   ENDIF()
   ADD_SUBDIRECTORY( teemGlyphs )
 ENDIF()
+
+IF( OSSIM_FOUND )
+  ADD_SUBDIRECTORY( HARDIToSphericalHarmonics )
+ENDIF()
