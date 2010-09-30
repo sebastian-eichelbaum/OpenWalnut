@@ -314,9 +314,16 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
 
 void WMMarchingCubes::renderMesh()
 {
-    // std::cout<<"COUT REM"<<std::endl;
-    m_moduleNode->remove( m_surfaceGeode );
-    // std::cout<<"COUT REM"<<std::endl;
+    {
+        // Remove the previous node in a thread save way.
+        boost::unique_lock< boost::shared_mutex > lock;
+        lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
+
+        m_moduleNode->remove( m_surfaceGeode );
+
+        lock.unlock();
+    }
+
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
@@ -565,6 +572,9 @@ bool WMMarchingCubes::save() const
 
 void WMMarchingCubes::updateGraphicsForCallback()
 {
+    boost::unique_lock< boost::shared_mutex > lock;
+    lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
+
     if( m_surfaceColor->changed() )
     {
         osg::Vec4Array* colors = new osg::Vec4Array;
@@ -639,12 +649,10 @@ void WMMarchingCubes::updateGraphicsForCallback()
             //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-            // std::cout<<m_surfaceGeode->getNumDrawables()<<"---"<<std::endl;
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
                 if( localTextureChangedFlag )
                 {
-                    // std::cout<<m_surfaceGeode->getNumDrawables()<<"..-."<<std::endl;
                     osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
@@ -679,5 +687,6 @@ void WMMarchingCubes::updateGraphicsForCallback()
             }
         }
     }
+    lock.unlock();
 }
 
