@@ -35,6 +35,11 @@ uniform sampler2D u_texture0Sampler;
 uniform sampler2D u_texture1Sampler;
 
 /**
+ * The texture Unit for the transformed data
+ */
+uniform sampler2D u_texture2Sampler;
+
+/**
  * Size of texture in pixels
  */
 uniform int u_texture0SizeX;
@@ -75,6 +80,9 @@ void main()
     vec4 br = texture2D( u_texture0Sampler, texCoord + vec2(  offsetW,  offsetH ) );
     vec4 b  = texture2D( u_texture0Sampler, texCoord + vec2(     0.0,  -offsetH ) );
 
+    float noise = texture2D( u_texture1Sampler, texCoord ).r;
+    float light = texture2D( u_texture2Sampler, texCoord ).b;
+
     /////////////////////////////////////////////////////////////////////////////////////////////
     // LAPLACE
     //
@@ -87,6 +95,6 @@ void main()
             0.0 * tl +  1.0 * t + 0.0 * tr +
             1.0 * l  + -4.0 * c + 1.0 * r  +
             0.0 * bl +  1.0 * b + 0.0 * br
-        ).r, c.r, texture2D( u_texture1Sampler, texCoord ).r, 1.0 );    // also store noise in this texture
+        ).r, c.r, noise, light );    // also store noise in this texture
 }
 

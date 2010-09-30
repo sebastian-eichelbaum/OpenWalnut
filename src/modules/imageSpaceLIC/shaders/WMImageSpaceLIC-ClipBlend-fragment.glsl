@@ -50,9 +50,19 @@ uniform bool u_useLight;
 uniform bool u_useEdges;
 
 /**
+ * If true, the depth is blended in
+ */
+uniform bool u_useDepthCueing;
+
+/**
  * Ratio between colormap and advected noise
  */
 uniform float u_cmapRatio;
+
+/**
+ * How intensive should contrast enhancement be?
+ */
+uniform bool u_useHighContrast;
 
 /**
  * Main. Clips and Blends the final image space rendering with the previously acquired 3D information
@@ -61,13 +71,21 @@ void main()
 {
     vec2 texCoord = gl_TexCoord[0].st;
     float edge  = texture2D( u_texture1Sampler, texCoord ).r * ( u_useEdges ? 1.0 : 0.0 );
-    float light  = texture2D( u_texture1Sampler, texCoord ).b * ( u_useLight ? 1.0 : 0.0 );
+    float light  = texture2D( u_texture1Sampler, texCoord ).a * ( u_useLight ? 1.0 : 0.0 );
     float depth  = texture2D( u_texture1Sampler, texCoord ).g;
     float advected  = texture2D( u_texture0Sampler, texCoord ).r;
-    vec4 cmap = texture2D( u_texture2Sampler, texCoord );
+    vec3 cmap = texture2D( u_texture2Sampler, texCoord ).rgb;
 
-    gl_FragColor = u_cmapRatio * cmap +
-                   ( 1.0 - u_cmapRatio ) * vec4( vec3( edge + 2.0 * advected * advected ), 1.0 );
+    float u_contrastingS = u_useHighContrast ? 64.0 : 2.5;
+    float u_contrastingP = u_useHighContrast ? 8 : 2.5;
+    vec3 plainColor = u_cmapRatio * cmap + ( 1.0 - u_cmapRatio ) * vec3( u_contrastingS * pow( advected, u_contrastingP ) ); 
+
+    gl_FragColor = vec4( 
+        ( vec3( edge ) + plainColor ) // plain color mapped advection texture with edges
+         * clamp( 1.0 - ( float( u_useDepthCueing ) * depth * depth ), 0.4, 1.0 ) // scaled by depth if enabled
+         * ( u_useLight ? light * 1.3: 1.0 ),
+        1.0
+    );
     gl_FragDepth = depth;
 }
 

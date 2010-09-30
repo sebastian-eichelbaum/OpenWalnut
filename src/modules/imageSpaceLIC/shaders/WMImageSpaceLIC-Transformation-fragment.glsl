@@ -135,7 +135,16 @@ void main()
 
     // calculate lighting for the surface
     // TODO(ebaum): material properties should be used instead
-    float light = blinnPhongIlluminationIntensity( 0.5, 0.3, 0.3, 10.0, 1.0, 0.5, v_normal, v_viewDir, v_lightSource );
+    float light = blinnPhongIlluminationIntensity(
+            0.2,
+            1.0,
+            1.3,
+            10.0,
+            1.0,
+            0.3,
+            -normalize( v_normal ),
+            normalize( v_viewDir ),
+            normalize( v_lightSource ) );
 
     gl_FragData[0] = vec4( textureNormalize( vecProjected ), light, 1.0 );
     gl_FragData[1] = vec4( texture3D( u_texture0Sampler, gl_TexCoord[0].xyz ).rgb , 1.0 );

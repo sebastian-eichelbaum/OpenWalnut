@@ -185,6 +185,10 @@ private:
 
     WPropBool     m_useLight; //!< indicates whether to use Phong
 
+    WPropBool     m_useDepthCueing; //!< indicates whether to use depth cueing in the shader
+
+    WPropBool     m_useHighContrast; //!< use the high contrast version?
+
     WPropInt      m_numIters; //!< the number of iterations done per frame
 
     WPropDouble   m_cmapRatio; //!< the ratio between colormap and LIC
@@ -410,8 +414,8 @@ private:
                     }
                     else
                     {
-                        texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
-                        texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+                        texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
+                        texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
                     }
                     rootState->setTextureAttributeAndModes( c + 2, texture3D, osg::StateAttribute::ON );
 

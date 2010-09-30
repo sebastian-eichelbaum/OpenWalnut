@@ -137,6 +137,9 @@ void WMImageSpaceLIC::properties()
     m_useLight       = m_licGroup->addProperty( "Use Light", "Check to enable lightning using the Phong model.", false );
 
     m_useEdges       = m_licGroup->addProperty( "Edges", "Check to enable blending in edges.", true );
+    m_useDepthCueing = m_licGroup->addProperty( "Depth Cueing", "Use depth as additional cue? Blends in the depth. Mostly useful for isosurfaces.",
+                                                false );
+    m_useHighContrast = m_licGroup->addProperty( "High Contrast", "Use an extremely increased contrast.", false );
 
     m_numIters     = m_licGroup->addProperty( "Number of Iterations", "How much iterations along a streamline should be done per frame.", 30 );
     m_numIters->setMin( 1 );
@@ -180,8 +183,7 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
         surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
 
         // texture coordinates
-        surfaceGeometry->setNormalArray( mesh->getVertexNormalArray() );
-        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+        surfaceGeometry->setTexCoordArray( 0, mesh->getTextureCoordinateArray() );
 
         // render
         surfaceGeode->addDrawable( surfaceGeometry );
@@ -341,6 +343,7 @@ void WMImageSpaceLIC::moduleMain()
     osg::ref_ptr< osg::Texture2D > edgeDetectionOut1 = edgeDetection->attach( osg::Camera::COLOR_BUFFER0 );
     edgeDetection->bind( transformationDepth, 0 );
     edgeDetection->bind( randTexture,         1 );
+    edgeDetection->bind( transformationOut1,  2 );
 
     // Advection Pass, needs edges and projected vectors as well as noise texture
     //  * Advected noise in luminance channel
@@ -359,6 +362,8 @@ void WMImageSpaceLIC::moduleMain()
     // final pass needs some uniforms controlled by properties
     clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useEdges", m_useEdges ) );
     clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useLight", m_useLight ) );
+    clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useDepthCueing", m_useDepthCueing ) );
+    clipBlend->addUniform( new WGEPropertyUniform< WPropBool >( "u_useHighContrast", m_useHighContrast ) );
     clipBlend->addUniform( new WGEPropertyUniform< WPropDouble >( "u_cmapRatio", m_cmapRatio ) );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////

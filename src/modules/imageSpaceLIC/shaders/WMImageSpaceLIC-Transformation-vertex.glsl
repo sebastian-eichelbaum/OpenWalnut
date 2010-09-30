@@ -35,9 +35,9 @@ void main()
 {
     // for easy access to texture coordinates
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-
+     
     // some light precalculations
-    v_normal = normalize( gl_Normal );
+    v_normal = gl_Normal;
 
     // also get the coordinates of the light
     vec4 lpos = gl_LightSource[0].position; // this simply doesn't work well with OSG
@@ -46,8 +46,7 @@ void main()
 
     // transform the view direction to texture space, which equals object space
     // Therefore use two points, as we transform a vector
-    vec4 camLookAt = vec4( 0.0, 0.0, -1.0, 1.0 );
-    vec4 camPos    = vec4( 0.0, 0.0, 0.0, 0.0 );
+    vec4 camPos    = vec4( 0.0, 0.0, -1.0, 0.0 );
     v_viewDir = worldToLocal( camPos ).xyz;
 
     // transform position
