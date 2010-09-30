@@ -22,6 +22,7 @@ ADD_SUBDIRECTORY( overlayAtlas )
 ADD_SUBDIRECTORY( probTractDisplay )
 ADD_SUBDIRECTORY( scalarSegmentation )
 ADD_SUBDIRECTORY( splineSurface )
+ADD_SUBDIRECTORY( subtractDataSetScalar )
 ADD_SUBDIRECTORY( surfaceParameterAnimator )
 
 IF( Teem_FOUND )
