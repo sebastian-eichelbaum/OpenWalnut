@@ -25,9 +25,16 @@
 #ifndef WGAUSSPROCESS_TEST_H
 #define WGAUSSPROCESS_TEST_H
 
+#include <vector>
+
 #include <cxxtest/TestSuite.h>
 
+#include "../../../../common/datastructures/WFiber.h"
+#include "../../../../common/WLogger.h"
+#include "../../../../dataHandler/WDataSetDTI.h"
 #include "../WGaussProcess.h"
+
+static WLogger logger; // In case someone uses the logger in one of the classes above
 
 /**
  * Testsuite for the gaussian process class.
@@ -36,12 +43,83 @@ class WGaussProcessTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * The mean function of a gaussian process is a mapping: R^3 -> R
+     * If the point for the mean function is outside of the environment with distance R the mean
+     * should equals to zero.
      */
-    void testMeanFunctionTest( void )
+    void testMeanFunctionOutsideOf_R_Environment( void )
     {
-        // TODO(math): implement this
+        WGaussProcess p( m_tract, m_emptyDTIDataSet );
+        double R = p.m_R;
+        TS_ASSERT_DELTA( p.mean( wmath::WPosition( -( p.m_R + wlimits::DBL_EPS ), 0.0, 0.0 ) ), 0.0, wlimits::DBL_EPS );
     }
+
+    /**
+     * Inside of the R environment there shall be values unequal to zero.
+     */
+    void testMeanFunctionInsideOf_R_Environment( void )
+    {
+        WGaussProcess p( m_tract, m_emptyDTIDataSet );
+        double R = p.m_R;
+        TS_ASSERT( std::abs( p.mean( wmath::WPosition( -p.m_R + 2 * wlimits::DBL_EPS, 0.0, 0.0 ) ) ) > wlimits::DBL_EPS );
+    }
+
+    /**
+     * Inside of the R environment the values should be monoton increasing in direction to the tract
+     * segements.
+     */
+    void testMeanFunctionMonotonyIn_R_Environment( void )
+    {
+        WGaussProcess p( m_tract, m_emptyDTIDataSet );
+        double R = p.m_R;
+        TS_ASSERT( std::abs( p.mean( wmath::WPosition( -p.m_R + 3 * wlimits::DBL_EPS, 0.0, 0.0 ) ) ) >
+                             p.mean( wmath::WPosition( -p.m_R + 2 * wlimits::DBL_EPS, 0.0, 0.0 ) ) );
+    }
+
+//    void testMeanFunctionOnSamplePoint( void )
+//    {
+//    }
+//
+//    void testMeanFunctionOnSegmentButNotOnSamplePoint( void )
+//    {
+//    }
+
+protected:
+    /**
+     * SetUp test environment.
+     */
+    void setUp( void )
+    {
+        float dataArray[6] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 }; // NOLINT array init list
+        std::vector< float > data( &dataArray[0], &dataArray[0] + sizeof( dataArray ) / sizeof( float ) );
+        boost::shared_ptr< WValueSetBase > newValueSet( new WValueSet< float >( 1, 6, data, W_DT_FLOAT ) );
+        boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
+        m_emptyDTIDataSet = boost::shared_ptr< WDataSetDTI >(  new WDataSetDTI( newValueSet, newGrid ) );
+
+        m_tract.push_back( wmath::WPosition( 0.0, 0.0, 0.0 ) );
+        m_tract.push_back( wmath::WPosition( 1.0, 1.0, 0.0 ) );
+        m_tract.push_back( wmath::WPosition( 1.0, 2.0, 0.0 ) );
+        m_tract.push_back( wmath::WPosition( 2.0, 2.0, 0.0 ) );
+    }
+
+    /**
+     * Clean up everything.
+     */
+    void tearDown( void )
+    {
+        m_tract.clear();
+        m_emptyDTIDataSet.reset();
+    }
+
+private:
+    /**
+     * Dummy DTI dataset.
+     */
+    boost::shared_ptr< WDataSetDTI > m_emptyDTIDataSet;
+
+    /**
+     * A single tract to check the gauss process
+     */
+    wmath::WFiber m_tract;
 };
 
 #endif  // WGAUSSPROCESS_TEST_H

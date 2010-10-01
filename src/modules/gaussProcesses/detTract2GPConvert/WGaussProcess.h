@@ -39,12 +39,8 @@
  */
 class WGaussProcess
 {
+friend class WGaussProcessTest;
 public:
-//    /**
-//     * Default constructor. Whc
-//     */
-//    WGaussProcess();
-
     /**
      * Constructs a gaussian process out of a fiber with the help of underlying diffusion tensor
      * information.
@@ -59,28 +55,33 @@ public:
      */
     virtual ~WGaussProcess();
 
+    /**
+     * Computes the mean function describing this gausprocess as described in the Wassermann paper,
+     * see equation (16) on page 12.
+     *
+     * \param p The point where to evaluate the gauss process.
+     *
+     * \return The mean value of this gaussian process at the point \e p.
+     */
+    double mean( const wmath::WPosition& p ) const;
+
 protected:
 private:
     /**
      * Computes the covariance matrix and invert it. This shall always be possible since the
      * creating function is positive definit. (TODO(math): at least Demain said this) Finally the
      * inverse is saved to the member variable \ref m_CffInverse.
-     *
-     * \param tract The points of the tract from which the covariance is computed for.
      */
-    void generateCffInverse( const wmath::WFiber& tract );
+    void generateCffInverse();
 
     /**
      * Computes tau parameter representing the max diffusion time.
      *
      * \see m_tau
      *
-     * \param tract One deterministic tractogram
-     * \param tensors All 2nd order diffusion tensors
-     *
      * \return The parameter tau
      */
-    double generateTauParameter( const wmath::WFiber& tract, boost::shared_ptr< const WDataSetDTI > tensors );
+    double generateTauParameter();
 
     /**
      * Covariance function of two points representing the smoothness of the tract.
@@ -118,14 +119,15 @@ private:
     double cov( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
 
     /**
+     * Copy of the sample points of the tract, since they are always needed for the mean computation
+     * (S_f(p) will need all f_i ).
+     */
+    wmath::WFiber m_tract;
+
+    /**
      * Read-only reference to the tensor field used for the covariance function \ref cov.
      */
     boost::shared_ptr< const WDataSetDTI > m_tensors;
-
-    /**
-     * A copy of the tract is saved here for covariance function computation.
-     */
-    wmath::WFiber m_tract;
 
     /**
      * Covariance matrix of all pairs of sample points of the tract using the \ref cov function.
@@ -139,7 +141,7 @@ private:
     double m_tau;
 
     /**
-     * Max segment length of the tract.
+     * Max segment length of the tract describing the R environment.
      */
     double m_R;
 };
