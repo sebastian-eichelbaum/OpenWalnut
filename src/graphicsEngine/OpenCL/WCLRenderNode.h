@@ -404,7 +404,8 @@ private:
 
     /**
      * Override this method to set the colorBuffer and depthBuffer kernel arguments.
-     * You may also set width and height arguments. Do not use this method to set any other kernel
+     * You may also set width and height arguments or resize memory objects that depend
+     * on the screen resolution. You should not use this method to set any other kernel
      * arguments or change CL objects.
      *
      * @param clViewInfo The CLViewInformation containing colorBuffer and depthBuffer.

@@ -82,8 +82,6 @@ inline float* calcFactors(const unsigned int& order,const unsigned int& numOfCoe
 
     unsigned int i = 0;
 
-    float value = 0.0f;
-
     for (unsigned int z = 0; z <= order; z++)
     {
         for (unsigned int y = 0; y <= order - z; y++,i++)
