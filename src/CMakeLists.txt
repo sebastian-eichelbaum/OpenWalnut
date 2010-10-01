@@ -114,11 +114,11 @@ IF( OSSIM_FOUND )
 ENDIF()
 
 ### Eigen #### (for the gauss process, the covariance matrices tend to be sparse and 20x20, but ~70.000 of them)
-FIND_PACKAGE( Eigen2 QUIET )
-IF( EIGEN2_FOUND )
-    MESSAGE( STATUS "Found Eigen2 in: ${EIGEN2_INCLUDE_DIR} with version: ${EIGEN2_VERSION}" )
-    MARK_AS_ADVANCED( EIGEN2_INCLUDE_DIR )
-    MARK_AS_ADVANCED( EIGEN2_VERSION )
+FIND_PACKAGE( Eigen3 QUIET )
+IF( EIGEN3_FOUND )
+    MESSAGE( STATUS "Found Eigen3 in: ${EIGEN3_INCLUDE_DIR} with version: ${EIGEN3_VERSION}" )
+    MARK_AS_ADVANCED( EIGEN3_INCLUDE_DIR )
+    MARK_AS_ADVANCED( EIGEN3_VERSION )
 ENDIF()
 
 # other options:

@@ -1,7 +1,7 @@
-# This module needs the eigen2 lib please ensure to install it on your platform,
+# This module needs the eigen3 lib please ensure to install it on your platform,
 # for Linux, packages exists and for Mac is a Mac Port available. It compiles
 # also under Windows see: http://eigen.tuxfamily.org/index.php?title=Main_Page
-IF( EIGEN2_FOUND )
+IF( EIGEN3_FOUND )
     FILE( GLOB_RECURSE MODULES_SRC "*.cpp" "*.h" )
 
     # Grab module name and setup target directories
@@ -13,7 +13,7 @@ IF( EIGEN2_FOUND )
     SET( MODULE_NAME    "OWmodule_${MODULE_NAME}" )      # prefix all module names with "OWmodule_" to separate them from other libs
 
     # Build module lib
-    INCLUDE_DIRECTORIES( ${EIGEN2_INCLUDE_DIR} )
+    INCLUDE_DIRECTORIES( ${EIGEN3_INCLUDE_DIR} )
     ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
     TARGET_LINK_LIBRARIES( ${MODULE_NAME} OWkernel )
 
@@ -46,4 +46,4 @@ IF( EIGEN2_FOUND )
 
     ENDIF( OW_COMPILE_TESTS )
 
-ENDIF( EIGEN2_FOUND )
+ENDIF( EIGEN3_FOUND )
