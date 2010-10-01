@@ -25,13 +25,13 @@
 #ifndef WLINE_TEST_H
 #define WLINE_TEST_H
 
-#include <string>
 #include <sstream>
+#include <string>
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../WLimits.h"
 #include "../../exceptions/WOutOfBounds.h"
+#include "../../WLimits.h"
 #include "../WLine.h"
 #include "WLineTraits.h"
 #include "WPositionTraits.h"
@@ -317,10 +317,39 @@ public:
      */
     void testMidPointOnEmptyLine( void )
     {
+        wmath::WLine line;
+        wmath::WPosition expected( 1, 1, 0 );
+        TS_ASSERT_THROWS_EQUALS( line.midPoint(), WOutOfBounds &e, std::string( e.what() ), "There is no midpoint for an empty line." );
+    }
+
+    /**
+     * The max segemnent length is the maximum length over all segments (p_i<->p_j). For further
+     * information look just on the name of the test function, I think this is really precised ;).
+     * (Ha one more line in hg churn!)
+     * BTW: If there are multiple max lengths (equidistant sampled tracts) the first shall be
+     * chosen, BTW: this is totally stupid!, if they are equals it doesn't matter anyway, huh???
+     */
+    void testMaxSegementLength( void )
+    {
         using wmath::WPosition;
         wmath::WLine line;
-        WPosition expected( 1, 1, 0 );
-        TS_ASSERT_THROWS_EQUALS( line.midPoint(), WOutOfBounds &e, std::string( e.what() ), "There is no midpoint for an empty line." );
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
+        line.push_back( WPosition( 2, 0, 0 ) );
+        TS_ASSERT_DELTA( line.maxSegmentLength(), std::sqrt( 2.0 ), wlimits::DBL_EPS );
+        line.push_back( WPosition( 0, 0, 0 ) );
+        TS_ASSERT_DELTA( line.maxSegmentLength(), 2.0, wlimits::DBL_EPS );
+    }
+
+    /**
+     * If there no points at all, 0.0 shall be returned.
+     */
+    void testEmptyLineOnMaxSegementLength( void )
+    {
+        wmath::WLine line;
+        TS_ASSERT_EQUALS( line.maxSegmentLength(), 0.0 );
+        line.push_back( wmath::WPosition( 0, 3.1415, 0 ) );
+        TS_ASSERT_EQUALS( line.maxSegmentLength(), 0.0 );
     }
 
 private:
