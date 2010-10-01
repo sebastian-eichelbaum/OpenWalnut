@@ -40,10 +40,10 @@
 class WGaussProcess
 {
 public:
-    /**
-     * Default constructor.
-     */
-    WGaussProcess();
+//    /**
+//     * Default constructor. Whc
+//     */
+//    WGaussProcess();
 
     /**
      * Constructs a gaussian process out of a fiber with the help of underlying diffusion tensor
@@ -62,29 +62,47 @@ public:
 protected:
 private:
     /**
+     * Computes the covariance matrix and invert it. This shall always be possible since the
+     * creating function is positive definit. (TODO(math): at least Demain said this) Finally the
+     * inverse is saved to the member variable \ref m_CffInverse.
+     *
+     * \param tract The points of the tract from which the covariance is computed for.
+     */
+    void generateCffInverse( const wmath::WFiber& tract );
+
+    /**
+     * Computes tau parameter representing the max diffusion time.
+     *
+     * \see m_tau
+     *
+     * \param tract One deterministic tractogram
+     * \param tensors All 2nd order diffusion tensors
+     *
+     * \return The parameter tau
+     */
+    double generateTauParameter( const wmath::WFiber& tract, boost::shared_ptr< const WDataSetDTI > tensors );
+
+    /**
      * Covariance function of two points representing the smoothness of the tract.
      *
      * \param p1 First point
      * \param p2 Second point
-     * \param R The threshold when the gaussian will stop and is equal to zero
      *
      * \return Real number indicating the covariance between two points representing the smoothness
      * of the tract
      */
-    double cov_s( const wmath::WPosition& p1, const wmath::WPosition& p2, const double R = 1.0 ) const;
+    double cov_s( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
 
     /**
      * Covariance function of two points representing the blurring of the tract's diffusion.
      *
      * \param p1 First point
      * \param p2 Second point
-     * \param t The tau parameter as described in equation (13) in the Wasserman parameter.
-     * TODO(math): A more elaborate description would be nice.
      *
      * \return Real number indicating the covariance between two points representing the diffusion
      * associated blurring.
      */
-    double cov_d( const wmath::WPosition& p1, const wmath::WPosition& p2, const double t = 1.0 ) const;
+    double cov_d( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
 
     /**
      * Covariance function of this gaussian process.
@@ -100,7 +118,7 @@ private:
     double cov( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
 
     /**
-     * Read-only reference to the tensor field used for the covariance function \see cov_d.
+     * Read-only reference to the tensor field used for the covariance function \ref cov.
      */
     boost::shared_ptr< const WDataSetDTI > m_tensors;
 
@@ -110,24 +128,30 @@ private:
     wmath::WFiber m_tract;
 
     /**
-     * Covariance matrix of all pairs of sample points of the tract using the \see cov function.
+     * Covariance matrix of all pairs of sample points of the tract using the \ref cov function.
      */
     Eigen::MatrixXd m_CffInverse;
+
+    /**
+     * The maximal diffusion time (tau) as described in the Wassermann paper line 790, page 12 after
+     * equation (16).
+     */
+    double m_tau;
+
+    /**
+     * Max segment length of the tract.
+     */
+    double m_R;
 };
 
-inline double WGaussProcess::cov_s( const wmath::WPosition& p1, const wmath::WPosition& p2, const double R ) const
+inline double WGaussProcess::cov_s( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const
 {
     double r = ( p1 - p2 ).norm();
-    if( r > R )
+    if( r >  m_R )
     {
         return 0.0;
     }
-    return 2 * std::abs( r * r * r ) - 3 * R * r * r + R * R * R;
-}
-
-inline double WGaussProcess::cov_d( const wmath::WPosition& p1, const wmath::WPosition& p2, const double t ) const
-{
-    return 0.0;
+    return 2 * std::abs( r * r * r ) - 3 * m_R * r * r + m_R * m_R * m_R;
 }
 
 inline double WGaussProcess::cov( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const
