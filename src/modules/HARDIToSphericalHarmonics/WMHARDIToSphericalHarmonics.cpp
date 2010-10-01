@@ -38,7 +38,6 @@
 
 #include "../../common/WProgress.h"
 #include "../../common/WPreferences.h"
-#include "../../common/math/WGSLHelper.h"
 #include "../../common/math/WUnitSphereCoordinates.h"
 #include "../../common/math/WMatrix.h"
 #include "../../common/math/WSymmetricSphericalHarmonic.h"
@@ -367,7 +366,7 @@ void WMHARDIToSphericalHarmonics::stopThreads()
   }
 }
 
-bool WMHARDIToSphericalHarmonics::evenInt::accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT > > property,
+bool WMHARDIToSphericalHarmonics::evenInt::accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT > >,
                                        WPVBaseTypes::PV_INT value )
 {
     return ( value % 2 == 0 );
