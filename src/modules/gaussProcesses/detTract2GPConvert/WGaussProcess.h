@@ -27,10 +27,10 @@
 
 #include <Eigen/Core>
 
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/math/WMatrix.h"
-#include "../../common/math/WValue.h"
-#include "../../dataHandler/WDataSetDTI.h"
+#include "../../../common/datastructures/WFiber.h"
+#include "../../../common/math/WMatrix.h"
+#include "../../../common/math/WValue.h"
+#include "../../../dataHandler/WDataSetDTI.h"
 
 /**
  * Represents a basic gaussian process with its mean- and covariance function. Basically this aims

@@ -27,9 +27,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/WMixinVector.h"
+#include "../../../common/WMixinVector.h"
 #include "WGaussProcess.h"
-#include "../../dataHandler/WDataSet.h"
+#include "../../../dataHandler/WDataSet.h"
 
 /**
  * Stores many Gaussian processes.

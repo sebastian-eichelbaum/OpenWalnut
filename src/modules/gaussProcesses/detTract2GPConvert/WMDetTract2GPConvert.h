@@ -29,10 +29,10 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetDTI.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "../../../dataHandler/WDataSetDTI.h"
+#include "../../../kernel/WModule.h"
+#include "../../../kernel/WModuleInputData.h"
+#include "../../../kernel/WModuleOutputData.h"
 #include "WDataSetGP.h"
 
 /**

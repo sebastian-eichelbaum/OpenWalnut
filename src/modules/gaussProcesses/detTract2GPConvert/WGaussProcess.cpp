@@ -26,7 +26,7 @@
 #include <Eigen/LU>
 #include <Eigen/QR>
 
-#include "../../common/WAssert.h"
+#include "../../../common/WAssert.h"
 #include "WGaussProcess.h"
 
 WGaussProcess::WGaussProcess()
