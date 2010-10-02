@@ -298,6 +298,7 @@ void WQt4Gui::slotActivateDatasetOrModuleInBrowser( boost::shared_ptr< WModule >
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleReadyEvent( module ) );
     QCoreApplication::postEvent( m_mainWindow, new WModuleReadyEvent( module ) );
+    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleReadyEvent( module ) );
 }
 
 void WQt4Gui::slotRemoveDatasetOrModuleInBrowser( boost::shared_ptr< WModule > module )
@@ -314,6 +315,7 @@ void WQt4Gui::slotRemoveDatasetOrModuleInBrowser( boost::shared_ptr< WModule > m
         }
     }
     QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleRemovedEvent( module ) );
+    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleRemovedEvent( module ) );
 }
 
 void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )
@@ -322,6 +324,7 @@ void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in,
     if ( in->isInputConnector() )
     {
         QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleConnectEvent( in, out ) );
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( in, out ) );
     }
     else
     {
@@ -335,6 +338,7 @@ void WQt4Gui::slotConnectionClosed( boost::shared_ptr<WModuleConnector> in, boos
     if ( in->isInputConnector() )
     {
         QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleDisconnectEvent( in, out ) );
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( in, out ) );
     }
     else
     {

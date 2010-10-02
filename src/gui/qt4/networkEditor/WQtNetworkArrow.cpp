@@ -44,6 +44,16 @@ WQtNetworkArrow::WQtNetworkArrow( WQtNetworkPort *startPort, WQtNetworkPort *end
 
     setAcceptsHoverEvents( true );
 }
+    
+WQtNetworkArrow::WQtNetworkArrow()
+    : QGraphicsLineItem()
+{
+    setFlag( QGraphicsItem::ItemIsSelectable, true );
+    setPen( QPen( Qt::black, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+
+    setAcceptsHoverEvents( true );
+}
+
 
 WQtNetworkArrow::~WQtNetworkArrow()
 {
@@ -151,4 +161,9 @@ void WQtNetworkArrow::changeColor( QColor color )
 {
     m_color = color;
     setPen( QPen( m_color, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+}
+
+void WQtNetworkArrow::addConnection( boost::shared_ptr< WModuleConnector > in, boost::shared_ptr< WModuleConnector > out )
+{
+    
 }

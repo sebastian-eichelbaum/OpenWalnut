@@ -32,61 +32,32 @@
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsLineItem>
 
-#include "WQtNetworkPort.h"
-
-WQtNetworkPort::WQtNetworkPort( QString name, bool outPort )
-    : QGraphicsRectItem()
-{
-    setRect( 0.0, 0.0, 10.0, 10.0 );
-    setBrush( Qt::gray );
-    setPen( QPen( Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
-
-    setAcceptsHoverEvents( true );
-
-    setPortName( name );
-    setOutPort( outPort );
-
-    QString tmp;
-    if( isOutPort() == true ) tmp = "output";
-    else if( isOutPort() == false ) tmp = "input";
-    else
-        tmp = "undefined";
-
-    QString str = "Name: " + getPortName() + "\nPortType: " + tmp;
-    if( toolTip() != str )
-    {
-        setToolTip( str );
-    }
-}
+#include "WQtNetworkInputPort.h"
+#include "WQtNetworkOutputPort.h"
 
 WQtNetworkPort::~WQtNetworkPort()
 {
-    std::cout << "delete Port" << std::endl;
-    removeArrows();
-}
-
-int WQtNetworkPort::type() const
-{
-    return Type;
 }
 
 void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
-    if( m_isOutPort == true )
+    if( this->isOutPort() == true )
     {
         line = new QGraphicsLineItem( QLineF( mouseEvent->scenePos(),
                     mouseEvent->scenePos() ) );
         line->setPen( QPen( Qt::black, 2 ) );
         scene()->addItem( line );
     }
-    else if( m_isOutPort == false )
+    else if( this->isOutPort() == false )
     {
         mouseEvent->ignore();
     }
 }
 
+//TODO
 void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
+    
     if( line != 0 )
     {
         QLineF newLine( line->line().p1(), mouseEvent->scenePos() );
@@ -101,14 +72,15 @@ void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 
         if( !endItem.isEmpty() )
         {
-            if( endItem.first()->type() == WQtNetworkPort::Type )
+            if( endItem.first()->type() == WQtNetworkOutputPort::Type )
             {
-                WQtNetworkPort *endPort = qgraphicsitem_cast<WQtNetworkPort *>( endItem.first() );
+                //TODO!!!
+                WQtNetworkOutputPort *endPort = qgraphicsitem_cast<WQtNetworkOutputPort *>( endItem.first() );
 
                 if( endPort->isOutPort() == false &&
                     endPort->parentItem() != this->parentItem() &&
-                    endPort->getPortName() == this->getPortName() &&
-                    endPort->m_arrows.size() < 1 )
+                    //endPort->getPortName() == this->getPortName() &&
+                    endPort->getNumberOfArrows() < 1 )
                 {
                    line->setPen( QPen( Qt::green, 2 ) );
                 }
@@ -130,8 +102,10 @@ void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
     }
 }
 
+//TODO
 void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
+    
     if( line != 0 )
     {
         QList<QGraphicsItem *> startItems = scene()->items( line->line().p1() );
@@ -155,16 +129,20 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
 
         if( !endItems.isEmpty() &&
              !startItems.isEmpty() &&
-             endItems.first()->type() == WQtNetworkPort::Type &&
+             endItems.first()->type() == WQtNetworkOutputPort::Type &&
              startItems.first()->parentItem() != endItems.first()->parentItem() )
         {
-            WQtNetworkPort *startPort = qgraphicsitem_cast<WQtNetworkPort *>( startItems.first() );
-            WQtNetworkPort *endPort = qgraphicsitem_cast<WQtNetworkPort *>( endItems.first() );
+            WQtNetworkInputPort *startPort = qgraphicsitem_cast<WQtNetworkInputPort *>( startItems.first() );
+            WQtNetworkOutputPort *endPort = qgraphicsitem_cast<WQtNetworkOutputPort *>( endItems.first() );
 
-            if( endPort->m_arrows.size() < 1 &&
+            std::cout << "PORTS CONNECTBAR: " << endPort->getConnector()->connectable( startPort->getConnector() ) << std::endl;
+
+            //TODO skiunke: isOutput realy needed?
+            if( endPort->getNumberOfArrows() < 1 &&
                     endPort->isOutPort() == false &&
                     startPort->isOutPort() == true &&
-                    endPort->getPortName() == startPort->getPortName() )
+                    //endPort->getPortName() == startPort->getPortName() )
+                    endPort->getConnector()->connectable( startPort->getConnector() ) == true )
             {
                 WQtNetworkArrow *arrow = new WQtNetworkArrow( startPort, endPort );
 
@@ -180,53 +158,6 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
     }
 }
 
-void WQtNetworkPort::addArrow( WQtNetworkArrow *arrow )
-{
-    m_arrows.append( arrow );
-}
-
-void WQtNetworkPort::removeArrow( WQtNetworkArrow *arrow )
-{
-    std::cout << "removeArrow" << std::endl;
-    int index = m_arrows.indexOf( arrow );
-
-    if (index != -1)
-        m_arrows.removeAt( index );
-}
-
-//private
-void WQtNetworkPort::removeArrows()
-{
-    std::cout << "removeArrows" << std::endl;
-    foreach( WQtNetworkArrow *arrow, m_arrows )
-    {
-        int index = m_arrows.indexOf( arrow );
-        if ( index != -1 )
-        {
-            m_arrows.removeAt( index );
-            delete arrow;
-        }
-    }
-}
-
-void WQtNetworkPort::updateArrows()
-{
-    foreach( WQtNetworkArrow *arrow, m_arrows )
-    {
-        arrow->updatePosition();
-    }
-}
-
-void WQtNetworkPort::setOutPort( bool type )
-{
-    m_isOutPort = type;
-}
-
-bool WQtNetworkPort::isOutPort()
-{
-    return m_isOutPort;
-}
-
 void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool outPort )
 {
     if( outPort == false )
@@ -237,14 +168,4 @@ void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool 
     {
         setPos( rect.width() / ( size+1 ) * portNumber - 5.0, rect.height() - 5 );
     }
-}
-
-QString WQtNetworkPort::getPortName()
-{
-    return m_name;
-}
-
-void WQtNetworkPort::setPortName( QString str )
-{
-    m_name = str;
 }

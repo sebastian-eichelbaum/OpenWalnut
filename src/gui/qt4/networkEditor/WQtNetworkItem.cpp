@@ -30,20 +30,45 @@
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QStyleOptionGraphicsItem>
 
+#include "../../../kernel/WKernel.h"
 
-#include "WQtNetworkItem.h"
+#include "WQtNetworkInputPort.h"
+#include "WQtNetworkOutputPort.h"
 #include "WQtNetworkArrow.h"
+#include "WQtNetworkItem.h"
 
 const float MINWIDTH = 100;
 const float MINHEIGHT = 50;
 
-WQtNetworkItem::WQtNetworkItem()
+WQtNetworkItem::WQtNetworkItem( WModule *module )
     : QGraphicsRectItem()
 {
-    m_text = 0;
+    m_module = module;
+    changeColor( Qt::white );
 
-    setAcceptsHoverEvents( true );
-    setFlag( QGraphicsItem::ItemIsMovable );
+    //caption
+    m_text = new QGraphicsTextItem( module->getName().c_str() );
+    m_text->setParentItem( this );
+    m_text->setDefaultTextColor( Qt::white );
+
+    //add input ports
+    WModule::InputConnectorList cons = module->getInputConnectors();
+    for ( WModule::InputConnectorList::const_iterator iter = cons.begin(); iter != cons.end(); ++iter )
+    {        
+        WQtNetworkInputPort *port = new WQtNetworkInputPort( *iter );
+        port->setParentItem( this );
+        this->addPort( port );
+    }
+ 
+    //add output ports
+    WModule::OutputConnectorList outCons = module->getOutputConnectors();
+    for ( WModule::OutputConnectorList::const_iterator iter = outCons.begin(); iter != outCons.end(); ++iter )
+    {        
+        WQtNetworkOutputPort *port = new WQtNetworkOutputPort( *iter );
+        port->setParentItem( this );
+        this->addPort( port );
+    }
+    
 
     fitLook();
 }
@@ -227,4 +252,27 @@ void WQtNetworkItem::changeColor( QColor color )
     m_gradient.setColorAt( 1.0, m_color );
     setBrush( m_gradient );
     setPen( QPen( m_color, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+}
+
+WModule* WQtNetworkItem::getModule()
+{
+    return m_module;
+}
+
+void WQtNetworkItem::activate( bool active )
+{
+    if( active == true )
+    {
+        setAcceptsHoverEvents( true );
+        setFlag( QGraphicsItem::ItemIsSelectable );
+        setFlag( QGraphicsItem::ItemIsMovable );
+        changeColor( Qt::gray );
+    }
+    if( active == false )
+    {
+        setAcceptsHoverEvents( false );
+        setFlag( QGraphicsItem::ItemIsSelectable, false );
+        setFlag( QGraphicsItem::ItemIsMovable, false );
+        changeColor( Qt::black );
+    }
 }

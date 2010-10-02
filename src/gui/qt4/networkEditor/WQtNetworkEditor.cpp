@@ -52,19 +52,15 @@
 #include "../events/WRoiRemoveEvent.h"
 
 
-WQtNetworkEditor::WQtNetworkEditor( QString title, WMainWindow* parent )
-    : QDockWidget( title, parent )
+WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
+    : QDockWidget( "NetworkEditor", parent )
 {
     m_mainWindow = parent;
 
     m_panel = new QWidget( this );
 
-    //this->setMinimumSize( 200, 400 );
-    //setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
-
     m_view = new QGraphicsView();
     m_view->setDragMode( QGraphicsView::RubberBandDrag );
-    m_view->setMinimumSize( QSize( 200, 200 ) );
     m_view->setRenderHint( QPainter::Antialiasing );
 
     m_scene = new WQtNetworkScene();
@@ -78,102 +74,21 @@ WQtNetworkEditor::WQtNetworkEditor( QString title, WMainWindow* parent )
 
     m_panel->setLayout( m_layout );
 
-    //addModule(/*Qpoint, String*/);
-
-    addModule();
-    //addModule();
-
-    this->setAllowedAreas( Qt::RightDockWidgetArea );
-    this->setWidget( m_panel );
+    this->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
+    this->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
+    setMinimumSize( 160, 240 );
+    setWidget( m_panel );
 }
 
 WQtNetworkEditor::~WQtNetworkEditor()
 {
 }
 
-void WQtNetworkEditor::addModule( )
-{
-    WQtNetworkItem *netItem = new WQtNetworkItem();
-
-    WQtNetworkPort *port = new WQtNetworkPort( "A", false );
-    port->setParentItem( netItem );
-
-    WQtNetworkPort *iport = new WQtNetworkPort( "B", false );
-    iport->setParentItem( netItem );
-
-    WQtNetworkPort *pport = new WQtNetworkPort( "A", true );
-    pport->setParentItem( netItem );
-
-    WQtNetworkPort *ipport = new WQtNetworkPort( "B", true );
-    ipport->setParentItem( netItem );
-
-    QGraphicsTextItem *text = new QGraphicsTextItem( "test" );
-    text->setParentItem( netItem );
-    text->setDefaultTextColor( Qt::white );
-
-    netItem->setFlag( QGraphicsItem::ItemIsMovable );
-    netItem->setFlag( QGraphicsItem::ItemIsSelectable );
-    netItem->setTextItem( text );
-    netItem->addPort( port );
-    netItem->addPort( iport );
-    netItem->addPort( pport );
-    netItem->addPort( ipport );
-
-    netItem->fitLook();
-
-    m_scene->addItem( netItem );
-}
-
 void WQtNetworkEditor::addModule( WModule *module )
 {
-    WQtNetworkItem *netItem = new WQtNetworkItem();
+    WQtNetworkItem *netItem = new WQtNetworkItem( module );
 
-    QGraphicsTextItem *text = new QGraphicsTextItem( module->getName().c_str() );
-    text->setParentItem( netItem );
-    text->setDefaultTextColor( Qt::white );
-
-    WModule::InputConnectorList cons = module->getInputConnectors();
-    for ( WModule::InputConnectorList::const_iterator iter = cons.begin(); iter != cons.end(); ++iter )
-    {        
-        WQtNetworkPort *port = new WQtNetworkPort( iter->get()->getName().c_str(),
-                                                  iter->get()->isOutputConnector() );
-        port->setParentItem( netItem );
-        netItem->addPort( port );
-    }
- 
-    WModule::OutputConnectorList outCons = module->getOutputConnectors();
-    for ( WModule::OutputConnectorList::const_iterator iter = outCons.begin(); iter != outCons.end(); ++iter )
-    {        
-        WQtNetworkPort *port = new WQtNetworkPort( iter->get()->getName().c_str(),
-                                                  iter->get()->isOutputConnector() );
-        port->setParentItem( netItem );
-        netItem->addPort( port );
-    }
-
-/*
-    WQtNetworkPort *port = new WQtNetworkPort( "A", false );
-    port->setParentItem( netItem );
-
-    WQtNetworkPort *iport = new WQtNetworkPort( "B", false );
-    iport->setParentItem( netItem );
-
-    WQtNetworkPort *pport = new WQtNetworkPort( "A", true );
-    pport->setParentItem( netItem );
-
-    WQtNetworkPort *ipport = new WQtNetworkPort( "B", true );
-    ipport->setParentItem( netItem );
-
-    netItem->addPort( port );
-    netItem->addPort( iport );
-    netItem->addPort( pport );
-    netItem->addPort( ipport );
-*/
-
-    netItem->setFlag( QGraphicsItem::ItemIsMovable );
-    netItem->setFlag( QGraphicsItem::ItemIsSelectable );
-    netItem->setTextItem( text );
-    
-    netItem->fitLook();
+    m_items.push_back( netItem );
 
     m_scene->addItem( netItem );
 }
@@ -193,11 +108,76 @@ bool WQtNetworkEditor::event( QEvent* event )
                                                  "NetworkEditor", LL_DEBUG );
             addModule( ( e1->getModule() ).get() );
         }
+        //TODO: disablen des moduls solange nicht rdy!
         return true;
     }
-    else
+ 
+    // a module changed its state to "ready" -> activate it in dataset browser
+    if ( event->type() == WQT_READY_EVENT )
     {
-        event->ignore();
-        return false;
+        // convert event to assoc event
+        WModuleReadyEvent* e = dynamic_cast< WModuleReadyEvent* >( event );     // NOLINT
+        if ( !e )
+        {
+            // this should never happen, since the type is set to WQT_READY_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModueReadyEvent although its type claims it. Ignoring event.",
+                                                 "NetworkEditor", LL_WARNING );
+
+            return true;
+        }
+
+        WLogger::getLogger()->addLogMessage( "Activating module " + e->getModule()->getName() + " in dataset browser.",
+                                             "NetworkEditor", LL_DEBUG );
+
+        // search all the item matching the module
+        WQtNetworkItem *item = findItemByModule( e->getModule().get() );
+        item->activate( true );
+
+        return true;
     }
+ 
+    // a module tree item was connected to another one
+    if ( event->type() == WQT_MODULE_CONNECT_EVENT )
+    {
+        WModuleConnectEvent* e = dynamic_cast< WModuleConnectEvent* >( event );     // NOLINT
+        if ( !e )
+        {
+            // this should never happen, since the type is set to WQT_MODULE_CONNECT_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModuleConnectEvent although its type claims it. Ignoring event.",
+                                                 "DatasetBrowser", LL_WARNING );
+            return true;
+        }
+
+        // get the module of the input involved in this connection
+        boost::shared_ptr< WModule > mIn = e->getInput()->getModule();
+        boost::shared_ptr< WModule > mOut = e->getOutput()->getModule();
+
+        WQtNetworkArrow *arrow = new WQtNetworkArrow();
+        arrow->addConnection( e->getInput(), e->getOutput() );
+        m_scene->addItem( arrow );
+
+    }
+    return QDockWidget::event( event );
+}
+
+WQtNetworkItem* WQtNetworkEditor::findItemByModule( WModule *module )
+{
+    WQtNetworkItem *item;
+
+    std::cout << "findItem" << std::endl;
+
+    for ( std::list< WQtNetworkItem* >::const_iterator iter = m_items.begin(); iter != m_items.end(); ++iter )
+    {
+       WQtNetworkItem *itemModule = dynamic_cast< WQtNetworkItem* >( *iter );
+    
+       std::cout << "search" << std::endl;
+
+       if( module == itemModule->getModule() )
+       {
+           item = itemModule;
+            
+           std::cout << "found" << std::endl;
+       }
+    }
+    return item;
 }

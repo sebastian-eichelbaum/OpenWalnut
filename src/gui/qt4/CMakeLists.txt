@@ -37,6 +37,8 @@ SET(GUI_QT4_MOC_HDRS
     networkEditor/WQtNetworkScene.h
     networkEditor/WQtNetworkItem.h
     networkEditor/WQtNetworkPort.h
+    networkEditor/WQtNetworkInputPort.h
+    networkEditor/WQtNetworkOutputPort.h
     networkEditor/WQtNetworkArrow.h
 )
 

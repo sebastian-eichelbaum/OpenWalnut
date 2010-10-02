@@ -29,6 +29,7 @@
 #include <QtGui/QGraphicsLineItem>
 #include <QtGui/QGraphicsScene>
 
+#include "../../../kernel/WModuleConnector.h"
 #include "WQtNetworkArrow.h"
 
 // forward declaration
@@ -44,44 +45,46 @@ class WQtNetworkPort : public QGraphicsRectItem
 
         /**
          * Constructor
-         */
-        explicit WQtNetworkPort( QString name, bool outPort );
+         *
+        virtual explicit WQtNetworkPort( boost::shared_ptr< WModuleConnector > *connector );
 
-        /**
+        **
          * Destructor
          */
         virtual ~WQtNetworkPort();
-
+        
+        
         /**
          * This customize the return value of type()
-         */
+         *
         enum
         {
             Type = UserType + 10
         };
 
-        /**
+        **
          * Reimplementation from QGraphicsItem
          * \return the type of the item as int
          */
-        int type() const;
+        virtual int type() const = 0;
+        
 
         /**
          * Every Arrow connected with this port is updating its position in the
          * scene.
          */
-        void updateArrows();
+        virtual void updateArrows() = 0;
 
         /**
          * Removes a specific arrow
          * \param arrow an arrow
          */
-        void removeArrow( WQtNetworkArrow *arrow );
+        virtual void removeArrow( WQtNetworkArrow *arrow ) = 0;
 
         /**
          * Removes all connected arrows
          */
-        void removeArrows();
+        virtual void removeArrows() = 0;
 
         /**
          * Calculates the position inside a item for each port to get a correct
@@ -99,25 +102,32 @@ class WQtNetworkPort : public QGraphicsRectItem
          * Set the type of the port.
          * \param type true if out / false if in
          */
-        void setOutPort( bool type );
+        virtual void setOutPort( bool type ) = 0;
 
         /**
          * Returns the porttype.
          * \return is it a outport
          */
-        bool isOutPort();
+        virtual bool isOutPort() = 0;
 
         /**
          * Returns the Name.
          * \return Name
          */
-        QString getPortName();
+        virtual QString getPortName() = 0;
 
         /**
          * Set the Name
          * \param str Name as string
          */
-        void setPortName( QString str );
+        virtual void setPortName( QString str ) = 0;
+
+        virtual int getNumberOfArrows() = 0;
+
+        /**
+         * Adds an arrow to the port
+         */
+        virtual void addArrow( WQtNetworkArrow *arrow ) = 0;
 
     protected:
 
@@ -142,20 +152,9 @@ class WQtNetworkPort : public QGraphicsRectItem
          */
         void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
-        /**
-         * Adds an arrow to the port
-         */
-        void addArrow( WQtNetworkArrow *arrow );
-
     private:
-
+    
         QGraphicsLineItem *line; //!< the temporary line when u connect two ports
-        QPointF startPoint; //!< the line startpoint
 
-        bool m_isOutPort; //!< is the port an outport
-
-        QList< WQtNetworkArrow *> m_arrows; //!< the connected arrows
-
-        QString m_name; //!< the portname
 };
 #endif  // WQTNETWORKPORT_H

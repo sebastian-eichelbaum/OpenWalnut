@@ -32,7 +32,9 @@
 #include <QtGui/QGraphicsLineItem>
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QPainter>
+#include <boost/shared_ptr.hpp>
 
+#include "../../../kernel/WModuleConnector.h"
 #include "WQtNetworkPort.h"
 
 // forward declaration
@@ -58,6 +60,8 @@ class WQtNetworkArrow : public QGraphicsLineItem
          * Constructor
          */
         explicit WQtNetworkArrow( WQtNetworkPort *outPort, WQtNetworkPort *inPort );
+        
+        WQtNetworkArrow();
 
         /**
          * Destructor
@@ -111,6 +115,9 @@ class WQtNetworkArrow : public QGraphicsLineItem
          * \return
          */
         QVariant itemChange( GraphicsItemChange change, const QVariant &value );
+
+        void addConnection( boost::shared_ptr< WModuleConnector > in, boost::shared_ptr< WModuleConnector > out );
+
 
     protected:
 

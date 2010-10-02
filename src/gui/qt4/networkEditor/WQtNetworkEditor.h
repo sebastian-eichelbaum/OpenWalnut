@@ -26,15 +26,18 @@
 #define WQTNETWORKEDITOR_H
 
 #include <string>
+#include <list>
 
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsView>
 #include <QtGui/QWidget>
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QListWidget>
 
 #include "../../../kernel/modules/data/WMData.h"
 #include "WQtNetworkScene.h"
+#include "WQtNetworkItem.h"
 
 // forward declaration
 class WMainWindow;
@@ -54,7 +57,7 @@ public:
      * \param title Title will be displayed above the widget
      * \param parent The widget that manages this widget
      */
-    explicit WQtNetworkEditor( QString title, WMainWindow* parent );
+    explicit WQtNetworkEditor( WMainWindow* parent = 0 );
 
     /**
      * destructor.
@@ -65,7 +68,8 @@ public:
      * Simple method to create static test "modules"
      */
     void addModule( WModule *module );
-    void addModule();
+
+    WQtNetworkItem* findItemByModule( WModule *module );
 
 protected:
 
@@ -85,6 +89,8 @@ private:
     QWidget* m_panel; //!< panel
 
     QVBoxLayout* m_layout; //!< layout
+
+    std::list< WQtNetworkItem* > m_items;
 };
 
 #endif  // WQTNETWORKEDITOR_H

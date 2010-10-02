@@ -41,7 +41,6 @@
 WQtNetworkScene::WQtNetworkScene()
     : QGraphicsScene()
 {
-//    line = 0;
 }
 
 WQtNetworkScene::~WQtNetworkScene()

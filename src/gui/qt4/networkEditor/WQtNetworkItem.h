@@ -31,6 +31,7 @@
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QPainter>
 #include <QtGui/QColor>
+#include "../../../kernel/WModule.h"
 
 #include "WQtNetworkPort.h"
 
@@ -44,7 +45,7 @@ class WQtNetworkItem : public QGraphicsRectItem
         /**
          * Constructor of the item.
          */
-        explicit WQtNetworkItem();
+        explicit WQtNetworkItem( WModule *module );
 
         /**
          * Destructor.
@@ -83,6 +84,10 @@ class WQtNetworkItem : public QGraphicsRectItem
          * Get the caption as QString
          */
         QString getText();
+
+        WModule* getModule();
+
+        void activate( bool active );
 
     protected:
 
@@ -137,6 +142,8 @@ class WQtNetworkItem : public QGraphicsRectItem
 
 
     private:
+        
+        WModule *m_module; //!< the module
 
         QList< WQtNetworkPort *> m_inPorts; //!< the input ports of the item
         QList< WQtNetworkPort *> m_outPorts; //!< the output ports of the item
