@@ -28,7 +28,7 @@
 #include "../../dataHandler/io/WWriterFiberVTK.h"
 #include "../../kernel/WKernel.h"
 #include "WMWriteTracts.h"
-#include "writeTracts.xpm"
+#include "WMWriteTracts.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMWriteTracts )
@@ -81,6 +81,8 @@ void WMWriteTracts::properties()
 {
     m_savePath         = m_properties->addProperty( "Save Path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_savePath );
+
+    WModule::properties();
 }
 
 void WMWriteTracts::moduleMain()

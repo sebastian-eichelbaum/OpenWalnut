@@ -46,7 +46,7 @@
 #include "WMEEGView.h"
 #include "WPanTransformCallback.h"
 #include "WScaleTransformCallback.h"
-#include "eeg.xpm"
+#include "WMEEGView.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEEGView )
@@ -152,6 +152,8 @@ void WMEEGView::properties()
     m_ySensitivity->setMax( 100.0 );
     m_colorSensitivity->setMin( 0.01 );
     m_colorSensitivity->setMax( 10000.0 );
+
+    WModule::properties();
 }
 
 void WMEEGView::notifyConnectionEstablished(
@@ -644,7 +646,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
 
     const std::size_t nbPositions = positions.size();
 
-    WTriangleMesh mesh = wge::triangulate( positions, -0.005 );
+    WTriangleMesh2 mesh = wge::triangulate( positions, -0.005 );
     osg::ref_ptr< osg::Geometry > geometry = wge::convertToOsgGeometry( &mesh, true );
 
     osg::Vec4Array* colors = new osg::Vec4Array;

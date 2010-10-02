@@ -26,6 +26,7 @@
 #define WGELINEARTRANSLATIONCALLBACK_H
 
 #include <osg/Node>
+#include <osg/TexMat>
 #include <osg/MatrixTransform>
 
 #include "../../common/WProperties.h"
@@ -47,8 +48,9 @@ public:
      *
      * \param axe the axe to translate along. Should be normalized. If not, it scales the translation.
      * \param property the property containing the value
+     * \param texMatrix optional pointer to a texture matrix which can be modified too to contain the normalized translation.
      */
-    WGELinearTranslationCallback( osg::Vec3 axe, T property );
+    WGELinearTranslationCallback( osg::Vec3 axe, T property, osg::ref_ptr< osg::TexMat > texMatrix = osg::ref_ptr< osg::TexMat >() );
 
     /**
      * Destructor.
@@ -80,15 +82,20 @@ protected:
      */
     double m_oldPos;
 
+    /**
+     * Texture matrix that contains normalized translation.
+     */
+    osg::ref_ptr< osg::TexMat > m_texMat;
 private:
 };
 
 template< typename T >
-WGELinearTranslationCallback< T >::WGELinearTranslationCallback( osg::Vec3 axe, T property ):
+WGELinearTranslationCallback< T >::WGELinearTranslationCallback( osg::Vec3 axe, T property, osg::ref_ptr< osg::TexMat > texMatrix ):
     osg::NodeCallback(),
     m_axe( axe ),
     m_pos( property ),
-    m_oldPos( -1.0 )
+    m_oldPos( -1.0 ),
+    m_texMat( texMatrix )
 {
     // initialize members
 }
@@ -103,14 +110,22 @@ template< typename T >
 void WGELinearTranslationCallback< T >::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     // this node is a MatrixTransform
-    double newPos = m_pos->get();
+    float newPos = m_pos->get();
     if ( newPos != m_oldPos )
     {
         m_oldPos = newPos;
         osg::MatrixTransform* m = static_cast< osg::MatrixTransform* >( node );
         if ( m )
         {
-            m->setMatrix( osg::Matrix::translate( m_axe * static_cast< double >( m_oldPos ) ) );
+            osg::Vec3 translation = m_axe * static_cast< float >( m_oldPos );
+            float axeLen = m_axe.length();
+
+            // set both matrices
+            if ( m_texMat )
+            {
+                m_texMat->setMatrix( osg::Matrix::translate( translation / static_cast< float >( m_pos->getMax()->getMax() ) / axeLen ) );
+            }
+            m->setMatrix( osg::Matrix::translate( translation ) );
         }
     }
 

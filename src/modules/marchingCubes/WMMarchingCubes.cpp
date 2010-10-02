@@ -28,7 +28,7 @@
 #include <vector>
 #include <limits>
 
-#include "iso_surface.xpm"
+#include "WMMarchingCubes.xpm"
 #include "../../common/WLimits.h"
 #include "../../common/WAssert.h"
 
@@ -65,7 +65,7 @@ WMMarchingCubes::WMMarchingCubes():
     m_dataSet(),
     m_shaderUseLighting( false ),
     m_shaderUseTransparency( false ),
-    m_moduleNode( new WGEGroupNode() ),
+    m_moduleNodeInserted( false ),
     m_surfaceGeode( 0 )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -110,6 +110,8 @@ void WMMarchingCubes::moduleMain()
 
     // signal ready state
     ready();
+
+    m_moduleNode = new WGEManagedGroupNode( m_active );
 
     // now, to watch changing/new textures use WSubject's change condition
     boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal(
@@ -199,7 +201,7 @@ void WMMarchingCubes::properties()
     m_nbVertices = m_infoProperties->addProperty( "Vertices", "The number of vertices in the produced mesh.", 0 );
     m_nbVertices->setMax( std::numeric_limits< int >::max() );
 
-    m_isoValueProp = m_properties->addProperty( "Iso Value", "The surface will show the area that has this value.", 100., m_recompute );
+    m_isoValueProp = m_properties->addProperty( "Iso value", "The surface will show the area that has this value.", 100., m_recompute );
     m_isoValueProp->setMin( wlimits::MIN_DOUBLE );
     m_isoValueProp->setMax( wlimits::MAX_DOUBLE );
     {
@@ -215,9 +217,9 @@ void WMMarchingCubes::properties()
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 
-    m_useTextureProp = m_properties->addProperty( "Use Texture", "Use texturing of the surface?", false );
+    m_useTextureProp = m_properties->addProperty( "Use texture", "Use texturing of the surface?", false );
 
-    m_surfaceColor = m_properties->addProperty( "Surface Color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
+    m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
 
     m_savePropGroup = m_properties->addPropertyGroup( "Save Surface",  "" );
     m_saveTriggerProp = m_savePropGroup->addProperty( "Do Save",  "Press!",
@@ -225,6 +227,8 @@ void WMMarchingCubes::properties()
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMMarchingCubes::save, this ) );
 
     m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
+
+    WModule::properties();
 }
 
 void WMMarchingCubes::generateSurfacePre( double isoValue )
@@ -310,8 +314,16 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
 
 void WMMarchingCubes::renderMesh()
 {
-//    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()
-    m_moduleNode->remove( m_surfaceGeode );
+    {
+        // Remove the previous node in a thread save way.
+        boost::unique_lock< boost::shared_mutex > lock;
+        lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
+
+        m_moduleNode->remove( m_surfaceGeode );
+
+        lock.unlock();
+    }
+
     osg::Geometry* surfaceGeometry = new osg::Geometry();
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
@@ -558,16 +570,10 @@ bool WMMarchingCubes::save() const
     return true;
 }
 
-void WMMarchingCubes::updateGraphics()
+void WMMarchingCubes::updateGraphicsForCallback()
 {
-    if ( m_active->get() )
-    {
-        m_surfaceGeode->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_surfaceGeode->setNodeMask( 0x0 );
-    }
+    boost::unique_lock< boost::shared_mutex > lock;
+    lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
     if( m_surfaceColor->changed() )
     {
@@ -681,5 +687,6 @@ void WMMarchingCubes::updateGraphics()
             }
         }
     }
+    lock.unlock();
 }
 

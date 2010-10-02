@@ -43,7 +43,7 @@
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 
 #include "WMArbitraryRois.h"
-#include "arbitraryROI.xpm"
+#include "WMArbitraryRois.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMArbitraryRois )
@@ -105,6 +105,8 @@ void WMArbitraryRois::properties()
     m_bTrigger = m_properties->addProperty( "Finalize", "Finalize and add to ROI manager", WPVBaseTypes::PV_TRIGGER_READY  );
     m_threshold = m_properties->addProperty( "Threshold", "", 0. );
     m_surfaceColor = m_properties->addProperty( "Surface color", "", WColor( 1.0, 0.3, 0.3, 1.0 ) );
+
+    WModule::properties();
 }
 
 void WMArbitraryRois::moduleMain()

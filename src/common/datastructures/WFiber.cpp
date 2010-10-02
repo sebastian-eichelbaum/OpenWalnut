@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 #include <utility>
 #include <vector>
 
@@ -41,8 +41,12 @@ namespace
 
         // will contain every point-to-point square-distances
         std::vector< std::vector< double > > m( qsize, std::vector< double >( rsize, 0.0 ) );
+
+        // double **m = new double*[qsize];
+
         for( size_t i = 0; i < qsize; ++i )
         {
+            // m[i] = new double[rsize];
             for( size_t j = 0; j < rsize; ++j )
             {
                 m[i][j] = q[i].distanceSquare( r[j] );
@@ -53,6 +57,7 @@ namespace
         for( size_t i = 0; i < qsize; ++i )
         {
             minSoFar = *( std::min_element( m[i].begin(), m[i].end() ) );
+            // minSoFar = *( std::min_element( &m[i][0], &m[i][rsize] ) );
             if( minSoFar > thresholdSquare )
             {
                 qr += std::sqrt( minSoFar );

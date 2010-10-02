@@ -80,12 +80,11 @@ public:
     wmath::WSymmetricSphericalHarmonic interpolate( const wmath::WPosition &pos, bool *success ) const;
 
     /**
-     * Get the vector on the given position in value set.
-     * \note currently only implmented for WVector3D
+     * Get the spherical harmonic on the given position in value set.
      *
-     * \param index the position where to get the vector from
+     * \param index the position where to get the spherical harmonic from
      *
-     * \return the vector
+     * \return the spherical harmonic
      */
     wmath::WSymmetricSphericalHarmonic getSphericalHarmonicAt( size_t index ) const;
 

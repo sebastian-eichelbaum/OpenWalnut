@@ -30,7 +30,7 @@
 #include "../../common/WColor.h"
 #include "../../common/WPropertyHelper.h"
 
-#include "scalarSegmentation.xpm"
+#include "WMScalarSegmentation.xpm"
 #include "WMScalarSegmentation.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -98,6 +98,8 @@ void WMScalarSegmentation::properties()
     m_threshold = m_propGroups[ 0 ]->addProperty( "Threshold", "Threshold value for segmentation.", 0.8, m_propCondition );
     m_threshold->setMax( 255.0 );
     m_threshold->setMin( 0.0 );
+
+    WModule::properties();
 }
 
 void WMScalarSegmentation::moduleMain()

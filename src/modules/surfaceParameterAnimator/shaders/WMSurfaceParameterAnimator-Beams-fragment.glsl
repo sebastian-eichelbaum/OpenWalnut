@@ -114,9 +114,9 @@ uniform float u_parameterScale;
 /**
  * Calculates the endpoint and distance using the ray and ray-start-point up to the end of the
  * bounding volume.
- * 
+ *
  * \param d the distance along the ray until the ray leaves the bounding volume.
- * 
+ *
  * \return the end point -> v_rayStart + v_ray*d
  */
 vec3 findRayEnd( out float d )
@@ -138,16 +138,16 @@ vec3 findRayEnd( out float d )
     float tTop       = ( 1.0 - p.y ) / r.y;          // (x,1,x) = v_rayStart + t * v_ray
 
     // get the nearest hit
-    d = min( min( max( tFront, tBack ), max( tLeft, tRight ) ), max ( tBottom, tTop ) );
+    d = min( min( max( tFront, tBack ), max( tLeft, tRight ) ), max( tBottom, tTop ) );
     return p + ( r * d );
 }
 
 /**
  * Distance between two points.
- * 
+ *
  * \param p1 point 1
  * \param p2 point 2
- * 
+ *
  * \return || p1-p2 ||
  */
 float pointDistance( vec3 p1, vec3 p2 )
@@ -155,9 +155,9 @@ float pointDistance( vec3 p1, vec3 p2 )
     return length( p1 - p2 );
 }
 
-/** 
+/**
  * @brief Function to calculate lighting intensitybased on "Real-Time Volume Graphics, p 119, chapter 5.4, Listing 5.1".
- * It is basically the same as blinnPhongIllumination function above. But it is faster if you just need 
+ * It is basically the same as blinnPhongIllumination function above. But it is faster if you just need
  * the intensity.
  *
  * @param ambient   materials ambient intensity
@@ -169,28 +169,29 @@ float pointDistance( vec3 p1, vec3 p2 )
  * @param normalDir the normal
  * @param viewDir   viewing direction
  * @param lightDir  light direction
- * 
+ *
  * @return the light intensity.
  */
-float blinnPhongIlluminationIntensity(float ambient, float diffuse, float specular, float shininess, 
-							 float lightIntensity, float ambientIntensity, 
-							 vec3 normalDir, vec3 viewDir, vec3 lightDir )
+float blinnPhongIlluminationIntensity( float ambient, float diffuse, float specular,
+                                       float shininess,
+                                       float lightIntensity, float ambientIntensity,
+                                       vec3 normalDir, vec3 viewDir, vec3 lightDir )
 {
-  vec3 H =  normalize( lightDir + viewDir );
-  
-  // compute ambient term
-  float ambientV = ambient * ambientIntensity;
+    vec3 H =  normalize( lightDir + viewDir );
 
-  // compute diffuse term
-  float diffuseLight = max(dot(lightDir, normalDir), 0.);
-  float diffuseV = diffuse * diffuseLight;
+    // compute ambient term
+    float ambientV = ambient * ambientIntensity;
 
-  // compute specular term
-  float specularLight = pow(max(dot(H, normalDir), 0.), shininess);
-  if( diffuseLight <= 0.) specularLight = 0.;
-  float specularV = specular * specularLight;
+    // compute diffuse term
+    float diffuseLight = max( dot( lightDir, normalDir ), 0. );
+    float diffuseV = diffuse * diffuseLight;
 
-  return ambientV + (diffuseV + specularV)*lightIntensity;
+    // compute specular term
+    float specularLight = pow( max( dot( H, normalDir ), 0. ), shininess );
+    if( diffuseLight <= 0.) specularLight = 0.;
+    float specularV = specular * specularLight;
+
+    return ambientV + (diffuseV + specularV)*lightIntensity;
 }
 
 bool epsilonEquals( float value, float equals, float epsilon = 0.01 )
@@ -210,7 +211,7 @@ void main()
 {
     // please do not laugh, it is a very very very simple "isosurface" shader
     vec4 color = vec4( 1.0, 0.0, 0.0, 1.0 );
-    gl_FragDepth = gl_FragCoord.z; 
+    gl_FragDepth = gl_FragCoord.z;
 
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
     // when done for each vertex.
@@ -236,12 +237,12 @@ void main()
         {
             // we need to know the depth value of the current point inside the cube
             // Therefore, the complete standard pipeline is reproduced here:
-            
+
             // 1: transfer to world space and right after it, to eye space
             vec3 curPointProjected = project( curPoint );
-            
+
             // 2: set depth value
-            gl_FragDepth = curPointProjected.z; 
+            gl_FragDepth = curPointProjected.z;
 
             // 3: find a proper normal for a headlight
             float s = 0.005;
@@ -261,7 +262,7 @@ void main()
             dir -= vec3( 0.0, 0.0, valueZP );
 
             // Phong:
-            float light = blinnPhongIlluminationIntensity( 
+            float light = blinnPhongIlluminationIntensity(
                     0.3,                                // material ambient
                     1.0,                                // material diffuse
                     1.3,                                // material specular
@@ -284,21 +285,19 @@ void main()
             // 4: prepare animation
             // the current time step:
             float timeStep = u_animationTime / 4.0; // scale 100th of a second to 25 times per second
-            
+
             //timeStep = 25;
             // create a triangle function increasing time in 1/100 steps
             float relativeSpeed1 = 2.5; //float( u_speed1 ) / 12.5;
             float relativeSpeed2 = 2.5; // float( u_speed2 ) / 12.5;
             float anim1 = ( int( timeStep * relativeSpeed1 ) % int( paramSpaceSize + maxSize + 30 ) ) - maxSize / 2.0;
             float anim2 = ( int( timeStep * relativeSpeed2 ) % int( paramSpaceSize + maxSize + 30 ) ) - maxSize / 2.0;
-            
+
             // To have more than one halo at a time:
-            /*
-            anim1 = anim1 % 50;
-            anim2 = anim2 % 50;
-            trace = trace % 50;
-            traceInv = traceInv % 50;
-            */
+            // anim1 = anim1 % 50;
+            // anim2 = anim2 % 50;
+            // trace = trace % 50;
+            // traceInv = traceInv % 50;
 
             // original surface color
             vec4 ocol = light * gl_Color;
@@ -314,13 +313,16 @@ void main()
             bool belongsToBeam2 = abs( anim2 - traceInv ) <= halfSize2;
 
             // check four cases:
-            if ( belongsToBeam1 )                       // 1. fragment belongs only to beam 1
+            // 1. fragment belongs only to beam 1
+            if ( belongsToBeam1 )
             {
                 ocol.r = light + 0.4;
                 ocol.g = 0.0;
                 ocol.b = 0.0;
-            } 
-            if ( ( belongsToBeam2 && !belongsToBeam1 ) || ( belongsToBeam2 && ( u_size1 > u_size2 ) ) )                       // 2. fragment belongs only to beam 2
+            }
+
+            // 2. fragment belongs only to beam 2
+            if ( ( belongsToBeam2 && !belongsToBeam1 ) || ( belongsToBeam2 && ( u_size1 > u_size2 ) ) )
             {
                 ocol.r = 0.0;
                 ocol.g = light + 0.4;
@@ -336,14 +338,14 @@ void main()
                 ocol.g = 1.0;
                 ocol.b = 1.0;
             }
-                 
+
             ocol *= u_saturation;
             ocol.a = u_alpha;
             gl_FragData[0] = ocol;
 
             break;
         }
-        else 
+        else
         {
             // no it is not the iso value
             // -> continue along the ray

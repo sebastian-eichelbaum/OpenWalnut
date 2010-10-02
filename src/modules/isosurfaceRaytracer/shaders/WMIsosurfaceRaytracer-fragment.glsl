@@ -79,7 +79,7 @@ vec3 findRayEnd( out float d )
     float tTop       = ( 1.0 - p.y ) / r.y;          // (x,1,x) = v_rayStart + t * v_ray
 
     // get the nearest hit
-    d = min( min( max( tFront, tBack ), max( tLeft, tRight ) ), max ( tBottom, tTop ) );
+    d = min( min( max( tFront, tBack ), max( tLeft, tRight ) ), max( tBottom, tTop ) );
     return p + ( r * d );
 }
 
@@ -95,7 +95,7 @@ void main()
 {
     // please do not laugh, it is a very very very simple "isosurface" shader
     gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-    gl_FragDepth = gl_FragCoord.z; 
+    gl_FragDepth = gl_FragCoord.z;
 
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
     // when done for each vertex.
@@ -121,10 +121,10 @@ void main()
         {
             // we need to know the depth value of the current point inside the cube
             // Therefore, the complete standard pipeline is reproduced here:
-            
+
             // 1: transfer to world space and right after it, to eye space
             vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( curPoint, 1.0 );
-            
+
             // 2: scale to screen space and [0,1]
             // -> x and y is not needed
             // curPointProjected.x /= curPointProjected.w;
@@ -132,7 +132,7 @@ void main()
             // curPointProjected.y /= curPointProjected.w;
             // curPointProjected.y  = curPointProjected.y * 0.5 + 0.5 ;
             curPointProjected.z /= curPointProjected.w;
-            curPointProjected.z  = curPointProjected.z * 0.5 + 0.5 ;
+            curPointProjected.z  = curPointProjected.z * 0.5 + 0.5;
 
             // 3: set depth value
             gl_FragDepth = curPointProjected.z;
@@ -143,13 +143,13 @@ void main()
 #ifdef CORTEX
             // NOTE: these are a lot of weird experiments ;-)
             float d = 1.0 - curPointProjected.z;
-            d = 1.5*pointDistance( curPoint, vec3( 0.5 ) );
+            d = 1.5 * pointDistance( curPoint, vec3( 0.5 ) );
 
             float w = dot( normalize( vec3( 0.5 ) - curPoint ), normalize( v_ray ) );
             w = ( w + 0.5 );
             if ( w > 0.8 ) w = 0.8;
 
-            float d2 = w*d*d*d*d*d;
+            float d2 = w * d * d * d * d * d;
             color = gl_Color * 11.0 * d2;
 #endif
 #ifdef DEPTHONLY
@@ -166,9 +166,9 @@ void main()
             float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
             float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
 
-            vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ) ;//v_ray;
+            vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ); //v_ray;
             // Phong:
-            float light = blinnPhongIlluminationIntensity( 
+            float light = blinnPhongIlluminationIntensity(
                     0.1,                                // material ambient
                     0.75,                               // material diffuse
                     1.3,                                // material specular
@@ -179,7 +179,7 @@ void main()
                     normalize( v_ray ),                 // view direction
                     normalize( v_lightSource )          // light source position
             );
-            
+
             color = light * gl_Color;
 #endif
 #ifdef PHONGWITHDEPTH
@@ -194,9 +194,9 @@ void main()
             float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
             float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
 
-            vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ) ;//v_ray;
+            vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ); //v_ray;
             // Phong:
-            float light = blinnPhongIlluminationIntensity( 
+            float light = blinnPhongIlluminationIntensity(
                     0.1,                                // material ambient
                     d * d,                              // material diffuse
                     1.3,                                // material specular
@@ -207,7 +207,7 @@ void main()
                     normalize( v_ray ),                 // view direction
                     normalize( v_lightSource )          // light source position
             );
-            
+
             color = light * gl_Color;
 #endif
 

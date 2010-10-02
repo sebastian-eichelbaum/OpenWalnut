@@ -291,6 +291,7 @@ ENDIF()
 #    noncolored if it is set to OFF
 FILE( GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.cpp )
 FILE( GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h )
+FILE( GLOB_RECURSE STYLE_GLSL ${PROJECT_SOURCE_DIR}/*.glsl )
 # Set dirs to exclude from stylecheck
 SET( EXCLUDE_DIRS "/ext/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosigWin/;/dataHandler/io/biosig/XMLParser/;/dataHandler/io/biosigWin/XMLParser/;/ext/libeep/avr/;/ext/libeep/cnt/;/ext/libeep/eep/;/common/platformDependent/visualStudio/;/modules/lic/fibernavigator/;/modules/lic/fantom/" )
 FOREACH( dirname ${EXCLUDE_DIRS} )
@@ -322,7 +323,7 @@ ELSE()
 ENDIF()
 
 FILE( WRITE ${PROJECT_BINARY_DIR}/brainlintlist "" )
-FOREACH( fname ${STYLE_CPP} ${STYLE_H} )
+FOREACH( fname ${STYLE_CPP} ${STYLE_H} ${STYLE_GLSL} )
     FILE( APPEND ${PROJECT_BINARY_DIR}/brainlintlist "${fname}\n" )
 ENDFOREACH()
 

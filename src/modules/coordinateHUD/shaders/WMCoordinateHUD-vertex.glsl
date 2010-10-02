@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -20,12 +20,12 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
 //
-//--------------------------------------------------------------------------
+//---------------------------------------------------------------------------
 
 #version 120
-	
-void main ()
-{   
+
+void main()
+{
     // keep color
     gl_FrontColor = gl_Color;
 

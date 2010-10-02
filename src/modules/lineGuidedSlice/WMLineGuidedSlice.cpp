@@ -36,7 +36,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMLineGuidedSlice.h"
-#include "lineGuidedSlice.xpm"
+#include "WMLineGuidedSlice.xpm"
 
 W_LOADABLE_MODULE( WMLineGuidedSlice )
 
@@ -90,6 +90,8 @@ void WMLineGuidedSlice::properties()
     m_pos = m_properties->addProperty( "Slice Position", "Position of ths slice along the line.", 0., true );
     m_pos->setMin( 0. );
     m_pos->setMax( 1. );
+
+    WModule::properties();
 }
 
 void WMLineGuidedSlice::moduleMain()
@@ -338,7 +340,7 @@ void WMLineGuidedSlice::updateTextures()
                 ++c;
             }
 
-            bool useTexture = m_properties->getProperty( "Use Texture" )->toPropBool()->get();
+            bool useTexture = m_properties->getProperty( "Use texture" )->toPropBool()->get();
             sliceState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", useTexture ) ) );
         }
     }

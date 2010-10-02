@@ -108,6 +108,12 @@ public:
     inline size_t size() const;
 
     /**
+     * Component-wise addition.
+     * \param addend The right hand side of the addition
+     */
+    inline const WVector3D operator+( const WVector3D& addend ) const;
+
+    /**
      * Component-wise subtraction.
      * \param subtrahend The right hand side of the subtraction
      */
@@ -184,6 +190,13 @@ inline WVector3D::WVector3D() :
 inline WVector3D::WVector3D( osg::Vec3d::value_type x, osg::Vec3d::value_type y, osg::Vec3d::value_type z ) :
     osg::Vec3d( x, y, z )
 {
+}
+
+inline const WVector3D WVector3D::operator+( const WVector3D& addend ) const
+{
+    WVector3D result( *this );
+    result += addend;
+    return result;
 }
 
 inline const WVector3D WVector3D::operator-( const WVector3D& subtrahend ) const

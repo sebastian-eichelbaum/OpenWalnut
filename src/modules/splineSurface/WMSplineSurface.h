@@ -141,6 +141,7 @@ private:
      */
     boost::shared_ptr< WCondition > m_recompute;
 
+    boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
     boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > > m_output; //!< Input connector required by this module.
 
     boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.

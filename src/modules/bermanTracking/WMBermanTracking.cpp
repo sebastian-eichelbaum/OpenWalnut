@@ -33,9 +33,8 @@
 #include "../../common/WLimits.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
-#include "../../dataHandler/WThreadedPerVoxelOperation.h"
 #include "../../kernel/WKernel.h"
-#include "bermanTracking.xpm"
+#include "WMBermanTracking.xpm"
 #include "WMBermanTracking.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
@@ -86,7 +85,7 @@ void WMBermanTracking::connectors()
                                 "inSH", "A spherical harmonics dataset." )
             );
 
-    m_inputGFA = boost::shared_ptr< WModuleInputData< WDataSetSingle > >( new WModuleInputData< WDataSetSingle >( shared_from_this(),
+    m_inputGFA = boost::shared_ptr< WModuleInputData< WDataSetScalar > >( new WModuleInputData< WDataSetScalar >( shared_from_this(),
                 "inGFA", "GFA." )
             );
 
@@ -94,17 +93,13 @@ void WMBermanTracking::connectors()
                 "inResiduals", "The residual HARDI data." )
             );
 
-    m_output = boost::shared_ptr< WModuleOutputData< WDataSetSingle > >( new WModuleOutputData< WDataSetSingle >( shared_from_this(),
+    m_output = boost::shared_ptr< WModuleOutputData< WDataSetScalar > >( new WModuleOutputData< WDataSetScalar >( shared_from_this(),
                 "outProb", "The probabilistic tracking result." )
             );
 
     // temporary
     m_outputFibers = boost::shared_ptr< WModuleOutputData< WDataSetFibers > >( new WModuleOutputData< WDataSetFibers >( shared_from_this(),
                 "outFibers", "The probabilistic fibers." )
-            );
-
-    m_outputGFA = boost::shared_ptr< WModuleOutputData< WDataSetSingle > >( new WModuleOutputData< WDataSetSingle >( shared_from_this(),
-                "outGFA", "The generalized fractional anisotropy map." )
             );
 
     addConnector( m_input );
@@ -116,7 +111,6 @@ void WMBermanTracking::connectors()
 
     // temporary
     addConnector( m_outputFibers );
-    addConnector( m_outputGFA );
 
     // call WModules initialization
     WModule::connectors();
@@ -155,6 +149,8 @@ void WMBermanTracking::properties()
 
     m_ratio = m_properties->addProperty( "Ratio?", "Temporary", 3.0, m_propCondition );
     m_epsImpr = m_properties->addProperty( "EpsImpr?", "Temporary", 1.0, m_propCondition );
+
+    WModule::properties();
 }
 
 void WMBermanTracking::moduleMain()
@@ -162,6 +158,7 @@ void WMBermanTracking::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_inputResidual->getDataChangedCondition() );
+    m_moduleState.add( m_inputGFA->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
     m_moduleState.add( m_exceptionCondition );
 
@@ -182,32 +179,37 @@ void WMBermanTracking::moduleMain()
 
         boost::shared_ptr< WDataSetSphericalHarmonics > inData = m_input->getData();
         boost::shared_ptr< WDataSetRawHARDI > inData2 = m_inputResidual->getData();
-        bool dataChanged = ( m_dataSet != inData ) || ( m_dataSetResidual != inData2 );
+        boost::shared_ptr< WDataSetScalar > inData3 = m_inputGFA->getData();
+        bool dataChanged = ( m_dataSet != inData ) || ( m_dataSetResidual != inData2 ) || ( m_gfa != inData3 );
 
-        if( dataChanged || !m_dataSet || !m_dataSetResidual )
+        if( dataChanged )
         {
-            if( dataChanged )
+            if( m_trackingPool )
             {
-                if( m_trackingPool )
+                m_trackingPool->stop();
+                m_trackingPool->wait();
+                if( m_currentProgress )
                 {
-                    m_trackingPool->stop();
-                    m_trackingPool->wait();
-                    if( m_currentProgress )
-                    {
-                        m_currentProgress->finish();
-                    }
+                    m_currentProgress->finish();
                 }
             }
 
             m_dataSet = inData;
             m_dataSetResidual = inData2;
+            m_gfa = inData3;
+        }
 
-            if( !m_dataSet || !m_dataSetResidual )
+        if( m_startTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            m_startTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+
+            if( m_dataSet && m_dataSetResidual && m_gfa )
             {
-                continue;
-            }
-            else
-            {
+                if( m_result )
+                {
+                    WDataHandler::deregisterDataSet( m_result );
+                }
+
                 // calculate some matrices needed for the residuals
                 std::vector< wmath::WUnitSphereCoordinates > c;
                 for( std::size_t i = 0; i < m_dataSetResidual->getOrientations().size(); ++i )
@@ -222,39 +224,20 @@ void WMBermanTracking::moduleMain()
                 m_HMat = m_BMat * wmath::WSymmetricSphericalHarmonic::getSHFittingMatrix( c, 4, 0.0, false );
                 WAssert( m_HMat.getNbCols() == m_HMat.getNbRows(), "" );
 
-                // calculate the generalized fractional anisotropy for the whole dataset
-                if( !m_inputGFA->getData() )
-                {
-                    calcGFA();
-                }
-                else
-                {
-                    m_gfa = m_inputGFA->getData();
-                }
+                // get current properties
+                m_currentMinFA = m_minFA->get( true );
+                m_currentMinPoints = static_cast< std::size_t >( m_minPoints->get( true ) );
+                m_currentMinCos = m_minCos->get( true );
+                m_currentProbabilistic = m_probabilistic->get( true );
+                m_currentRatio = m_ratio->get( true );
+                m_currentEpsImpr = m_epsImpr->get( true );
+
+                // start tracking
+                resetTracking();
+                m_hits = boost::shared_ptr< std::vector< float > >( new std::vector< float >( m_dataSet->getGrid()->size(), 0.0 ) );
+                m_trackingPool->run();
+                debugLog() << "Running tracking function.";
             }
-        }
-
-        if( m_dataSet && m_dataSetResidual && ( dataChanged || m_startTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED ) )
-        {
-            m_startTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
-            if( m_result )
-            {
-                WDataHandler::deregisterDataSet( m_result );
-            }
-
-            // get current properties
-            m_currentMinFA = m_minFA->get( true );
-            m_currentMinPoints = static_cast< std::size_t >( m_minPoints->get( true ) );
-            m_currentMinCos = m_minCos->get( true );
-            m_currentProbabilistic = m_probabilistic->get( true );
-            m_currentRatio = m_ratio->get( true );
-            m_currentEpsImpr = m_epsImpr->get( true );
-
-            // start tracking
-            resetTracking();
-            m_hits = boost::shared_ptr< std::vector< float > >( new std::vector< float >( m_dataSet->getGrid()->size(), 0.0 ) );
-            m_trackingPool->run();
-            debugLog() << "Running tracking function.";
         }
         else if( m_trackingPool && m_trackingPool->status() == W_THREADS_FINISHED )
         {
@@ -268,9 +251,9 @@ void WMBermanTracking::moduleMain()
             m_outputFibers->updateData( m_fiberSet );
             m_trackingPool = boost::shared_ptr< TrackingFuncType >();
 
-            boost::shared_ptr< WValueSet< float > > vs( new WValueSet< float >( 1, 1, *m_hits, DataType< float >::type ) );
+            boost::shared_ptr< WValueSet< float > > vs( new WValueSet< float >( 0, 1, *m_hits, DataType< float >::type ) );
 
-            m_result = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( vs, m_dataSet->getGrid() ) );
+            m_result = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_dataSet->getGrid() ) );
             m_result->setFileName( "Berman_prob_tracking_result" );
             m_result->getTexture()->setThreshold( 0.05f );
             m_result->getTexture()->setSelectedColormap( 2 );
@@ -296,60 +279,6 @@ void WMBermanTracking::moduleMain()
             debugLog() << "Aborting fiber tracking because the module was ordered to shut down.";
         }
     }
-}
-
-void WMBermanTracking::calcGFA()
-{
-    if( m_gfa )
-    {
-        WDataHandler::deregisterDataSet( m_gfa );
-    }
-    m_gfa = boost::shared_ptr< WDataSetSingle >();
-    typedef WThreadedPerVoxelOperation< double, 15, double, 1 > GFAFunc;
-    typedef WThreadedFunction< GFAFunc > ThreadPool;
-
-    boost::shared_ptr< GFAFunc > gfafunc( new GFAFunc( m_dataSet, boost::bind( &This::perVoxelGFAFunc, this, _1 ) ) );
-
-    debugLog() << "Starting GFA computation.";
-
-    resetProgress( m_dataSet->getGrid()->size() );
-
-    ThreadPool t( W_AUTOMATIC_NB_THREADS, gfafunc );
-    t.subscribeExceptionSignal( boost::bind( &This::handleException, this, _1 ) );
-    t.run();
-    t.wait();
-
-    m_currentProgress->finish();
-
-    if( m_lastException )
-    {
-        throw WException( *m_lastException );
-    }
-
-    WAssert( t.status() == W_THREADS_FINISHED, "" );
-
-    debugLog() << "GFA computation finished.";
-
-    m_gfa = gfafunc->getResult();
-    m_gfa->getTexture()->setInterpolation( false );
-    m_gfa->setFileName( "generalized fractional anisotropy" );
-    m_outputGFA->updateData( m_gfa );
-    WDataHandler::registerDataSet( m_gfa );
-}
-
-boost::array< double, 1 > WMBermanTracking::perVoxelGFAFunc( WValueSet< double >::SubArray const& s )
-{
-    ++*m_currentProgress;
-    boost::array< double, 1 > a;
-    wmath::WValue< double > w( 15 );
-    for( int i = 0; i < 15; ++i )
-    {
-        w[ i ] = s[ i ];
-    }
-    wmath::WSymmetricSphericalHarmonic h( w );
-    a[ 0 ] = h.calcGFA( m_BMat );
-
-    return a;
 }
 
 void WMBermanTracking::resetTracking()
@@ -442,7 +371,7 @@ wmath::WVector3D WMBermanTracking::getDirFunc( boost::shared_ptr< WDataSetSingle
     WAssert( v != -1, "" );
 
     WAssert( m_gfa, "" );
-    if( m_gfa->getValueAt( v ) < m_currentMinFA )
+    if( boost::shared_dynamic_cast< WDataSetSingle >( m_gfa )->getValueAt( v ) < m_currentMinFA )
     {
         return wmath::WVector3D( 0.0, 0.0, 0.0 );
     }

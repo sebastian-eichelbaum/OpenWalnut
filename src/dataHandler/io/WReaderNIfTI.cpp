@@ -190,7 +190,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
     else if( header->dim[ 5 ] > 1 )
     {
         WAssert( header->dim[ 4 ] == 1, "Only scalar datasets are supported for time series so far." );
-        wlog::debug( "WReaderNIfTI" ) << "Load as time series";
+        wlog::debug( "WReaderNIfTI" ) << "Load as WDataSetTimeSeries";
         std::size_t numTimeSlices = header->dim[ 5 ];
         float tw = header->pixdim[ 5 ];
         WAssert( tw != 0.0f, "" );
@@ -288,14 +288,18 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
     {
         if( vDim == 3 )
         {
+            wlog::debug( "WReaderNIfTI" ) << "Load as WDataSetVector";
             newDataSet = boost::shared_ptr< WDataSet >( new WDataSetVector( newValueSet, newGrid ) );
         }
         else if( vDim == 1 )
         {
+            wlog::debug( "WReaderNIfTI" ) << "Load as WDataSetScalar";
             newDataSet = boost::shared_ptr< WDataSet >( new WDataSetScalar( newValueSet, newGrid ) );
         }
-        else if( vDim > 20 && header->dim[ 5 ] == 1 ) // hardi data, order 1
+        else if( vDim > 20 && header->dim[ 5 ] <= 1 ) // hardi data, order 1
         {
+            wlog::debug( "WReaderNIfTI" ) << "Load as WDataSetRawHARDI";
+
             std::string gradientFileName = m_fname;
             using wiotools::getSuffix;
             std::string suffix = getSuffix( m_fname );
@@ -322,6 +326,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
                 }
                 // cannot find the appropriate gradient vectors, build a dataSetSingle instead of hardi
                 newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
+                wlog::debug( "WReaderNIfTI" ) << "Could not find corresponding gradients file, loading as WDataSetSingle instead.";
             }
             else
             {
@@ -348,6 +353,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
         }
         else
         {
+            wlog::debug( "WReaderNIfTI" ) << "Load as WDataSetSingle";
             newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSingle( newValueSet, newGrid ) );
         }
     }

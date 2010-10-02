@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,65 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMJOINTREETESTER_H
-#define WMJOINTREETESTER_H
+#ifndef WMSPATIALDERIVATION_H
+#define WMSPATIALDERIVATION_H
 
-#include <algorithm>
-#include <functional>
-#include <map>
-#include <numeric>
-#include <set>
 #include <string>
-#include <utility>
-#include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetVector.h"
 
-#include <osg/Geode>
-#include <osg/LightModel>
-
-#include "../../common/datastructures/WTriangleMesh.h"
-#include "../../common/datastructures/WUnionFind.h"
-#include "../../common/exceptions/WNotImplemented.h"
-#include "../../common/math/WMath.h"
-#include "../../common/math/WPlane.h"
-#include "../../common/WAssert.h"
-#include "../../common/WColor.h"
-#include "../../common/WStringUtils.h"
-#include "../../common/WTransferable.h"
-#include "../../dataHandler/datastructures/WJoinContourTree.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WGEGeometryUtils.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "lmath".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+ * This modules takes a dataset and derives it spatially.
  *
  * \ingroup modules
  */
-class WMJoinTreeTester: public WModule
+class WMSpatialDerivation: public WModule
 {
 public:
 
     /**
-     *
+     * Default constructor.
      */
-    WMJoinTreeTester();
+    WMSpatialDerivation();
 
     /**
-     *
+     * Destructor.
      */
-    virtual ~WMJoinTreeTester();
+    virtual ~WMSpatialDerivation();
 
     /**
      * Gives back the name of this module.
@@ -102,6 +73,11 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
 
     /**
@@ -119,29 +95,49 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
+     */
+    virtual void activate();
 
 private:
-    /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
-     */
-    osg::ref_ptr<osg::Geode> m_rootNode;
 
     /**
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_scalarIn;
 
     /**
-     * This is a pointer to the dataset the module is currently working on.
+     * The output connector used to provide the calculated data to other modules.
      */
-    boost::shared_ptr< WDataSetSingle > m_dataSet;
-
-    boost::shared_ptr< WJoinContourTree > m_joinTree; //!< Join Tree to test
+    boost::shared_ptr< WModuleOutputData< WDataSetVector > > m_vectorOut;
 
     /**
-     * An integer value.
+     * The last created output. Needed for de-registering at data handler
      */
-    WPropDouble      m_dbl;
+    boost::shared_ptr< WDataSetVector > m_lastOutputDataSet;
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * If true, the vectors get normalized.
+     */
+    WPropBool m_normalize;
+
+    /**
+     * Derives the specified scalar data set spatially and creates a new vector value set.
+     *
+     * \param grid the grid
+     * \param values the value set
+     *
+     * \return the vector value set basing on the same grid as the specified one
+     */
+    template< typename T >
+    void derive( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WValueSet< T > > values );
 };
 
-#endif  // WMJOINTREETESTER_H
+#endif  // WMSPATIALDERIVATION_H
+

@@ -29,9 +29,9 @@
 #include <iostream>
 #include <vector>
 
+#include "../WExportCommon.h"
 #include "../WMixinVector.h"
 #include "WPosition.h"
-#include "../WExportCommon.h"
 
 // we need this to find the WLineTest class which is not inside wmath namespace
 class WLineTest;
@@ -98,6 +98,14 @@ namespace wmath
          * \return -1 in case of the two fibers are considered equal, otherwise the first position on which they differ is returned.
          */
         int equalsDelta( const wmath::WLine& other, double delta ) const;
+
+        /**
+         * Compute the maximal segment length of all segements. If there are no segements meaning
+         * zero or one point, zero is returned.
+         *
+         * \return Max segement length or zero if there aren't any.
+         */
+        double maxSegmentLength() const;
     };
 } // end of namespace
 #endif  // WLINE_H

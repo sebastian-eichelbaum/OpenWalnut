@@ -43,7 +43,7 @@
 #include "../../common/math/WVector3D.h"
 #include "../../kernel/modules/data/WMData.h"
 #include "WMBoundingBox.h"
-#include "boundingbox.xpm"
+#include "WMBoundingBox.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMBoundingBox )
@@ -169,10 +169,7 @@ void WMBoundingBox::connectors()
 
 void WMBoundingBox::properties()
 {
-//    ( m_properties->addInt( "Thickness", 1 ) )->connect( boost::bind( &WMBoundingBox::slotPropertyChanged, this, _1 ) );
-
-    // m_active gets initialized in WModule and is available for all modules. Overwrite activate() to have a special callback for m_active
-    // changes.
+    WModule::properties();
 }
 
 void WMBoundingBox::activate()

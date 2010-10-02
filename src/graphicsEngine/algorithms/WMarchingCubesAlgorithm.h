@@ -96,7 +96,9 @@ public:
      WMarchingCubesAlgorithm();
 
     /**
-     * Generate the triangles for the surface on the given dataSet (inGrid, vals).
+     * Generate the triangles for the surface on the given dataSet (inGrid, vals). The texture coordinates in the resulting mesh are relative to
+     * the grid. This means they are NOT transformed. This ensure faster grid matrix updates in texture space.
+     * This might be useful where texture transformation matrices are used.
      * \param nbCoordsX number of vertices in X direction
      * \param nbCoordsY number of vertices in Y direction
      * \param nbCoordsZ number of vertices in Z direction
@@ -158,12 +160,6 @@ private:
      */
     unsigned int getVertexID( unsigned int nX, unsigned int nY, unsigned int nZ );
 
-    /**
-     * Transform the positions to the correct coordiante system given by the grid.
-     * \param positions A data structure holding the positions.
-     */
-    void transformPositions( ID2WPointXYZId* positions );
-
     unsigned int m_nCellsX;  //!< No. of cells in x direction.
     unsigned int m_nCellsY;  //!< No. of cells in y direction.
     unsigned int m_nCellsZ;  //!< No. of cells in z direction.
@@ -175,6 +171,7 @@ private:
     ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
     WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
 };
+
 
 template<typename T> boost::shared_ptr<WTriangleMesh2> WMarchingCubesAlgorithm::generateSurface( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
                                                                                                  const wmath::WMatrix< double >& mat,
@@ -338,8 +335,6 @@ template<typename T> boost::shared_ptr<WTriangleMesh2> WMarchingCubesAlgorithm::
         }
     }
 
-    transformPositions( &m_idToVertices );
-
     unsigned int nextID = 0;
     boost::shared_ptr< WTriangleMesh2 > triMesh( new WTriangleMesh2( m_idToVertices.size(), m_trivecTriangles.size() ) );
 
@@ -347,8 +342,22 @@ template<typename T> boost::shared_ptr<WTriangleMesh2> WMarchingCubesAlgorithm::
     ID2WPointXYZId::iterator mapIterator = m_idToVertices.begin();
     while ( mapIterator != m_idToVertices.end() )
     {
+        wmath::WPosition texCoord = wmath::WPosition( mapIterator->second.x / nbCoordsX,
+                                                      mapIterator->second.y / nbCoordsY,
+                                                      mapIterator->second.z / nbCoordsZ );
+
+        // transform from grid coordinate system to world coordinates
+        wmath::WPosition pos = wmath::WPosition( mapIterator->second.x, mapIterator->second.y, mapIterator->second.z );
+
+        std::vector< double > resultPos4D( 4 );
+        resultPos4D[0] = m_matrix( 0, 0 ) * pos[0] + m_matrix( 0, 1 ) * pos[1] + m_matrix( 0, 2 ) * pos[2] + m_matrix( 0, 3 ) * 1;
+        resultPos4D[1] = m_matrix( 1, 0 ) * pos[0] + m_matrix( 1, 1 ) * pos[1] + m_matrix( 1, 2 ) * pos[2] + m_matrix( 1, 3 ) * 1;
+        resultPos4D[2] = m_matrix( 2, 0 ) * pos[0] + m_matrix( 2, 1 ) * pos[1] + m_matrix( 2, 2 ) * pos[2] + m_matrix( 2, 3 ) * 1;
+        resultPos4D[3] = m_matrix( 3, 0 ) * pos[0] + m_matrix( 3, 1 ) * pos[1] + m_matrix( 3, 2 ) * pos[2] + m_matrix( 3, 3 ) * 1;
+
         ( *mapIterator ).second.newID = nextID;
-        triMesh->addVertex( ( *mapIterator ).second.x, ( *mapIterator ).second.y, ( *mapIterator ).second.z );
+        triMesh->addVertex( resultPos4D[0] / resultPos4D[3], resultPos4D[1] / resultPos4D[3], resultPos4D[2] / resultPos4D[3] );
+        triMesh->addTextureCoordinate( texCoord );
         nextID++;
         mapIterator++;
     }

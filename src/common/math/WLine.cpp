@@ -27,10 +27,10 @@
 #include <string>
 #include <vector>
 
+#include "../exceptions/WOutOfBounds.h"
 #include "../WAssert.h"
 #include "../WLimits.h"
 #include "../WStringUtils.h"
-#include "../exceptions/WOutOfBounds.h"
 #include "WLine.h"
 #include "WPosition.h"
 
@@ -138,6 +138,20 @@ int WLine::equalsDelta( const wmath::WLine& other, double delta ) const
         }
     }
     return diffPos;
+}
+
+double WLine::maxSegmentLength() const
+{
+    double result = 0.0;
+    if( empty() || size() == 1 )
+    {
+        return result;
+    }
+    for( size_t i = 0; i < size() - 1; ++i )
+    {
+        result = std::max( result, ( ( *this )[i] - ( *this )[i+1] ).norm() );
+    }
+    return result;
 }
 
 } // end of namespace

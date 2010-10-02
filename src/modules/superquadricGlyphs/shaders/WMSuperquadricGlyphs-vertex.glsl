@@ -52,7 +52,7 @@ void main()
     // get tensor data
     vec3 diag    = vec3( gl_TexCoord[1].x, gl_TexCoord[1].y, gl_TexCoord[1].z );
     vec3 offdiag = vec3( gl_TexCoord[2].x, gl_TexCoord[2].y, gl_TexCoord[2].z );
-    
+
     // calculate eigenvectors, and rotation matrix
     vec3 evals = getEigenvalues( diag, offdiag );
     //evals = vec3( 1.0, 1.0, 1.0 );
@@ -89,7 +89,7 @@ void main()
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
-    // 3: precalculate some glyph characteristics 
+    // 3: precalculate some glyph characteristics
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // calculate alpha and beta corresponding to eigenvalues
@@ -103,7 +103,7 @@ void main()
     float kmBeta = 1.0;
 
     // the above values define the shape of the glyph
-    if ( cl>=cp )
+    if ( cl >= cp )
     {
         kmAlpha = pow( 1.0 - cp, u_gamma );
         kmBeta  = pow( 1.0 - cl, u_gamma );
@@ -127,7 +127,7 @@ void main()
     evals.z = ( evals.z / evals.x );
     evals.y = ( evals.y / evals.x );
     evals.x = 1.0;
-    if ( evals.z <= u_evThreshold ) 
+    if ( evals.z <= u_evThreshold )
     {
         v_alphaBeta.w = 1.0;
     }
@@ -141,7 +141,7 @@ void main()
     mat4 glyphSystem = mat4( ev0.xyz, 0.0,
                              ev1.xyz, 0.0,
                              ev2.xyz, 0.0,
-                             0.0, 0.0, 0.0, 1.0 ); 
+                             0.0, 0.0, 0.0, 1.0 );
 
     float dimX = u_scaling * evals.x;
     float dimY = u_scaling * evals.y;
@@ -159,7 +159,7 @@ void main()
 
     gl_TexCoord[0].w = 0.0;
     gl_Position = gl_ModelViewProjectionMatrix * ( gl_Vertex + glyphSystem * glyphScale * gl_TexCoord[0] );
-  
+
     /////////////////////////////////////////////////////////////////////////////////////////////
     // 5: Transform light and plane as well as ray back to glyph space
     /////////////////////////////////////////////////////////////////////////////////////////////

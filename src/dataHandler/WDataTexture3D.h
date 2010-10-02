@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include <osg/Texture3D>
+#include "../graphicsEngine/WGEScaledTexture.h"
 
 #include "../common/WProperties.h"
 #include "WDataHandlerEnums.h"
@@ -123,7 +123,7 @@ public:
      *
      * \return the texture
      */
-    osg::ref_ptr< osg::Texture3D > getTexture();
+    osg::ref_ptr< WGEScaledTexture3D > getTexture();
 
     /**
      * Gets the condition which is fired whenever the texture gets some kind of dirty (threshold, opacity, ...)
@@ -316,7 +316,7 @@ protected:
     /**
      * The actual texture.
      */
-    osg::ref_ptr< osg::Texture3D > m_texture;
+    osg::ref_ptr< WGEScaledTexture3D > m_texture;
 
     /**
      * The value set from which the texture gets created.

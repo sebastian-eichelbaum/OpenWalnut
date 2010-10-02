@@ -34,7 +34,7 @@
 #include "../../graphicsEngine/WROIArbitrary.h"
 #include "../../kernel/WKernel.h"
 
-#include "paintTexture.xpm" // Please put a real icon here.
+#include "WMPaintTexture.xpm" // Please put a real icon here.
 
 #include "WMPaintTexture.h"
 
@@ -133,6 +133,8 @@ void WMPaintTexture::properties()
             WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
     m_buttonCreateRoi = m_properties->addProperty( "Create ROI", "Create a ROI from the currently selected paint value",
                 WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+
+    WModule::properties();
 }
 
 void WMPaintTexture::propertyChanged( boost::shared_ptr< WPropertyBase > property )
@@ -440,6 +442,7 @@ void WMPaintTexture::createTexture()
     m_texture->setResizeNonPowerOfTwoHint( false );
 
     WKernel::getRunningKernel()->getSelectionManager()->setTexture( m_texture, m_grid );
+    WKernel::getRunningKernel()->getSelectionManager()->setShader( 4 );
     WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( true );
 
     WDataHandler::getDefaultSubject()->getChangeCondition()->notify();

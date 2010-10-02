@@ -36,13 +36,13 @@
 #include <osgText/Text>
 #include <osg/Vec3>
 
-#include "../common/datastructures/WTriangleMesh.h"
+#include "../common/WColor.h"
 #include "../common/math/WLine.h"
 #include "../common/math/WPlane.h"
 #include "../common/math/WPosition.h"
-#include "../common/WColor.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
+#include "WTriangleMesh2.h"
 
 #include "WExportWGE.h"
 
@@ -95,7 +95,7 @@ namespace wge
      *                       them into the geometry.
      * \return an osg::Geometry containing the mesh
      */
-    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals = false );
+    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh2* mesh, bool includeNormals = false );
 
     /**
      * Generates a line geode with thickness and color as parameters.

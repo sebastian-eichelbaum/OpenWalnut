@@ -37,7 +37,7 @@
 #include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../kernel/WKernel.h"
-#include "gaussfiltering.xpm"
+#include "WMGaussFiltering.xpm"
 #include "WMGaussFiltering.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -390,4 +390,6 @@ void WMGaussFiltering::properties()
     m_iterations->setMax( 100 );
 
     m_mode            = m_properties->addProperty( "Mode", "", false, m_propCondition );
+
+    WModule::properties();
 }

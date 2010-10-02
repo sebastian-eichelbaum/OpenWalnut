@@ -40,7 +40,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WKernel.h"
-#include "isosurfaceraytracer.xpm"
+#include "WMIsosurfaceRaytracer.xpm"
 #include "WMIsosurfaceRaytracer.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -120,6 +120,8 @@ void WMIsosurfaceRaytracer::properties()
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_shadingAlgo );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_shadingAlgo );
+
+    WModule::properties();
 }
 
 void WMIsosurfaceRaytracer::moduleMain()

@@ -132,6 +132,12 @@ private:
      */
     WPropInt m_selectedImage;
 
+    //! The data value percent that maps to 0.0 in the texture.
+    WPropDouble m_minValuePct;
+
+    //! The data value percent that maps to 1.0 in the texture.
+    WPropDouble m_maxValuePct;
+
     // the following 5 members are taken from WMData
     /**
      * Interpolation?

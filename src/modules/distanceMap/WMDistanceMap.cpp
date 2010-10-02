@@ -28,7 +28,7 @@
 #include <vector>
 
 #include "WMDistanceMap.h"
-#include "distancemap.xpm"
+#include "WMDistanceMap.xpm"
 
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleFactory.h"
@@ -139,7 +139,7 @@ void WMDistanceMap::connectors()
 
 void WMDistanceMap::properties()
 {
-    // no properties
+    WModule::properties();
 }
 
 template< typename T > boost::shared_ptr< WValueSet< float > > makeFloatValueSetHelper( boost::shared_ptr< WValueSet< T > > inSet )

@@ -40,7 +40,7 @@
 #include "../../kernel/WKernel.h"
 
 #include "WTalairachConverter.h"
-#include "coordinateSystem.xpm"
+#include "WMCoordinateSystem.xpm"
 
 #include "WMCoordinateSystem.h"
 
@@ -159,6 +159,8 @@ void WMCoordinateSystem::properties()
     m_acTrigger = m_properties->addProperty( "Set AC", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );
     m_pcTrigger = m_properties->addProperty( "Set PC", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );
     m_ihpTrigger = m_properties->addProperty( "Set IHP", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );
+
+    WModule::properties();
 }
 
 void WMCoordinateSystem::propertyChanged()
