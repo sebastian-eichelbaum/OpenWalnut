@@ -25,6 +25,10 @@ ADD_SUBDIRECTORY( splineSurface )
 ADD_SUBDIRECTORY( subtractDataSetScalar )
 ADD_SUBDIRECTORY( surfaceParameterAnimator )
 
+IF( OPENCL_FOUND )
+  ADD_SUBDIRECTORY( tensorGlyphs )
+ENDIF()
+
 IF( Teem_FOUND )
   IF( OSSIM_FOUND )
     ADD_SUBDIRECTORY( bermanTracking )

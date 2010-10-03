@@ -598,10 +598,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator==( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right )
-    {
-        return left._impl == right._impl;
-    }
+    friend inline bool operator==( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -611,10 +608,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator==( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right )
-    {
-        return left._impl == right;
-    }
+    friend inline bool operator==( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -624,11 +618,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator==( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right )
-    {
-        return left == right._impl;
-    }
-
+    friend inline bool operator==( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -638,10 +628,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator!=( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right )
-    {
-        return left._impl != right._impl;
-    }
+    friend inline bool operator!=( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -651,10 +638,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator!=( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right )
-    {
-        return left._impl != right;
-    }
+    friend inline bool operator!=( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -664,11 +648,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator!=( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right )
-    {
-        return left != right._impl;
-    }
-
+    friend inline bool operator!=( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -678,10 +658,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator<( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right )
-    {
-        return left._impl < right._impl;
-    }
+    friend inline bool operator<( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -691,10 +668,16 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator<( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right )
-    {
-        return left._impl < right;
-    }
+    friend inline bool operator<( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right );
+    /**
+     *  Wrapper around std::vector operator
+     *
+     * \param left Left hand side
+     * \param right Right hand side
+     *
+     * \return True if and only if std::vector operator is true
+     */
+    friend inline bool operator<( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -704,11 +687,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator<( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right )
-    {
-        return left < right._impl;
-    }
-
+    friend inline bool operator >( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -718,10 +697,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator >( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right )
-    {
-        return left._impl > right._impl;
-    }
+    friend inline bool operator >( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -731,10 +707,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator >( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right )
-    {
-        return left._impl > right;
-    }
+    friend inline bool operator >( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -744,11 +717,16 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator >( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right )
-    {
-        return left > right._impl;
-    }
-
+    friend inline bool operator<=( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right );
+    /**
+     *  Wrapper around std::vector operator
+     *
+     * \param left Left hand side
+     * \param right Right hand side
+     *
+     * \return True if and only if std::vector operator is true
+     */
+    friend inline bool operator<=( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -758,10 +736,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator<=( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right )
-    {
-        return left._impl <= right._impl;
-    }
+    friend inline bool operator<=( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -771,10 +746,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator<=( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right )
-    {
-        return left._impl <= right;
-    }
+    friend inline bool operator>=( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -784,11 +756,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator<=( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right )
-    {
-        return left <= right._impl;
-    }
-
+    friend inline bool operator>=( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right );
 
     /**
      *  Wrapper around std::vector operator
@@ -798,36 +766,7 @@ public:
      *
      * \return True if and only if std::vector operator is true
      */
-    friend inline bool operator>=( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right )
-    {
-        return left._impl >= right._impl;
-    }
-
-    /**
-     *  Wrapper around std::vector operator
-     *
-     * \param left Left hand side
-     * \param right Right hand side
-     *
-     * \return True if and only if std::vector operator is true
-     */
-    friend inline bool operator>=( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right )
-    {
-        return left._impl >= right;
-    }
-
-    /**
-     *  Wrapper around std::vector operator
-     *
-     * \param left Left hand side
-     * \param right Right hand side
-     *
-     * \return True if and only if std::vector operator is true
-     */
-    friend inline bool operator>=( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right )
-    {
-        return left >= right._impl;
-    }
+    friend inline bool operator>=( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right );
 
 private:
     /**
@@ -882,6 +821,114 @@ template< class ValueT > inline std::ostream& operator<<( std::ostream& os, cons
     using string_utils::operator<<;
     os << v.asVector();
     return os;
+}
+
+template< class ValueT > 
+inline bool operator==( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right )
+{
+    return left._impl == right._impl;
+}
+
+template< class ValueT > 
+inline bool operator==( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right )
+{
+    return left._impl == right;
+}
+
+template< class ValueT > 
+inline bool operator==( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right )
+{
+    return left == right._impl;
+}
+
+template< class ValueT > 
+inline bool operator!=( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right )
+{
+    return left._impl != right._impl;
+}
+
+template< class ValueT > 
+inline bool operator!=( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right )
+{
+    return left._impl != right;
+}
+
+template< class ValueT > 
+inline bool operator!=( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right )
+{
+    return left != right._impl;
+}
+
+template< class ValueT > 
+inline bool operator<( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right )
+{
+    return left._impl < right._impl;
+}
+
+template< class ValueT > 
+inline bool operator<( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right )
+{
+    return left._impl < right;
+}
+
+template< class ValueT > 
+inline bool operator<( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right )
+{
+    return left < right._impl;
+}
+
+template< class ValueT > 
+inline bool operator >( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right )
+{
+    return left._impl > right._impl;
+}
+
+template< class ValueT > 
+inline bool operator >( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right )
+{
+    return left._impl > right;
+}
+
+template< class ValueT > 
+inline bool operator >( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right )
+{
+    return left > right._impl;
+}
+
+template< class ValueT > 
+inline bool operator<=( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right )
+{
+    return left._impl <= right._impl;
+}
+
+template< class ValueT > 
+inline bool operator<=( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right )
+{
+    return left._impl <= right;
+}
+
+template< class ValueT > 
+inline bool operator<=( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right )
+{
+    return left <= right._impl;
+}
+
+template< class ValueT > 
+inline bool operator>=( const WMixinVector< ValueT >& left, const WMixinVector< ValueT >& right )
+{
+    return left._impl >= right._impl;
+}
+
+template< class ValueT > 
+inline bool operator>=( const WMixinVector< ValueT >& left, const std::vector< ValueT >& right )
+{
+    return left._impl >= right;
+}
+
+template< class ValueT > 
+inline bool operator>=( const std::vector< ValueT >& left, const WMixinVector< ValueT >& right )
+{
+    return left >= right._impl;
 }
 
 #endif  // WMIXINVECTOR_H

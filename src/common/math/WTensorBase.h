@@ -1105,7 +1105,7 @@ private:
  * \tparam Data_T The datatype of the components, double by default.
  */
 //next line is nolint because brainlint cannot find the declaration of TensorBase_T
-template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t order, std::size_t dim, typename Data_T > //NOLINT
+template< template< size_t, size_t, typename > class TensorBase_T, size_t order, size_t dim, typename Data_T > //NOLINT
 class WTensorFunc : public TensorBase_T< order, dim, Data_T >
 {
 };
@@ -1118,7 +1118,7 @@ class WTensorFunc : public TensorBase_T< order, dim, Data_T >
  * in each direction.
  * \tparam Data_T The datatype of the components, double by default.
  */
-template< template< std::size_t, std::size_t, typename > class TensorBase_T, std::size_t dim, typename Data_T > //NOLINT
+template< template< size_t, size_t, typename > class TensorBase_T, size_t dim, typename Data_T > //NOLINT
 class WTensorFunc< TensorBase_T, 6, dim, Data_T > : public TensorBase_T< 6, dim, Data_T >
 {
 public:
@@ -1134,7 +1134,7 @@ public:
      *
      * \return A reference to the element.
      */
-    Data_T& operator() ( std::size_t i0, std::size_t i1, std::size_t i2, std::size_t i3, std::size_t i4, std::size_t i5 );
+    Data_T& operator() ( size_t i0, size_t i1, size_t i2, size_t i3, size_t i4, size_t i5 );
 
     /**
      * Access operator.

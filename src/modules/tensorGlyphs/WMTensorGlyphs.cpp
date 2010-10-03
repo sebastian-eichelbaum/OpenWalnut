@@ -24,7 +24,7 @@
 
 #include "../../kernel/WKernel.h"
 
-#include "glyph.xpm"
+#include "WMTensorGlyphs.xpm"
 #include "WMTensorGlyphs.h"
 
 W_LOADABLE_MODULE(WMTensorGlyphs)

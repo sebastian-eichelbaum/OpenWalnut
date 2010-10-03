@@ -142,7 +142,7 @@ namespace wge
      * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
      */
     template < typename T >
-    void WGE_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture, size_t unit = 0 );
+    void bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture, size_t unit = 0 );
 
     /**
      * Binds the specified texture to the specified unit. It automatically adds several uniforms which then can be utilized in the shader:
@@ -159,7 +159,7 @@ namespace wge
      * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
      */
     template < typename T >
-    void WGE_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEScaledTexture< T > > texture, size_t unit = 0 );
+    void bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEScaledTexture< T > > texture, size_t unit = 0 );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )

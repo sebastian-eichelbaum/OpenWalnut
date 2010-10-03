@@ -29,6 +29,7 @@
 
 #include <osg/Camera>
 
+#include "WExportWGE.h"
 #include "WGEGroupNode.h"
 #include "WGEOffscreenRenderPass.h"
 #include "WGEOffscreenTexturePass.h"
@@ -50,7 +51,7 @@
  * \note Please not that you should not modify the whole wiring and offscreen configuration if the this node has been added as it is not
  * thread-safe.
  */
-class WGEOffscreenRenderNode: public WGEGroupNode
+class WGE_EXPORT WGEOffscreenRenderNode: public WGEGroupNode
 {
 public:
     /**

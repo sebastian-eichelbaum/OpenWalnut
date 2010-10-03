@@ -35,6 +35,7 @@
 #include <osg/Texture2D>
 #include <osg/TexMat>
 
+#include "WExportWGE.h"
 #include "WGEGroupNode.h"
 
 /**
@@ -42,7 +43,7 @@
  * possible to add and remove textures to it. The size of the texture on screen depends on the screen size, as well as the layout of each texture
  * depends on the screen size.
  */
-class WGETextureHud: public osg::Projection
+class WGE_EXPORT WGETextureHud: public osg::Projection
 {
 public:
 
@@ -59,7 +60,7 @@ public:
     /**
      * Class implementing one texture HUD entry representing a texture in the HUD.
      */
-    class WGETextureHudEntry: public osg::MatrixTransform
+    class WGE_EXPORT WGETextureHudEntry: public osg::MatrixTransform
     {
     public: // NOLINT
 

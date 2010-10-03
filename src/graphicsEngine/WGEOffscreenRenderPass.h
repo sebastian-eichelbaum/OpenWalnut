@@ -30,6 +30,7 @@
 #include <osg/Camera>
 #include <osg/FrameBufferObject>
 
+#include "WExportWGE.h"
 #include "WGEUtils.h"
 #include "WGEScaledTexture.h"
 
@@ -40,7 +41,7 @@ class WGETextureHud;
  * which, by default, is the same as the camera in the this instance nesting graph. It allows simple attachment of textures to a offscreen
  * rendering as well as easy texture creation.
  */
-class WGEOffscreenRenderPass: public osg::Camera
+class WGE_EXPORT WGEOffscreenRenderPass: public osg::Camera
 {
 public:
 
