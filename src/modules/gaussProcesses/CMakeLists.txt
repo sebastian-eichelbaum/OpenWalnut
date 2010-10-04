@@ -1,1 +1,2 @@
 ADD_SUBDIRECTORY( detTract2GPConvert )
+ADD_SUBDIRECTORY( gpView )
