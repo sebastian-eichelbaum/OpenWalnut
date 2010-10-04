@@ -66,11 +66,11 @@ typename itk::Image< T, 3 >::Pointer makeImageFromDataSet( boost::shared_ptr< WD
     img->SetRegions( r );
     img->Allocate();
 
-    for( i[ 0 ] = 0; i[ 0 ] < s[ 0 ]; ++i[ 0 ] )
+    for( i[ 0 ] = 0; i[ 0 ] < static_cast< int >( s[ 0 ] ); ++i[ 0 ] )
     {
-        for( i[ 1 ] = 0; i[ 1 ] < s[ 1 ]; ++i[ 1 ] )
+        for( i[ 1 ] = 0; i[ 1 ] < static_cast< int >( s[ 1 ] ); ++i[ 1 ] )
         {
-            for( i[ 2 ] = 0; i[ 2 ] < s[ 2 ]; ++i[ 2 ] )
+            for( i[ 2 ] = 0; i[ 2 ] < static_cast< int >( s[ 2 ] ); ++i[ 2 ] )
             {
                 img->SetPixel( i, dataSet->getValueAt< T >( i[ 0 ], i[ 1 ], i[ 2 ] ) );
             }
@@ -98,11 +98,11 @@ boost::shared_ptr< WDataSetScalar > makeDataSetFromImage( typename itk::Image< T
 
     typename itk::Image< T, 3 >::IndexType i;
 
-    for( i[ 0 ] = 0; i[ 0 ] < s[ 0 ]; ++i[ 0 ] )
+    for( i[ 0 ] = 0; i[ 0 ] < static_cast< int >( s[ 0 ] ); ++i[ 0 ] )
     {
-        for( i[ 1 ] = 0; i[ 1 ] < s[ 1 ]; ++i[ 1 ] )
+        for( i[ 1 ] = 0; i[ 1 ] < static_cast< int >( s[ 1 ] ); ++i[ 1 ] )
         {
-            for( i[ 2 ] = 0; i[ 2 ] < s[ 2 ]; ++i[ 2 ] )
+            for( i[ 2 ] = 0; i[ 2 ] < static_cast< int >( s[ 2 ] ); ++i[ 2 ] )
             {
                 v.at( i[ 0 ] + i[ 1 ] * s[ 0 ] + i[ 2 ] * s[ 0 ] * s[ 1 ] ) = img->GetPixel( i );
             }
