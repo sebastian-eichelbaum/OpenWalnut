@@ -36,9 +36,13 @@
 
 #include "../../../kernel/WModuleConnector.h"
 #include "WQtNetworkPort.h"
+//#include "WQtNetworkOutputPort.h"
+//#include "WQtNetworkInputPort.h"
 
 // forward declaration
 class WQtNetworkPort;
+//class WQtNetworkOutputPort;
+//class WQtNetworkInputPort;
 
 /**
  * This Class is needed for connecting two ports, and drawing a line between

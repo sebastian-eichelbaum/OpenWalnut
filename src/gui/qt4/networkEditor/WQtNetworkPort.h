@@ -29,7 +29,6 @@
 #include <QtGui/QGraphicsLineItem>
 #include <QtGui/QGraphicsScene>
 
-#include "../../../kernel/WModuleConnector.h"
 #include "WQtNetworkArrow.h"
 
 // forward declaration
@@ -45,10 +44,10 @@ class WQtNetworkPort : public QGraphicsRectItem
 
         /**
          * Constructor
-         *
-        virtual explicit WQtNetworkPort( boost::shared_ptr< WModuleConnector > *connector );
+         */
+        //WQtNetworkPort();
 
-        **
+        /**
          * Destructor
          */
         virtual ~WQtNetworkPort();

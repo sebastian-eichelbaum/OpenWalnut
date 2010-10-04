@@ -97,6 +97,7 @@ QVariant WQtNetworkArrow::itemChange( GraphicsItemChange change,
     }
     return value;
 }
+
 void WQtNetworkArrow::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w )
 {
     if( isSelected() &&
