@@ -28,11 +28,12 @@
 #include "../../../common/WAssert.h"
 #include "WGaussProcess.h"
 
-WGaussProcess::WGaussProcess( const wmath::WFiber& tract, boost::shared_ptr< const WDataSetDTI > tensors )
+WGaussProcess::WGaussProcess( const wmath::WFiber& tract, boost::shared_ptr< const WDataSetDTI > tensors, double maxLevel )
     : m_tract( tract ),
       m_tensors( tensors ),
       m_CffInverse( static_cast< int >( tract.size() ), static_cast< int >( tract.size() ) ),
-      m_R( tract.maxSegmentLength() )
+      m_R( tract.maxSegmentLength() ),
+      m_maxLevel( maxLevel )
 {
     generateCffInverse();
     generateTauParameter();
@@ -52,7 +53,7 @@ double WGaussProcess::mean( const wmath::WPosition& p ) const
         Sf( i ) = cov_s( m_tract[i], p );
     }
 
-    Eigen::VectorXd l = Eigen::VectorXd::Ones( m_CffInverse.rows() ) * 1;
+    Eigen::VectorXd l = Eigen::VectorXd::Ones( m_CffInverse.rows() ) * m_maxLevel;
     Eigen::VectorXd matrixVector = m_CffInverse * l;
     result = Sf.dot( matrixVector );
     return result;

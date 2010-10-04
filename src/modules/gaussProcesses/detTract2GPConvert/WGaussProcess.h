@@ -47,8 +47,9 @@ public:
      *
      * \param tract One deterministic tractogram
      * \param tensors All 2nd order diffusion tensors
+     * \param maxLevel The real number which represents the maximum intensity
      */
-    WGaussProcess( const wmath::WFiber& tract, boost::shared_ptr< const WDataSetDTI > tensors );
+    WGaussProcess( const wmath::WFiber& tract, boost::shared_ptr< const WDataSetDTI > tensors, double maxLevel = 1.0 );
 
     /**
      * Default destructor.
@@ -144,6 +145,12 @@ private:
      * Max segment length of the tract describing the R environment.
      */
     double m_R;
+
+    /**
+     * The MaximumLevelSet, representing the real number which is used for blurring the sample
+     * point. No other point has a bigger values after the blurring.
+     */
+    double m_maxLevel;
 };
 
 inline double WGaussProcess::cov_s( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const

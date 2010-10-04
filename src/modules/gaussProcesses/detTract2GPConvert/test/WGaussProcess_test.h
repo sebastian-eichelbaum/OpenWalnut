@@ -49,7 +49,6 @@ public:
     void testMeanFunctionOutsideOf_R_Environment( void )
     {
         WGaussProcess p( m_tract, m_emptyDTIDataSet );
-        double R = p.m_R;
         TS_ASSERT_DELTA( p.mean( wmath::WPosition( -( p.m_R + wlimits::DBL_EPS ), 0.0, 0.0 ) ), 0.0, wlimits::DBL_EPS );
     }
 
@@ -59,7 +58,6 @@ public:
     void testMeanFunctionInsideOf_R_Environment( void )
     {
         WGaussProcess p( m_tract, m_emptyDTIDataSet );
-        double R = p.m_R;
         TS_ASSERT( std::abs( p.mean( wmath::WPosition( -p.m_R + 2 * wlimits::DBL_EPS, 0.0, 0.0 ) ) ) > wlimits::DBL_EPS );
     }
 
@@ -70,17 +68,23 @@ public:
     void testMeanFunctionMonotonyIn_R_Environment( void )
     {
         WGaussProcess p( m_tract, m_emptyDTIDataSet );
-        double R = p.m_R;
         TS_ASSERT( std::abs( p.mean( wmath::WPosition( -p.m_R + 3 * wlimits::DBL_EPS, 0.0, 0.0 ) ) ) >
                              p.mean( wmath::WPosition( -p.m_R + 2 * wlimits::DBL_EPS, 0.0, 0.0 ) ) );
     }
 
-//    void testMeanFunctionOnSamplePoint( void )
-//    {
-//    }
-//
+    /**
+     * The mean value on the sample point is the maximum level set.
+     */
+    void testMeanFunctionOnSamplePoint( void )
+    {
+        WGaussProcess p( m_tract, m_emptyDTIDataSet );
+        TS_ASSERT_DELTA( p.mean( wmath::WPosition( 0.0, 0.0, 0.0 ) ), p.m_maxLevel, wlimits::DBL_EPS );
+    }
+
 //    void testMeanFunctionOnSegmentButNotOnSamplePoint( void )
 //    {
+//        WGaussProcess p( m_tract, m_emptyDTIDataSet );
+//        TS_ASSERT_DELTA( p.mean( wmath::WPosition( 0.4, 0.4, 0.0 ) ), p.m_maxLevel, wlimits::DBL_EPS );
 //    }
 
 protected:
