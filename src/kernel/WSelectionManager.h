@@ -25,6 +25,8 @@
 #ifndef WSELECTIONMANAGER_H
 #define WSELECTIONMANAGER_H
 
+#include <vector>
+
 #include <boost/shared_ptr.hpp>
 
 #include "WCrosshair.h"
@@ -172,6 +174,20 @@ public:
      */
     int getShader();
 
+    /**
+     * TODO(schurade): this is only a temporary solution and will be changed very soon
+     * getter
+     * \return the bitfield
+     */
+    boost::shared_ptr< std::vector< bool > >getBitField();
+
+    /**
+     * TODO(schurade): this is only a temporary solution and will be changed very soon
+     * setter
+     * \param bitfield
+     */
+    void setBitField( boost::shared_ptr< std::vector< bool > > bitfield );
+
 protected:
 private:
     boost::shared_ptr< WCrosshair >m_crosshair; //!< stores pointer to crosshair
@@ -219,6 +235,13 @@ private:
      * index of the shader to use with the texture
      */
     int m_shader;
+
+    // TODO(schurade): roi refactoring
+    /**
+     * bitfield of selected fiber, this is only a temporary solution to get the code to compile
+     * while the roi structure is being refactored
+     */
+    boost::shared_ptr< std::vector< bool > >m_fiberSelectionBitfield;
 };
 
 #endif  // WSELECTIONMANAGER_H

@@ -29,10 +29,31 @@
 WROI::WROI() :
     osg::Geode()
 {
+    properties();
 }
 
 WROI::~WROI()
 {
+}
+
+void WROI::properties()
+{
+    m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "This ROI's properties" ) );
+
+    m_active = m_properties->addProperty( "active", "description", true, boost::bind( &WROI::propertyChanged, this ) );
+    m_active->setHidden( true );
+
+    m_dirty = m_properties->addProperty( "Dirty", "description", true, boost::bind( &WROI::propertyChanged, this ) );
+    m_not = m_properties->addProperty( "NOT", "description", false, boost::bind( &WROI::propertyChanged, this ) );
+}
+
+void WROI::propertyChanged()
+{
+}
+
+boost::shared_ptr<WProperties> WROI::getProperties()
+{
+    return m_properties;
 }
 
 boost::signals2::signal0< void >* WROI::getSignalIsModified()
@@ -42,31 +63,38 @@ boost::signals2::signal0< void >* WROI::getSignalIsModified()
 
 void WROI::setNot( bool isNot )
 {
-    m_isNot = isNot;
-    m_isModified = true;
+    m_not->set( isNot );
+    m_dirty->set( true );
 }
 
 bool WROI::isNot()
 {
-    return m_isNot;
+    return m_not->get();
 }
 
-bool WROI::isActive()
+bool WROI::active()
 {
-    return m_isActive;
+    return m_active->get();
 }
 
 void WROI::setActive( bool active )
 {
-    m_isActive = active;
-    m_isModified = true;
+    m_active->set( active );
+    m_dirty->set( true );
 }
 
-bool WROI::isModified()
+bool WROI::dirty( bool reset )
 {
-    bool tmp = m_isModified;
-    m_isModified = false;
-    return tmp;
+    if ( reset )
+    {
+        bool tmp = m_dirty->get();
+        m_dirty->set( false );
+        return tmp;
+    }
+    else
+    {
+        return m_dirty->get();
+    }
 }
 
 void WROI::hide()

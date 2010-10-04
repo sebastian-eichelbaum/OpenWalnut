@@ -513,7 +513,7 @@ WQtModuleTreeItem* WQtControlPanel::addModule( boost::shared_ptr< WModule > modu
     return item;
 }
 
-void WQtControlPanel::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
+void WQtControlPanel::addRoi( osg::ref_ptr< WROI > roi )
 {
     WQtRoiTreeItem* newItem;
     WQtBranchTreeItem* branchItem;
@@ -526,7 +526,7 @@ void WQtControlPanel::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     {
         branchItem = dynamic_cast< WQtBranchTreeItem* >( m_tiRois->child( branchID ) );
         // if branch == roi branch
-        if ( branchItem->getBranch() == roi->getBranch() )
+        if ( branchItem->getBranch() == WKernel::getRunningKernel()->getRoiManager()->getBranch( roi ) )
         {
             found = true;
             break;
@@ -535,7 +535,7 @@ void WQtControlPanel::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
 
     if ( !found )
     {
-        branchItem = m_tiRois->addBranch( roi->getBranch() );
+        branchItem = m_tiRois->addBranch( WKernel::getRunningKernel()->getRoiManager()->getBranch( roi ) );
     }
 
     m_tabWidget2->setCurrentIndex( m_tabWidget2->indexOf( m_roiTreeWidget ) );
@@ -546,7 +546,7 @@ void WQtControlPanel::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
 }
 
-void WQtControlPanel::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi )
+void WQtControlPanel::removeRoi( osg::ref_ptr< WROI > roi )
 {
     for( int branchID = 0; branchID < m_tiRois->childCount(); ++branchID )
     {
@@ -900,7 +900,7 @@ void WQtControlPanel::changeRoiTreeItem()
 {
     if ( m_roiTreeWidget->selectedItems().size() == 1 && m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
     {
-        boost::shared_ptr< WRMROIRepresentation > roi =( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
+        osg::ref_ptr< WROI > roi = ( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
         roi->getProperties()->getProperty( "active" )->toPropBool()->set( m_roiTreeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
 }
@@ -933,9 +933,9 @@ int WQtControlPanel::getFirstSubject()
     return c;
 }
 
-boost::shared_ptr< WRMROIRepresentation > WQtControlPanel::getSelectedRoi()
+osg::ref_ptr< WROI > WQtControlPanel::getSelectedRoi()
 {
-    boost::shared_ptr< WRMROIRepresentation >roi;
+    osg::ref_ptr< WROI > roi;
     if ( m_roiTreeWidget->selectedItems().count() == 0 )
     {
         return roi;
@@ -947,9 +947,9 @@ boost::shared_ptr< WRMROIRepresentation > WQtControlPanel::getSelectedRoi()
     return roi;
 }
 
-boost::shared_ptr< WRMROIRepresentation > WQtControlPanel::getFirstRoiInSelectedBranch()
+osg::ref_ptr< WROI > WQtControlPanel::getFirstRoiInSelectedBranch()
 {
-    boost::shared_ptr< WRMROIRepresentation >roi;
+    osg::ref_ptr< WROI >roi;
     if ( m_roiTreeWidget->selectedItems().count() == 0 )
     {
         return roi;
@@ -1003,7 +1003,7 @@ void WQtControlPanel::deleteModuleTreeItem()
 
 void WQtControlPanel::deleteROITreeItem()
 {
-    boost::shared_ptr< WRMROIRepresentation >roi;
+    osg::ref_ptr< WROI >roi;
     if ( m_roiTreeWidget->selectedItems().count() > 0 )
     {
         if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROIBRANCH )

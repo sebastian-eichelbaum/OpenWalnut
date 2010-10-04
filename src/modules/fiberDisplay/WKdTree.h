@@ -28,9 +28,7 @@
 #include <algorithm>
 #include <vector>
 
-#include "../../../common/WThreadedRunner.h"
-
-#include "../../WExportKernel.h"
+#include "../../common/WThreadedRunner.h"
 
 /**
  * implements the compare function for std::nth_element on a point array
@@ -64,7 +62,7 @@ struct lessy
 /**
  * class to provide threaded computation of parts of the kd tree
  */
-class OWKERNEL_EXPORT WKdTreeThread: public WThreadedRunner
+class WKdTreeThread: public WThreadedRunner
 {
 public:
     /**

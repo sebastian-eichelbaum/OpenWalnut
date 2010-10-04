@@ -281,8 +281,6 @@ private:
     WPropTrigger  m_readTriggerProp; //!< This property triggers the actual reading,
     WPropFilename m_propTreeFile; //!< The tree will be read from this file, i hope we will get a real load button some time
 
-    WPropTrigger m_createRoiTrigger; //!< when triggered the selected cluster will be transfered into a WRoiBitfield
-
     /**
      * stores the tree object
      */

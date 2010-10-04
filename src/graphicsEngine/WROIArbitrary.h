@@ -93,6 +93,11 @@ public:
     virtual ~WROIArbitrary();
 
     /**
+     * initalizes the properties
+     */
+    void properties();
+
+    /**
      * setter
      * \param threshold
      */
@@ -136,8 +141,7 @@ private:
     wmath::WMatrix< double > m_matrix; //!< The 4x4 transformation matrix for the vertices.
     const std::vector< float > m_vals; //!< The data at the vertices.
     boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
-    float m_threshold; //!< the threshold
-    float m_maxThreshold; //!< the threshold
+    WPropDouble m_threshold; //!< the threshold
 
     /**
      * The ROI color

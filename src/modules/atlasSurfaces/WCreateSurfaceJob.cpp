@@ -22,43 +22,4 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
-
-#include "../../../common/WLogger.h"
-
-#include "WRoiProjectFileIO.h"
-
-WRoiProjectFileIO::WRoiProjectFileIO():
-    WProjectFileIO()
-{
-    // initialize members
-}
-
-WRoiProjectFileIO::~WRoiProjectFileIO()
-{
-    // cleanup
-}
-
-bool WRoiProjectFileIO::parse( std::string /* line */, unsigned int /* lineNumber */ )
-{
-    // read something
-    return false;
-}
-
-void WRoiProjectFileIO::done()
-{
-    // apply
-}
-
-void WRoiProjectFileIO::save( std::ostream& output )   // NOLINT
-{
-    // save here
-    output << "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
-              "// ROI Structure" << std::endl <<
-              "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
-              std::endl;
-    output << "// Sorry. Not Yet Implemented." << std::endl;
-
-    wlog::info( "ROI Project File" ) << "Not yet implemented. Sorry.";
-}
-
+#include "WCreateSurfaceJob.h"

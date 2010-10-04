@@ -39,7 +39,7 @@ WQtBranchTreeItem::~WQtBranchTreeItem()
 {
 }
 
-WQtRoiTreeItem* WQtBranchTreeItem::addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi )
+WQtRoiTreeItem* WQtBranchTreeItem::addRoiItem( osg::ref_ptr< WROI > roi )
 {
     WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi, ROI );
 

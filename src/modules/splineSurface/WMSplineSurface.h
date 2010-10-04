@@ -33,14 +33,15 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WTriangleMesh2.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
 
 /**
  * Module implementing the marching cubes algorithm with consistent triangulation for data

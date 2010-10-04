@@ -22,20 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#include <vector>
+#include <string>
 
-#include "WROIBitfield.h"
+#include "../common/WLogger.h"
 
-WROIBitfield::WROIBitfield( boost::shared_ptr< std::vector<bool> > bitfield ) :
-    WROI(),
-    m_bitfield( bitfield )
+#include "WRoiProjectFileIO.h"
+
+WRoiProjectFileIO::WRoiProjectFileIO():
+    WProjectFileIO()
 {
+    // initialize members
 }
 
-WROIBitfield::~WROIBitfield()
+WRoiProjectFileIO::~WRoiProjectFileIO()
 {
+    // cleanup
 }
 
-void WROIBitfield::updateGFX()
+bool WRoiProjectFileIO::parse( std::string /* line */, unsigned int /* lineNumber */ )
 {
+    // read something
+    return false;
 }
+
+void WRoiProjectFileIO::done()
+{
+    // apply
+}
+
+void WRoiProjectFileIO::save( std::ostream& output )   // NOLINT
+{
+    // save here
+    output << "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              "// ROI Structure" << std::endl <<
+              "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << std::endl <<
+              std::endl;
+    output << "// Sorry. Not Yet Implemented." << std::endl;
+
+    wlog::info( "ROI Project File" ) << "Not yet implemented. Sorry.";
+}
+

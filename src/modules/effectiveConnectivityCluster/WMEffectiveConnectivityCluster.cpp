@@ -245,7 +245,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     //////////////////////////////////////////////////////////////////////////////////
 
     // Connect voxelizer input with the selected fibers
-    m_voxelizer->getInputConnector( "voxelInput" )->connect( m_fiberSelection->getOutputConnector( "cluster" ) );
+    m_voxelizer->getInputConnector( "tractInput" )->connect( m_fiberSelection->getOutputConnector( "cluster" ) );
 
     // Connect voxelizer output with the gauss filter
     m_gauss->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );

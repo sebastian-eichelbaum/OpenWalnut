@@ -70,7 +70,7 @@ const std::string WMWriteTracts::getDescription() const
 void WMWriteTracts::connectors()
 {
     typedef WModuleInputData< const WFiberCluster > InputType; // just an alias
-    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "voxelInput", "A loaded dataset with grid." ) );
+    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "tractInput", "A loaded dataset with grid." ) );
     addConnector( m_input );
 
     // call WModules initialization
