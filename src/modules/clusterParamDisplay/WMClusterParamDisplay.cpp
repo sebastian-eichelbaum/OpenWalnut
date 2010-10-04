@@ -165,7 +165,7 @@ void WMClusterParamDisplay::initSubModules()
     m_meshRenderer->getInputConnector( "mesh" )->connect( m_clusterSlicer->getOutputConnector( "meshOUT" ) );
     m_meshRenderer->getInputConnector( "colorMap" )->connect( m_clusterSlicer->getOutputConnector( "colorMap" ) );
 
-    m_voxelizer->getInputConnector( "voxelInput" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
+    m_voxelizer->getInputConnector( "tractInput" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
     m_fibers->forward( m_detTractClustering->getInputConnector( "tractInput" ) ); // init rippling
     debugLog() << "Wiring done";
 
