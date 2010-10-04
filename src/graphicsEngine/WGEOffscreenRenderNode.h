@@ -31,7 +31,11 @@
 
 #include "WGEGroupNode.h"
 #include "WGEOffscreenRenderPass.h"
+#include "WGEOffscreenTexturePass.h"
+#include "WGEOffscreenFinalPass.h"
 #include "WGETextureHud.h"
+#include "WShader.h"
+#include "callbacks/WGEViewportCallback.h"
 
 /**
  * This type of node basically is a convenience class for managing and creating offscreen renderings. The children of this node should be of type
@@ -67,6 +71,13 @@ public:
     virtual ~WGEOffscreenRenderNode();
 
     /**
+     * Returns the instance of the texture HUD.
+     *
+     * \return the HUD
+     */
+    osg::ref_ptr< WGETextureHud > getTextureHUD() const;
+
+    /**
      * Creates a new offscreen-render-pass coupled with the reference camera which renders a specified OSG graph to a texture.
      *
      * \param node the node which represents the subgraph.
@@ -79,6 +90,20 @@ public:
     virtual osg::ref_ptr< WGEOffscreenRenderPass > addGeometryRenderPass( osg::ref_ptr< osg::Node > node, std::string name = "Unnamed" );
 
     /**
+     * Creates a new offscreen-render-pass coupled with the reference camera which renders a specified OSG graph to a texture.
+     *
+     * \param node the node which represents the subgraph.
+     * \param name the name of the render pass. You should specify it to enable the nice debugging feature of WGETextureHud.
+     * \param shader the shader to add.
+     *
+     * \note never forget to remove the returned node if not used anymore or use WGEGroup::clean.
+     *
+     * \return the geometry render pass.
+     */
+    virtual osg::ref_ptr< WGEOffscreenRenderPass > addGeometryRenderPass( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader,
+                                                                          std::string name = "Unnamed" );
+
+    /**
      * Creates a new offscreen-render-pass coupled with the reference camera which simply processes textures. All the in- and output textures
      * have to be specified manually.
      *
@@ -88,7 +113,41 @@ public:
      *
      * \return the texture processing pass created.
      */
-    virtual osg::ref_ptr< WGEOffscreenRenderPass >  addTextureProcessingPass( std::string name = "Unnamed" );
+    virtual osg::ref_ptr< WGEOffscreenTexturePass > addTextureProcessingPass( std::string name = "Unnamed" );
+
+    /**
+     * Creates a new offscreen-render-pass coupled with the reference camera which simply processes textures. All the in- and output textures
+     * have to be specified manually.
+     *
+     * \note never forget to remove the returned node if not used anymore or use WGEGroup::clean.
+     *
+     * \param name the name of the render pass. You should specify it to enable the nice debugging feature of WGETextureHud.
+     * \param shader the shader to add.
+     *
+     * \return the texture processing pass created.
+     */
+    virtual osg::ref_ptr< WGEOffscreenTexturePass > addTextureProcessingPass( osg::ref_ptr< WShader > shader, std::string name = "Unnamed" );
+
+    /**
+     * Creates a new render pass which can be seen as put-textures-back-on-screen-pass. It renders a full-screen quad to the on-screen
+     * frame-buffer. An optional shader can be used for final processing (most commonly clipping, blending, color-mapping and so on).
+     *
+     * \param name the name of the render pass. You should specify it to enable the nice debugging feature of WGETextureHud.
+     *
+     * \return the on-screen render pass which draws processed textures back on screen.
+     */
+    virtual osg::ref_ptr< WGEOffscreenFinalPass > addFinalOnScreenPass( std::string name = "Unnamed" );
+
+    /**
+     * Creates a new render pass which can be seen as put-textures-back-on-screen-pass. It renders a full-screen quad to the on-screen
+     * frame-buffer. An optional shader can be used for final processing (most commonly clipping, blending, color-mapping and so on).
+     *
+     * \param shader the shader to add
+     * \param name the name of the render pass. You should specify it to enable the nice debugging feature of WGETextureHud.
+     *
+     * \return the on-screen render pass which draws processed textures back on screen.
+     */
+    virtual osg::ref_ptr< WGEOffscreenFinalPass > addFinalOnScreenPass( osg::ref_ptr< WShader > shader, std::string name = "Unnamed" );
 
     /**
      * Creates a new offscreen-render-pass coupled with the reference camera. This pass actually does nothing. The method is useful for custom
@@ -97,8 +156,11 @@ public:
      * \param name the name of the render pass. You should specify it to enable the nice debugging feature of WGETextureHud.
      *
      * \return new instance of a plain render pass
+     *
+     * \tparam T the type of pass to create.
      */
-    virtual osg::ref_ptr< WGEOffscreenRenderPass >  addRenderPass( std::string name = "Unnamed" );
+    template < typename T >
+    osg::ref_ptr< T >  addRenderPass( std::string name = "Unnamed" );
 
 protected:
 
@@ -130,6 +192,27 @@ private:
      */
     size_t m_nextPassNum;
 };
+
+template < typename T >
+osg::ref_ptr< T > WGEOffscreenRenderNode::addRenderPass( std::string name )
+{
+    // create a new pass
+    osg::ref_ptr< T > pass = new T( m_textureWidth, m_textureHeight, m_hud, name, m_nextPassNum );
+    m_nextPassNum++;
+
+    // this node needs to keep all the pass instances. Only this way, the OSG traverses and renders these nodes in the order specified by
+    // m_nextPassNum.
+    insert( pass );   // insert into this group
+
+    // ensure proper propagation of viewport changes
+    pass->addUpdateCallback( new WGEViewportCallback< T >( m_referenceCamera ) );
+
+    // set clear mask and color according to reference cam
+    pass->setClearMask( m_referenceCamera->getClearMask() );
+    pass->setClearColor( m_referenceCamera->getClearColor() );
+
+    return pass;
+}
 
 #endif  // WGEOFFSCREENRENDERNODE_H
 

@@ -187,13 +187,14 @@ void WM#name#::connectors()
 {
     // Put the code for your connectors here. See "src/modules/template/" for an extensively documented example.
 
-    // call WModules initialization
     WModule::connectors();
 }
 
 void WM#name#::properties()
 {
     // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
+
+    WModule::properties();
 }
 
 void WM#name#::moduleMain()

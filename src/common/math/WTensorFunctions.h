@@ -74,7 +74,9 @@ void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat,
             }
         }
 
-        if( fabs( in( p, q ) ) == 0.0 )
+        // Note: If all non diagonal elements sum up to nearly zero, we may quit already!
+        // Thereby the chosen threshold 1.0e-50 was taken arbitrarily and is just a guess.
+        if( std::abs( in( 0, 1 ) ) + std::abs( in( 0, 2 ) ) + std::abs( in( 1, 2 ) ) < 1.0e-50 )
         {
             for( int i = 0; i < 3; ++i )
             {
@@ -119,7 +121,6 @@ void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat,
         {
             ++k;
         }
-        WAssert( k < 3, "" );
 
         Data_T u = ( 1.0 - c ) / s;
 

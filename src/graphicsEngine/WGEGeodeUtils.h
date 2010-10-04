@@ -36,13 +36,13 @@
 #include <osgText/Text>
 #include <osg/Vec3>
 
-#include "../common/datastructures/WTriangleMesh.h"
+#include "../common/WColor.h"
 #include "../common/math/WLine.h"
 #include "../common/math/WPlane.h"
 #include "../common/math/WPosition.h"
-#include "../common/WColor.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
+#include "WTriangleMesh2.h"
 
 #include "WExportWGE.h"
 
@@ -95,7 +95,7 @@ namespace wge
      *                       them into the geometry.
      * \return an osg::Geometry containing the mesh
      */
-    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals = false );
+    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh2* mesh, bool includeNormals = false );
 
     /**
      * Generates a line geode with thickness and color as parameters.
@@ -153,46 +153,7 @@ namespace wge
      *
      * \return the geode
      */
-    osg::ref_ptr< osg::Geode > WGE_EXPORT genFinitePlane( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b )
-    {
-        // the stuff needed by the OSG to create a geometry instance
-        osg::ref_ptr< osg::Vec3Array > vertices = new osg::Vec3Array;
-        osg::ref_ptr< osg::Vec3Array > texcoords0 = new osg::Vec3Array;
-        osg::ref_ptr< osg::Vec3Array > normals = new osg::Vec3Array;
-
-        osg::Vec3 aPlusB = a + b;
-
-        vertices->push_back( base );
-        vertices->push_back( base + a );
-        vertices->push_back( base + aPlusB );
-        vertices->push_back( base + b );
-
-        osg::Vec3 aCrossB = a ^ b;
-        aCrossB.normalize();
-        aPlusB.normalize();
-        osg::Vec3 aNorm = a;
-        aNorm.normalize();
-        osg::Vec3 bNorm = b;
-        bNorm.normalize();
-
-        normals->push_back( aCrossB );
-        texcoords0->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
-        texcoords0->push_back( aNorm );
-        texcoords0->push_back( aPlusB );
-        texcoords0->push_back( bNorm );
-
-        // put it all together
-        osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry();
-        geometry->setVertexArray( vertices );
-        geometry->setTexCoordArray( 0, texcoords0 );
-        geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
-        geometry->setNormalArray( normals );
-        geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
-
-        osg::ref_ptr< osg::Geode > geode = new osg::Geode();
-        geode->addDrawable( geometry );
-        return geode;
-    }
+    osg::ref_ptr< osg::Geode > WGE_EXPORT genFinitePlane( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b );
 
     /**
      * For each points in the STL container generate small cubes.

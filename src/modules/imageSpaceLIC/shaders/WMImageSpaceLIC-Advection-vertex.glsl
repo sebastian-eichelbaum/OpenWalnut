@@ -22,22 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGaussProcess.h"
+#version 120
 
-WGaussProcess::WGaussProcess()
+void main()
 {
+    // pass the color to the fragment shader
+    gl_FrontColor = gl_Color;
+    gl_BackColor =  gl_Color;
+
+    // pass tex coordinates
+    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+
+    // transform position
+    gl_Position = ftransform();
 }
 
-WGaussProcess::WGaussProcess( const wmath::WFiber& tract, const WDataSetDTI& tensors )
-{
-}
-
-WGaussProcess::~WGaussProcess()
-{
-}
-
-WGaussProcess WGaussProcess::operator+( const WGaussProcess& other ) const
-{
-    WGaussProcess result;
-    return result;
-}

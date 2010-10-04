@@ -22,26 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGAUSSPROCESS_TEST_H
-#define WGAUSSPROCESS_TEST_H
+#version 120
 
-#include <cxxtest/TestSuite.h>
-
-#include "../WGaussProcess.h"
-
-/**
- * Testsuite for the gaussian process class.
- */
-class WGaussProcessTest : public CxxTest::TestSuite
+void main()
 {
-public:
-    /**
-     * The mean function of a gaussian process is a mapping: R^3 -> R
-     */
-    void testMeanFunctionTest( void )
-    {
-        // TODO(math): implement this
-    }
-};
+    // pass the color to the fragment shader
+    gl_FrontColor = gl_Color;
+    gl_BackColor =  gl_Color;
 
-#endif  // WGAUSSPROCESS_TEST_H
+    // pass tex coordinates
+    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+
+    // transform position
+    gl_Position = ftransform();
+}
+
