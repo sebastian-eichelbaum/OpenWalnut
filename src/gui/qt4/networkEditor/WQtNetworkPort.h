@@ -135,21 +135,21 @@ class WQtNetworkPort : public QGraphicsRectItem
          *
          * \param mouseEvent the mouse event
          */
-        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
+//        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
         /**
          * Updates the arrows endpoint.
          *
          * \param mouseEvent the mouse event
          */
-        void mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent );
+//        void mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
         /**
          * Draw the arrow if its the correct port
          *
          * \param mouseEvent the mouse event
          */
-        void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
+//        void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
     private:
     

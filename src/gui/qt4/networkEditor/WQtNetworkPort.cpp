@@ -58,7 +58,7 @@ void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
         mouseEvent->ignore();
     }
 }
-
+/*
 //TODO
 void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
@@ -167,7 +167,7 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
         }
     }
 }
-
+*/
 
 void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool outPort )
 {
