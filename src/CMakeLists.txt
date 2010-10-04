@@ -113,6 +113,14 @@ IF( OSSIM_FOUND )
 #   MARK_AS_ADVANCED( OSSIM_LIBDIR )
 ENDIF()
 
+### Eigen #### (for the gauss process, the covariance matrices tend to be sparse and 20x20, but ~70.000 of them)
+FIND_PACKAGE( Eigen3 QUIET )
+IF( EIGEN3_FOUND )
+    MESSAGE( STATUS "Found Eigen3 in: ${EIGEN3_INCLUDE_DIR} with version: ${EIGEN3_VERSION}" )
+    MARK_AS_ADVANCED( EIGEN3_INCLUDE_DIR )
+    MARK_AS_ADVANCED( EIGEN3_VERSION )
+ENDIF()
+
 # other options:
 #---------------
 # Set default build type

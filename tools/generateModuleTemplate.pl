@@ -193,14 +193,14 @@ void WM#name#::connectors()
 void WM#name#::properties()
 {
     // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
+
+    WModule::properties();
 }
 
 void WM#name#::moduleMain()
 {
     // Put the code for your module's main functionality here.
     // See "src/modules/template/" for an extensively documented example.
-
-    WModule::properties();
 }
 EOF
 ;

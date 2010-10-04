@@ -77,7 +77,7 @@ WKernel::~WKernel()
 void WKernel::init()
 {
     // initialize
-    m_roiManager = boost::shared_ptr< WROIManagerFibers >( new WROIManagerFibers() );
+    m_roiManager = boost::shared_ptr< WROIManager >( new WROIManager() );
 
     m_selectionManager = boost::shared_ptr< WSelectionManager >( new WSelectionManager() );
 
@@ -189,7 +189,7 @@ boost::shared_ptr< WModule > WKernel::applyModule( boost::shared_ptr< WModule > 
     return getRootContainer()->applyModule( applyOn, prototype );
 }
 
-boost::shared_ptr< WROIManagerFibers> WKernel::getRoiManager()
+boost::shared_ptr< WROIManager > WKernel::getRoiManager()
 {
     return m_roiManager;
 }

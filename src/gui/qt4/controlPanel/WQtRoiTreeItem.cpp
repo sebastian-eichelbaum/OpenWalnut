@@ -27,7 +27,7 @@
 #include "WTreeItemTypes.h"
 #include "WQtRoiTreeItem.h"
 
-WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, WTreeItemType type ) :
+WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, osg::ref_ptr< WROI > roi, WTreeItemType type ) :
     QTreeWidgetItem( parent, type ),
     m_roi( roi )
 {
@@ -47,7 +47,7 @@ WQtRoiTreeItem::~WQtRoiTreeItem()
 {
 }
 
-boost::shared_ptr< WRMROIRepresentation > WQtRoiTreeItem::getRoi()
+osg::ref_ptr< WROI > WQtRoiTreeItem::getRoi()
 {
     return m_roi;
 }

@@ -212,4 +212,12 @@ int WSelectionManager::getShader()
     return m_shader;
 }
 
+boost::shared_ptr< std::vector< bool > > WSelectionManager::getBitField()
+{
+    return m_fiberSelectionBitfield;
+}
 
+void WSelectionManager::setBitField( boost::shared_ptr< std::vector< bool > > bf )
+{
+    m_fiberSelectionBitfield = bf;
+}

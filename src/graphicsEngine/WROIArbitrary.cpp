@@ -51,18 +51,22 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
     m_matrix( mat ),
     m_vals( vals ),
     m_triMesh( triMesh ),
-    m_threshold( threshold ),
-    m_maxThreshold( maxThreshold ),
     m_color( color )
 {
     m_nbCoordsVec[0] = nbCoordsX;
     m_nbCoordsVec[1] = nbCoordsY;
     m_nbCoordsVec[2] = nbCoordsZ;
+
+    properties();
+
     updateGFX();
-    m_isModified = true;
+    m_dirty->set( true );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
     setUserData( this );
     setUpdateCallback( osg::ref_ptr<ROIArbNodeCallback>( new ROIArbNodeCallback ) );
+
+    m_threshold->set( threshold );
+    m_threshold->setMax( maxThreshold );
 }
 
 WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
@@ -74,19 +78,22 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
     m_nbCoordsVec( 3 ),
     m_matrix( mat ),
     m_vals( vals ),
-    m_threshold( 0.01 ),
-    m_maxThreshold( maxThreshold ),
     m_color( color )
 {
     m_nbCoordsVec[0] = nbCoordsX;
     m_nbCoordsVec[1] = nbCoordsY;
     m_nbCoordsVec[2] = nbCoordsZ;
 
+    properties();
+
     updateGFX();
-    m_isModified = true;
+    m_dirty->set( true );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
     setUserData( this );
     setUpdateCallback( osg::ref_ptr< ROIArbNodeCallback >( new ROIArbNodeCallback ) );
+
+    m_threshold->set( 0.01 );
+    m_threshold->setMax( maxThreshold );
 }
 
 WROIArbitrary::~WROIArbitrary()
@@ -97,20 +104,20 @@ WROIArbitrary::~WROIArbitrary()
 //    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_geode );
 }
 
+void WROIArbitrary::properties()
+{
+    m_threshold = m_properties->addProperty( "Threshold", "description", 0. ); // , boost::bind( &WROI::propertyChanged, this )
+}
+
 void WROIArbitrary::setThreshold( double threshold )
 {
-    m_threshold = threshold;
-    m_isModified = true;
+    m_threshold->set( threshold );
+    m_dirty->set( true );
 }
 
 double WROIArbitrary::getThreshold()
 {
-    return m_threshold;
-}
-
-double WROIArbitrary::getMaxThreshold()
-{
-    return m_maxThreshold;
+    return m_threshold->get();
 }
 
 std::vector< size_t > WROIArbitrary::getCoordDimensions()
@@ -134,14 +141,14 @@ float WROIArbitrary::getValue( size_t i )
 
 void WROIArbitrary::updateGFX()
 {
-    if ( m_isModified )
+    if ( m_dirty->get() )
     {
         boost::shared_ptr< WProgressCombiner > progress = boost::shared_ptr< WProgressCombiner >( new WProgressCombiner() );
         WMarchingCubesAlgorithm mcAlgo;
         m_triMesh = mcAlgo.generateSurface( m_nbCoordsVec[0], m_nbCoordsVec[1], m_nbCoordsVec[2],
                                             m_matrix,
                                             &m_vals,
-                                            m_threshold,
+                                            m_threshold->get(),
                                             progress );
 
         osg::Geometry* surfaceGeometry = new osg::Geometry();
@@ -190,6 +197,6 @@ void WROIArbitrary::updateGFX()
     //        state->setAttribute( material );
     //    }
 
-        m_isModified = false;
+        m_dirty->set( false );
     }
 }

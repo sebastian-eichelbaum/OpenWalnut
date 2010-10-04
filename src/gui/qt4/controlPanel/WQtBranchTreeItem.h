@@ -29,8 +29,10 @@
 #include <QtGui/QProgressBar>
 #include <QtGui/QTreeWidgetItem>
 
-#include "../../../kernel/modules/fiberDisplay/WRMBranch.h"
-#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../../../graphicsEngine/WROI.h"
+
+#include "../../../kernel/WRMBranch.h"
+
 #include "WQtTreeItem.h"
 
 class WQtRoiTreeItem;
@@ -58,7 +60,7 @@ public:
      * Add a roi to the tree view.
      * \param roi The new roi.
      */
-    WQtRoiTreeItem* addRoiItem( boost::shared_ptr< WRMROIRepresentation > roi );
+    WQtRoiTreeItem* addRoiItem( osg::ref_ptr< WROI > );
 
     /**
      * getter

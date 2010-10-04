@@ -30,7 +30,7 @@
 
 #include "WKernel.h"
 #include "combiner/WModuleProjectFileCombiner.h"
-#include "modules/fiberDisplay/WRoiProjectFileIO.h"
+#include "WRoiProjectFileIO.h"
 #include "../graphicsEngine/WGEProjectFileIO.h"
 #include "../common/exceptions/WFileNotFound.h"
 #include "../common/exceptions/WFileOpenFailed.h"

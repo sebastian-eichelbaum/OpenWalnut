@@ -32,7 +32,9 @@
 
 #include <osg/Geode>
 
-#include "../common/WColor.h"
+#include "../common/WProperties.h"
+
+
 #include "WExportWGE.h"
 
 class WPickHandler;
@@ -76,7 +78,7 @@ public:
      *
      * \return the active flag
      */
-    bool isActive();
+    bool active();
 
     /**
      * setter
@@ -97,27 +99,62 @@ public:
 
     /**
      * Getter for modified flag
+     * \param reset if true the dirty flag will be set to false
+     * \return the dirty flag
      */
-    bool isModified();
+    bool dirty( bool reset = false );
 
+    /**
+     * Getter
+     * \return the properties object for this roi
+     */
+    boost::shared_ptr< WProperties > getProperties();
 
 protected:
-    osg::ref_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
+    /**
+     * initializes the roi's properties
+     */
+    void properties();
 
-    bool m_isModified; //!< Indicates whether a changed ROI has already taken effect. Means: if true, still some updates needed.
+    /**
+     * callback when a property gets changed
+     */
+    void propertyChanged();
+
+    osg::ref_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
 
     /**
      * boost signal object to indicate box manipulation
      */
     boost::signals2::signal0< void >m_signalIsModified;
 
-    bool m_isNot; //!< Indivated whether the region of interest is inside the WROI (false) oroutside (true).
+    /**
+     * the property object for the module
+     */
+    boost::shared_ptr< WProperties > m_properties;
 
-    WColor m_color; //!< The selected onject (Fibers, region on surface, ...) will have this color if m_useColor.
+    WPropBool m_dirty; //!< dirty flag, indicates the bit fields need updating
 
-    bool m_useColor; //!< Indicated whether m_color should be used for display.
+    /**
+     * indicates if the roi is active
+     */
+    WPropBool m_active;
 
-    bool m_isActive; //!< active or not
+    /**
+     * indicates if the roi is negated
+     */
+    WPropBool m_not;
+
+    /**
+     * threshold for an arbitrary roi
+     */
+    WPropDouble m_threshold;
+
+    /**
+     * A color for painting the roi in the scene
+     */
+    WPropColor m_color;
+
 
 private:
     /**

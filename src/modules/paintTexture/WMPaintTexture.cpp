@@ -487,12 +487,6 @@ void WMPaintTexture::copyFromInput()
 
 void WMPaintTexture::createROI()
 {
-    if( !WKernel::getRunningKernel()->getRoiManager()->getBitField() )
-    {
-        wlog::warn( "WMPaintTexture" ) << "Refused to add ROI, as ROIManager does not have computed its bitfield yet.";
-        return;
-    }
-
     bool valid = false;
     std::vector<float>roiVals( m_grid->size(), 0 );
     unsigned char index = m_paintIndex->get();
@@ -522,7 +516,7 @@ void WMPaintTexture::createROI()
         else
         {
             std::cout << " new roi with parent " << std::endl;
-            WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi()->getROI() );
+            WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() );
         }
     }
 }
