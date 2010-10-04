@@ -80,18 +80,20 @@ public:
     virtual ~WGETexture();
 
     /**
-     * Get the minimum in the de-scaled value space.
+     * Get the minimum in the de-scaled value space. The property can be changed. A change affects all colormaps using this texture. But be
+     * careful as the texture creating depends on these values.
      *
      * \return the minimum
      */
-    double getMin() const;
+    WPropDouble minimum() const;
 
     /**
-     * Get the scaling factor for de-scaling the texture.
+     * Get the scaling factor for de-scaling the texture. The property can be changed. A change affects all colormaps using this texture. But be
+     * careful as the texture creating depends on these values.
      *
      * \return the scale
      */
-    double getScale() const;
+    WPropDouble scale() const;
 
     /**
      * Returns the alpha property. The property can be changed. A change affects all colormaps using this texture.
@@ -127,6 +129,13 @@ public:
      * \return active property
      */
     WPropBool active() const;
+
+    /**
+     * Returns the matrix used for transforming the texture coordinates to match the texture.
+     *
+     * \return the matrix allowing direct application to osg::TexMat.
+     */
+    virtual osg::Matrix getTexMatrix() const;
 
     /**
      * Binds the texture to the specified node and texture unit. It also adds two uniforms: u_textureXMin and u_textureXScale, where X
@@ -246,8 +255,8 @@ WGETexture< TextureType >::WGETexture( double scale, double min ):
     m_propCondition->subscribeSignal( boost::bind( &WGETexture< TextureType >::handleUpdate, this ) );
 
     // initialize members
-    m_min = m_infoProperties->addProperty( "Minimum", "The minimum value in the original space.", min );
-    m_scale = m_infoProperties->addProperty( "Scale", "The scaling factor to un-scale the texture values to the original space.", scale );
+    m_min = m_properties->addProperty( "Minimum", "The minimum value in the original space.", min );
+    m_scale = m_properties->addProperty( "Scale", "The scaling factor to un-scale the texture values to the original space.", scale );
 
     m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0, m_propCondition );
     m_alpha->setMin( 0.0 );
@@ -269,6 +278,10 @@ WGETexture< TextureType >::WGETexture( double scale, double min ):
 
     m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMap );
+
+    m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true, m_propCondition );
+
+    TextureType::setResizeNonPowerOfTwoHint( false );
 }
 
 template < typename TextureType >
@@ -278,13 +291,21 @@ WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double m
     m_properties( boost::shared_ptr< WProperties >( new WProperties( "Texture Properties", "Properties of a texture." ) ) ),
     m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) )
 {
-    // initialize members
-    m_min = m_infoProperties->addProperty( "Minimum", "The minimum value in the original space.", min );
-    m_scale = m_infoProperties->addProperty( "Scale", "The scaling factor to unscale the texture values to the original space.", scale );
+    m_propCondition->subscribeSignal( boost::bind( &WGETexture< TextureType >::handleUpdate, this ) );
 
-    m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0 );
-    m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0 );
-    m_interpolation = m_properties->addProperty( "Interpolate", "Interpolation of the volume data.", true );
+    // initialize members
+    m_min = m_properties->addProperty( "Minimum", "The minimum value in the original space.", min );
+    m_scale = m_properties->addProperty( "Scale", "The scaling factor to un-scale the texture values to the original space.", scale );
+
+    m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0, m_propCondition );
+    m_alpha->setMin( 0.0 );
+    m_alpha->setMax( 1.0 );
+
+    m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0, m_propCondition );
+    m_threshold->setMin( 0.0 );
+    m_threshold->setMin( 1.0 );
+
+    m_interpolation = m_properties->addProperty( "Interpolate", "Interpolation of the volume data.", true, m_propCondition );
 
     m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_colorMapSelectionsList->addItem( "Grayscale", "" );
@@ -294,8 +315,12 @@ WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double m
     m_colorMapSelectionsList->addItem( "Atlas", "" );
     m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
 
-    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst() );
+    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMap );
+
+    m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true, m_propCondition );
+
+    TextureType::setResizeNonPowerOfTwoHint( false );
 }
 
 template < typename TextureType >
@@ -326,43 +351,43 @@ boost::shared_ptr< WProperties > WGETexture< TextureType >::getInformationProper
 }
 
 template < typename TextureType >
-double WGETexture< TextureType >::getMin() const
+inline WPropDouble WGETexture< TextureType >::minimum() const
 {
-    return m_min->get();
+    return m_min;
 }
 
 template < typename TextureType >
-double WGETexture< TextureType >::getScale() const
+inline WPropDouble WGETexture< TextureType >::scale() const
 {
-    return m_scale->get();
+    return m_scale;
 }
 
 template < typename TextureType >
-WPropDouble WGETexture< TextureType >::alpha() const
+inline WPropDouble WGETexture< TextureType >::alpha() const
 {
     return m_alpha;
 }
 
 template < typename TextureType >
-WPropDouble WGETexture< TextureType >::threshold() const
+inline WPropDouble WGETexture< TextureType >::threshold() const
 {
     return m_threshold;
 }
 
 template < typename TextureType >
-WPropBool WGETexture< TextureType >::interpolation() const
+inline WPropBool WGETexture< TextureType >::interpolation() const
 {
     return m_interpolation;
 }
 
 template < typename TextureType >
-WPropSelection WGETexture< TextureType >::colormap() const
+inline WPropSelection WGETexture< TextureType >::colormap() const
 {
     return m_colorMap;
 }
 
 template < typename TextureType >
-WPropBool WGETexture< TextureType >::active() const
+inline WPropBool WGETexture< TextureType >::active() const
 {
     return m_active;
 }
@@ -370,8 +395,11 @@ WPropBool WGETexture< TextureType >::active() const
 template < typename TextureType >
 void  WGETexture< TextureType >::handleUpdate()
 {
-
-//->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
+    if ( m_interpolation->changed() )
+    {
+        TextureType::setFilter( osg::Texture::MIN_FILTER, m_interpolation->get( true ) ? osg::Texture::LINEAR : osg::Texture::NEAREST );
+        TextureType::setFilter( osg::Texture::MAG_FILTER, m_interpolation->get( true ) ? osg::Texture::LINEAR : osg::Texture::NEAREST );
+    }
 }
 
 template < typename TextureType >
@@ -379,6 +407,12 @@ void WGETexture< TextureType >::bind( osg::ref_ptr< osg::Node > node, size_t uni
 {
     // let our utilities do the work
     wge::bindTexture( node, this, unit ); // to avoid recursive stuff -> explicitly specify the type
+}
+
+template < typename TextureType >
+osg::Matrix WGETexture< TextureType >::getTexMatrix() const
+{
+    return osg::Matrix::identity();
 }
 
 #endif  // WGETEXTURE_H

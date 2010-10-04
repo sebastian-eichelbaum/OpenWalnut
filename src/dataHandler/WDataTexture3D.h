@@ -55,7 +55,7 @@ public:
      * \param valueSet  the value set to use
      * \param grid the grid to use
      */
-    explicit WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost::shared_ptr<WGrid> grid );
+    WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost::shared_ptr<WGrid> grid );
 
     /**
      * Destructor.
@@ -173,7 +173,7 @@ public:
     void setMaxValue( float max );
 
     /**
-     * Gets the scaling factor to unscale [0,1] to [0, max-min]
+     * Gets the scaling factor to de-scale [0,1] to [0, max-min]
      *
      * \return the scaling factor.
      */
