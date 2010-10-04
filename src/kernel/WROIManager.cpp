@@ -172,7 +172,6 @@ void WROIManager::addRemoveBranchNotifier( boost::function< void( boost::shared_
     lock.unlock();
 }
 
-
 void WROIManager::setSelectedRoi( osg::ref_ptr< WROI > roi )
 {
     m_selectedRoi = roi;
@@ -181,4 +180,15 @@ void WROIManager::setSelectedRoi( osg::ref_ptr< WROI > roi )
 osg::ref_ptr< WROI > WROIManager::getSelectedRoi()
 {
     return m_selectedRoi;
+}
+
+std::vector< osg::ref_ptr< WROI > > WROIManager::getRois()
+{
+    std::vector< osg::ref_ptr< WROI > > returnVec;
+
+    for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
+    {
+        ( *iter )->getRois( returnVec );
+    }
+    return returnVec;
 }

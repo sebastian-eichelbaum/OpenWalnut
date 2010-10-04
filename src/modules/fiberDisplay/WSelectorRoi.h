@@ -63,6 +63,12 @@ public:
      */
     osg::ref_ptr< WROI > getRoi();
 
+    /**
+     * setter
+     * sets the dirty flag
+     */
+    void setDirty();
+
 protected:
 private:
     /**
@@ -107,6 +113,11 @@ private:
     size_t m_size;
 
     /**
+     * dirty flag
+     */
+    bool m_dirty;
+
+    /**
      * the bitfield that is given to the outside world
      */
     boost::shared_ptr< std::vector<bool> >m_bitField;
@@ -134,7 +145,7 @@ private:
 
 inline boost::shared_ptr< std::vector<bool> > WSelectorRoi::getBitField()
 {
-    if ( m_roi->dirty( true ) )
+    if ( m_dirty )
     {
         recalculate();
     }

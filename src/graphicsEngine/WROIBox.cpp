@@ -174,7 +174,7 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
 
-    m_dirty->set( true );
+    setDirty();
     m_not->set( false );
 
     assert( WGraphicsEngine::getGraphicsEngine() );
@@ -294,7 +294,7 @@ void WROIBox::updateGFX()
             }
         }
         m_oldPixelPosition = newPixelPos;
-        m_dirty->set( true );
+        setDirty();
         m_isPicked = true;
 
         m_signalIsModified();

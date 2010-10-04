@@ -25,6 +25,7 @@
 #ifndef WROI_H
 #define WROI_H
 
+#include <list>
 #include <string>
 
 #include <boost/signals2/signal.hpp>
@@ -51,13 +52,6 @@ public:
      * Need virtual destructor because of virtual function.
      */
     virtual ~WROI();
-
-    /**
-     * getter for the boost signal object that indicates a modified box
-     *
-     * \return signal object
-     */
-    boost::signals2::signal0< void >* getSignalIsModified();
 
     /**
      * sets the NOT flag
@@ -99,16 +93,28 @@ public:
 
     /**
      * Getter for modified flag
-     * \param reset if true the dirty flag will be set to false
      * \return the dirty flag
      */
-    bool dirty( bool reset = false );
+    bool dirty();
+
+    /**
+     * sets the dirty flag
+     */
+    void setDirty();
 
     /**
      * Getter
      * \return the properties object for this roi
      */
     boost::shared_ptr< WProperties > getProperties();
+
+    /**
+     * Add a specified notifier to the list of default notifiers which get connected to each roi.
+     *
+     * \param notifier  the notifier function
+     */
+    void addChangeNotifier( boost::function< void() > notifier );
+
 
 protected:
     /**
@@ -155,8 +161,22 @@ protected:
      */
     WPropColor m_color;
 
+    /**
+     * The notifiers connected to added rois by default.
+     */
+    std::list< boost::function< void() > > m_changeNotifiers;
+
+    /**
+     * Lock for associated notifiers set.
+     */
+    boost::shared_mutex m_associatedNotifiersLock;
 
 private:
+    /**
+     * signals a roi change to all subscribers
+     */
+    void signalRoiChange();
+
     /**
      *  updates the graphics
      */

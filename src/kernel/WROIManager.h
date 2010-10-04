@@ -122,7 +122,6 @@ public:
      */
     void addRemoveBranchNotifier( boost::function< void( boost::shared_ptr< WRMBranch > ) > notifier );
 
-
     /**
      * setter
      * \param roi
@@ -144,6 +143,12 @@ public:
      * \return the properties object
      */
     boost::shared_ptr< WProperties > getProperties();
+
+    /**
+     * getter
+     * \return all existing rois
+     */
+    std::vector< osg::ref_ptr< WROI > > getRois();
 
 protected:
 private:

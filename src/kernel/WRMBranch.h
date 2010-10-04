@@ -126,6 +126,11 @@ public:
      */
     bool isNot();
 
+    /**
+     * add all the rois in this branch to a given vector
+     * \param roiVec the vector to fill
+     */
+    void getRois( std::vector< osg::ref_ptr< WROI > >& roiVec ); //NOLINT
 
 protected:
     /**

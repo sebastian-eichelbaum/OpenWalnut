@@ -77,6 +77,12 @@ public:
      */
     boost::shared_ptr< std::vector< size_t > > getLengths();
 
+    /**
+     * setter
+     * sets the dirty flag
+     */
+    void setDirty();
+
 protected:
     /**
      * listener function for inserting rois
@@ -109,6 +115,8 @@ private:
     boost::shared_ptr< const WDataSetFibers > m_fibers;
 
     size_t m_size; //!< number of fibers in the dataset
+
+    bool m_dirty; //!< dirty flag
 
     /**
      * Stores a pointer to the kdTree used for fiber selection

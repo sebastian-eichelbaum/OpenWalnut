@@ -79,6 +79,12 @@ public:
      */
     bool empty();
 
+    /**
+     * setter
+     * sets the dirty flag
+     */
+    void setDirty();
+
 protected:
 private:
     /**
@@ -90,6 +96,8 @@ private:
      * size of the fiber dataset, stored for convinience
      */
     size_t m_size;
+
+    bool m_dirty; //!< dirty flag
 
     /**
      * the bitfield given to the outside world
@@ -114,7 +122,7 @@ private:
 
 inline boost::shared_ptr< std::vector<bool> > WSelectorBranch::getBitField()
 {
-    if ( m_branch->dirty( true ) )
+    if ( m_dirty )
     {
         recalculate();
     }

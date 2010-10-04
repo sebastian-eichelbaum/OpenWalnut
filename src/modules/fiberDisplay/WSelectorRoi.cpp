@@ -33,16 +33,25 @@ WSelectorRoi::WSelectorRoi( osg::ref_ptr< WROI > roi, boost::shared_ptr< const W
     m_roi( roi ),
     m_fibers( fibers ),
     m_kdTree( kdTree ),
-    m_size( fibers->size() )
+    m_size( fibers->size() ),
+    m_dirty( true )
 {
     m_bitField = boost::shared_ptr< std::vector<bool> >( new std::vector<bool>( m_size, false ) );
 
     m_currentArray = m_fibers->getVertices();
     m_currentReverse = m_fibers->getVerticesReverse();
+
+    boost::function< void() > changeRoiSignal = boost::bind( &WSelectorRoi::setDirty, this );
+    m_roi->addChangeNotifier( changeRoiSignal );
 }
 
 WSelectorRoi::~WSelectorRoi()
 {
+}
+
+void WSelectorRoi::setDirty()
+{
+    m_dirty = true;
 }
 
 void WSelectorRoi::recalculate()
@@ -93,7 +102,7 @@ void WSelectorRoi::recalculate()
             }
         }
     }
-
+    m_dirty = false;
     m_bitField = m_workerBitfield;
 }
 
