@@ -32,10 +32,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../../common/WLogger.h"
-
 #include "../WITKImageConversion.h"
-
-#ifdef OW_USE_ITK
 
 /**
  * The logger instance used by some tests
@@ -73,7 +70,7 @@ public:
     /**
      * Converting a dataset into an itk image and then converting it back into a
      * dataset should yield the same dataset.
-     */ 
+     */
     void testConversion()
     {
         // build a dataset
@@ -93,7 +90,5 @@ public:
                              boost::shared_dynamic_cast< WValueSet< int > >( newds->getValueSet() )->rawData(), sizeof( int ) * 27 );
     }
 };
-
-#endif  // OW_USE_ITK
 
 #endif  // WITKIMAGECONVERSION_TEST_H

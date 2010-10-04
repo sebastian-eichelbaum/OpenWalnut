@@ -22,7 +22,14 @@ FILE( GLOB DATAHANDLER_IO_SRC "io/*.cpp" "io/*.h" ) # former WLoader
 #ENDIF()
 # Unit tests
 IF( OW_COMPILE_TESTS )
-    CXXTEST_ADD_TESTS_FROM_LIST( "${DATAHANDLER_SRC}" "OWdataHandler" "WDataTexture3D.cpp" "WDataHandlerEnums.cpp" )
+    # in case of not installed ITK the unit test won't compile, so we remove it
+    IF( NOT ITK_FOUND OR NOT OW_USE_ITK )
+        LIST( REMOVE_ITEM DATAHANDLER_SRC "${CMAKE_CURRENT_SOURCE_DIR}/WITKImageConversion.cpp" )
+    ENDIF()
+
+    CXXTEST_ADD_TESTS_FROM_LIST( "${DATAHANDLER_SRC}" "OWdataHandler"
+        "WDataTexture3D.cpp"
+        "WDataHandlerEnums.cpp" )
 
     # Copy fixtures if existend
     IF( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures )
