@@ -22,101 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#include <list>
-#include <string>
-#include <vector>
+//#include "../../../graphicsEngine/WGraphicsEngine.h"
+#include "../../graphicsEngine/WROIBox.h"
+#include "../../graphicsEngine/WROIArbitrary.h"
 
-#include "../../../dataHandler/WDataSetScalar.h"
+#include "WSelectorRoi.h"
 
-#include "../../../graphicsEngine/WGraphicsEngine.h"
-#include "../../../graphicsEngine/WROIBox.h"
-#include "../../../graphicsEngine/WROIArbitrary.h"
 
-#include "WRMBranch.h"
-#include "WROIManagerFibers.h"
-
-#include "WRMROIRepresentation.h"
-
-WRMROIRepresentation::WRMROIRepresentation( osg::ref_ptr< WROI > roi, boost::shared_ptr< WRMBranch > branch  ) :
-    m_dirty( true ),
+WSelectorRoi::WSelectorRoi( osg::ref_ptr< WROI > roi, boost::shared_ptr< const WDataSetFibers > fibers, boost::shared_ptr< WKdTree> kdTree ) :
     m_roi( roi ),
-    m_branch( branch )
+    m_fibers( fibers ),
+    m_kdTree( kdTree ),
+    m_size( fibers->size() )
 {
-    m_size = m_branch->getRoiManager()->size();
+    m_bitField = boost::shared_ptr< std::vector<bool> >( new std::vector<bool>( m_size, false ) );
 
-    m_currentArray = m_branch->getRoiManager()->getDataSet()->getVertices();
-    m_currentReverse = m_branch->getRoiManager()->getDataSet()->getVerticesReverse();
-    m_kdTree = m_branch->getRoiManager()->getKdTree();
-
-    properties();
-
-    roi->getSignalIsModified()->connect( boost::bind( &WRMROIRepresentation::setDirty, this ) );
+    m_currentArray = m_fibers->getVertices();
+    m_currentReverse = m_fibers->getVerticesReverse();
 }
 
-WRMROIRepresentation::~WRMROIRepresentation()
+WSelectorRoi::~WSelectorRoi()
 {
-    removeFromGE();
 }
 
-void WRMROIRepresentation::properties()
-{
-    m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "This ROI's properties" ) );
-    m_isNot = m_properties->addProperty( "NOT", "description", false, boost::bind( &WRMROIRepresentation::propertyChanged, this ) );
-    m_threshold = m_properties->addProperty( "Threshold", "description", 0., boost::bind( &WRMROIRepresentation::propertyChanged, this ) );
-    m_threshold->setHidden( true );
-    m_isActive = m_properties->addProperty( "active", "description", true, boost::bind( &WRMROIRepresentation::propertyChanged, this ) );
-    m_isActive->setHidden( true );
-
-    if ( osg::dynamic_pointer_cast<WROIArbitrary>( m_roi ).get() )
-    {
-        m_threshold->set( osg::dynamic_pointer_cast<WROIArbitrary>( m_roi ).get()->getThreshold() );
-        m_threshold->setHidden( false );
-        m_threshold->setMax( osg::dynamic_pointer_cast<WROIArbitrary>( m_roi ).get()->getMaxThreshold() );
-    }
-}
-
-void WRMROIRepresentation::propertyChanged()
-{
-    m_roi->setNot( m_isNot->get() );
-    m_roi->setActive( m_isActive->get() );
-
-    if ( m_isActive->get() )
-    {
-        m_roi->setNodeMask( 0xFFFFFFFF );
-    }
-    else
-    {
-        m_roi->setNodeMask( 0x0 );
-    }
-    if ( osg::dynamic_pointer_cast< WROIArbitrary >( m_roi ).get() )
-    {
-        osg::dynamic_pointer_cast< WROIArbitrary >( m_roi ).get()->setThreshold( m_threshold->get() );
-        setDirty();
-    }
-    setDirty();
-}
-
-
-void WRMROIRepresentation::removeFromGE()
-{
-    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_roi );
-}
-
-osg::ref_ptr< WROI > WRMROIRepresentation::getROI()
-{
-    return m_roi;
-}
-
-boost::shared_ptr< std::vector< bool > > WRMROIRepresentation::getBitField()
-{
-    if ( m_dirty )
-    {
-        recalculate();
-    }
-    return m_outputBitfield;
-}
-
-void WRMROIRepresentation::recalculate()
+void WSelectorRoi::recalculate()
 {
     m_workerBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, false ) );
 
@@ -165,11 +94,10 @@ void WRMROIRepresentation::recalculate()
         }
     }
 
-    m_dirty = false;
-    m_outputBitfield = m_workerBitfield;
+    m_bitField = m_workerBitfield;
 }
 
-void WRMROIRepresentation::boxTest( int left, int right, int axis )
+void WSelectorRoi::boxTest( int left, int right, int axis )
 {
     // abort condition
     if ( left > right )
@@ -199,20 +127,4 @@ void WRMROIRepresentation::boxTest( int left, int right, int axis )
         boxTest( left, root - 1, axis1 );
         boxTest( root + 1, right, axis1 );
     }
-}
-
-void WRMROIRepresentation::setDirty()
-{
-    m_dirty = true;
-    m_branch->setDirty();
-}
-
-boost::shared_ptr< WProperties > WRMROIRepresentation::getProperties()
-{
-    return m_properties;
-}
-
-boost::shared_ptr< WRMBranch > WRMROIRepresentation::getBranch()
-{
-    return m_branch;
 }

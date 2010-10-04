@@ -31,12 +31,13 @@
 
 #include <boost/enable_shared_from_this.hpp>
 
-#include "./../../../common/WProperties.h"
-#include "WRMROIRepresentation.h"
+#include "../common/WProperties.h"
 
-#include "../../WExportKernel.h"
+#include "../graphicsEngine/WROI.h"
 
-class WROIManagerFibers;
+#include "WExportKernel.h"
+
+class WROIManager;
 
 /**
  * implements a branch in the tree like structure for rois
@@ -48,7 +49,7 @@ public:
      * construtor
      * \param roiManager
      */
-    explicit WRMBranch( boost::shared_ptr< WROIManagerFibers > roiManager );
+    explicit WRMBranch( boost::shared_ptr< WROIManager > roiManager );
 
     /**
      * destructor
@@ -60,14 +61,14 @@ public:
      *
      * \param roi
      */
-    void addRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+    void addRoi( osg::ref_ptr< WROI > roi );
 
     /**
      * removes a roi from the branch
      *
      * \param roi
      */
-    void removeRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+    void removeRoi( osg::ref_ptr< WROI > roi );
 
     /**
      * removes all rois from the branch
@@ -75,26 +76,13 @@ public:
      */
     void removeAllRois();
 
-
-
-    /**
-     * getter for the bitfield
-     *
-     * \return the bitfield
-     */
-    boost::shared_ptr< std::vector< bool > > getBitField();
-
-    /**
-     * updates the branch bitfield for this branch
-     */
-    void recalculate();
-
     /**
      * getter for dirty flag
      *
+     * \param reset when true the dirty flag will be set to false
      * \return the dirty flag
      */
-    bool dirty();
+    bool dirty( bool reset = false );
 
     /**
      * sets dirty flag true and notifies the branch
@@ -107,23 +95,36 @@ public:
     bool empty();
 
     /**
+     * checks wether a roi is in this branch
+     * \param roi
+     * \return true if the roi is in the branch, false otherwise
+     */
+    bool contains( osg::ref_ptr< WROI > roi );
+
+    /**
      * returns a pointer to the first roi in the branch
      *
      * \return the roi
      */
-    boost::shared_ptr< WRMROIRepresentation >getFirstRoi();
+    osg::ref_ptr< WROI > getFirstRoi();
 
     /**
      * getter for roi manager pointer
      *
      * \return the roi manager
      */
-    boost::shared_ptr< WROIManagerFibers > getRoiManager();
+    boost::shared_ptr< WROIManager > getRoiManager();
 
     /**
      * returns the properties object
      */
     boost::shared_ptr< WProperties > getProperties();
+
+    /**
+     * getter for the NOT flag
+     * \return flag
+     */
+    bool isNot();
 
 
 protected:
@@ -138,33 +139,16 @@ protected:
      */
     void propertyChanged();
 private:
-    bool m_dirty; //!< dirty flag to indicate the bit field must be recalculated
+    boost::shared_ptr< WROIManager > m_roiManager; //!< stores a pointer to the roi manager
 
-    size_t m_size; //!< number of fibers in the dataset
-
-    boost::shared_ptr< WROIManagerFibers > m_roiManager; //!< stores a pointer to the roi manager
-
-    /**
-     * pointer to the bitfield that represents the current selection by the roi
-     */
-    boost::shared_ptr< std::vector<bool> >m_outputBitfield;
-
-    /**
-     * pointer to the bitfield we work on
-     */
-    boost::shared_ptr< std::vector<bool> >m_workerBitfield;
-
-    std::list< boost::shared_ptr< WRMROIRepresentation> > m_rois; //!< list of rois in this this branch,
+    std::list< osg::ref_ptr< WROI > > m_rois; //!< list of rois in this this branch,
                                                                   // first in the list is the master roi
-    /**
-     * lock to prevent concurrent threads trying to update the branch
-     */
-    boost::shared_mutex m_updateLock;
-
     /**
      * the property object for the module
      */
     boost::shared_ptr< WProperties > m_properties;
+
+    WPropBool m_dirty; //!< dirty flag to indicate if anything has changed within the branch
 
     /**
      * indicates if the branch is negated
@@ -182,9 +166,18 @@ inline bool WRMBranch::empty()
     return m_rois.empty();
 }
 
-inline bool WRMBranch::dirty()
+inline bool WRMBranch::dirty( bool reset )
 {
-    return m_dirty;
+    bool ret = m_dirty->get();
+    if ( reset )
+    {
+        m_dirty->set( false );
+    }
+    return ret;
 }
 
+inline bool WRMBranch::isNot()
+{
+    return m_isNot->get();
+}
 #endif  // WRMBRANCH_H

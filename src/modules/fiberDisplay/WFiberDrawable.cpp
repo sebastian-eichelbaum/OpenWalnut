@@ -24,16 +24,16 @@
 
 #include <vector>
 
-#include "../../../dataHandler/WDataSetFibers.h"
-#include "../../../kernel/WKernel.h"
-#include "WTubeDrawable.h"
+#include "../../dataHandler/WDataSetFibers.h"
+#include "../../kernel/WKernel.h"
+#include "WFiberDrawable.h"
 
 // The constructor here does nothing. One thing that may be necessary is
 // disabling display lists. This can be done by calling
 //    setSupportsDisplayList (false);
 // Display lists should be disabled for 'Drawable's that can change over
 // time (that is, the vertices drawn change from time to time).
-WTubeDrawable::WTubeDrawable():
+WFiberDrawable::WFiberDrawable():
     osg::Drawable(),
     m_useTubes( false ),
     m_globalColoring( true ),
@@ -45,19 +45,19 @@ WTubeDrawable::WTubeDrawable():
 
 // I can't say much about the methods below, but OSG seems to expect
 // that we implement them.
-WTubeDrawable::WTubeDrawable( const WTubeDrawable& /*pg*/, const osg::CopyOp& /*copyop*/ ):
+WFiberDrawable::WFiberDrawable( const WFiberDrawable& /*pg*/, const osg::CopyOp& /*copyop*/ ):
     osg::Drawable()
 {
 }
 
-osg::Object* WTubeDrawable::cloneType() const
+osg::Object* WFiberDrawable::cloneType() const
 {
-    return new WTubeDrawable();
+    return new WFiberDrawable();
 }
 
-osg::Object* WTubeDrawable::clone( const osg::CopyOp& copyop ) const
+osg::Object* WFiberDrawable::clone( const osg::CopyOp& copyop ) const
 {
-    return new WTubeDrawable( *this, copyop );
+    return new WFiberDrawable( *this, copyop );
 }
 
 // Real work is done here. THERE IS A VERY IMPORTANT THING TO NOTE HERE:
@@ -71,7 +71,7 @@ osg::Object* WTubeDrawable::clone( const osg::CopyOp& copyop ) const
 // That said, the example below shows how to change the OpenGL state in
 // these rare cases in which it is necessary. But always keep in mind:
 // *Change the OpenGL state only if strictly necessary*.
-void WTubeDrawable::drawImplementation( osg::RenderInfo& renderInfo ) const //NOLINT
+void WFiberDrawable::drawImplementation( osg::RenderInfo& renderInfo ) const //NOLINT
 {
     if ( m_useTubes )
     {
@@ -83,37 +83,7 @@ void WTubeDrawable::drawImplementation( osg::RenderInfo& renderInfo ) const //NO
     }
 }
 
-void WTubeDrawable::setDataset( boost::shared_ptr< const WDataSetFibers > dataset )
-{
-    m_dataset = dataset;
-}
-
-void WTubeDrawable::setUseTubes( bool flag )
-{
-    m_useTubes = flag;
-}
-
-void WTubeDrawable::setColoringMode( bool globalColoring )
-{
-    m_globalColoring = globalColoring;
-}
-
-bool WTubeDrawable::getColoringMode() const
-{
-    return m_globalColoring;
-}
-
-void WTubeDrawable::setCustomColoring( bool custom )
-{
-    m_customColoring = custom;
-}
-
-void WTubeDrawable::setBoundingBox( const osg::BoundingBox & bb )
-{
-    setBound( bb );
-}
-
-void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
+void WFiberDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
 {
     boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
     boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
@@ -121,16 +91,19 @@ void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
     boost::shared_ptr< std::vector< float > > tangents = m_dataset->getTangents();
 
     boost::shared_ptr< std::vector< float > > colors;
-    if ( m_customColoring )
-    {
-        colors = WKernel::getRunningKernel()->getRoiManager()->getCustomColors();
-    }
-    else
-    {
-        colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
-    }
 
-    boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
+    // TODO(schurade): roi refactoring
+//    if ( m_customColoring )
+//    {
+//        colors = WKernel::getRunningKernel()->getRoiManager()->getCustomColors();
+//    }
+//    else
+//    {
+//        colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
+//    }
+    colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
+
+    boost::shared_ptr< std::vector< bool > > active = m_fiberSelector->getBitfield();
 
     osg::State& state = *renderInfo.getState();
 
@@ -150,7 +123,7 @@ void WTubeDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
     state.disableColorPointer();
 }
 
-void WTubeDrawable::drawTubes() const
+void WFiberDrawable::drawTubes() const
 {
     boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
     boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
@@ -158,16 +131,18 @@ void WTubeDrawable::drawTubes() const
     boost::shared_ptr< std::vector< float > > tangents = m_dataset->getTangents();
 
     boost::shared_ptr< std::vector< float > > colors;
-    if ( m_customColoring )
-    {
-        colors = WKernel::getRunningKernel()->getRoiManager()->getCustomColors();
-    }
-    else
-    {
-        colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
-    }
+    // TODO(schurade): roi refactoring
+//    if ( m_customColoring )
+//    {
+//        colors = WKernel::getRunningKernel()->getRoiManager()->getCustomColors();
+//    }
+//    else
+//    {
+//
+//    }
+    colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
 
-    boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getRoiManager()->getBitField();
+    boost::shared_ptr< std::vector< bool > > active = m_fiberSelector->getBitfield();
 
     for( size_t i = 0; i < active->size(); ++i )
     {

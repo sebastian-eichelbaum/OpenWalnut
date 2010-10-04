@@ -1,5 +1,5 @@
 /* XPM */
-static const char * fiberdisplay_xpm[] = {
+static const char * fiberdisplay2_xpm[] = {
 "16 16 87 1",
 " 	c None",
 ".	c #8162D6",

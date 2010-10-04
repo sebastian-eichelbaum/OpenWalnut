@@ -352,7 +352,7 @@ void WMArbitraryRois::finalizeRoi()
         return;
     }
 
-    if( !WKernel::getRunningKernel()->getRoiManager()->getBitField() )
+    if( !WKernel::getRunningKernel()->getSelectionManager()->getBitField() )
     {
         wlog::warn( "WMArbitraryRois" ) << "Refused to add ROI, as ROIManager does not have computed its bitfield yet.";
         return;
@@ -372,7 +372,7 @@ void WMArbitraryRois::finalizeRoi()
     }
     else
     {
-        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi()->getROI() );
+        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() );
     }
 }
 

@@ -29,23 +29,23 @@
 
 #include <osg/Geode>
 
-#include "../../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../../dataHandler/WDataSetFibers.h"
-#include "../../../graphicsEngine/WROI.h"
-#include "../../../graphicsEngine/WROIBox.h"
-#include "../../../graphicsEngine/WShader.h"
-#include "../../WModule.h"
-#include "../../WModuleInputData.h"
-#include "WTubeDrawable.h"
+#include "../../dataHandler/WDataSetFibers.h"
+#include "../../graphicsEngine/WROI.h"
+#include "../../graphicsEngine/WROIBox.h"
+#include "../../graphicsEngine/WShader.h"
 
-#include "../../WExportKernel.h"
+#include "../../kernel/WModule.h"
+#include "../../kernel/WModuleInputData.h"
+
+#include "WFiberSelector.h"
+#include "WFiberDrawable.h"
 
 /**
  * Module for drawing fibers
  *
  * \ingroup modules
  */
-class OWKERNEL_EXPORT WMFiberDisplay : public WModule
+class WMFiberDisplay : public WModule
 {
 public:
     /**
@@ -84,13 +84,6 @@ public:
      * Get the icon for this module in XPM format.
      */
     virtual const char** getXPMIcon() const;
-
-    /**
-     * Checks whether the fiber display is already running.
-     *
-     * \return true if running.
-     */
-    static bool isRunning();
 
 protected:
     /**
@@ -143,9 +136,14 @@ protected:
 
 private:
     /**
-     * Updates the output with the current selection and generates a WFiberCluster out of it.
+     * function gets called when the input connector has been updated
      */
-    void updateOutput() const;
+    void inputUpdated();
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
 
     WPropBool m_coloring; //!< Enable/Disable global (true) or local (false) coloring of the fiber tracts
     WPropBool m_customColoring; //!< Enable/Disable custom colors
@@ -154,7 +152,6 @@ private:
     WPropDouble m_tubeThickness; //!< Property determining the thickness of tubes .
     WPropBool m_save; //!< this should be a button
     WPropFilename m_saveFileName; //!< the filename for saving
-    WPropTrigger m_updateOC; //!< updates the output connector
 
     WBoolFlag m_noData; //!< Flag indicating whether there is data to display.
 
@@ -169,11 +166,6 @@ private:
     boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_fiberInput;
 
     /**
-     * Output connector for the fiber cluster dataset.
-     */
-    boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_clusterOC;
-
-    /**
      * Pointer to the fiber data set
      */
     boost::shared_ptr< const WDataSetFibers > m_dataset;
@@ -185,9 +177,14 @@ private:
     osg::ref_ptr< osg::Group > m_osgNode;
 
     /**
+     * Point to a fiber selector, which is an adapater between the roi manager and the this module
+     */
+    boost::shared_ptr< WFiberSelector>m_fiberSelector;
+
+    /**
      * stores pointer to the fiber drawer
      */
-    osg::ref_ptr< WTubeDrawable > m_tubeDrawable;
+    osg::ref_ptr< WFiberDrawable > m_fiberDrawable;
 
     /**
      * lock to prevent concurrent threads trying to update the osg node
@@ -251,13 +248,8 @@ private:
     osg::ref_ptr<osg::Uniform> m_uniformCullBoxUBY; //!< cull box upper bound
     osg::ref_ptr<osg::Uniform> m_uniformCullBoxUBZ; //!< cull box upper bound
 
-    /**
-     * To avoid multiple instances of the fiber display.
-     */
-    static bool m_fiberDisplayRunning;
 
     osg::ref_ptr< WROIBox > m_cullBox; //!< stores a pointer to the cull box
-
 
     /**
      * changes tube parameters
@@ -293,7 +285,7 @@ private:
     public:
         /**
         * userData Constructur with shared pointer to module
-        * \param _parent pointer to the module 
+        * \param _parent pointer to the module
         */
         explicit userData( boost::shared_ptr< WMFiberDisplay > _parent )
         {

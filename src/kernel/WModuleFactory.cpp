@@ -62,7 +62,6 @@ void WModuleFactory::load()
 
     // These modules need to be added by hand. They are special, obviously.
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMData() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMFiberDisplay() ) );
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
 
     // Load the dynamic modules here:

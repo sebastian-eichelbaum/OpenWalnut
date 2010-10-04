@@ -22,8 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WTUBEDRAWABLE_H
-#define WTUBEDRAWABLE_H
+#ifndef WFIBERDRAWABLE_H
+#define WFIBERDRAWABLE_H
+
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
@@ -33,13 +35,14 @@
 #include <osg/ShapeDrawable>
 #include <osg/Group>
 
-#include "../../WExportKernel.h"
+#include "WFiberSelector.h"
+
 
 class WDataSetFibers;
 /**
  * TODO(schurade): Document this!
  */
-class OWKERNEL_EXPORT WTubeDrawable: public osg::Drawable
+class WFiberDrawable: public osg::Drawable
 {
 public:
 
@@ -50,7 +53,7 @@ public:
     * Display lists should be disabled for 'Drawable's that can change over
     * time (that is, the vertices drawn change from time to time).
     */
-    WTubeDrawable();
+    WFiberDrawable();
 
     /**
      * I can't say much about the methods below, but OSG seems to expect
@@ -59,7 +62,7 @@ public:
      * \param pg
      * \param copyop
      */
-    WTubeDrawable( const WTubeDrawable& pg, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY );
+    WFiberDrawable( const WFiberDrawable& pg, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY );
 
     /**
      * no clue why it's here and wehat it does
@@ -131,6 +134,18 @@ public:
      */
     void setBoundingBox( const osg::BoundingBox & bb );
 
+    /**
+     * setter
+     * \param bitField selected fibers to draw
+     */
+    void setBitfield( boost::shared_ptr< std::vector< bool > > bitField );
+
+    /**
+     * setter
+     * \param selector the selector object which provides the bitfield for fiber selection
+     */
+    void setSelector( boost::shared_ptr< WFiberSelector > selector );
+
 protected:
 private:
     /**
@@ -154,6 +169,50 @@ private:
     bool m_globalColoring; //!< True indicates global, false local coloring
 
     bool m_customColoring; //!< True indicates use of custom colors
+
+    boost::shared_ptr< std::vector< bool > > m_active; //!< pointer to the bitfield of active fibers
+
+    boost::shared_ptr< WFiberSelector > m_fiberSelector; //!< the selector object which provides the bitfield for fiber selection
 };
 
-#endif  // WTUBEDRAWABLE_H
+inline void WFiberDrawable::setDataset( boost::shared_ptr< const WDataSetFibers > dataset )
+{
+    m_dataset = dataset;
+}
+
+inline void WFiberDrawable::setUseTubes( bool flag )
+{
+    m_useTubes = flag;
+}
+
+inline void WFiberDrawable::setColoringMode( bool globalColoring )
+{
+    m_globalColoring = globalColoring;
+}
+
+inline bool WFiberDrawable::getColoringMode() const
+{
+    return m_globalColoring;
+}
+
+inline void WFiberDrawable::setCustomColoring( bool custom )
+{
+    m_customColoring = custom;
+}
+
+inline void WFiberDrawable::setBoundingBox( const osg::BoundingBox & bb )
+{
+    setBound( bb );
+}
+
+inline void WFiberDrawable::setBitfield( boost::shared_ptr< std::vector< bool > > bitField )
+{
+    m_active = bitField;
+}
+
+inline void WFiberDrawable::setSelector( boost::shared_ptr< WFiberSelector > selector )
+{
+    m_fiberSelector = selector;
+}
+
+#endif  // WFIBERDRAWABLE_H
