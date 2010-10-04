@@ -124,12 +124,12 @@ private:
     /**
      * Slice positions.
      */
-    WPropInt m_slices[3];
+    WPropInt m_slices[ 3 ];
 
     /**
      * Show slices.
      */
-    WPropBool m_sliceEnabled[3];
+    WPropBool m_sliceEnabled[ 3 ];
 };
 
-#endif
+#endif  // WMTENSORGLYPHS_H

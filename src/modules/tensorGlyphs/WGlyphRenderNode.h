@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGlyphRenderNode_H
-#define WGlyphRenderNode_H
+#ifndef WGLYPHRENDERNODE_H
+#define WGLYPHRENDERNODE_H
 
 #include <string>
 
@@ -51,17 +51,17 @@ public:
      * @param enabledX States whether the x slice is to be drawn.
      * @param enabledY States whether the y slice is to be drawn.
      * @param enabledZ States whether the z slice is to be drawn.
-     * @param path The path of the kernel file.
+     * @param search The path of the kernel file.
      */
-    WGlyphRenderNode(const boost::shared_ptr< WDataSetSingle >& data,const int& order,
-                     const int& sliceX, const int& sliceY, const int& sliceZ,
-                     const bool& enabledX,const bool& enabledY,const bool& enabledZ,
-                     const boost::filesystem::path& search);
+    WGlyphRenderNode( const boost::shared_ptr< WDataSetSingle >& data, const int& order, 
+                      const int& sliceX, const int& sliceY, const int& sliceZ, 
+                      const bool& enabledX, const bool& enabledY, const bool& enabledZ, 
+                      const boost::filesystem::path& search );
 
     /**
      * Copy constructor.
      */
-    WGlyphRenderNode(const WGlyphRenderNode& WGlyphRenderNode,const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+    WGlyphRenderNode( const WGlyphRenderNode& wGlyphRenderNode, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY );
 
      /**
      * Overrides osg::Object::cloneType().
@@ -77,16 +77,16 @@ public:
      *
      * @return The cloned node.
      */
-    virtual osg::Object* clone(const osg::CopyOp& copyop) const;
+    virtual osg::Object* clone( const osg::CopyOp& copyop ) const;
 
     /**
      * Overrides osg::Object::isSameKindAs().
      *
-     * @param copyop The optional OSG copy operator.
+     * @param obj The object to compare with.
      *
      * @return States whether this node and obj are of same type.
      */
-    virtual bool isSameKindAs(const osg::Object* obj) const;
+    virtual bool isSameKindAs( const osg::Object* obj ) const;
 
     /**
      * Overrides osg::Object::libraryName().
@@ -103,9 +103,9 @@ public:
     virtual const char* className() const;
 
     /**
-     * Overrides osg::Node::traverse().
+     * Overrides WCLRenderNode::computeBoundingBox().
      *
-     * @param nv The traversal's node visitor.
+     * @return The bounding box.
      */
     virtual osg::BoundingBox computeBoundingBox() const;
 
@@ -128,9 +128,9 @@ public:
      * @param enabledY States whether the y slice is to be drawn.
      * @param enabledZ States whether the z slice is to be drawn.
      */
-    void setTensorData(const boost::shared_ptr< WDataSetSingle >& data,const int& order,
-                       const int& sliceX, const int& sliceY, const int& sliceZ,
-                       const bool& enabledX,const bool& enabledY,const bool& enabledZ);
+    void setTensorData( const boost::shared_ptr< WDataSetSingle >& data, const int& order, 
+                        const int& sliceX, const int& sliceY, const int& sliceZ, 
+                        const bool& enabledX, const bool& enabledY, const bool& enabledZ );
 
     /**
      * Set the slice properties to render.
@@ -142,8 +142,8 @@ public:
      * @param enabledY States whether the y slice is to be drawn.
      * @param enabledZ States whether the z slice is to be drawn.
      */
-    void setSlices(const int& sliceX, const int& sliceY, const int& sliceZ,
-                   const bool& enabledX,const bool& enabledY,const bool& enabledZ);
+    void setSlices( const int& sliceX, const int& sliceY, const int& sliceZ,
+                    const bool& enabledX,const bool& enabledY,const bool& enabledZ );
 
 protected:
 
@@ -174,7 +174,7 @@ private:
          * @param node The node to change.
          * @param nv The traversal's NodeVisitor.
          */
-        virtual void operator()(osg::Node* node,osg::NodeVisitor* nv);
+        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
 
         /**
          * Data or slices changed.
@@ -194,12 +194,12 @@ private:
         /**
          * The new slice positions.
          */
-        int m_slices[3];
+        int m_slices[ 3 ];
 
         /**
          * The new slice status.
          */
-        int m_sliceEnabled[3];
+        int m_sliceEnabled[ 3 ];
 
         /**
          * The new tensor data.
@@ -220,7 +220,7 @@ private:
          *
          * @param clProgramDataSet The CLProgramDataSet to be changed.
          */
-        virtual void change(CLProgramDataSet* clProgramDataSet) const;
+        virtual void change( CLProgramDataSet* clProgramDataSet ) const;
     };
 
     /**
@@ -279,7 +279,7 @@ private:
      *
      * @return A CLProgramDataSet containing CL objects.
      */
-    virtual CLProgramDataSet* initProgram(const CLViewInformation& clViewInfo) const;
+    virtual CLProgramDataSet* initProgram( const CLViewInformation& clViewInfo ) const;
 
     /**
      * Overrides WCLRenderNode::setBuffers().
@@ -287,7 +287,7 @@ private:
      * @param clViewInfo The CLViewInformation.
      * @param clProgramDataSet The CLProgramDataSet.
      */
-    virtual void setBuffers(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet) const;
+    virtual void setBuffers( const CLViewInformation& clViewInfo, CLProgramDataSet* clProgramDataSet ) const;
 
     /**
      * Overrides WCLRenderNode::render().
@@ -295,7 +295,7 @@ private:
      * @param clViewInfo The CLViewInformation.
      * @param clProgramDataSet The CLProgramDataSet.
      */
-    virtual void render(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet) const;
+    virtual void render( const CLViewInformation& clViewInfo, CLProgramDataSet* clProgramDataSet ) const;
 
     /**
      * Loads new data to GPU memory.
@@ -303,7 +303,7 @@ private:
      * @param clViewInfo The CLViewInformation needed for data loading.
      * @param clObjects The CL objects.
      */
-    bool loadCLData(const CLViewInformation& clViewInfo,CLObjects& clObjects) const;
+    bool loadCLData( const CLViewInformation& clViewInfo, CLObjects& clObjects ) const;
 
     /**
      * Tensor order.
@@ -313,17 +313,17 @@ private:
     /**
      * Number of tensors in grid's x, y and z direction.
      */
-    int m_numOfTensors[3];
+    int m_numOfTensors[ 3 ];
 
     /**
      * Slice positions.
      */
-    int m_slices[3];
+    int m_slices[ 3 ];
 
     /**
      * Show slices.
      */
-    int m_sliceEnabled[3];
+    int m_sliceEnabled[ 3 ];
 
     /**
      * The tensor data set.
@@ -350,16 +350,16 @@ inline osg::Object* WGlyphRenderNode::cloneType() const
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-inline osg::Object* WGlyphRenderNode::clone(const osg::CopyOp& copyop) const
+inline osg::Object* WGlyphRenderNode::clone( const osg::CopyOp& copyop ) const
 {
-    return new WGlyphRenderNode(*this,copyop);
+    return new WGlyphRenderNode( *this, copyop );
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-inline bool WGlyphRenderNode::isSameKindAs(const osg::Object* obj) const
+inline bool WGlyphRenderNode::isSameKindAs( const osg::Object* obj ) const
 {
-    return dynamic_cast< const WGlyphRenderNode* >(obj) != 0;
+    return ( dynamic_cast< const WGlyphRenderNode* >( obj ) != 0 );
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -385,4 +385,4 @@ inline bool WGlyphRenderNode::isSourceRead() const
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-#endif
+#endif  // WGLYPHRENDERNODE_H

@@ -281,7 +281,7 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcSmoothingMatrix( size_t 
     wmath::WMatrix<double> L( R, R );
     for ( size_t k = 0; k <= order; k += 2 )
     {
-        for ( int m = -k; m <= static_cast< int >( k ); ++m )
+        for ( int m = -static_cast< int >( k ); m <= static_cast< int >( k ); ++m )
         {
             L( i, i ) = static_cast< double > ( k * k * ( k + 1 ) * ( k + 1 ) );
             ++i;
@@ -299,7 +299,7 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order 
     {
         double h = 2.0 * wmath::piDouble * static_cast< double >( std::pow( static_cast< double >( -1 ), static_cast< double >( k / 2 ) ) ) *
                     static_cast< double >( wmath::oddFactorial( ( k <= 1 ) ? 1 : k - 1 ) ) / static_cast<double>( wmath::evenFactorial( k ) );
-        for ( int m = -k; m <= static_cast< int >( k ); ++m )
+        for ( int m = -static_cast< int >( k ); m <= static_cast< int >( k ); ++m )
         {
             result( i, i ) = h;
             ++i;

@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef CLRENDER_H
-#define CLRENDER_H
+#ifndef WCLRENDERNODE_H
+#define WCLRENDERNODE_H
 
 #include <string>
 #include <vector>
@@ -90,7 +90,7 @@ public:
      * @param node The node to copy.
      * @param copyop The optional OSG copy operator.
      */
-    WCLRenderNode(const WCLRenderNode& node,const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY);
+    WCLRenderNode( const WCLRenderNode& node, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY );
 
     /**
      * Overrides osg::Object::cloneType().
@@ -106,16 +106,16 @@ public:
      *
      * @return The cloned node.
      */
-    virtual osg::Object* clone(const osg::CopyOp& copyop) const = 0;
+    virtual osg::Object* clone( const osg::CopyOp& copyop ) const = 0;
 
     /**
      * Overrides osg::Object::isSameKindAs().
      *
-     * @param copyop The optional OSG copy operator.
+     * @param obj The object to compare with.
      *
      * @return States whether this node and obj are of same type.
      */
-    virtual bool isSameKindAs(const osg::Object* obj) const;
+    virtual bool isSameKindAs( const osg::Object* obj ) const;
 
     /**
      * Overrides osg::Object::libraryName().
@@ -136,7 +136,7 @@ public:
      *
      * @param nv The traversal's NodeVisitor.
      */
-    virtual void traverse(osg::NodeVisitor& nv);
+    virtual void traverse( osg::NodeVisitor& nv );
 
     /**
      * Overrides osg::Node::computeBound().
@@ -150,14 +150,14 @@ public:
      *
      * @param maxSize The new buffer size.
      */
-    virtual void resizeGLObjectBuffers(unsigned int maxSize);
+    virtual void resizeGLObjectBuffers( unsigned int maxSize );
 
     /**
      * Overrides osg::Object::releaseGLObjects().
      *
      * @param state The state for which to release all GL objects.
      */
-    virtual void releaseGLObjects(osg::State* state = 0);
+    virtual void releaseGLObjects( osg::State* state = 0 );
 
     /**
      * Override this method to create a bounding box around your renderable objects.
@@ -188,7 +188,7 @@ public:
      *
      * @return The string version of the error.
      */
-    static std::string getCLError(cl_int clError);
+    static std::string getCLError( cl_int clError );
 
 protected:
 
@@ -321,7 +321,7 @@ protected:
          *
          * @param properties A ViewProperties objects to save the view information to.
          */
-        void getViewProperties(ViewProperties& properties) const;
+        void getViewProperties( ViewProperties& properties ) const;
 
     private:
 
@@ -377,7 +377,7 @@ protected:
          *
          * @param clProgramDataSet The CLProgramDataSet to be changed.
          */
-        virtual void change(CLProgramDataSet* clProgramDataSet) const = 0;
+        virtual void change( CLProgramDataSet* clProgramDataSet ) const = 0;
     };
 
     /**
@@ -386,7 +386,7 @@ protected:
      *
      * @param callback The CLDataChangeCallback to apply.
      */
-    void changeDataSet(const CLDataChangeCallback& callback);
+    void changeDataSet( const CLDataChangeCallback& callback );
 
 private:
 
@@ -400,7 +400,7 @@ private:
      *
      * @return A CLProgramDataSet containing CL objects.
      */
-    virtual CLProgramDataSet* initProgram(const CLViewInformation& clViewInfo) const = 0;
+    virtual CLProgramDataSet* initProgram( const CLViewInformation& clViewInfo ) const = 0;
 
     /**
      * Override this method to set the colorBuffer and depthBuffer kernel arguments.
@@ -411,7 +411,7 @@ private:
      * @param clViewInfo The CLViewInformation containing colorBuffer and depthBuffer.
      * @param clProgramDataSet The CLProgramDataSet containing your custom CL objects.
      */
-    virtual void setBuffers(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet) const = 0;
+    virtual void setBuffers( const CLViewInformation& clViewInfo, CLProgramDataSet* clProgramDataSet ) const = 0;
 
     /**
      * Override this method to execute your kernel(s), set kernel arguments (except colorBuffer
@@ -422,7 +422,7 @@ private:
      * @param clViewInfo The CLViewInformation needed for rendering.
      * @param clProgramDataSet The CLProgramDataSet containing your custom CL objects.
      */
-    virtual void render(const CLViewInformation& clViewInfo,CLProgramDataSet* clProgramDataSet) const = 0;
+    virtual void render( const CLViewInformation& clViewInfo, CLProgramDataSet* clProgramDataSet ) const = 0;
 
     /**
      * Contains data per GL context.
@@ -526,7 +526,7 @@ private:
          * @param modelView The current model view matrix.
          * @param projection The current projection matrix.
          */
-        CLRenderBin(osg::RefMatrix* modelView,osg::RefMatrix* projection);
+        CLRenderBin( osg::RefMatrix* modelView, osg::RefMatrix* projection );
 
         /**
          * Overrides osgUtil::RenderBin::draw.
@@ -534,7 +534,7 @@ private:
          * @param renderInfo The current render information.
          * @param previous The previously rendered RenderLeaf.
          */
-        virtual void draw(osg::RenderInfo& renderInfo,osgUtil::RenderLeaf*& previous);
+        virtual void draw( osg::RenderInfo& renderInfo, osgUtil::RenderLeaf*& previous );
 
         /**
          * Overrides osgUtil::RenderBin::computeNumberOfDynamicRenderLeaves.
@@ -550,9 +550,9 @@ private:
          * @param modelView The current model view matrix.
          * @param projection The current projection matrix.
          */
-        static CLRenderBin* getOrCreateRenderBin(osgUtil::RenderStage* stage,
-                                                 osg::RefMatrix* modelView,
-                                                 osg::RefMatrix* projection);
+        static CLRenderBin* getOrCreateRenderBin( osgUtil::RenderStage* stage, 
+                                                  osg::RefMatrix* modelView, 
+                                                  osg::RefMatrix* projection );
 
         /**
          * The WCLRenderNodes to draw.
@@ -584,9 +584,12 @@ private:
         CLDrawBin();
 
         /**
-         * Overrides osgUtil::RenderStage::draw.
+         * Overrides osgUtil::RenderBin::draw.
+         *
+         * @param renderInfo The current render information.
+         * @param previous The previously rendered RenderLeaf.
          */
-        virtual void draw(osg::RenderInfo& renderInfo,osgUtil::RenderLeaf*& previous);
+        virtual void draw( osg::RenderInfo& renderInfo, osgUtil::RenderLeaf*& previous );
 
         /**
          * Overrides osgUtil::RenderBin::computeNumberOfDynamicRenderLeaves.
@@ -600,12 +603,12 @@ private:
          *
          * @param stage The current RenderStage.
          */
-        static CLDrawBin* getOrCreateDrawBin(osgUtil::RenderStage* stage);
+        static CLDrawBin* getOrCreateDrawBin( osgUtil::RenderStage* stage );
 
         /**
          * The WCLRenderNodes to draw.
          */
-        std::vector< osg::ref_ptr<WCLRenderNode> > nodes;
+        std::vector< osg::ref_ptr< WCLRenderNode > > nodes;
 
         /**
          * The Number of dynamic WCLRenderNodes.
@@ -618,21 +621,21 @@ private:
      *
      * @param state The current GL state.
      */
-    void renderStart(osg::State& state) const;
+    void renderStart( osg::State& state ) const;
 
     /**
      * Draws the rendered scene.
      *
      * @param state The current GL state.
      */
-    void draw(osg::State& state) const;
+    void draw( osg::State& state ) const;
 
     /**
      * Initializes necessary CL objects.
      *
      * @param perContextInfo The PerContextInformation to initialize.
      */
-    bool initCL(PerContextInformation& perContextInfo) const;
+    bool initCL( PerContextInformation& perContextInfo ) const;
 
     /**
      * Initializes colorBuffer and depthBuffer.
@@ -640,7 +643,7 @@ private:
      * @param perContextInfo The PerContextInformation containing colorBuffer and depthBuffer.
      * @param state The corresponding GL state.
      */
-    bool initBuffers(PerContextInformation& perContextInfo,osg::State& state) const;
+    bool initBuffers( PerContextInformation& perContextInfo,osg::State& state ) const;
 
     /**
      * Bounding box surrounding renderable objects.
@@ -670,9 +673,9 @@ private:
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-inline bool WCLRenderNode::isSameKindAs(const osg::Object* obj) const
+inline bool WCLRenderNode::isSameKindAs( const osg::Object* obj ) const
 {
-	return (dynamic_cast< const WCLRenderNode* >(obj) != 0);
+	return ( dynamic_cast< const WCLRenderNode* >( obj ) != 0 );
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -691,4 +694,4 @@ inline const char* WCLRenderNode::className() const
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-#endif
+#endif  // WCLRENDERNODE_H

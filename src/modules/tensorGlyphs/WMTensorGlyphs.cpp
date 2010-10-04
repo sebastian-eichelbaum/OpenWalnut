@@ -27,7 +27,7 @@
 #include "WMTensorGlyphs.xpm"
 #include "WMTensorGlyphs.h"
 
-W_LOADABLE_MODULE(WMTensorGlyphs)
+W_LOADABLE_MODULE( WMTensorGlyphs )
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
@@ -43,7 +43,7 @@ WMTensorGlyphs::~WMTensorGlyphs()
 
 boost::shared_ptr< WModule > WMTensorGlyphs::factory() const
 {
-    return boost::shared_ptr< WModule >(new WMTensorGlyphs());
+    return boost::shared_ptr< WModule >( new WMTensorGlyphs() );
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -73,15 +73,15 @@ void WMTensorGlyphs::connectors()
 {
     m_input = boost::shared_ptr< WModuleInputData< WDataSetSingle > >
     (
-        new WModuleInputData<WDataSetSingle>
+        new WModuleInputData< WDataSetSingle >
         (
-            shared_from_this(),
-            "tensor input",
-            "An input set of high order tensors on a regular 3D-grid."
+            shared_from_this(), 
+            "tensor input", 
+            "An input set of high order tensors on a regular 3D-grid." 
         )
     );
 
-    addConnector(m_input);
+    addConnector( m_input );
 
     WModule::connectors();
 }
@@ -90,19 +90,19 @@ void WMTensorGlyphs::connectors()
 
 void WMTensorGlyphs::properties()
 {
-    m_propertyChanged = boost::shared_ptr< WCondition >(new WCondition());
+    m_propertyChanged = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_slices[0] = m_properties->addProperty("Sagittal Position","Slice X position.",0,m_propertyChanged,true);
-    m_slices[1] = m_properties->addProperty("Coronal Position","Slice Y position.",0,m_propertyChanged,true);
-    m_slices[2] = m_properties->addProperty("Axial Position","Slice Z position.",0,m_propertyChanged,true);
+    m_slices[ 0 ] = m_properties->addProperty( "Sagittal Position", "Slice X position.", 0, m_propertyChanged, true );
+    m_slices[ 1 ] = m_properties->addProperty( "Coronal Position", "Slice Y position.", 0, m_propertyChanged, true );
+    m_slices[ 2 ] = m_properties->addProperty( "Axial Position", "Slice Z position.", 0, m_propertyChanged, true );
 
-    m_slices[0]->setMin(0);
-    m_slices[1]->setMin(0);
-    m_slices[2]->setMin(0);
+    m_slices[ 0 ]->setMin( 0 );
+    m_slices[ 1 ]->setMin( 0 );
+    m_slices[ 2 ]->setMin( 0 );
 
-    m_sliceEnabled[0] = m_properties->addProperty("Show Sagittal","Show vectors on sagittal slice.",true,m_propertyChanged,true);
-    m_sliceEnabled[1] = m_properties->addProperty("Show Coronal","Show vectors on coronal slice.",true,m_propertyChanged,true);
-    m_sliceEnabled[2] = m_properties->addProperty("Show Axial","Show vectors on axial slice.",true,m_propertyChanged,true);
+    m_sliceEnabled[ 0 ] = m_properties->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true, m_propertyChanged, true );
+    m_sliceEnabled[ 1 ] = m_properties->addProperty( "Show Coronal", "Show vectors on coronal slice.", true, m_propertyChanged, true );
+    m_sliceEnabled[ 2 ] = m_properties->addProperty( "Show Axial", "Show vectors on axial slice.", true, m_propertyChanged, true );
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -111,9 +111,9 @@ void WMTensorGlyphs::moduleMain()
 {
     // set conditions for data and property changes
 
-    m_moduleState.setResetable(true,true);
-    m_moduleState.add(m_input->getDataChangedCondition());
-    m_moduleState.add(m_propertyChanged);
+    m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_propertyChanged );
 
     ready();
 
@@ -128,11 +128,11 @@ void WMTensorGlyphs::moduleMain()
 
     // main loop
 
-    while (!m_shutdownFlag())
+    while ( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if (m_shutdownFlag())
+        if ( m_shutdownFlag() )
         {
             break;
         }
@@ -146,14 +146,14 @@ void WMTensorGlyphs::moduleMain()
 
         newValueSet = newDataSet->getValueSet().get();
 
-        dataValid = (dynamic_cast< WValueSet< float >* >(newValueSet) != 0);
+        dataValid = ( dynamic_cast< WValueSet< float >* >( newValueSet ) != 0 );
 
-        if (!dataValid)
+        if ( !dataValid )
         {
             warnLog() << "Dataset does not have a valid data set. Ignoring Data.";
         }
 
-        if (dataValid)
+        if ( dataValid )
         {
             // check the order of the new tensor data
             // TODO: substitute this bullshit as soon as there is a working tensor data set class
@@ -163,12 +163,12 @@ void WMTensorGlyphs::moduleMain()
 
             while (true)
             {
-                if (newDimension == (((newOrder + 1) * (newOrder + 2)) / 2))
+                if ( newDimension == ( ( ( newOrder + 1 ) * ( newOrder + 2 ) ) / 2 ) )
                 {
                     break;
                 }
 
-                if (newDimension < (((newOrder + 1) * (newOrder + 2)) / 2))
+                if ( newDimension < ( ( ( newOrder + 1 ) * ( newOrder + 2 ) ) / 2) )
                 {
                     dataValid = false;
 
@@ -178,17 +178,17 @@ void WMTensorGlyphs::moduleMain()
                 newOrder += 2;
             }
 
-            if (newOrder == 0)
+            if ( newOrder == 0 )
             {
                 dataValid = false;
             }
 
-            if (newValueSet->order() != 1)
+            if ( newValueSet->order() != 1 )
             {
                 dataValid = false;
             }
 
-            if (!dataValid)
+            if ( !dataValid )
             {
                 warnLog() << "Received data with order=" << newDataSet->getValueSet()->order()
                           << " and dimension=" << newDataSet->getValueSet()->dimension()
@@ -197,7 +197,7 @@ void WMTensorGlyphs::moduleMain()
 
             // check the grid validity
 
-            dataValid = (dynamic_cast< WGridRegular3D* >(newDataSet->getGrid().get()) != 0);
+            dataValid = ( dynamic_cast< WGridRegular3D* >( newDataSet->getGrid().get() ) != 0 );
 
             if (!dataValid)
             {
@@ -205,87 +205,87 @@ void WMTensorGlyphs::moduleMain()
             }
         }
 
-        if (dataValid)
+        if ( dataValid )
         {
             // handle data
 
-            if (dataChanged)
+            if ( dataChanged )
             {
                 debugLog() << "Received Data.";
 
                 dataSet = newDataSet;
 
-                WGridRegular3D* grid = static_cast< WGridRegular3D* >(dataSet->getGrid().get());
+                WGridRegular3D* grid = static_cast< WGridRegular3D* >( dataSet->getGrid().get() );
 
                 int numOfTensorsX = grid->getNbCoordsX();
                 int numOfTensorsY = grid->getNbCoordsY();
                 int numOfTensorsZ = grid->getNbCoordsZ();
 
-                m_slices[0]->setMax(numOfTensorsX - 1);
-                m_slices[1]->setMax(numOfTensorsY - 1);
-                m_slices[2]->setMax(numOfTensorsZ - 1);
+                m_slices[ 0 ]->setMax( numOfTensorsX - 1 );
+                m_slices[ 1 ]->setMax( numOfTensorsY - 1 );
+                m_slices[ 2 ]->setMax( numOfTensorsZ - 1 );
 
-                m_slices[0]->set((numOfTensorsX / 2),true);
-                m_slices[1]->set((numOfTensorsY / 2),true);
-                m_slices[2]->set((numOfTensorsZ / 2),true);
+                m_slices[ 0 ]->set( ( numOfTensorsX / 2 ), true );
+                m_slices[ 1 ]->set( ( numOfTensorsY / 2 ), true );
+                m_slices[ 2 ]->set( ( numOfTensorsZ / 2 ), true );
 
-                m_sliceEnabled[0]->set(true,true);
-                m_sliceEnabled[1]->set(true,true);
-                m_sliceEnabled[2]->set(true,true);
+                m_sliceEnabled[ 0 ]->set( true, true );
+                m_sliceEnabled[ 1 ]->set( true, true );
+                m_sliceEnabled[ 2 ]->set( true, true );
 
-                if (renderNode.valid())
+                if ( renderNode.valid() )
                 {
                     renderNode->setTensorData
                     (
-                        dataSet,newOrder,
-                        m_slices[0]->get(),m_slices[1]->get(),m_slices[2]->get(),
-                        m_sliceEnabled[0]->get(),m_sliceEnabled[1]->get(),m_sliceEnabled[2]->get()
+                        dataSet, newOrder, 
+                        m_slices[0]->get(), m_slices[1]->get(), m_slices[2]->get(), 
+                        m_sliceEnabled[0]->get(), m_sliceEnabled[1]->get(), m_sliceEnabled[2]->get() 
                     );
                 }
                 else
                 {
                     renderNode = new WGlyphRenderNode
                     (
-                        dataSet,newOrder,
-                        m_slices[0]->get(),m_slices[1]->get(),m_slices[2]->get(),
-                        m_sliceEnabled[0]->get(),m_sliceEnabled[1]->get(),m_sliceEnabled[2]->get(),
-                        m_localPath
+                        dataSet, newOrder, 
+                        m_slices[0]->get(), m_slices[1]->get(), m_slices[2]->get(), 
+                        m_sliceEnabled[0]->get(), m_sliceEnabled[1]->get(), m_sliceEnabled[2]->get(), 
+                        m_localPath 
                     );
 
-                    if (!renderNode->isSourceRead())
+                    if ( !renderNode->isSourceRead() )
                     {
                         return;
                     }
 
-                    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert(renderNode);
+                    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( renderNode );
 
-                    m_slices[0]->setHidden(false);
-                    m_slices[1]->setHidden(false);
-                    m_slices[2]->setHidden(false);
+                    m_slices[ 0 ]->setHidden( false );
+                    m_slices[ 1 ]->setHidden( false );
+                    m_slices[ 2 ]->setHidden( false );
 
-                    m_sliceEnabled[0]->setHidden(false);
-                    m_sliceEnabled[0]->setHidden(false);
-                    m_sliceEnabled[0]->setHidden(false);
+                    m_sliceEnabled[ 0 ]->setHidden( false );
+                    m_sliceEnabled[ 1 ]->setHidden( false );
+                    m_sliceEnabled[ 2 ]->setHidden( false );
                 }
             }
 
             // property changes
 
-            if (m_slices[0]->changed() || m_slices[1]->changed() || m_slices[2]->changed() || 
-                m_sliceEnabled[0]->changed() || m_sliceEnabled[1]->changed() || m_sliceEnabled[2]->changed())
+            if ( m_slices[ 0 ]->changed() || m_slices[ 1 ]->changed() || m_slices[ 2 ]->changed() || 
+                 m_sliceEnabled[ 0 ]->changed() || m_sliceEnabled[ 1 ]->changed() || m_sliceEnabled[ 2 ]->changed() )
             {
                 renderNode->setSlices
                 (
-                    m_slices[0]->get(true),m_slices[1]->get(true),m_slices[2]->get(true),
-                    m_sliceEnabled[0]->get(true),m_sliceEnabled[1]->get(true),m_sliceEnabled[2]->get(true)
+                    m_slices[0]->get( true ), m_slices[1]->get( true ), m_slices[2]->get( true ), 
+                    m_sliceEnabled[0]->get( true ), m_sliceEnabled[1]->get( true ), m_sliceEnabled[2]->get( true ) 
                 );
             }
         }
     }
 
-    if (renderNode.valid())
+    if ( renderNode.valid() )
     {
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove(renderNode);
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( renderNode );
     }
 }
 
@@ -293,15 +293,15 @@ void WMTensorGlyphs::moduleMain()
 
 void WMTensorGlyphs::activate()
 {
-    if (renderNode.valid())
+    if ( renderNode.valid() )
     {
-        if (m_active->get())
+        if ( m_active->get() )
         {
-            renderNode->setNodeMask(0xFFFFFFFF);
+            renderNode->setNodeMask( 0xFFFFFFFF );
         }
         else
         {
-            renderNode->setNodeMask(0x0);
+            renderNode->setNodeMask( 0x0 );
         }
     }
 
