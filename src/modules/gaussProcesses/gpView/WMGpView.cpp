@@ -69,6 +69,9 @@ void WMGpView::connectors()
 
 void WMGpView::properties()
 {
+    m_normal = m_properties->addProperty( "#Plane normal", "The normal of the plane", wmath::WPosition( 1.0, 0.0, 0.0 ) );
+    m_pos = m_properties->addProperty( "#Plane position", "The position of the plane", wmath::WPosition( 0.0, 0.0, 0.0 ) );
+
     WModule::properties();
 }
 
@@ -100,3 +103,13 @@ void WMGpView::moduleMain()
         }
     }
 }
+
+// osg::ref_ptr< osg::Geode > WMGpView::generateSlice() const
+// {
+//     osg::ref_ptr< osg::Geode > result;
+//     return result;
+// }
+
+//void generateMatrix( const wmath::WVector3D& normal, const wmath::WPosition& pos ) const
+//{
+//}

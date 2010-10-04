@@ -96,13 +96,23 @@ protected:
      */
     virtual void properties();
 
-    virtual osg::ref_ptr< osg::TriangleMesh > generateSlice() const
+    // virtual osg::ref_ptr< osg::Geode > generateSlice() const;
 
 private:
     /**
      * Input connector for the gaussian proccesses.
      */
     boost::shared_ptr< WModuleInputData< WDataSetGP > > m_gpIC;
+
+    /**
+     * The base point of the plane.
+     */
+    WPropPosition m_pos;
+
+    /**
+     * The normal of the plane
+     */
+    WPropPosition m_normal;
 };
 
 #endif  // WMGPVIEW_H

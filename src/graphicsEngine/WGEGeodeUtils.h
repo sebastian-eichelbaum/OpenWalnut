@@ -25,26 +25,26 @@
 #ifndef WGEGEODEUTILS_H
 #define WGEGEODEUTILS_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <osg/Array>
 #include <osg/Geode>
 #include <osg/Geometry>
 #include <osg/MatrixTransform>
 #include <osg/PositionAttitudeTransform>
-#include <osgText/Text>
 #include <osg/Vec3>
+#include <osgText/Text>
 
-#include "../common/WColor.h"
 #include "../common/math/WLine.h"
 #include "../common/math/WPlane.h"
 #include "../common/math/WPosition.h"
+#include "../common/WColor.h"
+#include "WExportWGE.h"
 #include "WGEGeometryUtils.h"
+#include "WGESubdividedPlane.h"
 #include "WGEUtils.h"
 #include "WTriangleMesh2.h"
-
-#include "WExportWGE.h"
 
 namespace wge
 {
@@ -156,6 +156,17 @@ namespace wge
     osg::ref_ptr< osg::Geode > WGE_EXPORT genFinitePlane( osg::Vec3 const& base, osg::Vec3 const& a, osg::Vec3 const& b );
 
     /**
+     * Generates a plane subdivided into quads.
+     *
+     * \param resX How many quads in x-direction
+     * \param resY How many quads in y-direction
+     * \param spacing \todo(math): Not implement yet
+     *
+     * \return The new uncolored plane geode
+     */
+    osg::ref_ptr< WGESubdividedPlane > WGE_EXPORT genUnitSubdividedPlane( size_t resX, size_t resY, double spacing = 0.0001 );
+
+    /**
      * For each points in the STL container generate small cubes.
      *
      * \param points Center point of the cubes
@@ -166,8 +177,8 @@ namespace wge
      * \return Geode with as many cubes as points in the container where each cube is around a certain position.
      */
     template< class Container > osg::ref_ptr< osg::Geode > genPointBlobs( boost::shared_ptr< Container > points,
-                                                                                     double size,
-                                                                                     const WColor& color = WColor( 1, 0, 0 ) );
+                                                                          double size,
+                                                                          const WColor& color = WColor( 1, 0, 0 ) );
 } // end of namespace wge
 
 template< class Container > inline osg::ref_ptr< osg::Geode > wge::genPointBlobs( boost::shared_ptr< Container > points,

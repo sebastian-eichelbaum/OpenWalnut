@@ -34,6 +34,7 @@
 
 #include "../common/math/WPosition.h"
 #include "../common/WPathHelper.h"
+#include "WGESubdividedPlane.h"
 #include "WGEGeodeUtils.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
@@ -379,6 +380,53 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( osg::Vec3 const& base, osg::Vec3
 
     osg::ref_ptr< osg::Geode > geode = new osg::Geode();
     geode->addDrawable( geometry );
+    return geode;
+}
+
+osg::ref_ptr< WGESubdividedPlane > wge::genUnitSubdividedPlane( size_t resX, size_t resY, double spacing )
+{
+    // TODO(math): spacing is not implemented yet
+    WAssert( resX > 0 && resY > 0, "A Plane with no quad is not supported, use another datatype for that!" );
+    double dx = ( resX > 1 ? 1.0 / ( resX - 1 ) : 1.0 );
+    double dy = ( resY > 1 ? 1.0 / ( resY - 1 ) : 1.0 );
+
+    size_t numQuads = resX * resY;
+
+    using osg::ref_ptr;
+    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array( numQuads * 4 ) );
+    ref_ptr< osg::Vec3Array > centers = ref_ptr< osg::Vec3Array >( new osg::Vec3Array( numQuads ) );
+    ref_ptr< osg::Vec4Array > colors   = ref_ptr< osg::Vec4Array >( new osg::Vec4Array( numQuads ) );
+
+    for( size_t yQuad = 0; yQuad < resY; ++yQuad )
+    {
+        for( size_t xQuad = 0; xQuad < resX; ++xQuad )
+        {
+            size_t qIndex = yQuad * resX + xQuad;
+            size_t vIndex = qIndex * 4; // since there are 4 corners
+            vertices->at( vIndex     ) = osg::Vec3( xQuad * dx,                      yQuad * dy,                          0.0 );
+            vertices->at( vIndex + 1 ) = osg::Vec3( vertices->at( vIndex ).x() + dx, vertices->at( vIndex ).y(),          0.0 );
+            vertices->at( vIndex + 2 ) = osg::Vec3( vertices->at( vIndex + 1 ).x(),  vertices->at( vIndex + 1 ).y() + dy, 0.0 );
+            vertices->at( vIndex + 3 ) = osg::Vec3( vertices->at( vIndex ).x(),      vertices->at( vIndex + 2 ).y(),      0.0 );
+            centers->at( qIndex ) = osg::Vec3( vertices->at( vIndex ).x() + dx / 2.0, vertices->at( vIndex ).y() + dy / 2.0, 0.0 );
+            colors->at( qIndex ) = osg::Vec4( 1.0,
+                                              0.1 +  static_cast< double >( qIndex ) / numQuads * 0.8,
+                                              0.1 +  static_cast< double >( qIndex ) / numQuads * 0.8,
+                                              1.0 );
+        }
+    }
+    ref_ptr< osg::Geometry >  geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, vertices->size() ) );
+    geometry->setVertexArray( vertices );
+    geometry->setColorArray( colors );
+    geometry->setColorBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+
+    ref_ptr< osg::Vec3Array > normals = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    normals->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+    geometry->setNormalArray( normals );
+    geometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+    osg::ref_ptr< WGESubdividedPlane > geode = osg::ref_ptr< WGESubdividedPlane >( new WGESubdividedPlane );
+    geode->addDrawable( geometry );
+    geode->setCenterArray( centers );
     return geode;
 }
 
