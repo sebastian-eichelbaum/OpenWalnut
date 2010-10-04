@@ -44,6 +44,7 @@
 #include "../../../dataHandler/io/WPagerEEGLibeep.h"
 #include "../../../dataHandler/io/WReaderELC.h"
 #include "../../../dataHandler/io/WReaderFiberVTK.h"
+#include "../../../graphicsEngine/WGEColormapping.h"
 #include "WMData.h"
 #include "data.xpm"
 
@@ -421,7 +422,7 @@ void WMData::moduleMain()
     m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );
 
     // register at datahandler
-    WDataHandler::registerDataSet( m_dataSet );
+    WDataHandler::registerDataSet( m_dataSet ); // this will get obsolete soon
 
     // notify
     m_output->updateData( m_dataSet );

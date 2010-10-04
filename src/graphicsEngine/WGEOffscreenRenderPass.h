@@ -31,7 +31,7 @@
 #include <osg/FrameBufferObject>
 
 #include "WGEUtils.h"
-#include "WGEScaledTexture.h"
+#include "WGETexture.h"
 
 class WGETextureHud;
 

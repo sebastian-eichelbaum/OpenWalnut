@@ -35,6 +35,7 @@
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
@@ -246,6 +247,8 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootState->addUniform( isovalue );
             rootState->addUniform( steps );
             rootState->addUniform( alpha );
+
+            WGEColormapping::apply( cube, false );
 
             // update node
             debugLog() << "Adding new rendering.";
