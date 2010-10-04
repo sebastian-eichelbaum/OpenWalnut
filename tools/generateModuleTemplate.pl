@@ -187,7 +187,6 @@ void WM#name#::connectors()
 {
     // Put the code for your connectors here. See "src/modules/template/" for an extensively documented example.
 
-    // call WModules initialization
     WModule::connectors();
 }
 
@@ -200,6 +199,8 @@ void WM#name#::moduleMain()
 {
     // Put the code for your module's main functionality here.
     // See "src/modules/template/" for an extensively documented example.
+
+    WModule::properties();
 }
 EOF
 ;
