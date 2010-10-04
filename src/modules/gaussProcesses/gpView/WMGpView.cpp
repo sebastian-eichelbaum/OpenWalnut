@@ -82,6 +82,9 @@ void WMGpView::moduleMain()
 
     ready();
 
+    m_rootNode = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         if ( !m_gpIC->getData().get() ) // ok, the output has not yet sent data
@@ -102,6 +105,7 @@ void WMGpView::moduleMain()
         {
         }
     }
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
 // osg::ref_ptr< osg::Geode > WMGpView::generateSlice() const

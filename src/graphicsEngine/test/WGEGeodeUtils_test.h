@@ -76,6 +76,20 @@ public:
         expected->push_back( osg::Vec3( 1.0, 2.0, 0.0 ) );
         TS_ASSERT_EQUALS( verts->asVector(), expected->asVector() );
     }
+
+    /**
+     * For each quad there is a center point defined in the center point array.
+     */
+    void testCenterPoints( void )
+    {
+        osg::ref_ptr< WGESubdividedPlane > g = wge::genUnitSubdividedPlane( 2, 2 );
+        osg::ref_ptr< osg::Vec3Array > expected = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+        expected->push_back( osg::Vec3( 0.5, 0.5, 0.0 ) );
+        expected->push_back( osg::Vec3( 1.5, 0.5, 0.0 ) );
+        expected->push_back( osg::Vec3( 0.5, 1.5, 0.0 ) );
+        expected->push_back( osg::Vec3( 1.5, 1.5, 0.0 ) );
+        TS_ASSERT_EQUALS( g->getCenterArray()->asVector(), expected->asVector() );
+    }
 };
 
 #endif  // WGEGEODEUTILS_TEST_H

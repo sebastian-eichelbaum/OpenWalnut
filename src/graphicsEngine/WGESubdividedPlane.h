@@ -40,6 +40,13 @@ public:
      */
     void setCenterArray( osg::ref_ptr< osg::Vec3Array > centers );
 
+    /**
+     * Gives the reference to the centerpoints of the quads this plane is representing.
+     *
+     * \return Const reference to the center points
+     */
+    osg::ref_ptr< const osg::Vec3Array > getCenterArray() const;
+
 protected:
 private:
     /**
@@ -53,6 +60,11 @@ inline void WGESubdividedPlane::setCenterArray( osg::ref_ptr< osg::Vec3Array > c
 {
     // TODO(math): do some constraint checks
     m_quadCenters = centers;
+}
+
+inline osg::ref_ptr< const osg::Vec3Array > WGESubdividedPlane::getCenterArray() const
+{
+    return m_quadCenters;
 }
 
 #endif  // WGESUBDIVIDEDPLANE_H

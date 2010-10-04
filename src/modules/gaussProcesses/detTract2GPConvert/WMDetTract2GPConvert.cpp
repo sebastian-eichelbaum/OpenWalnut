@@ -80,4 +80,19 @@ void WMDetTract2GPConvert::properties()
 
 void WMDetTract2GPConvert::moduleMain()
 {
+    m_moduleState.setResetable( true, true ); // remember actions when actually not waiting for actions
+    m_moduleState.add( m_tractIC->getDataChangedCondition() );
+    m_moduleState.add( m_tensorIC->getDataChangedCondition() );
+
+    ready();
+
+    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    {
+        debugLog() << "Waiting..";
+        if ( !m_tractIC->getData().get() || !m_tensorIC->getData().get() ) // ok, the output has not yet sent data
+        {
+            m_moduleState.wait();
+            continue;
+        }
+    }
 }

@@ -31,6 +31,7 @@
 
 #include "../../../kernel/WModule.h"
 #include "../../../kernel/WModuleInputData.h"
+#include "../../../graphicsEngine/WGEManagedGroupNode.h"
 
 // TODO(math): be sure to change this include when this dataSet lives in dataHandler again.
 #include "../detTract2GPConvert/WDataSetGP.h"
@@ -103,6 +104,11 @@ private:
      * Input connector for the gaussian proccesses.
      */
     boost::shared_ptr< WModuleInputData< WDataSetGP > > m_gpIC;
+
+    /**
+     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
 
     /**
      * The base point of the plane.
