@@ -31,11 +31,13 @@
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Node>
+#include <osg/StateSet>
 #include <osg/Texture>
 #include <osg/Texture1D>
 #include <osg/Texture2D>
 #include <osg/Texture3D>
 
+#include "callbacks/WGEFunctorCallback.h"
 #include "../common/WProperties.h"
 #include "../common/WPropertyHelper.h"
 
@@ -166,7 +168,19 @@ protected:
     /**
      * Handles all property updates. Called by m_propCondition.
      */
-    void handleUpdate();
+    virtual void handleUpdate();
+
+    /**
+     * Creates the texture data. Overwrite this method if you want to provide a custom texture creation procedure.
+     */
+    virtual void create();
+
+    /**
+     * This method implements an update callback which updates the texture image if needed and several other properties like texture matrix.
+     *
+     * \param state the state to update
+     */
+    virtual void updateCallback( osg::StateAttribute* state );
 
 private:
 
@@ -186,6 +200,11 @@ private:
      * m_properties.
      */
     boost::shared_ptr< WProperties > m_infoProperties;
+
+    /**
+     * If true, the texture gets created. This is used to create texture on demand.
+     */
+    bool m_needCreate;
 
     /**
      * The minimum of each value in the texture in unscaled space.
@@ -250,7 +269,8 @@ WGETexture< TextureType >::WGETexture( double scale, double min ):
     TextureType(),
     m_propCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
     m_properties( boost::shared_ptr< WProperties >( new WProperties( "Texture Properties", "Properties of a texture." ) ) ),
-    m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) )
+    m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) ),
+    m_needCreate( true )
 {
     m_propCondition->subscribeSignal( boost::bind( &WGETexture< TextureType >::handleUpdate, this ) );
 
@@ -282,6 +302,7 @@ WGETexture< TextureType >::WGETexture( double scale, double min ):
     m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true, m_propCondition );
 
     TextureType::setResizeNonPowerOfTwoHint( false );
+    TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >( boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) ) );
 }
 
 template < typename TextureType >
@@ -289,7 +310,8 @@ WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double m
     TextureType( image ),
     m_propCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
     m_properties( boost::shared_ptr< WProperties >( new WProperties( "Texture Properties", "Properties of a texture." ) ) ),
-    m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) )
+    m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) ),
+    m_needCreate( true )
 {
     m_propCondition->subscribeSignal( boost::bind( &WGETexture< TextureType >::handleUpdate, this ) );
 
@@ -321,6 +343,7 @@ WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double m
     m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true, m_propCondition );
 
     TextureType::setResizeNonPowerOfTwoHint( false );
+    TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >( boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) ) );
 }
 
 template < typename TextureType >
@@ -414,6 +437,24 @@ osg::Matrix WGETexture< TextureType >::getTexMatrix() const
 {
     return osg::Matrix::identity();
 }
+
+template < typename TextureType >
+void WGETexture< TextureType >::create()
+{
+    // do nothing. Derived classes may implement this.
+}
+
+    template < typename TextureType >
+void WGETexture< TextureType >::updateCallback( osg::StateAttribute* /*state*/ )
+{
+    // create if not done yet
+    if ( m_needCreate )
+    {
+        m_needCreate = false;
+        create();
+    }
+}
+
 
 #endif  // WGETEXTURE_H
 

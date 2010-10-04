@@ -38,8 +38,22 @@ WDataTexture3D_2::WDataTexture3D_2( boost::shared_ptr< WValueSetBase > valueSet,
     setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER );
     setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER );
     setWrap( osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_BORDER );
+}
 
-    osg::ref_ptr< osg::Image > ima;
+WDataTexture3D_2::~WDataTexture3D_2()
+{
+    // cleanup
+}
+
+osg::Matrix WDataTexture3D_2::getTexMatrix() const
+{
+    // TODO(ebaum): implement this, use grid
+    return osg::Matrix::identity();
+}
+
+void WDataTexture3D_2::create()
+{
+       osg::ref_ptr< osg::Image > ima;
 
     if ( m_valueSet->getDataType() == W_DT_UINT8 )
     {
@@ -81,11 +95,7 @@ WDataTexture3D_2::WDataTexture3D_2( boost::shared_ptr< WValueSetBase > valueSet,
         wlog::debug( "WDataTexture3D_2" ) << "Handling" << m_valueSet->getDataType();
         wlog::error( "WDataTexture3D_2" ) << "Conversion of this data type to texture not supported yet.";
     }
+
+    setImage( ima );
+    setTextureSize( ima->s(), ima->t(), ima->r() );
 }
-
-WDataTexture3D_2::~WDataTexture3D_2()
-{
-    // cleanup
-}
-
-

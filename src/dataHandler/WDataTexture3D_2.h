@@ -38,7 +38,8 @@
 #include "WExportDataHandler.h"
 
 /**
- * This class allows simple creation of WGETexture3D by using a specified grid and value-set. It also automates grid changes.
+ * This class allows simple creation of WGETexture3D by using a specified grid and value-set. It also automates grid changes. Ony advantage: the
+ * first call to the texture's update callback ensures texture creation. It is not created earlier.
  */
 class OWDATAHANDLER_EXPORT WDataTexture3D_2: public WGETexture3D
 {
@@ -65,6 +66,14 @@ public:
      */
     boost::shared_ptr< WGridRegular3D > getGrid() const;
 
+    /**
+     * Returns the matrix used for transforming the texture coordinates to match the texture. This method calculates the correct texture matrix
+     * by using the grid's transformation.
+     *
+     * \return the matrix allowing direct application to osg::TexMat.
+     */
+    virtual osg::Matrix getTexMatrix() const;
+
 protected:
 
     /**
@@ -80,6 +89,11 @@ protected:
      */
     template < typename T >
     T scaleInterval( T value, T minimum, T maximum, float scale ) const;
+
+    /**
+     * Creates the texture data. This method creates the texture during the first update traversal using the value set and grid.
+     */
+    virtual void create();
 
 private:
 
