@@ -33,12 +33,15 @@
 #include "../WExportWGE.h"
 
 /**
- * This class is needed as osg does not define a uniform callback type.
+ * This class is needed as OSG does not define a uniform callback type.
  */
 template < typename Type >
 class WGEFunctorCallbackTraits
 {
 public:
+    /**
+     * The real callback type. Some specific osg classes have specific callbacks. Specialize this template in this case.
+     */
     typedef typename Type::Callback CallbackType;
 
     /**
@@ -48,10 +51,14 @@ public:
      * \param handled the instance of the handled object
      * \param nv the node visitor
      */
-    static void traverse( CallbackType* /*inst*/, Type* /*handled*/, osg::NodeVisitor* /*nv*/ )
-    {
-    }
+    static void traverse( CallbackType* inst, Type* handled, osg::NodeVisitor* nv );
 };
+
+template < typename Type >
+void WGEFunctorCallbackTraits< Type >::traverse( CallbackType* /*inst*/, Type* /*handled*/, osg::NodeVisitor* /*nv*/ )
+{
+    // the generic case: no nested callbacks -> no traversal
+}
 
 /**
  * Nodes have their own callback type and provide a traverse method (as they can be nested).
@@ -60,6 +67,10 @@ template <>
 class WGEFunctorCallbackTraits< osg::Node >
 {
 public:
+
+    /**
+     * The real callback type. Some specific OSG classes have specific callbacks. Specialize this template in this case.
+     */
     typedef osg::NodeCallback CallbackType;
 
     /**

@@ -109,7 +109,6 @@ private:
      * Singleton instance of WGEColormapping
      */
     static boost::shared_ptr< WGEColormapping > m_instance;
-
 };
 
 #endif  // WGECOLORMAPPING_H

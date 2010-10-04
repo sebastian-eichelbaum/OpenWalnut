@@ -64,7 +64,6 @@ void WGEColormapping::deregisterTexture( osg::ref_ptr< WGETexture3D > texture )
 
 void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, bool useDefaultShader )
 {
-
 }
 
 void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture )

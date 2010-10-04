@@ -296,13 +296,17 @@ WGETexture< TextureType >::WGETexture( double scale, double min ):
     m_colorMapSelectionsList->addItem( "Atlas", "" );
     m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
 
-    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst(), m_propCondition );
+    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst(),
+        m_propCondition
+    );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMap );
 
     m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true, m_propCondition );
 
     TextureType::setResizeNonPowerOfTwoHint( false );
-    TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >( boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) ) );
+    TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >(
+        boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) )
+    );
 }
 
 template < typename TextureType >
@@ -337,13 +341,17 @@ WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double m
     m_colorMapSelectionsList->addItem( "Atlas", "" );
     m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
 
-    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst(), m_propCondition );
+    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst(),
+        m_propCondition
+    );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMap );
 
     m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true, m_propCondition );
 
     TextureType::setResizeNonPowerOfTwoHint( false );
-    TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >( boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) ) );
+    TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >(
+        boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) )
+    );
 }
 
 template < typename TextureType >
@@ -444,7 +452,7 @@ void WGETexture< TextureType >::create()
     // do nothing. Derived classes may implement this.
 }
 
-    template < typename TextureType >
+template < typename TextureType >
 void WGETexture< TextureType >::updateCallback( osg::StateAttribute* /*state*/ )
 {
     // create if not done yet
@@ -454,7 +462,6 @@ void WGETexture< TextureType >::updateCallback( osg::StateAttribute* /*state*/ )
         create();
     }
 }
-
 
 #endif  // WGETEXTURE_H
 

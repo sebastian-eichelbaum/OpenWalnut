@@ -196,4 +196,5 @@ namespace wge
     };
 }
 
-#endif  // WGEUNIFORMTYPETRAITS_H
+#endif  // WGETYPETRAITS_H
+

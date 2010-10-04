@@ -25,6 +25,8 @@
 #ifndef WDATATEXTURE3D_2_H
 #define WDATATEXTURE3D_2_H
 
+#include <algorithm>
+
 #include <boost/shared_ptr.hpp>
 
 #include "../graphicsEngine/WGETexture.h"
@@ -33,7 +35,6 @@
 
 #include "WValueSetBase.h"
 #include "WGridRegular3D.h"
-#include "WExportDataHandler.h"
 
 #include "WExportDataHandler.h"
 
