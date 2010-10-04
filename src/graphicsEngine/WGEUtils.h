@@ -39,9 +39,10 @@
 #include "../common/WAssert.h"
 #include "../common/math/WPosition.h"
 #include "../common/math/WMatrix.h"
+#include "WGEPropertyUniform.h"
 #include "WExportWGE.h"
 
-template < typename T > class WGEScaledTexture;
+template < typename T > class WGETexture;
 
 namespace wge
 {
@@ -151,7 +152,7 @@ namespace wge
      * - u_textureXSizeX: width of the texture in pixels
      * - u_textureXSizeY: height of the texture in pixels
      * - u_textureXSizeZ: depth of the texture in pixels
-     * If the specified texture is a WGEScaledTexture, it additionally adds u_textureXMin and u_textureXScale for unscaling.
+     * If the specified texture is a WGETexture, it additionally adds u_textureXMin and u_textureXScale for unscaling.
      *
      * \param node where to bind
      * \param unit the unit to use
@@ -159,7 +160,7 @@ namespace wge
      * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
      */
     template < typename T >
-    void WGE_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEScaledTexture< T > > texture, size_t unit = 0 );
+    void WGE_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture< T > > texture, size_t unit = 0 );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )
@@ -223,7 +224,7 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture
 }
 
 template < typename T >
-void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEScaledTexture< T > > texture, size_t unit )
+void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture< T > > texture, size_t unit )
 {
     wge::bindTexture< T >( node, osg::ref_ptr< T >( texture ), unit );
 
@@ -233,6 +234,11 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEScaledTe
     osg::StateSet* state = node->getOrCreateStateSet();
     state->addUniform( new osg::Uniform( ( prefix + "Min" ).c_str(), static_cast< float >( texture->getMin() ) ) );
     state->addUniform( new osg::Uniform( ( prefix + "Scale" ).c_str(), static_cast< float >( texture->getScale() ) ) );
+
+    state->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Alpha", texture->alpha() ) );
+    state->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Threshold", texture->threshold() ) );
+    state->addUniform( new WGEPropertyUniform< WPropSelection >( prefix + "Colormap", texture->colormap() ) );
+    state->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "Active", texture->active() ) );
 }
 
 #endif  // WGEUTILS_H

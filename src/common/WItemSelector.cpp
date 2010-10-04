@@ -193,3 +193,8 @@ void WItemSelector::unlock()
     m_lock.reset();
 }
 
+WItemSelector::operator unsigned int() const
+{
+    return getItemIndexOfSelected( 0 );
+}
+

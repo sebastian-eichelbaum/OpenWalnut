@@ -122,6 +122,13 @@ public:
     WPropSelection colormap() const;
 
     /**
+     * Returns the active property. The property can be changed. A change affects all colormaps using this texture.
+     *
+     * \return active property
+     */
+    WPropBool active() const;
+
+    /**
      * Binds the texture to the specified node and texture unit. It also adds two uniforms: u_textureXMin and u_textureXScale, where X
      * is the unit number. This can be used in shaders to unscale it.
      *
@@ -147,7 +154,17 @@ public:
 
 protected:
 
+    /**
+     * Handles all property updates. Called by m_propCondition.
+     */
+    void handleUpdate();
+
 private:
+
+    /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_propCondition;
 
     /**
      * The property object for the dataset.
@@ -195,6 +212,11 @@ private:
      * True if interpolation should be used.
      */
     WPropBool m_interpolation;
+
+    /**
+     * True if the texture is active.
+     */
+    WPropBool m_active;
 };
 
 // Some convenience typedefs
@@ -217,22 +239,25 @@ typedef WGETexture< osg::Texture3D > WGETexture3D;
 template < typename TextureType >
 WGETexture< TextureType >::WGETexture( double scale, double min ):
     TextureType(),
+    m_propCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
     m_properties( boost::shared_ptr< WProperties >( new WProperties( "Texture Properties", "Properties of a texture." ) ) ),
     m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) )
 {
+    m_propCondition->subscribeSignal( boost::bind( &WGETexture< TextureType >::handleUpdate, this ) );
+
     // initialize members
     m_min = m_infoProperties->addProperty( "Minimum", "The minimum value in the original space.", min );
     m_scale = m_infoProperties->addProperty( "Scale", "The scaling factor to un-scale the texture values to the original space.", scale );
 
-    m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0 );
+    m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0, m_propCondition );
     m_alpha->setMin( 0.0 );
     m_alpha->setMax( 1.0 );
 
-    m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0 );
+    m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0, m_propCondition );
     m_threshold->setMin( 0.0 );
     m_threshold->setMin( 1.0 );
 
-    m_interpolation = m_properties->addProperty( "Interpolate", "Interpolation of the volume data.", true );
+    m_interpolation = m_properties->addProperty( "Interpolate", "Interpolation of the volume data.", true, m_propCondition );
 
     m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_colorMapSelectionsList->addItem( "Grayscale", "" );
@@ -242,13 +267,16 @@ WGETexture< TextureType >::WGETexture( double scale, double min ):
     m_colorMapSelectionsList->addItem( "Atlas", "" );
     m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
 
-    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst() );
+    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMap );
 }
 
 template < typename TextureType >
 WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double min ):
-    TextureType( image )
+    TextureType( image ),
+    m_propCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
+    m_properties( boost::shared_ptr< WProperties >( new WProperties( "Texture Properties", "Properties of a texture." ) ) ),
+    m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) )
 {
     // initialize members
     m_min = m_infoProperties->addProperty( "Minimum", "The minimum value in the original space.", min );
@@ -331,6 +359,19 @@ template < typename TextureType >
 WPropSelection WGETexture< TextureType >::colormap() const
 {
     return m_colorMap;
+}
+
+template < typename TextureType >
+WPropBool WGETexture< TextureType >::active() const
+{
+    return m_active;
+}
+
+template < typename TextureType >
+void  WGETexture< TextureType >::handleUpdate()
+{
+
+//->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
 }
 
 template < typename TextureType >
