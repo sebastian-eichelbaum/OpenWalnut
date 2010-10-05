@@ -98,10 +98,10 @@ protected:
     // virtual osg::ref_ptr< osg::Geode > generateSlice() const;
 
 private:
-//    /**
-//     * Input connector for the gaussian proccesses.
-//     */
-//    boost::shared_ptr< WModuleInputData< WDataSetGP > > m_gpIC;
+    /**
+     * Input connector for the gaussian proccesses.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetGP > > m_gpIC;
 
     /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.

@@ -59,15 +59,9 @@ const std::string WMDetTract2GPConvert::getDescription() const
 
 void WMDetTract2GPConvert::connectors()
 {
-    typedef WModuleInputData< WDataSetFibers > TractIC_t;
-    m_tractIC = boost::shared_ptr< TractIC_t >( new TractIC_t( shared_from_this(), "tractIn", "The deterministic tracts" ) );
-
-    typedef WModuleInputData< WDataSetDTI > TensorIC_t;
-    m_tensorIC = boost::shared_ptr< TensorIC_t >( new TensorIC_t( shared_from_this(), "tensorIn", "The 2nd order symmetric diffusion tensors" ) );
-
-    typedef WModuleOutputData< WDataSetGP > GpOC_t;
-    m_gpOC = boost::shared_ptr< GpOC_t >( new GpOC_t( shared_from_this(), "gpOut", "The Gaussian processes" ) );
-
+    m_tractIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractIn","The deterministic tracts" );
+    m_tensorIC = WModuleInputData< WDataSetDTI >::createAndAdd( shared_from_this(), "tensorIn", "The 2nd order symmetric diffusion tensors" );
+    m_gpOC = WModuleOutputData< WDataSetGP >::createAndAdd( shared_from_this(), "gpOut", "The gaussian processes" );
     WModule::connectors();
 }
 
@@ -103,7 +97,7 @@ void WMDetTract2GPConvert::moduleMain()
         }
         if( dataUpdated )
         {
-            boost::shared_ptr< WDataSetGP > gp( new WDataSetGP( tracts, tensors ) );
+            m_gpOC->updateData( boost::shared_ptr< WDataSetGP >( new WDataSetGP( tracts, tensors ) ) );
         }
     }
 }
