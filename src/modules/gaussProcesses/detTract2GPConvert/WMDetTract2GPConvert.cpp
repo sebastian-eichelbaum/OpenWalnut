@@ -81,9 +81,10 @@ void WMDetTract2GPConvert::moduleMain()
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         debugLog() << "Waiting..";
+        m_moduleState.wait();
         if ( !m_tractIC->getData().get() || !m_tensorIC->getData().get() ) // ok, the output has not yet sent data
         {
-            m_moduleState.wait();
+            debugLog() << "Cont";
             continue;
         }
 
@@ -93,11 +94,10 @@ void WMDetTract2GPConvert::moduleMain()
         bool dataValid = tracts && tensors;
         if( !dataValid )
         {
+            debugLog() << "Cont";
             continue;
         }
-        if( dataUpdated )
-        {
-            m_gpOC->updateData( boost::shared_ptr< WDataSetGP >( new WDataSetGP( tracts, tensors ) ) );
-        }
+        debugLog() << "Building";
+        m_gpOC->updateData( boost::shared_ptr< WDataSetGP >( new WDataSetGP( tracts, tensors ) ) );
     }
 }

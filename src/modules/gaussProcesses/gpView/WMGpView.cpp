@@ -84,23 +84,24 @@ void WMGpView::moduleMain()
 
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-       if ( !m_gpIC->getData().get() ) // ok, the output has not yet sent data
-       {
-           m_moduleState.wait();
-           continue;
-       }
+        debugLog() << "Waiting..";
+        m_moduleState.wait();
+        if ( !m_gpIC->getData().get() ) // ok, the output has not yet sent data
+        {
+            continue;
+        }
 
-       // To query whether an input was updated, simply ask the input:
-       bool dataUpdated = m_gpIC->handledUpdate();
-       boost::shared_ptr< WDataSetGP > dataSet = m_gpIC->getData();
-       bool dataValid = ( dataSet );
-       if( !dataValid )
-       {
-           continue;
-       }
-       if( dataUpdated )
-       {
-       }
+        // To query whether an input was updated, simply ask the input:
+        bool dataUpdated = m_gpIC->handledUpdate();
+        boost::shared_ptr< WDataSetGP > dataSet = m_gpIC->getData();
+        bool dataValid = ( dataSet );
+        if( !dataValid )
+        {
+            continue;
+        }
+        if( dataUpdated )
+        {
+        }
     }
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }

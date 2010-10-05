@@ -424,7 +424,7 @@ void WMData::moduleMain()
 
     // register at datahandler
     WDataHandler::registerDataSet( m_dataSet ); // this will get obsolete soon
-    WGEColormapping::registerTexture( m_dataSet->getTexture2() );
+//    WGEColormapping::registerTexture( m_dataSet->getTexture2() );
 
     // notify
     m_output->updateData( m_dataSet );
