@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../graphicsEngine/WGEScaledTexture.h"
+#include "../graphicsEngine/WGETexture.h"
 
 #include "../common/WProperties.h"
 #include "WDataHandlerEnums.h"
@@ -55,7 +55,7 @@ public:
      * \param valueSet  the value set to use
      * \param grid the grid to use
      */
-    explicit WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost::shared_ptr<WGrid> grid );
+    WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost::shared_ptr<WGrid> grid );
 
     /**
      * Destructor.
@@ -123,7 +123,7 @@ public:
      *
      * \return the texture
      */
-    osg::ref_ptr< WGEScaledTexture3D > getTexture();
+    osg::ref_ptr< WGETexture3D > getTexture();
 
     /**
      * Gets the condition which is fired whenever the texture gets some kind of dirty (threshold, opacity, ...)
@@ -173,7 +173,7 @@ public:
     void setMaxValue( float max );
 
     /**
-     * Gets the scaling factor to unscale [0,1] to [0, max-min]
+     * Gets the scaling factor to de-scale [0,1] to [0, max-min]
      *
      * \return the scaling factor.
      */
@@ -316,7 +316,7 @@ protected:
     /**
      * The actual texture.
      */
-    osg::ref_ptr< WGEScaledTexture3D > m_texture;
+    osg::ref_ptr< WGETexture3D > m_texture;
 
     /**
      * The value set from which the texture gets created.

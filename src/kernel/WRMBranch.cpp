@@ -86,6 +86,14 @@ void WRMBranch::removeRoi( osg::ref_ptr< WROI > roi )
     }
 }
 
+void WRMBranch::getRois( std::vector< osg::ref_ptr< WROI > >& roiVec ) // NOLINT
+{
+    for( std::list< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
+    {
+        roiVec.push_back( ( *iter ) );
+    }
+}
+
 void WRMBranch::removeAllRois()
 {
     m_rois.clear();

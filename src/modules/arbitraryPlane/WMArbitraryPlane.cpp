@@ -240,9 +240,10 @@ void WMArbitraryPlane::initPlane()
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s1 ) );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s2 ) );
 
-    m_s0->getSignalIsModified()->connect( boost::bind( &WMArbitraryPlane::setDirty, this ) );
-    m_s1->getSignalIsModified()->connect( boost::bind( &WMArbitraryPlane::setDirty, this ) );
-    m_s2->getSignalIsModified()->connect( boost::bind( &WMArbitraryPlane::setDirty, this ) );
+    boost::function< void() > changeRoiSignal = boost::bind( &WMArbitraryPlane::setDirty, this );
+    m_s0->addChangeNotifier( changeRoiSignal );
+    m_s1->addChangeNotifier( changeRoiSignal );
+    m_s2->addChangeNotifier( changeRoiSignal );
 }
 
 void WMArbitraryPlane::updatePlane()

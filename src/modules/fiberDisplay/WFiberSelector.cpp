@@ -30,12 +30,21 @@
 
 WFiberSelector::WFiberSelector( boost::shared_ptr< const WDataSetFibers > fibers ) :
     m_fibers( fibers ),
-    m_size( fibers->size() )
+    m_size( fibers->size() ),
+    m_dirty( true )
 {
     boost::shared_ptr< std::vector< float > > verts = m_fibers->getVertices();
     m_kdTree = boost::shared_ptr< WKdTree >( new WKdTree( verts->size() / 3, &( ( *verts )[0] ) ) );
 
     m_outputBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, true ) );
+
+    std::vector< osg::ref_ptr< WROI > >rois = WKernel::getRunningKernel()->getRoiManager()->getRois();
+
+    for ( size_t i = 0; i < rois.size(); ++i )
+    {
+        slotAddRoi( rois[i] );
+        rois[i].get()->getProperties()->getProperty( "Dirty" )->toPropBool()->set( true );
+    }
 
     boost::function< void( osg::ref_ptr< WROI > ) > assocRoiSignal =
             boost::bind( &WFiberSelector::slotAddRoi, this, _1 );
@@ -73,6 +82,11 @@ void WFiberSelector::slotAddRoi( osg::ref_ptr< WROI > roi )
     boost::shared_ptr< WSelectorRoi> sroi = boost::shared_ptr< WSelectorRoi>( new WSelectorRoi( roi, m_fibers, m_kdTree ) );
 
     branch->addRoi( sroi );
+
+    boost::function< void() > changeRoiSignal = boost::bind( &WFiberSelector::setDirty, this );
+    sroi->getRoi()->addChangeNotifier( changeRoiSignal );
+
+    setDirty();
 }
 
 void WFiberSelector::slotRemoveRoi( osg::ref_ptr< WROI > roi )
@@ -87,6 +101,7 @@ void WFiberSelector::slotRemoveRoi( osg::ref_ptr< WROI > roi )
             break;
         }
     }
+    setDirty();
 }
 
 void WFiberSelector::slotRemoveBranch( boost::shared_ptr< WRMBranch > branch )
@@ -99,11 +114,12 @@ void WFiberSelector::slotRemoveBranch( boost::shared_ptr< WRMBranch > branch )
             break;
         }
     }
+    setDirty();
 }
 
 boost::shared_ptr< std::vector< bool > > WFiberSelector::getBitfield()
 {
-    if ( WKernel::getRunningKernel()->getRoiManager()->dirty( true ) )
+    if ( m_dirty )
     {
         recalculate();
     }
@@ -131,6 +147,11 @@ void WFiberSelector::recalculate()
             ( *m_workerBitfield )[i] = ( *m_workerBitfield )[i] | ( *bf )[i];
         }
     }
-
+    m_dirty = false;
     m_outputBitfield = m_workerBitfield;
+}
+
+void WFiberSelector::setDirty()
+{
+    m_dirty = true;
 }

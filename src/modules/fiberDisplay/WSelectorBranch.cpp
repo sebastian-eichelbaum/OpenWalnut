@@ -26,6 +26,7 @@
 
 WSelectorBranch::WSelectorBranch( size_t size, boost::shared_ptr<WRMBranch> branch ) :
     m_size( size ),
+    m_dirty( true ),
     m_branch( branch )
 {
     m_bitField = boost::shared_ptr< std::vector<bool> >( new std::vector<bool>( m_size, false ) );
@@ -38,6 +39,14 @@ WSelectorBranch::~WSelectorBranch()
 void WSelectorBranch::addRoi( boost::shared_ptr< WSelectorRoi> roi )
 {
     m_rois.push_back( roi );
+
+    boost::function< void() > changeRoiSignal = boost::bind( &WSelectorBranch::setDirty, this );
+    roi->getRoi()->addChangeNotifier( changeRoiSignal );
+}
+
+void WSelectorBranch::setDirty()
+{
+    m_dirty = true;
 }
 
 void WSelectorBranch::removeRoi( osg::ref_ptr< WROI > roi )

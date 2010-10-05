@@ -218,6 +218,13 @@ public:
      */
     void unlock();
 
+    /**
+     * Allow cast from selector to unsigned int.
+     *
+     * \return the index of the first selected item in the selection.
+     */
+    operator unsigned int() const;
+
 protected:
 
     /**

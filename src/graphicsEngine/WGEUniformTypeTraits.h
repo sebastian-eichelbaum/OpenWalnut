@@ -31,6 +31,7 @@
 #include "WExportWGE.h"
 
 class WColor;
+class WItemSelector;
 namespace wmath
 {
     class WVector3D;
@@ -91,6 +92,19 @@ namespace wge
          * The best matching GLSL uniform type for the specified template parameter.
          */
         typedef osg::Vec3 Type;
+    };
+
+    /**
+     * Maps Selection Properties to ints.
+     */
+    template<>
+    class WGE_EXPORT UniformType< WItemSelector >
+    {
+    public:
+        /**
+         * The best matching GLSL uniform type for the specified template parameter.
+         */
+        typedef unsigned int Type;
     };
 }
 

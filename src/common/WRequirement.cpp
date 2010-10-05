@@ -22,5 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGEFunctorCallback.h"
+#include "WRequirement.h"
+
+WRequirement::WRequirement()
+{
+    // initialize members
+}
+
+WRequirement::~WRequirement()
+{
+    // cleanup
+}
 

@@ -258,11 +258,12 @@ void WMOverlayAtlas::init()
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s3 ) );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s4 ) );
 
-    m_s0->getSignalIsModified()->connect( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) );
-    m_s1->getSignalIsModified()->connect( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) );
-    m_s2->getSignalIsModified()->connect( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) );
-    m_s3->getSignalIsModified()->connect( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) );
-    m_s4->getSignalIsModified()->connect( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) );
+    boost::function< void() > changeRoiSignal = boost::bind( &WMOverlayAtlas::manipulatorMoved, this );
+    m_s0->addChangeNotifier( changeRoiSignal );
+    m_s1->addChangeNotifier( changeRoiSignal );
+    m_s2->addChangeNotifier( changeRoiSignal );
+    m_s3->addChangeNotifier( changeRoiSignal );
+    m_s4->addChangeNotifier( changeRoiSignal );
 
     toggleManipulators();
 }
