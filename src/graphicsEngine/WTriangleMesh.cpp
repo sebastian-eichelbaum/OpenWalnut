@@ -32,16 +32,16 @@
 #include <osg/io_utils>
 
 #include "../common/datastructures/WUnionFind.h"
-#include "WTriangleMesh2.h"
+#include "WTriangleMesh.h"
 
 // init _static_ member variable and provide a linker reference to it
-boost::shared_ptr< WPrototyped > WTriangleMesh2::m_prototype = boost::shared_ptr< WPrototyped >();
+boost::shared_ptr< WPrototyped > WTriangleMesh::m_prototype = boost::shared_ptr< WPrototyped >();
 
-boost::shared_ptr< WPrototyped > WTriangleMesh2::getPrototype()
+boost::shared_ptr< WPrototyped > WTriangleMesh::getPrototype()
 {
     if ( !m_prototype )
     {
-         m_prototype = boost::shared_ptr< WPrototyped >( new WTriangleMesh2( 0, 0 ) );
+         m_prototype = boost::shared_ptr< WPrototyped >( new WTriangleMesh( 0, 0 ) );
     }
     return m_prototype;
 }
@@ -49,7 +49,7 @@ boost::shared_ptr< WPrototyped > WTriangleMesh2::getPrototype()
 /**
  * constructor that already reserves space for a given number of triangles and vertexes
  */
-WTriangleMesh2::WTriangleMesh2( size_t vertNum, size_t triangleNum )
+WTriangleMesh::WTriangleMesh( size_t vertNum, size_t triangleNum )
     : m_countVerts( 0 ),
       m_countTriangles( 0 ),
       m_meshDirty( true ),
@@ -65,7 +65,7 @@ WTriangleMesh2::WTriangleMesh2( size_t vertNum, size_t triangleNum )
     m_triangleColors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array( triangleNum ) );
 }
 
-WTriangleMesh2::WTriangleMesh2( osg::ref_ptr< osg::Vec3Array > vertices, const std::vector< size_t >& triangles )
+WTriangleMesh::WTriangleMesh( osg::ref_ptr< osg::Vec3Array > vertices, const std::vector< size_t >& triangles )
     : m_countVerts( vertices->size() ),
       m_countTriangles( triangles.size() / 3 ),
       m_meshDirty( true ),
@@ -81,21 +81,21 @@ WTriangleMesh2::WTriangleMesh2( osg::ref_ptr< osg::Vec3Array > vertices, const s
     WAssert( triangles.size() % 3 == 0, "Invalid triangle vector, having an invalid size (not divideable by 3)" );
 }
 
-WTriangleMesh2::~WTriangleMesh2()
+WTriangleMesh::~WTriangleMesh()
 {
 }
 
-void WTriangleMesh2::addVertex( float x, float y, float z )
+void WTriangleMesh::addVertex( float x, float y, float z )
 {
     addVertex( osg::Vec3( x, y, z ) );
 }
 
-void WTriangleMesh2::addVertex( wmath::WPosition vert )
+void WTriangleMesh::addVertex( wmath::WPosition vert )
 {
     addVertex( osg::Vec3( vert[0], vert[1], vert[2] ) );
 }
 
-void WTriangleMesh2::addTriangle( size_t vert0, size_t vert1, size_t vert2 )
+void WTriangleMesh::addTriangle( size_t vert0, size_t vert1, size_t vert2 )
 {
     if ( m_triangles.size() == m_countTriangles * 3 )
     {
@@ -107,7 +107,7 @@ void WTriangleMesh2::addTriangle( size_t vert0, size_t vert1, size_t vert2 )
     ++m_countTriangles;
 }
 
-void WTriangleMesh2::addTriangle( osg::Vec3 vert0, osg::Vec3 vert1, osg::Vec3 vert2 )
+void WTriangleMesh::addTriangle( osg::Vec3 vert0, osg::Vec3 vert1, osg::Vec3 vert2 )
 {
     addVertex( vert0 );
     addVertex( vert1 );
@@ -115,64 +115,64 @@ void WTriangleMesh2::addTriangle( osg::Vec3 vert0, osg::Vec3 vert1, osg::Vec3 ve
     addTriangle( m_countVerts - 3, m_countVerts - 2, m_countVerts - 1 );
 }
 
-void WTriangleMesh2::setVertexNormal( size_t index, osg::Vec3 normal )
+void WTriangleMesh::setVertexNormal( size_t index, osg::Vec3 normal )
 {
     WAssert( index < m_countVerts, "set vertex normal: index out of range" );
     ( *m_vertNormals )[index] = normal;
 }
 
-void WTriangleMesh2::setVertexNormal( size_t index, wmath::WPosition normal )
+void WTriangleMesh::setVertexNormal( size_t index, wmath::WPosition normal )
 {
     WAssert( index < m_countVerts, "set vertex normal: index out of range" );
     setVertexNormal( index, osg::Vec3( normal[0], normal[1], normal[2] ) );
 }
 
-void WTriangleMesh2::setVertexColor( size_t index, osg::Vec4 color )
+void WTriangleMesh::setVertexColor( size_t index, osg::Vec4 color )
 {
     WAssert( index < m_countVerts, "set vertex color: index out of range" );
     ( *m_vertColors )[index] = color;
 }
 
-void WTriangleMesh2::setVertexColor( size_t index, WColor color )
+void WTriangleMesh::setVertexColor( size_t index, WColor color )
 {
     WAssert( index < m_countVerts, "set vertex color: index out of range" );
     setVertexColor( index, osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() ) );
 }
 
 
-void WTriangleMesh2::setTriangleColor( size_t index, osg::Vec4 color )
+void WTriangleMesh::setTriangleColor( size_t index, osg::Vec4 color )
 {
     WAssert( index < m_countTriangles, "set triangle color: index out of range" );
     ( *m_triangleColors )[index] = color;
 }
 
-void WTriangleMesh2::setTriangleColor( size_t index, WColor color )
+void WTriangleMesh::setTriangleColor( size_t index, WColor color )
 {
     WAssert( index < m_countTriangles, "set triangle color: index out of range" );
     setTriangleColor( index, osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() ) );
 }
 
-osg::ref_ptr< osg::Vec3Array >WTriangleMesh2::getVertexArray()
+osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getVertexArray()
 {
     return m_verts;
 }
 
-osg::ref_ptr< const osg::Vec3Array >WTriangleMesh2::getVertexArray() const
+osg::ref_ptr< const osg::Vec3Array >WTriangleMesh::getVertexArray() const
 {
     return m_verts;
 }
 
-osg::ref_ptr< osg::Vec3Array > WTriangleMesh2::getTextureCoordinateArray()
+osg::ref_ptr< osg::Vec3Array > WTriangleMesh::getTextureCoordinateArray()
 {
     return m_textureCoordinates;
 }
 
-osg::ref_ptr< const osg::Vec3Array > WTriangleMesh2::getTextureCoordinateArray() const
+osg::ref_ptr< const osg::Vec3Array > WTriangleMesh::getTextureCoordinateArray() const
 {
     return m_textureCoordinates;
 }
 
-osg::ref_ptr< osg::Vec3Array >WTriangleMesh2::getVertexNormalArray( bool forceRecalc )
+osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getVertexNormalArray( bool forceRecalc )
 {
     if ( forceRecalc || m_meshDirty )
     {
@@ -181,42 +181,42 @@ osg::ref_ptr< osg::Vec3Array >WTriangleMesh2::getVertexNormalArray( bool forceRe
     return m_vertNormals;
 }
 
-osg::ref_ptr< osg::Vec4Array >WTriangleMesh2::getVertexColorArray()
+osg::ref_ptr< osg::Vec4Array >WTriangleMesh::getVertexColorArray()
 {
     return m_vertColors;
 }
 
-const std::vector< size_t >& WTriangleMesh2::getTriangles() const
+const std::vector< size_t >& WTriangleMesh::getTriangles() const
 {
     return m_triangles;
 }
 
-osg::Vec3 WTriangleMesh2::getVertex( size_t index ) const
+osg::Vec3 WTriangleMesh::getVertex( size_t index ) const
 {
     WAssert( index < m_countVerts, "get vertex: index out of range" );
     return ( *m_verts )[index];
 }
 
-osg::Vec4 WTriangleMesh2::getVertColor( size_t index ) const
+osg::Vec4 WTriangleMesh::getVertColor( size_t index ) const
 {
     WAssert( index < m_countVerts, "get vertex: index out of range" );
     return ( *m_vertColors )[index];
 }
 
-wmath::WPosition WTriangleMesh2::getVertexAsPosition( size_t index ) const
+wmath::WPosition WTriangleMesh::getVertexAsPosition( size_t index ) const
 {
     WAssert( index < m_countVerts, "get vertex as position: index out of range" );
     return wmath::WPosition( ( *m_verts )[index][0], ( *m_verts )[index][1], ( *m_verts )[index][2] );
 }
 
-wmath::WPosition WTriangleMesh2::getVertexAsPosition( size_t triangleIndex, size_t vertNum )
+wmath::WPosition WTriangleMesh::getVertexAsPosition( size_t triangleIndex, size_t vertNum )
 {
     WAssert( triangleIndex < m_countTriangles, "get vertex as position: index out of range" );
     osg::Vec3 v = getTriVert( triangleIndex, vertNum );
     return wmath::WPosition( v[0], v[1], v[2] );
 }
 
-void WTriangleMesh2::removeVertex( size_t index )
+void WTriangleMesh::removeVertex( size_t index )
 {
     WAssert( index < m_countVerts, "remove vertex: index out of range" );
     if ( m_vertexIsInTriangle[ index ].size() > 0 )
@@ -235,19 +235,19 @@ void WTriangleMesh2::removeVertex( size_t index )
     m_meshDirty = true;
 }
 
-void WTriangleMesh2::removeTriangle( size_t index )
+void WTriangleMesh::removeTriangle( size_t index )
 {
     WAssert( index < m_countTriangles, "remove triangle: index out of range" );
     m_triangles.erase( m_triangles.begin() + index * 3, m_triangles.begin() + index * 3 + 3 );
     m_meshDirty = true;
 }
 
-void WTriangleMesh2::cleanUpMesh()
+void WTriangleMesh::cleanUpMesh()
 {
     //TODO(schurade): implement this
 }
 
-void WTriangleMesh2::recalcVertNormals()
+void WTriangleMesh::recalcVertNormals()
 {
     updateVertsInTriangles();
 
@@ -275,7 +275,7 @@ void WTriangleMesh2::recalcVertNormals()
     m_meshDirty = false;
 }
 
-void WTriangleMesh2::updateVertsInTriangles()
+void WTriangleMesh::updateVertsInTriangles()
 {
     m_vertexIsInTriangle.clear();
     std::vector< size_t >v;
@@ -289,7 +289,7 @@ void WTriangleMesh2::updateVertsInTriangles()
     }
 }
 
-osg::Vec3 WTriangleMesh2::calcTriangleNormal( size_t triangle )
+osg::Vec3 WTriangleMesh::calcTriangleNormal( size_t triangle )
 {
     osg::Vec3 v1( getTriVert( triangle, 1 ) - getTriVert( triangle, 0 ) );
     osg::Vec3 v2( getTriVert( triangle, 2 ) - getTriVert( triangle, 0 ) );
@@ -305,7 +305,7 @@ osg::Vec3 WTriangleMesh2::calcTriangleNormal( size_t triangle )
     return tempNormal;
 }
 
-osg::Vec3 WTriangleMesh2::calcNormal( osg::Vec3 vert0, osg::Vec3 vert1, osg::Vec3 vert2 )
+osg::Vec3 WTriangleMesh::calcNormal( osg::Vec3 vert0, osg::Vec3 vert1, osg::Vec3 vert2 )
 {
     osg::Vec3 v1( vert1 - vert0 );
     osg::Vec3 v2( vert2 - vert0 );
@@ -321,17 +321,17 @@ osg::Vec3 WTriangleMesh2::calcNormal( osg::Vec3 vert0, osg::Vec3 vert1, osg::Vec
     return tempNormal;
 }
 
-size_t WTriangleMesh2::vertSize() const
+size_t WTriangleMesh::vertSize() const
 {
     return m_countVerts;
 }
 
-size_t WTriangleMesh2::triangleSize() const
+size_t WTriangleMesh::triangleSize() const
 {
     return m_countTriangles;
 }
 
-void WTriangleMesh2::calcNeighbors()
+void WTriangleMesh::calcNeighbors()
 {
     std::vector<size_t> v( 3, -1 );
     m_triangleNeighbors.resize( ( *m_triangleNormals ).size(), v );
@@ -349,7 +349,7 @@ void WTriangleMesh2::calcNeighbors()
     m_neighborsCalculated = true;
 }
 
-size_t WTriangleMesh2::getNeighbor( const size_t coVert1, const size_t coVert2, const size_t triangleNum )
+size_t WTriangleMesh::getNeighbor( const size_t coVert1, const size_t coVert2, const size_t triangleNum )
 {
     std::vector< size_t > candidates = m_vertexIsInTriangle[coVert1];
     std::vector< size_t > compares = m_vertexIsInTriangle[coVert2];
@@ -367,7 +367,7 @@ size_t WTriangleMesh2::getNeighbor( const size_t coVert1, const size_t coVert2, 
     return triangleNum;
 }
 
-void WTriangleMesh2::doLoopSubD()
+void WTriangleMesh::doLoopSubD()
 {
     m_numTriVerts = m_countVerts;
     m_numTriFaces = m_countTriangles;
@@ -416,7 +416,7 @@ void WTriangleMesh2::doLoopSubD()
 }
 
 
-osg::Vec3 WTriangleMesh2::loopCalcNewPosition( size_t vertId )
+osg::Vec3 WTriangleMesh::loopCalcNewPosition( size_t vertId )
 {
     std::vector< size_t > starP = m_vertexIsInTriangle[vertId];
     int starSize = starP.size();
@@ -440,7 +440,7 @@ osg::Vec3 WTriangleMesh2::loopCalcNewPosition( size_t vertId )
     return oldPos + newPos;
 }
 
-void WTriangleMesh2::loopInsertCenterTriangle( size_t triId )
+void WTriangleMesh::loopInsertCenterTriangle( size_t triId )
 {
     size_t edgeVerts[3];
 
@@ -452,7 +452,7 @@ void WTriangleMesh2::loopInsertCenterTriangle( size_t triId )
 }
 
 
-size_t WTriangleMesh2::loopCalcEdgeVert( size_t triId, size_t edgeV1, size_t edgeV2, size_t V3 )
+size_t WTriangleMesh::loopCalcEdgeVert( size_t triId, size_t edgeV1, size_t edgeV2, size_t V3 )
 {
     size_t neighborVert = -1;
     size_t neighborFaceNum = -1;
@@ -501,7 +501,7 @@ size_t WTriangleMesh2::loopCalcEdgeVert( size_t triId, size_t edgeV1, size_t edg
     return -1;
 }
 
-void WTriangleMesh2::loopInsertCornerTriangles( size_t triId )
+void WTriangleMesh::loopInsertCornerTriangles( size_t triId )
 {
     // comment:             center are twisted from the orignal vertices.
     // original:    0, 1, 2
@@ -523,7 +523,7 @@ void WTriangleMesh2::loopInsertCornerTriangles( size_t triId )
     loopSetTriangle( triId, originalTri0, centerTri0, centerTri2 );
 }
 
-void WTriangleMesh2::loopSetTriangle( size_t triId, size_t vertId1, size_t vertId2, size_t vertId3 )
+void WTriangleMesh::loopSetTriangle( size_t triId, size_t vertId1, size_t vertId2, size_t vertId3 )
 {
     loopEraseTriangleFromVertex( triId, getTriVertId1( triId ) );
     loopEraseTriangleFromVertex( triId, getTriVertId2( triId ) );
@@ -536,7 +536,7 @@ void WTriangleMesh2::loopSetTriangle( size_t triId, size_t vertId1, size_t vertI
     m_vertexIsInTriangle[vertId3].push_back( triId );
 }
 
-void WTriangleMesh2::loopEraseTriangleFromVertex( size_t triId, size_t vertId )
+void WTriangleMesh::loopEraseTriangleFromVertex( size_t triId, size_t vertId )
 {
     std::vector< size_t > temp;
     for ( size_t i = 0; i < m_vertexIsInTriangle[vertId].size(); ++i )
@@ -547,7 +547,7 @@ void WTriangleMesh2::loopEraseTriangleFromVertex( size_t triId, size_t vertId )
     m_vertexIsInTriangle[vertId] = temp;
 }
 
-double WTriangleMesh2::loopGetAlpha( int n )
+double WTriangleMesh::loopGetAlpha( int n )
 {
     double answer;
     if ( n > 3 )
@@ -562,7 +562,7 @@ double WTriangleMesh2::loopGetAlpha( int n )
     return answer;
 }
 
-size_t WTriangleMesh2::loopGetNextVertex( size_t triNum, size_t vertNum )
+size_t WTriangleMesh::loopGetNextVertex( size_t triNum, size_t vertNum )
 {
     if ( getTriVertId0( triNum ) == vertNum )
     {
@@ -575,7 +575,7 @@ size_t WTriangleMesh2::loopGetNextVertex( size_t triNum, size_t vertNum )
     return getTriVertId0( triNum );
 }
 
-size_t WTriangleMesh2::loopGetThirdVert( size_t coVert1, size_t coVert2, size_t triangleNum )
+size_t WTriangleMesh::loopGetThirdVert( size_t coVert1, size_t coVert2, size_t triangleNum )
 {
     if ( !( getTriVertId0( triangleNum ) == coVert1 ) && !( getTriVertId0( triangleNum ) == coVert2 ) )
     {
@@ -588,7 +588,7 @@ size_t WTriangleMesh2::loopGetThirdVert( size_t coVert1, size_t coVert2, size_t 
     return getTriVertId2( triangleNum );
 }
 
-void WTriangleMesh2::addMesh( boost::shared_ptr<WTriangleMesh2> mesh, float xOff, float yOff, float zOff )
+void WTriangleMesh::addMesh( boost::shared_ptr<WTriangleMesh> mesh, float xOff, float yOff, float zOff )
 {
     size_t oldVertSize = m_countVerts;
 
@@ -609,7 +609,7 @@ void WTriangleMesh2::addMesh( boost::shared_ptr<WTriangleMesh2> mesh, float xOff
     m_meshDirty = true;
 }
 
-void WTriangleMesh2::translateMesh( float xOff, float yOff, float zOff )
+void WTriangleMesh::translateMesh( float xOff, float yOff, float zOff )
 {
     osg::Vec3 t( xOff, yOff, zOff );
     for ( size_t i = 0; i < ( *m_verts ).size(); ++i )
@@ -618,7 +618,7 @@ void WTriangleMesh2::translateMesh( float xOff, float yOff, float zOff )
     }
 }
 
-void WTriangleMesh2::zoomMesh( float zoom )
+void WTriangleMesh::zoomMesh( float zoom )
 {
     for ( size_t i = 0; i < ( *m_verts ).size(); ++i )
     {
@@ -626,7 +626,7 @@ void WTriangleMesh2::zoomMesh( float zoom )
     }
 }
 
-std::ostream& tm_utils::operator<<( std::ostream& os, const WTriangleMesh2& rhs )
+std::ostream& tm_utils::operator<<( std::ostream& os, const WTriangleMesh& rhs )
 {
     std::stringstream ss;
     ss << "WTriangleMesh( #vertices=" << rhs.vertSize() << " #triangles=" << rhs.triangleSize() << " )" << std::endl;
@@ -649,9 +649,9 @@ std::ostream& tm_utils::operator<<( std::ostream& os, const WTriangleMesh2& rhs 
     return os << ss.str();
 }
 
-boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > tm_utils::componentDecomposition( const WTriangleMesh2& mesh )
+boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > tm_utils::componentDecomposition( const WTriangleMesh& mesh )
 {
-    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > result( new std::list< boost::shared_ptr< WTriangleMesh2 > >() );
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > result( new std::list< boost::shared_ptr< WTriangleMesh > >() );
     if( mesh.vertSize() <= 0 ) // no component possible
     {
         return result;
@@ -724,14 +724,14 @@ boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > tm_utils::
         {
             newVertices->at( vit->second ) = vit->first; // if you are sure that vit->second is always valid replace at() call with operator[]
         }
-        boost::shared_ptr< WTriangleMesh2 > newMesh( new WTriangleMesh2( newVertices, cit->second.second ) );
+        boost::shared_ptr< WTriangleMesh > newMesh( new WTriangleMesh( newVertices, cit->second.second ) );
         result->push_back( newMesh );
     }
 
     return result;
 }
 
-osg::ref_ptr< osg::Vec4Array > WTriangleMesh2::getTriangleColors() const
+osg::ref_ptr< osg::Vec4Array > WTriangleMesh::getTriangleColors() const
 {
     return m_triangleColors;
 }

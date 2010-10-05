@@ -184,8 +184,8 @@ void WMMarchingCubes::connectors()
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_input );
 
-    m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > >(
-            new WModuleOutputData< WTriangleMesh2 >( shared_from_this(), "surface mesh", "The mesh representing the isosurface." ) );
+    m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh > >(
+            new WModuleOutputData< WTriangleMesh >( shared_from_this(), "surface mesh", "The mesh representing the isosurface." ) );
 
     addConnector( m_output );
 

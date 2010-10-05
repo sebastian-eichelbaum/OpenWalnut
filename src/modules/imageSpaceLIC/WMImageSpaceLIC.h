@@ -31,7 +31,7 @@
 #include "../../dataHandler/WDataSetVector.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 
 #include "../../kernel/WModule.h"
@@ -107,7 +107,7 @@ private:
      * \param grid the grid to places the slices in
      * \param mesh the mesh to use if not NULL and m_useSlices is false
      */
-    void initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WTriangleMesh2 > mesh );
+    void initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WTriangleMesh > mesh );
 
     /**
      * The input connector containing the vector field.
@@ -122,7 +122,7 @@ private:
     /**
      * The input containing the surface on which the LIC should be applied on
      */
-    boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_meshIn;
+    boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshIn;
 
     /**
      * A property allowing the user to select whether the slices or the mesh should be used

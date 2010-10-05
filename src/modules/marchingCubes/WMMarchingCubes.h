@@ -34,7 +34,7 @@
 #include <osg/Uniform>
 
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -132,7 +132,7 @@ private:
      * Load meshes saved with WMMarchingCubes::save
      * \param fileName the mesh will be loaded from this file
      */
-    WTriangleMesh2 load( std::string fileName );
+    WTriangleMesh load( std::string fileName );
 
     /**
      * Kind of a convenience function for generate surface.
@@ -167,9 +167,9 @@ private:
 
 
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
-    boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > > m_output;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output;  //!< Input connector required by this module.
 
-    boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
 
     static const unsigned int m_edgeTable[256];  //!< Lookup table for edges used in the construction of the isosurface.
     static const int m_triTable[256][16];  //!< Lookup table for triangles used in the construction of the isosurface.

@@ -28,7 +28,7 @@
 #include <vector>
 
 #include "../../common/math/WTensorSym.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "WBSplineSurface.h"
 
 /**
@@ -80,7 +80,7 @@ public:
      * getter
      * \return the triangle mesh representing the surface
      */
-    boost::shared_ptr< WTriangleMesh2 > getTriangleMesh();
+    boost::shared_ptr< WTriangleMesh > getTriangleMesh();
 
 private:
     /**
@@ -101,7 +101,7 @@ private:
      */
     void getSplineSurfaceDeBoorPoints( std::vector< wmath::WVector3D > &givenPoints, std::vector< wmath::WVector3D > &deBoorPoints, int numRows, int numCols ); // NOLINT
 
-    boost::shared_ptr< WTriangleMesh2 > m_tMesh; //!< Triangle mesh of the surface
+    boost::shared_ptr< WTriangleMesh > m_tMesh; //!< Triangle mesh of the surface
 
     double m_radius; //!< param for the algo
     double m_mu; //!< parameter of local shepard with franke-little-weights

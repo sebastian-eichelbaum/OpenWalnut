@@ -38,7 +38,7 @@
 #include "../../dataHandler/datastructures/WJoinContourTree.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -127,7 +127,7 @@ protected:
      *
      * \param mesh Triangle mesh describing the isosurface
      */
-    void sliceAndColorMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
+    void sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh );
 
     /**
      * Computes the average of the positions inside the paramDS which are also inside the cluster volume main component.
@@ -174,23 +174,23 @@ protected:
     typedef WModuleInputData< WDataSetScalar > InputDataSetType; //!< Internal alias for m_*DataSets types
     boost::shared_ptr< InputDataSetType >   m_clusterDataSetInput; //!< InputConnector for the dataset derived from a voxelized cluster
     boost::shared_ptr< InputDataSetType >   m_paramDataSetInput; //!< InputConnector for the dataset of parameters like FA etc.
-    typedef WModuleInputData< WTriangleMesh2 > InputMeshType; //!< Internal alias for the m_triangleMesh type
+    typedef WModuleInputData< WTriangleMesh > InputMeshType; //!< Internal alias for the m_triangleMesh type
     boost::shared_ptr< InputMeshType >      m_triangleMeshInput; //!< InputConnector for the triangle mesh
     typedef WModuleOutputData< WColoredVertices > OutputColorMapType; //!< Interal alias for the ColorMap Type
     boost::shared_ptr< OutputColorMapType > m_colorMapOutput; //!< OutputConnector to forward the color Map to TriangleMeshRenderer
-    typedef WModuleOutputData< WTriangleMesh2 > OutputMeshType; //!< Internal alias for the Mesh Type
+    typedef WModuleOutputData< WTriangleMesh > OutputMeshType; //!< Internal alias for the Mesh Type
     boost::shared_ptr< OutputMeshType > m_meshOutput; //!< OutputConnector to forwarde the selected Mesh (e.g. if component selection is enabled )
 
     boost::shared_ptr< WFiberCluster >  m_cluster; //!< A cluster with its CenterLine
     boost::shared_ptr< WDataSetScalar > m_clusterDS; //!< Dataset derived from a voxelized cluster
     boost::shared_ptr< WDataSetScalar > m_paramDS; //!< Dataset derived from a voxelized cluster
     boost::shared_ptr< std::vector< std::pair< double, WPlane > > > m_slices; //!< stores all planes and their average parameters along centerLine
-    boost::shared_ptr< WTriangleMesh2 > m_mesh; //!< Reference to the TriangleMesh to make intersections
+    boost::shared_ptr< WTriangleMesh > m_mesh; //!< Reference to the TriangleMesh to make intersections
     boost::shared_ptr< WColoredVertices > m_colorMap; //!< Stores the color for vertices belonging to the intersection with the mesh and the planes
 
     boost::shared_ptr< WJoinContourTree >   m_joinTree; //!< Stores the JoinTree
     boost::shared_ptr< std::set< size_t > > m_isoVoxels; //!< Stores the voxels belonging to the cluster volume of a certain iso value
-    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > m_components; //!< Mesh decomposed into connected components
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > m_components; //!< Mesh decomposed into connected components
 
     boost::shared_ptr< WCondition > m_fullUpdate; //!< Indicates a complete update of display and computed data (time consuming)
 

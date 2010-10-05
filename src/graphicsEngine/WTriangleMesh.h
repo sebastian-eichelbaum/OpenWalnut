@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WTRIANGLEMESH2_H
-#define WTRIANGLEMESH2_H
+#ifndef WTRIANGLEMESH_H
+#define WTRIANGLEMESH_H
 
 #include <list>
 #include <string>
@@ -40,7 +40,7 @@
 /**
  * Triangle mesh data structure allowing for convenient access of the elements.
  */
-class WGE_EXPORT WTriangleMesh2  : public WTransferable
+class WGE_EXPORT WTriangleMesh  : public WTransferable
 {
 friend class WTriangleMeshTest;
 public:
@@ -50,7 +50,7 @@ public:
      * \param vertNum
      * \param triangleNum
      */
-    WTriangleMesh2( size_t vertNum, size_t triangleNum );
+    WTriangleMesh( size_t vertNum, size_t triangleNum );
 
     /**
      * Constructs a new mesh out of the given vertices and triangles.
@@ -58,12 +58,12 @@ public:
      * \param vertices Vec3Array storing all vertices
      * \param triangles Vector of consecutive vertex indices where each 3 IDs are a triangle starting at 0,1,2 for first triangle 3,4,5 for the second
      */
-    WTriangleMesh2( osg::ref_ptr< osg::Vec3Array > vertices, const std::vector< size_t >& triangles );
+    WTriangleMesh( osg::ref_ptr< osg::Vec3Array > vertices, const std::vector< size_t >& triangles );
 
     /**
      * destructor
      */
-    virtual ~WTriangleMesh2();
+    virtual ~WTriangleMesh();
 
     /**
      * Returns a prototype instantiated with the true type of the deriving class.
@@ -350,7 +350,7 @@ public:
      *  \param yOff
      *  \param zOff
      */
-    void addMesh( boost::shared_ptr<WTriangleMesh2> mesh, float xOff = 0., float yOff = 0., float zOff = 0. );
+    void addMesh( boost::shared_ptr<WTriangleMesh> mesh, float xOff = 0., float yOff = 0., float zOff = 0. );
 
     /**
      *  moves the entire mesh to a new postion
@@ -378,7 +378,7 @@ public:
      *
      * \return True if and only if both: vertices and triangles are exactly the same.
      */
-    bool operator==( const WTriangleMesh2& rhs ) const;
+    bool operator==( const WTriangleMesh& rhs ) const;
 
 protected:
     static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
@@ -386,7 +386,7 @@ private:
     /**
      * we don't allow the standard constructor
      */
-    WTriangleMesh2();
+    WTriangleMesh();
 
     /**
      * removes a vertex from the vertex array, if any triangles still index that vertex they will be
@@ -604,7 +604,7 @@ namespace tm_utils
      *
      * \return List of components where each of them is a WTriangleMesh again.
      */
-    WGE_EXPORT boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > componentDecomposition( const WTriangleMesh2& mesh );
+    WGE_EXPORT boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > componentDecomposition( const WTriangleMesh& mesh );
 
     /**
      * Prints for each mesh \#vertices and \#triangles, as well as each triangle with its positions. No point IDs are printed.
@@ -614,26 +614,26 @@ namespace tm_utils
      *
      * \return The output stream again for further usage.
      */
-    WGE_EXPORT std::ostream& operator<<( std::ostream& os, const WTriangleMesh2& rhs );
+    WGE_EXPORT std::ostream& operator<<( std::ostream& os, const WTriangleMesh& rhs );
 }
 
-inline bool WTriangleMesh2::operator==( const WTriangleMesh2& rhs ) const
+inline bool WTriangleMesh::operator==( const WTriangleMesh& rhs ) const
 {
     return std::equal( m_verts->begin(), m_verts->end(), rhs.m_verts->begin() ) &&
            std::equal( m_triangles.begin(), m_triangles.end(), rhs.m_triangles.begin() );
 }
 
-inline void WTriangleMesh2::addTextureCoordinate( osg::Vec3 texCoord )
+inline void WTriangleMesh::addTextureCoordinate( osg::Vec3 texCoord )
 {
     ( *m_textureCoordinates )[m_countVerts-1] = texCoord;
 }
 
-inline void WTriangleMesh2::addTextureCoordinate( float x, float y, float z )
+inline void WTriangleMesh::addTextureCoordinate( float x, float y, float z )
 {
     addTextureCoordinate( osg::Vec3( x, y, z ) );
 }
 
-inline void WTriangleMesh2::addVertex( osg::Vec3 vert )
+inline void WTriangleMesh::addVertex( osg::Vec3 vert )
 {
     if ( ( *m_verts ).size() == m_countVerts )
     {
@@ -648,64 +648,64 @@ inline void WTriangleMesh2::addVertex( osg::Vec3 vert )
     ++m_countVerts;
 }
 
-inline const std::string WTriangleMesh2::getName() const
+inline const std::string WTriangleMesh::getName() const
 {
     return "WTriangleMesh";
 }
 
-inline const std::string WTriangleMesh2::getDescription() const
+inline const std::string WTriangleMesh::getDescription() const
 {
     return "Triangle mesh data structure allowing for convenient access of the elements.";
 }
 
-inline void WTriangleMesh2::setTriVert0( size_t triId, size_t vertId )
+inline void WTriangleMesh::setTriVert0( size_t triId, size_t vertId )
 {
     WAssert( triId < m_countTriangles, "set tri vert 0: triangle id out of range" );
     WAssert( vertId < m_countVerts, "vertex id out of range" );
     m_triangles[ triId * 3 ] = vertId;
 }
 
-inline void WTriangleMesh2::setTriVert1( size_t triId, size_t vertId )
+inline void WTriangleMesh::setTriVert1( size_t triId, size_t vertId )
 {
     WAssert( triId < m_countTriangles, "set tri vert 1: triangle id out of range" );
     WAssert( vertId < m_countVerts, "vertex id out of range" );
     m_triangles[ triId * 3 + 1] = vertId;
 }
 
-inline void WTriangleMesh2::setTriVert2( size_t triId, size_t vertId )
+inline void WTriangleMesh::setTriVert2( size_t triId, size_t vertId )
 {
     WAssert( triId < m_countTriangles, "set tri vert 2: triangle id out of range" );
     WAssert( vertId < m_countVerts, "vertex id out of range" );
     m_triangles[ triId * 3 + 2] = vertId;
 }
 
-inline osg::Vec3 WTriangleMesh2::getTriVert( size_t triId, size_t vertNum )
+inline osg::Vec3 WTriangleMesh::getTriVert( size_t triId, size_t vertNum )
 {
     WAssert( triId < m_countTriangles, "triangle id out of range" );
     return ( *m_verts )[ m_triangles[ triId * 3  + vertNum] ];
 }
 
-inline size_t WTriangleMesh2::getTriVertId0( size_t triId ) const
+inline size_t WTriangleMesh::getTriVertId0( size_t triId ) const
 {
     WAssert( triId < m_countTriangles, "get tri vert id 0: triangle id out of range" );
     return m_triangles[triId * 3];
 }
 
-inline size_t WTriangleMesh2::getTriVertId1( size_t triId ) const
+inline size_t WTriangleMesh::getTriVertId1( size_t triId ) const
 {
     WAssert( triId < m_countTriangles, "get tri vert id 1: triangle id out of range" );
     return m_triangles[triId * 3 + 1];
 }
 
-inline size_t WTriangleMesh2::getTriVertId2( size_t triId ) const
+inline size_t WTriangleMesh::getTriVertId2( size_t triId ) const
 {
     WAssert( triId < m_countTriangles, "get tri vert id 2: triangle id out of range" );
     return m_triangles[triId * 3 + 2];
 }
 
-inline void WTriangleMesh2::setVertex( size_t index, osg::Vec3 vert )
+inline void WTriangleMesh::setVertex( size_t index, osg::Vec3 vert )
 {
     ( *m_verts )[index] = vert;
 }
 
-#endif  // WTRIANGLEMESH2_H
+#endif  // WTRIANGLEMESH_H

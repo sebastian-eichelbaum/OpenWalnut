@@ -38,7 +38,7 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -143,9 +143,9 @@ private:
     boost::shared_ptr< WCondition > m_recompute;
 
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
-    boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > > m_output; //!< Input connector required by this module.
+    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output; //!< Input connector required by this module.
 
-    boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
 
     bool m_shaderUseLighting; //!< shall the shader use lighting?
     bool m_shaderUseTransparency; //!< shall the shader use transparency?

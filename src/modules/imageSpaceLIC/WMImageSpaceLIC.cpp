@@ -95,7 +95,7 @@ void WMImageSpaceLIC::connectors()
                                                                                                     "Needs to be in the same grid as the mesh." );
 
     // mesh input
-    m_meshIn = WModuleInputData< WTriangleMesh2 >::createAndAdd( shared_from_this(), "surface", "The optional surface to use." );
+    m_meshIn = WModuleInputData< WTriangleMesh >::createAndAdd( shared_from_this(), "surface", "The optional surface to use." );
 
     // call WModule's initialization
     WModule::connectors();
@@ -153,7 +153,7 @@ void WMImageSpaceLIC::properties()
     WModule::properties();
 }
 
-void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WTriangleMesh2 > mesh )
+void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WTriangleMesh > mesh )
 {
     // remove the old slices
     m_output->clear();
@@ -388,7 +388,7 @@ void WMImageSpaceLIC::moduleMain()
         bool propertyUpdated = m_useSlices->changed();
         boost::shared_ptr< WDataSetVector > dataSetVec = m_vectorsIn->getData();
         boost::shared_ptr< WDataSetScalar > dataSetScal = m_scalarIn->getData();
-        boost::shared_ptr< WTriangleMesh2 > mesh = m_meshIn->getData();
+        boost::shared_ptr< WTriangleMesh > mesh = m_meshIn->getData();
 
         bool dataValid = ( dataSetVec || dataSetScal );
         if ( !dataValid || ( dataValid && !dataUpdated && !propertyUpdated ) )

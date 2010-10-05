@@ -30,7 +30,7 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/WDataSetVector.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -100,7 +100,7 @@ protected:
      *
      * \param mesh the mesh which represents the LIC
      */
-    void renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
+    void renderMesh( boost::shared_ptr< WTriangleMesh > mesh );
 
     void activate();
 
@@ -112,12 +112,12 @@ private:
      */
     boost::shared_ptr< WDataSetVector > searchVectorDS() const;
 
-    boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_meshIC; //!< The InputConnector for the mesh on which to paint
+    boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshIC; //!< The InputConnector for the mesh on which to paint
 // boost::shared_ptr< WModuleInputData< WDataSetVector > > m_vectorIC; //!< The InputConnector for the vectors that are used to build the streamlines
 
-    boost::shared_ptr< WTriangleMesh2 > m_inMesh; //!< The mesh given from the input connector
+    boost::shared_ptr< WTriangleMesh > m_inMesh; //!< The mesh given from the input connector
     boost::shared_ptr< WDataSetVector > m_inVector; //!< The vector field used to compute the LIC given from the input connector
-// boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > > m_meshOC; //!< OutputConnector for the LIC'ed mesh
+// boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_meshOC; //!< OutputConnector for the LIC'ed mesh
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.

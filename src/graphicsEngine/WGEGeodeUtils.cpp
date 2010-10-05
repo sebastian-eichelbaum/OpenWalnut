@@ -189,7 +189,7 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosit
     return transform;
 }
 
-osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh2* mesh, bool includeNormals )
+osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals )
 {
     osg::ref_ptr< osg::Vec3Array > vertices = mesh->getVertexArray();
 

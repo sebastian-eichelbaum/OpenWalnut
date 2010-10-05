@@ -32,7 +32,7 @@
 
 #include "../../graphicsEngine/WROI.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -178,7 +178,7 @@ private:
 
     osg::ref_ptr< osg::Geode > m_outputGeode; //!< Pointer to geode containing the glpyhs
 
-    boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
 
     bool m_showSelector; //!< flag indication if the temporary roi should be shown;
 };

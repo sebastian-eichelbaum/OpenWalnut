@@ -646,7 +646,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
 
     const std::size_t nbPositions = positions.size();
 
-    WTriangleMesh2 mesh = wge::triangulate( positions, -0.005 );
+    WTriangleMesh mesh = wge::triangulate( positions, -0.005 );
     osg::ref_ptr< osg::Geometry > geometry = wge::convertToOsgGeometry( &mesh, true );
 
     osg::Vec4Array* colors = new osg::Vec4Array;

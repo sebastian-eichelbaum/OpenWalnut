@@ -41,7 +41,7 @@
 WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
                               const wmath::WMatrix< double >& mat,
                               const std::vector< float >& vals,
-                              boost::shared_ptr< WTriangleMesh2 > triMesh,
+                              boost::shared_ptr< WTriangleMesh > triMesh,
                               float threshold,
                               float maxThreshold,
                               WColor color ) :

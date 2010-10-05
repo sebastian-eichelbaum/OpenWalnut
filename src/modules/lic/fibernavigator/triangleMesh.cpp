@@ -6,7 +6,7 @@
 #include <algorithm>
 
 // Construction
-TriangleMesh::TriangleMesh ( boost::shared_ptr< WTriangleMesh2 > mesh, boost::shared_ptr< WGridRegular3D > grid )
+TriangleMesh::TriangleMesh ( boost::shared_ptr< WTriangleMesh > mesh, boost::shared_ptr< WGridRegular3D > grid )
     : m_grid( grid )
 {
     // copy over content

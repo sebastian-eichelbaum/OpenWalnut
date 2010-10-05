@@ -30,7 +30,7 @@
 #include <osg/Array>
 
 #include "../common/math/WPosition.h"
-#include "WTriangleMesh2.h"
+#include "WTriangleMesh.h"
 
 #include "WExportWGE.h"
 
@@ -124,7 +124,7 @@ namespace wge
      *                                 triangulation
      * \return triangulation as WTriangleMesh
      */
-    WTriangleMesh2 WGE_EXPORT triangulate( const std::vector< wmath::WPosition >& points, double transformationFactor = 0.0 );
+    WTriangleMesh WGE_EXPORT triangulate( const std::vector< wmath::WPosition >& points, double transformationFactor = 0.0 );
 }
 
 #endif  // WGEGEOMETRYUTILS_H
