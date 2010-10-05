@@ -26,8 +26,11 @@
 #include <vector>
 
 #include "WDataTexture3D.h"
+#include "WDataTexture3D_2.h"
+
 #include "WValueSet.h"
 #include "WGrid.h"
+#include "WGridRegular3D.h"
 #include "../common/WAssert.h"
 #include "../common/WPrototyped.h"
 #include "../common/WException.h"
@@ -39,7 +42,8 @@ boost::shared_ptr< WPrototyped > WDataSetSingle::m_prototype = boost::shared_ptr
 
 WDataSetSingle::WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
                                 boost::shared_ptr< WGrid > newGrid )
-    : WDataSet()
+    : WDataSet(),
+    m_texture()
 {
     WAssert( newValueSet, "Need a value set for new data set." );
     WAssert( newGrid, "Need a grid for new data set." );
@@ -49,13 +53,21 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
     m_valueSet = newValueSet;
     m_grid = newGrid;
     m_texture3D = boost::shared_ptr< WDataTexture3D >( new WDataTexture3D( m_valueSet, m_grid ) );
+
+    // technically this should be placed into the WDataSetScalar, WDataSetVector and so on
+    boost::shared_ptr< WGridRegular3D > regGrid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
+    if ( regGrid )
+    {
+        m_texture = osg::ref_ptr< WDataTexture3D_2 >( new WDataTexture3D_2( m_valueSet, regGrid ) );
+    }
 }
 
 WDataSetSingle::WDataSetSingle()
     : WDataSet(),
     m_grid(),
     m_valueSet(),
-    m_texture3D()
+    m_texture3D(),
+    m_texture()
 {
     // default constructor used by the prototype mechanism
 }
@@ -83,6 +95,11 @@ bool WDataSetSingle::isTexture() const
 boost::shared_ptr< WDataTexture3D > WDataSetSingle::getTexture()
 {
     return m_texture3D;
+}
+
+osg::ref_ptr< WDataTexture3D_2 > WDataSetSingle::getTexture2()
+{
+    return m_texture;
 }
 
 const std::string WDataSetSingle::getName() const

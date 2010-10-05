@@ -30,7 +30,7 @@
 #include "../common/WLimits.h"
 #include "../common/WCondition.h"
 
-#include "../graphicsEngine/WGEScaledTexture.h"
+#include "../graphicsEngine/WGETexture.h"
 #include "WDataTexture3D.h"
 
 WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost::shared_ptr<WGrid> grid ):
@@ -38,7 +38,7 @@ WDataTexture3D::WDataTexture3D( boost::shared_ptr<WValueSetBase> valueSet, boost
     m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Data Texture Info Properties", "Texture's information properties." ) ) ),
     m_alpha( 1.0 ),
     m_threshold( 0.0 ),
-    m_texture( osg::ref_ptr< WGEScaledTexture3D >() ),
+    m_texture( osg::ref_ptr< WGETexture3D >() ),
     m_valueSet( valueSet ),
     m_grid( boost::shared_dynamic_cast< WGridRegular3D >( grid ) ),
     m_changeCondition( new WCondition() ),
@@ -118,7 +118,7 @@ boost::shared_ptr< WGridRegular3D > WDataTexture3D::getGrid() const
     return m_grid;
 }
 
-osg::ref_ptr< WGEScaledTexture3D > WDataTexture3D::getTexture()
+osg::ref_ptr< WGETexture3D > WDataTexture3D::getTexture()
 {
     createTexture();
     return m_texture;
@@ -434,7 +434,7 @@ void WDataTexture3D::createTexture()
             wlog::error( "WDataTexture3D" ) << "Conversion of this data type to texture not supported yet.";
         }
 
-        m_texture = osg::ref_ptr< WGEScaledTexture3D >( new WGEScaledTexture3D( m_scale, m_minValue ) );
+        m_texture = osg::ref_ptr< WGETexture3D >( new WGETexture3D( m_scale, m_minValue ) );
         m_texture->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
         m_texture->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
         m_texture->setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER );

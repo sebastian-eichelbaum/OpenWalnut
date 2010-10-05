@@ -22,5 +22,39 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGEFunctorCallback.h"
+#ifndef WGEREQUIREMENT_H
+#define WGEREQUIREMENT_H
+
+#include "../common/WRequirement.h"
+
+/**
+ * This requirement ensures an up and running WGE.
+ */
+class WGERequirement: public WRequirement
+{
+public:
+
+    /**
+     * Create instance. If your module uses this requirement, it needs running WGE.
+     */
+    WGERequirement();
+
+    /**
+     * Destructor.
+     */
+    virtual ~WGERequirement();
+
+    /**
+     * Checks if the requirement is fulfilled on the system. Implement this for your specific case.
+     *
+     * \return true if the specific requirement is fulfilled.
+     */
+    virtual bool isComplied() const = 0;
+
+protected:
+
+private:
+};
+
+#endif  // WGEREQUIREMENT_H
 

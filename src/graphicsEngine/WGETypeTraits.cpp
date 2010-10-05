@@ -22,5 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGEFunctorCallback.h"
+#include "WGETypeTraits.h"
 

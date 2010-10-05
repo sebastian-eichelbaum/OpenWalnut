@@ -22,5 +22,39 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGEFunctorCallback.h"
+#ifndef WREQUIREMENT_H
+#define WREQUIREMENT_H
+
+/**
+ * Base class for all possible kinds of requirements. Derive your own kind of requirement from this class. This allows easy checking of required
+ * features on a target system. Of course this is only useful for things checkable during runtime. You should avoid writing classes for checking
+ * weather some library is installed or not. This is checked by the linker on the target system.
+ */
+class WRequirement
+{
+public:
+
+    /**
+     * Default constructor.
+     */
+    WRequirement();
+
+    /**
+     * Destructor.
+     */
+    virtual ~WRequirement();
+
+    /**
+     * Checks if the requirement is fulfilled on the system. Implement this for your specific case.
+     *
+     * \return true if the specific requirement is fulfilled.
+     */
+    virtual bool isComplied() const = 0;
+
+protected:
+
+private:
+};
+
+#endif  // WREQUIREMENT_H
 

@@ -35,6 +35,7 @@
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WDataHandler.h"
 #include "../../../dataHandler/WDataTexture3D.h"
+#include "../../../dataHandler/WDataTexture3D_2.h"
 #include "../../../dataHandler/WEEG2.h"
 #include "../../../dataHandler/exceptions/WDHException.h"
 #include "../../../dataHandler/io/WReaderBiosig.h"
@@ -44,6 +45,7 @@
 #include "../../../dataHandler/io/WPagerEEGLibeep.h"
 #include "../../../dataHandler/io/WReaderELC.h"
 #include "../../../dataHandler/io/WReaderFiberVTK.h"
+#include "../../../graphicsEngine/WGEColormapping.h"
 #include "WMData.h"
 #include "data.xpm"
 
@@ -421,7 +423,11 @@ void WMData::moduleMain()
     m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );
 
     // register at datahandler
-    WDataHandler::registerDataSet( m_dataSet );
+    WDataHandler::registerDataSet( m_dataSet ); // this will get obsolete soon
+    if ( m_dataSet->isTexture() )
+    {
+        WGEColormapping::registerTexture( m_dataSet->getTexture2() );
+    }
 
     // notify
     m_output->updateData( m_dataSet );

@@ -22,5 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGEScaledTexture.h"
+#include "WGraphicsEngine.h"
+
+#include "WGERequirement.h"
+
+WGERequirement::WGERequirement():
+    WRequirement()
+{
+    // initialize members
+}
+
+WGERequirement::~WGERequirement()
+{
+    // cleanup
+}
+
+bool WGERequirement::isComplied() const
+{
+    // TODO(all): implement this properly if you modify the WGE for no-gui versions of OpenWalnut.
+    return true;
+}
 
