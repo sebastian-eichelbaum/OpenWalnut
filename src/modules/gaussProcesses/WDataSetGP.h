@@ -27,10 +27,10 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../../common/WMixinVector.h"
-#include "../../../dataHandler/WDataSet.h"
-#include "../../../dataHandler/WDataSetDTI.h"
-#include "../../../dataHandler/WDataSetFibers.h"
+#include "../../common/WMixinVector.h"
+#include "../../dataHandler/WDataSet.h"
+#include "../../dataHandler/WDataSetDTI.h"
+#include "../../dataHandler/WDataSetFibers.h"
 #include "WGaussProcess.h"
 
 /**

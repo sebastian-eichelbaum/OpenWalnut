@@ -29,12 +29,10 @@
 
 #include <osg/Geode>
 
+#include "../../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../../kernel/WModule.h"
 #include "../../../kernel/WModuleInputData.h"
-#include "../../../graphicsEngine/WGEManagedGroupNode.h"
-
-// TODO(math): be sure to change this include when this dataSet lives in dataHandler again.
-#include "../detTract2GPConvert/WDataSetGP.h"
+#include "../WDataSetGP.h"
 
 /**
  * This module is intended for Gaussian Process display. A Slice is generated which is used to cut

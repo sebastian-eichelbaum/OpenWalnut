@@ -25,7 +25,7 @@
 
 #include <Eigen/QR>
 
-#include "../../../common/WAssert.h"
+#include "../../common/WAssert.h"
 #include "WGaussProcess.h"
 
 WGaussProcess::WGaussProcess( const wmath::WFiber& tract, boost::shared_ptr< const WDataSetDTI > tensors, double maxLevel )

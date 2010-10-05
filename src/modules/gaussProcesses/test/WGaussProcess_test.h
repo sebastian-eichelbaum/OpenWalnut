@@ -29,9 +29,9 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../../../common/datastructures/WFiber.h"
-#include "../../../../common/WLogger.h"
-#include "../../../../dataHandler/WDataSetDTI.h"
+#include "../../../common/datastructures/WFiber.h"
+#include "../../../common/WLogger.h"
+#include "../../../dataHandler/WDataSetDTI.h"
 #include "../WGaussProcess.h"
 
 static WLogger logger; // In case someone uses the logger in one of the classes above

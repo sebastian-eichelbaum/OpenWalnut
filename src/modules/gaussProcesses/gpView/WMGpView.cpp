@@ -29,8 +29,6 @@
 
 #include "WMGpView.h"
 
-W_LOADABLE_MODULE( WMGpView )
-
 WMGpView::WMGpView():
     WModule()
 {

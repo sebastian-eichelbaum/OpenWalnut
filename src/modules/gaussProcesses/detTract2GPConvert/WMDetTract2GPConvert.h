@@ -33,7 +33,7 @@
 #include "../../../kernel/WModule.h"
 #include "../../../kernel/WModuleInputData.h"
 #include "../../../kernel/WModuleOutputData.h"
-#include "WDataSetGP.h"
+#include "../WDataSetGP.h"
 
 /**
  * Converts each deterministic tract to a gaussian process using the DTI information.

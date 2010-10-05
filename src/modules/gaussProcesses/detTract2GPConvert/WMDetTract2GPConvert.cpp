@@ -28,8 +28,6 @@
 #include "WMDetTract2GPConvert.xpm"
 #include "WMDetTract2GPConvert.h"
 
-W_LOADABLE_MODULE( WMDetTract2GPConvert )
-
 WMDetTract2GPConvert::WMDetTract2GPConvert():
     WModule()
 {
