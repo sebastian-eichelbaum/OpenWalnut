@@ -22,9 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../../kernel/WModule.h"
+#include "detTract2GPConvert/WMDetTract2GPConvert.h"
+#include "gpView/WMGpView.h"
 #include "WGaussProcessesMain.h"
 
-#include "../../kernel/WModule.h"
-
-// extern "C" void WLoadModule( boost::shared_ptr< WModule > &m ) { m = boost::shared_ptr< WModule >( new MODULECLASS ); }  // NOLINT
-
+#ifdef _MSC_VER
+extern "C" __declspec(dllexport) void WLoadModule( WModuleList& m )
+#else
+extern "C" void WLoadModule( WModuleList& m )
+#endif
+{
+    m.push_back( boost::shared_ptr< WModule >( new WMDetTract2GPConvert ) );
+    m.push_back( boost::shared_ptr< WModule >( new WMGpView ) );
+}
