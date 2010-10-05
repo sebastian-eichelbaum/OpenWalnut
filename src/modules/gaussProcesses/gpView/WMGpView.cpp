@@ -61,8 +61,8 @@ const std::string WMGpView::getDescription() const
 
 void WMGpView::connectors()
 {
-    typedef WModuleInputData< WDataSetGP > GpIC_t;
-    m_gpIC = boost::shared_ptr< GpIC_t >( new GpIC_t( shared_from_this(), "gpIn", "The Gaussian processes" ) );
+//    typedef WModuleInputData< WDataSetGP > GpIC_t;
+//    m_gpIC = boost::shared_ptr< GpIC_t >( new GpIC_t( shared_from_this(), "gpIn", "The Gaussian processes" ) );
 
     WModule::connectors();
 }
@@ -78,7 +78,7 @@ void WMGpView::properties()
 void WMGpView::moduleMain()
 {
     m_moduleState.setResetable( true, true ); // remember actions when actually not waiting for actions
-    m_moduleState.add( m_gpIC->getDataChangedCondition() );
+//    m_moduleState.add( m_gpIC->getDataChangedCondition() );
 
     ready();
 
@@ -87,23 +87,23 @@ void WMGpView::moduleMain()
 
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        if ( !m_gpIC->getData().get() ) // ok, the output has not yet sent data
-        {
-            m_moduleState.wait();
-            continue;
-        }
+//       if ( !m_gpIC->getData().get() ) // ok, the output has not yet sent data
+//       {
+//           m_moduleState.wait();
+//           continue;
+//       }
 
-        // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_gpIC->handledUpdate();
-        boost::shared_ptr< WDataSetGP > dataSet = m_gpIC->getData();
-        bool dataValid = ( dataSet );
-        if( !dataValid )
-        {
-            continue;
-        }
-        if( dataUpdated )
-        {
-        }
+//       // To query whether an input was updated, simply ask the input:
+//       bool dataUpdated = m_gpIC->handledUpdate();
+//       boost::shared_ptr< WDataSetGP > dataSet = m_gpIC->getData();
+//       bool dataValid = ( dataSet );
+//       if( !dataValid )
+//       {
+//           continue;
+//       }
+//       if( dataUpdated )
+//       {
+//       }
     }
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }

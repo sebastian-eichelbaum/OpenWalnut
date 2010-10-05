@@ -94,5 +94,18 @@ void WMDetTract2GPConvert::moduleMain()
             m_moduleState.wait();
             continue;
         }
+
+        bool dataUpdated = m_tractIC->handledUpdate() || m_tensorIC->handledUpdate();
+        boost::shared_ptr< WDataSetFibers > tracts = m_tractIC->getData();
+        boost::shared_ptr< WDataSetDTI > tensors = m_tensorIC->getData();
+        bool dataValid = tracts && tensors;
+        if( !dataValid )
+        {
+            continue;
+        }
+        if( dataUpdated )
+        {
+            boost::shared_ptr< WDataSetGP > gp( new WDataSetGP( tracts, tensors ) );
+        }
     }
 }
