@@ -246,7 +246,6 @@ public:
     }
 
 protected:
-
     /**
      * The smallest value in m_data.
      */
@@ -262,6 +261,16 @@ private:
      * Stores the values of type T as simple array which never should be modified.
      */
     const std::vector< T > m_data;  // WARNING: don't remove constness since &m_data[0] won't work anymore!
+
+    /**
+     * Get a variant reference to this valueset (the reference is stored in the variant).
+     * \note Use this as a temporary object inside a function or something like that.
+     * \return var A variant reference.
+     */
+    virtual WValueSetVariant const getVariant() const
+    {
+        return WValueSetVariant( this );
+    }
 };
 
 template< typename T > wmath::WVector3D WValueSet< T >::getVector3D( size_t index ) const

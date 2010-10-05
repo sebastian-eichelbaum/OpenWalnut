@@ -28,6 +28,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/function.hpp>
+
 #include "../../common/WItemSelection.h"
 #include "../../common/WItemSelector.h"
 
@@ -110,21 +112,9 @@ private:
     /**
      * Do a segmentation depending on the current module property values.
      *
-     * \param dataSet A scalar dataSet to perform the segmentation on.
-     *
      * \return the resulting segmented dataset.
      */
-    boost::shared_ptr< WDataSetScalar > doSegmentation( boost::shared_ptr< WDataSetScalar > dataSet );
-
-    /**
-     * Do a simple threshold value segmentation.
-     *
-     * \param dataSet A scalar dataSet to perform the segmentation on.
-     * \param threshold the threshold value.
-     *
-     * \return the resulting segmented dataset.
-     */
-    boost::shared_ptr< WDataSetScalar > segmentationSimple( boost::shared_ptr< WDataSetScalar > dataSet, double threshold );
+    void doSegmentation();
 
     /**
      * An input connector used to get datasets from other modules.
@@ -157,11 +147,6 @@ private:
     std::size_t m_algoIndex;
 
     /**
-     * List of property groups.
-     */
-    std::vector< WPropGroup > m_propGroups;
-
-    /**
      * A list of possible segmentation algorithms.
      */
     boost::shared_ptr< WItemSelection > m_algos;
@@ -174,8 +159,49 @@ private:
     /**
      * The threshold property for the simple threshold segmentation.
      */
-    WPropDouble   m_threshold;
+    WPropDouble m_threshold;
+
+    //! A function object that implements a simple threshold segmentation.
+    class SimpleSegmentation : public boost::static_visitor< boost::shared_ptr< WValueSetBase > >
+    {
+    public:
+        /**
+         * Constructor.
+         * \param t The threshold for segmentation.
+         */
+        SimpleSegmentation( double t ) // NOLINT
+            : m_threshold( t )
+        {
+        }
+
+        /**
+         * Do the segmentation.
+         *
+         * \tparam T The integral data type.
+         * \param valueset The valueset to segment.
+         * \return A pointer to a new valueset.
+         */
+        template< typename T >
+        boost::shared_ptr< WValueSetBase > operator() ( WValueSet< T > const* valueset ) const;
+
+    private:
+        //! the threshold
+        double m_threshold;
+    };
 };
 
-#endif  // WMSCALARSEGMENTATION_H
+template< typename T >
+boost::shared_ptr< WValueSetBase > WMScalarSegmentation::SimpleSegmentation::operator() ( WValueSet< T > const* valueset ) const
+{
+    std::vector< T > values( valueset->size() );
 
+    for( std::size_t k = 0; k < valueset->size(); ++k )
+    {
+        values[ k ] = ( static_cast< double >( valueset->getScalar( k ) ) <
+                        m_threshold * ( valueset->getMaximumValue() - valueset->getMinimumValue() ) / 100.0 + valueset->getMinimumValue()
+                        ? static_cast< T >( 0 ) : static_cast< T >( 1 ) );
+    }
+    return boost::shared_ptr< WValueSet< T > >( new WValueSet< T >( 0, 1, values, DataType< T >::type ) );
+}
+
+#endif  // WMSCALARSEGMENTATION_H
