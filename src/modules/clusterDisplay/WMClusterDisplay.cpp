@@ -38,7 +38,6 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 
-#include "../../graphicsEngine/WROIBitfield.h"
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "../../kernel/WKernel.h"
@@ -363,8 +362,6 @@ void WMClusterDisplay::properties()
     m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     WPropertyHelper::PC_PATHEXISTS::addTo( m_propTreeFile );
 
-    m_createRoiTrigger = m_properties->addProperty( "Create Roi",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
-
     WModule::properties();
 }
 
@@ -505,12 +502,6 @@ void WMClusterDisplay::moduleMain()
         {
             WKernel::getRunningKernel()->getRoiManager()->setUseExternalBitfield( m_active->get( true ) );
         }
-
-        if ( m_createRoiTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
-        {
-            handleCreateRoi();
-            m_createRoiTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-        }
     }
     con.disconnect();
 
@@ -647,13 +638,6 @@ void WMClusterDisplay::handleRoiChanged()
         m_tree.colorCluster( m_propSelectedCluster->get(), WColor( 1.0, 0.3, 0.3, 1.0 ) );
         setColor( m_tree.getLeafesForCluster( m_propSelectedCluster->get() ), WColor( 1.0, 0.3, 0.3, 1.0 ) );
     }
-}
-
-void WMClusterDisplay::handleCreateRoi()
-{
-    osg::ref_ptr< WROI > newRoi = osg::ref_ptr< WROI >( new WROIBitfield( m_tree.getOutputBitfield( m_propSelectedCluster->get() ) ) );
-
-    WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
 }
 
 void WMClusterDisplay::updateWidgets()

@@ -58,8 +58,7 @@ WROISphere::WROISphere( wmath::WPosition position, float radius ) :
 
     redrawSphere();
     //**********************************************************
-    m_isModified = true;
-    m_isNot = false;
+    m_dirty->set( true );
 
     setUserData( this );
     setUpdateCallback( osg::ref_ptr<ROISphereNodeCallback>( new ROISphereNodeCallback ) );
@@ -97,7 +96,7 @@ void WROISphere::setPosition( wmath::WPosition position )
 {
     m_position = position;
     m_originalPosition = position;
-    m_isModified = true;
+    m_dirty->set( true );
 }
 
 void WROISphere::registerRedrawRequest( WPickInfo pickInfo )
@@ -142,7 +141,7 @@ void WROISphere::updateGFX()
         }
 
         m_oldPixelPosition = newPixelPos;
-        m_isModified = true;
+        m_dirty->set( true );
         m_isPicked = true;
 
         m_signalIsModified();
@@ -154,7 +153,7 @@ void WROISphere::updateGFX()
         m_isPicked = false;
     }
 
-    if ( isModified() )
+    if ( m_dirty->get() )
     {
         redrawSphere();
     }

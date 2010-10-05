@@ -29,44 +29,64 @@
 WROI::WROI() :
     osg::Geode()
 {
+    properties();
 }
 
 WROI::~WROI()
 {
 }
 
-boost::signals2::signal0< void >* WROI::getSignalIsModified()
+void WROI::properties()
 {
-    return &m_signalIsModified;
+    m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "This ROI's properties" ) );
+
+    m_active = m_properties->addProperty( "active", "description", true, boost::bind( &WROI::propertyChanged, this ) );
+    m_active->setHidden( true );
+
+    m_dirty = m_properties->addProperty( "Dirty", "description", true, boost::bind( &WROI::propertyChanged, this ) );
+    m_not = m_properties->addProperty( "NOT", "description", false, boost::bind( &WROI::propertyChanged, this ) );
+}
+
+void WROI::propertyChanged()
+{
+}
+
+boost::shared_ptr<WProperties> WROI::getProperties()
+{
+    return m_properties;
 }
 
 void WROI::setNot( bool isNot )
 {
-    m_isNot = isNot;
-    m_isModified = true;
+    m_not->set( isNot );
+    setDirty();
 }
 
 bool WROI::isNot()
 {
-    return m_isNot;
+    return m_not->get();
 }
 
-bool WROI::isActive()
+bool WROI::active()
 {
-    return m_isActive;
+    return m_active->get();
 }
 
 void WROI::setActive( bool active )
 {
-    m_isActive = active;
-    m_isModified = true;
+    m_active->set( active );
+    setDirty();
 }
 
-bool WROI::isModified()
+void WROI::setDirty()
 {
-    bool tmp = m_isModified;
-    m_isModified = false;
-    return tmp;
+    m_dirty->set( true );
+    signalRoiChange();
+}
+
+bool WROI::dirty()
+{
+    return m_dirty->get();
 }
 
 void WROI::hide()
@@ -78,3 +98,21 @@ void WROI::unhide()
 {
     setNodeMask( 0xFFFFFFFF );
 }
+
+void WROI::signalRoiChange()
+{
+    for ( std::list< boost::function< void() > >::iterator iter = m_changeNotifiers.begin();
+                iter != m_changeNotifiers.end(); ++iter )
+    {
+        ( *iter )();
+    }
+}
+
+void WROI::addChangeNotifier( boost::function< void() > notifier )
+{
+    boost::unique_lock< boost::shared_mutex > lock;
+    lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
+    m_changeNotifiers.push_back( notifier );
+    lock.unlock();
+}
+

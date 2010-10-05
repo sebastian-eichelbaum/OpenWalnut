@@ -36,7 +36,7 @@
 #include "../common/WLogger.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
 #include "../gui/WGUI.h"
-#include "modules/fiberDisplay/WROIManagerFibers.h"
+#include "WROIManager.h"
 #include "WSelectionManager.h"
 #include "WModule.h"
 #include "WModuleContainer.h"
@@ -147,7 +147,7 @@ public:
     /**
      * get for roi manager
      */
-    boost::shared_ptr< WROIManagerFibers>getRoiManager();
+    boost::shared_ptr< WROIManager>getRoiManager();
 
     /**
      * get for selection manager
@@ -175,7 +175,7 @@ protected:
     /**
      * Pointer to a roi manager
      */
-    boost::shared_ptr< WROIManagerFibers >m_roiManager;
+    boost::shared_ptr< WROIManager >m_roiManager;
 
     /**
      * pointer to a selection manager

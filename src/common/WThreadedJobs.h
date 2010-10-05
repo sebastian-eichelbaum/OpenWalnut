@@ -94,9 +94,11 @@ public:
      */
     virtual void compute( boost::shared_ptr< InputType const > input, JobType const& job ) = 0;
 
-private:
+protected:
+
     //! the input
     boost::shared_ptr< InputType const > m_input;
+private:
 };
 
 template< class Input_T, class Job_T >

@@ -37,7 +37,7 @@
 
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../graphicsEngine/WROI.h"
-#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
+
 #include "../WQtCombinerToolbar.h"
 #include "WQtPropertyGroupWidget.h"
 #include "WQtModuleHeaderTreeItem.h"
@@ -110,14 +110,14 @@ public:
      *
      * \param roi pointer to the roi representation object
      */
-    void addRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+    void addRoi( osg::ref_ptr< WROI > roi );
 
     /**
      * Removes a roi entry from the control panel
      *
      * \param roi pointer to the roi representation object
      */
-    void removeRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+    void removeRoi( osg::ref_ptr< WROI > roi );
 
     /**
      * helper funtion to connect all qt widgets with their functions
@@ -136,14 +136,14 @@ public:
      *
      * \return pointer to roi representation
      */
-    boost::shared_ptr< WRMROIRepresentation > getSelectedRoi();
+    osg::ref_ptr< WROI > getSelectedRoi();
 
     /**
      * Returns the first roi in the currently selected branch.
      *
      * \return pointer to roi representation
      */
-    boost::shared_ptr< WRMROIRepresentation > getFirstRoiInSelectedBranch();
+    osg::ref_ptr< WROI > getFirstRoiInSelectedBranch();
 
     /**
      * Returns a checkable action that can be used to show or close this dock widget.

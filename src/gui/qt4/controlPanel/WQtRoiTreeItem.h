@@ -30,7 +30,7 @@
 #include <QtGui/QTreeWidgetItem>
 
 #include "../../../graphicsEngine/WROI.h"
-#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
+
 #include "WQtTreeItem.h"
 
 /**
@@ -46,7 +46,7 @@ public:
      * \param roi
      * \param type
      */
-    WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, WTreeItemType type = ROI );
+    WQtRoiTreeItem( QTreeWidgetItem * parent, osg::ref_ptr< WROI > roi, WTreeItemType type = ROI );
 
     /**
      * destructor
@@ -57,11 +57,11 @@ public:
      * getter
      * \return the roi representation object
      */
-    boost::shared_ptr< WRMROIRepresentation > getRoi();
+    osg::ref_ptr< WROI > getRoi();
 
 protected:
 private:
-    boost::shared_ptr< WRMROIRepresentation > m_roi; //!< roi
+    osg::ref_ptr< WROI > m_roi; //!< roi
 };
 
 #endif  // WQTROITREEITEM_H

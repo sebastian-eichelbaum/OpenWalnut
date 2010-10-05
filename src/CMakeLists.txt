@@ -113,6 +113,21 @@ IF( OSSIM_FOUND )
 #   MARK_AS_ADVANCED( OSSIM_LIBDIR )
 ENDIF()
 
+# insight toolkit (for image segmentation and registration)
+#----------------------------------------------------------
+FIND_PACKAGE( ITK QUIET )
+OPTION( OW_USE_ITK "Use the insight toolkit for image segmentation" OFF )
+IF( ITK_FOUND AND OW_USE_ITK )
+	INCLUDE( ${ITK_USE_FILE} )
+ENDIF( ITK_FOUND AND OW_USE_ITK )
+### Eigen #### (for the gauss process, the covariance matrices tend to be sparse and 20x20, but ~70.000 of them)
+FIND_PACKAGE( Eigen3 QUIET )
+IF( EIGEN3_FOUND )
+    MESSAGE( STATUS "Found Eigen3 in: ${EIGEN3_INCLUDE_DIR} with version: ${EIGEN3_VERSION}" )
+    MARK_AS_ADVANCED( EIGEN3_INCLUDE_DIR )
+    MARK_AS_ADVANCED( EIGEN3_VERSION )
+ENDIF()
+
 # other options:
 #---------------
 # Set default build type
@@ -153,6 +168,12 @@ ELSE()
     SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
 ENDIF()
+
+IF( ITK_FOUND AND OW_USE_ITK )
+	SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOW_USE_ITK" CACHE STRING "" FORCE )
+	SET( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DOW_USE_ITK" CACHE STRING "" FORCE )
+    SET( ITK_LIBRARIES "ITKCommon" )
+ENDIF( ITK_FOUND AND OW_USE_ITK )
 
 SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 
