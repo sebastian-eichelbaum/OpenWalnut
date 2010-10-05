@@ -27,7 +27,8 @@
 // instance as singleton
 boost::shared_ptr< WGEColormapping > WGEColormapping::m_instance = boost::shared_ptr< WGEColormapping >();
 
-WGEColormapping::WGEColormapping()
+WGEColormapping::WGEColormapping():
+    m_callback( new WGEFunctorCallback< osg::Node >( boost::bind( &WGEColormapping::callback, this, _1 ) ) )
 {
     // initialize members
 }
@@ -64,6 +65,8 @@ void WGEColormapping::deregisterTexture( osg::ref_ptr< WGETexture3D > texture )
 
 void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, bool useDefaultShader )
 {
+    // applying to a node simply means adding a callback :-)
+    node->addUpdateCallback( m_callback );
 }
 
 void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture )
@@ -79,5 +82,12 @@ void WGEColormapping::deregisterTextureInst( osg::ref_ptr< WGETexture3D > textur
 {
     wlog::debug( "WGEColormapping" ) << "De-registering texture.";
     m_textures.remove( texture );
+}
+
+void WGEColormapping::callback( osg::Node* node )
+{
+    // get node info
+    NodeInfo info = m_nodeInfo[ node ];
+
 }
 

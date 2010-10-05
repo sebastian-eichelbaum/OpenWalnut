@@ -25,12 +25,16 @@
 #ifndef WGECOLORMAPPING_H
 #define WGECOLORMAPPING_H
 
+#include <map>
 #include <vector>
 
 #include <osg/Node>
 
 #include "../common/WLogger.h"
 #include "../common/WSharedSequenceContainer.h"
+#include "../common/WSharedAssociativeContainer.h"
+
+#include "callbacks/WGEFunctorCallback.h"
 
 #include "WGETexture.h"
 
@@ -42,12 +46,6 @@
 class WGEColormapping
 {
 public:
-
-    /**
-     * Default constructor.
-     */
-    WGEColormapping();
-
     /**
      * Destructor.
      */
@@ -86,6 +84,11 @@ public:
 protected:
 
     /**
+     * Default constructor.
+     */
+    WGEColormapping();
+
+    /**
      * Apply the colormapping to the specified node.
      *
      * \param node the node.
@@ -107,6 +110,14 @@ protected:
      */
     void deregisterTextureInst( osg::ref_ptr< WGETexture3D > texture );
 
+    /**
+     * This callback handles all the updates needed. It is called by the m_callback instance every update cycle for each node using this
+     * WGEColormapping instance.
+     *
+     * \param node
+     */
+    void callback( osg::Node* node );
+
 private:
 
     /**
@@ -123,6 +134,22 @@ private:
      * The textures managed by this instance.
      */
     TextureSharedContainerType m_textures;
+
+    /**
+     * The callback used for all the texture update handling on several nodes.
+     */
+    osg::ref_ptr< WGEFunctorCallback< osg::Node > > m_callback;
+
+    struct NodeInfo
+    {
+        bool   m_initial;       //!< true if the node has not been callback'ed before
+        size_t m_texUnitStart;  //!< the start index of the texture unit to use
+    };
+
+    /**
+     * This map is needed to keep track of several node specific settings
+     */
+    std::map< osg::Node*, NodeInfo > m_nodeInfo;
 };
 
 #endif  // WGECOLORMAPPING_H
