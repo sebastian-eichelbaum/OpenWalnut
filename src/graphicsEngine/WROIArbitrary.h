@@ -98,6 +98,11 @@ public:
     void properties();
 
     /**
+     *
+     */
+    void propertyChanged();
+
+    /**
      * setter
      * \param threshold
      */
@@ -136,11 +141,14 @@ public:
 
 protected:
 private:
-
     std::vector< size_t > m_nbCoordsVec; //!< The data's number of vertices in X, Y and Z direction.
+
     wmath::WMatrix< double > m_matrix; //!< The 4x4 transformation matrix for the vertices.
+
     const std::vector< float > m_vals; //!< The data at the vertices.
+
     boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+
     WPropDouble m_threshold; //!< the threshold
 
     /**

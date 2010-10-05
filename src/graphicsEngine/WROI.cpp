@@ -44,11 +44,14 @@ void WROI::properties()
     m_active->setHidden( true );
 
     m_dirty = m_properties->addProperty( "Dirty", "description", true, boost::bind( &WROI::propertyChanged, this ) );
+    m_dirty->setHidden( true );
+
     m_not = m_properties->addProperty( "NOT", "description", false, boost::bind( &WROI::propertyChanged, this ) );
 }
 
 void WROI::propertyChanged()
 {
+    setDirty();
 }
 
 boost::shared_ptr<WProperties> WROI::getProperties()

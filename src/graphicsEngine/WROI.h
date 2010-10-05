@@ -139,7 +139,11 @@ protected:
      */
     boost::shared_ptr< WProperties > m_properties;
 
-    WPropBool m_dirty; //!< dirty flag, indicates the bit fields need updating
+    /**
+     * dirty flag, indicating the graphics needs updating, it is no longer used for bitfield updating
+     * since these customers get the update notification via callback
+     */
+    WPropBool m_dirty;
 
     /**
      * indicates if the roi is active
