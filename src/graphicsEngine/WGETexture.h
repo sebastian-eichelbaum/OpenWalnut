@@ -41,7 +41,7 @@
 #include "../common/WProperties.h"
 #include "../common/WPropertyHelper.h"
 
-#include "WGEUtils.h"
+#include "WGETextureUtils.h"
 
 /**
  * This calls serves a simple purpose: have a texture and its scaling information together which allows very easy binding of textures to nodes

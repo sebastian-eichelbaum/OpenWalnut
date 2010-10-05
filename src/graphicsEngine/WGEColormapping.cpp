@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include "WGETextureUtils.h"
+
 #include "WGEColormapping.h"
 
 // instance as singleton
@@ -50,9 +52,9 @@ boost::shared_ptr< WGEColormapping > WGEColormapping::instance()
     return m_instance;
 }
 
-void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, bool useDefaultShader )
+void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, bool useDefaultShader, size_t startTexUnit )
 {
-    instance()->applyInst( node, useDefaultShader );
+    instance()->applyInst( node, useDefaultShader, startTexUnit );
 }
 
 void WGEColormapping::registerTexture( osg::ref_ptr< WGETexture3D > texture )
@@ -65,9 +67,13 @@ void WGEColormapping::deregisterTexture( osg::ref_ptr< WGETexture3D > texture )
     instance()->deregisterTextureInst( texture );
 }
 
-void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, bool useDefaultShader )
+void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, bool useDefaultShader, size_t startTexUnit )
 {
     // applying to a node simply means adding a callback :-)
+    NodeInfo info;
+    info.m_initial = true;
+    info.m_texUnitStart = startTexUnit;
+    m_nodeInfo.insert( std::make_pair( node, info ) );
     node->addUpdateCallback( m_callback );
 }
 
@@ -98,11 +104,21 @@ void WGEColormapping::callback( osg::Node* node )
     NodeInfo info = r->get().find( node )->second;
     r.reset();
 
+    //std::cout << "Hallo " << std::endl;
+
     // need (re-)binding?
     if ( info.m_initial || m_texUpdate )
     {
         TextureContainerType::ReadTicket rt = m_textures.getReadTicket();
-        // implement
+
+        // bind each texture, provide all needed uniforms too
+        size_t unit = info.m_texUnitStart;
+        for( TextureContainerType::ConstIterator iter = rt->get().begin(); iter != rt->get().end(); ++iter )
+        {
+            wge::bindTexture( node, *iter, unit, "u_colormap" + boost::lexical_cast< std::string >( unit - info.m_texUnitStart ) );
+            unit++;
+        }
+
         rt.reset();
     }
 }

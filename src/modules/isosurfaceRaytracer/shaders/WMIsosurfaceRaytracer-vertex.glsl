@@ -63,6 +63,8 @@ void main()
     // in texture space, the starting point simply is the current surface point in texture space
     v_rayStart = gl_TexCoord[0].xyz; // this equals gl_Vertex!
 
+    v_rayStart = gl_TexCoord[0].xyz; // this equals gl_Vertex!
+
     // transform the ray direction to texture space, which equals object space
     // Therefore use two points, as we transform a vector
     vec4 camLookAt = vec4( 0.0, 0.0, -1.0, 1.0 );

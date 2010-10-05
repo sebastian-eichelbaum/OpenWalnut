@@ -48,6 +48,10 @@ uniform int u_steps;
 // The alpha value to set
 uniform float u_alpha;
 
+uniform int u_colormap0Unit;
+uniform sampler3D u_colormap0Sampler;
+uniform int u_colormap0SizeX;
+
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
 /////////////////////////////////////////////////////////////////////////////
@@ -212,7 +216,7 @@ void main()
 #endif
 
             color.a = u_alpha;
-            gl_FragColor = color;
+            gl_FragColor = vec4( vec3( float(u_colormap0SizeX) / 320.0 ), 1.0 );// color;
 
             break;
         }

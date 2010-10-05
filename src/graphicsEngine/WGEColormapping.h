@@ -63,8 +63,9 @@ public:
      *
      * \param node the node.
      * \param useDefaultShader if true, a standard colormapping shader is used. This is useful for plain geometry.
+     * \param startTexUnit the first texture unit allowed to be used
      */
-    static void apply( osg::ref_ptr< osg::Node > node, bool useDefaultShader = true );
+    static void apply( osg::ref_ptr< osg::Node > node, bool useDefaultShader = true, size_t startTexUnit = 0 );
 
     /**
      * Register the specified texture to the colormapper. The registered texture is the automatically applied to all users of WGEColormapping.
@@ -93,8 +94,9 @@ protected:
      *
      * \param node the node.
      * \param useDefaultShader if true, a standard colormapping shader is used. This is useful for plain geometry.
+     * \param startTexUnit the first texture unit allowed to be used
      */
-    void applyInst( osg::ref_ptr< osg::Node > node, bool useDefaultShader = true );
+    void applyInst( osg::ref_ptr< osg::Node > node, bool useDefaultShader, size_t startTexUnit );
 
     /**
      * Register the specified texture to the colormapper. The registered texture is the automatically applied to all users of WGEColormapping.

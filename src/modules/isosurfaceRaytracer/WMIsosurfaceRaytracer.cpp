@@ -248,7 +248,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootState->addUniform( steps );
             rootState->addUniform( alpha );
 
-            WGEColormapping::apply( cube, false );
+            WGEColormapping::apply( cube, false, 1 );
 
             // update node
             debugLog() << "Adding new rendering.";
