@@ -42,7 +42,7 @@ WGEColormapping::~WGEColormapping()
 
 boost::shared_ptr< WGEColormapping > WGEColormapping::instance()
 {
-    if ( !m_instance )
+    if ( !m_instance.get() )
     {
         m_instance = boost::shared_ptr< WGEColormapping >( new WGEColormapping() );
     }
@@ -95,15 +95,23 @@ void WGEColormapping::callback( osg::Node* node )
 {
     // get node info
     NodeInfoContainerType::ReadTicket r = m_nodeInfo.getReadTicket();
-    NodeInfo info = r->get().find( node )->second;
-    r.reset();
+    // what if find is the last element in the map? then there wont be a second
+    std::map< osg::Node*, NodeInfo >::const_iterator found = r->get().find( node );
 
-    // need (re-)binding?
-    if ( info.m_initial || m_texUpdate )
+    NodeInfo info;
+
+    if ( found != r->get().end() )
     {
-        TextureContainerType::ReadTicket rt = m_textures.getReadTicket();
-        // implement
-        rt.reset();
+        info = found->second;
+
+        // need (re-)binding?
+        if ( info.m_initial || m_texUpdate )
+        {
+            TextureContainerType::ReadTicket rt = m_textures.getReadTicket();
+            // implement
+            rt.reset();
+        }
     }
+    r.reset();
 }
 
