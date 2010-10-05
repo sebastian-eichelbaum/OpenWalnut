@@ -28,9 +28,11 @@
 boost::shared_ptr< WGEColormapping > WGEColormapping::m_instance = boost::shared_ptr< WGEColormapping >();
 
 WGEColormapping::WGEColormapping():
-    m_callback( new WGEFunctorCallback< osg::Node >( boost::bind( &WGEColormapping::callback, this, _1 ) ) )
+    m_callback( new WGEFunctorCallback< osg::Node >( boost::bind( &WGEColormapping::callback, this, _1 ) ) ),
+    m_texUpdate( true )
 {
     // initialize members
+    m_textures.getChangeCondition()->subscribeSignal( boost::bind( &WGEColormapping::textureUpdate, this ) );
 }
 
 WGEColormapping::~WGEColormapping()
@@ -84,10 +86,24 @@ void WGEColormapping::deregisterTextureInst( osg::ref_ptr< WGETexture3D > textur
     m_textures.remove( texture );
 }
 
+void WGEColormapping::textureUpdate()
+{
+    m_texUpdate = true;
+}
+
 void WGEColormapping::callback( osg::Node* node )
 {
     // get node info
-    NodeInfo info = m_nodeInfo[ node ];
+    NodeInfoContainerType::ReadTicket r = m_nodeInfo.getReadTicket();
+    NodeInfo info = r->get().find( node )->second;
+    r.reset();
 
+    // need (re-)binding?
+    if ( info.m_initial || m_texUpdate )
+    {
+        TextureContainerType::ReadTicket rt = m_textures.getReadTicket();
+        // implement
+        rt.reset();
+    }
 }
 

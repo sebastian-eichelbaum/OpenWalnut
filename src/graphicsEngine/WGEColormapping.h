@@ -118,6 +118,11 @@ protected:
      */
     void callback( osg::Node* node );
 
+    /**
+     * Called whenever the texture list is updated.
+     */
+    void textureUpdate();
+
 private:
 
     /**
@@ -128,18 +133,21 @@ private:
     /**
      * The alias for a shared container.
      */
-    typedef WSharedSequenceContainer< std::vector< osg::ref_ptr< WGETexture3D > > > TextureSharedContainerType;
+    typedef WSharedSequenceContainer< std::vector< osg::ref_ptr< WGETexture3D > > > TextureContainerType;
 
     /**
      * The textures managed by this instance.
      */
-    TextureSharedContainerType m_textures;
+    TextureContainerType m_textures;
 
     /**
      * The callback used for all the texture update handling on several nodes.
      */
     osg::ref_ptr< WGEFunctorCallback< osg::Node > > m_callback;
 
+    /**
+     * Simple structure to store some additional node-related info like texture units and so on.
+     */
     struct NodeInfo
     {
         bool   m_initial;       //!< true if the node has not been callback'ed before
@@ -147,9 +155,19 @@ private:
     };
 
     /**
+     * The alias for a shared container with a set of node-nodeInfo pairs
+     */
+    typedef WSharedAssociativeContainer< std::map< osg::Node*, NodeInfo > > NodeInfoContainerType;
+
+    /**
      * This map is needed to keep track of several node specific settings
      */
-    std::map< osg::Node*, NodeInfo > m_nodeInfo;
+    NodeInfoContainerType m_nodeInfo;
+
+    /**
+     * Boolean is true if the texture list has changed somehow (sorted, added, removed, ...)
+     */
+    bool m_texUpdate;
 };
 
 #endif  // WGECOLORMAPPING_H

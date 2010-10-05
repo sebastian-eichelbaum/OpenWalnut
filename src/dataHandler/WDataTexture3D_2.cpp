@@ -38,8 +38,6 @@ WDataTexture3D_2::WDataTexture3D_2( boost::shared_ptr< WValueSetBase > valueSet,
     setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER );
     setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER );
     setWrap( osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_BORDER );
-
-    create();
 }
 
 WDataTexture3D_2::~WDataTexture3D_2()
@@ -64,7 +62,7 @@ void WDataTexture3D_2::create()
         uint8_t* source = const_cast< uint8_t* > ( vs->rawData() );
         ima = createTexture( source, m_valueSet->dimension() );
     }
-    if ( m_valueSet->getDataType() == W_DT_INT8 )
+    else if ( m_valueSet->getDataType() == W_DT_INT8 )
     {
         wlog::debug( "WDataTexture3D_2" ) << "Creating Texture of type W_DT_INT8";
         boost::shared_ptr< WValueSet< int8_t > > vs = boost::shared_dynamic_cast< WValueSet< int8_t > >( m_valueSet );
