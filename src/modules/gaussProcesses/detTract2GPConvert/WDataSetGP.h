@@ -28,8 +28,10 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../../common/WMixinVector.h"
-#include "WGaussProcess.h"
 #include "../../../dataHandler/WDataSet.h"
+#include "../../../dataHandler/WDataSetDTI.h"
+#include "../../../dataHandler/WDataSetFibers.h"
+#include "WGaussProcess.h"
 
 /**
  * Stores many Gaussian processes.
@@ -37,11 +39,19 @@
 class WDataSetGP : public WMixinVector< WGaussProcess >, public WDataSet
 {
 public:
-// TODO(math): uncomment if we have more other constructors (we need to be default-constructable)
-//    /**
-//     * Default constructor.
-//     */
-//    WDataSetGP();
+    /**
+     * Assembles a dataset of gaussian processes out of the deterministic tracts as well the
+     * underlying tensor field.
+     *
+     * \param tracts The dataset containing the deterministic tracts
+     * \param tensors The underlying tensor field
+     */
+    WDataSetGP( boost::shared_ptr< const WDataSetFibers > tracts, boost::shared_ptr< const WDataSetDTI > tensors );
+
+    /**
+     * Destructs this dataset.
+     */
+    virtual ~WDataSetGP();
 
     /**
      * Determines whether this dataset can be used as a texture.

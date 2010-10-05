@@ -24,13 +24,17 @@
 
 #include "WDataSetGP.h"
 
-// TODO(math): uncomment if we have more other constructors (we need to be default-constructable)
-// WDataSetGP::WDataSetGP()
-//     : WMixinVector< WGaussProcess >(),
-//       WDataSet()
-// {
-// }
-//
-// WDataSetGP::~WDataSetGP()
-// {
-// }
+WDataSetGP::WDataSetGP( boost::shared_ptr< const WDataSetFibers > tracts, boost::shared_ptr< const WDataSetDTI > tensors )
+    : WMixinVector< WGaussProcess >(),
+      WDataSet()
+{
+    reserve( tracts->size() );
+    for( size_t i = 0; i < tracts->size(); ++i )
+    {
+        push_back( WGaussProcess( ( *tracts )[i], tensors ) );
+    }
+}
+
+WDataSetGP::~WDataSetGP()
+{
+}
