@@ -25,6 +25,8 @@
 #ifndef WGECOLORMAPPING_H
 #define WGECOLORMAPPING_H
 
+#include <vector>
+
 #include <osg/Node>
 
 #include "../common/WLogger.h"
