@@ -32,9 +32,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/tuple/tuple.hpp>
 
+#include "../common/datastructures/WFiber.h"
 #include "../common/math/WPosition.h"
 #include "../common/WProperties.h"
-
 #include "WDataSet.h"
 #include "WExportDataHandler.h"
 
@@ -66,17 +66,17 @@ public:
     // some type alias for the used arrays.
 
     /**
-     * List of vertex coordinates.
+     * List of vertex coordinates in term of components of vertices.
      */
     typedef boost::shared_ptr< std::vector< float > > VertexArray;
 
     /**
-     * Index list indexing fibers in VertexArray.
+     * Index list indexing fibers in VertexArray in terms of vertex numbers.
      */
     typedef boost::shared_ptr< std::vector< size_t > > IndexArray;
 
     /**
-     * Lengths of fibers.
+     * Lengths of fibers in terms of verties.
      */
     typedef boost::shared_ptr< std::vector< size_t > > LengthArray;
 
@@ -351,6 +351,15 @@ public:
      * Get the bounding box as pair of WPositions.
      */
     std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const;
+
+    /**
+     * Constructs a wmath::WFiber out of the given tract number.
+     *
+     * \param numTract Number of the tract to generate a wmath::WFiber object for
+     *
+     * \return The wmath::WFiber object. Attention: copy by value!
+     */
+    wmath::WFiber operator[]( size_t numTract ) const;
 
 protected:
 
