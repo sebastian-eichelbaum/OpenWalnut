@@ -25,8 +25,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/bind.hpp>
-
 #include "../../kernel/WKernel.h"
 
 #include "../../common/WColor.h"

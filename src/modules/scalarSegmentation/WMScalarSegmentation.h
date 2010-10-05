@@ -28,8 +28,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/function.hpp>
-
 #include "../../common/WItemSelection.h"
 #include "../../common/WItemSelector.h"
 
