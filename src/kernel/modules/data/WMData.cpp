@@ -35,6 +35,7 @@
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WDataHandler.h"
 #include "../../../dataHandler/WDataTexture3D.h"
+#include "../../../dataHandler/WDataTexture3D_2.h"
 #include "../../../dataHandler/WEEG2.h"
 #include "../../../dataHandler/exceptions/WDHException.h"
 #include "../../../dataHandler/io/WReaderBiosig.h"
@@ -423,6 +424,7 @@ void WMData::moduleMain()
 
     // register at datahandler
     WDataHandler::registerDataSet( m_dataSet ); // this will get obsolete soon
+    WGEColormapping::registerTexture( m_dataSet->getTexture2() );
 
     // notify
     m_output->updateData( m_dataSet );

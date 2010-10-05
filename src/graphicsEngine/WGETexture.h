@@ -163,6 +163,14 @@ public:
      */
     boost::shared_ptr< WProperties > getInformationProperties() const;
 
+    /**
+     * Applies some custom uniforms to the specified state-set which directly relate to this texture
+     *
+     * \param prefix the prefix used for the uniforms
+     * \param states the state where to add the uniforms
+     */
+    virtual void applyUniforms( std::string prefix, osg::StateSet* states ) const;
+
 protected:
 
     /**
@@ -431,6 +439,17 @@ void  WGETexture< TextureType >::handleUpdate()
         TextureType::setFilter( osg::Texture::MIN_FILTER, m_interpolation->get( true ) ? osg::Texture::LINEAR : osg::Texture::NEAREST );
         TextureType::setFilter( osg::Texture::MAG_FILTER, m_interpolation->get( true ) ? osg::Texture::LINEAR : osg::Texture::NEAREST );
     }
+}
+
+template < typename TextureType >
+void  WGETexture< TextureType >::applyUniforms( std::string prefix, osg::StateSet* states ) const
+{
+    states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Min", minimum() ) );
+    states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Scale", scale() ) );
+    states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Alpha", alpha() ) );
+    states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Threshold", threshold() ) );
+    states->addUniform( new WGEPropertyUniform< WPropSelection >( prefix + "Colormap", colormap() ) );
+    states->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "Active", active() ) );
 }
 
 template < typename TextureType >

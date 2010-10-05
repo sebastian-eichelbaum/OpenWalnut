@@ -231,13 +231,7 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture<
     std::string prefix = "u_texture" + boost::lexical_cast< std::string >( unit );
 
     // add some additional uniforms containing scaling information
-    osg::StateSet* state = node->getOrCreateStateSet();
-    state->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Min", texture->minimum() ) );
-    state->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Scale", texture->scale() ) );
-    state->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Alpha", texture->alpha() ) );
-    state->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Threshold", texture->threshold() ) );
-    state->addUniform( new WGEPropertyUniform< WPropSelection >( prefix + "Colormap", texture->colormap() ) );
-    state->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "Active", texture->active() ) );
+    texture->applyUniforms( prefix, node->getOrCreateStateSet() );
 }
 
 #endif  // WGEUTILS_H

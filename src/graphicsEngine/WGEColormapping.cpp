@@ -69,9 +69,15 @@ void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, bool useDefault
 void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture )
 {
     wlog::debug( "WGEColormapping" ) << "Registering texture.";
+    if ( !m_textures.count( texture ) )
+    {
+        m_textures.push_back( texture );
+    }
 }
 
 void WGEColormapping::deregisterTextureInst( osg::ref_ptr< WGETexture3D > texture )
 {
     wlog::debug( "WGEColormapping" ) << "De-registering texture.";
+    m_textures.remove( texture );
 }
+

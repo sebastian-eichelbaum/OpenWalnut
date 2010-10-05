@@ -140,6 +140,9 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
     typedef typename wge::GLType< T >::Type TexType;
     GLenum type = wge::GLType< T >::TypeEnum;
 
+    wlog::debug( "WDataTexture3D_2" ) << "Resolution: " << m_grid->getNbCoordsX() << "x" << m_grid->getNbCoordsY() << "x" << m_grid->getNbCoordsZ();
+    wlog::debug( "WDataTexture3D_2" ) << "Colordepth: " << components;
+
     osg::ref_ptr< osg::Image > ima = new osg::Image;
     if ( components == 1)
     {

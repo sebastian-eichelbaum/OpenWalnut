@@ -28,6 +28,7 @@
 #include <osg/Node>
 
 #include "../common/WLogger.h"
+#include "../common/WSharedSequenceContainer.h"
 
 #include "WGETexture.h"
 
@@ -73,7 +74,8 @@ public:
     static void registerTexture( osg::ref_ptr< WGETexture3D > texture );
 
     /**
-     * De-register the specified texture to the colormapper. The texture is the automatically removed from all users of WGEColormapping.
+     * De-register the specified texture to the colormapper. The texture is the automatically removed from all users of WGEColormapping. If the
+     * texture is not in the list, nothing happens.
      *
      * \param texture the texture to remove
      */
@@ -109,6 +111,16 @@ private:
      * Singleton instance of WGEColormapping
      */
     static boost::shared_ptr< WGEColormapping > m_instance;
+
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedSequenceContainer< std::vector< osg::ref_ptr< WGETexture3D > > > TextureSharedContainerType;
+
+    /**
+     * The textures managed by this instance.
+     */
+    TextureSharedContainerType m_textures;
 };
 
 #endif  // WGECOLORMAPPING_H
