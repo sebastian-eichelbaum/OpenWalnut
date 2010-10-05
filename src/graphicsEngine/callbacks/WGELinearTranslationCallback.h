@@ -40,7 +40,7 @@
  * support access via T->get(). Specialize the class if you do not specify a pointer.
  */
 template< typename T >
-class WGE_EXPORT WGELinearTranslationCallback: public osg::NodeCallback
+class WGELinearTranslationCallback: public osg::NodeCallback
 {
 public:
     /**

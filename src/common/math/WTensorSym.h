@@ -92,13 +92,13 @@ private:
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 WTensorSym< order, dim, Data_T >::WTensorSym()
-    : WTensorFunc< WTensorBaseSym, order, dim, Data_T >()
+    : wmath::WTensorFunc< wmath::WTensorBaseSym, order, dim, Data_T >()
 {
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 WTensorSym< order, dim, Data_T >::WTensorSym( const WValue< Data_T >& data )
-    : WTensorFunc< WTensorBaseSym, order, dim, Data_T >( data )
+    : WTensorFunc< wmath::WTensorBaseSym, order, dim, Data_T >( data )
 {
 }
 // ######################## stream output operators #################################

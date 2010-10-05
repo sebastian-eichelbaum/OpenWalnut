@@ -37,13 +37,14 @@
 #include "callbacks/WGEFunctorCallback.h"
 
 #include "WGETexture.h"
+#include "WExportWGE.h"
 
 /**
  * Class implements a manager for multiple 3D textures. They can be applied to arbitrary osg::Node. This allows very comfortable use of dataset
  * based colormapping. The only requirement is that your geometry/node needs to specify texture coordinates in Object Space. That means: the
  * texture coordinates equal the regular 3D grid of the texture.
  */
-class WGEColormapping
+class WGE_EXPORT WGEColormapping // NOLINT
 {
 public:
     /**

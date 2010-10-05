@@ -36,8 +36,10 @@
 #include "../common/WTransferable.h"
 #include "WExportDataHandler.h"
 
+
+#include "WDataTexture3D_2.h"
+
 class WDataTexture3D;
-class WDataTexture3D_2;
 class WCondition;
 class WDataSetVector;
 

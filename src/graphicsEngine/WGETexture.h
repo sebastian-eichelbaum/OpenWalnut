@@ -456,7 +456,7 @@ template < typename TextureType >
 void WGETexture< TextureType >::bind( osg::ref_ptr< osg::Node > node, size_t unit )
 {
     // let our utilities do the work
-    wge::bindTexture( node, this, unit ); // to avoid recursive stuff -> explicitly specify the type
+    wge::bindTexture( node, osg::ref_ptr< WGETexture< TextureType > >( this ), unit ); // to avoid recursive stuff -> explicitly specify the type
 }
 
 template < typename TextureType >

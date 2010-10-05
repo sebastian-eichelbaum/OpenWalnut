@@ -143,7 +143,7 @@ namespace wge
      * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
      */
     template < typename T >
-    void WGE_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture, size_t unit = 0 );
+    void bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture, size_t unit = 0 );
 
     /**
      * Binds the specified texture to the specified unit. It automatically adds several uniforms which then can be utilized in the shader:
@@ -160,7 +160,7 @@ namespace wge
      * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
      */
     template < typename T >
-    void WGE_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture< T > > texture, size_t unit = 0 );
+    void bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture< T > > texture, size_t unit = 0 );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )
@@ -185,7 +185,7 @@ inline osg::Vec3 wge::wv3D2ov3( wmath::WVector3D v )
     return osg::Vec3( v[0], v[1], v[2] );
 }
 
-inline osg::Matrixd WGE_EXPORT wge::toOSGMatrix( const wmath::WMatrix<double>& matrix )
+inline osg::Matrixd wge::toOSGMatrix( const wmath::WMatrix<double>& matrix )
 {
     WAssert( ( matrix.getNbRows() == 3 || matrix.getNbRows() == 4 ) && ( matrix.getNbCols() == 3 || matrix.getNbCols() == 4 ),
              "Only 3x3 or 4x4 matrices allowed." );
