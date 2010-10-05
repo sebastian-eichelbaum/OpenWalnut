@@ -92,16 +92,14 @@ void WFiberDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
 
     boost::shared_ptr< std::vector< float > > colors;
 
-    // TODO(schurade): roi refactoring
-//    if ( m_customColoring )
-//    {
-//        colors = WKernel::getRunningKernel()->getRoiManager()->getCustomColors();
-//    }
-//    else
-//    {
-//        colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
-//    }
-    colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
+    if ( m_customColoring )
+    {
+        colors = colors = m_dataset->getColorScheme( "Custom Color" )->getColor();
+    }
+    else
+    {
+        colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
+    }
 
     boost::shared_ptr< std::vector< bool > > active = m_fiberSelector->getBitfield();
 
@@ -131,16 +129,15 @@ void WFiberDrawable::drawTubes() const
     boost::shared_ptr< std::vector< float > > tangents = m_dataset->getTangents();
 
     boost::shared_ptr< std::vector< float > > colors;
-    // TODO(schurade): roi refactoring
-//    if ( m_customColoring )
-//    {
-//        colors = WKernel::getRunningKernel()->getRoiManager()->getCustomColors();
-//    }
-//    else
-//    {
-//
-//    }
-    colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
+
+    if ( m_customColoring )
+    {
+        colors = m_dataset->getColorScheme( "Custom Color" )->getColor();
+    }
+    else
+    {
+        colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
+    }
 
     boost::shared_ptr< std::vector< bool > > active = m_fiberSelector->getBitfield();
 

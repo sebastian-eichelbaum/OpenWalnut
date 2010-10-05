@@ -75,7 +75,8 @@ void WFiberSelector::slotAddRoi( osg::ref_ptr< WROI > roi )
     }
     if ( !( branch.get() ) )
     {
-        branch = boost::shared_ptr<WSelectorBranch>( new WSelectorBranch( m_size, WKernel::getRunningKernel()->getRoiManager()->getBranch( roi ) ) );
+        branch = boost::shared_ptr<WSelectorBranch>(
+                new WSelectorBranch( m_fibers, WKernel::getRunningKernel()->getRoiManager()->getBranch( roi ) ) );
         m_branches.push_back( branch );
     }
 
@@ -119,6 +120,11 @@ void WFiberSelector::slotRemoveBranch( boost::shared_ptr< WRMBranch > branch )
 
 boost::shared_ptr< std::vector< bool > > WFiberSelector::getBitfield()
 {
+    for ( std::list< boost::shared_ptr< WSelectorBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
+    {
+        m_dirty = std::max( m_dirty, ( *iter )->dirty() );
+    }
+
     if ( m_dirty )
     {
         recalculate();

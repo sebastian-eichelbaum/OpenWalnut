@@ -146,6 +146,12 @@ public:
      */
     void setSelector( boost::shared_ptr< WFiberSelector > selector );
 
+    /**
+     * setter
+     * \param colors
+     */
+    void setCustomColors( boost::shared_ptr< std::vector< float > > colors );
+
 protected:
 private:
     /**
@@ -169,6 +175,7 @@ private:
     bool m_globalColoring; //!< True indicates global, false local coloring
 
     bool m_customColoring; //!< True indicates use of custom colors
+
 
     boost::shared_ptr< std::vector< bool > > m_active; //!< pointer to the bitfield of active fibers
 

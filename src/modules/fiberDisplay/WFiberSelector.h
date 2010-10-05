@@ -102,6 +102,19 @@ protected:
      */
     void slotRemoveBranch( boost::shared_ptr< WRMBranch > branch );
 
+    /**
+     * setter
+     * \param colors
+     */
+    void setCustomColors( boost::shared_ptr< std::vector< float > > colors );
+
+    /**
+     * getter
+     * \return colors
+     */
+    boost::shared_ptr< std::vector< float > > getCustomColors();
+
+
 
 private:
     /**
