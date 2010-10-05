@@ -120,6 +120,7 @@ OPTION( OW_USE_ITK "Use the insight toolkit for image segmentation" OFF )
 IF( ITK_FOUND AND OW_USE_ITK )
 	INCLUDE( ${ITK_USE_FILE} )
 ENDIF( ITK_FOUND AND OW_USE_ITK )
+
 ### Eigen #### (for the gauss process, the covariance matrices tend to be sparse and 20x20, but ~70.000 of them)
 FIND_PACKAGE( Eigen3 QUIET )
 IF( EIGEN3_FOUND )
