@@ -24,6 +24,11 @@ FILE( GLOB DATAHANDLER_IO_SRC "io/*.cpp" "io/*.h" ) # former WLoader
         TARGET_LINK_LIBRARIES( OWdataHandler OWcommon ${Boost_LIBRARIES} OWext_niftiio OWext_biosig OWext_eep ${OPENSCENEGRAPH_LIBRARIES} )
     ENDIF()
 #ENDIF()
+
+IF(MSVC_IDE)
+	SET_TARGET_PROPERTIES( OWdataHandler PROPERTIES PREFIX "../")    
+ENDIF(MSVC_IDE)
+
 # Unit tests
 IF( OW_COMPILE_TESTS )
     # in case of not installed ITK the unit test won't compile, so we remove it

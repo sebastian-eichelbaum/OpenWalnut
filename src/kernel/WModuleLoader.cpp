@@ -56,8 +56,21 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         std::string suffix = wiotools::getSuffix( i->leaf() );
         std::string stem = i->path().stem();
 
+#ifdef _MSC_VER
+        std::string supposedFilename = getModulePrefix() + '_' + i->path().parent_path().filename()
+#ifdef _DEBUG
+            + 'd'
+#endif
+            + WSharedLib::getSystemSuffix();
+        std::string isFileName = i->path().filename();
+#endif // _MSC_VER
+
         if( !boost::filesystem::is_directory( *i ) && ( suffix == WSharedLib::getSystemSuffix() ) &&
-            ( stem.compare( 0, getModulePrefix().length(), getModulePrefix() ) == 0 ) )
+            ( stem.compare( 0, getModulePrefix().length(), getModulePrefix() ) == 0 )
+#ifdef _MSC_VER
+            && supposedFilename == isFileName
+#endif
+            )
         {
             try
             {
@@ -104,19 +117,6 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
             // if it a dir -> traverse down
             load( ticket, *i, level + 1 );
         }
-        // this little construct will enable vc to find the dll's in the correct build mode we are in
-#ifdef _MSC_VER
-        else if ( ( level == 1 ) &&
-#ifdef _DEBUG
-            boost::filesystem::path( *i ).filename() == "Debug"
-#else // _DEBUG
-            boost::filesystem::path( *i ).filename() == "Release"
-#endif // _DEBUG
-            )
-        {
-            load( ticket, *i, level + 1 );
-        }
-#endif // _MSC_VER
     }
 }
 
