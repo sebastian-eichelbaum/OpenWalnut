@@ -58,14 +58,14 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
 
     properties();
 
+    m_threshold->set( threshold );
+    m_threshold->setMax( maxThreshold );
+
     updateGFX();
 
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
     setUserData( this );
     setUpdateCallback( osg::ref_ptr<ROIArbNodeCallback>( new ROIArbNodeCallback ) );
-
-    m_threshold->set( threshold );
-    m_threshold->setMax( maxThreshold );
 
     setDirty();
 }
@@ -87,14 +87,14 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
 
     properties();
 
+    m_threshold->set( 0.01 );
+    m_threshold->setMax( maxThreshold );
+
     updateGFX();
 
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
     setUserData( this );
     setUpdateCallback( osg::ref_ptr< ROIArbNodeCallback >( new ROIArbNodeCallback ) );
-
-    m_threshold->set( 0.01 );
-    m_threshold->setMax( maxThreshold );
 
     setDirty();
 }

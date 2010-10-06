@@ -101,10 +101,11 @@ void WMArbitraryRois::connectors()
 
 void WMArbitraryRois::properties()
 {
-    m_aTrigger = m_properties->addProperty( "Create", "Create a ROI", WPVBaseTypes::PV_TRIGGER_READY  );
-    m_bTrigger = m_properties->addProperty( "Finalize", "Finalize and add to ROI manager", WPVBaseTypes::PV_TRIGGER_READY  );
-    m_threshold = m_properties->addProperty( "Threshold", "", 0. );
-    m_surfaceColor = m_properties->addProperty( "Surface color", "", WColor( 1.0, 0.3, 0.3, 1.0 ) );
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    m_finalizeTrigger = m_properties->addProperty( "Finalize", "Finalize and add to ROI manager", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+    m_threshold = m_properties->addProperty( "Threshold", "", 0., m_propCondition );
+    m_surfaceColor = m_properties->addProperty( "Surface color", "", WColor( 1.0, 0.3, 0.3, 1.0 ), m_propCondition );
 
     WModule::properties();
 }
@@ -113,6 +114,7 @@ void WMArbitraryRois::moduleMain()
 {
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_propCondition );
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_recompute );
 
@@ -140,26 +142,22 @@ void WMArbitraryRois::moduleMain()
 
             initSelectionRoi();
         }
-        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
-        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
 
-        if ( m_aTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if ( m_threshold->changed() )
         {
-            debugLog() << "Creating cut dataset.";
+            m_threshold->get( true );
             m_showSelector = true;
             createCutDataset();
             renderMesh();
-            m_aTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
         }
 
-        if ( m_bTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if ( m_finalizeTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            debugLog() << "Creating cut dataset.";
             m_showSelector = false;
             createCutDataset();
             renderMesh();
             finalizeRoi();
-            m_bTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+            m_finalizeTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
         }
 
         //m_moduleState.wait();
@@ -349,12 +347,6 @@ void WMArbitraryRois::finalizeRoi()
 {
     if( !m_active->get() )
     {
-        return;
-    }
-
-    if( !WKernel::getRunningKernel()->getSelectionManager()->getBitField() )
-    {
-        wlog::warn( "WMArbitraryRois" ) << "Refused to add ROI, as ROIManager does not have computed its bitfield yet.";
         return;
     }
 
