@@ -63,11 +63,6 @@ class WGE_EXPORT WGraphicsEngine: public WThreadedRunner
 public:
 
     /**
-     * Default constructor.
-     */
-    explicit WGraphicsEngine();
-
-    /**
      * Destructor.
      */
     virtual ~WGraphicsEngine();
@@ -141,6 +136,11 @@ public:
     boost::signals2::connection subscribeSignal( GE_SIGNAL signal, t_GEGenericSignalHandlerType notifier );
 
 protected:
+
+    /**
+     * Constructors are protected because this is a Singleton.
+     */
+    explicit WGraphicsEngine();
 
     /**
      * Handler for repainting and event handling. Gets executed in separate thread.
