@@ -135,11 +135,12 @@ void WMMarchingCubes::moduleMain()
             // acquire data from the input connector
             m_dataSet = m_input->getData();
 
+            // set appropriate constraints for properties
+            m_isoValueProp->setMin( m_dataSet->getMin() );
+            m_isoValueProp->setMax( m_dataSet->getMax() );
+
             if( m_isoValueProp->get() >= m_dataSet->getMax() || m_isoValueProp->get() <= m_dataSet->getMin() )
             {
-                // set appropriate constraints for properties
-                m_isoValueProp->setMin( m_dataSet->getMin() );
-                m_isoValueProp->setMax( m_dataSet->getMax() );
                 m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ), true );
             }
         }
