@@ -38,6 +38,7 @@
 #include <osg/Texture3D>
 
 #include "callbacks/WGEFunctorCallback.h"
+#include "../common/WLimits.h"
 #include "../common/WProperties.h"
 #include "../common/WPropertyHelper.h"
 
@@ -283,8 +284,13 @@ WGETexture< TextureType >::WGETexture( double scale, double min ):
     m_propCondition->subscribeSignal( boost::bind( &WGETexture< TextureType >::handleUpdate, this ) );
 
     // initialize members
-    m_min = m_properties->addProperty( "Minimum", "The minimum value in the original space.", min );
-    m_scale = m_properties->addProperty( "Scale", "The scaling factor to un-scale the texture values to the original space.", scale );
+    m_min = m_properties->addProperty( "Minimum", "The minimum value in the original space.", min, true );
+    m_min->removeConstraint( m_min->getMin() );
+    m_min->removeConstraint( m_min->getMax() );
+
+    m_scale = m_properties->addProperty( "Scale", "The scaling factor to un-scale the texture values to the original space.", scale, true );
+    m_scale->removeConstraint( m_scale->getMin() );
+    m_scale->removeConstraint( m_scale->getMax() );
 
     m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0, m_propCondition );
     m_alpha->setMin( 0.0 );
@@ -329,7 +335,12 @@ WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double m
 
     // initialize members
     m_min = m_properties->addProperty( "Minimum", "The minimum value in the original space.", min );
+    m_min->setMin( -wlimits::MAX_DOUBLE );
+    m_min->setMax( wlimits::MAX_DOUBLE );
+
     m_scale = m_properties->addProperty( "Scale", "The scaling factor to un-scale the texture values to the original space.", scale );
+    m_scale->setMin( -wlimits::MAX_DOUBLE );
+    m_scale->setMax( wlimits::MAX_DOUBLE );
 
     m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0, m_propCondition );
     m_alpha->setMin( 0.0 );
@@ -357,6 +368,7 @@ WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double m
     m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true, m_propCondition );
 
     TextureType::setResizeNonPowerOfTwoHint( false );
+
     TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >(
         boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) )
     );
@@ -456,7 +468,7 @@ template < typename TextureType >
 void WGETexture< TextureType >::bind( osg::ref_ptr< osg::Node > node, size_t unit )
 {
     // let our utilities do the work
-    wge::bindTexture( node, this, unit ); // to avoid recursive stuff -> explicitly specify the type
+    wge::bindTexture( node, osg::ref_ptr< WGETexture< TextureType > >( this ), unit ); // to avoid recursive stuff -> explicitly specify the type
 }
 
 template < typename TextureType >
@@ -479,6 +491,7 @@ void WGETexture< TextureType >::updateCallback( osg::StateAttribute* /*state*/ )
     {
         m_needCreate = false;
         create();
+        TextureType::dirtyTextureObject();
     }
 }
 

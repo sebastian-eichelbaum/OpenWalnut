@@ -34,10 +34,9 @@
 
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
+#include "WDataTexture3D_2.h"
 #include "WExportDataHandler.h"
 
-class WDataTexture3D;
-class WDataTexture3D_2;
 class WCondition;
 class WDataSetVector;
 
@@ -90,13 +89,6 @@ public:
      * \return Returns a nonempty shared_ptr to it if it is a vector dataset, otherwise the pointer is empty!
      */
     virtual boost::shared_ptr< WDataSetVector > isVectorDataSet();
-
-    /**
-     * Returns the texture- representation of the dataset. May throw an exception if no texture is available.
-     *
-     * \return The texture.
-     */
-    virtual boost::shared_ptr< WDataTexture3D > getTexture();
 
     /**
      * Returns the texture- representation of the dataset. May throw an exception if no texture is available.

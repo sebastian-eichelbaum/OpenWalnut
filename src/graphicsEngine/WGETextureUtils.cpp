@@ -22,7 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
+#include <GL/gl.h>
+
 #include "WGETexture.h"
 
 #include "WGETextureUtils.h"
+
+void wge::unbindTexture( osg::ref_ptr< osg::Node > node, size_t unit, size_t count )
+{
+    for ( size_t i = unit; i < unit + count; ++i )
+    {
+        node->getOrCreateStateSet()->removeTextureAttribute( i, osg::StateAttribute::TEXTURE );
+        node->getOrCreateStateSet()->removeTextureAttribute( i, osg::StateAttribute::TEXMAT );
+    }
+}
+
+size_t wge::getMaxTexUnits()
+{
+    GLint ret;
+    glGetIntegerv( GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &ret );
+    return ret;
+}
 

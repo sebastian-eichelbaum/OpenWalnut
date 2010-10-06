@@ -146,10 +146,10 @@ std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures( bo
     for ( DatasetConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
     {
         // is it a texture?
-        if ( ( *iter )->isTexture() && ( !onlyActive || ( *iter )->getTexture()->isGloballyActive() ) )
+        /*if ( ( *iter )->isTexture() && ( !onlyActive || ( *iter )->getTexture()->isGloballyActive() ) )
         {
             tex.push_back( ( *iter )->getTexture() );
-        }
+        }*/
     }
 
     return tex;

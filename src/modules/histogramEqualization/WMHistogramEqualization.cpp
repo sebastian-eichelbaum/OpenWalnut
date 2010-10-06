@@ -29,6 +29,7 @@
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 
 #include "WMHistogramEqualization.h"
 #include "WMHistogramEqualization.xpm"
@@ -118,69 +119,8 @@ void WMHistogramEqualization::properties()
     m_cdfResolution->setMin( 10 );
     m_cdfResolution->setMax( 1000000 );
 
-    // use this callback for the other properties
-    WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMHistogramEqualization::propertyChanged, this, _1 );
-    m_groupTex = m_properties->addPropertyGroup( "Texture Properties",  "Properties only related to the texture representation." );
-
-
-    // several other properties
-    m_interpolation = m_groupTex->addProperty( "Interpolation",
-                                                  "If active, the boundaries of single voxels"
-                                                  " will not be visible in colormaps. The transition between"
-                                                  " them will be smooth by using interpolation then.",
-                                                  true,
-                                                  propertyCallback );
-    m_threshold = m_groupTex->addProperty( "Threshold", "Values below this threshold will not be "
-                                              "shown in colormaps.", 0., propertyCallback );
-    m_opacity = m_groupTex->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
-                                            " values from several data sets.", 100, propertyCallback );
-    m_opacity->setMax( 100 );
-    m_opacity->setMin( 0 );
-
-    m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_colorMapSelectionsList->addItem( "Grayscale", "" );
-    m_colorMapSelectionsList->addItem( "Rainbow", "" );
-    m_colorMapSelectionsList->addItem( "Hot iron", "" );
-    m_colorMapSelectionsList->addItem( "Red-Yellow", "" );
-    m_colorMapSelectionsList->addItem( "Atlas", "" );
-    m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
-
-    m_colorMapSelection = m_groupTex->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), propertyCallback );
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
-
-
-
     // call WModule's initialization
     WModule::properties();
-}
-
-void WMHistogramEqualization::propertyChanged( boost::shared_ptr< WPropertyBase > property )
-{
-    if ( !m_lastOutputDataSet )
-    {
-        return;
-    }
-
-    if ( property == m_threshold )
-    {
-        m_lastOutputDataSet->getTexture()->setThreshold( m_threshold->get() );
-    }
-    else if ( property == m_opacity )
-    {
-        m_lastOutputDataSet->getTexture()->setOpacity( m_opacity->get() );
-    }
-    else if ( property == m_active )
-    {
-        m_lastOutputDataSet->getTexture()->setGloballyActive( m_active->get() );
-    }
-    else if ( property == m_interpolation )
-    {
-        m_lastOutputDataSet->getTexture()->setInterpolation( m_interpolation->get() );
-    }
-    else if ( property == m_colorMapSelection )
-    {
-        m_lastOutputDataSet->getTexture()->setSelectedColormap( m_colorMapSelection->get( true ).getItemIndexOfSelected( 0 ) );
-    }
 }
 
 void WMHistogramEqualization::moduleMain()
@@ -328,10 +268,12 @@ void WMHistogramEqualization::moduleMain()
         // update output with a new dataset, reuse grid
         debugLog() << "Updating output";
 
-        // de-register at datahandler
+        // de-register at colormapper
         if ( m_lastOutputDataSet )
         {
-            WDataHandler::deregisterDataSet( m_lastOutputDataSet );
+            m_properties->removeProperty( m_lastOutputDataSet->getTexture2()->getProperties() );
+            m_infoProperties->removeProperty( m_lastOutputDataSet->getTexture2()->getInformationProperties() );
+            WGEColormapping::deregisterTexture( m_lastOutputDataSet->getTexture2() );
         }
 
         // construct
@@ -340,10 +282,10 @@ void WMHistogramEqualization::moduleMain()
                 new WValueSet< unsigned char >( 0, 1, newData, W_DT_UNSIGNED_CHAR ) ), dataSet->getGrid() )
         );
 
-        m_lastOutputDataSet->getTexture()->setSelectedColormap( 4 );
-
         // register new
-        WDataHandler::registerDataSet( m_lastOutputDataSet );
+        m_properties->addProperty( m_lastOutputDataSet->getTexture2()->getProperties() );
+        m_infoProperties->addProperty( m_lastOutputDataSet->getTexture2()->getInformationProperties() );
+        WGEColormapping::registerTexture( m_lastOutputDataSet->getTexture2() );
         m_output->updateData( m_lastOutputDataSet );
 
         debugLog() << "Done";
@@ -358,7 +300,7 @@ void WMHistogramEqualization::activate()
     // deactivate the output if wanted
     if ( m_lastOutputDataSet )
     {
-        m_lastOutputDataSet->getTexture()->setGloballyActive( m_active->get( true ) );
+        m_lastOutputDataSet->getTexture2()->active()->set( m_active->get( true ) );
     }
 
     // Always call WModule's activate!

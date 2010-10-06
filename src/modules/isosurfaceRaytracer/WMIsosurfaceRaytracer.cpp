@@ -34,7 +34,7 @@
 #include "../../common/WColor.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
@@ -196,9 +196,9 @@ void WMIsosurfaceRaytracer::moduleMain()
             m_shader->apply( cube );
 
             // bind the texture to the node
-            osg::ref_ptr< osg::Texture3D > texture3D = dataSet->getTexture()->getTexture();
             osg::StateSet* rootState = cube->getOrCreateStateSet();
-            rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
+            osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture2();
+            texture3D->bind( cube );
 
             // enable transparency
             rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
@@ -231,9 +231,6 @@ void WMIsosurfaceRaytracer::moduleMain()
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup all those uniforms
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-            // for the texture, also bind the appropriate uniforms
-            rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
 
             osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
             isovalue->setUpdateCallback( new SafeUniformCallback( this ) );

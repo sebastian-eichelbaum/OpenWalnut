@@ -152,24 +152,19 @@ private:
      */
     struct NodeInfo
     {
-        bool   m_initial;       //!< true if the node has not been callback'ed before
+        bool   m_rebind;        //!< true if the node has not been callback'ed before
         size_t m_texUnitStart;  //!< the start index of the texture unit to use
     };
 
     /**
      * The alias for a shared container with a set of node-nodeInfo pairs
      */
-    typedef WSharedAssociativeContainer< std::map< osg::Node*, NodeInfo > > NodeInfoContainerType;
+    typedef WSharedAssociativeContainer< std::map< osg::Node*, NodeInfo* > > NodeInfoContainerType;
 
     /**
      * This map is needed to keep track of several node specific settings
      */
     NodeInfoContainerType m_nodeInfo;
-
-    /**
-     * Boolean is true if the texture list has changed somehow (sorted, added, removed, ...)
-     */
-    bool m_texUpdate;
 };
 
 #endif  // WGECOLORMAPPING_H

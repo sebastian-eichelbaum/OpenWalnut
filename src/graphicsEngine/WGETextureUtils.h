@@ -33,9 +33,11 @@
 #include <boost/lexical_cast.hpp>
 
 #include "WGEPropertyUniform.h"
+
 #include "WExportWGE.h"
 
 template < typename T > class WGETexture;
+class WDataTexture3D_2;
 
 namespace wge
 {
@@ -73,6 +75,22 @@ namespace wge
      */
     template < typename T >
     void WGE_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture< T > > texture, size_t unit = 0, std::string prefix = ""  );
+
+    /**
+     * Removes the binding associated with the specified unit.
+     *
+     * \param unit the unit to unbind
+     * \param node the node from which the binding should be removed
+     * \param count the number of units beginning at the specified one should be unbound? 1 is the default.
+     */
+    void WGE_EXPORT unbindTexture( osg::ref_ptr< osg::Node > node, size_t unit, size_t count = 1 );
+
+    /**
+     * Returns the maximum number of textures that can be bound to a node. Call this only from withing the OSG thread!
+     *
+     * \return the max number of texture units.
+     */
+    size_t WGE_EXPORT getMaxTexUnits();
 }
 
 template < typename T >
@@ -107,5 +125,4 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture<
 }
 
 #endif  // WGETEXTUREUTILS_H
-
 

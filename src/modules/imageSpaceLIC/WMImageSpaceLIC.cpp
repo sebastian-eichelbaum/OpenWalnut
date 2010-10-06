@@ -38,7 +38,7 @@
 #include "../../common/math/WPlane.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
@@ -291,7 +291,6 @@ void WMImageSpaceLIC::moduleMain()
 
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
-    setupTexturing();
 
     // the WGEOffscreenRenderNode manages each of the render-passes for us
     osg::ref_ptr< WGEOffscreenRenderNode > offscreen = new WGEOffscreenRenderNode(
@@ -412,7 +411,7 @@ void WMImageSpaceLIC::moduleMain()
             edgeDetection->bind( randTexture, 1 );
             transformationShader->eraseDefine( "SCALARDATA" );
             transformationShader->setDefine( "VECTORDATA" );
-            transformation->bind( dataSetVec->getTexture()->getTexture(), 0 );
+            transformation->bind( dataSetVec->getTexture2(), 0 );
         }
         else if ( dataSetScal )
         {
@@ -429,7 +428,7 @@ void WMImageSpaceLIC::moduleMain()
             edgeDetection->bind( randTexture, 1 );
             transformationShader->eraseDefine( "VECTORDATA" );
             transformationShader->setDefine( "SCALARDATA" );
-            transformation->bind( dataSetScal->getTexture()->getTexture(), 0 );
+            transformation->bind( dataSetScal->getTexture2(), 0 );
             transformation->bind( randTexture, 1 );
         }
 

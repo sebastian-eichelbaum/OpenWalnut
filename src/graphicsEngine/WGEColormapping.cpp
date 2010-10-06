@@ -30,8 +30,7 @@
 boost::shared_ptr< WGEColormapping > WGEColormapping::m_instance = boost::shared_ptr< WGEColormapping >();
 
 WGEColormapping::WGEColormapping():
-    m_callback( new WGEFunctorCallback< osg::Node >( boost::bind( &WGEColormapping::callback, this, _1 ) ) ),
-    m_texUpdate( true )
+    m_callback( new WGEFunctorCallback< osg::Node >( boost::bind( &WGEColormapping::callback, this, _1 ) ) )
 {
     // initialize members
     m_textures.getChangeCondition()->subscribeSignal( boost::bind( &WGEColormapping::textureUpdate, this ) );
@@ -70,16 +69,16 @@ void WGEColormapping::deregisterTexture( osg::ref_ptr< WGETexture3D > texture )
 void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, bool useDefaultShader, size_t startTexUnit )
 {
     // applying to a node simply means adding a callback :-)
-    NodeInfo info;
-    info.m_initial = true;
-    info.m_texUnitStart = startTexUnit;
+    NodeInfo* info = new NodeInfo;
+    info->m_rebind = true;
+    info->m_texUnitStart = startTexUnit;
     m_nodeInfo.insert( std::make_pair( node, info ) );
     node->addUpdateCallback( m_callback );
 }
 
 void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture )
 {
-    wlog::debug( "WGEColormapping" ) << "Registering texture.";
+    wlog::debug( "WGEColormapping" ) << "Registering texture." << texture;
     if ( !m_textures.count( texture ) )
     {
         m_textures.push_back( texture );
@@ -94,28 +93,43 @@ void WGEColormapping::deregisterTextureInst( osg::ref_ptr< WGETexture3D > textur
 
 void WGEColormapping::textureUpdate()
 {
-    m_texUpdate = true;
+    NodeInfoContainerType::WriteTicket w = m_nodeInfo.getWriteTicket();
+    for( NodeInfoContainerType::Iterator iter = w->get().begin(); iter != w->get().end(); ++iter )
+    {
+        iter->second->m_rebind = true;
+    }
 }
 
 void WGEColormapping::callback( osg::Node* node )
 {
     // get node info
     NodeInfoContainerType::ReadTicket r = m_nodeInfo.getReadTicket();
-    NodeInfo info = r->get().find( node )->second;
+    NodeInfoContainerType::ConstIterator infoItem = r->get().find( node );
+    if ( infoItem == r->get().end() )
+    {
+        return;
+    }
     r.reset();
 
-    //std::cout << "Hallo " << std::endl;
+    NodeInfo* info = infoItem->second;
 
     // need (re-)binding?
-    if ( info.m_initial || m_texUpdate )
+    if ( info->m_rebind )
     {
+        info->m_rebind = false;
+
+        size_t maxTexUnits = wge::getMaxTexUnits();
+        wge::unbindTexture( node, info->m_texUnitStart, maxTexUnits - info->m_texUnitStart );
+
         TextureContainerType::ReadTicket rt = m_textures.getReadTicket();
 
         // bind each texture, provide all needed uniforms too
-        size_t unit = info.m_texUnitStart;
-        for( TextureContainerType::ConstIterator iter = rt->get().begin(); iter != rt->get().end(); ++iter )
+        size_t unit = info->m_texUnitStart;
+        for( TextureContainerType::ConstIterator iter = rt->get().begin();
+             ( unit < maxTexUnits ) && ( iter != rt->get().end() );
+             ++iter )
         {
-            wge::bindTexture( node, *iter, unit, "u_colormap" + boost::lexical_cast< std::string >( unit - info.m_texUnitStart ) );
+            wge::bindTexture( node, *iter, unit, "u_colormap" + boost::lexical_cast< std::string >( unit - info->m_texUnitStart ) );
             unit++;
         }
 

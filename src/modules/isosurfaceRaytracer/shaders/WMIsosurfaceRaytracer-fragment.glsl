@@ -37,7 +37,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 // texture containing the data
-uniform sampler3D tex0;
+uniform sampler3D u_texture0Sampler;
 
 // The isovalue to use.
 uniform float u_isovalue;
@@ -48,9 +48,13 @@ uniform int u_steps;
 // The alpha value to set
 uniform float u_alpha;
 
-uniform int u_colormap0Unit;
+uniform float u_colormap0Alpha;
+uniform float u_colormap0Threshold;
+uniform float u_colormap0Scale;
+uniform float u_colormap0Min;
 uniform sampler3D u_colormap0Sampler;
-uniform int u_colormap0SizeX;
+uniform sampler3D u_colormap1Sampler;
+uniform bool u_colormap1Active;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -118,7 +122,7 @@ void main()
     while ( i < u_steps ) // we do not need to ch
     {
         // get current value
-        value = texture3D( tex0, curPoint ).r;
+        value = texture3D( u_texture0Sampler, curPoint ).r;
 
         // is it the isovalue?
         if ( abs( value - u_isovalue ) < 0.1 )
@@ -163,12 +167,12 @@ void main()
 #ifdef PHONG
             // find a proper normal for a headlight
             float s = 0.01;
-            float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
-            float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
-            float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
-            float valueYM = texture3D( tex0, curPoint - vec3( 0.0, s, 0.0 ) ).r;
-            float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
-            float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
+            float valueXP = texture3D( u_texture0Sampler, curPoint + vec3( s, 0.0, 0.0 ) ).r;
+            float valueXM = texture3D( u_texture0Sampler, curPoint - vec3( s, 0.0, 0.0 ) ).r;
+            float valueYP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, s, 0.0 ) ).r;
+            float valueYM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, s, 0.0 ) ).r;
+            float valueZP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, 0.0, s ) ).r;
+            float valueZM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, 0.0, s ) ).r;
 
             vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ); //v_ray;
             // Phong:
@@ -191,12 +195,12 @@ void main()
 
             // find a proper normal for a headlight
             float s = 0.01;
-            float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
-            float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
-            float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
-            float valueYM = texture3D( tex0, curPoint - vec3( 0.0, s, 0.0 ) ).r;
-            float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
-            float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
+            float valueXP = texture3D( u_texture0Sampler, curPoint + vec3( s, 0.0, 0.0 ) ).r;
+            float valueXM = texture3D( u_texture0Sampler, curPoint - vec3( s, 0.0, 0.0 ) ).r;
+            float valueYP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, s, 0.0 ) ).r;
+            float valueYM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, s, 0.0 ) ).r;
+            float valueZP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, 0.0, s ) ).r;
+            float valueZM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, 0.0, s ) ).r;
 
             vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ); //v_ray;
             // Phong:
@@ -216,8 +220,9 @@ void main()
 #endif
 
             color.a = u_alpha;
-            gl_FragColor = vec4( vec3( float(u_colormap0SizeX) / 320.0 ), 1.0 );// color;
-
+            gl_FragColor = color;
+            //gl_FragColor = vec4( texture3D( u_colormap1Sampler, curPoint ).rgb, 1.0 ); //color;
+            gl_FragColor = vec4( vec3( u_colormap1Active ), 1.0 );
             break;
         }
         else

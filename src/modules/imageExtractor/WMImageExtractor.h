@@ -138,32 +138,6 @@ private:
     //! The data value percent that maps to 1.0 in the texture.
     WPropDouble m_maxValuePct;
 
-    // the following 5 members are taken from WMData
-    /**
-     * Interpolation?
-     */
-    WPropBool m_interpolation;
-
-    /**
-     * A list of color map selection types
-     */
-    boost::shared_ptr< WItemSelection > m_colorMapSelectionsList;
-
-    /**
-     * Selection property for color map
-     */
-    WPropSelection m_colorMapSelection;
-
-    /**
-     * Threshold value for this data.
-     */
-    WPropDouble m_threshold;
-
-    /**
-     * Opacity value for this data.
-     */
-    WPropInt m_opacity;
-
     /**
      * An input connector that accepts order 1 datasets.
      */

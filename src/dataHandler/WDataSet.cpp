@@ -30,8 +30,6 @@
 #include "exceptions/WDHException.h"
 #include "WDataSet.h"
 #include "WDataSetVector.h"
-#include "WDataTexture3D.h"
-#include "WDataTexture3D_2.h"
 
 // prototype instance as singleton
 boost::shared_ptr< WPrototyped > WDataSet::m_prototype = boost::shared_ptr< WPrototyped >();
@@ -59,11 +57,6 @@ std::string WDataSet::getFileName() const
 bool WDataSet::isTexture() const
 {
     return false;
-}
-
-boost::shared_ptr< WDataTexture3D > WDataSet::getTexture()
-{
-    throw WDHException( std::string( "This dataset does not provide a texture." ) );
 }
 
 osg::ref_ptr< WDataTexture3D_2 > WDataSet::getTexture2()
@@ -96,11 +89,6 @@ boost::shared_ptr< WCondition > WDataSet::getChangeCondition()
     // this just forwards to the texture condition. In the future maybe datasets may also change so we need an separate condition in every
     // dataset.
     // TODO(ebaum): remove if property stuff is used everywhere
-    if ( isTexture() )
-    {
-        return getTexture()->getChangeCondition();
-    }
-
     return boost::shared_ptr< WCondition >();
 }
 
