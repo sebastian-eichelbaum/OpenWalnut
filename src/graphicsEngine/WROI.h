@@ -115,7 +115,6 @@ public:
      */
     void addChangeNotifier( boost::function< void() > notifier );
 
-
 protected:
     /**
      * initializes the roi's properties
@@ -149,6 +148,11 @@ protected:
      * indicates if the roi is active
      */
     WPropBool m_active;
+
+    /**
+     * indicates if the roi is visible in the scene
+     */
+    WPropBool m_show;
 
     /**
      * indicates if the roi is negated

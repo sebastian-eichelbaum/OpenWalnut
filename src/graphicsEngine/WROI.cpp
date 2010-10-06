@@ -43,6 +43,8 @@ void WROI::properties()
     m_active = m_properties->addProperty( "active", "description", true, boost::bind( &WROI::propertyChanged, this ) );
     m_active->setHidden( true );
 
+    m_show = m_properties->addProperty( "show", "Toggles visibility of the roi", true, boost::bind( &WROI::propertyChanged, this ) );
+
     m_dirty = m_properties->addProperty( "Dirty", "description", true, boost::bind( &WROI::propertyChanged, this ) );
     m_dirty->setHidden( true );
 
@@ -51,6 +53,18 @@ void WROI::properties()
 
 void WROI::propertyChanged()
 {
+    if ( m_show->changed() )
+    {
+        if ( m_show->get( true ) )
+        {
+            unhide();
+        }
+        else
+        {
+            hide();
+        }
+    }
+
     setDirty();
 }
 
@@ -118,4 +132,3 @@ void WROI::addChangeNotifier( boost::function< void() > notifier )
     m_changeNotifiers.push_back( notifier );
     lock.unlock();
 }
-
