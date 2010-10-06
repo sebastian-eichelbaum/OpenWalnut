@@ -33,7 +33,8 @@
 #include <QtGui/QColor>
 #include "../../../kernel/WModule.h"
 
-#include "WQtNetworkPort.h"
+#include "WQtNetworkInputPort.h"
+#include "WQtNetworkOutputPort.h"
 
 /**
  * This class represents a WModule as graphicitem and
@@ -55,19 +56,24 @@ class WQtNetworkItem : public QGraphicsRectItem
         /**
          * Add a port to the item.
          */
-        void addPort( WQtNetworkPort *port );
+        void addInputPort( WQtNetworkInputPort *inPort );
+        
+        /**
+         * Add a port to the item.
+         */
+        void addOutputPort( WQtNetworkOutputPort *outPort );
 
         /**
          * Returns the item inports.
          * \return the item inports
          */
-        QList< WQtNetworkPort *> getInPorts();
+        QList< WQtNetworkInputPort *> getInPorts();
 
         /**
          * Returns the item outports
          * \return the item outports
          */
-        QList< WQtNetworkPort *> getOutPorts();
+        QList< WQtNetworkOutputPort *> getOutPorts();
 
         /**
          * This method aligns the in- and outports as well as the modulename
@@ -145,8 +151,8 @@ class WQtNetworkItem : public QGraphicsRectItem
         
         WModule *m_module; //!< the module
 
-        QList< WQtNetworkPort *> m_inPorts; //!< the input ports of the item
-        QList< WQtNetworkPort *> m_outPorts; //!< the output ports of the item
+        QList< WQtNetworkInputPort *> m_inPorts; //!< the input ports of the item
+        QList< WQtNetworkOutputPort *> m_outPorts; //!< the output ports of the item
 
         QLinearGradient m_gradient; //!< the gradient for a nice coloring of the item
         QColor m_color; //!< the current color

@@ -28,12 +28,15 @@
 
 #include <QtGui/QGraphicsLineItem>
 #include <QtGui/QStyleOptionGraphicsItem>
+#include "WQtNetworkInputPort.h"
+#include "WQtNetworkOutputPort.h"
 
 #include "WQtNetworkArrow.h"
 
 const qreal Pi = 3.14;
 
-WQtNetworkArrow::WQtNetworkArrow( WQtNetworkPort *startPort, WQtNetworkPort *endPort )
+
+WQtNetworkArrow::WQtNetworkArrow( WQtNetworkOutputPort *startPort, WQtNetworkInputPort *endPort )
     : QGraphicsLineItem()
 {
     m_startPort = startPort;
@@ -78,12 +81,12 @@ void WQtNetworkArrow::updatePosition()
     setLine( line );
 }
 
-WQtNetworkPort* WQtNetworkArrow::getStartPort()
+WQtNetworkOutputPort* WQtNetworkArrow::getStartPort()
 {
     return m_startPort;
 }
 
-WQtNetworkPort* WQtNetworkArrow::getEndPort()
+WQtNetworkInputPort* WQtNetworkArrow::getEndPort()
 {
     return m_endPort;
 }
@@ -97,7 +100,6 @@ QVariant WQtNetworkArrow::itemChange( GraphicsItemChange change,
     }
     return value;
 }
-
 void WQtNetworkArrow::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w )
 {
     if( isSelected() &&

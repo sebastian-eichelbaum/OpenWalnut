@@ -32,8 +32,6 @@
 
 #include "../../../kernel/WKernel.h"
 
-#include "WQtNetworkInputPort.h"
-#include "WQtNetworkOutputPort.h"
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItem.h"
 
@@ -57,7 +55,7 @@ WQtNetworkItem::WQtNetworkItem( WModule *module )
     {        
         WQtNetworkInputPort *port = new WQtNetworkInputPort( *iter );
         port->setParentItem( this );
-        this->addPort( port );
+        this->addInputPort( port );
     }
  
     //add output ports
@@ -66,7 +64,7 @@ WQtNetworkItem::WQtNetworkItem( WModule *module )
     {        
         WQtNetworkOutputPort *port = new WQtNetworkOutputPort( *iter );
         port->setParentItem( this );
-        this->addPort( port );
+        this->addOutputPort( port );
     }
     
 
@@ -163,10 +161,15 @@ QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
     return value;
 }
 
-void WQtNetworkItem::addPort( WQtNetworkPort *port )
+//TODO
+void WQtNetworkItem::addInputPort( WQtNetworkInputPort *port )
 {
-    if( port->isOutPort() == false ) m_inPorts.append( port );
-    else if( port->isOutPort() == true ) m_outPorts.append( port );
+    m_inPorts.append( port );
+}
+
+void WQtNetworkItem::addOutputPort( WQtNetworkOutputPort * port )
+{
+    m_outPorts.append( port );
 }
 /*
 void WQtNetworkItem::removePort( WQtNetworkPort *port )
@@ -186,12 +189,12 @@ void WQtNetworkItem::removePorts()
 }
 */
 
-QList< WQtNetworkPort *> WQtNetworkItem::getInPorts()
+QList< WQtNetworkInputPort *> WQtNetworkItem::getInPorts()
 {
     return m_inPorts;
 }
 
-QList< WQtNetworkPort *> WQtNetworkItem::getOutPorts()
+QList< WQtNetworkOutputPort *> WQtNetworkItem::getOutPorts()
 {
     return m_outPorts;
 }

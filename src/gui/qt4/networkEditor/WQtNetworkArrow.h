@@ -35,14 +35,14 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../../kernel/WModuleConnector.h"
-#include "WQtNetworkPort.h"
-//#include "WQtNetworkOutputPort.h"
+//#include "WQtNetworkPort.h"
 //#include "WQtNetworkInputPort.h"
+//#include "WQtNetworkOutputPort.h"
 
 // forward declaration
-class WQtNetworkPort;
-//class WQtNetworkOutputPort;
-//class WQtNetworkInputPort;
+//class WQtNetworkPort;
+class WQtNetworkOutputPort;
+class WQtNetworkInputPort;
 
 /**
  * This Class is needed for connecting two ports, and drawing a line between
@@ -63,7 +63,7 @@ class WQtNetworkArrow : public QGraphicsLineItem
         /**
          * Constructor
          */
-        explicit WQtNetworkArrow( WQtNetworkPort *outPort, WQtNetworkPort *inPort );
+        explicit WQtNetworkArrow( WQtNetworkOutputPort *outPort, WQtNetworkInputPort *inPort );
         
         WQtNetworkArrow();
 
@@ -88,13 +88,13 @@ class WQtNetworkArrow : public QGraphicsLineItem
          * Returns the start port.
          *\return the port where the connection starts
          */
-        WQtNetworkPort* getStartPort();
+        WQtNetworkOutputPort* getStartPort();
 
         /**
          * Returns the end port.
          *\return the port where the connection ends
          */
-        WQtNetworkPort* getEndPort();
+        WQtNetworkInputPort* getEndPort();
 
         /**
          * Reimplementation form QGraphicsItem, because the arrowhead is added
@@ -157,8 +157,8 @@ class WQtNetworkArrow : public QGraphicsLineItem
          */
         void changeColor( QColor color );
 
-        WQtNetworkPort *m_startPort; //!< the start port
-        WQtNetworkPort *m_endPort; //!< the end port
+        WQtNetworkOutputPort *m_startPort; //!< the start port
+        WQtNetworkInputPort *m_endPort; //!< the end port
 
         QColor m_color; //!< the current color
         QPolygonF arrowHead; //!< the arrowhead

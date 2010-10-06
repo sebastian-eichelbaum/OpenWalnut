@@ -33,6 +33,8 @@
 
 // forward declaration
 class WQtNetworkArrow;
+class WQtNetworkInputPort;
+class WQtNetworkOutputPort;
 
 /**
  * This class represents the ports a module have. Two ports from different
@@ -135,21 +137,21 @@ class WQtNetworkPort : public QGraphicsRectItem
          *
          * \param mouseEvent the mouse event
          */
-//        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
+        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
         /**
          * Updates the arrows endpoint.
          *
          * \param mouseEvent the mouse event
          */
-//        void mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent );
+        void mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
         /**
          * Draw the arrow if its the correct port
          *
          * \param mouseEvent the mouse event
          */
-//        void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
+        void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
     private:
     

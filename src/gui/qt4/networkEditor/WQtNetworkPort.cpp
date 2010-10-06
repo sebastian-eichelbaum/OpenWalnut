@@ -32,8 +32,9 @@
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsLineItem>
 
-#include "WQtNetworkInputPort.h"
+#include "WQtNetworkPort.h"
 #include "WQtNetworkOutputPort.h"
+#include "WQtNetworkInputPort.h"
 
 //WQtNetworkPort::WQtNetworkPort()
 //{
@@ -58,7 +59,7 @@ void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
         mouseEvent->ignore();
     }
 }
-/*
+
 //TODO
 void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
@@ -167,7 +168,6 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
         }
     }
 }
-*/
 
 void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool outPort )
 {
