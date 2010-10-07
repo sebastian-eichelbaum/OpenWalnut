@@ -12,7 +12,7 @@ allowOnlyOneFiberDataSet = yes # This will prevent you from accidently loading m
 # default=HUD
 ## A list of modules that will be provided through the GUI. 
 ## If the list is empty all available modules are provided.
-whiteList = Arbitrary Plane,Coordinate System,Image Extractor,Paint Texture,Arbitrary Rois,Bounding Box,Distance Map Isosurface,Gauss Filtering,HUD,Isosurface,Isosurface Raytracer,LIC,Mesh Reader,Voxelizer,Superquadric Glyphs,Triangle Mesh Renderer,Vector Plot,Write NIfTI
+whiteList = Arbitrary Plane,Coordinate System,Image Extractor,Paint Texture,Arbitrary Rois,Bounding Box,Distance Map Isosurface,Gauss Filtering,HUD,Isosurface,Isosurface Raytracer,LIC,Read Mesh,Voxelizer,Superquadric Glyphs,Triangle Mesh Renderer,Vector Plot,Write NIfTI
 
 ## Specify a ";" separated list of additional paths for modules. The order of appearance is the order of loading. The following additional rules apply here:
 ## 1. if the directory contains one or more libOWmodule_XYZ it/they get loaded

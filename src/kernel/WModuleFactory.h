@@ -73,11 +73,6 @@ public:
     typedef WSharedAssociativeContainer< PrototypeContainerType > PrototypeSharedContainerType;
 
     /**
-     * Default constructor.
-     */
-    WModuleFactory();
-
-    /**
      * Destructor.
      */
     virtual ~WModuleFactory();
@@ -182,6 +177,10 @@ public:
     static bool isPrototype( boost::shared_ptr< WModule > module );
 
 protected:
+    /**
+     * Constructors are protected because this is a Singleton.
+     */
+    WModuleFactory();
 
     /**
      * The module prototypes available.

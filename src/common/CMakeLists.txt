@@ -10,6 +10,10 @@ ADD_SUBDIRECTORY( math )
 ADD_LIBRARY( OWcommon SHARED ${COMMON_SRC} ${COMMON_DATASTRUCTURES_SRC} ${COMMON_EXCEPTIONS_SRC} ${MATH_SRC} ${FIBERSIMILARITY_SRC} )
 TARGET_LINK_LIBRARIES( OWcommon ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} )
 
+IF(MSVC_IDE)
+	SET_TARGET_PROPERTIES( OWcommon PROPERTIES PREFIX "../")    
+ENDIF(MSVC_IDE)
+
 # Set the prefix and suffix of dynamically loadable modules to match
 # CMAKEs naming of them. The quotes are necessary so the shell doesn't mess
 # with these defines. Unfortunately, the Visual Studio has problems handling

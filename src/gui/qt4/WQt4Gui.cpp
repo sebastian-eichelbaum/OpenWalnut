@@ -150,7 +150,7 @@ int WQt4Gui::run()
     m_ge = WGraphicsEngine::getGraphicsEngine();
 
     // and startup kernel
-    m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this() ) );
+    m_kernel = boost::shared_ptr< WKernel >( WKernel::instance( m_ge, shared_from_this() ) );
     m_kernel->run();
     t_ModuleErrorSignalHandlerType func = boost::bind( &WQt4Gui::moduleError, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_ERROR, func );

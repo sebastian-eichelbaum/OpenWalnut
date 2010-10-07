@@ -275,10 +275,10 @@ void WMArbitraryPlane::updatePlane()
     osg::ref_ptr<osg::Geometry> planeGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
     osg::Vec3Array* planeVertices = new osg::Vec3Array;
 
-    planeVertices->push_back( wge::wv3D2ov3( v0 ) );
-    planeVertices->push_back( wge::wv3D2ov3( v1 ) );
-    planeVertices->push_back( wge::wv3D2ov3( v2 ) );
-    planeVertices->push_back( wge::wv3D2ov3( v3 ) );
+    planeVertices->push_back( v0 );
+    planeVertices->push_back( v1 );
+    planeVertices->push_back( v2 );
+    planeVertices->push_back( v3 );
 
     planeGeometry->setVertexArray( planeVertices );
     osg::DrawElementsUInt* quad = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
@@ -298,10 +298,10 @@ void WMArbitraryPlane::updatePlane()
         boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
         osg::Vec3Array* texCoords = new osg::Vec3Array;
 
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v0 ) ) );
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v1 ) ) );
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v2 ) ) );
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v3 ) ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v0 ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v1 ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v2 ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v3 ) );
 
         planeGeometry->setTexCoordArray( c, texCoords );
         ++c;
@@ -313,10 +313,10 @@ void WMArbitraryPlane::updatePlane()
 
         osg::Vec3Array* texCoords = new osg::Vec3Array;
 
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v0 ) ) );
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v1 ) ) );
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v2 ) ) );
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v3 ) ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v0 ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v1 ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v2 ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v3 ) );
 
         planeGeometry->setTexCoordArray( c, texCoords );
         ++c;

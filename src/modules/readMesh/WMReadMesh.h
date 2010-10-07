@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMMESHREADER_H
-#define WMMESHREADER_H
+#ifndef WMREADMESH_H
+#define WMREADMESH_H
 
 #include <string>
 
@@ -45,19 +45,19 @@
  *
  * \ingroup modules
  */
-class WMMeshReader: public WModule
+class WMReadMesh: public WModule
 {
 public:
 
     /**
      *
      */
-    WMMeshReader();
+    WMReadMesh();
 
     /**
      *
      */
-    virtual ~WMMeshReader();
+    virtual ~WMReadMesh();
 
     /**
      * Gives back the name of this module.
@@ -117,4 +117,4 @@ private:
     WPropFilename m_meshFile; //!< The mesh will be read from this file.
 };
 
-#endif  // WMMESHREADER_H
+#endif  // WMREADMESH_H

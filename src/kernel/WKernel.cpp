@@ -50,7 +50,7 @@
 /**
  * Used for program wide access to the kernel.
  */
-WKernel* kernel = NULL;
+WKernel* WKernel::m_kernel = NULL;
 
 WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui ):
     WThreadedRunner()
@@ -58,7 +58,7 @@ WKernel::WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WG
     WLogger::getLogger()->addLogMessage( "Initializing Kernel", "Kernel", LL_INFO );
 
     // init the singleton
-    kernel = this;
+    m_kernel = this;
 
     // initialize members
     m_gui = gui;
@@ -72,6 +72,16 @@ WKernel::~WKernel()
 {
     // cleanup
     WLogger::getLogger()->addLogMessage( "Shutting down Kernel", "Kernel", LL_INFO );
+}
+
+WKernel* WKernel::instance( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui )
+{
+    if( m_kernel == NULL )
+    {
+        new WKernel( ge, gui ); // m_kernel will be set in the constructor.
+    }
+
+    return m_kernel;
 }
 
 void WKernel::init()
@@ -99,7 +109,7 @@ void WKernel::init()
 
 WKernel* WKernel::getRunningKernel()
 {
-    return kernel;
+    return m_kernel;
 }
 
 boost::shared_ptr< WGraphicsEngine > WKernel::getGraphicsEngine() const

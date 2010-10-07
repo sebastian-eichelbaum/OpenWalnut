@@ -51,6 +51,7 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
 #include "../../kernel/WKernel.h"
 
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
@@ -135,11 +136,12 @@ void WMMarchingCubes::moduleMain()
             // acquire data from the input connector
             m_dataSet = m_input->getData();
 
+            // set appropriate constraints for properties
+            m_isoValueProp->setMin( m_dataSet->getMin() );
+            m_isoValueProp->setMax( m_dataSet->getMax() );
+
             if( m_isoValueProp->get() >= m_dataSet->getMax() || m_isoValueProp->get() <= m_dataSet->getMin() )
             {
-                // set appropriate constraints for properties
-                m_isoValueProp->setMin( m_dataSet->getMin() );
-                m_isoValueProp->setMax( m_dataSet->getMax() );
                 m_isoValueProp->set( 0.5 * ( m_dataSet->getMax() +  m_dataSet->getMin() ), true );
             }
         }
@@ -488,7 +490,7 @@ void WMMarchingCubes::renderMesh()
         m_moduleNodeInserted = true;
     }
 
-    m_moduleNode->addUpdateCallback( new SurfaceNodeCallback( this ) );
+    m_moduleNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMMarchingCubes::updateGraphicsCallback, this ) ) );
 }
 
 void WMMarchingCubes::notifyTextureChange()
@@ -570,7 +572,7 @@ bool WMMarchingCubes::save() const
     return true;
 }
 
-void WMMarchingCubes::updateGraphicsForCallback()
+void WMMarchingCubes::updateGraphicsCallback()
 {
     boost::unique_lock< boost::shared_mutex > lock;
     lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
@@ -628,7 +630,7 @@ void WMMarchingCubes::updateGraphicsForCallback()
                 for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
                 {
                     osg::Vec3 vertPos = m_triMesh->getVertex( i );
-                    texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) ) );
+                    texCoords->push_back( grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) );
                 }
                 surfaceGeometry->setTexCoordArray( c, texCoords );
 
@@ -659,7 +661,7 @@ void WMMarchingCubes::updateGraphicsForCallback()
                     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
                     {
                         osg::Vec3 vertPos = m_triMesh->getVertex( i );
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) );
                     }
                     surfaceGeometry->setTexCoordArray( c, texCoords );
                 }
@@ -689,4 +691,3 @@ void WMMarchingCubes::updateGraphicsForCallback()
     }
     lock.unlock();
 }
-
