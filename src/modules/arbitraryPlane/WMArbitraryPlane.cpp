@@ -212,6 +212,10 @@ void WMArbitraryPlane::moduleMain()
             m_dirty = true;
         }
     }
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( &( *m_s0 ) );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( &( *m_s1 ) );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( &( *m_s2 ) );
+
     con.disconnect();
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
