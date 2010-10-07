@@ -136,14 +136,20 @@ void WMArbitraryPlane::moduleMain()
     {
         m_moduleState.wait();
 
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
         if ( m_showComplete->changed() )
         {
+            m_showComplete->get( true );
             m_dirty = true;
         }
 
         if ( m_active->changed() )
         {
-            if ( m_active->get() && m_showManipulators->get() )
+            if ( m_active->get( true ) && m_showManipulators->get() )
             {
                 m_s0->unhide();
                 m_s1->unhide();
@@ -204,11 +210,6 @@ void WMArbitraryPlane::moduleMain()
             m_s2->setPosition( wmath::WPosition( center[0], center[1] - 100, center[2] ) );
             m_buttonReset2Sagittal->set( WPVBaseTypes::PV_TRIGGER_READY, false );
             m_dirty = true;
-        }
-
-        if ( m_shutdownFlag() )
-        {
-            break;
         }
     }
     con.disconnect();

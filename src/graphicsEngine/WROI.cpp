@@ -45,7 +45,7 @@ void WROI::properties()
 
     m_show = m_properties->addProperty( "show", "Toggles visibility of the roi", true, boost::bind( &WROI::propertyChanged, this ) );
 
-    m_dirty = m_properties->addProperty( "Dirty", "description", true, boost::bind( &WROI::propertyChanged, this ) );
+    m_dirty = m_properties->addProperty( "Dirty", "description", true ); // boost::bind( &WROI::propertyChanged, this ) );
     m_dirty->setHidden( true );
 
     m_not = m_properties->addProperty( "NOT", "description", false, boost::bind( &WROI::propertyChanged, this ) );
