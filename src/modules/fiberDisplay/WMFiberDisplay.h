@@ -30,15 +30,15 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/WDataSetFibers.h"
+
+#include "../../graphicsEngine/WFiberDrawable.h"
 #include "../../graphicsEngine/WROI.h"
 #include "../../graphicsEngine/WROIBox.h"
 #include "../../graphicsEngine/WShader.h"
 
+#include "../../kernel/WFiberSelector.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-
-#include "WFiberSelector.h"
-#include "WFiberDrawable.h"
 
 /**
  * Module for drawing fibers

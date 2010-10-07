@@ -187,6 +187,12 @@ public:
      */
     size_t size( size_t cluster );
 
+    /**
+     * setter
+     * \param bitfield
+     */
+    void setRoiBitField( boost::shared_ptr< std::vector<bool> > bitfield );
+
 protected:
 private:
     /**
@@ -247,6 +253,11 @@ private:
      * a color value for each cluster
      */
     std::vector<WColor>m_colors;
+
+    /**
+     * stores a pointer to the bitfield by the current roi setting
+     */
+    boost::shared_ptr< std::vector<bool> > m_roiSelection;
 };
 
 inline size_t WHierarchicalTree::getLeafCount()
@@ -320,5 +331,9 @@ inline WColor WHierarchicalTree::getColor( size_t cluster )
     return m_colors[cluster];
 }
 
+inline void WHierarchicalTree::setRoiBitField( boost::shared_ptr< std::vector<bool> > bitfield )
+{
+    m_roiSelection = bitfield;
+}
 
 #endif  // WHIERARCHICALTREE_H

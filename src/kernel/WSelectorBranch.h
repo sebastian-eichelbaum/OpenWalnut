@@ -29,7 +29,7 @@
 #include <vector>
 
 #include "WSelectorRoi.h"
-#include "../../kernel/WRMBranch.h"
+#include "../kernel/WRMBranch.h"
 
 /**
  * TODO(schurade): Document this!
