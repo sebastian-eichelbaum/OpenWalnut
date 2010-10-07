@@ -662,7 +662,7 @@ void WMTemplate::TranslateCallback::operator()( osg::Node* node, osg::NodeVisito
         osg::ref_ptr< osg::MatrixTransform > transform = static_cast< osg::MatrixTransform* >( node );
 
         // Build a translation matrix (to comfortably convert between WPosition and osg::Vec3 use the convenience methods in "wge::" namespace)
-        osg::Matrixd translate = osg::Matrixd::translate( wge::osgVec3( m_module->m_aPosition->get( true  ) ) );
+        osg::Matrixd translate = osg::Matrixd::translate( m_module->m_aPosition->get( true  ) );
 
         // and set the translation matrix
         transform->setMatrix( translate );

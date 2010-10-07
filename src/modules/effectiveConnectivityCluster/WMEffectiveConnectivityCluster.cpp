@@ -307,7 +307,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
             {
                 osg::ref_ptr< WGELabel > label1 = new WGELabel();
                 label1->setText( voi1 );
-                label1->setAnchor( wge::osgVec3( m_labelPos1 ) ); // the position relative to the current world coordinate system
+                label1->setAnchor( m_labelPos1 ); // the position relative to the current world coordinate system
                 label1->setCharacterSize( m_labelCharacterSize->get( true ) );
                 layouter->addLayoutable( label1 );
             }
@@ -316,7 +316,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
             {
                 osg::ref_ptr< WGELabel > label2 = new WGELabel();
                 label2->setText( voi2 );
-                label2->setAnchor( wge::osgVec3( m_labelPos2 ) ); // the position relative to the current world coordinate system
+                label2->setAnchor( m_labelPos2 ); // the position relative to the current world coordinate system
                 label2->setCharacterSize( m_labelCharacterSize->get( true ) );
                 layouter->addLayoutable( label2 );
             }

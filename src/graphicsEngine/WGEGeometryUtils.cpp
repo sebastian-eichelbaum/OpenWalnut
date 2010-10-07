@@ -40,35 +40,35 @@ osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< wmat
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
 
     // Surfaces
-    vertices->push_back( wge::osgVec3( corners[0] ) );
-    vertices->push_back( wge::osgVec3( corners[1] ) );
-    vertices->push_back( wge::osgVec3( corners[2] ) );
-    vertices->push_back( wge::osgVec3( corners[3] ) );
+    vertices->push_back( corners[0] );
+    vertices->push_back( corners[1] );
+    vertices->push_back( corners[2] );
+    vertices->push_back( corners[3] );
 
-    vertices->push_back( wge::osgVec3( corners[1] ) );
-    vertices->push_back( wge::osgVec3( corners[5] ) );
-    vertices->push_back( wge::osgVec3( corners[6] ) );
-    vertices->push_back( wge::osgVec3( corners[2] ) );
+    vertices->push_back( corners[1] );
+    vertices->push_back( corners[5] );
+    vertices->push_back( corners[6] );
+    vertices->push_back( corners[2] );
 
-    vertices->push_back( wge::osgVec3( corners[5] ) );
-    vertices->push_back( wge::osgVec3( corners[4] ) );
-    vertices->push_back( wge::osgVec3( corners[7] ) );
-    vertices->push_back( wge::osgVec3( corners[6] ) );
+    vertices->push_back( corners[5] );
+    vertices->push_back( corners[4] );
+    vertices->push_back( corners[7] );
+    vertices->push_back( corners[6] );
 
-    vertices->push_back( wge::osgVec3( corners[4] ) );
-    vertices->push_back( wge::osgVec3( corners[0] ) );
-    vertices->push_back( wge::osgVec3( corners[3] ) );
-    vertices->push_back( wge::osgVec3( corners[7] ) );
+    vertices->push_back( corners[4] );
+    vertices->push_back( corners[0] );
+    vertices->push_back( corners[3] );
+    vertices->push_back( corners[7] );
 
-    vertices->push_back( wge::osgVec3( corners[3] ) );
-    vertices->push_back( wge::osgVec3( corners[2] ) );
-    vertices->push_back( wge::osgVec3( corners[6] ) );
-    vertices->push_back( wge::osgVec3( corners[7] ) );
+    vertices->push_back( corners[3] );
+    vertices->push_back( corners[2] );
+    vertices->push_back( corners[6] );
+    vertices->push_back( corners[7] );
 
-    vertices->push_back( wge::osgVec3( corners[0] ) );
-    vertices->push_back( wge::osgVec3( corners[1] ) );
-    vertices->push_back( wge::osgVec3( corners[5] ) );
-    vertices->push_back( wge::osgVec3( corners[4] ) );
+    vertices->push_back( corners[0] );
+    vertices->push_back( corners[1] );
+    vertices->push_back( corners[5] );
+    vertices->push_back( corners[4] );
     return vertices;
 }
 
@@ -80,7 +80,7 @@ osg::Vec3 wge::getQuadNormal( const wmath::WPosition& a,
     wmath::WPosition vec2 = c - b;
     wmath::WPosition normal = vec2.crossProduct( vec1 );
     normal.normalize();
-    return wge::osgVec3( normal );
+    return normal;
 }
 
 osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector< wmath::WPosition >& corners )

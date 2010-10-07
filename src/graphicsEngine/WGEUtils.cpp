@@ -37,7 +37,7 @@ osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< wmath::WPos
     std::vector< wmath::WPosition >::const_iterator cit;
     for( cit = posArray.begin(); cit != posArray.end(); ++cit )
     {
-        result->push_back( wge::osgVec3( *cit ) );
+        result->push_back( *cit );
     }
     return result;
 }

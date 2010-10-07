@@ -63,15 +63,6 @@ namespace wge
     osg::Vec4 osgColor( const WColor& color );
 
     /**
-     * Converts a given WPosition into an osg::Vec3.
-     *
-     * \param pos The WPosition which should be converted
-     *
-     * \return The osg::Vec3 vector of pos
-     */
-    osg::Vec3 osgVec3( const wmath::WPosition& pos );
-
-    /**
      * Converts a whole vector of WPositions into an osg::Vec3Array.
      *
      * \param posArray The given positions vector
@@ -167,11 +158,6 @@ inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, cons
 inline osg::Vec4 wge::osgColor( const WColor& color )
 {
     return osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() );
-}
-
-inline osg::Vec3 wge::osgVec3( const wmath::WPosition& pos )
-{
-    return osg::Vec3( pos[0], pos[1], pos[2] );
 }
 
 inline osg::Matrixd wge::toOSGMatrix( const wmath::WMatrix<double>& matrix )
