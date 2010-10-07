@@ -34,6 +34,17 @@ WGEOffscreenFinalPass::WGEOffscreenFinalPass( size_t textureWidth, size_t textur
     // initialize members
     setRenderTargetImplementation( osg::Camera::FRAME_BUFFER );
     setRenderOrder( osg::Camera::NESTED_RENDER, 0 );
+
+    // render before the hud
+    if ( m_hud )
+    {
+        getOrCreateStateSet()->setRenderBinDetails( m_hud->getRenderBin() - 1, "RenderBin" );
+    }
+    else
+    {
+        getOrCreateStateSet()->setRenderBinDetails( 10000, "RenderBin" );
+    }
+
     osg::StateSet* state = this->getOrCreateStateSet();
     state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
 }
@@ -45,6 +56,17 @@ WGEOffscreenFinalPass::WGEOffscreenFinalPass( size_t textureWidth, size_t textur
     // initialize members
     setRenderTargetImplementation( osg::Camera::FRAME_BUFFER );
     setRenderOrder( osg::Camera::NESTED_RENDER, 0 );
+
+    // render before the hud
+    if ( m_hud )
+    {
+        getOrCreateStateSet()->setRenderBinDetails( m_hud->getRenderBin() - 1, "RenderBin" );
+    }
+    else
+    {
+        getOrCreateStateSet()->setRenderBinDetails( 10000, "RenderBin" );
+    }
+
     osg::StateSet* state = this->getOrCreateStateSet();
     state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
 }
