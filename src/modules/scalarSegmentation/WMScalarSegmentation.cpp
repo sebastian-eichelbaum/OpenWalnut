@@ -89,14 +89,12 @@ void WMScalarSegmentation::properties()
 
     m_algos = boost::shared_ptr< WItemSelection >( new WItemSelection );
     m_algos->addItem( "Simple Threshold", "" );
+    m_algos->addItem( "Watershed", "" );
 
     m_algoType = m_properties->addProperty( "Seg Algo", "Choose a segmentation method.", m_algos->getSelectorFirst(), m_propCondition );
 
-    m_propGroups.resize( 1 );
-    m_propGroups[ 0 ] = m_properties->addPropertyGroup( "Simple Threshold", "" );
-
-    m_threshold = m_propGroups[ 0 ]->addProperty( "Threshold", "Threshold value for segmentation.", 0.8, m_propCondition );
-    m_threshold->setMax( 255.0 );
+    m_threshold = m_properties->addProperty( "Threshold", "Threshold value for segmentation.", 10.0, m_propCondition );
+    m_threshold->setMax( 100.0 );
     m_threshold->setMin( 0.0 );
 
     WModule::properties();
@@ -125,9 +123,14 @@ void WMScalarSegmentation::moduleMain()
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
 
-        if( dataChanged )
+        if( dataChanged && dataValid )
         {
             m_dataSet = newDataSet;
+            WAssert( m_dataSet, "" );
+            WAssert( m_dataSet->getValueSet(), "" );
+            WAssert( m_dataSet->getGrid(), "" );
+            WAssert( m_dataSet->getValueSet()->dimension() == 1, "" );
+            WAssert( m_dataSet->getValueSet()->order() == 0, "" );
         }
 
         //bool propChanged = false;
@@ -147,11 +150,10 @@ void WMScalarSegmentation::moduleMain()
         //}
 
         bool propChanged = m_threshold->changed();
-        if ( ( dataChanged && dataValid ) || ( propChanged && dataValid ) )
+        if( m_dataSet && ( dataChanged || propChanged ) )
         {
             // redo calculation
-            m_result = doSegmentation( m_dataSet );
-
+            doSegmentation();
             m_output->updateData( m_result );
         }
     }
@@ -162,44 +164,16 @@ void WMScalarSegmentation::activate()
     WModule::activate();
 }
 
-boost::shared_ptr< WDataSetScalar > WMScalarSegmentation::doSegmentation( boost::shared_ptr< WDataSetScalar > dataSet )
+void WMScalarSegmentation::doSegmentation()
 {
+    boost::shared_ptr< WValueSetBase > vs;
     switch( m_algoIndex )
     {
     case 0:
-        return segmentationSimple( dataSet, m_threshold->get( true ) );
+        vs = m_dataSet->getValueSet()->applyFunction( SimpleSegmentation( m_threshold->get( true ) ) );
+        break;
     default:
-        return boost::shared_ptr< WDataSetScalar >();
+        errorLog() << "Invalid algorithm selected." << std::endl;
     }
-}
-
-boost::shared_ptr< WDataSetScalar > WMScalarSegmentation::segmentationSimple( boost::shared_ptr< WDataSetScalar > dataSet, double threshold )
-{
-    debugLog() << "Computing!";
-
-    WAssert( m_dataSet, "" );
-    WAssert( m_dataSet->getValueSet(), "" );
-    WAssert( m_dataSet->getGrid(), "" );
-    WAssert( m_dataSet->getValueSet()->dimension() == 1, "" );
-    WAssert( m_dataSet->getValueSet()->order() == 0, "" );
-
-    boost::shared_ptr< WValueSetBase > values = boost::shared_dynamic_cast< WValueSetBase >( dataSet->getValueSet() );
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
-    WAssert( values, "" );
-    WAssert( grid, "" );
-
-    std::vector< float > v( grid->size() );
-
-    for( std::size_t k = 0; k < grid->size(); ++k )
-    {
-        v[ k ] = ( values->getScalarDouble( k ) < threshold ? 0.0f : 255.0f );
-    }
-
-    boost::shared_ptr< WGridRegular3D > resGrid = boost::shared_ptr< WGridRegular3D >(
-                            new WGridRegular3D( *( grid.get() ) ) );
-    boost::shared_ptr< WValueSet< float > > resValues = boost::shared_ptr< WValueSet< float > >(
-                            new WValueSet< float >( values->order(), values->dimension(), v, W_DT_FLOAT ) );
-    boost::shared_ptr< WDataSetScalar > result = boost::shared_ptr< WDataSetScalar >(
-                            new WDataSetScalar( resValues, resGrid ) );
-    return result;
+    m_result = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_dataSet->getGrid() ) );
 }

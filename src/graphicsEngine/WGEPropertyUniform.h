@@ -41,7 +41,7 @@
  * returns the value (bool, int, double, WPosition supported). For other types specialize the template.
  */
 template< typename T >
-class WGE_EXPORT WGEPropertyUniform: public osg::Uniform
+class WGEPropertyUniform: public osg::Uniform
 {
 public:
     /**

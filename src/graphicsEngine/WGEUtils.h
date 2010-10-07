@@ -149,7 +149,7 @@ inline osg::Vec3 wge::wv3D2ov3( wmath::WVector3D v )
     return osg::Vec3( v[0], v[1], v[2] );
 }
 
-inline osg::Matrixd WGE_EXPORT wge::toOSGMatrix( const wmath::WMatrix<double>& matrix )
+inline osg::Matrixd wge::toOSGMatrix( const wmath::WMatrix<double>& matrix )
 {
     WAssert( ( matrix.getNbRows() == 3 || matrix.getNbRows() == 4 ) && ( matrix.getNbCols() == 3 || matrix.getNbCols() == 4 ),
              "Only 3x3 or 4x4 matrices allowed." );

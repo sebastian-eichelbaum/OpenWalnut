@@ -90,6 +90,16 @@ struct DataType< uint8_t >
  * Specialization for a specific datatype.
  */
 template<>
+struct DataType< char >
+{
+    //! the dataType flag
+    static dataType const type = W_DT_UINT8;
+};
+
+/**
+ * Specialization for a specific datatype.
+ */
+template<>
 struct DataType< int16_t >
 {
     //! the dataType flag

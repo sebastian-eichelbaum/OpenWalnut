@@ -28,7 +28,7 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 
 #include "WMMeshReader.h"
 #include "WMMeshReader.xpm"
@@ -73,8 +73,8 @@ const std::string WMMeshReader::getDescription() const
 
 void WMMeshReader::connectors()
 {
-    m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > >(
-            new WModuleOutputData< WTriangleMesh2 >( shared_from_this(), "mesh", "The loaded mesh." ) );
+    m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh > >(
+            new WModuleOutputData< WTriangleMesh >( shared_from_this(), "mesh", "The loaded mesh." ) );
 
     addConnector( m_output );
     // call WModules initialization
@@ -112,7 +112,7 @@ void WMMeshReader::moduleMain()
     }
 }
 
-boost::shared_ptr< WTriangleMesh2 > WMMeshReader::read()
+boost::shared_ptr< WTriangleMesh > WMMeshReader::read()
 {
     namespace su = string_utils;
 
@@ -194,7 +194,7 @@ boost::shared_ptr< WTriangleMesh2 > WMMeshReader::read()
     size_t nbNumbers;
     ifs >> cellsMarker >> nbCells >> nbNumbers;
 
-    boost::shared_ptr< WTriangleMesh2 > triMesh( new WTriangleMesh2( numPoints, nbCells ) );
+    boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( numPoints, nbCells ) );
 
     for( unsigned int i = 0; i < numPoints; ++i )
     {

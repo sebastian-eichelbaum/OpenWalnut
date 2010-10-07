@@ -36,6 +36,7 @@
 #include "WGETextureHud.h"
 #include "WShader.h"
 #include "callbacks/WGEViewportCallback.h"
+#include "WExportWGE.h"
 
 /**
  * This type of node basically is a convenience class for managing and creating offscreen renderings. The children of this node should be of type
@@ -50,7 +51,7 @@
  * \note Please not that you should not modify the whole wiring and offscreen configuration if the this node has been added as it is not
  * thread-safe.
  */
-class WGEOffscreenRenderNode: public WGEGroupNode
+class WGE_EXPORT WGEOffscreenRenderNode: public WGEGroupNode // NOLINT
 {
 public:
     /**

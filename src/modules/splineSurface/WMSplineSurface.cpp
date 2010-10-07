@@ -171,7 +171,7 @@ void WMSplineSurface::connectors()
     m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "Tracts", "A cluster of tracts." ) );
     addConnector( m_input );
 
-    m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > >( new WModuleOutputData< WTriangleMesh2 > ( shared_from_this(), "out",
+    m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh > >( new WModuleOutputData< WTriangleMesh > ( shared_from_this(), "out",
             "The mesh representing the spline surface." ) );
 
     addConnector( m_output );

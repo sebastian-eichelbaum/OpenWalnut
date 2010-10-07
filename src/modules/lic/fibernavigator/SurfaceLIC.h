@@ -11,23 +11,23 @@
 #define SURFACELIC_H_
 
 #include "FStreamlineOnSurfaceEuler.h"
-#include "../../../graphicsEngine/WTriangleMesh2.h"
+#include "../../../graphicsEngine/WTriangleMesh.h"
 #include "../../../dataHandler/WDataSetVector.h"
 #include "triangleMesh.h"
 
 class SurfaceLIC
 {
 public:
-    SurfaceLIC( boost::shared_ptr< WDataSetVector > vectors, boost::shared_ptr< WTriangleMesh2 > mesh );
+    SurfaceLIC( boost::shared_ptr< WDataSetVector > vectors, boost::shared_ptr< WTriangleMesh > mesh );
     virtual ~SurfaceLIC();
     virtual void execute();
     std::vector< std::vector<float> > testLines;
     /**
-     * Converts old mesh into new WTriangleMesh2
+     * Converts old mesh into new WTriangleMesh
      *
      * \return reference to the mesh
      */
-    void updateMeshColor( boost::shared_ptr< WTriangleMesh2 > mesh ) const;
+    void updateMeshColor( boost::shared_ptr< WTriangleMesh > mesh ) const;
 
 private:
 

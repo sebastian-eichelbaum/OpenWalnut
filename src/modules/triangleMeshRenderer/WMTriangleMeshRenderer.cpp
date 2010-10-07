@@ -30,7 +30,7 @@
 #include <osg/LightModel>
 
 #include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WKernel.h"
 #include "WMTriangleMeshRenderer.xpm"
 #include "WMTriangleMeshRenderer.h"
@@ -74,8 +74,8 @@ const std::string WMTriangleMeshRenderer::getDescription() const
 
 void WMTriangleMeshRenderer::connectors()
 {
-    m_meshInput = boost::shared_ptr< WModuleInputData < WTriangleMesh2 > >(
-        new WModuleInputData< WTriangleMesh2 >( shared_from_this(), "mesh", "The mesh to display" )
+    m_meshInput = boost::shared_ptr< WModuleInputData < WTriangleMesh > >(
+        new WModuleInputData< WTriangleMesh >( shared_from_this(), "mesh", "The mesh to display" )
         );
 
     addConnector( m_meshInput );
@@ -114,7 +114,7 @@ struct WMeshSizeComp
      *
      * \return True if and only if the first Mesh has less vertices as the second mesh.
      */
-    bool operator()( const boost::shared_ptr< WTriangleMesh2 >& m, const boost::shared_ptr< WTriangleMesh2 >& n ) const
+    bool operator()( const boost::shared_ptr< WTriangleMesh >& m, const boost::shared_ptr< WTriangleMesh >& n ) const
     {
         return m->vertSize() < n->vertSize();
     }
@@ -147,7 +147,7 @@ void WMTriangleMeshRenderer::moduleMain()
             break;
         }
         // invalid data
-        boost::shared_ptr< WTriangleMesh2 > mesh = m_meshInput->getData();
+        boost::shared_ptr< WTriangleMesh > mesh = m_meshInput->getData();
         if ( !mesh )
         {
             debugLog() << "Invalid Data. Disabling.";
@@ -157,7 +157,7 @@ void WMTriangleMeshRenderer::moduleMain()
         if( m_mainComponentOnly->get( true ) )
         {
             debugLog() << "Start mesh decomposition";
-            boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > m_components = tm_utils::componentDecomposition( *mesh );
+            boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > m_components = tm_utils::componentDecomposition( *mesh );
             debugLog() << "Decomposing mesh done";
             renderMesh( *std::max_element( m_components->begin(), m_components->end(), WMeshSizeComp() ) );
         }
@@ -170,7 +170,7 @@ void WMTriangleMeshRenderer::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
-void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
+void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh )
 {
     m_moduleNode->remove( m_surfaceGeode );
     osg::Geometry* surfaceGeometry = new osg::Geometry();

@@ -119,6 +119,9 @@ void WMFiberDisplay::initUniforms( osg::StateSet* rootState )
     rootState->addUniform( m_uniformDimY );
     rootState->addUniform( m_uniformDimZ );
 
+    m_uniformTubeThickness = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "u_thickness", static_cast<float>( m_tubeThickness->get() ) ) );
+    rootState->addUniform( m_uniformTubeThickness );
+
     // cull box info
     float xMin = m_cullBox->getMinPos()[0];
     float yMin = m_cullBox->getMinPos()[1];
@@ -194,6 +197,7 @@ void WMFiberDisplay::moduleMain()
             boost::bind( &WMFiberDisplay::notifyTextureChange, this ) );
 
     initCullBox();
+
     m_cullBox->hide();
 
     ready();
@@ -206,16 +210,32 @@ void WMFiberDisplay::moduleMain()
         {
             break;
         }
-        /////////////////////////////////////////////////////////////////////////////////////////
-        // what caused wait to return?
-        /////////////////////////////////////////////////////////////////////////////////////////
 
         // data changed?
         if ( m_dataset != m_fiberInput->getData() )
         {
             inputUpdated();
         }
+
+        if ( m_tubeThickness->changed() )
+        {
+            adjustTubes();
+        }
+
+        if ( m_showCullBox->changed() )
+        {
+            if( m_showCullBox->get() )
+            {
+                m_cullBox->unhide();
+            }
+            else
+            {
+                m_cullBox->hide();
+            }
+        }
     }
+
+    con.disconnect();
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_osgNode );
 }
@@ -254,47 +274,6 @@ void WMFiberDisplay::inputUpdated()
     {
         warnLog() << "Nothing to display for an empty fiber dataset";
     }
-}
-
-void WMFiberDisplay::update()
-{
-    if( m_osgNode && m_noData.changed() )
-    {
-        if ( m_noData.get( true ) )
-        {
-            m_osgNode->setNodeMask( 0x0 );
-        }
-        else
-        {
-            m_osgNode->setNodeMask( 0xFFFFFFFF );
-        }
-    }
-
-    if( !m_showCullBox->get() )
-    {
-        m_cullBox->hide();
-    }
-    else
-    {
-        m_cullBox->unhide();
-    }
-
-    float xMin = m_cullBox->getMinPos()[0];
-    float yMin = m_cullBox->getMinPos()[1];
-    float zMin = m_cullBox->getMinPos()[2];
-    float xMax = m_cullBox->getMaxPos()[0];
-    float yMax = m_cullBox->getMaxPos()[1];
-    float zMax = m_cullBox->getMaxPos()[2];
-
-    m_uniformUseCullBox->set( m_activateCullBox->get() );
-    m_uniformInsideCullBox->set( m_insideCullBox->get() );
-
-    m_uniformCullBoxLBX->set( static_cast<float>( xMin ) );
-    m_uniformCullBoxLBY->set( static_cast<float>( yMin ) );
-    m_uniformCullBoxLBZ->set( static_cast<float>( zMin ) );
-    m_uniformCullBoxUBX->set( static_cast<float>( xMax ) );
-    m_uniformCullBoxUBY->set( static_cast<float>( yMax ) );
-    m_uniformCullBoxUBZ->set( static_cast<float>( zMax ) );
 }
 
 void WMFiberDisplay::create()
@@ -339,6 +318,38 @@ void WMFiberDisplay::create()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->addChild( m_osgNode.get() );
 }
 
+void WMFiberDisplay::update()
+{
+    if( m_osgNode && m_noData.changed() )
+    {
+        if ( m_noData.get( true ) )
+        {
+            m_osgNode->setNodeMask( 0x0 );
+        }
+        else
+        {
+            m_osgNode->setNodeMask( 0xFFFFFFFF );
+        }
+    }
+
+    float xMin = m_cullBox->getMinPos()[0];
+    float yMin = m_cullBox->getMinPos()[1];
+    float zMin = m_cullBox->getMinPos()[2];
+    float xMax = m_cullBox->getMaxPos()[0];
+    float yMax = m_cullBox->getMaxPos()[1];
+    float zMax = m_cullBox->getMaxPos()[2];
+
+    m_uniformUseCullBox->set( m_activateCullBox->get() );
+    m_uniformInsideCullBox->set( m_insideCullBox->get() );
+
+    m_uniformCullBoxLBX->set( static_cast<float>( xMin ) );
+    m_uniformCullBoxLBY->set( static_cast<float>( yMin ) );
+    m_uniformCullBoxLBZ->set( static_cast<float>( zMin ) );
+    m_uniformCullBoxUBX->set( static_cast<float>( xMax ) );
+    m_uniformCullBoxUBY->set( static_cast<float>( yMax ) );
+    m_uniformCullBoxUBZ->set( static_cast<float>( zMax ) );
+}
+
 void WMFiberDisplay::updateRenderModes()
 {
     osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
@@ -354,15 +365,11 @@ void WMFiberDisplay::updateRenderModes()
         if ( m_useTubesProp->get( true ) )
         {
             updateTexture();
-            m_useTextureProp->get( true );
             m_fiberDrawable->setUseTubes( true );
             m_shaderTubes->apply( m_osgNode );
-            rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "globalColor", 1 ) ) );
-            m_uniformTubeThickness = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "u_thickness", static_cast<float>( m_tubeThickness->get() ) ) );
-            rootState->addUniform( m_uniformTubeThickness );
-            rootState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", m_useTextureProp->get() ) ) );
+            m_uniformUseTexture->set( m_useTextureProp->get( true ) );
         }
-        else if ( ( m_useTextureProp->get( true ) && !m_useTubesProp->get( true ) ) || m_activateCullBox->get( true) )
+        else if ( ( m_useTextureProp->get( true ) && !m_useTubesProp->get() ) || m_activateCullBox->get( true) )
         {
             m_fiberDrawable->setUseTubes( false );
             updateTexture();
@@ -378,7 +385,7 @@ void WMFiberDisplay::updateRenderModes()
         }
     }
 
-    if  ( !m_useTextureProp->get( true ) && !m_useTubesProp->get( true ) )
+    if  ( !m_useTextureProp->get() && !m_useTubesProp->get() )
     {
         rootState->setTextureMode( 0, GL_TEXTURE_3D, osg::StateAttribute::OFF );
     }
@@ -395,12 +402,9 @@ void WMFiberDisplay::toggleColoring()
 
 void WMFiberDisplay::adjustTubes()
 {
-    if ( m_tubeThickness.get() && m_useTubesProp.get() )
+    if ( m_tubeThickness->changed() && m_useTubesProp->get() )
     {
-        if ( m_tubeThickness->changed() && m_useTubesProp->get( true ) )
-        {
-            m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get() ) );
-        }
+        m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get( true ) ) );
     }
 }
 

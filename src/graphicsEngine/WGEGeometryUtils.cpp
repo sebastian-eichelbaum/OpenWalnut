@@ -32,7 +32,7 @@
 #include "../common/math/WPosition.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
-#include "WTriangleMesh2.h"
+#include "WTriangleMesh.h"
 #include "exceptions/WGEException.h"
 
 osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< wmath::WPosition >& corners )
@@ -96,7 +96,7 @@ osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector
     return vertices;
 }
 
-WTriangleMesh2 wge::triangulate( const std::vector< wmath::WPosition >& points, double transformationFactor )
+WTriangleMesh wge::triangulate( const std::vector< wmath::WPosition >& points, double transformationFactor )
 {
     WAssert( points.size() > 2, "The Delaunay triangulation needs at least 3 vertices!" );
 
@@ -151,7 +151,7 @@ WTriangleMesh2 wge::triangulate( const std::vector< wmath::WPosition >& points, 
     }
 
     // I needed this reconversion using osgVec3Array because the triangulator changed my positions somehow.
-    WTriangleMesh2 mesh( wge::osgVec3Array( points ), triangles );
+    WTriangleMesh mesh( wge::osgVec3Array( points ), triangles );
 
     return mesh;
 }

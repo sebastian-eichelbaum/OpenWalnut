@@ -115,7 +115,6 @@ public:
      */
     void addChangeNotifier( boost::function< void() > notifier );
 
-
 protected:
     /**
      * initializes the roi's properties
@@ -139,12 +138,21 @@ protected:
      */
     boost::shared_ptr< WProperties > m_properties;
 
-    WPropBool m_dirty; //!< dirty flag, indicates the bit fields need updating
+    /**
+     * dirty flag, indicating the graphics needs updating, it is no longer used for bitfield updating
+     * since these customers get the update notification via callback
+     */
+    WPropBool m_dirty;
 
     /**
      * indicates if the roi is active
      */
     WPropBool m_active;
+
+    /**
+     * indicates if the roi is visible in the scene
+     */
+    WPropBool m_show;
 
     /**
      * indicates if the roi is negated

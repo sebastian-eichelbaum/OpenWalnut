@@ -27,8 +27,28 @@
 
 #include <cstddef>
 #include <cmath>
+
+#include <boost/variant.hpp>
+
 #include "WDataHandlerEnums.h"
 #include "WExportDataHandler.h"
+
+//! forward declaration
+template< typename T >
+class WValueSet;
+
+//! declare a boost::variant of all possible valuesets
+typedef boost::variant< WValueSet< char > const*,
+                        WValueSet< uint8_t > const*,
+                        WValueSet< int8_t > const*,
+                        WValueSet< uint16_t > const*,
+                        WValueSet< int16_t > const*,
+                        WValueSet< uint32_t > const*,
+                        WValueSet< int32_t > const*,
+                        WValueSet< uint64_t > const*,
+                        WValueSet< int64_t > const*,
+                        WValueSet< float > const*,
+                        WValueSet< double > const* > WValueSetVariant;
 
 /**
  * Abstract base class to all WValueSets. This class doesn't provide any genericness.
@@ -118,6 +138,20 @@ public:
      */
     virtual double getMaximumValue() const = 0;
 
+    /**
+     * Apply a function object to this valueset.
+     *
+     * \tparam Func_T The type of the function object, should be derived from the boost::static_visitor template.
+     * 
+     * \param func The function object to apply.
+     * \return The result of the operation.
+     */
+    template< typename Func_T >
+    typename Func_T::result_type applyFunction( Func_T const& func )
+    {
+        return boost::apply_visitor( func, getVariant() );
+    }
+
 protected:
     /**
      * The order of the tensors for this ValueSet
@@ -135,6 +169,15 @@ protected:
     const dataType m_dataType;
 
 private:
+    /**
+     * Creates a boost::variant reference.
+     *
+     * \return var A pointer to a variant reference to the valueset.
+     */
+    virtual WValueSetVariant const getVariant() const
+    {
+        return WValueSetVariant();
+    }
 };
 
 #endif  // WVALUESETBASE_H

@@ -42,7 +42,7 @@
 #include "../common/math/WPosition.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
-#include "WTriangleMesh2.h"
+#include "WTriangleMesh.h"
 
 #include "WExportWGE.h"
 
@@ -95,7 +95,7 @@ namespace wge
      *                       them into the geometry.
      * \return an osg::Geometry containing the mesh
      */
-    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh2* mesh, bool includeNormals = false );
+    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals = false );
 
     /**
      * Generates a line geode with thickness and color as parameters.

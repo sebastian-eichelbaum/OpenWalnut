@@ -40,7 +40,7 @@
  *           you do not specify a pointer.
  */
 template< typename T >
-class WGE_EXPORT WGEPropertyUniformCallback: public osg::Uniform::Callback
+class WGEPropertyUniformCallback: public osg::Uniform::Callback
 {
 public:
     /**
@@ -48,7 +48,7 @@ public:
      *
      * \param property the property containing the value
      */
-    WGEPropertyUniformCallback( T property );
+    explicit WGEPropertyUniformCallback( T property );
 
     /**
      * Destructor.

@@ -29,7 +29,7 @@
 #include "WGETransformationTools.glsl"
 #include "WGEUtils.glsl"
 
-#include "WGEColorMaps.glsl"
+//#include "WGEColorMaps.glsl"
 
 #include "WMImageSpaceLIC-Transformation-varyings.glsl"
 

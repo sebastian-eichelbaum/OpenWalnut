@@ -32,7 +32,7 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 
 /** 
  * Someone should add some documentation here.
@@ -104,14 +104,14 @@ protected:
 
 private:
     /**
-     * Reads the mesh file and creates a WTriangleMesh2 out of it.
+     * Reads the mesh file and creates a WTriangleMesh out of it.
      *
      * \return Reference to the dataset.
      */
-    virtual boost::shared_ptr< WTriangleMesh2 > read();
+    virtual boost::shared_ptr< WTriangleMesh > read();
 
-    boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
-    boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > > m_output;  //!< Input connector required by this module.
+    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output;  //!< Input connector required by this module.
     boost::shared_ptr< WCondition > m_propCondition;  //!<A condition used to notify about changes in several properties.
     WPropTrigger  m_readTriggerProp; //!< This property triggers the actual reading,
     WPropFilename m_meshFile; //!< The mesh will be read from this file.
