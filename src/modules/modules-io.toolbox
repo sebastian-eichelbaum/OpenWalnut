@@ -1,4 +1,5 @@
 ADD_SUBDIRECTORY( exportGeometry )
 ADD_SUBDIRECTORY( readMesh )
+ADD_SUBDIRECTORY( writeMesh )
 ADD_SUBDIRECTORY( writeNIfTI )
 #ADD_SUBDIRECTORY( writeTracts )

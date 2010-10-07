@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMMARCHINGCUBES_TEST_H
-#define WMMARCHINGCUBES_TEST_H
+#ifndef WMWRITEMESH_TEST_H
+#define WMWRITEMESH_TEST_H
 
 #include <string>
 #include <vector>
@@ -34,15 +34,15 @@
 #include "../../../common/WIOTools.h"
 #include "../../../common/WLogger.h"
 #include "../../../graphicsEngine/WTriangleMesh.h"
-#include "../WMMarchingCubes.h"
+#include "../WMWriteMesh.h"
 
 static WLogger logger;
 static bool loggerInitialized = false;
 
 /**
- * Test for WMMarchingCubes
+ * Test for WMWriteMesh
  */
-class WMMarchingCubesTest : public CxxTest::TestSuite
+class WMWriteMeshTest : public CxxTest::TestSuite
 {
 public:
 
@@ -68,7 +68,7 @@ public:
      */
     void testInstatiation()
     {
-        TS_ASSERT_THROWS_NOTHING( WMMarchingCubes() );
+        TS_ASSERT_THROWS_NOTHING( WMWriteMesh() );
     }
 
     /**
@@ -76,7 +76,7 @@ public:
      */
     void testSaveZero()
     {
-        WMMarchingCubes mc;
+        WMWriteMesh mc;
         boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( 0, 0 ) );
         mc.m_triMesh = triMesh;
         std::string fileName = wiotools::tempFileName();
@@ -95,7 +95,7 @@ public:
      */
     void testSaveInfinteNan()
     {
-        WMMarchingCubes mc;
+        WMWriteMesh mc;
         const unsigned int nbPos = 10;
         boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( nbPos, 3 ) );
         mc.m_triMesh = triMesh;
@@ -123,4 +123,4 @@ public:
     }
 };
 
-#endif  // WMMARCHINGCUBES_TEST_H
+#endif  // WMWRITEMESH_TEST_H

@@ -223,13 +223,6 @@ void WMMarchingCubes::properties()
 
     m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
 
-    m_savePropGroup = m_properties->addPropertyGroup( "Save Surface",  "" );
-    m_saveTriggerProp = m_savePropGroup->addProperty( "Do Save",  "Press!",
-                                                  WPVBaseTypes::PV_TRIGGER_READY );
-    m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMMarchingCubes::save, this ) );
-
-    m_meshFile = m_savePropGroup->addProperty( "Mesh File", "", WPathHelper::getAppPath() );
-
     WModule::properties();
 }
 
@@ -317,7 +310,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
 void WMMarchingCubes::renderMesh()
 {
     {
-        // Remove the previous node in a thread save way.
+        // Remove the previous node in a thread safe way.
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
@@ -496,80 +489,6 @@ void WMMarchingCubes::renderMesh()
 void WMMarchingCubes::notifyTextureChange()
 {
     m_textureChanged = true;
-}
-
-bool WMMarchingCubes::save() const
-{
-    m_saveTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, false );
-
-    if( m_triMesh->vertSize() == 0 )
-    {
-        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 vertices.", "Marching Cubes", LL_ERROR );
-        return false;
-    }
-
-    if( m_triMesh->triangleSize() == 0 )
-    {
-        WLogger::getLogger()->addLogMessage( "Will not write file that contains 0 triangles.", "Marching Cubes", LL_ERROR );
-        return false;
-    }
-
-    const char* c_file = m_meshFile->get().file_string().c_str();
-    std::ofstream dataFile( c_file, std::ios_base::binary );
-
-    if ( dataFile )
-    {
-        WLogger::getLogger()->addLogMessage( "opening file", "Marching Cubes", LL_DEBUG );
-    }
-    else
-    {
-        WLogger::getLogger()->addLogMessage( "open file failed" + m_meshFile->get().file_string() , "Marching Cubes", LL_ERROR );
-        return false;
-    }
-
-    dataFile.precision( 16 );
-
-    WLogger::getLogger()->addLogMessage( "start writing file", "Marching Cubes", LL_DEBUG );
-    dataFile << ( "# vtk DataFile Version 2.0\n" );
-    dataFile << ( "generated using OpenWalnut\n" );
-    dataFile << ( "ASCII\n" );
-    dataFile << ( "DATASET UNSTRUCTURED_GRID\n" );
-
-    wmath::WPosition point;
-    dataFile << "POINTS " << m_triMesh->vertSize() << " float\n";
-    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
-    {
-        point = m_triMesh->getVertexAsPosition( i );
-        if( !( wmath::myIsfinite( point[0] ) && wmath::myIsfinite( point[1] ) && wmath::myIsfinite( point[2] ) ) )
-        {
-            WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Marching Cubes", LL_ERROR );
-            return false;
-        }
-        dataFile << point[0] << " " << point[1] << " " << point[2] << "\n";
-    }
-
-    dataFile << "CELLS " << m_triMesh->triangleSize() << " " << m_triMesh->triangleSize() * 4 << "\n";
-    for ( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
-    {
-        dataFile << "3 " << m_triMesh->getTriVertId0( i ) << " "
-                 <<  m_triMesh->getTriVertId1( i ) << " "
-                 <<  m_triMesh->getTriVertId2( i ) << "\n";
-    }
-    dataFile << "CELL_TYPES "<< m_triMesh->triangleSize() <<"\n";
-    for ( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
-    {
-        dataFile << "5\n";
-    }
-    dataFile << "POINT_DATA " << m_triMesh->vertSize() << "\n";
-    dataFile << "SCALARS scalars float\n";
-    dataFile << "LOOKUP_TABLE default\n";
-    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
-    {
-        dataFile << "0\n";
-    }
-    dataFile.close();
-    WLogger::getLogger()->addLogMessage( "saving done", "Marching Cubes", LL_DEBUG );
-    return true;
 }
 
 void WMMarchingCubes::updateGraphicsCallback()

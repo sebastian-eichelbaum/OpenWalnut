@@ -124,17 +124,6 @@ private:
     void renderMesh();
 
     /**
-     * Store the mesh in legacy vtk file format.
-     */
-    bool save() const;
-
-    /**
-     * Load meshes saved with WMMarchingCubes::save
-     * \param fileName the mesh will be loaded from this file
-     */
-    WTriangleMesh load( std::string fileName );
-
-    /**
      * Kind of a convenience function for generate surface.
      * It performs the conversions of the value sets of different data types.
      * \param isoValue The surface will represent this value.
@@ -150,10 +139,6 @@ private:
     WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
     WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
     WPropColor m_surfaceColor; //!< Property determining the color for the surface if no textures are displayed
-
-    WPropGroup    m_savePropGroup; //!< Property group containing properties needed for saving the mesh.
-    WPropTrigger  m_saveTriggerProp; //!< This property triggers the actual writing,
-    WPropFilename m_meshFile; //!< The mesh will be written to this file.
 
     /**
      * True when textures haven changed.
