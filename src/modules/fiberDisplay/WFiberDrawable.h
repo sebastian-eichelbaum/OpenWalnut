@@ -35,7 +35,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/Group>
 
-#include "WFiberSelector.h"
+#include "../../kernel/WFiberSelector.h"
 
 
 class WDataSetFibers;

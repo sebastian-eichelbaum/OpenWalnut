@@ -24,7 +24,7 @@
 
 #include <iostream>
 
-#include "../../kernel/WKernel.h"
+#include "../kernel/WKernel.h"
 
 #include "WFiberSelector.h"
 

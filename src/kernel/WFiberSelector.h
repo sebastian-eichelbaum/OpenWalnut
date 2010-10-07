@@ -28,7 +28,7 @@
 #include <list>
 #include <vector>
 
-#include "../../dataHandler/WDataSetFibers.h"
+#include "../dataHandler/WDataSetFibers.h"
 
 #include "WSelectorRoi.h"
 #include "WSelectorBranch.h"
