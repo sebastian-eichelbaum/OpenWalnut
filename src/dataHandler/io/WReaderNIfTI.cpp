@@ -167,7 +167,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
     catch( const std::exception& e )
     {
         nifti_image_free( filedata );
-        return boost::shared_ptr< WDataSet >( new WDataSet );
+        throw e;
     }
 
     newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
