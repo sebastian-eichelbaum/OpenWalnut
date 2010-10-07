@@ -51,6 +51,7 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
 #include "../../kernel/WKernel.h"
 
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
@@ -489,7 +490,7 @@ void WMMarchingCubes::renderMesh()
         m_moduleNodeInserted = true;
     }
 
-    m_moduleNode->addUpdateCallback( new SurfaceNodeCallback( this ) );
+    m_moduleNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMMarchingCubes::updateGraphicsCallback, this ) ) );
 }
 
 void WMMarchingCubes::notifyTextureChange()
@@ -571,7 +572,7 @@ bool WMMarchingCubes::save() const
     return true;
 }
 
-void WMMarchingCubes::updateGraphicsForCallback()
+void WMMarchingCubes::updateGraphicsCallback()
 {
     boost::unique_lock< boost::shared_mutex > lock;
     lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
@@ -690,4 +691,3 @@ void WMMarchingCubes::updateGraphicsForCallback()
     }
     lock.unlock();
 }
-
