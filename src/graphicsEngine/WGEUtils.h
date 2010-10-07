@@ -89,12 +89,6 @@ namespace wge
     osg::Vec3 WGE_EXPORT unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera  );
 
     /**
-     * Conversion of WVector3D to osg::Vec3
-     * \param v the vector to convert.
-     */
-    osg::Vec3 wv3D2ov3( wmath::WVector3D v );
-
-    /**
      * creates the same color as the atlas colormap shader from the index
      *
      * \param index unsigned char that indexes the color
@@ -178,11 +172,6 @@ inline osg::Vec4 wge::osgColor( const WColor& color )
 inline osg::Vec3 wge::osgVec3( const wmath::WPosition& pos )
 {
     return osg::Vec3( pos[0], pos[1], pos[2] );
-}
-
-inline osg::Vec3 wge::wv3D2ov3( wmath::WVector3D v )
-{
-    return osg::Vec3( v[0], v[1], v[2] );
 }
 
 inline osg::Matrixd wge::toOSGMatrix( const wmath::WMatrix<double>& matrix )
