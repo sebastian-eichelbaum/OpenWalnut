@@ -282,14 +282,20 @@ void WMFiberDisplay::create()
     osg::ref_ptr< osg::Group > osgNodeNew = osg::ref_ptr< osg::Group >( new osg::Group );
 
     m_fiberDrawable = osg::ref_ptr< WFiberDrawable >( new WFiberDrawable );
-    m_fiberDrawable->setSelector( m_fiberSelector );
     m_fiberDrawable->setBoundingBox( osg::BoundingBox( m_dataset->getBoundingBox().first[0],
                                                       m_dataset->getBoundingBox().first[1],
                                                       m_dataset->getBoundingBox().first[2],
                                                       m_dataset->getBoundingBox().second[0],
                                                       m_dataset->getBoundingBox().second[1],
                                                       m_dataset->getBoundingBox().second[2] ) );
-    m_fiberDrawable->setDataset( m_dataset );
+
+    m_fiberDrawable->setStartIndexes( m_dataset->getLineStartIndexes() );
+    m_fiberDrawable->setPointsPerLine( m_dataset->getLineLengths() );
+    m_fiberDrawable->setVerts( m_dataset->getVertices() );
+    m_fiberDrawable->setTangents( m_dataset->getTangents() );
+    m_fiberDrawable->setColor( m_dataset->getGlobalColors() );
+    m_fiberDrawable->setBitfield( m_fiberSelector->getBitfield() );
+
     m_fiberDrawable->setUseDisplayList( false );
     m_fiberDrawable->setDataVariance( osg::Object::DYNAMIC );
 
@@ -395,8 +401,21 @@ void WMFiberDisplay::toggleColoring()
 {
     if( m_coloring->changed() || m_customColoring->changed() )
     {
-        m_fiberDrawable->setColoringMode( m_coloring->get( true ) );
-        m_fiberDrawable->setCustomColoring( m_customColoring->get( true ) );
+        if ( m_customColoring->get( true ) )
+        {
+            m_fiberDrawable->setColor( m_dataset->getColorScheme( "Custom Color" )->getColor() );
+        }
+        else
+        {
+            if ( m_coloring->get( true ) )
+            {
+                m_fiberDrawable->setColor( m_dataset->getGlobalColors() );
+            }
+            else
+            {
+                m_fiberDrawable->setColor( m_dataset->getLocalColors() );
+            }
+        }
     }
 }
 

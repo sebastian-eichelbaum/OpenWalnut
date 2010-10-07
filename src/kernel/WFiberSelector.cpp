@@ -136,28 +136,33 @@ void WFiberSelector::recalculate()
 {
     if ( m_branches.empty() )
     {
-        m_outputBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, true ) );
-        return;
+        m_workerBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, true ) );
     }
     else
     {
         m_workerBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, false ) );
-    }
 
-    for ( std::list< boost::shared_ptr< WSelectorBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
-    {
-        boost::shared_ptr< std::vector< bool > > bf = ( *iter )->getBitField();
-
-        for ( size_t i = 0; i < m_size; ++i )
+        for ( std::list< boost::shared_ptr< WSelectorBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
         {
-            ( *m_workerBitfield )[i] = ( *m_workerBitfield )[i] | ( *bf )[i];
+            boost::shared_ptr< std::vector< bool > > bf = ( *iter )->getBitField();
+
+            for ( size_t i = 0; i < m_size; ++i )
+            {
+                ( *m_workerBitfield )[i] = ( *m_workerBitfield )[i] | ( *bf )[i];
+            }
         }
     }
+
+    for ( size_t i = 0; i < m_size; ++i )
+    {
+      ( *m_outputBitfield )[i] = ( *m_workerBitfield )[i];
+    }
     m_dirty = false;
-    m_outputBitfield = m_workerBitfield;
+    //m_outputBitfield = m_workerBitfield;
 }
 
 void WFiberSelector::setDirty()
 {
+    recalculate();
     m_dirty = true;
 }

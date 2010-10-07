@@ -35,12 +35,8 @@
 #include <osg/ShapeDrawable>
 #include <osg/Group>
 
-#include "../../kernel/WFiberSelector.h"
-
-
-class WDataSetFibers;
 /**
- * TODO(schurade): Document this!
+ * Class implements an osg::Drawable that paints fiber representations either using lines or tubes
  */
 class WFiberDrawable: public osg::Drawable
 {
@@ -108,27 +104,6 @@ public:
     void setUseTubes( bool flag );
 
     /**
-     * Set the coloring modes of the fibers.
-     *
-     * \param globalColoring If true is given global coloring is applied ( default ), else local coloring
-     */
-    void setColoringMode( bool globalColoring );
-
-    /**
-     * Set the use of custom colors
-     *
-     * \param custom
-     */
-    void setCustomColoring( bool custom );
-
-    /**
-     * In which mode coloring for the fibers is applied.
-     *
-     * \return True for global, false for local coloring
-     */
-    bool getColoringMode() const;
-
-    /**
      * Set the bounding box of all fibers.
      * \param bb The new bounding box.
      */
@@ -142,15 +117,33 @@ public:
 
     /**
      * setter
-     * \param selector the selector object which provides the bitfield for fiber selection
+     * \param idx
      */
-    void setSelector( boost::shared_ptr< WFiberSelector > selector );
+    void setStartIndexes( boost::shared_ptr< std::vector< size_t > > idx );
 
     /**
      * setter
-     * \param colors
+     * \param ppl
      */
-    void setCustomColors( boost::shared_ptr< std::vector< float > > colors );
+    void setPointsPerLine( boost::shared_ptr< std::vector< size_t > > ppl );
+
+    /**
+     * setter
+     * \param verts
+     */
+    void setVerts( boost::shared_ptr< std::vector< float > > verts );
+
+    /**
+     * setter
+     * \param tangents
+     */
+    void setTangents( boost::shared_ptr< std::vector< float > > tangents );
+
+    /**
+     * setter
+     * \param color
+     */
+    void setColor( boost::shared_ptr< std::vector< float > > color );
 
 protected:
 private:
@@ -172,39 +165,18 @@ private:
 
     bool m_useTubes; //!< flag
 
-    bool m_globalColoring; //!< True indicates global, false local coloring
-
-    bool m_customColoring; //!< True indicates use of custom colors
-
-
     boost::shared_ptr< std::vector< bool > > m_active; //!< pointer to the bitfield of active fibers
 
-    boost::shared_ptr< WFiberSelector > m_fiberSelector; //!< the selector object which provides the bitfield for fiber selection
+    boost::shared_ptr< std::vector< size_t > > m_startIndexes; //!< pointer to the field of line start indexes
+    boost::shared_ptr< std::vector< size_t > > m_pointsPerLine; //!< pointer to the field of points per line
+    boost::shared_ptr< std::vector< float > > m_verts; //!< pointer to the field of vertexes
+    boost::shared_ptr< std::vector< float > > m_tangents; //!< pointer to the field of line tangents
+    boost::shared_ptr< std::vector< float > > m_colors; //!< pointer to the field of colors per vertex
 };
-
-inline void WFiberDrawable::setDataset( boost::shared_ptr< const WDataSetFibers > dataset )
-{
-    m_dataset = dataset;
-}
 
 inline void WFiberDrawable::setUseTubes( bool flag )
 {
     m_useTubes = flag;
-}
-
-inline void WFiberDrawable::setColoringMode( bool globalColoring )
-{
-    m_globalColoring = globalColoring;
-}
-
-inline bool WFiberDrawable::getColoringMode() const
-{
-    return m_globalColoring;
-}
-
-inline void WFiberDrawable::setCustomColoring( bool custom )
-{
-    m_customColoring = custom;
 }
 
 inline void WFiberDrawable::setBoundingBox( const osg::BoundingBox & bb )
@@ -217,9 +189,29 @@ inline void WFiberDrawable::setBitfield( boost::shared_ptr< std::vector< bool > 
     m_active = bitField;
 }
 
-inline void WFiberDrawable::setSelector( boost::shared_ptr< WFiberSelector > selector )
+inline void WFiberDrawable::setStartIndexes( boost::shared_ptr< std::vector< size_t > > idx )
 {
-    m_fiberSelector = selector;
+    m_startIndexes = idx;
+}
+
+inline void WFiberDrawable::setPointsPerLine( boost::shared_ptr< std::vector< size_t > > ppl )
+{
+    m_pointsPerLine = ppl;
+}
+
+inline void WFiberDrawable::setVerts( boost::shared_ptr< std::vector< float > > verts )
+{
+    m_verts = verts;
+}
+
+inline void WFiberDrawable::setTangents( boost::shared_ptr< std::vector< float > > tangents )
+{
+    m_tangents = tangents;
+}
+
+inline void WFiberDrawable::setColor( boost::shared_ptr< std::vector< float > > color )
+{
+    m_colors = color;
 }
 
 #endif  // WFIBERDRAWABLE_H
