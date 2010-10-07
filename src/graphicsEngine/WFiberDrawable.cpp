@@ -88,7 +88,7 @@ void WFiberDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
     state.disableAllVertexArrays();
     state.setVertexPointer( 3, GL_FLOAT , 0, &( *m_verts )[0] );
     state.setColorPointer( 3 , GL_FLOAT , 0, &( *m_colors )[0] );
-    state.setNormalPointer( GL_FLOAT , 0, &( *m_tangents )[0] );
+    //state.setNormalPointer( GL_FLOAT , 0, &( *m_tangents )[0] );
     for ( size_t i = 0; i < m_active->size(); ++i )
     {
         if ( (*m_active)[i] )
