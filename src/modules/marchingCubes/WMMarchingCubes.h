@@ -140,6 +140,8 @@ private:
     WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
     WPropColor m_surfaceColor; //!< Property determining the color for the surface if no textures are displayed
 
+    WPropBool m_useMarchingLego; //!< Property indicating whether to use interpolated or non interpolated triangulation
+
     /**
      * True when textures haven changed.
      */
