@@ -94,8 +94,8 @@ void WMarchingLegoAlgorithm::addSurface( size_t x, size_t y, size_t z, size_t su
             m_idToVertices.insert( ID2WMLPointXYZId::value_type( id1, pt1 ) );
 
             pt2.x = x + 1;
-            pt2.y = y + 1;
-            pt2.z = z;
+            pt2.y = y;
+            pt2.z = z + 1;
             unsigned int id2 = getVertexID( pt2.x , pt2.y, pt2.z );
             m_idToVertices.insert( ID2WMLPointXYZId::value_type( id2, pt2 ) );
 
@@ -106,8 +106,8 @@ void WMarchingLegoAlgorithm::addSurface( size_t x, size_t y, size_t z, size_t su
             m_idToVertices.insert( ID2WMLPointXYZId::value_type( id3, pt3 ) );
 
             pt4.x = x + 1;
-            pt4.y = y;
-            pt4.z = z + 1;
+            pt4.y = y + 1;
+            pt4.z = z;
             unsigned int id4 = getVertexID( pt4.x , pt4.y, pt4.z );
             m_idToVertices.insert( ID2WMLPointXYZId::value_type( id4, pt4 ) );
 
@@ -169,9 +169,9 @@ void WMarchingLegoAlgorithm::addSurface( size_t x, size_t y, size_t z, size_t su
             unsigned int id1 = getVertexID( pt1.x , pt1.y, pt1.z );
             m_idToVertices.insert( ID2WMLPointXYZId::value_type( id1, pt1 ) );
 
-            pt2.x = x;
+            pt2.x = x + 1;
             pt2.y = y + 1;
-            pt2.z = z + 1;
+            pt2.z = z;
             unsigned int id2 = getVertexID( pt2.x , pt2.y, pt2.z );
             m_idToVertices.insert( ID2WMLPointXYZId::value_type( id2, pt2 ) );
 
@@ -181,9 +181,9 @@ void WMarchingLegoAlgorithm::addSurface( size_t x, size_t y, size_t z, size_t su
             unsigned int id3 = getVertexID( pt3.x , pt3.y, pt3.z );
             m_idToVertices.insert( ID2WMLPointXYZId::value_type( id3, pt3 ) );
 
-            pt4.x = x + 1;
+            pt4.x = x;
             pt4.y = y + 1;
-            pt4.z = z;
+            pt4.z = z + 1;
             unsigned int id4 = getVertexID( pt4.x , pt4.y, pt4.z );
             m_idToVertices.insert( ID2WMLPointXYZId::value_type( id4, pt4 ) );
 
@@ -207,8 +207,8 @@ void WMarchingLegoAlgorithm::addSurface( size_t x, size_t y, size_t z, size_t su
             unsigned int id1 = getVertexID( pt1.x , pt1.y, pt1.z );
             m_idToVertices.insert( ID2WMLPointXYZId::value_type( id1, pt1 ) );
 
-            pt2.x = x;
-            pt2.y = y + 1;
+            pt2.x = x + 1;
+            pt2.y = y;
             pt2.z = z;
             unsigned int id2 = getVertexID( pt2.x , pt2.y, pt2.z );
             m_idToVertices.insert( ID2WMLPointXYZId::value_type( id2, pt2 ) );
@@ -219,8 +219,8 @@ void WMarchingLegoAlgorithm::addSurface( size_t x, size_t y, size_t z, size_t su
             unsigned int id3 = getVertexID( pt3.x , pt3.y, pt3.z );
             m_idToVertices.insert( ID2WMLPointXYZId::value_type( id3, pt3 ) );
 
-            pt4.x = x + 1;
-            pt4.y = y;
+            pt4.x = x;
+            pt4.y = y + 1;
             pt4.z = z;
             unsigned int id4 = getVertexID( pt4.x , pt4.y, pt4.z );
             m_idToVertices.insert( ID2WMLPointXYZId::value_type( id4, pt4 ) );
