@@ -116,6 +116,11 @@ private:
     osg::ref_ptr<osg::Geometry> buildPlotSlices();
 
     /**
+     * The update callback that is called for the osg node of this module.
+     */
+    void updateCallback();
+
+    /**
      * Transforms the given vertices according to m_matrix
      * \param verts These vertices will be transformed.
      */
@@ -159,37 +164,6 @@ private:
     osg::ref_ptr< WShader > m_shader; //!< the shader object for this module
 
     wmath::WMatrix< double > m_mat; //!< The 4x4 transformation matrix for the glyph vertices.
-
-    /**
-     * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
-     * moduleMain().
-     */
-    class SafeUpdateCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUpdateCallback( WMVectorPlot* module ): m_module( module )
-        {
-        };
-
-        /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         */
-        WMVectorPlot* m_module;
-    };
 };
 
 #endif  // WMVECTORPLOT_H
