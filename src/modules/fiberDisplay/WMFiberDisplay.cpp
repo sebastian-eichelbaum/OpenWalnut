@@ -253,6 +253,7 @@ void WMFiberDisplay::inputUpdated()
     {
         m_noData.set( true );
         debugLog() << "Data reset on " << m_fiberInput->getCanonicalName() << ". Ignoring.";
+        return;
     }
     infoLog() << "Fiber dataset for display with: " << m_dataset->size() << " fibers loaded.";
 
