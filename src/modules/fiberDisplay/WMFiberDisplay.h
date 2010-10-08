@@ -141,6 +141,11 @@ private:
     void inputUpdated();
 
     /**
+     * The update callback that is called for the osg node of this module.
+     */
+    void updateCallback();
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
@@ -276,69 +281,6 @@ private:
      * create a selection box to cull the fibers
      */
     void initCullBox();
-
-    /**
-    * Wrapper class for userData to prevent cyclic destructor calls
-    */
-    class userData: public osg::Referenced
-    {
-    public:
-        /**
-        * userData Constructur with shared pointer to module
-        * \param _parent pointer to the module
-        */
-        explicit userData( boost::shared_ptr< WMFiberDisplay > _parent )
-        {
-            parent = _parent;
-        }
-
-        /**
-        * update wrapper Function
-        */
-        void update();
-
-        /**
-        * updateRenderModes wrapper Function
-        */
-        void updateRenderModes();
-
-        /**
-        * toggleColoring wrapper Function
-        */
-        void toggleColoring();
-    private:
-        /**
-        * shared pointer to the module
-        */
-        boost::shared_ptr< WMFiberDisplay > parent;
-    };
-
-
-    /**
-     * Node callback to handle updates properly
-     */
-    class fdNodeCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-        /**
-         * operator ()
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
-        {
-            osg::ref_ptr< userData > module = static_cast< userData* > ( node->getUserData() );
-
-            if ( module )
-            {
-                module->update();
-                module->updateRenderModes();
-                module->toggleColoring();
-            }
-            traverse( node, nv );
-        }
-    };
 };
 
 inline const std::string WMFiberDisplay::getName() const

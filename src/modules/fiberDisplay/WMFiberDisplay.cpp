@@ -307,11 +307,7 @@ void WMFiberDisplay::create()
 
     osgNodeNew->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
-    osgNodeNew->setUserData( osg::ref_ptr< userData >(
-        new userData( boost::shared_dynamic_cast< WMFiberDisplay >( shared_from_this() ) )
-        ) );
-    osgNodeNew->addUpdateCallback( new fdNodeCallback );
-
+    osgNodeNew->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMFiberDisplay::updateCallback, this ) ) );
     // remove previous nodes if there are any
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->removeChild( m_osgNode.get() );
 
@@ -477,17 +473,9 @@ void WMFiberDisplay::notifyTextureChange()
     m_textureChanged = true;
 }
 
-void WMFiberDisplay::userData::update()
+void WMFiberDisplay::updateCallback()
 {
-    parent->update();
-}
-
-void WMFiberDisplay::userData::updateRenderModes()
-{
-    parent->updateRenderModes();
-}
-
-void WMFiberDisplay::userData::toggleColoring()
-{
-    parent->toggleColoring();
+    update();
+    toggleColoring();
+    updateRenderModes();
 }
