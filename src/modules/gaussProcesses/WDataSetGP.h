@@ -27,7 +27,10 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../../common/WCondition.h"
+#include "../../common/WFlag.h"
 #include "../../common/WMixinVector.h"
+#include "../../common/WProgress.h"
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetDTI.h"
 #include "../../dataHandler/WDataSetFibers.h"
@@ -45,8 +48,15 @@ public:
      *
      * \param tracts The dataset containing the deterministic tracts
      * \param tensors The underlying tensor field
+     * \param shutdownFlag In case the constructor should abort this flag can be used to transport
+     * the condition when to stop.  The object is left in an empty state then.
+     * \param progress You may use this to indicate progress of dataset creation in terms of
+     * processed tracts
      */
-    WDataSetGP( boost::shared_ptr< const WDataSetFibers > tracts, boost::shared_ptr< const WDataSetDTI > tensors );
+    WDataSetGP( boost::shared_ptr< const WDataSetFibers > tracts,
+                boost::shared_ptr< const WDataSetDTI > tensors,
+                const WBoolFlag& shutdownFlag,
+                boost::shared_ptr< WProgress > progress );
 
     /**
      * Destructs this dataset.

@@ -24,13 +24,22 @@
 
 #include "WDataSetGP.h"
 
-WDataSetGP::WDataSetGP( boost::shared_ptr< const WDataSetFibers > tracts, boost::shared_ptr< const WDataSetDTI > tensors )
+WDataSetGP::WDataSetGP( boost::shared_ptr< const WDataSetFibers > tracts,
+                        boost::shared_ptr< const WDataSetDTI > tensors,
+                        const WBoolFlag& shutdownFlag,
+                        boost::shared_ptr< WProgress > progress )
     : WMixinVector< WGaussProcess >(),
       WDataSet()
 {
     reserve( tracts->size() );
     for( size_t i = 0; i < tracts->size(); ++i )
     {
+        if( shutdownFlag() )
+        {
+            clear();
+            break;
+        }
+        ++*progress;
         push_back( WGaussProcess( ( *tracts )[i], tensors ) );
     }
 }

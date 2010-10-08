@@ -84,7 +84,6 @@ void WMDetTract2GPConvert::moduleMain()
         m_moduleState.wait();
         if ( !m_tractIC->getData().get() || !m_tensorIC->getData().get() ) // ok, the output has not yet sent data
         {
-            debugLog() << "Cont";
             continue;
         }
 
@@ -94,10 +93,13 @@ void WMDetTract2GPConvert::moduleMain()
         bool dataValid = tracts && tensors;
         if( !dataValid )
         {
-            debugLog() << "Cont";
             continue;
         }
-        debugLog() << "Building";
-        m_gpOC->updateData( boost::shared_ptr< WDataSetGP >( new WDataSetGP( tracts, tensors ) ) );
+        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Converting tracts into gaussian processes.", tracts->size() ) );
+        m_progress->addSubProgress( progress1 );
+        m_gpOC->updateData( boost::shared_ptr< WDataSetGP >( new WDataSetGP( tracts, tensors, m_shutdownFlag, progress1 ) ) );
+        progress1->finish();
+        m_progress->removeSubProgress( progress1 );
+        debugLog() << "done";
     }
 }
