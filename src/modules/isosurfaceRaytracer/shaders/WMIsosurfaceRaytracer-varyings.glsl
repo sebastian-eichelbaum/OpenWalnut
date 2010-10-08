@@ -40,5 +40,5 @@ varying vec3 v_normal;
 varying vec3 v_lightSource;
 
 // The isovalue scaled using texture scaling information to [0,1]
-varying vec3 v_isovalue;
+varying float v_isovalue;
 

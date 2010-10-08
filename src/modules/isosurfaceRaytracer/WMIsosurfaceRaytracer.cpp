@@ -101,7 +101,7 @@ void WMIsosurfaceRaytracer::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     m_isoValue      = m_properties->addProperty( "Isovalue",         "The isovalue used whenever the isosurface Mode is turned on.",
-                                                                      0.0 );
+                                                                      128.0 );
 
     m_isoColor      = m_properties->addProperty( "Iso color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
                       m_propCondition );
@@ -121,7 +121,7 @@ void WMIsosurfaceRaytracer::properties()
     m_shadingSelections->addItem( "Depth only",       "Only show the depth of the surface along the ray." );
     m_shadingSelections->addItem( "Phong",            "Phong lighting. Slower but more realistic lighting" );
     m_shadingSelections->addItem( "Phong + depth",    "Phong lighting in combination with depth cueing." );
-    m_shadingAlgo   = m_properties->addProperty( "Shading", "The shading algorithm.", m_shadingSelections->getSelectorFirst(), m_propCondition );
+    m_shadingAlgo   = m_properties->addProperty( "Shading", "The shading algorithm.", m_shadingSelections->getSelectorLast(), m_propCondition );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_shadingAlgo );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_shadingAlgo );
@@ -180,6 +180,7 @@ void WMIsosurfaceRaytracer::moduleMain()
 
             m_isoValue->setMin( dataSet->getTexture2()->minimum()->get() );
             m_isoValue->setMax( dataSet->getTexture2()->scale()->get() + dataSet->getTexture2()->minimum()->get() );
+            m_isoValue->set( dataSet->getTexture2()->minimum()->get() + ( 0.5 * dataSet->getTexture2()->scale()->get() ) );
 
             // First, grab the grid
             boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );

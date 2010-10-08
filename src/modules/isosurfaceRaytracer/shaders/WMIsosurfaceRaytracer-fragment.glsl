@@ -219,7 +219,6 @@ void main()
             color.a = u_alpha;
             gl_FragColor = color;
             //gl_FragColor = vec4( texture3D( u_colormap1Sampler, curPoint ).rgb, 1.0 ); //color;
-            gl_FragColor = vec4( vec3( u_colormap1Active ), 1.0 );
             break;
         }
         else
