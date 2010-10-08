@@ -165,9 +165,6 @@ void WMFiberDisplay::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_customColoring = m_properties->addProperty( "Custom coloring", "Switches the coloring between custom and predefined.", false, m_propCondition );
-    m_coloring = m_properties->addProperty( "Global or local coloring", "Switches the coloring between global and local.", true, m_propCondition );
-
     m_useTubesProp = m_properties->addProperty( "Use tubes", "Draw fiber tracts as fake tubes.", false, m_propCondition );
     m_useTextureProp = m_properties->addProperty( "Use texture", "Texture fibers with the texture on top of the list.", false, m_propCondition );
     m_tubeThickness = m_properties->addProperty( "Tube thickness", "Adjusts the thickness of the tubes.", 50., m_propCondition );
@@ -215,11 +212,6 @@ void WMFiberDisplay::moduleMain()
         if ( m_dataset != m_fiberInput->getData() )
         {
             inputUpdated();
-        }
-
-        if ( m_tubeThickness->changed() )
-        {
-            adjustTubes();
         }
 
         if ( m_showCullBox->changed() )
@@ -394,39 +386,9 @@ void WMFiberDisplay::updateRenderModes()
     }
 }
 
-void WMFiberDisplay::toggleColoring()
-{
-    if( m_coloring->changed() || m_customColoring->changed() )
-    {
-        if ( m_customColoring->get( true ) )
-        {
-            m_fiberDrawable->setColor( m_dataset->getColorScheme( "Custom Color" )->getColor() );
-        }
-        else
-        {
-            if ( m_coloring->get( true ) )
-            {
-                m_fiberDrawable->setColor( m_dataset->getGlobalColors() );
-            }
-            else
-            {
-                m_fiberDrawable->setColor( m_dataset->getLocalColors() );
-            }
-        }
-    }
-}
-
-void WMFiberDisplay::adjustTubes()
-{
-    if ( m_tubeThickness->changed() && m_useTubesProp->get() )
-    {
-        m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get( true ) ) );
-    }
-}
-
 void WMFiberDisplay::saveSelected()
 {
-    boost::shared_ptr< std::vector< bool > > active = WKernel::getRunningKernel()->getSelectionManager()->getBitField();
+    boost::shared_ptr< std::vector< bool > > active = m_fiberSelector->getBitfield();
     m_dataset->saveSelected( m_saveFileName->getAsString(), active );
 }
 
@@ -476,6 +438,13 @@ void WMFiberDisplay::notifyTextureChange()
 void WMFiberDisplay::updateCallback()
 {
     update();
-    toggleColoring();
+
+    m_fiberDrawable->setColor( m_dataset->getColorScheme()->getColor() );
+
+    if ( m_tubeThickness->changed() && m_useTubesProp->get() )
+    {
+        m_uniformTubeThickness->set( static_cast<float>( m_tubeThickness->get( true ) ) );
+    }
+
     updateRenderModes();
 }

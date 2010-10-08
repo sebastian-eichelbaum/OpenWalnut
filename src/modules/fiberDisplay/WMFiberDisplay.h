@@ -129,11 +129,6 @@ protected:
     */
     void updateRenderModes();
 
-    /**
-    * Enable disable global or local coloring
-    */
-    void toggleColoring();
-
 private:
     /**
      * function gets called when the input connector has been updated
@@ -150,8 +145,6 @@ private:
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    WPropBool m_coloring; //!< Enable/Disable global (true) or local (false) coloring of the fiber tracts
-    WPropBool m_customColoring; //!< Enable/Disable custom colors
     WPropBool m_useTubesProp; //!< Property indicating whether to use tubes for the fibers tracts.
     WPropBool m_useTextureProp; //!< Property indicating whether to use tubes for the fibers tracts.
     WPropDouble m_tubeThickness; //!< Property determining the thickness of tubes .
@@ -255,11 +248,6 @@ private:
 
 
     osg::ref_ptr< WROIBox > m_cullBox; //!< stores a pointer to the cull box
-
-    /**
-     * changes tube parameters
-     */
-    void adjustTubes();
 
     /**
      * saves the currently selected (active field from roi manager) fibers to a file
