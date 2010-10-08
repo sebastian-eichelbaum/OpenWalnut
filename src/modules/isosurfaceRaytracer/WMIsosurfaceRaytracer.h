@@ -124,6 +124,11 @@ private:
     WPropDouble m_alpha;
 
     /**
+     * The ratio between colormap and normal surface color.
+     */
+    WPropDouble m_colormapRatio;
+
+    /**
      * Types of shading supported.
      */
     enum

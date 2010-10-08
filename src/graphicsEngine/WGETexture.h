@@ -297,8 +297,8 @@ WGETexture< TextureType >::WGETexture( double scale, double min ):
     m_alpha->setMax( 1.0 );
 
     m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0, m_propCondition );
-    m_threshold->setMin( 0.0 );
-    m_threshold->setMin( 1.0 );
+    m_threshold->setMin( min );
+    m_threshold->setMax( min + scale );
 
     m_interpolation = m_properties->addProperty( "Interpolate", "Interpolation of the volume data.", true, m_propCondition );
 
@@ -347,8 +347,8 @@ WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double m
     m_alpha->setMax( 1.0 );
 
     m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0, m_propCondition );
-    m_threshold->setMin( 0.0 );
-    m_threshold->setMin( 1.0 );
+    m_threshold->setMin( min );
+    m_threshold->setMax( min + scale );
 
     m_interpolation = m_properties->addProperty( "Interpolate", "Interpolation of the volume data.", true, m_propCondition );
 

@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WGEColormapping-fragment.glsl"
+
 #include "WGEShadingTools.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -45,13 +47,8 @@ uniform int u_steps;
 // The alpha value to set
 uniform float u_alpha;
 
-uniform float u_colormap0Alpha;
-uniform float u_colormap0Threshold;
-uniform float u_colormap0Scale;
-uniform float u_colormap0Min;
-uniform sampler3D u_colormap0Sampler;
-uniform sampler3D u_colormap1Sampler;
-uniform bool u_colormap1Active;
+// the ratio between normal color and the colormapping color.
+uniform float u_colormapRatio;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -217,7 +214,7 @@ void main()
 #endif
 
             color.a = u_alpha;
-            gl_FragColor = color;
+            gl_FragColor = mix( colormapping(), color, 1.0 - u_colormapRatio );
             //gl_FragColor = vec4( texture3D( u_colormap1Sampler, curPoint ).rgb, 1.0 ); //color;
             break;
         }

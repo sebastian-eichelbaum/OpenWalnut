@@ -115,6 +115,10 @@ void WMIsosurfaceRaytracer::properties()
     m_alpha->setMin( 0.0 );
     m_alpha->setMax( 1.0 );
 
+    m_colormapRatio = m_properties->addProperty( "Colormap Ratio",   "The intensity of the colormap in contrast to surface shading.", 0.5 );
+    m_colormapRatio->setMin( 0.0 );
+    m_colormapRatio->setMax( 1.0 );
+
     // Lighting
     m_shadingSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_shadingSelections->addItem( "Emphasize cortex", "Emphasize the cortex. Inner parts are not that well lighten." );
@@ -244,6 +248,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_isovalue", m_isoValue ) );
             rootState->addUniform( new WGEPropertyUniform< WPropInt >( "u_steps", m_stepCount ) );
             rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_alpha", m_alpha ) );
+            rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio ) );
 
             // update node
             debugLog() << "Adding new rendering.";

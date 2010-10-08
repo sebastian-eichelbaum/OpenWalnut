@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WGEColormapping-vertex.glsl"
+
 #include "WGETransformationTools.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
