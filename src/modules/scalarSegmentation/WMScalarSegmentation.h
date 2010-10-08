@@ -31,10 +31,25 @@
 #include "../../common/WItemSelection.h"
 #include "../../common/WItemSelector.h"
 
+#include "../../dataHandler/WITKImageConversion.h"
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 #include "../../dataHandler/WDataSetScalar.h"
+
+#ifdef OW_USE_ITK
+
+#include "itkWatershedImageFilter.h"
+#include "itkOtsuThresholdImageFilter.h"
+
+// smoothing filters
+#include "itkGradientAnisotropicDiffusionImageFilter.h"
+// other
+#include "itkCastImageFilter.h"
+#include "itkGradientMagnitudeImageFilter.h"
+
+#endif  // OW_USE_ITK
 
 /**
  * First version of a module that implements 3D-image segmentation algorithms.
@@ -159,6 +174,9 @@ private:
      */
     WPropDouble m_threshold;
 
+    //! The watershed level.
+    WPropDouble m_level;
+
     //! A function object that implements a simple threshold segmentation.
     class SimpleSegmentation : public boost::static_visitor< boost::shared_ptr< WValueSetBase > >
     {
@@ -186,20 +204,136 @@ private:
         //! the threshold
         double m_threshold;
     };
+
+#ifdef OW_USE_ITK
+    //!
+    class WatershedSegmentation : public boost::static_visitor< boost::shared_ptr< WValueSetBase > >
+    {
+    public:
+        /**
+         * Constructor.
+         * \param t The threshold for segmentation.
+         */
+        WatershedSegmentation( double level, double t, boost::shared_ptr< WDataSetScalar > ds ) // NOLINT
+            : m_level( level ),
+              m_threshold( t ),
+              m_dataset( ds )
+        {
+        }
+
+        /**
+         * Do the segmentation.
+         *
+         * \tparam T The integral data type.
+         * \param valueset The valueset to segment.
+         * \return A pointer to a new valueset.
+         */
+        template< typename T >
+        boost::shared_ptr< WValueSetBase > operator() ( WValueSet< T > const* ) const;
+
+    private:
+        //! the level
+        double m_level;
+        //! the threshold
+        double m_threshold;
+        //! the dataset
+        boost::shared_ptr< WDataSetScalar > m_dataset;
+    };
+
+    //!
+    class OtsuSegmentation : public boost::static_visitor< boost::shared_ptr< WValueSetBase > >
+    {
+    public:
+        /**
+         * Constructor.
+         * \param t The threshold for segmentation.
+         */
+        OtsuSegmentation( boost::shared_ptr< WDataSetScalar > ds ) // NOLINT
+            : m_dataset( ds )
+        {
+        }
+
+        /**
+         * Do the segmentation.
+         *
+         * \tparam T The integral data type.
+         * \param valueset The valueset to segment.
+         * \return A pointer to a new valueset.
+         */
+        template< typename T >
+        boost::shared_ptr< WValueSetBase > operator() ( WValueSet< T > const* v ) const;
+
+    private:
+        //! the dataset
+        boost::shared_ptr< WDataSetScalar > m_dataset;
+    };
+#endif  // OW_USE_ITK
 };
 
 template< typename T >
 boost::shared_ptr< WValueSetBase > WMScalarSegmentation::SimpleSegmentation::operator() ( WValueSet< T > const* valueset ) const
 {
     std::vector< T > values( valueset->size() );
-
     for( std::size_t k = 0; k < valueset->size(); ++k )
     {
         values[ k ] = ( static_cast< double >( valueset->getScalar( k ) ) <
                         m_threshold * ( valueset->getMaximumValue() - valueset->getMinimumValue() ) / 100.0 + valueset->getMinimumValue()
-                        ? static_cast< T >( 0 ) : static_cast< T >( 1 ) );
+                        ? static_cast< T >( 0 ) : static_cast< T >( 100 ) );
     }
     return boost::shared_ptr< WValueSet< T > >( new WValueSet< T >( 0, 1, values, DataType< T >::type ) );
 }
+
+#ifdef OW_USE_ITK
+
+template< typename T >
+boost::shared_ptr< WValueSetBase > WMScalarSegmentation::WatershedSegmentation::operator() ( WValueSet< T > const* ) const
+{
+    typedef itk::Image< T, 3 > ImgType;
+    typedef itk::Image< double, 3 > RealType;
+    typedef itk::Image< uint64_t, 3 > LabelType; // this might be a problem on 32-bit systems
+    typedef itk::Image< float, 3 > FinalType;
+
+    typedef itk::GradientAnisotropicDiffusionImageFilter< ImgType, RealType > SmoothingType;
+    typedef itk::CastImageFilter< LabelType, FinalType > CastFilter;
+    typedef itk::GradientMagnitudeImageFilter< RealType, RealType > GradFilter;
+    typedef itk::WatershedImageFilter< RealType > WaterFilter;
+
+    typename ImgType::Pointer img = makeImageFromDataSet< T >( m_dataset );
+    typename SmoothingType::Pointer sm = SmoothingType::New();
+    typename CastFilter::Pointer cf = CastFilter::New();
+    typename GradFilter::Pointer gf = GradFilter::New();
+    typename WaterFilter::Pointer ws = WaterFilter::New();
+
+    sm->SetNumberOfIterations( 10 );
+    sm->SetTimeStep( 0.0625 );
+    sm->SetConductanceParameter( 2.0 );
+    sm->SetInput( img );
+    gf->SetInput( sm->GetOutput() );
+    ws->SetInput( gf->GetOutput() );
+    ws->SetLevel( m_level / 100.0 );
+    ws->SetThreshold( m_threshold / 100.0 );
+    cf->SetInput( ws->GetOutput() );
+    cf->Update();
+    boost::shared_ptr< WDataSetScalar > res = makeDataSetFromImage< float >( cf->GetOutput() );
+    return res->getValueSet();
+}
+
+template< typename T >
+boost::shared_ptr< WValueSetBase > WMScalarSegmentation::OtsuSegmentation::operator() ( WValueSet< T > const* v ) const
+{
+    typedef itk::Image< T, 3 > ImgType;
+    typedef itk::OtsuThresholdImageFilter< ImgType, ImgType > Otsu;
+
+    typename ImgType::Pointer img = makeImageFromDataSet< T >( m_dataset );
+    typename Otsu::Pointer o = Otsu::New();
+    o->SetInput( img );
+    o->SetOutsideValue( v->getMaximumValue() );
+    o->SetInsideValue( v->getMinimumValue() );
+    o->Update();
+    boost::shared_ptr< WDataSetScalar > res = makeDataSetFromImage< T >( o->GetOutput() );
+    return res->getValueSet();
+}
+
+#endif  // OW_USE_ITK
 
 #endif  // WMSCALARSEGMENTATION_H
