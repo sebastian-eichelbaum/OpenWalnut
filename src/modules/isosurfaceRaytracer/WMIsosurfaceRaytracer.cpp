@@ -39,6 +39,7 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGEPropertyUniform.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WKernel.h"
 #include "WMIsosurfaceRaytracer.xpm"
@@ -100,7 +101,8 @@ void WMIsosurfaceRaytracer::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     m_isoValue      = m_properties->addProperty( "Isovalue",         "The isovalue used whenever the isosurface Mode is turned on.",
-                                                                      50 );
+                                                                      0.0 );
+
     m_isoColor      = m_properties->addProperty( "Iso color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
                       m_propCondition );
 
@@ -109,7 +111,9 @@ void WMIsosurfaceRaytracer::properties()
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );
 
-    m_alpha         = m_properties->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
+    m_alpha         = m_properties->addProperty( "Opacity %",        "The opacity in %. Transparency = 1 - Opacity.", 1.0 );
+    m_alpha->setMin( 0.0 );
+    m_alpha->setMax( 1.0 );
 
     // Lighting
     m_shadingSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
@@ -174,6 +178,9 @@ void WMIsosurfaceRaytracer::moduleMain()
         {
             debugLog() << "Data changed. Uploading new data as texture.";
 
+            m_isoValue->setMin( dataSet->getTexture2()->minimum()->get() );
+            m_isoValue->setMax( dataSet->getTexture2()->scale()->get() + dataSet->getTexture2()->minimum()->get() );
+
             // First, grab the grid
             boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
             if ( !grid )
@@ -199,6 +206,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             osg::StateSet* rootState = cube->getOrCreateStateSet();
             osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture2();
             texture3D->bind( cube );
+            WGEColormapping::apply( cube, false, 1 );
 
             // enable transparency
             rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
@@ -232,20 +240,9 @@ void WMIsosurfaceRaytracer::moduleMain()
             // setup all those uniforms
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
-            isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
-            steps->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > alpha = new osg::Uniform( "u_alpha", static_cast< float >( m_alpha->get() / 100.0 ) );
-            alpha->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            rootState->addUniform( isovalue );
-            rootState->addUniform( steps );
-            rootState->addUniform( alpha );
-
-            WGEColormapping::apply( cube, false, 1 );
+            rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_isovalue", m_isoValue ) );
+            rootState->addUniform( new WGEPropertyUniform< WPropInt >( "u_steps", m_stepCount ) );
+            rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_alpha", m_alpha ) );
 
             // update node
             debugLog() << "Adding new rendering.";
@@ -264,28 +261,5 @@ void WMIsosurfaceRaytracer::moduleMain()
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
     // allocated memory and remove all OSG nodes.
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( rootNode );
-}
-
-void WMIsosurfaceRaytracer::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    // currently, there is nothing to update
-    traverse( node, nv );
-}
-
-void WMIsosurfaceRaytracer::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
-{
-    // update some uniforms:
-    if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) ) / 100.0f );
-    }
-    if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
-    {
-        uniform->set( m_module->m_stepCount->get( true ) );
-    }
-    if ( m_module->m_alpha->changed() && ( uniform->getName() == "u_alpha" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_alpha->get( true ) / 100.0 ) );
-    }
 }
 

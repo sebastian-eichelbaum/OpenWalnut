@@ -39,9 +39,6 @@
 // texture containing the data
 uniform sampler3D u_texture0Sampler;
 
-// The isovalue to use.
-uniform float u_isovalue;
-
 // The number of steps to use.
 uniform int u_steps;
 
@@ -125,7 +122,7 @@ void main()
         value = texture3D( u_texture0Sampler, curPoint ).r;
 
         // is it the isovalue?
-        if ( abs( value - u_isovalue ) < 0.1 )
+        if ( abs( value - v_isovalue ) < 0.1 )
         {
             // we need to know the depth value of the current point inside the cube
             // Therefore, the complete standard pipeline is reproduced here:

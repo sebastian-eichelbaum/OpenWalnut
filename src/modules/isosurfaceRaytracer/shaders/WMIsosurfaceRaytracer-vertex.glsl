@@ -36,8 +36,14 @@
 // Uniforms
 /////////////////////////////////////////////////////////////////////////////
 
-// texture containing the data
-uniform sampler3D tex0;
+// scaling factor of the data in the texture. Needed for descaling.
+uniform float u_texture0Scale;
+
+// minimum value in texture. Needed for descaling.
+uniform float u_texture0Min;
+
+// The isovalue to use.
+uniform float u_isovalue;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -56,6 +62,9 @@ uniform sampler3D tex0;
  */
 void main()
 {
+    // scale isovalue to equal the texture data scaling.
+    v_isovalue = ( u_isovalue - u_texture0Min ) / u_texture0Scale;
+
     // for easy access to texture coordinates
     gl_TexCoord[0] = gl_MultiTexCoord0;
     v_normal = gl_Normal;
