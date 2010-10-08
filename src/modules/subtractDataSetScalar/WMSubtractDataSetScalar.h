@@ -27,6 +27,7 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -143,7 +144,7 @@ void WMSubtractDataSetScalar::subtractTyped()
     std::vector< T > values( m_first->getGrid()->size() );
     for( std::size_t k = 0; k < m_first->getGrid()->size(); ++k )
     {
-        values[ k ] = firstValueSet->rawData()[ k ] - secondValueSet->rawData()[ k ];
+        values[ k ] = std::max( 0, firstValueSet->rawData()[ k ] - secondValueSet->rawData()[ k ] );
     }
     VSPtr vs( new VS( 0, 1, values, DataType< T >::type ) );
     m_result = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_first->getGrid() ) );

@@ -90,12 +90,17 @@ void WMScalarSegmentation::properties()
     m_algos = boost::shared_ptr< WItemSelection >( new WItemSelection );
     m_algos->addItem( "Simple Threshold", "" );
     m_algos->addItem( "Watershed", "" );
+    m_algos->addItem( "Otsu Threshold", "" );
 
     m_algoType = m_properties->addProperty( "Seg Algo", "Choose a segmentation method.", m_algos->getSelectorFirst(), m_propCondition );
 
     m_threshold = m_properties->addProperty( "Threshold", "Threshold value for segmentation.", 10.0, m_propCondition );
     m_threshold->setMax( 100.0 );
     m_threshold->setMin( 0.0 );
+
+    m_level = m_properties->addProperty( "Level", "Watershed level value for segmentation.", 10.0, m_propCondition );
+    m_level->setMax( 100.0 );
+    m_level->setMin( 0.0 );
 
     WModule::properties();
 }
@@ -133,24 +138,12 @@ void WMScalarSegmentation::moduleMain()
             WAssert( m_dataSet->getValueSet()->order() == 0, "" );
         }
 
-        //bool propChanged = false;
-        //if( !m_algoType->changed() )
-        //{
-            //WPVGroup::PropertyConstIterator it;
-            //for( it = m_propGroups[ m_algoIndex ]->begin(); it != m_propGroups[ m_algoIndex ]->end(); ++it )
-            //{
-                //propChanged = propChanged || it->changed();
-            //}
-        //}
-        //else
-        //{
-            //WItemSelector w = m_algoType.get( true );
-            //m_algoIndex = w.getItemIndexOfSelected( 0 );
-            //propChanged = true;
-        //}
+        bool algoChanged = m_algoType->changed();
+        WItemSelector w = m_algoType->get( true );
+        m_algoIndex = w.getItemIndexOfSelected( 0 );
 
-        bool propChanged = m_threshold->changed();
-        if( m_dataSet && ( dataChanged || propChanged ) )
+        bool propChanged = m_threshold->changed() || m_level->changed();
+        if( m_dataSet && ( dataChanged || propChanged || algoChanged ) )
         {
             // redo calculation
             doSegmentation();
@@ -167,11 +160,22 @@ void WMScalarSegmentation::activate()
 void WMScalarSegmentation::doSegmentation()
 {
     boost::shared_ptr< WValueSetBase > vs;
+
+    debugLog() << m_algoIndex;
+
     switch( m_algoIndex )
     {
     case 0:
         vs = m_dataSet->getValueSet()->applyFunction( SimpleSegmentation( m_threshold->get( true ) ) );
         break;
+#ifdef OW_USE_ITK
+    case 1:
+        vs = m_dataSet->getValueSet()->applyFunction( WatershedSegmentation( m_level->get( true ), m_threshold->get( true ), m_dataSet ) );
+        break;
+    case 2:
+        vs = m_dataSet->getValueSet()->applyFunction( OtsuSegmentation( m_dataSet ) );
+        break;
+#endif  // OW_USE_ITK
     default:
         errorLog() << "Invalid algorithm selected." << std::endl;
     }
