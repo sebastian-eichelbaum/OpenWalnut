@@ -91,6 +91,7 @@ void WMScalarSegmentation::properties()
     m_algos->addItem( "Simple Threshold", "" );
     m_algos->addItem( "Watershed", "" );
     m_algos->addItem( "Otsu Threshold", "" );
+    m_algos->addItem( "Region Growing", "" );
 
     m_algoType = m_properties->addProperty( "Seg Algo", "Choose a segmentation method.", m_algos->getSelectorFirst(), m_propCondition );
 
@@ -174,6 +175,9 @@ void WMScalarSegmentation::doSegmentation()
         break;
     case 2:
         vs = m_dataSet->getValueSet()->applyFunction( OtsuSegmentation( m_dataSet ) );
+        break;
+    case 3:
+        vs = m_dataSet->getValueSet()->applyFunction( RegionGrowingSegmentation( m_dataSet ) );
         break;
 #endif  // OW_USE_ITK
     default:
