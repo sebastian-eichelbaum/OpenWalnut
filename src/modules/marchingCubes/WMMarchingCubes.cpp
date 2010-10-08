@@ -427,21 +427,21 @@ void WMMarchingCubes::renderMesh()
     if ( m_shaderUseTransparency )
     {
         state->setMode( GL_BLEND, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
-        state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
-
-        // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
-        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
-
-        // Conversely, disable writing to depth buffer so that
-        // a transparent polygon will allow polygons behind it to shine thru.
-        // OSG renders transparent polygons after opaque ones.
-        osg::Depth* depth = new osg::Depth;
-        depth->setWriteMask( false );
-        state->setAttributeAndModes( depth, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
-
-        // Disable conflicting modes.
-        state->setMode( GL_LIGHTING,  osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF );
-        state->setMode( GL_CULL_FACE, osg::StateAttribute::OFF );
+//        state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+//
+//        // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
+//        state->setMode( GL_DEPTH_TEST, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
+//
+//        // Conversely, disable writing to depth buffer so that
+//        // a transparent polygon will allow polygons behind it to shine thru.
+//        // OSG renders transparent polygons after opaque ones.
+//        osg::Depth* depth = new osg::Depth;
+//        depth->setWriteMask( false );
+//        state->setAttributeAndModes( depth, osg::StateAttribute::OVERRIDE | osg::StateAttribute::ON );
+//
+//        // Disable conflicting modes.
+//        state->setMode( GL_LIGHTING,  osg::StateAttribute::OVERRIDE | osg::StateAttribute::OFF );
+//        state->setMode( GL_CULL_FACE, osg::StateAttribute::OFF );
     }
 
     surfaceGeometry->setUseDisplayList( false );
