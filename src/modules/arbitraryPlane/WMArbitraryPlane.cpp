@@ -227,8 +227,9 @@ void WMArbitraryPlane::initPlane()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     m_geode = new osg::Geode();
     m_geode->setName( "_arbitraryPlane" );
-    m_rootNode->addUpdateCallback( new SafeUpdateCallback( this ) );
     m_rootNode->insert( m_geode );
+
+    m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMArbitraryPlane::updateCallback, this ) ) );
 
     wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
     m_p0 = wmath::WPosition( center );
@@ -332,21 +333,20 @@ void WMArbitraryPlane::updatePlane()
     m_dirty = false;
 }
 
-void WMArbitraryPlane::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+void WMArbitraryPlane::updateCallback()
 {
     wmath::WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    wmath::WPosition cho = m_module->getCenterPosition();
+    wmath::WPosition cho = getCenterPosition();
     if ( ch[0] != cho[0] || ch[1] != cho[1] || ch[2] != cho[2] )
     {
-        m_module->setDirty();
+        setDirty();
     }
 
-    if ( m_module->isDirty() )
+    if ( isDirty() )
     {
-        m_module->updatePlane();
-        m_module->updateTextures();
+        updatePlane();
+        updateTextures();
     }
-    traverse( node, nv );
 }
 
 void WMArbitraryPlane::setDirty()
