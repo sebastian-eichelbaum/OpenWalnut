@@ -63,12 +63,13 @@ WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
     m_bbMax( boundingBox.second )
 
 {
-    m_tangents = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
-    m_tangents->resize( m_vertices->size() );
-    boost::shared_ptr< std::vector< float > > globalColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
-    globalColors->resize( m_vertices->size() );
-    boost::shared_ptr< std::vector< float > > localColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>() );
-    localColors->resize( m_vertices->size() );
+    size_t size = m_vertices->size();
+    m_tangents = boost::shared_ptr< std::vector< float > >( new std::vector<float>( size ) );
+
+    boost::shared_ptr< std::vector< float > > globalColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>( size ) );
+    boost::shared_ptr< std::vector< float > > localColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>( size ) );
+    boost::shared_ptr< std::vector< float > > customColors = boost::shared_ptr< std::vector< float > >( new std::vector<float>( size ) );
+
 
     // TODO(all): use the new WThreadedJobs functionality
     WCreateColorArraysThread* t1 = new WCreateColorArraysThread( 0, m_lineLengths->size()/4, m_vertices,
@@ -102,6 +103,16 @@ WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
     );
     m_colors->push_back( boost::shared_ptr< WItemSelectionItem >(
             new ColorScheme( "Local Color", "Colors direction by using start and end vertex per segment.", NULL, localColors, ColorScheme::RGB )
+        )
+    );
+
+    for ( size_t i = 0; i < size; ++i )
+    {
+        ( *customColors )[i] = ( *globalColors )[i];
+    }
+    m_colors->push_back( boost::shared_ptr< WItemSelectionItem >(
+            new ColorScheme( "Custom Color", "Colors copied from the global colors, will be used for bundle coloring.",
+                    NULL, customColors, ColorScheme::RGB )
         )
     );
 

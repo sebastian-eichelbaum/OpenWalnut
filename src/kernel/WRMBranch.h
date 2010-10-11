@@ -132,6 +132,14 @@ public:
      */
     void getRois( std::vector< osg::ref_ptr< WROI > >& roiVec ); //NOLINT
 
+    /**
+     * Add a specified notifier to the list of default notifiers which get connected to each branch
+     *
+     * \param notifier  the notifier function
+     */
+    void addChangeNotifier( boost::function< void() > notifier );
+
+
 protected:
     /**
      * initializes properties
@@ -164,6 +172,16 @@ private:
      * The color used when in isosurface mode for blending.
      */
     WPropColor m_bundleColor;
+
+    /**
+     * The notifiers connected to added rois by default.
+     */
+    std::list< boost::function< void() > > m_changeNotifiers;
+
+    /**
+     * Lock for associated notifiers set.
+     */
+    boost::shared_mutex m_associatedNotifiersLock;
 };
 
 inline bool WRMBranch::empty()

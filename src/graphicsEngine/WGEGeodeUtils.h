@@ -44,7 +44,7 @@
 #include "WGEGeometryUtils.h"
 #include "WGESubdividedPlane.h"
 #include "WGEUtils.h"
-#include "WTriangleMesh2.h"
+#include "WTriangleMesh.h"
 
 namespace wge
 {
@@ -95,7 +95,7 @@ namespace wge
      *                       them into the geometry.
      * \return an osg::Geometry containing the mesh
      */
-    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh2* mesh, bool includeNormals = false );
+    osg::ref_ptr< osg::Geometry > WGE_EXPORT convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals = false );
 
     /**
      * Generates a line geode with thickness and color as parameters.

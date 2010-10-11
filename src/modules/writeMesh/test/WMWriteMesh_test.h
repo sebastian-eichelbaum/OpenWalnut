@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMMARCHINGCUBES_TEST_H
-#define WMMARCHINGCUBES_TEST_H
+#ifndef WMWRITEMESH_TEST_H
+#define WMWRITEMESH_TEST_H
 
 #include <string>
 #include <vector>
@@ -33,16 +33,16 @@
 #include "../../../common/math/WPosition.h"
 #include "../../../common/WIOTools.h"
 #include "../../../common/WLogger.h"
-#include "../../../graphicsEngine/WTriangleMesh2.h"
-#include "../WMMarchingCubes.h"
+#include "../../../graphicsEngine/WTriangleMesh.h"
+#include "../WMWriteMesh.h"
 
 static WLogger logger;
 static bool loggerInitialized = false;
 
 /**
- * Test for WMMarchingCubes
+ * Test for WMWriteMesh
  */
-class WMMarchingCubesTest : public CxxTest::TestSuite
+class WMWriteMeshTest : public CxxTest::TestSuite
 {
 public:
 
@@ -68,7 +68,7 @@ public:
      */
     void testInstatiation()
     {
-        TS_ASSERT_THROWS_NOTHING( WMMarchingCubes() );
+        TS_ASSERT_THROWS_NOTHING( WMWriteMesh() );
     }
 
     /**
@@ -76,8 +76,8 @@ public:
      */
     void testSaveZero()
     {
-        WMMarchingCubes mc;
-        boost::shared_ptr< WTriangleMesh2 > triMesh( new WTriangleMesh2( 0, 0 ) );
+        WMWriteMesh mc;
+        boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( 0, 0 ) );
         mc.m_triMesh = triMesh;
         std::string fileName = wiotools::tempFileName();
         mc.m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "Module's properties" ) );
@@ -95,9 +95,9 @@ public:
      */
     void testSaveInfinteNan()
     {
-        WMMarchingCubes mc;
+        WMWriteMesh mc;
         const unsigned int nbPos = 10;
-        boost::shared_ptr< WTriangleMesh2 > triMesh( new WTriangleMesh2( nbPos, 3 ) );
+        boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( nbPos, 3 ) );
         mc.m_triMesh = triMesh;
 
         std::vector< wmath::WPosition > vertices( 0 );
@@ -123,4 +123,4 @@ public:
     }
 };
 
-#endif  // WMMARCHINGCUBES_TEST_H
+#endif  // WMWRITEMESH_TEST_H

@@ -25,12 +25,13 @@
 #include <iostream>
 
 #include "../../graphicsEngine/WGEUtils.h"
-#include "WDendrogram.h"
+#include "WDendrogramGeode.h"
 
 /**
  * Class implements a dendrogram as an osg geode
  */
-WDendrogram::WDendrogram( WHierarchicalTree* tree, size_t cluster, size_t minClusterSize, float xSize, float ySize, float xOffset, float yOffset ) :
+WDendrogramGeode::WDendrogramGeode( WHierarchicalTree* tree, size_t cluster, size_t minClusterSize,
+                                    float xSize, float ySize, float xOffset, float yOffset ) :
     osg::Geode(),
     m_tree( tree ),
     m_rootCluster( cluster ),
@@ -43,11 +44,11 @@ WDendrogram::WDendrogram( WHierarchicalTree* tree, size_t cluster, size_t minClu
     create();
 }
 
-WDendrogram::~WDendrogram()
+WDendrogramGeode::~WDendrogramGeode()
 {
 }
 
-void WDendrogram::create()
+void WDendrogramGeode::create()
 {
     m_colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
 
@@ -80,10 +81,11 @@ void WDendrogram::create()
 
     osg::StateSet* state = geometry->getOrCreateStateSet();
     state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
     addDrawable( geometry );
 }
 
-void WDendrogram::layout( size_t cluster, float left, float right )
+void WDendrogramGeode::layout( size_t cluster, float left, float right )
 {
     float height = m_tree->getLevel( cluster );
 
@@ -159,7 +161,7 @@ void WDendrogram::layout( size_t cluster, float left, float right )
     }
 }
 
-size_t WDendrogram::getClickedCluster( int xClick, int yClick )
+size_t WDendrogramGeode::getClickedCluster( int xClick, int yClick )
 {
     m_xClicked = ( xClick - m_xOff ) / m_xSize * ( m_tree->size( m_rootCluster ) - 1 );
     m_yClicked = ( yClick - m_yOff ) / m_ySize * ( m_tree->getLevel( m_rootCluster ) - 1 );
@@ -171,7 +173,7 @@ size_t WDendrogram::getClickedCluster( int xClick, int yClick )
     return m_clickedCluster;
 }
 
-void WDendrogram::getClickClusterRecursive( size_t cluster, float left, float right )
+void WDendrogramGeode::getClickClusterRecursive( size_t cluster, float left, float right )
 {
     int height = m_tree->getLevel( cluster );
 

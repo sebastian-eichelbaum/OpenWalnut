@@ -37,7 +37,7 @@
 #include "../../kernel/WModuleOutputData.h"
 
 #include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 
 class WDataSetScalar;
 
@@ -151,7 +151,7 @@ private:
 
     boost::shared_ptr< const WDataSetScalar > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
 
-    boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh2 > > >m_regionMeshes2; //!< stores pointers to all triangle meshes
+    boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh > > >m_regionMeshes2; //!< stores pointers to all triangle meshes
 
     std::map< size_t, std::pair< std::string, std::string > >m_labels; //!< the labels with their id
 

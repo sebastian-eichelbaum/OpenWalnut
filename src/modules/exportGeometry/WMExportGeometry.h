@@ -33,7 +33,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-class WTriangleMesh2;
+class WTriangleMesh;
 
 /**
  * Someone should add some documentation here.
@@ -112,7 +112,7 @@ private:
     /**
      * An input connector used to get mehses from other modules.
      */
-    boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_input;
+    boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_input;
 
     WPropFilename m_savePath; //!< Path where geometry should be stored
 };

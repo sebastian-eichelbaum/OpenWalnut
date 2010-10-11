@@ -172,8 +172,8 @@ void WMAtlasSurfaces::createSurfaces()
 
     boost::shared_ptr<WThreadedJobs<WDataSetScalar, size_t> >job;
 
-    m_regionMeshes2 = boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh2 > > >(
-            new std::vector< boost::shared_ptr< WTriangleMesh2 > >( m_dataSet->getMax() + 1 ) );
+    m_regionMeshes2 = boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh > > >(
+            new std::vector< boost::shared_ptr< WTriangleMesh > >( m_dataSet->getMax() + 1 ) );
 
     switch( ( *m_dataSet ).getValueSet()->getDataType() )
     {

@@ -37,7 +37,7 @@
 #include "WPickHandler.h"
 #include "WGEViewer.h"
 
-#include "WTriangleMesh2.h"
+#include "WTriangleMesh.h"
 
 #include "WROI.h"
 #include "WExportWGE.h"
@@ -65,7 +65,7 @@ public:
     WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
                    const wmath::WMatrix< double >& mat,
                    const std::vector< float >& vals,
-                   boost::shared_ptr< WTriangleMesh2 > triMesh,
+                   boost::shared_ptr< WTriangleMesh > triMesh,
                    float threshold,
                    float maxThreshold,
                    WColor color );
@@ -96,6 +96,11 @@ public:
      * initalizes the properties
      */
     void properties();
+
+    /**
+     *
+     */
+    void propertyChanged();
 
     /**
      * setter
@@ -136,11 +141,14 @@ public:
 
 protected:
 private:
-
     std::vector< size_t > m_nbCoordsVec; //!< The data's number of vertices in X, Y and Z direction.
+
     wmath::WMatrix< double > m_matrix; //!< The 4x4 transformation matrix for the vertices.
+
     const std::vector< float > m_vals; //!< The data at the vertices.
-    boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+
+    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+
     WPropDouble m_threshold; //!< the threshold
 
     /**

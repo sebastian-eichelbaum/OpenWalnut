@@ -26,7 +26,7 @@ varying vec3 tangentR3; // Tangent vector in world space
 varying float s_param; // s parameter of texture [-1..1]
 varying float tangent_dot_view;
 varying vec4 myColor;
-uniform bool globalColor;
+
 uniform bool useTexture;
 
 varying vec4 VaryingTexCoord0;

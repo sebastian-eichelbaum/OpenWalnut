@@ -32,12 +32,13 @@
 
 #include "../../graphicsEngine/WROI.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
+class WROIArbitrary;
 class WROIBox;
 class WDataSetScalar;
 
@@ -161,14 +162,14 @@ private:
     osg::ref_ptr< WROIBox > m_selectionRoi; //!< stores a pointer to the cutting tool roi
 
     /**
-     * A trigger which can be used to trigger some kind of operation.
+     * A condition used to notify about changes in several properties.
      */
-    WPropTrigger  m_aTrigger;
+    boost::shared_ptr< WCondition > m_propCondition;
 
     /**
      * A trigger which can be used to trigger some kind of operation.
      */
-    WPropTrigger  m_bTrigger;
+    WPropTrigger  m_finalizeTrigger;
 
     WPropDouble   m_threshold; //!< the threshold for the roi
 
@@ -178,7 +179,7 @@ private:
 
     osg::ref_ptr< osg::Geode > m_outputGeode; //!< Pointer to geode containing the glpyhs
 
-    boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
 
     bool m_showSelector; //!< flag indication if the temporary roi should be shown;
 };

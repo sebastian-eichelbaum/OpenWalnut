@@ -11,7 +11,7 @@
 #include "../fantom/FTensor.h"
 #include "../../../common/WLogger.h"
 
-SurfaceLIC::SurfaceLIC( boost::shared_ptr< WDataSetVector > vectors, boost::shared_ptr< WTriangleMesh2 > mesh )
+SurfaceLIC::SurfaceLIC( boost::shared_ptr< WDataSetVector > vectors, boost::shared_ptr< WTriangleMesh > mesh )
     : m_vectors( vectors )
 {
     WAssert( boost::shared_dynamic_cast< WGridRegular3D >( vectors->getGrid() ), "Only vector field with regular grid are allowed... aborting" );
@@ -35,7 +35,7 @@ SurfaceLIC::~SurfaceLIC()
     delete m_mesh;
 }
 
-void SurfaceLIC::updateMeshColor( boost::shared_ptr< WTriangleMesh2 > mesh ) const
+void SurfaceLIC::updateMeshColor( boost::shared_ptr< WTriangleMesh > mesh ) const
 {
     WAssert( static_cast< int >( mesh->triangleSize() ) == m_mesh->getNumTriangles(), "Meshes have not same number of triangles" );
     for( int i = 0; i < m_mesh->getNumTriangles(); ++i )

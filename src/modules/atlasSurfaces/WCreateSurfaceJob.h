@@ -35,7 +35,7 @@
 
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 /**
  * TODO(schurade): Document this!
  */
@@ -51,7 +51,7 @@ public:
      * \param pro pointer for progress
      */
     WCreateSurfaceJob( boost::shared_ptr< WDataSetScalar const > input,
-                       boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh2 > > > regionMeshes,
+                       boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh > > > regionMeshes,
                        boost::shared_ptr<WProgressCombiner> progressCombiner,
                        boost::shared_ptr<WProgress>pro );
 
@@ -90,7 +90,7 @@ private:
 
     boost::shared_ptr< WGridRegular3D>m_grid; //!< stores pointer to grid
 
-    boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh2 > > >m_regionMeshes; //!< stores pointer
+    boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh > > >m_regionMeshes; //!< stores pointer
 
     boost::shared_ptr<WProgressCombiner> m_progressCombiner; //!< stores pointer
 
@@ -99,7 +99,7 @@ private:
 
 template< typename T >
 WCreateSurfaceJob< T >::WCreateSurfaceJob( boost::shared_ptr< WDataSetScalar const > input,
-                                           boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh2 > > > regionMeshes,
+                                           boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh > > > regionMeshes,
                                            boost::shared_ptr<WProgressCombiner> progressCombiner,
                                            boost::shared_ptr<WProgress>pro )
     : WThreadedJobs< WDataSetScalar, size_t >( input ),
@@ -143,7 +143,7 @@ void WCreateSurfaceJob< T >::compute( boost::shared_ptr< WDataSetScalar const > 
     boost::shared_ptr< WValueSet< float > > newValueSet = boost::shared_ptr< WValueSet< float > >(
                                                        new WValueSet< float >( 0, 1, tempData, W_DT_FLOAT ) );
     WMarchingCubesAlgorithm mcAlgo;
-    boost::shared_ptr< WTriangleMesh2 >triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+    boost::shared_ptr< WTriangleMesh >triMesh = mcAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                             m_grid->getTransformationMatrix(),
                                             newValueSet->rawDataVectorPointer(),
                                             0.9,
@@ -154,7 +154,7 @@ void WCreateSurfaceJob< T >::compute( boost::shared_ptr< WDataSetScalar const > 
     }
     else
     {
-        ( *m_regionMeshes )[job] = boost::shared_ptr< WTriangleMesh2 >( new WTriangleMesh2( 0, 0 ) );
+        ( *m_regionMeshes )[job] = boost::shared_ptr< WTriangleMesh >( new WTriangleMesh( 0, 0 ) );
     }
 
     ++*m_progress;

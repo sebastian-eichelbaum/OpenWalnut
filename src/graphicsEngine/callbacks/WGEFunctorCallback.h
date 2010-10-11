@@ -94,7 +94,7 @@ public:
  * \tparam Type the callback type. You can specify every class that has a nested class called "Callback".
  */
 template < typename Type = osg::Node >
-class WGE_EXPORT WGEFunctorCallback: public WGEFunctorCallbackTraits< Type >::CallbackType
+class WGEFunctorCallback: public WGEFunctorCallbackTraits< Type >::CallbackType
 {
 public:
 

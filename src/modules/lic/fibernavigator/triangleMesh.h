@@ -14,7 +14,7 @@
 
 #include "../fantom/FIndex.h"
 #include "../fantom/FArray.h"
-#include "../../../graphicsEngine/WTriangleMesh2.h"
+#include "../../../graphicsEngine/WTriangleMesh.h"
 #include "../../../common/WColor.h"
 #include "../../../dataHandler/WGridRegular3D.h"
 
@@ -50,12 +50,12 @@ class TriangleMesh {
         bool m_triangleTensorsCalculated;
 
         WColor defaultColor;
-        boost::shared_ptr< WTriangleMesh2 > m_mesh;
+        boost::shared_ptr< WTriangleMesh > m_mesh;
         boost::shared_ptr< WGridRegular3D > m_grid;
 
     // Construction
     public:
-        TriangleMesh ( boost::shared_ptr< WTriangleMesh2 > mesh, boost::shared_ptr< WGridRegular3D > grid );
+        TriangleMesh ( boost::shared_ptr< WTriangleMesh > mesh, boost::shared_ptr< WGridRegular3D > grid );
         ~TriangleMesh ();
 
     // Operations

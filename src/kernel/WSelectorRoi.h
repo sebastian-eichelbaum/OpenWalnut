@@ -27,9 +27,9 @@
 
 #include <vector>
 
-#include "../../dataHandler/WDataSetFibers.h"
+#include "../dataHandler/WDataSetFibers.h"
 
-#include "../../graphicsEngine/WROI.h"
+#include "../graphicsEngine/WROI.h"
 
 #include "WKdTree.h"
 /**

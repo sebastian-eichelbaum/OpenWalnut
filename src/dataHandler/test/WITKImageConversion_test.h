@@ -45,7 +45,7 @@ static WLogger logger;
 static bool loggerInitialized = false;
 
 /**
- * Test important functionality of WDataHandler class
+ * Test functionality of WITKConversion class.
  */
 class WITKImageConversionTest : public CxxTest::TestSuite
 {

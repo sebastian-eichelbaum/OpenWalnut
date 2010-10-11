@@ -28,60 +28,59 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 
-#include "WMMeshReader.h"
-#include "WMMeshReader.xpm"
+#include "WMReadMesh.h"
+#include "WMReadMesh.xpm"
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMMeshReader )
+W_LOADABLE_MODULE( WMReadMesh )
 
-WMMeshReader::WMMeshReader():
+WMReadMesh::WMReadMesh():
     WModule()
 {
 }
 
-WMMeshReader::~WMMeshReader()
+WMReadMesh::~WMReadMesh()
 {
     // cleanup
     removeConnectors();
 }
 
-boost::shared_ptr< WModule > WMMeshReader::factory() const
+boost::shared_ptr< WModule > WMReadMesh::factory() const
 {
     // See "src/modules/template/" for an extensively documented example.
-    return boost::shared_ptr< WModule >( new WMMeshReader() );
+    return boost::shared_ptr< WModule >( new WMReadMesh() );
 }
 
-const char** WMMeshReader::getXPMIcon() const
+const char** WMReadMesh::getXPMIcon() const
 {
-    return meshreader_xpm;
+    return readMesh_xpm;
 }
 
-const std::string WMMeshReader::getName() const
+const std::string WMReadMesh::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "Mesh Reader";
+    return "Read Mesh";
 }
 
-const std::string WMMeshReader::getDescription() const
+const std::string WMReadMesh::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
     // See "src/modules/template/" for an extensively documented example.
-    return "Loads a triamgle mesh from a vtk file.";
+    return "Loads a triangle mesh from a vtk file.";
 }
 
-void WMMeshReader::connectors()
+void WMReadMesh::connectors()
 {
-    m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > >(
-            new WModuleOutputData< WTriangleMesh2 >( shared_from_this(), "mesh", "The loaded mesh." ) );
+    m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh > >(
+            new WModuleOutputData< WTriangleMesh >( shared_from_this(), "mesh", "The loaded mesh." ) );
 
     addConnector( m_output );
     // call WModules initialization
     WModule::connectors();
 }
 
-void WMMeshReader::properties()
+void WMReadMesh::properties()
 {
     // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
 
@@ -94,7 +93,7 @@ void WMMeshReader::properties()
     WModule::properties();
 }
 
-void WMMeshReader::moduleMain()
+void WMReadMesh::moduleMain()
 {
     m_moduleState.add( m_propCondition );
     ready();
@@ -112,7 +111,7 @@ void WMMeshReader::moduleMain()
     }
 }
 
-boost::shared_ptr< WTriangleMesh2 > WMMeshReader::read()
+boost::shared_ptr< WTriangleMesh > WMReadMesh::read()
 {
     namespace su = string_utils;
 
@@ -194,7 +193,7 @@ boost::shared_ptr< WTriangleMesh2 > WMMeshReader::read()
     size_t nbNumbers;
     ifs >> cellsMarker >> nbCells >> nbNumbers;
 
-    boost::shared_ptr< WTriangleMesh2 > triMesh( new WTriangleMesh2( numPoints, nbCells ) );
+    boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( numPoints, nbCells ) );
 
     for( unsigned int i = 0; i < numPoints; ++i )
     {

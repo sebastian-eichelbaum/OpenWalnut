@@ -34,7 +34,7 @@
 #include <osg/Uniform>
 
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -93,7 +93,7 @@ public:
     /**
      *  updates textures and shader parameters when called (usually from the callback)
      */
-    void updateGraphicsForCallback();
+    void updateGraphicsCallback();
 
 protected:
     /**
@@ -124,17 +124,6 @@ private:
     void renderMesh();
 
     /**
-     * Store the mesh in legacy vtk file format.
-     */
-    bool save() const;
-
-    /**
-     * Load meshes saved with WMMarchingCubes::save
-     * \param fileName the mesh will be loaded from this file
-     */
-    WTriangleMesh2 load( std::string fileName );
-
-    /**
      * Kind of a convenience function for generate surface.
      * It performs the conversions of the value sets of different data types.
      * \param isoValue The surface will represent this value.
@@ -151,9 +140,7 @@ private:
     WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
     WPropColor m_surfaceColor; //!< Property determining the color for the surface if no textures are displayed
 
-    WPropGroup    m_savePropGroup; //!< Property group containing properties needed for saving the mesh.
-    WPropTrigger  m_saveTriggerProp; //!< This property triggers the actual writing,
-    WPropFilename m_meshFile; //!< The mesh will be written to this file.
+    WPropBool m_useMarchingLego; //!< Property indicating whether to use interpolated or non interpolated triangulation
 
     /**
      * True when textures haven changed.
@@ -167,9 +154,9 @@ private:
 
 
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
-    boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > > m_output;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output;  //!< Input connector required by this module.
 
-    boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
 
     static const unsigned int m_edgeTable[256];  //!< Lookup table for edges used in the construction of the isosurface.
     static const int m_triTable[256][16];  //!< Lookup table for triangles used in the construction of the isosurface.
@@ -199,42 +186,5 @@ private:
 
     static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
 };
-
-/**
- * Adapter object for realizing callbacks of the node representing the isosurface in the osg
- */
-class SurfaceNodeCallback : public osg::NodeCallback
-{
-public:
-    /**
-     * Constructor of the callback adapter.
-     * \param module A function of this module will be called
-     */
-    explicit SurfaceNodeCallback( WMMarchingCubes* module );
-
-    /**
-     * Function that is called by the osg and that call the function in the module.
-     * \param node The node we are called.
-     * \param nv the visitor calling us.
-     */
-    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-private:
-    WMMarchingCubes* m_module; //!< Pointer to the module to which the function that is called belongs to.
-};
-
-inline SurfaceNodeCallback::SurfaceNodeCallback( WMMarchingCubes* module )
-    : m_module( module )
-{
-}
-
-inline void SurfaceNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    if ( m_module )
-    {
-        m_module->updateGraphicsForCallback();
-    }
-    traverse( node, nv );
-}
 
 #endif  // WMMARCHINGCUBES_H

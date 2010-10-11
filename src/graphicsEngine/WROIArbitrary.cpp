@@ -30,19 +30,16 @@
 #include <osg/LineWidth>
 #include <osg/LightModel>
 
-#include "../common/WProgressCombiner.h"
-
-#include "algorithms/WMarchingCubesAlgorithm.h"
+#include "algorithms/WMarchingLegoAlgorithm.h"
 
 #include "WGraphicsEngine.h"
-//#include "WGEUtils.h"
 
 #include "WROIArbitrary.h"
 
 WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
                               const wmath::WMatrix< double >& mat,
                               const std::vector< float >& vals,
-                              boost::shared_ptr< WTriangleMesh2 > triMesh,
+                              boost::shared_ptr< WTriangleMesh > triMesh,
                               float threshold,
                               float maxThreshold,
                               WColor color ) :
@@ -59,14 +56,16 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
 
     properties();
 
+    m_threshold->set( threshold );
+    m_threshold->setMax( maxThreshold );
+
     updateGFX();
-    m_dirty->set( true );
+
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
     setUserData( this );
     setUpdateCallback( osg::ref_ptr<ROIArbNodeCallback>( new ROIArbNodeCallback ) );
 
-    m_threshold->set( threshold );
-    m_threshold->setMax( maxThreshold );
+    setDirty();
 }
 
 WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
@@ -86,14 +85,16 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
 
     properties();
 
+    m_threshold->set( 0.01 );
+    m_threshold->setMax( maxThreshold );
+
     updateGFX();
-    m_dirty->set( true );
+
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
     setUserData( this );
     setUpdateCallback( osg::ref_ptr< ROIArbNodeCallback >( new ROIArbNodeCallback ) );
 
-    m_threshold->set( 0.01 );
-    m_threshold->setMax( maxThreshold );
+    setDirty();
 }
 
 WROIArbitrary::~WROIArbitrary()
@@ -106,13 +107,18 @@ WROIArbitrary::~WROIArbitrary()
 
 void WROIArbitrary::properties()
 {
-    m_threshold = m_properties->addProperty( "Threshold", "description", 0. ); // , boost::bind( &WROI::propertyChanged, this )
+    m_threshold = m_properties->addProperty( "Threshold", "description", 0. , boost::bind( &WROIArbitrary::propertyChanged, this ) );
+}
+
+void WROIArbitrary::propertyChanged()
+{
+    setDirty();
 }
 
 void WROIArbitrary::setThreshold( double threshold )
 {
     m_threshold->set( threshold );
-    m_dirty->set( true );
+    setDirty();
 }
 
 double WROIArbitrary::getThreshold()
@@ -143,13 +149,11 @@ void WROIArbitrary::updateGFX()
 {
     if ( m_dirty->get() )
     {
-        boost::shared_ptr< WProgressCombiner > progress = boost::shared_ptr< WProgressCombiner >( new WProgressCombiner() );
-        WMarchingCubesAlgorithm mcAlgo;
-        m_triMesh = mcAlgo.generateSurface( m_nbCoordsVec[0], m_nbCoordsVec[1], m_nbCoordsVec[2],
+        WMarchingLegoAlgorithm mlAlgo;
+        m_triMesh = mlAlgo.generateSurface( m_nbCoordsVec[0], m_nbCoordsVec[1], m_nbCoordsVec[2],
                                             m_matrix,
                                             &m_vals,
-                                            m_threshold->get(),
-                                            progress );
+                                            m_threshold->get() );
 
         osg::Geometry* surfaceGeometry = new osg::Geometry();
         setName( "roi" );

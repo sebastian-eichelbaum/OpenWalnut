@@ -45,7 +45,7 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WKernel.h"
 #include "WMClusterSlicer.h"
 #include "WMClusterSlicer.xpm"
@@ -171,7 +171,7 @@ void WMClusterSlicer::moduleMain()
         boost::shared_ptr< WDataSetScalar > newClusterDS = m_clusterDataSetInput->getData();
         boost::shared_ptr< WFiberCluster >  newCluster   = m_fiberClusterInput->getData();
         boost::shared_ptr< WDataSetScalar > newParamDS   = m_paramDataSetInput->getData();
-        boost::shared_ptr< WTriangleMesh2 > newMesh      = m_triangleMeshInput->getData();
+        boost::shared_ptr< WTriangleMesh > newMesh      = m_triangleMeshInput->getData();
         bool meshChanged = ( m_mesh != newMesh );
         bool paramDSChanged = ( m_paramDS != newParamDS );
         bool clusterChanged = ( m_cluster != newCluster );
@@ -368,16 +368,16 @@ struct WMeshSizeComp
      *
      * \return True if and only if the first Mesh has less vertices as the second mesh.
      */
-    bool operator()( const boost::shared_ptr< WTriangleMesh2 >& m, const boost::shared_ptr< WTriangleMesh2 >& n ) const
+    bool operator()( const boost::shared_ptr< WTriangleMesh >& m, const boost::shared_ptr< WTriangleMesh >& n ) const
     {
         return m->vertSize() < n->vertSize();
     }
 };
 
-void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
+void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh )
 {
     debugLog() << "Selecting mesh component...";
-    boost::shared_ptr< WTriangleMesh2 > renderMesh = mesh;
+    boost::shared_ptr< WTriangleMesh > renderMesh = mesh;
     assert( renderMesh.get() );
     if( m_selectBiggestComponentOnly->get( true ) )
     {

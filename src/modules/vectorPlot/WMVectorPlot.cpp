@@ -160,7 +160,7 @@ void WMVectorPlot::moduleMain()
 
             m_rootNode = newRootNode;
             m_rootNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
-            m_rootNode->addUpdateCallback( new SafeUpdateCallback( this ) );
+            m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMVectorPlot::updateCallback, this ) ) );
 
             m_shader = osg::ref_ptr< WShader > ( new WShader( "WMVectorPlot", m_localPath ) );
             m_shader->apply( m_rootNode );
@@ -398,20 +398,18 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 }
 
 
-void WMVectorPlot::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+void WMVectorPlot::updateCallback()
 {
     wmath::WPosition current = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    wmath::WPosition old( m_module->m_xSlice->get(), m_module->m_ySlice->get(), m_module->m_zSlice->get() );
+    wmath::WPosition old( m_xSlice->get(), m_ySlice->get(), m_zSlice->get() );
 
-    if( ( old != current ) || m_module->m_coloringMode->changed() || m_module->m_aColor->changed() || m_module->m_projectOnSlice->changed() ||
-            m_module->m_showonX->changed() || m_module->m_showonY->changed() || m_module->m_showonZ->changed() )
+    if( ( old != current ) || m_coloringMode->changed() || m_aColor->changed() || m_projectOnSlice->changed() ||
+            m_showonX->changed() || m_showonY->changed() || m_showonZ->changed() )
     {
-        osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_module->m_rootNode->getDrawable( 0 ) );
-        m_module->m_rootNode->removeDrawable( old );
-        m_module->m_rootNode->addDrawable( m_module->buildPlotSlices() );
+        osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_rootNode->getDrawable( 0 ) );
+        m_rootNode->removeDrawable( old );
+        m_rootNode->addDrawable( buildPlotSlices() );
     }
-
-    traverse( node, nv );
 }
 
 

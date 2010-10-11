@@ -41,3 +41,7 @@ FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "controlPanel/*.cpp" "ribbonMe
 
 ADD_LIBRARY( OWguiqt4 ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
 TARGET_LINK_LIBRARIES( OWguiqt4 OWcommon OWgui OWge OWkernel ${QT_LIBS} ${Boost_LIBRARIES} )
+
+IF(MSVC_IDE)
+	SET_TARGET_PROPERTIES( OWguiqt4 PROPERTIES PREFIX "../")    
+ENDIF(MSVC_IDE)

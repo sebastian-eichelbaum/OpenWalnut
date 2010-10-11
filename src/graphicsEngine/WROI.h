@@ -115,7 +115,6 @@ public:
      */
     void addChangeNotifier( boost::function< void() > notifier );
 
-
 protected:
     /**
      * initializes the roi's properties
@@ -127,24 +126,34 @@ protected:
      */
     void propertyChanged();
 
-    osg::ref_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
-
     /**
-     * boost signal object to indicate box manipulation
+     * signals a roi change to all subscribers
      */
-    boost::signals2::signal0< void >m_signalIsModified;
+    void signalRoiChange();
+
+
+    osg::ref_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
 
     /**
      * the property object for the module
      */
     boost::shared_ptr< WProperties > m_properties;
 
-    WPropBool m_dirty; //!< dirty flag, indicates the bit fields need updating
+    /**
+     * dirty flag, indicating the graphics needs updating, it is no longer used for bitfield updating
+     * since these customers get the update notification via callback
+     */
+    WPropBool m_dirty;
 
     /**
      * indicates if the roi is active
      */
     WPropBool m_active;
+
+    /**
+     * indicates if the roi is visible in the scene
+     */
+    WPropBool m_show;
 
     /**
      * indicates if the roi is negated
@@ -172,11 +181,6 @@ protected:
     boost::shared_mutex m_associatedNotifiersLock;
 
 private:
-    /**
-     * signals a roi change to all subscribers
-     */
-    void signalRoiChange();
-
     /**
      *  updates the graphics
      */

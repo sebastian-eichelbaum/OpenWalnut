@@ -29,7 +29,7 @@
 #include <vector>
 
 #include "WSelectorRoi.h"
-#include "../../kernel/WRMBranch.h"
+#include "../kernel/WRMBranch.h"
 
 /**
  * TODO(schurade): Document this!
@@ -39,10 +39,10 @@ class WSelectorBranch
 public:
     /**
      * constructor
-     * \param size number of fibers int he dataset
+     * \param fibers pointer to the fiber dataset to work on
      * \param branch pointer to the branch object in the roi manager
      */
-    WSelectorBranch( size_t size, boost::shared_ptr<WRMBranch> branch );
+    WSelectorBranch( boost::shared_ptr< const WDataSetFibers > fibers, boost::shared_ptr<WRMBranch> branch );
 
     /**
      * destructor
@@ -85,12 +85,27 @@ public:
      */
     void setDirty();
 
+    /**
+     * getter
+     */
+    bool dirty();
+
 protected:
+    /**
+     * function gets called when the color property of the roi branch has changed, it will write this color
+     * into the custom color array of the fiber dataset
+     */
+    void colorChanged();
 private:
     /**
      * updates the output bitfield with the information from all rois in this branch
      */
     void recalculate();
+
+    /**
+     * Pointer to the fiber data set
+     */
+    boost::shared_ptr< const WDataSetFibers > m_fibers;
 
     /**
      * size of the fiber dataset, stored for convinience
@@ -137,6 +152,11 @@ inline boost::shared_ptr<WRMBranch> WSelectorBranch::getBranch()
 inline bool WSelectorBranch::empty()
 {
     return m_rois.empty();
+}
+
+inline bool WSelectorBranch::dirty()
+{
+    return m_dirty;
 }
 
 #endif  // WSELECTORBRANCH_H

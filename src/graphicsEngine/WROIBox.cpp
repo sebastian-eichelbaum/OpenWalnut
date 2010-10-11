@@ -174,7 +174,6 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
 
-    setDirty();
     m_not->set( false );
 
     assert( WGraphicsEngine::getGraphicsEngine() );
@@ -182,6 +181,8 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
 
     setUserData( this );
     setUpdateCallback( osg::ref_ptr<ROIBoxNodeCallback>( new ROIBoxNodeCallback ) );
+
+    setDirty();
 }
 
 WROIBox::~WROIBox()
@@ -297,7 +298,7 @@ void WROIBox::updateGFX()
         setDirty();
         m_isPicked = true;
 
-        m_signalIsModified();
+        signalRoiChange();
     }
     if ( m_isPicked && m_pickInfo.getName() == "unpick" )
     {

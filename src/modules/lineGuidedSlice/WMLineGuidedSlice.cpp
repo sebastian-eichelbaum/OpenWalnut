@@ -185,11 +185,6 @@ void WMLineGuidedSlice::create()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 }
 
-osg::Vec3 wv3D2ov3( wmath::WVector3D v ) // WVector3D to osg::Vec3 conversion
-{
-    return osg::Vec3( v[0], v[1], v[2] );
-}
-
 void WMLineGuidedSlice::setSlicePosFromPick( WPickInfo pickInfo )
 {
     if( pickInfo.getName() == "Line Guided Slice" )
@@ -258,7 +253,7 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
         const size_t nbVerts = 4;
         for( size_t i = 0; i < nbVerts; ++i )
         {
-            sliceVertices->push_back( wv3D2ov3( vertices[i] ) );
+            sliceVertices->push_back( vertices[i] );
         }
         sliceGeometry->setVertexArray( sliceVertices );
 
@@ -271,7 +266,7 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
             texCoords->clear();
             for( size_t i = 0; i < nbVerts; ++i )
             {
-                texCoords->push_back( wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] + wmath::WVector3D( 0.5, 0.5, 0.5 ) ) ) );
+                texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] + wmath::WVector3D( 0.5, 0.5, 0.5 ) ) );
             }
             sliceGeometry->setTexCoordArray( counter, texCoords );
             ++counter;

@@ -24,8 +24,8 @@
 
 #include <vector>
 
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../kernel/WKernel.h"
+#include "../kernel/WKernel.h"
+
 #include "WFiberDrawable.h"
 
 // The constructor here does nothing. One thing that may be necessary is
@@ -35,9 +35,7 @@
 // time (that is, the vertices drawn change from time to time).
 WFiberDrawable::WFiberDrawable():
     osg::Drawable(),
-    m_useTubes( false ),
-    m_globalColoring( true ),
-    m_customColoring( false )
+    m_useTubes( false )
 {
     setSupportsDisplayList( false );
     // This contructor intentionally left blank. Duh.
@@ -85,37 +83,17 @@ void WFiberDrawable::drawImplementation( osg::RenderInfo& renderInfo ) const //N
 
 void WFiberDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
 {
-    boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
-    boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
-    boost::shared_ptr< std::vector< float > > verts = m_dataset->getVertices();
-    boost::shared_ptr< std::vector< float > > tangents = m_dataset->getTangents();
-
-    boost::shared_ptr< std::vector< float > > colors;
-
-    // TODO(schurade): roi refactoring
-//    if ( m_customColoring )
-//    {
-//        colors = WKernel::getRunningKernel()->getRoiManager()->getCustomColors();
-//    }
-//    else
-//    {
-//        colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
-//    }
-    colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
-
-    boost::shared_ptr< std::vector< bool > > active = m_fiberSelector->getBitfield();
-
     osg::State& state = *renderInfo.getState();
 
     state.disableAllVertexArrays();
-    state.setVertexPointer( 3, GL_FLOAT , 0, &( *verts )[0] );
-    state.setColorPointer( 3 , GL_FLOAT , 0, &( *colors )[0] );
-    state.setNormalPointer( GL_FLOAT , 0, &( *tangents )[0] );
-    for ( size_t i = 0; i < active->size(); ++i )
+    state.setVertexPointer( 3, GL_FLOAT , 0, &( *m_verts )[0] );
+    state.setColorPointer( 3 , GL_FLOAT , 0, &( *m_colors )[0] );
+    //state.setNormalPointer( GL_FLOAT , 0, &( *m_tangents )[0] );
+    for ( size_t i = 0; i < m_active->size(); ++i )
     {
-        if ( (*active)[i] )
+        if ( (*m_active)[i] )
         {
-            state.glDrawArraysInstanced( GL_LINE_STRIP, (*startIndexes)[i], (*pointsPerLine)[i], 1);
+            state.glDrawArraysInstanced( GL_LINE_STRIP, (*m_startIndexes)[i], (*m_pointsPerLine)[i], 1);
         }
     }
 
@@ -125,43 +103,29 @@ void WFiberDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
 
 void WFiberDrawable::drawTubes() const
 {
-    boost::shared_ptr< std::vector< size_t > > startIndexes = m_dataset->getLineStartIndexes();
-    boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_dataset->getLineLengths();
-    boost::shared_ptr< std::vector< float > > verts = m_dataset->getVertices();
-    boost::shared_ptr< std::vector< float > > tangents = m_dataset->getTangents();
-
-    boost::shared_ptr< std::vector< float > > colors;
-    // TODO(schurade): roi refactoring
-//    if ( m_customColoring )
-//    {
-//        colors = WKernel::getRunningKernel()->getRoiManager()->getCustomColors();
-//    }
-//    else
-//    {
-//
-//    }
-    colors = ( m_globalColoring ? m_dataset->getGlobalColors() : m_dataset->getLocalColors() );
-
-    boost::shared_ptr< std::vector< bool > > active = m_fiberSelector->getBitfield();
-
-    for( size_t i = 0; i < active->size(); ++i )
+    for( size_t i = 0; i < m_active->size(); ++i )
     {
-        if ( active->at( i ) )
+        if ( (*m_active)[i] )
         {
             glBegin( GL_QUAD_STRIP );
-            int idx = startIndexes->at( i ) * 3;
-            for ( size_t k = 0; k < pointsPerLine->at( i ); ++k )
+            int idx = m_startIndexes->at( i ) * 3;
+            for ( size_t k = 0; k < m_pointsPerLine->at( i ); ++k )
             {
-                glNormal3f( tangents->at( idx ), tangents->at( idx + 1 ), tangents->at( idx + 2 ) );
-                glColor3f( colors->at( idx ), colors->at( idx + 1 ), colors->at( idx + 2 ) );
+                glNormal3f( m_tangents->at( idx ), m_tangents->at( idx + 1 ), m_tangents->at( idx + 2 ) );
+                glColor3f( m_colors->at( idx ), m_colors->at( idx + 1 ), m_colors->at( idx + 2 ) );
                 glTexCoord1f( -1.0f );
-                glVertex3f( verts->at( idx ), verts->at( idx + 1 ), verts->at( idx + 2 ) );
+                glVertex3f( m_verts->at( idx ), m_verts->at( idx + 1 ), m_verts->at( idx + 2 ) );
                 glTexCoord1f( 1.0f );
-                glVertex3f( verts->at( idx ), verts->at( idx + 1 ), verts->at( idx + 2 ) );
+                glVertex3f( m_verts->at( idx ), m_verts->at( idx + 1 ), m_verts->at( idx + 2 ) );
                 idx += 3;
                 //
             }
             glEnd();
         }
     }
+}
+
+void WFiberDrawable::setDataset( boost::shared_ptr< const WDataSetFibers > dataset )
+{
+    m_dataset = dataset;
 }

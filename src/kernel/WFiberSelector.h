@@ -28,7 +28,7 @@
 #include <list>
 #include <vector>
 
-#include "../../dataHandler/WDataSetFibers.h"
+#include "../dataHandler/WDataSetFibers.h"
 
 #include "WSelectorRoi.h"
 #include "WSelectorBranch.h"
@@ -101,7 +101,6 @@ protected:
      * \param branch branch that is being removed
      */
     void slotRemoveBranch( boost::shared_ptr< WRMBranch > branch );
-
 
 private:
     /**
