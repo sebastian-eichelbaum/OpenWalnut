@@ -69,6 +69,7 @@ void WMGpView::properties()
 {
     m_normal = m_properties->addProperty( "#Plane normal", "The normal of the plane", wmath::WPosition( 1.0, 0.0, 0.0 ) );
     m_pos = m_properties->addProperty( "#Plane position", "The position of the plane", wmath::WPosition( 0.0, 0.0, 0.0 ) );
+    m_scale = m_properties->addProperty( "Scaling factor", "How much the plane is streched", 0.0 );
 
     WModule::properties();
 }
@@ -77,11 +78,15 @@ void WMGpView::moduleMain()
 {
     m_moduleState.setResetable( true, true ); // remember actions when actually not waiting for actions
     m_moduleState.add( m_gpIC->getDataChangedCondition() );
+    m_moduleState.add( m_scale->getCondition() );
 
     ready();
 
     m_rootNode = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+    debugLog() << "Insert quad-plane";
+    m_rootNode->clear();
+    m_rootNode->insert( wge::genUnitSubdividedPlane( 100, 100 ) );
 
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
@@ -92,27 +97,32 @@ void WMGpView::moduleMain()
             continue;
         }
 
-        // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_gpIC->handledUpdate();
         boost::shared_ptr< WDataSetGP > dataSet = m_gpIC->getData();
-        bool dataValid = ( dataSet );
-        if( !dataValid )
+        if( !dataSet )
         {
+            debugLog() << "Invalid data--> continue";
             continue;
         }
-        debugLog() << "Insert quad-plane";
-        m_rootNode->clear();
-        m_rootNode->insert( wge::genUnitSubdividedPlane( 1, 1 ) );
+        if( m_gpIC->handledUpdate() )
+        {
+            debugLog() << "Input has been updated...";
+        }
+        debugLog() << "Resetting the matrix.";
+        m_rootNode->setMatrix( generateMatrix() );
     }
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
-// osg::ref_ptr< osg::Geode > WMGpView::generateSlice() const
-// {
-//     osg::ref_ptr< osg::Geode > result;
-//     return result;
-// }
+osg::Matrixd WMGpView::generateMatrix() const
+{
+    osg::Matrixd trans;
+    trans.makeTranslate( m_pos->get() );
 
-//void generateMatrix( const wmath::WVector3D& normal, const wmath::WPosition& pos ) const
-//{
-//}
+    osg::Matrixd scale;
+    scale.makeScale( m_scale->get(), m_scale->get(), m_scale->get() );
+
+    osg::Matrixd rot;
+    rot.makeRotate( wmath::WVector3D( 0.0, 0.0, 1.0 ), m_normal->get() );
+
+    return trans*scale*rot;
+}

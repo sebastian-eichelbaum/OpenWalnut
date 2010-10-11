@@ -79,7 +79,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -95,7 +94,7 @@ protected:
      */
     virtual void properties();
 
-    // virtual osg::ref_ptr< osg::Geode > generateSlice() const;
+    osg::Matrixd generateMatrix() const;
 
 private:
     /**
@@ -117,6 +116,11 @@ private:
      * The normal of the plane
      */
     WPropPosition m_normal;
+
+    /**
+     * The scaling of the subdivided plane geode in x,y and z direction.
+     */
+    WPropDouble m_scale;
 };
 
 #endif  // WMGPVIEW_H
