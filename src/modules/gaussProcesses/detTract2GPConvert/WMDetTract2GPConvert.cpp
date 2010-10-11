@@ -59,7 +59,7 @@ const std::string WMDetTract2GPConvert::getDescription() const
 
 void WMDetTract2GPConvert::connectors()
 {
-    m_tractIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractIn","The deterministic tracts" );
+    m_tractIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractIn", "The deterministic tracts" );
     m_tensorIC = WModuleInputData< WDataSetDTI >::createAndAdd( shared_from_this(), "tensorIn", "The 2nd order symmetric diffusion tensors" );
     m_gpOC = WModuleOutputData< WDataSetGP >::createAndAdd( shared_from_this(), "gpOut", "The gaussian processes" );
     WModule::connectors();
@@ -95,7 +95,7 @@ void WMDetTract2GPConvert::moduleMain()
         {
             continue;
         }
-        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Converting tracts into gaussian processes.", tracts->size() ) );
+        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Converting tracts into gaussian processes.", tracts->size() ) ); // NOLINT line length
         m_progress->addSubProgress( progress1 );
         m_gpOC->updateData( boost::shared_ptr< WDataSetGP >( new WDataSetGP( tracts, tensors, m_shutdownFlag, progress1 ) ) );
         progress1->finish();
