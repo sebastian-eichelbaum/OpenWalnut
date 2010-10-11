@@ -24,6 +24,7 @@
 
 #include <string>
 
+#include "../../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../../kernel/WKernel.h"
 #include "../../emptyIcon.xpm" // Please put a real icon here.
 
@@ -99,9 +100,9 @@ void WMGpView::moduleMain()
         {
             continue;
         }
-        if( dataUpdated )
-        {
-        }
+        debugLog() << "Insert quad-plane";
+        m_rootNode->clear();
+        m_rootNode->insert( wge::genUnitSubdividedPlane( 1, 1 ) );
     }
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
