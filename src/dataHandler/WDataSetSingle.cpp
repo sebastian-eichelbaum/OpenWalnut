@@ -129,7 +129,7 @@ double WDataSetSingle::getValueAt( size_t id ) const
     {
         case W_DT_UNSIGNED_CHAR:
         {
-            return static_cast< double >( boost::shared_dynamic_cast< WValueSet< unsigned char > >( getValueSet() )->getScalar( id ) );
+            return static_cast< double >( boost::shared_dynamic_cast< WValueSet< uint8_t > >( getValueSet() )->getScalar( id ) );
         }
         case W_DT_INT16:
         {

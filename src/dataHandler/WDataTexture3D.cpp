@@ -396,8 +396,8 @@ void WDataTexture3D::createTexture()
         if ( m_valueSet->getDataType() == W_DT_UINT8 )
         {
             wlog::debug( "WDataTexture3D" ) << "Handling W_DT_UINT8";
-            boost::shared_ptr< WValueSet< unsigned char > > vs = boost::shared_dynamic_cast< WValueSet< unsigned char > >( m_valueSet );
-            unsigned char* source = const_cast< unsigned char* > ( vs->rawData() );
+            boost::shared_ptr< WValueSet< uint8_t > > vs = boost::shared_dynamic_cast< WValueSet< uint8_t > >( m_valueSet );
+            uint8_t* source = const_cast< uint8_t* > ( vs->rawData() );
             ima = createTexture3D( source, m_valueSet->dimension() );
         }
         else if ( m_valueSet->getDataType() == W_DT_INT16 )
