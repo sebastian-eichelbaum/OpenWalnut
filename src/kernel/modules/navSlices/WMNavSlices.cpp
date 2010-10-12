@@ -293,14 +293,7 @@ void WMNavSlices::create()
         new userData( boost::shared_dynamic_cast< WMNavSlices >( shared_from_this() ) )
         );
 
-    m_rootNode->setUserData( usrData );
     m_slicesNode->setUserData( usrData );
-    m_xSliceNode->setUserData( usrData );
-    m_ySliceNode->setUserData( usrData );
-    m_zSliceNode->setUserData( usrData );
-    m_xCrossNode->setUserData( usrData );
-    m_yCrossNode->setUserData( usrData );
-    m_zCrossNode->setUserData( usrData );
     m_slicesNode->addUpdateCallback( new sliceNodeCallback );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_slicesNode );
