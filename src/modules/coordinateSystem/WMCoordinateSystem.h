@@ -150,6 +150,8 @@ private:
 
     boost::shared_ptr<WCoordConverter>m_coordConverter; //!< stores pointer
 
+    int m_viewAngle; //!< stores the last view angle
+
     /**
      * initialize the properties for this module
      */
@@ -206,54 +208,9 @@ private:
     // boost::shared_ptr< WShader >m_shader;
 
     /**
-    * Wrapper class for userData to prevent cyclic destructor calls
-    */
-    class userData: public osg::Referenced
-    {
-        friend class WMCoordinateSystem;
-    public:
-        /**
-        * userData Constructur with shared pointer to module
-        * \param _parent pointer to the module 
-        */
-        explicit userData( boost::shared_ptr< WMCoordinateSystem > _parent )
-        {
-            m_parent = _parent;
-        }
-
-        /**
-        * updateGeometry wrapper Function
-        */
-        void updateGeometry();
-    private:
-        /**
-        * shared pointer to the module
-        */
-        boost::shared_ptr< WMCoordinateSystem > m_parent;
-    };
-
-    /**
-     * Node callback to handle updates properly
+     * update function, called with each update pass of the osg render loop
      */
-    class coordinateNodeCallback : public osg::NodeCallback
-    {
-    public: //NOLINT
-        /**
-         * operator ()
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
-        {
-            osg::ref_ptr< userData > module = static_cast< userData* > ( node->getUserData() );
-            if ( module )
-            {
-                module->updateGeometry();
-            }
-            traverse( node, nv );
-        }
-    };
+    void updateCallback();
 };
 
 #endif  // WMCOORDINATESYSTEM_H

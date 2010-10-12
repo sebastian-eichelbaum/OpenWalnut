@@ -174,8 +174,8 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosit
     // transform the cube to match the bbox
     osg::Matrixd transformM;
     osg::Matrixd scaleM;
-    transformM.makeTranslate( wge::osgVec3( pos1 ) );
-    scaleM.makeScale( wge::osgVec3( pos2 - pos1 ) );
+    transformM.makeTranslate( pos1 );
+    scaleM.makeScale( pos2 - pos1 );
 
     // apply transformation to bbox
     osg::ref_ptr< osg::MatrixTransform > transform = new osg::MatrixTransform();
@@ -303,10 +303,10 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( double xSize, double ySize, cons
 
     colors->push_back( wge::osgColor( color ) );
 
-    vertices->push_back( osgVec3( p.getPointInPlane(  xSize,  ySize ) ) );
-    vertices->push_back( osgVec3( p.getPointInPlane( -xSize,  ySize ) ) );
-    vertices->push_back( osgVec3( p.getPointInPlane( -xSize, -ySize ) ) );
-    vertices->push_back( osgVec3( p.getPointInPlane(  xSize, -ySize ) ) );
+    vertices->push_back( p.getPointInPlane(  xSize,  ySize ) );
+    vertices->push_back( p.getPointInPlane( -xSize,  ySize ) );
+    vertices->push_back( p.getPointInPlane( -xSize, -ySize ) );
+    vertices->push_back( p.getPointInPlane(  xSize, -ySize ) );
 
     geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
     geometry->setVertexArray( vertices );

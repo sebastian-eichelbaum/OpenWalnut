@@ -283,7 +283,7 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createYX()
             vertices->push_back( osg::Vec3( m_origin.x(), m_lb[1], m_origin.z() ) );
             vertices->push_back( osg::Vec3( m_origin.x(), m_ub[1], m_origin.z() ) );
 
-            for ( int i = startY; i <= static_cast< int > ( m_ub[0] ); ++i )
+            for ( int i = startY; i <= static_cast< int > ( m_ub[1] ); ++i )
             {
                 float rlength = 1.0;
                 if ( m_coordConverter->numberToCsY( i ) % 10 == 0 )

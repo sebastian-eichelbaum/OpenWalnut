@@ -61,6 +61,9 @@ void WRMBranch::propertyChanged()
 void WRMBranch::addRoi( osg::ref_ptr< WROI > roi )
 {
     m_rois.push_back( roi );
+    boost::function< void() > changeRoiSignal = boost::bind( &WRMBranch::setDirty, this );
+    roi->addChangeNotifier( changeRoiSignal );
+
     setDirty();
 }
 

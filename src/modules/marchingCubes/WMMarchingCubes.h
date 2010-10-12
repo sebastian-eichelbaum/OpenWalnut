@@ -93,7 +93,7 @@ public:
     /**
      *  updates textures and shader parameters when called (usually from the callback)
      */
-    void updateGraphicsForCallback();
+    void updateGraphicsCallback();
 
 protected:
     /**
@@ -124,17 +124,6 @@ private:
     void renderMesh();
 
     /**
-     * Store the mesh in legacy vtk file format.
-     */
-    bool save() const;
-
-    /**
-     * Load meshes saved with WMMarchingCubes::save
-     * \param fileName the mesh will be loaded from this file
-     */
-    WTriangleMesh load( std::string fileName );
-
-    /**
      * Kind of a convenience function for generate surface.
      * It performs the conversions of the value sets of different data types.
      * \param isoValue The surface will represent this value.
@@ -151,9 +140,7 @@ private:
     WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
     WPropColor m_surfaceColor; //!< Property determining the color for the surface if no textures are displayed
 
-    WPropGroup    m_savePropGroup; //!< Property group containing properties needed for saving the mesh.
-    WPropTrigger  m_saveTriggerProp; //!< This property triggers the actual writing,
-    WPropFilename m_meshFile; //!< The mesh will be written to this file.
+    WPropBool m_useMarchingLego; //!< Property indicating whether to use interpolated or non interpolated triangulation
 
     /**
      * True when textures haven changed.
@@ -199,42 +186,5 @@ private:
 
     static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
 };
-
-/**
- * Adapter object for realizing callbacks of the node representing the isosurface in the osg
- */
-class SurfaceNodeCallback : public osg::NodeCallback
-{
-public:
-    /**
-     * Constructor of the callback adapter.
-     * \param module A function of this module will be called
-     */
-    explicit SurfaceNodeCallback( WMMarchingCubes* module );
-
-    /**
-     * Function that is called by the osg and that call the function in the module.
-     * \param node The node we are called.
-     * \param nv the visitor calling us.
-     */
-    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-private:
-    WMMarchingCubes* m_module; //!< Pointer to the module to which the function that is called belongs to.
-};
-
-inline SurfaceNodeCallback::SurfaceNodeCallback( WMMarchingCubes* module )
-    : m_module( module )
-{
-}
-
-inline void SurfaceNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    if ( m_module )
-    {
-        m_module->updateGraphicsForCallback();
-    }
-    traverse( node, nv );
-}
 
 #endif  // WMMARCHINGCUBES_H

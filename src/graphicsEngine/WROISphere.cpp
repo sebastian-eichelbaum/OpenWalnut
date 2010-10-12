@@ -108,6 +108,7 @@ void WROISphere::updateGFX()
 {
     std::stringstream ss;
     ss << "ROISphere" << sphereId << "";
+
     if ( m_pickInfo.getName() == ss.str() )
     {
         std::pair< float, float > newPixelPos( m_pickInfo.getPickPixelPosition() );
@@ -143,8 +144,6 @@ void WROISphere::updateGFX()
         m_oldPixelPosition = newPixelPos;
         m_dirty->set( true );
         m_isPicked = true;
-
-        m_signalIsModified();
     }
     if ( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
@@ -156,6 +155,8 @@ void WROISphere::updateGFX()
     if ( m_dirty->get() )
     {
         redrawSphere();
+        signalRoiChange();
+        m_dirty->set( false );
     }
 }
 

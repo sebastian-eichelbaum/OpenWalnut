@@ -122,7 +122,7 @@ wmath::WVector3D WDataSetVector::getVectorAt( size_t index ) const
     {
         case W_DT_UNSIGNED_CHAR:
         {
-            return boost::shared_dynamic_cast< WValueSet< unsigned char > >( getValueSet() )->getVector3D( index );
+            return boost::shared_dynamic_cast< WValueSet< uint8_t > >( getValueSet() )->getVector3D( index );
         }
         case W_DT_INT16:
         {

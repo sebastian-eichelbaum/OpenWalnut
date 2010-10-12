@@ -52,8 +52,8 @@ bool isZero( in float value, in float epsilon )
 
 /**
  * Evaluates a given value whether it is zero, or more exactly, if it can be seen as zero.
- * \note We need a separate function here because the shader compiler on MacOSX does not allow default values for function arguments
- * 
+ * \note This version is needed for portability as the GLSL compiler on MacOS X does not allow argument default values in functions.
+ *
  * \param value the value to check
  * \param epsilon the epsilon to use. Default is 0.001. Much lower is not recommended since floating point precision in GLSL is not that high.
  * 

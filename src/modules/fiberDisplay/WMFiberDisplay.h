@@ -30,15 +30,15 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/WDataSetFibers.h"
+
+#include "../../graphicsEngine/WFiberDrawable.h"
 #include "../../graphicsEngine/WROI.h"
 #include "../../graphicsEngine/WROIBox.h"
 #include "../../graphicsEngine/WShader.h"
 
+#include "../../kernel/WFiberSelector.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-
-#include "WFiberSelector.h"
-#include "WFiberDrawable.h"
 
 /**
  * Module for drawing fibers
@@ -129,11 +129,6 @@ protected:
     */
     void updateRenderModes();
 
-    /**
-    * Enable disable global or local coloring
-    */
-    void toggleColoring();
-
 private:
     /**
      * function gets called when the input connector has been updated
@@ -141,12 +136,15 @@ private:
     void inputUpdated();
 
     /**
+     * The update callback that is called for the osg node of this module.
+     */
+    void updateCallback();
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    WPropBool m_coloring; //!< Enable/Disable global (true) or local (false) coloring of the fiber tracts
-    WPropBool m_customColoring; //!< Enable/Disable custom colors
     WPropBool m_useTubesProp; //!< Property indicating whether to use tubes for the fibers tracts.
     WPropBool m_useTextureProp; //!< Property indicating whether to use tubes for the fibers tracts.
     WPropDouble m_tubeThickness; //!< Property determining the thickness of tubes .
@@ -252,11 +250,6 @@ private:
     osg::ref_ptr< WROIBox > m_cullBox; //!< stores a pointer to the cull box
 
     /**
-     * changes tube parameters
-     */
-    void adjustTubes();
-
-    /**
      * saves the currently selected (active field from roi manager) fibers to a file
      */
     void saveSelected();
@@ -276,69 +269,6 @@ private:
      * create a selection box to cull the fibers
      */
     void initCullBox();
-
-    /**
-    * Wrapper class for userData to prevent cyclic destructor calls
-    */
-    class userData: public osg::Referenced
-    {
-    public:
-        /**
-        * userData Constructur with shared pointer to module
-        * \param _parent pointer to the module
-        */
-        explicit userData( boost::shared_ptr< WMFiberDisplay > _parent )
-        {
-            parent = _parent;
-        }
-
-        /**
-        * update wrapper Function
-        */
-        void update();
-
-        /**
-        * updateRenderModes wrapper Function
-        */
-        void updateRenderModes();
-
-        /**
-        * toggleColoring wrapper Function
-        */
-        void toggleColoring();
-    private:
-        /**
-        * shared pointer to the module
-        */
-        boost::shared_ptr< WMFiberDisplay > parent;
-    };
-
-
-    /**
-     * Node callback to handle updates properly
-     */
-    class fdNodeCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-        /**
-         * operator ()
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
-        {
-            osg::ref_ptr< userData > module = static_cast< userData* > ( node->getUserData() );
-
-            if ( module )
-            {
-                module->update();
-                module->updateRenderModes();
-                module->toggleColoring();
-            }
-            traverse( node, nv );
-        }
-    };
 };
 
 inline const std::string WMFiberDisplay::getName() const

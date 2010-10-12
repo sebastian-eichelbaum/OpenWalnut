@@ -22,39 +22,47 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMSUBTRACTDATASETSCALAR_H
-#define WMSUBTRACTDATASETSCALAR_H
+#ifndef WMWRITEMESH_H
+#define WMWRITEMESH_H
 
 #include <string>
-#include <vector>
-#include <algorithm>
 
+#include <osg/Geode>
+
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../common/WThreadedFunction.h"
-#include "../../dataHandler/WDataSetScalar.h"
 
 /**
- * \class WMSubtractDataSetScalar
+ * Someone should add some documentation here.
+ * Probably the best person would be the module's
+ * creator, i.e. "wiebel".
  *
- * Voxel-wise subtraction of two scalar datasets.
+ * This is only an empty template for a new module. For
+ * an example module containing many interesting concepts
+ * and extensive documentation have a look at "src/modules/template"
  *
  * \ingroup modules
  */
-class WMSubtractDataSetScalar: public WModule
+class WMWriteMesh: public WModule
 {
+/**
+ * Only UnitTests may be friends.
+ */
+friend class WMWriteMeshTest;
+
 public:
 
     /**
-     * Standard constructor.
+     *
      */
-    WMSubtractDataSetScalar();
+    WMWriteMesh();
 
     /**
-     * Standard destructor.
+     *
      */
-    virtual ~WMSubtractDataSetScalar();
+    virtual ~WMWriteMesh();
 
     /**
      * Gives back the name of this module.
@@ -82,7 +90,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -98,56 +105,19 @@ protected:
      */
     virtual void properties();
 
+
 private:
-
     /**
-     * Subtract m_first and m_second.
+     * Store the mesh in legacy vtk file format.
      */
-    void subtract();
+    bool save() const;
 
-    /**
-     * Subtract m_first and m_second.
-     *
-     * \tparam T The datatype of he valuesets.
-     */
-    template< typename T >
-    void subtractTyped();
+    boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshInput; //!< Input connector for a mesh
+    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< A pointer to the currently processed tri mesh
 
-    //! The first input Connector.
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input1;
-
-    //! The second input Connector.
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input2;
-
-    //! The output Connector.
-    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
-
-    //! The first input dataset.
-    boost::shared_ptr< WDataSetScalar > m_first;
-
-    //! The second input dataset.
-    boost::shared_ptr< WDataSetScalar > m_second;
-
-    //! The result, i.e. m_first - m_second.
-    boost::shared_ptr< WDataSetScalar > m_result;
+    WPropGroup    m_savePropGroup; //!< Property group containing properties needed for saving the mesh.
+    WPropTrigger  m_saveTriggerProp; //!< This property triggers the actual writing,
+    WPropFilename m_meshFile; //!< The mesh will be written to this file.
 };
 
-template< typename T >
-void WMSubtractDataSetScalar::subtractTyped()
-{
-    typedef WValueSet< T > VS;
-    typedef boost::shared_ptr< VS > VSPtr;
-
-    VSPtr firstValueSet = boost::shared_dynamic_cast< VS >( m_first->getValueSet() );
-    VSPtr secondValueSet = boost::shared_dynamic_cast< VS >( m_second->getValueSet() );
-
-    std::vector< T > values( m_first->getGrid()->size() );
-    for( std::size_t k = 0; k < m_first->getGrid()->size(); ++k )
-    {
-        values[ k ] = std::max( 0, firstValueSet->rawData()[ k ] - secondValueSet->rawData()[ k ] );
-    }
-    VSPtr vs( new VS( 0, 1, values, DataType< T >::type ) );
-    m_result = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_first->getGrid() ) );
-}
-
-#endif  // WMSUBTRACTDATASETSCALAR_H
+#endif  // WMWRITEMESH_H

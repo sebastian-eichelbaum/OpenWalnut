@@ -126,12 +126,13 @@ protected:
      */
     void propertyChanged();
 
-    osg::ref_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
-
     /**
-     * boost signal object to indicate box manipulation
+     * signals a roi change to all subscribers
      */
-    boost::signals2::signal0< void >m_signalIsModified;
+    void signalRoiChange();
+
+
+    osg::ref_ptr< WPickHandler > m_pickHandler; //!< A pointer to the pick handler used to get gui events for moving the box.
 
     /**
      * the property object for the module
@@ -180,11 +181,6 @@ protected:
     boost::shared_mutex m_associatedNotifiersLock;
 
 private:
-    /**
-     * signals a roi change to all subscribers
-     */
-    void signalRoiChange();
-
     /**
      *  updates the graphics
      */

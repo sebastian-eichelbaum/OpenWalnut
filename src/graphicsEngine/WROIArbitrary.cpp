@@ -30,9 +30,7 @@
 #include <osg/LineWidth>
 #include <osg/LightModel>
 
-#include "../common/WProgressCombiner.h"
-
-#include "algorithms/WMarchingCubesAlgorithm.h"
+#include "algorithms/WMarchingLegoAlgorithm.h"
 
 #include "WGraphicsEngine.h"
 
@@ -151,13 +149,11 @@ void WROIArbitrary::updateGFX()
 {
     if ( m_dirty->get() )
     {
-        boost::shared_ptr< WProgressCombiner > progress = boost::shared_ptr< WProgressCombiner >( new WProgressCombiner() );
-        WMarchingCubesAlgorithm mcAlgo;
-        m_triMesh = mcAlgo.generateSurface( m_nbCoordsVec[0], m_nbCoordsVec[1], m_nbCoordsVec[2],
+        WMarchingLegoAlgorithm mlAlgo;
+        m_triMesh = mlAlgo.generateSurface( m_nbCoordsVec[0], m_nbCoordsVec[1], m_nbCoordsVec[2],
                                             m_matrix,
                                             &m_vals,
-                                            m_threshold->get(),
-                                            progress );
+                                            m_threshold->get() );
 
         osg::Geometry* surfaceGeometry = new osg::Geometry();
         setName( "roi" );

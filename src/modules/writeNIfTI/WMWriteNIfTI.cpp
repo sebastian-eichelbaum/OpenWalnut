@@ -249,12 +249,12 @@ void WMWriteNIfTI::writeToFile()
             break;
         case W_DT_UNSIGNED_CHAR:
             outField->datatype = DT_UNSIGNED_CHAR;
-            castData< unsigned char > ( data );
+            castData< uint8_t > ( data );
             outField->nbyper = 1;
             break;
         case W_DT_INT8:
             outField->datatype = DT_INT8;
-            castData< char > ( data );
+            castData< int8_t > ( data );
             outField->nbyper = 1;
             break;
         case W_DT_UINT16:

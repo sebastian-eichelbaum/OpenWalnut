@@ -87,7 +87,7 @@ void WHierarchicalTree::addCluster( size_t cluster1, size_t cluster2, size_t lev
     ++m_clusterCount;
 }
 
-boost::shared_ptr< std::vector<bool> >WHierarchicalTree::getOutputBitfield( size_t cluster )
+boost::shared_ptr< std::vector<bool> > WHierarchicalTree::getOutputBitfield( size_t cluster )
 {
     boost::shared_ptr< std::vector< bool > > bf;
     // only a single fiber selected
@@ -311,7 +311,6 @@ std::vector<size_t> WHierarchicalTree::getBestClustersFittingRoi( float ratio, s
 
 float WHierarchicalTree::getRatio( size_t cluster )
 {
-    boost::shared_ptr< std::vector< bool > > roiSelection = WKernel::getRunningKernel()->getRoiManager()->getRoiBitfield();
     std::vector<size_t>fibersInCluster = getLeafesForCluster( cluster );
 
     size_t countFibersInCluster = fibersInCluster.size();
@@ -319,7 +318,7 @@ float WHierarchicalTree::getRatio( size_t cluster )
 
     for ( size_t i = 0; i < countFibersInCluster; ++i )
     {
-        if ( ( *roiSelection )[fibersInCluster[i]] )
+        if ( ( *m_roiSelection )[fibersInCluster[i]] )
         {
             ++fibersFromClusterActive;
         }

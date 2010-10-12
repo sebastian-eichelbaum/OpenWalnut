@@ -152,6 +152,8 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
     SET( CMAKE_SHARED_LINKER_FLAGS " /STACK:10000000 /machine:I386 /NODEFAULTLIB:${EXCLUDE_LIBRARIES}"  CACHE STRING "" FORCE )
     SET( CMAKE_EXE_LINKER_FLAGS " /STACK:10000000 /machine:I386 /NODEFAULTLIB:${EXCLUDE_LIBRARIES}"  CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D \"NOMINMAX\"" )
+    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP" )
+	SET( CMAKE_DEBUG_POSTFIX "d" CACHE STRING "add a postfix, usually d on windows" )
 ELSE()
     # Unfortunately libstdc++'s header files don't work with mingw in ansi mode (basically libstdc++'s fault)
     IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
@@ -173,7 +175,6 @@ ENDIF()
 IF( ITK_FOUND AND OW_USE_ITK )
 	SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOW_USE_ITK" CACHE STRING "" FORCE )
 	SET( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DOW_USE_ITK" CACHE STRING "" FORCE )
-    SET( ITK_LIBRARIES "ITKCommon" )
 ENDIF( ITK_FOUND AND OW_USE_ITK )
 
 SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
@@ -207,6 +208,11 @@ ENDIF()
 # finally, build walnut
 ADD_EXECUTABLE( walnut OpenWalnut.cpp version.h )
 TARGET_LINK_LIBRARIES( walnut OWkernel OWdataHandler OWgui OWguiqt4 OWcommon OWge ${Boost_LIBRARIES} )
+
+IF(MSVC_IDE)
+	SET_TARGET_PROPERTIES( walnut PROPERTIES DEBUG_POSTFIX "d")
+	SET_TARGET_PROPERTIES( walnut PROPERTIES PREFIX "../")    
+ENDIF(MSVC_IDE)
 
 #---------- Shaders -------------
 option( OW_COPY_SHADERS "This enables copying shaders with every make call." ON )

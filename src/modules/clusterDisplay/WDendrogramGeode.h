@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDENDROGRAM_H
-#define WDENDROGRAM_H
+#ifndef WDENDROGRAMGEODE_H
+#define WDENDROGRAMGEODE_H
 
 #include <osg/Geode>
 #include <osg/Vec3>
@@ -36,7 +36,7 @@
 /**
  * Class creates a dendrogram from a hierarchical clustering
  */
-class WDendrogram : public osg::Geode
+class WDendrogramGeode : public osg::Geode
 {
 public:
     /**
@@ -51,13 +51,13 @@ public:
      * \param yOffset translation alogn the y axis
      *
      */
-    WDendrogram( WHierarchicalTree* tree, size_t cluster, size_t minClusterSize = 1, float xSize = 1000.f,
+    WDendrogramGeode( WHierarchicalTree* tree, size_t cluster, size_t minClusterSize = 1, float xSize = 1000.f,
             float ySize = 500.f, float xOffset = 0.0f, float yOffset = 0.0f );
 
     /**
      * destructor
      */
-    ~WDendrogram();
+    ~WDendrogramGeode();
 
     /**
      * calculate which cluster was clicked from given pixel coordinates
@@ -116,4 +116,4 @@ private:
     size_t m_clickedCluster; //!< the clicked cluster
 };
 
-#endif  // WDENDROGRAM_H
+#endif  // WDENDROGRAMGEODE_H

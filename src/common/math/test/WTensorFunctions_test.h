@@ -607,6 +607,44 @@ public:
         TS_ASSERT_EQUALS( srdm1 * rdm1, res4 );
     }
 
+    /**
+     * The optimizations for symmetric tensors should not corrupt the result.
+     */
+    void testEvaluateSphericalFunction()
+    {
+        wmath::WTensorSym< 4, 3, double > t;
+        // the tensor
+        t( 0, 0, 0, 0 ) = 2.5476;
+        t( 1, 1, 1, 1 ) = 3.5476;
+        t( 2, 2, 2, 2 ) = 4.5476;
+        t( 0, 0, 0, 1 ) = 5.5476;
+        t( 0, 0, 0, 2 ) = 6.5476;
+        t( 1, 1, 1, 0 ) = 7.5476;
+        t( 1, 1, 1, 2 ) = 8.5476;
+        t( 2, 2, 2, 0 ) = 9.5476;
+        t( 2, 2, 2, 1 ) = 10.5476;
+        t( 0, 0, 1, 2 ) = 11.5476;
+        t( 1, 1, 0, 2 ) = 12.5476;
+        t( 2, 2, 0, 1 ) = 13.5476;
+        t( 0, 0, 1, 1 ) = 14.5476;
+        t( 0, 0, 2, 2 ) = 15.5476;
+        t( 1, 1, 2, 2 ) = 16.5476;
+
+        // the gradients
+        std::vector< wmath::WVector3D > gradients;
+        gradients.push_back( wmath::WVector3D( 1.0, 0.0, 0.0 ) );
+        gradients.push_back( wmath::WVector3D( 0.0, 1.0, 0.0 ) );
+        gradients.push_back( wmath::WVector3D( 1.0, 1.0, 0.0 ).normalized() );
+        gradients.push_back( wmath::WVector3D( 0.3, 0.4, 0.5 ).normalized() );
+        gradients.push_back( wmath::WVector3D( -7.0, 3.0, -1.0 ).normalized() );
+
+        for( int k = 0; k < 5; ++k )
+        {
+            double res = calcTens( t, gradients[ k ] );
+            TS_ASSERT_DELTA( res, evaluateSphericalFunction( t, gradients[ k ] ), 0.001 );
+        }
+    }
+
 private:
     /**
      * Initialize a lot of tensors.
@@ -684,6 +722,31 @@ private:
         res4( 2, 2 ) = 22;
     }
 
+    /**
+     * A helper function that implements the simple approach to tensor evaluation.
+     *
+     * \param t The tensor.
+     * \param v The gradient.
+     */
+    double calcTens( wmath::WTensorSym< 4, 3, double > const& t, wmath::WVector3D const& v )
+    {
+        double res = 0.0;
+        for( int a = 0; a < 3; ++a )
+        {
+            for( int b = 0; b < 3; ++b )
+            {
+                for( int c = 0; c < 3; ++c )
+                {
+                    for( int d = 0; d < 3; ++d )
+                    {
+                        res += v[ a ] * v[ b ] * v[ c ] * v[ d ] * t( a, b, c, d );
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
     //! a test tensor
     wmath::WTensor< 2, 3, int > one;
     //! a test tensor
@@ -710,5 +773,4 @@ private:
     wmath::WTensorSym< 2, 3, int > srdm2;
 };
 
-    //! a test tensor
 #endif  // WTENSORFUNCTIONS_TEST_H

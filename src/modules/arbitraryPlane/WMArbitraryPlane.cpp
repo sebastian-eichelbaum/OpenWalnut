@@ -136,14 +136,20 @@ void WMArbitraryPlane::moduleMain()
     {
         m_moduleState.wait();
 
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
         if ( m_showComplete->changed() )
         {
+            m_showComplete->get( true );
             m_dirty = true;
         }
 
         if ( m_active->changed() )
         {
-            if ( m_active->get() && m_showManipulators->get() )
+            if ( m_active->get( true ) && m_showManipulators->get() )
             {
                 m_s0->unhide();
                 m_s1->unhide();
@@ -205,12 +211,11 @@ void WMArbitraryPlane::moduleMain()
             m_buttonReset2Sagittal->set( WPVBaseTypes::PV_TRIGGER_READY, false );
             m_dirty = true;
         }
-
-        if ( m_shutdownFlag() )
-        {
-            break;
-        }
     }
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( &( *m_s0 ) );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( &( *m_s1 ) );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( &( *m_s2 ) );
+
     con.disconnect();
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
@@ -222,8 +227,9 @@ void WMArbitraryPlane::initPlane()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     m_geode = new osg::Geode();
     m_geode->setName( "_arbitraryPlane" );
-    m_rootNode->addUpdateCallback( new SafeUpdateCallback( this ) );
     m_rootNode->insert( m_geode );
+
+    m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMArbitraryPlane::updateCallback, this ) ) );
 
     wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
     m_p0 = wmath::WPosition( center );
@@ -275,10 +281,10 @@ void WMArbitraryPlane::updatePlane()
     osg::ref_ptr<osg::Geometry> planeGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
     osg::Vec3Array* planeVertices = new osg::Vec3Array;
 
-    planeVertices->push_back( wge::wv3D2ov3( v0 ) );
-    planeVertices->push_back( wge::wv3D2ov3( v1 ) );
-    planeVertices->push_back( wge::wv3D2ov3( v2 ) );
-    planeVertices->push_back( wge::wv3D2ov3( v3 ) );
+    planeVertices->push_back( v0 );
+    planeVertices->push_back( v1 );
+    planeVertices->push_back( v2 );
+    planeVertices->push_back( v3 );
 
     planeGeometry->setVertexArray( planeVertices );
     osg::DrawElementsUInt* quad = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
@@ -298,10 +304,10 @@ void WMArbitraryPlane::updatePlane()
         boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
         osg::Vec3Array* texCoords = new osg::Vec3Array;
 
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v0 ) ) );
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v1 ) ) );
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v2 ) ) );
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v3 ) ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v0 ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v1 ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v2 ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v3 ) );
 
         planeGeometry->setTexCoordArray( c, texCoords );
         ++c;
@@ -313,10 +319,10 @@ void WMArbitraryPlane::updatePlane()
 
         osg::Vec3Array* texCoords = new osg::Vec3Array;
 
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v0 ) ) );
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v1 ) ) );
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v2 ) ) );
-        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( v3 ) ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v0 ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v1 ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v2 ) );
+        texCoords->push_back( grid->worldCoordToTexCoord( v3 ) );
 
         planeGeometry->setTexCoordArray( c, texCoords );
         ++c;
@@ -327,21 +333,20 @@ void WMArbitraryPlane::updatePlane()
     m_dirty = false;
 }
 
-void WMArbitraryPlane::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+void WMArbitraryPlane::updateCallback()
 {
     wmath::WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    wmath::WPosition cho = m_module->getCenterPosition();
+    wmath::WPosition cho = getCenterPosition();
     if ( ch[0] != cho[0] || ch[1] != cho[1] || ch[2] != cho[2] )
     {
-        m_module->setDirty();
+        setDirty();
     }
 
-    if ( m_module->isDirty() )
+    if ( isDirty() )
     {
-        m_module->updatePlane();
-        m_module->updateTextures();
+        updatePlane();
+        updateTextures();
     }
-    traverse( node, nv );
 }
 
 void WMArbitraryPlane::setDirty()

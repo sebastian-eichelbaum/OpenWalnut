@@ -510,7 +510,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
             osg::Vec3 endPosWorld = wge::unprojectFromScreen( endPosScreen, m_viewer->getCamera() );
 
             osg::Vec3 moveDirWorld = endPosWorld - startPosWorld;
-            float diff = wge::wv3D2ov3( normal ) * moveDirWorld;
+            float diff = normal * moveDirWorld;
 
             // recognize also small values.
             if( diff < 0 && diff > -1 )
@@ -628,7 +628,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 vertices.push_back( wmath::WPosition( xPos, m_bb.second[1], m_bb.first[2]   ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
-                    sliceVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
+                    sliceVertices->push_back( vertices[i] );
                 }
 
                 sliceGeometry->setVertexArray( sliceVertices );
@@ -641,7 +641,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -655,7 +655,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -672,7 +672,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 vertices.push_back( wmath::WPosition( m_bb.second[0],  yPos, m_bb.first[2]  ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
-                    sliceVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
+                    sliceVertices->push_back( vertices[i] );
                 }
                 sliceGeometry->setVertexArray( sliceVertices );
 
@@ -684,7 +684,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -698,7 +698,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -714,7 +714,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 vertices.push_back( wmath::WPosition( m_bb.second[0], m_bb.first[1],  zPos ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
-                    sliceVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
+                    sliceVertices->push_back( vertices[i] );
                 }
 
                 sliceGeometry->setVertexArray( sliceVertices );
@@ -727,7 +727,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -742,7 +742,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -818,7 +818,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
 
     for( size_t i = 0; i < vertices.size(); ++i )
     {
-        crossVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
+        crossVertices->push_back( vertices[i] );
     }
 
     colorArray->push_back( osg::Vec3( 1.0f, 0.0f, 0.0f ) );

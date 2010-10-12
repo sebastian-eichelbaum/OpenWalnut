@@ -298,7 +298,7 @@ void WROIBox::updateGFX()
         setDirty();
         m_isPicked = true;
 
-        m_signalIsModified();
+        signalRoiChange();
     }
     if ( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
