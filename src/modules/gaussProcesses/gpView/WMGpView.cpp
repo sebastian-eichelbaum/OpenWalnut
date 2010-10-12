@@ -24,14 +24,18 @@
 
 #include <string>
 
+#include <boost/bind.hpp>
+
 #include "../../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../../graphicsEngine/callbacks/WGEFunctorCallback.h"
 #include "../../../kernel/WKernel.h"
 #include "../../emptyIcon.xpm" // Please put a real icon here.
 
 #include "WMGpView.h"
 
 WMGpView::WMGpView():
-    WModule()
+    WModule(),
+    m_newPlaneColors( false )
 {
 }
 
@@ -86,7 +90,9 @@ void WMGpView::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     debugLog() << "Insert quad-plane";
     m_rootNode->clear();
-    m_rootNode->insert( wge::genUnitSubdividedPlane( 100, 100 ) );
+    m_planeNode = wge::genUnitSubdividedPlane( 100, 100 );
+    m_planeNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMGpView::updatePlaneColors, this, _1 ) ) );
+    m_rootNode->insert( m_planeNode );
 
     while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
@@ -98,6 +104,7 @@ void WMGpView::moduleMain()
         }
 
         boost::shared_ptr< WDataSetGP > dataSet = m_gpIC->getData();
+        // TODO(math): insert here cool stuff
         if( !dataSet )
         {
             debugLog() << "Invalid data--> continue";
@@ -108,7 +115,10 @@ void WMGpView::moduleMain()
             debugLog() << "Input has been updated...";
         }
         debugLog() << "Resetting the matrix.";
-        m_rootNode->setMatrix( generateMatrix() );
+        osg::Matrixd transform = generateMatrix();
+        m_rootNode->setMatrix( transform );
+        m_newColors = generateNewColors( transform, dataSet );
+        m_newPlaneColors = true;
     }
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
@@ -124,5 +134,38 @@ osg::Matrixd WMGpView::generateMatrix() const
     osg::Matrixd rot;
     rot.makeRotate( wmath::WVector3D( 0.0, 0.0, 1.0 ), m_normal->get() );
 
-    return trans*scale*rot;
+    return scale * rot * trans; // order is important: first scale, then rotate and finally translate, since matrix multiply
+}
+
+osg::ref_ptr< osg::Vec4Array > WMGpView::generateNewColors( const osg::Matrixd& m, boost::shared_ptr< const WDataSetGP > dataset ) const
+{
+    osg::ref_ptr< osg::Vec4Array > newColors = new osg::Vec4Array;
+    osg::ref_ptr< const osg::Vec3Array > oldCenters = m_planeNode->getCenterArray();
+
+    for( size_t i = 0; i < oldCenters->size(); ++i )
+    {
+        // ATTENTION: Matrix is in OSG post multiply
+        double mean = dataset->mean( wmath::WVector3D( ( *oldCenters )[i] * m ) );
+        newColors->push_back( osg::Vec4( mean, mean, mean, 1.0 ) );
+    }
+    return newColors;
+}
+
+void WMGpView::updatePlaneColors( osg::Node* node )
+{
+    if( m_newPlaneColors )
+    {
+        WGESubdividedPlane *geode = dynamic_cast< WGESubdividedPlane* >( node );
+        if( !geode )
+        {
+            errorLog() << "Invalid update callback on osg::Node which is not a WGESubdividedPlane";
+            return;
+        }
+        osg::Geometry *geo = dynamic_cast< osg::Geometry* >( geode->getDrawable( 0 ) );
+        WAssert( geo, "A WGESubdivededPlane geode must have a drawable!, but didn't => this is a bug!" );
+        geo->setColorArray( m_newColors );
+        // delete the reference in the module, so only this node has access to this color array
+        m_newColors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+        m_newPlaneColors = false;
+    }
 }

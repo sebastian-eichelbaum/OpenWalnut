@@ -30,6 +30,7 @@
 #include <osg/Geode>
 
 #include "../../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../../graphicsEngine/WGESubdividedPlane.h"
 #include "../../../kernel/WModule.h"
 #include "../../../kernel/WModuleInputData.h"
 #include "../WDataSetGP.h"
@@ -94,7 +95,39 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Generates the transformation matrix to scale, rotate and translate the SubdividedPlane onto its place.
+     *
+     * \note This matrix must be multiplied from right in order to be working!
+     *
+     * \return Transformation matrix.
+     */
     osg::Matrixd generateMatrix() const;
+
+    /**
+     * Incase of a new matrix the center points of the quads inside the subdivided plane geode will
+     * be also transformed. Since they determine the Color of the whole quad, (mean function
+     * evaluation and color mapping) we need to transform the center points to and generate a new
+     * color array for the WGESubdividedPlane geode. To indicate that a new color array may be used,
+     * the m_newPlaneColors flag is set to true.
+     *
+     * \param m The transformation matrix used to accomplish the transformation of the center
+     * points.
+     * \param dataset For each center point all mean functions must be evaluated, Hence we need this
+     * reference to the dataset.
+     *
+     * \return New color array.
+     */
+    osg::ref_ptr< osg::Vec4Array > generateNewColors( const osg::Matrixd& m, boost::shared_ptr< const WDataSetGP > dataset ) const;
+
+    /**
+     * This update callback is used in case a new color array is present to change the colors on the
+     * quads of the WGESubdividedPlane Quads.
+     *
+     * \param node Typically you won't call this member function explicit, but take it as update
+     * callback for the WGESubdividedPlane geode.
+     */
+    void updatePlaneColors( osg::Node* node );
 
 private:
     /**
@@ -106,6 +139,19 @@ private:
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
     osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+
+    /**
+     * In order to add an update callback we need this reference. Also we must retrieve sometimes
+     * the vertex array of the centerpoints to apply the same transformation on them!
+     */
+    osg::ref_ptr< WGESubdividedPlane > m_planeNode;
+
+    /**
+     * This color array is build up in case of a transformation. Once it is finished and
+     * m_newPlaneColors set to true, the update callback \ref updatePlaneColors will take
+     * use of this new array and replace the old colors.
+     */
+    osg::ref_ptr< osg::Vec4Array > m_newColors;
 
     /**
      * The base point of the plane.
@@ -121,6 +167,12 @@ private:
      * The scaling of the subdivided plane geode in x,y and z direction.
      */
     WPropDouble m_scale;
+
+    /**
+     * Flag to inidicate the update callback of the WGESubdividedPlane geode that a new color array
+     * is ready to use.
+     */
+    bool m_newPlaneColors;
 };
 
 #endif  // WMGPVIEW_H
