@@ -47,3 +47,13 @@ WDataSetGP::WDataSetGP( boost::shared_ptr< const WDataSetFibers > tracts,
 WDataSetGP::~WDataSetGP()
 {
 }
+
+double WDataSetGP::mean( const wmath::WPosition& p ) const
+{
+    double avg = 0.0;
+    for( const_iterator cit = begin(); cit != end(); ++cit )
+    {
+        avg += cit->mean( p );
+    }
+    return avg / static_cast< double >( size() );
+}

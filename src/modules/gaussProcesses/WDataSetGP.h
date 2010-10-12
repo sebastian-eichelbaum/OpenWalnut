@@ -64,6 +64,15 @@ public:
     virtual ~WDataSetGP();
 
     /**
+     * Computes the arithmetic mean of all gaussian processes at the given point.
+     *
+     * \param p The position where to evaluate all mean functions
+     *
+     * \return The average of all mean fucntions at the given point.
+     */
+    double mean( const wmath::WPosition& p ) const;
+
+    /**
      * Determines whether this dataset can be used as a texture.
      *
      * \return true if usable as texture.
