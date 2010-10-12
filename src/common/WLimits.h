@@ -106,6 +106,9 @@ namespace wlimits
 
     //! The maximum texture dimension.
     static std::size_t const MAX_TEXTURE_DIMENSION = 2048;
+
+    //! We support only 8 textures because some known hardware does not support more texture coordinates.
+    static std::size_t const MAX_NUMBER_OF_TEXTURES = 8;
 }
 
 template< typename T > bool wlimits::isnan( T value )

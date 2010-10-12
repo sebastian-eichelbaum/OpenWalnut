@@ -388,7 +388,7 @@ void WMOverlayAtlas::updatePlane()
 
         planeGeometry->setTexCoordArray( c, texCoords );
         ++c;
-        if( c == m_maxNumberOfTextures )
+        if( c == wlimits::MAX_NUMBER_OF_TEXTURES )
         {
             break;
         }
@@ -422,7 +422,7 @@ void WMOverlayAtlas::updateTextures()
         if ( tex.size() > 0 )
         {
             // reset all uniforms
-            for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+            for ( int i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
@@ -494,7 +494,7 @@ void WMOverlayAtlas::updateTextures()
                 m_cmapUniforms[c]->set( cmap );
 
                 ++c;
-                if( c == m_maxNumberOfTextures )
+                if( c == wlimits::MAX_NUMBER_OF_TEXTURES )
                 {
                     break;
                 }
@@ -562,7 +562,7 @@ void WMOverlayAtlas::initUniforms( osg::StateSet* rootState )
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
 
-    for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+    for ( int i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
     {
         rootState->addUniform( m_typeUniforms[i] );
         rootState->addUniform( m_thresholdUniforms[i] );
