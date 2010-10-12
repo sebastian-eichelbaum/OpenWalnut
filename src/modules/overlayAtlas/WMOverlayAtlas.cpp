@@ -28,7 +28,7 @@
 #include <boost/regex.hpp>
 
 #include "../../kernel/WKernel.h"
-#include "../emptyIcon.xpm" // Please put a real icon here.
+#include "WMOverlayAtlas.xpm" 
 
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataHandler.h"
@@ -67,7 +67,7 @@ boost::shared_ptr< WModule > WMOverlayAtlas::factory() const
 
 const char** WMOverlayAtlas::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMOverlayAtlas_xpm; // Please put a real icon here.
 }
 const std::string WMOverlayAtlas::getName() const
 {
