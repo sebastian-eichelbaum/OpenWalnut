@@ -57,8 +57,8 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
         m_nameOfViewer, x(), y(), width(), height(), m_initialProjectionMode );
 
-    connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
-    m_Timer.start( 10 );
+    // connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
+    // m_Timer.start( 10 );
 }
 
 WQtGLWidget::~WQtGLWidget()
@@ -183,6 +183,7 @@ void WQtGLWidget::keyPressEvent( QKeyEvent* event )
                 break;
         }
     }
+    updateGL();
 }
 
 void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
@@ -223,27 +224,32 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
     }
 
     m_Viewer->keyEvent( WGEViewer::KEYRELEASE, *event->text().toAscii().data() );
+    updateGL();
 }
 
 
 void WQtGLWidget::mousePressEvent( QMouseEvent* event )
 {
     m_Viewer->mouseEvent( WGEViewer::MOUSEPRESS, event->x(), event->y(), translateButton( event ) );
+    updateGL();
 }
 
 void WQtGLWidget::mouseDoubleClickEvent( QMouseEvent* event )
 {
     m_Viewer->mouseEvent( WGEViewer::MOUSEDOUBLECLICK, event->x(), event->y(), translateButton( event ) );
+    updateGL();
 }
 
 void WQtGLWidget::mouseReleaseEvent( QMouseEvent* event )
 {
     m_Viewer->mouseEvent( WGEViewer::MOUSERELEASE, event->x(), event->y(), translateButton( event ) );
+    updateGL();
 }
 
 void WQtGLWidget::mouseMoveEvent( QMouseEvent* event )
 {
     m_Viewer->mouseEvent( WGEViewer::MOUSEMOVE, event->x(), event->y(), 0 );
+    updateGL();
 }
 
 void WQtGLWidget::wheelEvent( QWheelEvent* event )
@@ -260,4 +266,5 @@ void WQtGLWidget::wheelEvent( QWheelEvent* event )
         y = 0;
     }
     m_Viewer->mouseEvent( WGEViewer::MOUSESCROLL, x, y, 0 );
+    updateGL();
 }

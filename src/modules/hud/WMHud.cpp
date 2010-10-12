@@ -39,7 +39,7 @@
 W_LOADABLE_MODULE( WMHud )
 
 WMHud::WMHud()
-: m_updatedPickText( true )
+    : m_updatedPickText( true )
 {
 }
 
