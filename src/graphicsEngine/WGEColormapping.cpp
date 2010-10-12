@@ -29,11 +29,38 @@
 // instance as singleton
 boost::shared_ptr< WGEColormapping > WGEColormapping::m_instance = boost::shared_ptr< WGEColormapping >();
 
+/**
+ * This functions simply sets some defines to a shader. It sets the texture unit and gl_MultiTexCoord variable names properly.
+ *
+ * \param shader the shader where to add the defines
+ * \param start the start index of the unit for colormap0
+ */
+void setDefines( osg::ref_ptr< WShader > shader, size_t start = 0 )
+{
+    // simply set some proper defines for each colormap -> the unit and multitex coords
+    for ( size_t unit = 0; unit < wge::getMaxTexUnits(); ++unit )
+    {
+        // disable textures with invalid unit numbers
+        if ( unit < wge::getMaxTexUnits() - start )
+        {
+            shader->setDefine( "Colormap" + boost::lexical_cast< std::string >( unit ) + "Enabled", true );
+            shader->setDefine( "Colormap" + boost::lexical_cast< std::string >( unit ) + "Unit", start + unit );
+            /*shader->setDefine( "Colormap" + boost::lexical_cast< std::string >( unit ) + "TexCoord",
+                "gl_MultiTexCoord" + boost::lexical_cast< std::string >( start + unit )
+            );*/
+        }
+    }
+
+}
+
 WGEColormapping::WGEColormapping():
     m_callback( new WGEFunctorCallback< osg::Node >( boost::bind( &WGEColormapping::callback, this, _1 ) ) )
 {
     // initialize members
     m_textures.getChangeCondition()->subscribeSignal( boost::bind( &WGEColormapping::textureUpdate, this ) );
+
+    m_defaultShader = new WShader( "WGEDefaultColormapper" );
+    setDefines( m_defaultShader, 0 );
 }
 
 WGEColormapping::~WGEColormapping()
@@ -51,9 +78,9 @@ boost::shared_ptr< WGEColormapping > WGEColormapping::instance()
     return m_instance;
 }
 
-void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, bool useDefaultShader, size_t startTexUnit )
+void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader, size_t startTexUnit )
 {
-    instance()->applyInst( node, useDefaultShader, startTexUnit );
+    instance()->applyInst( node, shader, startTexUnit );
 }
 
 void WGEColormapping::registerTexture( osg::ref_ptr< WGETexture3D > texture )
@@ -66,7 +93,7 @@ void WGEColormapping::deregisterTexture( osg::ref_ptr< WGETexture3D > texture )
     instance()->deregisterTextureInst( texture );
 }
 
-void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, bool useDefaultShader, size_t startTexUnit )
+void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader, size_t startTexUnit )
 {
     // applying to a node simply means adding a callback :-)
     NodeInfo* info = new NodeInfo;
@@ -74,6 +101,17 @@ void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, bool useDefault
     info->m_texUnitStart = startTexUnit;
     m_nodeInfo.insert( std::make_pair( node, info ) );
     node->addUpdateCallback( m_callback );
+
+    // add the default shader if no other shader has been specified.
+    if ( !shader )
+    {
+        m_defaultShader->apply( node );
+    }
+    else
+    {
+        setDefines( shader, startTexUnit );
+        shader->apply( node );
+    }
 }
 
 void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture )

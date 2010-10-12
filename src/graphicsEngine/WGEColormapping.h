@@ -37,6 +37,7 @@
 #include "callbacks/WGEFunctorCallback.h"
 
 #include "WGETexture.h"
+#include "WShader.h"
 #include "WExportWGE.h"
 
 /**
@@ -63,10 +64,11 @@ public:
      * Apply the colormapping to the specified node.
      *
      * \param node the node.
-     * \param useDefaultShader if true, a standard colormapping shader is used. This is useful for plain geometry.
+     * \param shader the shader to use for colormapping. Provide your own shader here to let WGEColormap set some defines needed. If not
+     * specified, a default shader is used.
      * \param startTexUnit the first texture unit allowed to be used
      */
-    static void apply( osg::ref_ptr< osg::Node > node, bool useDefaultShader = true, size_t startTexUnit = 0 );
+    static void apply( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader = osg::ref_ptr< WShader >(), size_t startTexUnit = 0 );
 
     /**
      * Register the specified texture to the colormapper. The registered texture is the automatically applied to all users of WGEColormapping.
@@ -94,10 +96,11 @@ protected:
      * Apply the colormapping to the specified node.
      *
      * \param node the node.
-     * \param useDefaultShader if true, a standard colormapping shader is used. This is useful for plain geometry.
+     * \param shader the shader to use for colormapping. Provide your own shader here to let WGEColormap set some defines needed. If not
+     * specified, a default shader is used.
      * \param startTexUnit the first texture unit allowed to be used
      */
-    void applyInst( osg::ref_ptr< osg::Node > node, bool useDefaultShader, size_t startTexUnit );
+    void applyInst( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader = osg::ref_ptr< WShader >(), size_t startTexUnit = 0 );
 
     /**
      * Register the specified texture to the colormapper. The registered texture is the automatically applied to all users of WGEColormapping.
@@ -166,6 +169,11 @@ private:
      * This map is needed to keep track of several node specific settings
      */
     NodeInfoContainerType m_nodeInfo;
+
+    /**
+     * This shader is used wherever no other shader was specified.
+     */
+    osg::ref_ptr< WShader > m_defaultShader;
 };
 
 #endif  // WGECOLORMAPPING_H

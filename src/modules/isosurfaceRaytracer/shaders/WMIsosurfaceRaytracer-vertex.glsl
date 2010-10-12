@@ -64,6 +64,8 @@ uniform float u_isovalue;
  */
 void main()
 {
+    colormapping();
+
     // scale isovalue to equal the texture data scaling.
     v_isovalue = ( u_isovalue - u_texture0Min ) / u_texture0Scale;
 
@@ -72,8 +74,6 @@ void main()
     v_normal = gl_Normal;
 
     // in texture space, the starting point simply is the current surface point in texture space
-    v_rayStart = gl_TexCoord[0].xyz; // this equals gl_Vertex!
-
     v_rayStart = gl_TexCoord[0].xyz; // this equals gl_Vertex!
 
     // transform the ray direction to texture space, which equals object space

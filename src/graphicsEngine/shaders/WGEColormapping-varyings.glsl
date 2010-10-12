@@ -22,4 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap0TexCoord;
+
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap1TexCoord;
+
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap2TexCoord;
+
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap3TexCoord;
+
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap4TexCoord;
+
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap5TexCoord;
+
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap6TexCoord;
+
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap7TexCoord;
 

@@ -205,20 +205,14 @@ void WMIsosurfaceRaytracer::moduleMain()
             // we also set the grid's transformation here
             rootNode->setMatrix( wge::toOSGMatrix( grid->getTransformationMatrix() ) );
 
-            m_shader->apply( cube );
+           ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // setup defines (lighting)
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // bind the texture to the node
             osg::StateSet* rootState = cube->getOrCreateStateSet();
             osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture2();
             texture3D->bind( cube );
-            WGEColormapping::apply( cube, false, 1 );
-
-            // enable transparency
-            rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
-
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // setup defines (lighting)
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
 
             size_t shadingAlgo = m_shadingAlgo->get( true ).getItemIndexOfSelected( 0 );
             m_shader->eraseAllDefines();
@@ -240,6 +234,10 @@ void WMIsosurfaceRaytracer::moduleMain()
                     m_shader->setDefine( "CORTEX" );
                     break;
             }
+            WGEColormapping::apply( cube, m_shader, 1 );
+
+            // enable transparency
+            rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup all those uniforms

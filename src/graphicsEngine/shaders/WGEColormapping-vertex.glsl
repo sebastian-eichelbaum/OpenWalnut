@@ -25,14 +25,35 @@
 #include "WGEColormapping-uniforms.glsl"
 #include "WGEColormapping-varyings.glsl"
 
-#define Colormap0Unit 0
-#define Colormap1Unit 1
-
 /**
  * This method prepares some needed internal variables. Please call this in your vertex shader.
  * Be aware that this only works with the WGEColormapping class.
  */
 void colormapping()
 {
-}    
+#ifdef Colormap0Enabled
+    v_colormap0TexCoord = ( gl_TextureMatrix[ Colormap0Unit ] * gl_MultiTexCoord0 ).xyz;
+#endif
+#ifdef Colormap1Enabled
+    v_colormap1TexCoord = ( gl_TextureMatrix[ Colormap1Unit ] * gl_MultiTexCoord0 ).xyz;
+#endif
+#ifdef Colormap2Enabled
+    v_colormap2TexCoord = ( gl_TextureMatrix[ Colormap2Unit ] * gl_MultiTexCoord0 ).xyz;
+#endif
+#ifdef Colormap3Enabled
+    v_colormap3TexCoord = ( gl_TextureMatrix[ Colormap3Unit ] * gl_MultiTexCoord0 ).xyz; 
+#endif
+#ifdef Colormap4Enabled
+    v_colormap4TexCoord = ( gl_TextureMatrix[ Colormap4Unit ] * gl_MultiTexCoord0 ).xyz;
+#endif
+#ifdef Colormap5Enabled
+    v_colormap5TexCoord = ( gl_TextureMatrix[ Colormap5Unit ] * gl_MultiTexCoord0 ).xyz; 
+#endif
+#ifdef Colormap6Enabled
+    v_colormap6TexCoord = ( gl_TextureMatrix[ Colormap6Unit ] * gl_MultiTexCoord0 ).xyz; 
+#endif
+#ifdef Colormap7Enabled
+    v_colormap7TexCoord = ( gl_TextureMatrix[ Colormap7Unit ] * gl_MultiTexCoord0 ).xyz; 
+#endif
+}
 

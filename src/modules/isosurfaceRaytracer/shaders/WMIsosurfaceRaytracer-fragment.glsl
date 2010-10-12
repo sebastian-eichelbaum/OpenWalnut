@@ -32,6 +32,7 @@
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
 
+// texture containing the data
 #include "WMIsosurfaceRaytracer-varyings.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -106,7 +107,7 @@ void main()
 
     // the point along the ray in cube coordinates
     vec3 curPoint = v_rayStart;
-
+    
     // the current value inside the data
     float value;
 
@@ -214,7 +215,7 @@ void main()
 #endif
 
             color.a = u_alpha;
-            gl_FragColor = mix( colormapping(), color, 1.0 - u_colormapRatio );
+            gl_FragColor = mix( colormapping( curPoint ), color, 1.0 - u_colormapRatio );
             //gl_FragColor = vec4( texture3D( u_colormap1Sampler, curPoint ).rgb, 1.0 ); //color;
             break;
         }

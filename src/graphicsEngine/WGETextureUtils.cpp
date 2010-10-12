@@ -39,8 +39,10 @@ void wge::unbindTexture( osg::ref_ptr< osg::Node > node, size_t unit, size_t cou
 
 size_t wge::getMaxTexUnits()
 {
-    GLint ret;
-    glGetIntegerv( GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &ret );
-    return ret;
+    // GLint ret;
+    // glGetIntegerv( GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &ret );
+    // Why do we not use these glGet things here? The answer is simple: The GLSL 1.20 Standard does not define a way to access more than 8
+    // texture coordinate attributes.
+    return 8;
 }
 

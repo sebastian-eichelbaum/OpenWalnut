@@ -41,10 +41,10 @@ uniform float u_colormap0Alpha;
 uniform float u_colormap0Threshold;
 
 //!< The index of the colormap to use
-uniform float u_colormap0Colormap;
+uniform int u_colormap0Colormap;
 
 //!< True if the colormap is active.
-uniform float u_colormap0Active;
+uniform bool u_colormap0Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap0Sampler;
@@ -66,10 +66,10 @@ uniform float u_colormap1Alpha;
 uniform float u_colormap1Threshold;
 
 //!< The index of the colormap to use
-uniform float u_colormap1Colormap;
+uniform int u_colormap1Colormap;
 
 //!< True if the colormap is active.
-uniform float u_colormap1Active;
+uniform bool u_colormap1Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap1Sampler;
@@ -91,10 +91,10 @@ uniform float u_colormap2Alpha;
 uniform float u_colormap2Threshold;
 
 //!< The index of the colormap to use
-uniform float u_colormap2Colormap;
+uniform int u_colormap2Colormap;
 
 //!< True if the colormap is active.
-uniform float u_colormap2Active;
+uniform bool u_colormap2Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap2Sampler;
@@ -116,10 +116,10 @@ uniform float u_colormap3Alpha;
 uniform float u_colormap3Threshold;
 
 //!< The index of the colormap to use
-uniform float u_colormap3Colormap;
+uniform int u_colormap3Colormap;
 
 //!< True if the colormap is active.
-uniform float u_colormap3Active;
+uniform bool u_colormap3Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap3Sampler;
@@ -141,10 +141,10 @@ uniform float u_colormap4Alpha;
 uniform float u_colormap4Threshold;
 
 //!< The index of the colormap to use
-uniform float u_colormap4Colormap;
+uniform int u_colormap4Colormap;
 
 //!< True if the colormap is active.
-uniform float u_colormap4Active;
+uniform bool u_colormap4Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap4Sampler;
@@ -166,10 +166,10 @@ uniform float u_colormap5Alpha;
 uniform float u_colormap5Threshold;
 
 //!< The index of the colormap to use
-uniform float u_colormap5Colormap;
+uniform int u_colormap5Colormap;
 
 //!< True if the colormap is active.
-uniform float u_colormap5Active;
+uniform bool u_colormap5Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap5Sampler;
@@ -191,10 +191,10 @@ uniform float u_colormap6Alpha;
 uniform float u_colormap6Threshold;
 
 //!< The index of the colormap to use
-uniform float u_colormap6Colormap;
+uniform int u_colormap6Colormap;
 
 //!< True if the colormap is active.
-uniform float u_colormap6Active;
+uniform bool u_colormap6Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap6Sampler;
@@ -216,86 +216,11 @@ uniform float u_colormap7Alpha;
 uniform float u_colormap7Threshold;
 
 //!< The index of the colormap to use
-uniform float u_colormap7Colormap;
+uniform int u_colormap7Colormap;
 
 //!< True if the colormap is active.
-uniform float u_colormap7Active;
+uniform bool u_colormap7Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap7Sampler;
-
-/////////////////////////////////////////////////////////////////////////////
-// Colormap 8
-/////////////////////////////////////////////////////////////////////////////
-
-//!< For unscaling the data: the minimum.
-uniform float u_colormap8Min;
-
-//!< For unscaling the data: the scaling factor.
-uniform float u_colormap8Scale;
-
-//!< The alpha value for this colormap. Is in [0,1].
-uniform float u_colormap8Alpha;
-
-//!< The threshold value for this colormap. Is in [Min,Scale+Min]
-uniform float u_colormap8Threshold;
-
-//!< The index of the colormap to use
-uniform float u_colormap8Colormap;
-
-//!< True if the colormap is active.
-uniform float u_colormap8Active;
-
-//!< The sampler for texture access.
-uniform sampler3D u_colormap8Sampler;
-
-/////////////////////////////////////////////////////////////////////////////
-// Colormap 9
-/////////////////////////////////////////////////////////////////////////////
-
-//!< For unscaling the data: the minimum.
-uniform float u_colormap9Min;
-
-//!< For unscaling the data: the scaling factor.
-uniform float u_colormap9Scale;
-
-//!< The alpha value for this colormap. Is in [0,1].
-uniform float u_colormap9Alpha;
-
-//!< The threshold value for this colormap. Is in [Min,Scale+Min]
-uniform float u_colormap9Threshold;
-
-//!< The index of the colormap to use
-uniform float u_colormap9Colormap;
-
-//!< True if the colormap is active.
-uniform float u_colormap9Active;
-
-//!< The sampler for texture access.
-uniform sampler3D u_colormap9Sampler;
-
-/////////////////////////////////////////////////////////////////////////////
-// Colormap 10
-/////////////////////////////////////////////////////////////////////////////
-
-//!< For unscaling the data: the minimum.
-uniform float u_colormap10Min;
-
-//!< For unscaling the data: the scaling factor.
-uniform float u_colormap10Scale;
-
-//!< The alpha value for this colormap. Is in [0,1].
-uniform float u_colormap10Alpha;
-
-//!< The threshold value for this colormap. Is in [Min,Scale+Min]
-uniform float u_colormap10Threshold;
-
-//!< The index of the colormap to use
-uniform float u_colormap10Colormap;
-
-//!< True if the colormap is active.
-uniform float u_colormap10Active;
-
-//!< The sampler for texture access.
-uniform sampler3D u_colormap10Sampler;
 
