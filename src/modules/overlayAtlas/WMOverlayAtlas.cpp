@@ -313,7 +313,7 @@ void WMOverlayAtlas::updateCoronalSlice()
 void WMOverlayAtlas::propertyChanged( boost::shared_ptr< WPropertyBase > property )
 {
     //TODO(all): remove void cast when the property variable is used
-    (void)property;
+    ( void ) property; // NOLINT cstyle cast
 }
 
 void WMOverlayAtlas::updatePlane()
