@@ -28,7 +28,7 @@
 #include <boost/regex.hpp>
 
 #include "../../kernel/WKernel.h"
-#include "WMOverlayAtlas.xpm" 
+#include "WMOverlayAtlas.xpm"
 
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataHandler.h"
