@@ -45,9 +45,6 @@ void setDefines( osg::ref_ptr< WShader > shader, size_t start = 0 )
         {
             shader->setDefine( "Colormap" + boost::lexical_cast< std::string >( unit ) + "Enabled", true );
             shader->setDefine( "Colormap" + boost::lexical_cast< std::string >( unit ) + "Unit", start + unit );
-            /*shader->setDefine( "Colormap" + boost::lexical_cast< std::string >( unit ) + "TexCoord",
-                "gl_MultiTexCoord" + boost::lexical_cast< std::string >( start + unit )
-            );*/
         }
     }
 
@@ -116,17 +113,22 @@ void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, osg::ref_ptr< W
 
 void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture )
 {
-    wlog::debug( "WGEColormapping" ) << "Registering texture." << texture;
+    wlog::debug( "WGEColormapping" ) << "Registering texture.";
     if ( !m_textures.count( texture ) )
     {
-        m_textures.push_back( texture );
+        m_textures.push_front( texture );
+        m_registerSignal( texture );
     }
 }
 
 void WGEColormapping::deregisterTextureInst( osg::ref_ptr< WGETexture3D > texture )
 {
     wlog::debug( "WGEColormapping" ) << "De-registering texture.";
-    m_textures.remove( texture );
+    if ( m_textures.count( texture ) )
+    {
+        m_textures.remove( texture );
+        m_deregisterSignal( texture );
+    }
 }
 
 void WGEColormapping::textureUpdate()

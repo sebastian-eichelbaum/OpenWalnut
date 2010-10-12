@@ -28,6 +28,9 @@
 #include <map>
 #include <vector>
 
+#include <boost/signals2/signal.hpp>
+#include <boost/function.hpp>
+
 #include <osg/Node>
 
 #include "../common/WLogger.h"
@@ -48,6 +51,36 @@
 class WGE_EXPORT WGEColormapping // NOLINT
 {
 public:
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedSequenceContainer< std::vector< osg::ref_ptr< WGETexture3D > > > TextureContainerType;
+
+    /**
+     * Iterator to access the texture list.
+     */
+    typedef TextureContainerType::Iterator TextureIterator;
+
+    /**
+     * Const iterator to access the texture list.
+     */
+    typedef TextureContainerType::ConstIterator TextureConstIterator;
+
+    /**
+     * The type of handler used for being notified about added textures.
+     */
+    typedef boost::function< void ( osg::ref_ptr< WGETexture3D > ) > TextureRegisterHandler;
+
+    /**
+     * The type of handler used for being notified about removed textures.
+     */
+    typedef TextureRegisterHandler TextureDeregisterHandler;
+
+    /**
+     * The type of handler called whenever the texture list got resorted.
+     */
+    typedef boost::function< void () > TextureSortHandler;
+
     /**
      * Destructor.
      */
@@ -72,6 +105,7 @@ public:
 
     /**
      * Register the specified texture to the colormapper. The registered texture is the automatically applied to all users of WGEColormapping.
+     * The texture gets inserted at the beginning of the texture list.
      *
      * \param texture the texture to add
      */
@@ -84,6 +118,38 @@ public:
      * \param texture the texture to remove
      */
     static void deregisterTexture( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
+     * Resorts the the texture list using the specified comparator.
+     *
+     * \tparam Comparator the comparator type. Usually a boost::function or class providing the operator().
+     * \param comp the comparator
+     */
+    template < typename Comparator >
+    void sort( Comparator comp );
+
+    /**
+     * Possible signals that can be subscribed for being notified about texture list changes
+     */
+    typedef enum
+    {
+        Registered = 0, //!< texture got added
+        Deregistered,   //!< texture got removed
+        Sorted          //!< texture list was resorted
+    }
+    TextureListSignal;
+
+    /**
+     * Subscribe to the specified signal. See \ref TextureListSignal for details about their meaning.
+     *
+     * \param signal the signal to subscribe
+     * \param notifier the notifier
+     * \tparam HandlerType the boost function handler type
+     *
+     * \return the connection. Keep this and disconnect it properly!
+     */
+    template < typename HandlerType >
+    boost::signals2::connection subscribeSignal( TextureListSignal signal, HandlerType notifier );
 
 protected:
 
@@ -137,11 +203,6 @@ private:
     static boost::shared_ptr< WGEColormapping > m_instance;
 
     /**
-     * The alias for a shared container.
-     */
-    typedef WSharedSequenceContainer< std::vector< osg::ref_ptr< WGETexture3D > > > TextureContainerType;
-
-    /**
      * The textures managed by this instance.
      */
     TextureContainerType m_textures;
@@ -174,7 +235,42 @@ private:
      * This shader is used wherever no other shader was specified.
      */
     osg::ref_ptr< WShader > m_defaultShader;
+
+    /**
+     * Called whenever a texture got registered.
+     */
+    boost::signals2::signal< void ( osg::ref_ptr< WGETexture3D > ) > m_registerSignal;
+
+    /**
+     * Called whenever a texture got removed.
+     */
+    boost::signals2::signal< void ( osg::ref_ptr< WGETexture3D > ) > m_deregisterSignal;
+
+    /**
+     * Called whenever the texture list got resorted
+     */
+    boost::signals2::signal< void () > m_sortSignal;
 };
+
+template < typename HandlerType >
+boost::signals2::connection WGEColormapping::subscribeSignal( TextureListSignal signal, HandlerType notifier )
+{
+    switch( signal )
+    {
+        case Registered:
+            return m_registerSignal.connect( notifier );
+        case Deregistered:
+            return m_deregisterSignal.connect( notifier );
+        default:
+            return m_sortSignal.connect( notifier );
+    }
+}
+
+template < typename Comparator >
+void WGEColormapping::sort( Comparator comp )
+{
+    m_textures.sort< Comparator >( comp );
+}
 
 #endif  // WGECOLORMAPPING_H
 
