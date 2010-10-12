@@ -43,9 +43,10 @@ public:
     /**
      * A unit subdivided plane with resolution width_x_height has width*height many quads.
      */
-    void testNumQuadsAndTheirVertices( void )
+    void testNumQuadsAndTheirVerticesWithoutSpacing( void )
     {
-        osg::ref_ptr< WGESubdividedPlane > g = wge::genUnitSubdividedPlane( 2, 2 );
+        double spacing = 0.0;
+        osg::ref_ptr< WGESubdividedPlane > g = wge::genUnitSubdividedPlane( 2, 2, spacing );
         osg::Geometry *geo = dynamic_cast< osg::Geometry* >( g->getDrawable( 0 ) );
         if( !geo )
         {
