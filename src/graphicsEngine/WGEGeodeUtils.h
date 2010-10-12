@@ -164,7 +164,7 @@ namespace wge
      *
      * \return The new uncolored plane geode
      */
-    osg::ref_ptr< WGESubdividedPlane > WGE_EXPORT genUnitSubdividedPlane( size_t resX, size_t resY, double spacing = 0.0001 );
+    osg::ref_ptr< WGESubdividedPlane > WGE_EXPORT genUnitSubdividedPlane( size_t resX, size_t resY, double spacing = 0.01 );
 
     /**
      * For each points in the STL container generate small cubes.
