@@ -27,24 +27,20 @@
 
 #include <boost/regex.hpp>
 
-#include "../../kernel/WKernel.h"
-#include "WMOverlayAtlas.xpm" 
-
-#include "../../dataHandler/WDataSet.h"
+#include "../../common/WPathHelper.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
 #include "../../graphicsEngine/WShader.h"
-
-
-#include "../../common/WPathHelper.h"
-#include "../../common/WPropertyHelper.h"
-
+#include "../../kernel/WKernel.h"
 #include "WMOverlayAtlas.h"
+#include "WMOverlayAtlas.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMOverlayAtlas )
