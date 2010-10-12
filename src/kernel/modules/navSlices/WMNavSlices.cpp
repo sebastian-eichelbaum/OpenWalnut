@@ -283,9 +283,6 @@ void WMNavSlices::create()
     m_slicesNode->insert( m_slicesSwitchNode );
 
     m_shader->apply( m_slicesNode );
-    m_shader->apply( m_xSliceNode );
-    m_shader->apply( m_ySliceNode );
-    m_shader->apply( m_zSliceNode );
 
     osg::StateSet* rootState = m_slicesNode->getOrCreateStateSet();
     initUniforms( rootState );
