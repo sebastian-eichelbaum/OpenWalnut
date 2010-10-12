@@ -83,6 +83,13 @@ public:
     virtual ~WGETexture();
 
     /**
+     * Returns the name property of the texture. You should set it if you create a texture.
+     *
+     * \return texture name property
+     */
+    WPropString name() const;
+
+    /**
      * Get the minimum in the de-scaled value space. The property can be changed. A change affects all colormaps using this texture. But be
      * careful as the texture creating depends on these values.
      *
@@ -192,6 +199,13 @@ protected:
     virtual void updateCallback( osg::StateAttribute* state );
 
 private:
+    /**
+     * Creates and assigns all properties.
+     *
+     * \param min the min value of the texture
+     * \param scale the scale value of the texture
+     */
+    void setupProperties( double scale, double min );
 
     /**
      * A condition used to notify about changes in several properties.
@@ -214,6 +228,11 @@ private:
      * If true, the texture gets created. This is used to create texture on demand.
      */
     bool m_needCreate;
+
+    /**
+     * The texture name. This might be useful to identify textures.
+     */
+    WPropString m_name;
 
     /**
      * The minimum of each value in the texture in unscaled space.
@@ -281,7 +300,35 @@ WGETexture< TextureType >::WGETexture( double scale, double min ):
     m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) ),
     m_needCreate( true )
 {
+    setupProperties( scale, min );
+}
+
+template < typename TextureType >
+WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double min ):
+    TextureType( image ),
+    m_propCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
+    m_properties( boost::shared_ptr< WProperties >( new WProperties( "Texture Properties", "Properties of a texture." ) ) ),
+    m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) ),
+    m_needCreate( true )
+{
+    setupProperties( scale, min );
+}
+
+template < typename TextureType >
+WGETexture< TextureType >::WGETexture( const WGETexture< TextureType >& texture, const osg::CopyOp& copyop ):
+    TextureType( texture, copyop ),
+    m_min( texture.m_min ),
+    m_scale( texture.m_scale )
+{
+    // initialize members
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::setupProperties( double scale, double min )
+{
     m_propCondition->subscribeSignal( boost::bind( &WGETexture< TextureType >::handleUpdate, this ) );
+
+    m_name = m_properties->addProperty( "Name", "The name of the texture.", std::string( "Unnamed" ) );
 
     // initialize members
     m_min = m_properties->addProperty( "Minimum", "The minimum value in the original space.", min, true );
@@ -324,66 +371,6 @@ WGETexture< TextureType >::WGETexture( double scale, double min ):
 }
 
 template < typename TextureType >
-WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double min ):
-    TextureType( image ),
-    m_propCondition( boost::shared_ptr< WCondition >( new WCondition() ) ),
-    m_properties( boost::shared_ptr< WProperties >( new WProperties( "Texture Properties", "Properties of a texture." ) ) ),
-    m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) ),
-    m_needCreate( true )
-{
-    m_propCondition->subscribeSignal( boost::bind( &WGETexture< TextureType >::handleUpdate, this ) );
-
-    // initialize members
-    m_min = m_properties->addProperty( "Minimum", "The minimum value in the original space.", min );
-    m_min->setMin( -wlimits::MAX_DOUBLE );
-    m_min->setMax( wlimits::MAX_DOUBLE );
-
-    m_scale = m_properties->addProperty( "Scale", "The scaling factor to un-scale the texture values to the original space.", scale );
-    m_scale->setMin( -wlimits::MAX_DOUBLE );
-    m_scale->setMax( wlimits::MAX_DOUBLE );
-
-    m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0, m_propCondition );
-    m_alpha->setMin( 0.0 );
-    m_alpha->setMax( 1.0 );
-
-    m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0, m_propCondition );
-    m_threshold->setMin( min );
-    m_threshold->setMax( min + scale );
-
-    m_interpolation = m_properties->addProperty( "Interpolate", "Interpolation of the volume data.", true, m_propCondition );
-
-    m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_colorMapSelectionsList->addItem( "Grayscale", "" );
-    m_colorMapSelectionsList->addItem( "Rainbow", "" );
-    m_colorMapSelectionsList->addItem( "Hot iron", "" );
-    m_colorMapSelectionsList->addItem( "Red-Yellow", "" );
-    m_colorMapSelectionsList->addItem( "Atlas", "" );
-    m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
-
-    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst(),
-        m_propCondition
-    );
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMap );
-
-    m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true, m_propCondition );
-
-    TextureType::setResizeNonPowerOfTwoHint( false );
-
-    TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >(
-        boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) )
-    );
-}
-
-template < typename TextureType >
-WGETexture< TextureType >::WGETexture( const WGETexture< TextureType >& texture, const osg::CopyOp& copyop ):
-    TextureType( texture, copyop ),
-    m_min( texture.m_min ),
-    m_scale( texture.m_scale )
-{
-    // initialize members
-}
-
-template < typename TextureType >
 WGETexture< TextureType >::~WGETexture()
 {
     // cleanup.
@@ -399,6 +386,12 @@ template < typename TextureType >
 boost::shared_ptr< WProperties > WGETexture< TextureType >::getInformationProperties() const
 {
     return m_infoProperties;
+}
+
+template < typename TextureType >
+inline WPropString WGETexture< TextureType >::name() const
+{
+    return m_name;
 }
 
 template < typename TextureType >

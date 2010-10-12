@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+
 #include "WGETextureUtils.h"
 
 #include "WGEColormapping.h"
@@ -80,9 +82,9 @@ void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShad
     instance()->applyInst( node, shader, startTexUnit );
 }
 
-void WGEColormapping::registerTexture( osg::ref_ptr< WGETexture3D > texture )
+void WGEColormapping::registerTexture( osg::ref_ptr< WGETexture3D > texture, std::string name )
 {
-    instance()->registerTextureInst( texture );
+    instance()->registerTextureInst( texture, name );
 }
 
 void WGEColormapping::deregisterTexture( osg::ref_ptr< WGETexture3D > texture )
@@ -111,11 +113,15 @@ void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, osg::ref_ptr< W
     }
 }
 
-void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture )
+void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture, std::string name )
 {
     wlog::debug( "WGEColormapping" ) << "Registering texture.";
     if ( !m_textures.count( texture ) )
     {
+        if ( !name.empty() )
+        {
+            texture->name()->set( name );
+        }
         m_textures.push_front( texture );
         m_registerSignal( texture );
     }
@@ -175,5 +181,51 @@ void WGEColormapping::callback( osg::Node* node )
 
         rt.reset();
     }
+}
+
+bool WGEColormapping::moveUp( osg::ref_ptr< WGETexture3D > texture )
+{
+    TextureContainerType::WriteTicket w = m_textures.getWriteTicket();
+
+    // does the texture exist?
+    TextureContainerType::Iterator iter = std::find( w->get().begin(), w->get().end(), texture );
+    if ( iter == w->get().end() )
+    {
+        return false;
+    }
+
+    // is it already the last item?
+    if ( iter + 1 == w->get().end() )
+    {
+        return false;
+    }
+
+    // swap items
+    std::iter_swap( iter, iter + 1 );
+
+    return true;
+}
+
+bool WGEColormapping::moveDown( osg::ref_ptr< WGETexture3D > texture )
+{
+    TextureContainerType::WriteTicket w = m_textures.getWriteTicket();
+
+    // does the texture exist?
+    TextureContainerType::Iterator iter = std::find( w->get().begin(), w->get().end(), texture );
+    if ( iter == w->get().end() )
+    {
+        return false;
+    }
+
+    // is it already the first item?
+    if ( iter == w->get().begin() )
+    {
+        return false;
+    }
+
+    // swap items
+    std::iter_swap( iter, iter - 1 );
+
+    return true;
 }
 

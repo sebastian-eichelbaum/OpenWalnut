@@ -108,8 +108,9 @@ public:
      * The texture gets inserted at the beginning of the texture list.
      *
      * \param texture the texture to add
+     * \param name the name of the texture to add
      */
-    static void registerTexture( osg::ref_ptr< WGETexture3D > texture );
+    static void registerTexture( osg::ref_ptr< WGETexture3D > texture, std::string name = "" );
 
     /**
      * De-register the specified texture to the colormapper. The texture is the automatically removed from all users of WGEColormapping. If the
@@ -129,7 +130,23 @@ public:
     void sort( Comparator comp );
 
     /**
-     * Possible signals that can be subscribed for being notified about texture list changes
+     * Move the specified texture one item up in the list. Causes the sort signal to fire.
+     *
+     * \param texture the texture swapped with its ascendant
+     * \return true if swap was successful. False if not (texture not found, texture already at beginning).
+     */
+    bool moveUp( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
+     * Move the specified texture one item down in the list. Causes the sort signal to fire.
+     *
+     * \param texture the texture swapped with its descendant
+     * \return true if swap was successful. False if not (texture not found, texture already at end).
+     */
+    bool moveDown( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
+     * Possible signals that can be subscribed for being notified about texture list changes.
      */
     typedef enum
     {
@@ -172,8 +189,9 @@ protected:
      * Register the specified texture to the colormapper. The registered texture is the automatically applied to all users of WGEColormapping.
      *
      * \param texture the texture to add
+     * \param name the name of the texture.
      */
-    void registerTextureInst( osg::ref_ptr< WGETexture3D > texture );
+    void registerTextureInst( osg::ref_ptr< WGETexture3D > texture, std::string name );
 
     /**
      * De-register the specified texture to the colormapper. The texture is the automatically removed from all users of WGEColormapping.
