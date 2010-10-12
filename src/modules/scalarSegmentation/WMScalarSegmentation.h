@@ -44,6 +44,7 @@
 #include "itkWatershedImageFilter.h"
 #include "itkOtsuThresholdImageFilter.h"
 #include "itkConfidenceConnectedImageFilter.h"
+#include "itkCannySegmentationLevelSetImageFilter.h"
 
 // smoothing filters
 #include "itkGradientAnisotropicDiffusionImageFilter.h"
@@ -179,6 +180,9 @@ private:
     //! The watershed level.
     WPropDouble m_level;
 
+    //! A given variance.
+    WPropDouble m_variance;
+
     //! A function object that implements a simple threshold segmentation.
     class SimpleSegmentation : public boost::static_visitor< boost::shared_ptr< WValueSetBase > >
     {
@@ -218,7 +222,7 @@ private:
          * \param t The threshold for segmentation.
          * \param ds The dataset.
          */
-        WatershedSegmentation( double level, double t, boost::shared_ptr< WDataSetScalar > ds ) // NOLINT
+        WatershedSegmentation( double level, double t, boost::shared_ptr< WDataSetScalar > ds )
             : m_level( level ),
               m_threshold( t ),
               m_dataset( ds )
@@ -295,6 +299,46 @@ private:
         boost::shared_ptr< WValueSetBase > operator() ( WValueSet< T > const* ) const;
 
     private:
+        //! the dataset
+        boost::shared_ptr< WDataSetScalar > m_dataset;
+    };
+
+    //! Segmentation via level sets.
+    class LevelSetSegmentation1 : public boost::static_visitor< boost::shared_ptr< WValueSetBase > >
+    {
+    public:
+        /**
+         * Constructor.
+         * \param ds The dataset.
+         */
+        LevelSetSegmentation1( double level, double t, double var, boost::shared_ptr< WDataSetScalar > ds )
+            : m_level( level ),
+              m_threshold( t ),
+              m_variance( var ),
+              m_dataset( ds )
+        {
+        }
+
+        /**
+         * Do the segmentation.
+         *
+         * \tparam T The integral data type.
+         * \param valueset The valueset to segment.
+         * \return A pointer to a new valueset.
+         */
+        template< typename T >
+        boost::shared_ptr< WValueSetBase > operator() ( WValueSet< T > const* ) const;
+
+    private:
+        //! The level.
+        double m_level;
+
+        //! threshold
+        double m_threshold;
+
+        //! the variance
+        double m_variance;
+
         //! the dataset
         boost::shared_ptr< WDataSetScalar > m_dataset;
     };
@@ -390,7 +434,7 @@ boost::shared_ptr< WValueSetBase > WMScalarSegmentation::RegionGrowingSegmentati
     unsigned int k = 0;
     while( !box && k < rois.size() )
     {
-        box = dynamic_cast< WROIBox* >( rois[ 0 ].get() );
+        box = dynamic_cast< WROIBox* >( rois[ k ].get() );
         ++k;
     }
 
@@ -426,6 +470,51 @@ boost::shared_ptr< WValueSetBase > WMScalarSegmentation::RegionGrowingSegmentati
     {
         return m_dataset->getValueSet();
     }
+}
+
+template< typename T >
+boost::shared_ptr< WValueSetBase > WMScalarSegmentation::LevelSetSegmentation1::operator() ( WValueSet< T > const* ) const
+{
+    typedef itk::Image< T, 3 > ImgType;
+    typedef itk::Image< float, 3 > RealType;
+
+    typedef itk::GradientAnisotropicDiffusionImageFilter< ImgType, RealType > SmoothingType;
+    typedef itk::CannySegmentationLevelSetImageFilter< RealType, RealType > CannyLSFilter;
+    typedef itk::CastImageFilter< ImgType, RealType > CastFilter;
+
+    typename ImgType::Pointer img = makeImageFromDataSet< T >( m_dataset );
+    typename SmoothingType::Pointer sm = SmoothingType::New();
+    typename CannyLSFilter::Pointer ls = CannyLSFilter::New();
+    typename CastFilter::Pointer cf = CastFilter::New();
+
+    sm->SetNumberOfIterations( 5 );
+    sm->SetTimeStep( 0.0625 );
+    sm->SetConductanceParameter( 2.0 );
+    sm->SetInput( img );
+
+    cf->SetInput( img );
+
+    ls->SetAdvectionScaling( 1.0 );
+    ls->SetCurvatureScaling( 1.0 );
+    ls->SetPropagationScaling( 0.0 );
+    ls->SetMaximumRMSError( 0.01 );
+    ls->SetNumberOfIterations( 10 );
+    ls->SetThreshold( m_threshold );
+    ls->SetVariance( m_variance );
+    ls->SetIsoSurfaceValue( m_level );
+    ls->SetInput( cf->GetOutput() );
+    ls->SetFeatureImage( sm->GetOutput() );
+
+    try
+    {
+        ls->Update();
+    }
+    catch( ... )
+    {
+        throw WException( "Problem in Level Set Segmentation 1" );
+    }
+    boost::shared_ptr< WDataSetScalar > res = makeDataSetFromImage< float >( ls->GetOutput() );
+    return res->getValueSet();
 }
 
 #endif  // OW_USE_ITK

@@ -38,8 +38,7 @@ template< typename T >
 class WValueSet;
 
 //! declare a boost::variant of all possible valuesets
-typedef boost::variant< WValueSet< char > const*,
-                        WValueSet< uint8_t > const*,
+typedef boost::variant< WValueSet< uint8_t > const*,
                         WValueSet< int8_t > const*,
                         WValueSet< uint16_t > const*,
                         WValueSet< int16_t > const*,

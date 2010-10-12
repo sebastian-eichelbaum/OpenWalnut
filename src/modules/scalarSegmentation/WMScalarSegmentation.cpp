@@ -92,6 +92,7 @@ void WMScalarSegmentation::properties()
     m_algos->addItem( "Watershed", "" );
     m_algos->addItem( "Otsu Threshold", "" );
     m_algos->addItem( "Region Growing", "" );
+    m_algos->addItem( "Level Sets 1", "" );
 
     m_algoType = m_properties->addProperty( "Seg Algo", "Choose a segmentation method.", m_algos->getSelectorFirst(), m_propCondition );
 
@@ -99,9 +100,13 @@ void WMScalarSegmentation::properties()
     m_threshold->setMax( 100.0 );
     m_threshold->setMin( 0.0 );
 
-    m_level = m_properties->addProperty( "Level", "Watershed level value for segmentation.", 10.0, m_propCondition );
+    m_level = m_properties->addProperty( "Level", "Level value for segmentation.", 10.0, m_propCondition );
     m_level->setMax( 100.0 );
     m_level->setMin( 0.0 );
+
+    m_variance = m_properties->addProperty( "Variance", "Variance", 10.0, m_propCondition );
+    m_variance->setMax( 100.0 );
+    m_variance->setMin( 0.0 );
 
     WModule::properties();
 }
@@ -178,6 +183,10 @@ void WMScalarSegmentation::doSegmentation()
         break;
     case 3:
         vs = m_dataSet->getValueSet()->applyFunction( RegionGrowingSegmentation( m_dataSet ) );
+        break;
+    case 4:
+        vs = m_dataSet->getValueSet()->applyFunction( LevelSetSegmentation1( m_level->get( true ), m_threshold->get( true ),
+                                                                             m_variance->get( true ), m_dataSet ) );
         break;
 #endif  // OW_USE_ITK
     default:

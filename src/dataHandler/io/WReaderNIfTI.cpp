@@ -123,8 +123,8 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
             {
             case DT_UNSIGNED_CHAR:
                 {
-                    std::vector< unsigned char > data = copyArray( reinterpret_cast< unsigned char* >( filedata->data ), countVoxels, vDim );
-                    newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< unsigned char >( order, vDim, data, W_DT_UNSIGNED_CHAR ) );
+                    std::vector< uint8_t > data = copyArray( reinterpret_cast< uint8_t* >( filedata->data ), countVoxels, vDim );
+                    newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< uint8_t >( order, vDim, data, W_DT_UNSIGNED_CHAR ) );
                     break;
                 }
 
