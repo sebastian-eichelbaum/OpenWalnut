@@ -37,7 +37,7 @@
 
 #include "WQtNavGLWidget.h"
 
-WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string sliderTitle )
+WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string sliderTitle, const QGLWidget * shareWidget )
     : QDockWidget( title, parent ),
     m_propWidget( NULL )
 {
@@ -50,7 +50,7 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string slid
 
     m_layout = new QVBoxLayout();
 
-    m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( title.toStdString(), panel, WGECamera::ORTHOGRAPHIC ) );
+    m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( title.toStdString(), panel, WGECamera::ORTHOGRAPHIC, shareWidget ) );
 
     setMinimumSize( 160, 240 );
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
