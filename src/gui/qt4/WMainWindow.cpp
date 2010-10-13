@@ -199,19 +199,20 @@ void WMainWindow::setupGUI()
         bool hideWidget;
         if( !( WPreferences::getPreference( "qt4gui.hideAxial", &hideWidget ) && hideWidget) )
         {
-            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", this, "Axial Slice" ) );
+            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", this, "Axial Slice", m_mainGLWidget.get() ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
         {
-            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", this, "Coronal Slice" ) );
+            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", this, "Coronal Slice", m_mainGLWidget.get() ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
         {
-            m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", this, "Sagittal Slice" ) );
+            m_navSagittal =
+                boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", this, "Sagittal Slice", m_mainGLWidget.get() ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
         }
