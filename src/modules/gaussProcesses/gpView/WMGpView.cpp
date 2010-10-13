@@ -72,8 +72,8 @@ void WMGpView::connectors()
 void WMGpView::properties()
 {
     m_normal = m_properties->addProperty( "#Plane normal", "The normal of the plane", wmath::WPosition( 1.0, 0.0, 0.0 ) );
-    m_pos = m_properties->addProperty( "#Plane position", "The position of the plane", wmath::WPosition( 0.0, 0.0, 0.0 ) );
-    m_scale = m_properties->addProperty( "Scaling factor", "How much the plane is streched", 0.0 );
+    m_pos = m_properties->addProperty( "#Plane position", "The position of the plane", wmath::WPosition( 87, 20, 150 ) );
+    m_scale = m_properties->addProperty( "Scaling factor", "How much the plane is streched", 91.0 );
 
     WModule::properties();
 }
@@ -90,7 +90,7 @@ void WMGpView::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     debugLog() << "Insert quad-plane";
     m_rootNode->clear();
-    m_planeNode = wge::genUnitSubdividedPlane( 100, 100 );
+    m_planeNode = wge::genUnitSubdividedPlane( 100, 100, 0.01 );
     m_planeNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMGpView::updatePlaneColors, this, _1 ) ) );
     m_rootNode->insert( m_planeNode );
 

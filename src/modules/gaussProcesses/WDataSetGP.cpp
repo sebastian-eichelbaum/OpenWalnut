@@ -55,5 +55,5 @@ double WDataSetGP::mean( const wmath::WPosition& p ) const
     {
         avg += cit->mean( p );
     }
-    return avg / static_cast< double >( size() );
+    return ( avg < 1.0 ? avg : 1.0 ); // real averaging would be bad when to many processes comes into account
 }

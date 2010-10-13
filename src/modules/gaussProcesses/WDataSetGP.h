@@ -64,11 +64,11 @@ public:
     virtual ~WDataSetGP();
 
     /**
-     * Computes the arithmetic mean of all gaussian processes at the given point.
+     * Defines a new mean function over the mean functions of all gaussian processes.
      *
      * \param p The position where to evaluate all mean functions
      *
-     * \return The average of all mean fucntions at the given point.
+     * \return The value of the new mean function.
      */
     double mean( const wmath::WPosition& p ) const;
 
