@@ -282,7 +282,7 @@ void WMDetTractClustering::cluster()
     if( !m_dLtTableExists && useCuda )
     {
 #ifdef CUDA_FOUND
-        m_dLtTableExists = initDLtTableCuda(m_dLtTable, m_tracts, proximity_t, m_progress);
+        m_dLtTableExists = initDLtTableCuda( m_dLtTable, m_tracts, proximity_t, m_progress );
 #endif
     }
 

@@ -2,8 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2010 RRZK, University of Cologne
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS, Copyright 2010 RRZK University of Cologne
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -29,13 +28,17 @@
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 
-/* if err == cudaSuccess:
-      returns *success
-   otherwise:
-      sets *success to false,
-      appends a human readable message corresponding to err to msg and prints it,
-      returns false
+/**
+ * Evaluates a \c cudaError_t variable to indicate if an error with CUDA involved happend or not. If
+ * there is an error success will be set to false and returned. In case of an error an error message
+ * is written to the \ref WLogger.
+ *
+ * \param success Input variable from CUDA
+ * \param err The variable to check
+ * \param msg An error message given from the CUDA system.
+ *
+ * \return The value of \ref success incase there was no CUDA error, false otherwise.
  */
 bool checkCudaError( bool *success, cudaError_t err, const char *msg = NULL );
 
-#endif
+#endif  // WCHECKCUDAERROR_H

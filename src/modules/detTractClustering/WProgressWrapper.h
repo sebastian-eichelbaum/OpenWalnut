@@ -2,8 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2010 RRZK, University of Cologne
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS, Copyright 2010 RRZK University of Cologne
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -30,14 +29,19 @@ struct ProgressWrapperData;
 
 class ProgressWrapper
 {
-    public:
-    ProgressWrapper( ProgressWrapperData *d );
+public:
+    explicit ProgressWrapper( ProgressWrapperData *d );
+
     ~ProgressWrapper();
+
     ProgressWrapper &operator++();
-    void start(const char *description, int count);
+
+    void start( const char *description, int count );
+
     void finish();
-    private:
+
+private:
     ProgressWrapperData *d;
 };
 
-#endif
+#endif  // WPROGRESSWRAPPER_H

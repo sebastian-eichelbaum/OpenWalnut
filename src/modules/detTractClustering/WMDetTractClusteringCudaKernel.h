@@ -2,8 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2010 RRZK, University of Cologne
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS, Copyright 2010 RRZK University of Cologne
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -29,20 +28,25 @@
 class ProgressWrapper;
 
 /**
- * initialize upper trigonal matrix distmat with Zhang metric
+ * Initialize upper trigonal matrix distmat with Zhang metric. The longest tract has a length of maxlength points.
  *
- * the fibres have a total of ncoords coords (x,y,z interleaved),
- * there are ntracts fibres, the sizes[i] coords for fibre i start at offsets[i],
- * the longest fibre has a length of maxlength points,
- * threshold is 'proximity threshold',
- * progress is reported through progress
+ * \param distmat Upper trigonal matrix with Zhang metric.
+ * \param ncoords Total number of coords (x,y,z interleaved)
+ * \param ntracts How many tracts
+ * \param sizes Array of number of coords per tract
+ * \param offsets Where the coords of the tracts do start
+ * \param threshold The 'proximity threshold
+ * \param progress Wrapped WProgress indicator for reporting the progress
  *
- * returns:
- *   true on success
- *   false otherwise (e.g. if maxlength is longer than can be handled by the CUDA kernel)
- */  
-extern "C" bool distCuda(float *distmat,
-        const int ncoords, const float *coords,
-        const int ntracts, const int *offsets, const int *sizes,
-        const float threshold, ProgressWrapper *progress );
-#endif
+ * \return True on success, false otherwise (e.g. if maxlength is longer than can be handled by the CUDA kernel)
+ */
+extern "C" bool distCuda( float *distmat,
+                          const int ncoords,
+                          const float *coords,
+                          const int ntracts,
+                          const int *offsets,
+                          const int *sizes,
+                          const float threshold,
+                          ProgressWrapper *progress );
+
+#endif  // WMDETTRACTCLUSTERINGCUDAKERNEL_H

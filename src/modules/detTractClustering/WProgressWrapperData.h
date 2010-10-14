@@ -2,8 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2010 RRZK, University of Cologne
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS, Copyright 2010 RRZK University of Cologne
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -37,4 +36,4 @@ struct ProgressWrapperData
     boost::shared_ptr< WProgressCombiner > progressCombiner;
 };
 
-#endif
+#endif  // WPROGRESSWRAPPERDATA_H

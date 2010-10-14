@@ -2,8 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2010 RRZK, University of Cologne
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS, Copyright 2010 RRZK University of Cologne
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -23,10 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../common/WLogger.h"
-
 #include <cuda.h>
 #include <cuda_runtime_api.h>
+
+#include "../../common/WLogger.h"
 
 bool checkCudaError( bool *success, cudaError_t err, const char *msg = NULL )
 {

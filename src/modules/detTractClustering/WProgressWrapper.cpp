@@ -2,8 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2010 RRZK, University of Cologne
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS, Copyright 2010 RRZK University of Cologne
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -23,15 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../../common/WProgress.h"
+#include "../../common/WProgressCombiner.h"
 #include "WProgressWrapper.h"
 #include "WProgressWrapperData.h"
 
-#include "../../common/WProgressCombiner.h"
-#include "../../common/WProgress.h"
-
-
 ProgressWrapper::ProgressWrapper( ProgressWrapperData *d )
-: d( d )
+    : d( d )
 {
 }
 
@@ -39,16 +36,19 @@ ProgressWrapper::~ProgressWrapper()
 {
 }
 
-void ProgressWrapper::start(const char *description, int count)
+void ProgressWrapper::start( const char *description, int count )
 {
     d->progress = boost::shared_ptr< WProgress >( new WProgress( description, count ) );
     if( d->progressCombiner )
+    {
         d->progressCombiner->addSubProgress( d->progress );
+    }
 }
 
 ProgressWrapper &ProgressWrapper::operator++()
 {
-    ++*(d->progress); return *this;
+    ++*( d->progress );
+    return *this;
 }
 
 void ProgressWrapper::finish()

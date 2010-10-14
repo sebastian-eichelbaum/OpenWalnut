@@ -2,8 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2010 RRZK, University of Cologne
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS, Copyright 2010 RRZK University of Cologne
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -33,13 +32,12 @@ class WDXtLookUpTable;
 class WDataSetFiberVector;
 
 /**
- * initialize dLtTable with distances according to Zhang's dLt metric for tracts
- *
- * fibres have to be sorted by length (descending)
+ * Initialize dLtTable with distances according to Zhang's dLt metric for
+ * tracts. The tracts have to be sorted by length (descending).
  */
 bool initDLtTableCuda( boost::shared_ptr< WDXtLookUpTable > dLtTable,
-        const boost::shared_ptr< WDataSetFiberVector > tracts,
-        double proximity_threshold,
-        boost::shared_ptr< WProgressCombiner > progressCombiner );
+                       const boost::shared_ptr< WDataSetFiberVector > tracts,
+                       double proximity_threshold,
+                       boost::shared_ptr< WProgressCombiner > progressCombiner );
 
-#endif
+#endif  // WMDETTRACTCLUSTERINGCUDAINTERFACE_H

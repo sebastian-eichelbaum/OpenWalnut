@@ -24,7 +24,7 @@
 //---------------------------------------------------------------------------
 
 #include "WMDetTractClusteringCudaKernel.h"
-#include "WCudaReduce.h"
+#include "WCudaReduce.cu"
 #include "WCheckCudaError.h"
 #include "WProgressWrapper.h"
 

@@ -2,8 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2010 RRZK, University of Cologne
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS, Copyright 2010 RRZK University of Cologne
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -23,20 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../../common/datastructures/WDXtLookUpTable.h"
+#include "../../common/datastructures/WFiber.h"
+#include "../../common/WProgressCombiner.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
 #include "WMDetTractClusteringCudaInterface.h"
 #include "WMDetTractClusteringCudaKernel.h"
 #include "WProgressWrapper.h"
 #include "WProgressWrapperData.h"
 
-#include "../../common/WProgressCombiner.h"
-#include "../../common/datastructures/WDXtLookUpTable.h"
-#include "../../common/datastructures/WFiber.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-
-bool initDLtTableCuda(boost::shared_ptr< WDXtLookUpTable > dLtTable,
-        const boost::shared_ptr< WDataSetFiberVector > tracts,
-        double proximity_threshold,
-        boost::shared_ptr<WProgressCombiner> progressCombiner)
+bool initDLtTableCuda( boost::shared_ptr< WDXtLookUpTable > dLtTable,
+                       const boost::shared_ptr< WDataSetFiberVector > tracts,
+                       double proximity_threshold,
+                       boost::shared_ptr< WProgressCombiner > progressCombiner )
 {
     // Since fibers have differing point counts, compute offset into fiber array
     const int ntracts = tracts->size();
@@ -47,13 +45,15 @@ bool initDLtTableCuda(boost::shared_ptr< WDXtLookUpTable > dLtTable,
     size_t maxlength = 0;
     for( int i = 0; i < ntracts; ++i )
     {
-        const wmath::WFiber &fib = (*tracts)[i];
+        const wmath::WFiber &fib = ( *tracts )[i];
         offsets[i] = nextoffset;
         lengths[i] = fib.size();
-        nextoffset = ( nextoffset + fib.size() +  (align - 1 ) ) & ~( align - 1 );
+        nextoffset = ( nextoffset + fib.size() + ( align - 1 ) ) & ~( align - 1 );
 
         if( fib.size() > maxlength )
+        {
             maxlength = fib.size();
+        }
     }
 
     // copy fibre coordinates into plain array
@@ -61,7 +61,7 @@ bool initDLtTableCuda(boost::shared_ptr< WDXtLookUpTable > dLtTable,
     float* coords = new float[ncoords*3];
     for( int i = 0; i < ntracts; ++i )
     {
-        const wmath::WFiber &fib = (*tracts)[i];
+        const wmath::WFiber &fib = ( *tracts )[i];
         int k = offsets[i]*3;
         for( int j = 0; j < lengths[i]; ++j )
         {
@@ -77,16 +77,16 @@ bool initDLtTableCuda(boost::shared_ptr< WDXtLookUpTable > dLtTable,
     ProgressWrapper *progress = new ProgressWrapper( &progressData );
 
     float* distmat = new float[ntracts * ntracts];
-    bool result = distCuda(distmat,
-            ncoords, coords,
-            ntracts, offsets, lengths,
-            proximity_threshold,
-            progress);
+    bool result = distCuda( distmat, ncoords, coords, ntracts, offsets, lengths, proximity_threshold, progress );
 
     // copy results to OpenWalnut structure
     for( size_t q = 0; q < ntracts; ++q )
+    {
         for( size_t r = q + 1; r < ntracts; ++r )
-            (*dLtTable)( q, r ) = fmaxf( distmat[q * ntracts + r], distmat[r * ntracts + q] );
+        {
+            ( *dLtTable )( q, r ) = fmaxf( distmat[q * ntracts + r], distmat[r * ntracts + q] );
+        }
+    }
 
     delete progress;
 
