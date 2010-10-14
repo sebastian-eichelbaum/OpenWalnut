@@ -137,11 +137,11 @@ void WMScalarSegmentation::moduleMain()
         if( dataChanged && dataValid )
         {
             m_dataSet = newDataSet;
-            WAssert( m_dataSet, "" );
-            WAssert( m_dataSet->getValueSet(), "" );
-            WAssert( m_dataSet->getGrid(), "" );
-            WAssert( m_dataSet->getValueSet()->dimension() == 1, "" );
-            WAssert( m_dataSet->getValueSet()->order() == 0, "" );
+            if( !m_dataSet || !m_dataSet->getValueSet() || m_dataSet->getGrid()
+                || m_dataSet->getValueSet()->dimension() != 1 || m_dataSet->getValueSet()->order() != 0 )
+            {
+                m_dataSet = boost::shared_ptr< WDataSetScalar >();
+            }
         }
 
         bool algoChanged = m_algoType->changed();

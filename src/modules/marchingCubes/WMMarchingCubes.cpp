@@ -505,7 +505,7 @@ void WMMarchingCubes::renderMesh()
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
 
-    for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+    for ( int i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
     {
         state->addUniform( m_typeUniforms[i] );
         state->addUniform( m_thresholdUniforms[i] );
@@ -575,7 +575,7 @@ void WMMarchingCubes::updateGraphicsCallback()
             osg::StateSet* rootState = m_surfaceGeode->getOrCreateStateSet();
 
             // reset all uniforms
-            for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+            for ( int i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
@@ -656,7 +656,7 @@ void WMMarchingCubes::updateGraphicsCallback()
                 m_cmapUniforms[c]->set( cmap );
 
                 ++c;
-                if( c == m_maxNumberOfTextures )
+                if( c == wlimits::MAX_NUMBER_OF_TEXTURES )
                 {
                     break;
                 }

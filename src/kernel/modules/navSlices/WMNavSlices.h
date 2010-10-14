@@ -340,8 +340,6 @@ private:
      */
     static bool m_navsliceRunning;
 
-    static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
-
     /**
     * Current width of the axial widget
     */

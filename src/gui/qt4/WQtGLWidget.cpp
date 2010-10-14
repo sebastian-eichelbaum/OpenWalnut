@@ -38,8 +38,8 @@
 #include "../../kernel/WKernel.h"
 
 
-WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode )
-    : QGLWidget( parent ),
+WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QGLWidget * shareWidget )
+    : QGLWidget( parent, shareWidget ),
       m_nameOfViewer( nameOfViewer ),
       m_recommendedSize()
 {

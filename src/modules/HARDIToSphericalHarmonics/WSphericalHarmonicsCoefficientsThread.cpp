@@ -99,6 +99,14 @@ void WSphericalHarmonicsCoefficientsThread::threadMain()
         measures[ i ] /= ( ( maxVal-minVal ) == 0.0 ) ? 1.0 : ( maxVal-minVal );
       }
     }
+    else
+    {
+      for ( std::vector< size_t >::const_iterator it = m_parameter.m_validIndices.begin(); it != m_parameter.m_validIndices.end(); it++, idx++ )
+      {
+        measures[ idx ] = allMeasures[ m_parameter.m_S0Indexes[0] ] == 0.0 ? 0.0 :
+                          static_cast<double>( allMeasures[ *it ] ) / allMeasures[ m_parameter.m_S0Indexes[0] ];
+      }
+    }
 
     wmath::WValue< double > coefficients( ( *m_parameter.m_TransformMatrix ) * measures );
 
