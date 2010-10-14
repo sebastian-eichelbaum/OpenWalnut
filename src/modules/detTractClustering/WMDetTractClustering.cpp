@@ -53,6 +53,10 @@
 #include "WMDetTractClustering.xpm"
 #include "WMDetTractClustering.h"
 
+#ifdef CUDA_FOUND
+#include "WMDetTractClusteringCudaInterface.h"
+#endif
+
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMDetTractClustering )
 
@@ -150,6 +154,9 @@ void WMDetTractClustering::properties()
     m_numValidClusters->setMin( 0 );
     m_numValidClusters->setMax( wlimits::MAX_INT32_T );
     m_clusterSizes = m_infoProperties->addProperty( "Cluster sizes:", "Size of each valid cluster", std::string() );
+#ifdef CUDA_FOUND
+    m_useCuda         = m_properties->addProperty( "Use CUDA", "Prefer CUDA algorithm over CPU algorithm", true );
+#endif
 
     WModule::properties();
 }
@@ -250,6 +257,10 @@ bool WMDetTractClustering::dLtTableExists()
 
 void WMDetTractClustering::cluster()
 {
+    bool useCuda = false;
+#ifdef CUDA_FOUND
+    useCuda = m_useCuda->get();
+#endif
     double proximity_t = m_proximity_t->get();
     double maxDistance_t = m_maxDistance_t->get();
     size_t minClusterSize = m_minClusterSize->get();
@@ -266,6 +277,13 @@ void WMDetTractClustering::cluster()
     {
         m_clusters.push_back( WFiberCluster( i ) );
         m_clusterIDs[i] = i;
+    }
+
+    if( !m_dLtTableExists && useCuda )
+    {
+#ifdef CUDA_FOUND
+        m_dLtTableExists = initDLtTableCuda(m_dLtTable, m_tracts, proximity_t, m_progress);
+#endif
     }
 
     boost::shared_ptr< WProgress > progress( new WProgress( "Tract clustering", numTracts ) );
