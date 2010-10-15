@@ -25,7 +25,12 @@
 #ifndef WQTGLWIDGET_H
 #define WQTGLWIDGET_H
 
+#if defined( __APPLE__ )
 #include "platformDependent/WQtGLWidgetMac.h"
 typedef WQtGLWidgetMac WQtGLWidget;
+#else
+#include "platformDependent/WQtGLWidgetAll.h"
+typedef WQtGLWidgetAll WQtGLWidget;
+#endif
 
 #endif  // WQTGLWIDGET_H

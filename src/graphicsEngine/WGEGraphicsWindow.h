@@ -25,8 +25,13 @@
 #ifndef WGEGRAPHICSWINDOW_H
 #define WGEGRAPHICSWINDOW_H
 
+#if defined( __APPLE__ )
 #include "platformDependent/WGEGraphicsWindowMac.h"
 typedef WGEGraphicsWindowMac WGEGraphicsWindow;
+#else
+#include "platformDependent/WGEGraphicsWindowAll.h"
+typedef WGEGraphicsWindowAll WGEGraphicsWindow;
+#endif
 
 #endif  // WGEGRAPHICSWINDOW_H
 

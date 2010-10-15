@@ -25,7 +25,12 @@
 #ifndef WGEVIEWER_H
 #define WGEVIEWER_H
 
+#if defined( __APPLE__ )
 #include "platformDependent/WGEViewerMac.h"
 typedef WGEViewerMac WGEViewer;
+#else
+#include "platformDependent/WGEViewerAll.h"
+typedef WGEViewerAll WGEViewer;
+#endif
 
 #endif  // WGEVIEWER_H

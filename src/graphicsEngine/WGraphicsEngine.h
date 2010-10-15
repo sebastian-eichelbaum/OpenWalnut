@@ -25,7 +25,12 @@
 #ifndef WGRAPHICSENGINE_H
 #define WGRAPHICSENGINE_H
 
+#if defined( __APPLE__ )
 #include "platformDependent/WGraphicsEngineMac.h"
 typedef WGraphicsEngineMac WGraphicsEngine;
+#else
+#include "platformDependent/WGraphicsEngineAll.h"
+typedef WGraphicsEngineAll WGraphicsEngine;
+#endif
 
 #endif  // WGRAPHICSENGINE_H
