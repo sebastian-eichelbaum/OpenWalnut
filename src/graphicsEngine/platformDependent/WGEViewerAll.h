@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGEVIEWER_H
-#define WGEVIEWER_H
+#ifndef WGEVIEWERALL_H
+#define WGEVIEWERALL_H
 
 #include <string>
 
@@ -194,4 +194,4 @@ protected:
 private:
 };
 
-#endif  // WGEVIEWER_H
+#endif  // WGEVIEWERALL_H

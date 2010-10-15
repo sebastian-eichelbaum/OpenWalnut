@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGEGRAPHICSWINDOW_H
-#define WGEGRAPHICSWINDOW_H
+#ifndef WGEGRAPHICSWINDOWALL_H
+#define WGEGRAPHICSWINDOWALL_H
 
 #include <boost/shared_ptr.hpp>
 #include <osgViewer/GraphicsWindow>
@@ -109,5 +109,5 @@ protected:
 private:
 };
 
-#endif  // WGEGRAPHICSWINDOW_H
+#endif  // WGEGRAPHICSWINDOWALL_H
 

@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGRAPHICSENGINE_H
-#define WGRAPHICSENGINE_H
+#ifndef WGRAPHICSENGINEALL_H
+#define WGRAPHICSENGINEALL_H
 
 #include <map>
 #include <string>
@@ -200,4 +200,4 @@ namespace wge
 {
 } // end of namespace
 
-#endif  // WGRAPHICSENGINE_H
+#endif  // WGRAPHICSENGINEALL_H
