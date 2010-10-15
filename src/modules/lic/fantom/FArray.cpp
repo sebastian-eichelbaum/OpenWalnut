@@ -224,7 +224,7 @@ istream& operator>> ( istream& is , FArray& a)
   char c=' ';
   //  unsigned int length, i;
   // jump the first character
-  while (isspace(c) && (is >> c));
+  while (isspace(c) && (is >> c)) {};
 
   if (c != '[')
     { is.putback(c);

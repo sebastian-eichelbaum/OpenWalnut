@@ -129,6 +129,9 @@ IF( EIGEN3_FOUND )
     MARK_AS_ADVANCED( EIGEN3_VERSION )
 ENDIF()
 
+### CUDA #### (e.g. for the detTractClustering module
+FIND_PACKAGE( CUDA QUIET )
+
 # other options:
 #---------------
 # Set default build type

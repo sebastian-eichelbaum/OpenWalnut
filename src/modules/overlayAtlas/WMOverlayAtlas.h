@@ -266,10 +266,6 @@ private:
 
     osg::ref_ptr<osg::Uniform> m_showCompleteUniform; //!< Determines whether the slice should be drawn completely
 
-    static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
-
-
-
     /**
      * Node callback to change position and appearance of the plane within the OSG thread
      */

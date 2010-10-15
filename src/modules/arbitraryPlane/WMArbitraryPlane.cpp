@@ -379,13 +379,13 @@ void WMArbitraryPlane::updateTextures()
         if ( tex.size() > 0 )
         {
             // reset all uniforms
-            for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+            for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
 
             // for each texture -> apply
-            int c = 0;
+            size_t c = 0;
             //////////////////////////////////////////////////////////////////////////////////////////////////
             if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
             {
@@ -434,7 +434,7 @@ void WMArbitraryPlane::updateTextures()
                 m_cmapUniforms[c]->set( cmap );
 
                 ++c;
-                if( c == m_maxNumberOfTextures )
+                if( c == wlimits::MAX_NUMBER_OF_TEXTURES )
                 {
                     break;
                 }
@@ -502,7 +502,7 @@ void WMArbitraryPlane::initUniforms( osg::StateSet* rootState )
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
 
-    for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+    for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
     {
         rootState->addUniform( m_typeUniforms[i] );
         rootState->addUniform( m_thresholdUniforms[i] );

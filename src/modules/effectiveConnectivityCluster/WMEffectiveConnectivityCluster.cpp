@@ -86,7 +86,7 @@ boost::shared_ptr< WModule > WMEffectiveConnectivityCluster::factory() const
 
 const char** WMEffectiveConnectivityCluster::getXPMIcon() const
 {
-    return effectiveConnectivityCluster_xpm;
+    return WMEffectiveConnectivityCluster_xpm;
 }
 
 const std::string WMEffectiveConnectivityCluster::getName() const

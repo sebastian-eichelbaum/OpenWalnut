@@ -31,6 +31,7 @@
 
 #include "../../common/math/WSymmetricSphericalHarmonic.h"
 #include "../../common/WLimits.h"
+#include "../../common/exceptions/WPreconditionNotMet.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
@@ -368,9 +369,10 @@ wmath::WVector3D WMBermanTracking::getDirFunc( boost::shared_ptr< WDataSetSingle
     boost::shared_ptr< WGridRegular3D > g( boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() ) );
     // extract fiber directions from odf
     int v = g->getVoxelNum( j.first );
-    WAssert( v != -1, "" );
 
-    WAssert( m_gfa, "" );
+    WPrecondDiffers( v, -1 );
+    WPrecond( m_gfa, "" );
+
     if( boost::shared_dynamic_cast< WDataSetSingle >( m_gfa )->getValueAt( v ) < m_currentMinFA )
     {
         return wmath::WVector3D( 0.0, 0.0, 0.0 );

@@ -27,24 +27,20 @@
 
 #include <boost/regex.hpp>
 
-#include "../../kernel/WKernel.h"
-#include "../emptyIcon.xpm" // Please put a real icon here.
-
-#include "../../dataHandler/WDataSet.h"
+#include "../../common/WPathHelper.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
 #include "../../graphicsEngine/WShader.h"
-
-
-#include "../../common/WPathHelper.h"
-#include "../../common/WPropertyHelper.h"
-
+#include "../../kernel/WKernel.h"
 #include "WMOverlayAtlas.h"
+#include "WMOverlayAtlas.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMOverlayAtlas )
@@ -67,7 +63,7 @@ boost::shared_ptr< WModule > WMOverlayAtlas::factory() const
 
 const char** WMOverlayAtlas::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMOverlayAtlas_xpm; // Please put a real icon here.
 }
 const std::string WMOverlayAtlas::getName() const
 {
@@ -316,6 +312,8 @@ void WMOverlayAtlas::updateCoronalSlice()
 
 void WMOverlayAtlas::propertyChanged( boost::shared_ptr< WPropertyBase > property )
 {
+    //TODO(all): remove void cast when the property variable is used
+    ( void ) property; // NOLINT cstyle cast
 }
 
 void WMOverlayAtlas::updatePlane()
@@ -346,7 +344,7 @@ void WMOverlayAtlas::updatePlane()
     // grab a list of data textures
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
-    int c = 0;
+    size_t c = 0;
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     if ( m_active->get() )
     {
@@ -390,7 +388,7 @@ void WMOverlayAtlas::updatePlane()
 
         planeGeometry->setTexCoordArray( c, texCoords );
         ++c;
-        if( c == m_maxNumberOfTextures )
+        if( c == wlimits::MAX_NUMBER_OF_TEXTURES )
         {
             break;
         }
@@ -424,13 +422,13 @@ void WMOverlayAtlas::updateTextures()
         if ( tex.size() > 0 )
         {
             // reset all uniforms
-            for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+            for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
 
             // for each texture -> apply
-            int c = 0;
+            size_t c = 0;
             //////////////////////////////////////////////////////////////////////////////////////////////////
             if ( m_active->get() )
             {
@@ -496,7 +494,7 @@ void WMOverlayAtlas::updateTextures()
                 m_cmapUniforms[c]->set( cmap );
 
                 ++c;
-                if( c == m_maxNumberOfTextures )
+                if( c == wlimits::MAX_NUMBER_OF_TEXTURES )
                 {
                     break;
                 }
@@ -564,7 +562,7 @@ void WMOverlayAtlas::initUniforms( osg::StateSet* rootState )
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
 
-    for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+    for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
     {
         rootState->addUniform( m_typeUniforms[i] );
         rootState->addUniform( m_thresholdUniforms[i] );
