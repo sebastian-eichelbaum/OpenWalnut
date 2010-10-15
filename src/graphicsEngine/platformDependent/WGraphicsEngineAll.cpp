@@ -66,6 +66,28 @@ WGraphicsEngineAll::WGraphicsEngineAll():
     putenv( envStr.c_str() );
 #endif
 
+    // initialize OSG render window
+    m_viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
+
+    // ThreadingModel: enum with the following possibilities
+    //
+    //  SingleThreaded
+    //  CullDrawThreadPerContext
+    //  ThreadPerContext
+    //  DrawThreadPerContext
+    //  CullThreadPerCameraDrawThreadPerContext
+    //  ThreadPerCamera
+    //  AutomaticSelection
+    bool multiThreadedViewers = true;
+    if( WPreferences::getPreference( "ge.multiThreadedViewers", &multiThreadedViewers ) && !multiThreadedViewers )
+    {
+        m_viewer->setThreadingModel( osgViewer::Viewer::SingleThreaded );
+    }
+    else
+    {
+        m_viewer->setThreadingModel( osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext );
+    }
+
     // initialize members
     m_rootNode = new WGEScene();
 }
@@ -92,14 +114,22 @@ osg::ref_ptr<WGEScene> WGraphicsEngineAll::getScene()
     return m_rootNode;
 }
 
-boost::shared_ptr<WGEViewer> WGraphicsEngineAll::createViewer( std::string name, int x, int y,
+boost::shared_ptr<WGEViewer> WGraphicsEngineAll::createViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int x, int y,
                                                             int width, int height, WGECamera::ProjectionMode projectionMode,
                                                             WColor bgColor )
 {
+    // init the composite viewer if not already done
+    if ( m_viewer == osg::ref_ptr< osgViewer::CompositeViewer >() )
+    {
+    }
+
     boost::shared_ptr<WGEViewer> viewer = boost::shared_ptr<WGEViewer>(
-        new WGEViewer( name, x, y, width, height, projectionMode ) );
+        new WGEViewer( name, wdata, x, y, width, height, projectionMode ) );
     viewer->setBgColor( bgColor );
     viewer->setScene( getScene() );
+
+    // finally add view
+    m_viewer->addView( viewer->getView() );
 
     // store it in viewer list
     boost::mutex::scoped_lock lock( m_viewersLock );
@@ -138,6 +168,10 @@ boost::shared_ptr< WGEViewer > WGraphicsEngineAll::getViewer()
 void WGraphicsEngineAll::threadMain()
 {
     WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_INFO );
+
+    m_viewer->startThreading();
+    m_viewer->run();
+    m_viewer->stopThreading();
 }
 
 void WGraphicsEngineAll::notifyStop()

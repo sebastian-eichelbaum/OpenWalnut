@@ -44,10 +44,10 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WPreferences.h"
 #include "../../common/math/WPosition.h"
-#include "../WGEViewer.h"
-#include "WGraphicsEngineMac.h"
 #include "../exceptions/WGEInitFailed.h"
 #include "../exceptions/WGESignalSubscriptionFailed.h"
+#include "WGEViewerMac.h"
+#include "WGraphicsEngineMac.h"
 
 // graphics engine instance as singleton
 boost::shared_ptr< WGraphicsEngineMac > WGraphicsEngineMac::m_instance = boost::shared_ptr< WGraphicsEngineMac >();
@@ -92,12 +92,12 @@ osg::ref_ptr<WGEScene> WGraphicsEngineMac::getScene()
     return m_rootNode;
 }
 
-boost::shared_ptr<WGEViewer> WGraphicsEngineMac::createViewer( std::string name, int x, int y,
-                                                            int width, int height, WGECamera::ProjectionMode projectionMode,
-                                                            WColor bgColor )
+boost::shared_ptr<WGEViewerMac> WGraphicsEngineMac::createViewer( std::string name, int x, int y,
+                                                                  int width, int height, WGECamera::ProjectionMode projectionMode,
+                                                                  WColor bgColor )
 {
-    boost::shared_ptr<WGEViewer> viewer = boost::shared_ptr<WGEViewer>(
-        new WGEViewer( name, x, y, width, height, projectionMode ) );
+    boost::shared_ptr<WGEViewerMac> viewer = boost::shared_ptr<WGEViewerMac>(
+        new WGEViewerMac( name, x, y, width, height, projectionMode ) );
     viewer->setBgColor( bgColor );
     viewer->setScene( getScene() );
 
@@ -120,16 +120,16 @@ void WGraphicsEngineMac::closeViewer( const std::string name )
     }
 }
 
-boost::shared_ptr< WGEViewer > WGraphicsEngineMac::getViewerByName( std::string name )
+boost::shared_ptr< WGEViewerMac > WGraphicsEngineMac::getViewerByName( std::string name )
 {
     boost::mutex::scoped_lock lock( m_viewersLock );
-    boost::shared_ptr< WGEViewer > out = m_viewers.count( name ) > 0 ?
+    boost::shared_ptr< WGEViewerMac > out = m_viewers.count( name ) > 0 ?
         m_viewers[name] :
-        boost::shared_ptr< WGEViewer >();
+        boost::shared_ptr< WGEViewerMac >();
     return out;
 }
 
-boost::shared_ptr< WGEViewer > WGraphicsEngineMac::getViewer()
+boost::shared_ptr< WGEViewerMac > WGraphicsEngineMac::getViewer()
 {
     boost::mutex::scoped_lock lock( m_viewersLock );
     return m_viewers[ "main" ];

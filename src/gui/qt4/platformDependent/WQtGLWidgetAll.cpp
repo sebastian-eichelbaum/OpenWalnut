@@ -37,6 +37,9 @@
 #include "../../../graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "../../../kernel/WKernel.h"
 
+#include <osgViewer/api/X11/GraphicsWindowX11>
+typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
+
 
 WQtGLWidgetAll::WQtGLWidgetAll( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QGLWidget * shareWidget )
     : QGLWidget( parent, shareWidget ),
@@ -53,12 +56,12 @@ WQtGLWidgetAll::WQtGLWidgetAll( std::string nameOfViewer, QWidget* parent, WGECa
     setAttribute( Qt::WA_NoSystemBackground );
     setFocusPolicy( Qt::ClickFocus );
 
+    // initialize OpenGL context and OpenSceneGraph
+    osg::ref_ptr<osg::Referenced> wdata = new WindowData( winId() );
+
     // create viewer
     m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
-        m_nameOfViewer, x(), y(), width(), height(), m_initialProjectionMode );
-
-    connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
-    m_Timer.start( 10 );
+        m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
 }
 
 WQtGLWidgetAll::~WQtGLWidgetAll()
@@ -138,14 +141,23 @@ boost::shared_ptr< WGEViewer > WQtGLWidgetAll::getViewer() const
     return m_Viewer;
 }
 
-void WQtGLWidgetAll::paintGL()
+void WQtGLWidgetAll::paintEvent( QPaintEvent* /*event*/ )
 {
-    m_Viewer->paint();
+    // maybe this helps finding the startup segfaults. This will be removed after the problem has been found.
+    if ( !m_firstPaint )
+    {
+        WLogger::getLogger()->addLogMessage( "Painted the first time.",
+                                             "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                             LL_DEBUG );
+        m_firstPaint = true;
+    }
+
+    // m_Viewer->paint();
 }
 
-void WQtGLWidgetAll::resizeGL( int width, int height )
+void WQtGLWidgetAll::resizeEvent(  QResizeEvent* event )
 {
-    m_Viewer->resize( width, height );
+    m_Viewer->resize( event->size().width(), event->size().height() );
 }
 
 int WQtGLWidgetAll::translateButton( QMouseEvent* event )

@@ -127,17 +127,11 @@ protected:
     virtual void mouseDoubleClickEvent( QMouseEvent* event );
 
     /**
-     * QT Callback for handling repaints.
-     */
-    virtual void paintGL();
-
-    /**
      * Event handler for  resize events.
      *
-     * \param width the new width.
-     * \param height the new height.
+     * \param event the event description.
      */
-    virtual void resizeGL( int width, int height );
+    virtual void resizeEvent( QResizeEvent* event );
 
     /**
      * Event handler for key press.
@@ -182,6 +176,13 @@ protected:
     virtual void wheelEvent( QWheelEvent* event );
 
     /**
+     * QT Callback for handling repaints.
+     *
+     * \param event event descriptor.
+     */
+    virtual void paintEvent( QPaintEvent* event );
+
+    /**
      * Simply translate the mouse button from an event to an int.
      *
      * \param event the QT Event.
@@ -201,10 +202,6 @@ protected:
     WGECamera::ProjectionMode m_initialProjectionMode;
 
 private:
-    /**
-     * Timer for periodic repaints.
-     */
-    QTimer m_Timer;
 
     /**
      * Holds the recommended size for the widget

@@ -44,14 +44,14 @@
 #include <osgViewer/View>
 #include <osgViewer/Viewer>
 
-#include "../../common/WThreadedRunner.h"
 #include "../../common/WColor.h"
+#include "../../common/WThreadedRunner.h"
 #include "../../common/math/WPosition.h"
+#include "../WExportWGE.h"
 #include "../WGEGraphicsWindow.h"
 #include "../WGEScene.h"
-#include "../WGEViewer.h"
 #include "../WGESignals.h"
-#include "../WExportWGE.h"
+#include "WGEViewerMac.h"
 
 /**
  * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
@@ -87,7 +87,7 @@ public:
      * \return the new instance, ready to be used.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    boost::shared_ptr< WGEViewer > createViewer( std::string name, int x, int y,
+    boost::shared_ptr< WGEViewerMac > createViewer( std::string name, int x, int y,
                                                int width, int height, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC,
                                                WColor bgColor = WColor( .9, .9, .9 ) );
 
@@ -104,14 +104,14 @@ public:
      * \param name the name of the viewer
      * \returns a shared pointer to the viewer or NULL if not found
      */
-    boost::shared_ptr< WGEViewer > getViewerByName( std::string name );
+    boost::shared_ptr< WGEViewerMac > getViewerByName( std::string name );
 
     /**
      * Returns the unnamed view, which is the view for the default scene which can be acquired using getScene().
      *
      * \return the viewer for the default scene.
      */
-    boost::shared_ptr< WGEViewer > getViewer();
+    boost::shared_ptr< WGEViewerMac > getViewer();
 
     /**
      * Returns instance of the graphics engine. If it does not exists, it will be created.
@@ -160,7 +160,7 @@ protected:
     /**
      * All registered viewers.
      */
-    std::map< std::string, boost::shared_ptr< WGEViewer > > m_viewers;
+    std::map< std::string, boost::shared_ptr< WGEViewerMac > > m_viewers;
 
     /**
      * Mutex used to lock the map of viewers.
