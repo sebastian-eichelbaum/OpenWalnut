@@ -23,14 +23,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WMDetTractClusteringCudaKernel.h"
-#include "WCudaReduce.cu"
-#include "WCheckCudaError.h"
-#include "WProgressWrapper.h"
+#include <deque>
 
 #include <cuda.h>
 
-#include <deque>
+#include "WCheckCudaError.h"
+#include "WCudaReduce.cu"
+#include "WMDetTractClusteringCudaKernel.h"
+#include "WProgressWrapper.h"
 
 const int nthreads = 192;       // number of cuda threads
 const int gridsize = 32;        // don't schedule too large tasks - watchdog timer will kill long-running ones
