@@ -35,7 +35,7 @@
 #include <boost/signals2/signal.hpp>
 
 #include "../../../graphicsEngine/WGECamera.h"
-#include "../../../graphicsEngine/WGEViewer.h"
+#include "../../../graphicsEngine/platformDependent/WGEViewerMac.h"
 
 class WColor;
 
@@ -105,13 +105,13 @@ public:
      *
      * \return a shared pointer to the viewer
      */
-    boost::shared_ptr< WGEViewer > getViewer() const;
+    boost::shared_ptr< WGEViewerMac > getViewer() const;
 
 protected:
     /**
      * The viewer to the scene.
      */
-    boost::shared_ptr<WGEViewer> m_Viewer;
+    boost::shared_ptr<WGEViewerMac> m_Viewer;
 
     /**
      * The name of the viewer.

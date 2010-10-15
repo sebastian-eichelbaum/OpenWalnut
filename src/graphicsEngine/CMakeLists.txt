@@ -6,19 +6,23 @@ ADD_SUBDIRECTORY( platformDependent )
 FILE( GLOB GE_EXCEPTIONS_SRC "exceptions/*.cpp" "exceptions/*.h" )
 FILE( GLOB GE_CALLBACKS_SRC "callbacks/*.cpp" "callbacks/*.h" )
 FILE( GLOB GE_ALGORITHMS_SRC "algorithms/*.cpp" "algorithms/*.h" )
-FILE( GLOB GE_PLATFORMDEPENDENT_SRC 
-  "platformDependent/WGraphicsEngineMac.cpp" 
-  "platformDependent/WGraphicsEngineMac.h"
-  "platformDependent/WGEViewerMac.cpp" 
-  "platformDependent/WGEViewerMac.h"
-  "platformDependent/WGEGraphicsWindowMac.cpp" 
-  "platformDependent/WGEGraphicsWindowMac.h"
-  "platformDependent/WGraphicsEngineAll.cpp" 
+IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
+  FILE( GLOB GE_PLATFORMDEPENDENT_SRC 
+    "platformDependent/WGraphicsEngineMac.cpp" 
+    "platformDependent/WGraphicsEngineMac.h"
+    "platformDependent/WGEViewerMac.cpp" 
+    "platformDependent/WGEViewerMac.h"
+    "platformDependent/WGEGraphicsWindowMac.cpp" 
+    "platformDependent/WGEGraphicsWindowMac.h" )
+ELSE()
+  FILE( GLOB GE_PLATFORMDEPENDENT_SRC 
+    "platformDependent/WGraphicsEngineAll.cpp" 
   "platformDependent/WGraphicsEngineAll.h"
   "platformDependent/WGEViewerAll.cpp" 
   "platformDependent/WGEViewerAll.h"
   "platformDependent/WGEGraphicsWindowAll.cpp" 
   "platformDependent/WGEGraphicsWindowAll.h" )
+ENDIF()
 FILE( GLOB GE_SRC "*.cpp" "*.h" )
 
 ADD_LIBRARY( OWge SHARED ${GE_SRC} ${GE_EXCEPTIONS_SRC} ${GE_CALLBACKS_SRC} ${GE_ALGORITHMS_SRC} ${GE_PLATFORMDEPENDENT_SRC} )

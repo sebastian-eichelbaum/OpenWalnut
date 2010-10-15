@@ -49,7 +49,7 @@
 
 WGEViewerMac::WGEViewerMac( std::string name, int x, int y,
     int width, int height, WGECamera::ProjectionMode projectionMode )
-    : WGEGraphicsWindow( x, y, width, height ),
+    : WGEGraphicsWindowMac( x, y, width, height ),
       boost::enable_shared_from_this< WGEViewerMac >(),
       m_name( name )
 {
@@ -147,7 +147,7 @@ void WGEViewerMac::resize( int width, int height )
 {
     m_View->getEventQueue()->windowResize( 0, 0, width, height );
 
-    WGEGraphicsWindow::resize( width, height );
+    WGEGraphicsWindowMac::resize( width, height );
 
     // also update the camera
     m_View->getCamera()->setViewport( 0, 0, width, height );
@@ -161,7 +161,7 @@ void WGEViewerMac::resize( int width, int height )
 void WGEViewerMac::close()
 {
     // forward close event
-    WGEGraphicsWindow::close();
+    WGEGraphicsWindowMac::close();
 }
 
 std::string WGEViewerMac::getName() const

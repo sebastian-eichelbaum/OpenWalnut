@@ -42,7 +42,7 @@
 #include "../../common/WThreadedRunner.h"
 #include "../../common/WColor.h"
 
-#include "../WGEGraphicsWindow.h"
+#include "WGEGraphicsWindowMac.h"
 #include "../WGECamera.h"
 #include "../WPickHandler.h"
 #include "../WGEGroupNode.h"
@@ -55,7 +55,7 @@
  * It is, besides WGraphicsEngine, the ONLY entry point for each widget for accessing the graphics engine.
  * \ingroup ge
  */
-class WGE_EXPORT WGEViewerMac: public WGEGraphicsWindow,
+class WGE_EXPORT WGEViewerMac: public WGEGraphicsWindowMac,
                                  public boost::enable_shared_from_this< WGEViewerMac >
 {
 public:

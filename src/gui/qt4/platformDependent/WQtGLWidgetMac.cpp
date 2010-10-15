@@ -30,7 +30,8 @@
 #include "WQtGLWidgetMac.h"
 
 #include "../../../graphicsEngine/WGE2DManipulator.h"
-#include "../../../graphicsEngine/WGEViewer.h"
+#include "../../../graphicsEngine/platformDependent/WGEViewerMac.h"
+#include "../../../graphicsEngine/platformDependent/WGraphicsEngineMac.h"
 #include "../../../graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "../../../common/WFlag.h"
 #include "../../../common/WLogger.h"
@@ -133,7 +134,7 @@ WQtGLWidgetMac::CameraManipulators WQtGLWidgetMac::getCameraManipulators()
     return m_CurrentManipulator;
 }
 
-boost::shared_ptr< WGEViewer > WQtGLWidgetMac::getViewer() const
+boost::shared_ptr< WGEViewerMac > WQtGLWidgetMac::getViewer() const
 {
     return m_Viewer;
 }
@@ -167,17 +168,17 @@ void WQtGLWidgetMac::keyPressEvent( QKeyEvent* event )
 {
     if(  event->text() != "" )
     {
-        m_Viewer->keyEvent( WGEViewer::KEYPRESS, *event->text().toAscii().data() );
+        m_Viewer->keyEvent( WGEViewerMac::KEYPRESS, *event->text().toAscii().data() );
     }
     else
     {
         switch( event->modifiers() )
         {
             case Qt::ShiftModifier :
-                m_Viewer->keyEvent( WGEViewer::KEYPRESS, osgGA::GUIEventAdapter::KEY_Shift_L );
+                m_Viewer->keyEvent( WGEViewerMac::KEYPRESS, osgGA::GUIEventAdapter::KEY_Shift_L );
                 break;
             case Qt::ControlModifier :
-                m_Viewer->keyEvent( WGEViewer::KEYPRESS, osgGA::GUIEventAdapter::KEY_Control_L );
+                m_Viewer->keyEvent( WGEViewerMac::KEYPRESS, osgGA::GUIEventAdapter::KEY_Control_L );
                 break;
             default :
                 break;
@@ -190,7 +191,7 @@ void WQtGLWidgetMac::keyReleaseEvent( QKeyEvent* event )
     switch( event->key() )
     {
         case Qt::Key_Period:
-            WGraphicsEngine::getGraphicsEngine()->requestShaderReload();
+            WGraphicsEngineMac::getGraphicsEngine()->requestShaderReload();
             break;
         case Qt::Key_1:
             setCameraManipulator( TRACKBALL );
@@ -215,35 +216,35 @@ void WQtGLWidgetMac::keyReleaseEvent( QKeyEvent* event )
     switch( event->modifiers() )
     {
         case Qt::ShiftModifier :
-            m_Viewer->keyEvent( WGEViewer::KEYRELEASE, osgGA::GUIEventAdapter::KEY_Shift_L );
+            m_Viewer->keyEvent( WGEViewerMac::KEYRELEASE, osgGA::GUIEventAdapter::KEY_Shift_L );
             break;
         case Qt::ControlModifier :
-            m_Viewer->keyEvent( WGEViewer::KEYRELEASE, osgGA::GUIEventAdapter::KEY_Control_L );
+            m_Viewer->keyEvent( WGEViewerMac::KEYRELEASE, osgGA::GUIEventAdapter::KEY_Control_L );
             break;
     }
 
-    m_Viewer->keyEvent( WGEViewer::KEYRELEASE, *event->text().toAscii().data() );
+    m_Viewer->keyEvent( WGEViewerMac::KEYRELEASE, *event->text().toAscii().data() );
 }
 
 
 void WQtGLWidgetMac::mousePressEvent( QMouseEvent* event )
 {
-    m_Viewer->mouseEvent( WGEViewer::MOUSEPRESS, event->x(), event->y(), translateButton( event ) );
+    m_Viewer->mouseEvent( WGEViewerMac::MOUSEPRESS, event->x(), event->y(), translateButton( event ) );
 }
 
 void WQtGLWidgetMac::mouseDoubleClickEvent( QMouseEvent* event )
 {
-    m_Viewer->mouseEvent( WGEViewer::MOUSEDOUBLECLICK, event->x(), event->y(), translateButton( event ) );
+    m_Viewer->mouseEvent( WGEViewerMac::MOUSEDOUBLECLICK, event->x(), event->y(), translateButton( event ) );
 }
 
 void WQtGLWidgetMac::mouseReleaseEvent( QMouseEvent* event )
 {
-    m_Viewer->mouseEvent( WGEViewer::MOUSERELEASE, event->x(), event->y(), translateButton( event ) );
+    m_Viewer->mouseEvent( WGEViewerMac::MOUSERELEASE, event->x(), event->y(), translateButton( event ) );
 }
 
 void WQtGLWidgetMac::mouseMoveEvent( QMouseEvent* event )
 {
-    m_Viewer->mouseEvent( WGEViewer::MOUSEMOVE, event->x(), event->y(), 0 );
+    m_Viewer->mouseEvent( WGEViewerMac::MOUSEMOVE, event->x(), event->y(), 0 );
 }
 
 void WQtGLWidgetMac::wheelEvent( QWheelEvent* event )
@@ -259,5 +260,5 @@ void WQtGLWidgetMac::wheelEvent( QWheelEvent* event )
         x = event->delta();
         y = 0;
     }
-    m_Viewer->mouseEvent( WGEViewer::MOUSESCROLL, x, y, 0 );
+    m_Viewer->mouseEvent( WGEViewerMac::MOUSESCROLL, x, y, 0 );
 }
