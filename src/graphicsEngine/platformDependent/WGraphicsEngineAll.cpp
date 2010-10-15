@@ -39,20 +39,20 @@
 #include <osgViewer/View>
 #include <osgViewer/Viewer>
 
-#include "../common/WColor.h"
-#include "../common/WLogger.h"
-#include "../common/WPathHelper.h"
-#include "../common/WPreferences.h"
-#include "../common/math/WPosition.h"
-#include "WGEViewer.h"
-#include "WGraphicsEngine.h"
-#include "exceptions/WGEInitFailed.h"
-#include "exceptions/WGESignalSubscriptionFailed.h"
+#include "../../common/WColor.h"
+#include "../../common/WLogger.h"
+#include "../../common/WPathHelper.h"
+#include "../../common/WPreferences.h"
+#include "../../common/math/WPosition.h"
+#include "../WGEViewer.h"
+#include "../exceptions/WGEInitFailed.h"
+#include "../exceptions/WGESignalSubscriptionFailed.h"
+#include "WGraphicsEngineAll.h"
 
 // graphics engine instance as singleton
-boost::shared_ptr< WGraphicsEngine > WGraphicsEngine::m_instance = boost::shared_ptr< WGraphicsEngine >();
+boost::shared_ptr< WGraphicsEngineAll > WGraphicsEngineAll::m_instance = boost::shared_ptr< WGraphicsEngineAll >();
 
-WGraphicsEngine::WGraphicsEngine():
+WGraphicsEngineAll::WGraphicsEngineAll():
     WThreadedRunner()
 {
     WLogger::getLogger()->addLogMessage( "Initializing Graphics Engine", "GE", LL_INFO );
@@ -70,29 +70,29 @@ WGraphicsEngine::WGraphicsEngine():
     m_rootNode = new WGEScene();
 }
 
-WGraphicsEngine::~WGraphicsEngine()
+WGraphicsEngineAll::~WGraphicsEngineAll()
 {
     // cleanup
     WLogger::getLogger()->addLogMessage( "Shutting down Graphics Engine", "GE", LL_INFO );
 }
 
 
-boost::shared_ptr< WGraphicsEngine > WGraphicsEngine::getGraphicsEngine()
+boost::shared_ptr< WGraphicsEngineAll > WGraphicsEngineAll::getGraphicsEngine()
 {
     if ( !m_instance )
     {
-        m_instance = boost::shared_ptr< WGraphicsEngine >( new WGraphicsEngine() );
+        m_instance = boost::shared_ptr< WGraphicsEngineAll >( new WGraphicsEngineAll() );
     }
 
     return m_instance;
 }
 
-osg::ref_ptr<WGEScene> WGraphicsEngine::getScene()
+osg::ref_ptr<WGEScene> WGraphicsEngineAll::getScene()
 {
     return m_rootNode;
 }
 
-boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, int x, int y,
+boost::shared_ptr<WGEViewer> WGraphicsEngineAll::createViewer( std::string name, int x, int y,
                                                             int width, int height, WGECamera::ProjectionMode projectionMode,
                                                             WColor bgColor )
 {
@@ -109,7 +109,7 @@ boost::shared_ptr<WGEViewer> WGraphicsEngine::createViewer( std::string name, in
     return viewer;
 }
 
-void WGraphicsEngine::closeViewer( const std::string name )
+void WGraphicsEngineAll::closeViewer( const std::string name )
 {
     boost::mutex::scoped_lock lock( m_viewersLock );
     if( m_viewers.count( name ) > 0 )
@@ -120,7 +120,7 @@ void WGraphicsEngine::closeViewer( const std::string name )
     }
 }
 
-boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewerByName( std::string name )
+boost::shared_ptr< WGEViewer > WGraphicsEngineAll::getViewerByName( std::string name )
 {
     boost::mutex::scoped_lock lock( m_viewersLock );
     boost::shared_ptr< WGEViewer > out = m_viewers.count( name ) > 0 ?
@@ -129,28 +129,28 @@ boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewerByName( std::string nam
     return out;
 }
 
-boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewer()
+boost::shared_ptr< WGEViewer > WGraphicsEngineAll::getViewer()
 {
     boost::mutex::scoped_lock lock( m_viewersLock );
     return m_viewers[ "main" ];
 }
 
-void WGraphicsEngine::threadMain()
+void WGraphicsEngineAll::threadMain()
 {
     WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_INFO );
 }
 
-void WGraphicsEngine::notifyStop()
+void WGraphicsEngineAll::notifyStop()
 {
     WLogger::getLogger()->addLogMessage( "Stopping Graphics Engine", "GE", LL_INFO );
 }
 
-void WGraphicsEngine::requestShaderReload()
+void WGraphicsEngineAll::requestShaderReload()
 {
     m_reloadShadersSignal();
 }
 
-boost::signals2::connection WGraphicsEngine::subscribeSignal( GE_SIGNAL signal, t_GEGenericSignalHandlerType notifier )
+boost::signals2::connection WGraphicsEngineAll::subscribeSignal( GE_SIGNAL signal, t_GEGenericSignalHandlerType notifier )
 {
     switch ( signal )
     {

@@ -34,8 +34,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 
-#include "../../graphicsEngine/WGECamera.h"
-#include "../../graphicsEngine/WGEViewer.h"
+#include "../../../graphicsEngine/WGECamera.h"
+#include "../../../graphicsEngine/WGEViewer.h"
 
 class WColor;
 
@@ -44,7 +44,7 @@ class WColor;
  * engine.
  * \ingroup gui
  */
-class WQtGLWidget
+class WQtGLWidgetAll
     : public QGLWidget
 {
 public:
@@ -58,13 +58,13 @@ public:
      *
      * \return
      */
-    explicit WQtGLWidget( std::string nameOfViewer, QWidget* parent = 0,
+    explicit WQtGLWidgetAll( std::string nameOfViewer, QWidget* parent = 0,
         WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC, const QGLWidget * shareWidget = 0 );
 
     /**
      * Destructor.
      */
-    virtual ~WQtGLWidget();
+    virtual ~WQtGLWidgetAll();
 
     /**
      * returns the recommended size for the widget to allow

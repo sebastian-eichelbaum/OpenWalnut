@@ -12,7 +12,13 @@ FILE( GLOB GE_PLATFORMDEPENDENT_SRC
   "platformDependent/WGEViewerMac.cpp" 
   "platformDependent/WGEViewerMac.h"
   "platformDependent/WGEGraphicsWindowMac.cpp" 
-  "platformDependent/WGEGraphicsWindowMac.h" )
+  "platformDependent/WGEGraphicsWindowMac.h"
+  "platformDependent/WGraphicsEngineAll.cpp" 
+  "platformDependent/WGraphicsEngineAll.h"
+  "platformDependent/WGEViewerAll.cpp" 
+  "platformDependent/WGEViewerAll.h"
+  "platformDependent/WGEGraphicsWindowAll.cpp" 
+  "platformDependent/WGEGraphicsWindowAll.h" )
 FILE( GLOB GE_SRC "*.cpp" "*.h" )
 
 ADD_LIBRARY( OWge SHARED ${GE_SRC} ${GE_EXCEPTIONS_SRC} ${GE_CALLBACKS_SRC} ${GE_ALGORITHMS_SRC} ${GE_PLATFORMDEPENDENT_SRC} )

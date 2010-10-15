@@ -32,7 +32,7 @@
  * Class managing a single graphics context and OSG GraphicsWindow.
  * \ingroup ge
  */
-class WGEGraphicsWindow
+class WGEGraphicsWindowAll
 {
 public:
 
@@ -45,12 +45,12 @@ public:
      * \param height Height of the Widget.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    WGEGraphicsWindow( int x, int y, int width, int height );
+    WGEGraphicsWindowAll( int x, int y, int width, int height );
 
     /**
      * Destructor.
      */
-    virtual ~WGEGraphicsWindow();
+    virtual ~WGEGraphicsWindowAll();
 
     /**
      * Event types for the keyEvent() handler.

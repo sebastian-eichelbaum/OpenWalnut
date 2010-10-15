@@ -24,11 +24,11 @@
 
 #include <iostream>
 
-#include "WGEGraphicsWindow.h"
+#include "WGEGraphicsWindowAll.h"
 
-#include "exceptions/WGEInitFailed.h"
+#include "../exceptions/WGEInitFailed.h"
 
-WGEGraphicsWindow::WGEGraphicsWindow( int x,
+WGEGraphicsWindowAll::WGEGraphicsWindowAll( int x,
                                       int y,
                                       int width,
                                       int height )
@@ -36,23 +36,23 @@ WGEGraphicsWindow::WGEGraphicsWindow( int x,
 {
 }
 
-WGEGraphicsWindow::~WGEGraphicsWindow()
+WGEGraphicsWindowAll::~WGEGraphicsWindowAll()
 {
     // cleanup
 }
 
-void WGEGraphicsWindow::resize( int width, int height )
+void WGEGraphicsWindowAll::resize( int width, int height )
 {
     m_GraphicsWindow->getEventQueue()->windowResize( 0, 0, width, height );
     m_GraphicsWindow->resized( 0, 0, width, height );
 }
 
-void WGEGraphicsWindow::close()
+void WGEGraphicsWindowAll::close()
 {
     m_GraphicsWindow->getEventQueue()->closeWindow();
 }
 
-void WGEGraphicsWindow::keyEvent( KeyEvents eventType, int key )
+void WGEGraphicsWindowAll::keyEvent( KeyEvents eventType, int key )
 {
     switch( eventType )
     {
@@ -65,7 +65,7 @@ void WGEGraphicsWindow::keyEvent( KeyEvents eventType, int key )
     }
 }
 
-void WGEGraphicsWindow::mouseEvent( MouseEvents eventType, int x, int y, int button )
+void WGEGraphicsWindowAll::mouseEvent( MouseEvents eventType, int x, int y, int button )
 {
     switch( eventType )
     {

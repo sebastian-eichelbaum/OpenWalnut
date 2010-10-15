@@ -44,28 +44,28 @@
 #include <osgViewer/View>
 #include <osgViewer/Viewer>
 
-#include "../common/WThreadedRunner.h"
-#include "../common/WColor.h"
-#include "../common/math/WPosition.h"
-#include "WGEGraphicsWindow.h"
-#include "WGEScene.h"
-#include "WGEViewer.h"
-#include "WGESignals.h"
-#include "WExportWGE.h"
+#include "../../common/WThreadedRunner.h"
+#include "../../common/WColor.h"
+#include "../../common/math/WPosition.h"
+#include "../WGEGraphicsWindow.h"
+#include "../WGEScene.h"
+#include "../WGEViewer.h"
+#include "../WGESignals.h"
+#include "../WExportWGE.h"
 
 /**
  * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
  * engine.
  * \ingroup ge
  */
-class WGE_EXPORT WGraphicsEngine: public WThreadedRunner
+class WGE_EXPORT WGraphicsEngineAll: public WThreadedRunner
 {
 public:
 
     /**
      * Destructor.
      */
-    virtual ~WGraphicsEngine();
+    virtual ~WGraphicsEngineAll();
 
     /**
      * Returns the root node of the WGraphicsEngine (this is not the root node of the OSG).
@@ -118,7 +118,7 @@ public:
      *
      * \return the running graphics engine instance.
      */
-    static boost::shared_ptr< WGraphicsEngine > getGraphicsEngine();
+    static boost::shared_ptr< WGraphicsEngineAll > getGraphicsEngine();
 
     /**
      * This requests all shaders to reload during the next update cycle.
@@ -140,7 +140,7 @@ protected:
     /**
      * Constructors are protected because this is a Singleton.
      */
-    explicit WGraphicsEngine();
+    explicit WGraphicsEngineAll();
 
     /**
      * Handler for repainting and event handling. Gets executed in separate thread.
@@ -181,7 +181,7 @@ private:
     /**
      * Singleton instance of WGraphicsEngine.
      */
-    static boost::shared_ptr< WGraphicsEngine > m_instance;
+    static boost::shared_ptr< WGraphicsEngineAll > m_instance;
 };
 
 /**

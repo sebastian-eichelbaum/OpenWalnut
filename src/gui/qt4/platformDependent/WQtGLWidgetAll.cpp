@@ -27,18 +27,18 @@
 
 #include <QtGui/QKeyEvent>
 
-#include "WQtGLWidget.h"
+#include "WQtGLWidgetAll.h"
 
-#include "../../graphicsEngine/WGE2DManipulator.h"
-#include "../../graphicsEngine/WGEViewer.h"
-#include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
-#include "../../common/WFlag.h"
-#include "../../common/WLogger.h"
-#include "../../common/WConditionOneShot.h"
-#include "../../kernel/WKernel.h"
+#include "../../../common/WConditionOneShot.h"
+#include "../../../common/WFlag.h"
+#include "../../../common/WLogger.h"
+#include "../../../graphicsEngine/WGE2DManipulator.h"
+#include "../../../graphicsEngine/WGEViewer.h"
+#include "../../../graphicsEngine/WGEZoomTrackballManipulator.h"
+#include "../../../kernel/WKernel.h"
 
 
-WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QGLWidget * shareWidget )
+WQtGLWidgetAll::WQtGLWidgetAll( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QGLWidget * shareWidget )
     : QGLWidget( parent, shareWidget ),
       m_nameOfViewer( nameOfViewer ),
       m_recommendedSize()
@@ -61,53 +61,53 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     m_Timer.start( 10 );
 }
 
-WQtGLWidget::~WQtGLWidget()
+WQtGLWidgetAll::~WQtGLWidgetAll()
 {
     WKernel::getRunningKernel()->getGraphicsEngine()->closeViewer( m_nameOfViewer );
     m_Viewer.reset();
 }
 
-QSize WQtGLWidget::sizeHint() const
+QSize WQtGLWidgetAll::sizeHint() const
 {
     return m_recommendedSize;
 }
 
-void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipulator )
+void WQtGLWidgetAll::setCameraManipulator( WQtGLWidgetAll::CameraManipulators manipulator )
 {
     m_CurrentManipulator = manipulator;
     switch ( manipulator )
     {
         case DRIVE:
             WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"drive\".",
-                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 "WQtGLWidgetAll(" + m_Viewer->getName() + ")",
                                                  LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( osgGA::DriveManipulator ) );
             break;
         case FLIGHT:
             WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"flight\".",
-                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 "WQtGLWidgetAll(" + m_Viewer->getName() + ")",
                                                  LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( osgGA::FlightManipulator ) );
             break;
         case TERRAIN:
             WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"terrain\".",
-                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 "WQtGLWidgetAll(" + m_Viewer->getName() + ")",
                                                  LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( osgGA::TerrainManipulator ) );
             break;
         case UFO:
             WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"ufo\".",
-                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 "WQtGLWidgetAll(" + m_Viewer->getName() + ")",
                                                  LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( osgGA::UFOManipulator ) );
             break;
         case TWO_D:
             WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGE2D\".",
-                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 "WQtGLWidgetAll(" + m_Viewer->getName() + ")",
                                                  LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( WGE2DManipulator ) );
@@ -115,7 +115,7 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
         case TRACKBALL:
         default:
             WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGETrackball\".",
-                                                 "WQtGLWidget(" + m_Viewer->getName() + ")",
+                                                 "WQtGLWidgetAll(" + m_Viewer->getName() + ")",
                                                  LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( WGEZoomTrackballManipulator ) );
@@ -123,32 +123,32 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
     }
 }
 
-void WQtGLWidget::setBgColor( WColor bgColor )
+void WQtGLWidgetAll::setBgColor( WColor bgColor )
 {
     m_Viewer->setBgColor( bgColor );
 }
 
-WQtGLWidget::CameraManipulators WQtGLWidget::getCameraManipulators()
+WQtGLWidgetAll::CameraManipulators WQtGLWidgetAll::getCameraManipulators()
 {
     return m_CurrentManipulator;
 }
 
-boost::shared_ptr< WGEViewer > WQtGLWidget::getViewer() const
+boost::shared_ptr< WGEViewer > WQtGLWidgetAll::getViewer() const
 {
     return m_Viewer;
 }
 
-void WQtGLWidget::paintGL()
+void WQtGLWidgetAll::paintGL()
 {
     m_Viewer->paint();
 }
 
-void WQtGLWidget::resizeGL( int width, int height )
+void WQtGLWidgetAll::resizeGL( int width, int height )
 {
     m_Viewer->resize( width, height );
 }
 
-int WQtGLWidget::translateButton( QMouseEvent* event )
+int WQtGLWidgetAll::translateButton( QMouseEvent* event )
 {
     switch( event->button() )
     {
@@ -163,7 +163,7 @@ int WQtGLWidget::translateButton( QMouseEvent* event )
     }
 }
 
-void WQtGLWidget::keyPressEvent( QKeyEvent* event )
+void WQtGLWidgetAll::keyPressEvent( QKeyEvent* event )
 {
     if(  event->text() != "" )
     {
@@ -185,7 +185,7 @@ void WQtGLWidget::keyPressEvent( QKeyEvent* event )
     }
 }
 
-void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
+void WQtGLWidgetAll::keyReleaseEvent( QKeyEvent* event )
 {
     switch( event->key() )
     {
@@ -226,27 +226,27 @@ void WQtGLWidget::keyReleaseEvent( QKeyEvent* event )
 }
 
 
-void WQtGLWidget::mousePressEvent( QMouseEvent* event )
+void WQtGLWidgetAll::mousePressEvent( QMouseEvent* event )
 {
     m_Viewer->mouseEvent( WGEViewer::MOUSEPRESS, event->x(), event->y(), translateButton( event ) );
 }
 
-void WQtGLWidget::mouseDoubleClickEvent( QMouseEvent* event )
+void WQtGLWidgetAll::mouseDoubleClickEvent( QMouseEvent* event )
 {
     m_Viewer->mouseEvent( WGEViewer::MOUSEDOUBLECLICK, event->x(), event->y(), translateButton( event ) );
 }
 
-void WQtGLWidget::mouseReleaseEvent( QMouseEvent* event )
+void WQtGLWidgetAll::mouseReleaseEvent( QMouseEvent* event )
 {
     m_Viewer->mouseEvent( WGEViewer::MOUSERELEASE, event->x(), event->y(), translateButton( event ) );
 }
 
-void WQtGLWidget::mouseMoveEvent( QMouseEvent* event )
+void WQtGLWidgetAll::mouseMoveEvent( QMouseEvent* event )
 {
     m_Viewer->mouseEvent( WGEViewer::MOUSEMOVE, event->x(), event->y(), 0 );
 }
 
-void WQtGLWidget::wheelEvent( QWheelEvent* event )
+void WQtGLWidgetAll::wheelEvent( QWheelEvent* event )
 {
     int x, y;
     if( event->orientation() == Qt::Vertical )
