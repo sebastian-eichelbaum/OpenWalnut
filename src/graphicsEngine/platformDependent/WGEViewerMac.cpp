@@ -40,17 +40,17 @@
 
 #include <osgDB/ReadFile>
 
-#include "exceptions/WGEInitFailed.h"
-#include "WGE2DManipulator.h"
-#include "WGEZoomTrackballManipulator.h"
-#include "WPickHandler.h"
+#include "../exceptions/WGEInitFailed.h"
+#include "../WGE2DManipulator.h"
+#include "../WGEZoomTrackballManipulator.h"
+#include "../WPickHandler.h"
 
-#include "WGEViewer.h"
+#include "WGEViewerMac.h"
 
-WGEViewer::WGEViewer( std::string name, int x, int y,
+WGEViewerMac::WGEViewerMac( std::string name, int x, int y,
     int width, int height, WGECamera::ProjectionMode projectionMode )
     : WGEGraphicsWindow( x, y, width, height ),
-      boost::enable_shared_from_this< WGEViewer >(),
+      boost::enable_shared_from_this< WGEViewerMac >(),
       m_name( name )
 {
     try
@@ -85,65 +85,65 @@ WGEViewer::WGEViewer( std::string name, int x, int y,
     }
     catch( ... )
     {
-        throw WGEInitFailed( std::string( "Initialization of WGEViewer failed" ) );
+        throw WGEInitFailed( std::string( "Initialization of WGEViewerMac failed" ) );
     }
 }
 
-WGEViewer::~WGEViewer()
+WGEViewerMac::~WGEViewerMac()
 {
     // cleanup
     close();
 }
 
-osg::ref_ptr<osgViewer::Viewer> WGEViewer::getView()
+osg::ref_ptr<osgViewer::Viewer> WGEViewerMac::getView()
 {
     return m_View;
 }
 
-void WGEViewer::setCameraManipulator( osg::ref_ptr<osgGA::MatrixManipulator> manipulator )
+void WGEViewerMac::setCameraManipulator( osg::ref_ptr<osgGA::MatrixManipulator> manipulator )
 {
     m_View->setCameraManipulator( manipulator );
     // redraw request?? no since it redraws permanently and uses the new settings
 }
 
-osg::ref_ptr<osgGA::MatrixManipulator> WGEViewer::getCameraManipulator()
+osg::ref_ptr<osgGA::MatrixManipulator> WGEViewerMac::getCameraManipulator()
 {
     return m_View->getCameraManipulator();
 }
 
-void WGEViewer::setCamera( osg::ref_ptr<osg::Camera> camera )
+void WGEViewerMac::setCamera( osg::ref_ptr<osg::Camera> camera )
 {
     m_View->setCamera( camera );
     // redraw request?? No since it redraws permanently and uses the new settings
 }
 
-osg::ref_ptr<osg::Camera> WGEViewer::getCamera()
+osg::ref_ptr<osg::Camera> WGEViewerMac::getCamera()
 {
     return m_View->getCamera();
 }
 
-void WGEViewer::setScene( osg::ref_ptr< WGEGroupNode > node )
+void WGEViewerMac::setScene( osg::ref_ptr< WGEGroupNode > node )
 {
     m_View->setSceneData( node );
     m_scene = node;
 }
 
-osg::ref_ptr< WGEGroupNode > WGEViewer::getScene()
+osg::ref_ptr< WGEGroupNode > WGEViewerMac::getScene()
 {
     return m_scene;
 }
 
-void WGEViewer::setBgColor( WColor bgColor )
+void WGEViewerMac::setBgColor( WColor bgColor )
 {
     m_View->getCamera()->setClearColor( osg::Vec4( bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), 1. ) );
 }
 
-void WGEViewer::paint()
+void WGEViewerMac::paint()
 {
     m_View->frame();
 }
 
-void WGEViewer::resize( int width, int height )
+void WGEViewerMac::resize( int width, int height )
 {
     m_View->getEventQueue()->windowResize( 0, 0, width, height );
 
@@ -158,23 +158,23 @@ void WGEViewer::resize( int width, int height )
     }
 }
 
-void WGEViewer::close()
+void WGEViewerMac::close()
 {
     // forward close event
     WGEGraphicsWindow::close();
 }
 
-std::string WGEViewer::getName() const
+std::string WGEViewerMac::getName() const
 {
     return m_name;
 }
 
-osg::ref_ptr< WPickHandler > WGEViewer::getPickHandler()
+osg::ref_ptr< WPickHandler > WGEViewerMac::getPickHandler()
 {
     return m_pickHandler;
 }
 
-void WGEViewer::reset()
+void WGEViewerMac::reset()
 {
     m_View->home();
 }

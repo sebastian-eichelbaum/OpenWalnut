@@ -35,8 +35,8 @@
 #include <boost/signals2/signal.hpp>
 
 #include "../../graphicsEngine/WGECamera.h"
+#include "../../graphicsEngine/WGEViewer.h"
 
-class WGEViewer;
 class WColor;
 
 /**

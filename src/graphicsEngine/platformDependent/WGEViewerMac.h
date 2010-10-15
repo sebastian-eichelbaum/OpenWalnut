@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGEVIEWER_H
-#define WGEVIEWER_H
+#ifndef WGEVIEWERMAC_H
+#define WGEVIEWERMAC_H
 
 #include <string>
 
@@ -39,15 +39,15 @@
 
 #include <osgViewer/View>
 
-#include "../common/WThreadedRunner.h"
-#include "../common/WColor.h"
+#include "../../common/WThreadedRunner.h"
+#include "../../common/WColor.h"
 
-#include "WGEGraphicsWindow.h"
-#include "WGECamera.h"
-#include "WPickHandler.h"
-#include "WGEGroupNode.h"
+#include "../WGEGraphicsWindow.h"
+#include "../WGECamera.h"
+#include "../WPickHandler.h"
+#include "../WGEGroupNode.h"
 
-#include "WExportWGE.h"
+#include "../WExportWGE.h"
 
 
 /**
@@ -55,8 +55,8 @@
  * It is, besides WGraphicsEngine, the ONLY entry point for each widget for accessing the graphics engine.
  * \ingroup ge
  */
-class WGE_EXPORT WGEViewer: public WGEGraphicsWindow,
-                                 public boost::enable_shared_from_this< WGEViewer >
+class WGE_EXPORT WGEViewerMac: public WGEGraphicsWindow,
+                                 public boost::enable_shared_from_this< WGEViewerMac >
 {
 public:
     /**
@@ -70,13 +70,13 @@ public:
      * \param projectionMode Projection mode of the viewer.
      * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
      */
-    WGEViewer( std::string name, int x, int y, int width, int height,
+    WGEViewerMac( std::string name, int x, int y, int width, int height,
         WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC );
 
     /**
      * Destructor.
      */
-    virtual ~WGEViewer();
+    virtual ~WGEViewerMac();
 
     /**
      * Repaints the contents.
@@ -194,4 +194,4 @@ protected:
 private:
 };
 
-#endif  // WGEVIEWER_H
+#endif  // WGEVIEWERMAC_H
