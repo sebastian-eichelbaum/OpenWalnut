@@ -187,12 +187,6 @@ WQtSubjectTreeItem* WQtControlPanel::addSubject( std::string name )
 
 bool WQtControlPanel::event( QEvent* event )
 {
-    // a subject singals a newly registered data set
-    if ( event->type() == WQT_UPDATE_TEXTURE_SORTER_EVENT )
-    {
-        m_textureSorter->update();
-    }
-
     if ( event->type() == WQT_ROI_ASSOC_EVENT )
     {
         WRoiAssocEvent* e2 = dynamic_cast< WRoiAssocEvent* >( event );     // NOLINT

@@ -79,7 +79,7 @@ public:
     /**
      * The type of handler called whenever the texture list got resorted.
      */
-    typedef boost::function< void () > TextureSortHandler;
+    typedef boost::function< void ( void ) > TextureSortHandler;
 
     /**
      * Destructor.
@@ -161,12 +161,27 @@ public:
      *
      * \param signal the signal to subscribe
      * \param notifier the notifier
-     * \tparam HandlerType the boost function handler type
      *
      * \return the connection. Keep this and disconnect it properly!
      */
-    template < typename HandlerType >
-    boost::signals2::connection subscribeSignal( TextureListSignal signal, HandlerType notifier );
+    boost::signals2::connection subscribeSignal( TextureListSignal signal, TextureRegisterHandler notifier );
+
+    /**
+     * Subscribe to the specified signal. See \ref TextureListSignal for details about their meaning.
+     *
+     * \param signal the signal to subscribe
+     * \param notifier the notifier
+     *
+     * \return the connection. Keep this and disconnect it properly!
+     */
+    boost::signals2::connection subscribeSignal( TextureListSignal signal, TextureSortHandler notifier );
+
+    /**
+     * Returns a read ticket to the texture array. Useful to iterate the textures.
+     *
+     * \return the read ticket
+     */
+    TextureContainerType::ReadTicket getReadTicket();
 
 protected:
 
@@ -267,22 +282,8 @@ private:
     /**
      * Called whenever the texture list got resorted
      */
-    boost::signals2::signal< void () > m_sortSignal;
+    boost::signals2::signal< void ( void ) > m_sortSignal;
 };
-
-template < typename HandlerType >
-boost::signals2::connection WGEColormapping::subscribeSignal( TextureListSignal signal, HandlerType notifier )
-{
-    switch( signal )
-    {
-        case Registered:
-            return m_registerSignal.connect( notifier );
-        case Deregistered:
-            return m_deregisterSignal.connect( notifier );
-        default:
-            return m_sortSignal.connect( notifier );
-    }
-}
 
 template < typename Comparator >
 void WGEColormapping::sort( Comparator comp )

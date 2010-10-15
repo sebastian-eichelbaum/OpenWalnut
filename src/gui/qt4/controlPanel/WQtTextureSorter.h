@@ -27,6 +27,7 @@
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
 
 #include <QtGui/QWidget>
 #include <QtGui/QListWidget>
@@ -35,6 +36,7 @@
 
 #include "../../../common/WSharedSequenceContainer.h"
 #include "../../../common/WSharedObject.h"
+#include "../../../graphicsEngine/WGETexture.h"
 
 class WDataSet;
 
@@ -61,12 +63,8 @@ public:
     virtual ~WQtTextureSorter();
 
     /**
-     * Update the list view from the list of data sets.
-     */
-    virtual void update();
-
-    /**
-     * select a certain texture in the texture sorter
+     * Select a certain texture in the texture sorter belonging to the specified dataset
+     *
      * \param dataSet this data set will be selected after calling this method
      */
     void selectTexture( boost::shared_ptr< WDataSet > dataSet );
@@ -78,6 +76,17 @@ signals:
      */
     void textureSelectionChanged( boost::shared_ptr< WDataSet > dataSet );
 
+protected:
+    /**
+     * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
+     * processes several custom events.
+     *
+     * \param event the event that got transmitted.
+     *
+     * \return true if the event got handled properly.
+     */
+    virtual bool event( QEvent* event );
+
 private:
     QListWidget* m_textureListWidget; //!< pointer to the tree widget
     QVBoxLayout* m_layout; //!< Layout of the widget
@@ -85,24 +94,33 @@ private:
     QPushButton* m_downButton; //!< button down
     QPushButton* m_upButton; //!< button up
 
-    typedef std::vector< boost::shared_ptr< WDataSet > > DatasetContainerType; //!< Short for container we want to access b< WSharedSequenceContainer
-    typedef WSharedSequenceContainer< DatasetContainerType > DatasetSharedContainerType; //!< The SharedContainer
-    typedef DatasetSharedContainerType::WSharedAccess DatasetAccess; //!< Shorthand for the access handler.
-    DatasetSharedContainerType m_textures; //!< Local list of of the textures to sort.
+    /**
+     * Connection of the WGEColormapping signal "registered" to the member function pushUpdateEvent.
+     */
+    boost::signals2::connection m_registerConnection;
 
     /**
-     * This function returns whether the dataset lhs is above rhs in the texture sorter.
-     * \param lhs First dataset.
-     * \param rhs Second dataset.
+     * Connection of the WGEColormapping signal "deregistered" to the member function pushUpdateEvent.
      */
-    bool isLess( boost::shared_ptr< WDataSet > lhs, boost::shared_ptr< WDataSet > rhs );
+    boost::signals2::connection m_deregisterConnection;
 
     /**
-     * Resorts the datasets in the subject according to the list in the texture sorter.
+     * Connection of the WGEColormapping signal "Sort" to the member function pushUpdateEvent.
      */
-    void sort();
+    boost::signals2::connection m_sortConnection;
+
+    /**
+     * Called by the colormapper causing an update event being pushed to the event queue.
+     */
+    void pushUpdateEvent();
+
+    /**
+     * Update the list view from the list of data sets.
+     */
+    void update();
 
 private slots:
+
     /**
      * Handles a click to a texture in the list
      */

@@ -25,6 +25,7 @@
 #include <algorithm>
 
 #include "WGETextureUtils.h"
+#include "exceptions/WGESignalSubscriptionFailed.h"
 
 #include "WGEColormapping.h"
 
@@ -227,5 +228,35 @@ bool WGEColormapping::moveDown( osg::ref_ptr< WGETexture3D > texture )
     std::iter_swap( iter, iter - 1 );
 
     return true;
+}
+
+boost::signals2::connection WGEColormapping::subscribeSignal( TextureListSignal signal, TextureRegisterHandler notifier )
+{
+    switch( signal )
+    {
+        case Registered:
+            return m_registerSignal.connect( notifier );
+        case Deregistered:
+            return m_deregisterSignal.connect( notifier );
+        default:
+            throw new WGESignalSubscriptionFailed( std::string( "Could not register TextureRegisterHandler to sort signal." ) );
+
+    }
+}
+
+boost::signals2::connection WGEColormapping::subscribeSignal( TextureListSignal signal, TextureSortHandler notifier )
+{
+    switch( signal )
+    {
+        case Sorted:
+            return m_sortSignal.connect( notifier );
+        default:
+            throw new WGESignalSubscriptionFailed( std::string( "Could not register TextureSortHandler to register/deregister signal." ) );
+    }
+}
+
+WGEColormapping::TextureContainerType::ReadTicket WGEColormapping::getReadTicket()
+{
+    return m_textures.getReadTicket();
 }
 
