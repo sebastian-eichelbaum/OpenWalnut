@@ -37,13 +37,13 @@ bool initDLtTableCuda( boost::shared_ptr< WDXtLookUpTable > dLtTable,
                        boost::shared_ptr< WProgressCombiner > progressCombiner )
 {
     // Since fibers have differing point counts, compute offset into fiber array
-    const int ntracts = tracts->size();
+    const size_t ntracts = tracts->size();
     int* offsets = new int[ntracts];
     int* lengths = new int[ntracts];
     unsigned int nextoffset = 0;
     const unsigned align = 16 * 4 * sizeof( float );
     size_t maxlength = 0;
-    for( int i = 0; i < ntracts; ++i )
+    for( size_t i = 0; i < ntracts; ++i )
     {
         const wmath::WFiber &fib = ( *tracts )[i];
         offsets[i] = nextoffset;
@@ -59,7 +59,7 @@ bool initDLtTableCuda( boost::shared_ptr< WDXtLookUpTable > dLtTable,
     // copy fibre coordinates into plain array
     const unsigned int ncoords = nextoffset;
     float* coords = new float[ncoords*3];
-    for( int i = 0; i < ntracts; ++i )
+    for( size_t i = 0; i < ntracts; ++i )
     {
         const wmath::WFiber &fib = ( *tracts )[i];
         int k = offsets[i]*3;

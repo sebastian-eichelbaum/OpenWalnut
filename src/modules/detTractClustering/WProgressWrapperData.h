@@ -30,9 +30,20 @@
 class WProgress;
 class WProgressCombiner;
 
+/**
+ * Encapsualtes the boost::shared_ptr members, so they may not occur in the CUDA kernel header.
+ */
 struct ProgressWrapperData
 {
+    /**
+     * Used for progress reports inside the cuda kernel.
+     */
     boost::shared_ptr< WProgress > progress;
+
+    /**
+     * May accumulate multiple progress reports. This should be the m_progress member of the WModule
+     * instance.
+     */
     boost::shared_ptr< WProgressCombiner > progressCombiner;
 };
 

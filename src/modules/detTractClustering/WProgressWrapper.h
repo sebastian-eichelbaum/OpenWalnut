@@ -27,20 +27,52 @@
 
 struct ProgressWrapperData;
 
+/**
+ * Wraps the \ref WProgressCombiner and \ref WProgress classes so the cuda kernel does not need to
+ * include \c boost::shared_ptr.
+ */
 class ProgressWrapper
 {
 public:
+    /**
+     * Constructs a wrapper instance
+     *
+     * \param d The data with the \ref WProgressCombiner and a member variable for placing the \ref
+     * WProgress \c boost::shared_ptr.
+     */
     explicit ProgressWrapper( ProgressWrapperData *d );
 
+    /**
+     * Destructs this wrapper.
+     */
     ~ProgressWrapper();
 
-    ProgressWrapper &operator++();
+    /**
+     * Increments the encapsulated progress.
+     *
+     * \return
+     */
+    ProgressWrapper& operator++();
 
+    /**
+     * Wraps the WProgress construction so no std::string is used within the cuda kernel.
+     *
+     * \param description String describing this progress instance
+     * \param count Max count indicating 100 percent.
+     */
     void start( const char *description, int count );
 
+    /**
+     * Wraps the finish() call, indicating that the encapsulated progress has finished.
+     */
     void finish();
 
 private:
+    /**
+     * Reference to the combiner and the storage place for the progress. This needs to be
+     * encapsulated once more, so it may be linked to the CUDA kernel, as far this is my
+     * understanding by now.
+     */
     ProgressWrapperData *d;
 };
 
