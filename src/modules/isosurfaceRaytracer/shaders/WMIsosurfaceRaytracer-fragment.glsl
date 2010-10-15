@@ -107,7 +107,7 @@ void main()
 
     // the point along the ray in cube coordinates
     vec3 curPoint = v_rayStart;
-    
+
     // the current value inside the data
     float value;
 

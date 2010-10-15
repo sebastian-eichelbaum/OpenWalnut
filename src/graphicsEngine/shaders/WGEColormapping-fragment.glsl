@@ -310,9 +310,9 @@ vec4 colorMap6( in float value )
  */
 void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, float minV, float scaleV, float thresholdV, float alpha, int colormap )
 {
-    // get the value 
+    // get the value
     vec4 value = texture3D( sampler, coord );
-    
+
     // below threshold?
     bool clip = ( value.r + value.g + value.b ) / 3.0 < ( ( minV + thresholdV ) / scaleV );
     if ( clip )
@@ -367,7 +367,7 @@ vec4 colormapping( vec3 texcoord )
 
     // back to front compositing
 #ifdef Colormap7Enabled
-    colormap( finalColor, u_colormap7Sampler, texcoord, u_colormap7Min, u_colormap7Scale, u_colormap7Threshold, 
+    colormap( finalColor, u_colormap7Sampler, texcoord, u_colormap7Min, u_colormap7Scale, u_colormap7Threshold,
               u_colormap7Alpha, u_colormap7Colormap );
 #endif
 #ifdef Colormap6Enabled
@@ -398,7 +398,7 @@ vec4 colormapping( vec3 texcoord )
     colormap( finalColor, u_colormap0Sampler, texcoord, u_colormap0Min, u_colormap0Scale, u_colormap0Threshold,
               u_colormap0Alpha, u_colormap0Colormap );
 #endif
-    
+
     return finalColor;
 }
 
@@ -447,7 +447,7 @@ vec4 colormapping()
     colormap( finalColor, u_colormap0Sampler, v_colormap0TexCoord, u_colormap0Min, u_colormap0Scale, u_colormap0Threshold,
               u_colormap0Alpha, u_colormap0Colormap );
 #endif
-    
+
     return finalColor;
 }
 

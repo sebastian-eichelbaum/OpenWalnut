@@ -41,19 +41,19 @@ void colormapping()
     v_colormap2TexCoord = ( gl_TextureMatrix[ Colormap2Unit ] * gl_MultiTexCoord0 ).xyz;
 #endif
 #ifdef Colormap3Enabled
-    v_colormap3TexCoord = ( gl_TextureMatrix[ Colormap3Unit ] * gl_MultiTexCoord0 ).xyz; 
+    v_colormap3TexCoord = ( gl_TextureMatrix[ Colormap3Unit ] * gl_MultiTexCoord0 ).xyz;
 #endif
 #ifdef Colormap4Enabled
     v_colormap4TexCoord = ( gl_TextureMatrix[ Colormap4Unit ] * gl_MultiTexCoord0 ).xyz;
 #endif
 #ifdef Colormap5Enabled
-    v_colormap5TexCoord = ( gl_TextureMatrix[ Colormap5Unit ] * gl_MultiTexCoord0 ).xyz; 
+    v_colormap5TexCoord = ( gl_TextureMatrix[ Colormap5Unit ] * gl_MultiTexCoord0 ).xyz;
 #endif
 #ifdef Colormap6Enabled
-    v_colormap6TexCoord = ( gl_TextureMatrix[ Colormap6Unit ] * gl_MultiTexCoord0 ).xyz; 
+    v_colormap6TexCoord = ( gl_TextureMatrix[ Colormap6Unit ] * gl_MultiTexCoord0 ).xyz;
 #endif
 #ifdef Colormap7Enabled
-    v_colormap7TexCoord = ( gl_TextureMatrix[ Colormap7Unit ] * gl_MultiTexCoord0 ).xyz; 
+    v_colormap7TexCoord = ( gl_TextureMatrix[ Colormap7Unit ] * gl_MultiTexCoord0 ).xyz;
 #endif
 }
 

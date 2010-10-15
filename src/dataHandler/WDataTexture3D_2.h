@@ -49,7 +49,6 @@ namespace WDataTexture3D_2Scalers
      * problem.
      *
      * \param value the value to scale
-     * \param scaler the scaler
      *
      * \return the value scaled to [0,1]
      *

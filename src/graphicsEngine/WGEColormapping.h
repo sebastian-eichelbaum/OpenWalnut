@@ -26,6 +26,8 @@
 #define WGECOLORMAPPING_H
 
 #include <map>
+#include <string>
+#include <algorithm>
 #include <vector>
 
 #include <boost/signals2/signal.hpp>
@@ -272,17 +274,17 @@ private:
     /**
      * Called whenever a texture got registered.
      */
-    boost::signals2::signal< void ( osg::ref_ptr< WGETexture3D > ) > m_registerSignal;
+    boost::signals2::signal< void( osg::ref_ptr< WGETexture3D > ) > m_registerSignal;
 
     /**
      * Called whenever a texture got removed.
      */
-    boost::signals2::signal< void ( osg::ref_ptr< WGETexture3D > ) > m_deregisterSignal;
+    boost::signals2::signal< void( osg::ref_ptr< WGETexture3D > ) > m_deregisterSignal;
 
     /**
      * Called whenever the texture list got resorted
      */
-    boost::signals2::signal< void ( void ) > m_sortSignal;
+    boost::signals2::signal< void( void ) > m_sortSignal;
 };
 
 template < typename Comparator >

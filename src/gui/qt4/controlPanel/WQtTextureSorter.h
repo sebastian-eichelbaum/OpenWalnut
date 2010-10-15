@@ -121,6 +121,9 @@ private:
      */
     void update();
 
+    /**
+     * This class represents a texture item in the list widget. It provides the pointer to the texture it manages.
+     */
     class WQtTextureListItem: public QListWidgetItem
     {
     public:  // NOLINT

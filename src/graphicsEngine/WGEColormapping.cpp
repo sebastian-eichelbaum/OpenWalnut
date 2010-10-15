@@ -50,7 +50,6 @@ void setDefines( osg::ref_ptr< WShader > shader, size_t start = 0 )
             shader->setDefine( "Colormap" + boost::lexical_cast< std::string >( unit ) + "Unit", start + unit );
         }
     }
-
 }
 
 WGEColormapping::WGEColormapping():
@@ -249,7 +248,6 @@ boost::signals2::connection WGEColormapping::subscribeSignal( TextureListSignal 
             return m_deregisterSignal.connect( notifier );
         default:
             throw new WGESignalSubscriptionFailed( std::string( "Could not register TextureRegisterHandler to sort signal." ) );
-
     }
 }
 
