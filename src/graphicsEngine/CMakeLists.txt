@@ -7,6 +7,8 @@ FILE( GLOB GE_EXCEPTIONS_SRC "exceptions/*.cpp" "exceptions/*.h" )
 FILE( GLOB GE_CALLBACKS_SRC "callbacks/*.cpp" "callbacks/*.h" )
 FILE( GLOB GE_ALGORITHMS_SRC "algorithms/*.cpp" "algorithms/*.h" )
 FILE( GLOB GE_PLATFORMDEPENDENT_SRC 
+  "platformDependent/WGraphicsEngineMac.cpp" 
+  "platformDependent/WGraphicsEngineMac.h"
   "platformDependent/WGEViewerMac.cpp" 
   "platformDependent/WGEViewerMac.h"
   "platformDependent/WGEGraphicsWindowMac.cpp" 

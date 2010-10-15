@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGRAPHICSENGINE_H
-#define WGRAPHICSENGINE_H
+#ifndef WGRAPHICSENGINEMAC_H
+#define WGRAPHICSENGINEMAC_H
 
 #include <map>
 #include <string>
@@ -44,31 +44,31 @@
 #include <osgViewer/View>
 #include <osgViewer/Viewer>
 
-#include "../common/WThreadedRunner.h"
-#include "../common/WColor.h"
-#include "../common/math/WPosition.h"
-#include "WGEGraphicsWindow.h"
-#include "WGEScene.h"
-#include "WGEViewer.h"
-#include "WGESignals.h"
-#include "WExportWGE.h"
+#include "../../common/WThreadedRunner.h"
+#include "../../common/WColor.h"
+#include "../../common/math/WPosition.h"
+#include "../WGEGraphicsWindow.h"
+#include "../WGEScene.h"
+#include "../WGEViewer.h"
+#include "../WGESignals.h"
+#include "../WExportWGE.h"
 
 /**
  * Base class for initializing the graphics engine. This Class also serves as adaptor to access the graphics
  * engine.
  * \ingroup ge
  */
-class WGE_EXPORT WGraphicsEngine: public WThreadedRunner
+class WGE_EXPORT WGraphicsEngineMac: public WThreadedRunner
 {
 public:
 
     /**
      * Destructor.
      */
-    virtual ~WGraphicsEngine();
+    virtual ~WGraphicsEngineMac();
 
     /**
-     * Returns the root node of the WGraphicsEngine (this is not the root node of the OSG).
+     * Returns the root node of the WGraphicsEngineMac (this is not the root node of the OSG).
      *
      * \return the root node.
      */
@@ -118,7 +118,7 @@ public:
      *
      * \return the running graphics engine instance.
      */
-    static boost::shared_ptr< WGraphicsEngine > getGraphicsEngine();
+    static boost::shared_ptr< WGraphicsEngineMac > getGraphicsEngine();
 
     /**
      * This requests all shaders to reload during the next update cycle.
@@ -140,7 +140,7 @@ protected:
     /**
      * Constructors are protected because this is a Singleton.
      */
-    explicit WGraphicsEngine();
+    explicit WGraphicsEngineMac();
 
     /**
      * Handler for repainting and event handling. Gets executed in separate thread.
@@ -179,9 +179,9 @@ protected:
 
 private:
     /**
-     * Singleton instance of WGraphicsEngine.
+     * Singleton instance of WGraphicsEngineMac.
      */
-    static boost::shared_ptr< WGraphicsEngine > m_instance;
+    static boost::shared_ptr< WGraphicsEngineMac > m_instance;
 };
 
 /**
@@ -200,4 +200,4 @@ namespace wge
 {
 } // end of namespace
 
-#endif  // WGRAPHICSENGINE_H
+#endif  // WGRAPHICSENGINEMAC_H
