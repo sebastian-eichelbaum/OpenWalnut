@@ -454,7 +454,7 @@ void WMSplineSurface::updateGraphics()
         m_useTextureProp->get( true );
 
         // grab a list of data textures
-        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+        std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
         if ( tex.size() > 0 )
         {

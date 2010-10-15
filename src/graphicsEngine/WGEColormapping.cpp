@@ -94,7 +94,6 @@ void WGEColormapping::deregisterTexture( osg::ref_ptr< WGETexture3D > texture )
 
 void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader, size_t startTexUnit )
 {
-    ( void ) useDefaultShader; // NOLINT cstyle cast
     // applying to a node simply means adding a callback :-)
     NodeInfo* info = new NodeInfo;
     info->m_rebind = true;

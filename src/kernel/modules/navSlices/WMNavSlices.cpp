@@ -556,7 +556,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
 void WMNavSlices::setMaxMinFromBoundingBox()
 {
     // grab a list of data textures
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
     if ( tex.size() > 0 )
     {
@@ -601,7 +601,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
 
     // grab a list of data textures
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
 
     if ( tex.size() > 0 )
@@ -922,7 +922,7 @@ void WMNavSlices::updateGeometry()
         m_zCrossNode->replaceDrawable( oldcz, zCrossGeometry );
     }
 
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
     bool noSlices = ( tex.size() == 0 ) || !m_active->get();
 
     m_slicesSwitchNode->setChildValue( m_zSliceNode, m_showAxial->get() && !noSlices );
@@ -939,7 +939,7 @@ void WMNavSlices::updateTextures()
         m_textureChanged = false;
 
         // grab a list of data textures
-        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+        std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
         if ( tex.size() > 0 )
         {

@@ -239,7 +239,7 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
 
     // grab a list of data textures
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
     if( tex.size() > 0 )
     {
@@ -293,7 +293,7 @@ void WMLineGuidedSlice::updateGeometry()
     osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_sliceNode->getDrawable( 0 ) );
     m_sliceNode->replaceDrawable( old, sliceGeometry );
 
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
     slock.unlock();
 }
@@ -307,7 +307,7 @@ void WMLineGuidedSlice::updateTextures()
         m_textureChanged = false;
 
         // grab a list of data textures
-        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+        std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
         if( tex.size() > 0 )
         {

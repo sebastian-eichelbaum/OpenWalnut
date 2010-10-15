@@ -135,26 +135,6 @@ WSubject::DatasetSharedContainerType::WriteTicket WSubject::getDatasetsForWritin
     return m_datasets.getWriteTicket();
 }
 
-std::vector< boost::shared_ptr< WDataTexture3D > > WSubject::getDataTextures( bool onlyActive )
-{
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex;
-
-    // Read lock the list, the lock is freed upon destruction of the ticket (if it goes out of scope for example).
-    DatasetSharedContainerType::ReadTicket l = m_datasets.getReadTicket();
-
-    // iterate the list and find all textures
-    for ( DatasetConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
-    {
-        // is it a texture?
-        /*if ( ( *iter )->isTexture() && ( !onlyActive || ( *iter )->getTexture()->isGloballyActive() ) )
-        {
-            tex.push_back( ( *iter )->getTexture() );
-        }*/
-    }
-
-    return tex;
-}
-
 boost::shared_ptr< WCondition > WSubject::getChangeCondition() const
 {
     return m_changeCondition;

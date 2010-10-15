@@ -145,14 +145,6 @@ public:
     DatasetSharedContainerType::WriteTicket getDatasetsForWriting() const;
 
     /**
-     * This gives a list of data textures from all supporting datasets in this subject.
-     *
-     * \param onlyActive true whenever only textures should be returned where isGloballyActive() == true.
-     * \return the list of textures.
-     */
-    std::vector< boost::shared_ptr< WDataTexture3D > > getDataTextures( bool onlyActive = false );
-
-    /**
      * This condition fires whenever the list of datasets changes, or one dataset got marked as "dirty" (threshold, opacity, ...).
      *
      * \return the condition

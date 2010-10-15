@@ -397,7 +397,7 @@ void WMFiberDisplay::updateTexture()
     osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
 
     // grab a list of data textures
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures();
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures();
 
     if ( tex.size() > 0 )
     {

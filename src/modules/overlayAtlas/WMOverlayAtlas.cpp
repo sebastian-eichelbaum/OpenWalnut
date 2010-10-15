@@ -342,7 +342,7 @@ void WMOverlayAtlas::updatePlane()
     planeGeometry->addPrimitiveSet( quad );
 
     // grab a list of data textures
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
     size_t c = 0;
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -417,7 +417,7 @@ void WMOverlayAtlas::updateTextures()
         m_textureChanged = false;
 
         // grab a list of data textures
-        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+        std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
         if ( tex.size() > 0 )
         {
