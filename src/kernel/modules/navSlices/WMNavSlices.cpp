@@ -791,18 +791,32 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
         }
     case 1:
         {
+#if defined( __APPLE__ )
             vertices.push_back( wmath::WPosition( minx, yPos - 1.0f, zPos ) );
             vertices.push_back( wmath::WPosition( maxx, yPos - 1.0f, zPos ) );
             vertices.push_back( wmath::WPosition( xPos, yPos - 1.0f, minz ) );
             vertices.push_back( wmath::WPosition( xPos, yPos - 1.0f, maxz ) );
+#else
+            vertices.push_back( wmath::WPosition( minx, yPos + 1.0f, zPos ) );
+            vertices.push_back( wmath::WPosition( maxx, yPos + 1.0f, zPos ) );
+            vertices.push_back( wmath::WPosition( xPos, yPos + 1.0f, minz ) );
+            vertices.push_back( wmath::WPosition( xPos, yPos + 1.0f, maxz ) );
+#endif
             break;
         }
     case 2:
         {
+#if defined( __APPLE__ )
             vertices.push_back( wmath::WPosition( minx, yPos, zPos + 1.0f ) );
             vertices.push_back( wmath::WPosition( maxx, yPos, zPos + 1.0f ) );
             vertices.push_back( wmath::WPosition( xPos, miny, zPos + 1.0f ) );
             vertices.push_back( wmath::WPosition( xPos, maxy, zPos + 1.0f ) );
+#else
+            vertices.push_back( wmath::WPosition( minx, yPos, zPos - 1.0f ) );
+            vertices.push_back( wmath::WPosition( maxx, yPos, zPos - 1.0f ) );
+            vertices.push_back( wmath::WPosition( xPos, miny, zPos - 1.0f ) );
+            vertices.push_back( wmath::WPosition( xPos, maxy, zPos - 1.0f ) );
+#endif
             break;
         }
     }
@@ -1138,6 +1152,7 @@ void WMNavSlices::updateViewportMatrix()
                 scale = scale2;
         }
 
+#if defined( __APPLE__ )
         // 1. translate to center
         // 2. rotate around center
         // 3. scale to maximum
@@ -1152,6 +1167,25 @@ void WMNavSlices::updateViewportMatrix()
         sm.makeScale( scale, scale, scale );
 
         tm *= sm;
+#else
+        // We look to -y direction
+        // 1. translate to center
+        // 2. rotate around center
+        // 3. scale to maximum and mirror in x
+        osg::Matrix sm;
+        osg::Matrix rm;
+        osg::Matrix tm;
+
+        tm.makeTranslate( osg::Vec3(
+                              -0.5 * ( m_bb.second[ 0 ] - m_bb.first[ 0 ] ),
+                              -0.5 * ( m_bb.second[ 1 ] - m_bb.first[ 1 ] ) ,
+                              0 ) );
+        rm.makeRotate( 90.0 * 3.141 / 180, 1.0, 0.0, 0.0 );
+        sm.makeScale( -scale, scale, scale );
+
+        tm *= rm;
+        tm *= sm;
+#endif
 
         currentScene->setMatrix( tm );
     }
@@ -1185,6 +1219,7 @@ void WMNavSlices::updateViewportMatrix()
                     scale = scale2;
         }
 
+#if defined( __APPLE__ )
         osg::Matrix rm;
         osg::Matrix rm2;
         osg::Matrix sm;
@@ -1201,6 +1236,25 @@ void WMNavSlices::updateViewportMatrix()
         tm *= rm;
         tm *= rm2;
         tm *= sm;
+#else
+        // We look to -y direction
+        // 1. translate to center
+        // 2. rotate around center
+        // 3. scale to maximum
+        osg::Matrix sm;
+        osg::Matrix rm;
+        osg::Matrix tm;
+
+        tm.makeTranslate( osg::Vec3(
+                              0.0,
+                              -0.5 * ( m_bb.second[ 1 ] - m_bb.first[ 1 ] ),
+                              -0.5 * ( m_bb.second[ 2 ] - m_bb.first[ 2 ] ) ) );
+        rm.makeRotate( -90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
+        sm.makeScale( scale, scale, scale );
+
+        tm *= rm;
+        tm *= sm;
+#endif
 
         currentScene->setMatrix( tm );
     }
@@ -1234,6 +1288,7 @@ void WMNavSlices::updateViewportMatrix()
                     scale = scale2;
         }
 
+#if defined( __APPLE__ )
         osg::Matrix sm;
         osg::Matrix rm;
         osg::Matrix tm;
@@ -1247,6 +1302,26 @@ void WMNavSlices::updateViewportMatrix()
 
         tm *= rm;
         tm *= sm;
+#else
+        // We look to -y direction
+        // 1. translate to center
+        // 2. scale to maximum and mirror in x
+        // 3. Move away from viewer
+        osg::Matrix sm;
+        osg::Matrix tm;
+        osg::Matrix tm2;
+
+
+        tm.makeTranslate( osg::Vec3(
+                              -0.5 * ( m_bb.second[ 0 ] - m_bb.first[ 0 ] ),
+                              0,
+                              -0.5 * ( m_bb.second[ 2 ] - m_bb.first[ 2 ] ) ) );
+        sm.makeScale( -scale, scale, scale );
+        tm2.makeTranslate( osg::Vec3( 0.0, -2 * ( m_bb.second[ 1 ] - m_bb.first[ 1 ] ), 0.0 ) ); //move away from viewer
+
+        tm *= sm;
+        tm *= tm2;
+#endif
 
         currentScene->setMatrix( tm );
     }
