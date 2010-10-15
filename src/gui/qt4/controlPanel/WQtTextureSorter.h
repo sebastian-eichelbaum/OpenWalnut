@@ -33,6 +33,7 @@
 #include <QtGui/QListWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QPushButton>
+#include <QtGui/QListWidgetItem>
 
 #include "../../../common/WSharedSequenceContainer.h"
 #include "../../../common/WSharedObject.h"
@@ -71,10 +72,11 @@ public:
 
 signals:
     /**
-     * Indicates that a texture has been clicked and return the dataset
-     * \param dataSet The dataSet that changed.
+     * Indicates that a texture has been clicked and return the texture
+     *
+     * \param texture the texture that got selected
      */
-    void textureSelectionChanged( boost::shared_ptr< WDataSet > dataSet );
+    void textureSelectionChanged( osg::ref_ptr< WGETexture3D > texture );
 
 protected:
     /**
@@ -118,6 +120,28 @@ private:
      * Update the list view from the list of data sets.
      */
     void update();
+
+    class WQtTextureListItem: public QListWidgetItem
+    {
+    public:  // NOLINT
+        /**
+         * Creates new instance of list item. It takes the texture it handles as argument.
+         *
+         * \param texture the texture to handle with this item
+         * \param parent parent widget
+         */
+        WQtTextureListItem( const osg::ref_ptr< WGETexture3D > texture, QListWidget * parent = 0 );
+
+        /**
+         * Destructor.
+         */
+        virtual ~WQtTextureListItem();
+
+        /**
+         * The texture that gets handled
+         */
+        const osg::ref_ptr< WGETexture3D > m_texture;
+    };
 
 private slots:
 

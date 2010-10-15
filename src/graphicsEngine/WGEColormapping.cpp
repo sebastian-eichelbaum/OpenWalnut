@@ -184,7 +184,7 @@ void WGEColormapping::callback( osg::Node* node )
     }
 }
 
-bool WGEColormapping::moveUp( osg::ref_ptr< WGETexture3D > texture )
+bool WGEColormapping::moveDown( osg::ref_ptr< WGETexture3D > texture )
 {
     TextureContainerType::WriteTicket w = m_textures.getWriteTicket();
 
@@ -204,10 +204,14 @@ bool WGEColormapping::moveUp( osg::ref_ptr< WGETexture3D > texture )
     // swap items
     std::iter_swap( iter, iter + 1 );
 
+    // unlock and call callbacks
+    w.reset();
+    m_sortSignal();
+
     return true;
 }
 
-bool WGEColormapping::moveDown( osg::ref_ptr< WGETexture3D > texture )
+bool WGEColormapping::moveUp( osg::ref_ptr< WGETexture3D > texture )
 {
     TextureContainerType::WriteTicket w = m_textures.getWriteTicket();
 
@@ -226,6 +230,10 @@ bool WGEColormapping::moveDown( osg::ref_ptr< WGETexture3D > texture )
 
     // swap items
     std::iter_swap( iter, iter - 1 );
+
+    // unlock and call callbacks
+    w.reset();
+    m_sortSignal();
 
     return true;
 }

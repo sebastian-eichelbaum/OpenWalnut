@@ -38,10 +38,8 @@
 #include <QtGui/QApplication>
 
 #include "../../../dataHandler/WDataSet.h"
-#include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WDataHandler.h"
 #include "../../../dataHandler/exceptions/WDHNoSuchSubject.h"
-#include "../../../kernel/WModuleFactory.h"
 #include "../../../graphicsEngine/WGEColormapping.h"
 #include "../../../graphicsEngine/WGETexture.h"
 #include "../events/WUpdateTextureSorterEvent.h"
@@ -93,6 +91,22 @@ WQtTextureSorter::~WQtTextureSorter()
     m_sortConnection.disconnect();
 }
 
+WQtTextureSorter::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGETexture3D > texture, QListWidget* parent ):
+    QListWidgetItem( QString::fromStdString( texture->name()->get() ), parent ),
+    m_texture( texture )
+{
+    // only show the filename. If the name is not a filename, the texture name is used directly
+    std::vector< std::string > names = string_utils::tokenize( texture->name()->get().c_str(), "/" );
+    if( names.size() )
+    {
+        setText( QString::fromStdString( names.back() ) );
+    }
+}
+
+WQtTextureSorter::WQtTextureListItem::~WQtTextureListItem()
+{
+}
+
 void WQtTextureSorter::pushUpdateEvent()
 {
     // create a new event for this and insert it into event queue
@@ -117,67 +131,67 @@ void WQtTextureSorter::update()
 
     WGEColormapping::TextureContainerType::ReadTicket r = cm->getReadTicket();
 
+    // we need to store the last selected texture if there was any
+    osg::ref_ptr< WGETexture3D > lastSelected;
+    WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) );
+    if ( item )
+    {
+        lastSelected = item->m_texture;
+    }
+
+    // remove all items and rebuild list.
     m_textureListWidget->clear();
     for ( WGEColormapping::TextureConstIterator iter = r->get().begin(); iter != r->get().end(); ++iter )
     {
-        m_textureListWidget->addItem( QString::fromStdString( ( *iter )->name()->get() ) );
+        WQtTextureListItem* item = new WQtTextureListItem( *iter );
+        m_textureListWidget->addItem( item );    // the list widget removes the item (and frees the reference to the texture pointer).
 
+        // is the item the texture that has been selected previously?
+        if ( item->m_texture == lastSelected )
+        {
+            m_textureListWidget->setCurrentItem( item );
+        }
     }
 }
 
 void WQtTextureSorter::handleTextureClicked()
 {
-    /*
-    unsigned int index =  m_textureListWidget->currentIndex().row();
-
-    DatasetSharedContainerType::ReadTicket r = m_textures.getReadTicket();
-
-    QListWidgetItem* ci = m_textureListWidget->item( index );
-    WAssert( ci, "Problem in source code." );
-    boost::shared_ptr< WDataSet > dataSet = r->get()[index];
-
-    emit textureSelectionChanged( dataSet );*/
+    // maybe someone is interested in this signal:
+    emit textureSelectionChanged(
+        static_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) )->m_texture
+    );
 }
 
 void WQtTextureSorter::moveItemDown()
 {
     boost::shared_ptr< WGEColormapping > cm = WGEColormapping::instance();
-
-    WGEColormapping::TextureContainerType::ReadTicket r = cm->getReadTicket();
-    //r->get().moveDown();
+    WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) );
+    if ( item )
+    {
+        cm->moveDown( item->m_texture );
+    }
 }
 
 void WQtTextureSorter::moveItemUp()
 {
     boost::shared_ptr< WGEColormapping > cm = WGEColormapping::instance();
-
-    WGEColormapping::TextureContainerType::ReadTicket r = cm->getReadTicket();
-    //r->get().moveUp();
+    WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) );
+    if ( item )
+    {
+        cm->moveUp( item->m_texture );
+    }
 }
 
 void WQtTextureSorter::selectTexture( boost::shared_ptr< WDataSet > dataSet )
 {
-    /*DatasetSharedContainerType::ReadTicket readTex =  m_textures.getReadTicket();
-
-    size_t i = 0;
-    for( ; i < readTex->get().size(); ++i )
+    // simply check each item against the texture in the specified dataset
+    for ( int i = 0; i < m_textureListWidget->count(); ++i )
     {
-        if( readTex->get()[i] == dataSet )
+        WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item(i ) );
+        if (item &&  ( item->m_texture == dataSet->getTexture2() ) )
         {
-            break;
+            m_textureListWidget->setCurrentItem( item );
         }
     }
-
-    if( i < readTex->get().size() )
-    {
-        // select appropriate texture if the data set has a corresponding texture
-        QListWidgetItem* ci = m_textureListWidget->item( i );
-        m_textureListWidget->setCurrentItem( ci );
-    }
-    else
-    {
-        // unselect all if the dataset has no corresponding texture
-        m_textureListWidget->clearSelection();
-    }*/
 }
 
