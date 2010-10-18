@@ -95,10 +95,60 @@ void __WPrecondDiffersImpl( std::string const& expr1, std::string const& expr2, 
     }
 }
 
+/**
+ * Check if two values are equal.
+ *
+ * \tparam T1 The type of the first value.
+ * \tparam T2 The type of the second value.
+ * \param expr1 The first expression.
+ * \param expr2 The second expression.
+ * \param value1 The first value.
+ * \param value2 The second value.
+ */
+template< typename T1, typename T2 >
+void __WPrecondEqualsImpl( std::string const& expr1, std::string const& expr2, T1 const& value1, T2 const& value2 )
+{
+    if( !( value1 == value2 ) )
+    {
+        std::stringstream s;
+        s << "Function precondition not met: \n";
+        s << "Expected " << expr1 << " to be equal to " << expr2 << ", yet " << value1
+          << " != " << value2;
+        throw WPreconditionNotMet( s.str() );
+    }
+}
+
+/**
+ * Check if a value is smaller than another value.
+ *
+ * \tparam T1 The type of the first value.
+ * \tparam T2 The type of the second value.
+ * \param expr1 The first expression.
+ * \param expr2 The second expression.
+ * \param value1 The first value.
+ * \param value2 The second value.
+ */
+template< typename T1, typename T2 >
+void __WPrecondLessImpl( std::string const& expr1, std::string const& expr2, T1 const& value1, T2 const& value2 )
+{
+    if( !( value1 < value2 ) )
+    {
+        std::stringstream s;
+        s << "Function precondition not met: \n";
+        s << "Expected " << expr1 << " to be smaller than " << expr2 << ", yet " << value1
+          << " => " << value2;
+        throw WPreconditionNotMet( s.str() );
+    }
+}
+
 }  // namespace utility
 
 #define WPrecond( expr, msg ) ( ( expr ) ? ( ( void )0 ) : ( utility::__WPrecondImpl( #expr, msg ) ) )
 
 #define WPrecondDiffers( expr1, expr2 ) ( utility::__WPrecondDiffersImpl( #expr1, #expr2, ( expr1 ), ( expr2 ) ) ) // NOLINT
+
+#define WPrecondEquals( expr1, expr2 ) ( utility::__WPrecondEqualsImpl( #expr1, #expr2, ( expr1 ), ( expr2 ) ) ) // NOLINT
+
+#define WPrecondLess( expr1, expr2 ) ( utility::__WPrecondLessImpl( #expr1, #expr2, ( expr1 ), ( expr2 ) ) ) // NOLINT
 
 #endif  // WPRECONDITIONNOTMET_H
