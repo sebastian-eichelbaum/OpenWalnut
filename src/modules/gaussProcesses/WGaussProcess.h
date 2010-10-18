@@ -75,13 +75,12 @@ protected:
 private:
     /**
      * Computes the covariance matrix and invert it. This shall always be possible since the
-     * creating function is positive definit. (TODO(math): at least Demain said this) Finally the
-     * inverse is saved to the member variable \ref m_CffInverse.
+     * creating function is positive definit. (TODO(math): at least Demain said this)
      *
      * \param tract The tract as vector of points, which is easery to access
      * than to fiddle around with the indices inside the WDataSetFibers
      */
-    void generateCffInverse( const wmath::WFiber& tract );
+    Eigen::MatrixXd generateCffInverse( const wmath::WFiber& tract );
 
     /**
      * Computes tau parameter representing the max diffusion time.
@@ -148,9 +147,12 @@ private:
     boost::shared_ptr< const WDataSetDTI > m_tensors;
 
     /**
-     * Covariance matrix of all pairs of sample points of the tract using the \ref cov function.
+     * This is the vector defined by: C_{ff}^{-1} * 1 * l as used e.g. in eq. (16) of the appendix
+     * of the Demain Wassermann paper. Since it is used this way several times this is a member.
+     * Where Cff is the covariance matrix of all pairs of sample points of the tract using the \ref
+     * cov function.
      */
-    Eigen::MatrixXd m_CffInverse;
+    Eigen::VectorXd m_Cff_1_l_product;
 
     /**
      * The maximal diffusion time (tau) as described in the Wassermann paper line 790, page 12 after
@@ -183,6 +185,11 @@ inline double WGaussProcess::cov_s( const wmath::WPosition& p1, const wmath::WPo
 inline double WGaussProcess::cov( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const
 {
     return cov_s( p1, p2 ); // not implemented the cov_d yet: + cov_d( p1, p2 );
+}
+
+
+namespace gauss
+{
 }
 
 #endif  // WGAUSSPROCESS_H

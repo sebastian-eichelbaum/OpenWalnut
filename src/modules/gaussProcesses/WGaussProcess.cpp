@@ -38,9 +38,9 @@ WGaussProcess::WGaussProcess( const size_t tractID,
       m_maxLevel( maxLevel )
 {
     wmath::WFiber tract = ( *m_tracts )[ m_tractID ];
-    m_CffInverse = Eigen::MatrixXd( static_cast< int >( tract.size() ), static_cast< int >( tract.size() ) );
+    m_Cff_1_l_product = Eigen::VectorXd( static_cast< int >( tract.size() ) );
     m_R = tract.maxSegmentLength();
-    generateCffInverse( tract );
+    m_Cff_1_l_product = generateCffInverse( tract ) * ( Eigen::VectorXd::Ones( m_Cff_1_l_product.size() ) * m_maxLevel );
     generateTauParameter();
 }
 
@@ -50,8 +50,7 @@ WGaussProcess::~WGaussProcess()
 
 double WGaussProcess::mean( const wmath::WPosition& p ) const
 {
-    double result = 0.0;
-    Eigen::VectorXd Sf( m_CffInverse.rows() );
+    Eigen::VectorXd Sf( m_Cff_1_l_product.size() );
 
     // for further improvement we could work with the indices of the arrays inside of the WDataSetFibers instead of building up this point vector
     wmath::WFiber tract = ( *m_tracts )[ m_tractID ];
@@ -61,13 +60,10 @@ double WGaussProcess::mean( const wmath::WPosition& p ) const
         Sf( i ) = cov_s( tract[i], p );
     }
 
-    Eigen::VectorXd l = Eigen::VectorXd::Ones( m_CffInverse.rows() ) * m_maxLevel;
-    Eigen::VectorXd matrixVector = m_CffInverse * l;
-    result = Sf.dot( matrixVector );
-    return result;
+    return Sf.dot( m_Cff_1_l_product );
 }
 
-void WGaussProcess::generateCffInverse( const wmath::WFiber& tract )
+Eigen::MatrixXd WGaussProcess::generateCffInverse( const wmath::WFiber& tract )
 {
     Eigen::MatrixXd Cff( static_cast< int >( tract.size() ), static_cast< int >( tract.size() ) );
     size_t i = 0, j = 0;
@@ -83,7 +79,7 @@ void WGaussProcess::generateCffInverse( const wmath::WFiber& tract )
     // Note: If Cff is constructed via a positive definite function itself is positive definite,
     // hence invertible
     Eigen::ColPivHouseholderQR< Eigen::MatrixXd > qrOfCff( Cff );
-    m_CffInverse = qrOfCff.inverse();
+    return qrOfCff.inverse();
 }
 
 double WGaussProcess::generateTauParameter()
