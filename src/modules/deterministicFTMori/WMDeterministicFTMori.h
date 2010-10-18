@@ -161,7 +161,7 @@ private:
      * \param ds The dataset.
      * \param j The job, that means the current position and direction of the last fiber segment.
      *
-     * \return The direction to follow. 
+     * \return The direction to follow.
      */
     wmath::WVector3D getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
                                         wtracking::WTrackingUtility::JobType const& j );
