@@ -75,7 +75,7 @@ protected:
     /**
      * Layout used to position the label and the widgets
      */
-    QHBoxLayout m_layout;
+    QVBoxLayout m_layout;
 
     /**
      * Used to show the property as text.

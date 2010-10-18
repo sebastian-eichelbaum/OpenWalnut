@@ -41,17 +41,24 @@ WPropertyMatrix4X4Widget::WPropertyMatrix4X4Widget( WPropMatrix4X4 property, QGr
     m_infoLayout( &m_informationWidgets )
 {
     // initialize members
-    /*m_editX.resize( m_editX.minimumSizeHint().width() * 2.0, m_editX.size().height() );
-    //m_editX.setMaximumWidth( m_editX.minimumSizeHint().width() * 5.0 );
-    m_editY.resize( m_editY.minimumSizeHint().width() * 2.0, m_editY.size().height() );
-    //m_editY.setMaximumWidth( m_editY.minimumSizeHint().width() * 5.0 );
-    m_editZ.resize( m_editZ.minimumSizeHint().width() * 2.0, m_editZ.size().height() );
-    //m_editZ.setMaximumWidth( m_editZ.minimumSizeHint().width() * 5.0 );
+    for ( size_t row = 0; row < 4; ++row )
+    {
+        QHBoxLayout* h = new QHBoxLayout();
 
-    // layout both against each other
-    m_layout.addWidget( &m_editX );
-    m_layout.addWidget( &m_editY );
-    m_layout.addWidget( &m_editZ );
+        for ( size_t col = 0; col < 4; ++col )
+        {
+            size_t i = row * 4 + col;
+            m_edits[ i ].setParent( &m_parameterWidgets );
+            m_edits[ i ].resize( m_edits[ i ].minimumSizeHint().width() * 2.0, m_edits[ i ].size().height() );
+
+            connect( &m_edits[ i ], SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
+            connect( &m_edits[ i ], SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
+
+            h->addWidget( &m_edits[ i ] );
+        }
+
+        m_layout.addLayout( h );
+    }
 
     m_parameterWidgets.setLayout( &m_layout );
 
@@ -60,14 +67,6 @@ WPropertyMatrix4X4Widget::WPropertyMatrix4X4Widget( WPropMatrix4X4 property, QGr
     m_informationWidgets.setLayout( &m_infoLayout );
 
     update();
-
-    // connect the modification signal of the edit and slider with our callback
-    connect( &m_editX, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
-    connect( &m_editX, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
-    connect( &m_editY, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
-    connect( &m_editY, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
-    connect( &m_editZ, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
-    connect( &m_editZ, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );*/
 }
 
 WPropertyMatrix4X4Widget::~WPropertyMatrix4X4Widget()
@@ -78,58 +77,66 @@ WPropertyMatrix4X4Widget::~WPropertyMatrix4X4Widget()
 void WPropertyMatrix4X4Widget::update()
 {
     // set the values
-    /*m_editX.setText( QString::fromStdString( toString( m_matProperty->get()[0] ) ) );
-    m_editY.setText( QString::fromStdString( toString( m_matProperty->get()[1] ) ) );
-    m_editZ.setText( QString::fromStdString( toString( m_matProperty->get()[2] ) ) );
+    WPVBaseTypes::PV_MATRIX4X4 m = m_matrixProperty->get();
+
+    for ( size_t row = 0; row < 4; ++row )
+    {
+        for ( size_t col = 0; col < 4; ++col )
+        {
+            size_t i = row * 4 + col;
+            m_edits[ i ].setText( QString::fromStdString( boost::lexical_cast< std::string >( m( row, col ) ) ) );
+        }
+    }
 
     // do not forget to update the label
-    m_asText.setText( QString::fromStdString( toString( m_matProperty->get() ) ) );*/
+    m_asText.setText( QString::fromStdString( wmath::toString( m_matrixProperty->get() ) ) );
 }
 
 void WPropertyMatrix4X4Widget::editChanged()
 {
-    //setPropertyFromWidgets();
+    setPropertyFromWidgets();
 }
 
 void WPropertyMatrix4X4Widget::textEdited( const QString& /*text*/ )
 {
-    //setPropertyFromWidgets( true );
+    setPropertyFromWidgets( true );
 }
 
 void WPropertyMatrix4X4Widget::setPropertyFromWidgets( bool validateOnly )
 {
-/*    // grab all the values
-    bool valid;
-    double valueX = m_editX.text().toDouble( &valid );
-    if ( !valid )
+    // grab all the values
+    bool valid = true;
+    // create a new matrix
+    WPVBaseTypes::PV_MATRIX4X4 m;;
+
+    for ( size_t row = 0; row < 4; ++row )
     {
-        invalidate();
-        return;
-    }
-    double valueY = m_editY.text().toDouble( &valid );
-    if ( !valid )
-    {
-        invalidate();
-        return;
-    }
-    double valueZ = m_editZ.text().toDouble( &valid );
-    if ( !valid )
-    {
-        invalidate();
-        return;
+        for ( size_t col = 0; col < 4; ++col )
+        {
+            size_t i = row * 4 + col;
+
+            // check validity
+            bool tmp;
+            double value = m_edits[ i ].text().toDouble( &tmp );
+            valid = valid && tmp;
+            m( row, col ) = value;
+        }
     }
 
-    // create a new position
-    wmath::WPosition p = wmath::WPosition( valueX, valueY, valueZ );
+    if ( !valid )
+    {
+        invalidate();
+        return;
+    }
 
     // set/validate to the property
     if ( validateOnly )
     {
-        invalidate( !m_posProperty->accept( p ) );
+        invalidate( !m_matrixProperty->accept( m ) );
     }
     else
     {
-        invalidate( !m_posProperty->set( p ) );    // NOTE: set automatically checks the validity of the value
-    }*/
+        invalidate( !m_matrixProperty->set( m ) );    // NOTE: set automatically checks the validity of the value
+    }
 }
 
