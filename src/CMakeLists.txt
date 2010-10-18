@@ -129,8 +129,35 @@ IF( EIGEN3_FOUND )
     MARK_AS_ADVANCED( EIGEN3_VERSION )
 ENDIF()
 
-### CUDA #### (e.g. for the detTractClustering module
-FIND_PACKAGE( CUDA QUIET )
+### CUDA #### (e.g. for the detTractClustering module )
+OPTION( OW_USE_CUDA "Enable CUDA if available. Minimum version required is 2.3" )
+IF( OW_USE_CUDA )
+    FIND_PACKAGE( CUDA QUIET )
+    IF( CUDA_FOUND )
+        # BugFix: Subsequent calls don't set CUDA_VERSION_MAJOR or .._MINOR variables, so we have to extract them from CUDA_VERSION variable
+        STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\1" CUDA_VERSION_MAJOR ${CUDA_VERSION})
+        STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\2" CUDA_VERSION_MINOR ${CUDA_VERSION})
+
+        # Enforce at least CUDA version 2.3, since the detTractClustering is know to require this at least
+        SET( OW_MIN_CUDA_MAJOR_VERSION 2 )
+        SET( OW_MIN_CUDA_MINOR_VERSION 3 )
+
+        IF( CUDA_VERSION_MAJOR LESS OW_MIN_CUDA_MAJOR_VERSION )
+            SET( CUDA_FOUND_BUT_LOW_VERSION 1 )
+        ELSEIF( CUDA_VERSION_MAJOR EQUAL OW_MIN_CUDA_MAJOR_VERSION )
+            IF( CUDA_VERSION_MINOR LESS OW_MIN_CUDA_MINOR_VERSION )
+                SET( CUDA_FOUND_BUT_LOW_VERSION 1 )
+            ENDIF()
+        ENDIF()
+
+        # abort incase invalid version of CUDA was found.
+        IF( CUDA_FOUND_BUT_LOW_VERSION )
+            MESSAGE( FATAL_ERROR "You have selected to use CUDA but an insufficent version: ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR} was found, but ${OW_MIN_CUDA_MAJOR_VERSION}.${OW_MIN_CUDA_MINOR_VERSION} is required." )
+        ENDIF()
+        MESSAGE( STATUS "CUDA version: ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR} was found." )
+    ENDIF( CUDA_FOUND )
+ENDIF( OW_USE_CUDA )
+
 
 # other options:
 #---------------
