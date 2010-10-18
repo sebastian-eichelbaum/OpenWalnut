@@ -32,7 +32,7 @@
 
 #include "../WCondition.h"
 
-/** 
+/**
  * Helper class.
  */
 class Callable
@@ -62,7 +62,7 @@ public:
     };
 };
 
-/** 
+/**
  * Test WCondition
  */
 class WConditionTest : public CxxTest::TestSuite
@@ -80,7 +80,7 @@ public:
         TS_ASSERT_THROWS_NOTHING( delete c );
     }
 
-    /** 
+    /**
      * Test whether notification is working.
      */
     void testWaitNotify()

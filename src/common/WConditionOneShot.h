@@ -57,14 +57,14 @@ public:
      */
     virtual void wait() const;
 
-    /** 
+    /**
      * Notifies all waiting threads.
      */
     virtual void notify();
 
 protected:
 
-    /** 
+    /**
      * Locked as long the condition was not fired.
      */
     boost::unique_lock<boost::shared_mutex> m_lock;

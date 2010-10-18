@@ -42,18 +42,18 @@
 
 #include "../../common/WProjectFileIO.h"
 #include "../../kernel/WModule.h"
-#include "controlPanel/WQtControlPanel.h"
-#include "ribbonMenu/WQtRibbonMenu.h"
 #include "WIconManager.h"
+#include "WQtCombinerToolbar.h"
 #include "WQtConfigWidget.h"
 #include "WQtCustomDockWidget.h"
+#include "WQtGLWidget.h"
 #include "WQtNavGLWidget.h"
 #include "WQtToolBar.h"
-#include "WQtCombinerToolbar.h"
+#include "controlPanel/WQtControlPanel.h"
+#include "ribbonMenu/WQtRibbonMenu.h"
 
 // forward declarations
 class QMenuBar;
-class WQtGLWidget;
 
 /**
  * This class contains the main window and the layout of the widgets within the window.

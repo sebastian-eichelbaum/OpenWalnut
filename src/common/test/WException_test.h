@@ -32,7 +32,7 @@
 
 #include "../WException.h"
 
-/** 
+/**
  * Test WException
  */
 class WExceptionTest : public CxxTest::TestSuite

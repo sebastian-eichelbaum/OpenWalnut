@@ -505,7 +505,7 @@ void WMMarchingCubes::renderMesh()
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
 
-    for ( int i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
+    for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
     {
         state->addUniform( m_typeUniforms[i] );
         state->addUniform( m_thresholdUniforms[i] );
@@ -562,7 +562,7 @@ void WMMarchingCubes::updateGraphicsCallback()
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     }
 
-    if ( m_textureChanged || m_opacityProp->changed() || m_useTextureProp->changed()  )
+    if( m_textureChanged || m_opacityProp->changed() || m_useTextureProp->changed()  )
     {
         bool localTextureChangedFlag = m_textureChanged;
         m_textureChanged = false;
@@ -570,12 +570,12 @@ void WMMarchingCubes::updateGraphicsCallback()
         // grab a list of data textures
         std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
-        if ( tex.size() > 0 )
+        if( tex.size() > 0 )
         {
             osg::StateSet* rootState = m_surfaceGeode->getOrCreateStateSet();
 
             // reset all uniforms
-            for ( int i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
+            for( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
@@ -593,7 +593,7 @@ void WMMarchingCubes::updateGraphicsCallback()
             }
 
             // for each texture -> apply
-            int c = 0;
+            size_t c = 0;
             //////////////////////////////////////////////////////////////////////////////////////////////////
             if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
             {

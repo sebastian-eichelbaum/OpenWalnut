@@ -29,9 +29,8 @@
 
 #include <osg/ref_ptr>
 
-
+#include "../graphicsEngine/WGEViewer.h"
 class WGEGroupNode;
-class WGEViewer;
 
 /**
  * Custom widget which is created by a module to display custom information.

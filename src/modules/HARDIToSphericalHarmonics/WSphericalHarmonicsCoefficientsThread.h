@@ -105,7 +105,7 @@ public:
 
       /**
         * Indicate if the residuals will be calculated.
-        * The residuals are the reprojection error. This means the 
+        * The residuals are the reprojection error. This means the
         */
       bool m_doResidualCalculation;
 

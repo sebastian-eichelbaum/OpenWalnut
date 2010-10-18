@@ -35,7 +35,7 @@
 
 /**
  * This module writes the fiber cluster at its connector to a file.
- * 
+ *
  * \ingroup modules
  */
 class WMWriteTracts: public WModule
