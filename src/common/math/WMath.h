@@ -146,6 +146,30 @@ namespace wmath
             result *= i;
         return result;
     }
+
+    /**
+     * Calculates the factorial i! for positive i.
+     *
+     * \note For i < 0, the result is undefined.
+     * 
+     * \tparam The type of i.
+     * \param i The input.
+     * \return i!.
+     */
+    template< typename T >
+    T factorial( T i )
+    {
+        T res = static_cast< T >( 1 );
+        if( i < res )
+        {
+            return res;
+        }
+        for( T k = res; k <= i; ++k )
+        {
+            res *= k;
+        }
+        return res;
+    }
 }
 
 template< typename T > inline int wmath::signum( const T& value )
