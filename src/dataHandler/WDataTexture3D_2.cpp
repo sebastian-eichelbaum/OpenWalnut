@@ -52,12 +52,6 @@ WDataTexture3D_2::~WDataTexture3D_2()
     // cleanup
 }
 
-osg::Matrix WDataTexture3D_2::getTexMatrix() const
-{
-    // TODO(ebaum): implement this, use grid
-    return osg::Matrix::identity();
-}
-
 void WDataTexture3D_2::create()
 {
     osg::ref_ptr< osg::Image > ima;

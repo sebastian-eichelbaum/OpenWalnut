@@ -41,6 +41,7 @@
 #include "../common/WLimits.h"
 #include "../common/WProperties.h"
 #include "../common/WPropertyHelper.h"
+#include "../common/math/WMatrix4x4.h"
 
 #include "WGETextureUtils.h"
 
@@ -141,11 +142,11 @@ public:
     WPropBool active() const;
 
     /**
-     * Returns the matrix used for transforming the texture coordinates to match the texture.
+     * Returns the texture transformation matrix. The property can be changed. A change affects all colormaps using this texture.
      *
-     * \return the matrix allowing direct application to osg::TexMat.
+     * \return the matrix
      */
-    virtual osg::Matrix getTexMatrix() const;
+    WPropMatrix4X4 transformation() const;
 
     /**
      * Binds the texture to the specified node and texture unit. It also adds two uniforms: u_textureXMin and u_textureXScale, where X
@@ -273,6 +274,11 @@ private:
      * True if the texture is active.
      */
     WPropBool m_active;
+
+    /**
+     * The texture transformation matrix.
+     */
+    WPropMatrix4X4 m_texMatrix;
 };
 
 // Some convenience typedefs
@@ -364,6 +370,8 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
 
     m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true, m_propCondition );
 
+    m_texMatrix = m_properties->addProperty( "Texture Transformation", "Usable to transform the texture.", osg::Matrix::identity(), m_propCondition );
+
     TextureType::setResizeNonPowerOfTwoHint( false );
     TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >(
         boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) )
@@ -437,6 +445,12 @@ inline WPropBool WGETexture< TextureType >::active() const
 }
 
 template < typename TextureType >
+inline WPropMatrix4X4 WGETexture< TextureType >::transformation() const
+{
+    return m_texMatrix;
+}
+
+template < typename TextureType >
 void  WGETexture< TextureType >::handleUpdate()
 {
     if ( m_interpolation->changed() )
@@ -462,12 +476,6 @@ void WGETexture< TextureType >::bind( osg::ref_ptr< osg::Node > node, size_t uni
 {
     // let our utilities do the work
     wge::bindTexture( node, osg::ref_ptr< WGETexture< TextureType > >( this ), unit ); // to avoid recursive stuff -> explicitly specify the type
-}
-
-template < typename TextureType >
-osg::Matrix WGETexture< TextureType >::getTexMatrix() const
-{
-    return osg::Matrix::identity();
 }
 
 template < typename TextureType >

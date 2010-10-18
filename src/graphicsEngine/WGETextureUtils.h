@@ -29,6 +29,7 @@
 
 #include <osg/Node>
 #include <osg/StateSet>
+#include <osg/TexMat>
 
 #include <boost/lexical_cast.hpp>
 
@@ -119,6 +120,9 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture<
     }
 
     wge::bindTexture< T >( node, osg::ref_ptr< T >( texture ), unit, prefix );
+
+    // set the texture matrix to the stateset
+//    node->getOrCreateStateSet()->setTextureAttributeAndModes( unit, new osg::TexMat( texture->getTexMatrix() ), osg::StateAttribute::ON );
 
     // add some additional uniforms containing scaling information
     texture->applyUniforms( prefix, node->getOrCreateStateSet() );

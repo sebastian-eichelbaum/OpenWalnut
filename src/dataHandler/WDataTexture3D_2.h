@@ -122,14 +122,6 @@ public:
      */
     boost::shared_ptr< WGridRegular3D > getGrid() const;
 
-    /**
-     * Returns the matrix used for transforming the texture coordinates to match the texture. This method calculates the correct texture matrix
-     * by using the grid's transformation.
-     *
-     * \return the matrix allowing direct application to osg::TexMat.
-     */
-    virtual osg::Matrix getTexMatrix() const;
-
 protected:
 
     /**
