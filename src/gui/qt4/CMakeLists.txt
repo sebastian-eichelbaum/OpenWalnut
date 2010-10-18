@@ -9,7 +9,7 @@ SET( QT_LIBS ${QT_QTCORE_LIBRARY}
              ${QT_QTGUI_LIBRARY}
              ${QT_QTOPENGL_LIBRARY} )
 
-# add here all classes that inherit from QObject 
+# add here all classes that inherit from QObject
 SET(GUI_QT4_MOC_HDRS
     WMainWindow.h
     WQtConfigWidget.h
@@ -43,5 +43,5 @@ ADD_LIBRARY( OWguiqt4 ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
 TARGET_LINK_LIBRARIES( OWguiqt4 OWcommon OWgui OWge OWkernel ${QT_LIBS} ${Boost_LIBRARIES} )
 
 IF(MSVC_IDE)
-	SET_TARGET_PROPERTIES( OWguiqt4 PROPERTIES PREFIX "../")    
+    SET_TARGET_PROPERTIES( OWguiqt4 PROPERTIES PREFIX "../")
 ENDIF(MSVC_IDE)

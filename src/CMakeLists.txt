@@ -118,7 +118,7 @@ ENDIF()
 FIND_PACKAGE( ITK QUIET )
 OPTION( OW_USE_ITK "Use the insight toolkit for image segmentation" OFF )
 IF( ITK_FOUND AND OW_USE_ITK )
-	INCLUDE( ${ITK_USE_FILE} )
+    INCLUDE( ${ITK_USE_FILE} )
 ENDIF( ITK_FOUND AND OW_USE_ITK )
 
 ### Eigen #### (for the gauss process, the covariance matrices tend to be sparse and 20x20, but ~70.000 of them)
@@ -156,7 +156,7 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
     SET( CMAKE_EXE_LINKER_FLAGS " /STACK:10000000 /machine:I386 /NODEFAULTLIB:${EXCLUDE_LIBRARIES}"  CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D \"NOMINMAX\"" )
     SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP" )
-	SET( CMAKE_DEBUG_POSTFIX "d" CACHE STRING "add a postfix, usually d on windows" )
+    SET( CMAKE_DEBUG_POSTFIX "d" CACHE STRING "add a postfix, usually d on windows" )
 ELSE()
     # Unfortunately libstdc++'s header files don't work with mingw in ansi mode (basically libstdc++'s fault)
     IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
@@ -176,8 +176,8 @@ ELSE()
 ENDIF()
 
 IF( ITK_FOUND AND OW_USE_ITK )
-	SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOW_USE_ITK" CACHE STRING "" FORCE )
-	SET( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DOW_USE_ITK" CACHE STRING "" FORCE )
+    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOW_USE_ITK" CACHE STRING "" FORCE )
+    SET( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DOW_USE_ITK" CACHE STRING "" FORCE )
 ENDIF( ITK_FOUND AND OW_USE_ITK )
 
 SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
@@ -193,19 +193,19 @@ ADD_SUBDIRECTORY( ext ) # The needed external libraries
 #-------------------------------------------------------------------------------------------------------------
 # Writes information about the revision of the current code to the file version.h which then gets included by OpenWalnut.cpp
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-	add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
-						MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
-						COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\"' > ${PROJECT_SOURCE_DIR}/version.h
-						WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-						COMMENT "Creating version.h"
-					 )
+    add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
+                        MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
+                        COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\"' > ${PROJECT_SOURCE_DIR}/version.h
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                        COMMENT "Creating version.h"
+                     )
 ELSE()
-	add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
-						MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
-						COMMAND hg parents --template "\"#define W_VERSION \"\"{node|short} {rev} {branches} {tags}\"\"\"" > ${PROJECT_SOURCE_DIR}/version.h
-						WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-						COMMENT "Creating version.h"
-					 )
+    add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
+                        MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
+                        COMMAND hg parents --template "\"#define W_VERSION \"\"{node|short} {rev} {branches} {tags}\"\"\"" > ${PROJECT_SOURCE_DIR}/version.h
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                        COMMENT "Creating version.h"
+                     )
 ENDIF()
 
 # finally, build walnut
@@ -213,8 +213,8 @@ ADD_EXECUTABLE( walnut OpenWalnut.cpp version.h )
 TARGET_LINK_LIBRARIES( walnut OWkernel OWdataHandler OWgui OWguiqt4 OWcommon OWge ${Boost_LIBRARIES} )
 
 IF(MSVC_IDE)
-	SET_TARGET_PROPERTIES( walnut PROPERTIES DEBUG_POSTFIX "d")
-	SET_TARGET_PROPERTIES( walnut PROPERTIES PREFIX "../")    
+    SET_TARGET_PROPERTIES( walnut PROPERTIES DEBUG_POSTFIX "d")
+    SET_TARGET_PROPERTIES( walnut PROPERTIES PREFIX "../")
 ENDIF(MSVC_IDE)
 
 #---------- Shaders -------------
@@ -299,10 +299,10 @@ ADD_CUSTOM_TARGET( tags DEPENDS ctags DEPENDS cscope )
 #-------------------------------------------------------------------------------------------------------------
 # Determines the number of cores available on this machine
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-	SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
-	SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
-	SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
-	ADD_CUSTOM_TARGET( numCores
+    SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
+    SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
+    SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
+    ADD_CUSTOM_TARGET( numCores
                    COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
                    COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
                    COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null

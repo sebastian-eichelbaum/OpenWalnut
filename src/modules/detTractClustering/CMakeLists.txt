@@ -50,7 +50,7 @@ ENDIF(MSVC_IDE)
 # Copy local shaders to module target directory
 IF( OW_COPY_SHADERS AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/shaders )    # copy shaders only if the user wants it
     ADD_CUSTOM_TARGET( ${MODULE_NAME}_CopyShaders
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/shaders ${MODULE_TARGET_DIR}/shaders/ 
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/shaders ${MODULE_TARGET_DIR}/shaders/
         COMMENT "Copy shaders of ${MODULE_NAME}"
     )
     ADD_DEPENDENCIES( ${MODULE_NAME} ${MODULE_NAME}_CopyShaders )
