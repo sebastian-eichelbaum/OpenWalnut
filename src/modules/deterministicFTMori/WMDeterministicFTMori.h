@@ -166,21 +166,21 @@ private:
     wmath::WVector3D getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
                                         wtracking::WTrackingUtility::JobType const& j );
 
-	/**
-	 * The fiber visitor. Adds a fiber to the result data and increment the progress.
-	 *
-	 * \param f The fiber.
-	 */
+    /**
+     * The fiber visitor. Adds a fiber to the result data and increment the progress.
+     *
+     * \param f The fiber.
+     */
     void fiberVis( FiberType const& f );
 
-	/**
-	 * The point visitor. Does nothing.
-	 */
+    /**
+     * The point visitor. Does nothing.
+     */
     void pointVis( wmath::WVector3D const& );
 
-	/**
-	 * Reset the tracking function and abort the current one, if there is a current one.
-	 */
+    /**
+     * Reset the tracking function and abort the current one, if there is a current one.
+     */
     void resetTracking();
 
     /**

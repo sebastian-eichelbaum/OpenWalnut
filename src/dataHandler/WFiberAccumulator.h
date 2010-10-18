@@ -71,9 +71,9 @@ public:
      */
     boost::shared_ptr< WDataSetFibers > buildDataSet();
 
-	/**
-	 * Clears all data.
-	 */
+    /**
+     * Clears all data.
+     */
     void clear();
 
 protected:
