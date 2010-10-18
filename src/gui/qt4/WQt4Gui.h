@@ -31,13 +31,13 @@
 #include <boost/program_options.hpp>
 
 #include "../../graphicsEngine/WROI.h"
+#include "../../graphicsEngine/WGraphicsEngine.h"
 
 #include "../../kernel/WModule.h"
 
 #include "../WGUI.h"
 
 class WMainWindow;
-class WGraphicsEngine;
 class WKernel;
 
 /**
