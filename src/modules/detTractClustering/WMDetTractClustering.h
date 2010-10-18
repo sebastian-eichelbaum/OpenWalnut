@@ -181,6 +181,7 @@ private:
     WPropInt     m_numClusters; //!< Number of clusters computed
     WPropInt     m_numValidClusters; //!< Number of clusters used for rendering
     WPropString  m_clusterSizes; //!< Sizes of the clusters
+    WPropBool    m_useCuda; //!< If compiled with cuda choose whether to use cuda or cpu implementation
 
     boost::shared_ptr< WDataSetFiberVector >                m_tracts; //!< Reference to the WDataSetFiberVector object
     boost::shared_ptr< WDataSetFibers >                     m_rawTracts; //!< Reference to the WDataSetFibers object
