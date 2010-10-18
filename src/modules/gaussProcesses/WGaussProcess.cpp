@@ -28,14 +28,19 @@
 #include "../../common/WAssert.h"
 #include "WGaussProcess.h"
 
-WGaussProcess::WGaussProcess( const wmath::WFiber& tract, boost::shared_ptr< const WDataSetDTI > tensors, double maxLevel )
-    : m_tract( tract ),
+WGaussProcess::WGaussProcess( const size_t tractID,
+                              boost::shared_ptr< const WDataSetFibers > tracts,
+                              boost::shared_ptr< const WDataSetDTI > tensors,
+                              double maxLevel )
+    : m_tractID( tractID ),
+      m_tracts( tracts ),
       m_tensors( tensors ),
-      m_CffInverse( static_cast< int >( tract.size() ), static_cast< int >( tract.size() ) ),
-      m_R( tract.maxSegmentLength() ),
       m_maxLevel( maxLevel )
 {
-    generateCffInverse();
+    wmath::WFiber tract = ( *m_tracts )[ m_tractID ];
+    m_CffInverse = Eigen::MatrixXd( static_cast< int >( tract.size() ), static_cast< int >( tract.size() ) );
+    m_R = tract.maxSegmentLength();
+    generateCffInverse( tract );
     generateTauParameter();
 }
 
@@ -48,9 +53,12 @@ double WGaussProcess::mean( const wmath::WPosition& p ) const
     double result = 0.0;
     Eigen::VectorXd Sf( m_CffInverse.rows() );
 
-    for( size_t i = 0; i < m_tract.size(); ++i )
+    // for further improvement we could work with the indices of the arrays inside of the WDataSetFibers instead of building up this point vector
+    wmath::WFiber tract = ( *m_tracts )[ m_tractID ];
+
+    for( size_t i = 0; i < tract.size(); ++i )
     {
-        Sf( i ) = cov_s( m_tract[i], p );
+        Sf( i ) = cov_s( tract[i], p );
     }
 
     Eigen::VectorXd l = Eigen::VectorXd::Ones( m_CffInverse.rows() ) * m_maxLevel;
@@ -59,13 +67,13 @@ double WGaussProcess::mean( const wmath::WPosition& p ) const
     return result;
 }
 
-void WGaussProcess::generateCffInverse()
+void WGaussProcess::generateCffInverse( const wmath::WFiber& tract )
 {
-    Eigen::MatrixXd Cff( static_cast< int >( m_tract.size() ), static_cast< int >( m_tract.size() ) );
+    Eigen::MatrixXd Cff( static_cast< int >( tract.size() ), static_cast< int >( tract.size() ) );
     size_t i = 0, j = 0;
-    for( wmath::WFiber::const_iterator cit = m_tract.begin(); cit != m_tract.end(); ++cit, ++i )
+    for( wmath::WFiber::const_iterator cit = tract.begin(); cit != tract.end(); ++cit, ++i )
     {
-        for( wmath::WFiber::const_iterator cit2 = m_tract.begin(); cit2 != m_tract.end(); ++cit2, ++j )
+        for( wmath::WFiber::const_iterator cit2 = tract.begin(); cit2 != tract.end(); ++cit2, ++j )
         {
             Cff( i, j ) = cov( *cit, *cit2 );
         }
@@ -81,17 +89,16 @@ void WGaussProcess::generateCffInverse()
 double WGaussProcess::generateTauParameter()
 {
     double result = 0.0;
-    for( wmath::WFiber::const_iterator cit = m_tract.begin(); cit != m_tract.end(); ++cit )
-    {
-        // According to Demian this function is very complex, involing tensor interpolation (not
-        // component wise) which is not trivial, but the out come does not contribute significantly to
-        // the result, so I ommit the implementation at first.
-        //
-        // wmath::WTensorSym< 2, 3 > t = tensors->interpolate( *cit );
-        // it may occur due to interpolation and noise that negative eigenvalues will occour!
-        // double lambda_1 = 0.0; // = t.eigenvalues(
-        // newTau = m_R / std::sqrt( lambda_1 );
-    }
+
+    // According to Demian this function is very complex, involing tensor interpolation (not
+    // component wise) which is not trivial, but the out come does not contribute significantly to
+    // the result, so I ommit the implementation at first.
+    //
+    // wmath::WTensorSym< 2, 3 > t = tensors->interpolate( *cit );
+    // it may occur due to interpolation and noise that negative eigenvalues will occour!
+    // double lambda_1 = 0.0; // = t.eigenvalues(
+    // newTau = m_R / std::sqrt( lambda_1 );
+
     return result;
 }
 

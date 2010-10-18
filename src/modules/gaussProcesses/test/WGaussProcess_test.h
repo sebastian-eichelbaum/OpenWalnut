@@ -32,6 +32,7 @@
 #include "../../../common/datastructures/WFiber.h"
 #include "../../../common/WLogger.h"
 #include "../../../dataHandler/WDataSetDTI.h"
+#include "../../../dataHandler/WDataSetFiberVector.h"
 #include "../WGaussProcess.h"
 
 static WLogger logger; // In case someone uses the logger in one of the classes above
@@ -48,7 +49,7 @@ public:
      */
     void testMeanFunctionOutsideOf_R_Environment( void )
     {
-        WGaussProcess p( m_tract, m_emptyDTIDataSet );
+        WGaussProcess p( m_tractID, m_tracts, m_emptyDTIDataSet );
         TS_ASSERT_DELTA( p.mean( wmath::WPosition( -( p.m_R + wlimits::DBL_EPS ), 0.0, 0.0 ) ), 0.0, wlimits::DBL_EPS );
     }
 
@@ -57,7 +58,7 @@ public:
      */
     void testMeanFunctionInsideOf_R_Environment( void )
     {
-        WGaussProcess p( m_tract, m_emptyDTIDataSet );
+        WGaussProcess p( m_tractID, m_tracts, m_emptyDTIDataSet );
         TS_ASSERT( std::abs( p.mean( wmath::WPosition( -p.m_R + 2 * wlimits::DBL_EPS, 0.0, 0.0 ) ) ) > wlimits::DBL_EPS );
     }
 
@@ -67,7 +68,7 @@ public:
      */
     void testMeanFunctionMonotonyIn_R_Environment( void )
     {
-        WGaussProcess p( m_tract, m_emptyDTIDataSet );
+        WGaussProcess p( m_tractID, m_tracts, m_emptyDTIDataSet );
         TS_ASSERT( std::abs( p.mean( wmath::WPosition( -p.m_R + 3 * wlimits::DBL_EPS, 0.0, 0.0 ) ) ) >
                              p.mean( wmath::WPosition( -p.m_R + 2 * wlimits::DBL_EPS, 0.0, 0.0 ) ) );
     }
@@ -77,7 +78,7 @@ public:
      */
     void testMeanFunctionOnSamplePoint( void )
     {
-        WGaussProcess p( m_tract, m_emptyDTIDataSet );
+        WGaussProcess p( m_tractID, m_tracts, m_emptyDTIDataSet );
         TS_ASSERT_DELTA( p.mean( wmath::WPosition( 0.0, 0.0, 0.0 ) ), p.m_maxLevel, wlimits::DBL_EPS );
     }
 
@@ -99,10 +100,17 @@ protected:
         boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
         m_emptyDTIDataSet = boost::shared_ptr< WDataSetDTI >(  new WDataSetDTI( newValueSet, newGrid ) );
 
-        m_tract.push_back( wmath::WPosition( 0.0, 0.0, 0.0 ) );
-        m_tract.push_back( wmath::WPosition( 1.0, 1.0, 0.0 ) );
-        m_tract.push_back( wmath::WPosition( 1.0, 2.0, 0.0 ) );
-        m_tract.push_back( wmath::WPosition( 2.0, 2.0, 0.0 ) );
+        wmath::WFiber tract;
+        tract.push_back( wmath::WPosition( 0.0, 0.0, 0.0 ) );
+        tract.push_back( wmath::WPosition( 1.0, 1.0, 0.0 ) );
+        tract.push_back( wmath::WPosition( 1.0, 2.0, 0.0 ) );
+        tract.push_back( wmath::WPosition( 2.0, 2.0, 0.0 ) );
+        boost::shared_ptr< std::vector< wmath::WFiber > > tracts( new std::vector< wmath::WFiber > );
+        tracts->push_back( tract );
+        boost::shared_ptr< WDataSetFiberVector > fvDS( new WDataSetFiberVector( tracts ) );
+        m_tracts = fvDS->toWDataSetFibers();
+
+        m_tractID = 0;
     }
 
     /**
@@ -110,7 +118,7 @@ protected:
      */
     void tearDown( void )
     {
-        m_tract.clear();
+        m_tracts.reset();
         m_emptyDTIDataSet.reset();
     }
 
@@ -121,9 +129,14 @@ private:
     boost::shared_ptr< WDataSetDTI > m_emptyDTIDataSet;
 
     /**
-     * A single tract to check the gauss process
+     * Dummy tract dataset for gaussian process generation.
      */
-    wmath::WFiber m_tract;
+    boost::shared_ptr< WDataSetFibers > m_tracts;
+
+    /**
+     * A single tract id;
+     */
+    size_t m_tractID;
 };
 
 #endif  // WGAUSSPROCESS_TEST_H

@@ -26,10 +26,11 @@
 #define WGAUSSPROCESS_H
 
 #include <Eigen/Core>
-
-#include "../../common/datastructures/WFiber.h"
+class WFiber;
+// #include "../../common/datastructures/WFiber.h"
 #include "../../common/math/WMatrix.h"
 #include "../../common/math/WValue.h"
+#include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetDTI.h"
 
 /**
@@ -45,11 +46,15 @@ public:
      * Constructs a gaussian process out of a fiber with the help of underlying diffusion tensor
      * information.
      *
-     * \param tract One deterministic tractogram
+     * \param tractID One deterministic tractogram ID
+     * \param tracts All deterministic tractograms
      * \param tensors All 2nd order diffusion tensors
      * \param maxLevel The real number which represents the maximum intensity
      */
-    WGaussProcess( const wmath::WFiber& tract, boost::shared_ptr< const WDataSetDTI > tensors, double maxLevel = 1.0 );
+    WGaussProcess( size_t tractID,
+                   boost::shared_ptr< const WDataSetFibers > tracts,
+                   boost::shared_ptr< const WDataSetDTI > tensors,
+                   double maxLevel = 1.0 );
 
     /**
      * Default destructor.
@@ -72,8 +77,11 @@ private:
      * Computes the covariance matrix and invert it. This shall always be possible since the
      * creating function is positive definit. (TODO(math): at least Demain said this) Finally the
      * inverse is saved to the member variable \ref m_CffInverse.
+     *
+     * \param tract The tract as vector of points, which is easery to access
+     * than to fiddle around with the indices inside the WDataSetFibers
      */
-    void generateCffInverse();
+    void generateCffInverse( const wmath::WFiber& tract );
 
     /**
      * Computes tau parameter representing the max diffusion time.
@@ -120,10 +128,19 @@ private:
     double cov( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
 
     /**
-     * Copy of the sample points of the tract, since they are always needed for the mean computation
-     * (S_f(p) will need all f_i ).
+     * The id of the tract inside the \ref WDataSetFibers this gaussian process
+     * is representing.  This is needed since the sample points of a tract will
+     * be needed for mean computation. (S_f(p) will need all f_i)
+     *
+     * \note: we can't make this a const member, since this instance cannot then be used inside of
+     * std::vectors which needs a default assignment operator which will fail on const members.
      */
-    wmath::WFiber m_tract;
+    size_t m_tractID;
+
+    /**
+     * Read-only reference to the tractogram dataset to save memory.
+     */
+    boost::shared_ptr< const WDataSetFibers > m_tracts;
 
     /**
      * Read-only reference to the tensor field used for the covariance function \ref cov.
@@ -165,7 +182,7 @@ inline double WGaussProcess::cov_s( const wmath::WPosition& p1, const wmath::WPo
 
 inline double WGaussProcess::cov( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const
 {
-    return cov_s( p1, p2 ) + cov_d( p1, p2 );
+    return cov_s( p1, p2 ); // not implemented the cov_d yet: + cov_d( p1, p2 );
 }
 
 #endif  // WGAUSSPROCESS_H

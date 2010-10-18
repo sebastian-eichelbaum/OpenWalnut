@@ -40,7 +40,7 @@ WDataSetGP::WDataSetGP( boost::shared_ptr< const WDataSetFibers > tracts,
             break;
         }
         ++*progress;
-        push_back( WGaussProcess( ( *tracts )[i], tensors ) );
+        push_back( WGaussProcess( i, tracts, tensors ) );
     }
 }
 
