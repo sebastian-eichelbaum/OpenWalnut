@@ -79,8 +79,15 @@ boost::shared_ptr< WGEColormapping > WGEColormapping::instance()
 
 void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader, size_t startTexUnit )
 {
-    instance()->applyInst( node, shader, startTexUnit );
+    instance()->applyInst( node, wmath::WMatrix4x4::identity(), shader, startTexUnit );
 }
+
+void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, wmath::WMatrix4x4 preTransform, osg::ref_ptr< WShader > shader,
+                             size_t startTexUnit )
+{
+    instance()->applyInst( node, preTransform, shader, startTexUnit );
+}
+
 
 void WGEColormapping::registerTexture( osg::ref_ptr< WGETexture3D > texture, std::string name )
 {
@@ -92,12 +99,14 @@ void WGEColormapping::deregisterTexture( osg::ref_ptr< WGETexture3D > texture )
     instance()->deregisterTextureInst( texture );
 }
 
-void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader, size_t startTexUnit )
+void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, wmath::WMatrix4x4 preTransform, osg::ref_ptr< WShader > shader,
+                                 size_t startTexUnit )
 {
     // applying to a node simply means adding a callback :-)
     NodeInfo* info = new NodeInfo;
     info->m_rebind = true;
     info->m_texUnitStart = startTexUnit;
+    info->m_preTransform = preTransform;
     m_nodeInfo.insert( std::make_pair( node, info ) );
     node->addUpdateCallback( m_callback );
 
