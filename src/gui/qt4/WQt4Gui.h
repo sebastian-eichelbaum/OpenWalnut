@@ -212,7 +212,7 @@ private:
      *
      * \param entry the entry added.
      */
-    void slotAddLog( WLogEntry& entry );
+    void slotAddLog( const WLogEntry& entry );
 };
 
 #endif  // WQT4GUI_H

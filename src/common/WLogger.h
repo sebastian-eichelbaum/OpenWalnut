@@ -40,7 +40,7 @@
 /**
  * Does actual logging of WLogEntries down to stdout or something similar.
  */
-class OWCOMMON_EXPORT WLogger
+class OWCOMMON_EXPORT WLogger       // NOLINT
 {
 public:
     /**
@@ -222,7 +222,7 @@ private:
     /**
      * Signal called whenever a new log message arrives.
      */
-    boost::signals2::signal< void ( WLogEntry& ) > m_addLogSignal;
+    boost::signals2::signal< void( WLogEntry& ) > m_addLogSignal;
 };
 
 /**

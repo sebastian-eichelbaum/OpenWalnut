@@ -279,9 +279,9 @@ void WQt4Gui::slotUpdateTextureSorter()
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WUpdateTextureSorterEvent() );
 }
 
-void WQt4Gui::slotAddLog( WLogEntry& entry )
+void WQt4Gui::slotAddLog( const WLogEntry& /*entry*/ )
 {
-    // TODO(rfrohl) create a new event for this and insert it into event queue
+    // TODO(rfrohl): create a new event for this and insert it into event queue
 }
 
 void WQt4Gui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module )
