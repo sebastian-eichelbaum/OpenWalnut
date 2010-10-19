@@ -22,58 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cmath>
+#include <string>
 
-#include "WUnitSphereCoordinates.h"
+#include "WSignalSubscriptionInvalid.h"
 
-using wmath::WUnitSphereCoordinates;
-
-WUnitSphereCoordinates::WUnitSphereCoordinates() :
-    m_theta( 0.0 ),
-    m_phi( 0.0 )
+WSignalSubscriptionInvalid::WSignalSubscriptionInvalid( const std::string& msg )
+    : WException( msg )
 {
+    // init members
 }
 
-WUnitSphereCoordinates::WUnitSphereCoordinates( double theta, double phi ) :
-    m_theta( theta ),
-    m_phi( phi )
+WSignalSubscriptionInvalid::~WSignalSubscriptionInvalid() throw()
 {
-}
-
-WUnitSphereCoordinates::WUnitSphereCoordinates( wmath::WVector3D vector )
-{
-  // normalize vector
-  vector /= vector.norm();
-  // calculate angles
-  m_theta = std::acos( vector[2] );
-  m_phi = std::atan2( vector[1], vector[0] );
-}
-
-WUnitSphereCoordinates::~WUnitSphereCoordinates()
-{
-}
-
-double WUnitSphereCoordinates::getTheta() const
-{
-  return m_theta;
-}
-
-double WUnitSphereCoordinates::getPhi() const
-{
-  return m_phi;
-}
-
-void WUnitSphereCoordinates::setTheta( double theta )
-{
-  m_theta = theta;
-}
-
-void WUnitSphereCoordinates::setPhi( double phi )
-{
-  m_phi = phi;
-}
-
-wmath::WVector3D WUnitSphereCoordinates::getEuclidean() const
-{
-  return wmath::WVector3D( std::sin( m_theta )*std::cos( m_phi ), std::sin( m_theta )*std::sin( m_phi ), std::cos( m_theta ) );
+    // clean up
 }

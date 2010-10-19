@@ -25,11 +25,16 @@
 #ifndef WSYMMETRICSPHERICALHARMONIC_TEST_H
 #define WSYMMETRICSPHERICALHARMONIC_TEST_H
 
+#include <vector>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WMatrix.h"
+#include "../WValue.h"
 
 #include "../WSymmetricSphericalHarmonic.h"
+#include "../WTensorSym.h"
+#include "../WTensorFunctions.h"
 
 #include "WMatrixTraits.h"
 
@@ -81,6 +86,42 @@ public:
           reference( i, i ) = 400.0;
         }
         TS_ASSERT_EQUALS( result, reference );
+    }
+
+    /**
+     * The matrix calculated by the calcSHToTensorSymMatrix function should produce tensors that
+     * evaluate to the same values as the respective spherical harmonics.
+     */
+    void testCalcSHtoTensorMatrix()
+    {
+#ifdef OW_USE_OSSIM
+        wmath::WValue< double > w( 6 );
+        for( int i = 0; i < 6; ++i )
+        {
+            w[ i ] = exp( i / 6.0 );
+        }
+
+        wmath::WSymmetricSphericalHarmonic i( w );
+
+        std::vector< wmath::WUnitSphereCoordinates > orientations;
+        orientations.push_back( wmath::WUnitSphereCoordinates( wmath::WVector3D( 1.0, 0.0, 0.0 ).normalized() ) );
+        orientations.push_back( wmath::WUnitSphereCoordinates( wmath::WVector3D( 0.6, -0.1, 0.2 ).normalized() ) );
+        orientations.push_back( wmath::WUnitSphereCoordinates( wmath::WVector3D( 1.0, 1.0, 1.0 ).normalized() ) );
+        orientations.push_back( wmath::WUnitSphereCoordinates( wmath::WVector3D( -0.1, -0.3, 0.5 ).normalized() ) );
+        orientations.push_back( wmath::WUnitSphereCoordinates( wmath::WVector3D( 0.56347, 0.374, 0.676676 ).normalized() ) );
+        orientations.push_back( wmath::WUnitSphereCoordinates( wmath::WVector3D( 0.56347, 0.374, -0.676676 ).normalized() ) );
+        orientations.push_back( wmath::WUnitSphereCoordinates( wmath::WVector3D( 0.0, 0.0, -4.0 ).normalized() ) );
+        orientations.push_back( wmath::WUnitSphereCoordinates( wmath::WVector3D( 0.0, 4.0, 1.0 ).normalized() ) );
+
+        wmath::WMatrix< double > SHToTensor = wmath::WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( 2, orientations );
+        wmath::WTensorSym< 2, 3, double > t( SHToTensor * w );
+
+        for( std::vector< wmath::WUnitSphereCoordinates >::iterator it = orientations.begin();
+             it != orientations.end(); ++it )
+        {
+            TS_ASSERT_DELTA( i.getValue( *it ), wmath::evaluateSphericalFunction( t, it->getEuclidean() ), 0.001 );
+        }
+#endif  // OW_USE_OSSIM
     }
 };
 

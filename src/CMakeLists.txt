@@ -103,7 +103,7 @@ ENDIF()
 FIND_PACKAGE( OSSIM QUIET )
 IF( OSSIM_FOUND )
   MESSAGE( STATUS "Found OSSIM." )
-  ADD_DEFINITIONS( -DUSEOSSIM )
+  OPTION( OW_USE_OSSIM "Use the ossim library for singular value decomposition." OFF )
   INCLUDE_DIRECTORIES( ${OSSIM_INCLUDE_DIR} )
   LINK_LIBRARIES( ${OSSIM_LIBRARY} )
 # TODO(math): is an entry in link directories necessary?
@@ -111,15 +111,21 @@ IF( OSSIM_FOUND )
   MARK_AS_ADVANCED( OSSIM_INCLUDEDIR )
   MARK_AS_ADVANCED( OSSIM_LIBRARIES )
 #   MARK_AS_ADVANCED( OSSIM_LIBDIR )
+  IF( OW_USE_OSSIM )
+    ADD_DEFINITIONS( -DOW_USE_OSSIM )
+  ENDIF()
 ENDIF()
 
 # insight toolkit (for image segmentation and registration)
 #----------------------------------------------------------
 FIND_PACKAGE( ITK QUIET )
-OPTION( OW_USE_ITK "Use the insight toolkit for image segmentation" OFF )
-IF( ITK_FOUND AND OW_USE_ITK )
+IF( ITK_FOUND )
+    OPTION( OW_USE_ITK "Use the insight toolkit for image segmentation" OFF )
     INCLUDE( ${ITK_USE_FILE} )
-ENDIF( ITK_FOUND AND OW_USE_ITK )
+    IF( OW_USE_OSSIM )
+        ADD_DEFINITIONS( -DOW_USE_ITK )
+    ENDIF()
+ENDIF()
 
 ### Eigen #### (for the gauss process, the covariance matrices tend to be sparse and 20x20, but ~70.000 of them)
 FIND_PACKAGE( Eigen3 QUIET )
@@ -129,8 +135,35 @@ IF( EIGEN3_FOUND )
     MARK_AS_ADVANCED( EIGEN3_VERSION )
 ENDIF()
 
-### CUDA #### (e.g. for the detTractClustering module
-FIND_PACKAGE( CUDA QUIET )
+### CUDA #### (e.g. for the detTractClustering module )
+OPTION( OW_USE_CUDA "Enable CUDA if available. Minimum version required is 2.3" )
+IF( OW_USE_CUDA )
+    FIND_PACKAGE( CUDA QUIET )
+    IF( CUDA_FOUND )
+        # BugFix: Subsequent calls don't set CUDA_VERSION_MAJOR or .._MINOR variables, so we have to extract them from CUDA_VERSION variable
+        STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\1" CUDA_VERSION_MAJOR ${CUDA_VERSION})
+        STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\2" CUDA_VERSION_MINOR ${CUDA_VERSION})
+
+        # Enforce at least CUDA version 2.3, since the detTractClustering is know to require this at least
+        SET( OW_MIN_CUDA_MAJOR_VERSION 2 )
+        SET( OW_MIN_CUDA_MINOR_VERSION 3 )
+
+        IF( CUDA_VERSION_MAJOR LESS OW_MIN_CUDA_MAJOR_VERSION )
+            SET( CUDA_FOUND_BUT_LOW_VERSION 1 )
+        ELSEIF( CUDA_VERSION_MAJOR EQUAL OW_MIN_CUDA_MAJOR_VERSION )
+            IF( CUDA_VERSION_MINOR LESS OW_MIN_CUDA_MINOR_VERSION )
+                SET( CUDA_FOUND_BUT_LOW_VERSION 1 )
+            ENDIF()
+        ENDIF()
+
+        # abort incase invalid version of CUDA was found.
+        IF( CUDA_FOUND_BUT_LOW_VERSION )
+            MESSAGE( FATAL_ERROR "You have selected to use CUDA but an insufficent version: ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR} was found, but ${OW_MIN_CUDA_MAJOR_VERSION}.${OW_MIN_CUDA_MINOR_VERSION} is required." )
+        ENDIF()
+        MESSAGE( STATUS "CUDA version: ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR} was found." )
+    ENDIF( CUDA_FOUND )
+ENDIF( OW_USE_CUDA )
+
 
 # other options:
 #---------------
@@ -174,11 +207,6 @@ ELSE()
     SET( CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
 ENDIF()
-
-IF( ITK_FOUND AND OW_USE_ITK )
-    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOW_USE_ITK" CACHE STRING "" FORCE )
-    SET( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DOW_USE_ITK" CACHE STRING "" FORCE )
-ENDIF( ITK_FOUND AND OW_USE_ITK )
 
 SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 

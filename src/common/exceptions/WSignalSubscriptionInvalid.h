@@ -22,19 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../exceptions/WPreconditionNotMet.h"
-#include "WMath.h"
-#include "WTensorSym.h"
+#ifndef WSIGNALSUBSCRIPTIONINVALID_H
+#define WSIGNALSUBSCRIPTIONINVALID_H
 
-namespace wmath
+#include <string>
+
+#include "../WException.h"
+#include "../WExportCommon.h"
+
+/**
+ * Indicates invalid use of subscribeSignal methods
+ */
+class OWCOMMON_EXPORT WSignalSubscriptionInvalid : public WException
 {
-// NOLINT
-std::size_t calcSupersymmetricTensorMultiplicity( std::size_t order, std::size_t numZeros, std::size_t numOnes, std::size_t numTwos )
-{
-    WPrecondEquals( order, numZeros + numOnes + numTwos );
-    return wmath::factorial( order )
-       / ( wmath::factorial( numZeros )
-         * wmath::factorial( numOnes )
-         * wmath::factorial( numTwos ) );
-}
-}  // namespace wmath
+public:
+    /**
+     * Default constructor.
+     * \param msg the exception message.
+     */
+    explicit WSignalSubscriptionInvalid( const std::string& msg = "Could not subscribe to the specified signal." );
+
+    /**
+     * Destructor.
+     */
+    virtual ~WSignalSubscriptionInvalid() throw();
+
+protected:
+private:
+};
+
+#endif  // WSIGNALSUBSCRIPTIONINVALID_H

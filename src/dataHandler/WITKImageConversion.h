@@ -26,14 +26,16 @@
 #define WITKIMAGECONVERSION_H
 
 #ifdef OW_USE_ITK
-
 #include <itkImage.h>
+#endif
 
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
 #include "WDataSetScalar.h"
+
+#ifdef OW_USE_ITK
 
 /**
  * Create an itk image from a dataset.

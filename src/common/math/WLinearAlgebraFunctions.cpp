@@ -26,7 +26,7 @@
 
 #include "WLinearAlgebraFunctions.h"
 
-#ifdef USEOSSIM
+#ifdef OW_USE_OSSIM
 #include "WOSSIMHelper.h"
 #endif
 
@@ -303,7 +303,7 @@ void wmath::computeSVD( const wmath::WMatrix< double >& A,
                         wmath::WMatrix< double >& V,
                         wmath::WValue< double >& S )
 {
-#ifdef USEOSSIM
+#ifdef OW_USE_OSSIM
       wmath::WOSSIMHelper::computeSVD( A, U, V, S );
 #else
       (void) A; (void) U; (void) V; (void) S; // NOLINT to prevent "unused variable" warnings
@@ -313,17 +313,17 @@ void wmath::computeSVD( const wmath::WMatrix< double >& A,
 
 wmath::WMatrix<double> wmath::pseudoInverse( const WMatrix<double>& input )
 {
-            // calc pseudo inverse
-            wmath::WMatrix< double > U( input.getNbRows(), input.getNbCols() );
-            wmath::WMatrix< double > V( input.getNbCols(), input.getNbCols() );
-            wmath::WValue< double > Svec( input.getNbCols() );
-            wmath::computeSVD( input, U, V, Svec );
+    // calc pseudo inverse
+    wmath::WMatrix< double > U( input.getNbRows(), input.getNbCols() );
+    wmath::WMatrix< double > V( input.getNbCols(), input.getNbCols() );
+    wmath::WValue< double > Svec( input.getNbCols() );
+    wmath::computeSVD( input, U, V, Svec );
 
-            // create diagonal matrix S
-            wmath::WMatrix< double > S( input.getNbCols(), input.getNbCols() );
+    // create diagonal matrix S
+    wmath::WMatrix< double > S( input.getNbCols(), input.getNbCols() );
 
-            for ( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
-              S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
+    for ( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
+      S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
 
-            return wmath::WMatrix< double >( V*S*U.transposed() );
+    return wmath::WMatrix< double >( V*S*U.transposed() );
 }

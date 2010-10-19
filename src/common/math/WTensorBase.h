@@ -117,6 +117,31 @@ inline void positionIterateSortedOneStep( std::vector< std::size_t >& pos ) // N
     }
 }
 
+/**
+ * Same as the version above, using no template arguments.
+ *
+ * \param order The order of the tensor.
+ * \param dim The dimension of the tensor.
+ * \param pos The sorted(!) position to be iterated.
+ */
+inline void positionIterateSortedOneStep( std::size_t order, std::size_t dim, std::vector< std::size_t >& pos ) // NOLINT, need a reference here
+{
+    WAssert( pos.size() >= order, "" );
+
+    for( int k = order - 1; k > -1; --k )
+    {
+        if( pos[ k ] != dim - 1 )
+        {
+            ++( pos[ k ] );
+            for( std::size_t i = k + 1; i < order; ++i )
+            {
+                pos[ i ] = pos[ k ];
+            }
+            return;
+        }
+    }
+}
+
 // ############################# class WTensorBase<> #################################
 /**
  * Normal tensor base class.
