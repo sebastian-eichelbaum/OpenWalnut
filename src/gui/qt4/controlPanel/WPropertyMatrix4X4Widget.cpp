@@ -107,7 +107,7 @@ void WPropertyMatrix4X4Widget::setPropertyFromWidgets( bool validateOnly )
     // grab all the values
     bool valid = true;
     // create a new matrix
-    WPVBaseTypes::PV_MATRIX4X4 m;;
+    WPVBaseTypes::PV_MATRIX4X4 m;
 
     for ( size_t row = 0; row < 4; ++row )
     {

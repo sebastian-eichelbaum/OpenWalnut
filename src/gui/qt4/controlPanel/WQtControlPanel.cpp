@@ -466,6 +466,7 @@ WQtDatasetTreeItem* WQtControlPanel::addDataset( boost::shared_ptr< WModule > mo
     WQtDatasetTreeItem* item = subject->addDatasetItem( module );
     m_moduleTreeWidget->setCurrentItem( item );
     item->setDisabled( true );
+    item->setExpanded( true );
 
     return item;
 }
@@ -875,7 +876,7 @@ WQtCombinerToolbar* WQtControlPanel::createCompatibleButtons( boost::shared_ptr<
     return new WQtCombinerToolbar( m_mainWindow, comps );
 }
 
-void WQtControlPanel::changeTreeItem( QTreeWidgetItem* item, int column )
+void WQtControlPanel::changeTreeItem( QTreeWidgetItem* item, int /* column */ )
 {
     WQtTreeItem* witem = dynamic_cast< WQtTreeItem* >( item );
     if ( witem )

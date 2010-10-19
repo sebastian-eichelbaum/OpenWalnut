@@ -213,7 +213,7 @@ void main()
 
             color = light * gl_Color;
 #endif
-            
+
             gl_FragColor = mix( colormapping( vec4( curPoint, 1.0 ) ), color, 1.0 - u_colormapRatio );
             gl_FragColor.a = u_alpha;
 

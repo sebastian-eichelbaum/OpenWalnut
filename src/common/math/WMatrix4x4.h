@@ -26,6 +26,7 @@
 #define WMATRIX4X4_H
 
 #include <string>
+#include <vector>
 
 #include <boost/lexical_cast.hpp>
 
@@ -72,7 +73,7 @@ namespace wmath
     inline WMatrix4x4 fromString( std::string str )
     {
         WMatrix4x4 c;
-        std::vector<std::string> tokens;
+        std::vector< std::string > tokens;
         tokens = string_utils::tokenize( str, ";" );
         WAssert( tokens.size() >= 16, "There weren't 16 values for a 4x4 Matrix" );
 
