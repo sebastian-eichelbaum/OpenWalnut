@@ -213,10 +213,10 @@ void main()
 
             color = light * gl_Color;
 #endif
+            
+            gl_FragColor = mix( colormapping( vec4( curPoint, 1.0 ) ), color, 1.0 - u_colormapRatio );
+            gl_FragColor.a = u_alpha;
 
-            color.a = u_alpha;
-            gl_FragColor = mix( colormapping( curPoint ), color, 1.0 - u_colormapRatio );
-            //gl_FragColor = vec4( texture3D( u_colormap1Sampler, curPoint ).rgb, 1.0 ); //color;
             break;
         }
         else
