@@ -212,6 +212,16 @@ void WQtTreeItem::updateState()
         QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getControlPanel(), new WModuleDeleteEvent( this ) );
     }
 
+    // active ?
+    if ( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
+    {
+        setCheckState( 0, Qt::Checked );
+    }
+    else
+    {
+        setCheckState( 0, Qt::Unchecked );
+    }
+
     // update tooltip
     updateTooltip( progress );
 }
