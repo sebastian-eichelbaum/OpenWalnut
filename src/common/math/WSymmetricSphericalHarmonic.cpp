@@ -310,6 +310,8 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order 
     return result;
 }
 
+#ifdef OW_USE_OSSIM
+
 wmath::WMatrix< double > WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( std::size_t order,
                                                                                const std::vector< wmath::WUnitSphereCoordinates >& orientations )
 {
@@ -361,5 +363,6 @@ wmath::WMatrix< double > WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( s
 
     return p * calcBaseMatrix( ori2, order );
 }
+#endif // OW_USE_OSSIM
 // NOLINT
 } // Namespace wmath

@@ -26,7 +26,7 @@
 
 #include "WLinearAlgebraFunctions.h"
 
-#ifdef USEOSSIM
+#ifdef OW_USE_OSSIM
 #include "WOSSIMHelper.h"
 #endif
 
@@ -303,7 +303,7 @@ void wmath::computeSVD( const wmath::WMatrix< double >& A,
                         wmath::WMatrix< double >& V,
                         wmath::WValue< double >& S )
 {
-#ifdef USEOSSIM
+#ifdef OW_USE_OSSIM
       wmath::WOSSIMHelper::computeSVD( A, U, V, S );
 #else
       (void) A; (void) U; (void) V; (void) S; // NOLINT to prevent "unused variable" warnings

@@ -73,6 +73,7 @@ public:
      */
     void testConversion()
     {
+#ifdef OW_USE_ITK
         // build a dataset
         std::vector< int > values( 27, 0 );
         for( int k = 0; k < 27; ++k )
@@ -88,6 +89,7 @@ public:
 
         TS_ASSERT_SAME_DATA( boost::shared_dynamic_cast< WValueSet< int > >( ds->getValueSet() )->rawData(),
                              boost::shared_dynamic_cast< WValueSet< int > >( newds->getValueSet() )->rawData(), sizeof( int ) * 27 );
+#endif  // OW_USE_ITK
     }
 };
 

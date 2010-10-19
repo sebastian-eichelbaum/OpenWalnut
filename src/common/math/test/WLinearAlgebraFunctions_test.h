@@ -181,7 +181,7 @@ public:
      */
     void testPseudoInverse( void )
     {
-#ifdef USEOSSIM
+#ifdef OW_USE_OSSIM
         {
             const size_t nbRows = 3, nbCols = 3;
             const double a = 1.2, b = 2.3, c = 3.4,

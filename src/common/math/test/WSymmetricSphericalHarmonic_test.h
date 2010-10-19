@@ -94,12 +94,12 @@ public:
      */
     void testCalcSHtoTensorMatrix()
     {
+#ifdef OW_USE_OSSIM
         wmath::WValue< double > w( 6 );
         for( int i = 0; i < 6; ++i )
         {
             w[ i ] = exp( i / 6.0 );
         }
-        w[ 0 ] = 1;
 
         wmath::WSymmetricSphericalHarmonic i( w );
 
@@ -121,6 +121,7 @@ public:
         {
             TS_ASSERT_DELTA( i.getValue( *it ), wmath::evaluateSphericalFunction( t, it->getEuclidean() ), 0.001 );
         }
+#endif  // OW_USE_OSSIM
     }
 };
 

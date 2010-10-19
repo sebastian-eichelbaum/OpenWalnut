@@ -167,6 +167,7 @@ public:
     */
     static wmath::WMatrix<double> calcFRTMatrix( size_t order );
 
+#ifdef OW_USE_OSSIM
     /**
      * Calculates a matrix that converts spherical harmonics to symmetric tensors of equal or lower order.
      *
@@ -174,6 +175,7 @@ public:
      * \param orientations A vector of at least (orderTensor+1) * (orderTensor+2) / 2 orientations.
      */
     static wmath::WMatrix< double > calcSHToTensorSymMatrix( std::size_t order, const std::vector< wmath::WUnitSphereCoordinates >& orientations );
+#endif  // OW_USE_OSSIM
 
 protected:
 
