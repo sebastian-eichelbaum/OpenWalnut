@@ -260,3 +260,16 @@ void WQtTreeItem::setHandledOutput( std::string out )
     m_handledOutput = out;
 }
 
+void WQtTreeItem::handleCheckStateChange()
+{
+    // active ?
+    if ( checkState( 0 ) == Qt::Checked )
+    {
+        m_module->getProperties()->getProperty( "active" )->toPropBool()->set( true );
+    }
+    else
+    {
+        m_module->getProperties()->getProperty( "active" )->toPropBool()->set( false );
+    }
+}
+

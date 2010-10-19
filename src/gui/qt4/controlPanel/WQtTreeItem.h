@@ -104,6 +104,10 @@ public:
      */
     void setHandledOutput( std::string out );
 
+    /**
+     * Handle changes in check state.
+     */
+    virtual void handleCheckStateChange();
 
 public slots:
 
