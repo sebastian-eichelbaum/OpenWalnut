@@ -31,19 +31,16 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
+#include <boost/signals2/signal.hpp>
 
 #include "WLogEntry.h"
 #include "WStringUtils.h"
-#include "WThreadedRunner.h"
 #include "WExportCommon.h"
 
 /**
  * Does actual logging of WLogEntries down to stdout or something similar.
  */
-class OWCOMMON_EXPORT WLogger: public WThreadedRunner
+class OWCOMMON_EXPORT WLogger
 {
 public:
     /**
@@ -147,15 +144,26 @@ public:
     void addLogMessage( std::string message, std::string source = "", LogLevel level = LL_DEBUG );
 
     /**
-     * Locks this logging instance for threadsafeness and prints the
-     * items of the queue.
+     * Types of signals supported by the logger
      */
-    void processQueue();
+    typedef enum
+    {
+        AddLog = 0 //!< for added logs
+    }
+    LogEvent;
 
     /**
-     * Entry point after loading the module. Runs in separate thread.
+     * The type for all callbacks which get a log entry as parameter.
      */
-    virtual void threadMain();
+    typedef boost::function< void ( WLogEntry& ) > LogEntryCallback;
+
+    /**
+     * Subscribe to the specified signal.
+     *
+     * \param event the kind of signal the callback should be used for.
+     * \param callback the callback.
+     */
+    boost::signals2::connection subscribeSignal( LogEvent event, LogEntryCallback callback );
 
 protected:
 
@@ -197,16 +205,6 @@ private:
     std::vector< WLogEntry > m_SessionLog;
 
     /**
-     * Queue for storing pending WLogEntries.
-     */
-    std::queue< WLogEntry > m_LogQueue;
-
-    /**
-     * Mutex for doing locking due to thread-safety.
-     */
-    boost::mutex m_QueueMutex;
-
-    /**
      * Flag determining whether log entries can be colored or not.
      */
     bool m_colored;
@@ -220,6 +218,11 @@ private:
      * The default format used for new log entries in files.
      */
     std::string m_defaultFileFormat;
+
+    /**
+     * Signal called whenever a new log message arrives.
+     */
+    boost::signals2::signal< void ( WLogEntry& ) > m_addLogSignal;
 };
 
 /**

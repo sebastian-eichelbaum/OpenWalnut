@@ -71,12 +71,6 @@ int main( int argc, char** argv )
     boost::shared_ptr< WQt4Gui > gui = boost::shared_ptr< WQt4Gui > ( new WQt4Gui( argc, argv ) );
     int result = gui->run();
 
-    // finish running thread if there is a WLogger.
-    if( !result )
-    {
-        WLogger::getLogger()->wait( true );
-    }
-
     std::cout << "Closed OpenWalnut smoothly. Goodbye!" << std::endl;
 
     return result;

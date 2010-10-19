@@ -185,6 +185,11 @@ private:
     boost::shared_ptr< WGraphicsEngine > m_ge;
 
     /**
+     * The connection to the AddLog signal of the logger
+     */
+    boost::signals2::connection m_loggerConnection;
+
+    /**
      * Kernel instance.
      */
     boost::shared_ptr< WKernel > m_kernel;
@@ -201,6 +206,13 @@ private:
      * \return True if and only if the parsing was successful.
      */
     bool parseOptions();
+
+    /**
+     * New log item added. Pushing event to QT's event queue.
+     *
+     * \param entry the entry added.
+     */
+    void slotAddLog( WLogEntry& entry );
 };
 
 #endif  // WQT4GUI_H
