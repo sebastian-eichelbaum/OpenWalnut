@@ -52,7 +52,7 @@ WLogEntry::~WLogEntry()
 {
 }
 
-std::string WLogEntry::getLogString( std::string format )
+std::string WLogEntry::getLogString( std::string format ) const
 {
     std::string s = format;
 
@@ -83,7 +83,7 @@ std::string WLogEntry::getLogString( std::string format )
     return s;
 }
 
-LogLevel WLogEntry::getLogLevel()
+LogLevel WLogEntry::getLogLevel() const
 {
     return m_level;
 }
@@ -100,8 +100,23 @@ void WLogEntry::setColored( bool colors )
     m_messageColor.setEnabled( colors );
 }
 
-bool WLogEntry::isColored()
+bool WLogEntry::isColored() const
 {
     return m_colored;
+}
+
+std::string WLogEntry::getMessage() const
+{
+    return m_message;
+}
+
+std::string WLogEntry::getSource() const
+{
+    return m_source;
+}
+
+std::string WLogEntry::getTime() const
+{
+    return m_time;
 }
 

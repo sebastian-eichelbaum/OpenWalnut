@@ -32,6 +32,7 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 
 /**
  * This module writes the fiber cluster at its connector to a file.
