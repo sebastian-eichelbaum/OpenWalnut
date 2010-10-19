@@ -34,6 +34,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "WGEPropertyUniform.h"
+#include "callbacks/WGEPropertyTransformationCallback.h"
 
 #include "WExportWGE.h"
 
@@ -122,7 +123,10 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture<
     wge::bindTexture< T >( node, osg::ref_ptr< T >( texture ), unit, prefix );
 
     // set the texture matrix to the stateset
-//    node->getOrCreateStateSet()->setTextureAttributeAndModes( unit, new osg::TexMat( texture->getTexMatrix() ), osg::StateAttribute::ON );
+    osg::TexMat* texMat = new osg::TexMat();
+    // use a callback to update the tex matrix if needed according to transformation property of texture
+    texMat->setUpdateCallback( new WGEPropertyTransformationCallback< osg::StateAttribute, osg::TexMat >( texture->transformation() ) );
+    node->getOrCreateStateSet()->setTextureAttributeAndModes( unit, texMat, osg::StateAttribute::ON );
 
     // add some additional uniforms containing scaling information
     texture->applyUniforms( prefix, node->getOrCreateStateSet() );
