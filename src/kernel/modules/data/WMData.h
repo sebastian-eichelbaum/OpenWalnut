@@ -174,6 +174,11 @@ protected:
     WPropString m_dataName;
 
     /**
+     * The basic type of data used in this data set (e.g. float, double, ...)
+     */
+    WPropString m_dataType;
+
+    /**
      * grouping the texture display properties
      */
     WPropGroup    m_groupTex;
@@ -274,6 +279,11 @@ protected:
     void propertyChanged( boost::shared_ptr< WPropertyBase > property );
 
 private:
+
+    /**
+     * Get a string for the datatype of the given dataset.
+     */
+    std::string getDataTypeString( boost::shared_ptr< WDataSetSingle > dss );
 
     /**
      * The associated dataset.
