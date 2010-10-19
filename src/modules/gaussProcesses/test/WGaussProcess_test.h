@@ -88,6 +88,79 @@ public:
 //        TS_ASSERT_DELTA( p.mean( wmath::WPosition( 0.4, 0.4, 0.0 ) ), p.m_maxLevel, wlimits::DBL_EPS );
 //    }
 
+    /**
+     * Non overlapping processes should return 0.0 as inner product.
+     */
+    void testInnerProductOnNonOverlappingIndicatorFunctions( void )
+    {
+        WGaussProcess p1( 0, m_tracts, m_emptyDTIDataSet );
+        WGaussProcess p2( 1, m_tracts, m_emptyDTIDataSet );
+        TS_ASSERT_DELTA( gauss::innerProduct( p1, p2 ), 0.0, wlimits::DBL_EPS );
+    }
+
+    /**
+     * Its hard to find an example where the integral over the spheres is exactly determined, incase
+     * of an overlap and no full overlap. Hence we take a tract with many points where almost 50
+     * percent will overlap. When increasing the number of points the innerproduct should converge.
+     */
+    void testPartialOverlapWith100Points( void )
+    {
+        boost::shared_ptr< std::vector< wmath::WFiber > > tracts( new std::vector< wmath::WFiber > );
+        wmath::WFiber tract;
+        for( size_t i = 0; i < 100; ++i )
+        {
+            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+        }
+        tracts->push_back( tract );
+        tract.clear();
+        for( size_t i = 0; i < 50; ++i )
+        {
+            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+        }
+        for( size_t i = 1; i < 51; ++i )
+        {
+            tract.push_back( wmath::WPosition( 49.0, static_cast< double >( i ), 0.0 ) );
+        }
+        tracts->push_back( tract );
+        boost::shared_ptr< WDataSetFiberVector > fvDS( new WDataSetFiberVector( tracts ) );
+
+        WGaussProcess p1( 0, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
+        WGaussProcess p2( 1, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
+        double overlap = gauss::innerProduct( p1, p2 ) / ( std::sqrt( gauss::innerProduct( p1, p1 ) ) * std::sqrt( gauss::innerProduct( p2, p2 ) ) );
+        TS_ASSERT_DELTA( overlap, 0.5011, 0.0003 );
+    }
+
+    /**
+     * This is to test the converge nearly to 50 percent and should always be better than with just
+     * 100 points.
+     */
+    void testPartialOverlapWith1000Points( void )
+    {
+        boost::shared_ptr< std::vector< wmath::WFiber > > tracts( new std::vector< wmath::WFiber > );
+        wmath::WFiber tract;
+        for( size_t i = 0; i < 1000; ++i )
+        {
+            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+        }
+        tracts->push_back( tract );
+        tract.clear();
+        for( size_t i = 0; i < 500; ++i )
+        {
+            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+        }
+        for( size_t i = 1; i < 501; ++i )
+        {
+            tract.push_back( wmath::WPosition( 499.0, static_cast< double >( i ), 0.0 ) );
+        }
+        tracts->push_back( tract );
+        boost::shared_ptr< WDataSetFiberVector > fvDS( new WDataSetFiberVector( tracts ) );
+
+        WGaussProcess p1( 0, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
+        WGaussProcess p2( 1, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
+        double overlap = gauss::innerProduct( p1, p2 ) / ( std::sqrt( gauss::innerProduct( p1, p1 ) ) * std::sqrt( gauss::innerProduct( p2, p2 ) ) );
+        TS_ASSERT_DELTA( overlap, 0.5001, 0.0003 );
+    }
+
 protected:
     /**
      * SetUp test environment.
@@ -100,13 +173,17 @@ protected:
         boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
         m_emptyDTIDataSet = boost::shared_ptr< WDataSetDTI >(  new WDataSetDTI( newValueSet, newGrid ) );
 
-        wmath::WFiber tract;
-        tract.push_back( wmath::WPosition( 0.0, 0.0, 0.0 ) );
-        tract.push_back( wmath::WPosition( 1.0, 1.0, 0.0 ) );
-        tract.push_back( wmath::WPosition( 1.0, 2.0, 0.0 ) );
-        tract.push_back( wmath::WPosition( 2.0, 2.0, 0.0 ) );
         boost::shared_ptr< std::vector< wmath::WFiber > > tracts( new std::vector< wmath::WFiber > );
-        tracts->push_back( tract );
+        wmath::WFiber tract0;
+        tract0.push_back( wmath::WPosition( 0.0, 0.0, 0.0 ) );
+        tract0.push_back( wmath::WPosition( 1.0, 1.0, 0.0 ) );
+        tract0.push_back( wmath::WPosition( 1.0, 2.0, 0.0 ) );
+        tract0.push_back( wmath::WPosition( 2.0, 2.0, 0.0 ) );
+        tracts->push_back( tract0 );
+        wmath::WFiber tract1;
+        tract1.push_back( wmath::WPosition( 2.0 + sqrt( 2.0 ) + 1.0, 2.0, 0.0 ) );
+        tract1.push_back( wmath::WPosition( 2.0 + sqrt( 2.0 ) + 2.0, 2.0, 0.0 ) );
+        tracts->push_back( tract1 );
         boost::shared_ptr< WDataSetFiberVector > fvDS( new WDataSetFiberVector( tracts ) );
         m_tracts = fvDS->toWDataSetFibers();
 
