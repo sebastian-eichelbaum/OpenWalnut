@@ -109,7 +109,7 @@ void WMDeterministicFTMori::moduleMain()
             }
         }
 
-        if( dataChanged )
+        if( dataChanged && m_dataSet )
         {
             resetEigenFunction();
             // start the eigenvector computation
