@@ -177,6 +177,7 @@ void WGraphicsEngineAll::threadMain()
 void WGraphicsEngineAll::notifyStop()
 {
     WLogger::getLogger()->addLogMessage( "Stopping Graphics Engine", "GE", LL_INFO );
+    m_viewer->setDone( true );
 }
 
 void WGraphicsEngineAll::requestShaderReload()

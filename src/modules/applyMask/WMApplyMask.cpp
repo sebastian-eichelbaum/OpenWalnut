@@ -187,14 +187,12 @@ void WMApplyMask::properties()
 
 template< typename T > void WMApplyMask::applyMask( boost::shared_ptr< WValueSet< T > > valSet, dataType type )
 {
-    typedef int16_t maskType;
-
     boost::shared_ptr< WValueSetBase > maskBase = m_mask->getValueSet();
-    boost::shared_ptr< WValueSet< maskType > > mask = boost::shared_dynamic_cast< WValueSet< maskType > >( maskBase );
+    boost::shared_ptr< WValueSet< float > > mask = boost::shared_dynamic_cast< WValueSet< float > >( maskBase );
 
     if( !mask )
     {
-        throw WException( std::string( "Incorrect mask." ) );
+        throw WException( std::string( "Mask is not of type float." ) );
     }
 
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Apply Mask", valSet->size() ) );
