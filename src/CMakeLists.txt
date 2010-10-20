@@ -105,12 +105,9 @@ IF( OSSIM_FOUND )
   MESSAGE( STATUS "Found OSSIM." )
   OPTION( OW_USE_OSSIM "Use the ossim library for singular value decomposition." OFF )
   INCLUDE_DIRECTORIES( ${OSSIM_INCLUDE_DIR} )
-  LINK_LIBRARIES( ${OSSIM_LIBRARY} )
-# TODO(math): is an entry in link directories necessary?
-#   LINK_DIRECTORIES( ${OSSIM_LIBDIR} )
+  LINK_LIBRARIES( ${OSSIM_LIBRARY} ) # this is necessary since you may install OSSIM not in the default library path
   MARK_AS_ADVANCED( OSSIM_INCLUDEDIR )
   MARK_AS_ADVANCED( OSSIM_LIBRARIES )
-#   MARK_AS_ADVANCED( OSSIM_LIBDIR )
   IF( OW_USE_OSSIM )
     ADD_DEFINITIONS( -DOW_USE_OSSIM )
   ENDIF()
