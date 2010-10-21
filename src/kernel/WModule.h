@@ -61,6 +61,7 @@ class WModuleFactory;
 class WModuleInputConnector;
 class WModuleOutputConnector;
 template < typename T > class WModuleInputData;
+template < typename T > class WModuleInputForwardData;
 template < typename T > class WModuleOutputData;
 
 /**
@@ -73,6 +74,7 @@ class OWKERNEL_EXPORT WModule: public WThreadedRunner,
 {
 friend class WModuleConnector;  // requires access to notify members
 template< typename T > friend class WModuleInputData;  // requires access for convenience functions to automatically add a created connector
+template< typename T > friend class WModuleInputForwardData;  // requires access for convenience functions to automatically add a created connector
 template< typename T > friend class WModuleOutputData;  // requires access for convenience functions to automatically add a created connector
 friend class WModuleFactory;    // for proper creation of module instances, the factory needs access to protected functions.
                                 // (especially initialize)

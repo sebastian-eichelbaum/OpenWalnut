@@ -43,7 +43,6 @@ template< typename T >
 class WModuleInputForwardData: public WModuleInputData< T >
 {
 public:
-
     /**
      * Constructor. This creates a new input data connector which is able to forward data changes <b>TO</b>  other input data connectors.
      *
@@ -85,6 +84,33 @@ public:
         m_out->disconnect( to );
     }
 
+    /**
+     * Convenience method to create a new instance of this in forward data connector with proper type.
+     *
+     * \param module    The module owning this instance
+     * \param name      The name of this connector.
+     * \param description The description of this connector.
+     *
+     * \return The pointer to the created forward connector.
+     */
+    static boost::shared_ptr< WModuleInputForwardData< T > > create( boost::shared_ptr< WModule > module,
+                                                                     std::string name = "",
+                                                                     std::string description = "" );
+
+    /**
+     * Convenience method to create a new instance of this in forward data connector with proper
+     * type and add it to the list of connectors of the specified module.
+     *
+     * \param module    The module owning this instance
+     * \param name      The name of this connector.
+     * \param description The description of this connector.
+     *
+     * \return The pointer to the created forward connector.
+     */
+    static boost::shared_ptr< WModuleInputForwardData< T > > createAndAdd( boost::shared_ptr< WModule > module,
+                                                                           std::string name = "",
+                                                                           std::string description = "" );
+
 protected:
 
     /**
@@ -109,6 +135,25 @@ protected:
 
 private:
 };
+
+template < typename T >
+inline boost::shared_ptr< WModuleInputForwardData< T > > WModuleInputForwardData< T >::create( boost::shared_ptr< WModule > module,
+                                                                                                 std::string name,
+                                                                                                 std::string description )
+{
+    return boost::shared_ptr< WModuleInputForwardData< T > >( new WModuleInputForwardData< T >( module, name, description ) );
+}
+
+template < typename T >
+inline boost::shared_ptr< WModuleInputForwardData< T > > WModuleInputForwardData< T >::createAndAdd( boost::shared_ptr< WModule > module,
+                                                                                                       std::string name,
+                                                                                                       std::string description )
+{
+    boost::shared_ptr< WModuleInputForwardData< T > > c = create( module, name, description );
+    module->addConnector( c );
+    return c;
+}
+
 
 #endif  // WMODULEINPUTFORWARDDATA_H
 
