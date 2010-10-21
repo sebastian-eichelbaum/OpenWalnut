@@ -67,6 +67,7 @@ public:
     }
 
     /**
+     * The distance should not depend on the order in which the boxes are given.
      */
     void testCommutativeIntervalDistance( void )
     {
