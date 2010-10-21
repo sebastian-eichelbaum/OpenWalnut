@@ -424,14 +424,9 @@ void WMDetTractClustering::meld( size_t qClusterID, size_t rClusterID )
 
 void WMDetTractClustering::connectors()
 {
-    typedef WModuleInputData< WDataSetFibers > InputData;  // just an alias
-    typedef WModuleOutputData< WFiberCluster > OutputData; // -"-
+    m_tractInput = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "A deterministic tract dataset." );
+    m_output = WModuleOutputData< WFiberCluster >::createAndAdd( shared_from_this(), "clusterOutput", "A set of tract indices aka cluster" );
 
-    m_tractInput = boost::shared_ptr< InputData >( new InputData( shared_from_this(), "tractInput", "A deterministic tract dataset." ) );
-    m_output = boost::shared_ptr< OutputData >( new OutputData( shared_from_this(), "clusterOutput", "A set of tract indices aka cluster" ) );
-
-    addConnector( m_tractInput );
-    addConnector( m_output );
     WModule::connectors();  // call WModules initialization
 }
 
