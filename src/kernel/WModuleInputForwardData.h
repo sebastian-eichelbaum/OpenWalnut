@@ -152,7 +152,7 @@ inline typename WModuleInputForwardData< T >::PtrType WModuleInputForwardData< T
                                                                                             std::string name,
                                                                                             std::string description )
 {
-    return WModuleInputForwardData< T >::PtrType ( new WModuleInputForwardData< T >( module, name, description ) );
+    return typename WModuleInputForwardData< T >::PtrType ( new WModuleInputForwardData< T >( module, name, description ) );
 }
 
 template < typename T >
@@ -160,7 +160,7 @@ inline typename WModuleInputForwardData< T >::PtrType WModuleInputForwardData< T
                                                                                                   std::string name,
                                                                                                   std::string description )
 {
-    WModuleInputForwardData< T >::PtrType c = create( module, name, description );
+    typename WModuleInputForwardData< T >::PtrType c = create( module, name, description );
     module->addConnector( c );
     return c;
 }
