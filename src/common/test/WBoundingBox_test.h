@@ -55,18 +55,26 @@ public:
         bb2.reset();
     }
 
-// TODO(math): uncomment when starting with implementation of minDistance!
-//
-//    /**
-//     * The minimal distance between two bounding boxes is the minimal distance overall vertices of
-//     * the first bb to every vertex in the second bb.
-//     */
-//    void testMinimalDistanceBetweenTwoBB( void )
-//    {
-//        WBoundingBox bb1( 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
-//        WBoundingBox bb2( 1.5, 0.5, 0.0, 2.5, 1.5, 1.0 );
-//        TS_ASSERT_DELTA( bb1.minDistance( bb2 ), std::sqrt( 0.5 ), wlimits::DBL_EPS );
-//    }
+    /**
+     * The minimal distance between two bounding boxes is the minimal distance overall vertices of
+     * the first bb to every vertex in the second bb.
+     */
+    void testMinimalDistanceBetweenTwoBB( void )
+    {
+        WBoundingBox bb1( 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
+        WBoundingBox bb2( 1.5, 0.5, 0.0, 2.5, 1.5, 1.0 );
+        TS_ASSERT_DELTA( bb1.minDistance( bb2 ), 0.5, wlimits::DBL_EPS );
+    }
+
+    /**
+     */
+    void testCommutativeIntervalDistance( void )
+    {
+        WBoundingBox bb1( 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
+        WBoundingBox bb2( 1.5, 0.5, 0.0, 2.5, 1.5, 1.0 );
+        TS_ASSERT_DELTA( bb1.minDistance( bb2 ), 0.5, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( bb2.minDistance( bb1 ), 0.5, wlimits::DBL_EPS );
+    }
 };
 
 #endif  // WBOUNDINGBOX_TEST_H

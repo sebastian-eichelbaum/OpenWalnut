@@ -202,6 +202,22 @@ inline bool WBoundingBoxImpl< VT >::intersects( const WBoundingBoxImpl< VT > &bb
     return osg::BoundingBoxImpl< VT >::intersects( bb );
 }
 
+namespace
+{
+    inline double intervalDistance( double a0, double a1, double b0, double b1 )
+    {
+        if( a1 < b0 )
+        {
+            return b0 - a1;
+        }
+        else if( b1 < a0 )
+        {
+            return a0 - b1;
+        }
+        return 0.0;
+    }
+}
+
 template< class VT >
 inline typename WBoundingBoxImpl< VT >::value_type WBoundingBoxImpl< VT >::minDistance( const WBoundingBoxImpl< VT > &bb ) const
 {
@@ -215,7 +231,14 @@ inline typename WBoundingBoxImpl< VT >::value_type WBoundingBoxImpl< VT >::minDi
 
     //TODO(math): test if they are axis parallel
 
-    return 0.0;
+    double dx = intervalDistance( xMin(), xMax(), bb.xMin(), bb.xMax() );
+    double dy = intervalDistance( yMin(), yMax(), bb.yMin(), bb.yMax() );
+    double dz = intervalDistance( zMin(), zMax(), bb.zMin(), bb.zMax() );
+    if( dx == 0.0 && dy == 0.0 && dz == 0.0 )
+    {
+        return 0.0;
+    }
+    return std::sqrt( dx * dx + dy * dy + dz * dz );
 }
 
 typedef WBoundingBoxImpl< wmath::WVector3D > WBoundingBox;
