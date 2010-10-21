@@ -410,18 +410,11 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
 
 void WMVoxelizer::connectors()
 {
-    typedef WModuleInputData< const WFiberCluster > InputType; // just an alias
-    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "tractInput", "A cluster of tracts." ) );
-    addConnector( m_input );
-
-    typedef WModuleOutputData< WDataSetScalar > OutputType; // just an alias
-    m_output = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
-    addConnector( m_output );
-
-    m_parameterizationOutput = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "parameterizationOutput",
-                                                                                               "The parameter field for the voxelized fibers." ) );
-    addConnector( m_parameterizationOutput );
-
+    m_input = WModuleInputData< const WFiberCluster >::createAndAdd( shared_from_this(), "tractInput", "A cluster of tracts" );
+    m_output = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(), "voxelOutput", "The voxelized data set" );
+    m_parameterizationOutput = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(),
+                                                                                  "parameterizationOutput",
+                                                                                  "The parameter field for the voxelized fibers." );
     WModule::connectors();  // call WModules initialization
 }
 

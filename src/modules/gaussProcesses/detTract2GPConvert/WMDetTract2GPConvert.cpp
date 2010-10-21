@@ -59,9 +59,10 @@ const std::string WMDetTract2GPConvert::getDescription() const
 
 void WMDetTract2GPConvert::connectors()
 {
-    m_tractIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractIn", "The deterministic tracts" );
-    m_tensorIC = WModuleInputData< WDataSetDTI >::createAndAdd( shared_from_this(), "tensorIn", "The 2nd order symmetric diffusion tensors" );
-    m_gpOC = WModuleOutputData< WDataSetGP >::createAndAdd( shared_from_this(), "gpOut", "The gaussian processes" );
+    m_tractIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "The deterministic tracts" );
+    m_tensorIC = WModuleInputData< WDataSetDTI >::createAndAdd( shared_from_this(), "tensorInput", "The 2nd order symmetric diffusion tensors" );
+    m_gpOC = WModuleOutputData< WDataSetGP >::createAndAdd( shared_from_this(), "gpOutput", "The Gaussian processes" );
+
     WModule::connectors();
 }
 
