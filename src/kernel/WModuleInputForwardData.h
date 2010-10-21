@@ -59,6 +59,11 @@ public:
     typedef WModuleInputForwardData< T > Type;
 
     /**
+     * Typedef to the contained transferable.
+     */
+    typedef T TransferType;
+
+    /**
      * Constructor. This creates a new input data connector which is able to forward data changes <b>TO</b>  other input data connectors.
      *
      * \param module the module which is owner of this connector.
