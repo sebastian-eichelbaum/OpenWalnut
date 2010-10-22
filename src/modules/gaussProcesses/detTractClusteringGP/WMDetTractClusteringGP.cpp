@@ -26,7 +26,6 @@
 
 #include "../../../kernel/WKernel.h"
 #include "../../emptyIcon.xpm" // Please put a real icon here.
-
 #include "WMDetTractClusteringGP.h"
 
 WMDetTractClusteringGP::WMDetTractClusteringGP():
@@ -109,7 +108,7 @@ double WMDetTractClusteringGP::searchGlobalMaxSegementLength( boost::shared_ptr<
         boost::bind( &WGaussProcess::getMaxSegmentLength, _1 ) < boost::bind( &WGaussProcess::getMaxSegmentLength, _2 ) );
 
     return cit->getMaxSegmentLength();
-    // return std::max_element( dataSet->begin(), dataSet->end(), [](WGaussProcess p1, WGaussProcess p2){ return p1.getMaxSegmentLength() < p2.getMaxSegmentLength(); } )->getMaxSegmentLength();
+    // NOLINT return std::max_element( dataSet->begin(), dataSet->end(), [](WGaussProcess p1, WGaussProcess p2){ return p1.getMaxSegmentLength() < p2.getMaxSegmentLength(); } )->getMaxSegmentLength();
 }
 
 Eigen::MatrixXd WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet ) const

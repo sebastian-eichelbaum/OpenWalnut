@@ -28,14 +28,16 @@
 #include <boost/shared_ptr.hpp>
 
 class WProgressCombiner;
-class WDXtLookUpTable;
+template< typename T >
+class WMatrixSymImpl;
+typedef WMatrixSymImpl< double > WMatrixSym;
 class WDataSetFiberVector;
 
 /**
  * Initialize dLtTable with distances according to Zhang's dLt metric for
  * tracts. The tracts have to be sorted by length (descending).
  */
-bool initDLtTableCuda( boost::shared_ptr< WDXtLookUpTable > dLtTable,
+bool initDLtTableCuda( boost::shared_ptr< WMatrixSym > dLtTable,
                        const boost::shared_ptr< WDataSetFiberVector > tracts,
                        double proximity_threshold,
                        boost::shared_ptr< WProgressCombiner > progressCombiner );

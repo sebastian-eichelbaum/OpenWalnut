@@ -22,33 +22,4 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WINVALIDBOUNDINGBOX_H
-#define WINVALIDBOUNDINGBOX_H
-
-#include <string>
-
-#include "../WException.h"
-#include "../WExportCommon.h"
-
-/**
- * Indicates that a bounding box is not valid, meaning its valid() member function delivers false.
- */
-class OWCOMMON_EXPORT WInvalidBoundingBox : public WException
-{
-public:
-    /**
-     * Default constructor.
-     * \param msg the exception message.
-     */
-    explicit WInvalidBoundingBox( const std::string& msg = "A bounding box is not valid" );
-
-    /**
-     * Destructor.
-     */
-    virtual ~WInvalidBoundingBox() throw();
-
-protected:
-private:
-};
-
-#endif  // WINVALIDBOUNDINGBOX_H
+#include "WMatrixSym.h"
