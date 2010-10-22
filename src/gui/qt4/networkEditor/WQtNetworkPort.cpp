@@ -46,15 +46,18 @@ WQtNetworkPort::~WQtNetworkPort()
 
 void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
-    //TODO: WQtNetworkOutputPort::Type
-    if( this->isOutPort() == true )
+    QList<QGraphicsItem *> startItem = scene()->items( mouseEvent->scenePos() );
+    if( !startItem.isEmpty() )
     {
-        line = new QGraphicsLineItem( QLineF( mouseEvent->scenePos(),
+        if( startItem.first()->type() == WQtNetworkOutputPort::Type )
+        {
+            line = new QGraphicsLineItem( QLineF( mouseEvent->scenePos(),
                     mouseEvent->scenePos() ) );
-        line->setPen( QPen( Qt::black, 2 ) );
-        scene()->addItem( line );
+            line->setPen( QPen( Qt::black, 2 ) );
+            scene()->addItem( line );
+        }
     }
-    else if( this->isOutPort() == false )
+    else
     {
         mouseEvent->ignore();
     }
@@ -80,14 +83,19 @@ void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
         {
             if( endItem.first()->type() == WQtNetworkInputPort::Type )
             {
-                //TODO!!!
                 WQtNetworkInputPort *endPort = qgraphicsitem_cast<WQtNetworkInputPort *>( endItem.first() );
 
-                if( //endPort->isOutPort() == false &&
-                    endPort->parentItem() != this->parentItem() &&
-                    //endPort->getPortName() == this->getPortName() &&
-                    endPort->getNumberOfArrows() < 1
-                    )
+                QList<QGraphicsItem *> startItems = scene()->items( line->line().p1() );
+                if( startItems.first()->type() == QGraphicsLineItem::Type )
+                {
+                    startItems.removeFirst();
+                }
+                WQtNetworkOutputPort *startPort = qgraphicsitem_cast<WQtNetworkOutputPort *>( startItems.first() );
+
+                if( endPort->parentItem() != this->parentItem() &&
+                    endPort->getNumberOfArrows() < 1 &&
+                    endPort->getConnector()->connectable( startPort->getConnector() ) == true
+                  )
                 {
                    line->setPen( QPen( Qt::green, 2 ) );
                 }

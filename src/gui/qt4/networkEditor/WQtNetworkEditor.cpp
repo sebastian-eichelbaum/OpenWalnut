@@ -152,8 +152,46 @@ bool WQtNetworkEditor::event( QEvent* event )
         boost::shared_ptr< WModule > mIn = e->getInput()->getModule();
         boost::shared_ptr< WModule > mOut = e->getOutput()->getModule();
 
-        WQtNetworkArrow *arrow = new WQtNetworkArrow();
-        arrow->addConnection( e->getInput(), e->getOutput() );
+        WQtNetworkItem *inItem = findItemByModule( mIn.get() );
+        std::cout << "Item found"<< std::endl;
+        WQtNetworkItem *outItem = findItemByModule( mOut.get() );
+
+        WQtNetworkInputPort *ip;
+        WQtNetworkOutputPort *op;
+
+        for ( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
+            iter != inItem->getInPorts().end();
+            ++iter )
+       {
+           WQtNetworkInputPort *inP = dynamic_cast< WQtNetworkInputPort* >( *iter );
+           if( e->getInput() == inP->getConnector() )
+           {
+               ip = inP;
+                std::cout << "inputport"<< std::endl;
+           }
+       }
+ 
+        for ( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
+            iter != outItem->getOutPorts().end();
+            ++iter )
+       {
+           WQtNetworkOutputPort *outP = dynamic_cast< WQtNetworkOutputPort* >( *iter );
+           if( e->getOutput() == outP->getConnector() )
+           {
+               op = outP;
+               std::cout << "outputport"<< std::endl;
+           }
+       }
+
+
+        WQtNetworkArrow *arrow = new WQtNetworkArrow( op, ip );
+//        arrow->addConnection( e->getInput(), e->getOutput() ); 
+
+        arrow->setZValue( -1000.0 );
+        op->addArrow( arrow );
+        ip->addArrow( arrow );
+        arrow->updatePosition();
+
         m_scene->addItem( arrow );
 
     }
@@ -163,20 +201,12 @@ bool WQtNetworkEditor::event( QEvent* event )
 WQtNetworkItem* WQtNetworkEditor::findItemByModule( WModule *module )
 {
     WQtNetworkItem *item;
-
-    std::cout << "findItem" << std::endl;
-
     for ( std::list< WQtNetworkItem* >::const_iterator iter = m_items.begin(); iter != m_items.end(); ++iter )
     {
        WQtNetworkItem *itemModule = dynamic_cast< WQtNetworkItem* >( *iter );
-    
-       std::cout << "search" << std::endl;
-
        if( module == itemModule->getModule() )
        {
            item = itemModule;
-            
-           std::cout << "found" << std::endl;
        }
     }
     return item;

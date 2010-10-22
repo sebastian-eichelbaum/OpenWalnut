@@ -69,14 +69,18 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
 
         foreach( WQtNetworkArrow *ar, arrowList )
         {
-            removeItem( ar );
-            delete ar;
+            if( ar != 0 ){
+                removeItem( ar );
+                delete ar;
+            }
         }
 
         foreach( WQtNetworkItem *it, itemList )
         {
-            removeItem( it );
-            delete it;
+            if( it != 0 ){
+                removeItem( it );
+                delete it;
+            }
         }
         itemList.clear();
         arrowList.clear();
