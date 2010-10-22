@@ -203,7 +203,7 @@ _CPP_HEADERS = frozenset([
 
 # Other heders which are include like system headers, starting with a '<'
 _OTHER_HEADERS = frozenset([
-    'QtGui', 'QtCore', 'QtOpenGL', 'GL', 'cxxtest', 'boost', 'osg','osgText', 'osgViewer', 'osgDB', 'osgUtil', 'osgGA', 'osgSim'
+    'QtGui', 'QtCore', 'QtOpenGL', 'GL', 'cxxtest', 'boost', 'osg','osgText', 'osgViewer', 'osgDB', 'osgUtil', 'osgGA', 'osgSim', 'Eigen'
     ])
 
 # Assertion macros.  These are defined in base/logging.h and

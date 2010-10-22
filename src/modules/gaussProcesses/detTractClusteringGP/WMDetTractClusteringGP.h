@@ -96,8 +96,22 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Compute the longest segment of all segments of all tracts/gaussian processes.
+     *
+     * \param dataSet The dataset of gaussian processes.
+     *
+     * \return The length of the longest segement overall.
+     */
     double searchGlobalMaxSegementLength( boost::shared_ptr< const WDataSetGP > dataSet ) const;
 
+    /**
+     * Computes the distant matrix for all pairs of gaussian processes.
+     *
+     * \param dataSet The dataset of gaussian processes.
+     *
+     * \return The similarity or also called distant matrix.
+     */
     Eigen::MatrixXd computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet ) const;
 
     /**
@@ -111,6 +125,9 @@ protected:
      */
     double m_maxSegmentLength;
 
+    /**
+     * Distant matrix of all pairs of gaussian processes.
+     */
     Eigen::MatrixXd m_similarities;
 
 private:
