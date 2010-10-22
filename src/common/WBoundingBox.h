@@ -25,8 +25,11 @@
 #ifndef WBOUNDINGBOX_H
 #define WBOUNDINGBOX_H
 
+#include <ostream>
+
 #include <osg/BoundingBox>
 
+#include "exceptions/WInvalidBoundingBox.h"
 #include "math/WVector3D.h"
 
 /**
@@ -145,6 +148,7 @@ public:
 
     using osg::BoundingBoxImpl< VT >::contains;
 
+
 protected:
 private:
 };
@@ -202,8 +206,21 @@ inline bool WBoundingBoxImpl< VT >::intersects( const WBoundingBoxImpl< VT > &bb
     return osg::BoundingBoxImpl< VT >::intersects( bb );
 }
 
+/**
+ * Anonymous namespace, just to be DRY in minDistance.
+ */
 namespace
 {
+    /**
+     * Checks if the two given intervals intersect and computes the distance between them.
+     *
+     * \param a0 lower bound of the first interval
+     * \param a1 upper bound of the first interval
+     * \param b0 lower bound of the second interval
+     * \param b1 upper bound if the second interval
+     *
+     * \return The distance between those intervals if they don't overlap, zero otherwise
+     */
     inline double intervalDistance( double a0, double a1, double b0, double b1 )
     {
         if( a1 < b0 )
@@ -221,15 +238,11 @@ namespace
 template< class VT >
 inline typename WBoundingBoxImpl< VT >::value_type WBoundingBoxImpl< VT >::minDistance( const WBoundingBoxImpl< VT > &bb ) const
 {
-// TODO(math): implement the exception used below!
-//
-//    // test if they are valid
-//    if( !valid() || !bb.valid() )
-//    {
-//        throw WInvalidBoundingBoxes( "One of the both bounding boxes inside minDistance computation is not valid." );
-//    }
-
-    //TODO(math): test if they are axis parallel
+    // test if they are valid
+    if( !valid() || !bb.valid() )
+    {
+        throw WInvalidBoundingBox( "One of the both bounding boxes inside minDistance computation is not valid." );
+    }
 
     double dx = intervalDistance( xMin(), xMax(), bb.xMin(), bb.xMax() );
     double dy = intervalDistance( yMin(), yMax(), bb.yMin(), bb.yMax() );
@@ -239,6 +252,23 @@ inline typename WBoundingBoxImpl< VT >::value_type WBoundingBoxImpl< VT >::minDi
         return 0.0;
     }
     return std::sqrt( dx * dx + dy * dy + dz * dz );
+}
+
+/**
+ * Output operator for the WBoundingBoxImpl class.
+ *
+ * \param out Output stream operator
+ * \param bb The box which should be streamed out
+ *
+ * \return reference to the output stream
+ */
+template< class VT >
+inline std::ostream& operator<<( std::ostream& out, const WBoundingBoxImpl< VT >& bb )
+{
+    out << std::scientific << std::setprecision( 16 );
+    out << "AABB( min: " << bb.xMin() << ", " << bb.yMin() << ", " << bb.zMin();
+    out << " max: " << bb.xMax() << ", " << bb.yMax() << ", " << bb.zMax() << " )";
+    return out;
 }
 
 typedef WBoundingBoxImpl< wmath::WVector3D > WBoundingBox;
