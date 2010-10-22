@@ -113,5 +113,24 @@ double WMDetTractClusteringGP::searchGlobalMaxSegementLength( boost::shared_ptr<
 
 void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet )
 {
+    boost::shared_ptr< WProgress > progress( new WProgress( "Similarity matrix computation", ( dataSet->size()*dataSet->size() - dataSet->size() ) / 2 + dataSet->size() ) ); // NOLINT line length
+    m_progress->addSubProgress( progress );
+    std::vector< double > diagonal( dataSet->size() );
+    for( size_t i = 0; i < dataSet->size(); ++i )
+    {
+        diagonal[i] = std::sqrt( gauss::innerProduct( ( *dataSet )[i], ( *dataSet )[i] ) );
+        ++*progress;
+    }
+
     m_similarities = WMatrixSym( dataSet->size() );
+    for( size_t i = 0; i < dataSet->size(); ++i )
+    {
+        for( size_t j = i + 1; j < dataSet->size(); ++j )
+        {
+            m_similarities( i, j ) = gauss::innerProduct( ( *dataSet )[i], ( *dataSet )[j] ) / diagonal[i] / diagonal[j];
+        }
+//        *progress = *progress + dataSet->size() - i - 1;
+    }
+    progress->finish();
+    m_progress->removeSubProgress( progress );
 }
