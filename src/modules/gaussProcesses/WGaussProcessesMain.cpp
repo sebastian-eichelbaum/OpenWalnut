@@ -24,6 +24,7 @@
 
 #include "../../kernel/WModule.h"
 #include "detTract2GPConvert/WMDetTract2GPConvert.h"
+#include "detTractClusteringGP/WMDetTractClusteringGP.h"
 #include "gpView/WMGpView.h"
 #include "WGaussProcessesMain.h"
 
@@ -35,4 +36,5 @@ extern "C" void WLoadModule( WModuleList& m ) // NOLINT const ref
 {
     m.push_back( boost::shared_ptr< WModule >( new WMDetTract2GPConvert ) );
     m.push_back( boost::shared_ptr< WModule >( new WMGpView ) );
+    m.push_back( boost::shared_ptr< WModule >( new WMDetTractClusteringGP ) );
 }
