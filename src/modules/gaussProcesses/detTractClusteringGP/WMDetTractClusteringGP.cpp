@@ -98,7 +98,7 @@ void WMDetTractClusteringGP::moduleMain()
         debugLog() << "Start Clustering";
 
         m_maxSegmentLength = searchGlobalMaxSegementLength( dataSet );
-        m_similarities = computeDistanceMatrix( dataSet );
+        computeDistanceMatrix( dataSet );
     }
 }
 
@@ -111,8 +111,7 @@ double WMDetTractClusteringGP::searchGlobalMaxSegementLength( boost::shared_ptr<
     // NOLINT return std::max_element( dataSet->begin(), dataSet->end(), [](WGaussProcess p1, WGaussProcess p2){ return p1.getMaxSegmentLength() < p2.getMaxSegmentLength(); } )->getMaxSegmentLength();
 }
 
-Eigen::MatrixXd WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > /* dataSet */ ) const
+void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet )
 {
-    Eigen::MatrixXd result;
-    return result;
+    m_similarities = WMatrixSym( dataSet->size() );
 }

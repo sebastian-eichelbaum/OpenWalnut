@@ -27,10 +27,9 @@
 
 #include <string>
 
-#include <Eigen/Core>
-
 #include <osg/Geode>
 
+#include "../../../common/math/WMatrixSym.h"
 #include "../../../kernel/WModule.h"
 #include "../../../kernel/WModuleInputData.h"
 #include "../../../kernel/WModuleOutputData.h"
@@ -112,7 +111,7 @@ protected:
      *
      * \return The similarity or also called distant matrix.
      */
-    Eigen::MatrixXd computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet ) const;
+    void computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet );
 
     /**
      * Input Connector for the gaussian processes which are about to be clustered.
@@ -128,7 +127,7 @@ protected:
     /**
      * Distant matrix of all pairs of gaussian processes.
      */
-    Eigen::MatrixXd m_similarities;
+    WMatrixSym m_similarities;
 
 private:
 };
