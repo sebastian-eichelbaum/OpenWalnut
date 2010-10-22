@@ -32,6 +32,7 @@
 
 #include "../../common/WAssert.h"
 #include "../../common/WIOTools.h"
+#include "../../common/WLogger.h"
 #include "../../common/WStringUtils.h"
 #include "../exceptions/WDHException.h"
 #include "../exceptions/WDHIOFailure.h"
@@ -73,7 +74,8 @@ void WReaderMatrixSymVTK::readTable( boost::shared_ptr< std::vector< double > > 
     }
     if( header[0] != "# vtk DataFile Version 3.0" )
     {
-        wlog::warning( "WReaderMatrixSymVTK" ) << "Wrong version string in file header found, expected: \"# vtk DataFile Version 3.0\" but got: " << header[0];
+        wlog::warn( "WReaderMatrixSymVTK" ) << "Wrong version string in file header found, expected: "
+                                               "\"# vtk DataFile Version 3.0\" but got: " << header[0];
     }
     if( header[2] != "BINARY" )
     {
