@@ -30,14 +30,14 @@
 
 #include "../../common/WIOTools.h"
 #include "../exceptions/WDHIOFailure.h"
-#include "WWriterLookUpTableVTK.h"
+#include "WWriterMatrixSymVTK.h"
 
-WWriterLookUpTableVTK::WWriterLookUpTableVTK( std::string fname, bool overwrite )
+WWriterMatrixSymVTK::WWriterMatrixSymVTK( std::string fname, bool overwrite )
     : WWriter( fname, overwrite )
 {
 }
 
-void WWriterLookUpTableVTK::writeTable( const std::vector< double > &table, size_t dim ) const
+void WWriterMatrixSymVTK::writeTable( const std::vector< double > &table, size_t dim ) const
 {
     using std::fstream;
     fstream out( m_fname.c_str(), fstream::out | fstream::in | fstream::trunc );
@@ -46,12 +46,12 @@ void WWriterLookUpTableVTK::writeTable( const std::vector< double > &table, size
         throw WDHIOFailure( std::string( "Invalid file, or permission: " + m_fname ) );
     }
     out << "# vtk DataFile Version 3.0" << std::endl;
-    out << "DXtLookUpTable from OpenWalnut" << std::endl;
+    out << "WMatrixSym from OpenWalnut" << std::endl;
     out << "BINARY" << std::endl;
 
-    out << "FIELD DXtLookUpTable 1" << std::endl;
+    out << "FIELD WMatrixSym 1" << std::endl;
     unsigned int numDistances = table.size() + 1;
-    out << "DISTANCES " << numDistances << " 1 float" << std::endl;
+    out << "ELEMENTS " << numDistances << " 1 float" << std::endl;
     float *data = new float[numDistances];
 
     for( size_t i = 0; i < table.size() ; ++i )

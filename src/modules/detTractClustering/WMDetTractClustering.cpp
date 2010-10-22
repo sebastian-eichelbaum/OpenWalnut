@@ -33,8 +33,8 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiber.h"
+#include "../../common/math/WMatrixSym.h"
 #include "../../common/WAssert.h"
 #include "../../common/WColor.h"
 #include "../../common/WIOTools.h"
@@ -44,14 +44,14 @@
 #include "../../common/WThreadedFunction.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/exceptions/WDHIOFailure.h"
-#include "../../dataHandler/io/WReaderLookUpTableVTK.h"
-#include "../../dataHandler/io/WWriterLookUpTableVTK.h"
+#include "../../dataHandler/io/WReaderMatrixSymVTK.h"
+#include "../../dataHandler/io/WWriterMatrixSymVTK.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-#include "WMDetTractClustering.xpm"
 #include "WMDetTractClustering.h"
+#include "WMDetTractClustering.xpm"
 
 #ifdef CUDA_FOUND
 #include "WMDetTractClusteringCudaInterface.h"
@@ -182,7 +182,7 @@ void WMDetTractClustering::update()
     if( !( m_dLtTableExists = dLtTableExists() ) )
     {
         debugLog() << "Consider old table as invalid.";
-        m_dLtTable.reset( new WDXtLookUpTable( m_tracts->size() ) );
+        m_dLtTable.reset( new WMatrixSym( m_tracts->size() ) );
     }
 
     cluster();
@@ -191,7 +191,7 @@ void WMDetTractClustering::update()
     m_progress->addSubProgress( saveProgress );
     if( !wiotools::fileExists( lookUpTableFileName() ) )
     {
-        WWriterLookUpTableVTK w( lookUpTableFileName(), true );
+        WWriterMatrixSymVTK w( lookUpTableFileName(), true );
         try
         {
             w.writeTable( m_dLtTable->getData(), m_lastTractsSize );
@@ -233,10 +233,10 @@ bool WMDetTractClustering::dLtTableExists()
         try
         {
             debugLog() << "trying to read table from: " << dLtFileName;
-            WReaderLookUpTableVTK r( dLtFileName );
+            WReaderMatrixSymVTK r( dLtFileName );
             boost::shared_ptr< std::vector< double > > data( new std::vector< double >() );
             r.readTable( data );
-            m_dLtTable.reset( new WDXtLookUpTable( static_cast< size_t >( data->back() ) ) );
+            m_dLtTable.reset( new WMatrixSym( static_cast< size_t >( data->back() ) ) );
             m_lastTractsSize = static_cast< size_t >( data->back() );
 
             // remove the dimension from data array since it's not representing any distance
@@ -452,7 +452,7 @@ bool WMDetTractClustering::OutputIDBound::accept( boost::shared_ptr< WPropertyVa
 }
 
 WMDetTractClustering::SimilarityMatrixComputation::SimilarityMatrixComputation(
-        boost::shared_ptr< WDXtLookUpTable > dLtTable,
+        boost::shared_ptr< WMatrixSym > dLtTable,
         boost::shared_ptr< WDataSetFiberVector > tracts,
         double proxSquare,
         const WBoolFlag& shutdownFlag )

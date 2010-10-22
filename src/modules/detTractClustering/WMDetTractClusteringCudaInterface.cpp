@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiber.h"
+#include "../../common/math/WMatrixSym.h"
 #include "../../common/WProgressCombiner.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "WMDetTractClusteringCudaInterface.h"
@@ -31,7 +31,7 @@
 #include "WProgressWrapper.h"
 #include "WProgressWrapperData.h"
 
-bool initDLtTableCuda( boost::shared_ptr< WDXtLookUpTable > dLtTable,
+bool initDLtTableCuda( boost::shared_ptr< WMatrixSym > dLtTable,
                        const boost::shared_ptr< WDataSetFiberVector > tracts,
                        double proximity_threshold,
                        boost::shared_ptr< WProgressCombiner > progressCombiner )

@@ -22,40 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADERLOOKUPTABLEVTK_H
-#define WREADERLOOKUPTABLEVTK_H
+#ifndef WWRITERMATRIXSYMVTK_H
+#define WWRITERMATRIXSYMVTK_H
 
 #include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include "WReader.h"
 #include "../WExportDataHandler.h"
+#include "WWriter.h"
 
 /**
- * Can read a look up table from a file in VTK format.
+ * Can write a look up table to a file in VTK format.
  */
-class OWDATAHANDLER_EXPORT WReaderLookUpTableVTK : public WReader // NOLINT
+class OWDATAHANDLER_EXPORT WWriterMatrixSymVTK : public WWriter // NOLINT
 {
 public:
     /**
-     * Creates a reader object for look up tables. On parameter documention
-     * take a look into the WReader base class.
+     * Creates a writer object for FiberVTK file writing.
      *
-     * \param fname file name
+     * \param fname path to the target file where stuff will be written to
+     * \param overwrite If true existing files will be overwritten
      */
-    explicit WReaderLookUpTableVTK( std::string fname );
+    WWriterMatrixSymVTK( std::string fname, bool overwrite = false );
 
     /**
-     * Perform reading from the file.
+     * Actually perform writing to file.
      *
-     * \param table vector where to place the elements of the table
+     * \param table The data in that table will be saved
+     * \param dim the dimensionality of the table
      */
-    void readTable( boost::shared_ptr< std::vector< double > > table ) const;
+    void writeTable( const std::vector< double > &table, size_t dim ) const;
 
 protected:
 private:
 };
 
-#endif  // WREADERLOOKUPTABLEVTK_H
+#endif  // WWRITERMATRIXSYMVTK_H
