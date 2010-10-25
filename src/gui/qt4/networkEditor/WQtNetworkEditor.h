@@ -33,7 +33,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
-#include <QtGui/QListWidget>
+//#include <QtGui/QListWidget>
 
 #include "../../../kernel/modules/data/WMData.h"
 #include "WQtNetworkScene.h"

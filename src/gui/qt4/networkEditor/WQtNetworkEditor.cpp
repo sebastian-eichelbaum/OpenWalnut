@@ -32,11 +32,13 @@
 #include <QtGui/QGraphicsView>
 #include <QtGui/QGraphicsItem>
 #include <QtGui/QGraphicsItemGroup>
+#include <QtGui/QListWidget>
 
 #include "../WMainWindow.h"
 #include "WQtNetworkEditor.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkPort.h"
+//#include "WQtIconList.h"
 
 #include "../../../kernel/WKernel.h"
 #include "../../../kernel/WModule.h"
@@ -69,7 +71,10 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
 
     m_view->setScene( m_scene );
 
+    //WQtIconList *itemList = new WQtIconList;
+
     m_layout = new QVBoxLayout;
+    //m_layout->addWidget( itemList );
     m_layout->addWidget( m_view );
 
     m_panel->setLayout( m_layout );
@@ -153,7 +158,6 @@ bool WQtNetworkEditor::event( QEvent* event )
         boost::shared_ptr< WModule > mOut = e->getOutput()->getModule();
 
         WQtNetworkItem *inItem = findItemByModule( mIn.get() );
-        std::cout << "Item found"<< std::endl;
         WQtNetworkItem *outItem = findItemByModule( mOut.get() );
 
         WQtNetworkInputPort *ip;
@@ -195,6 +199,47 @@ bool WQtNetworkEditor::event( QEvent* event )
         m_scene->addItem( arrow );
 
     }
+
+
+    // a module tree item was disconnected from another one
+    if ( event->type() == WQT_MODULE_DISCONNECT_EVENT )
+    {
+        WModuleDisconnectEvent* e = dynamic_cast< WModuleDisconnectEvent* >( event );     // NOLINT
+        if ( !e )
+        {
+            // this should never happen, since the type is set to WQT_MODULE_DISCONNECT_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModuleDisconnectEvent although its type claims it. Ignoring event.",
+                                                 "NetworkEditor", LL_WARNING );
+            return true;
+        }
+
+        // get the module of the input involved in this connection
+        boost::shared_ptr< WModule > mIn = e->getInput()->getModule();
+        boost::shared_ptr< WModule > mOut = e->getOutput()->getModule();
+
+
+    }
+
+    // a module was removed from the container
+    if ( event->type() == WQT_MODULE_REMOVE_EVENT )
+    {
+        WModuleRemovedEvent* e = dynamic_cast< WModuleRemovedEvent* >( event );
+        if ( !e )
+        {
+            // this should never happen, since the type is set to WQT_MODULE_REMOVE_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModuleRemovedEvent although its type claims it. Ignoring event.",
+                                                 "NetworkEditor", LL_WARNING );
+            return true;
+        }
+
+        // iterate tree items and find proper one
+        WQtNetworkItem *item = findItemByModule( e->getModule().get() );
+        m_scene->removeItem( item );
+        delete item;        
+
+        return true;
+    }
+
     return QDockWidget::event( event );
 }
 
