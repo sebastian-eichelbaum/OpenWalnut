@@ -352,6 +352,34 @@ public:
         TS_ASSERT_EQUALS( line.maxSegmentLength(), 0.0 );
     }
 
+    /**
+     * A Bounding box should enclose all positions of a line. Corners of the box might be also line positions.
+     */
+    void testBoundingBoxComputation( void )
+    {
+        wmath::WLine line;
+        TS_ASSERT( !line.computeBoundingBox().valid() );
+        line.push_back( wmath::WPosition( 0.0, 0.0, 0.0 ) );
+        WBoundingBox box = line.computeBoundingBox();
+        TS_ASSERT( box.valid() );
+        TS_ASSERT_DELTA( box.xMin(), 0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.yMin(), 0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.zMin(), 0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.xMax(), 0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.yMax(), 0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.zMax(), 0.0, wlimits::DBL_EPS );
+        line.push_back( wmath::WPosition(  1.0, 0.0, 0.0 ) );
+        line.push_back( wmath::WPosition( -1.0, 0.0, 0.0 ) );
+        line.push_back( wmath::WPosition( -1.0, 3.0, 0.0 ) );
+        box = line.computeBoundingBox();
+        TS_ASSERT_DELTA( box.xMin(), -1.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.yMin(),  0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.zMin(),  0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.xMax(),  1.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.yMax(),  3.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.zMax(),  0.0, wlimits::DBL_EPS );
+    }
+
 private:
     /**
      * TS_ASSERT_DELTA needs the operator+, operator- and operator< to be implemented especially for WPositions the operator< and operator +

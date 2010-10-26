@@ -29,6 +29,7 @@
 #include <iostream>
 #include <vector>
 
+#include "../WBoundingBox.h"
 #include "../WExportCommon.h"
 #include "../WMixinVector.h"
 #include "WPosition.h"
@@ -41,7 +42,6 @@ namespace wmath
     /**
      * A line is an ordered sequence of WPositions.
      */
-//    typedef WMixinVector< WPosition > WLine;
     class OWCOMMON_EXPORT WLine : public WMixinVector< WPosition >
     {
     public:
@@ -106,6 +106,13 @@ namespace wmath
          * \return Max segement length or zero if there aren't any.
          */
         double maxSegmentLength() const;
+
+        /**
+         * Computes a AABB (axis aligned bounding box) for all positions inside this line.
+         *
+         * \return The AABB for this line.
+         */
+        WBoundingBox computeBoundingBox() const;
     };
-} // end of namespace
+} // end of namespace wmath
 #endif  // WLINE_H

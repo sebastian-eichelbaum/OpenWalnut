@@ -154,4 +154,14 @@ double WLine::maxSegmentLength() const
     return result;
 }
 
+WBoundingBox WLine::computeBoundingBox() const
+{
+    WBoundingBox result;
+    for( const_iterator cit = begin(); cit != end(); ++cit )
+    {
+        result.expandBy( *cit );
+    }
+    return result;
+}
+
 } // end of namespace
