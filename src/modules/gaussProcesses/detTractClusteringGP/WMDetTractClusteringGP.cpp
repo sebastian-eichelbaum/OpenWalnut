@@ -127,7 +127,18 @@ void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDa
     {
         for( size_t j = i + 1; j < dataSet->size(); ++j )
         {
-            m_similarities( i, j ) = gauss::innerProduct( ( *dataSet )[i], ( *dataSet )[j] ) / diagonal[i] / diagonal[j];
+            const WGaussProcess& p1 = ( *dataSet )[i];
+            const WGaussProcess& p2 = ( *dataSet )[j];
+            const WBoundingBox& bb1 = p1.getBB();
+            const WBoundingBox& bb2 = p2.getBB();
+            if( bb1.minDistance( bb2 ) < p1.getMaxSegmentLength() + p2.getMaxSegmentLength() )
+            {
+                m_similarities( i, j ) = gauss::innerProduct( p1, p2 ) / diagonal[i] / diagonal[j];
+            }
+            else
+            {
+                m_similarities( i, j ) = 0.0;
+            }
         }
         *progress = *progress + ( dataSet->size() - i - 1 );
     }

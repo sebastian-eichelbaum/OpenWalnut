@@ -109,6 +109,13 @@ public:
      */
     double cov_s( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
 
+    /**
+     * Returns the precomputed bounding box, see \ref m_bb.
+     *
+     * \return Const reference to the AABB for read only access.
+     */
+    const WBoundingBox& getBB() const;
+
 protected:
 private:
     /**
@@ -154,13 +161,6 @@ private:
      * \return The sum of the cov_s and cov_d covariance function.
      */
     double cov( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
-
-    /**
-     * Returns the precomputed bounding box, see \ref m_bb.
-     *
-     * \return Const reference to the AABB for read only access.
-     */
-    const WBoundingBox& getBB() const;
 
     /**
      * The id of the tract inside the \ref WDataSetFibers this gaussian process is representing.
