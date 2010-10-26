@@ -69,6 +69,14 @@ public:
     void setPosition( wmath::WPosition position );
 
     /**
+     * setter
+     * \param x
+     * \param y
+     * \param z
+     */
+    void setPosition( float x, float y, float z );
+
+    /**
      * Setter for standard color
      * \param color The new color.
      */
@@ -113,6 +121,37 @@ public:
      */
     void moveSphere( wmath::WVector3D offset );
 
+    /**
+     * setter
+     * \param x sets the x component of the position of this sphere
+     */
+    void setX( float x );
+
+    /**
+     * setter
+     * \param y sets the y component of the position of this sphere
+     */
+    void setY( float y );
+
+    /**
+     * setter
+     * \param z sets the z component of the position of this sphere
+     */
+    void setZ( float z );
+
+    /**
+     * setter
+     * \param vector together witht he current position this sets line in space to which the movement of the
+     * sphere is restricted
+     */
+    void  setLockVector( wmath::WVector3D vector );
+
+    /**
+     * setter
+     * \param value if the the movement of the sphere is restricted to a given vector
+     */
+    void  setLockOnVector( bool value = true );
+
 protected:
 
 private:
@@ -124,10 +163,6 @@ private:
     wmath::WPosition m_originalPosition; //!< The position of the sphere when created, used for locking
 
     float m_radius; //!< The radius  of the sphere
-
-    bool m_lockX; //!< if true disallows changing of the X component of the position
-    bool m_lockY; //!< if true disallows changing of the Y component of the position
-    bool m_lockZ; //!< if true disallows changing of the Z component of the position
 
     bool m_isPicked; //!< Indicates whether the box is currently picked or not.
 
@@ -145,6 +180,13 @@ private:
 
     osg::Vec4 m_notColor; //!< the color of the box when negated
 
+    wmath::WVector3D m_lockPoint; //!< stores to point of origin of the lock vector
+
+    wmath::WVector3D m_lockVector; //!< stores the lock vector
+
+    bool m_lockOnVector; //!< flag indicatin wether the movement of the sphere is restricted
+
+
     /**
      * note that there was a pick
      * \param pickInfo info from pick
@@ -155,29 +197,6 @@ private:
      *  updates the graphics
      */
     virtual void updateGFX();
-
-    /**
-     * Node callback to handle updates properly
-     */
-    class ROISphereNodeCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-        /**
-         * operator ()
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
-        {
-            osg::ref_ptr< WROISphere > module = static_cast< WROISphere* > ( node->getUserData() );
-            if ( module )
-            {
-                module->updateGFX();
-            }
-            traverse( node, nv );
-        }
-    };
 };
 
 #endif  // WROISPHERE_H

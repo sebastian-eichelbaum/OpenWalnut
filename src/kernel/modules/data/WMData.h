@@ -184,11 +184,6 @@ protected:
     WPropGroup    m_groupTex;
 
     /**
-     * grouping the texture manipulation properties
-     */
-    WPropGroup    m_groupTexManip;
-
-    /**
      * Interpolation?
      */
     WPropBool m_interpolation;
@@ -204,61 +199,6 @@ protected:
     WPropSelection m_colorMapSelection;
 
     /**
-     * Threshold value for this data.
-     */
-    WPropDouble m_threshold;
-
-    /**
-     * Opacity value for this data.
-     */
-    WPropInt m_opacity;
-
-    /**
-     * translation of the texture
-     */
-    WPropInt m_translationX;
-
-    /**
-     * translation of the texture
-     */
-    WPropInt m_translationY;
-
-    /**
-     * translation of the texture
-     */
-    WPropInt m_translationZ;
-
-    /**
-     * voxel size in x direction
-     */
-    WPropDouble m_stretchX;
-
-    /**
-     * voxel size in y direction
-     */
-    WPropDouble m_stretchY;
-
-    /**
-     * voxel size in z direction
-     */
-    WPropDouble m_stretchZ;
-
-    /**
-     * rotation around the x axis
-     */
-    WPropInt m_rotationX;
-
-    /**
-     * rotation around the y axis
-     */
-    WPropInt m_rotationY;
-
-    /**
-     * rotation around the z axis
-     */
-    WPropInt m_rotationZ;
-
-    /**
      * A list of color map selection types
      */
     boost::shared_ptr< WItemSelection > m_matrixSelectionsList;
@@ -268,6 +208,16 @@ protected:
      */
     WPropSelection m_matrixSelection;
 
+
+    /**
+     * Threshold value for this data.
+     */
+    WPropDouble m_threshold;
+
+    /**
+     * Opacity value for this data.
+     */
+    WPropInt m_opacity;
 
     bool m_isTexture; //!< Indicates whether the loaded dataSet will be available as texture.
 
