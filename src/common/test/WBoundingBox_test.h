@@ -76,6 +76,32 @@ public:
         TS_ASSERT_DELTA( bb1.minDistance( bb2 ), 0.5, wlimits::DBL_EPS );
         TS_ASSERT_DELTA( bb2.minDistance( bb1 ), 0.5, wlimits::DBL_EPS );
     }
+
+    /**
+     * Expanding a bounding box by points should update the both corner positions.
+     */
+    void testBoundingBoxComputation( void )
+    {
+        WBoundingBox box;
+        TS_ASSERT( !box.valid() );
+        box.expandBy( wmath::WPosition( 0.0, 0.0, 0.0 ) );
+        TS_ASSERT( box.valid() );
+        TS_ASSERT_DELTA( box.xMin(), 0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.yMin(), 0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.zMin(), 0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.xMax(), 0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.yMax(), 0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.zMax(), 0.0, wlimits::DBL_EPS );
+        box.expandBy( wmath::WPosition(  1.0, 0.0, 0.0 ) );
+        box.expandBy( wmath::WPosition( -1.0, 0.0, 0.0 ) );
+        box.expandBy( wmath::WPosition( -1.0, 3.0, 0.0 ) );
+        TS_ASSERT_DELTA( box.xMin(), -1.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.yMin(),  0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.zMin(),  0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.xMax(),  1.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.yMax(),  3.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( box.zMax(),  0.0, wlimits::DBL_EPS );
+    }
 };
 
 #endif  // WBOUNDINGBOX_TEST_H
