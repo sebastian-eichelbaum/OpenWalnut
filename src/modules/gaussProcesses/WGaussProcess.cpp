@@ -42,6 +42,7 @@ WGaussProcess::WGaussProcess( const size_t tractID,
     m_R = tract.maxSegmentLength();
     m_Cff_1_l_product = generateCffInverse( tract ) * ( Eigen::VectorXd::Ones( m_Cff_1_l_product.size() ) * m_maxLevel );
     generateTauParameter();
+    m_bb = tract.computeBoundingBox();
 }
 
 WGaussProcess::~WGaussProcess()
@@ -109,6 +110,11 @@ double WGaussProcess::cov_d( const wmath::WPosition& /* p1 */, const wmath::WPos
     // component wise) which is not trivial, but the out come does not contribute significantly to
     // the result, so I ommit the implementation at first.
     return 0.0;
+}
+
+const WBoundingBox& WGaussProcess::getBB() const
+{
+    return m_bb;
 }
 
 /**

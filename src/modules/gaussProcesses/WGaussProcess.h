@@ -31,8 +31,9 @@ class WFiber;
 
 #include "../../common/math/WMatrix.h"
 #include "../../common/math/WValue.h"
-#include "../../dataHandler/WDataSetFibers.h"
+#include "../../common/WBoundingBox.h"
 #include "../../dataHandler/WDataSetDTI.h"
+#include "../../dataHandler/WDataSetFibers.h"
 
 /**
  * Represents a basic gaussian process with its mean- and covariance function. Basically this aims
@@ -155,6 +156,13 @@ private:
     double cov( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
 
     /**
+     * Returns the precomputed bounding box, see \ref m_bb.
+     *
+     * \return Const reference to the AABB for read only access.
+     */
+    const WBoundingBox& getBB() const;
+
+    /**
      * The id of the tract inside the \ref WDataSetFibers this gaussian process is representing.
      * This is needed since the sample points of a tract will be needed for mean computation. (\f$
      * S_f(p) \f$ will need all \f$ f_i \f$i)
@@ -198,6 +206,12 @@ private:
      * point. No other point has a bigger values after the blurring.
      */
     double m_maxLevel;
+
+    /**
+     * Axis aligned bounding box (AABB) for the tract, not including the radius of the gaussian
+     * kernels denoted by \ref m_R.
+     */
+    WBoundingBox m_bb;
 };
 
 inline double WGaussProcess::getMaxSegmentLength() const
