@@ -103,6 +103,37 @@ public:
      * of an overlap and no full overlap. Hence we take a tract with many points where almost 50
      * percent will overlap. When increasing the number of points the innerproduct should converge.
      */
+    void testPartialOverlapWith10Points( void )
+    {
+        boost::shared_ptr< std::vector< wmath::WFiber > > tracts( new std::vector< wmath::WFiber > );
+        wmath::WFiber tract;
+        for( size_t i = 0; i < 10; ++i )
+        {
+            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+        }
+        tracts->push_back( tract );
+        tract.clear();
+        for( size_t i = 0; i < 5; ++i )
+        {
+            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+        }
+        for( size_t i = 1; i < 6; ++i )
+        {
+            tract.push_back( wmath::WPosition( 4.0, static_cast< double >( i ), 0.0 ) );
+        }
+        tracts->push_back( tract );
+        boost::shared_ptr< WDataSetFiberVector > fvDS( new WDataSetFiberVector( tracts ) );
+
+        WGaussProcess p1( 0, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
+        WGaussProcess p2( 1, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
+        double overlap = gauss::innerProduct( p1, p2 ) / ( std::sqrt( gauss::innerProduct( p1, p1 ) ) * std::sqrt( gauss::innerProduct( p2, p2 ) ) );
+        TS_ASSERT_DELTA( overlap, 0.511, 0.003 );
+    }
+
+    /**
+     * This is to test the converge nearly to 50 percent and should always be better than with just
+     * 100 points.
+     */
     void testPartialOverlapWith100Points( void )
     {
         boost::shared_ptr< std::vector< wmath::WFiber > > tracts( new std::vector< wmath::WFiber > );
@@ -127,39 +158,36 @@ public:
         WGaussProcess p1( 0, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
         WGaussProcess p2( 1, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
         double overlap = gauss::innerProduct( p1, p2 ) / ( std::sqrt( gauss::innerProduct( p1, p1 ) ) * std::sqrt( gauss::innerProduct( p2, p2 ) ) );
-        TS_ASSERT_DELTA( overlap, 0.5011, 0.0003 );
+        TS_ASSERT_DELTA( overlap, 0.501, 0.003 );
     }
 
-    /**
-     * This is to test the converge nearly to 50 percent and should always be better than with just
-     * 100 points.
-     */
-    void testPartialOverlapWith1000Points( void )
-    {
-        boost::shared_ptr< std::vector< wmath::WFiber > > tracts( new std::vector< wmath::WFiber > );
-        wmath::WFiber tract;
-        for( size_t i = 0; i < 1000; ++i )
-        {
-            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
-        }
-        tracts->push_back( tract );
-        tract.clear();
-        for( size_t i = 0; i < 500; ++i )
-        {
-            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
-        }
-        for( size_t i = 1; i < 501; ++i )
-        {
-            tract.push_back( wmath::WPosition( 499.0, static_cast< double >( i ), 0.0 ) );
-        }
-        tracts->push_back( tract );
-        boost::shared_ptr< WDataSetFiberVector > fvDS( new WDataSetFiberVector( tracts ) );
-
-        WGaussProcess p1( 0, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
-        WGaussProcess p2( 1, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
-        double overlap = gauss::innerProduct( p1, p2 ) / ( std::sqrt( gauss::innerProduct( p1, p1 ) ) * std::sqrt( gauss::innerProduct( p2, p2 ) ) );
-        TS_ASSERT_DELTA( overlap, 0.5001, 0.0003 );
-    }
+// TODO(math): This is just about to understand what the outcome of small tracts along long tracts in terms of gaussian process similarity is, and
+// can be removed when I understood this to full extent.
+//
+//    void testSmallTractAlongLongTract( void )
+//    {
+//        boost::shared_ptr< std::vector< wmath::WFiber > > tracts( new std::vector< wmath::WFiber > );
+//        wmath::WFiber tract;
+//        for( size_t i = 0; i < 1000; ++i )
+//        {
+//            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+//        }
+//        tracts->push_back( tract );
+//        tract.clear();
+//        for( size_t i = 20; i < 25; ++i )
+//        {
+//            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+//        }
+//        tracts->push_back( tract );
+//        boost::shared_ptr< WDataSetFiberVector > fvDS( new WDataSetFiberVector( tracts ) );
+//
+//        WGaussProcess p1( 0, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
+//        WGaussProcess p2( 1, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
+//        std::cout <<  gauss::innerProduct( p1, p2 ) << std::endl;
+//        std::cout << std::sqrt( gauss::innerProduct( p1, p1 ) ) << "    " << std::sqrt( gauss::innerProduct( p2, p2 ) ) << std::endl;
+//       double overlap = gauss::innerProduct( p1, p2 ) / ( std::sqrt( gauss::innerProduct( p1, p1 ) ) * std::sqrt( gauss::innerProduct( p2, p2 ) ) );
+//        TS_ASSERT_DELTA( overlap, 0.501, 0.003 );
+//    }
 
 protected:
     /**
