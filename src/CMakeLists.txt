@@ -6,6 +6,8 @@ IF( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
   MESSAGE( FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. (you may need to remove CMakeCache.txt" )
 ENDIF()
 
+
+
 # append search path for FindModules:
 #------------------------------------
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/CMakeModules )
@@ -176,6 +178,16 @@ IF( NOT CMAKE_BUILD_TYPE )
          FORCE
        )
 ENDIF( NOT CMAKE_BUILD_TYPE )
+
+# guard against typos in build-type strings
+STRING( TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_tolower)
+IF( NOT cmake_build_type_tolower STREQUAL "debug" AND
+    NOT cmake_build_type_tolower STREQUAL "release" AND
+    NOT cmake_build_type_tolower STREQUAL "relwithdebinfo" AND
+    NOT cmake_build_type_tolower STREQUAL "")
+  MESSAGE( SEND_ERROR "Unknown build type \"${CMAKE_BUILD_TYPE}\". Allowed values are Debug, Release, RelWithDebInfo  and \"\" (case-insensitive).")
+ENDIF()
+
 SET( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH "The executables will be put into this directory." )
 MARK_AS_ADVANCED( LIBRARY_OUTPUT_PATH )
 MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH )
