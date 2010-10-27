@@ -49,7 +49,8 @@ void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
     QList<QGraphicsItem *> startItem = scene()->items( mouseEvent->scenePos() );
     if( !startItem.isEmpty() )
     {
-        if( startItem.first()->type() == WQtNetworkOutputPort::Type )
+        if( startItem.first()->type() == WQtNetworkOutputPort::Type &&
+            startItem.first()->parentItem()->isEnabled() == true )
         {
             line = new QGraphicsLineItem( QLineF( mouseEvent->scenePos(),
                     mouseEvent->scenePos() ) );
@@ -93,7 +94,8 @@ void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
                 WQtNetworkOutputPort *startPort = qgraphicsitem_cast<WQtNetworkOutputPort *>( startItems.first() );
 
                 if( endPort->parentItem() != this->parentItem() &&
-                    endPort->getNumberOfArrows() < 1 &&
+                    //endPort->getNumberOfArrows() < 1 &&
+                    endPort->parentItem()->isEnabled() == true &&
                     endPort->getConnector()->connectable( startPort->getConnector() ) == true
                   )
                 {
@@ -160,7 +162,7 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
             if( endPort->getNumberOfArrows() < 1 &&
                     endPort->isOutPort() == false &&
                     startPort->isOutPort() == true &&
-                    //endPort->getPortName() == startPort->getPortName() )
+                    endPort->parentItem()->isEnabled() == true &&
                     endPort->getConnector()->connectable( startPort->getConnector() ) == true )
             {
                 WQtNetworkArrow *arrow = new WQtNetworkArrow( startPort, endPort );

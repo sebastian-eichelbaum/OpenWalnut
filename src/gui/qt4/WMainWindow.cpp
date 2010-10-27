@@ -259,7 +259,7 @@ void WMainWindow::setupGUI()
     //network Editor
     m_networkEditor = new WQtNetworkEditor( this );
     m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
-    addDockWidget( Qt::BottomDockWidgetArea, m_networkEditor ); 
+    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor ); 
 }
 
 void WMainWindow::setupPermanentToolBar()

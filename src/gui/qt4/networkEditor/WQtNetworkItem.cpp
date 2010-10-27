@@ -66,15 +66,14 @@ WQtNetworkItem::WQtNetworkItem( WModule *module )
         port->setParentItem( this );
         this->addOutputPort( port );
     }
-    
+
+    activate( false );
 
     fitLook();
 }
 
 WQtNetworkItem::~WQtNetworkItem()
 {
-    std::cout << "delete item" << std::endl;
-
     foreach( WQtNetworkPort *port, m_inPorts )
     {
         delete port;
@@ -93,12 +92,45 @@ void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent  *event )
         changeColor( Qt::darkBlue );
     }
 
-    QString str = "Name: " + getText() + "\nDescription: ";
-    if ( toolTip() != str )
+    std::string tooltip = "";
+    if ( m_module->isCrashed()() )
     {
-        setToolTip( str );
+        tooltip += "<b>A problem occured. The module has been stopped. </b><br/><br/>";
     }
+    tooltip += "<b>Module: </b>" + m_module->getName() + "<br/>";
+//    tooltip += "<b>Progress: </b>" + progress + "<br/>";
+    tooltip += "<b>Connectors: </b>";
+
+    // also list the connectors
+    std::string conList = "";
+    WModule::InputConnectorList consIn = m_module->getInputConnectors();
+    WModule::OutputConnectorList consOut = m_module->getOutputConnectors();
+    conList += "<table><tr><th>Name</th><th>Description</th><th>Type (I/O)</th><th>Connected</th></tr>";
+    int conCount = 0;
+    for ( WModule::InputConnectorList::const_iterator it = consIn.begin(); it != consIn.end(); ++it )
+    {
+        ++conCount;
+        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>" + ( *it )->getDescription() + "&nbsp;</td>";
+        conList += "<td><center>In</center></td>";
+        conList += ( *it )->isConnected() ? "<td><center>Yes</center></td>" : "<td><center>No</center></td>";
+        conList += "</tr>";
+    }
+    for ( WModule::OutputConnectorList::const_iterator it = consOut.begin(); it != consOut.end(); ++it )
+    {
+        ++conCount;
+        conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>" + ( *it )->getDescription() + "&nbsp;</td>";
+        conList += "<td><center>Out</center></td>";
+        conList += ( *it )->isConnected() ? "<td></center>Yes</center></td>" : "<td><center>No</center></td>";
+        conList += "</tr>";
+    }
+    conList += "</table>";
+
+    tooltip += conCount ? "Yes" + conList + "<br/><br/>" : "None<br/>";
+    tooltip += "<b>Module Description: </b><br/>" + m_module->getDescription();
+
+    setToolTip( tooltip.c_str() );
 }
+
 void WQtNetworkItem::hoverLeaveEvent( QGraphicsSceneHoverEvent *event )
 {
     if( m_color != Qt::gray )
@@ -264,6 +296,8 @@ WModule* WQtNetworkItem::getModule()
 
 void WQtNetworkItem::activate( bool active )
 {
+    setEnabled( active );
+
     if( active == true )
     {
         setAcceptsHoverEvents( true );
@@ -276,6 +310,6 @@ void WQtNetworkItem::activate( bool active )
         setAcceptsHoverEvents( false );
         setFlag( QGraphicsItem::ItemIsSelectable, false );
         setFlag( QGraphicsItem::ItemIsMovable, false );
-        changeColor( Qt::black );
+        changeColor( Qt::white );
     }
 }

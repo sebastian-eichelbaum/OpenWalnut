@@ -329,6 +329,7 @@ void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in,
     else
     {
         QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleConnectEvent( out, in ) );
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( out, in ) );
     }
 }
 
@@ -343,6 +344,7 @@ void WQt4Gui::slotConnectionClosed( boost::shared_ptr<WModuleConnector> in, boos
     else
     {
         QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleDisconnectEvent( out, in ) );
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( out, in ) );
     }
 }
 

@@ -33,6 +33,7 @@
 #include <QtGui/QGraphicsItem>
 #include <QtGui/QGraphicsItemGroup>
 #include <QtGui/QListWidget>
+#include <QtGui/QToolBar>
 
 #include "../WMainWindow.h"
 #include "WQtNetworkEditor.h"
@@ -72,9 +73,13 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     m_view->setScene( m_scene );
 
     //WQtIconList *itemList = new WQtIconList;
+    //QToolBar *bar = new QToolBar;
+    //QPushButton* dummyButton = new QPushButton;
+    //dummyButton->setFixedWidth( 0 );
+    //bar->addWidget( dummyButton );
 
     m_layout = new QVBoxLayout;
-    //m_layout->addWidget( itemList );
+//    m_layout->addWidget( bar );
     m_layout->addWidget( m_view );
 
     m_panel->setLayout( m_layout );
@@ -92,9 +97,7 @@ WQtNetworkEditor::~WQtNetworkEditor()
 void WQtNetworkEditor::addModule( WModule *module )
 {
     WQtNetworkItem *netItem = new WQtNetworkItem( module );
-
     m_items.push_back( netItem );
-
     m_scene->addItem( netItem );
 }
     
@@ -164,32 +167,28 @@ bool WQtNetworkEditor::event( QEvent* event )
         WQtNetworkOutputPort *op;
 
         for ( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
-            iter != inItem->getInPorts().end();
-            ++iter )
-       {
-           WQtNetworkInputPort *inP = dynamic_cast< WQtNetworkInputPort* >( *iter );
-           if( e->getInput() == inP->getConnector() )
-           {
-               ip = inP;
-                std::cout << "inputport"<< std::endl;
-           }
-       }
- 
-        for ( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
-            iter != outItem->getOutPorts().end();
-            ++iter )
-       {
-           WQtNetworkOutputPort *outP = dynamic_cast< WQtNetworkOutputPort* >( *iter );
-           if( e->getOutput() == outP->getConnector() )
-           {
-               op = outP;
-               std::cout << "outputport"<< std::endl;
-           }
-       }
+                iter != inItem->getInPorts().end();
+                ++iter )
+        {
+            WQtNetworkInputPort *inP = dynamic_cast< WQtNetworkInputPort* >( *iter );
+            if( e->getInput() == inP->getConnector() )
+            {
+                ip = inP;
+            }
+        }
 
+        for ( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
+                iter != outItem->getOutPorts().end();
+                ++iter )
+        {
+            WQtNetworkOutputPort *outP = dynamic_cast< WQtNetworkOutputPort* >( *iter );
+            if( e->getOutput() == outP->getConnector() )
+            {
+                op = outP;
+            }
+        }
 
         WQtNetworkArrow *arrow = new WQtNetworkArrow( op, ip );
-//        arrow->addConnection( e->getInput(), e->getOutput() ); 
 
         arrow->setZValue( -1000.0 );
         op->addArrow( arrow );
@@ -212,17 +211,57 @@ bool WQtNetworkEditor::event( QEvent* event )
                                                  "NetworkEditor", LL_WARNING );
             return true;
         }
+ 
+        WQtNetworkItem *inItem = findItemByModule( e->getInput()->getModule().get() );
+        WQtNetworkItem *outItem = findItemByModule( e->getOutput()->getModule().get() );
 
-        // get the module of the input involved in this connection
-        boost::shared_ptr< WModule > mIn = e->getInput()->getModule();
-        boost::shared_ptr< WModule > mOut = e->getOutput()->getModule();
+        WQtNetworkInputPort *ip;
+        WQtNetworkOutputPort *op;
 
+        for ( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
+            iter != inItem->getInPorts().end();
+            ++iter )
+        {
+           WQtNetworkInputPort *inP = dynamic_cast< WQtNetworkInputPort* >( *iter );
+           if( e->getInput() == inP->getConnector() )
+           {
+               ip = inP;
+           }
+        }
 
+        for ( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
+            iter != outItem->getOutPorts().end();
+            ++iter )
+       {
+           WQtNetworkOutputPort *outP = dynamic_cast< WQtNetworkOutputPort* >( *iter );
+           if( e->getOutput() == outP->getConnector() )
+           {
+               op = outP;
+           }
+       }
+
+        for ( QList< QGraphicsItem * >::iterator iter = m_scene->items().begin();
+                iter != m_scene->items().end();
+                ++iter )
+        {
+            WQtNetworkArrow *ar = dynamic_cast< WQtNetworkArrow* >( *iter );
+            if( ar &&
+                ar->getStartPort() == op &&
+                ar->getEndPort() == ip )
+            {
+                m_scene->removeItem( ar );
+                delete ar;
+                break;
+            }
+        }
+
+        return true;
     }
 
     // a module was removed from the container
     if ( event->type() == WQT_MODULE_REMOVE_EVENT )
     {
+        std::cout << "remove" << std::endl;
         WModuleRemovedEvent* e = dynamic_cast< WModuleRemovedEvent* >( event );
         if ( !e )
         {
@@ -232,10 +271,34 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        // iterate tree items and find proper one
         WQtNetworkItem *item = findItemByModule( e->getModule().get() );
-        m_scene->removeItem( item );
-        delete item;        
+        if( item ){
+            item->activate( false );
+            e->getModule()->requestStop();
+        }
+
+
+        return true;
+    }
+
+    // a module tree item should be deleted
+    if ( event->type() == WQT_MODULE_DELETE_EVENT )
+    {
+        std::cout << "delete" << std::endl;
+        WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );
+        if ( !e )
+        {
+            // this should never happen, since the type is set to WQT_MODULE_REMOVE_EVENT.
+            WLogger::getLogger()->addLogMessage( "Event is not an WModuleRemovedEvent although its type claims it. Ignoring event.",
+                                                 "NetworkEditor", LL_WARNING );
+            return true;
+        }
+
+        WQtNetworkItem *item = findItemByModule( e->getTreeItem()->getModule().get() );
+        if( item ){
+            m_scene->removeItem( item );
+            delete item;        
+        }
 
         return true;
     }
@@ -249,9 +312,11 @@ WQtNetworkItem* WQtNetworkEditor::findItemByModule( WModule *module )
     for ( std::list< WQtNetworkItem* >::const_iterator iter = m_items.begin(); iter != m_items.end(); ++iter )
     {
        WQtNetworkItem *itemModule = dynamic_cast< WQtNetworkItem* >( *iter );
-       if( module == itemModule->getModule() )
+       if( itemModule &&
+           itemModule->getModule() == module )
        {
            item = itemModule;
+           break;
        }
     }
     return item;
