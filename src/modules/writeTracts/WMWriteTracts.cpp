@@ -30,7 +30,6 @@
 #include "WMWriteTracts.h"
 #include "WMWriteTracts.xpm"
 
-// This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMWriteTracts )
 
 WMWriteTracts::WMWriteTracts():
@@ -40,12 +39,10 @@ WMWriteTracts::WMWriteTracts():
 
 WMWriteTracts::~WMWriteTracts()
 {
-    // Cleanup!
 }
 
 boost::shared_ptr< WModule > WMWriteTracts::factory() const
 {
-    // See "src/modules/template/" for an extensively documented example.
     return boost::shared_ptr< WModule >( new WMWriteTracts() );
 }
 
@@ -61,10 +58,7 @@ const std::string WMWriteTracts::getName() const
 
 const std::string WMWriteTracts::getDescription() const
 {
-    // Specify your module description here. Be detailed. This text is read by the user.
-    // See "src/modules/template/" for an extensively documented example.
-    return "Someone should add some documentation here. "
-    "Probably the best person would be the modules's creator, i.e. \"wiebel\"";
+    return "Writes tracts either from a cluster or from a WDataSetFibers to a file";
 }
 
 void WMWriteTracts::connectors()
@@ -77,8 +71,9 @@ void WMWriteTracts::connectors()
 
 void WMWriteTracts::properties()
 {
-    m_savePath         = m_properties->addProperty( "Save Path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
+    m_savePath = m_properties->addProperty( "Save Path", "Where to save the result", boost::filesystem::path( "/no/such/file" ) );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_savePath );
+    m_run      = m_properties->addProperty( "Save", "Start saving", WPVBaseTypes::PV_TRIGGER_READY );
 
     WModule::properties();
 }
@@ -87,6 +82,7 @@ void WMWriteTracts::moduleMain()
 {
     m_moduleState.add( m_clusterIC->getDataChangedCondition() );
     m_moduleState.add( m_tractIC->getDataChangedCondition() );
+    m_moduleState.add( m_run->getCondition() );
 
     ready();
 
@@ -100,14 +96,17 @@ void WMWriteTracts::moduleMain()
             continue;
         }
 
-        WWriterFiberVTK w( m_savePath->get(), true );
-        if( m_clusterIC->getData() )
+        if( m_run->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            w.writeFibs( m_clusterIC->getData()->getDataSetReference() );
-        }
-        else if( m_tractIC->getData() )
-        {
-            w.writeFibs( m_tractIC->getData() );
+            WWriterFiberVTK w( m_savePath->get(), true );
+            if( m_clusterIC->getData() )
+            {
+                w.writeFibs( m_clusterIC->getData()->getDataSetReference() );
+            }
+            else if( m_tractIC->getData() )
+            {
+                w.writeFibs( m_tractIC->getData() );
+            }
         }
     }
 }

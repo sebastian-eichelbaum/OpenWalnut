@@ -44,7 +44,6 @@
 class WMWriteTracts: public WModule
 {
 public:
-
     /**
      * Constructs an instance to write tracts to a file.
      */
@@ -81,7 +80,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -97,7 +95,6 @@ protected:
      */
     virtual void properties();
 
-
 private:
     /**
      * Input connector for writing the tracts out of a WFiberCluster to a file.
@@ -109,6 +106,7 @@ private:
      */
     boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_tractIC;
 
+    WPropTrigger m_run; //!< Button to start saving
     WPropFilename m_savePath; //!< Path where tracts should be stored
 };
 
