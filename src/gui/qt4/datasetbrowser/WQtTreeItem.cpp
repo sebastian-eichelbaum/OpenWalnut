@@ -210,6 +210,7 @@ void WQtTreeItem::updateState()
     {
         m_needPostDeleteEvent = false;  // this ensures the event is only posted once
         QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getDatasetBrowser(), new WModuleDeleteEvent( this ) );
+        QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getNetworkEditor(), new WModuleDeleteEvent( this ) );
     }
 
     // update tooltip
