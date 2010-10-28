@@ -69,11 +69,9 @@ const std::string WMWriteTracts::getDescription() const
 
 void WMWriteTracts::connectors()
 {
-    typedef WModuleInputData< const WFiberCluster > InputType; // just an alias
-    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "tractInput", "A loaded dataset with grid." ) );
-    addConnector( m_input );
+    m_clusterIC = WModuleInputData< const WFiberCluster >::createAndAdd( shared_from_this(), "clusterInput", "A the tracts behind the WFiberCluster" ); // NOLINT line length
+    m_tractIC = WModuleInputData< const WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "A dataset of tracts" );
 
-    // call WModules initialization
     WModule::connectors();
 }
 
@@ -87,27 +85,29 @@ void WMWriteTracts::properties()
 
 void WMWriteTracts::moduleMain()
 {
-    m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_clusterIC->getDataChangedCondition() );
+    m_moduleState.add( m_tractIC->getDataChangedCondition() );
 
-    // signal ready state
     ready();
 
-    // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
     {
-        if( !m_input->getData() )
+        debugLog() << "Waiting for data ...";
+        m_moduleState.wait();
+
+        if( !m_clusterIC->getData() && !m_tractIC->getData() )
         {
-            // ok, the output has not yet sent data
-            // NOTE: see comment at the end of this while loop for m_moduleState
-            debugLog() << "Waiting for data ...";
-            m_moduleState.wait();
             continue;
         }
-        WWriterFiberVTK w( m_savePath->get(), true );
-        w.writeFibs( m_input->getData()->getDataSetReference() );
 
-        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
-        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
-        m_moduleState.wait();
+        WWriterFiberVTK w( m_savePath->get(), true );
+        if( m_clusterIC->getData() )
+        {
+            w.writeFibs( m_clusterIC->getData()->getDataSetReference() );
+        }
+        else if( m_tractIC->getData() )
+        {
+            w.writeFibs( m_tractIC->getData() );
+        }
     }
 }

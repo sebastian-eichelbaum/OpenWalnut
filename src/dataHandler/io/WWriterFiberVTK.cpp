@@ -38,6 +38,10 @@ WWriterFiberVTK::WWriterFiberVTK( const boost::filesystem::path& path, bool over
     : WWriter( path.file_string(), overwrite )
 {
 }
+void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFibers > fiberDS ) const
+{
+    writeFibs( boost::shared_ptr< WDataSetFiberVector >( new WDataSetFiberVector( fiberDS ) ) );
+}
 
 void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFiberVector > fiberDS ) const
 {

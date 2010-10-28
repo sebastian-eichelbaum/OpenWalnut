@@ -29,13 +29,15 @@
 
 #include <osg/Geode>
 
+#include "../../dataHandler/datastructures/WFiberCluster.h"
+#include "../../dataHandler/WDataSetFibers.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../dataHandler/datastructures/WFiberCluster.h"
 
 /**
- * This module writes the fiber cluster at its connector to a file.
+ * This module writes the tracts of either a fiber cluster or directly out of a
+ * WDataSetFibers at its connector to a file.
  *
  * \ingroup modules
  */
@@ -44,12 +46,12 @@ class WMWriteTracts: public WModule
 public:
 
     /**
-     *
+     * Constructs an instance to write tracts to a file.
      */
     WMWriteTracts();
 
     /**
-     *
+     * Destructs this instance.
      */
     virtual ~WMWriteTracts();
 
@@ -97,7 +99,15 @@ protected:
 
 
 private:
-    boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
+    /**
+     * Input connector for writing the tracts out of a WFiberCluster to a file.
+     */
+    boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_clusterIC;
+
+    /**
+     * Input connector for writing directly tracts to a file.
+     */
+    boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_tractIC;
 
     WPropFilename m_savePath; //!< Path where tracts should be stored
 };
