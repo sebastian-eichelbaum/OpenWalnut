@@ -85,9 +85,9 @@ void WMVectorPlot::connectors()
 
 void WMVectorPlot::properties()
 {
-    m_xSlice           = m_properties->addProperty( "X Pos of the slice", "Description.", 80 );
-    m_ySlice           = m_properties->addProperty( "Y Pos of the slice", "Description.", 100 );
-    m_zSlice           = m_properties->addProperty( "Z Pos of the slice", "Description.", 80 );
+    m_xSlice           = m_properties->addProperty( "X Pos of the slice", "Description.", 80. );
+    m_ySlice           = m_properties->addProperty( "Y Pos of the slice", "Description.", 100. );
+    m_zSlice           = m_properties->addProperty( "Z Pos of the slice", "Description.", 80. );
 
     m_xSlice->setHidden( true );
     m_ySlice->setHidden( true );
@@ -188,9 +188,9 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
     m_zSlice->setMax( grid->getNbCoordsZ() );
 
     wmath::WPosition texPos = grid->worldCoordToTexCoord( current );
-    int xSlice = texPos[0] * grid->getNbCoordsX();
-    int ySlice = texPos[1] * grid->getNbCoordsY();
-    int zSlice = texPos[2] * grid->getNbCoordsZ();
+    double xSlice = texPos[0] * grid->getNbCoordsX();
+    double ySlice = texPos[1] * grid->getNbCoordsY();
+    double zSlice = texPos[2] * grid->getNbCoordsZ();
 
     m_xSlice->set( xSlice );
     m_ySlice->set( ySlice );
@@ -401,11 +401,11 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 void WMVectorPlot::updateCallback()
 {
     wmath::WPosition current = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    wmath::WPosition old( m_xSlice->get(), m_ySlice->get(), m_zSlice->get() );
 
-    if( ( old != current ) || m_coloringMode->changed() || m_aColor->changed() || m_projectOnSlice->changed() ||
+    if( ( m_oldPos != current ) || m_coloringMode->changed() || m_aColor->changed() || m_projectOnSlice->changed() ||
             m_showonX->changed() || m_showonY->changed() || m_showonZ->changed() )
     {
+        m_oldPos = current; // for next run
         osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_rootNode->getDrawable( 0 ) );
         m_rootNode->removeDrawable( old );
         m_rootNode->addDrawable( buildPlotSlices() );
