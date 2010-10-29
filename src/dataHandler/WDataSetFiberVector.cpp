@@ -46,7 +46,7 @@ WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< std::vector< wmath:
 {
 }
 
-WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< WDataSetFibers > fiberDS )
+WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< const WDataSetFibers > fiberDS )
     : WMixinVector< wmath::WFiber >(),
       WDataSet()
 {

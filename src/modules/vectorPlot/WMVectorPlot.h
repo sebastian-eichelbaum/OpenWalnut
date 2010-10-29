@@ -146,11 +146,11 @@ private:
 
     WPropBool     m_coloringMode; //!< indicates a set color or direction color coding.
 
-    WPropInt      m_xSlice; //!< x position of the slice
+    WPropDouble      m_xSlice; //!< x position of the slice
 
-    WPropInt      m_ySlice; //!< y position of the slice
+    WPropDouble      m_ySlice; //!< y position of the slice
 
-    WPropInt      m_zSlice; //!< z position of the slice
+    WPropDouble      m_zSlice; //!< z position of the slice
 
     WPropBool     m_showonX; //!< indicates whether the vector should be shown on slice X
 
@@ -164,6 +164,8 @@ private:
     osg::ref_ptr< WShader > m_shader; //!< the shader object for this module
 
     wmath::WMatrix< double > m_mat; //!< The 4x4 transformation matrix for the glyph vertices.
+
+    wmath::WPosition m_oldPos; //!< The previous position of the slides.
 };
 
 #endif  // WMVECTORPLOT_H
