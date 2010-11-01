@@ -138,8 +138,6 @@ boost::shared_ptr< WDataSetScalar > makeDataSetFromImage( typename itk::Image< T
     smat( 3, 1 ) = 0.0;
     smat( 3, 2 ) = 0.0;
 
-    std::cout << smat << std::endl;
-
     boost::shared_ptr< WGrid > grid( new WGridRegular3D( s[ 0 ], s[ 1 ], s[ 2 ], smat, img->GetSpacing()[ 0 ],
                                          img->GetSpacing()[ 1 ], img->GetSpacing()[ 2 ] ) );
     std::vector< T > v( s[ 0 ] * s[ 1 ] * s[ 2 ] );
