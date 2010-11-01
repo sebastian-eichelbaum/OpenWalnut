@@ -153,6 +153,8 @@ class WQtNetworkPort : public QGraphicsRectItem
          */
         void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
+        void notify();
+
     private:
     
         QGraphicsLineItem *line; //!< the temporary line when u connect two ports

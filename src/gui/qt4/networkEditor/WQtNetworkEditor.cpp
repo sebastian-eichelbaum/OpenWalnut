@@ -25,6 +25,8 @@
 #include <string>
 #include <iostream>
 
+#include <boost/shared_ptr.hpp>
+
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QKeyEvent>
@@ -94,7 +96,7 @@ WQtNetworkEditor::~WQtNetworkEditor()
 {
 }
 
-void WQtNetworkEditor::addModule( WModule *module )
+void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
 {
     WQtNetworkItem *netItem = new WQtNetworkItem( module );
     m_items.push_back( netItem );
@@ -114,7 +116,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             WLogger::getLogger()->addLogMessage( "Inserting module " + e1->getModule()->getName() +
                                                 " to network editor.",
                                                  "NetworkEditor", LL_DEBUG );
-            addModule( ( e1->getModule() ).get() );
+            addModule( e1->getModule() );
         }
         //TODO: disablen des moduls solange nicht rdy!
         return true;
@@ -138,7 +140,7 @@ bool WQtNetworkEditor::event( QEvent* event )
                                              "NetworkEditor", LL_DEBUG );
 
         // search all the item matching the module
-        WQtNetworkItem *item = findItemByModule( e->getModule().get() );
+        WQtNetworkItem *item = findItemByModule( e->getModule() );
         item->activate( true );
 
         return true;
@@ -160,8 +162,8 @@ bool WQtNetworkEditor::event( QEvent* event )
         boost::shared_ptr< WModule > mIn = e->getInput()->getModule();
         boost::shared_ptr< WModule > mOut = e->getOutput()->getModule();
 
-        WQtNetworkItem *inItem = findItemByModule( mIn.get() );
-        WQtNetworkItem *outItem = findItemByModule( mOut.get() );
+        WQtNetworkItem *inItem = findItemByModule( mIn );
+        WQtNetworkItem *outItem = findItemByModule( mOut );
 
         WQtNetworkInputPort *ip;
         WQtNetworkOutputPort *op;
@@ -212,8 +214,8 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
  
-        WQtNetworkItem *inItem = findItemByModule( e->getInput()->getModule().get() );
-        WQtNetworkItem *outItem = findItemByModule( e->getOutput()->getModule().get() );
+        WQtNetworkItem *inItem = findItemByModule( e->getInput()->getModule() );
+        WQtNetworkItem *outItem = findItemByModule( e->getOutput()->getModule() );
 
         WQtNetworkInputPort *ip;
         WQtNetworkOutputPort *op;
@@ -271,7 +273,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WQtNetworkItem *item = findItemByModule( e->getModule().get() );
+        WQtNetworkItem *item = findItemByModule( e->getModule() );
         if( item ){
             item->activate( false );
             e->getModule()->requestStop();
@@ -284,7 +286,7 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module tree item should be deleted
     if ( event->type() == WQT_MODULE_DELETE_EVENT )
     {
-        std::cout << "delete" << std::endl;
+        std::cout << "delete event" << std::endl;
         WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );
         if ( !e )
         {
@@ -294,9 +296,13 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WQtNetworkItem *item = findItemByModule( e->getTreeItem()->getModule().get() );
+        WQtNetworkItem *item = findItemByModule( e->getTreeItem()->getModule() );
+        std::cout << item << std::endl;
+        std::cout << item->scene() << std::endl;
+        std::cout << m_scene << std::endl;
         if( item ){
             m_scene->removeItem( item );
+            m_items.remove( item );
             delete item;        
         }
 
@@ -306,7 +312,7 @@ bool WQtNetworkEditor::event( QEvent* event )
     return QDockWidget::event( event );
 }
 
-WQtNetworkItem* WQtNetworkEditor::findItemByModule( WModule *module )
+WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule > module )
 {
     WQtNetworkItem *item;
     for ( std::list< WQtNetworkItem* >::const_iterator iter = m_items.begin(); iter != m_items.end(); ++iter )

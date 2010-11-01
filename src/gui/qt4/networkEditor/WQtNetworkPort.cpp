@@ -32,9 +32,11 @@
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsLineItem>
 
+#include "WQtNetworkItem.h"
 #include "WQtNetworkPort.h"
 #include "WQtNetworkOutputPort.h"
 #include "WQtNetworkInputPort.h"
+#include "../../../kernel/combiner/WApplyCombiner.h"
 
 //WQtNetworkPort::WQtNetworkPort()
 //{
@@ -153,8 +155,8 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
              endItems.first()->type() == WQtNetworkInputPort::Type &&
              startItems.first()->parentItem() != endItems.first()->parentItem() )
         {
-            WQtNetworkOutputPort *startPort = qgraphicsitem_cast<WQtNetworkOutputPort *>( startItems.first() );
-            WQtNetworkInputPort *endPort = qgraphicsitem_cast<WQtNetworkInputPort *>( endItems.first() );
+            WQtNetworkOutputPort *startPort = dynamic_cast<WQtNetworkOutputPort *>( startItems.first() );
+            WQtNetworkInputPort *endPort = dynamic_cast<WQtNetworkInputPort *>( endItems.first() );
 
             std::cout << "PORTS CONNECTBAR: " << endPort->getConnector()->connectable( startPort->getConnector() ) << std::endl;
 
@@ -165,18 +167,19 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
                     endPort->parentItem()->isEnabled() == true &&
                     endPort->getConnector()->connectable( startPort->getConnector() ) == true )
             {
-                WQtNetworkArrow *arrow = new WQtNetworkArrow( startPort, endPort );
-
-                arrow->setZValue( -1000.0 );
-
-                startPort->addArrow( arrow );
-                endPort->addArrow( arrow );
-
-                scene()->addItem( arrow );
-                arrow->updatePosition();
+                  boost::shared_ptr< WApplyCombiner > x = boost::shared_ptr< WApplyCombiner >( new WApplyCombiner( 
+                                                            startPort->getConnector()->getModule(),
+                                                            startPort->getConnector()->getName(),
+                                                            endPort->getConnector()->getModule(),
+                                                            endPort->getConnector()->getName() ) );
+                  x->run();
             }
         }
     }
+}
+
+void WQtNetworkPort::notify(){
+    std::cout << "BALSLASLDkfhkasdhfkh" << std::endl;
 }
 
 void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool outPort )

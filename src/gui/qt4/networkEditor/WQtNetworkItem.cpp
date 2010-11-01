@@ -25,6 +25,8 @@
 #include <string>
 #include <iostream>
 
+#include <boost/shared_ptr.hpp>
+
 #include <QtGui/QGraphicsSceneMouseEvent>
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsRectItem>
@@ -38,7 +40,7 @@
 const float MINWIDTH = 100;
 const float MINHEIGHT = 50;
 
-WQtNetworkItem::WQtNetworkItem( WModule *module )
+WQtNetworkItem::WQtNetworkItem( boost::shared_ptr< WModule > module )
     : QGraphicsRectItem()
 {
     m_module = module;
@@ -289,7 +291,7 @@ void WQtNetworkItem::changeColor( QColor color )
     setPen( QPen( m_color, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
 }
 
-WModule* WQtNetworkItem::getModule()
+boost::shared_ptr< WModule > WQtNetworkItem::getModule()
 {
     return m_module;
 }

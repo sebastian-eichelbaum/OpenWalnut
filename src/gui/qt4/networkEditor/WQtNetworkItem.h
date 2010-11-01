@@ -46,7 +46,7 @@ class WQtNetworkItem : public QGraphicsRectItem
         /**
          * Constructor of the item.
          */
-        explicit WQtNetworkItem( WModule *module );
+        explicit WQtNetworkItem( boost::shared_ptr< WModule > module );
 
         /**
          * Destructor.
@@ -91,7 +91,7 @@ class WQtNetworkItem : public QGraphicsRectItem
          */
         QString getText();
 
-        WModule* getModule();
+        boost::shared_ptr< WModule > getModule();
 
         void activate( bool active );
 
@@ -149,7 +149,7 @@ class WQtNetworkItem : public QGraphicsRectItem
 
     private:
         
-        WModule *m_module; //!< the module
+        boost::shared_ptr< WModule > m_module; //!< the module
 
         QList< WQtNetworkInputPort *> m_inPorts; //!< the input ports of the item
         QList< WQtNetworkOutputPort *> m_outPorts; //!< the output ports of the item

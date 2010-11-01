@@ -28,6 +28,8 @@
 #include <string>
 #include <list>
 
+#include <boost/shared_ptr.hpp>
+
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsView>
 #include <QtGui/QWidget>
@@ -67,9 +69,9 @@ public:
     /**
      * Simple method to create static test "modules"
      */
-    void addModule( WModule *module );
+    void addModule(  boost::shared_ptr< WModule > module );
 
-    WQtNetworkItem* findItemByModule( WModule *module );
+    WQtNetworkItem* findItemByModule( boost::shared_ptr< WModule > module );
 
 protected:
 

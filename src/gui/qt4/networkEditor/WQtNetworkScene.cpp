@@ -25,6 +25,8 @@
 #include <string>
 #include <iostream>
 
+#include <boost/shared_ptr.hpp>
+
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QKeyEvent>
@@ -37,6 +39,8 @@
 #include "WQtNetworkScene.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkPort.h"
+#include "../../../kernel/combiner/WDisconnectCombiner.h"
+#include "../../../kernel/WKernel.h"
 
 WQtNetworkScene::WQtNetworkScene()
     : QGraphicsScene()
@@ -70,16 +74,26 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
         foreach( WQtNetworkArrow *ar, arrowList )
         {
             if( ar != 0 ){
-                removeItem( ar );
-                delete ar;
+                //removeItem( ar );
+                //delete ar;
+                boost::shared_ptr< WDisconnectCombiner > disconnectCombiner =
+                                    boost::shared_ptr< WDisconnectCombiner >( new WDisconnectCombiner(
+                                                                    ar->getStartPort()->getConnector()->getModule(),
+                                                                    ar->getStartPort()->getConnector()->getName(),
+                                                                    ar->getEndPort()->getConnector()->getModule(),
+                                                                    ar->getEndPort()->getConnector()->getName() ) );
+                disconnectCombiner->run();
             }
         }
 
         foreach( WQtNetworkItem *it, itemList )
         {
             if( it != 0 ){
-                removeItem( it );
-                delete it;
+                //removeItem( it );
+                //delete it;
+                
+                //need module as shared_ptr
+                WKernel::getRunningKernel()->getRootContainer()->remove( it->getModule() );
             }
         }
         itemList.clear();
