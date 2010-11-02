@@ -71,48 +71,55 @@ namespace wmath
         void reverseOrder();
 
         /**
-         * Computes the length of the line not in terms of points but in terms
-         * of accumulated segment lengths.
-         *
-         * \return Sum of all line segment lengths
-         */
-        double pathLength() const;
-
-        /**
-         * Returns the point in the middle of the line. In case of an even sized
-         * line the mid point is the same as if there were only size()-1 many
-         * elements present.
-         *
-         * \throws WOutOfBounds In case its called on an empty line
-         *
-         * \return Const reference to the midpoint element.
-         */
-        const wmath::WPosition& midPoint() const;
-
-        /**
-         * Compares this line with another line point wise upto a given delta.
-         *
-         * \param other The other line
-         * \param delta Specifying the environment upto this two points are considered to be the same
-         *
-         * \return -1 in case of the two fibers are considered equal, otherwise the first position on which they differ is returned.
-         */
-        int equalsDelta( const wmath::WLine& other, double delta ) const;
-
-        /**
-         * Compute the maximal segment length of all segements. If there are no segements meaning
-         * zero or one point, zero is returned.
-         *
-         * \return Max segement length or zero if there aren't any.
-         */
-        double maxSegmentLength() const;
-
-        /**
          * Computes a AABB (axis aligned bounding box) for all positions inside this line.
          *
          * \return The AABB for this line.
          */
         WBoundingBox computeBoundingBox() const;
     };
+
+    /**
+     * Computes the length of a line in terms of accumulated segment lengths.
+     *
+     * \param line The line which used for computations
+     *
+     * \return Sum of all line segment lengths
+     */
+    double pathLength( const wmath::WLine& line );
+
+    /**
+     * Returns the point in the middle of a line. In case of an even sized
+     * line the mid point is the same as if there were only size()-1 many
+     * elements present.
+     *
+     * \param line The line to compute the mid point for.
+     *
+     * \throws WOutOfBounds In case its called on an empty line
+     *
+     * \return Const reference to the midpoint element.
+     */
+    const wmath::WPosition& midPoint( const wmath::WLine& line );
+
+    /**
+     * Compares two lines with each other point wise upto a given delta.
+     *
+     * \param line The first line
+     * \param other The other line
+     * \param delta Specifying the environment upto this two points are considered to be the same
+     *
+     * \return -1 in case of the two fibers are considered equal, otherwise the first position on which they differ is returned.
+     */
+    int equalsDelta( const wmath::WLine& line, const wmath::WLine& other, double delta );
+
+    /**
+     * Compute the maximal segment length of all segements of a line. If there are no segements meaning
+     * zero or one point, zero is returned.
+     *
+     * \param line The line used for computation of the max segment length
+     *
+     * \return Max segement length or zero if there aren't any.
+     */
+    double maxSegmentLength( const wmath::WLine& line );
+
 } // end of namespace wmath
 #endif  // WLINE_H

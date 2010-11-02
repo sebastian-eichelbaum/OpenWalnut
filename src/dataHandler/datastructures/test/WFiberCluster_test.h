@@ -371,7 +371,7 @@ private:
     void assert_equals_delta( const wmath::WLine& first, const wmath::WLine& second, double delta = wlimits::DBL_EPS ) const
     {
         int diffPos = 0;
-        if( ( diffPos = first.equalsDelta( second, delta ) ) != -1 )
+        if( ( diffPos =  wmath::equalsDelta( first, second, delta ) ) != -1 )
         {
             using string_utils::operator<<;
             std::stringstream msg;

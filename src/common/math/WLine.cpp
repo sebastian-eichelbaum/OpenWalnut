@@ -46,13 +46,13 @@ WLine::WLine()
 {
 }
 
-const wmath::WPosition& WLine::midPoint() const
+const wmath::WPosition& midPoint( const wmath::WLine& line )
 {
-    if( empty() )
+    if( line.empty() )
     {
         throw WOutOfBounds( std::string( "There is no midpoint for an empty line." ) );
     }
-    return at( ( size() - 1 ) / 2 );
+    return line[( line.size() - 1 ) / 2];
 }
 
 void WLine::reverseOrder()
@@ -60,13 +60,13 @@ void WLine::reverseOrder()
     std::reverse( begin(), end() );
 }
 
-double WLine::pathLength() const
+double pathLength( const wmath::WLine& line )
 {
     double length = 0;
     // incase of size() <= 1 the for loop will not run!
-    for( size_t i = 1; i < size(); ++i )
+    for( size_t i = 1; i < line.size(); ++i )
     {
-        length += ( at( i - 1 ) - at( i ) ).norm();
+        length += ( line[i - 1] - line[i] ).norm();
     }
     return length;
 }
@@ -75,7 +75,7 @@ void WLine::resample( size_t numPoints )
 {
     if( size() != numPoints && size() > 0 && numPoints > 0 )
     {
-        const double pathL = pathLength();
+        const double pathL = wmath::pathLength( *this );
         double newSegmentLength = pathL / ( numPoints - 1 );
         const double delta = newSegmentLength * 1.0e-10; // 1.0e-10 which represents the precision is choosen by intuition
 
@@ -109,47 +109,39 @@ void WLine::resample( size_t numPoints )
     WAssert( size() == numPoints, "Resampling of a line has failed! Is your line of length 0 or even the new sample rate??" );
 }
 
-int WLine::equalsDelta( const wmath::WLine& other, double delta ) const
+int equalsDelta( const wmath::WLine& line, const wmath::WLine& other, double delta )
 {
-    size_t pts = ( std::min )( other.size(), size() ); // This ( std::min ) thing compiles also under Win32/Win64
+    size_t pts = ( std::min )( other.size(), line.size() ); // This ( std::min ) thing compiles also under Win32/Win64
     size_t diffPos = 0;
     bool sameLines = true;
-    for( diffPos = 0; diffPos < pts; ++diffPos )
+    for( diffPos = 0; ( diffPos < pts ) && sameLines; ++diffPos )
     {
-        for( int x = 0; x < 3; ++x )
+        for( int x = 0; x < 3; ++x ) // since WLine uses WPosition as elements there are 3 components per position
         {
-            WAssert( at( diffPos ).size() == 3 && other.at( diffPos ).size() == 3, "Wrong dimension of positions." );
-            sameLines = sameLines && ( std::abs( at( diffPos )[x] - other.at( diffPos )[x] ) <= delta );
-            if( !sameLines )
-            {
-                break;
-            }
-        }
-        if( !sameLines )
-        {
-            break;
+            sameLines = sameLines && ( std::abs( line[diffPos][x] - other[diffPos][x] ) <= delta );
         }
     }
-    if( sameLines )
+    if( sameLines && ( line.size() == other.size() ) )
     {
-        if( size() == other.size() )
-        {
-            return -1;
-        }
+        return -1;
+    }
+    if( !sameLines )
+    {
+        return diffPos - 1;
     }
     return diffPos;
 }
 
-double WLine::maxSegmentLength() const
+double maxSegmentLength( const wmath::WLine& line )
 {
     double result = 0.0;
-    if( empty() || size() == 1 )
+    if( line.empty() || line.size() == 1 )
     {
         return result;
     }
-    for( size_t i = 0; i < size() - 1; ++i )
+    for( size_t i = 0; i < line.size() - 1; ++i )
     {
-        result = std::max( result, ( ( *this )[i] - ( *this )[i+1] ).norm() );
+        result = std::max( result, ( line[i] - line[i+1] ).norm() );
     }
     return result;
 }
