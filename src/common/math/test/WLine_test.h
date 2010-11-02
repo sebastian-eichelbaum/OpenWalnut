@@ -54,7 +54,7 @@ public:
         line.push_back( wmath::WPosition( 1, 0, 0 ) );
         wmath::WLine other;
         other.push_back( wmath::WPosition( 0, 0, 0 ) );
-        TS_ASSERT_EQUALS( line.equalsDelta( other, 0.0 ), 1 );
+        TS_ASSERT_EQUALS( wmath::equalsDelta( line, other, 0.0 ), 1 );
     }
 
     /**
@@ -70,7 +70,7 @@ public:
         wmath::WLine other;
         other.push_back( wmath::WPosition( 0, 0, 0 ) );
         other.push_back( wmath::WPosition( 1, 0, 0 + 2 * wlimits::DBL_EPS ) );
-        TS_ASSERT_EQUALS( line.equalsDelta( other, wlimits::DBL_EPS ), 1 );
+        TS_ASSERT_EQUALS( wmath::equalsDelta( line, other, wlimits::DBL_EPS ), 1 );
     }
 
     /**
@@ -85,7 +85,7 @@ public:
         wmath::WLine other;
         other.push_back( wmath::WPosition( 0, 0, 0 ) );
         other.push_back( wmath::WPosition( 1, 0, 0 + 2 * wlimits::DBL_EPS ) );
-        TS_ASSERT_EQUALS( line.equalsDelta( other, 2 * wlimits::DBL_EPS ), -1 );
+        TS_ASSERT_EQUALS( wmath::equalsDelta( line, other, 2 * wlimits::DBL_EPS ), -1 );
     }
 
     /**
@@ -175,7 +175,7 @@ public:
         line.push_back( WPosition( 7, 8, 9 ) );
         double expected = ( WPosition( 1, 2, 3 ) - WPosition( 4, 5, 6 ) ).norm() +
                           ( WPosition( 4, 5, 6 ) - WPosition( 7, 8, 9 ) ).norm();
-        TS_ASSERT_EQUALS( expected, line.pathLength() );
+        TS_ASSERT_EQUALS( expected, wmath::pathLength( line ) );
     }
 
     /**
@@ -294,7 +294,7 @@ public:
         line.push_back( WPosition( 2, 0, 0 ) );
         line.push_back( WPosition( 3, 1, 0 ) );
         WPosition expected( 1, 1, 0 );
-        TS_ASSERT_EQUALS( expected, WPosition( line.midPoint() ) );
+        TS_ASSERT_EQUALS( expected, WPosition( wmath::midPoint( line ) ) );
     }
 
     /**
@@ -308,7 +308,7 @@ public:
         line.push_back( WPosition( 1, 1, 0 ) );
         line.push_back( WPosition( 2, 0, 0 ) );
         WPosition expected( 1, 1, 0 );
-        TS_ASSERT_EQUALS( expected, WPosition( line.midPoint() ) );
+        TS_ASSERT_EQUALS( expected, WPosition( wmath::midPoint( line ) ) );
     }
 
     /**
@@ -319,7 +319,7 @@ public:
     {
         wmath::WLine line;
         wmath::WPosition expected( 1, 1, 0 );
-        TS_ASSERT_THROWS_EQUALS( line.midPoint(), WOutOfBounds &e, std::string( e.what() ), "There is no midpoint for an empty line." );
+        TS_ASSERT_THROWS_EQUALS( wmath::midPoint( line ), WOutOfBounds &e, std::string( e.what() ), "There is no midpoint for an empty line." );
     }
 
     /**
@@ -336,9 +336,9 @@ public:
         line.push_back( WPosition( 0, 0, 0 ) );
         line.push_back( WPosition( 1, 1, 0 ) );
         line.push_back( WPosition( 2, 0, 0 ) );
-        TS_ASSERT_DELTA( line.maxSegmentLength(), std::sqrt( 2.0 ), wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( wmath::maxSegmentLength( line ), std::sqrt( 2.0 ), wlimits::DBL_EPS );
         line.push_back( WPosition( 0, 0, 0 ) );
-        TS_ASSERT_DELTA( line.maxSegmentLength(), 2.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( wmath::maxSegmentLength( line ), 2.0, wlimits::DBL_EPS );
     }
 
     /**
@@ -347,9 +347,9 @@ public:
     void testEmptyLineOnMaxSegementLength( void )
     {
         wmath::WLine line;
-        TS_ASSERT_EQUALS( line.maxSegmentLength(), 0.0 );
+        TS_ASSERT_EQUALS( wmath::maxSegmentLength( line ), 0.0 );
         line.push_back( wmath::WPosition( 0, 3.1415, 0 ) );
-        TS_ASSERT_EQUALS( line.maxSegmentLength(), 0.0 );
+        TS_ASSERT_EQUALS( wmath::maxSegmentLength( line ), 0.0 );
     }
 
 private:
@@ -364,7 +364,7 @@ private:
     void assert_equals_delta( const wmath::WLine& first, const wmath::WLine& second, double delta = wlimits::DBL_EPS ) const
     {
         int diffPos = 0;
-        if( ( diffPos = first.equalsDelta( second, delta ) ) != -1 )
+        if( ( diffPos = wmath::equalsDelta( first, second, delta ) ) != -1 )
         {
             using string_utils::operator<<;
             std::stringstream msg;

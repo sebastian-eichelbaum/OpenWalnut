@@ -311,8 +311,8 @@ void WMClusterSlicer::generateSlices()
     m_rootNode->remove( m_samplePointsGeode );
     m_samplePointsGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old geode
 
-    wmath::WVector3D generator = ( centerLine.front() - centerLine.midPoint() );
-    generator = generator.crossProduct( centerLine.back() - centerLine.midPoint() );
+    wmath::WVector3D generator = ( centerLine.front() - wmath::midPoint( centerLine ) );
+    generator = generator.crossProduct( centerLine.back() - wmath::midPoint( centerLine ) );
     for( size_t i = 1; i < centerLine.size(); ++i )
     {
         wmath::WVector3D tangent = centerLine[i] - centerLine[i-1];
