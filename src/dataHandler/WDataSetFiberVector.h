@@ -58,7 +58,7 @@ public:
      *
      * \param fiberDS Dataset which has to be converted
      */
-    explicit WDataSetFiberVector( boost::shared_ptr< WDataSetFibers > fiberDS );
+    explicit WDataSetFiberVector( boost::shared_ptr< const WDataSetFibers > fiberDS );
 
     /**
      * Copy constructor for fibers

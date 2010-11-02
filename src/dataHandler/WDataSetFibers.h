@@ -272,14 +272,14 @@ public:
      * \param name name of the color scheme. Should be a telling name.
      * \param description description. How calculated and so on.
      */
-    void addColorScheme( ColorArray colors, std::string name, std::string description );
+    void addColorScheme( WDataSetFibers::ColorArray colors, std::string name, std::string description );
 
     /**
      * This method removes the specified color scheme from the list and triggers an update.
      *
      * \param colors the color array.
      */
-    void removeColorScheme( ColorArray colors );
+    void removeColorScheme( WDataSetFibers::ColorArray colors );
 
     /**
      * Replaces the specified old color scheme by the new color scheme. If the old color scheme did not exist, nothing happens.

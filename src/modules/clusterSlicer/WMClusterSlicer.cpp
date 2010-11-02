@@ -88,23 +88,12 @@ const std::string WMClusterSlicer::getDescription() const
 
 void WMClusterSlicer::connectors()
 {
-    m_fiberClusterInput = boost::shared_ptr< InputClusterType >( new InputClusterType( shared_from_this(), "cluster", "A cluster of fibers" ) );
-    addConnector( m_fiberClusterInput );
-
-    m_clusterDataSetInput = boost::shared_ptr< InputDataSetType >( new InputDataSetType( shared_from_this(), "clusterDS", "DataSet from cluster" ) );
-    addConnector( m_clusterDataSetInput );
-
-    m_paramDataSetInput = boost::shared_ptr< InputDataSetType >( new InputDataSetType( shared_from_this(), "paramDS", "DataSet of the parameters" ) );
-    addConnector( m_paramDataSetInput );
-
-    m_triangleMeshInput = boost::shared_ptr< InputMeshType >( new InputMeshType( shared_from_this(), "meshIN", "TrianglMesh" ) );
-    addConnector( m_triangleMeshInput );
-
-    m_colorMapOutput = boost::shared_ptr< OutputColorMapType >( new OutputColorMapType( shared_from_this(), "colorMap", "VertexID and colors" ) );
-    addConnector( m_colorMapOutput );
-
-    m_meshOutput = boost::shared_ptr< OutputMeshType >( new OutputMeshType( shared_from_this(), "meshOUT", "The Mesh to forward it for rendering" ) );
-    addConnector( m_meshOutput );
+    m_fiberClusterInput = WModuleInputData< WFiberCluster >::createAndAdd( shared_from_this(), "clusterInput", "A cluster of fibers" );
+    m_clusterDataSetInput = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "clusterDSInput", "DataSet from cluster" );
+    m_paramDataSetInput = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "paramInput", "DataSet of the parameters" );
+    m_triangleMeshInput = WModuleInputData< WTriangleMesh >::createAndAdd( shared_from_this(), "meshInput", "TrianglMesh" );
+    m_colorMapOutput = WModuleOutputData< WColoredVertices >::createAndAdd( shared_from_this(), "colorMapOutput", "VertexID and colors" );
+    m_meshOutput = WModuleOutputData< WTriangleMesh >::createAndAdd( shared_from_this(), "meshOutput", "The Mesh to forward it for rendering" );
 
     WModule::connectors();
 }

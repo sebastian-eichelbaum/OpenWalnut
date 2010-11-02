@@ -30,6 +30,7 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <osg/Matrix>
 #include <osg/Vec3>
 
 #include "../common/math/WMatrix.h"
@@ -523,11 +524,11 @@ public:
     bool isNotRotatedOrSheared() const;
 
     /**
-     * translates the texture along a given vector
+     * translates the texture along a given vector, this vector is added to the already existing translation
      *
-     * \param translation the translation vector
+     * \param translate the translation vector
      */
-    void translate( wmath::WPosition translation );
+    void translate( wmath::WPosition translate );
 
     /**
      * stretches the texture
@@ -538,10 +539,13 @@ public:
 
     /**
      * rotates the texture around the x,y,z axis
+     * take a rotation that is multiplied to the custom rotation matrix, so this doesn't describe the rotation
+     * fromt he original state to a point, but from the current state
      *
-     * \param rot the angles for each axis
+     * \param osgrot the rotation matrix for this step
+     * \param center, center point of the rotation, not functional yet
      */
-    void rotate( wmath::WPosition rot );
+    void rotate( osg::Matrixf osgrot, wmath::WPosition center );
 
     /**
      * sets the active matrix
@@ -557,6 +561,12 @@ public:
      */
     int getActiveMatrix();
 
+    /**
+     * getter
+     * \return the absolute translate Vector
+     */
+    wmath::WPosition getTranslate();
+
 protected:
 
 private:
@@ -571,12 +581,6 @@ private:
      * \return The n'th component of the voxel coordinate
      */
     int getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const;
-
-    /**
-     * execute the texture transformation on the original transformation matrix with the stored
-     * translate, stretch and rotate vectors
-     */
-    void doCustomTransformations();
 
     wmath::WPosition m_origin; //!< Origin of the grid.
 
@@ -631,11 +635,11 @@ private:
      */
     int m_matrixActive;
 
-    wmath::WPosition m_translate; //!< stores the translation vector
+    wmath::WMatrix<double> m_translateMatrix; //!< stores the custom rotation
 
-    wmath::WPosition m_stretch; //!< stores the stretch vector
+    wmath::WMatrix<double> m_rotMatrix; //!< stores the custom rotation
 
-    wmath::WPosition m_rotation; //!< stores the rotation vector
+    wmath::WMatrix<double> m_stretchMatrix; //!< stores the custom strech manipulation
 };
 
 inline unsigned int WGridRegular3D::getNbCoordsX() const

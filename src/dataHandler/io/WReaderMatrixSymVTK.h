@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADERLOOKUPTABLEVTK_H
-#define WREADERLOOKUPTABLEVTK_H
+#ifndef WREADERMATRIXSYMVTK_H
+#define WREADERMATRIXSYMVTK_H
 
 #include <string>
 #include <vector>
@@ -36,7 +36,7 @@
 /**
  * Can read a look up table from a file in VTK format.
  */
-class OWDATAHANDLER_EXPORT WReaderLookUpTableVTK : public WReader // NOLINT
+class OWDATAHANDLER_EXPORT WReaderMatrixSymVTK : public WReader // NOLINT
 {
 public:
     /**
@@ -45,7 +45,7 @@ public:
      *
      * \param fname file name
      */
-    explicit WReaderLookUpTableVTK( std::string fname );
+    explicit WReaderMatrixSymVTK( std::string fname );
 
     /**
      * Perform reading from the file.
@@ -58,4 +58,4 @@ protected:
 private:
 };
 
-#endif  // WREADERLOOKUPTABLEVTK_H
+#endif  // WREADERMATRIXSYMVTK_H

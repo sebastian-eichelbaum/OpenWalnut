@@ -31,7 +31,7 @@
 #include "../../common/WProperties.h"
 
 /**
-* static class that provides string and file operation functions 
+* static class that provides string and file operation functions
 * to operate on a config file
 */
 class WCfgOperations
@@ -155,7 +155,7 @@ public:
 
     /**
     * get a line as an int
-    * 
+    *
     * \param line line
     *
     * \result as int
@@ -204,7 +204,7 @@ public:
     * convert a property value to a string
     * \note so far only functional with the types bool, int, double and string
     * others will return an empty string
-    * doubles are capped to 2 digits after the dot and all zeros after the dot except the 
+    * doubles are capped to 2 digits after the dot and all zeros after the dot except the
     * one behind the dot are removed, also if there's a '0' before the dot it's removed
     * to have a consistent writing in the config file
     *

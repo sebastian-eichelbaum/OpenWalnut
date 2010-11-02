@@ -9,7 +9,7 @@ SET( QT_LIBS ${QT_QTCORE_LIBRARY}
              ${QT_QTGUI_LIBRARY}
              ${QT_QTOPENGL_LIBRARY} )
 
-# add here all classes that inherit from QObject 
+# add here all classes that inherit from QObject
 SET(GUI_QT4_MOC_HDRS
     WMainWindow.h
     WQtConfigWidget.h
@@ -39,10 +39,19 @@ SET(GUI_QT4_MOC_HDRS
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 
 FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "controlPanel/*.cpp" "ribbonMenu/*.cpp" "events/*.cpp" "*.h" "guiElements/*.h" "controlPanel/*.h" "ribbonMenu/*.h" "events/*.h" )
-
-ADD_LIBRARY( OWguiqt4 ${GUI_QT4_SRC} ${GUI_QT4_MOC_SRCS} )
+IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
+  FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC 
+    "platformDependent/WQtGLWidgetMac.cpp" 
+    "platformDependent/WQtGLWidgetMac.h" )
+ELSE()
+  FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC 
+    "platformDependent/WQtGLWidgetAll.cpp" 
+    "platformDependent/WQtGLWidgetAll.h" )
+ENDIF()
+  
+ADD_LIBRARY( OWguiqt4 ${GUI_QT4_SRC} ${GUIQT4_PLATFORMDEPENDENT_SRC} ${GUI_QT4_MOC_SRCS} )
 TARGET_LINK_LIBRARIES( OWguiqt4 OWcommon OWgui OWge OWkernel ${QT_LIBS} ${Boost_LIBRARIES} )
 
 IF(MSVC_IDE)
-	SET_TARGET_PROPERTIES( OWguiqt4 PROPERTIES PREFIX "../")    
+    SET_TARGET_PROPERTIES( OWguiqt4 PROPERTIES PREFIX "../")
 ENDIF(MSVC_IDE)

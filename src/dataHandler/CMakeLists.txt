@@ -26,7 +26,7 @@ FILE( GLOB DATAHANDLER_IO_SRC "io/*.cpp" "io/*.h" ) # former WLoader
 #ENDIF()
 
 IF(MSVC_IDE)
-	SET_TARGET_PROPERTIES( OWdataHandler PROPERTIES PREFIX "../")    
+    SET_TARGET_PROPERTIES( OWdataHandler PROPERTIES PREFIX "../")
 ENDIF(MSVC_IDE)
 
 # Unit tests

@@ -69,12 +69,12 @@ public:
      * \param format A string describing the output format in c printf style
      * \return String of this log entry.
      */
-    std::string getLogString( std::string format = "[%t] *%l* %m \n" );
+    std::string getLogString( std::string format = "[%t] *%l* %m \n" ) const;
 
     /**
      * \return log level of this entry.
      */
-    LogLevel getLogLevel();
+    LogLevel getLogLevel() const;
 
     /**
      * Set whether to use colors or not. Note: this is only useful on Linux systems currently.
@@ -88,7 +88,28 @@ public:
      *
      * \return true if colors should be used.
      */
-    bool isColored();
+    bool isColored() const;
+
+    /**
+     * Returns the plain message of the entry.
+     *
+     * \return the message
+     */
+    std::string getMessage() const;
+
+    /**
+     * Returns the sender of the log.
+     *
+     * \return sender
+     */
+    std::string getSource() const;
+
+    /**
+     * Returns the formatted time string.
+     *
+     * \return time string
+     */
+    std::string getTime() const;
 
 protected:
 private:
@@ -154,3 +175,4 @@ private:
 };
 
 #endif  // WLOGENTRY_H
+

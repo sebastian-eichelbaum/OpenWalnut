@@ -141,7 +141,7 @@ public:
      * Apply a function object to this valueset.
      *
      * \tparam Func_T The type of the function object, should be derived from the boost::static_visitor template.
-     * 
+     *
      * \param func The function object to apply.
      * \return The result of the operation.
      */

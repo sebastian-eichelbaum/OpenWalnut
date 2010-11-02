@@ -379,7 +379,7 @@ private:
     public:
         /**
         * userData Constructur with shared pointer to module
-        * \param _parent pointer to the module 
+        * \param _parent pointer to the module
         */
         explicit userData( boost::shared_ptr< WMNavSlices > _parent )
         {

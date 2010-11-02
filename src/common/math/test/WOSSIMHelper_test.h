@@ -29,7 +29,9 @@
 
 #include "../WOSSIMHelper.h"
 
+#ifdef OW_USE_OSSIM
 using wmath::WOSSIMHelper;
+#endif
 /**
  * Tests for WOSSIMHelper.
  */
@@ -41,6 +43,7 @@ public:
      */
     void testComputeSVD( void )
     {
+#ifdef OW_USE_OSSIM
         const size_t nbRows = 3, nbCols = 3;
         const double a = 1.2, b = 2.3, c = 3.4,
                      d = 4.5, e = 5.6, f = 6.7,
@@ -77,6 +80,7 @@ public:
             TS_ASSERT_DELTA( svd( row, col ), A( row, col ), 0.0001 );
           }
         }
+#endif
     }
     /**
      * Test pseudoInverse function of WOSSIMHelper

@@ -31,8 +31,9 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../WDataSetFiberVector.h"
-#include "WWriter.h"
+#include "../WDataSetFibers.h"
 #include "../WExportDataHandler.h"
+#include "WWriter.h"
 
 /**
  * Writes a FiberVTK file.
@@ -54,6 +55,13 @@ public:
      * \param fiberDS The WDataSetFiberVector where the data is taken from
      */
     void writeFibs( boost::shared_ptr< const WDataSetFiberVector > fiberDS ) const;
+
+    /**
+     * Writes tracts of a WDataSetFibers to the previousely given file.
+     *
+     * \param fiberDS The tract data set
+     */
+    void writeFibs( boost::shared_ptr< const WDataSetFibers > fiberDS ) const;
 
 protected:
 private:

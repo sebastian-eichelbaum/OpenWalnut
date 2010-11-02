@@ -132,7 +132,8 @@ int WQt4Gui::run()
         return 1;
     }
 
-    WLogger::getLogger()->run();
+    // init logger
+    m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQt4Gui::slotAddLog, this, _1 ) );
     wlog::info( "GUI" ) << "Bringing up GUI";
 
     // the call path of the application
@@ -267,6 +268,8 @@ int WQt4Gui::run()
     WKernel::getRunningKernel()->wait( true );
     WKernel::getRunningKernel()->getGraphicsEngine()->wait( true );
 
+    m_loggerConnection.disconnect();
+
     return qtRetCode;
 }
 
@@ -274,6 +277,11 @@ void WQt4Gui::slotUpdateTextureSorter()
 {
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WUpdateTextureSorterEvent() );
+}
+
+void WQt4Gui::slotAddLog( const WLogEntry& /*entry*/ )
+{
+    // TODO(rfrohl): create a new event for this and insert it into event queue
 }
 
 void WQt4Gui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module )

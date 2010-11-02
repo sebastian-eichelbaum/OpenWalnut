@@ -27,6 +27,8 @@
 
 #include <osg/LightModel>
 
+#include "callbacks/WGEFunctorCallback.h"
+
 #include "WROISphere.h"
 #include "WGraphicsEngine.h"
 #include "WGEUtils.h"
@@ -40,13 +42,13 @@ WROISphere::WROISphere( wmath::WPosition position, float radius ) :
     m_position( position ),
     m_originalPosition( position ),
     m_radius( radius ),
-    m_lockX( false ),
-    m_lockY( false ),
-    m_lockZ( false ),
     m_pickNormal( wmath::WVector3D() ),
     m_oldPixelPosition( std::make_pair( 0, 0 ) ),
     m_color( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) ),
-    m_notColor( osg::Vec4( 1.0f, 0.0f, 0.0f, 0.4f ) )
+    m_notColor( osg::Vec4( 1.0f, 0.0f, 0.0f, 0.4f ) ),
+    m_lockPoint( wmath::WVector3D( 0.0, 0.0, 0.0 ) ),
+    m_lockVector( wmath::WVector3D( 1.0, 1.0, 1.0 ) ),
+    m_lockOnVector( false )
 {
     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
     assert( ge );
@@ -61,7 +63,8 @@ WROISphere::WROISphere( wmath::WPosition position, float radius ) :
     m_dirty->set( true );
 
     setUserData( this );
-    setUpdateCallback( osg::ref_ptr<ROISphereNodeCallback>( new ROISphereNodeCallback ) );
+
+    setUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WROISphere::updateGFX, this ) ) );
 }
 
 void WROISphere::redrawSphere()
@@ -95,9 +98,41 @@ wmath::WPosition WROISphere::getPosition() const
 void WROISphere::setPosition( wmath::WPosition position )
 {
     m_position = position;
+    m_lockPoint = position;
     m_originalPosition = position;
     m_dirty->set( true );
 }
+
+void WROISphere::setPosition( float x, float y, float z )
+{
+    m_position = wmath::WPosition( x, y, z );
+    m_lockPoint = wmath::WPosition( x, y, z );
+    m_originalPosition = wmath::WPosition( x, y, z );
+    m_dirty->set( true );
+}
+
+
+void WROISphere::setX( float x )
+{
+    m_position.x() = x;
+    m_originalPosition = m_position;
+    m_dirty->set( true );
+}
+
+void WROISphere::setY( float y )
+{
+    m_position.y() = y;
+    m_originalPosition = m_position;
+    m_dirty->set( true );
+}
+
+void WROISphere::setZ( float z )
+{
+    m_position.z() = z;
+    m_originalPosition = m_position;
+    m_dirty->set( true );
+}
+
 
 void WROISphere::registerRedrawRequest( WPickInfo pickInfo )
 {
@@ -108,6 +143,7 @@ void WROISphere::updateGFX()
 {
     std::stringstream ss;
     ss << "ROISphere" << sphereId << "";
+    bool mouseMove = false;
 
     if ( m_pickInfo.getName() == ss.str() )
     {
@@ -138,6 +174,7 @@ void WROISphere::updateGFX()
             if( m_pickInfo.getModifierKey() == WPickInfo::NONE )
             {
                 moveSphere( moveVec );
+                mouseMove = true;
             }
         }
 
@@ -155,8 +192,12 @@ void WROISphere::updateGFX()
     if ( m_dirty->get() )
     {
         redrawSphere();
-        signalRoiChange();
         m_dirty->set( false );
+    }
+
+    if ( mouseMove )
+    {
+        signalRoiChange();
     }
 }
 
@@ -164,34 +205,56 @@ void WROISphere::moveSphere( wmath::WVector3D offset )
 {
     m_position += offset;
 
-    if ( m_lockX )
+    if ( m_lockOnVector )
     {
-        m_position[0] = m_originalPosition[0];
-    }
-    if ( m_lockY )
-    {
-        m_position[1] = m_originalPosition[1];
-    }
-
-    if ( m_lockZ )
-    {
-        m_position[2] = m_originalPosition[2];
+        float k = ( ( m_lockPoint[0] * m_lockVector[0] ) - ( m_position.x() * m_lockVector[0] ) +
+                    ( m_lockPoint[1] * m_lockVector[1] ) - ( m_position.y() * m_lockVector[1] ) +
+                    ( m_lockPoint[2] * m_lockVector[2] ) - ( m_position.z() * m_lockVector[2] ) ) /
+                    ( m_lockVector[0] * m_lockVector[0] + m_lockVector[1] * m_lockVector[1] + m_lockVector[2] * m_lockVector[2] ) * -1.0;
+        m_position = m_lockPoint + ( k * m_lockVector );
     }
 }
 
 void WROISphere::setLockX( bool value )
 {
-    m_lockX = value;
+    m_lockOnVector = value;
+    m_lockPoint = m_position;
+    if ( value )
+    {
+        m_lockVector[0] = 0.0;
+    }
+    else
+    {
+        m_lockVector[0] = 1.0;
+    }
 }
 
 void WROISphere::setLockY( bool value )
 {
-    m_lockY = value;
+    m_lockOnVector = value;
+    m_lockPoint = m_position;
+    if ( value )
+    {
+        m_lockVector[1] = 0.0;
+    }
+    else
+    {
+        m_lockVector[1] = 1.0;
+    }
 }
 
 void WROISphere::setLockZ( bool value )
 {
-    m_lockZ = value;
+    m_lockOnVector = value;
+    m_lockPoint = m_position;
+    if ( value )
+    {
+        m_lockVector[2] = 0.0;
+    }
+    else
+    {
+        m_lockVector[2] = 1.0;
+    }
 }
 
 
@@ -203,4 +266,15 @@ void WROISphere::setColor( osg::Vec4 color )
 void WROISphere::setNotColor( osg::Vec4 color )
 {
     m_notColor = color;
+}
+
+void  WROISphere::setLockVector( wmath::WVector3D vector )
+{
+    m_lockVector = vector;
+    m_lockPoint = m_position;
+}
+
+void  WROISphere::setLockOnVector( bool value )
+{
+    m_lockOnVector = value;
 }

@@ -124,6 +124,7 @@ void WMData::properties()
 {
     // properties
     m_dataName = m_infoProperties->addProperty( "Filename", "The filename of the dataset.", std::string( "" ) );
+    m_dataType = m_infoProperties->addProperty( "Data type", "The type of the the single data values.", std::string( "" ) );
 
     // use this callback for the other properties
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMData::propertyChanged, this, _1 );
@@ -207,6 +208,14 @@ void WMData::moduleMain()
 
         WReaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
+
+        boost::shared_ptr< WDataSetSingle > dss;
+        dss =  boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+        if( dss )
+        {
+            m_dataType->set( getDataTypeString( dss ) );
+        }
+
     }
     else if( suffix == ".edf" )
     {
@@ -271,5 +280,74 @@ void WMData::moduleMain()
         m_infoProperties->removeProperty( m_dataSet->getTexture2()->getInformationProperties() );
         WGEColormapping::deregisterTexture( m_dataSet->getTexture2() );
     }
+}
+
+// TODO(wiebel): move this to some central place.
+std::string WMData::getDataTypeString( boost::shared_ptr< WDataSetSingle > dss )
+{
+    std::string result;
+    switch( (*dss).getValueSet()->getDataType() )
+    {
+        case W_DT_NONE:
+            result = "none";
+            break;
+        case W_DT_BINARY:
+            result = "binary (1 bit)";
+            break;
+        case W_DT_UNSIGNED_CHAR:
+            result = "unsigned char (8 bits)";
+            break;
+        case W_DT_SIGNED_SHORT:
+            result = "signed short (16 bits)";
+            break;
+        case W_DT_SIGNED_INT:
+            result = "signed int (32 bits)";
+            break;
+        case W_DT_FLOAT:
+            result = "float (32 bits)";
+            break;
+        case W_DT_COMPLEX:
+            result = "complex";
+            break;
+        case W_DT_DOUBLE:
+            result = "double (64 bits)";
+            break;
+        case W_DT_RGB:
+            result = "RGB triple (24 bits)";
+            break;
+        case W_DT_ALL:
+            result = "ALL (not very useful)";
+            break;
+        case W_DT_INT8:
+            result = "signed char (8 bits)";
+            break;
+        case W_DT_UINT16:
+            result = "unsigned short (16 bits)";
+            break;
+        case W_DT_UINT32 :
+            result = "unsigned int (32 bits)";
+            break;
+        case W_DT_INT64:
+            result = "int64";
+            break;
+        case W_DT_UINT64:
+            result = "unsigned long long (64 bits)";
+            break;
+        case W_DT_FLOAT128:
+            result = "float (128 bits)";
+            break;
+        case W_DT_COMPLEX128:
+            result = "double pair (128 bits)";
+            break;
+        case W_DT_COMPLEX256:
+            result = " long double pair (256 bits)";
+            break;
+        case W_DT_RGBA32:
+            result = "4 byte RGBA (32 bits)";
+            break;
+        default:
+            WAssert( false, "Unknow data type in getDataTypeString" );
+    }
+    return result;
 }
 

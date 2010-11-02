@@ -69,7 +69,7 @@ const char** WMDataTypeConversion::getXPMIcon() const
 
 const std::string WMDataTypeConversion::getName() const
 {
-    return "Data Type Conversion";
+    return "Data Type Conversion (to float)";
 }
 
 const std::string WMDataTypeConversion::getDescription() const

@@ -22,21 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDXTLOOKUPTABLE_TEST_H
-#define WDXTLOOKUPTABLE_TEST_H
+#ifndef WMATRIXSYM_TEST_H
+#define WMATRIXSYM_TEST_H
 
 #include <string>
 #include <vector>
 
 #include <cxxtest/TestSuite.h>
 
-#include "../WDXtLookUpTable.h"
 #include "../../exceptions/WOutOfBounds.h"
+#include "../WMatrixSym.h"
 
 /**
  * Unit test this LookUp table class
  */
-class WDXtLookUpTableTest : public CxxTest::TestSuite
+class WMatrixSymTest : public CxxTest::TestSuite
 {
 public:
     /**
@@ -44,7 +44,7 @@ public:
      */
     void testOperatorOn3x3Matrix( void )
     {
-        WDXtLookUpTable t( 3 );
+        WMatrixSym t( 3 );
         TS_ASSERT_EQUALS( t.m_data.size(), 3 );
     }
 
@@ -54,7 +54,7 @@ public:
      */
     void testAccessOn3x3Matrix( void )
     {
-        WDXtLookUpTable t( 3 );
+        WMatrixSym t( 3 );
         double mydata[] = { 1.6, 0.2, 7.7 }; // NOLINT
         std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
         t.setData( data );
@@ -69,10 +69,10 @@ public:
      */
     void testSetDataWithInvalidLengthForDimension( void )
     {
-        WDXtLookUpTable t( 4 );
+        WMatrixSym t( 4 );
         double mydata[] = { 1.6, 0.2, 7.7 }; // NOLINT
         std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
-        TS_ASSERT_THROWS_EQUALS( t.setData( data ), WOutOfBounds &e, std::string( e.what() ), "Data vector length: 3 doesn't fit to dimension: 4" );
+        TS_ASSERT_THROWS_EQUALS( t.setData( data ), WOutOfBounds &e, std::string( e.what() ), "Data vector length: 3 doesn't fit to number of rows and cols: 4" ); // NOLINT line length
     }
 
     /**
@@ -80,7 +80,7 @@ public:
      */
     void testInvalidAccessOnMainDiagonal( void )
     {
-        WDXtLookUpTable t( 4 );
+        WMatrixSym t( 4 );
         double mydata[] = { 1.6, 0.2, 7.7 }; // NOLINT
         std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
         TS_ASSERT_THROWS_EQUALS( t( 0, 0 ), WOutOfBounds &e, std::string( e.what() ),
@@ -88,4 +88,4 @@ public:
     }
 };
 
-#endif  // WDXTLOOKUPTABLE_TEST_H
+#endif  // WMATRIXSYM_TEST_H

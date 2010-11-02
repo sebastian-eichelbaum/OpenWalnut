@@ -22,42 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WWRITERLOOKUPTABLEVTK_H
-#define WWRITERLOOKUPTABLEVTK_H
+#include "WSegmentationAlgoThreshold.h"
 
-#include <string>
-#include <vector>
-
-#include <boost/shared_ptr.hpp>
-
-#include "WWriter.h"
-
-#include "../WExportDataHandler.h"
-
-/**
- * Can write a look up table to a file in VTK format.
- */
-class OWDATAHANDLER_EXPORT WWriterLookUpTableVTK : public WWriter // NOLINT
+WSegmentationAlgoThreshold::WSegmentationAlgoThreshold()
+    : WSegmentationAlgo()
 {
-public:
-    /**
-     * Creates a writer object for FiberVTK file writing. 
-     *
-     * \param fname path to the target file where stuff will be written to
-     * \param overwrite If true existing files will be overwritten
-     */
-    WWriterLookUpTableVTK( std::string fname, bool overwrite = false );
+}
 
-    /**
-     * Actually perform writing to file.
-     *
-     * \param table The data in that table will be saved
-     * \param dim the dimensionality of the table
-     */
-    void writeTable( const std::vector< double > &table, size_t dim ) const;
+WSegmentationAlgoThreshold::~WSegmentationAlgoThreshold()
+{
+}
 
-protected:
-private:
-};
+void WSegmentationAlgoThreshold::properties()
+{
+    m_threshold = m_properties->addProperty( "Threshold.", "Threshold in %.", 0.0, m_propCondition );
+}
 
-#endif  // WWRITERLOOKUPTABLEVTK_H
+std::string WSegmentationAlgoThreshold::getName()
+{
+    return "Threshold segmentation";
+}
+
+std::string WSegmentationAlgoThreshold::getDescription()
+{
+    return "Use thresholding for segmentation.";
+}
+
+bool WSegmentationAlgoThreshold::propChanged()
+{
+    return m_threshold->changed();
+}
+
+WSegmentationAlgo::DataSetPtr WSegmentationAlgoThreshold::applyOperation()
+{
+    return m_dataSet->getValueSet()->applyFunction( *this );
+}

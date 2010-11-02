@@ -217,7 +217,7 @@ bool WMClusterDisplay::loadTreeAscii( std::string fileName )
 
 void WMClusterDisplay::initWidgets()
 {
-    osg::ref_ptr<osgViewer::Viewer> viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView();
+    osg::ref_ptr<osgViewer::View> viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView();
 
     int height = viewer->getCamera()->getViewport()->height();
     int width = viewer->getCamera()->getViewport()->width();
@@ -640,7 +640,7 @@ void WMClusterDisplay::handleRoiChanged()
 
 void WMClusterDisplay::updateWidgets()
 {
-    osg::ref_ptr<osgViewer::Viewer> viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView();
+    osg::ref_ptr<osgViewer::View> viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView();
 
     int height = viewer->getCamera()->getViewport()->height();
     int width = viewer->getCamera()->getViewport()->width();

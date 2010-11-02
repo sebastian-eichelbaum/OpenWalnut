@@ -32,18 +32,19 @@
 
 #include "../../common/WAssert.h"
 #include "../../common/WIOTools.h"
+#include "../../common/WLogger.h"
 #include "../../common/WStringUtils.h"
 #include "../exceptions/WDHException.h"
 #include "../exceptions/WDHIOFailure.h"
 #include "WReader.h"
-#include "WReaderLookUpTableVTK.h"
+#include "WReaderMatrixSymVTK.h"
 
-WReaderLookUpTableVTK::WReaderLookUpTableVTK( std::string fname )
+WReaderMatrixSymVTK::WReaderMatrixSymVTK( std::string fname )
     : WReader( fname )
 {
 }
 
-void WReaderLookUpTableVTK::readTable( boost::shared_ptr< std::vector< double > > table ) const
+void WReaderMatrixSymVTK::readTable( boost::shared_ptr< std::vector< double > > table ) const
 {
     WAssert( table->size() == 0, "Non-zero size indicates an error, since the vector will be filled IN HERE." );
 
@@ -71,10 +72,21 @@ void WReaderLookUpTableVTK::readTable( boost::shared_ptr< std::vector< double > 
     {
         throw WDHIOFailure( std::string( "Reading first 4 lines of '" + m_fname + "': " + e.what() ) );
     }
-    WAssert( header[0] == "# vtk DataFile Version 3.0", "Wrong string in file header found." );
-    WAssert( header[1] == "DXtLookUpTable from OpenWalnut", "Wrong string in file header found." );
-    WAssert( header[2] == "BINARY", "Wrong string in file header found." );
-    WAssert( header[3] == "FIELD DXtLookUpTable 1", "Wrong string in file header found." );
+    if( header[0] != "# vtk DataFile Version 3.0" )
+    {
+        wlog::warn( "WReaderMatrixSymVTK" ) << "Wrong version string in file header found, expected: "
+                                               "\"# vtk DataFile Version 3.0\" but got: " << header[0];
+    }
+    if( header[2] != "BINARY" )
+    {
+        wlog::error( "WReaderMatrixSymVTK" ) << "Wrong data format: BINARY expected but got: " << header[2];
+        throw WDHIOFailure( "Error reading file '" + m_fname + " invalid binary format." );
+    }
+    if( header[3] != "FIELD WMatrixSym 1" )
+    {
+        wlog::error( "WReaderMatrixSymVTK" ) << "Wrong field desc in file header found: " << header[3] << " but expected: \"FIELD WMatrixSym 1\"";
+        throw WDHIOFailure( "Error reading file '" + m_fname + " invalid VTK field name." );
+    }
 
     try
     {
@@ -82,14 +94,14 @@ void WReaderLookUpTableVTK::readTable( boost::shared_ptr< std::vector< double > 
     }
     catch( const std::ios_base::failure &e )
     {
-        throw WDHIOFailure( std::string( "Error reading DISTANCES field '" + m_fname + "': " + e.what() ) );
+        throw WDHIOFailure( std::string( "Error reading ELEMENTS field '" + m_fname + "': " + e.what() ) );
     }
     namespace su = string_utils;
     size_t numDistances = 0;
     std::vector< std::string > tokens = su::tokenize( line );
     if( tokens.size() != 4 || su::toLower( tokens.at( 3 ) ) != "float" )
     {
-        throw WDHException( std::string( "Invalid DISTANCES declaration: " + line ) );
+        throw WDHException( std::string( "Invalid ELEMENTS declaration: " + line ) );
     }
     try
     {
@@ -97,7 +109,7 @@ void WReaderLookUpTableVTK::readTable( boost::shared_ptr< std::vector< double > 
     }
     catch( const boost::bad_lexical_cast &e )
     {
-        throw WDHException( std::string( "Invalid number of distances: " + tokens.at( 1 ) ) );
+        throw WDHException( std::string( "Invalid number of elements: " + tokens.at( 1 ) ) );
     }
 
     float *data = new float[ numDistances ];
@@ -107,7 +119,7 @@ void WReaderLookUpTableVTK::readTable( boost::shared_ptr< std::vector< double > 
     }
     catch( const std::ios_base::failure &e )
     {
-        throw WDHIOFailure( std::string( "Error reading distances in VTK DISTANCES field '" + m_fname + "': " + e.what() ) );
+        throw WDHIOFailure( std::string( "Error reading elements in VTK ELEMENTS field '" + m_fname + "': " + e.what() ) );
     }
 
     // all 4 bytes of each float are in wrong order we need to reorder them

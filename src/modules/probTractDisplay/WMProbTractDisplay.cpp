@@ -65,11 +65,9 @@ const std::string WMProbTractDisplay::getDescription() const
 
 void WMProbTractDisplay::connectors()
 {
-    m_input = boost::shared_ptr< WModuleInputForwardData < WDataSetScalar  > >(
-        new WModuleInputForwardData< WDataSetScalar >( shared_from_this(), "probTract", "The probabilistic tractogram as scalar dataset." )
-    );
-
-    addConnector( m_input );
+    m_input = WModuleInputForwardData < WDataSetScalar >::createAndAdd( shared_from_this(),
+                                                                        "probTractInput",
+                                                                        "The probabilistic tractogram as scalar dataset." );
     WModule::connectors();
 }
 

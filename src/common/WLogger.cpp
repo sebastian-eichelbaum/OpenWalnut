@@ -28,6 +28,8 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem/fstream.hpp>
 
+#include "exceptions/WSignalSubscriptionInvalid.h"
+
 #include "WLogger.h"
 
 /**
@@ -37,14 +39,12 @@
 WLogger* logger = NULL;
 
 WLogger::WLogger( std::string fileName, LogLevel level ):
-    WThreadedRunner(),
     m_LogLevel( level ),
 
     m_STDOUTLevel( level ),
     m_STDERRLevel( LL_ERROR ),
     m_LogFileLevel( level ),
     m_LogFileName( fileName ),
-    m_QueueMutex(),
     m_colored( true ),
     m_defaultFormat( "*%l [%s] %m \n" ),
     m_defaultFileFormat( "[%t] *%l*%s* %m \n" )
@@ -93,9 +93,20 @@ void WLogger::setLogFileName( std::string fileName )
     m_LogFileName = fileName;
 }
 
+boost::signals2::connection WLogger::subscribeSignal( LogEvent event, LogEntryCallback callback )
+{
+    switch ( event ) // subscription
+    {
+    case AddLog:
+        return m_addLogSignal.connect( callback );
+    default:
+        throw new WSignalSubscriptionInvalid( std::string( "Signal could not be subscribed. The event is not compatible with the callback." ) );
+    }
+}
+
 void WLogger::addLogMessage( std::string message, std::string source, LogLevel level )
 {
-    if ( m_LogLevel > level || m_shutdownFlag() )
+    if ( m_LogLevel > level )
     {
         return;
     }
@@ -104,73 +115,11 @@ void WLogger::addLogMessage( std::string message, std::string source, LogLevel l
     std::string timeString( to_simple_string( t ) );
     WLogEntry entry( timeString, message, level, source, m_colored );
 
-  // NOTE: in DEBUG mode, we do not use the process queue, since it prints messages delayed and is, therefore, not very usable during debugging.
-#ifndef DEBUG
-    // NOTE(ebaum): as we have a lot of segfaults we need the log messages to be in sync in release mode too.
-    // This helps us to find the problem. This will be undone as we solved the problems with the SegFaults.
+    // signal to all interested
+    m_addLogSignal( entry );
 
-    // boost::mutex::scoped_lock l( m_QueueMutex );
-    // m_LogQueue.push( entry );
+    // output
     std::cout << entry.getLogString( m_defaultFormat );
-#else
-    // in Debug mode, also add the source
-    std::cout << entry.getLogString( m_defaultFormat );
-#endif
-}
-
-void WLogger::processQueue()
-{
-    boost::mutex::scoped_lock l( m_QueueMutex );
-
-    while ( !m_LogQueue.empty() )
-    {
-        WLogEntry entry = m_LogQueue.front();
-        m_LogQueue.pop();
-
-        m_SessionLog.push_back( entry );
-
-        if ( entry.getLogLevel() >= m_STDOUTLevel )
-        {
-            std::cout << entry.getLogString( m_defaultFormat );
-        }
-
-        if ( entry.getLogLevel() >= m_STDERRLevel )
-        {
-            std::cerr << entry.getLogString( m_defaultFormat );
-        }
-
-        if ( entry.getLogLevel() >= m_LogFileLevel )
-        {
-            // TODO(schurade): first open file, then write to file, then close the file
-            // for atomic file usage.
-            boost::filesystem::path p( "walnut.log" );
-            boost::filesystem::ofstream ofs( p, boost::filesystem::ofstream::app );
-
-            bool tmp = entry.isColored();
-            entry.setColored( false );
-            ofs << entry.getLogString( m_defaultFileFormat );
-            entry.setColored( tmp );
-        }
-    }
-}
-
-void WLogger::threadMain()
-{
-  // NOTE: in DEBUG mode, we do not use the process queue, since it prints messages delayed and is, therefore, not very usable during debugging.
-#ifndef DEBUG
-    // Since the modules run in a separate thread: such loops are possible
-    while ( !m_shutdownFlag() )
-    {
-        processQueue();
-        // do fancy stuff
-        sleep( 1 );
-    }
-    // clean up stuff and process remaining entries
-    // write remaining log messages
-    processQueue();
-#else
-    waitForStop();
-#endif
 }
 
 void WLogger::setColored( bool colors )

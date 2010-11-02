@@ -26,14 +26,16 @@
 #define WITKIMAGECONVERSION_H
 
 #ifdef OW_USE_ITK
-
 #include <itkImage.h>
+#endif
 
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
 #include "WDataSetScalar.h"
+
+#ifdef OW_USE_ITK
 
 /**
  * Create an itk image from a dataset.
@@ -62,9 +64,34 @@ typename itk::Image< T, 3 >::Pointer makeImageFromDataSet( boost::shared_ptr< WD
     r.SetSize( s );
     r.SetIndex( i );
 
-    // TODO( reichenbach ): spacing, orientation
+    typename itk::Image< T, 3 >::SpacingType spacing;
+    spacing[ 0 ] = grid->getOffsetX();
+    spacing[ 1 ] = grid->getOffsetY();
+    spacing[ 2 ] = grid->getOffsetZ();
+
+    typename itk::Image< T, 3 >::PointType orig;
+    orig[ 0 ] = grid->getOrigin()[ 0 ];
+    orig[ 1 ] = grid->getOrigin()[ 1 ];
+    orig[ 2 ] = grid->getOrigin()[ 2 ];
+
     img->SetRegions( r );
+    img->SetSpacing( spacing );
+    img->SetOrigin( orig );
     img->Allocate();
+
+    // copy direction matrix
+    typename itk::Image< T, 3 >::DirectionType dirMat;
+    dirMat( 0, 0 ) = grid->getTransformationMatrix()( 0, 0 );
+    dirMat( 0, 1 ) = grid->getTransformationMatrix()( 0, 1 );
+    dirMat( 0, 2 ) = grid->getTransformationMatrix()( 0, 2 );
+    dirMat( 1, 0 ) = grid->getTransformationMatrix()( 1, 0 );
+    dirMat( 1, 1 ) = grid->getTransformationMatrix()( 1, 1 );
+    dirMat( 1, 2 ) = grid->getTransformationMatrix()( 1, 2 );
+    dirMat( 2, 0 ) = grid->getTransformationMatrix()( 2, 0 );
+    dirMat( 2, 1 ) = grid->getTransformationMatrix()( 2, 1 );
+    dirMat( 2, 2 ) = grid->getTransformationMatrix()( 2, 2 );
+
+    img->SetDirection( dirMat );
 
     for( i[ 0 ] = 0; i[ 0 ] < static_cast< int >( s[ 0 ] ); ++i[ 0 ] )
     {
@@ -91,9 +118,28 @@ boost::shared_ptr< WDataSetScalar > makeDataSetFromImage( typename itk::Image< T
 {
     typename itk::Image< T, 3 >::SizeType const& s = img->GetLargestPossibleRegion().GetSize();
 
-    // TODO( reichenbach ): spacing, orientation
-    boost::shared_ptr< WGrid > grid( new WGridRegular3D( s[ 0 ], s[ 1 ], s[ 2 ], 1.0, 1.0, 1.0 ) );
+    wmath::WMatrix< double > smat( 4, 4 );
+    typename itk::Image< T, 3 >::DirectionType dirMat = img->GetDirection();
 
+    smat( 0, 0 ) = dirMat( 0, 0 );
+    smat( 0, 1 ) = dirMat( 0, 1 );
+    smat( 0, 2 ) = dirMat( 0, 2 );
+    smat( 1, 0 ) = dirMat( 1, 0 );
+    smat( 1, 1 ) = dirMat( 1, 1 );
+    smat( 1, 2 ) = dirMat( 1, 2 );
+    smat( 2, 0 ) = dirMat( 2, 0 );
+    smat( 2, 1 ) = dirMat( 2, 1 );
+    smat( 2, 2 ) = dirMat( 2, 2 );
+    smat( 0, 3 ) = img->GetOrigin()[ 0 ];
+    smat( 1, 3 ) = img->GetOrigin()[ 1 ];
+    smat( 2, 3 ) = img->GetOrigin()[ 2 ];
+    smat( 3, 3 ) = 1.0;
+    smat( 3, 0 ) = 0.0;
+    smat( 3, 1 ) = 0.0;
+    smat( 3, 2 ) = 0.0;
+
+    boost::shared_ptr< WGrid > grid( new WGridRegular3D( s[ 0 ], s[ 1 ], s[ 2 ], smat, img->GetSpacing()[ 0 ],
+                                         img->GetSpacing()[ 1 ], img->GetSpacing()[ 2 ] ) );
     std::vector< T > v( s[ 0 ] * s[ 1 ] * s[ 2 ] );
 
     typename itk::Image< T, 3 >::IndexType i;

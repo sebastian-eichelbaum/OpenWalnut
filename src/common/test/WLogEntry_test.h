@@ -38,7 +38,7 @@ class WLogEntryTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * If given a format string of the form: "%t :: %l :: %m" then 
+     * If given a format string of the form: "%t :: %l :: %m" then
      * the log message will replace %t with time of logging and
      * %l with level of logging and %m with the message itself.
      */
