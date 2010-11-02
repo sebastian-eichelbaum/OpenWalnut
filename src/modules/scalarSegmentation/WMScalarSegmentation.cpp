@@ -40,10 +40,18 @@ WMScalarSegmentation::WMScalarSegmentation():
     WModule()
 {
     m_algoIndex = 0;
+    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoThreshold() ) );
+#ifdef OW_USE_ITK
+    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoWatershed() ) );
+    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoOtsu() ) );
+    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoRegionGrowingConfidenceConnected() ) );
+    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoLevelSetCanny() ) );
+#endif  // OW_USE_ITK
 }
 
 WMScalarSegmentation::~WMScalarSegmentation()
 {
+    m_algos.clear();
 }
 
 boost::shared_ptr< WModule > WMScalarSegmentation::factory() const
@@ -63,7 +71,7 @@ const std::string WMScalarSegmentation::getName() const
 
 const std::string WMScalarSegmentation::getDescription() const
 {
-    return "This module segments scalar datasets by threshold.";
+    return "This module segments scalar datasets.";
 }
 
 void WMScalarSegmentation::connectors()
@@ -87,41 +95,40 @@ void WMScalarSegmentation::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_algos = boost::shared_ptr< WItemSelection >( new WItemSelection );
-    m_algos->addItem( "Simple Threshold", "" );
-    m_algos->addItem( "Watershed", "" );
-    m_algos->addItem( "Otsu Threshold", "" );
-    m_algos->addItem( "Region Growing", "" );
-    m_algos->addItem( "Level Sets 1", "" );
+    m_algoSelection = boost::shared_ptr< WItemSelection >( new WItemSelection );
+    for( AlgoList::iterator it = m_algos.begin(); it != m_algos.end(); ++it )
+    {
+        m_algoSelection->addItem( ( *it )->getName(), ( *it )->getDescription() );
+    }
+    m_algoType = m_properties->addProperty( "Segmentation algorithm", "Choose a segmentation method.",
+                                            m_algoSelection->getSelectorFirst(), m_propCondition );
 
-    m_algoType = m_properties->addProperty( "Seg Algo", "Choose a segmentation method.", m_algos->getSelectorFirst(), m_propCondition );
+    for( AlgoList::iterator it = m_algos.begin(); it != m_algos.end(); ++it )
+    {
+        ( *it )->initProperties( m_properties->addPropertyGroup( ( *it )->getName(), "The properties for this segmentation algorithm.", true ) );
+    }
 
-    m_threshold = m_properties->addProperty( "Threshold", "Threshold value for segmentation.", 10.0, m_propCondition );
-    m_threshold->setMax( 100.0 );
-    m_threshold->setMin( 0.0 );
+    m_algos.at( 0 )->hideProperties( false );
 
-    m_level = m_properties->addProperty( "Level", "Level value for segmentation.", 10.0, m_propCondition );
-    m_level->setMax( 100.0 );
-    m_level->setMin( 0.0 );
-
-    m_variance = m_properties->addProperty( "Variance", "Variance", 10.0, m_propCondition );
-    m_variance->setMax( 100.0 );
-    m_variance->setMin( 0.0 );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_algoType );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_algoType );
 
     WModule::properties();
 }
 
 void WMScalarSegmentation::moduleMain()
 {
-    debugLog() << "Entering moduleMain()";
-
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
+    for( AlgoList::iterator it = m_algos.begin(); it != m_algos.end(); ++it )
+    {
+        m_moduleState.add( ( *it )->getCondition() );
+    }
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
@@ -137,7 +144,7 @@ void WMScalarSegmentation::moduleMain()
         if( dataChanged && dataValid )
         {
             m_dataSet = newDataSet;
-            if( !m_dataSet || !m_dataSet->getValueSet() || m_dataSet->getGrid()
+            if( !m_dataSet->getValueSet() || !m_dataSet->getGrid()
                 || m_dataSet->getValueSet()->dimension() != 1 || m_dataSet->getValueSet()->order() != 0 )
             {
                 m_dataSet = boost::shared_ptr< WDataSetScalar >();
@@ -145,16 +152,27 @@ void WMScalarSegmentation::moduleMain()
         }
 
         bool algoChanged = m_algoType->changed();
-        WItemSelector w = m_algoType->get( true );
-        m_algoIndex = w.getItemIndexOfSelected( 0 );
 
-        bool propChanged = m_threshold->changed() || m_level->changed();
+        if( algoChanged )
+        {
+            WItemSelector w = m_algoType->get( true );
+            m_algos.at( m_algoIndex )->hideProperties( true );
+            m_algoIndex = w.getItemIndexOfSelected( 0 );
+            m_algos.at( m_algoIndex )->hideProperties( false );
+        }
+
+        bool propChanged = m_algos.at( m_algoIndex )->propChanged();
         if( m_dataSet && ( dataChanged || propChanged || algoChanged ) )
         {
             // redo calculation
             doSegmentation();
             m_output->updateData( m_result );
         }
+    }
+
+    for( AlgoList::iterator it = m_algos.begin(); it != m_algos.end(); ++it )
+    {
+        m_moduleState.remove( ( *it )->getCondition() );
     }
 }
 
@@ -165,32 +183,7 @@ void WMScalarSegmentation::activate()
 
 void WMScalarSegmentation::doSegmentation()
 {
-    boost::shared_ptr< WValueSetBase > vs;
-
-    debugLog() << m_algoIndex;
-
-    switch( m_algoIndex )
-    {
-    case 0:
-        vs = m_dataSet->getValueSet()->applyFunction( SimpleSegmentation( m_threshold->get( true ) ) );
-        break;
-#ifdef OW_USE_ITK
-    case 1:
-        vs = m_dataSet->getValueSet()->applyFunction( WatershedSegmentation( m_level->get( true ), m_threshold->get( true ), m_dataSet ) );
-        break;
-    case 2:
-        vs = m_dataSet->getValueSet()->applyFunction( OtsuSegmentation( m_dataSet ) );
-        break;
-    case 3:
-        vs = m_dataSet->getValueSet()->applyFunction( RegionGrowingSegmentation( m_dataSet ) );
-        break;
-    case 4:
-        vs = m_dataSet->getValueSet()->applyFunction( LevelSetSegmentation1( m_level->get( true ), m_threshold->get( true ),
-                                                                             m_variance->get( true ), m_dataSet ) );
-        break;
-#endif  // OW_USE_ITK
-    default:
-        errorLog() << "Invalid algorithm selected." << std::endl;
-    }
-    m_result = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_dataSet->getGrid() ) );
+    debugLog() << "Starting segmentation.";
+    m_result = m_algos.at( m_algoIndex )->segment( m_dataSet );
+    debugLog() << "Segmentation finished.";
 }
