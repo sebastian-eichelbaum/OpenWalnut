@@ -39,7 +39,7 @@ WGaussProcess::WGaussProcess( const size_t tractID,
 {
     wmath::WFiber tract = generateTract();
     m_Cff_1_l_product = Eigen::VectorXd( static_cast< int >( tract.size() ) );
-    m_R = tract.maxSegmentLength();
+    m_R = wmath::maxSegmentLength( tract );
     m_Cff_1_l_product = generateCffInverse( tract ) * ( Eigen::VectorXd::Ones( m_Cff_1_l_product.size() ) * m_maxLevel );
     generateTauParameter();
     m_bb = tract.computeBoundingBox();
