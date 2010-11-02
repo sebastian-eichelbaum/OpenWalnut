@@ -244,10 +244,17 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
     size_t nbPosY = std::ceil( bb.second[1] - bb.first[1] ) + 1;
     size_t nbPosZ = std::ceil( bb.second[2] - bb.first[2] ) + 1;
 
+    wmath::WMatrix< double > mat( 4, 4 );
+    mat.makeIdentity();
+    mat( 0, 0 ) = mat( 1, 1 ) = mat( 2, 2 ) = 1.0 / nbVoxelsPerUnit;
+    mat( 0, 3 ) = bb.first[ 0 ];
+    mat( 1, 3 ) = bb.first[ 1 ];
+    mat( 2, 3 ) = bb.first[ 2 ];
+
     boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX,
                                                                   nbVoxelsPerUnit * nbPosY,
                                                                   nbVoxelsPerUnit * nbPosZ,
-                                                                  bb.first, 1.0 / nbVoxelsPerUnit, 1.0 / nbVoxelsPerUnit, 1.0 / nbVoxelsPerUnit ) );
+                                                                  mat ) );
     return grid;
 }
 

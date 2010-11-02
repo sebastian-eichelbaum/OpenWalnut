@@ -170,11 +170,8 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
         throw e;
     }
 
-    newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
-        columns, rows, frames,
-        convertMatrix( header->qto_xyz ),
-        convertMatrix( header->sto_xyz ),
-        header->dx, header->dy, header->dz ) );
+    newGrid = boost::shared_ptr< WGridRegular3D >(
+                        new WGridRegular3D( columns, rows, frames, convertMatrix( header->sto_xyz ) ) );
 
     boost::shared_ptr< WDataSet > newDataSet;
     // known description

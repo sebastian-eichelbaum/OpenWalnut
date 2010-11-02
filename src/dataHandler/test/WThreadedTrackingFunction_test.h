@@ -195,13 +195,13 @@ public:
             // TODO(wiebel): somehow changing the order of the last multiplication does not find the desired operator*
             j.first = wmath::WVector3D( 1.0, 0.0, 0.0 ) + ( x + y + z ) * ( wlimits::FLT_EPS + 0.7 ); // the starting point
             j.second = x; // initial direction
-            TS_ASSERT( g->enclosesRotated( j.first ) );
+            TS_ASSERT( g->encloses( j.first ) );
 
             wmath::WVector3D v = j.first;
 
             TS_ASSERT( wtracking::WTrackingUtility::followToNextVoxel( ds, j, boost::bind( &This::simpleDirFunc, this, _1, _2 ) ) );
             TS_ASSERT( !wtracking::WTrackingUtility::onBoundary( g, j.first ) );
-            TS_ASSERT( g->enclosesRotated( j.first ) );
+            TS_ASSERT( g->encloses( j.first ) );
             v += x * 0.8;
             TS_ASSERT_DELTA( ( j.first - v ).norm(), 0.0, 2.0 * TRACKING_EPS );
         }
@@ -238,7 +238,20 @@ private:
         y *= 2.0;
         z *= 1.5;
 
-        boost::shared_ptr< WGrid > g( new WGridRegular3D( 5, 5, 5, 1.0, 0.0, 0.0, x, y, z, 1.0, 1.0, 1.0 ) );
+        wmath::WMatrix< double > mat( 4, 4 );
+        mat.makeIdentity();
+        mat( 0, 0 ) = x[ 0 ];
+        mat( 0, 1 ) = x[ 1 ];
+        mat( 0, 2 ) = x[ 2 ];
+        mat( 1, 0 ) = y[ 0 ];
+        mat( 1, 1 ) = y[ 1 ];
+        mat( 1, 2 ) = y[ 2 ];
+        mat( 2, 0 ) = z[ 0 ];
+        mat( 2, 1 ) = z[ 1 ];
+        mat( 2, 2 ) = z[ 2 ];
+        mat( 0, 3 ) = 1.0;
+
+        boost::shared_ptr< WGrid > g( new WGridRegular3D( 5, 5, 5, mat ) );
 
         data.normalize();
 
@@ -437,6 +450,9 @@ public:
 
             wtracking::WThreadedTrackingFunction::JobType job = i.job();
             wmath::WVector3D v = g->getOrigin() + 0.75 * x + 0.75 * y + 0.75 * z;
+
+            std::cout << g->getOrigin() << std::endl;
+
             TS_ASSERT_DELTA( v[ 0 ], job.first[ 0 ], TRACKING_EPS );
             TS_ASSERT_DELTA( v[ 1 ], job.first[ 1 ], TRACKING_EPS );
             TS_ASSERT_DELTA( v[ 2 ], job.first[ 2 ], TRACKING_EPS );
@@ -586,7 +602,20 @@ private:
         y *= 2.0;
         z *= 1.5;
 
-        boost::shared_ptr< WGrid > g( new WGridRegular3D( n, n, n, 1.0, 0.0, 0.0, x, y, z, 1.0, 1.0, 1.0 ) );
+        wmath::WMatrix< double > mat( 4, 4 );
+        mat.makeIdentity();
+        mat( 0, 0 ) = x[ 0 ];
+        mat( 0, 1 ) = x[ 1 ];
+        mat( 0, 2 ) = x[ 2 ];
+        mat( 1, 0 ) = y[ 0 ];
+        mat( 1, 1 ) = y[ 1 ];
+        mat( 1, 2 ) = y[ 2 ];
+        mat( 2, 0 ) = z[ 0 ];
+        mat( 2, 1 ) = z[ 1 ];
+        mat( 2, 2 ) = z[ 2 ];
+        mat( 0, 3 ) = 1.0;
+
+        boost::shared_ptr< WGrid > g( new WGridRegular3D( n, n, n, mat ) );
 
         data.normalize();
 

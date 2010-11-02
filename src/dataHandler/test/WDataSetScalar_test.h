@@ -72,7 +72,7 @@ public:
     void testInterpolate( void )
     {
         // create dummies, since they are needed in almost every test
-        boost::shared_ptr< WGrid > grid = boost::shared_ptr< WGrid >( new WGridRegular3D( 5, 3, 3, 1, 1, 1 ) );
+        boost::shared_ptr< WGrid > grid = boost::shared_ptr< WGrid >( new WGridRegular3D( 5, 3, 3 ) );
         std::vector< double > data( grid->size() );
         for( size_t i = 0; i < grid->size(); ++i )
         {

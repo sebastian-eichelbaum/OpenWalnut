@@ -195,7 +195,9 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
         else if ( property == m_matrixSelection )
         {
             boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
-            grid->setActiveMatrix( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) );
+
+            //grid->setActiveMatrix( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) );
+
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
             m_output->triggerUpdate();
         }

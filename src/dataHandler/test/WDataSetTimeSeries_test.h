@@ -97,7 +97,14 @@ public:
             TS_ASSERT_THROWS_NOTHING( WDataSetTimeSeries( d, t ) );
 
             t.push_back( 4.0f );
-            boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, 1.0, 0.5, 2.0 ) );
+
+            wmath::WMatrix< double > mat( 4, 4 );
+            mat.makeIdentity();
+            mat( 0, 0 ) = 1.0;
+            mat( 1, 1 ) = 0.5;
+            mat( 2, 2 ) = 2.0;
+
+            boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, mat ) );
             std::vector< double > v( 27, 4 );
             boost::shared_ptr< WValueSet< double > > vs( new WValueSet< double >( 0, 1, v, W_DT_DOUBLE ) );
             d.push_back( boost::shared_ptr< WDataSetScalar const >( new WDataSetScalar( vs, g ) ) );
@@ -145,7 +152,14 @@ public:
             TS_ASSERT_THROWS_NOTHING( WDataSetTimeSeries( d, t ) );
 
             t.push_back( 4.0f );
-            boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, 1.0, 0.5, 2.0 ) );
+
+            wmath::WMatrix< double > mat( 4, 4 );
+            mat.makeIdentity();
+            mat( 0, 0 ) = 1.0;
+            mat( 1, 1 ) = 0.5;
+            mat( 2, 2 ) = 2.0;
+
+            boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, mat ) );
             std::vector< double > v( 27, 4 );
             boost::shared_ptr< WValueSet< double > > vs( new WValueSet< double >( 0, 1, v, W_DT_DOUBLE ) );
             d.push_back( boost::shared_ptr< WDataSetScalar const >( new WDataSetScalar( vs, g ) ) );
@@ -539,7 +553,14 @@ private:
     {
         dsets.clear();
         times.clear();
-        boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, 1.0, 0.5, 2.0 ) );
+
+        wmath::WMatrix< double > mat( 4, 4 );
+        mat.makeIdentity();
+        mat( 0, 0 ) = 1.0;
+        mat( 1, 1 ) = 0.5;
+        mat( 2, 2 ) = 2.0;
+
+        boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, mat ) );
         for( int i = 0; i < number; ++i )
         {
             std::vector< double > v( 27, data[ i ] );

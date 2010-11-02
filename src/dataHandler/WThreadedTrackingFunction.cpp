@@ -37,7 +37,7 @@ namespace wtracking
         WAssert( dataset->getGrid(), "" );
         Grid3DPtr g = boost::shared_dynamic_cast< WGridRegular3D >( dataset->getGrid() );
         WAssert( g, "" );
-        WAssert( g->enclosesRotated( job.first ), "" );
+        WAssert( g->encloses( job.first ), "" );
 
         // find matching direction
         wmath::WVector3D dir = dirFunc( dataset, job );
@@ -53,7 +53,7 @@ namespace wtracking
         WAssert( t > 0.0, "" );
         WAssert( onBoundary( g, job.first + dir * t ), "" );
 
-        if( !g->enclosesRotated( job.first + dir * t ) )
+        if( !g->encloses( job.first + dir * t ) )
         {
             return false;
         }
@@ -66,7 +66,7 @@ namespace wtracking
         while( onBoundary( g, job.first + dir * t ) && i < 50 )
         {
             t += TRACKING_EPS;
-            if( !g->enclosesRotated( job.first + dir * t ) )
+            if( !g->encloses( job.first + dir * t ) )
             {
                 return false;
             }
