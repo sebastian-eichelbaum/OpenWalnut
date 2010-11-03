@@ -42,14 +42,6 @@ class WGaussProcessTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * Setup logger and other stuff for each test.
-     */
-    void setUp()
-    {
-        WLogger::startup();
-    }
-
-    /**
      * If the point for the mean function is outside of the environment with distance R the mean
      * should equals to zero.
      */
@@ -201,6 +193,7 @@ protected:
      */
     void setUp( void )
     {
+        WLogger::startup();
         float dataArray[6] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 }; // NOLINT array init list
         std::vector< float > data( &dataArray[0], &dataArray[0] + sizeof( dataArray ) / sizeof( float ) );
         boost::shared_ptr< WValueSetBase > newValueSet( new WValueSet< float >( 1, 6, data, W_DT_FLOAT ) );
