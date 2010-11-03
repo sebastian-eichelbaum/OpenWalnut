@@ -151,7 +151,7 @@ void WMLineGuidedSlice::updateCenterLine()
     m_centerLine = m_input->getData()->getCenterLine();
     if( m_centerLine )
     {
-        debugLog() << "Draw center line representation." << m_centerLine->pathLength();
+        debugLog() << "Draw center line representation." << wmath::pathLength( *m_centerLine );
         m_centerLineGeode = wge::generateLineStripGeode( *m_centerLine, 2.f );
     }
     else

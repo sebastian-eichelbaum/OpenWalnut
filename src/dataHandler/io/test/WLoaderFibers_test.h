@@ -178,7 +178,6 @@ public:
     {
         using boost::shared_ptr;
         using std::vector;
-        using wmath::WFiber;
         using wmath::WPosition;
         WLoaderFibers loader( "fixtures/Fibers/small_example_one_fiber.fib" );
         loader.readHeader();

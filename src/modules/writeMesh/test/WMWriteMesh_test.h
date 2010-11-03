@@ -36,9 +36,6 @@
 #include "../../../graphicsEngine/WTriangleMesh.h"
 #include "../WMWriteMesh.h"
 
-static WLogger logger;
-static bool loggerInitialized = false;
-
 /**
  * Test for WMWriteMesh
  */
@@ -51,16 +48,7 @@ public:
      */
     void setUp()
     {
-        if ( !loggerInitialized )
-        {
-            std::cout << "Initialize logger." << std::endl;
-            logger.setColored( false );
-
-            // NOTE: the logger does not need to be run, since the logger main thread just prints the messages. If compiled in
-            // debug mode, the messages will be printed directly, without the logger thread.
-            //logger.run();
-            loggerInitialized = true;
-        }
+        WLogger::startup();
     }
 
     /**

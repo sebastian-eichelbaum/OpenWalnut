@@ -53,7 +53,12 @@ public:
      *
      * \param n number of rows and cols
      */
-    explicit WMatrixSymImpl( size_t n );
+    WMatrixSymImpl( size_t n );
+
+    /**
+     * Default constructor leaving all empty.
+     */
+    WMatrixSymImpl();
 
     /**
      * Element acces operator as if the elements where stored as a normal matrix.
@@ -111,12 +116,18 @@ inline WMatrixSymImpl< T >::WMatrixSymImpl( size_t n )
 }
 
 template< typename T >
+inline WMatrixSymImpl< T >::WMatrixSymImpl()
+    : m_n( 0 )
+{
+}
+
+template< typename T >
 inline T& WMatrixSymImpl< T >::operator()( size_t i, size_t j ) throw( WOutOfBounds )
 {
-    if( i == j )
+    if( i == j || i >= m_n || j >= m_n )
     {
         std::stringstream ss;
-        ss << "Invalid Element Access ( " << i << ", " << j << " ). Main Diagonal Elements are forbidden in this table.";
+        ss << "Invalid Element Access ( " << i << ", " << j << " ). No diagonal elements or indices bigger than " << m_n << " are allowed.";
         throw WOutOfBounds( ss.str() );
     }
     if( i > j )

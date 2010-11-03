@@ -31,14 +31,21 @@
 #include "../WLimits.h"
 #include "../WLogger.h"
 
-static WLogger logger;
-
 /**
  * Unit tests the WHistogramBasic class.
  */
 class WHistogramBasicTest : public CxxTest::TestSuite
 {
 public:
+
+    /**
+     * Setup logger and other stuff for each test.
+     */
+    void setUp()
+    {
+        WLogger::startup();
+    }
+
     /**
      * Check when nothing was inserted every thing is empty.
      */

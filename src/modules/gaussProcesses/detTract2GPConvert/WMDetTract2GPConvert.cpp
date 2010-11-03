@@ -28,8 +28,6 @@
 #include "WMDetTract2GPConvert.xpm"
 #include "WMDetTract2GPConvert.h"
 
-W_LOADABLE_MODULE( WMDetTract2GPConvert )
-
 WMDetTract2GPConvert::WMDetTract2GPConvert():
     WModule()
 {
@@ -75,4 +73,34 @@ void WMDetTract2GPConvert::properties()
 
 void WMDetTract2GPConvert::moduleMain()
 {
+    m_moduleState.setResetable( true, true ); // remember actions when actually not waiting for actions
+    m_moduleState.add( m_tractIC->getDataChangedCondition() );
+    m_moduleState.add( m_tensorIC->getDataChangedCondition() );
+
+    ready();
+
+    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    {
+        debugLog() << "Waiting..";
+        m_moduleState.wait();
+        if ( !m_tractIC->getData().get() || !m_tensorIC->getData().get() ) // ok, the output has not yet sent data
+        {
+            continue;
+        }
+
+        // bool dataUpdated = m_tractIC->handledUpdate() || m_tensorIC->handledUpdate();
+        boost::shared_ptr< WDataSetFibers > tracts = m_tractIC->getData();
+        boost::shared_ptr< WDataSetDTI > tensors = m_tensorIC->getData();
+        bool dataValid = tracts && tensors;
+        if( !dataValid )
+        {
+            continue;
+        }
+        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Converting tracts into gaussian processes.", tracts->size() ) ); // NOLINT line length
+        m_progress->addSubProgress( progress1 );
+        m_gpOC->updateData( boost::shared_ptr< WDataSetGP >( new WDataSetGP( tracts, tensors, m_shutdownFlag, progress1 ) ) );
+        progress1->finish();
+        m_progress->removeSubProgress( progress1 );
+        debugLog() << "done";
+    }
 }

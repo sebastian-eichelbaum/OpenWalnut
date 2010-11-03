@@ -65,11 +65,11 @@ WPropertyPositionWidget::WPropertyPositionWidget( WPropPosition property, QGridL
     update();
 
     // connect the modification signal of the edit and slider with our callback
-    connect( &m_editX, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
+    connect( &m_editX, SIGNAL( editingFinished() ), this, SLOT( editChanged() ) );
     connect( &m_editX, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
-    connect( &m_editY, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
+    connect( &m_editY, SIGNAL( editingFinished() ), this, SLOT( editChanged() ) );
     connect( &m_editY, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
-    connect( &m_editZ, SIGNAL( returnPressed() ), this, SLOT( editChanged() ) );
+    connect( &m_editZ, SIGNAL( editingFinished() ), this, SLOT( editChanged() ) );
     connect( &m_editZ, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
 }
 

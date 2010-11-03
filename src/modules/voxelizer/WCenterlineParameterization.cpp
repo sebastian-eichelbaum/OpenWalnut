@@ -27,7 +27,7 @@
 
 #include "WCenterlineParameterization.h"
 
-WCenterlineParameterization::WCenterlineParameterization( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< wmath::WFiber > centerline ):
+WCenterlineParameterization::WCenterlineParameterization( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WFiber > centerline ):
     WRasterParameterization( grid ),
     m_paramValues( grid->size(), 0.0 ),
     m_paramFinalValues( grid->size(), 0.0 ),

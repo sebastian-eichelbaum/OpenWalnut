@@ -149,9 +149,9 @@ void WMDetTractCulling::cullOutTracts()
 
     std::vector< bool > unusedTracts( numTracts, false );
 
-    boost::function< double ( const wmath::WFiber& q, const wmath::WFiber& r ) > dSt; // NOLINT
+    boost::function< double ( const WFiber& q, const WFiber& r ) > dSt; // NOLINT
     const double proxSquare = proximity_t * proximity_t;
-    dSt = boost::bind( wmath::WFiber::distDST, proxSquare, _1, _2 );
+    dSt = boost::bind( WFiber::distDST, proxSquare, _1, _2 );
 
     boost::shared_ptr< WProgress > progress( new WProgress( "Tract culling", numTracts ) );
     m_progress->addSubProgress( progress );

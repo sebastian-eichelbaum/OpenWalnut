@@ -57,7 +57,7 @@ public:
             std::stringstream prefix;
             prefix << "fib: " << count << "[ ";
             std::string indent( prefix.str().size(), ' ' );
-            for( wmath::WFiber::const_iterator dit = cit->begin(); dit != cit->end(); ++dit )
+            for( WFiber::const_iterator dit = cit->begin(); dit != cit->end(); ++dit )
             {
                 if( *dit == *cit->begin() )
                 {

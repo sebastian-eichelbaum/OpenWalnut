@@ -97,12 +97,11 @@ protected:
     /**
      * Resamples all tracts with a resampler instance for example the WSimpleResampler.
      *
-     * \param numSamples How many sample points all tracts should have
      * \param dataSet Which dataset should be resampled
      *
      * \return The resampled dataset.
      */
-    boost::shared_ptr< WDataSetFibers > resample( size_t numSamples, boost::shared_ptr< const WDataSetFibers > dataSet ) const;
+    boost::shared_ptr< WDataSetFibers > resample( boost::shared_ptr< const WDataSetFibers > dataSet ) const;
 
 private:
 

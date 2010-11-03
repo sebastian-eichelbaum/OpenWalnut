@@ -416,3 +416,17 @@ std::pair< wmath::WPosition, wmath::WPosition > WDataSetFibers::getBoundingBox()
 {
     return std::make_pair( m_bbMin, m_bbMax );
 }
+
+WFiber WDataSetFibers::operator[]( size_t numTract ) const
+{
+    WAssert( numTract < m_lineLengths->size(), "WDataSetFibers: out of bounds - invalid tract number requested." );
+    WFiber result;
+    result.reserve( ( *m_lineLengths )[ numTract ] );
+    size_t vIdx = ( *m_lineStartIndexes )[ numTract ] * 3;
+    for( size_t vertexNum = 0; vertexNum < ( *m_lineLengths )[ numTract ]; ++vertexNum )
+    {
+        result.push_back( wmath::WPosition( ( *m_vertices )[vIdx], ( *m_vertices )[vIdx + 1], ( *m_vertices )[vIdx + 2]  ) );
+        vIdx += 3;
+    }
+    return result;
+}

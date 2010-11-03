@@ -45,22 +45,11 @@ public:
     void testFormatStringReplacement( void )
     {
         std::string dummyTime = "2009-Oct-02 14:46:50";
-        WLogEntry entry( dummyTime, "Dummy message", LL_INFO, "WLogEntryTest", false );
+        WLogEntry entry( dummyTime, "Dummy message", LL_INFO, "WLogEntryTest" );
         // build our customized format string
         std::string format = "%m :: %t %t %l";
         std::string expected = "Dummy message :: 2009-Oct-02 14:46:50 %t INFO   ";
-        TS_ASSERT_EQUALS( entry.getLogString( format ), expected );
-    }
-
-    /**
-     * If the default format string is used then the time, level and message
-     * should be printed in a special format.
-     */
-    void testDefaultFormatString( void )
-    {
-        WLogEntry entry( "now", "msg", LL_WARNING, "", false );
-        std::string expected( "[now] *WARNING* msg \n" );
-        TS_ASSERT_EQUALS( expected, entry.getLogString() );
+        TS_ASSERT_EQUALS( entry.getLogString( format, false ), expected );
     }
 
     /**
@@ -69,8 +58,8 @@ public:
      */
     void testEmptyStringAsFormatString( void )
     {
-        WLogEntry entry( "now", "msg", LL_INFO, "WLogEntryTest", false );
-        TS_ASSERT_EQUALS( entry.getLogString( "" ), "" );
+        WLogEntry entry( "now", "msg", LL_INFO, "WLogEntryTest" );
+        TS_ASSERT_EQUALS( entry.getLogString( "", false ), "" );
     }
 
     /**
@@ -79,9 +68,10 @@ public:
      */
     void testUnkownLogLevel( void )
     {
-        WLogEntry entry( "now", "msg", static_cast< LogLevel >( 4711 ), "WLogEntryTest", false );
-        std::string expected( "[now] *%l* msg \n" );
-        TS_ASSERT_EQUALS( entry.getLogString(), expected );
+        WLogEntry entry( "now", "msg", static_cast< LogLevel >( 4711 ), "WLogEntryTest" );
+        std::string expected( "%l" );
+        std::string format( "%l" );
+        TS_ASSERT_EQUALS( entry.getLogString( format, false ), expected );
     }
 };
 

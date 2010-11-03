@@ -56,9 +56,8 @@ public:
      * \param message  the message
      * \param level    the log level
      * \param source   the source, sending the log
-     * \param colored  true if colors should be used.
      */
-    WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source = "", bool colored = true );
+    WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source = "" );
 
     /**
      * Destroys a log message entry.
@@ -67,28 +66,16 @@ public:
 
     /**
      * \param format A string describing the output format in c printf style
+     * \param colors True if colors should be used. True is the default.
+     *
      * \return String of this log entry.
      */
-    std::string getLogString( std::string format = "[%t] *%l* %m \n" ) const;
+    std::string getLogString( std::string format = "[%t] *%l* %m \n", bool colors = true ) const;
 
     /**
      * \return log level of this entry.
      */
     LogLevel getLogLevel() const;
-
-    /**
-     * Set whether to use colors or not. Note: this is only useful on Linux systems currently.
-     *
-     * \param colors true if colors should be used.
-     */
-    void setColored( bool colors );
-
-    /**
-     * Getter determining whether to use colors or not.
-     *
-     * \return true if colors should be used.
-     */
-    bool isColored() const;
 
     /**
      * Returns the plain message of the entry.
@@ -134,44 +121,53 @@ private:
     std::string m_source;
 
     /**
-     * Flag determining whether colors should be used or not.
-     */
-    bool m_colored;
-
-    /**
      * Color used for error logs.
+     *
+     * \note it is mutable to allow en-/disabling the colors during getLogString.
      */
-    WTerminalColor m_errorColor;
+    mutable WTerminalColor m_errorColor;
 
     /**
      * Color used for info logs
+     *
+     * \note it is mutable to allow en-/disabling the colors during getLogString.
      */
-    WTerminalColor m_infoColor;
+    mutable WTerminalColor m_infoColor;
 
     /**
      * Color used for debug logs.
+     *
+     * \note it is mutable to allow en-/disabling the colors during getLogString.
      */
-    WTerminalColor m_debugColor;
+    mutable WTerminalColor m_debugColor;
 
     /**
      * Color used for warning logs.
+     *
+     * \note it is mutable to allow en-/disabling the colors during getLogString.
      */
-    WTerminalColor m_warningColor;
+    mutable WTerminalColor m_warningColor;
 
     /**
      * Color used for source field.
+     *
+     * \note it is mutable to allow en-/disabling the colors during getLogString.
      */
-    WTerminalColor m_sourceColor;
+    mutable WTerminalColor m_sourceColor;
 
     /**
      * Color used for time.
+     *
+     * \note it is mutable to allow en-/disabling the colors during getLogString.
      */
-    WTerminalColor m_timeColor;
+    mutable WTerminalColor m_timeColor;
 
     /**
      * Color used for the message.
+     *
+     * \note it is mutable to allow en-/disabling the colors during getLogString.
      */
-    WTerminalColor m_messageColor;
+    mutable WTerminalColor m_messageColor;
 };
 
 #endif  // WLOGENTRY_H

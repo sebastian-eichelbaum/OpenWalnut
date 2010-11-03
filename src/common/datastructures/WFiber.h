@@ -36,12 +36,10 @@
 // finds it by it self. Hence this is the only solution that might work
 class WFiberTest;
 
-namespace wmath
-{
 /**
  * Represents a neural pathway.
  */
-class OWCOMMON_EXPORT WFiber : public WLine
+class OWCOMMON_EXPORT WFiber : public wmath::WLine
 {
 friend class WFiberTest;
 public:
@@ -50,7 +48,7 @@ public:
      *
      * \param points Reference to the points which belong to this fiber
      */
-    explicit WFiber( const std::vector< WPosition > &points );
+    explicit WFiber( const std::vector< wmath::WPosition > &points );
 
     /**
      * Creates an empty fiber.
@@ -66,7 +64,7 @@ public:
      *
      * \return The minimum of dt(Q,R) and dt(R,Q)
      */
-    static double distDST( double thresholdSquare, const wmath::WFiber &q, const wmath::WFiber &r );
+    static double distDST( double thresholdSquare, const WFiber &q, const WFiber &r );
 
     /**
      * This is the Larger thresholded distance as described by Zhang: http://dx.doi.org/10.1109/TVCG.2008.52 .
@@ -77,24 +75,9 @@ public:
      *
      * \return The maximum of dt(Q,R) and dt(R,Q)
      */
-    static double distDLT( double thresholdSquare, const wmath::WFiber &q, const wmath::WFiber &r );
+    static double distDLT( double thresholdSquare, const WFiber &q, const WFiber &r );
 
 protected:
 private:
 };
-
-/**
- * Boolean predicate indicating that the first fiber has a greater length then
- * the second one.
- *
- * \param first First fiber
- * \param second Second fiber
- * \return True if the first fiber is longer than the second
- */
-inline bool hasGreaterLengthThen( const WFiber &first, const WFiber &second )
-{
-    return first.size() > second.size();
-}
-
-} // end of namespace
 #endif  // WFIBER_H
