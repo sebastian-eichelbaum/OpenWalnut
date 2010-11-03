@@ -237,7 +237,7 @@ ADD_SUBDIRECTORY( ext ) # The needed external libraries
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
     add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
                         MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
-                        COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\"' > ${PROJECT_SOURCE_DIR}/version.h
+                        COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\" //' > ${PROJECT_SOURCE_DIR}/version.h
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                         COMMENT "Creating version.h"
                      )
