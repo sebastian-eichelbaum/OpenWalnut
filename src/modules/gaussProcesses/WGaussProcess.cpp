@@ -37,7 +37,7 @@ WGaussProcess::WGaussProcess( const size_t tractID,
       m_tensors( tensors ),
       m_maxLevel( maxLevel )
 {
-    wmath::WFiber tract = generateTract();
+    WFiber tract = generateTract();
     m_Cff_1_l_product = Eigen::VectorXd( static_cast< int >( tract.size() ) );
     m_R = wmath::maxSegmentLength( tract );
     m_Cff_1_l_product = generateCffInverse( tract ) * ( Eigen::VectorXd::Ones( m_Cff_1_l_product.size() ) * m_maxLevel );
@@ -54,7 +54,7 @@ double WGaussProcess::mean( const wmath::WPosition& p ) const
     Eigen::VectorXd Sf( m_Cff_1_l_product.size() );
 
     // for further improvement we could work with the indices of the arrays inside of the WDataSetFibers instead of building up this point vector
-    wmath::WFiber tract = generateTract();
+    WFiber tract = generateTract();
 
     for( size_t i = 0; i < tract.size(); ++i )
     {
@@ -64,18 +64,18 @@ double WGaussProcess::mean( const wmath::WPosition& p ) const
     return Sf.dot( m_Cff_1_l_product );
 }
 
-wmath::WFiber WGaussProcess::generateTract() const
+WFiber WGaussProcess::generateTract() const
 {
     return ( *m_tracts )[ m_tractID ];
 }
 
-Eigen::MatrixXd WGaussProcess::generateCffInverse( const wmath::WFiber& tract )
+Eigen::MatrixXd WGaussProcess::generateCffInverse( const WFiber& tract )
 {
     Eigen::MatrixXd Cff( static_cast< int >( tract.size() ), static_cast< int >( tract.size() ) );
     size_t i = 0, j = 0;
-    for( wmath::WFiber::const_iterator cit = tract.begin(); cit != tract.end(); ++cit, ++i )
+    for( WFiber::const_iterator cit = tract.begin(); cit != tract.end(); ++cit, ++i )
     {
-        for( wmath::WFiber::const_iterator cit2 = tract.begin(); cit2 != tract.end(); ++cit2, ++j )
+        for( WFiber::const_iterator cit2 = tract.begin(); cit2 != tract.end(); ++cit2, ++j )
         {
             Cff( i, j ) = cov( *cit, *cit2 );
         }
@@ -166,16 +166,16 @@ namespace
 
 double gauss::innerProduct( const WGaussProcess& p1, const WGaussProcess& p2 )
 {
-    wmath::WFiber f1 = p1.generateTract();
-    wmath::WFiber f2 = p2.generateTract();
+    WFiber f1 = p1.generateTract();
+    WFiber f2 = p2.generateTract();
     double Q = p1.getMaxSegmentLength();
     double R = p2.getMaxSegmentLength();
 
     Eigen::MatrixXd integralMatrix( static_cast< int >( f1.size() ), static_cast< int >( f2.size() ) );
     size_t i = 0, j = 0;
-    for( wmath::WFiber::const_iterator cit = f1.begin(); cit != f1.end(); ++cit, ++i )
+    for( WFiber::const_iterator cit = f1.begin(); cit != f1.end(); ++cit, ++i )
     {
-        for( wmath::WFiber::const_iterator cit2 = f2.begin(); cit2 != f2.end(); ++cit2, ++j )
+        for( WFiber::const_iterator cit2 = f2.begin(); cit2 != f2.end(); ++cit2, ++j )
         {
             integralMatrix( i, j ) = covIntegralThinPlateR3Normalized( ( *cit - *cit2 ).norm(), Q, R );
         }

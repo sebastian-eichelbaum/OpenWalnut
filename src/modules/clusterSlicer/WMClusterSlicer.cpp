@@ -293,7 +293,7 @@ wmath::WValue< double > WMClusterSlicer::meanParameter( boost::shared_ptr< std::
 void WMClusterSlicer::generateSlices()
 {
     debugLog() << "Generating Slices";
-    wmath::WFiber centerLine( *m_cluster->getCenterLine() ); // copy the centerline
+    WFiber centerLine( *m_cluster->getCenterLine() ); // copy the centerline
     if( centerLine.empty() )
     {
         errorLog() << "CenterLine of the bundle is empty => no slices are drawn";
@@ -595,8 +595,8 @@ double WMClusterSlicer::countTractPointsInsideVolume( double isoValue ) const
     size_t pointsInside = 0;
     for( iter = indices.begin(); iter != indices.end(); ++iter )
     {
-        const wmath::WFiber& tract = ( *tracts )[ *iter ];
-        wmath::WFiber::const_iterator pos;
+        const WFiber& tract = ( *tracts )[ *iter ];
+        WFiber::const_iterator pos;
         for( pos = tract.begin(); pos != tract.end(); ++pos, ++pointCounter )
         {
             bool inGrid = false;
@@ -620,8 +620,8 @@ double WMClusterSlicer::computeOptimalIsoValue( double coverage ) const
 
     for( iter = indices.begin(); iter != indices.end(); ++iter )
     {
-        const wmath::WFiber& tract = ( *tracts )[ *iter ];
-        wmath::WFiber::const_iterator pos;
+        const WFiber& tract = ( *tracts )[ *iter ];
+        WFiber::const_iterator pos;
         for( pos = tract.begin(); pos != tract.end(); ++pos )
         {
             bool inGrid = false;

@@ -81,14 +81,14 @@ public:
     const Eigen::VectorXd& getCff1lProduct() const;
 
     /**
-     * Generates with the help of the \ref WDataSetFibers and the \ref m_tractID a \ref wmath::WFiber
+     * Generates with the help of the \ref WDataSetFibers and the \ref m_tractID a \ref WFiber
      * instance, for easily accessing the points sequently.
      *
      * \note: This may be time and space consuming! Be careful!
      *
-     * \return Copy of the \ref wmath::WFiber instance reffered by \ref m_tractID
+     * \return Copy of the \ref WFiber instance reffered by \ref m_tractID
      */
-    wmath::WFiber generateTract() const;
+    WFiber generateTract() const;
 
     /**
      * As each gaussian process is associated with a WFiber it also hat the maximal segment length,
@@ -127,7 +127,7 @@ private:
      *
      * \return Copy of the Cff inverse. Is not saved as member since its almost never used and may be huge!
      */
-    Eigen::MatrixXd generateCffInverse( const wmath::WFiber& tract );
+    Eigen::MatrixXd generateCffInverse( const WFiber& tract );
 
     /**
      * Computes tau parameter representing the max diffusion time.

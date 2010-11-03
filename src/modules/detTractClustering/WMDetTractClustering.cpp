@@ -351,7 +351,7 @@ osg::ref_ptr< osg::Geode > WMDetTractClustering::genTractGeode( const WFiberClus
     std::list< size_t >::const_iterator cit = cluster.getIndices().begin();
     for( ; cit !=  cluster.getIndices().end(); ++cit )
     {
-        const wmath::WFiber &fib = (*m_tracts)[ *cit ];
+        const WFiber &fib = (*m_tracts)[ *cit ];
         for( size_t i = 0; i < fib.size(); ++i )
         {
             vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
@@ -468,8 +468,8 @@ void WMDetTractClustering::SimilarityMatrixComputation::operator()( size_t id, s
     wlog::debug( "WMDetTractClustering::SimilarityMatrixComputation" ) << "Thread: " << id << " starting its work";
     ( void ) b; // NOLINT for removing the warning about unused variables
 
-    boost::function< double ( const wmath::WFiber& q, const wmath::WFiber& r ) > dLt; // NOLINT
-    dLt = boost::bind( wmath::WFiber::distDLT, m_proxSquare, _1, _2 );
+    boost::function< double ( const WFiber& q, const WFiber& r ) > dLt; // NOLINT
+    dLt = boost::bind( WFiber::distDLT, m_proxSquare, _1, _2 );
 
     size_t numTracts = m_tracts->size();
     size_t lines = 0;
