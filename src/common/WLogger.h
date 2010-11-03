@@ -25,6 +25,7 @@
 #ifndef WLOGGER_H
 #define WLOGGER_H
 
+#include <ostream>
 #include <queue>
 #include <sstream>
 #include <string>
@@ -35,7 +36,116 @@
 
 #include "WLogEntry.h"
 #include "WStringUtils.h"
+#include "WSharedSequenceContainer.h"
 #include "WExportCommon.h"
+
+/**
+ * Class implementing a capsule for an output stream and the needed level and format information.
+ */
+class OWCOMMON_EXPORT WLogStream
+{
+public:
+    typedef boost::shared_ptr< WLogStream > SharedPtr;  //!< shared pointer type
+    typedef WLogStream* Ptr; //!< pointer type
+    typedef WLogStream& Ref; //!< reference
+    typedef const WLogStream& ConstRef; //!< const reference
+
+    /**
+     * Constructor. Create a new stream instance. The output stream is a mandatory parameter. The others are predefined with some defaults.
+     *
+     * \param output the stream where to print log messages to
+     * \param logLevel logging level, i.e. verboseness
+     * \param format the format used for output
+     */
+    WLogStream( std::ostream& output, LogLevel logLevel = LL_DEBUG, std::string format = "*%l [%s] %m \n", bool colored = true );
+
+    /**
+     * Prints the specified entry to the output stream in the right format if the log level matches.
+     *
+     * \param entry the entry to print-
+     */
+    void printEntry( const WLogEntry& entry );
+
+    /**
+     * Sets the new log level. All new incoming logs will be filtered according to this level.
+     *
+     * \param logLevel the level
+     */
+    void setLogLevel( LogLevel logLevel );
+
+    /**
+     * Gets the currently set log level.
+     *
+     * \return the current log level
+     */
+    LogLevel getLogLevel() const;
+
+    /**
+     * Sets the format string.
+     *
+     * \param format the format string.
+     */
+    void setFormat( std::string format );
+
+    /**
+     * Returns the currently set format string.
+     *
+     * \return format string.
+     */
+    std::string getFormat() const;
+
+    /**
+     * Set whether to use colors or not. Note: this is only useful on Linux systems currently.
+     *
+     * \param colors true if colors should be used.
+     */
+    void setColored( bool colors );
+
+    /**
+     * Getter determining whether to use colors or not.
+     *
+     * \return true if colors should be used.
+     */
+    bool isColored() const;
+
+private:
+
+    /**
+     * Disallow copy.
+     *
+     * \param rhs the stream to copy
+     */
+    WLogStream( const WLogStream& rhs );
+
+    /**
+     * Disallow assignment.
+     *
+     * \param rhs the stream to assign to this
+     *
+     * \return this
+     */
+    WLogStream& operator=( const WLogStream& rhs );
+
+    /**
+     * The output stream.
+     */
+    std::ostream& m_output;
+
+    /**
+     * The logging level. All messages below this level are discarded.
+     */
+    LogLevel m_logLevel;
+
+    /**
+     * The format of the message.
+     */
+    std::string m_format;
+
+    /**
+     * True if colors should be used. This requires a compatible terminal.
+     */
+    bool m_color;
+};
 
 /**
  * Does actual logging of WLogEntries down to stdout or something similar.
@@ -44,11 +154,12 @@ class OWCOMMON_EXPORT WLogger       // NOLINT
 {
 public:
     /**
-     * Constructor
-     * \param fileName the log will be stored in this file
+     * Constructor.
+     *
+     * \param output the stream where to print log messages to
      * \param level logging level, i.e. verboseness
      */
-    WLogger( std::string fileName = "walnut.log", LogLevel level = LL_DEBUG );
+    WLogger( std::ostream& output = std::cout, LogLevel level = LL_DEBUG );
 
     /**
      * Destructor.
@@ -63,49 +174,12 @@ public:
     static WLogger* getLogger();
 
     /**
-     * Sets the global log level
-     * \param level the new global logging level
-     */
-    void setLogLevel( LogLevel level );
-
-    /**
-     * Sets the log level for stdout.
-     * \param level the new logging level for stdout
-     */
-    void setSTDOUTLevel( LogLevel level );
-
-    /**
-     * Sets the log level for stderr.
-     * \param level the new logging level for stderr
-     */
-    void setSTDERRLevel( LogLevel level );
-
-    /**
-     * Sets the log level for the given log file.
-     * \param level the new level for logging to file
-     */
-    void setLogFileLevel( LogLevel level );
-
-    /**
-     * Specifies the path for logging to this file and checks if the path
-     * exists by an assertion.
-     * \param fileName the name and path of the file to be used for logging.
-     */
-    void setLogFileName( std::string fileName );
-
-    /**
-     * Set whether to use colors or not. Note: this is only useful on Linux systems currently.
+     * Adds a new stream to the logger. This is useful to register file streams or uncolored GUI based outputs.
+     * \note It is not intended to allow getting streams or modifying them except you are the owner/creator.
      *
-     * \param colors true if colors should be used.
+     * \param s the stream to add.
      */
-    void setColored( bool colors );
-
-    /**
-     * Getter determining whether to use colors or not.
-     *
-     * \return true if colors should be used.
-     */
-    bool isColored();
+    void addStream( WLogStream::SharedPtr s );
 
     /**
      * Set the default format used for log entries.
@@ -115,25 +189,11 @@ public:
     void setDefaultFormat( std::string format );
 
     /**
-     * Gets the default format used for log entries.
+     * Gets the default format used for log entries. This actually returns the format of the first log stream.
      *
      * \return format string. See WLogEntry for details.
      */
     std::string getDefaultFormat();
-
-    /**
-     * Set the default format used for log entries in log files.
-     *
-     * \param format the format string. See WLogEntry for details.
-     */
-    void setDefaultFileFormat( std::string format );
-
-    /**
-     * Gets the default format used for log entries in log files.
-     *
-     * \return format string. See WLogEntry for details.
-     */
-    std::string getDefaultFileFormat();
 
     /**
      * Appends a log message to the logging queue.
@@ -174,50 +234,14 @@ private:
     WLogger( const WLogger& );
 
     /**
-     * The actual level of logging so messages with a lower level will be
-     * discarded.
+     * The output stream list type.
      */
-    LogLevel m_LogLevel;
+    typedef WSharedSequenceContainer< std::vector< WLogStream::SharedPtr > > Outputs;
 
     /**
-     * LogLevel for stdout
+     * The list of outputs to print the messages to.
      */
-    LogLevel m_STDOUTLevel;
-
-    /**
-     * LogLevel for stderr
-     */
-    LogLevel m_STDERRLevel;
-
-    /**
-     * LogLevel for the given log file
-     */
-    LogLevel m_LogFileLevel;
-
-    /**
-     * Filename of the log file
-     */
-    std::string m_LogFileName;
-
-    /**
-     * Storage for all WLogEntries that were given to our logging instance
-     */
-    std::vector< WLogEntry > m_SessionLog;
-
-    /**
-     * Flag determining whether log entries can be colored or not.
-     */
-    bool m_colored;
-
-    /**
-     * The default format used for new log entries.
-     */
-    std::string m_defaultFormat;
-
-    /**
-     * The default format used for new log entries in files.
-     */
-    std::string m_defaultFileFormat;
+    Outputs m_outputs;
 
     /**
      * Signal called whenever a new log message arrives.
@@ -259,7 +283,6 @@ namespace wlog
         typedef std::basic_ostream< char, std::char_traits< char > > OutStreamType;
         typedef OutStreamType& ( *StreamManipulatorFunctor )( OutStreamType& );
         // \endcond
-
 
         /**
          * This is totally crazy man! Don't get dizzy on that, watch out and
