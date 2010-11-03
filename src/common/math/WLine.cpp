@@ -73,15 +73,13 @@ double pathLength( const wmath::WLine& line )
 
 void WLine::resample( size_t numPoints )
 {
-    if( size() != numPoints && size() > 0 && numPoints > 0 )
+    WLine newLine;
+    newLine.reserve( numPoints );
+    if( size() != numPoints && size() > 1 && numPoints > 0 )
     {
         const double pathL = wmath::pathLength( *this );
         double newSegmentLength = pathL / ( numPoints - 1 );
         const double delta = newSegmentLength * 1.0e-10; // 1.0e-10 which represents the precision is choosen by intuition
-
-        WLine newLine;
-        newLine.reserve( numPoints );
-
         double remainingLength = 0.0;
         newLine.push_back( front() );
         for( size_t i = 0; i < ( size() - 1 ); ++i )
@@ -97,16 +95,26 @@ void WLine::resample( size_t numPoints )
                 newLine.push_back( newPoint );
                 // std::cout << "line size so far" << newLine.size() << " lenght so far: " << newLine.pathLength() << std::endl;
                 // std::cout << numPoints - newLine.size() << std::endl;
-             }
+            }
         }
         // using string_utils::operator<<;
         // std::cout << "this: " << *this << std::endl << "new:  " << newLine << std::endl;
         // std::cout << "|remL - newSegL|: " << std::abs( remainingLength - newSegmentLength ) << std::endl;
         // std::cout << std::setprecision( 35 ) << "remainingLength: " << remainingLength << " newSegmentLength: " << newSegmentLength << std::endl;
         // std::cout << "this size: " << size() << " new size: " << newLine.size() << std::endl;
+    }
+    else if( size() == 1 && size() < numPoints )
+    {
+        for( size_t i = 0; i < numPoints; ++i )
+        {
+            newLine.push_back( front() );
+        }
+    }
+    if( size() != numPoints )
+    {
         this->WMixinVector< wmath::WPosition >::operator=( newLine );
     }
-    WAssert( size() == numPoints, "Resampling of a line has failed! Is your line of length 0 or even the new sample rate??" );
+    // Note if the size() == 0, then the resampled tract is also of length 0
 }
 
 int equalsDelta( const wmath::WLine& line, const wmath::WLine& other, double delta )
