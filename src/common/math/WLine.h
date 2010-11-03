@@ -121,5 +121,21 @@ namespace wmath
      */
     double maxSegmentLength( const wmath::WLine& line );
 
+    /**
+     * Boolean predicate indicating that the first line has more points then
+     * the second one.
+     *
+     * \param first First line
+     * \param second Second line
+     * \return True if the first line has more points than the second
+     */
+    bool hasMorePointsThen( const WLine& first, const WLine& second );
+
 } // end of namespace wmath
+
+inline bool wmath::hasMorePointsThen( const WLine& first, const WLine& second )
+{
+    return first.size() > second.size();
+}
+
 #endif  // WLINE_H

@@ -46,7 +46,7 @@ public:
      *
      * \return The resampled tract
      */
-    wmath::WFiber resample( const wmath::WFiber& tract, size_t pts ) const;
+    WFiber resample( const WFiber& tract, size_t pts ) const;
 
 protected:
 private:

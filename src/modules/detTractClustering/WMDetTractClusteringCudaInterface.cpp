@@ -45,7 +45,7 @@ bool initDLtTableCuda( boost::shared_ptr< WMatrixSym > dLtTable,
     size_t maxlength = 0;
     for( size_t i = 0; i < ntracts; ++i )
     {
-        const wmath::WFiber &fib = ( *tracts )[i];
+        const WFiber &fib = ( *tracts )[i];
         offsets[i] = nextoffset;
         lengths[i] = fib.size();
         nextoffset = ( nextoffset + fib.size() + ( align - 1 ) ) & ~( align - 1 );
@@ -61,7 +61,7 @@ bool initDLtTableCuda( boost::shared_ptr< WMatrixSym > dLtTable,
     float* coords = new float[ncoords*3];
     for( size_t i = 0; i < ntracts; ++i )
     {
-        const wmath::WFiber &fib = ( *tracts )[i];
+        const WFiber &fib = ( *tracts )[i];
         int k = offsets[i]*3;
         for( int j = 0; j < lengths[i]; ++j )
         {

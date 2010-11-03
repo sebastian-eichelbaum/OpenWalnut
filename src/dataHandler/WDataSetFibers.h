@@ -353,13 +353,13 @@ public:
     std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const;
 
     /**
-     * Constructs a wmath::WFiber out of the given tract number.
+     * Constructs a WFiber out of the given tract number.
      *
-     * \param numTract Number of the tract to generate a wmath::WFiber object for
+     * \param numTract Number of the tract to generate a WFiber object for
      *
-     * \return The wmath::WFiber object. Attention: copy by value!
+     * \return The WFiber object. Attention: copy by value!
      */
-    wmath::WFiber operator[]( size_t numTract ) const;
+    WFiber operator[]( size_t numTract ) const;
 
 protected:
 

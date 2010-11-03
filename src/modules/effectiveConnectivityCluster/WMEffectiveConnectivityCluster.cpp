@@ -120,7 +120,7 @@ void WMEffectiveConnectivityCluster::fiberDataChange( boost::shared_ptr< WModule
 
     // grab data
     boost::shared_ptr< WFiberCluster > fibs = o->getData();
-    boost::shared_ptr< wmath::WFiber > lline = fibs->getLongestLine();
+    boost::shared_ptr< WFiber > lline = fibs->getLongestLine();
 
     // the first and the last point of the longest line are required:
     m_labelPos2 = ( *lline )[ lline->size() - 2 ];

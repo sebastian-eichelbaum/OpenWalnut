@@ -44,7 +44,7 @@ public:
      * \param grid the grid used for the new dataset.
      * \param centerline the centerline of the cluster
      */
-    WCenterlineParameterization( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< wmath::WFiber > centerline );
+    WCenterlineParameterization( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WFiber > centerline );
 
     /**
      * Destructor.
@@ -112,7 +112,7 @@ protected:
     /**
      * The centerline of the cluster
      */
-    boost::shared_ptr< wmath::WFiber > m_centerline;
+    boost::shared_ptr< WFiber > m_centerline;
 
     /**
      * The current start parameter for the current segment.

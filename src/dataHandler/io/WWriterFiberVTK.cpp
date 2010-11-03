@@ -72,7 +72,7 @@ void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFiberVector > 
     unsigned int lnsPosOffset = 0;
     for( size_t i = 0; i < fiberDS->size(); ++i )
     {
-        const wmath::WFiber &fib = (*fiberDS)[i];
+        const WFiber &fib = (*fiberDS)[i];
         rawLineData[lnsPosOffset++] = static_cast< unsigned int >( fib.size() );
         for( size_t j = 0; j < fib.size(); ++j )
         {

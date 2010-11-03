@@ -111,8 +111,8 @@ public:
      */
     void testPartialOverlapWith10Points( void )
     {
-        boost::shared_ptr< std::vector< wmath::WFiber > > tracts( new std::vector< wmath::WFiber > );
-        wmath::WFiber tract;
+        boost::shared_ptr< std::vector< WFiber > > tracts( new std::vector< WFiber > );
+        WFiber tract;
         for( size_t i = 0; i < 10; ++i )
         {
             tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
@@ -142,8 +142,8 @@ public:
      */
     void testPartialOverlapWith100Points( void )
     {
-        boost::shared_ptr< std::vector< wmath::WFiber > > tracts( new std::vector< wmath::WFiber > );
-        wmath::WFiber tract;
+        boost::shared_ptr< std::vector< WFiber > > tracts( new std::vector< WFiber > );
+        WFiber tract;
         for( size_t i = 0; i < 100; ++i )
         {
             tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
@@ -172,8 +172,8 @@ public:
 //
 //    void testSmallTractAlongLongTract( void )
 //    {
-//        boost::shared_ptr< std::vector< wmath::WFiber > > tracts( new std::vector< wmath::WFiber > );
-//        wmath::WFiber tract;
+//        boost::shared_ptr< std::vector< WFiber > > tracts( new std::vector< WFiber > );
+//        WFiber tract;
 //        for( size_t i = 0; i < 1000; ++i )
 //        {
 //            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
@@ -207,14 +207,14 @@ protected:
         boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
         m_emptyDTIDataSet = boost::shared_ptr< WDataSetDTI >(  new WDataSetDTI( newValueSet, newGrid ) );
 
-        boost::shared_ptr< std::vector< wmath::WFiber > > tracts( new std::vector< wmath::WFiber > );
-        wmath::WFiber tract0;
+        boost::shared_ptr< std::vector< WFiber > > tracts( new std::vector< WFiber > );
+        WFiber tract0;
         tract0.push_back( wmath::WPosition( 0.0, 0.0, 0.0 ) );
         tract0.push_back( wmath::WPosition( 1.0, 1.0, 0.0 ) );
         tract0.push_back( wmath::WPosition( 1.0, 2.0, 0.0 ) );
         tract0.push_back( wmath::WPosition( 2.0, 2.0, 0.0 ) );
         tracts->push_back( tract0 );
-        wmath::WFiber tract1;
+        WFiber tract1;
         tract1.push_back( wmath::WPosition( 2.0 + sqrt( 2.0 ) + 1.0, 2.0, 0.0 ) );
         tract1.push_back( wmath::WPosition( 2.0 + sqrt( 2.0 ) + 2.0, 2.0, 0.0 ) );
         tracts->push_back( tract1 );

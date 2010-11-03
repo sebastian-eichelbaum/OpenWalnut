@@ -31,9 +31,9 @@
 
 #include "WSimpleResampler.h"
 
-wmath::WFiber WSimpleResampler::resample( const wmath::WFiber& tract, size_t pts ) const
+WFiber WSimpleResampler::resample( const WFiber& tract, size_t pts ) const
 {
-    wmath::WFiber result( tract );
+    WFiber result( tract );
     result.resample( pts );
     return result;
 }

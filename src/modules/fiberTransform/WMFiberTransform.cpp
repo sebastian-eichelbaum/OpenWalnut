@@ -169,7 +169,7 @@ void WMFiberTransform::update()
     //transform
     for( std::size_t fiberID = 0; fiberID < dataset->size(); ++fiberID )
     {
-        wmath::WFiber& fiber = (*dataset)[fiberID];
+        WFiber& fiber = (*dataset)[fiberID];
         for( std::size_t positionID = 0; positionID < fiber.size(); ++positionID )
         {
             fiber[positionID] = transformationMatrix * fiber[positionID] + m_translationProp->get();
