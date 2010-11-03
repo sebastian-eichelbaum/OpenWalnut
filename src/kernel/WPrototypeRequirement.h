@@ -25,6 +25,8 @@
 #ifndef WPROTOTYPEREQUIREMENT_H
 #define WPROTOTYPEREQUIREMENT_H
 
+#include <string>
+
 #include "../common/WRequirement.h"
 #include "WExportKernel.h"
 

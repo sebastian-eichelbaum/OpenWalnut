@@ -25,6 +25,8 @@
 #ifndef WGEREQUIREMENT_H
 #define WGEREQUIREMENT_H
 
+#include <string>
+
 #include "../common/WRequirement.h"
 #include "WExportWGE.h"
 
