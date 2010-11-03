@@ -38,16 +38,6 @@
 #include "../../common/WLogger.h"
 
 /**
- * The logger instance used by some tests
- */
-static WLogger logger;
-
-/**
- * True if the logger has been initialized in the past.
- */
-static bool loggerInitialized = false;
-
-/**
  * Test important functionality of WDataSetSingle class
  */
 class WDataSetSingleTest : public CxxTest::TestSuite
@@ -61,16 +51,7 @@ public:
      */
     void setUp( void )
     {
-        if ( !loggerInitialized )
-        {
-            std::cout << "Initialize logger." << std::endl;
-            logger.setColored( false );
-
-            // NOTE: the logger does not need to be run, since the logger main thread just prints the messages. If compiled in
-            // debug mode, the messages will be printed directly, without the logger thread.
-            //logger.run();
-            loggerInitialized = true;
-        }
+        WLogger::startup();
 
         // create dummies, since they are needed in almost every test
         gridDummy = boost::shared_ptr< WGrid >( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );

@@ -35,14 +35,20 @@
 #include "../../../dataHandler/WDataSetFiberVector.h"
 #include "../WGaussProcess.h"
 
-static WLogger logger; // In case someone uses the logger in one of the classes above
-
 /**
  * Testsuite for the gaussian process class.
  */
 class WGaussProcessTest : public CxxTest::TestSuite
 {
 public:
+    /**
+     * Setup logger and other stuff for each test.
+     */
+    void setUp()
+    {
+        WLogger::startup();
+    }
+
     /**
      * If the point for the mean function is outside of the environment with distance R the mean
      * should equals to zero.
