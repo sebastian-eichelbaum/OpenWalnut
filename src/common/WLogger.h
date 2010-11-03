@@ -26,7 +26,6 @@
 #define WLOGGER_H
 
 #include <ostream>
-#include <queue>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -35,131 +34,25 @@
 #include <boost/signals2/signal.hpp>
 
 #include "WLogEntry.h"
+#include "WLogStream.h"
 #include "WStringUtils.h"
 #include "WSharedSequenceContainer.h"
 #include "WExportCommon.h"
 
 /**
- * Class implementing a capsule for an output stream and the needed level and format information.
- */
-class OWCOMMON_EXPORT WLogStream
-{
-public:
-    typedef boost::shared_ptr< WLogStream > SharedPtr;  //!< shared pointer type
-    typedef WLogStream* Ptr; //!< pointer type
-    typedef WLogStream& Ref; //!< reference
-    typedef const WLogStream& ConstRef; //!< const reference
-
-    /**
-     * Constructor. Create a new stream instance. The output stream is a mandatory parameter. The others are predefined with some defaults.
-     *
-     * \param output the stream where to print log messages to
-     * \param logLevel logging level, i.e. verboseness
-     * \param format the format used for output
-     */
-    WLogStream( std::ostream& output, LogLevel logLevel = LL_DEBUG, std::string format = "*%l [%s] %m \n", bool colored = true );
-
-    /**
-     * Prints the specified entry to the output stream in the right format if the log level matches.
-     *
-     * \param entry the entry to print-
-     */
-    void printEntry( const WLogEntry& entry );
-
-    /**
-     * Sets the new log level. All new incoming logs will be filtered according to this level.
-     *
-     * \param logLevel the level
-     */
-    void setLogLevel( LogLevel logLevel );
-
-    /**
-     * Gets the currently set log level.
-     *
-     * \return the current log level
-     */
-    LogLevel getLogLevel() const;
-
-    /**
-     * Sets the format string.
-     *
-     * \param format the format string.
-     */
-    void setFormat( std::string format );
-
-    /**
-     * Returns the currently set format string.
-     *
-     * \return format string.
-     */
-    std::string getFormat() const;
-
-    /**
-     * Set whether to use colors or not. Note: this is only useful on Linux systems currently.
-     *
-     * \param colors true if colors should be used.
-     */
-    void setColored( bool colors );
-
-    /**
-     * Getter determining whether to use colors or not.
-     *
-     * \return true if colors should be used.
-     */
-    bool isColored() const;
-
-private:
-
-    /**
-     * Disallow copy.
-     *
-     * \param rhs the stream to copy
-     */
-    WLogStream( const WLogStream& rhs );
-
-    /**
-     * Disallow assignment.
-     *
-     * \param rhs the stream to assign to this
-     *
-     * \return this
-     */
-    WLogStream& operator=( const WLogStream& rhs );
-
-    /**
-     * The output stream.
-     */
-    std::ostream& m_output;
-
-    /**
-     * The logging level. All messages below this level are discarded.
-     */
-    LogLevel m_logLevel;
-
-    /**
-     * The format of the message.
-     */
-    std::string m_format;
-
-    /**
-     * True if colors should be used. This requires a compatible terminal.
-     */
-    bool m_color;
-};
-
-/**
- * Does actual logging of WLogEntries down to stdout or something similar.
+ * This class defines the interface for adding logs and managing several output streams for them. The actual log entry is in \ref WLogEntry and
+ * the output is done in \ref WLogStream.
  */
 class OWCOMMON_EXPORT WLogger       // NOLINT
 {
 public:
     /**
-     * Constructor.
+     * Create the first and only instance of the logger as it is a singleton.
      *
-     * \param output the stream where to print log messages to
-     * \param level logging level, i.e. verboseness
+     * \param output the output stream to use
+     * \param level the default log level
      */
-    WLogger( std::ostream& output = std::cout, LogLevel level = LL_DEBUG );
+    static void startup( std::ostream& output = std::cout, LogLevel level = LL_DEBUG );
 
     /**
      * Destructor.
@@ -220,6 +113,8 @@ public:
     /**
      * Subscribe to the specified signal.
      *
+     * \note If you want to listen to incoming log entries, you can also utilize the WLogStream class.
+     *
      * \param event the kind of signal the callback should be used for.
      * \param callback the callback.
      */
@@ -228,6 +123,14 @@ public:
 protected:
 
 private:
+    /**
+     * Constructor. The logger is created using the static method startup.
+     *
+     * \param output the stream where to print log messages to
+     * \param level logging level, i.e. verboseness
+     */
+    WLogger( std::ostream& output, LogLevel level );
+
     /**
      * We do not want a copy constructor, so we define it private.
      */
@@ -250,7 +153,7 @@ private:
 };
 
 /**
- * This namespace collects several convinient access points such as wlog::err
+ * This namespace collects several convenient access points such as wlog::err
  * for logging with streams to our WLogger.
  */
 namespace wlog
@@ -339,7 +242,7 @@ namespace wlog
 
     template< typename T > inline WStreamedLogger WStreamedLogger::operator<<( const T& loggable )
     {
-        using string_utils::operator<<; // incase we want to log arrays or vectors
+        using string_utils::operator<<; // in case we want to log arrays or vectors
         m_buffer->m_logString << loggable;
         return *this;
     }
@@ -363,7 +266,7 @@ namespace wlog
     }
 
     /**
-     * Convinient function for logging messages to our WLogger but not for
+     * Convenient function for logging messages to our WLogger but not for
      * public use outside of this module.
      *
      * \param source Indicate the source where this log message origins.
@@ -385,7 +288,7 @@ namespace wlog
     }
 
     /**
-     * Loggin a warning message.
+     * Logging a warning message.
      *
      * \param source Indicate the source where this log message origins.
      */
@@ -395,7 +298,7 @@ namespace wlog
     }
 
     /**
-     * Loggin an information message.
+     * Logging an information message.
      *
      * \param source Indicate the source where this log message origins.
      */
@@ -405,7 +308,7 @@ namespace wlog
     }
 
     /**
-     * Loggin a debug message.
+     * Logging a debug message.
      *
      * \param source Indicate the source where this log message origins.
      */

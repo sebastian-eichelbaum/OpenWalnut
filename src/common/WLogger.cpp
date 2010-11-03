@@ -29,6 +29,7 @@
 #include <boost/filesystem/fstream.hpp>
 
 #include "exceptions/WSignalSubscriptionInvalid.h"
+#include "exceptions/WPreconditionNotMet.h"
 
 #include "WLogger.h"
 
@@ -37,60 +38,14 @@
  */
 WLogger* logger = NULL;
 
-WLogStream::WLogStream( std::ostream& output, LogLevel logLevel, std::string format,  bool colored ):
-    m_output( output ),
-    m_logLevel( logLevel ),
-    m_format( format ),
-    m_color( colored )
+void WLogger::startup( std::ostream& output, LogLevel level )
 {
-    // do nothing
-}
-
-void WLogStream::printEntry( const WLogEntry& entry )
-{
-    // level test
-    if ( m_logLevel > entry.getLogLevel() )
-    {
-        return;
-    }
-
-    m_output << entry.getLogString( m_format, m_color );
-}
-
-void WLogStream::setLogLevel( LogLevel logLevel )
-{
-    m_logLevel = logLevel;
-}
-
-LogLevel WLogStream::getLogLevel() const
-{
-    return m_logLevel;
-}
-
-void WLogStream::setFormat( std::string format )
-{
-    m_format = format;
-}
-
-std::string WLogStream::getFormat() const
-{
-    return m_format;
-}
-
-void WLogStream::setColored( bool colors )
-{
-    m_color = colors;
-}
-
-bool WLogStream::isColored() const
-{
-    return m_color;
+    logger = new WLogger( output, level );
 }
 
 WLogger::WLogger( std::ostream& output, LogLevel level ):
     m_outputs()
 {
-    logger = this;
     m_outputs.push_back( WLogStream::SharedPtr( new WLogStream( output, level ) ) );
 
     addLogMessage( "Initalizing Logger", "Logger", LL_INFO );
@@ -105,6 +60,10 @@ WLogger::~WLogger()
 
 WLogger* WLogger::getLogger()
 {
+    if ( !logger )
+    {
+        throw new WPreconditionNotMet( std::string( "Logger not yet initialized." ) );
+    }
     return logger;
 }
 
