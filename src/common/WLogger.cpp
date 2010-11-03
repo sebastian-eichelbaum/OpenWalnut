@@ -38,12 +38,12 @@
  */
 WLogger* logger = NULL;
 
-void WLogger::startup( std::ostream& output, LogLevel level )
+void WLogger::startup( std::ostream& output, LogLevel level )  // NOLINT - we need this non-const ref here
 {
     logger = new WLogger( output, level );
 }
 
-WLogger::WLogger( std::ostream& output, LogLevel level ):
+WLogger::WLogger( std::ostream& output, LogLevel level ):       // NOLINT - we need this non-const ref here
     m_outputs()
 {
     m_outputs.push_back( WLogStream::SharedPtr( new WLogStream( output, level ) ) );

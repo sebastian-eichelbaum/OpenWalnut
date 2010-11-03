@@ -48,8 +48,9 @@ public:
      * \param output the stream where to print log messages to
      * \param logLevel logging level, i.e. verboseness
      * \param format the format used for output
+     * \param colored true if coloring should be used.
      */
-    WLogStream( std::ostream& output, LogLevel logLevel = LL_DEBUG, std::string format = "*%l [%s] %m \n", bool colored = true );
+    WLogStream( std::ostream& output, LogLevel logLevel = LL_DEBUG, std::string format = "*%l [%s] %m \n", bool colored = true );  // NOLINT - we need this non-const ref here
 
     /**
      * Prints the specified entry to the output stream in the right format if the log level matches.

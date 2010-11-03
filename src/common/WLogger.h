@@ -52,7 +52,7 @@ public:
      * \param output the output stream to use
      * \param level the default log level
      */
-    static void startup( std::ostream& output = std::cout, LogLevel level = LL_DEBUG );
+    static void startup( std::ostream& output = std::cout, LogLevel level = LL_DEBUG );  // NOLINT - we need this non-const ref here
 
     /**
      * Destructor.
@@ -129,7 +129,7 @@ private:
      * \param output the stream where to print log messages to
      * \param level logging level, i.e. verboseness
      */
-    WLogger( std::ostream& output, LogLevel level );
+    WLogger( std::ostream& output, LogLevel level );  // NOLINT - we need this non-const ref here
 
     /**
      * We do not want a copy constructor, so we define it private.

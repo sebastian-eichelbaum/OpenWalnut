@@ -25,7 +25,7 @@
 #include "WLogStream.h"
 
 
-WLogStream::WLogStream( std::ostream& output, LogLevel logLevel, std::string format,  bool colored ):
+WLogStream::WLogStream( std::ostream& output, LogLevel logLevel, std::string format,  bool colored ): // NOLINT - we need this non-const ref here
     m_output( output ),
     m_logLevel( logLevel ),
     m_format( format ),
