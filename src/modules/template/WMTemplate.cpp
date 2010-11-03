@@ -63,6 +63,7 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGERequirement.h"
 
 #include "WMTemplate.xpm"
 #include "icons/bier.xpm"
@@ -329,6 +330,16 @@ void WMTemplate::properties()
     m_aSelectionOutput = m_infoProperties->addProperty( "A selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
 
     WModule::properties();
+}
+
+void WMTemplate::requirements()
+{
+    // This method allows modules to specify what they need to run properly. This module, for example, needs the WGE. It therefore adds the
+    // WGERequirement to the list of requirements. Modules only get started if all the requirements of it are met by the current running
+    // OpenWalnut. This is a very handy tool for NO-GUI versions or script versions of OpenWalnut where there simply is no graphics engine
+    // running. This way, the kernel can ensure that only modules are allowed to run who do not require the WGE.
+    // Another useful example are module containers. Usually, they need several other modules to work properly.
+    m_requirements.push_back( new WGERequirement() );
 }
 
 void WMTemplate::moduleMain()

@@ -50,7 +50,14 @@ public:
      *
      * \return true if the specific requirement is fulfilled.
      */
-    virtual bool isComplied() const = 0;
+    virtual bool isComplied() const;
+
+    /**
+     * Return a nice description of the requirement.
+     *
+     * \return the description.
+     */
+    virtual std::string getDescription() const;
 
 protected:
 

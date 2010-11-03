@@ -45,6 +45,7 @@
 #include "exceptions/WModuleConnectorInitFailed.h"
 #include "exceptions/WModuleConnectorNotFound.h"
 #include "exceptions/WModuleUninitialized.h"
+#include "exceptions/WModuleRequirementNotMet.h"
 #include "../common/WException.h"
 #include "../common/exceptions/WNameNotUnique.h"
 #include "../common/WLogger.h"
@@ -212,6 +213,10 @@ void WModule::properties()
 {
 }
 
+void WModule::requirements()
+{
+}
+
 void WModule::activate()
 {
 }
@@ -229,6 +234,7 @@ void WModule::initialize()
     m_runtimeName->set( getName() );
 
     // initialize connectors and properties
+    requirements();
     connectors();
     properties();
 
@@ -492,6 +498,20 @@ void WModule::ready()
     signal_ready( shared_from_this() );
 }
 
+const WRequirement* WModule::checkRequirements() const
+{
+    // simply iterate all requirements and return the first found that is not fulfilled
+    for ( Requirements::const_iterator i = m_requirements.begin(); i != m_requirements.end(); ++i )
+    {
+        if ( !( *i )->isComplied() )
+        {
+            return *i;
+        }
+    }
+
+    return NULL;
+}
+
 void WModule::threadMain()
 {
 #ifdef __linux__
@@ -502,6 +522,13 @@ void WModule::threadMain()
     try
     {
         WLogger::getLogger()->addLogMessage( "Starting module main method.", "Module (" + getName() + ")", LL_INFO );
+
+        // check requirements
+        const WRequirement* failedReq = checkRequirements();
+        if ( failedReq )
+        {
+            throw WModuleRequirementNotMet( failedReq );
+        }
 
         // call main thread function
         m_isRunning( true );

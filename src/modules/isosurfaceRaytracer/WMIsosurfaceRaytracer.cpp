@@ -40,6 +40,7 @@
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGERequirement.h"
 #include "../../kernel/WKernel.h"
 #include "WMIsosurfaceRaytracer.xpm"
 #include "WMIsosurfaceRaytracer.h"
@@ -123,6 +124,11 @@ void WMIsosurfaceRaytracer::properties()
     WPropertyHelper::PC_NOTEMPTY::addTo( m_shadingAlgo );
 
     WModule::properties();
+}
+
+void WMIsosurfaceRaytracer::requirements()
+{
+    m_requirements.push_back( new WGERequirement() );
 }
 
 void WMIsosurfaceRaytracer::moduleMain()
