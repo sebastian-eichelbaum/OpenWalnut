@@ -462,37 +462,37 @@ inline unsigned int WGridRegular3D::getNbCoordsZ() const
 inline double WGridRegular3D::getOffsetX() const
 {
     return sqrt( m_matrix( 0, 0 ) * m_matrix( 0, 0 )
-               + m_matrix( 0, 1 ) * m_matrix( 0, 1 )
-               + m_matrix( 0, 2 ) * m_matrix( 0, 2 ) );
+               + m_matrix( 1, 0 ) * m_matrix( 1, 0 )
+               + m_matrix( 2, 0 ) * m_matrix( 2, 0 ) );
 }
 
 inline double WGridRegular3D::getOffsetY() const
 {
-    return sqrt( m_matrix( 1, 0 ) * m_matrix( 1, 0 )
+    return sqrt( m_matrix( 0, 1 ) * m_matrix( 0, 1 )
                + m_matrix( 1, 1 ) * m_matrix( 1, 1 )
-               + m_matrix( 1, 2 ) * m_matrix( 1, 2 ) );
+               + m_matrix( 2, 1 ) * m_matrix( 2, 1 ) );
 }
 
 inline double WGridRegular3D::getOffsetZ() const
 {
-    return sqrt( m_matrix( 2, 0 ) * m_matrix( 2, 0 )
-               + m_matrix( 2, 1 ) * m_matrix( 2, 1 )
+    return sqrt( m_matrix( 0, 2 ) * m_matrix( 0, 2 )
+               + m_matrix( 1, 2 ) * m_matrix( 1, 2 )
                + m_matrix( 2, 2 ) * m_matrix( 2, 2 ) );
 }
 
 inline wmath::WVector3D WGridRegular3D::getDirectionX() const
 {
-    return wmath::WVector3D( m_matrix( 0, 0 ), m_matrix( 0, 1 ), m_matrix( 0, 2 ) );
+    return wmath::WVector3D( m_matrix( 0, 0 ), m_matrix( 1, 0 ), m_matrix( 2, 0 ) );
 }
 
 inline wmath::WVector3D WGridRegular3D::getDirectionY() const
 {
-    return wmath::WVector3D( m_matrix( 1, 0 ), m_matrix( 1, 1 ), m_matrix( 1, 2 ) );
+    return wmath::WVector3D( m_matrix( 0, 1 ), m_matrix( 1, 1 ), m_matrix( 2, 1 ) );
 }
 
 inline wmath::WVector3D WGridRegular3D::getDirectionZ() const
 {
-    return wmath::WVector3D( m_matrix( 2, 0 ), m_matrix( 2, 1 ), m_matrix( 2, 2 ) );
+    return wmath::WVector3D( m_matrix( 0, 2 ), m_matrix( 1, 2 ), m_matrix( 2, 2 ) );
 }
 
 inline wmath::WPosition WGridRegular3D::getOrigin() const

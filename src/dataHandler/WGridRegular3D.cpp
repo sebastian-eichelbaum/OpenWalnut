@@ -121,7 +121,7 @@ int WGridRegular3D::getVoxelNum( const size_t x, const size_t y, const size_t z 
 int WGridRegular3D::getXVoxelCoord( const wmath::WPosition& pos ) const
 {
     wmath::WVector3D v( pos[ 0 ] - m_matrix( 0, 3 ), pos[ 1 ] - m_matrix( 1, 3 ), pos[ 2 ] - m_matrix( 2, 3 ) );
-    v[ 2 ] = m_matrix( 0, 0 ) * v[ 0 ] + m_matrix( 0, 1 ) * v[ 1 ] + m_matrix( 0, 2 ) * v[ 2 ];
+    v[ 2 ] = m_matrix( 0, 0 ) * v[ 0 ] + m_matrix( 1, 0 ) * v[ 1 ] + m_matrix( 2, 0 ) * v[ 2 ];
     v[ 2 ] /= getOffsetX() * getOffsetX();
 
     // this part could be refactored into an inline function
@@ -135,7 +135,7 @@ int WGridRegular3D::getXVoxelCoord( const wmath::WPosition& pos ) const
 int WGridRegular3D::getYVoxelCoord( const wmath::WPosition& pos ) const
 {
     wmath::WVector3D v( pos[ 0 ] - m_matrix( 0, 3 ), pos[ 1 ] - m_matrix( 1, 3 ), pos[ 2 ] - m_matrix( 2, 3 ) );
-    v[ 2 ] = m_matrix( 1, 0 ) * v[ 0 ] + m_matrix( 1, 1 ) * v[ 1 ] + m_matrix( 1, 2 ) * v[ 2 ];
+    v[ 2 ] = m_matrix( 0, 1 ) * v[ 0 ] + m_matrix( 1, 1 ) * v[ 1 ] + m_matrix( 2, 1 ) * v[ 2 ];
     v[ 2 ] /= getOffsetY() * getOffsetY();
 
     double tmp;
@@ -148,7 +148,7 @@ int WGridRegular3D::getYVoxelCoord( const wmath::WPosition& pos ) const
 int WGridRegular3D::getZVoxelCoord( const wmath::WPosition& pos ) const
 {
     wmath::WVector3D v( pos[ 0 ] - m_matrix( 0, 3 ), pos[ 1 ] - m_matrix( 1, 3 ), pos[ 2 ] - m_matrix( 2, 3 ) );
-    v[ 2 ] = m_matrix( 2, 0 ) * v[ 0 ] + m_matrix( 2, 1 ) * v[ 1 ] + m_matrix( 2, 2 ) * v[ 2 ];
+    v[ 2 ] = m_matrix( 0, 2 ) * v[ 0 ] + m_matrix( 1, 2 ) * v[ 1 ] + m_matrix( 2, 2 ) * v[ 2 ];
     v[ 2 ] /= getOffsetZ() * getOffsetZ();
 
     double tmp;
@@ -533,7 +533,7 @@ bool WGridRegular3D::encloses( wmath::WPosition const& pos ) const
 {
     wmath::WVector3D v( pos[ 0 ] - m_matrix( 0, 3 ), pos[ 1 ] - m_matrix( 1, 3 ), pos[ 2 ] - m_matrix( 2, 3 ) );
 
-    double d = m_matrix( 0, 0 ) * v[ 0 ] + m_matrix( 0, 1 ) * v[ 1 ] + m_matrix( 0, 2 ) * v[ 2 ];
+    double d = m_matrix( 0, 0 ) * v[ 0 ] + m_matrix( 1, 0 ) * v[ 1 ] + m_matrix( 2, 0 ) * v[ 2 ];
     d /= getOffsetX() * getOffsetX();
 
     if( d < 0.0 || d >= m_nbPosX - 1 )
@@ -541,7 +541,7 @@ bool WGridRegular3D::encloses( wmath::WPosition const& pos ) const
         return false;
     }
 
-    d = m_matrix( 1, 0 ) * v[ 0 ] + m_matrix( 1, 1 ) * v[ 1 ] + m_matrix( 1, 2 ) * v[ 2 ];
+    d = m_matrix( 0, 1 ) * v[ 0 ] + m_matrix( 1, 1 ) * v[ 1 ] + m_matrix( 2, 1 ) * v[ 2 ];
     d /= getOffsetY() * getOffsetY();
 
     if( d < 0.0 || d >= m_nbPosY - 1 )
@@ -549,7 +549,7 @@ bool WGridRegular3D::encloses( wmath::WPosition const& pos ) const
         return false;
     }
 
-    d = m_matrix( 2, 0 ) * v[ 0 ] + m_matrix( 2, 1 ) * v[ 1 ] + m_matrix( 2, 2 ) * v[ 2 ];
+    d = m_matrix( 0, 2 ) * v[ 0 ] + m_matrix( 1, 2 ) * v[ 1 ] + m_matrix( 2, 2 ) * v[ 2 ];
     d /= getOffsetZ() * getOffsetZ();
     if( d < 0.0 || d >= m_nbPosZ - 1 )
     {

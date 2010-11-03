@@ -136,13 +136,13 @@ public:
         wmath::WMatrix< double > mat( 4, 4 );
         mat.makeIdentity();
         mat( 0, 0 ) = x[ 0 ];
-        mat( 0, 1 ) = x[ 1 ];
-        mat( 0, 2 ) = x[ 2 ];
-        mat( 1, 0 ) = y[ 0 ];
+        mat( 1, 0 ) = x[ 1 ];
+        mat( 2, 0 ) = x[ 2 ];
+        mat( 0, 1 ) = y[ 0 ];
         mat( 1, 1 ) = y[ 1 ];
-        mat( 1, 2 ) = y[ 2 ];
-        mat( 2, 0 ) = z[ 0 ];
-        mat( 2, 1 ) = z[ 1 ];
+        mat( 2, 1 ) = y[ 2 ];
+        mat( 0, 2 ) = z[ 0 ];
+        mat( 1, 2 ) = z[ 1 ];
         mat( 2, 2 ) = z[ 2 ];
 
         WGridRegular3D grid( 3, 3, 3, mat );
@@ -329,13 +329,13 @@ public:
         wmath::WMatrix< double > mat( 4, 4 );
         mat.makeIdentity();
         mat( 0, 0 ) = x[ 0 ];
-        mat( 0, 1 ) = x[ 1 ];
-        mat( 0, 2 ) = x[ 2 ];
-        mat( 1, 0 ) = y[ 0 ];
+        mat( 1, 0 ) = x[ 1 ];
+        mat( 2, 0 ) = x[ 2 ];
+        mat( 0, 1 ) = y[ 0 ];
         mat( 1, 1 ) = y[ 1 ];
-        mat( 1, 2 ) = y[ 2 ];
-        mat( 2, 0 ) = z[ 0 ];
-        mat( 2, 1 ) = z[ 1 ];
+        mat( 2, 1 ) = y[ 2 ];
+        mat( 0, 2 ) = z[ 0 ];
+        mat( 1, 2 ) = z[ 1 ];
         mat( 2, 2 ) = z[ 2 ];
         mat( 0, 3 ) = 1.0;
 
@@ -364,13 +364,13 @@ public:
         wmath::WMatrix< double > mat( 4, 4 );
         mat.makeIdentity();
         mat( 0, 0 ) = x[ 0 ];
-        mat( 0, 1 ) = x[ 1 ];
-        mat( 0, 2 ) = x[ 2 ];
-        mat( 1, 0 ) = y[ 0 ];
+        mat( 1, 0 ) = x[ 1 ];
+        mat( 2, 0 ) = x[ 2 ];
+        mat( 0, 1 ) = y[ 0 ];
         mat( 1, 1 ) = y[ 1 ];
-        mat( 1, 2 ) = y[ 2 ];
-        mat( 2, 0 ) = z[ 0 ];
-        mat( 2, 1 ) = z[ 1 ];
+        mat( 2, 1 ) = y[ 2 ];
+        mat( 0, 2 ) = z[ 0 ];
+        mat( 1, 2 ) = z[ 1 ];
         mat( 2, 2 ) = z[ 2 ];
         mat( 0, 3 ) = 1.0;
 
@@ -547,13 +547,13 @@ public:
         wmath::WMatrix< double > mat( 4, 4 );
         mat.makeIdentity();
         mat( 0, 0 ) = x[ 0 ];
-        mat( 0, 1 ) = x[ 1 ];
-        mat( 0, 2 ) = x[ 2 ];
-        mat( 1, 0 ) = y[ 0 ];
+        mat( 1, 0 ) = x[ 1 ];
+        mat( 2, 0 ) = x[ 2 ];
+        mat( 0, 1 ) = y[ 0 ];
         mat( 1, 1 ) = y[ 1 ];
-        mat( 1, 2 ) = y[ 2 ];
-        mat( 2, 0 ) = z[ 0 ];
-        mat( 2, 1 ) = z[ 1 ];
+        mat( 2, 1 ) = y[ 2 ];
+        mat( 0, 2 ) = z[ 0 ];
+        mat( 1, 2 ) = z[ 1 ];
         mat( 2, 2 ) = z[ 2 ];
         mat( 0, 3 ) = 1.0;
 
