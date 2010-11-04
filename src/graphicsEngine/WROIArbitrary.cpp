@@ -162,8 +162,8 @@ void WROIArbitrary::updateGFX()
 
         // ------------------------------------------------
         // normals
-        surfaceGeometry->setNormalArray( m_triMesh->getVertexNormalArray() );
-        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+        surfaceGeometry->setNormalArray( m_triMesh->getTriangleNormalArray() );
+        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
 
         // ------------------------------------------------
         // colors
@@ -189,6 +189,7 @@ void WROIArbitrary::updateGFX()
         osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
         lightModel->setTwoSided( true );
         state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+
         state->setMode(  GL_BLEND, osg::StateAttribute::ON );
 
     //    {

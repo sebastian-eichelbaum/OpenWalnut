@@ -237,7 +237,9 @@ template<typename T> boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::ge
         resultPos4D[3] = m_matrix( 3, 0 ) * pos[0] + m_matrix( 3, 1 ) * pos[1] + m_matrix( 3, 2 ) * pos[2] + m_matrix( 3, 3 ) * 1;
 
         ( *mapIterator ).second.newID = nextID;
-        triMesh->addVertex( resultPos4D[0] / resultPos4D[3], resultPos4D[1] / resultPos4D[3], resultPos4D[2] / resultPos4D[3] );
+        triMesh->addVertex( resultPos4D[0] / resultPos4D[3] - 0.5,
+                            resultPos4D[1] / resultPos4D[3] - 0.5,
+                            resultPos4D[2] / resultPos4D[3] - 0.5 );
         triMesh->addTextureCoordinate( texCoord );
         nextID++;
         mapIterator++;
