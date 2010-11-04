@@ -22,28 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGraphicsEngine.h"
+#include "../../common/WRequirement.h"
 
-#include "WGERequirement.h"
+#include "WModuleRequirementNotMet.h"
 
-WGERequirement::WGERequirement():
-    WRequirement()
+WModuleRequirementNotMet::WModuleRequirementNotMet( const WRequirement* requirement ):
+    WModuleException( std::string( "Requirement not met: " ) + requirement->getDescription() )
 {
     // initialize members
 }
 
-WGERequirement::~WGERequirement()
+WModuleRequirementNotMet::~WModuleRequirementNotMet() throw()
 {
     // cleanup
-}
-
-bool WGERequirement::isComplied() const
-{
-    return WGraphicsEngine::isRunning();
-}
-
-std::string WGERequirement::getDescription() const
-{
-    return "Module needs an running graphics engine.";
 }
 

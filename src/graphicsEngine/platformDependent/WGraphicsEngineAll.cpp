@@ -165,13 +165,25 @@ boost::shared_ptr< WGEViewer > WGraphicsEngineAll::getViewer()
     return m_viewers[ "main" ];
 }
 
+bool WGraphicsEngineAll::isRunning()
+{
+    if ( !m_instance )
+    {
+        return false;
+    }
+
+    return m_instance->m_running;
+}
+
 void WGraphicsEngineAll::threadMain()
 {
     WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_INFO );
 
+    m_running = true;
     m_viewer->startThreading();
     m_viewer->run();
     m_viewer->stopThreading();
+    m_running = false;
 }
 
 void WGraphicsEngineAll::notifyStop()

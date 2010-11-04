@@ -22,50 +22,56 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREQUIREMENT_H
-#define WREQUIREMENT_H
+#ifndef WPROTOTYPEREQUIREMENT_H
+#define WPROTOTYPEREQUIREMENT_H
 
 #include <string>
 
-#include "WExportCommon.h"
+#include "../common/WRequirement.h"
+#include "WExportKernel.h"
 
 /**
- * Base class for all possible kinds of requirements. Derive your own kind of requirement from this class. This allows easy checking of required
- * features on a target system. Of course this is only useful for things checkable during runtime. You should avoid writing classes for checking
- * weather some library is installed or not. This is checked by the linker on the target system.
+ * This requirement ensures that the specified prototype exists in the factory. These requirements are especially useful for container modules.
  */
-class OWCOMMON_EXPORT WRequirement // NOLINT
+class OWKERNEL_EXPORT WPrototypeRequirement: public WRequirement // NOLINT
 {
 public:
 
     /**
-     * Default constructor.
+     * Create instance. If your module uses this requirement, it needs the specified module.
+     *
+     * \param prototype the module needed.
      */
-    WRequirement();
+    explicit WPrototypeRequirement( std::string prototype );
 
     /**
      * Destructor.
      */
-    virtual ~WRequirement();
+    virtual ~WPrototypeRequirement();
 
     /**
      * Checks if the requirement is fulfilled on the system. Implement this for your specific case.
      *
      * \return true if the specific requirement is fulfilled.
      */
-    virtual bool isComplied() const = 0;
+    virtual bool isComplied() const;
 
     /**
      * Return a nice description of the requirement.
      *
      * \return the description.
      */
-    virtual std::string getDescription() const = 0;
+    virtual std::string getDescription() const;
 
 protected:
 
 private:
+
+    /**
+     * The required prototype.
+     */
+    std::string m_prototype;
 };
 
-#endif  // WREQUIREMENT_H
+#endif  // WPROTOTYPEREQUIREMENT_H
 

@@ -136,6 +136,13 @@ public:
      */
     boost::signals2::connection subscribeSignal( GE_SIGNAL signal, t_GEGenericSignalHandlerType notifier );
 
+    /**
+     * Checks whether the graphics engine is currently running or not.
+     *
+     * \return true if running
+     */
+    static bool isRunning();
+
 protected:
 
     /**
@@ -183,6 +190,11 @@ private:
      * Singleton instance of WGraphicsEngine.
      */
     static boost::shared_ptr< WGraphicsEngineAll > m_instance;
+
+    /**
+     * True if graphics engine is running.
+     */
+    bool m_running;
 };
 
 /**

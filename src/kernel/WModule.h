@@ -51,6 +51,7 @@
 #include "../common/WProgressCombiner.h"
 #include "../common/WProperties.h"
 #include "../common/WPrototyped.h"
+#include "../common/WRequirement.h"
 #include "../common/WThreadedRunner.h"
 
 #include "WExportKernel.h"
@@ -365,6 +366,13 @@ protected:
     virtual void properties();
 
     /**
+     * Initialize requirements in this function. This function must not be called multiple times for one module instance.
+     * The module should always implement this. Using this method, a module can tell the kernel what it needs to run properly. For example, it
+     * can require a running graphics engine or, in the case of module containers, other modules.
+     */
+    virtual void requirements();
+
+    /**
      * Manages connector initialization. Gets called by module container.
      *
      * \throw WModuleConnectorInitFailed if called multiple times.
@@ -575,6 +583,16 @@ protected:
      */
     boost::filesystem::path m_localPath;
 
+    /**
+     * The type of the requirement list.
+     */
+    typedef std::vector< WRequirement* > Requirements;
+
+    /**
+     * The list of requirements.
+     */
+    Requirements m_requirements;
+
 private:
 
      /**
@@ -596,6 +614,13 @@ private:
      * Signal fired whenever a module main thread throws an exception/error.
      */
     t_ModuleErrorSignalType signal_error;
+
+    /**
+     * This method checks whether all the requirements of the module are complied.
+     *
+     * \return the requirement that has failed.
+     */
+    const WRequirement* checkRequirements() const;
 };
 
 /**

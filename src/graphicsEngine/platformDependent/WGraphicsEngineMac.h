@@ -135,6 +135,13 @@ public:
      */
     boost::signals2::connection subscribeSignal( GE_SIGNAL signal, t_GEGenericSignalHandlerType notifier );
 
+    /**
+     * Checks whether the graphics engine is currently running or not.
+     *
+     * \return true if running
+     */
+    static bool isRunning();
+
 protected:
 
     /**

@@ -32,6 +32,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleFactory.h"
+#include "../../kernel/WPrototypeRequirement.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
 
@@ -170,6 +171,12 @@ void WMDistanceMapIsosurface::connectors()
 
     // call WModules initialization
     WModule::connectors();
+}
+
+void WMDistanceMapIsosurface::requirements()
+{
+    m_requirements.push_back( new WPrototypeRequirement( "Distance Map" ) );
+    m_requirements.push_back( new WPrototypeRequirement( "Isosurface" ) );
 }
 
 void WMDistanceMapIsosurface::activate()

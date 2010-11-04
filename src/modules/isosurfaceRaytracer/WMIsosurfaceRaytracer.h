@@ -96,6 +96,11 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Initialize requirements for this module.
+     */
+    virtual void requirements();
+
 private:
 
     /**

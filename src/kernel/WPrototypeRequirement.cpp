@@ -22,28 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGraphicsEngine.h"
+#include "WModuleFactory.h"
 
-#include "WGERequirement.h"
+#include "WPrototypeRequirement.h"
 
-WGERequirement::WGERequirement():
-    WRequirement()
+WPrototypeRequirement::WPrototypeRequirement( std::string prototype ):
+    WRequirement(),
+    m_prototype( prototype )
 {
     // initialize members
 }
 
-WGERequirement::~WGERequirement()
+WPrototypeRequirement::~WPrototypeRequirement()
 {
     // cleanup
 }
 
-bool WGERequirement::isComplied() const
+bool WPrototypeRequirement::isComplied() const
 {
-    return WGraphicsEngine::isRunning();
+    return WModuleFactory::getModuleFactory()->isPrototypeAvailable( m_prototype );
 }
 
-std::string WGERequirement::getDescription() const
+std::string WPrototypeRequirement::getDescription() const
 {
-    return "Module needs an running graphics engine.";
+    return "Module depends upon the module \"" + m_prototype + "\".";
 }
 

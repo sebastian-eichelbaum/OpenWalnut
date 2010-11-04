@@ -22,50 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREQUIREMENT_H
-#define WREQUIREMENT_H
+#ifndef WMODULEREQUIREMENTNOTMET_H
+#define WMODULEREQUIREMENTNOTMET_H
 
 #include <string>
 
-#include "WExportCommon.h"
+#include "WModuleException.h"
+
+#include "../WExportKernel.h"
+
+class WRequirement;
 
 /**
- * Base class for all possible kinds of requirements. Derive your own kind of requirement from this class. This allows easy checking of required
- * features on a target system. Of course this is only useful for things checkable during runtime. You should avoid writing classes for checking
- * weather some library is installed or not. This is checked by the linker on the target system.
+ * Thrown whenever a module should be run but its requirements are not completely met.
  */
-class OWCOMMON_EXPORT WRequirement // NOLINT
+class OWKERNEL_EXPORT WModuleRequirementNotMet: public WModuleException
 {
 public:
 
     /**
-     * Default constructor.
+     * Default constructor. Creates an instance and sets the message according to the requirement specified here.
+     *
+     * \param requirement the requirement that was not met.
      */
-    WRequirement();
+    explicit WModuleRequirementNotMet( const WRequirement* requirement );
 
     /**
      * Destructor.
      */
-    virtual ~WRequirement();
-
-    /**
-     * Checks if the requirement is fulfilled on the system. Implement this for your specific case.
-     *
-     * \return true if the specific requirement is fulfilled.
-     */
-    virtual bool isComplied() const = 0;
-
-    /**
-     * Return a nice description of the requirement.
-     *
-     * \return the description.
-     */
-    virtual std::string getDescription() const = 0;
+    virtual ~WModuleRequirementNotMet() throw();
 
 protected:
 
 private:
 };
 
-#endif  // WREQUIREMENT_H
+#endif  // WMODULEREQUIREMENTNOTMET_H
 
