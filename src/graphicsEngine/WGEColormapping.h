@@ -285,11 +285,6 @@ private:
     NodeInfoContainerType m_nodeInfo;
 
     /**
-     * This shader is used wherever no other shader was specified.
-     */
-    osg::ref_ptr< WShader > m_defaultShader;
-
-    /**
      * Called whenever a texture got registered.
      */
     boost::signals2::signal< void( osg::ref_ptr< WGETexture3D > ) > m_registerSignal;

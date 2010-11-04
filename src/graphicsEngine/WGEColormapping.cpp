@@ -23,6 +23,9 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 #include "WGETextureUtils.h"
 #include "exceptions/WGESignalSubscriptionFailed.h"
@@ -52,14 +55,38 @@ void setDefines( osg::ref_ptr< WShader > shader, size_t start = 0 )
     }
 }
 
+/**
+ * This functions simply sets the specified pre transformation matrix to the shader. It therefore uses a preprocessor define. This allows a
+ * hard-coded matrix to be optimized be the shader compiler.
+ *
+ * \param shader the shader where to add the defines
+ * \param preTransform the transformation matrix used to pre-multiply with all texture coordinates
+ */
+void setPreTransform( osg::ref_ptr< WShader > shader, osg::Matrixd preTransform )
+{
+    std::ostringstream out;
+    out << "mat4( ";
+    const osg::Matrixd::value_type* m = preTransform.ptr();
+
+    out.precision( 10 );
+    out.setf( std::ios::fixed, std::ios::floatfield );
+
+    // print all 16 values
+    for ( size_t i = 0; i < 15; ++i )
+    {
+        out << m[ i ] << ", ";
+    }
+    out << m[ 15 ] << " )";
+
+    // set as define
+    shader->setDefine( "ColormapPreTransform", out.str() );
+}
+
 WGEColormapping::WGEColormapping():
     m_callback( new WGEFunctorCallback< osg::Node >( boost::bind( &WGEColormapping::callback, this, _1 ) ) )
 {
     // initialize members
     m_textures.getChangeCondition()->subscribeSignal( boost::bind( &WGEColormapping::textureUpdate, this ) );
-
-    m_defaultShader = new WShader( "WGEDefaultColormapper" );
-    setDefines( m_defaultShader, 0 );
 }
 
 WGEColormapping::~WGEColormapping()
@@ -108,16 +135,22 @@ void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, wmath::WMatrix4
     info->m_texUnitStart = startTexUnit;
     info->m_preTransform = preTransform;
     m_nodeInfo.insert( std::make_pair( node, info ) );
+
     node->addUpdateCallback( m_callback );
 
     // add the default shader if no other shader has been specified.
     if ( !shader )
     {
-        m_defaultShader->apply( node );
+        // we use a new instance of the default shader here because the preTransform is varying between several nodes.
+        osg::ref_ptr< WShader > s = new WShader( "WGEDefaultColormapper" );
+        setDefines( s, 0 );
+        setPreTransform( s, preTransform );
+        s->apply( node );
     }
     else
     {
         setDefines( shader, startTexUnit );
+        setPreTransform( shader, preTransform );
         shader->apply( node );
     }
 }

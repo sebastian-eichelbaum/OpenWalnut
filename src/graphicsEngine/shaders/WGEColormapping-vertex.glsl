@@ -31,29 +31,32 @@
  */
 void colormapping()
 {
+    // ColormapPreTransform is a mat4 defined by OpenWalnut before compilation
+    vec4 texCoord = ColormapPreTransform * gl_MultiTexCoord0;
+
 #ifdef Colormap0Enabled
-    v_colormap0TexCoord = ( gl_TextureMatrix[ Colormap0Unit ] * gl_MultiTexCoord0 ).xyz;
+    v_colormap0TexCoord = ( gl_TextureMatrix[ Colormap0Unit ] * texCoord ).xyz;
 #endif
 #ifdef Colormap1Enabled
-    v_colormap1TexCoord = ( gl_TextureMatrix[ Colormap1Unit ] * gl_MultiTexCoord0 ).xyz;
+    v_colormap1TexCoord = ( gl_TextureMatrix[ Colormap1Unit ] * texCoord ).xyz;
 #endif
 #ifdef Colormap2Enabled
-    v_colormap2TexCoord = ( gl_TextureMatrix[ Colormap2Unit ] * gl_MultiTexCoord0 ).xyz;
+    v_colormap2TexCoord = ( gl_TextureMatrix[ Colormap2Unit ] * texCoord ).xyz;
 #endif
 #ifdef Colormap3Enabled
-    v_colormap3TexCoord = ( gl_TextureMatrix[ Colormap3Unit ] * gl_MultiTexCoord0 ).xyz;
+    v_colormap3TexCoord = ( gl_TextureMatrix[ Colormap3Unit ] * texCoord ).xyz;
 #endif
 #ifdef Colormap4Enabled
-    v_colormap4TexCoord = ( gl_TextureMatrix[ Colormap4Unit ] * gl_MultiTexCoord0 ).xyz;
+    v_colormap4TexCoord = ( gl_TextureMatrix[ Colormap4Unit ] * texCoord ).xyz;
 #endif
 #ifdef Colormap5Enabled
-    v_colormap5TexCoord = ( gl_TextureMatrix[ Colormap5Unit ] * gl_MultiTexCoord0 ).xyz;
+    v_colormap5TexCoord = ( gl_TextureMatrix[ Colormap5Unit ] * texCoord ).xyz;
 #endif
 #ifdef Colormap6Enabled
-    v_colormap6TexCoord = ( gl_TextureMatrix[ Colormap6Unit ] * gl_MultiTexCoord0 ).xyz;
+    v_colormap6TexCoord = ( gl_TextureMatrix[ Colormap6Unit ] * texCoord ).xyz;
 #endif
 #ifdef Colormap7Enabled
-    v_colormap7TexCoord = ( gl_TextureMatrix[ Colormap7Unit ] * gl_MultiTexCoord0 ).xyz;
+    v_colormap7TexCoord = ( gl_TextureMatrix[ Colormap7Unit ] * texCoord ).xyz;
 #endif
 }
 

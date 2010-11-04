@@ -368,44 +368,47 @@ vec4 colormapping( vec4 texcoord )
 {
     vec4 finalColor = vec4( 0.0, 0.0, 0.0, 1.0 );
 
+    // ColormapPreTransform is a mat4 defined by OpenWalnut before compilation
+    vec4 t = ColormapPreTransform * texcoord;
+
     // back to front compositing
 #ifdef Colormap7Enabled
-    colormap( finalColor, u_colormap7Sampler, ( gl_TextureMatrix[ Colormap7Unit ] * texcoord ).xyz,
+    colormap( finalColor, u_colormap7Sampler, ( gl_TextureMatrix[ Colormap7Unit ] * t ).xyz,
               u_colormap7Min, u_colormap7Scale, u_colormap7Threshold,
               u_colormap7Alpha, u_colormap7Colormap, u_colormap7Active );
 #endif
 #ifdef Colormap6Enabled
-    colormap( finalColor, u_colormap6Sampler, ( gl_TextureMatrix[ Colormap6Unit ] * texcoord ).xyz,
+    colormap( finalColor, u_colormap6Sampler, ( gl_TextureMatrix[ Colormap6Unit ] * t ).xyz,
               u_colormap6Min, u_colormap6Scale, u_colormap6Threshold,
               u_colormap6Alpha, u_colormap6Colormap, u_colormap6Active );
 #endif
 #ifdef Colormap5Enabled
-    colormap( finalColor, u_colormap5Sampler, ( gl_TextureMatrix[ Colormap5Unit ] * texcoord ).xyz,
+    colormap( finalColor, u_colormap5Sampler, ( gl_TextureMatrix[ Colormap5Unit ] * t ).xyz,
               u_colormap5Min, u_colormap5Scale, u_colormap5Threshold,
               u_colormap5Alpha, u_colormap5Colormap, u_colormap5Active );
 #endif
 #ifdef Colormap4Enabled
-    colormap( finalColor, u_colormap4Sampler, ( gl_TextureMatrix[ Colormap4Unit ] * texcoord ).xyz,
+    colormap( finalColor, u_colormap4Sampler, ( gl_TextureMatrix[ Colormap4Unit ] * t ).xyz,
               u_colormap4Min, u_colormap4Scale, u_colormap4Threshold,
               u_colormap4Alpha, u_colormap4Colormap, u_colormap4Active );
 #endif
 #ifdef Colormap3Enabled
-    colormap( finalColor, u_colormap3Sampler, ( gl_TextureMatrix[ Colormap3Unit ] * texcoord ).xyz,
+    colormap( finalColor, u_colormap3Sampler, ( gl_TextureMatrix[ Colormap3Unit ] * t ).xyz,
               u_colormap3Min, u_colormap3Scale, u_colormap3Threshold,
               u_colormap3Alpha, u_colormap3Colormap, u_colormap3Active );
 #endif
 #ifdef Colormap2Enabled
-    colormap( finalColor, u_colormap2Sampler, ( gl_TextureMatrix[ Colormap2Unit ] * texcoord ).xyz,
+    colormap( finalColor, u_colormap2Sampler, ( gl_TextureMatrix[ Colormap2Unit ] * t ).xyz,
               u_colormap2Min, u_colormap2Scale, u_colormap2Threshold,
               u_colormap3Alpha, u_colormap2Colormap, u_colormap2Active );
 #endif
 #ifdef Colormap1Enabled
-    colormap( finalColor, u_colormap1Sampler, ( gl_TextureMatrix[ Colormap1Unit ] * texcoord ).xyz,
+    colormap( finalColor, u_colormap1Sampler, ( gl_TextureMatrix[ Colormap1Unit ] * t ).xyz,
               u_colormap1Min, u_colormap1Scale, u_colormap1Threshold,
               u_colormap1Alpha, u_colormap1Colormap, u_colormap1Active );
 #endif
 #ifdef Colormap0Enabled
-    colormap( finalColor, u_colormap0Sampler, ( gl_TextureMatrix[ Colormap0Unit ] * texcoord ).xyz,
+    colormap( finalColor, u_colormap0Sampler, ( gl_TextureMatrix[ Colormap0Unit ] * t ).xyz,
               u_colormap0Min, u_colormap0Scale, u_colormap0Threshold,
               u_colormap0Alpha, u_colormap0Colormap, u_colormap0Active );
 #endif
