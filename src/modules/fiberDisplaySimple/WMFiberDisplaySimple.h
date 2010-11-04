@@ -29,6 +29,7 @@
 
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -115,6 +116,51 @@ private:
      * The properties of the fiber dataset.
      */
     WProperties::SharedPtr m_fibProps;
+
+    /**
+     * The shader used for clipping of fibers using an arbitrary plane.
+     */
+    osg::ref_ptr< WShader > m_shader;
+
+    /**
+     * A property group for all the clipping related props.
+     */
+    WPropGroup m_clipPlaneGroup;
+
+    /**
+     * Property for en-/disable clipping.
+     */
+    WPropBool m_clipPlaneEnabled;
+
+    /**
+     * Point on the plane. Defines the plane.
+     */
+    WPropPosition m_clipPlanePoint;
+
+    /**
+     * Vector of the plane. Defines the plane.
+     */
+    WPropPosition m_clipPlaneVector;
+
+    /**
+     * Distance from plane. Used as threshold.
+     */
+    WPropDouble m_clipPlaneDistance;
+
+    /**
+     * Uniform for plane point.
+     */
+    osg::ref_ptr< WGEPropertyUniform< WPropPosition > > m_clipPlanePointUniform;
+
+    /**
+     * Uniform for plane vector.
+     */
+    osg::ref_ptr< WGEPropertyUniform< WPropPosition > > m_clipPlaneVectorUniform;
+
+    /**
+     * Uniform for plane distance.
+     */
+    osg::ref_ptr< WGEPropertyUniform< WPropDouble > > m_clipPlaneDistanceUniform;
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H

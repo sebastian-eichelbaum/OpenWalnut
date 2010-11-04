@@ -30,6 +30,7 @@
 #include "../../common/WPropertyObserver.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../graphicsEngine/WShader.h"
 
 #include "WMFiberDisplaySimple.h"
 #include "WMFiberDisplaySimple.xpm"
@@ -85,12 +86,26 @@ void WMFiberDisplaySimple::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    m_clipPlaneGroup = m_properties->addPropertyGroup( "Clipping",  "Clip the fiber data basing on an arbitrary plane." );
+    m_clipPlaneEnabled = m_clipPlaneGroup->addProperty( "Enabled", "If set, clipping of fibers is done using an arbitrary plane and plane distance.",
+                                                        false, m_propCondition );
+    m_clipPlanePoint = m_clipPlaneGroup->addProperty( "Plane point", "An point on the plane.",  wmath::WPosition( 0.0, 0.0, 0.0 ) );
+    m_clipPlaneVector = m_clipPlaneGroup->addProperty( "Plane normal", "The normal of the plane.",  wmath::WPosition( 1.0, 0.0, 0.0 ) );
+    m_clipPlaneDistance= m_clipPlaneGroup->addProperty( "Clip distance", "The distance from the plane where fibers get clipped.",  10.0 );
+    m_clipPlaneDistance->removeConstraint( m_clipPlaneDistance->getMax() ); // there simply is no max.
+
     // call WModule's initialization
     WModule::properties();
 }
 
 void WMFiberDisplaySimple::moduleMain()
 {
+    // initialize clipping shader
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplaySimple", m_localPath ) );
+    m_clipPlanePointUniform = new WGEPropertyUniform< WPropPosition >( "u_planePoint", m_clipPlanePoint );
+    m_clipPlaneVectorUniform = new WGEPropertyUniform< WPropPosition >( "u_planeVector", m_clipPlaneVector );
+    m_clipPlaneDistanceUniform = new WGEPropertyUniform< WPropDouble >( "u_distance", m_clipPlaneDistance );
+
     // get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
@@ -124,7 +139,8 @@ void WMFiberDisplaySimple::moduleMain()
         boost::shared_ptr< WDataSetFibers > fibers = m_fiberInput->getData();
         bool dataValid = ( fibers );
         bool dataPropertiesUpdated = propObserver->updated();
-        if ( !( dataValid && ( dataPropertiesUpdated || dataUpdated ) ) )
+        bool propertiesUpdated = m_clipPlaneEnabled->changed();
+        if ( !( dataValid && ( propertiesUpdated || dataPropertiesUpdated || dataUpdated ) ) )
         {
             continue;
         }
@@ -223,6 +239,15 @@ void WMFiberDisplaySimple::moduleMain()
 
         // disable light for this geode as lines can't be lit properly
         state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
+        // Apply the shader. This is for clipping.
+        if ( m_clipPlaneEnabled->get( true ) )
+        {
+            state->addUniform( m_clipPlanePointUniform );
+            state->addUniform( m_clipPlaneVectorUniform );
+            state->addUniform( m_clipPlaneDistanceUniform );
+            m_shader->apply( geode );
+        }
 
         // add geode to module node
         m_rootNode->clear();
