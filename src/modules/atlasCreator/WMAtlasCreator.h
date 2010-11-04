@@ -22,13 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMATLASSURFACES_H
-#define WMATLASSURFACES_H
+#ifndef WMATLASCREATOR_H
+#define WMATLASCREATOR_H
 
 #include <string>
 #include <vector>
-#include <utility>
-#include <map>
 
 #include <osg/Geode>
 
@@ -36,14 +34,11 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
-
-class WDataSetScalar;
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WValueSet.h"
 
 
-
-/**
+/** 
  * Someone should add some documentation here.
  * Probably the best person would be the module's
  * creator, i.e. "schurade".
@@ -54,19 +49,19 @@ class WDataSetScalar;
  *
  * \ingroup modules
  */
-class WMAtlasSurfaces: public WModule
+class WMAtlasCreator: public WModule
 {
 public:
 
     /**
      *
      */
-    WMAtlasSurfaces();
+    WMAtlasCreator();
 
     /**
      *
      */
-    virtual ~WMAtlasSurfaces();
+    virtual ~WMAtlasCreator();
 
     /**
      * Gives back the name of this module.
@@ -87,11 +82,6 @@ public:
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
-
-    /**
-     * function that updates the currently shown gfx according to the current selection
-     */
-    void updateGraphics();
 
     /**
      * Get the icon for this module in XPM format.
@@ -115,81 +105,46 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Creates the osg geometry nodes from the previously created triangle meshes
-     */
-    void createOSGNode();
 
 private:
     /**
-     * Creates a triangle mesh for each region
+     * loads and parses the meta file
+     * \param path to the meta file
+     * \return true if a meta file was succesfully loaded, false otherwise
      */
-    void createSurfaces();
+    bool loadPngs( boost::filesystem::path path );
 
     /**
-     * Callback to listen for property changes
+     * inserts a slice, given as a png image into the volume
+     * \param image path to the image file
      */
-    void propertyChanged();
+    void addPngToVolume( boost::filesystem::path image );
 
     /**
-     * Helper function to read in a text file
-     *
-     * \param fileName
-     * \return the text file as a vector of strings for each line
+     * updates the output connector
      */
-    std::vector< std::string > readFile( const std::string fileName );
+    void updateOutDataset();
 
-    /**
-     * Helper function to read, parse and store the labels
-     *
-     * \param fileName
-     */
-    void loadLabels( std::string fileName );
-
-    /**
-     * function creates arbitrary rois from selected regions and adds them to the roi manager
-     */
-    void createRoi();
-
-    /**
-     * extracts an area from the dataset
-     * \param index index of the region
-     */
-    void cutArea( int index );
-
-
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
-
-    boost::shared_ptr< const WDataSetScalar > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
-
-    boost::shared_ptr< std::vector< boost::shared_ptr< WTriangleMesh > > >m_regionMeshes2; //!< stores pointers to all triangle meshes
-
-    std::map< size_t, std::pair< std::string, std::string > >m_labels; //!< the labels with their id
-
-    osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node. We need it to be able to update it when callback is invoked.
-
-    osg::ref_ptr< osg::Geode > m_outputGeode; //!< Pointer to geode containing the glpyhs
-
-    bool m_dirty; //!< flag true if something happenend that requires redrawing of gfx
-
-    bool m_labelsLoaded; //!< true when a label file is loaded
+    WPropTrigger  m_propReadTrigger; //!< This property triggers the actual reading,
+    WPropFilename m_propDirectory; //!< The png files will be loaded form this directory
 
     /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    /**
-     * A property allowing the user to select multiple elements of a list.
-     */
-    WPropSelection m_aMultiSelection;
+    std::vector< std::string > m_regions; //!< store the region names extracted fromt he file name
+
+    std::vector< uint8_t >m_volume; //!< volume data created from 2d images
 
     /**
-     * A list of items that can be selected using m_aSingleSelection or m_aMultiSelection.
+     * An output connector for the output scalar dsataset.
      */
-    boost::shared_ptr< WItemSelection > m_possibleSelections;
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
 
-    WPropTrigger  m_propCreateRoiTrigger; //!< This property triggers the actual reading,
+    int m_xDim; //!< x Dimension of the volume
+    int m_yDim; //!< y Dimension of the volume
+    int m_zDim; //!< z Dimension of the volume
 };
 
-#endif  // WMATLASSURFACES_H
+#endif  // WMATLASCREATOR_H
