@@ -130,8 +130,12 @@ void WMFiberDisplaySimple::moduleMain()
         }
 
         // update the prop observer if new data is available
-        propObserver->observe( fibers->getProperties() );
+        m_properties->removeProperty( m_fibProps );
+        m_fibProps = fibers->getProperties();
+        propObserver->observe( m_fibProps );
         propObserver->handled();
+        // also add the fib props to own props. This allows the user to modify the fib props directly
+        m_properties->addProperty( m_fibProps );
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // Create new fiber geode

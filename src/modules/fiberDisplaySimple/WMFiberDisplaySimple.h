@@ -110,6 +110,11 @@ private:
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
     osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+
+    /**
+     * The properties of the fiber dataset.
+     */
+    WProperties::SharedPtr m_fibProps;
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H
