@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <list>
+#include <vector>
+
 #include "WSelectorBranch.h"
 
 WSelectorBranch::WSelectorBranch( boost::shared_ptr< const WDataSetFibers > fibers, boost::shared_ptr<WRMBranch> branch ) :

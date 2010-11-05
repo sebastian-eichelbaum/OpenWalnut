@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WGraphicsEngine.h"
 
 #include "WGERequirement.h"

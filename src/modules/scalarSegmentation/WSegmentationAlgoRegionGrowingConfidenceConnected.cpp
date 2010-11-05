@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WSegmentationAlgoRegionGrowingConfidenceConnected.h"
 
 #ifdef OW_USE_ITK
