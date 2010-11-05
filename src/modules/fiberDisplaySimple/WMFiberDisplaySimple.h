@@ -133,6 +133,11 @@ private:
     WPropBool m_clipPlaneEnabled;
 
     /**
+     * Property for en-/disabling of the clip plane plane.
+     */
+    WPropBool m_clipPlaneShowPlane;
+
+    /**
      * Point on the plane. Defines the plane.
      */
     WPropPosition m_clipPlanePoint;
@@ -161,6 +166,13 @@ private:
      * Uniform for plane distance.
      */
     osg::ref_ptr< WGEPropertyUniform< WPropDouble > > m_clipPlaneDistanceUniform;
+
+    /**
+     * Update the transform node to provide an cue were the plane actually is.
+     *
+     * \param node the transform node
+     */
+    void clipPlaneCallback( osg::Node* node );
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H
