@@ -1004,7 +1004,7 @@ void WGridRegular3D::stretch( wmath::WPosition str )
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
-// TODO(all): compiler warning: warning: unused parameter 'center' 
+// TODO(all): compiler warning: warning: unused parameter 'center'
 void WGridRegular3D::rotate( osg::Matrixf osgrot, wmath::WPosition center )
 {
     switch ( m_matrixActive )
