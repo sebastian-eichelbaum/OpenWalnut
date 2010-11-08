@@ -49,8 +49,6 @@ WMFiberDisplay::WMFiberDisplay()
       m_noData( new WCondition, true ),
       m_osgNode( osg::ref_ptr< osg::Group >() )
 {
-    m_shaderTubes = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplay-FakeTubes" ) );
-    m_shaderTexturedFibers = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplay-Textured" ) );
     m_textureChanged = true;
 }
 
@@ -183,6 +181,10 @@ void WMFiberDisplay::properties()
 
 void WMFiberDisplay::moduleMain()
 {
+    // setup shaders
+    m_shaderTubes = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplay2-FakeTubes", m_localPath ) );
+    m_shaderTexturedFibers = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplay2-Textured", m_localPath ) );
+
     // additional fire-condition: "data changed" flag
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
