@@ -26,8 +26,9 @@
 #define WPOLYNOMIALEQUATIONSOLVERS_H
 
 #include <complex>
-#include <utility>
+#include <iostream>
 #include <sstream>
+#include <utility>
 
 #include "../exceptions/WEquationHasNoRoots.h"
 #include "../WLimits.h"
@@ -80,9 +81,9 @@ inline typename std::pair< typename std::complex< T >, typename std::complex< T 
         }
         else
         {
-            a = 1.0;
             b /= a;
             c /= a;
+            a = 1.0;
         }
     }
 
