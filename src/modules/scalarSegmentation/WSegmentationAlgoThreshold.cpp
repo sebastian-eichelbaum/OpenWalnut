@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WSegmentationAlgoThreshold.h"
 
 WSegmentationAlgoThreshold::WSegmentationAlgoThreshold()

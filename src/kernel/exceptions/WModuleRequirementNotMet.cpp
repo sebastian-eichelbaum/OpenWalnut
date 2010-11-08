@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+#include <vector>
+
 #include "../../common/WRequirement.h"
 
 #include "WModuleRequirementNotMet.h"

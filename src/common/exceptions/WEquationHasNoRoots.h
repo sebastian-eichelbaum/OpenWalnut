@@ -22,58 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WEQUATIONHASNOROOTS_H
+#define WEQUATIONHASNOROOTS_H
+
 #include <string>
 
-#include "WLogStream.h"
+#include "../WException.h"
+#include "../WExportCommon.h"
 
-
-WLogStream::WLogStream( std::ostream& output, LogLevel logLevel, std::string format,  bool colored ): // NOLINT - we need this non-const ref here
-    m_output( output ),
-    m_logLevel( logLevel ),
-    m_format( format ),
-    m_color( colored )
+/**
+ * Indicates invalid element access of a container.
+ */
+class OWCOMMON_EXPORT WEquationHasNoRoots : public WException
 {
-    // do nothing
-}
+public:
+    /**
+     * Default constructor.
+     * \param msg the exception message.
+     */
+    explicit WEquationHasNoRoots( const std::string& msg = "Equation has no roots" );
 
-void WLogStream::printEntry( const WLogEntry& entry )
-{
-    // level test
-    if ( m_logLevel > entry.getLogLevel() )
-    {
-        return;
-    }
+    /**
+     * Destructor.
+     */
+    virtual ~WEquationHasNoRoots() throw();
 
-    m_output << entry.getLogString( m_format, m_color );
-}
+protected:
+private:
+};
 
-void WLogStream::setLogLevel( LogLevel logLevel )
-{
-    m_logLevel = logLevel;
-}
-
-LogLevel WLogStream::getLogLevel() const
-{
-    return m_logLevel;
-}
-
-void WLogStream::setFormat( std::string format )
-{
-    m_format = format;
-}
-
-std::string WLogStream::getFormat() const
-{
-    return m_format;
-}
-
-void WLogStream::setColored( bool colors )
-{
-    m_color = colors;
-}
-
-bool WLogStream::isColored() const
-{
-    return m_color;
-}
-
+#endif  // WEQUATIONHASNOROOTS_H

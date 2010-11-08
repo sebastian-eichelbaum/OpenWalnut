@@ -63,7 +63,16 @@ namespace wmath
          *
          * \param numPoints Number of sampling points.
          */
-        void resample( size_t numPoints );
+        void resampleByNumberOfPoints( size_t numPoints );
+
+        /**
+         *
+         *
+         * \warning This may elongate your line at max. by the newSegmentLength
+         *
+         * \param newSegementLength
+         */
+        void resampleBySegmentLength( double newSegementLength );
 
         /**
          * Reverses the order of the points. (mirroring)
@@ -71,12 +80,21 @@ namespace wmath
         void reverseOrder();
 
         /**
-         * Computes a AABB (axis aligned bounding box) for all positions inside this line.
-         *
-         * \return The AABB for this line.
+         * Collapse samplepoints which are equal and neighboured.
          */
-        WBoundingBox computeBoundingBox() const;
+        void removeAdjacentDuplicates();
     };
+
+    // Some convinience functions as non-member non-friend functions
+
+    /**
+     * Computes a AABB (axis aligned bounding box) for all positions inside this line.
+     *
+     * \param line The line to compute the bounding box for.
+     *
+     * \return The AABB for this line.
+     */
+    WBoundingBox computeBoundingBox( const wmath::WLine& line );
 
     /**
      * Computes the length of a line in terms of accumulated segment lengths.

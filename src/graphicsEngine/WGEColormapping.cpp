@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <map>
+
 #include "WGEColormapping.h"
 
 // instance as singleton
