@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,36 +22,46 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMFIBERDISPLAYSIMPLE_H
-#define WMFIBERDISPLAYSIMPLE_H
+#ifndef WMATLASCREATOR_H
+#define WMATLASCREATOR_H
 
 #include <string>
+#include <vector>
 
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/WShader.h"
+#include <osg/Geode>
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-/**
- * This modules takes a dataset and equalizes its histogram.
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WValueSet.h"
+
+
+/** 
+ * Someone should add some documentation here.
+ * Probably the best person would be the module's
+ * creator, i.e. "schurade".
+ *
+ * This is only an empty template for a new module. For
+ * an example module containing many interesting concepts
+ * and extensive documentation have a look at "src/modules/template"
  *
  * \ingroup modules
  */
-class WMFiberDisplaySimple: public WModule
+class WMAtlasCreator: public WModule
 {
 public:
 
     /**
-     * Default constructor.
+     *
      */
-    WMFiberDisplaySimple();
+    WMAtlasCreator();
 
     /**
-     * Destructor.
+     *
      */
-    virtual ~WMFiberDisplaySimple();
+    virtual ~WMAtlasCreator();
 
     /**
      * Gives back the name of this module.
@@ -95,85 +105,46 @@ protected:
      */
     virtual void properties();
 
+
 private:
+    /**
+     * loads and parses the meta file
+     * \param path to the meta file
+     * \return true if a meta file was succesfully loaded, false otherwise
+     */
+    bool loadPngs( boost::filesystem::path path );
 
     /**
-     * The fiber dataset which is going to be filtered.
+     * inserts a slice, given as a png image into the volume
+     * \param image path to the image file
      */
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput;
+    void addPngToVolume( boost::filesystem::path image );
+
+    /**
+     * updates the output connector
+     */
+    void updateOutDataset();
+
+    WPropTrigger  m_propReadTrigger; //!< This property triggers the actual reading,
+    WPropFilename m_propDirectory; //!< The png files will be loaded form this directory
 
     /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
-     */
-    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+    std::vector< std::string > m_regions; //!< store the region names extracted fromt he file name
+
+    std::vector< uint8_t >m_volume; //!< volume data created from 2d images
 
     /**
-     * The properties of the fiber dataset.
+     * An output connector for the output scalar dsataset.
      */
-    WProperties::SharedPtr m_fibProps;
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
 
-    /**
-     * The shader used for clipping of fibers using an arbitrary plane.
-     */
-    osg::ref_ptr< WShader > m_shader;
-
-    /**
-     * A property group for all the clipping related props.
-     */
-    WPropGroup m_clipPlaneGroup;
-
-    /**
-     * Property for en-/disable clipping.
-     */
-    WPropBool m_clipPlaneEnabled;
-
-    /**
-     * Property for en-/disabling of the clip plane plane.
-     */
-    WPropBool m_clipPlaneShowPlane;
-
-    /**
-     * Point on the plane. Defines the plane.
-     */
-    WPropPosition m_clipPlanePoint;
-
-    /**
-     * Vector of the plane. Defines the plane.
-     */
-    WPropPosition m_clipPlaneVector;
-
-    /**
-     * Distance from plane. Used as threshold.
-     */
-    WPropDouble m_clipPlaneDistance;
-
-    /**
-     * Uniform for plane point.
-     */
-    osg::ref_ptr< WGEPropertyUniform< WPropPosition > > m_clipPlanePointUniform;
-
-    /**
-     * Uniform for plane vector.
-     */
-    osg::ref_ptr< WGEPropertyUniform< WPropPosition > > m_clipPlaneVectorUniform;
-
-    /**
-     * Uniform for plane distance.
-     */
-    osg::ref_ptr< WGEPropertyUniform< WPropDouble > > m_clipPlaneDistanceUniform;
-
-    /**
-     * Update the transform node to provide an cue were the plane actually is.
-     *
-     * \param node the transform node
-     */
-    void clipPlaneCallback( osg::Node* node );
+    int m_xDim; //!< x Dimension of the volume
+    int m_yDim; //!< y Dimension of the volume
+    int m_zDim; //!< z Dimension of the volume
 };
 
-#endif  // WMFIBERDISPLAYSIMPLE_H
-
+#endif  // WMATLASCREATOR_H

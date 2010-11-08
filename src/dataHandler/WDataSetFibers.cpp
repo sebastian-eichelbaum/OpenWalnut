@@ -63,6 +63,39 @@ WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
     m_bbMax( boundingBox.second )
 
 {
+    WAssert( ( m_vertices->size() > 0 ) && ( m_vertices->size() % 3 == 0 ),  "Invalid vertices array."  );
+    init();
+}
+
+WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
+                WDataSetFibers::IndexArray lineStartIndexes,
+                WDataSetFibers::LengthArray lineLengths,
+                WDataSetFibers::IndexArray verticesReverse )
+    : WDataSet(),
+    m_vertices( vertices ),
+    m_lineStartIndexes( lineStartIndexes ),
+    m_lineLengths( lineLengths ),
+    m_verticesReverse( verticesReverse )
+{
+    WAssert( ( m_vertices->size() > 0 ) && ( m_vertices->size() % 3 == 0 ),  "Invalid vertices array."  );
+    // determine bounding box
+    m_bbMin = wmath::WPosition( wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE );
+    m_bbMax = wmath::WPosition( -wlimits::MAX_DOUBLE, -wlimits::MAX_DOUBLE, -wlimits::MAX_DOUBLE );
+    for( size_t i = 0; i < vertices->size()/3; ++i )
+    {
+        if( (*vertices)[ 3 * i + 0 ] > m_bbMax[0] ) m_bbMax[0] = (*vertices)[ 3 * i + 0 ];
+        if( (*vertices)[ 3 * i + 1 ] > m_bbMax[1] ) m_bbMax[1] = (*vertices)[ 3 * i + 1 ];
+        if( (*vertices)[ 3 * i + 2 ] > m_bbMax[2] ) m_bbMax[2] = (*vertices)[ 3 * i + 2 ];
+        if( (*vertices)[ 3 * i + 0 ] < m_bbMin[0] ) m_bbMin[0] = (*vertices)[ 3 * i + 0 ];
+        if( (*vertices)[ 3 * i + 1 ] < m_bbMin[1] ) m_bbMin[1] = (*vertices)[ 3 * i + 1 ];
+        if( (*vertices)[ 3 * i + 2 ] < m_bbMin[2] ) m_bbMin[2] = (*vertices)[ 3 * i + 2 ];
+    }
+    // remaining initilisation
+    init();
+}
+
+void WDataSetFibers::init()
+{
     size_t size = m_vertices->size();
     m_tangents = boost::shared_ptr< std::vector< float > >( new std::vector<float>( size ) );
 

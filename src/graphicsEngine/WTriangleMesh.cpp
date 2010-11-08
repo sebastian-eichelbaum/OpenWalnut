@@ -181,6 +181,16 @@ osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getVertexNormalArray( bool forceRec
     return m_vertNormals;
 }
 
+osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getTriangleNormalArray( bool forceRecalc )
+{
+    if ( forceRecalc || m_meshDirty )
+    {
+        recalcVertNormals();
+    }
+    return m_triangleNormals;
+}
+
+
 osg::ref_ptr< osg::Vec4Array >WTriangleMesh::getVertexColorArray()
 {
     return m_vertColors;

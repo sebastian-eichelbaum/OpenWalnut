@@ -54,6 +54,8 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
     m_grid = newGrid;
     m_texture3D = boost::shared_ptr< WDataTexture3D >( new WDataTexture3D( m_valueSet, m_grid ) );
 
+    m_infoProperties->addProperty( m_grid->getInformationProperties() );
+
     // technically this should be placed into the WDataSetScalar, WDataSetVector and so on
     boost::shared_ptr< WGridRegular3D > regGrid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
     if ( regGrid )

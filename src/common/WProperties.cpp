@@ -148,6 +148,11 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
 
 void WProperties::removeProperty( boost::shared_ptr< WPropertyBase > prop )
 {
+    if ( !prop )
+    {
+        return;
+    }
+
     // lock, unlocked if l looses focus
     PropertySharedContainerType::WriteTicket l = m_properties.getWriteTicket();
     l->get().erase( std::remove( l->get().begin(), l->get().end(), prop ), l->get().end() );

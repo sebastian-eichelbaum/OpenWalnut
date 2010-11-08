@@ -582,6 +582,12 @@ private:
      */
     int getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const;
 
+    /**
+     * Adds the specific information of this grid type to the
+     * informational properties.
+     */
+    void initInformationProperties();
+
     wmath::WPosition m_origin; //!< Origin of the grid.
 
     unsigned int m_nbPosX; //!< Number of positions in x direction

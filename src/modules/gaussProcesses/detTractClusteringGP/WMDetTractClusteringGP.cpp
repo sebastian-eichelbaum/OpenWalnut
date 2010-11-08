@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 #include "../../../kernel/WKernel.h"
 #include "../../emptyIcon.xpm" // Please put a real icon here.

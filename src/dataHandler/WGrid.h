@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <utility>
 
+#include "../common/WProperties.h"
 #include "../common/math/WPosition.h"
 #include "WExportDataHandler.h"
 
@@ -62,7 +63,20 @@ public:
      */
     virtual std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const = 0;
 
+    /**
+     * Returns a pointer to the information properties object of the grid. The grid intends these properties to not be modified.
+     *
+     * \return the properties.
+     */
+    boost::shared_ptr< WProperties > getInformationProperties() const;
+
 protected:
+    /**
+     * The property object for the grid containing only props whose purpose is "PV_PURPOSE_INFORMNATION". It is useful to define some property
+     * to only be of informational nature. The GUI does not modify them.
+     */
+    boost::shared_ptr< WProperties > m_infoProperties;
+
 
 private:
     /**

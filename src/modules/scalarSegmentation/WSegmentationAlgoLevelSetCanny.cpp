@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WSegmentationAlgoLevelSetCanny.h"
 
 #ifdef OW_USE_ITK

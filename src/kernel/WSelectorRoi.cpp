@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <vector>
+
 //#include "../../../graphicsEngine/WGraphicsEngine.h"
 #include "../graphicsEngine/WROIBox.h"
 #include "../graphicsEngine/WROIArbitrary.h"

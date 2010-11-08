@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WSegmentationAlgoWatershed.h"
 
 #ifdef OW_USE_ITK
