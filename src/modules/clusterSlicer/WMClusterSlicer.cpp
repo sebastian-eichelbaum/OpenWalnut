@@ -299,7 +299,7 @@ void WMClusterSlicer::generateSlices()
         errorLog() << "CenterLine of the bundle is empty => no slices are drawn";
         return;
     }
-    centerLine.resample( static_cast< size_t >( m_centerLineScale->get( true ) * centerLine.size() ) );
+    centerLine.resampleByNumberOfPoints( static_cast< size_t >( m_centerLineScale->get( true ) * centerLine.size() ) );
 
     m_slices = boost::shared_ptr< std::vector< std::pair< double, WPlane > > >( new std::vector< std::pair< double, WPlane > > );
     m_maxMean = wlimits::MIN_DOUBLE;

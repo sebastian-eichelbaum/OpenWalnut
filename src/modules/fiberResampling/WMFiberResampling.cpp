@@ -147,7 +147,7 @@ boost::shared_ptr< WDataSetFibers > WMFiberResampling::resample( boost::shared_p
     for ( size_t fidx = 0; fidx < dataSet->getLineStartIndexes()->size() ; ++fidx )
     {
         WFiber tract( ( *dataSet )[ fidx ] );
-        tract.resample( m_newSamples->get( true ) );
+        tract.resampleByNumberOfPoints( m_newSamples->get( true ) );
         newDS->push_back( tract );
         ++*progress1;
     }
