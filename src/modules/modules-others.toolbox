@@ -1,5 +1,6 @@
 ADD_SUBDIRECTORY( applyMask )
 ADD_SUBDIRECTORY( arbitraryPlane )
+ADD_SUBDIRECTORY( atlasCreator )
 ADD_SUBDIRECTORY( atlasSurfaces )
 ADD_SUBDIRECTORY( calculateGFA )
 ADD_SUBDIRECTORY( clusterDisplay )
