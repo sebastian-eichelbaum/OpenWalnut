@@ -168,9 +168,9 @@ private:
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node. We need it to be able to update it when callback is invoked.
 
-    osg::ref_ptr< osg::Geode > m_outputGeode; //!< Pointer to geode containing the glpyhs
+    osg::ref_ptr< osg::Geode > m_outputGeode; //!< Pointer to geode containing the glyphs
 
-    bool m_dirty; //!< flag true if something happenend that requires redrawing of gfx
+    bool m_dirty; //!< flag true if something happened that requires redrawing of gfx
 
     bool m_labelsLoaded; //!< true when a label file is loaded
 
