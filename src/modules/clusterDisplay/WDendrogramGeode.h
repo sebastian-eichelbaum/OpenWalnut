@@ -31,7 +31,7 @@
 #include <osg/MatrixTransform>
 #include <osg/PositionAttitudeTransform>
 
-#include "WHierarchicalTree.h"
+#include "../../common/WHierarchicalTreeFibers.h"
 
 /**
  * Class creates a dendrogram from a hierarchical clustering
@@ -51,7 +51,7 @@ public:
      * \param yOffset translation alogn the y axis
      *
      */
-    WDendrogramGeode( WHierarchicalTree* tree, size_t cluster, size_t minClusterSize = 1, float xSize = 1000.f,
+    WDendrogramGeode( WHierarchicalTreeFibers* tree, size_t cluster, size_t minClusterSize = 1, float xSize = 1000.f,
             float ySize = 500.f, float xOffset = 0.0f, float yOffset = 0.0f );
 
     /**
@@ -91,7 +91,7 @@ private:
      */
     void getClickClusterRecursive( size_t cluster, float left, float right );
 
-    WHierarchicalTree* m_tree; //!< the tree to work on
+    WHierarchicalTreeFibers* m_tree; //!< the tree to work on
 
     size_t m_rootCluster; //!< top cluster to draw the tree from
 
