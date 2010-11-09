@@ -30,6 +30,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "../common/WBoundingBox.h"
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
 #include "../common/WPredicateHelper.h"
@@ -63,7 +64,7 @@ WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
     m_bbMax( boundingBox.second )
 
 {
-    WAssert( ( m_vertices->size() > 0 ) && ( m_vertices->size() % 3 == 0 ),  "Invalid vertices array."  );
+    WAssert( m_vertices->size() % 3 == 0,  "Invalid vertex array."  );
     init();
 }
 
@@ -77,7 +78,7 @@ WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
     m_lineLengths( lineLengths ),
     m_verticesReverse( verticesReverse )
 {
-    WAssert( ( m_vertices->size() > 0 ) && ( m_vertices->size() % 3 == 0 ),  "Invalid vertices array."  );
+    WAssert( m_vertices->size() % 3 == 0,  "Invalid vertex array."  );
     // determine bounding box
     m_bbMin = wmath::WPosition( wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE );
     m_bbMax = wmath::WPosition( -wlimits::MAX_DOUBLE, -wlimits::MAX_DOUBLE, -wlimits::MAX_DOUBLE );
