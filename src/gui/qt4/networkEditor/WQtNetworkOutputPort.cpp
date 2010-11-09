@@ -115,7 +115,7 @@ void WQtNetworkOutputPort::removeArrows()
         if ( index != -1 )
         {
             m_arrows.removeAt( index );
-            delete arrow;
+            //delete arrow;
         }
     }
 }

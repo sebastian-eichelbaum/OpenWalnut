@@ -102,10 +102,10 @@ void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
     m_items.push_back( netItem );
     m_scene->addItem( netItem );
 }
-    
+
 
 bool WQtNetworkEditor::event( QEvent* event )
-{   
+{
 
     // a module got associated with the root container -> add it to the list
     if ( event->type() == WQT_ASSOC_EVENT )
@@ -122,7 +122,7 @@ bool WQtNetworkEditor::event( QEvent* event )
         //TODO: disablen des moduls solange nicht rdy!
         return true;
     }
- 
+
     // a module changed its state to "ready" -> activate it in dataset browser
     if ( event->type() == WQT_READY_EVENT )
     {
@@ -149,7 +149,7 @@ bool WQtNetworkEditor::event( QEvent* event )
 
         return true;
     }
- 
+
     // a module tree item was connected to another one
     if ( event->type() == WQT_MODULE_CONNECT_EVENT )
     {
@@ -167,7 +167,7 @@ bool WQtNetworkEditor::event( QEvent* event )
 
         boost::shared_ptr< WModule > mIn;
         boost::shared_ptr< WModule > mOut;
-        
+
         if( e->getInput()->isInputConnector() == true &&
             e->getOutput()->isOutputConnector() == true )
         {
@@ -219,13 +219,14 @@ bool WQtNetworkEditor::event( QEvent* event )
         arrow->updatePosition();
 
         m_scene->addItem( arrow );
-
     }
 
 
     // a module tree item was disconnected from another one
     if ( event->type() == WQT_MODULE_DISCONNECT_EVENT )
     {
+        WLogger::getLogger()->addLogMessage( "DISCONNECT.", "NetworkEditor", LL_ERROR );
+
         WModuleDisconnectEvent* e = dynamic_cast< WModuleDisconnectEvent* >( event );     // NOLINT
         if ( !e )
         {
@@ -234,13 +235,13 @@ bool WQtNetworkEditor::event( QEvent* event )
                                                  "NetworkEditor", LL_WARNING );
             return true;
         }
- 
-        WLogger::getLogger()->addLogMessage( "Disonnecting \"" + e->getInput()->getModule()->getName() + "\" and \""
-                                                 + e->getOutput()->getModule()->getName() + "\"." , "NetworkEditor", LL_DEBUG );
-        
+
+        WLogger::getLogger()->addLogMessage( "Disonnecting \"" + e->getInput()->getCanonicalName() + "\" and \""
+                                                 + e->getOutput()->getCanonicalName() + "\"." , "NetworkEditor", LL_DEBUG );
+
         boost::shared_ptr< WModule > mIn;
         boost::shared_ptr< WModule > mOut;
-        
+
         if( e->getInput()->isInputConnector() == true &&
             e->getOutput()->isOutputConnector() == true )
         {
@@ -262,6 +263,7 @@ bool WQtNetworkEditor::event( QEvent* event )
 
         WQtNetworkInputPort *ip;
         WQtNetworkOutputPort *op;
+            WLogger::getLogger()->addLogMessage( "1.", "NetworkEditor", LL_ERROR );
 
         for ( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
             iter != inItem->getInPorts().end();
@@ -273,6 +275,7 @@ bool WQtNetworkEditor::event( QEvent* event )
                ip = inP;
            }
         }
+            WLogger::getLogger()->addLogMessage( "2", "NetworkEditor", LL_ERROR );
 
         for ( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
             iter != outItem->getOutPorts().end();
@@ -284,20 +287,30 @@ bool WQtNetworkEditor::event( QEvent* event )
                op = outP;
            }
        }
+            WLogger::getLogger()->addLogMessage( "3", "NetworkEditor", LL_ERROR );
 
-        for ( QList< QGraphicsItem * >::iterator iter = m_scene->items().begin();
+        WQtNetworkArrow *ar = NULL;
+        wlog::error( "netw" ) <<  "gehe durch " << m_scene->items().size() << " items";
+        for ( QList< QGraphicsItem * >::const_iterator iter = m_scene->items().begin();
                 iter != m_scene->items().end();
                 ++iter )
         {
-            WQtNetworkArrow *ar = dynamic_cast< WQtNetworkArrow* >( *iter );
+            wlog::error( "netw" ) <<  *iter;
+            ar = dynamic_cast< WQtNetworkArrow* >( *iter );
             if( ar &&
                 ar->getStartPort() == op &&
                 ar->getEndPort() == ip )
             {
-                m_scene->removeItem( ar );
-                delete ar;
                 break;
             }
+        }
+        if ( ar )
+        {
+            m_scene->removeItem( ar );
+        }
+        else
+        {
+            WLogger::getLogger()->addLogMessage( "Arrow not found!.", "NetworkEditor", LL_ERROR );
         }
 
         return true;
@@ -306,6 +319,8 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module was removed from the container
     if ( event->type() == WQT_MODULE_REMOVE_EVENT )
     {
+        WLogger::getLogger()->addLogMessage( "REMOVE.", "NetworkEditor", LL_ERROR );
+
         WModuleRemovedEvent* e = dynamic_cast< WModuleRemovedEvent* >( event );
         if ( !e )
         {
@@ -330,6 +345,8 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module tree item should be deleted
     if ( event->type() == WQT_MODULE_DELETE_EVENT )
     {
+        WLogger::getLogger()->addLogMessage( "DELETE.", "NetworkEditor", LL_ERROR );
+
         WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );
         if ( !e )
         {
@@ -340,13 +357,13 @@ bool WQtNetworkEditor::event( QEvent* event )
         }
 
         WLogger::getLogger()->addLogMessage( "Delete \"" + e->getTreeItem()->getModule()->getName() + "\" from network editor", "NetworkEditor", LL_DEBUG );
-        
+
         WQtNetworkItem *item = findItemByModule( e->getTreeItem()->getModule() );
 
         if( item != 0 ){
             m_scene->removeItem( item );
             m_items.remove( item );
-            delete item;        
+            delete item;
         }
 
         return true;

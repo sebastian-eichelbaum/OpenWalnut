@@ -69,7 +69,7 @@ void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 //TODO
 void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
-    
+
     if( line != 0 )
     {
         QLineF newLine( line->line().p1(), mouseEvent->scenePos() );
@@ -109,7 +109,7 @@ void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
                 }
             }
             else if( endItem.first()->type() == WQtNetworkOutputPort::Type )
-            {   
+            {
                    line->setPen( QPen( Qt::red, 2 ) );
             }
             else
@@ -128,7 +128,7 @@ void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 //TODO
 void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
-    
+
     if( line != 0 )
     {
         QList<QGraphicsItem *> startItems = scene()->items( line->line().p1() );
@@ -148,7 +148,6 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
 
         // remove current line for real connection
         scene()->removeItem( line );
-        delete line;
 
         if( !endItems.isEmpty() &&
              !startItems.isEmpty() &&
@@ -167,7 +166,7 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
                     endPort->parentItem()->isEnabled() == true &&
                     endPort->getConnector()->connectable( startPort->getConnector() ) == true )
             {
-                  boost::shared_ptr< WApplyCombiner > x = boost::shared_ptr< WApplyCombiner >( new WApplyCombiner( 
+                  boost::shared_ptr< WApplyCombiner > x = boost::shared_ptr< WApplyCombiner >( new WApplyCombiner(
                                                             startPort->getConnector()->getModule(),
                                                             startPort->getConnector()->getName(),
                                                             endPort->getConnector()->getModule(),

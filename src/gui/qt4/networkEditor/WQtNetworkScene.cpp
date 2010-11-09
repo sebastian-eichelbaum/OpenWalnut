@@ -81,6 +81,7 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
                                                                     ar->getEndPort()->getConnector()->getModule(),
                                                                     ar->getEndPort()->getConnector()->getName() ) );
                 disconnectCombiner->run();
+                disconnectCombiner->wait();
             }
         }
 

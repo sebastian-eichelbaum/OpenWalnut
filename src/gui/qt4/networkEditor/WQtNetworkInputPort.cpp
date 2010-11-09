@@ -117,7 +117,7 @@ void WQtNetworkInputPort::removeArrows()
         if ( index != -1 )
         {
             m_arrows.removeAt( index );
-            delete arrow;
+            //delete arrow;
         }
     }
 }
@@ -182,7 +182,7 @@ void WQtNetworkInputPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
                 }
             }
             else if( endItem.first()->type() == WQtNetworkOutputPort::Type )
-            {   
+            {
                    line->setPen( QPen( Qt::red, 2 ) );
             }
             else

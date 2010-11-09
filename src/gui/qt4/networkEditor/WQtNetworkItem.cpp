@@ -54,16 +54,16 @@ WQtNetworkItem::WQtNetworkItem( boost::shared_ptr< WModule > module )
     //add input ports
     WModule::InputConnectorList cons = module->getInputConnectors();
     for ( WModule::InputConnectorList::const_iterator iter = cons.begin(); iter != cons.end(); ++iter )
-    {        
+    {
         WQtNetworkInputPort *port = new WQtNetworkInputPort( *iter );
         port->setParentItem( this );
         this->addInputPort( port );
     }
- 
+
     //add output ports
     WModule::OutputConnectorList outCons = module->getOutputConnectors();
     for ( WModule::OutputConnectorList::const_iterator iter = outCons.begin(); iter != outCons.end(); ++iter )
-    {        
+    {
         WQtNetworkOutputPort *port = new WQtNetworkOutputPort( *iter );
         port->setParentItem( this );
         this->addOutputPort( port );
@@ -76,7 +76,7 @@ WQtNetworkItem::WQtNetworkItem( boost::shared_ptr< WModule > module )
 
 WQtNetworkItem::~WQtNetworkItem()
 {
-    foreach( WQtNetworkPort *port, m_inPorts )
+/*    foreach( WQtNetworkPort *port, m_inPorts )
     {
         delete port;
     }
@@ -84,7 +84,7 @@ WQtNetworkItem::~WQtNetworkItem()
     foreach( WQtNetworkPort *port, m_outPorts )
     {
         delete port;
-    }
+    }*/
 }
 
 int WQtNetworkItem::type() const
