@@ -910,7 +910,7 @@ void WMNavSlices::updateGeometry()
         // update the information property
         m_currentPosition->set( wmath::WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
 
-        // if the texture got changed we want to rearange the scene Matrix for the SliceViewports to be centered
+        // if the texture got changed we want to rearrange the scene Matrix for the SliceViewports to be centered
         updateViewportMatrix();
 
         osg::ref_ptr<osg::Geometry> xSliceGeometry = createGeometry( 0 );
