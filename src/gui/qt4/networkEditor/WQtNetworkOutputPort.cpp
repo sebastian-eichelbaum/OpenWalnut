@@ -65,7 +65,7 @@ WQtNetworkOutputPort::WQtNetworkOutputPort( boost::shared_ptr<WModuleOutputConne
 
 WQtNetworkOutputPort::~WQtNetworkOutputPort()
 {
-    removeArrows();
+    //removeArrows();
 }
 
 int WQtNetworkOutputPort::type() const

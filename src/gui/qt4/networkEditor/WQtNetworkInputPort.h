@@ -60,7 +60,7 @@ class WQtNetworkInputPort : public WQtNetworkPort
          */
         enum
         {
-            Type = UserType + 10
+            Type = UserType + 11
         };
 
         /**

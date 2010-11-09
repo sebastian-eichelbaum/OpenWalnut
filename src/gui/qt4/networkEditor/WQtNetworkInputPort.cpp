@@ -66,7 +66,7 @@ WQtNetworkInputPort::WQtNetworkInputPort( boost::shared_ptr<WModuleInputConnecto
 
 WQtNetworkInputPort::~WQtNetworkInputPort()
 {
-    removeArrows();
+    //removeArrows();
 }
 
 int WQtNetworkInputPort::type() const

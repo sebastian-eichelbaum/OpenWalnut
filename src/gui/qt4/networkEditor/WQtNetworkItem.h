@@ -54,6 +54,20 @@ class WQtNetworkItem : public QGraphicsRectItem
         virtual ~WQtNetworkItem();
 
         /**
+         * This customize the return value of type()
+         */
+        enum
+        {
+           Type = UserType + 20
+        };
+ 
+        /**
+         * Reimplementation from QGraphicsItem
+         * \return the type of the item as int
+         */
+        int type() const;
+
+        /**
          * Add a port to the item.
          */
         void addInputPort( WQtNetworkInputPort *inPort );

@@ -60,7 +60,6 @@ WQtNetworkArrow::WQtNetworkArrow()
 
 WQtNetworkArrow::~WQtNetworkArrow()
 {
-    std::cout << "delete arrow" << std::endl;
     m_startPort->removeArrow( this );
     m_endPort->removeArrow( this );
 }

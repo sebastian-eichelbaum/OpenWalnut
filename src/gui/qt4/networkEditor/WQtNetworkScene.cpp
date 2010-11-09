@@ -74,8 +74,6 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
         foreach( WQtNetworkArrow *ar, arrowList )
         {
             if( ar != 0 ){
-                //removeItem( ar );
-                //delete ar;
                 boost::shared_ptr< WDisconnectCombiner > disconnectCombiner =
                                     boost::shared_ptr< WDisconnectCombiner >( new WDisconnectCombiner(
                                                                     ar->getStartPort()->getConnector()->getModule(),
@@ -89,10 +87,6 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
         foreach( WQtNetworkItem *it, itemList )
         {
             if( it != 0 ){
-                //removeItem( it );
-                //delete it;
-                
-                //need module as shared_ptr
                 WKernel::getRunningKernel()->getRootContainer()->remove( it->getModule() );
             }
         }

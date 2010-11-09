@@ -314,8 +314,8 @@ void WQt4Gui::slotRemoveDatasetOrModuleInBrowser( boost::shared_ptr< WModule > m
             m_mainWindow->setFibersLoaded( false );
         }
     }
-    QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleRemovedEvent( module ) );
     QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleRemovedEvent( module ) );
+    QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleRemovedEvent( module ) );
 }
 
 void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )
@@ -338,13 +338,13 @@ void WQt4Gui::slotConnectionClosed( boost::shared_ptr<WModuleConnector> in, boos
     // create a new event for this and insert it into event queue
     if ( in->isInputConnector() )
     {
-        QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleDisconnectEvent( in, out ) );
         QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( in, out ) );
+        QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleDisconnectEvent( in, out ) );
     }
     else
     {
-        QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleDisconnectEvent( out, in ) );
         QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( out, in ) );
+        QCoreApplication::postEvent( m_mainWindow->getDatasetBrowser(), new WModuleDisconnectEvent( out, in ) );
     }
 }
 

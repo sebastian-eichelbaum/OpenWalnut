@@ -87,6 +87,11 @@ WQtNetworkItem::~WQtNetworkItem()
     }
 }
 
+int WQtNetworkItem::type() const
+{
+    return Type;
+}
+
 void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent  *event )
 {
     if( m_color != Qt::darkBlue )
@@ -100,7 +105,7 @@ void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent  *event )
         tooltip += "<b>A problem occured. The module has been stopped. </b><br/><br/>";
     }
     tooltip += "<b>Module: </b>" + m_module->getName() + "<br/>";
-//    tooltip += "<b>Progress: </b>" + progress + "<br/>";
+    //tooltip += "<b>Progress: </b>" + progress + "<br/>";
     tooltip += "<b>Connectors: </b>";
 
     // also list the connectors
@@ -153,7 +158,7 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
     QGraphicsRectItem::paint( painter, o, w );
 
     //glass highlight
-    //voreen
+    //snippet from "voreen-2.5" source
     painter->setBrush( QBrush( Qt::white ) );
     painter->setPen( QPen( QBrush( Qt::white ), 0.01 ) );
     painter->setOpacity( 0.30 );

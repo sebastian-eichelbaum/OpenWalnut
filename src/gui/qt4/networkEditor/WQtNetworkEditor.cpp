@@ -105,7 +105,8 @@ void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
     
 
 bool WQtNetworkEditor::event( QEvent* event )
-{    
+{   
+
     // a module got associated with the root container -> add it to the list
     if ( event->type() == WQT_ASSOC_EVENT )
     {
@@ -113,11 +114,11 @@ bool WQtNetworkEditor::event( QEvent* event )
         WModuleAssocEvent* e1 = dynamic_cast< WModuleAssocEvent* >( event );     // NOLINT
         if ( e1 )
         {
-            WLogger::getLogger()->addLogMessage( "Inserting module " + e1->getModule()->getName() +
-                                                " to network editor.",
-                                                 "NetworkEditor", LL_DEBUG );
+            WLogger::getLogger()->addLogMessage( "Inserting module \"" + e1->getModule()->getName() +
+                                                "\" to network editor.", "NetworkEditor", LL_DEBUG );
             addModule( e1->getModule() );
         }
+
         //TODO: disablen des moduls solange nicht rdy!
         return true;
     }
@@ -125,7 +126,7 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module changed its state to "ready" -> activate it in dataset browser
     if ( event->type() == WQT_READY_EVENT )
     {
-        // convert event to assoc event
+        // convert event to ready event
         WModuleReadyEvent* e = dynamic_cast< WModuleReadyEvent* >( event );     // NOLINT
         if ( !e )
         {
@@ -136,12 +137,15 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Activating module " + e->getModule()->getName() + " in dataset browser.",
+        WLogger::getLogger()->addLogMessage( "Activating module \"" + e->getModule()->getName() + "\" in network editor.",
                                              "NetworkEditor", LL_DEBUG );
 
         // search all the item matching the module
         WQtNetworkItem *item = findItemByModule( e->getModule() );
-        item->activate( true );
+        if( item != 0 )
+        {
+            item->activate( true );
+        }
 
         return true;
     }
@@ -154,13 +158,30 @@ bool WQtNetworkEditor::event( QEvent* event )
         {
             // this should never happen, since the type is set to WQT_MODULE_CONNECT_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleConnectEvent although its type claims it. Ignoring event.",
-                                                 "DatasetBrowser", LL_WARNING );
+                                                 "NetworkEditor", LL_WARNING );
             return true;
         }
 
-        // get the module of the input involved in this connection
-        boost::shared_ptr< WModule > mIn = e->getInput()->getModule();
-        boost::shared_ptr< WModule > mOut = e->getOutput()->getModule();
+        WLogger::getLogger()->addLogMessage( "Connecting \"" + e->getInput()->getModule()->getName() + "\" and \"" +
+                                                             e->getOutput()->getModule()->getName() + "\".", "NetworkEditor", LL_DEBUG );
+
+        boost::shared_ptr< WModule > mIn;
+        boost::shared_ptr< WModule > mOut;
+        
+        if( e->getInput()->isInputConnector() == true &&
+            e->getOutput()->isOutputConnector() == true )
+        {
+            mIn = e->getInput()->getModule();
+            mOut = e->getOutput()->getModule();
+        } else if ( e->getInput()->isOutputConnector() == true &&
+                    e->getOutput()->isInputConnector() == true )
+        {
+            mIn = e->getOutput()->getModule();
+            mOut = e->getInput()->getModule();
+        } else {
+            return true;
+            //TODO skiunke: warning
+        }
 
         WQtNetworkItem *inItem = findItemByModule( mIn );
         WQtNetworkItem *outItem = findItemByModule( mOut );
@@ -214,8 +235,30 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
  
-        WQtNetworkItem *inItem = findItemByModule( e->getInput()->getModule() );
-        WQtNetworkItem *outItem = findItemByModule( e->getOutput()->getModule() );
+        WLogger::getLogger()->addLogMessage( "Disonnecting \"" + e->getInput()->getModule()->getName() + "\" and \""
+                                                 + e->getOutput()->getModule()->getName() + "\"." , "NetworkEditor", LL_DEBUG );
+        
+        boost::shared_ptr< WModule > mIn;
+        boost::shared_ptr< WModule > mOut;
+        
+        if( e->getInput()->isInputConnector() == true &&
+            e->getOutput()->isOutputConnector() == true )
+        {
+            mIn = e->getInput()->getModule();
+            mOut = e->getOutput()->getModule();
+        } else if ( e->getInput()->isOutputConnector() == true &&
+                    e->getOutput()->isInputConnector() == true )
+        {
+            mIn = e->getOutput()->getModule();
+            mOut = e->getInput()->getModule();
+        } else {
+            return true;
+            //TODO skiunke: warning
+        }
+
+
+        WQtNetworkItem *inItem = findItemByModule( mIn );
+        WQtNetworkItem *outItem = findItemByModule( mOut );
 
         WQtNetworkInputPort *ip;
         WQtNetworkOutputPort *op;
@@ -263,7 +306,6 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module was removed from the container
     if ( event->type() == WQT_MODULE_REMOVE_EVENT )
     {
-        std::cout << "remove" << std::endl;
         WModuleRemovedEvent* e = dynamic_cast< WModuleRemovedEvent* >( event );
         if ( !e )
         {
@@ -273,12 +315,14 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
+        WLogger::getLogger()->addLogMessage( "Removeing \"" + e->getModule()->getName() + "\" from network editor.", "NetworkEditor", LL_DEBUG );
+
+
         WQtNetworkItem *item = findItemByModule( e->getModule() );
-        if( item ){
+        if( item != 0 ){
             item->activate( false );
             e->getModule()->requestStop();
         }
-
 
         return true;
     }
@@ -286,7 +330,6 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module tree item should be deleted
     if ( event->type() == WQT_MODULE_DELETE_EVENT )
     {
-        std::cout << "delete event" << std::endl;
         WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );
         if ( !e )
         {
@@ -296,11 +339,11 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
+        WLogger::getLogger()->addLogMessage( "Delete \"" + e->getTreeItem()->getModule()->getName() + "\" from network editor", "NetworkEditor", LL_DEBUG );
+        
         WQtNetworkItem *item = findItemByModule( e->getTreeItem()->getModule() );
-        std::cout << item << std::endl;
-        std::cout << item->scene() << std::endl;
-        std::cout << m_scene << std::endl;
-        if( item ){
+
+        if( item != 0 ){
             m_scene->removeItem( item );
             m_items.remove( item );
             delete item;        
@@ -314,16 +357,14 @@ bool WQtNetworkEditor::event( QEvent* event )
 
 WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule > module )
 {
-    WQtNetworkItem *item;
     for ( std::list< WQtNetworkItem* >::const_iterator iter = m_items.begin(); iter != m_items.end(); ++iter )
     {
        WQtNetworkItem *itemModule = dynamic_cast< WQtNetworkItem* >( *iter );
        if( itemModule &&
            itemModule->getModule() == module )
        {
-           item = itemModule;
-           break;
+           return itemModule;
        }
     }
-    return item;
+    return 0;
 }
