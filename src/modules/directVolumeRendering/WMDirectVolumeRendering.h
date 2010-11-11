@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMMULTIISOSURFACERAYTRACER_H
-#define WMMULTIISOSURFACERAYTRACER_H
+#ifndef WMDIRECTVOLUMERENDERING_H
+#define WMDIRECTVOLUMERENDERING_H
 
 #include <string>
 
@@ -36,23 +36,23 @@
 #include "../../kernel/WModuleOutputData.h"
 
 /**
- * This module builds the base for fast raytracing of isosurfacesin OpenWalnut. It uses shader based raytracing.
+ * This module is a basic volume renderer.
  *
  * \ingroup modules
  */
-class WMMultiIsosurfaceRaytracer: public WModule
+class WMDirectVolumeRendering: public WModule
 {
 public:
 
     /**
      * Default constructor.
      */
-    WMMultiIsosurfaceRaytracer();
+    WMDirectVolumeRendering();
 
     /**
      * Destructor.
      */
-    virtual ~WMMultiIsosurfaceRaytracer();
+    virtual ~WMDirectVolumeRendering();
 
     /**
      * Gives back the name of this module.
@@ -109,46 +109,9 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
 
     /**
-     * The Isovalue used in the case m_isoSurface is true.
-     */
-    WPropInt m_isoValue;
-
-    /**
-     * The color used when in isosurface mode for blending.
-     */
-    WPropColor m_isoColor;
-
-    /**
      * The number of steps to walk along the ray.
      */
     WPropInt m_stepCount;
-
-    /**
-     * The alpha transparency used for the rendering
-     */
-    WPropInt m_alpha;
-
-    /**
-     * Types of shading supported.
-     */
-    enum
-    {
-        Cortex = 0,
-        Depth,
-        Phong,
-        PhongDepth
-    }
-    SHADING_ALGORITHMS;
-
-    /**
-     * The available shading algorithms.
-     */
-    boost::shared_ptr< WItemSelection > m_shadingSelections;
-
-    /**
-     * The actually selected shading algorithm.
-     */
-    WPropSelection m_shadingAlgo;
 
     /**
      * A condition used to notify about changes in several properties.
@@ -159,42 +122,6 @@ private:
      * the DVR shader.
      */
     osg::ref_ptr< WShader > m_shader;
-
-    /**
-     * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
-     * moduleMain().
-     */
-    class SafeUpdateCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUpdateCallback( WMMultiIsosurfaceRaytracer* module ): m_module( module ), m_initialUpdate( true )
-        {
-        };
-
-        /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         */
-        WMMultiIsosurfaceRaytracer* m_module;
-
-        /**
-         * Denotes whether the update callback is called the first time.
-         */
-        bool m_initialUpdate;
-    };
 
     /**
      * Class handling uniform update during render traversal
@@ -208,7 +135,7 @@ private:
          *
          * \param module just set the creating module as pointer for later reference.
          */
-        explicit SafeUniformCallback( WMMultiIsosurfaceRaytracer* module ): m_module( module )
+        explicit SafeUniformCallback( WMDirectVolumeRendering* module ): m_module( module )
         {
         };
 
@@ -223,9 +150,9 @@ private:
         /**
          * Pointer used to access members of the module to modify the node.
          */
-        WMMultiIsosurfaceRaytracer* m_module;
+        WMDirectVolumeRendering* m_module;
     };
 };
 
-#endif  // WMMULTIISOSURFACERAYTRACER_H
+#endif  // WMDIRECTVOLUMERENDERING_H
 

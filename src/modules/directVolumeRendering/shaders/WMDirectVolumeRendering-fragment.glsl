@@ -31,7 +31,7 @@
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
 
-#include "WMMultiIsosurfaceRaytracer-varyings.glsl"
+#include "WMDirectVolumeRendering-varyings.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
@@ -73,7 +73,7 @@ vec3 findRayEnd( out float d )
     // when will v_ray reach the front face?
     float tFront     = - p.z / r.z;                  // (x,x,0) = v_rayStart + t * v_ray
     float tBack      = ( 1.0 - p.z ) / r.z;          // (x,x,1) = v_rayStart + t * v_ray
-
+ 
     float tLeft      = - p.x / r.x;                  // (0,x,x) = v_rayStart + t * v_ray
     float tRight     = ( 1.0 - p.x ) / r.x;          // (1,x,x) = v_rayStart + t * v_ray
 
@@ -123,34 +123,41 @@ void main()
         // get current value
         vec3 rayPoint = rayEnd - ( currentDistance * v_ray );
         value = texture3D( tex0, rayPoint).r;
-
-        vec4 vColor = transferFunction( value );    // classify at the sample point
-        color.rgba = mix( color.rgba, vColor.rgba, vColor.a );  // compositing
-        alpha *= ( 1.0 - vColor.a );                            // compositing: keep track of final alpha value of the background
-
         // go to next value
         currentDistance += v_stepDistance;
+
+        // classify
+        vec4 vColor = transferFunction( value );    // classify at the sample point
 
         // has there ever been something we hit?
         hit = max( hit, vColor.a );
         
-        /*if ( !isZero( vColor.a, 0.1 ) )
-        {
-            // 1: transfer to world space and right after it, to eye space
-            vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( rayPoint, 1.0 );
+            // find a proper normal for a headlight
+  /*          float s = 0.01;
+            float valueXP = texture3D( tex0, rayPoint + vec3( s, 0.0, 0.0 ) ).r;
+            float valueXM = texture3D( tex0, rayPoint - vec3( s, 0.0, 0.0 ) ).r;
+            float valueYP = texture3D( tex0, rayPoint + vec3( 0.0, s, 0.0 ) ).r;
+            float valueYM = texture3D( tex0, rayPoint - vec3( 0.0, s, 0.0 ) ).r;
+            float valueZP = texture3D( tex0, rayPoint + vec3( 0.0, 0.0, s ) ).r;
+            float valueZM = texture3D( tex0, rayPoint - vec3( 0.0, 0.0, s ) ).r;
 
-            // 2: scale to screen space and [0,1]
-            // -> x and y is not needed
-            // curPointProjected.x /= curPointProjected.w;
-            // curPointProjected.x  = curPointProjected.x * 0.5 + 0.5 ;
-            // curPointProjected.y /= curPointProjected.w;
-            // curPointProjected.y  = curPointProjected.y * 0.5 + 0.5 ;
-            curPointProjected.z /= curPointProjected.w;
-            curPointProjected.z  = curPointProjected.z * 0.5 + 0.5;
+            vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ); //v_ray;
+            // Phong:
+            float light = blinnPhongIlluminationIntensity(
+                    0.1,                                // material ambient
+                    0.75,                               // material diffuse
+                    1.3,                                // material specular
+                    10.0,                               // shinines
+                    1.0,                                // light diffuse
+                    0.75,                               // light ambient
+                    normalize( -dir ),                  // normal
+                    normalize( v_ray ),                 // view direction
+                    normalize( v_lightSource )          // light source position
+            );
+*/
 
-            // 3: set depth value
-            gl_FragDepth = curPointProjected.z;
-        }*/
+        color.rgba = mix( color.rgba, vColor.rgba, vColor.a );  // compositing
+        alpha *= ( 1.0 - vColor.a );                            // compositing: keep track of final alpha value of the background
     }
 
     // have we hit something which was classified not to be transparent?

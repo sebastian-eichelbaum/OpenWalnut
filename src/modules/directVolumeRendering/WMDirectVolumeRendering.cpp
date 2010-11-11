@@ -42,46 +42,46 @@
 #include "../../graphicsEngine/WShader.h"
 #include "../../graphicsEngine/WGERequirement.h"
 #include "../../kernel/WKernel.h"
-#include "WMMultiIsosurfaceRaytracer.xpm"
-#include "WMMultiIsosurfaceRaytracer.h"
+#include "WMDirectVolumeRendering.xpm"
+#include "WMDirectVolumeRendering.h"
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMMultiIsosurfaceRaytracer )
+W_LOADABLE_MODULE( WMDirectVolumeRendering )
 
-WMMultiIsosurfaceRaytracer::WMMultiIsosurfaceRaytracer():
+WMDirectVolumeRendering::WMDirectVolumeRendering():
     WModule()
 {
     // Initialize members
 }
 
-WMMultiIsosurfaceRaytracer::~WMMultiIsosurfaceRaytracer()
+WMDirectVolumeRendering::~WMDirectVolumeRendering()
 {
     // Cleanup!
 }
 
-boost::shared_ptr< WModule > WMMultiIsosurfaceRaytracer::factory() const
+boost::shared_ptr< WModule > WMDirectVolumeRendering::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMMultiIsosurfaceRaytracer() );
+    return boost::shared_ptr< WModule >( new WMDirectVolumeRendering() );
 }
 
-const char** WMMultiIsosurfaceRaytracer::getXPMIcon() const
+const char** WMDirectVolumeRendering::getXPMIcon() const
 {
-    return WMMultiIsosurfaceRaytracer_xpm;
+    return WMDirectVolumeRendering_xpm;
 }
 
-const std::string WMMultiIsosurfaceRaytracer::getName() const
+const std::string WMDirectVolumeRendering::getName() const
 {
     // Specify your module name here. This name must be UNIQUE!
-    return "Multi-Isosurface Raytracer";
+    return "Direct Volume Rendering";
 }
 
-const std::string WMMultiIsosurfaceRaytracer::getDescription() const
+const std::string WMDirectVolumeRendering::getDescription() const
 {
     // Specify your module description here. Be detailed. This text is read by the user.
-    return "This module shows multiple fast raytraced isosurface of the specified scalar dataset.";
+    return "Direct volume rendering of regular volumetric data.";
 }
 
-void WMMultiIsosurfaceRaytracer::connectors()
+void WMDirectVolumeRendering::connectors()
 {
     // DVR needs one input: the scalar dataset
     m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar  > >(
@@ -95,45 +95,27 @@ void WMMultiIsosurfaceRaytracer::connectors()
     WModule::connectors();
 }
 
-void WMMultiIsosurfaceRaytracer::properties()
+void WMDirectVolumeRendering::properties()
 {
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-
-    m_isoValue      = m_properties->addProperty( "Isovalue",         "The isovalue used whenever the isosurface Mode is turned on.",
-                                                                      50 );
-    m_isoColor      = m_properties->addProperty( "Iso color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
-                      m_propCondition );
 
     m_stepCount     = m_properties->addProperty( "Step count",       "The number of steps to walk along the ray during raycasting. A low value "
                                                                       "may cause artifacts whilst a high value slows down rendering.", 250 );
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );
 
-    m_alpha         = m_properties->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
-
-    // Lighting
-    m_shadingSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_shadingSelections->addItem( "Emphasize cortex", "Emphasize the cortex. Inner parts are not that well lighten." );
-    m_shadingSelections->addItem( "Depth only",       "Only show the depth of the surface along the ray." );
-    m_shadingSelections->addItem( "Phong",            "Phong lighting. Slower but more realistic lighting" );
-    m_shadingSelections->addItem( "Phong + depth",    "Phong lighting in combination with depth cueing." );
-    m_shadingAlgo   = m_properties->addProperty( "Shading", "The shading algorithm.", m_shadingSelections->getSelectorFirst(), m_propCondition );
-
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_shadingAlgo );
-    WPropertyHelper::PC_NOTEMPTY::addTo( m_shadingAlgo );
-
     WModule::properties();
 }
 
-void WMMultiIsosurfaceRaytracer::requirements()
+void WMDirectVolumeRendering::requirements()
 {
     m_requirements.push_back( new WGERequirement() );
 }
 
-void WMMultiIsosurfaceRaytracer::moduleMain()
+void WMDirectVolumeRendering::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMMultiIsosurfaceRaytracer", m_localPath ) );
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMDirectVolumeRendering", m_localPath ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -168,13 +150,6 @@ void WMMultiIsosurfaceRaytracer::moduleMain()
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
         bool dataValid   = ( dataSet );
 
-        // m_isoColor or shading changed
-        if ( m_isoColor->changed() || m_shadingAlgo->changed() )
-        {
-            // a new color requires the proxy geometry to be rebuild as we store it as color in this geometry
-            dataUpdated = true;
-        }
-
         // As the data has changed, we need to recreate the texture.
         if ( dataUpdated && dataValid )
         {
@@ -192,7 +167,7 @@ void WMMultiIsosurfaceRaytracer::moduleMain()
             osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode(
                 wmath::WPosition( 0.0, 0.0, 0.0 ),
                 wmath::WPosition( grid->getNbCoordsX() - 1, grid->getNbCoordsY() - 1, grid->getNbCoordsZ() - 1 ),
-                m_isoColor->get( true )
+                WColor( 1.0, 1.0, 1.0, 1.0 )
             );
             cube->asTransform()->getChild( 0 )->setName( "_DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
                                                                               // because of the underscore in front it won't be picked
@@ -210,49 +185,16 @@ void WMMultiIsosurfaceRaytracer::moduleMain()
             rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // setup defines (lighting)
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-            size_t shadingAlgo = m_shadingAlgo->get( true ).getItemIndexOfSelected( 0 );
-            m_shader->eraseAllDefines();
-            switch ( shadingAlgo )
-            {
-                case Cortex:
-                    m_shader->setDefine( "CORTEX" );
-                    break;
-                case Depth:
-                    m_shader->setDefine( "DEPTHONLY" );
-                    break;
-                case Phong:
-                    m_shader->setDefine( "PHONG" );
-                    break;
-                case PhongDepth:
-                    m_shader->setDefine( "PHONGWITHDEPTH" );
-                    break;
-                default:
-                    m_shader->setDefine( "CORTEX" );
-                    break;
-            }
-
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup all those uniforms
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // for the texture, also bind the appropriate uniforms
             rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
 
-            osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
-            isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
-
             osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
             steps->setUpdateCallback( new SafeUniformCallback( this ) );
 
-            osg::ref_ptr< osg::Uniform > alpha = new osg::Uniform( "u_alpha", static_cast< float >( m_alpha->get() / 100.0 ) );
-            alpha->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            rootState->addUniform( isovalue );
             rootState->addUniform( steps );
-            rootState->addUniform( alpha );
 
             WGEColormapping::apply( cube, false );
 
@@ -280,26 +222,12 @@ void WMMultiIsosurfaceRaytracer::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( rootNode );
 }
 
-void WMMultiIsosurfaceRaytracer::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    // currently, there is nothing to update
-    traverse( node, nv );
-}
-
-void WMMultiIsosurfaceRaytracer::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
+void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
 {
     // update some uniforms:
-    if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) ) / 100.0f );
-    }
     if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
     {
         uniform->set( m_module->m_stepCount->get( true ) );
-    }
-    if ( m_module->m_alpha->changed() && ( uniform->getName() == "u_alpha" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_alpha->get( true ) / 100.0 ) );
     }
 }
 

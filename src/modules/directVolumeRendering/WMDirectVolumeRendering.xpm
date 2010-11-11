@@ -1,5 +1,5 @@
 /* XPM */
-static const char * WMMultiIsosurfaceRaytracer_xpm[] = {
+static const char * WMDirectVolumeRendering_xpm[] = {
 "32 32 400 2",
 "  	c None",
 ". 	c #B8B7B8",
