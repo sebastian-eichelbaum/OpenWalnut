@@ -85,24 +85,19 @@ vec3 findRayEnd( out float d )
     return p + ( r * d );
 }
 
-float pointDistance( vec3 p1, vec3 p2 )
-{
-    return length( p1 - p2 );
-}
-
 vec4 transferFunction( in float value )
 {
     if ( isZero( value - u_isovalue1, 0.1 ) )
     {
-        return vec4( 1.0, 0.0, 0.0, 0.5 );
+        return vec4( 2.*value, 0.0, 0.0, 0.025 );
     }
     else if ( isZero( value - u_isovalue2, 0.1 ) )
     {
-        return vec4( 1.0, 1.0, 0.0, 1.0 );
+        return vec4( value, value, 0.0, 0.1 );
     }
     else
     {
-        return vec4( value );
+        return vec4( 0.0 );
     }
 }
 
@@ -111,39 +106,38 @@ vec4 transferFunction( in float value )
  */
 void main()
 {
-    // please do not laugh, it is a very very very simple "isosurface" shader
-    gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-    gl_FragDepth = gl_FragCoord.z;
-
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
     // when done for each vertex.
-    float totalDistance = 0.0;
+    float totalDistance = 0.0;      // the maximal distance along the ray until the BBox ends
+    float currentDistance = 0.0;    // accumulated distance along the ray
     vec3 rayEnd = findRayEnd( totalDistance );
 
-    // the point along the ray in cube coordinates
-    vec3 curPoint = v_rayStart;
-
-    // the current value inside the data
-    float value;
-
-    // the step counter
-    int i = 0;
-    int n = 0;
-    float stepDistance = totalDistance / float( u_steps );
-    vec4 color = vec4( vec3( 0.0 ), 1.0 );
-    while ( i < u_steps ) // we do not need to ch
+    // walk along the ray
+    vec4 color = vec4( vec3( 0.0 ), 1.0 );  // the composited color
+    float alpha = 1.0;
+    float depth = gl_FragCoord.z;           // the depth of the last hit
+    float value;                            // the current value inside the data
+    float hit = 0.0;                        // this value will be != 0.0 if something has been hit
+    while ( currentDistance <= totalDistance ) // we do not need to ch
     {
         // get current value
-        value = texture3D( tex0, curPoint ).r;
+        vec3 rayPoint = rayEnd - ( currentDistance * v_ray );
+        value = texture3D( tex0, rayPoint).r;
 
-        // is it the isovalue?
-        /*if ( abs( value - u_isovalue2 ) < 0.1 )
+        vec4 vColor = transferFunction( value );    // classify at the sample point
+        color.rgba = mix( color.rgba, vColor.rgba, vColor.a );  // compositing
+        alpha *= ( 1.0 - vColor.a );                            // compositing: keep track of final alpha value of the background
+
+        // go to next value
+        currentDistance += v_stepDistance;
+
+        // has there ever been something we hit?
+        hit = max( hit, vColor.a );
+        
+        /*if ( !isZero( vColor.a, 0.1 ) )
         {
-            // we need to know the depth value of the current point inside the cube
-            // Therefore, the complete standard pipeline is reproduced here:
-
             // 1: transfer to world space and right after it, to eye space
-            vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( curPoint, 1.0 );
+            vec4 curPointProjected = gl_ModelViewProjectionMatrix * vec4( rayPoint, 1.0 );
 
             // 2: scale to screen space and [0,1]
             // -> x and y is not needed
@@ -156,40 +150,19 @@ void main()
 
             // 3: set depth value
             gl_FragDepth = curPointProjected.z;
-
-            // 4: set color
-            vec4 color = vec4( 1.0 );
-            color.a = u_alpha2;
-            gl_FragColor = color;
-
-            break;
-        }
-        else
-        {
-            // no it is not the iso value
-            // -> continue along the ray
-            curPoint += stepDistance * v_ray;
         }*/
-
-        vec4 vColor = transferFunction( value );
-        if ( isZero( vColor.a ) )
-            n++;
-        else
-            color+=vColor;
-        // go to next value
-        curPoint += stepDistance * v_ray;
-
-        // do not miss to count the steps already done
-        i++;
     }
 
-    gl_FragColor = color / ( u_steps - n );
-    //gl_FragColor = vec4( vec3( 0.5*totalDistance ), 1.0 );
-
-    // the ray did never hit the surface --> discard the pixel
-    if ( i == u_steps )
+    // have we hit something which was classified not to be transparent?
+    // This is, visually, not needed but useful if volume rendere is used in conjunction with other geometry.
+    if ( isZero( hit ) )
     {
-        ///discard;
+        discard;
     }
+
+    // set final color
+    color.a = 1.0 - alpha;
+    gl_FragColor = color;
+    gl_FragDepth = depth;
 }
 

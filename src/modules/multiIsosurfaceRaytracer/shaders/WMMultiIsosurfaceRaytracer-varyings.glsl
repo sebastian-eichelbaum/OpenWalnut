@@ -33,6 +33,9 @@ varying vec3 v_rayStart;
 // The ray direction in texture space
 varying vec3 v_ray;
 
+// The sampling distance
+varying float v_stepDistance;
+
 // the Surface normal at this point
 varying vec3 v_normal;
 

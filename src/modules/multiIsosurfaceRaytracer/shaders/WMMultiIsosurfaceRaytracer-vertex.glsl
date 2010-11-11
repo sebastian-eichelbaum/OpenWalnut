@@ -72,6 +72,9 @@ void main()
     vec4 camPos    = vec4( 0.0, 0.0, 0.0, 0.0 );
     v_ray = normalize( worldToLocal( camLookAt, camPos ).xyz );
 
+    // to have equidistant sampling for each side of the box, use a fixed step size
+    v_stepDistance = 1.0 / float( u_steps );
+
     // also get the coordinates of the light
     vec4 lpos = gl_LightSource[0].position;
     lpos = vec4( 0.0, 0.0, 1000.0, 1.0 );
