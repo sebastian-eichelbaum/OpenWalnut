@@ -44,13 +44,6 @@ uniform sampler3D tex0;
 uniform float u_isovalue1 = 0.33;
 uniform float u_isovalue2 = 0.80;
 
-// The number of steps to use.
-uniform int u_steps;
-
-// The alpha value to set
-uniform float u_alpha1 = 0.5;
-uniform float u_alpha2 = 1.0;
-
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
 /////////////////////////////////////////////////////////////////////////////
@@ -63,17 +56,25 @@ uniform float u_alpha2 = 1.0;
 // Functions
 /////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Method uses the ray direction (varying) and the ray entry point in the cube (varying) to calculate the exit point. This is lateron needed to
+ * get a proper maximum distance along the ray.
+ *
+ * \param d out - this value will contain the maximum distance along the ray untill the end of the cube
+ *
+ * \return the end point
+ */
 vec3 findRayEnd( out float d )
 {
     // we need to ensure the vector components are not exactly 0.0 since they are used for division
-    vec3 r = v_ray + vec3( 0.000000001 ); 
+    vec3 r = v_ray + vec3( 0.000000001 );
     vec3 p = v_rayStart;
 
     // v_ray in cube coordinates is used to check against the unit cube borders
     // when will v_ray reach the front face?
     float tFront     = - p.z / r.z;                  // (x,x,0) = v_rayStart + t * v_ray
     float tBack      = ( 1.0 - p.z ) / r.z;          // (x,x,1) = v_rayStart + t * v_ray
- 
+
     float tLeft      = - p.x / r.x;                  // (0,x,x) = v_rayStart + t * v_ray
     float tRight     = ( 1.0 - p.x ) / r.x;          // (1,x,x) = v_rayStart + t * v_ray
 
@@ -85,6 +86,13 @@ vec3 findRayEnd( out float d )
     return p + ( r * d );
 }
 
+/**
+ * Emulates the transfer function. This will be removed and replaced by a texture lookup.
+ *
+ * \param value the value to classify
+ *
+ * \return the color.
+ */
 vec4 transferFunction( in float value )
 {
     if ( isZero( value - u_isovalue1, 0.1 ) )
@@ -122,7 +130,7 @@ void main()
     {
         // get current value
         vec3 rayPoint = rayEnd - ( currentDistance * v_ray );
-        value = texture3D( tex0, rayPoint).r;
+        value = texture3D( tex0, rayPoint ).r;
         // go to next value
         currentDistance += v_stepDistance;
 
@@ -131,30 +139,6 @@ void main()
 
         // has there ever been something we hit?
         hit = max( hit, vColor.a );
-        
-            // find a proper normal for a headlight
-  /*          float s = 0.01;
-            float valueXP = texture3D( tex0, rayPoint + vec3( s, 0.0, 0.0 ) ).r;
-            float valueXM = texture3D( tex0, rayPoint - vec3( s, 0.0, 0.0 ) ).r;
-            float valueYP = texture3D( tex0, rayPoint + vec3( 0.0, s, 0.0 ) ).r;
-            float valueYM = texture3D( tex0, rayPoint - vec3( 0.0, s, 0.0 ) ).r;
-            float valueZP = texture3D( tex0, rayPoint + vec3( 0.0, 0.0, s ) ).r;
-            float valueZM = texture3D( tex0, rayPoint - vec3( 0.0, 0.0, s ) ).r;
-
-            vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ); //v_ray;
-            // Phong:
-            float light = blinnPhongIlluminationIntensity(
-                    0.1,                                // material ambient
-                    0.75,                               // material diffuse
-                    1.3,                                // material specular
-                    10.0,                               // shinines
-                    1.0,                                // light diffuse
-                    0.75,                               // light ambient
-                    normalize( -dir ),                  // normal
-                    normalize( v_ray ),                 // view direction
-                    normalize( v_lightSource )          // light source position
-            );
-*/
 
         color.rgba = mix( color.rgba, vColor.rgba, vColor.a );  // compositing
         alpha *= ( 1.0 - vColor.a );                            // compositing: keep track of final alpha value of the background
