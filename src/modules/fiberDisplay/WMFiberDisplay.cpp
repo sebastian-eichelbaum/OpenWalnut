@@ -251,7 +251,7 @@ void WMFiberDisplay::inputUpdated()
     }
     infoLog() << "Fiber dataset for display with: " << m_dataset->size() << " fibers loaded.";
 
-    if( m_dataset->size() != 0 ) // incase of an empty fiber dataset nothing is to display
+    if( m_dataset->size() != 0 ) // in case of an empty fiber dataset nothing is to display
     {
         boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Fiber Display", 2 ) );
         m_progress->addSubProgress( progress );
