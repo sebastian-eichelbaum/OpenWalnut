@@ -110,6 +110,23 @@ vec4 transferFunction( in float value )
 }
 
 /**
+ * Evaluates the local illumination model at the given position in the volume.
+ *
+ * \param position the position inside the volume where to evaluate the illumination
+ * \param color the color at the given position.
+ *
+ * \return the light color
+ */
+vec4 localIllumination( in vec3 position, in vec4 color )
+{
+#ifdef LOCALILLUMINATION_PHONG
+    return color;
+#else
+    return color;
+#endif
+}
+
+/**
  * Main entry point of the fragment shader.
  */
 void main()
@@ -121,12 +138,12 @@ void main()
     vec3 rayEnd = findRayEnd( totalDistance );
 
     // walk along the ray
-    vec4 color = vec4( vec3( 0.0 ), 1.0 );  // the composited color
-    float alpha = 1.0;
-    float depth = gl_FragCoord.z;           // the depth of the last hit
-    float value;                            // the current value inside the data
-    float hit = 0.0;                        // this value will be != 0.0 if something has been hit
-    while ( currentDistance <= totalDistance ) // we do not need to ch
+    vec4 accumColor = vec4( vec3( 0.0 ), 1.0 );      // the composited color
+    float accumAlpha = 1.0;                          // accumulated transparency of the volume.
+    float depth = gl_FragCoord.z;                    // the depth of the last hit
+    float value;                                     // the current value inside the data
+    float hit = 0.0;                                 // this value will be != 0.0 if something has been hit
+    while ( currentDistance <= totalDistance )
     {
         // get current value
         vec3 rayPoint = rayEnd - ( currentDistance * v_ray );
@@ -134,14 +151,14 @@ void main()
         // go to next value
         currentDistance += v_stepDistance;
 
-        // classify
-        vec4 vColor = transferFunction( value );    // classify at the sample point
+        // classify point in volume and evaluate local illumination model at this position 
+        vec4 color = localIllumination( rayPoint,  transferFunction( value ) );
 
         // has there ever been something we hit?
-        hit = max( hit, vColor.a );
+        hit = max( hit, color.a );
 
-        color.rgba = mix( color.rgba, vColor.rgba, vColor.a );  // compositing
-        alpha *= ( 1.0 - vColor.a );                            // compositing: keep track of final alpha value of the background
+        accumColor.rgba = mix( accumColor.rgba, color.rgba, color.a );  // compositing
+        accumAlpha *= ( 1.0 - color.a );                                // compositing: keep track of final alpha value of the background
     }
 
     // have we hit something which was classified not to be transparent?
@@ -152,8 +169,8 @@ void main()
     }
 
     // set final color
-    color.a = 1.0 - alpha;
-    gl_FragColor = color;
+    accumColor.a = 1.0 - accumAlpha;
+    gl_FragColor = accumColor;
     gl_FragDepth = depth;
 }
 
