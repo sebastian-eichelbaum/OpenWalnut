@@ -24,7 +24,10 @@
 
 #version 120
 
+#ifdef LOCALILLUMINATION_PHONG
 #include "WGEShadingTools.glsl"
+#endif
+
 #include "WGEUtils.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -87,6 +90,26 @@ vec3 findRayEnd( out float d )
 }
 
 /**
+ * Returns the gradient vector at the given position.
+ *
+ * \param position the voxel for which to get the gradient
+ *
+ * \return the gradient, NOT normalized
+ */
+vec3 getGradient( in vec3 position )
+{
+    float s = 0.01;
+    float valueXP = texture3D( tex0, position + vec3( s, 0.0, 0.0 ) ).r;
+    float valueXM = texture3D( tex0, position - vec3( s, 0.0, 0.0 ) ).r;
+    float valueYP = texture3D( tex0, position + vec3( 0.0, s, 0.0 ) ).r;
+    float valueYM = texture3D( tex0, position - vec3( 0.0, s, 0.0 ) ).r;
+    float valueZP = texture3D( tex0, position + vec3( 0.0, 0.0, s ) ).r;
+    float valueZM = texture3D( tex0, position - vec3( 0.0, 0.0, s ) ).r;
+
+    return vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM );
+}
+
+/**
  * Emulates the transfer function. This will be removed and replaced by a texture lookup.
  *
  * \param value the value to classify
@@ -97,7 +120,7 @@ vec4 transferFunction( in float value )
 {
     if ( isZero( value - u_isovalue1, 0.1 ) )
     {
-        return vec4( 2.*value, 0.0, 0.0, 0.025 );
+        return vec4( 2.0 * value, 0.0, 0.0, 0.125 );
     }
     else if ( isZero( value - u_isovalue2, 0.1 ) )
     {
@@ -120,9 +143,22 @@ vec4 transferFunction( in float value )
 vec4 localIllumination( in vec3 position, in vec4 color )
 {
 #ifdef LOCALILLUMINATION_PHONG
-    return color;
+    // Phong:
+    vec4 light = blinnPhongIllumination(
+            0.1 * color.rgb,                              // material ambient
+            color.rgb,                                    // material diffuse
+            1.0 * color.rgb,                              // material specular
+            10.0,                                         // shinines
+            vec3( 1.0, 1.0, 1.0 ),                        // light diffuse
+            vec3( 0.3, 0.3, 0.3 ),                        // light ambient
+            normalize( -getGradient( position ) ),        // normal
+            v_ray,                                        // view direction
+            v_lightSource                                 // light source position
+    );
+    light.a = color.a;
+    return light;
 #else
-    return color;
+    return color;   // no illumination. In this case, no performance overhead is needed as functions get inlined.
 #endif
 }
 

@@ -114,6 +114,26 @@ private:
     WPropInt m_stepCount;
 
     /**
+     * Types of local illumination supported.
+     */
+    enum
+    {
+        None = 0,
+        Phong
+    }
+    LOCALILLUMINATION_ALGORITHMS;
+
+    /**
+     * The available shading algorithms.
+     */
+    boost::shared_ptr< WItemSelection > m_localIlluminationSelections;
+
+    /**
+     * The actually selected shading algorithm.
+     */
+    WPropSelection m_localIlluminationAlgo;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

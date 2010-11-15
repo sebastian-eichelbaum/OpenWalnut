@@ -105,6 +105,15 @@ void WMDirectVolumeRendering::properties()
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );
 
+    // illumination model
+    m_localIlluminationSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_localIlluminationSelections->addItem( "No Local Illumination", "Volume Renderer only uses the classified voxel color." );
+    m_localIlluminationSelections->addItem( "Blinn-Phong", "Blinn-Phong lighting is used for shading each classified voxel." );
+    m_localIlluminationAlgo = m_properties->addProperty( "Local Illumination Model", "The illumination algorithm to use.", m_localIlluminationSelections->getSelectorFirst(), m_propCondition );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_localIlluminationAlgo );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_localIlluminationAlgo );
+
     WModule::properties();
 }
 
@@ -151,7 +160,7 @@ void WMDirectVolumeRendering::moduleMain()
         bool dataValid   = ( dataSet );
 
         // As the data has changed, we need to recreate the texture.
-        if ( dataUpdated && dataValid )
+        if ( ( m_localIlluminationAlgo->changed() || dataUpdated ) && dataValid )
         {
             debugLog() << "Data changed. Uploading new data as texture.";
 
@@ -183,6 +192,21 @@ void WMDirectVolumeRendering::moduleMain()
 
             // enable transparency
             rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // setup defines (illumination)
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            size_t localIlluminationAlgo = m_localIlluminationAlgo->get( true ).getItemIndexOfSelected( 0 );
+            m_shader->eraseAllDefines();
+            switch ( localIlluminationAlgo )
+            {
+                case Phong:
+                    m_shader->setDefine( "LOCALILLUMINATION_PHONG" );
+                    break;
+                default:
+                    break;
+            }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup all those uniforms
