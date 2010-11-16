@@ -139,6 +139,11 @@ private:
     WPropGroup m_tfLoaderGroup;
 
     /**
+     * If true, the texture is used for transfer functions.
+     */
+    WPropBool m_tfLoaderEnabled;
+
+    /**
      * The path to the file to load.
      */
     WPropFilename m_tfLoaderFile;

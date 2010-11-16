@@ -122,26 +122,14 @@ vec4 transferFunction( in float value )
 #ifdef TRANSFERFUNCTION_ENABLED
     return texture1D( TRANSFERFUNCTION_SAMPLER, value );
 #else
-    if ( isZero( value - u_isovalue1, 0.1 ) )
-    {
-        return vec4( 2.0 * value, 0.0, 0.0, 0.125 );
-    }
-    else if ( isZero( value - u_isovalue2, 0.1 ) )
-    {
-        return vec4( value, value, 0.0, 0.1 );
-    }
-    else
-    {
-        return vec4( 0.0 );
-    }
-    /*if ( isZero( value - 0.5, 0.1 ) )   // if not TF has been specified, at least show something
+    if ( isZero( value - 0.5, 0.1 ) )   // if not TF has been specified, at least show something
     {
         return vec4( 1.0, 0.0, 0.0, 0.1 );
     }
     else
     {
         return vec4( 0.0 );
-    }*/
+    }
 #endif
 }
 
@@ -200,7 +188,7 @@ void main()
         // go to next value
         currentDistance += v_stepDistance;
 
-        // classify point in volume and evaluate local illumination model at this position 
+        // classify point in volume and evaluate local illumination model at this position
         vec4 color = localIllumination( rayPoint,  transferFunction( value ) );
 
         // has there ever been something we hit?
