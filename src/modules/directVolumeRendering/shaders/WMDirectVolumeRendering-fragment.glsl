@@ -42,6 +42,7 @@
 
 // texture containing the data
 uniform sampler3D tex0;
+uniform sampler1D TRANSFERFUNCTION_SAMPLER;
 
 // The isovalue to use.
 uniform float u_isovalue1 = 0.33;
@@ -118,6 +119,9 @@ vec3 getGradient( in vec3 position )
  */
 vec4 transferFunction( in float value )
 {
+#ifdef TRANSFERFUNCTION_ENABLED
+    return texture1D( TRANSFERFUNCTION_SAMPLER, value );
+#else
     if ( isZero( value - u_isovalue1, 0.1 ) )
     {
         return vec4( 2.0 * value, 0.0, 0.0, 0.125 );
@@ -130,6 +134,15 @@ vec4 transferFunction( in float value )
     {
         return vec4( 0.0 );
     }
+    /*if ( isZero( value - 0.5, 0.1 ) )   // if not TF has been specified, at least show something
+    {
+        return vec4( 1.0, 0.0, 0.0, 0.1 );
+    }
+    else
+    {
+        return vec4( 0.0 );
+    }*/
+#endif
 }
 
 /**
