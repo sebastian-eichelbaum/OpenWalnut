@@ -77,7 +77,7 @@ void WShader::apply( osg::ref_ptr< osg::Node > node )
     osg::StateSet* rootState = node->getOrCreateStateSet();
     rootState->setAttributeAndModes( this, osg::StateAttribute::ON | osg::StateAttribute::PROTECTED );
     m_deactivated = false;
-    m_reload = !m_shaderLoaded;
+    m_reload = m_reload || !m_shaderLoaded;
 
     // add a custom callback which actually sets and updated the shader.
     node->addUpdateCallback( osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback( this ) ) );
@@ -201,9 +201,9 @@ std::string WShader::processShader( const std::string filename, bool optional, i
         // for the shader (not the included one, for which level != 0)
 
         // apply defines
-        for ( std::map< std::string, float >::const_iterator mi = m_defines.begin(); mi != m_defines.end(); ++mi )
+        for ( std::map< std::string, std::string >::const_iterator mi = m_defines.begin(); mi != m_defines.end(); ++mi )
         {
-            output << "#define " << mi->first << " " << boost::lexical_cast< std::string, float >( mi->second ) << std::endl;
+            output << "#define " << mi->first << " " << mi->second << std::endl;
         }
     }
 
@@ -336,15 +336,6 @@ std::string WShader::processShader( const std::string filename, bool optional, i
     return vs.str();
 }
 
-void WShader::setDefine( std::string key, float value )
-{
-    if ( key.length() > 0 )
-    {
-        m_defines[key] = value;
-        m_reload = true;
-    }
-}
-
 void WShader::eraseDefine( std::string key )
 {
     m_defines.erase( key );
@@ -355,5 +346,10 @@ void WShader::eraseAllDefines()
 {
     m_defines.clear();
     m_reload = true;
+}
+
+void WShader::setDefine( std::string key )
+{
+    this->setDefine( key, "Defined" );
 }
 
