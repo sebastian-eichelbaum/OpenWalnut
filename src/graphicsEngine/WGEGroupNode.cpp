@@ -135,7 +135,9 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
             }
 
             // pop item
+            ChildOperation* c = rootNode->m_childOperationQueue.front();
             rootNode->m_childOperationQueue.pop();
+            delete c;
         }
 
         rootNode->dirtyBound();

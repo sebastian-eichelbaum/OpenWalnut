@@ -55,11 +55,6 @@ public:
     WGEGroupNode();
 
     /**
-     * Destructor.
-     */
-    virtual ~WGEGroupNode();
-
-    /**
      * Adds the specified node to the child list of this node in a safe manner. OSG officially requires nodes to be added
      * exclusively during update callbacks. Using this method it is ensured to be added during update cycle.
      *
@@ -96,6 +91,10 @@ public:
     void clear();
 
 protected:
+    /**
+     * Destructor.
+     */
+    virtual ~WGEGroupNode();
 
     /**
      * Update callback which inserts and removes nodes from m_childRemovalQueue and m_childInsertionQueue to the group node.
