@@ -38,6 +38,7 @@
 //#include <QtGui/QListWidget>
 
 #include "../../../kernel/modules/data/WMData.h"
+#include "../WQtCombinerToolbar.h"
 #include "WQtNetworkScene.h"
 #include "WQtNetworkItem.h"
 
@@ -73,6 +74,8 @@ public:
 
     WQtNetworkItem* findItemByModule( boost::shared_ptr< WModule > module );
 
+    void connectSlots();
+
 protected:
 
     /**
@@ -81,6 +84,8 @@ protected:
     WMainWindow* m_mainWindow;
 
     virtual bool event( QEvent* event );
+    
+    WQtCombinerToolbar* createCompatibleButtons( boost::shared_ptr< WModule >module );
 
 private:
 
@@ -93,6 +98,25 @@ private:
     QVBoxLayout* m_layout; //!< layout
 
     std::list< WQtNetworkItem* > m_items;
+
+    /**
+     * Action which uses a compatibles list (submenu) to connect a selected item with other existing modules.
+     */
+    QAction* m_connectWithModuleAction;
+
+    /**
+     * Action which uses a compatibles list (submenu) to connect a selected item with other prototypes.
+     */
+    QAction* m_connectWithPrototypeAction;
+
+    /**
+     * Action which disconnects a connector from the module.
+     */
+    QAction* m_disconnectAction;
+
+private slots:
+
+    void selectItem();
 };
 
 #endif  // WQTNETWORKEDITOR_H

@@ -34,6 +34,7 @@
 #include <QtGui/QGraphicsView>
 #include <QtGui/QGraphicsItem>
 #include <QtGui/QGraphicsItemGroup>
+#include <QtGui/QGraphicsGridLayout>
 #include <QtGui/QListWidget>
 #include <QtGui/QToolBar>
 
@@ -41,7 +42,6 @@
 #include "WQtNetworkEditor.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkPort.h"
-//#include "WQtIconList.h"
 
 #include "../../../kernel/WKernel.h"
 #include "../../../kernel/WModule.h"
@@ -74,14 +74,7 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
 
     m_view->setScene( m_scene );
 
-    //WQtIconList *itemList = new WQtIconList;
-    //QToolBar *bar = new QToolBar;
-    //QPushButton* dummyButton = new QPushButton;
-    //dummyButton->setFixedWidth( 0 );
-    //bar->addWidget( dummyButton );
-
     m_layout = new QVBoxLayout;
-//    m_layout->addWidget( bar );
     m_layout->addWidget( m_view );
 
     m_panel->setLayout( m_layout );
@@ -90,10 +83,59 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     this->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
     setMinimumSize( 160, 240 );
     setWidget( m_panel );
+    connectSlots();
 }
 
 WQtNetworkEditor::~WQtNetworkEditor()
 {
+}
+
+void WQtNetworkEditor::connectSlots()
+{
+    connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
+}
+
+void WQtNetworkEditor::selectItem()
+{
+    boost::shared_ptr< WModule > module;
+    boost::shared_ptr< WProperties > props;
+    boost::shared_ptr< WProperties > infoProps;
+
+    WQtCombinerToolbar* newToolbar = NULL;
+
+    if ( m_scene->selectedItems().size() != 0  )
+    {
+        module = ( static_cast< WQtNetworkItem* >( m_scene->selectedItems().at( 0 ) ) )->getModule();
+        
+        // crashed modules should not provide any props
+        if ( module->isCrashed()() )
+        {
+             return;
+        }
+
+        props = module->getProperties();
+        infoProps = module->getInformationProperties();
+        m_mainWindow->getDatasetBrowser()->setPropTab( props, infoProps );
+        
+        newToolbar = createCompatibleButtons( module );
+    }
+    else
+    {
+        m_mainWindow->getDatasetBrowser()->setPropTab( props, infoProps );
+        newToolbar = createCompatibleButtons( module );
+    }
+
+    // set the new toolbar
+    // NOTE: setCompatiblesToolbar removes the toolbar if NULL is specified.
+    m_mainWindow->setCompatiblesToolbar( newToolbar );
+}
+
+WQtCombinerToolbar* WQtNetworkEditor::createCompatibleButtons( boost::shared_ptr< WModule >module )
+{
+    // every module may have compatibles: create ribbon menu entry
+    // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
+    WCombinerTypes::WCompatiblesList comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+    return new WQtCombinerToolbar( m_mainWindow, comps );
 }
 
 void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
@@ -102,7 +144,6 @@ void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
     m_items.push_back( netItem );
     m_scene->addItem( netItem );
 }
-
 
 bool WQtNetworkEditor::event( QEvent* event )
 {

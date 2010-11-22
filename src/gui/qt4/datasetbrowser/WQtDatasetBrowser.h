@@ -167,6 +167,8 @@ public:
      */
     void selectUpperMostEntry();
 
+    void setPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps );
+
 protected:
 
     /**

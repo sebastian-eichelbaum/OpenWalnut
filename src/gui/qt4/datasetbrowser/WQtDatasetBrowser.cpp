@@ -816,6 +816,14 @@ WQtDSBWidget*  WQtDatasetBrowser::buildPropWidget( boost::shared_ptr< WPropertie
     return tab;
 }
 
+void WQtDatasetBrowser::setPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps )
+{
+    // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
+    m_tabWidget->clear();
+
+    buildPropTab( props, infoProps );
+}
+
 void WQtDatasetBrowser::buildPropTab( boost::shared_ptr< WProperties > props, boost::shared_ptr< WProperties > infoProps )
 {
     WQtDSBWidget* tab = NULL;
