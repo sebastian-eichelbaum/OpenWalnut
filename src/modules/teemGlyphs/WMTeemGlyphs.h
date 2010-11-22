@@ -158,6 +158,7 @@ private:
          * \param dataGFA GFA data for dataSet.
          * \param thresholdGFA Threshold of GFA below which we will not draw the glyphs
          * \param sliceId Rendered slice
+         * \param subdivisionLevel Subidivision level of spheres that are basis for glyphs (resolution)
          * \param sliceType Slice direction (sagittal, coronal, axial )
          * \param usePolar Use polar glyphs (HOME otherwise)
          * \param scale Resize the glyphs.

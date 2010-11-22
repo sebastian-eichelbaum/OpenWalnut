@@ -252,9 +252,9 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
                                        m_usePolarPlotProp->get(),
                                        m_glyphSizeProp->get(),
                                       m_useNormalizationProp->get() ) );
-   WThreadedFunction< GlyphGeneration > generatorThreaded( W_AUTOMATIC_NB_THREADS, generator );
-   generatorThreaded.run();
-   generatorThreaded.wait();
+    WThreadedFunction< GlyphGeneration > generatorThreaded( W_AUTOMATIC_NB_THREADS, generator );
+    generatorThreaded.run();
+    generatorThreaded.wait();
 
     ++*progress;
 
@@ -381,7 +381,7 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
             break;
     }
 
-    size_t nbGlyphs = m_nA * m_nB;// / m_moduloProp->get() / m_moduloProp->get();
+    size_t nbGlyphs = m_nA * m_nB; // / m_moduloProp->get() / m_moduloProp->get();
 
     const unsigned int level = m_subdivisionLevel; // subdivision level of sphere
     unsigned int infoBitFlag = ( 1 << limnPolyDataInfoNorm ) | ( 1 << limnPolyDataInfoRGBA );
