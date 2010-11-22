@@ -57,23 +57,27 @@ namespace WTypeTraits
         typedef T Result;       //!< if both types are the same, the "better" type is obvious.
     };
 
-    // we assume makros to be evil but it helps us here!
-#define CREATEPROMOTION(T1,T2,ResultType)                   \
+    // we assume macros to be evil but it helps us here!
+#define CREATEPROMOTION( T1, T2, ResultType )               \
     template <>                                             \
     class TypePromotion< T1, T2 >                           \
-    {                                                       \
+    {                             /*NOLINT*/                \
     public:                                                 \
         typedef ResultType Result;                          \
-    };                                                      \
+    };                            /*NOLINT*/                \
                                                             \
     template <>                                             \
     class TypePromotion< T2, T1 >                           \
-    {                                                       \
+    {                             /*NOLINT*/                \
     public:                                                 \
         typedef ResultType Result;                          \
-    };                                                      \
+    };                            /*NOLINT*/                \
 
-    // create the promotions we need
+    // Create the promotions we need. Please check this list. But do not change arbitrarily if you need a different mapping. Instead, specialize
+    // the template TypePromotion locally.
+
+    // Exclusion of this macro stuff from doxygen:
+    // \cond HIDDEN_SYMBOLS
 
     // double is the better choice for these
     CREATEPROMOTION( double, float,    double )
@@ -140,6 +144,9 @@ namespace WTypeTraits
 
     // uint8_t is the better choice for these (?)
     // promoted already
+
+    // Exclusion of this macro stuff from doxygen: end
+    // \endcond
 }
 
 #endif  // WTYPETRAITS_H

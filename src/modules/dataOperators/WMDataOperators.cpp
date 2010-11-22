@@ -99,18 +99,38 @@ void WMDataOperators::properties()
     WModule::properties();
 }
 
+/**
+ * The second visitor which got applied to the second value set. It discriminates the integral type and applies the operator in a per value
+ * style.
+ *
+ * \tparam VSetAType The integral type of the first valueset.
+ */
 template< typename VSetAType >
 class VisitorVSetB: public boost::static_visitor< boost::shared_ptr< WValueSetBase > >
 {
 public:
-    VisitorVSetB( const WValueSet< VSetAType >* const vsetA ):
+    /**
+     * Creates visitor for the second level of cascading. Takes the first value set as parameter. This visitor applies the operation o to A and
+     * B: o(A,B).
+     *
+     * \param vsetA the first value set
+     */
+    explicit VisitorVSetB( const WValueSet< VSetAType >* const vsetA ):
         boost::static_visitor< result_type >(),
         m_vsetA( vsetA )
     {
     }
 
+    /**
+     * Visitor on the second valueset. This applies the operation.
+     *
+     * \tparam VSetBType the integral type of the currently visited valueset.
+     * \param vsetB the valueset currently visited (B).
+     *
+     * \return the result of o(A,B)
+     */
     template < typename VSetBType >
-    result_type operator()( const WValueSet< VSetBType >* const& vsetB ) const
+    result_type operator()( const WValueSet< VSetBType >* const& vsetB ) const      // NOLINT
     {
         // get best matching return scalar type
         typedef typename WTypeTraits::TypePromotion< VSetAType, VSetBType >::Result ResultT;
@@ -130,31 +150,56 @@ public:
         }
 
         // create result value set
-        boost::shared_ptr< WValueSet< ResultT > > result = boost::shared_ptr< WValueSet< ResultT > >( new WValueSet< ResultT >( order, dim, data, type ) );
+        boost::shared_ptr< WValueSet< ResultT > > result = boost::shared_ptr< WValueSet< ResultT > >(
+            new WValueSet< ResultT >( order, dim, data, type )
+        );
         return result;
     }
 
+    /**
+     * The first valueset.
+     */
     const WValueSet< VSetAType >* const m_vsetA;
 };
 
+/**
+ * Visitor for discriminating the type of the first valueset. It simply creates a new instance of VisitorVSetB with the proper integral type of
+ * the first value set.
+ */
 class VisitorVSetA: public boost::static_visitor< boost::shared_ptr< WValueSetBase > >
 {
 public:
-    VisitorVSetA( WValueSetBase* vsetB ):
+    /**
+     * Create visitor instance. The specified valueset gets visited if the first one is visited using this visitor.
+     *
+     * \param vsetB The valueset to visit during this visit.
+     */
+    explicit VisitorVSetA( WValueSetBase* vsetB ):
         boost::static_visitor< result_type >(),
         m_vsetB( vsetB )
     {
     }
 
+    /**
+     * Called by boost::varying during static visiting. Creates a new VisitorVSetB which finally applies the operation.
+     *
+     * \tparam T the real integral type of the first value set.
+     * \param vsetA the first valueset currently visited.
+     *
+     * \return the result from the operation with this and the second value set
+     */
     template < typename T >
-    result_type operator()( const WValueSet< T >* const& vsetA ) const
+    result_type operator()( const WValueSet< T >* const& vsetA ) const             // NOLINT
     {
         // visit the second value set as we now know the type of the first one
         VisitorVSetB< T > visitor( vsetA );
         return m_vsetB->applyFunction( visitor );
     }
 
-   WValueSetBase* m_vsetB;
+    /**
+     * The valueset where to cascade.
+     */
+    WValueSetBase* m_vsetB;
 };
 
 void WMDataOperators::moduleMain()
@@ -210,7 +255,7 @@ void WMDataOperators::moduleMain()
 
                 // apply the operation to each voxel
                 debugLog() << "Processing ...";
-                VisitorVSetA visitor( valueSetB.get() );
+                VisitorVSetA visitor( valueSetB.get() );    // the visitor cascades to the second value set
                 boost::shared_ptr< WValueSetBase > newValueSet = valueSetA->applyFunction( visitor );
                 m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, m_inputA->getData()->getGrid() ) ) );
 

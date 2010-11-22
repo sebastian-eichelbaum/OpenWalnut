@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMWMDATAOPERATORS_H
-#define WMWMDATAOPERATORS_H
+#ifndef WMDATAOPERATORS_H
+#define WMDATAOPERATORS_H
 
 #include <map>
 #include <string>
@@ -113,5 +113,5 @@ private:
 
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< The only output of this filter module.
 };
-#endif  // WMWMDATAOPERATORS_H
+#endif  // WMDATAOPERATORS_H
 
