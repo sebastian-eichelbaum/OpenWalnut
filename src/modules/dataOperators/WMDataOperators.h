@@ -45,7 +45,7 @@
  *
  * \ingroup modules
  */
-class WMDataOperators : public WModule
+class WMDataOperators: public WModule
 {
 public:
 
@@ -107,6 +107,16 @@ private:
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * A list of operations that are possible
+     */
+    boost::shared_ptr< WItemSelection > m_operations;
+
+    /**
+     * The currently selected operation.
+     */
+    WPropSelection m_opSelection;
 
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputA;  //!< Input connector required by this module.
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputB;  //!< Input connector required by this module.

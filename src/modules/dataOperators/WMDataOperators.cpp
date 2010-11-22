@@ -96,7 +96,79 @@ void WMDataOperators::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    // create a list of operations here
+    m_operations = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_operations->addItem( "A + B", "Add A to B." );          // NOTE: you can add XPM images here.
+    m_operations->addItem( "A - B", "Subtract B from A." );
+    m_operations->addItem( "A * B", "Scale A by B." );
+    m_operations->addItem( "A / B", "Divide A by B." );
+
+    m_opSelection = m_properties->addProperty( "Operation", "The operation to apply on A and B.", m_operations->getSelectorFirst(),
+                                               m_propCondition );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_opSelection );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_opSelection );
+
     WModule::properties();
+}
+
+/**
+ * Operator applying some op to both arguments.
+ *
+ * \tparam T Type of each parameter and the result
+ * \param a the first operant
+ * \param b the second operant
+ *
+ * \return result
+ */
+template< typename T >
+inline T opPlus( T a, T b )
+{
+    return a + b;
+}
+
+/**
+ * Operator applying some op to both arguments.
+ *
+ * \tparam T Type of each parameter and the result
+ * \param a the first operant
+ * \param b the second operant
+ *
+ * \return result
+ */
+template< typename T >
+inline T opMinus( T a, T b )
+{
+    return a - b;
+}
+
+/**
+ * Operator applying some op to both arguments.
+ *
+ * \tparam T Type of each parameter and the result
+ * \param a the first operant
+ * \param b the second operant
+ *
+ * \return result
+ */
+template< typename T >
+inline T opTimes( T a, T b )
+{
+    return a * b;
+}
+
+/**
+ * Operator applying some op to both arguments.
+ *
+ * \tparam T Type of each parameter and the result
+ * \param a the first operant
+ * \param b the second operant
+ *
+ * \return result
+ */
+template< typename T >
+inline T opDiv( T a, T b )
+{
+    return a * b;
 }
 
 /**
@@ -114,10 +186,12 @@ public:
      * B: o(A,B).
      *
      * \param vsetA the first value set
+     * \param opIdx The operator index. Depending on the index, the right operation is selected
      */
-    explicit VisitorVSetB( const WValueSet< VSetAType >* const vsetA ):
+    VisitorVSetB( const WValueSet< VSetAType >* const vsetA, size_t opIdx = 0 ):
         boost::static_visitor< result_type >(),
-        m_vsetA( vsetA )
+        m_vsetA( vsetA ),
+        m_opIdx( opIdx )
     {
     }
 
@@ -141,12 +215,33 @@ public:
         std::vector< ResultT > data;
         data.resize( m_vsetA->rawSize() );
 
-        // go through value sets
+        // discriminate the right operation with the correct type. It would be nicer to use some kind of strategy pattern here, but the template
+        // character of the operators forbids it as template methods can't be virtual. Besides this, at some point in the module main the
+        // selector needs to be queried and its index mapped to a pointer. This is what we do here.
+        boost::function< ResultT( ResultT, ResultT ) > op;
+        switch ( m_opIdx )
+        {
+            case 1:
+                op = &opMinus< ResultT >;
+                break;
+            case 2:
+                op = &opTimes< ResultT >;
+                break;
+            case 3:
+                op = &opDiv< ResultT >;
+                break;
+            case 0:
+            default:
+                op = &opPlus< ResultT >;
+                break;
+        }
+
+        // apply op to each value
         const VSetAType* a = m_vsetA->rawData();
         const VSetBType* b =   vsetB->rawData();
         for ( size_t i = 0; i < m_vsetA->rawSize(); ++i )
         {
-            data[ i ] = static_cast< ResultT >( a[ i ] ) - static_cast< ResultT >( b[ i ] );
+            data[ i ] = op( static_cast< ResultT >( a[ i ] ), static_cast< ResultT >( b[ i ] ) );
         }
 
         // create result value set
@@ -160,6 +255,11 @@ public:
      * The first valueset.
      */
     const WValueSet< VSetAType >* const m_vsetA;
+
+    /**
+     * The operator index.
+     */
+    size_t m_opIdx;
 };
 
 /**
@@ -173,10 +273,12 @@ public:
      * Create visitor instance. The specified valueset gets visited if the first one is visited using this visitor.
      *
      * \param vsetB The valueset to visit during this visit.
+     * \param opIdx The operator index. Forwarded to VisitorVSetB
      */
-    explicit VisitorVSetA( WValueSetBase* vsetB ):
+    VisitorVSetA( WValueSetBase* vsetB, size_t opIdx = 0 ):
         boost::static_visitor< result_type >(),
-        m_vsetB( vsetB )
+        m_vsetB( vsetB ),
+        m_opIdx( opIdx )
     {
     }
 
@@ -192,7 +294,7 @@ public:
     result_type operator()( const WValueSet< T >* const& vsetA ) const             // NOLINT
     {
         // visit the second value set as we now know the type of the first one
-        VisitorVSetB< T > visitor( vsetA );
+        VisitorVSetB< T > visitor( vsetA, m_opIdx );
         return m_vsetB->applyFunction( visitor );
     }
 
@@ -200,6 +302,11 @@ public:
      * The valueset where to cascade.
      */
     WValueSetBase* m_vsetB;
+
+    /**
+     * The operator index.
+     */
+    size_t m_opIdx;
 };
 
 void WMDataOperators::moduleMain()
@@ -228,10 +335,12 @@ void WMDataOperators::moduleMain()
         }
 
         // has the data changed?
-        if( m_inputA->handledUpdate() || m_inputB->handledUpdate() )
+        if( m_opSelection->changed() || m_inputA->handledUpdate() || m_inputB->handledUpdate() )
         {
             boost::shared_ptr< WDataSetScalar > dataSetA = m_inputA->getData();
             boost::shared_ptr< WDataSetScalar > dataSetB = m_inputB->getData();
+
+            WItemSelector s = m_opSelection->get( true );
 
             // valid data?
             if( dataSetA && dataSetB )
@@ -255,7 +364,7 @@ void WMDataOperators::moduleMain()
 
                 // apply the operation to each voxel
                 debugLog() << "Processing ...";
-                VisitorVSetA visitor( valueSetB.get() );    // the visitor cascades to the second value set
+                VisitorVSetA visitor( valueSetB.get(), s );    // the visitor cascades to the second value set
                 boost::shared_ptr< WValueSetBase > newValueSet = valueSetA->applyFunction( visitor );
                 m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, m_inputA->getData()->getGrid() ) ) );
 
