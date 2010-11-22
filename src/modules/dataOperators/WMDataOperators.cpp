@@ -30,13 +30,18 @@
 #include <string>
 #include <vector>
 
+#include <boost/variant.hpp>
+
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
 #include "../../common/WAssert.h"
 #include "../../common/WProgress.h"
 #include "../../common/WStringUtils.h"
 #include "../../common/WTypeTraits.h"
+#include "../../common/exceptions/WTypeMismatch.h"
 #include "../../dataHandler/WGridRegular3D.h"
+#include "../../dataHandler/WDataHandlerEnums.h"
+#include "../../dataHandler/exceptions/WDHValueSetMismatch.h"
 #include "../../kernel/WKernel.h"
 #include "WMDataOperators.xpm"
 #include "WMDataOperators.h"
@@ -94,12 +99,63 @@ void WMDataOperators::properties()
     WModule::properties();
 }
 
-template < typename ValueTypeA, typename ValueTypeB >
-boost::shared_ptr< WValueSet< WTypeTraits::TypePromotion< ValueTypeA, ValueTypeB > > >
-operation( boost::shared_ptr< WValueSetBase > valueSetA, boost::shared_ptr< WValueSetBase > valueSetB )
+template< typename VSetAType >
+class VisitorVSetB: public boost::static_visitor< boost::shared_ptr< WValueSetBase > >
 {
+public:
+    VisitorVSetB( const WValueSet< VSetAType >* const vsetA ):
+        boost::static_visitor< result_type >(),
+        m_vsetA( vsetA )
+    {
+    }
 
-}
+    template < typename VSetBType >
+    result_type operator()( const WValueSet< VSetBType >* const& vsetB ) const
+    {
+        // get best matching return scalar type
+        typedef typename WTypeTraits::TypePromotion< VSetAType, VSetBType >::Result ResultT;
+
+        size_t order = m_vsetA->order();
+        size_t dim = m_vsetA->dimension();
+        dataType type = DataType< ResultT >::type;
+        std::vector< ResultT > data;
+        data.resize( m_vsetA->rawSize() );
+
+        // go through value sets
+        const VSetAType* a = m_vsetA->rawData();
+        const VSetBType* b =   vsetB->rawData();
+        for ( size_t i = 0; i < m_vsetA->rawSize(); ++i )
+        {
+            data[ i ] = static_cast< ResultT >( a[ i ] ) - static_cast< ResultT >( b[ i ] );
+        }
+
+        // create result value set
+        boost::shared_ptr< WValueSet< ResultT > > result = boost::shared_ptr< WValueSet< ResultT > >( new WValueSet< ResultT >( order, dim, data, type ) );
+        return result;
+    }
+
+    const WValueSet< VSetAType >* const m_vsetA;
+};
+
+class VisitorVSetA: public boost::static_visitor< boost::shared_ptr< WValueSetBase > >
+{
+public:
+    VisitorVSetA( WValueSetBase* vsetB ):
+        boost::static_visitor< result_type >(),
+        m_vsetB( vsetB )
+    {
+    }
+
+    template < typename T >
+    result_type operator()( const WValueSet< T >* const& vsetA ) const
+    {
+        // visit the second value set as we now know the type of the first one
+        VisitorVSetB< T > visitor( vsetA );
+        return m_vsetB->applyFunction( visitor );
+    }
+
+   WValueSetBase* m_vsetB;
+};
 
 void WMDataOperators::moduleMain()
 {
@@ -129,62 +185,38 @@ void WMDataOperators::moduleMain()
         // has the data changed?
         if( m_inputA->handledUpdate() || m_inputB->handledUpdate() )
         {
-            boost::shared_ptr< WDataSetScalar > newDataSetA = m_inputA->getData();
-            boost::shared_ptr< WDataSetScalar > newDataSetB = m_inputB->getData();
+            boost::shared_ptr< WDataSetScalar > dataSetA = m_inputA->getData();
+            boost::shared_ptr< WDataSetScalar > dataSetB = m_inputB->getData();
 
             // valid data?
-            if( newDataSetA && newDataSetB )
+            if( dataSetA && dataSetB )
             {
-                debugLog() << "Processing ...";
-                /*switch( (*m_dataSet).getValueSet()->getDataType() )
+                boost::shared_ptr< WValueSetBase > valueSetA = dataSetA->getValueSet();
+                boost::shared_ptr< WValueSetBase > valueSetB = dataSetB->getValueSet();
+
+                // both value sets need to be the same
+                bool match = ( valueSetA->dimension() == valueSetB->dimension() ) &&
+                             ( valueSetA->order() == valueSetB->order() ) &&
+                             ( valueSetA->rawSize() == valueSetB->rawSize() );
+                if ( !match )
                 {
-                    case W_DT_UNSIGNED_CHAR:
-                    {
-                        boost::shared_ptr<WValueSet<unsigned char> > vals;
-                        vals = boost::shared_dynamic_cast<WValueSet<unsigned char> >( ( *m_dataSet ).getValueSet() );
-                        WAssert( vals, "Data type and data type indicator must fit." );
-                        newValueSet = iterativeFilterField( vals, iterations );
-                        break;
-                    }
-                    case W_DT_INT16:
-                    {
-                        boost::shared_ptr<WValueSet<int16_t> > vals;
-                        vals = boost::shared_dynamic_cast<WValueSet<int16_t> >( ( *m_dataSet ).getValueSet() );
-                        WAssert( vals, "Data type and data type indicator must fit." );
-                        newValueSet = iterativeFilterField( vals, iterations );
-                        break;
-                    }
-                    case W_DT_SIGNED_INT:
-                    {
-                        boost::shared_ptr<WValueSet<int32_t> > vals;
-                        vals = boost::shared_dynamic_cast<WValueSet<int32_t> >( ( *m_dataSet ).getValueSet() );
-                        WAssert( vals, "Data type and data type indicator must fit." );
-                        newValueSet = iterativeFilterField( vals, iterations );
-                        break;
-                    }
-                    case W_DT_FLOAT:
-                    {
-                        boost::shared_ptr<WValueSet<float> > vals;
-                        vals = boost::shared_dynamic_cast<WValueSet<float> >( ( *m_dataSet ).getValueSet() );
-                        WAssert( vals, "Data type and data type indicator must fit." );
-                        newValueSet = iterativeFilterField( vals, iterations );
-                        break;
-                    }
-                    case W_DT_DOUBLE:
-                    {
-                        boost::shared_ptr<WValueSet<double> > vals;
-                        vals = boost::shared_dynamic_cast<WValueSet<double> >( ( *m_dataSet ).getValueSet() );
-                        WAssert( vals, "Data type and data type indicator must fit." );
-                        newValueSet = iterativeFilterField( vals, iterations );
-                        break;
-                    }
-                    default:
-                        WAssert( false, "Unknown data type in Gauss Filtering module" );
-                }*/
+                    throw WDHValueSetMismatch( std::string( "The both value sets are not of equal size, dimension and order." ) );
+                }
 
-                boost::shared_ptr< WValueSetBase > newValueSet;
-                m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, newDataSetA->getGrid() ) ) );
+                // use a custom progress combiner
+                boost::shared_ptr< WProgress > prog = boost::shared_ptr< WProgress >(
+                    new WProgress( "Applying operator on data" ) );
+                m_progress->addSubProgress( prog );
 
+                // apply the operation to each voxel
+                debugLog() << "Processing ...";
+                VisitorVSetA visitor( valueSetB.get() );
+                boost::shared_ptr< WValueSetBase > newValueSet = valueSetA->applyFunction( visitor );
+                m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, m_inputA->getData()->getGrid() ) ) );
+
+                // done
+                prog->finish();
+                m_progress->removeSubProgress( prog );
             }
         }
     }

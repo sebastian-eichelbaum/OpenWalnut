@@ -48,6 +48,11 @@ friend class WValueSetTest;
 
 public:
     /**
+     * The type of the single value in this value set.
+     */
+    typedef T ValueT;
+
+    /**
      * \class SubArray
      *
      * A helper class granting safe access to a certain part of the valueset.
