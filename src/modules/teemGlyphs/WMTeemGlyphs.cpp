@@ -180,6 +180,18 @@ void WMTeemGlyphs::properties()
     m_sliceIdProp->setMin( 0 );
     m_sliceIdProp->setMax( 128 );
 
+    m_moduloProp = m_properties->addProperty( "Modulo", "Shows only every Modulo-th glyph in the two slice directions", 3, m_recompute );
+    m_moduloProp->setMin( 0 );
+    m_moduloProp->setMax( 20 );
+
+    m_subdivisionLevelProp = m_properties->addProperty( "Subdivision level",
+                                                        "Determines the glyph resolution. Subdivision level of"
+                                                        " icosahadra use as sphere approximations.",
+                                                        2,
+                                                        m_recompute );
+    m_subdivisionLevelProp->setMin( 0 );
+    m_subdivisionLevelProp->setMax( 5 );
+
     m_usePolarPlotProp = m_properties->addProperty( "Use polar plot", "Use polar plot for glyph instead of HOME?", true, m_recompute );
     m_useNormalizationProp = m_properties->addProperty( "Radius normalization", "Scale the radius of each glyph to be in [0,1].", true, m_recompute );
 
@@ -235,10 +247,11 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
                                        boost::shared_dynamic_cast< WDataSetScalar >( m_inputGFA->getData() ),
                                        m_GFAThresholdProp->get(),
                                        sliceId,
+                                       m_subdivisionLevelProp->get(),
                                        sliceType,
                                        m_usePolarPlotProp->get(),
                                        m_glyphSizeProp->get(),
-                                       m_useNormalizationProp->get() ) );
+                                      m_useNormalizationProp->get() ) );
     WThreadedFunction< GlyphGeneration > generatorThreaded( W_AUTOMATIC_NB_THREADS, generator );
     generatorThreaded.run();
     generatorThreaded.wait();
@@ -248,7 +261,6 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
     m_moduleNode = new WGEGroupNode();
     osg::ref_ptr< osg::Geode > glyphsGeode = generator->getGraphics();
     m_moduleNode->insert( glyphsGeode );
-
 
     debugLog() << "end loop ... " << sliceId;
 
@@ -324,6 +336,7 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
                                                 boost::shared_ptr< WDataSetScalar > dataGFA,
                                                 double thresholdGFA,
                                                 const size_t& sliceId,
+                                                const size_t& subdivisionLevel,
                                                 const size_t& sliceType,
                                                 const bool& usePolar,
                                                 const float& scale,
@@ -333,6 +346,7 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
     m_grid( boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() ) ),
     m_thresholdGFA( thresholdGFA ),
     m_sliceType( sliceType ),
+    m_subdivisionLevel( subdivisionLevel ),
     m_usePolar( usePolar ),
     m_scale( scale ),
     m_useNormalization( useNormalization )
@@ -351,9 +365,6 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
     WAssert( sliceId < m_nX, "Slice id to large." );
     m_sliceId = sliceId;
 
-    // preparation of osg stuff for the glyphs
-    m_generatorNode = new WGEGroupNode();
-
     switch( sliceType )
     {
         case xSlice:
@@ -370,22 +381,16 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
             break;
     }
 
-    m_glyphGeometry = new osg::Geometry();
-    m_glyphsGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
-    m_glyphsGeode->setName( "teem glyphs" );
-    osg::StateSet* state = m_glyphsGeode->getOrCreateStateSet();
-    state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
+    size_t nbGlyphs = m_nA * m_nB; // / m_moduloProp->get() / m_moduloProp->get();
 
-    size_t nbGlyphs = m_nA * m_nB;
-
-    const unsigned int level = 3; // subdivision level of sphere
+    const unsigned int level = m_subdivisionLevel; // subdivision level of sphere
     unsigned int infoBitFlag = ( 1 << limnPolyDataInfoNorm ) | ( 1 << limnPolyDataInfoRGBA );
 
     m_sphere = limnPolyDataNew();
     limnPolyDataIcoSphere( m_sphere, infoBitFlag, level );
     size_t nbVerts = m_sphere->xyzwNum;
 
-    m_vertArray = new osg::Vec3Array();
+    m_vertArray = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array() );
     m_normals = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array() );
     m_colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array() );
     m_vertArray->resize( nbVerts * nbGlyphs );
@@ -398,8 +403,10 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
 
 WMTeemGlyphs::GlyphGeneration::~GlyphGeneration()
 {
+    std::cout << "Destructor ... " << std::endl;
     // free memory
     m_sphere = limnPolyDataNix( m_sphere );
+    std::cout << "... done! " << std::endl;
 }
 
 void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WBoolFlag& /*b*/ )
@@ -573,13 +580,21 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
 
 osg::ref_ptr< osg::Geode > WMTeemGlyphs::GlyphGeneration::getGraphics()
 {
-    m_glyphGeometry->setVertexArray( m_vertArray );
-    m_glyphGeometry->addPrimitiveSet( m_glyphElements );
-    m_glyphGeometry->setNormalArray( m_normals );
-    m_glyphGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
-    m_glyphGeometry->setColorArray( m_colors );
-    m_glyphGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    osg::ref_ptr< osg::Geometry > glyphGeometry = new osg::Geometry();
+    glyphGeometry->setVertexArray( m_vertArray );
+    glyphGeometry->addPrimitiveSet( m_glyphElements );
+    glyphGeometry->setNormalArray( m_normals );
+    glyphGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+    glyphGeometry->setColorArray( m_colors );
+    glyphGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
 
-    m_glyphsGeode->addDrawable( m_glyphGeometry );
-    return m_glyphsGeode;
+
+    osg::ref_ptr< osg::Geode > glyphsGeode;
+    glyphsGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    glyphsGeode->setName( "teem glyphs" );
+    osg::StateSet* state = glyphsGeode->getOrCreateStateSet();
+    state->setMode(  GL_BLEND, osg::StateAttribute::ON  );
+
+    glyphsGeode->addDrawable( glyphGeometry );
+    return glyphsGeode;
 }
