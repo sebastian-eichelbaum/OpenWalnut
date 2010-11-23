@@ -407,6 +407,10 @@ void WMAtlasSurfaces::cutArea( int index )
     {
         newRoi->setName( m_labels[index].second );
     }
+    else
+    {
+        newRoi->setName( std::string( "region " ) + boost::lexical_cast<std::string>( index ) );
+    }
 
     WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
 }
