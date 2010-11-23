@@ -420,5 +420,4 @@ void WMAtlasSurfaces::cutArea( int index )
     {
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() );
     }
-
 }
