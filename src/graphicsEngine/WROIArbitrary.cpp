@@ -32,6 +32,7 @@
 
 #include "algorithms/WMarchingLegoAlgorithm.h"
 
+#include "callbacks/WGEFunctorCallback.h"
 #include "WGraphicsEngine.h"
 
 #include "WROIArbitrary.h"
@@ -62,8 +63,7 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
     updateGFX();
 
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
-    setUserData( this );
-    setUpdateCallback( osg::ref_ptr<ROIArbNodeCallback>( new ROIArbNodeCallback ) );
+    addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WROIArbitrary::updateGFX, this ) ) );
 
     setDirty();
 }
@@ -91,8 +91,7 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
     updateGFX();
 
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
-    setUserData( this );
-    setUpdateCallback( osg::ref_ptr< ROIArbNodeCallback >( new ROIArbNodeCallback ) );
+    addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WROIArbitrary::updateGFX, this ) ) );
 
     setDirty();
 }

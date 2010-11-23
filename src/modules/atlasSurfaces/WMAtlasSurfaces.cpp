@@ -403,6 +403,10 @@ void WMAtlasSurfaces::cutArea( int index )
                                                                             grid->getTransformationMatrix(),
                                                                             *newValueSet->rawDataVectorPointer(),
                                                                             1.0, wge::createColorFromIndex( index ) ) );
+    if ( m_labelsLoaded )
+    {
+        newRoi->setName( m_labels[index].second );
+    }
 
     WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
 }
