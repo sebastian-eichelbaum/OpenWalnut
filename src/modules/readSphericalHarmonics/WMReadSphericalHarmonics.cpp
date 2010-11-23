@@ -24,8 +24,10 @@
 
 #include <string>
 
-#include "../../kernel/WKernel.h"
+#include "../../dataHandler/WDataHandlerEnums.h"
+#include "../../dataHandler/io/WReaderNIfTI.h"
 #include "../../graphicsEngine/WGERequirement.h"
+#include "../../kernel/WKernel.h"
 #include "WMReadSphericalHarmonics.xpm"
 
 #include "WMReadSphericalHarmonics.h"
@@ -74,7 +76,10 @@ void WMReadSphericalHarmonics::connectors()
 
 void WMReadSphericalHarmonics::properties()
 {
-    // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_dataFile = m_properties->addProperty( "NIfTI file", "", WPathHelper::getAppPath() );
+    m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    WPropertyHelper::PC_PATHEXISTS::addTo( m_dataFile );
 
     WModule::properties();
 }
@@ -86,6 +91,30 @@ void WMReadSphericalHarmonics::requirements()
 
 void WMReadSphericalHarmonics::moduleMain()
 {
-    // Put the code for your module's main functionality here.
-    // See "src/modules/template/" for an extensively documented example.
+    m_moduleState.add( m_propCondition );
+    ready();
+    while( !m_shutdownFlag() )
+    {
+        m_moduleState.wait();
+
+        if( m_shutdownFlag() )
+        {
+            break;
+        }
+        std::string fileName = m_dataFile->get().string();
+
+        WReaderNIfTI niiLoader( fileName );
+        boost::shared_ptr< WDataSet > data;
+        data = niiLoader.load( W_DATASET_SPHERICALHARMONICS );
+        if( data )
+        {
+            m_data = boost::shared_dynamic_cast< WDataSetSphericalHarmonics >( data );
+            if( m_data )
+            {
+                m_runtimeName->set( string_utils::tokenize( fileName, "/" ).back() );
+                m_output->updateData( m_data );
+            }
+        }
+        m_readTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+    }
 }
