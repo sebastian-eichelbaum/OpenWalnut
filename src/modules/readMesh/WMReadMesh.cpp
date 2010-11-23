@@ -55,7 +55,7 @@ boost::shared_ptr< WModule > WMReadMesh::factory() const
 
 const char** WMReadMesh::getXPMIcon() const
 {
-    return readMesh_xpm;
+    return WMReadMesh_xpm;
 }
 
 const std::string WMReadMesh::getName() const
