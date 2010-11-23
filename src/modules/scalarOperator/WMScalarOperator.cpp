@@ -44,45 +44,45 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/exceptions/WDHValueSetMismatch.h"
 #include "../../kernel/WKernel.h"
-#include "WMDataOperators.xpm"
-#include "WMDataOperators.h"
+#include "WMScalarOperator.xpm"
+#include "WMScalarOperator.h"
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMDataOperators )
+W_LOADABLE_MODULE( WMScalarOperator )
 
-WMDataOperators::WMDataOperators() :
+WMScalarOperator::WMScalarOperator() :
     WModule()
 {
     // initialize
 }
 
-WMDataOperators::~WMDataOperators()
+WMScalarOperator::~WMScalarOperator()
 {
     // cleanup
     removeConnectors();
 }
 
-boost::shared_ptr< WModule > WMDataOperators::factory() const
+boost::shared_ptr< WModule > WMScalarOperator::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMDataOperators() );
+    return boost::shared_ptr< WModule >( new WMScalarOperator() );
 }
 
-const char** WMDataOperators::getXPMIcon() const
+const char** WMScalarOperator::getXPMIcon() const
 {
-    return WMDataOperators_xpm;
+    return WMScalarOperator_xpm;
 }
 
-const std::string WMDataOperators::getName() const
+const std::string WMScalarOperator::getName() const
 {
-    return "Data Operators";
+    return "Scalar Operator";
 }
 
-const std::string WMDataOperators::getDescription() const
+const std::string WMScalarOperator::getDescription() const
 {
     return "Applies an selected operator on both datasets on a per-voxel basis. Until now, it assumes that both grids are the same.";
 }
 
-void WMDataOperators::connectors()
+void WMScalarOperator::connectors()
 {
     m_inputA = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "operandA", "First operand of operation( A, B )." );
     m_inputB = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "operandB", "Second operand of operation( A, B )." );
@@ -93,7 +93,7 @@ void WMDataOperators::connectors()
     WModule::connectors();
 }
 
-void WMDataOperators::properties()
+void WMScalarOperator::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -385,7 +385,7 @@ public:
     size_t m_opIdx;
 };
 
-void WMDataOperators::moduleMain()
+void WMScalarOperator::moduleMain()
 {
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
