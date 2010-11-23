@@ -186,7 +186,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
     //     }
     //     else
 
-    if ( !description.compare( "WDataSetSphericalHarmonics" ) )
+    if ( description.compare( "WDataSetSphericalHarmonics" ) == 0 )
     {
         wlog::debug( "WReaderNIfTI" ) << "Load as spherical harmonics" << std::endl;
         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSphericalHarmonics( newValueSet, newGrid ) );
