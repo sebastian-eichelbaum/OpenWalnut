@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDATAOPERATORS_H
-#define WMDATAOPERATORS_H
+#ifndef WMSCALAROPERATOR_H
+#define WMSCALAROPERATOR_H
 
 #include <map>
 #include <string>
@@ -45,19 +45,19 @@
  *
  * \ingroup modules
  */
-class WMDataOperators: public WModule
+class WMScalarOperator: public WModule
 {
 public:
 
     /**
      * Standard constructor.
      */
-    WMDataOperators();
+    WMScalarOperator();
 
     /**
      * Destructor.
      */
-    ~WMDataOperators();
+    ~WMScalarOperator();
 
     /**
      * Gives back the name of this module.
@@ -125,5 +125,5 @@ private:
 
     boost::shared_ptr< WDataSetScalar > m_currentResult; //!< the last set output dataset
 };
-#endif  // WMDATAOPERATORS_H
+#endif  // WMSCALAROPERATOR_H
 

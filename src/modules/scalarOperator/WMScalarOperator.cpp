@@ -44,45 +44,45 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/exceptions/WDHValueSetMismatch.h"
 #include "../../kernel/WKernel.h"
-#include "WMDataOperators.xpm"
-#include "WMDataOperators.h"
+#include "WMScalarOperator.xpm"
+#include "WMScalarOperator.h"
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMDataOperators )
+W_LOADABLE_MODULE( WMScalarOperator )
 
-WMDataOperators::WMDataOperators() :
+WMScalarOperator::WMScalarOperator() :
     WModule()
 {
     // initialize
 }
 
-WMDataOperators::~WMDataOperators()
+WMScalarOperator::~WMScalarOperator()
 {
     // cleanup
     removeConnectors();
 }
 
-boost::shared_ptr< WModule > WMDataOperators::factory() const
+boost::shared_ptr< WModule > WMScalarOperator::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMDataOperators() );
+    return boost::shared_ptr< WModule >( new WMScalarOperator() );
 }
 
-const char** WMDataOperators::getXPMIcon() const
+const char** WMScalarOperator::getXPMIcon() const
 {
-    return WMDataOperators_xpm;
+    return WMScalarOperator_xpm;
 }
 
-const std::string WMDataOperators::getName() const
+const std::string WMScalarOperator::getName() const
 {
-    return "Data Operators";
+    return "Scalar Operator";
 }
 
-const std::string WMDataOperators::getDescription() const
+const std::string WMScalarOperator::getDescription() const
 {
     return "Applies an selected operator on both datasets on a per-voxel basis. Until now, it assumes that both grids are the same.";
 }
 
-void WMDataOperators::connectors()
+void WMScalarOperator::connectors()
 {
     m_inputA = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "operandA", "First operand of operation( A, B )." );
     m_inputB = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "operandB", "Second operand of operation( A, B )." );
@@ -93,7 +93,7 @@ void WMDataOperators::connectors()
     WModule::connectors();
 }
 
-void WMDataOperators::properties()
+void WMScalarOperator::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
@@ -103,6 +103,7 @@ void WMDataOperators::properties()
     m_operations->addItem( "A - B", "Subtract B from A." );
     m_operations->addItem( "A * B", "Scale A by B." );
     m_operations->addItem( "A / B", "Divide A by B." );
+    m_operations->addItem( "abs( A - B )", "Absolute value of A - B." );
 
     m_opSelection = m_properties->addProperty( "Operation", "The operation to apply on A and B.", m_operations->getSelectorFirst(),
                                                m_propCondition );
@@ -173,6 +174,77 @@ inline T opDiv( T a, T b )
 }
 
 /**
+ * Some math ops.
+ */
+namespace math
+{
+    using std::abs;
+
+    /**
+     * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
+     *
+     * \param u the value for which the absolute value should be returned
+     *
+     * \return absolute of u
+     */
+    inline uint8_t abs( uint8_t u )
+    {
+        return u;
+    }
+
+    /**
+     * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
+     *
+     * \param u the value for which the absolute value should be returned
+     *
+     * \return absolute of u
+     */
+    inline uint16_t abs( uint16_t u )
+    {
+        return u;
+    }
+
+    /**
+     * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
+     *
+     * \param u the value for which the absolute value should be returned
+     *
+     * \return absolute of u
+     */
+    inline uint32_t abs( uint32_t u )
+    {
+        return u;
+    }
+
+    /**
+     * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
+     *
+     * \param u the value for which the absolute value should be returned
+     *
+     * \return absolute of u
+     */
+    inline uint64_t abs( uint64_t u )
+    {
+        return u;
+    }
+}
+
+/**
+ * Operator applying some op to both arguments.
+ *
+ * \tparam T Type of each parameter and the result
+ * \param a the first operant
+ * \param b the second operant
+ *
+ * \return result
+ */
+template< typename T >
+inline T opAbsMinus( T a, T b )
+{
+    return math::abs( a - b );
+}
+
+/**
  * The second visitor which got applied to the second value set. It discriminates the integral type and applies the operator in a per value
  * style.
  *
@@ -230,6 +302,9 @@ public:
                 break;
             case 3:
                 op = &opDiv< ResultT >;
+                break;
+            case 4:
+                op = &opAbsMinus< ResultT >;
                 break;
             case 0:
             default:
@@ -310,7 +385,7 @@ public:
     size_t m_opIdx;
 };
 
-void WMDataOperators::moduleMain()
+void WMScalarOperator::moduleMain()
 {
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
