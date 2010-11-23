@@ -122,8 +122,7 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputB;  //!< Input connector required by this module.
 
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< The only output of this filter module.
-
-    boost::shared_ptr< WDataSetScalar > m_currentResult; //!< the last set output dataset
 };
+
 #endif  // WMSCALAROPERATOR_H
 

@@ -43,6 +43,7 @@
 #include "../../dataHandler/WDataHandlerEnums.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/exceptions/WDHValueSetMismatch.h"
+#include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
 #include "WMScalarOperator.xpm"
 #include "WMScalarOperator.h"
@@ -443,14 +444,8 @@ void WMScalarOperator::moduleMain()
                 VisitorVSetA visitor( valueSetB.get(), s );    // the visitor cascades to the second value set
                 boost::shared_ptr< WValueSetBase > newValueSet = valueSetA->applyFunction( visitor );
 
-                // Create the new dataset and export it as texture and on the connector
-                if ( m_currentResult )
-                {
-                    WDataHandler::deregisterDataSet( m_currentResult );
-                }
-                m_currentResult = boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, m_inputA->getData()->getGrid() ) );
-                m_output->updateData( m_currentResult );
-                WDataHandler::registerDataSet( m_currentResult );
+                // Create the new dataset and export it
+                m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, m_inputA->getData()->getGrid() ) ) );
 
                 // done
                 prog->finish();

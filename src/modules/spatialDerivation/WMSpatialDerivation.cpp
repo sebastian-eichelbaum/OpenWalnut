@@ -236,31 +236,10 @@ void WMSpatialDerivation::derive( boost::shared_ptr< WGridRegular3D > grid, boos
         }
     }
 
-    // de-register at datahandler
-    if ( m_lastOutputDataSet )
-    {
-        WDataHandler::deregisterDataSet( m_lastOutputDataSet );
-    }
-
     boost::shared_ptr< WValueSet< double > > valueset = boost::shared_ptr< WValueSet< double > >(
                                                             new WValueSet< double >( 1, 3, vectors, W_DT_DOUBLE )
                                                         );
-    m_lastOutputDataSet = boost::shared_ptr< WDataSetVector >( new WDataSetVector( valueset, grid ) );
-
     // register new
-    WDataHandler::registerDataSet( m_lastOutputDataSet );
-    m_vectorOut->updateData( m_lastOutputDataSet );
-}
-
-void WMSpatialDerivation::activate()
-{
-    // deactivate the output if wanted
-    if ( m_lastOutputDataSet )
-    {
-        m_lastOutputDataSet->getTexture()->setGloballyActive( m_active->get( true ) );
-    }
-
-    // Always call WModule's activate!
-    WModule::activate();
+    m_vectorOut->updateData( boost::shared_ptr< WDataSetVector >( new WDataSetVector( valueset, grid ) ) );
 }
 
