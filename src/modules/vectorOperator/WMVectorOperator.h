@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMSCALAROPERATOR_H
-#define WMSCALAROPERATOR_H
+#ifndef WMVECTOROPERATOR_H
+#define WMVECTOROPERATOR_H
 
 #include <map>
 #include <string>
@@ -39,25 +39,26 @@
 #include "../../common/math/WVector3D.h"
 
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetVector.h"
 
 /**
  * Operators for processing two WDataSetScalar.
  *
  * \ingroup modules
  */
-class WMScalarOperator: public WModule
+class WMVectorOperator: public WModule
 {
 public:
 
     /**
      * Standard constructor.
      */
-    WMScalarOperator();
+    WMVectorOperator();
 
     /**
      * Destructor.
      */
-    ~WMScalarOperator();
+    ~WMVectorOperator();
 
     /**
      * Gives back the name of this module.
@@ -118,11 +119,9 @@ private:
      */
     WPropSelection m_opSelection;
 
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputA;  //!< Input connector required by this module.
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputB;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_inputA;  //!< Input connector required by this module.
 
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< The only output of this filter module.
 };
-
-#endif  // WMSCALAROPERATOR_H
+#endif  // WMVECTOROPERATOR_H
 
