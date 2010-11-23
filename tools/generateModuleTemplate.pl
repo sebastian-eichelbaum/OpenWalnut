@@ -106,6 +106,11 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Initialize requirements for this module.
+     */
+    virtual void requirements();
+
 
 private:
 };
@@ -197,6 +202,11 @@ void WM#name#::properties()
     WModule::properties();
 }
 
+void WM#name#::requirements()
+{
+    // Put the code for your requirements here. See "src/modules/template/" for an extensively documented example.
+}
+
 void WM#name#::moduleMain()
 {
     // Put the code for your module's main functionality here.
@@ -205,7 +215,7 @@ void WM#name#::moduleMain()
 EOF
 ;
 
-die "Need exactly one command line argument (module name)\n" unless $#ARGV == 0;
+die "Need exactly one command line argument (module name).\nPlease execute this script in the src/modules directory with the desired module name.\n" unless $#ARGV == 0;
 
 $dirname = lcfirst($ARGV[0]); # directory has to have lower case first letter
 use Cwd;
