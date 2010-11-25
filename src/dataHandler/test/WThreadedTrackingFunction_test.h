@@ -251,7 +251,8 @@ private:
         mat( 2, 2 ) = z[ 2 ];
         mat( 0, 3 ) = 1.0;
 
-        boost::shared_ptr< WGrid > g( new WGridRegular3D( 5, 5, 5, mat ) );
+        boost::shared_ptr< WGridTransformOrtho > t( new WGridTransformOrtho( mat ) );
+        boost::shared_ptr< WGrid > g( new WGridRegular3D( 5, 5, 5, t ) );
 
         data.normalize();
 
@@ -615,7 +616,8 @@ private:
         mat( 2, 2 ) = z[ 2 ];
         mat( 0, 3 ) = 1.0;
 
-        boost::shared_ptr< WGrid > g( new WGridRegular3D( n, n, n, mat ) );
+        boost::shared_ptr< WGridTransformOrtho > t( new WGridTransformOrtho( mat ) );
+        boost::shared_ptr< WGrid > g( new WGridRegular3D( n, n, n, t ) );
 
         data.normalize();
 

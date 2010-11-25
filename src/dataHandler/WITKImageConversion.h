@@ -81,15 +81,15 @@ typename itk::Image< T, 3 >::Pointer makeImageFromDataSet( boost::shared_ptr< WD
 
     // copy direction matrix
     typename itk::Image< T, 3 >::DirectionType dirMat;
-    dirMat( 0, 0 ) = grid->getTransformationMatrix()( 0, 0 );
-    dirMat( 0, 1 ) = grid->getTransformationMatrix()( 0, 1 );
-    dirMat( 0, 2 ) = grid->getTransformationMatrix()( 0, 2 );
-    dirMat( 1, 0 ) = grid->getTransformationMatrix()( 1, 0 );
-    dirMat( 1, 1 ) = grid->getTransformationMatrix()( 1, 1 );
-    dirMat( 1, 2 ) = grid->getTransformationMatrix()( 1, 2 );
-    dirMat( 2, 0 ) = grid->getTransformationMatrix()( 2, 0 );
-    dirMat( 2, 1 ) = grid->getTransformationMatrix()( 2, 1 );
-    dirMat( 2, 2 ) = grid->getTransformationMatrix()( 2, 2 );
+    dirMat( 0, 0 ) = grid->getDirectionX()[ 0 ];
+    dirMat( 0, 1 ) = grid->getDirectionY()[ 0 ];
+    dirMat( 0, 2 ) = grid->getDirectionZ()[ 0 ];
+    dirMat( 1, 0 ) = grid->getDirectionX()[ 1 ];
+    dirMat( 1, 1 ) = grid->getDirectionY()[ 1 ];
+    dirMat( 1, 2 ) = grid->getDirectionZ()[ 1 ];
+    dirMat( 2, 0 ) = grid->getDirectionX()[ 2 ];
+    dirMat( 2, 1 ) = grid->getDirectionY()[ 2 ];
+    dirMat( 2, 2 ) = grid->getDirectionZ()[ 2 ];
 
     img->SetDirection( dirMat );
 
@@ -138,7 +138,8 @@ boost::shared_ptr< WDataSetScalar > makeDataSetFromImage( typename itk::Image< T
     smat( 3, 1 ) = 0.0;
     smat( 3, 2 ) = 0.0;
 
-    boost::shared_ptr< WGrid > grid( new WGridRegular3D( s[ 0 ], s[ 1 ], s[ 2 ], smat ) );
+    boost::shared_ptr< WGridTransformOrtho > t( new WGridTransformOrtho( smat ) );
+    boost::shared_ptr< WGrid > grid( new WGridRegular3D( s[ 0 ], s[ 1 ], s[ 2 ], t ) );
     std::vector< T > v( s[ 0 ] * s[ 1 ] * s[ 2 ] );
 
     typename itk::Image< T, 3 >::IndexType i;

@@ -104,7 +104,9 @@ public:
             mat( 1, 1 ) = 0.5;
             mat( 2, 2 ) = 2.0;
 
-            boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, mat ) );
+            boost::shared_ptr< WGridTransformOrtho > transform( new WGridTransformOrtho( mat ) );
+            boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, transform ) );
+
             std::vector< double > v( 27, 4 );
             boost::shared_ptr< WValueSet< double > > vs( new WValueSet< double >( 0, 1, v, W_DT_DOUBLE ) );
             d.push_back( boost::shared_ptr< WDataSetScalar const >( new WDataSetScalar( vs, g ) ) );
@@ -159,7 +161,9 @@ public:
             mat( 1, 1 ) = 0.5;
             mat( 2, 2 ) = 2.0;
 
-            boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, mat ) );
+            boost::shared_ptr< WGridTransformOrtho > transform( new WGridTransformOrtho( mat ) );
+            boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, transform ) );
+
             std::vector< double > v( 27, 4 );
             boost::shared_ptr< WValueSet< double > > vs( new WValueSet< double >( 0, 1, v, W_DT_DOUBLE ) );
             d.push_back( boost::shared_ptr< WDataSetScalar const >( new WDataSetScalar( vs, g ) ) );
@@ -560,7 +564,9 @@ private:
         mat( 1, 1 ) = 0.5;
         mat( 2, 2 ) = 2.0;
 
-        boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, mat ) );
+        boost::shared_ptr< WGridTransformOrtho > transform( new WGridTransformOrtho( mat ) );
+        boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, transform ) );
+
         for( int i = 0; i < number; ++i )
         {
             std::vector< double > v( 27, data[ i ] );
