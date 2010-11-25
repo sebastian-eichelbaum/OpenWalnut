@@ -48,7 +48,7 @@ boost::shared_ptr< WModule > WMWriteTracts::factory() const
 
 const char** WMWriteTracts::getXPMIcon() const
 {
-    return writeTracts_xpm;
+    return WMWriteTracts_xpm;
 }
 
 const std::string WMWriteTracts::getName() const
