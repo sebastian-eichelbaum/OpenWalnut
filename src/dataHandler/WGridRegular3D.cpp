@@ -464,6 +464,12 @@ void WGridRegular3D::initInformationProperties()
     WPropDouble xOffset = m_infoProperties->addProperty( "X offset: ", "The distance between samples in x direction", getOffsetX() );
     WPropDouble yOffset = m_infoProperties->addProperty( "Y offset: ", "The distance between samples in y direction", getOffsetY() );
     WPropDouble zOffset = m_infoProperties->addProperty( "Z offset: ", "The distance between samples in z direction", getOffsetZ() );
+    std::stringstream ss1;
+    ss1 << m_matrixQForm;
+    WPropString qForm = m_infoProperties->addProperty( "qForm-Matrix: ", "The qForm matrix in row major", ss1.str() );
+    std::stringstream ss2;
+    ss2 << m_matrixQForm;
+    WPropString sForm = m_infoProperties->addProperty( "sForm-Matrix: ", "The sForm matrix in row major", ss2.str() );
 }
 
 int WGridRegular3D::getXVoxelCoord( const wmath::WPosition& pos ) const

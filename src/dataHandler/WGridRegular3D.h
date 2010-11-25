@@ -697,5 +697,4 @@ inline wmath::WPosition WGridRegular3D::getOrigin() const
 {
     return m_origin;
 }
-
 #endif  // WGRIDREGULAR3D_H
