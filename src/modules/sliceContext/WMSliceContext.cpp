@@ -73,8 +73,8 @@ const std::string WMSliceContext::getDescription() const
 void WMSliceContext::connectors()
 {
     // The input fiber dataset
-    m_fiberInput = boost::shared_ptr< WModuleInputData < WDataSetFibers > >(
-        new WModuleInputData< WDataSetFibers >( shared_from_this(), "fibers", "The fiber dataset to use as context." )
+    m_fiberInput = boost::shared_ptr< WModuleInputData < const WDataSetFibers > >(
+        new WModuleInputData< const WDataSetFibers >( shared_from_this(), "fibers", "The fiber dataset to use as context." )
     );
 
     // As properties, every connector needs to be added to the list of connectors.
@@ -128,7 +128,7 @@ void WMSliceContext::moduleMain()
 
         // To query whether an input was updated, simply ask the input:
         bool dataUpdated = m_fiberInput->updated();
-        boost::shared_ptr< WDataSetFibers > fibers = m_fiberInput->getData();
+        boost::shared_ptr< const WDataSetFibers > fibers( m_fiberInput->getData() );
         bool dataValid = fibers;
 
         if ( !( dataValid && dataUpdated ) )
@@ -226,7 +226,7 @@ osg::ref_ptr< osg::Geode > WMSliceContext::genTractGeode( const std::vector< siz
     for( size_t i = 0; i < vertices->size(); ++i )
     {
         double distance = fabs( m_crosshairProp->get()[0] - ( *vertices )[i][0] );
-        texCoords->push_back( wmath::WPosition( distance, 0.0, 0.0 ) );
+        texCoords->push_back( wmath::WPosition( distance, m_contextWidthProp->get(), 0.0 ) );
     }
     geometry->setTexCoordArray( 0, texCoords );
 

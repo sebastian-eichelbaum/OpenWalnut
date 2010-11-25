@@ -135,7 +135,7 @@ private:
      */
     void checkContainment( std::vector< size_t >* selected, bool counting, double distance ) const;
 
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fiberInput; //!< The fiber dataset which is going to be filtered.
+    boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_fiberInput; //!< The fiber dataset which is going to be filtered.
 
     WPropPosition m_crosshairProp; //!< position of the navigation
     WPropInt m_insideCountProp; //!< The number of positions of a fiber that have to be inside the context for the fiber to be considered.
@@ -144,7 +144,7 @@ private:
     boost::shared_ptr< WCondition > m_propCondition; //!< A condition used to notify about changes in several properties.
 
     wmath::WPosition m_current; //!< The current position of the slices.
-    boost::shared_ptr< WDataSetFibers > m_tracts; //!< The fiber data set used for the context.
+    boost::shared_ptr< const WDataSetFibers > m_tracts; //!< The fiber data set used for the context.
     osg::ref_ptr< WGEManagedGroupNode > m_osgNode; //!< OSG node for this module.
     osg::ref_ptr< osg::Group > m_rootNode; //!< OSG node for this module.
 
