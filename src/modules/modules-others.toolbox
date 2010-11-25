@@ -30,6 +30,7 @@ ADD_SUBDIRECTORY( splineSurface )
 ADD_SUBDIRECTORY( subtractDataSetScalar )
 ADD_SUBDIRECTORY( surfaceParameterAnimator )
 ADD_SUBDIRECTORY( vectorOperator )
+ADD_SUBDIRECTORY( textureMapper )
 
 IF( Teem_FOUND )
   IF( OSSIM_FOUND AND OW_USE_OSSIM )
