@@ -22,32 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WTYPEMISMATCH_H
+#define WTYPEMISMATCH_H
+
 #include <string>
 
-#include "WTreeItemTypes.h"
-#include "WQtRoiTreeItem.h"
-#include "WQtBranchTreeItem.h"
+#include "../WException.h"
+#include "../WExportCommon.h"
 
-WQtBranchTreeItem::WQtBranchTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMBranch > branch ) :
-    QTreeWidgetItem( parent, ROIBRANCH ),
-    m_branch( branch )
+/**
+ * Indicates invalid type of something. This is a general purpose exception wherever a dynamic cast fails for example.
+ */
+class OWCOMMON_EXPORT WTypeMismatch : public WException
 {
-    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled );
-}
+public:
+    /**
+     * Default constructor.
+     * \param msg the exception message.
+     */
+    explicit WTypeMismatch( const std::string& msg = "Types mismatching." );
 
-WQtBranchTreeItem::~WQtBranchTreeItem()
-{
-}
+    /**
+     * Destructor.
+     */
+    virtual ~WTypeMismatch() throw();
 
-WQtRoiTreeItem* WQtBranchTreeItem::addRoiItem( osg::ref_ptr< WROI > roi )
-{
-    WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi, ROI );
+protected:
+private:
+};
 
-    rti->setText( 0, QString( roi->getName().c_str() ) );
-    return rti;
-}
+#endif  // WTYPEMISMATCH_H
 
-boost::shared_ptr< WRMBranch > WQtBranchTreeItem::getBranch()
-{
-    return m_branch;
-}

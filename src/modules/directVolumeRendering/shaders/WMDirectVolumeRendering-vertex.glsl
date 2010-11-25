@@ -61,7 +61,6 @@ void main()
 {
     // for easy access to texture coordinates
     gl_TexCoord[0] = gl_MultiTexCoord0;
-    v_normal = gl_Normal;
 
     // in texture space, the starting point simply is the current surface point in texture space
     v_rayStart = gl_Vertex.xyz; // this equals gl_Vertex!
@@ -75,10 +74,12 @@ void main()
     // to have equidistant sampling for each side of the box, use a fixed step size
     v_stepDistance = 1.0 / float( u_steps );
 
+#ifdef LOCALILLUMINATION_PHONG
     // also get the coordinates of the light
     vec4 lpos = gl_LightSource[0].position;
     lpos = vec4( 0.0, 0.0, 1000.0, 1.0 );
-    v_lightSource = worldToLocal( lpos ).xyz;
+    v_lightSource = normalize( worldToLocal( lpos ).xyz );
+#endif
 
     // Simply project the vertex
     gl_Position = ftransform();

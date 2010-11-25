@@ -22,35 +22,42 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMHISTOGRAMEQUALIZATION_H
-#define WMHISTOGRAMEQUALIZATION_H
+#ifndef WMSCALAROPERATOR_H
+#define WMSCALAROPERATOR_H
 
+#include <map>
 #include <string>
+#include <vector>
 
-#include "../../dataHandler/WDataSetScalar.h"
+#include <osg/Node>
+#include <osg/Geode>
+#include <osg/Uniform>
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+
+#include "../../common/math/WVector3D.h"
+
+#include "../../dataHandler/WDataSetScalar.h"
 
 /**
- * This modules takes a dataset and equalizes its histogram.
+ * Operators for processing two WDataSetScalar.
  *
  * \ingroup modules
  */
-class WMHistogramEqualization: public WModule
+class WMScalarOperator: public WModule
 {
 public:
 
     /**
-     * Default constructor.
+     * Standard constructor.
      */
-    WMHistogramEqualization();
+    WMScalarOperator();
 
     /**
      * Destructor.
      */
-    virtual ~WMHistogramEqualization();
+    ~WMScalarOperator();
 
     /**
      * Gives back the name of this module.
@@ -60,7 +67,7 @@ public:
 
     /**
      * Gives back a description of this module.
-     * \return description to module.
+     * \return description of module.
      */
     virtual const std::string getDescription() const;
 
@@ -97,55 +104,25 @@ protected:
 private:
 
     /**
-     * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
-     */
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
-
-    /**
-     * The output connector used to provide the calculated data to other modules.
-     */
-    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
-
-    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
-     * If true, histogram equalization is turned on.
+     * A list of operations that are possible
      */
-    WPropBool m_equalize;
+    boost::shared_ptr< WItemSelection > m_operations;
 
     /**
-     * True if the values should be clamped before further processing
+     * The currently selected operation.
      */
-    WPropBool m_clamp;
+    WPropSelection m_opSelection;
 
-    /**
-     * How many percent should be clamped from the histogram.
-     */
-    WPropDouble m_clampPerc;
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputA;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputB;  //!< Input connector required by this module.
 
-    /**
-     * Resolution of the initial histogram.
-     */
-    WPropInt m_histogramResolution;
-
-    /**
-     * Resolution with which the CDF gets calculated.
-     */
-    WPropInt m_cdfResolution;
-
-    /**
-     * Group for keeping all the clamping related props
-     */
-    WPropGroup m_clamping;
-
-    /**
-     * Group for keeping all the equalizing-related props
-     */
-    WPropGroup m_equalizing;
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< The only output of this filter module.
 };
 
-#endif  // WMHISTOGRAMEQUALIZATION_H
+#endif  // WMSCALAROPERATOR_H
 

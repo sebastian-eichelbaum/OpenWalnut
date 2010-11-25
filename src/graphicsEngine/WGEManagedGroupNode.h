@@ -47,12 +47,12 @@ public:
      */
     explicit WGEManagedGroupNode( boost::shared_ptr< WBoolFlag > active );
 
+protected:
     /**
      * Destructor.
      */
     virtual ~WGEManagedGroupNode();
 
-protected:
 private:
 };
 

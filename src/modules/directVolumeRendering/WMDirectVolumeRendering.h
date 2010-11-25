@@ -114,6 +114,46 @@ private:
     WPropInt m_stepCount;
 
     /**
+     * Types of local illumination supported.
+     */
+    enum
+    {
+        None = 0,
+        Phong
+    }
+    LOCALILLUMINATION_ALGORITHMS;
+
+    /**
+     * The available shading algorithms.
+     */
+    boost::shared_ptr< WItemSelection > m_localIlluminationSelections;
+
+    /**
+     * The actually selected shading algorithm.
+     */
+    WPropSelection m_localIlluminationAlgo;
+
+    /**
+     * The group containing the tf loader path and trigger.
+     */
+    WPropGroup m_tfLoaderGroup;
+
+    /**
+     * If true, the texture is used for transfer functions.
+     */
+    WPropBool m_tfLoaderEnabled;
+
+    /**
+     * The path to the file to load.
+     */
+    WPropFilename m_tfLoaderFile;
+
+    /**
+     * Triggered to actually do loading
+     */
+    WPropTrigger m_tfLoaderTrigger;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

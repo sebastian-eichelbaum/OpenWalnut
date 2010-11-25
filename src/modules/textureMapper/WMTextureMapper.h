@@ -22,35 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMHISTOGRAMEQUALIZATION_H
-#define WMHISTOGRAMEQUALIZATION_H
+#ifndef WMTEXTUREMAPPER_h
+#define WMTEXTUREMAPPER_h
 
 #include <string>
 
-#include "../../dataHandler/WDataSetScalar.h"
-
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+
+#include "../../dataHandler/WDataSetSingle.h"
 
 /**
- * This modules takes a dataset and equalizes its histogram.
+ * This module simply registers the given dataset to the texture handling mechanism. This allows all outputs to be shown as a texture.
  *
  * \ingroup modules
  */
-class WMHistogramEqualization: public WModule
+class WMTextureMapper: public WModule
 {
 public:
 
     /**
-     * Default constructor.
+     * Standard constructor.
      */
-    WMHistogramEqualization();
+    WMTextureMapper();
 
     /**
      * Destructor.
      */
-    virtual ~WMHistogramEqualization();
+    ~WMTextureMapper();
 
     /**
      * Gives back the name of this module.
@@ -60,7 +59,7 @@ public:
 
     /**
      * Gives back a description of this module.
-     * \return description to module.
+     * \return description of module.
      */
     virtual const std::string getDescription() const;
 
@@ -94,58 +93,62 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
+     */
+    virtual void activate();
 private:
-
-    /**
-     * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
-     */
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
-
-    /**
-     * The output connector used to provide the calculated data to other modules.
-     */
-    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
 
     /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
 
-    /**
-     * If true, histogram equalization is turned on.
-     */
-    WPropBool m_equalize;
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
 
     /**
-     * True if the values should be clamped before further processing
+     * This is a pointer to the dataset the module is currently working on.
      */
-    WPropBool m_clamp;
+    boost::shared_ptr< WDataSetSingle > m_lastDataSet;
+
+    // TODO(ebaum): cleanup -> belongs to some central place
+    /**
+     * Called whenever a property changes.
+     *
+     * \param property the property that has been changed
+     */
+    void propertyChanged( boost::shared_ptr< WPropertyBase > property );
 
     /**
-     * How many percent should be clamped from the histogram.
+     * grouping the texture display properties
      */
-    WPropDouble m_clampPerc;
+    WPropGroup    m_groupTex;
 
     /**
-     * Resolution of the initial histogram.
+     * Interpolation?
      */
-    WPropInt m_histogramResolution;
+    WPropBool m_interpolation;
 
     /**
-     * Resolution with which the CDF gets calculated.
+     * A list of color map selection types
      */
-    WPropInt m_cdfResolution;
+    boost::shared_ptr< WItemSelection > m_colorMapSelectionsList;
 
     /**
-     * Group for keeping all the clamping related props
+     * Selection property for color map
      */
-    WPropGroup m_clamping;
+    WPropSelection m_colorMapSelection;
 
     /**
-     * Group for keeping all the equalizing-related props
+     * Threshold value for this data.
      */
-    WPropGroup m_equalizing;
+    WPropDouble m_threshold;
+
+    /**
+     * Opacity value for this data.
+     */
+    WPropInt m_opacity;
+
 };
-
-#endif  // WMHISTOGRAMEQUALIZATION_H
+#endif  // WMTEXTUREMAPPER_h
 

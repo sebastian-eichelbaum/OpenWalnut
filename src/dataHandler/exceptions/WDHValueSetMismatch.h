@@ -22,32 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WDHVALUESETMISMATCH_H
+#define WDHVALUESETMISMATCH_H
+
 #include <string>
 
-#include "WTreeItemTypes.h"
-#include "WQtRoiTreeItem.h"
-#include "WQtBranchTreeItem.h"
+#include "WDHException.h"
+#include "../WExportDataHandler.h"
 
-WQtBranchTreeItem::WQtBranchTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMBranch > branch ) :
-    QTreeWidgetItem( parent, ROIBRANCH ),
-    m_branch( branch )
+/**
+ * An exception that should be used whenever two valuesets are used which need to be of same size, dim, order or whatever.
+ *
+ * \ingroup dataHandler
+ */
+class OWDATAHANDLER_EXPORT WDHValueSetMismatch : public WDHException
 {
-    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled );
-}
+public:
+    /**
+     * Constructs new exception.
+     * \param msg the reason for this exception.
+     */
+    explicit WDHValueSetMismatch( const std::string& msg = "ValueSets do not match." );
 
-WQtBranchTreeItem::~WQtBranchTreeItem()
-{
-}
+    /**
+     * Destroys this exception
+     */
+    virtual ~WDHValueSetMismatch() throw();
 
-WQtRoiTreeItem* WQtBranchTreeItem::addRoiItem( osg::ref_ptr< WROI > roi )
-{
-    WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi, ROI );
+protected:
 
-    rti->setText( 0, QString( roi->getName().c_str() ) );
-    return rti;
-}
+private:
+};
 
-boost::shared_ptr< WRMBranch > WQtBranchTreeItem::getBranch()
-{
-    return m_branch;
-}
+#endif  // WDHVALUESETMISMATCH_H
+

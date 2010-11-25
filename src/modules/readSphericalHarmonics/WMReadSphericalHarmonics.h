@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,35 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMHISTOGRAMEQUALIZATION_H
-#define WMHISTOGRAMEQUALIZATION_H
+#ifndef WMREADSPHERICALHARMONICS_H
+#define WMREADSPHERICALHARMONICS_H
 
 #include <string>
 
-#include "../../dataHandler/WDataSetScalar.h"
+#include <osg/Geode>
 
+#include "../../dataHandler/WDataSetSphericalHarmonics.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
 /**
- * This modules takes a dataset and equalizes its histogram.
+ * This module loads spherical harmonics data given as vectors of coefficients from NIfTI files.
  *
  * \ingroup modules
  */
-class WMHistogramEqualization: public WModule
+class WMReadSphericalHarmonics: public WModule
 {
 public:
 
     /**
-     * Default constructor.
+     *
      */
-    WMHistogramEqualization();
+    WMReadSphericalHarmonics();
 
     /**
-     * Destructor.
+     *
      */
-    virtual ~WMHistogramEqualization();
+    virtual ~WMReadSphericalHarmonics();
 
     /**
      * Gives back the name of this module.
@@ -94,58 +95,19 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Initialize requirements for this module.
+     */
+    virtual void requirements();
+
+
 private:
+    boost::shared_ptr< WModuleOutputData< WDataSetSphericalHarmonics > > m_output; //!< Ouput connector provided by this module.
 
-    /**
-     * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
-     */
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
-
-    /**
-     * The output connector used to provide the calculated data to other modules.
-     */
-    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
-
-    /**
-     * A condition used to notify about changes in several properties.
-     */
-    boost::shared_ptr< WCondition > m_propCondition;
-
-    /**
-     * If true, histogram equalization is turned on.
-     */
-    WPropBool m_equalize;
-
-    /**
-     * True if the values should be clamped before further processing
-     */
-    WPropBool m_clamp;
-
-    /**
-     * How many percent should be clamped from the histogram.
-     */
-    WPropDouble m_clampPerc;
-
-    /**
-     * Resolution of the initial histogram.
-     */
-    WPropInt m_histogramResolution;
-
-    /**
-     * Resolution with which the CDF gets calculated.
-     */
-    WPropInt m_cdfResolution;
-
-    /**
-     * Group for keeping all the clamping related props
-     */
-    WPropGroup m_clamping;
-
-    /**
-     * Group for keeping all the equalizing-related props
-     */
-    WPropGroup m_equalizing;
+    boost::shared_ptr< WDataSetSphericalHarmonics > m_data; //!< This triangle mesh is provided as output through the connector.
+    boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
+    WPropTrigger m_readTriggerProp; //!< This property triggers the actual reading,
+    WPropFilename m_dataFile; //!< The data will be read from this file.
 };
 
-#endif  // WMHISTOGRAMEQUALIZATION_H
-
+#endif  // WMREADSPHERICALHARMONICS_H

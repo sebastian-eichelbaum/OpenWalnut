@@ -30,6 +30,7 @@
 #include <osg/Material>
 #include <osg/ShapeDrawable>
 #include <osg/StateAttribute>
+#include <osgDB/ReadFile>
 
 #include "../../common/WColor.h"
 #include "../../common/WPropertyHelper.h"
@@ -105,6 +106,23 @@ void WMDirectVolumeRendering::properties()
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );
 
+    // illumination model
+    m_localIlluminationSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_localIlluminationSelections->addItem( "No Local Illumination", "Volume Renderer only uses the classified voxel color." );
+    m_localIlluminationSelections->addItem( "Blinn-Phong", "Blinn-Phong lighting is used for shading each classified voxel." );
+    m_localIlluminationAlgo = m_properties->addProperty( "Local Illumination Model", "The illumination algorithm to use.",
+                                                         m_localIlluminationSelections->getSelectorFirst(), m_propCondition );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_localIlluminationAlgo );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_localIlluminationAlgo );
+
+    // transfer functions
+    m_tfLoaderGroup = m_properties->addPropertyGroup( "Transfer Function", "Transfer Function loading." );
+    m_tfLoaderEnabled = m_tfLoaderGroup->addProperty( "Enable", "Enable TF loading from file.", false, m_propCondition );
+    m_tfLoaderFile = m_tfLoaderGroup->addProperty( "File", "The 1D image containing the transfer function.",
+                                                    WPathHelper::getAppPath(), m_propCondition );
+    WPropertyHelper::PC_PATHEXISTS::addTo( m_tfLoaderFile );
+    m_tfLoaderTrigger = m_tfLoaderGroup->addProperty( "Load", "Triggers loading.", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     WModule::properties();
 }
 
@@ -149,9 +167,10 @@ void WMDirectVolumeRendering::moduleMain()
         bool dataUpdated = m_input->updated();
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
         bool dataValid   = ( dataSet );
+        bool propUpdated = m_localIlluminationAlgo->changed() || m_tfLoaderEnabled || m_tfLoaderFile->changed() || m_tfLoaderTrigger->changed();
 
         // As the data has changed, we need to recreate the texture.
-        if ( dataUpdated && dataValid )
+        if ( ( propUpdated || dataUpdated ) && dataValid )
         {
             debugLog() << "Data changed. Uploading new data as texture.";
 
@@ -185,6 +204,47 @@ void WMDirectVolumeRendering::moduleMain()
             rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // setup defines (illumination)
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            size_t localIlluminationAlgo = m_localIlluminationAlgo->get( true ).getItemIndexOfSelected( 0 );
+            m_shader->eraseAllDefines();
+            switch ( localIlluminationAlgo )
+            {
+                case Phong:
+                    m_shader->setDefine( "LOCALILLUMINATION_PHONG" );
+                    break;
+                default:
+                    break;
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // load transfer function
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // try to load the tf from file if existent
+            if ( m_tfLoaderEnabled->get( true ) )
+            {
+                osg::ref_ptr< osg::Image > tfImg = osgDB::readImageFile( m_tfLoaderFile->get( true ).file_string() );
+                if ( tfImg )
+                {
+                    // bind it as a texture
+                    osg::ref_ptr< osg::Texture1D > tfTexture = new osg::Texture1D();
+                    tfTexture->setImage( tfImg );
+
+                    // apply it
+                    rootState->setTextureAttributeAndModes( 1, tfTexture, osg::StateAttribute::ON );
+                    rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
+                    m_shader->setDefine( "TRANSFERFUNCTION_SAMPLER", "tex1" );
+                    m_shader->setDefine( "TRANSFERFUNCTION_ENABLED" );
+                }
+                else
+                {
+                    warnLog() << "Transfer function texture could not be loaded from " << m_tfLoaderFile->get( true ).file_string() << ".";
+                }
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup all those uniforms
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -214,6 +274,9 @@ void WMDirectVolumeRendering::moduleMain()
                 rootInserted = true;
                 WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
             }
+
+            // finally, reset the load trigger
+            m_tfLoaderTrigger->set( WPVBaseTypes::PV_TRIGGER_READY );
         }
     }
 

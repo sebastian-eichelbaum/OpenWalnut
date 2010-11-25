@@ -24,7 +24,10 @@
 
 #version 120
 
+#ifdef LOCALILLUMINATION_PHONG
 #include "WGEShadingTools.glsl"
+#endif
+
 #include "WGEUtils.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -39,6 +42,7 @@
 
 // texture containing the data
 uniform sampler3D tex0;
+uniform sampler1D TRANSFERFUNCTION_SAMPLER;
 
 // The isovalue to use.
 uniform float u_isovalue1 = 0.33;
@@ -87,6 +91,26 @@ vec3 findRayEnd( out float d )
 }
 
 /**
+ * Returns the gradient vector at the given position.
+ *
+ * \param position the voxel for which to get the gradient
+ *
+ * \return the gradient, NOT normalized
+ */
+vec3 getGradient( in vec3 position )
+{
+    float s = 0.01;
+    float valueXP = texture3D( tex0, position + vec3( s, 0.0, 0.0 ) ).r;
+    float valueXM = texture3D( tex0, position - vec3( s, 0.0, 0.0 ) ).r;
+    float valueYP = texture3D( tex0, position + vec3( 0.0, s, 0.0 ) ).r;
+    float valueYM = texture3D( tex0, position - vec3( 0.0, s, 0.0 ) ).r;
+    float valueZP = texture3D( tex0, position + vec3( 0.0, 0.0, s ) ).r;
+    float valueZM = texture3D( tex0, position - vec3( 0.0, 0.0, s ) ).r;
+
+    return vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM );
+}
+
+/**
  * Emulates the transfer function. This will be removed and replaced by a texture lookup.
  *
  * \param value the value to classify
@@ -95,18 +119,48 @@ vec3 findRayEnd( out float d )
  */
 vec4 transferFunction( in float value )
 {
-    if ( isZero( value - u_isovalue1, 0.1 ) )
+#ifdef TRANSFERFUNCTION_ENABLED
+    return texture1D( TRANSFERFUNCTION_SAMPLER, value );
+#else
+    if ( isZero( value - 0.5, 0.1 ) )   // if not TF has been specified, at least show something
     {
-        return vec4( 2.*value, 0.0, 0.0, 0.025 );
-    }
-    else if ( isZero( value - u_isovalue2, 0.1 ) )
-    {
-        return vec4( value, value, 0.0, 0.1 );
+        return vec4( 1.0, 0.0, 0.0, 0.1 );
     }
     else
     {
         return vec4( 0.0 );
     }
+#endif
+}
+
+/**
+ * Evaluates the local illumination model at the given position in the volume.
+ *
+ * \param position the position inside the volume where to evaluate the illumination
+ * \param color the color at the given position.
+ *
+ * \return the light color
+ */
+vec4 localIllumination( in vec3 position, in vec4 color )
+{
+#ifdef LOCALILLUMINATION_PHONG
+    // Phong:
+    vec4 light = blinnPhongIllumination(
+            0.1 * color.rgb,                              // material ambient
+            color.rgb,                                    // material diffuse
+            1.0 * color.rgb,                              // material specular
+            10.0,                                         // shinines
+            vec3( 1.0, 1.0, 1.0 ),                        // light diffuse
+            vec3( 0.3, 0.3, 0.3 ),                        // light ambient
+            normalize( -getGradient( position ) ),        // normal
+            v_ray,                                        // view direction
+            v_lightSource                                 // light source position
+    );
+    light.a = color.a;
+    return light;
+#else
+    return color;   // no illumination. In this case, no performance overhead is needed as functions get inlined.
+#endif
 }
 
 /**
@@ -121,12 +175,12 @@ void main()
     vec3 rayEnd = findRayEnd( totalDistance );
 
     // walk along the ray
-    vec4 color = vec4( vec3( 0.0 ), 1.0 );  // the composited color
-    float alpha = 1.0;
-    float depth = gl_FragCoord.z;           // the depth of the last hit
-    float value;                            // the current value inside the data
-    float hit = 0.0;                        // this value will be != 0.0 if something has been hit
-    while ( currentDistance <= totalDistance ) // we do not need to ch
+    vec4 accumColor = vec4( vec3( 0.0 ), 1.0 );      // the composited color
+    float accumAlpha = 1.0;                          // accumulated transparency of the volume.
+    float depth = gl_FragCoord.z;                    // the depth of the last hit
+    float value;                                     // the current value inside the data
+    float hit = 0.0;                                 // this value will be != 0.0 if something has been hit
+    while ( currentDistance <= totalDistance )
     {
         // get current value
         vec3 rayPoint = rayEnd - ( currentDistance * v_ray );
@@ -134,14 +188,14 @@ void main()
         // go to next value
         currentDistance += v_stepDistance;
 
-        // classify
-        vec4 vColor = transferFunction( value );    // classify at the sample point
+        // classify point in volume and evaluate local illumination model at this position
+        vec4 color = localIllumination( rayPoint,  transferFunction( value ) );
 
         // has there ever been something we hit?
-        hit = max( hit, vColor.a );
+        hit = max( hit, color.a );
 
-        color.rgba = mix( color.rgba, vColor.rgba, vColor.a );  // compositing
-        alpha *= ( 1.0 - vColor.a );                            // compositing: keep track of final alpha value of the background
+        accumColor.rgba = mix( accumColor.rgba, color.rgba, color.a );  // compositing
+        accumAlpha *= ( 1.0 - color.a );                                // compositing: keep track of final alpha value of the background
     }
 
     // have we hit something which was classified not to be transparent?
@@ -152,8 +206,8 @@ void main()
     }
 
     // set final color
-    color.a = 1.0 - alpha;
-    gl_FragColor = color;
+    accumColor.a = 1.0 - accumAlpha;
+    gl_FragColor = accumColor;
     gl_FragDepth = depth;
 }
 

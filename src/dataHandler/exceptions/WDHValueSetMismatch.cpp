@@ -24,30 +24,15 @@
 
 #include <string>
 
-#include "WTreeItemTypes.h"
-#include "WQtRoiTreeItem.h"
-#include "WQtBranchTreeItem.h"
+#include "WDHValueSetMismatch.h"
 
-WQtBranchTreeItem::WQtBranchTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMBranch > branch ) :
-    QTreeWidgetItem( parent, ROIBRANCH ),
-    m_branch( branch )
+WDHValueSetMismatch::WDHValueSetMismatch( const std::string& msg )
+    : WDHException( msg )
 {
-    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled );
+    // initialize members
 }
 
-WQtBranchTreeItem::~WQtBranchTreeItem()
+WDHValueSetMismatch::~WDHValueSetMismatch() throw()
 {
-}
-
-WQtRoiTreeItem* WQtBranchTreeItem::addRoiItem( osg::ref_ptr< WROI > roi )
-{
-    WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi, ROI );
-
-    rti->setText( 0, QString( roi->getName().c_str() ) );
-    return rti;
-}
-
-boost::shared_ptr< WRMBranch > WQtBranchTreeItem::getBranch()
-{
-    return m_branch;
+    // cleanup
 }
