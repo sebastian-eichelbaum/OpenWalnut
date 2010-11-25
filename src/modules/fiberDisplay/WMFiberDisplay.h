@@ -39,6 +39,7 @@
 #include "../../kernel/WFiberSelector.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
+#include "../../kernel/WModuleOutputData.h"
 
 /**
  * Module for drawing fibers
@@ -148,9 +149,6 @@ private:
     WPropBool m_useTubesProp; //!< Property indicating whether to use tubes for the fibers tracts.
     WPropBool m_useTextureProp; //!< Property indicating whether to use tubes for the fibers tracts.
     WPropDouble m_tubeThickness; //!< Property determining the thickness of tubes .
-    WPropBool m_save; //!< this should be a button
-    WPropFilename m_saveFileName; //!< the filename for saving
-
     WBoolFlag m_noData; //!< Flag indicating whether there is data to display.
 
     WPropGroup m_cullBoxGroup; //!< property group for box culling
@@ -159,9 +157,20 @@ private:
     WPropBool m_insideCullBox; //!< if true fibers inside the cull box are shown, outside if false
 
     /**
+     * This property triggers the updating of the output connector, as it would be too slow  to do on every
+     * selection change
+     */
+    WPropTrigger m_propUpdateOutputTrigger;
+
+    /**
      * Input connector for a fiber dataset.
      */
     boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_fiberInput;
+
+    /**
+     * Output connector for a fiber dataset.
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_fiberOutput;
 
     /**
      * Pointer to the fiber data set
@@ -252,7 +261,7 @@ private:
     /**
      * saves the currently selected (active field from roi manager) fibers to a file
      */
-    void saveSelected();
+    void updateOutput();
 
     /**
      * creates and initializes the uniform parameters for the shader
