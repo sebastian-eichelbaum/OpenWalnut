@@ -74,11 +74,12 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         {
             try
             {
-                WSharedLib l( i->path() );
+                // load lib
+                boost::shared_ptr< WSharedLib > l = boost::shared_ptr< WSharedLib >( new WSharedLib( i->path() ) );
 
                 // get instantiation function
                 W_LOADABLE_MODULE_SIGNATURE f;
-                l.fetchFunction< W_LOADABLE_MODULE_SIGNATURE >( W_LOADABLE_MODULE_SYMBOL, f );
+                l->fetchFunction< W_LOADABLE_MODULE_SIGNATURE >( W_LOADABLE_MODULE_SYMBOL, f );
 
                 // get the first prototype
                 WModuleList m;
