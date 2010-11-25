@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTEXTUREMAPPER_h
-#define WMTEXTUREMAPPER_h
+#ifndef WMTEXTUREMAPPER_H
+#define WMTEXTUREMAPPER_H
 
 #include <string>
 
@@ -148,7 +148,7 @@ private:
      * Opacity value for this data.
      */
     WPropInt m_opacity;
-
 };
-#endif  // WMTEXTUREMAPPER_h
+
+#endif  // WMTEXTUREMAPPER_H
 
