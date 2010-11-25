@@ -281,12 +281,6 @@ public slots:
     void projectSaveModuleOnly();
 
     /**
-     * Sets that a fiber data set has already been loaded. Thi shelps to prevent multiple fiber data sets to be loaded.
-     * \param flag Indicates how to set the internal state.
-     */
-    void setFibersLoaded( bool flag );
-
-    /**
      * Gets called when menu option or toolbar button load is activated
      */
     void openConfigDialog();
@@ -322,12 +316,6 @@ private:
      * shared pointer for the configuration widget
      */
     boost::shared_ptr< WQtConfigWidget > m_configWidget;
-
-    /**
-     * Used to ensure that only one fiber dataset can be loaded since the
-     * ROIManager is not known to work with more than one fiber dataset
-     */
-    bool m_fibLoaded; // TODO(all): remove this when its possible to display more than one fiber dataset
 
     /**
      * All registered WQtCustomDockWidgets.
