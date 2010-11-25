@@ -27,9 +27,6 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
-#include "../../graphicsEngine/WGEColormapping.h"
 
 #include "WMHistogramEqualization.h"
 #include "WMHistogramEqualization.xpm"
@@ -268,42 +265,16 @@ void WMHistogramEqualization::moduleMain()
         // update output with a new dataset, reuse grid
         debugLog() << "Updating output";
 
-        // de-register at colormapper
-        if ( m_lastOutputDataSet )
-        {
-            m_properties->removeProperty( m_lastOutputDataSet->getTexture2()->getProperties() );
-            m_infoProperties->removeProperty( m_lastOutputDataSet->getTexture2()->getInformationProperties() );
-            WGEColormapping::deregisterTexture( m_lastOutputDataSet->getTexture2() );
-        }
-
         // construct
-        m_lastOutputDataSet = boost::shared_ptr< WDataSetScalar >(
+        m_output->updateData( boost::shared_ptr< WDataSetScalar >(
             new WDataSetScalar( boost::shared_ptr< WValueSetBase >(
                 new WValueSet< unsigned char >( 0, 1, newData, W_DT_UNSIGNED_CHAR ) ), dataSet->getGrid() )
-        );
-
-        // register new
-        m_properties->addProperty( m_lastOutputDataSet->getTexture2()->getProperties() );
-        m_infoProperties->addProperty( m_lastOutputDataSet->getTexture2()->getInformationProperties() );
-        WGEColormapping::registerTexture( m_lastOutputDataSet->getTexture2() );
-        m_output->updateData( m_lastOutputDataSet );
+        ) );
 
         debugLog() << "Done";
 
         progress->finish();
         m_progress->removeSubProgress( progress );
     }
-}
-
-void WMHistogramEqualization::activate()
-{
-    // deactivate the output if wanted
-    if ( m_lastOutputDataSet )
-    {
-        m_lastOutputDataSet->getTexture2()->active()->set( m_active->get( true ) );
-    }
-
-    // Always call WModule's activate!
-    WModule::activate();
 }
 

@@ -53,6 +53,8 @@ WPropertyStringWidget::WPropertyStringWidget( WPropString property, QGridLayout*
     // To have word warp work correctly -> set size policy
     m_asText.setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
 
+    m_asText.setTextInteractionFlags( Qt::TextSelectableByMouse );
+
     // set the initial values
     update();
 

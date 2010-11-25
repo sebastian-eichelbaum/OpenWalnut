@@ -25,6 +25,8 @@
 #ifndef WMATRIX_H
 #define WMATRIX_H
 
+#include <iostream>
+
 #include "WValue.h"
 #include "WVector3D.h"
 
@@ -314,4 +316,40 @@ template< typename T > WVector3D WMatrix< T >::operator*( const WVector3D& rhs )
 }
 
 }  // End of namespace
+
+template< typename T >
+inline std::ostream& operator<<( std::ostream& os, const wmath::WMatrix< T >& m )
+{
+    os << std::setprecision( 5 ) << std::fixed;
+    for( size_t i = 0; i < m.getNbRows(); ++i )
+    {
+        if( i == 0 )
+        {
+            os << "[ ";
+        }
+        else
+        {
+            os << "  ";
+        }
+        for( size_t j = 0; j < m.getNbCols(); ++j )
+        {
+            os << std::setw( 12 ) << m( i, j );
+            if( j < m.getNbCols() - 1 )
+            {
+                os << ", ";
+            }
+            else if( i < m.getNbRows() - 1 )
+            {
+                os << "  ";
+            }
+            else
+            {
+                os << " ]";
+            }
+        }
+        os << std::endl;
+    }
+    return os;
+}
+
 #endif  // WMATRIX_H

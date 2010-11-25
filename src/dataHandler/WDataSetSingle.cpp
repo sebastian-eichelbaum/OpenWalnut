@@ -50,6 +50,8 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
     m_valueSet = newValueSet;
     m_grid = newGrid;
 
+    m_infoProperties->addProperty( m_grid->getInformationProperties() );
+
     // technically this should be placed into the WDataSetScalar, WDataSetVector and so on
     boost::shared_ptr< WGridRegular3D > regGrid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
     if ( regGrid )

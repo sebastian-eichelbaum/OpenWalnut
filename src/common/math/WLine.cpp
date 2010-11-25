@@ -23,8 +23,10 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
+#include <complex>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "../exceptions/WOutOfBounds.h"
@@ -32,6 +34,7 @@
 #include "../WLimits.h"
 #include "../WStringUtils.h"
 #include "WLine.h"
+#include "WPolynomialEquationSolvers.h"
 #include "WPosition.h"
 
 namespace wmath
@@ -71,7 +74,7 @@ double pathLength( const wmath::WLine& line )
     return length;
 }
 
-void WLine::resample( size_t numPoints )
+void WLine::resampleByNumberOfPoints( size_t numPoints )
 {
     WLine newLine;
     newLine.reserve( numPoints );
@@ -117,6 +120,95 @@ void WLine::resample( size_t numPoints )
     // Note if the size() == 0, then the resampled tract is also of length 0
 }
 
+void WLine::removeAdjacentDuplicates()
+{
+    if( empty() )
+    {
+        return;
+    }
+
+    // Note: We cannot use std::remove for that since it allows only unary predicates to identify
+    // elements which are to be removed
+    WLine newLine;
+    newLine.reserve( size() );
+    newLine.push_back( front() );
+    for( const_iterator cit = begin()++; cit != end(); ++cit )
+    {
+        if( ( *cit - newLine.back() ).norm() > wlimits::DBL_EPS )
+        {
+            newLine.push_back( *cit );
+        }
+    }
+    this->WMixinVector< wmath::WPosition >::operator=( newLine );
+}
+
+void WLine::resampleBySegmentLength( double newSegmentLength )
+{
+    // eliminate duplicate points following next to another
+    removeAdjacentDuplicates();
+
+    if( empty() || size() == 1 )
+    {
+        return;
+    }
+    WLine newLine;
+    newLine.push_back( front() );
+    for( size_t i = 1; i < size(); )
+    {
+        if( ( newLine.back() - ( *this )[i] ).norm() > newSegmentLength )
+        {
+            const wmath::WVector3D& pred = ( *this )[i - 1];
+            if( pred == newLine.back() )
+            {
+                // Then there is no triangle and the old Segment Length is bigger as the new segment
+                // length
+                newLine.push_back( newLine.back() + ( ( *this )[i] - pred ).normalized() * newSegmentLength );
+                continue;
+            }
+            else // this is the general case, and the point we search is inbetween the pred and the current position
+            {
+                // we compute the three coefficents describing the quadradic equation of the point of intersection of
+                // the circle with radius newSegmentLength and the segmend: pred and ( *this )[i].
+                // alpha * x^2 + beta * x + gamma = 0
+                double alpha = ( ( *this )[i][0] - pred[0] ) * ( ( *this )[i][0] - pred[0] ) +
+                               ( ( *this )[i][1] - pred[1] ) * ( ( *this )[i][1] - pred[1] ) +
+                               ( ( *this )[i][2] - pred[2] ) * ( ( *this )[i][2] - pred[2] );
+
+                double beta = 2.0 * ( ( *this )[i][0] - pred[0] ) * ( pred[0] - newLine.back()[0] ) +
+                              2.0 * ( ( *this )[i][1] - pred[1] ) * ( pred[1] - newLine.back()[1] ) +
+                              2.0 * ( ( *this )[i][2] - pred[2] ) * ( pred[2] - newLine.back()[2] );
+
+                double gamma = ( pred[0] - newLine.back()[0] ) * ( pred[0] - newLine.back()[0] ) +
+                               ( pred[1] - newLine.back()[1] ) * ( pred[1] - newLine.back()[1] ) +
+                               ( pred[2] - newLine.back()[2] ) * ( pred[2] - newLine.back()[2] ) - newSegmentLength * newSegmentLength;
+
+                typedef std::pair< std::complex< double >, std::complex< double > > ComplexPair;
+                ComplexPair solution = wmath::solveRealQuadraticEquation( alpha, beta, gamma );
+                // NOTE: if those asserts fire, then this algo is wrong and produces wrong results, and I've to search to bug!
+                WAssert( std::imag( solution.first ) == 0.0, "Invalid quadratic equation while computing resamplingBySegmentLength" );
+                WAssert( std::imag( solution.second ) == 0.0, "Invalid quadratic equation while computing resamplingBySegmentLength" );
+                wmath::WPosition pointOfIntersection;
+                if( std::real( solution.first ) > 0.0 )
+                {
+                    pointOfIntersection = pred + std::real( solution.first ) * ( ( *this )[i] - pred );
+                }
+                else
+                {
+                    pointOfIntersection = pred + std::real( solution.second ) * ( ( *this )[i] - pred );
+                }
+                newLine.push_back( pointOfIntersection );
+            }
+        }
+        ++i;
+    }
+    if( ( newLine.back() - ( *this )[size() - 1] ).norm() > newSegmentLength / 2.0 )
+    {
+        wmath::WVector3D direction = ( ( *this )[size() - 1] - newLine.back() ).normalized();
+        newLine.push_back( newLine.back() + direction * newSegmentLength );
+    }
+    this->WMixinVector< wmath::WPosition >::operator=( newLine );
+}
+
 int equalsDelta( const wmath::WLine& line, const wmath::WLine& other, double delta )
 {
     size_t pts = ( std::min )( other.size(), line.size() ); // This ( std::min ) thing compiles also under Win32/Win64
@@ -154,14 +246,14 @@ double maxSegmentLength( const wmath::WLine& line )
     return result;
 }
 
-WBoundingBox WLine::computeBoundingBox() const
+WBoundingBox computeBoundingBox( const wmath::WLine& line )
 {
     WBoundingBox result;
-    for( const_iterator cit = begin(); cit != end(); ++cit )
+    for( WLine::const_iterator cit = line.begin(); cit != line.end(); ++cit )
     {
         result.expandBy( *cit );
     }
     return result;
 }
 
-} // end of namespace
+} // end of namespace wmath

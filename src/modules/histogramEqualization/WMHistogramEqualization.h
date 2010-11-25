@@ -94,18 +94,6 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
-
-    /**
-     * Called whenever a property changes.
-     *
-     * \param property the property that has been changed
-     */
-    void propertyChanged( boost::shared_ptr< WPropertyBase > property );
-
 private:
 
     /**
@@ -117,11 +105,6 @@ private:
      * The output connector used to provide the calculated data to other modules.
      */
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
-
-    /**
-     * This is a pointer to the dataset the module is currently working on.
-     */
-    boost::shared_ptr< WDataSetScalar > m_lastOutputDataSet;
 
     /**
      * A condition used to notify about changes in several properties.

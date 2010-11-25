@@ -128,7 +128,14 @@ protected:
 
 
 private:
-    boost::signals2::signal1<void, WPickInfo > m_pickSignal; //!< One can register to this signal to receive pick events.
+    /**
+     * Sets the current modifiers to the provided pickInfo
+     *
+     * \param pickInfo This pickInfo will be updated.
+     */
+    void updatePickInfoModifierKeys( WPickInfo* pickInfo );
+
+    boost::signals2::signal1< void, WPickInfo > m_pickSignal; //!< One can register to this signal to receive pick events.
 };
 
 #endif  // WPICKHANDLER_H

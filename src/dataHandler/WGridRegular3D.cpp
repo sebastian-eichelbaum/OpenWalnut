@@ -90,6 +90,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_stretchMatrix.makeIdentity();
 
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+
+    initInformationProperties();
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -144,6 +146,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_translateMatrix.makeIdentity();
     m_rotMatrix.makeIdentity();
     m_stretchMatrix.makeIdentity();
+
+    initInformationProperties();
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -200,6 +204,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
     m_matrixActive = 0;
 
+    // TODO(all): this seems quite wrong
     m_directionX = WVector3D( 1, 0, 0 );
     m_directionY = WVector3D( 0, 1, 0 );
     m_directionZ = WVector3D( 0, 0, 1 );
@@ -208,6 +213,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_translateMatrix.makeIdentity();
     m_rotMatrix.makeIdentity();
     m_stretchMatrix.makeIdentity();
+
+    initInformationProperties();
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -254,6 +261,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_translateMatrix.makeIdentity();
     m_rotMatrix.makeIdentity();
     m_stretchMatrix.makeIdentity();
+
+    initInformationProperties();
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -300,6 +309,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_translateMatrix.makeIdentity();
     m_rotMatrix.makeIdentity();
     m_stretchMatrix.makeIdentity();
+
+    initInformationProperties();
 }
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
@@ -342,6 +353,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_translateMatrix.makeIdentity();
     m_rotMatrix.makeIdentity();
     m_stretchMatrix.makeIdentity();
+
+    initInformationProperties();
 }
 
 WPosition WGridRegular3D::getPosition( unsigned int i ) const
@@ -440,6 +453,23 @@ int WGridRegular3D::getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) c
     double x = integerFactor + std::floor( remainder / ( offsetAxis * 0.5 ) );
     // std::cout << "Axis: factor, remainder, Voxelpos: " << axis << " " << integerFactor << " " << remainder << " " << x << std::endl;
     return x;
+}
+
+
+void WGridRegular3D::initInformationProperties()
+{
+    WPropInt xDim = m_infoProperties->addProperty( "X dimension: ", "The x dimension of the grid.", static_cast<int>( getNbCoordsX() ) );
+    WPropInt yDim = m_infoProperties->addProperty( "Y dimension: ", "The y dimension of the grid.", static_cast<int>( getNbCoordsY() ) );
+    WPropInt zDim = m_infoProperties->addProperty( "Z dimension: ", "The z dimension of the grid.", static_cast<int>( getNbCoordsZ() ) );
+    WPropDouble xOffset = m_infoProperties->addProperty( "X offset: ", "The distance between samples in x direction", getOffsetX() );
+    WPropDouble yOffset = m_infoProperties->addProperty( "Y offset: ", "The distance between samples in y direction", getOffsetY() );
+    WPropDouble zOffset = m_infoProperties->addProperty( "Z offset: ", "The distance between samples in z direction", getOffsetZ() );
+    std::stringstream ss1;
+    ss1 << m_matrixQForm;
+    WPropString qForm = m_infoProperties->addProperty( "qForm-Matrix: ", "The qForm matrix in row major", ss1.str() );
+    std::stringstream ss2;
+    ss2 << m_matrixQForm;
+    WPropString sForm = m_infoProperties->addProperty( "sForm-Matrix: ", "The sForm matrix in row major", ss2.str() );
 }
 
 int WGridRegular3D::getXVoxelCoord( const wmath::WPosition& pos ) const
@@ -980,6 +1010,7 @@ void WGridRegular3D::stretch( wmath::WPosition str )
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
+// TODO(all): compiler warning: warning: unused parameter 'center'
 void WGridRegular3D::rotate( osg::Matrixf osgrot, wmath::WPosition center )
 {
     switch ( m_matrixActive )

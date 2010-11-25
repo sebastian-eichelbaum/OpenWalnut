@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <boost/filesystem.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include "../common/WLogger.h"
 #include "../common/WSharedAssociativeContainer.h"
@@ -74,7 +75,7 @@ private:
     /**
      * All the loaded shared libraries. Get freed on destruction. So do NOT free this instance while the libs are used.
      */
-    std::vector< WSharedLib > m_libs;
+    std::vector< boost::shared_ptr< WSharedLib > > m_libs;
 
     /**
      * Load the module prototypes from the shared libraries from the specified directory. It traverses the subdirectories and searches there.

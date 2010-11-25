@@ -395,8 +395,16 @@ void WMMarchingCubes::renderMesh()
 
     // ------------------------------------------------
     // normals
-    surfaceGeometry->setNormalArray( m_triMesh->getVertexNormalArray() );
-    surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+    if ( m_useMarchingLego->get() )
+    {
+        surfaceGeometry->setNormalArray( m_triMesh->getTriangleNormalArray() );
+        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+    }
+    else
+    {
+        surfaceGeometry->setNormalArray( m_triMesh->getVertexNormalArray() );
+        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+    }
 
     m_surfaceGeode->addDrawable( surfaceGeometry );
     osg::StateSet* state = m_surfaceGeode->getOrCreateStateSet();

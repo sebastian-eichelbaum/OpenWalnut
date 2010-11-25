@@ -41,9 +41,7 @@
 #include "WReaderFiberVTK.h"
 
 WReaderFiberVTK::WReaderFiberVTK( std::string fname )
-    : WReader( fname ),
-      m_bbMin( wmath::WPosition( wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE ) ),
-      m_bbMax( wmath::WPosition( -wlimits::MAX_DOUBLE, -wlimits::MAX_DOUBLE, -wlimits::MAX_DOUBLE ) )
+    : WReader( fname )
 {
 }
 
@@ -73,8 +71,7 @@ boost::shared_ptr< WDataSetFibers > WReaderFiberVTK::read()
     boost::shared_ptr< WDataSetFibers > fibers = boost::shared_ptr< WDataSetFibers >( new WDataSetFibers( m_points,
                                                                                                           m_fiberStartIndices,
                                                                                                           m_fiberLengths,
-                                                                                                          m_pointFiberMapping,
-                                                                                                          std::make_pair( m_bbMin, m_bbMax ) ) );
+                                                                                                          m_pointFiberMapping ) );
     fibers->setFileName( m_fname );
 
     m_ifs->close();
@@ -134,15 +131,6 @@ void WReaderFiberVTK::readPoints()
     m_points = boost::shared_ptr< std::vector< float > >( new std::vector< float >( pointData, pointData + 3 * numPoints ) );
 
     WAssert( m_points->size() % 3 == 0, "Number of floats for coordinates not dividable by three." );
-    for( size_t i = 0; i < m_points->size()/3; ++i )
-    {
-        m_bbMin[0] = m_bbMin[0] < ( *m_points )[i*3+0] ?  m_bbMin[0] : ( *m_points )[i*3+0];
-        m_bbMin[1] = m_bbMin[1] < ( *m_points )[i*3+1] ?  m_bbMin[1] : ( *m_points )[i*3+1];
-        m_bbMin[2] = m_bbMin[2] < ( *m_points )[i*3+2] ?  m_bbMin[2] : ( *m_points )[i*3+2];
-        m_bbMax[0] = m_bbMax[0] > ( *m_points )[i*3+0] ?  m_bbMax[0] : ( *m_points )[i*3+0];
-        m_bbMax[1] = m_bbMax[1] > ( *m_points )[i*3+1] ?  m_bbMax[1] : ( *m_points )[i*3+1];
-        m_bbMax[2] = m_bbMax[2] > ( *m_points )[i*3+2] ?  m_bbMax[2] : ( *m_points )[i*3+2];
-    }
     delete[] pointData;
 
     // since we know here the size of the vector we may allocate it right here

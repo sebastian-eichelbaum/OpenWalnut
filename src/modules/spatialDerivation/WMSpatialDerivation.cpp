@@ -85,7 +85,7 @@ void WMSpatialDerivation::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // normalizing?
-    m_normalize = m_properties->addProperty( "Normalize", "If true, vectors get normalized.", true );
+    m_normalize = m_properties->addProperty( "Normalize", "If true, vectors get normalized.", true, m_propCondition );
 
     // call WModule's initialization
     WModule::properties();
@@ -219,9 +219,9 @@ void WMSpatialDerivation::derive( boost::shared_ptr< WGridRegular3D > grid, boos
                 float zp = values->getScalar( getId( nX, nY, nZ, x, y, z + 1 ) );
                 float zm = values->getScalar( getId( nX, nY, nZ, x, y, z - 1 ) );
 
-                float vx = xp - xm;
-                float vy = yp - ym;
-                float vz = zp - zm;
+                float vx = ( xp - xm ) / 2.0;
+                float vy = ( yp - ym ) / 2.0;
+                float vz = ( zp - zm ) / 2.0;
 
                 float sqsum = vx * vx + vy * vy + vz * vz;
                 float len = sqrt( sqsum );
@@ -239,8 +239,7 @@ void WMSpatialDerivation::derive( boost::shared_ptr< WGridRegular3D > grid, boos
     boost::shared_ptr< WValueSet< double > > valueset = boost::shared_ptr< WValueSet< double > >(
                                                             new WValueSet< double >( 1, 3, vectors, W_DT_DOUBLE )
                                                         );
-    m_lastOutputDataSet = boost::shared_ptr< WDataSetVector >( new WDataSetVector( valueset, grid ) );
-
-    m_vectorOut->updateData( m_lastOutputDataSet );
+    // register new
+    m_vectorOut->updateData( boost::shared_ptr< WDataSetVector >( new WDataSetVector( valueset, grid ) ) );
 }
 

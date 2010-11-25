@@ -55,7 +55,7 @@ WGEGroupNode::~WGEGroupNode()
 void WGEGroupNode::insert( osg::ref_ptr< osg::Node > node )
 {
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
-    m_childOperationQueue.push( new ChildOperation( INSERT, node ) );
+    m_childOperationQueue.push( boost::shared_ptr< ChildOperation >( new ChildOperation( INSERT, node ) ) );
     m_childOperationQueueDirty = true;
     lock.unlock();
 }
@@ -63,7 +63,7 @@ void WGEGroupNode::insert( osg::ref_ptr< osg::Node > node )
 void WGEGroupNode::remove( osg::ref_ptr< osg::Node > node )
 {
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
-    m_childOperationQueue.push( new ChildOperation( REMOVE, node ) );
+    m_childOperationQueue.push( boost::shared_ptr< ChildOperation >( new ChildOperation( REMOVE, node ) ) );
     m_childOperationQueueDirty = true;
     lock.unlock();
 }
@@ -71,7 +71,7 @@ void WGEGroupNode::remove( osg::ref_ptr< osg::Node > node )
 void WGEGroupNode::remove_if( boost::shared_ptr< WGEGroupNode::NodePredicate > predicate )
 {
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
-    m_childOperationQueue.push( new ChildOperation( REMOVE_IF, predicate ) );
+    m_childOperationQueue.push( boost::shared_ptr< ChildOperation >( new ChildOperation( REMOVE_IF, predicate ) ) );
     m_childOperationQueueDirty = true;
     lock.unlock();
 }
@@ -79,7 +79,8 @@ void WGEGroupNode::remove_if( boost::shared_ptr< WGEGroupNode::NodePredicate > p
 void WGEGroupNode::clear()
 {
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_childOperationQueueLock );
-    m_childOperationQueue.push( new ChildOperation( CLEAR, osg::ref_ptr< osg::Node >() ) ); // this encodes the remove all feature
+    m_childOperationQueue.push( boost::shared_ptr< ChildOperation >( new ChildOperation( CLEAR, osg::ref_ptr< osg::Node >() ) ) );
+    // this encodes the remove all feature
     m_childOperationQueueDirty = true;
     lock.unlock();
 }

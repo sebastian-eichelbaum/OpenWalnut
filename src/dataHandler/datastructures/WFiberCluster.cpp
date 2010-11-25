@@ -150,7 +150,7 @@ void WFiberCluster::generateCenterLine() const
 
     for( WDataSetFiberVector::iterator cit = fibs->begin(); cit != fibs->end(); ++cit )
     {
-        cit->resample( avgFiberSize );
+        cit->resampleByNumberOfPoints( avgFiberSize );
     }
 
     m_centerLine = boost::shared_ptr< WFiber >( new WFiber() );

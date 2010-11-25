@@ -41,7 +41,7 @@
 
 #include "WDendrogramGeode.h"
 #include "WOSGButton.h"
-#include "WHierarchicalTree.h"
+#include "../../common/WHierarchicalTreeFibers.h"
 
 const unsigned int MASK_2D = 0xF0000000; //!< used for osgWidget stuff
 const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff
@@ -291,7 +291,7 @@ private:
     /**
      * stores the tree object
      */
-    WHierarchicalTree m_tree;
+    WHierarchicalTreeFibers m_tree;
 
     /**
      * Point to a fiber selector, which is an adapater between the roi manager and the this module

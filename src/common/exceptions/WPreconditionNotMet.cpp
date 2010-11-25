@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WPreconditionNotMet.h"
 
 WPreconditionNotMet::WPreconditionNotMet( std::string const& msg )

@@ -259,6 +259,15 @@ public:
     /**
      * getter
      *
+     * \param forceRecalc
+     * \return pointer to the triangle normal array
+     */
+    osg::ref_ptr< osg::Vec3Array >getTriangleNormalArray( bool forceRecalc = false );
+
+
+    /**
+     * getter
+     *
      * \param index
      * \return vertex
      */

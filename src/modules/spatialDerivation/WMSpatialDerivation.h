@@ -108,11 +108,6 @@ private:
     boost::shared_ptr< WModuleOutputData< WDataSetVector > > m_vectorOut;
 
     /**
-     * The last created output. Needed for de-registering at data handler
-     */
-    boost::shared_ptr< WDataSetVector > m_lastOutputDataSet;
-
-    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

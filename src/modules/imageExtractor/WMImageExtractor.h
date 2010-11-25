@@ -144,7 +144,7 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
 
     /**
-     * An output connector for the output scalar dsataset.
+     * An output connector for the output scalar dataset.
      */
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
 

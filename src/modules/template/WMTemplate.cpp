@@ -473,7 +473,7 @@ void WMTemplate::moduleMain()
         // m_aFile got handled above. Now, handle two properties which together are used as parameters for an operation.
         if( m_aString->changed() )
         {
-            // This is a simple example for doing an operation which is depends on all, but m_anFile,  properties.
+            // This is a simple example for doing an operation which is depends on all, but m_aFile,  properties.
             debugLog() << "Doing an operation basing on m_aString ... ";
             debugLog() << "m_aString: " << m_aString->get( true );
 

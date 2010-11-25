@@ -111,8 +111,8 @@ private:
     virtual boost::shared_ptr< WTriangleMesh > read();
 
     boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
-    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output;  //!< Input connector required by this module.
-    boost::shared_ptr< WCondition > m_propCondition;  //!<A condition used to notify about changes in several properties.
+    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output;  //!< Output connector provided by this module.
+    boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
     WPropTrigger  m_readTriggerProp; //!< This property triggers the actual reading,
     WPropFilename m_meshFile; //!< The mesh will be read from this file.
 };

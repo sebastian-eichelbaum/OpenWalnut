@@ -34,6 +34,6 @@
 WFiber WSimpleResampler::resample( const WFiber& tract, size_t pts ) const
 {
     WFiber result( tract );
-    result.resample( pts );
+    result.resampleByNumberOfPoints( pts );
     return result;
 }

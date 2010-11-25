@@ -32,6 +32,7 @@
 
 #include "algorithms/WMarchingLegoAlgorithm.h"
 
+#include "callbacks/WGEFunctorCallback.h"
 #include "WGraphicsEngine.h"
 
 #include "WROIArbitrary.h"
@@ -62,8 +63,7 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
     updateGFX();
 
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
-    setUserData( this );
-    setUpdateCallback( osg::ref_ptr<ROIArbNodeCallback>( new ROIArbNodeCallback ) );
+    addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WROIArbitrary::updateGFX, this ) ) );
 
     setDirty();
 }
@@ -91,8 +91,7 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
     updateGFX();
 
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
-    setUserData( this );
-    setUpdateCallback( osg::ref_ptr< ROIArbNodeCallback >( new ROIArbNodeCallback ) );
+    addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WROIArbitrary::updateGFX, this ) ) );
 
     setDirty();
 }
@@ -162,8 +161,8 @@ void WROIArbitrary::updateGFX()
 
         // ------------------------------------------------
         // normals
-        surfaceGeometry->setNormalArray( m_triMesh->getVertexNormalArray() );
-        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+        surfaceGeometry->setNormalArray( m_triMesh->getTriangleNormalArray() );
+        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
 
         // ------------------------------------------------
         // colors
@@ -189,6 +188,7 @@ void WROIArbitrary::updateGFX()
         osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
         lightModel->setTwoSided( true );
         state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+
         state->setMode(  GL_BLEND, osg::StateAttribute::ON );
 
     //    {
