@@ -31,12 +31,11 @@
 
 #include "WLogEntry.h"
 
-WLogEntry::WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source, bool colored )
+WLogEntry::WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source )
     : m_time( logTime ),
       m_message( message ),
       m_level( level ),
       m_source( source ),
-      m_colored( colored ),
       m_errorColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGRed ) ),
       m_infoColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGGreen ) ),
       m_debugColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGBlue ) ),
@@ -45,16 +44,23 @@ WLogEntry::WLogEntry( std::string logTime, std::string message, LogLevel level, 
       m_timeColor( WTerminalColor( WTerminalColor::Bold, WTerminalColor::FGBlack ) ),
       m_messageColor( WTerminalColor() )
 {
-    setColored( colored );
 }
 
 WLogEntry::~WLogEntry()
 {
 }
 
-std::string WLogEntry::getLogString( std::string format ) const
+std::string WLogEntry::getLogString( std::string format, bool colors ) const
 {
     std::string s = format;
+
+    m_errorColor.setEnabled( colors );
+    m_infoColor.setEnabled( colors );
+    m_debugColor.setEnabled( colors );
+    m_warningColor.setEnabled( colors );
+    m_sourceColor.setEnabled( colors );
+    m_timeColor.setEnabled( colors );
+    m_messageColor.setEnabled( colors );
 
     boost::ireplace_first( s, "%t", m_timeColor + m_time + !m_timeColor );
 
@@ -86,23 +92,6 @@ std::string WLogEntry::getLogString( std::string format ) const
 LogLevel WLogEntry::getLogLevel() const
 {
     return m_level;
-}
-
-void WLogEntry::setColored( bool colors )
-{
-    m_colored = colors;
-    m_errorColor.setEnabled( colors );
-    m_infoColor.setEnabled( colors );
-    m_debugColor.setEnabled( colors );
-    m_warningColor.setEnabled( colors );
-    m_sourceColor.setEnabled( colors );
-    m_timeColor.setEnabled( colors );
-    m_messageColor.setEnabled( colors );
-}
-
-bool WLogEntry::isColored() const
-{
-    return m_colored;
 }
 
 std::string WLogEntry::getMessage() const

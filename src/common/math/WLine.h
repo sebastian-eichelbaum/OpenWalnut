@@ -29,6 +29,7 @@
 #include <iostream>
 #include <vector>
 
+#include "../WBoundingBox.h"
 #include "../WExportCommon.h"
 #include "../WMixinVector.h"
 #include "WPosition.h"
@@ -41,7 +42,6 @@ namespace wmath
     /**
      * A line is an ordered sequence of WPositions.
      */
-//    typedef WMixinVector< WPosition > WLine;
     class OWCOMMON_EXPORT WLine : public WMixinVector< WPosition >
     {
     public:
@@ -63,13 +63,38 @@ namespace wmath
          *
          * \param numPoints Number of sampling points.
          */
-        void resample( size_t numPoints );
+        void resampleByNumberOfPoints( size_t numPoints );
+
+        /**
+         *
+         *
+         * \warning This may elongate your line at max. by the newSegmentLength
+         *
+         * \param newSegementLength
+         */
+        void resampleBySegmentLength( double newSegementLength );
 
         /**
          * Reverses the order of the points. (mirroring)
          */
         void reverseOrder();
+
+        /**
+         * Collapse samplepoints which are equal and neighboured.
+         */
+        void removeAdjacentDuplicates();
     };
+
+    // Some convinience functions as non-member non-friend functions
+
+    /**
+     * Computes a AABB (axis aligned bounding box) for all positions inside this line.
+     *
+     * \param line The line to compute the bounding box for.
+     *
+     * \return The AABB for this line.
+     */
+    WBoundingBox computeBoundingBox( const wmath::WLine& line );
 
     /**
      * Computes the length of a line in terms of accumulated segment lengths.
@@ -113,5 +138,22 @@ namespace wmath
      * \return Max segement length or zero if there aren't any.
      */
     double maxSegmentLength( const wmath::WLine& line );
-} // end of namespace
+
+    /**
+     * Boolean predicate indicating that the first line has more points then
+     * the second one.
+     *
+     * \param first First line
+     * \param second Second line
+     * \return True if the first line has more points than the second
+     */
+    bool hasMorePointsThen( const WLine& first, const WLine& second );
+
+} // end of namespace wmath
+
+inline bool wmath::hasMorePointsThen( const WLine& first, const WLine& second )
+{
+    return first.size() > second.size();
+}
+
 #endif  // WLINE_H

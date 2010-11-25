@@ -146,6 +146,17 @@ private:
      */
     void loadLabels( std::string fileName );
 
+    /**
+     * function creates arbitrary rois from selected regions and adds them to the roi manager
+     */
+    void createRoi();
+
+    /**
+     * extracts an area from the dataset
+     * \param index index of the region
+     */
+    void cutArea( int index );
+
 
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
 
@@ -157,9 +168,9 @@ private:
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node. We need it to be able to update it when callback is invoked.
 
-    osg::ref_ptr< osg::Geode > m_outputGeode; //!< Pointer to geode containing the glpyhs
+    osg::ref_ptr< osg::Geode > m_outputGeode; //!< Pointer to geode containing the glyphs
 
-    bool m_dirty; //!< flag true if something happenend that requires redrawing of gfx
+    bool m_dirty; //!< flag true if something happened that requires redrawing of gfx
 
     bool m_labelsLoaded; //!< true when a label file is loaded
 
@@ -177,44 +188,8 @@ private:
      * A list of items that can be selected using m_aSingleSelection or m_aMultiSelection.
      */
     boost::shared_ptr< WItemSelection > m_possibleSelections;
+
+    WPropTrigger  m_propCreateRoiTrigger; //!< This property triggers the actual reading,
 };
-
-/**
- * Adapter object for realizing callbacks of the node representing the isosurface in the osg
- */
-class AtlasSurfaceNodeCallback : public osg::NodeCallback
-{
-public:
-    /**
-     * Constructor of the callback adapter.
-     * \param module A function of this module will be called
-     */
-    explicit AtlasSurfaceNodeCallback( WMAtlasSurfaces* module );
-
-    /**
-     * Function that is called by the osg and that call the function in the module.
-     * \param node The node we are called.
-     * \param nv the visitor calling us.
-     */
-    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-private:
-    WMAtlasSurfaces* m_module; //!< Pointer to the module to which the function that is called belongs to.
-};
-
-inline AtlasSurfaceNodeCallback::AtlasSurfaceNodeCallback( WMAtlasSurfaces* module )
-    : m_module( module )
-{
-}
-
-inline void AtlasSurfaceNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    if ( m_module )
-    {
-        m_module->updateGraphics();
-    }
-    traverse( node, nv );
-}
-
 
 #endif  // WMATLASSURFACES_H

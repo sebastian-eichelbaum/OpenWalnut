@@ -95,11 +95,6 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.
-     */
-    virtual void activate();
-
 private:
 
     /**
@@ -111,11 +106,6 @@ private:
      * The output connector used to provide the calculated data to other modules.
      */
     boost::shared_ptr< WModuleOutputData< WDataSetVector > > m_vectorOut;
-
-    /**
-     * The last created output. Needed for de-registering at data handler
-     */
-    boost::shared_ptr< WDataSetVector > m_lastOutputDataSet;
 
     /**
      * A condition used to notify about changes in several properties.

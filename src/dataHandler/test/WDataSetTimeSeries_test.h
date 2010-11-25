@@ -38,16 +38,6 @@
 
 #include "../WDataSetTimeSeries.h"
 
-/**
- * The logger instance used by some tests
- */
-static WLogger logger;
-
-/**
- * True if the logger has been initialized in the past.
- */
-static bool loggerInitialized = false;
-
 
 /**
  * Unit tests the time series class.
@@ -576,21 +566,12 @@ private:
         }
     }
 
-   /**
-     * Constructs unit test environment.
+    /**
+     * Setup logger and other stuff for each test.
      */
-    void setUp( void )
+    void setUp()
     {
-        if ( !loggerInitialized )
-        {
-            std::cout << "Initialize logger." << std::endl;
-            logger.setColored( false );
-
-            // NOTE: the logger does not need to be run, since the logger main thread just prints the messages. If compiled in
-            // debug mode, the messages will be printed directly, without the logger thread.
-            //logger.run();
-            loggerInitialized = true;
-        }
+        WLogger::startup();
     }
 };
 

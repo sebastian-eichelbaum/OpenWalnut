@@ -78,9 +78,15 @@ std::vector< std::string > string_utils::tokenize( const std::string& source,
         compression = ba::token_compress_off;
     }
     ba::split( result, source, ba::is_any_of( delim ), compression );
-    if( !result.empty() && result.back() == "" )
+    if( !result.empty() )
     {
-        result.pop_back();
+        // NOTE: moved the back() command to another if as if compiled on Windows, OW crashes since the compiler does not stop evaluation of the
+        // condition after the first statement evaluates to false.
+
+        if ( result.back() == "" )
+        {
+            result.pop_back();
+        }
     }
     return result;
 }

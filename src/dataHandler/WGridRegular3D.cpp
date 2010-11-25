@@ -44,6 +44,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_nbPosZ( nbPosZ ),
       m_transform( transform )
 {
+    initInformationProperties();
 }
 
 WPosition WGridRegular3D::getPosition( unsigned int i ) const
@@ -107,6 +108,17 @@ int WGridRegular3D::getVoxelNum( const size_t x, const size_t y, const size_t z 
         return -1;
     }
     return x + y * ( m_nbPosX ) + z * ( m_nbPosX ) * ( m_nbPosY );
+}
+
+
+void WGridRegular3D::initInformationProperties()
+{
+    WPropInt xDim = m_infoProperties->addProperty( "X dimension: ", "The x dimension of the grid.", static_cast<int>( getNbCoordsX() ) );
+    WPropInt yDim = m_infoProperties->addProperty( "Y dimension: ", "The y dimension of the grid.", static_cast<int>( getNbCoordsY() ) );
+    WPropInt zDim = m_infoProperties->addProperty( "Z dimension: ", "The z dimension of the grid.", static_cast<int>( getNbCoordsZ() ) );
+    WPropDouble xOffset = m_infoProperties->addProperty( "X offset: ", "The distance between samples in x direction", getOffsetX() );
+    WPropDouble yOffset = m_infoProperties->addProperty( "Y offset: ", "The distance between samples in y direction", getOffsetY() );
+    WPropDouble zOffset = m_infoProperties->addProperty( "Z offset: ", "The distance between samples in z direction", getOffsetZ() );
 }
 
 int WGridRegular3D::getXVoxelCoord( const wmath::WPosition& pos ) const
@@ -546,3 +558,5 @@ std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox()
 
     return std::make_pair( minBB, maxBB );
 }
+
+// TODO(all): compiler warning: warning: unused parameter 'center'

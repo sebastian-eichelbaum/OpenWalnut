@@ -29,6 +29,7 @@
 #include "../../common/math/WMath.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../kernel/WKernel.h"
 #include "WMFiberResampling.h"
 #include "WMFiberResampling.xpm"
@@ -128,68 +129,32 @@ void WMFiberResampling::moduleMain()
 
         WAssert( m_newSamples->changed() || ( dataValid && dataUpdated ), "Bug: Think! I though this could never happen!" );
 
-        m_fiberOutput->updateData( resample( m_newSamples->get( true ), dataSet ) );
+        m_fiberOutput->updateData( resample( dataSet ) );
 
         debugLog() << "Done";
     }
 }
 
-boost::shared_ptr< WDataSetFibers > WMFiberResampling::resample( size_t numSamples, boost::shared_ptr< const WDataSetFibers > dataSet ) const
+boost::shared_ptr< WDataSetFibers > WMFiberResampling::resample( boost::shared_ptr< const WDataSetFibers > dataSet ) const
 {
     debugLog() << "Start resampling: " << dataSet->getLineStartIndexes()->size() << " tracts";
 
-    // get the fiber definitions
-    boost::shared_ptr< std::vector< size_t > > fibStart = dataSet->getLineStartIndexes();
-    boost::shared_ptr< std::vector< size_t > > fibLen   = dataSet->getLineLengths();
-    boost::shared_ptr< std::vector< float > >  fibVerts = dataSet->getVertices();
-
-    // create a new dataset
-    WDataSetFibers::IndexArray  newFibStart     = WDataSetFibers::IndexArray( new WDataSetFibers::IndexArray::element_type() );
-    WDataSetFibers::LengthArray newFibLen       = WDataSetFibers::LengthArray( new WDataSetFibers::LengthArray::element_type() );
-    WDataSetFibers::VertexArray newFibVerts     = WDataSetFibers::VertexArray( new WDataSetFibers::VertexArray::element_type() );
-    WDataSetFibers::IndexArray  newFibVertsRev  = WDataSetFibers::IndexArray( new WDataSetFibers::IndexArray::element_type() );
-
-    // progress indication
-    boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Resampling fibers.", fibStart->size() ) );
+    boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Resampling tracts.", dataSet->getLineStartIndexes()->size() ) ); // NOLINT line length
     m_progress->addSubProgress( progress1 );
 
-    // dynamic space allocation before the threads starting
-    newFibStart->resize( fibStart->size() );
-    newFibLen->resize( fibStart->size() );
-    newFibVerts->resize( numSamples * 3 * fibStart->size() );
-    newFibVertsRev->resize( numSamples * 3 * fibStart->size() );
+    boost::shared_ptr< WDataSetFiberVector > newDS( new WDataSetFiberVector() );
 
-    // init resampler
-    WSimpleResampler resampler( numSamples );
-
-    // do resampling
-    for ( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
+    for ( size_t fidx = 0; fidx < dataSet->getLineStartIndexes()->size() ; ++fidx )
     {
+        WFiber tract( ( *dataSet )[ fidx ] );
+        tract.resampleByNumberOfPoints( m_newSamples->get( true ) );
+        newDS->push_back( tract );
         ++*progress1;
-
-        // Note: The reason why the memory is not allocated inside of the
-        // resample method is: multithreading, see header file of
-        // WSimpleResampler::resample for further details
-        resampler.resample( fibVerts,                                       // vertices of all old tracts
-                            static_cast< size_t >( fibStart->at( fidx ) ),  // where the old tract starts
-                            static_cast< size_t >( fibLen->at( fidx ) ),    // how long the old tract is
-                            newFibVerts,                                    // where to save the vertices of all new tracts
-                            fidx * numSamples );                            // where to start saving this new tract
-        for( size_t i = 0; i < numSamples; i++ )
-        {
-            newFibVertsRev->at( fidx * numSamples + i ) = fidx;
-        }
-        newFibLen->at( fidx ) = numSamples;
-        newFibStart->at( fidx ) = fidx * numSamples;
     }
 
     progress1->finish();
     m_progress->removeSubProgress( progress1 );
 
-    return boost::shared_ptr< WDataSetFibers >( new WDataSetFibers( newFibVerts,
-                                                                    newFibStart,
-                                                                    newFibLen,
-                                                                    newFibVertsRev,
-                                                                    dataSet->getBoundingBox() ) );
+    return newDS->toWDataSetFibers();
 }
 

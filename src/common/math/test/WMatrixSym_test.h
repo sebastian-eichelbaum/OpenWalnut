@@ -84,7 +84,7 @@ public:
         double mydata[] = { 1.6, 0.2, 7.7 }; // NOLINT
         std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
         TS_ASSERT_THROWS_EQUALS( t( 0, 0 ), WOutOfBounds &e, std::string( e.what() ),
-                "Invalid Element Access ( 0, 0 ). Main Diagonal Elements are forbidden in this table." );
+                "Invalid Element Access ( 0, 0 ). No diagonal elements or indices bigger than 4 are allowed." );
     }
 };
 

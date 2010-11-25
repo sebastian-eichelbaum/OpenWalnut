@@ -63,6 +63,7 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGERequirement.h"
 
 #include "WMTemplate.xpm"
 #include "icons/bier.xpm"
@@ -331,6 +332,16 @@ void WMTemplate::properties()
     WModule::properties();
 }
 
+void WMTemplate::requirements()
+{
+    // This method allows modules to specify what they need to run properly. This module, for example, needs the WGE. It therefore adds the
+    // WGERequirement to the list of requirements. Modules only get started if all the requirements of it are met by the current running
+    // OpenWalnut. This is a very handy tool for NO-GUI versions or script versions of OpenWalnut where there simply is no graphics engine
+    // running. This way, the kernel can ensure that only modules are allowed to run who do not require the WGE.
+    // Another useful example are module containers. Usually, they need several other modules to work properly.
+    m_requirements.push_back( new WGERequirement() );
+}
+
 void WMTemplate::moduleMain()
 {
     // This is the modules working thread. Its the most important part of your module.
@@ -462,7 +473,7 @@ void WMTemplate::moduleMain()
         // m_aFile got handled above. Now, handle two properties which together are used as parameters for an operation.
         if( m_aString->changed() )
         {
-            // This is a simple example for doing an operation which is depends on all, but m_anFile,  properties.
+            // This is a simple example for doing an operation which is depends on all, but m_aFile,  properties.
             debugLog() << "Doing an operation basing on m_aString ... ";
             debugLog() << "m_aString: " << m_aString->get( true );
 

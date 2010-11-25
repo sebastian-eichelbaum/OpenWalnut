@@ -32,8 +32,6 @@
 #include "../../../common/WLogger.h"
 #include "../WBresenham.h"
 
-static WLogger logger;
-
 /**
  * Unit tests the Bresenham algorithm.
  */
@@ -46,6 +44,8 @@ public:
      */
     void setUp( void )
     {
+        WLogger::startup();
+
         boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3, 0, 0, 0, 1, 1, 1 ) );
         m_algo = boost::shared_ptr< WBresenham >( new WBresenham( grid, false ) );
     }

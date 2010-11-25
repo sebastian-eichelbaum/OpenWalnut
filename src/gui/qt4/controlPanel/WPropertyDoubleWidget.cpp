@@ -75,8 +75,7 @@ void WPropertyDoubleWidget::update()
     }
     else
     {
-        wlog::warn( "PropertyWidget( " + m_doubleProperty->getName() + " )" ) << "The property has no minimum constraint. " <<
-            "You should define it to avoid unexpected behaviour. Using default (" << m_min << ").";
+        m_slider.hide();
     }
 
     // get the max constraint
@@ -88,8 +87,7 @@ void WPropertyDoubleWidget::update()
     }
     else
     {
-        wlog::warn( "PropertyWidget( " + m_doubleProperty->getName() + " )" ) << "The property has no maximum constraint. " <<
-            "You should define it to avoid unexpected behaviour. Using default (" << m_max << ").";
+        m_slider.hide();
     }
 
     // setup the slider

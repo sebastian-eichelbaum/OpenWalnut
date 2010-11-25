@@ -34,14 +34,20 @@
 #include "../WDataSetDTI.h"
 #include "../WGridRegular3D.h"
 
-static WLogger logger;
-
 /**
  * Testsuite for unit tests of the WDataSetDTI class.
  */
 class WDataSetDTITest : public CxxTest::TestSuite
 {
 public:
+    /**
+     * Setup logger and other stuff for each test.
+     */
+    void setUp()
+    {
+        WLogger::startup();
+    }
+
     /**
      * Only values sets of order 1, dim 6 should be used to construct DTI datasets.
      */

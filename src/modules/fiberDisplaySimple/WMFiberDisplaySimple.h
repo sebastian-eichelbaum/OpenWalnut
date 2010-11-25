@@ -29,6 +29,7 @@
 
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -110,6 +111,68 @@ private:
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
      */
     osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+
+    /**
+     * The properties of the fiber dataset.
+     */
+    WProperties::SharedPtr m_fibProps;
+
+    /**
+     * The shader used for clipping of fibers using an arbitrary plane.
+     */
+    osg::ref_ptr< WShader > m_shader;
+
+    /**
+     * A property group for all the clipping related props.
+     */
+    WPropGroup m_clipPlaneGroup;
+
+    /**
+     * Property for en-/disable clipping.
+     */
+    WPropBool m_clipPlaneEnabled;
+
+    /**
+     * Property for en-/disabling of the clip plane plane.
+     */
+    WPropBool m_clipPlaneShowPlane;
+
+    /**
+     * Point on the plane. Defines the plane.
+     */
+    WPropPosition m_clipPlanePoint;
+
+    /**
+     * Vector of the plane. Defines the plane.
+     */
+    WPropPosition m_clipPlaneVector;
+
+    /**
+     * Distance from plane. Used as threshold.
+     */
+    WPropDouble m_clipPlaneDistance;
+
+    /**
+     * Uniform for plane point.
+     */
+    osg::ref_ptr< WGEPropertyUniform< WPropPosition > > m_clipPlanePointUniform;
+
+    /**
+     * Uniform for plane vector.
+     */
+    osg::ref_ptr< WGEPropertyUniform< WPropPosition > > m_clipPlaneVectorUniform;
+
+    /**
+     * Uniform for plane distance.
+     */
+    osg::ref_ptr< WGEPropertyUniform< WPropDouble > > m_clipPlaneDistanceUniform;
+
+    /**
+     * Update the transform node to provide an cue were the plane actually is.
+     *
+     * \param node the transform node
+     */
+    void clipPlaneCallback( osg::Node* node );
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H

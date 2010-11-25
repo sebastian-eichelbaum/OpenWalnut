@@ -43,7 +43,7 @@ WQtRoiTreeItem* WQtBranchTreeItem::addRoiItem( osg::ref_ptr< WROI > roi )
 {
     WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi, ROI );
 
-    rti->setText( 0, QString( "ROI" ) );
+    rti->setText( 0, QString( roi->getName().c_str() ) );
     return rti;
 }
 

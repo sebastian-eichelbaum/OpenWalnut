@@ -30,6 +30,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "../common/WBoundingBox.h"
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
 #include "../common/WPredicateHelper.h"
@@ -62,6 +63,39 @@ WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
     m_bbMin( boundingBox.first ),
     m_bbMax( boundingBox.second )
 
+{
+    WAssert( m_vertices->size() % 3 == 0,  "Invalid vertex array."  );
+    init();
+}
+
+WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
+                WDataSetFibers::IndexArray lineStartIndexes,
+                WDataSetFibers::LengthArray lineLengths,
+                WDataSetFibers::IndexArray verticesReverse )
+    : WDataSet(),
+    m_vertices( vertices ),
+    m_lineStartIndexes( lineStartIndexes ),
+    m_lineLengths( lineLengths ),
+    m_verticesReverse( verticesReverse )
+{
+    WAssert( m_vertices->size() % 3 == 0,  "Invalid vertex array."  );
+    // determine bounding box
+    m_bbMin = wmath::WPosition( wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE );
+    m_bbMax = wmath::WPosition( -wlimits::MAX_DOUBLE, -wlimits::MAX_DOUBLE, -wlimits::MAX_DOUBLE );
+    for( size_t i = 0; i < vertices->size()/3; ++i )
+    {
+        if( (*vertices)[ 3 * i + 0 ] > m_bbMax[0] ) m_bbMax[0] = (*vertices)[ 3 * i + 0 ];
+        if( (*vertices)[ 3 * i + 1 ] > m_bbMax[1] ) m_bbMax[1] = (*vertices)[ 3 * i + 1 ];
+        if( (*vertices)[ 3 * i + 2 ] > m_bbMax[2] ) m_bbMax[2] = (*vertices)[ 3 * i + 2 ];
+        if( (*vertices)[ 3 * i + 0 ] < m_bbMin[0] ) m_bbMin[0] = (*vertices)[ 3 * i + 0 ];
+        if( (*vertices)[ 3 * i + 1 ] < m_bbMin[1] ) m_bbMin[1] = (*vertices)[ 3 * i + 1 ];
+        if( (*vertices)[ 3 * i + 2 ] < m_bbMin[2] ) m_bbMin[2] = (*vertices)[ 3 * i + 2 ];
+    }
+    // remaining initilisation
+    init();
+}
+
+void WDataSetFibers::init()
 {
     size_t size = m_vertices->size();
     m_tangents = boost::shared_ptr< std::vector< float > >( new std::vector<float>( size ) );
@@ -415,4 +449,18 @@ void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std:
 std::pair< wmath::WPosition, wmath::WPosition > WDataSetFibers::getBoundingBox() const
 {
     return std::make_pair( m_bbMin, m_bbMax );
+}
+
+WFiber WDataSetFibers::operator[]( size_t numTract ) const
+{
+    WAssert( numTract < m_lineLengths->size(), "WDataSetFibers: out of bounds - invalid tract number requested." );
+    WFiber result;
+    result.reserve( ( *m_lineLengths )[ numTract ] );
+    size_t vIdx = ( *m_lineStartIndexes )[ numTract ] * 3;
+    for( size_t vertexNum = 0; vertexNum < ( *m_lineLengths )[ numTract ]; ++vertexNum )
+    {
+        result.push_back( wmath::WPosition( ( *m_vertices )[vIdx], ( *m_vertices )[vIdx + 1], ( *m_vertices )[vIdx + 2]  ) );
+        vIdx += 3;
+    }
+    return result;
 }

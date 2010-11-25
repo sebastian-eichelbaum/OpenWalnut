@@ -27,10 +27,13 @@
 
 #include <Eigen/Core>
 
-#include "../../../common/datastructures/WFiber.h"
-#include "../../../common/math/WMatrix.h"
-#include "../../../common/math/WValue.h"
-#include "../../../dataHandler/WDataSetDTI.h"
+class WFiber;
+
+#include "../../common/math/WMatrix.h"
+#include "../../common/math/WValue.h"
+#include "../../common/WBoundingBox.h"
+#include "../../dataHandler/WDataSetDTI.h"
+#include "../../dataHandler/WDataSetFibers.h"
 
 /**
  * Represents a basic gaussian process with its mean- and covariance function. Basically this aims
@@ -45,11 +48,15 @@ public:
      * Constructs a gaussian process out of a fiber with the help of underlying diffusion tensor
      * information.
      *
-     * \param tract One deterministic tractogram
+     * \param tractID One deterministic tractogram ID
+     * \param tracts All deterministic tractograms
      * \param tensors All 2nd order diffusion tensors
      * \param maxLevel The real number which represents the maximum intensity
      */
-    WGaussProcess( const wmath::WFiber& tract, boost::shared_ptr< const WDataSetDTI > tensors, double maxLevel = 1.0 );
+    WGaussProcess( size_t tractID,
+                   boost::shared_ptr< const WDataSetFibers > tracts,
+                   boost::shared_ptr< const WDataSetDTI > tensors,
+                   double maxLevel = 1.0 );
 
     /**
      * Default destructor.
@@ -66,23 +73,30 @@ public:
      */
     double mean( const wmath::WPosition& p ) const;
 
-protected:
-private:
     /**
-     * Computes the covariance matrix and invert it. This shall always be possible since the
-     * creating function is positive definit. (TODO(math): at least Demain said this) Finally the
-     * inverse is saved to the member variable \ref m_CffInverse.
+     * Returns the reference to precomputed \f$ C_{ff}^{-1} * 1 * l \f$ see \ref m_Cff_1_l_product.
+     *
+     * \return Refercene to the vector.
      */
-    void generateCffInverse();
+    const Eigen::VectorXd& getCff1lProduct() const;
 
     /**
-     * Computes tau parameter representing the max diffusion time.
+     * Generates with the help of the \ref WDataSetFibers and the \ref m_tractID a \ref WFiber
+     * instance, for easily accessing the points sequently.
      *
-     * \see m_tau
+     * \note: This may be time and space consuming! Be careful!
      *
-     * \return The parameter tau
+     * \return Copy of the \ref WFiber instance reffered by \ref m_tractID
      */
-    double generateTauParameter();
+    WFiber generateTract() const;
+
+    /**
+     * As each gaussian process is associated with a WFiber it also hat the maximal segment length,
+     * used as width for the gaussian kernels around the base points.
+     *
+     * \return Copy of the maximal segment length this gauss process is associated with.
+     */
+    double getMaxSegmentLength() const;
 
     /**
      * Covariance function of two points representing the smoothness of the tract.
@@ -94,6 +108,35 @@ private:
      * of the tract
      */
     double cov_s( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
+
+    /**
+     * Returns the precomputed bounding box, see \ref m_bb.
+     *
+     * \return Const reference to the AABB for read only access.
+     */
+    const WBoundingBox& getBB() const;
+
+protected:
+private:
+    /**
+     * Computes the covariance matrix and invert it. This shall always be possible since the
+     * creating function is positive definit. (TODO(math): at least Demain said this)
+     *
+     * \param tract The tract as vector of points, which is easery to access
+     * than to fiddle around with the indices inside the WDataSetFibers
+     *
+     * \return Copy of the Cff inverse. Is not saved as member since its almost never used and may be huge!
+     */
+    Eigen::MatrixXd generateCffInverse( const WFiber& tract );
+
+    /**
+     * Computes tau parameter representing the max diffusion time.
+     *
+     * \see m_tau
+     *
+     * \return The parameter tau
+     */
+    double generateTauParameter();
 
     /**
      * Covariance function of two points representing the blurring of the tract's diffusion.
@@ -120,10 +163,19 @@ private:
     double cov( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
 
     /**
-     * Copy of the sample points of the tract, since they are always needed for the mean computation
-     * (S_f(p) will need all f_i ).
+     * The id of the tract inside the \ref WDataSetFibers this gaussian process is representing.
+     * This is needed since the sample points of a tract will be needed for mean computation. (\f$
+     * S_f(p) \f$ will need all \f$ f_i \f$i)
+     *
+     * \note: we can't make this a const member, since this instance cannot then be used inside of
+     * std::vectors which needs a default assignment operator which will fail on const members.
      */
-    wmath::WFiber m_tract;
+    size_t m_tractID;
+
+    /**
+     * Read-only reference to the tractogram dataset to save memory.
+     */
+    boost::shared_ptr< const WDataSetFibers > m_tracts;
 
     /**
      * Read-only reference to the tensor field used for the covariance function \ref cov.
@@ -131,9 +183,12 @@ private:
     boost::shared_ptr< const WDataSetDTI > m_tensors;
 
     /**
-     * Covariance matrix of all pairs of sample points of the tract using the \ref cov function.
+     * This is the vector defined by:  \f$ C_{ff}^{-1} * 1 * l \f$ as used for example in eq. (16)
+     * of the appendix of the Demain Wassermann paper. Since it is used this way several times this
+     * is a member.  Where Cff is the covariance matrix of all pairs of sample points of the tract
+     * using the \ref cov function.
      */
-    Eigen::MatrixXd m_CffInverse;
+    Eigen::VectorXd m_Cff_1_l_product;
 
     /**
      * The maximal diffusion time (tau) as described in the Wassermann paper line 790, page 12 after
@@ -151,7 +206,18 @@ private:
      * point. No other point has a bigger values after the blurring.
      */
     double m_maxLevel;
+
+    /**
+     * Axis aligned bounding box (AABB) for the tract, not including the radius of the gaussian
+     * kernels denoted by \ref m_R.
+     */
+    WBoundingBox m_bb;
 };
+
+inline double WGaussProcess::getMaxSegmentLength() const
+{
+    return m_R;
+}
 
 inline double WGaussProcess::cov_s( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const
 {
@@ -165,7 +231,25 @@ inline double WGaussProcess::cov_s( const wmath::WPosition& p1, const wmath::WPo
 
 inline double WGaussProcess::cov( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const
 {
-    return cov_s( p1, p2 ) + cov_d( p1, p2 );
+    return cov_s( p1, p2 ); // not implemented the cov_d yet: + cov_d( p1, p2 );
+}
+
+inline const Eigen::VectorXd& WGaussProcess::getCff1lProduct() const
+{
+    return m_Cff_1_l_product;
+}
+
+namespace gauss
+{
+    /**
+     * The inner product of two gaussian processes. See appendix A.3 of the Demian Wassermann paper.
+     *
+     * \param p1 First gaussian process
+     * \param p2 Second gaussian process
+     *
+     * \return The similarity of those two processes, aka inner product.
+     */
+    double innerProduct( const WGaussProcess& p1, const WGaussProcess& p2 );
 }
 
 #endif  // WGAUSSPROCESS_H

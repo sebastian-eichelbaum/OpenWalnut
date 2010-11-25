@@ -150,7 +150,7 @@ public:
     /**
      * get for roi manager
      */
-    boost::shared_ptr< WROIManager>getRoiManager();
+    boost::shared_ptr< WROIManager> getRoiManager();
 
     /**
      * get for selection manager

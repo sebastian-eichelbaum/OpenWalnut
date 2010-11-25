@@ -25,6 +25,8 @@
 #ifndef WREQUIREMENT_H
 #define WREQUIREMENT_H
 
+#include <string>
+
 #include "WExportCommon.h"
 
 /**
@@ -52,6 +54,13 @@ public:
      * \return true if the specific requirement is fulfilled.
      */
     virtual bool isComplied() const = 0;
+
+    /**
+     * Return a nice description of the requirement.
+     *
+     * \return the description.
+     */
+    virtual std::string getDescription() const = 0;
 
 protected:
 

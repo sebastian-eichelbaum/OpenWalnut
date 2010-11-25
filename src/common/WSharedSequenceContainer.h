@@ -33,7 +33,7 @@
 
 /**
  * This class provides a common interface for thread-safe access to sequence containers (list, vector, dequeue ).
- * \param S the sequence container to use. Everything is allowed here which privides push_back and pop_back as well as size functionality.
+ * \param S the sequence container to use. Everything is allowed here which provides push_back and pop_back as well as size functionality.
  */
 template < typename S >
 class WSharedSequenceContainer: public WSharedObject< S >

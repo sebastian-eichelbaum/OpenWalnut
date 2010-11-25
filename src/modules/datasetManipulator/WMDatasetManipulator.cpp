@@ -22,8 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
 #include <cmath>
+#include <string>
+#include <utility>
 
 #include "../../kernel/WKernel.h"
 #include "../emptyIcon.xpm" // Please put a real icon here.

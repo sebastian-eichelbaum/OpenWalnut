@@ -24,37 +24,36 @@
 
 #include <stdint.h>
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
+
 #include <boost/shared_ptr.hpp>
 
-#include "WReaderNIfTI.h"
 #include "../../common/WIOTools.h"
+#include "../WDataHandlerEnums.h"
 #include "../WDataSet.h"
-#include "../WSubject.h"
-#include "../WDataSetSingle.h"
-#include "../WDataSetVector.h"
+#include "../WDataSetDTI.h"
+#include "../WDataSetRawHARDI.h"
 #include "../WDataSetScalar.h"
-// TODO(philips): polish WDataSetSegmentation for check in
-// #include "../WDataSetSegmentation.h"
+// #include "../WDataSetSegmentation.h"  // TODO(philips): polish WDataSetSegmentation for check in
+#include "../WDataSetSingle.h"
 #include "../WDataSetSphericalHarmonics.h"
 #include "../WDataSetTimeSeries.h"
-#include "../WDataSetRawHARDI.h"
+#include "../WDataSetVector.h"
 #include "../WGrid.h"
 #include "../WGridRegular3D.h"
-#include "../WValueSetBase.h"
+#include "../WSubject.h"
 #include "../WValueSet.h"
-#include "../WDataHandlerEnums.h"
+#include "../WValueSetBase.h"
+#include "WReaderNIfTI.h"
 #include "../../common/WLogger.h"
-
 
 WReaderNIfTI::WReaderNIfTI( std::string fileName )
     : WReader( fileName )
 {
 }
-
 
 template< typename T > std::vector< T > WReaderNIfTI::copyArray( const T* dataArray, const size_t countVoxels,
         const size_t vDim )
@@ -84,7 +83,7 @@ wmath::WMatrix< double > WReaderNIfTI::convertMatrix( const mat44& in )
     return out;
 }
 
-boost::shared_ptr< WDataSet > WReaderNIfTI::load()
+boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
 {
     nifti_image* header = nifti_image_read( m_fname.c_str(), 0 );
 
@@ -186,7 +185,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
     //     }
     //     else
 
-    if ( !description.compare( "WDataSetSphericalHarmonics" ) )
+    if ( description.compare( "WDataSetSphericalHarmonics" ) == 0 || dataSetType == W_DATASET_SPHERICALHARMONICS )
     {
         wlog::debug( "WReaderNIfTI" ) << "Load as spherical harmonics" << std::endl;
         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSphericalHarmonics( newValueSet, newGrid ) );
@@ -357,6 +356,11 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
 
                 newDataSet = boost::shared_ptr< WDataSet >( new WDataSetRawHARDI( newValueSet, newGrid, newGradients ) );
             }
+        }
+        else if( header->intent_code == NIFTI_INTENT_SYMMATRIX )
+        {
+            wlog::debug( "WReaderNIfTI" ) << "Load as WDataSetDTI";
+            newDataSet = boost::shared_ptr< WDataSetDTI >( new WDataSetDTI( newValueSet, newGrid ) );
         }
         else
         {

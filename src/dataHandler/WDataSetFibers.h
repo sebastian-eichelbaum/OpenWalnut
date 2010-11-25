@@ -32,9 +32,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/tuple/tuple.hpp>
 
+#include "../common/datastructures/WFiber.h"
 #include "../common/math/WPosition.h"
 #include "../common/WProperties.h"
-
 #include "WDataSet.h"
 #include "WExportDataHandler.h"
 
@@ -66,17 +66,17 @@ public:
     // some type alias for the used arrays.
 
     /**
-     * List of vertex coordinates.
+     * List of vertex coordinates in term of components of vertices.
      */
     typedef boost::shared_ptr< std::vector< float > > VertexArray;
 
     /**
-     * Index list indexing fibers in VertexArray.
+     * Index list indexing fibers in VertexArray in terms of vertex numbers.
      */
     typedef boost::shared_ptr< std::vector< size_t > > IndexArray;
 
     /**
-     * Lengths of fibers.
+     * Lengths of fibers in terms of verties.
      */
     typedef boost::shared_ptr< std::vector< size_t > > LengthArray;
 
@@ -172,19 +172,32 @@ public:
     };
 
     /**
-     * Constructs a new set of fibers, usage of WFiber here is for backward compatibility and should be removed
+     * Constructs a new set of fibers.
      *
      * \param vertices the vertices of the fibers, stored in x1,y1,z1,x2,y2,z2, ..., xn,yn,zn scheme
      * \param lineStartIndexes the index in which the fiber start (index of the 3D-vertex, not the index of the float in the vertices vector)
      * \param lineLengths how many vertices belong to a fiber
      * \param verticesReverse stores for each vertex the index of the corresponding fiber
-     * \param boundingBox The bounding box of the fibers (first minimum, secon maximum). If not given both are (0,0,0).
+     * \param boundingBox The bounding box of the fibers (first minimum, second maximum).
      */
     WDataSetFibers( boost::shared_ptr< std::vector< float > >vertices,
                     boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
                     boost::shared_ptr< std::vector< size_t > > lineLengths,
                     boost::shared_ptr< std::vector< size_t > > verticesReverse,
-                    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = std::make_pair( wmath::WPosition(), wmath::WPosition() )  );
+                    std::pair< wmath::WPosition, wmath::WPosition > boundingBox );
+
+    /**
+     * Constructs a new set of fibers. This constructor determines the bounding box by using the coordinates of the vertices.
+     *
+     * \param vertices the vertices of the fibers, stored in x1,y1,z1,x2,y2,z2, ..., xn,yn,zn scheme
+     * \param lineStartIndexes the index in which the fiber start (index of the 3D-vertex, not the index of the float in the vertices vector)
+     * \param lineLengths how many vertices belong to a fiber
+     * \param verticesReverse stores for each vertex the index of the corresponding fiber
+     */
+    WDataSetFibers( boost::shared_ptr< std::vector< float > >vertices,
+                    boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
+                    boost::shared_ptr< std::vector< size_t > > lineLengths,
+                    boost::shared_ptr< std::vector< size_t > > verticesReverse );
 
     /**
      * Constructs a new set of WFibers. The constructed instance is not usable.
@@ -352,6 +365,15 @@ public:
      */
     std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const;
 
+    /**
+     * Constructs a WFiber out of the given tract number.
+     *
+     * \param numTract Number of the tract to generate a WFiber object for
+     *
+     * \return The WFiber object. Attention: copy by value!
+     */
+    WFiber operator[]( size_t numTract ) const;
+
 protected:
 
     /**
@@ -360,6 +382,11 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
+    /**
+     * This does the common initialisation of the constructors.
+     */
+    void init();
+
     /**
      * Point vector for all fibers
      */

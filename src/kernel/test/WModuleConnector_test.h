@@ -359,16 +359,6 @@ private:
 };
 
 /**
- * The logger instance used by some tests
- */
-static WLogger logger;
-
-/**
- * True if the logger has been initialized in the past.
- */
-static bool loggerInitialized = false;
-
-/**
  * Tests the WModuleConnector class. We use WModuleConnector's direct derived classes WModuleInputConnector and
  * WModuleOutputConnector to test their common functionality implemented in WModuleConnector (which has pure virtual members -> so
  * can't be instantiated directly).
@@ -378,20 +368,11 @@ class WModuleConnectorTest : public CxxTest::TestSuite
 public:
 
     /**
-     * Setup method called before every test case. This initialized the logger if needed.
+     * Setup logger and other stuff for each test.
      */
     void setUp()
     {
-        if ( !loggerInitialized )
-        {
-            std::cout << "Initialize logger." << std::endl;
-            logger.setColored( false );
-
-            // NOTE: the logger does not need to be run, since the logger main thread just prints the messages. If compiled in
-            // debug mode, the messages will be printed directly, without the logger thread.
-            //logger.run();
-            loggerInitialized = true;
-        }
+        WLogger::startup();
     }
 
     /**

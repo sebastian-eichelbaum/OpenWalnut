@@ -41,13 +41,13 @@ CXXTEST_TEMPLATE_INSTANTIATION
  * Enables better UnitTest OutPut if something fails with WFibers, so you see
  * immedeatly what is failing.
  */
-class ValueTraits< wmath::WFiber > : public WTraitsBase
+class ValueTraits< WFiber > : public WTraitsBase
 {
 public:
     /**
      * Constructs a new ValueTrait of a WFiber for better test output
      */
-    explicit ValueTraits( const wmath::WFiber &fib )
+    explicit ValueTraits( const WFiber &fib )
     {
         std::stringstream ss;
         ss << "WFiber(" << fib << ")";

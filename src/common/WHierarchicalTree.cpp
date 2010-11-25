@@ -22,15 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WDataSetGP.h"
+#include "WHierarchicalTree.h"
 
-// TODO(math): uncomment if we have more other constructors (we need to be default-constructable)
-// WDataSetGP::WDataSetGP()
-//     : WMixinVector< WGaussProcess >(),
-//       WDataSet()
-// {
-// }
-//
-// WDataSetGP::~WDataSetGP()
-// {
-// }
+WHierarchicalTree::WHierarchicalTree() :
+    m_clusterCount( 0 ),
+    m_leafCount( 0 ),
+    m_maxLevel( 0 ),
+    m_leafesLocked( false )
+{
+}
+
+WHierarchicalTree::~WHierarchicalTree()
+{
+}
+
+void WHierarchicalTree::addCluster( size_t cluster1, size_t cluster2, float customData )
+{
+    m_leafesLocked = true;
+
+    size_t level = std::max( m_level[cluster1], m_level[cluster1] ) + 1;
+    m_level.push_back( level );
+
+    m_maxLevel = std::max( m_maxLevel, level );
+
+    m_parents.push_back( m_clusterCount );
+    m_customData.push_back( customData );
+    m_colors.push_back( WColor( 0.3, 0.3, 0.3, 1.0 ) );
+
+    std::pair<size_t, size_t>childs( cluster1, cluster2 );
+    m_children.push_back( childs );
+
+    m_parents[cluster1] = m_clusterCount;
+    m_parents[cluster2] = m_clusterCount;
+
+    ++m_clusterCount;
+}

@@ -43,6 +43,12 @@
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "../../kernel/WKernel.h"
 
+#include "../../graphicsEngine/WROIArbitrary.h"
+#include "../../graphicsEngine/WROI.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
+#include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
+
 #include "WCreateSurfaceJob.h"
 
 #include "WMAtlasSurfaces.h"
@@ -107,6 +113,8 @@ void WMAtlasSurfaces::properties()
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMAtlasSurfaces::propertyChanged, this );
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    m_propCreateRoiTrigger = m_properties->addProperty( "Create Roi",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+
     WModule::properties();
 }
 
@@ -114,6 +122,7 @@ void WMAtlasSurfaces::moduleMain()
 {
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_propCondition );
     m_moduleState.add( m_input->getDataChangedCondition() );
 
     // signal ready state
@@ -151,6 +160,12 @@ void WMAtlasSurfaces::moduleMain()
                 default:
                     WAssert( false, "Wrong data type in AtlasSurfaces module" );
             }
+        }
+
+        if ( m_propCreateRoiTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+             m_propCreateRoiTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+             createRoi();
         }
     }
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
@@ -259,7 +274,7 @@ void WMAtlasSurfaces::createOSGNode()
         m_moduleNode->insert( outputGeode );
     }
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
-    m_moduleNode->addUpdateCallback( new AtlasSurfaceNodeCallback( this ) );
+    m_moduleNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMAtlasSurfaces::updateGraphics, this ) ) );
 }
 
 void WMAtlasSurfaces::propertyChanged()
@@ -317,6 +332,12 @@ void WMAtlasSurfaces::loadLabels( std::string fileName )
 
     lines = readFile( fileName );
 
+    if ( lines.size() == 0 )
+    {
+        m_labelsLoaded = false;
+        return;
+    }
+
     std::vector<std::string>svec;
 
     for ( size_t i = 0; i < lines.size(); ++i )
@@ -336,4 +357,67 @@ void WMAtlasSurfaces::loadLabels( std::string fileName )
         }
     }
     m_labelsLoaded = true;
+}
+
+void WMAtlasSurfaces::createRoi()
+{
+    WItemSelector s = m_aMultiSelection->get( true );
+    for ( size_t i = 0; i < m_moduleNode->getNumChildren(); ++i )
+    {
+        for ( size_t j = 0; j < s.size(); ++j )
+        {
+            if ( s.getItemIndexOfSelected(j) == i )
+            {
+                debugLog() << i << " selected";
+                cutArea( i + 1 );
+            }
+        }
+    }
+}
+
+void WMAtlasSurfaces::cutArea( int index )
+{
+    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
+
+    size_t order = ( *m_dataSet ).getValueSet()->order();
+    size_t vDim = ( *m_dataSet ).getValueSet()->dimension();
+
+    boost::shared_ptr< WValueSet< unsigned char > > vals;
+    vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
+
+    std::vector< float >newVals( grid->size(), 0 );
+
+    for ( size_t i = 0; i < newVals.size(); ++i )
+    {
+         if ( static_cast<int>( vals->getScalar( i ) ) == index )
+         {
+             newVals[ i ] = 1.0;
+         }
+    }
+
+    boost::shared_ptr< WValueSet< float > > newValueSet =
+            boost::shared_ptr< WValueSet< float > >( new WValueSet< float >( order, vDim, newVals, W_DT_FLOAT ) );
+    WMarchingLegoAlgorithm mlAlgo;
+
+    osg::ref_ptr< WROI > newRoi = osg::ref_ptr< WROI >( new WROIArbitrary(  grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(),
+                                                                            grid->getTransformationMatrix(),
+                                                                            *newValueSet->rawDataVectorPointer(),
+                                                                            1.0, wge::createColorFromIndex( index ) ) );
+    if ( m_labelsLoaded )
+    {
+        newRoi->setName( m_labels[index].second );
+    }
+    else
+    {
+        newRoi->setName( std::string( "region " ) + boost::lexical_cast<std::string>( index ) );
+    }
+
+    if ( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
+    {
+        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
+    }
+    else
+    {
+        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() );
+    }
 }

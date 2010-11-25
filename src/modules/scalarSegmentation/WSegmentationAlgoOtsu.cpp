@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WSegmentationAlgoOtsu.h"
 
 #ifdef OW_USE_ITK

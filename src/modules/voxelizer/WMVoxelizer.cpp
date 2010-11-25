@@ -207,7 +207,7 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
 
     for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
     {
-        const wmath::WFiber& fib = fibs[*cit];
+        const WFiber& fib = fibs[*cit];
         vertices->push_back( osg::Vec3( fib[0][0], fib[0][1], fib[0][2] ) );
         for( size_t i = 1; i < fib.size(); ++i )
         {
@@ -279,7 +279,7 @@ void WMVoxelizer::updateCenterLine()
     assert( m_osgNode );
     if( m_drawCenterLine->get( true ) )
     {
-        boost::shared_ptr< wmath::WFiber > centerLine = m_clusters->getCenterLine();
+        boost::shared_ptr< WFiber > centerLine = m_clusters->getCenterLine();
         if( centerLine )
         {
             m_centerLineGeode = wge::generateLineStripGeode( *centerLine, 3.f );
@@ -440,7 +440,7 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
     wmath::WPosition bur = fibs[0][0]; // back upper right corner ( initialize with first WPosition of first fiber )
     for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
     {
-        const wmath::WFiber& fiber = fibs[*cit];
+        const WFiber& fiber = fibs[*cit];
         for( size_t i = 0; i < fiber.size(); ++i )
         {
             for( int x = 0; x < 3; ++x )

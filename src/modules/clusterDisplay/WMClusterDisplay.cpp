@@ -195,6 +195,7 @@ bool WMClusterDisplay::loadTreeAscii( std::string fileName )
             float data = boost::lexical_cast<float>( svec[k++] );
 
             m_tree.addCluster( cluster1, cluster2, level, leafes, data );
+            //m_tree.addCluster( cluster1, cluster2, data );
 
             if ( svec[k] != ")" )
             {
@@ -985,11 +986,11 @@ void WMClusterDisplay::createFiberGeode()
 {
     m_fiberDrawable = osg::ref_ptr< WFiberDrawable >( new WFiberDrawable );
     m_fiberDrawable->setBoundingBox( osg::BoundingBox( m_dataSet->getBoundingBox().first[0],
-                                                      m_dataSet->getBoundingBox().first[1],
-                                                      m_dataSet->getBoundingBox().first[2],
-                                                      m_dataSet->getBoundingBox().second[0],
-                                                      m_dataSet->getBoundingBox().second[1],
-                                                      m_dataSet->getBoundingBox().second[2] ) );
+                                                       m_dataSet->getBoundingBox().first[1],
+                                                       m_dataSet->getBoundingBox().first[2],
+                                                       m_dataSet->getBoundingBox().second[0],
+                                                       m_dataSet->getBoundingBox().second[1],
+                                                       m_dataSet->getBoundingBox().second[2] ) );
 
     m_fiberDrawable->setStartIndexes( m_dataSet->getLineStartIndexes() );
     m_fiberDrawable->setPointsPerLine( m_dataSet->getLineLengths() );

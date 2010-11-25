@@ -451,6 +451,12 @@ private:
      */
     int getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const;
 
+    /**
+     * Adds the specific information of this grid type to the
+     * informational properties.
+     */
+    void initInformationProperties();
+
     unsigned int m_nbPosX; //!< Number of positions in x direction
     unsigned int m_nbPosY; //!< Number of positions in y direction
     unsigned int m_nbPosZ; //!< Number of positions in z direction
@@ -533,5 +539,4 @@ inline wmath::WMatrix< double > WGridRegular3D::getTransformationMatrix() const
 {
     return m_transform->getTransformationMatrix();
 }
-
 #endif  // WGRIDREGULAR3D_H

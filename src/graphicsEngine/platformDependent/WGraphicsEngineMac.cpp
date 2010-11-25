@@ -163,3 +163,9 @@ boost::signals2::connection WGraphicsEngineMac::subscribeSignal( GE_SIGNAL signa
             break;
     }
 }
+
+bool WGraphicsEngineMac::isRunning()
+{
+    return m_instance.get();
+}
+

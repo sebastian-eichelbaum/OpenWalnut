@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <string>
+
 #include "WGraphicsEngine.h"
 
 #include "WGERequirement.h"
@@ -39,7 +41,11 @@ WGERequirement::~WGERequirement()
 
 bool WGERequirement::isComplied() const
 {
-    // TODO(all): implement this properly if you modify the WGE for no-gui versions of OpenWalnut.
-    return true;
+    return WGraphicsEngine::isRunning();
+}
+
+std::string WGERequirement::getDescription() const
+{
+    return "Module needs an running graphics engine.";
 }
 

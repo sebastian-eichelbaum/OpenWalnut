@@ -22,34 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#include <ostream>
 #include <string>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem/fstream.hpp>
 
 #include "exceptions/WSignalSubscriptionInvalid.h"
+#include "exceptions/WPreconditionNotMet.h"
 
 #include "WLogger.h"
 
 /**
  * Used for program wide access to the logger.
  */
-
 WLogger* logger = NULL;
 
-WLogger::WLogger( std::string fileName, LogLevel level ):
-    m_LogLevel( level ),
-
-    m_STDOUTLevel( level ),
-    m_STDERRLevel( LL_ERROR ),
-    m_LogFileLevel( level ),
-    m_LogFileName( fileName ),
-    m_colored( true ),
-    m_defaultFormat( "*%l [%s] %m \n" ),
-    m_defaultFileFormat( "[%t] *%l*%s* %m \n" )
+void WLogger::startup( std::ostream& output, LogLevel level )  // NOLINT - we need this non-const ref here
 {
-    logger = this;
+    if ( !logger )
+    {
+        logger = new WLogger( output, level );
+    }
+}
+
+WLogger::WLogger( std::ostream& output, LogLevel level ):       // NOLINT - we need this non-const ref here
+    m_outputs()
+{
+    m_outputs.push_back( WLogStream::SharedPtr( new WLogStream( output, level ) ) );
 
     addLogMessage( "Initalizing Logger", "Logger", LL_INFO );
     addLogMessage( "===============================================================================", "Logger", LL_INFO );
@@ -63,34 +63,11 @@ WLogger::~WLogger()
 
 WLogger* WLogger::getLogger()
 {
+    if ( !logger )
+    {
+        throw new WPreconditionNotMet( std::string( "Logger not yet initialized." ) );
+    }
     return logger;
-}
-
-void WLogger::setLogLevel( LogLevel level )
-{
-    m_LogLevel = level;
-}
-
-void WLogger::setSTDOUTLevel( LogLevel level )
-{
-    m_STDOUTLevel = level;
-}
-
-void WLogger::setSTDERRLevel( LogLevel level )
-{
-    m_STDERRLevel = level;
-}
-
-void WLogger::setLogFileLevel( LogLevel level )
-{
-    m_LogFileLevel = level;
-}
-
-void WLogger::setLogFileName( std::string fileName )
-{
-    boost::filesystem::path p( fileName );
-
-    m_LogFileName = fileName;
 }
 
 boost::signals2::connection WLogger::subscribeSignal( LogEvent event, LogEntryCallback callback )
@@ -106,49 +83,33 @@ boost::signals2::connection WLogger::subscribeSignal( LogEvent event, LogEntryCa
 
 void WLogger::addLogMessage( std::string message, std::string source, LogLevel level )
 {
-    if ( m_LogLevel > level )
-    {
-        return;
-    }
-
     boost::posix_time::ptime t( boost::posix_time::second_clock::local_time() );
     std::string timeString( to_simple_string( t ) );
-    WLogEntry entry( timeString, message, level, source, m_colored );
+    WLogEntry entry( timeString, message, level, source );
 
     // signal to all interested
     m_addLogSignal( entry );
 
     // output
-    std::cout << entry.getLogString( m_defaultFormat );
-}
-
-void WLogger::setColored( bool colors )
-{
-    m_colored = colors;
-}
-
-bool WLogger::isColored()
-{
-    return m_colored;
+    Outputs::ReadTicket r = m_outputs.getReadTicket();
+    for ( Outputs::ConstIterator i = r->get().begin(); i != r->get().end(); ++i )
+    {
+        ( *i )->printEntry( entry );
+    }
 }
 
 void WLogger::setDefaultFormat( std::string format )
 {
-    m_defaultFormat = format;
+    m_outputs[0]->setFormat( format );
 }
 
 std::string WLogger::getDefaultFormat()
 {
-    return m_defaultFormat;
+    return m_outputs[0]->getFormat();
 }
 
-void WLogger::setDefaultFileFormat( std::string format )
+void WLogger::addStream( WLogStream::SharedPtr s )
 {
-    m_defaultFileFormat = format;
-}
-
-std::string WLogger::getDefaultFileFormat()
-{
-    return m_defaultFileFormat;
+    m_outputs.push_back( s );
 }
 

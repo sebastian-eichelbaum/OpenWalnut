@@ -22,41 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATASETGP_H
-#define WDATASETGP_H
+#ifndef WVEC3TRAITS_H
+#define WVEC3TRAITS_H
 
-#include <boost/shared_ptr.hpp>
+#include <sstream>
 
-#include "../../../common/WMixinVector.h"
-#include "WGaussProcess.h"
-#include "../../../dataHandler/WDataSet.h"
+#include <cxxtest/TestSuite.h>
+#include <cxxtest/ValueTraits.h>
 
+#include <osg/Vec3>
+#include <osg/io_utils>
+
+#include "../../common/test/WTraitsBase.h"
+
+#ifdef CXXTEST_RUNNING
+namespace CxxTest
+{
+CXXTEST_TEMPLATE_INSTANTIATION
 /**
- * Stores many Gaussian processes.
+ * Enables better UnitTest OutPut if something fails with osg::Vec3, so you see
+ * immedeatly what is failing.
  */
-class WDataSetGP : public WMixinVector< WGaussProcess >, public WDataSet
+class ValueTraits< osg::Vec3 > : public WTraitsBase
 {
 public:
-// TODO(math): uncomment if we have more other constructors (we need to be default-constructable)
-//    /**
-//     * Default constructor.
-//     */
-//    WDataSetGP();
-
     /**
-     * Determines whether this dataset can be used as a texture.
+     * Constructor for class allowing usable output of osg::Vec3 in tests
      *
-     * \return true if usable as texture.
+     * \param c the Vec3 to print
      */
-    virtual bool isTexture() const;
-
-protected:
-private:
+    explicit ValueTraits( const osg::Vec3 &c )
+    {
+        std::stringstream tmp;
+        tmp.precision( 16 );
+        tmp << "Vec3( " << c << ")";
+        m_s = tmp.str();
+    }
 };
-
-inline bool WDataSetGP::isTexture() const
-{
-    return false;
 }
-
-#endif  // WDATASETGP_H
+#endif  // CXXTEST_RUNNING
+#endif  // WVEC3TRAITS_H

@@ -32,7 +32,7 @@
 
 namespace
 {
-    std::pair< double, double > dXt_optimized( double thresholdSquare, const wmath::WFiber &q, const wmath::WFiber &r )
+    std::pair< double, double > dXt_optimized( double thresholdSquare, const WFiber &q, const WFiber &r )
     {
         const size_t qsize = q.size();
         const size_t rsize = r.size();
@@ -85,27 +85,24 @@ namespace
     }
 }
 
-namespace wmath
+WFiber::WFiber( const std::vector< wmath::WPosition > &points )
+    : wmath::WLine( points )
 {
-    WFiber::WFiber( const std::vector< WPosition > &points )
-        : WLine( points )
-    {
-    }
+}
 
-    WFiber::WFiber()
-        : WLine()
-    {
-    }
+WFiber::WFiber()
+    : wmath::WLine()
+{
+}
 
-    double WFiber::distDST( double thresholdSquare, const wmath::WFiber &q, const wmath::WFiber &r )
-    {
-        std::pair< double, double > result = ::dXt_optimized( thresholdSquare, q, r );
-        return std::min( result.first, result.second );
-    }
+double WFiber::distDST( double thresholdSquare, const WFiber &q, const WFiber &r )
+{
+    std::pair< double, double > result = ::dXt_optimized( thresholdSquare, q, r );
+    return std::min( result.first, result.second );
+}
 
-    double WFiber::distDLT( double thresholdSquare, const wmath::WFiber &q, const wmath::WFiber &r )
-    {
-        std::pair< double, double > result = ::dXt_optimized( thresholdSquare, q, r );
-        return std::max( result.first, result.second );
-    }
+double WFiber::distDLT( double thresholdSquare, const WFiber &q, const WFiber &r )
+{
+    std::pair< double, double > result = ::dXt_optimized( thresholdSquare, q, r );
+    return std::max( result.first, result.second );
 }
