@@ -83,7 +83,7 @@ wmath::WMatrix< double > WReaderNIfTI::convertMatrix( const mat44& in )
     return out;
 }
 
-boost::shared_ptr< WDataSet > WReaderNIfTI::load()
+boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
 {
     nifti_image* header = nifti_image_read( m_fname.c_str(), 0 );
 
@@ -186,7 +186,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
     //     }
     //     else
 
-    if ( !description.compare( "WDataSetSphericalHarmonics" ) )
+    if ( description.compare( "WDataSetSphericalHarmonics" ) == 0 || dataSetType == W_DATASET_SPHERICALHARMONICS )
     {
         wlog::debug( "WReaderNIfTI" ) << "Load as spherical harmonics" << std::endl;
         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSphericalHarmonics( newValueSet, newGrid ) );

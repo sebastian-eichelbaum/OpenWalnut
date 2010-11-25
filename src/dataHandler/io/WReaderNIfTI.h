@@ -58,9 +58,11 @@ public:
     /**
      * Loads the dataset.
      *
+     * \param dataSetType This parameter can be used to tell the  function in advance how it should interprete the data.
+     *
      * \return the dataset loaded.
      */
-    virtual boost::shared_ptr< WDataSet > load();
+    virtual boost::shared_ptr< WDataSet > load( DataSetType dataSetType = W_DATASET_NONE  );
 
 protected:
 private:

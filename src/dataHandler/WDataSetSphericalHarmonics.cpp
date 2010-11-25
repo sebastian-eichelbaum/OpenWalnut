@@ -41,7 +41,7 @@ WDataSetSphericalHarmonics::WDataSetSphericalHarmonics( boost::shared_ptr< WValu
     m_valueSet = boost::shared_dynamic_cast< WValueSet<double> >( newValueSet );
     WAssert( newValueSet, "No value set given." );
     WAssert( newGrid, "No grid given." );
-    WAssert( m_valueSet, "No WValueSet<double given." );
+    WAssert( m_valueSet, "No WValueSet<double> given." );
 }
 
 WDataSetSphericalHarmonics::WDataSetSphericalHarmonics()

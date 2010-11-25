@@ -70,10 +70,13 @@ void WMFiberDisplay::connectors()
 {
     using boost::shared_ptr;
     typedef WModuleInputData< const WDataSetFibers > FiberInputData;  // just an alias
+    typedef WModuleOutputData< WDataSetFibers > FiberOutputData;  // just an alias
 
     m_fiberInput = shared_ptr< FiberInputData >( new FiberInputData( shared_from_this(), "fiberInput", "A loaded fiber dataset." ) );
+    m_fiberOutput = shared_ptr< FiberOutputData >( new FiberOutputData( shared_from_this(), "fiberOutput", "The selected fibers." ) );
 
     addConnector( m_fiberInput );
+    addConnector( m_fiberOutput );
 
     WModule::connectors();  // call WModules initialization
 }
@@ -169,13 +172,12 @@ void WMFiberDisplay::properties()
     m_tubeThickness->setMin( 0 );
     m_tubeThickness->setMax( 300 );
 
-    m_save = m_properties->addProperty( "Save", "Saves the selected fiber bundles.", false, m_propCondition );
-    m_saveFileName = m_properties->addProperty( "File name", "", WPathHelper::getAppPath() );
-
     m_cullBoxGroup    = m_properties->addPropertyGroup( "Box Culling",  "Properties only related to the box culling.", m_propCondition );
     m_activateCullBox = m_cullBoxGroup->addProperty( "Activate", "Activates the cull box", false, m_propCondition );
     m_showCullBox     = m_cullBoxGroup->addProperty( "Show cull box", "Shows/hides the cull box", false, m_propCondition );
     m_insideCullBox   = m_cullBoxGroup->addProperty( "Inside - outside", "Show fibers inside or outside the cull box", true, m_propCondition );
+
+    m_propUpdateOutputTrigger = m_properties->addProperty( "Update Output", "Update!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 }
 
 
@@ -227,6 +229,12 @@ void WMFiberDisplay::moduleMain()
                 m_cullBox->hide();
             }
         }
+
+       if ( m_propUpdateOutputTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+       {
+            updateOutput();
+            m_propUpdateOutputTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+       }
     }
 
     con.disconnect();
@@ -388,12 +396,6 @@ void WMFiberDisplay::updateRenderModes()
     }
 }
 
-void WMFiberDisplay::saveSelected()
-{
-    boost::shared_ptr< std::vector< bool > > active = m_fiberSelector->getBitfield();
-    m_dataset->saveSelected( m_saveFileName->getAsString(), active );
-}
-
 void WMFiberDisplay::updateTexture()
 {
     osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
@@ -449,4 +451,42 @@ void WMFiberDisplay::updateCallback()
     }
 
     updateRenderModes();
+}
+
+void WMFiberDisplay::updateOutput()
+{
+    boost::shared_ptr< std::vector< bool > > active = m_fiberSelector->getBitfield();
+    boost::shared_ptr< std::vector< float > >vertices = boost::shared_ptr< std::vector< float > >( new std::vector< float >() );
+    boost::shared_ptr< std::vector< size_t > > lineStartIndexes = boost::shared_ptr< std::vector< size_t > > ( new std::vector< size_t >() );
+    boost::shared_ptr< std::vector< size_t > > lineLengths = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t >() );
+    boost::shared_ptr< std::vector< size_t > > verticesReverse = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t >() );
+    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_dataset->getBoundingBox();
+
+    size_t countLines = 0;
+
+    for ( size_t l = 0; l < active->size(); ++l )
+    {
+        if ( ( *active )[l] )
+        {
+            size_t pc = m_dataset->getLineStartIndexes()->at( l ) * 3;
+
+            lineStartIndexes->push_back( vertices->size() / 3 );
+            lineLengths->push_back( m_dataset->getLineLengths()->at( l ) );
+
+            for ( size_t j = 0; j < m_dataset->getLineLengths()->at( l ); ++j )
+            {
+                vertices->push_back( m_dataset->getVertices()->at( pc ) );
+                ++pc;
+                vertices->push_back( m_dataset->getVertices()->at( pc ) );
+                ++pc;
+                vertices->push_back( m_dataset->getVertices()->at( pc ) );
+                ++pc;
+                verticesReverse->push_back( countLines );
+            }
+            ++countLines;
+        }
+    }
+    boost::shared_ptr< WDataSetFibers> newOutput =
+            boost::shared_ptr< WDataSetFibers>( new WDataSetFibers( vertices, lineStartIndexes, lineLengths, verticesReverse, boundingBox ) );
+    m_fiberOutput->updateData( newOutput );
 }

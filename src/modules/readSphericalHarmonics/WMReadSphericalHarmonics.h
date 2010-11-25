@@ -22,42 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMREADMESH_H
-#define WMREADMESH_H
+#ifndef WMREADSPHERICALHARMONICS_H
+#define WMREADSPHERICALHARMONICS_H
 
 #include <string>
 
 #include <osg/Geode>
 
+#include "../../dataHandler/WDataSetSphericalHarmonics.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "wiebel".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+ * This module loads spherical harmonics data given as vectors of coefficients from NIfTI files.
  *
  * \ingroup modules
  */
-class WMReadMesh: public WModule
+class WMReadSphericalHarmonics: public WModule
 {
 public:
 
     /**
      *
      */
-    WMReadMesh();
+    WMReadSphericalHarmonics();
 
     /**
      *
      */
-    virtual ~WMReadMesh();
+    virtual ~WMReadSphericalHarmonics();
 
     /**
      * Gives back the name of this module.
@@ -101,20 +95,19 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Initialize requirements for this module.
+     */
+    virtual void requirements();
+
 
 private:
-    /**
-     * Reads the mesh file and creates a WTriangleMesh out of it.
-     *
-     * \return Reference to the dataset.
-     */
-    virtual boost::shared_ptr< WTriangleMesh > read();
+    boost::shared_ptr< WModuleOutputData< WDataSetSphericalHarmonics > > m_output; //!< Ouput connector provided by this module.
 
-    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
-    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output;  //!< Output connector provided by this module.
+    boost::shared_ptr< WDataSetSphericalHarmonics > m_data; //!< This triangle mesh is provided as output through the connector.
     boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
-    WPropTrigger  m_readTriggerProp; //!< This property triggers the actual reading,
-    WPropFilename m_meshFile; //!< The mesh will be read from this file.
+    WPropTrigger m_readTriggerProp; //!< This property triggers the actual reading,
+    WPropFilename m_dataFile; //!< The data will be read from this file.
 };
 
-#endif  // WMREADMESH_H
+#endif  // WMREADSPHERICALHARMONICS_H
