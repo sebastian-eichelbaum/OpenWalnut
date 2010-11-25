@@ -259,7 +259,8 @@ private:
     osg::ref_ptr< WROIBox > m_cullBox; //!< stores a pointer to the cull box
 
     /**
-     * saves the currently selected (active field from roi manager) fibers to a file
+     * updates the output connector with the currently selected fiber,
+     * this is done on demand to avoid recomputation every time the selection changes
      */
     void updateOutput();
 
