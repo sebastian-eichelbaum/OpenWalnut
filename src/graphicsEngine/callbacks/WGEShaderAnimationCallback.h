@@ -26,9 +26,9 @@
 #define WGESHADERANIMATIONCALLBACK_H
 
 #include "stdint.h"
+
 #include "boost/date_time/posix_time/posix_time.hpp"
 
-#include <boost/timer.hpp>
 #include <osg/Uniform>
 
 #include "../WExportWGE.h"
