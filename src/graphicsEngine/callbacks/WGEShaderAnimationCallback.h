@@ -27,7 +27,8 @@
 
 #include "stdint.h"
 
-#include <boost/timer.hpp>
+#include "boost/date_time/posix_time/posix_time.hpp"
+
 #include <osg/Uniform>
 
 #include "../WExportWGE.h"
@@ -62,14 +63,19 @@ public:
 protected:
 
     /**
-    * Timer that stops the time hopefully OS independent
-    */
-    boost::timer m_timer;
+     * Timer that stops the time hopefully OS independent
+     */
+    boost::posix_time::ptime m_start;
 
     /**
      * Number of ticks to count per second.
      */
     int m_ticksPerSec;
+
+    /**
+     * Ratio between milliseconds and m_ticksPerSec
+     */
+    double m_tickMillisecRatio;
 
 private:
 };
