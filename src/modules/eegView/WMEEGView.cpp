@@ -288,22 +288,21 @@ void WMEEGView::moduleMain()
         {
             debugLog() << "New event position: " << event->getTime();
 
-            if( boost::shared_ptr< WRMROIRepresentation > roi = m_roi.lock() )
+            if( m_roi )
             {
-                WKernel::getRunningKernel()->getRoiManager()->removeRoi( roi );
+                WKernel::getRunningKernel()->getRoiManager()->removeRoi( m_roi );
             }
 
-            if( WKernel::getRunningKernel()->getRoiManager()->getBitField() && m_sourceCalculator )
+            if(  m_sourceCalculator )
             {
                 wmath::WPosition position = m_sourceCalculator->calculate( event );
-
-                m_roi = WKernel::getRunningKernel()->getRoiManager()->addRoi( new WROIBox(
-                            position - wmath::WVector3D( 5.0, 5.0, 5.0 ),
-                            position + wmath::WVector3D( 5.0, 5.0, 5.0 ) ) );
+                m_roi = new WROIBox( position - wmath::WVector3D( 5.0, 5.0, 5.0 ),
+                                     position + wmath::WVector3D( 5.0, 5.0, 5.0 ) );
+                WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
             }
             else
             {
-                m_roi.reset();
+                m_roi.release();
             }
 
             m_currentEventTime = event->getTime();
@@ -600,7 +599,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawElectrodes()
         boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
         try
         {
-            osg::Vec3 pos = wge::osgVec3( channelInfo->getPosition() );
+            osg::Vec3 pos = channelInfo->getPosition();
 
             // create sphere geode on electrode position
             osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphereSize ) );
@@ -687,7 +686,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawLabels()
         boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
         try
         {
-            osg::Vec3 pos = wge::osgVec3( channelInfo->getPosition() );
+            osg::Vec3 pos = channelInfo->getPosition();
 
             // create text geode for the channel label
             osgText::Text* text = new osgText::Text;
