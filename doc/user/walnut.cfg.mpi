@@ -1,9 +1,6 @@
 ## This is a sample configuration file for OpenWalnut.
 ## Uncomment the options you are interested in.
 
-[general]
-allowOnlyOneFiberDataSet = yes # This will prevent you from accidently loading multiple fiber data sets.
-
 [modules]
 ## use this to specify the default module to add during load.
 ## It is a comma seperated list. If this is not specified the 
