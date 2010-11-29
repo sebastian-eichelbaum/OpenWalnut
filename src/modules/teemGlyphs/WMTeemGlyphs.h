@@ -159,6 +159,7 @@ private:
          * \param thresholdGFA Threshold of GFA below which we will not draw the glyphs
          * \param sliceId Rendered slice
          * \param subdivisionLevel Subidivision level of spheres that are basis for glyphs (resolution)
+         * \param modulo Show only every modulo-th glyph in each direction.
          * \param sliceType Slice direction (sagittal, coronal, axial )
          * \param usePolar Use polar glyphs (HOME otherwise)
          * \param scale Resize the glyphs.
@@ -169,6 +170,7 @@ private:
                           double thresholdGFA,
                           const size_t& sliceId,
                           const size_t& subdivisionLevel,
+                          const size_t& modulo,
                           const size_t& sliceType,
                           const bool& usePolar,
                           const float& scale,
@@ -218,6 +220,7 @@ private:
         size_t m_sliceId; //!< Stores option from property.
         size_t m_sliceType; //!< Stores option from property.
         size_t m_subdivisionLevel; //!< Store option from property
+        size_t m_modulo; //!< Store option from property
         bool m_usePolar; //!< Stores option from property.
         float m_scale; //!< Stores option from property.
         bool m_useNormalization; //!< Stores option from property..
