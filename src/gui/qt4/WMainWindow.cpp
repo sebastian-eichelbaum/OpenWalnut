@@ -184,9 +184,11 @@ void WMainWindow::setupGUI()
     this->addAction( viewMenu->addAction( "Posterior", this, SLOT( setPresetViewPosterior() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) ) );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
-    helpMenu->addAction( m_iconManager.getIcon( "help" ), "About OpenWalnut", this, SLOT( openAboutDialog() ),
-                         QKeySequence( QKeySequence::HelpContents )
-    );
+    helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Introduction", this, SLOT( openIntroductionDialog() ),
+                         QKeySequence( QKeySequence::HelpContents ) );
+    helpMenu->addSeparator();
+    helpMenu->addAction( m_iconManager.getIcon( "logo" ), "About OpenWalnut", this, SLOT( openAboutDialog() ) );
+    helpMenu->addAction( "About Qt", this, SLOT( openAboutQtDialog() ) );
 
     setMenuBar( m_menuBar );
 
@@ -433,7 +435,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navAxial )
             {
-                m_navAxial->setSliderProperty( prop->toPropInt() );
+                m_navAxial->setSliderProperty( prop->toPropDouble() );
             }
         }
 
@@ -448,7 +450,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navCoronal )
             {
-                m_navCoronal->setSliderProperty( prop->toPropInt() );
+                m_navCoronal->setSliderProperty( prop->toPropDouble() );
             }
         }
 
@@ -463,7 +465,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navSagittal )
             {
-               m_navSagittal->setSliderProperty( prop->toPropInt() );
+               m_navSagittal->setSliderProperty( prop->toPropDouble() );
             }
         }
     }
@@ -717,6 +719,10 @@ void WMainWindow::openLoadDialog()
     m_loadButton->setDown( false );
 }
 
+void WMainWindow::openAboutQtDialog()
+{
+    QMessageBox::aboutQt( this, "About Qt" );
+}
 void WMainWindow::openAboutDialog()
 {
     QMessageBox::about( this, "About OpenWalnut",
@@ -730,6 +736,39 @@ void WMainWindow::openAboutDialog()
                         "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.\n"
                         "\n"
                         "Thank you for using OpenWalnut." );
+}
+
+void WMainWindow::openIntroductionDialog()
+{
+    QMessageBox::information( this, "OpenWalnut Introduction",
+                              "<h3>Navigation in Main View</h3>"
+                              "<table>"
+                              "<tr><td><b><i>Mouse Button&nbsp;&nbsp;</i></b></td><td><b><i>Action</i></b></td></tr>"
+                              "<tr><td>Left</td><td>Rotate</td></tr>"
+                              "<tr><td>Middle</td><td>Pan</td></tr>"
+                              "<tr><td>Right</td><td>Pick, move ROI box or move slice</td></tr>"
+                              "<tr><td>Right + Shift</td><td>Resize ROI box</td></tr>"
+                              "<tr><td>Wheel</td><td>Zoom</td></tr>"
+                              "<tr><td><b><i>Key</i></b></td><td><b><i>Action</i></b></td></tr>"
+                              "<tr><td>+</td><td>Zoom in</td></tr>"
+                              "<tr><td>-</td><td>Zoom out</td></tr>"
+                              "<tr><td>[space]</td><td>Reset view</td></tr>"
+                              "</table>"
+                              "<h3>Navigation in EEG View</h3>"
+                              "<table>"
+                              "<tr><td><b><i>Mouse Button</i></b></td><td><b><i>Action</i></b></td></tr>"
+                              "<tr><td>Left</td><td>Mark event position</td></tr>"
+                              "<tr><td>Middle</td><td>Pan</td></tr>"
+                              "<tr><td>Right</td><td>Zoom in time</td></tr>"
+                              "<tr><td>Wheel</td><td>Scale voltage</td></tr>"
+                              "<tr><td>Wheel + Right</td><td>Change spacing between graphs</td></tr>"
+                              "<tr><td>Wheel + Left</td><td>Change sensitivity of the coloring of the head surface</td></tr>"
+                              "</table>"
+                              "<h3>Program-wide Keyboard Shortcuts</h3>"
+                              "<table>"
+                              "<tr><td><b><i>Key</i></b></td><td><b><i>Action</i></b></td></tr>"
+                              "<tr><td>Ctrl + q</td><td>Quit</td></tr>"
+                              "</table>" );
 }
 
 void WMainWindow::setPresetViewLeft()
