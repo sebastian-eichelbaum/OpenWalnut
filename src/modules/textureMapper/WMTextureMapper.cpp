@@ -163,6 +163,12 @@ void WMTextureMapper::moduleMain()
             }
         }
     }
+
+    // remove if module is removed
+    if ( m_lastDataSet )
+    {
+        WDataHandler::deregisterDataSet( m_lastDataSet );
+    }
 }
 
 void WMTextureMapper::activate()
