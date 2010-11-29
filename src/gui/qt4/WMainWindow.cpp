@@ -435,7 +435,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navAxial )
             {
-                m_navAxial->setSliderProperty( prop->toPropDouble() );
+                m_navAxial->setSliderProperty( prop->toPropInt() );
             }
         }
 
@@ -450,7 +450,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navCoronal )
             {
-                m_navCoronal->setSliderProperty( prop->toPropDouble() );
+                m_navCoronal->setSliderProperty( prop->toPropInt() );
             }
         }
 
@@ -465,7 +465,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navSagittal )
             {
-               m_navSagittal->setSliderProperty( prop->toPropDouble() );
+               m_navSagittal->setSliderProperty( prop->toPropInt() );
             }
         }
     }
