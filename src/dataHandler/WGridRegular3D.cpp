@@ -1010,7 +1010,6 @@ void WGridRegular3D::stretch( wmath::WPosition str )
     m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
 }
 
-// TODO(all): compiler warning: warning: unused parameter 'center'
 void WGridRegular3D::rotate( osg::Matrixf osgrot, wmath::WPosition center )
 {
     switch ( m_matrixActive )
@@ -1033,6 +1032,20 @@ void WGridRegular3D::rotate( osg::Matrixf osgrot, wmath::WPosition center )
     wmath::WMatrix<double> rotmat( 4, 4 );
     rotmat.makeIdentity();
 
+    wmath::WMatrix<double> transTo( 4, 4 );
+    transTo.makeIdentity();
+
+    wmath::WMatrix<double> transFrom( 4, 4 );
+    transFrom.makeIdentity();
+
+    transTo( 0, 3 ) = -center.x();
+    transTo( 1, 3 ) = -center.y();
+    transTo( 2, 3 ) = -center.z();
+
+    transFrom( 0, 3 ) = center.x();
+    transFrom( 1, 3 ) = center.y();
+    transFrom( 2, 3 ) = center.z();
+
     rotmat( 0, 0 ) = osgrot( 0, 0 );
     rotmat( 1, 0 ) = osgrot( 1, 0 );
     rotmat( 2, 0 ) = osgrot( 2, 0 );
@@ -1045,7 +1058,9 @@ void WGridRegular3D::rotate( osg::Matrixf osgrot, wmath::WPosition center )
     rotmat( 1, 2 ) = osgrot( 1, 2 );
     rotmat( 2, 2 ) = osgrot( 2, 2 );
 
+    m_rotMatrix = m_rotMatrix * transFrom;
     m_rotMatrix = m_rotMatrix * rotmat;
+    m_rotMatrix = m_rotMatrix * transTo;
 
     m_matrix = m_matrix * m_translateMatrix;
     m_matrix = m_matrix * m_stretchMatrix;
