@@ -27,6 +27,7 @@
 
 #include "../../../common/WLimits.h"
 #include "../../../common/datastructures/WDendrogram.h"
+#include "../../../common/datastructures/WUnionFind.h"
 #include "../../../kernel/WKernel.h"
 #include "../../emptyIcon.xpm" // Please put a real icon here.
 #include "WMDetTractClusteringGP.h"
@@ -102,7 +103,7 @@ void WMDetTractClusteringGP::moduleMain()
 
         m_maxSegmentLength = searchGlobalMaxSegementLength( dataSet );
         // computeDistanceMatrix( dataSet );
-        computeEMST( dataSet );
+        computeDendrogram( computeEMST( dataSet ) );
         debugLog() << "done";
     }
 }
@@ -202,7 +203,44 @@ boost::shared_ptr< WMDetTractClusteringGP::MST > WMDetTractClusteringGP::compute
 
 boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( boost::shared_ptr< const WMDetTractClusteringGP::MST > edges ) const
 {
-    boost::shared_ptr< WDendrogram > result( new WDendrogram() );
+    boost::shared_ptr< WProgress > progress( new WProgress( "MST => Dendrogram", edges->size() ) ); // NOLINT line length
+    m_progress->addSubProgress( progress );
+    boost::shared_ptr< WDendrogram > result( new WDendrogram( edges->size() + 1 ) ); // there are exactly n-1 edges
+
+    WUnionFind uf( edges->size() + 1 );
+    std::vector< size_t > in( edges->size() + 1 ); // The refernces from the canonical Elements (cE) to the inner nodes.
+    for( size_t i = 0; i < in.size(); ++i )
+    {
+        in[i] = i; // initialize them with their corresponding leafs.
+    }
+#ifdef DEBUG
+    double similarity = wlimits::MAX_DOUBLE; // corresponds to the height, and enables the sorting check
+#endif
+    for( MST::const_reverse_iterator cit = edges->rbegin(); cit != edges->rend(); ++cit ) // NOLINT line length but: note: reverse iterating since the edge with highest similarity is at the end
+    {
+#ifdef DEBUG
+        WAssert( cit->first <= similarity, "Bug: The edges aren't sorted!" );
+        similarity = cit->first;
+#endif
+        // (u,v) - edge
+        size_t u = cit->second.first;
+        size_t v = cit->second.second;
+
+        // u and v may already contain to a cluster, thus we need their cannonical elements
+        size_t cEu = uf.find( u );
+        size_t cEv = uf.find( v );
+
+        // get the references to their inner nodes (of the dendrogram)
+        size_t innerNodeU = in[ cEu ];
+        size_t innerNodeV = in[ cEv ];
+
+        size_t newInnerNode = result->merge( innerNodeU, innerNodeV, cit->first );
+        uf.merge( cEu, cEv );
+        in[ uf.find( cEu ) ] = newInnerNode;
+
+        ++*progress;
+    }
+    progress->finish();
     return result;
 }
 

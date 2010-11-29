@@ -33,77 +33,60 @@
  * Hirachical binary tree datastructure with spatial layout information called dendrogram.
  *
  * The following description is taken from: http://en.wikipedia.org/wiki/Dendrogram A dendrogram (from Greek
- * dendron "tree", -gramma "drawing") is a tree diagram frequently used to illustrate the arrangement of the
- * clusters produced by hierarchical clustering.
+ * dendron "tree", -gramma "drawing") is a tree diagram frequently used to illustrate the arrangement of
+ * clusters produced by hierarchical clustering. Please note that each level has its height.
  *
- * This implementation is based on three arrays (\ref m_objectOrder, \ref m_branching, \ref m_levelHeight) and
- * requires implicitly object lables from <dfn>0..n-1</dfn>. The idea is very similar to the idea described in
- * the paper: <em>F.J. Rohlf, Algorithm 76: Hierarchical clustering using the minimum spanning tree. Comput.
- * J. 16 (1973), pp. 93–95.</em>
+   \verbatim
+                     |
+              ,------'--.     --- 4th level
+              |         |
+          |```````|     |     --- 3rd level
+          |       |     |
+          |       |  ...'...  --- 2nd level
+          |       |  |     |
+     |''''''''|   |  |     |  --- 1st level
+     |        |   |  |     |
+     |        |   |  |     |
+     o        o   o  o     o  --- 0   level
+   \endverbatim
+ *
+ * In order to use this class for your objects ensure that the objects are labeled from <dfn>0,...,n-1</dfn>.
  */
 class WDendrogram
 {
 friend class WDendrogramTest;
 public:
-    typedef boost::shared_ptr< std::vector< size_t > > LabelArray;
-    typedef LabelArray LevelArray;
-    typedef boost::shared_ptr< std::vector< double > > HeightArray;
+    /**
+     * Constructs a new dendrogram for \ref size many objects.
+     *
+     * \param size The number of leafs.
+     */
+    explicit WDendrogram( size_t n );
 
-//    WDendrogram( LabelArray objectOrder, LevelArray branches, HeightArray heights );
+    /**
+     * Merges two elements (either inner nodes or leafs) given via the indices \e i and \e j.
+     *
+     * \param i The index referring either to an inner node or to a leaf.
+     * \param j The other index of a leaf or inner node.
+     * \param height The height at which those to elements join.
+     *
+     * \return The number of the inner node now representing now the parent of \e i and \e j.
+     */
+    size_t merge( size_t i, size_t j, double height );
+
 protected:
-
 private:
     /**
-     * Since the dendrogram has nonintersecting edges as this:
-     *
-      \verbatim
-                        |
-                 ,------'--.     --- 4th level
-                 |         |
-             |```````|     |     --- 3rd level
-             |       |     |
-             |       |  ...'...  --- 2nd level
-             |       |  |     |
-        |''''''''|   |  |     |  --- 1st level
-        |        |   |  |     |
-        |        |   |  |     |
-
-        2        0   3  1     4
-
-      \endverbatim
-     *
-     * we need to arrage the objects from left to right so merging will not produce intersections. For this
-     * ordering this array is used and contains the object labels from left to right and provide thus the
-     * special ordering.
+     * Stores the parents of leafs as well as of inner nodes. The first half of the arrary corresponds to the
+     * parents of the leafs and the second of the inner nodes. The last inner node is the top of the
+     * dendrogram.
      */
-    LabelArray            m_objectOrder;
+    std::vector< size_t > m_parents;
 
     /**
-     * This array stores when the nodes will join or branch. Just imaging we rotate the dendrogram as follows:
-     *
-      \verbatim
-
-      2  ----.
-             |
-      0  ----'-----------.
-                         |
-      3  ----------------'-----.
-      1  ---------.            |
-                  |            |
-      4  ---------'------------'-----
-
-         ----+----+------+-----+--------> levels
-            1st  2nd    3rd   4th
-
-     \endverbatim
-     * so the array for the example above would be: <dfn>[ 1, 3, 4, 2, - ]</dfn>
+     * Stores only for the inner nodes their heights.
      */
-    LevelArray            m_branching;
-
-    /**
-     * Stores for each join level its height which may be used for spatial layouting.
-     */
-    std::vector< double > m_levelHeight;
+    std::vector< double > m_heights;
 };
 
 #endif  // WDENDROGRAM_H
