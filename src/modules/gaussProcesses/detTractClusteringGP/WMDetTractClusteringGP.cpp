@@ -25,6 +25,8 @@
 #include <string>
 #include <vector>
 
+#include "../../../common/WLimits.h"
+#include "../../../common/datastructures/WDendrogram.h"
 #include "../../../kernel/WKernel.h"
 #include "../../emptyIcon.xpm" // Please put a real icon here.
 #include "WMDetTractClusteringGP.h"
@@ -99,7 +101,9 @@ void WMDetTractClusteringGP::moduleMain()
         debugLog() << "Start Clustering";
 
         m_maxSegmentLength = searchGlobalMaxSegementLength( dataSet );
-        computeDistanceMatrix( dataSet );
+        // computeDistanceMatrix( dataSet );
+        computeEMST( dataSet );
+        debugLog() << "done";
     }
 }
 
@@ -110,6 +114,96 @@ double WMDetTractClusteringGP::searchGlobalMaxSegementLength( boost::shared_ptr<
 
     return cit->getMaxSegmentLength();
     // NOLINT return std::max_element( dataSet->begin(), dataSet->end(), [](WGaussProcess p1, WGaussProcess p2){ return p1.getMaxSegmentLength() < p2.getMaxSegmentLength(); } )->getMaxSegmentLength();
+}
+
+boost::shared_ptr< WMDetTractClusteringGP::MST > WMDetTractClusteringGP::computeEMST( boost::shared_ptr< const WDataSetGP > dataSet ) const
+{
+    boost::shared_ptr< MST > edges( new MST() );
+    if( !dataSet )
+    {
+        return edges; // consider dataset as empty
+    }
+
+    boost::shared_ptr< WProgress > progress( new WProgress( "EMST computation", dataSet->size() - 1 ) );
+    m_progress->addSubProgress( progress );
+
+    // we need the diagonal elements: (i,i) of the similarity matrix for poper similarity compuation
+    std::vector< double > diagonal( dataSet->size() );
+    for( size_t i = 0; i < dataSet->size(); ++i )
+    {
+        diagonal[i] = std::sqrt( gauss::innerProduct( ( *dataSet )[i], ( *dataSet )[i] ) );
+    }
+
+    // initialize the first the similarities to the root node.
+    const WGaussProcess& root = dataSet->front(); // is the root vertex of the MST
+    std::vector< double > similarities( dataSet->size(), 0.0 );
+    similarities[0] = wlimits::MAX_DOUBLE; // root node has maximal similarity and is selected first
+    for( size_t i = 1; i < dataSet->size(); ++i )
+    {
+        const WGaussProcess& p = ( *dataSet )[i];
+        if( root.getBB().minDistance( p.getBB() ) < root.getMaxSegmentLength() + p.getMaxSegmentLength() )
+        {
+            similarities[i] = gauss::innerProduct( root, p ) / diagonal[0] / diagonal[i];
+        }
+        // Note: it is 0.0 otherwise as the initial value is 0.0
+    }
+
+    std::vector< size_t > queue( dataSet->size() - 1 );
+    for( size_t i = 0; i < dataSet->size() - 1; ++i )
+    {
+        queue[i] = i + 1;
+    }
+    std::vector< size_t > parent( dataSet->size(), 0 );
+
+    while( !queue.empty() )
+    {
+        // find maximal similarity which corresponds to the minimum distance.
+        size_t closestTractIndex = 0; // the tract index inside the queue where this tract has highest innerProduct score among all others
+        for( size_t i = 1; i < queue.size(); ++i )
+        {
+            if( similarities[ queue[ i ] ] > similarities[ queue[ closestTractIndex ] ] )
+            {
+                closestTractIndex = i;
+            }
+        }
+
+        // remove closest tract from queue
+        size_t closestTract = queue[ closestTractIndex ];
+        queue[ closestTractIndex ] = queue.back();
+        queue.pop_back();
+
+        // add edge to MST
+        edges->insert( std::pair< double, Edge >( similarities[ closestTract ], Edge( parent[ closestTract ], closestTract ) ) );
+
+        // update similaritys and parents
+        const WGaussProcess& v = ( *dataSet )[ closestTract ];
+        for( size_t i = 0; i < queue.size(); ++i )
+        {
+            // compute similarity to last inserted tract
+            const WGaussProcess& p = ( *dataSet )[ queue[ i ] ];
+            double similarity = 0.0;
+            if( v.getBB().minDistance( p.getBB() ) < v.getMaxSegmentLength() + p.getMaxSegmentLength() )
+            {
+                similarity = gauss::innerProduct( v, p ) / diagonal[closestTract] / diagonal[ queue[ i ] ];
+            }
+
+            // update similarities and parent array if the new edge is closer to the MST sofar
+            if( similarities[ queue[ i ] ] < similarity )
+            {
+                similarities[ queue[ i ] ] = similarity;
+                parent[ queue[ i ] ] = closestTract;
+            }
+        }
+        ++*progress;
+    }
+    progress->finish();
+    return edges;
+}
+
+boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( boost::shared_ptr< const WMDetTractClusteringGP::MST > edges ) const
+{
+    boost::shared_ptr< WDendrogram > result( new WDendrogram() );
+    return result;
 }
 
 void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet )

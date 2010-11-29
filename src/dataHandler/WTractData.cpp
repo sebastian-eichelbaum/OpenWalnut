@@ -22,4 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WDendrogram.h"
+#include <vector>
+
+#include <boost/shared_ptr.hpp>
+
+#include "WTractData.h"
+
+WTractData::WTractData( boost::shared_ptr< std::vector< float > > pointComponents, boost::shared_ptr< std::vector< size_t > > startIndices )
+    : m_pointComponents( pointComponents ),
+      m_startIndices( startIndices )
+{
+}

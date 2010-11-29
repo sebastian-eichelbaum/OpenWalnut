@@ -26,6 +26,8 @@
 #define WMDETTRACTCLUSTERINGGP_H
 
 #include <string>
+#include <map>
+#include <utility>
 
 #include <osg/Geode>
 
@@ -34,6 +36,8 @@
 #include "../../../kernel/WModuleInputData.h"
 #include "../../../kernel/WModuleOutputData.h"
 #include "../WDataSetGP.h"
+
+class WDendrogram;
 
 /**
  * Module for clustering gaussian processes which representing deterministic tracts.
@@ -81,6 +85,17 @@ public:
 
 protected:
     /**
+     * Represents an edge from one vertex/tract to another one.
+     */
+    typedef std::pair< size_t, size_t > Edge;
+
+    /**
+     * Implicit definition of an Minimum Spanning Tree with weighted edges. First is the weight of second the edge. The vertexes
+     * or tracts are just implicit given with the number.
+     */
+    typedef std::multimap< double, Edge > MST;
+
+    /**
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void moduleMain();
@@ -112,6 +127,10 @@ protected:
      * \return The similarity or also called distant matrix.
      */
     void computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet );
+
+    boost::shared_ptr< WMDetTractClusteringGP::MST > computeEMST( boost::shared_ptr< const WDataSetGP > dataSet ) const;
+
+    boost::shared_ptr< WDendrogram > computeDendrogram( boost::shared_ptr< const WMDetTractClusteringGP::MST > edges ) const;
 
     /**
      * Input Connector for the gaussian processes which are about to be clustered.
