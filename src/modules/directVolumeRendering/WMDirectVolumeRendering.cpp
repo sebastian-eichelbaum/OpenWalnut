@@ -242,6 +242,7 @@ void WMDirectVolumeRendering::moduleMain()
                 {
                     warnLog() << "Transfer function texture could not be loaded from " << m_tfLoaderFile->get( true ).file_string() << ".";
                 }
+                m_tfLoaderTrigger->get( true );
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
