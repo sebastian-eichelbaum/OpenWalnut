@@ -38,9 +38,14 @@ class WTractData
 public:
     /**
      * Constructs a new WTractData.
+     * \param pointComponents x, y, and z components of each position of each tract
+     * \param startIndices For each tract the index of the first x component in pointComponents.
      */
     WTractData( boost::shared_ptr< std::vector< float > > pointComponents, boost::shared_ptr< std::vector< size_t > > startIndices );
 
+    /**
+     * \return Number of tracts.
+     */
     size_t numTracts() const;
 
 protected:

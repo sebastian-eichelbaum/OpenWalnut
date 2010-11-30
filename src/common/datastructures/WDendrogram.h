@@ -57,9 +57,9 @@ class WDendrogram
 friend class WDendrogramTest;
 public:
     /**
-     * Constructs a new dendrogram for \ref size many objects.
+     * Constructs a new dendrogram for \c n many objects.
      *
-     * \param size The number of leafs.
+     * \param n The number of leafs.
      */
     explicit WDendrogram( size_t n );
 

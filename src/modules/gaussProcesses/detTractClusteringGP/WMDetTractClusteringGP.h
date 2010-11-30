@@ -128,8 +128,18 @@ protected:
      */
     void computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet );
 
+    /**
+     * Constructs Euclidean minimal spanning tree (EMST) as preprocessing for dendrogram.
+     * \param dataSet Gaussian processes
+     * \return Euclidean spanning tree (map from weight (double) to edge (pair<size_t,size_t>))
+     */
     boost::shared_ptr< WMDetTractClusteringGP::MST > computeEMST( boost::shared_ptr< const WDataSetGP > dataSet ) const;
 
+    /**
+     * Constructs single linkage agglomerative clustering from EMST.
+     * \param edges Sorted weighted edges of EMST
+     * \return The dendrogram
+     */
     boost::shared_ptr< WDendrogram > computeDendrogram( boost::shared_ptr< const WMDetTractClusteringGP::MST > edges ) const;
 
     /**
