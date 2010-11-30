@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "../WAssert.h"
+#include "../WStringUtils.h"
 #include "WDendrogram.h"
 
 WDendrogram::WDendrogram( size_t n )
@@ -103,7 +104,8 @@ std::string WDendrogram::toTXTString() const
             }
             numElements -= 1;
         }
-        ss << " (" << left << ", " << right << "), " << m_heights[ i - m_heights.size() + 1 ] << ")" << std::endl;
+        using string_utils::operator<<;
+        ss << "(" << left << ", " << right << "), " << m_heights[ i - m_heights.size() - 1 ] << ")" << std::endl;
         // TODO(math): the needs to be made with a writer instead
         std::ofstream file( "/home/math/pansen.txt" );
         file << ss.str();
