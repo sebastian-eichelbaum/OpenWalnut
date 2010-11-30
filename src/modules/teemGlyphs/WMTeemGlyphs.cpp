@@ -216,7 +216,24 @@ void WMTeemGlyphs::moduleMain()
             m_moduleState.wait();
             continue;
         }
-        renderSlice( m_sliceIdProp->get() );
+        if( m_input->getData().get() )
+        {
+            boost::shared_ptr< WGridRegular3D > gridReg = boost::shared_dynamic_cast< WGridRegular3D >( m_input->getData().get()->getGrid() );
+            switch( m_sliceOrientationSelection->get( true ).getItemIndexOfSelected( 0 ) )
+            {
+                case 0:
+                    m_sliceIdProp->setMax( gridReg->getNbCoordsX() - 1 );
+                    break;
+                case 1:
+                    m_sliceIdProp->setMax( gridReg->getNbCoordsY() - 1 );
+                    break;
+                case 2:
+                    m_sliceIdProp->setMax( gridReg->getNbCoordsZ() - 1 );
+                    break;
+            }
+
+            renderSlice( m_sliceIdProp->get() );
+        }
 
         m_moduleState.wait();
     }
@@ -362,7 +379,6 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
     m_nX =  m_grid->getNbCoordsX();
     m_nY =  m_grid->getNbCoordsY();
     m_nZ =  m_grid->getNbCoordsZ();
-    WAssert( sliceId < m_nX, "Slice id to large." );
     m_sliceId = sliceId;
 
     switch( sliceType )
