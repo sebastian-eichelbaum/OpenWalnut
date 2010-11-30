@@ -256,7 +256,7 @@ public:
 
     /**
      * Transforms texture coordinates to world coordinates.
-     * \param point The point with these coordinates will be transformed.
+     * \param coords The point with these coordinates will be transformed.
      */
     wmath::WPosition texCoordToWorldCoord( wmath::WVector3D coords );
 
