@@ -188,13 +188,12 @@ void main()
             break;
     }
 
-    /*
     // have we hit something which was classified not to be transparent?
     // This is, visually, not needed but useful if volume rendere is used in conjunction with other geometry.
-    if ( isZero( dst.a ) )
-    {
-        discard;
-    }*/
+    // if ( isZero( dst.a ) )
+    // {
+    //    discard;
+    // }
 
     // set final color
     float depth = gl_FragCoord.z;
