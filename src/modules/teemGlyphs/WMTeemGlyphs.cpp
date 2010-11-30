@@ -181,7 +181,7 @@ void WMTeemGlyphs::properties()
     m_glyphSizeProp->setMax( 100. );
 
 
-    m_moduloProp = m_properties->addProperty( "Modulo", "Shows only every Modulo-th glyph in the two slice directions", 3, m_recompute );
+    m_moduloProp = m_properties->addProperty( "Modulo", "Shows only every Modulo-th glyph in the two slice directions", 2, m_recompute );
     m_moduloProp->setMin( 0 );
     m_moduloProp->setMax( 10 );
 
