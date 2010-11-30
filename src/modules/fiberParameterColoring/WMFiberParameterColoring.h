@@ -120,6 +120,16 @@ private:
      * The colors encoding the segment length
      */
     WDataSetFibers::ColorArray m_fibLengthColors;
+
+    /**
+     * The offset color.
+     */
+    WPropColor m_baseColor;
+
+    /**
+     * The color gets scaled by the calculated color (i.e. Curvature) and added to m_baseColor for each vertex.
+     */
+    WPropColor m_scaleColor;
 };
 
 #endif  // WMFIBERPARAMETERCOLORING_H
