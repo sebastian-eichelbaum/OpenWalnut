@@ -86,8 +86,11 @@ std::string WDendrogram::toTXTString() const
         level[ i ] = std::max( level[ left ], level[ right ] ) + 1;
         preds[ m_parents[ i ] ].insert( i );
         std::set< size_t > join;
-        std::set_union( childsOfInnerNodes[ m_parents[ i ] ].begin(), childsOfInnerNodes[ m_parents[ i ] ].end(), childsOfInnerNodes[ i ].begin(), childsOfInnerNodes[ i ].end(),
-                std::inserter( join, join.begin() ) );
+        std::set_union( childsOfInnerNodes[ m_parents[ i ] ].begin(),
+                        childsOfInnerNodes[ m_parents[ i ] ].end(),
+                        childsOfInnerNodes[ i ].begin(),
+                        childsOfInnerNodes[ i ].end(),
+                        std::inserter( join, join.begin() ) );
         childsOfInnerNodes[ m_parents[ i ] ] = join;
         ss << "(" << level[i] << ", (";
         size_t numElements = childsOfInnerNodes[i].size();
