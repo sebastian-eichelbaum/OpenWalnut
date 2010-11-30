@@ -104,9 +104,9 @@ void WMVectorPlot::properties()
                                                    "This color is used if direction coloring is deactivated.",
                                                    WColor( 1.0, 0.0, 0.0, 1.0 ) );
 
-    m_showonX        = m_properties->addProperty( "Show sagittal", "Show vectors on sagittal slice.", true );
-    m_showonY        = m_properties->addProperty( "Show coronal", "Show vectors on coronal slice.", true );
-    m_showonZ        = m_properties->addProperty( "Show axial", "Show vectors on axial slice.", true );
+    m_showOnSagittal        = m_properties->addProperty( "Show sagittal", "Show vectors on sagittal slice.", true );
+    m_showOnCoronal        = m_properties->addProperty( "Show coronal", "Show vectors on coronal slice.", true );
+    m_showOnAxial        = m_properties->addProperty( "Show axial", "Show vectors on axial slice.", true );
 
     m_xSlice->setMin( 0 );
     m_xSlice->setMax( 160 );
@@ -216,7 +216,7 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
         int maxY = m_ySlice->getMax()->getMax();
         int maxZ = m_zSlice->getMax()->getMax();
 
-        if( m_showonZ->get( true ) )
+        if( m_showOnAxial->get( true ) )
         {
             for( int x = 0; x < maxX; ++x )
             {
@@ -268,7 +268,7 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 
         ++*progress;
 
-        if( m_showonY->get( true ) )
+        if( m_showOnCoronal->get( true ) )
         {
             for( int x = 0; x < maxX; ++x )
             {
@@ -320,7 +320,7 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 
         ++*progress;
 
-        if( m_showonX->get( true ) )
+        if( m_showOnSagittal->get( true ) )
         {
             for( int y = 0; y < maxY; ++y )
             {
@@ -403,7 +403,7 @@ void WMVectorPlot::updateCallback()
     wmath::WPosition current = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
 
     if( ( m_oldPos != current ) || m_coloringMode->changed() || m_aColor->changed() || m_projectOnSlice->changed() ||
-            m_showonX->changed() || m_showonY->changed() || m_showonZ->changed() )
+            m_showOnSagittal->changed() || m_showOnCoronal->changed() || m_showOnAxial->changed() )
     {
         m_oldPos = current; // for next run
         osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_rootNode->getDrawable( 0 ) );
