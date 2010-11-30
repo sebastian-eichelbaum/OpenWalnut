@@ -74,6 +74,14 @@ public:
      */
     size_t merge( size_t i, size_t j, double height );
 
+    /**
+     * Transform this dendrogram into a string, where each leaf or inner node is mapped to a special string.
+     * <dfn>"(level, (all leafs incorporated by this node), (the two direct predecessors), height if available )"</dfn>
+     *
+     * \return The special string as constructed from the scheme above.
+     */
+    std::string toTXTString() const;
+
 protected:
 private:
     /**

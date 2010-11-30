@@ -103,7 +103,7 @@ void WMDetTractClusteringGP::moduleMain()
 
         m_maxSegmentLength = searchGlobalMaxSegementLength( dataSet );
         // computeDistanceMatrix( dataSet );
-        computeDendrogram( computeEMST( dataSet ) );
+        std::cout << computeDendrogram( computeEMST( dataSet ) )->toTXTString();
         debugLog() << "done";
     }
 }
