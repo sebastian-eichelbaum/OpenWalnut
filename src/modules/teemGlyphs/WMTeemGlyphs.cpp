@@ -164,6 +164,10 @@ void WMTeemGlyphs::properties()
                                                              m_recompute );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_sliceOrientationSelection );
 
+    m_sliceIdProp = m_properties->addProperty( "Slice ID", "Number of the slice to display", 100, m_recompute );
+    m_sliceIdProp->setMin( 0 );
+    m_sliceIdProp->setMax( 128 );
+
     m_GFAThresholdProp = m_properties->addProperty( "GFA threshold", "Show only glyphs at voxels above the given generalized fractional"
                                                     " anisotropy (GFA) threshold"
                                                     " (if GFA data is present at input connector).",
@@ -172,13 +176,10 @@ void WMTeemGlyphs::properties()
     m_GFAThresholdProp->setMin( 0 );
     m_GFAThresholdProp->setMax( 1. );
 
-    m_glyphSizeProp = m_properties->addProperty( "Glyph size", "Size of the displayed glyphs.", 0.5, m_recompute );
+    m_glyphSizeProp = m_properties->addProperty( "Glyph size", "Size of the displayed glyphs.", 1.0, m_recompute );
     m_glyphSizeProp->setMin( 0 );
     m_glyphSizeProp->setMax( 100. );
 
-    m_sliceIdProp = m_properties->addProperty( "Slice ID", "Number of the slice to display", 0, m_recompute );
-    m_sliceIdProp->setMin( 0 );
-    m_sliceIdProp->setMax( 128 );
 
     m_moduloProp = m_properties->addProperty( "Modulo", "Shows only every Modulo-th glyph in the two slice directions", 3, m_recompute );
     m_moduloProp->setMin( 0 );
@@ -215,9 +216,7 @@ void WMTeemGlyphs::moduleMain()
             m_moduleState.wait();
             continue;
         }
-        debugLog() << "-------- Enter renderSlice...";
         renderSlice( m_sliceIdProp->get() );
-        debugLog() << "-------- Exit renderSlice...";
 
         m_moduleState.wait();
     }
@@ -232,11 +231,10 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
 
     size_t sliceType = m_sliceOrientationSelection->get( true ).getItemIndexOfSelected( 0 );
 
-    debugLog() << "Rendering slice ... " << sliceId;
     // Please look here  http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
     if( m_moduleNode )
     {
-       WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
     }
 
     //-----------------------------------------------------------
@@ -252,18 +250,17 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
                                        sliceType,
                                        m_usePolarPlotProp->get(),
                                        m_glyphSizeProp->get(),
-                                      m_useNormalizationProp->get() ) );
+                                       m_useNormalizationProp->get() ) );
     WThreadedFunction< GlyphGeneration > generatorThreaded( W_AUTOMATIC_NB_THREADS, generator );
     generatorThreaded.run();
     generatorThreaded.wait();
 
     ++*progress;
 
-    m_moduleNode = new WGEGroupNode();
+    m_moduleNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
     osg::ref_ptr< osg::Geode > glyphsGeode = generator->getGraphics();
     m_moduleNode->insert( glyphsGeode );
-
-    debugLog() << "end loop ... " << sliceId;
+    m_moduleNode->setName( "teem glyphs module node" );
 
     m_shader = osg::ref_ptr< WShader > ( new WShader( "WMTeemGlyphs", m_localPath ) );
     m_shader->apply( glyphsGeode );
