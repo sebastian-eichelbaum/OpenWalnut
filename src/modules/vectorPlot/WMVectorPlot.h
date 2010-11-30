@@ -163,8 +163,6 @@ private:
 
     osg::ref_ptr< WShader > m_shader; //!< the shader object for this module
 
-    wmath::WMatrix< double > m_mat; //!< The 4x4 transformation matrix for the glyph vertices.
-
     wmath::WPosition m_oldPos; //!< The previous position of the slides.
 };
 
