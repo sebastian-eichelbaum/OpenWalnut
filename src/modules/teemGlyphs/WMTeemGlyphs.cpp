@@ -232,6 +232,13 @@ void WMTeemGlyphs::moduleMain()
                     break;
             }
 
+            boost::shared_ptr< WDataSetScalar > gfa = m_inputGFA->getData();
+            if( gfa )
+            {
+                m_GFAThresholdProp->setMax( gfa->getMax() );
+                m_GFAThresholdProp->setMin( gfa->getMin() );
+            }
+
             renderSlice( m_sliceIdProp->get() );
         }
 
