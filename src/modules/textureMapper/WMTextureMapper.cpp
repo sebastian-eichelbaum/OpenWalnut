@@ -24,8 +24,8 @@
 
 #include <string>
 
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WDataTexture3D_2.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../kernel/WKernel.h"
 
 #include "WMTextureMapper.xpm"
@@ -77,35 +77,6 @@ void WMTextureMapper::connectors()
 void WMTextureMapper::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-
-    WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMTextureMapper::propertyChanged, this, _1 );
-    m_groupTex = m_properties->addPropertyGroup( "Texture Properties",  "Properties only related to the texture representation." );
-
-    // several other properties
-    m_interpolation = m_groupTex->addProperty( "Interpolation",
-                                                  "If active, the boundaries of single voxels"
-                                                  " will not be visible in colormaps. The transition between"
-                                                  " them will be smooth by using interpolation then.",
-                                                  true,
-                                                  propertyCallback );
-    m_threshold = m_groupTex->addProperty( "Threshold", "Values below this threshold will not be "
-                                              "shown in colormaps.", 0., propertyCallback );
-    m_opacity = m_groupTex->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
-                                            " values from several data sets.", 100, propertyCallback );
-    m_opacity->setMax( 100 );
-    m_opacity->setMin( 0 );
-
-    m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_colorMapSelectionsList->addItem( "Grayscale", "" );
-    m_colorMapSelectionsList->addItem( "Rainbow", "" );
-    m_colorMapSelectionsList->addItem( "Hot iron", "" );
-    m_colorMapSelectionsList->addItem( "Red-Yellow", "" );
-    m_colorMapSelectionsList->addItem( "Atlas", "" );
-    m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
-
-    m_colorMapSelection = m_groupTex->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), propertyCallback );
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
-
     WModule::properties();
 }
 
@@ -140,10 +111,12 @@ void WMTextureMapper::moduleMain()
 
             debugLog() << "Registering new texture";
 
-            // de-register at datahandler
+            // de-register last input
             if ( m_lastDataSet )
             {
-                WDataHandler::deregisterDataSet( m_lastDataSet );
+                m_properties->removeProperty( m_lastDataSet->getTexture2()->getProperties() );
+                m_infoProperties->removeProperty( m_lastDataSet->getTexture2()->getInformationProperties() );
+                WGEColormapping::deregisterTexture( m_lastDataSet->getTexture2() );
             }
 
             // register only valid data
@@ -154,20 +127,24 @@ void WMTextureMapper::moduleMain()
                 // register new
                 if ( m_lastDataSet->isTexture() )
                 {
-                    WDataHandler::registerDataSet( m_lastDataSet );
+                    m_properties->addProperty( m_lastDataSet->getTexture2()->getProperties() );
+                    m_infoProperties->addProperty( m_lastDataSet->getTexture2()->getInformationProperties() );
+                    WGEColormapping::registerTexture( m_lastDataSet->getTexture2() );
                 }
                 else
                 {
                     warnLog() << "Connected dataset is not usable as a texture.";
                 }
             }
+
         }
     }
 
     // remove if module is removed
     if ( m_lastDataSet )
     {
-        WDataHandler::deregisterDataSet( m_lastDataSet );
+        WGEColormapping::deregisterTexture( m_lastDataSet->getTexture2() );
+        // NOTE: the props get removed automatically
     }
 }
 
@@ -176,39 +153,10 @@ void WMTextureMapper::activate()
     // deactivate the output if wanted
     if ( m_lastDataSet )
     {
-        m_lastDataSet->getTexture()->setGloballyActive( m_active->get( true ) );
+        m_lastDataSet->getTexture2()->active()->set( m_active->get( true ) );
     }
 
     // Always call WModule's activate!
     WModule::activate();
-}
-
-void WMTextureMapper::propertyChanged( boost::shared_ptr< WPropertyBase > property )
-{
-    if ( !m_lastDataSet )
-    {
-        return;
-    }
-
-    if ( property == m_threshold )
-    {
-        m_lastDataSet->getTexture()->setThreshold( m_threshold->get() );
-    }
-    else if ( property == m_opacity )
-    {
-        m_lastDataSet->getTexture()->setOpacity( m_opacity->get() );
-    }
-    else if ( property == m_active )
-    {
-        m_lastDataSet->getTexture()->setGloballyActive( m_active->get() );
-    }
-    else if ( property == m_interpolation )
-    {
-        m_lastDataSet->getTexture()->setInterpolation( m_interpolation->get() );
-    }
-    else if ( property == m_colorMapSelection )
-    {
-        m_lastDataSet->getTexture()->setSelectedColormap( m_colorMapSelection->get( true ).getItemIndexOfSelected( 0 ) );
-    }
 }
 
