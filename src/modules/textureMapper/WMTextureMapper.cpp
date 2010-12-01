@@ -77,6 +77,10 @@ void WMTextureMapper::connectors()
 void WMTextureMapper::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    m_replace = m_properties->addProperty( "Keep position",
+                                           "If true, new texture on the input connector get placed in the list where the old one was.", true );
+
     WModule::properties();
 }
 
@@ -109,40 +113,49 @@ void WMTextureMapper::moduleMain()
         {
             boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
 
-            // de-register last input
-            if ( m_lastDataSet )
+            // replace texture instead of removing it?
+            if ( dataSet && dataSet->isTexture() && m_lastDataSet && m_replace->get( true ) )
             {
-                debugLog() << "Removing previous texture.";
+                debugLog() << "Replacing texture \"" << m_lastDataSet->getTexture2()->name()->get() << "\" with \"" <<
+                                                        dataSet->getTexture2()->name()->get() << "\".";
                 m_properties->removeProperty( m_lastDataSet->getTexture2()->getProperties() );
                 m_infoProperties->removeProperty( m_lastDataSet->getTexture2()->getInformationProperties() );
-                WGEColormapping::deregisterTexture( m_lastDataSet->getTexture2() );
-            }
-
-            // register only valid data
-            if( dataSet )
-            {
+                m_properties->addProperty( dataSet->getTexture2()->getProperties() );
+                m_infoProperties->addProperty( dataSet->getTexture2()->getInformationProperties() );
+                WGEColormapping::replaceTexture( m_lastDataSet->getTexture2(), dataSet->getTexture2() );
                 m_lastDataSet = dataSet;
-
-                // register new
-                if ( m_lastDataSet->isTexture() )
+            }
+            else
+            {
+                // de-register last input
+                if ( m_lastDataSet )
                 {
-                    debugLog() << "Registering new texture";
+                    debugLog() << "Removing previous texture \"" << m_lastDataSet->getTexture2()->name()->get() << "\".";
+                    m_properties->removeProperty( m_lastDataSet->getTexture2()->getProperties() );
+                    m_infoProperties->removeProperty( m_lastDataSet->getTexture2()->getInformationProperties() );
+                    WGEColormapping::deregisterTexture( m_lastDataSet->getTexture2() );
+                    m_lastDataSet.reset();
+                }
+
+                // register only valid data
+                if( dataSet && dataSet->isTexture() )
+                {
+                    m_lastDataSet = dataSet;
+
+                    // register new
+                    debugLog() << "Registering new texture \"" << m_lastDataSet->getTexture2()->name()->get() << "\".";
                     m_properties->addProperty( m_lastDataSet->getTexture2()->getProperties() );
                     m_infoProperties->addProperty( m_lastDataSet->getTexture2()->getInformationProperties() );
                     WGEColormapping::registerTexture( m_lastDataSet->getTexture2() );
                 }
-                else
-                {
-                    warnLog() << "Connected dataset is not usable as a texture.";
-                }
             }
-
         }
     }
 
     // remove if module is removed
     if ( m_lastDataSet )
     {
+        debugLog() << "Removing previous texture \"" << m_lastDataSet->getTexture2()->name()->get() << "\".";
         WGEColormapping::deregisterTexture( m_lastDataSet->getTexture2() );
         // NOTE: the props get removed automatically
     }

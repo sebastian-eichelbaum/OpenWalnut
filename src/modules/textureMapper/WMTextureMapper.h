@@ -29,6 +29,7 @@
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
+#include "../../common/WPropertyVariable.h"
 
 #include "../../dataHandler/WDataSetSingle.h"
 
@@ -110,6 +111,11 @@ private:
      * This is a pointer to the dataset the module is currently working on.
      */
     boost::shared_ptr< WDataSetSingle > m_lastDataSet;
+
+    /**
+     * If true, the new texture gets placed at the position of the old one in the texture sorter
+     */
+    WPropBool m_replace;
 };
 
 #endif  // WMTEXTUREMAPPER_H
