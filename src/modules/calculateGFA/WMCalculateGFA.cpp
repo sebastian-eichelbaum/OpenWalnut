@@ -30,6 +30,7 @@
 #include "../../common/math/WVector3D.h"
 #include "../../common/math/WGeometryFunctions.h"
 #include "../../kernel/WKernel.h"
+#include "WMCalculateGFA.xpm"
 
 #include "WMCalculateGFA.h"
 
@@ -53,7 +54,7 @@ boost::shared_ptr< WModule > WMCalculateGFA::factory() const
 
 const char** WMCalculateGFA::getXPMIcon() const
 {
-    return NULL;
+    return WMCalculateGFA_xpm;
 }
 const std::string WMCalculateGFA::getName() const
 {

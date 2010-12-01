@@ -216,6 +216,16 @@ public slots:
     void openAboutDialog();
 
     /**
+     * Gets called when menu entry "About Qt" is activated
+     */
+    void openAboutQtDialog();
+
+    /**
+     * Gets called when menu entry "OpenWalnut Introduction" is activated
+     */
+    void openIntroductionDialog();
+
+    /**
      * Sets the left preset view of the main viewer.
      */
     void setPresetViewLeft();

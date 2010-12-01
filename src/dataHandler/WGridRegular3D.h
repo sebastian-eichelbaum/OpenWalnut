@@ -250,9 +250,15 @@ public:
 
     /**
      * Transforms world coordinates to texture coordinates.
-     * \param point The point with these coordinated will be transformed.
+     * \param point The point with these coordinates will be transformed.
      */
     wmath::WVector3D worldCoordToTexCoord( wmath::WPosition point );
+
+    /**
+     * Transforms texture coordinates to world coordinates.
+     * \param coords The point with these coordinates will be transformed.
+     */
+    wmath::WPosition texCoordToWorldCoord( wmath::WVector3D coords );
 
     /**
      * Returns the i'th voxel where the given position belongs too.

@@ -22,25 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDENDROGRAM_TEST_H
-#define WDENDROGRAM_TEST_H
+#include <vector>
 
-#include <cxxtest/TestSuite.h>
+#include <boost/shared_ptr.hpp>
 
-#include "../WDendrogram.h"
+#include "WTractData.h"
 
-/**
- * TestSuite for the WDendrogram class
- */
-class WDendrogramTest : public CxxTest::TestSuite
+WTractData::WTractData( boost::shared_ptr< std::vector< float > > pointComponents, boost::shared_ptr< std::vector< size_t > > startIndices )
+    : m_pointComponents( pointComponents ),
+      m_startIndices( startIndices )
 {
-public:
-    /**
-     * When a new node is created, each member should be equal to zero.
-     */
-    void testNewNodesHaveAlwaysZerosAssignedInitially( void )
-    {
-    }
-};
-
-#endif  // WDENDROGRAM_TEST_H
+}

@@ -33,10 +33,11 @@
 
 #include "../../dataHandler/WEEG2.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WROIBox.h"
 #include "../../gui/WCustomWidget.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
+#include "../../kernel/WFiberSelector.h"
 #include "WEEGEvent.h"
 #include "WEEGSourceCalculator.h"
 #include "WEEGViewHandler.h"
@@ -235,7 +236,7 @@ private:
      * m_event.
      * Used to select the fibers around this dipole.
      */
-    boost::weak_ptr< WRMROIRepresentation > m_roi;
+    osg::ref_ptr< WROIBox > m_roi;
 
     /**
      * Bool flag which gets set when the data was changed.

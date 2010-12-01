@@ -1,2 +1,1 @@
-# TODO(all): please enable this module again when ported to new ROI infrastructure.
-#ADD_SUBDIRECTORY( eegView )
+ADD_SUBDIRECTORY( eegView )
