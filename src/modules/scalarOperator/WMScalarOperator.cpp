@@ -171,7 +171,7 @@ inline T opTimes( T a, T b )
 template< typename T >
 inline T opDiv( T a, T b )
 {
-    return a * b;
+    return a / b;
 }
 
 /**

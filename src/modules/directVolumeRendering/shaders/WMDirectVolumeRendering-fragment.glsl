@@ -43,10 +43,7 @@
 // texture containing the data
 uniform sampler3D tex0;
 uniform sampler1D TRANSFERFUNCTION_SAMPLER;
-
-// The isovalue to use.
-uniform float u_isovalue1 = 0.33;
-uniform float u_isovalue2 = 0.80;
+uniform sampler3D GRADIENTTEXTURE_SAMPLER;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -99,6 +96,9 @@ vec3 findRayEnd( out float d )
  */
 vec3 getGradient( in vec3 position )
 {
+#ifdef GRADIENTTEXTURE_ENABLED
+    return ( 2.0 * texture3D( GRADIENTTEXTURE_SAMPLER, position ).rgb ) + vec3( -1.0 );
+#else
     float s = 0.01;
     float valueXP = texture3D( tex0, position + vec3( s, 0.0, 0.0 ) ).r;
     float valueXM = texture3D( tex0, position - vec3( s, 0.0, 0.0 ) ).r;
@@ -108,6 +108,7 @@ vec3 getGradient( in vec3 position )
     float valueZM = texture3D( tex0, position - vec3( 0.0, 0.0, s ) ).r;
 
     return vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM );
+#endif
 }
 
 /**
@@ -117,12 +118,12 @@ vec3 getGradient( in vec3 position )
  *
  * \return the color.
  */
-vec4 transferFunction( in float value )
+vec4 transferFunction( float value )
 {
 #ifdef TRANSFERFUNCTION_ENABLED
     return texture1D( TRANSFERFUNCTION_SAMPLER, value );
 #else
-    if ( isZero( value - 0.5, 0.1 ) )   // if not TF has been specified, at least show something
+    if ( isZero( value - 0.5, 0.01 ) )   // if not TF has been specified, at least show something
     {
         return vec4( 1.0, 0.0, 0.0, 0.1 );
     }
@@ -175,39 +176,33 @@ void main()
     vec3 rayEnd = findRayEnd( totalDistance );
 
     // walk along the ray
-    vec4 accumColor = vec4( vec3( 0.0 ), 1.0 );      // the composited color
-    float accumAlpha = 1.0;                          // accumulated transparency of the volume.
-    float depth = gl_FragCoord.z;                    // the depth of the last hit
-    float value;                                     // the current value inside the data
-    float hit = 0.0;                                 // this value will be != 0.0 if something has been hit
+    vec4 dst = vec4( 0.0 );
     while ( currentDistance <= totalDistance )
     {
-        // get current value
-        vec3 rayPoint = rayEnd - ( currentDistance * v_ray );
-        value = texture3D( tex0, rayPoint ).r;
+        // get current value, classify and illuminate
+        vec3 rayPoint = v_rayStart + ( currentDistance * v_ray );
+        vec4 src = localIllumination( rayPoint, transferFunction( texture3D( tex0, rayPoint ).r ) );
+
         // go to next value
         currentDistance += v_stepDistance;
 
-        // classify point in volume and evaluate local illumination model at this position
-        vec4 color = localIllumination( rayPoint,  transferFunction( value ) );
+        // apply front-to-back compositing
+        dst = ( 1.0 - dst.a ) * src + dst;
 
-        // has there ever been something we hit?
-        hit = max( hit, color.a );
-
-        accumColor.rgba = mix( accumColor.rgba, color.rgba, color.a );  // compositing
-        accumAlpha *= ( 1.0 - color.a );                                // compositing: keep track of final alpha value of the background
+        if ( dst.a >= 0.95 )
+            break;
     }
 
     // have we hit something which was classified not to be transparent?
     // This is, visually, not needed but useful if volume rendere is used in conjunction with other geometry.
-    if ( isZero( hit ) )
-    {
-        discard;
-    }
+    // if ( isZero( dst.a ) )
+    // {
+    //    discard;
+    // }
 
     // set final color
-    accumColor.a = 1.0 - accumAlpha;
-    gl_FragColor = accumColor;
-    gl_FragDepth = depth;
+    float depth = gl_FragCoord.z;
+    gl_FragColor = dst;
+    gl_FragDepth = depth;                    // the depth of the last hit
 }
 

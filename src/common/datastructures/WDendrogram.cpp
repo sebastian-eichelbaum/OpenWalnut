@@ -22,24 +22,95 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+#include <iterator>
+#include <fstream>
+#include <map>
+#include <set>
+#include <sstream>
+#include <vector>
+
+#include "../WAssert.h"
 #include "WDendrogram.h"
 
-WDendrogram::WDendrogram( unsigned int numElements )
-    : m_tree( numElements, Node() )
+WDendrogram::WDendrogram( size_t n )
+    : m_heights( n - 1, 0.0 )
 {
+    m_parents.reserve( 2 * n - 1 );
+    m_parents.resize( n, 0 );
 }
 
-WDendrogram::~WDendrogram()
+size_t WDendrogram::merge( size_t i, size_t j, double height )
 {
+#ifdef DEBUG
+    std::stringstream ss;
+    ss << "Bug: n=" << m_heights.size() << " many leafs can lead maximal to 2n-1 many nodes in a tree but this was violated now!" << std::endl;
+    WAssert( m_parents.size() < 2 * m_heights.size() + 1, ss.str() );
+#endif
+
+    m_parents.push_back( m_parents.size() ); // the root s always self referencing
+
+#ifdef DEBUG
+    m_heights.at( m_parents.size() - 2 - m_heights.size() ) = height;
+    m_parents.at( i ) = m_parents.size() - 1;
+    m_parents.at( j ) = m_parents.size() - 1;
+#else
+    m_heights[ m_parents.size() - 2 - m_heights.size() ] = height;
+    m_parents[ i ] = m_parents.back();
+    m_parents[ j ] = m_parents.back();
+#endif
+
+    return m_parents.size() - 1;
 }
 
-WDendrogram::Node::Node()
+std::string WDendrogram::toTXTString() const
 {
-    parentTreeIdx = 0;
-    minTreeIdx = 0;
-    maxTreeIdx = 0;
-    dataIdx = 0;
-    height = 0.0;
+    std::stringstream ss;
+
+    std::map< size_t, std::set< size_t > > childsOfInnerNodes;
+    std::map< size_t, std::set< size_t > > preds;
+    std::vector< size_t > level( 2 * m_heights.size() + 1, 0 );
+
+    // first write out all fibers
+    for( size_t i = 0; i < m_heights.size() + 1; ++i )
+    {
+        ss << "(0, (" << i << ",))" << std::endl;
+        childsOfInnerNodes[ m_parents[ i ] ].insert( i );
+        preds[ m_parents[ i ] ] = childsOfInnerNodes[ m_parents[ i ] ];
+    }
+    for( size_t i = m_heights.size() + 1; i < 2 * m_heights.size() + 1; ++i )
+    {
+        WAssert( preds[ i ].size() == 2, "There are more or less than 2 predecessors for an inner node" );
+        size_t left = *( preds[ i ].begin() );
+        size_t right = *( preds[ i ].rbegin() );
+        level[ i ] = std::max( level[ left ], level[ right ] ) + 1;
+        preds[ m_parents[ i ] ].insert( i );
+        std::set< size_t > join;
+        std::set_union( childsOfInnerNodes[ m_parents[ i ] ].begin(),
+                        childsOfInnerNodes[ m_parents[ i ] ].end(),
+                        childsOfInnerNodes[ i ].begin(),
+                        childsOfInnerNodes[ i ].end(),
+                        std::inserter( join, join.begin() ) );
+        childsOfInnerNodes[ m_parents[ i ] ] = join;
+        ss << "(" << level[i] << ", (";
+        size_t numElements = childsOfInnerNodes[i].size();
+        for( std::set< size_t >::const_iterator cit = childsOfInnerNodes[i].begin(); cit != childsOfInnerNodes[i].end(); ++cit )
+        {
+            if( numElements == 1 )
+            {
+                ss << *cit << "), ";
+            }
+            else
+            {
+                ss << *cit << ", ";
+            }
+            numElements -= 1;
+        }
+        ss << " (" << left << ", " << right << "), " << m_heights[ i - m_heights.size() + 1 ] << ")" << std::endl;
+        // TODO(math): the needs to be made with a writer instead
+        std::ofstream file( "/home/math/pansen.txt" );
+        file << ss.str();
+        file.close();
+    }
+    return ss.str();
 }
-
-
