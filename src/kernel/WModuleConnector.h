@@ -298,7 +298,6 @@ private:
      * The connections description.
      */
     std::string m_description;
-
 };
 
 #endif  // WMODULECONNECTOR_H
