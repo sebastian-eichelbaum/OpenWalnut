@@ -80,6 +80,11 @@ public:
     typedef TextureRegisterHandler TextureDeregisterHandler;
 
     /**
+     * The type of handler used for being notified about replaced textures.
+     */
+    typedef boost::function< void ( osg::ref_ptr< WGETexture3D >, osg::ref_ptr< WGETexture3D > ) > TextureReplaceHandler;
+
+    /**
      * The type of handler called whenever the texture list got resorted.
      */
     typedef boost::function< void ( void ) > TextureSortHandler;
@@ -137,7 +142,17 @@ public:
     static void deregisterTexture( osg::ref_ptr< WGETexture3D > texture );
 
     /**
-     * Resorts the the texture list using the specified comparator.
+     * Replaces the specified texture with the given new one. If the old texture does not exist, the new one gets inserted at the front of the
+     * list as \ref registerTexture does.
+     *
+     * \param old the texture to remove
+     * \param newTex the new texture to put at the position of the old one
+     * \param name the name of the texture.
+     */
+    static void replaceTexture( osg::ref_ptr< WGETexture3D > old, osg::ref_ptr< WGETexture3D > newTex, std::string name = "" );
+
+    /**
+     * Resorts the texture list using the specified comparator.
      *
      * \tparam Comparator the comparator type. Usually a boost::function or class providing the operator().
      * \param comp the comparator
@@ -168,6 +183,7 @@ public:
     {
         Registered = 0, //!< texture got added
         Deregistered,   //!< texture got removed
+        Replaced,       //!< texture got replaced
         Sorted          //!< texture list was resorted
     }
     TextureListSignal;
@@ -181,6 +197,16 @@ public:
      * \return the connection. Keep this and disconnect it properly!
      */
     boost::signals2::connection subscribeSignal( TextureListSignal signal, TextureRegisterHandler notifier );
+
+    /**
+     * Subscribe to the specified signal. See \ref TextureListSignal for details about their meaning.
+     *
+     * \param signal the signal to subscribe
+     * \param notifier the notifier
+     *
+     * \return the connection. Keep this and disconnect it properly!
+     */
+    boost::signals2::connection subscribeSignal( TextureListSignal signal, TextureReplaceHandler notifier );
 
     /**
      * Subscribe to the specified signal. See \ref TextureListSignal for details about their meaning.
@@ -233,6 +259,16 @@ protected:
      * \param texture the texture to remove
      */
     void deregisterTextureInst( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
+     * Replaces the specified texture with the given new one. If the old texture does not exist, the new one gets inserted at the front of the
+     * list as \ref registerTexture does.
+     *
+     * \param old the texture to remove
+     * \param newTex the new texture to put at the position of the old one
+     * \param name the name of the texture.
+     */
+    void replaceTextureInst( osg::ref_ptr< WGETexture3D > old, osg::ref_ptr< WGETexture3D > newTex, std::string name = "" );
 
     /**
      * This callback handles all the updates needed. It is called by the m_callback instance every update cycle for each node using this
@@ -293,6 +329,11 @@ private:
      * Called whenever a texture got removed.
      */
     boost::signals2::signal< void( osg::ref_ptr< WGETexture3D > ) > m_deregisterSignal;
+
+    /**
+     * Called whenever a texture got replaced.
+     */
+    boost::signals2::signal< void( osg::ref_ptr< WGETexture3D >, osg::ref_ptr< WGETexture3D > ) > m_replaceSignal;
 
     /**
      * Called whenever the texture list got resorted

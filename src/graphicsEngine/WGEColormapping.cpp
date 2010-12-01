@@ -126,6 +126,11 @@ void WGEColormapping::deregisterTexture( osg::ref_ptr< WGETexture3D > texture )
     instance()->deregisterTextureInst( texture );
 }
 
+void WGEColormapping::replaceTexture( osg::ref_ptr< WGETexture3D > old, osg::ref_ptr< WGETexture3D > newTex, std::string name )
+{
+    instance()->replaceTextureInst( old, newTex, name );
+}
+
 void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, wmath::WMatrix4x4 preTransform, osg::ref_ptr< WShader > shader,
                                  size_t startTexUnit )
 {
@@ -176,6 +181,26 @@ void WGEColormapping::deregisterTextureInst( osg::ref_ptr< WGETexture3D > textur
     {
         m_textures.remove( texture );
         m_deregisterSignal( texture );
+    }
+}
+
+void WGEColormapping::replaceTextureInst( osg::ref_ptr< WGETexture3D > old, osg::ref_ptr< WGETexture3D > newTex, std::string name )
+{
+    wlog::debug( "WGEColormapping" ) << "Replacing texture.";
+    if ( !name.empty() )
+    {
+        newTex->name()->set( name );
+    }
+
+    // if it exists, replace it
+    if ( m_textures.count( old ) )
+    {
+        m_textures.replace( old, newTex );
+        m_replaceSignal( old, newTex );
+    }
+    else    // <- if not exists: add
+    {
+        registerTextureInst( newTex, name );
     }
 }
 
@@ -289,6 +314,17 @@ boost::signals2::connection WGEColormapping::subscribeSignal( TextureListSignal 
             return m_deregisterSignal.connect( notifier );
         default:
             throw new WGESignalSubscriptionFailed( std::string( "Could not register TextureRegisterHandler to sort signal." ) );
+    }
+}
+
+boost::signals2::connection WGEColormapping::subscribeSignal( TextureListSignal signal, TextureReplaceHandler notifier )
+{
+    switch( signal )
+    {
+        case Replaced:
+            return m_replaceSignal.connect( notifier );
+        default:
+            throw new WGESignalSubscriptionFailed( std::string( "Could not register TextureReplaceHandler to signal." ) );
     }
 }
 
