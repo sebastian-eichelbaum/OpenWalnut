@@ -282,7 +282,7 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
         con->m_connected.erase( shared_from_this() );
         lock.unlock();
 
-        // signal closed connection
+        // signal "closed connection"
         signal_ConnectionClosed( shared_from_this(), con );
         con->signal_ConnectionClosed( shared_from_this(), con );
     }

@@ -109,11 +109,10 @@ void WMTextureMapper::moduleMain()
         {
             boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
 
-            debugLog() << "Registering new texture";
-
             // de-register last input
             if ( m_lastDataSet )
             {
+                debugLog() << "Removing previous texture.";
                 m_properties->removeProperty( m_lastDataSet->getTexture2()->getProperties() );
                 m_infoProperties->removeProperty( m_lastDataSet->getTexture2()->getInformationProperties() );
                 WGEColormapping::deregisterTexture( m_lastDataSet->getTexture2() );
@@ -127,6 +126,7 @@ void WMTextureMapper::moduleMain()
                 // register new
                 if ( m_lastDataSet->isTexture() )
                 {
+                    debugLog() << "Registering new texture";
                     m_properties->addProperty( m_lastDataSet->getTexture2()->getProperties() );
                     m_infoProperties->addProperty( m_lastDataSet->getTexture2()->getInformationProperties() );
                     WGEColormapping::registerTexture( m_lastDataSet->getTexture2() );
