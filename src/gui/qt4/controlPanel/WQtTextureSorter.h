@@ -107,6 +107,11 @@ private:
     boost::signals2::connection m_deregisterConnection;
 
     /**
+     * Connection of the WGEColormapping signal "replaced" to the member function pushUpdateEvent.
+     */
+    boost::signals2::connection m_replaceConnection;
+
+    /**
      * Connection of the WGEColormapping signal "Sort" to the member function pushUpdateEvent.
      */
     boost::signals2::connection m_sortConnection;
@@ -140,6 +145,14 @@ private:
          */
         virtual ~WQtTextureListItem();
 
+        /**
+         * Returns the associated texture.
+         *
+         * \return the associated texture
+         */
+        const osg::ref_ptr< WGETexture3D > getTexture() const;
+
+    private:
         /**
          * The texture that gets handled
          */

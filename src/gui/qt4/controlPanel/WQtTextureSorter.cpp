@@ -83,6 +83,8 @@ WQtTextureSorter::WQtTextureSorter( QWidget* parent )
             static_cast< WGEColormapping::TextureRegisterHandler >( boost::bind( &WQtTextureSorter::pushUpdateEvent, this ) ) );
     m_deregisterConnection = p->subscribeSignal( WGEColormapping::Deregistered,
             static_cast< WGEColormapping::TextureDeregisterHandler >( boost::bind( &WQtTextureSorter::pushUpdateEvent, this ) ) );
+    m_replaceConnection = p->subscribeSignal( WGEColormapping::Replaced,
+            static_cast< WGEColormapping::TextureReplaceHandler >( boost::bind( &WQtTextureSorter::pushUpdateEvent, this ) ) );
     m_sortConnection = p->subscribeSignal( WGEColormapping::Sorted,
             static_cast< WGEColormapping::TextureSortHandler>( boost::bind( &WQtTextureSorter::pushUpdateEvent, this ) ) );
 }
@@ -108,6 +110,11 @@ WQtTextureSorter::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WG
 
 WQtTextureSorter::WQtTextureListItem::~WQtTextureListItem()
 {
+}
+
+const osg::ref_ptr< WGETexture3D > WQtTextureSorter::WQtTextureListItem::getTexture() const
+{
+    return m_texture;
 }
 
 void WQtTextureSorter::pushUpdateEvent()
@@ -139,7 +146,7 @@ void WQtTextureSorter::update()
     WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) );
     if ( item )
     {
-        lastSelected = item->m_texture;
+        lastSelected = item->getTexture();
     }
 
     // remove all items and rebuild list.
@@ -150,7 +157,7 @@ void WQtTextureSorter::update()
         m_textureListWidget->addItem( item );    // the list widget removes the item (and frees the reference to the texture pointer).
 
         // is the item the texture that has been selected previously?
-        if ( item->m_texture == lastSelected )
+        if ( item->getTexture() == lastSelected )
         {
             m_textureListWidget->setCurrentItem( item );
         }
@@ -161,7 +168,7 @@ void WQtTextureSorter::handleTextureClicked()
 {
     // maybe someone is interested in this signal:
     emit textureSelectionChanged(
-        static_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) )->m_texture
+        static_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) )->getTexture()
     );
 }
 
@@ -171,7 +178,7 @@ void WQtTextureSorter::moveItemDown()
     WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) );
     if ( item )
     {
-        cm->moveDown( item->m_texture );
+        cm->moveDown( item->getTexture() );
     }
 }
 
@@ -181,7 +188,7 @@ void WQtTextureSorter::moveItemUp()
     WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) );
     if ( item )
     {
-        cm->moveUp( item->m_texture );
+        cm->moveUp( item->getTexture() );
     }
 }
 
@@ -191,7 +198,7 @@ void WQtTextureSorter::selectTexture( boost::shared_ptr< WDataSet > dataSet )
     for ( int i = 0; i < m_textureListWidget->count(); ++i )
     {
         WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( i ) );
-        if (item && dataSet->isTexture() && ( item->m_texture == dataSet->getTexture2() ) )
+        if (item && dataSet->isTexture() && ( item->getTexture() == dataSet->getTexture2() ) )
         {
             m_textureListWidget->setCurrentItem( item );
         }
