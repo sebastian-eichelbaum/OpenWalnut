@@ -31,7 +31,7 @@ WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, osg::ref_ptr< WROI > r
     QTreeWidgetItem( parent, type ),
     m_roi( roi )
 {
-    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable );
+    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsDragEnabled );
 
     if ( m_roi->getProperties()->getProperty( "active" )->toPropBool()->get() )
     {

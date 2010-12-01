@@ -49,7 +49,8 @@
 W_LOADABLE_MODULE( WMBoundingBox )
 
 WMBoundingBox::WMBoundingBox():
-    WModule()
+    WModule(),
+    m_recompute( boost::shared_ptr< WCondition >( new WCondition() ) )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // Implement WModule::initializeConnectors instead.
@@ -86,6 +87,7 @@ void WMBoundingBox::moduleMain()
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_recompute );
 
     // signal ready state
     ready();
@@ -93,7 +95,6 @@ void WMBoundingBox::moduleMain()
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
     {
-        bool dataUpdated = m_input->updated();
         boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
         bool dataValid = ( dataSet );
 
@@ -106,10 +107,7 @@ void WMBoundingBox::moduleMain()
             continue;
         }
 
-        if( dataUpdated )
-        {
-            createGFX();
-        }
+        createGFX();
 
         // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
@@ -136,16 +134,19 @@ void WMBoundingBox::createGFX()
 
     m_bBoxNode->insert( wge::generateBoundingBoxGeode( bb.first, bb.second, WColor( 0.3, 0.3, 0.3, 1 ) ) );
 
-    wmath::WVector3D pos1 = bb.first;
-    wmath::WVector3D pos2 = bb.second;
-    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos1[2] ) ) );
-    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos2[2] ) ) );
-    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos1[2] ) ) );
-    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos2[1], pos1[2] ) ) );
-    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos1[1], pos1[2] ) ) );
-    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos2[1], pos2[2] ) ) );
-    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos1[1], pos2[2] ) ) );
-    m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos2[2] ) ) );
+    if( m_showCornerCoordinates->get( true ) )
+    {
+        wmath::WVector3D pos1 = bb.first;
+        wmath::WVector3D pos2 = bb.second;
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos1[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos2[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos1[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos2[1], pos1[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos1[1], pos1[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos2[1], pos2[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos1[1], pos2[2] ) ) );
+        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos2[2] ) ) );
+    }
 
 
     WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_bBoxNode );
@@ -169,6 +170,7 @@ void WMBoundingBox::connectors()
 
 void WMBoundingBox::properties()
 {
+    m_showCornerCoordinates = m_properties->addProperty( "Show coordinates", "Show coordinates at the corners of the box.", true, m_recompute );
     WModule::properties();
 }
 

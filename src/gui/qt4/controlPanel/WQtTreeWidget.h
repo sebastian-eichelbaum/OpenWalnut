@@ -52,11 +52,17 @@ public:
     */
     void deleteItem( QTreeWidgetItem* item );
 
+    virtual void dropEvent( QDropEvent *event );
+
 public slots:
     //void keyPressEvent(QKeyEvent *e);
 
 protected:
 private:
+
+signals:
+    void dragDrop();
+
 };
 
 #endif  // WQTTREEWIDGET_H

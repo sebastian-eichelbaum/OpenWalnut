@@ -22,32 +22,30 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include <vector>
 
-#include "WTreeItemTypes.h"
-#include "WQtRoiTreeItem.h"
-#include "WQtBranchTreeItem.h"
+#include <boost/shared_ptr.hpp>
 
-WQtBranchTreeItem::WQtBranchTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMBranch > branch ) :
-    QTreeWidgetItem( parent, ROIBRANCH ),
-    m_branch( branch )
-{
-    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled );
-}
+#include "../common/math/WPosition.h"
+#include "WTractAdapter.h"
 
-WQtBranchTreeItem::~WQtBranchTreeItem()
+WTractAdapter::WTractAdapter( boost::shared_ptr< const std::vector< float > > pointComponents, size_t startIndex, size_t numPoints )
+    : m_pointComponents( pointComponents ),
+      m_numPoints( numPoints ),
+      m_startIndex( startIndex )
 {
 }
 
-WQtRoiTreeItem* WQtBranchTreeItem::addRoiItem( osg::ref_ptr< WROI > roi )
+wmath::WPosition WTractAdapter::operator[]( size_t index ) const
 {
-    WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi, ROI );
-
-    rti->setText( 0, QString( roi->getName().c_str() ) );
-    return rti;
-}
-
-boost::shared_ptr< WRMBranch > WQtBranchTreeItem::getBranch()
-{
-    return m_branch;
+#ifdef DEBUG
+    assert( m_pointComponents && "Invalid point component array inside of WTractAdapter." );
+    return wmath::WPosition( m_pointComponents->at( m_startIndex + index * 3 ),
+                             m_pointComponents->at( m_startIndex + index * 3 + 1 ),
+                             m_pointComponents->at( m_startIndex + index * 3 + 2 ) );
+#else
+    return wmath::WPosition( ( *m_pointComponents )[ m_startIndex + index * 3],
+                             ( *m_pointComponents )[ m_startIndex + index * 3 + 1],
+                             ( *m_pointComponents )[ m_startIndex + index * 3 + 2] );
+#endif
 }

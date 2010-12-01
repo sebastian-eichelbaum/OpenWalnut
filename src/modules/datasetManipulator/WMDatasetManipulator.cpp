@@ -32,6 +32,7 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WSubject.h"
+#include "WMDatasetManipulator.xpm"
 
 #include "WMDatasetManipulator.h"
 
@@ -56,7 +57,7 @@ boost::shared_ptr< WModule > WMDatasetManipulator::factory() const
 
 const char** WMDatasetManipulator::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMDatasetManipulator_xpm; // Please put a real icon here.
 }
 const std::string WMDatasetManipulator::getName() const
 {

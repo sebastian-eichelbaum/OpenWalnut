@@ -31,7 +31,7 @@
 #include <osgDB/ReadFile>
 
 #include "../../kernel/WKernel.h"
-#include "../emptyIcon.xpm" // Please put a real icon here.
+#include "WMAtlasCreator.xpm"
 
 #include "WMAtlasCreator.h"
 
@@ -56,7 +56,7 @@ boost::shared_ptr< WModule > WMAtlasCreator::factory() const
 
 const char** WMAtlasCreator::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMAtlasCreator_xpm; // Please put a real icon here.
 }
 const std::string WMAtlasCreator::getName() const
 {

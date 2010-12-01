@@ -26,91 +26,76 @@
 #define WDENDROGRAM_H
 
 #include <vector>
+#include <string>
+
+#include <boost/shared_ptr.hpp>
 
 /**
- * Hirachical binary tree datastructure with spatial layout information. Since
- * join points in a dendrogram do normally not intersect a special index is
- * needed. Additionally a parameter for each node and leaf, its height, is
- * available.
+ * Hirachical binary tree datastructure with spatial layout information called dendrogram.
  *
- * Each leaf and inner node will obtain a new index called TreeIndex, so the
- * hirachy will not overlap or intersect. As a leaf already has an index we
- * call this index the DataIndex. So a leaf with DataIndex 5 is the fifth data
- * element in the dataset of which this dendrogram is used for. Where as a leaf
- * with TreeIndex 5 is the fifth leaf from left.
+ * The following description is taken from: http://en.wikipedia.org/wiki/Dendrogram A dendrogram (from Greek
+ * dendron "tree", -gramma "drawing") is a tree diagram frequently used to illustrate the arrangement of
+ * clusters produced by hierarchical clustering. Please note that each level has its height.
+ *
+   \verbatim
+                     |
+              ,------'--.     --- 4th level
+              |         |
+          |```````|     |     --- 3rd level
+          |       |     |
+          |       |  ...'...  --- 2nd level
+          |       |  |     |
+     |''''''''|   |  |     |  --- 1st level
+     |        |   |  |     |
+     |        |   |  |     |
+     o        o   o  o     o  --- 0   level
+   \endverbatim
+ *
+ * In order to use this class for your objects ensure that the objects are labeled from <dfn>0,...,n-1</dfn>.
  */
 class WDendrogram
 {
 friend class WDendrogramTest;
 public:
     /**
-     * Creates a new Dendrogram with unjoined elements aka leafs.
+     * Constructs a new dendrogram for \c n many objects.
      *
-     * \param numElements The number of unjoined or initial elements
-     *
-     * TODO(math): Unsigned int is used to save memory here, but can't we use
-     * size_t (8bytes) => ask christian..
+     * \param n The number of leafs.
      */
-    explicit WDendrogram( unsigned int numElements );
+    explicit WDendrogram( size_t n );
 
     /**
-     * Destructs a Dendrogram.
+     * Merges two elements (either inner nodes or leafs) given via the indices \e i and \e j.
+     *
+     * \param i The index referring either to an inner node or to a leaf.
+     * \param j The other index of a leaf or inner node.
+     * \param height The height at which those to elements join.
+     *
+     * \return The number of the inner node now representing now the parent of \e i and \e j.
      */
-    virtual ~WDendrogram();
+    size_t merge( size_t i, size_t j, double height );
+
+    /**
+     * Transform this dendrogram into a string, where each leaf or inner node is mapped to a special string.
+     * <dfn>"(level, (all leafs incorporated by this node), (the two direct predecessors), height if available )"</dfn>
+     *
+     * \return The special string as constructed from the scheme above.
+     */
+    std::string toTXTString() const;
 
 protected:
-    /**
-     * Representing a node inside of the Dendrogram.
-     *
-     * \note Be aware of the different kinds of indices used in here. See
-     * Description of the WDendrogram class for more details on TreeIndices and
-     * DataIndices.
-     */
-    struct Node
-    {
-        /**
-         * Default constructor for a new node. So all members are an valid
-         * initial value: zero.
-         */
-        Node();
-
-        /**
-         * The TreeIndex of the parent it belongs to.
-         */
-        unsigned int parentTreeIdx;
-
-        /**
-         * All leafs grouped by this node have an bigger or equal TreeIndex
-         * then this \e minTreeIdx. In other words: The leftmost leaf of the
-         * subtree with this node as root has this TreeIndex.
-         */
-        unsigned int minTreeIdx;
-
-        /**
-         * All leafs grouped by this node have an lower or equal TreeIndex then
-         * this \e maxTreeIdx. In other words: The rightmost leaf of the
-         * subtree with this node as root has this TreeIndex.
-         */
-        unsigned int maxTreeIdx;
-
-        /**
-         * This is used to have a reference to the data element this node
-         * represents. For inner nodes clearly none exists, but for leafs this
-         * is the number inside of the dataset.
-         */
-        unsigned int dataIdx;
-
-        /**
-         * The height of each node. Leafs have an default height of zero.
-         */
-        double height;
-    };
 private:
     /**
-     * Save the whole dendrogram and keep track of the link from leafs to the
-     * dataset, as well as information of parents and leafs for each node.
+     * Stores the parents of leafs as well as of inner nodes. The first half of the arrary corresponds to the
+     * parents of the leafs and the second of the inner nodes. The last inner node is the top of the
+     * dendrogram.
      */
-    std::vector< Node > m_tree;
+    std::vector< size_t > m_parents;
+
+    /**
+     * Stores only for the inner nodes their heights.
+     */
+    std::vector< double > m_heights;
 };
 
 #endif  // WDENDROGRAM_H

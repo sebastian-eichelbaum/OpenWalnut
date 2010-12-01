@@ -40,15 +40,6 @@ public:
      */
     void testNewNodesHaveAlwaysZerosAssignedInitially( void )
     {
-        WDendrogram d( 5 );
-        for( int i = 0; i < 5; ++i )
-        {
-            TS_ASSERT_EQUALS( d.m_tree[i].parentTreeIdx, 0 );
-            TS_ASSERT_EQUALS( d.m_tree[i].minTreeIdx, 0 );
-            TS_ASSERT_EQUALS( d.m_tree[i].maxTreeIdx, 0 );
-            TS_ASSERT_EQUALS( d.m_tree[i].dataIdx, 0 );
-            TS_ASSERT_EQUALS( d.m_tree[i].height, 0.0 );
-        }
     }
 };
 

@@ -318,6 +318,8 @@ private slots:
      * delete a module tree item
      */
     void deleteModuleTreeItem();
+
+    void handleDragDrop();
 };
 
 #endif  // WQTCONTROLPANEL_H

@@ -22,32 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
+#include <vector>
 
-#include "WTreeItemTypes.h"
-#include "WQtRoiTreeItem.h"
-#include "WQtBranchTreeItem.h"
+#include <boost/shared_ptr.hpp>
 
-WQtBranchTreeItem::WQtBranchTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMBranch > branch ) :
-    QTreeWidgetItem( parent, ROIBRANCH ),
-    m_branch( branch )
+#include "WTractData.h"
+
+WTractData::WTractData( boost::shared_ptr< std::vector< float > > pointComponents, boost::shared_ptr< std::vector< size_t > > startIndices )
+    : m_pointComponents( pointComponents ),
+      m_startIndices( startIndices )
 {
-    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled );
-}
-
-WQtBranchTreeItem::~WQtBranchTreeItem()
-{
-}
-
-WQtRoiTreeItem* WQtBranchTreeItem::addRoiItem( osg::ref_ptr< WROI > roi )
-{
-    WQtRoiTreeItem* rti = new WQtRoiTreeItem( this, roi, ROI );
-
-    rti->setText( 0, QString( roi->getName().c_str() ) );
-    return rti;
-}
-
-boost::shared_ptr< WRMBranch > WQtBranchTreeItem::getBranch()
-{
-    return m_branch;
 }
