@@ -43,6 +43,7 @@
 // texture containing the data
 uniform sampler3D tex0;
 uniform sampler1D TRANSFERFUNCTION_SAMPLER;
+uniform sampler3D GRADIENTTEXTURE_SAMPLER;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -95,6 +96,9 @@ vec3 findRayEnd( out float d )
  */
 vec3 getGradient( in vec3 position )
 {
+#ifdef GRADIENTTEXTURE_ENABLED
+    return ( 2.0 * texture3D( GRADIENTTEXTURE_SAMPLER, position ).rgb ) + vec3( -1.0 );
+#else
     float s = 0.01;
     float valueXP = texture3D( tex0, position + vec3( s, 0.0, 0.0 ) ).r;
     float valueXM = texture3D( tex0, position - vec3( s, 0.0, 0.0 ) ).r;
@@ -104,6 +108,7 @@ vec3 getGradient( in vec3 position )
     float valueZM = texture3D( tex0, position - vec3( 0.0, 0.0, s ) ).r;
 
     return vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM );
+#endif
 }
 
 /**
