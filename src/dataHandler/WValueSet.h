@@ -177,6 +177,15 @@ public:
     }
 
     /**
+     * \param i id of the WValue to retrieve
+     * \return The i-th WValue stored in this value set. There are size() such scalars.
+     */
+    virtual wmath::WValue< double > getWValueDouble( size_t i ) const
+    {
+        return wmath::WValue< double >( getWValue( i ) );
+    }
+
+    /**
      * Get the i'th vector
      *
      * \param index the index number of the vector
