@@ -169,7 +169,7 @@ void WMTeemGlyphs::properties()
     m_sliceIdProp->setMax( 128 );
 
     m_orderProp = m_properties->addProperty( "Order", "Will be rounded to the next even order", 4, m_recompute );
-    m_orderProp->setMin( 0 );
+    m_orderProp->setMin( 2 );
     m_orderProp->setMax( 6 );
 
     m_GFAThresholdProp = m_properties->addProperty( "GFA threshold", "Show only glyphs at voxels above the given generalized fractional"
@@ -177,8 +177,8 @@ void WMTeemGlyphs::properties()
                                                     " (if GFA data is present at input connector).",
                                                     0.0,
                                                     m_recompute );
-    m_GFAThresholdProp->setMin( 0 );
-    m_GFAThresholdProp->setMax( 1. );
+    m_GFAThresholdProp->setMin( 0.0 );
+    m_GFAThresholdProp->setMax( 1.0 );
 
     m_glyphSizeProp = m_properties->addProperty( "Glyph size", "Size of the displayed glyphs.", 1.0, m_recompute );
     m_glyphSizeProp->setMin( 0 );
