@@ -27,6 +27,7 @@
 
 #include <string>
 #include <list>
+#include <time.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -35,7 +36,6 @@
 #include <QtGui/QWidget>
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
-//#include <QtGui/QListWidget>
 
 #include "../../../kernel/modules/data/WMData.h"
 #include "../WQtCombinerToolbar.h"
@@ -75,6 +75,8 @@ public:
     WQtNetworkItem* findItemByModule( boost::shared_ptr< WModule > module );
 
     void connectSlots();
+    
+    void itemMoved();
 
 protected:
 
@@ -86,6 +88,8 @@ protected:
     virtual bool event( QEvent* event );
     
     WQtCombinerToolbar* createCompatibleButtons( boost::shared_ptr< WModule >module );
+
+    void timerEvent( QTimerEvent *event );
 
 private:
 
@@ -113,6 +117,10 @@ private:
      * Action which disconnects a connector from the module.
      */
     QAction* m_disconnectAction;
+
+    time_t m_time;
+
+    int timerId;
 
 private slots:
 

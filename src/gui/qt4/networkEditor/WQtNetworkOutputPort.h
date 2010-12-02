@@ -130,6 +130,8 @@ class WQtNetworkOutputPort : public WQtNetworkPort
          * Adds an arrow to the port
          */
         void addArrow( WQtNetworkArrow *arrow );
+        
+        QList< WQtNetworkArrow *> getArrowList();
 
     protected:
 

@@ -131,6 +131,8 @@ class WQtNetworkInputPort : public WQtNetworkPort
          */
         void addArrow( WQtNetworkArrow *arrow );
 
+        QList< WQtNetworkArrow *> getArrowList();
+
     protected:
 
         /**

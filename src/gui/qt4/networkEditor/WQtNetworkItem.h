@@ -35,6 +35,11 @@
 
 #include "WQtNetworkInputPort.h"
 #include "WQtNetworkOutputPort.h"
+//#include "WQtNetworkEditor.h"
+
+class WQtNetworkEditor;
+
+class QGraphicsWidget;
 
 /**
  * This class represents a WModule as graphicitem and
@@ -46,7 +51,7 @@ class WQtNetworkItem : public QGraphicsRectItem
         /**
          * Constructor of the item.
          */
-        explicit WQtNetworkItem( boost::shared_ptr< WModule > module );
+        explicit WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WModule > module );
 
         /**
          * Destructor.
@@ -108,6 +113,10 @@ class WQtNetworkItem : public QGraphicsRectItem
         boost::shared_ptr< WModule > getModule();
 
         void activate( bool active );
+
+        void calculateForces();
+        
+        bool advance();
 
     protected:
 
@@ -176,5 +185,9 @@ class WQtNetworkItem : public QGraphicsRectItem
         float m_height; //!< the height of the rect
 
         QGraphicsTextItem *m_text; //!< the caption
+
+        QPointF m_newPos;
+
+        WQtNetworkEditor *m_networkEditor;
 };
 #endif  // WQTNETWORKITEM_H

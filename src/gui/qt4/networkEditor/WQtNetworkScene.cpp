@@ -53,46 +53,71 @@ WQtNetworkScene::~WQtNetworkScene()
 
 void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
 {
-    if( keyEvent->key() == Qt::Key_Delete )
+    switch ( keyEvent->key() )
     {
-        QList< WQtNetworkItem *> itemList;
-        QList< WQtNetworkArrow *> arrowList;
-        foreach( QGraphicsItem *item, this->selectedItems() )
-        {
-            if ( item->type() == WQtNetworkItem::Type )
+        case Qt::Key_Delete:
             {
-                  WQtNetworkItem *netItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
-                  itemList.append( netItem );
+
+                QList< WQtNetworkItem *> itemList;
+                QList< WQtNetworkArrow *> arrowList;
+                foreach( QGraphicsItem *item, this->selectedItems() )
+                {
+                    if ( item->type() == WQtNetworkItem::Type )
+                    {
+                        WQtNetworkItem *netItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
+                        itemList.append( netItem );
+                    }
+                    else if( item->type() == WQtNetworkArrow::Type )
+                    {
+                        WQtNetworkArrow *netArrow = qgraphicsitem_cast<WQtNetworkArrow *>( item );
+                        arrowList.append( netArrow );
+                    }
+                }
+
+                foreach( WQtNetworkArrow *ar, arrowList )
+                {
+                    if( ar != 0 ){
+                        boost::shared_ptr< WDisconnectCombiner > disconnectCombiner =
+                            boost::shared_ptr< WDisconnectCombiner >( new WDisconnectCombiner(
+                                        ar->getStartPort()->getConnector()->getModule(),
+                                        ar->getStartPort()->getConnector()->getName(),
+                                        ar->getEndPort()->getConnector()->getModule(),
+                                        ar->getEndPort()->getConnector()->getName() ) );
+                        disconnectCombiner->run();
+                        disconnectCombiner->wait();
+                    }
+                }
+
+                foreach( WQtNetworkItem *it, itemList )
+                {
+                    if( it != 0 ){
+                        WKernel::getRunningKernel()->getRootContainer()->remove( it->getModule() );
+                    }
+                }
+                itemList.clear();
+                arrowList.clear();
             }
-            else if( item->type() == WQtNetworkArrow::Type )
+
+        case Qt::Key_Space:
             {
-                  WQtNetworkArrow *netArrow = qgraphicsitem_cast<WQtNetworkArrow *>( item );
-                  arrowList.append( netArrow );
-            }
-        }
+                QList< WQtNetworkItem *> itemList;
 
-        foreach( WQtNetworkArrow *ar, arrowList )
-        {
-            if( ar != 0 ){
-                boost::shared_ptr< WDisconnectCombiner > disconnectCombiner =
-                                    boost::shared_ptr< WDisconnectCombiner >( new WDisconnectCombiner(
-                                                                    ar->getStartPort()->getConnector()->getModule(),
-                                                                    ar->getStartPort()->getConnector()->getName(),
-                                                                    ar->getEndPort()->getConnector()->getModule(),
-                                                                    ar->getEndPort()->getConnector()->getName() ) );
-                disconnectCombiner->run();
-                disconnectCombiner->wait();
-            }
-        }
+                foreach( QGraphicsItem *item, items() )
+                {
+                    if ( WQtNetworkItem *netItem = dynamic_cast< WQtNetworkItem *>( item ) )
+                        itemList << netItem;
+                }
 
-        foreach( WQtNetworkItem *it, itemList )
-        {
-            if( it != 0 ){
-                WKernel::getRunningKernel()->getRootContainer()->remove( it->getModule() );
+                foreach ( WQtNetworkItem *item, itemList )
+                {
+                    item->calculateForces();
+                }
+
+                bool itemsMoved = false;
+                foreach ( WQtNetworkItem *item, itemList )
+                    if ( item->advance() )
+                        itemsMoved = true;
             }
-        }
-        itemList.clear();
-        arrowList.clear();
     }
 }
 
@@ -108,3 +133,13 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
 //{
 //    QGraphicsScene::mousePressEvent( mouseEvent );
 //}
+
+void WQtNetworkScene::setFakeItem( QGraphicsItem *fake )
+{
+    m_fakeItem = fake;
+}
+
+QGraphicsItem* WQtNetworkScene::getFakeItem()
+{
+    return m_fakeItem;
+}

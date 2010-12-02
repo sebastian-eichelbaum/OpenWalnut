@@ -129,6 +129,8 @@ class WQtNetworkPort : public QGraphicsRectItem
          * Adds an arrow to the port
          */
         virtual void addArrow( WQtNetworkArrow *arrow ) = 0;
+        
+        virtual QList< WQtNetworkArrow *> getArrowList() = 0;
 
     protected:
 

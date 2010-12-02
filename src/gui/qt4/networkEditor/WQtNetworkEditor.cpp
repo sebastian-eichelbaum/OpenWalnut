@@ -58,7 +58,8 @@
 
 
 WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
-    : QDockWidget( "NetworkEditor", parent )
+    : QDockWidget( "NetworkEditor", parent ),
+    timerId( 0 )
 {
     m_mainWindow = parent;
 
@@ -67,9 +68,10 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     m_view = new QGraphicsView();
     m_view->setDragMode( QGraphicsView::RubberBandDrag );
     m_view->setRenderHint( QPainter::Antialiasing );
+    m_view->setMinimumSize( 20, 20 );
 
     m_scene = new WQtNetworkScene();
-    m_scene->setSceneRect( -100.0, -100.0, 200.0, 200.0 );
+//    m_scene->setSceneRect( -200.0, -200.0, 400.0, 400.0 );
     m_scene->setSceneRect( m_scene->itemsBoundingRect() );
 
     m_view->setScene( m_scene );
@@ -81,9 +83,17 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
 
     this->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     this->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
-    setMinimumSize( 160, 240 );
+    //setMinimumSize( 160, 240 );
     setWidget( m_panel );
     connectSlots();
+
+    QGraphicsRectItem *fake = new QGraphicsRectItem();
+    fake->setRect( 0,0, 10, 10 );
+    fake->setPos( 0, 0 );
+    fake->setBrush( Qt::green );
+    fake->setFlag( QGraphicsItem::ItemIsMovable, true );
+    m_scene->addItem( fake );
+    m_scene->setFakeItem( fake );
 }
 
 WQtNetworkEditor::~WQtNetworkEditor()
@@ -140,9 +150,15 @@ WQtCombinerToolbar* WQtNetworkEditor::createCompatibleButtons( boost::shared_ptr
 
 void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
 {
-    WQtNetworkItem *netItem = new WQtNetworkItem( module );
+    WQtNetworkItem *netItem = new WQtNetworkItem( this, module );
     m_items.push_back( netItem );
+
+    time(&m_time);
+    srand( (unsigned int) m_time );
+    netItem->setPos( rand() % 200, rand() % 200 );
     m_scene->addItem( netItem );
+
+    itemMoved();
 }
 
 bool WQtNetworkEditor::event( QEvent* event )
@@ -425,4 +441,36 @@ WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule >
        }
     }
     return 0;
+}
+
+void WQtNetworkEditor::itemMoved()                                                                              
+{
+    std::cout << "move it" << std::endl;
+    if (!timerId)
+        timerId = startTimer(1000 / 25);
+}
+
+void WQtNetworkEditor::timerEvent(QTimerEvent *event)
+{
+    Q_UNUSED(event);
+
+    QList< WQtNetworkItem *> nodes;
+    foreach ( QGraphicsItem *item, m_scene->items() ) {
+        if ( WQtNetworkItem *netItem = dynamic_cast< WQtNetworkItem  *>(item))
+            nodes << netItem;
+    }
+
+    foreach ( WQtNetworkItem *netItem, nodes)
+        netItem->calculateForces();
+
+    bool itemsMoved = false;
+    foreach ( WQtNetworkItem *netItem, nodes) {
+        if ( netItem->advance() )
+            itemsMoved = true;
+    }
+
+    if ( !itemsMoved ) {
+        killTimer( timerId );
+        timerId = 0;
+    }
 }

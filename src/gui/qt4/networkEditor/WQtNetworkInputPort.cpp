@@ -87,6 +87,11 @@ void WQtNetworkInputPort::removeArrow( WQtNetworkArrow *arrow )
         m_arrows.removeAt( index );
 }
 
+QList< WQtNetworkArrow *> WQtNetworkInputPort::getArrowList()
+{
+    return m_arrows;
+}
+
 QString WQtNetworkInputPort::getPortName()
 {
     return m_name;

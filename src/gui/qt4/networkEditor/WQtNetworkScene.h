@@ -26,6 +26,7 @@
 #define WQTNETWORKSCENE_H
 
 #include <QtGui/QGraphicsScene>
+#include <QtGui/QGraphicsItem>
 
 class WQtNetworkScene : public QGraphicsScene
 {
@@ -35,6 +36,9 @@ class WQtNetworkScene : public QGraphicsScene
         explicit WQtNetworkScene();
 
         virtual ~WQtNetworkScene();
+
+        void setFakeItem( QGraphicsItem *fake );
+        QGraphicsItem* getFakeItem();
 
     protected:
 
@@ -47,5 +51,7 @@ class WQtNetworkScene : public QGraphicsScene
     private:
         QPointF startPoint;
         QGraphicsLineItem *line;
+
+        QGraphicsItem *m_fakeItem;
 };
 #endif  // WQTNETWORKSCENE_H
