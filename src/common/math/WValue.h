@@ -39,6 +39,8 @@ namespace wmath
  */
 template< typename T > class WValue
 {
+template< typename S > friend class WValue; //!< All WValues are friends of each other.
+
 // We exclude this from doxygen since they are documented already as functions and I don't want to duplicate that documentation
 // \cond
 template< typename U > friend std::ostream& operator<<( std::ostream& os, const WValue< U > &rhs );
@@ -62,6 +64,19 @@ public:
     WValue( const WValue& newValue )
         : m_components( newValue.m_components )
     {
+    }
+
+    /**
+     * Create a WValue as copy of the one given as parameter but with another template type.
+     * \param newValue The WValue to be copied.
+     */
+    template< typename S > explicit WValue( const WValue< S >& newValue )
+    {
+        m_components.resize( newValue.m_components.size() );
+        for( size_t i = 0; i < m_components.size(); ++i )
+        {
+            m_components[i] = newValue.m_components[i];
+        }
     }
 
     /**
