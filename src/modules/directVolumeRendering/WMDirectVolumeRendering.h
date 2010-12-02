@@ -31,6 +31,8 @@
 #include <osg/Uniform>
 
 #include "../../graphicsEngine/WShader.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetVector.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -107,6 +109,11 @@ private:
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
+
+    /**
+     * The gradient field input
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_gradients;
 
     /**
      * The number of steps to walk along the ray.

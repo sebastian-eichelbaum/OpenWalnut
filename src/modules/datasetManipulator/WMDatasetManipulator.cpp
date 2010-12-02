@@ -27,7 +27,6 @@
 #include <utility>
 
 #include "../../kernel/WKernel.h"
-#include "../emptyIcon.xpm" // Please put a real icon here.
 
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"

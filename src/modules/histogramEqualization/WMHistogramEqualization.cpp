@@ -259,7 +259,7 @@ void WMHistogramEqualization::moduleMain()
             for ( size_t vi = 0; vi < valueSet->rawSize(); ++vi )
             {
                 size_t idx = hist->getIndexForValue( valueSet->getScalarDouble( vi ) );
-                newData[ vi ] = static_cast< unsigned char >( idx / maxI * 255 );
+                newData[ vi ] = static_cast< unsigned char >( static_cast< double >( idx )/ static_cast< double >( maxI ) * 255.0 );
             }
         }
         ++*progress;

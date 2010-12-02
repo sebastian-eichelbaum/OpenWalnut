@@ -103,9 +103,16 @@ void WMReadSphericalHarmonics::moduleMain()
         }
         std::string fileName = m_dataFile->get().string();
 
+        boost::shared_ptr< WProgress > progress;
+        progress = boost::shared_ptr< WProgress >( new WProgress( "Glyph Generation", 2 ) );
+        m_progress->addSubProgress( progress );
+
         WReaderNIfTI niiLoader( fileName );
         boost::shared_ptr< WDataSet > data;
         data = niiLoader.load( W_DATASET_SPHERICALHARMONICS );
+
+        ++*progress;
+
         if( data )
         {
             m_data = boost::shared_dynamic_cast< WDataSetSphericalHarmonics >( data );
@@ -116,5 +123,7 @@ void WMReadSphericalHarmonics::moduleMain()
             }
         }
         m_readTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+
+        progress->finish();
     }
 }

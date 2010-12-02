@@ -85,12 +85,10 @@ const std::string WMDirectVolumeRendering::getDescription() const
 void WMDirectVolumeRendering::connectors()
 {
     // DVR needs one input: the scalar dataset
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar  > >(
-        new WModuleInputData< WDataSetScalar >( shared_from_this(), "in", "The scalar dataset shown using isosurface." )
-    );
+    m_input = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "in", "The scalar dataset." );
 
-    // As properties, every connector needs to be added to the list of connectors.
-    addConnector( m_input );
+    // Optional: the gradient field
+    m_gradients = WModuleInputData< WDataSetVector >::createAndAdd( shared_from_this(), "gradients", "The gradient field of the dataset to display" );
 
     // call WModules initialization
     WModule::connectors();
@@ -102,9 +100,9 @@ void WMDirectVolumeRendering::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     m_stepCount     = m_properties->addProperty( "Step count",       "The number of steps to walk along the ray during raycasting. A low value "
-                                                                      "may cause artifacts whilst a high value slows down rendering.", 250 );
+                                                                      "may cause artifacts whilst a high value slows down rendering.", 512 );
     m_stepCount->setMin( 1 );
-    m_stepCount->setMax( 1000 );
+    m_stepCount->setMax( 5000 );
 
     // illumination model
     m_localIlluminationSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
@@ -138,6 +136,7 @@ void WMDirectVolumeRendering::moduleMain()
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_gradients->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
 
     // Signal ready state.
@@ -164,7 +163,7 @@ void WMDirectVolumeRendering::moduleMain()
         }
 
         // was there an update?
-        bool dataUpdated = m_input->updated();
+        bool dataUpdated = m_input->updated() || m_gradients->updated();
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
         bool dataValid   = ( dataSet );
         bool propUpdated = m_localIlluminationAlgo->changed() || m_tfLoaderEnabled || m_tfLoaderFile->changed() || m_tfLoaderTrigger->changed();
@@ -204,7 +203,7 @@ void WMDirectVolumeRendering::moduleMain()
             rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // setup defines (illumination)
+            // setup illumination
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
             size_t localIlluminationAlgo = m_localIlluminationAlgo->get( true ).getItemIndexOfSelected( 0 );
@@ -216,6 +215,19 @@ void WMDirectVolumeRendering::moduleMain()
                     break;
                 default:
                     break;
+            }
+
+            // if there is a gradient field available -> apply as texture too
+            boost::shared_ptr< WDataSetVector > gradients = m_gradients->getData();
+            if ( gradients )
+            {
+                debugLog() << "Uploading specified gradient field.";
+
+                // bind the texture to the node
+                rootState->setTextureAttributeAndModes( 1, gradients->getTexture()->getTexture(), osg::StateAttribute::ON );
+                rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
+                m_shader->setDefine( "GRADIENTTEXTURE_SAMPLER", "tex1" );
+                m_shader->setDefine( "GRADIENTTEXTURE_ENABLED" );
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -233,15 +245,16 @@ void WMDirectVolumeRendering::moduleMain()
                     tfTexture->setImage( tfImg );
 
                     // apply it
-                    rootState->setTextureAttributeAndModes( 1, tfTexture, osg::StateAttribute::ON );
-                    rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
-                    m_shader->setDefine( "TRANSFERFUNCTION_SAMPLER", "tex1" );
+                    rootState->setTextureAttributeAndModes( 2, tfTexture, osg::StateAttribute::ON );
+                    rootState->addUniform( new osg::Uniform( "tex2", 2 ) );
+                    m_shader->setDefine( "TRANSFERFUNCTION_SAMPLER", "tex2" );
                     m_shader->setDefine( "TRANSFERFUNCTION_ENABLED" );
                 }
                 else
                 {
                     warnLog() << "Transfer function texture could not be loaded from " << m_tfLoaderFile->get( true ).file_string() << ".";
                 }
+                m_tfLoaderTrigger->get( true );
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -261,7 +274,6 @@ void WMDirectVolumeRendering::moduleMain()
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // build spatial search structure
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
             // update node
             debugLog() << "Adding new rendering.";
