@@ -339,45 +339,6 @@ private:
     int m_oldViewHeight; //!< stores the old viewport resolution to check whether a resize happened
 
     int m_oldViewWidth; //!< stores the old viewport resolution to check whether a resize happened
-
-    /**
-     * Node callback to change position and appearance of the plane within the OSG thread
-     */
-    class SafeUpdateCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUpdateCallback( WMClusterDisplay* module ): m_module( module )
-        {
-        };
-
-        /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         * Please do not use shared_ptr here as this would prevent deletion of the module as the callback contains
-         * a reference to it. It is safe to use a simple pointer here as callback get deleted before the module.
-         */
-        WMClusterDisplay* m_module;
-    };
 };
-
-inline void WMClusterDisplay::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    m_module->updateWidgets();
-
-    traverse( node, nv );
-}
 
 #endif  // WMCLUSTERDISPLAY_H

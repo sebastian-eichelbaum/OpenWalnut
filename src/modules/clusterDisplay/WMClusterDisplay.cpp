@@ -300,7 +300,7 @@ void WMClusterDisplay::initWidgets()
 
     m_wm->resizeAllWindows();
 
-    m_rootNode->addUpdateCallback( new SafeUpdateCallback( this ) );
+    m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMClusterDisplay::updateWidgets, this ) ) );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 }
 

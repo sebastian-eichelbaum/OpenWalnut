@@ -298,6 +298,15 @@ public:
         return components[ components.size() / 2 ];
     }
 
+    /**
+     * Changes the number of scalars held by this WValue.
+     * \param size The number of scalars stored in the WValue.
+     */
+    void resize( size_t size )
+    {
+        m_components.resize( size );
+    }
+
 protected:
 private:
     /**

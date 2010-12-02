@@ -324,6 +324,11 @@ private slots:
      * delete a module tree item
      */
     void deleteModuleTreeItem();
+
+    /**
+     * function to notify the roi manager of any drag&drop action in the roi tree
+     */
+    void handleDragDrop();
 };
 
 #endif  // WQTCONTROLPANEL_H

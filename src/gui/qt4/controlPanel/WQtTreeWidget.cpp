@@ -48,3 +48,9 @@ void WQtTreeWidget::deleteItem( QTreeWidgetItem* item )
 //{
 //    std::cout << "key pressed: " << e->key() << std::endl;
 //}
+
+void WQtTreeWidget::dropEvent( QDropEvent *event )
+{
+    emit dragDrop();
+}
+

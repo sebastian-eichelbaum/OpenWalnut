@@ -168,6 +168,10 @@ void WMTeemGlyphs::properties()
     m_sliceIdProp->setMin( 0 );
     m_sliceIdProp->setMax( 128 );
 
+    m_orderProp = m_properties->addProperty( "Order", "Will be rounded to the next even order", 4, m_recompute );
+    m_orderProp->setMin( 0 );
+    m_orderProp->setMax( 6 );
+
     m_GFAThresholdProp = m_properties->addProperty( "GFA threshold", "Show only glyphs at voxels above the given generalized fractional"
                                                     " anisotropy (GFA) threshold"
                                                     " (if GFA data is present at input connector).",
@@ -232,6 +236,18 @@ void WMTeemGlyphs::moduleMain()
                     break;
             }
 
+            boost::shared_ptr< WDataSetScalar > gfa = m_inputGFA->getData();
+            if( gfa )
+            {
+                m_GFAThresholdProp->setMax( gfa->getMax() );
+                m_GFAThresholdProp->setMin( gfa->getMin() );
+            }
+
+            if( m_orderProp->get() % 2 != 0 )
+            {
+                m_orderProp->set( m_orderProp->get() + 1 );
+            }
+
             renderSlice( m_sliceIdProp->get() );
         }
 
@@ -262,6 +278,7 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
                                        boost::shared_dynamic_cast< WDataSetScalar >( m_inputGFA->getData() ),
                                        m_GFAThresholdProp->get(),
                                        sliceId,
+                                       m_orderProp->get(),
                                        m_subdivisionLevelProp->get(),
                                        m_moduloProp->get(),
                                        sliceType,
@@ -351,6 +368,7 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
                                                 boost::shared_ptr< WDataSetScalar > dataGFA,
                                                 double thresholdGFA,
                                                 const size_t& sliceId,
+                                                const size_t& order,
                                                 const size_t& subdivisionLevel,
                                                 const size_t& modulo,
                                                 const size_t& sliceType,
@@ -361,6 +379,7 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
     m_dataGFA( dataGFA ),
     m_grid( boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() ) ),
     m_thresholdGFA( thresholdGFA ),
+    m_order( order ),
     m_sliceType( sliceType ),
     m_subdivisionLevel( subdivisionLevel ),
     m_modulo( modulo ),
@@ -434,12 +453,25 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
         zSlice
     };
 
-
     WAssert( m_sphere->xyzwNum == m_sphere->normNum, "Wrong size of arrays." );
     WAssert( m_sphere->xyzwNum == m_sphere->rgbaNum, "Wrong size of arrays." );
     size_t nbVerts = m_sphere->xyzwNum;
 
-    const tijk_type *type = tijk_4o3d_sym;
+    const tijk_type *type = 0; // Initialized to quiet compiler
+    switch( m_order )
+    {
+        case 2:
+            type = tijk_2o3d_sym;
+            break;
+        case 4:
+            type = tijk_4o3d_sym;
+            break;
+        case 6:
+            type = tijk_6o3d_sym;
+            break;
+        default:
+            WAssert( false, "order above 6 not supported yet." );
+    }
 
     // memory for the tensor and spherical harmonics data.
     float* ten = new float[type->num];
@@ -494,7 +526,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
 
             //-------------------------------
             // vertex indices
-            // We have to set them also if we do not darw the glyph becaus otherwise we would leave their
+            // We have to set them also if we do not draw the glyph because otherwise we would leave their
             // to be zero. If many indices are zero, they block each other because of synchronized
             // memory access to the same memory address.
             for( unsigned int vertId = 0; vertId < localSphere->indxNum; ++vertId )
@@ -509,16 +541,27 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             }
 
             wmath::WValue< double > coeffs = m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
-            WAssert( coeffs.size() == 15,
-                     "This module can handle only 4th order spherical harmonics."
-                     "Thus the input has to be 15 dimensional vectors." );
+            switch( m_order )
+            {
+                case 2:
+                    coeffs.resize( 6 );
+                    break;
+                case 4:
+                    coeffs.resize( 15 );
+                    break;
+                case 6:
+                    coeffs.resize( 28 );
+                    break;
+                default:
+                    WAssert( false, "order above 6 not supported yet." );
+            }
 
-            for( size_t coeffId = 0; coeffId < 15; coeffId++ )
+            for( size_t coeffId = 0; coeffId < coeffs.size(); coeffId++ )
             {
                 esh[coeffId] = coeffs[coeffId];
             }
             // convert even-order spherical harmonics to higher-order tensor
-            tijk_esh_to_3d_sym_f( ten, esh, 4 );
+            tijk_esh_to_3d_sym_f( ten, esh, m_order );
 
             // create positive approximation of the tensor
             tijk_refine_rankk_parm *parm = tijk_refine_rankk_parm_new();
@@ -549,14 +592,19 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             // One can insert per-peak coloring here (see http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.html )
             // -------------------------------------------------------------------------------------------------------
 
-
+            float scale = m_scale;
             if( m_useNormalization )
             {
                 minMaxNormalization( glyph, nbVertCoords );
             }
             else
             {
-                m_scale = m_scale / radius;
+                // std::cout<< radius << " " << m_scale << std::endl;
+                if( radius != 0 )
+                {
+                    scale = m_scale / radius;
+                }
+                // std::cout<< m_scale << std::endl<< std::endl;
             }
             estimateNormalsAntipodal( glyph, normalize );
 
@@ -568,9 +616,9 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
                 size_t globalVertexId = vertsUpToCurrentIteration + vertId;
                 //-------------------------------
                 // vertices
-                ( *m_vertArray )[globalVertexId][0] = glyph->xyzw[nbVertCoords*vertId  ] * m_scale + glyphPos[0];
-                ( *m_vertArray )[globalVertexId][1] = glyph->xyzw[nbVertCoords*vertId+1] * m_scale + glyphPos[1];
-                ( *m_vertArray )[globalVertexId][2] = glyph->xyzw[nbVertCoords*vertId+2] * m_scale + glyphPos[2];
+                ( *m_vertArray )[globalVertexId][0] = glyph->xyzw[nbVertCoords*vertId  ] * scale + glyphPos[0];
+                ( *m_vertArray )[globalVertexId][1] = glyph->xyzw[nbVertCoords*vertId+1] * scale + glyphPos[1];
+                ( *m_vertArray )[globalVertexId][2] = glyph->xyzw[nbVertCoords*vertId+2] * scale + glyphPos[2];
 
                 // ------------------------------------------------
                 // normals
