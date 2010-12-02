@@ -52,6 +52,5 @@ void WQtTreeWidget::deleteItem( QTreeWidgetItem* item )
 void WQtTreeWidget::dropEvent( QDropEvent *event )
 {
     emit dragDrop();
-    return QTreeWidget::dropEvent( event );
 }
 

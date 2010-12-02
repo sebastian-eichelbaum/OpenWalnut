@@ -319,6 +319,9 @@ private slots:
      */
     void deleteModuleTreeItem();
 
+    /**
+     * function to notify the roi manager of any drag&drop action in the roi tree
+     */
     void handleDragDrop();
 };
 
