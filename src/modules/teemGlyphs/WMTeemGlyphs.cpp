@@ -224,6 +224,14 @@ void WMTeemGlyphs::moduleMain()
         }
         if( m_input->getData().get() )
         {
+            bool dataChanged = false;
+            if( m_dataSet != m_input->getData() )
+            {
+                // acquire data from the input connector
+                m_dataSet = m_input->getData();
+                dataChanged = true;
+            }
+
             boost::shared_ptr< WGridRegular3D > gridReg = boost::shared_dynamic_cast< WGridRegular3D >( m_input->getData().get()->getGrid() );
             switch( m_sliceOrientationSelection->get( true ).getItemIndexOfSelected( 0 ) )
             {
@@ -236,6 +244,11 @@ void WMTeemGlyphs::moduleMain()
                 case 2:
                     m_sliceIdProp->setMax( gridReg->getNbCoordsZ() - 1 );
                     break;
+            }
+
+            if( dataChanged )
+            {
+                m_sliceIdProp->set( m_sliceIdProp->getMax()->getMax() / 2 );
             }
 
             boost::shared_ptr< WDataSetScalar > gfa = m_inputGFA->getData();

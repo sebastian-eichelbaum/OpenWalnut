@@ -129,6 +129,8 @@ private:
      */
     void renderSlice( size_t sliceId );
 
+    boost::shared_ptr< WDataSetSphericalHarmonics > m_dataSet; //!< Pointer to the treated data set.
+
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputGFA; //!< The input for the GFA.
     osg::ref_ptr< WShader > m_shader; //!< The shader used for the glyph surfaces
     boost::shared_ptr< WItemSelection > m_sliceOrientations; //!< A list of the selectable slice orientations, i.e  x, y and z.
