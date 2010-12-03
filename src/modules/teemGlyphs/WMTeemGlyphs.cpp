@@ -198,7 +198,9 @@ void WMTeemGlyphs::properties()
     m_subdivisionLevelProp->setMax( 5 );
 
     m_usePolarPlotProp = m_properties->addProperty( "Use polar plot", "Use polar plot for glyph instead of HOME?", true, m_recompute );
-    m_useNormalizationProp = m_properties->addProperty( "Radius normalization", "Scale the radius of each glyph to be in [0,1].", true, m_recompute );
+    m_useNormalizationProp = m_properties->addProperty( "Min-max normalization", "Scale the radius of each glyph to be in [0,1].",
+                                                        true,
+                                                        m_recompute );
 
     WModule::properties();
 }
