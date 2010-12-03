@@ -51,7 +51,7 @@ public:
      * \param yOffset translation alogn the y axis
      *
      */
-    WDendrogramGeode( WHierarchicalTreeFibers* tree, size_t cluster, size_t minClusterSize = 1, float xSize = 1000.f,
+    WDendrogramGeode( WHierarchicalTree* tree, size_t cluster, size_t minClusterSize = 1, float xSize = 1000.f,
             float ySize = 500.f, float xOffset = 0.0f, float yOffset = 0.0f );
 
     /**
@@ -91,7 +91,7 @@ private:
      */
     void getClickClusterRecursive( size_t cluster, float left, float right );
 
-    WHierarchicalTreeFibers* m_tree; //!< the tree to work on
+    WHierarchicalTree* m_tree; //!< the tree to work on
 
     size_t m_rootCluster; //!< top cluster to draw the tree from
 

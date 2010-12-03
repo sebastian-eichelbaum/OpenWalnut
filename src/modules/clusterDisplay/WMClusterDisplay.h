@@ -31,17 +31,17 @@
 
 #include <osg/Geode>
 
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../common/WHierarchicalTreeFibers.h"
 
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../graphicsEngine/WOSGButton.h"
+
+#include "../../kernel/WFiberSelector.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-#include "../../kernel/WFiberSelector.h"
-
-#include "WDendrogramGeode.h"
-#include "WOSGButton.h"
-#include "../../common/WHierarchicalTreeFibers.h"
+#include "../../graphicsEngine/geodes/WDendrogramGeode.h"
 
 const unsigned int MASK_2D = 0xF0000000; //!< used for osgWidget stuff
 const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff
