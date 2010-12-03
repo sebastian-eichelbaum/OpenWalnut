@@ -1034,5 +1034,5 @@ void WQtControlPanel::selectUpperMostEntry()
 
 void WQtControlPanel::handleDragDrop()
 {
-    std::cout << "huhu" << std::endl;
+    WLogger::getLogger()->addLogMessage( "Drag and drop handler not implemented yet!", "ControlPanel", LL_DEBUG );
 }
