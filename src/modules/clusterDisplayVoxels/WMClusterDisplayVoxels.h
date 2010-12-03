@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMCLUSTERDISPLAY_H
-#define WMCLUSTERDISPLAY_H
+#ifndef WMCLUSTERDISPLAYVOXELS_H
+#define WMCLUSTERDISPLAYVOXELS_H
 
 #include <queue>
 #include <string>
@@ -31,39 +31,49 @@
 
 #include <osg/Geode>
 
-#include "../../common/WHierarchicalTreeFibers.h"
+#include "../../common/WHierarchicalTreeVoxels.h"
 
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../graphicsEngine/geodes/WDendrogramGeode.h"
 #include "../../graphicsEngine/WOSGButton.h"
 
-#include "../../kernel/WFiberSelector.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-#include "../../graphicsEngine/geodes/WDendrogramGeode.h"
+#include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WValueSet.h"
 
 const unsigned int MASK_2D = 0xF0000000; //!< used for osgWidget stuff
 const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff
 
-/**
- * Module offers several fiber selection and coloring options depending on a hierarchical clustering
+/** 
+ * Someone should add some documentation here.
+ * Probably the best person would be the module's
+ * creator, i.e. "schurade".
+ *
+ * This is only an empty template for a new module. For
+ * an example module containing many interesting concepts
+ * and extensive documentation have a look at "src/modules/template"
  *
  * \ingroup modules
  */
-class WMClusterDisplay: public WModule
+class WMClusterDisplayVoxels: public WModule
 {
 public:
 
     /**
-     * constructor
+     *
      */
-    WMClusterDisplay();
+    WMClusterDisplayVoxels();
 
     /**
-     * destructor
+     *
      */
-    virtual ~WMClusterDisplay();
+    virtual ~WMClusterDisplayVoxels();
 
     /**
      * Gives back the name of this module.
@@ -117,88 +127,56 @@ private:
     std::vector< std::string > readFile( const std::string fileName );
 
     /**
-     * helper function to load and parse a tree file, the tree is stored in the member variable m_tree
-     * \param fileName
+     * loads and parses the clustering text file
+     * \param clusterFile to the clustering file
+     * \return true if a meta file was succesfully loaded, false otherwise
      */
-    bool loadTreeAscii( std::string fileName );
+    bool loadClustering( boost::filesystem::path clusterFile );
 
     /**
-     * inits the cluster navigation widgets
+     * creates a new texture
      */
-    void initWidgets();
-
-    /**
-     * updates all the overlay widgets within the osg thread
-     */
-    void updateWidgets();
-
-    /**
-     * function checks all on screen buttons if they have been clicked
-     * \return true if a button was clicked
-     */
-    bool widgetClicked();
-
-    /**
-     * colors subclusters depending on slider settings
-     * \param current root cluster to start from
-     */
-    void colorClusters( size_t current );
-
-    /**
-     * sets a set of cluster to a single color
-     * \param clusters vector of clusters
-     * \param color new color
-     */
-    void setColor( std::vector<size_t> clusters, WColor color );
-
-    /**
-     * function to handle user input
-     */
-    void handleSelectedClusterChanged();
-
-    /**
-     * function to handle user input
-     */
-    void handleOffsetChanged();
-
-    /**
-     * function to handle user input
-     */
-    void handleSelectedLevelChanged();
-
-    /**
-     * function to handle user input
-     */
-    void handleBiggestClustersChanged();
-
-    /**
-     * function to handle user input
-     */
-    void handleColoringChanged();
+    void createTexture();
 
     /**
      * function to handle user input
      */
     void handleMinSizeChanged();
 
+    /**
+     * after the active cluster list has changed this function updates the texture, triangulation and dendrogram
+     */
+    void updateAll();
 
     /**
-     * function to handle user input
+     * creates a triangulation from the selected clusters
      */
-    void handleRoiChanged();
+    void createMesh();
 
     /**
-     * function to handle user input
+     * renders the triangulated clusters
      */
-    void handleCreateRoi();
+    void renderMesh();
 
     /**
-     * creates a label depending ont he current labeling setting
-     *
-     * \param id of the cluster to create the label for
-     * \return string of the label
+     * inits the graphical widgets in the 3d scene
      */
-    std::string createLabel( size_t id );
+    void initWidgets();
+
+    /**
+     * updates the graphical widgets in the 3d scene
+     */
+    void updateWidgets();
+
+    /**
+     * handles mouse clicks into the dendrogram
+     */
+    bool widgetClicked();
+
+    /**
+     * updates property min/max values after loading a clustering file
+     */
+    void setPropertyBoundaries();
 
     /**
      * listenes to the pickhandler and determines if a click into the dendrogram happened
@@ -206,22 +184,54 @@ private:
      */
     void dendrogramClick( WPickInfo pickInfo );
 
-    /**
-     * helper function to initialize a fiber display node
-     */
-    void createFiberGeode();
 
     /**
-     * Input connector for a fiber dataset.
+     * An input connector that accepts order 1 datasets.
      */
-    boost::shared_ptr< WModuleInputData< const WDataSetFibers > > m_fiberInput;
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
 
-    boost::shared_ptr< const WDataSetFibers > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
+    /**
+     * An output connector for the output scalar dsataset.
+     */
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
+
+    /**
+     * This is a pointer to the dataset the module is currently working on.
+     */
+    boost::shared_ptr< WDataSetSingle > m_dataSet;
+
+    /**
+     * Point to the out dataset once it is invalid. Used to deregister from the datahandler
+     */
+    boost::shared_ptr< WDataSetScalar > m_outDataOld;
+
+    /**
+     * This is a pointer to the current output.
+     */
+    boost::shared_ptr< WDataSetScalar > m_outData;
+
+    /**
+     * stores a pointer to the texture we paint in
+     */
+    osg::ref_ptr<osg::Texture3D>m_texture;
+
+    /**
+     * label vector for texture creation
+     */
+    std::vector< size_t >m_data;
+
+    /**
+     * stores a pointer to the grid we use;
+     */
+    boost::shared_ptr< WGridRegular3D > m_grid;
 
     /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    WPropTrigger  m_propReadTrigger; //!< This property triggers the actual reading,
+    WPropFilename m_propClusterFile; //!< The png files will be loaded form this directory
 
     /**
      * the currently selected cluster
@@ -229,40 +239,24 @@ private:
     WPropInt m_propSelectedCluster;
 
     /**
-     * offset to the currently selected cluster, this allows tree navigation and return to the
-     * current cluster
+     * the currently selected cluster
      */
-    WPropInt m_propSelectedClusterOffset;
+    WPropInt m_propXBiggestClusters;
 
     /**
-     * number of biggest sub cluster to determine and show
+     * how many levels to go down from top
      */
-    WPropInt m_propSubClusters;
+    WPropInt m_propLevelsFromTop;
 
     /**
-     * number of subclusters to color differently
+     * show or hide outliers
      */
-    WPropInt m_propSubLevelsToColor;
+    WPropBool m_propHideOutliers;
 
     /**
      * specifies a minimum size for a cluster so that too small cluster won't get an own color
      */
     WPropInt m_propMinSizeToColor;
-
-    /**
-     * number of clusters that are selected by the current roi setting and meet the ratio condition
-     */
-    WPropInt m_propMaxSubClusters;
-
-    /**
-     * ratio of how many leafes of a cluster must be inside the roi setting to be considered
-     */
-    WPropDouble m_propBoxClusterRatio;
-
-    /**
-     * controls the display of the tree navigation widget
-     */
-    WPropBool m_propShowTree;
 
     /**
      * grouping the dendrogram manipulation properties
@@ -284,41 +278,27 @@ private:
     WPropInt m_propDendrogramOffsetX; //!< controls the horizontal origin of the dendrogram
     WPropInt m_propDendrogramOffsetY; //!< controls the vertical origin of the dendrogram
 
+    /**
+     * if true position and size sliders will have no effect
+     */
+    WPropBool m_propShowVoxelTriangulation;
 
-    WPropTrigger  m_readTriggerProp; //!< This property triggers the actual reading,
-    WPropFilename m_propTreeFile; //!< The tree will be read from this file, i hope we will get a real load button some time
+    WHierarchicalTreeVoxels m_tree; //!< the tree object as loaded from the file
+
+    osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
+    osg::ref_ptr< WGEGroupNode > m_dendrogramNode; //!< Pointer to the dendrogram group node.
+    osg::ref_ptr< WGEGroupNode > m_meshNode; //!< Pointer to the mesh group node.
+
+    std::vector<osg::ref_ptr< osg::Geode > > m_outputGeodes; //!< a vector of dendrogram nodes
+
+    std::vector<boost::shared_ptr< WTriangleMesh > >m_triMeshes; //!< This triangle mesh is provided as output through the connector.
+
+    std::vector<size_t>m_activatedClusters; //!< stores the currently activated clusters
 
     /**
-     * stores the tree object
+     * list of buttons for the active cluster selection
      */
-    WHierarchicalTreeFibers m_tree;
-
-    /**
-     * Point to a fiber selector, which is an adapater between the roi manager and the this module
-     */
-    boost::shared_ptr< WFiberSelector>m_fiberSelector;
-
-    /**
-     * stores pointer to the fiber drawer
-     */
-    osg::ref_ptr< WFiberDrawable > m_fiberDrawable;
-
-    /**
-     * The root node used for this modules graphics.
-     */
-    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
-
-    std::vector<size_t>m_biggestClusters; //!< stores the currently selected biggest clusters
-
-    /**
-     * list of buttons for the tree widget
-     */
-    std::vector< osg::ref_ptr<WOSGButton> >m_treeButtonList;
-
-    /**
-     * list of buttons for biggest cluster selection
-     */
-    std::vector< osg::ref_ptr<WOSGButton> >m_biggestClustersButtonList;
+    std::vector< osg::ref_ptr<WOSGButton> >m_activeClustersButtonList;
 
     osg::Camera* m_camera; //!< stores the camera object
 
@@ -339,6 +319,10 @@ private:
     int m_oldViewHeight; //!< stores the old viewport resolution to check whether a resize happened
 
     int m_oldViewWidth; //!< stores the old viewport resolution to check whether a resize happened
+
+    WPropInt m_infoCountLeafes; //!< info property
+    WPropInt m_infoCountClusters; //!< info property
+    WPropInt m_infoMaxLevel; //!< info property
 };
 
-#endif  // WMCLUSTERDISPLAY_H
+#endif  // WMCLUSTERDISPLAYVOXELS_H

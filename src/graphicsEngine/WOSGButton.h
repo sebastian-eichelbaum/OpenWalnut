@@ -30,7 +30,7 @@
 
 #include <osgWidget/Box> //NOLINT
 
-#include "../../common/WProperties.h"
+#include "../common/WProperties.h"
 
 #include "WOSGButtonLabel.h"
 
@@ -102,7 +102,7 @@ public:
 
 
 private:
-    WOSGButtonLabel* m_label; //!< stores pointer to the lable object
+    WOSGButtonLabel* m_label; //!< stores pointer to the label object
 
     size_t m_id; //!< id
 };

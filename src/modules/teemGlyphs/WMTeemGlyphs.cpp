@@ -169,7 +169,7 @@ void WMTeemGlyphs::properties()
     m_sliceIdProp->setMax( 128 );
 
     m_orderProp = m_properties->addProperty( "Order", "Will be rounded to the next even order", 4, m_recompute );
-    m_orderProp->setMin( 0 );
+    m_orderProp->setMin( 2 );
     m_orderProp->setMax( 6 );
 
     m_GFAThresholdProp = m_properties->addProperty( "GFA threshold", "Show only glyphs at voxels above the given generalized fractional"
@@ -177,8 +177,8 @@ void WMTeemGlyphs::properties()
                                                     " (if GFA data is present at input connector).",
                                                     0.0,
                                                     m_recompute );
-    m_GFAThresholdProp->setMin( 0 );
-    m_GFAThresholdProp->setMax( 1. );
+    m_GFAThresholdProp->setMin( 0.0 );
+    m_GFAThresholdProp->setMax( 1.0 );
 
     m_glyphSizeProp = m_properties->addProperty( "Glyph size", "Size of the displayed glyphs.", 1.0, m_recompute );
     m_glyphSizeProp->setMin( 0 );
@@ -186,7 +186,7 @@ void WMTeemGlyphs::properties()
 
 
     m_moduloProp = m_properties->addProperty( "Modulo", "Shows only every Modulo-th glyph in the two slice directions", 2, m_recompute );
-    m_moduloProp->setMin( 0 );
+    m_moduloProp->setMin( 1 );
     m_moduloProp->setMax( 10 );
 
     m_subdivisionLevelProp = m_properties->addProperty( "Subdivision level",
@@ -198,7 +198,9 @@ void WMTeemGlyphs::properties()
     m_subdivisionLevelProp->setMax( 5 );
 
     m_usePolarPlotProp = m_properties->addProperty( "Use polar plot", "Use polar plot for glyph instead of HOME?", true, m_recompute );
-    m_useNormalizationProp = m_properties->addProperty( "Radius normalization", "Scale the radius of each glyph to be in [0,1].", true, m_recompute );
+    m_useNormalizationProp = m_properties->addProperty( "Min-max normalization", "Scale the radius of each glyph to be in [0,1].",
+                                                        true,
+                                                        m_recompute );
 
     WModule::properties();
 }
@@ -222,6 +224,14 @@ void WMTeemGlyphs::moduleMain()
         }
         if( m_input->getData().get() )
         {
+            bool dataChanged = false;
+            if( m_dataSet != m_input->getData() )
+            {
+                // acquire data from the input connector
+                m_dataSet = m_input->getData();
+                dataChanged = true;
+            }
+
             boost::shared_ptr< WGridRegular3D > gridReg = boost::shared_dynamic_cast< WGridRegular3D >( m_input->getData().get()->getGrid() );
             switch( m_sliceOrientationSelection->get( true ).getItemIndexOfSelected( 0 ) )
             {
@@ -234,6 +244,11 @@ void WMTeemGlyphs::moduleMain()
                 case 2:
                     m_sliceIdProp->setMax( gridReg->getNbCoordsZ() - 1 );
                     break;
+            }
+
+            if( dataChanged )
+            {
+                m_sliceIdProp->set( m_sliceIdProp->getMax()->getMax() / 2 );
             }
 
             boost::shared_ptr< WDataSetScalar > gfa = m_inputGFA->getData();

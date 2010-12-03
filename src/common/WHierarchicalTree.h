@@ -58,15 +58,6 @@ public:
     virtual void addLeaf() = 0;
 
     /**
-     * adds a cluster to the set, it combines 2 already existing clusters
-     *
-     * \param cluster1 first cluster to add
-     * \param cluster2 second cluster to add
-     * \param customData some arbitrary data stored with the cluster
-     */
-    void addCluster( size_t cluster1, size_t cluster2, float customData );
-
-    /**
      * getter
      * \return the number of leafes
      */
@@ -127,18 +118,11 @@ public:
     std::pair<size_t, size_t>getChildren( size_t cluster );
 
     /**
-     * sets the color for a selected cluster and all sub clusters
-     * \param cluster
-     * \param color
-     */
-    virtual void colorCluster( size_t cluster, WColor color ) = 0;
-
-    /**
      * getter
      * \param cluster
      * \return the leafes contained in the selected cluster
      */
-    virtual std::vector<size_t>getLeafesForCluster( size_t cluster ) = 0;
+    std::vector<size_t>getLeafesForCluster( size_t cluster );
 
     /**
      * getter
@@ -153,6 +137,45 @@ public:
      * \return true if it is a leaf
      */
     bool isLeaf( size_t cluster );
+
+    /**
+     * returns a number of clusters at a certain level down from top cluster
+     * \param level how many levels to go down
+     * \param hideOutliers true if clusters of size 1 should be ignored
+     * \return vector containing the cluster id's
+     */
+    std::vector< size_t >downXLevelsFromTop( size_t level, bool hideOutliers = false );
+
+    /**
+     * finds the X biggest clusters for a given cluster
+     * \param cluster
+     * \param number of sub clusters
+     */
+    std::vector< size_t >findXBiggestClusters( size_t cluster, size_t number = 10 );
+
+    // TODO(schurade): merge these two function
+    /**
+     * finds the X biggest clusters for a given cluster
+     * \param cluster
+     * \param number of sub clusters
+     */
+    std::vector< size_t >findXBiggestClusters2( size_t cluster, size_t number = 10 );
+
+
+    /**
+     * helper function to sort a list of clusters depending on the number of leafes in them
+     * \param input reference to the list to be sorted
+     */
+    void sortList( std::list<size_t> &input ); //NOLINT
+
+
+    /**
+     * sets the color for a selected cluster and all sub clusters
+     * \param cluster
+     * \param color
+     */
+    void colorCluster( size_t cluster, WColor color );
+
 
 protected:
     /**
@@ -201,6 +224,13 @@ protected:
      * a color value for each cluster
      */
     std::vector<WColor>m_colors;
+
+    /**
+     *vector that stores the leaf id's for each cluster, this is quite memory intensive but speeds up selection
+     * of leafes for nodes at higher levels
+     */
+    std::vector< std::vector<size_t> >m_containsLeafes;
+
 private:
 };
 
@@ -273,6 +303,11 @@ inline WColor WHierarchicalTree::getColor( size_t cluster )
 inline bool WHierarchicalTree::isLeaf( size_t cluster )
 {
     return ( cluster < m_leafCount ) ? true : false;
+}
+
+inline std::vector<size_t>WHierarchicalTree::getLeafesForCluster( size_t cluster )
+{
+    return m_containsLeafes[cluster];
 }
 
 #endif  // WHIERARCHICALTREE_H
