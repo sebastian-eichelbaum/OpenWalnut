@@ -161,6 +161,22 @@ private:
     WPropTrigger m_tfLoaderTrigger;
 
     /**
+     * All properties for those nice improvement methods.
+     */
+    WPropGroup m_improvementGroup;
+
+    /**
+     * If true, stochastic jittering is used for image quality improvement.
+     */
+    WPropBool m_stochasticJitterEnabled;
+
+    /**
+     * If active, the opacity of the classified fragment gets scaled according to sample count to ensure relative opacities even if sampling
+     * number changes (m_stepCount)
+     */
+    WPropBool m_opacityCorrectionEnabled;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

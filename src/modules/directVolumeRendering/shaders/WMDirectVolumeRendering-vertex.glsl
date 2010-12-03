@@ -73,6 +73,7 @@ void main()
 
     // to have equidistant sampling for each side of the box, use a fixed step size
     v_stepDistance = 1.0 / float( u_steps );
+    v_relativeSteps = 128.0 /  float( u_steps );
 
 #ifdef LOCALILLUMINATION_PHONG
     // also get the coordinates of the light
