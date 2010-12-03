@@ -116,9 +116,9 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetVector > > m_gradients;
 
     /**
-     * The number of steps to walk along the ray.
+     * The number of samples to walk along the ray.
      */
-    WPropInt m_stepCount;
+    WPropInt m_samples;
 
     /**
      * Types of local illumination supported.
@@ -172,7 +172,7 @@ private:
 
     /**
      * If active, the opacity of the classified fragment gets scaled according to sample count to ensure relative opacities even if sampling
-     * number changes (m_stepCount)
+     * number changes (m_samples)
      */
     WPropBool m_opacityCorrectionEnabled;
 

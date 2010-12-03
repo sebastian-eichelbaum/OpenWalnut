@@ -99,10 +99,10 @@ void WMDirectVolumeRendering::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_stepCount     = m_properties->addProperty( "Step count",       "The number of steps to walk along the ray during raycasting. A low value "
-                                                                      "may cause artifacts whilst a high value slows down rendering.", 256 );
-    m_stepCount->setMin( 1 );
-    m_stepCount->setMax( 5000 );
+    m_samples     = m_properties->addProperty( "Sample count", "The number of samples to walk along the ray during raycasting. A low value "
+                                                                 "may cause artifacts whilst a high value slows down rendering.", 256 );
+    m_samples->setMin( 1 );
+    m_samples->setMax( 5000 );
 
     // illumination model
     m_localIlluminationSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
@@ -130,7 +130,7 @@ void WMDirectVolumeRendering::properties()
                                                                                       m_propCondition );
 
     m_opacityCorrectionEnabled = m_improvementGroup->addProperty( "Opacity Correction", "If enabled, opacities are assumed to be relative to the "
-                                                                                        "sample count. If disabled, changing the step count "
+                                                                                        "sample count. If disabled, changing the sample count "
                                                                                         "varies brightness of the image.", true,
                                                                                       m_propCondition );
 
@@ -336,10 +336,10 @@ void WMDirectVolumeRendering::moduleMain()
             // for the texture, also bind the appropriate uniforms
             rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
 
-            osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
-            steps->setUpdateCallback( new SafeUniformCallback( this ) );
+            osg::ref_ptr< osg::Uniform > samples = new osg::Uniform( "u_samples", m_samples->get() );
+            samples->setUpdateCallback( new SafeUniformCallback( this ) );
 
-            rootState->addUniform( steps );
+            rootState->addUniform( samples );
 
             WGEColormapping::apply( cube, false );
 
@@ -372,9 +372,9 @@ void WMDirectVolumeRendering::moduleMain()
 void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
 {
     // update some uniforms:
-    if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
+    if ( m_module->m_samples->changed() && ( uniform->getName() == "u_samples" ) )
     {
-        uniform->set( m_module->m_stepCount->get( true ) );
+        uniform->set( m_module->m_samples->get( true ) );
     }
 }
 

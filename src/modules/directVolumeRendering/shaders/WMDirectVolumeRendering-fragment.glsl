@@ -194,7 +194,7 @@ void main()
     // stochastic jittering can help to void these ugly wood-grain artifacts with larger sampling distances but might
     // introduce some noise artifacts.
     float jitter = 0.5 - texture2D( JITTERTEXTURE_SAMPLER, gl_FragCoord.xy / JITTERTEXTURE_SIZEX ).r;
-    vec3 rayStart = v_rayStart + ( v_ray * v_stepDistance * jitter );
+    vec3 rayStart = v_rayStart + ( v_ray * v_sampleDistance * jitter );
 #else
     vec3 rayStart = v_rayStart;
 #endif
@@ -214,17 +214,17 @@ void main()
 
 #ifdef OPACITYCORRECTION_ENABLED
             // opacity correction
-            src.r = 1.0 - fastpow( 1.0 - src.r, v_relativeSteps );
-            src.g = 1.0 - fastpow( 1.0 - src.g, v_relativeSteps );
-            src.b = 1.0 - fastpow( 1.0 - src.b, v_relativeSteps );
-            src.a = 1.0 - fastpow( 1.0 - src.a, v_relativeSteps );
+            src.r = 1.0 - fastpow( 1.0 - src.r, v_relativeSampleDistance );
+            src.g = 1.0 - fastpow( 1.0 - src.g, v_relativeSampleDistance );
+            src.b = 1.0 - fastpow( 1.0 - src.b, v_relativeSampleDistance );
+            src.a = 1.0 - fastpow( 1.0 - src.a, v_relativeSampleDistance );
 #endif
 
             // apply front-to-back compositing
             dst = ( 1.0 - dst.a ) * src + dst;
 
             // go to next value
-            currentDistance += v_stepDistance;
+            currentDistance += v_sampleDistance;
         }
 
         // early ray-termination
