@@ -107,57 +107,18 @@ public:
      */
     void setRoiBitField( boost::shared_ptr< std::vector<bool> > bitfield );
 
-    /**
-     * finds the X biggest clusters for a given cluster
-     * \param cluster
-     * \param number of sub clusters
-     */
-    std::vector< size_t >findXBiggestClusters( size_t cluster, size_t number = 10 );
-
-    /**
-     * helper function to sort a list of clusters depending on the number of leafes in them
-     * \param input reference to the list to be sorted
-     */
-    void sortList( std::list<size_t> &input ); //NOLINT
-
-
-    /**
-     * sets the color for a selected cluster and all sub clusters
-     * \param cluster
-     * \param color
-     */
-    void colorCluster( size_t cluster, WColor color );
-
-    /**
-     * getter
-     * \param cluster
-     * \return the leafes contained in the selected cluster
-     */
-    std::vector<size_t>getLeafesForCluster( size_t cluster );
-
 protected:
 private:
     /**
      * stores a pointer to the bitfield by the current roi setting
      */
     boost::shared_ptr< std::vector<bool> > m_roiSelection;
-
-    /**
-     *vector that stores the leaf id's for each cluster, this is quite memory intensive but speeds up selection
-     * of leafes for nodes at higher levels
-     */
-    std::vector< std::vector<size_t> >m_containsLeafes;
 };
 
 
 inline void WHierarchicalTreeFibers::setRoiBitField( boost::shared_ptr< std::vector<bool> > bitfield )
 {
     m_roiSelection = bitfield;
-}
-
-inline std::vector<size_t>WHierarchicalTreeFibers::getLeafesForCluster( size_t cluster )
-{
-    return m_containsLeafes[cluster];
 }
 
 #endif  // WHIERARCHICALTREEFIBERS_H
