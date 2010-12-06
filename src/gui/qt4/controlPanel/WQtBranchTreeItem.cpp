@@ -32,7 +32,7 @@ WQtBranchTreeItem::WQtBranchTreeItem( QTreeWidgetItem * parent, boost::shared_pt
     QTreeWidgetItem( parent, ROIBRANCH ),
     m_branch( branch )
 {
-    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled );
+    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDropEnabled );
 }
 
 WQtBranchTreeItem::~WQtBranchTreeItem()

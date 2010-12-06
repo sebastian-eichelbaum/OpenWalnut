@@ -85,12 +85,10 @@ const std::string WMDirectVolumeRendering::getDescription() const
 void WMDirectVolumeRendering::connectors()
 {
     // DVR needs one input: the scalar dataset
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar  > >(
-        new WModuleInputData< WDataSetScalar >( shared_from_this(), "in", "The scalar dataset shown using isosurface." )
-    );
+    m_input = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "in", "The scalar dataset." );
 
-    // As properties, every connector needs to be added to the list of connectors.
-    addConnector( m_input );
+    // Optional: the gradient field
+    m_gradients = WModuleInputData< WDataSetVector >::createAndAdd( shared_from_this(), "gradients", "The gradient field of the dataset to display" );
 
     // call WModules initialization
     WModule::connectors();
@@ -101,10 +99,10 @@ void WMDirectVolumeRendering::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_stepCount     = m_properties->addProperty( "Step count",       "The number of steps to walk along the ray during raycasting. A low value "
-                                                                      "may cause artifacts whilst a high value slows down rendering.", 250 );
-    m_stepCount->setMin( 1 );
-    m_stepCount->setMax( 1000 );
+    m_samples     = m_properties->addProperty( "Sample count", "The number of samples to walk along the ray during raycasting. A low value "
+                                                                 "may cause artifacts whilst a high value slows down rendering.", 256 );
+    m_samples->setMin( 1 );
+    m_samples->setMax( 5000 );
 
     // illumination model
     m_localIlluminationSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
@@ -123,12 +121,52 @@ void WMDirectVolumeRendering::properties()
                                                     WPathHelper::getAppPath(), m_propCondition );
     WPropertyHelper::PC_PATHEXISTS::addTo( m_tfLoaderFile );
     m_tfLoaderTrigger = m_tfLoaderGroup->addProperty( "Load", "Triggers loading.", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+
+    // additional artifact removal methods
+    m_improvementGroup = m_properties->addPropertyGroup( "Improvements", "Methods for improving image quality. Most of these methods imply "
+                                                         "additional calculation/texture overhead and therefore slow down rendering." );
+    m_stochasticJitterEnabled = m_improvementGroup->addProperty( "Stochastic Jitter", "With stochastic jitter, wood-grain artifacts can be "
+                                                                                      "removed with the cost of possible noise artifacts.", true,
+                                                                                      m_propCondition );
+
+    m_opacityCorrectionEnabled = m_improvementGroup->addProperty( "Opacity Correction", "If enabled, opacities are assumed to be relative to the "
+                                                                                        "sample count. If disabled, changing the sample count "
+                                                                                        "varies brightness of the image.", true,
+                                                                                      m_propCondition );
+
     WModule::properties();
 }
 
 void WMDirectVolumeRendering::requirements()
 {
     m_requirements.push_back( new WGERequirement() );
+}
+
+/**
+ * Generates a white noise texture with given resolution.
+ *
+ * \param resX the resolution
+ *
+ * \return a image with resX*resX resolution.
+ */
+osg::ref_ptr< osg::Image > genWhiteNoise( size_t resX )
+{
+    std::srand( time( 0 ) );
+
+    osg::ref_ptr< osg::Image > randImage = new osg::Image();
+    randImage->allocateImage( resX, resX, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
+    unsigned char *randomLuminance = randImage->data();  // should be 4 megs
+    for( unsigned int x = 0; x < resX; x++ )
+    {
+        for( unsigned int y = 0; y < resX; y++ )
+        {
+            // - stylechecker says "use rand_r" but I am not sure about portability.
+            unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
+            randomLuminance[ ( y * resX ) + x ] = r;
+        }
+    }
+
+    return randImage;
 }
 
 void WMDirectVolumeRendering::moduleMain()
@@ -138,6 +176,7 @@ void WMDirectVolumeRendering::moduleMain()
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_gradients->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
 
     // Signal ready state.
@@ -164,10 +203,11 @@ void WMDirectVolumeRendering::moduleMain()
         }
 
         // was there an update?
-        bool dataUpdated = m_input->updated();
+        bool dataUpdated = m_input->updated() || m_gradients->updated();
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
         bool dataValid   = ( dataSet );
-        bool propUpdated = m_localIlluminationAlgo->changed() || m_tfLoaderEnabled || m_tfLoaderFile->changed() || m_tfLoaderTrigger->changed();
+        bool propUpdated = m_localIlluminationAlgo->changed() || m_tfLoaderEnabled || m_tfLoaderFile->changed() || m_tfLoaderTrigger->changed() ||
+                           m_stochasticJitterEnabled->changed() ||  m_opacityCorrectionEnabled->changed();
 
         // As the data has changed, we need to recreate the texture.
         if ( ( propUpdated || dataUpdated ) && dataValid )
@@ -204,7 +244,7 @@ void WMDirectVolumeRendering::moduleMain()
             rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // setup defines (illumination)
+            // setup illumination
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
             size_t localIlluminationAlgo = m_localIlluminationAlgo->get( true ).getItemIndexOfSelected( 0 );
@@ -216,6 +256,19 @@ void WMDirectVolumeRendering::moduleMain()
                     break;
                 default:
                     break;
+            }
+
+            // if there is a gradient field available -> apply as texture too
+            boost::shared_ptr< WDataSetVector > gradients = m_gradients->getData();
+            if ( gradients )
+            {
+                debugLog() << "Uploading specified gradient field.";
+
+                // bind the texture to the node
+                rootState->setTextureAttributeAndModes( 1, gradients->getTexture()->getTexture(), osg::StateAttribute::ON );
+                rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
+                m_shader->setDefine( "GRADIENTTEXTURE_SAMPLER", "tex1" );
+                m_shader->setDefine( "GRADIENTTEXTURE_ENABLED" );
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -233,15 +286,47 @@ void WMDirectVolumeRendering::moduleMain()
                     tfTexture->setImage( tfImg );
 
                     // apply it
-                    rootState->setTextureAttributeAndModes( 1, tfTexture, osg::StateAttribute::ON );
-                    rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
-                    m_shader->setDefine( "TRANSFERFUNCTION_SAMPLER", "tex1" );
+                    rootState->setTextureAttributeAndModes( 2, tfTexture, osg::StateAttribute::ON );
+                    rootState->addUniform( new osg::Uniform( "tex2", 2 ) );
+                    m_shader->setDefine( "TRANSFERFUNCTION_SAMPLER", "tex2" );
                     m_shader->setDefine( "TRANSFERFUNCTION_ENABLED" );
                 }
                 else
                 {
                     warnLog() << "Transfer function texture could not be loaded from " << m_tfLoaderFile->get( true ).file_string() << ".";
                 }
+                m_tfLoaderTrigger->get( true );
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // stochastic jittering texture
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // create some random noise
+            if ( m_stochasticJitterEnabled->get( true ) )
+            {
+                const size_t size = 64;
+                osg::ref_ptr< osg::Texture2D > randTexture = new osg::Texture2D();
+                randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
+                randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
+                randTexture->setWrap( osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT );
+                randTexture->setWrap( osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT );
+                randTexture->setImage( genWhiteNoise( size ) );
+                rootState->setTextureAttributeAndModes( 3, randTexture, osg::StateAttribute::ON );
+                rootState->addUniform( new osg::Uniform( "tex3", 3 ) );
+                m_shader->setDefine( "JITTERTEXTURE_SAMPLER", "tex3" );
+                m_shader->setDefine( "JITTERTEXTURE_SIZEX", size );
+                m_shader->setDefine( "JITTERTEXTURE_ENABLED" );
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // opacity correction
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // create some random noise
+            if ( m_opacityCorrectionEnabled->get( true ) )
+            {
+                m_shader->setDefine( "OPACITYCORRECTION_ENABLED" );
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -251,17 +336,16 @@ void WMDirectVolumeRendering::moduleMain()
             // for the texture, also bind the appropriate uniforms
             rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
 
-            osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
-            steps->setUpdateCallback( new SafeUniformCallback( this ) );
+            osg::ref_ptr< osg::Uniform > samples = new osg::Uniform( "u_samples", m_samples->get() );
+            samples->setUpdateCallback( new SafeUniformCallback( this ) );
 
-            rootState->addUniform( steps );
+            rootState->addUniform( samples );
 
             WGEColormapping::apply( cube, false );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // build spatial search structure
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
             // update node
             debugLog() << "Adding new rendering.";
@@ -288,9 +372,9 @@ void WMDirectVolumeRendering::moduleMain()
 void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
 {
     // update some uniforms:
-    if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
+    if ( m_module->m_samples->changed() && ( uniform->getName() == "u_samples" ) )
     {
-        uniform->set( m_module->m_stepCount->get( true ) );
+        uniform->set( m_module->m_samples->get( true ) );
     }
 }
 

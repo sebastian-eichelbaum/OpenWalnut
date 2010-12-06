@@ -29,7 +29,8 @@
 #include "WOSGButton.h"
 
 WOSGButton::WOSGButton( std::string name, osgWidget::Box::BoxType type, bool resize_hint, bool pushable ) :
-    osgWidget::Box( name, type, resize_hint )
+    osgWidget::Box( name, type, resize_hint ),
+    m_id( 0 )
 {
     getBackground()->setColor( 0.8f, 0.8f, 0.8f, 0.8f );
 

@@ -89,14 +89,14 @@ void lookupTex( inout vec4 col, in int type, in sampler3D tex, in float threshol
 
     col1 = clamp( texture3D( tex, v ).rgb, 0.0, 1.0 );
 
-    if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
+    if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= -0.0001 ) return;
 
     if( cmap != 0 )
     {
         if(threshold < 1.0)
         {
             col1.r = ( col1.r - threshold ) / ( 1.0 - threshold );
-            if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
+            if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= -0.0001 ) return;
         }
 
         colorMap( col1, col1.r, cmap );
@@ -122,7 +122,7 @@ void main()
 
     if ( ( col.r + col.g + col.b ) < 0.01 )
     {
-        if( highlighted )
+        if( highlighted && !showComplete )
         {
             // higlight picked slice in the areas where ther are zero (very small) values
             col = vec4( .7, .7, 1, 1 );
@@ -130,7 +130,7 @@ void main()
         else
         {
             if ( !showComplete )
-            discard;
+                discard;
         }
     }
 

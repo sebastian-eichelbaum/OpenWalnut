@@ -43,10 +43,8 @@
 // texture containing the data
 uniform sampler3D tex0;
 uniform sampler1D TRANSFERFUNCTION_SAMPLER;
-
-// The isovalue to use.
-uniform float u_isovalue1 = 0.33;
-uniform float u_isovalue2 = 0.80;
+uniform sampler3D GRADIENTTEXTURE_SAMPLER;
+uniform sampler2D JITTERTEXTURE_SAMPLER;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -65,14 +63,15 @@ uniform float u_isovalue2 = 0.80;
  * get a proper maximum distance along the ray.
  *
  * \param d out - this value will contain the maximum distance along the ray untill the end of the cube
+ * \param rayStart in - the start point of the ray in the volume
  *
  * \return the end point
  */
-vec3 findRayEnd( out float d )
+vec3 findRayEnd( in vec3 rayStart, out float d )
 {
     // we need to ensure the vector components are not exactly 0.0 since they are used for division
     vec3 r = v_ray + vec3( 0.000000001 );
-    vec3 p = v_rayStart;
+    vec3 p = rayStart;
 
     // v_ray in cube coordinates is used to check against the unit cube borders
     // when will v_ray reach the front face?
@@ -99,6 +98,9 @@ vec3 findRayEnd( out float d )
  */
 vec3 getGradient( in vec3 position )
 {
+#ifdef GRADIENTTEXTURE_ENABLED
+    return ( 2.0 * texture3D( GRADIENTTEXTURE_SAMPLER, position ).rgb ) + vec3( -1.0 );
+#else
     float s = 0.01;
     float valueXP = texture3D( tex0, position + vec3( s, 0.0, 0.0 ) ).r;
     float valueXM = texture3D( tex0, position - vec3( s, 0.0, 0.0 ) ).r;
@@ -108,6 +110,7 @@ vec3 getGradient( in vec3 position )
     float valueZM = texture3D( tex0, position - vec3( 0.0, 0.0, s ) ).r;
 
     return vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM );
+#endif
 }
 
 /**
@@ -117,12 +120,12 @@ vec3 getGradient( in vec3 position )
  *
  * \return the color.
  */
-vec4 transferFunction( in float value )
+vec4 transferFunction( float value )
 {
 #ifdef TRANSFERFUNCTION_ENABLED
     return texture1D( TRANSFERFUNCTION_SAMPLER, value );
 #else
-    if ( isZero( value - 0.5, 0.1 ) )   // if not TF has been specified, at least show something
+    if ( isZero( value - 0.5, 0.01 ) )   // if not TF has been specified, at least show something
     {
         return vec4( 1.0, 0.0, 0.0, 0.1 );
     }
@@ -164,6 +167,20 @@ vec4 localIllumination( in vec3 position, in vec4 color )
 }
 
 /**
+ * Calculates a^b. This is a faster, approximate implementation of GLSL's pow().
+ *
+ * \param a base
+ * \param b exponent
+ *
+ * \return a^b.
+ */
+float fastpow( float a, float b )
+{
+    //return exp( log(a)*b );
+    return pow( a, b );
+}
+
+/**
  * Main entry point of the fragment shader.
  */
 void main()
@@ -172,42 +189,61 @@ void main()
     // when done for each vertex.
     float totalDistance = 0.0;      // the maximal distance along the ray until the BBox ends
     float currentDistance = 0.0;    // accumulated distance along the ray
-    vec3 rayEnd = findRayEnd( totalDistance );
+
+#ifdef JITTERTEXTURE_ENABLED
+    // stochastic jittering can help to void these ugly wood-grain artifacts with larger sampling distances but might
+    // introduce some noise artifacts.
+    float jitter = 0.5 - texture2D( JITTERTEXTURE_SAMPLER, gl_FragCoord.xy / JITTERTEXTURE_SIZEX ).r;
+    vec3 rayStart = v_rayStart + ( v_ray * v_sampleDistance * jitter );
+#else
+    vec3 rayStart = v_rayStart;
+#endif
+
+    vec3 rayEnd = findRayEnd( rayStart, totalDistance );
 
     // walk along the ray
-    vec4 accumColor = vec4( vec3( 0.0 ), 1.0 );      // the composited color
-    float accumAlpha = 1.0;                          // accumulated transparency of the volume.
-    float depth = gl_FragCoord.z;                    // the depth of the last hit
-    float value;                                     // the current value inside the data
-    float hit = 0.0;                                 // this value will be != 0.0 if something has been hit
+    vec4 dst = vec4( 0.0 );
     while ( currentDistance <= totalDistance )
     {
-        // get current value
-        vec3 rayPoint = rayEnd - ( currentDistance * v_ray );
-        value = texture3D( tex0, rayPoint ).r;
-        // go to next value
-        currentDistance += v_stepDistance;
+        // do not dynamically branch every cycle for early-ray termination, so do n steps before checking alpha value
+        for ( int i = 0; i < 4; ++i )
+        {
+            // get current value, classify and illuminate
+            vec3 rayPoint = rayStart + ( currentDistance * v_ray );
+            vec4 src = localIllumination( rayPoint, transferFunction( texture3D( tex0, rayPoint ).r ) );
 
-        // classify point in volume and evaluate local illumination model at this position
-        vec4 color = localIllumination( rayPoint,  transferFunction( value ) );
+#ifdef OPACITYCORRECTION_ENABLED
+            // opacity correction
+            src.r = 1.0 - fastpow( 1.0 - src.r, v_relativeSampleDistance );
+            src.g = 1.0 - fastpow( 1.0 - src.g, v_relativeSampleDistance );
+            src.b = 1.0 - fastpow( 1.0 - src.b, v_relativeSampleDistance );
+            src.a = 1.0 - fastpow( 1.0 - src.a, v_relativeSampleDistance );
+#endif
 
-        // has there ever been something we hit?
-        hit = max( hit, color.a );
+            // apply front-to-back compositing
+            dst = ( 1.0 - dst.a ) * src + dst;
 
-        accumColor.rgba = mix( accumColor.rgba, color.rgba, color.a );  // compositing
-        accumAlpha *= ( 1.0 - color.a );                                // compositing: keep track of final alpha value of the background
+            // go to next value
+            currentDistance += v_sampleDistance;
+        }
+
+        // early ray-termination
+        if ( dst.a >= 0.95 )
+            break;
     }
 
     // have we hit something which was classified not to be transparent?
     // This is, visually, not needed but useful if volume rendere is used in conjunction with other geometry.
-    if ( isZero( hit ) )
-    {
-        discard;
-    }
+    // if ( isZero( dst.a ) )
+    // {
+    //    discard;
+    // }
+
+    // get depth ... currently the frag depth.
+    float depth = gl_FragCoord.z;
 
     // set final color
-    accumColor.a = 1.0 - accumAlpha;
-    gl_FragColor = accumColor;
+    gl_FragColor = dst;
     gl_FragDepth = depth;
 }
 

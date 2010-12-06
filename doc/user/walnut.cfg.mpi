@@ -9,7 +9,7 @@
 # default=HUD
 ## A list of modules that will be provided through the GUI. 
 ## If the list is empty all available modules are provided.
-whiteList = Arbitrary Plane,Coordinate System,Image Extractor,Paint Texture,Arbitrary Rois,Bounding Box,Distance Map Isosurface,Gauss Filtering,HUD,Isosurface,Isosurface Raytracer,LIC,Read Mesh,Voxelizer,Superquadric Glyphs,Triangle Mesh Renderer,Vector Plot,Write NIfTI
+whiteList = Arbitrary Plane,Coordinate System,Image Extractor,Paint Texture,Arbitrary Rois,Bounding Box,Distance Map Isosurface,Gauss Filtering,HUD,Isosurface,Isosurface Raytracer,LIC,Read Mesh,Voxelizer,Superquadric Glyphs,Triangle Mesh Renderer,Vector Plot,Write NIfTI,Fiber Display
 
 ## Specify a ";" separated list of additional paths for modules. The order of appearance is the order of loading. The following additional rules apply here:
 ## 1. if the directory contains one or more libOWmodule_XYZ it/they get loaded
@@ -57,6 +57,14 @@ compatiblesToolBarPos = 0 # position of the compatibles toolbar (overrides toolB
 # dsbWidth = 400  # the width of the control panel
 # dsbInvisibleByDefault = yes # hide the control panel on startup. Can be shown using F9.
 # dsbFloatingByDefault = yes  # should the control panel be undocked on startup?
+
+# Here you can put any key sequence you would like to result in removing modules or ROIs
+# Examples: 
+# deleteKey = Backspace
+# deleteKey = Ctrl+J
+# deleteKey = B
+deleteModuleKey = Backspace
+deleteROIKey = Del
 
 ####################################################################
 # Other GUI settings

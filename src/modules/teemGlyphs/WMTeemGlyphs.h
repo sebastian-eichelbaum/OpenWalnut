@@ -29,8 +29,10 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetSphericalHarmonics.h"
+#include "../../common/WItemSelection.h"
+#include "../../common/WItemSelector.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetSphericalHarmonics.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -129,15 +131,20 @@ private:
      */
     void renderSlice( size_t sliceId );
 
+    boost::shared_ptr< WDataSetSphericalHarmonics > m_dataSet; //!< Pointer to the treated data set.
+
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputGFA; //!< The input for the GFA.
     osg::ref_ptr< WShader > m_shader; //!< The shader used for the glyph surfaces
     boost::shared_ptr< WItemSelection > m_sliceOrientations; //!< A list of the selectable slice orientations, i.e  x, y and z.
-    WPropSelection m_sliceOrientationSelection; //!< To choose whether to x, y or z slice.
+    WPropSelection m_sliceOrientationSelectionProp; //!< To choose whether to x, y or z slice.
     WPropBool m_usePolarPlotProp; //!< Property indicating whether to use polar plot instead of HOME glyph
     WPropBool m_useNormalizationProp; //!< Indicates whether to us radius normalization.
     WPropDouble m_GFAThresholdProp; //!< Property holding the threshold of GFA above which glyphs should be drawn.
     WPropDouble m_glyphSizeProp; //!< Property holding the size of the displayed glyphs
     WPropInt m_sliceIdProp; //!< Property holding the slice ID
+    boost::shared_ptr< WItemSelection > m_orders; //!< A list of the selectable orders
+    WPropSelection m_orderProp; //!< Property holding the order of the SH to show.
+
     WPropInt m_moduloProp; //!< Property holding information on how many glyphs will be omited between two glyphs (modulo-1).
     WPropInt m_subdivisionLevelProp; //!< Property holding information on the subdivision level of the spheres (resolution).
 
@@ -158,6 +165,7 @@ private:
          * \param dataGFA GFA data for dataSet.
          * \param thresholdGFA Threshold of GFA below which we will not draw the glyphs
          * \param sliceId Rendered slice
+         * \param order Order of the rendered spherical harmonics.
          * \param subdivisionLevel Subidivision level of spheres that are basis for glyphs (resolution)
          * \param modulo Show only every modulo-th glyph in each direction.
          * \param sliceType Slice direction (sagittal, coronal, axial )
@@ -169,6 +177,7 @@ private:
                           boost::shared_ptr< WDataSetScalar > dataGFA,
                           double thresholdGFA,
                           const size_t& sliceId,
+                          const size_t& order,
                           const size_t& subdivisionLevel,
                           const size_t& modulo,
                           const size_t& sliceType,
@@ -218,6 +227,7 @@ private:
 
         double m_thresholdGFA; //!< Stores the GFA threshold from the property.
         size_t m_sliceId; //!< Stores option from property.
+        size_t m_order; //!< Stores option from property.
         size_t m_sliceType; //!< Stores option from property.
         size_t m_subdivisionLevel; //!< Store option from property
         size_t m_modulo; //!< Store option from property

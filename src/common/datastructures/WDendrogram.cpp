@@ -53,9 +53,9 @@ size_t WDendrogram::merge( size_t i, size_t j, double height )
     m_parents.push_back( m_parents.size() ); // the root s always self referencing
 
 #ifdef DEBUG
-    m_heights->at( m_parents.size() - 2 - m_heights.size() ) = height;
-    m_parents->at( i ) = m_parents.size() - 1;
-    m_parents->at( j ) = m_parents.size() - 1;
+    m_heights.at( m_parents.size() - 2 - m_heights.size() ) = height;
+    m_parents.at( i ) = m_parents.size() - 1;
+    m_parents.at( j ) = m_parents.size() - 1;
 #else
     m_heights[ m_parents.size() - 2 - m_heights.size() ] = height;
     m_parents[ i ] = m_parents.back();

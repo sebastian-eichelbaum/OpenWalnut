@@ -31,6 +31,8 @@
 #include <osg/Uniform>
 
 #include "../../graphicsEngine/WShader.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetVector.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -109,9 +111,14 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
 
     /**
-     * The number of steps to walk along the ray.
+     * The gradient field input
      */
-    WPropInt m_stepCount;
+    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_gradients;
+
+    /**
+     * The number of samples to walk along the ray.
+     */
+    WPropInt m_samples;
 
     /**
      * Types of local illumination supported.
@@ -152,6 +159,22 @@ private:
      * Triggered to actually do loading
      */
     WPropTrigger m_tfLoaderTrigger;
+
+    /**
+     * All properties for those nice improvement methods.
+     */
+    WPropGroup m_improvementGroup;
+
+    /**
+     * If true, stochastic jittering is used for image quality improvement.
+     */
+    WPropBool m_stochasticJitterEnabled;
+
+    /**
+     * If active, the opacity of the classified fragment gets scaled according to sample count to ensure relative opacities even if sampling
+     * number changes (m_samples)
+     */
+    WPropBool m_opacityCorrectionEnabled;
 
     /**
      * A condition used to notify about changes in several properties.

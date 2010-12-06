@@ -91,7 +91,17 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_moduleTreeWidget->addAction( separator );
 
     m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
-    m_deleteModuleAction->setShortcut( QKeySequence( Qt::Key_Backspace ) );
+
+    {
+        // Set the key for removing modules
+        std::string deleteKey = "";
+        WPreferences::getPreference( "qt4gui.deleteModuleKey", &deleteKey );
+        if( deleteKey == "" )
+        {
+            deleteKey = "Backspace";
+        }
+        m_deleteModuleAction->setShortcut( QKeySequence( QString::fromStdString( deleteKey ) ) );
+    }
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
 
@@ -147,8 +157,17 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
 
     connectSlots();
 
-    QShortcut* shortcut = new QShortcut( QKeySequence( Qt::Key_Delete ), m_roiTreeWidget );
-    connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
+    {
+        // Set the key for removing ROIs and connect the event
+        std::string deleteKey = "";
+        WPreferences::getPreference( "qt4gui.deleteROIKey", &deleteKey );
+        if( deleteKey == "" )
+        {
+            deleteKey = "Delete";
+        }
+        QShortcut* shortcut = new QShortcut( QKeySequence( QString::fromStdString( deleteKey ) ), m_roiTreeWidget );
+        connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
+    }
 }
 
 WQtControlPanel::~WQtControlPanel()
@@ -158,16 +177,14 @@ WQtControlPanel::~WQtControlPanel()
 void WQtControlPanel::connectSlots()
 {
     connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
-    // connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
-    //connect( m_roiTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
-
     connect( m_textureSorter, SIGNAL( textureSelectionChanged( boost::shared_ptr< WDataSet > ) ),
              this, SLOT( selectDataModule( boost::shared_ptr< WDataSet > ) ) );
+    connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleDragDrop() ) );
 }
 
 void WQtControlPanel::addToolbar( QToolBar* tb )
@@ -303,8 +320,12 @@ bool WQtControlPanel::event( QEvent* event )
             {
                 // remove child from tiModules
                 m_tiModules->removeChild( *iter );
-                ( *parIter )->addChild( *iter );
-                ( *parIter )->setExpanded( true );
+                if ( !( *parIter )->isHidden() )
+                {
+                    ( *parIter )->addChild( *iter );
+                    ( *parIter )->setExpanded( true );
+                    break;
+                }
             }
 
             // job done.
@@ -464,7 +485,10 @@ std::list< WQtTreeItem* > WQtControlPanel::findItemsByModule( boost::shared_ptr<
 
 std::list< WQtTreeItem* > WQtControlPanel::findItemsByModule( boost::shared_ptr< WModule > module )
 {
-    return findItemsByModule( module, m_moduleTreeWidget->invisibleRootItem() );
+    std::list< WQtTreeItem* > ret = findItemsByModule( module, m_moduleTreeWidget->invisibleRootItem() );
+    std::list< WQtTreeItem* > ret2 = findItemsByModule( module, m_moduleTreeWidget->topLevelItem( 0 ) );
+    ret.merge( ret2 );
+    return ret;
 }
 
 WQtDatasetTreeItem* WQtControlPanel::addDataset( boost::shared_ptr< WModule > module, int subjectId )
@@ -1032,4 +1056,9 @@ void WQtControlPanel::deleteROITreeItem()
 void WQtControlPanel::selectUpperMostEntry()
 {
     m_tiModules->setSelected( true );
+}
+
+void WQtControlPanel::handleDragDrop()
+{
+    WLogger::getLogger()->addLogMessage( "Drag and drop handler not implemented yet!", "ControlPanel", LL_DEBUG );
 }

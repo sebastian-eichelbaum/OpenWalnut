@@ -39,8 +39,8 @@
 // texture containing the data
 uniform sampler3D tex0;
 
-// The number of steps to use.
-uniform int u_steps;
+// The number of samples to use.
+uniform int u_samples;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -72,7 +72,8 @@ void main()
     v_ray = normalize( worldToLocal( camLookAt, camPos ).xyz );
 
     // to have equidistant sampling for each side of the box, use a fixed step size
-    v_stepDistance = 1.0 / float( u_steps );
+    v_sampleDistance = 1.0 / float( u_samples );
+    v_relativeSampleDistance = 128.0 /  float( u_samples );
 
 #ifdef LOCALILLUMINATION_PHONG
     // also get the coordinates of the light
