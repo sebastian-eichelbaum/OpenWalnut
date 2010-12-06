@@ -158,19 +158,27 @@ void WMTeemGlyphs::properties()
     m_sliceOrientations->addItem( "x", "x-slice" );
     m_sliceOrientations->addItem( "y", "y-slice" );
     m_sliceOrientations->addItem( "z", "z-slice" );
-    m_sliceOrientationSelection = m_properties->addProperty( "Slice orientation",
+    m_sliceOrientationSelectionProp = m_properties->addProperty( "Slice orientation",
                                                              "Which slice will be shown?",
                                                              m_sliceOrientations->getSelector( 1 ),
                                                              m_recompute );
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_sliceOrientationSelection );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_sliceOrientationSelectionProp );
 
     m_sliceIdProp = m_properties->addProperty( "Slice ID", "Number of the slice to display", 100, m_recompute );
     m_sliceIdProp->setMin( 0 );
     m_sliceIdProp->setMax( 128 );
 
-    m_orderProp = m_properties->addProperty( "Order", "Will be rounded to the next even order", 4, m_recompute );
-    m_orderProp->setMin( 2 );
-    m_orderProp->setMax( 6 );
+    m_orders = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_orders->addItem( "2", "Order 2" );
+    m_orders->addItem( "4", "Order 4" );
+    m_orders->addItem( "6", "Order 6" );
+
+    m_orderProp = m_properties->addProperty( "Order",
+                                             "Order of the displayed spherical harmonics."
+                                             " If actual order is higer, the additional coefficients are ignored.",
+                                             m_orders->getSelector( 1 ),
+                                             m_recompute );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_orderProp );
 
     m_GFAThresholdProp = m_properties->addProperty( "GFA threshold", "Show only glyphs at voxels above the given generalized fractional"
                                                     " anisotropy (GFA) threshold"
@@ -222,6 +230,7 @@ void WMTeemGlyphs::moduleMain()
             m_moduleState.wait();
             continue;
         }
+        // std::cout << "FA: " << m_GFAThresholdProp->get( true ) << std::endl;
         if( m_input->getData().get() )
         {
             bool dataChanged = false;
@@ -233,7 +242,7 @@ void WMTeemGlyphs::moduleMain()
             }
 
             boost::shared_ptr< WGridRegular3D > gridReg = boost::shared_dynamic_cast< WGridRegular3D >( m_input->getData().get()->getGrid() );
-            switch( m_sliceOrientationSelection->get( true ).getItemIndexOfSelected( 0 ) )
+            switch( m_sliceOrientationSelectionProp->get( true ).getItemIndexOfSelected( 0 ) )
             {
                 case 0:
                     m_sliceIdProp->setMax( gridReg->getNbCoordsX() - 1 );
@@ -258,11 +267,6 @@ void WMTeemGlyphs::moduleMain()
                 m_GFAThresholdProp->setMin( gfa->getMin() );
             }
 
-            if( m_orderProp->get() % 2 != 0 )
-            {
-                m_orderProp->set( m_orderProp->get() + 1 );
-            }
-
             renderSlice( m_sliceIdProp->get() );
         }
 
@@ -277,7 +281,8 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
     progress = boost::shared_ptr< WProgress >( new WProgress( "Glyph Generation", 2 ) );
     m_progress->addSubProgress( progress );
 
-    size_t sliceType = m_sliceOrientationSelection->get( true ).getItemIndexOfSelected( 0 );
+    size_t sliceType = m_sliceOrientationSelectionProp->get( true ).getItemIndexOfSelected( 0 );
+    size_t order = boost::lexical_cast< float >(  m_orders->getSelector( m_orderProp->get().getItemIndexOfSelected( 0 ) ) .at( 0 )->getName() );
 
     // Please look here  http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
     if( m_moduleNode )
@@ -293,7 +298,7 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
                                        boost::shared_dynamic_cast< WDataSetScalar >( m_inputGFA->getData() ),
                                        m_GFAThresholdProp->get(),
                                        sliceId,
-                                       m_orderProp->get(),
+                                       order,
                                        m_subdivisionLevelProp->get(),
                                        m_moduloProp->get(),
                                        sliceType,

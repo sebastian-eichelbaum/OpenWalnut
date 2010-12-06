@@ -579,7 +579,7 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     fd.setAcceptMode( QFileDialog::AcceptSave );
 
     QStringList filters;
-    filters << "Project File (*.owproj)"
+    filters << "Project File (*.owproj *.owp)"
             << "Any files (*)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
@@ -652,7 +652,7 @@ void WMainWindow::projectLoad()
     fd.setFileMode( QFileDialog::ExistingFiles );
 
     QStringList filters;
-    filters << "Simple Project File (*.owproj)"
+    filters << "Simple Project File (*.owproj *.owp)"
             << "Any files (*)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
