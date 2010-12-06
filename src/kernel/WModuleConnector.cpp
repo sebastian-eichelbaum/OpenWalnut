@@ -283,6 +283,8 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
         lock.unlock();
 
         // signal "closed connection"
+        // NOTE: at this point, there might be an connected input connector even though we disconnected it. This is because of removeFromOwnList.
+        // The input connectors handle this with an additional member variable denoting their disconnect state
         signal_ConnectionClosed( shared_from_this(), con );
         con->signal_ConnectionClosed( shared_from_this(), con );
     }
