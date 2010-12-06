@@ -29,8 +29,6 @@
 #include <queue>
 #include <list>
 
-#include "../kernel/WKernel.h"
-
 #include "WHierarchicalTreeFibers.h"
 
 WHierarchicalTreeFibers::WHierarchicalTreeFibers() :
