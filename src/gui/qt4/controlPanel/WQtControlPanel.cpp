@@ -320,8 +320,12 @@ bool WQtControlPanel::event( QEvent* event )
             {
                 // remove child from tiModules
                 m_tiModules->removeChild( *iter );
-                ( *parIter )->addChild( *iter );
-                ( *parIter )->setExpanded( true );
+                if ( !( *parIter )->isHidden() )
+                {
+                    ( *parIter )->addChild( *iter );
+                    ( *parIter )->setExpanded( true );
+                    break;
+                }
             }
 
             // job done.
@@ -481,7 +485,10 @@ std::list< WQtTreeItem* > WQtControlPanel::findItemsByModule( boost::shared_ptr<
 
 std::list< WQtTreeItem* > WQtControlPanel::findItemsByModule( boost::shared_ptr< WModule > module )
 {
-    return findItemsByModule( module, m_moduleTreeWidget->invisibleRootItem() );
+    std::list< WQtTreeItem* > ret = findItemsByModule( module, m_moduleTreeWidget->invisibleRootItem() );
+    std::list< WQtTreeItem* > ret2 = findItemsByModule( module, m_moduleTreeWidget->topLevelItem( 0 ) );
+    ret.merge( ret2 );
+    return ret;
 }
 
 WQtDatasetTreeItem* WQtControlPanel::addDataset( boost::shared_ptr< WModule > module, int subjectId )
