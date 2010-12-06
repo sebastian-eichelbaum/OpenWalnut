@@ -103,7 +103,7 @@ void main()
     vec3 rayEnd = findRayEnd( totalDistance );
 
     // the point along the ray in cube coordinates
-    vec3 curPoint = v_rayStart;
+    vec3 curPoint = ( 1.0 * v_ray ) + v_rayStart;
 
     // the current value inside the data
     float value;
@@ -111,7 +111,7 @@ void main()
     // the step counter
     int i = 0;
     float stepDistance = totalDistance / float( u_steps );
-    while ( i < u_steps ) // we do not need to ch
+    while ( i < u_steps - 1 ) // we do not need to ch
     {
         // get current value
         value = texture3D( tex0, curPoint ).r;
@@ -228,7 +228,7 @@ void main()
     }
 
     // the ray did never hit the surface --> discard the pixel
-    if ( i == u_steps )
+    if ( i == u_steps - 1 )
     {
         discard;
     }
