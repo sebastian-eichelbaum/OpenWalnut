@@ -122,7 +122,7 @@ void main()
 
     if ( ( col.r + col.g + col.b ) < 0.01 )
     {
-        if( highlighted )
+        if( highlighted && !showComplete )
         {
             // higlight picked slice in the areas where ther are zero (very small) values
             col = vec4( .7, .7, 1, 1 );
