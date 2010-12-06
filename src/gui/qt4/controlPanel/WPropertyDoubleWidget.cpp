@@ -54,7 +54,7 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     update();
 
     // connect the modification signal of the edit and slider with our callback
-    connect( &m_slider, SIGNAL( sliderMoved( int ) ), this, SLOT( sliderChanged( int ) ) );
+    connect( &m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderChanged( int ) ) );
     connect( &m_edit, SIGNAL( editingFinished() ), this, SLOT( editChanged() ) );
     connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
 }
