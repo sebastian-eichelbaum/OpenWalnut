@@ -42,7 +42,7 @@ public:
      * \param fibers pointer to the fiber dataset to work on
      * \param branch pointer to the branch object in the roi manager
      */
-    WSelectorBranch( boost::shared_ptr< const WDataSetFibers > fibers, boost::shared_ptr<WRMBranch> branch );
+    WSelectorBranch( boost::shared_ptr< const WDataSetFibers > fibers, boost::shared_ptr< WRMBranch > branch );
 
     /**
      * destructor
@@ -53,7 +53,7 @@ public:
      * getter
      * \return the bitfield that is created from all rois in this branch
      */
-    boost::shared_ptr< std::vector<bool> >getBitField();
+    boost::shared_ptr< std::vector<bool> > getBitField();
 
     /**
      * getter
@@ -65,7 +65,7 @@ public:
      * adds a roi to the branch
      * \param roi
      */
-    void addRoi( boost::shared_ptr< WSelectorRoi> roi );
+    void addRoi( boost::shared_ptr< WSelectorRoi > roi );
 
     /**
      * removes a roi fromt he branch
@@ -117,22 +117,22 @@ private:
     /**
      * the bitfield given to the outside world
      */
-    boost::shared_ptr< std::vector<bool> >m_bitField;
+    boost::shared_ptr< std::vector< bool > > m_bitField;
 
     /**
      * the bitfield we work on
      */
-    boost::shared_ptr< std::vector<bool> >m_workerBitfield;
+    boost::shared_ptr< std::vector< bool > > m_workerBitfield;
 
     /**
      * list of rois in this branch
      */
-    std::list< boost::shared_ptr<WSelectorRoi> >m_rois;
+    std::list< boost::shared_ptr< WSelectorRoi > > m_rois;
 
     /**
      * pointer to the branch object in the roi manager
      */
-    boost::shared_ptr<WRMBranch> m_branch;
+    boost::shared_ptr< WRMBranch > m_branch;
 };
 
 inline boost::shared_ptr< std::vector<bool> > WSelectorBranch::getBitField()
@@ -144,7 +144,7 @@ inline boost::shared_ptr< std::vector<bool> > WSelectorBranch::getBitField()
     return m_bitField;
 }
 
-inline boost::shared_ptr<WRMBranch> WSelectorBranch::getBranch()
+inline boost::shared_ptr< WRMBranch > WSelectorBranch::getBranch()
 {
     return m_branch;
 }
