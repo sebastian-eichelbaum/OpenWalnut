@@ -25,8 +25,9 @@
 #ifndef WDENDROGRAM_H
 #define WDENDROGRAM_H
 
-#include <vector>
+#include <sstream>
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
