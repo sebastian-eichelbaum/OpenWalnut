@@ -27,6 +27,7 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "../../WLogger.h"
 #include "../WDendrogram.h"
 
 /**
@@ -54,7 +55,7 @@ public:
     {
         WDendrogram d( 5 );
         d.merge( 0, 1, 0.8 ); // 5
-        d.merge( 5, 2, 0.4); // 6
+        d.merge( 5, 2, 0.4 ); // 6
         d.merge( 3, 4, 0.60 ); // 7
         d.merge( 6, 7, 0.32 ); // 8
         std::stringstream ss;
@@ -73,6 +74,14 @@ public:
             std::cout << "But got:" << std::endl << d.toTXTString();
             TS_FAIL( "Invalid dendrogram to string generation" );
         }
+    }
+
+    /**
+     * Sets up the WLogger to properly log some thing...
+     */
+    void setUp( void )
+    {
+        WLogger::startup();
     }
 };
 

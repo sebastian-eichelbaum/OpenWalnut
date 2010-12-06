@@ -31,6 +31,7 @@
 #include <vector>
 
 #include "../WAssert.h"
+#include "../WLogger.h"
 #include "../WStringUtils.h"
 #include "WDendrogram.h"
 
@@ -87,8 +88,8 @@ std::string WDendrogram::toTXTString() const
         level[ i ] = std::max( level[ left ], level[ right ] ) + 1;
         preds[ m_parents[ i ] ].insert( i );
         std::set< size_t > join;
-        std::set_union( childsOfInnerNodes[ m_parents[ i ] ].begin(), childsOfInnerNodes[ m_parents[ i ] ].end(), childsOfInnerNodes[ i ].begin(), childsOfInnerNodes[ i ].end(),
-                std::inserter( join, join.begin() ) );
+        std::set_union( childsOfInnerNodes[ m_parents[ i ] ].begin(), childsOfInnerNodes[ m_parents[ i ] ].end(),
+                childsOfInnerNodes[ i ].begin(), childsOfInnerNodes[ i ].end(), std::inserter( join, join.begin() ) );
         childsOfInnerNodes[ m_parents[ i ] ] = join;
         ss << "(" << level[i] << ", (";
         size_t numElements = childsOfInnerNodes[i].size();
@@ -106,10 +107,14 @@ std::string WDendrogram::toTXTString() const
         }
         using string_utils::operator<<;
         ss << "(" << left << ", " << right << "), " << m_heights[ i - m_heights.size() - 1 ] << ")" << std::endl;
-        // TODO(math): the needs to be made with a writer instead
-        std::ofstream file( "/home/math/pansen.txt" );
-        file << ss.str();
-        file.close();
     }
+
+    // TODO(math): the needs to be made with a writer instead
+    wlog::debug( "WDendrogram" ) << "start writing the txt file to pansen.txt";
+    std::ofstream file( "/home/math/pansen.txt" );
+    file << ss.str();
+    file.close();
+    wlog::debug( "WDendrogram" ) << "written the txt file to pansen.txt";
+
     return ss.str();
 }

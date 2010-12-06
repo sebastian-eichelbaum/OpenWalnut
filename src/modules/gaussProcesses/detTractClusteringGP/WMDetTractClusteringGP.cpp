@@ -138,8 +138,7 @@ boost::shared_ptr< WMDetTractClusteringGP::MST > WMDetTractClusteringGP::compute
     // initialize the first the similarities to the root node.
     const WGaussProcess& root = dataSet->front(); // is the root vertex of the MST
     std::vector< double > similarities( dataSet->size(), 0.0 );
-    similarities[0] = wlimits::MAX_DOUBLE; // root node has maximal similarity and is selected first
-    for( size_t i = 1; i < dataSet->size(); ++i )
+    for( size_t i = 0; i < dataSet->size(); ++i )
     {
         const WGaussProcess& p = ( *dataSet )[i];
         if( root.getBB().minDistance( p.getBB() ) < root.getMaxSegmentLength() + p.getMaxSegmentLength() )
@@ -226,7 +225,7 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( boos
         size_t u = cit->second.first;
         size_t v = cit->second.second;
 
-        // u and v may already contain to a cluster, thus we need their cannonical elements
+        // u and v may already be a member of a cluster, thus we need their cannonical elements
         size_t cEu = uf.find( u );
         size_t cEv = uf.find( v );
 
