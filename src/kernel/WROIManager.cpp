@@ -168,7 +168,10 @@ void WROIManager::removeAddNotifier( boost::shared_ptr< boost::function< void( o
     lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
     std::list<  boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > >::iterator it;
     it = std::find( m_addNotifiers.begin(), m_addNotifiers.end(), notifier );
-    m_addNotifiers.erase( it );
+    if( it != m_addNotifiers.end() )
+    {
+        m_addNotifiers.erase( it );
+    }
     lock.unlock();
 }
 
@@ -186,7 +189,10 @@ void WROIManager::removeRemoveNotifier( boost::shared_ptr< boost::function< void
     lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
     std::list<  boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > >::iterator it;
     it = std::find( m_removeNotifiers.begin(), m_removeNotifiers.end(), notifier );
-    m_removeNotifiers.erase( it );
+    if( it != m_removeNotifiers.end() )
+    {
+        m_removeNotifiers.erase( it );
+    }
     lock.unlock();
 }
 
@@ -204,7 +210,10 @@ void WROIManager::removeRemoveBranchNotifier(  boost::shared_ptr< boost::functio
     lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
     std::list<  boost::shared_ptr< boost::function< void( boost::shared_ptr< WRMBranch > ) > > >::iterator it;
     it = std::find( m_removeBranchNotifiers.begin(), m_removeBranchNotifiers.end(), notifier );
-    m_removeBranchNotifiers.erase( it );
+    if( it != m_removeBranchNotifiers.end() )
+    {
+        m_removeBranchNotifiers.erase( it );
+    }
     lock.unlock();
 }
 

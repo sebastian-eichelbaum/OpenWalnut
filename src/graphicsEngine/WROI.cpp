@@ -139,6 +139,9 @@ void WROI::removeChangeNotifier( boost::shared_ptr< boost::function< void() > > 
     lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
     std::list<  boost::shared_ptr< boost::function< void() > > >::iterator it;
     it = std::find( m_changeNotifiers.begin(), m_changeNotifiers.end(), notifier );
-    m_changeNotifiers.erase( it );
+    if( it != m_changeNotifiers.end() )
+    {
+        m_changeNotifiers.erase( it );
+    }
     lock.unlock();
 }
