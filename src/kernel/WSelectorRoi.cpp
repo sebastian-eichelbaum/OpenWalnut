@@ -43,12 +43,14 @@ WSelectorRoi::WSelectorRoi( osg::ref_ptr< WROI > roi, boost::shared_ptr< const W
     m_currentArray = m_fibers->getVertices();
     m_currentReverse = m_fibers->getVerticesReverse();
 
-    boost::function< void() > changeRoiSignal = boost::bind( &WSelectorRoi::setDirty, this );
-    m_roi->addChangeNotifier( changeRoiSignal );
+    m_changeRoiSignal
+        = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WSelectorRoi::setDirty, this ) ) );
+    m_roi->addChangeNotifier( m_changeRoiSignal );
 }
 
 WSelectorRoi::~WSelectorRoi()
 {
+    m_roi->removeChangeNotifier( m_changeRoiSignal );
 }
 
 void WSelectorRoi::setDirty()

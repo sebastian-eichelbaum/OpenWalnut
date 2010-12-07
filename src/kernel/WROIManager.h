@@ -106,21 +106,43 @@ public:
      *
      * \param notifier  the notifier function
      */
-    void addAddNotifier( boost::function< void( osg::ref_ptr< WROI > ) > notifier );
+    void addAddNotifier( boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > notifier );
+
+    /**
+     * Remove a specified notifier from the list of default notifiers which get connected to each added roi.
+     *
+     * \param notifier  the notifier function
+     */
+    void removeAddNotifier( boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > notifier );
+
 
     /**
      * Add a specified notifier to the list of default notifiers which get connected to each removed roi.
      *
      * \param notifier  the notifier function
      */
-    void addRemoveNotifier( boost::function< void( osg::ref_ptr< WROI > ) > notifier );
+    void addRemoveNotifier( boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > notifier );
+
+    /**
+     * Remove a specified notifier from the list of default notifiers which get connected to each removed roi.
+     *
+     * \param notifier  the notifier function
+     */
+    void removeRemoveNotifier( boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > notifier );
 
     /**
      * Add a specified notifier to the list of default notifiers which get connected to each removed branch.
      *
      * \param notifier  the notifier function
      */
-    void addRemoveBranchNotifier( boost::function< void( boost::shared_ptr< WRMBranch > ) > notifier );
+    void addRemoveBranchNotifier( boost::shared_ptr< boost::function< void( boost::shared_ptr< WRMBranch > ) > > notifier );
+
+    /**
+     * Remove a specified notifier from the list of default notifiers which get connected to each removed branch.
+     *
+     * \param notifier  the notifier function
+     */
+    void removeRemoveBranchNotifier(  boost::shared_ptr< boost::function< void( boost::shared_ptr< WRMBranch > ) > > notifier );
 
     /**
      * setter
@@ -164,17 +186,17 @@ private:
     /**
      * The notifiers connected to added rois by default.
      */
-    std::list< boost::function< void( osg::ref_ptr< WROI > ) > > m_addNotifiers;
+    std::list<  boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > > m_addNotifiers;
 
     /**
      * The notifiers connected to removed rois by default.
      */
-    std::list< boost::function< void( osg::ref_ptr< WROI > ) > > m_removeNotifiers;
+    std::list<  boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > > m_removeNotifiers;
 
     /**
      * The notifiers connected to removed rois by default.
      */
-    std::list< boost::function< void( boost::shared_ptr< WRMBranch > ) > > m_removeBranchNotifiers;
+    std::list<  boost::shared_ptr< boost::function< void( boost::shared_ptr< WRMBranch > ) > > > m_removeBranchNotifiers;
 
 
     osg::ref_ptr< WROI > m_selectedRoi; //!< stores a pointer to the currently selected roi

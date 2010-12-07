@@ -202,6 +202,12 @@ void WMOverlayAtlas::moduleMain()
     }
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+
+    m_s0->removeChangeNotifier( m_changeRoiSignal );
+    m_s1->removeChangeNotifier( m_changeRoiSignal );
+    m_s2->removeChangeNotifier( m_changeRoiSignal );
+    m_s3->removeChangeNotifier( m_changeRoiSignal );
+    m_s4->removeChangeNotifier( m_changeRoiSignal );
 }
 
 void WMOverlayAtlas::init()
@@ -255,12 +261,13 @@ void WMOverlayAtlas::init()
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s3 ) );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s4 ) );
 
-    boost::function< void() > changeRoiSignal = boost::bind( &WMOverlayAtlas::manipulatorMoved, this );
-    m_s0->addChangeNotifier( changeRoiSignal );
-    m_s1->addChangeNotifier( changeRoiSignal );
-    m_s2->addChangeNotifier( changeRoiSignal );
-    m_s3->addChangeNotifier( changeRoiSignal );
-    m_s4->addChangeNotifier( changeRoiSignal );
+    m_changeRoiSignal =
+        boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) ) );
+    m_s0->addChangeNotifier( m_changeRoiSignal );
+    m_s1->addChangeNotifier( m_changeRoiSignal );
+    m_s2->addChangeNotifier( m_changeRoiSignal );
+    m_s3->addChangeNotifier( m_changeRoiSignal );
+    m_s4->addChangeNotifier( m_changeRoiSignal );
 
     toggleManipulators();
 }

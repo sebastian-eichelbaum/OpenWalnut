@@ -137,7 +137,15 @@ public:
      *
      * \param notifier  the notifier function
      */
-    void addChangeNotifier( boost::function< void() > notifier );
+    void addChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
+
+
+    /**
+     * Remove a specified notifier from the list of default notifiers which get connected to each branch
+     *
+     * \param notifier  the notifier function
+     */
+    void removeChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
 
 
 protected:
@@ -176,7 +184,9 @@ private:
     /**
      * The notifiers connected to added rois by default.
      */
-    std::list< boost::function< void() > > m_changeNotifiers;
+    std::list< boost::shared_ptr< boost::function< void() > > > m_changeNotifiers;
+
+    boost::shared_ptr< boost::function< void() > > m_changeRoiSignal; //!< Signal that can be used to update the ROImanager branch
 
     /**
      * Lock for associated notifiers set.

@@ -61,8 +61,8 @@ void WRMBranch::propertyChanged()
 void WRMBranch::addRoi( osg::ref_ptr< WROI > roi )
 {
     m_rois.push_back( roi );
-    boost::function< void() > changeRoiSignal = boost::bind( &WRMBranch::setDirty, this );
-    roi->addChangeNotifier( changeRoiSignal );
+    m_changeRoiSignal = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WRMBranch::setDirty, this ) ) );
+    roi->addChangeNotifier( m_changeRoiSignal );
 
     setDirty();
 }
@@ -81,6 +81,7 @@ bool WRMBranch::contains( osg::ref_ptr< WROI > roi )
 
 void WRMBranch::removeRoi( osg::ref_ptr< WROI > roi )
 {
+    roi->removeChangeNotifier( m_changeRoiSignal );
     for( std::list< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
         if ( ( *iter ) == roi )
@@ -115,10 +116,10 @@ void WRMBranch::setDirty()
     m_dirty->set( true );
     m_roiManager->setDirty();
 
-    for ( std::list< boost::function< void() > >::iterator iter = m_changeNotifiers.begin();
+    for ( std::list< boost::shared_ptr< boost::function< void() > > >::iterator iter = m_changeNotifiers.begin();
                 iter != m_changeNotifiers.end(); ++iter )
     {
-        ( *iter )();
+        ( **iter )();
     }
 }
 
@@ -137,10 +138,20 @@ boost::shared_ptr< WProperties > WRMBranch::getProperties()
     return m_properties;
 }
 
-void WRMBranch::addChangeNotifier( boost::function< void() > notifier )
+void WRMBranch::addChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier )
 {
     boost::unique_lock< boost::shared_mutex > lock;
     lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
     m_changeNotifiers.push_back( notifier );
+    lock.unlock();
+}
+
+void WRMBranch::removeChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier )
+{
+    boost::unique_lock< boost::shared_mutex > lock;
+    lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
+    std::list<  boost::shared_ptr< boost::function< void() > > >::iterator it;
+    it = std::find( m_changeNotifiers.begin(), m_changeNotifiers.end(), notifier );
+    m_changeNotifiers.erase( it );
     lock.unlock();
 }

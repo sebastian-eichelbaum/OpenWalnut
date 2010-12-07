@@ -133,6 +133,9 @@ private:
      * pointer to the branch object in the roi manager
      */
     boost::shared_ptr< WRMBranch > m_branch;
+
+    boost::shared_ptr< boost::function< void() > > m_changeSignal; //!< Signal that can be used to update the selector branch
+    boost::shared_ptr< boost::function< void() > > m_changeRoiSignal; //!< Signal that can be used to update the selector branch
 };
 
 inline boost::shared_ptr< std::vector<bool> > WSelectorBranch::getBitField()
