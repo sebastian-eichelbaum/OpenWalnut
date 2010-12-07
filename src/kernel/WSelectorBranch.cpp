@@ -43,6 +43,12 @@ WSelectorBranch::WSelectorBranch( boost::shared_ptr< const WDataSetFibers > fibe
 WSelectorBranch::~WSelectorBranch()
 {
     m_branch->removeChangeNotifier( m_changeSignal );
+
+    // We need the following because not all ROIs are removed per slot below
+    for ( std::list< boost::shared_ptr< WSelectorRoi > >::iterator roiIter = m_rois.begin(); roiIter != m_rois.end(); ++roiIter )
+    {
+        ( *roiIter )->getRoi()->removeChangeNotifier( m_changeRoiSignal );
+    }
 }
 
 void WSelectorBranch::addRoi( boost::shared_ptr< WSelectorRoi > roi )
@@ -54,10 +60,14 @@ void WSelectorBranch::addRoi( boost::shared_ptr< WSelectorRoi > roi )
     roi->getRoi()->addChangeNotifier( m_changeRoiSignal );
 }
 
+std::list< boost::shared_ptr< WSelectorRoi > > WSelectorBranch::getROIs()
+{
+    return m_rois;
+}
+
 void WSelectorBranch::setDirty()
 {
     m_dirty = true;
-
     if ( m_branch->getProperties()->getProperty( "Bundle Color" )->toPropColor()->changed() )
     {
         colorChanged();
@@ -66,6 +76,7 @@ void WSelectorBranch::setDirty()
 
 void WSelectorBranch::removeRoi( osg::ref_ptr< WROI > roi )
 {
+    roi->removeChangeNotifier( m_changeRoiSignal );
     for( std::list< boost::shared_ptr< WSelectorRoi > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
         if ( ( *iter )->getRoi() == roi )
@@ -74,7 +85,6 @@ void WSelectorBranch::removeRoi( osg::ref_ptr< WROI > roi )
             break;
         }
     }
-    roi->removeChangeNotifier( m_changeRoiSignal );
 }
 
 void WSelectorBranch::recalculate()

@@ -67,6 +67,12 @@ public:
      */
     void addRoi( boost::shared_ptr< WSelectorRoi > roi );
 
+
+    /**
+     * \return A copy of the list of WSelectorRois
+     */
+    std::list< boost::shared_ptr< WSelectorRoi > > getROIs();
+
     /**
      * removes a roi fromt he branch
      * \param roi
