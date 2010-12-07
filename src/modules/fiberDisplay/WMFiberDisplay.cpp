@@ -443,7 +443,10 @@ void WMFiberDisplay::updateCallback()
 {
     update();
 
-    m_fiberDrawable->setColor( m_dataset->getColorScheme()->getColor() );
+    if( m_dataset )
+    {
+        m_fiberDrawable->setColor( m_dataset->getColorScheme()->getColor() );
+    }
 
     if ( m_tubeThickness->changed() && m_useTubesProp->get() )
     {
