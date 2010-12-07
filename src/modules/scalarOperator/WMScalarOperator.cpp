@@ -557,7 +557,7 @@ void WMScalarOperator::moduleMain()
             // Create the new dataset and export it
             if ( newValueSet )
             {
-                m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, m_inputA->getData()->getGrid() ) ) );
+                m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, dataSetA->getGrid() ) ) );
             }
 
             // done
