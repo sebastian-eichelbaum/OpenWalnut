@@ -160,8 +160,7 @@ void WMTeemGlyphs::properties()
     m_sliceOrientations->addItem( "z", "z-slice" );
     m_sliceOrientationSelectionProp = m_properties->addProperty( "Slice orientation",
                                                              "Which slice will be shown?",
-                                                             m_sliceOrientations->getSelector( 1 ),
-                                                             m_recompute );
+                                                                 m_sliceOrientations->getSelector( 1 ), m_recompute );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_sliceOrientationSelectionProp );
 
     m_sliceIdProp = m_properties->addProperty( "Slice ID", "Number of the slice to display", 100, m_recompute );
@@ -267,22 +266,36 @@ void WMTeemGlyphs::moduleMain()
                 m_GFAThresholdProp->setMin( gfa->getMin() );
             }
 
-            renderSlice( m_sliceIdProp->get() );
+            renderSlice( m_sliceIdProp->get( true ) );
         }
 
-        m_moduleState.wait();
+        if( !( m_sliceIdProp->changed()
+               || m_sliceOrientationSelectionProp->changed()
+               || m_orderProp->changed()
+               || m_GFAThresholdProp->changed()
+               || m_glyphSizeProp->changed()
+               || m_subdivisionLevelProp->changed()
+               || m_moduloProp->changed()
+               || m_usePolarPlotProp->changed()
+               || m_useNormalizationProp->changed()
+                )
+            )
+        {
+            m_moduleState.wait();
+        }
     }
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
 void  WMTeemGlyphs::renderSlice( size_t sliceId )
 {
+    debugLog() << "Rendering Slice " << sliceId;
     boost::shared_ptr< WProgress > progress;
     progress = boost::shared_ptr< WProgress >( new WProgress( "Glyph Generation", 2 ) );
     m_progress->addSubProgress( progress );
 
     size_t sliceType = m_sliceOrientationSelectionProp->get( true ).getItemIndexOfSelected( 0 );
-    size_t order = boost::lexical_cast< float >(  m_orders->getSelector( m_orderProp->get().getItemIndexOfSelected( 0 ) ) .at( 0 )->getName() );
+    size_t order = boost::lexical_cast< float >(  m_orders->getSelector( m_orderProp->get( true ).getItemIndexOfSelected( 0 ) ) .at( 0 )->getName() );
 
     // Please look here  http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
     if( m_moduleNode )
@@ -296,15 +309,15 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
     generator = boost::shared_ptr< GlyphGeneration >(
                   new GlyphGeneration( boost::shared_dynamic_cast< WDataSetSphericalHarmonics >( m_input->getData() ),
                                        boost::shared_dynamic_cast< WDataSetScalar >( m_inputGFA->getData() ),
-                                       m_GFAThresholdProp->get(),
+                                       m_GFAThresholdProp->get( true ),
                                        sliceId,
                                        order,
-                                       m_subdivisionLevelProp->get(),
-                                       m_moduloProp->get(),
+                                       m_subdivisionLevelProp->get( true ),
+                                       m_moduloProp->get( true ),
                                        sliceType,
-                                       m_usePolarPlotProp->get(),
-                                       m_glyphSizeProp->get(),
-                                       m_useNormalizationProp->get() ) );
+                                       m_usePolarPlotProp->get( true ),
+                                       m_glyphSizeProp->get( true ),
+                                       m_useNormalizationProp->get( true ) ) );
     WThreadedFunction< GlyphGeneration > generatorThreaded( W_AUTOMATIC_NB_THREADS, generator );
     generatorThreaded.run();
     generatorThreaded.wait();
