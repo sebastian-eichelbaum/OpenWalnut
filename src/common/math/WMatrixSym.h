@@ -167,6 +167,7 @@ inline void WMatrixSymImpl< T >::setData( const std::vector< T > &data ) throw( 
     m_data = std::vector< T >( data ); // copy content
 }
 
-typedef WMatrixSymImpl< double > WMatrixSym;
+typedef WMatrixSymImpl< double > WMatrixSymDBL;
+typedef WMatrixSymImpl< float > WMatrixSymFLT;
 
 #endif  // WMATRIXSYM_H

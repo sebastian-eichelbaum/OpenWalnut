@@ -156,7 +156,7 @@ protected:
     /**
      * Distant matrix of all pairs of gaussian processes.
      */
-    WMatrixSym m_similarities;
+    WMatrixSymFLT m_similarities;
 
 private:
 };

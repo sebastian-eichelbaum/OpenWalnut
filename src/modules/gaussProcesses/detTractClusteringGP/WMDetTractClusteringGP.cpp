@@ -254,7 +254,7 @@ void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDa
         ++*progress;
     }
 
-    m_similarities = WMatrixSym( dataSet->size() );
+    m_similarities = WMatrixSymFLT( dataSet->size() );
     for( size_t i = 0; i < dataSet->size(); ++i )
     {
         for( size_t j = i + 1; j < dataSet->size(); ++j )
