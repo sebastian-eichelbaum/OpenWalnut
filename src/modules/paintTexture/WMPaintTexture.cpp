@@ -510,12 +510,12 @@ void WMPaintTexture::createROI()
 
         if ( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
         {
-            std::cout << " new roi without parent " << std::endl;
+            WLogger::getLogger()->addLogMessage( " new roi without parent ", "WMPaintTexture", LL_DEBUG );
             WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
         }
         else
         {
-            std::cout << " new roi with parent " << std::endl;
+            WLogger::getLogger()->addLogMessage( " new roi with parent ", "WMPaintTexture", LL_DEBUG );
             WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() );
         }
     }
