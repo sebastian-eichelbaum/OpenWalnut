@@ -168,18 +168,18 @@ void WMDatasetManipulator::init()
     using boost::function;
     m_changeRoiSignal
         = boost::shared_ptr< function< void() > >( new function< void() >( boost::bind( &WMDatasetManipulator::manipulatorMoved, this ) ) );
-    m_knobCenter->addChangeNotifier( m_changeRoiSignal );
-    m_knobx1->addChangeNotifier( m_changeRoiSignal );
-    m_knobx2->addChangeNotifier( m_changeRoiSignal );
-    m_knoby1->addChangeNotifier( m_changeRoiSignal );
-    m_knoby2->addChangeNotifier( m_changeRoiSignal );
-    m_knobz1->addChangeNotifier( m_changeRoiSignal );
-    m_knobz2->addChangeNotifier( m_changeRoiSignal );
+    m_knobCenter->addROIChangeNotifier( m_changeRoiSignal );
+    m_knobx1->addROIChangeNotifier( m_changeRoiSignal );
+    m_knobx2->addROIChangeNotifier( m_changeRoiSignal );
+    m_knoby1->addROIChangeNotifier( m_changeRoiSignal );
+    m_knoby2->addROIChangeNotifier( m_changeRoiSignal );
+    m_knobz1->addROIChangeNotifier( m_changeRoiSignal );
+    m_knobz2->addROIChangeNotifier( m_changeRoiSignal );
 
     m_changeRotRoiSignal
         = boost::shared_ptr< function< void() > >( new function< void() >( boost::bind( &WMDatasetManipulator::manipulatorRotMoved, this ) ) );
-    m_knobRotCenter->addChangeNotifier( m_changeRotRoiSignal );
-    m_knobRot->addChangeNotifier( m_changeRotRoiSignal );
+    m_knobRotCenter->addROIChangeNotifier( m_changeRotRoiSignal );
+    m_knobRot->addROIChangeNotifier( m_changeRotRoiSignal );
 
     setManipulatorMode();
 }
@@ -459,15 +459,15 @@ void WMDatasetManipulator::moduleMain()
         }
     }
 
-    m_knobCenter->removeChangeNotifier( m_changeRoiSignal );
-    m_knobx1->removeChangeNotifier( m_changeRoiSignal );
-    m_knobx2->removeChangeNotifier( m_changeRoiSignal );
-    m_knoby1->removeChangeNotifier( m_changeRoiSignal );
-    m_knoby2->removeChangeNotifier( m_changeRoiSignal );
-    m_knobz1->removeChangeNotifier( m_changeRoiSignal );
-    m_knobz2->removeChangeNotifier( m_changeRoiSignal );
+    m_knobCenter->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knobx1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knobx2->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knoby1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knoby2->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knobz1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knobz2->removeROIChangeNotifier( m_changeRoiSignal );
 
-    m_knobRotCenter->removeChangeNotifier( m_changeRotRoiSignal );
-    m_knobRot->removeChangeNotifier( m_changeRotRoiSignal );
+    m_knobRotCenter->removeROIChangeNotifier( m_changeRotRoiSignal );
+    m_knobRot->removeROIChangeNotifier( m_changeRotRoiSignal );
 }
 

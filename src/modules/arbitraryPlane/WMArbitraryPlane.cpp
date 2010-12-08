@@ -216,9 +216,9 @@ void WMArbitraryPlane::moduleMain()
     WGraphicsEngine::getGraphicsEngine()->getScene()->remove( &( *m_s1 ) );
     WGraphicsEngine::getGraphicsEngine()->getScene()->remove( &( *m_s2 ) );
 
-    m_s0->removeChangeNotifier( m_changeRoiSignal );
-    m_s1->removeChangeNotifier( m_changeRoiSignal );
-    m_s2->removeChangeNotifier( m_changeRoiSignal );
+    m_s0->removeROIChangeNotifier( m_changeRoiSignal );
+    m_s1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_s2->removeROIChangeNotifier( m_changeRoiSignal );
 
     con.disconnect();
 
@@ -252,9 +252,9 @@ void WMArbitraryPlane::initPlane()
 
     m_changeRoiSignal
         = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WMArbitraryPlane::setDirty, this ) ) );
-    m_s0->addChangeNotifier( m_changeRoiSignal );
-    m_s1->addChangeNotifier( m_changeRoiSignal );
-    m_s2->addChangeNotifier( m_changeRoiSignal );
+    m_s0->addROIChangeNotifier( m_changeRoiSignal );
+    m_s1->addROIChangeNotifier( m_changeRoiSignal );
+    m_s2->addROIChangeNotifier( m_changeRoiSignal );
 }
 
 void WMArbitraryPlane::updatePlane()

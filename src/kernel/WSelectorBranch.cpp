@@ -38,6 +38,9 @@ WSelectorBranch::WSelectorBranch( boost::shared_ptr< const WDataSetFibers > fibe
     m_changeSignal =
         boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WSelectorBranch::setDirty, this ) ) );
     m_branch->addChangeNotifier( m_changeSignal );
+
+    m_changeRoiSignal =
+        boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WSelectorBranch::setDirty, this ) ) );
 }
 
 WSelectorBranch::~WSelectorBranch()
@@ -47,17 +50,14 @@ WSelectorBranch::~WSelectorBranch()
     // We need the following because not all ROIs are removed per slot below
     for ( std::list< boost::shared_ptr< WSelectorRoi > >::iterator roiIter = m_rois.begin(); roiIter != m_rois.end(); ++roiIter )
     {
-        ( *roiIter )->getRoi()->removeChangeNotifier( m_changeRoiSignal );
+        ( *roiIter )->getRoi()->removeROIChangeNotifier( m_changeRoiSignal );
     }
 }
 
 void WSelectorBranch::addRoi( boost::shared_ptr< WSelectorRoi > roi )
 {
     m_rois.push_back( roi );
-
-    m_changeRoiSignal =
-        boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WSelectorBranch::setDirty, this ) ) );
-    roi->getRoi()->addChangeNotifier( m_changeRoiSignal );
+    roi->getRoi()->addROIChangeNotifier( m_changeRoiSignal );
 }
 
 std::list< boost::shared_ptr< WSelectorRoi > > WSelectorBranch::getROIs()
@@ -68,7 +68,7 @@ std::list< boost::shared_ptr< WSelectorRoi > > WSelectorBranch::getROIs()
 void WSelectorBranch::setDirty()
 {
     m_dirty = true;
-    if ( m_branch->getProperties()->getProperty( "Bundle Color" )->toPropColor()->changed() )
+    if( m_branch->getProperties()->getProperty( "Bundle Color" )->toPropColor()->changed() )
     {
         colorChanged();
     }
@@ -76,11 +76,11 @@ void WSelectorBranch::setDirty()
 
 void WSelectorBranch::removeRoi( osg::ref_ptr< WROI > roi )
 {
-    roi->removeChangeNotifier( m_changeRoiSignal );
     for( std::list< boost::shared_ptr< WSelectorRoi > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
         if ( ( *iter )->getRoi() == roi )
         {
+            ( *iter )->getRoi()->removeROIChangeNotifier( m_changeRoiSignal );
             m_rois.erase( iter );
             break;
         }

@@ -113,14 +113,14 @@ public:
      *
      * \param notifier  the notifier function
      */
-    void addChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
+    void addROIChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
 
     /**
      * Remove a specified notifier from the list of default notifiers which get connected to each roi.
      *
      * \param notifier  the notifier function
      */
-    void removeChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
+    void removeROIChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
 
 
 protected:

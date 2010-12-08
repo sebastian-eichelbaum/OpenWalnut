@@ -125,7 +125,7 @@ void WROI::signalRoiChange()
     }
 }
 
-void WROI::addChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier )
+void WROI::addROIChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier )
 {
     boost::unique_lock< boost::shared_mutex > lock;
     lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
@@ -133,7 +133,7 @@ void WROI::addChangeNotifier( boost::shared_ptr< boost::function< void() > > not
     lock.unlock();
 }
 
-void WROI::removeChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier )
+void WROI::removeROIChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier )
 {
     boost::unique_lock< boost::shared_mutex > lock;
     lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );

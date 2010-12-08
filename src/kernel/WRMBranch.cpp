@@ -49,7 +49,8 @@ void WRMBranch::properties()
     m_dirty->setHidden( true );
     m_isNot = m_properties->addProperty( "NOT", "description", false, boost::bind( &WRMBranch::propertyChanged, this ) );
     m_bundleColor = m_properties->addProperty( "Bundle Color", "description", WColor( 1.0, 0.0, 0.0, 1.0 ),
-            boost::bind( &WRMBranch::propertyChanged, this ) );
+                                               boost::bind( &WRMBranch::propertyChanged, this ) );
+    m_changeRoiSignal = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WRMBranch::setDirty, this ) ) );
 }
 
 void WRMBranch::propertyChanged()
@@ -61,8 +62,7 @@ void WRMBranch::propertyChanged()
 void WRMBranch::addRoi( osg::ref_ptr< WROI > roi )
 {
     m_rois.push_back( roi );
-    m_changeRoiSignal = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WRMBranch::setDirty, this ) ) );
-    roi->addChangeNotifier( m_changeRoiSignal );
+    roi->addROIChangeNotifier( m_changeRoiSignal );
 
     setDirty();
 }
@@ -81,7 +81,7 @@ bool WRMBranch::contains( osg::ref_ptr< WROI > roi )
 
 void WRMBranch::removeRoi( osg::ref_ptr< WROI > roi )
 {
-    roi->removeChangeNotifier( m_changeRoiSignal );
+    roi->removeROIChangeNotifier( m_changeRoiSignal );
     for( std::list< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
         if ( ( *iter ) == roi )

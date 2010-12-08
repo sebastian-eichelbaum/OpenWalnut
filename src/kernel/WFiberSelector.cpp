@@ -40,11 +40,8 @@ WFiberSelector::WFiberSelector( boost::shared_ptr< const WDataSetFibers > fibers
 
     std::vector< osg::ref_ptr< WROI > >rois = WKernel::getRunningKernel()->getRoiManager()->getRois();
 
-    for ( size_t i = 0; i < rois.size(); ++i )
-    {
-        slotAddRoi( rois[i] );
-        ( rois[i] )->getProperties()->getProperty( "Dirty" )->toPropBool()->set( true );
-    }
+    m_changeRoiSignal
+        = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WFiberSelector::setDirty, this ) ) );
 
     m_assocRoiSignal =
         boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > >(
@@ -61,6 +58,12 @@ WFiberSelector::WFiberSelector( boost::shared_ptr< const WDataSetFibers > fibers
                  new boost::function< void( boost::shared_ptr< WRMBranch > ) > (
                      boost::bind( &WFiberSelector::slotRemoveBranch, this, _1 ) ) );
     WKernel::getRunningKernel()->getRoiManager()->addRemoveBranchNotifier( m_removeBranchSignal );
+
+    for ( size_t i = 0; i < rois.size(); ++i )
+    {
+        slotAddRoi( rois[i] );
+        ( rois[i] )->getProperties()->getProperty( "Dirty" )->toPropBool()->set( true );
+    }
 }
 
 WFiberSelector::~WFiberSelector()
@@ -70,14 +73,17 @@ WFiberSelector::~WFiberSelector()
     WKernel::getRunningKernel()->getRoiManager()->removeRemoveBranchNotifier( m_removeBranchSignal );
 
     // We need the following because not all ROIs are removed per slot below
-    for ( std::list< boost::shared_ptr< WSelectorBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
-        std::list< boost::shared_ptr< WSelectorRoi > > rois = ( *iter )->getROIs();
-        for ( std::list< boost::shared_ptr< WSelectorRoi > >::iterator roiIter = rois.begin(); roiIter != rois.end(); ++roiIter )
+        for ( std::list< boost::shared_ptr< WSelectorBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
         {
-            ( *roiIter )->getRoi()->removeChangeNotifier( m_changeRoiSignal );
+            std::list< boost::shared_ptr< WSelectorRoi > > rois = ( *iter )->getROIs();
+            for ( std::list< boost::shared_ptr< WSelectorRoi > >::iterator roiIter = rois.begin(); roiIter != rois.end(); ++roiIter )
+            {
+                ( *roiIter )->getRoi()->removeROIChangeNotifier( m_changeRoiSignal );
+            }
         }
     }
+    m_branches.clear();
 }
 
 void WFiberSelector::slotAddRoi( osg::ref_ptr< WROI > roi )
@@ -101,17 +107,14 @@ void WFiberSelector::slotAddRoi( osg::ref_ptr< WROI > roi )
     boost::shared_ptr< WSelectorRoi> sroi = boost::shared_ptr< WSelectorRoi>( new WSelectorRoi( roi, m_fibers, m_kdTree ) );
 
     branch->addRoi( sroi );
-
-    m_changeRoiSignal
-        = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WFiberSelector::setDirty, this ) ) );
-    sroi->getRoi()->addChangeNotifier( m_changeRoiSignal );
+    sroi->getRoi()->addROIChangeNotifier( m_changeRoiSignal );
 
     setDirty();
 }
 
 void WFiberSelector::slotRemoveRoi( osg::ref_ptr< WROI > roi )
 {
-    roi->removeChangeNotifier( m_changeRoiSignal );
+    roi->removeROIChangeNotifier( m_changeRoiSignal );
     for ( std::list< boost::shared_ptr< WSelectorBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
         ( *iter )->removeRoi( roi );
