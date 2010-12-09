@@ -32,6 +32,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WIOTools.h"
+#include "../../common/WLogger.h"
 #include "../WDataHandlerEnums.h"
 #include "../WDataSet.h"
 #include "../WDataSetDTI.h"
@@ -48,7 +49,6 @@
 #include "../WValueSet.h"
 #include "../WValueSetBase.h"
 #include "WReaderNIfTI.h"
-#include "../../common/WLogger.h"
 
 WReaderNIfTI::WReaderNIfTI( std::string fileName )
     : WReader( fileName )
@@ -72,14 +72,24 @@ template< typename T > std::vector< T > WReaderNIfTI::copyArray( const T* dataAr
 
 wmath::WMatrix< double > WReaderNIfTI::convertMatrix( const mat44& in )
 {
+    bool isZero = true;
+
     wmath::WMatrix< double > out( 4, 4 );
     for( size_t i = 0; i < 4; ++i )
     {
         for( size_t j = 0; j < 4; ++j )
         {
             out( i, j ) = in.m[i][j];
+            isZero = isZero && ( out( i, j ) == 0 );
         }
     }
+
+    if( isZero )
+    {
+        wlog::info( "WReaderNIfTI" ) << "Tranformed zero matrix into identity matrix since scaling with 0.0, 0.0, 0.0 makes no sense.";
+        out.makeIdentity();
+    }
+
     return out;
 }
 
