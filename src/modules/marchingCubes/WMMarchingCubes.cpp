@@ -637,6 +637,7 @@ void WMMarchingCubes::updateGraphicsCallback()
             {
                 if( localTextureChangedFlag )
                 {
+                    std::cout<<m_surfaceGeode->getNumDrawables()<<std::endl;
                     osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
