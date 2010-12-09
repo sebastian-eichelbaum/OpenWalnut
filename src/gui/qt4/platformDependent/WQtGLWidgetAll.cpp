@@ -44,7 +44,8 @@ typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
 WQtGLWidgetAll::WQtGLWidgetAll( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QGLWidget * shareWidget )
     : QGLWidget( parent, shareWidget ),
       m_nameOfViewer( nameOfViewer ),
-      m_recommendedSize()
+      m_recommendedSize(),
+      m_firstPaint( false )
 {
     m_recommendedSize.setWidth( 200 );
     m_recommendedSize.setHeight( 200 );
@@ -143,7 +144,9 @@ boost::shared_ptr< WGEViewer > WQtGLWidgetAll::getViewer() const
 
 void WQtGLWidgetAll::paintEvent( QPaintEvent* /*event*/ )
 {
+    // TODO(math): Remove this if there are now startup segfaults
     // maybe this helps finding the startup segfaults. This will be removed after the problem has been found.
+    //   ^--- Or maybe not but producing some :), since its not initialized :D haha
     if ( !m_firstPaint )
     {
         WLogger::getLogger()->addLogMessage( "Painted the first time.",
