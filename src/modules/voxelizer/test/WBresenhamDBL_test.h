@@ -46,7 +46,7 @@ public:
     {
         WLogger::startup();
 
-        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3, 0, 0, 0, 1, 1, 1 ) );
+        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3 ) );
         m_algo = boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid, false ) );
     }
 

@@ -46,7 +46,7 @@ public:
     {
         WLogger::startup();
 
-        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3, 0, 0, 0, 1, 1, 1 ) );
+        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3 ) );
         m_algo = boost::shared_ptr< WBresenham >( new WBresenham( grid, false ) );
     }
 
@@ -111,7 +111,14 @@ public:
      */
     void testRasteringIn3rdQuadrant( void )
     {
-        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3, -2, -2, -2, 1, 1, 1 ) );
+        wmath::WMatrix< double > mat( 4, 4 );
+        mat.makeIdentity();
+        mat( 0, 3 ) = -2.0;
+        mat( 1, 3 ) = -2.0;
+        mat( 2, 3 ) = -2.0;
+
+        boost::shared_ptr< WGridTransformOrtho > transform( new WGridTransformOrtho( mat ) ); // NOLINT this is not std::transform
+        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3, transform ) );
         m_algo = boost::shared_ptr< WBresenham >( new WBresenham( grid, false ) );
 
         wmath::WLine l;

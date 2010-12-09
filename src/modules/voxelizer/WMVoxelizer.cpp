@@ -34,23 +34,24 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
-#include "../../common/datastructures/WFiber.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/WGridTransformOrtho.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WBresenham.h"
 #include "WBresenhamDBL.h"
-#include "WMVoxelizer.h"
-#include "WRasterAlgorithm.h"
-#include "WIntegrationParameterization.h"
 #include "WCenterlineParameterization.h"
+#include "WIntegrationParameterization.h"
+#include "WMVoxelizer.h"
 #include "WMVoxelizer.xpm"
+#include "WRasterAlgorithm.h"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMVoxelizer )
@@ -251,10 +252,12 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
     mat( 1, 3 ) = bb.first[ 1 ];
     mat( 2, 3 ) = bb.first[ 2 ];
 
+    boost::shared_ptr< WGridTransformOrtho > transform( new WGridTransformOrtho( mat ) );
+
     boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX,
                                                                   nbVoxelsPerUnit * nbPosY,
                                                                   nbVoxelsPerUnit * nbPosZ,
-                                                                  mat ) );
+                                                                  transform ) );
     return grid;
 }
 

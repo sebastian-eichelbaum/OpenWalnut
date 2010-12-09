@@ -197,7 +197,7 @@ protected:
         float dataArray[6] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 }; // NOLINT array init list
         std::vector< float > data( &dataArray[0], &dataArray[0] + sizeof( dataArray ) / sizeof( float ) );
         boost::shared_ptr< WValueSetBase > newValueSet( new WValueSet< float >( 1, 6, data, W_DT_FLOAT ) );
-        boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
+        boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1 ) );
         m_emptyDTIDataSet = boost::shared_ptr< WDataSetDTI >(  new WDataSetDTI( newValueSet, newGrid ) );
 
         boost::shared_ptr< std::vector< WFiber > > tracts( new std::vector< WFiber > );
