@@ -36,8 +36,9 @@
 #include "WDendrogram.h"
 
 WDendrogram::WDendrogram( size_t n )
-    : m_heights( n - 1, 0.0 )
 {
+    WAssert( n > 0, "A Dendrogram for an empty set of objects was created which makes no sence, if your really need it implement it!" );
+    m_heights.resize( n - 1, 0.0 );
     m_parents.reserve( 2 * n - 1 );
     m_parents.resize( n, 0 );
 }
@@ -73,6 +74,59 @@ std::string WDendrogram::toTXTString() const
     std::map< size_t, std::set< size_t > > preds;
     std::vector< size_t > level( 2 * m_heights.size() + 1, 0 );
 
+#ifdef DEBUG
+    wlog::debug( "WDendrogram" ) << "WE ARE IN DEBUG MODE!" << std::endl;
+    wlog::debug( "WDendrogram" ) << "nodes size: " << m_parents.size() << " and expeceted: " << 2 * m_heights.size() + 1;
+
+    // first write out all fibers
+    for( size_t i = 0; i < m_heights.size() + 1; ++i )
+    {
+        ss << "(0, (" << i << ",))" << std::endl;
+        childsOfInnerNodes[ m_parents.at( i ) ].insert( i );
+        preds[ m_parents.at( i ) ] = childsOfInnerNodes[ m_parents.at( i ) ];
+    }
+    for( size_t i = m_heights.size() + 1; i < 2 * m_heights.size() + 1; ++i )
+    {
+        if( preds[ i ].size() != 2 )
+        {
+            std::stringstream ss;
+            ss << "There are more or less than 2 predecessors for an inner node" << std::endl;
+            ss << "i=" << i << std::endl;
+            ss << "size=" << preds[ i ].size() << std::endl;
+            for( std::set< size_t >::const_iterator cit = preds[ i ].begin(); cit != preds[ i ].end(); ++cit )
+            {
+                ss << *cit << " " <<  m_heights.at( *cit - m_heights.size() - 1 ) << " ";
+            }
+            ss << std::endl;
+            ss << m_heights.at( i - m_heights.size() - 1 ) << std::endl;
+            WAssert( false, ss.str() );
+        }
+        size_t left = *( preds[ i ].begin() );
+        size_t right = *( preds[ i ].rbegin() );
+        level.at( i ) = std::max( level.at( left ), level.at( right ) ) + 1;
+        preds[ m_parents.at( i ) ].insert( i );
+        std::set< size_t > join;
+        std::set_union( childsOfInnerNodes[ m_parents.at( i ) ].begin(), childsOfInnerNodes[ m_parents.at( i ) ].end(),
+                childsOfInnerNodes[ i ].begin(), childsOfInnerNodes[ i ].end(), std::inserter( join, join.begin() ) );
+        childsOfInnerNodes[ m_parents.at( i ) ] = join;
+        ss << "(" << level.at(i) << ", (";
+        size_t numElements = childsOfInnerNodes[i].size();
+        for( std::set< size_t >::const_iterator cit = childsOfInnerNodes[i].begin(); cit != childsOfInnerNodes[i].end(); ++cit )
+        {
+            if( numElements == 1 )
+            {
+                ss << *cit << "), ";
+            }
+            else
+            {
+                ss << *cit << ", ";
+            }
+            numElements -= 1;
+        }
+        using string_utils::operator<<;
+        ss << "(" << left << ", " << right << "), " << m_heights.at( i - m_heights.size() - 1 ) << ")" << std::endl;
+    }
+#else
     // first write out all fibers
     for( size_t i = 0; i < m_heights.size() + 1; ++i )
     {
@@ -82,7 +136,19 @@ std::string WDendrogram::toTXTString() const
     }
     for( size_t i = m_heights.size() + 1; i < 2 * m_heights.size() + 1; ++i )
     {
-        WAssert( preds[ i ].size() == 2, "There are more or less than 2 predecessors for an inner node" );
+        if( preds[i].size() != 2 )
+        {
+            std::stringstream ss;
+            ss << "There are more or less than 2 predecessors for an inner node" << std::endl;
+            ss << "i=" << i << std::endl;
+            ss << "size=" << preds[i].size();
+            for( std::set< size_t >::const_iterator cit = preds[i].begin(); cit != preds[i].end(); ++cit )
+            {
+                ss << *cit << " ";
+            }
+            ss << std::endl;
+            WAssert( false, ss.str() );
+        }
         size_t left = *( preds[ i ].begin() );
         size_t right = *( preds[ i ].rbegin() );
         level[ i ] = std::max( level[ left ], level[ right ] ) + 1;
@@ -108,6 +174,7 @@ std::string WDendrogram::toTXTString() const
         using string_utils::operator<<;
         ss << "(" << left << ", " << right << "), " << m_heights[ i - m_heights.size() - 1 ] << ")" << std::endl;
     }
+#endif // DEBUG
 
     // TODO(math): the needs to be made with a writer instead
     wlog::debug( "WDendrogram" ) << "start writing the txt file to pansen.txt";
