@@ -26,11 +26,7 @@
 #include <iostream>
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QGraphicsSceneMouseEvent>
-#include <QtGui/QGraphicsView>
-#include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsRectItem>
-#include <QtGui/QGraphicsLineItem>
 
 #include "WQtNetworkOutputPort.h"
 
@@ -49,14 +45,15 @@ WQtNetworkOutputPort::WQtNetworkOutputPort( boost::shared_ptr<WModuleOutputConne
     setOutPort( connector.get()->isOutputConnector() );
     m_connector = connector;
 
+    // create tooltip
     QString tmp;
     if( isOutPort() == true ) tmp = "output";
     else if( isOutPort() == false ) tmp = "input";
     else
         tmp = "undefined";
 
-    //TODO
-    QString str = "Name: " + getPortName() + "\nPortType: " + tmp;
+    QString str = "<b>Name: </b> " + getPortName() +
+                  "<br/><b>PortType: </b>" + tmp;
     if( toolTip() != str )
     {
         setToolTip( str );
@@ -65,7 +62,6 @@ WQtNetworkOutputPort::WQtNetworkOutputPort( boost::shared_ptr<WModuleOutputConne
 
 WQtNetworkOutputPort::~WQtNetworkOutputPort()
 {
-    //removeArrows();
 }
 
 int WQtNetworkOutputPort::type() const
@@ -112,7 +108,6 @@ boost::shared_ptr<WModuleOutputConnector> WQtNetworkOutputPort::getConnector()
     return m_connector;
 }
 
-//private
 void WQtNetworkOutputPort::removeArrows()
 {
     foreach( WQtNetworkArrow *arrow, m_arrows )
@@ -121,7 +116,6 @@ void WQtNetworkOutputPort::removeArrows()
         if ( index != -1 )
         {
             m_arrows.removeAt( index );
-            //delete arrow;
         }
     }
 }

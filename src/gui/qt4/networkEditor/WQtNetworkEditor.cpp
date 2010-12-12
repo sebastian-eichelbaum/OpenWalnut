@@ -30,20 +30,14 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QKeyEvent>
-#include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsView>
 #include <QtGui/QGraphicsItem>
 #include <QtGui/QGraphicsItemGroup>
-#include <QtGui/QGraphicsGridLayout>
-#include <QtGui/QListWidget>
-#include <QtGui/QToolBar>
 
 #include "../WMainWindow.h"
 #include "WQtNetworkEditor.h"
-#include "WQtNetworkItem.h"
 #include "WQtNetworkPort.h"
 
-#include "../../../kernel/WKernel.h"
 #include "../../../kernel/WModule.h"
 #include "../../../kernel/WModuleFactory.h"
 #include "../events/WEventTypes.h"
@@ -53,9 +47,6 @@
 #include "../events/WModuleDisconnectEvent.h"
 #include "../events/WModuleReadyEvent.h"
 #include "../events/WModuleRemovedEvent.h"
-#include "../events/WRoiAssocEvent.h"
-#include "../events/WRoiRemoveEvent.h"
-
 
 WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     : QDockWidget( "NetworkEditor", parent ),
@@ -83,12 +74,14 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
 
     this->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     this->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
-    //setMinimumSize( 160, 240 );
     setWidget( m_panel );
     connectSlots();
 
+    // this fakeitem is added to the scene to get a better behavior of the forced
+    // based layout. ALL WQtNetworkItems in the scene are "connected" to this
+    // object to avoid that conneceted groups push away each other.
     QGraphicsRectItem *fake = new QGraphicsRectItem();
-    fake->setRect( 0,0, 10, 10 );
+    fake->setRect( 0, 0, 10, 10 );
     fake->setPos( 0, 0 );
     fake->setBrush( Qt::green );
     fake->setFlag( QGraphicsItem::ItemIsMovable, true );
@@ -113,10 +106,12 @@ void WQtNetworkEditor::selectItem()
 
     WQtCombinerToolbar* newToolbar = NULL;
 
-    if ( m_scene->selectedItems().size() != 0  )
+    if ( m_scene->selectedItems().size() != 0 &&
+         m_scene->selectedItems().at( 0 )->type() == WQtNetworkItem::Type )
     {
+        if ( m_scene->selectedItems().at(0)->type() == WQtNetworkItem::Type )
         module = ( static_cast< WQtNetworkItem* >( m_scene->selectedItems().at( 0 ) ) )->getModule();
-        
+
         // crashed modules should not provide any props
         if ( module->isCrashed()() )
         {
@@ -126,7 +121,7 @@ void WQtNetworkEditor::selectItem()
         props = module->getProperties();
         infoProps = module->getInformationProperties();
         m_mainWindow->getDatasetBrowser()->setPropTab( props, infoProps );
-        
+
         newToolbar = createCompatibleButtons( module );
     }
     else
@@ -143,7 +138,8 @@ void WQtNetworkEditor::selectItem()
 WQtCombinerToolbar* WQtNetworkEditor::createCompatibleButtons( boost::shared_ptr< WModule >module )
 {
     // every module may have compatibles: create ribbon menu entry
-    // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
+    // NOTE: if module is NULL, getCompatiblePrototypes returns the list
+    // of modules without input connector (nav slices and so on)
     WCombinerTypes::WCompatiblesList comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
     return new WQtCombinerToolbar( m_mainWindow, comps );
 }
@@ -153,9 +149,11 @@ void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
     WQtNetworkItem *netItem = new WQtNetworkItem( this, module );
     m_items.push_back( netItem );
 
-    time(&m_time);
-    srand( (unsigned int) m_time );
-    netItem->setPos( rand() % 200, rand() % 200 );
+    // set the object at a random start position
+    time( &m_time );
+    netItem->setPos( rand_r( ( unsigned int * ) &m_time ) % 200,
+                     rand_r( ( unsigned int * ) &m_time ) % 200 );
+
     m_scene->addItem( netItem );
 
     itemMoved();
@@ -163,7 +161,6 @@ void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
 
 bool WQtNetworkEditor::event( QEvent* event )
 {
-
     // a module got associated with the root container -> add it to the list
     if ( event->type() == WQT_ASSOC_EVENT )
     {
@@ -176,7 +173,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             addModule( e1->getModule() );
         }
 
-        //TODO: disablen des moduls solange nicht rdy!
+        //TODO(skiunke): disablen des moduls solange nicht rdy!
         return true;
     }
 
@@ -230,21 +227,24 @@ bool WQtNetworkEditor::event( QEvent* event )
         {
             mIn = e->getInput()->getModule();
             mOut = e->getOutput()->getModule();
-        } else if ( e->getInput()->isOutputConnector() == true &&
+        }
+        else if ( e->getInput()->isOutputConnector() == true &&
                     e->getOutput()->isInputConnector() == true )
         {
             mIn = e->getOutput()->getModule();
             mOut = e->getInput()->getModule();
-        } else {
+        }
+        else
+        {
             return true;
-            //TODO skiunke: warning
+            //TODO(skiunke): warning
         }
 
         WQtNetworkItem *inItem = findItemByModule( mIn );
         WQtNetworkItem *outItem = findItemByModule( mOut );
 
-        WQtNetworkInputPort *ip;
-        WQtNetworkOutputPort *op;
+        WQtNetworkInputPort *ip = NULL;
+        WQtNetworkOutputPort *op = NULL;
 
         for ( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
                 iter != inItem->getInPorts().end();
@@ -268,14 +268,18 @@ bool WQtNetworkEditor::event( QEvent* event )
             }
         }
 
-        WQtNetworkArrow *arrow = new WQtNetworkArrow( op, ip );
+        if( ip != NULL &&
+            op != NULL )
+        {
+            WQtNetworkArrow *arrow = new WQtNetworkArrow( op, ip );
 
-        arrow->setZValue( -1000.0 );
-        op->addArrow( arrow );
-        ip->addArrow( arrow );
-        arrow->updatePosition();
+            arrow->setZValue( -1000.0 );
+            op->addArrow( arrow );
+            ip->addArrow( arrow );
+            arrow->updatePosition();
 
-        m_scene->addItem( arrow );
+            m_scene->addItem( arrow );
+        }
     }
 
 
@@ -293,8 +297,9 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Disonnecting \"" + e->getInput()->getCanonicalName() + "\" and \""
-                                                 + e->getOutput()->getCanonicalName() + "\"." , "NetworkEditor", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Disonnecting \"" + e->getInput()->getCanonicalName() +
+                                             "\" and \"" + e->getOutput()->getCanonicalName() +
+                                             "\"." , "NetworkEditor", LL_DEBUG );
 
         boost::shared_ptr< WModule > mIn;
         boost::shared_ptr< WModule > mOut;
@@ -304,23 +309,27 @@ bool WQtNetworkEditor::event( QEvent* event )
         {
             mIn = e->getInput()->getModule();
             mOut = e->getOutput()->getModule();
-        } else if ( e->getInput()->isOutputConnector() == true &&
+        }
+        else if( e->getInput()->isOutputConnector() == true &&
                     e->getOutput()->isInputConnector() == true )
         {
             mIn = e->getOutput()->getModule();
             mOut = e->getInput()->getModule();
-        } else {
+        }
+        else
+        {
             return true;
-            //TODO skiunke: warning
+            //TODO(skiunke): warning
         }
 
 
         WQtNetworkItem *inItem = findItemByModule( mIn );
         WQtNetworkItem *outItem = findItemByModule( mOut );
 
-        WQtNetworkInputPort *ip;
-        WQtNetworkOutputPort *op;
-            WLogger::getLogger()->addLogMessage( "1.", "NetworkEditor", LL_ERROR );
+        WQtNetworkInputPort *ip = NULL;
+        WQtNetworkOutputPort *op = NULL;
+
+        WLogger::getLogger()->addLogMessage( "1.", "NetworkEditor", LL_ERROR );
 
         for ( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
             iter != inItem->getInPorts().end();
@@ -334,20 +343,23 @@ bool WQtNetworkEditor::event( QEvent* event )
         }
             WLogger::getLogger()->addLogMessage( "2", "NetworkEditor", LL_ERROR );
 
-        for ( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
-            iter != outItem->getOutPorts().end();
-            ++iter )
-       {
-           WQtNetworkOutputPort *outP = dynamic_cast< WQtNetworkOutputPort* >( *iter );
-           if( e->getOutput() == outP->getConnector() )
-           {
-               op = outP;
-           }
-       }
-            WLogger::getLogger()->addLogMessage( "3", "NetworkEditor", LL_ERROR );
+            for ( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
+                    iter != outItem->getOutPorts().end();
+                    ++iter )
+            {
+                WQtNetworkOutputPort *outP = dynamic_cast< WQtNetworkOutputPort* >( *iter );
+                if( e->getOutput() == outP->getConnector() )
+                {
+                    op = outP;
+                }
+            }
+
+        WLogger::getLogger()->addLogMessage( "3", "NetworkEditor", LL_ERROR );
 
         WQtNetworkArrow *ar = NULL;
-        wlog::error( "netw" ) <<  "gehe durch " << m_scene->items().size() << " items";
+
+        wlog::error( "networkeditor" ) <<  "gehe durch " << m_scene->items().size() << " items";
+
         for ( QList< QGraphicsItem * >::const_iterator iter = m_scene->items().begin();
                 iter != m_scene->items().end();
                 ++iter )
@@ -363,6 +375,8 @@ bool WQtNetworkEditor::event( QEvent* event )
         }
         if ( ar )
         {
+            op->removeArrow( ar );
+            ip->removeArrow( ar );
             m_scene->removeItem( ar );
         }
         else
@@ -387,11 +401,13 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Removeing \"" + e->getModule()->getName() + "\" from network editor.", "NetworkEditor", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Removeing \"" + e->getModule()->getName() +
+                                             "\"from network editor.", "NetworkEditor", LL_DEBUG );
 
 
         WQtNetworkItem *item = findItemByModule( e->getModule() );
-        if( item != 0 ){
+        if( item != 0 )
+        {
             item->activate( false );
             e->getModule()->requestStop();
         }
@@ -408,18 +424,21 @@ bool WQtNetworkEditor::event( QEvent* event )
         if ( !e )
         {
             // this should never happen, since the type is set to WQT_MODULE_REMOVE_EVENT.
-            WLogger::getLogger()->addLogMessage( "Event is not an WModuleRemovedEvent although its type claims it. Ignoring event.",
+            WLogger::getLogger()->addLogMessage( "Event is not an WModuleRemovedEvent although"
+                                                 "its type claims it. Ignoring event.",
                                                  "NetworkEditor", LL_WARNING );
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Delete \"" + e->getTreeItem()->getModule()->getName() + "\" from network editor", "NetworkEditor", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Delete \"" + e->getTreeItem()->getModule()->getName() +
+                                             "\" from network editor", "NetworkEditor", LL_DEBUG );
 
         WQtNetworkItem *item = findItemByModule( e->getTreeItem()->getModule() );
 
-        if( item != 0 ){
+        if( item != 0 )
+        {
             m_scene->removeItem( item );
-            m_items.remove( item );
+            m_items.removeAll( item );
             delete item;
         }
 
@@ -431,7 +450,7 @@ bool WQtNetworkEditor::event( QEvent* event )
 
 WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule > module )
 {
-    for ( std::list< WQtNetworkItem* >::const_iterator iter = m_items.begin(); iter != m_items.end(); ++iter )
+    for( QList< WQtNetworkItem* >::const_iterator iter = m_items.begin(); iter != m_items.end(); ++iter )
     {
        WQtNetworkItem *itemModule = dynamic_cast< WQtNetworkItem* >( *iter );
        if( itemModule &&
@@ -443,33 +462,35 @@ WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule >
     return 0;
 }
 
-void WQtNetworkEditor::itemMoved()                                                                              
+void WQtNetworkEditor::itemMoved()
 {
-    std::cout << "move it" << std::endl;
-    if (!timerId)
-        timerId = startTimer(1000 / 25);
+    if ( !timerId )
+        timerId = startTimer( 1000 / 25 );
 }
 
-void WQtNetworkEditor::timerEvent(QTimerEvent *event)
+void WQtNetworkEditor::timerEvent( QTimerEvent *event )
 {
-    Q_UNUSED(event);
+    Q_UNUSED( event );
 
-    QList< WQtNetworkItem *> nodes;
-    foreach ( QGraphicsItem *item, m_scene->items() ) {
-        if ( WQtNetworkItem *netItem = dynamic_cast< WQtNetworkItem  *>(item))
-            nodes << netItem;
+    QList< WQtNetworkItem *> items;
+    foreach( QGraphicsItem *item, m_scene->items() )
+    {
+        if ( WQtNetworkItem *netItem = dynamic_cast< WQtNetworkItem  *>( item ) )
+            items << netItem;
     }
 
-    foreach ( WQtNetworkItem *netItem, nodes)
+    foreach( WQtNetworkItem *netItem, items )
         netItem->calculateForces();
 
     bool itemsMoved = false;
-    foreach ( WQtNetworkItem *netItem, nodes) {
+    foreach( WQtNetworkItem *netItem, items )
+    {
         if ( netItem->advance() )
             itemsMoved = true;
     }
 
-    if ( !itemsMoved ) {
+    if ( !itemsMoved )
+    {
         killTimer( timerId );
         timerId = 0;
     }

@@ -57,7 +57,6 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
     {
         case Qt::Key_Delete:
             {
-
                 QList< WQtNetworkItem *> itemList;
                 QList< WQtNetworkArrow *> arrowList;
                 foreach( QGraphicsItem *item, this->selectedItems() )
@@ -76,7 +75,8 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
 
                 foreach( WQtNetworkArrow *ar, arrowList )
                 {
-                    if( ar != 0 ){
+                    if( ar != 0 )
+                    {
                         boost::shared_ptr< WDisconnectCombiner > disconnectCombiner =
                             boost::shared_ptr< WDisconnectCombiner >( new WDisconnectCombiner(
                                         ar->getStartPort()->getConnector()->getModule(),
@@ -90,49 +90,27 @@ void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
 
                 foreach( WQtNetworkItem *it, itemList )
                 {
-                    if( it != 0 ){
+                    if( it != 0 )
+                    {
                         WKernel::getRunningKernel()->getRootContainer()->remove( it->getModule() );
                     }
                 }
                 itemList.clear();
                 arrowList.clear();
             }
-
-        case Qt::Key_Space:
-            {
-                QList< WQtNetworkItem *> itemList;
-
-                foreach( QGraphicsItem *item, items() )
-                {
-                    if ( WQtNetworkItem *netItem = dynamic_cast< WQtNetworkItem *>( item ) )
-                        itemList << netItem;
-                }
-
-                foreach ( WQtNetworkItem *item, itemList )
-                {
-                    item->calculateForces();
-                }
-
-                bool itemsMoved = false;
-                foreach ( WQtNetworkItem *item, itemList )
-                    if ( item->advance() )
-                        itemsMoved = true;
-            }
     }
 }
 
-//void WQtNetworkScene::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
-//{
-//}
+void WQtNetworkScene::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
+{
+    QList<QGraphicsItem *> item = this->items( mouseEvent->scenePos() );
+    if( item.isEmpty() )
+    {
+        emit selectionChanged();
+    }
 
-//void WQtNetworkScene::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
-//{
-//}
-
-//void WQtNetworkScene::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
-//{
-//    QGraphicsScene::mousePressEvent( mouseEvent );
-//}
+    QGraphicsScene::mousePressEvent( mouseEvent );
+}
 
 void WQtNetworkScene::setFakeItem( QGraphicsItem *fake )
 {

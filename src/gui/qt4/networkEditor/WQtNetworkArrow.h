@@ -35,12 +35,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../../kernel/WModuleConnector.h"
-//#include "WQtNetworkPort.h"
-//#include "WQtNetworkInputPort.h"
-//#include "WQtNetworkOutputPort.h"
 
 // forward declaration
-//class WQtNetworkPort;
 class WQtNetworkOutputPort;
 class WQtNetworkInputPort;
 
@@ -62,10 +58,11 @@ class WQtNetworkArrow : public QGraphicsLineItem
 
         /**
          * Constructor
+         *
+         * \param outPort the outputport that provide the data
+         * \param inPort the inputport that recive the data
          */
         explicit WQtNetworkArrow( WQtNetworkOutputPort *outPort, WQtNetworkInputPort *inPort );
-        
-        WQtNetworkArrow();
 
         /**
          * Destructor
@@ -85,14 +82,14 @@ class WQtNetworkArrow : public QGraphicsLineItem
         void updatePosition();
 
         /**
-         * Returns the start port.
-         *\return the port where the connection starts
+         * Returns the WQtNetworkOutputPort where the arrow starts.
+         *\return the WQtNetworkInputPort where the connection starts
          */
         WQtNetworkOutputPort* getStartPort();
 
         /**
-         * Returns the end port.
-         *\return the port where the connection ends
+         * Returns the WQtNetworkInputPort where the arrow ends.
+         *\return the WQtNetworkInputPort where the connection ends
          */
         WQtNetworkInputPort* getEndPort();
 
@@ -100,14 +97,14 @@ class WQtNetworkArrow : public QGraphicsLineItem
          * Reimplementation form QGraphicsItem, because the arrowhead is added
          * to the line. Its needed that QGraphicsView knows which area needs to
          * be redrawn.
-         * \return a rect that bounds the drawn object
+         * \return a QRectF that bounds the drawn object
          */
         QRectF boundingRect() const;
 
         /**
          * Reimplementation from QGraphicsItem.
          * Return the shape of this item as a QPainterPath in local coordinates
-         * \return shape of this
+         * \return shape as QPainterPath of this object
          */
         QPainterPath shape() const;
 
@@ -119,9 +116,6 @@ class WQtNetworkArrow : public QGraphicsLineItem
          * \return
          */
         QVariant itemChange( GraphicsItemChange change, const QVariant &value );
-
-        void addConnection( boost::shared_ptr< WModuleConnector > in, boost::shared_ptr< WModuleConnector > out );
-
 
     protected:
 
@@ -158,9 +152,11 @@ class WQtNetworkArrow : public QGraphicsLineItem
         void changeColor( QColor color );
 
         WQtNetworkOutputPort *m_startPort; //!< the start port
+
         WQtNetworkInputPort *m_endPort; //!< the end port
 
         QColor m_color; //!< the current color
+
         QPolygonF arrowHead; //!< the arrowhead
 };
 #endif  // WQTNETWORKARROW_H

@@ -33,25 +33,46 @@ class WQtNetworkScene : public QGraphicsScene
     Q_OBJECT
 
     public:
+
+        /**
+         * Constructor
+         */
         explicit WQtNetworkScene();
 
+        /**
+         * Destructor
+         */
         virtual ~WQtNetworkScene();
 
+        /**
+         * Set a fakeitem to the scene to avoid that groups of connected items
+         * or single items in the scene push away each other.
+         *
+         * \param the fakeitem
+         */
         void setFakeItem( QGraphicsItem *fake );
+
+        /**
+         * Return the fakeitem in the scene to calculate forces in a more
+         * beautiful way.
+         */
         QGraphicsItem* getFakeItem();
 
     protected:
 
+        /**
+         * Emits a Signal to notify the WQtNetworkEditor to build a default WQtCombinerToolbar
+         */
+        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
+
+        /**
+         * Controls how to respond on key events.
+         * Current it only delets selected items.
+         */
         void keyPressEvent( QKeyEvent *keyEvent );
 
-        //void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent);
-        //void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent);
-        //void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent);
-
     private:
-        QPointF startPoint;
-        QGraphicsLineItem *line;
 
-        QGraphicsItem *m_fakeItem;
+        QGraphicsItem *m_fakeItem; //!< the fakeitem for the forcebased layout
 };
 #endif  // WQTNETWORKSCENE_H

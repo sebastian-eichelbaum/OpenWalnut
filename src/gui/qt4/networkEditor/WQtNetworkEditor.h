@@ -25,14 +25,12 @@
 #ifndef WQTNETWORKEDITOR_H
 #define WQTNETWORKEDITOR_H
 
+#include <time.h>
 #include <string>
 #include <list>
-#include <time.h>
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QGraphicsScene>
-#include <QtGui/QGraphicsView>
 #include <QtGui/QWidget>
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
@@ -46,14 +44,14 @@
 class WMainWindow;
 
 /**
- * container widget to hold the qgraphicsscene
- *
+ * Container widget to hold the WQtNetworkScene
  */
 class WQtNetworkEditor : public QDockWidget
 {
     Q_OBJECT
 
 public:
+
     /**
      * default constructor
      *
@@ -68,14 +66,28 @@ public:
     virtual ~WQtNetworkEditor();
 
     /**
-     * Simple method to create static test "modules"
+     * Create a new WQtNetworkItem for a given WModule
+     * \param a new WModule
      */
     void addModule(  boost::shared_ptr< WModule > module );
 
+    /**
+     * Simple search the WQtNetworkItem that belongs to the WModule
+     * \param module a WModule
+     * \return WQtNetworkItem belongs to the WModule
+     */
     WQtNetworkItem* findItemByModule( boost::shared_ptr< WModule > module );
 
+    /**
+     * Connect SIGNALS with SLOTS
+     */
     void connectSlots();
-    
+
+    /**
+     * This Method is everytime called when a new Module is inserted or an
+     * WQtNetworkItem is moved manually. A Timer is set for calculating the new
+     * forces.
+     */
     void itemMoved();
 
 protected:
@@ -85,10 +97,22 @@ protected:
      */
     WMainWindow* m_mainWindow;
 
+    /**
+     * Everytime a module is associated, ready, connected, disconnected, removed or
+     * deleted the kernels emits a signal and here we look how to behave.
+     */
     virtual bool event( QEvent* event );
-    
+
+    /**
+     * Determines compatible prototypes
+     * \return list of modules without possible input connectors
+     */
     WQtCombinerToolbar* createCompatibleButtons( boost::shared_ptr< WModule >module );
 
+    /**
+     * This event is called every 'timerID' in ms. If the WQtNetworkItems don't
+     * move as result of the calculated forces the timer won't be reseted.
+     */
     void timerEvent( QTimerEvent *event );
 
 private:
@@ -101,7 +125,7 @@ private:
 
     QVBoxLayout* m_layout; //!< layout
 
-    std::list< WQtNetworkItem* > m_items;
+    QList< WQtNetworkItem* > m_items; //!< a list of the WQtNetworkItems in the WQtNetworkScene
 
     /**
      * Action which uses a compatibles list (submenu) to connect a selected item with other existing modules.
@@ -118,12 +142,21 @@ private:
      */
     QAction* m_disconnectAction;
 
+    /**
+     * Is needed for random position of the WQtNetworkItems.
+     */
     time_t m_time;
 
+    /**
+     * Certain time span in ms in which timerEvent gets called.
+     */
     int timerId;
 
 private slots:
 
+    /**
+     * Determines possible Connections and the propertytab.
+     */
     void selectItem();
 };
 

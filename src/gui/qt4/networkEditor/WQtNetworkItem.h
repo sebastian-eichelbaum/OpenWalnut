@@ -25,25 +25,21 @@
 #ifndef WQTNETWORKITEM_H
 #define WQTNETWORKITEM_H
 
-#include <QtGui/QGraphicsItem>
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsTextItem>
-#include <QtGui/QGraphicsScene>
 #include <QtGui/QPainter>
 #include <QtGui/QColor>
 #include "../../../kernel/WModule.h"
 
 #include "WQtNetworkInputPort.h"
 #include "WQtNetworkOutputPort.h"
-//#include "WQtNetworkEditor.h"
 
 class WQtNetworkEditor;
-
 class QGraphicsWidget;
 
 /**
- * This class represents a WModule as graphicitem and
- * contain a reference to its in- and outports as well as
+ * This class represents a WModule as QGraphicsRectItem and
+ * contains a reference to its in- and outports.
  */
 class WQtNetworkItem : public QGraphicsRectItem
 {
@@ -65,7 +61,7 @@ class WQtNetworkItem : public QGraphicsRectItem
         {
            Type = UserType + 20
         };
- 
+
         /**
          * Reimplementation from QGraphicsItem
          * \return the type of the item as int
@@ -76,7 +72,7 @@ class WQtNetworkItem : public QGraphicsRectItem
          * Add a port to the item.
          */
         void addInputPort( WQtNetworkInputPort *inPort );
-        
+
         /**
          * Add a port to the item.
          */
@@ -102,20 +98,42 @@ class WQtNetworkItem : public QGraphicsRectItem
 
         /**
          * Set the QGraphicsTextItem ( the caption ) of the item
+         *
+         * \param text the caption
          */
         void setTextItem( QGraphicsTextItem *text );
 
         /**
          * Get the caption as QString
+         *
+         * \return the caption.
          */
         QString getText();
 
+        /**
+         * Get the WModule represented by this object.
+         * \return the related WModule
+         */
         boost::shared_ptr< WModule > getModule();
 
+        /**
+         * Here the module can be enabled when the WModule is ready.
+         * \param active true if module is ready.
+         */
         void activate( bool active );
 
+        /**
+         * calculate new forces to layout the WQtNetworkItems in the
+         * WQtNetworkScene.
+         */
         void calculateForces();
-        
+
+        /**
+         * Check if new calculated position is different from current. If yes
+         * the ne position is set and all connected WQtNetworkArrow are updated.
+         *
+         * \return true if items position has changed
+         */
         bool advance();
 
     protected:
@@ -136,8 +154,6 @@ class WQtNetworkItem : public QGraphicsRectItem
          * \param mouseEvent the mouse event
          */
         void mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent );
-//        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
-//        void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
         /**
          * If the cursor enters the item, the item gets a green color.
@@ -171,23 +187,27 @@ class WQtNetworkItem : public QGraphicsRectItem
 
 
     private:
-        
+
         boost::shared_ptr< WModule > m_module; //!< the module
 
         QList< WQtNetworkInputPort *> m_inPorts; //!< the input ports of the item
+
         QList< WQtNetworkOutputPort *> m_outPorts; //!< the output ports of the item
 
         QLinearGradient m_gradient; //!< the gradient for a nice coloring of the item
+
         QColor m_color; //!< the current color
 
         QRectF m_rect; //!< the size of the items rect
+
         float m_width; //!< the width of the rect
+
         float m_height; //!< the height of the rect
 
         QGraphicsTextItem *m_text; //!< the caption
 
-        QPointF m_newPos;
+        QPointF m_newPos; //!< the new position in the WQtNetworkScene
 
-        WQtNetworkEditor *m_networkEditor;
+        WQtNetworkEditor *m_networkEditor; //!< the related WQtNetworkEditor
 };
 #endif  // WQTNETWORKITEM_H

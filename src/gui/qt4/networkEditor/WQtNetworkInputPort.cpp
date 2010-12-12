@@ -26,12 +26,7 @@
 #include <iostream>
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QGraphicsSceneMouseEvent>
-#include <QtGui/QGraphicsView>
-#include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsRectItem>
-#include <QtGui/QGraphicsLineItem>
-#include "WQtNetworkOutputPort.h"
 
 #include "WQtNetworkInputPort.h"
 
@@ -50,14 +45,15 @@ WQtNetworkInputPort::WQtNetworkInputPort( boost::shared_ptr<WModuleInputConnecto
     setOutPort( connector.get()->isOutputConnector() );
     m_connector = connector;
 
+    // create tooltip
     QString tmp;
     if( isOutPort() == true ) tmp = "output";
     else if( isOutPort() == false ) tmp = "input";
     else
         tmp = "undefined";
 
-    //TODO
-    QString str = "Name: " + getPortName() + "\nPortType: " + tmp;
+    QString str = "<b>Name: </b> " + getPortName() +
+                  "<br/><b>PortType: </b>" + tmp;
     if( toolTip() != str )
     {
         setToolTip( str );
@@ -112,8 +108,6 @@ boost::shared_ptr<WModuleInputConnector> WQtNetworkInputPort::getConnector()
     return m_connector;
 }
 
-
-//private
 void WQtNetworkInputPort::removeArrows()
 {
     foreach( WQtNetworkArrow *arrow, m_arrows )
@@ -122,7 +116,6 @@ void WQtNetworkInputPort::removeArrows()
         if ( index != -1 )
         {
             m_arrows.removeAt( index );
-            //delete arrow;
         }
     }
 }
@@ -144,116 +137,3 @@ bool WQtNetworkInputPort::isOutPort()
 {
     return m_isOutPort;
 }
-/*
-void WQtNetworkInputPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
-{
-        line = new QGraphicsLineItem( QLineF( mouseEvent->scenePos(), mouseEvent->scenePos() ) );
-        line->setPen( QPen( Qt::black, 2 ) );
-        scene()->addItem( line );
-}
-
-void WQtNetworkInputPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
-{
-    if( line != 0 )
-    {
-        QLineF newLine( line->line().p1(), mouseEvent->scenePos() );
-
-        QList<QGraphicsItem *> endItem = scene()->items( mouseEvent->scenePos() );
-        // because line is first item below the curser
-        if( !endItem.isEmpty() &&
-                endItem.first()->type() == QGraphicsLineItem::Type )
-        {
-            endItem.removeFirst();
-        }
-
-        if( !endItem.isEmpty() )
-        {
-            if( endItem.first()->type() == WQtNetworkInputPort::Type )
-            {
-                //TODO!!!
-                WQtNetworkInputPort *endPort = qgraphicsitem_cast<WQtNetworkInputPort *>( endItem.first() );
-
-                if( //endPort->isOutPort() == false &&
-                    endPort->parentItem() != this->parentItem() &&
-                    //endPort->getPortName() == this->getPortName() &&
-                    endPort->getNumberOfArrows() < 1
-                    )
-                {
-                   line->setPen( QPen( Qt::green, 2 ) );
-                }
-                else
-                {
-                   line->setPen( QPen( Qt::red, 2 ) );
-                }
-            }
-            else if( endItem.first()->type() == WQtNetworkOutputPort::Type )
-            {
-                   line->setPen( QPen( Qt::red, 2 ) );
-            }
-            else
-            {
-                line->setPen( QPen( Qt::black, 2 ) );
-            }
-        }
-        else
-        {
-            line->setPen( QPen( Qt::black, 2 ) );
-        }
-        line->setLine( newLine );
-    }
-}
-
-void WQtNetworkInputPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
-{
-    if( line != 0 )
-    {
-        QList<QGraphicsItem *> startItems = scene()->items( line->line().p1() );
-        QList<QGraphicsItem *> endItems = scene()->items( line->line().p2() );
-
-        // because line is first item below the curser
-        if( startItems.first()->type() == QGraphicsLineItem::Type )
-        {
-            startItems.removeFirst();
-        }
-
-        // because line is first item below the curser
-        if( endItems.first()->type() == QGraphicsLineItem::Type )
-        {
-            endItems.removeFirst();
-        }
-
-        // remove current line for real connection
-        scene()->removeItem( line );
-        delete line;
-
-        if( !endItems.isEmpty() &&
-             !startItems.isEmpty() &&
-             endItems.first()->type() == WQtNetworkInputPort::Type &&
-             startItems.first()->parentItem() != endItems.first()->parentItem() )
-        {
-            WQtNetworkOutputPort *startPort = qgraphicsitem_cast<WQtNetworkOutputPort *>( startItems.first() );
-            WQtNetworkInputPort *endPort = qgraphicsitem_cast<WQtNetworkInputPort *>( endItems.first() );
-
-            std::cout << "PORTS CONNECTBAR: " << endPort->getConnector()->connectable( startPort->getConnector() ) << std::endl;
-
-            //TODO skiunke: isOutput realy needed?
-            if( endPort->getNumberOfArrows() < 1 &&
-                    endPort->isOutPort() == false &&
-                    startPort->isOutPort() == true &&
-                    //endPort->getPortName() == startPort->getPortName() )
-                    endPort->getConnector()->connectable( startPort->getConnector() ) == true )
-            {
-                WQtNetworkArrow *arrow = new WQtNetworkArrow( startPort, endPort );
-
-                arrow->setZValue( -1000.0 );
-
-                startPort->addArrow( arrow );
-                endPort->addArrow( arrow );
-
-                scene()->addItem( arrow );
-                arrow->updatePosition();
-            }
-        }
-    }
-}
-*/

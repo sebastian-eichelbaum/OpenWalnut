@@ -27,63 +27,46 @@
 
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsLineItem>
-#include <QtGui/QGraphicsScene>
 
 #include "WQtNetworkArrow.h"
 
 // forward declaration
-class WQtNetworkArrow;
-class WQtNetworkInputPort;
-class WQtNetworkOutputPort;
+//class WQtNetworkArrow;
+//class WQtNetworkInputPort;
+//class WQtNetworkOutputPort;
 
 /**
- * This class represents the ports a module have. Two ports from different
- * modules can be connected by the corresponding ports.
+ * Abstract class to distinguish between input- and output ports from a module.
+ * This class handels if a connection between two ports is possible or not.
  */ 
 class WQtNetworkPort : public QGraphicsRectItem
 {
     public:
 
-        /**
-         * Constructor
-         */
-        //WQtNetworkPort();
+        WQtNetworkPort();
+
+        ~WQtNetworkPort();
 
         /**
-         * Destructor
-         */
-        virtual ~WQtNetworkPort();
-        
-        
-        /**
-         * This customize the return value of type()
-         *
-        enum
-        {
-            Type = UserType + 10
-        };
-
-        **
          * Reimplementation from QGraphicsItem
          * \return the type of the item as int
          */
         virtual int type() const = 0;
-        
 
         /**
-         * Every Arrow connected with this port is updating its position in the
+         * The position of every arrow connected with this port is updating its position in the
          * scene.
          */
         virtual void updateArrows() = 0;
 
         /**
-         * Removes a specific arrow
+         * Removes a specific arrow.
          * \param arrow an arrow
          */
         virtual void removeArrow( WQtNetworkArrow *arrow ) = 0;
 
         /**
-         * Removes all connected arrows
+         * Removes all connected arrows.
          */
         virtual void removeArrows() = 0;
 
@@ -95,7 +78,7 @@ class WQtNetworkPort : public QGraphicsRectItem
          * \param portNumber the number of the current port (distinguised by in-
          *          and outport
          * \param rect the rect of the parent item
-         * \param inOut is it an in- or outport
+         * \param outPort is it an in- or outport
          */
         void alignPosition( int size, int portNumber, QRectF rect, bool outPort );
 
@@ -106,60 +89,70 @@ class WQtNetworkPort : public QGraphicsRectItem
         virtual void setOutPort( bool type ) = 0;
 
         /**
-         * Returns the porttype.
-         * \return is it a outport
+         * Returns the porttype - true if outputport, false if inputport
+         * \return is it a outport?
          */
         virtual bool isOutPort() = 0;
 
         /**
-         * Returns the Name.
-         * \return Name
+         * Returns the portname.
+         * \return portname
          */
         virtual QString getPortName() = 0;
 
         /**
          * Set the Name
-         * \param str Name as string
+         * \param str portname as string
          */
         virtual void setPortName( QString str ) = 0;
 
+        /**
+         * Return the number of connections
+         *
+         * \return number of connections
+         */
         virtual int getNumberOfArrows() = 0;
 
         /**
          * Adds an arrow to the port
          */
         virtual void addArrow( WQtNetworkArrow *arrow ) = 0;
-        
+
+        /**
+         * Get a QList of all arrows connected to this port
+         * 
+         * \return a QList of WQtNetworkArrows
+         */
         virtual QList< WQtNetworkArrow *> getArrowList() = 0;
 
     protected:
 
         /**
-         * Start drawing an arrow
+         * Start drawing an arrow temporary.
          *
          * \param mouseEvent the mouse event
          */
         void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
         /**
-         * Updates the arrows endpoint.
+         * Updates the temporary arrows endpoint.
+         * Arrow is colored green when connection possible, red if no connection
+         * is possible, or black when cursor doesent covers an WQtNetworkPort.
          *
          * \param mouseEvent the mouse event
          */
         void mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
         /**
-         * Draw the arrow if its the correct port
+         * Send a connect request to kernel when start- and endport are
+         * connectable
          *
          * \param mouseEvent the mouse event
          */
         void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
-        void notify();
-
     private:
-    
-        QGraphicsLineItem *line; //!< the temporary line when u connect two ports
 
+        QGraphicsLineItem *line; //!< the temporary line when u connect two ports
 };
 #endif  // WQTNETWORKPORT_H

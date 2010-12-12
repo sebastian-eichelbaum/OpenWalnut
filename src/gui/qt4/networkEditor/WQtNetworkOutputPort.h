@@ -26,8 +26,6 @@
 #define WQTNETWORKOUTPUTPORT_H
 
 #include <QtGui/QGraphicsRectItem>
-#include <QtGui/QGraphicsLineItem>
-#include <QtGui/QGraphicsScene>
 
 #include "../../../kernel/WModuleOutputConnector.h"
 #include "WQtNetworkPort.h"
@@ -35,7 +33,6 @@
 
 // forward declaration
 class WQtNetworkArrow;
-//class WQtNetworkPort;
 
 /**
  * This class represents the ports a module have. Two ports from different
@@ -47,6 +44,8 @@ class WQtNetworkOutputPort : public WQtNetworkPort
 
         /**
          * Constructor
+         *
+         * \param connector a WModuleOutputConnector
          */
         explicit WQtNetworkOutputPort( boost::shared_ptr<WModuleOutputConnector> connector );
 
@@ -77,7 +76,7 @@ class WQtNetworkOutputPort : public WQtNetworkPort
 
         /**
          * Removes a specific arrow
-         * \param arrow an arrow
+         * \param arrow a specific arrow
          */
         void removeArrow( WQtNetworkArrow *arrow );
 
@@ -122,47 +121,38 @@ class WQtNetworkOutputPort : public WQtNetworkPort
          */
         void setPortName( QString str );
 
+        /**
+         * Return the number of connections
+         *
+         * \return number of connections
+         */
         int getNumberOfArrows();
 
+        /**
+         * Returns the WModuleOutputConnecter that belongs to this object.
+         * \return a WModuleOutputConnector
+         */
         boost::shared_ptr<WModuleOutputConnector> getConnector();
 
         /**
          * Adds an arrow to the port
          */
         void addArrow( WQtNetworkArrow *arrow );
-        
+
+        /**
+         * Get a QList of all arrows connected to this port
+         * \return a QList of WQtNetworkArrows
+         */
         QList< WQtNetworkArrow *> getArrowList();
-
-    protected:
-
-        /**
-         * Start drawing an arrow
-         *
-         * \param mouseEvent the mouse event
-         */
-//        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
-
-        /**
-         * Updates the arrows endpoint.
-         *
-         * \param mouseEvent the mouse event
-         */
-//        void mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent );
-
-        /**
-         * Draw the arrow if its the correct port
-         *
-         * \param mouseEvent the mouse event
-         */
-//        void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
-
 
     private:
 
-        QGraphicsLineItem *line; //!< the temporary line when u connect two ports
         bool m_isOutPort; //!< is the port an outport
+
         QList< WQtNetworkArrow *> m_arrows; //!< the connected arrows
+
         QString m_name; //!< the portname
-        boost::shared_ptr<WModuleOutputConnector> m_connector;
+
+        boost::shared_ptr<WModuleOutputConnector> m_connector; //!< the related WModuleInputConnector
 };
 #endif  // WQTNETWORKOUTPUTPORT_H

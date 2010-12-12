@@ -26,12 +26,8 @@
 #include <iostream>
 
 #include <boost/shared_ptr.hpp>
-
-#include <QtGui/QGraphicsSceneMouseEvent>
-#include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsRectItem>
 #include <QtGui/QStyleOptionGraphicsItem>
-#include <QtGui/QGraphicsWidget>
 
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItem.h"
@@ -80,15 +76,15 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 
 WQtNetworkItem::~WQtNetworkItem()
 {
-/*    foreach( WQtNetworkPort *port, m_inPorts )
-    {
-        delete port;
-    }
-
-    foreach( WQtNetworkPort *port, m_outPorts )
-    {
-        delete port;
-    }*/
+//    foreach( WQtNetworkPort *port, m_inPorts )
+//    {
+//        delete port;
+//    }
+//
+//    foreach( WQtNetworkPort *port, m_outPorts )
+//    {
+//        delete port;
+//    }
 }
 
 int WQtNetworkItem::type() const
@@ -98,6 +94,8 @@ int WQtNetworkItem::type() const
 
 void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent  *event )
 {
+    Q_UNUSED( event );
+
     if( m_color != Qt::darkBlue )
     {
         changeColor( Qt::darkBlue );
@@ -144,6 +142,7 @@ void WQtNetworkItem::hoverEnterEvent( QGraphicsSceneHoverEvent  *event )
 
 void WQtNetworkItem::hoverLeaveEvent( QGraphicsSceneHoverEvent *event )
 {
+    Q_UNUSED( event );
     if( m_color != Qt::gray )
     {
         changeColor( Qt::gray );
@@ -170,12 +169,6 @@ void WQtNetworkItem::paint( QPainter* painter, const QStyleOptionGraphicsItem* o
     painter->drawRect( rect );
 }
 
-
-//void WQtNetworkItem::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
-//{
-//    QGraphicsItem::mousePressEvent( mouseEvent );
-//}
-
 void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
     QGraphicsItem::mouseMoveEvent( mouseEvent );
@@ -191,15 +184,9 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
     m_networkEditor->itemMoved();
 }
 
-//void WQtNetworkItem::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
-//{
-//    QGraphicsItem::mouseReleaseEvent( mouseEvent );
-//}
-
 QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
         const QVariant &value )
 {
-    std::cout << "change" << change << std::endl;
     switch( change )
     {
         case ItemSelectedHasChanged:
@@ -221,7 +208,6 @@ QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
     return QGraphicsItem::itemChange( change, value );
 }
 
-//TODO
 void WQtNetworkItem::addInputPort( WQtNetworkInputPort *port )
 {
     m_inPorts.append( port );
@@ -231,23 +217,6 @@ void WQtNetworkItem::addOutputPort( WQtNetworkOutputPort * port )
 {
     m_outPorts.append( port );
 }
-/*
-void WQtNetworkItem::removePort( WQtNetworkPort *port )
-{
-    int index = m_ports.indexOf( port );
-
-    if ( index != -1 )
-        m_ports.removeAt( index );
-}
-
-void WQtNetworkItem::removePorts()
-{
-    foreach( WQtNetworkPort *port, m_ports )
-    {
-        port->update();
-    }
-}
-*/
 
 QList< WQtNetworkInputPort *> WQtNetworkItem::getInPorts()
 {
@@ -352,19 +321,20 @@ void WQtNetworkItem::calculateForces()
     // Sum up all forces pushing this item away
     qreal xvel = 0;
     qreal yvel = 0;
-    foreach ( QGraphicsItem *item, scene()->items() )
+    foreach( QGraphicsItem *item, scene()->items() )
     {
-        WQtNetworkItem *networkItem = qgraphicsitem_cast<WQtNetworkItem *>(item);
+        WQtNetworkItem *networkItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
         if ( !networkItem )
             continue;
 
-        QLineF line( mapFromItem( networkItem, 0, 0 ), QPointF( 0, 0) );
+        QLineF line( mapFromItem( networkItem, 0, 0 ), QPointF( 0, 0 ) );
         qreal dx = line.dx();
         qreal dy = line.dy();
-        double l = 2.0 * (dx * dx + dy * dy);
-        if (l > 0) {
-            xvel += (dx * 250.0) / l;
-            yvel += (dy * 250.0) / l;
+        double l = 2.0 * ( dx * dx + dy * dy );
+        if ( l > 0 )
+        {
+            xvel += ( dx * 250.0 ) / l;
+            yvel += ( dy * 250.0 ) / l;
         }
     }
 
@@ -380,7 +350,7 @@ void WQtNetworkItem::calculateForces()
     {
         weight += port->getNumberOfArrows();
     }
-    weight *= 100;
+    weight *= 50;
 
 
     foreach( WQtNetworkPort *port, m_inPorts )
@@ -404,28 +374,24 @@ void WQtNetworkItem::calculateForces()
             yvel += pos.y() / weight;
        }
     }
-    
+
     WQtNetworkScene *scn = dynamic_cast< WQtNetworkScene *>( this->scene() );
     if ( scn != NULL )
     {
-    std::cout << "xvel" << std::endl;
         pos = mapFromItem( scn->getFakeItem(), 0, 0 );
         xvel += pos.x() / weight;
         yvel += pos.y() / weight;
     }
-    std::cout << xvel << std::endl;
-    
-    
-    if ( qAbs(xvel) < 0.1 && qAbs(yvel) < 0.1 )
+
+    if ( qAbs( xvel ) < 0.1 && qAbs( yvel ) < 0.1 )
     {
         xvel = yvel = 0;
     }
- 
 
     QRectF sceneRect = this->scene()->sceneRect();
-    m_newPos = this->pos() + QPoint(xvel, yvel);
-    m_newPos.setX( qMin( qMax( m_newPos.x(), sceneRect.left() + 10 ), sceneRect.right() - 10 ) );
-    m_newPos.setY( qMin( qMax( m_newPos.y(), sceneRect.top() + 10 ), sceneRect.bottom() - 10 ) );
+    m_newPos = this->pos() + QPoint( xvel, yvel );
+    m_newPos.setX( qMin( qMax( m_newPos.x(), sceneRect.left() + m_rect.x() ), sceneRect.right() - m_rect.x() ) );
+    m_newPos.setY( qMin( qMax( m_newPos.y(), sceneRect.top() + m_rect.y() ), sceneRect.bottom() - m_rect.y() ) );
 }
 
 bool WQtNetworkItem::advance()
