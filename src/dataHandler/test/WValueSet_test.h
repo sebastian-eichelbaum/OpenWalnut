@@ -45,7 +45,9 @@ public:
     void testInstantiation( void )
     {
         double a[2] = { 0.0, 3.1415 };
-        const std::vector< double > v( a, a + sizeof( a ) / sizeof( double ) );
+        const boost::shared_ptr< std::vector< double > > v =
+            boost::shared_ptr< std::vector< double > >(
+                new std::vector< double >( a, a + sizeof( a ) / sizeof( double ) ) );
         TS_ASSERT_THROWS_NOTHING( WValueSet< double > valueSet( 0, 1, v, W_DT_DOUBLE ) );
     }
 
@@ -55,7 +57,9 @@ public:
     void testGetNumberOfValues( void )
     {
         int a[4] = { 0, -5, 1, 2 };
-        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int ) );
+        const boost::shared_ptr< std::vector< int8_t > > v =
+            boost::shared_ptr< std::vector< int8_t > >(
+                new std::vector< int8_t >( a, a + sizeof( a ) / sizeof( int ) ) );
         WValueSet< int8_t > first( 0, 1, v, W_DT_INT8 );
         TS_ASSERT_EQUALS( first.size(), 4 );
         WValueSet< int8_t > second( 1, 2, v, W_DT_INT8 );
@@ -71,7 +75,9 @@ public:
     void testRawSize( void )
     {
         int8_t a[4] = { 0, -5, 1, 2 };
-        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int8_t ) );
+        const boost::shared_ptr< std::vector< int8_t > > v =
+            boost::shared_ptr< std::vector< int8_t > >(
+                new std::vector< int8_t >( a, a + sizeof( a ) / sizeof( int8_t ) ) );
         WValueSet< int8_t > first( 0, 1, v, W_DT_INT8 );
         TS_ASSERT_EQUALS( first.rawSize(), 4 );
         WValueSet< int8_t > second( 2, 2, v, W_DT_INT8 );
@@ -84,7 +90,9 @@ public:
     void testGetScalar( void )
     {
         int8_t a[4] = { 0, -5, 1, 2 };
-        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int8_t ) );
+        const boost::shared_ptr< std::vector< int8_t > > v =
+            boost::shared_ptr< std::vector< int8_t > >(
+                new std::vector< int8_t >( a, a + sizeof( a ) / sizeof( int8_t ) ) );
         WValueSet< int8_t > set( 0, 1, v, W_DT_INT8 );
         TS_ASSERT_EQUALS( set.getScalar( 0 ), a[0] );
         TS_ASSERT_EQUALS( set.getScalar( 1 ), a[1] );
@@ -98,7 +106,9 @@ public:
     void testReadOnlyRawAccess( void )
     {
         double a[2] = { 0.0, 3.1415 };
-        const std::vector< double > v( a, a + sizeof( a ) / sizeof( double ) );
+        const boost::shared_ptr< std::vector< double > > v =
+            boost::shared_ptr< std::vector< double > >(
+                new std::vector< double >( a, a + sizeof( a ) / sizeof( double ) ) );
         WValueSet< double > valueSet( 0, 1, v, W_DT_DOUBLE );
         const double * const b = valueSet.rawData();
         TS_ASSERT_EQUALS( b[0], 0.0 );
@@ -113,21 +123,23 @@ public:
         int8_t a[6] = { 1, 2, 3, 4, 5, 6 };
         std::size_t dim = 2;
 
-        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int8_t ) );
+        const boost::shared_ptr< std::vector< int8_t > > v =
+            boost::shared_ptr< std::vector< int8_t > >(
+                new std::vector< int8_t >( a, a + sizeof( a ) / sizeof( int8_t ) ) );
         WValueSet< int8_t > set( 1, dim, v, W_DT_INT8 );
 
         // testing for valid dimension and values of the returned WValue
-        for ( std::size_t idx = 0; idx < v.size()/dim; idx++ )
+        for ( std::size_t idx = 0; idx < v->size()/dim; idx++ )
         {
           wmath::WValue< int8_t > currentWValue( dim );
-          for ( std::size_t i = 0; i < dim; i++ ) currentWValue[ i ] = v[ idx*dim + i ];
+          for ( std::size_t i = 0; i < dim; i++ ) currentWValue[ i ] = ( *v )[ idx*dim + i ];
           TS_ASSERT_EQUALS( set.getWValue( idx ), currentWValue );
           TS_ASSERT_EQUALS( set.getWValue( idx ).size(), dim );
         }
 
         // catch wrong indices?
-        TS_ASSERT_THROWS_ANYTHING( set.getWValue( v.size() ) );
-        TS_ASSERT_THROWS_ANYTHING( set.getWValue( v.size()*2 ) );
+        TS_ASSERT_THROWS_ANYTHING( set.getWValue( v->size() ) );
+        TS_ASSERT_THROWS_ANYTHING( set.getWValue( v->size()*2 ) );
 
         // catch wrong order?
         WValueSet< int8_t > set2( 2, dim, v, W_DT_INT8 );
@@ -140,7 +152,9 @@ public:
     void testSubArrayInstantiation()
     {
         int8_t a[4] = { 0, -5, 1, 2 };
-        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int8_t ) );
+        const boost::shared_ptr< std::vector< int8_t > > v =
+            boost::shared_ptr< std::vector< int8_t > >(
+                new  std::vector< int8_t >( a, a + sizeof( a ) / sizeof( int8_t ) ) );
         WValueSet< int8_t > set( 1, 2, v, W_DT_INT8 );
         TS_ASSERT_THROWS_NOTHING( set.getSubArray( 0, 2 ) );
         TS_ASSERT_THROWS_NOTHING( set.getSubArray( 3, 1 ) );
@@ -155,7 +169,9 @@ public:
     void testSubArrayAccess()
     {
         int8_t a[ 8 ] = { 0, -5, 1, 2, -27, 6, 29, 8 };
-        const std::vector< int8_t > v( a, a + sizeof( a ) / sizeof( int8_t ) );
+        const boost::shared_ptr< std::vector< int8_t > > v =
+            boost::shared_ptr< std::vector< int8_t > >(
+                new std::vector< int8_t >( a, a + sizeof( a ) / sizeof( int8_t ) ) );
         WValueSet< int8_t > set( 1, 2, v, W_DT_INT8 );
 
         {

@@ -270,7 +270,11 @@ void WMHistogramEqualization::moduleMain()
         // construct
         m_output->updateData( boost::shared_ptr< WDataSetScalar >(
             new WDataSetScalar( boost::shared_ptr< WValueSetBase >(
-                new WValueSet< unsigned char >( 0, 1, newData, W_DT_UNSIGNED_CHAR ) ), dataSet->getGrid() )
+                                    new WValueSet< unsigned char >( 0,
+                                                                    1,
+                                                                    boost::shared_ptr< std::vector< unsigned char > >(
+                                                                        new std::vector< unsigned char >( newData ) ),
+                                                                    W_DT_UNSIGNED_CHAR ) ), dataSet->getGrid() )
         ) );
 
         debugLog() << "Done";

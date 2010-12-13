@@ -455,11 +455,12 @@ void WMPaintTexture::updateOutDataset()
     WAssert( m_dataSet->getGrid(), "" );
 
     unsigned char* data = m_texture->getImage()->data();
-    std::vector<unsigned char>values( m_grid->size(), 0.0 );
+    boost::shared_ptr< std::vector< unsigned char > > values =
+        boost::shared_ptr< std::vector< unsigned char > >( new std::vector< unsigned char >( m_grid->size(), 0.0 ) );
 
     for ( unsigned int i = 0; i < m_grid->size(); ++i )
     {
-        values[i] = data[i];
+        ( *values )[i] = data[i];
     }
 
     boost::shared_ptr< WValueSet< unsigned char > > vs =

@@ -198,17 +198,17 @@ template< typename T > void WMApplyMask::applyMask( boost::shared_ptr< WValueSet
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Apply Mask", valSet->size() ) );
     m_progress->addSubProgress( progress );
 
-    std::vector< T > newVals( valSet->size() );
+    boost::shared_ptr< std::vector< T > > newVals = boost::shared_ptr< std::vector< T > >( new std::vector< T >( valSet->size() ) );
     for( size_t i = 0; i < valSet->size(); ++i )
     {
         ++*progress;
         if( mask->getScalar( i ) == 0 )
         {
-            newVals[i] = 0;
+            ( *newVals )[i] = 0;
         }
         else
         {
-            newVals[i] = valSet->getScalar( i );
+            ( *newVals )[i] = valSet->getScalar( i );
         }
     }
     progress->finish();
