@@ -195,6 +195,21 @@ void WMFiberSelection::moduleMain()
         bool dataValid =   ( newFibers && newVoi1 && newVoi2 );
         bool propChanged = ( m_cutFibers->changed() || m_voi1Threshold->changed() || m_voi2Threshold->changed() || m_preferShortestPath->changed() );
 
+        // cleanup if no valid data is available
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting output.";
+
+            // remove my refs to the data
+            m_fibers.reset();
+            m_voi1.reset();
+            m_voi2.reset();
+
+            // reset outputs too
+            m_fiberOutput->reset();
+            m_clusterOutput->reset();
+        }
+
         if ( ( propChanged || dataChanged ) && dataValid )
         {
             debugLog() << "Data received. Recalculating.";

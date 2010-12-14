@@ -510,7 +510,10 @@ void WMScalarOperator::moduleMain()
             boost::shared_ptr< WDataSetScalar > dataSetB = m_inputB->getData();
             if ( !dataSetA )
             {
-                continue;   // only valid data
+                // reset output if input was reset/disconnected
+                debugLog() << "Resetting output.";
+                m_output->reset();
+                continue;
             }
 
             // the first value-set is always needed -> grab it
@@ -557,6 +560,18 @@ void WMScalarOperator::moduleMain()
 
                     // Create the new dataset and export it
                     m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, m_inputA->getData()->getGrid() ) ) );
+                }
+                else
+                {
+                    // reset output if input was reset/disconnected
+                    debugLog() << "Resetting output.";
+                    m_output->reset();
+
+                    // remove progress too
+                    prog->finish();
+                    m_progress->removeSubProgress( prog );
+
+                    continue;
                 }
             }
 

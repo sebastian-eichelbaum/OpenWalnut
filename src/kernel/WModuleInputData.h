@@ -191,6 +191,7 @@ void WModuleInputData< T >::disconnect( boost::shared_ptr<WModuleConnector> con,
 {
     m_disconnecting = true;
     WModuleInputConnector::disconnect( con, removeFromOwnList );
+    m_disconnecting = false;
 }
 
 template < typename T >

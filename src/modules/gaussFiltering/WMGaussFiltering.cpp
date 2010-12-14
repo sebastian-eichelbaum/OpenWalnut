@@ -284,7 +284,9 @@ void WMGaussFiltering::moduleMain()
             // invalid data
             if( !m_dataSet )
             {
-                debugLog() << "Invalid Data. Disabling.";
+                debugLog() << "Resetting output.";
+                m_output->reset();
+                // NOTE: m_dataSet is already reset
                 continue;
             }
         }

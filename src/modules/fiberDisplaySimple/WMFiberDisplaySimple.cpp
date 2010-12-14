@@ -166,6 +166,20 @@ void WMFiberDisplaySimple::moduleMain()
         bool dataValid = ( fibers );
         bool dataPropertiesUpdated = propObserver->updated();
         bool propertiesUpdated = m_clipPlaneEnabled->changed();
+
+        // reset graphics if noting is on the input
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting.";
+            // remove geode if no valid data is available
+            m_rootNode->clear();
+
+            // remove the fib's properties from my props
+            m_properties->removeProperty( m_fibProps );
+            m_fibProps.reset();
+        }
+
+        // something happened we are interested in?
         if ( !( dataValid && ( propertiesUpdated || dataPropertiesUpdated || dataUpdated ) ) )
         {
             continue;

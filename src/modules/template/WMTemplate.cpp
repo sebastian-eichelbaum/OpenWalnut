@@ -453,6 +453,16 @@ void WMTemplate::moduleMain()
             debugLog() << "Received Data.";
         }
 
+        // If there is no data, this might have the following reasons: the connector never has been connected or it got disconnected. Especially
+        // in the case of a disconnect, you should always clean up your renderings and internal states. A disconnected module should not render
+        // anything anymore. Locally stored referenced to the old input data have to be reset to. Only this way, it is guaranteed that not used
+        // data gets deleted properly.
+        if( !dataValid )
+        {
+            debugLog() << "Data changed. No valid data anymore. Cleaning up.";
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+        }
+
         // Here we collect our properties. You, as with input connectors, always check if a property really has changed. You most probably do not
         // want to check properties which are used exclusively inside the update callback of your OSG node. As the properties are thread-safe, the
         // update callback can check them and apply it correctly to your visualization.
@@ -643,7 +653,7 @@ void WMTemplate::moduleMain()
     //  * remove all OSG nodes
     //  * stop any pending threads you may have started earlier
     //  * ...
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+    //  NOTE: as the module gets disconnected prior to shutdown, most of the cleanup should have been done already.
 }
 
 void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )

@@ -149,6 +149,8 @@ void WMHistogramEqualization::moduleMain()
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
         if ( !dataSet )
         {
+            debugLog() << "Resetting output.";
+            m_output->reset();
             continue;
         }
         boost::shared_ptr< WValueSetBase > valueSet = dataSet->getValueSet();

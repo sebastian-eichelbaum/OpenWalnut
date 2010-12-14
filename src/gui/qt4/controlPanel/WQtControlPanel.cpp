@@ -666,15 +666,7 @@ void WQtControlPanel::selectTreeItem()
             case MODULE:
                 {
                     module = ( static_cast< WQtModuleTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
-                    // NOTE: this hack prevents the navigation slices to be removed as they are buggy and crash OpenWalnut if they get removed
-                    if ( module->getName() == "Navigation Slices" )
-                    {
-                        m_deleteModuleAction->setEnabled( false );
-                    }
-                    else
-                    {
-                        m_deleteModuleAction->setEnabled( true );
-                    }
+                    m_deleteModuleAction->setEnabled( true );
 
                     // this is ugly since it causes the property tab to update multiple times if multiple items get selected by this call
                     // but it highlights all the same items which is nice and wanted here
