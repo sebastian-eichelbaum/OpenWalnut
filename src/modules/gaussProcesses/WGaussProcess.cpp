@@ -168,8 +168,8 @@ double gauss::innerProduct( const WGaussProcess& p1, const WGaussProcess& p2 )
 {
     WFiber f1 = p1.generateTract();
     WFiber f2 = p2.generateTract();
-    double Q = p1.getMaxSegmentLength();
-    double R = p2.getMaxSegmentLength();
+    double Q = 2.0 * p1.getMaxSegmentLength(); // we should ensure as Demian said, that in each kernel are almost two points.
+    double R = 2.0 * p2.getMaxSegmentLength();
 
     Eigen::MatrixXd integralMatrix( static_cast< int >( f1.size() ), static_cast< int >( f2.size() ) );
     size_t i = 0, j = 0;

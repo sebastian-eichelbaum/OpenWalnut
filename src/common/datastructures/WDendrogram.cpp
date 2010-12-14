@@ -75,15 +75,21 @@ std::string WDendrogram::toTXTString() const
     std::vector< size_t > level( 2 * m_heights.size() + 1, 0 );
 
 #ifdef DEBUG
-    wlog::debug( "WDendrogram" ) << "WE ARE IN DEBUG MODE!" << std::endl;
     wlog::debug( "WDendrogram" ) << "nodes size: " << m_parents.size() << " and expeceted: " << 2 * m_heights.size() + 1;
+
+    // For very insane debugging only:
+    //
+    // wlog::debug( "WDendrogram" ) << "Parents-ARRAY:";
+    // wlog::debug( "WDendrogram" ) << m_parents;
+    // wlog::debug( "WDendrogram" ) << "Heights-ARRAY:";
+    // wlog::debug( "WDendrogram" ) << m_heights;
 
     // first write out all fibers
     for( size_t i = 0; i < m_heights.size() + 1; ++i )
     {
         ss << "(0, (" << i << ",))" << std::endl;
         childsOfInnerNodes[ m_parents.at( i ) ].insert( i );
-        preds[ m_parents.at( i ) ] = childsOfInnerNodes[ m_parents.at( i ) ];
+        preds[ m_parents.at( i ) ].insert( i );
     }
     for( size_t i = m_heights.size() + 1; i < 2 * m_heights.size() + 1; ++i )
     {
@@ -132,23 +138,10 @@ std::string WDendrogram::toTXTString() const
     {
         ss << "(0, (" << i << ",))" << std::endl;
         childsOfInnerNodes[ m_parents[ i ] ].insert( i );
-        preds[ m_parents[ i ] ] = childsOfInnerNodes[ m_parents[ i ] ];
+        preds[ m_parents[ i ] ].insert( i );
     }
     for( size_t i = m_heights.size() + 1; i < 2 * m_heights.size() + 1; ++i )
     {
-        if( preds[i].size() != 2 )
-        {
-            std::stringstream ss;
-            ss << "There are more or less than 2 predecessors for an inner node" << std::endl;
-            ss << "i=" << i << std::endl;
-            ss << "size=" << preds[i].size();
-            for( std::set< size_t >::const_iterator cit = preds[i].begin(); cit != preds[i].end(); ++cit )
-            {
-                ss << *cit << " ";
-            }
-            ss << std::endl;
-            WAssert( false, ss.str() );
-        }
         size_t left = *( preds[ i ].begin() );
         size_t right = *( preds[ i ].rbegin() );
         level[ i ] = std::max( level[ left ], level[ right ] ) + 1;

@@ -185,7 +185,8 @@ boost::shared_ptr< WMDetTractClusteringGP::MST > WMDetTractClusteringGP::compute
             double similarity = 0.0;
             if( v.getBB().minDistance( p.getBB() ) < v.getMaxSegmentLength() + p.getMaxSegmentLength() )
             {
-                similarity = gauss::innerProduct( v, p ) / diagonal[closestTract] / diagonal[ queue[ i ] ];
+                // similarity = gauss::innerProduct( v, p ) / diagonal[closestTract] / diagonal[ queue[ i ] ];
+                similarity = gauss::innerProduct( v, p );
             }
 
             // update similarities and parent array if the new edge is closer to the MST sofar
@@ -269,7 +270,8 @@ void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDa
             const WBoundingBox& bb2 = p2.getBB();
             if( bb1.minDistance( bb2 ) < p1.getMaxSegmentLength() + p2.getMaxSegmentLength() )
             {
-                m_similarities( i, j ) = gauss::innerProduct( p1, p2 ) / diagonal[i] / diagonal[j];
+                // m_similarities( i, j ) = gauss::innerProduct( p1, p2 ) / diagonal[i] / diagonal[j];
+                m_similarities( i, j ) = gauss::innerProduct( p1, p2 );
             }
             else
             {
@@ -337,7 +339,7 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram2( siz
         {
             if( *it != newCE )
             {
-                // we have tow gauss processes p and q. We have merged p and q into pq. Hence for all valid indexes we must
+                // we have two gauss processes p and q. We have merged p and q into pq. Hence for all valid indexes we must
                 // recompute < pq, k > where k is a GP identified through an valid index, where:
                 // < pq, k > = |p| / ( |p| + |q| ) < p, k > + |q| / (|p| + |q|) < q, k >
                 double firstFactor = static_cast< double >( clusterSize[ cE_of_p ] ) / ( clusterSize[ cE_of_p ] + clusterSize[ cE_of_q ] );
@@ -349,7 +351,7 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram2( siz
 
         // Nearest Neighbour find: update p, q, and sim, so iterate over all valid matrix entries
         // NOTE, WARNING, ATTENTION: This is brute force NN finding strategy and requires O(n^2) time
-        double maxSim = 0.0;
+        double maxSim = -1.0; // This is not 0.0, due to numerical issue, where the similarity maybe very near to 0.0, and thus no new pair is found!
         std::pair< size_t, size_t > newpq = std::make_pair( 0, 0 );
         for( std::set< size_t >::const_iterator it = idx.begin(); it != idx.end(); ++it )
         {
