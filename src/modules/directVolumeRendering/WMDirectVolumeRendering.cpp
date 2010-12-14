@@ -209,6 +209,14 @@ void WMDirectVolumeRendering::moduleMain()
         bool propUpdated = m_localIlluminationAlgo->changed() || m_tfLoaderEnabled || m_tfLoaderFile->changed() || m_tfLoaderTrigger->changed() ||
                            m_stochasticJitterEnabled->changed() ||  m_opacityCorrectionEnabled->changed();
 
+        // reset module in case of invalid data. This accounts only for the scalar field input
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting.";
+            rootNode->clear();
+            continue;
+        }
+
         // As the data has changed, we need to recreate the texture.
         if ( ( propUpdated || dataUpdated ) && dataValid )
         {
