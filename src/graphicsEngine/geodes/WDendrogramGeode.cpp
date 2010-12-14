@@ -30,7 +30,7 @@
 /**
  * Class implements a dendrogram as an osg geode
  */
-WDendrogramGeode::WDendrogramGeode( WHierarchicalTreeFibers* tree, size_t cluster, size_t minClusterSize,
+WDendrogramGeode::WDendrogramGeode( WHierarchicalTree* tree, size_t cluster, size_t minClusterSize,
                                     float xSize, float ySize, float xOffset, float yOffset ) :
     osg::Geode(),
     m_tree( tree ),

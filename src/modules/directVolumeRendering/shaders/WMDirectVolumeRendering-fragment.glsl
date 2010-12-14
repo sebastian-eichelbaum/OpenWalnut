@@ -44,6 +44,7 @@
 uniform sampler3D tex0;
 uniform sampler1D TRANSFERFUNCTION_SAMPLER;
 uniform sampler3D GRADIENTTEXTURE_SAMPLER;
+uniform sampler2D JITTERTEXTURE_SAMPLER;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -62,14 +63,15 @@ uniform sampler3D GRADIENTTEXTURE_SAMPLER;
  * get a proper maximum distance along the ray.
  *
  * \param d out - this value will contain the maximum distance along the ray untill the end of the cube
+ * \param rayStart in - the start point of the ray in the volume
  *
  * \return the end point
  */
-vec3 findRayEnd( out float d )
+vec3 findRayEnd( in vec3 rayStart, out float d )
 {
     // we need to ensure the vector components are not exactly 0.0 since they are used for division
     vec3 r = v_ray + vec3( 0.000000001 );
-    vec3 p = v_rayStart;
+    vec3 p = rayStart;
 
     // v_ray in cube coordinates is used to check against the unit cube borders
     // when will v_ray reach the front face?
@@ -165,6 +167,20 @@ vec4 localIllumination( in vec3 position, in vec4 color )
 }
 
 /**
+ * Calculates a^b. This is a faster, approximate implementation of GLSL's pow().
+ *
+ * \param a base
+ * \param b exponent
+ *
+ * \return a^b.
+ */
+float fastpow( float a, float b )
+{
+    //return exp( log(a)*b );
+    return pow( a, b );
+}
+
+/**
  * Main entry point of the fragment shader.
  */
 void main()
@@ -173,22 +189,45 @@ void main()
     // when done for each vertex.
     float totalDistance = 0.0;      // the maximal distance along the ray until the BBox ends
     float currentDistance = 0.0;    // accumulated distance along the ray
-    vec3 rayEnd = findRayEnd( totalDistance );
+
+#ifdef JITTERTEXTURE_ENABLED
+    // stochastic jittering can help to void these ugly wood-grain artifacts with larger sampling distances but might
+    // introduce some noise artifacts.
+    float jitter = 0.5 - texture2D( JITTERTEXTURE_SAMPLER, gl_FragCoord.xy / JITTERTEXTURE_SIZEX ).r;
+    vec3 rayStart = v_rayStart + ( v_ray * v_sampleDistance * jitter );
+#else
+    vec3 rayStart = v_rayStart;
+#endif
+
+    vec3 rayEnd = findRayEnd( rayStart, totalDistance );
 
     // walk along the ray
     vec4 dst = vec4( 0.0 );
     while ( currentDistance <= totalDistance )
     {
-        // get current value, classify and illuminate
-        vec3 rayPoint = v_rayStart + ( currentDistance * v_ray );
-        vec4 src = localIllumination( rayPoint, transferFunction( texture3D( tex0, rayPoint ).r ) );
+        // do not dynamically branch every cycle for early-ray termination, so do n steps before checking alpha value
+        for ( int i = 0; i < 4; ++i )
+        {
+            // get current value, classify and illuminate
+            vec3 rayPoint = rayStart + ( currentDistance * v_ray );
+            vec4 src = localIllumination( rayPoint, transferFunction( texture3D( tex0, rayPoint ).r ) );
 
-        // go to next value
-        currentDistance += v_stepDistance;
+#ifdef OPACITYCORRECTION_ENABLED
+            // opacity correction
+            src.r = 1.0 - fastpow( 1.0 - src.r, v_relativeSampleDistance );
+            src.g = 1.0 - fastpow( 1.0 - src.g, v_relativeSampleDistance );
+            src.b = 1.0 - fastpow( 1.0 - src.b, v_relativeSampleDistance );
+            src.a = 1.0 - fastpow( 1.0 - src.a, v_relativeSampleDistance );
+#endif
 
-        // apply front-to-back compositing
-        dst = ( 1.0 - dst.a ) * src + dst;
+            // apply front-to-back compositing
+            dst = ( 1.0 - dst.a ) * src + dst;
 
+            // go to next value
+            currentDistance += v_sampleDistance;
+        }
+
+        // early ray-termination
         if ( dst.a >= 0.95 )
             break;
     }
@@ -200,9 +239,11 @@ void main()
     //    discard;
     // }
 
-    // set final color
+    // get depth ... currently the frag depth.
     float depth = gl_FragCoord.z;
+
+    // set final color
     gl_FragColor = dst;
-    gl_FragDepth = depth;                    // the depth of the last hit
+    gl_FragDepth = depth;
 }
 
