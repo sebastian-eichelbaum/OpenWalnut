@@ -324,6 +324,11 @@ void WMVectorOperator::moduleMain()
                 prog->finish();
                 m_progress->removeSubProgress( prog );
             }
+            else
+            {
+                debugLog() << "Resetting output.";
+                m_output->reset();
+            }
         }
     }
 }
