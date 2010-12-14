@@ -539,7 +539,10 @@ void WMClusterDisplayVoxels::createMesh()
         }
 
         boost::shared_ptr< WValueSet< float > >newValueSet = boost::shared_ptr< WValueSet< float > >(
-                                                                new WValueSet< float >( order, vDim, newVals, W_DT_FLOAT ) );
+            new WValueSet< float >( order,
+                                    vDim,
+                                    boost::shared_ptr< std::vector< float > >( new std::vector< float >( newVals ) ),
+                                    W_DT_FLOAT ) );
         WMarchingLegoAlgorithm mlAlgo;
         m_triMeshes.push_back( mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                             m_grid->getTransformationMatrix(),

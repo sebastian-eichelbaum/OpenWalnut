@@ -182,7 +182,7 @@ void WMDetTractClustering::update()
     if( !( m_dLtTableExists = dLtTableExists() ) )
     {
         debugLog() << "Consider old table as invalid.";
-        m_dLtTable.reset( new WMatrixSym( m_tracts->size() ) );
+        m_dLtTable.reset( new WMatrixSymDBL( m_tracts->size() ) );
     }
 
     cluster();
@@ -236,7 +236,7 @@ bool WMDetTractClustering::dLtTableExists()
             WReaderMatrixSymVTK r( dLtFileName );
             boost::shared_ptr< std::vector< double > > data( new std::vector< double >() );
             r.readTable( data );
-            m_dLtTable.reset( new WMatrixSym( static_cast< size_t >( data->back() ) ) );
+            m_dLtTable.reset( new WMatrixSymDBL( static_cast< size_t >( data->back() ) ) );
             m_lastTractsSize = static_cast< size_t >( data->back() );
 
             // remove the dimension from data array since it's not representing any distance
@@ -452,7 +452,7 @@ bool WMDetTractClustering::OutputIDBound::accept( boost::shared_ptr< WPropertyVa
 }
 
 WMDetTractClustering::SimilarityMatrixComputation::SimilarityMatrixComputation(
-        boost::shared_ptr< WMatrixSym > dLtTable,
+        boost::shared_ptr< WMatrixSymDBL > dLtTable,
         boost::shared_ptr< WDataSetFiberVector > tracts,
         double proxSquare,
         const WBoolFlag& shutdownFlag )

@@ -269,6 +269,7 @@ private:
     std::vector< osg::ref_ptr<osg::Uniform> > m_samplerUniforms;
 
     osg::ref_ptr<osg::Uniform> m_showCompleteUniform; //!< Determines whether the slice should be drawn completely
+    boost::shared_ptr< boost::function< void() > > m_changeRoiSignal; //!< Signal that can be used to update the manipulator
 };
 
 inline float WMOverlayAtlas::s2f( std::string s )

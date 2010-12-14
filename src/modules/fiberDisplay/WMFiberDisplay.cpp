@@ -251,7 +251,7 @@ void WMFiberDisplay::inputUpdated()
     m_dataset = m_fiberInput->getData();
 
     // ensure the data is valid (not NULL)
-    if ( !m_fiberInput->getData().get() ) // ok, the output has been reset, so we can ignore the "data change"
+    if ( !m_dataset ) // ok, the output has been reset, so we can ignore the "data change"
     {
         m_noData.set( true );
         debugLog() << "Data reset on " << m_fiberInput->getCanonicalName() << ". Ignoring.";
@@ -443,7 +443,10 @@ void WMFiberDisplay::updateCallback()
 {
     update();
 
-    m_fiberDrawable->setColor( m_dataset->getColorScheme()->getColor() );
+    if( m_dataset )
+    {
+        m_fiberDrawable->setColor( m_dataset->getColorScheme()->getColor() );
+    }
 
     if ( m_tubeThickness->changed() && m_useTubesProp->get() )
     {

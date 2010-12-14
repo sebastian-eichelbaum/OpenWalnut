@@ -113,7 +113,15 @@ public:
      *
      * \param notifier  the notifier function
      */
-    void addChangeNotifier( boost::function< void() > notifier );
+    void addROIChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
+
+    /**
+     * Remove a specified notifier from the list of default notifiers which get connected to each roi.
+     *
+     * \param notifier  the notifier function
+     */
+    void removeROIChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier );
+
 
 protected:
     /**
@@ -173,7 +181,8 @@ protected:
     /**
      * The notifiers connected to added rois by default.
      */
-    std::list< boost::function< void() > > m_changeNotifiers;
+    std::list< boost::shared_ptr< boost::function< void() > > > m_changeNotifiers;
+
 
     /**
      * Lock for associated notifiers set.

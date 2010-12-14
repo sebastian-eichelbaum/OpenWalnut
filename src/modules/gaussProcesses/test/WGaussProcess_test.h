@@ -125,7 +125,7 @@ public:
         WGaussProcess p1( 0, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
         WGaussProcess p2( 1, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
         double overlap = gauss::innerProduct( p1, p2 ) / ( std::sqrt( gauss::innerProduct( p1, p1 ) ) * std::sqrt( gauss::innerProduct( p2, p2 ) ) );
-        TS_ASSERT_DELTA( overlap, 0.511, 0.003 );
+        TS_ASSERT_DELTA( overlap, 0.5687, 0.003 );
     }
 
     /**
@@ -156,7 +156,7 @@ public:
         WGaussProcess p1( 0, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
         WGaussProcess p2( 1, fvDS->toWDataSetFibers(), m_emptyDTIDataSet );
         double overlap = gauss::innerProduct( p1, p2 ) / ( std::sqrt( gauss::innerProduct( p1, p1 ) ) * std::sqrt( gauss::innerProduct( p2, p2 ) ) );
-        TS_ASSERT_DELTA( overlap, 0.501, 0.003 );
+        TS_ASSERT_DELTA( overlap, 0.5065, 0.003 );
     }
 
 // TODO(math): This is just about to understand what the outcome of small tracts along long tracts in terms of gaussian process similarity is, and
@@ -195,7 +195,8 @@ protected:
     {
         WLogger::startup();
         float dataArray[6] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 }; // NOLINT array init list
-        std::vector< float > data( &dataArray[0], &dataArray[0] + sizeof( dataArray ) / sizeof( float ) );
+        boost::shared_ptr< std::vector< float > > data( new std::vector< float >( &dataArray[0],
+                    &dataArray[0] + sizeof( dataArray ) / sizeof( float ) ) );
         boost::shared_ptr< WValueSetBase > newValueSet( new WValueSet< float >( 1, 6, data, W_DT_FLOAT ) );
         boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
         m_emptyDTIDataSet = boost::shared_ptr< WDataSetDTI >(  new WDataSetDTI( newValueSet, newGrid ) );
@@ -208,8 +209,8 @@ protected:
         tract0.push_back( wmath::WPosition( 2.0, 2.0, 0.0 ) );
         tracts->push_back( tract0 );
         WFiber tract1;
-        tract1.push_back( wmath::WPosition( 2.0 + sqrt( 2.0 ) + 1.0, 2.0, 0.0 ) );
-        tract1.push_back( wmath::WPosition( 2.0 + sqrt( 2.0 ) + 2.0, 2.0, 0.0 ) );
+        tract1.push_back( wmath::WPosition( 2.0 + 2.0 * sqrt( 8.0 ), 2.0, 0.0 ) );
+        tract1.push_back( wmath::WPosition( 2.0 + 2.0 * sqrt( 8.0 ) + 1.0, 2.0, 0.0 ) );
         tracts->push_back( tract1 );
         boost::shared_ptr< WDataSetFiberVector > fvDS( new WDataSetFiberVector( tracts ) );
         m_tracts = fvDS->toWDataSetFibers();

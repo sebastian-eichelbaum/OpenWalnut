@@ -193,11 +193,17 @@ int WQt4Gui::run()
     t_GenericSignalHandlerType connectionClosedSignal = boost::bind( &WQt4Gui::slotConnectionClosed, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( CONNECTION_CLOSED, connectionClosedSignal );
 
-    boost::function< void( osg::ref_ptr< WROI > ) > assocRoiSignal =
-            boost::bind( &WQt4Gui::slotAddRoiToTree, this, _1 );
+    boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > assocRoiSignal;
+    assocRoiSignal =
+        boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > >(
+            new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQt4Gui::slotAddRoiToTree, this, _1 ) ) );
     m_kernel->getRoiManager()->addAddNotifier( assocRoiSignal );
-    boost::function< void( osg::ref_ptr< WROI > ) > removeRoiSignal =
-            boost::bind( &WQt4Gui::slotRemoveRoiFromTree, this, _1 );
+
+
+    boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > removeRoiSignal;
+    removeRoiSignal =
+        boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > >(
+            new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQt4Gui::slotRemoveRoiFromTree, this, _1 ) ) );
     m_kernel->getRoiManager()->addRemoveNotifier( removeRoiSignal );
 
     // now we are initialized

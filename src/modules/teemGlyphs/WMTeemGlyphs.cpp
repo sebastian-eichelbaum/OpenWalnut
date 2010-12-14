@@ -160,8 +160,7 @@ void WMTeemGlyphs::properties()
     m_sliceOrientations->addItem( "z", "z-slice" );
     m_sliceOrientationSelectionProp = m_properties->addProperty( "Slice orientation",
                                                              "Which slice will be shown?",
-                                                             m_sliceOrientations->getSelector( 1 ),
-                                                             m_recompute );
+                                                                 m_sliceOrientations->getSelector( 1 ), m_recompute );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_sliceOrientationSelectionProp );
 
     m_sliceIdProp = m_properties->addProperty( "Slice ID", "Number of the slice to display", 100, m_recompute );
@@ -230,7 +229,6 @@ void WMTeemGlyphs::moduleMain()
             m_moduleState.wait();
             continue;
         }
-        // std::cout << "FA: " << m_GFAThresholdProp->get( true ) << std::endl;
         if( m_input->getData().get() )
         {
             bool dataChanged = false;
@@ -267,22 +265,36 @@ void WMTeemGlyphs::moduleMain()
                 m_GFAThresholdProp->setMin( gfa->getMin() );
             }
 
-            renderSlice( m_sliceIdProp->get() );
+            renderSlice( m_sliceIdProp->get( true ) );
         }
 
-        m_moduleState.wait();
+        if( !( m_sliceIdProp->changed()
+               || m_sliceOrientationSelectionProp->changed()
+               || m_orderProp->changed()
+               || m_GFAThresholdProp->changed()
+               || m_glyphSizeProp->changed()
+               || m_subdivisionLevelProp->changed()
+               || m_moduloProp->changed()
+               || m_usePolarPlotProp->changed()
+               || m_useNormalizationProp->changed()
+                )
+            )
+        {
+            m_moduleState.wait();
+        }
     }
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
 }
 
 void  WMTeemGlyphs::renderSlice( size_t sliceId )
 {
+    debugLog() << "Rendering Slice " << sliceId;
     boost::shared_ptr< WProgress > progress;
     progress = boost::shared_ptr< WProgress >( new WProgress( "Glyph Generation", 2 ) );
     m_progress->addSubProgress( progress );
 
     size_t sliceType = m_sliceOrientationSelectionProp->get( true ).getItemIndexOfSelected( 0 );
-    size_t order = boost::lexical_cast< float >(  m_orders->getSelector( m_orderProp->get().getItemIndexOfSelected( 0 ) ) .at( 0 )->getName() );
+    size_t order = boost::lexical_cast< float >(  m_orders->getSelector( m_orderProp->get( true ).getItemIndexOfSelected( 0 ) ) .at( 0 )->getName() );
 
     // Please look here  http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
     if( m_moduleNode )
@@ -296,15 +308,15 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
     generator = boost::shared_ptr< GlyphGeneration >(
                   new GlyphGeneration( boost::shared_dynamic_cast< WDataSetSphericalHarmonics >( m_input->getData() ),
                                        boost::shared_dynamic_cast< WDataSetScalar >( m_inputGFA->getData() ),
-                                       m_GFAThresholdProp->get(),
+                                       m_GFAThresholdProp->get( true ),
                                        sliceId,
                                        order,
-                                       m_subdivisionLevelProp->get(),
-                                       m_moduloProp->get(),
+                                       m_subdivisionLevelProp->get( true ),
+                                       m_moduloProp->get( true ),
                                        sliceType,
-                                       m_usePolarPlotProp->get(),
-                                       m_glyphSizeProp->get(),
-                                       m_useNormalizationProp->get() ) );
+                                       m_usePolarPlotProp->get( true ),
+                                       m_glyphSizeProp->get( true ),
+                                       m_useNormalizationProp->get( true ) ) );
     WThreadedFunction< GlyphGeneration > generatorThreaded( W_AUTOMATIC_NB_THREADS, generator );
     generatorThreaded.run();
     generatorThreaded.wait();
@@ -435,7 +447,7 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
             m_nB = m_nY;
             break;
     }
-    size_t nbGlyphs = ( m_nA * m_nB ) / ( m_modulo * m_modulo );
+    size_t nbGlyphs = ( ( m_nA + ( m_modulo - 1 ) ) / m_modulo ) * ( ( m_nB + ( m_modulo - 1 ) ) / m_modulo );
 
     const unsigned int level = m_subdivisionLevel; // subdivision level of sphere
     unsigned int infoBitFlag = ( 1 << limnPolyDataInfoNorm ) | ( 1 << limnPolyDataInfoRGBA );
@@ -499,33 +511,29 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
     float* esh = new float[type->num];
 
 
-    //******************************************
-    // Please take care when changing something between here and the following mark.
-    // Sizes and upper bound are carefully adjusted to avoid segfault with modulo
-    // and to avoid unwanted gaps if computing with many threads.
-    size_t chunkSize = m_nA / numThreads;
+    size_t chunkSize = m_nA / ( numThreads - 1 );
     size_t first = id * chunkSize;
-    size_t last = ( id + 1 ) * chunkSize - 1;
+
+    size_t lastPlusOne = ( id + 1 ) * chunkSize;
+
     if( id == numThreads - 1 )
     {
-        last = m_nA - 2;
+        lastPlusOne = m_nA;
     }
 
     std::stringstream ss;
-    ss << id << "/" << numThreads <<" (" << first << " ... " << last << ")[" << chunkSize << "/" << m_nA << "]" << std::endl;
+    ss << id << "/" << numThreads <<" (" << first << " ... " << lastPlusOne - 1 << ")[" << chunkSize << "/" << m_nA << "]" << std::endl;
     WLogger::getLogger()->addLogMessage( ss.str(), "______", LL_DEBUG );
 
-    for( size_t aId = first; aId <= last; ++aId )
+    for( size_t aId = first; aId < lastPlusOne; ++aId )
     {
         for( size_t bId = 0; bId < m_nB; ++bId )
         {
-            // Please take care  when changing something between here and the above mark.
-            //******************************************
-            if( !( ( aId % m_modulo == 0) && ( bId % m_modulo == 0 ) ) )
+            if( ( aId % m_modulo != 0) || ( bId % m_modulo != 0 ) )
             {
                 continue;
             }
-            size_t glyphId = ( aId / m_modulo ) * ( m_nB / m_modulo ) + ( bId / m_modulo );
+            size_t glyphId = ( aId / m_modulo ) * ( ( m_nB + ( m_modulo - 1 ) ) / m_modulo ) + ( bId / m_modulo );
 
             size_t vertsUpToCurrentIteration = glyphId * nbVerts;
             size_t idsUpToCurrentIteration = glyphId * m_sphere->indxNum;
@@ -619,12 +627,10 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             }
             else
             {
-                // std::cout<< radius << " " << m_scale << std::endl;
                 if( radius != 0 )
                 {
                     scale = m_scale / radius;
                 }
-                // std::cout<< m_scale << std::endl<< std::endl;
             }
             estimateNormalsAntipodal( glyph, normalize );
 

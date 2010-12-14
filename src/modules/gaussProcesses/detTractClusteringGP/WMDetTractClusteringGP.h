@@ -142,6 +142,8 @@ protected:
      */
     boost::shared_ptr< WDendrogram > computeDendrogram( boost::shared_ptr< const WMDetTractClusteringGP::MST > edges ) const;
 
+    boost::shared_ptr< WDendrogram > computeDendrogram2( size_t n, size_t fib1, size_t fib2, double similarity );
+
     /**
      * Input Connector for the gaussian processes which are about to be clustered.
      */
@@ -156,7 +158,7 @@ protected:
     /**
      * Distant matrix of all pairs of gaussian processes.
      */
-    WMatrixSym m_similarities;
+    WMatrixSymDBL m_similarities;
 
 private:
 };

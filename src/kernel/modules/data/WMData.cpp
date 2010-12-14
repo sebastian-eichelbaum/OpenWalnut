@@ -273,10 +273,9 @@ void WMData::moduleMain()
             WAssert( suffix == ".nii", "Currently only nii files may be gzipped." );
         }
 
-        m_isTexture = true;
-
         WReaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
+        m_isTexture = m_dataSet->isTexture();
 
         if( !boost::shared_dynamic_cast< WDataSetTimeSeries >( m_dataSet ) )
         {

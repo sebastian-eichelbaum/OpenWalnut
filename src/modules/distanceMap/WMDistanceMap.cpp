@@ -147,10 +147,10 @@ template< typename T > boost::shared_ptr< WValueSet< float > > makeFloatValueSet
     WAssert( inSet->dimension() == 1, "Works only for scalar data." );
     WAssert( inSet->order() == 0, "Works only for scalar data." );
 
-    std::vector< float > data( inSet->size() );
+    boost::shared_ptr< std::vector< float > > data = boost::shared_ptr< std::vector< float > >( new std::vector< float >( inSet->size() ) );
     for( unsigned int i = 0; i < inSet->size(); ++i )
     {
-        data[i] = static_cast< float >( inSet->getScalar( i ) );
+        ( *data )[i] = static_cast< float >( inSet->getScalar( i ) );
     }
 
     boost::shared_ptr< WValueSet< float > > outSet;
@@ -483,7 +483,8 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     floatDataset = tmp;
     boost::shared_ptr< WValueSet< float > > resultValueSet;
     resultValueSet = boost::shared_ptr< WValueSet< float > >(
-        new WValueSet< float >( valueSet->order(), valueSet->dimension(), floatDataset, W_DT_FLOAT ) );
+        new WValueSet< float >( valueSet->order(), valueSet->dimension(),
+                                boost::shared_ptr< std::vector< float > >( new std::vector< float >( floatDataset ) ), W_DT_FLOAT ) );
 
     progress1->finish();
 

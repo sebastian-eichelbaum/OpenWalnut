@@ -183,10 +183,10 @@ void WMDataTypeConversion::properties()
 
 template< typename T > void WMDataTypeConversion::convertDataSet( boost::shared_ptr< WValueSet< T > > vals )
 {
-    std::vector< float > newVals( vals->size() );
-    for( size_t i = 0; i < newVals.size(); ++i )
+    boost::shared_ptr< std::vector< float > > newVals = boost::shared_ptr< std::vector< float > >( new std::vector< float >( vals->size() ) );
+    for( size_t i = 0; i < newVals->size(); ++i )
     {
-        newVals[i] = static_cast< float >( vals->getScalar( i ) );
+        ( *newVals )[i] = static_cast< float >( vals->getScalar( i ) );
     }
 
     boost::shared_ptr< WValueSet< float > > valueSet;

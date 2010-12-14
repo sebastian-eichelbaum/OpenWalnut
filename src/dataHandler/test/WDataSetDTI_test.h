@@ -54,7 +54,9 @@ public:
     void testInstanziation( void )
     {
         float dataArray[6] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 }; // NOLINT array init list
-        std::vector< float > data( &dataArray[0], &dataArray[0] + sizeof( dataArray ) / sizeof( float ) );
+        boost::shared_ptr< std::vector< float > > data =
+            boost::shared_ptr< std::vector< float > >(
+                new  std::vector< float >( &dataArray[0], &dataArray[0] + sizeof( dataArray ) / sizeof( float ) ) );
         boost::shared_ptr< WValueSetBase > newValueSet( new WValueSet< float >( 1, 6, data, W_DT_FLOAT ) );
         boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
         TS_ASSERT_THROWS_NOTHING( WDataSetDTI( newValueSet, newGrid ) );
@@ -67,7 +69,9 @@ public:
     void testTensorAccess( void )
     {
         float dataArray[6] = { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 }; // NOLINT array init list
-        std::vector< float > data( &dataArray[0], &dataArray[0] + sizeof( dataArray ) / sizeof( float ) );
+        boost::shared_ptr< std::vector< float > > data =
+            boost::shared_ptr< std::vector< float > >(
+                new std::vector< float >( &dataArray[0], &dataArray[0] + sizeof( dataArray ) / sizeof( float ) ) );
         boost::shared_ptr< WValueSetBase > newValueSet( new WValueSet< float >( 1, 6, data, W_DT_FLOAT ) );
         boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
         WDataSetDTI dataset( newValueSet, newGrid );
