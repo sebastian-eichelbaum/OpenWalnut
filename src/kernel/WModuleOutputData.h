@@ -124,6 +124,14 @@ public:
     };
 
     /**
+     * Resets the data on this output. It actually sets NULL and triggers an update.
+     */
+    virtual void reset()
+    {
+        updateData( boost::shared_ptr< T >() );
+    }
+
+    /**
      * This method simply propagates an update but does not actually change the data.
      */
     virtual void triggerUpdate()

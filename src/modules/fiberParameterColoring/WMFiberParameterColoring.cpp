@@ -153,7 +153,16 @@ void WMFiberParameterColoring::moduleMain()
         boost::shared_ptr< WDataSetFibers > dataSet = m_fiberInput->getData();
         bool dataValid = ( dataSet );
         bool propUpdated = m_baseColor->changed() || m_scaleColor->changed();
-        if ( !dataValid || ( dataValid && !( dataUpdated || propUpdated ) ) )
+
+        // reset everything if input was disconnected/invalid
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting output.";
+            m_fiberOutput->reset();
+            continue;
+        }
+
+        if ( dataValid && !( dataUpdated || propUpdated ) )
         {
             continue;
         }

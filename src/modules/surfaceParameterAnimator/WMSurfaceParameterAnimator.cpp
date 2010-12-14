@@ -245,6 +245,19 @@ void WMSurfaceParameterAnimator::moduleMain()
         bool dataChanged = ( m_dataSet != newDataSet ) || ( m_tracesDataSet != newTracesDataSet );
         bool dataValid =   ( newDataSet && newTracesDataSet );
 
+        // valid data available?
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting.";
+
+            // reset internal refs to data
+            m_dataSet.reset();
+            m_tracesDataSet.reset();
+
+            // remove renderings
+            m_rootNode->clear();
+        }
+
         // As the data has changed, we need to recreate the texture.
         if ( dataChanged && dataValid )
         {

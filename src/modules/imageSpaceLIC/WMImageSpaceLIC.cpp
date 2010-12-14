@@ -297,7 +297,6 @@ void WMImageSpaceLIC::moduleMain()
     osg::ref_ptr< WGEOffscreenRenderNode > offscreen = new WGEOffscreenRenderNode(
         WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
     );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
 
     // allow en-/disabling the HUD:
     offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
@@ -391,10 +390,23 @@ void WMImageSpaceLIC::moduleMain()
         boost::shared_ptr< WTriangleMesh > mesh = m_meshIn->getData();
 
         bool dataValid = ( dataSetVec || dataSetScal );
-        if ( !dataValid || ( dataValid && !dataUpdated && !propertyUpdated ) )
+
+        // is data valid? If not, remove graphics
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting.";
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( offscreen );
+            continue;
+        }
+
+        // something interesting for us?
+        if ( dataValid && !dataUpdated && !propertyUpdated )
         {
             continue;
         }
+
+        // maybe it was removed earlier
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
 
         // prefer vector dataset if existing
         if ( dataSetVec )
