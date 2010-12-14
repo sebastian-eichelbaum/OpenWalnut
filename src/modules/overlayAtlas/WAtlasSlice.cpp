@@ -64,7 +64,7 @@ bool WAtlasSlice::loadImage()
 
     if ( !m_image )
     {
-        std::cout << "could't find image" << std::endl;
+        WLogger::getLogger()->addLogMessage( "Could't find image", "WAtlasSlice", LL_ERROR );
         return false;
     }
     return true;

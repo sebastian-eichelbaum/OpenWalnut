@@ -99,8 +99,9 @@ public:
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WModuleInputData( boost::shared_ptr< WModule > module, std::string name = "", std::string description = "" )
-        :WModuleInputConnector( module, name, description )
+    WModuleInputData( boost::shared_ptr< WModule > module, std::string name = "", std::string description = "" ):
+        WModuleInputConnector( module, name, description ),
+        m_disconnecting( false )
     {
     };
 
@@ -110,6 +111,14 @@ public:
     virtual ~WModuleInputData()
     {
     };
+
+    /**
+     * Disconnects this connector if connected. If it is not connected: nothing happens.
+     *
+     * \param con the connector to disconnect.
+     * \param removeFromOwnList if true the specified connection is also removed from the own connection list. If false it won't.
+     */
+    virtual void disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList = true );
 
     /**
      * Gives the currently set data.
@@ -124,7 +133,7 @@ public:
         handledUpdate();
 
         // is there something in the list?
-        if ( m_connected.begin() == m_connected.end() )
+        if ( m_disconnecting || m_connected.empty() )
         {
             lock.unlock();
             return boost::shared_ptr< T >();
@@ -170,7 +179,19 @@ public:
 protected:
 
 private:
+
+    /**
+     * If true, the returned data will be NULL. Needed because disconnection process is based on multiple steps.
+     */
+    bool m_disconnecting;
 };
+
+template < typename T >
+void WModuleInputData< T >::disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList )
+{
+    m_disconnecting = true;
+    WModuleInputConnector::disconnect( con, removeFromOwnList );
+}
 
 template < typename T >
 typename WModuleInputData< T >::PtrType WModuleInputData< T >::create( boost::shared_ptr< WModule > module, std::string name,

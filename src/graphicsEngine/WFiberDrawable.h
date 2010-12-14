@@ -90,13 +90,6 @@ public:
     virtual void drawImplementation( osg::RenderInfo& renderInfo ) const; //NOLINT
 
     /**
-     * sets the dataset pointer which provides access to the necessary array
-     *
-     * \param dataset
-     */
-    void setDataset( boost::shared_ptr< const WDataSetFibers > dataset );
-
-    /**
      * toggles drawing of tubes
      *
      * \param flag
@@ -158,8 +151,6 @@ private:
      * Draw fibers as fake tubes.
      */
     void drawTubes() const;
-
-    boost::shared_ptr< const WDataSetFibers > m_dataset; //!< stores pointer to dataset
 
     boost::shared_mutex m_recalcLock; //!< lock
 

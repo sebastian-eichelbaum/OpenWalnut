@@ -141,6 +141,8 @@ private:
 
     std::vector<float> m_boxMin; //!< lower boundary of the box, used for boxtest
     std::vector<float> m_boxMax; //!< upper boundary of the box, used for boxtest
+
+    boost::shared_ptr< boost::function< void() > > m_changeRoiSignal; //!< Signal that can be used to update the selector ROI
 };
 
 inline boost::shared_ptr< std::vector<bool> > WSelectorRoi::getBitField()

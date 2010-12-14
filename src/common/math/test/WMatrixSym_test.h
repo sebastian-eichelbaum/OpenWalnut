@@ -34,7 +34,7 @@
 #include "../WMatrixSym.h"
 
 /**
- * Unit test this LookUp table class
+ * Unit test this LookUp table class. All test performed on matrices with double as element type.
  */
 class WMatrixSymTest : public CxxTest::TestSuite
 {
@@ -44,7 +44,7 @@ public:
      */
     void testOperatorOn3x3Matrix( void )
     {
-        WMatrixSym t( 3 );
+        WMatrixSymDBL t( 3 );
         TS_ASSERT_EQUALS( t.m_data.size(), 3 );
     }
 
@@ -54,7 +54,7 @@ public:
      */
     void testAccessOn3x3Matrix( void )
     {
-        WMatrixSym t( 3 );
+        WMatrixSymDBL t( 3 );
         double mydata[] = { 1.6, 0.2, 7.7 }; // NOLINT
         std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
         t.setData( data );
@@ -69,7 +69,7 @@ public:
      */
     void testSetDataWithInvalidLengthForDimension( void )
     {
-        WMatrixSym t( 4 );
+        WMatrixSymDBL t( 4 );
         double mydata[] = { 1.6, 0.2, 7.7 }; // NOLINT
         std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
         TS_ASSERT_THROWS_EQUALS( t.setData( data ), WOutOfBounds &e, std::string( e.what() ), "Data vector length: 3 doesn't fit to number of rows and cols: 4" ); // NOLINT line length
@@ -80,7 +80,7 @@ public:
      */
     void testInvalidAccessOnMainDiagonal( void )
     {
-        WMatrixSym t( 4 );
+        WMatrixSymDBL t( 4 );
         double mydata[] = { 1.6, 0.2, 7.7 }; // NOLINT
         std::vector< double > data( mydata, mydata + sizeof( mydata ) / sizeof( double ) );
         TS_ASSERT_THROWS_EQUALS( t( 0, 0 ), WOutOfBounds &e, std::string( e.what() ),

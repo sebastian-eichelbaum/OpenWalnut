@@ -107,6 +107,7 @@ void WMWriteTracts::moduleMain()
             {
                 w.writeFibs( m_tractIC->getData() );
             }
+            m_run->set( WPVBaseTypes::PV_TRIGGER_READY, false );
         }
     }
 }
