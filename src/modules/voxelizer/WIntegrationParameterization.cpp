@@ -39,7 +39,11 @@ WIntegrationParameterization::~WIntegrationParameterization()
 
 boost::shared_ptr< WDataSetScalar > WIntegrationParameterization::getDataSet()
 {
-    boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, m_lengthValues, W_DT_DOUBLE ) );
+    boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0,
+                                                                                1,
+                                                                                boost::shared_ptr< std::vector< double > >(
+                                                                                    new std::vector< double >( m_lengthValues ) ),
+                                                                                W_DT_DOUBLE ) );
     return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( valueSet, m_grid ) );
 }
 

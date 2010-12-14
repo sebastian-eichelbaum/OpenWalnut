@@ -73,7 +73,7 @@ private:
      * \param countVoxels number of voxels stored in dataArray
      * \param vDim number of values per voxel
      */
-    template < typename T > std::vector< T > copyArray( const T* dataArray, const size_t countVoxels, const size_t vDim );
+    template < typename T > boost::shared_ptr< std::vector< T > > copyArray( const T* dataArray, const size_t countVoxels, const size_t vDim );
 
     /**
      * This function converts a 4x4 matrix from the NIfTI libs into the format

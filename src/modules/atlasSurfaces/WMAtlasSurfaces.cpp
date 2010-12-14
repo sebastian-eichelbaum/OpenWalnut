@@ -385,13 +385,13 @@ void WMAtlasSurfaces::cutArea( int index )
     boost::shared_ptr< WValueSet< unsigned char > > vals;
     vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
 
-    std::vector< float >newVals( grid->size(), 0 );
+    boost::shared_ptr< std::vector< float > > newVals = boost::shared_ptr< std::vector< float > >( new std::vector< float >( grid->size(), 0 ) );
 
-    for ( size_t i = 0; i < newVals.size(); ++i )
+    for ( size_t i = 0; i < newVals->size(); ++i )
     {
          if ( static_cast<int>( vals->getScalar( i ) ) == index )
          {
-             newVals[ i ] = 1.0;
+             ( *newVals )[i] = 1.0;
          }
     }
 
