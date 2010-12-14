@@ -168,6 +168,13 @@ void WMIsosurfaceRaytracer::moduleMain()
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
         bool dataValid   = ( dataSet );
 
+        // valid data available?
+        if ( !dataValid )
+        {
+            // remove renderings if no data is available anymore
+            rootNode->clear();
+        }
+
         // m_isoColor or shading changed
         if ( m_isoColor->changed() || m_shadingAlgo->changed() )
         {
