@@ -33,7 +33,7 @@
 /**
  * A very simple threshold segmentation. voxel that have a value smaller than
  * the threshold are set to 0, while the rest of the voxels are set to 100.
- * 
+ *
  * \class WSegmentationAlgoThreshold
  */
 class WSegmentationAlgoThreshold : public WSegmentationAlgo
@@ -98,10 +98,10 @@ WSegmentationAlgo::DataSetPtr WSegmentationAlgoThreshold::operator() ( WValueSet
 {
     double thres = m_threshold->get( true );
 
-    std::vector< T > values( valueset->size() );
+    boost::shared_ptr< std::vector< T > > values = boost::shared_ptr< std::vector< T > >( new std::vector< T >( valueset->size() ) );
     for( std::size_t k = 0; k < valueset->size(); ++k )
     {
-        values[ k ] = ( static_cast< double >( valueset->getScalar( k ) ) <
+        ( *values )[k] = ( static_cast< double >( valueset->getScalar( k ) ) <
                         thres * ( valueset->getMaximumValue() - valueset->getMinimumValue() ) / 100.0 + valueset->getMinimumValue()
                         ? static_cast< T >( 0 ) : static_cast< T >( 100 ) );
     }

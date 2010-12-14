@@ -109,7 +109,7 @@ std::string WDendrogram::toTXTString() const
         std::set_union( childsOfInnerNodes[ m_parents.at( i ) ].begin(), childsOfInnerNodes[ m_parents.at( i ) ].end(),
                 childsOfInnerNodes[ i ].begin(), childsOfInnerNodes[ i ].end(), std::inserter( join, join.begin() ) );
         childsOfInnerNodes[ m_parents.at( i ) ] = join;
-        ss << "(" << level.at(i) << ", (";
+        ss << "(" << level.at( i ) << ", (";
         size_t numElements = childsOfInnerNodes[i].size();
         for( std::set< size_t >::const_iterator cit = childsOfInnerNodes[i].begin(); cit != childsOfInnerNodes[i].end(); ++cit )
         {

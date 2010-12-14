@@ -252,7 +252,11 @@ public:
         }
 
         // create result value set
-        return boost::shared_ptr< WValueSet< T > >( new WValueSet< T >( 0, 1, data, DataType< T >::type ) );
+        return boost::shared_ptr< WValueSet< T > >( new WValueSet< T >( 0,
+                                                                        1,
+                                                                        boost::shared_ptr< std::vector< T > >(
+                                                                            new std::vector< T >( data ) ),
+                                                                        DataType< T >::type ) );
     }
 
     /**

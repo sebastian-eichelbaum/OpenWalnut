@@ -338,7 +338,10 @@ public:
 
         // create result value set
         boost::shared_ptr< WValueSet< ResultT > > result = boost::shared_ptr< WValueSet< ResultT > >(
-            new WValueSet< ResultT >( order, dim, data, type )
+            new WValueSet< ResultT >( order,
+                                      dim,
+                                      boost::shared_ptr< std::vector< ResultT > >( new std::vector< ResultT >( data ) ),
+                                      type )
         );
         return result;
     }
@@ -461,7 +464,10 @@ public:
 
         // create result value set
         boost::shared_ptr< WValueSet< ResultT > > result = boost::shared_ptr< WValueSet< ResultT > >(
-            new WValueSet< ResultT >( order, dim, data, type )
+            new WValueSet< ResultT >( order,
+                                      dim,
+                                      boost::shared_ptr< std::vector< ResultT > >( new std::vector< ResultT >( data ) ),
+                                      type )
         );
         return result;
     }

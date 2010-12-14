@@ -225,12 +225,16 @@ boost::shared_ptr< WValueSet< double > > WMGaussFiltering::iterativeFilterField(
 
     // iterate filter, apply at least once
     boost::shared_ptr< WValueSet< double > > valueSet = boost::shared_ptr< WValueSet< double > >(
-        new WValueSet<double> ( vals->order(), vals->dimension(), filterField( vals, grid, prog ), W_DT_DOUBLE )
+        new WValueSet<double> ( vals->order(), vals->dimension(),
+        boost::shared_ptr< std::vector< double > >( new std::vector< double >( filterField( vals, grid, prog ) ) ),
+        W_DT_DOUBLE )
     );
     for( unsigned int i = 1; i < iterations; ++i )    // this only runs if iter > 1
     {
         valueSet = boost::shared_ptr< WValueSet< double > >(
-            new WValueSet<double> ( valueSet->order(), valueSet->dimension(), filterField( valueSet, grid, prog ), W_DT_DOUBLE )
+            new WValueSet<double> ( valueSet->order(), valueSet->dimension(),
+            boost::shared_ptr< std::vector< double > >( new std::vector< double >( filterField( valueSet, grid, prog ) ) ),
+            W_DT_DOUBLE )
         );
     }
 
