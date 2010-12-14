@@ -87,14 +87,21 @@ void WMDistanceMap::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
+        debugLog() << "Waiting ...";
+        m_moduleState.wait();
+
+        // woke up since the module is requested to finish?
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
         // acquire data from the input connector
         m_dataSet = m_input->getData();
-        if ( !m_dataSet.get() )
+        if ( !m_dataSet )
         {
-            // OK, the output has not yet sent data
-            // NOTE: see comment at the end of this while loop for m_moduleState
-            debugLog() << "Waiting for data ...";
-            m_moduleState.wait();
+            debugLog() << "Resetting output.";
+            m_output->reset();
             continue;
         }
 
@@ -107,9 +114,6 @@ void WMDistanceMap::moduleMain()
 
         // update the output
         m_output->updateData( m_distanceMapDataSet );
-
-        // wait for new data change event or quit event
-        m_moduleState.wait();
     }
 }
 
