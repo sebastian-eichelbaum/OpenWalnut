@@ -304,11 +304,6 @@ private slots:
     void changeTreeItem();
 
     /**
-     * function gets called when a change to a tree item, eg. check box status, occurs
-     */
-    void changeRoiTreeItem();
-
-    /**
      * delete a ROI tree item
      */
     void deleteROITreeItem();
