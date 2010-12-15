@@ -614,15 +614,15 @@ void WQtControlPanel::selectTreeItem()
         return;
     }
 
-    // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
-    m_tabWidget->clear();
-
     boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties > props;
     boost::shared_ptr< WProperties > infoProps;
 
     if ( m_moduleTreeWidget->selectedItems().size() != 0  )
     {
+        // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
+        m_tabWidget->clear();
+
         // disable delete action for tree items that have children.
         if( m_moduleTreeWidget->selectedItems().at( 0 )->childCount() != 0 )
         {
