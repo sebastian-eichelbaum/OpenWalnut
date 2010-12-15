@@ -81,6 +81,9 @@ void WProgressCombiner::update()
 
 std::string WProgressCombiner::getCombinedNames() const
 {
+    // read lock combiner
+    boost::shared_lock< boost::shared_mutex > rlock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
+
     std::stringstream ss;
     ss << "[";
     for ( std::set< boost::shared_ptr< WProgress > >::iterator i = m_children.begin(); i != m_children.end(); ++i )
@@ -95,6 +98,8 @@ std::string WProgressCombiner::getCombinedNames() const
     }
     ss << "]";
 
+    // Done. Free lock.
+    rlock.unlock();
     return ss.str();
 }
 

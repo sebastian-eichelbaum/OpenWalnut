@@ -128,7 +128,7 @@ protected:
     /**
      * Lock for the above child set and the internal state update.
      */
-    boost::shared_mutex m_updateLock;
+    mutable boost::shared_mutex m_updateLock;
 
 private:
 };
