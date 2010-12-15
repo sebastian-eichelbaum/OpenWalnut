@@ -61,7 +61,7 @@ public:
 protected:
 
 private:
-    WMainWindow* m_parent;
+    WMainWindow* m_parent; //!< The widget managing this widget.
 };
 
 #endif  // WQTCOMBINERTOOLBAR_H
