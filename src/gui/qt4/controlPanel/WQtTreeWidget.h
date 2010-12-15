@@ -58,9 +58,6 @@ public:
      */
     virtual void dropEvent( QDropEvent *event );
 
-public slots:
-    //void keyPressEvent(QKeyEvent *e);
-
 protected:
 private:
 
