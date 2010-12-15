@@ -190,9 +190,8 @@ protected:
      *
      * \param module pointer to the currently selected module
      *
-     * \return the new toolbar instance
      */
-    WQtCombinerToolbar* createCompatibleButtons( boost::shared_ptr< WModule >module );
+    void createCompatibleButtons( boost::shared_ptr< WModule > module );
 
     /**
      * Reference to the main window of the application.

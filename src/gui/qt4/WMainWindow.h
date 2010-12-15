@@ -162,6 +162,13 @@ public:
      */
     void setCompatiblesToolbar( WQtCombinerToolbar* toolbar = NULL );
 
+    /**
+     * This method returns the a pointer to the current compatibles toolbar.
+     *
+     * \return a pointer to the current compatibles toolbar.
+     */
+    WQtCombinerToolbar* getCompatiblesToolbar();
+
 protected:
 
     /**

@@ -39,7 +39,8 @@
 #include "WQtCombinerToolbar.h"
 
 WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCompatiblesList compatibles )
-    : QToolBar( "Compatible Modules", parent )
+    : QToolBar( "Compatible Modules", parent ),
+      m_parent( parent )
 {
     // setup toolbar
     setAllowedAreas( Qt::AllToolBarAreas );
@@ -80,3 +81,9 @@ WQtCombinerToolbar::~WQtCombinerToolbar()
 {
 }
 
+void WQtCombinerToolbar::updateButtons( WCombinerTypes::WCompatiblesList compatibles )
+{
+    clear();
+    // create the list of actions possible
+    addActions( WQtCombinerActionList( this, m_parent->getIconManager(), compatibles ) );
+}

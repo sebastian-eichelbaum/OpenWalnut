@@ -622,8 +622,6 @@ void WQtControlPanel::selectTreeItem()
     boost::shared_ptr< WProperties > props;
     boost::shared_ptr< WProperties > infoProps;
 
-    WQtCombinerToolbar* newToolbar = NULL;
-
     if ( m_moduleTreeWidget->selectedItems().size() != 0  )
     {
         // disable delete action for tree items that have children.
@@ -642,7 +640,7 @@ void WQtControlPanel::selectTreeItem()
             case MODULEHEADER:
                 // deletion of headers and subjects is not allowed
                 m_deleteModuleAction->setEnabled( false );
-                newToolbar = createCompatibleButtons( module );  // module is NULL at this point
+                createCompatibleButtons( module );  // module is NULL at this point
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
@@ -654,7 +652,7 @@ void WQtControlPanel::selectTreeItem()
 
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
-                newToolbar = createCompatibleButtons( module );
+                createCompatibleButtons( module );
 
                 {
                     boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
@@ -693,7 +691,7 @@ void WQtControlPanel::selectTreeItem()
                     }
                     props = module->getProperties();
                     infoProps = module->getInformationProperties();
-                    newToolbar = createCompatibleButtons( module );
+                    createCompatibleButtons( module );
                 }
                 break;
             case ROIHEADER:
@@ -705,9 +703,6 @@ void WQtControlPanel::selectTreeItem()
         }
     }
 
-    // set the new toolbar
-    // NOTE: setCompatiblesToolbar removes the toolbar if NULL is specified.
-    m_mainWindow->setCompatiblesToolbar( newToolbar );
 
     buildPropTab( props, infoProps );
 }
@@ -861,7 +856,7 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     }
 }
 
-WQtCombinerToolbar* WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule >module )
+void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > module )
 {
     // every module may have compatibles: create ribbon menu entry
     // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
@@ -894,7 +889,14 @@ WQtCombinerToolbar* WQtControlPanel::createCompatibleButtons( boost::shared_ptr<
     delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
     m_disconnectAction->setMenu( m );
 
-    return new WQtCombinerToolbar( m_mainWindow, comps );
+    if( m_mainWindow->getCompatiblesToolbar() != 0 )
+    {
+        m_mainWindow->getCompatiblesToolbar()->updateButtons( comps );
+    }
+    else
+    {
+        m_mainWindow->setCompatiblesToolbar( new WQtCombinerToolbar( m_mainWindow, comps ) );
+    }
 }
 
 void WQtControlPanel::changeTreeItem()

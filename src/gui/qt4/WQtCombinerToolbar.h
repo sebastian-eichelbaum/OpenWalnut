@@ -51,9 +51,17 @@ public:
      */
     virtual ~WQtCombinerToolbar();
 
+    /**
+     * Update the toolbar to represent the compatibles given as parameter.
+     *
+     * \param compatibles The compatibles to produce the buttons for.
+     */
+    void updateButtons( WCombinerTypes::WCompatiblesList compatibles );
+
 protected:
 
 private:
+    WMainWindow* m_parent;
 };
 
 #endif  // WQTCOMBINERTOOLBAR_H
