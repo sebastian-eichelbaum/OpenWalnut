@@ -711,7 +711,19 @@ void WQtControlPanel::selectRoiTreeItem()
 {
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
-    m_mainWindow->setCompatiblesToolbar();
+
+    // Make compatibles toolbar empty
+    {
+        if( m_mainWindow->getCompatiblesToolbar() != 0 )
+        {
+            m_mainWindow->getCompatiblesToolbar()->makeEmpty();
+        }
+        else
+        {
+            WCombinerTypes::WCompatiblesList comps;
+            m_mainWindow->setCompatiblesToolbar( new WQtCombinerToolbar( m_mainWindow, comps ) );
+        }
+    }
 
     boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties > props;
