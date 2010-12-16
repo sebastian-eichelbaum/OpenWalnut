@@ -54,6 +54,7 @@
 
 // forward declarations
 class QMenuBar;
+class WQtPropertyBoolAction;
 
 /**
  * This class contains the main window and the layout of the widgets within the window.
@@ -177,6 +178,12 @@ protected:
      * \param module the module to setup the GUI for.
      */
     void moduleSpecificSetup( boost::shared_ptr< WModule > module );
+    /**
+     * Cleanup the GUI by handling special modules. NavSlices for example remove several toolbar buttons.
+     *
+     * \param module the module to setup the GUI for.
+     */
+    void moduleSpecificCleanup( boost::shared_ptr< WModule > module );
 
     /**
      * We want to react on close events.
@@ -353,6 +360,12 @@ private:
      * \param proto the prototype to combine with the module.
      */
     void autoAdd( boost::shared_ptr< WModule > module, std::string proto );
+
+    /**
+     * Map holding the actions for module properties added automatically. So they can be removed again automatically
+     * if the module is removed.
+     */
+    std::map< boost::shared_ptr< WPropertyBase >, WQtPropertyBoolAction* > propertyActionMap;
 };
 
 #endif  // WMAINWINDOW_H
