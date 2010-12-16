@@ -190,9 +190,8 @@ protected:
      *
      * \param module pointer to the currently selected module
      *
-     * \return the new toolbar instance
      */
-    WQtCombinerToolbar* createCompatibleButtons( boost::shared_ptr< WModule >module );
+    void createCompatibleButtons( boost::shared_ptr< WModule > module );
 
     /**
      * Reference to the main window of the application.
@@ -309,11 +308,6 @@ private slots:
      * \param column column index
      */
     void changeTreeItem( QTreeWidgetItem* item, int column );
-
-    /**
-     * function gets called when a change to a tree item, eg. check box status, occurs
-     */
-    void changeRoiTreeItem();
 
     /**
      * delete a ROI tree item

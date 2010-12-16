@@ -180,7 +180,6 @@ void WQtControlPanel::connectSlots()
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem( QTreeWidgetItem*, int ) ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem() ) );
-    connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
     connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleDragDrop() ) );
 }
@@ -608,17 +607,15 @@ void WQtControlPanel::selectTreeItem()
         return;
     }
 
-    // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
-    m_tabWidget->clear();
-
     boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties > props;
     boost::shared_ptr< WProperties > infoProps;
 
-    WQtCombinerToolbar* newToolbar = NULL;
-
     if ( m_moduleTreeWidget->selectedItems().size() != 0  )
     {
+        // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
+        m_tabWidget->clear();
+
         // disable delete action for tree items that have children.
         if( m_moduleTreeWidget->selectedItems().at( 0 )->childCount() != 0 )
         {
@@ -635,7 +632,7 @@ void WQtControlPanel::selectTreeItem()
             case MODULEHEADER:
                 // deletion of headers and subjects is not allowed
                 m_deleteModuleAction->setEnabled( false );
-                newToolbar = createCompatibleButtons( module );  // module is NULL at this point
+                createCompatibleButtons( module );  // module is NULL at this point
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
@@ -647,7 +644,7 @@ void WQtControlPanel::selectTreeItem()
 
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
-                newToolbar = createCompatibleButtons( module );
+                createCompatibleButtons( module );
 
                 {
                     boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
@@ -686,7 +683,7 @@ void WQtControlPanel::selectTreeItem()
                     }
                     props = module->getProperties();
                     infoProps = module->getInformationProperties();
-                    newToolbar = createCompatibleButtons( module );
+                    createCompatibleButtons( module );
                 }
                 break;
             case ROIHEADER:
@@ -698,9 +695,6 @@ void WQtControlPanel::selectTreeItem()
         }
     }
 
-    // set the new toolbar
-    // NOTE: setCompatiblesToolbar removes the toolbar if NULL is specified.
-    m_mainWindow->setCompatiblesToolbar( newToolbar );
 
     buildPropTab( props, infoProps );
 }
@@ -709,7 +703,19 @@ void WQtControlPanel::selectRoiTreeItem()
 {
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
-    m_mainWindow->setCompatiblesToolbar();
+
+    // Make compatibles toolbar empty
+    {
+        if( m_mainWindow->getCompatiblesToolbar() != 0 )
+        {
+            m_mainWindow->getCompatiblesToolbar()->makeEmpty();
+        }
+        else
+        {
+            WCombinerTypes::WCompatiblesList comps;
+            m_mainWindow->setCompatiblesToolbar( new WQtCombinerToolbar( m_mainWindow, comps ) );
+        }
+    }
 
     boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties > props;
@@ -737,6 +743,13 @@ void WQtControlPanel::selectRoiTreeItem()
                 break;
         }
     }
+
+    if ( m_roiTreeWidget->selectedItems().size() == 1 && m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
+    {
+        osg::ref_ptr< WROI > roi = ( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
+        roi->getProperties()->getProperty( "active" )->toPropBool()->set( m_roiTreeWidget->selectedItems().at( 0 )->checkState( 0 ) );
+    }
+
     buildPropTab( props, boost::shared_ptr< WProperties >() );
 }
 
@@ -857,7 +870,7 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     }
 }
 
-WQtCombinerToolbar* WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule >module )
+void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > module )
 {
     // every module may have compatibles: create ribbon menu entry
     // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
@@ -890,7 +903,14 @@ WQtCombinerToolbar* WQtControlPanel::createCompatibleButtons( boost::shared_ptr<
     delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
     m_disconnectAction->setMenu( m );
 
-    return new WQtCombinerToolbar( m_mainWindow, comps );
+    if( m_mainWindow->getCompatiblesToolbar() != 0 )
+    {
+        m_mainWindow->getCompatiblesToolbar()->updateButtons( comps );
+    }
+    else
+    {
+        m_mainWindow->setCompatiblesToolbar( new WQtCombinerToolbar( m_mainWindow, comps ) );
+    }
 }
 
 void WQtControlPanel::changeTreeItem( QTreeWidgetItem* item, int /* column */ )
@@ -899,15 +919,6 @@ void WQtControlPanel::changeTreeItem( QTreeWidgetItem* item, int /* column */ )
     if ( witem )
     {
         witem->handleCheckStateChange();
-    }
-}
-
-void WQtControlPanel::changeRoiTreeItem()
-{
-    if ( m_roiTreeWidget->selectedItems().size() == 1 && m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
-    {
-        osg::ref_ptr< WROI > roi = ( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
-        roi->getProperties()->getProperty( "active" )->toPropBool()->set( m_roiTreeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
 }
 

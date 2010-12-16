@@ -104,7 +104,6 @@ void WMDetTractClusteringGP::moduleMain()
 
         m_maxSegmentLength = searchGlobalMaxSegementLength( dataSet );
         computeDistanceMatrix( dataSet );
-        // std::cout << computeDendrogram( computeEMST( dataSet ) )->toTXTString();
         debugLog() << "done";
     }
 }
@@ -116,134 +115,6 @@ double WMDetTractClusteringGP::searchGlobalMaxSegementLength( boost::shared_ptr<
 
     return cit->getMaxSegmentLength();
     // NOLINT return std::max_element( dataSet->begin(), dataSet->end(), [](WGaussProcess p1, WGaussProcess p2){ return p1.getMaxSegmentLength() < p2.getMaxSegmentLength(); } )->getMaxSegmentLength();
-}
-
-boost::shared_ptr< WMDetTractClusteringGP::MST > WMDetTractClusteringGP::computeEMST( boost::shared_ptr< const WDataSetGP > dataSet ) const
-{
-    boost::shared_ptr< MST > edges( new MST() );
-    if( !dataSet )
-    {
-        return edges; // consider dataset as empty
-    }
-
-    boost::shared_ptr< WProgress > progress( new WProgress( "EMST computation", dataSet->size() - 1 ) );
-    m_progress->addSubProgress( progress );
-
-    // we need the diagonal elements: (i,i) of the similarity matrix for poper similarity compuation
-    std::vector< double > diagonal( dataSet->size() );
-    for( size_t i = 0; i < dataSet->size(); ++i )
-    {
-        diagonal[i] = std::sqrt( gauss::innerProduct( ( *dataSet )[i], ( *dataSet )[i] ) );
-    }
-
-    // initialize the first the similarities to the root node.
-    const WGaussProcess& root = dataSet->front(); // is the root vertex of the MST
-    std::vector< double > similarities( dataSet->size(), 0.0 );
-    for( size_t i = 0; i < dataSet->size(); ++i )
-    {
-        const WGaussProcess& p = ( *dataSet )[i];
-        if( root.getBB().minDistance( p.getBB() ) < root.getMaxSegmentLength() + p.getMaxSegmentLength() )
-        {
-            similarities[i] = gauss::innerProduct( root, p ) / diagonal[0] / diagonal[i];
-        }
-        // Note: it is 0.0 otherwise as the initial value is 0.0
-    }
-
-    std::vector< size_t > queue( dataSet->size() - 1 );
-    for( size_t i = 0; i < dataSet->size() - 1; ++i )
-    {
-        queue[i] = i + 1;
-    }
-    std::vector< size_t > parent( dataSet->size(), 0 );
-
-    while( !queue.empty() )
-    {
-        // find maximal similarity which corresponds to the minimum distance.
-        size_t closestTractIndex = 0; // the tract index inside the queue where this tract has highest innerProduct score among all others
-        for( size_t i = 1; i < queue.size(); ++i )
-        {
-            if( similarities[ queue[ i ] ] > similarities[ queue[ closestTractIndex ] ] )
-            {
-                closestTractIndex = i;
-            }
-        }
-
-        // remove closest tract from queue
-        size_t closestTract = queue[ closestTractIndex ];
-        queue[ closestTractIndex ] = queue.back();
-        queue.pop_back();
-
-        // add edge to MST
-        edges->insert( std::pair< double, Edge >( similarities[ closestTract ], Edge( parent[ closestTract ], closestTract ) ) );
-
-        // update similaritys and parents
-        const WGaussProcess& v = ( *dataSet )[ closestTract ];
-        for( size_t i = 0; i < queue.size(); ++i )
-        {
-            // compute similarity to last inserted tract
-            const WGaussProcess& p = ( *dataSet )[ queue[ i ] ];
-            double similarity = 0.0;
-            if( v.getBB().minDistance( p.getBB() ) < v.getMaxSegmentLength() + p.getMaxSegmentLength() )
-            {
-                // similarity = gauss::innerProduct( v, p ) / diagonal[closestTract] / diagonal[ queue[ i ] ];
-                similarity = gauss::innerProduct( v, p );
-            }
-
-            // update similarities and parent array if the new edge is closer to the MST sofar
-            if( similarities[ queue[ i ] ] < similarity )
-            {
-                similarities[ queue[ i ] ] = similarity;
-                parent[ queue[ i ] ] = closestTract;
-            }
-        }
-        ++*progress;
-    }
-    progress->finish();
-    return edges;
-}
-
-boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( boost::shared_ptr< const WMDetTractClusteringGP::MST > edges ) const
-{
-    boost::shared_ptr< WProgress > progress( new WProgress( "MST => Dendrogram", edges->size() ) ); // NOLINT line length
-    m_progress->addSubProgress( progress );
-    boost::shared_ptr< WDendrogram > result( new WDendrogram( edges->size() + 1 ) ); // there are exactly n-1 edges
-
-    WUnionFind uf( edges->size() + 1 );
-    std::vector< size_t > in( edges->size() + 1 ); // The refernces from the canonical Elements (cE) to the inner nodes.
-    for( size_t i = 0; i < in.size(); ++i )
-    {
-        in[i] = i; // initialize them with their corresponding leafs.
-    }
-#ifdef DEBUG
-    double similarity = wlimits::MAX_DOUBLE; // corresponds to the height, and enables the sorting check
-#endif
-    for( MST::const_reverse_iterator cit = edges->rbegin(); cit != edges->rend(); ++cit ) // NOLINT line length but: note: reverse iterating since the edge with highest similarity is at the end
-    {
-#ifdef DEBUG
-        WAssert( cit->first <= similarity, "Bug: The edges aren't sorted!" );
-        similarity = cit->first;
-#endif
-        // (u,v) - edge
-        size_t u = cit->second.first;
-        size_t v = cit->second.second;
-
-        // u and v may already be a member of a cluster, thus we need their cannonical elements
-        size_t cEu = uf.find( u );
-        size_t cEv = uf.find( v );
-
-        // get the references to their inner nodes (of the dendrogram)
-        size_t innerNodeU = in[ cEu ];
-        size_t innerNodeV = in[ cEv ];
-
-        size_t newInnerNode = result->merge( innerNodeU, innerNodeV, cit->first );
-        uf.merge( cEu, cEv );
-        in[ uf.find( cEu ) ] = newInnerNode;
-
-        ++*progress;
-    }
-    progress->finish();
-    m_progress->removeSubProgress( progress );
-    return result;
 }
 
 void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet )
@@ -268,10 +139,10 @@ void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDa
             const WGaussProcess& p2 = ( *dataSet )[j];
             const WBoundingBox& bb1 = p1.getBB();
             const WBoundingBox& bb2 = p2.getBB();
-            if( bb1.minDistance( bb2 ) < p1.getMaxSegmentLength() + p2.getMaxSegmentLength() )
+            if( bb1.minDistance( bb2 ) < 2.0 * p1.getMaxSegmentLength() + 2.0 * p2.getMaxSegmentLength() )
             {
                 // m_similarities( i, j ) = gauss::innerProduct( p1, p2 ) / diagonal[i] / diagonal[j];
-                m_similarities( i, j ) = gauss::innerProduct( p1, p2 );
+                m_similarities( i, j ) = gauss::innerProduct( p1, p2 ); // As written in the paper, we don't use the normalized inner product
             }
             else
             {
@@ -288,10 +159,12 @@ void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDa
     }
     progress->finish();
     m_progress->removeSubProgress( progress );
-    std::cout << computeDendrogram2( dataSet->size(), p, q, maxSim )->toTXTString();
+
+    // TODO(math): The toTXTString function also saves the dendrogram into a hard coded path: /home/math/pansen.txt I need to fix this very very soon
+    computeDendrogram( dataSet->size(), std::make_pair( p, q ), maxSim )->toTXTString();
 }
 
-boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram2( size_t n, size_t fib1, size_t fib2, double similarity )
+boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size_t n, std::pair< size_t, size_t > tracts, double similarity )
 {
     boost::shared_ptr< WDendrogram > dend( new WDendrogram( n ) );
     boost::shared_ptr< WProgress > progress( new WProgress( "Matrix => Dendrogram", n - 1 ) ); // NOLINT line length
@@ -308,8 +181,8 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram2( siz
         idx.insert( i );
     }
 
-    size_t p = fib1;
-    size_t q = fib2;
+    size_t p = tracts.first;
+    size_t q = tracts.second;
     double sim = similarity;
 
     // now the clustering starts, p and q are the first to merge

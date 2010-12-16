@@ -566,6 +566,11 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
     addToolBar( toQtToolBarArea( getCompatiblesToolbarPos() ), m_currentCompatiblesToolbar );
 }
 
+WQtCombinerToolbar* WMainWindow::getCompatiblesToolbar()
+{
+    return m_currentCompatiblesToolbar;
+}
+
 WQtControlPanel* WMainWindow::getControlPanel()
 {
     return m_controlPanel;

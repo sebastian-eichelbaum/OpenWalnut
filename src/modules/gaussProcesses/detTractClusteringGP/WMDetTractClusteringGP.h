@@ -85,17 +85,6 @@ public:
 
 protected:
     /**
-     * Represents an edge from one vertex/tract to another one.
-     */
-    typedef std::pair< size_t, size_t > Edge;
-
-    /**
-     * Implicit definition of an Minimum Spanning Tree with weighted edges. First is the weight of second the edge. The vertexes
-     * or tracts are just implicit given with the number.
-     */
-    typedef std::multimap< double, Edge > MST;
-
-    /**
      * Entry point after loading the module. Runs in separate thread.
      */
     virtual void moduleMain();
@@ -129,20 +118,16 @@ protected:
     void computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet );
 
     /**
-     * Constructs Euclidean minimal spanning tree (EMST) as preprocessing for dendrogram.
-     * \param dataSet Gaussian processes
-     * \return Euclidean spanning tree (map from weight (double) to edge (pair<size_t,size_t>))
+     * Constructs a dendrogram out of the m_similarity matrix. Please note that this member function needs a valid similarity
+     * matrix to operate correctly and it will leave an invalid matrix afterwards!
+     *
+     * \param n How many tracts
+     * \param tracts Pair of tracts which is to be merged first.
+     * \param similarity The similarity of the first pair of tracts.
+     *
+     * \return The dendrogram.
      */
-    boost::shared_ptr< WMDetTractClusteringGP::MST > computeEMST( boost::shared_ptr< const WDataSetGP > dataSet ) const;
-
-    /**
-     * Constructs single linkage agglomerative clustering from EMST.
-     * \param edges Sorted weighted edges of EMST
-     * \return The dendrogram
-     */
-    boost::shared_ptr< WDendrogram > computeDendrogram( boost::shared_ptr< const WMDetTractClusteringGP::MST > edges ) const;
-
-    boost::shared_ptr< WDendrogram > computeDendrogram2( size_t n, size_t fib1, size_t fib2, double similarity );
+    boost::shared_ptr< WDendrogram > computeDendrogram( size_t n, std::pair< size_t, size_t > tracts, double similarity );
 
     /**
      * Input Connector for the gaussian processes which are about to be clustered.

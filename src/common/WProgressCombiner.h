@@ -101,6 +101,13 @@ public:
      */
     virtual void update();
 
+    /**
+     * Generates a string combined out of every child progress name.
+     *
+     * \return One describing string for all child progress names.
+     */
+    std::string getCombinedNames() const;
+
 protected:
 
     /**
@@ -121,7 +128,7 @@ protected:
     /**
      * Lock for the above child set and the internal state update.
      */
-    boost::shared_mutex m_updateLock;
+    mutable boost::shared_mutex m_updateLock;
 
 private:
 };
