@@ -41,6 +41,7 @@
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGETextureUtils.h"
 #include "../../graphicsEngine/WGERequirement.h"
 #include "../../kernel/WKernel.h"
 #include "WMDirectVolumeRendering.xpm"
@@ -244,16 +245,16 @@ void WMDirectVolumeRendering::moduleMain()
             m_shader->apply( cube );
 
             // bind the texture to the node
-            osg::ref_ptr< osg::Texture3D > texture3D = dataSet->getTexture()->getTexture();
-            osg::StateSet* rootState = cube->getOrCreateStateSet();
-            rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
-
-            // enable transparency
-            rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
+            osg::ref_ptr< WDataTexture3D_2 > texture3D = dataSet->getTexture2();
+            wge::bindTexture( cube, texture3D, 0, "u_volume" );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup illumination
             ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // enable transparency
+            osg::StateSet* rootState = cube->getOrCreateStateSet();
+            rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
             size_t localIlluminationAlgo = m_localIlluminationAlgo->get( true ).getItemIndexOfSelected( 0 );
             m_shader->eraseAllDefines();
@@ -273,9 +274,8 @@ void WMDirectVolumeRendering::moduleMain()
                 debugLog() << "Uploading specified gradient field.";
 
                 // bind the texture to the node
-                rootState->setTextureAttributeAndModes( 1, gradients->getTexture()->getTexture(), osg::StateAttribute::ON );
-                rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
-                m_shader->setDefine( "GRADIENTTEXTURE_SAMPLER", "tex1" );
+                osg::ref_ptr< WDataTexture3D_2 > gradTexture3D = gradients->getTexture2();
+                wge::bindTexture( cube, gradTexture3D, 1, "u_gradients" );
                 m_shader->setDefine( "GRADIENTTEXTURE_ENABLED" );
             }
 
@@ -294,9 +294,7 @@ void WMDirectVolumeRendering::moduleMain()
                     tfTexture->setImage( tfImg );
 
                     // apply it
-                    rootState->setTextureAttributeAndModes( 2, tfTexture, osg::StateAttribute::ON );
-                    rootState->addUniform( new osg::Uniform( "tex2", 2 ) );
-                    m_shader->setDefine( "TRANSFERFUNCTION_SAMPLER", "tex2" );
+                    wge::bindTexture( cube, tfTexture, 2, "u_transferFunction" );
                     m_shader->setDefine( "TRANSFERFUNCTION_ENABLED" );
                 }
                 else
@@ -314,16 +312,10 @@ void WMDirectVolumeRendering::moduleMain()
             if ( m_stochasticJitterEnabled->get( true ) )
             {
                 const size_t size = 64;
-                osg::ref_ptr< osg::Texture2D > randTexture = new osg::Texture2D();
-                randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
-                randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
-                randTexture->setWrap( osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT );
-                randTexture->setWrap( osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT );
-                randTexture->setImage( genWhiteNoise( size ) );
-                rootState->setTextureAttributeAndModes( 3, randTexture, osg::StateAttribute::ON );
-                rootState->addUniform( new osg::Uniform( "tex3", 3 ) );
-                m_shader->setDefine( "JITTERTEXTURE_SAMPLER", "tex3" );
-                m_shader->setDefine( "JITTERTEXTURE_SIZEX", size );
+                osg::ref_ptr< WGETexture2D > randTexture = new WGETexture2D( genWhiteNoise( size ) );
+                randTexture->setFilterMinMag( osg::Texture2D::NEAREST );
+                randTexture->setWrapSTR( osg::Texture2D::REPEAT );
+                wge::bindTexture( cube, randTexture, 3, "u_jitter" );
                 m_shader->setDefine( "JITTERTEXTURE_ENABLED" );
             }
 
@@ -341,15 +333,10 @@ void WMDirectVolumeRendering::moduleMain()
             // setup all those uniforms
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            // for the texture, also bind the appropriate uniforms
-            rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
-
             osg::ref_ptr< osg::Uniform > samples = new osg::Uniform( "u_samples", m_samples->get() );
             samples->setUpdateCallback( new SafeUniformCallback( this ) );
 
             rootState->addUniform( samples );
-
-            WGEColormapping::apply( cube, false );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // build spatial search structure
