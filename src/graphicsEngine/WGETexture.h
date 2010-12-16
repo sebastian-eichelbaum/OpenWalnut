@@ -180,6 +180,20 @@ public:
      */
     virtual void applyUniforms( std::string prefix, osg::StateSet* states ) const;
 
+    /**
+     * For all the lazy guys to set the filter MIN and MAG at once.
+     *
+     * \param mode the new mode for MIN_FILTER and MAG_FILTER.
+     */
+    void setFilterMinMag( osg::Texture::FilterMode mode );
+
+    /**
+     * For all the lazy guys to set the wrapping for s,t and r directions at once.
+     *
+     * \param mode the new mode for WRAP_S, WRAP_T and WRAP_R.
+     */
+    void setWrapSTR( osg::Texture::WrapMode mode );
+
 protected:
 
     /**
@@ -279,6 +293,39 @@ private:
      * The texture transformation matrix.
      */
     WPropMatrix4X4 m_texMatrix;
+
+    /**
+     * Initialize the size of the texture properly according to real texture type (1D,2D,3D).
+     * \note This is needed because osg::Texture::setImage is not virtual and does not set the size from the image.
+     *
+     * \param texture the texture where to set the size
+     * \param width the new width
+     * \param height the new height
+     * \param depth the new depth
+     */
+    static void initTextureSize( osg::Texture1D* texture, int width, int height, int depth );
+
+    /**
+     * Initialize the size of the texture properly according to real texture type (1D,2D,3D).
+     * \note This is needed because osg::Texture::setImage is not virtual and does not set the size from the image.
+     *
+     * \param texture the texture where to set the size
+     * \param width the new width
+     * \param height the new height
+     * \param depth the new depth
+     */
+    static void initTextureSize( osg::Texture2D* texture, int width, int height, int depth );
+
+    /**
+     * Initialize the size of the texture properly according to real texture type (1D,2D,3D).
+     * \note This is needed because osg::Texture::setImage is not virtual and does not set the size from the image.
+     *
+     * \param texture the texture where to set the size
+     * \param width the new width
+     * \param height the new height
+     * \param depth the new depth
+     */
+    static void initTextureSize( osg::Texture3D* texture, int width, int height, int depth );
 };
 
 // Some convenience typedefs
@@ -297,6 +344,7 @@ typedef WGETexture< osg::Texture2D > WGETexture2D;
  * OSG's Texture3D with scaling features
  */
 typedef WGETexture< osg::Texture3D > WGETexture3D;
+
 
 template < typename TextureType >
 WGETexture< TextureType >::WGETexture( double scale, double min ):
@@ -318,6 +366,7 @@ WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double m
     m_needCreate( true )
 {
     setupProperties( scale, min );
+    WGETexture< TextureType >::initTextureSize( this, image->s(), image->t(), image->r() );
 }
 
 template < typename TextureType >
@@ -494,6 +543,39 @@ void WGETexture< TextureType >::updateCallback( osg::StateAttribute* /*state*/ )
         create();
         TextureType::dirtyTextureObject();
     }
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::setFilterMinMag( osg::Texture::FilterMode mode )
+{
+    this->setFilter( osg::Texture2D::MIN_FILTER, mode );
+    this->setFilter( osg::Texture2D::MAG_FILTER, mode );
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::setWrapSTR( osg::Texture::WrapMode mode )
+{
+    this->setWrap( osg::Texture2D::WRAP_S, mode );
+    this->setWrap( osg::Texture2D::WRAP_T, mode );
+    this->setWrap( osg::Texture2D::WRAP_R, mode );
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::initTextureSize( osg::Texture1D* texture, int width, int /*height*/, int /*depth*/ )
+{
+    texture->setTextureWidth( width );
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::initTextureSize( osg::Texture2D* texture, int width, int height, int /*depth*/ )
+{
+    texture->setTextureSize( width, height );
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::initTextureSize( osg::Texture3D* texture, int width, int height, int depth )
+{
+    texture->setTextureSize( width, height, depth );
 }
 
 #endif  // WGETEXTURE_H
