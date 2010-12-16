@@ -55,7 +55,7 @@ namespace WDataTexture3D_2Scalers
      * \note For integral types no scaling is needed. Specialize this for float/double
      */
     template < typename T >
-    inline T scaleInterval( T value, T /*minimum*/, T /*maximum*/, float /*scaler*/ )
+    inline T scaleInterval( T value, T /*minimum*/, T /*maximum*/, double /*scaler*/ )
     {
         return value;
     }
@@ -71,7 +71,7 @@ namespace WDataTexture3D_2Scalers
      *
      * \return the value scaled to [0,1]
      */
-    inline float scaleInterval( float value, float minimum, float maximum, float scaler )
+    inline float scaleInterval( float value, float minimum, float maximum, double scaler )
     {
         return ( std::min( std::max( value, minimum ), maximum ) - minimum ) / scaler;
     }
@@ -87,7 +87,7 @@ namespace WDataTexture3D_2Scalers
      *
      * \return the value scaled to [0,1]
      */
-    inline double scaleInterval( double value, double minimum, double maximum, float scaler )
+    inline double scaleInterval( double value, double minimum, double maximum, double scaler )
     {
         return static_cast< double >( std::min( std::max( value, minimum ), maximum ) - minimum ) / scaler;
     }
@@ -190,7 +190,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
 
     // get the current scaling info
     T min = static_cast< T >( minimum()->get() );
-    float scaler = static_cast< float >( scale()->get() );
+    double scaler = scale()->get();
     T max = min + static_cast< T >( scaler );
 
     typedef typename wge::GLType< T >::Type TexType;
