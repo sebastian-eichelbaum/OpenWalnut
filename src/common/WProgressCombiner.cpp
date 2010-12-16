@@ -26,6 +26,8 @@
 #include <string>
 #include <set>
 
+#include <boost/utility.hpp>
+
 #include "WProgressCombiner.h"
 
 WProgressCombiner::WProgressCombiner( std::string name ):
@@ -83,12 +85,11 @@ std::string WProgressCombiner::getCombinedNames() const
 {
     std::stringstream ss;
     ss << "[";
-    for ( std::set< boost::shared_ptr< WProgress > >::iterator i = m_children.begin(); i != m_children.end(); ++i )
+    for( std::set< boost::shared_ptr< WProgress > >::iterator i = m_children.begin(); i != m_children.end(); ++i )
     {
         // enforce child to update
         ss << ( *i )->getName();
-        std::set< boost::shared_ptr< WProgress > >::iterator j = i; // for last element determination
-        if( ++j != m_children.end() )
+        if( boost::next( i ) != m_children.end() )
         {
             ss << ", ";
         }
