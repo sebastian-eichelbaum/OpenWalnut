@@ -278,6 +278,7 @@ void WMainWindow::setupPermanentToolBar()
     m_loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
     WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
     WQtPushButton* resetButton = new WQtPushButton( m_iconManager.getIcon( "Reset icon" ), "Reset", m_permanentToolBar );
+    resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
     WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
     WQtPushButton* projectSaveButton = new WQtPushButton( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
 
@@ -822,6 +823,8 @@ void WMainWindow::openIntroductionDialog()
                               "<table>"
                               "<tr><td><b><i>Key</i></b></td><td><b><i>Action</i></b></td></tr>"
                               "<tr><td>Ctrl + q</td><td>Quit</td></tr>"
+                              "<tr><td>Esc</td><td>Resets main view</td></tr>"
+                              "<tr><td>F1</td><td>Opens this help window</td></tr>"
                               "</table>" );
 }
 
