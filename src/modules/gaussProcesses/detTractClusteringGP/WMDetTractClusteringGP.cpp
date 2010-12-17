@@ -65,6 +65,7 @@ const std::string WMDetTractClusteringGP::getDescription() const
 void WMDetTractClusteringGP::connectors()
 {
     m_gpIC = WModuleInputData< WDataSetGP >::createAndAdd( shared_from_this(), "gpInput", "WDataSetGP providing the gaussian processes" );
+    m_dendOC = WModuleOutputData< WDendrogram >::createAndAdd( shared_from_this(), "dendrogramOutput", "WDendrogram as a result of this clustering" );
 
     WModule::connectors();
 }
@@ -100,23 +101,22 @@ void WMDetTractClusteringGP::moduleMain()
         {
             debugLog() << "Input has been updated...";
         }
-        debugLog() << "Start Clustering";
 
+        infoLog() << "Generating similarity matrix...";
         computeDistanceMatrix( dataSet );
-        debugLog() << "done";
+
+        infoLog() << "Building dendrogram...";
+        m_dendOC->updateData( computeDendrogram( dataSet->size() ) );
+
+        infoLog() << "Done.";
     }
 }
 
 void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet )
 {
-    boost::shared_ptr< WProgress > progress( new WProgress( "Similarity matrix computation", ( dataSet->size()*dataSet->size() - dataSet->size() ) / 2 + dataSet->size() ) ); // NOLINT line length
+    const size_t steps = dataSet->size() * ( dataSet->size() - 2 ) / 2; // n(n-2)/2
+    boost::shared_ptr< WProgress > progress( new WProgress( "Similarity matrix computation", steps ) );
     m_progress->addSubProgress( progress );
-    std::vector< double > diagonal( dataSet->size() );
-    for( size_t i = 0; i < dataSet->size(); ++i )
-    {
-        diagonal[i] = std::sqrt( gauss::innerProduct( ( *dataSet )[i], ( *dataSet )[i] ) );
-        ++*progress;
-    }
 
     m_similarities = WMatrixSymDBL( dataSet->size() );
     for( size_t i = 0; i < dataSet->size(); ++i )
@@ -125,11 +125,8 @@ void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDa
         {
             const WGaussProcess& p1 = ( *dataSet )[i];
             const WGaussProcess& p2 = ( *dataSet )[j];
-            const WBoundingBox& bb1 = p1.getBB();
-            const WBoundingBox& bb2 = p2.getBB();
-            if( bb1.minDistance( bb2 ) < p1.getRadius() + p2.getRadius() )
+            if( p1.getBB().minDistance( p2.getBB() ) < p1.getRadius() + p2.getRadius() )
             {
-                // m_similarities( i, j ) = gauss::innerProduct( p1, p2 ) / diagonal[i] / diagonal[j];
                 m_similarities( i, j ) = gauss::innerProduct( p1, p2 ); // As written in the paper, we don't use the normalized inner product
             }
             else
@@ -141,15 +138,12 @@ void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDa
     }
     progress->finish();
     m_progress->removeSubProgress( progress );
-
-    // TODO(math): The toTXTString function also saves the dendrogram into a hard coded path: /home/math/pansen.txt I need to fix this very very soon
-    computeDendrogram( dataSet->size() )->toTXTString();
 }
 
 boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size_t n )
 {
     boost::shared_ptr< WDendrogram > dend( new WDendrogram( n ) );
-    boost::shared_ptr< WProgress > progress( new WProgress( "Matrix => Dendrogram", n - 1 ) ); // NOLINT line length
+    boost::shared_ptr< WProgress > progress( new WProgress( "Matrix => Dendrogram", n - 1 ) );
     m_progress->addSubProgress( progress );
 
     WUnionFind uf( n );
@@ -163,8 +157,6 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size
         idx.insert( i );
     }
 
-    WAssert( idx.size() == n, "Bug: The idx array is invalid, too few elements." );
-    // now the clustering starts, p and q are the first to merge
     for( size_t i = 0; i < n - 1; ++i )
     {
         // Nearest Neighbour find: update p, q, and sim, so iterate over all valid matrix entries
@@ -195,17 +187,9 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size
         {
             col_to_delete = q;
         }
-        else // hence cE_of_q is the new cannonical element of the merged cluster now
-        {
-            WAssert( q == newCE, "Bug: The new cannonical element is not p nor q, something bad happend!" );
-        }
+        idx.erase( col_to_delete );
 
-        if( idx.erase( col_to_delete ) == 0 )
-        {
-            errorLog() << "Bug: tried to erase idx: " << col_to_delete << "but which was not part of the idx array anymore.";
-        }
-
-        // update the column where now pq resides
+        // update the column where now the new cluster pq resides
         for( std::set< size_t >::const_iterator it = idx.begin(); it != idx.end(); ++it )
         {
             if( *it != newCE )
@@ -221,13 +205,11 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size
         clusterSize[ newCE ] = clusterSize[ p ] + clusterSize[ q ];
         ++*progress;
     }
-    std::stringstream ss;
-    ss << "Bug: The idx array is invalid, having to few or to many elements, size()==1 expected, but got: " << idx.size();
-    WAssert( idx.size() == 1, ss.str() );
 
-    debugLog() << "Finished building up the dendrogram.";
+    WAssert( idx.size() == 1, "Bug: idx array is invalid there should be exactly one element left" );
 
     progress->finish();
     m_progress->removeSubProgress( progress );
+
     return dend;
 }

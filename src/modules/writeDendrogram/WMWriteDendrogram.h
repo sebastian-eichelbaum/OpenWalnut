@@ -22,41 +22,35 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDETTRACTCLUSTERINGGP_H
-#define WMDETTRACTCLUSTERINGGP_H
+#ifndef WMWRITEDENDROGRAM_H
+#define WMWRITEDENDROGRAM_H
 
 #include <string>
-#include <map>
-#include <utility>
 
 #include <osg/Geode>
 
-#include "../../../common/math/WMatrixSym.h"
-#include "../../../kernel/WModule.h"
-#include "../../../kernel/WModuleInputData.h"
-#include "../../../kernel/WModuleOutputData.h"
-#include "../WDataSetGP.h"
-
-class WDendrogram;
+#include "../../common/datastructures/WDendrogram.h"
+#include "../../kernel/WModule.h"
+#include "../../kernel/WModuleInputData.h"
+#include "../../kernel/WModuleOutputData.h"
 
 /**
- * Module for clustering gaussian processes which representing deterministic tracts.
+ * This module writes the Dendrogram.
  *
  * \ingroup modules
  */
-class WMDetTractClusteringGP: public WModule
+class WMWriteDendrogram: public WModule
 {
 public:
+    /**
+     * Constructs an instance to write Dendrogram to a file.
+     */
+    WMWriteDendrogram();
 
     /**
-     * Constructs a new clustering instance.
+     * Destructs this instance.
      */
-    WMDetTractClusteringGP();
-
-    /**
-     * Destructs this.
-     */
-    virtual ~WMDetTractClusteringGP();
+    virtual ~WMWriteDendrogram();
 
     /**
      * Gives back the name of this module.
@@ -99,50 +93,14 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Compute the longest segment of all segments of all tracts/gaussian processes.
-     *
-     * \param dataSet The dataset of gaussian processes.
-     *
-     * \return The length of the longest segement overall.
-     */
-    double searchGlobalMaxSegementLength( boost::shared_ptr< const WDataSetGP > dataSet ) const;
-
-    /**
-     * Computes the distant matrix for all pairs of gaussian processes.
-     *
-     * \param dataSet The dataset of gaussian processes.
-     *
-     * \return The similarity or also called distant matrix.
-     */
-    void computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet );
-
-    /**
-     * Constructs a dendrogram out of the m_similarity matrix. Please note that this member function needs a valid similarity
-     * matrix to operate correctly and it will leave an invalid matrix afterwards!
-     *
-     * \param n How many tracts
-     *
-     * \return The dendrogram.
-     */
-    boost::shared_ptr< WDendrogram > computeDendrogram( size_t n );
-
-    /**
-     * Input Connector for the gaussian processes which are about to be clustered.
-     */
-    boost::shared_ptr< WModuleInputData< WDataSetGP > > m_gpIC;
-
-    /**
-     * Output Connector for the dendrogram which is about to be created with this module.
-     */
-    boost::shared_ptr< WModuleOutputData< WDendrogram > > m_dendOC;
-
-    /**
-     * Distant matrix of all pairs of gaussian processes.
-     */
-    WMatrixSymDBL m_similarities;
-
 private:
+    /**
+     * Input connector for writing the Dendrogram.
+     */
+    boost::shared_ptr< WModuleInputData< const WDendrogram > > m_dendrogramIC;
+
+    WPropTrigger m_run; //!< Button to start saving
+    WPropFilename m_savePath; //!< Path where Dendrogram should be stored
 };
 
-#endif  // WMDETTRACTCLUSTERINGGP_H
+#endif  // WMWRITEDENDROGRAM_H

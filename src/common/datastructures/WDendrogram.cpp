@@ -30,12 +30,38 @@
 #include <sstream>
 #include <vector>
 
+#include "../exceptions/WOutOfBounds.h"
 #include "../WAssert.h"
 #include "../WLogger.h"
 #include "../WStringUtils.h"
 #include "WDendrogram.h"
 
+// init _static_ member variable and provide a linker reference to it
+boost::shared_ptr< WPrototyped > WDendrogram::m_prototype = boost::shared_ptr< WPrototyped >();
+
+boost::shared_ptr< WPrototyped > WDendrogram::getPrototype()
+{
+    if ( !m_prototype )
+    {
+         m_prototype = boost::shared_ptr< WPrototyped >( new WDendrogram() );
+    }
+    return m_prototype;
+}
+
+WDendrogram::WDendrogram()
+    : WTransferable(),
+      m_parents( 0 ),
+      m_heights( 0 )
+{
+}
+
 WDendrogram::WDendrogram( size_t n )
+    : WTransferable()
+{
+    reset( n );
+}
+
+void WDendrogram::reset( size_t n )
 {
     WAssert( n > 0, "A Dendrogram for an empty set of objects was created which makes no sence, if your really need it implement it!" );
     m_heights.resize( n - 1, 0.0 );
@@ -43,8 +69,18 @@ WDendrogram::WDendrogram( size_t n )
     m_parents.resize( n, 0 );
 }
 
+void WDendrogram::checkAndThrowExceptionIfUsedUninitialized( std::string caller ) const
+{
+    if( m_parents.empty() )
+    {
+        throw WOutOfBounds( "Accessed an empty WDendrogam via a call to a memeber function: " + caller + " which needs access to elements." );
+    }
+}
+
 size_t WDendrogram::merge( size_t i, size_t j, double height )
 {
+    checkAndThrowExceptionIfUsedUninitialized( "merge(...)" );
+
 #ifdef DEBUG
     std::stringstream errMsg;
     errMsg << "Bug: n=" << m_heights.size() << " many leafs can lead maximal to 2n-1 many nodes in a tree but this was violated now!" << std::endl;
@@ -60,8 +96,10 @@ size_t WDendrogram::merge( size_t i, size_t j, double height )
     return m_parents.size() - 1;
 }
 
-std::string WDendrogram::toTXTString() const
+std::string WDendrogram::toString() const
 {
+    checkAndThrowExceptionIfUsedUninitialized( "toString()" );
+
     std::stringstream result;
     std::map< size_t, std::vector< size_t > > childsOfInnerNodes;
     std::map< size_t, std::vector< size_t > > preds;
@@ -119,13 +157,6 @@ std::string WDendrogram::toTXTString() const
         // wlog::debug( "WDendrogram" ) << "parentchilds: " << childsOfInnerNodes[ m_parents[ i ] ];
         result << "(" << left << ", " << right << "), " << m_heights[ i - m_heights.size() - 1 ] << ")" << std::endl;
     }
-
-    // TODO(math): the needs to be made with a writer instead
-    wlog::debug( "WDendrogram" ) << "start writing the txt file to pansen.txt";
-    std::ofstream file( "/home/math/pansen.txt" );
-    file << result.str();
-    file.close();
-    wlog::debug( "WDendrogram" ) << "written the txt file to pansen.txt";
 
     return result.str();
 }
