@@ -69,6 +69,15 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string slid
 
 WQtNavGLWidget::~WQtNavGLWidget()
 {
+    for( std::map< boost::shared_ptr< WPropertyBase >, WPropertyIntWidget* >::iterator it = propertyWidgetMap.begin();
+         it != propertyWidgetMap.end();
+         ++it )
+    {
+        if( it->second != 0 )
+        {
+            delete it->second;
+        }
+    }
 }
 
 void WQtNavGLWidget::setSliderTitle( std::string title )
