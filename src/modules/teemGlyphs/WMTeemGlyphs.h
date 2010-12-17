@@ -140,6 +140,7 @@ private:
     WPropBool m_usePolarPlotProp; //!< Property indicating whether to use polar plot instead of HOME glyph
     WPropBool m_useNormalizationProp; //!< Indicates whether to use min max normalization.
     WPropBool m_useRadiusNormalizationProp; //!< Indicates whether to use radius normalization.
+    WPropBool m_hideNegativeLobesProp; //!< Indicates whether to hide negativ radius lobes of glyphs
     WPropDouble m_GFAThresholdProp; //!< Property holding the threshold of GFA above which glyphs should be drawn.
     WPropDouble m_glyphSizeProp; //!< Property holding the size of the displayed glyphs
     WPropInt m_sliceIdProp; //!< Property holding the slice ID
@@ -174,6 +175,7 @@ private:
          * \param scale Resize the glyphs.
          * \param useNormalization Scale minimum and maximum radius to [0,1].
          * \param useRadiusNormalization Scale glyphs to make them all the same size.
+         * \param hideNegativeLobes Vertices with negative radius will be set to zero.
          */
         GlyphGeneration(  boost::shared_ptr< WDataSetSphericalHarmonics > dataSet,
                           boost::shared_ptr< WDataSetScalar > dataGFA,
@@ -186,7 +188,8 @@ private:
                           const bool& usePolar,
                           const float& scale,
                           const bool& useNormalization,
-                          const bool& useRadiusNormalization );
+                          const bool& useRadiusNormalization,
+                          const bool& hideNegativeLobes );
 
         /**
          * Destructor freeing the data.
@@ -236,8 +239,9 @@ private:
         size_t m_modulo; //!< Store option from property
         bool m_usePolar; //!< Stores option from property.
         float m_scale; //!< Stores option from property.
-        bool m_useNormalization; //!< Stores option from property..
-        bool m_useRadiusNormalization; //!< Stores option from property..
+        bool m_useNormalization; //!< Stores option from property.
+        bool m_useRadiusNormalization; //!< Stores option from property.
+        bool m_hideNegativeLobes; //!< Stores option from property.
 
         limnPolyData *m_sphere; //!< The geometry of the subdivided icosahedron
     };

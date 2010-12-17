@@ -205,11 +205,16 @@ void WMTeemGlyphs::properties()
     m_subdivisionLevelProp->setMax( 5 );
 
     m_usePolarPlotProp = m_properties->addProperty( "Use polar plot", "Use polar plot for glyph instead of HOME?", true, m_recompute );
-    m_useNormalizationProp = m_properties->addProperty( "Min-max normalization", "Scale the radius of each glyph to be in [0,1].",
+    m_useNormalizationProp = m_properties->addProperty( "Min-max normalization", "Scale the radius of each glyph to be in [0,1]."
+                                                        " Do <b>not</b> use with \"Hide negative lobes\"!",
                                                         true,
                                                         m_recompute );
     m_useRadiusNormalizationProp = m_properties->addProperty( "Radius normalization", "Make all glyphs have similar size.",
                                                         true,
+                                                        m_recompute );
+    m_hideNegativeLobesProp = m_properties->addProperty( "Hide negative lobes", "Hide glyph lobes that have negative radius."
+                                                        " Do <b>not</b> use with \"Min-max normalization\"!",
+                                                        false,
                                                         m_recompute );
 
     WModule::properties();
@@ -281,6 +286,7 @@ void WMTeemGlyphs::moduleMain()
                || m_usePolarPlotProp->changed()
                || m_useNormalizationProp->changed()
                || m_useRadiusNormalizationProp->changed()
+               || m_hideNegativeLobesProp->changed()
                 )
             )
         {
@@ -321,8 +327,9 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
                                        m_usePolarPlotProp->get( true ),
                                        m_glyphSizeProp->get( true ),
                                        m_useNormalizationProp->get( true ),
-                                       m_useRadiusNormalizationProp->get( true ) ) );
-    WThreadedFunction< GlyphGeneration > generatorThreaded( W_AUTOMATIC_NB_THREADS, generator );
+                                       m_useRadiusNormalizationProp->get( true ),
+                                       m_hideNegativeLobesProp->get( true ) ) );
+    WThreadedFunction< GlyphGeneration > generatorThreaded( 2/*W_AUTOMATIC_NB_THREADS*/, generator );
     generatorThreaded.run();
     generatorThreaded.wait();
 
@@ -413,7 +420,8 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
                                                 const bool& usePolar,
                                                 const float& scale,
                                                 const bool& useNormalization,
-                                                const bool& useRadiusNormalization ) :
+                                                const bool& useRadiusNormalization,
+                                                const bool& hideNegativeLobes ) :
     m_dataSet( dataSet ),
     m_dataGFA( dataGFA ),
     m_grid( boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() ) ),
@@ -425,7 +433,8 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
     m_usePolar( usePolar ),
     m_scale( scale ),
     m_useNormalization( useNormalization ),
-    m_useRadiusNormalization( useRadiusNormalization )
+    m_useRadiusNormalization( useRadiusNormalization ),
+    m_hideNegativeLobes( hideNegativeLobes )
 {
     enum sliceTypeEnum
     {
@@ -608,7 +617,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             if( m_usePolar )
             {
                 char isdef = 3; // some initialization
-                radius = elfGlyphPolar( glyph, 1, ten, type, &isdef, 0, normalize, NULL, NULL );
+                radius = elfGlyphPolar( glyph, 1, ten, type, &isdef,  m_hideNegativeLobes, normalize, NULL, NULL );
             }
             else
             {
@@ -628,6 +637,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             // -------------------------------------------------------------------------------------------------------
 
             float scale = m_scale;
+
             if( m_useNormalization )
             {
                 minMaxNormalization( glyph, nbVertCoords );
