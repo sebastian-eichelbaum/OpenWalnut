@@ -47,6 +47,8 @@ class WColor;
 class WQtGLWidgetMac
     : public QGLWidget
 {
+    Q_OBJECT
+
 public:
     /**
      * Default constructor.
@@ -106,6 +108,12 @@ public:
      * \return a shared pointer to the viewer
      */
     boost::shared_ptr< WGEViewerMac > getViewer() const;
+
+public slots:
+    /**
+     * Resets the contained view using the installed manipulator.
+     */
+    void reset();
 
 protected:
     /**

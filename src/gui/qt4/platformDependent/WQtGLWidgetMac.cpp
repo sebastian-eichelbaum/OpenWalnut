@@ -222,3 +222,8 @@ void WQtGLWidgetMac::wheelEvent( QWheelEvent* event )
     }
     m_Viewer->mouseEvent( WGEViewerMac::MOUSESCROLL, x, y, 0 );
 }
+
+void WQtGLWidgetMac::reset()
+{
+    m_Viewer->reset();
+}
