@@ -609,7 +609,6 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             {
                 char isdef = 3; // some initialization
                 radius = elfGlyphPolar( glyph, 1, ten, type, &isdef, 0, normalize, NULL, NULL );
-                WAssert( isdef != 0, "Tensor is non positive definite. Think about that." );
             }
             else
             {
