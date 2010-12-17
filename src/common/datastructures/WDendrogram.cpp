@@ -46,39 +46,29 @@ WDendrogram::WDendrogram( size_t n )
 size_t WDendrogram::merge( size_t i, size_t j, double height )
 {
 #ifdef DEBUG
-    std::stringstream ss;
-    ss << "Bug: n=" << m_heights.size() << " many leafs can lead maximal to 2n-1 many nodes in a tree but this was violated now!" << std::endl;
-    WAssert( m_parents.size() < 2 * m_heights.size() + 1, ss.str() );
+    std::stringstream errMsg;
+    errMsg << "Bug: n=" << m_heights.size() << " many leafs can lead maximal to 2n-1 many nodes in a tree but this was violated now!" << std::endl;
+    WAssert( m_parents.size() != 2 * m_heights.size() + 1, errMsg.str() );
 #endif
 
     m_parents.push_back( m_parents.size() ); // the root s always self referencing
 
-#ifdef DEBUG
-    m_heights.at( m_parents.size() - 2 - m_heights.size() ) = height;
-    m_parents.at( i ) = m_parents.size() - 1;
-    m_parents.at( j ) = m_parents.size() - 1;
-#else
     m_heights[ m_parents.size() - 2 - m_heights.size() ] = height;
     m_parents[ i ] = m_parents.back();
     m_parents[ j ] = m_parents.back();
-#endif
 
     return m_parents.size() - 1;
 }
 
 std::string WDendrogram::toTXTString() const
 {
-    std::stringstream ss;
-
-    std::map< size_t, std::set< size_t > > childsOfInnerNodes;
-    std::map< size_t, std::set< size_t > > preds;
+    std::stringstream result;
+    std::map< size_t, std::vector< size_t > > childsOfInnerNodes;
+    std::map< size_t, std::vector< size_t > > preds;
     std::vector< size_t > level( 2 * m_heights.size() + 1, 0 );
 
-#ifdef DEBUG
-    wlog::debug( "WDendrogram" ) << "nodes size: " << m_parents.size() << " and expeceted: " << 2 * m_heights.size() + 1;
-
     // For very insane debugging only:
-    //
+    // wlog::debug( "WDendrogram" ) << "nodes size: " << m_parents.size() << " and expeceted: " << 2 * m_heights.size() + 1;
     // wlog::debug( "WDendrogram" ) << "Parents-ARRAY:";
     // wlog::debug( "WDendrogram" ) << m_parents;
     // wlog::debug( "WDendrogram" ) << "Heights-ARRAY:";
@@ -87,94 +77,54 @@ std::string WDendrogram::toTXTString() const
     // first write out all fibers
     for( size_t i = 0; i < m_heights.size() + 1; ++i )
     {
-        ss << "(0, (" << i << ",))" << std::endl;
-        childsOfInnerNodes[ m_parents.at( i ) ].insert( i );
-        preds[ m_parents.at( i ) ].insert( i );
+        result << "(0, (" << i << ",))" << std::endl;
+        childsOfInnerNodes[ m_parents[ i ] ].push_back( i );
+        preds[ m_parents[ i ] ].push_back( i );
     }
     for( size_t i = m_heights.size() + 1; i < 2 * m_heights.size() + 1; ++i )
     {
-        if( preds[ i ].size() != 2 )
-        {
-            std::stringstream ss;
-            ss << "There are more or less than 2 predecessors for an inner node" << std::endl;
-            ss << "i=" << i << std::endl;
-            ss << "size=" << preds[ i ].size() << std::endl;
-            for( std::set< size_t >::const_iterator cit = preds[ i ].begin(); cit != preds[ i ].end(); ++cit )
-            {
-                ss << *cit << " " <<  m_heights.at( *cit - m_heights.size() - 1 ) << " ";
-            }
-            ss << std::endl;
-            ss << m_heights.at( i - m_heights.size() - 1 ) << std::endl;
-            WAssert( false, ss.str() );
-        }
-        size_t left = *( preds[ i ].begin() );
-        size_t right = *( preds[ i ].rbegin() );
-        level.at( i ) = std::max( level.at( left ), level.at( right ) ) + 1;
-        preds[ m_parents.at( i ) ].insert( i );
-        std::set< size_t > join;
-        std::set_union( childsOfInnerNodes[ m_parents.at( i ) ].begin(), childsOfInnerNodes[ m_parents.at( i ) ].end(),
-                childsOfInnerNodes[ i ].begin(), childsOfInnerNodes[ i ].end(), std::inserter( join, join.begin() ) );
-        childsOfInnerNodes[ m_parents.at( i ) ] = join;
-        ss << "(" << level.at( i ) << ", (";
-        size_t numElements = childsOfInnerNodes[i].size();
-        for( std::set< size_t >::const_iterator cit = childsOfInnerNodes[i].begin(); cit != childsOfInnerNodes[i].end(); ++cit )
-        {
-            if( numElements == 1 )
-            {
-                ss << *cit << "), ";
-            }
-            else
-            {
-                ss << *cit << ", ";
-            }
-            numElements -= 1;
-        }
-        using string_utils::operator<<;
-        ss << "(" << left << ", " << right << "), " << m_heights.at( i - m_heights.size() - 1 ) << ")" << std::endl;
-    }
-#else
-    // first write out all fibers
-    for( size_t i = 0; i < m_heights.size() + 1; ++i )
-    {
-        ss << "(0, (" << i << ",))" << std::endl;
-        childsOfInnerNodes[ m_parents[ i ] ].insert( i );
-        preds[ m_parents[ i ] ].insert( i );
-    }
-    for( size_t i = m_heights.size() + 1; i < 2 * m_heights.size() + 1; ++i )
-    {
+        // using string_utils::operator<<;
+        // wlog::debug( "WDendrogram" ) << "i: " << i;
+        // wlog::debug( "WDendrogram" ) << "pred[i]: " << preds[i];
+        // wlog::debug( "WDendrogram" ) << "childs[i]: " << childsOfInnerNodes[i];
+        // wlog::debug( "WDendrogram" ) << "parentchilds: " << childsOfInnerNodes[ m_parents[ i ] ];
+
         size_t left = *( preds[ i ].begin() );
         size_t right = *( preds[ i ].rbegin() );
         level[ i ] = std::max( level[ left ], level[ right ] ) + 1;
-        preds[ m_parents[ i ] ].insert( i );
-        std::set< size_t > join;
-        std::set_union( childsOfInnerNodes[ m_parents[ i ] ].begin(), childsOfInnerNodes[ m_parents[ i ] ].end(),
-                childsOfInnerNodes[ i ].begin(), childsOfInnerNodes[ i ].end(), std::inserter( join, join.begin() ) );
-        childsOfInnerNodes[ m_parents[ i ] ] = join;
-        ss << "(" << level[i] << ", (";
+        if( i != m_parents[i] )
+        {
+            preds[ m_parents[ i ] ].push_back( i );
+            childsOfInnerNodes[ m_parents[ i ] ].reserve( childsOfInnerNodes[ m_parents[ i ] ].size() + childsOfInnerNodes[ i ].size() );
+            childsOfInnerNodes[ m_parents[ i ] ].insert(  childsOfInnerNodes[ m_parents[ i ] ].end(), childsOfInnerNodes[ i ].begin(),  childsOfInnerNodes[ i ].end() );
+        }
+        result << "(" << level[i] << ", (";
         size_t numElements = childsOfInnerNodes[i].size();
-        for( std::set< size_t >::const_iterator cit = childsOfInnerNodes[i].begin(); cit != childsOfInnerNodes[i].end(); ++cit )
+        for( std::vector< size_t >::const_iterator cit = childsOfInnerNodes[i].begin(); cit != childsOfInnerNodes[i].end(); ++cit )
         {
             if( numElements == 1 )
             {
-                ss << *cit << "), ";
+                result << *cit << "), ";
             }
             else
             {
-                ss << *cit << ", ";
+                result << *cit << ", ";
             }
             numElements -= 1;
         }
-        using string_utils::operator<<;
-        ss << "(" << left << ", " << right << "), " << m_heights[ i - m_heights.size() - 1 ] << ")" << std::endl;
+        // wlog::debug( "WDendrogram" ) << "i: " << i;
+        // wlog::debug( "WDendrogram" ) << "pred[i]: " << preds[i];
+        // wlog::debug( "WDendrogram" ) << "childs[i]: " << childsOfInnerNodes[i];
+        // wlog::debug( "WDendrogram" ) << "parentchilds: " << childsOfInnerNodes[ m_parents[ i ] ];
+        result << "(" << left << ", " << right << "), " << m_heights[ i - m_heights.size() - 1 ] << ")" << std::endl;
     }
-#endif // DEBUG
 
     // TODO(math): the needs to be made with a writer instead
     wlog::debug( "WDendrogram" ) << "start writing the txt file to pansen.txt";
     std::ofstream file( "/home/math/pansen.txt" );
-    file << ss.str();
+    file << result.str();
     file.close();
     wlog::debug( "WDendrogram" ) << "written the txt file to pansen.txt";
 
-    return ss.str();
+    return result.str();
 }
