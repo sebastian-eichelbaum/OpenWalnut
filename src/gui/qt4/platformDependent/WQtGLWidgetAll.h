@@ -77,7 +77,7 @@ public:
      */
     enum CameraManipulators
     {
-        TRACKBALL, TERRAIN, UFO, DRIVE, FLIGHT, TWO_D
+        TRACKBALL, TWO_D
     };
 
     /**
