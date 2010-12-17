@@ -208,6 +208,9 @@ void WMTeemGlyphs::properties()
     m_useNormalizationProp = m_properties->addProperty( "Min-max normalization", "Scale the radius of each glyph to be in [0,1].",
                                                         true,
                                                         m_recompute );
+    m_useRadiusNormalizationProp = m_properties->addProperty( "Radius normalization", "Make all glyphs have similar size.",
+                                                        true,
+                                                        m_recompute );
 
     WModule::properties();
 }
@@ -277,6 +280,7 @@ void WMTeemGlyphs::moduleMain()
                || m_moduloProp->changed()
                || m_usePolarPlotProp->changed()
                || m_useNormalizationProp->changed()
+               || m_useRadiusNormalizationProp->changed()
                 )
             )
         {
@@ -316,7 +320,8 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
                                        sliceType,
                                        m_usePolarPlotProp->get( true ),
                                        m_glyphSizeProp->get( true ),
-                                       m_useNormalizationProp->get( true ) ) );
+                                       m_useNormalizationProp->get( true ),
+                                       m_useRadiusNormalizationProp->get( true ) ) );
     WThreadedFunction< GlyphGeneration > generatorThreaded( W_AUTOMATIC_NB_THREADS, generator );
     generatorThreaded.run();
     generatorThreaded.wait();
@@ -364,6 +369,7 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
     {
         wmath::WPosition pos( glyph->xyzw[nbVertCoords*vertID], glyph->xyzw[nbVertCoords*vertID+1],  glyph->xyzw[nbVertCoords*vertID+2] );
         double norm = pos.norm();
+
         if( norm < min )
         {
             min = norm;
@@ -406,7 +412,8 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
                                                 const size_t& sliceType,
                                                 const bool& usePolar,
                                                 const float& scale,
-                                                const bool& useNormalization ) :
+                                                const bool& useNormalization,
+                                                const bool& useRadiusNormalization ) :
     m_dataSet( dataSet ),
     m_dataGFA( dataGFA ),
     m_grid( boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() ) ),
@@ -417,7 +424,8 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
     m_modulo( modulo ),
     m_usePolar( usePolar ),
     m_scale( scale ),
-    m_useNormalization( useNormalization )
+    m_useNormalization( useNormalization ),
+    m_useRadiusNormalization( useRadiusNormalization )
 {
     enum sliceTypeEnum
     {
@@ -591,14 +599,6 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             // convert even-order spherical harmonics to higher-order tensor
             tijk_esh_to_3d_sym_f( ten, esh, m_order );
 
-            // create positive approximation of the tensor
-            tijk_refine_rankk_parm *parm = tijk_refine_rankk_parm_new();
-            parm->pos = 1;
-            int ret = tijk_approx_rankk_3d_f( NULL, NULL, res, ten, type, 6, parm );
-            WAssert( ret == 0, "Error condition in call to tijk_approx_rankk_3d_f." );
-            parm = tijk_refine_rankk_parm_nix( parm );
-            tijk_sub_f( ten, ten, res, type );
-
             const char normalize = 0;
 
             limnPolyData *glyph = limnPolyDataNew();
@@ -613,6 +613,14 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             }
             else
             {
+                // create positive approximation of the tensor
+                tijk_refine_rankk_parm *parm = tijk_refine_rankk_parm_new();
+                parm->pos = 1;
+                int ret = tijk_approx_rankk_3d_f( NULL, NULL, res, ten, type, 6, parm );
+                WAssert( ret == 0, "Error condition in call to tijk_approx_rankk_3d_f." );
+                parm = tijk_refine_rankk_parm_nix( parm );
+                tijk_sub_f( ten, ten, res, type );
+
                 radius = elfGlyphHOME( glyph, 1, ten, type, NULL, normalize );
             }
 
@@ -624,12 +632,23 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             if( m_useNormalization )
             {
                 minMaxNormalization( glyph, nbVertCoords );
+                if( !m_useRadiusNormalization )
+                {
+                    scale = m_scale * radius;
+                }
             }
             else
             {
-                if( radius != 0 )
+                if( m_useRadiusNormalization )
                 {
-                    scale = m_scale / radius;
+                    if( radius != 0 )
+                    {
+                        scale = m_scale / radius;
+                    }
+                    else
+                    {
+                        scale = 0.0;
+                    }
                 }
             }
             estimateNormalsAntipodal( glyph, normalize );

@@ -138,7 +138,8 @@ private:
     boost::shared_ptr< WItemSelection > m_sliceOrientations; //!< A list of the selectable slice orientations, i.e  x, y and z.
     WPropSelection m_sliceOrientationSelectionProp; //!< To choose whether to x, y or z slice.
     WPropBool m_usePolarPlotProp; //!< Property indicating whether to use polar plot instead of HOME glyph
-    WPropBool m_useNormalizationProp; //!< Indicates whether to us radius normalization.
+    WPropBool m_useNormalizationProp; //!< Indicates whether to use min max normalization.
+    WPropBool m_useRadiusNormalizationProp; //!< Indicates whether to use radius normalization.
     WPropDouble m_GFAThresholdProp; //!< Property holding the threshold of GFA above which glyphs should be drawn.
     WPropDouble m_glyphSizeProp; //!< Property holding the size of the displayed glyphs
     WPropInt m_sliceIdProp; //!< Property holding the slice ID
@@ -172,6 +173,7 @@ private:
          * \param usePolar Use polar glyphs (HOME otherwise)
          * \param scale Resize the glyphs.
          * \param useNormalization Scale minimum and maximum radius to [0,1].
+         * \param useRadiusNormalization Scale glyphs to make them all the same size.
          */
         GlyphGeneration(  boost::shared_ptr< WDataSetSphericalHarmonics > dataSet,
                           boost::shared_ptr< WDataSetScalar > dataGFA,
@@ -183,7 +185,8 @@ private:
                           const size_t& sliceType,
                           const bool& usePolar,
                           const float& scale,
-                          const bool& useNormalization );
+                          const bool& useNormalization,
+                          const bool& useRadiusNormalization );
 
         /**
          * Destructor freeing the data.
@@ -234,6 +237,7 @@ private:
         bool m_usePolar; //!< Stores option from property.
         float m_scale; //!< Stores option from property.
         bool m_useNormalization; //!< Stores option from property..
+        bool m_useRadiusNormalization; //!< Stores option from property..
 
         limnPolyData *m_sphere; //!< The geometry of the subdivided icosahedron
     };
