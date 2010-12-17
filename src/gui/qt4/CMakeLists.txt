@@ -14,6 +14,7 @@ SET(GUI_QT4_MOC_HDRS
     WMainWindow.h
     WQtConfigWidget.h
     WQtNavGLWidget.h
+    WQtGLWidget.h
     WQtCombinerToolbar.h
     guiElements/WQtPushButton.h
     guiElements/WQtModuleOneToOneCombinerAction.h
@@ -34,6 +35,12 @@ SET(GUI_QT4_MOC_HDRS
     controlPanel/WQtTreeItem.h
     controlPanel/WQtTextureSorter.h
 )
+IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
+  LIST( APPEND GUI_QT4_MOC_HDRS platformDependent/WQtGLWidgetMac.h ) 
+
+ELSE()
+  LIST( APPEND GUI_QT4_MOC_HDRS platformDependent/WQtGLWidgetAll.h )
+ENDIF()
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 

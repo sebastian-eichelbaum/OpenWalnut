@@ -193,9 +193,6 @@ void WMainWindow::setupGUI()
 
     setMenuBar( m_menuBar );
 
-    m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
-    setCentralWidget( m_mainGLWidget.get() );
-
     // initially 3 navigation views
     {
         bool hideWidget;
@@ -262,6 +259,9 @@ void WMainWindow::setupGUI()
 
 void WMainWindow::setupPermanentToolBar()
 {
+    m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
+    setCentralWidget( m_mainGLWidget.get() );
+
     m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
 
     // Set the style of the toolbar
@@ -269,6 +269,7 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->setToolButtonStyle( getToolbarStyle() );
 
     m_iconManager.addIcon( std::string( "ROI icon" ), box_xpm );
+    m_iconManager.addIcon( std::string( "Reset icon" ), o_xpm );
     m_iconManager.addIcon( std::string( "axial icon" ), axial_xpm );
     m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
     m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
@@ -276,6 +277,7 @@ void WMainWindow::setupPermanentToolBar()
     // TODO(all): this should be QActions to allow the toolbar style to work properly
     m_loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
     WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
+    WQtPushButton* resetButton = new WQtPushButton( m_iconManager.getIcon( "Reset icon" ), "Reset", m_permanentToolBar );
     WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
     WQtPushButton* projectSaveButton = new WQtPushButton( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
 
@@ -289,11 +291,13 @@ void WMainWindow::setupPermanentToolBar()
     projectSaveButton->setMenu( saveMenu );
 
     connect( m_loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
+    connect( resetButton, SIGNAL( pressed() ), m_mainGLWidget.get(), SLOT( reset() ) );
     connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
     connect( projectLoadButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
     connect( projectSaveButton, SIGNAL( pressed() ), this, SLOT( projectSaveAll() ) );
 
     m_loadButton->setToolTip( "Load Data" );
+    resetButton->setToolTip( "Reset main view" );
     roiButton->setToolTip( "Create New ROI" );
     projectLoadButton->setToolTip( "Load a project from file" );
     projectSaveButton->setToolTip( "Save current project to file" );
@@ -303,6 +307,7 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addWidget( projectLoadButton );
     m_permanentToolBar->addWidget( projectSaveButton );
     m_permanentToolBar->addSeparator();
+    m_permanentToolBar->addWidget( resetButton );
     m_permanentToolBar->addWidget( roiButton );
     m_permanentToolBar->addSeparator();
 

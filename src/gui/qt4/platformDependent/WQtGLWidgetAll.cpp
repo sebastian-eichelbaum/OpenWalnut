@@ -233,3 +233,8 @@ void WQtGLWidgetAll::wheelEvent( QWheelEvent* event )
     }
     m_Viewer->mouseEvent( WGEViewer::MOUSESCROLL, x, y, 0 );
 }
+
+void WQtGLWidgetAll::reset()
+{
+    m_Viewer->reset();
+}
