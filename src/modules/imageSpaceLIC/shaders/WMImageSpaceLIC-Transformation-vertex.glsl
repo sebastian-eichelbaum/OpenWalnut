@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WGEColormapping-vertex.glsl"
+
 #include "WGETransformationTools.glsl"
 
 #include "WMImageSpaceLIC-Transformation-varyings.glsl"
@@ -33,6 +35,8 @@
  */
 void main()
 {
+    colormapping( gl_TextureMatrix[0] );
+
     // for easy access to texture coordinates
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 

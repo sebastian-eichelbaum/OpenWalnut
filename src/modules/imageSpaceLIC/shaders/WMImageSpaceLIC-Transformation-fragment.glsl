@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WGEColormapping-fragment.glsl"
+
 #include "WGEShadingTools.glsl"
 #include "WGETextureTools.glsl"
 #include "WGETransformationTools.glsl"
@@ -124,6 +126,6 @@ void main()
             normalize( v_lightSource ) );
 
     gl_FragData[0] = vec4( textureNormalize( vecProjected ), light, 1.0 );
-    gl_FragData[1] = vec4( texture3D( u_texture0Sampler, gl_TexCoord[0].xyz ).rgb , 1.0 );
+    gl_FragData[1] = colormapping();
 }
 

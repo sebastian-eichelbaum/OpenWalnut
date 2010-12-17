@@ -42,6 +42,7 @@
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../graphicsEngine/WGEOffscreenRenderPass.h"
@@ -307,6 +308,9 @@ void WMImageSpaceLIC::moduleMain()
         transformationShader,
         "Transformation"
     );
+    // apply colormapping to transformation
+    WGEColormapping::apply( transformation, transformationShader, 1 );
+
     osg::ref_ptr< WGEOffscreenRenderPass > edgeDetection =  offscreen->addTextureProcessingPass(
         new WShader( "WMImageSpaceLIC-Edge", m_localPath ),
         "Edge Detection"
@@ -441,7 +445,6 @@ void WMImageSpaceLIC::moduleMain()
             transformationShader->eraseDefine( "VECTORDATA" );
             transformationShader->setDefine( "SCALARDATA" );
             transformation->bind( dataSetScal->getTexture2(), 0 );
-            transformation->bind( randTexture, 1 );
         }
 
         debugLog() << "Done";
