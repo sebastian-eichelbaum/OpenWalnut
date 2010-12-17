@@ -350,6 +350,25 @@ void WMainWindow::moduleSpecificCleanup( boost::shared_ptr< WModule > module )
         prop = module->getProperties()->findProperty( "showSagittal" );
         m_permanentToolBar->removeAction( propertyActionMap[prop] );
         propertyActionMap.erase( prop );
+
+
+        prop = module->getProperties()->findProperty( "Axial Slice" );
+        if( m_navAxial )
+        {
+            m_navAxial->removeSliderProperty( prop );
+        }
+
+        prop = module->getProperties()->findProperty( "Coronal Slice" );
+        if( m_navCoronal )
+        {
+            m_navCoronal->removeSliderProperty( prop );
+        }
+
+        prop = module->getProperties()->findProperty( "Sagittal Slice" );
+        if( m_navSagittal )
+        {
+            m_navSagittal->removeSliderProperty( prop );
+        }
     }
 }
 
@@ -460,7 +479,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navAxial )
             {
-                m_navAxial->setSliderProperty( prop->toPropInt() );
+                m_navAxial->setSliderProperty( prop );
             }
         }
 
@@ -475,7 +494,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navCoronal )
             {
-                m_navCoronal->setSliderProperty( prop->toPropInt() );
+                m_navCoronal->setSliderProperty( prop );
             }
         }
 
@@ -490,7 +509,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navSagittal )
             {
-               m_navSagittal->setSliderProperty( prop->toPropInt() );
+               m_navSagittal->setSliderProperty( prop );
             }
         }
     }
