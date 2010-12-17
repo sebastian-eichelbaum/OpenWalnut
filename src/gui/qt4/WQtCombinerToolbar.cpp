@@ -39,7 +39,8 @@
 #include "WQtCombinerToolbar.h"
 
 WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCompatiblesList compatibles )
-    : QToolBar( "Compatible Modules", parent )
+    : QToolBar( "Compatible Modules", parent ),
+      m_parent( parent )
 {
     // setup toolbar
     setAllowedAreas( Qt::AllToolBarAreas );
@@ -58,14 +59,36 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCo
     // create the list of actions possible
     addActions( WQtCombinerActionList( this, parent->getIconManager(), compatibles ) );
 
-    // The following makes the bar having button size from the beginning.
-    QPushButton* dummyButton = new QPushButton;
+    insertDummyButton();
+}
 
-    if ( ( parent->toQtToolBarArea( parent->getCompatiblesToolbarPos() ) ==  Qt::TopToolBarArea ) ||
-         ( parent->toQtToolBarArea( parent->getCompatiblesToolbarPos() ) ==  Qt::BottomToolBarArea ) )
+WQtCombinerToolbar::~WQtCombinerToolbar()
+{
+}
+
+
+void WQtCombinerToolbar::makeEmpty()
+{
+    clear();
+    insertDummyButton();
+}
+
+void WQtCombinerToolbar::updateButtons( WCombinerTypes::WCompatiblesList compatibles )
+{
+    clear();
+    // create the list of actions possible
+    addActions( WQtCombinerActionList( this, m_parent->getIconManager(), compatibles ) );
+}
+
+void WQtCombinerToolbar::insertDummyButton()
+{
+    // The following makes the bar having button size.
+    QPushButton* dummyButton = new QPushButton;
+    if ( ( m_parent->toQtToolBarArea( m_parent->getCompatiblesToolbarPos() ) ==  Qt::TopToolBarArea ) ||
+         ( m_parent->toQtToolBarArea( m_parent->getCompatiblesToolbarPos() ) ==  Qt::BottomToolBarArea ) )
     {
         dummyButton->setFixedWidth( 0 );
-        dummyButton->setFixedHeight( 32 );
+        dummyButton->setFixedHeight( 30 );
     }
     else
     {
@@ -75,8 +98,3 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCo
 
     addWidget( dummyButton );
 }
-
-WQtCombinerToolbar::~WQtCombinerToolbar()
-{
-}
-

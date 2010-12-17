@@ -169,7 +169,7 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size
     {
         // Nearest Neighbour find: update p, q, and sim, so iterate over all valid matrix entries
         // NOTE, WARNING, ATTENTION: This is brute force NN finding strategy and requires O(n^2) time
-        double maxSim = -wlimits::MAX_DOUBLE; // This is not 0.0, due to numerical issue, where the similarity maybe very near to 0.0, and thus no new pair is found!
+        double maxSim = -wlimits::MAX_DOUBLE; // This is not 0.0, since the similarity maybe very near to 0.0, and thus no new pair would be found!
         size_t p = 0;
         size_t q = 0;
         for( std::set< size_t >::const_iterator it = idx.begin(); it != idx.end(); ++it )

@@ -38,9 +38,9 @@
 #include "WQtNavGLWidget.h"
 
 WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string sliderTitle, const QGLWidget * shareWidget )
-    : QDockWidget( title, parent ),
-    m_propWidget( NULL )
+    : QDockWidget( title, parent )
 {
+    propertyWidgetMap.clear();
     m_sliderTitle = QString( sliderTitle.c_str() );
 
     setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
@@ -69,9 +69,14 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string slid
 
 WQtNavGLWidget::~WQtNavGLWidget()
 {
-    if ( m_propWidget )
+    for( std::map< boost::shared_ptr< WPropertyBase >, WPropertyIntWidget* >::iterator it = propertyWidgetMap.begin();
+         it != propertyWidgetMap.end();
+         ++it )
     {
-        delete m_propWidget;
+        if( it->second != 0 )
+        {
+            delete it->second;
+        }
     }
 }
 
@@ -85,12 +90,21 @@ boost::shared_ptr<WQtGLWidget>WQtNavGLWidget::getGLWidget()
     return m_glWidget;
 }
 
-void WQtNavGLWidget::setSliderProperty( WPropInt prop )
+void WQtNavGLWidget::setSliderProperty( boost::shared_ptr< WPropertyBase > prop )
 {
-    m_propWidget = new WPropertyIntWidget( prop, NULL, parentWidget() );
-    m_layout->addWidget( m_propWidget );
-
+    WPropertyIntWidget* propWidget;
+    propWidget = new WPropertyIntWidget( prop->toPropInt(), NULL, parentWidget() );
+    propertyWidgetMap[prop] = propWidget;
+    m_layout->addWidget( propWidget );
     m_layout->setStretchFactor( m_glWidget.get(), 1 );
-    m_layout->setStretchFactor( m_propWidget, 0 );
+    m_layout->setStretchFactor( propWidget, 0 );
+}
+
+void WQtNavGLWidget::removeSliderProperty( boost::shared_ptr< WPropertyBase > prop )
+{
+    WPropertyIntWidget* propWidget = propertyWidgetMap[prop];
+    m_layout->removeWidget( propWidget );
+    delete propWidget;
+    propertyWidgetMap.erase( prop );
 }
 

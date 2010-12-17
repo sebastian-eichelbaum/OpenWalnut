@@ -54,8 +54,8 @@ size_t WDendrogram::merge( size_t i, size_t j, double height )
     m_parents.push_back( m_parents.size() ); // the root s always self referencing
 
     m_heights[ m_parents.size() - 2 - m_heights.size() ] = height;
-    m_parents[ i ] = m_parents.back();
-    m_parents[ j ] = m_parents.back();
+    m_parents[i] = m_parents.back();
+    m_parents[j] = m_parents.back();
 
     return m_parents.size() - 1;
 }
@@ -78,8 +78,8 @@ std::string WDendrogram::toTXTString() const
     for( size_t i = 0; i < m_heights.size() + 1; ++i )
     {
         result << "(0, (" << i << ",))" << std::endl;
-        childsOfInnerNodes[ m_parents[ i ] ].push_back( i );
-        preds[ m_parents[ i ] ].push_back( i );
+        childsOfInnerNodes[ m_parents[i] ].push_back( i );
+        preds[ m_parents[i] ].push_back( i );
     }
     for( size_t i = m_heights.size() + 1; i < 2 * m_heights.size() + 1; ++i )
     {
@@ -91,12 +91,13 @@ std::string WDendrogram::toTXTString() const
 
         size_t left = *( preds[ i ].begin() );
         size_t right = *( preds[ i ].rbegin() );
-        level[ i ] = std::max( level[ left ], level[ right ] ) + 1;
+        level[i] = std::max( level[left], level[right] ) + 1;
         if( i != m_parents[i] )
         {
             preds[ m_parents[ i ] ].push_back( i );
-            childsOfInnerNodes[ m_parents[ i ] ].reserve( childsOfInnerNodes[ m_parents[ i ] ].size() + childsOfInnerNodes[ i ].size() );
-            childsOfInnerNodes[ m_parents[ i ] ].insert(  childsOfInnerNodes[ m_parents[ i ] ].end(), childsOfInnerNodes[ i ].begin(),  childsOfInnerNodes[ i ].end() );
+            childsOfInnerNodes[ m_parents[i] ].reserve( childsOfInnerNodes[ m_parents[i] ].size() + childsOfInnerNodes[i].size() );
+            childsOfInnerNodes[ m_parents[i] ].insert(  childsOfInnerNodes[ m_parents[i] ].end(), childsOfInnerNodes[i].begin(),
+                    childsOfInnerNodes[i].end() );
         }
         result << "(" << level[i] << ", (";
         size_t numElements = childsOfInnerNodes[i].size();

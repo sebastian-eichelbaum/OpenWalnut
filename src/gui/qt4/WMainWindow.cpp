@@ -59,6 +59,7 @@
 #include "events/WEventTypes.h"
 #include "events/WModuleCrashEvent.h"
 #include "events/WModuleReadyEvent.h"
+#include "events/WModuleRemovedEvent.h"
 #include "events/WOpenCustomDockWidgetEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
 #include "WQtCustomDockWidget.h"
@@ -331,6 +332,46 @@ void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string prot
     }
 }
 
+void WMainWindow::moduleSpecificCleanup( boost::shared_ptr< WModule > module )
+{
+    // nav slices use separate buttons for slice on/off switching
+    if( module->getName() == "Navigation Slices" )
+    {
+        boost::shared_ptr< WPropertyBase > prop;
+
+        prop = module->getProperties()->findProperty( "showAxial" );
+        m_permanentToolBar->removeAction( propertyActionMap[prop] );
+        propertyActionMap.erase( prop );
+
+        prop = module->getProperties()->findProperty( "showCoronal" );
+        m_permanentToolBar->removeAction( propertyActionMap[prop] );
+        propertyActionMap.erase( prop );
+
+        prop = module->getProperties()->findProperty( "showSagittal" );
+        m_permanentToolBar->removeAction( propertyActionMap[prop] );
+        propertyActionMap.erase( prop );
+
+
+        prop = module->getProperties()->findProperty( "Axial Slice" );
+        if( m_navAxial )
+        {
+            m_navAxial->removeSliderProperty( prop );
+        }
+
+        prop = module->getProperties()->findProperty( "Coronal Slice" );
+        if( m_navCoronal )
+        {
+            m_navCoronal->removeSliderProperty( prop );
+        }
+
+        prop = module->getProperties()->findProperty( "Sagittal Slice" );
+        if( m_navSagittal )
+        {
+            m_navSagittal->removeSliderProperty( prop );
+        }
+    }
+}
+
 void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
 {
     // Add all special handlings here. This method is called whenever a module is marked "ready". You can set up the gui for special modules,
@@ -389,6 +430,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             a->setText( "Toggle Axial Slice" );
             a->setIcon( m_iconManager.getIcon( "axial icon" ) );
             m_permanentToolBar->addAction( a );
+            propertyActionMap[prop] = a;
         }
 
         prop = module->getProperties()->findProperty( "showCoronal" );
@@ -405,6 +447,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             a->setText( "Toggle Coronal Slice" );
             a->setIcon( m_iconManager.getIcon( "coronal icon" ) );
             m_permanentToolBar->addAction( a );
+            propertyActionMap[prop] = a;
         }
 
         prop = module->getProperties()->findProperty( "showSagittal" );
@@ -421,6 +464,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             a->setText( "Toggle Saggital Slice" );
             a->setIcon( m_iconManager.getIcon( "sagittal icon" ) );
             m_permanentToolBar->addAction( a );
+            propertyActionMap[prop] = a;
         }
 
         // now setup the nav widget sliders
@@ -435,7 +479,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navAxial )
             {
-                m_navAxial->setSliderProperty( prop->toPropInt() );
+                m_navAxial->setSliderProperty( prop );
             }
         }
 
@@ -450,7 +494,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navCoronal )
             {
-                m_navCoronal->setSliderProperty( prop->toPropInt() );
+                m_navCoronal->setSliderProperty( prop );
             }
         }
 
@@ -465,7 +509,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navSagittal )
             {
-               m_navSagittal->setSliderProperty( prop->toPropInt() );
+               m_navSagittal->setSliderProperty( prop );
             }
         }
     }
@@ -564,6 +608,11 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
 
     // and the position of the toolbar
     addToolBar( toQtToolBarArea( getCompatiblesToolbarPos() ), m_currentCompatiblesToolbar );
+}
+
+WQtCombinerToolbar* WMainWindow::getCompatiblesToolbar()
+{
+    return m_currentCompatiblesToolbar;
 }
 
 WQtControlPanel* WMainWindow::getControlPanel()
@@ -953,6 +1002,16 @@ bool WMainWindow::event( QEvent* event )
             msgBox.setInformativeText( message  );
             msgBox.setStandardButtons( QMessageBox::Ok );
             msgBox.exec();
+        }
+    }
+
+    if( event->type() == WQT_MODULE_REMOVE_EVENT )
+    {
+        // convert event to ready event
+        WModuleRemovedEvent* e1 = dynamic_cast< WModuleRemovedEvent* >( event );     // NOLINT
+        if( e1 )
+        {
+            moduleSpecificCleanup( e1->getModule() );
         }
     }
 

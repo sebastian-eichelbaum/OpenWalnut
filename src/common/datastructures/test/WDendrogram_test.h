@@ -65,9 +65,9 @@ public:
         ss << "(0, (3,))" << std::endl;
         ss << "(0, (4,))" << std::endl;
         ss << "(1, (0, 1), (0, 1), 0.8)" << std::endl;
-        ss << "(2, (0, 1, 2), (2, 5), 0.4)" << std::endl;
+        ss << "(2, (2, 0, 1), (2, 5), 0.4)" << std::endl;
         ss << "(1, (3, 4), (3, 4), 0.6)" << std::endl;
-        ss << "(3, (0, 1, 2, 3, 4), (6, 7), 0.32)" << std::endl;
+        ss << "(3, (2, 0, 1, 3, 4), (6, 7), 0.32)" << std::endl;
         if( ss.str() != d.toTXTString() )
         {
             std::cout << "Expected:" << std::endl << ss.str();
