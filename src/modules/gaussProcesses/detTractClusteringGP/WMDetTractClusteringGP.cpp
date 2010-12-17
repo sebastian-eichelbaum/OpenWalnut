@@ -65,6 +65,7 @@ const std::string WMDetTractClusteringGP::getDescription() const
 void WMDetTractClusteringGP::connectors()
 {
     m_gpIC = WModuleInputData< WDataSetGP >::createAndAdd( shared_from_this(), "gpInput", "WDataSetGP providing the gaussian processes" );
+    m_dendOC = WModuleOutputData< WDendrogram >::createAndAdd( shared_from_this(), "dendrogramOutput", "WDendrogram as a result of this clustering" );
 
     WModule::connectors();
 }
@@ -100,74 +101,49 @@ void WMDetTractClusteringGP::moduleMain()
         {
             debugLog() << "Input has been updated...";
         }
-        debugLog() << "Start Clustering";
 
-        m_maxSegmentLength = searchGlobalMaxSegementLength( dataSet );
+        infoLog() << "Generating similarity matrix...";
         computeDistanceMatrix( dataSet );
-        debugLog() << "done";
+
+        infoLog() << "Building dendrogram...";
+        m_dendOC->updateData( computeDendrogram( dataSet->size() ) );
+
+        infoLog() << "Done.";
     }
-}
-
-double WMDetTractClusteringGP::searchGlobalMaxSegementLength( boost::shared_ptr< const WDataSetGP > dataSet ) const
-{
-    WDataSetGP::const_iterator cit = std::max_element( dataSet->begin(), dataSet->end(),
-        boost::bind( &WGaussProcess::getMaxSegmentLength, _1 ) < boost::bind( &WGaussProcess::getMaxSegmentLength, _2 ) );
-
-    return cit->getMaxSegmentLength();
-    // NOLINT return std::max_element( dataSet->begin(), dataSet->end(), [](WGaussProcess p1, WGaussProcess p2){ return p1.getMaxSegmentLength() < p2.getMaxSegmentLength(); } )->getMaxSegmentLength();
 }
 
 void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet )
 {
-    boost::shared_ptr< WProgress > progress( new WProgress( "Similarity matrix computation", ( dataSet->size()*dataSet->size() - dataSet->size() ) / 2 + dataSet->size() ) ); // NOLINT line length
+    const size_t steps = dataSet->size() * ( dataSet->size() - 2 ) / 2; // n(n-2)/2
+    boost::shared_ptr< WProgress > progress( new WProgress( "Similarity matrix computation", steps ) );
     m_progress->addSubProgress( progress );
-    std::vector< double > diagonal( dataSet->size() );
-    for( size_t i = 0; i < dataSet->size(); ++i )
-    {
-        diagonal[i] = std::sqrt( gauss::innerProduct( ( *dataSet )[i], ( *dataSet )[i] ) );
-        ++*progress;
-    }
 
     m_similarities = WMatrixSymDBL( dataSet->size() );
-    size_t p = 0, q = 0; // indices marking maximal similarity betwee two elements
-    double maxSim = 0.0;
     for( size_t i = 0; i < dataSet->size(); ++i )
     {
         for( size_t j = i + 1; j < dataSet->size(); ++j )
         {
             const WGaussProcess& p1 = ( *dataSet )[i];
             const WGaussProcess& p2 = ( *dataSet )[j];
-            const WBoundingBox& bb1 = p1.getBB();
-            const WBoundingBox& bb2 = p2.getBB();
-            if( bb1.minDistance( bb2 ) < 2.0 * p1.getMaxSegmentLength() + 2.0 * p2.getMaxSegmentLength() )
+            if( p1.getBB().minDistance( p2.getBB() ) < p1.getRadius() + p2.getRadius() )
             {
-                // m_similarities( i, j ) = gauss::innerProduct( p1, p2 ) / diagonal[i] / diagonal[j];
                 m_similarities( i, j ) = gauss::innerProduct( p1, p2 ); // As written in the paper, we don't use the normalized inner product
             }
             else
             {
                 m_similarities( i, j ) = 0.0;
             }
-            if( m_similarities( i, j ) > maxSim )
-            {
-                maxSim = m_similarities( i, j );
-                p = i;
-                q = j;
-            }
         }
         *progress = *progress + ( dataSet->size() - i - 1 );
     }
     progress->finish();
     m_progress->removeSubProgress( progress );
-
-    // TODO(math): The toTXTString function also saves the dendrogram into a hard coded path: /home/math/pansen.txt I need to fix this very very soon
-    computeDendrogram( dataSet->size(), std::make_pair( p, q ), maxSim )->toTXTString();
 }
 
-boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size_t n, std::pair< size_t, size_t > tracts, double similarity )
+boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size_t n )
 {
     boost::shared_ptr< WDendrogram > dend( new WDendrogram( n ) );
-    boost::shared_ptr< WProgress > progress( new WProgress( "Matrix => Dendrogram", n - 1 ) ); // NOLINT line length
+    boost::shared_ptr< WProgress > progress( new WProgress( "Matrix => Dendrogram", n - 1 ) );
     m_progress->addSubProgress( progress );
 
     WUnionFind uf( n );
@@ -181,33 +157,39 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size
         idx.insert( i );
     }
 
-    size_t p = tracts.first;
-    size_t q = tracts.second;
-    double sim = similarity;
-
-    // now the clustering starts, p and q are the first to merge
     for( size_t i = 0; i < n - 1; ++i )
     {
-        size_t cE_of_p = uf.find( p );
-        size_t cE_of_q = uf.find( q );
-        uf.merge( cE_of_p, cE_of_q );
-        size_t newCE = uf.find( cE_of_p );
-        innerNode[ newCE ] = dend->merge( innerNode[ cE_of_p ], innerNode[ cE_of_q ], sim );
+        // Nearest Neighbour find: update p, q, and sim, so iterate over all valid matrix entries
+        // NOTE, WARNING, ATTENTION: This is brute force NN finding strategy and requires O(n^2) time
+        double maxSim = -wlimits::MAX_DOUBLE; // This is not 0.0, since the similarity maybe very near to 0.0, and thus no new pair would be found!
+        size_t p = 0;
+        size_t q = 0;
+        for( std::set< size_t >::const_iterator it = idx.begin(); it != idx.end(); ++it )
+        {
+            for( std::set< size_t >::const_iterator jt = boost::next( it ); jt != idx.end(); ++jt )
+            {
+                if( m_similarities( *it, *jt ) > maxSim )
+                {
+                    maxSim = m_similarities( *it, *jt );
+                    p = *it;
+                    q = *jt;
+                }
+            }
+        }
+
+        uf.merge( p, q );
+        size_t newCE = uf.find( p );
+        innerNode[ newCE ] = dend->merge( innerNode[ p ], innerNode[ q ], maxSim );
 
         // erase one of the columns
-        size_t col_to_delete = 0;
-        if( newCE == cE_of_p )
+        size_t col_to_delete = p;
+        if( newCE == p )
         {
-            col_to_delete = cE_of_q;
-        }
-        else // hence cE_of_q is the new cannonical element of the merged cluster now
-        {
-            WAssert( cE_of_q == newCE, "Bug: The new cannonical element is not cE_of_p nor cE_of_q, something bad happend!" );
-            col_to_delete = cE_of_p;
+            col_to_delete = q;
         }
         idx.erase( col_to_delete );
 
-        // update the column where now pq resides
+        // update the column where now the new cluster pq resides
         for( std::set< size_t >::const_iterator it = idx.begin(); it != idx.end(); ++it )
         {
             if( *it != newCE )
@@ -215,40 +197,19 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size
                 // we have two gauss processes p and q. We have merged p and q into pq. Hence for all valid indexes we must
                 // recompute < pq, k > where k is a GP identified through an valid index, where:
                 // < pq, k > = |p| / ( |p| + |q| ) < p, k > + |q| / (|p| + |q|) < q, k >
-                double firstFactor = static_cast< double >( clusterSize[ cE_of_p ] ) / ( clusterSize[ cE_of_p ] + clusterSize[ cE_of_q ] );
-                double secondFactor = static_cast< double >( clusterSize[ cE_of_q ] ) / ( clusterSize[ cE_of_p ] + clusterSize[ cE_of_q ] );
-                m_similarities( newCE, *it ) = firstFactor * m_similarities( cE_of_p, *it ) + secondFactor * m_similarities( cE_of_q, *it );
+                double firstFactor = static_cast< double >( clusterSize[ p ] ) / ( clusterSize[ p ] + clusterSize[ q ] );
+                double secondFactor = static_cast< double >( clusterSize[ q ] ) / ( clusterSize[ p ] + clusterSize[ q ] );
+                m_similarities( newCE, *it ) = firstFactor * m_similarities( p, *it ) + secondFactor * m_similarities( q, *it );
             }
         }
-        clusterSize[ newCE ] = clusterSize[ cE_of_p ] + clusterSize[ cE_of_q ];
-
-        // Nearest Neighbour find: update p, q, and sim, so iterate over all valid matrix entries
-        // NOTE, WARNING, ATTENTION: This is brute force NN finding strategy and requires O(n^2) time
-        double maxSim = -1.0; // This is not 0.0, due to numerical issue, where the similarity maybe very near to 0.0, and thus no new pair is found!
-        std::pair< size_t, size_t > newpq = std::make_pair( 0, 0 );
-        for( std::set< size_t >::const_iterator it = idx.begin(); it != idx.end(); ++it )
-        {
-            std::set< size_t >::const_iterator jt = it;
-            ++jt; // increment so main diagonal elements are omitted
-            for( ; jt != idx.end(); ++jt )
-            {
-                if( m_similarities( *it, *jt ) > maxSim )
-                {
-                    maxSim = m_similarities( *it, *jt );
-                    newpq.first = *it;
-                    newpq.second = *jt;
-                }
-            }
-        }
-        p = newpq.first;
-        q = newpq.second;
-        sim = maxSim;
-
+        clusterSize[ newCE ] = clusterSize[ p ] + clusterSize[ q ];
         ++*progress;
     }
-    debugLog() << "Finished building up the dendrogram.";
+
+    WAssert( idx.size() == 1, "Bug: idx array is invalid there should be exactly one element left" );
 
     progress->finish();
     m_progress->removeSubProgress( progress );
+
     return dend;
 }

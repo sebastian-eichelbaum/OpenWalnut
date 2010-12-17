@@ -31,8 +31,12 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "../WTransferable.h"
+
 /**
- * Hirachical binary tree datastructure with spatial layout information called dendrogram.
+ * Hirachical binary tree datastructure with spatial layout information called dendrogram. Please note that there are some
+ * limitations of this implementation: First of all there are exactly <dfn>n-1</dfn> many inner nodes, and only inner nodes may
+ * have a height. In order to use this class for your objects ensure that the objects are labeled from <dfn>0,...,n-1</dfn>.
  *
  * The following description is taken from: http://en.wikipedia.org/wiki/Dendrogram A dendrogram (from Greek
  * dendron "tree", -gramma "drawing") is a tree diagram frequently used to illustrate the arrangement of
@@ -52,18 +56,44 @@
      o        o   o  o     o  --- 0   level
    \endverbatim
  *
- * In order to use this class for your objects ensure that the objects are labeled from <dfn>0,...,n-1</dfn>.
  */
-class WDendrogram
+class WDendrogram : public WTransferable
 {
 friend class WDendrogramTest;
 public:
+    /**
+     * Gets the name of this prototype.
+     *
+     * \return the name.
+     */
+    virtual const std::string getName() const;
+
+    /**
+     * Gets the description for this prototype.
+     *
+     * \return the description
+     */
+    virtual const std::string getDescription() const;
+
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
+
     /**
      * Constructs a new dendrogram for \c n many objects.
      *
      * \param n The number of leafs.
      */
     explicit WDendrogram( size_t n );
+
+    /**
+     * Default constructs an empty dendrogram.
+     */
+    WDendrogram();
 
     /**
      * Merges two elements (either inner nodes or leafs) given via the indices \e i and \e j.
@@ -82,10 +112,26 @@ public:
      *
      * \return The special string as constructed from the scheme above.
      */
-    std::string toTXTString() const;
+    std::string toString() const;
 
 protected:
+    static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
+
 private:
+    /**
+     * Resets the whole dendrogram to the number of elements it should be used for.
+     *
+     * \param n number of leafs
+     */
+    void reset( size_t n );
+
+    /**
+     * Checks if this instance is initialized. If not, it throws an exception.
+     * \throw WOutOfBounds
+     * \param caller A string identifying the class member function.
+     */
+    void checkAndThrowExceptionIfUsedUninitialized( std::string caller ) const;
+
     /**
      * Stores the parents of leafs as well as of inner nodes. The first half of the arrary corresponds to the
      * parents of the leafs and the second of the inner nodes. The last inner node is the top of the
@@ -98,5 +144,16 @@ private:
      */
     std::vector< double > m_heights;
 };
+
+inline const std::string WDendrogram::getName() const
+{
+    return "WDendrogram";
+}
+
+inline const std::string WDendrogram::getDescription() const
+{
+    return "A Dendrogram as a array with additional heights for each inner node.";
+}
+
 
 #endif  // WDENDROGRAM_H

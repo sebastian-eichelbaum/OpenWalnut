@@ -65,13 +65,13 @@ public:
         ss << "(0, (3,))" << std::endl;
         ss << "(0, (4,))" << std::endl;
         ss << "(1, (0, 1), (0, 1), 0.8)" << std::endl;
-        ss << "(2, (0, 1, 2), (2, 5), 0.4)" << std::endl;
+        ss << "(2, (2, 0, 1), (2, 5), 0.4)" << std::endl;
         ss << "(1, (3, 4), (3, 4), 0.6)" << std::endl;
-        ss << "(3, (0, 1, 2, 3, 4), (6, 7), 0.32)" << std::endl;
-        if( ss.str() != d.toTXTString() )
+        ss << "(3, (2, 0, 1, 3, 4), (6, 7), 0.32)" << std::endl;
+        if( ss.str() != d.toString() )
         {
             std::cout << "Expected:" << std::endl << ss.str();
-            std::cout << "But got:" << std::endl << d.toTXTString();
+            std::cout << "But got:" << std::endl << d.toString();
             TS_FAIL( "Invalid dendrogram to string generation" );
         }
     }
