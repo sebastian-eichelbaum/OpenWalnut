@@ -28,11 +28,13 @@
 /**
  * This method prepares some needed internal variables. Please call this in your vertex shader.
  * Be aware that this only works with the WGEColormapping class.
+ *
+ * \param texMatrix this additional matrix allows further modification of gl_MultiTexCoord0 to meet the requirements of WGEColormapping.
  */
-void colormapping()
+void colormapping( mat4 texMatrix)
 {
     // ColormapPreTransform is a mat4 defined by OpenWalnut before compilation
-    vec4 texCoord = ColormapPreTransform * gl_MultiTexCoord0;
+    vec4 texCoord = ColormapPreTransform * texMatrix * gl_MultiTexCoord0;
 
 #ifdef Colormap0Enabled
     v_colormap0TexCoord = ( gl_TextureMatrix[ Colormap0Unit ] * texCoord ).xyz;
@@ -58,5 +60,17 @@ void colormapping()
 #ifdef Colormap7Enabled
     v_colormap7TexCoord = ( gl_TextureMatrix[ Colormap7Unit ] * texCoord ).xyz;
 #endif
+}
+
+/**
+ * This method prepares some needed internal variables. Please call this in your vertex shader.
+ * Be aware that this only works with the WGEColormapping class.
+ */
+void colormapping()
+{
+    colormapping( mat4( 1.0, 0.0, 0.0, 0.0,
+                        0.0, 1.0, 0.0, 0.0,
+                        0.0, 0.0, 1.0, 0.0,
+                        0.0, 0.0, 0.0, 1.0 ) ); // simply call it with the identity transform
 }
 
