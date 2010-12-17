@@ -122,23 +122,15 @@ protected:
      * matrix to operate correctly and it will leave an invalid matrix afterwards!
      *
      * \param n How many tracts
-     * \param tracts Pair of tracts which is to be merged first.
-     * \param similarity The similarity of the first pair of tracts.
      *
      * \return The dendrogram.
      */
-    boost::shared_ptr< WDendrogram > computeDendrogram( size_t n, std::pair< size_t, size_t > tracts, double similarity );
+    boost::shared_ptr< WDendrogram > computeDendrogram( size_t n );
 
     /**
      * Input Connector for the gaussian processes which are about to be clustered.
      */
     boost::shared_ptr< WModuleInputData< WDataSetGP > > m_gpIC;
-
-    /**
-     * The maximal segment length of all segments of all tracts. In other words: there will be no
-     * other segment of a tract which is bigger than this.
-     */
-    double m_maxSegmentLength;
 
     /**
      * Distant matrix of all pairs of gaussian processes.

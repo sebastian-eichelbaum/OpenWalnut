@@ -96,7 +96,7 @@ public:
      *
      * \return Copy of the maximal segment length this gauss process is associated with.
      */
-    double getMaxSegmentLength() const;
+    double getRadius() const;
 
     /**
      * Covariance function of two points representing the smoothness of the tract.
@@ -214,7 +214,7 @@ private:
     WBoundingBox m_bb;
 };
 
-inline double WGaussProcess::getMaxSegmentLength() const
+inline double WGaussProcess::getRadius() const
 {
     return m_R;
 }
