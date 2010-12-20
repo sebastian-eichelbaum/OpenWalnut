@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,25 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-varying vec4 VaryingTexCoord0;
-varying vec4 VaryingTexCoord1;
-varying vec4 VaryingTexCoord2;
-varying vec4 VaryingTexCoord3;
-varying vec4 VaryingTexCoord4;
-varying vec4 VaryingTexCoord5;
-varying vec4 VaryingTexCoord6;
-varying vec4 VaryingTexCoord7;
+#version 120
 
 void main()
 {
-    VaryingTexCoord0 = gl_MultiTexCoord0;
-    VaryingTexCoord1 = gl_MultiTexCoord1;
-    VaryingTexCoord2 = gl_MultiTexCoord2;
-    VaryingTexCoord3 = gl_MultiTexCoord3;
-    VaryingTexCoord4 = gl_MultiTexCoord4;
-    VaryingTexCoord5 = gl_MultiTexCoord5;
-    VaryingTexCoord6 = gl_MultiTexCoord6;
-    VaryingTexCoord7 = gl_MultiTexCoord7;
+    // pass the color to the fragment shader
+    gl_FrontColor = gl_Color;
+    gl_BackColor =  gl_Color;
+
+    // pass tex coordinates
+    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+
+    // transform position
     gl_Position = ftransform();
 }
 

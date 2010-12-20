@@ -103,10 +103,22 @@ void WMDetTractClusteringGP::moduleMain()
         }
 
         infoLog() << "Generating similarity matrix...";
+
         computeDistanceMatrix( dataSet );
+        if( m_shutdownFlag() ) // since computeDistanceMatrix may quit earlier due to the m_shutdownFlag()
+        {
+            debugLog() << "Abort all computations since shutdown requested";
+            break;
+        }
 
         infoLog() << "Building dendrogram...";
-        m_dendOC->updateData( computeDendrogram( dataSet->size() ) );
+        boost::shared_ptr< WDendrogram > result( computeDendrogram( dataSet->size() ) );
+        if( m_shutdownFlag() ) // since computeDendrogram may quit earlier due to the m_shutdownFlag()
+        {
+            debugLog() << "Abort all computations since shutdown requested";
+            break;
+        }
+        m_dendOC->updateData( result );
 
         infoLog() << "Done.";
     }
@@ -118,10 +130,10 @@ void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDa
     boost::shared_ptr< WProgress > progress( new WProgress( "Similarity matrix computation", steps ) );
     m_progress->addSubProgress( progress );
 
-    m_similarities = WMatrixSymDBL( dataSet->size() );
-    for( size_t i = 0; i < dataSet->size(); ++i )
+    m_similarities = WMatrixSymFLT( dataSet->size() );
+    for( size_t i = 0; i < dataSet->size() && !m_shutdownFlag(); ++i )
     {
-        for( size_t j = i + 1; j < dataSet->size(); ++j )
+        for( size_t j = i + 1; j < dataSet->size() && !m_shutdownFlag(); ++j )
         {
             const WGaussProcess& p1 = ( *dataSet )[i];
             const WGaussProcess& p2 = ( *dataSet )[j];
@@ -157,16 +169,16 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size
         idx.insert( i );
     }
 
-    for( size_t i = 0; i < n - 1; ++i )
+    for( size_t i = 0; i < n - 1 && !m_shutdownFlag(); ++i )
     {
         // Nearest Neighbour find: update p, q, and sim, so iterate over all valid matrix entries
         // NOTE, WARNING, ATTENTION: This is brute force NN finding strategy and requires O(n^2) time
-        double maxSim = -wlimits::MAX_DOUBLE; // This is not 0.0, since the similarity maybe very near to 0.0, and thus no new pair would be found!
+        float maxSim = -wlimits::MAX_FLOAT; // This is not 0.0, since the similarity maybe very near to 0.0, and thus no new pair would be found!
         size_t p = 0;
         size_t q = 0;
-        for( std::set< size_t >::const_iterator it = idx.begin(); it != idx.end(); ++it )
+        for( std::set< size_t >::const_iterator it = idx.begin(); it != idx.end() && !m_shutdownFlag(); ++it )
         {
-            for( std::set< size_t >::const_iterator jt = boost::next( it ); jt != idx.end(); ++jt )
+            for( std::set< size_t >::const_iterator jt = boost::next( it ); jt != idx.end() && !m_shutdownFlag(); ++jt )
             {
                 if( m_similarities( *it, *jt ) > maxSim )
                 {
@@ -175,6 +187,10 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size
                     q = *jt;
                 }
             }
+        }
+        if( m_shutdownFlag() )
+        {
+            break;
         }
 
         uf.merge( p, q );
@@ -205,8 +221,6 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size
         clusterSize[ newCE ] = clusterSize[ p ] + clusterSize[ q ];
         ++*progress;
     }
-
-    WAssert( idx.size() == 1, "Bug: idx array is invalid there should be exactly one element left" );
 
     progress->finish();
     m_progress->removeSubProgress( progress );

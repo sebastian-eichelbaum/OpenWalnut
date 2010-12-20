@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -22,41 +22,37 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDETTRACTCLUSTERINGGP_H
-#define WMDETTRACTCLUSTERINGGP_H
+#ifndef WMPROBTRACTDISPLAYSP_H
+#define WMPROBTRACTDISPLAYSP_H
 
 #include <string>
-#include <map>
-#include <utility>
+#include <vector>
 
-#include <osg/Geode>
-
-#include "../../../common/math/WMatrixSym.h"
-#include "../../../kernel/WModule.h"
-#include "../../../kernel/WModuleInputData.h"
-#include "../../../kernel/WModuleOutputData.h"
-#include "../WDataSetGP.h"
-
-class WDendrogram;
+#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WSubject.h"
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../kernel/WModule.h"
+#include "../../kernel/WModuleInputData.h"
 
 /**
- * Module for clustering gaussian processes which representing deterministic tracts.
+ * This module
  *
  * \ingroup modules
  */
-class WMDetTractClusteringGP: public WModule
+class WMProbTractDisplaySP: public WModule
 {
 public:
 
     /**
-     * Constructs a new clustering instance.
+     * Default constructor.
      */
-    WMDetTractClusteringGP();
+    WMProbTractDisplaySP();
 
     /**
-     * Destructs this.
+     * Destructor.
      */
-    virtual ~WMDetTractClusteringGP();
+    virtual ~WMProbTractDisplaySP();
 
     /**
      * Gives back the name of this module.
@@ -99,45 +95,58 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Computes the distant matrix for all pairs of gaussian processes.
-     *
-     * \warning This function may leave an invalid matrix when the \ref m_shutdownFlag becomes true!
-     *
-     * \param dataSet The dataset of gaussian processes.
-     *
-     * \return The similarity or also called distant matrix.
-     */
-    void computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet );
-
-    /**
-     * Constructs a dendrogram out of the m_similarity matrix. Please note that this member function needs a valid similarity
-     * matrix to operate correctly and it will leave an invalid matrix afterwards!
-     *
-     * \warning This function may return and leave an invalid matrix when the \ref m_shutdownFlag becomes true!
-     *
-     * \param n How many tracts
-     *
-     * \return The dendrogram.
-     */
-    boost::shared_ptr< WDendrogram > computeDendrogram( size_t n );
-
-    /**
-     * Input Connector for the gaussian processes which are about to be clustered.
-     */
-    boost::shared_ptr< WModuleInputData< WDataSetGP > > m_gpIC;
-
-    /**
-     * Output Connector for the dendrogram which is about to be created with this module.
-     */
-    boost::shared_ptr< WModuleOutputData< WDendrogram > > m_dendOC;
-
-    /**
-     * Distant matrix of all pairs of gaussian processes. This is float to save more space!
-     */
-    WMatrixSymFLT m_similarities;
-
 private:
+    /**
+     * Initializes the needed geodes, transformations and vertex arrays. This needs to be done once for each new dataset.
+     *
+     * \param grid the grid to places the slices in
+     */
+    void initOSG( boost::shared_ptr< WGridRegular3D > grid );
+
+    /**
+     * The probabilistic tractogram input connector.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_probIC;
+
+    /**
+     * The fibers input connector.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fibersIC;
+
+    /**
+     * The Geode containing all the slices and the mesh
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_output;
+
+    /**
+     * The transformation node moving the X slice through the dataset space if the sliders are used
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_xSlice;
+
+    /**
+     * The transformation node moving the Y slice through the dataset space if the sliders are used
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_ySlice;
+
+    /**
+     * The transformation node moving the Z slice through the dataset space if the sliders are used
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_zSlice;
+
+    WPropGroup    m_sliceGroup; //!< the group contains several slice properties
+
+    WPropInt      m_xPos; //!< x position of the slice
+
+    WPropInt      m_yPos; //!< y position of the slice
+
+    WPropInt      m_zPos; //!< z position of the slice
+
+    WPropBool     m_showonX; //!< indicates whether the vector should be shown on slice X
+
+    WPropBool     m_showonY; //!< indicates whether the vector should be shown on slice Y
+
+    WPropBool     m_showonZ; //!< indicates whether the vector should be shown on slice Z
 };
 
-#endif  // WMDETTRACTCLUSTERINGGP_H
+#endif  // WMPROBTRACTDISPLAYSP_H
+
