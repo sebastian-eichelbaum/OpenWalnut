@@ -532,10 +532,6 @@ void WMMarchingCubes::renderMesh()
         state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", 100 ) ) );
     }
 
-    // NOTE: the following code should not be necessary. The update callback does this job just before the mesh is rendered
-    // initially. Just set the texture changed flag to true. If this however might be needed use WSubject::getDataTextures.
-    m_textureChanged = true;
-
     m_shader = osg::ref_ptr< WShader > ( new WShader( "WMMarchingCubes", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
@@ -572,7 +568,7 @@ void WMMarchingCubes::updateGraphicsCallback()
 
     if( m_textureChanged || m_opacityProp->changed() || m_useTextureProp->changed()  )
     {
-        bool localTextureChangedFlag = m_textureChanged;
+        bool localTextureChangedFlag = m_textureChanged || m_useTextureProp->changed();
         m_textureChanged = false;
 
         // grab a list of data textures
