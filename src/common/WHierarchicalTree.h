@@ -33,12 +33,13 @@
 #include <boost/shared_ptr.hpp>
 
 #include "WColor.h"
+#include "WExportCommon.h"
 
 
 /**
  * base class for hierarchical tree implementations
  */
-class WHierarchicalTree
+class OWCOMMON_EXPORT WHierarchicalTree // NOLINT
 {
 public:
     /**

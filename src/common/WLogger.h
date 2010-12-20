@@ -253,11 +253,6 @@ namespace wlog
         return *this;
     }
 
-    inline WStreamedLogger::Buffer::~Buffer()
-    {
-        WLogger::getLogger()->addLogMessage( m_logString.str(), m_source, m_level );
-    }
-
     inline WStreamedLogger::Buffer::Buffer( const std::string& source, LogLevel level )
         : m_logString(),
         m_level( level ),

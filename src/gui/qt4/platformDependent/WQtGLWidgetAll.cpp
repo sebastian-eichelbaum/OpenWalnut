@@ -37,8 +37,13 @@
 #include "../../../graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "../../../kernel/WKernel.h"
 
+#ifndef _MSC_VER
 #include <osgViewer/api/X11/GraphicsWindowX11>
 typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
+#else
+#include <osgViewer/api/Win32/GraphicsWindowWin32>
+typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
+#endif
 
 
 WQtGLWidgetAll::WQtGLWidgetAll( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QGLWidget * shareWidget )

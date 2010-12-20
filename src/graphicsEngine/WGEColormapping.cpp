@@ -30,10 +30,10 @@
 boost::shared_ptr< WGEColormapping > WGEColormapping::m_instance = boost::shared_ptr< WGEColormapping >();
 
 WGEColormapping::WGEColormapping():
-    m_callback( new WGEFunctorCallback< osg::Node >( boost::bind( &WGEColormapping::callback, this, _1 ) ) ),
     m_texUpdate( true )
 {
     // initialize members
+    m_callback = new WGEFunctorCallback< osg::Node >( boost::bind( &WGEColormapping::callback, this, _1 ) );
     m_textures.getChangeCondition()->subscribeSignal( boost::bind( &WGEColormapping::textureUpdate, this ) );
 }
 
