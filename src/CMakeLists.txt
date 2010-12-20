@@ -13,6 +13,7 @@ ENDIF()
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/CMakeModules )
 # include custom CMake commands like assert
 INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/Utils.cmake )
+INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/OnlyOneBuildFile.cmake )
 
 # mimic layout of install dir for build:
 #----------------------------------------
@@ -34,6 +35,16 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
   INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/common/platformDependent/visualStudio/" )
 ENDIF()
 
+OPTION( OW_BUILD_AS_ONE_BIG_FILE "Build every library as one big cpp" OFF )
+
+# define libnames 
+SET( OWCommonName "OWcommon" )
+SET( OWDatahandlerName "OWdataHandler" )
+SET( OWgeName "OWge" )
+SET( OWguiName "OWgui" )
+SET( OWguiqt4Name "OWguiqt4" )
+SET( OWKernelName "OWkernel" )
+SET( OWmodulesPrefix "OWmodule" )
 
 # Package dependencies:
 #----------------------
@@ -202,7 +213,7 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
     SET( CMAKE_SHARED_LINKER_FLAGS " /STACK:10000000 /machine:I386 /NODEFAULTLIB:${EXCLUDE_LIBRARIES}"  CACHE STRING "" FORCE )
     SET( CMAKE_EXE_LINKER_FLAGS " /STACK:10000000 /machine:I386 /NODEFAULTLIB:${EXCLUDE_LIBRARIES}"  CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D \"NOMINMAX\"" )
-    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP" )
+    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /wd4101" )
     SET( CMAKE_DEBUG_POSTFIX "d" CACHE STRING "add a postfix, usually d on windows" )
 ELSE()
     # Unfortunately libstdc++'s header files don't work with mingw in ansi mode (basically libstdc++'s fault)
@@ -252,7 +263,7 @@ ENDIF()
 
 # finally, build walnut
 ADD_EXECUTABLE( walnut OpenWalnut.cpp version.h )
-TARGET_LINK_LIBRARIES( walnut OWkernel OWdataHandler OWgui OWguiqt4 OWcommon OWge ${Boost_LIBRARIES} )
+TARGET_LINK_LIBRARIES( walnut ${OWKernelName} ${OWDatahandlerName} ${OWguiName} ${OWguiqt4Name} ${OWCommonName} ${OWgeName} ${Boost_LIBRARIES} )
 
 IF(MSVC_IDE)
     SET_TARGET_PROPERTIES( walnut PROPERTIES DEBUG_POSTFIX "d")
