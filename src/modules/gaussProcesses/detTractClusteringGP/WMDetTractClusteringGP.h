@@ -133,9 +133,9 @@ protected:
     boost::shared_ptr< WModuleOutputData< WDendrogram > > m_dendOC;
 
     /**
-     * Distant matrix of all pairs of gaussian processes.
+     * Distant matrix of all pairs of gaussian processes. This is float to save more space!
      */
-    WMatrixSymDBL m_similarities;
+    WMatrixSymFLT m_similarities;
 
 private:
 };

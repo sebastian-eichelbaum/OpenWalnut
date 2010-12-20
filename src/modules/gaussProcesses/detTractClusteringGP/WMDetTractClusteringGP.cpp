@@ -130,7 +130,7 @@ void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDa
     boost::shared_ptr< WProgress > progress( new WProgress( "Similarity matrix computation", steps ) );
     m_progress->addSubProgress( progress );
 
-    m_similarities = WMatrixSymDBL( dataSet->size() );
+    m_similarities = WMatrixSymFLT( dataSet->size() );
     for( size_t i = 0; i < dataSet->size() && !m_shutdownFlag(); ++i )
     {
         for( size_t j = i + 1; j < dataSet->size() && !m_shutdownFlag(); ++j )
@@ -173,7 +173,7 @@ boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size
     {
         // Nearest Neighbour find: update p, q, and sim, so iterate over all valid matrix entries
         // NOTE, WARNING, ATTENTION: This is brute force NN finding strategy and requires O(n^2) time
-        double maxSim = -wlimits::MAX_DOUBLE; // This is not 0.0, since the similarity maybe very near to 0.0, and thus no new pair would be found!
+        float maxSim = -wlimits::MAX_FLOAT; // This is not 0.0, since the similarity maybe very near to 0.0, and thus no new pair would be found!
         size_t p = 0;
         size_t q = 0;
         for( std::set< size_t >::const_iterator it = idx.begin(); it != idx.end() && !m_shutdownFlag(); ++it )
