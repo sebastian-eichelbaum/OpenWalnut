@@ -100,16 +100,9 @@ protected:
     virtual void properties();
 
     /**
-     * Compute the longest segment of all segments of all tracts/gaussian processes.
-     *
-     * \param dataSet The dataset of gaussian processes.
-     *
-     * \return The length of the longest segement overall.
-     */
-    double searchGlobalMaxSegementLength( boost::shared_ptr< const WDataSetGP > dataSet ) const;
-
-    /**
      * Computes the distant matrix for all pairs of gaussian processes.
+     *
+     * \warning This function may leave an invalid matrix when the \ref m_shutdownFlag becomes true!
      *
      * \param dataSet The dataset of gaussian processes.
      *
@@ -120,6 +113,8 @@ protected:
     /**
      * Constructs a dendrogram out of the m_similarity matrix. Please note that this member function needs a valid similarity
      * matrix to operate correctly and it will leave an invalid matrix afterwards!
+     *
+     * \warning This function may return and leave an invalid matrix when the \ref m_shutdownFlag becomes true!
      *
      * \param n How many tracts
      *
