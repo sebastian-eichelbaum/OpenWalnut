@@ -224,7 +224,7 @@ void WMMarchingCubes::properties()
 
     m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
 
-    m_useMarchingLego = m_properties->addProperty( "voxel surface", "Not interpolated surface", false, m_recompute );
+    m_useMarchingLego = m_properties->addProperty( "Voxel surface", "Not interpolated surface", false, m_recompute );
 
     WModule::properties();
 }
@@ -374,17 +374,15 @@ void WMMarchingCubes::renderMesh()
         lock.unlock();
     }
 
-    osg::Geometry* surfaceGeometry = new osg::Geometry();
+    osg::ref_ptr< osg::Geometry > surfaceGeometry( new osg::Geometry() );
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
     m_surfaceGeode->setName( "iso surface" );
 
     surfaceGeometry->setVertexArray( m_triMesh->getVertexArray() );
-    osg::DrawElementsUInt* surfaceElement;
+    osg::ref_ptr< osg::DrawElementsUInt > surfaceElement( new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 ) );
 
-    surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
-
-    std::vector< size_t >tris = m_triMesh->getTriangles();
+    std::vector< size_t > tris = m_triMesh->getTriangles();
     surfaceElement->reserve( tris.size() );
 
     for( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
@@ -407,22 +405,22 @@ void WMMarchingCubes::renderMesh()
     }
 
     m_surfaceGeode->addDrawable( surfaceGeometry );
-    osg::StateSet* state = m_surfaceGeode->getOrCreateStateSet();
+    osg::ref_ptr< osg::StateSet > state = m_surfaceGeode->getOrCreateStateSet();
 
     // ------------------------------------------------
     // colors
-    osg::Vec4Array* colors = new osg::Vec4Array;
+    osg::ref_ptr< osg::Vec4Array > colors( new osg::Vec4Array );
 
     WColor c = m_surfaceColor->get( true );
     colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
     surfaceGeometry->setColorArray( colors );
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
-    osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
+    osg::ref_ptr<osg::LightModel> lightModel( new osg::LightModel() );
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     {
-        osg::ref_ptr< osg::Material > material = new osg::Material();
+        osg::ref_ptr< osg::Material > material( new osg::Material() );
         material->setDiffuse(   osg::Material::FRONT, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
         material->setSpecular(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
         material->setAmbient(   osg::Material::FRONT, osg::Vec4( 0.1, 0.1, 0.1, 1.0 ) );
@@ -532,11 +530,7 @@ void WMMarchingCubes::renderMesh()
         state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", 100 ) ) );
     }
 
-    // NOTE: the following code should not be necessary. The update callback does this job just before the mesh is rendered
-    // initially. Just set the texture changed flag to true. If this however might be needed use WSubject::getDataTextures.
-    m_textureChanged = true;
-
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMMarchingCubes", m_localPath ) );
+    m_shader = osg::ref_ptr< WShader >( new WShader( "WMMarchingCubes", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );
@@ -561,7 +555,7 @@ void WMMarchingCubes::updateGraphicsCallback()
 
     if( m_surfaceColor->changed() )
     {
-        osg::Vec4Array* colors = new osg::Vec4Array;
+        osg::ref_ptr< osg::Vec4Array > colors( new osg::Vec4Array );
 
         WColor c = m_surfaceColor->get( true );
         colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
@@ -572,7 +566,7 @@ void WMMarchingCubes::updateGraphicsCallback()
 
     if( m_textureChanged || m_opacityProp->changed() || m_useTextureProp->changed()  )
     {
-        bool localTextureChangedFlag = m_textureChanged;
+        bool localTextureChangedFlag = m_textureChanged || m_useTextureProp->changed();
         m_textureChanged = false;
 
         // grab a list of data textures
@@ -580,7 +574,7 @@ void WMMarchingCubes::updateGraphicsCallback()
 
         if( tex.size() > 0 )
         {
-            osg::StateSet* rootState = m_surfaceGeode->getOrCreateStateSet();
+            osg::ref_ptr< osg::StateSet > rootState = m_surfaceGeode->getOrCreateStateSet();
 
             // reset all uniforms
             for( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
@@ -607,7 +601,7 @@ void WMMarchingCubes::updateGraphicsCallback()
             {
                 boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
                 osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
-                osg::Vec3Array* texCoords = new osg::Vec3Array;
+                osg::ref_ptr< osg::Vec3Array > texCoords( new osg::Vec3Array );
 
                 for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
                 {
@@ -638,7 +632,7 @@ void WMMarchingCubes::updateGraphicsCallback()
                 if( localTextureChangedFlag )
                 {
                     osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
-                    osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    osg::ref_ptr< osg::Vec3Array > texCoords( new osg::Vec3Array );
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
                     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
                     {

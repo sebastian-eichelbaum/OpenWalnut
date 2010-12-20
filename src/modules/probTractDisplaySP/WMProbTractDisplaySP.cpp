@@ -215,7 +215,6 @@ void WMProbTractDisplaySP::moduleMain()
                 warnLog() << "Invalid dataset: at least one dimension is not greater zero.";
                 continue;
             }
-
         }
 
         infoLog() << "Done";
