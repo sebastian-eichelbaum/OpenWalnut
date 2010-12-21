@@ -63,7 +63,7 @@ void WROIManager::addRoi( osg::ref_ptr< WROI > newRoi, osg::ref_ptr< WROI > pare
     boost::shared_ptr< WRMBranch > branch;
     for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
-        if ( ( *iter ).get()->getFirstRoi() == parentRoi )
+        if ( ( *iter ).get()->contains( parentRoi ) )
         {
             branch = ( *iter );
         }
