@@ -39,7 +39,11 @@ IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
   LIST( APPEND GUI_QT4_MOC_HDRS platformDependent/WQtGLWidgetMac.h ) 
 
 ELSE()
-  LIST( APPEND GUI_QT4_MOC_HDRS platformDependent/WQtGLWidgetAll.h )
+  IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
+    LIST( APPEND GUI_QT4_MOC_HDRS platformDependent/WQtGLWidgetWin.h )
+  ELSE( CMAKE_GENERATOR MATCHES "Visual Studio" )
+    LIST( APPEND GUI_QT4_MOC_HDRS platformDependent/WQtGLWidgetAll.h )
+  ENDIF( CMAKE_GENERATOR MATCHES "Visual Studio" )
 ENDIF()
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
@@ -50,9 +54,15 @@ IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
     "platformDependent/WQtGLWidgetMac.cpp" 
     "platformDependent/WQtGLWidgetMac.h" )
 ELSE()
-  FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC 
-    "platformDependent/WQtGLWidgetAll.cpp" 
-    "platformDependent/WQtGLWidgetAll.h" )
+  IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
+    FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC 
+      "platformDependent/WQtGLWidgetWin.cpp" 
+      "platformDependent/WQtGLWidgetWin.h" )
+  ELSE( CMAKE_GENERATOR MATCHES "Visual Studio" )
+    FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC 
+      "platformDependent/WQtGLWidgetAll.cpp" 
+      "platformDependent/WQtGLWidgetAll.h" )
+  ENDIF( CMAKE_GENERATOR MATCHES "Visual Studio" )
 ENDIF()
   
 SET( LIB_NAME "${OWguiqt4Name}" )
