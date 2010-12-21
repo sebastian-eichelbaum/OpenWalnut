@@ -161,7 +161,7 @@ namespace wlog
     /**
      * Resource class for streamed logging.
      */
-    class WStreamedLogger
+    class OWCOMMON_EXPORT WStreamedLogger // NOLINT
     {
     public:
         /**

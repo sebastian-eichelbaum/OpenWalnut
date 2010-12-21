@@ -183,7 +183,11 @@ namespace math
 template< typename T >
 inline T opAbsMinus( T a, T b )
 {
+#ifndef _MSC_VER
     return math::abs( a - b );
+#else
+    return ( a - b ) < 0.0 ? -( a - b ) : ( a - b );
+#endif
 }
 
 /**
@@ -257,7 +261,11 @@ inline T opDiv( T a, T b )
 template< typename T >
 inline T opAbs( T a )
 {
+#ifndef _MSC_VER
     return math::abs( a );
+#else
+    return a < 0.0 ? -a : a;
+#endif
 }
 
 /**

@@ -88,7 +88,7 @@ std::string WProgressCombiner::getCombinedNames() const
 
     std::stringstream ss;
     ss << "[";
-    for( std::set< boost::shared_ptr< WProgress > >::iterator i = m_children.begin(); i != m_children.end(); ++i )
+    for( std::set< boost::shared_ptr< WProgress > >::const_iterator i = m_children.begin(); i != m_children.end(); ++i )
     {
         // enforce child to update
         ss << ( *i )->getName();

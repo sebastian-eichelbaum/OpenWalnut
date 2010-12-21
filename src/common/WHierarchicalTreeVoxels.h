@@ -35,11 +35,12 @@
 #include "WColor.h"
 
 #include "WHierarchicalTree.h"
+#include "WExportCommon.h"
 
 /**
  * Class implements a hierarchical tree and provides helper functions for selection and navigation
  */
-class WHierarchicalTreeVoxels : public WHierarchicalTree
+class OWCOMMON_EXPORT WHierarchicalTreeVoxels : public WHierarchicalTree // NOLINT
 {
 public:
     /**
