@@ -29,7 +29,7 @@
     #include "platformDependent/WQtGLWidgetMac.h"
     typedef WQtGLWidgetMac WQtGLWidget;
 #else
-    #ifdef _MSC_VER 
+    #ifdef _MSC_VER
         #include "platformDependent/WQtGLWidgetWin.h"
         typedef WQtGLWidgetWin WQtGLWidget;
     #else

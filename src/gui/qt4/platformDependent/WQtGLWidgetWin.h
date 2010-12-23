@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTGLWIDGETALL_H
-#define WQTGLWIDGETALL_H
+#ifndef WQTGLWIDGETWIN_H
+#define WQTGLWIDGETWIN_H
 
 #include <string>
 
@@ -223,4 +223,4 @@ private:
     bool m_firstPaint;
 };
 
-#endif  // WQTGLWIDGETALL_H
+#endif  // WQTGLWIDGETWIN_H
