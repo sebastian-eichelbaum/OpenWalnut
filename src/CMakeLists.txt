@@ -413,7 +413,16 @@ ADD_CUSTOM_TARGET( stylecheck
                    COMMENT "Check if code complies to CodingStandard"
                  )
 
+
 #-------------------------------------------------------------------------------------------------------------
+# Removes nasty windows line endings
+ADD_CUSTOM_TARGET( removewinlineendings
+                   COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/../tools/removeWinLineEnding.py ${PROJECT_BINARY_DIR}/brainlintlist
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                   COMMENT "Removes Windows Line endings"
+                 )
+
+                 #-------------------------------------------------------------------------------------------------------------
 # Prints the verbose output of the test runners, so you may identify the source of error early, if any
 ADD_CUSTOM_TARGET( vtest
                    COMMAND $(MAKE) test ARGS="-V"
