@@ -183,14 +183,14 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
     boost::shared_ptr< WValueSet< float > > vals = boost::shared_dynamic_cast< WValueSet<float> >( m_dataSet->getValueSet() );
 
-    m_xSlice->setMax( grid->getNbCoordsX() );
-    m_ySlice->setMax( grid->getNbCoordsY() );
-    m_zSlice->setMax( grid->getNbCoordsZ() );
+    m_xSlice->setMax( grid->getNbCoordsX() - 1 );
+    m_ySlice->setMax( grid->getNbCoordsY() - 1 );
+    m_zSlice->setMax( grid->getNbCoordsZ() - 1 );
 
     wmath::WPosition texPos = grid->worldCoordToTexCoord( current );
-    double xSlice = texPos[0] * grid->getNbCoordsX();
-    double ySlice = texPos[1] * grid->getNbCoordsY();
-    double zSlice = texPos[2] * grid->getNbCoordsZ();
+    double xSlice = texPos[0] * grid->getNbCoordsX() - 0.5;
+    double ySlice = texPos[1] * grid->getNbCoordsY() - 0.5;
+    double zSlice = texPos[2] * grid->getNbCoordsZ() - 0.5;
 
     m_xSlice->set( xSlice );
     m_ySlice->set( ySlice );
@@ -215,16 +215,19 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
         int maxX = m_xSlice->getMax()->getMax();
         int maxY = m_ySlice->getMax()->getMax();
         int maxZ = m_zSlice->getMax()->getMax();
+        int nbX = maxX + 1;
+        int nbY = maxY + 1;
+        int nbZ = maxZ + 1;
 
         if( m_showOnAxial->get( true ) )
         {
-            for( int x = 0; x < maxX; ++x )
+            for( int x = 0; x < nbX; ++x )
             {
-                for( int y = 0; y < maxY; ++y )
+                for( int y = 0; y < nbY; ++y )
                 {
-                    float vecCompX = vals->getScalar( ( x + y * maxX + zSlice * maxX * maxY ) * 3 ) / 2.;
-                    float vecCompY = vals->getScalar( ( x + y * maxX + zSlice * maxX * maxY ) * 3 + 1 ) / 2.;
-                    float vecCompZ = vals->getScalar( ( x + y * maxX + zSlice * maxX * maxY ) * 3 + 2 ) / 2.;
+                    float vecCompX = vals->getScalar( ( x + y * nbX + zSlice * nbX * nbY ) * 3 ) / 2.;
+                    float vecCompY = vals->getScalar( ( x + y * nbX + zSlice * nbX * nbY ) * 3 + 1 ) / 2.;
+                    float vecCompZ = vals->getScalar( ( x + y * nbX + zSlice * nbX * nbY ) * 3 + 2 ) / 2.;
 
                     if( !m_projectOnSlice->get( true ) )
                     {
@@ -243,10 +246,10 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
                     }
                     else
                     {
-                        vertices->push_back( osg::Vec3( x - vecCompX, y - vecCompY, zSlice + 0.4f ) );
-                        vertices->push_back( osg::Vec3( x + vecCompX, y + vecCompY, zSlice + 0.4f ) );
-                        vertices->push_back( osg::Vec3( x - vecCompX, y - vecCompY, zSlice + 0.6f ) );
-                        vertices->push_back( osg::Vec3( x + vecCompX, y + vecCompY, zSlice + 0.6f ) );
+                        vertices->push_back( osg::Vec3( x - vecCompX, y - vecCompY, zSlice - 0.01f ) );
+                        vertices->push_back( osg::Vec3( x + vecCompX, y + vecCompY, zSlice - 0.01f ) );
+                        vertices->push_back( osg::Vec3( x - vecCompX, y - vecCompY, zSlice + 0.01f ) );
+                        vertices->push_back( osg::Vec3( x + vecCompX, y + vecCompY, zSlice + 0.01f ) );
                         if( m_coloringMode->get( true ) )
                         {
                             colors->push_back( osg::Vec4( fabs( vecCompX ), fabs( vecCompY ), fabs( vecCompZ ), 1.0 ) );
@@ -270,13 +273,13 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 
         if( m_showOnCoronal->get( true ) )
         {
-            for( int x = 0; x < maxX; ++x )
+            for( int x = 0; x < nbX; ++x )
             {
-                for( int z = 0; z < maxZ; ++z )
+                for( int z = 0; z < nbZ; ++z )
                 {
-                    float vecCompX = vals->getScalar( ( x + ySlice * maxX + z * maxX * maxY ) * 3 ) / 2.;
-                    float vecCompY = vals->getScalar( ( x + ySlice * maxX + z * maxX * maxY ) * 3 + 1 ) / 2.;
-                    float vecCompZ = vals->getScalar( ( x + ySlice * maxX + z * maxX * maxY ) * 3 + 2 ) / 2.;
+                    float vecCompX = vals->getScalar( ( x + ySlice * nbX + z * nbX * nbY ) * 3 ) / 2.;
+                    float vecCompY = vals->getScalar( ( x + ySlice * nbX + z * nbX * nbY ) * 3 + 1 ) / 2.;
+                    float vecCompZ = vals->getScalar( ( x + ySlice * nbX + z * nbX * nbY ) * 3 + 2 ) / 2.;
 
                     if( !m_projectOnSlice->get( true ) )
                     {
@@ -295,10 +298,10 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
                     }
                     else
                     {
-                        vertices->push_back( osg::Vec3( x - vecCompX, ySlice + 0.4f, z - vecCompZ ) );
-                        vertices->push_back( osg::Vec3( x + vecCompX, ySlice + 0.4f, z + vecCompZ ) );
-                        vertices->push_back( osg::Vec3( x - vecCompX, ySlice + 0.6f, z - vecCompZ ) );
-                        vertices->push_back( osg::Vec3( x + vecCompX, ySlice + 0.6f, z + vecCompZ ) );
+                        vertices->push_back( osg::Vec3( x - vecCompX, ySlice - 0.01f, z - vecCompZ ) );
+                        vertices->push_back( osg::Vec3( x + vecCompX, ySlice - 0.01f, z + vecCompZ ) );
+                        vertices->push_back( osg::Vec3( x - vecCompX, ySlice + 0.01f, z - vecCompZ ) );
+                        vertices->push_back( osg::Vec3( x + vecCompX, ySlice + 0.01f, z + vecCompZ ) );
                         if( m_coloringMode->get( true ) )
                         {
                             colors->push_back( osg::Vec4( fabs( vecCompX ), fabs( vecCompY ), fabs( vecCompZ ), 1.0 ) );
@@ -322,13 +325,13 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 
         if( m_showOnSagittal->get( true ) )
         {
-            for( int y = 0; y < maxY; ++y )
+            for( int y = 0; y < nbY; ++y )
             {
-                for( int z = 0; z < maxZ; ++z )
+                for( int z = 0; z < nbZ; ++z )
                 {
-                    float vecCompX = vals->getScalar( ( xSlice + y * maxX + z * maxX * maxY ) * 3 ) / 2.;
-                    float vecCompY = vals->getScalar( ( xSlice + y * maxX + z * maxX * maxY ) * 3 + 1 ) / 2.;
-                    float vecCompZ = vals->getScalar( ( xSlice + y * maxX + z * maxX * maxY ) * 3 + 2 ) / 2.;
+                    float vecCompX = vals->getScalar( ( xSlice + y * nbX + z * nbX * nbY ) * 3 ) / 2.;
+                    float vecCompY = vals->getScalar( ( xSlice + y * nbX + z * nbX * nbY ) * 3 + 1 ) / 2.;
+                    float vecCompZ = vals->getScalar( ( xSlice + y * nbX + z * nbX * nbY ) * 3 + 2 ) / 2.;
 
                     if( !m_projectOnSlice->get( true ) )
                     {
@@ -347,10 +350,10 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
                     }
                     else
                     {
-                        vertices->push_back( osg::Vec3( xSlice + 0.4f, y + vecCompY, z + vecCompZ ) );
-                        vertices->push_back( osg::Vec3( xSlice + 0.4f, y - vecCompY, z - vecCompZ ) );
-                        vertices->push_back( osg::Vec3( xSlice + 0.6f, y + vecCompY, z + vecCompZ ) );
-                        vertices->push_back( osg::Vec3( xSlice + 0.6f, y - vecCompY, z - vecCompZ ) );
+                        vertices->push_back( osg::Vec3( xSlice - 0.01f, y + vecCompY, z + vecCompZ ) );
+                        vertices->push_back( osg::Vec3( xSlice - 0.01f, y - vecCompY, z - vecCompZ ) );
+                        vertices->push_back( osg::Vec3( xSlice + 0.01f, y + vecCompY, z + vecCompZ ) );
+                        vertices->push_back( osg::Vec3( xSlice + 0.01f, y - vecCompY, z - vecCompZ ) );
                         if( m_coloringMode->get( true ) )
                         {
                             colors->push_back( osg::Vec4( fabs( vecCompX ), fabs( vecCompY ), fabs( vecCompZ ), 1.0 ) );
