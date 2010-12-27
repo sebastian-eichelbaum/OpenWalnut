@@ -6,11 +6,11 @@ SET( MODULE_TARGET_DIR ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/modules/${MODULE_NAME} 
 SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
 SET( MODULE_DIRNAME ${MODULE_NAME} )
-SET( MODULE_NAME    "OWmodule_${MODULE_NAME}" )      # prefix all module names with "OWmodule_" to separate them from other libs
+SET( MODULE_NAME    "${OWmodulesPrefix}_${MODULE_NAME}" )      # prefix all module names with "OWmodule_" to separate them from other libs
 
 # Build module lib
 ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
-TARGET_LINK_LIBRARIES( ${MODULE_NAME} OWkernel ${Teem_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWKernelName} ${Teem_LIBRARIES} )
 
 IF(MSVC_IDE)
 	SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES PREFIX "../")    
@@ -30,7 +30,7 @@ IF( OW_COMPILE_TESTS )
     # This ensures that the test is copied to the module directory
     SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
     CXXTEST_ADD_TESTS_FROM_LIST( "${MODULES_SRC}"
-                                 "OWkernel;${MODULE_NAME}"
+                                 "${OWKernelName};${MODULE_NAME}"
                                )
 
     # Copy fixtures if they exist

@@ -37,8 +37,13 @@
 #include "../../../graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "../../../kernel/WKernel.h"
 
+#ifndef _MSC_VER
 #include <osgViewer/api/X11/GraphicsWindowX11>
 typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
+#else
+#include <osgViewer/api/Win32/GraphicsWindowWin32>
+typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
+#endif
 
 
 WQtGLWidgetAll::WQtGLWidgetAll( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QGLWidget * shareWidget )
@@ -80,34 +85,6 @@ void WQtGLWidgetAll::setCameraManipulator( WQtGLWidgetAll::CameraManipulators ma
     m_CurrentManipulator = manipulator;
     switch ( manipulator )
     {
-        case DRIVE:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"drive\".",
-                                                 "WQtGLWidgetAll(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
-            m_Viewer->setCameraManipulator( new( osgGA::DriveManipulator ) );
-            break;
-        case FLIGHT:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"flight\".",
-                                                 "WQtGLWidgetAll(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
-            m_Viewer->setCameraManipulator( new( osgGA::FlightManipulator ) );
-            break;
-        case TERRAIN:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"terrain\".",
-                                                 "WQtGLWidgetAll(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
-            m_Viewer->setCameraManipulator( new( osgGA::TerrainManipulator ) );
-            break;
-        case UFO:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"ufo\".",
-                                                 "WQtGLWidgetAll(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
-            m_Viewer->setCameraManipulator( new( osgGA::UFOManipulator ) );
-            break;
         case TWO_D:
             WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGE2D\".",
                                                  "WQtGLWidgetAll(" + m_Viewer->getName() + ")",
@@ -208,18 +185,6 @@ void WQtGLWidgetAll::keyReleaseEvent( QKeyEvent* event )
             setCameraManipulator( TRACKBALL );
             break;
         case Qt::Key_2:
-            setCameraManipulator( FLIGHT );
-            break;
-        case Qt::Key_3:
-            setCameraManipulator( DRIVE );
-            break;
-        case Qt::Key_4:
-            setCameraManipulator( TERRAIN );
-            break;
-        case Qt::Key_5:
-            setCameraManipulator( UFO );
-            break;
-        case Qt::Key_6:
             setCameraManipulator( TWO_D );
             break;
     }
@@ -272,4 +237,9 @@ void WQtGLWidgetAll::wheelEvent( QWheelEvent* event )
         y = 0;
     }
     m_Viewer->mouseEvent( WGEViewer::MOUSESCROLL, x, y, 0 );
+}
+
+void WQtGLWidgetAll::reset()
+{
+    m_Viewer->reset();
 }

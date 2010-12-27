@@ -1177,8 +1177,8 @@ void WMNavSlices::updateViewportMatrix()
         osg::Matrix tm;
 
         tm.makeTranslate( osg::Vec3(
-                              -0.5 * ( m_bb.second[ 0 ] - m_bb.first[ 0 ] ),
-                              -0.5 * ( m_bb.second[ 1 ] - m_bb.first[ 1 ] ) ,
+                              -0.5 * ( m_bb.second[ 0 ] + m_bb.first[ 0 ] ),
+                              -0.5 * ( m_bb.second[ 1 ] + m_bb.first[ 1 ] ) ,
                               0 ) );
         rm.makeRotate( 90.0 * 3.141 / 180, 1.0, 0.0, 0.0 );
         sm.makeScale( -scale, scale, scale );
@@ -1247,8 +1247,8 @@ void WMNavSlices::updateViewportMatrix()
 
         tm.makeTranslate( osg::Vec3(
                               0.0,
-                              -0.5 * ( m_bb.second[ 1 ] - m_bb.first[ 1 ] ),
-                              -0.5 * ( m_bb.second[ 2 ] - m_bb.first[ 2 ] ) ) );
+                              -0.5 * ( m_bb.second[ 1 ] + m_bb.first[ 1 ] ),
+                              -0.5 * ( m_bb.second[ 2 ] + m_bb.first[ 2 ] ) ) );
         rm.makeRotate( -90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
         sm.makeScale( scale, scale, scale );
 
@@ -1313,9 +1313,9 @@ void WMNavSlices::updateViewportMatrix()
 
 
         tm.makeTranslate( osg::Vec3(
-                              -0.5 * ( m_bb.second[ 0 ] - m_bb.first[ 0 ] ),
+                              -0.5 * ( m_bb.second[ 0 ] + m_bb.first[ 0 ] ),
                               0,
-                              -0.5 * ( m_bb.second[ 2 ] - m_bb.first[ 2 ] ) ) );
+                              -0.5 * ( m_bb.second[ 2 ] + m_bb.first[ 2 ] ) ) );
         sm.makeScale( -scale, scale, scale );
         tm2.makeTranslate( osg::Vec3( 0.0, -2 * ( m_bb.second[ 1 ] - m_bb.first[ 1 ] ), 0.0 ) ); //move away from viewer
 

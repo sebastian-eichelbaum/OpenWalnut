@@ -120,14 +120,14 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::read()
     std::string fileName = m_meshFile->get().file_string().c_str();
     WAssert( !fileName.empty(), "No filename specified." );
 
-    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", 3 ) );
+    boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Read Mesh", 3 ) );
     m_progress->addSubProgress( progress );
 
     std::ifstream ifs;
     ifs.open( fileName.c_str(), std::ifstream::in );
     if( !ifs || ifs.bad() )
     {
-        WLogger::getLogger()->addLogMessage( "Try load broken file '" + fileName + "'", "Marching Cubes", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Try load broken file '" + fileName + "'", "Read Mesh", LL_ERROR );
         throw std::runtime_error( "Problem during reading file. Probably file not found." );
     }
     std::string line;
@@ -139,24 +139,30 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::read()
         std::getline( ifs, line );
         if( !ifs.good() )
         {
-            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + fileName, "Marching Cubes", LL_ERROR );
+            WLogger::getLogger()->addLogMessage( "Unexpected end of file: " + fileName, "Read Mesh", LL_ERROR );
+            progress->finish();
+            return boost::shared_ptr< WTriangleMesh >();
         }
         header.push_back( line );
     }
     if( header.at(0) != "# vtk DataFile Version 2.0" )
     {
-        WLogger::getLogger()->addLogMessage( "Unsupported format version string: " + header.at( 0 ), "Marching Cubes", LL_WARNING );
+        WLogger::getLogger()->addLogMessage( "Unsupported format version string: " + header.at( 0 ), "Read Mesh", LL_WARNING );
     }
 
     if( su::toUpper( su::trim( header.at( 2 ) ) ) != "ASCII" )
     {
-        WLogger::getLogger()->addLogMessage( "Only ASCII files supported, not " + header.at( 2 ), "Marching Cubes", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Only ASCII files supported, not " + header.at( 2 ), "Read Mesh", LL_ERROR );
+        progress->finish();
+        return boost::shared_ptr< WTriangleMesh >();
     }
 
     if(  su::tokenize( header.at( 3 ) ).size() < 2 ||
          su::toUpper( su::tokenize( header.at( 3 ) )[1] ) != "UNSTRUCTURED_GRID" )
     {
-        WLogger::getLogger()->addLogMessage( "Invalid VTK DATASET type: " + su::tokenize( header.back() )[1], "Marching Cubes", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Invalid VTK DATASET type: " + su::tokenize( header.back() )[1], "Read Mesh", LL_ERROR );
+        progress->finish();
+        return boost::shared_ptr< WTriangleMesh >();
     }
 
     // ------ POINTS -------
@@ -166,7 +172,9 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::read()
     std::vector< std::string > tokens = su::tokenize( line );
     if( tokens.size() != 3 || su::toLower( tokens.at( 2 ) ) != "float" || su::toLower( tokens.at( 0 ) ) != "points"  )
     {
-        WLogger::getLogger()->addLogMessage( "Invalid VTK POINTS declaration: " + line, "Marching Cubes", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Invalid VTK POINTS declaration: " + line, "Read Mesh", LL_ERROR );
+        progress->finish();
+        return boost::shared_ptr< WTriangleMesh >();
     }
     try
     {
@@ -174,7 +182,9 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::read()
     }
     catch( const boost::bad_lexical_cast &e )
     {
-        WLogger::getLogger()->addLogMessage( "Invalid number of points: " + tokens.at( 1 ), "Marching Cubes", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Invalid number of points: " + tokens.at( 1 ), "Read Mesh", LL_ERROR );
+        progress->finish();
+        return boost::shared_ptr< WTriangleMesh >();
     }
 
 
@@ -208,7 +218,11 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::read()
         ifs >> nbCellVerts >> tri[0]  >> tri[1]  >> tri[2];
         triMesh->addTriangle( tri[0], tri[1], tri[2] );
         if( nbCellVerts != 3 )
-            WLogger::getLogger()->addLogMessage( "Number of cell vertices should be 3 but found " + nbCellVerts, "Marching Cubes", LL_ERROR );
+        {
+            WLogger::getLogger()->addLogMessage( "Number of cell vertices should be 3 but found " + nbCellVerts, "Read Mesh", LL_ERROR );
+            progress->finish();
+            return boost::shared_ptr< WTriangleMesh >();
+        }
     }
 
     ++*progress;
@@ -223,7 +237,9 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::read()
         ifs >> cellType;
         if( cellType != 5 )
         {
-            WLogger::getLogger()->addLogMessage( "Invalid cell type: " + cellType, "Marching Cubes", LL_ERROR );
+            WLogger::getLogger()->addLogMessage( "Invalid cell type: " + cellType, "Read Mesh", LL_ERROR );
+            progress->finish();
+            return boost::shared_ptr< WTriangleMesh >();
         }
     }
 

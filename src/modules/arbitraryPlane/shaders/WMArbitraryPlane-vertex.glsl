@@ -43,3 +43,4 @@ void main()
     VaryingTexCoord7 = gl_MultiTexCoord7;
     gl_Position = ftransform();
 }
+

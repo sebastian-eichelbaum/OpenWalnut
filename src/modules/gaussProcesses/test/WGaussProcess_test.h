@@ -52,12 +52,13 @@ public:
     }
 
     /**
-     * Inside of the R environment there shall be values unequal to zero.
+     * Inside of the R environment there shall be values unequal to zero. (-p.m_R + EPS would be not change the mean value
+     * significantly, we have to go a little more inside the kernel!)
      */
     void testMeanFunctionInsideOf_R_Environment( void )
     {
         WGaussProcess p( m_tractID, m_tracts, m_emptyDTIDataSet );
-        TS_ASSERT( std::abs( p.mean( wmath::WPosition( -p.m_R + 2 * wlimits::DBL_EPS, 0.0, 0.0 ) ) ) > wlimits::DBL_EPS );
+        TS_ASSERT( std::abs( p.mean( wmath::WPosition( -p.m_R + 1.0e-8, 0.0, 0.0 ) ) ) > wlimits::DBL_EPS );
     }
 
     /**
@@ -67,8 +68,8 @@ public:
     void testMeanFunctionMonotonyIn_R_Environment( void )
     {
         WGaussProcess p( m_tractID, m_tracts, m_emptyDTIDataSet );
-        TS_ASSERT( std::abs( p.mean( wmath::WPosition( -p.m_R + 3 * wlimits::DBL_EPS, 0.0, 0.0 ) ) ) >
-                             p.mean( wmath::WPosition( -p.m_R + 2 * wlimits::DBL_EPS, 0.0, 0.0 ) ) );
+        TS_ASSERT( std::abs( p.mean( wmath::WPosition( -p.m_R + 1.0e-8, 0.0, 0.0 ) ) ) >
+                             p.mean( wmath::WPosition( -p.m_R + 0.5e-8, 0.0, 0.0 ) ) );
     }
 
     /**

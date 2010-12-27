@@ -25,6 +25,7 @@
 #ifndef WQTNAVGLWIDGET_H
 #define WQTNAVGLWIDGET_H
 
+#include <map>
 #include <string>
 
 #include <QtGui/QDockWidget>
@@ -78,7 +79,14 @@ public:
      *
      * \param prop the property
      */
-    void setSliderProperty( WPropInt prop );
+    void setSliderProperty( boost::shared_ptr< WPropertyBase > prop );
+
+    /**
+     * Remove the property to control by the slider.
+     *
+     * \param prop the property
+     */
+    void removeSliderProperty( boost::shared_ptr< WPropertyBase > prop );
 
 protected:
 private:
@@ -87,11 +95,6 @@ private:
      * The slider's title.
      */
     QString m_sliderTitle;
-
-    /**
-     * The property widget representing the slice slider.
-     */
-    WPropertyIntWidget* m_propWidget;
 
     /**
      * My GL widget.
@@ -112,6 +115,12 @@ private:
      * Layout of this widget.
      */
     QVBoxLayout* m_layout;
+
+    /**
+     * Map holding the widgets for module properties added automatically. So they can be removed again automatically
+     * if the module is removed.
+     */
+    std::map< boost::shared_ptr< WPropertyBase >, WPropertyIntWidget* > propertyWidgetMap;
 };
 
 #endif  // WQTNAVGLWIDGET_H

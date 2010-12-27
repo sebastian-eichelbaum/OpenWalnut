@@ -54,7 +54,7 @@ boost::shared_ptr< WDataSetScalar > WCenterlineParameterization::getDataSet()
     return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( valueSet, m_grid ) );
 }
 
-namespace
+namespace wcp // WCenterlineParameterization
 {
     size_t index( int x, int y, int z, boost::shared_ptr< WGridRegular3D > grid )
     {
@@ -72,9 +72,12 @@ namespace
         return x + y * nbX + z * nbXY;
     }
 
+    /**
+     * Neighborhood position
+     */
     typedef struct
     {
-        size_t indices[27];
+        size_t indices[27]; //!< The indices of the neighbors.
     }
     Neighbourhood;
 
@@ -121,7 +124,7 @@ void WCenterlineParameterization::parameterizeVoxel( const wmath::WValue< int >&
                                                       const wmath::WPosition& /*end*/ )
 {
     // update a 27 neighbourhood
-    Neighbourhood n = neighbourhood( voxel[0], voxel[1], voxel[2], m_grid );
+    wcp::Neighbourhood n = wcp::neighbourhood( voxel[0], voxel[1], voxel[2], m_grid );
 
     // now update the neighbourhood
     for ( unsigned int i = 0; i < 27; ++i )
@@ -191,7 +194,7 @@ void WCenterlineParameterization::finished()
         {
             for ( size_t z = 0; z < m_grid->getNbCoordsZ(); ++z )
             {
-                size_t idx = index( x, y, z, m_grid );
+                size_t idx = wcp::index( x, y, z, m_grid );
 
                 // copy
                 m_paramFinalValues[ idx ] = m_paramValues[ idx ];
@@ -202,7 +205,7 @@ void WCenterlineParameterization::finished()
                     m_paramSetValues[ idx ] = true;
 
                     // find maximum in neighbourhood
-                    Neighbourhood n = neighbourhood( x, y, z, m_grid );
+                    wcp::Neighbourhood n = wcp::neighbourhood( x, y, z, m_grid );
 
                     double maxVal = m_paramValues[ n.indices[ 0 ] ];
                     for ( unsigned int i = 1; i < 27; ++i )

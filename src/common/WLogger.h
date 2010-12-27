@@ -161,7 +161,7 @@ namespace wlog
     /**
      * Resource class for streamed logging.
      */
-    class WStreamedLogger
+    class OWCOMMON_EXPORT WStreamedLogger // NOLINT
     {
     public:
         /**
@@ -251,11 +251,6 @@ namespace wlog
     {
         manip( m_buffer->m_logString );
         return *this;
-    }
-
-    inline WStreamedLogger::Buffer::~Buffer()
-    {
-        WLogger::getLogger()->addLogMessage( m_logString.str(), m_source, m_level );
     }
 
     inline WStreamedLogger::Buffer::Buffer( const std::string& source, LogLevel level )

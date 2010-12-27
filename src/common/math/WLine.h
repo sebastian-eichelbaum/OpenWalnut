@@ -94,7 +94,7 @@ namespace wmath
      *
      * \return The AABB for this line.
      */
-    WBoundingBox computeBoundingBox( const wmath::WLine& line );
+    OWCOMMON_EXPORT WBoundingBox computeBoundingBox( const wmath::WLine& line );
 
     /**
      * Computes the length of a line in terms of accumulated segment lengths.
@@ -103,7 +103,7 @@ namespace wmath
      *
      * \return Sum of all line segment lengths
      */
-    double pathLength( const wmath::WLine& line );
+    OWCOMMON_EXPORT double pathLength( const wmath::WLine& line );
 
     /**
      * Returns the point in the middle of a line. In case of an even sized
@@ -116,7 +116,7 @@ namespace wmath
      *
      * \return Const reference to the midpoint element.
      */
-    const wmath::WPosition& midPoint( const wmath::WLine& line );
+    OWCOMMON_EXPORT const wmath::WPosition& midPoint( const wmath::WLine& line );
 
     /**
      * Compares two lines with each other point wise upto a given delta.
@@ -127,7 +127,7 @@ namespace wmath
      *
      * \return -1 in case of the two fibers are considered equal, otherwise the first position on which they differ is returned.
      */
-    int equalsDelta( const wmath::WLine& line, const wmath::WLine& other, double delta );
+    OWCOMMON_EXPORT int equalsDelta( const wmath::WLine& line, const wmath::WLine& other, double delta );
 
     /**
      * Compute the maximal segment length of all segements of a line. If there are no segements meaning
@@ -137,7 +137,7 @@ namespace wmath
      *
      * \return Max segement length or zero if there aren't any.
      */
-    double maxSegmentLength( const wmath::WLine& line );
+    OWCOMMON_EXPORT double maxSegmentLength( const wmath::WLine& line );
 
     /**
      * Boolean predicate indicating that the first line has more points then

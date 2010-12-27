@@ -47,7 +47,7 @@ boost::shared_ptr< WDataSetScalar > WIntegrationParameterization::getDataSet()
     return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( valueSet, m_grid ) );
 }
 
-namespace
+namespace wip //WIntegrationParameterization
 {
     size_t index( int x, int y, int z, boost::shared_ptr< WGridRegular3D > grid )
     {
@@ -72,35 +72,35 @@ void WIntegrationParameterization::parameterizeVoxel( const wmath::WValue< int >
                                                       const wmath::WPosition& /*end*/ )
 {
     // ok, this looks ugly but setting the whole 27-neighborhood produces better results
-    m_lengthValues[ index( voxel[0],   voxel[1]+1, voxel[2]+1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0],   voxel[1]+1, voxel[2]-1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0],   voxel[1]+1, voxel[2],   m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0],   voxel[1]-1, voxel[2]+1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0],   voxel[1]-1, voxel[2]-1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0],   voxel[1]-1, voxel[2],   m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0],   voxel[1],   voxel[2]+1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0],   voxel[1],   voxel[2]-1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0],   voxel[1],   voxel[2],   m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0],   voxel[1]+1, voxel[2]+1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0],   voxel[1]+1, voxel[2]-1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0],   voxel[1]+1, voxel[2],   m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0],   voxel[1]-1, voxel[2]+1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0],   voxel[1]-1, voxel[2]-1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0],   voxel[1]-1, voxel[2],   m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0],   voxel[1],   voxel[2]+1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0],   voxel[1],   voxel[2]-1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0],   voxel[1],   voxel[2],   m_grid ) ] = m_curLength;
 
-    m_lengthValues[ index( voxel[0]+1, voxel[1]+1, voxel[2]+1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]+1, voxel[1]+1, voxel[2]-1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]+1, voxel[1]+1, voxel[2],   m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]+1, voxel[1]-1, voxel[2]+1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]+1, voxel[1]-1, voxel[2]-1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]+1, voxel[1]-1, voxel[2],   m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]+1, voxel[1],   voxel[2]+1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]+1, voxel[1],   voxel[2]-1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]+1, voxel[1],   voxel[2],   m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]+1, voxel[1]+1, voxel[2]+1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]+1, voxel[1]+1, voxel[2]-1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]+1, voxel[1]+1, voxel[2],   m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]+1, voxel[1]-1, voxel[2]+1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]+1, voxel[1]-1, voxel[2]-1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]+1, voxel[1]-1, voxel[2],   m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]+1, voxel[1],   voxel[2]+1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]+1, voxel[1],   voxel[2]-1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]+1, voxel[1],   voxel[2],   m_grid ) ] = m_curLength;
 
-    m_lengthValues[ index( voxel[0]-1, voxel[1]+1, voxel[2]+1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]-1, voxel[1]+1, voxel[2]-1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]-1, voxel[1]+1, voxel[2],   m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]-1, voxel[1]-1, voxel[2]+1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]-1, voxel[1]-1, voxel[2]-1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]-1, voxel[1]-1, voxel[2],   m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]-1, voxel[1],   voxel[2]+1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]-1, voxel[1],   voxel[2]-1, m_grid ) ] = m_curLength;
-    m_lengthValues[ index( voxel[0]-1, voxel[1],   voxel[2],   m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]-1, voxel[1]+1, voxel[2]+1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]-1, voxel[1]+1, voxel[2]-1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]-1, voxel[1]+1, voxel[2],   m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]-1, voxel[1]-1, voxel[2]+1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]-1, voxel[1]-1, voxel[2]-1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]-1, voxel[1]-1, voxel[2],   m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]-1, voxel[1],   voxel[2]+1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]-1, voxel[1],   voxel[2]-1, m_grid ) ] = m_curLength;
+    m_lengthValues[ wip::index( voxel[0]-1, voxel[1],   voxel[2],   m_grid ) ] = m_curLength;
 }
 
 void WIntegrationParameterization::newLine( const wmath::WLine& /*line*/ )

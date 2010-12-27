@@ -39,7 +39,7 @@ WGaussProcess::WGaussProcess( const size_t tractID,
 {
     WFiber tract = generateTract();
     m_Cff_1_l_product = Eigen::VectorXd( static_cast< int >( tract.size() ) );
-    m_R = wmath::maxSegmentLength( tract );
+    m_R = 2.0 * wmath::maxSegmentLength( tract );
     m_Cff_1_l_product = generateCffInverse( tract ) * ( Eigen::VectorXd::Ones( m_Cff_1_l_product.size() ) * m_maxLevel );
     generateTauParameter();
     m_bb = wmath::computeBoundingBox( tract );
@@ -168,8 +168,8 @@ double gauss::innerProduct( const WGaussProcess& p1, const WGaussProcess& p2 )
 {
     WFiber f1 = p1.generateTract();
     WFiber f2 = p2.generateTract();
-    double Q = 2.0 * p1.getMaxSegmentLength(); // we should ensure as Demian said, that in each kernel are almost two points.
-    double R = 2.0 * p2.getMaxSegmentLength();
+    double Q = p1.getRadius();
+    double R = p2.getRadius();
 
     Eigen::MatrixXd integralMatrix( static_cast< int >( f1.size() ), static_cast< int >( f2.size() ) );
     size_t i = 0, j = 0;

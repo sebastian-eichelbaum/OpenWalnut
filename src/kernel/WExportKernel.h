@@ -29,7 +29,7 @@
 
 #pragma warning( disable: 4251 )
 
-#ifdef OWkernel_EXPORTS
+#if defined( owkernel_EXPORTS ) || defined( OWkernel_EXPORTS )
 #define OWKERNEL_EXPORT __declspec( dllexport )
 #else
 #define OWKERNEL_EXPORT __declspec( dllimport )
