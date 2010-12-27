@@ -34,13 +34,13 @@
 
 #include "WMainWindow.h"
 #include "WQtToolBar.h"
-#include "WQtCombinerActionList.h"
 
 #include "WQtCombinerToolbar.h"
 
 WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCompatiblesList compatibles )
     : QToolBar( "Compatible Modules", parent ),
-      m_parent( parent )
+      m_parent( parent ),
+      m_actionList( WQtCombinerActionList( this, parent->getIconManager(), compatibles ) )
 {
     // setup toolbar
     setAllowedAreas( Qt::AllToolBarAreas );
@@ -57,7 +57,7 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCo
     setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
 
     // create the list of actions possible
-    addActions( WQtCombinerActionList( this, parent->getIconManager(), compatibles ) );
+    addActions( m_actionList );
 
     insertDummyButton();
 }
@@ -66,6 +66,15 @@ WQtCombinerToolbar::~WQtCombinerToolbar()
 {
 }
 
+void WQtCombinerToolbar::clear()
+{
+    // as QT is not able to delete the actions that are removed by clear(), we need to take care about it
+    for ( WQtCombinerActionList::iterator it = m_actionList.begin(); it != m_actionList.end(); ++it )
+    {
+        delete ( *it );
+    }
+    QToolBar::clear();
+}
 
 void WQtCombinerToolbar::makeEmpty()
 {
@@ -77,7 +86,8 @@ void WQtCombinerToolbar::updateButtons( WCombinerTypes::WCompatiblesList compati
 {
     clear();
     // create the list of actions possible
-    addActions( WQtCombinerActionList( this, m_parent->getIconManager(), compatibles ) );
+    m_actionList = WQtCombinerActionList( this, m_parent->getIconManager(), compatibles );
+    addActions( m_actionList );
 }
 
 void WQtCombinerToolbar::insertDummyButton()
