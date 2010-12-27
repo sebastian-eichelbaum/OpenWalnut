@@ -123,16 +123,28 @@ void WMMarchingCubes::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
-        if ( !m_input->getData().get() )
+        debugLog() << "Waiting ...";
+        m_moduleState.wait();
+
+        // woke up since the module is requested to finish?
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        // query changes in data and data validity
+        bool dataChanged = m_input->handledUpdate();
+        boost::shared_ptr< WDataSetScalar > incomingDataSet = m_input->getData();
+        bool propChanged = m_useMarchingLego->changed() || m_isoValueProp->changed();
+        if ( !incomingDataSet )
         {
             // OK, the output has not yet sent data
-            // NOTE: see comment at the end of this while loop for m_moduleState
             debugLog() << "Waiting for data ...";
-            m_moduleState.wait();
             continue;
         }
 
-        if( m_dataSet != m_input->getData() )
+        // new data available?
+        if( dataChanged )
         {
             // acquire data from the input connector
             m_dataSet = m_input->getData();
@@ -147,13 +159,19 @@ void WMMarchingCubes::moduleMain()
             }
         }
 
+        // if nothing has changed, continue waiting
+        if ( !propChanged && !dataChanged )
+        {
+            continue;
+        }
+
         // update isosurface
         debugLog() << "Computing surface ...";
 
         boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", 2 ) );
         m_progress->addSubProgress( progress );
 
-        generateSurfacePre( m_isoValueProp->get() );
+        generateSurfacePre( m_isoValueProp->get( true ) );
 
         ++*progress;
         debugLog() << "Rendering surface ...";
@@ -167,10 +185,6 @@ void WMMarchingCubes::moduleMain()
 
         debugLog() << "Done!";
         progress->finish();
-
-        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
-        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
-        m_moduleState.wait();
     }
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getScene()->remove( m_moduleNode );
@@ -248,7 +262,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
 
-            if ( m_useMarchingLego->get() )
+            if ( m_useMarchingLego->get( true ) )
             {
                 m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                                     m_grid->getTransformationMatrix(),
@@ -270,7 +284,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< int16_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            if ( m_useMarchingLego->get() )
+            if ( m_useMarchingLego->get( true ) )
             {
                 m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                                     m_grid->getTransformationMatrix(),
@@ -292,7 +306,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< int32_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int32_t > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            if ( m_useMarchingLego->get() )
+            if ( m_useMarchingLego->get( true ) )
             {
                 m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                                     m_grid->getTransformationMatrix(),
@@ -314,7 +328,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< float > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            if ( m_useMarchingLego->get() )
+            if ( m_useMarchingLego->get( true ) )
             {
                 m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                                     m_grid->getTransformationMatrix(),
@@ -336,7 +350,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< double > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            if ( m_useMarchingLego->get() )
+            if ( m_useMarchingLego->get( true ) )
             {
                 m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                                     m_grid->getTransformationMatrix(),
@@ -393,7 +407,7 @@ void WMMarchingCubes::renderMesh()
 
     // ------------------------------------------------
     // normals
-    if ( m_useMarchingLego->get() )
+    if ( m_useMarchingLego->get( true ) )
     {
         surfaceGeometry->setNormalArray( m_triMesh->getTriangleNormalArray() );
         surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
