@@ -87,145 +87,158 @@ WCLRenderNode::CLViewInformation::CLViewInformation(): width( 0 ), height( 0 )
 
 void WCLRenderNode::CLViewInformation::getViewProperties( ViewProperties& properties ) const
 {
-    const osg::Matrix& PMatrix = *m_projectionMatrix;
+    const osg::Matrix& pm = *m_projectionMatrix;
 
     double pNear, pFar, pLeft, pRight, pTop, pBottom;
 
-    if ( PMatrix( 3, 3 ) == 0.0 )
+    if ( pm( 3, 3 ) == 0.0 )
     {
         // perspective projection
-
-        //  PMatrix =
-        //  (
-        //      2 * near / (right - left)       |0                                  |0                              |0
-        //      0                               |2 * near / (top - bottom)          |0                              |0
-        //      (right + left) / (right - left) |(top + bottom) / (top - bottom)    |-(far + near) / (far - near)   |-1
-        //      0                               |0                                  |-2 * far * near / (far - near) |0
-        //  )
+        //
+        //  pm :
+        //
+        //  ( 2 * near / (right - left)         |0                                  |0                              |0  )
+        //  ( 0                                 |2 * near / (top - bottom)          |0                              |0  )
+        //  ( (right + left) / (right - left)   |(top + bottom) / (top - bottom)    |-(far + near) / (far - near)   |-1 )
+        //  ( 0                                 |0                                  |-2 * far * near / (far - near) |0  )
 
         properties.type = PERSPECTIVE;
 
-        pNear = PMatrix( 3, 2 ) / ( PMatrix( 2, 2 ) - 1.0 );
-        pFar = PMatrix( 3, 2 ) / ( PMatrix( 2, 2 ) + 1.0 );
+        pNear = pm( 3, 2 ) / ( pm( 2, 2 ) - 1.0 );
+        pFar = pm( 3, 2 ) / ( pm( 2, 2 ) + 1.0 );
 
-        pLeft = pNear * ( PMatrix( 2, 0 ) - 1.0 ) / PMatrix( 0, 0 );
-        pRight = pNear * ( PMatrix( 2, 0 ) + 1.0 ) / PMatrix( 0, 0 );
+        pLeft = pNear * ( pm( 2, 0 ) - 1.0 ) / pm( 0, 0 );
+        pRight = pNear * ( pm( 2, 0 ) + 1.0 ) / pm( 0, 0 );
 
-        pBottom = pNear * ( PMatrix( 2, 1 ) - 1.0 ) / PMatrix( 1, 1 );
-        pTop = pNear * ( PMatrix( 2, 1 ) + 1.0 ) / PMatrix( 1, 1 );
+        pBottom = pNear * ( pm( 2, 1 ) - 1.0 ) / pm( 1, 1 );
+        pTop = pNear * ( pm( 2, 1 ) + 1.0 ) / pm( 1, 1 );
     }
     else
     {
         // orthographic projection
-
-        //  PMatrix =
-        //  (
-        //      2 / (right - left)              |0                                  |0                              |0
-        //      0                               |2 / (top - bottom)                 |0                              |0
-        //      0                               |0                                  |-2 / (far - near)              |0
-        //      -(right + left) / (right - left)|-(top + bottom) / (top - bottom)   |-(far + near) / (far - near)   |1
-        //  )
+        //
+        //  pm :
+        //
+        //  ( 2 / (right - left)                |0                                  |0                              |0 )
+        //  ( 0                                 |2 / (top - bottom)                 |0                              |0 )
+        //  ( 0                                 |0                                  |-2 / (far - near)              |0 )
+        //  ( -(right + left) / (right - left)  |-(top + bottom) / (top - bottom)   |-(far + near) / (far - near)   |1 )
 
         properties.type = ORTHOGRAPHIC;
 
-        pNear = ( PMatrix( 3, 2 ) + 1.0 ) / PMatrix( 2, 2 );
-        pFar = ( PMatrix( 3,2 ) - 1.0 ) / PMatrix( 2, 2 );
+        pNear = ( pm( 3, 2 ) + 1.0 ) / pm( 2, 2 );
+        pFar = ( pm( 3,2 ) - 1.0 ) / pm( 2, 2 );
 
-        pLeft = -( 1.0 + PMatrix( 3, 0 ) ) / PMatrix( 0, 0 );
-        pRight = ( 1.0 - PMatrix( 3, 0 ) ) / PMatrix( 0, 0 );
+        pLeft = -( 1.0 + pm( 3, 0 ) ) / pm( 0, 0 );
+        pRight = ( 1.0 - pm( 3, 0 ) ) / pm( 0, 0 );
 
-        pBottom = -( 1.0 + PMatrix( 3, 1 ) ) / PMatrix( 1, 1 );
-        pTop = ( 1.0 - PMatrix( 3, 1 ) ) / PMatrix( 1, 1 );
+        pBottom = -( 1.0 + pm( 3, 1 ) ) / pm( 1, 1 );
+        pTop = ( 1.0 - pm( 3, 1 ) ) / pm( 1, 1 );
     }
 
     properties.planeNear = pNear;
     properties.planeFar = pFar;
 
-    const osg::Matrix& MVMatrix = *m_modelViewMatrix;
+    const osg::Matrix& mvm = *m_modelViewMatrix;
 
-    //  MVMatrix =
-    //  (
-    //      R(0,0)  R(0,1)  R(0,2)  0
-    //      R(1,0)  R(1,1)  R(1,2)  0
-    //      R(2,0)  R(2,2)  R(2,2)  0
-    //      tx      ty      tz      1
-    //  )
-
-    // (txNew,tyNew,tzNew) = -(tx,ty,tz) * Inverse[R] = -(tx,ty,tz) * Transpose[R]
-
-    double txNew = -( MVMatrix( 0, 0 ) * MVMatrix( 3, 0 ) + MVMatrix( 0, 1 ) * MVMatrix( 3, 1 ) + MVMatrix( 0, 2 ) * MVMatrix( 3, 2 ) );
-    double tyNew = -( MVMatrix( 1, 0 ) * MVMatrix( 3, 0 ) + MVMatrix( 1, 1 ) * MVMatrix( 3, 1 ) + MVMatrix( 1, 2 ) * MVMatrix( 3, 2 ) );
-    double tzNew = -( MVMatrix( 2, 0 ) * MVMatrix( 3, 0 ) + MVMatrix( 2, 1 ) * MVMatrix( 3, 1 ) + MVMatrix( 2, 2 ) * MVMatrix( 3, 2 ) );
-
-    //  ModelViewMatrixInverse =
-    //  (
-    //      R(0,0)  R(1,0)  R(2,0)  0
-    //      R(0,1)  R(1,1)  R(2,1)  0
-    //      R(0,2)  R(1,2)  R(2,2)  0
-    //      txNew   tyNew   tzNew   1
-    //  )
+    //  mvm :
     //
-    //  Inverse[ModelViewMatrix] =
-    //  (
-    //      MVMatrix(0,0)   MVMatrix(1,0)   MVMatrix(2,0)   0
-    //      MVMatrix(0,1)   MVMatrix(1,1)   MVMatrix(2,1)   0
-    //      MVMatrix(0,2)   MVMatrix(1,2)   MVMatrix(2,2)   0
-    //      txNew           tyNew           tzNew           1
-    //  )
+    //  ( RS[0][0]  |RS[0][1]   |RS[0][2]   |0 )
+    //  ( RS[1][0]  |RS[1][1]   |RS[1][2]   |0 )
+    //  ( RS[2][0]  |RS[2][2]   |RS[2][2]   |0 )
+    //  ( tx        |ty         |tz         |1 )
+    //
+    //  Inverse(mvm) :
+    //
+    //  ( Inverse(RS)[0][0] Inverse(RS)[0][1]   Inverse(RS)[0][2]   0 )
+    //  ( Inverse(RS)[1][0] Inverse(RS)[1][1]   Inverse(RS)[1][2]   0 )
+    //  ( Inverse(RS)[2][0] Inverse(RS)[2][2]   Inverse(RS)[2][2]   0 )
+    //  ( invTx             invTy               invTz               1 )
+
+    double invMvm[ 4 ][ 3 ];
+    double invDet;
+
+    invMvm[ 0 ][ 0 ] = mvm( 1, 1 ) * mvm( 2, 2 ) - mvm( 1, 2 ) * mvm( 2, 1 );
+    invMvm[ 0 ][ 1 ] = mvm( 0, 2 ) * mvm( 2, 1 ) - mvm( 0, 1 ) * mvm( 2, 2 );
+    invMvm[ 0 ][ 2 ] = mvm( 0, 1 ) * mvm( 1, 2 ) - mvm( 0, 2 ) * mvm( 1, 1 );
+    invMvm[ 1 ][ 0 ] = mvm( 1, 2 ) * mvm( 2, 0 ) - mvm( 1, 0 ) * mvm( 2, 2 );
+    invMvm[ 1 ][ 1 ] = mvm( 0, 0 ) * mvm( 2, 2 ) - mvm( 0, 2 ) * mvm( 2, 0 );
+    invMvm[ 1 ][ 2 ] = mvm( 0, 2 ) * mvm( 1, 0 ) - mvm( 0, 0 ) * mvm( 1, 2 );
+    invMvm[ 2 ][ 0 ] = mvm( 1, 0 ) * mvm( 2, 1 ) - mvm( 1, 1 ) * mvm( 2, 0 );
+    invMvm[ 2 ][ 1 ] = mvm( 0, 1 ) * mvm( 2, 0 ) - mvm( 0, 0 ) * mvm( 2, 1 );
+    invMvm[ 2 ][ 2 ] = mvm( 0, 0 ) * mvm( 1, 1 ) - mvm( 0, 1 ) * mvm( 1, 0 );
+
+    invDet = 1.0 / ( mvm( 0, 0 ) * invMvm[ 0 ][ 0 ] + mvm( 1, 0 ) * invMvm[ 0 ][ 1 ] + mvm( 2, 0 ) * invMvm[ 0 ][ 2 ] );
+
+    invMvm[ 0 ][ 0 ] *= invDet;
+    invMvm[ 0 ][ 1 ] *= invDet;
+    invMvm[ 0 ][ 2 ] *= invDet;
+    invMvm[ 1 ][ 0 ] *= invDet;
+    invMvm[ 1 ][ 1 ] *= invDet;
+    invMvm[ 1 ][ 2 ] *= invDet;
+    invMvm[ 2 ][ 0 ] *= invDet;
+    invMvm[ 2 ][ 1 ] *= invDet;
+    invMvm[ 2 ][ 2 ] *= invDet;
+
+    // (invTx,invTy,invTz) = -(tx,ty,tz) * Inverse(RS)
+
+    invMvm[ 3 ][ 0 ] = -( mvm( 3, 0 ) * invMvm[ 0 ][ 0 ] + mvm( 3, 1 ) * invMvm[ 1 ][ 0 ] + mvm( 3, 2 ) * invMvm[ 2 ][ 0 ] );
+    invMvm[ 3 ][ 1 ] = -( mvm( 3, 0 ) * invMvm[ 0 ][ 1 ] + mvm( 3, 1 ) * invMvm[ 1 ][ 1 ] + mvm( 3, 2 ) * invMvm[ 2 ][ 1 ] );
+    invMvm[ 3 ][ 2 ] = -( mvm( 3, 0 ) * invMvm[ 0 ][ 2 ] + mvm( 3, 1 ) * invMvm[ 1 ][ 2 ] + mvm( 3, 2 ) * invMvm[ 2 ][ 2 ] );
 
     if ( properties.type == PERSPECTIVE )
     {
-        // origin = (0,0,0,1) * Inverse[ModelViewMatrix]
+        // origin = (0,0,0,1) * Inverse(mvm)
 
-        properties.origin.set( txNew, tyNew, tzNew );
+        properties.origin.set( invMvm[ 3 ][ 0 ], invMvm[ 3 ][ 1 ], invMvm[ 3 ][ 2 ] );
 
-        // origin2LowerLeft = (left,bottom,-near,0) * Inverse[ModelViewMatrix]
+        // origin2LowerLeft = (left,bottom,-near,0) * Inverse(mvm)
 
         properties.origin2LowerLeft.set
         (
-            MVMatrix( 0, 0 ) * pLeft + MVMatrix( 0, 1 ) * pBottom - MVMatrix( 0, 2 ) * pNear,
-            MVMatrix( 1, 0 ) * pLeft + MVMatrix( 1, 1 ) * pBottom - MVMatrix( 1, 2 ) * pNear,
-            MVMatrix( 2, 0 ) * pLeft + MVMatrix( 2, 1 ) * pBottom - MVMatrix( 2, 2 ) * pNear
+            pLeft * invMvm[ 0 ][ 0 ] + pBottom * invMvm[ 1 ][ 0 ] - pNear * invMvm[ 2 ][ 0 ],
+            pLeft * invMvm[ 0 ][ 1 ] + pBottom * invMvm[ 1 ][ 1 ] - pNear * invMvm[ 2 ][ 1 ],
+            pLeft * invMvm[ 0 ][ 2 ] + pBottom * invMvm[ 1 ][ 2 ] - pNear * invMvm[ 2 ][ 2 ]
         );
     }
     else
     {
-        // origin = (left,bottom,0,1) * Inverse[ModelViewMatrix]
+        // origin = (left,bottom,0,1) * Inverse(mvm)
 
         properties.origin.set
         (
-            MVMatrix( 0, 0 ) * pLeft + MVMatrix( 0, 1 ) * pBottom + txNew,
-            MVMatrix( 1, 0 ) * pLeft + MVMatrix( 1, 1 ) * pBottom + tyNew,
-            MVMatrix( 2, 0 ) * pLeft + MVMatrix( 2, 1 ) * pBottom + tzNew
+            pLeft * invMvm[ 0 ][ 0 ] + pBottom * invMvm[ 1 ][ 0 ] + invMvm[ 3 ][ 0 ],
+            pLeft * invMvm[ 0 ][ 1 ] + pBottom * invMvm[ 1 ][ 1 ] + invMvm[ 3 ][ 1 ],
+            pLeft * invMvm[ 0 ][ 2 ] + pBottom * invMvm[ 1 ][ 2 ] + invMvm[ 3 ][ 2 ]
         );
 
 
-        // origin2LowerLeft = (0,0,-near,0) * Inverse[ModelViewMatrix]
+        // origin2LowerLeft = (0,0,-near,0) * Inverse(mvm)
 
         properties.origin2LowerLeft.set
         (
-            -MVMatrix( 0, 2 ) * pNear,
-            -MVMatrix( 1, 2 ) * pNear,
-            -MVMatrix( 2, 2 ) * pNear
+            -pNear * invMvm[ 2 ][ 0 ],
+            -pNear * invMvm[ 2 ][ 1 ],
+            -pNear * invMvm[ 2 ][ 2 ]
         );
     }
 
-    // edgeX = ((right - left),0,0,0) * Inverse[ModelViewMatrix]
+    // edgeX = ((right - left),0,0,0) * Inverse(mvm)
 
     properties.edgeX.set
     (
-	    MVMatrix( 0, 0 ) * ( pRight - pLeft ),
-	    MVMatrix( 1, 0 ) * ( pRight - pLeft ),
-	    MVMatrix( 2, 0 ) * ( pRight - pLeft )
+	    ( pRight - pLeft ) * invMvm[ 0 ][ 0 ],
+	    ( pRight - pLeft ) * invMvm[ 0 ][ 1 ],
+	    ( pRight - pLeft ) * invMvm[ 0 ][ 2 ]
     );
 
-    // edgeY = (0,(top - bottom),0,0) * Inverse[ModelViewMatrix]
+    // edgeY = (0,(top - bottom),0,0) * Inverse(mvm)
 
     properties.edgeY.set
     (
-	    MVMatrix( 0, 1 ) * ( pTop - pBottom ),
-	    MVMatrix( 1, 1 ) * ( pTop - pBottom ),
-	    MVMatrix( 2, 1 ) * ( pTop - pBottom )
+	    ( pTop - pBottom ) * invMvm[ 1 ][ 0 ],
+	    ( pTop - pBottom ) * invMvm[ 1 ][ 1 ],
+	    ( pTop - pBottom ) * invMvm[ 1 ][ 2 ]
     );
 }
 

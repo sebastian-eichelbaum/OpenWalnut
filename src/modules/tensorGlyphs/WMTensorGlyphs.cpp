@@ -267,6 +267,8 @@ void WMTensorGlyphs::moduleMain()
                     m_sliceEnabled[ 1 ]->setHidden( false );
                     m_sliceEnabled[ 2 ]->setHidden( false );
                 }
+
+                continue;
             }
 
             // property changes

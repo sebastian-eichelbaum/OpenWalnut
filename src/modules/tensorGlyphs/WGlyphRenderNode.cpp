@@ -377,7 +377,7 @@ WCLRenderNode::CLProgramDataSet* WGlyphRenderNode::initProgram( const WCLRenderN
 
     // build CL program
 
-    std::string options = std::string( "-D Order=" ) + boost::lexical_cast< std::string, unsigned int >( m_order );
+    std::string options = std::string( "-D Order=" ) + boost::lexical_cast< std::string, int >( m_order );
 
     clError = clBuildProgram( clProgram, 0, 0, options.c_str(), 0, 0 );
 
