@@ -25,6 +25,8 @@
 #ifndef WSELECTIONMANAGER_H
 #define WSELECTIONMANAGER_H
 
+#include <vector>
+
 #include <boost/shared_ptr.hpp>
 
 #include "WCrosshair.h"

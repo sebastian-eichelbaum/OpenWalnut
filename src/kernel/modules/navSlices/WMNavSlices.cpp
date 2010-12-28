@@ -38,6 +38,7 @@
 #include <osg/LineWidth>
 
 #include "../../../common/WAssert.h"
+#include "../../../common/WLimits.h"
 #include "../../../common/math/WVector3D.h"
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../dataHandler/WDataHandler.h"
@@ -283,9 +284,6 @@ void WMNavSlices::create()
     m_slicesNode->insert( m_slicesSwitchNode );
 
     m_shader->apply( m_slicesNode );
-    m_shader->apply( m_xSliceNode );
-    m_shader->apply( m_ySliceNode );
-    m_shader->apply( m_zSliceNode );
 
     osg::StateSet* rootState = m_slicesNode->getOrCreateStateSet();
     initUniforms( rootState );
@@ -296,14 +294,7 @@ void WMNavSlices::create()
         new userData( boost::shared_dynamic_cast< WMNavSlices >( shared_from_this() ) )
         );
 
-    m_rootNode->setUserData( usrData );
     m_slicesNode->setUserData( usrData );
-    m_xSliceNode->setUserData( usrData );
-    m_ySliceNode->setUserData( usrData );
-    m_zSliceNode->setUserData( usrData );
-    m_xCrossNode->setUserData( usrData );
-    m_yCrossNode->setUserData( usrData );
-    m_zCrossNode->setUserData( usrData );
     m_slicesNode->addUpdateCallback( new sliceNodeCallback );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_slicesNode );
@@ -510,7 +501,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
             osg::Vec3 endPosWorld = wge::unprojectFromScreen( endPosScreen, m_viewer->getCamera() );
 
             osg::Vec3 moveDirWorld = endPosWorld - startPosWorld;
-            float diff = wge::wv3D2ov3( normal ) * moveDirWorld;
+            float diff = normal * moveDirWorld;
 
             // recognize also small values.
             if( diff < 0 && diff > -1 )
@@ -628,7 +619,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 vertices.push_back( wmath::WPosition( xPos, m_bb.second[1], m_bb.first[2]   ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
-                    sliceVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
+                    sliceVertices->push_back( vertices[i] );
                 }
 
                 sliceGeometry->setVertexArray( sliceVertices );
@@ -641,7 +632,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -655,7 +646,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -672,7 +663,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 vertices.push_back( wmath::WPosition( m_bb.second[0],  yPos, m_bb.first[2]  ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
-                    sliceVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
+                    sliceVertices->push_back( vertices[i] );
                 }
                 sliceGeometry->setVertexArray( sliceVertices );
 
@@ -684,7 +675,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -698,7 +689,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -714,7 +705,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                 vertices.push_back( wmath::WPosition( m_bb.second[0], m_bb.first[1],  zPos ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
-                    sliceVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
+                    sliceVertices->push_back( vertices[i] );
                 }
 
                 sliceGeometry->setVertexArray( sliceVertices );
@@ -727,7 +718,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
                     osg::Vec3Array* texCoords = new osg::Vec3Array;
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -742,7 +733,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
 
                     for( size_t i = 0; i < nbVerts; ++i )
                     {
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] ) );
                     }
                     sliceGeometry->setTexCoordArray( c, texCoords );
                     ++c;
@@ -800,25 +791,39 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
         }
     case 1:
         {
+#if defined( __APPLE__ )
             vertices.push_back( wmath::WPosition( minx, yPos - 1.0f, zPos ) );
             vertices.push_back( wmath::WPosition( maxx, yPos - 1.0f, zPos ) );
             vertices.push_back( wmath::WPosition( xPos, yPos - 1.0f, minz ) );
             vertices.push_back( wmath::WPosition( xPos, yPos - 1.0f, maxz ) );
+#else
+            vertices.push_back( wmath::WPosition( minx, yPos + 1.0f, zPos ) );
+            vertices.push_back( wmath::WPosition( maxx, yPos + 1.0f, zPos ) );
+            vertices.push_back( wmath::WPosition( xPos, yPos + 1.0f, minz ) );
+            vertices.push_back( wmath::WPosition( xPos, yPos + 1.0f, maxz ) );
+#endif
             break;
         }
     case 2:
         {
+#if defined( __APPLE__ )
             vertices.push_back( wmath::WPosition( minx, yPos, zPos + 1.0f ) );
             vertices.push_back( wmath::WPosition( maxx, yPos, zPos + 1.0f ) );
             vertices.push_back( wmath::WPosition( xPos, miny, zPos + 1.0f ) );
             vertices.push_back( wmath::WPosition( xPos, maxy, zPos + 1.0f ) );
+#else
+            vertices.push_back( wmath::WPosition( minx, yPos, zPos - 1.0f ) );
+            vertices.push_back( wmath::WPosition( maxx, yPos, zPos - 1.0f ) );
+            vertices.push_back( wmath::WPosition( xPos, miny, zPos - 1.0f ) );
+            vertices.push_back( wmath::WPosition( xPos, maxy, zPos - 1.0f ) );
+#endif
             break;
         }
     }
 
     for( size_t i = 0; i < vertices.size(); ++i )
     {
-        crossVertices->push_back( wge::wv3D2ov3( vertices[i] ) );
+        crossVertices->push_back( vertices[i] );
     }
 
     colorArray->push_back( osg::Vec3( 1.0f, 0.0f, 0.0f ) );
@@ -905,7 +910,7 @@ void WMNavSlices::updateGeometry()
         // update the information property
         m_currentPosition->set( wmath::WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
 
-        // if the texture got changed we want to rearange the scene Matrix for the SliceViewports to be centered
+        // if the texture got changed we want to rearrange the scene Matrix for the SliceViewports to be centered
         updateViewportMatrix();
 
         osg::ref_ptr<osg::Geometry> xSliceGeometry = createGeometry( 0 );
@@ -953,13 +958,13 @@ void WMNavSlices::updateTextures()
         if ( tex.size() > 0 )
         {
             // reset all uniforms
-            for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+            for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
 
             // for each texture -> apply
-            int c = 0;
+            size_t c = 0;
 
             //////////////////////////////////////////////////////////////////////////////////////////////////
             if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
@@ -1009,7 +1014,7 @@ void WMNavSlices::updateTextures()
                 m_cmapUniforms[c]->set( cmap );
 
                 ++c;
-                if( c == m_maxNumberOfTextures )
+                if( c == wlimits::MAX_NUMBER_OF_TEXTURES )
                 {
                     break;
                 }
@@ -1085,7 +1090,7 @@ void WMNavSlices::initUniforms( osg::StateSet* rootState )
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
 
-    for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+    for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
     {
         rootState->addUniform( m_typeUniforms[i] );
         rootState->addUniform( m_thresholdUniforms[i] );
@@ -1147,6 +1152,7 @@ void WMNavSlices::updateViewportMatrix()
                 scale = scale2;
         }
 
+#if defined( __APPLE__ )
         // 1. translate to center
         // 2. rotate around center
         // 3. scale to maximum
@@ -1161,6 +1167,25 @@ void WMNavSlices::updateViewportMatrix()
         sm.makeScale( scale, scale, scale );
 
         tm *= sm;
+#else
+        // We look to -y direction
+        // 1. translate to center
+        // 2. rotate around center
+        // 3. scale to maximum and mirror in x
+        osg::Matrix sm;
+        osg::Matrix rm;
+        osg::Matrix tm;
+
+        tm.makeTranslate( osg::Vec3(
+                              -0.5 * ( m_bb.second[ 0 ] + m_bb.first[ 0 ] ),
+                              -0.5 * ( m_bb.second[ 1 ] + m_bb.first[ 1 ] ) ,
+                              0 ) );
+        rm.makeRotate( 90.0 * 3.141 / 180, 1.0, 0.0, 0.0 );
+        sm.makeScale( -scale, scale, scale );
+
+        tm *= rm;
+        tm *= sm;
+#endif
 
         currentScene->setMatrix( tm );
     }
@@ -1194,6 +1219,7 @@ void WMNavSlices::updateViewportMatrix()
                     scale = scale2;
         }
 
+#if defined( __APPLE__ )
         osg::Matrix rm;
         osg::Matrix rm2;
         osg::Matrix sm;
@@ -1210,6 +1236,25 @@ void WMNavSlices::updateViewportMatrix()
         tm *= rm;
         tm *= rm2;
         tm *= sm;
+#else
+        // We look to -y direction
+        // 1. translate to center
+        // 2. rotate around center
+        // 3. scale to maximum
+        osg::Matrix sm;
+        osg::Matrix rm;
+        osg::Matrix tm;
+
+        tm.makeTranslate( osg::Vec3(
+                              0.0,
+                              -0.5 * ( m_bb.second[ 1 ] + m_bb.first[ 1 ] ),
+                              -0.5 * ( m_bb.second[ 2 ] + m_bb.first[ 2 ] ) ) );
+        rm.makeRotate( -90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
+        sm.makeScale( scale, scale, scale );
+
+        tm *= rm;
+        tm *= sm;
+#endif
 
         currentScene->setMatrix( tm );
     }
@@ -1243,6 +1288,7 @@ void WMNavSlices::updateViewportMatrix()
                     scale = scale2;
         }
 
+#if defined( __APPLE__ )
         osg::Matrix sm;
         osg::Matrix rm;
         osg::Matrix tm;
@@ -1256,6 +1302,26 @@ void WMNavSlices::updateViewportMatrix()
 
         tm *= rm;
         tm *= sm;
+#else
+        // We look to -y direction
+        // 1. translate to center
+        // 2. scale to maximum and mirror in x
+        // 3. Move away from viewer
+        osg::Matrix sm;
+        osg::Matrix tm;
+        osg::Matrix tm2;
+
+
+        tm.makeTranslate( osg::Vec3(
+                              -0.5 * ( m_bb.second[ 0 ] + m_bb.first[ 0 ] ),
+                              0,
+                              -0.5 * ( m_bb.second[ 2 ] + m_bb.first[ 2 ] ) ) );
+        sm.makeScale( -scale, scale, scale );
+        tm2.makeTranslate( osg::Vec3( 0.0, -2 * ( m_bb.second[ 1 ] - m_bb.first[ 1 ] ), 0.0 ) ); //move away from viewer
+
+        tm *= sm;
+        tm *= tm2;
+#endif
 
         currentScene->setMatrix( tm );
     }

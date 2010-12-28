@@ -268,7 +268,7 @@ private:
     //! The number of seeds per position in a voxel.
     WPropInt m_seedsPerPosition;
 
-    //! Wether the harmonics should be randomized via bootstrapping.
+    //! Whether the harmonics should be randomized via bootstrapping.
     WPropBool m_probabilistic;
 
     //! Start the tracking.
@@ -283,7 +283,7 @@ private:
     //! The current minimum cosine property.
     double m_currentMinCos;
 
-    //! The current probabilistic proberty.
+    //! The current probabilistic property.
     bool m_currentProbabilistic;
 
     //! A parameter for the fiber bundle detection.

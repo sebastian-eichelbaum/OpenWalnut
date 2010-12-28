@@ -35,10 +35,12 @@
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGERequirement.h"
 #include "../../kernel/WKernel.h"
 #include "WMIsosurfaceRaytracer.xpm"
 #include "WMIsosurfaceRaytracer.h"
@@ -116,12 +118,17 @@ void WMIsosurfaceRaytracer::properties()
     m_shadingSelections->addItem( "Depth only",       "Only show the depth of the surface along the ray." );
     m_shadingSelections->addItem( "Phong",            "Phong lighting. Slower but more realistic lighting" );
     m_shadingSelections->addItem( "Phong + depth",    "Phong lighting in combination with depth cueing." );
-    m_shadingAlgo   = m_properties->addProperty( "Shading", "The shading algorithm.", m_shadingSelections->getSelectorFirst(), m_propCondition );
+    m_shadingAlgo   = m_properties->addProperty( "Shading", "The shading algorithm.", m_shadingSelections->getSelector( 2 ), m_propCondition );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_shadingAlgo );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_shadingAlgo );
 
     WModule::properties();
+}
+
+void WMIsosurfaceRaytracer::requirements()
+{
+    m_requirements.push_back( new WGERequirement() );
 }
 
 void WMIsosurfaceRaytracer::moduleMain()
@@ -160,6 +167,13 @@ void WMIsosurfaceRaytracer::moduleMain()
         bool dataUpdated = m_input->updated();
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
         bool dataValid   = ( dataSet );
+
+        // valid data available?
+        if ( !dataValid )
+        {
+            // remove renderings if no data is available anymore
+            rootNode->clear();
+        }
 
         // m_isoColor or shading changed
         if ( m_isoColor->changed() || m_shadingAlgo->changed() )
@@ -246,6 +260,8 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootState->addUniform( isovalue );
             rootState->addUniform( steps );
             rootState->addUniform( alpha );
+
+            WGEColormapping::apply( cube, false );
 
             // update node
             debugLog() << "Adding new rendering.";

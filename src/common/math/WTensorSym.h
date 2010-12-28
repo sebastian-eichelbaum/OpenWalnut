@@ -92,7 +92,7 @@ private:
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 WTensorSym< order, dim, Data_T >::WTensorSym()
-    : WTensorFunc< wmath::WTensorBaseSym, order, dim, Data_T >()
+    : wmath::WTensorFunc< wmath::WTensorBaseSym, order, dim, Data_T >()
 {
 }
 
@@ -158,7 +158,24 @@ std::ostream& operator << ( std::ostream& o, WTensorSym< 2, dim, Data_T > const&
     }
     return o;
 }
+// ######################## a utility function #################################
 
+/**
+ * This calculates the multiplicity of the elements of a 3-dimensional
+ * symmetric tensor. (see Özarslan's paper from 2003)
+ * In a (super-)symmetric tensor, all permutations of a given set of Indices
+ * i_1, i_2, ... i_order ( i_j in 0,1,2 ) refer to the same data element.
+ * This means each data element can be identified by the amount of 0's, 1's
+ * and 2's in its index list. Permutations do not change these amounts, thus
+ * different data elements must differ in amount of 0's, 1's and 2's. The number of
+ * permutations that exist on the index list of a data element is its multiplicity.
+ *
+ * \param order The order of the tensor.
+ * \param numZeros How many elements of the permutation equal 0.
+ * \param numOnes How many elements of the permutation equal 1.
+ * \param numTwos How many elements of the permutation equal 2.
+ */
+std::size_t calcSupersymmetricTensorMultiplicity( std::size_t order, std::size_t numZeros, std::size_t numOnes, std::size_t numTwos );
 
 }  // namespace wmath
 

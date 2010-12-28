@@ -155,7 +155,7 @@ void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat,
  * function as in the GPU glyph shaders. This is for 3 dimensions only.
  *
  * \param m The symmetric matrix to calculate the eigenvalues from.
- * \return A std::vector of 3 eigenvalues in descending order.
+ * \return A std::vector of 3 eigenvalues in descending order (of their magnitude).
  */
 std::vector< double > getEigenvaluesCardano( WTensorSym< 2, 3 > const& m );
 
@@ -195,7 +195,63 @@ WTensor< 2, dim, Data_T > operator * ( TensorType1< 2, dim, Data_T > const& one,
     return res;
 }
 
-// do not implement operator + here, a class member implementation should be faster
+/**
+ * Evaluate a spherical function represented by a symmetric 4th-order tensor for a given gradient.
+ *
+ * \tparam Data_T The integral type used to store the tensor elements.
+ *
+ * \param tens The tensor representing the spherical function.
+ * \param gradient The normalized vector that represents the gradient direction.
+ *
+ * \note If the gradient is not normalized, the result is undefined.
+ */
+template< typename Data_T >
+double evaluateSphericalFunction( WTensorSym< 4, 3, Data_T > const& tens, wmath::WVector3D const& gradient )
+{
+    // use symmetry to reduce computation overhead
+    // temporaries for some of the gradient element multiplications could further reduce
+    // computation time
+    return gradient[ 0 ] * gradient[ 0 ] * gradient[ 0 ] * gradient[ 0 ] * tens( 0, 0, 0, 0 )
+         + gradient[ 1 ] * gradient[ 1 ] * gradient[ 1 ] * gradient[ 1 ] * tens( 1, 1, 1, 1 )
+         + gradient[ 2 ] * gradient[ 2 ] * gradient[ 2 ] * gradient[ 2 ] * tens( 2, 2, 2, 2 )
+         + static_cast< Data_T >( 4 ) *
+         ( gradient[ 0 ] * gradient[ 0 ] * gradient[ 0 ] * gradient[ 1 ] * tens( 0, 0, 0, 1 )
+         + gradient[ 0 ] * gradient[ 0 ] * gradient[ 0 ] * gradient[ 2 ] * tens( 0, 0, 0, 2 )
+         + gradient[ 1 ] * gradient[ 1 ] * gradient[ 1 ] * gradient[ 0 ] * tens( 1, 1, 1, 0 )
+         + gradient[ 2 ] * gradient[ 2 ] * gradient[ 2 ] * gradient[ 0 ] * tens( 2, 2, 2, 0 )
+         + gradient[ 1 ] * gradient[ 1 ] * gradient[ 1 ] * gradient[ 2 ] * tens( 1, 1, 1, 2 )
+         + gradient[ 2 ] * gradient[ 2 ] * gradient[ 2 ] * gradient[ 1 ] * tens( 2, 2, 2, 1 ) )
+         + static_cast< Data_T >( 12 ) *
+         ( gradient[ 2 ] * gradient[ 1 ] * gradient[ 0 ] * gradient[ 0 ] * tens( 2, 1, 0, 0 )
+         + gradient[ 0 ] * gradient[ 2 ] * gradient[ 1 ] * gradient[ 1 ] * tens( 0, 2, 1, 1 )
+         + gradient[ 0 ] * gradient[ 1 ] * gradient[ 2 ] * gradient[ 2 ] * tens( 0, 1, 2, 2 ) )
+         + static_cast< Data_T >( 6 ) *
+         ( gradient[ 0 ] * gradient[ 0 ] * gradient[ 1 ] * gradient[ 1 ] * tens( 0, 0, 1, 1 )
+         + gradient[ 0 ] * gradient[ 0 ] * gradient[ 2 ] * gradient[ 2 ] * tens( 0, 0, 2, 2 )
+         + gradient[ 1 ] * gradient[ 1 ] * gradient[ 2 ] * gradient[ 2 ] * tens( 1, 1, 2, 2 ) );
+}
+
+/**
+ * Evaluate a spherical function represented by a symmetric 2nd-order tensor for a given gradient.
+ *
+ * \tparam Data_T The integral type used to store the tensor elements.
+ *
+ * \param tens The tensor representing the spherical function.
+ * \param gradient The normalized vector that represents the gradient direction.
+ *
+ * \note If the gradient is not normalized, the result is undefined.
+ */
+template< typename Data_T >
+double evaluateSphericalFunction( WTensorSym< 2, 3, Data_T > const& tens, wmath::WVector3D const& gradient )
+{
+    return gradient[ 0 ] * gradient[ 0 ] * tens( 0, 0 )
+         + gradient[ 1 ] * gradient[ 1 ] * tens( 1, 1 )
+         + gradient[ 2 ] * gradient[ 2 ] * tens( 2, 2 )
+         + static_cast< Data_T >( 2 ) *
+         ( gradient[ 0 ] * gradient[ 1 ] * tens( 0, 1 )
+         + gradient[ 0 ] * gradient[ 2 ] * tens( 0, 2 )
+         + gradient[ 1 ] * gradient[ 2 ] * tens( 1, 2 ) );
+}
 } // namespace wmath
 
 #endif  // WTENSORFUNCTIONS_H

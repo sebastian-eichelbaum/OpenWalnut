@@ -1,11 +1,19 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT( OpenWalnut )
 
+# guard against in-source builds
+IF( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
+  MESSAGE( FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there. (you may need to remove CMakeCache.txt" )
+ENDIF()
+
+
+
 # append search path for FindModules:
 #------------------------------------
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/CMakeModules )
 # include custom CMake commands like assert
 INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/Utils.cmake )
+INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/OnlyOneBuildFile.cmake )
 
 # mimic layout of install dir for build:
 #----------------------------------------
@@ -27,6 +35,17 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
   INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/common/platformDependent/visualStudio/" )
 ENDIF()
 
+OPTION( OW_BUILD_AS_ONE_BIG_FILE "Build every library as one big cpp" OFF )
+INCLUDE( FindPythonInterp )
+
+# define libnames 
+SET( OWCommonName "OWcommon" )
+SET( OWDatahandlerName "OWdataHandler" )
+SET( OWgeName "OWge" )
+SET( OWguiName "OWgui" )
+SET( OWguiqt4Name "OWguiqt4" )
+SET( OWKernelName "OWkernel" )
+SET( OWmodulesPrefix "OWmodule" )
 
 # Package dependencies:
 #----------------------
@@ -84,7 +103,10 @@ IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
   # FIND_PACKAGE( OpenSceneGraph 2.8.0 REQUIRED osgDB osgUtil osgGA osgViewer osgSim OpenThreads )
   INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 ELSE()
-  FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osg osgUtil osgDB osgViewer osgText osgGA osgSim osgWidget )
+  IF( NOT VERSION LESS 2.6.3 )
+    SET ( CMAKE_PREFIX_PATH "$ENV{ProgramFiles}/OpenSceneGraph" )
+  ENDIF()
+  FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgUtil osgDB osgViewer osgText osgGA osgSim osgWidget )
   INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 ENDIF()
 
@@ -100,24 +122,64 @@ ENDIF()
 FIND_PACKAGE( OSSIM QUIET )
 IF( OSSIM_FOUND )
   MESSAGE( STATUS "Found OSSIM." )
-  ADD_DEFINITIONS( -DUSEOSSIM )
+  OPTION( OW_USE_OSSIM "Use the ossim library for singular value decomposition." OFF )
   INCLUDE_DIRECTORIES( ${OSSIM_INCLUDE_DIR} )
-  LINK_LIBRARIES( ${OSSIM_LIBRARY} )
-# TODO(math): is an entry in link directories necessary?
-#   LINK_DIRECTORIES( ${OSSIM_LIBDIR} )
+  LINK_LIBRARIES( ${OSSIM_LIBRARY} ) # this is necessary since you may install OSSIM not in the default library path
   MARK_AS_ADVANCED( OSSIM_INCLUDEDIR )
   MARK_AS_ADVANCED( OSSIM_LIBRARIES )
-#   MARK_AS_ADVANCED( OSSIM_LIBDIR )
+  IF( OW_USE_OSSIM )
+    ADD_DEFINITIONS( -DOW_USE_OSSIM )
+  ENDIF()
 ENDIF()
 
-### OPENCL ###
-FIND_PACKAGE( OpenCL QUIET )
-IF( OPENCL_FOUND )
-  INCLUDE_DIRECTORIES( ${OPENCL_INCLUDE_DIR} )
-  LINK_LIBRARIES( ${OPENCL_LIBRARY} )
-  MARK_AS_ADVANCED( OPENCL_INCLUDE_DIR )
-  MARK_AS_ADVANCED( OPENCL_LIBRARY )
+# insight toolkit (for image segmentation and registration)
+#----------------------------------------------------------
+FIND_PACKAGE( ITK QUIET )
+IF( ITK_FOUND )
+    OPTION( OW_USE_ITK "Use the insight toolkit for image segmentation" OFF )
+    INCLUDE( ${ITK_USE_FILE} )
+    IF( OW_USE_ITK )
+        ADD_DEFINITIONS( -DOW_USE_ITK )
+    ENDIF()
 ENDIF()
+
+### Eigen #### (for the gauss process, the covariance matrices tend to be sparse and 20x20, but ~70.000 of them)
+FIND_PACKAGE( Eigen3 QUIET )
+IF( EIGEN3_FOUND )
+    MESSAGE( STATUS "Found Eigen3 in: ${EIGEN3_INCLUDE_DIR} with version: ${EIGEN3_VERSION}" )
+    MARK_AS_ADVANCED( EIGEN3_INCLUDE_DIR )
+    MARK_AS_ADVANCED( EIGEN3_VERSION )
+ENDIF()
+
+### CUDA #### (e.g. for the detTractClustering module )
+OPTION( OW_USE_CUDA "Enable CUDA if available. Minimum version required is 2.3" )
+IF( OW_USE_CUDA )
+    FIND_PACKAGE( CUDA QUIET )
+    IF( CUDA_FOUND )
+        # BugFix: Subsequent calls don't set CUDA_VERSION_MAJOR or .._MINOR variables, so we have to extract them from CUDA_VERSION variable
+        STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\1" CUDA_VERSION_MAJOR ${CUDA_VERSION})
+        STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\2" CUDA_VERSION_MINOR ${CUDA_VERSION})
+
+        # Enforce at least CUDA version 2.3, since the detTractClustering is know to require this at least
+        SET( OW_MIN_CUDA_MAJOR_VERSION 2 )
+        SET( OW_MIN_CUDA_MINOR_VERSION 3 )
+
+        IF( CUDA_VERSION_MAJOR LESS OW_MIN_CUDA_MAJOR_VERSION )
+            SET( CUDA_FOUND_BUT_LOW_VERSION 1 )
+        ELSEIF( CUDA_VERSION_MAJOR EQUAL OW_MIN_CUDA_MAJOR_VERSION )
+            IF( CUDA_VERSION_MINOR LESS OW_MIN_CUDA_MINOR_VERSION )
+                SET( CUDA_FOUND_BUT_LOW_VERSION 1 )
+            ENDIF()
+        ENDIF()
+
+        # abort incase invalid version of CUDA was found.
+        IF( CUDA_FOUND_BUT_LOW_VERSION )
+            MESSAGE( FATAL_ERROR "You have selected to use CUDA but an insufficent version: ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR} was found, but ${OW_MIN_CUDA_MAJOR_VERSION}.${OW_MIN_CUDA_MINOR_VERSION} is required." )
+        ENDIF()
+        MESSAGE( STATUS "CUDA version: ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR} was found." )
+    ENDIF( CUDA_FOUND )
+ENDIF( OW_USE_CUDA )
+
 
 # other options:
 #---------------
@@ -128,6 +190,16 @@ IF( NOT CMAKE_BUILD_TYPE )
          FORCE
        )
 ENDIF( NOT CMAKE_BUILD_TYPE )
+
+# guard against typos in build-type strings
+STRING( TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type_tolower)
+IF( NOT cmake_build_type_tolower STREQUAL "debug" AND
+    NOT cmake_build_type_tolower STREQUAL "release" AND
+    NOT cmake_build_type_tolower STREQUAL "relwithdebinfo" AND
+    NOT cmake_build_type_tolower STREQUAL "")
+  MESSAGE( SEND_ERROR "Unknown build type \"${CMAKE_BUILD_TYPE}\". Allowed values are Debug, Release, RelWithDebInfo  and \"\" (case-insensitive).")
+ENDIF()
+
 SET( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin CACHE PATH "The executables will be put into this directory." )
 MARK_AS_ADVANCED( LIBRARY_OUTPUT_PATH )
 MARK_AS_ADVANCED( EXECUTABLE_OUTPUT_PATH )
@@ -142,6 +214,8 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
     SET( CMAKE_SHARED_LINKER_FLAGS " /STACK:10000000 /machine:I386 /NODEFAULTLIB:${EXCLUDE_LIBRARIES}"  CACHE STRING "" FORCE )
     SET( CMAKE_EXE_LINKER_FLAGS " /STACK:10000000 /machine:I386 /NODEFAULTLIB:${EXCLUDE_LIBRARIES}"  CACHE STRING "" FORCE )
     SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D \"NOMINMAX\"" )
+    SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /wd4101" )
+    SET( CMAKE_DEBUG_POSTFIX "d" CACHE STRING "add a postfix, usually d on windows" )
 ELSE()
     # Unfortunately libstdc++'s header files don't work with mingw in ansi mode (basically libstdc++'s fault)
     IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
@@ -173,24 +247,29 @@ ADD_SUBDIRECTORY( ext ) # The needed external libraries
 #-------------------------------------------------------------------------------------------------------------
 # Writes information about the revision of the current code to the file version.h which then gets included by OpenWalnut.cpp
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-	add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
-						MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
-						COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\"' > ${PROJECT_SOURCE_DIR}/version.h
-						WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-						COMMENT "Creating version.h"
-					 )
+    add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
+                        MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
+                        COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\" //' > ${PROJECT_SOURCE_DIR}/version.h
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                        COMMENT "Creating version.h"
+                     )
 ELSE()
-	add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
-						MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
-						COMMAND hg parents --template "\"#define W_VERSION \"\"{node|short} {rev} {branches} {tags}\"\"\"" > ${PROJECT_SOURCE_DIR}/version.h
-						WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-						COMMENT "Creating version.h"
-					 )
+    add_custom_command( OUTPUT ${PROJECT_SOURCE_DIR}/version.h
+                        MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/../.hg/dirstate
+                        COMMAND hg parents --template "\"#define W_VERSION \"\"{node|short} {rev} {branches} {tags}\"\"\"" > ${PROJECT_SOURCE_DIR}/version.h
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                        COMMENT "Creating version.h"
+                     )
 ENDIF()
 
 # finally, build walnut
 ADD_EXECUTABLE( walnut OpenWalnut.cpp version.h )
-TARGET_LINK_LIBRARIES( walnut OWkernel OWdataHandler OWgui OWguiqt4 OWcommon OWge ${Boost_LIBRARIES} )
+TARGET_LINK_LIBRARIES( walnut ${OWKernelName} ${OWDatahandlerName} ${OWguiName} ${OWguiqt4Name} ${OWCommonName} ${OWgeName} ${Boost_LIBRARIES} )
+
+IF(MSVC_IDE)
+    SET_TARGET_PROPERTIES( walnut PROPERTIES DEBUG_POSTFIX "d")
+    SET_TARGET_PROPERTIES( walnut PROPERTIES PREFIX "../")
+ENDIF(MSVC_IDE)
 
 #---------- Shaders -------------
 option( OW_COPY_SHADERS "This enables copying shaders with every make call." ON )
@@ -274,10 +353,10 @@ ADD_CUSTOM_TARGET( tags DEPENDS ctags DEPENDS cscope )
 #-------------------------------------------------------------------------------------------------------------
 # Determines the number of cores available on this machine
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-	SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
-	SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
-	SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
-	ADD_CUSTOM_TARGET( numCores
+    SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
+    SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
+    SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
+    ADD_CUSTOM_TARGET( numCores
                    COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
                    COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
                    COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
@@ -334,7 +413,25 @@ ADD_CUSTOM_TARGET( stylecheck
                    COMMENT "Check if code complies to CodingStandard"
                  )
 
+
 #-------------------------------------------------------------------------------------------------------------
+# Removes nasty windows line endings
+ADD_CUSTOM_TARGET( removewinlineendings
+                   COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/../tools/removeWinLineEnding.py ${PROJECT_BINARY_DIR}/brainlintlist
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                   COMMENT "Removes Windows Line endings"
+                 )
+
+#-------------------------------------------------------------------------------------------------------------
+# windows helper script to copy all files needed to build a release to one folder
+IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
+    ADD_CUSTOM_TARGET( copyWinRelease
+                       COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/../tools/copyWinRelease.py
+                       WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+                       COMMENT "Copys all the necessary Windows dll's and executables so binaries can easyly be distributed"
+                     )
+ENDIF( CMAKE_GENERATOR MATCHES "Visual Studio" )
+                 #-------------------------------------------------------------------------------------------------------------
 # Prints the verbose output of the test runners, so you may identify the source of error early, if any
 ADD_CUSTOM_TARGET( vtest
                    COMMAND $(MAKE) test ARGS="-V"

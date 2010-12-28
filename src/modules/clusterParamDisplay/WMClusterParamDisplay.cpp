@@ -54,13 +54,8 @@ const char** WMClusterParamDisplay::getXPMIcon() const
 
 void WMClusterParamDisplay::connectors()
 {
-    typedef WModuleInputForwardData< WDataSetFibers > InFiberType;
-    m_fibers = boost::shared_ptr< InFiberType >( new InFiberType( shared_from_this(), "fiberInput", "DataSetFibers to cluster and display" ) );
-    addConnector( m_fibers );
-
-    typedef WModuleInputForwardData< WDataSetScalar > InParamDSType;
-    m_paramDS = boost::shared_ptr< InParamDSType >( new InParamDSType( shared_from_this(), "paramDS", "Parameter Dataset such as FA" ) );
-    addConnector( m_paramDS );
+    m_fibers = WModuleInputForwardData< WDataSetFibers >::createAndAdd( shared_from_this(), "fiberInput", "DataSetFibers to cluster and display" );
+    m_paramDS = WModuleInputForwardData< WDataSetScalar >::createAndAdd( shared_from_this(), "paramInput", "Parameter Dataset such as FA" );
 
     WModule::connectors();
 }
@@ -155,17 +150,17 @@ void WMClusterParamDisplay::initSubModules()
 
     // wiring
     debugLog() << "Start wiring";
-    m_paramDS->forward( m_clusterSlicer->getInputConnector( "paramDS" ) );
+    m_paramDS->forward( m_clusterSlicer->getInputConnector( "paramInput" ) );
 
     m_gaussFiltering->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
     m_isoSurface->getInputConnector( "values" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
-    m_clusterSlicer->getInputConnector( "cluster" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
-    m_clusterSlicer->getInputConnector( "clusterDS" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
-    m_clusterSlicer->getInputConnector( "meshIN" )->connect( m_isoSurface->getOutputConnector( "surface mesh" ) );
-    m_meshRenderer->getInputConnector( "mesh" )->connect( m_clusterSlicer->getOutputConnector( "meshOUT" ) );
-    m_meshRenderer->getInputConnector( "colorMap" )->connect( m_clusterSlicer->getOutputConnector( "colorMap" ) );
+    m_clusterSlicer->getInputConnector( "clusterInput" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
+    m_clusterSlicer->getInputConnector( "clusterDSInput" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
+    m_clusterSlicer->getInputConnector( "meshInput" )->connect( m_isoSurface->getOutputConnector( "surface mesh" ) );
+    m_meshRenderer->getInputConnector( "mesh" )->connect( m_clusterSlicer->getOutputConnector( "meshOutput" ) );
+    m_meshRenderer->getInputConnector( "colorMap" )->connect( m_clusterSlicer->getOutputConnector( "colorMapOutput" ) );
 
-    m_voxelizer->getInputConnector( "voxelInput" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
+    m_voxelizer->getInputConnector( "tractInput" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
     m_fibers->forward( m_detTractClustering->getInputConnector( "tractInput" ) ); // init rippling
     debugLog() << "Wiring done";
 

@@ -38,7 +38,6 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 
-#include "../../graphicsEngine/WROIBitfield.h"
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "../../kernel/WKernel.h"
@@ -196,6 +195,7 @@ bool WMClusterDisplay::loadTreeAscii( std::string fileName )
             float data = boost::lexical_cast<float>( svec[k++] );
 
             m_tree.addCluster( cluster1, cluster2, level, leafes, data );
+            //m_tree.addCluster( cluster1, cluster2, data );
 
             if ( svec[k] != ")" )
             {
@@ -212,12 +212,13 @@ bool WMClusterDisplay::loadTreeAscii( std::string fileName )
     {
         return true;
     }
+    debugLog() << "something is wrong with the tree file";
     return false;
 }
 
 void WMClusterDisplay::initWidgets()
 {
-    osg::ref_ptr<osgViewer::Viewer> viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView();
+    osg::ref_ptr<osgViewer::View> viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView();
 
     int height = viewer->getCamera()->getViewport()->height();
     int width = viewer->getCamera()->getViewport()->width();
@@ -299,7 +300,7 @@ void WMClusterDisplay::initWidgets()
 
     m_wm->resizeAllWindows();
 
-    m_rootNode->addUpdateCallback( new SafeUpdateCallback( this ) );
+    m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMClusterDisplay::updateWidgets, this ) ) );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 }
 
@@ -363,8 +364,6 @@ void WMClusterDisplay::properties()
     m_readTriggerProp = m_properties->addProperty( "Do read",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
     WPropertyHelper::PC_PATHEXISTS::addTo( m_propTreeFile );
 
-    m_createRoiTrigger = m_properties->addProperty( "Create Roi",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
-
     WModule::properties();
 }
 
@@ -419,6 +418,9 @@ void WMClusterDisplay::moduleMain()
         }
     }
 
+    m_fiberSelector = boost::shared_ptr<WFiberSelector>( new WFiberSelector( m_dataSet ) );
+    m_tree.setRoiBitField( m_fiberSelector->getBitfield() );
+
     m_propTreeFile->setHidden( true );
     m_readTriggerProp->setHidden( true );
 
@@ -433,17 +435,16 @@ void WMClusterDisplay::moduleMain()
     m_propSelectedClusterOffset->setMin( 0 - m_tree.getLevel( m_propSelectedCluster->get() ) );
 
     initWidgets();
-    WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( m_propSelectedCluster->get( true ) ) );
-    WKernel::getRunningKernel()->getRoiManager()->setUseExternalBitfield( m_active->get( true ) );
+    createFiberGeode();
+
     m_widgetDirty = true;
     updateWidgets();
 
     WKernel::getRunningKernel()->getRoiManager()->getProperties()->getProperty( "dirty" )->getUpdateCondition()->subscribeSignal(
             boost::bind( &WMClusterDisplay::handleRoiChanged, this ) );
 
-    m_dendrogramGeode = new WDendrogram( &m_tree, m_rootCluster, 1000, 500 );
+    m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_rootCluster, 1000, 500 );
     m_camera->addChild( m_dendrogramGeode );
-
 
     m_propSelectedCluster->get( true );
     m_propSubClusters->get( true );
@@ -503,13 +504,7 @@ void WMClusterDisplay::moduleMain()
 
         if ( m_active->changed() )
         {
-            WKernel::getRunningKernel()->getRoiManager()->setUseExternalBitfield( m_active->get( true ) );
-        }
-
-        if ( m_createRoiTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
-        {
-            handleCreateRoi();
-            m_createRoiTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+            //WKernel::getRunningKernel()->getRoiManager()->setUseExternalBitfield( m_active->get( true ) );
         }
     }
     con.disconnect();
@@ -526,9 +521,10 @@ void WMClusterDisplay::handleSelectedClusterChanged()
     m_propSelectedClusterOffset->get( true );
     m_propMinSizeToColor->setMax( m_tree.size( m_biggestClusters.back() ) );
 
-    WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( m_rootCluster ) );
+    m_fiberDrawable->setBitfield( m_tree.getOutputBitfield( m_rootCluster ) );
+
     m_propSubLevelsToColor->setMax( m_tree.getLevel( m_rootCluster ) );
-    //colorClusters( m_propSelectedCluster->get( true ) );
+    colorClusters( m_propSelectedCluster->get( true ) );
 
     m_dendrogramDirty = true;
 }
@@ -576,7 +572,6 @@ void WMClusterDisplay::handleOffsetChanged()
             ++minusOff;
         }
     }
-    WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( m_rootCluster ) );
     m_propSubLevelsToColor->setMax( m_tree.getLevel( m_rootCluster ) );
 
     m_dendrogramDirty = true;
@@ -587,8 +582,6 @@ void WMClusterDisplay::handleBiggestClustersChanged()
     m_biggestClusters = m_tree.findXBiggestClusters( m_propSelectedCluster->get(), m_propSubClusters->get( true ) );
 
     m_propMinSizeToColor->setMax( m_tree.size( m_biggestClusters.back() ) );
-
-    WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( m_biggestClusters ) );
 
     m_tree.colorCluster( m_tree.getClusterCount() - 1, WColor( 0.3, 0.3, 0.3, 1.0 ) );
     setColor( m_tree.getLeafesForCluster( m_rootCluster ), WColor( 0.3, 0.3, 0.3, 1.0 ) );
@@ -603,11 +596,12 @@ void WMClusterDisplay::handleBiggestClustersChanged()
     m_dendrogramDirty = true;
     m_widgetDirty = true;
     m_biggestClusterButtonsChanged = true;
+
+    m_fiberDrawable->setBitfield( m_tree.getOutputBitfield( m_biggestClusters ) );
 }
 
 void WMClusterDisplay::handleColoringChanged()
 {
-    WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( m_propSelectedCluster->get( true ) ) );
     m_propSubLevelsToColor->get( true );
     m_propMinSizeToColor->get( true );
     colorClusters( m_propSelectedCluster->get( true ) );
@@ -621,44 +615,33 @@ void WMClusterDisplay::handleMinSizeChanged()
 
 void WMClusterDisplay::handleRoiChanged()
 {
+    WKernel::getRunningKernel()->getRunningKernel()->getRoiManager()->dirty( true );
+
     if ( m_active->get() )
     {
         m_biggestClusters = m_tree.getBestClustersFittingRoi( m_propBoxClusterRatio->get( true ), m_propMaxSubClusters->get( true ) );
 
-        WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( m_biggestClusters ) );
+        m_tree.colorCluster( m_tree.getClusterCount() - 1, WColor( 0.3, 0.3, 0.3, 1.0 ) );
+        setColor( m_tree.getLeafesForCluster( m_rootCluster ), WColor( 0.3, 0.3, 0.3, 1.0 ) );
 
         for ( size_t k = 0; k < m_biggestClusters.size(); ++k )
         {
             size_t current = m_biggestClusters[k];
             setColor( m_tree.getLeafesForCluster( current ), wge::getNthHSVColor( k, m_biggestClusters.size() ) );
+            m_tree.colorCluster( current, wge::getNthHSVColor( k, m_biggestClusters.size() ) );
         }
 
         m_widgetDirty = true;
         m_biggestClusterButtonsChanged = true;
+        m_dendrogramDirty = true;
     }
 
-    if ( ( m_propMaxSubClusters->get( true ) == 1 ) && ( m_biggestClusters.size() > 0 ) )
-    {
-        m_propSelectedCluster->set( m_biggestClusters[0] );
-
-        m_tree.colorCluster( m_tree.getClusterCount() - 1, WColor( 0.3, 0.3, 0.3, 1.0 ) );
-        setColor( m_tree.getLeafesForCluster( m_rootCluster ), WColor( 0.3, 0.3, 0.3, 1.0 ) );
-
-        m_tree.colorCluster( m_propSelectedCluster->get(), WColor( 1.0, 0.3, 0.3, 1.0 ) );
-        setColor( m_tree.getLeafesForCluster( m_propSelectedCluster->get() ), WColor( 1.0, 0.3, 0.3, 1.0 ) );
-    }
-}
-
-void WMClusterDisplay::handleCreateRoi()
-{
-    osg::ref_ptr< WROI > newRoi = osg::ref_ptr< WROI >( new WROIBitfield( m_tree.getOutputBitfield( m_propSelectedCluster->get() ) ) );
-
-    WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
+    m_fiberDrawable->setBitfield( m_tree.getOutputBitfield( m_biggestClusters ) );
 }
 
 void WMClusterDisplay::updateWidgets()
 {
-    osg::ref_ptr<osgViewer::Viewer> viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView();
+    osg::ref_ptr<osgViewer::View> viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView();
 
     int height = viewer->getCamera()->getViewport()->height();
     int width = viewer->getCamera()->getViewport()->width();
@@ -789,12 +772,12 @@ void WMClusterDisplay::updateWidgets()
         {
             if ( m_propResizeWithWindow->get( true ) )
             {
-                m_dendrogramGeode = new WDendrogram( &m_tree, m_tree.getClusterCount() - 1,
+                m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1,
                         m_propMinSizeToColor->get(), width - 120, height / 2 , 100 );
             }
             else
             {
-                m_dendrogramGeode = new WDendrogram( &m_tree, m_tree.getClusterCount() - 1,
+                m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1,
                         m_propMinSizeToColor->get(), dwidth, dheight, dxOff, dyOff );
             }
             m_camera->addChild( m_dendrogramGeode );
@@ -878,7 +861,8 @@ bool WMClusterDisplay::widgetClicked()
             }
         }
 
-        WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( activeClusters ) );
+        m_fiberDrawable->setBitfield( m_tree.getOutputBitfield( activeClusters ) );
+        //WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( activeClusters ) );
     }
     return clicked;
 }
@@ -959,7 +943,8 @@ void WMClusterDisplay::colorClusters( size_t current )
         setColor( m_tree.getLeafesForCluster( cluster ), wge::getNthHSVColor( n++, parts ) );
     }
 
-    WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( finalList ) );
+    m_fiberDrawable->setBitfield( m_tree.getOutputBitfield( finalList ) );
+    //WKernel::getRunningKernel()->getRoiManager()->setExternalBitfield( m_tree.getOutputBitfield( finalList ) );
 
     m_biggestClusters.clear();
     m_biggestClusterButtonsChanged = true;
@@ -967,9 +952,9 @@ void WMClusterDisplay::colorClusters( size_t current )
 
 void WMClusterDisplay::setColor( std::vector<size_t> clusters, WColor color )
 {
-    boost::shared_ptr< std::vector< float > >colorField = WKernel::getRunningKernel()->getRoiManager()->getCustomColors();
-    boost::shared_ptr< std::vector< size_t > > starts   = WKernel::getRunningKernel()->getRoiManager()->getStarts();
-    boost::shared_ptr< std::vector< size_t > > lengths  = WKernel::getRunningKernel()->getRoiManager()->getLengths();
+    boost::shared_ptr< std::vector< float > >colorField = m_dataSet->getColorScheme( "Custom Color" )->getColor();
+    boost::shared_ptr< std::vector< size_t > > starts   = m_fiberSelector->getStarts();
+    boost::shared_ptr< std::vector< size_t > > lengths  = m_fiberSelector->getLengths();
 
     for ( size_t i = 0; i < clusters.size(); ++i )
     {
@@ -994,4 +979,32 @@ void WMClusterDisplay::dendrogramClick( WPickInfo pickInfo )
     int y = pickInfo.getPickPixelPosition().second;
 
     m_propSelectedCluster->set( m_dendrogramGeode->getClickedCluster( x, y ) );
+}
+
+
+void WMClusterDisplay::createFiberGeode()
+{
+    m_fiberDrawable = osg::ref_ptr< WFiberDrawable >( new WFiberDrawable );
+    m_fiberDrawable->setBoundingBox( osg::BoundingBox( m_dataSet->getBoundingBox().first[0],
+                                                       m_dataSet->getBoundingBox().first[1],
+                                                       m_dataSet->getBoundingBox().first[2],
+                                                       m_dataSet->getBoundingBox().second[0],
+                                                       m_dataSet->getBoundingBox().second[1],
+                                                       m_dataSet->getBoundingBox().second[2] ) );
+
+    m_fiberDrawable->setStartIndexes( m_dataSet->getLineStartIndexes() );
+    m_fiberDrawable->setPointsPerLine( m_dataSet->getLineLengths() );
+    m_fiberDrawable->setVerts( m_dataSet->getVertices() );
+    m_fiberDrawable->setTangents( m_dataSet->getTangents() );
+    m_fiberDrawable->setColor( m_dataSet->getColorScheme( "Custom Color" )->getColor() );
+    m_fiberDrawable->setBitfield( m_fiberSelector->getBitfield() );
+
+    m_fiberDrawable->setUseDisplayList( false );
+    m_fiberDrawable->setDataVariance( osg::Object::DYNAMIC );
+
+    osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+    geode->addDrawable( m_fiberDrawable );
+
+    m_rootNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    m_rootNode->addChild( geode );
 }

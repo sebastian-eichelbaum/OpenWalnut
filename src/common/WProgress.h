@@ -74,6 +74,15 @@ public:
     virtual WProgress& operator++();
 
     /**
+     * Increments the operator by the given number of steps to signal forward progress.
+     *
+     * \param steps The number of steps to increment
+     *
+     * \return the incremented WProgress instance.
+     */
+    virtual WProgress& operator+( unsigned int steps );
+
+    /**
      * Returns the overall progress of this progress instance, including the child progress'.
      *
      * \return the progress.

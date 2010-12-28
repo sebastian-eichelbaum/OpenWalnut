@@ -126,6 +126,8 @@ private:
      */
     osg::ref_ptr< osgText::Text > m_osgPickText;
 
+    bool m_updatedPickText; //!< Tells us whether the picktext was updated an has to be rendered.
+
     /**
      * string to store the pick result from the picking method
      */
@@ -148,56 +150,9 @@ private:
     void activate();
 
     /**
-    * Wrapper class for userData to prevent cyclic destructor calls
-    */
-    class userData: public osg::Referenced
-    {
-        friend class WMHud;
-    public:
-        /**
-        * userData Constructur with shared pointer to module
-        * \param _parent pointer to the module 
-        */
-        explicit userData( boost::shared_ptr< WMHud > _parent )
-        {
-            m_parent = _parent;
-        }
-
-        /**
-        * update wrapper Function
-        */
-        void update();
-
-    private:
-        /**
-        * shared pointer to the module
-        */
-        boost::shared_ptr< WMHud > m_parent;
-    };
-
-    /**
-     * Node callback to handle updates properly
+     * The update callback that is called for the osg node of this module.
      */
-    class HUDNodeCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-        /**
-         * operator ()
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
-        {
-            osg::ref_ptr< userData > module = static_cast< userData* > ( node->getUserData() );
-
-            if( module )
-            {
-                module->update();
-            }
-            traverse( node, nv );
-        }
-    };
+    void updateCallback();
 };
 
 #endif  // WMHUD_H

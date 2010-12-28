@@ -34,6 +34,7 @@
 
 #include "../common/math/WPosition.h"
 #include "../common/WPathHelper.h"
+#include "WGESubdividedPlane.h"
 #include "WGEGeodeUtils.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
@@ -174,8 +175,8 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosit
     // transform the cube to match the bbox
     osg::Matrixd transformM;
     osg::Matrixd scaleM;
-    transformM.makeTranslate( wge::osgVec3( pos1 ) );
-    scaleM.makeScale( wge::osgVec3( pos2 - pos1 ) );
+    transformM.makeTranslate( pos1 );
+    scaleM.makeScale( pos2 - pos1 );
 
     // apply transformation to bbox
     osg::ref_ptr< osg::MatrixTransform > transform = new osg::MatrixTransform();
@@ -189,7 +190,7 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosit
     return transform;
 }
 
-osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh2* mesh, bool includeNormals )
+osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bool includeNormals )
 {
     osg::ref_ptr< osg::Vec3Array > vertices = mesh->getVertexArray();
 
@@ -303,10 +304,10 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( double xSize, double ySize, cons
 
     colors->push_back( wge::osgColor( color ) );
 
-    vertices->push_back( osgVec3( p.getPointInPlane(  xSize,  ySize ) ) );
-    vertices->push_back( osgVec3( p.getPointInPlane( -xSize,  ySize ) ) );
-    vertices->push_back( osgVec3( p.getPointInPlane( -xSize, -ySize ) ) );
-    vertices->push_back( osgVec3( p.getPointInPlane(  xSize, -ySize ) ) );
+    vertices->push_back( p.getPointInPlane(  xSize,  ySize ) );
+    vertices->push_back( p.getPointInPlane( -xSize,  ySize ) );
+    vertices->push_back( p.getPointInPlane( -xSize, -ySize ) );
+    vertices->push_back( p.getPointInPlane(  xSize, -ySize ) );
 
     geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
     geometry->setVertexArray( vertices );
@@ -379,6 +380,58 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( osg::Vec3 const& base, osg::Vec3
 
     osg::ref_ptr< osg::Geode > geode = new osg::Geode();
     geode->addDrawable( geometry );
+    return geode;
+}
+
+osg::ref_ptr< WGESubdividedPlane > wge::genUnitSubdividedPlane( size_t resX, size_t resY, double spacing )
+{
+    WAssert( resX > 0 && resY > 0, "A Plane with no quad is not supported, use another datatype for that!" );
+    double dx = ( resX > 1 ? 1.0 / ( resX - 1 ) : 1.0 );
+    double dy = ( resY > 1 ? 1.0 / ( resY - 1 ) : 1.0 );
+
+    size_t numQuads = resX * resY;
+
+    using osg::ref_ptr;
+    ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array( numQuads * 4 ) );
+    ref_ptr< osg::Vec3Array > centers = ref_ptr< osg::Vec3Array >( new osg::Vec3Array( numQuads ) );
+    ref_ptr< osg::Vec4Array > colors   = ref_ptr< osg::Vec4Array >( new osg::Vec4Array( numQuads ) );
+
+    for( size_t yQuad = 0; yQuad < resY; ++yQuad )
+    {
+        for( size_t xQuad = 0; xQuad < resX; ++xQuad )
+        {
+            size_t qIndex = yQuad * resX + xQuad;
+            size_t vIndex = qIndex * 4; // since there are 4 corners
+            vertices->at( vIndex     ) = osg::Vec3( xQuad * dx + spacing,      yQuad * dy + spacing,      0.0 );
+            vertices->at( vIndex + 1 ) = osg::Vec3( xQuad * dx + dx - spacing, yQuad * dy + spacing,      0.0 );
+            vertices->at( vIndex + 2 ) = osg::Vec3( xQuad * dx + dx - spacing, yQuad * dy + dy - spacing, 0.0 );
+            vertices->at( vIndex + 3 ) = osg::Vec3( xQuad * dx + spacing,      yQuad * dy + dy - spacing, 0.0 );
+            centers->at( qIndex ) = osg::Vec3( xQuad * dx + dx / 2.0, yQuad * dy + dy / 2.0, 0.0 );
+            colors->at( qIndex ) = osg::Vec4( 0.1 +  static_cast< double >( qIndex ) / numQuads * 0.6,
+                                              0.1 +  static_cast< double >( qIndex ) / numQuads * 0.6,
+                                              1.0, 1.0 );
+        }
+    }
+
+    ref_ptr< osg::Geometry >  geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
+    geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, vertices->size() ) );
+    geometry->setVertexArray( vertices );
+    geometry->setColorArray( colors );
+    geometry->setColorBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+
+    ref_ptr< osg::Vec3Array > normals = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    normals->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+    geometry->setNormalArray( normals );
+    geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
+    osg::ref_ptr< WGESubdividedPlane > geode = osg::ref_ptr< WGESubdividedPlane >( new WGESubdividedPlane );
+    geode->addDrawable( geometry );
+    geode->setCenterArray( centers );
+
+    // we need to disable light, since the order of the vertices may be wrong and with lighting you won't see anything but black surfaces
+    osg::StateSet* state = geode->getOrCreateStateSet();
+    state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
     return geode;
 }
 

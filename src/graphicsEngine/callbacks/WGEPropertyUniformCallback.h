@@ -48,7 +48,7 @@ public:
      *
      * \param property the property containing the value
      */
-    WGEPropertyUniformCallback( T property );
+    explicit WGEPropertyUniformCallback( T property );
 
     /**
      * Destructor.

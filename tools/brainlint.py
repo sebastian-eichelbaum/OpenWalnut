@@ -203,7 +203,7 @@ _CPP_HEADERS = frozenset([
 
 # Other heders which are include like system headers, starting with a '<'
 _OTHER_HEADERS = frozenset([
-    'QtGui', 'QtCore', 'QtOpenGL', 'GL', 'cxxtest', 'boost', 'osg','osgText', 'osgViewer', 'osgDB', 'osgUtil', 'osgGA', 'osgSim'
+    'QtGui', 'QtCore', 'QtOpenGL', 'GL', 'cxxtest', 'boost', 'osg','osgText', 'osgViewer', 'osgDB', 'osgUtil', 'osgGA', 'osgSim', 'Eigen'
     ])
 
 # Assertion macros.  These are defined in base/logging.h and
@@ -771,7 +771,7 @@ def RemoveMultiLineComments(filename, lines, error):
       return
     if not Search(r'/\*\*', lines[lineix_begin]):
       error(filename, lineix_begin, 'readability/comments', 4, 'Multiline comment allowed only for doxygen comments, use "//".')
-    
+
     lineix_end = FindNextMultiLineCommentEnd(lines, lineix_begin)
     if lineix_end >= len(lines):
       error(filename, lineix_begin + 1, 'readability/multiline_comment', 5,
@@ -911,7 +911,7 @@ def CheckForCompleteCommentHeader(filename, lines, error):
             and re.match(r'//---------------------------------------------------------------------------', lines[23])
             and re.match(r'$', lines[24])
             )
-       ): 
+       ):
     error(filename, 0, 'legal/comment_header', 5,
           'No valid comment header found. '
           'Have a look at the CodingStandard for the appropriate header. '
@@ -2210,8 +2210,8 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension, include_state,
       error(filename, linenum, 'runtime/references', 2,
             'Is this a non-const reference? '
             'If so, make const or use a pointer.')
-  
-  if not file_extension == 'glsl': # Do not check casts for shaders.  
+
+  if not file_extension == 'glsl': # Do not check casts for shaders.
     # Check to see if they're using an conversion function cast.
     # I just try to capture the most common basic types, though there are more.
     # Parameterless conversion functions, such as bool(), are allowed as they are
@@ -2226,7 +2226,7 @@ def CheckLanguage(filename, clean_lines, linenum, file_extension, include_state,
               'Using deprecated casting style.  '
               'Use static_cast<%s>(...) instead' %
               match.group(1))
-        
+
   CheckCStyleCast(filename, linenum, line, clean_lines.raw_lines[linenum],
                   'static_cast',
                   r'\((int|float|double|bool|char|u?int(16|32|64))\)',
@@ -2536,7 +2536,7 @@ def CheckForIncludeWhatYouUse(filename, clean_lines, include_state, error):
   """
   if filename.endswith('.cpp'):
     return
-  if filename.endswith('.glsl'): # Do not includes for shaders.  
+  if filename.endswith('.glsl'): # Do not includes for shaders.
     return
 
   required = {}  # A map of header name to linenumber and the template entity.

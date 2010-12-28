@@ -162,6 +162,19 @@ std::string extractSuitableName( osgUtil::LineSegmentIntersector::Intersections:
     return ""; // This line will not be reached.
 }
 
+void WPickHandler::updatePickInfoModifierKeys( WPickInfo* pickInfo )
+{
+    if( m_shift )
+    {
+        pickInfo->setModifierKey( WPickInfo::SHIFT );
+    }
+
+    if ( m_ctrl )
+    {
+        pickInfo->setModifierKey( WPickInfo::STRG );
+    }
+}
+
 void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea )
 {
     osgUtil::LineSegmentIntersector::Intersections intersections;
@@ -171,15 +184,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
 
     WPickInfo pickInfo;
 
-    if( m_shift )
-    {
-        pickInfo.setModifierKey( WPickInfo::SHIFT );
-    }
-
-    if ( m_ctrl )
-    {
-        pickInfo.setModifierKey( WPickInfo::STRG );
-    }
+    updatePickInfoModifierKeys( &pickInfo );
 
     // if we are in another viewer than the main view we just need the pixel position
     if ( m_viewerName != "" && m_viewerName != "main" )

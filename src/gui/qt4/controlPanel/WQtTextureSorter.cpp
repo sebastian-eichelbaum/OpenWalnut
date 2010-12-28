@@ -36,6 +36,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QListWidgetItem>
 
+#include "../../../common/WLimits.h"
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WDataHandler.h"
@@ -49,7 +50,9 @@ WQtTextureSorter::WQtTextureSorter( QWidget* parent )
     : QWidget( parent )
 {
     m_textureListWidget = new QListWidget( this );
-    m_textureListWidget->setToolTip( "List of available textures. Only the upper <b>eight</b> textures will be applied." );
+    m_textureListWidget->setToolTip( "List of available textures. Only the upper <b>"
+                                     + QString().setNum( wlimits::MAX_NUMBER_OF_TEXTURES )
+                                     + "</b> textures will be applied." );
 
     m_layout = new QVBoxLayout();
 

@@ -33,7 +33,7 @@
 #include "WSurface.h"
 
 WSurface::WSurface()
-    : m_tMesh( new WTriangleMesh2( 0, 0 ) ),
+    : m_tMesh( new WTriangleMesh( 0, 0 ) ),
       m_radius( 30.0 ),
       m_mu( 8.0 ),
       m_numDeBoorRows( 12 ),
@@ -253,7 +253,7 @@ void WSurface::execute()
     m_renderpointsPerCol = splineSurface.getNumSamplePointsU();
     m_renderpointsPerRow = splineSurface.getNumSamplePointsT();
 
-    boost::shared_ptr< WTriangleMesh2 > newMesh = boost::shared_ptr< WTriangleMesh2 >( new WTriangleMesh2( m_splinePoints.size(), 2
+    boost::shared_ptr< WTriangleMesh > newMesh = boost::shared_ptr< WTriangleMesh >( new WTriangleMesh( m_splinePoints.size(), 2
             * m_renderpointsPerCol * m_renderpointsPerRow ) );
 
     for( std::vector< wmath::WVector3D >::iterator posIt = m_splinePoints.begin(); posIt != m_splinePoints.end(); ++posIt )
@@ -298,7 +298,7 @@ void WSurface::setSupportPoints( std::vector< wmath::WVector3D> supportPoints, b
     }
 }
 
-boost::shared_ptr< WTriangleMesh2 > WSurface::getTriangleMesh()
+boost::shared_ptr< WTriangleMesh > WSurface::getTriangleMesh()
 {
     return m_tMesh;
 }

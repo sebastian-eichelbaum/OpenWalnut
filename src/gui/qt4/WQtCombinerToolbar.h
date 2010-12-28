@@ -29,6 +29,8 @@
 
 #include "../../kernel/WModuleCombinerTypes.h"
 
+#include "WQtCombinerActionList.h"
+
 class WMainWindow;
 
 /**
@@ -51,9 +53,34 @@ public:
      */
     virtual ~WQtCombinerToolbar();
 
+    /**
+     * Update the toolbar to represent the compatibles given as parameter.
+     *
+     * \param compatibles The compatibles to produce the buttons for.
+     */
+    void updateButtons( WCombinerTypes::WCompatiblesList compatibles );
+
+    /**
+     * Make the toolbar appear empty but not disappear.
+     */
+    void makeEmpty();
+
+    /**
+     * Removes the actions from the toolbar and deletes the actions that have been previously set.
+     */
+    virtual void clear();
+
 protected:
 
 private:
+    /**
+     * Insert dummy button so that the toolbar is not hidden.
+     */
+    void insertDummyButton();
+
+    WMainWindow* m_parent; //!< The widget managing this widget.
+
+    WQtCombinerActionList m_actionList; //! keep track of added actions to allow them to be removed afterwards
 };
 
 #endif  // WQTCOMBINERTOOLBAR_H

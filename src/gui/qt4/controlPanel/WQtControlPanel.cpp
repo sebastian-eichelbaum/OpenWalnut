@@ -91,7 +91,17 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_moduleTreeWidget->addAction( separator );
 
     m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
-    m_deleteModuleAction->setShortcut( QKeySequence( Qt::Key_Backspace ) );
+
+    {
+        // Set the key for removing modules
+        std::string deleteKey = "";
+        WPreferences::getPreference( "qt4gui.deleteModuleKey", &deleteKey );
+        if( deleteKey == "" )
+        {
+            deleteKey = "Backspace";
+        }
+        m_deleteModuleAction->setShortcut( QKeySequence( QString::fromStdString( deleteKey ) ) );
+    }
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
 
@@ -147,8 +157,17 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
 
     connectSlots();
 
-    QShortcut* shortcut = new QShortcut( QKeySequence( Qt::Key_Delete ), m_roiTreeWidget );
-    connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
+    {
+        // Set the key for removing ROIs and connect the event
+        std::string deleteKey = "";
+        WPreferences::getPreference( "qt4gui.deleteROIKey", &deleteKey );
+        if( deleteKey == "" )
+        {
+            deleteKey = "Delete";
+        }
+        QShortcut* shortcut = new QShortcut( QKeySequence( QString::fromStdString( deleteKey ) ), m_roiTreeWidget );
+        connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
+    }
 }
 
 WQtControlPanel::~WQtControlPanel()
@@ -158,16 +177,13 @@ WQtControlPanel::~WQtControlPanel()
 void WQtControlPanel::connectSlots()
 {
     connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
-    // connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
-    //connect( m_roiTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem() ) );
-    connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
-
     connect( m_textureSorter, SIGNAL( textureSelectionChanged( boost::shared_ptr< WDataSet > ) ),
              this, SLOT( selectDataModule( boost::shared_ptr< WDataSet > ) ) );
+    connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleDragDrop() ) );
 }
 
 void WQtControlPanel::addToolbar( QToolBar* tb )
@@ -303,8 +319,12 @@ bool WQtControlPanel::event( QEvent* event )
             {
                 // remove child from tiModules
                 m_tiModules->removeChild( *iter );
-                ( *parIter )->addChild( *iter );
-                ( *parIter )->setExpanded( true );
+                if ( !( *parIter )->isHidden() )
+                {
+                    ( *parIter )->addChild( *iter );
+                    ( *parIter )->setExpanded( true );
+                    break;
+                }
             }
 
             // job done.
@@ -464,7 +484,10 @@ std::list< WQtTreeItem* > WQtControlPanel::findItemsByModule( boost::shared_ptr<
 
 std::list< WQtTreeItem* > WQtControlPanel::findItemsByModule( boost::shared_ptr< WModule > module )
 {
-    return findItemsByModule( module, m_moduleTreeWidget->invisibleRootItem() );
+    std::list< WQtTreeItem* > ret = findItemsByModule( module, m_moduleTreeWidget->invisibleRootItem() );
+    std::list< WQtTreeItem* > ret2 = findItemsByModule( module, m_moduleTreeWidget->topLevelItem( 0 ) );
+    ret.merge( ret2 );
+    return ret;
 }
 
 WQtDatasetTreeItem* WQtControlPanel::addDataset( boost::shared_ptr< WModule > module, int subjectId )
@@ -513,7 +536,7 @@ WQtModuleTreeItem* WQtControlPanel::addModule( boost::shared_ptr< WModule > modu
     return item;
 }
 
-void WQtControlPanel::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
+void WQtControlPanel::addRoi( osg::ref_ptr< WROI > roi )
 {
     WQtRoiTreeItem* newItem;
     WQtBranchTreeItem* branchItem;
@@ -526,7 +549,7 @@ void WQtControlPanel::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     {
         branchItem = dynamic_cast< WQtBranchTreeItem* >( m_tiRois->child( branchID ) );
         // if branch == roi branch
-        if ( branchItem->getBranch() == roi->getBranch() )
+        if ( branchItem->getBranch() == WKernel::getRunningKernel()->getRoiManager()->getBranch( roi ) )
         {
             found = true;
             break;
@@ -535,7 +558,7 @@ void WQtControlPanel::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
 
     if ( !found )
     {
-        branchItem = m_tiRois->addBranch( roi->getBranch() );
+        branchItem = m_tiRois->addBranch( WKernel::getRunningKernel()->getRoiManager()->getBranch( roi ) );
     }
 
     m_tabWidget2->setCurrentIndex( m_tabWidget2->indexOf( m_roiTreeWidget ) );
@@ -546,7 +569,7 @@ void WQtControlPanel::addRoi( boost::shared_ptr< WRMROIRepresentation > roi )
     WKernel::getRunningKernel()->getRoiManager()->setSelectedRoi( getSelectedRoi() );
 }
 
-void WQtControlPanel::removeRoi( boost::shared_ptr< WRMROIRepresentation > roi )
+void WQtControlPanel::removeRoi( osg::ref_ptr< WROI > roi )
 {
     for( int branchID = 0; branchID < m_tiRois->childCount(); ++branchID )
     {
@@ -591,17 +614,15 @@ void WQtControlPanel::selectTreeItem()
         return;
     }
 
-    // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
-    m_tabWidget->clear();
-
     boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties > props;
     boost::shared_ptr< WProperties > infoProps;
 
-    WQtCombinerToolbar* newToolbar = NULL;
-
     if ( m_moduleTreeWidget->selectedItems().size() != 0  )
     {
+        // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
+        m_tabWidget->clear();
+
         // disable delete action for tree items that have children.
         if( m_moduleTreeWidget->selectedItems().at( 0 )->childCount() != 0 )
         {
@@ -618,7 +639,7 @@ void WQtControlPanel::selectTreeItem()
             case MODULEHEADER:
                 // deletion of headers and subjects is not allowed
                 m_deleteModuleAction->setEnabled( false );
-                newToolbar = createCompatibleButtons( module );  // module is NULL at this point
+                createCompatibleButtons( module );  // module is NULL at this point
                 break;
             case DATASET:
                 module = ( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
@@ -630,7 +651,7 @@ void WQtControlPanel::selectTreeItem()
 
                 props = module->getProperties();
                 infoProps = module->getInformationProperties();
-                newToolbar = createCompatibleButtons( module );
+                createCompatibleButtons( module );
 
                 {
                     boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
@@ -649,15 +670,7 @@ void WQtControlPanel::selectTreeItem()
             case MODULE:
                 {
                     module = ( static_cast< WQtModuleTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
-                    // NOTE: this hack prevents the navigation slices to be removed as they are buggy and crash OpenWalnut if they get removed
-                    if ( module->getName() == "Navigation Slices" )
-                    {
-                        m_deleteModuleAction->setEnabled( false );
-                    }
-                    else
-                    {
-                        m_deleteModuleAction->setEnabled( true );
-                    }
+                    m_deleteModuleAction->setEnabled( true );
 
                     // this is ugly since it causes the property tab to update multiple times if multiple items get selected by this call
                     // but it highlights all the same items which is nice and wanted here
@@ -677,7 +690,7 @@ void WQtControlPanel::selectTreeItem()
                     }
                     props = module->getProperties();
                     infoProps = module->getInformationProperties();
-                    newToolbar = createCompatibleButtons( module );
+                    createCompatibleButtons( module );
                 }
                 break;
             case ROIHEADER:
@@ -689,9 +702,6 @@ void WQtControlPanel::selectTreeItem()
         }
     }
 
-    // set the new toolbar
-    // NOTE: setCompatiblesToolbar removes the toolbar if NULL is specified.
-    m_mainWindow->setCompatiblesToolbar( newToolbar );
 
     buildPropTab( props, infoProps );
 }
@@ -700,7 +710,19 @@ void WQtControlPanel::selectRoiTreeItem()
 {
     // TODO(schurade): qt doc says clear() doesn't delete tabs so this is possibly a memory leak
     m_tabWidget->clear();
-    m_mainWindow->setCompatiblesToolbar();
+
+    // Make compatibles toolbar empty
+    {
+        if( m_mainWindow->getCompatiblesToolbar() != 0 )
+        {
+            m_mainWindow->getCompatiblesToolbar()->makeEmpty();
+        }
+        else
+        {
+            WCombinerTypes::WCompatiblesList comps;
+            m_mainWindow->setCompatiblesToolbar( new WQtCombinerToolbar( m_mainWindow, comps ) );
+        }
+    }
 
     boost::shared_ptr< WModule > module;
     boost::shared_ptr< WProperties > props;
@@ -728,6 +750,13 @@ void WQtControlPanel::selectRoiTreeItem()
                 break;
         }
     }
+
+    if ( m_roiTreeWidget->selectedItems().size() == 1 && m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
+    {
+        osg::ref_ptr< WROI > roi = ( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
+        roi->getProperties()->getProperty( "active" )->toPropBool()->set( m_roiTreeWidget->selectedItems().at( 0 )->checkState( 0 ) );
+    }
+
     buildPropTab( props, boost::shared_ptr< WProperties >() );
 }
 
@@ -845,7 +874,7 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     }
 }
 
-WQtCombinerToolbar* WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule >module )
+void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > module )
 {
     // every module may have compatibles: create ribbon menu entry
     // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
@@ -878,7 +907,14 @@ WQtCombinerToolbar* WQtControlPanel::createCompatibleButtons( boost::shared_ptr<
     delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
     m_disconnectAction->setMenu( m );
 
-    return new WQtCombinerToolbar( m_mainWindow, comps );
+    if( m_mainWindow->getCompatiblesToolbar() != 0 )
+    {
+        m_mainWindow->getCompatiblesToolbar()->updateButtons( comps );
+    }
+    else
+    {
+        m_mainWindow->setCompatiblesToolbar( new WQtCombinerToolbar( m_mainWindow, comps ) );
+    }
 }
 
 void WQtControlPanel::changeTreeItem()
@@ -893,15 +929,6 @@ void WQtControlPanel::changeTreeItem()
         boost::shared_ptr< WModule > module =( static_cast< WQtModuleTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
 
         module->getProperties()->getProperty( "active" )->toPropBool()->set( m_moduleTreeWidget->selectedItems().at( 0 )->checkState( 0 ) );
-    }
-}
-
-void WQtControlPanel::changeRoiTreeItem()
-{
-    if ( m_roiTreeWidget->selectedItems().size() == 1 && m_roiTreeWidget->selectedItems().at( 0 )->type() == ROI )
-    {
-        boost::shared_ptr< WRMROIRepresentation > roi =( static_cast< WQtRoiTreeItem* >( m_roiTreeWidget->selectedItems().at( 0 ) ) )->getRoi();
-        roi->getProperties()->getProperty( "active" )->toPropBool()->set( m_roiTreeWidget->selectedItems().at( 0 )->checkState( 0 ) );
     }
 }
 
@@ -933,9 +960,9 @@ int WQtControlPanel::getFirstSubject()
     return c;
 }
 
-boost::shared_ptr< WRMROIRepresentation > WQtControlPanel::getSelectedRoi()
+osg::ref_ptr< WROI > WQtControlPanel::getSelectedRoi()
 {
-    boost::shared_ptr< WRMROIRepresentation >roi;
+    osg::ref_ptr< WROI > roi;
     if ( m_roiTreeWidget->selectedItems().count() == 0 )
     {
         return roi;
@@ -947,9 +974,9 @@ boost::shared_ptr< WRMROIRepresentation > WQtControlPanel::getSelectedRoi()
     return roi;
 }
 
-boost::shared_ptr< WRMROIRepresentation > WQtControlPanel::getFirstRoiInSelectedBranch()
+osg::ref_ptr< WROI > WQtControlPanel::getFirstRoiInSelectedBranch()
 {
-    boost::shared_ptr< WRMROIRepresentation >roi;
+    osg::ref_ptr< WROI >roi;
     if ( m_roiTreeWidget->selectedItems().count() == 0 )
     {
         return roi;
@@ -1003,7 +1030,7 @@ void WQtControlPanel::deleteModuleTreeItem()
 
 void WQtControlPanel::deleteROITreeItem()
 {
-    boost::shared_ptr< WRMROIRepresentation >roi;
+    osg::ref_ptr< WROI >roi;
     if ( m_roiTreeWidget->selectedItems().count() > 0 )
     {
         if ( m_roiTreeWidget->selectedItems().at( 0 )->type() == ROIBRANCH )
@@ -1032,4 +1059,9 @@ void WQtControlPanel::deleteROITreeItem()
 void WQtControlPanel::selectUpperMostEntry()
 {
     m_tiModules->setSelected( true );
+}
+
+void WQtControlPanel::handleDragDrop()
+{
+    WLogger::getLogger()->addLogMessage( "Drag and drop handler not implemented yet!", "ControlPanel", LL_DEBUG );
 }

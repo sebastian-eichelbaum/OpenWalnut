@@ -44,10 +44,11 @@ WGETextureHud::WGETextureHud():
     osg::Projection(),
     m_group( new WGEGroupNode() ),
     m_maxElementWidth( 256 ),
+    m_renderBin( 10000 ),
     m_viewport( new osg::Viewport() ),
     m_coupleTexViewport( false )
 {
-    getOrCreateStateSet()->setRenderBinDetails( 1000, "RenderBin" );
+    getOrCreateStateSet()->setRenderBinDetails( m_renderBin, "RenderBin" );
     m_group->addUpdateCallback( new SafeUpdateCallback( this ) );
     addChild( m_group );
 }
@@ -308,5 +309,10 @@ void WGETextureHud::setMaxElementWidth( unsigned int width )
 osg::ref_ptr< osg::Texture2D > WGETextureHud::WGETextureHudEntry::getTexture() const
 {
     return m_texture;
+}
+
+size_t WGETextureHud::getRenderBin() const
+{
+    return m_renderBin;
 }
 

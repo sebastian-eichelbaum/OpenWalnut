@@ -181,7 +181,7 @@ WPickInfo::WPickInfo() :
     m_name( "" ),
     m_viewerName( "" ),
     m_pickPosition( wmath::WPosition() ),
-    m_pixelCoords( std::make_pair( 0, 0 ) ),
+    m_pixelCoords( std::make_pair( 0.0, 0.0 ) ),
     m_modKey( WPickInfo::NONE ),
     m_mouseButton( WPickInfo::MOUSE_LEFT )
 {

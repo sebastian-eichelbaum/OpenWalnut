@@ -84,7 +84,7 @@ WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::s
 
     m_updateTimer = boost::shared_ptr< QTimer >( new QTimer() );
     connect( m_updateTimer.get(), SIGNAL( timeout() ), this, SLOT( update() ) );
-    m_updateTimer->start( 50 );
+    m_updateTimer->start( 500 );
 }
 
 WQtTreeItem::~WQtTreeItem()
@@ -164,6 +164,7 @@ void WQtTreeItem::updateState()
     std::string progress = "Waiting";
     if ( m_module->isCrashed()() )
     {
+        progress = "Problem occurred";
         setText( 0, ( m_name + " (problem occurred)"  + connInfo ).c_str() );
 
         // strike out the name of the module to show the crash visually.
@@ -177,6 +178,7 @@ void WQtTreeItem::updateState()
     }
     else if ( p->isPending() )
     {
+        progress = "Busy " + p->getCombinedNames();
         setIcon( 0, WQt4Gui::getMainWindow()->getIconManager()->getIcon( "moduleBusy" ) );
         std::ostringstream title;
         if ( p->isDetermined() )

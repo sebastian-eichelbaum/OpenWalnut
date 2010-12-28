@@ -101,23 +101,23 @@ protected:
     virtual void moduleMain();
 
 private:
-    WPropPosition m_crosshair; //!< position of the navigation slizes
+    WPropPosition m_crosshair; //!< position of the navigation slices
     WPropPosition m_flt; //!< lower boundary of the dataset
     WPropPosition m_brb; //!< upper boundary of the dataset
 
-    WPropPosition m_ac; //!< anterior commisure
-    WPropPosition m_pc; //!< posterior commisure
+    WPropPosition m_ac; //!< anterior commissure
+    WPropPosition m_pc; //!< posterior commissure
     WPropPosition m_ihp; //!< inter hemispherical point
 
     WPropBool m_showNumbersOnRulers; //!< show/hide numbers on rulers
 
-    WPropBool m_showAxial; //!< show rulers ont he axial slize
-    WPropBool m_showCoronal; //!< show rulers ont he coronal slize
-    WPropBool m_showSagittal; //!< show rulers ont he sagittal slize
+    WPropBool m_showAxial; //!< show rulers on the axial slice
+    WPropBool m_showCoronal; //!< show rulers on the coronal slice
+    WPropBool m_showSagittal; //!< show rulers on the sagittal slice
 
-    WPropBool m_showGridAxial; //!< show grid on the axial slize
-    WPropBool m_showGridCoronal;  //!< show grid on the coronal slize
-    WPropBool m_showGridSagittal;  //!< show grid on the sagittal slize
+    WPropBool m_showGridAxial; //!< show grid on the axial slice
+    WPropBool m_showGridCoronal;  //!< show grid on the coronal slice
+    WPropBool m_showGridSagittal;  //!< show grid on the sagittal slice
 
     WPropTrigger m_acTrigger; //!< button to reset the ac point
     WPropTrigger m_pcTrigger; //!< button to reset the pc point
@@ -144,11 +144,13 @@ private:
      */
     osg::ref_ptr< osg::Group > m_rulerNode;
 
-    bool m_dirty; //!< flag true if something happenend that requires redrawing of gfx
+    bool m_dirty; //!< flag true if something happened that requires redrawing of gfx
 
     float m_drawOffset; //!< offset from slices to draw geometry on
 
     boost::shared_ptr<WCoordConverter>m_coordConverter; //!< stores pointer
+
+    int m_viewAngle; //!< stores the last view angle
 
     /**
      * initialize the properties for this module
@@ -178,19 +180,19 @@ private:
     void addRulersCoronal(); //!< helper function to create rulers
 
     /**
-     * helper function to create a grid overlay on the sagittal slize
+     * helper function to create a grid overlay on the sagittal slice
      * \param position
      */
     void addSagittalGrid( float position );
 
     /**
-     * helper function to create a grid overlay on the coronal slize
+     * helper function to create a grid overlay on the coronal slice
      * \param position
      */
     void addCoronalGrid( float position );
 
     /**
-     * helper function to create a grid overlay on the axial slize
+     * helper function to create a grid overlay on the axial slice
      * \param position
      */
     void addAxialGrid( float position );
@@ -206,54 +208,9 @@ private:
     // boost::shared_ptr< WShader >m_shader;
 
     /**
-    * Wrapper class for userData to prevent cyclic destructor calls
-    */
-    class userData: public osg::Referenced
-    {
-        friend class WMCoordinateSystem;
-    public:
-        /**
-        * userData Constructur with shared pointer to module
-        * \param _parent pointer to the module 
-        */
-        explicit userData( boost::shared_ptr< WMCoordinateSystem > _parent )
-        {
-            m_parent = _parent;
-        }
-
-        /**
-        * updateGeometry wrapper Function
-        */
-        void updateGeometry();
-    private:
-        /**
-        * shared pointer to the module
-        */
-        boost::shared_ptr< WMCoordinateSystem > m_parent;
-    };
-
-    /**
-     * Node callback to handle updates properly
+     * update function, called with each update pass of the osg render loop
      */
-    class coordinateNodeCallback : public osg::NodeCallback
-    {
-    public: //NOLINT
-        /**
-         * operator ()
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
-        {
-            osg::ref_ptr< userData > module = static_cast< userData* > ( node->getUserData() );
-            if ( module )
-            {
-                module->updateGeometry();
-            }
-            traverse( node, nv );
-        }
-    };
+    void updateCallback();
 };
 
 #endif  // WMCOORDINATESYSTEM_H

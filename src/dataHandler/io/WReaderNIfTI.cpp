@@ -24,47 +24,46 @@
 
 #include <stdint.h>
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
+
 #include <boost/shared_ptr.hpp>
 
-#include "WReaderNIfTI.h"
 #include "../../common/WIOTools.h"
+#include "../WDataHandlerEnums.h"
 #include "../WDataSet.h"
-#include "../WSubject.h"
-#include "../WDataSetSingle.h"
-#include "../WDataSetVector.h"
+#include "../WDataSetDTI.h"
+#include "../WDataSetRawHARDI.h"
 #include "../WDataSetScalar.h"
-// TODO(philips): polish WDataSetSegmentation for check in
-// #include "../WDataSetSegmentation.h"
+// #include "../WDataSetSegmentation.h"  // TODO(philips): polish WDataSetSegmentation for check in
+#include "../WDataSetSingle.h"
 #include "../WDataSetSphericalHarmonics.h"
 #include "../WDataSetTimeSeries.h"
-#include "../WDataSetRawHARDI.h"
+#include "../WDataSetVector.h"
 #include "../WGrid.h"
 #include "../WGridRegular3D.h"
-#include "../WValueSetBase.h"
+#include "../WSubject.h"
 #include "../WValueSet.h"
-#include "../WDataHandlerEnums.h"
+#include "../WValueSetBase.h"
+#include "WReaderNIfTI.h"
 #include "../../common/WLogger.h"
-
 
 WReaderNIfTI::WReaderNIfTI( std::string fileName )
     : WReader( fileName )
 {
 }
 
-
-template< typename T > std::vector< T > WReaderNIfTI::copyArray( const T* dataArray, const size_t countVoxels,
+template< typename T >  boost::shared_ptr< std::vector< T > > WReaderNIfTI::copyArray( const T* dataArray, const size_t countVoxels,
         const size_t vDim )
 {
-    std::vector< T > data( countVoxels * vDim );
+    boost::shared_ptr< std::vector< T > > data =  boost::shared_ptr< std::vector< T > >( new std::vector< T >( countVoxels * vDim ) );
     for( unsigned int i = 0; i < countVoxels; ++i )
     {
         for ( unsigned int j = 0; j < vDim; ++j )
         {
-            data[i * vDim + j] = dataArray[( j * countVoxels ) + i];
+            (*data)[i * vDim + j] = dataArray[( j * countVoxels ) + i];
         }
     }
     return data;
@@ -84,7 +83,7 @@ wmath::WMatrix< double > WReaderNIfTI::convertMatrix( const mat44& in )
     return out;
 }
 
-boost::shared_ptr< WDataSet > WReaderNIfTI::load()
+boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
 {
     nifti_image* header = nifti_image_read( m_fname.c_str(), 0 );
 
@@ -115,71 +114,79 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
     unsigned int order = ( ( vDim == 1 ) ? 0 : 1 );  // TODO(all): Does recognize vectors and scalars only so far.
     unsigned int countVoxels = columns * rows * frames;
 
-    // don't rearrange if this is a time series
-    if( header->dim[ 5 ] <= 1 )
+    try
     {
-        switch( header->datatype )
+        // don't rearrange if this is a time series
+        if( header->dim[ 5 ] <= 1 )
         {
-            case DT_UNSIGNED_CHAR:
+            switch( header->datatype )
             {
-                std::vector< unsigned char > data = copyArray( reinterpret_cast< unsigned char* >( filedata->data ), countVoxels, vDim );
-                newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< unsigned char >( order, vDim, data, W_DT_UNSIGNED_CHAR ) );
-                break;
-            }
+            case DT_UNSIGNED_CHAR:
+                {
+                    boost::shared_ptr< std::vector< uint8_t > > data = copyArray( reinterpret_cast< uint8_t* >( filedata->data ), countVoxels, vDim );
+                    newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< uint8_t >( order, vDim, data, W_DT_UNSIGNED_CHAR ) );
+                    break;
+                }
 
             case DT_SIGNED_SHORT:
-            {
-                std::vector< int16_t > data = copyArray( reinterpret_cast< int16_t* >( filedata->data ), countVoxels, vDim );
-                newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( order, vDim, data, W_DT_INT16 ) );
-                break;
-            }
+                {
+                    boost::shared_ptr< std::vector< int16_t > > data = copyArray( reinterpret_cast< int16_t* >( filedata->data ), countVoxels, vDim );
+                    newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( order, vDim, data, W_DT_INT16 ) );
+                    break;
+                }
 
             case DT_INT32:
-            {
-                std::vector< int32_t > data = copyArray( reinterpret_cast< int32_t* >( filedata->data ), countVoxels, vDim );
-                newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int32_t >( order, vDim, data, W_DT_SIGNED_INT ) );
-                break;
-            }
+                {
+                    boost::shared_ptr< std::vector< int32_t > > data = copyArray( reinterpret_cast< int32_t* >( filedata->data ), countVoxels, vDim );
+                    newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< int32_t >( order, vDim, data, W_DT_SIGNED_INT ) );
+                    break;
+                }
 
 
             case DT_FLOAT:
-            {
-                std::vector< float > data = copyArray( reinterpret_cast< float* >( filedata->data ), countVoxels, vDim );
-                newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< float >( order, vDim, data, W_DT_FLOAT ) );
-                break;
-            }
+                {
+                    boost::shared_ptr< std::vector< float > > data = copyArray( reinterpret_cast< float* >( filedata->data ), countVoxels, vDim );
+                    newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< float >( order, vDim, data, W_DT_FLOAT ) );
+                    break;
+                }
 
             case DT_DOUBLE:
-            {
-                std::vector< double > data = copyArray( reinterpret_cast< double* >( filedata->data ), countVoxels, vDim );
-                newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< double >( order, vDim, data, W_DT_DOUBLE ) );
-                break;
-            }
+                {
+                    boost::shared_ptr< std::vector< double > > data = copyArray( reinterpret_cast< double* >( filedata->data ), countVoxels, vDim );
+                    newValueSet = boost::shared_ptr< WValueSetBase >( new WValueSet< double >( order, vDim, data, W_DT_DOUBLE ) );
+                    break;
+                }
 
             default:
                 wlog::error( "WReaderNIfTI" ) << "unknown data type " << header->datatype << std::endl;
                 newValueSet = boost::shared_ptr< WValueSetBase >();
+            }
         }
+    }
+    catch( const std::exception& e )
+    {
+        nifti_image_free( filedata );
+        throw e;
     }
 
     newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
-                                                    columns, rows, frames,
-                                                    convertMatrix( header->qto_xyz ),
-                                                    convertMatrix( header->sto_xyz ),
-                                                    header->dx, header->dy, header->dz ) );
+        columns, rows, frames,
+        convertMatrix( header->qto_xyz ),
+        convertMatrix( header->sto_xyz ),
+        header->dx, header->dy, header->dz ) );
 
     boost::shared_ptr< WDataSet > newDataSet;
     // known description
     std::string description( header->descrip );
-// TODO(philips): polish WDataSetSegmentation for check in
-//     if ( !description.compare( "WDataSetSegmentation" ) )
-//     {
-//         wlog::debug( "WReaderNIfTI" ) << "Load as segmentation" << std::endl;
-//         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSegmentation( newValueSet, newGrid ) );
-//     }
-//     else
+    // TODO(philips): polish WDataSetSegmentation for check in
+    //     if ( !description.compare( "WDataSetSegmentation" ) )
+    //     {
+    //         wlog::debug( "WReaderNIfTI" ) << "Load as segmentation" << std::endl;
+    //         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSegmentation( newValueSet, newGrid ) );
+    //     }
+    //     else
 
-    if ( !description.compare( "WDataSetSphericalHarmonics" ) )
+    if ( description.compare( "WDataSetSphericalHarmonics" ) == 0 || dataSetType == W_DATASET_SPHERICALHARMONICS )
     {
         wlog::debug( "WReaderNIfTI" ) << "Load as spherical harmonics" << std::endl;
         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSphericalHarmonics( newValueSet, newGrid ) );
@@ -208,70 +215,90 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
             case DT_UINT8:
                 {
                     uint8_t* ptr = reinterpret_cast< uint8_t* >( filedata->data );
-                    std::vector< uint8_t > values( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels );
+                    boost::shared_ptr< std::vector< uint8_t > > values =
+                        boost::shared_ptr< std::vector< uint8_t > >(
+                            new std::vector< uint8_t >( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels ) );
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< uint8_t >( 0, 1, values, W_DT_UINT8 ) );
                 }
                 break;
             case DT_INT8:
                 {
                     int8_t* ptr = reinterpret_cast< int8_t* >( filedata->data );
-                    std::vector< int8_t > values( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels );
+                    boost::shared_ptr< std::vector< int8_t > > values =
+                        boost::shared_ptr< std::vector< int8_t > >(
+                            new std::vector< int8_t >( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels ) );
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< int8_t >( 0, 1, values, W_DT_INT8 ) );
                 }
                 break;
             case DT_UINT16:
                 {
                     uint16_t* ptr = reinterpret_cast< uint16_t* >( filedata->data );
-                    std::vector< uint16_t > values( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels );
+                    boost::shared_ptr< std::vector< uint16_t > >values =
+                        boost::shared_ptr< std::vector< uint16_t > >(
+                            new std::vector< uint16_t >( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels ) );
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< uint16_t >( 0, 1, values, W_DT_UINT16 ) );
                 }
                 break;
             case DT_INT16:
                 {
                     int16_t* ptr = reinterpret_cast< int16_t* >( filedata->data );
-                    std::vector< int16_t > values( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels );
+                    boost::shared_ptr< std::vector< int16_t > > values =
+                        boost::shared_ptr< std::vector< int16_t > >(
+                            new std::vector< int16_t >( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels ) );
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< int16_t >( 0, 1, values, W_DT_INT16 ) );
                 }
                 break;
             case DT_UINT32:
                 {
                     uint32_t* ptr = reinterpret_cast< uint32_t* >( filedata->data );
-                    std::vector< uint32_t > values( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels );
+                    boost::shared_ptr< std::vector< uint32_t > > values =
+                        boost::shared_ptr< std::vector< uint32_t > >(
+                            new std::vector< uint32_t >( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels ) );
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< uint32_t >( 0, 1, values, W_DT_UINT32 ) );
                 }
                 break;
             case DT_SIGNED_INT:
                 {
                     int32_t* ptr = reinterpret_cast< int32_t* >( filedata->data );
-                    std::vector< int32_t > values( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels );
+                    boost::shared_ptr< std::vector< int32_t > > values =
+                        boost::shared_ptr< std::vector< int32_t > >(
+                            new std::vector< int32_t >( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels ) );
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< int32_t >( 0, 1, values, W_DT_SIGNED_INT ) );
                 }
                 break;
             case DT_UINT64:
                 {
                     uint64_t* ptr = reinterpret_cast< uint64_t* >( filedata->data );
-                    std::vector< uint64_t > values( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels );
+                    boost::shared_ptr< std::vector< uint64_t > > values =
+                        boost::shared_ptr< std::vector< uint64_t > >(
+                            new std::vector< uint64_t >( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels ) );
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< uint64_t >( 0, 1, values, W_DT_UINT64 ) );
                 }
                 break;
             case DT_INT64:
                 {
                     int64_t* ptr = reinterpret_cast< int64_t* >( filedata->data );
-                    std::vector< int64_t > values( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels );
+                    boost::shared_ptr< std::vector< int64_t > > values =
+                        boost::shared_ptr< std::vector< int64_t > >(
+                            new std::vector< int64_t >( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels ) );
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< int64_t >( 0, 1, values, W_DT_INT64 ) );
                 }
                 break;
             case DT_FLOAT:
                 {
                     float* ptr = reinterpret_cast< float* >( filedata->data );
-                    std::vector< float > values( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels );
+                    boost::shared_ptr< std::vector< float > > values =
+                        boost::shared_ptr< std::vector< float > >(
+                            new std::vector< float >( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels ) );
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< float >( 0, 1, values, W_DT_FLOAT ) );
                 }
                 break;
             case DT_DOUBLE:
                 {
                     double* ptr = reinterpret_cast< double* >( filedata->data );
-                    std::vector< double > values( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels );
+                    boost::shared_ptr< std::vector< double > > values =
+                        boost::shared_ptr< std::vector< double > >(
+                            new std::vector< double >( ptr + k * countVoxels, ptr + ( k + 1 ) * countVoxels ) );
                     vs = boost::shared_ptr< WValueSetBase >( new WValueSet< double >( 0, 1, values, W_DT_DOUBLE ) );
                 }
                 break;
@@ -351,6 +378,11 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
                 newDataSet = boost::shared_ptr< WDataSet >( new WDataSetRawHARDI( newValueSet, newGrid, newGradients ) );
             }
         }
+        else if( header->intent_code == NIFTI_INTENT_SYMMATRIX )
+        {
+            wlog::debug( "WReaderNIfTI" ) << "Load as WDataSetDTI";
+            newDataSet = boost::shared_ptr< WDataSetDTI >( new WDataSetDTI( newValueSet, newGrid ) );
+        }
         else
         {
             wlog::debug( "WReaderNIfTI" ) << "Load as WDataSetSingle";
@@ -358,6 +390,8 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load()
         }
     }
     newDataSet->setFileName( m_fname );
+
+    nifti_image_free( filedata );
 
     return newDataSet;
 }

@@ -85,7 +85,7 @@ void WMSpatialDerivation::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // normalizing?
-    m_normalize = m_properties->addProperty( "Normalize", "If true, vectors get normalized.", true );
+    m_normalize = m_properties->addProperty( "Normalize", "If true, vectors get normalized.", true, m_propCondition );
 
     // call WModule's initialization
     WModule::properties();
@@ -118,7 +118,15 @@ void WMSpatialDerivation::moduleMain()
         boost::shared_ptr< WDataSetScalar > dataSet = m_scalarIn->getData();
 
         bool dataValid = ( dataSet );
-        if ( !dataValid || ( dataValid && !dataUpdated ) )
+
+        // reset output if input was reset/disconnected
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting output.";
+            m_vectorOut->reset();
+            continue;
+        }
+        if ( dataValid && !dataUpdated )
         {
             continue;
         }
@@ -201,7 +209,8 @@ void WMSpatialDerivation::derive( boost::shared_ptr< WGridRegular3D > grid, boos
     size_t nY = grid->getNbCoordsY();
     size_t nZ = grid->getNbCoordsZ();
 
-    std::vector< double > vectors( 3 * nX * nY * nZ, 0.0 );
+    boost::shared_ptr< std::vector< double > > vectors =
+        boost::shared_ptr< std::vector< double > >( new std::vector< double >( 3 * nX * nY * nZ, 0.0 ) );
 
     // iterate field
     for( size_t z = 1; z < nZ - 1; z++ )
@@ -219,9 +228,9 @@ void WMSpatialDerivation::derive( boost::shared_ptr< WGridRegular3D > grid, boos
                 float zp = values->getScalar( getId( nX, nY, nZ, x, y, z + 1 ) );
                 float zm = values->getScalar( getId( nX, nY, nZ, x, y, z - 1 ) );
 
-                float vx = xp - xm;
-                float vy = yp - ym;
-                float vz = zp - zm;
+                float vx = ( xp - xm ) / 2.0;
+                float vy = ( yp - ym ) / 2.0;
+                float vz = ( zp - zm ) / 2.0;
 
                 float sqsum = vx * vx + vy * vy + vz * vz;
                 float len = sqrt( sqsum );
@@ -229,38 +238,17 @@ void WMSpatialDerivation::derive( boost::shared_ptr< WGridRegular3D > grid, boos
                 if ( len == 0.0 )
                     scal = 0.0;
 
-                vectors[ getId( nX, nY, nZ, x, y, z, 0, 3 ) ] = scal * vx;
-                vectors[ getId( nX, nY, nZ, x, y, z, 1, 3 ) ] = scal * vy;
-                vectors[ getId( nX, nY, nZ, x, y, z, 2, 3 ) ] = scal * vz;
+                ( *vectors )[ getId( nX, nY, nZ, x, y, z, 0, 3 ) ] = scal * vx;
+                ( *vectors )[ getId( nX, nY, nZ, x, y, z, 1, 3 ) ] = scal * vy;
+                ( *vectors )[ getId( nX, nY, nZ, x, y, z, 2, 3 ) ] = scal * vz;
             }
         }
-    }
-
-    // de-register at datahandler
-    if ( m_lastOutputDataSet )
-    {
-        WDataHandler::deregisterDataSet( m_lastOutputDataSet );
     }
 
     boost::shared_ptr< WValueSet< double > > valueset = boost::shared_ptr< WValueSet< double > >(
                                                             new WValueSet< double >( 1, 3, vectors, W_DT_DOUBLE )
                                                         );
-    m_lastOutputDataSet = boost::shared_ptr< WDataSetVector >( new WDataSetVector( valueset, grid ) );
-
     // register new
-    WDataHandler::registerDataSet( m_lastOutputDataSet );
-    m_vectorOut->updateData( m_lastOutputDataSet );
-}
-
-void WMSpatialDerivation::activate()
-{
-    // deactivate the output if wanted
-    if ( m_lastOutputDataSet )
-    {
-        m_lastOutputDataSet->getTexture()->setGloballyActive( m_active->get( true ) );
-    }
-
-    // Always call WModule's activate!
-    WModule::activate();
+    m_vectorOut->updateData( boost::shared_ptr< WDataSetVector >( new WDataSetVector( valueset, grid ) ) );
 }
 

@@ -38,16 +38,6 @@
 #include "../../common/WLogger.h"
 
 /**
- * The logger instance used by some tests
- */
-static WLogger logger;
-
-/**
- * True if the logger has been initialized in the past.
- */
-static bool loggerInitialized = false;
-
-/**
  * Test important functionality of WDataSetSingle class
  */
 class WDataSetSingleTest : public CxxTest::TestSuite
@@ -61,20 +51,11 @@ public:
      */
     void setUp( void )
     {
-        if ( !loggerInitialized )
-        {
-            std::cout << "Initialize logger." << std::endl;
-            logger.setColored( false );
-
-            // NOTE: the logger does not need to be run, since the logger main thread just prints the messages. If compiled in
-            // debug mode, the messages will be printed directly, without the logger thread.
-            //logger.run();
-            loggerInitialized = true;
-        }
+        WLogger::startup();
 
         // create dummies, since they are needed in almost every test
         gridDummy = boost::shared_ptr< WGrid >( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
-        std::vector< int8_t > data( 1, 1 );
+        boost::shared_ptr< std::vector< int8_t > > data = boost::shared_ptr< std::vector< int8_t > >( new std::vector< int8_t >( 1, 1 ) );
         valueSetDummy = boost::shared_ptr< WValueSet< int8_t > >( new WValueSet< int8_t >( 0, 1, data, W_DT_INT8 ) );
     }
 
@@ -91,7 +72,7 @@ public:
      */
     void testGetValueSet( void )
     {
-        std::vector< double > data( 1, 3.1415 );
+        boost::shared_ptr< std::vector< double > > data = boost::shared_ptr< std::vector< double > >( new std::vector< double >( 1, 3.1415 ) );
         boost::shared_ptr< WValueSet< double > > other;
         other = boost::shared_ptr< WValueSet< double > >( new WValueSet< double >( 0, 1, data, W_DT_DOUBLE ) );
         WDataSetSingle dataSetSingle( valueSetDummy, gridDummy );

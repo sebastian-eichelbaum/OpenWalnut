@@ -132,7 +132,8 @@ int WQt4Gui::run()
         return 1;
     }
 
-    WLogger::getLogger()->run();
+    // init logger
+    m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQt4Gui::slotAddLog, this, _1 ) );
     wlog::info( "GUI" ) << "Bringing up GUI";
 
     // the call path of the application
@@ -150,7 +151,7 @@ int WQt4Gui::run()
     m_ge = WGraphicsEngine::getGraphicsEngine();
 
     // and startup kernel
-    m_kernel = boost::shared_ptr< WKernel >( new WKernel( m_ge, shared_from_this() ) );
+    m_kernel = boost::shared_ptr< WKernel >( WKernel::instance( m_ge, shared_from_this() ) );
     m_kernel->run();
     t_ModuleErrorSignalHandlerType func = boost::bind( &WQt4Gui::moduleError, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( WM_ERROR, func );
@@ -192,11 +193,17 @@ int WQt4Gui::run()
     t_GenericSignalHandlerType connectionClosedSignal = boost::bind( &WQt4Gui::slotConnectionClosed, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( CONNECTION_CLOSED, connectionClosedSignal );
 
-    boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > assocRoiSignal =
-            boost::bind( &WQt4Gui::slotAddRoiToTree, this, _1 );
+    boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > assocRoiSignal;
+    assocRoiSignal =
+        boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > >(
+            new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQt4Gui::slotAddRoiToTree, this, _1 ) ) );
     m_kernel->getRoiManager()->addAddNotifier( assocRoiSignal );
-    boost::function< void( boost::shared_ptr< WRMROIRepresentation > ) > removeRoiSignal =
-            boost::bind( &WQt4Gui::slotRemoveRoiFromTree, this, _1 );
+
+
+    boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > removeRoiSignal;
+    removeRoiSignal =
+        boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > >(
+            new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQt4Gui::slotRemoveRoiFromTree, this, _1 ) ) );
     m_kernel->getRoiManager()->addRemoveNotifier( removeRoiSignal );
 
     // now we are initialized
@@ -205,40 +212,7 @@ int WQt4Gui::run()
     // check if we want to load data due to command line and call the respective function
     if( m_optionsMap.count("input") )
     {
-        //
-        // WE KNOW THAT THIS IS KIND OF A HACK. Iis is only provided to prevent naive users from having trouble.
-        //
-        bool allowOnlyOneFiberDataSet = false;
-        bool doubleFibersFound = false; // have we detected the multiple loading of fibers?
-        if( WPreferences::getPreference( "general.allowOnlyOneFiberDataSet", &allowOnlyOneFiberDataSet ) && allowOnlyOneFiberDataSet )
-        {
-            bool fibFound = false;
-            std::vector< std::string > tmpFiles = m_optionsMap["input"].as< std::vector< std::string > >();
-            for( std::vector< std::string >::iterator it = tmpFiles.begin(); it != tmpFiles.end(); ++it )
-            {
-                std::string suffix = wiotools::getSuffix( *it );
-                bool isFib = ( suffix == ".fib" );
-                if( fibFound && isFib )
-                {
-                    QCoreApplication::postEvent( m_mainWindow, new WModuleCrashEvent(
-                                                     WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" ),
-                                                     std::string( "Tried to load two fiber data sets. This is not allowed by your preferences." ) ) );
-                    doubleFibersFound = true;
-                }
-                fibFound |= isFib;
-            }
-            if( fibFound && !doubleFibersFound )
-            {
-                // Found exactly one fiber data set. So signal this to main window.
-                // If more than one are found we do not load them anyways. Thus we can allow to load a new one.
-                m_mainWindow->setFibersLoaded( true );
-            }
-        }
-
-        if( !doubleFibersFound )
-        {
-            m_kernel->loadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
-        }
+        m_kernel->loadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
     }
 
     // Load project file
@@ -267,6 +241,8 @@ int WQt4Gui::run()
     WKernel::getRunningKernel()->wait( true );
     WKernel::getRunningKernel()->getGraphicsEngine()->wait( true );
 
+    m_loggerConnection.disconnect();
+
     return qtRetCode;
 }
 
@@ -276,18 +252,23 @@ void WQt4Gui::slotUpdateTextureSorter()
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WUpdateTextureSorterEvent() );
 }
 
+void WQt4Gui::slotAddLog( const WLogEntry& /*entry*/ )
+{
+    // TODO(rfrohl): create a new event for this and insert it into event queue
+}
+
 void WQt4Gui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module )
 {
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleAssocEvent( module ) );
 }
 
-void WQt4Gui::slotAddRoiToTree( boost::shared_ptr< WRMROIRepresentation > roi )
+void WQt4Gui::slotAddRoiToTree( osg::ref_ptr< WROI > roi )
 {
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WRoiAssocEvent( roi ) );
 }
 
-void WQt4Gui::slotRemoveRoiFromTree( boost::shared_ptr< WRMROIRepresentation > roi )
+void WQt4Gui::slotRemoveRoiFromTree( osg::ref_ptr< WROI > roi )
 {
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WRoiRemoveEvent( roi ) );
 }
@@ -306,13 +287,9 @@ void WQt4Gui::slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > modu
     {
         boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
         WAssert( dataModule, "Internal failure." );
-        std::string suffix = wiotools::getSuffix( dataModule->getFilename().file_string() );
-        if(  suffix == ".fib" )
-        {
-            m_mainWindow->setFibersLoaded( false );
-        }
     }
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleRemovedEvent( module ) );
+    QCoreApplication::postEvent( m_mainWindow, new WModuleRemovedEvent( module ) );
 }
 
 void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )

@@ -46,8 +46,8 @@ public:
     void testEqualityOperator( void )
     {
         using wmath::WPosition;
-        wmath::WFiber fib1;
-        wmath::WFiber fib2;
+        WFiber fib1;
+        WFiber fib2;
         fib1.push_back( WPosition( 1.2, 3.4, 5.6 ) );
         fib1.push_back( WPosition( 7.8, 9.0, -1.2 ) );
         fib2.push_back( WPosition( 1.2, 3.4, 5.6 ) );
@@ -61,15 +61,15 @@ public:
      */
     void testDLTisSymmetric( void )
     {
-        wmath::WFiber q;
+        WFiber q;
         q.push_back( wmath::WPosition( 0, 1, 0 ) );
         q.push_back( wmath::WPosition( 0, 0, 0 ) );
-        wmath::WFiber r;
+        WFiber r;
         r.push_back( wmath::WPosition( 1, 1, 0 ) );
         r.push_back( wmath::WPosition( 2, 2, 0 ) );
 
-        TS_ASSERT_EQUALS( wmath::WFiber::distDLT( 1.0, q, r ), std::sqrt( 5.0 ) / 2.0 );
-        TS_ASSERT_EQUALS( wmath::WFiber::distDLT( 1.0, r, q ), std::sqrt( 5.0 ) / 2.0 );
+        TS_ASSERT_EQUALS( WFiber::distDLT( 1.0, q, r ), std::sqrt( 5.0 ) / 2.0 );
+        TS_ASSERT_EQUALS( WFiber::distDLT( 1.0, r, q ), std::sqrt( 5.0 ) / 2.0 );
     }
 
     /**
@@ -78,15 +78,15 @@ public:
      */
     void testDSTisSymmetric( void )
     {
-        wmath::WFiber q;
+        WFiber q;
         q.push_back( wmath::WPosition( 0, 1, 0 ) );
         q.push_back( wmath::WPosition( 0, 0, 0 ) );
-        wmath::WFiber r;
+        WFiber r;
         r.push_back( wmath::WPosition( 1, 1, 0 ) );
         r.push_back( wmath::WPosition( 2, 2, 0 ) );
 
-        TS_ASSERT_EQUALS( wmath::WFiber::distDST( 1.0, q, r ), std::sqrt( 2.0 ) / 2.0 );
-        TS_ASSERT_EQUALS( wmath::WFiber::distDST( 1.0, r, q ), std::sqrt( 2.0 ) / 2.0 );
+        TS_ASSERT_EQUALS( WFiber::distDST( 1.0, q, r ), std::sqrt( 2.0 ) / 2.0 );
+        TS_ASSERT_EQUALS( WFiber::distDST( 1.0, r, q ), std::sqrt( 2.0 ) / 2.0 );
     }
 
     /**
@@ -95,15 +95,15 @@ public:
      */
     void testDTMeasure( void )
     {
-        wmath::WFiber q;
+        WFiber q;
         q.push_back( wmath::WPosition( 0, 1, 0 ) );
         q.push_back( wmath::WPosition( 0, 0, 0 ) );
-        wmath::WFiber r;
+        WFiber r;
         r.push_back( wmath::WPosition( 1, 1, 0 ) );
         r.push_back( wmath::WPosition( 2, 2, 0 ) );
 
-        TS_ASSERT_EQUALS( wmath::WFiber::distDST( 1.0, q, r ), std::sqrt( 2.0 ) / 2.0 );
-        TS_ASSERT_EQUALS( wmath::WFiber::distDLT( 1.0, q, r ), std::sqrt( 5.0 ) / 2.0 );
+        TS_ASSERT_EQUALS( WFiber::distDST( 1.0, q, r ), std::sqrt( 2.0 ) / 2.0 );
+        TS_ASSERT_EQUALS( WFiber::distDLT( 1.0, q, r ), std::sqrt( 5.0 ) / 2.0 );
     }
 };
 

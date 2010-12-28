@@ -32,6 +32,7 @@
 
 #include "../common/WLogger.h"
 #include "WGraphicsEngine.h"
+#include "WGEViewer.h"
 
 #include "WGEProjectFileIO.h"
 

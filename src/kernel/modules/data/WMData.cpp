@@ -35,6 +35,7 @@
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WDataHandler.h"
 #include "../../../dataHandler/WDataTexture3D.h"
+#include "../../../dataHandler/WDataTexture3D_2.h"
 #include "../../../dataHandler/WEEG2.h"
 #include "../../../dataHandler/exceptions/WDHException.h"
 #include "../../../dataHandler/io/WReaderBiosig.h"
@@ -44,6 +45,7 @@
 #include "../../../dataHandler/io/WPagerEEGLibeep.h"
 #include "../../../dataHandler/io/WReaderELC.h"
 #include "../../../dataHandler/io/WReaderFiberVTK.h"
+#include "../../../graphicsEngine/WGEColormapping.h"
 #include "WMData.h"
 #include "data.xpm"
 
@@ -123,13 +125,13 @@ void WMData::properties()
     // properties
 
     m_dataName = m_infoProperties->addProperty( "Filename", "The filename of the dataset.", std::string( "" ) );
+    m_dataType = m_infoProperties->addProperty( "Data type", "The type of the the single data values.", std::string( "" ) );
 
     // use this callback for the other properties
     WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMData::propertyChanged, this, _1 );
 
 
     m_groupTex = m_properties->addPropertyGroup( "Texture Properties",  "Properties only related to the texture representation." );
-    m_groupTexManip = m_properties->addPropertyGroup( "Texture Manipulation",  "Properties only related to the texture manipulation." );
 
     // several other properties
     m_interpolation = m_groupTex->addProperty( "Interpolation",
@@ -161,39 +163,9 @@ void WMData::properties()
     m_matrixSelectionsList->addItem( "qform", "" );
     m_matrixSelectionsList->addItem( "sform", "" );
 
-    m_matrixSelection = m_groupTexManip->addProperty( "Transformation matrix",  "matrix",
+    m_matrixSelection = m_properties->addProperty( "Transformation matrix",  "matrix",
             m_matrixSelectionsList->getSelectorFirst(), propertyCallback );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_matrixSelection );
-
-    m_translationX = m_groupTexManip->addProperty( "X translation", "", 0, propertyCallback );
-    m_translationX->setMax( 300 );
-    m_translationX->setMin( -300 );
-    m_translationY = m_groupTexManip->addProperty( "Y translation", "", 0, propertyCallback );
-    m_translationY->setMax( 300 );
-    m_translationY->setMin( -300 );
-    m_translationZ = m_groupTexManip->addProperty( "Z translation", "", 0, propertyCallback );
-    m_translationZ->setMax( 300 );
-    m_translationZ->setMin( -300 );
-
-    m_stretchX = m_groupTexManip->addProperty( "Voxel size X", "", 1.0, propertyCallback );
-    m_stretchX->setMax( 10. );
-    m_stretchX->setMin( -10. );
-    m_stretchY = m_groupTexManip->addProperty( "Voxel size Y", "", 1.0, propertyCallback );
-    m_stretchY->setMax( 10. );
-    m_stretchY->setMin( -10. );
-    m_stretchZ = m_groupTexManip->addProperty( "Voxel size Z", "", 1.0, propertyCallback );
-    m_stretchZ->setMax( 10. );
-    m_stretchZ->setMin( -10. );
-
-    m_rotationX = m_groupTexManip->addProperty( "X rotation", "", 0, propertyCallback );
-    m_rotationX->setMax( 180 );
-    m_rotationX->setMin( -180 );
-    m_rotationY = m_groupTexManip->addProperty( "Y rotation", "", 0, propertyCallback );
-    m_rotationY->setMax( 180 );
-    m_rotationY->setMin( -180 );
-    m_rotationZ = m_groupTexManip->addProperty( "Z rotation", "", 0, propertyCallback );
-    m_rotationZ->setMax( 180 );
-    m_rotationZ->setMin( -180 );
 }
 
 void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
@@ -219,35 +191,6 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
         else if ( property == m_colorMapSelection )
         {
             m_dataSet->getTexture()->setSelectedColormap( m_colorMapSelection->get( true ).getItemIndexOfSelected( 0 ) );
-        }
-        else if ( property == m_translationX || property == m_translationY || property == m_translationZ )
-        {
-            boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
-            wmath::WPosition pos( m_translationX->get(), m_translationY->get(), m_translationZ->get() );
-            grid->translate( pos );
-            WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
-            m_output->triggerUpdate();
-        }
-        else if ( property == m_stretchX || property == m_stretchY || property == m_stretchZ )
-        {
-            boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
-            wmath::WPosition str( m_stretchX->get(), m_stretchY->get(), m_stretchZ->get() );
-            grid->stretch( str );
-            WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
-            m_output->triggerUpdate();
-        }
-        else if ( property == m_rotationX || property == m_rotationY || property == m_rotationZ )
-        {
-            float pi = 3.14159265;
-            float rotx = static_cast<float>( m_rotationX->get() ) / 180. * pi;
-            float roty = static_cast<float>( m_rotationY->get() ) / 180. * pi;
-            float rotz = static_cast<float>( m_rotationZ->get() ) / 180. * pi;
-
-            boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
-            wmath::WPosition rot( rotx, roty, rotz );
-            grid->rotate( rot );
-            WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
-            m_output->triggerUpdate();
         }
         else if ( property == m_matrixSelection )
         {
@@ -317,7 +260,6 @@ void WMData::moduleMain()
     {
         // hide other properties since they make no sense fo these data set types.
         m_groupTex->setHidden();
-        m_groupTexManip->setHidden();
     }
 
     if( suffix == ".nii"
@@ -331,10 +273,9 @@ void WMData::moduleMain()
             WAssert( suffix == ".nii", "Currently only nii files may be gzipped." );
         }
 
-        m_isTexture = true;
-
         WReaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
+        m_isTexture = m_dataSet->isTexture();
 
         if( !boost::shared_dynamic_cast< WDataSetTimeSeries >( m_dataSet ) )
         {
@@ -363,13 +304,13 @@ void WMData::moduleMain()
                     default:
                         WAssert( false, "Unknow data type in Data module" );
                 }
+                m_dataType->set( getDataTypeString( dss ) );
             }
             else
             {
                 WAssert( false, "WDataSetSingle needed at this position." );
             }
             boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
-            m_matrixSelection->set( m_matrixSelectionsList->getSelector( grid->getActiveMatrix() ) );
         }
     }
     else if( suffix == ".edf" )
@@ -421,7 +362,11 @@ void WMData::moduleMain()
     m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );
 
     // register at datahandler
-    WDataHandler::registerDataSet( m_dataSet );
+    WDataHandler::registerDataSet( m_dataSet ); // this will get obsolete soon
+    if ( m_dataSet->isTexture() )
+    {
+        WGEColormapping::registerTexture( m_dataSet->getTexture2() );
+    }
 
     // notify
     m_output->updateData( m_dataSet );
@@ -434,3 +379,71 @@ void WMData::moduleMain()
     WDataHandler::deregisterDataSet( m_dataSet );
 }
 
+// TODO(wiebel): move this to some central place.
+std::string WMData::getDataTypeString( boost::shared_ptr< WDataSetSingle > dss )
+{
+    std::string result;
+    switch( (*dss).getValueSet()->getDataType() )
+    {
+        case W_DT_NONE:
+            result = "none";
+            break;
+        case W_DT_BINARY:
+            result = "binary (1 bit)";
+            break;
+        case W_DT_UNSIGNED_CHAR:
+            result = "unsigned char (8 bits)";
+            break;
+        case W_DT_SIGNED_SHORT:
+            result = "signed short (16 bits)";
+            break;
+        case W_DT_SIGNED_INT:
+            result = "signed int (32 bits)";
+            break;
+        case W_DT_FLOAT:
+            result = "float (32 bits)";
+            break;
+        case W_DT_COMPLEX:
+            result = "complex";
+            break;
+        case W_DT_DOUBLE:
+            result = "double (64 bits)";
+            break;
+        case W_DT_RGB:
+            result = "RGB triple (24 bits)";
+            break;
+        case W_DT_ALL:
+            result = "ALL (not very useful)";
+            break;
+        case W_DT_INT8:
+            result = "signed char (8 bits)";
+            break;
+        case W_DT_UINT16:
+            result = "unsigned short (16 bits)";
+            break;
+        case W_DT_UINT32 :
+            result = "unsigned int (32 bits)";
+            break;
+        case W_DT_INT64:
+            result = "int64";
+            break;
+        case W_DT_UINT64:
+            result = "unsigned long long (64 bits)";
+            break;
+        case W_DT_FLOAT128:
+            result = "float (128 bits)";
+            break;
+        case W_DT_COMPLEX128:
+            result = "double pair (128 bits)";
+            break;
+        case W_DT_COMPLEX256:
+            result = " long double pair (256 bits)";
+            break;
+        case W_DT_RGBA32:
+            result = "4 byte RGBA (32 bits)";
+            break;
+        default:
+            WAssert( false, "Unknow data type in getDataTypeString" );
+    }
+    return result;
+}

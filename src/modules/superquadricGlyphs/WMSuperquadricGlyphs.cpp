@@ -382,9 +382,9 @@ void WMSuperquadricGlyphs::moduleMain()
 
     // create all these geodes we need
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
     osg::ref_ptr< osg::StateSet > sset = m_output->getOrCreateStateSet();
     sset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
 
     // add shader
     m_shader = osg::ref_ptr< WShader > ( new WShader( "WMSuperquadricGlyphs", m_localPath ) );
@@ -400,6 +400,8 @@ void WMSuperquadricGlyphs::moduleMain()
     sset->addUniform( faThreshold );
     sset->addUniform( scaling );
     sset->addUniform( gamma );
+
+    bool initialTensorUpload = true;
 
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
@@ -430,6 +432,15 @@ void WMSuperquadricGlyphs::moduleMain()
             dataValid = false;
         }
 
+        // if data is invalid, remove rendering
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting.";
+            m_output->clear();
+            m_dataSet.reset();
+            continue;
+        }
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Handle changes
 
@@ -437,6 +448,7 @@ void WMSuperquadricGlyphs::moduleMain()
         {
             // The data is different. Copy it to our internal data variable:
             debugLog() << "Received Data.";
+            initialTensorUpload = true;
 
             // also provide progress information
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry" ) );
@@ -459,7 +471,7 @@ void WMSuperquadricGlyphs::moduleMain()
             progress1->finish();
         }
 
-        if ( dataValid && m_xPos->changed() )
+        if ( dataValid && ( m_xPos->changed() || initialTensorUpload ) )
         {
             // also provide progress information
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry" ) );
@@ -490,7 +502,7 @@ void WMSuperquadricGlyphs::moduleMain()
             progress1->finish();
         }
 
-        if ( dataValid && m_yPos->changed() )
+        if ( dataValid && ( m_yPos->changed() || initialTensorUpload ) )
         {
             // also provide progress information
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry" ) );
@@ -521,7 +533,7 @@ void WMSuperquadricGlyphs::moduleMain()
             progress1->finish();
         }
 
-        if ( dataValid && m_zPos->changed() )
+        if ( dataValid && ( m_zPos->changed() || initialTensorUpload ) )
         {
             // also provide progress information
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Building Glyph Geometry" ) );
@@ -551,6 +563,8 @@ void WMSuperquadricGlyphs::moduleMain()
             m_zSliceGlyphCallback->setNewTensorData( diag, offdiag );
             progress1->finish();
         }
+
+        initialTensorUpload = false;
     }
 
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove

@@ -37,7 +37,7 @@
 
 #include "../../../dataHandler/WDataSet.h"
 #include "../../../graphicsEngine/WROI.h"
-#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
+
 #include "../WQtCombinerToolbar.h"
 #include "WQtPropertyGroupWidget.h"
 #include "WQtModuleHeaderTreeItem.h"
@@ -110,14 +110,14 @@ public:
      *
      * \param roi pointer to the roi representation object
      */
-    void addRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+    void addRoi( osg::ref_ptr< WROI > roi );
 
     /**
      * Removes a roi entry from the control panel
      *
      * \param roi pointer to the roi representation object
      */
-    void removeRoi( boost::shared_ptr< WRMROIRepresentation > roi );
+    void removeRoi( osg::ref_ptr< WROI > roi );
 
     /**
      * helper funtion to connect all qt widgets with their functions
@@ -136,14 +136,14 @@ public:
      *
      * \return pointer to roi representation
      */
-    boost::shared_ptr< WRMROIRepresentation > getSelectedRoi();
+    osg::ref_ptr< WROI > getSelectedRoi();
 
     /**
      * Returns the first roi in the currently selected branch.
      *
      * \return pointer to roi representation
      */
-    boost::shared_ptr< WRMROIRepresentation > getFirstRoiInSelectedBranch();
+    osg::ref_ptr< WROI > getFirstRoiInSelectedBranch();
 
     /**
      * Returns a checkable action that can be used to show or close this dock widget.
@@ -190,9 +190,8 @@ protected:
      *
      * \param module pointer to the currently selected module
      *
-     * \return the new toolbar instance
      */
-    WQtCombinerToolbar* createCompatibleButtons( boost::shared_ptr< WModule >module );
+    void createCompatibleButtons( boost::shared_ptr< WModule > module );
 
     /**
      * Reference to the main window of the application.
@@ -305,11 +304,6 @@ private slots:
     void changeTreeItem();
 
     /**
-     * function gets called when a change to a tree item, eg. check box status, occurs
-     */
-    void changeRoiTreeItem();
-
-    /**
      * delete a ROI tree item
      */
     void deleteROITreeItem();
@@ -318,6 +312,11 @@ private slots:
      * delete a module tree item
      */
     void deleteModuleTreeItem();
+
+    /**
+     * function to notify the roi manager of any drag&drop action in the roi tree
+     */
+    void handleDragDrop();
 };
 
 #endif  // WQTCONTROLPANEL_H

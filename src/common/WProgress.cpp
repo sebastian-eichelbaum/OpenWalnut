@@ -62,12 +62,7 @@ void WProgress::finish()
 
 WProgress& WProgress::operator++()
 {
-    if ( isDetermined() )
-    {
-        m_count = std::min( m_max, m_count + 1 );
-    }
-
-    return *this;
+    return *this + 1;
 }
 
 float WProgress::getProgress()
@@ -90,3 +85,12 @@ bool WProgress::isDetermined()
     return m_determined;
 }
 
+WProgress& WProgress::operator+( unsigned int steps )
+{
+    if( isDetermined() )
+    {
+        m_count = std::min( m_max, m_count + steps );
+    }
+
+    return *this;
+}

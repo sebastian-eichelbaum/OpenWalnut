@@ -30,6 +30,9 @@
 #include "../../common/WPropertyObserver.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
 
 #include "WMFiberDisplaySimple.h"
 #include "WMFiberDisplaySimple.xpm"
@@ -85,12 +88,50 @@ void WMFiberDisplaySimple::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    m_clipPlaneGroup = m_properties->addPropertyGroup( "Clipping",  "Clip the fiber data basing on an arbitrary plane." );
+    m_clipPlaneEnabled = m_clipPlaneGroup->addProperty( "Enabled", "If set, clipping of fibers is done using an arbitrary plane and plane distance.",
+                                                        false, m_propCondition );
+    m_clipPlaneShowPlane = m_clipPlaneGroup->addProperty( "Show Clip Plane", "If set, the clipping plane will be shown.", true );
+    m_clipPlanePoint = m_clipPlaneGroup->addProperty( "Plane point", "An point on the plane.",  wmath::WPosition( 0.0, 0.0, 0.0 ) );
+    m_clipPlaneVector = m_clipPlaneGroup->addProperty( "Plane normal", "The normal of the plane.",  wmath::WPosition( 1.0, 0.0, 0.0 ) );
+    m_clipPlaneDistance= m_clipPlaneGroup->addProperty( "Clip distance", "The distance from the plane where fibers get clipped.",  10.0 );
+    m_clipPlaneDistance->removeConstraint( m_clipPlaneDistance->getMax() ); // there simply is no max.
+
     // call WModule's initialization
     WModule::properties();
 }
 
+/**
+ * Enables everything which is needed for proper transparency.
+ *
+ * \param state the state of the node
+ */
+void enableTransparency( osg::StateSet* state )
+{
+    state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+    // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
+
+    // Conversely, disable writing to depth buffer so that a transparent polygon will allow polygons behind it to shine through.
+    // OSG renders transparent polygons after opaque ones.
+    osg::Depth* depth = new osg::Depth;
+    depth->setWriteMask( false );
+    state->setAttributeAndModes( depth, osg::StateAttribute::ON );
+
+    // disable light for this geode as lines can't be lit properly
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+}
+
 void WMFiberDisplaySimple::moduleMain()
 {
+    // initialize clipping shader
+    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplaySimple", m_localPath ) );
+    m_clipPlanePointUniform = new WGEPropertyUniform< WPropPosition >( "u_planePoint", m_clipPlanePoint );
+    m_clipPlaneVectorUniform = new WGEPropertyUniform< WPropPosition >( "u_planeVector", m_clipPlaneVector );
+    m_clipPlaneDistanceUniform = new WGEPropertyUniform< WPropDouble >( "u_distance", m_clipPlaneDistance );
+
     // get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_fiberInput->getDataChangedCondition() );
@@ -124,14 +165,33 @@ void WMFiberDisplaySimple::moduleMain()
         boost::shared_ptr< WDataSetFibers > fibers = m_fiberInput->getData();
         bool dataValid = ( fibers );
         bool dataPropertiesUpdated = propObserver->updated();
-        if ( !( dataValid && ( dataPropertiesUpdated || dataUpdated ) ) )
+        bool propertiesUpdated = m_clipPlaneEnabled->changed();
+
+        // reset graphics if noting is on the input
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting.";
+            // remove geode if no valid data is available
+            m_rootNode->clear();
+
+            // remove the fib's properties from my props
+            m_properties->removeProperty( m_fibProps );
+            m_fibProps.reset();
+        }
+
+        // something happened we are interested in?
+        if ( !( dataValid && ( propertiesUpdated || dataPropertiesUpdated || dataUpdated ) ) )
         {
             continue;
         }
 
         // update the prop observer if new data is available
-        propObserver->observe( fibers->getProperties() );
+        m_properties->removeProperty( m_fibProps );
+        m_fibProps = fibers->getProperties();
+        propObserver->observe( m_fibProps );
         propObserver->handled();
+        // also add the fib props to own props. This allows the user to modify the fib props directly
+        m_properties->addProperty( m_fibProps );
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // Create new fiber geode
@@ -200,17 +260,7 @@ void WMFiberDisplaySimple::moduleMain()
         // enable blending, select transparent bin if RGBA mode is used
         if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
         {
-            state->setMode( GL_BLEND, osg::StateAttribute::ON );
-            state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
-
-            // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
-            state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
-
-            // Conversely, disable writing to depth buffer so that a transparent polygon will allow polygons behind it to shine through.
-            // OSG renders transparent polygons after opaque ones.
-            osg::Depth* depth = new osg::Depth;
-            depth->setWriteMask( false );
-            state->setAttributeAndModes( depth, osg::StateAttribute::ON );
+            enableTransparency( state );
         }
         else
         {
@@ -222,6 +272,52 @@ void WMFiberDisplaySimple::moduleMain()
 
         // add geode to module node
         m_rootNode->clear();
+
+        // Apply the shader. This is for clipping.
+        if ( m_clipPlaneEnabled->get( true ) )
+        {
+            state->addUniform( m_clipPlanePointUniform );
+            state->addUniform( m_clipPlaneVectorUniform );
+            state->addUniform( m_clipPlaneDistanceUniform );
+            m_shader->apply( geode );
+
+            if ( m_clipPlaneShowPlane->get( true ) )
+            {
+                // draw the plane
+                osg::ref_ptr< osg::Geode > planeGeode = new osg::Geode();
+                osg::ref_ptr< osg::MatrixTransform > planeTransform = new osg::MatrixTransform();
+                osg::ref_ptr< osg::Vec3Array > planeVertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+                osg::ref_ptr< osg::Vec4Array > planeColor = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+                osg::ref_ptr< osg::Geometry > planeGeometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
+
+
+                planeColor->push_back( osg::Vec4( 1.0, 0.0, 0.0, 0.125 ) );
+                planeVertices->push_back( osg::Vec3( 0.0, -100.0, -100.0 ) );
+                planeVertices->push_back( osg::Vec3( 0.0, -100.0,  100.0 ) );
+                planeVertices->push_back( osg::Vec3( 0.0,  100.0,  100.0 ) );
+                planeVertices->push_back( osg::Vec3( 0.0,  100.0, -100.0 ) );
+
+                // build geometry
+                planeGeometry->setVertexArray( planeVertices );
+                planeGeometry->setColorArray( planeColor );
+                planeGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+                planeGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
+                planeGeode->addDrawable( planeGeometry );
+
+                enableTransparency( planeGeode->getOrCreateStateSet() );
+
+                // add a callback for showing and hiding the plane
+                planeTransform->addUpdateCallback( new WGENodeMaskCallback( m_clipPlaneShowPlane ) );
+                // add a callback which actually moves, scales and rotates the plane according to the plane parameter
+                planeTransform->addUpdateCallback( new WGEFunctorCallback< osg::Node >(
+                    boost::bind( &WMFiberDisplaySimple::clipPlaneCallback, this, _1 ) )
+                );
+
+                // add the geode to the root and provide an callback
+                planeTransform->addChild( planeGeode );
+                m_rootNode->insert( planeTransform );
+            }
+        }
         m_rootNode->insert( geode );
 
         debugLog() << "Iterating over all fibers: done!";
@@ -231,5 +327,22 @@ void WMFiberDisplaySimple::moduleMain()
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
     // allocated memory and remove all OSG nodes.
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+}
+
+void WMFiberDisplaySimple::clipPlaneCallback( osg::Node* node )
+{
+    // NOTE: this callback is only executed if the plane is enabled since the NodeMaskCallback ensures proper activation of the node
+    osg::MatrixTransform* transform = static_cast< osg::MatrixTransform* >( node );
+
+    wmath::WPosition v = m_clipPlaneVector->get();
+    wmath::WPosition p = m_clipPlanePoint->get();
+
+    // the point p can be interpreted as translation:
+    osg::Matrix translation = osg::Matrix::translate( p );
+
+    // the geometry that was specified has the normal ( 1.0, 0.0, 0.0 ). So it is possible to interpret any other normal as a rotation
+    osg::Matrix rotation = osg::Matrix::rotate( osg::Vec3d( 1.0, 0.0, 0.0 ), v );
+
+    transform->setMatrix( rotation * translation );
 }
 

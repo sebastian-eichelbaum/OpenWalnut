@@ -29,7 +29,7 @@
 #include <map>
 #include "../../common/math/WMatrix.h"
 #include "../../common/WProgressCombiner.h"
-#include "../WTriangleMesh2.h"
+#include "../WTriangleMesh.h"
 #include "marchingCubesCaseTables.h"
 #include "../WExportWGE.h"
 
@@ -108,7 +108,7 @@ public:
      * \param mainProgress progress combiner used to report our progress to
      */
     template< typename T >
-    boost::shared_ptr< WTriangleMesh2 > generateSurface(  size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
+    boost::shared_ptr< WTriangleMesh > generateSurface(  size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
                                                           const wmath::WMatrix< double >& mat,
                                                           const std::vector< T >* vals,
                                                           double isoValue,
@@ -173,7 +173,7 @@ private:
 };
 
 
-template<typename T> boost::shared_ptr<WTriangleMesh2> WMarchingCubesAlgorithm::generateSurface( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
+template<typename T> boost::shared_ptr<WTriangleMesh> WMarchingCubesAlgorithm::generateSurface( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
                                                                                                  const wmath::WMatrix< double >& mat,
                                                                                                  const std::vector< T >* vals,
                                                                                                  double isoValue,
@@ -336,7 +336,7 @@ template<typename T> boost::shared_ptr<WTriangleMesh2> WMarchingCubesAlgorithm::
     }
 
     unsigned int nextID = 0;
-    boost::shared_ptr< WTriangleMesh2 > triMesh( new WTriangleMesh2( m_idToVertices.size(), m_trivecTriangles.size() ) );
+    boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( m_idToVertices.size(), m_trivecTriangles.size() ) );
 
     // Rename vertices.
     ID2WPointXYZId::iterator mapIterator = m_idToVertices.begin();

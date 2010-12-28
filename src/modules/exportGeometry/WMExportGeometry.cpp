@@ -26,7 +26,7 @@
 #include <sstream>
 
 #include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WKernel.h"
 #include "../emptyIcon.xpm" // Please put a real icon here.
 
@@ -70,8 +70,8 @@ const std::string WMExportGeometry::getDescription() const
 
 void WMExportGeometry::connectors()
 {
-    m_input = boost::shared_ptr< WModuleInputData < WTriangleMesh2  > >(
-        new WModuleInputData< WTriangleMesh2 >( shared_from_this(), "Triangle Mesh", "The mesh that will be stored." )
+    m_input = boost::shared_ptr< WModuleInputData < WTriangleMesh  > >(
+        new WModuleInputData< WTriangleMesh >( shared_from_this(), "Triangle Mesh", "The mesh that will be stored." )
         );
 
     addConnector( m_input );
@@ -116,7 +116,7 @@ void WMExportGeometry::moduleMain()
 
 void WMExportGeometry::writeFile()
 {
-    boost::shared_ptr< WTriangleMesh2 > mesh = m_input->getData();
+    boost::shared_ptr< WTriangleMesh > mesh = m_input->getData();
     using std::fstream;
     fstream out( m_savePath->get().file_string().c_str(), fstream::out | fstream::in | fstream::trunc | fstream::binary );
     if( !out || out.bad() )

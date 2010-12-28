@@ -33,8 +33,8 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiber.h"
+#include "../../common/math/WMatrixSym.h"
 #include "../../common/WAssert.h"
 #include "../../common/WColor.h"
 #include "../../common/WIOTools.h"
@@ -44,14 +44,18 @@
 #include "../../common/WThreadedFunction.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/exceptions/WDHIOFailure.h"
-#include "../../dataHandler/io/WReaderLookUpTableVTK.h"
-#include "../../dataHandler/io/WWriterLookUpTableVTK.h"
+#include "../../dataHandler/io/WReaderMatrixSymVTK.h"
+#include "../../dataHandler/io/WWriterMatrixSymVTK.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-#include "WMDetTractClustering.xpm"
 #include "WMDetTractClustering.h"
+#include "WMDetTractClustering.xpm"
+
+#ifdef CUDA_FOUND
+#include "WMDetTractClusteringCudaInterface.h"
+#endif
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMDetTractClustering )
@@ -150,6 +154,9 @@ void WMDetTractClustering::properties()
     m_numValidClusters->setMin( 0 );
     m_numValidClusters->setMax( wlimits::MAX_INT32_T );
     m_clusterSizes = m_infoProperties->addProperty( "Cluster sizes:", "Size of each valid cluster", std::string() );
+#ifdef CUDA_FOUND
+    m_useCuda         = m_properties->addProperty( "Use CUDA", "Prefer CUDA algorithm over CPU algorithm", true );
+#endif
 
     WModule::properties();
 }
@@ -175,7 +182,7 @@ void WMDetTractClustering::update()
     if( !( m_dLtTableExists = dLtTableExists() ) )
     {
         debugLog() << "Consider old table as invalid.";
-        m_dLtTable.reset( new WDXtLookUpTable( m_tracts->size() ) );
+        m_dLtTable.reset( new WMatrixSymDBL( m_tracts->size() ) );
     }
 
     cluster();
@@ -184,7 +191,7 @@ void WMDetTractClustering::update()
     m_progress->addSubProgress( saveProgress );
     if( !wiotools::fileExists( lookUpTableFileName() ) )
     {
-        WWriterLookUpTableVTK w( lookUpTableFileName(), true );
+        WWriterMatrixSymVTK w( lookUpTableFileName(), true );
         try
         {
             w.writeTable( m_dLtTable->getData(), m_lastTractsSize );
@@ -226,10 +233,10 @@ bool WMDetTractClustering::dLtTableExists()
         try
         {
             debugLog() << "trying to read table from: " << dLtFileName;
-            WReaderLookUpTableVTK r( dLtFileName );
+            WReaderMatrixSymVTK r( dLtFileName );
             boost::shared_ptr< std::vector< double > > data( new std::vector< double >() );
             r.readTable( data );
-            m_dLtTable.reset( new WDXtLookUpTable( static_cast< size_t >( data->back() ) ) );
+            m_dLtTable.reset( new WMatrixSymDBL( static_cast< size_t >( data->back() ) ) );
             m_lastTractsSize = static_cast< size_t >( data->back() );
 
             // remove the dimension from data array since it's not representing any distance
@@ -250,6 +257,10 @@ bool WMDetTractClustering::dLtTableExists()
 
 void WMDetTractClustering::cluster()
 {
+    bool useCuda = false;
+#ifdef CUDA_FOUND
+    useCuda = m_useCuda->get();
+#endif
     double proximity_t = m_proximity_t->get();
     double maxDistance_t = m_maxDistance_t->get();
     size_t minClusterSize = m_minClusterSize->get();
@@ -266,6 +277,13 @@ void WMDetTractClustering::cluster()
     {
         m_clusters.push_back( WFiberCluster( i ) );
         m_clusterIDs[i] = i;
+    }
+
+    if( !m_dLtTableExists && useCuda )
+    {
+#ifdef CUDA_FOUND
+        m_dLtTableExists = initDLtTableCuda( m_dLtTable, m_tracts, proximity_t, m_progress );
+#endif
     }
 
     boost::shared_ptr< WProgress > progress( new WProgress( "Tract clustering", numTracts ) );
@@ -333,7 +351,7 @@ osg::ref_ptr< osg::Geode > WMDetTractClustering::genTractGeode( const WFiberClus
     std::list< size_t >::const_iterator cit = cluster.getIndices().begin();
     for( ; cit !=  cluster.getIndices().end(); ++cit )
     {
-        const wmath::WFiber &fib = (*m_tracts)[ *cit ];
+        const WFiber &fib = (*m_tracts)[ *cit ];
         for( size_t i = 0; i < fib.size(); ++i )
         {
             vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
@@ -406,14 +424,9 @@ void WMDetTractClustering::meld( size_t qClusterID, size_t rClusterID )
 
 void WMDetTractClustering::connectors()
 {
-    typedef WModuleInputData< WDataSetFibers > InputData;  // just an alias
-    typedef WModuleOutputData< WFiberCluster > OutputData; // -"-
+    m_tractInput = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "A deterministic tract dataset." );
+    m_output = WModuleOutputData< WFiberCluster >::createAndAdd( shared_from_this(), "clusterOutput", "A set of tract indices aka cluster" );
 
-    m_tractInput = boost::shared_ptr< InputData >( new InputData( shared_from_this(), "tractInput", "A deterministic tract dataset." ) );
-    m_output = boost::shared_ptr< OutputData >( new OutputData( shared_from_this(), "clusterOutput", "A set of tract indices aka cluster" ) );
-
-    addConnector( m_tractInput );
-    addConnector( m_output );
     WModule::connectors();  // call WModules initialization
 }
 
@@ -439,7 +452,7 @@ bool WMDetTractClustering::OutputIDBound::accept( boost::shared_ptr< WPropertyVa
 }
 
 WMDetTractClustering::SimilarityMatrixComputation::SimilarityMatrixComputation(
-        boost::shared_ptr< WDXtLookUpTable > dLtTable,
+        boost::shared_ptr< WMatrixSymDBL > dLtTable,
         boost::shared_ptr< WDataSetFiberVector > tracts,
         double proxSquare,
         const WBoolFlag& shutdownFlag )
@@ -455,8 +468,8 @@ void WMDetTractClustering::SimilarityMatrixComputation::operator()( size_t id, s
     wlog::debug( "WMDetTractClustering::SimilarityMatrixComputation" ) << "Thread: " << id << " starting its work";
     ( void ) b; // NOLINT for removing the warning about unused variables
 
-    boost::function< double ( const wmath::WFiber& q, const wmath::WFiber& r ) > dLt; // NOLINT
-    dLt = boost::bind( wmath::WFiber::distDLT, m_proxSquare, _1, _2 );
+    boost::function< double ( const WFiber& q, const WFiber& r ) > dLt; // NOLINT
+    dLt = boost::bind( WFiber::distDLT, m_proxSquare, _1, _2 );
 
     size_t numTracts = m_tracts->size();
     size_t lines = 0;

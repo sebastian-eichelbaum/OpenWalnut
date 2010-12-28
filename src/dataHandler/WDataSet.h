@@ -26,11 +26,18 @@
 #define WDATASET_H
 
 #include <string>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
+
+#include <osg/ref_ptr>
+
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
 #include "WExportDataHandler.h"
+
+
+#include "WDataTexture3D_2.h"
 
 class WDataTexture3D;
 class WCondition;
@@ -92,6 +99,13 @@ public:
      * \return The texture.
      */
     virtual boost::shared_ptr< WDataTexture3D > getTexture();
+
+    /**
+     * Returns the texture- representation of the dataset. May throw an exception if no texture is available.
+     *
+     * \return The texture.
+     */
+    virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2();
 
     /**
      * Gets the name of this prototype.

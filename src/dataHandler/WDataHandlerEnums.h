@@ -28,7 +28,7 @@
 #include <stdint.h>
 
 /**
- *  Dataset types and number values taken from the nifti1.h, at this point it's unknown if it makes sense
+ *  Data types and number values taken from the nifti1.h, at this point it's unknown if it makes sense
  *  to keep the bit coding, but it doesn't hurt either
  * \ingroup dataHandler
  */
@@ -171,6 +171,17 @@ enum qformOrientation
     Left_to_Right,
     Posterior_to_Anterior,
     Inferior_to_Superior
+};
+
+/**
+ *  Data set types. Not complete! Only those used for distinctions so far.
+ * \ingroup dataHandler
+ */
+enum DataSetType
+{
+    W_DATASET_NONE               =        0,
+    W_DATASET_SINGLE             =        1,
+    W_DATASET_SPHERICALHARMONICS =        2
 };
 
 /**

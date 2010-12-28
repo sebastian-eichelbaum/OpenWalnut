@@ -32,8 +32,8 @@
 
 #include <osg/Geode>
 
-#include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiber.h"
+#include "../../common/math/WMatrixSym.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
@@ -181,12 +181,13 @@ private:
     WPropInt     m_numClusters; //!< Number of clusters computed
     WPropInt     m_numValidClusters; //!< Number of clusters used for rendering
     WPropString  m_clusterSizes; //!< Sizes of the clusters
+    WPropBool    m_useCuda; //!< If compiled with cuda choose whether to use cuda or cpu implementation
 
     boost::shared_ptr< WDataSetFiberVector >                m_tracts; //!< Reference to the WDataSetFiberVector object
     boost::shared_ptr< WDataSetFibers >                     m_rawTracts; //!< Reference to the WDataSetFibers object
     boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_tractInput; //!< Input connector for a tract dataset.
     boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_output; //!< Output connector for the first cluster.
-    boost::shared_ptr< WDXtLookUpTable >                    m_dLtTable; //!< Distance matrix lookUpTable
+    boost::shared_ptr< WMatrixSymDBL >                    m_dLtTable; //!< Distance matrix lookUpTable
 
     boost::shared_ptr< WCondition > m_update; //!< Used for register properties indicating a rerun of the moduleMain loop
 
@@ -239,7 +240,7 @@ private:
          * the boost::function instance
          * \param shutdownFlag a bool flag indicating an abort.
          */
-        SimilarityMatrixComputation( const boost::shared_ptr< WDXtLookUpTable > dLtTable,
+        SimilarityMatrixComputation( const boost::shared_ptr< WMatrixSymDBL > dLtTable,
                                      boost::shared_ptr< WDataSetFiberVector > tracts,
                                      double proxSquare,
                                      const WBoolFlag& shutdownFlag );
@@ -258,7 +259,7 @@ private:
         /**
          * The table where the similarity computation results should be saved.
          */
-        boost::shared_ptr< WDXtLookUpTable > m_table;
+        boost::shared_ptr< WMatrixSymDBL > m_table;
 
         /**
          * Reference to the dataset of the tracts.

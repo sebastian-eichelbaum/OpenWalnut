@@ -173,11 +173,11 @@ public:
         // copy them only if they exist
         if ( other.m_centerLine )
         {
-            m_centerLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_centerLine.get() ) );
+            m_centerLine = boost::shared_ptr< WFiber >( new WFiber( *other.m_centerLine.get() ) );
         }
         if ( other.m_longestLine )
         {
-            m_longestLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_longestLine.get() ) );
+            m_longestLine = boost::shared_ptr< WFiber >( new WFiber( *other.m_longestLine.get() ) );
         }
         return *this;
     }
@@ -197,14 +197,14 @@ public:
      *
      * \return Reference to the center line
      */
-    boost::shared_ptr< wmath::WFiber > getCenterLine() const;
+    boost::shared_ptr< WFiber > getCenterLine() const;
 
     /**
      * Returns the center line of this cluster. The longest line gets calculated during the first call if this method.
      *
      * \return Reference to the longest line
      */
-    boost::shared_ptr< wmath::WFiber > getLongestLine() const;
+    boost::shared_ptr< WFiber > getLongestLine() const;
 
     /**
      * Makes the hard work to compute the center line.
@@ -278,14 +278,14 @@ private:
      *
      * \note This member is mutable as it needs to be modified during a const getter.
      */
-    mutable boost::shared_ptr< wmath::WFiber > m_centerLine;
+    mutable boost::shared_ptr< WFiber > m_centerLine;
 
     /**
      * The longest fiber in the dataset.
      *
      * \note This member is mutable as it needs to be modified during a const getter.
      */
-    mutable boost::shared_ptr< wmath::WFiber > m_longestLine;
+    mutable boost::shared_ptr< WFiber > m_longestLine;
 };
 
 inline bool WFiberCluster::empty() const

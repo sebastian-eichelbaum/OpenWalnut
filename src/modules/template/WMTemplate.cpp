@@ -63,6 +63,7 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGERequirement.h"
 
 #include "WMTemplate.xpm"
 #include "icons/bier.xpm"
@@ -331,6 +332,16 @@ void WMTemplate::properties()
     WModule::properties();
 }
 
+void WMTemplate::requirements()
+{
+    // This method allows modules to specify what they need to run properly. This module, for example, needs the WGE. It therefore adds the
+    // WGERequirement to the list of requirements. Modules only get started if all the requirements of it are met by the current running
+    // OpenWalnut. This is a very handy tool for NO-GUI versions or script versions of OpenWalnut where there simply is no graphics engine
+    // running. This way, the kernel can ensure that only modules are allowed to run who do not require the WGE.
+    // Another useful example are module containers. Usually, they need several other modules to work properly.
+    m_requirements.push_back( new WGERequirement() );
+}
+
 void WMTemplate::moduleMain()
 {
     // This is the modules working thread. Its the most important part of your module.
@@ -442,6 +453,16 @@ void WMTemplate::moduleMain()
             debugLog() << "Received Data.";
         }
 
+        // If there is no data, this might have the following reasons: the connector never has been connected or it got disconnected. Especially
+        // in the case of a disconnect, you should always clean up your renderings and internal states. A disconnected module should not render
+        // anything anymore. Locally stored referenced to the old input data have to be reset to. Only this way, it is guaranteed that not used
+        // data gets deleted properly.
+        if( !dataValid )
+        {
+            debugLog() << "Data changed. No valid data anymore. Cleaning up.";
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+        }
+
         // Here we collect our properties. You, as with input connectors, always check if a property really has changed. You most probably do not
         // want to check properties which are used exclusively inside the update callback of your OSG node. As the properties are thread-safe, the
         // update callback can check them and apply it correctly to your visualization.
@@ -462,7 +483,7 @@ void WMTemplate::moduleMain()
         // m_aFile got handled above. Now, handle two properties which together are used as parameters for an operation.
         if( m_aString->changed() )
         {
-            // This is a simple example for doing an operation which is depends on all, but m_anFile,  properties.
+            // This is a simple example for doing an operation which is depends on all, but m_aFile,  properties.
             debugLog() << "Doing an operation basing on m_aString ... ";
             debugLog() << "m_aString: " << m_aString->get( true );
 
@@ -632,7 +653,7 @@ void WMTemplate::moduleMain()
     //  * remove all OSG nodes
     //  * stop any pending threads you may have started earlier
     //  * ...
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+    //  NOTE: as the module gets disconnected prior to shutdown, most of the cleanup should have been done already.
 }
 
 void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
@@ -662,7 +683,7 @@ void WMTemplate::TranslateCallback::operator()( osg::Node* node, osg::NodeVisito
         osg::ref_ptr< osg::MatrixTransform > transform = static_cast< osg::MatrixTransform* >( node );
 
         // Build a translation matrix (to comfortably convert between WPosition and osg::Vec3 use the convenience methods in "wge::" namespace)
-        osg::Matrixd translate = osg::Matrixd::translate( wge::osgVec3( m_module->m_aPosition->get( true  ) ) );
+        osg::Matrixd translate = osg::Matrixd::translate( m_module->m_aPosition->get( true  ) );
 
         // and set the translation matrix
         transform->setMatrix( translate );

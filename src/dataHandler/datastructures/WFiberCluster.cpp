@@ -72,11 +72,11 @@ WFiberCluster::WFiberCluster( const WFiberCluster& other )
     // copy them only if they exist
     if ( other.m_centerLine )
     {
-        m_centerLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_centerLine.get() ) );
+        m_centerLine = boost::shared_ptr< WFiber >( new WFiber( *other.m_centerLine.get() ) );
     }
     if ( other.m_longestLine )
     {
-        m_longestLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber( *other.m_longestLine.get() ) );
+        m_longestLine = boost::shared_ptr< WFiber >( new WFiber( *other.m_longestLine.get() ) );
     }
 }
 
@@ -150,10 +150,10 @@ void WFiberCluster::generateCenterLine() const
 
     for( WDataSetFiberVector::iterator cit = fibs->begin(); cit != fibs->end(); ++cit )
     {
-        cit->resample( avgFiberSize );
+        cit->resampleByNumberOfPoints( avgFiberSize );
     }
 
-    m_centerLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber() );
+    m_centerLine = boost::shared_ptr< WFiber >( new WFiber() );
     m_centerLine->reserve( avgFiberSize );
     for( size_t i = 0; i < avgFiberSize; ++i )
     {
@@ -181,7 +181,7 @@ void WFiberCluster::generateLongestLine() const
         return;
     }
 
-    m_longestLine = boost::shared_ptr< wmath::WFiber >( new wmath::WFiber() );
+    m_longestLine = boost::shared_ptr< WFiber >( new WFiber() );
 
     // empty datasets can be ignored
     if ( m_fibs->size() == 0 )
@@ -200,7 +200,7 @@ void WFiberCluster::generateLongestLine() const
         }
     }
 
-    for ( wmath::WFiber::const_iterator cit = m_fibs->at( longestID ).begin(); cit != m_fibs->at( longestID ).end(); ++cit )
+    for ( WFiber::const_iterator cit = m_fibs->at( longestID ).begin(); cit != m_fibs->at( longestID ).end(); ++cit )
     {
         m_longestLine->push_back( *cit );
     }
@@ -212,7 +212,7 @@ void WFiberCluster::elongateCenterLine() const
 {
     // first ending of the centerline
     assert( m_centerLine->size() > 1 );
-    wmath::WFiber cL( *m_centerLine );
+    WFiber cL( *m_centerLine );
     WPlane p( cL[0] - cL[1], cL[0] + ( cL[0] - cL[1] ) );
     boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
     bool intersectionFound = true;
@@ -332,7 +332,7 @@ void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fib
     assert( !( fibs->at( 0 ).empty() ) && "WFiberCluster.unifyDirection: Empty fiber processed.. aborting" );
 
     // first fiber defines direction
-    const wmath::WFiber& firstFib = fibs->front();
+    const WFiber& firstFib = fibs->front();
     const wmath::WPosition start = firstFib.front();
     const wmath::WPosition m1    = firstFib.at( firstFib.size() * 1.0 / 3.0 );
     const wmath::WPosition m2    = firstFib.at( firstFib.size() * 2.0 / 3.0 );
@@ -340,7 +340,7 @@ void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fib
 
     for( WDataSetFiberVector::iterator cit = fibs->begin() + 1; cit != fibs->end(); ++cit )
     {
-        const wmath::WFiber& other = *cit;
+        const WFiber& other = *cit;
         double        distance = ( start - other.front() ).normSquare() +
                                  ( m1 - other.at( other.size() * 1.0 / 3.0 ) ).normSquare() +
                                  ( m2 - other.at( other.size() * 2.0 / 3.0 ) ).normSquare() +
@@ -358,7 +358,7 @@ void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fib
     }
 }
 
-boost::shared_ptr< wmath::WFiber > WFiberCluster::getCenterLine() const
+boost::shared_ptr< WFiber > WFiberCluster::getCenterLine() const
 {
     if ( !m_centerLine )
     {
@@ -367,7 +367,7 @@ boost::shared_ptr< wmath::WFiber > WFiberCluster::getCenterLine() const
     return m_centerLine;
 }
 
-boost::shared_ptr< wmath::WFiber > WFiberCluster::getLongestLine() const
+boost::shared_ptr< WFiber > WFiberCluster::getLongestLine() const
 {
     if ( !m_longestLine )
     {

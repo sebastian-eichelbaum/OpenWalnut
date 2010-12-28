@@ -455,11 +455,12 @@ void WMPaintTexture::updateOutDataset()
     WAssert( m_dataSet->getGrid(), "" );
 
     unsigned char* data = m_texture->getImage()->data();
-    std::vector<unsigned char>values( m_grid->size(), 0.0 );
+    boost::shared_ptr< std::vector< unsigned char > > values =
+        boost::shared_ptr< std::vector< unsigned char > >( new std::vector< unsigned char >( m_grid->size(), 0.0 ) );
 
     for ( unsigned int i = 0; i < m_grid->size(); ++i )
     {
-        values[i] = data[i];
+        ( *values )[i] = data[i];
     }
 
     boost::shared_ptr< WValueSet< unsigned char > > vs =
@@ -487,12 +488,6 @@ void WMPaintTexture::copyFromInput()
 
 void WMPaintTexture::createROI()
 {
-    if( !WKernel::getRunningKernel()->getRoiManager()->getBitField() )
-    {
-        wlog::warn( "WMPaintTexture" ) << "Refused to add ROI, as ROIManager does not have computed its bitfield yet.";
-        return;
-    }
-
     bool valid = false;
     std::vector<float>roiVals( m_grid->size(), 0 );
     unsigned char index = m_paintIndex->get();
@@ -516,13 +511,13 @@ void WMPaintTexture::createROI()
 
         if ( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
         {
-            std::cout << " new roi without parent " << std::endl;
+            WLogger::getLogger()->addLogMessage( " new roi without parent ", "WMPaintTexture", LL_DEBUG );
             WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
         }
         else
         {
-            std::cout << " new roi with parent " << std::endl;
-            WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi()->getROI() );
+            WLogger::getLogger()->addLogMessage( " new roi with parent ", "WMPaintTexture", LL_DEBUG );
+            WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() );
         }
     }
 }

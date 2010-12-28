@@ -24,21 +24,3 @@
 
 #include "WGEFunctorCallback.h"
 
-WGEFunctorCallback::WGEFunctorCallback( FunctorType functor ):
-    m_functor( functor )
-{
-    // initialize members
-}
-
-WGEFunctorCallback::~WGEFunctorCallback()
-{
-    // cleanup
-}
-
-void WGEFunctorCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    // call functor
-    m_functor( node );
-    traverse( node, nv );
-}
-

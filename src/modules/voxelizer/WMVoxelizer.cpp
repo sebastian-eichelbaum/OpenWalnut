@@ -207,7 +207,7 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
 
     for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
     {
-        const wmath::WFiber& fib = fibs[*cit];
+        const WFiber& fib = fibs[*cit];
         vertices->push_back( osg::Vec3( fib[0][0], fib[0][1], fib[0][2] ) );
         for( size_t i = 1; i < fib.size(); ++i )
         {
@@ -272,7 +272,7 @@ void WMVoxelizer::updateCenterLine()
     assert( m_osgNode );
     if( m_drawCenterLine->get( true ) )
     {
-        boost::shared_ptr< wmath::WFiber > centerLine = m_clusters->getCenterLine();
+        boost::shared_ptr< WFiber > centerLine = m_clusters->getCenterLine();
         if( centerLine )
         {
             m_centerLineGeode = wge::generateLineStripGeode( *centerLine, 3.f );
@@ -410,18 +410,11 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
 
 void WMVoxelizer::connectors()
 {
-    typedef WModuleInputData< const WFiberCluster > InputType; // just an alias
-    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "Tracts", "A cluster of tracts." ) );
-    addConnector( m_input );
-
-    typedef WModuleOutputData< WDataSetScalar > OutputType; // just an alias
-    m_output = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
-    addConnector( m_output );
-
-    m_parameterizationOutput = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "parameterizationOutput",
-                                                                                               "The parameter field for the voxelized fibers." ) );
-    addConnector( m_parameterizationOutput );
-
+    m_input = WModuleInputData< const WFiberCluster >::createAndAdd( shared_from_this(), "tractInput", "A cluster of tracts" );
+    m_output = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(), "voxelOutput", "The voxelized data set" );
+    m_parameterizationOutput = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(),
+                                                                                  "parameterizationOutput",
+                                                                                  "The parameter field for the voxelized fibers." );
     WModule::connectors();  // call WModules initialization
 }
 
@@ -440,7 +433,7 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
     wmath::WPosition bur = fibs[0][0]; // back upper right corner ( initialize with first WPosition of first fiber )
     for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
     {
-        const wmath::WFiber& fiber = fibs[*cit];
+        const WFiber& fiber = fibs[*cit];
         for( size_t i = 0; i < fiber.size(); ++i )
         {
             for( int x = 0; x < 3; ++x )

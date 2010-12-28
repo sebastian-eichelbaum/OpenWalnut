@@ -39,9 +39,10 @@
 #include "../common/WAssert.h"
 #include "../common/math/WPosition.h"
 #include "../common/math/WMatrix.h"
+#include "WGEPropertyUniform.h"
 #include "WExportWGE.h"
 
-template < typename T > class WGEScaledTexture;
+template < typename T > class WGETexture;
 
 namespace wge
 {
@@ -62,15 +63,6 @@ namespace wge
     osg::Vec4 osgColor( const WColor& color );
 
     /**
-     * Converts a given WPosition into an osg::Vec3.
-     *
-     * \param pos The WPosition which should be converted
-     *
-     * \return The osg::Vec3 vector of pos
-     */
-    osg::Vec3 osgVec3( const wmath::WPosition& pos );
-
-    /**
      * Converts a whole vector of WPositions into an osg::Vec3Array.
      *
      * \param posArray The given positions vector
@@ -86,12 +78,6 @@ namespace wge
      * \param camera The matrices of this camera will used for unprojecting.
      */
     osg::Vec3 WGE_EXPORT unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera  );
-
-    /**
-     * Conversion of WVector3D to osg::Vec3
-     * \param v the vector to convert.
-     */
-    osg::Vec3 wv3D2ov3( wmath::WVector3D v );
 
     /**
      * creates the same color as the atlas colormap shader from the index
@@ -151,7 +137,7 @@ namespace wge
      * - u_textureXSizeX: width of the texture in pixels
      * - u_textureXSizeY: height of the texture in pixels
      * - u_textureXSizeZ: depth of the texture in pixels
-     * If the specified texture is a WGEScaledTexture, it additionally adds u_textureXMin and u_textureXScale for unscaling.
+     * If the specified texture is a WGETexture, it additionally adds u_textureXMin and u_textureXScale for unscaling.
      *
      * \param node where to bind
      * \param unit the unit to use
@@ -159,7 +145,7 @@ namespace wge
      * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
      */
     template < typename T >
-    void bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEScaledTexture< T > > texture, size_t unit = 0 );
+    void bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture< T > > texture, size_t unit = 0 );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )
@@ -174,17 +160,7 @@ inline osg::Vec4 wge::osgColor( const WColor& color )
     return osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() );
 }
 
-inline osg::Vec3 wge::osgVec3( const wmath::WPosition& pos )
-{
-    return osg::Vec3( pos[0], pos[1], pos[2] );
-}
-
-inline osg::Vec3 wge::wv3D2ov3( wmath::WVector3D v )
-{
-    return osg::Vec3( v[0], v[1], v[2] );
-}
-
-inline osg::Matrixd WGE_EXPORT wge::toOSGMatrix( const wmath::WMatrix<double>& matrix )
+inline osg::Matrixd wge::toOSGMatrix( const wmath::WMatrix<double>& matrix )
 {
     WAssert( ( matrix.getNbRows() == 3 || matrix.getNbRows() == 4 ) && ( matrix.getNbCols() == 3 || matrix.getNbCols() == 4 ),
              "Only 3x3 or 4x4 matrices allowed." );
@@ -223,16 +199,14 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture
 }
 
 template < typename T >
-void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEScaledTexture< T > > texture, size_t unit )
+void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture< T > > texture, size_t unit )
 {
     wge::bindTexture< T >( node, osg::ref_ptr< T >( texture ), unit );
 
     std::string prefix = "u_texture" + boost::lexical_cast< std::string >( unit );
 
     // add some additional uniforms containing scaling information
-    osg::StateSet* state = node->getOrCreateStateSet();
-    state->addUniform( new osg::Uniform( ( prefix + "Min" ).c_str(), static_cast< float >( texture->getMin() ) ) );
-    state->addUniform( new osg::Uniform( ( prefix + "Scale" ).c_str(), static_cast< float >( texture->getScale() ) ) );
+    texture->applyUniforms( prefix, node->getOrCreateStateSet() );
 }
 
 #endif  // WGEUTILS_H

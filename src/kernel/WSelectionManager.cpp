@@ -211,5 +211,3 @@ int WSelectionManager::getShader()
 {
     return m_shader;
 }
-
-

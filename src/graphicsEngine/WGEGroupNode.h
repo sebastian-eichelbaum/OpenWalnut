@@ -55,11 +55,6 @@ public:
     WGEGroupNode();
 
     /**
-     * Destructor.
-     */
-    virtual ~WGEGroupNode();
-
-    /**
      * Adds the specified node to the child list of this node in a safe manner. OSG officially requires nodes to be added
      * exclusively during update callbacks. Using this method it is ensured to be added during update cycle.
      *
@@ -96,6 +91,10 @@ public:
     void clear();
 
 protected:
+    /**
+     * Destructor.
+     */
+    virtual ~WGEGroupNode();
 
     /**
      * Update callback which inserts and removes nodes from m_childRemovalQueue and m_childInsertionQueue to the group node.
@@ -173,7 +172,7 @@ protected:
      * Queue of childs that need to be added/removed during the next update cycle. It is a pair per operation, where the bool is denoting removal
      * or insertion.
      */
-    std::queue< ChildOperation* > m_childOperationQueue;
+    std::queue< boost::shared_ptr< ChildOperation > > m_childOperationQueue;
 
     /**
      * Lock used for inserting and removing childs into the child insertion/removal queue.

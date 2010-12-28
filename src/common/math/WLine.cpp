@@ -23,8 +23,10 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
+#include <complex>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "../exceptions/WOutOfBounds.h"
@@ -32,6 +34,7 @@
 #include "../WLimits.h"
 #include "../WStringUtils.h"
 #include "WLine.h"
+#include "WPolynomialEquationSolvers.h"
 #include "WPosition.h"
 
 namespace wmath
@@ -46,13 +49,13 @@ WLine::WLine()
 {
 }
 
-const wmath::WPosition& WLine::midPoint() const
+const wmath::WPosition& midPoint( const wmath::WLine& line )
 {
-    if( empty() )
+    if( line.empty() )
     {
         throw WOutOfBounds( std::string( "There is no midpoint for an empty line." ) );
     }
-    return at( ( size() - 1 ) / 2 );
+    return line[( line.size() - 1 ) / 2];
 }
 
 void WLine::reverseOrder()
@@ -60,28 +63,26 @@ void WLine::reverseOrder()
     std::reverse( begin(), end() );
 }
 
-double WLine::pathLength() const
+double pathLength( const wmath::WLine& line )
 {
     double length = 0;
     // incase of size() <= 1 the for loop will not run!
-    for( size_t i = 1; i < size(); ++i )
+    for( size_t i = 1; i < line.size(); ++i )
     {
-        length += ( at( i - 1 ) - at( i ) ).norm();
+        length += ( line[i - 1] - line[i] ).norm();
     }
     return length;
 }
 
-void WLine::resample( size_t numPoints )
+void WLine::resampleByNumberOfPoints( size_t numPoints )
 {
-    if( size() != numPoints && size() > 0 && numPoints > 0 )
+    WLine newLine;
+    newLine.reserve( numPoints );
+    if( size() != numPoints && size() > 1 && numPoints > 0 )
     {
-        const double pathL = pathLength();
+        const double pathL = wmath::pathLength( *this );
         double newSegmentLength = pathL / ( numPoints - 1 );
         const double delta = newSegmentLength * 1.0e-10; // 1.0e-10 which represents the precision is choosen by intuition
-
-        WLine newLine;
-        newLine.reserve( numPoints );
-
         double remainingLength = 0.0;
         newLine.push_back( front() );
         for( size_t i = 0; i < ( size() - 1 ); ++i )
@@ -97,61 +98,162 @@ void WLine::resample( size_t numPoints )
                 newLine.push_back( newPoint );
                 // std::cout << "line size so far" << newLine.size() << " lenght so far: " << newLine.pathLength() << std::endl;
                 // std::cout << numPoints - newLine.size() << std::endl;
-             }
+            }
         }
         // using string_utils::operator<<;
         // std::cout << "this: " << *this << std::endl << "new:  " << newLine << std::endl;
         // std::cout << "|remL - newSegL|: " << std::abs( remainingLength - newSegmentLength ) << std::endl;
         // std::cout << std::setprecision( 35 ) << "remainingLength: " << remainingLength << " newSegmentLength: " << newSegmentLength << std::endl;
         // std::cout << "this size: " << size() << " new size: " << newLine.size() << std::endl;
+    }
+    else if( size() == 1 && size() < numPoints )
+    {
+        for( size_t i = 0; i < numPoints; ++i )
+        {
+            newLine.push_back( front() );
+        }
+    }
+    if( size() != numPoints )
+    {
         this->WMixinVector< wmath::WPosition >::operator=( newLine );
     }
-    WAssert( size() == numPoints, "Resampling of a line has failed! Is your line of length 0 or even the new sample rate??" );
+    // Note if the size() == 0, then the resampled tract is also of length 0
 }
 
-int WLine::equalsDelta( const wmath::WLine& other, double delta ) const
+void WLine::removeAdjacentDuplicates()
 {
-    size_t pts = ( std::min )( other.size(), size() ); // This ( std::min ) thing compiles also under Win32/Win64
-    size_t diffPos = 0;
-    bool sameLines = true;
-    for( diffPos = 0; diffPos < pts; ++diffPos )
+    if( empty() )
     {
-        for( int x = 0; x < 3; ++x )
+        return;
+    }
+
+    // Note: We cannot use std::remove for that since it allows only unary predicates to identify
+    // elements which are to be removed
+    WLine newLine;
+    newLine.reserve( size() );
+    newLine.push_back( front() );
+    for( const_iterator cit = begin()++; cit != end(); ++cit )
+    {
+        if( ( *cit - newLine.back() ).norm() > wlimits::DBL_EPS )
         {
-            WAssert( at( diffPos ).size() == 3 && other.at( diffPos ).size() == 3, "Wrong dimension of positions." );
-            sameLines = sameLines && ( std::abs( at( diffPos )[x] - other.at( diffPos )[x] ) <= delta );
-            if( !sameLines )
-            {
-                break;
-            }
-        }
-        if( !sameLines )
-        {
-            break;
+            newLine.push_back( *cit );
         }
     }
-    if( sameLines )
+    this->WMixinVector< wmath::WPosition >::operator=( newLine );
+}
+
+void WLine::resampleBySegmentLength( double newSegmentLength )
+{
+    // eliminate duplicate points following next to another
+    removeAdjacentDuplicates();
+
+    if( empty() || size() == 1 )
     {
-        if( size() == other.size() )
+        return;
+    }
+    WLine newLine;
+    newLine.push_back( front() );
+    for( size_t i = 1; i < size(); )
+    {
+        if( ( newLine.back() - ( *this )[i] ).norm() > newSegmentLength )
         {
-            return -1;
+            const wmath::WVector3D& pred = ( *this )[i - 1];
+            if( pred == newLine.back() )
+            {
+                // Then there is no triangle and the old Segment Length is bigger as the new segment
+                // length
+                newLine.push_back( newLine.back() + ( ( *this )[i] - pred ).normalized() * newSegmentLength );
+                continue;
+            }
+            else // this is the general case, and the point we search is inbetween the pred and the current position
+            {
+                // we compute the three coefficents describing the quadradic equation of the point of intersection of
+                // the circle with radius newSegmentLength and the segmend: pred and ( *this )[i].
+                // alpha * x^2 + beta * x + gamma = 0
+                double alpha = ( ( *this )[i][0] - pred[0] ) * ( ( *this )[i][0] - pred[0] ) +
+                               ( ( *this )[i][1] - pred[1] ) * ( ( *this )[i][1] - pred[1] ) +
+                               ( ( *this )[i][2] - pred[2] ) * ( ( *this )[i][2] - pred[2] );
+
+                double beta = 2.0 * ( ( *this )[i][0] - pred[0] ) * ( pred[0] - newLine.back()[0] ) +
+                              2.0 * ( ( *this )[i][1] - pred[1] ) * ( pred[1] - newLine.back()[1] ) +
+                              2.0 * ( ( *this )[i][2] - pred[2] ) * ( pred[2] - newLine.back()[2] );
+
+                double gamma = ( pred[0] - newLine.back()[0] ) * ( pred[0] - newLine.back()[0] ) +
+                               ( pred[1] - newLine.back()[1] ) * ( pred[1] - newLine.back()[1] ) +
+                               ( pred[2] - newLine.back()[2] ) * ( pred[2] - newLine.back()[2] ) - newSegmentLength * newSegmentLength;
+
+                typedef std::pair< std::complex< double >, std::complex< double > > ComplexPair;
+                ComplexPair solution = wmath::solveRealQuadraticEquation( alpha, beta, gamma );
+                // NOTE: if those asserts fire, then this algo is wrong and produces wrong results, and I've to search to bug!
+                WAssert( std::imag( solution.first ) == 0.0, "Invalid quadratic equation while computing resamplingBySegmentLength" );
+                WAssert( std::imag( solution.second ) == 0.0, "Invalid quadratic equation while computing resamplingBySegmentLength" );
+                wmath::WPosition pointOfIntersection;
+                if( std::real( solution.first ) > 0.0 )
+                {
+                    pointOfIntersection = pred + std::real( solution.first ) * ( ( *this )[i] - pred );
+                }
+                else
+                {
+                    pointOfIntersection = pred + std::real( solution.second ) * ( ( *this )[i] - pred );
+                }
+                newLine.push_back( pointOfIntersection );
+            }
         }
+        ++i;
+    }
+    if( ( newLine.back() - ( *this )[size() - 1] ).norm() > newSegmentLength / 2.0 )
+    {
+        wmath::WVector3D direction = ( ( *this )[size() - 1] - newLine.back() ).normalized();
+        newLine.push_back( newLine.back() + direction * newSegmentLength );
+    }
+    this->WMixinVector< wmath::WPosition >::operator=( newLine );
+}
+
+int equalsDelta( const wmath::WLine& line, const wmath::WLine& other, double delta )
+{
+    size_t pts = ( std::min )( other.size(), line.size() ); // This ( std::min ) thing compiles also under Win32/Win64
+    size_t diffPos = 0;
+    bool sameLines = true;
+    for( diffPos = 0; ( diffPos < pts ) && sameLines; ++diffPos )
+    {
+        for( int x = 0; x < 3; ++x ) // since WLine uses WPosition as elements there are 3 components per position
+        {
+            sameLines = sameLines && ( std::abs( line[diffPos][x] - other[diffPos][x] ) <= delta );
+        }
+    }
+    if( sameLines && ( line.size() == other.size() ) )
+    {
+        return -1;
+    }
+    if( !sameLines )
+    {
+        return diffPos - 1;
     }
     return diffPos;
 }
 
-double WLine::maxSegmentLength() const
+double maxSegmentLength( const wmath::WLine& line )
 {
     double result = 0.0;
-    if( empty() || size() == 1 )
+    if( line.empty() || line.size() == 1 )
     {
         return result;
     }
-    for( size_t i = 0; i < size() - 1; ++i )
+    for( size_t i = 0; i < line.size() - 1; ++i )
     {
-        result = std::max( result, ( ( *this )[i] - ( *this )[i+1] ).norm() );
+        result = std::max( result, ( line[i] - line[i+1] ).norm() );
     }
     return result;
 }
 
-} // end of namespace
+WBoundingBox computeBoundingBox( const wmath::WLine& line )
+{
+    WBoundingBox result;
+    for( WLine::const_iterator cit = line.begin(); cit != line.end(); ++cit )
+    {
+        result.expandBy( *cit );
+    }
+    return result;
+}
+
+} // end of namespace wmath

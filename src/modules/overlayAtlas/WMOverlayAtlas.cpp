@@ -27,24 +27,20 @@
 
 #include <boost/regex.hpp>
 
-#include "../../kernel/WKernel.h"
-#include "../emptyIcon.xpm" // Please put a real icon here.
-
-#include "../../dataHandler/WDataSet.h"
+#include "../../common/WPathHelper.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
 #include "../../graphicsEngine/WShader.h"
-
-
-#include "../../common/WPathHelper.h"
-#include "../../common/WPropertyHelper.h"
-
+#include "../../kernel/WKernel.h"
 #include "WMOverlayAtlas.h"
+#include "WMOverlayAtlas.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMOverlayAtlas )
@@ -67,7 +63,7 @@ boost::shared_ptr< WModule > WMOverlayAtlas::factory() const
 
 const char** WMOverlayAtlas::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMOverlayAtlas_xpm; // Please put a real icon here.
 }
 const std::string WMOverlayAtlas::getName() const
 {
@@ -206,6 +202,12 @@ void WMOverlayAtlas::moduleMain()
     }
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+
+    m_s0->removeROIChangeNotifier( m_changeRoiSignal );
+    m_s1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_s2->removeROIChangeNotifier( m_changeRoiSignal );
+    m_s3->removeROIChangeNotifier( m_changeRoiSignal );
+    m_s4->removeROIChangeNotifier( m_changeRoiSignal );
 }
 
 void WMOverlayAtlas::init()
@@ -214,7 +216,8 @@ void WMOverlayAtlas::init()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     m_geode = new osg::Geode();
     m_geode->setName( "_atlasSlice" );
-    m_rootNode->addUpdateCallback( new SafeUpdateCallback( this ) );
+
+    m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMOverlayAtlas::updateCallback, this ) ) );
     m_rootNode->insert( m_geode );
 
     wmath::WPosition center;
@@ -258,11 +261,13 @@ void WMOverlayAtlas::init()
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s3 ) );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s4 ) );
 
-    m_s0->getSignalIsModified()->connect( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) );
-    m_s1->getSignalIsModified()->connect( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) );
-    m_s2->getSignalIsModified()->connect( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) );
-    m_s3->getSignalIsModified()->connect( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) );
-    m_s4->getSignalIsModified()->connect( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) );
+    m_changeRoiSignal =
+        boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) ) );
+    m_s0->addROIChangeNotifier( m_changeRoiSignal );
+    m_s1->addROIChangeNotifier( m_changeRoiSignal );
+    m_s2->addROIChangeNotifier( m_changeRoiSignal );
+    m_s3->addROIChangeNotifier( m_changeRoiSignal );
+    m_s4->addROIChangeNotifier( m_changeRoiSignal );
 
     toggleManipulators();
 }
@@ -315,6 +320,8 @@ void WMOverlayAtlas::updateCoronalSlice()
 
 void WMOverlayAtlas::propertyChanged( boost::shared_ptr< WPropertyBase > property )
 {
+    //TODO(all): remove void cast when the property variable is used
+    ( void ) property; // NOLINT cstyle cast
 }
 
 void WMOverlayAtlas::updatePlane()
@@ -345,7 +352,7 @@ void WMOverlayAtlas::updatePlane()
     // grab a list of data textures
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
-    int c = 0;
+    size_t c = 0;
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
     if ( m_active->get() )
     {
@@ -389,7 +396,7 @@ void WMOverlayAtlas::updatePlane()
 
         planeGeometry->setTexCoordArray( c, texCoords );
         ++c;
-        if( c == m_maxNumberOfTextures )
+        if( c == wlimits::MAX_NUMBER_OF_TEXTURES )
         {
             break;
         }
@@ -398,16 +405,6 @@ void WMOverlayAtlas::updatePlane()
     m_geode->addDrawable( planeGeometry );
 
     m_dirty = false;
-}
-
-void WMOverlayAtlas::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    if ( m_module->isDirty() )
-    {
-        m_module->updatePlane();
-        m_module->updateTextures();
-    }
-    traverse( node, nv );
 }
 
 void WMOverlayAtlas::updateTextures()
@@ -423,13 +420,13 @@ void WMOverlayAtlas::updateTextures()
         if ( tex.size() > 0 )
         {
             // reset all uniforms
-            for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+            for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
 
             // for each texture -> apply
-            int c = 0;
+            size_t c = 0;
             //////////////////////////////////////////////////////////////////////////////////////////////////
             if ( m_active->get() )
             {
@@ -495,7 +492,7 @@ void WMOverlayAtlas::updateTextures()
                 m_cmapUniforms[c]->set( cmap );
 
                 ++c;
-                if( c == m_maxNumberOfTextures )
+                if( c == wlimits::MAX_NUMBER_OF_TEXTURES )
                 {
                     break;
                 }
@@ -563,7 +560,7 @@ void WMOverlayAtlas::initUniforms( osg::StateSet* rootState )
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
 
-    for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+    for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
     {
         rootState->addUniform( m_typeUniforms[i] );
         rootState->addUniform( m_thresholdUniforms[i] );
@@ -740,5 +737,14 @@ void WMOverlayAtlas::toggleManipulators()
         m_s2->hide();
         m_s3->hide();
         m_s4->hide();
+    }
+}
+
+void WMOverlayAtlas::updateCallback()
+{
+    if ( isDirty() )
+    {
+        updatePlane();
+        updateTextures();
     }
 }

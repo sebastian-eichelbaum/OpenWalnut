@@ -87,14 +87,21 @@ void WMDistanceMap::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
+        debugLog() << "Waiting ...";
+        m_moduleState.wait();
+
+        // woke up since the module is requested to finish?
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
         // acquire data from the input connector
         m_dataSet = m_input->getData();
-        if ( !m_dataSet.get() )
+        if ( !m_dataSet )
         {
-            // OK, the output has not yet sent data
-            // NOTE: see comment at the end of this while loop for m_moduleState
-            debugLog() << "Waiting for data ...";
-            m_moduleState.wait();
+            debugLog() << "Resetting output.";
+            m_output->reset();
             continue;
         }
 
@@ -107,9 +114,6 @@ void WMDistanceMap::moduleMain()
 
         // update the output
         m_output->updateData( m_distanceMapDataSet );
-
-        // wait for new data change event or quit event
-        m_moduleState.wait();
     }
 }
 
@@ -147,10 +151,10 @@ template< typename T > boost::shared_ptr< WValueSet< float > > makeFloatValueSet
     WAssert( inSet->dimension() == 1, "Works only for scalar data." );
     WAssert( inSet->order() == 0, "Works only for scalar data." );
 
-    std::vector< float > data( inSet->size() );
+    boost::shared_ptr< std::vector< float > > data = boost::shared_ptr< std::vector< float > >( new std::vector< float >( inSet->size() ) );
     for( unsigned int i = 0; i < inSet->size(); ++i )
     {
-        data[i] = static_cast< float >( inSet->getScalar( i ) );
+        ( *data )[i] = static_cast< float >( inSet->getScalar( i ) );
     }
 
     boost::shared_ptr< WValueSet< float > > outSet;
@@ -483,7 +487,8 @@ boost::shared_ptr< WValueSet< float > > WMDistanceMap::createOffset( boost::shar
     floatDataset = tmp;
     boost::shared_ptr< WValueSet< float > > resultValueSet;
     resultValueSet = boost::shared_ptr< WValueSet< float > >(
-        new WValueSet< float >( valueSet->order(), valueSet->dimension(), floatDataset, W_DT_FLOAT ) );
+        new WValueSet< float >( valueSet->order(), valueSet->dimension(),
+                                boost::shared_ptr< std::vector< float > >( new std::vector< float >( floatDataset ) ), W_DT_FLOAT ) );
 
     progress1->finish();
 

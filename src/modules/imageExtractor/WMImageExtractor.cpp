@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -238,16 +239,18 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
 
     std::size_t dim = m_dataSet->getValueSet()->dimension();
 
+    // TODO( reichenbach ): use the new valueset function mechanism
     switch( m_dataSet->getValueSet()->getDataType() )
     {
     case W_DT_FLOAT:
         {
-            std::vector< float > values( m_dataSet->getGrid()->size() );
+            boost::shared_ptr< std::vector< float > > values = boost::shared_ptr< std::vector< float > >(
+                new std::vector< float >( m_dataSet->getGrid()->size() ) );
             boost::shared_ptr< WValueSet< float > > v = boost::shared_dynamic_cast< WValueSet< float > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
             boost::shared_ptr< WValueSet< float > > vs =
@@ -257,12 +260,13 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
         }
     case W_DT_DOUBLE:
         {
-            std::vector< double > values( m_dataSet->getGrid()->size() );
+            boost::shared_ptr< std::vector< double > > values = boost::shared_ptr< std::vector< double > >(
+                new std::vector< double >( m_dataSet->getGrid()->size() ) );
             boost::shared_ptr< WValueSet< double > > v = boost::shared_dynamic_cast< WValueSet< double > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
             boost::shared_ptr< WValueSet< double > > vs =
@@ -272,27 +276,29 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
         }
     case W_DT_UINT8:
         {
-            std::vector< unsigned char > values( m_dataSet->getGrid()->size() );
-            boost::shared_ptr< WValueSet< unsigned char > > v = boost::shared_dynamic_cast< WValueSet< unsigned char > >( m_dataSet->getValueSet() );
+            boost::shared_ptr< std::vector< uint8_t > > values = boost::shared_ptr< std::vector< uint8_t > >(
+                new std::vector< uint8_t >( m_dataSet->getGrid()->size() ) );
+            boost::shared_ptr< WValueSet< uint8_t > > v = boost::shared_dynamic_cast< WValueSet< uint8_t > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
-            boost::shared_ptr< WValueSet< unsigned char > > vs =
-                    boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >( 0, 1, values, W_DT_UINT8 ) );
+            boost::shared_ptr< WValueSet< uint8_t > > vs =
+                    boost::shared_ptr< WValueSet< uint8_t > >( new WValueSet< uint8_t >( 0, 1, values, W_DT_UINT8 ) );
 
             return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, grid ) );
         }
     case W_DT_UINT16:
         {
-            std::vector< uint16_t > values( m_dataSet->getGrid()->size() );
+            boost::shared_ptr< std::vector< uint16_t > > values = boost::shared_ptr< std::vector< uint16_t > >(
+                new std::vector< uint16_t >( m_dataSet->getGrid()->size() ) );
             boost::shared_ptr< WValueSet< uint16_t > > v = boost::shared_dynamic_cast< WValueSet< uint16_t > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
             boost::shared_ptr< WValueSet< uint16_t > > vs =
@@ -302,42 +308,45 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
         }
     case W_DT_UINT32:
         {
-            std::vector< unsigned int > values( m_dataSet->getGrid()->size() );
-            boost::shared_ptr< WValueSet< unsigned int > > v = boost::shared_dynamic_cast< WValueSet< unsigned int > >( m_dataSet->getValueSet() );
+            boost::shared_ptr< std::vector< uint32_t > > values = boost::shared_ptr< std::vector< uint32_t > >(
+                new std::vector< uint32_t >( m_dataSet->getGrid()->size() ) );
+            boost::shared_ptr< WValueSet< uint32_t > > v = boost::shared_dynamic_cast< WValueSet< uint32_t > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
-            boost::shared_ptr< WValueSet< unsigned int > > vs =
-                    boost::shared_ptr< WValueSet< unsigned int > >( new WValueSet< unsigned int >( 0, 1, values, W_DT_UINT32 ) );
+            boost::shared_ptr< WValueSet< uint32_t > > vs =
+                    boost::shared_ptr< WValueSet< uint32_t > >( new WValueSet< uint32_t >( 0, 1, values, W_DT_UINT32 ) );
 
             return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, grid ) );
         }
     case W_DT_INT8:
         {
-            std::vector< char > values( m_dataSet->getGrid()->size() );
-            boost::shared_ptr< WValueSet< char > > v = boost::shared_dynamic_cast< WValueSet< char > >( m_dataSet->getValueSet() );
+            boost::shared_ptr< std::vector< int8_t > > values = boost::shared_ptr< std::vector< int8_t > >(
+                new std::vector< int8_t >( m_dataSet->getGrid()->size() ) );
+            boost::shared_ptr< WValueSet< int8_t > > v = boost::shared_dynamic_cast< WValueSet< int8_t > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
-            boost::shared_ptr< WValueSet< char > > vs =
-                    boost::shared_ptr< WValueSet< char > >( new WValueSet< char >( 0, 1, values, W_DT_INT8 ) );
+            boost::shared_ptr< WValueSet< int8_t > > vs =
+                    boost::shared_ptr< WValueSet< int8_t > >( new WValueSet< int8_t >( 0, 1, values, W_DT_INT8 ) );
 
             return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, grid ) );
         }
     case W_DT_INT16:
         {
-            std::vector< int16_t > values( m_dataSet->getGrid()->size() );
+            boost::shared_ptr< std::vector< int16_t > > values = boost::shared_ptr< std::vector< int16_t > >(
+                new std::vector< int16_t >( m_dataSet->getGrid()->size() ) );
             boost::shared_ptr< WValueSet< int16_t > > v = boost::shared_dynamic_cast< WValueSet< int16_t > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
             boost::shared_ptr< WValueSet< int16_t > > vs =
@@ -347,16 +356,17 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
         }
     case W_DT_SIGNED_INT:
         {
-            std::vector< int > values( m_dataSet->getGrid()->size() );
-            boost::shared_ptr< WValueSet< int > > v = boost::shared_dynamic_cast< WValueSet< int > >( m_dataSet->getValueSet() );
+            boost::shared_ptr< std::vector< int32_t > > values = boost::shared_ptr< std::vector< int32_t > >(
+                new std::vector< int32_t >( m_dataSet->getGrid()->size() ) );
+            boost::shared_ptr< WValueSet< int32_t > > v = boost::shared_dynamic_cast< WValueSet< int32_t > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] = v->rawData()[ dim * k + i ];
+                ( *values )[k] = v->rawData()[ dim * k + i ];
             }
 
-            boost::shared_ptr< WValueSet< int > > vs =
-                    boost::shared_ptr< WValueSet< int > >( new WValueSet< int >( 0, 1, values, W_DT_SIGNED_INT ) );
+            boost::shared_ptr< WValueSet< int32_t > > vs =
+                    boost::shared_ptr< WValueSet< int32_t > >( new WValueSet< int32_t >( 0, 1, values, W_DT_SIGNED_INT ) );
 
             return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, grid ) );
         }

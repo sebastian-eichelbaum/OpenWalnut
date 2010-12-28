@@ -29,8 +29,10 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetSphericalHarmonics.h"
+#include "../../common/WItemSelection.h"
+#include "../../common/WItemSelector.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetSphericalHarmonics.h"
 #include "../../graphicsEngine/WShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -129,15 +131,24 @@ private:
      */
     void renderSlice( size_t sliceId );
 
+    boost::shared_ptr< WDataSetSphericalHarmonics > m_dataSet; //!< Pointer to the treated data set.
+
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputGFA; //!< The input for the GFA.
     osg::ref_ptr< WShader > m_shader; //!< The shader used for the glyph surfaces
     boost::shared_ptr< WItemSelection > m_sliceOrientations; //!< A list of the selectable slice orientations, i.e  x, y and z.
-    WPropSelection m_sliceOrientationSelection; //!< To choose whether to x, y or z slice.
+    WPropSelection m_sliceOrientationSelectionProp; //!< To choose whether to x, y or z slice.
     WPropBool m_usePolarPlotProp; //!< Property indicating whether to use polar plot instead of HOME glyph
-    WPropBool m_useNormalizationProp; //!< Indicates whether to us radius normalization.
+    WPropBool m_useNormalizationProp; //!< Indicates whether to use min max normalization.
+    WPropBool m_useRadiusNormalizationProp; //!< Indicates whether to use radius normalization.
+    WPropBool m_hideNegativeLobesProp; //!< Indicates whether to hide negativ radius lobes of glyphs
     WPropDouble m_GFAThresholdProp; //!< Property holding the threshold of GFA above which glyphs should be drawn.
     WPropDouble m_glyphSizeProp; //!< Property holding the size of the displayed glyphs
     WPropInt m_sliceIdProp; //!< Property holding the slice ID
+    boost::shared_ptr< WItemSelection > m_orders; //!< A list of the selectable orders
+    WPropSelection m_orderProp; //!< Property holding the order of the SH to show.
+
+    WPropInt m_moduloProp; //!< Property holding information on how many glyphs will be omited between two glyphs (modulo-1).
+    WPropInt m_subdivisionLevelProp; //!< Property holding information on the subdivision level of the spheres (resolution).
 
     osg::ref_ptr< osg::Geode > m_glyphsGeode; //!< Pointer to geode containing the glyphs.
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
@@ -156,19 +167,29 @@ private:
          * \param dataGFA GFA data for dataSet.
          * \param thresholdGFA Threshold of GFA below which we will not draw the glyphs
          * \param sliceId Rendered slice
+         * \param order Order of the rendered spherical harmonics.
+         * \param subdivisionLevel Subidivision level of spheres that are basis for glyphs (resolution)
+         * \param modulo Show only every modulo-th glyph in each direction.
          * \param sliceType Slice direction (sagittal, coronal, axial )
          * \param usePolar Use polar glyphs (HOME otherwise)
          * \param scale Resize the glyphs.
          * \param useNormalization Scale minimum and maximum radius to [0,1].
+         * \param useRadiusNormalization Scale glyphs to make them all the same size.
+         * \param hideNegativeLobes Vertices with negative radius will be set to zero.
          */
         GlyphGeneration(  boost::shared_ptr< WDataSetSphericalHarmonics > dataSet,
                           boost::shared_ptr< WDataSetScalar > dataGFA,
                           double thresholdGFA,
                           const size_t& sliceId,
+                          const size_t& order,
+                          const size_t& subdivisionLevel,
+                          const size_t& modulo,
                           const size_t& sliceType,
                           const bool& usePolar,
                           const float& scale,
-                          const bool& useNormalization );
+                          const bool& useNormalization,
+                          const bool& useRadiusNormalization,
+                          const bool& hideNegativeLobes );
 
         /**
          * Destructor freeing the data.
@@ -205,20 +226,22 @@ private:
         boost::shared_ptr< WDataSetSphericalHarmonics > m_dataSet; //!< Pointer to the treated data set.
         boost::shared_ptr< WDataSetScalar > m_dataGFA; //!< Pointer to possible GFA data set.
         boost::shared_ptr< WGridRegular3D > m_grid; //!< Pointer to the grid of the treated data set.
-        osg::Geometry* m_glyphGeometry; //!< All glyphs.
-        osg::ref_ptr< osg::Geode > m_glyphsGeode; //!< The geode containing the glyphs.
         osg::ref_ptr< osg::Vec3Array > m_vertArray; //!< Vertices of the triangles of the glyphs.
         osg::ref_ptr< osg::Vec3Array > m_normals; //!< Normals of the vertices of the glyphs.
         osg::ref_ptr< osg::Vec4Array > m_colors; //!< Colors of the vertices of the glyphs.
         osg::ref_ptr< osg::DrawElementsUInt > m_glyphElements; //!< Indices of the vertices of the triangles of the glyphs.
-        osg::ref_ptr< WGEGroupNode > m_generatorNode; //!< Pointer to the generators group node.
 
         double m_thresholdGFA; //!< Stores the GFA threshold from the property.
         size_t m_sliceId; //!< Stores option from property.
+        size_t m_order; //!< Stores option from property.
         size_t m_sliceType; //!< Stores option from property.
+        size_t m_subdivisionLevel; //!< Store option from property
+        size_t m_modulo; //!< Store option from property
         bool m_usePolar; //!< Stores option from property.
         float m_scale; //!< Stores option from property.
         bool m_useNormalization; //!< Stores option from property.
+        bool m_useRadiusNormalization; //!< Stores option from property.
+        bool m_hideNegativeLobes; //!< Stores option from property.
 
         limnPolyData *m_sphere; //!< The geometry of the subdivided icosahedron
     };

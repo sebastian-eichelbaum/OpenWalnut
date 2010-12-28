@@ -172,7 +172,7 @@ private:
     std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< Vector of samplers.
     osg::ref_ptr< osg::Uniform > m_highlightUniform; //!< Determines whether the slice is highlighted.
 
-    boost::shared_ptr< wmath::WFiber > m_centerLine; //!< The line that guides the slice.
+    boost::shared_ptr< WFiber > m_centerLine; //!< The line that guides the slice.
 
     /**
      * Node callback to handle updates properly

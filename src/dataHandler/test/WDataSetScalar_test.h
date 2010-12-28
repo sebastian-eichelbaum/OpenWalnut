@@ -34,36 +34,17 @@
 #include "../WDataSetScalar.h"
 
 /**
- * The logger instance used by some tests
- */
-static WLogger logger;
-
-/**
- * True if the logger has been initialized in the past.
- */
-static bool loggerInitialized = false;
-
-/**
  * Tests for the data set type containing only scalars.
  */
 class WDataSetScalarTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * Constructs unit test environment.
+     * Setup logger and other stuff for each test.
      */
-    void setUp( void )
+    void setUp()
     {
-        if ( !loggerInitialized )
-        {
-            std::cout << "Initialize logger." << std::endl;
-            logger.setColored( false );
-
-            // NOTE: the logger does not need to be run, since the logger main thread just prints the messages. If compiled in
-            // debug mode, the messages will be printed directly, without the logger thread.
-            //logger.run();
-            loggerInitialized = true;
-        }
+        WLogger::startup();
     }
 
     /**
@@ -73,31 +54,31 @@ public:
     {
         // create dummies, since they are needed in almost every test
         boost::shared_ptr< WGrid > grid = boost::shared_ptr< WGrid >( new WGridRegular3D( 5, 3, 3, 1, 1, 1 ) );
-        std::vector< double > data( grid->size() );
+        boost::shared_ptr< std::vector< double > > data = boost::shared_ptr< std::vector< double > >( new std::vector< double >( grid->size() ) );
         for( size_t i = 0; i < grid->size(); ++i )
         {
-            data[i] = i;
+            ( *data )[i] = i;
         }
         boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 0, 1, data, W_DT_DOUBLE ) );
         WDataSetScalar ds( valueSet, grid );
 
         bool success = false;
 
-        TS_ASSERT_EQUALS( ds.interpolate( wmath::WPosition(), &success ), data[0] );
+        TS_ASSERT_EQUALS( ds.interpolate( wmath::WPosition(), &success ), ( *data )[0] );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 0, 0 ), &success ), data[1], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 0, 0 ), &success ), ( *data )[1], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0, 1, 0 ), &success ), data[5], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0, 1, 0 ), &success ), ( *data )[5], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 1, 0 ), &success ), data[6], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 1, 0 ), &success ), ( *data )[6], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0, 0, 1 ), &success ), data[15], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0, 0, 1 ), &success ), ( *data )[15], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 0, 1 ), &success ), data[16], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 0, 1 ), &success ), ( *data )[16], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0, 1, 1 ), &success ), data[20], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0, 1, 1 ), &success ), ( *data )[20], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 1, 1 ), &success ), data[21], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 1, 1 ), &success ), ( *data )[21], 1e-9 );
         TS_ASSERT( success );
 
         TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0.3, 0.4, 0.5 ), &success ), 9.8, 1e-9 );

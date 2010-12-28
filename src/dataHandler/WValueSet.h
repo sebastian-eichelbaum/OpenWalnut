@@ -27,6 +27,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <boost/shared_ptr.hpp>
 
 #include "../common/math/WValue.h"
 #include "../common/math/WVector3D.h"
@@ -47,6 +48,11 @@ template< typename T > class WValueSet : public WValueSetBase
 friend class WValueSetTest;
 
 public:
+    /**
+     * The type of the single value in this value set.
+     */
+    typedef T ValueT;
+
     /**
      * \class SubArray
      *
@@ -106,9 +112,9 @@ public:
      * \param order tensor order of values stored in the value set
      * \param dimension tensor dimension of values stored in the value set
      * \param data the vector holding the raw data
-     * \param inDataType indicator teeling us which dataType comes in
+     * \param inDataType indicator telling us which dataType comes in
      */
-    WValueSet( size_t order, size_t dimension, const std::vector< T > data, dataType inDataType )
+    WValueSet( size_t order, size_t dimension, const boost::shared_ptr< std::vector< T > > data, dataType inDataType )
         : WValueSetBase( order, dimension, inDataType ),
           m_data( data )
     {
@@ -116,7 +122,7 @@ public:
         // Calculating this once simply ensures that it does not need to be recalculated in textures, histograms ...
         m_minimum = wlimits::MAX_DOUBLE;
         m_maximum = wlimits::MIN_DOUBLE;
-        for ( typename std::vector< T >::const_iterator iter = data.begin(); iter != data.end(); ++iter )
+        for ( typename std::vector< T >::const_iterator iter = data->begin(); iter != data->end(); ++iter )
         {
             m_minimum = m_minimum > *iter ? *iter : m_minimum;
             m_maximum = m_maximum < *iter ? *iter : m_maximum;
@@ -150,7 +156,7 @@ public:
      */
     virtual size_t rawSize() const
     {
-        return m_data.size();
+        return (*m_data.get()).size();
     }
 
     /**
@@ -159,7 +165,7 @@ public:
      */
     virtual T getScalar( size_t i ) const
     {
-        return m_data[i];
+        return (*m_data.get())[i];
     }
 
     /**
@@ -168,7 +174,16 @@ public:
      */
     virtual double getScalarDouble( size_t i ) const
     {
-        return static_cast< double >( m_data[i] );
+        return static_cast< double >( (*m_data.get())[i] );
+    }
+
+    /**
+     * \param i id of the WValue to retrieve
+     * \return The i-th WValue stored in this value set. There are size() such scalars.
+     */
+    virtual wmath::WValue< double > getWValueDouble( size_t i ) const
+    {
+        return wmath::WValue< double >( getWValue( i ) );
     }
 
     /**
@@ -195,7 +210,7 @@ public:
      */
     const T * rawData() const
     {
-        return &m_data[0];
+        return &(*m_data.get())[0];
     }
 
     /**
@@ -203,7 +218,7 @@ public:
      */
     const std::vector< T >* rawDataVectorPointer() const
     {
-        return &m_data;
+        return &(*m_data.get());
     }
 
     /**
@@ -246,7 +261,6 @@ public:
     }
 
 protected:
-
     /**
      * The smallest value in m_data.
      */
@@ -261,21 +275,31 @@ private:
     /**
      * Stores the values of type T as simple array which never should be modified.
      */
-    const std::vector< T > m_data;  // WARNING: don't remove constness since &m_data[0] won't work anymore!
+    const boost::shared_ptr< std::vector< T > > m_data;  // WARNING: don't remove constness since &m_data[0] won't work anymore!
+
+    /**
+     * Get a variant reference to this valueset (the reference is stored in the variant).
+     * \note Use this as a temporary object inside a function or something like that.
+     * \return var A variant reference.
+     */
+    virtual WValueSetVariant const getVariant() const
+    {
+        return WValueSetVariant( this );
+    }
 };
 
 template< typename T > wmath::WVector3D WValueSet< T >::getVector3D( size_t index ) const
 {
     WAssert( m_order == 1 && m_dimension == 3, "WValueSet<T>::getVector3D only implemented for order==1, dim==3 value sets" );
-    WAssert( ( index + 1 ) * 3 <= m_data.size(), "index in WValueSet<T>::getVector3D too big" );
+    WAssert( ( index + 1 ) * 3 <= m_data->size(), "index in WValueSet<T>::getVector3D too big" );
     size_t offset = index * 3;
-    return wmath::WVector3D( m_data[ offset ], m_data[ offset + 1 ], m_data[ offset + 2 ] );
+    return wmath::WVector3D( ( *m_data )[offset], ( *m_data )[offset + 1], ( *m_data )[offset + 2] );
 }
 
 template< typename T > wmath::WValue< T > WValueSet< T >::getWValue( size_t index ) const
 {
     WAssert( m_order == 1, "WValueSet<T>::getWValue only implemented for order==1 value sets" );
-    WAssert( ( index + 1 ) * m_dimension <= m_data.size(), "index in WValueSet<T>::getWValue too big" );
+    WAssert( ( index + 1 ) * m_dimension <= m_data->size(), "index in WValueSet<T>::getWValue too big" );
 
     size_t offset = index * m_dimension;
 
@@ -283,7 +307,7 @@ template< typename T > wmath::WValue< T > WValueSet< T >::getWValue( size_t inde
 
     // copying values
     for ( std::size_t i = 0; i < m_dimension; i++ )
-      result[i] = m_data[ offset+i ];
+        result[i] = ( *m_data )[offset+i];
 
     return result;
 }

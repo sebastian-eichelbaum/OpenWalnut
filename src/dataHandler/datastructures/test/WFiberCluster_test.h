@@ -87,7 +87,7 @@ public:
      */
     void testCenterLine( void )
     {
-        wmath::WFiber expected;
+        WFiber expected;
         expected.push_back( wmath::WPosition( 0,                                                                                           1, 0 ) );
 #ifndef _MSC_VER
         expected.push_back( wmath::WPosition( ( ( 9.0 - 3 * std::sqrt( 2 ) ) / 4.0 - 1.0 ) / 2.0 + 1,                                    1.5, 0 ) );
@@ -132,7 +132,7 @@ public:
      */
     void testUnifyDirectionOnTwoConsecutiveFibers( void )
     {
-        wmath::WFiber a;
+        WFiber a;
         a.push_back( wmath::WPosition(  0, 0, 0 ) );
         a.push_back( wmath::WPosition(  1, 0, 0 ) );
         a.push_back( wmath::WPosition(  2, 0, 0 ) );
@@ -140,7 +140,7 @@ public:
         a.push_back( wmath::WPosition(  4, 0, 0 ) );
         a.push_back( wmath::WPosition(  5, 0, 0 ) );
         a.push_back( wmath::WPosition(  6, 0, 0 ) );
-        wmath::WFiber b;
+        WFiber b;
         b.push_back( wmath::WPosition( 10, 0, 0 ) );
         b.push_back( wmath::WPosition( 11, 0, 0 ) );
         b.push_back( wmath::WPosition( 12, 0, 0 ) );
@@ -181,14 +181,14 @@ public:
      */
     void testUnifyDirectionOnTwoCSTShapedFibers( void )
     {
-        wmath::WFiber a;
+        WFiber a;
         a.push_back( wmath::WPosition(  0,  0, 0 ) );
         a.push_back( wmath::WPosition(  5,  1, 0 ) );
         a.push_back( wmath::WPosition(  8,  3, 0 ) );
         a.push_back( wmath::WPosition( 11,  7, 0 ) );
         a.push_back( wmath::WPosition( 11, 10, 0 ) );
         a.push_back( wmath::WPosition( 11, 12, 0 ) );
-        wmath::WFiber b;
+        WFiber b;
         b.push_back( wmath::WPosition( 23,  0, 0 ) );
         b.push_back( wmath::WPosition( 19,  2, 0 ) );
         b.push_back( wmath::WPosition( 17,  5, 0 ) );
@@ -227,7 +227,7 @@ public:
      */
     void testUnifyDirectionOnTwoCircularShapedFibersInSameCircle( void )
     {
-        wmath::WFiber a;
+        WFiber a;
         a.push_back( wmath::WPosition( 14,  0, 0 ) );
         a.push_back( wmath::WPosition(  5,  1, 0 ) );
         a.push_back( wmath::WPosition(  2,  4, 0 ) );
@@ -236,7 +236,7 @@ public:
         a.push_back( wmath::WPosition( 19, 10, 0 ) );
         a.push_back( wmath::WPosition( 24,  8, 0 ) );
         a.push_back( wmath::WPosition( 23,  4, 0 ) );
-        wmath::WFiber b;
+        WFiber b;
         b.push_back( wmath::WPosition( 13,  2, 0 ) );
         b.push_back( wmath::WPosition(  7,  4, 0 ) );
         b.push_back( wmath::WPosition(  6,  8, 0 ) );
@@ -280,7 +280,7 @@ public:
      */
     void testUnifyDirectionOnTwoCircularShapedFibersInDifferentCircle( void )
     {
-        wmath::WFiber a;
+        WFiber a;
         a.push_back( wmath::WPosition(  6,  6, 0 ) );
         a.push_back( wmath::WPosition(  3,  5, 0 ) );
         a.push_back( wmath::WPosition(  2,  3, 0 ) );
@@ -290,7 +290,7 @@ public:
         a.push_back( wmath::WPosition( 14,  2, 0 ) );
         a.push_back( wmath::WPosition( 13,  4, 0 ) );
         a.push_back( wmath::WPosition( 11,  6, 0 ) );
-        wmath::WFiber b;
+        WFiber b;
         b.push_back( wmath::WPosition(  6,  7, 0 ) );
         b.push_back( wmath::WPosition(  3,  9, 0 ) );
         b.push_back( wmath::WPosition(  1, 11, 0 ) );
@@ -333,14 +333,14 @@ public:
      */
     void testUnifyDirectionOnTwoInverseCSTShapedFibers( void )
     {
-        wmath::WFiber a;
+        WFiber a;
         a.push_back( wmath::WPosition(  1, 12, 0 ) );
         a.push_back( wmath::WPosition(  1,  9, 0 ) );
         a.push_back( wmath::WPosition(  2,  5, 0 ) );
         a.push_back( wmath::WPosition(  5,  1, 0 ) );
         a.push_back( wmath::WPosition(  9,  0, 0 ) );
         a.push_back( wmath::WPosition( 14,  0, 0 ) );
-        wmath::WFiber b;
+        WFiber b;
         b.push_back( wmath::WPosition( 19,  0, 0 ) );
         b.push_back( wmath::WPosition( 24,  0, 0 ) );
         b.push_back( wmath::WPosition( 29,  2, 0 ) );
@@ -371,7 +371,7 @@ private:
     void assert_equals_delta( const wmath::WLine& first, const wmath::WLine& second, double delta = wlimits::DBL_EPS ) const
     {
         int diffPos = 0;
-        if( ( diffPos = first.equalsDelta( second, delta ) ) != -1 )
+        if( ( diffPos =  wmath::equalsDelta( first, second, delta ) ) != -1 )
         {
             using string_utils::operator<<;
             std::stringstream msg;
@@ -411,7 +411,7 @@ private:
     void setUp( void )
     {
         // generate fiber dataset to operate on
-        wmath::WFiber fib_a;
+        WFiber fib_a;
         fib_a.push_back( wmath::WPosition( 0, 0, 0 ) );
         fib_a.push_back( wmath::WPosition( 1, 1, 0 ) );
         fib_a.push_back( wmath::WPosition( 2, 1, 0 ) );
@@ -419,7 +419,7 @@ private:
         fib_a.push_back( wmath::WPosition( 4, 1, 0 ) );
         fib_a.push_back( wmath::WPosition( 5, 1, 0 ) );
         fib_a.push_back( wmath::WPosition( 6, 1, 0 ) );
-        wmath::WFiber fib_b;
+        WFiber fib_b;
         fib_b.push_back( wmath::WPosition( 0, 2, 0 ) );
         fib_b.push_back( wmath::WPosition( 2, 2, 0 ) );
         fib_b.push_back( wmath::WPosition( 4, 2, 0 ) );

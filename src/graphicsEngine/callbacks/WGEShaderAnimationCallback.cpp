@@ -22,13 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
+#include <ctime>
+#include <iostream>
+
+#include "boost/date_time/posix_time/posix_time.hpp"
+
 #include "WGEShaderAnimationCallback.h"
 
 WGEShaderAnimationCallback::WGEShaderAnimationCallback( int ticksPerSecond ):
     osg::Uniform::Callback(),
-    m_ticksPerSec( ticksPerSecond )
+    m_start( boost::posix_time::microsec_clock::local_time() ),
+    m_ticksPerSec( ticksPerSecond ),
+    m_tickMillisecRatio( static_cast< double >( ticksPerSecond ) / 1000.0 )
 {
-    m_timer.restart();
 }
 
 WGEShaderAnimationCallback::~WGEShaderAnimationCallback()
@@ -38,8 +44,15 @@ WGEShaderAnimationCallback::~WGEShaderAnimationCallback()
 
 void WGEShaderAnimationCallback::operator() ( osg::Uniform* uniform, osg::NodeVisitor* /*nv*/ )
 {
-    // boost::timer measures seconds ...
-    int ticks = static_cast< int >( m_timer.elapsed() * m_ticksPerSec );
+    // according to boost doc, this is available on windows too! From boost doc "Get the local time using a sub second resolution clock. On Unix
+    // systems this is implemented using GetTimeOfDay. On most Win32 platforms it is implemented using ftime. Win32 systems often do not achieve
+    // microsecond resolution via this API. If higher resolution is critical to your application test your platform to see the achieved resolution.
+    // -> fortunately, millisecond resolution is enough here.
+    boost::posix_time::ptime t = boost::posix_time::microsec_clock::local_time();
+
+    boost::posix_time::time_duration td = t - m_start;
+    int ticks = static_cast< int >( static_cast< double >( td.total_milliseconds() ) * m_tickMillisecRatio );
+
     uniform->set( ticks );
 }
 

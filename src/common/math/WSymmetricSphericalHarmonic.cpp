@@ -28,10 +28,12 @@
 
 #include "stdint.h"
 
+#include "../exceptions/WPreconditionNotMet.h"
 #include "WLinearAlgebraFunctions.h"
 #include "WMatrix.h"
 #include "WUnitSphereCoordinates.h"
 #include "WValue.h"
+#include "WTensorSym.h"
 
 #include "WSymmetricSphericalHarmonic.h"
 
@@ -307,4 +309,60 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order 
     }
     return result;
 }
-} // Namespace WMath
+
+#ifdef OW_USE_OSSIM
+
+wmath::WMatrix< double > WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( std::size_t order,
+                                                                               const std::vector< wmath::WUnitSphereCoordinates >& orientations )
+{
+    std::size_t numElements = ( order + 1 ) * ( order + 2 ) / 2;
+    WPrecondEquals( order % 2, 0u );
+    WPrecondLess( numElements, orientations.size() + 1 );
+
+    // store first numElements orientations as 3d-vectors
+    std::vector< wmath::WVector3D > directions( numElements );
+    for( std::size_t i = 0; i < numElements; ++i )
+    {
+        directions[ i ] = orientations[ i ].getEuclidean();
+    }
+
+    // initialize an index array
+    std::vector< std::size_t > indices( order, 0 );
+
+    // calc tensor evaluation matrix
+    wmath::WMatrix< double > TEMat( numElements, numElements );
+    for( std::size_t j = 0; j < numElements; ++j ) // j is the 'permutation index'
+    {
+        // stores how often each value is represented in the index array
+        std::size_t amount[ 3 ] = { 0, 0, 0 };
+        for( std::size_t k = 0; k < order; ++k )
+        {
+            ++amount[ indices[ k ] ];
+        }
+
+        // from WTensorSym.h
+        std::size_t multiplicity = calcSupersymmetricTensorMultiplicity( order, amount[ 0 ], amount[ 1 ], amount[ 2 ] );
+        for( std::size_t i = 0; i < numElements; ++i ) // i is the 'direction index'
+        {
+            TEMat( i, j ) = multiplicity;
+            for( std::size_t k = 0; k < order; ++k )
+            {
+                TEMat( i, j ) *= directions[ i ][ indices[ k ] ];
+            }
+        }
+
+        // from TensorBase.h
+        positionIterateSortedOneStep( order, 3, indices );
+    }
+    directions.clear();
+
+    // we do not want more orientations than nessessary
+    std::vector< wmath::WUnitSphereCoordinates > ori2( orientations.begin(), orientations.begin() + numElements );
+
+    wmath::WMatrix< double > p = wmath::pseudoInverse( TEMat );
+
+    return p * calcBaseMatrix( ori2, order );
+}
+#endif // OW_USE_OSSIM
+// NOLINT
+} // Namespace wmath

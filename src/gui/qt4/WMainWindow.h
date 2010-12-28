@@ -42,18 +42,19 @@
 
 #include "../../common/WProjectFileIO.h"
 #include "../../kernel/WModule.h"
-#include "controlPanel/WQtControlPanel.h"
-#include "ribbonMenu/WQtRibbonMenu.h"
 #include "WIconManager.h"
+#include "WQtCombinerToolbar.h"
 #include "WQtConfigWidget.h"
 #include "WQtCustomDockWidget.h"
+#include "WQtGLWidget.h"
 #include "WQtNavGLWidget.h"
 #include "WQtToolBar.h"
-#include "WQtCombinerToolbar.h"
+#include "controlPanel/WQtControlPanel.h"
+#include "ribbonMenu/WQtRibbonMenu.h"
 
 // forward declarations
 class QMenuBar;
-class WQtGLWidget;
+class WQtPropertyBoolAction;
 
 /**
  * This class contains the main window and the layout of the widgets within the window.
@@ -162,6 +163,13 @@ public:
      */
     void setCompatiblesToolbar( WQtCombinerToolbar* toolbar = NULL );
 
+    /**
+     * This method returns the a pointer to the current compatibles toolbar.
+     *
+     * \return a pointer to the current compatibles toolbar.
+     */
+    WQtCombinerToolbar* getCompatiblesToolbar();
+
 protected:
 
     /**
@@ -170,6 +178,12 @@ protected:
      * \param module the module to setup the GUI for.
      */
     void moduleSpecificSetup( boost::shared_ptr< WModule > module );
+    /**
+     * Cleanup the GUI by handling special modules. NavSlices for example remove several toolbar buttons.
+     *
+     * \param module the module to setup the GUI for.
+     */
+    void moduleSpecificCleanup( boost::shared_ptr< WModule > module );
 
     /**
      * We want to react on close events.
@@ -214,6 +228,16 @@ public slots:
      * gets called when menu entry "About OpenWalnut" is activated
      */
     void openAboutDialog();
+
+    /**
+     * Gets called when menu entry "About Qt" is activated
+     */
+    void openAboutQtDialog();
+
+    /**
+     * Gets called when menu entry "OpenWalnut Introduction" is activated
+     */
+    void openIntroductionDialog();
 
     /**
      * Sets the left preset view of the main viewer.
@@ -281,12 +305,6 @@ public slots:
     void projectSaveModuleOnly();
 
     /**
-     * Sets that a fiber data set has already been loaded. Thi shelps to prevent multiple fiber data sets to be loaded.
-     * \param flag Indicates how to set the internal state.
-     */
-    void setFibersLoaded( bool flag );
-
-    /**
      * Gets called when menu option or toolbar button load is activated
      */
     void openConfigDialog();
@@ -324,12 +342,6 @@ private:
     boost::shared_ptr< WQtConfigWidget > m_configWidget;
 
     /**
-     * Used to ensure that only one fiber dataset can be loaded since the
-     * ROIManager is not known to work with more than one fiber dataset
-     */
-    bool m_fibLoaded; // TODO(all): remove this when its possible to display more than one fiber dataset
-
-    /**
      * All registered WQtCustomDockWidgets.
      */
     std::map< std::string, boost::shared_ptr< WQtCustomDockWidget > > m_customDockWidgets;
@@ -348,6 +360,12 @@ private:
      * \param proto the prototype to combine with the module.
      */
     void autoAdd( boost::shared_ptr< WModule > module, std::string proto );
+
+    /**
+     * Map holding the actions for module properties added automatically. So they can be removed again automatically
+     * if the module is removed.
+     */
+    std::map< boost::shared_ptr< WPropertyBase >, WQtPropertyBoolAction* > propertyActionMap;
 };
 
 #endif  // WMAINWINDOW_H

@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#ifdef USEOSSIM
+#ifdef OW_USE_OSSIM
 
 #include <ossim/matrix/newmat.h>
 #include <ossim/matrix/newmatap.h>

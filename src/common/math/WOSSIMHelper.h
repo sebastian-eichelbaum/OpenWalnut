@@ -25,7 +25,7 @@
 #ifndef WOSSIMHELPER_H
 #define WOSSIMHELPER_H
 
-#ifdef USEOSSIM
+#ifdef OW_USE_OSSIM
 
 #include <matrix/newmat.h>
 

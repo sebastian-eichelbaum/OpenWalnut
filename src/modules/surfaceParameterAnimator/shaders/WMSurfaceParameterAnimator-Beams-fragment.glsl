@@ -286,10 +286,9 @@ void main()
             // the current time step:
             float timeStep = u_animationTime / 4.0; // scale 100th of a second to 25 times per second
 
-            //timeStep = 25;
             // create a triangle function increasing time in 1/100 steps
-            float relativeSpeed1 = 2.5; //float( u_speed1 ) / 12.5;
-            float relativeSpeed2 = 2.5; // float( u_speed2 ) / 12.5;
+            float relativeSpeed1 = float( u_speed1 ) / 2.0;
+            float relativeSpeed2 = float( u_speed2 ) / 2.0;
             float anim1 = ( int( timeStep * relativeSpeed1 ) % int( paramSpaceSize + maxSize + 30 ) ) - maxSize / 2.0;
             float anim2 = ( int( timeStep * relativeSpeed2 ) % int( paramSpaceSize + maxSize + 30 ) ) - maxSize / 2.0;
 

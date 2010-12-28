@@ -40,7 +40,7 @@
 #include "../../graphicsEngine/WROIArbitrary.h"
 #include "../../graphicsEngine/WROIBox.h"
 
-#include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
+#include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
 
 #include "WMArbitraryRois.h"
 #include "WMArbitraryRois.xpm"
@@ -101,10 +101,11 @@ void WMArbitraryRois::connectors()
 
 void WMArbitraryRois::properties()
 {
-    m_aTrigger = m_properties->addProperty( "Create", "Create a ROI", WPVBaseTypes::PV_TRIGGER_READY  );
-    m_bTrigger = m_properties->addProperty( "Finalize", "Finalize and add to ROI manager", WPVBaseTypes::PV_TRIGGER_READY  );
-    m_threshold = m_properties->addProperty( "Threshold", "", 0. );
-    m_surfaceColor = m_properties->addProperty( "Surface color", "", WColor( 1.0, 0.3, 0.3, 1.0 ) );
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    m_finalizeTrigger = m_properties->addProperty( "Finalize", "Finalize and add to ROI manager", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+    m_threshold = m_properties->addProperty( "Threshold", "", 1.0, m_propCondition );
+    m_surfaceColor = m_properties->addProperty( "Surface color", "", WColor( 1.0, 0.3, 0.3, 1.0 ), m_propCondition );
 
     WModule::properties();
 }
@@ -113,6 +114,7 @@ void WMArbitraryRois::moduleMain()
 {
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_propCondition );
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_recompute );
 
@@ -136,30 +138,26 @@ void WMArbitraryRois::moduleMain()
 
             m_threshold->setMin( m_dataSet->getMin() );
             m_threshold->setMax( m_dataSet->getMax() );
-            m_threshold->set( 0. );
+            m_threshold->set( ( m_dataSet->getMax() - m_dataSet->getMin() ) / 2.0 );
 
             initSelectionRoi();
         }
-        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
-        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
 
-        if ( m_aTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if ( m_threshold->changed() )
         {
-            debugLog() << "Creating cut dataset.";
+            m_threshold->get( true );
             m_showSelector = true;
             createCutDataset();
             renderMesh();
-            m_aTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
         }
 
-        if ( m_bTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if ( m_finalizeTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            debugLog() << "Creating cut dataset.";
             m_showSelector = false;
             createCutDataset();
             renderMesh();
             finalizeRoi();
-            m_bTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+            m_finalizeTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
         }
 
         //m_moduleState.wait();
@@ -193,7 +191,7 @@ void WMArbitraryRois::createCutDataset()
     size_t vDim = ( *m_dataSet ).getValueSet()->dimension();
 
     float threshold = m_threshold->get();
-    std::vector< float > data;
+    boost::shared_ptr< std::vector< float > > data = boost::shared_ptr< std::vector< float > >( new std::vector< float >() );
 
     switch( ( *m_dataSet ).getValueSet()->getDataType() )
     {
@@ -242,15 +240,15 @@ void WMArbitraryRois::createCutDataset()
             WAssert( false, "Unknown data type in MarchingCubes module" );
     }
     m_newValueSet = boost::shared_ptr< WValueSet< float > >( new WValueSet< float >( order, vDim, data, W_DT_FLOAT ) );
-    WMarchingCubesAlgorithm mcAlgo;
-    m_triMesh = mcAlgo.generateSurface( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(),
+    WMarchingLegoAlgorithm mlAlgo;
+    m_triMesh = mlAlgo.generateSurface( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(),
                                         grid->getTransformationMatrix(),
                                         m_newValueSet->rawDataVectorPointer(),
-                                        threshold,
-                                        m_progress );
+                                        threshold );
 }
 
-template< typename T > std::vector< float > WMArbitraryRois::cutArea( boost::shared_ptr< WGrid > inGrid, boost::shared_ptr< WValueSet< T > > vals )
+template< typename T >
+boost::shared_ptr< std::vector< float > > WMArbitraryRois::cutArea( boost::shared_ptr< WGrid > inGrid, boost::shared_ptr< WValueSet< T > > vals )
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( inGrid );
 
@@ -269,17 +267,18 @@ template< typename T > std::vector< float > WMArbitraryRois::cutArea( boost::sha
     size_t yMax = static_cast<size_t>( m_selectionRoi->getMaxPos()[1] / dy );
     size_t zMax = static_cast<size_t>( m_selectionRoi->getMaxPos()[2] / dz );
 
-    std::vector< float >newVals( nx * ny * nz, 0 );
+    boost::shared_ptr< std::vector< float > > newVals = boost::shared_ptr< std::vector< float > >( new std::vector< float >( nx * ny * nz, 0 ) );
 
-    for ( size_t z = 0; z < nz; ++z )
+    size_t x, y, z;
+    for ( z = 0; z < nz; ++z )
     {
-        for ( size_t y = 0 ; y < ny; ++y )
+        for ( y = 0 ; y < ny; ++y )
         {
-            for ( size_t x = 0 ; x < nx; ++x )
+            for ( x = 0 ; x < nx; ++x )
             {
                  if ( ( x > xMin ) && ( x < xMax ) && ( y > yMin ) && ( y < yMax ) && ( z > zMin ) && ( z < zMax ) )
                  {
-                     newVals[ x + nx * y + nx * ny * z ] = static_cast<float>( vals->getScalar( x + nx * y + nx * ny * z ) );
+                     ( *newVals )[ x + nx * y + nx * ny * z ] = static_cast< float >( vals->getScalar( x + nx * y + nx * ny * z ) );
                  }
             }
         }
@@ -352,12 +351,6 @@ void WMArbitraryRois::finalizeRoi()
         return;
     }
 
-    if( !WKernel::getRunningKernel()->getRoiManager()->getBitField() )
-    {
-        wlog::warn( "WMArbitraryRois" ) << "Refused to add ROI, as ROIManager does not have computed its bitfield yet.";
-        return;
-    }
-
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
     osg::ref_ptr< WROI > newRoi = osg::ref_ptr< WROI >( new WROIArbitrary(  grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ(),
                                                                             grid->getTransformationMatrix(),
@@ -372,7 +365,7 @@ void WMArbitraryRois::finalizeRoi()
     }
     else
     {
-        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi()->getROI() );
+        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() );
     }
 }
 

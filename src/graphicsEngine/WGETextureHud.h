@@ -184,6 +184,13 @@ public:
      */
     void coupleViewportWithTextureViewport( bool couple = true );
 
+    /**
+     * Returns the render bin used by the HUD.
+     *
+     * \return the bin number
+     */
+    size_t getRenderBin() const;
+
 protected:
 
     /**
@@ -196,6 +203,11 @@ protected:
      * The maximum element width.
      */
     unsigned int m_maxElementWidth;
+
+    /**
+     * The render bin to use
+     */
+    size_t m_renderBin;
 
     /**
      * The current viewport of

@@ -27,11 +27,11 @@
 #include "WTreeItemTypes.h"
 #include "WQtRoiTreeItem.h"
 
-WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, boost::shared_ptr< WRMROIRepresentation > roi, WTreeItemType type ) :
+WQtRoiTreeItem::WQtRoiTreeItem( QTreeWidgetItem * parent, osg::ref_ptr< WROI > roi, WTreeItemType type ) :
     QTreeWidgetItem( parent, type ),
     m_roi( roi )
 {
-    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable );
+    setFlags( Qt::ItemIsEditable | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsDragEnabled );
 
     if ( m_roi->getProperties()->getProperty( "active" )->toPropBool()->get() )
     {
@@ -47,7 +47,7 @@ WQtRoiTreeItem::~WQtRoiTreeItem()
 {
 }
 
-boost::shared_ptr< WRMROIRepresentation > WQtRoiTreeItem::getRoi()
+osg::ref_ptr< WROI > WQtRoiTreeItem::getRoi()
 {
     return m_roi;
 }

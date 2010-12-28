@@ -93,7 +93,16 @@ public:
      * \param key The name of the define
      * \param value The value of the define. If this is not specified, the define can be used as simple ifdef switch.
      */
-    void setDefine( std::string key, float value = 1.0 );
+    template < typename T >
+    void setDefine( std::string key, T value );
+
+    /**
+     * Sets a define which is include into the shader source code. This allows the preprocessor to turn on/off several parts of your code. In GLSL
+     * defines are a better choice when compared with a lot of branches (if-statements).
+     *
+     * \param key The name of the define
+     */
+    void setDefine( std::string key );
 
     /**
      * Deletes a define from the internal list
@@ -164,7 +173,7 @@ protected:
     /**
      * a map of all set defines
      */
-    std::map< std::string, float > m_defines;
+    std::map< std::string, std::string > m_defines;
 
     /**
      * the vertex shader object
@@ -215,6 +224,16 @@ protected:
 
 private:
 };
+
+template < typename T >
+void WShader::setDefine( std::string key, T value )
+{
+    if ( key.length() > 0 )
+    {
+        m_defines[key] = boost::lexical_cast< std::string >( value );
+        m_reload = true;
+    }
+}
 
 #endif  // WSHADER_H
 

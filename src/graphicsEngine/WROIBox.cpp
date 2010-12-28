@@ -174,14 +174,15 @@ WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
 
-    m_isModified = true;
-    m_isNot = false;
+    m_not->set( false );
 
     assert( WGraphicsEngine::getGraphicsEngine() );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( this );
 
     setUserData( this );
     setUpdateCallback( osg::ref_ptr<ROIBoxNodeCallback>( new ROIBoxNodeCallback ) );
+
+    setDirty();
 }
 
 WROIBox::~WROIBox()
@@ -276,7 +277,7 @@ void WROIBox::updateGFX()
             if( m_pickInfo.getModifierKey() == WPickInfo::NONE )
             {
                 osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-                if ( m_isNot )
+                if ( m_not->get() )
                 {
                     colors->push_back( m_notColor );
                 }
@@ -294,17 +295,17 @@ void WROIBox::updateGFX()
             }
         }
         m_oldPixelPosition = newPixelPos;
-        m_isModified = true;
+        setDirty();
         m_isPicked = true;
 
-        m_signalIsModified();
+        signalRoiChange();
     }
     if ( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
         // Perform all actions necessary for finishing a pick
 
         osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-        if ( m_isNot )
+        if ( m_not->get() )
         {
             colors->push_back( m_notColor );
         }
@@ -317,10 +318,10 @@ void WROIBox::updateGFX()
         m_isPicked = false;
     }
 
-    if ( isModified() )
+    if ( m_dirty->get() )
     {
         osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-        if ( m_isNot )
+        if ( m_not->get() )
         {
             colors->push_back( m_notColor );
         }

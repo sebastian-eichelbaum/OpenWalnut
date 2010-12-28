@@ -242,7 +242,7 @@ private:
      */
     void initUniforms( osg::StateSet* rootState );
 
-    std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
+    std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for comparison
     bool m_isPicked; //!< Indicates whether a slice is currently picked or not.
     bool m_isPickedSagittal; //!< Indicates whether a sagittal slice is currently picked or not.
     bool m_isPickedCoronal; //!< Indicates whether coronal slice is currently picked or not.
@@ -340,8 +340,6 @@ private:
      */
     static bool m_navsliceRunning;
 
-    static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
-
     /**
     * Current width of the axial widget
     */
@@ -380,8 +378,8 @@ private:
         friend class WMNavSlices;
     public:
         /**
-        * userData Constructur with shared pointer to module
-        * \param _parent pointer to the module 
+        * userData Constructor with shared pointer to module
+        * \param _parent pointer to the module
         */
         explicit userData( boost::shared_ptr< WMNavSlices > _parent )
         {

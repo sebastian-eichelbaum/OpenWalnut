@@ -103,6 +103,7 @@ void WApplyCombiner::apply()
     // and connect them finally:
     if ( srcModule && targetModule )
     {
+        targetModule->getInputConnector( m_targetConnector )->disconnectAll(); // before connecting, remove existing connection on input
         targetModule->getInputConnector( m_targetConnector )->connect( srcModule->getOutputConnector( m_srcConnector ) );
     }
 }

@@ -88,6 +88,8 @@ public:
     /**
      * Compute the cross product of the current WVector3D with the parameter.
      * \param factor2 This vector will be multiplied with the current vector. (right hand side of the product)
+     *
+     * \return the crossproduct
      */
     const WVector3D crossProduct( const WVector3D& factor2 ) const;
 

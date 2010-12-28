@@ -32,7 +32,7 @@
 #include "../common/math/WPosition.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
-#include "WTriangleMesh2.h"
+#include "WTriangleMesh.h"
 #include "exceptions/WGEException.h"
 
 osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< wmath::WPosition >& corners )
@@ -40,35 +40,35 @@ osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< wmat
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
 
     // Surfaces
-    vertices->push_back( wge::osgVec3( corners[0] ) );
-    vertices->push_back( wge::osgVec3( corners[1] ) );
-    vertices->push_back( wge::osgVec3( corners[2] ) );
-    vertices->push_back( wge::osgVec3( corners[3] ) );
+    vertices->push_back( corners[0] );
+    vertices->push_back( corners[1] );
+    vertices->push_back( corners[2] );
+    vertices->push_back( corners[3] );
 
-    vertices->push_back( wge::osgVec3( corners[1] ) );
-    vertices->push_back( wge::osgVec3( corners[5] ) );
-    vertices->push_back( wge::osgVec3( corners[6] ) );
-    vertices->push_back( wge::osgVec3( corners[2] ) );
+    vertices->push_back( corners[1] );
+    vertices->push_back( corners[5] );
+    vertices->push_back( corners[6] );
+    vertices->push_back( corners[2] );
 
-    vertices->push_back( wge::osgVec3( corners[5] ) );
-    vertices->push_back( wge::osgVec3( corners[4] ) );
-    vertices->push_back( wge::osgVec3( corners[7] ) );
-    vertices->push_back( wge::osgVec3( corners[6] ) );
+    vertices->push_back( corners[5] );
+    vertices->push_back( corners[4] );
+    vertices->push_back( corners[7] );
+    vertices->push_back( corners[6] );
 
-    vertices->push_back( wge::osgVec3( corners[4] ) );
-    vertices->push_back( wge::osgVec3( corners[0] ) );
-    vertices->push_back( wge::osgVec3( corners[3] ) );
-    vertices->push_back( wge::osgVec3( corners[7] ) );
+    vertices->push_back( corners[4] );
+    vertices->push_back( corners[0] );
+    vertices->push_back( corners[3] );
+    vertices->push_back( corners[7] );
 
-    vertices->push_back( wge::osgVec3( corners[3] ) );
-    vertices->push_back( wge::osgVec3( corners[2] ) );
-    vertices->push_back( wge::osgVec3( corners[6] ) );
-    vertices->push_back( wge::osgVec3( corners[7] ) );
+    vertices->push_back( corners[3] );
+    vertices->push_back( corners[2] );
+    vertices->push_back( corners[6] );
+    vertices->push_back( corners[7] );
 
-    vertices->push_back( wge::osgVec3( corners[0] ) );
-    vertices->push_back( wge::osgVec3( corners[1] ) );
-    vertices->push_back( wge::osgVec3( corners[5] ) );
-    vertices->push_back( wge::osgVec3( corners[4] ) );
+    vertices->push_back( corners[0] );
+    vertices->push_back( corners[1] );
+    vertices->push_back( corners[5] );
+    vertices->push_back( corners[4] );
     return vertices;
 }
 
@@ -80,7 +80,7 @@ osg::Vec3 wge::getQuadNormal( const wmath::WPosition& a,
     wmath::WPosition vec2 = c - b;
     wmath::WPosition normal = vec2.crossProduct( vec1 );
     normal.normalize();
-    return wge::osgVec3( normal );
+    return normal;
 }
 
 osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector< wmath::WPosition >& corners )
@@ -96,7 +96,7 @@ osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector
     return vertices;
 }
 
-WTriangleMesh2 wge::triangulate( const std::vector< wmath::WPosition >& points, double transformationFactor )
+WTriangleMesh wge::triangulate( const std::vector< wmath::WPosition >& points, double transformationFactor )
 {
     WAssert( points.size() > 2, "The Delaunay triangulation needs at least 3 vertices!" );
 
@@ -151,7 +151,7 @@ WTriangleMesh2 wge::triangulate( const std::vector< wmath::WPosition >& points, 
     }
 
     // I needed this reconversion using osgVec3Array because the triangulator changed my positions somehow.
-    WTriangleMesh2 mesh( wge::osgVec3Array( points ), triangles );
+    WTriangleMesh mesh( wge::osgVec3Array( points ), triangles );
 
     return mesh;
 }

@@ -54,7 +54,7 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     update();
 
     // connect the modification signal of the edit and slider with our callback
-    connect( &m_slider, SIGNAL( sliderMoved( int ) ), this, SLOT( sliderChanged( int ) ) );
+    connect( &m_slider, SIGNAL( valueChanged( int ) ), this, SLOT( sliderChanged( int ) ) );
     connect( &m_edit, SIGNAL( editingFinished() ), this, SLOT( editChanged() ) );
     connect( &m_edit, SIGNAL( textEdited( const QString& ) ), this, SLOT( textEdited( const QString& ) ) );
 }
@@ -75,8 +75,7 @@ void WPropertyDoubleWidget::update()
     }
     else
     {
-        wlog::warn( "PropertyWidget( " + m_doubleProperty->getName() + " )" ) << "The property has no minimum constraint. " <<
-            "You should define it to avoid unexpected behaviour. Using default (" << m_min << ").";
+        m_slider.hide();
     }
 
     // get the max constraint
@@ -88,8 +87,7 @@ void WPropertyDoubleWidget::update()
     }
     else
     {
-        wlog::warn( "PropertyWidget( " + m_doubleProperty->getName() + " )" ) << "The property has no maximum constraint. " <<
-            "You should define it to avoid unexpected behaviour. Using default (" << m_max << ").";
+        m_slider.hide();
     }
 
     // setup the slider

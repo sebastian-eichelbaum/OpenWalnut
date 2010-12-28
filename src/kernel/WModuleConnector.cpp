@@ -136,22 +136,40 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
     }
 
     boost::unique_lock<boost::shared_mutex> lock;
+    boost::unique_lock<boost::shared_mutex> lockRemote;
     try
     {
-        // TODO(ebaum): really ensure that only one connection is possible for inputs...
-        // add to list
+        // get locks
         lock = boost::unique_lock<boost::shared_mutex>( m_connectionListLock );
-        m_connected.insert( con );
-        lock.unlock();
+        lockRemote = boost::unique_lock<boost::shared_mutex>( con->m_connectionListLock );
 
-        // add to list of partner
-        lock = boost::unique_lock<boost::shared_mutex>( con->m_connectionListLock );
+        // is the input connected already?
+        if ( ( isInputConnector() && m_connected.size() ) || ( con->isInputConnector() && con->m_connected.size() ) )
+        {
+            throw WModuleConnectionFailed( std::string( "Input connector already connected. Disconnect it first." ) );
+        }
+
+        m_connected.insert( con );
         con->m_connected.insert( shared_from_this() );
+
         lock.unlock();
+        lockRemote.unlock();
+    }
+    catch( const WException& e )
+    {
+        lock.unlock();
+        lockRemote.unlock();
+
+        // undo changes
+        m_connected.erase( con );
+        con->m_connected.erase( con );
+
+        throw e;
     }
     catch( const std::exception& e )
     {
         lock.unlock();
+        lockRemote.unlock();
 
         // undo changes
         m_connected.erase( con );
@@ -164,6 +182,7 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
     catch( const boost::exception& e )
     {
         lock.unlock();
+        lockRemote.unlock();
 
         // undo changes
         m_connected.erase( con );
@@ -263,7 +282,9 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
         con->m_connected.erase( shared_from_this() );
         lock.unlock();
 
-        // signal closed connection
+        // signal "closed connection"
+        // NOTE: at this point, there might be an connected input connector even though we disconnected it. This is because of removeFromOwnList.
+        // The input connectors handle this with an additional member variable denoting their disconnect state
         signal_ConnectionClosed( shared_from_this(), con );
         con->signal_ConnectionClosed( shared_from_this(), con );
     }
