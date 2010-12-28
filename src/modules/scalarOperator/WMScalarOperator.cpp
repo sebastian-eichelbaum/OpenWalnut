@@ -120,7 +120,29 @@ void WMScalarOperator::properties()
  */
 namespace math
 {
-    using std::abs;
+    /**
+     * Absolute value of the specified parameter.
+     * \param u the value for which the absolute value should be returned
+     *
+     * \return absolute of u
+     */
+    template < typename T >
+    inline T wabs( T u )
+    {
+        return std::abs( u );
+    }
+
+    /**
+     * Absolute value of the specified parameter. This is a template specialization for std::abs as 64bit Ints are not supported everywhere.
+     *
+     * \param u the value for which the absolute value should be returned
+     *
+     * \return absolute of u
+     */
+    inline int64_t wabs( int64_t u )
+    {
+        return u < 0 ? -u : u;
+    }
 
     /**
      * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
@@ -129,7 +151,7 @@ namespace math
      *
      * \return absolute of u
      */
-    inline uint8_t abs( uint8_t u )
+    inline uint8_t wabs( uint8_t u )
     {
         return u;
     }
@@ -141,7 +163,7 @@ namespace math
      *
      * \return absolute of u
      */
-    inline uint16_t abs( uint16_t u )
+    inline uint16_t wabs( uint16_t u )
     {
         return u;
     }
@@ -153,7 +175,7 @@ namespace math
      *
      * \return absolute of u
      */
-    inline uint32_t abs( uint32_t u )
+    inline uint32_t wabs( uint32_t u )
     {
         return u;
     }
@@ -165,7 +187,7 @@ namespace math
      *
      * \return absolute of u
      */
-    inline uint64_t abs( uint64_t u )
+    inline uint64_t wabs( uint64_t u )
     {
         return u;
     }
@@ -183,11 +205,7 @@ namespace math
 template< typename T >
 inline T opAbsMinus( T a, T b )
 {
-#ifndef _MSC_VER
-    return math::abs( a - b );
-#else
-    return ( a - b ) < 0.0 ? -( a - b ) : ( a - b );
-#endif
+    return math::wabs( a - b );
 }
 
 /**
@@ -261,11 +279,7 @@ inline T opDiv( T a, T b )
 template< typename T >
 inline T opAbs( T a )
 {
-#ifndef _MSC_VER
-    return math::abs( a );
-#else
-    return a < 0.0 ? -a : a;
-#endif
+    return math::wabs( a );
 }
 
 /**
