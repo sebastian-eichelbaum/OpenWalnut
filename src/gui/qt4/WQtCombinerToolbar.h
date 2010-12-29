@@ -80,7 +80,7 @@ private:
 
     WMainWindow* m_parent; //!< The widget managing this widget.
 
-    WQtCombinerActionList m_actionList; //! keep track of added actions to allow them to be removed afterwards
+    WQtCombinerActionList m_actionList; //!< keep track of added actions to allow them to be removed afterwards
 };
 
 #endif  // WQTCOMBINERTOOLBAR_H
