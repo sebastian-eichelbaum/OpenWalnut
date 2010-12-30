@@ -121,7 +121,7 @@ void WMProbTractDisplaySP::properties()
     WModule::properties();
 }
 
-void WMProbTractDisplaySP::initOSG( boost::shared_ptr< WGridRegular3D > grid )
+void WMProbTractDisplaySP::initOSG( boost::shared_ptr< WGridRegular3D > /*grid*/ )
 {
     // remove the old slices
     m_output->clear();
