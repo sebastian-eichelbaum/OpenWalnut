@@ -121,7 +121,7 @@ public:
     virtual void disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList = true );
 
     /**
-     * Gives the currently set data.
+     * Gives the currently set data and resets the update flag.
      *
      * \return the data currently set. NULL if no data has been sent yet or the connector is unconnected.
      */
