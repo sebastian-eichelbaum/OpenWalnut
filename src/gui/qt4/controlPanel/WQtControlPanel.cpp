@@ -409,8 +409,9 @@ bool WQtControlPanel::event( QEvent* event )
         bool lastTreeItem = !findItemsByModule( module ).size();
         if ( lastTreeItem && ( module.use_count() != 1 ) )
         {
-            wlog::warn( "ControlPanel" ) << "Removed module has strange usage count: " << module.use_count() << ". Should be 1 here. " <<
+            wlog::error( "ControlPanel" ) << "Removed module has strange usage count: " << module.use_count() << ". Should be 1 here. " <<
                                               "Module reference is held by someone else.";
+            WAssert( false, "Removed module has strange usage count. Should be 1 here. Module reference is held by someone else." );
         }
 
         return true;
