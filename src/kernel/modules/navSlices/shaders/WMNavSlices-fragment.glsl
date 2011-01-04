@@ -85,9 +85,13 @@ uniform bool showComplete;
 
 void lookupTex( inout vec4 col, in int type, in sampler3D tex, in float threshold, in vec3 v, in float alpha, in int cmap )
 {
-    vec3 col1 = vec3( 0.0 );
+    vec4 col1 = vec4( 0.0 );
 
-    col1 = clamp( texture3D( tex, v ).rgb, 0.0, 1.0 );
+    col1 = clamp( texture3D( tex, v ), 0.0, 1.0 );
+    if( col1.a < 1.0 )
+    {
+        alpha = 0.0;
+    }
 
     if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
 
@@ -99,10 +103,10 @@ void lookupTex( inout vec4 col, in int type, in sampler3D tex, in float threshol
             if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
         }
 
-        colorMap( col1, col1.r, cmap );
+        colorMap( col1.rgb, col1.r, cmap );
     }
 
-    col.rgb = mix( col.rgb, col1.rgb, alpha );
+    col.rgba = mix( col, col1, alpha );
 }
 
 void main()
@@ -130,7 +134,9 @@ void main()
         else
         {
             if ( !showComplete )
-            discard;
+            {
+                discard;
+            }
         }
     }
 

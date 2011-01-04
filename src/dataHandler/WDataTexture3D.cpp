@@ -132,13 +132,21 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( unsigned char* sourc
     if ( components == 1 )
     {
         wlog::debug( "WDataTexture3D" ) << "Texture for scalar char data set.";
-        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_UNSIGNED_BYTE );
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE );
 
         unsigned char* data = ima->data();
 
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(); ++i )
         {
-            data[i] = source[i];
+            data[2*i] = source[i];
+            if( source[i] == m_minValue )
+            {
+                data[2*i + 1] =  0;
+            }
+            else
+            {
+                data[2*i + 1] =  255;
+            }
         }
     }
     else if ( components == 3 )
@@ -217,15 +225,24 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int16_t* source, int
             tempSource[i] *= mult;
         }
 
-        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_UNSIGNED_SHORT );
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE_ALPHA, GL_UNSIGNED_SHORT );
 
         unsigned char* data = ima->data();
 
         unsigned char* charSource = reinterpret_cast< unsigned char* >( &tempSource[0] );
 
-        for ( int i = 0; i < nSize * 2 ; ++i )
+        for ( int i = 0; i < nSize ; ++i )
         {
-            data[i] = charSource[i];
+            data[4*i] = charSource[2*i];
+            data[4*i+1] = charSource[2*i+1];
+            if( source[i] == m_minValue )
+            {
+                data[4*i + 2] =  0;
+                data[4*i + 3] =  0;
+            }
+            else
+                data[4*i + 2] =  255;
+                data[4*i + 3] =  255;
         }
     }
     else
@@ -252,13 +269,19 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( int* source, int com
         }
 
         // OpenGL just supports float textures
-        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_FLOAT );
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE_ALPHA, GL_FLOAT );
         float* data = reinterpret_cast< float* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
         {
-            data[i] = scaleInterval( tempSource[i] );
+            data[2*i] = scaleInterval( tempSource[i] );
+            if( tempSource[i] == m_minValue )
+            {
+                data[2*i + 1] =  0.0;
+            }
+            else
+                data[2*i + 1] =  1.0;
         }
     }
     else
@@ -277,13 +300,21 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( float* source, int c
     {
         wlog::debug( "WDataTexture3D" ) << "Texture for scalar float data set.";
         // OpenGL just supports float textures
-        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_FLOAT );
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE_ALPHA, GL_FLOAT );
         float* data = reinterpret_cast< float* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
         {
-            data[i] = scaleInterval( source[i] );
+            data[2*i] = scaleInterval( source[i] );
+            if( source[i] == m_minValue )
+            {
+                data[2*i + 1] =  0.0;
+            }
+            else
+            {
+                data[2*i + 1] =  1.0;
+            }
         }
     }
     else if ( components == 3 )
@@ -335,13 +366,21 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture3D( double* source, int 
     if ( components == 1)
     {
         // OpenGL just supports float textures
-        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, GL_FLOAT );
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE_ALPHA, GL_FLOAT );
         float* data = reinterpret_cast< float* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
         {
-            data[i] = scaleInterval( static_cast< float >( source[i] ) );
+            data[2*i] = scaleInterval( static_cast< float >( source[i] ) );
+            if( source[i] == m_minValue )
+            {
+                data[2*i + 1] =  0.0;
+            }
+            else
+            {
+                data[2*i + 1] =  1.0;
+            }
             //std::cout << static_cast< float >( source[i] ) << " - " << data[i] << std::endl;
         }
     }
