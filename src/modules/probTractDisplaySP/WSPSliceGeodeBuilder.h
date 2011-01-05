@@ -26,6 +26,7 @@
 #define WSPSLICEGEODEBUILDER_H
 
 #include <list>
+#include <utility>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -61,7 +62,13 @@ private:
      */
     typedef std::list< boost::shared_ptr< const WDataSetScalar > > ProbTractList;
 
+    /**
+     * Just a shorthand for a pair of osg::Geodes.
+     */
+    typedef std::pair< osg::ref_ptr< osg::Geode >, osg::ref_ptr< osg::Geode > > GeodePair;
+
 public:
+
     /**
      * Creates a geode builder to build axial, coronal and sagittal slices ala Schahmann y Pandya. After this initialization,
      * the user needs still to call the \ref determineIntersectingDeterministicTracts() member function in order to get
@@ -69,41 +76,24 @@ public:
      *
      * \param probTracts The list of probabilistic tractograms which should be taken into account.
      * \param detTracts The deterministic fibers which are used to show the probabilistic tracts.
-     * \param sliceGroup Slice positions, and slice flags (if to show or not)
+     * \param sliceGroup Slice positions
      */
     WSPSliceGeodeBuilder( ProbTractList probTracts, boost::shared_ptr< const WDataSetFibers > detTracts, WPropGroup sliceGroup );
-
-    /**
-     * Generates those special slice geodes for the sagittal slice. \ref generateSlice
-     *
-     * \param maxDistance specifies when the fibers should be cut off! Its a kind of environment around the slice.
-     *
-     * \return Geode representing a sagittal view ala Schahmann y Pandya.
-     */
-    osg::ref_ptr< osg::Geode > generateXSlice( double maxDistance = 1.0 ) const;
-
-    /**
-     * Generates those special slice geodes for the coronal slice. \ref generateSlice
-     *
-     * \param maxDistance specifies when the fibers should be cut off! Its a kind of environment around the slice.
-     *
-     * \return Geode representing a coronal view ala Schahmann y Pandya.
-     */
-    osg::ref_ptr< osg::Geode > generateYSlice( double maxDistance = 1.0 ) const;
-
-    /**
-     * Generates those special slice geodes for the axial slice. \ref generateSlice
-     *
-     * \param maxDistance specifies when the fibers should be cut off! Its a kind of environment around the slice.
-     *
-     * \return Geode representing an axial view ala Schahmann y Pandya.
-     */
-    osg::ref_ptr< osg::Geode > generateZSlice( double maxDistance = 1.0 ) const;
 
     /**
      * For each slice compute the deterministic trac indices which are intersecting with it.
      */
     void determineIntersectingDeterministicTracts();
+
+    /**
+     * Creates a geode for the given slice which depicts a limited envirnonment of its intersecting fibers but projected onto that slice.
+     *
+     * \param sliceNum 0 denotes xSlice, 1 ySlice and finally 2 means zSlice.
+     * \param maxDistance when the fibers should be cut off, best value is probably the 2*sampling distance of the fibers.
+     *
+asd     * \return A geode where the cutted intersecting fibers are projected onto the slice.
+     */
+    GeodePair generateSlices( const unsigned char sliceNum, const double maxDistance = 1.0 ) const;
 
 protected:
 
@@ -119,13 +109,13 @@ private:
     /**
      * Projects a given line strip onto the given slice simply by setting its components to the slice position.
      *
-     * \param component Which slice 0 == xSlice, 1 == ySlice and 2 == zSlice
+     * \param sliceNum Which slice 0 == xSlice, 1 == ySlice and 2 == zSlice
      * \param vertices Verices of the tract which needs to be transformed/projected.
      * \param slicePos The position of the slice.
      *
      * \note After calling this funtion the given vertices are lost!
      */
-    void projectTractOnSlice( unsigned char component, osg::ref_ptr< osg::Vec3Array > vertices, int slicePos ) const;
+    void projectTractOnSlice( const unsigned char sliceNum, osg::ref_ptr< osg::Vec3Array > vertices, const int slicePos ) const;
 
     /**
      * Computes the bouding boxes for the slices.
@@ -133,54 +123,6 @@ private:
      * \note Whenever the xPos, yPos or zPos of the slice change those have to be recomputed!
      */
     void computeSliceBB();
-
-    /**
-     * Creates a geode for the given slice which depicts a limited envirnonment of its intersecting fibers but projected onto that slice.
-     *
-     * \param intersections Indices for that slice where its deterministic tract do intersect with the BB of the slice.
-     * \param slicePos Current position of the slice ( either x value, y value or z value )
-     * \param component 0 denotes xSlice, 1 ySlice and finally 2 means zSlice.
-     * \param maxDistance when the fibers should be cut off, best value is probably the 2*sampling distance of the fibers.
-     *
-     * \return A geode where the cutted intersecting fibers are projected onto the slice.
-     */
-    osg::ref_ptr< osg::Geode > generateSlice( const std::list< size_t >& intersections, int slicePos, const WBoundingBox& bb,
-            unsigned char component, double maxDistance = 1.0 ) const;
-
-    /**
-     * List of deterministic tract indices which are intersecting the xSlice.
-     */
-    std::list< size_t > m_xIntersections;
-
-    /**
-     * List of deterministic tract indices which are intersecting the ySlice.
-     */
-    std::list< size_t > m_yIntersections;
-
-    /**
-     * List of deterministic tract indices which are intersecting the zSlice.
-     */
-    std::list< size_t > m_zIntersections;
-
-    /**
-     * For each deterministic tract its precomputed axis aligned bounding box.
-     */
-    std::vector< WBoundingBox > m_tractBB;
-
-    /**
-     * Axis aligned bounding box for the current xSlice.
-     */
-    WBoundingBox m_xSliceBB;
-
-    /**
-     * Axis aligned bounding box for the current ySlice.
-     */
-    WBoundingBox m_ySliceBB;
-
-    /**
-     * Axis aligned bounding box for the current zSlice.
-     */
-    WBoundingBox m_zSliceBB;
 
     /**
      * Reference to the deterministic tracts.
@@ -193,16 +135,26 @@ private:
     ProbTractList m_probTracts;
 
     /**
+     * Lists of deterministic tract indices which are intersecting each slice.
+     */
+    std::vector< std::list< size_t > > m_intersectionList;
+
+    /**
+     * For each deterministic tract its precomputed axis aligned bounding box.
+     */
+    std::vector< WBoundingBox > m_tractBB;
+
+    /**
+     * Axis aligned bounding box for each slice.
+     */
+    std::vector< WBoundingBox > m_sliceBB;
+
+    /**
      * The grid of the first tractogram. It is assumed that all given probablilisitc tractograms operate on the same grid.
      */
     boost::shared_ptr< const WGridRegular3D > m_grid;
 
-    boost::shared_ptr< const WPVInt >  m_xPos; //!< x position of the slice
-    boost::shared_ptr< const WPVInt >  m_yPos; //!< y position of the slice
-    boost::shared_ptr< const WPVInt >  m_zPos; //!< z position of the slice
-    boost::shared_ptr< const WPVBool > m_showonX; //!< indicates whether the vector should be shown on slice X
-    boost::shared_ptr< const WPVBool > m_showonY; //!< indicates whether the vector should be shown on slice Y
-    boost::shared_ptr< const WPVBool > m_showonZ; //!< indicates whether the vector should be shown on slice Z
+    std::vector< boost::shared_ptr< const WPVInt > >  m_slicePos; //!< Hold the current position of each slice given from the properties
 };
 
 #endif  // WSPSLICEGEODEBUILDER_H

@@ -31,20 +31,20 @@
 
 WSPSliceGeodeBuilder::WSPSliceGeodeBuilder( ProbTractList probTracts, boost::shared_ptr< const WDataSetFibers > detTracts, WPropGroup sliceGroup )
     : m_detTracts( detTracts ),
-      m_probTracts( probTracts )
+      m_probTracts( probTracts ),
+      m_intersectionList( 3 ),
+      m_sliceBB( 3 ),
+      m_slicePos( 3 )
 {
     if( m_probTracts.empty() || !m_detTracts )
     {
         wlog::warn( "WSPSliceGeodeBuilder" ) << "No probabilistic tractograms were given for slice geode generation!";
     }
     wlog::debug( "WSPSliceGeodeBuilder" ) << "Init geode builder...";
-    m_zPos = sliceGroup->findProperty( "Axial Position" )->toPropInt();
-    m_yPos = sliceGroup->findProperty( "Coronal Position" )->toPropInt();
-    m_xPos = sliceGroup->findProperty( "Sagittal Position" )->toPropInt();
 
-    m_showonZ = sliceGroup->findProperty( "Show Axial" )->toPropBool();
-    m_showonY = sliceGroup->findProperty( "Show Coronal" )->toPropBool();
-    m_showonX = sliceGroup->findProperty( "Show Sagittal" )->toPropBool();
+    m_slicePos[2] = sliceGroup->findProperty( "Axial Position" )->toPropInt();
+    m_slicePos[1] = sliceGroup->findProperty( "Coronal Position" )->toPropInt();
+    m_slicePos[0] = sliceGroup->findProperty( "Sagittal Position" )->toPropInt();
 
     checkAndExtractGrids();
 
@@ -56,7 +56,7 @@ WSPSliceGeodeBuilder::WSPSliceGeodeBuilder( ProbTractList probTracts, boost::sha
         m_tractBB.push_back( wmath::computeBoundingBox( ( *detTracts )[i] ) );
     }
 
-    computeSliceBB(); // just to be sure those are initialized, since they may change due to m_xPos, et al. anyway
+    computeSliceBB(); // just to be sure those are initialized, since they may change due to m_slicePos[0], et al. anyway
     wlog::debug( "WSPSliceGeodeBuilder" ) << "Init geode builder done";
 }
 
@@ -117,14 +117,14 @@ void WSPSliceGeodeBuilder::computeSliceBB()
         wlog::warn( "WSPSliceGeodeBuilder" ) << "Invalid grid while BB computation!";
         return;
     }
-    m_xSliceBB = WBoundingBox( m_grid->getOrigin() + m_xPos->get() * m_grid->getDirectionX(),
-            m_grid->getOrigin() + m_xPos->get() * m_grid->getDirectionX() + m_grid->getNbCoordsY() * m_grid->getDirectionY() +
+    m_sliceBB[0] = WBoundingBox( m_grid->getOrigin() + m_slicePos[0]->get() * m_grid->getDirectionX(),
+            m_grid->getOrigin() + m_slicePos[0]->get() * m_grid->getDirectionX() + m_grid->getNbCoordsY() * m_grid->getDirectionY() +
             m_grid->getNbCoordsZ() * m_grid->getDirectionZ() );
-    m_ySliceBB = WBoundingBox( m_grid->getOrigin() + m_yPos->get() * m_grid->getDirectionY(),
-            m_grid->getOrigin() + m_yPos->get() * m_grid->getDirectionY() + m_grid->getNbCoordsX() * m_grid->getDirectionX() +
+    m_sliceBB[1] = WBoundingBox( m_grid->getOrigin() + m_slicePos[1]->get() * m_grid->getDirectionY(),
+            m_grid->getOrigin() + m_slicePos[1]->get() * m_grid->getDirectionY() + m_grid->getNbCoordsX() * m_grid->getDirectionX() +
             m_grid->getNbCoordsZ() * m_grid->getDirectionZ() );
-    m_zSliceBB = WBoundingBox( m_grid->getOrigin() + m_zPos->get() * m_grid->getDirectionZ(),
-            m_grid->getOrigin() + m_zPos->get() * m_grid->getDirectionZ() + m_grid->getNbCoordsY() * m_grid->getDirectionY() +
+    m_sliceBB[2] = WBoundingBox( m_grid->getOrigin() + m_slicePos[2]->get() * m_grid->getDirectionZ(),
+            m_grid->getOrigin() + m_slicePos[2]->get() * m_grid->getDirectionZ() + m_grid->getNbCoordsY() * m_grid->getDirectionY() +
             m_grid->getNbCoordsX() * m_grid->getDirectionX() );
 }
 
@@ -133,42 +133,45 @@ void WSPSliceGeodeBuilder::determineIntersectingDeterministicTracts()
     computeSliceBB();
 
     // tidy up old intersections
-    m_xIntersections.clear();
-    m_yIntersections.clear();
-    m_zIntersections.clear();
+    for( unsigned char sliceNum = 0; sliceNum <= 2; ++sliceNum )
+    {
+       m_intersectionList[ sliceNum ].clear();
+    }
 
     for( size_t tract = 0; tract < m_detTracts->getLineStartIndexes()->size() ; ++tract )
     {
-        if( m_showonX->get() && m_xSliceBB.intersects( m_tractBB[ tract ] ) )
+        // check each slice
+        for( unsigned char sliceNum = 0; sliceNum <= 2; ++sliceNum )
         {
-            m_xIntersections.push_back( tract );
-        }
-        if( m_showonY->get() && m_ySliceBB.intersects( m_tractBB[ tract ] ) )
-        {
-            m_yIntersections.push_back( tract );
-        }
-        if( m_showonZ->get() && m_zSliceBB.intersects( m_tractBB[ tract ] ) )
-        {
-            m_zIntersections.push_back( tract );
+            if( m_sliceBB[ sliceNum ].intersects( m_tractBB[ tract ] ) )
+            {
+                m_intersectionList[ sliceNum ].push_back( tract );
+            }
         }
     }
 }
-void WSPSliceGeodeBuilder::projectTractOnSlice( unsigned char component, osg::ref_ptr< osg::Vec3Array > vertices, int slicePos ) const
+
+void WSPSliceGeodeBuilder::projectTractOnSlice( const unsigned char sliceNum, osg::ref_ptr< osg::Vec3Array > vertices, const int slicePos ) const
 {
     WAssert( vertices, "Bug: a given internal array was not expected empty here!" );
-    WAssert( component <= 2, "Bug: The selected component ( 0 == x, 1 == y, 2 == z ) was invalid" );
+    WAssert( sliceNum <= 2, "Bug: The selected sliceNum ( 0 == x, 1 == y, 2 == z ) was invalid" );
 
     for( osg::Vec3Array::iterator vertex = vertices->begin(); vertex != vertices->end(); ++vertex )
     {
-        ( *vertex )[ component ] = slicePos;
+        ( *vertex )[ sliceNum ] = slicePos;
     }
 }
 
-osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateSlice( const std::list< size_t >& intersections, int slicePos, const WBoundingBox& bb,
-        unsigned char component, double maxDistance ) const
+WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsigned char sliceNum, const double maxDistance ) const
 {
-    WAssert( component <= 2, "Bug: The selected component ( 0 == x, 1 == y, 2 == z ) was invalid" );
-    osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+    WAssert( sliceNum <= 2, "Bug: Invalid slice number given: must be 0, 1 or 2." );
+    // select slicePos, intersections and bounding box
+    const std::list< size_t >& intersections = m_intersectionList[ sliceNum ];
+    const WBoundingBox& bb = m_sliceBB[ sliceNum ];
+    const int slicePos = m_slicePos[ sliceNum ]->get();
+
+    osg::ref_ptr< osg::Geode > intersectionGeode = new osg::Geode();
+    osg::ref_ptr< osg::Geode > projectionGeode = new osg::Geode();
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     colors->push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) );
@@ -179,7 +182,6 @@ osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateSlice( const std::list<
 
     WDataSetFibers::VertexArray fibVerts = m_detTracts->getVertices();
 
-    size_t currentPos = 0;
     for( std::list< size_t >::const_iterator cit = intersections.begin(); cit != intersections.end(); ++cit )
     {
         size_t sidx = m_detTracts->getLineStartIndexes()->at( *cit ) * 3;
@@ -189,13 +191,13 @@ osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateSlice( const std::list<
         {
             size_t startIdx = vertices->size();
             // proceed to a vertex inside the deltaX environment
-            while( ( k < len ) && std::abs( slicePos - fibVerts->at( ( 3 * k ) + sidx + component ) ) > maxDistance )
+            while( ( k < len ) && std::abs( slicePos - fibVerts->at( ( 3 * k ) + sidx + sliceNum ) ) > maxDistance )
             {
                 k++;
             }
             osg::ref_ptr< osg::Vec3Array > candidate = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
             WBoundingBox cBB;
-            while( ( k < len ) &&  std::abs( slicePos - fibVerts->at( ( 3 * k ) + sidx + component ) ) <= maxDistance )
+            while( ( k < len ) &&  std::abs( slicePos - fibVerts->at( ( 3 * k ) + sidx + sliceNum ) ) <= maxDistance )
             {
                 wmath::WPosition cv( fibVerts->at( ( 3 * k ) + sidx ),
                             fibVerts->at( ( 3 * k ) + sidx + 1 ),
@@ -208,7 +210,7 @@ osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateSlice( const std::list<
             {
                 vertices->insert( vertices->end(), candidate->begin(), candidate->end() );
                 geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIdx, candidate->size() ) );
-                projectTractOnSlice( component, candidate, slicePos );
+                projectTractOnSlice( sliceNum, candidate, slicePos );
                 pv->insert( pv->end(), candidate->begin(), candidate->end() );
                 pg->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIdx, candidate->size() ) );
             }
@@ -225,24 +227,8 @@ osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateSlice( const std::list<
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
-    geode->addDrawable( geometry );
-    geode->addDrawable( pg );
+    intersectionGeode->addDrawable( geometry );
+    projectionGeode->addDrawable( pg );
 
-    return geode;
+    return std::make_pair( intersectionGeode, projectionGeode );
 }
-
-osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateXSlice( double maxDistance ) const
-{
-    return generateSlice( m_xIntersections, m_xPos->get(), m_xSliceBB, 0, maxDistance );
-}
-
-osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateYSlice( double maxDistance ) const
-{
-    return generateSlice( m_yIntersections, m_yPos->get(), m_ySliceBB, 1, maxDistance );
-}
-
-osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateZSlice( double maxDistance ) const
-{
-    return generateSlice( m_zIntersections, m_zPos->get(), m_zSliceBB, 2, maxDistance );
-}
-

@@ -32,22 +32,22 @@
 #include <osg/Geometry>
 #include <osg/Drawable>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WPropertyHelper.h"
+#include "../../common/exceptions/WOutOfBounds.h"
 #include "../../common/math/WMath.h"
 #include "../../common/math/WPlane.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WGEOffscreenRenderPass.h"
 #include "../../graphicsEngine/WGEOffscreenRenderNode.h"
+#include "../../graphicsEngine/WGEOffscreenRenderPass.h"
 #include "../../graphicsEngine/WGEPropertyUniform.h"
-
+#include "../../graphicsEngine/WShader.h"
+#include "../../kernel/WKernel.h"
 #include "WMProbTractDisplaySP.h"
 #include "WMProbTractDisplaySP.xpm"
 #include "WSPSliceGeodeBuilder.h"
@@ -57,7 +57,7 @@ W_LOADABLE_MODULE( WMProbTractDisplaySP )
 
 WMProbTractDisplaySP::WMProbTractDisplaySP()
     : WModule(),
-      m_slicePosChanged( new WCondition )
+      m_sliceChanged( new WCondition )
 {
 }
 
@@ -104,14 +104,17 @@ void WMProbTractDisplaySP::properties()
     m_showonY        = m_sliceGroup->addProperty( "Show Coronal", "Show instersection of deterministic tracts on coronal slice.", true );
     m_showonZ        = m_sliceGroup->addProperty( "Show Axial", "Show instersection of deterministic tracts on axial slice.", true );
 
+    m_showIntersection = m_properties->addProperty( "Show Intersections", "Show intersecition stipplets", true );
+    m_showProjection = m_properties->addProperty( "Show Projections", "Show projection stipplets", true );
+
     // The slice positions. These get update externally.
     // TODO(math): get the dimensions and MinMax's directly from the probabilistic tractorgram
     // TODO(all): this should somehow be connected to the nav slices.
-    m_xPos           = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0, m_slicePosChanged );
-    m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0, m_slicePosChanged );
-    m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0, m_slicePosChanged );
+    m_xPos           = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0, m_sliceChanged );
+    m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0, m_sliceChanged );
+    m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0, m_sliceChanged );
 
-    m_delta  = m_properties->addProperty( "Slices Environment", "see name", 1.0 );
+    m_delta  = m_properties->addProperty( "Slices Environment", "see name", 1.0, m_sliceChanged );
 
     // since we don't know anything yet => make them unusable
     m_xPos->setMin( 0 );
@@ -135,51 +138,20 @@ void WMProbTractDisplaySP::updateProperties( boost::shared_ptr< const WGridRegul
     m_zPos->set( ( grid->getNbCoordsZ() - 1 ) / 2, true );
 }
 
-void WMProbTractDisplaySP::initOSG( boost::shared_ptr< const WGridRegular3D > grid )
+void WMProbTractDisplaySP::initOSG()
 {
     // remove the old slices
     m_output->clear();
 
-    // we want the tex matrix for each slice to be modified too,
-    osg::ref_ptr< osg::TexMat > texMat;
-
     // create all the transformation nodes
     m_xSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonX ) );
-    m_tmpFib = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonX ) );
     m_ySlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonY ) );
     m_zSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonZ ) );
-
-    texMat = new osg::TexMat();
-    m_xSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos, texMat ) );
-    m_xSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-    m_tmpFib->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    m_xSlice->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-
-    texMat = new osg::TexMat();
-    m_ySlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos, texMat ) );
-    m_ySlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
-    texMat = new osg::TexMat();
-    m_zSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos, texMat ) );
-    m_zSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
-    // create a new geode containing the slices
-    // select x-slice tracts
-
-//    m_xSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
-//                grid->getNbCoordsZ() * grid->getDirectionZ() ) );
-//
-//    m_ySlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
-//                grid->getNbCoordsZ() * grid->getDirectionZ() ) );
-//
-//    m_zSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
-//                grid->getNbCoordsY() * grid->getDirectionY() ) );
 
     // add the transformation nodes to the output group
     m_output->insert( m_xSlice );
     m_output->insert( m_ySlice );
     m_output->insert( m_zSlice );
-    m_output->insert( m_tmpFib );
 }
 
 void WMProbTractDisplaySP::moduleMain()
@@ -188,14 +160,16 @@ void WMProbTractDisplaySP::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_probIC->getDataChangedCondition() );
     m_moduleState.add( m_tractsIC->getDataChangedCondition() );
-    m_moduleState.add( m_slicePosChanged );
-    m_moduleState.add( m_delta->getValueChangeCondition() );
+    m_moduleState.add( m_sliceChanged );
 
     ready();
 
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
     m_output->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    debugLog() << "Init OSG";
+    initOSG();
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
     boost::shared_ptr< WSPSliceGeodeBuilder > builder;
     std::list< boost::shared_ptr< const WDataSetScalar > > probTracts;
 
@@ -237,10 +211,6 @@ void WMProbTractDisplaySP::moduleMain()
             {
                 debugLog() << "Updating Properites";
                 updateProperties( grid );
-                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
-                debugLog() << "Init OSG";
-                initOSG( grid );
-                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
                 probTracts.clear();
                 probTracts.push_back( probTract );
                 builder = boost::shared_ptr< WSPSliceGeodeBuilder >( new WSPSliceGeodeBuilder( probTracts, detTracts, m_sliceGroup ) );
@@ -251,17 +221,54 @@ void WMProbTractDisplaySP::moduleMain()
                 continue;
             }
         }
-        if( m_tmpFib && builder && ( m_xPos->changed() || m_yPos->changed() || m_zPos->changed() || m_delta->changed() ) )
-        {
-            debugLog() << "xPos, yPos or zPos was changed => computing intersection and geodes...";
 
-            m_tmpFib->clear();
+        if( builder && ( m_xPos->changed() || m_yPos->changed() || m_zPos->changed() || m_delta->changed() ) )
+        {
+            debugLog() << "At least one slice has changed => computing intersection and geodes...";
+
             builder->determineIntersectingDeterministicTracts();
-            m_tmpFib->insert( builder->generateXSlice( m_delta->get() ) );
-            m_tmpFib->insert( builder->generateYSlice( m_delta->get() ) );
-            m_tmpFib->insert( builder->generateZSlice( m_delta->get() ) );
+
+            if( m_xPos->changed() || m_delta->changed() )
+            {
+                updateSlices( 0, builder );
+                m_xPos->get( true ); // eat change flag
+            }
+            if( m_yPos->changed() || m_delta->changed() )
+            {
+                updateSlices( 1, builder );
+                m_yPos->get( true ); // eat change flag
+            }
+            if( m_zPos->changed() || m_delta->changed() )
+            {
+                updateSlices( 2, builder );
+                m_zPos->get( true ); // eat change flag
+            }
+            m_delta->get( true ); // eat change flag
         }
     }
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
+}
+
+void WMProbTractDisplaySP::updateSlices( const unsigned char sliceNum, boost::shared_ptr< const WSPSliceGeodeBuilder > builder )
+{
+    std::pair< osg::ref_ptr< osg::Geode >, osg::ref_ptr< osg::Geode > > intersectionAndProjection;
+    intersectionAndProjection = builder->generateSlices( sliceNum, m_delta->get() );
+
+    // determine correct slice group node
+    osg::ref_ptr< WGEManagedGroupNode > sliceGroup;
+    switch( sliceNum )
+    {
+        case 0 : sliceGroup = m_xSlice; break;
+        case 1 : sliceGroup = m_ySlice; break;
+        case 2 : sliceGroup = m_zSlice; break;
+        default : throw WOutOfBounds( "Invalid slice number given. Must be in 0..2 in order to select x-, y- or z-Slice" );
+    }
+    sliceGroup->clear();
+    osg::ref_ptr< WGEManagedGroupNode > intersection( new WGEManagedGroupNode( m_showIntersection ) );
+    intersection->insert( intersectionAndProjection.first );
+    sliceGroup->insert( intersection );
+    osg::ref_ptr< WGEManagedGroupNode > projection( new WGEManagedGroupNode( m_showProjection ) );
+    projection->insert( intersectionAndProjection.second );
+    sliceGroup->insert( projection );
 }
