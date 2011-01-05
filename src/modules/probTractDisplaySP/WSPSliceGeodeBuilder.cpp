@@ -137,7 +137,7 @@ void WSPSliceGeodeBuilder::determineIntersectingDeterministicTracts()
     m_yIntersections.clear();
     m_zIntersections.clear();
 
-    for( size_t tract = 0; tract <  m_detTracts->getLineStartIndexes()->size() ; ++tract )
+    for( size_t tract = 0; tract < m_detTracts->getLineStartIndexes()->size() ; ++tract )
     {
         if( m_showonX->get() && m_xSliceBB.intersects( m_tractBB[ tract ] ) )
         {
@@ -164,8 +164,8 @@ void WSPSliceGeodeBuilder::projectTractOnSlice( unsigned char component, osg::re
     }
 }
 
-osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateSlice( std::list< size_t > intersections, int slicePos, unsigned char component,
-        double maxDistance ) const
+osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateSlice( const std::list< size_t >& intersections, int slicePos, const WBoundingBox& bb,
+        unsigned char component, double maxDistance ) const
 {
     WAssert( component <= 2, "Bug: The selected component ( 0 == x, 1 == y, 2 == z ) was invalid" );
     osg::ref_ptr< osg::Geode > geode = new osg::Geode();
@@ -204,7 +204,7 @@ osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateSlice( std::list< size_
                 cBB.expandBy( cv );
                 k++;
             }
-            if( !candidate->empty() && cBB.intersects( m_xSliceBB ) )
+            if( !candidate->empty() && cBB.intersects( bb ) )
             {
                 vertices->insert( vertices->end(), candidate->begin(), candidate->end() );
                 geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIdx, candidate->size() ) );
@@ -233,16 +233,16 @@ osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateSlice( std::list< size_
 
 osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateXSlice( double maxDistance ) const
 {
-    return generateSlice( m_xIntersections, m_xPos->get(), 0, maxDistance );
+    return generateSlice( m_xIntersections, m_xPos->get(), m_xSliceBB, 0, maxDistance );
 }
 
 osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateYSlice( double maxDistance ) const
 {
-    return generateSlice( m_yIntersections, m_yPos->get(), 1, maxDistance );
+    return generateSlice( m_yIntersections, m_yPos->get(), m_ySliceBB, 1, maxDistance );
 }
 
 osg::ref_ptr< osg::Geode > WSPSliceGeodeBuilder::generateZSlice( double maxDistance ) const
 {
-    return generateSlice( m_zIntersections, m_zPos->get(), 2, maxDistance );
+    return generateSlice( m_zIntersections, m_zPos->get(), m_zSliceBB, 2, maxDistance );
 }
 

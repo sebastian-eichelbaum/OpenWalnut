@@ -144,8 +144,8 @@ private:
      *
      * \return A geode where the cutted intersecting fibers are projected onto the slice.
      */
-    osg::ref_ptr< osg::Geode > generateSlice( std::list< size_t > intersections, int slicePos, unsigned char component,
-            double maxDistance = 1.0 ) const;
+    osg::ref_ptr< osg::Geode > generateSlice( const std::list< size_t >& intersections, int slicePos, const WBoundingBox& bb,
+            unsigned char component, double maxDistance = 1.0 ) const;
 
     /**
      * List of deterministic tract indices which are intersecting the xSlice.
