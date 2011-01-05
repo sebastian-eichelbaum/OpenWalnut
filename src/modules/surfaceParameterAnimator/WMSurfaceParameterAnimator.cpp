@@ -36,6 +36,7 @@
 #include "../../kernel/WKernel.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../common/WColor.h"
+#include "../../common/WBoundingBox.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WShader.h"
@@ -134,10 +135,10 @@ void WMSurfaceParameterAnimator::properties()
     WModule::properties();
 }
 
-osg::ref_ptr< osg::Node > WMSurfaceParameterAnimator::renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox )
+osg::ref_ptr< osg::Node > WMSurfaceParameterAnimator::renderSurface( const WBoundingBox& bbox )
 {
     // use the OSG Shapes, create unit cube
-    osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bbox.first, bbox.second, m_isoColor->get( true ) );
+    osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bbox, m_isoColor->get( true ) );
     cube->addUpdateCallback( new SafeUpdateCallback( this ) );
     cube->asTransform()->getChild( 0 )->setName( "DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
     m_shader->apply( cube );
@@ -274,11 +275,8 @@ void WMSurfaceParameterAnimator::moduleMain()
                 continue;
             }
 
-            // get the BBox
-            std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
-
             // attach the geometry to the first FBO
-            osg::ref_ptr< osg::Node > cube = renderSurface( bb );
+            osg::ref_ptr< osg::Node > cube = renderSurface( grid->getBoundingBox() );
 
             // **********************************************************************************************
             // Update scene

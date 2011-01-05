@@ -148,6 +148,19 @@ public:
 
     using osg::BoundingBoxImpl< VT >::contains;
 
+    /**
+     * Gives the front lower left aka minimum corner.
+     *
+     * \return Minimum corner.
+     */
+    const vec_type& getMin() const;
+
+    /**
+     * Gives the back upper right aka maximum corner.
+     *
+     * \return Maximum corner.
+     */
+    const vec_type& getMax() const;
 
 protected:
 private:
@@ -269,6 +282,18 @@ inline std::ostream& operator<<( std::ostream& out, const WBoundingBoxImpl< VT >
     out << "AABB( min: " << bb.xMin() << ", " << bb.yMin() << ", " << bb.zMin();
     out << " max: " << bb.xMax() << ", " << bb.yMax() << ", " << bb.zMax() << " )";
     return out;
+}
+
+template< class VT >
+inline const typename WBoundingBoxImpl< VT >::vec_type& WBoundingBoxImpl< VT >::getMin() const
+{
+    return  osg::BoundingBoxImpl< VT >::_min;
+}
+
+template< class VT >
+inline const typename WBoundingBoxImpl< VT >::vec_type& WBoundingBoxImpl< VT >::getMax() const
+{
+    return  osg::BoundingBoxImpl< VT >::_max;
 }
 
 typedef WBoundingBoxImpl< wmath::WVector3D > WBoundingBox;
