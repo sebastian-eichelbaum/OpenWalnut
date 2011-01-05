@@ -234,6 +234,9 @@ void WMNavSlices::moduleMain()
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_slicesNode );
 
+    // release the user data to cause the contained shared_ptr to this being destructed.
+    m_slicesNode->getUserData()->unref();
+
     // deregister from WSubject's change condition
     con.disconnect();
 }
