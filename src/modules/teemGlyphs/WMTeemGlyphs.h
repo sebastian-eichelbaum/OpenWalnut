@@ -153,6 +153,8 @@ private:
     osg::ref_ptr< osg::Geode > m_glyphsGeode; //!< Pointer to geode containing the glyphs.
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
 
+    boost::mutex m_moduleNodeLock; //!< Lock to prevent concurrent threads trying access m_moduleNode
+
     /**
      * This class actually generated the glyph geometry. This class has () operator that the work.
      * The () operator enables it to be parallelized by WThreadedFunction.
