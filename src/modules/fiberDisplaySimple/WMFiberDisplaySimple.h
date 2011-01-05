@@ -29,7 +29,7 @@
 
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -120,7 +120,7 @@ private:
     /**
      * The shader used for clipping of fibers using an arbitrary plane.
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * A property group for all the clipping related props.

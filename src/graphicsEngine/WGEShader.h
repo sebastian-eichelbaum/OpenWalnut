@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WSHADER_H
-#define WSHADER_H
+#ifndef WGESHADER_H
+#define WGESHADER_H
 
 #include <map>
 #include <string>
@@ -40,7 +40,7 @@
 /**
  * Class encapsulating the OSG Program class for a more convenient way of adding and modifying shader.
  */
-class WGE_EXPORT WShader: public osg::Program
+class WGE_EXPORT WGEShader: public osg::Program
 {
 public:
 
@@ -51,12 +51,12 @@ public:
      * \param name the name of the shader. It gets searched in the shader path.
      * \param search the local search path. If not specified, the global shader path is used.
      */
-    WShader( std::string name, boost::filesystem::path search = WPathHelper::getShaderPath() );
+    WGEShader( std::string name, boost::filesystem::path search = WPathHelper::getShaderPath() );
 
     /**
      * Destructor.
      */
-    virtual ~WShader();
+    virtual ~WGEShader();
 
     /**
      * Apply this shader to the specified node. Use this method to ensure, that reload events can be handled properly during the
@@ -202,7 +202,7 @@ protected:
          *
          * \param shader the shader which needs to be updated.
          */
-        explicit SafeUpdaterCallback( WShader* shader );
+        explicit SafeUpdaterCallback( WGEShader* shader );
 
         /**
          * Callback method called by the NodeVisitor when visiting a node.
@@ -219,14 +219,14 @@ protected:
         /**
          * The shader belonging to the node currently getting updated.
          */
-        WShader* m_shader;
+        WGEShader* m_shader;
     };
 
 private:
 };
 
 template < typename T >
-void WShader::setDefine( std::string key, T value )
+void WGEShader::setDefine( std::string key, T value )
 {
     if ( key.length() > 0 )
     {
@@ -235,5 +235,5 @@ void WShader::setDefine( std::string key, T value )
     }
 }
 
-#endif  // WSHADER_H
+#endif  // WGESHADER_H
 

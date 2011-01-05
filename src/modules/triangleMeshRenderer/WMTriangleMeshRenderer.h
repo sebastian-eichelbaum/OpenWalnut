@@ -126,7 +126,7 @@ private:
 
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
 
-    osg::ref_ptr< WShader > m_shader; //!< The shader used for the iso surface in m_geode
+    osg::ref_ptr< WGEShader > m_shader; //!< The shader used for the iso surface in m_geode
 
 
     /**

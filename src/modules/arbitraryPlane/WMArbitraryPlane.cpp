@@ -35,7 +35,7 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 
 #include "../../graphicsEngine/WGEUtils.h"
 
@@ -108,7 +108,7 @@ void WMArbitraryPlane::properties()
 
 void WMArbitraryPlane::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMArbitraryPlane", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMArbitraryPlane", m_localPath ) );
 
     initPlane();
 

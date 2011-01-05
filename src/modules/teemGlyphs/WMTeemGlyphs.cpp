@@ -340,7 +340,7 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
     m_moduleNode->insert( glyphsGeode );
     m_moduleNode->setName( "teem glyphs module node" );
 
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMTeemGlyphs", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMTeemGlyphs", m_localPath ) );
     m_shader->apply( glyphsGeode );
 
 

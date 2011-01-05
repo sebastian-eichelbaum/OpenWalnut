@@ -48,7 +48,7 @@
 #include "../../../dataHandler/WGridRegular3D.h"
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WValueSet.h"
-#include "../../../graphicsEngine/WShader.h"
+#include "../../../graphicsEngine/WGEShader.h"
 #include "../../../graphicsEngine/WGraphicsEngine.h"
 #include "../../../graphicsEngine/WGEUtils.h"
 #include "../../WKernel.h"
@@ -72,7 +72,7 @@ WMNavSlices::WMNavSlices():
     // Implement WModule::initializeConnectors instead.
 
     // initialize members
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMNavSlices" ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMNavSlices" ) );
 }
 
 WMNavSlices::~WMNavSlices()

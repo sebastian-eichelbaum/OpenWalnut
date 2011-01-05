@@ -205,7 +205,7 @@ private:
     /**
      * the shader object for this module
      */
-    // boost::shared_ptr< WShader >m_shader;
+    // boost::shared_ptr< WGEShader >m_shader;
 
     /**
      * update function, called with each update pass of the osg render loop

@@ -236,7 +236,7 @@ private:
     /**
      * the shader object for this module
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * True if the shader shouldn't discard a fragment when the value is zero

@@ -43,7 +43,7 @@
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 #include "../../graphicsEngine/WGEOffscreenRenderPass.h"
 #include "../../graphicsEngine/WGEOffscreenRenderNode.h"
 #include "../../graphicsEngine/WGEPropertyUniform.h"
@@ -302,27 +302,27 @@ void WMImageSpaceLIC::moduleMain()
     offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
 
     // setup all the passes needed for image space advection
-    osg::ref_ptr< WShader > transformationShader = new WShader( "WMImageSpaceLIC-Transformation", m_localPath );
+    osg::ref_ptr< WGEShader > transformationShader = new WGEShader( "WMImageSpaceLIC-Transformation", m_localPath );
     osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass(
         m_output,
         transformationShader,
         "Transformation"
     );
     osg::ref_ptr< WGEOffscreenRenderPass > edgeDetection =  offscreen->addTextureProcessingPass(
-        new WShader( "WMImageSpaceLIC-Edge", m_localPath ),
+        new WGEShader( "WMImageSpaceLIC-Edge", m_localPath ),
         "Edge Detection"
     );
 
     // we use two advection passes per frame as the input A of the first produces the output B whereas the second pass uses B as input and
     // produces A as output. This way we can use A as input for the next step (clipping and blending).
     osg::ref_ptr< WGEOffscreenRenderPass > advection =  offscreen->addTextureProcessingPass(
-        new WShader( "WMImageSpaceLIC-Advection", m_localPath ),
+        new WGEShader( "WMImageSpaceLIC-Advection", m_localPath ),
         "Advection"
     );
 
     // finally, put it back on screen, clip it, color it and apply depth buffer to on-screen buffer
     osg::ref_ptr< WGEOffscreenRenderPass > clipBlend =  offscreen->addFinalOnScreenPass(
-        new WShader( "WMImageSpaceLIC-ClipBlend", m_localPath ),
+        new WGEShader( "WMImageSpaceLIC-ClipBlend", m_localPath ),
         "Clip & Blend"
     );
 

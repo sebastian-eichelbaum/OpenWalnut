@@ -30,7 +30,7 @@
 #include <osg/Node>
 #include <osg/Uniform>
 
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -158,7 +158,7 @@ private:
     /**
      * the DVR shader.
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in

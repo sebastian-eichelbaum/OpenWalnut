@@ -41,9 +41,9 @@
 #include "../common/WLogger.h"
 #include "../common/WPathHelper.h"
 
-#include "WShader.h"
+#include "WGEShader.h"
 
-WShader::WShader( std::string name, boost::filesystem::path search ):
+WGEShader::WGEShader( std::string name, boost::filesystem::path search ):
     osg::Program(),
     m_shaderPath( search ),
     m_name( name ),
@@ -61,16 +61,16 @@ WShader::WShader( std::string name, boost::filesystem::path search ):
     addShader( m_fragmentShader );
     addShader( m_geometryShader );
 
-    m_reloadSignalConnection = WGraphicsEngine::getGraphicsEngine()->subscribeSignal( GE_RELOADSHADERS, boost::bind( &WShader::reload, this ) );
+    m_reloadSignalConnection = WGraphicsEngine::getGraphicsEngine()->subscribeSignal( GE_RELOADSHADERS, boost::bind( &WGEShader::reload, this ) );
 }
 
-WShader::~WShader()
+WGEShader::~WGEShader()
 {
     // cleanup
     m_reloadSignalConnection.disconnect();
 }
 
-void WShader::apply( osg::ref_ptr< osg::Node > node )
+void WGEShader::apply( osg::ref_ptr< osg::Node > node )
 {
     // set the shader attribute
     // NOTE: the attribute is protected to avoid father nodes overwriting it
@@ -83,13 +83,13 @@ void WShader::apply( osg::ref_ptr< osg::Node > node )
     node->addUpdateCallback( osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback( this ) ) );
 }
 
-void WShader::applyDirect( osg::State& state ) // NOLINT <- ensure this matches the official OSG API by using a non-const ref
+void WGEShader::applyDirect( osg::State& state ) // NOLINT <- ensure this matches the official OSG API by using a non-const ref
 {
     updatePrograms();
     osg::Program::apply( state );
 }
 
-void WShader::deactivate( osg::ref_ptr< osg::Node > node )
+void WGEShader::deactivate( osg::ref_ptr< osg::Node > node )
 {
     // set the shader attribute
     // NOTE: the attribute is protected to avoid father nodes overwriting it
@@ -103,12 +103,12 @@ void WShader::deactivate( osg::ref_ptr< osg::Node > node )
     node->addUpdateCallback( osg::ref_ptr< SafeUpdaterCallback >( new SafeUpdaterCallback( this ) ) );
 }
 
-void WShader::reload()
+void WGEShader::reload()
 {
     m_reload = true;
 }
 
-void WShader::reloadShader()
+void WGEShader::reloadShader()
 {
     try
     {
@@ -119,7 +119,7 @@ void WShader::reloadShader()
 
         // reload the sources and set the shader
         // vertex shader
-        WLogger::getLogger()->addLogMessage( "Reloading vertex shader \"" + m_name + "-vertex.glsl\"", "WShader", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Reloading vertex shader \"" + m_name + "-vertex.glsl\"", "WGEShader", LL_DEBUG );
         std::string source = processShader( m_name + "-vertex.glsl" );
         if ( source != "" )
         {
@@ -128,7 +128,7 @@ void WShader::reloadShader()
         }
 
         // fragment shader
-        WLogger::getLogger()->addLogMessage( "Reloading fragment shader \"" + m_name + "-fragment.glsl\"", "WShader", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Reloading fragment shader \"" + m_name + "-fragment.glsl\"", "WGEShader", LL_DEBUG );
         source = processShader( m_name + "-fragment.glsl" );
         if ( source != "" )
         {
@@ -137,7 +137,7 @@ void WShader::reloadShader()
         }
 
         // Geometry Shader
-        WLogger::getLogger()->addLogMessage( "Reloading geometry shader \"" + m_name + "-geometry.glsl\"", "WShader", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Reloading geometry shader \"" + m_name + "-geometry.glsl\"", "WGEShader", LL_DEBUG );
         source = processShader( m_name + "-geometry.glsl", true );
         if ( source != "" )
         {
@@ -151,7 +151,7 @@ void WShader::reloadShader()
     {
         m_shaderLoaded = false;
 
-        WLogger::getLogger()->addLogMessage( "Problem loading shader.", "WShader", LL_ERROR );
+        WLogger::getLogger()->addLogMessage( "Problem loading shader.", "WGEShader", LL_ERROR );
 
         // clean up the mess
         removeShader( m_vertexShader );
@@ -163,7 +163,7 @@ void WShader::reloadShader()
     m_reload = false;
 }
 
-void WShader::updatePrograms()
+void WGEShader::updatePrograms()
 {
     // is it needed to do something here?
     if ( m_deactivated )
@@ -179,12 +179,12 @@ void WShader::updatePrograms()
     }
 }
 
-WShader::SafeUpdaterCallback::SafeUpdaterCallback( WShader* shader ):
+WGEShader::SafeUpdaterCallback::SafeUpdaterCallback( WGEShader* shader ):
     m_shader( shader )
 {
 }
 
-void WShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
+void WGEShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     m_shader->updatePrograms();
 
@@ -192,7 +192,7 @@ void WShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisitor
     traverse( node, nv );
 }
 
-std::string WShader::processShader( const std::string filename, bool optional, int level )
+std::string WGEShader::processShader( const std::string filename, bool optional, int level )
 {
     std::stringstream output;    // processed output
 
@@ -213,7 +213,7 @@ std::string WShader::processShader( const std::string filename, bool optional, i
         // reached a certain level. This normally denotes a inclusion cycle.
         // We do not throw an exception here to avoid OSG to crash.
         WLogger::getLogger()->addLogMessage( "Inclusion depth is too large. Maybe there is a inclusion cycle in the shader code.",
-                "WShader (" + filename + ")", LL_ERROR
+                "WGEShader (" + filename + ")", LL_ERROR
         );
 
         // just return unprocessed source
@@ -253,7 +253,7 @@ std::string WShader::processShader( const std::string filename, bool optional, i
     {
         WLogger::getLogger()->addLogMessage( "The requested shader \"" + filename + "\" does not exist in \"" +
                                              m_shaderPath.file_string() + "\", \"" + ( m_shaderPath / "shaders" ).file_string() + "\" or \"" +
-                                             WPathHelper::getShaderPath().file_string() + "\".", "WShader (" + filename + ")", LL_ERROR
+                                             WPathHelper::getShaderPath().file_string() + "\".", "WGEShader (" + filename + ")", LL_ERROR
         );
 
         return "";
@@ -275,13 +275,13 @@ std::string WShader::processShader( const std::string filename, bool optional, i
         if ( level == 0 )
         {
             WLogger::getLogger()->addLogMessage( "Can't open shader file \"" + filename + "\".",
-                    "WShader (" + filename + ")", LL_ERROR
+                    "WGEShader (" + filename + ")", LL_ERROR
             );
         }
         else
         {
             WLogger::getLogger()->addLogMessage( "Can't open shader file for inclusion \"" + filename + "\".",
-                    "WShader (" + filename + ")", LL_ERROR
+                    "WGEShader (" + filename + ")", LL_ERROR
             );
         }
 
@@ -307,7 +307,7 @@ std::string WShader::processShader( const std::string filename, bool optional, i
             if( foundVersion )
             {
                 WLogger::getLogger()->addLogMessage( "Multiple version statements in shader file \"" + fn + "\".",
-                        "WShader (" + filename + ")", LL_ERROR
+                        "WGEShader (" + filename + ")", LL_ERROR
                 );
                 return "";
             }
@@ -336,19 +336,19 @@ std::string WShader::processShader( const std::string filename, bool optional, i
     return vs.str();
 }
 
-void WShader::eraseDefine( std::string key )
+void WGEShader::eraseDefine( std::string key )
 {
     m_defines.erase( key );
     m_reload = true;
 }
 
-void WShader::eraseAllDefines()
+void WGEShader::eraseAllDefines()
 {
     m_defines.clear();
     m_reload = true;
 }
 
-void WShader::setDefine( std::string key )
+void WGEShader::setDefine( std::string key )
 {
     this->setDefine( key, "Defined" );
 }

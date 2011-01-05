@@ -35,7 +35,7 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 
 /**
  * This module is a ray-tracing based isosurface using special methods for animating particle flow on its surface. The modules needs a scalar
@@ -208,7 +208,7 @@ private:
     /**
      * the DVR shader.
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in

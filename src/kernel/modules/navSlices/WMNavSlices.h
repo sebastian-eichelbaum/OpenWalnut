@@ -33,7 +33,7 @@
 #include <osg/Node>
 
 #include "../../../dataHandler/WDataSet.h"
-#include "../../../graphicsEngine/WShader.h"
+#include "../../../graphicsEngine/WGEShader.h"
 #include "../../../graphicsEngine/WGEGroupNode.h"
 #include "../../../graphicsEngine/WPickInfo.h"
 #include "../../WModule.h"
@@ -297,7 +297,7 @@ private:
     /**
      * the shader object for this module
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * lock to prevent concurrent threads trying to update the osg node

@@ -38,7 +38,7 @@
 #include "../../common/WColor.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 
 #include "WMSurfaceParameterAnimator.h"
@@ -212,7 +212,7 @@ osg::ref_ptr< osg::Node > WMSurfaceParameterAnimator::renderSurface( std::pair< 
 
 void WMSurfaceParameterAnimator::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMSurfaceParameterAnimator-Beams", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMSurfaceParameterAnimator-Beams", m_localPath ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );

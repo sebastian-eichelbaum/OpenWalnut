@@ -65,7 +65,7 @@ osg::ref_ptr< WGEOffscreenTexturePass > WGEOffscreenRenderNode::addTextureProces
     return pass;
 }
 
-osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRenderPass( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader,
+osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRenderPass( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEShader > shader,
                                                                                       std::string name )
 {
     // create a plain render pass and add some geometry
@@ -75,7 +75,7 @@ osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRender
     return pass;
 }
 
-osg::ref_ptr< WGEOffscreenTexturePass > WGEOffscreenRenderNode::addTextureProcessingPass( osg::ref_ptr< WShader > shader, std::string name )
+osg::ref_ptr< WGEOffscreenTexturePass > WGEOffscreenRenderNode::addTextureProcessingPass( osg::ref_ptr< WGEShader > shader, std::string name )
 {
     osg::ref_ptr< WGEOffscreenTexturePass > pass = addRenderPass< WGEOffscreenTexturePass >( name );
     shader->apply( pass );
@@ -88,7 +88,7 @@ osg::ref_ptr< WGEOffscreenFinalPass > WGEOffscreenRenderNode::addFinalOnScreenPa
     return pass;
 }
 
-osg::ref_ptr< WGEOffscreenFinalPass > WGEOffscreenRenderNode::addFinalOnScreenPass( osg::ref_ptr< WShader > shader, std::string name )
+osg::ref_ptr< WGEOffscreenFinalPass > WGEOffscreenRenderNode::addFinalOnScreenPass( osg::ref_ptr< WGEShader > shader, std::string name )
 {
     osg::ref_ptr< WGEOffscreenFinalPass > pass = addRenderPass< WGEOffscreenFinalPass >( name );
     shader->apply( pass );

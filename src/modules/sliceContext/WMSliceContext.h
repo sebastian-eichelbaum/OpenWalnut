@@ -148,7 +148,7 @@ private:
     osg::ref_ptr< WGEManagedGroupNode > m_osgNode; //!< OSG node for this module.
     osg::ref_ptr< osg::Group > m_rootNode; //!< OSG node for this module.
 
-    osg::ref_ptr< WShader > m_shaderFibers; //!< The shader object for rendering fibers
+    osg::ref_ptr< WGEShader > m_shaderFibers; //!< The shader object for rendering fibers
 
     /**
      * Node callback to call the update routine

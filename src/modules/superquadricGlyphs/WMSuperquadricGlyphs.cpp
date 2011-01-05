@@ -387,7 +387,7 @@ void WMSuperquadricGlyphs::moduleMain()
     sset->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
     // add shader
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMSuperquadricGlyphs", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMSuperquadricGlyphs", m_localPath ) );
     m_shader->apply( m_output );
 
     // set uniform callbacks and uniforms

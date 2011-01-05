@@ -43,7 +43,7 @@
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 #include "../../graphicsEngine/WGEOffscreenRenderPass.h"
 #include "../../graphicsEngine/WGEOffscreenRenderNode.h"
 #include "../../graphicsEngine/WGEPropertyUniform.h"

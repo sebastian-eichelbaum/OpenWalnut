@@ -40,7 +40,7 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 #include "../../graphicsEngine/WGERequirement.h"
 #include "../../kernel/WKernel.h"
 #include "WMDirectVolumeRendering.xpm"
@@ -171,7 +171,7 @@ osg::ref_ptr< osg::Image > genWhiteNoise( size_t resX )
 
 void WMDirectVolumeRendering::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMDirectVolumeRendering", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMDirectVolumeRendering", m_localPath ) );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );

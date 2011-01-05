@@ -39,7 +39,7 @@
 
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 
 /**
  * Rendering of GPU bases Superquadric Glyphs. These glyphs are completely ray-traced on the GPU.
@@ -184,7 +184,7 @@ private:
     /**
      * the shader actually doing the glyph raytracing
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * A condition used to notify about changes in several properties.

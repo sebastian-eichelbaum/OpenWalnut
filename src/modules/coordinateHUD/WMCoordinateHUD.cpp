@@ -104,7 +104,7 @@ void WMCoordinateHUD::properties()
 void WMCoordinateHUD::moduleMain()
 {
     // added own shader for visualisation as HUD
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMCoordinateHUD" , m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMCoordinateHUD" , m_localPath ) );
 
     m_rootNode = new WGEManagedGroupNode( m_active );
     m_rootNode->setName( "coordHUDNode" );
