@@ -150,8 +150,7 @@ private:
      */
     void setMaxMinFromBoundingBox();
 
-
-    std::pair< wmath::WPosition, wmath::WPosition > m_bb; //!< bounding box of textures.
+    WBoundingBox m_bb; //!< bounding box of textures.
 
     /**
      * True when textures have changed.

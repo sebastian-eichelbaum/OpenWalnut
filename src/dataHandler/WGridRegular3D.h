@@ -36,8 +36,9 @@
 #include "../common/math/WMatrix.h"
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
-#include "WGrid.h"
+#include "../common/WBoundingBox.h"
 #include "WExportDataHandler.h"
+#include "WGrid.h"
 
 /**
  * A grid that has parallelepiped cells which all have the same proportion. I.e.
@@ -222,9 +223,9 @@ public:
     wmath::WPosition getOrigin() const;
 
     /**
-     * Returns the two positions representing the bounding box of the grid.
+     * \return The two positions representing the bounding box of the grid.
      */
-    std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const;
+    WBoundingBox getBoundingBox() const;
 
     /**
      * Returns the i-th position on the grid.

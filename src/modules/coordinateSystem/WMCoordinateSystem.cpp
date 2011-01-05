@@ -573,9 +573,9 @@ void WMCoordinateSystem::addSagittalGrid( float position )
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
-    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_coordConverter->getBoundingBox();
-    wmath::WPosition p1 = boundingBox.first;
-    wmath::WPosition p2 = boundingBox.second;
+    WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
+    wmath::WPosition p1 = boundingBox.getMin();
+    wmath::WPosition p2 = boundingBox.getMax();
 
     switch ( m_coordConverter->getCoordinateSystemMode() )
     {
@@ -654,9 +654,9 @@ void WMCoordinateSystem::addCoronalGrid( float position )
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
-    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_coordConverter->getBoundingBox();
-    wmath::WPosition p1 = boundingBox.first;
-    wmath::WPosition p2 = boundingBox.second;
+    WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
+    wmath::WPosition p1 = boundingBox.getMin();
+    wmath::WPosition p2 = boundingBox.getMax();
 
     switch ( m_coordConverter->getCoordinateSystemMode() )
     {
@@ -735,9 +735,9 @@ void WMCoordinateSystem::addAxialGrid( float position )
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
-    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_coordConverter->getBoundingBox();
-    wmath::WPosition p1 = boundingBox.first;
-    wmath::WPosition p2 = boundingBox.second;
+    WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
+    wmath::WPosition p1 = boundingBox.getMin();
+    wmath::WPosition p2 = boundingBox.getMax();
 
     switch ( m_coordConverter->getCoordinateSystemMode() )
     {
