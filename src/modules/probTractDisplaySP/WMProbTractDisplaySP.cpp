@@ -50,12 +50,14 @@
 
 #include "WMProbTractDisplaySP.h"
 #include "WMProbTractDisplaySP.xpm"
+#include "WSPSliceGeodeBuilder.h"
 
 // This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMProbTractDisplaySP )
 
-WMProbTractDisplaySP::WMProbTractDisplaySP():
-    WModule()
+WMProbTractDisplaySP::WMProbTractDisplaySP()
+    : WModule(),
+      m_slicePosChanged( new WCondition )
 {
 }
 
@@ -86,7 +88,7 @@ const std::string WMProbTractDisplaySP::getDescription() const
 
 void WMProbTractDisplaySP::connectors()
 {
-    m_fibersIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "fibersInput", "The deterministic tractograms." );
+    m_tractsIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractsInput", "The deterministic tractograms." );
     m_probIC = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "probTractInput", "The probabilistic tractogram" );
 
     // call WModule's initialization
@@ -105,9 +107,11 @@ void WMProbTractDisplaySP::properties()
     // The slice positions. These get update externally.
     // TODO(math): get the dimensions and MinMax's directly from the probabilistic tractorgram
     // TODO(all): this should somehow be connected to the nav slices.
-    m_xPos           = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0 );
-    m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0 );
-    m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0 );
+    m_xPos           = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0, m_slicePosChanged );
+    m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0, m_slicePosChanged );
+    m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0, m_slicePosChanged );
+
+    m_delta  = m_properties->addProperty( "Slices Environment", "see name", 1.0 );
 
     // since we don't know anything yet => make them unusable
     m_xPos->setMin( 0 );
@@ -121,7 +125,17 @@ void WMProbTractDisplaySP::properties()
     WModule::properties();
 }
 
-void WMProbTractDisplaySP::initOSG( boost::shared_ptr< WGridRegular3D > grid )
+void WMProbTractDisplaySP::updateProperties( boost::shared_ptr< const WGridRegular3D > grid )
+{
+    m_xPos->setMax( grid->getNbCoordsX() - 1 );
+    m_xPos->set( ( grid->getNbCoordsX() - 1 ) / 2, true );
+    m_yPos->setMax( grid->getNbCoordsY() - 1 );
+    m_yPos->set( ( grid->getNbCoordsY() - 1 ) / 2, true );
+    m_zPos->setMax( grid->getNbCoordsZ() - 1 );
+    m_zPos->set( ( grid->getNbCoordsZ() - 1 ) / 2, true );
+}
+
+void WMProbTractDisplaySP::initOSG( boost::shared_ptr< const WGridRegular3D > grid )
 {
     // remove the old slices
     m_output->clear();
@@ -131,12 +145,15 @@ void WMProbTractDisplaySP::initOSG( boost::shared_ptr< WGridRegular3D > grid )
 
     // create all the transformation nodes
     m_xSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonX ) );
+    m_tmpFib = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonX ) );
     m_ySlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonY ) );
     m_zSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonZ ) );
 
     texMat = new osg::TexMat();
     m_xSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos, texMat ) );
     m_xSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
+    m_tmpFib->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    m_xSlice->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
 
     texMat = new osg::TexMat();
     m_ySlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos, texMat ) );
@@ -147,6 +164,8 @@ void WMProbTractDisplaySP::initOSG( boost::shared_ptr< WGridRegular3D > grid )
     m_zSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
 
     // create a new geode containing the slices
+    // select x-slice tracts
+
 //    m_xSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
 //                grid->getNbCoordsZ() * grid->getDirectionZ() ) );
 //
@@ -160,6 +179,7 @@ void WMProbTractDisplaySP::initOSG( boost::shared_ptr< WGridRegular3D > grid )
     m_output->insert( m_xSlice );
     m_output->insert( m_ySlice );
     m_output->insert( m_zSlice );
+    m_output->insert( m_tmpFib );
 }
 
 void WMProbTractDisplaySP::moduleMain()
@@ -167,12 +187,17 @@ void WMProbTractDisplaySP::moduleMain()
     // get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_probIC->getDataChangedCondition() );
-    m_moduleState.add( m_fibersIC->getDataChangedCondition() );
+    m_moduleState.add( m_tractsIC->getDataChangedCondition() );
+    m_moduleState.add( m_slicePosChanged );
+    m_moduleState.add( m_delta->getValueChangeCondition() );
 
     ready();
 
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
+    m_output->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    boost::shared_ptr< WSPSliceGeodeBuilder > builder;
+    std::list< boost::shared_ptr< const WDataSetScalar > > probTracts;
 
     // main loop
     while ( !m_shutdownFlag() )
@@ -186,29 +211,39 @@ void WMProbTractDisplaySP::moduleMain()
             break;
         }
 
-        // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_probIC->handledUpdate() || m_fibersIC->handledUpdate();
-
-        boost::shared_ptr< WDataSetFibers > fibers = m_fibersIC->getData();
+        bool dataUpdated = m_probIC->handledUpdate() || m_tractsIC->handledUpdate(); // this call must be made befor getData() on the ICs
+        boost::shared_ptr< WDataSetFibers > detTracts = m_tractsIC->getData();
         boost::shared_ptr< WDataSetScalar > probTract = m_probIC->getData();
-        bool dataValid = fibers && probTract;
+        boost::shared_ptr< WGridRegular3D > grid;
 
-        if( dataValid && dataUpdated )
+        if( detTracts && probTract ) // dataValid?
         {
-            // get grid and prepare OSG
-            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( probTract->getGrid() );
+            grid = boost::shared_dynamic_cast< WGridRegular3D >( probTract->getGrid() );
+            if( !grid )
+            {
+                errorLog() << "A grid beside WGridRegular3D was used, aborting...";
+                continue;
+            }
+        }
+        else
+        {
+            continue;
+        }
+
+        if( dataUpdated )
+        {
+            infoLog() << "Handling data update..";
             if( grid->getNbCoordsX() > 0 && grid->getNbCoordsY() > 0 &&  grid->getNbCoordsZ() > 0 )
             {
-                m_xPos->setMax( grid->getNbCoordsX() - 1 );
-                m_xPos->set( ( grid->getNbCoordsX() - 1 ) / 2, true );
-                m_yPos->setMax( grid->getNbCoordsY() - 1 );
-                m_yPos->set( ( grid->getNbCoordsY() - 1 ) / 2, true );
-                m_zPos->setMax( grid->getNbCoordsZ() - 1 );
-                m_zPos->set( ( grid->getNbCoordsZ() - 1 ) / 2, true );
-
+                debugLog() << "Updating Properites";
+                updateProperties( grid );
                 WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
+                debugLog() << "Init OSG";
                 initOSG( grid );
                 WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
+                probTracts.clear();
+                probTracts.push_back( probTract );
+                builder = boost::shared_ptr< WSPSliceGeodeBuilder >( new WSPSliceGeodeBuilder( probTracts, detTracts, m_sliceGroup ) );
             }
             else
             {
@@ -216,10 +251,17 @@ void WMProbTractDisplaySP::moduleMain()
                 continue;
             }
         }
+        if( m_tmpFib && builder && ( m_xPos->changed() || m_yPos->changed() || m_zPos->changed() || m_delta->changed() ) )
+        {
+            debugLog() << "xPos, yPos or zPos was changed => computing intersection and geodes...";
 
-        infoLog() << "Done";
+            m_tmpFib->clear();
+            builder->determineIntersectingDeterministicTracts();
+            m_tmpFib->insert( builder->generateXSlice( m_delta->get() ) );
+            m_tmpFib->insert( builder->generateYSlice( m_delta->get() ) );
+            m_tmpFib->insert( builder->generateZSlice( m_delta->get() ) );
+        }
     }
 
-    // WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( offscreen );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
 }
-

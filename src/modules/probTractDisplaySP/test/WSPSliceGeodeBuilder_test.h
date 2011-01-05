@@ -22,30 +22,25 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WQtTreeWidget.h"
-#include "WQtSubjectTreeItem.h"
-#include <QtGui/QKeyEvent>
+#ifndef WSPSLICEGEODEBUILDER_TEST_H
+#define WSPSLICEGEODEBUILDER_TEST_H
 
-WQtTreeWidget::WQtTreeWidget( QWidget* parent )
-    : QTreeWidget( parent )
+#include <cxxtest/TestSuite.h>
+
+#include "../WSPSliceGeodeBuilder.h"
+
+/**
+ * TODO(math): Document this!
+ */
+class WSPSliceGeodeBuilderTest : public CxxTest::TestSuite
 {
-    invisibleRootItem()->setFlags( Qt::ItemIsEnabled );
-    setSelectionMode( QAbstractItemView::SingleSelection );
-}
+public:
+    /**
+     * TODO(math): Document this!
+     */
+    void testSomething( void )
+    {
+    }
+};
 
-
-WQtTreeWidget::~WQtTreeWidget()
-{
-}
-
-void WQtTreeWidget::deleteItem( QTreeWidgetItem* item )
-{
-//     takeTopLevelItem ( indexOfTopLevelItem( item  ) );
-    delete item;
-}
-
-void WQtTreeWidget::dropEvent( QDropEvent* /*event*/ )
-{
-    emit dragDrop();
-}
-
+#endif  // WSPSLICEGEODEBUILDER_TEST_H
