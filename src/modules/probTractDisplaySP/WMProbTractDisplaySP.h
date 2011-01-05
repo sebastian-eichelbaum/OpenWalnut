@@ -28,6 +28,7 @@
 #include <string>
 #include <vector>
 
+#include "../../common/WBoundingBox.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WSubject.h"
@@ -36,14 +37,14 @@
 #include "../../kernel/WModuleInputData.h"
 
 /**
- * This module
+ * This module computes for axial, coronal and sagittal views so called Schmahmann and Pandya slices in order to visualize
+ * probabilistic tractograms.
  *
  * \ingroup modules
  */
 class WMProbTractDisplaySP: public WModule
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -101,7 +102,14 @@ private:
      *
      * \param grid the grid to places the slices in
      */
-    void initOSG( boost::shared_ptr< WGridRegular3D > grid );
+    void initOSG( boost::shared_ptr< const WGridRegular3D > grid );
+
+    /**
+     * Whenever the grid changes we must update the slide properties, in order to represent valid maxima and minima again.
+     *
+     * \param grid
+     */
+    void updateProperties( boost::shared_ptr< const WGridRegular3D > grid );
 
     /**
      * The probabilistic tractogram input connector.
@@ -109,9 +117,9 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_probIC;
 
     /**
-     * The fibers input connector.
+     * The tracts input connector.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fibersIC;
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_tractsIC;
 
     /**
      * The Geode containing all the slices and the mesh
@@ -122,6 +130,13 @@ private:
      * The transformation node moving the X slice through the dataset space if the sliders are used
      */
     osg::ref_ptr< WGEManagedGroupNode > m_xSlice;
+
+    /**
+     * \todo this is just temporary, a better integration with nav slices would be fine!
+     *
+     * Storing the geodes of the SP slices.
+     */
+    osg::ref_ptr< WGEManagedGroupNode > m_tmpFib;
 
     /**
      * The transformation node moving the Y slice through the dataset space if the sliders are used
@@ -146,7 +161,13 @@ private:
     WPropBool     m_showonY; //!< indicates whether the vector should be shown on slice Y
 
     WPropBool     m_showonZ; //!< indicates whether the vector should be shown on slice Z
+
+    WPropDouble   m_delta; //!< Environment around the slices where to cut off the tracts
+
+    /**
+     * Condition to notify about changes in positions of the slices.
+     */
+    boost::shared_ptr< WCondition > m_slicePosChanged;
 };
 
 #endif  // WMPROBTRACTDISPLAYSP_H
-

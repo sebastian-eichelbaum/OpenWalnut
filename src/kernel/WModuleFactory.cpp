@@ -33,6 +33,8 @@
 #include "combiner/WApplyCombiner.h"
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
+#include "modules/data/WMData.h" // this is the ONLY module with a special meaning. Everyone knowing the factory also knows this
+#include "modules/navSlices/WMNavSlices.h"
 #include "WModule.h"
 #include "WModuleCombiner.h"
 #include "WModuleFactory.h"
