@@ -73,6 +73,7 @@ void WQtCombinerToolbar::clear()
     {
         delete ( *it );
     }
+    m_actionList.clear();
     QToolBar::clear();
 }
 
