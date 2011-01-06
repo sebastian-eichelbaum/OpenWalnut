@@ -27,6 +27,8 @@
 
 #include "../../common/exceptions/WTypeMismatch.h"
 #include "../../common/WLogger.h"
+#include "../../common/math/WPosition.h"
+#include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "WSPSliceGeodeBuilder.h"
 
 WSPSliceGeodeBuilder::WSPSliceGeodeBuilder( ProbTractList probTracts, boost::shared_ptr< const WDataSetFibers > detTracts, WPropGroup sliceGroup )
@@ -34,7 +36,8 @@ WSPSliceGeodeBuilder::WSPSliceGeodeBuilder( ProbTractList probTracts, boost::sha
       m_probTracts( probTracts ),
       m_intersectionList( 3 ),
       m_sliceBB( 3 ),
-      m_slicePos( 3 )
+      m_slicePos( 3 ),
+      m_probThreshold( 0.1 )
 {
     if( m_probTracts.empty() || !m_detTracts )
     {
@@ -162,6 +165,72 @@ void WSPSliceGeodeBuilder::projectTractOnSlice( const unsigned char sliceNum, os
     }
 }
 
+WColor WSPSliceGeodeBuilder::stupidColorMap( size_t probTractNum ) const
+{
+    double hue_increment = 1.0 / m_probTracts.size();
+    WColor color;
+    color.setHSV( probTractNum * hue_increment, 1.0, 0.75 );
+    color.setAlpha( 1.0f );
+    return color;
+}
+
+osg::ref_ptr< osg::Vec4Array > WSPSliceGeodeBuilder::colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices ) const
+{
+    osg::ref_ptr< osg::Vec4Array > result( new osg::Vec4Array );
+    result->reserve( vertices->size() );
+
+    // for each vertex its accumulated colors
+    std::vector< WColor > vertexColorPerTract;
+    vertexColorPerTract.reserve( m_probTracts.size() );
+
+    size_t interpolationFailures = 0;
+
+    for( osg::Vec3Array::const_iterator cit = vertices->begin(); cit != vertices->end(); ++cit )
+    {
+        const wmath::WPosition vertex( *cit );
+        vertexColorPerTract.clear();
+
+        size_t probTractNum = 0;
+        // for each probabilisitc tractogram look up if its probability at this vertex is below a certain threshold or not
+        for( ProbTractList::const_iterator probTract = m_probTracts.begin(); probTract != m_probTracts.end(); ++probTract, ++probTractNum )
+        {
+            bool success = false;
+            double probability = ( *probTract )->interpolate( vertex, &success );
+            if( success && ( probability > m_probThreshold ) )
+            {
+                WColor c = stupidColorMap( probTractNum );
+                c.setAlpha( static_cast< float >( probability ) );
+                vertexColorPerTract.push_back( c );
+            }
+            if( !success )
+            {
+                ++interpolationFailures;
+            }
+        }
+
+        // compose all eligible vertices to one color!
+        WColor color( 0.0, 0.0, 0.0, 0.0 );
+        double share = static_cast< double >( vertexColorPerTract.size() );
+        if( share > wlimits::DBL_EPS )
+        {
+            for( std::vector< WColor >::const_iterator vc = vertexColorPerTract.begin(); vc != vertexColorPerTract.end(); ++vc )
+            {
+                color += *vc / share;
+            }
+        }
+
+        result->push_back( color );
+    }
+
+    if( interpolationFailures > 0 )
+    {
+        wlog::warn( "WSPSliceGeodeBuilder" ) << "While coloring vertices, the interpolation of probabilistic tractograms failed: "
+            << interpolationFailures << " many times.";
+    }
+    WAssert( result->size() == vertices->size(), "Bug: There are not as many colors as vertices computed!" );
+    return result;
+}
+
 WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsigned char sliceNum, const double maxDistance ) const
 {
     WAssert( sliceNum <= 2, "Bug: Invalid slice number given: must be 0, 1 or 2." );
@@ -179,6 +248,7 @@ WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsi
 
     osg::ref_ptr< osg::Vec3Array > pv = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Geometry > pg = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
+    osg::ref_ptr< osg::Vec4Array > pc = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
 
     WDataSetFibers::VertexArray fibVerts = m_detTracts->getVertices();
 
@@ -210,6 +280,8 @@ WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsi
             {
                 vertices->insert( vertices->end(), candidate->begin(), candidate->end() );
                 geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIdx, candidate->size() ) );
+                osg::ref_ptr< osg::Vec4Array > candidateColors = colorVertices( candidate );
+                pc->insert( pc->end(), candidateColors->begin(), candidateColors->end() );
                 projectTractOnSlice( sliceNum, candidate, slicePos );
                 pv->insert( pv->end(), candidate->begin(), candidate->end() );
                 pg->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIdx, candidate->size() ) );
@@ -217,18 +289,22 @@ WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsi
             // note: this loop will terminate since either the first while loop is true or the second or both!
         }
     }
-    osg::ref_ptr< osg::Vec4Array > pc = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    pc->push_back( osg::Vec4( 0.0, 1.0, 0.0, 1.0 ) );
     pg->setVertexArray( pv );
     pg->setColorArray( pc );
-    pg->setColorBinding( osg::Geometry::BIND_OVERALL );
+    pg->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
 
     geometry->setVertexArray( vertices );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
     intersectionGeode->addDrawable( geometry );
+    intersectionGeode->addDrawable( wge::generateBoundingBoxGeode( bb, WColor( 0.0, 0.0, 0.0, 1.0 ) )->getDrawable( 0 ) );
     projectionGeode->addDrawable( pg );
+    projectionGeode->addDrawable( wge::generateBoundingBoxGeode( bb, WColor( 0.0, 0.0, 0.0, 1.0 ) )->getDrawable( 0 ) );
+
+    osg::StateSet* state = projectionGeode->getOrCreateStateSet();
+    state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
     return std::make_pair( intersectionGeode, projectionGeode );
 }

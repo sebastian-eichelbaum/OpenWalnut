@@ -86,12 +86,13 @@ public:
     void determineIntersectingDeterministicTracts();
 
     /**
-     * Creates a geode for the given slice which depicts a limited envirnonment of its intersecting fibers but projected onto that slice.
+     * Creates a pair of geodes for the given slice which depicts a limited envirnonment of its intersecting fibers and a geode
+     * for those projected onto that slice.
      *
      * \param sliceNum 0 denotes xSlice, 1 ySlice and finally 2 means zSlice.
      * \param maxDistance when the fibers should be cut off, best value is probably the 2*sampling distance of the fibers.
      *
-asd     * \return A geode where the cutted intersecting fibers are projected onto the slice.
+     * \return A pair geodes with the cutted intersecting fibers and projected onto the slice.
      */
     GeodePair generateSlices( const unsigned char sliceNum, const double maxDistance = 1.0 ) const;
 
@@ -124,6 +125,10 @@ private:
      */
     void computeSliceBB();
 
+    WColor stupidColorMap( size_t probTractNum ) const;
+
+    osg::ref_ptr< osg::Vec4Array > colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices ) const;
+
     /**
      * Reference to the deterministic tracts.
      */
@@ -155,6 +160,8 @@ private:
     boost::shared_ptr< const WGridRegular3D > m_grid;
 
     std::vector< boost::shared_ptr< const WPVInt > >  m_slicePos; //!< Hold the current position of each slice given from the properties
+
+    double m_probThreshold;
 };
 
 #endif  // WSPSLICEGEODEBUILDER_H
