@@ -120,9 +120,18 @@ private:
     void updateSlices( const unsigned char sliceNum, boost::shared_ptr< const WSPSliceGeodeBuilder > builder );
 
     /**
+     * If there is a change on the probTract ICs then this update callback is called and ensures that for every connected
+     * probabilistic tractogram input connector there is a visible (unhidden) property group to specify the color.
+     *
+     * \param receiver unused here
+     * \param sender unused here
+     */
+    void updateProperitesForTheInputConnectors( boost::shared_ptr< WModuleConnector > receiver, boost::shared_ptr< WModuleConnector > sender );
+
+    /**
      * The probabilistic tractogram input connector.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_probIC;
+    std::vector< boost::shared_ptr< WModuleInputData< WDataSetScalar > > > m_probICs;
 
     /**
      * The tracts input connector.
@@ -168,6 +177,18 @@ private:
     WPropBool     m_showProjection; //!< Switch on or off the projections of the intersecting line stipplings
 
     WPropDouble   m_delta; //!< Environment around the slices where to cut off the tracts
+
+    WPropDouble   m_probThreshold; //!< Probabilities a position below this threshold does not contribute to the vertex coloring
+
+    /**
+     * There is one group for each pobTract input connector holding a string property and a color property.
+     */
+    std::vector< WPropGroup > m_colorMap;
+
+    /**
+     * Fires whenever a color group has changed its color value.
+     */
+    boost::shared_ptr< WCondition > m_colorChanged;
 
     /**
      * Condition to notify about changes of the slices.

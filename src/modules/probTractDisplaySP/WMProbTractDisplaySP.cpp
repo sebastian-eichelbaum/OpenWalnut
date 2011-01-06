@@ -36,6 +36,7 @@
 #include "../../common/math/WMath.h"
 #include "../../common/math/WPlane.h"
 #include "../../common/WPropertyHelper.h"
+#include "../../kernel/WModuleConnectorSignals.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WGridRegular3D.h"
@@ -55,8 +56,16 @@
 // This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMProbTractDisplaySP )
 
+namespace
+{
+    const size_t NUM_ICS = 10;
+}
+
 WMProbTractDisplaySP::WMProbTractDisplaySP()
     : WModule(),
+      m_probICs( NUM_ICS ),
+      m_colorMap( NUM_ICS ),
+      m_colorChanged( new WCondition ),
       m_sliceChanged( new WCondition )
 {
 }
@@ -86,10 +95,44 @@ const std::string WMProbTractDisplaySP::getDescription() const
     return "Slice based probabilistic tract display based on Schmahmann y Pandya";
 }
 
+void WMProbTractDisplaySP::updateProperitesForTheInputConnectors( boost::shared_ptr< WModuleConnector > /* receiver */,
+        boost::shared_ptr< WModuleConnector > /* sender */ )
+{
+    debugLog() << "Input Connector was connected or closed => so all ICs and corresponding PropertyGroups will be checked....";
+    // iterate overall connectors and if one is left with an hidden property unhide it or do the opposite
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        if( ( m_probICs[i]->isConnected() > 0 ) && ( m_colorMap[i]->isHidden() ) )
+        {
+            debugLog() << "Found a connected IC, but hidden prop group at index: " << i;
+            m_colorMap[i]->setHidden( false );
+            if( m_probICs[i]->getData() )
+            {
+                m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( m_probICs[i]->getData()->getFileName() );
+            }
+        }
+        if( ( m_probICs[i]->isConnected() == 0 ) && ( !m_colorMap[i]->isHidden() ) )
+        {
+            debugLog() << "Found an unconnected IC, but unhidden prop group at index: " << i;
+            m_colorMap[i]->setHidden();
+            m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( "/no/such/file" );
+        }
+    }
+}
+
 void WMProbTractDisplaySP::connectors()
 {
     m_tractsIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractsInput", "The deterministic tractograms." );
-    m_probIC = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "probTractInput", "The probabilistic tractogram" );
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        std::stringstream ss;
+        ss << "probTract" << i << "Input";
+        m_probICs[i] = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), ss.str(), "A probabilistic tractogram" );
+        m_probICs[i]->subscribeSignal( CONNECTION_ESTABLISHED,
+                boost::bind( &WMProbTractDisplaySP::updateProperitesForTheInputConnectors, this, _1, _2 ) );
+        m_probICs[i]->subscribeSignal( CONNECTION_CLOSED,
+                boost::bind( &WMProbTractDisplaySP::updateProperitesForTheInputConnectors, this, _1, _2 ) );
+    }
 
     // call WModule's initialization
     WModule::connectors();
@@ -114,7 +157,13 @@ void WMProbTractDisplaySP::properties()
     m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0, m_sliceChanged );
     m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0, m_sliceChanged );
 
-    m_delta  = m_properties->addProperty( "Slices Environment", "see name", 1.0, m_sliceChanged );
+    m_delta  = m_properties->addProperty( "Slices Environment", "Only parts inside this environment intersecting the slice contribute.",
+            1.0, m_sliceChanged );
+
+    m_probThreshold = m_properties->addProperty( "Prob Threshold", "Probabilities a position below this threshold does not"
+            " contribute to the vertex coloring.", 0.1, m_sliceChanged );
+    m_probThreshold->setMin( 0.0 );
+    m_probThreshold->setMax( 1.0 );
 
     // since we don't know anything yet => make them unusable
     m_xPos->setMin( 0 );
@@ -123,6 +172,20 @@ void WMProbTractDisplaySP::properties()
     m_yPos->setMax( 0 );
     m_zPos->setMin( 0 );
     m_zPos->setMax( 0 );
+
+    double hue_increment = 1.0 / NUM_ICS;
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        std::stringstream ss;
+        ss << "Color for " << i << "InputConnector";
+        m_colorMap[i] = m_properties->addPropertyGroup( ss.str(), "String and color properties for an input connector" );
+        WPropString label = m_colorMap[i]->addProperty( "Filename", "The file name this group is connected with", std::string( "/no/such/file" ) );
+        label->setPurpose( PV_PURPOSE_INFORMATION );
+        WColor color( 0.0, 0.0, 0.0, 1.0 );
+        color.setHSV( i * hue_increment, 1.0, 0.75 );
+        m_colorMap[i]->addProperty( "Color", "The color for the probabilistic tractogram this group is associated with", color, m_colorChanged );
+        m_colorMap[i]->setHidden(); // per default for each unconnected input the property group is hidden
+    }
 
     // call WModule's initialization
     WModule::properties();
@@ -158,9 +221,13 @@ void WMProbTractDisplaySP::moduleMain()
 {
     // get notified about data changes
     m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_probIC->getDataChangedCondition() );
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        m_moduleState.add( m_probICs[i]->getDataChangedCondition() );
+    }
     m_moduleState.add( m_tractsIC->getDataChangedCondition() );
     m_moduleState.add( m_sliceChanged );
+    m_moduleState.add( m_colorChanged );
 
     ready();
 
@@ -184,15 +251,26 @@ void WMProbTractDisplaySP::moduleMain()
         {
             break;
         }
-
-        bool dataUpdated = m_probIC->handledUpdate() || m_tractsIC->handledUpdate(); // this call must be made befor getData() on the ICs
         boost::shared_ptr< WDataSetFibers > detTracts = m_tractsIC->getData();
-        boost::shared_ptr< WDataSetScalar > probTract = m_probIC->getData();
         boost::shared_ptr< WGridRegular3D > grid;
+        probTracts.clear(); // discard all prob tracts so far
 
-        if( detTracts && probTract ) // dataValid?
+        bool dataUpdated = m_tractsIC->handledUpdate(); // this call must be made befor getData() on the ICs
+        bool probDataValid = false;
+        for( size_t i = 0; i < NUM_ICS; ++i )
         {
-            grid = boost::shared_dynamic_cast< WGridRegular3D >( probTract->getGrid() );
+            dataUpdated = dataUpdated || m_probICs[i]->handledUpdate();
+            probDataValid = probDataValid || m_probICs[i]->getData(); // at least one probabilistic tract must be there
+            if( m_probICs[i]->getData() )
+            {
+                probTracts.push_back( m_probICs[i]->getData() );
+            }
+        }
+        bool dataValid = detTracts && probDataValid;
+
+        if( dataValid )
+        {
+            grid = boost::shared_dynamic_cast< WGridRegular3D >( probTracts.front()->getGrid() ); // assume all grids are the same and get the first
             if( !grid )
             {
                 errorLog() << "A grid beside WGridRegular3D was used, aborting...";
@@ -211,8 +289,6 @@ void WMProbTractDisplaySP::moduleMain()
             {
                 debugLog() << "Updating Properites";
                 updateProperties( grid );
-                probTracts.clear();
-                probTracts.push_back( probTract );
                 builder = boost::shared_ptr< WSPSliceGeodeBuilder >( new WSPSliceGeodeBuilder( probTracts, detTracts, m_sliceGroup ) );
             }
             else
