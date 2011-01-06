@@ -65,7 +65,8 @@ osg::ref_ptr< WGEOffscreenTexturePass > WGEOffscreenRenderNode::addTextureProces
     return pass;
 }
 
-osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRenderPass( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEShader > shader,
+osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRenderPass( osg::ref_ptr< osg::Node > node,
+                                                                                      osg::ref_ptr< WGEShader > shader,
                                                                                       std::string name )
 {
     // create a plain render pass and add some geometry

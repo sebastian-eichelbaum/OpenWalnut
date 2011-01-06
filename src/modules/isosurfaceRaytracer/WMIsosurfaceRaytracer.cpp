@@ -40,6 +40,7 @@
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/WGEShaderDefineOptions.h"
 #include "../../graphicsEngine/WGERequirement.h"
 #include "../../kernel/WKernel.h"
 #include "WMIsosurfaceRaytracer.xpm"
@@ -134,6 +135,11 @@ void WMIsosurfaceRaytracer::requirements()
 void WMIsosurfaceRaytracer::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMIsosurfaceRaytracer", m_localPath ) );
+    WGEShaderDefineOptions::SPtr shadingDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "CORTEX" ) );
+    shadingDefines->addOption( "DEPTHONLY" );
+    shadingDefines->addOption( "PHONG" );
+    shadingDefines->addOption( "PHONGWITHDEPTH" );
+    m_shader->addPreprocessor( shadingDefines );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -220,26 +226,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             // setup defines (lighting)
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            size_t shadingAlgo = m_shadingAlgo->get( true ).getItemIndexOfSelected( 0 );
-            m_shader->eraseAllDefines();
-            switch ( shadingAlgo )
-            {
-                case Cortex:
-                    m_shader->setDefine( "CORTEX" );
-                    break;
-                case Depth:
-                    m_shader->setDefine( "DEPTHONLY" );
-                    break;
-                case Phong:
-                    m_shader->setDefine( "PHONG" );
-                    break;
-                case PhongDepth:
-                    m_shader->setDefine( "PHONGWITHDEPTH" );
-                    break;
-                default:
-                    m_shader->setDefine( "CORTEX" );
-                    break;
-            }
+            shadingDefines->activateOption( m_shadingAlgo->get( true ).getItemIndexOfSelected( 0 ) );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup all those uniforms

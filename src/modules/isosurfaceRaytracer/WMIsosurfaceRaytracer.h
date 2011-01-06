@@ -31,6 +31,7 @@
 #include <osg/Uniform>
 
 #include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/WGEShaderDefine.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"

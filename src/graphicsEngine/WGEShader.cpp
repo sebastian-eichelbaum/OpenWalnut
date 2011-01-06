@@ -25,6 +25,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <ostream>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
@@ -38,8 +39,11 @@
 #include <osg/Node>
 
 #include "WGraphicsEngine.h"
+#include "WGEShaderPreprocessor.h"
+#include "WGEShaderVersionPreprocessor.h"
 #include "../common/WLogger.h"
 #include "../common/WPathHelper.h"
+#include "../common/WPredicateHelper.h"
 
 #include "WGEShader.h"
 
@@ -60,6 +64,9 @@ WGEShader::WGEShader( std::string name, boost::filesystem::path search ):
     addShader( m_vertexShader );
     addShader( m_fragmentShader );
     addShader( m_geometryShader );
+
+    // this preprocessor is always needed. It removes the #version statement from the code and puts it to the beginning.
+    m_versionPreprocessor = WGEShaderPreprocessor::SPtr( new WGEShaderVersionPreprocessor() );
 
     m_reloadSignalConnection = WGraphicsEngine::getGraphicsEngine()->subscribeSignal( GE_RELOADSHADERS, boost::bind( &WGEShader::reload, this ) );
 }
@@ -192,20 +199,15 @@ void WGEShader::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVisit
     traverse( node, nv );
 }
 
-std::string WGEShader::processShader( const std::string filename, bool optional, int level )
+std::string WGEShader::processShaderRecursive( const std::string filename, bool optional, int level )
 {
     std::stringstream output;    // processed output
 
-    if ( level == 0 )
-    {
-        // for the shader (not the included one, for which level != 0)
-
-        // apply defines
-        for ( std::map< std::string, std::string >::const_iterator mi = m_defines.begin(); mi != m_defines.end(); ++mi )
-        {
-            output << "#define " << mi->first << " " << mi->second << std::endl;
-        }
-    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Before the preprocessors get applied, the following code build the complete shader code from many parts (includes) and handles the version
+    // statement automatically. This is important since the GLSL compiler (especially ATI's) relies on it. After completely loading the whole
+    // code, the preprocessors get applied.
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // we encountered an endless loop
     if ( level > 32 )
@@ -221,9 +223,7 @@ std::string WGEShader::processShader( const std::string filename, bool optional,
     }
 
     // this is the proper regular expression for includes. This also excludes commented includes
-    static const boost::regex re( "^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*" );
-    // this is an expression for the #version statement
-    static const boost::regex ver( "^[ ]*#[ ]*version[ ]+[123456789][0123456789]+.*$" );
+    static const boost::regex includeRegexp( "^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*" );
 
     // the input stream, first check existence of shader
     // search these places in this order:
@@ -291,65 +291,100 @@ std::string WGEShader::processShader( const std::string filename, bool optional,
     // go through each line and process includes
     std::string line;               // the current line
     boost::smatch matches;          // the list of matches
-    std::string versionLine;        // the version
-    bool foundVersion = false;
 
     while ( std::getline( input, line ) )
     {
-        if ( boost::regex_search( line, matches, re ) )
+        if ( boost::regex_search( line, matches, includeRegexp ) )
         {
-            output << processShader( matches[1], false, level + 1 );
-        }
-        else if( boost::regex_match( line, ver ) ) // look for the #version statement
-        {
-            // there already was a version statement in this file
-            // this does not track multiple version statements through included files
-            if( foundVersion )
-            {
-                WLogger::getLogger()->addLogMessage( "Multiple version statements in shader file \"" + fn + "\".",
-                        "WGEShader (" + filename + ")", LL_ERROR
-                );
-                return "";
-            }
-            versionLine = line;
-            foundVersion = true;
+            output << processShaderRecursive( matches[1], false, level + 1 );
         }
         else
         {
             output << line;
         }
 
+        // NOTE: we do not apply the m_processors here since the recursive processShaders may have produced many lines. We would need to loop
+        // through each one of them. This is done later on for the whole code.
+
         output << std::endl;
     }
 
     input.close();
 
-    // no version statement found
-    if( !foundVersion )
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Done. Return code.
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // this string contains the processed shader code
+    return output.str();
+}
+
+std::string WGEShader::processShader( const std::string filename, bool optional )
+{
+    // load all the code
+    std::string code = processShaderRecursive( filename, optional );
+    if ( code.empty() )
     {
-        return output.str();
+        return "";
     }
 
-    // the ATI compiler needs the version statement to be the first statement in the shader
-    std::stringstream vs;
-    vs << versionLine.c_str() << std::endl << output.str();
-    return vs.str();
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // The whole code is loaded now. Apply preprocessors.
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // apply all preprocessors
+    PreprocessorsList::ReadTicket r = m_preprocessors.getReadTicket();
+    for ( PreprocessorsList::ConstIterator pp = r->get().begin(); pp != r->get().end(); ++pp )
+    {
+        code = ( *pp ).first->process( filename, code );
+    }
+    r.reset();
+
+    // finally ensure ONE #version at the beginning.
+    return m_versionPreprocessor->process( filename, code );
 }
 
-void WGEShader::eraseDefine( std::string key )
+void WGEShader::addPreprocessor( WGEShaderPreprocessor::SPtr preproc )
 {
-    m_defines.erase( key );
-    m_reload = true;
+    PreprocessorsList::WriteTicket w = m_preprocessors.getWriteTicket();
+    if ( !w->get().count( preproc ) )   // if already exists, no connection needed
+    {
+        // subscribe the preprocessors update condition
+        boost::signals2::connection con = preproc->getChangeCondition()->subscribeSignal( boost::bind( &WGEShader::reload, this ) );
+        w->get().insert( std::make_pair( preproc, con ) );
+    }
+    w.reset();
+    reload();
 }
 
-void WGEShader::eraseAllDefines()
+void WGEShader::removePreprocessor( WGEShaderPreprocessor::SPtr preproc )
 {
-    m_defines.clear();
-    m_reload = true;
+    PreprocessorsList::WriteTicket w = m_preprocessors.getWriteTicket();
+    if ( w->get().count( preproc ) )   // is it in out list?
+    {
+        w->get().operator[]( preproc ).disconnect();
+        w->get().erase( preproc );
+    }
+    w.reset();
+    reload();
 }
 
-void WGEShader::setDefine( std::string key )
+void WGEShader::clearPreprocessors()
 {
-    this->setDefine( key, "Defined" );
+    PreprocessorsList::WriteTicket w = m_preprocessors.getWriteTicket();
+
+    // we need to disconnect each signal subscription
+    for ( PreprocessorsList::Iterator pp = w->get().begin(); pp != w->get().end(); ++pp )
+    {
+        ( *pp ).second.disconnect();
+    }
+    w->get().clear();
+    w.reset();
+    reload();
+}
+
+WGEShaderDefineSwitch::SPtr WGEShader::setDefine( std::string key )
+{
+    return this->setDefine< bool >( key, true );
 }
 

@@ -26,6 +26,7 @@
 #define WGESHADER_H
 
 #include <map>
+#include <list>
 #include <string>
 
 #include <boost/filesystem.hpp>
@@ -35,6 +36,9 @@
 #include <osg/Program>
 
 #include "../common/WPathHelper.h"
+#include "../common/WSharedAssociativeContainer.h"
+#include "WGEShaderPreprocessor.h"
+#include "WGEShaderDefine.h"
 #include "WExportWGE.h"
 
 /**
@@ -94,7 +98,7 @@ public:
      * \param value The value of the define. If this is not specified, the define can be used as simple ifdef switch.
      */
     template < typename T >
-    void setDefine( std::string key, T value );
+    typename WGEShaderDefine< T >::SPtr setDefine( std::string key, T value );
 
     /**
      * Sets a define which is include into the shader source code. This allows the preprocessor to turn on/off several parts of your code. In GLSL
@@ -102,25 +106,32 @@ public:
      *
      * \param key The name of the define
      */
-    void setDefine( std::string key );
+    WGEShaderDefineSwitch::SPtr setDefine( std::string key );
 
     /**
-     * Deletes a define from the internal list
+     * Adds the specified preprocessor to this shader. The preprocessor is able to force shader reloads.
      *
-     * \param key The name of the define
+     * \param preproc the preprocessor to add.
      */
-    void eraseDefine( std::string key );
+    void addPreprocessor( WGEShaderPreprocessor::SPtr preproc );
 
     /**
-     * Removes all existing defines.
+     * Removes the specified preprocessor. Changes inside the preprocessor won't cause any updates anymore.
+     *
+     * \param preproc the preprocessor to remove. If not exists: nothing is done.
      */
-    void eraseAllDefines();
+    void removePreprocessor( WGEShaderPreprocessor::SPtr preproc );
+
+    /**
+     * Removes all preprocessors. Be careful with this one since it removes the WGESHaderVersionPreprocessor too, which is mandatory.
+     */
+    void clearPreprocessors();
 
 protected:
 
     /**
      * This method searches and processes all includes in the shader source. The filenames in the include statement are assumed to
-     * be relative to this shader's path.
+     * be relative to this shader's path. It simply unrolls the code.
      *
      * \param filename the filename of the shader to process.
      * \param optional denotes whether a "file not found" is critical or not
@@ -128,7 +139,20 @@ protected:
      *
      * \return the processed source.
      */
-    std::string processShader( const std::string filename, bool optional = false, int level = 0 );
+    std::string processShaderRecursive( const std::string filename, bool optional = false, int level = 0 );
+
+    /**
+     * This method searches and processes all includes in the shader source. The filenames in the include statement are assumed to
+     * be relative to this shader's path. It additionally applies preprocessors.
+     *
+     * \see processShaderRecursive
+     *
+     * \param filename the filename of the shader to process.
+     * \param optional denotes whether a "file not found" is critical or not
+     *
+     * \return the processed source.
+     */
+    std::string processShader( const std::string filename, bool optional = false );
 
     /**
      * This completely reloads the shader file and processes it. It also resets m_reload to false.
@@ -171,9 +195,19 @@ protected:
     boost::signals2::connection m_reloadSignalConnection;
 
     /**
-     * a map of all set defines
+     * The list of preprocessors - Type
      */
-    std::map< std::string, std::string > m_defines;
+    typedef WSharedAssociativeContainer< std::map< WGEShaderPreprocessor::SPtr, boost::signals2::connection > > PreprocessorsList;
+
+    /**
+     * List of all pre-processing that need to be applied to this shader instance
+     */
+    PreprocessorsList m_preprocessors;
+
+    /**
+     * This preprocessor needs to be run LAST. It handles version-statements in GLSL.
+     */
+    WGEShaderPreprocessor::SPtr m_versionPreprocessor;
 
     /**
      * the vertex shader object
@@ -226,13 +260,31 @@ private:
 };
 
 template < typename T >
-void WGEShader::setDefine( std::string key, T value )
+typename WGEShaderDefine< T >::SPtr WGEShader::setDefine( std::string key, T value )
 {
-    if ( key.length() > 0 )
+    typename WGEShaderDefine< T >::SPtr def;
+
+    // try to find the define. If it exists, set it. If not, add it.
+    PreprocessorsList::ReadTicket r = m_preprocessors.getReadTicket();
+    for ( PreprocessorsList::ConstIterator pp = r->get().begin(); pp != r->get().end(); ++pp )
     {
-        m_defines[key] = boost::lexical_cast< std::string >( value );
-        m_reload = true;
+        typename WGEShaderDefine< T >::SPtr define = boost::shared_dynamic_cast< WGEShaderDefine< T > >( ( *pp ).first );
+        if ( define && ( define->getName() == key ) )
+        {
+            define->setValue( value );
+            def = define;
+            break;
+        }
     }
+    r.reset();
+
+    // did not find it. Add.
+    if ( !def )
+    {
+        def = typename WGEShaderDefine< T >::SPtr( new WGEShaderDefine< T >( key, value ) );
+        addPreprocessor( def );
+    }
+    return def;
 }
 
 #endif  // WGESHADER_H

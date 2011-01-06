@@ -25,6 +25,7 @@
 #ifndef WCONDITION_H
 #define WCONDITION_H
 
+#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/thread.hpp>
@@ -39,6 +40,15 @@ class OWCOMMON_EXPORT WCondition // NOLINT
 {
     friend class WCondition_test;
 public:
+    /**
+     * Shared pointer type for WCondition.
+     */
+    typedef boost::shared_ptr< WCondition > SPtr;
+
+    /**
+     * Const shared pointer type for WCondition.
+     */
+    typedef boost::shared_ptr< const WCondition > ConstSPtr;
 
     /**
      * Default constructor.
