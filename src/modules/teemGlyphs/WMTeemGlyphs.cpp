@@ -112,7 +112,6 @@ void estimateNormalsAntipodal( limnPolyData *glyph, const char normalize )
 
 WMTeemGlyphs::~WMTeemGlyphs()
 {
-    // Cleanup!
 }
 
 boost::shared_ptr< WModule > WMTeemGlyphs::factory() const
@@ -293,11 +292,20 @@ void WMTeemGlyphs::moduleMain()
             m_moduleState.wait();
         }
     }
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+
+    {
+        boost::unique_lock< boost::mutex > lock( m_moduleNodeLock );
+
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+
+        lock.unlock();
+    }
 }
 
 void  WMTeemGlyphs::renderSlice( size_t sliceId )
 {
+    // Please look here  http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
+
     debugLog() << "Rendering Slice " << sliceId;
     boost::shared_ptr< WProgress > progress;
     progress = boost::shared_ptr< WProgress >( new WProgress( "Glyph Generation", 2 ) );
@@ -306,10 +314,15 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
     size_t sliceType = m_sliceOrientationSelectionProp->get( true ).getItemIndexOfSelected( 0 );
     size_t order = boost::lexical_cast< float >(  m_orders->getSelector( m_orderProp->get( true ).getItemIndexOfSelected( 0 ) ) .at( 0 )->getName() );
 
-    // Please look here  http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
-    if( m_moduleNode )
     {
-        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+        boost::unique_lock< boost::mutex > lock( m_moduleNodeLock );
+
+        if( m_moduleNode )
+        {
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+        }
+
+        lock.unlock();
     }
 
     //-----------------------------------------------------------
@@ -329,22 +342,27 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
                                        m_useNormalizationProp->get( true ),
                                        m_useRadiusNormalizationProp->get( true ),
                                        m_hideNegativeLobesProp->get( true ) ) );
-    WThreadedFunction< GlyphGeneration > generatorThreaded( 2/*W_AUTOMATIC_NB_THREADS*/, generator );
+    WThreadedFunction< GlyphGeneration > generatorThreaded( W_AUTOMATIC_NB_THREADS, generator );
     generatorThreaded.run();
     generatorThreaded.wait();
 
     ++*progress;
 
-    m_moduleNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
-    osg::ref_ptr< osg::Geode > glyphsGeode = generator->getGraphics();
-    m_moduleNode->insert( glyphsGeode );
-    m_moduleNode->setName( "teem glyphs module node" );
+    {
+        boost::unique_lock< boost::mutex > lock( m_moduleNodeLock );
 
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMTeemGlyphs", m_localPath ) );
-    m_shader->apply( glyphsGeode );
+        m_moduleNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
+        osg::ref_ptr< osg::Geode > glyphsGeode = generator->getGraphics();
+        m_moduleNode->insert( glyphsGeode );
+        m_moduleNode->setName( "teem glyphs module node" );
 
+        m_shader = osg::ref_ptr< WShader > ( new WShader( "WMTeemGlyphs", m_localPath ) );
+        m_shader->apply( glyphsGeode );
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
+
+        lock.unlock();
+    }
 
     progress->finish();
 }
@@ -352,6 +370,8 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
 
 void WMTeemGlyphs::activate()
 {
+    boost::unique_lock< boost::mutex > lock( m_moduleNodeLock );
+
     if( m_moduleNode )
     {
         if( m_active->get() )
@@ -363,6 +383,9 @@ void WMTeemGlyphs::activate()
             m_moduleNode->setNodeMask( 0x0 );
         }
     }
+
+    lock.unlock();
+
     WModule::activate();
 }
 

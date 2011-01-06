@@ -125,8 +125,27 @@ private:
      */
     void computeSliceBB();
 
+    /**
+     * Very simple color mapping which is used temporarily, later we want to substitute this with a color chooser as properties.
+     *
+     * \param probTractNum Index of the probabilisitc tractrogram to get the color for.
+     *
+     * \return The color for the given prob tract index.
+     *
+     * \todo Replace this with properties approach
+     */
     WColor stupidColorMap( size_t probTractNum ) const;
 
+    /**
+     * Color each vertex accordingly to all given probabilistic tractograms. For each vertex all probTracts are considered in the following manner:
+     *  - first check if the tract contribute, and if so, set alpha value to probability
+     *  - the resulting color is then computed by summing all contributing colors but divide them by the number of contributing colors, so each
+     *    prob tract contributes the same amount but with different alpha value.
+     *
+     * \param vertices The vertices to compute the colors for
+     *
+     * \return An array of colors for the given vertices.
+     */
     osg::ref_ptr< osg::Vec4Array > colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices ) const;
 
     /**
@@ -161,7 +180,8 @@ private:
 
     std::vector< boost::shared_ptr< const WPVInt > >  m_slicePos; //!< Hold the current position of each slice given from the properties
 
-    double m_probThreshold;
+    // todo(math): replace this by an property
+    double m_probThreshold; //!< minimum of probability which contributes in coloring the vertices
 };
 
 #endif  // WSPSLICEGEODEBUILDER_H

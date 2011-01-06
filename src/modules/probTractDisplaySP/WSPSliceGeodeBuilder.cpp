@@ -303,7 +303,9 @@ WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsi
     projectionGeode->addDrawable( wge::generateBoundingBoxGeode( bb, WColor( 0.0, 0.0, 0.0, 1.0 ) )->getDrawable( 0 ) );
 
     osg::StateSet* state = projectionGeode->getOrCreateStateSet();
+    // transparent colors are really transparent and not black
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    // transparent colors are rendered at last, so not use the background color but the color of the nav slices
     state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
     return std::make_pair( intersectionGeode, projectionGeode );

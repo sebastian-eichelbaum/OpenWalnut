@@ -157,8 +157,22 @@ public:
      */
     bool operator!=( const WColor &rhs ) const;
 
+    /**
+     * Divides each color and also the alpha channel by the given divisor.
+     *
+     * \param divisor The divisor used for division
+     *
+     * \return A divided copy of this.
+     */
     WColor operator/( double divisor ) const;
 
+    /**
+     * Accumulates this with another color channelwisely.
+     *
+     * \param other The other color to add to this.
+     *
+     * \return A reference to the modified this.
+     */
     WColor& operator+=( const WColor& other );
 
     static const WColor green; //!< Default for green
