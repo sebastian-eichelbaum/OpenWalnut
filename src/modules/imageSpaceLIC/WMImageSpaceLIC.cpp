@@ -44,6 +44,7 @@
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/WGEShaderDefineOptions.h"
 #include "../../graphicsEngine/WGEOffscreenRenderPass.h"
 #include "../../graphicsEngine/WGEOffscreenRenderNode.h"
 #include "../../graphicsEngine/WGEPropertyUniform.h"
@@ -303,6 +304,9 @@ void WMImageSpaceLIC::moduleMain()
 
     // setup all the passes needed for image space advection
     osg::ref_ptr< WGEShader > transformationShader = new WGEShader( "WMImageSpaceLIC-Transformation", m_localPath );
+    WGEShaderDefineOptions::SPtr availableDataDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "SCALARDATA" ) );
+    availableDataDefines->addOption( "VECTORDATA" );
+    transformationShader->addPreprocessor( availableDataDefines );
     osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass(
         m_output,
         transformationShader,
@@ -422,8 +426,7 @@ void WMImageSpaceLIC::moduleMain()
 
             // prepare offscreen render chain
             edgeDetection->bind( randTexture, 1 );
-            transformationShader->eraseDefine( "SCALARDATA" );
-            transformationShader->setDefine( "VECTORDATA" );
+            availableDataDefines->activateOption( 1 );  // vector input
             transformation->bind( dataSetVec->getTexture()->getTexture(), 0 );
         }
         else if ( dataSetScal )
@@ -439,8 +442,7 @@ void WMImageSpaceLIC::moduleMain()
 
             // prepare offscreen render chain
             edgeDetection->bind( randTexture, 1 );
-            transformationShader->eraseDefine( "VECTORDATA" );
-            transformationShader->setDefine( "SCALARDATA" );
+            availableDataDefines->activateOption( 0 );  // scalar input
             transformation->bind( dataSetScal->getTexture()->getTexture(), 0 );
             transformation->bind( randTexture, 1 );
         }

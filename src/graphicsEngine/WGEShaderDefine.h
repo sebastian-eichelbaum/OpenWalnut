@@ -129,7 +129,7 @@ WGEShaderDefine< ValueType >::~WGEShaderDefine()
 }
 
 template< typename ValueType >
-std::string WGEShaderDefine< ValueType >::process( const std::string& file, const std::string& code ) const
+std::string WGEShaderDefine< ValueType >::process( const std::string& /*file*/, const std::string& code ) const
 {
     if ( !getActive() )
     {

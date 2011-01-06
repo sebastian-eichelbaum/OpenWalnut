@@ -41,6 +41,8 @@
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/WGEShaderDefine.h"
+#include "../../graphicsEngine/WGEShaderDefineOptions.h"
 #include "../../graphicsEngine/WGERequirement.h"
 #include "../../kernel/WKernel.h"
 #include "WMDirectVolumeRendering.xpm"
@@ -173,6 +175,30 @@ void WMDirectVolumeRendering::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMDirectVolumeRendering", m_localPath ) );
 
+    // setup all the defines needed
+
+    // local illumination model
+    WGEShaderDefineOptions::SPtr illuminationAlgoDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "LOCALILLUMINATION_NONE" ) );
+    illuminationAlgoDefines->addOption( "LOCALILLUMINATION_PHONG" );
+    m_shader->addPreprocessor( illuminationAlgoDefines );
+
+    // gradient texture settings
+    WGEShaderDefine< std::string >::SPtr gradTexSamplerDefine = m_shader->setDefine( "GRADIENTTEXTURE_SAMPLER", std::string( "tex1" ) );
+    WGEShaderDefineSwitch::SPtr gradTexEnableDefine = m_shader->setDefine( "GRADIENTTEXTURE_ENABLED" );
+
+    // transfer function texture settings
+    WGEShaderDefine< std::string >::SPtr tfTexSamplerDefine = m_shader->setDefine( "TRANSFERFUNCTION_SAMPLER", std::string( "tex2" ) );
+    WGEShaderDefineSwitch::SPtr tfTexEnableDefine = m_shader->setDefine( "TRANSFERFUNCTION_ENABLED" );
+
+    // jitter
+    WGEShaderDefine< std::string >::SPtr jitterSamplerDefine = m_shader->setDefine( "JITTERTEXTURE_SAMPLER", std::string( "tex3" ) );
+    WGEShaderDefine< int >::SPtr jitterSizeXDefine = m_shader->setDefine( "JITTERTEXTURE_SIZEX", 0 );
+    WGEShaderDefineSwitch::SPtr jitterEnableDefine = m_shader->setDefine( "JITTERTEXTURE_ENABLED" );
+
+    // opacity correction enabled?
+    WGEShaderDefineSwitch::SPtr opacityCorrectionEnableDefine = m_shader->setDefine( "OPACITYCORRECTION_ENABLED" );
+
+
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
@@ -222,6 +248,9 @@ void WMDirectVolumeRendering::moduleMain()
         {
             debugLog() << "Data changed. Uploading new data as texture.";
 
+            // there are several updates. Clear the root node and later on insert the new rendering.
+            rootNode->clear();
+
             // First, grab the grid
             boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
             if ( !grid )
@@ -255,16 +284,8 @@ void WMDirectVolumeRendering::moduleMain()
             // setup illumination
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            size_t localIlluminationAlgo = m_localIlluminationAlgo->get( true ).getItemIndexOfSelected( 0 );
-            m_shader->eraseAllDefines();
-            switch ( localIlluminationAlgo )
-            {
-                case Phong:
-                    m_shader->setDefine( "LOCALILLUMINATION_PHONG" );
-                    break;
-                default:
-                    break;
-            }
+            // set proper illumination define
+            illuminationAlgoDefines->activateOption( m_localIlluminationAlgo->get( true ).getItemIndexOfSelected( 0 ) );
 
             // if there is a gradient field available -> apply as texture too
             boost::shared_ptr< WDataSetVector > gradients = m_gradients->getData();
@@ -275,8 +296,11 @@ void WMDirectVolumeRendering::moduleMain()
                 // bind the texture to the node
                 rootState->setTextureAttributeAndModes( 1, gradients->getTexture()->getTexture(), osg::StateAttribute::ON );
                 rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
-                m_shader->setDefine( "GRADIENTTEXTURE_SAMPLER", "tex1" );
-                m_shader->setDefine( "GRADIENTTEXTURE_ENABLED" );
+                gradTexEnableDefine->setActive( true );
+            }
+            else
+            {
+                gradTexEnableDefine->setActive( false ); // disable gradient texture
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -284,6 +308,7 @@ void WMDirectVolumeRendering::moduleMain()
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // try to load the tf from file if existent
+            tfTexEnableDefine->setActive( false );
             if ( m_tfLoaderEnabled->get( true ) )
             {
                 osg::ref_ptr< osg::Image > tfImg = osgDB::readImageFile( m_tfLoaderFile->get( true ).file_string() );
@@ -296,8 +321,7 @@ void WMDirectVolumeRendering::moduleMain()
                     // apply it
                     rootState->setTextureAttributeAndModes( 2, tfTexture, osg::StateAttribute::ON );
                     rootState->addUniform( new osg::Uniform( "tex2", 2 ) );
-                    m_shader->setDefine( "TRANSFERFUNCTION_SAMPLER", "tex2" );
-                    m_shader->setDefine( "TRANSFERFUNCTION_ENABLED" );
+                    tfTexEnableDefine->setActive( true );        // enable it
                 }
                 else
                 {
@@ -311,6 +335,7 @@ void WMDirectVolumeRendering::moduleMain()
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // create some random noise
+            jitterSamplerDefine->setActive( false );
             if ( m_stochasticJitterEnabled->get( true ) )
             {
                 const size_t size = 64;
@@ -322,9 +347,8 @@ void WMDirectVolumeRendering::moduleMain()
                 randTexture->setImage( genWhiteNoise( size ) );
                 rootState->setTextureAttributeAndModes( 3, randTexture, osg::StateAttribute::ON );
                 rootState->addUniform( new osg::Uniform( "tex3", 3 ) );
-                m_shader->setDefine( "JITTERTEXTURE_SAMPLER", "tex3" );
-                m_shader->setDefine( "JITTERTEXTURE_SIZEX", size );
-                m_shader->setDefine( "JITTERTEXTURE_ENABLED" );
+                jitterSamplerDefine->setActive( true );
+                jitterSizeXDefine->setValue( size );
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -334,7 +358,11 @@ void WMDirectVolumeRendering::moduleMain()
             // create some random noise
             if ( m_opacityCorrectionEnabled->get( true ) )
             {
-                m_shader->setDefine( "OPACITYCORRECTION_ENABLED" );
+                opacityCorrectionEnableDefine->setActive( true );
+            }
+            else
+            {
+                opacityCorrectionEnableDefine->setActive( false );
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -357,7 +385,6 @@ void WMDirectVolumeRendering::moduleMain()
 
             // update node
             debugLog() << "Adding new rendering.";
-            rootNode->clear();
             rootNode->insert( cube );
             // insert root node if needed. This way, we ensure that the root node gets added only if the proxy cube has been added AND the bbox
             // can be calculated properly by the OSG to ensure the proxy cube is centered in the scene if no other item has been added earlier.
