@@ -35,7 +35,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSetDTI.h"
 
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
@@ -134,12 +134,12 @@ private:
     /**
      * The input dataset. It contains the second order tensor data needed here.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
+    boost::shared_ptr< WModuleInputData< WDataSetDTI > > m_input;
 
     /**
      * The current tensor dataset.
      */
-    boost::shared_ptr< const WDataSetSingle > m_dataSet;
+    boost::shared_ptr< const WDataSetDTI > m_dataSet;
 
     /**
      * The current tensor dataset's grid.

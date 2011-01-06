@@ -79,7 +79,7 @@ const std::string WMSuperquadricGlyphs::getDescription() const
 void WMSuperquadricGlyphs::connectors()
 {
     // The input second order tensor dataset
-    m_input = boost::shared_ptr< WModuleInputData< WDataSetSingle > >( new WModuleInputData< WDataSetSingle >( shared_from_this(),
+    m_input = boost::shared_ptr< WModuleInputData< WDataSetDTI > >( new WModuleInputData< WDataSetDTI >( shared_from_this(),
         "tensor input", "An input set of 2nd-order tensors on a regular 3D-grid." )
     );
     addConnector( m_input );
@@ -421,7 +421,7 @@ void WMSuperquadricGlyphs::moduleMain()
         // Collect changes
 
         // has the data changes? And even more important: is it valid?
-        boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
+        boost::shared_ptr< WDataSetDTI > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
         // TODO(ebaum): as long as we do not have a proper second order tensor field:

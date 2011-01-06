@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <utility>
 
+#include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
 #include "../common/math/WPosition.h"
 #include "WExportDataHandler.h"
@@ -61,7 +62,7 @@ public:
     /**
      * Returns the two positions representing the bounding box of the grid.
      */
-    virtual std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const = 0;
+    virtual WBoundingBox getBoundingBox() const = 0;
 
     /**
      * Returns a pointer to the information properties object of the grid. The grid intends these properties to not be modified.
