@@ -22,30 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WQtTreeWidget.h"
-#include "WQtSubjectTreeItem.h"
-#include <QtGui/QKeyEvent>
-
-WQtTreeWidget::WQtTreeWidget( QWidget* parent )
-    : QTreeWidget( parent )
-{
-    invisibleRootItem()->setFlags( Qt::ItemIsEnabled );
-    setSelectionMode( QAbstractItemView::SingleSelection );
-}
-
-
-WQtTreeWidget::~WQtTreeWidget()
-{
-}
-
-void WQtTreeWidget::deleteItem( QTreeWidgetItem* item )
-{
-//     takeTopLevelItem ( indexOfTopLevelItem( item  ) );
-    delete item;
-}
-
-void WQtTreeWidget::dropEvent( QDropEvent* /*event*/ )
-{
-    emit dragDrop();
-}
+#include "WGEShaderDefine.h"
 

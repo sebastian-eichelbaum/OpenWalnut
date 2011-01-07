@@ -544,7 +544,7 @@ void WMMarchingCubes::renderMesh()
         state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", 100 ) ) );
     }
 
-    m_shader = osg::ref_ptr< WShader >( new WShader( "WMMarchingCubes", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader >( new WGEShader( "WMMarchingCubes", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );

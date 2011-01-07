@@ -33,7 +33,7 @@
 #include "../../common/WItemSelector.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataSetSphericalHarmonics.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -134,7 +134,7 @@ private:
     boost::shared_ptr< WDataSetSphericalHarmonics > m_dataSet; //!< Pointer to the treated data set.
 
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputGFA; //!< The input for the GFA.
-    osg::ref_ptr< WShader > m_shader; //!< The shader used for the glyph surfaces
+    osg::ref_ptr< WGEShader > m_shader; //!< The shader used for the glyph surfaces
     boost::shared_ptr< WItemSelection > m_sliceOrientations; //!< A list of the selectable slice orientations, i.e  x, y and z.
     WPropSelection m_sliceOrientationSelectionProp; //!< To choose whether to x, y or z slice.
     WPropBool m_usePolarPlotProp; //!< Property indicating whether to use polar plot instead of HOME glyph
@@ -152,6 +152,8 @@ private:
 
     osg::ref_ptr< osg::Geode > m_glyphsGeode; //!< Pointer to geode containing the glyphs.
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
+
+    boost::mutex m_moduleNodeLock; //!< Lock to prevent concurrent threads trying access m_moduleNode
 
     /**
      * This class actually generated the glyph geometry. This class has () operator that the work.

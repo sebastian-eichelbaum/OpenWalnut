@@ -157,6 +157,24 @@ public:
      */
     bool operator!=( const WColor &rhs ) const;
 
+    /**
+     * Divides each color and also the alpha channel by the given divisor.
+     *
+     * \param divisor The divisor used for division
+     *
+     * \return A divided copy of this.
+     */
+    WColor operator/( double divisor ) const;
+
+    /**
+     * Accumulates this with another color channelwisely.
+     *
+     * \param other The other color to add to this.
+     *
+     * \return A reference to the modified this.
+     */
+    WColor& operator+=( const WColor& other );
+
     static const WColor green; //!< Default for green
     static const WColor red; //!< Default for red
     static const WColor blue; //!< Default for blue
@@ -194,4 +212,17 @@ inline WColor::operator wmath::WVector3D() const
                              static_cast< float >( m_blue ) );
 }
 
+inline WColor WColor::operator/( double divisor ) const
+{
+    return WColor( m_red / divisor, m_green / divisor, m_blue / divisor, m_alpha / divisor );
+}
+
+inline WColor& WColor::operator+=( const WColor& other )
+{
+    m_red += other.m_red;
+    m_green += other.m_green;
+    m_blue += other.m_blue;
+    m_alpha += other.m_alpha;
+    return *this;
+}
 #endif  // WCOLOR_H

@@ -41,7 +41,7 @@ boost::shared_ptr< WGEColormapping > WGEColormapping::m_instance = boost::shared
  * \param shader the shader where to add the defines
  * \param start the start index of the unit for colormap0
  */
-void setDefines( osg::ref_ptr< WShader > shader, size_t start = 0 )
+void setDefines( osg::ref_ptr< WGEShader > shader, size_t start = 0 )
 {
     // simply set some proper defines for each colormap -> the unit and multitex coords
     for ( size_t unit = 0; unit < wge::getMaxTexUnits(); ++unit )
@@ -62,7 +62,7 @@ void setDefines( osg::ref_ptr< WShader > shader, size_t start = 0 )
  * \param shader the shader where to add the defines
  * \param preTransform the transformation matrix used to pre-multiply with all texture coordinates
  */
-void setPreTransform( osg::ref_ptr< WShader > shader, osg::Matrixd preTransform )
+void setPreTransform( osg::ref_ptr< WGEShader > shader, osg::Matrixd preTransform )
 {
     std::ostringstream out;
     out << "mat4( ";
@@ -104,12 +104,12 @@ boost::shared_ptr< WGEColormapping > WGEColormapping::instance()
     return m_instance;
 }
 
-void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader, size_t startTexUnit )
+void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEShader > shader, size_t startTexUnit )
 {
     instance()->applyInst( node, wmath::WMatrix4x4::identity(), shader, startTexUnit );
 }
 
-void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, wmath::WMatrix4x4 preTransform, osg::ref_ptr< WShader > shader,
+void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, wmath::WMatrix4x4 preTransform, osg::ref_ptr< WGEShader > shader,
                              size_t startTexUnit )
 {
     instance()->applyInst( node, preTransform, shader, startTexUnit );
@@ -131,7 +131,7 @@ void WGEColormapping::replaceTexture( osg::ref_ptr< WGETexture3D > old, osg::ref
     instance()->replaceTextureInst( old, newTex, name );
 }
 
-void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, wmath::WMatrix4x4 preTransform, osg::ref_ptr< WShader > shader,
+void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, wmath::WMatrix4x4 preTransform, osg::ref_ptr< WGEShader > shader,
                                  size_t startTexUnit )
 {
     // applying to a node simply means adding a callback :-)
@@ -147,7 +147,7 @@ void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, wmath::WMatrix4
     if ( !shader )
     {
         // we use a new instance of the default shader here because the preTransform is varying between several nodes.
-        osg::ref_ptr< WShader > s = new WShader( "WGEDefaultColormapper" );
+        osg::ref_ptr< WGEShader > s = new WGEShader( "WGEDefaultColormapper" );
         setDefines( s, 0 );
         setPreTransform( s, preTransform );
         s->apply( node );

@@ -43,7 +43,7 @@
 #include "callbacks/WGEFunctorCallback.h"
 
 #include "WGETexture.h"
-#include "WShader.h"
+#include "WGEShader.h"
 #include "WExportWGE.h"
 
 /**
@@ -112,7 +112,7 @@ public:
      * \param startTexUnit the first texture unit allowed to be used
      */
     static void apply( osg::ref_ptr< osg::Node > node, wmath::WMatrix4x4 preTransform = wmath::WMatrix4x4::identity(),
-                       osg::ref_ptr< WShader > shader = osg::ref_ptr< WShader >(), size_t startTexUnit = 0 );
+                       osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
 
     /**
      * Apply the colormapping to the specified node.
@@ -122,7 +122,7 @@ public:
      * specified, a default shader is used.
      * \param startTexUnit the first texture unit allowed to be used
      */
-    static void apply( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader = osg::ref_ptr< WShader >(), size_t startTexUnit = 0 );
+    static void apply( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
 
     /**
      * Register the specified texture to the colormapper. The registered texture is the automatically applied to all users of WGEColormapping.
@@ -243,7 +243,7 @@ protected:
      * \param startTexUnit the first texture unit allowed to be used
      */
     void applyInst( osg::ref_ptr< osg::Node > node, wmath::WMatrix4x4 preTransform = wmath::WMatrix4x4::identity(),
-                    osg::ref_ptr< WShader > shader = osg::ref_ptr< WShader >(), size_t startTexUnit = 0 );
+                    osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
 
     /**
      * Register the specified texture to the colormapper. The registered texture is the automatically applied to all users of WGEColormapping.

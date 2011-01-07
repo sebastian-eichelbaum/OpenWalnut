@@ -224,7 +224,7 @@ private:
     /**
      * the shader object for this module
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * vector of uniforms for type of texture

@@ -48,7 +48,7 @@
 #include "../../../dataHandler/WGridRegular3D.h"
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WValueSet.h"
-#include "../../../graphicsEngine/WShader.h"
+#include "../../../graphicsEngine/WGEShader.h"
 #include "../../../graphicsEngine/WGraphicsEngine.h"
 #include "../../../graphicsEngine/WGEUtils.h"
 #include "../../WKernel.h"
@@ -72,7 +72,7 @@ WMNavSlices::WMNavSlices():
     // Implement WModule::initializeConnectors instead.
 
     // initialize members
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMNavSlices" ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMNavSlices" ) );
 }
 
 WMNavSlices::~WMNavSlices()
@@ -198,9 +198,9 @@ void WMNavSlices::moduleMain()
     );
 
     setMaxMinFromBoundingBox();
-    m_sagittalPos->set( 0.5 * ( m_bb.first[0] + m_bb.second[0] ) );
-    m_coronalPos->set( 0.5 * (  m_bb.first[1] + m_bb.second[1] ) );
-    m_axialPos->set( 0.5 * (  m_bb.first[2] + m_bb.second[2] ) );
+    m_sagittalPos->set( 0.5 * ( m_bb.xMin() + m_bb.xMax() ) );
+    m_coronalPos->set( 0.5 * (  m_bb.yMin() + m_bb.yMax() ) );
+    m_axialPos->set( 0.5 * (  m_bb.zMin() + m_bb.zMax() ) );
 
     create();
 
@@ -366,10 +366,10 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         // z slice
         if ( pickInfo.getViewerName() == "Axial View" )
         {
-            width = m_bb.second[0] - m_bb.first[0] + 1;
-            height = m_bb.second[1] - m_bb.first[1] + 1;
-            left = m_bb.first[0];
-            top = m_bb.first[1];
+            width = m_bb.xMax() - m_bb.xMin() + 1;
+            height = m_bb.yMax() - m_bb.yMin() + 1;
+            left = m_bb.xMin();
+            top = m_bb.yMin();
 
             aspectR = static_cast< double >( m_axialWidgetWidth ) / static_cast< double >( m_axialWidgetHeight );
             {
@@ -394,10 +394,10 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
                 yPos = ( ( y - ( static_cast< double >( m_axialWidgetHeight ) - sizeY ) / 2 ) / sizeY ) * height + top;
             }
 
-            xPos = xPos < m_bb.first[0] ? m_bb.first[0] : xPos;
-            xPos = xPos > m_bb.second[0] ? m_bb.second[0] : xPos;
-            yPos = yPos < m_bb.first[1] ? m_bb.first[1] : yPos;
-            yPos = yPos > m_bb.second[1] ? m_bb.second[1] : yPos;
+            xPos = xPos < m_bb.xMin() ? m_bb.xMin() : xPos;
+            xPos = xPos > m_bb.xMax() ? m_bb.xMax() : xPos;
+            yPos = yPos < m_bb.yMin() ? m_bb.yMin() : yPos;
+            yPos = yPos > m_bb.yMax() ? m_bb.yMax() : yPos;
 
             m_sagittalPos->set( xPos );
             m_coronalPos->set( yPos );
@@ -406,10 +406,10 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         // x slice
         if ( pickInfo.getViewerName() == "Sagittal View" )
         {
-            width = m_bb.second[1] - m_bb.first[1] + 1;
-            height = m_bb.second[2] - m_bb.first[2] + 1;
-            left = m_bb.first[1];
-            top = m_bb.first[2];
+            width = m_bb.yMax() - m_bb.yMin() + 1;
+            height = m_bb.zMax() - m_bb.zMin() + 1;
+            left = m_bb.yMin();
+            top = m_bb.zMin();
 
             aspectR = static_cast< double >( m_sagittalWidgetWidth ) / static_cast< double >( m_sagittalWidgetHeight );
             {
@@ -433,11 +433,11 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
                 xPos = ( ( x - ( static_cast< double >( m_sagittalWidgetWidth ) - sizeX ) / 2 ) / sizeX ) * width + left;
                 yPos = ( ( y - ( static_cast< double >( m_sagittalWidgetHeight ) - sizeY ) / 2 ) / sizeY ) * height + top;
             }
-            xPos = m_bb.second[1] - xPos + left;
-            xPos = xPos < m_bb.first[1] ? m_bb.first[1] : xPos;
-            xPos = xPos > m_bb.second[1] ? m_bb.second[1] : xPos;
-            yPos = yPos < m_bb.first[2] ? m_bb.first[2] : yPos;
-            yPos = yPos > m_bb.second[2] ? m_bb.second[2] : yPos;
+            xPos = m_bb.yMax() - xPos + left;
+            xPos = xPos < m_bb.yMin() ? m_bb.yMin() : xPos;
+            xPos = xPos > m_bb.yMax() ? m_bb.yMax() : xPos;
+            yPos = yPos < m_bb.zMin() ? m_bb.zMin() : yPos;
+            yPos = yPos > m_bb.zMax() ? m_bb.zMax() : yPos;
 
             m_coronalPos->set( xPos );
             m_axialPos->set( yPos );
@@ -446,10 +446,10 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         // y slice
         if ( pickInfo.getViewerName() == "Coronal View" )
         {
-            width = m_bb.second[0] - m_bb.first[0] + 1;
-            height = m_bb.second[2] - m_bb.first[2] + 1;
-            left = m_bb.first[0];
-            top = m_bb.first[2];
+            width = m_bb.xMax() - m_bb.xMin() + 1;
+            height = m_bb.zMax() - m_bb.zMin() + 1;
+            left = m_bb.xMin();
+            top = m_bb.zMin();
 
             aspectR = static_cast< double >( m_coronalWidgetWidth ) / static_cast< double >( m_coronalWidgetHeight );
             {
@@ -473,10 +473,10 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
                 xPos = ( ( x - ( static_cast< double >( m_coronalWidgetWidth ) - sizeX ) / 2 ) / sizeX ) * width + left;
                 yPos = ( ( y - ( static_cast< double >( m_coronalWidgetHeight ) - sizeY ) / 2 ) / sizeY ) * height + top;
             }
-            xPos = xPos < m_bb.first[0] ? m_bb.first[0] : xPos;
-            xPos = xPos > m_bb.second[0] ? m_bb.second[0] : xPos;
-            yPos = yPos < m_bb.first[2] ? m_bb.first[2] : yPos;
-            yPos = yPos > m_bb.second[2] ? m_bb.second[2] : yPos;
+            xPos = xPos < m_bb.xMin() ? m_bb.xMin() : xPos;
+            xPos = xPos > m_bb.xMax() ? m_bb.xMax() : xPos;
+            yPos = yPos < m_bb.zMin() ? m_bb.zMin() : yPos;
+            yPos = yPos > m_bb.zMax() ? m_bb.zMax() : yPos;
 
             m_sagittalPos->set( xPos );
             m_axialPos->set( yPos );
@@ -563,27 +563,21 @@ void WMNavSlices::setMaxMinFromBoundingBox()
 
     if ( tex.size() > 0 )
     {
-        std::pair< wmath::WPosition, wmath::WPosition > bb = tex[0]->getGrid()->getBoundingBox();
+        WBoundingBox bb = tex[0]->getGrid()->getBoundingBox();
 
         for( size_t i = 1; i < tex.size(); ++i )
         {
-            std::pair< wmath::WPosition, wmath::WPosition > bbTmp = tex[i]->getGrid()->getBoundingBox();
-            bb.first[0] = bb.first[0] < bbTmp.first[0] ? bb.first[0] : bbTmp.first[0];
-            bb.first[1] = bb.first[1] < bbTmp.first[1] ? bb.first[1] : bbTmp.first[1];
-            bb.first[2] = bb.first[2] < bbTmp.first[2] ? bb.first[2] : bbTmp.first[2];
-            bb.second[0] = bb.second[0] > bbTmp.second[0] ? bb.second[0] : bbTmp.second[0];
-            bb.second[1] = bb.second[1] > bbTmp.second[1] ? bb.second[1] : bbTmp.second[1];
-            bb.second[2] = bb.second[2] > bbTmp.second[2] ? bb.second[2] : bbTmp.second[2];
+            bb.expandBy( tex[i]->getGrid()->getBoundingBox() );
         }
 
         m_bb = bb;
 
-        m_sagittalPos->setMin( bb.first[0] );
-        m_sagittalPos->setMax( bb.second[0] );
-        m_coronalPos->setMin( bb.first[1] );
-        m_coronalPos->setMax( bb.second[1] );
-        m_axialPos->setMin( bb.first[2] );
-        m_axialPos->setMax( bb.second[2] );
+        m_sagittalPos->setMin( bb.xMin() );
+        m_sagittalPos->setMax( bb.xMax() );
+        m_coronalPos->setMin( bb.yMin() );
+        m_coronalPos->setMax( bb.yMax() );
+        m_axialPos->setMin( bb.zMin() );
+        m_axialPos->setMax( bb.zMax() );
     }
 }
 
@@ -616,10 +610,10 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
             case 0:
             {
                 std::vector< wmath::WPosition > vertices;
-                vertices.push_back( wmath::WPosition( xPos, m_bb.first[1],  m_bb.first[2]   ) );
-                vertices.push_back( wmath::WPosition( xPos, m_bb.first[1],  m_bb.second[2]  ) );
-                vertices.push_back( wmath::WPosition( xPos, m_bb.second[1], m_bb.second[2]  ) );
-                vertices.push_back( wmath::WPosition( xPos, m_bb.second[1], m_bb.first[2]   ) );
+                vertices.push_back( wmath::WPosition( xPos, m_bb.yMin(),  m_bb.zMin()   ) );
+                vertices.push_back( wmath::WPosition( xPos, m_bb.yMin(),  m_bb.zMax()  ) );
+                vertices.push_back( wmath::WPosition( xPos, m_bb.yMax(), m_bb.zMax()  ) );
+                vertices.push_back( wmath::WPosition( xPos, m_bb.yMax(), m_bb.zMin()   ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
                     sliceVertices->push_back( vertices[i] );
@@ -660,10 +654,10 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
             case 1:
             {
                 std::vector< wmath::WPosition > vertices;
-                vertices.push_back( wmath::WPosition( m_bb.first[0],   yPos, m_bb.first[2]  ) );
-                vertices.push_back( wmath::WPosition( m_bb.first[0],   yPos, m_bb.second[2] ) );
-                vertices.push_back( wmath::WPosition( m_bb.second[0],  yPos, m_bb.second[2] ) );
-                vertices.push_back( wmath::WPosition( m_bb.second[0],  yPos, m_bb.first[2]  ) );
+                vertices.push_back( wmath::WPosition( m_bb.xMin(),   yPos, m_bb.zMin()  ) );
+                vertices.push_back( wmath::WPosition( m_bb.xMin(),   yPos, m_bb.zMax() ) );
+                vertices.push_back( wmath::WPosition( m_bb.xMax(),  yPos, m_bb.zMax() ) );
+                vertices.push_back( wmath::WPosition( m_bb.xMax(),  yPos, m_bb.zMin()  ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
                     sliceVertices->push_back( vertices[i] );
@@ -702,10 +696,10 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
             case 2:
             {
                 std::vector< wmath::WPosition > vertices;
-                vertices.push_back( wmath::WPosition( m_bb.first[0],  m_bb.first[1],  zPos ) );
-                vertices.push_back( wmath::WPosition( m_bb.first[0],  m_bb.second[1], zPos ) );
-                vertices.push_back( wmath::WPosition( m_bb.second[0], m_bb.second[1], zPos ) );
-                vertices.push_back( wmath::WPosition( m_bb.second[0], m_bb.first[1],  zPos ) );
+                vertices.push_back( wmath::WPosition( m_bb.xMin(),  m_bb.yMin(),  zPos ) );
+                vertices.push_back( wmath::WPosition( m_bb.xMin(),  m_bb.yMax(), zPos ) );
+                vertices.push_back( wmath::WPosition( m_bb.xMax(), m_bb.yMax(), zPos ) );
+                vertices.push_back( wmath::WPosition( m_bb.xMax(), m_bb.yMin(),  zPos ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
                     sliceVertices->push_back( vertices[i] );
@@ -773,12 +767,12 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
     osg::Vec3Array* crossVertices = new osg::Vec3Array;
     osg::Vec3Array* colorArray = new osg::Vec3Array;
 
-    float minx = m_bb.first[0];
-    float miny = m_bb.first[1];
-    float minz = m_bb.first[2];
-    float maxx = m_bb.second[0];
-    float maxy = m_bb.second[1];
-    float maxz = m_bb.second[2];
+    float minx = m_bb.xMin();
+    float miny = m_bb.yMin();
+    float minz = m_bb.zMin();
+    float maxx = m_bb.xMax();
+    float maxy = m_bb.yMax();
+    float maxz = m_bb.zMax();
 
     std::vector< wmath::WPosition > vertices;
 
@@ -1132,10 +1126,10 @@ void WMNavSlices::updateViewportMatrix()
         currentScene = viewer->getScene();
         //aspectR = viewer->getCamera()->getViewport()->aspectRatio();
 
-        left = m_bb.first[0];
-        top = m_bb.first[1];
-        width = m_bb.second[0] - m_bb.first[0];
-        height = m_bb.second[1] - m_bb.first[1];
+        left = m_bb.xMin();
+        top = m_bb.yMin();
+        width = m_bb.xMax() - m_bb.xMin();
+        height = m_bb.yMax() - m_bb.yMin();
         aspectR = static_cast< double >( m_axialWidgetWidth ) / static_cast< double >( m_axialWidgetHeight );
 
         {
@@ -1164,9 +1158,9 @@ void WMNavSlices::updateViewportMatrix()
         osg::Matrix tm;
 
         tm.makeTranslate( osg::Vec3(
-          -0.5 * ( m_bb.first[ 0 ] + m_bb.second[ 0 ] ),
-          -0.5 * ( m_bb.first[ 1 ] + m_bb.second[ 1 ] ),
-          -m_bb.second[ 2 ] + m_bb.first[ 2 ] - 0.5 ) );
+          -0.5 * ( m_bb.xMin() + m_bb.xMax() ),
+          -0.5 * ( m_bb.yMin() + m_bb.yMax() ),
+          -m_bb.zMax() + m_bb.zMin() - 0.5 ) );
         sm.makeScale( scale, scale, scale );
 
         tm *= sm;
@@ -1180,8 +1174,8 @@ void WMNavSlices::updateViewportMatrix()
         osg::Matrix tm;
 
         tm.makeTranslate( osg::Vec3(
-                              -0.5 * ( m_bb.second[ 0 ] + m_bb.first[ 0 ] ),
-                              -0.5 * ( m_bb.second[ 1 ] + m_bb.first[ 1 ] ) ,
+                              -0.5 * ( m_bb.xMax() + m_bb.xMin() ),
+                              -0.5 * ( m_bb.yMax() + m_bb.yMin() ) ,
                               0 ) );
         rm.makeRotate( 90.0 * 3.141 / 180, 1.0, 0.0, 0.0 );
         sm.makeScale( -scale, scale, scale );
@@ -1199,10 +1193,10 @@ void WMNavSlices::updateViewportMatrix()
         currentScene = viewer->getScene();
         aspectR = viewer->getCamera()->getViewport()->aspectRatio();
 
-        left = m_bb.first[1];
-        top = m_bb.first[2];
-        width = m_bb.second[1] - m_bb.first[1];
-        height = m_bb.second[2] - m_bb.first[2];
+        left = m_bb.yMin();
+        top = m_bb.zMin();
+        width = m_bb.yMax() - m_bb.yMin();
+        height = m_bb.zMax() - m_bb.zMin();
         aspectR = static_cast< double >( m_sagittalWidgetWidth ) / static_cast< double >( m_sagittalWidgetHeight );
 
         {
@@ -1229,9 +1223,9 @@ void WMNavSlices::updateViewportMatrix()
         osg::Matrix tm;
 
         tm.makeTranslate( osg::Vec3(
-          m_bb.second[ 0 ] - m_bb.first[ 0 ] + 0.5,
-          -0.5 * ( m_bb.first[ 1 ] + m_bb.second[ 1 ] ),
-          -0.5 * ( m_bb.first[ 2 ] + m_bb.second[ 2 ] ) ) );
+          m_bb.xMax() - m_bb.xMin() + 0.5,
+          -0.5 * ( m_bb.yMin() + m_bb.yMax() ),
+          -0.5 * ( m_bb.zMin() + m_bb.zMax() ) ) );
         rm.makeRotate( 90.0 * 3.141 / 180, 0.0, 1.0, 0.0 );
         rm2.makeRotate( 90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
         sm.makeScale( scale, scale, scale );
@@ -1250,8 +1244,8 @@ void WMNavSlices::updateViewportMatrix()
 
         tm.makeTranslate( osg::Vec3(
                               0.0,
-                              -0.5 * ( m_bb.second[ 1 ] + m_bb.first[ 1 ] ),
-                              -0.5 * ( m_bb.second[ 2 ] + m_bb.first[ 2 ] ) ) );
+                              -0.5 * ( m_bb.yMax() + m_bb.yMin() ),
+                              -0.5 * ( m_bb.zMax() + m_bb.zMin() ) ) );
         rm.makeRotate( -90.0 * 3.141 / 180, 0.0, 0.0, 1.0 );
         sm.makeScale( scale, scale, scale );
 
@@ -1268,10 +1262,10 @@ void WMNavSlices::updateViewportMatrix()
         currentScene = viewer->getScene();
         aspectR = viewer->getCamera()->getViewport()->aspectRatio();
 
-        left = m_bb.first[0];
-        top = m_bb.first[2];
-        width = m_bb.second[0] - m_bb.first[0];
-        height = m_bb.second[2] - m_bb.first[2];
+        left = m_bb.xMin();
+        top = m_bb.zMin();
+        width = m_bb.xMax() - m_bb.xMin();
+        height = m_bb.zMax() - m_bb.zMin();
         aspectR = static_cast< double >( m_coronalWidgetWidth ) / static_cast< double >( m_coronalWidgetHeight );
 
         {
@@ -1297,9 +1291,9 @@ void WMNavSlices::updateViewportMatrix()
         osg::Matrix tm;
 
         tm.makeTranslate( osg::Vec3(
-          -0.5 * ( m_bb.first[ 0 ] + m_bb.second[ 0 ] ),
-          m_bb.second[ 1 ] - m_bb.first[ 1 ] + 0.5,
-          -0.5 * ( m_bb.first[ 2 ] + m_bb.second[ 2 ] ) ) );
+          -0.5 * ( m_bb.xMin() + m_bb.xMax() ),
+          m_bb.yMax() - m_bb.yMin() + 0.5,
+          -0.5 * ( m_bb.zMin() + m_bb.zMax() ) ) );
         rm.makeRotate( -90.0 * 3.141 / 180, 1.0, 0.0, 0.0 );
         sm.makeScale( scale, scale, scale );
 
@@ -1316,11 +1310,11 @@ void WMNavSlices::updateViewportMatrix()
 
 
         tm.makeTranslate( osg::Vec3(
-                              -0.5 * ( m_bb.second[ 0 ] + m_bb.first[ 0 ] ),
+                              -0.5 * ( m_bb.xMax() + m_bb.xMin() ),
                               0,
-                              -0.5 * ( m_bb.second[ 2 ] + m_bb.first[ 2 ] ) ) );
+                              -0.5 * ( m_bb.zMax() + m_bb.zMin() ) ) );
         sm.makeScale( -scale, scale, scale );
-        tm2.makeTranslate( osg::Vec3( 0.0, -2 * ( m_bb.second[ 1 ] - m_bb.first[ 1 ] ), 0.0 ) ); //move away from viewer
+        tm2.makeTranslate( osg::Vec3( 0.0, -2 * ( m_bb.yMax() - m_bb.yMin() ), 0.0 ) ); //move away from viewer
 
         tm *= sm;
         tm *= tm2;

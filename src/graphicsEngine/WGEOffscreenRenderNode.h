@@ -34,7 +34,7 @@
 #include "WGEOffscreenTexturePass.h"
 #include "WGEOffscreenFinalPass.h"
 #include "WGETextureHud.h"
-#include "WShader.h"
+#include "WGEShader.h"
 #include "callbacks/WGEViewportCallback.h"
 #include "WExportWGE.h"
 
@@ -101,7 +101,7 @@ public:
      *
      * \return the geometry render pass.
      */
-    virtual osg::ref_ptr< WGEOffscreenRenderPass > addGeometryRenderPass( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WShader > shader,
+    virtual osg::ref_ptr< WGEOffscreenRenderPass > addGeometryRenderPass( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEShader > shader,
                                                                           std::string name = "Unnamed" );
 
     /**
@@ -127,7 +127,7 @@ public:
      *
      * \return the texture processing pass created.
      */
-    virtual osg::ref_ptr< WGEOffscreenTexturePass > addTextureProcessingPass( osg::ref_ptr< WShader > shader, std::string name = "Unnamed" );
+    virtual osg::ref_ptr< WGEOffscreenTexturePass > addTextureProcessingPass( osg::ref_ptr< WGEShader > shader, std::string name = "Unnamed" );
 
     /**
      * Creates a new render pass which can be seen as put-textures-back-on-screen-pass. It renders a full-screen quad to the on-screen
@@ -148,7 +148,7 @@ public:
      *
      * \return the on-screen render pass which draws processed textures back on screen.
      */
-    virtual osg::ref_ptr< WGEOffscreenFinalPass > addFinalOnScreenPass( osg::ref_ptr< WShader > shader, std::string name = "Unnamed" );
+    virtual osg::ref_ptr< WGEOffscreenFinalPass > addFinalOnScreenPass( osg::ref_ptr< WGEShader > shader, std::string name = "Unnamed" );
 
     /**
      * Creates a new offscreen-render-pass coupled with the reference camera. This pass actually does nothing. The method is useful for custom

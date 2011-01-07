@@ -28,8 +28,9 @@
 
 #include "../../kernel/WKernel.h"
 
+#include "../../common/WBoundingBox.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../dataHandler/WSubject.h"
 #include "WMDatasetManipulator.xpm"
 
@@ -134,14 +135,10 @@ void WMDatasetManipulator::properties()
 
 void WMDatasetManipulator::init()
 {
-    // TODO(schurade=: this might be NULL. Exception?
-    m_grid = boost::shared_dynamic_cast< WGridRegular3D >( m_input->getData()->getGrid() );
+    m_grid = m_input->getData()->getTexture2()->getGrid();
+    WBoundingBox bb = m_grid->getBoundingBox();
 
-    std::pair< wmath::WVector3D, wmath::WVector3D >bb = m_grid->getBoundingBox();
-
-    wmath::WPosition center = wmath::WPosition( ( bb.second[0] - bb.first[0] ) / 2.0,
-                                                ( bb.second[1] - bb.first[1] ) / 2.0,
-                                                ( bb.second[2] - bb.first[2] ) / 2.0 );
+    wmath::WPosition center = bb.center();
 
     m_knobCenter = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
     m_knobx1 = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
@@ -188,18 +185,16 @@ void WMDatasetManipulator::init()
 
 void WMDatasetManipulator::setManipulatorsFromBoundingBox()
 {
-    std::pair< wmath::WVector3D, wmath::WVector3D >bb = m_grid->getBoundingBox();
+    WBoundingBox bb = m_grid->getBoundingBox();
 
-    m_posCenter = wmath::WPosition( bb.first[0] + ( bb.second[0] - bb.first[0] ) / 2.0,
-                                    bb.first[1] + ( bb.second[1] - bb.first[1] ) / 2.0,
-                                    bb.first[2] + ( bb.second[2] - bb.first[2] ) / 2.0 );
+    m_posCenter = bb.center();
 
-    m_posx1 = wmath::WPosition( bb.first[0], m_posCenter[1], m_posCenter[2] );
-    m_posx2 = wmath::WPosition( bb.second[0], m_posCenter[1], m_posCenter[2] );
-    m_posy1 = wmath::WPosition( m_posCenter[0], bb.first[1], m_posCenter[2] );
-    m_posy2 = wmath::WPosition( m_posCenter[0], bb.second[1], m_posCenter[2] );
-    m_posz1 = wmath::WPosition( m_posCenter[0], m_posCenter[1], bb.first[2] );
-    m_posz2 = wmath::WPosition( m_posCenter[0], m_posCenter[1], bb.second[2] );
+    m_posx1 = wmath::WPosition( bb.xMin(), m_posCenter[1], m_posCenter[2] );
+    m_posx2 = wmath::WPosition( bb.xMax(), m_posCenter[1], m_posCenter[2] );
+    m_posy1 = wmath::WPosition( m_posCenter[0], bb.yMin(), m_posCenter[2] );
+    m_posy2 = wmath::WPosition( m_posCenter[0], bb.yMax(), m_posCenter[2] );
+    m_posz1 = wmath::WPosition( m_posCenter[0], m_posCenter[1], bb.zMin() );
+    m_posz2 = wmath::WPosition( m_posCenter[0], m_posCenter[1], bb.zMax() );
 
     m_knobCenter->setPosition( m_posCenter );
     m_knobx1->setPosition( m_posx1 );

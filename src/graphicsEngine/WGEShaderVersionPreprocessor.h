@@ -22,63 +22,47 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGRID_TEST_H
-#define WGRID_TEST_H
+#ifndef WGESHADERVERSIONPREPROCESSOR_H
+#define WGESHADERVERSIONPREPROCESSOR_H
 
-#include <utility>
+#include <string>
 
-#include <cxxtest/TestSuite.h>
+#include "WGEShaderPreprocessor.h"
 
-#include "../WGrid.h"
-
-/**
- * Dummy class for testing the abstract class WGrid
- */
-class Dummy : public WGrid
-{
-friend class WGridTest;
-
-public:
-    /**
-     * Standard constructor of Dummy class.
-     * \param size number of positions
-     */
-    explicit Dummy( size_t size )
-        : WGrid( size )
-    {
-    }
-
-    /**
-     * Returns dummy bounding box.
-     */
-    virtual WBoundingBox getBoundingBox() const
-    {
-        return WBoundingBox( wmath::WPosition( 0, 0, 0 ), wmath::WPosition( 1, 1, 1 ) );
-    }
-};
+#include "WExportWGE.h"
 
 /**
- * Tests the WGrid class.
+ * This preprocessor removes the version-statement from the code and puts it to the beginning of the code. This is requires for some GLSL
+ * compiler.
  */
-class WGridTest : public CxxTest::TestSuite
+class WGE_EXPORT WGEShaderVersionPreprocessor: public WGEShaderPreprocessor
 {
 public:
-    /**
-     *  Checks if the Dummy is instanceable.
-     */
-    void testInstantiation( void )
-    {
-        TS_ASSERT_THROWS_NOTHING( Dummy d( 1 ) );
-    }
 
     /**
-     * After instantiation there should be only 1 positions.
+     * Default constructor.
      */
-    void testSize( void )
-    {
-        Dummy grid( 1 );
-        TS_ASSERT_EQUALS( grid.size(), 1 );
-    }
+    WGEShaderVersionPreprocessor();
+
+    /**
+     * Destructor.
+     */
+    virtual ~WGEShaderVersionPreprocessor();
+
+    /**
+     * Process the whole code. It is not allowed to modify some internal state in this function because it might be called by several shaders.
+     *
+     * \param code the code to process
+     * \param file the filename of the shader currently processed. Should be used for debugging output.
+     *
+     * \return the resulting new code
+     */
+    virtual std::string process( const std::string& file, const std::string& code ) const;
+
+protected:
+
+private:
 };
 
-#endif  // WGRID_TEST_H
+#endif  // WGESHADERVERSIONPREPROCESSOR_H
+

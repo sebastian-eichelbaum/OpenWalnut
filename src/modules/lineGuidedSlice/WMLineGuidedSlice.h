@@ -164,7 +164,7 @@ private:
     osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node for this module.
     osg::ref_ptr< osg::Geode > m_sliceNode; //!< OSG node for slice.
     osg::ref_ptr< osg::Geode > m_centerLineGeode; //!< OSG center line of the current cluster geode.
-    osg::ref_ptr< WShader > m_shader; //!< The shader object for this module.
+    osg::ref_ptr< WGEShader > m_shader; //!< The shader object for this module.
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node.
     std::vector< osg::ref_ptr< osg::Uniform > > m_typeUniforms; //!< Vector of uniforms for type of texture.
     std::vector< osg::ref_ptr< osg::Uniform > > m_alphaUniforms; //!< Vector of alpha values per texture.

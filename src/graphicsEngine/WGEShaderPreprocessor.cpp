@@ -22,30 +22,42 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WQtTreeWidget.h"
-#include "WQtSubjectTreeItem.h"
-#include <QtGui/QKeyEvent>
+#include "WGEShaderPreprocessor.h"
 
-WQtTreeWidget::WQtTreeWidget( QWidget* parent )
-    : QTreeWidget( parent )
+WGEShaderPreprocessor::WGEShaderPreprocessor():
+    m_updateCondition( new WCondition() ),
+    m_active( true )
 {
-    invisibleRootItem()->setFlags( Qt::ItemIsEnabled );
-    setSelectionMode( QAbstractItemView::SingleSelection );
+    // initialize members
 }
 
-
-WQtTreeWidget::~WQtTreeWidget()
+WGEShaderPreprocessor::~WGEShaderPreprocessor()
 {
+    // cleanup
 }
 
-void WQtTreeWidget::deleteItem( QTreeWidgetItem* item )
+WCondition::SPtr WGEShaderPreprocessor::getChangeCondition() const
 {
-//     takeTopLevelItem ( indexOfTopLevelItem( item  ) );
-    delete item;
+    return m_updateCondition;
 }
 
-void WQtTreeWidget::dropEvent( QDropEvent* /*event*/ )
+void WGEShaderPreprocessor::updated()
 {
-    emit dragDrop();
+    m_updateCondition->notify();
+}
+
+void WGEShaderPreprocessor::setActive( bool active )
+{
+    bool update = m_active != active;
+    m_active = active;
+    if ( update )
+    {
+        updated();
+    }
+}
+
+bool WGEShaderPreprocessor::getActive() const
+{
+    return m_active;
 }
 

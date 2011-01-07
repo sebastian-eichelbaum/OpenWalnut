@@ -120,3 +120,8 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WDataTextur
     wge::bindTexture( node, osg::ref_ptr< WGETexture3D >( texture ), unit, prefix );
 }
 
+boost::shared_ptr< WGridRegular3D > WDataTexture3D_2::getGrid() const
+{
+    return m_grid;
+}
+

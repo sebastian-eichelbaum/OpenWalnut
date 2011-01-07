@@ -40,8 +40,11 @@
 #include "WGEUtils.h"
 
 
-osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color )
+osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const WBoundingBox& bb, const WColor& color )
 {
+    const wmath::WPosition& pos1 = bb.getMin();
+    const wmath::WPosition& pos2 = bb.getMax();
+
     WAssert( pos1[0] <= pos2[0] && pos1[1] <= pos2[1] && pos1[2] <= pos2[2], "pos1 does not seem to be the frontLowerLeft corner of the BB!" );
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
@@ -153,10 +156,9 @@ osg::ref_ptr< osg::Geometry > wge::createUnitCube( const WColor& color )
     return cube;
 }
 
-osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color,
-        bool threeDTexCoords )
+osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const WBoundingBox& bb, const WColor& color, bool threeDTexCoords )
 {
-    WAssert( pos1[0] <= pos2[0] && pos1[1] <= pos2[1] && pos1[2] <= pos2[2], "pos1 doesn't seem to be the frontLowerLeft corner of the BB!" );
+    WAssert( bb.valid(), "Invalid bounding box!" );
 
     // create a uni cube
     osg::ref_ptr< osg::Geode > cube = new osg::Geode();
@@ -175,8 +177,8 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosit
     // transform the cube to match the bbox
     osg::Matrixd transformM;
     osg::Matrixd scaleM;
-    transformM.makeTranslate( pos1 );
-    scaleM.makeScale( pos2 - pos1 );
+    transformM.makeTranslate( bb.getMin() );
+    scaleM.makeScale( bb.getMax() - bb.getMin() );
 
     // apply transformation to bbox
     osg::ref_ptr< osg::MatrixTransform > transform = new osg::MatrixTransform();

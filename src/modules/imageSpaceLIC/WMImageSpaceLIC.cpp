@@ -44,7 +44,8 @@
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 #include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/WGEShaderDefineOptions.h"
 #include "../../graphicsEngine/WGEOffscreenRenderPass.h"
 #include "../../graphicsEngine/WGEOffscreenRenderNode.h"
 #include "../../graphicsEngine/WGEPropertyUniform.h"
@@ -302,7 +303,10 @@ void WMImageSpaceLIC::moduleMain()
     offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
 
     // setup all the passes needed for image space advection
-    osg::ref_ptr< WShader > transformationShader = new WShader( "WMImageSpaceLIC-Transformation", m_localPath );
+    osg::ref_ptr< WGEShader > transformationShader = new WGEShader( "WMImageSpaceLIC-Transformation", m_localPath );
+    WGEShaderDefineOptions::SPtr availableDataDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "SCALARDATA" ) );
+    availableDataDefines->addOption( "VECTORDATA" );
+    transformationShader->addPreprocessor( availableDataDefines );
     osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass(
         m_output,
         transformationShader,
@@ -312,20 +316,20 @@ void WMImageSpaceLIC::moduleMain()
     WGEColormapping::apply( transformation, transformationShader, 1 );
 
     osg::ref_ptr< WGEOffscreenRenderPass > edgeDetection =  offscreen->addTextureProcessingPass(
-        new WShader( "WMImageSpaceLIC-Edge", m_localPath ),
+        new WGEShader( "WMImageSpaceLIC-Edge", m_localPath ),
         "Edge Detection"
     );
 
     // we use two advection passes per frame as the input A of the first produces the output B whereas the second pass uses B as input and
     // produces A as output. This way we can use A as input for the next step (clipping and blending).
     osg::ref_ptr< WGEOffscreenRenderPass > advection =  offscreen->addTextureProcessingPass(
-        new WShader( "WMImageSpaceLIC-Advection", m_localPath ),
+        new WGEShader( "WMImageSpaceLIC-Advection", m_localPath ),
         "Advection"
     );
 
     // finally, put it back on screen, clip it, color it and apply depth buffer to on-screen buffer
     osg::ref_ptr< WGEOffscreenRenderPass > clipBlend =  offscreen->addFinalOnScreenPass(
-        new WShader( "WMImageSpaceLIC-ClipBlend", m_localPath ),
+        new WGEShader( "WMImageSpaceLIC-ClipBlend", m_localPath ),
         "Clip & Blend"
     );
 
@@ -425,8 +429,7 @@ void WMImageSpaceLIC::moduleMain()
 
             // prepare offscreen render chain
             edgeDetection->bind( randTexture, 1 );
-            transformationShader->eraseDefine( "SCALARDATA" );
-            transformationShader->setDefine( "VECTORDATA" );
+            availableDataDefines->activateOption( 1 );  // vector input
             transformation->bind( dataSetVec->getTexture2(), 0 );
         }
         else if ( dataSetScal )
@@ -442,8 +445,7 @@ void WMImageSpaceLIC::moduleMain()
 
             // prepare offscreen render chain
             edgeDetection->bind( randTexture, 1 );
-            transformationShader->eraseDefine( "VECTORDATA" );
-            transformationShader->setDefine( "SCALARDATA" );
+            availableDataDefines->activateOption( 0 );  // scalar input
             transformation->bind( dataSetScal->getTexture2(), 0 );
         }
 

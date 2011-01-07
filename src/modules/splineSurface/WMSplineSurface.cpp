@@ -336,7 +336,7 @@ void WMSplineSurface::renderMesh()
     // initially. Just set the texture changed flag to true. If this however might be needed use WSubject::getDataTextures.
     m_textureChanged = true;
 
-    m_shader = osg::ref_ptr< WShader >( new WShader( "surface", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader >( new WGEShader( "surface", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );

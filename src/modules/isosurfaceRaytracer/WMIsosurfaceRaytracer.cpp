@@ -40,7 +40,8 @@
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEPropertyUniform.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/WGEShaderDefineOptions.h"
 #include "../../graphicsEngine/WGERequirement.h"
 #include "../../kernel/WKernel.h"
 #include "WMIsosurfaceRaytracer.xpm"
@@ -126,7 +127,7 @@ void WMIsosurfaceRaytracer::properties()
     m_shadingSelections->addItem( "Depth only",       "Only show the depth of the surface along the ray." );
     m_shadingSelections->addItem( "Phong",            "Phong lighting. Slower but more realistic lighting" );
     m_shadingSelections->addItem( "Phong + depth",    "Phong lighting in combination with depth cueing." );
-    m_shadingAlgo   = m_properties->addProperty( "Shading", "The shading algorithm.", m_shadingSelections->getSelectorLast(), m_propCondition );
+    m_shadingAlgo   = m_properties->addProperty( "Shading", "The shading algorithm.", m_shadingSelections->getSelector( 2 ), m_propCondition );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_shadingAlgo );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_shadingAlgo );
@@ -141,7 +142,12 @@ void WMIsosurfaceRaytracer::requirements()
 
 void WMIsosurfaceRaytracer::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMIsosurfaceRaytracer", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMIsosurfaceRaytracer", m_localPath ) );
+    WGEShaderDefineOptions::SPtr shadingDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "CORTEX" ) );
+    shadingDefines->addOption( "DEPTHONLY" );
+    shadingDefines->addOption( "PHONG" );
+    shadingDefines->addOption( "PHONGWITHDEPTH" );
+    m_shader->addPreprocessor( shadingDefines );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -208,11 +214,9 @@ void WMIsosurfaceRaytracer::moduleMain()
             }
 
             // use the OSG Shapes, create unit cube
-            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode(
-                wmath::WPosition( 0.0, 0.0, 0.0 ),
-                wmath::WPosition( grid->getNbCoordsX() - 1, grid->getNbCoordsY() - 1, grid->getNbCoordsZ() - 1 ),
-                m_isoColor->get( true )
-            );
+            WBoundingBox bb( wmath::WPosition( 0.0, 0.0, 0.0 ),
+                wmath::WPosition( grid->getNbCoordsX() - 1, grid->getNbCoordsY() - 1, grid->getNbCoordsZ() - 1 ) );
+            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb, m_isoColor->get( true ) );
             cube->asTransform()->getChild( 0 )->setName( "_DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
                                                                               // because of the underscore in front it won't be picked
             // we also set the grid's transformation here
@@ -227,26 +231,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture2();
             texture3D->bind( cube );
 
-            size_t shadingAlgo = m_shadingAlgo->get( true ).getItemIndexOfSelected( 0 );
-            m_shader->eraseAllDefines();
-            switch ( shadingAlgo )
-            {
-                case Cortex:
-                    m_shader->setDefine( "CORTEX" );
-                    break;
-                case Depth:
-                    m_shader->setDefine( "DEPTHONLY" );
-                    break;
-                case Phong:
-                    m_shader->setDefine( "PHONG" );
-                    break;
-                case PhongDepth:
-                    m_shader->setDefine( "PHONGWITHDEPTH" );
-                    break;
-                default:
-                    m_shader->setDefine( "CORTEX" );
-                    break;
-            }
+            shadingDefines->activateOption( m_shadingAlgo->get( true ).getItemIndexOfSelected( 0 ) );
             WGEColormapping::apply( cube, m_shader, 1 );
 
             // enable transparency

@@ -112,7 +112,7 @@ void WMSliceContext::moduleMain()
     ready();
 
     m_rootNode = new osg::Group();
-    m_shaderFibers = osg::ref_ptr< WShader > ( new WShader( "WMSliceContext", m_localPath ) );
+    m_shaderFibers = osg::ref_ptr< WGEShader > ( new WGEShader( "WMSliceContext", m_localPath ) );
 
     // main loop
     while ( !m_shutdownFlag() )

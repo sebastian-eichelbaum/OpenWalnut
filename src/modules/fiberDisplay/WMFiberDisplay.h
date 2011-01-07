@@ -34,7 +34,7 @@
 #include "../../graphicsEngine/WFiberDrawable.h"
 #include "../../graphicsEngine/WROI.h"
 #include "../../graphicsEngine/WROIBox.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 
 #include "../../kernel/WFiberSelector.h"
 #include "../../kernel/WModule.h"
@@ -201,12 +201,12 @@ private:
     /**
      * the shader object for rendering tubes
      */
-    osg::ref_ptr< WShader >m_shaderTubes;
+    osg::ref_ptr< WGEShader >m_shaderTubes;
 
     /**
      * the shader object for rendering textured lines
      */
-    osg::ref_ptr< WShader >m_shaderTexturedFibers;
+    osg::ref_ptr< WGEShader >m_shaderTexturedFibers;
 
     osg::ref_ptr<osg::Uniform> m_uniformTubeThickness; //!< tube thickness
 

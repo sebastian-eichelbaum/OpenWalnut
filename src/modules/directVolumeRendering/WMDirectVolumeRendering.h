@@ -30,7 +30,7 @@
 #include <osg/Node>
 #include <osg/Uniform>
 
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataSetVector.h"
 #include "../../kernel/WModule.h"
@@ -184,7 +184,7 @@ private:
     /**
      * the DVR shader.
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * Class handling uniform update during render traversal

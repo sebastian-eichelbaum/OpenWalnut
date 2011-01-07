@@ -27,6 +27,7 @@
 
 #include <utility>
 
+#include "../../common/WBoundingBox.h"
 #include "../../common/math/WMatrix.h"
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
@@ -80,18 +81,18 @@ public:
     wmath::WVector3D worldCoordTransformed( wmath::WPosition point );
 
     /**
-     * getter for bounding box
+     * Gets the bounding box
      *
-     * \return the bounding box
+     * \return The axis aligned bounding box
      */
-    std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox();
+    WBoundingBox getBoundingBox();
 
     /**
-     * setter for boundign box of the volume
+     * Sets the bounding box of the volume.
      *
-     * \param boundingBox
+     * \param boundingBox The axis aligned bounding box.
      */
-    void setBoundingBox( std::pair< wmath::WPosition, wmath::WPosition > boundingBox );
+    void setBoundingBox( WBoundingBox boundingBox );
 
     /**
      * setter for coordinate system mode
@@ -168,7 +169,6 @@ public:
      */
     boost::shared_ptr<WTalairachConverter> getTalairachConverter();
 
-
 protected:
 private:
     wmath::WMatrix<double> m_rotMat; //!< the rotation matrix to use
@@ -177,7 +177,7 @@ private:
 
     wmath::WVector3D m_scale; //!< scaling of voxels
 
-    std::pair< wmath::WPosition, wmath::WPosition >m_boundingBox; //!< bounding box of the wholy volume as provided by the dataset
+    WBoundingBox m_boundingBox; //!< bounding box of the wholy volume as provided by the dataset
 
     coordinateSystemMode m_coordinateSystemMode; //!< the currently selected coordinate system mode
 

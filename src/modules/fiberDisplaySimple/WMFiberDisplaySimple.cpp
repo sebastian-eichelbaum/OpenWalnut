@@ -30,7 +30,7 @@
 #include "../../common/WPropertyObserver.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/WGEShader.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
 
@@ -127,7 +127,7 @@ void enableTransparency( osg::StateSet* state )
 void WMFiberDisplaySimple::moduleMain()
 {
     // initialize clipping shader
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplaySimple", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMFiberDisplaySimple", m_localPath ) );
     m_clipPlanePointUniform = new WGEPropertyUniform< WPropPosition >( "u_planePoint", m_clipPlanePoint );
     m_clipPlaneVectorUniform = new WGEPropertyUniform< WPropPosition >( "u_planeVector", m_clipPlaneVector );
     m_clipPlaneDistanceUniform = new WGEPropertyUniform< WPropDouble >( "u_distance", m_clipPlaneDistance );

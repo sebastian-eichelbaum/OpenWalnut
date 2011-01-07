@@ -250,7 +250,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
     state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", m_opacityProp->get( true ) ) ) );
 
     m_moduleNode->insert( m_surfaceGeode );
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMTriangleMeshRenderer", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMTriangleMeshRenderer", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
 
