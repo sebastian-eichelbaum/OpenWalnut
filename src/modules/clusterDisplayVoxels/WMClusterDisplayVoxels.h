@@ -244,9 +244,35 @@ private:
     WPropInt m_propXBiggestClusters;
 
     /**
+     * the similarity value for selecting clusters
+     */
+    WPropDouble m_propValue;
+
+    /**
+     * property to select a loaded partition
+     */
+    WPropInt m_propSelectedLoadedPartion;
+
+    /**
      * how many levels to go down from top
      */
     WPropInt m_propLevelsFromTop;
+
+    /**
+     * how many levels to go down from top
+     */
+    WPropInt m_propXClusters;
+
+
+    /**
+     * minimum branch length
+     */
+    WPropDouble m_propMinBranchLength;
+
+    /**
+     * minimum branch size
+     */
+    WPropInt m_propMinBranchSize;
 
     /**
      * show or hide outliers
@@ -267,6 +293,11 @@ private:
      * controls the display of the dendrogram overlay
      */
     WPropBool m_propShowDendrogram;
+
+    /**
+     * controls plotting the height of a join
+     */
+    WPropBool m_propPlotHeightByLevel;
 
     /**
      * if true position and size sliders will have no effect
@@ -323,6 +354,8 @@ private:
     WPropInt m_infoCountLeafes; //!< info property
     WPropInt m_infoCountClusters; //!< info property
     WPropInt m_infoMaxLevel; //!< info property
+
+    std::vector< std::vector<size_t> >m_loadedPartitions; //!< set partitions loaded from file
 };
 
 #endif  // WMCLUSTERDISPLAYVOXELS_H

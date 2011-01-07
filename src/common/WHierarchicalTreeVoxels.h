@@ -83,6 +83,30 @@ public:
      */
     size_t getVoxelNum( size_t leaf );
 
+    /**
+     * finds the clusters for a given similarity value
+     * \param value
+     * \return all clusters below that value
+     */
+    std::vector< size_t >findClustersForValue( float value );
+
+    /**
+     * finds the clusters for a given similarity value
+     * \param value only return clusters where the distance in energy level to its parent is large than this value
+     * \param minSize only return clusters with a number of voxels large than minSize
+     * \return all clusters below that value
+     */
+    std::vector< size_t >findClustersForBranchLength( float value, size_t minSize = 100 );
+
+    /**
+     * finds a number of clusters, the algorithm travers down the tree and will always split the cluster with the
+     * highest energy level.
+     * \param root the cluster to start traversing the tree from
+     * \param number the number of cluster we want to find
+     * \return the clusters
+     */
+    std::vector< size_t >findXClusters( size_t root, size_t number );
+
 protected:
 private:
     /**
