@@ -25,6 +25,7 @@
 #ifndef WMPROBTRACTDISPLAYSP_H
 #define WMPROBTRACTDISPLAYSP_H
 
+#include <list>
 #include <string>
 #include <vector>
 
@@ -127,6 +128,13 @@ private:
      * \param sender unused here
      */
     void updateProperitesForTheInputConnectors( boost::shared_ptr< WModuleConnector > receiver, boost::shared_ptr< WModuleConnector > sender );
+
+    /**
+     * Checks if every probabilistic tract is in range 0..1, if not e.g. max > 10 range 0..255 is assumed and a warning is printed.
+     *
+     * \param probTracts All probabilistic tracts to check.
+     */
+    void checkProbabilityRanges( std::list< boost::shared_ptr< const WDataSetScalar > > probTracts ) const;
 
     /**
      * The probabilistic tractogram input connector.

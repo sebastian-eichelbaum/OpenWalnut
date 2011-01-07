@@ -147,7 +147,7 @@ void WMProbTractDisplaySP::properties()
     m_showonY        = m_sliceGroup->addProperty( "Show Coronal", "Show instersection of deterministic tracts on coronal slice.", true );
     m_showonZ        = m_sliceGroup->addProperty( "Show Axial", "Show instersection of deterministic tracts on axial slice.", true );
 
-    m_showIntersection = m_properties->addProperty( "Show Intersections", "Show intersecition stipplets", true );
+    m_showIntersection = m_properties->addProperty( "Show Intersections", "Show intersecition stipplets", false );
     m_showProjection = m_properties->addProperty( "Show Projections", "Show projection stipplets", true );
 
     // The slice positions. These get update externally.
@@ -285,11 +285,12 @@ void WMProbTractDisplaySP::moduleMain()
         if( dataUpdated )
         {
             infoLog() << "Handling data update..";
+            checkProbabilityRanges( probTracts );
             if( grid->getNbCoordsX() > 0 && grid->getNbCoordsY() > 0 &&  grid->getNbCoordsZ() > 0 )
             {
                 debugLog() << "Updating Properites";
                 updateProperties( grid );
-                builder = boost::shared_ptr< WSPSliceGeodeBuilder >( new WSPSliceGeodeBuilder( probTracts, detTracts, m_sliceGroup ) );
+                builder = boost::shared_ptr< WSPSliceGeodeBuilder >( new WSPSliceGeodeBuilder( probTracts, detTracts, m_sliceGroup, m_colorMap ) );
             }
             else
             {
@@ -298,38 +299,45 @@ void WMProbTractDisplaySP::moduleMain()
             }
         }
 
-        if( builder && ( m_xPos->changed() || m_yPos->changed() || m_zPos->changed() || m_delta->changed() ) )
-        {
-            debugLog() << "At least one slice has changed => computing intersection and geodes...";
-
-            builder->determineIntersectingDeterministicTracts();
-
-            if( m_xPos->changed() || m_delta->changed() )
-            {
-                updateSlices( 0, builder );
-                m_xPos->get( true ); // eat change flag
-            }
-            if( m_yPos->changed() || m_delta->changed() )
-            {
-                updateSlices( 1, builder );
-                m_yPos->get( true ); // eat change flag
-            }
-            if( m_zPos->changed() || m_delta->changed() )
-            {
-                updateSlices( 2, builder );
-                m_zPos->get( true ); // eat change flag
-            }
-            m_delta->get( true ); // eat change flag
-        }
+        // NOTE: we know that we could arrange much more specific updates here, just update the slice that has changed, but this is too complex to
+        // consider also color, m_delta, etc. changes..., and ofcourse: we have the time to calc that every loop-cycle again and again, it does
+        // not really matter
+        builder->determineIntersectingDeterministicTracts();
+        updateSlices( 0, builder );
+        updateSlices( 1, builder );
+        updateSlices( 2, builder );
     }
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
 }
 
+void WMProbTractDisplaySP::checkProbabilityRanges( std::list< boost::shared_ptr< const WDataSetScalar > > probTracts ) const
+{
+    bool otherRange = false;
+
+    // check probabilistic tractograms on their probability distribution, we assume value between 0..1 but also 0..255 may be possible sometimes
+    std::stringstream ss;
+    ss << "The probabilistic tractograms: ";
+    size_t i = 0;
+    for( std::list< boost::shared_ptr< const WDataSetScalar > >::const_iterator p = probTracts.begin(); p != probTracts.end(); ++p, ++i )
+    {
+        if( ( *p )->getMax() > 10 )
+        {
+            ss << ( *p )->getFileName() << " ";
+            otherRange = true;
+        }
+    }
+    ss << "which have probabilites > 10 may be invalid => range 0..255 assumed instead";
+    if( otherRange )
+    {
+        warnLog() << ss.str();
+    }
+}
+
 void WMProbTractDisplaySP::updateSlices( const unsigned char sliceNum, boost::shared_ptr< const WSPSliceGeodeBuilder > builder )
 {
     std::pair< osg::ref_ptr< osg::Geode >, osg::ref_ptr< osg::Geode > > intersectionAndProjection;
-    intersectionAndProjection = builder->generateSlices( sliceNum, m_delta->get() );
+    intersectionAndProjection = builder->generateSlices( sliceNum, m_delta->get(), m_probThreshold->get() );
 
     // determine correct slice group node
     osg::ref_ptr< WGEManagedGroupNode > sliceGroup;

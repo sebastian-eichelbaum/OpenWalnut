@@ -77,8 +77,10 @@ public:
      * \param probTracts The list of probabilistic tractograms which should be taken into account.
      * \param detTracts The deterministic fibers which are used to show the probabilistic tracts.
      * \param sliceGroup Slice positions
+     * \param colorMap For each connected probabilistic trac its color
      */
-    WSPSliceGeodeBuilder( ProbTractList probTracts, boost::shared_ptr< const WDataSetFibers > detTracts, WPropGroup sliceGroup );
+    WSPSliceGeodeBuilder( ProbTractList probTracts, boost::shared_ptr< const WDataSetFibers > detTracts, WPropGroup sliceGroup,
+            std::vector< WPropGroup > colorMap );
 
     /**
      * For each slice compute the deterministic trac indices which are intersecting with it.
@@ -91,10 +93,11 @@ public:
      *
      * \param sliceNum 0 denotes xSlice, 1 ySlice and finally 2 means zSlice.
      * \param maxDistance when the fibers should be cut off, best value is probably the 2*sampling distance of the fibers.
+     * \param probThreshold probabilities below this threshold do not contribute to the coloring
      *
      * \return A pair geodes with the cutted intersecting fibers and projected onto the slice.
      */
-    GeodePair generateSlices( const unsigned char sliceNum, const double maxDistance = 1.0 ) const;
+    GeodePair generateSlices( const unsigned char sliceNum, const double maxDistance = 1.0, const double probThreshold = 0.1 ) const;
 
 protected:
 
@@ -134,7 +137,7 @@ private:
      *
      * \todo Replace this with properties approach
      */
-    WColor stupidColorMap( size_t probTractNum ) const;
+    WColor colorMap( size_t probTractNum ) const;
 
     /**
      * Color each vertex accordingly to all given probabilistic tractograms. For each vertex all probTracts are considered in the following manner:
@@ -143,10 +146,11 @@ private:
      *    prob tract contributes the same amount but with different alpha value.
      *
      * \param vertices The vertices to compute the colors for
+     * \param probThreshold probabilities below this threshold do not contribute to the coloring
      *
      * \return An array of colors for the given vertices.
      */
-    osg::ref_ptr< osg::Vec4Array > colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices ) const;
+    osg::ref_ptr< osg::Vec4Array > colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices, const double probThreshold ) const;
 
     /**
      * Reference to the deterministic tracts.
@@ -180,8 +184,10 @@ private:
 
     std::vector< boost::shared_ptr< const WPVInt > >  m_slicePos; //!< Hold the current position of each slice given from the properties
 
-    // todo(math): replace this by an property
-    double m_probThreshold; //!< minimum of probability which contributes in coloring the vertices
+    /**
+     * Reference to the color properites.
+     */
+    std::vector< WPropGroup > m_colorMap;
 };
 
 #endif  // WSPSLICEGEODEBUILDER_H

@@ -31,13 +31,14 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "WSPSliceGeodeBuilder.h"
 
-WSPSliceGeodeBuilder::WSPSliceGeodeBuilder( ProbTractList probTracts, boost::shared_ptr< const WDataSetFibers > detTracts, WPropGroup sliceGroup )
+WSPSliceGeodeBuilder::WSPSliceGeodeBuilder( ProbTractList probTracts, boost::shared_ptr< const WDataSetFibers > detTracts, WPropGroup sliceGroup,
+        std::vector< WPropGroup > colorMap )
     : m_detTracts( detTracts ),
       m_probTracts( probTracts ),
       m_intersectionList( 3 ),
       m_sliceBB( 3 ),
       m_slicePos( 3 ),
-      m_probThreshold( 0.1 )
+      m_colorMap( colorMap ) // yes this is a COPY of the vector but WPropGroup is a boost::shared_ptr so updates will propagate!
 {
     if( m_probTracts.empty() || !m_detTracts )
     {
@@ -165,16 +166,12 @@ void WSPSliceGeodeBuilder::projectTractOnSlice( const unsigned char sliceNum, os
     }
 }
 
-WColor WSPSliceGeodeBuilder::stupidColorMap( size_t probTractNum ) const
+WColor WSPSliceGeodeBuilder::colorMap( size_t probTractNum ) const
 {
-    double hue_increment = 1.0 / m_probTracts.size();
-    WColor color;
-    color.setHSV( probTractNum * hue_increment, 1.0, 0.75 );
-    color.setAlpha( 1.0f );
-    return color;
+    return m_colorMap.at( probTractNum )->findProperty( "Color" )->toPropColor()->get();
 }
 
-osg::ref_ptr< osg::Vec4Array > WSPSliceGeodeBuilder::colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices ) const
+osg::ref_ptr< osg::Vec4Array > WSPSliceGeodeBuilder::colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices, const double probThreshold ) const
 {
     osg::ref_ptr< osg::Vec4Array > result( new osg::Vec4Array );
     result->reserve( vertices->size() );
@@ -196,9 +193,16 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceGeodeBuilder::colorVertices( osg::ref_ptr
         {
             bool success = false;
             double probability = ( *probTract )->interpolate( vertex, &success );
-            if( success && ( probability > m_probThreshold ) )
+            if( ( *probTract )->getMax() > 10 )
             {
-                WColor c = stupidColorMap( probTractNum );
+                // Todo(math): Solve this hack in a better way!
+                // the probability is clearly not 0..1 distributed, we assume 0..255 instead.
+                // We compute probability:
+                probability /= 255.0;
+            }
+            if( success && ( probability > probThreshold ) )
+            {
+                WColor c = colorMap( probTractNum );
                 c.setAlpha( static_cast< float >( probability ) );
                 vertexColorPerTract.push_back( c );
             }
@@ -231,7 +235,8 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceGeodeBuilder::colorVertices( osg::ref_ptr
     return result;
 }
 
-WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsigned char sliceNum, const double maxDistance ) const
+WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsigned char sliceNum, const double maxDistance,
+        const double probThreshold ) const
 {
     WAssert( sliceNum <= 2, "Bug: Invalid slice number given: must be 0, 1 or 2." );
     // select slicePos, intersections and bounding box
@@ -280,7 +285,7 @@ WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsi
             {
                 vertices->insert( vertices->end(), candidate->begin(), candidate->end() );
                 geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIdx, candidate->size() ) );
-                osg::ref_ptr< osg::Vec4Array > candidateColors = colorVertices( candidate );
+                osg::ref_ptr< osg::Vec4Array > candidateColors = colorVertices( candidate, probThreshold );
                 pc->insert( pc->end(), candidateColors->begin(), candidateColors->end() );
                 projectTractOnSlice( sliceNum, candidate, slicePos );
                 pv->insert( pv->end(), candidate->begin(), candidate->end() );
