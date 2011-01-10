@@ -177,6 +177,8 @@ void WMClusterDisplayVoxels::properties()
 
     m_propShowVoxelTriangulation = m_properties->addProperty( "Triangulate", "", false, m_propCondition );
 
+    m_showNotInClusters = m_properties->addProperty( "Show non active", "", false, m_propCondition );
+
     m_propMinSizeToColor = m_properties->addProperty( "Min size to show", "Specifies a minimum size for a cluster to be drawn", 1, m_propCondition ); // NOLINT
     m_propMinSizeToColor->setMin( 1 );
     m_propMinSizeToColor->setMax( 200 );
@@ -318,6 +320,7 @@ void WMClusterDisplayVoxels::moduleMain()
     m_propMinBranchLength->get( true );
     m_propMinBranchSize->get( true );
     m_propLevelsFromTop->get( true );
+    m_showNotInClusters->get( true );
 
     while ( !m_shutdownFlag() )
     {
@@ -415,6 +418,17 @@ void WMClusterDisplayVoxels::updateAll()
     debugLog() << "start label voxels";
     m_data.clear();
     m_data.resize( m_grid->size(), 0 );
+
+    std::vector<size_t> vox = m_tree.getVoxelsForCluster( m_tree.getClusterCount() - 1 );
+
+    if ( m_showNotInClusters->get() )
+    {
+        for ( size_t k = 0; k < vox.size(); ++k )
+        {
+            m_data[vox[k]] = 999999;
+        }
+    }
+
     for ( size_t i = 0; i < m_activatedClusters.size(); ++i )
     {
         std::vector<size_t> voxels = m_tree.getVoxelsForCluster( m_activatedClusters[i] );
@@ -430,7 +444,13 @@ void WMClusterDisplayVoxels::updateAll()
     unsigned char* data = m_texture->getImage()->data();
     for ( size_t i = 0; i < m_grid->size(); ++i )
     {
-        if ( m_data[i] )
+        if ( m_data[i] == 999999 )
+        {
+            data[i * 3    ] = 75;
+            data[i * 3 + 1] = 75;
+            data[i * 3 + 2] = 75;
+        }
+        else if ( m_data[i] != 0 )
         {
             WColor color = wge::getNthHSVColor( m_data[i] - 1, m_activatedClusters.size() );
             data[i * 3    ] = color.getRed() * 255;
@@ -635,31 +655,22 @@ void WMClusterDisplayVoxels::createMesh()
 {
     m_triMeshes.clear();
 
-    size_t order = ( *m_dataSet ).getValueSet()->order();
-    size_t vDim = ( *m_dataSet ).getValueSet()->dimension();
-
     for ( size_t k = 1; k <= m_activatedClusters.size(); ++k )
     {
-        std::vector< float > newVals( m_grid->size(), 0 );
-
-        for ( size_t i = 0; i < m_grid->size(); ++i )
-        {
-            if ( m_data[i] == k )
-            {
-                newVals[i] = 1.0;
-            }
-        }
-
-        boost::shared_ptr< WValueSet< float > >newValueSet = boost::shared_ptr< WValueSet< float > >(
-            new WValueSet< float >( order,
-                                    vDim,
-                                    boost::shared_ptr< std::vector< float > >( new std::vector< float >( newVals ) ),
-                                    W_DT_FLOAT ) );
         WMarchingLegoAlgorithm mlAlgo;
-        m_triMeshes.push_back( mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+        m_triMeshes.push_back( mlAlgo.genSurfaceOneValue( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                             m_grid->getTransformationMatrix(),
-                                            newValueSet->rawDataVectorPointer(),
-                                            0.9 ) );
+                                            &m_data,
+                                            k ) );
+    }
+
+    if ( m_showNotInClusters->get() )
+    {
+        WMarchingLegoAlgorithm mlAlgo;
+        m_nonActiveMesh = mlAlgo.genSurfaceOneValue( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+                                            m_grid->getTransformationMatrix(),
+                                            &m_data,
+                                            999999 );
     }
 }
 
@@ -720,6 +731,49 @@ void WMClusterDisplayVoxels::renderMesh()
             m_meshNode->insert( outputGeode );
             m_outputGeodes.push_back( outputGeode );
         }
+    }
+    if ( m_showNotInClusters->get() )
+    {
+        osg::Geometry* surfaceGeometry = new osg::Geometry();
+        osg::ref_ptr< osg::Geode >outputGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+
+        outputGeode->setName( ( std::string( "non active" ) ).c_str() );
+
+        surfaceGeometry->setVertexArray( m_nonActiveMesh->getVertexArray() );
+
+        // ------------------------------------------------
+        // normals
+        surfaceGeometry->setNormalArray( m_nonActiveMesh->getTriangleNormalArray() );
+        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+
+        // ------------------------------------------------
+        // colors
+        osg::Vec4Array* colors = new osg::Vec4Array;
+
+        colors->push_back( osg::Vec4( 0.3, 0.3, 0.3, 1.0f ) );
+        surfaceGeometry->setColorArray( colors );
+        surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+        osg::DrawElementsUInt* surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
+
+        std::vector< size_t >tris = m_nonActiveMesh->getTriangles();
+        surfaceElement->reserve( tris.size() );
+
+        for( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
+        {
+            surfaceElement->push_back( tris[vertId] );
+        }
+        surfaceGeometry->addPrimitiveSet( surfaceElement );
+        outputGeode->addDrawable( surfaceGeometry );
+
+        osg::StateSet* state = outputGeode->getOrCreateStateSet();
+        osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
+        lightModel->setTwoSided( true );
+        state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+        state->setMode(  GL_BLEND, osg::StateAttribute::ON );
+
+        m_meshNode->insert( outputGeode );
+        m_outputGeodes.push_back( outputGeode );
     }
 }
 

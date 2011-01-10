@@ -314,6 +314,11 @@ private:
      */
     WPropBool m_propShowVoxelTriangulation;
 
+    /**
+     * if true clusters not in the current selection list will be rendered grey in the texture and triangulation
+     */
+    WPropBool m_showNotInClusters;
+
     WHierarchicalTreeVoxels m_tree; //!< the tree object as loaded from the file
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
@@ -322,7 +327,9 @@ private:
 
     std::vector<osg::ref_ptr< osg::Geode > > m_outputGeodes; //!< a vector of dendrogram nodes
 
-    std::vector<boost::shared_ptr< WTriangleMesh > >m_triMeshes; //!< This triangle mesh is provided as output through the connector.
+    std::vector<boost::shared_ptr< WTriangleMesh > >m_triMeshes; //!< triangulation of the active clusters
+
+    boost::shared_ptr< WTriangleMesh >m_nonActiveMesh; //!< triangulation of the voxels not in active clusters
 
     std::vector<size_t>m_activatedClusters; //!< stores the currently activated clusters
 
