@@ -46,7 +46,7 @@ public:
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
      * \param compatibles the list of combiners
      */
-    WQtCombinerToolbar( WMainWindow* parent, WQtCombinerActionList& compatibles );
+    WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerActionList& compatibles );
 
     /**
      * This creates an empty toolbar only containing the dummy button to reserve the size.
@@ -65,7 +65,7 @@ public:
      *
      * \param compatibles The compatibles to produce the buttons for.
      */
-    void updateButtons( WQtCombinerActionList& compatibles );
+    void updateButtons( const WQtCombinerActionList& compatibles );
 
     /**
      * Make the toolbar appear empty but not disappear.
@@ -81,7 +81,7 @@ private:
     void insertDummyButton();
 
     WMainWindow* m_parent; //!< The widget managing this widget.
-
 };
 
 #endif  // WQTCOMBINERTOOLBAR_H
+

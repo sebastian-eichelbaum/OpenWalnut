@@ -874,7 +874,12 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     }
 }
 
-void deepDeleteActionList( QList< QAction* >& l )
+/**
+ * Clears a hierarchy of QActions in a list. This deeply clears and deletes the lists.
+ *
+ * \param l the list to clear and delete
+ */
+void deepDeleteActionList( QList< QAction* >& l )   // NOLINT   - we need the non-const ref here.
 {
     // traverse
     for( QList< QAction* >::iterator it = l.begin(); it != l.end(); ++it )
