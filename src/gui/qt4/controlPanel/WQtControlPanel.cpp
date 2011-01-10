@@ -877,6 +877,17 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
 void deepDeleteActionList( QList< QAction* >& l )
 {
     // traverse
+    for( QList< QAction* >::iterator it = l.begin(); it != l.end(); ++it )
+    {
+        if ( ( *it )->menu() )
+        {
+            // recursively remove sub-menu items
+            QList< QAction* > subs = ( *it )->menu()->actions();
+            deepDeleteActionList( subs );
+        }
+
+        delete ( *it );
+    }
 
     // remove items afterwards
     l.clear();
