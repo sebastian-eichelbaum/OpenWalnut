@@ -612,7 +612,7 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
     {
         // ok, reset the toolbar
         // So create a dummy to permanently reserve the space
-        m_currentCompatiblesToolbar = new WQtCombinerToolbar( this, WCombinerTypes::WCompatiblesList() );
+        m_currentCompatiblesToolbar = new WQtCombinerToolbar( this );
     }
 
     // optional toolbar break

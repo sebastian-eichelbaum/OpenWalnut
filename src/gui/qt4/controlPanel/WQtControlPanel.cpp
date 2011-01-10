@@ -720,8 +720,7 @@ void WQtControlPanel::selectRoiTreeItem()
         }
         else
         {
-            WCombinerTypes::WCompatiblesList comps;
-            m_mainWindow->setCompatiblesToolbar( new WQtCombinerToolbar( m_mainWindow, comps ) );
+            m_mainWindow->setCompatiblesToolbar( new WQtCombinerToolbar( m_mainWindow ) );
         }
     }
 
@@ -875,46 +874,61 @@ void WQtControlPanel::buildPropTab( boost::shared_ptr< WProperties > props, boos
     }
 }
 
+void deepDeleteActionList( QList< QAction* >& l )
+{
+    // traverse
+
+    // remove items afterwards
+    l.clear();
+}
+
 void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > module )
 {
-    // every module may have compatibles: create ribbon menu entry
-    // NOTE: if module is NULL, getCompatiblePrototypes returns the list of modules without input connector (nav slices and so on)
-    WCombinerTypes::WCompatiblesList comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
+    // we need to clean up the action lists
+    deepDeleteActionList( m_connectWithPrototypeActionList );
+    deepDeleteActionList( m_connectWithModuleActionList );
+    deepDeleteActionList( m_disconnectActionList );
+
+    // acquire new action lists
+    m_connectWithPrototypeActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
+                                                              WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module ) );
+    m_connectWithModuleActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
+                                                           WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module ),
+                                                           true, true );
+    if ( module )
+    {
+        m_disconnectActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(), module->getPossibleDisconnections() );
+    }
 
     // build the prototype menu
     QMenu* m = new QMenu( m_moduleTreeWidget );
-    m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), comps ) );
-    m_connectWithPrototypeAction->setDisabled( !comps.size() );  // disable if no entry inside
+    m->addActions( m_connectWithPrototypeActionList );
+    m_connectWithPrototypeAction->setDisabled( !m_connectWithPrototypeActionList.size() );  // disable if no entry inside
     delete( m_connectWithPrototypeAction->menu() ); // ensure that combiners get free'd
     m_connectWithPrototypeAction->setMenu( m );
 
     // build the module menu
-    WCombinerTypes::WCompatiblesList containerComps = WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module );
     m = new QMenu( m_moduleTreeWidget );
-    m->addActions( WQtCombinerActionList( m, m_mainWindow->getIconManager(), containerComps, true, true ) );
-    m_connectWithModuleAction->setDisabled( !containerComps.size() );  // disable if no entry inside
+    m->addActions( m_connectWithModuleActionList );
+    m_connectWithModuleAction->setDisabled( !m_connectWithModuleActionList.size() );  // disable if no entry inside
     delete m_connectWithModuleAction->menu();
     m_connectWithModuleAction->setMenu( m );
 
     // build the disconnect menu
-    WCombinerTypes::WDisconnectList disconnects;
-    if ( module )
-    {
-       disconnects = module->getPossibleDisconnections();
-    }
     m = new QMenu( m_moduleTreeWidget );
-    m->addActions(  WQtCombinerActionList( m, m_mainWindow->getIconManager(), disconnects ) );
-    m_disconnectAction->setDisabled( !disconnects.size() );  // disable if no entry inside
+    m->addActions( m_disconnectActionList );
+    m_disconnectAction->setDisabled( !m_disconnectActionList.size() );  // disable if no entry inside
     delete( m_disconnectAction->menu() ); // ensure that combiners get free'd
     m_disconnectAction->setMenu( m );
 
+    // finally, set the actions to the compatibles toolbar.
     if( m_mainWindow->getCompatiblesToolbar() != 0 )
     {
-        m_mainWindow->getCompatiblesToolbar()->updateButtons( comps );
+        m_mainWindow->getCompatiblesToolbar()->updateButtons( m_connectWithPrototypeActionList );
     }
     else
     {
-        m_mainWindow->setCompatiblesToolbar( new WQtCombinerToolbar( m_mainWindow, comps ) );
+        m_mainWindow->setCompatiblesToolbar( new WQtCombinerToolbar( m_mainWindow, m_connectWithPrototypeActionList ) );
     }
 }
 

@@ -37,10 +37,9 @@
 
 #include "WQtCombinerToolbar.h"
 
-WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCompatiblesList compatibles )
+WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WQtCombinerActionList& compatibles )
     : QToolBar( "Compatible Modules", parent ),
-      m_parent( parent ),
-      m_actionList( WQtCombinerActionList( this, parent->getIconManager(), compatibles ) )
+      m_parent( parent )
 {
     // setup toolbar
     setAllowedAreas( Qt::AllToolBarAreas );
@@ -57,24 +56,34 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCo
     setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
 
     // create the list of actions possible
-    addActions( m_actionList );
+    addActions( compatibles );
+    insertDummyButton();
+}
 
+WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent )
+    : QToolBar( "Compatible Modules", parent ),
+      m_parent( parent )
+{
+    // setup toolbar
+    setAllowedAreas( Qt::AllToolBarAreas );
+
+    // this sets the toolbar style
+    int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
+    WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );
+    if ( ( compToolBarStyle < 0 ) || ( compToolBarStyle > 3 ) ) // ensure a valid value
+    {
+        compToolBarStyle = 0;
+    }
+
+    // cast and set
+    setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
+
+    // reserve size
     insertDummyButton();
 }
 
 WQtCombinerToolbar::~WQtCombinerToolbar()
 {
-}
-
-void WQtCombinerToolbar::clear()
-{
-    // as QT is not able to delete the actions that are removed by clear(), we need to take care about it
-    for ( WQtCombinerActionList::iterator it = m_actionList.begin(); it != m_actionList.end(); ++it )
-    {
-        delete ( *it );
-    }
-    m_actionList.clear();
-    QToolBar::clear();
 }
 
 void WQtCombinerToolbar::makeEmpty()
@@ -83,12 +92,10 @@ void WQtCombinerToolbar::makeEmpty()
     insertDummyButton();
 }
 
-void WQtCombinerToolbar::updateButtons( WCombinerTypes::WCompatiblesList compatibles )
+void WQtCombinerToolbar::updateButtons( WQtCombinerActionList& compatibles )
 {
     clear();
-    // create the list of actions possible
-    m_actionList = WQtCombinerActionList( this, m_parent->getIconManager(), compatibles );
-    addActions( m_actionList );
+    addActions( compatibles );
 }
 
 void WQtCombinerToolbar::insertDummyButton()
