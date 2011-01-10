@@ -30,7 +30,7 @@
 #include <osg/Node>
 #include <osg/Uniform>
 
-#include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataSetVector.h"
 #include "../../kernel/WModule.h"

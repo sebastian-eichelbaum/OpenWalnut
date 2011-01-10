@@ -38,12 +38,12 @@
 #include <osg/StateSet>
 #include <osg/Node>
 
-#include "WGraphicsEngine.h"
+#include "../WGraphicsEngine.h"
 #include "WGEShaderPreprocessor.h"
 #include "WGEShaderVersionPreprocessor.h"
-#include "../common/WLogger.h"
-#include "../common/WPathHelper.h"
-#include "../common/WPredicateHelper.h"
+#include "../../common/WLogger.h"
+#include "../../common/WPathHelper.h"
+#include "../../common/WPredicateHelper.h"
 
 #include "WGEShader.h"
 

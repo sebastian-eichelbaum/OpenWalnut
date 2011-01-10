@@ -3,7 +3,7 @@
 #--------------------------------------------------------------------
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/bin/${SHARED_FILES_RELATIVE}/shaders)
-FILE( GLOB_RECURSE ALL_GE_SHADERS ${OW_SOURCE_DIR}/graphicsEngine/shaders/* )
+FILE( GLOB_RECURSE ALL_GE_SHADERS ${OW_SOURCE_DIR}/graphicsEngine/shaders/shaders/* )
 FOREACH( fname ${ALL_GE_SHADERS} )
   configure_file(  ${fname} ${CMAKE_BINARY_DIR}/bin/${SHARED_FILES_RELATIVE}/shaders/ COPYONLY)
 ENDFOREACH( fname )

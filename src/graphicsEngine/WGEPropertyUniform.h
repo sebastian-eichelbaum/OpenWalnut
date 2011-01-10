@@ -30,7 +30,7 @@
 #include <osg/Uniform>
 
 #include "callbacks/WGEPropertyUniformCallback.h"
-#include "WGEUniformTypeTraits.h"
+#include "shaders/WGEUniformTypeTraits.h"
 #include "WExportWGE.h"
 
 /**

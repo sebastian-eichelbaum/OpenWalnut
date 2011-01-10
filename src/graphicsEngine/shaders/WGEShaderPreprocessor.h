@@ -29,9 +29,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../common/WCondition.h"
+#include "../../common/WCondition.h"
 
-#include "WExportWGE.h"
+#include "../WExportWGE.h"
 
 /**
  * Base class for each preprocessing possible to shader code. This is useful to derive your own preprocessor which might be able to implement

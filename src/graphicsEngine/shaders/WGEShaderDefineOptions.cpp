@@ -26,7 +26,7 @@
 
 #include <algorithm>
 
-#include "../common/exceptions/WPreconditionNotMet.h"
+#include "../../common/exceptions/WPreconditionNotMet.h"
 
 #include "WGEShaderDefineOptions.h"
 

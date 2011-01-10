@@ -30,11 +30,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "../common/WPropertyBase.h"
+#include "../../common/WPropertyBase.h"
 
 #include "WGEShaderPreprocessor.h"
 
-#include "WExportWGE.h"
+#include "../WExportWGE.h"
 
 /**
  * This class is able to provide arbitrary values as define statements in GLSL code.

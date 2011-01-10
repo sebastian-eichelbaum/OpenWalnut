@@ -34,7 +34,7 @@
 #include "WGEOffscreenTexturePass.h"
 #include "WGEOffscreenFinalPass.h"
 #include "WGETextureHud.h"
-#include "WGEShader.h"
+#include "shaders/WGEShader.h"
 #include "callbacks/WGEViewportCallback.h"
 #include "WExportWGE.h"
 

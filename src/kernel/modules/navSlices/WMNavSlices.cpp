@@ -48,7 +48,7 @@
 #include "../../../dataHandler/WGridRegular3D.h"
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WValueSet.h"
-#include "../../../graphicsEngine/WGEShader.h"
+#include "../../../graphicsEngine/shaders/WGEShader.h"
 #include "../../../graphicsEngine/WGraphicsEngine.h"
 #include "../../../graphicsEngine/WGEUtils.h"
 #include "../../WKernel.h"

@@ -33,7 +33,7 @@
 #include <osg/Node>
 
 #include "../../../dataHandler/WDataSet.h"
-#include "../../../graphicsEngine/WGEShader.h"
+#include "../../../graphicsEngine/shaders/WGEShader.h"
 #include "../../../graphicsEngine/WGEGroupNode.h"
 #include "../../../graphicsEngine/WPickInfo.h"
 #include "../../WModule.h"
