@@ -220,6 +220,11 @@ private:
     WPropDouble   m_aDoubleOutput;
 
     /**
+     * A property simply providing a int value to the outside world.
+     */
+    WPropInt      m_aIntOutput;
+
+    /**
      * A property simply providing some text to the outside world.
      */
     WPropString   m_aStringOutput;

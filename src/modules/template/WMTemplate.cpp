@@ -331,9 +331,13 @@ void WMTemplate::properties()
     m_infoProperties->addProperty( m_aStringOutput );   // we can also re-add properties
     m_aTriggerOutput = m_infoProperties->addProperty( "A trigger", "Trigger As String", WPVBaseTypes::PV_TRIGGER_READY );
     m_aDoubleOutput = m_infoProperties->addProperty( "Some double", "a Double. Nice isn't it?", 3.1415 );
+    m_aIntOutput = m_infoProperties->addProperty( "Some int", "a int. Nice isn't it?", 123456 );
     m_aColorOutput = m_infoProperties->addProperty( "A color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
     m_aFilenameOutput = m_infoProperties->addProperty( "Nice file", "a Double. Nice isn't it?", WPathHelper::getAppPath() );
     m_aSelectionOutput = m_infoProperties->addProperty( "A selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
+    // One important note regarding information properties. If a property gets added in a group which is an information property-group, then
+    // each added property does NOT contain any constraints. If a property gets an information property AFTER its creation, like m_aStringOutput,
+    // then it keeps its constraints!
 
     WModule::properties();
 }
