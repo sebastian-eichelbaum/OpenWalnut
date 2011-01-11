@@ -66,43 +66,31 @@ WPropertyDoubleWidget::~WPropertyDoubleWidget()
 
 void WPropertyDoubleWidget::update()
 {
-    // get the min constraint
-    WPVDouble::PropertyConstraintMin minC = m_doubleProperty->getMin();
-    m_min = 0;
-    if ( minC.get() )
-    {
-        m_slider.setHidden( false );
-        m_min = minC->getMin();
-    }
-    else
-    {
-        m_slider.setHidden( true );
-    }
-
-    // get the max constraint
-    WPVDouble::PropertyConstraintMax maxC = m_doubleProperty->getMax();
-    m_max = 100;
-    if ( maxC.get() )
-    {
-        m_slider.setHidden( false );
-        m_max = maxC->getMax();
-    }
-    else
-    {
-        m_slider.setHidden( true );
-    }
-
-    // setup the slider
-    m_slider.setMinimum( 0 );
-    m_slider.setMaximum( 100 );
-
     // // calculate maximum size of the text widget.
     // // XXX: this is not the optimal way but works for now
     // NO, it doesn't work on Mac OS X: You won't be able to any digits in it!, So I reset it to default which should work on other platforms too
-
     QString valStr = QString::number( m_doubleProperty->get() );
     m_edit.setText( valStr );
-    m_slider.setValue( toPercent( m_doubleProperty->get() ) );
+
+       // get the min constraint
+    WPVDouble::PropertyConstraintMin minC = m_doubleProperty->getMin();
+    WPVDouble::PropertyConstraintMax maxC = m_doubleProperty->getMax();
+    bool minMaxConstrained = minC && maxC;
+    if ( minMaxConstrained )
+    {
+        // setup the slider
+        m_slider.setMinimum( 0 );
+        m_slider.setMaximum( 100 );
+        m_min = minC->getMin();
+        m_max = maxC->getMax();
+
+        m_slider.setHidden( false );
+        m_slider.setValue( toPercent( m_doubleProperty->get() ) );
+    }
+    else
+    {
+        m_slider.setHidden( true );
+    }
 
     // do not forget to update the label
     m_asText.setText( valStr );
@@ -120,11 +108,14 @@ double WPropertyDoubleWidget::fromPercent( int perc )
 
 void WPropertyDoubleWidget::sliderChanged( int value )
 {
-    // set to the property
-    invalidate( !m_doubleProperty->set( fromPercent( value ) ) );    // NOTE: set automatically checks the validity of the value
+    if ( !m_slider.isHidden() )
+    {
+        // set to the property
+        invalidate( !m_doubleProperty->set( fromPercent( value ) ) );    // NOTE: set automatically checks the validity of the value
 
-    // set the value in the line edit
-    m_edit.setText( QString::number( m_doubleProperty->get() ) );
+        // set the value in the line edit
+        m_edit.setText( QString::number( m_doubleProperty->get() ) );
+    }
 }
 
 void WPropertyDoubleWidget::editChanged()
