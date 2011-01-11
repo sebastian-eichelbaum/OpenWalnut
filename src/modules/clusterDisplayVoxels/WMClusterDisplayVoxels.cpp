@@ -171,7 +171,7 @@ void WMClusterDisplayVoxels::properties()
     m_propMinBranchSize->setMin( 1 );
     m_propMinBranchSize->setMax( 500 );
 
-    m_propSelectedLoadedPartion = m_properties->addProperty( "Partition", "", 0, m_propCondition );
+    m_propSelectedLoadedPartion = m_properties->addProperty( "Loaded Partition", "Activates a predetermined partition, loaded from file", 0, m_propCondition ); // NOLINT
     m_propSelectedLoadedPartion->setMin( 1 );
     m_propSelectedLoadedPartion->setMax( 1 );
 
@@ -179,15 +179,15 @@ void WMClusterDisplayVoxels::properties()
 
     m_showNotInClusters = m_properties->addProperty( "Show non active", "", false, m_propCondition );
 
-    m_propMinSizeToColor = m_properties->addProperty( "Min size to show", "Specifies a minimum size for a cluster to be drawn", 1, m_propCondition ); // NOLINT
-    m_propMinSizeToColor->setMin( 1 );
-    m_propMinSizeToColor->setMax( 200 );
-
     m_groupDendrogram = m_properties->addPropertyGroup( "Dendrogram",  "Properties only related to the dendrogram." );
 
     m_propShowDendrogram = m_groupDendrogram->addProperty( "Show dendrogram", "", true, m_propCondition );
 
     m_propPlotHeightByLevel = m_groupDendrogram->addProperty( "Height by Level or Value", "", false, m_propCondition );
+
+    m_propMinSizeToColor = m_groupDendrogram->addProperty( "Min size to show", "Specifies a minimum size for a cluster to be drawn", 1, m_propCondition ); // NOLINT
+    m_propMinSizeToColor->setMin( 1 );
+    m_propMinSizeToColor->setMax( 200 );
 
     m_propResizeWithWindow = m_groupDendrogram->addProperty( "Resize with window", "", true, m_propCondition );
 
@@ -220,8 +220,8 @@ void WMClusterDisplayVoxels::setPropertyBoundaries()
     m_propSelectedCluster->setMax( m_tree.getClusterCount() - 1 );
     m_propSelectedCluster->set( m_tree.getClusterCount() - 1 );
 
-    m_infoCountLeafes->set( static_cast<int>( m_tree.getLeafCount() ) );
-    m_infoCountClusters->set( static_cast<int>( m_tree.getClusterCount() ) );
+    m_infoCountLeafes->set( m_tree.getLeafCount() );
+    m_infoCountClusters->set( m_tree.getClusterCount() );
     m_infoMaxLevel->set( m_tree.getMaxLevel() );
 
     m_propMinSizeToColor->setMax( 1000 );

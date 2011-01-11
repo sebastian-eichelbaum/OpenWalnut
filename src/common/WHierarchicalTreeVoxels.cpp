@@ -151,6 +151,17 @@ std::vector< size_t >WHierarchicalTreeVoxels::findClustersForBranchLength( float
     std::list<size_t>worklist;
     std::vector<size_t>returnVector;
 
+    std::vector<bool>distanceCheckVector( m_clusterCount, false );
+
+    for ( size_t i = 0; i < m_clusterCount; ++i )
+    {
+        if ( ( ( m_containsLeafes[i].size() >= minSize ) && ( ( m_customData[m_parents[i]] - m_customData[i] ) > value ) ) ||
+                distanceCheckVector[m_children[i].first] || distanceCheckVector[m_children[i].second] )
+        {
+            distanceCheckVector[i] = true;
+        }
+    }
+
     worklist.push_back( m_clusterCount - 1 );
 
 
@@ -163,30 +174,24 @@ std::vector< size_t >WHierarchicalTreeVoxels::findClustersForBranchLength( float
             size_t left = m_children[current].first;
             size_t right = m_children[current].second;
 
-            float leftLength = getCustomData( current ) - getCustomData( left );
-            float rightLength = getCustomData( current ) - getCustomData( right );
-
-            if ( m_containsLeafes[left].size() >= minSize )
+            if ( distanceCheckVector[left] && distanceCheckVector[right] )
             {
-                if ( value > leftLength )
+                worklist.push_back( left );
+                worklist.push_back( right );
+            }
+            else
+            {
+                if ( ( m_containsLeafes[left].size() < minSize ) && ( m_containsLeafes[right].size() >= minSize ) )
+                {
+                    worklist.push_back( right );
+                }
+                else if ( ( m_containsLeafes[right].size() < minSize ) && ( m_containsLeafes[left].size() > minSize ) )
                 {
                     worklist.push_back( left );
                 }
                 else
                 {
-                    returnVector.push_back( left );
-                }
-            }
-
-            if ( m_containsLeafes[right].size() >= minSize )
-            {
-                if ( value > rightLength )
-                {
-                    worklist.push_back( right );
-                }
-                else
-                {
-                    returnVector.push_back( right );
+                    returnVector.push_back( current );
                 }
             }
         }
