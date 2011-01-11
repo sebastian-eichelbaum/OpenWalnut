@@ -42,9 +42,6 @@
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
 #include "../../graphicsEngine/WGERequirement.h"
-#include "../../graphicsEngine/WGEOffscreenRenderPass.h"
-#include "../../graphicsEngine/WGEOffscreenRenderNode.h"
-#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../kernel/WKernel.h"
 #include "WMIsosurfaceRaytracer.xpm"
@@ -127,9 +124,6 @@ void WMIsosurfaceRaytracer::properties()
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_shadingAlgo );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_shadingAlgo );
-
-    // show hud?
-    m_showHUD        = m_properties->addProperty( "Show HUD", "Check to enable the debugging texture HUD.", false );
 
     WModule::properties();
 }

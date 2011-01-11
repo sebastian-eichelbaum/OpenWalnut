@@ -124,8 +124,6 @@ private:
      */
     WPropInt m_stepCount;
 
-    WPropBool     m_showHUD; //!< indicates whether to show the texture HUD
-
     /**
      * The alpha transparency used for the rendering
      */

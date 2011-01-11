@@ -45,8 +45,8 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
-#include "../../graphicsEngine/WGEOffscreenRenderPass.h"
-#include "../../graphicsEngine/WGEOffscreenRenderNode.h"
+#include "../../graphicsEngine/offscreen/WGEOffscreenRenderPass.h"
+#include "../../graphicsEngine/offscreen/WGEOffscreenRenderNode.h"
 #include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
 
 #include "WMImageSpaceLIC.h"

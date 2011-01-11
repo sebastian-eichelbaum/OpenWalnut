@@ -30,9 +30,9 @@
 #include <osg/Camera>
 #include <osg/FrameBufferObject>
 
-#include "WGEUtils.h"
-#include "WGETexture.h"
-#include "WExportWGE.h"
+#include "../WGEUtils.h"
+#include "../WGETexture.h"
+#include "../WExportWGE.h"
 
 class WGETextureHud;
 
