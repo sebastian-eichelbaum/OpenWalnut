@@ -35,7 +35,7 @@
 
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/geodes/WDendrogramGeode.h"
-#include "../../graphicsEngine/WOSGButton.h"
+#include "../../graphicsEngine/widgets/WOSGButton.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -50,7 +50,7 @@
 const unsigned int MASK_2D = 0xF0000000; //!< used for osgWidget stuff
 const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff
 
-/** 
+/**
  * Someone should add some documentation here.
  * Probably the best person would be the module's
  * creator, i.e. "schurade".

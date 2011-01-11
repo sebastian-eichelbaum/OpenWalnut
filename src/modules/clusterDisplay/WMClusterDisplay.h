@@ -34,7 +34,7 @@
 #include "../../common/WHierarchicalTreeFibers.h"
 
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/WOSGButton.h"
+#include "../../graphicsEngine/widgets/WOSGButton.h"
 
 #include "../../kernel/WFiberSelector.h"
 #include "../../kernel/WModule.h"
