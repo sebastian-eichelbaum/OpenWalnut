@@ -154,40 +154,6 @@ void WMIsosurfaceRaytracer::moduleMain()
     osg::ref_ptr< WGEManagedGroupNode > rootNode = new WGEManagedGroupNode( m_active );
     bool rootInserted = false;
 
-    ////////////////////////////////////////////////////////////////////////////////////////
-    // Setup post-processing pipeline
-    // NOTE: the code is for testing only.
-
-    // the WGEOffscreenRenderNode manages each of the render-passes for us
-    /*osg::ref_ptr< WGEOffscreenRenderNode > offscreen = new WGEOffscreenRenderNode(
-        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
-    );
-
-    // allow en-/disabling the HUD:
-    offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
-    osg::ref_ptr< WGEOffscreenRenderPass > render = offscreen->addGeometryRenderPass(
-        rootNode,
-        m_shader,
-        "Rendering"
-    );
-
-    // finally, put it back on screen, clip it, color it and apply depth buffer to on-screen buffer
-    osg::ref_ptr< WGEOffscreenRenderPass > postprocess =  offscreen->addFinalOnScreenPass(
-        new WGEShader( "WMIsosurfaceRaytracer-Postprocessor", m_localPath ),
-        "Postprocessor"
-    );
-
-    // Texture bindings
-    osg::ref_ptr< osg::Texture2D > renderColor = render->attach( osg::Camera::COLOR_BUFFER0 );
-    osg::ref_ptr< osg::Texture2D > renderNormals = render->attach( osg::Camera::COLOR_BUFFER1 );
-    osg::ref_ptr< osg::Texture2D > renderDepth = render->attach( osg::Camera::DEPTH_BUFFER );
-
-    postprocess->bind( renderColor,   0 );
-    postprocess->bind( renderNormals, 1 );
-    postprocess->bind( renderDepth,   2 );
-
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );*/
-
     // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
     // connectors or on changed in your properties.
     debugLog() << "Entering main loop";
