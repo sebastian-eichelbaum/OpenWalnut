@@ -60,8 +60,8 @@ public:
      * should be enough.
      *
      * \param reference camera used as reference
-     * \param width the width of the textures used in this rendering
-     * \param height the height of the textures used in this rendering*
+     * \param width the width of the textures used in this rendering. The real used space is determined by the reference camera.
+     * \param height the height of the textures used in this rendering. The real used space is determined by the reference camera.
      * \param noHud If true, no hud gets displayed showing the created and used textures.
      */
     WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > reference, size_t width = 2048, size_t height = 2048, bool noHud = false );
