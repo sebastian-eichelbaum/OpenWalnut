@@ -96,13 +96,25 @@ private:
 
 
     /**
-     * recurse function that follows the layout to determine the cluster from pixel coordinates
+     * recurse function that follows the layout to determine the cluster from pixel coordinates, used when the level of the cluster
+     * is used for height
      *
      * \param cluster cluster to check against coordinates
      * \param left left boundary of cluster
      * \param right right boundary of cluster
      */
     void getClickClusterRecursive( size_t cluster, float left, float right );
+
+    /**
+     * recurse function that follows the layout to determine the cluster from pixel coordinates, used when the customData value is used
+     * for height
+     *
+     * \param cluster cluster to check against coordinates
+     * \param left left boundary of cluster
+     * \param right right boundary of cluster
+     */
+    void getClickClusterRecursive2( size_t cluster, float left, float right );
+
 
     WHierarchicalTree* m_tree; //!< the tree to work on
 

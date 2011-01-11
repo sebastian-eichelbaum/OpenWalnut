@@ -249,14 +249,68 @@ void WDendrogramGeode::layoutValue( size_t cluster, float left, float right )
 
 size_t WDendrogramGeode::getClickedCluster( int xClick, int yClick )
 {
-    m_xClicked = ( xClick - m_xOff ) / m_xSize * ( m_tree->size( m_rootCluster ) - 1 );
-    m_yClicked = ( yClick - m_yOff ) / m_ySize * ( m_tree->getLevel( m_rootCluster ) - 1 );
+    m_xClicked = ( xClick - m_xOff ) / m_xSize * ( m_tree->size( m_rootCluster ) );
 
-    getClickClusterRecursive( m_rootCluster, 0.0f, static_cast<float>( m_tree->size( m_rootCluster ) - 1 ) );
+    m_clickedCluster = m_rootCluster;
 
-    //std::cout << xClick << "," << yClick << "  :  " << m_xClicked << "," << m_yClicked << std::endl;
+    if ( m_useLevel )
+    {
+        m_yClicked = ( yClick - m_yOff ) / m_ySize * ( m_tree->getLevel( m_rootCluster ) );
+        getClickClusterRecursive( m_rootCluster, 0.0f, static_cast<float>( m_tree->size( m_rootCluster ) - 1 ) );
+    }
+    else
+    {
+        m_yClicked = ( yClick - m_yOff );
+        getClickClusterRecursive2( m_rootCluster, 0.0f, static_cast<float>( m_tree->size( m_rootCluster ) - 1 ) );
+    }
 
     return m_clickedCluster;
+}
+
+void WDendrogramGeode::getClickClusterRecursive2( size_t cluster, float left, float right )
+{
+    int height = static_cast<int>( m_tree->getCustomData( cluster ) * m_ySize );
+
+    if ( abs( height - m_yClicked ) < 2 )
+    {
+        m_clickedCluster = cluster;
+        return;
+    }
+
+    int size = right - left;
+
+    if ( m_tree->getLevel( cluster ) > 0 )
+    {
+        size_t leftCluster = m_tree->getChildren( cluster ).first;
+        size_t rightCluster = m_tree->getChildren( cluster ).second;
+
+        float leftSize = static_cast<float>( m_tree->size( leftCluster ) );
+        float rightSize = static_cast<float>( m_tree->size( rightCluster ) );
+
+        if ( ( leftSize >= m_minClusterSize ) &&  ( rightSize < m_minClusterSize ) )
+        {
+            // left cluster is much bigger, draw only left
+            getClickClusterRecursive2( leftCluster, left, right );
+        }
+        else if ( ( rightSize >= m_minClusterSize ) &&  ( leftSize < m_minClusterSize ) )
+        {
+            // right cluster is much bigger, draw only right
+            getClickClusterRecursive2( rightCluster, left, right );
+        }
+        else
+        {
+            float mult = size / ( leftSize + rightSize );
+
+            if ( m_xClicked < left + leftSize * mult )
+            {
+                getClickClusterRecursive2( leftCluster, left, left + leftSize * mult );
+            }
+            else
+            {
+                getClickClusterRecursive2( rightCluster, right - rightSize * mult, right );
+            }
+        }
+    }
 }
 
 void WDendrogramGeode::getClickClusterRecursive( size_t cluster, float left, float right )
