@@ -46,7 +46,7 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEOffscreenRenderNode.h"
 #include "../../graphicsEngine/WGEOffscreenRenderPass.h"
-#include "../../graphicsEngine/WGEPropertyUniform.h"
+#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../kernel/WKernel.h"
 #include "WMProbTractDisplaySP.h"

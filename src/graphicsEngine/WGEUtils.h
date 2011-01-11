@@ -34,12 +34,13 @@
 #include <osg/Vec3>
 #include <osg/Vec4>
 #include <osg/Camera>
+#include <osg/Texture2D>
 
 #include "../common/WColor.h"
 #include "../common/WAssert.h"
 #include "../common/math/WPosition.h"
 #include "../common/math/WMatrix.h"
-#include "WGEPropertyUniform.h"
+#include "shaders/WGEPropertyUniform.h"
 #include "WExportWGE.h"
 
 template < typename T > class WGETexture;
@@ -146,6 +147,16 @@ namespace wge
      */
     template < typename T >
     void bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture< T > > texture, size_t unit = 0 );
+
+    /**
+     * This generates an 2D texture only containing white noise in its channels.
+     *
+     * \param size size in x/y direction (in pixels)
+     * \param channels the number of channels. Valid are 1, 3 and 4.
+     *
+     * \return the generated texture.
+     */
+    osg::ref_ptr< WGETexture< osg::Texture2D > > genWhiteNoiseTexture( size_t size, size_t channels = 1 );
 }
 
 inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )

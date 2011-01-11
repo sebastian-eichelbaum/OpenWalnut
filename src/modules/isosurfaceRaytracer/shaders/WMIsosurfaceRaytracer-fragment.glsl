@@ -94,7 +94,7 @@ float pointDistance( vec3 p1, vec3 p2 )
 void main()
 {
     // please do not laugh, it is a very very very simple "isosurface" shader
-    gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+    gl_FragData[0] = vec4( 1.0, 0.0, 0.0, 1.0 );
     gl_FragDepth = gl_FragCoord.z;
 
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
@@ -181,6 +181,8 @@ void main()
             );
 
             color = light * gl_Color;
+
+            gl_FragData[1] = vec4( dir, 1.0 );
 #endif
 #ifdef PHONGWITHDEPTH
             float d = 1.0 - curPointProjected.z;
@@ -212,7 +214,7 @@ void main()
 #endif
 
             color.a = u_alpha;
-            gl_FragColor = color;
+            gl_FragData[0] = color;
 
             break;
         }
