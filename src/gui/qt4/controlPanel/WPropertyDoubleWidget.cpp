@@ -108,7 +108,7 @@ double WPropertyDoubleWidget::fromPercent( int perc )
 
 void WPropertyDoubleWidget::sliderChanged( int value )
 {
-    if ( !m_slider.isHidden() )
+    if ( !m_slider.isHidden() && toPercent( m_doubleProperty->get() ) != value )
     {
         // set to the property
         invalidate( !m_doubleProperty->set( fromPercent( value ) ) );    // NOTE: set automatically checks the validity of the value
