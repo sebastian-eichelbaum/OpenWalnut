@@ -30,12 +30,51 @@
 
 #include "WGEShaderDefineOptions.h"
 
-WGEShaderDefineOptions::WGEShaderDefineOptions( std::string first ):
+WGEShaderDefineOptions::WGEShaderDefineOptions( std::string first,
+                            std::string option2, std::string option3, std::string option4, std::string option5,
+                            std::string option6, std::string option7, std::string option8, std::string option9,
+                            std::string option10 ):
     WGEShaderPreprocessor(),
     m_options( 1, first ),
     m_idx( 0 )
 {
     // init
+    if ( !option2.empty() )
+    {
+        m_options.push_back( option2 );
+    }
+    if ( !option3.empty() )
+    {
+        m_options.push_back( option3 );
+    }
+    if ( !option4.empty() )
+    {
+        m_options.push_back( option4 );
+    }
+    if ( !option5.empty() )
+    {
+        m_options.push_back( option5 );
+    }
+    if ( !option6.empty() )
+    {
+        m_options.push_back( option6 );
+    }
+    if ( !option7.empty() )
+    {
+        m_options.push_back( option7 );
+    }
+    if ( !option8.empty() )
+    {
+        m_options.push_back( option8 );
+    }
+    if ( !option9.empty() )
+    {
+        m_options.push_back( option9 );
+    }
+    if ( !option10.empty() )
+    {
+        m_options.push_back( option10 );
+    }
 }
 
 WGEShaderDefineOptions::~WGEShaderDefineOptions()

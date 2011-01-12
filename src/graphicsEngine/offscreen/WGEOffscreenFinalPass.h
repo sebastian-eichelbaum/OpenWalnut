@@ -40,6 +40,15 @@ class WGETextureHud;
 class WGEOffscreenFinalPass: public WGEOffscreenTexturePass
 {
 public:
+    /**
+     * Convenience typedef for an osg::ref_ptr
+     */
+    typedef osg::ref_ptr< WGEOffscreenFinalPass > RefPtr;
+
+    /**
+     * Convenience typedef for an osg::ref_ptr; const
+     */
+    typedef osg::ref_ptr< const WGEOffscreenFinalPass > ConstRefPtr;
 
     /**
      * Creates a new rendering pass instance which actually renders on a full-screen quad.

@@ -25,6 +25,8 @@
 #version 120
 
 #include "WGEShadingTools.glsl"
+#include "WGETextureTools.glsl"
+#include "WGEPostprocessing.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
@@ -94,7 +96,7 @@ float pointDistance( vec3 p1, vec3 p2 )
 void main()
 {
     // please do not laugh, it is a very very very simple "isosurface" shader
-    gl_FragData[0] = vec4( 1.0, 0.0, 0.0, 1.0 );
+    wge_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
     gl_FragDepth = gl_FragCoord.z;
 
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
@@ -140,6 +142,18 @@ void main()
             // 4: set color
             vec4 color;
 
+            // only calculate the normal if we need it
+#if defined( WGE_POSTPROCESSING_ENABLED ) || defined( PHONG ) || defined( PHONGWITHDEPTH )
+            // find a proper normal for a headlight
+            vec3 normal = getGradientViewAligned( tex0, curPoint, v_ray );
+            wge_FragNormal = textureNormalize( normal );
+#endif
+
+#ifndef WGE_POSTPROCESSING_ENABLED
+            wge_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+            return;
+#endif
+
 #ifdef CORTEX
             // NOTE: these are a lot of weird experiments ;-)
             float d = 1.0 - curPointProjected.z;
@@ -157,18 +171,6 @@ void main()
             color = gl_Color * 1.5 * d * d;
 #endif
 #ifdef PHONG
-            // find a proper normal for a headlight
-            float s = 0.005;
-            float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
-            float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
-            float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
-            float valueYM = texture3D( tex0, curPoint - vec3( 0.0, s, 0.0 ) ).r;
-            float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
-            float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
-
-            vec3 dir = -vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ); //v_ray;
-            dir = sign( dot( dir, -v_ray ) ) * dir;
-
             // Phong:
             float light = blinnPhongIlluminationIntensity(
                     0.1,                                // material ambient
@@ -177,29 +179,15 @@ void main()
                     10.0,                               // shinines
                     1.0,                                // light diffuse
                     0.75,                               // light ambient
-                    normalize( dir ),                   // normal
+                    normalize( normal ),                // normal
                     normalize( v_ray ),                 // view direction
                     normalize( v_lightSource )          // light source position
             );
 
             color = light * gl_Color;
-
-            gl_FragData[1] = vec4( dir, 1.0 );
 #endif
 #ifdef PHONGWITHDEPTH
             float d = 1.0 - curPointProjected.z;
-
-            // find a proper normal for a headlight
-            float s = 0.005;
-            float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
-            float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
-            float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
-            float valueYM = texture3D( tex0, curPoint - vec3( 0.0, s, 0.0 ) ).r;
-            float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
-            float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
-
-            vec3 dir = -vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ); //v_ray;
-            dir = sign( dot( dir, -v_ray ) ) * dir;
 
             // Phong:
             float light = blinnPhongIlluminationIntensity(
@@ -209,7 +197,7 @@ void main()
                     10.0,                               // shinines
                     1.0,                                // light diffuse
                     0.3,                                // light ambient
-                    normalize( dir ),                   // normal
+                    normalize( normal ),                // normal
                     normalize( v_ray ),                 // view direction
                     normalize( v_lightSource )          // light source position
             );
@@ -218,7 +206,7 @@ void main()
 #endif
 
             color.a = u_alpha;
-            gl_FragData[0] = color;
+            wge_FragColor = color;
 
             break;
         }

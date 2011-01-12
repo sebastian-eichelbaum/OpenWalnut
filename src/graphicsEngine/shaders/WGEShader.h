@@ -47,6 +47,15 @@
 class WGE_EXPORT WGEShader: public osg::Program
 {
 public:
+    /**
+     * Convenience typedef for an osg::ref_ptr
+     */
+    typedef osg::ref_ptr< WGEShader > RefPtr;
+
+    /**
+     * Convenience typedef for an osg::ref_ptr; const
+     */
+    typedef osg::ref_ptr< const WGEShader > ConstRefPtr;
 
     /**
      * Default constructor. Loads the specified shader programs. The path that can be specified is optional but allows modules to load their own

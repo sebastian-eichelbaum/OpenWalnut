@@ -41,7 +41,6 @@
 class WGE_EXPORT WGEShaderPreprocessor  // NOLINT
 {
 public:
-
     /**
      * Shared pointer for this class.
      */

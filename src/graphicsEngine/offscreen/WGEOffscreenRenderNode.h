@@ -55,6 +55,16 @@ class WGE_EXPORT WGEOffscreenRenderNode: public WGEGroupNode // NOLINT
 {
 public:
     /**
+     * Convenience typedef for an osg::ref_ptr
+     */
+    typedef osg::ref_ptr< WGEOffscreenRenderNode > RefPtr;
+
+    /**
+     * Convenience typedef for an osg::ref_ptr; const
+     */
+    typedef osg::ref_ptr< const WGEOffscreenRenderNode > ConstRefPtr;
+
+    /**
      * Create a new managing instance. It uses the specified camera as reference to all created offscreen-render-pass instances. Especially
      * viewport, clear-mask and clear-color get used. The default texture resolution is 2048x2048 which is more than full-HD resolution. So it
      * should be enough.

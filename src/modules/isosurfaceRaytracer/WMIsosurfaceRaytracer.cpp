@@ -41,6 +41,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "../../graphicsEngine/postprocessing/WGEPostprocessingNode.h"
 #include "../../graphicsEngine/WGERequirement.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../kernel/WKernel.h"
@@ -136,10 +137,12 @@ void WMIsosurfaceRaytracer::requirements()
 void WMIsosurfaceRaytracer::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMIsosurfaceRaytracer", m_localPath ) );
-    WGEShaderDefineOptions::SPtr shadingDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "CORTEX" ) );
-    shadingDefines->addOption( "DEPTHONLY" );
-    shadingDefines->addOption( "PHONG" );
-    shadingDefines->addOption( "PHONGWITHDEPTH" );
+    WGEShaderDefineOptions::SPtr shadingDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions(
+                "CORTEX",
+                "DEPTHONLY",
+                "PHONG",
+                "PHONGWITHDEPTH"
+    ) );
     m_shader->addPreprocessor( shadingDefines );
 
     // let the main loop awake if the data changes or the properties changed.
@@ -151,8 +154,20 @@ void WMIsosurfaceRaytracer::moduleMain()
     ready();
     debugLog() << "Module is now ready.";
 
+    // create the root node containing the transformation and geometry
     osg::ref_ptr< WGEManagedGroupNode > rootNode = new WGEManagedGroupNode( m_active );
-    bool rootInserted = false;
+
+    // create the post-processing node which actually does the nice stuff to the rendered image
+    osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
+        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
+    );
+
+    // provide the properties of the post-processor to the user
+    m_properties->addProperty( postNode->getProperties() );
+
+    // insert it
+    postNode->insert( rootNode, m_shader );
+    bool postNodeInserted = false;
 
     // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
     // connectors or on changed in your properties.
@@ -219,7 +234,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
 
             // enable transparency
-            rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
+            //rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup defines (lighting)
@@ -260,17 +275,17 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootNode->insert( cube );
             // insert root node if needed. This way, we ensure that the root node gets added only if the proxy cube has been added AND the bbox
             // can be calculated properly by the OSG to ensure the proxy cube is centered in the scene if no other item has been added earlier.
-            if ( !rootInserted )
+            if ( !postNodeInserted )
             {
-                rootInserted = true;
-                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
+                postNodeInserted = true;
+                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( postNode );
             }
         }
     }
 
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
     // allocated memory and remove all OSG nodes.
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( postNode );
 }
 
 void WMIsosurfaceRaytracer::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )

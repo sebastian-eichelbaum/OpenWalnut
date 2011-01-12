@@ -25,6 +25,8 @@
 #ifndef WFLAG_H
 #define WFLAG_H
 
+#include <boost/shared_ptr.hpp>
+
 #include "WCondition.h"
 
 /**
@@ -39,6 +41,16 @@ public:
      * The type for later access.
      */
     typedef T ValueType;
+
+    /**
+     * Convenience typedef for a boost::shared_ptr.
+     */
+    typedef boost::shared_ptr< WFlag< T > > SPtr;
+
+    /**
+     * Convenience typedef for a boost::shared_ptr. Const.
+     */
+    typedef boost::shared_ptr< const WFlag< T > > ConstSPtr;
 
     /**
      * Constructor. Uses a given condition to realize the wait/notify functionality. By using this constructor, the specified

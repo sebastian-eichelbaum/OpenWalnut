@@ -38,7 +38,6 @@
 class WGE_EXPORT WGEShaderVersionPreprocessor: public WGEShaderPreprocessor
 {
 public:
-
     /**
      * Default constructor.
      */

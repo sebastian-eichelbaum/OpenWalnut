@@ -62,6 +62,25 @@ public:
     explicit WGEShaderDefineOptions( std::string first );
 
     /**
+     * Create a new instance of this class. The first option is mandatory and is set as default.
+     *
+     * \param first fist option. Is default.
+     * \param option2 another option
+     * \param option3 another option
+     * \param option4 another option
+     * \param option5 another option
+     * \param option6 another option
+     * \param option7 another option
+     * \param option8 another option
+     * \param option9 another option
+     * \param option10 another option
+     */
+    WGEShaderDefineOptions( std::string first,
+                            std::string option2 = "", std::string option3 = "", std::string option4 = "", std::string option5 = "",
+                            std::string option6 = "", std::string option7 = "", std::string option8 = "", std::string option9 = "",
+                            std::string option10 = "" );
+
+    /**
      * Destructor.
      */
     virtual ~WGEShaderDefineOptions();

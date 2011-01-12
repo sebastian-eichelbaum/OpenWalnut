@@ -22,28 +22,31 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../shaders/WGEShaderDefineOptions.h"
+
 #include "WGEPostprocessingNode.h"
 
 WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > reference, size_t width, size_t height, bool noHud ):
     osg::Switch(),
     m_offscreen( new WGEOffscreenRenderNode( reference, width, height, noHud ) ),
     m_childs( new WGEGroupNode() ),
+    m_postProcessShader( new WGEShader( "WGEPostprocessor" ) ),
     m_properties( boost::shared_ptr< WProperties >( new WProperties( "Post-processing", "Post-processing properties" ) ) )
 {
-    // initialize members
-
     // create both render pass
     m_render = m_offscreen->addGeometryRenderPass(
         m_childs,
         "Rendered"
     );
-    m_postprocess = m_offscreen->addFinalOnScreenPass( "Post-processed" );
+    m_postprocess = m_offscreen->addFinalOnScreenPass( m_postProcessShader, "Post-processed" );
 
     // link them together with the corresponding textures
     osg::ref_ptr< osg::Texture2D > renderColorTexture = m_render->attach( osg::Camera::COLOR_BUFFER0 );
-    osg::ref_ptr< osg::Texture2D > renderNDTexture = m_render->attach( osg::Camera::COLOR_BUFFER1 );
+    osg::ref_ptr< osg::Texture2D > renderNormalTexture = m_render->attach( osg::Camera::COLOR_BUFFER1 );
+    osg::ref_ptr< osg::Texture2D > renderDepthTexture = m_render->attach( osg::Camera::DEPTH_BUFFER );
     m_postprocess->bind( renderColorTexture, 0 );
-    m_postprocess->bind( renderNDTexture, 1 );
+    m_postprocess->bind( renderNormalTexture, 1 );
+    m_postprocess->bind( renderDepthTexture, 2 );
 
     // add the offscreen renderer and the original node to the switch
     addChild( m_childs );
@@ -70,5 +73,26 @@ WGEPostprocessingNode::~WGEPostprocessingNode()
 WPropGroup WGEPostprocessingNode::getProperties() const
 {
     return m_properties;
+}
+
+void WGEPostprocessingNode::insert( osg::ref_ptr< osg::Node > node, WGEShader::RefPtr shader )
+{
+    // we need to inject some code to the shader at this point.
+    shader->addPreprocessor( WGEShaderDefineOptions::SPtr(
+        new WGEShaderDefineOptions( "WGE_POSTPROCESSING_ENABLED", "WGE_POSTPROCESSING_DISABLED" ) )
+    );
+
+    // insert node to group node of all children
+    m_childs->insert( node );
+}
+
+void WGEPostprocessingNode::remove( osg::ref_ptr< osg::Node > node )
+{
+    m_childs->remove( node );
+}
+
+void WGEPostprocessingNode::clear()
+{
+    m_childs->clear();
 }
 

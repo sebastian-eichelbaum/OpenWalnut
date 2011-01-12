@@ -44,6 +44,15 @@ class WGETextureHud;
 class WGE_EXPORT WGEOffscreenRenderPass: public osg::Camera // NOLINT
 {
 public:
+    /**
+     * Convenience typedef for an osg::ref_ptr
+     */
+    typedef osg::ref_ptr< WGEOffscreenRenderPass > RefPtr;
+
+    /**
+     * Convenience typedef for an osg::ref_ptr; const
+     */
+    typedef osg::ref_ptr< const WGEOffscreenRenderPass > ConstRefPtr;
 
     /**
      * Creates a new offscreen rendering instance.
