@@ -65,6 +65,15 @@ class WPropertyVariable: public WFlag< T >,
 {
 friend class WPropertyVariableTest;
 public:
+    /**
+     * Convenience typedef for a shared_ptr of WPropertyVariable.
+     */
+    typedef boost::shared_ptr< WPropertyVariable< T > > SPtr;
+
+    /**
+     * Convenience typedef for a shared_ptr of const WPropertyVariable.
+     */
+    typedef boost::shared_ptr< const WPropertyVariable< T > > ConstSPtr;
 
     /**
      * Create an empty instance just containing a name.

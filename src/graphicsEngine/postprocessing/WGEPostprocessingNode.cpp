@@ -22,7 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../shaders/WGEShaderDefineOptions.h"
+#include "../../common/WPropertyHelper.h"
+
+#include "../shaders/WGEShaderPropertyDefineOptions.h"
 
 #include "WGEPostprocessingNode.h"
 
@@ -56,11 +58,30 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     m_active = m_properties->addProperty( "Enable", "If set, post-processing is enabled.", true );
     m_showHUD = m_properties->addProperty( "Show HUD", "If set, the intermediate textures are shown.", false );
 
+    // Post-processings:
+    // First: Create a list with name, description and shader define which is used to enable it
+    typedef WGEShaderPropertyDefineOptions< WPropSelection >::NameDescriptionDefineTuple Tuple;
+    std::vector< Tuple > namesAndDefs;
+    namesAndDefs.push_back( Tuple( "None", "This does not do any post-processing.", "WGE_POSTPROCESSOR_NONE" ) );
+
+    // Second: create the Shader option object and the corresponding property automatically:
+    WGEShaderPropertyDefineOptions< WPropSelection >::SPtr activePostprocessorsOpts(
+        WGEShaderPropertyDefineOptions< WPropSelection >::createSelection(
+            "Post-processors",
+            "Select the post-processings you want.",
+            m_properties,
+            namesAndDefs
+        )
+    );
+    m_activePostprocessors = activePostprocessorsOpts->getProperty();
+    // avoid that a user selects nothing
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_activePostprocessors );
+
     // let the props control some stuff
-    m_switchCallback = new WGESwitchCallback< WPropBool >( m_active );
-    m_hudCallback = new WGENodeMaskCallback( m_showHUD );
-    addUpdateCallback( m_switchCallback );
-    m_offscreen->getTextureHUD()->addUpdateCallback( m_hudCallback );
+    addUpdateCallback( new WGESwitchCallback< WPropBool >( m_active ) );
+    m_offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
+    // let the activePostprocessors property control the options in the shader:
+    m_postProcessShader->addPreprocessor( activePostprocessorsOpts );
 }
 
 WGEPostprocessingNode::~WGEPostprocessingNode()
@@ -78,8 +99,8 @@ WPropGroup WGEPostprocessingNode::getProperties() const
 void WGEPostprocessingNode::insert( osg::ref_ptr< osg::Node > node, WGEShader::RefPtr shader )
 {
     // we need to inject some code to the shader at this point.
-    shader->addPreprocessor( WGEShaderDefineOptions::SPtr(
-        new WGEShaderDefineOptions( "WGE_POSTPROCESSING_ENABLED", "WGE_POSTPROCESSING_DISABLED" ) )
+    shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_active, "WGE_POSTPROCESSING_DISABLED", "WGE_POSTPROCESSING_ENABLED" ) )
     );
 
     // insert node to group node of all children

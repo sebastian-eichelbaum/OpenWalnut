@@ -149,11 +149,6 @@ void main()
             wge_FragNormal = textureNormalize( normal );
 #endif
 
-#ifndef WGE_POSTPROCESSING_ENABLED
-            wge_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-            return;
-#endif
-
 #ifdef CORTEX
             // NOTE: these are a lot of weird experiments ;-)
             float d = 1.0 - curPointProjected.z;

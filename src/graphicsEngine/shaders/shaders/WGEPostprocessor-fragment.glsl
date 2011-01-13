@@ -66,21 +66,22 @@ void main()
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // get data of surrounding textels
-    float offsetW = 2.0 / u_texture0SizeX;
-    float offsetH = 2.0 / u_texture0SizeY;
+    float offsetW = 4.0 / u_texture0SizeX;
+    float offsetH = 4.0 / u_texture0SizeY;
 
     vec2 texCoord = gl_TexCoord[0].st;
-    float c  = texture2D( u_texture1Sampler, texCoord ).a;
-    float bl = texture2D( u_texture1Sampler, texCoord + vec2( -offsetW, -offsetH ) ).a;
-    float l  = texture2D( u_texture1Sampler, texCoord + vec2( -offsetW,     0.0  ) ).a;
-    float tl = texture2D( u_texture1Sampler, texCoord + vec2( -offsetW,  offsetH ) ).a;
-    float t  = texture2D( u_texture1Sampler, texCoord + vec2(     0.0,   offsetH ) ).a;
-    float tr = texture2D( u_texture1Sampler, texCoord + vec2(  offsetW,  offsetH ) ).a;
-    float r  = texture2D( u_texture1Sampler, texCoord + vec2(  offsetW,     0.0  ) ).a;
-    float br = texture2D( u_texture1Sampler, texCoord + vec2(  offsetW,  offsetH ) ).a;
-    float b  = texture2D( u_texture1Sampler, texCoord + vec2(     0.0,  -offsetH ) ).a;
+    float c  = texture2D( u_texture2Sampler, texCoord ).r;
+    float bl = texture2D( u_texture2Sampler, texCoord + vec2( -offsetW, -offsetH ) ).r;
+    float l  = texture2D( u_texture2Sampler, texCoord + vec2( -offsetW,     0.0  ) ).r;
+    float tl = texture2D( u_texture2Sampler, texCoord + vec2( -offsetW,  offsetH ) ).r;
+    float t  = texture2D( u_texture2Sampler, texCoord + vec2(     0.0,   offsetH ) ).r;
+    float tr = texture2D( u_texture2Sampler, texCoord + vec2(  offsetW,  offsetH ) ).r;
+    float r  = texture2D( u_texture2Sampler, texCoord + vec2(  offsetW,     0.0  ) ).r;
+    float br = texture2D( u_texture2Sampler, texCoord + vec2(  offsetW,  offsetH ) ).r;
+    float b  = texture2D( u_texture2Sampler, texCoord + vec2(     0.0,  -offsetH ) ).r;
 
     vec4 col  = texture2D( u_texture0Sampler, texCoord );
+    vec4 normal  = texture2D( u_texture1Sampler, texCoord );
     float depth  = texture2D( u_texture2Sampler, texCoord ).r;
 
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,13 +91,14 @@ void main()
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // laplace filter kernel
-    float edge = 4.0 * abs(
+    float edge = 1.0 * abs(
             0.0 * tl +  1.0 * t + 0.0 * tr +
             1.0 * l  +  -4.0 * c + 1.0 * r  +
             0.0 * bl +  1.0 * b + 0.0 * br
         );
 
     gl_FragColor = (1.-edge)*col + vec4( 1.0, 0.0, 0.0, 1.0 ) * edge;//vec4( vec3( nd.a ), 1.0 );
+    gl_FragColor = vec4(vec3( edge*3 ), 1.0);
     gl_FragDepth = depth;
 }
 

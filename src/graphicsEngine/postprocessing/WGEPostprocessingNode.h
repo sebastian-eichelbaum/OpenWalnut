@@ -28,6 +28,7 @@
 #include <osg/Switch>
 
 #include "../../common/WPropertyVariable.h"
+#include "../../common/WItemSelection.h"
 
 #include "../offscreen/WGEOffscreenRenderNode.h"
 #include "../offscreen/WGEOffscreenRenderPass.h"
@@ -135,16 +136,6 @@ private:
     osg::ref_ptr< WGEOffscreenFinalPass > m_postprocess;
 
     /**
-     * Callback handling en-/disabling of post-processing.
-     */
-    osg::ref_ptr< WGESwitchCallback< WPropBool > > m_switchCallback;
-
-    /**
-     * Callback switching visibility of the HUD
-     */
-    osg::ref_ptr< WGENodeMaskCallback > m_hudCallback;
-
-    /**
      * This shader actually does post-processing in screen space.
      */
     WGEShader::RefPtr m_postProcessShader;
@@ -163,6 +154,16 @@ private:
      * If true, a HUD with intermediate textures is shown.
      */
     WPropBool m_showHUD;
+
+    /**
+     * The property containing the currently active method or a combination.
+     */
+    WPropSelection m_activePostprocessors;
+
+    /**
+     * Possible post-processors.
+     */
+    boost::shared_ptr< WItemSelection > m_possiblePostprocessors;
 };
 
 #endif  // WGEPOSTPROCESSINGNODE_H

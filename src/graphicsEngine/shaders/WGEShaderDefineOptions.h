@@ -55,11 +55,9 @@ public:
     typedef boost::shared_ptr< const WGEShaderDefineOptions > ConstSPtr;
 
     /**
-     * Default constructor.
-     *
-     * \param first the first option. This is active by default
+     * The type of the index list
      */
-    explicit WGEShaderDefineOptions( std::string first );
+    typedef std::vector< size_t > IdxList;
 
     /**
      * Create a new instance of this class. The first option is mandatory and is set as default.
@@ -81,6 +79,13 @@ public:
                             std::string option10 = "" );
 
     /**
+     * Create a new instance of this class. The first option is mandatory and is set as default.
+     *
+     * \param options the list of options. Must have a size greater 0.
+     */
+    explicit WGEShaderDefineOptions( std::vector< std::string > options );
+
+    /**
      * Destructor.
      */
     virtual ~WGEShaderDefineOptions();
@@ -100,21 +105,41 @@ public:
      *
      * \return the index of the active option
      */
-    size_t getActiveOption() const;
+    const IdxList& getActiveOptions() const;
 
     /**
-     * Returns the currently active option's name.
+     * Returns the name of the specified option.
+     *
+     * \param idx the index
      *
      * \return the name
      */
-    std::string getActiveOptionName() const;
+    std::string getOptionName( size_t idx ) const;
 
     /**
      * Activates the option specified.
      *
      * \param idx the option index to activate
+     * \param exclusive if true, all active options get deactivated and the specified one will be the only active one afterwards
      */
-    void activateOption( size_t idx );
+    void activateOption( size_t idx, bool exclusive = true );
+
+    /**
+     * De-activates the specified option. If it is not activated, nothing happens.
+     *
+     * \param idx the option to deactivate
+     */
+    void dactivateOption( size_t idx );
+
+    /**
+     * Activates all the options.
+     */
+    void activateAllOptions();
+
+    /**
+     * De-activates all the options.
+     */
+    void deactivateAllOptions();
 
     /**
      * Adds the specified string as option which is inserted to the code as "#define NAME" if active. Must be a unique name. If it already exists
@@ -126,6 +151,13 @@ public:
 
 protected:
 
+    /**
+     * Sets the specified index list as the new activation list. Triggers an update.
+     *
+     * \param newList the ne list getting copied to the internal activation list.
+     */
+    void setActivationList( const IdxList& newList );
+
 private:
 
     /**
@@ -134,9 +166,9 @@ private:
     std::vector< std::string > m_options;
 
     /**
-     * The currently selected option.
+     * The currently selected options.
      */
-    size_t m_idx;
+    IdxList m_idx;
 };
 
 #endif  // WGESHADERDEFINEOPTIONS_H
