@@ -53,7 +53,7 @@ class WGEShaderPropertyDefineOptionsIndexAdapter;
  * \note You can use inherited WGEShaderDefineOptions methods too. This might create some kind of inconsistency since they of course do not
  * update the property.
  */
-template< typename PropType, typename PropIndexAdapter = WGEShaderPropertyDefineOptionsIndexAdapter< PropType > >
+template< typename PropType = WPropSelection, typename PropIndexAdapter = WGEShaderPropertyDefineOptionsIndexAdapter< PropType > >
 class WGE_EXPORT WGEShaderPropertyDefineOptions: public WGEShaderDefineOptions
 {
 public:
@@ -104,42 +104,6 @@ public:
     virtual ~WGEShaderPropertyDefineOptions();
 
     /**
-     * This tuple contains name, description and define-name of an option.
-     */
-    typedef boost::tuple< std::string, std::string, std::string > NameDescriptionDefineTuple;
-
-    /**
-     * A little bit more comfortable way to create a list of shader-defines and the corresponding property.
-     *
-     * \param propName the name of the property to create
-     * \param propDescription the description of the property to create
-     * \param propGroup the owning group of the property
-     * \param defines the list of names, descriptions and defines
-     *
-     * \return a WGEShaderPropertyDefineOptions instance associated with a new property. This can be acquired using getProperty().
-     */
-    static WGEShaderPropertyDefineOptions< PropType, PropIndexAdapter >::SPtr createSelection( std::string propName, std::string propDescription,
-                                                                                               WProperties::SPtr propGroup,
-                                                                                               std::vector< NameDescriptionDefineTuple > defines )
-    {
-        // the item selection:
-        boost::shared_ptr< WItemSelection > selection( new WItemSelection() );
-        std::vector< std::string > definesOnly;
-
-        // add to the properties possible selection items list and option list
-        for ( std::vector< NameDescriptionDefineTuple >::const_iterator i = defines.begin(); i != defines.end(); ++i )
-        {
-            selection->addItem( ( *i ).get< 0 >(), ( *i ).get< 1 >() );
-            definesOnly.push_back( ( *i ).get< 2 >() );
-        }
-
-        WPropSelection prop = propGroup->addProperty( propName, propDescription, selection->getSelectorFirst() );
-        // create the corresponding WGEShaderPropertyDefineOptions instance
-        WGEShaderPropertyDefineOptions::SPtr defOptions( new WGEShaderPropertyDefineOptions( prop, definesOnly ) );
-        return defOptions;
-    }
-
-    /**
      * Returns the property associated with this instance.
      *
      * \return
@@ -165,6 +129,48 @@ private:
      */
     void propUpdated();
 };
+
+/**
+ * Contains some utility functions related to the WGEShaderPropertyDefineOptions class.
+ */
+namespace WGEShaderPropertyDefineOptionsTools
+{
+    /**
+     * This tuple contains name, description and define-name of an option.
+     */
+    typedef boost::tuple< std::string, std::string, std::string > NameDescriptionDefineTuple;
+
+    /**
+     * A little bit more comfortable way to create a list of shader-defines and the corresponding property.
+     *
+     * \param propName the name of the property to create
+     * \param propDescription the description of the property to create
+     * \param propGroup the owning group of the property
+     * \param defines the list of names, descriptions and defines
+     *
+     * \return a WGEShaderPropertyDefineOptions instance associated with a new property. This can be acquired using getProperty().
+     */
+    static WGEShaderPropertyDefineOptions< WPropSelection >::SPtr createSelection( std::string propName, std::string propDescription,
+                                                                                               WProperties::SPtr propGroup,
+                                                                                               std::vector< NameDescriptionDefineTuple > defines )
+    {
+        // the item selection:
+        boost::shared_ptr< WItemSelection > selection( new WItemSelection() );
+        std::vector< std::string > definesOnly;
+
+        // add to the properties possible selection items list and option list
+        for ( std::vector< NameDescriptionDefineTuple >::const_iterator i = defines.begin(); i != defines.end(); ++i )
+        {
+            selection->addItem( ( *i ).get< 0 >(), ( *i ).get< 1 >() );
+            definesOnly.push_back( ( *i ).get< 2 >() );
+        }
+
+        WPropSelection prop = propGroup->addProperty( propName, propDescription, selection->getSelectorFirst() );
+        // create the corresponding WGEShaderPropertyDefineOptions instance
+        WGEShaderPropertyDefineOptions<>::SPtr defOptions( new WGEShaderPropertyDefineOptions<>( prop, definesOnly ) );
+        return defOptions;
+    }
+}
 
 /**
  * Class converts the specified property value to an index list. The generic case for all int-castable property types is trivial. WPropSelection

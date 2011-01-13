@@ -60,7 +60,7 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
 
     // Post-processings:
     // First: Create a list with name, description and shader define which is used to enable it
-    typedef WGEShaderPropertyDefineOptions< WPropSelection >::NameDescriptionDefineTuple Tuple;
+    typedef WGEShaderPropertyDefineOptionsTools::NameDescriptionDefineTuple Tuple;
     std::vector< Tuple > namesAndDefs;
     namesAndDefs.push_back( Tuple( "Color Only",   "No Post-Processing.", "WGE_POSTPROCESSOR_COLOR" ) );
     namesAndDefs.push_back( Tuple( "Depth",        "Depth Value only.",   "WGE_POSTPROCESSOR_DEPTH" ) );
@@ -71,7 +71,7 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
 
     // Second: create the Shader option object and the corresponding property automatically:
     WGEShaderPropertyDefineOptions< WPropSelection >::SPtr activePostprocessorsOpts(
-        WGEShaderPropertyDefineOptions< WPropSelection >::createSelection(
+        WGEShaderPropertyDefineOptionsTools::createSelection(
             "Post-processors",
             "Select the post-processings you want.",
             m_properties,
