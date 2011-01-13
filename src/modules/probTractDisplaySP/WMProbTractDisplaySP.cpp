@@ -321,7 +321,7 @@ void WMProbTractDisplaySP::checkProbabilityRanges( std::list< boost::shared_ptr<
     size_t i = 0;
     for( std::list< boost::shared_ptr< const WDataSetScalar > >::const_iterator p = probTracts.begin(); p != probTracts.end(); ++p, ++i )
     {
-        if( ( *p )->getMax() > 10 )
+        if( ( *p )->getMax() > 10 ) // Note: same check is made in the builder, later when colors are deterimined and alpha values depending on prob
         {
             ss << ( *p )->getFileName() << " ";
             otherRange = true;
