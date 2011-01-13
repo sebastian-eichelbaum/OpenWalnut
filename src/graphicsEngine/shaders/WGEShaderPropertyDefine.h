@@ -61,7 +61,7 @@ public:
      * Constructs a define with a given name and initial value.
      *
      * \param name name of the define
-     * \param value the property controlling this define
+     * \param prop the property controlling this define
      */
     WGEShaderPropertyDefine( std::string name, PropertyType prop  );
 

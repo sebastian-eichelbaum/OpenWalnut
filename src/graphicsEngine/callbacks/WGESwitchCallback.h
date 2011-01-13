@@ -41,7 +41,7 @@ public:
     /**
      * Creates new instance.
      *
-     * \param flag the property which controls switch.
+     * \param prop the property which controls switch.
      */
     explicit WGESwitchCallback( PropType prop );
 

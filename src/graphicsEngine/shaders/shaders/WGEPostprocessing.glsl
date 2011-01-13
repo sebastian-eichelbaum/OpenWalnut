@@ -27,12 +27,12 @@
 //  * Set a fragment-depth! If you render simple geometry, this is done by your GPU automatically. If you do ray-tracing or similar, where the
 //    depth of a fragment is not the same as the proxy geometry, set a proper depth using gl_FragDepth.
 //  * Set a fragment-color using wge_FragColor or gl_FragData[0] since GLSL does not allow gl_FragColor for multi-target renderings.
-//  * Set a normal per fragment using wge_FragNormal. The normal needs to be scaled to [0,1]. 
+//  * Set a normal per fragment using wge_FragNormal. The normal needs to be scaled to [0,1].
 //    * This can be done by textureNormalize in WGETextureTools.glsl
 //    * If you do not set a normal, some post-processings simply won't work
 //    * Sometimes, the normal might not be needed in your own code. In this case, use #ifdef WGE_POSTPROCESSING_ENABLED to only calculate it in
 //      the case post-processing is enabled
-//    * You can use getGradient amd getGradientViewAligned in WGEShadingTools.glsl to calculate the normal in a 3D texture.
+//    * You can use getGradient amd getGradientViewAligned in WGEShadingTools.glsl to calculate the normal in a 3D texture
 
 #ifdef WGE_POSTPROCESSING_ENABLED
     #define wge_FragNormal gl_FragData[1].rgb

@@ -178,7 +178,9 @@ void WMDirectVolumeRendering::moduleMain()
     // setup all the defines needed
 
     // local illumination model
-    WGEShaderDefineOptions::SPtr illuminationAlgoDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "LOCALILLUMINATION_NONE", "LOCALILLUMINATION_PHONG" ) );
+    WGEShaderDefineOptions::SPtr illuminationAlgoDefines = WGEShaderDefineOptions::SPtr(
+        new WGEShaderDefineOptions( "LOCALILLUMINATION_NONE", "LOCALILLUMINATION_PHONG" )
+    );
     m_shader->addPreprocessor( illuminationAlgoDefines );
 
     // gradient texture settings

@@ -176,6 +176,9 @@ template< typename PropType >
 class WGEShaderPropertyDefineOptionsIndexAdapter
 {
 public:
+    /**
+     * The type of the index-list to create.
+     */
     typedef typename WGEShaderPropertyDefineOptions< PropType >::IdxList IdxList;
 
     /**
@@ -201,6 +204,9 @@ template<>
 class WGEShaderPropertyDefineOptionsIndexAdapter< WPropSelection >
 {
 public:
+    /**
+     * The type of the index-list to create.
+     */
     typedef WGEShaderPropertyDefineOptions< WPropSelection >::IdxList IdxList;
 
     /**

@@ -97,8 +97,8 @@ void main()
             0.0 * bl +  1.0 * b + 0.0 * br
         );
 
-    gl_FragColor = (1.-edge)*col + vec4( 1.0, 0.0, 0.0, 1.0 ) * edge;//vec4( vec3( nd.a ), 1.0 );
-    gl_FragColor = vec4(vec3( edge*3 ), 1.0);
+    // gl_FragColor = (1.-edge)*col + vec4( 1.0, 0.0, 0.0, 1.0 ) * edge;
+    gl_FragColor = vec4( vec3( edge * 3.0 ), 1.0 );
     gl_FragDepth = depth;
 }
 
