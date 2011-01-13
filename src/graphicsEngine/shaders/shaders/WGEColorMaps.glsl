@@ -119,6 +119,20 @@ vec3 redYellowColorMap( in float value )
     return ( color1 * value + color0 * ( 1. - value ) ).rgb;
 }
 
+vec3 vectorColorMap( in vec3 col )
+{
+    // These weird computations give me the vector directions back as I want them. See WDataTexture3D for floats with dim==3
+    float fac = 2.0;
+    float dist = 0.5;
+    vec3 result = clamp( vec3( abs( col.r - dist ) * fac, abs( col.g - dist ) * fac, abs( col.b - dist ) * fac ), 0.0, 1.0 );
+    // This eliminate the effect of the fac concerning zero closeness
+    if( result.r + result.g + result.b < ( 0.01 * fac ) )
+    {
+        result = vec3( 0.0 );
+    }
+    return result;
+}
+
 vec3 blueLightBlueColorMap( in float value )
 {
     vec4 color0 = vec4( 0., 0., 1., 1. );
@@ -303,10 +317,11 @@ void colorMap( inout vec3 col, in float value, int cmap )
     else if ( cmap == 2 )
         col = hotIronColorMap( value );
     else if ( cmap == 3 )
-        //col = redYellowColorMap( value );
         col = negative2positive( value );
     else if ( cmap == 4 )
         col = atlasColorMap( value );
-    else
+    else if ( cmap == 5 )
         col = blueGreenPurpleColorMap( value );
+    else if ( cmap == 6 )
+        col = vectorColorMap( col );
 }

@@ -93,17 +93,24 @@ void lookupTex( inout vec4 col, in int type, in sampler3D tex, in float threshol
         alpha = 0.0;
     }
 
-    if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
-
     if( cmap != 0 )
     {
-        if(threshold < 1.0)
+        if( cmap != 6 )
         {
-            col1.r = ( col1.r - threshold ) / ( 1.0 - threshold );
-            if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
+            if( threshold < 1.0 )
+            {
+                // be aware that this changes the color mapping if the threshold is changed
+                col1.r = ( col1.r - threshold ) / ( 1.0 - threshold );
+
+                if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
+            }
         }
 
         colorMap( col1.rgb, col1.r, cmap );
+    }
+    else
+    {
+        if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
     }
 
     col.rgba = mix( col, col1, alpha );

@@ -534,7 +534,6 @@ float WDataTexture3D::getMinMaxScale()
 
 float WDataTexture3D::scaleInterval( float value ) const
 {
-    //return value;
     return ( std::min( std::max( value, m_minValue ), m_maxValue ) - m_minValue ) / m_scale;
 }
 
