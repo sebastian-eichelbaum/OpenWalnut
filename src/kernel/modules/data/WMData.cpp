@@ -32,6 +32,7 @@
 #include "../../../dataHandler/WDataSetSingle.h"
 #include "../../../dataHandler/WDataSetScalar.h"
 #include "../../../dataHandler/WDataSetTimeSeries.h"
+#include "../../../dataHandler/WDataSetVector.h"
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WDataHandler.h"
 #include "../../../dataHandler/WDataTexture3D.h"
@@ -141,7 +142,10 @@ void WMData::properties()
                                                   true,
                                                   propertyCallback );
     m_threshold = m_groupTex->addProperty( "Threshold", "Values below this threshold will not be "
-                                              "shown in colormaps.", 0., propertyCallback );
+                                              "shown in colormaps.", 0.0, propertyCallback );
+    m_threshold->setMax( 1.0 );
+    m_threshold->setMin( 0.0 );
+
     m_opacity = m_groupTex->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
                                             " values from several data sets.", 100, propertyCallback );
     m_opacity->setMax( 100 );
@@ -154,6 +158,7 @@ void WMData::properties()
     m_colorMapSelectionsList->addItem( "Negative to positive", "" );
     m_colorMapSelectionsList->addItem( "Atlas", "" );
     m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
+    m_colorMapSelectionsList->addItem( "Vector", "" );
 
     m_colorMapSelection = m_groupTex->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), propertyCallback );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
@@ -299,7 +304,15 @@ void WMData::moduleMain()
                         break;
                     case W_DT_FLOAT:
                     case W_DT_DOUBLE:
-                        m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 5 ) );
+                        if( boost::shared_dynamic_cast< WDataSetVector >( m_dataSet ) )
+                        {
+                            m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 6 ) );
+                            m_interpolation->set( false );
+                        }
+                        else
+                        {
+                            m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 5 ) );
+                        }
                         break;
                     default:
                         WAssert( false, "Unknow data type in Data module" );
@@ -310,6 +323,8 @@ void WMData::moduleMain()
             {
                 WAssert( false, "WDataSetSingle needed at this position." );
             }
+
+
             boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
         }
     }
