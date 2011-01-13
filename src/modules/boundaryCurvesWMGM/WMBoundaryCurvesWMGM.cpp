@@ -102,10 +102,10 @@ void WMBoundaryCurvesWMGM::properties()
     m_zPos->setMin( 0 );
     m_zPos->setMax( 0 );
 
-    m_grayMatter = m_properties->addProperty( "Gray Matter", "todo:", 0.0 );
+    m_grayMatter = m_properties->addProperty( "Gray Matter", "todo:", 0.2 );
     m_grayMatter->setMin( 0.0 );
     m_grayMatter->setMax( 1.0 );
-    m_whiteMatter = m_properties->addProperty( "White Matter", "todo:", 0.0 );
+    m_whiteMatter = m_properties->addProperty( "White Matter", "todo:", 0.4 );
     m_whiteMatter->setMin( 0.0 );
     m_whiteMatter->setMax( 1.0 );
 
