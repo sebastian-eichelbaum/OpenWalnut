@@ -47,6 +47,9 @@ WGEOffscreenFinalPass::WGEOffscreenFinalPass( size_t textureWidth, size_t textur
 
     osg::StateSet* state = this->getOrCreateStateSet();
     state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
+
+    // allow the user to use blending
+    getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
 }
 
 WGEOffscreenFinalPass::WGEOffscreenFinalPass( size_t textureWidth, size_t textureHeight, osg::ref_ptr< WGETextureHud > hud, std::string name,
@@ -69,6 +72,9 @@ WGEOffscreenFinalPass::WGEOffscreenFinalPass( size_t textureWidth, size_t textur
 
     osg::StateSet* state = this->getOrCreateStateSet();
     state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
+
+    // allow the user to use blending
+    getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
 }
 
 WGEOffscreenFinalPass::~WGEOffscreenFinalPass()

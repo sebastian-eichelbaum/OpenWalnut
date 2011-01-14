@@ -360,7 +360,7 @@ void WGEShader::addPreprocessor( WGEShaderPreprocessor::SPtr preproc )
 void WGEShader::removePreprocessor( WGEShaderPreprocessor::SPtr preproc )
 {
     PreprocessorsList::WriteTicket w = m_preprocessors.getWriteTicket();
-    if ( w->get().count( preproc ) )   // is it in out list?
+    if ( w->get().count( preproc ) )   // is it in our list?
     {
         w->get().operator[]( preproc ).disconnect();
         w->get().erase( preproc );

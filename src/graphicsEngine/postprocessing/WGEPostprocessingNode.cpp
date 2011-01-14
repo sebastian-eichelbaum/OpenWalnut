@@ -54,6 +54,13 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     addChild( m_childs );
     addChild( m_offscreen );
 
+    // some info text:
+    m_infoText = m_properties->addProperty( "Warning", "This is not yet completely done.",
+        std::string( "The post-processing is currently in <b>beta-state</b>. The post-processing shaders are not yet completely implemented nor all "
+                     "their required parameters added to the GUI." )
+    );
+    m_infoText->setPurpose( PV_PURPOSE_INFORMATION );
+
     // add some properties here:
     m_active = m_properties->addProperty( "Enable", "If set, post-processing is enabled.", true );
     m_showHUD = m_properties->addProperty( "Show HUD", "If set, the intermediate textures are shown.", false );
@@ -62,11 +69,13 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     // First: Create a list with name, description and shader define which is used to enable it
     typedef WGEShaderPropertyDefineOptionsTools::NameDescriptionDefineTuple Tuple;
     std::vector< Tuple > namesAndDefs;
+    namesAndDefs.push_back( Tuple( "PPL - Phong",   "Per-Pixel-Lighting using Phong.", "WGE_POSTPROCESSOR_PPLPHONG" ) );
+    namesAndDefs.push_back( Tuple( "SSAO", "Screen-Space Ambient Occlusion.",    "WGE_POSTPROCESSOR_SSAO" ) );
     namesAndDefs.push_back( Tuple( "Color Only",   "No Post-Processing.", "WGE_POSTPROCESSOR_COLOR" ) );
+    namesAndDefs.push_back( Tuple( "Gaussed Color", "Smoothed Color Image using Gauss Filter.",    "WGE_POSTPROCESSOR_GAUSSEDCOLOR" ) );
+    namesAndDefs.push_back( Tuple( "Edge",         "Edge of Rendered Geometry.",    "WGE_POSTPROCESSOR_EDGE" ) );
     namesAndDefs.push_back( Tuple( "Depth",        "Depth Value only.",   "WGE_POSTPROCESSOR_DEPTH" ) );
     namesAndDefs.push_back( Tuple( "Normal",       "Geometry Normal.",    "WGE_POSTPROCESSOR_NORMAL" ) );
-    namesAndDefs.push_back( Tuple( "Edge",         "Edge of Rendered Geometry.",    "WGE_POSTPROCESSOR_EDGE" ) );
-    namesAndDefs.push_back( Tuple( "Gaussed Color", "Smoothed Color Image using Gauss Filter.",    "WGE_POSTPROCESSOR_GAUSSEDCOLOR" ) );
     namesAndDefs.push_back( Tuple( "Custom", "Provide Your Own Post-processing-Code.",    "WGE_POSTPROCESSOR_CUSTOM" ) );
 
     // Second: create the Shader option object and the corresponding property automatically:
@@ -103,10 +112,18 @@ WPropGroup WGEPostprocessingNode::getProperties() const
 
 void WGEPostprocessingNode::insert( osg::ref_ptr< osg::Node > node, WGEShader::RefPtr shader )
 {
-    // we need to inject some code to the shader at this point.
-    shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
-        new WGEShaderPropertyDefineOptions< WPropBool >( m_active, "WGE_POSTPROCESSING_DISABLED", "WGE_POSTPROCESSING_ENABLED" ) )
+    // the shader needs an own preprocessor.
+    WGEShaderPreprocessor::SPtr preproc( new WGEShaderPropertyDefineOptions< WPropBool >(
+        m_active, "WGE_POSTPROCESSING_DISABLED", "WGE_POSTPROCESSING_ENABLED" )
     );
+
+    // we need to inject some code to the shader at this point.
+    shader->addPreprocessor( preproc );
+
+    // do it thread-safe as we promise to be thread-safe
+    NodeShaderAssociation::WriteTicket w = m_nodeShaderAssociation.getWriteTicket();
+    // to keep track of which node is associated with which shader and preprocessor:
+    w->get()[ node ] = std::make_pair( shader, preproc );
 
     // insert node to group node of all children
     m_childs->insert( node );
@@ -114,11 +131,36 @@ void WGEPostprocessingNode::insert( osg::ref_ptr< osg::Node > node, WGEShader::R
 
 void WGEPostprocessingNode::remove( osg::ref_ptr< osg::Node > node )
 {
+    // do it thread-safe as we promise to be thread-safe
+    NodeShaderAssociation::WriteTicket w = m_nodeShaderAssociation.getWriteTicket();
+
+    // remove the item from our map
+    NodeShaderAssociation::Iterator item = w->get().find( node );
+
+    if ( item != w->get().end() )
+    {
+        // we need to remove the preprocessor from the shader.
+        ( *item ).second.first->removePreprocessor( ( *item ).second.second );
+        w->get().erase( item );
+    }
+
+    // although we may not find the node in our association list, try to remove it
     m_childs->remove( node );
 }
 
 void WGEPostprocessingNode::clear()
 {
+    // do it thread-safe as we promise to be thread-safe
+    NodeShaderAssociation::WriteTicket w = m_nodeShaderAssociation.getWriteTicket();
+
+    // remove from node-shader association list
+    for ( NodeShaderAssociation::Iterator iter = w->get().begin(); iter != w->get().end(); ++iter )
+    {
+        ( *iter ).second.first->removePreprocessor( ( *iter ).second.second );
+    }
+    w->get().clear();
+
+    // remove the node from the render group
     m_childs->clear();
 }
 

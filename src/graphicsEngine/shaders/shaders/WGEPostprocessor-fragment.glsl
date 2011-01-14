@@ -59,6 +59,23 @@ uniform int u_texture0SizeZ;
  */
 void main()
 {
+    // where are we?
+    vec2 texCoord = gl_TexCoord[0].st;
+
+    // the final color will be put here
+    vec4 color = vec4( 0.0 );
+    float depth  = texture2D( u_texture2Sampler, texCoord ).r;
+
+#ifdef WGE_POSTPROCESSOR_COLOR
+    color = ( 1.0 - color.a ) * texture2D( u_texture0Sampler, texCoord ) + color;
+#endif
+
+#ifdef WGE_POSTPROCESSOR_DEPTH
+    color = ( 1.0 - color.a ) * vec4( vec3( depth ), 1.0 ) + color;
+#endif
+
+#ifdef WGE_POSTPROCESSOR_EDGE
+
     /////////////////////////////////////////////////////////////////////////////////////////////
     // GETTING TEXELS
     //
@@ -66,10 +83,9 @@ void main()
     /////////////////////////////////////////////////////////////////////////////////////////////
 
     // get data of surrounding textels
-    float offsetW = 4.0 / u_texture0SizeX;
-    float offsetH = 4.0 / u_texture0SizeY;
+    float offsetW = 1.0 / u_texture0SizeX;
+    float offsetH = 1.0 / u_texture0SizeY;
 
-    vec2 texCoord = gl_TexCoord[0].st;
     float c  = texture2D( u_texture2Sampler, texCoord ).r;
     float bl = texture2D( u_texture2Sampler, texCoord + vec2( -offsetW, -offsetH ) ).r;
     float l  = texture2D( u_texture2Sampler, texCoord + vec2( -offsetW,     0.0  ) ).r;
@@ -82,7 +98,6 @@ void main()
 
     vec4 col  = texture2D( u_texture0Sampler, texCoord );
     vec4 normal  = texture2D( u_texture1Sampler, texCoord );
-    float depth  = texture2D( u_texture2Sampler, texCoord ).r;
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     // LAPLACE
@@ -96,9 +111,11 @@ void main()
             1.0 * l  +  -4.0 * c + 1.0 * r  +
             0.0 * bl +  1.0 * b + 0.0 * br
         );
+    color = ( 1.0 - color.a ) * vec4( vec3( 16.0*edge ), 1.0 ) + color;
+#endif
 
     // gl_FragColor = (1.-edge)*col + vec4( 1.0, 0.0, 0.0, 1.0 ) * edge;
-    gl_FragColor = vec4( vec3( edge * 3.0 ), 1.0 );
+    gl_FragColor = color;
     gl_FragDepth = depth;
 }
 

@@ -25,10 +25,14 @@
 #ifndef WGEPOSTPROCESSINGNODE_H
 #define WGEPOSTPROCESSINGNODE_H
 
+#include <map>
+#include <utility>
+
 #include <osg/Switch>
 
 #include "../../common/WPropertyVariable.h"
 #include "../../common/WItemSelection.h"
+#include "../../common/WSharedAssociativeContainer.h"
 
 #include "../offscreen/WGEOffscreenRenderNode.h"
 #include "../offscreen/WGEOffscreenRenderPass.h"
@@ -116,6 +120,24 @@ protected:
 private:
 
     /**
+     * This type is used to actually store the association between a node and its associated shader and custom preprocessor.
+     */
+    typedef WSharedAssociativeContainer<
+        std::map<
+            osg::ref_ptr< osg::Node >,
+            std::pair<
+                WGEShader::RefPtr,
+                WGEShaderPreprocessor::SPtr
+            >
+        >
+    > NodeShaderAssociation;
+
+    /**
+     * List of nodes and their corresponding shader and preprocessor.
+     */
+    NodeShaderAssociation m_nodeShaderAssociation;
+
+    /**
      * The actual offscreen render node.
      */
     osg::ref_ptr< WGEOffscreenRenderNode > m_offscreen;
@@ -164,6 +186,11 @@ private:
      * Possible post-processors.
      */
     boost::shared_ptr< WItemSelection > m_possiblePostprocessors;
+
+    /**
+     * Some text denoting that this is not yet completely done.
+     */
+    WPropString m_infoText;
 };
 
 #endif  // WGEPOSTPROCESSINGNODE_H
