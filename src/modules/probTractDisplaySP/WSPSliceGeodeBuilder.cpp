@@ -24,6 +24,7 @@
 
 
 #include <osg/Geometry>
+#include <osg/LineStipple>
 
 #include "../../common/exceptions/WTypeMismatch.h"
 #include "../../common/WLogger.h"
@@ -313,5 +314,10 @@ WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsi
     // transparent colors are rendered at last, so not use the background color but the color of the nav slices
     state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
+    osg::ref_ptr<osg::LineStipple> ls = new osg::LineStipple();
+    ls->setPattern( 0x00FF );
+    ls->setFactor( 2 );
+
+    state->setAttributeAndModes( ls.get(), osg::StateAttribute::ON );
     return std::make_pair( intersectionGeode, projectionGeode );
 }
