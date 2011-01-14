@@ -36,5 +36,3 @@ varying vec3 v_ray;
 // the Surface normal at this point
 varying vec3 v_normal;
 
-// The light source in local coordinates
-varying vec3 v_lightSource;

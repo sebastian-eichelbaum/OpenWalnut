@@ -41,6 +41,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
 #include "../../graphicsEngine/postprocessing/WGEPostprocessingNode.h"
 #include "../../graphicsEngine/WGERequirement.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
@@ -115,16 +116,7 @@ void WMIsosurfaceRaytracer::properties()
 
     m_alpha         = m_properties->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
 
-    // Lighting
-    m_shadingSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_shadingSelections->addItem( "Emphasize cortex", "Emphasize the cortex. Inner parts are not that well lighten." );
-    m_shadingSelections->addItem( "Depth only",       "Only show the depth of the surface along the ray." );
-    m_shadingSelections->addItem( "Phong",            "Phong lighting. Slower but more realistic lighting" );
-    m_shadingSelections->addItem( "Phong + depth",    "Phong lighting in combination with depth cueing." );
-    m_shadingAlgo   = m_properties->addProperty( "Shading", "The shading algorithm.", m_shadingSelections->getSelector( 2 ), m_propCondition );
-
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_shadingAlgo );
-    WPropertyHelper::PC_NOTEMPTY::addTo( m_shadingAlgo );
+    m_cortexMode    = m_properties->addProperty( "Emphasize Cortex", "Emphasize the Cortex while inner parts ar not that well lighten.", false );
 
     WModule::properties();
 }
@@ -137,13 +129,8 @@ void WMIsosurfaceRaytracer::requirements()
 void WMIsosurfaceRaytracer::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMIsosurfaceRaytracer", m_localPath ) );
-    WGEShaderDefineOptions::SPtr shadingDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions(
-                "CORTEX",
-                "DEPTHONLY",
-                "PHONG",
-                "PHONGWITHDEPTH"
-    ) );
-    m_shader->addPreprocessor( shadingDefines );
+    WGEShaderPreprocessor::SPtr cortexMode( new WGEShaderPropertyDefineOptions< WPropBool >( m_cortexMode, "CORTEXMODE_DISENABLED", "CORTEXMODE_ENABLED" ) );
+    m_shader->addPreprocessor( cortexMode );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -198,7 +185,7 @@ void WMIsosurfaceRaytracer::moduleMain()
         }
 
         // m_isoColor or shading changed
-        if ( m_isoColor->changed() || m_shadingAlgo->changed() )
+        if ( m_isoColor->changed() )
         {
             // a new color requires the proxy geometry to be rebuild as we store it as color in this geometry
             dataUpdated = true;
@@ -232,15 +219,6 @@ void WMIsosurfaceRaytracer::moduleMain()
             osg::ref_ptr< osg::Texture3D > texture3D = dataSet->getTexture()->getTexture();
             osg::StateSet* rootState = cube->getOrCreateStateSet();
             rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
-
-            // enable transparency
-            //rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
-
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // setup defines (lighting)
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-            shadingDefines->activateOption( m_shadingAlgo->get( true ).getItemIndexOfSelected( 0 ) );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup all those uniforms

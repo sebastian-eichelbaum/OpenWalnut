@@ -24,3 +24,26 @@
 
 #include "WGEShaderPropertyDefineOptions.h"
 
+WGEShaderPropertyDefineOptions< WPropSelection >::SPtr WGEShaderPropertyDefineOptionsTools::createSelection(
+           std::string propName, std::string propDescription,
+           WProperties::SPtr propGroup,
+           std::vector< WGEShaderPropertyDefineOptionsTools::NameDescriptionDefineTuple > defines )
+{
+    // the item selection:
+    boost::shared_ptr< WItemSelection > selection( new WItemSelection() );
+    std::vector< std::string > definesOnly;
+
+    // add to the properties possible selection items list and option list
+    for ( std::vector< WGEShaderPropertyDefineOptionsTools::NameDescriptionDefineTuple >::const_iterator i = defines.begin(); i != defines.end();
+          ++i )
+    {
+        selection->addItem( ( *i ).get< 0 >(), ( *i ).get< 1 >() );
+        definesOnly.push_back( ( *i ).get< 2 >() );
+    }
+
+    WPropSelection prop = propGroup->addProperty( propName, propDescription, selection->getSelectorFirst() );
+    // create the corresponding WGEShaderPropertyDefineOptions instance
+    WGEShaderPropertyDefineOptions<>::SPtr defOptions( new WGEShaderPropertyDefineOptions<>( prop, definesOnly ) );
+    return defOptions;
+}
+

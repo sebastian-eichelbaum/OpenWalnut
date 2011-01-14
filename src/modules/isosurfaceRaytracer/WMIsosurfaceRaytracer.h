@@ -130,26 +130,9 @@ private:
     WPropInt m_alpha;
 
     /**
-     * Types of shading supported.
+     * Some special coloring mode emphasizing the cortex.
      */
-    enum
-    {
-        Cortex = 0,
-        Depth,
-        Phong,
-        PhongDepth
-    }
-    SHADING_ALGORITHMS;
-
-    /**
-     * The available shading algorithms.
-     */
-    boost::shared_ptr< WItemSelection > m_shadingSelections;
-
-    /**
-     * The actually selected shading algorithm.
-     */
-    WPropSelection m_shadingAlgo;
+    WPropBool m_cortexMode;
 
     /**
      * A condition used to notify about changes in several properties.

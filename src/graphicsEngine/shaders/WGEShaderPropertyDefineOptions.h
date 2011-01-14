@@ -150,26 +150,9 @@ namespace WGEShaderPropertyDefineOptionsTools
      *
      * \return a WGEShaderPropertyDefineOptions instance associated with a new property. This can be acquired using getProperty().
      */
-    static WGEShaderPropertyDefineOptions< WPropSelection >::SPtr createSelection( std::string propName, std::string propDescription,
+    WGEShaderPropertyDefineOptions< WPropSelection >::SPtr createSelection( std::string propName, std::string propDescription,
                                                                                                WProperties::SPtr propGroup,
-                                                                                               std::vector< NameDescriptionDefineTuple > defines )
-    {
-        // the item selection:
-        boost::shared_ptr< WItemSelection > selection( new WItemSelection() );
-        std::vector< std::string > definesOnly;
-
-        // add to the properties possible selection items list and option list
-        for ( std::vector< NameDescriptionDefineTuple >::const_iterator i = defines.begin(); i != defines.end(); ++i )
-        {
-            selection->addItem( ( *i ).get< 0 >(), ( *i ).get< 1 >() );
-            definesOnly.push_back( ( *i ).get< 2 >() );
-        }
-
-        WPropSelection prop = propGroup->addProperty( propName, propDescription, selection->getSelectorFirst() );
-        // create the corresponding WGEShaderPropertyDefineOptions instance
-        WGEShaderPropertyDefineOptions<>::SPtr defOptions( new WGEShaderPropertyDefineOptions<>( prop, definesOnly ) );
-        return defOptions;
-    }
+                                                                                               std::vector< NameDescriptionDefineTuple > defines );
 }
 
 /**

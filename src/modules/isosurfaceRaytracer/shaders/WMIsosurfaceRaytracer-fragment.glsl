@@ -140,16 +140,16 @@ void main()
             gl_FragDepth = curPointProjected.z;
 
             // 4: set color
-            vec4 color;
+            vec4 color = gl_Color;
 
             // only calculate the normal if we need it
-#if defined( WGE_POSTPROCESSING_ENABLED ) || defined( PHONG ) || defined( PHONGWITHDEPTH )
+#ifdef WGE_POSTPROCESSING_ENABLED
             // find a proper normal for a headlight
-            vec3 normal = getGradientViewAligned( tex0, curPoint, v_ray );
+            vec3 normal = ( gl_ModelViewMatrix * vec4( getGradientViewAligned( tex0, curPoint, v_ray ), 1.0 ) ).xyz;
             wge_FragNormal = textureNormalize( normal );
 #endif
 
-#ifdef CORTEX
+#ifdef CORTEXMODE_ENABLED
             // NOTE: these are a lot of weird experiments ;-)
             float d = 1.0 - curPointProjected.z;
             d = 1.5 * pointDistance( curPoint, vec3( 0.5 ) );
@@ -160,44 +160,6 @@ void main()
 
             float d2 = w * d * d * d * d * d;
             color = gl_Color * 11.0 * d2;
-#endif
-#ifdef DEPTHONLY
-            float d = 1.0 - curPointProjected.z;
-            color = gl_Color * 1.5 * d * d;
-#endif
-#ifdef PHONG
-            // Phong:
-            float light = blinnPhongIlluminationIntensity(
-                    0.1,                                // material ambient
-                    0.75,                               // material diffuse
-                    1.3,                                // material specular
-                    10.0,                               // shinines
-                    1.0,                                // light diffuse
-                    0.75,                               // light ambient
-                    normalize( normal ),                // normal
-                    normalize( v_ray ),                 // view direction
-                    normalize( v_lightSource )          // light source position
-            );
-
-            color = light * gl_Color;
-#endif
-#ifdef PHONGWITHDEPTH
-            float d = 1.0 - curPointProjected.z;
-
-            // Phong:
-            float light = blinnPhongIlluminationIntensity(
-                    0.1,                                // material ambient
-                    d * d,                              // material diffuse
-                    1.3,                                // material specular
-                    10.0,                               // shinines
-                    1.0,                                // light diffuse
-                    0.3,                                // light ambient
-                    normalize( normal ),                // normal
-                    normalize( v_ray ),                 // view direction
-                    normalize( v_lightSource )          // light source position
-            );
-
-            color = light * gl_Color;
 #endif
 
             color.a = u_alpha;
