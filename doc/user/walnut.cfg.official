@@ -75,5 +75,5 @@ deleteROIKey = Del
 # bgColor.r = .9 # background color (red part)
 # bgColor.g = .9 # background color (green part)
 # bgColor.b = .9 # background color (blue part)
-# zoomTrackballManipulator.allowThrow = yes # allow the auto-rotation thing when "throwing" an object with the mouse
-#multiThreadedViewers = no # Use multiple threads for the multiple viewers. Causes hanging on some machines when opening a new view.
+zoomTrackballManipulator.allowThrow = no # allow the auto-rotation thing when "throwing" an object with the mouse
+multiThreadedViewers = no # Use multiple threads for the multiple viewers. Causes hanging on some machines when opening a new view.
