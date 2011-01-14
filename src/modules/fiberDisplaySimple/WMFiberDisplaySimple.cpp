@@ -30,7 +30,7 @@
 #include "../../common/WPropertyObserver.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
-#include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
 

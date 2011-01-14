@@ -22,47 +22,39 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGESHADERVERSIONPREPROCESSOR_H
-#define WGESHADERVERSIONPREPROCESSOR_H
+#ifndef WMODULECONNECTORMODULELOCKFAILED_H
+#define WMODULECONNECTORMODULELOCKFAILED_H
 
 #include <string>
 
-#include "WGEShaderPreprocessor.h"
+#include "WKernelException.h"
 
-#include "WExportWGE.h"
+#include "../WExportKernel.h"
 
 /**
- * This preprocessor removes the version-statement from the code and puts it to the beginning of the code. This is requires for some GLSL
- * compiler.
+ * General purpose exception and therefore base class for all kernel related exceptions.
+ * \ingroup kernel
  */
-class WGE_EXPORT WGEShaderVersionPreprocessor: public WGEShaderPreprocessor
+class OWKERNEL_EXPORT WModuleConnectorModuleLockFailed: public WKernelException
 {
 public:
 
     /**
      * Default constructor.
+     * \param msg the exception message.
      */
-    WGEShaderVersionPreprocessor();
+    explicit WModuleConnectorModuleLockFailed( const std::string& msg = "Module could not be locked inside the connector. Your module was already"
+                                                                        "freed before removing own connectors." );
 
     /**
      * Destructor.
      */
-    virtual ~WGEShaderVersionPreprocessor();
-
-    /**
-     * Process the whole code. It is not allowed to modify some internal state in this function because it might be called by several shaders.
-     *
-     * \param code the code to process
-     * \param file the filename of the shader currently processed. Should be used for debugging output.
-     *
-     * \return the resulting new code
-     */
-    virtual std::string process( const std::string& file, const std::string& code ) const;
+    virtual ~WModuleConnectorModuleLockFailed() throw();
 
 protected:
 
 private:
 };
 
-#endif  // WGESHADERVERSIONPREPROCESSOR_H
+#endif  // WMODULECONNECTORMODULELOCKFAILED_H
 

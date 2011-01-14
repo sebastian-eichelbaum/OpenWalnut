@@ -32,6 +32,8 @@
 
 #include "WGEOffscreenTexturePass.h"
 
+class WGETextureHud;
+
 /**
  * This class is basically a WGEOffscreenTexturePass with the difference that it finally renders to the on-screen frame buffer.
  */

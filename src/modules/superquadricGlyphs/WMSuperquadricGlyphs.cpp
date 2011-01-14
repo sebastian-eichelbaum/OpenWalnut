@@ -35,7 +35,7 @@
 #include "../../kernel/WKernel.h"
 
 #include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WGEPropertyUniform.h"
+#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
 
 #include "WMSuperquadricGlyphs.h"
 #include "WMSuperquadricGlyphs.xpm"

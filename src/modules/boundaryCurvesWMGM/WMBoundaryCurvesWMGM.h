@@ -29,8 +29,8 @@
 
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WSubject.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/WGEShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 

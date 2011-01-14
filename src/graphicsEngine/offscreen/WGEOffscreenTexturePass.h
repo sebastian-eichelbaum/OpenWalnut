@@ -32,6 +32,8 @@
 
 #include "WGEOffscreenRenderPass.h"
 
+class WGETextureHud;
+
 /**
  * This class encapsulates an OSG Camera and a corresponding framebuffer object. It is a specialized variant of \ref WGEOffscreenRenderPass,
  * optimized for processing textures. Therefore, it creates an correctly sized quad and can process each pixel in the fragment shader.

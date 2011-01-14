@@ -27,14 +27,14 @@
 #include <osg/Vec3>
 #include <osg/Geode>
 
-#include "../../kernel/WKernel.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
+#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WGEShader.h"
-#include "../../graphicsEngine/WGEPropertyUniform.h"
+#include "../../kernel/WKernel.h"
 #include "WMBoundaryCurvesWMGM.h"
 #include "WMBoundaryCurvesWMGM.xpm"
 

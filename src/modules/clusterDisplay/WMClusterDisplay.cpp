@@ -772,12 +772,12 @@ void WMClusterDisplay::updateWidgets()
         {
             if ( m_propResizeWithWindow->get( true ) )
             {
-                m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1,
+                m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1, true,
                         m_propMinSizeToColor->get(), width - 120, height / 2 , 100 );
             }
             else
             {
-                m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1,
+                m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1, true,
                         m_propMinSizeToColor->get(), dwidth, dheight, dxOff, dyOff );
             }
             m_camera->addChild( m_dendrogramGeode );

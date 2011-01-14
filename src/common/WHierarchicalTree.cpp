@@ -300,6 +300,41 @@ void WHierarchicalTree::sortList( std::list<size_t> &input ) //NOLINT
     }
 }
 
+void WHierarchicalTree::sortListValue( std::list<size_t> &input ) //NOLINT
+{
+    if ( input.size() == 0 )
+    {
+        return;
+    }
+
+    std::vector<size_t>vec;
+    std::list<size_t>::iterator it;
+
+    for ( it = input.begin(); it != input.end(); ++it )
+    {
+        vec.push_back( *it );
+    }
+
+    for ( size_t n = vec.size() - 1; n > 0; --n )
+    {
+        for ( size_t i = 0; i < n; ++i )
+        {
+            if ( m_customData[vec[i]] < m_customData[vec[i+1]] )
+            {
+                size_t tmp = vec[i];
+                vec[i] = vec[i+1];
+                vec[i+1] = tmp;
+            }
+        }
+    }
+
+    input.clear();
+    for ( size_t k = 0; k < vec.size(); ++k )
+    {
+        input.push_back( vec[k] );
+    }
+}
+
 void WHierarchicalTree::colorCluster( size_t cluster, WColor color )
 {
     std::list<size_t>worklist;

@@ -40,7 +40,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 
 /**
  * Module implementing the marching cubes algorithm with consistent triangulation for data

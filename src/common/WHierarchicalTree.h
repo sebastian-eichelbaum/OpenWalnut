@@ -169,6 +169,11 @@ public:
      */
     void sortList( std::list<size_t> &input ); //NOLINT
 
+    /**
+     * helper function to sort a list of clusters depending on the custom value
+     * \param input reference to the list to be sorted
+     */
+    void sortListValue( std::list<size_t> &input ); //NOLINT
 
     /**
      * sets the color for a selected cluster and all sub clusters

@@ -34,7 +34,7 @@
 #include "../../graphicsEngine/WFiberDrawable.h"
 #include "../../graphicsEngine/WROI.h"
 #include "../../graphicsEngine/WROIBox.h"
-#include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 
 #include "../../kernel/WFiberSelector.h"
 #include "../../kernel/WModule.h"

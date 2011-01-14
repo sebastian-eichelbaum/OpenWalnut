@@ -259,6 +259,30 @@ private:
     QAction* m_disconnectAction;
 
     /**
+     * List all actions created for applying a prototype. Is needed for m_connectWithPrototypeAction.
+     *
+     * \note We need to store this action list here as Qt is not able to delete the actions if they get replaced. We need to handle this
+     * manually.
+     */
+    WQtCombinerActionList m_connectWithPrototypeActionList;
+
+    /**
+     * List all actions created for applying a prototype. Is needed for m_connectWithModuleAction.
+     *
+     * \note We need to store this action list here as Qt is not able to delete the actions if they get replaced. We need to handle this
+     * manually.
+     */
+    WQtCombinerActionList m_connectWithModuleActionList;
+
+    /**
+     * List all actions created for applying a prototype. Is needed for m_disconnectAction.
+     *
+     * \note We need to store this action list here as Qt is not able to delete the actions if they get replaced. We need to handle this
+     * manually.
+     */
+    WQtCombinerActionList m_disconnectActionList;
+
+    /**
      * If true, a selection change does not cause the property tab to rebuild. This is useful if multiple items get selected at once
      * programatically.
      */

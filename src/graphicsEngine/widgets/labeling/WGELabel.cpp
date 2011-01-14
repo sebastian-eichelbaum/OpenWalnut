@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../common/WPathHelper.h"
+#include "../../../common/WPathHelper.h"
 
 #include "WGELabel.h"
 

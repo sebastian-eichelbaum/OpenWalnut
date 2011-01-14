@@ -52,9 +52,9 @@
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../graphicsEngine/WGEBorderLayout.h"
+#include "../../graphicsEngine/widgets/labeling/WGEBorderLayout.h"
+#include "../../graphicsEngine/widgets/labeling/WGELabel.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
-#include "../../graphicsEngine/WGELabel.h"
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "WMEffectiveConnectivityCluster.xpm"

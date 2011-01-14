@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include "WGETextureHud.h"
+#include "../WGETextureHud.h"
 
 #include "WGEOffscreenFinalPass.h"
 

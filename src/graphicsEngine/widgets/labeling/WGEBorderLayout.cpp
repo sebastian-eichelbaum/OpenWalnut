@@ -25,7 +25,7 @@
 #include <osgText/Text>
 #include <osg/LineWidth>
 
-#include "WGraphicsEngine.h"
+#include "../../WGraphicsEngine.h"
 
 #include "WGEBorderLayout.h"
 

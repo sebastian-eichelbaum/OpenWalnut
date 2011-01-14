@@ -39,7 +39,7 @@
 #include "../../common/WBoundingBox.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 
 #include "WMSurfaceParameterAnimator.h"

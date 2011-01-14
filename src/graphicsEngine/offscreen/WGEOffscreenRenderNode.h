@@ -29,14 +29,14 @@
 
 #include <osg/Camera>
 
-#include "WGEGroupNode.h"
+#include "../WGEGroupNode.h"
 #include "WGEOffscreenRenderPass.h"
 #include "WGEOffscreenTexturePass.h"
 #include "WGEOffscreenFinalPass.h"
-#include "WGETextureHud.h"
-#include "WGEShader.h"
-#include "callbacks/WGEViewportCallback.h"
-#include "WExportWGE.h"
+#include "../WGETextureHud.h"
+#include "../shaders/WGEShader.h"
+#include "../callbacks/WGEViewportCallback.h"
+#include "../WExportWGE.h"
 
 /**
  * This type of node basically is a convenience class for managing and creating offscreen renderings. The children of this node should be of type

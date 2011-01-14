@@ -35,7 +35,7 @@
 
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/geodes/WDendrogramGeode.h"
-#include "../../graphicsEngine/WOSGButton.h"
+#include "../../graphicsEngine/widgets/WOSGButton.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -50,7 +50,7 @@
 const unsigned int MASK_2D = 0xF0000000; //!< used for osgWidget stuff
 const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff
 
-/** 
+/**
  * Someone should add some documentation here.
  * Probably the best person would be the module's
  * creator, i.e. "schurade".
@@ -244,9 +244,35 @@ private:
     WPropInt m_propXBiggestClusters;
 
     /**
+     * the similarity value for selecting clusters
+     */
+    WPropDouble m_propValue;
+
+    /**
+     * property to select a loaded partition
+     */
+    WPropInt m_propSelectedLoadedPartion;
+
+    /**
      * how many levels to go down from top
      */
     WPropInt m_propLevelsFromTop;
+
+    /**
+     * how many levels to go down from top
+     */
+    WPropInt m_propXClusters;
+
+
+    /**
+     * minimum branch length
+     */
+    WPropDouble m_propMinBranchLength;
+
+    /**
+     * minimum branch size
+     */
+    WPropInt m_propMinBranchSize;
 
     /**
      * show or hide outliers
@@ -269,6 +295,11 @@ private:
     WPropBool m_propShowDendrogram;
 
     /**
+     * controls plotting the height of a join
+     */
+    WPropBool m_propPlotHeightByLevel;
+
+    /**
      * if true position and size sliders will have no effect
      */
     WPropBool m_propResizeWithWindow;
@@ -283,6 +314,11 @@ private:
      */
     WPropBool m_propShowVoxelTriangulation;
 
+    /**
+     * if true clusters not in the current selection list will be rendered grey in the texture and triangulation
+     */
+    WPropBool m_showNotInClusters;
+
     WHierarchicalTreeVoxels m_tree; //!< the tree object as loaded from the file
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
@@ -291,7 +327,9 @@ private:
 
     std::vector<osg::ref_ptr< osg::Geode > > m_outputGeodes; //!< a vector of dendrogram nodes
 
-    std::vector<boost::shared_ptr< WTriangleMesh > >m_triMeshes; //!< This triangle mesh is provided as output through the connector.
+    std::vector<boost::shared_ptr< WTriangleMesh > >m_triMeshes; //!< triangulation of the active clusters
+
+    boost::shared_ptr< WTriangleMesh >m_nonActiveMesh; //!< triangulation of the voxels not in active clusters
 
     std::vector<size_t>m_activatedClusters; //!< stores the currently activated clusters
 
@@ -323,6 +361,8 @@ private:
     WPropInt m_infoCountLeafes; //!< info property
     WPropInt m_infoCountClusters; //!< info property
     WPropInt m_infoMaxLevel; //!< info property
+
+    std::vector< std::vector<size_t> >m_loadedPartitions; //!< set partitions loaded from file
 };
 
 #endif  // WMCLUSTERDISPLAYVOXELS_H
