@@ -144,8 +144,8 @@ void main()
 
             // only calculate the normal if we need it
 #ifdef WGE_POSTPROCESSING_ENABLED
-            // find a proper normal for a headlight
-            vec3 normal = ( gl_ModelViewMatrix * vec4( getGradientViewAligned( tex0, curPoint, v_ray ), 1.0 ) ).xyz;
+            // find a proper normal for a headlight in world-space
+            vec3 normal = ( gl_ModelViewMatrix * vec4( getGradientViewAligned( tex0, curPoint, v_ray ), 0.0 ) ).xyz;
             wge_FragNormal = textureNormalize( normal );
 #endif
 

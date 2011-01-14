@@ -129,7 +129,9 @@ void WMIsosurfaceRaytracer::requirements()
 void WMIsosurfaceRaytracer::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMIsosurfaceRaytracer", m_localPath ) );
-    WGEShaderPreprocessor::SPtr cortexMode( new WGEShaderPropertyDefineOptions< WPropBool >( m_cortexMode, "CORTEXMODE_DISENABLED", "CORTEXMODE_ENABLED" ) );
+    WGEShaderPreprocessor::SPtr cortexMode(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_cortexMode, "CORTEXMODE_DISENABLED", "CORTEXMODE_ENABLED" )
+    );
     m_shader->addPreprocessor( cortexMode );
 
     // let the main loop awake if the data changes or the properties changed.

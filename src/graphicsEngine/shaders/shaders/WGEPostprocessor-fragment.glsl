@@ -24,7 +24,11 @@
 
 #version 120
 
+#include "WGEShadingTools.glsl"
 #include "WGETextureTools.glsl"
+
+// The light source in world coordinates, normalized
+varying vec3 v_lightSource;
 
 /**
  * The texture Unit for the original color field
@@ -73,6 +77,11 @@ float colorSet = 0.0;   // is 0.5 if the color has been set earlier
 vec2 pixelCoord = gl_TexCoord[0].st;
 
 /**
+ * This is needed for some swizzle tricks
+ */
+const vec2 zeroOneList = vec2( 1.0, 0.0 );
+
+/**
  * Returns the original unprocessed color value at the specified point
  *
  * \param where the pixel to grab
@@ -105,8 +114,7 @@ vec4 getColor()
  */
 vec4 getNormal( in vec2 where )
 {
-    const vec2 constantList = vec2( 1.0, 0.0 );
-    return texture2DUnscaled( u_texture1Sampler, where, -1.0, 2.0 ).xyzw * constantList.xxxy + constantList.yyyx;
+    return texture2DUnscaled( u_texture1Sampler, where, -1.0, 2.0 ).xyzw * zeroOneList.xxxy + zeroOneList.yyyx;
 }
 
 /**
@@ -168,7 +176,21 @@ void main()
     float offsetY = 1.0 / u_texture0SizeY;
 
 #ifdef WGE_POSTPROCESSOR_PPLPHONG
-    blend( getColor() );
+    // TODO(ebaum): provide properties/uniforms for the scaling factors here
+    vec4 light = blinnPhongIllumination(
+        0.2  * getColor().rgb,                // material ambient
+        0.75 * getColor().rgb,               // material diffuse
+        0.5  * getColor().rgb,                // material specular
+        100.0,                               // shinines
+        vec3( 1.0, 1.0, 1.0 ),               // light diffuse
+        vec3( 0.3, 0.3, 0.3 ),               // light ambient
+        normalize( getNormal().xyz ),        // normal
+        vec4( 0.0, 0.0, 1.0, 1.0 ).xyz,      // view direction  // in world space, this always is the view-dir
+        v_lightSource                        // light source position
+    );
+    light.a = getColor().a;
+
+    blend( light );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_SSAO
