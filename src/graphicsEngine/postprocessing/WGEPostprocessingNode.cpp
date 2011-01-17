@@ -25,6 +25,7 @@
 #include "../../common/WPropertyHelper.h"
 
 #include "../shaders/WGEShaderPropertyDefineOptions.h"
+#include "../WGEUtils.h"
 
 #include "WGEPostprocessingNode.h"
 
@@ -96,6 +97,11 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     m_offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
     // let the activePostprocessors property control the options in the shader:
     m_postProcessShader->addPreprocessor( activePostprocessorsOpts );
+
+    // some of the post-processors need some white noise, like the ssao
+    const size_t size = 64;
+    osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size, 3 );
+    m_postprocess->bind( randTex, 3 );
 }
 
 WGEPostprocessingNode::~WGEPostprocessingNode()
