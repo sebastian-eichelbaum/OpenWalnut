@@ -68,7 +68,7 @@ std::list< boost::shared_ptr< WSelectorRoi > > WSelectorBranch::getROIs()
 void WSelectorBranch::setDirty()
 {
     m_dirty = true;
-    if( m_branch->getProperties()->getProperty( "Bundle Color" )->toPropColor()->changed() )
+    if( m_branch->getProperties()->getProperty( "Bundle color" )->toPropColor()->changed() )
     {
         colorChanged();
     }
@@ -144,7 +144,7 @@ void WSelectorBranch::recalculate()
 
 void WSelectorBranch::colorChanged()
 {
-    WColor color = m_branch->getProperties()->getProperty( "Bundle Color" )->toPropColor()->get( true );
+    WColor color = m_branch->getProperties()->getProperty( "Bundle color" )->toPropColor()->get( true );
 
     boost::shared_ptr<std::vector<float> > array = m_fibers->getColorScheme( "Custom Color" )->getColor();
 
