@@ -96,3 +96,71 @@ float blinnPhongIlluminationIntensity( float ambient, float diffuse, float specu
   return ambientV + ( diffuseV + specularV ) * lightIntensity;
 }
 
+/**
+ * Calculates the gradient inside a luminance 3D texture at the specified position.
+ *
+ * \param sampler the texture sampler to use
+ * \param pos where in the texture
+ * \param stepsize the offset used in the kernel. Should be related to the nb. of voxels.
+ *
+ * \return the gradient
+ */
+vec3 getGradient( in sampler3D sampler, in vec3 pos, in float stepsize )
+{
+    float valueXP = texture3D( sampler, pos + vec3( stepsize, 0.0, 0.0 ) ).r;
+    float valueXM = texture3D( sampler, pos - vec3( stepsize, 0.0, 0.0 ) ).r;
+    float valueYP = texture3D( sampler, pos + vec3( 0.0, stepsize, 0.0 ) ).r;
+    float valueYM = texture3D( sampler, pos - vec3( 0.0, stepsize, 0.0 ) ).r;
+    float valueZP = texture3D( sampler, pos + vec3( 0.0, 0.0, stepsize ) ).r;
+    float valueZM = texture3D( sampler, pos - vec3( 0.0, 0.0, stepsize ) ).r;
+
+    return vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM );
+}
+
+/**
+ * Calculates the gradient inside a luminance 3D texture at the specified position.
+ *
+ * \param sampler the texture sampler to use
+ * \param pos where in the texture
+ *
+ * \return the gradient
+ */
+vec3 getGradient( in sampler3D sampler, in vec3 pos )
+{
+    // unfortunately the ATI driver does not allow default values for function arguments
+    return getGradient( sampler, pos, 0.005 );
+}
+
+/**
+ * Calculates the gradient in a luminance 3D texture at the specified position. Unlike getGradient, this switches the orientation of the gradient
+ * according to the viewing direction. This ensures, that the gradient always points towards the camera and therefore is useful as a normal.
+ *
+ * \param sampler the texture sampler to use
+ * \param pos where in the texture
+ * \param viewDir the direction from the camera to pos
+ * \param stepsize the offset used in the kernel. Should be related to the nb. of voxels.
+ *
+ * \return the gradient
+ */
+vec3 getGradientViewAligned( in sampler3D sampler, in vec3 pos, in vec3 viewDir, in float stepsize )
+{
+    vec3 grad = getGradient( sampler, pos, stepsize );
+    return  sign( dot( grad, -viewDir ) ) * grad;
+}
+
+/**
+ * Calculates the gradient in a luminance 3D texture at the specified position. Unlike getGradient, this switches the orientation of the gradient
+ * according to the viewing direction. This ensures, that the gradient always points towards the camera and therefore is useful as a normal.
+ *
+ * \param sampler the texture sampler to use
+ * \param pos where in the texture
+ * \param viewDir the direction from the camera to pos
+ *
+ * \return the gradient
+ */
+vec3 getGradientViewAligned( in sampler3D sampler, in vec3 pos, in vec3 viewDir )
+{
+    // unfortunately the ATI driver does not allow default values for function arguments
+    return getGradientViewAligned( sampler, pos, viewDir, 0.005 );
+}
+

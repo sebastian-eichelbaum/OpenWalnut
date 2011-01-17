@@ -37,9 +37,9 @@ WGEOffscreenRenderNode::WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > refe
     m_nextPassNum( 0 )
 {
     // initialize members
+    m_hud = new WGETextureHud();
     if ( !noHud )
     {
-        m_hud = new WGETextureHud();
         m_hud->addUpdateCallback( new WGEViewportCallback< WGETextureHud >( m_referenceCamera ) );
         m_hud->coupleViewportWithTextureViewport();
         insert( m_hud );
@@ -59,12 +59,6 @@ osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRender
     return pass;
 }
 
-osg::ref_ptr< WGEOffscreenTexturePass > WGEOffscreenRenderNode::addTextureProcessingPass( std::string name )
-{
-    osg::ref_ptr< WGEOffscreenTexturePass > pass = addRenderPass< WGEOffscreenTexturePass >( name );
-    return pass;
-}
-
 osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRenderPass( osg::ref_ptr< osg::Node > node,
                                                                                       osg::ref_ptr< WGEShader > shader,
                                                                                       std::string name )
@@ -73,6 +67,12 @@ osg::ref_ptr< WGEOffscreenRenderPass > WGEOffscreenRenderNode::addGeometryRender
     osg::ref_ptr< WGEOffscreenRenderPass > pass = addRenderPass< WGEOffscreenRenderPass >( name );
     pass->addChild( node );
     shader->apply( pass );
+    return pass;
+}
+
+osg::ref_ptr< WGEOffscreenTexturePass > WGEOffscreenRenderNode::addTextureProcessingPass( std::string name )
+{
+    osg::ref_ptr< WGEOffscreenTexturePass > pass = addRenderPass< WGEOffscreenTexturePass >( name );
     return pass;
 }
 

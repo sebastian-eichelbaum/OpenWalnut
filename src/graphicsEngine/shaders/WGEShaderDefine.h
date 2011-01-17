@@ -30,8 +30,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "../../common/WPropertyBase.h"
-
 #include "WGEShaderPreprocessor.h"
 
 #include "../WExportWGE.h"
@@ -43,7 +41,6 @@ template< typename ValueType = bool >
 class WGE_EXPORT WGEShaderDefine: public WGEShaderPreprocessor
 {
 public:
-
     /**
      * Shared pointer for this class.
      */

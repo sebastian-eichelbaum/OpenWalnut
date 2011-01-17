@@ -198,3 +198,8 @@ WItemSelector::operator unsigned int() const
     return getItemIndexOfSelected( 0 );
 }
 
+WItemSelector::IndexList WItemSelector::getIndexList() const
+{
+    return m_selected;
+}
+

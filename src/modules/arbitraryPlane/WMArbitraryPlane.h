@@ -210,9 +210,9 @@ private:
     wmath::WPosition m_p1; //!< stores the last position of  manipulator 1
     wmath::WPosition m_p2; //!< stores the last position of  manipulator 2
 
-    boost::shared_ptr<WROISphere> m_s0; //!< stores pointer to the center manipulator
-    boost::shared_ptr<WROISphere> m_s1; //!< stores pointer to manipulator 1
-    boost::shared_ptr<WROISphere> m_s2; //!< stores pointer to manipulator 2
+    osg::ref_ptr<WROISphere> m_s0; //!< stores pointer to the center manipulator
+    osg::ref_ptr<WROISphere> m_s1; //!< stores pointer to manipulator 1
+    osg::ref_ptr<WROISphere> m_s2; //!< stores pointer to manipulator 2
 
     bool m_dirty; //!< dirty flag, used when manipulator positions change
 

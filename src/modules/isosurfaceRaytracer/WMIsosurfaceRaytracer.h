@@ -130,26 +130,14 @@ private:
     WPropInt m_alpha;
 
     /**
-     * Types of shading supported.
+     * Some special coloring mode emphasizing the cortex.
      */
-    enum
-    {
-        Cortex = 0,
-        Depth,
-        Phong,
-        PhongDepth
-    }
-    SHADING_ALGORITHMS;
+    WPropBool m_cortexMode;
 
     /**
-     * The available shading algorithms.
+     * If true, the ray-tracer uses stochastic jitter to improve image quality.
      */
-    boost::shared_ptr< WItemSelection > m_shadingSelections;
-
-    /**
-     * The actually selected shading algorithm.
-     */
-    WPropSelection m_shadingAlgo;
+    WPropBool m_stochasticJitter;
 
     /**
      * A condition used to notify about changes in several properties.
