@@ -213,6 +213,8 @@ osg::ref_ptr< WGETexture2D > wge::genWhiteNoiseTexture( size_t size, size_t chan
 
     // put it into an texture
     osg::ref_ptr< WGETexture2D > randTexture = new WGETexture2D( randImage );
+    randTexture->setTextureWidth( size );
+    randTexture->setTextureHeight( size );
     randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
     randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
     randTexture->setWrap( osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT );
