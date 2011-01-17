@@ -106,9 +106,10 @@ void WMProbTractDisplaySP::updateProperitesForTheInputConnectors( boost::shared_
         {
             debugLog() << "Found a connected IC, but hidden prop group at index: " << i;
             m_colorMap[i]->setHidden( false );
-            if( m_probICs[i]->getData() )
+            if( m_probICs[i]->getData() ) // todo(math): change to getData( false ) if available
             {
-                m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( m_probICs[i]->getData()->getFileName() );
+                 // todo(math): change to getData( false ) if available
+                 m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( m_probICs[i]->getData()->getFileName() );
             }
         }
         if( ( m_probICs[i]->isConnected() == 0 ) && ( !m_colorMap[i]->isHidden() ) )
@@ -251,12 +252,14 @@ void WMProbTractDisplaySP::moduleMain()
         {
             break;
         }
+
+        bool dataUpdated = m_tractsIC->handledUpdate(); // this call must be made befor getData() on the ICs
+        bool probDataValid = false;
+
         boost::shared_ptr< WDataSetFibers > detTracts = m_tractsIC->getData();
         boost::shared_ptr< WGridRegular3D > grid;
         probTracts.clear(); // discard all prob tracts so far
 
-        bool dataUpdated = m_tractsIC->handledUpdate(); // this call must be made befor getData() on the ICs
-        bool probDataValid = false;
         for( size_t i = 0; i < NUM_ICS; ++i )
         {
             dataUpdated = dataUpdated || m_probICs[i]->handledUpdate();
@@ -282,7 +285,9 @@ void WMProbTractDisplaySP::moduleMain()
             continue;
         }
 
-        if( dataUpdated )
+        // todo(math): remove the !builder when the handledUpdate() call to the input connectors does work again.
+        // for that we must change the getData() calls in updateProperitesForTheInputConnectors(...) to getData( false )
+        if( dataUpdated || !builder )
         {
             infoLog() << "Handling data update..";
             checkProbabilityRanges( probTracts );
@@ -299,15 +304,19 @@ void WMProbTractDisplaySP::moduleMain()
             }
         }
 
-        // NOTE: we know that we could arrange much more specific updates here, just update the slice that has changed, but this is too complex to
-        // consider also color, m_delta, etc. changes..., and ofcourse: we have the time to calc that every loop-cycle again and again, it does
-        // not really matter
-        builder->determineIntersectingDeterministicTracts();
-        updateSlices( 0, builder );
-        updateSlices( 1, builder );
-        updateSlices( 2, builder );
+        // todo(math): remove this if handledUpdate() mechanism will work see todo above..
+        if( builder )
+        {
+            // NOTE: we know that we could arrange much more specific updates here, just update the slice that has changed, but this is too complex to
+            // consider also color, m_delta, etc. changes..., and ofcourse: we have the time to calc that every loop-cycle again and again, it does
+            // not really matter
+            debugLog() << "now building the geodes...";
+            builder->determineIntersectingDeterministicTracts();
+            updateSlices( 0, builder );
+            updateSlices( 1, builder );
+            updateSlices( 2, builder );
+        }
     }
-
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
 }
 
