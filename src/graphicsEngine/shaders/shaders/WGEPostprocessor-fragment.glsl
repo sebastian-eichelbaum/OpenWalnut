@@ -240,25 +240,34 @@ void blendAdd( in float f )
 /**
  * Phong based Per-Pixel-Lighting.
  *
- * \return the color.
+ * \param normal the surface normal. Normalized.
+ *
+ * \return the intensity.
  */
-vec4 getPPLPhong()
+float getPPLPhong( vec3 normal )
 {
     // TODO(ebaum): provide properties/uniforms for the scaling factors here
-    vec4 light = blinnPhongIllumination(
-        0.2  * getColor().rgb,               // material ambient
-        0.75 * getColor().rgb,               // material diffuse
-        0.5  * getColor().rgb,               // material specular
+    return blinnPhongIlluminationIntensity(
+        0.2 ,               // material ambient
+        0.75,               // material diffuse
+        0.5,               // material specular
         100.0,                               // shinines
-        vec3( 1.0, 1.0, 1.0 ),               // light diffuse
-        vec3( 0.3, 0.3, 0.3 ),               // light ambient
-        getNormal().xyz,                     // normal
+        1.0,               // light diffuse
+        0.3,               // light ambient
+        normal,                              // normal
         vec4( 0.0, 0.0, 1.0, 1.0 ).xyz,      // view direction  // in world space, this always is the view-dir
         gl_LightSource[0].position.xyz       // light source position
     );
-    light.a = getColor().a;
+}
 
-    return light;
+/**
+ * Phong based Per-Pixel-Lighting based on the specified color.
+ *
+ * \return the new lighten color.
+ */
+float getPPLPhong()
+{
+    return getPPLPhong( getNormal().xyz );
 }
 
 /**
@@ -337,6 +346,8 @@ vec4 getGaussedColor()
 float getSSAO()
 {
     // NOTE: Currently, most of the code is from http://www.gamerendering.com/2009/01/14/ssao/
+
+    // TODO(ebaum): optimize code. It is quite slow curretly.
 
     // some switches which can be used to fine-tune this.
     // TODO(ebaum): provide uniforms for this
@@ -422,6 +433,33 @@ float getSSAO()
     return 1.0 - ( totStrength * bl * invSamples );
 }
 
+/**
+ * Calculate the cel-shading of a specified color. The number of colors is defined by the u_celShadingSamples uniform.
+ *
+ * \param inColor the color to shade
+ *
+ * \return the cel-shaded color
+ */
+vec4 getCelShading( vec4 inColor )
+{
+    // TODO(ebaum): provide uniform for this
+    float samples = 5.0;
+    return vec4(
+            vec3( int( ( inColor * samples ).r ),
+                  int( ( inColor * samples ).g ), 
+                  int( ( inColor * samples ).b ) ) / samples, inColor.a );
+}
+
+/**
+ * Calculate the cel-shading of the input color. The number of colors is defined by the u_celShadingSamples uniform.
+ *
+ * \return the cel-shaded color
+ */
+vec4 getCelShading()
+{
+    return getCelShading( getColor() );
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -435,12 +473,8 @@ void main()
     // fetch operations on the same sampler and same position to one fetch and provides the result in a variable. So it is not stupid to use
     // getColor or getNormal or getDepth many times on the same u,v coordinate.
 
-#ifdef WGE_POSTPROCESSOR_PPLPHONG
-    blend( getPPLPhong() );
-#endif
-
-#ifdef WGE_POSTPROCESSOR_SSAO
-    blendScale( getSSAO() );
+#ifdef WGE_POSTPROCESSOR_COLORPHONG
+    blend( vec4( getColor().rgb * getPPLPhong(), getColor().a ) );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_COLOR
@@ -449,6 +483,18 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_GAUSSEDCOLOR
     blend( getGaussedColor() );
+#endif
+
+#ifdef WGE_POSTPROCESSOR_PPLPHONG
+    blendScale( getPPLPhong() );
+#endif
+
+#ifdef WGE_POSTPROCESSOR_SSAO
+    blendScale( getSSAO() );
+#endif
+
+#ifdef WGE_POSTPROCESSOR_CELSHADING
+    blend( getCelShading() );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_EDGE
