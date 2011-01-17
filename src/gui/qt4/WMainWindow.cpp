@@ -185,7 +185,7 @@ void WMainWindow::setupGUI()
     this->addAction( viewMenu->addAction( "Posterior", this, SLOT( setPresetViewPosterior() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) ) );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
-    helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Introduction", this, SLOT( openIntroductionDialog() ),
+    helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
                          QKeySequence( QKeySequence::HelpContents ) );
     helpMenu->addSeparator();
     helpMenu->addAction( m_iconManager.getIcon( "logo" ), "About OpenWalnut", this, SLOT( openAboutDialog() ) );
@@ -806,9 +806,9 @@ void WMainWindow::openAboutDialog()
                         "Thank you for using OpenWalnut." );
 }
 
-void WMainWindow::openIntroductionDialog()
+void WMainWindow::openOpenWalnutHelpDialog()
 {
-    QMessageBox::information( this, "OpenWalnut Introduction",
+    QMessageBox::information( this, "OpenWalnut Help",
                               "<h3>Navigation in Main View</h3>"
                               "<table>"
                               "<tr><td><b><i>Mouse Button&nbsp;&nbsp;</i></b></td><td><b><i>Action</i></b></td></tr>"
