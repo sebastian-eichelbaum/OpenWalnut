@@ -35,11 +35,11 @@
 #include <osg/Shader>
 #include <osg/Program>
 
-#include "../common/WPathHelper.h"
-#include "../common/WSharedAssociativeContainer.h"
+#include "../../common/WPathHelper.h"
+#include "../../common/WSharedAssociativeContainer.h"
 #include "WGEShaderPreprocessor.h"
 #include "WGEShaderDefine.h"
-#include "WExportWGE.h"
+#include "../WExportWGE.h"
 
 /**
  * Class encapsulating the OSG Program class for a more convenient way of adding and modifying shader.

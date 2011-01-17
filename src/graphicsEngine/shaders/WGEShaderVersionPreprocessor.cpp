@@ -28,7 +28,7 @@
 
 #include <boost/regex.hpp>
 
-#include "../common/WLogger.h"
+#include "../../common/WLogger.h"
 
 #include "WGEShaderVersionPreprocessor.h"
 

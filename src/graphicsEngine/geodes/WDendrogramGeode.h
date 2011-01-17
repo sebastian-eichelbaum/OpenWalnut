@@ -45,6 +45,7 @@ public:
      *
      * \param tree reference to the tree object to work on
      * \param cluster root cluster for the dendrogram
+     * \param useLevel if true the height of a node is determined by the level of the cluster
      * \param minClusterSize minimum for cluster to be drawn, when i the whole tree is drawn
      * \param xSize number of pixel to scale the tree on along the x axis
      * \param ySize number of pixel to scale the tree on along the y axis
@@ -52,7 +53,7 @@ public:
      * \param yOffset translation alogn the y axis
      *
      */
-    WDendrogramGeode( WHierarchicalTree* tree, size_t cluster, size_t minClusterSize = 1, float xSize = 1000.f,
+    WDendrogramGeode( WHierarchicalTree* tree, size_t cluster, bool useLevel = true, size_t minClusterSize = 1, float xSize = 1000.f,
             float ySize = 500.f, float xOffset = 0.0f, float yOffset = 0.0f );
 
     /**
@@ -76,21 +77,44 @@ private:
     void create();
 
     /**
-     * recursive funtion that lays out the tree from top to bottom
+     * recursive funtion that lays out the tree from top to bottom,
+     * height of the joins is determined by the level of the cluster
      * \param cluster the current cluster to work on
      * \param left left border of the current subcluster
      * \param right right border of the current subcluster
      */
-    void layout( size_t cluster, float left, float right );
+    void layoutLevel( size_t cluster, float left, float right );
 
     /**
-     * recurse function that follows the layout to determine the cluster from pixel coordinates
+     * recursive funtion that lays out the tree from top to bottom,
+     * height of the joins is determined by the similarity value of the cluster
+     * \param cluster the current cluster to work on
+     * \param left left border of the current subcluster
+     * \param right right border of the current subcluster
+     */
+    void layoutValue( size_t cluster, float left, float right );
+
+
+    /**
+     * recurse function that follows the layout to determine the cluster from pixel coordinates, used when the level of the cluster
+     * is used for height
      *
      * \param cluster cluster to check against coordinates
      * \param left left boundary of cluster
      * \param right right boundary of cluster
      */
     void getClickClusterRecursive( size_t cluster, float left, float right );
+
+    /**
+     * recurse function that follows the layout to determine the cluster from pixel coordinates, used when the customData value is used
+     * for height
+     *
+     * \param cluster cluster to check against coordinates
+     * \param left left boundary of cluster
+     * \param right right boundary of cluster
+     */
+    void getClickClusterRecursive2( size_t cluster, float left, float right );
+
 
     WHierarchicalTree* m_tree; //!< the tree to work on
 
@@ -113,6 +137,8 @@ private:
 
     int m_xClicked; //!< stores the click position for use int he recursive function
     int m_yClicked; //!< stores the click position for use int he recursive function
+
+    bool m_useLevel; //!< flag indicating if the level or the value of a cluster will be used for the height of join
 
     size_t m_clickedCluster; //!< the clicked cluster
 };

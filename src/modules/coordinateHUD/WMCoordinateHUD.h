@@ -34,7 +34,7 @@
 
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
-#include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"

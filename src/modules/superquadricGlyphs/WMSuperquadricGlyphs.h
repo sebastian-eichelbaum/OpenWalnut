@@ -39,7 +39,7 @@
 
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/WGEShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 
 /**
  * Rendering of GPU bases Superquadric Glyphs. These glyphs are completely ray-traced on the GPU.

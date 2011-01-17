@@ -28,7 +28,7 @@
 #include <osg/Vec3>
 #include <osg/Vec4>
 
-#include "WExportWGE.h"
+#include "../WExportWGE.h"
 
 class WColor;
 class WItemSelector;

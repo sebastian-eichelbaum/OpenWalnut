@@ -39,9 +39,9 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WGEPropertyUniform.h"
-#include "../../graphicsEngine/WGEShader.h"
-#include "../../graphicsEngine/WGEShaderDefineOptions.h"
+#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
 #include "../../graphicsEngine/WGERequirement.h"
 #include "../../kernel/WKernel.h"
 #include "WMIsosurfaceRaytracer.xpm"
@@ -245,6 +245,10 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootState->addUniform( new WGEPropertyUniform< WPropInt >( "u_steps", m_stepCount ) );
             rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_alpha", m_alpha ) );
             rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio ) );
+            // Stochastic jitter?
+            const size_t size = 64;
+            osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size );
+            wge::bindTexture( cube, randTex, 1 );
 
             // update node
             debugLog() << "Adding new rendering.";

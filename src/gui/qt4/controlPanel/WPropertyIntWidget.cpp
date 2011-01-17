@@ -72,12 +72,12 @@ void WPropertyIntWidget::update()
     int min = 0;
     if ( minC.get() )
     {
+        m_slider.setHidden( false );
         min = minC->getMin();
     }
     else
     {
-        wlog::warn( "PropertyWidget( " + m_intProperty->getName() + " )" ) << "The property has no minimum constraint. " <<
-            "You should define it to avoid unexpected behaviour. Using default (" << min << ").";
+        m_slider.setHidden( true );
     }
 
     // get the max constraint
@@ -85,12 +85,12 @@ void WPropertyIntWidget::update()
     int max = 100;
     if ( maxC.get() )
     {
+        m_slider.setHidden( false );
         max = maxC->getMax();
     }
     else
     {
-        wlog::warn( "PropertyWidget( " + m_intProperty->getName() + " )" ) << "The property has no maximum constraint. " <<
-            "You should define it to avoid unexpected behaviour. Using default (" << max << ").";
+        m_slider.setHidden( true );
     }
 
     // setup the slider

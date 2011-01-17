@@ -24,6 +24,8 @@
 
 #include <GL/gl.h>
 
+#include "../common/exceptions/WPreconditionNotMet.h"
+
 #include "WGETexture.h"
 
 #include "WGETextureUtils.h"
@@ -44,5 +46,37 @@ size_t wge::getMaxTexUnits()
     // Why do we not use these glGet things here? The answer is simple: The GLSL 1.20 Standard does not define a way to access more than 8
     // texture coordinate attributes.
     return 8;
+}
+
+osg::ref_ptr< WGETexture2D > wge::genWhiteNoiseTexture( size_t size, size_t channels )
+{
+    WPrecond( ( channels == 1 ) || ( channels == 3 ) || ( channels == 4 ), "Invalid number of channels. Valid are: 1, 3 and 4."  );
+
+    // create an osg::Image at first.
+    std::srand( time( 0 ) );
+    osg::ref_ptr< osg::Image > randImage = new osg::Image();
+    randImage->allocateImage( size, size, channels, GL_LUMINANCE, GL_UNSIGNED_BYTE );
+    unsigned char *randomLuminance = randImage->data();  // should be 4 megs
+    for( unsigned int channel = 0; channel < channels; channel++ )
+    {
+        for( unsigned int x = 0; x < size; x++ )
+        {
+            for( unsigned int y = 0; y < size; y++ )
+            {
+                // - stylechecker says "use rand_r" but I am not sure about portability.
+                unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
+                randomLuminance[ ( y * size * channels ) + ( x * channels ) + channel ] = r;
+            }
+        }
+    }
+
+    // put it into an texture
+    osg::ref_ptr< WGETexture2D > randTexture = new WGETexture2D( randImage );
+    randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
+    randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
+    randTexture->setWrap( osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT );
+    randTexture->setWrap( osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT );
+
+    return randTexture;
 }
 

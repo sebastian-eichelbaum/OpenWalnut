@@ -43,7 +43,7 @@
 #include "callbacks/WGEFunctorCallback.h"
 
 #include "WGETexture.h"
-#include "WGEShader.h"
+#include "shaders/WGEShader.h"
 #include "WExportWGE.h"
 
 /**

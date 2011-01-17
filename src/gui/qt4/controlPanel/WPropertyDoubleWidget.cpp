@@ -71,11 +71,12 @@ void WPropertyDoubleWidget::update()
     m_min = 0;
     if ( minC.get() )
     {
+        m_slider.setHidden( false );
         m_min = minC->getMin();
     }
     else
     {
-        m_slider.hide();
+        m_slider.setHidden( true );
     }
 
     // get the max constraint
@@ -83,11 +84,12 @@ void WPropertyDoubleWidget::update()
     m_max = 100;
     if ( maxC.get() )
     {
+        m_slider.setHidden( false );
         m_max = maxC->getMax();
     }
     else
     {
-        m_slider.hide();
+        m_slider.setHidden( true );
     }
 
     // setup the slider

@@ -28,6 +28,9 @@
 #include <osg/Array>
 
 #include "../common/math/WPosition.h"
+
+#include "WGETexture.h"
+
 #include "WGEUtils.h"
 
 osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< wmath::WPosition >& posArray )
@@ -184,3 +187,4 @@ WColor wge::getNthHSVColor( int n, int parts )
         return createColorFromHSV( preset[n] );
     }
 }
+

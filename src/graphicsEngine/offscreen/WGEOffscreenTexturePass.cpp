@@ -24,8 +24,8 @@
 
 #include <string>
 
-#include "WGETextureHud.h"
-#include "WGEGeodeUtils.h"
+#include "../WGETextureHud.h"
+#include "../WGEGeodeUtils.h"
 
 #include "WGEOffscreenTexturePass.h"
 

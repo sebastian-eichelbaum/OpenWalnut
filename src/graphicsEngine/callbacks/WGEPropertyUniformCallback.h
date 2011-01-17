@@ -29,7 +29,7 @@
 
 #include "../../common/WProperties.h"
 #include "../WExportWGE.h"
-#include "../WGEUniformTypeTraits.h"
+#include "../shaders/WGEUniformTypeTraits.h"
 
 /**
  * This class is an OSG Callback which allows uniforms to be controlled by properties. This is useful to simply forward properties to a shader.

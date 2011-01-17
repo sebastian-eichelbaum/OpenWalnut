@@ -255,6 +255,16 @@ private:
     boost::shared_ptr< WItemSelection > m_possibleSelections;
 
     /**
+     * A Property used to show the callback mechanism avoiding the thread wake up on change.
+     */
+    WPropTrigger m_hideButton;
+
+    /**
+     * The callback triggering the hide flag of m_aColor for demonstration.
+     */
+    void hideButtonPressed();
+
+    /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
      * moduleMain().
      */

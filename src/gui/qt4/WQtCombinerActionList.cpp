@@ -112,6 +112,12 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
     }
 }
 
+WQtCombinerActionList::WQtCombinerActionList():
+    QList< QAction* >()
+{
+    // do nothing here
+}
+
 WQtCombinerActionList::~WQtCombinerActionList()
 {
     // cleanup

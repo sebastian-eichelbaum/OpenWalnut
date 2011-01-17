@@ -284,3 +284,140 @@ size_t WMarchingLegoAlgorithm::getVertexID( size_t nX, size_t nY, size_t nZ )
 {
     return nZ * ( m_nCellsY + 1 ) * ( m_nCellsX + 1) + nY * ( m_nCellsX + 1 ) + nX;
 }
+
+boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::genSurfaceOneValue( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
+                                                                                                 const wmath::WMatrix< double >& mat,
+                                                                                                 const std::vector< size_t >* vals,
+                                                                                                 size_t isoValue )
+{
+    WAssert( vals, "No value set provided." );
+
+    m_idToVertices.clear();
+    m_trivecTriangles.clear();
+
+    m_nCellsX = nbCoordsX - 1;
+    m_nCellsY = nbCoordsY - 1;
+    m_nCellsZ = nbCoordsZ - 1;
+
+    m_matrix = mat;
+
+    size_t nX = nbCoordsX;
+    size_t nY = nbCoordsY;
+
+    size_t nPointsInSlice = nX * nY;
+
+    // Generate isosurface.
+    for( size_t z = 0; z < m_nCellsZ; z++ )
+    {
+        for( size_t y = 0; y < m_nCellsY; y++ )
+        {
+            for( size_t x = 0; x < m_nCellsX; x++ )
+            {
+                if( ( *vals )[ z * nPointsInSlice + y * nX + x ] != isoValue )
+                {
+                    continue;
+                }
+
+                if ( x > 0 && ( ( *vals )[ z * nPointsInSlice + y * nX + x - 1 ] != isoValue ) )
+                {
+                    addSurface( x, y, z, 1 );
+                }
+                if ( x < m_nCellsX - 1 && ( ( *vals )[ z * nPointsInSlice + y * nX + x + 1 ] != isoValue ) )
+                {
+                    addSurface( x, y, z, 2 );
+                }
+
+                if ( y > 0 && ( ( *vals )[ z * nPointsInSlice + ( y - 1 ) * nX + x ] != isoValue ) )
+                {
+                    addSurface( x, y, z, 3 );
+                }
+
+                if ( y < m_nCellsY - 1 && ( ( *vals )[ z * nPointsInSlice + ( y + 1 ) * nX + x ] != isoValue ) )
+                {
+                    addSurface( x, y, z, 4 );
+                }
+
+                if ( z > 0 && ( ( *vals )[ ( z - 1 ) * nPointsInSlice + y * nX + x ] != isoValue ) )
+                {
+                    addSurface( x, y, z, 5 );
+                }
+
+                if ( z < m_nCellsZ - 1 && ( ( *vals )[ ( z + 1 ) * nPointsInSlice + y * nX + x ] != isoValue ) )
+                {
+                    addSurface( x, y, z, 6 );
+                }
+
+                if ( x == 0 )
+                {
+                    addSurface( x, y, z, 1 );
+                }
+                if ( x == m_nCellsX - 1 )
+                {
+                    addSurface( x, y, z, 2 );
+                }
+
+                if ( y == 0 )
+                {
+                    addSurface( x, y, z, 3 );
+                }
+
+                if ( y == m_nCellsY - 1 )
+                {
+                    addSurface( x, y, z, 4 );
+                }
+
+                if ( z == 0 )
+                {
+                    addSurface( x, y, z, 5 );
+                }
+
+                if ( z == m_nCellsZ - 1 )
+                {
+                    addSurface( x, y, z, 6 );
+                }
+            }
+        }
+    }
+    unsigned int nextID = 0;
+    boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( m_idToVertices.size(), m_trivecTriangles.size() ) );
+
+    // Rename vertices.
+    ID2WMLPointXYZId::iterator mapIterator = m_idToVertices.begin();
+    while ( mapIterator != m_idToVertices.end() )
+    {
+        wmath::WPosition texCoord = wmath::WPosition( mapIterator->second.x / nbCoordsX,
+                                                      mapIterator->second.y / nbCoordsY,
+                                                      mapIterator->second.z / nbCoordsZ );
+
+        // transform from grid coordinate system to world coordinates
+        wmath::WPosition pos = wmath::WPosition( mapIterator->second.x, mapIterator->second.y, mapIterator->second.z );
+
+        std::vector< double > resultPos4D( 4 );
+        resultPos4D[0] = m_matrix( 0, 0 ) * pos[0] + m_matrix( 0, 1 ) * pos[1] + m_matrix( 0, 2 ) * pos[2] + m_matrix( 0, 3 ) * 1;
+        resultPos4D[1] = m_matrix( 1, 0 ) * pos[0] + m_matrix( 1, 1 ) * pos[1] + m_matrix( 1, 2 ) * pos[2] + m_matrix( 1, 3 ) * 1;
+        resultPos4D[2] = m_matrix( 2, 0 ) * pos[0] + m_matrix( 2, 1 ) * pos[1] + m_matrix( 2, 2 ) * pos[2] + m_matrix( 2, 3 ) * 1;
+        resultPos4D[3] = m_matrix( 3, 0 ) * pos[0] + m_matrix( 3, 1 ) * pos[1] + m_matrix( 3, 2 ) * pos[2] + m_matrix( 3, 3 ) * 1;
+
+        ( *mapIterator ).second.newID = nextID;
+        triMesh->addVertex( resultPos4D[0] / resultPos4D[3] - 0.5,
+                            resultPos4D[1] / resultPos4D[3] - 0.5,
+                            resultPos4D[2] / resultPos4D[3] - 0.5 );
+        triMesh->addTextureCoordinate( texCoord );
+        nextID++;
+        mapIterator++;
+    }
+
+    // Now rename triangles.
+    WMLTriangleVECTOR::iterator vecIterator = m_trivecTriangles.begin();
+    while ( vecIterator != m_trivecTriangles.end() )
+    {
+        for( unsigned int i = 0; i < 3; i++ )
+        {
+            unsigned int newID = m_idToVertices[( *vecIterator ).pointID[i]].newID;
+            ( *vecIterator ).pointID[i] = newID;
+        }
+        triMesh->addTriangle( ( *vecIterator ).pointID[0], ( *vecIterator ).pointID[1], ( *vecIterator ).pointID[2] );
+        vecIterator++;
+    }
+    return triMesh;
+}

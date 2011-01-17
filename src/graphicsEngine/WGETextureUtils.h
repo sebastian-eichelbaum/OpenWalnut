@@ -30,10 +30,11 @@
 #include <osg/Node>
 #include <osg/StateSet>
 #include <osg/TexMat>
+#include <osg/Texture2D>
 
 #include <boost/lexical_cast.hpp>
 
-#include "WGEPropertyUniform.h"
+#include "shaders/WGEPropertyUniform.h"
 #include "callbacks/WGEPropertyTransformationCallback.h"
 
 #include "WExportWGE.h"
@@ -93,6 +94,16 @@ namespace wge
      * \return the max number of texture units.
      */
     size_t WGE_EXPORT getMaxTexUnits();
+
+    /**
+     * This generates an 2D texture only containing white noise in its channels.
+     *
+     * \param size size in x/y direction (in pixels)
+     * \param channels the number of channels. Valid are 1, 3 and 4.
+     *
+     * \return the generated texture.
+     */
+    osg::ref_ptr< WGETexture< osg::Texture2D > > genWhiteNoiseTexture( size_t size, size_t channels = 1 );
 }
 
 template < typename T >
