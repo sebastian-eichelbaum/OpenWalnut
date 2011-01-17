@@ -27,8 +27,10 @@
 #include "WGEShadingTools.glsl"
 #include "WGETextureTools.glsl"
 
-// The light source in world coordinates, normalized
-varying vec3 v_lightSource;
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Input-Texture Uniforms
+//  NOTE: do not put post-processor specific uniforms here!
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * The texture Unit for the original color field
@@ -71,6 +73,24 @@ uniform int u_texture0SizeY;
 uniform int u_texture0SizeZ;
 
 /**
+ * Offset to access the neighbouring pixel in a texture.
+ */
+float offsetX = 1.0 / u_texture0SizeX;
+
+/**
+ * Offset to access the neighbouring pixel in a texture.
+ */
+float offsetY = 1.0 / u_texture0SizeY;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Varying
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global Variables
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
  * The final color is stored in this global variable
  */
 vec4 color = vec4( 1.0 );
@@ -90,6 +110,13 @@ vec2 pixelCoord = gl_TexCoord[0].st;
  * This is needed for some swizzle tricks
  */
 const vec2 zeroOneList = vec2( 1.0, 0.0 );
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions.
+//  * Get color at certain point
+//  * Get normal and depth at certain point
+//  * Blending utilities
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Returns the original unprocessed color value at the specified point
@@ -179,26 +206,44 @@ void blend( in vec4 newColor )
  *
  * \param f the scaling factor
  */
-void blend( in float f )
+void blendScale( in float f )
 {
     color.rgb = mix( color.rgb * f, vec3( f ), 1.0 - ( 2.0 * colorSet ) );
     colorSet = 0.5; // we definitely set the color.
 }
 
 /**
- * Main. Calculates the Laplace Filter for each pixel.
+ * Adds the specified color to the current color.
+ *
+ * \param newColor the color to add
  */
-void main()
+void blendAdd( in vec4 newColor )
 {
-    // NOTE: Although the GLSL compiler might not be the most intelligent one, it will most probably be smart enough the reduce many texture
-    // fetch operations on the same sampler and same position to one fetch and provides the result in a variable. So it is not stupid to use
-    // getColor or getNormal or getDepth many times on the same u,v coordinate.
+    color = mix( color + newColor, newColor, 1.0 - ( 2.0 * colorSet ) );
+    colorSet = 0.5; // we definitely set the color.
+}
 
-    // get data of surrounding textels using this offsets
-    float offsetX = 1.0 / u_texture0SizeX;
-    float offsetY = 1.0 / u_texture0SizeY;
+/**
+ * Adds the specified value as vec4 to the current color.
+ *
+ * \param f the scaling factor
+ */
+void blendAdd( in float f )
+{
+    blendAdd( vec4( vec3( f ), 1.0 ) );
+}
 
-#ifdef WGE_POSTPROCESSOR_PPLPHONG
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Postprocessors
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Phong based Per-Pixel-Lighting.
+ *
+ * \return the color.
+ */
+vec4 getPPLPhong()
+{
     // TODO(ebaum): provide properties/uniforms for the scaling factors here
     vec4 light = blinnPhongIllumination(
         0.2  * getColor().rgb,               // material ambient
@@ -209,14 +254,88 @@ void main()
         vec3( 0.3, 0.3, 0.3 ),               // light ambient
         getNormal().xyz,                     // normal
         vec4( 0.0, 0.0, 1.0, 1.0 ).xyz,      // view direction  // in world space, this always is the view-dir
-        v_lightSource                        // light source position
+        gl_LightSource[0].position.xyz       // light source position
     );
     light.a = getColor().a;
 
-    blend( light );
-#endif
+    return light;
+}
 
-#ifdef WGE_POSTPROCESSOR_SSAO
+/**
+ * Apply laplace-filter to depth buffer. An edge is > 0.0.
+ *
+ * \return the edge
+ */
+float getEdge()
+{
+    // TODO(ebaum): provide properties/uniforms for the scaling factors here
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    // GETTING TEXELS
+    //
+    // Get surrounding texels; needed for ALL filters
+    /////////////////////////////////////////////////////////////////////////////////////////////
+
+    float edgec  = getDepth( pixelCoord );
+    float edgebl = getDepth( pixelCoord + vec2( -offsetX, -offsetY ) );
+    float edgel  = getDepth( pixelCoord + vec2( -offsetX,     0.0  ) );
+    float edgetl = getDepth( pixelCoord + vec2( -offsetX,  offsetY ) );
+    float edget  = getDepth( pixelCoord + vec2(     0.0,   offsetY ) );
+    float edgetr = getDepth( pixelCoord + vec2(  offsetX,  offsetY ) );
+    float edger  = getDepth( pixelCoord + vec2(  offsetX,     0.0  ) );
+    float edgebr = getDepth( pixelCoord + vec2(  offsetX,  offsetY ) );
+    float edgeb  = getDepth( pixelCoord + vec2(     0.0,  -offsetY ) );
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    // LAPLACE
+    //
+    // apply a standart laplace filter kernel
+    /////////////////////////////////////////////////////////////////////////////////////////////
+
+    // laplace filter kernel
+    float edge = 16.0 * abs(
+            0.0 * edgetl +  1.0 * edget + 0.0 * edgetr +
+            1.0 * edgel  +  -4.0 * edgec + 1.0 * edger  +
+            0.0 * edgebl +  1.0 * edgeb + 0.0 * edgebr
+        );
+    return edge;
+}
+
+/**
+ * Returns the gauss-smoothed color of the pixel from the input color texture.
+ *
+ * \return the color
+ */
+vec4 getGaussedColor()
+{
+    // TODO(ebaum): provide properties/uniforms for the scaling factors here
+
+    // get the 8-neighbourhood
+    vec4 gaussedColorc  = getColor( pixelCoord );
+    vec4 gaussedColorbl = getColor( pixelCoord + vec2( -offsetX, -offsetY ) );
+    vec4 gaussedColorl  = getColor( pixelCoord + vec2( -offsetX,     0.0  ) );
+    vec4 gaussedColortl = getColor( pixelCoord + vec2( -offsetX,  offsetY ) );
+    vec4 gaussedColort  = getColor( pixelCoord + vec2(     0.0,   offsetY ) );
+    vec4 gaussedColortr = getColor( pixelCoord + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorr  = getColor( pixelCoord + vec2(  offsetX,     0.0  ) );
+    vec4 gaussedColorbr = getColor( pixelCoord + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorb  = getColor( pixelCoord + vec2(     0.0,  -offsetY ) );
+
+    // apply gauss filter
+    vec4 gaussed = ( 1.0 / 16.0 ) * (
+            1.0 * gaussedColortl +  2.0 * gaussedColort + 1.0 * gaussedColortr +
+            2.0 * gaussedColorl  +  4.0 * gaussedColorc + 2.0 * gaussedColorr  +
+            1.0 * gaussedColorbl +  2.0 * gaussedColorb + 1.0 * gaussedColorbr );
+    return gaussed;
+}
+
+/**
+ * Calculate the screen-space ambient occlusion from normal and depth map.
+ *
+ * \return the SSAO factor
+ */
+float getSSAO()
+{
     // NOTE: Currently, most of the code is from http://www.gamerendering.com/2009/01/14/ssao/
 
     // some switches which can be used to fine-tune this.
@@ -300,7 +419,28 @@ void main()
     }
 
     // output the result
-    blend( 1.0 - ( totStrength * bl * invSamples ) );
+    return 1.0 - ( totStrength * bl * invSamples );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Main
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Main. Apply the specified post-processors.
+ */
+void main()
+{
+    // NOTE: Although the GLSL compiler might not be the most intelligent one, it will most probably be smart enough the reduce many texture
+    // fetch operations on the same sampler and same position to one fetch and provides the result in a variable. So it is not stupid to use
+    // getColor or getNormal or getDepth many times on the same u,v coordinate.
+
+#ifdef WGE_POSTPROCESSOR_PPLPHONG
+    blend( getPPLPhong() );
+#endif
+
+#ifdef WGE_POSTPROCESSOR_SSAO
+    blendScale( getSSAO() );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_COLOR
@@ -308,61 +448,15 @@ void main()
 #endif
 
 #ifdef WGE_POSTPROCESSOR_GAUSSEDCOLOR
-    // get the 8-neighbourhood
-    vec4 gaussedColorc  = getColor( pixelCoord );
-    vec4 gaussedColorbl = getColor( pixelCoord + vec2( -offsetX, -offsetY ) );
-    vec4 gaussedColorl  = getColor( pixelCoord + vec2( -offsetX,     0.0  ) );
-    vec4 gaussedColortl = getColor( pixelCoord + vec2( -offsetX,  offsetY ) );
-    vec4 gaussedColort  = getColor( pixelCoord + vec2(     0.0,   offsetY ) );
-    vec4 gaussedColortr = getColor( pixelCoord + vec2(  offsetX,  offsetY ) );
-    vec4 gaussedColorr  = getColor( pixelCoord + vec2(  offsetX,     0.0  ) );
-    vec4 gaussedColorbr = getColor( pixelCoord + vec2(  offsetX,  offsetY ) );
-    vec4 gaussedColorb  = getColor( pixelCoord + vec2(     0.0,  -offsetY ) );
-
-    // apply gauss filter
-    vec4 gaussed = ( 1.0 / 16.0 ) * (
-            1.0 * gaussedColortl +  2.0 * gaussedColort + 1.0 * gaussedColortr +
-            2.0 * gaussedColorl  +  4.0 * gaussedColorc + 2.0 * gaussedColorr  +
-            1.0 * gaussedColorbl +  2.0 * gaussedColorb + 1.0 * gaussedColorbr );
-
-    blend( gaussed );
+    blend( getGaussedColor() );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_EDGE
-
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    // GETTING TEXELS
-    //
-    // Get surrounding texels; needed for ALL filters
-    /////////////////////////////////////////////////////////////////////////////////////////////
-
-    float edgec  = getDepth( pixelCoord );
-    float edgebl = getDepth( pixelCoord + vec2( -offsetX, -offsetY ) );
-    float edgel  = getDepth( pixelCoord + vec2( -offsetX,     0.0  ) );
-    float edgetl = getDepth( pixelCoord + vec2( -offsetX,  offsetY ) );
-    float edget  = getDepth( pixelCoord + vec2(     0.0,   offsetY ) );
-    float edgetr = getDepth( pixelCoord + vec2(  offsetX,  offsetY ) );
-    float edger  = getDepth( pixelCoord + vec2(  offsetX,     0.0  ) );
-    float edgebr = getDepth( pixelCoord + vec2(  offsetX,  offsetY ) );
-    float edgeb  = getDepth( pixelCoord + vec2(     0.0,  -offsetY ) );
-
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    // LAPLACE
-    //
-    // apply a standart laplace filter kernel
-    /////////////////////////////////////////////////////////////////////////////////////////////
-
-    // laplace filter kernel
-    float edge = 1.0 * abs(
-            0.0 * edgetl +  1.0 * edget + 0.0 * edgetr +
-            1.0 * edgel  +  -4.0 * edgec + 1.0 * edger  +
-            0.0 * edgebl +  1.0 * edgeb + 0.0 * edgebr
-        );
-    blend( vec4( vec3( 16.0 * edge ), 1.0 ) );
+    blendAdd( getEdge() );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_DEPTH
-    blend( getDepth() );
+    blendScale( getDepth() );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_NORMAL
@@ -370,7 +464,9 @@ void main()
 #endif
 
 #ifdef WGE_POSTPROCESSOR_CUSTOM
-    blend( vec4( 1.0, 0.0, 0.0, 1.0 ) );
+    vec4 customColor = vec4( 0.0 );
+    %WGEPostprocessor-CustomCode%
+    blend( customColor );
 #endif
 
     // output the depth and final color.
