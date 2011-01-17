@@ -135,6 +135,11 @@ private:
     WPropBool m_cortexMode;
 
     /**
+     * If true, the ray-tracer uses stochastic jitter to improve image quality.
+     */
+    WPropBool m_stochasticJitter;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

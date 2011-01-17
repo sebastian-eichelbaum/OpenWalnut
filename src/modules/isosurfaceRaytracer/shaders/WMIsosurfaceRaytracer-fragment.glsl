@@ -41,6 +41,14 @@
 // texture containing the data
 uniform sampler3D tex0;
 
+#ifdef STOCHASTICJITTER_ENABLED
+// texture containing the stochastic jitter texture
+uniform sampler2D u_texture1Sampler;
+
+// Size in X direction in pixels
+uniform int u_texture1SizeX;
+#endif
+
 // The isovalue to use.
 uniform float u_isovalue;
 
@@ -103,16 +111,24 @@ void main()
     // when done for each vertex.
     float totalDistance = 0.0;
     vec3 rayEnd = findRayEnd( totalDistance );
-
-    // the point along the ray in cube coordinates
-    vec3 curPoint = ( 1.0 * v_ray ) + v_rayStart;
+    float stepDistance = totalDistance / float( u_steps );
 
     // the current value inside the data
     float value;
 
+#ifdef STOCHASTICJITTER_ENABLED
+    // stochastic jittering can help to void these ugly wood-grain artifacts with larger sampling distances but might
+    // introduce some noise artifacts.
+    float jitter = 0.5 - texture2D( u_texture1Sampler, gl_FragCoord.xy / u_texture1SizeX ).r;
+    // the point along the ray in cube coordinates
+    vec3 curPoint = ( 1.0 * v_ray ) + v_rayStart + ( v_ray * stepDistance * jitter );
+#else
+    // the point along the ray in cube coordinates
+    vec3 curPoint = ( 1.0 * v_ray ) + v_rayStart;
+#endif
+
     // the step counter
     int i = 0;
-    float stepDistance = totalDistance / float( u_steps );
     while ( i < u_steps - 1 ) // we do not need to ch
     {
         // get current value
