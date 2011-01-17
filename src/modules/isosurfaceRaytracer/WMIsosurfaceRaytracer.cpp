@@ -118,6 +118,9 @@ void WMIsosurfaceRaytracer::properties()
 
     m_cortexMode    = m_properties->addProperty( "Emphasize Cortex", "Emphasize the Cortex while inner parts ar not that well lighten.", false );
 
+    m_stochasticJitter = m_properties->addProperty( "Stochastic Jitter", "Improves image quality at low sampling rates but introduces slight "
+                                                                         "noise effect.", true );
+
     WModule::properties();
 }
 
@@ -130,9 +133,13 @@ void WMIsosurfaceRaytracer::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMIsosurfaceRaytracer", m_localPath ) );
     WGEShaderPreprocessor::SPtr cortexMode(
-        new WGEShaderPropertyDefineOptions< WPropBool >( m_cortexMode, "CORTEXMODE_DISENABLED", "CORTEXMODE_ENABLED" )
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_cortexMode, "CORTEXMODE_DISABLED", "CORTEXMODE_ENABLED" )
     );
     m_shader->addPreprocessor( cortexMode );
+    WGEShaderPreprocessor::SPtr stochasticJitter(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_stochasticJitter, "STOCHASTICJITTER_DISABLED", "STOCHASTICJITTER_ENABLED" )
+    );
+    m_shader->addPreprocessor( stochasticJitter );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -219,7 +226,7 @@ void WMIsosurfaceRaytracer::moduleMain()
 
             // bind the texture to the node
             osg::ref_ptr< osg::Texture3D > texture3D = dataSet->getTexture()->getTexture();
-            osg::StateSet* rootState = cube->getOrCreateStateSet();
+            osg::StateSet* rootState = rootNode->getOrCreateStateSet();
             rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,8 +253,6 @@ void WMIsosurfaceRaytracer::moduleMain()
             const size_t size = 64;
             osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size );
             wge::bindTexture( cube, randTex, 1 );
-
-            //WGEColormapping::apply( cube, false );
 
             // update node
             debugLog() << "Adding new rendering.";
