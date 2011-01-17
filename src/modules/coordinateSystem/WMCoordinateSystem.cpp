@@ -102,9 +102,12 @@ void WMCoordinateSystem::moduleMain()
             // acquire data from the input connector
             m_dataSet = m_input->getData();
 
-            findBoundingBox();
-            createGeometry();
-            m_dirty = true;
+            if( m_dataSet )
+            {
+                findBoundingBox();
+                createGeometry();
+                m_dirty = true;
+            }
         }
     }
     // clean up stuff

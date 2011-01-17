@@ -123,6 +123,8 @@ void WMNavSlices::properties()
     m_showCoronal    = m_properties->addProperty( "showCoronal",    "Determines whether the coronal slice should be visible.", true, true );
     m_showSagittal   = m_properties->addProperty( "showSagittal",   "Determines whether the sagittal slice should be visible.", true, true );
 
+    m_showComplete = m_properties->addProperty( "Show complete", "Slice should be drawn complete even if the texture value is zero.", false );
+
     m_axialPos       = m_properties->addProperty( "Axial Slice",       "Position of axial slice.",    80 );
     m_axialPos->setMin( 0 );
     m_axialPos->setMax( 160 );
@@ -132,11 +134,6 @@ void WMNavSlices::properties()
     m_sagittalPos    = m_properties->addProperty( "Sagittal Slice",    "Position of sagittal slice.", 80 );
     m_sagittalPos->setMin( 0 );
     m_sagittalPos->setMax( 160 );
-    m_showComplete = m_properties->addProperty( "Show complete", "Slice should be drawn complete even if the texture value is zero.", false );
-
-    m_axialPos->setHidden();
-    m_coronalPos->setHidden();
-    m_sagittalPos->setHidden();
 
     WKernel::getRunningKernel()->getSelectionManager()->setPropAxialPos( m_axialPos );
     WKernel::getRunningKernel()->getSelectionManager()->setPropCoronalPos( m_coronalPos );

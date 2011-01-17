@@ -22,20 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// Varyings
-// Used in vertex and fragment shader
-/////////////////////////////////////////////////////////////////////////////
+#version 120
 
-// The ray's starting point in texture space
-varying vec3 v_rayStart;
+// The light source in world coordinates, normalized
+varying vec3 v_lightSource;
 
-// The ray direction in texture space
-varying vec3 v_ray;
+void main()
+{
+    // pass the color to the fragment shader
+    gl_FrontColor = gl_Color;
+    gl_BackColor =  gl_Color;
 
-// the Surface normal at this point
-varying vec3 v_normal;
+    // pass tex coordinates
+    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 
-// The isovalue scaled using texture scaling information to [0,1]
-varying float v_isovalue;
+    // light position:
+    v_lightSource = gl_LightSource[0].position.xyz;
+
+    // transform position
+    gl_Position = ftransform();
+}
 

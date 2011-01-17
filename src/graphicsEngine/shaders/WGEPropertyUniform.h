@@ -45,6 +45,16 @@ class WGEPropertyUniform: public osg::Uniform
 {
 public:
     /**
+     * Convenience typedef for an osg::ref_ptr
+     */
+    typedef osg::ref_ptr< WGEPropertyUniform > RefPtr;
+
+    /**
+     * Convenience typedef for an osg::ref_ptr; const
+     */
+    typedef osg::ref_ptr< const WGEPropertyUniform > ConstRefPtr;
+
+    /**
      * Creates a new uniform with controlled by the specified property.
      *
      * \param name  the name of the uniform; consider our style guide for uniform names.

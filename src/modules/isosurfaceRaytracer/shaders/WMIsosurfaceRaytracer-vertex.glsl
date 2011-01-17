@@ -24,7 +24,7 @@
 
 #version 120
 
-#include "WGEColormapping-vertex.glsl"
+//#include "WGEColormapping-vertex.glsl"
 
 #include "WGETransformationTools.glsl"
 
@@ -64,7 +64,7 @@ uniform float u_isovalue;
  */
 void main()
 {
-    colormapping();
+    //colormapping();
 
     // scale isovalue to equal the texture data scaling.
     v_isovalue = ( u_isovalue - u_texture0Min ) / u_texture0Scale;
@@ -81,11 +81,6 @@ void main()
     vec4 camLookAt = vec4( 0.0, 0.0, -1.0, 1.0 );
     vec4 camPos    = vec4( 0.0, 0.0, 0.0, 1.0 );
     v_ray = worldToLocal( camLookAt, camPos ).xyz;
-
-    // also get the coordinates of the light
-    vec4 lpos = gl_LightSource[0].position;
-    lpos = vec4( 0.0, 0.0, 1000.0, 1.0 );
-    v_lightSource = worldToLocal( lpos ).xyz;
 
     // Simply project the vertex
     gl_Position = ftransform();

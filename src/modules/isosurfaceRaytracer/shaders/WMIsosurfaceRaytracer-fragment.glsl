@@ -24,15 +24,14 @@
 
 #version 120
 
-#include "WGEColormapping-fragment.glsl"
-
 #include "WGEShadingTools.glsl"
+#include "WGETextureTools.glsl"
+#include "WGEPostprocessing.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
 
-// texture containing the data
 #include "WMIsosurfaceRaytracer-varyings.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -47,9 +46,6 @@ uniform int u_steps;
 
 // The alpha value to set
 uniform float u_alpha;
-
-// the ratio between normal color and the colormapping color.
-uniform float u_colormapRatio;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -97,7 +93,7 @@ float pointDistance( vec3 p1, vec3 p2 )
 void main()
 {
     // please do not laugh, it is a very very very simple "isosurface" shader
-    gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+    wge_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
     gl_FragDepth = gl_FragCoord.z;
 
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
@@ -141,9 +137,16 @@ void main()
             gl_FragDepth = curPointProjected.z;
 
             // 4: set color
-            vec4 color;
+            vec4 color = gl_Color;
 
-#ifdef CORTEX
+            // only calculate the normal if we need it
+#ifdef WGE_POSTPROCESSING_ENABLED
+            // find a proper normal for a headlight in world-space
+            vec3 normal = ( gl_ModelViewMatrix * vec4( getGradientViewAligned( u_texture0Sampler, curPoint, v_ray ), 0.0 ) ).xyz;
+            wge_FragNormal = textureNormalize( normal );
+#endif
+
+#ifdef CORTEXMODE_ENABLED
             // NOTE: these are a lot of weird experiments ;-)
             float d = 1.0 - curPointProjected.z;
             d = 1.5 * pointDistance( curPoint, vec3( 0.5 ) );
@@ -155,67 +158,9 @@ void main()
             float d2 = w * d * d * d * d * d;
             color = gl_Color * 11.0 * d2;
 #endif
-#ifdef DEPTHONLY
-            float d = 1.0 - curPointProjected.z;
-            color = gl_Color * 1.5 * d * d;
-#endif
-#ifdef PHONG
-            // find a proper normal for a headlight
-            float s = 0.01;
-            float valueXP = texture3D( u_texture0Sampler, curPoint + vec3( s, 0.0, 0.0 ) ).r;
-            float valueXM = texture3D( u_texture0Sampler, curPoint - vec3( s, 0.0, 0.0 ) ).r;
-            float valueYP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, s, 0.0 ) ).r;
-            float valueYM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, s, 0.0 ) ).r;
-            float valueZP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, 0.0, s ) ).r;
-            float valueZM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, 0.0, s ) ).r;
 
-            vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ); //v_ray;
-            // Phong:
-            float light = blinnPhongIlluminationIntensity(
-                    0.1,                                // material ambient
-                    0.75,                               // material diffuse
-                    1.3,                                // material specular
-                    10.0,                               // shinines
-                    1.0,                                // light diffuse
-                    0.75,                               // light ambient
-                    normalize( -dir ),                  // normal
-                    normalize( v_ray ),                 // view direction
-                    normalize( v_lightSource )          // light source position
-            );
-
-            color = light * gl_Color;
-#endif
-#ifdef PHONGWITHDEPTH
-            float d = 1.0 - curPointProjected.z;
-
-            // find a proper normal for a headlight
-            float s = 0.01;
-            float valueXP = texture3D( u_texture0Sampler, curPoint + vec3( s, 0.0, 0.0 ) ).r;
-            float valueXM = texture3D( u_texture0Sampler, curPoint - vec3( s, 0.0, 0.0 ) ).r;
-            float valueYP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, s, 0.0 ) ).r;
-            float valueYM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, s, 0.0 ) ).r;
-            float valueZP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, 0.0, s ) ).r;
-            float valueZM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, 0.0, s ) ).r;
-
-            vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM ); //v_ray;
-            // Phong:
-            float light = blinnPhongIlluminationIntensity(
-                    0.1,                                // material ambient
-                    d * d,                              // material diffuse
-                    1.3,                                // material specular
-                    10.0,                               // shinines
-                    1.0,                                // light diffuse
-                    0.3,                                // light ambient
-                    normalize( -dir ),                  // normal
-                    normalize( v_ray ),                 // view direction
-                    normalize( v_lightSource )          // light source position
-            );
-
-            color = light * gl_Color;
-#endif
-
-            gl_FragColor = mix( colormapping( vec4( curPoint, 1.0 ) ), color, 1.0 - u_colormapRatio );
-            gl_FragColor.a = u_alpha;
+            color.a = u_alpha;
+            wge_FragColor = color;
 
             break;
         }

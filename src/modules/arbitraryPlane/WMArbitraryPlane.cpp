@@ -240,10 +240,10 @@ void WMArbitraryPlane::initPlane()
     m_p1 = wmath::WPosition( center[0] - 100, center[1], center[2] );
     m_p2 = wmath::WPosition( center[0], center[1] - 100, center[2] );
 
-    m_s0 = boost::shared_ptr<WROISphere>( new WROISphere( m_p0, 2.5 ) );
-    m_s1 = boost::shared_ptr<WROISphere>( new WROISphere( m_p1, 2.5 ) );
+    m_s0 = osg::ref_ptr<WROISphere>( new WROISphere( m_p0, 2.5 ) );
+    m_s1 = osg::ref_ptr<WROISphere>( new WROISphere( m_p1, 2.5 ) );
     m_s1->setLockY();
-    m_s2 = boost::shared_ptr<WROISphere>( new WROISphere( m_p2, 2.5 ) );
+    m_s2 = osg::ref_ptr<WROISphere>( new WROISphere( m_p2, 2.5 ) );
     m_s2->setLockX();
 
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s0 ) );

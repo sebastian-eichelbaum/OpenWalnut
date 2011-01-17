@@ -22,20 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// Varyings
-// Used in vertex and fragment shader
-/////////////////////////////////////////////////////////////////////////////
+#include "../../../common/WPathHelper.h"
 
-// The ray's starting point in texture space
-varying vec3 v_rayStart;
+#include "WGELabel.h"
 
-// The ray direction in texture space
-varying vec3 v_ray;
+WGELabel::WGELabel():
+    osgText::Text(),
+    WGELayoutableItem(),
+    m_anchor( 0.0, 0.0, 0.0 )
+{
+    // initialize members
+    setCharacterSize( 21 );
+    setFont( WPathHelper::getAllFonts().Default.file_string() );
+    setAxisAlignment( osgText::Text::SCREEN );
+    setAlignment( osgText::Text::LEFT_BOTTOM );
+    setBackdropType( osgText::Text::OUTLINE );
+    setColor( osg::Vec4( 0.9, 0.9, 0.9, 1 ) );
+}
 
-// the Surface normal at this point
-varying vec3 v_normal;
+WGELabel::~WGELabel()
+{
+    // cleanup
+}
 
-// The isovalue scaled using texture scaling information to [0,1]
-varying float v_isovalue;
+osg::Vec3 WGELabel::getAnchor() const
+{
+    return m_anchor;
+}
+
+void WGELabel::setAnchor( const osg::Vec3& anchor )
+{
+    m_anchor = osg::Vec3( anchor );
+}
 

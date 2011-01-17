@@ -22,20 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-/////////////////////////////////////////////////////////////////////////////
-// Varyings
-// Used in vertex and fragment shader
-/////////////////////////////////////////////////////////////////////////////
-
-// The ray's starting point in texture space
-varying vec3 v_rayStart;
-
-// The ray direction in texture space
-varying vec3 v_ray;
-
-// the Surface normal at this point
-varying vec3 v_normal;
-
-// The isovalue scaled using texture scaling information to [0,1]
-varying float v_isovalue;
+#include "WGESwitchCallback.h"
 

@@ -42,7 +42,10 @@
 #include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "../../graphicsEngine/postprocessing/WGEPostprocessingNode.h"
 #include "../../graphicsEngine/WGERequirement.h"
+#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../kernel/WKernel.h"
 #include "WMIsosurfaceRaytracer.xpm"
 #include "WMIsosurfaceRaytracer.h"
@@ -121,16 +124,7 @@ void WMIsosurfaceRaytracer::properties()
     m_colormapRatio->setMin( 0.0 );
     m_colormapRatio->setMax( 1.0 );
 
-    // Lighting
-    m_shadingSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_shadingSelections->addItem( "Emphasize cortex", "Emphasize the cortex. Inner parts are not that well lighten." );
-    m_shadingSelections->addItem( "Depth only",       "Only show the depth of the surface along the ray." );
-    m_shadingSelections->addItem( "Phong",            "Phong lighting. Slower but more realistic lighting" );
-    m_shadingSelections->addItem( "Phong + depth",    "Phong lighting in combination with depth cueing." );
-    m_shadingAlgo   = m_properties->addProperty( "Shading", "The shading algorithm.", m_shadingSelections->getSelector( 2 ), m_propCondition );
-
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_shadingAlgo );
-    WPropertyHelper::PC_NOTEMPTY::addTo( m_shadingAlgo );
+    m_cortexMode    = m_properties->addProperty( "Emphasize Cortex", "Emphasize the Cortex while inner parts ar not that well lighten.", false );
 
     WModule::properties();
 }
@@ -143,11 +137,10 @@ void WMIsosurfaceRaytracer::requirements()
 void WMIsosurfaceRaytracer::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMIsosurfaceRaytracer", m_localPath ) );
-    WGEShaderDefineOptions::SPtr shadingDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "CORTEX" ) );
-    shadingDefines->addOption( "DEPTHONLY" );
-    shadingDefines->addOption( "PHONG" );
-    shadingDefines->addOption( "PHONGWITHDEPTH" );
-    m_shader->addPreprocessor( shadingDefines );
+    WGEShaderPreprocessor::SPtr cortexMode(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_cortexMode, "CORTEXMODE_DISENABLED", "CORTEXMODE_ENABLED" )
+    );
+    m_shader->addPreprocessor( cortexMode );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -159,7 +152,18 @@ void WMIsosurfaceRaytracer::moduleMain()
     debugLog() << "Module is now ready.";
 
     osg::ref_ptr< WGEManagedGroupNode > rootNode = new WGEManagedGroupNode( m_active );
-    bool rootInserted = false;
+
+    // create the post-processing node which actually does the nice stuff to the rendered image
+    osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
+        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
+    );
+
+    // provide the properties of the post-processor to the user
+    m_properties->addProperty( postNode->getProperties() );
+
+    // insert it
+    postNode->insert( rootNode, m_shader );
+    bool postNodeInserted = false;
 
     // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
     // connectors or on changed in your properties.
@@ -190,7 +194,7 @@ void WMIsosurfaceRaytracer::moduleMain()
         }
 
         // m_isoColor or shading changed
-        if ( m_isoColor->changed() || m_shadingAlgo->changed() )
+        if ( m_isoColor->changed() )
         {
             // a new color requires the proxy geometry to be rebuild as we store it as color in this geometry
             dataUpdated = true;
@@ -222,19 +226,11 @@ void WMIsosurfaceRaytracer::moduleMain()
             // we also set the grid's transformation here
             rootNode->setMatrix( wge::toOSGMatrix( grid->getTransformationMatrix() ) );
 
-           ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // setup defines (lighting)
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-            // bind the texture to the node
-            osg::StateSet* rootState = cube->getOrCreateStateSet();
-            osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture2();
-            texture3D->bind( cube );
-
-            shadingDefines->activateOption( m_shadingAlgo->get( true ).getItemIndexOfSelected( 0 ) );
-            WGEColormapping::apply( cube, m_shader, 1 );
+            //WGEColormapping::apply( cube, m_shader, 1 );
+            m_shader->apply( cube );
 
             // enable transparency
+            osg::StateSet* rootState = rootNode->getOrCreateStateSet();
             rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -256,16 +252,16 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootNode->insert( cube );
             // insert root node if needed. This way, we ensure that the root node gets added only if the proxy cube has been added AND the bbox
             // can be calculated properly by the OSG to ensure the proxy cube is centered in the scene if no other item has been added earlier.
-            if ( !rootInserted )
+            if ( !postNodeInserted )
             {
-                rootInserted = true;
-                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
+                postNodeInserted = true;
+                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( postNode );
             }
         }
     }
 
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
     // allocated memory and remove all OSG nodes.
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( postNode );
 }
 

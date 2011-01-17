@@ -54,8 +54,8 @@ friend class WPropertiesTest;
 public:
 
     // the following typedefs are for convenience.
-    typedef boost::shared_ptr< WProperties > SharedPtr; //!< shared pointer to object of this type
-    typedef boost::shared_ptr< const WProperties > ConstSharedPtr; //!< const shared pointer to object of this type
+    typedef boost::shared_ptr< WProperties > SPtr; //!< shared pointer to object of this type
+    typedef boost::shared_ptr< const WProperties > ConstSPtr; //!< const shared pointer to object of this type
     typedef WProperties* Ptr; //!< pointer to object of this type
     typedef const WProperties* ConstPtr; //!< const pointer to object of this type
     typedef WProperties& Ref; //!< ref to object of this type

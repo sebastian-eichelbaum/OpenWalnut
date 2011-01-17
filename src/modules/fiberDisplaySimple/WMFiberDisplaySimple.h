@@ -115,7 +115,7 @@ private:
     /**
      * The properties of the fiber dataset.
      */
-    WProperties::SharedPtr m_fibProps;
+    WProperties::SPtr m_fibProps;
 
     /**
      * The shader used for clipping of fibers using an arbitrary plane.

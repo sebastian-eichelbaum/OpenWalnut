@@ -67,36 +67,6 @@ WPropertyIntWidget::~WPropertyIntWidget()
 
 void WPropertyIntWidget::update()
 {
-    // get the min constraint
-    WPVInt::PropertyConstraintMin minC = m_intProperty->getMin();
-    int min = 0;
-    if ( minC.get() )
-    {
-        m_slider.setHidden( false );
-        min = minC->getMin();
-    }
-    else
-    {
-        m_slider.setHidden( true );
-    }
-
-    // get the max constraint
-    WPVInt::PropertyConstraintMax maxC = m_intProperty->getMax();
-    int max = 100;
-    if ( maxC.get() )
-    {
-        m_slider.setHidden( false );
-        max = maxC->getMax();
-    }
-    else
-    {
-        m_slider.setHidden( true );
-    }
-
-    // setup the slider
-    m_slider.setMinimum( min );
-    m_slider.setMaximum( max );
-
     // // calculate maximum size of the text widget.
     // // XXX: this is not the optimal way but works for now
     // Same as in WPropertyDouble.cpp: This does not work as expected on Mac OS X => reset to default
@@ -104,7 +74,22 @@ void WPropertyIntWidget::update()
     // set the initial values
     QString valStr = QString::number( m_intProperty->get() );
     m_edit.setText( valStr );
-    m_slider.setValue( m_intProperty->get() );
+
+    // get the min constraint
+    WPVInt::PropertyConstraintMin minC = m_intProperty->getMin();
+    WPVInt::PropertyConstraintMax maxC = m_intProperty->getMax();
+    bool minMaxConstrained = minC && maxC;
+    if ( minMaxConstrained )
+    {
+        m_slider.setHidden( false );
+        m_slider.setMinimum( minC->getMin() );
+        m_slider.setMaximum( maxC->getMax() );
+        m_slider.setValue( m_intProperty->get() );
+    }
+    else
+    {
+        m_slider.setHidden( true );
+    }
 
     // do not forget to update the label
     m_asText.setText( valStr );
@@ -112,11 +97,14 @@ void WPropertyIntWidget::update()
 
 void WPropertyIntWidget::sliderChanged( int value )
 {
-    // set the value in the line edit
-    m_edit.setText( QString::number( value ) );
+    if ( !m_slider.isHidden() )
+    {
+        // set the value in the line edit
+        m_edit.setText( QString::number( value ) );
 
-    // set to the property
-    invalidate( !m_intProperty->set( value ) );    // NOTE: set automatically checks the validity of the value
+        // set to the property
+        invalidate( !m_intProperty->set( value ) );    // NOTE: set automatically checks the validity of the value
+    }
 }
 
 void WPropertyIntWidget::editChanged()

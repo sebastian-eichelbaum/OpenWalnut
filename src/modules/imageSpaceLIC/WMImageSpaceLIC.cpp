@@ -304,8 +304,7 @@ void WMImageSpaceLIC::moduleMain()
 
     // setup all the passes needed for image space advection
     osg::ref_ptr< WGEShader > transformationShader = new WGEShader( "WMImageSpaceLIC-Transformation", m_localPath );
-    WGEShaderDefineOptions::SPtr availableDataDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "SCALARDATA" ) );
-    availableDataDefines->addOption( "VECTORDATA" );
+    WGEShaderDefineOptions::SPtr availableDataDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "SCALARDATA", "VECTORDATA" ) );
     transformationShader->addPreprocessor( availableDataDefines );
     osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass(
         m_output,
