@@ -226,12 +226,11 @@ void WMIsosurfaceRaytracer::moduleMain()
             // we also set the grid's transformation here
             rootNode->setMatrix( wge::toOSGMatrix( grid->getTransformationMatrix() ) );
 
-            //WGEColormapping::apply( cube, m_shader, 1 );
-            m_shader->apply( cube );
-
-            // enable transparency
-            osg::StateSet* rootState = rootNode->getOrCreateStateSet();
-            rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
+            // bind the texture to the node
+            osg::StateSet* rootState = cube->getOrCreateStateSet();
+            osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture2();
+            texture3D->bind( cube );
+            WGEColormapping::apply( cube, m_shader, 1 );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup all those uniforms

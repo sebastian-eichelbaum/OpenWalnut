@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WGEColormapping-fragment.glsl"
+
 #include "WGEShadingTools.glsl"
 #include "WGETextureTools.glsl"
 #include "WGEPostprocessing.glsl"
@@ -46,6 +48,9 @@ uniform int u_steps;
 
 // The alpha value to set
 uniform float u_alpha;
+
+// the ratio between normal color and the colormapping color.
+uniform float u_colormapRatio;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -159,6 +164,8 @@ void main()
             color = gl_Color * 11.0 * d2;
 #endif
 
+            // mix color with colormap
+            color = mix( colormapping( vec4( curPoint, 1.0 ) ), color, 1.0 - u_colormapRatio );
             color.a = u_alpha;
             wge_FragColor = color;
 
