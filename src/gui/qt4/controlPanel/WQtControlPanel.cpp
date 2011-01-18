@@ -80,9 +80,9 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     separator->setSeparator( true );
     m_moduleTreeWidget->addAction( separator );
 
-    m_connectWithPrototypeAction = new QAction( "Connect with Prototype", m_moduleTreeWidget );
+    m_connectWithPrototypeAction = new QAction( "Connect with new module", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithPrototypeAction );
-    m_connectWithModuleAction = new QAction( "Connect with Module", m_moduleTreeWidget );
+    m_connectWithModuleAction = new QAction( "Connect with module", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_connectWithModuleAction );
     m_disconnectAction = new QAction( "Disconnect", m_moduleTreeWidget );
     m_moduleTreeWidget->addAction( m_disconnectAction );
