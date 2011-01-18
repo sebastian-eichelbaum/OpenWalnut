@@ -25,14 +25,17 @@
 #include <vector>
 #include <string>
 
-#include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../common/WPropertyObserver.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
+#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "../../graphicsEngine/postprocessing/WGEPostprocessingNode.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "../../kernel/WKernel.h"
 
 #include "WMFiberDisplaySimple.h"
 #include "WMFiberDisplaySimple.xpm"
@@ -90,7 +93,7 @@ void WMFiberDisplaySimple::properties()
 
     m_clipPlaneGroup = m_properties->addPropertyGroup( "Clipping",  "Clip the fiber data basing on an arbitrary plane." );
     m_clipPlaneEnabled = m_clipPlaneGroup->addProperty( "Enabled", "If set, clipping of fibers is done using an arbitrary plane and plane distance.",
-                                                        false, m_propCondition );
+                                                        false );
     m_clipPlaneShowPlane = m_clipPlaneGroup->addProperty( "Show Clip Plane", "If set, the clipping plane will be shown.", true );
     m_clipPlanePoint = m_clipPlaneGroup->addProperty( "Plane point", "An point on the plane.",  wmath::WPosition( 0.0, 0.0, 0.0 ) );
     m_clipPlaneVector = m_clipPlaneGroup->addProperty( "Plane normal", "The normal of the plane.",  wmath::WPosition( 1.0, 0.0, 0.0 ) );
@@ -131,6 +134,9 @@ void WMFiberDisplaySimple::moduleMain()
     m_clipPlanePointUniform = new WGEPropertyUniform< WPropPosition >( "u_planePoint", m_clipPlanePoint );
     m_clipPlaneVectorUniform = new WGEPropertyUniform< WPropPosition >( "u_planeVector", m_clipPlaneVector );
     m_clipPlaneDistanceUniform = new WGEPropertyUniform< WPropDouble >( "u_distance", m_clipPlaneDistance );
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_clipPlaneEnabled, "CLIPPLANE_DISABLED", "CLIPPLANE_ENABLED" ) )
+    );
 
     // get notified about data changes
     m_moduleState.setResetable( true, true );
@@ -140,9 +146,19 @@ void WMFiberDisplaySimple::moduleMain()
 
     ready();
 
+    // create the post-processing node which actually does the nice stuff to the rendered image
+    osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
+        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
+    );
+    postNode->setEnabled( false );  // do not use it by default
+    postNode->addUpdateCallback( new WGENodeMaskCallback( m_active ) ); // disable the postNode with m_active
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( postNode );
+    // provide the properties of the post-processor to the user
+    m_properties->addProperty( postNode->getProperties() );
+
     // this node keeps the geode
-    m_rootNode = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
+    osg::ref_ptr< WGEGroupNode > rootNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
+    postNode->insert( rootNode, m_shader );
 
     // needed to observe the properties of the input connector data
     boost::shared_ptr< WPropertyObserver > propObserver = WPropertyObserver::create();
@@ -172,7 +188,7 @@ void WMFiberDisplaySimple::moduleMain()
         {
             debugLog() << "Resetting.";
             // remove geode if no valid data is available
-            m_rootNode->clear();
+            rootNode->clear();
 
             // remove the fib's properties from my props
             m_properties->removeProperty( m_fibProps );
@@ -238,10 +254,20 @@ void WMFiberDisplaySimple::moduleMain()
                                                 fibVerts->at( ( 3 * k ) + sidx + 2 ) ) );
 
                 // for correctly indexing the color array, the offset depends on the color mode.
-                colors->push_back( osg::Vec4( fibColors->at( ( fibColorMode * k ) + csidx + ( 0 % fibColorMode ) ),
-                                              fibColors->at( ( fibColorMode * k ) + csidx + ( 1 % fibColorMode ) ),
-                                              fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
-                                              fibColors->at( ( fibColorMode * k ) + csidx + ( 3 % fibColorMode ) ) ) );
+                if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
+                {
+                    colors->push_back( osg::Vec4( fibColors->at( ( fibColorMode * k ) + csidx + ( 0 % fibColorMode ) ),
+                                                  fibColors->at( ( fibColorMode * k ) + csidx + ( 1 % fibColorMode ) ),
+                                                  fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
+                                                  fibColors->at( ( fibColorMode * k ) + csidx + ( 3 % fibColorMode ) ) ) );
+                }
+                else
+                {
+                    colors->push_back( osg::Vec4( fibColors->at( ( fibColorMode * k ) + csidx + ( 0 % fibColorMode ) ),
+                                                  fibColors->at( ( fibColorMode * k ) + csidx + ( 1 % fibColorMode ) ),
+                                                  fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
+                                                  1.0 ) );
+                }
             }
 
             // add the above line-strip
@@ -271,54 +297,49 @@ void WMFiberDisplaySimple::moduleMain()
         state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
 
         // add geode to module node
-        m_rootNode->clear();
+        rootNode->clear();
 
         // Apply the shader. This is for clipping.
-        if ( m_clipPlaneEnabled->get( true ) )
-        {
-            state->addUniform( m_clipPlanePointUniform );
-            state->addUniform( m_clipPlaneVectorUniform );
-            state->addUniform( m_clipPlaneDistanceUniform );
-            m_shader->apply( geode );
+        state->addUniform( m_clipPlanePointUniform );
+        state->addUniform( m_clipPlaneVectorUniform );
+        state->addUniform( m_clipPlaneDistanceUniform );
 
-            if ( m_clipPlaneShowPlane->get( true ) )
-            {
-                // draw the plane
-                osg::ref_ptr< osg::Geode > planeGeode = new osg::Geode();
-                osg::ref_ptr< osg::MatrixTransform > planeTransform = new osg::MatrixTransform();
-                osg::ref_ptr< osg::Vec3Array > planeVertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-                osg::ref_ptr< osg::Vec4Array > planeColor = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-                osg::ref_ptr< osg::Geometry > planeGeometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
+        // add the clipping plane
+        osg::ref_ptr< osg::Geode > planeGeode = new osg::Geode();
+        osg::ref_ptr< osg::MatrixTransform > planeTransform = new osg::MatrixTransform();
+        osg::ref_ptr< osg::Vec3Array > planeVertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+        osg::ref_ptr< osg::Vec4Array > planeColor = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+        osg::ref_ptr< osg::Geometry > planeGeometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
 
-                planeColor->push_back( osg::Vec4( 1.0, 0.0, 0.0, 0.125 ) );
-                planeVertices->push_back( osg::Vec3( 0.0, -100.0, -100.0 ) );
-                planeVertices->push_back( osg::Vec3( 0.0, -100.0,  100.0 ) );
-                planeVertices->push_back( osg::Vec3( 0.0,  100.0,  100.0 ) );
-                planeVertices->push_back( osg::Vec3( 0.0,  100.0, -100.0 ) );
+        planeColor->push_back( osg::Vec4( 1.0, 0.0, 0.0, 0.125 ) );
+        planeVertices->push_back( osg::Vec3( 0.0, -100.0, -100.0 ) );
+        planeVertices->push_back( osg::Vec3( 0.0, -100.0,  100.0 ) );
+        planeVertices->push_back( osg::Vec3( 0.0,  100.0,  100.0 ) );
+        planeVertices->push_back( osg::Vec3( 0.0,  100.0, -100.0 ) );
 
-                // build geometry
-                planeGeometry->setVertexArray( planeVertices );
-                planeGeometry->setColorArray( planeColor );
-                planeGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-                planeGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
-                planeGeode->addDrawable( planeGeometry );
+        // build geometry
+        planeGeometry->setVertexArray( planeVertices );
+        planeGeometry->setColorArray( planeColor );
+        planeGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        planeGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
+        planeGeode->addDrawable( planeGeometry );
 
-                enableTransparency( planeGeode->getOrCreateStateSet() );
+        enableTransparency( planeGeode->getOrCreateStateSet() );
 
-                // add a callback for showing and hiding the plane
-                planeTransform->addUpdateCallback( new WGENodeMaskCallback( m_clipPlaneShowPlane ) );
-                // add a callback which actually moves, scales and rotates the plane according to the plane parameter
-                planeTransform->addUpdateCallback( new WGEFunctorCallback< osg::Node >(
-                    boost::bind( &WMFiberDisplaySimple::clipPlaneCallback, this, _1 ) )
-                );
+        // add a callback for showing and hiding the plane
+        planeTransform->addUpdateCallback( new WGENodeMaskCallback( m_clipPlaneShowPlane ) );
+        // add a callback which actually moves, scales and rotates the plane according to the plane parameter
+        planeTransform->addUpdateCallback( new WGEFunctorCallback< osg::Node >(
+            boost::bind( &WMFiberDisplaySimple::clipPlaneCallback, this, _1 ) )
+        );
 
-                // add the geode to the root and provide an callback
-                planeTransform->addChild( planeGeode );
-                m_rootNode->insert( planeTransform );
-            }
-        }
-        m_rootNode->insert( geode );
+        // add the geode to the root and provide an callback
+        planeTransform->addChild( planeGeode );
+        rootNode->insert( planeTransform );
+
+        m_shader->apply( geode );
+        rootNode->insert( geode );
 
         debugLog() << "Iterating over all fibers: done!";
         progress1->finish();
@@ -326,7 +347,7 @@ void WMFiberDisplaySimple::moduleMain()
 
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
     // allocated memory and remove all OSG nodes.
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( postNode );
 }
 
 void WMFiberDisplaySimple::clipPlaneCallback( osg::Node* node )
