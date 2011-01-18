@@ -196,7 +196,16 @@ osg::ref_ptr< WGETexture2D > wge::genWhiteNoiseTexture( size_t size, size_t chan
     // create an osg::Image at first.
     std::srand( time( 0 ) );
     osg::ref_ptr< osg::Image > randImage = new osg::Image();
-    randImage->allocateImage( size, size, channels, GL_LUMINANCE, GL_UNSIGNED_BYTE );
+    GLenum type = GL_LUMINANCE;
+    if ( channels == 3 )
+    {
+        type = GL_RGB;
+    }
+    else if ( channels == 4 )
+    {
+        type = GL_RGBA;
+    }
+    randImage->allocateImage( size, size, 1, type, GL_UNSIGNED_BYTE );
     unsigned char *randomLuminance = randImage->data();  // should be 4 megs
     for( unsigned int channel = 0; channel < channels; channel++ )
     {

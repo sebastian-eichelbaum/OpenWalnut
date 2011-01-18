@@ -24,9 +24,9 @@
 
 #version 120
 
-// The light source in world coordinates, normalized
-varying vec3 v_lightSource;
-
+/**
+ * Does transfer the quad to image space.
+ */
 void main()
 {
     // pass the color to the fragment shader
@@ -35,9 +35,6 @@ void main()
 
     // pass tex coordinates
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-
-    // light position:
-    v_lightSource = gl_LightSource[0].position.xyz;
 
     // transform position
     gl_Position = ftransform();

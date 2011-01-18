@@ -123,6 +123,7 @@ void WMAtlasSurfaces::moduleMain()
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
+    m_moduleState.add( m_active->getUpdateCondition() );
     m_moduleState.add( m_input->getDataChangedCondition() );
 
     // signal ready state
@@ -159,6 +160,18 @@ void WMAtlasSurfaces::moduleMain()
                 case W_DT_DOUBLE:
                 default:
                     WAssert( false, "Wrong data type in AtlasSurfaces module" );
+            }
+        }
+
+        if ( m_active->changed() )
+        {
+            if ( m_active->get( true ) )
+            {
+                m_moduleNode->setNodeMask( 0xFFFFFFFF );
+            }
+            else
+            {
+                m_moduleNode->setNodeMask( 0x0 );
             }
         }
 
