@@ -155,15 +155,28 @@ void main()
             // 3: set depth value
             gl_FragDepth = curPointProjected.z;
 
-            // 4: set color
-            vec4 color = gl_Color;
+            // 4: Shading
 
-            // only calculate the normal if we need it
-#ifdef WGE_POSTPROCESSING_ENABLED
             // find a proper normal for a headlight in world-space
             vec3 normal = ( gl_ModelViewMatrix * vec4( getGradientViewAligned( tex0, curPoint, v_ray ), 0.0 ) ).xyz;
+#ifdef WGE_POSTPROCESSING_ENABLED
             wge_FragNormal = textureNormalize( normal );
+            float light = 1.0;
+#else
+            // only calculate the phong illumination only if needed
+            float light = blinnPhongIlluminationIntensity(
+                0.2 ,               // material ambient
+                0.75,               // material diffuse
+                0.5,               // material specular
+                100.0,                               // shinines
+                1.0,               // light diffuse
+                0.3,               // light ambient
+                normalize( normal ),                 // normal
+                vec4( 0.0, 0.0, 1.0, 1.0 ).xyz,      // view direction  // in world space, this always is the view-dir
+                gl_LightSource[0].position.xyz       // light source position
+            );
 #endif
+            // 4: set color
 
 #ifdef CORTEXMODE_ENABLED
             // NOTE: these are a lot of weird experiments ;-)
@@ -175,11 +188,11 @@ void main()
             if ( w > 0.8 ) w = 0.8;
 
             float d2 = w * d * d * d * d * d;
-            color = gl_Color * 11.0 * d2;
+            light = light * 11.0 * d2;
 #endif
 
-            color.a = u_alpha;
-            wge_FragColor = color;
+            // 5: the final color construction
+            wge_FragColor = vec4( light * gl_Color.rgb, u_alpha );
 
             break;
         }
