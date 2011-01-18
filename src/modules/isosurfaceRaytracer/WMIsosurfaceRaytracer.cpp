@@ -116,6 +116,8 @@ void WMIsosurfaceRaytracer::properties()
 
     m_alpha         = m_properties->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
 
+    m_phongShading  = m_properties->addProperty( "Phong Shading", "If enabled, Phong shading gets applied on a per-pixel basis.", true );
+
     m_cortexMode    = m_properties->addProperty( "Emphasize Cortex", "Emphasize the Cortex while inner parts ar not that well lighten.", false );
 
     m_stochasticJitter = m_properties->addProperty( "Stochastic Jitter", "Improves image quality at low sampling rates but introduces slight "
@@ -132,14 +134,15 @@ void WMIsosurfaceRaytracer::requirements()
 void WMIsosurfaceRaytracer::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMIsosurfaceRaytracer", m_localPath ) );
-    WGEShaderPreprocessor::SPtr cortexMode(
-        new WGEShaderPropertyDefineOptions< WPropBool >( m_cortexMode, "CORTEXMODE_DISABLED", "CORTEXMODE_ENABLED" )
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_cortexMode, "CORTEXMODE_DISABLED", "CORTEXMODE_ENABLED" ) )
     );
-    m_shader->addPreprocessor( cortexMode );
-    WGEShaderPreprocessor::SPtr stochasticJitter(
-        new WGEShaderPropertyDefineOptions< WPropBool >( m_stochasticJitter, "STOCHASTICJITTER_DISABLED", "STOCHASTICJITTER_ENABLED" )
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_stochasticJitter, "STOCHASTICJITTER_DISABLED", "STOCHASTICJITTER_ENABLED" ) )
     );
-    m_shader->addPreprocessor( stochasticJitter );
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_phongShading, "PHONGSHADING_DISABLED", "PHONGSHADING_ENABLED" ) )
+    );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );

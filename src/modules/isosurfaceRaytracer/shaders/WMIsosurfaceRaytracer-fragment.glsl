@@ -161,10 +161,12 @@ void main()
             vec3 normal = ( gl_ModelViewMatrix * vec4( getGradientViewAligned( tex0, curPoint, v_ray ), 0.0 ) ).xyz;
 #ifdef WGE_POSTPROCESSING_ENABLED
             wge_FragNormal = textureNormalize( normal );
+#endif
+
             float light = 1.0;
-#else
+#ifdef PHONGSHADING_ENABLED
             // only calculate the phong illumination only if needed
-            float light = blinnPhongIlluminationIntensity(
+            light = blinnPhongIlluminationIntensity(
                 0.2 ,               // material ambient
                 0.75,               // material diffuse
                 0.5,               // material specular
