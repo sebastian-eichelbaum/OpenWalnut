@@ -116,6 +116,8 @@ void WMIsosurfaceRaytracer::properties()
 
     m_alpha         = m_properties->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
 
+    m_phongShading  = m_properties->addProperty( "Phong Shading", "If enabled, Phong shading gets applied on a per-pixel basis.", true );
+
     m_cortexMode    = m_properties->addProperty( "Emphasize Cortex", "Emphasize the Cortex while inner parts ar not that well lighten.", false );
 
     m_stochasticJitter = m_properties->addProperty( "Stochastic Jitter", "Improves image quality at low sampling rates but introduces slight "
@@ -132,14 +134,15 @@ void WMIsosurfaceRaytracer::requirements()
 void WMIsosurfaceRaytracer::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMIsosurfaceRaytracer", m_localPath ) );
-    WGEShaderPreprocessor::SPtr cortexMode(
-        new WGEShaderPropertyDefineOptions< WPropBool >( m_cortexMode, "CORTEXMODE_DISABLED", "CORTEXMODE_ENABLED" )
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_cortexMode, "CORTEXMODE_DISABLED", "CORTEXMODE_ENABLED" ) )
     );
-    m_shader->addPreprocessor( cortexMode );
-    WGEShaderPreprocessor::SPtr stochasticJitter(
-        new WGEShaderPropertyDefineOptions< WPropBool >( m_stochasticJitter, "STOCHASTICJITTER_DISABLED", "STOCHASTICJITTER_ENABLED" )
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_stochasticJitter, "STOCHASTICJITTER_DISABLED", "STOCHASTICJITTER_ENABLED" ) )
     );
-    m_shader->addPreprocessor( stochasticJitter );
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_phongShading, "PHONGSHADING_DISABLED", "PHONGSHADING_ENABLED" ) )
+    );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -151,12 +154,14 @@ void WMIsosurfaceRaytracer::moduleMain()
     debugLog() << "Module is now ready.";
 
     // create the root node containing the transformation and geometry
-    osg::ref_ptr< WGEManagedGroupNode > rootNode = new WGEManagedGroupNode( m_active );
+    osg::ref_ptr< WGEGroupNode > rootNode = new WGEGroupNode();
 
     // create the post-processing node which actually does the nice stuff to the rendered image
     osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
         WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
     );
+    postNode->setEnabled( false );  // do not use it by default
+    postNode->addUpdateCallback( new WGENodeMaskCallback( m_active ) ); // disable the postNode with m_active
 
     // provide the properties of the post-processor to the user
     m_properties->addProperty( postNode->getProperties() );

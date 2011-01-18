@@ -56,9 +56,10 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     addChild( m_offscreen );
 
     // some info text:
-    m_infoText = m_properties->addProperty( "Warning", "This is not yet completely done.",
-        std::string( "The post-processing is currently in <b>beta-state</b>. The post-processing shaders are not yet completely implemented nor all "
-                     "their required parameters added to the GUI." )
+    m_infoText = m_properties->addProperty( "Hint", "This is for advanced users.",
+        std::string( "The post-processing has to be seen as facility to create appealing images. The here offered options are not all "
+                     "possibilities. The most powerful effects can be achieved by using custom combinations of post-processors and recommended "
+                     "for <b>advanced users</b> only." )
     );
     m_infoText->setPurpose( PV_PURPOSE_INFORMATION );
 
@@ -70,10 +71,11 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     // First: Create a list with name, description and shader define which is used to enable it
     typedef WGEShaderPropertyDefineOptionsTools::NameDescriptionDefineTuple Tuple;
     std::vector< Tuple > namesAndDefs;
-    namesAndDefs.push_back( Tuple( "PPL - Phong",   "Per-Pixel-Lighting using Phong.",                  "WGE_POSTPROCESSOR_PPLPHONG" ) );
-    namesAndDefs.push_back( Tuple( "SSAO", "Screen-Space Ambient Occlusion.",                           "WGE_POSTPROCESSOR_SSAO" ) );
     namesAndDefs.push_back( Tuple( "Color Only",   "No Post-Processing.",                               "WGE_POSTPROCESSOR_COLOR" ) );
     namesAndDefs.push_back( Tuple( "Gaussed Color", "Smoothed Color Image using Gauss Filter.",         "WGE_POSTPROCESSOR_GAUSSEDCOLOR" ) );
+    namesAndDefs.push_back( Tuple( "PPL - Phong",   "Per-Pixel-Lighting using Phong.",                  "WGE_POSTPROCESSOR_PPLPHONG" ) );
+    namesAndDefs.push_back( Tuple( "SSAO", "Screen-Space Ambient Occlusion.",                           "WGE_POSTPROCESSOR_SSAO" ) );
+    namesAndDefs.push_back( Tuple( "Cel Shading",  "Under-sampling of the color for cartoon-like shading.", "WGE_POSTPROCESSOR_CELSHADING" ) );
     namesAndDefs.push_back( Tuple( "Edge",         "Edge of Rendered Geometry.",                        "WGE_POSTPROCESSOR_EDGE" ) );
     namesAndDefs.push_back( Tuple( "Depth",        "Depth Value only.",                                 "WGE_POSTPROCESSOR_DEPTH" ) );
     namesAndDefs.push_back( Tuple( "Normal",       "Geometry Normal.",                                  "WGE_POSTPROCESSOR_NORMAL" ) );
@@ -168,5 +170,10 @@ void WGEPostprocessingNode::clear()
 
     // remove the node from the render group
     m_childs->clear();
+}
+
+void WGEPostprocessingNode::setEnabled( bool enable )
+{
+    m_active->set( enable );
 }
 
