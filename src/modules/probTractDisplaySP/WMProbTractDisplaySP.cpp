@@ -106,10 +106,9 @@ void WMProbTractDisplaySP::updateProperitesForTheInputConnectors( boost::shared_
         {
             debugLog() << "Found a connected IC, but hidden prop group at index: " << i;
             m_colorMap[i]->setHidden( false );
-            if( m_probICs[i]->getData() ) // todo(math): change to getData( false ) if available
+            if( m_probICs[i]->getData( false ) )
             {
-                 // todo(math): change to getData( false ) if available
-                 m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( m_probICs[i]->getData()->getFileName() );
+                 m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( m_probICs[i]->getData( false )->getFileName() );
             }
         }
         if( ( m_probICs[i]->isConnected() == 0 ) && ( !m_colorMap[i]->isHidden() ) )
@@ -285,9 +284,7 @@ void WMProbTractDisplaySP::moduleMain()
             continue;
         }
 
-        // todo(math): remove the !builder when the handledUpdate() call to the input connectors does work again.
-        // for that we must change the getData() calls in updateProperitesForTheInputConnectors(...) to getData( false )
-        if( dataUpdated || !builder )
+        if( dataUpdated )
         {
             infoLog() << "Handling data update..";
             checkProbabilityRanges( probTracts );
@@ -304,18 +301,14 @@ void WMProbTractDisplaySP::moduleMain()
             }
         }
 
-        // todo(math): remove this if handledUpdate() mechanism will work see todo above..
-        if( builder )
-        {
-            // NOTE: we know that we could arrange much more specific updates here, just update the slice that has changed, but this is too complex to
-            // consider also color, m_delta, etc. changes..., and ofcourse: we have the time to calc that every loop-cycle again and again, it does
-            // not really matter
-            debugLog() << "now building the geodes...";
-            builder->determineIntersectingDeterministicTracts();
-            updateSlices( 0, builder );
-            updateSlices( 1, builder );
-            updateSlices( 2, builder );
-        }
+        // NOTE: we know that we could arrange much more specific updates here, just update the slice that has changed, but this is too complex to
+        // consider also color, m_delta, etc. changes..., and ofcourse: we have the time to calc that every loop-cycle again and again, it does
+        // not really matter
+        debugLog() << "now building the geodes...";
+        builder->determineIntersectingDeterministicTracts();
+        updateSlices( 0, builder );
+        updateSlices( 1, builder );
+        updateSlices( 2, builder );
     }
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
 }
