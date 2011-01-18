@@ -469,6 +469,14 @@ vec4 getCelShading()
  */
 void main()
 {
+    // don't do this stuff for background pixel
+    float depth = getDepth();
+    gl_FragDepth = depth;
+    if ( depth > 0.99 )
+    {
+        discard;
+    }
+
     // NOTE: Although the GLSL compiler might not be the most intelligent one, it will most probably be smart enough the reduce many texture
     // fetch operations on the same sampler and same position to one fetch and provides the result in a variable. So it is not stupid to use
     // getColor or getNormal or getDepth many times on the same u,v coordinate.
@@ -502,7 +510,7 @@ void main()
 #endif
 
 #ifdef WGE_POSTPROCESSOR_DEPTH
-    blendScale( getDepth() );
+    blendScale( depth );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_NORMAL
@@ -517,6 +525,5 @@ void main()
 
     // output the depth and final color.
     gl_FragColor = color;
-    gl_FragDepth = getDepth();
 }
 
