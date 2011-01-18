@@ -154,12 +154,14 @@ void WMIsosurfaceRaytracer::moduleMain()
     debugLog() << "Module is now ready.";
 
     // create the root node containing the transformation and geometry
-    osg::ref_ptr< WGEManagedGroupNode > rootNode = new WGEManagedGroupNode( m_active );
+    osg::ref_ptr< WGEGroupNode > rootNode = new WGEGroupNode();
 
     // create the post-processing node which actually does the nice stuff to the rendered image
     osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
         WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
     );
+    postNode->setEnabled( false );  // do not use it by default
+    postNode->addUpdateCallback( new WGENodeMaskCallback( m_active ) ); // disable the postNode with m_active
 
     // provide the properties of the post-processor to the user
     m_properties->addProperty( postNode->getProperties() );

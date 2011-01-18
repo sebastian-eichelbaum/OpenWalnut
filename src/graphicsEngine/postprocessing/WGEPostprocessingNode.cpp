@@ -70,7 +70,6 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     // First: Create a list with name, description and shader define which is used to enable it
     typedef WGEShaderPropertyDefineOptionsTools::NameDescriptionDefineTuple Tuple;
     std::vector< Tuple > namesAndDefs;
-    namesAndDefs.push_back( Tuple( "Color+Phong",   "Color with Phong Shading.",                        "WGE_POSTPROCESSOR_COLORPHONG" ) );
     namesAndDefs.push_back( Tuple( "Color Only",   "No Post-Processing.",                               "WGE_POSTPROCESSOR_COLOR" ) );
     namesAndDefs.push_back( Tuple( "Gaussed Color", "Smoothed Color Image using Gauss Filter.",         "WGE_POSTPROCESSOR_GAUSSEDCOLOR" ) );
     namesAndDefs.push_back( Tuple( "PPL - Phong",   "Per-Pixel-Lighting using Phong.",                  "WGE_POSTPROCESSOR_PPLPHONG" ) );
@@ -170,5 +169,10 @@ void WGEPostprocessingNode::clear()
 
     // remove the node from the render group
     m_childs->clear();
+}
+
+void WGEPostprocessingNode::setEnabled( bool enable )
+{
+    m_active->set( enable );
 }
 

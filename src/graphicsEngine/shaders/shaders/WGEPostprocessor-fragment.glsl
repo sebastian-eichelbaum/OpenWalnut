@@ -446,7 +446,7 @@ vec4 getCelShading( vec4 inColor )
     float samples = 5.0;
     return vec4(
             vec3( int( ( inColor * samples ).r ),
-                  int( ( inColor * samples ).g ), 
+                  int( ( inColor * samples ).g ),
                   int( ( inColor * samples ).b ) ) / samples, inColor.a );
 }
 
@@ -480,10 +480,6 @@ void main()
     // NOTE: Although the GLSL compiler might not be the most intelligent one, it will most probably be smart enough the reduce many texture
     // fetch operations on the same sampler and same position to one fetch and provides the result in a variable. So it is not stupid to use
     // getColor or getNormal or getDepth many times on the same u,v coordinate.
-
-#ifdef WGE_POSTPROCESSOR_COLORPHONG
-    blend( vec4( getColor().rgb * getPPLPhong(), getColor().a ) );
-#endif
 
 #ifdef WGE_POSTPROCESSOR_COLOR
     blend( getColor() );
