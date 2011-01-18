@@ -56,9 +56,10 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     addChild( m_offscreen );
 
     // some info text:
-    m_infoText = m_properties->addProperty( "Warning", "This is not yet completely done.",
-        std::string( "The post-processing is currently in <b>beta-state</b>. The post-processing shaders are not yet completely implemented nor all "
-                     "their required parameters added to the GUI." )
+    m_infoText = m_properties->addProperty( "Hint", "This is for advanced users.",
+        std::string( "The post-processing has to be seen as facility to create appealing images. The here offered options are not all "
+                     "possibilities. The most powerful effects can be achieved by using custom combinations of post-processors and recommended "
+                     "for <b>advanced users</b> only." )
     );
     m_infoText->setPurpose( PV_PURPOSE_INFORMATION );
 
