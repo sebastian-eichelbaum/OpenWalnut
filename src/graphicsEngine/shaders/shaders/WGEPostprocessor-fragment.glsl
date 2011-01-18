@@ -311,11 +311,13 @@ float getEdge()
 }
 
 /**
- * Returns the gauss-smoothed color of the pixel from the input color texture.
+ * Returns the gauss-smoothed color of the specified pixel from the input color texture.
+ *
+ * \param where the pixel to grab
  *
  * \return the color
  */
-vec4 getGaussedColor()
+vec4 getGaussedColor( vec2 where )
 {
     // TODO(ebaum): provide properties/uniforms for the scaling factors here
 
@@ -336,6 +338,56 @@ vec4 getGaussedColor()
             2.0 * gaussedColorl  +  4.0 * gaussedColorc + 2.0 * gaussedColorr  +
             1.0 * gaussedColorbl +  2.0 * gaussedColorb + 1.0 * gaussedColorbr );
     return gaussed;
+}
+
+/**
+ * Returns the gauss-smoothed color of the current pixel from the input color texture.
+ *
+ * \return  the color
+ */
+vec4 getGaussedColor()
+{
+    return getGaussedColor( pixelCoord );
+}
+
+/**
+ * Returns the gauss-smoothed depth of the specified ixel from the input color texture.
+ *
+ * \param where the point to grab
+ *
+ * \return the gaussed depth
+ */
+float getGaussedDepth( vec2 where )
+{
+    // TODO(ebaum): provide properties/uniforms for the scaling factors here
+
+    // get the 8-neighbourhood
+    float gaussedDepthc  = getDepth( where );
+    float gaussedDepthbl = getDepth( where + vec2( -offsetX, -offsetY ) );
+    float gaussedDepthl  = getDepth( where + vec2( -offsetX,     0.0  ) );
+    float gaussedDepthtl = getDepth( where + vec2( -offsetX,  offsetY ) );
+    float gaussedDeptht  = getDepth( where + vec2(     0.0,   offsetY ) );
+    float gaussedDepthtr = getDepth( where + vec2(  offsetX,  offsetY ) );
+    float gaussedDepthr  = getDepth( where + vec2(  offsetX,     0.0  ) );
+    float gaussedDepthbr = getDepth( where + vec2(  offsetX,  offsetY ) );
+    float gaussedDepthb  = getDepth( where + vec2(     0.0,  -offsetY ) );
+
+    // apply gauss filter
+    float gaussed = ( 1.0 / 16.0 ) * (
+            1.0 * gaussedDepthtl +  2.0 * gaussedDeptht + 1.0 * gaussedDepthtr +
+            2.0 * gaussedDepthl  +  4.0 * gaussedDepthc + 2.0 * gaussedDepthr  +
+            1.0 * gaussedDepthbl +  2.0 * gaussedDepthb + 1.0 * gaussedDepthbr );
+    return gaussed;
+}
+
+/**
+ * Returns the gauss-smoothed depth of the current pixel from the input depth texture.
+ *
+ * \return the gaussed depth
+ */
+float getGaussedDepth()
+{
+    return getGaussedDepth( pixelCoord );
 }
 
 /**
@@ -507,6 +559,10 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_DEPTH
     blendScale( depth );
+#endif
+
+#ifdef WGE_POSTPROCESSOR_GAUSSEDDEPTH
+    blendScale( getGaussedDepth() );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_NORMAL
