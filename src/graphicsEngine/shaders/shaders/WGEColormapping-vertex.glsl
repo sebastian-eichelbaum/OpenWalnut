@@ -31,7 +31,7 @@
  *
  * \param texMatrix this additional matrix allows further modification of gl_MultiTexCoord0 to meet the requirements of WGEColormapping.
  */
-void colormapping( mat4 texMatrix)
+void colormapping( mat4 texMatrix )
 {
     // ColormapPreTransform is a mat4 defined by OpenWalnut before compilation
     vec4 texCoord = ColormapPreTransform * texMatrix * gl_MultiTexCoord0;
