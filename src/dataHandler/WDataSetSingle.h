@@ -31,13 +31,15 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "WDataSet.h"
 #include "WGrid.h"
 #include "WGridRegular3D.h"
 #include "WValueSet.h"
-#include "WDataTexture3D_2.h"
-#include "WDataSet.h"
 
 #include "WExportDataHandler.h"
+
+
+class WDataTexture3D_2;
 
 /**
  * A data set consisting of a set of values based on a grid.

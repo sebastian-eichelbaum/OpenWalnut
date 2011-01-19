@@ -30,6 +30,7 @@
 #include "exceptions/WDHException.h"
 #include "WDataSet.h"
 #include "WDataSetVector.h"
+#include "WDataTexture3D_2.h"
 
 // prototype instance as singleton
 boost::shared_ptr< WPrototyped > WDataSet::m_prototype = boost::shared_ptr< WPrototyped >();
