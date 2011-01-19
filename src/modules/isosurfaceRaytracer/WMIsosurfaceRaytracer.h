@@ -31,7 +31,7 @@
 #include <osg/Uniform>
 
 #include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/shaders/WGEShaderDefine.h"
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -112,7 +112,7 @@ private:
     /**
      * The Isovalue used in the case m_isoSurface is true.
      */
-    WPropInt m_isoValue;
+    WPropDouble m_isoValue;
 
     /**
      * The color used when in isosurface mode for blending.
@@ -127,7 +127,12 @@ private:
     /**
      * The alpha transparency used for the rendering
      */
-    WPropInt m_alpha;
+    WPropDouble m_alpha;
+
+    /**
+     * The ratio between colormap and normal surface color.
+     */
+    WPropDouble m_colormapRatio;
 
     /**
      * Some special coloring mode emphasizing the cortex.
@@ -153,72 +158,6 @@ private:
      * the DVR shader.
      */
     osg::ref_ptr< WGEShader > m_shader;
-
-    /**
-     * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in
-     * moduleMain().
-     */
-    class SafeUpdateCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUpdateCallback( WMIsosurfaceRaytracer* module ): m_module( module ), m_initialUpdate( true )
-        {
-        };
-
-        /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         */
-        WMIsosurfaceRaytracer* m_module;
-
-        /**
-         * Denotes whether the update callback is called the first time.
-         */
-        bool m_initialUpdate;
-    };
-
-    /**
-     * Class handling uniform update during render traversal
-     */
-    class SafeUniformCallback: public osg::Uniform::Callback
-    {
-    public:
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUniformCallback( WMIsosurfaceRaytracer* module ): m_module( module )
-        {
-        };
-
-        /**
-         * The callback. Called every render traversal for the uniform.
-         *
-         * \param uniform the uniform for which this callback is.
-         * \param nv the visitor.
-         */
-        virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         */
-        WMIsosurfaceRaytracer* m_module;
-    };
 };
 
 #endif  // WMISOSURFACERAYTRACER_H
