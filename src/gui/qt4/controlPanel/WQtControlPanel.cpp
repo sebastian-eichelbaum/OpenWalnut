@@ -177,7 +177,7 @@ WQtControlPanel::~WQtControlPanel()
 void WQtControlPanel::connectSlots()
 {
     connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
-    connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem() ) );
+    connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem( QTreeWidgetItem*, int ) ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
@@ -499,6 +499,7 @@ WQtDatasetTreeItem* WQtControlPanel::addDataset( boost::shared_ptr< WModule > mo
     WQtDatasetTreeItem* item = subject->addDatasetItem( module );
     m_moduleTreeWidget->setCurrentItem( item );
     item->setDisabled( true );
+    item->setExpanded( true );
 
     return item;
 }
@@ -833,6 +834,9 @@ WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( boost::shared_ptr< WP
                     case PV_GROUP:
                         tab->addGroup( buildPropWidget( ( *iter )->toPropGroup() ) );
                         break;
+                    case PV_MATRIX4X4:
+                        tab->addProp( ( *iter )->toPropMatrix4X4() );
+                        break;
                     default:
                         WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "ControlPanel", LL_WARNING );
                         break;
@@ -948,18 +952,12 @@ void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > modu
     }
 }
 
-void WQtControlPanel::changeTreeItem()
+void WQtControlPanel::changeTreeItem( QTreeWidgetItem* item, int /* column */ )
 {
-    if ( m_moduleTreeWidget->selectedItems().size() == 1 && m_moduleTreeWidget->selectedItems().at( 0 )->type() == DATASET )
+    WQtTreeItem* witem = dynamic_cast< WQtTreeItem* >( item );
+    if ( witem )
     {
-        boost::shared_ptr< WModule > module =( static_cast< WQtDatasetTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
-        module->getProperties()->getProperty( "active" )->toPropBool()->set( m_moduleTreeWidget->selectedItems().at( 0 )->checkState( 0 ) );
-    }
-    else if ( m_moduleTreeWidget->selectedItems().size() == 1 && m_moduleTreeWidget->selectedItems().at( 0 )->type() == MODULE )
-    {
-        boost::shared_ptr< WModule > module =( static_cast< WQtModuleTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) ) )->getModule();
-
-        module->getProperties()->getProperty( "active" )->toPropBool()->set( m_moduleTreeWidget->selectedItems().at( 0 )->checkState( 0 ) );
+        witem->handleCheckStateChange();
     }
 }
 
@@ -1096,3 +1094,4 @@ void WQtControlPanel::handleDragDrop()
 {
     WLogger::getLogger()->addLogMessage( "Drag and drop handler not implemented yet!", "ControlPanel", LL_DEBUG );
 }
+

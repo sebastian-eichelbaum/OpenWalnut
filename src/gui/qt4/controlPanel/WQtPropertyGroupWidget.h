@@ -39,6 +39,7 @@
 #include "WPropertyTriggerWidget.h"
 #include "WPropertySelectionWidget.h"
 #include "WPropertyPositionWidget.h"
+#include "WPropertyMatrix4X4Widget.h"
 
 #include "../../../common/WPropertyVariable.h"
 
@@ -155,6 +156,15 @@ public:
      * \return the widget that has been added.
      */
     WPropertyTriggerWidget* addProp( WPropTrigger property );
+
+    /**
+     * Adds a new trigger property to the PropertyGroup.
+     *
+     * \param property the property to add.
+     *
+     * \return the widget that has been added.
+     */
+    WPropertyMatrix4X4Widget* addProp( WPropMatrix4X4 property );
 
     /**
      * Adds an widget containing another property group to this widget. It encloses it with a GroupBox.

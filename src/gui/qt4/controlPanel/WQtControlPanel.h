@@ -325,7 +325,13 @@ private slots:
     /**
      * function gets called when a change to a tree item, eg. check box status, occurs
      */
-    void changeTreeItem();
+    /**
+     * Function gets change when a change to a tree item occurs.
+     *
+     * \param item the item
+     * \param column column index
+     */
+    void changeTreeItem( QTreeWidgetItem* item, int column );
 
     /**
      * delete a ROI tree item
