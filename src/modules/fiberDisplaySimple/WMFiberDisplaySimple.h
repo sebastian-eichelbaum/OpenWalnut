@@ -108,11 +108,6 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
-     */
-    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
-
-    /**
      * The properties of the fiber dataset.
      */
     WProperties::SPtr m_fibProps;

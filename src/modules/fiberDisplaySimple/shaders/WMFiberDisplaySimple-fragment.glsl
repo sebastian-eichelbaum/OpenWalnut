@@ -24,14 +24,18 @@
 
 #version 120
 
+#include "WGETextureTools.glsl"
+
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
 
+#ifdef CLIPPLANE_ENABLED
 /**
  * The distance to the plane
  */
 varying float dist;
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
@@ -59,13 +63,14 @@ uniform float u_distance = 1.0;
  */
 void main()
 {
+#ifdef CLIPPLANE_ENABLED
     // discard fragment if too far from plane
     if ( abs( dist ) >= u_distance )
     {
         discard;
     }
+#endif
 
     gl_FragColor = gl_Color;
-    gl_FragDepth = gl_FragCoord.z;
 }
 

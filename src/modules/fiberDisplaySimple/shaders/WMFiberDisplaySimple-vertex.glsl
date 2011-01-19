@@ -28,10 +28,12 @@
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
 
+#ifdef CLIPPLANE_ENABLED
 /**
  * The distance to the plane
  */
 varying float dist;
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
@@ -64,10 +66,12 @@ uniform vec3 u_planeVector;
  */
 void main()
 {
+#ifdef CLIPPLANE_ENABLED
     // define the plane
     vec3 n = normalize( u_planeVector );
     float d = dot( u_planePoint, n );
     dist = dot( gl_Vertex.xyz, n ) - d;
+#endif
 
     // Simply project the vertex
     gl_Position = ftransform();
