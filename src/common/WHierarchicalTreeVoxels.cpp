@@ -217,52 +217,8 @@ std::vector< size_t >WHierarchicalTreeVoxels::findXClusters( size_t root, size_t
         worklist.push_back( left );
         worklist.push_back( right );
 
-        sortListValue( worklist );
+        worklist.sort( compValue( this ) );
     }
-
-//    bool change = true;
-//    while ( change )
-//    {
-//        change = false;
-//        size_t current = worklist.front();
-//        worklist.pop_front();
-//
-//        size_t left = m_children[current].first;
-//        size_t right = m_children[current].second;
-//
-//        size_t lowest = worklist.back();
-//
-//        if ( m_customData[lowest] < m_customData[left] )
-//        {
-//            if ( worklist.size() >= number )
-//            {
-//                worklist.pop_back();
-//            }
-//            worklist.push_back( left );
-//            sortListValue( worklist );
-//            change = true;
-//        }
-//
-//        lowest = worklist.back();
-//
-//        if ( m_customData[lowest] < m_customData[right] )
-//        {
-//            if ( worklist.size() >= number )
-//            {
-//                worklist.pop_back();
-//            }
-//            worklist.push_back( right );
-//            sortListValue( worklist );
-//            change = true;
-//        }
-//
-//        if ( !change )
-//        {
-//            worklist.push_back( current );
-//            sortListValue( worklist );
-//        }
-//    }
-
     std::cout << number << " clusters at " << m_customData[worklist.front()] << " energy" << std::endl;
 
     std::list<size_t>::iterator it;
