@@ -140,6 +140,16 @@ private:
     WPropBool m_cortexMode;
 
     /**
+     * If true, per-pixel-phong shading is applied to the surface.
+     */
+    WPropBool m_phongShading;
+
+    /**
+     * If true, the ray-tracer uses stochastic jitter to improve image quality.
+     */
+    WPropBool m_stochasticJitter;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

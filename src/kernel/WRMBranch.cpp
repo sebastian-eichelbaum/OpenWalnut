@@ -47,8 +47,8 @@ void WRMBranch::properties()
 
     m_dirty = m_properties->addProperty( "Dirty", "", true, boost::bind( &WRMBranch::propertyChanged, this ) );
     m_dirty->setHidden( true );
-    m_isNot = m_properties->addProperty( "NOT", "description", false, boost::bind( &WRMBranch::propertyChanged, this ) );
-    m_bundleColor = m_properties->addProperty( "Bundle Color", "description", WColor( 1.0, 0.0, 0.0, 1.0 ),
+    m_isNot = m_properties->addProperty( "Not", "Negate the effect of this branch.", false, boost::bind( &WRMBranch::propertyChanged, this ) );
+    m_bundleColor = m_properties->addProperty( "Bundle color", "", WColor( 1.0, 0.0, 0.0, 1.0 ),
                                                boost::bind( &WRMBranch::propertyChanged, this ) );
     m_changeRoiSignal = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WRMBranch::setDirty, this ) ) );
 }

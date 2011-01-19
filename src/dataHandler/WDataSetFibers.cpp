@@ -224,11 +224,15 @@ WDataSetFibers::ColorArray WDataSetFibers::getLocalColors() const
 void WDataSetFibers::addColorScheme( WDataSetFibers::ColorArray colors, std::string name, std::string description )
 {
     ColorScheme::ColorMode mode = ColorScheme::GRAY;
-    if ( colors->size() % 3 == 0 )
+
+    // number of verts is needed to distinguish color mode.
+    size_t verts = m_vertices->size() / 3;
+    size_t cols  = colors->size();
+    if ( cols / verts == 3 )
     {
         mode = ColorScheme::RGB;
     }
-    else if ( colors->size() % 4 == 0 )
+    else if ( cols / verts == 4 )
     {
         mode = ColorScheme::RGBA;
     }

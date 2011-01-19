@@ -123,14 +123,20 @@ public:
     /**
      * Gives the currently set data and resets the update flag.
      *
+     * \param reset reset the flag of updated() if true (default).
+     *
      * \return the data currently set. NULL if no data has been sent yet or the connector is unconnected.
      */
-    const boost::shared_ptr< T > getData()
+    const boost::shared_ptr< T > getData( bool reset = true )
     {
         // get a lock
         boost::shared_lock<boost::shared_mutex> lock = boost::shared_lock<boost::shared_mutex>( m_connectionListLock );
 
-        handledUpdate();
+        // Only reset change flag of requested
+        if ( reset )
+        {
+            handledUpdate();
+        }
 
         // is there something in the list?
         if ( m_disconnecting || m_connected.empty() )

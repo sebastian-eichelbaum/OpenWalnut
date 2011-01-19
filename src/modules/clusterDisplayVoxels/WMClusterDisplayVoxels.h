@@ -120,13 +120,6 @@ protected:
 
 private:
     /**
-     * helper function to read a text file
-     * \param fileName
-     * \return string containing the file
-     */
-    std::vector< std::string > readFile( const std::string fileName );
-
-    /**
      * loads and parses the clustering text file
      * \param clusterFile to the clustering file
      * \return true if a meta file was succesfully loaded, false otherwise
