@@ -31,6 +31,7 @@
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "../../graphicsEngine/postprocessing/WGEPostprocessingNode.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
 #include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
@@ -145,9 +146,19 @@ void WMFiberDisplaySimple::moduleMain()
 
     ready();
 
+    // create the post-processing node which actually does the nice stuff to the rendered image
+    osg::ref_ptr< WGEPostprocessingNode > postNode = new WGEPostprocessingNode(
+        WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
+    );
+    postNode->setEnabled( false );  // do not use it by default
+    postNode->addUpdateCallback( new WGENodeMaskCallback( m_active ) ); // disable the postNode with m_active
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( postNode );
+    // provide the properties of the post-processor to the user
+    m_properties->addProperty( postNode->getProperties() );
+
     // this node keeps the geode
-    osg::ref_ptr< WGEManagedGroupNode > rootNode = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
+    osg::ref_ptr< WGEGroupNode > rootNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
+    postNode->insert( rootNode, m_shader );
 
     // needed to observe the properties of the input connector data
     boost::shared_ptr< WPropertyObserver > propObserver = WPropertyObserver::create();
@@ -336,7 +347,7 @@ void WMFiberDisplaySimple::moduleMain()
 
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
     // allocated memory and remove all OSG nodes.
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( rootNode );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( postNode );
 }
 
 void WMFiberDisplaySimple::clipPlaneCallback( osg::Node* node )
