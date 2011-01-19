@@ -215,7 +215,7 @@ osg::ref_ptr< osg::Geode > WMSliceContext::genTractGeode( const std::vector< siz
     geometry->setVertexArray( vertices );
 
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    colors->push_back( wge::osgColor( WColor( 1.0, 0.0, 1.0 ) ) );
+    colors->push_back( WColor( 1.0, 0.0, 1.0, 1.0 ) );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );

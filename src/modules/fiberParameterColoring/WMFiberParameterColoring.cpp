@@ -190,14 +190,16 @@ void WMFiberParameterColoring::moduleMain()
         m_progress->addSubProgress( progress2 );
 
         // for fastness:
-        double baseColorR = m_baseColor->get( true ).getRed();
-        double baseColorG = m_baseColor->get( true ).getGreen();
-        double baseColorB = m_baseColor->get( true ).getBlue();
-        double baseColorA = m_baseColor->get( true ).getAlpha();
-        double scaleColorR = m_scaleColor->get( true ).getRed();
-        double scaleColorG = m_scaleColor->get( true ).getGreen();
-        double scaleColorB = m_scaleColor->get( true ).getBlue();
-        double scaleColorA = m_scaleColor->get( true ).getAlpha();
+        WColor baseColor = m_baseColor->get( true );
+        double baseColorR = baseColor[0];
+        double baseColorG = baseColor[1];
+        double baseColorB = baseColor[2];
+        double baseColorA = baseColor[3];
+        WColor scaleColor = m_scaleColor->get( true );
+        double scaleColorR = scaleColor[0];
+        double scaleColorG = scaleColor[1];
+        double scaleColorB = scaleColor[2];
+        double scaleColorA = scaleColor[3];
 
         // for each fiber:
         debugLog() << "Iterating over all fibers.";

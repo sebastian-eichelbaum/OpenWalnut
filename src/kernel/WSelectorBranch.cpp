@@ -158,9 +158,9 @@ void WSelectorBranch::colorChanged()
             size_t idx = ( *startIndexes )[i] * 3;
             for ( size_t k = 0; k < ( *pointsPerLine )[i]; ++k )
             {
-                ( *array )[idx++] = color.getRed();
-                ( *array )[idx++] = color.getGreen();
-                ( *array )[idx++] = color.getBlue();
+                ( *array )[idx++] = color[0];
+                ( *array )[idx++] = color[1];
+                ( *array )[idx++] = color[2];
             }
         }
     }

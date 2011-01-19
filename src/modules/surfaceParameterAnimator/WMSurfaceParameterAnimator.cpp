@@ -299,12 +299,9 @@ void WMSurfaceParameterAnimator::SafeUpdateCallback::operator()( osg::Node* node
     // update material info
     if ( m_module->m_isoColor->changed() || m_initialUpdate )
     {
-        // Grab the color
-        WColor c = m_module->m_isoColor->get( true );
-
         // Set the diffuse color and material:
         osg::ref_ptr< osg::Material > mat = new osg::Material();
-        mat->setDiffuse( osg::Material::FRONT, osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() ) );
+        mat->setDiffuse( osg::Material::FRONT, m_module->m_isoColor->get( true ) );
         node->getOrCreateStateSet()->setAttribute( mat, osg::StateAttribute::ON );
 
         m_initialUpdate = false;

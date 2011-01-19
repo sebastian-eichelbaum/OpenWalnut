@@ -962,9 +962,9 @@ void WMClusterDisplay::setColor( std::vector<size_t> clusters, WColor color )
 
         for ( size_t k = (*starts)[current]; k < (*starts)[current] + (*lengths)[current]; ++k)
         {
-            (*colorField)[k*3] = color.getRed();
-            (*colorField)[k*3+1] = color.getGreen();
-            (*colorField)[k*3+2] = color.getBlue();
+            (*colorField)[k*3] =   color[0];
+            (*colorField)[k*3+1] = color[1];
+            (*colorField)[k*3+2] = color[2];
         }
     }
 }

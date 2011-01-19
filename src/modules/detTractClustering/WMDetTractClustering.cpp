@@ -362,7 +362,7 @@ osg::ref_ptr< osg::Geode > WMDetTractClustering::genTractGeode( const WFiberClus
     geometry->setVertexArray( vertices );
 
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    colors->push_back( wge::osgColor( color ) );
+    colors->push_back( color );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
@@ -384,7 +384,7 @@ osg::ref_ptr< WGEManagedGroupNode > WMDetTractClustering::paint() const
     std::stringstream clusterLog;
     for( size_t i = 0; i < m_clusters.size(); ++i, hue += hue_increment )
     {
-        color.setHSV( hue, 1.0, 0.75 );
+        color = convertHSVtoRGBA( hue, 1.0, 0.75 );
         result->insert( genTractGeode( m_clusters[i], color ).get() );
         clusterLog << m_clusters[i].size() << " ";
         numUsedTracts += m_clusters[i].size();

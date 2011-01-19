@@ -453,9 +453,9 @@ void WMClusterDisplayVoxels::updateAll()
         else if ( m_data[i] != 0 )
         {
             WColor color = wge::getNthHSVColor( m_data[i] - 1, m_activatedClusters.size() );
-            data[i * 3    ] = color.getRed() * 255;
-            data[i * 3 + 1] = color.getGreen() * 255;
-            data[i * 3 + 2] = color.getBlue() * 255;
+            data[i * 3    ] = color[0] * 255;
+            data[i * 3 + 1] = color[1] * 255;
+            data[i * 3 + 2] = color[2] * 255;
         }
         else
         {
@@ -704,9 +704,7 @@ void WMClusterDisplayVoxels::renderMesh()
             // ------------------------------------------------
             // colors
             osg::Vec4Array* colors = new osg::Vec4Array;
-
-            WColor color = wge::getNthHSVColor( i, m_triMeshes.size() );
-            colors->push_back( osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), 1.0f ) );
+            colors->push_back( wge::getNthHSVColor( i, m_triMeshes.size() ) );
             surfaceGeometry->setColorArray( colors );
             surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 

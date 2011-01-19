@@ -415,7 +415,7 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh
 //
 //        for( std::map< size_t, std::pair< double, int > >::const_iterator vertexColor = cm.begin(); vertexColor != cm.end(); ++vertexColor )
 //        {
-//            cmData[ vertexColor->first ] = WColor( 0.0, vertexColor->second.first / vertexColor->second.second, 1.0 );
+//            cmData[ vertexColor->first ] = WColor( 0.0, vertexColor->second.first / vertexColor->second.second, 1.0, 1.0 );
 //        }
     }
     else
@@ -533,7 +533,7 @@ WColor WMClusterSlicer::colorFromPlanePair( const wmath::WPosition& vertex, cons
     double colorQ = ( *m_slices )[ pp.second ].first;
     double vertexColor = colorQ * ( distanceToP / ( distanceToP + distanceToQ ) ) + colorP * ( distanceToQ / ( distanceToP + distanceToQ ) );
     // std::cout << "colorP, colorQ, vertexColor: " << colorP << " " << colorQ << " " << vertexColor << std::endl;
-    return WColor( 0, mapMeanOntoScale( vertexColor ), 1 );
+    return WColor( 0.0, mapMeanOntoScale( vertexColor ), 1.0, 1.0 );
 }
 
 void WMClusterSlicer::updateDisplay( bool force )
@@ -565,7 +565,7 @@ void WMClusterSlicer::updateDisplay( bool force )
             for( std::vector< std::pair< double, WPlane > >::const_iterator cit = m_slices->begin(); cit != m_slices->end(); ++cit )
             {
                 double scaledMean = mapMeanOntoScale( cit->first );
-                WColor color( scaledMean, scaledMean, 1 );
+                WColor color( scaledMean, scaledMean, 1.0, 1.0 );
                 m_sliceGeode->insert( wge::genFinitePlane( width, height, cit->second, color, true ) );
             }
             m_rootNode->insert( m_sliceGeode );

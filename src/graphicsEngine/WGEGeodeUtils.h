@@ -134,7 +134,7 @@ namespace wge
     osg::ref_ptr< osg::Geode > WGE_EXPORT genFinitePlane( double xSize,
                                                           double ySize,
                                                           const WPlane& p,
-                                                          const WColor& color = WColor( 0, 0.7, 0.7 ),
+                                                          const WColor& color = WColor( 0.0, 0.7, 0.7, 1.0 ),
                                                           bool border = false );
 
     /**
@@ -171,7 +171,7 @@ namespace wge
      */
     template< class Container > osg::ref_ptr< osg::Geode > genPointBlobs( boost::shared_ptr< Container > points,
                                                                           double size,
-                                                                          const WColor& color = WColor( 1, 0, 0 ) );
+                                                                          const WColor& color = WColor( 1.0, 0.0, 0.0, 1.0 ) );
 } // end of namespace wge
 
 template< class Container > inline osg::ref_ptr< osg::Geode > wge::genPointBlobs( boost::shared_ptr< Container > points,
@@ -206,7 +206,7 @@ template< class Container > inline osg::ref_ptr< osg::Geode > wge::genPointBlobs
     }
 
     geometry->setVertexArray( vertices );
-    colors->push_back( wge::osgColor( color ) );
+    colors->push_back( color );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     geometry->setNormalArray( normals );
