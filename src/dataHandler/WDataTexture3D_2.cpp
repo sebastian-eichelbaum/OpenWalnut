@@ -24,31 +24,32 @@
 
 #include "WValueSet.h"
 
+#include "../graphicsEngine/WGETextureUtils.h"
+
 #include "WDataTexture3D_2.h"
 
 WDataTexture3D_2::WDataTexture3D_2( boost::shared_ptr< WValueSetBase > valueSet, boost::shared_ptr< WGridRegular3D > grid ):
-    WGETexture3D( static_cast< float >( valueSet->getMinimumValue() ),
-                  static_cast< float >( valueSet->getMaximumValue() - valueSet->getMinimumValue() ) ),
+    WGETexture3D( static_cast< float >( valueSet->getMaximumValue() - valueSet->getMinimumValue() ),
+                  static_cast< float >( valueSet->getMinimumValue() ) ),
     m_valueSet( valueSet ),
     m_grid( grid )
 {
     // initialize members
+    setTextureSize( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ() );
 
     // data textures do not repeat or something
     setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER );
     setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER );
     setWrap( osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_BORDER );
+
+    threshold()->setMin( valueSet->getMinimumValue() );
+    threshold()->setMax( valueSet->getMaximumValue() );
+    threshold()->set( valueSet->getMinimumValue() );
 }
 
 WDataTexture3D_2::~WDataTexture3D_2()
 {
     // cleanup
-}
-
-osg::Matrix WDataTexture3D_2::getTexMatrix() const
-{
-    // TODO(ebaum): implement this, use grid
-    return osg::Matrix::identity();
 }
 
 void WDataTexture3D_2::create()
@@ -111,5 +112,16 @@ void WDataTexture3D_2::create()
     }
 
     setImage( ima );
-    setTextureSize( ima->s(), ima->t(), ima->r() );
+    dirtyTextureObject();
 }
+
+void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WDataTexture3D_2 > texture, size_t unit, std::string prefix )
+{
+    wge::bindTexture( node, osg::ref_ptr< WGETexture3D >( texture ), unit, prefix );
+}
+
+boost::shared_ptr< WGridRegular3D > WDataTexture3D_2::getGrid() const
+{
+    return m_grid;
+}
+

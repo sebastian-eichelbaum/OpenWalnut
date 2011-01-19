@@ -23,17 +23,42 @@
 //---------------------------------------------------------------------------
 
 /**
- * The normal interpolated
+ * The texture coordinate in local texture space.
  */
-varying vec3 v_normal;
+varying vec3 v_colormap0TexCoord;
 
 /**
- * The light source in local coordinates
+ * The texture coordinate in local texture space.
  */
-varying vec3 v_lightSource;
+varying vec3 v_colormap1TexCoord;
 
 /**
- * The light source in local coordinates
+ * The texture coordinate in local texture space.
  */
-varying vec3 v_viewDir;
+varying vec3 v_colormap2TexCoord;
+
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap3TexCoord;
+
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap4TexCoord;
+
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap5TexCoord;
+
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap6TexCoord;
+
+/**
+ * The texture coordinate in local texture space.
+ */
+varying vec3 v_colormap7TexCoord;
 

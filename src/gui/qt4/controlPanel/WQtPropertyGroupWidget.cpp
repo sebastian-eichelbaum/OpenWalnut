@@ -104,6 +104,13 @@ WPropertyPositionWidget* WQtPropertyGroupWidget::addProp( WPropPosition property
     return new WPropertyPositionWidget( property, m_controlLayout, this );
 }
 
+WPropertyMatrix4X4Widget* WQtPropertyGroupWidget::addProp( WPropMatrix4X4 property )
+{
+    ++m_numberOfWidgets;
+
+    return new WPropertyMatrix4X4Widget( property, m_controlLayout, this );
+}
+
 WPropertySelectionWidget* WQtPropertyGroupWidget::addProp( WPropSelection property )
 {
     ++m_numberOfWidgets;

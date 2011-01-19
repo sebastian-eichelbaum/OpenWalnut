@@ -43,19 +43,16 @@
 // **************************************************************************
 
 // texture containing the data
-uniform sampler3D tex0;
+uniform sampler3D u_texture0Sampler;
 
 // texture containing the tracing data
-uniform sampler3D tex1;
+uniform sampler3D u_texture1Sampler;
 
 // texture containing the tracing data -> the scaling factor of the values in the texture
-uniform float u_tex1Scale;
+uniform float u_texture1Scale;
 
 // texture containing the tracing data -> the min value of the values in the texture
-uniform float u_tex1Min;
-
-// texture containing the tracing data -> the max value of the values in the texture
-uniform float u_tex1Max;
+uniform float u_texture1Min;
 
 // **************************************************************************
 // Uniforms for the isosurface mode
@@ -230,7 +227,7 @@ void main()
     while ( i < u_steps ) // we do not need to ch
     {
         // get current value
-        value = texture3D( tex0, curPoint ).r;
+        value = texture3D( u_texture0Sampler, curPoint ).r;
 
         // is it the isovalue?
         if ( abs( value - u_isovalue ) < 0.1 )
@@ -246,12 +243,12 @@ void main()
 
             // 3: find a proper normal for a headlight
             float s = 0.005;
-            float valueXP = texture3D( tex0, curPoint + vec3( s, 0.0, 0.0 ) ).r;
-            float valueXM = texture3D( tex0, curPoint - vec3( s, 0.0, 0.0 ) ).r;
-            float valueYP = texture3D( tex0, curPoint + vec3( 0.0, s, 0.0 ) ).r;
-            float valueYM = texture3D( tex0, curPoint - vec3( 0.0, s, 0.0 ) ).r;
-            float valueZP = texture3D( tex0, curPoint + vec3( 0.0, 0.0, s ) ).r;
-            float valueZM = texture3D( tex0, curPoint - vec3( 0.0, 0.0, s ) ).r;
+            float valueXP = texture3D( u_texture0Sampler, curPoint + vec3( s, 0.0, 0.0 ) ).r;
+            float valueXM = texture3D( u_texture0Sampler, curPoint - vec3( s, 0.0, 0.0 ) ).r;
+            float valueYP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, s, 0.0 ) ).r;
+            float valueYM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, s, 0.0 ) ).r;
+            float valueZP = texture3D( u_texture0Sampler, curPoint + vec3( 0.0, 0.0, s ) ).r;
+            float valueZM = texture3D( u_texture0Sampler, curPoint - vec3( 0.0, 0.0, s ) ).r;
 
             vec3 dir = v_ray;
             dir += vec3( valueXP, 0.0, 0.0 );
@@ -279,13 +276,14 @@ void main()
             float minSize = ( paramSpaceSize * 0.05 );  // the minimum size of 1% of the parameter space size
             float maxSize = ( paramSpaceSize * 0.30 );  // the maximum size -> 30% of parameter space size
 
-            float trace    = texture3D( tex1, curPoint ).r  * ( paramSpaceSize );
-            float traceInv = ( 1.0 - texture3D( tex1, curPoint ).r ) * ( paramSpaceSize );
+            float trace    = texture3D( u_texture1Sampler, curPoint ).r  * ( paramSpaceSize );
+            float traceInv = ( 1.0 - texture3D( u_texture1Sampler, curPoint ).r ) * ( paramSpaceSize );
 
             // 4: prepare animation
             // the current time step:
             float timeStep = u_animationTime / 4.0; // scale 100th of a second to 25 times per second
 
+            //timeStep = 25;
             // create a triangle function increasing time in 1/100 steps
             float relativeSpeed1 = float( u_speed1 ) / 2.0;
             float relativeSpeed2 = float( u_speed2 ) / 2.0;

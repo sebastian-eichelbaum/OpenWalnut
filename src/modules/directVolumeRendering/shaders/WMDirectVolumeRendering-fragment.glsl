@@ -41,10 +41,11 @@
 /////////////////////////////////////////////////////////////////////////////
 
 // texture containing the data
-uniform sampler3D tex0;
-uniform sampler1D TRANSFERFUNCTION_SAMPLER;
-uniform sampler3D GRADIENTTEXTURE_SAMPLER;
-uniform sampler2D JITTERTEXTURE_SAMPLER;
+uniform sampler3D u_volumeSampler;
+uniform sampler1D u_transferFunctionSampler;
+uniform sampler3D u_gradientsSampler;
+uniform sampler2D u_jitterSampler;
+uniform int       u_jitterSizeX;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -99,15 +100,15 @@ vec3 findRayEnd( in vec3 rayStart, out float d )
 vec3 getGradient( in vec3 position )
 {
 #ifdef GRADIENTTEXTURE_ENABLED
-    return ( 2.0 * texture3D( GRADIENTTEXTURE_SAMPLER, position ).rgb ) + vec3( -1.0 );
+    return ( 2.0 * texture3D( u_gradientsSampler, position ).rgb ) + vec3( -1.0 );
 #else
     float s = 0.01;
-    float valueXP = texture3D( tex0, position + vec3( s, 0.0, 0.0 ) ).r;
-    float valueXM = texture3D( tex0, position - vec3( s, 0.0, 0.0 ) ).r;
-    float valueYP = texture3D( tex0, position + vec3( 0.0, s, 0.0 ) ).r;
-    float valueYM = texture3D( tex0, position - vec3( 0.0, s, 0.0 ) ).r;
-    float valueZP = texture3D( tex0, position + vec3( 0.0, 0.0, s ) ).r;
-    float valueZM = texture3D( tex0, position - vec3( 0.0, 0.0, s ) ).r;
+    float valueXP = texture3D( u_volumeSampler, position + vec3( s, 0.0, 0.0 ) ).r;
+    float valueXM = texture3D( u_volumeSampler, position - vec3( s, 0.0, 0.0 ) ).r;
+    float valueYP = texture3D( u_volumeSampler, position + vec3( 0.0, s, 0.0 ) ).r;
+    float valueYM = texture3D( u_volumeSampler, position - vec3( 0.0, s, 0.0 ) ).r;
+    float valueZP = texture3D( u_volumeSampler, position + vec3( 0.0, 0.0, s ) ).r;
+    float valueZM = texture3D( u_volumeSampler, position - vec3( 0.0, 0.0, s ) ).r;
 
     return vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM );
 #endif
@@ -123,7 +124,7 @@ vec3 getGradient( in vec3 position )
 vec4 transferFunction( float value )
 {
 #ifdef TRANSFERFUNCTION_ENABLED
-    return texture1D( TRANSFERFUNCTION_SAMPLER, value );
+    return texture1D( u_transferFunctionSampler, value );
 #else
     if ( isZero( value - 0.5, 0.01 ) )   // if not TF has been specified, at least show something
     {
@@ -193,7 +194,7 @@ void main()
 #ifdef JITTERTEXTURE_ENABLED
     // stochastic jittering can help to void these ugly wood-grain artifacts with larger sampling distances but might
     // introduce some noise artifacts.
-    float jitter = 0.5 - texture2D( JITTERTEXTURE_SAMPLER, gl_FragCoord.xy / JITTERTEXTURE_SIZEX ).r;
+    float jitter = 0.5 - texture2D( u_jitterSampler, gl_FragCoord.xy / float( u_jitterSizeX ) ).r;
     vec3 rayStart = v_rayStart + ( v_ray * v_sampleDistance * jitter );
 #else
     vec3 rayStart = v_rayStart;
@@ -210,7 +211,7 @@ void main()
         {
             // get current value, classify and illuminate
             vec3 rayPoint = rayStart + ( currentDistance * v_ray );
-            vec4 src = localIllumination( rayPoint, transferFunction( texture3D( tex0, rayPoint ).r ) );
+            vec4 src = localIllumination( rayPoint, transferFunction( texture3D( u_volumeSampler, rayPoint ).r ) );
 
 #ifdef OPACITYCORRECTION_ENABLED
             // opacity correction

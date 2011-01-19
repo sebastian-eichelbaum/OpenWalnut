@@ -216,21 +216,19 @@ WCombinerTypes::WCompatiblesList WModuleFactory::getCompatiblePrototypes( boost:
     }
 
     // if NULL was specified, only return all modules without any inputs
-    if ( !module )
+    if ( module )
     {
-        return compatibles;
-    }
-
-    // go through every prototype
-    for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
-            ++listIter )
-    {
-        WCombinerTypes::WOneToOneCombiners lComp = WApplyCombiner::createCombinerList< WApplyCombiner >( module, ( *listIter ) );
-
-        // add the group
-        if ( lComp.size() != 0 )
+        // go through every prototype
+        for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
+             ++listIter )
         {
-            compatibles.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
+            WCombinerTypes::WOneToOneCombiners lComp = WApplyCombiner::createCombinerList< WApplyCombiner >( module, ( *listIter ) );
+
+            // add the group
+            if ( lComp.size() != 0 )
+            {
+                compatibles.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
+            }
         }
     }
 

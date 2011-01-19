@@ -628,6 +628,27 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             {
                 esh[coeffId] = coeffs[coeffId];
             }
+
+            // change Descoteaux basis to Schulz/teem basis
+            // Descoteaux basis: see his PhD thesis page 66
+            // Schultz basis: see PDF "Real Spherical Harmonic basis" - Luke Bloy 9. December 2009
+            size_t k = 0;
+            for ( int l = 0; l <= static_cast<int>( m_order ); l += 2 )
+            {
+                for ( int m = -l; m <= l; ++m )
+                {
+                    if ( m < 0 && ( ( -m ) % 2 == 1 ) )
+                    {
+                        esh[k] *= -1.0;
+                    }
+                    else if ( m > 0 && ( m % 2 == 0 ) )
+                    {
+                        esh[k] *= -1.0;
+                    }
+                    ++k;
+                }
+            }
+
             // convert even-order spherical harmonics to higher-order tensor
             tijk_esh_to_3d_sym_f( ten, esh, m_order );
 

@@ -26,8 +26,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/regex.hpp>
-
 #include <osgGA/TrackballManipulator>
 #include <osgGA/StateSetManipulator>
 #include <osgViewer/ViewerEventHandlers>
@@ -46,6 +44,7 @@
 
 #include "WMClusterDisplayVoxels.xpm"
 
+#include "WFileParser.h"
 #include "WMClusterDisplayVoxels.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
@@ -102,39 +101,6 @@ void WMClusterDisplayVoxels::connectors()
     addConnector( m_output );
 
     WModule::connectors();
-}
-
-std::vector< std::string > WMClusterDisplayVoxels::readFile( const std::string fileName )
-{
-    std::ifstream ifs( fileName.c_str(), std::ifstream::in );
-
-    std::vector< std::string > lines;
-
-    std::string line;
-
-    if ( ifs.is_open() )
-    {
-        debugLog() << "trying to load " << fileName;
-        debugLog() << "file exists";
-    }
-    else
-    {
-        debugLog() << "trying to load " << fileName;
-        debugLog() << "file doesn\'t exist";
-        ifs.close();
-        return lines;
-    }
-
-    while ( !ifs.eof() )
-    {
-        getline( ifs, line );
-
-        lines.push_back( std::string( line ) );
-    }
-
-    ifs.close();
-
-    return lines;
 }
 
 void WMClusterDisplayVoxels::properties()
@@ -254,6 +220,7 @@ void WMClusterDisplayVoxels::moduleMain()
 
     ready();
 
+    // wait for a dataset to be connected, most likely an anatomy dataset
     while ( !m_shutdownFlag() )
     {
         m_moduleState.wait();
@@ -278,6 +245,7 @@ void WMClusterDisplayVoxels::moduleMain()
         }
     }
 
+    // wait for a cluster file to be loaded
     while ( !m_shutdownFlag() )
     {
         m_moduleState.wait();
@@ -301,27 +269,32 @@ void WMClusterDisplayVoxels::moduleMain()
         }
     }
 
-    createTexture();
-    setPropertyBoundaries();
+    // initialize
+    if ( !m_shutdownFlag() )
+    {
+        createTexture();
+        setPropertyBoundaries();
 
-    initWidgets();
-    m_widgetDirty = true;
-    updateWidgets();
+        initWidgets();
+        m_widgetDirty = true;
+        updateWidgets();
 
-    m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_rootCluster, 1000, 500 );
-    m_camera->addChild( m_dendrogramGeode );
+        m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_rootCluster, 1000, 500 );
+        m_camera->addChild( m_dendrogramGeode );
 
-    m_propSelectedCluster->get( true );
-    m_propSelectedLoadedPartion->get( true );
-    m_propMinSizeToColor->get( true );
-    m_propXClusters->get( true );
-    m_propXBiggestClusters->get( true );
-    m_propValue->get( true );
-    m_propMinBranchLength->get( true );
-    m_propMinBranchSize->get( true );
-    m_propLevelsFromTop->get( true );
-    m_showNotInClusters->get( true );
+        m_propSelectedCluster->get( true );
+        m_propSelectedLoadedPartion->get( true );
+        m_propMinSizeToColor->get( true );
+        m_propXClusters->get( true );
+        m_propXBiggestClusters->get( true );
+        m_propValue->get( true );
+        m_propMinBranchLength->get( true );
+        m_propMinBranchSize->get( true );
+        m_propLevelsFromTop->get( true );
+        m_showNotInClusters->get( true );
+    }
 
+    // main loop, respond to controls
     while ( !m_shutdownFlag() )
     {
         m_moduleState.wait();
@@ -484,15 +457,15 @@ void WMClusterDisplayVoxels::handleMinSizeChanged()
 bool WMClusterDisplayVoxels::loadClustering( boost::filesystem::path clusterFile )
 {
     debugLog() << "start parsing tree file...";
-    using namespace boost::filesystem; //NOLINT
 
-    if ( !exists( clusterFile ) )
+    WFileParser parser( clusterFile.string() );
+    if ( !parser.readFile() )
     {
-        debugLog() << "file doesn't exist";
+        debugLog() << "parser error";
         return false;
     }
-    std::vector<std::string> lines;
-    lines = readFile( clusterFile.string() );
+
+    std::vector<std::string>lines = parser.getRawLines();
 
     if ( lines.size() == 0 )
     {
@@ -500,126 +473,42 @@ bool WMClusterDisplayVoxels::loadClustering( boost::filesystem::path clusterFile
         return false;
     }
 
-    size_t i = 0;
-    while ( i < lines.size() )
+    std::vector< std::vector< std::string> >coords = parser.getLinesForTagSeparated( "coordinates" );
+
+    for ( size_t i = 0; i < coords.size(); ++i )
     {
-        if ( lines[i] == "#coordinates" )
-        {
-            debugLog() << "coordinates tag at line " << i;
-            ++i;
-            break;
-        }
-        else
-        {
-            ++i;
-        }
-    }
-    while ( i < lines.size() )
-    {
-        if ( lines[i] == "#endcoordinates" )
-        {
-            debugLog() << "endcoordinates tag at line " << i;
-            ++i;
-            break;
-        }
-        else
-        {
-            std::vector<std::string>svec;
-            boost::regex reg( "," );
-            boost::sregex_token_iterator it( lines[i].begin(), lines[i].end(), reg, -1 );
-            boost::sregex_token_iterator end;
-            while ( it != end )
-            {
-                svec.push_back( *it++ );
-            }
-            m_tree.addLeaf( m_grid->getVoxelNum( boost::lexical_cast< size_t >( svec[0] ),
-                                                  boost::lexical_cast< size_t >( svec[1] ),
-                                                  boost::lexical_cast< size_t >( svec[2] ) ) );
-            ++i;
-        }
+        std::vector< std::string > svec = coords[i];
+
+        m_tree.addLeaf( m_grid->getVoxelNum( boost::lexical_cast< size_t >( svec[0] ),
+                                             boost::lexical_cast< size_t >( svec[1] ),
+                                             boost::lexical_cast< size_t >( svec[2] ) ) );
     }
 
-    while ( i < lines.size() )
+    std::vector< std::vector< std::string> >clusters = parser.getLinesForTagSeparated( "clusters" );
+
+    for ( size_t i = 0; i < clusters.size(); ++i )
     {
-        if ( lines[i] == "#clusters" )
-        {
-            debugLog() << "clusters tag at line " << i;
-            ++i;
-            break;
-        }
-        else
-        {
-            ++i;
-        }
-    }
-    while ( i < lines.size() )
-    {
-        if ( lines[i] == "#endclusters" )
-        {
-            debugLog() << "endclusters tag at line " << i;
-            ++i;
-            break;
-        }
-        else
-        {
-            std::vector<std::string>svec;
-            boost::regex reg( "," );
-            boost::sregex_token_iterator it( lines[i].begin(), lines[i].end(), reg, -1 );
-            boost::sregex_token_iterator end;
-            while ( it != end )
-            {
-                svec.push_back( *it++ );
-            }
-            m_tree.addCluster( boost::lexical_cast< size_t >( svec[0] ) - 1,
-                                boost::lexical_cast< size_t >( svec[1] ) - 1,
-                                boost::lexical_cast< float >( svec[2] ) );
-            ++i;
-        }
+        std::vector< std::string > svec = clusters[i];
+
+        m_tree.addCluster( boost::lexical_cast< size_t >( svec[0] ),
+                           boost::lexical_cast< size_t >( svec[1] ),
+                           boost::lexical_cast< float >( svec[2] ) );
     }
 
-    while ( i < lines.size() )
+    std::vector< std::vector< std::string> >partitions = parser.getLinesForTagSeparated( "partitions" );
+
+    for ( size_t i = 0; i < partitions.size(); ++i )
     {
-        if ( lines[i] == "#partitions" )
+        std::vector< std::string > svec = partitions[i];
+
+        std::vector<size_t>partition;
+
+        for ( size_t k = 0; k < svec.size(); ++k )
         {
-            debugLog() << "partions tag at line " << i;
-            ++i;
-            break;
+            partition.push_back( boost::lexical_cast< size_t >( svec[k] ) );
         }
-        else
-        {
-            ++i;
-        }
+        m_loadedPartitions.push_back( partition );
     }
-    while ( i < lines.size() )
-    {
-        if ( lines[i] == "#endpartitions" )
-        {
-            debugLog() << "endpartitions tag at line " << i;
-            ++i;
-            break;
-        }
-        else
-        {
-            std::vector<std::string>svec;
-            boost::regex reg( "," );
-            boost::sregex_token_iterator it( lines[i].begin(), lines[i].end(), reg, -1 );
-            boost::sregex_token_iterator end;
-            while ( it != end )
-            {
-                svec.push_back( *it++ );
-            }
-
-            std::vector<size_t>partition;
-
-            for ( size_t k = 0; k < svec.size(); ++k )
-            {
-                partition.push_back( boost::lexical_cast< size_t >( svec[k] ) );
-            }
-            m_loadedPartitions.push_back( partition );
-            ++i;
-        }
-    }
-
     return true;
 }
 

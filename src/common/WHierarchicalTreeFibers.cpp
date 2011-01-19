@@ -166,7 +166,7 @@ std::vector<size_t> WHierarchicalTreeFibers::getBestClustersFittingRoi( float ra
             }
         }
     }
-    sortList( candidateList );
+    candidateList.sort( compSize( this ) );
 
     std::vector<size_t>returnList;
 

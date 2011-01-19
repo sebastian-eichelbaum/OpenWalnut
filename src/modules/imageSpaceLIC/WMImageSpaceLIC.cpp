@@ -38,10 +38,11 @@
 #include "../../common/math/WPlane.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
@@ -292,7 +293,6 @@ void WMImageSpaceLIC::moduleMain()
 
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
-    setupTexturing();
 
     // the WGEOffscreenRenderNode manages each of the render-passes for us
     osg::ref_ptr< WGEOffscreenRenderNode > offscreen = new WGEOffscreenRenderNode(
@@ -311,6 +311,9 @@ void WMImageSpaceLIC::moduleMain()
         transformationShader,
         "Transformation"
     );
+    // apply colormapping to transformation
+    WGEColormapping::apply( transformation, transformationShader, 1 );
+
     osg::ref_ptr< WGEOffscreenRenderPass > edgeDetection =  offscreen->addTextureProcessingPass(
         new WGEShader( "WMImageSpaceLIC-Edge", m_localPath ),
         "Edge Detection"
@@ -426,7 +429,7 @@ void WMImageSpaceLIC::moduleMain()
             // prepare offscreen render chain
             edgeDetection->bind( randTexture, 1 );
             availableDataDefines->activateOption( 1 );  // vector input
-            transformation->bind( dataSetVec->getTexture()->getTexture(), 0 );
+            transformation->bind( dataSetVec->getTexture2(), 0 );
         }
         else if ( dataSetScal )
         {
@@ -442,8 +445,7 @@ void WMImageSpaceLIC::moduleMain()
             // prepare offscreen render chain
             edgeDetection->bind( randTexture, 1 );
             availableDataDefines->activateOption( 0 );  // scalar input
-            transformation->bind( dataSetScal->getTexture()->getTexture(), 0 );
-            transformation->bind( randTexture, 1 );
+            transformation->bind( dataSetScal->getTexture2(), 0 );
         }
 
         debugLog() << "Done";

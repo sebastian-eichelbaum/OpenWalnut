@@ -22,18 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-/**
- * The normal interpolated
- */
-varying vec3 v_normal;
-
-/**
- * The light source in local coordinates
- */
-varying vec3 v_lightSource;
-
-/**
- * The light source in local coordinates
- */
-varying vec3 v_viewDir;
+#include "WGECallbackTraits.h"
 

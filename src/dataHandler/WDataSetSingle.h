@@ -31,11 +31,11 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "WDataSet.h"
 #include "WGrid.h"
 #include "WGridRegular3D.h"
 #include "WValueSet.h"
 
-#include "WDataSet.h"
 #include "WExportDataHandler.h"
 
 class WDataTexture3D;
