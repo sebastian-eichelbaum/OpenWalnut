@@ -27,6 +27,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
+#include "../../dataHandler/WDataHandler.h"
 
 #include "WMHistogramEqualization.h"
 #include "WMHistogramEqualization.xpm"
