@@ -104,7 +104,7 @@ namespace wge
         /**
          * The best matching GLSL uniform type for the specified template parameter.
          */
-        typedef unsigned int Type;
+        typedef int Type;
     };
 }
 

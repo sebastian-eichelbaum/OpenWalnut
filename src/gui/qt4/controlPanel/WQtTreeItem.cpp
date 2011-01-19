@@ -222,6 +222,16 @@ void WQtTreeItem::updateState()
         QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getControlPanel(), new WModuleDeleteEvent( this ) );
     }
 
+    // active ?
+    if ( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
+    {
+        setCheckState( 0, Qt::Checked );
+    }
+    else
+    {
+        setCheckState( 0, Qt::Unchecked );
+    }
+
     // update tooltip
     updateTooltip( progress );
 }
@@ -258,5 +268,18 @@ std::string WQtTreeItem::getHandledOutput() const
 void WQtTreeItem::setHandledOutput( std::string out )
 {
     m_handledOutput = out;
+}
+
+void WQtTreeItem::handleCheckStateChange()
+{
+    // active ?
+    if ( checkState( 0 ) == Qt::Checked )
+    {
+        m_module->getProperties()->getProperty( "active" )->toPropBool()->set( true );
+    }
+    else
+    {
+        m_module->getProperties()->getProperty( "active" )->toPropBool()->set( false );
+    }
 }
 
