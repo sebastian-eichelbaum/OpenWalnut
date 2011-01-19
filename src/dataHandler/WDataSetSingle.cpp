@@ -25,15 +25,14 @@
 #include <string>
 #include <vector>
 
+#include "../common/WAssert.h"
+#include "../common/WException.h"
+#include "../common/WPrototyped.h"
 #include "WDataTexture3D.h"
 #include "WDataTexture3D_2.h"
-
-#include "WValueSet.h"
 #include "WGrid.h"
 #include "WGridRegular3D.h"
-#include "../common/WAssert.h"
-#include "../common/WPrototyped.h"
-#include "../common/WException.h"
+#include "WValueSet.h"
 
 #include "WDataSetSingle.h"
 

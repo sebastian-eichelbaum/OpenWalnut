@@ -34,10 +34,8 @@
 
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
-#include "WExportDataHandler.h"
-
-
 #include "WDataTexture3D_2.h"
+#include "WExportDataHandler.h"
 
 class WDataTexture3D;
 class WCondition;
