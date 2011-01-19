@@ -26,6 +26,7 @@
 #define WDATATEXTURE3D_2_H
 
 #include <algorithm>
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
@@ -37,6 +38,60 @@
 #include "WGridRegular3D.h"
 
 #include "WExportDataHandler.h"
+
+/**
+ * Namespace provides some scaling functions for scaling data values to meet the OpenGL requirements.
+ */
+namespace WDataTexture3D_2Scalers
+{
+    /**
+     * Scales the specified value to the interval [0,1] using m_min and m_scale. As the method is inline, the additional parameters are no
+     * problem.
+     *
+     * \param value the value to scale
+     *
+     * \return the value scaled to [0,1]
+     *
+     * \note For integral types no scaling is needed. Specialize this for float/double
+     */
+    template < typename T >
+    inline T scaleInterval( T value, T /*minimum*/, T /*maximum*/, double /*scaler*/ )
+    {
+        return value;
+    }
+
+    /**
+     * Scales the specified value to the interval [0,1] using m_min and m_scale. As the method is inline, the additional parameters are no
+     * problem.
+     *
+     * \param value the value to scale
+     * \param minimum the min value
+     * \param maximum the max value
+     * \param scaler the scaler
+     *
+     * \return the value scaled to [0,1]
+     */
+    inline float scaleInterval( float value, float minimum, float maximum, double scaler )
+    {
+        return ( std::min( std::max( value, minimum ), maximum ) - minimum ) / scaler;
+    }
+
+    /**
+     * Scales the specified value to the interval [0,1] using m_min and m_scale. As the method is inline, the additional parameters are no
+     * problem.
+     *
+     * \param value the value to scale
+     * \param minimum the min value
+     * \param maximum the max value
+     * \param scaler the scaler
+     *
+     * \return the value scaled to [0,1]
+     */
+    inline double scaleInterval( double value, double minimum, double maximum, double scaler )
+    {
+        return static_cast< double >( std::min( std::max( value, minimum ), maximum ) - minimum ) / scaler;
+    }
+}
 
 /**
  * This class allows simple creation of WGETexture3D by using a specified grid and value-set. It also automates grid changes. Ony advantage: the
@@ -67,29 +122,7 @@ public:
      */
     boost::shared_ptr< WGridRegular3D > getGrid() const;
 
-    /**
-     * Returns the matrix used for transforming the texture coordinates to match the texture. This method calculates the correct texture matrix
-     * by using the grid's transformation.
-     *
-     * \return the matrix allowing direct application to osg::TexMat.
-     */
-    virtual osg::Matrix getTexMatrix() const;
-
 protected:
-
-    /**
-     * Scales the specified value to the interval [0,1] using m_min and m_scale. As the method is inline, the additional parameters are no
-     * problem.
-     *
-     * \param value the value to scale
-     * \param minimum the min value
-     * \param maximum the max value
-     * \param scale the scaler
-     *
-     * \return the value scaled to [0,1]
-     */
-    template < typename T >
-    T scaleInterval( T value, T minimum, T maximum, float scale ) const;
 
     /**
      * Creates the texture data. This method creates the texture during the first update traversal using the value set and grid.
@@ -126,6 +159,29 @@ private:
     osg::ref_ptr< osg::Image > createTexture( T* source, int components = 1 );
 };
 
+/**
+ * Extend the wge utils namespace with additional methods relating WDataTexture3D_2.
+ */
+namespace wge
+{
+    /**
+     * Binds the specified texture to the specified unit. It automatically adds several uniforms which then can be utilized in the shader:
+     * - u_textureXUnit: the unit number (useful for accessing correct gl_TexCoord and so on)
+     * - u_textureXSampler: the needed sampler
+     * - u_textureXSizeX: width of the texture in pixels
+     * - u_textureXSizeY: height of the texture in pixels
+     * - u_textureXSizeZ: depth of the texture in pixels
+     * If the specified texture is a WGETexture, it additionally adds u_textureXMin and u_textureXScale for unscaling.
+     *
+     * \param node where to bind
+     * \param unit the unit to use
+     * \param texture the texture to use.
+     * \param prefix if specified, defines the uniform name prefix. (Sampler, Unit, Sizes, ...)
+     * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
+     */
+    void bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WDataTexture3D_2 > texture, size_t unit = 0, std::string prefix = ""  );
+}
+
 template < typename T >
 osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int components )
 {
@@ -134,16 +190,20 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
 
     // get the current scaling info
     T min = static_cast< T >( minimum()->get() );
-    float scale = static_cast< float >( minimum()->get() );
-    T max = min + static_cast< T >( scale );
+    double scaler = scale()->get();
+    T max = min + static_cast< T >( scaler );
 
     typedef typename wge::GLType< T >::Type TexType;
     GLenum type = wge::GLType< T >::TypeEnum;
 
     wlog::debug( "WDataTexture3D_2" ) << "Resolution: " << m_grid->getNbCoordsX() << "x" << m_grid->getNbCoordsY() << "x" << m_grid->getNbCoordsZ();
-    wlog::debug( "WDataTexture3D_2" ) << "Colordepth: " << components;
+    wlog::debug( "WDataTexture3D_2" ) << "Channels: " << components;
+    // NOTE: the casting is needed as if T == uint8_t -> it will be interpreted as ASCII code -> bad.
+    wlog::debug( "WDataTexture3D_2" ) << "Value Range: [" << static_cast< float >( min ) << "," << static_cast< float >( max ) <<
+                                                       "] - Scaler: " << scaler;
 
     osg::ref_ptr< osg::Image > ima = new osg::Image;
+
     if ( components == 1)
     {
         // OpenGL just supports float textures
@@ -153,7 +213,23 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
         // Copy the data pixel wise and convert to float
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
         {
-            data[i] = scaleInterval( source[i], min, max, scale );
+            data[i] = WDataTexture3D_2Scalers::scaleInterval( source[i], min, max, scaler );
+        }
+    }
+    else if ( components == 2)
+    {
+        // OpenGL just supports float textures
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGBA, type );
+        ima->setInternalTextureFormat( GL_RGBA );
+        TexType* data = reinterpret_cast< TexType* >( ima->data() );
+
+        // Copy the data pixel wise and convert to float
+        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
+        {
+            data[ ( 4 * i ) ]     = WDataTexture3D_2Scalers::scaleInterval( source[ ( 2 * i ) ], min, max, scaler );
+            data[ ( 4 * i ) + 1 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 2 * i ) + 1 ], min, max, scaler );
+            data[ ( 4 * i ) + 2 ] = 0.0;
+            data[ ( 4 * i ) + 3 ] = 1.0;
         }
     }
     else if ( components == 3)
@@ -166,9 +242,9 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
         // Copy the data pixel wise and convert to float
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
         {
-            data[ ( 4 * i ) ]     = scaleInterval( source[ ( 3 * i ) ], min, max, scale );
-            data[ ( 4 * i ) + 1 ] = scaleInterval( source[ ( 3 * i ) + 1 ], min, max, scale );
-            data[ ( 4 * i ) + 2 ] = scaleInterval( source[ ( 3 * i ) + 2 ], min, max, scale );
+            data[ ( 4 * i ) ]     = WDataTexture3D_2Scalers::scaleInterval( source[ ( 3 * i ) ], min, max, scaler );
+            data[ ( 4 * i ) + 1 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 3 * i ) + 1 ], min, max, scaler );
+            data[ ( 4 * i ) + 2 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 3 * i ) + 2 ], min, max, scaler );
             data[ ( 4 * i ) + 3 ] = 1.0;
         }
     }
@@ -182,27 +258,21 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
         // Copy the data pixel wise and convert to float
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
         {
-            data[ ( 4 * i ) ]     = scaleInterval( source[ ( 4 * i ) ], min, max, scale );
-            data[ ( 4 * i ) + 1 ] = scaleInterval( source[ ( 4 * i ) + 1 ], min, max, scale );
-            data[ ( 4 * i ) + 2 ] = scaleInterval( source[ ( 4 * i ) + 2 ], min, max, scale );
-            data[ ( 4 * i ) + 3 ] = scaleInterval( source[ ( 4 * i ) + 3 ], min, max, scale );
+            data[ ( 4 * i ) ]     = WDataTexture3D_2Scalers::scaleInterval( source[ ( 4 * i ) ], min, max, scaler );
+            data[ ( 4 * i ) + 1 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 4 * i ) + 1 ], min, max, scaler );
+            data[ ( 4 * i ) + 2 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 4 * i ) + 2 ], min, max, scaler );
+            data[ ( 4 * i ) + 3 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 4 * i ) + 3 ], min, max, scaler );
         }
     }
     else
     {
-        wlog::error( "WDataTexture3D" ) << "Did not handle dataset ( components != 1,3 or 4 ).";
+        wlog::error( "WDataTexture3D" ) << "Did not handle dataset ( components != 1,2,3 or 4 ).";
     }
 
     // done, unlock
     lock.unlock();
 
     return ima;
-}
-
-template < typename T >
-inline T WDataTexture3D_2::scaleInterval( T value, T minimum, T maximum, float scale ) const
-{
-    return static_cast< float >( std::min( std::max( value, minimum ), maximum ) - minimum ) / scale;
 }
 
 #endif  // WDATATEXTURE3D_2_H
