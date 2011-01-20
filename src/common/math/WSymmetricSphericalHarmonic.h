@@ -78,6 +78,16 @@ public:
     const wmath::WValue<double>& getCoefficients() const;
 
     /**
+     * Returns the coefficients for Schultz' SH base.
+     */
+    wmath::WValue< double > getCoefficientsSchultz() const;
+
+    /**
+     * Returns the coefficients for the complex base.
+     */
+    wmath::WValue< std::complex< double > > getCoefficientsComplex() const;
+
+    /**
      * Applies the Funk-Radon-Transformation. This is faster than matrix multiplication.
      * ( O(n) instead of O(n²) )
      *
@@ -152,6 +162,15 @@ public:
     * \return The base Matrix B
     */
     static wmath::WMatrix<double> calcBaseMatrix( const std::vector< wmath::WUnitSphereCoordinates >& orientations, int order );
+
+    /**
+    * Calculates the base matrix B for the complex spherical harmonics.
+    * \param orientations The vector with the used orientation on the unit sphere (usually the gradients of the HARDI)
+    * \param order The order of the spherical harmonics intended to create
+    * \return The base Matrix B
+    */
+    static wmath::WMatrix< std::complex< double > > calcComplexBaseMatrix( std::vector< wmath::WUnitSphereCoordinates > const& orientations,
+                                                                           int order );
 
     /**
     * This calcs the smoothing matrix L from the 2007 Descoteaux Paper "Regularized, Fast, and Robust Analytical Q-Ball Imaging"
