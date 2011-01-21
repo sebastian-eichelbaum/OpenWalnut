@@ -201,7 +201,6 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
     // NOTE: the casting is needed as if T == uint8_t -> it will be interpreted as ASCII code -> bad.
     wlog::debug( "WDataTexture3D_2" ) << "Value Range: [" << static_cast< float >( min ) << "," << static_cast< float >( max ) <<
                                                        "] - Scaler: " << scaler;
-
     osg::ref_ptr< osg::Image > ima = new osg::Image;
 
     if ( components == 1)

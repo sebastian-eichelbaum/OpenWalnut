@@ -54,7 +54,7 @@ void WOSGButton::setId( size_t id )
     m_id = id;
 }
 
-void WOSGButton::setBackgroundColor( WColor color )
+void WOSGButton::setBackgroundColor( const WColor& color )
 {
-    m_label->setColor( color.getRed(), color.getGreen(), color.getBlue(), 1.0f );
+    m_label->setColor( color[0], color[1], color[2], 1.0f );
 }

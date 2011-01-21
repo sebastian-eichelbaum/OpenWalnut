@@ -167,7 +167,7 @@ void WROIArbitrary::updateGFX()
         // ------------------------------------------------
         // colors
         osg::Vec4Array* colors = new osg::Vec4Array;
-        colors->push_back( osg::Vec4( m_color.getRed(), m_color.getGreen(), m_color.getBlue(), m_color.getAlpha() ) );
+        colors->push_back( m_color );
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 

@@ -99,7 +99,7 @@ public:
      *
      * \param color the color
      */
-    void setBackgroundColor( WColor color );
+    void setBackgroundColor( const WColor& color );
 
 
 private:

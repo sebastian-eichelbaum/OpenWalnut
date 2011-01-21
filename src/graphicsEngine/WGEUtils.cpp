@@ -59,7 +59,7 @@ WColor wge::createColorFromIndex( int index )
 
     if ( index == 0 )
     {
-        return WColor( 0.0, 0.0, 0.0 );
+        return WColor( 0.0, 0.0, 0.0, 1.0 );
     }
 
     if ( ( index & 1 ) == 1 )
@@ -121,7 +121,7 @@ WColor wge::createColorFromIndex( int index )
     g *= mult;
     b *= mult;
 
-    return WColor( r, g, b );
+    return WColor( r, g, b, 1.0 );
 }
 
 WColor wge::createColorFromHSV( int h, float s, float v )

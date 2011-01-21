@@ -208,11 +208,48 @@ void WMData::moduleMain()
         m_dataSet = niiLoader.load();
         m_isTexture = m_dataSet->isTexture();
 
-        boost::shared_ptr< WDataSetSingle > dss;
-        dss =  boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+        boost::shared_ptr< WDataSetSingle > dss = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
         if( dss )
         {
             m_dataType->set( getDataTypeString( dss ) );
+            switch( (*dss).getValueSet()->getDataType() )
+            {
+                case W_DT_UNSIGNED_CHAR:
+                case W_DT_INT16:
+                case W_DT_SIGNED_INT:
+                    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
+                    m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 0 ) );
+                    // }
+                    m_dataSet->getTexture2()->colormap()->set(
+                        m_dataSet->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 0 ) )
+                    );
+                    break;
+                case W_DT_FLOAT:
+                case W_DT_DOUBLE:
+                    if( boost::shared_dynamic_cast< WDataSetVector >( m_dataSet ) )
+                    {
+                        // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
+                        m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 6 ) );
+                        m_interpolation->set( false );
+                        // }
+                        m_dataSet->getTexture2()->colormap()->set(
+                            m_dataSet->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 6 ) )
+                        );
+                        m_dataSet->getTexture2()->interpolation()->set( false );
+                    }
+                    else
+                    {
+                        // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
+                        m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 5 ) );
+                        // }
+                        m_dataSet->getTexture2()->colormap()->set(
+                            m_dataSet->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 5 ) )
+                        );
+                    }
+                    break;
+                default:
+                    WAssert( false, "Unknow data type in Data module" );
+            }
         }
 
     }
@@ -262,7 +299,7 @@ void WMData::moduleMain()
         m_infoProperties->addProperty( m_dataSet->getTexture2()->getInformationProperties() );
     }
 
-    // i am interested in the active property ( manually subscribe signal )
+    // I am interested in the active property ( manually subscribe signal )
     m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );
 
     // notify

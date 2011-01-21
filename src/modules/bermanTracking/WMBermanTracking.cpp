@@ -252,7 +252,7 @@ void WMBermanTracking::moduleMain()
             m_outputFibers->updateData( m_fiberSet );
             m_trackingPool = boost::shared_ptr< TrackingFuncType >();
 
-            boost::shared_ptr< WValueSet< float > > vs( new WValueSet< float >( 0, 1, *m_hits, DataType< float >::type ) );
+            boost::shared_ptr< WValueSet< float > > vs( new WValueSet< float >( 0, 1, m_hits, DataType< float >::type ) );
 
             m_result = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_dataSet->getGrid() ) );
             m_result->setFileName( "Berman_prob_tracking_result" );

@@ -37,7 +37,13 @@
 #include "../../../graphicsEngine/WGECamera.h"
 #include "../../../graphicsEngine/WGEViewer.h"
 
-class WColor;
+namespace osg
+{
+    class Vec4f;
+    typedef Vec4f Vec4;
+}
+
+typedef osg::Vec4 WColor;
 
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
@@ -93,7 +99,7 @@ public:
      * Sets the background color of the widget.
      * \param bgColor the new backgorund color
      */
-    void setBgColor( WColor bgColor );
+    void setBgColor( const WColor& bgColor );
 
     /**
      * Returns the actually set camera manipulator.

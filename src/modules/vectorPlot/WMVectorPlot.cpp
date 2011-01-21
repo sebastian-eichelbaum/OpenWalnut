@@ -206,8 +206,7 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     ref_ptr< osg::Geometry > geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
 
-    WColor c = m_aColor->get( true );
-    osg::Vec4 cc( c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() );
+    WColor color = m_aColor->get( true );
 
     if( ( ( *m_dataSet ).getValueSet()->order() == 1 ) && ( ( *m_dataSet ).getValueSet()->dimension() == 3 )
             && ( ( *m_dataSet ).getValueSet()->getDataType() == 16 ) )
@@ -240,8 +239,8 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
                         }
                         else
                         {
-                            colors->push_back( cc );
-                            colors->push_back( cc );
+                            colors->push_back( color );
+                            colors->push_back( color );
                         }
                     }
                     else
@@ -259,10 +258,10 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
                         }
                         else
                         {
-                            colors->push_back( cc );
-                            colors->push_back( cc );
-                            colors->push_back( cc );
-                            colors->push_back( cc );
+                            colors->push_back( color );
+                            colors->push_back( color );
+                            colors->push_back( color );
+                            colors->push_back( color );
                         }
                     }
                 }
@@ -292,8 +291,8 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
                         }
                         else
                         {
-                            colors->push_back( cc );
-                            colors->push_back( cc );
+                            colors->push_back( color );
+                            colors->push_back( color );
                         }
                     }
                     else
@@ -311,10 +310,10 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
                         }
                         else
                         {
-                            colors->push_back( cc );
-                            colors->push_back( cc );
-                            colors->push_back( cc );
-                            colors->push_back( cc );
+                            colors->push_back( color );
+                            colors->push_back( color );
+                            colors->push_back( color );
+                            colors->push_back( color );
                         }
                     }
                 }
@@ -344,8 +343,8 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
                         }
                         else
                         {
-                            colors->push_back( cc );
-                            colors->push_back( cc );
+                            colors->push_back( color );
+                            colors->push_back( color );
                         }
                     }
                     else
@@ -363,10 +362,10 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
                         }
                         else
                         {
-                            colors->push_back( cc );
-                            colors->push_back( cc );
-                            colors->push_back( cc );
-                            colors->push_back( cc );
+                            colors->push_back( color );
+                            colors->push_back( color );
+                            colors->push_back( color );
+                            colors->push_back( color );
                         }
                     }
                 }
