@@ -32,23 +32,24 @@
 #include <osg/Geometry>
 #include <osg/Drawable>
 
-#include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../common/math/WMath.h"
 #include "../../common/math/WPlane.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D_2.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "../../graphicsEngine/WGEColormapping.h"
+#include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/WGETextureUtils.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/offscreen/WGEOffscreenRenderNode.h"
+#include "../../graphicsEngine/offscreen/WGEOffscreenRenderPass.h"
+#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
-#include "../../graphicsEngine/offscreen/WGEOffscreenRenderPass.h"
-#include "../../graphicsEngine/offscreen/WGEOffscreenRenderNode.h"
-#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "../../kernel/WKernel.h"
 
 #include "WMImageSpaceLIC.h"
 #include "WMImageSpaceLIC.xpm"
@@ -163,7 +164,7 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
     if ( mesh && !m_useSlices->get( true ) )
     {
         // we have a mesh and want to use it
-
+        warnLog() << "MESH.";
         // create geometry and geode
         osg::Geometry* surfaceGeometry = new osg::Geometry();
         osg::ref_ptr< osg::Geode > surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
@@ -197,6 +198,7 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
     }
     else
     {
+        warnLog() << "SLICE";
         // we want the tex matrix for each slice to be modified too,
         osg::ref_ptr< osg::TexMat > texMat;
 
@@ -234,33 +236,6 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
     }
 }
 
-/**
- * Generates a white noise texture with given resolution.
- *
- * \param resX the resolution
- *
- * \return a image with resX*resX resolution.
- */
-osg::ref_ptr< osg::Image > genWhiteNoise( size_t resX )
-{
-    std::srand( time( 0 ) );
-
-    osg::ref_ptr< osg::Image > randImage = new osg::Image();
-    randImage->allocateImage( resX, resX, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
-    unsigned char *randomLuminance = randImage->data();  // should be 4 megs
-    for( unsigned int x = 0; x < resX; x++ )
-    {
-        for( unsigned int y = 0; y < resX; y++ )
-        {
-            // - stylechecker says "use rand_r" but I am not sure about portability.
-            unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
-            randomLuminance[ ( y * resX ) + x ] = r;
-        }
-    }
-
-    return randImage;
-}
-
 void WMImageSpaceLIC::moduleMain()
 {
     // get notified about data changes
@@ -279,11 +254,7 @@ void WMImageSpaceLIC::moduleMain()
     const size_t resX = 1024;
 
     // finally, create a texture from the image
-    osg::ref_ptr< osg::Texture2D > randTexture = new osg::Texture2D();
-    randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
-    randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
-    randTexture->setImage( genWhiteNoise( resX ) );
-    randTexture->setResizeNonPowerOfTwoHint( false );
+    osg::ref_ptr< osg::Texture2D > randTexture = wge::genWhiteNoiseTexture( resX );
     // done.
     ready();
 
