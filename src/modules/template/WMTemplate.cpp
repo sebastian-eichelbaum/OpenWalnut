@@ -673,12 +673,9 @@ void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisit
     // gets set in your thread main and checked here or, as done in this module, by checking whether the callback is called the first time.
     if( m_module->m_aColor->changed() || m_initialUpdate )
     {
-        // Grab the color
-        WColor c = m_module->m_aColor->get( true );
-
         // Set the diffuse color and material:
         osg::ref_ptr< osg::Material > mat = new osg::Material();
-        mat->setDiffuse( osg::Material::FRONT, osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() ) );
+        mat->setDiffuse( osg::Material::FRONT, m_module->m_aColor->get( true ) );
         node->getOrCreateStateSet()->setAttribute( mat, osg::StateAttribute::ON );
     }
     traverse( node, nv );

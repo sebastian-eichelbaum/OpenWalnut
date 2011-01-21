@@ -203,7 +203,7 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceGeodeBuilder::colorVertices( osg::ref_ptr
             if( success && ( probability > probThreshold ) )
             {
                 WColor c = colorMap( probTractNum );
-                c.setAlpha( static_cast< float >( probability ) );
+                c[3] = static_cast< float >( probability );
                 vertexColorPerTract.push_back( c );
             }
             if( !success )

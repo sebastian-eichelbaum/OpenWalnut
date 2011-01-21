@@ -53,7 +53,7 @@ public:
     {
         std::stringstream tmp;
         tmp.precision( 16 );
-        tmp << "RGBA WColor( " << c.getRed() << " " << c.getGreen() << " " << c.getBlue() << " " << c.getAlpha() << " )";
+        tmp << "RGBA WColor( " << c[0] << " " << c[1] << " " << c[2] << " " << c[3] << " )";
         m_s = tmp.str();
     }
 };

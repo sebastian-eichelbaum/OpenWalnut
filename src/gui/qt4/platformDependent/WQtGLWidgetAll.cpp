@@ -103,7 +103,7 @@ void WQtGLWidgetAll::setCameraManipulator( WQtGLWidgetAll::CameraManipulators ma
     }
 }
 
-void WQtGLWidgetAll::setBgColor( WColor bgColor )
+void WQtGLWidgetAll::setBgColor( const WColor& bgColor )
 {
     m_Viewer->setBgColor( bgColor );
 }

@@ -176,28 +176,12 @@ public:
     void setVertexColor( size_t index, osg::Vec4 color );
 
     /**
-     * sets the color for a given vertex
-     *
-     * \param index
-     * \param color
-     */
-    void setVertexColor( size_t index, WColor color );
-
-    /**
      * sets the color for a given triangle
      *
      * \param index
      * \param color
      */
     void setTriangleColor( size_t index, osg::Vec4 color );
-
-    /**
-     * sets the color for a given triangle
-     *
-     * \param index
-     * \param color
-     */
-    void setTriangleColor( size_t index, WColor color );
 
     /**
      * Return triangle colors
