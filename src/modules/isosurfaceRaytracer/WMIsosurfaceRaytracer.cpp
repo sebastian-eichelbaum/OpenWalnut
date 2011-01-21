@@ -255,7 +255,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio ) );
             // Stochastic jitter?
             const size_t size = 64;
-            osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size );
+            osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size, size, 1 );
             wge::bindTexture( cube, randTex, 1 );
 
             // update node

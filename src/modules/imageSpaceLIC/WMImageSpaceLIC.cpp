@@ -207,15 +207,15 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
         m_ySlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonY ) );
         m_zSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonZ ) );
 
-        texMat = new osg::TexMat();
+        texMat = new osg::TexMat( osg::Matrix::identity() );
         m_xSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos, texMat ) );
         m_xSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
 
-        texMat = new osg::TexMat();
+        texMat = new osg::TexMat( osg::Matrix::identity() );
         m_ySlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos, texMat ) );
         m_ySlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
 
-        texMat = new osg::TexMat();
+        texMat = new osg::TexMat( osg::Matrix::identity() );
         m_zSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos, texMat ) );
         m_zSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
 
@@ -254,7 +254,7 @@ void WMImageSpaceLIC::moduleMain()
     const size_t resX = 1024;
 
     // finally, create a texture from the image
-    osg::ref_ptr< osg::Texture2D > randTexture = wge::genWhiteNoiseTexture( resX );
+    osg::ref_ptr< osg::Texture2D > randTexture = wge::genWhiteNoiseTexture( resX, resX, 1 );
     // done.
     ready();
 
