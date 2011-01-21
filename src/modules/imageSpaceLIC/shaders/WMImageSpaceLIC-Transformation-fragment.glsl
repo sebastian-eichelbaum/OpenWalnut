@@ -43,27 +43,27 @@ uniform sampler3D u_texture0Sampler;
 /**
  * Scaling factor to unscale the texture
  */
-uniform float u_texture0Scale;
+uniform float u_texture0Scale = 1.0;
 
 /**
  * Smallest possible value in the texture
  */
-uniform float u_texture0Min;
+uniform float u_texture0Min = 0.0;
 
 /**
  * Size of input texture in pixels
  */
-uniform int u_texture0SizeX;
+uniform int u_texture0SizeX = 255;
 
 /**
  * Size of input texture in pixels
  */
-uniform int u_texture0SizeY;
+uniform int u_texture0SizeY = 255;
 
 /**
  * Size of input texture in pixels
  */
-uniform int u_texture0SizeZ;
+uniform int u_texture0SizeZ = 255;
 
 /**
  * Transforms each vector on each pixel to image space.

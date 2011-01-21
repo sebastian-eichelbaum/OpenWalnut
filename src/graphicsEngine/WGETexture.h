@@ -394,11 +394,11 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
     m_scale->removeConstraint( m_scale->getMin() );
     m_scale->removeConstraint( m_scale->getMax() );
 
-    m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0, m_propCondition );
+    m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0 );
     m_alpha->setMin( 0.0 );
     m_alpha->setMax( 1.0 );
 
-    m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0, m_propCondition );
+    m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0 );
     m_threshold->setMin( min );
     m_threshold->setMax( min + scale );
 
@@ -413,19 +413,21 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
     m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
     m_colorMapSelectionsList->addItem( "Vector", "" );
 
-    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst(),
-        m_propCondition
-    );
+    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst() );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMap );
 
-    m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true, m_propCondition );
+    m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true );
 
-    m_texMatrix = m_properties->addProperty( "Texture Transformation", "Usable to transform the texture.", osg::Matrix::identity(), m_propCondition );
+    m_texMatrix = m_properties->addProperty( "Texture Transformation", "Usable to transform the texture.", osg::Matrix::identity() );
 
     TextureType::setResizeNonPowerOfTwoHint( false );
     TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >(
         boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) )
     );
+
+    // init filters
+    TextureType::setFilter( osg::Texture::MIN_FILTER, m_interpolation->get( true ) ? osg::Texture::LINEAR : osg::Texture::NEAREST );
+    TextureType::setFilter( osg::Texture::MAG_FILTER, m_interpolation->get( true ) ? osg::Texture::LINEAR : osg::Texture::NEAREST );
 }
 
 template < typename TextureType >
