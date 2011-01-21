@@ -408,9 +408,10 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
     m_colorMapSelectionsList->addItem( "Grayscale", "" );
     m_colorMapSelectionsList->addItem( "Rainbow", "" );
     m_colorMapSelectionsList->addItem( "Hot iron", "" );
-    m_colorMapSelectionsList->addItem( "Red-Yellow", "" );
+    m_colorMapSelectionsList->addItem( "Negative to positive", "" );
     m_colorMapSelectionsList->addItem( "Atlas", "" );
     m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
+    m_colorMapSelectionsList->addItem( "Vector", "" );
 
     m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst(),
         m_propCondition
