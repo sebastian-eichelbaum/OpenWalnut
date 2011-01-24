@@ -70,11 +70,12 @@ uniform int u_texture0SizeZ = 255;
  */
 void main()
 {
-    vec2 vecProjected;    // contains the final vector at each fragment
+    vec3 vecProjected;    // contains the final vector at each fragment
 
 #ifdef VECTORDATA
     // get the current vector at this position
     vec3 vec = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz, u_texture0Min, u_texture0Scale ).rgb;
+    vec *= sign( vec.x );
 
     // zero length vectors are uninteresting. discard them
     if ( isZero( length( vec ), 0.01 ) )
@@ -83,7 +84,7 @@ void main()
     }
 
     // project the vectors to image space
-    vecProjected = projectVector( vec ).xy;
+    vecProjected = projectVector( vec ).xyz;
 
 #endif
 #ifdef SCALARDATA
@@ -102,7 +103,8 @@ void main()
     float valueZM = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz - vec3( 0.0, 0.0, sz ), u_texture0Min, u_texture0Scale ).r;
 
     vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM );
-
+    dir *= sign( dir.x );
+    
     // zero length vectors are uninteresting. discard them
     vecProjected = projectVector( dir ).xy;
     if ( isZero( length( dir ), 0.01 ) )
@@ -125,7 +127,9 @@ void main()
             normalize( v_viewDir ),
             normalize( v_lightSource ) );
 
-    gl_FragData[0] = vec4( textureNormalize( vecProjected ), light, 1.0 );
+    // is the vector very orthogonal to the surface?
+    vec2 dotScaled = ( 1.0 - dot( v_normal.xyz, vec.xyz  ) ) * scaleMaxToOne( vecProjected ).xy;
+    gl_FragData[0] = vec4( vec2( 0.5 ) + ( 0.5  * dotScaled ), light, 1.0 );
     gl_FragData[1] = colormapping();
 }
 
