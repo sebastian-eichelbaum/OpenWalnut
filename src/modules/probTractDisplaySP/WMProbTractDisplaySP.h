@@ -31,13 +31,14 @@
 
 #include "../../common/WBoundingBox.h"
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetVector.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
-class WSPSliceGeodeBuilder;
+class WSPSliceBuilder;
 
 /**
  * This module computes for axial, coronal and sagittal views so called Schmahmann and Pandya slices in order to visualize
@@ -113,12 +114,11 @@ private:
     void updateProperties( boost::shared_ptr< const WGridRegular3D > grid );
 
     /**
-     * Updates the axial, coronal or sagittal slices.
+     * Updates all slices.
      *
-     * \param sliceNum 0 means xSlice or sagittal slice, 1 means ySlice and 2 means zSlice.
      * \param builder An instance of a slice builder, correctly initialized and ready to use.
      */
-    void updateSlices( const unsigned char sliceNum, boost::shared_ptr< const WSPSliceGeodeBuilder > builder );
+    void updateSlices( boost::shared_ptr< WSPSliceBuilder > builder );
 
     /**
      * If there is a change on the probTract ICs then this update callback is called and ensures that for every connected
@@ -140,6 +140,11 @@ private:
      * The probabilistic tractogram input connector.
      */
     std::vector< boost::shared_ptr< WModuleInputData< WDataSetScalar > > > m_probICs;
+
+    /**
+     * Input connector for the largest eigen vector dataset.
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_vectorIC;
 
     /**
      * The tracts input connector.
@@ -166,27 +171,70 @@ private:
      */
     osg::ref_ptr< WGEManagedGroupNode > m_zSlice;
 
-    WPropGroup    m_sliceGroup; //!< the group contains several slice properties
+    /**
+     * The group contains several slice properties
+     */
+    WPropGroup    m_sliceGroup;
 
-    WPropInt      m_xPos; //!< x position of the slice
+    /**
+     * X position of the slice
+     */
+    WPropInt      m_xPos;
 
-    WPropInt      m_yPos; //!< y position of the slice
+    /**
+     * Y position of the slice
+     */
+    WPropInt      m_yPos;
 
-    WPropInt      m_zPos; //!< z position of the slice
+    /**
+     * Z position of the slice
+     */
+    WPropInt      m_zPos;
 
-    WPropBool     m_showonX; //!< indicates whether the vector should be shown on slice X
+    /**
+     * Indicates whether the vector should be shown on slice X
+     */
+    WPropBool     m_showonX;
 
-    WPropBool     m_showonY; //!< indicates whether the vector should be shown on slice Y
+    /**
+     * Indicates whether the vector should be shown on slice Y
+     */
+    WPropBool     m_showonY;
 
-    WPropBool     m_showonZ; //!< indicates whether the vector should be shown on slice Z
+    /**
+     * Indicates whether the vector should be shown on slice Z
+     */
+    WPropBool     m_showonZ;
 
-    WPropBool     m_showIntersection; //!< Switch on or off the intersecting line stipplings
+    /**
+     * The group contains several properties for tract based drawing
+     */
+    WPropGroup    m_tractGroup;
 
-    WPropBool     m_showProjection; //!< Switch on or off the projections of the intersecting line stipplings
+    /**
+     * Switch on or off the intersecting line stipplings
+     */
+    WPropBool     m_showIntersection;
 
-    WPropDouble   m_delta; //!< Environment around the slices where to cut off the tracts
+    /**
+     * Switch on or off the projections of the intersecting line stipplings
+     */
+    WPropBool     m_showProjection;
 
-    WPropDouble   m_probThreshold; //!< Probabilities a position below this threshold does not contribute to the vertex coloring
+    /**
+     * Environment around the slices where to cut off the tracts
+     */
+    WPropDouble   m_delta;
+
+    /**
+     * Probabilities a position below this threshold does not contribute to the vertex coloring
+     */
+    WPropDouble   m_probThreshold;
+
+    /**
+     * The group contains several properties for eigen vector based drawing
+     */
+    WPropGroup    m_vectorGroup;
 
     /**
      * There is one group for each pobTract input connector holding a string property and a color property.
@@ -202,6 +250,16 @@ private:
      * Condition to notify about changes of the slices.
      */
     boost::shared_ptr< WCondition > m_sliceChanged;
+
+    /**
+     * List of algorithms to select to draw those Schmahmann Pandya slices.
+     */
+    boost::shared_ptr< WItemSelection > m_drawAlgorithmList;
+
+    /**
+     * Property accessor for the Algorithm list.
+     */
+    WPropSelection m_drawAlgorithm;
 };
 
 #endif  // WMPROBTRACTDISPLAYSP_H

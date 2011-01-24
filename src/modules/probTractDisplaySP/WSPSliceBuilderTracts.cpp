@@ -27,31 +27,32 @@
 #include <osg/LineStipple>
 
 #include "../../common/exceptions/WTypeMismatch.h"
-#include "../../common/WLogger.h"
 #include "../../common/math/WPosition.h"
+#include "../../common/WLogger.h"
+#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "WSPSliceGeodeBuilder.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "WSPSliceBuilderTracts.h"
 
-WSPSliceGeodeBuilder::WSPSliceGeodeBuilder( ProbTractList probTracts, boost::shared_ptr< const WDataSetFibers > detTracts, WPropGroup sliceGroup,
-        std::vector< WPropGroup > colorMap )
-    : m_detTracts( detTracts ),
-      m_probTracts( probTracts ),
-      m_intersectionList( 3 ),
+WSPSliceBuilderTracts::WSPSliceBuilderTracts( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap,
+        boost::shared_ptr< const WDataSetFibers > detTracts, WPropGroup tractGroup )
+    : WSPSliceBuilder( probTracts, sliceGroup, colorMap ),
       m_sliceBB( 3 ),
-      m_slicePos( 3 ),
-      m_colorMap( colorMap ) // yes this is a COPY of the vector but WPropGroup is a boost::shared_ptr so updates will propagate!
+      m_detTracts( detTracts ),
+      m_intersectionList( 3 )
 {
     if( m_probTracts.empty() || !m_detTracts )
     {
-        wlog::warn( "WSPSliceGeodeBuilder" ) << "No probabilistic tractograms were given for slice geode generation!";
+        wlog::warn( "WSPSliceBuilder" ) << "No probabilistic tractograms were given for slice geode generation!";
     }
-    wlog::debug( "WSPSliceGeodeBuilder" ) << "Init geode builder...";
 
-    m_slicePos[2] = sliceGroup->findProperty( "Axial Position" )->toPropInt();
-    m_slicePos[1] = sliceGroup->findProperty( "Coronal Position" )->toPropInt();
-    m_slicePos[0] = sliceGroup->findProperty( "Sagittal Position" )->toPropInt();
-
-    checkAndExtractGrids();
+    m_maxDistance = tractGroup->findProperty( "Slices Environment" )->toPropDouble();
+    m_probThreshold = tractGroup->findProperty( "Prob Threshold" )->toPropDouble();
+    m_showIntersections = tractGroup->findProperty( "Show Intersections" )->toPropBool();
+    m_showProjections = tractGroup->findProperty( "Show Projections" )->toPropBool();
 
     // compute BB for each deterministic tract
     m_tractBB.clear();
@@ -62,64 +63,13 @@ WSPSliceGeodeBuilder::WSPSliceGeodeBuilder( ProbTractList probTracts, boost::sha
     }
 
     computeSliceBB(); // just to be sure those are initialized, since they may change due to m_slicePos[0], et al. anyway
-    wlog::debug( "WSPSliceGeodeBuilder" ) << "Init geode builder done";
 }
 
-// helper functions only to be DRY
-namespace
-{
-    /**
-     * Try a cast to WGridRegular3D, and return the cast result if it was successful, otherwise throw an exception of
-     * WTypeMismatched.
-     *
-     * \param dataset The dataset of which the grid is taken from to check.
-     *
-     * \return The grid of the dataset casted to WGridRegular3D.
-     */
-    boost::shared_ptr< const WGridRegular3D > ensureWGridRegular3D( boost::shared_ptr< const WDataSetScalar > dataset )
-    {
-        boost::shared_ptr< const WGridRegular3D > result = boost::shared_dynamic_cast< WGridRegular3D >( dataset->getGrid() );
-        if( !result )
-        {
-            wlog::error( "WSPSliceGeodeBuilder" ) << "Cast to WGridRegular3D failed.";
-            throw WTypeMismatch( "WSPSliceGeodeBuilder::extractGrid(): WGridRegular3D expected, but cast failed." );
-        }
-        return result;
-    }
-}
-
-void WSPSliceGeodeBuilder::checkAndExtractGrids()
-{
-    if( m_probTracts.empty() )
-    {
-        m_grid.reset();
-    }
-    else
-    {
-        try
-        {
-            m_grid = ensureWGridRegular3D( m_probTracts.front() );
-
-            for( ProbTractList::const_iterator cit = m_probTracts.begin(); cit != m_probTracts.end(); ++cit )
-            {
-                boost::shared_ptr< const WGridRegular3D > grid = ensureWGridRegular3D( *cit );
-                // TODO(math): ensure that each WGridRegular3D is the same once the operator== is available for WGridRegular3D
-                // grid == m_grid
-            }
-        }
-        catch( const WTypeMismatch& e )
-        {
-            wlog::error( "WSPSliceGeodeBuilder" ) << "At least one probabilistic tractogram has a grid which is not castable to WGridRegluar3D";
-            throw e;
-        }
-    }
-}
-
-void WSPSliceGeodeBuilder::computeSliceBB()
+void WSPSliceBuilderTracts::computeSliceBB()
 {
     if( !m_grid )
     {
-        wlog::warn( "WSPSliceGeodeBuilder" ) << "Invalid grid while BB computation!";
+        wlog::warn( "WSPSliceBuilder" ) << "Invalid grid while BB computation!";
         return;
     }
     m_sliceBB[0] = WBoundingBox( m_grid->getOrigin() + m_slicePos[0]->get() * m_grid->getDirectionX(),
@@ -133,7 +83,7 @@ void WSPSliceGeodeBuilder::computeSliceBB()
             m_grid->getNbCoordsX() * m_grid->getDirectionX() );
 }
 
-void WSPSliceGeodeBuilder::determineIntersectingDeterministicTracts()
+void WSPSliceBuilderTracts::preprocess()
 {
     computeSliceBB();
 
@@ -156,7 +106,7 @@ void WSPSliceGeodeBuilder::determineIntersectingDeterministicTracts()
     }
 }
 
-void WSPSliceGeodeBuilder::projectTractOnSlice( const unsigned char sliceNum, osg::ref_ptr< osg::Vec3Array > vertices, const int slicePos ) const
+void WSPSliceBuilderTracts::projectTractOnSlice( const unsigned char sliceNum, osg::ref_ptr< osg::Vec3Array > vertices, const int slicePos ) const
 {
     WAssert( vertices, "Bug: a given internal array was not expected empty here!" );
     WAssert( sliceNum <= 2, "Bug: The selected sliceNum ( 0 == x, 1 == y, 2 == z ) was invalid" );
@@ -167,12 +117,7 @@ void WSPSliceGeodeBuilder::projectTractOnSlice( const unsigned char sliceNum, os
     }
 }
 
-WColor WSPSliceGeodeBuilder::colorMap( size_t probTractNum ) const
-{
-    return m_colorMap.at( probTractNum )->findProperty( "Color" )->toPropColor()->get();
-}
-
-osg::ref_ptr< osg::Vec4Array > WSPSliceGeodeBuilder::colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices, const double probThreshold ) const
+osg::ref_ptr< osg::Vec4Array > WSPSliceBuilderTracts::colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices, const double probThreshold ) const
 {
     osg::ref_ptr< osg::Vec4Array > result( new osg::Vec4Array );
     result->reserve( vertices->size() );
@@ -229,15 +174,14 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceGeodeBuilder::colorVertices( osg::ref_ptr
 
     if( interpolationFailures > 0 )
     {
-        wlog::warn( "WSPSliceGeodeBuilder" ) << "While coloring vertices, the interpolation of probabilistic tractograms failed: "
+        wlog::warn( "WSPSliceBuilderTracts" ) << "While coloring vertices, the interpolation of probabilistic tractograms failed: "
             << interpolationFailures << " many times.";
     }
     WAssert( result->size() == vertices->size(), "Bug: There are not as many colors as vertices computed!" );
     return result;
 }
 
-WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsigned char sliceNum, const double maxDistance,
-        const double probThreshold ) const
+osg::ref_ptr< WGEGroupNode > WSPSliceBuilderTracts::generateSlice( const unsigned char sliceNum ) const
 {
     WAssert( sliceNum <= 2, "Bug: Invalid slice number given: must be 0, 1 or 2." );
     // select slicePos, intersections and bounding box
@@ -245,8 +189,8 @@ WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsi
     const WBoundingBox& bb = m_sliceBB[ sliceNum ];
     const int slicePos = m_slicePos[ sliceNum ]->get();
 
-    osg::ref_ptr< osg::Geode > intersectionGeode = new osg::Geode();
-    osg::ref_ptr< osg::Geode > projectionGeode = new osg::Geode();
+    osg::ref_ptr< osg::Geode > intersectionGeode = new osg::Geode;
+    osg::ref_ptr< osg::Geode > projectionGeode = new osg::Geode;
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     colors->push_back( osg::Vec4( 1.0, 0.0, 0.0, 1.0 ) );
@@ -267,13 +211,13 @@ WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsi
         {
             size_t startIdx = vertices->size();
             // proceed to a vertex inside the deltaX environment
-            while( ( k < len ) && std::abs( slicePos - fibVerts->at( ( 3 * k ) + sidx + sliceNum ) ) > maxDistance )
+            while( ( k < len ) && std::abs( slicePos - fibVerts->at( ( 3 * k ) + sidx + sliceNum ) ) > m_maxDistance->get() )
             {
                 k++;
             }
             osg::ref_ptr< osg::Vec3Array > candidate = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
             WBoundingBox cBB;
-            while( ( k < len ) &&  std::abs( slicePos - fibVerts->at( ( 3 * k ) + sidx + sliceNum ) ) <= maxDistance )
+            while( ( k < len ) &&  std::abs( slicePos - fibVerts->at( ( 3 * k ) + sidx + sliceNum ) ) <= m_maxDistance->get() )
             {
                 wmath::WPosition cv( fibVerts->at( ( 3 * k ) + sidx ),
                             fibVerts->at( ( 3 * k ) + sidx + 1 ),
@@ -286,7 +230,7 @@ WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsi
             {
                 vertices->insert( vertices->end(), candidate->begin(), candidate->end() );
                 geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, startIdx, candidate->size() ) );
-                osg::ref_ptr< osg::Vec4Array > candidateColors = colorVertices( candidate, probThreshold );
+                osg::ref_ptr< osg::Vec4Array > candidateColors = colorVertices( candidate, m_probThreshold->get() );
                 pc->insert( pc->end(), candidateColors->begin(), candidateColors->end() );
                 projectTractOnSlice( sliceNum, candidate, slicePos );
                 pv->insert( pv->end(), candidate->begin(), candidate->end() );
@@ -319,5 +263,13 @@ WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsi
     ls->setFactor( 2 );
 
     state->setAttributeAndModes( ls.get(), osg::StateAttribute::ON );
-    return std::make_pair( intersectionGeode, projectionGeode );
+    osg::ref_ptr< WGEManagedGroupNode > intersectionGroup = new WGEManagedGroupNode( m_showIntersections );
+    intersectionGroup->insert( intersectionGeode );
+    osg::ref_ptr< WGEManagedGroupNode > projectionGroup = new WGEManagedGroupNode( m_showProjections );
+    projectionGroup->insert( projectionGeode );
+    osg::ref_ptr< WGEGroupNode > result = new WGEGroupNode();
+    result->clear();
+    result->insert( intersectionGroup );
+    result->insert( projectionGroup );
+    return result;
 }
