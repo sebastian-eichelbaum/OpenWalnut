@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGELIGHTING_VERTEX_GLSL
+#define WGELIGHTING_VERTEX_GLSL
+
+#version 120
+
 varying vec3 normal;
 varying vec4 vertex;
 varying vec3 halfvec;
@@ -44,3 +49,6 @@ void prepareLight()
 
     halfvec = vec3( L + vec3( 0.0, 0.0, 1.0 ) );
 }
+
+#endif // WGELIGHTING_VERTEX_GLSL
+

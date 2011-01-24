@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGECOLORMAPPING_VERTEX_GLSL
+#define WGECOLORMAPPING_VERTEX_GLSL
+
+#version 120
+
 #include "WGEColormapping-uniforms.glsl"
 #include "WGEColormapping-varyings.glsl"
 
@@ -73,4 +78,6 @@ void colormapping()
                         0.0, 0.0, 1.0, 0.0,
                         0.0, 0.0, 0.0, 1.0 ) ); // simply call it with the identity transform
 }
+
+#endif // WGECOLORMAPPING_VERTEX_GLSL
 

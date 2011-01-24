@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGEUTILS_GLSL
+#define WGEUTILS_GLSL
+
+#version 120
+
 /**
  * 
  * This makes threshold lying between min and max to lie between 0 and 1 where 0 corresponds to min and 1 to max
@@ -63,4 +68,48 @@ bool isZero( in float value )
 {
     return ( abs( value ) <= 0.001 );
 }
+
+/**
+ * Takes the largest absolute component of the vector and scales the whole vector with it. This ensures that the resulting vector always is in
+ * [-1, 1] with its largest component to be -1 or 1.
+ *
+ * \param point the vector to scale
+ *
+ * \return the scaled vector
+ */
+vec2 scaleMaxToOne( vec2 point )
+{
+    float maxC = max( abs( point.x ), abs( point.y ) ) + 0.00001;
+    return point / maxC;
+}
+
+/**
+ * Takes the largest absolute component of the vector and scales the whole vector with it. This ensures that the resulting vector always is in
+ * [-1, 1] with its largest component to be -1 or 1.
+ *
+ * \param point the vector to scale
+ *
+ * \return the scaled vector
+ */
+vec3 scaleMaxToOne( vec3 point )
+{
+    float maxC = max( abs( point.x ), max( abs( point.y ), abs( point.z ) ) ) + 0.00001;
+    return point / maxC;
+}
+
+/**
+ * Takes the largest absolute component of the vector and scales the whole vector with it. This ensures that the resulting vector always is in
+ * [-1, 1] with its largest component to be -1 or 1.
+ *
+ * \param point the vector to scale
+ *
+ * \return the scaled vector
+ */
+vec4 scaleMaxToOne( vec4 point )
+{
+    float maxC = max( abs( point.x ), max( abs( point.y ), max( abs( point.z ), abs( point.w ) ) ) ) + 0.00001;
+    return point / maxC;   
+}
+
+#endif  // WGEUTILS_GLSL
 

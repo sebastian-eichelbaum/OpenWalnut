@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGECOLORMAPS_GLSL
+#define WGECOLORMAPS_GLSL
+
+#version 120
+
 uniform int useColorMap;
 
 vec3 blueGreenPurpleColorMap( in float value )
@@ -325,3 +330,6 @@ void colorMap( inout vec3 col, in float value, int cmap )
     else if ( cmap == 6 )
         col = vectorColorMap( col );
 }
+
+#endif // WGECOLORMAPS_GLSL
+

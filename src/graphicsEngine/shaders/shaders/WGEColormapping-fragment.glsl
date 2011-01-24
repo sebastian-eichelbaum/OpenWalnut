@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGECOLORMAPPING_FRAGMENT_GLSL
+#define WGECOLORMAPPING_FRAGMENT_GLSL
+
+#version 120
+
 #include "WGEColormapping-uniforms.glsl"
 #include "WGEColormapping-varyings.glsl"
 
@@ -464,4 +469,6 @@ vec4 colormapping()
 
     return finalColor;
 }
+
+#endif // WGECOLORMAPPING_FRAGMENT_GLSL
 

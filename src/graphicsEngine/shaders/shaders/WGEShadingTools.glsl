@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGESHADINGTOOLS_GLSL
+#define WGESHADINGTOOLS_GLSL
+
+#version 120
+
 /** 
  * Function to calculate lighting based on "Real-Time Volume Graphics, p 119, chapter 5.4, Listing 5.1".
  *
@@ -163,4 +168,6 @@ vec3 getGradientViewAligned( in sampler3D sampler, in vec3 pos, in vec3 viewDir 
     // unfortunately the ATI driver does not allow default values for function arguments
     return getGradientViewAligned( sampler, pos, viewDir, 0.005 );
 }
+
+#endif // WGESHADINGTOOLS_GLSL
 

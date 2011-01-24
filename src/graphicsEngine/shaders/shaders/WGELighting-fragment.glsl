@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGELIGHTING_FRAGMENT_GLSL
+#define WGELIGHTING_FRAGMENT_GLSL
+
+#version 120
+
 varying vec3 normal;
 varying vec4 vertex;
 varying vec3 halfvec;
@@ -56,3 +61,6 @@ void calculateLighting( in vec3 N, in float shininess, inout vec4 ambient, inout
 {
     directionalLight( 0, N, shininess, ambient, diffuse, specular );
 }
+
+#endif // WGELIGHTING_FRAGMENT_GLSL
+
