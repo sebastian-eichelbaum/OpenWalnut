@@ -54,29 +54,21 @@ std::string WGEShaderVersionPreprocessor::process( const std::string& file, cons
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // this is an expression for the #version statement
-    static const boost::regex versionRegexp( "^[ ]*#[ ]*version[ ]+[123456789][0123456789]+.*$" );
+    static const boost::regex versionRegexp( "^[ ]*#[ ]*version[ ]+([123456789][0123456789][0123456789]).*$" );
 
     // go through each line again
     std::string line;
     boost::smatch matches;          // the list of matches
-    std::string versionLine;        // the version
     bool foundVersion = false;
+    unsigned int version = 120;     // our default version
     std::stringstream completeCode( code );
     std::ostringstream cleanedCode;
     while ( std::getline( completeCode, line ) )
     {
-        if( boost::regex_match( line, versionRegexp ) ) // look for the #version statement
+        if( boost::regex_match( line, matches, versionRegexp ) ) // look for the #version statement
         {
-            // there already was a version statement in this file
-            // this does not track multiple version statements through included files
-            if( foundVersion )
-            {
-                WLogger::getLogger()->addLogMessage( "Multiple version statements in unrolled shader file \"" + file + "\".",
-                        "WGEShader (" + file + ")", LL_ERROR
-                );
-                return "";
-            }
-            versionLine = line;
+            unsigned int versionNum = boost::lexical_cast< unsigned int >( matches[1] );
+            version = std::max( versionNum, version );
             foundVersion = true;
             continue;
         }
@@ -87,12 +79,13 @@ std::string WGEShaderVersionPreprocessor::process( const std::string& file, cons
     // no version statement found, assume 1.2
     if( !foundVersion )
     {
-        versionLine = "#version 120";
+        wlog::warn( "WGEShader (" + file + ")" ) << "No version statements in unrolled shader file \"" << file << "\" found. Using default: "
+                                                 << version << ".";
     }
 
     // the ATI compiler needs the version statement to be the first statement in the shader
     std::stringstream vs;
-    vs << versionLine.c_str() << std::endl << cleanedCode.str();
+    vs << "#version " << version << std::endl << cleanedCode.str();
     return vs.str();
 }
 
