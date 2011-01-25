@@ -29,6 +29,7 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/signals2.hpp>
 
 #include "../graphicsEngine/WGETexture.h"
 #include "../graphicsEngine/WGETypeTraits.h"
@@ -147,6 +148,11 @@ private:
     boost::shared_mutex m_creationLock;
 
     /**
+     * Connection of subscribed update condition from grid. Remove this if the grid really is const!
+     */
+    boost::signals2::connection m_transformationUpdateConnection;
+
+    /**
      * Creates a properly sized osg::Image from the specified source data.
      *
      * \param source the source data
@@ -157,6 +163,11 @@ private:
      */
     template < typename T >
     osg::ref_ptr< osg::Image > createTexture( T* source, int components = 1 );
+
+    /**
+     * Updated the transformation property of the texture according to the grid's worldToTex matrix.
+     */
+    void updateTransform();
 };
 
 /**

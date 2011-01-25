@@ -45,11 +45,22 @@ WDataTexture3D_2::WDataTexture3D_2( boost::shared_ptr< WValueSetBase > valueSet,
     threshold()->setMin( valueSet->getMinimumValue() );
     threshold()->setMax( valueSet->getMaximumValue() );
     threshold()->set( valueSet->getMinimumValue() );
+
+    // subscribe transformation update callback
+    m_transformationUpdateConnection = m_grid->getTransformationUpdateCondition()->subscribeSignal(
+        boost::bind( &WDataTexture3D_2::updateTransform, this )
+    );
+    transformation()->set( m_grid->getWorldToTexMatrix() );
 }
 
 WDataTexture3D_2::~WDataTexture3D_2()
 {
     // cleanup
+}
+
+void WDataTexture3D_2::updateTransform()
+{
+    transformation()->set( m_grid->getWorldToTexMatrix() );
 }
 
 void WDataTexture3D_2::create()
@@ -110,6 +121,9 @@ void WDataTexture3D_2::create()
         wlog::debug( "WDataTexture3D_2" ) << "Creating Texture of type" << m_valueSet->getDataType();
         wlog::error( "WDataTexture3D_2" ) << "Conversion of this data type to texture not supported yet.";
     }
+    wlog::debug( "jwwwwh" ) <<      transformation()->get();
+    transformation()->set( m_grid->getWorldToTexMatrix() );
+    wlog::debug( "jwwwwh" ) <<      transformation()->get();
 
     setImage( ima );
     dirtyTextureObject();

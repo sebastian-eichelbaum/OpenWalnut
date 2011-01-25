@@ -37,6 +37,7 @@
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
 #include "../common/WBoundingBox.h"
+#include "../common/WCondition.h"
 #include "WExportDataHandler.h"
 #include "WGrid.h"
 
@@ -260,6 +261,29 @@ public:
      * \param coords The point with these coordinates will be transformed.
      */
     wmath::WPosition texCoordToWorldCoord( wmath::WVector3D coords );
+
+    /**
+     * Matrix converting a specified world coordinate to texture space according in this grid.
+     *
+     * \return the matrix.
+     */
+    const wmath::WMatrix4x4& getWorldToTexMatrix() const;
+
+    /**
+     * Matrix converting a specified texture coordinate to world space according to this grid.
+     *
+     * \return the matrix.
+     */
+    const wmath::WMatrix4x4& getTexToWorldMatrix() const;
+
+    /**
+     * This method returns the condition that fires on changes in this grid's transformation matrix. This is ugly and should not be used since,
+     * technically, we want const grids. For WDataTexture_2, this is needed right now because we have a module which allows modification of the
+     * grid transformation (dataManipulator). Remove this if the grid really is const as it is not needed anymore.
+     *
+     * \return the condition
+     */
+    WCondition::SPtr getTransformationUpdateCondition() const;
 
     /**
      * Returns the i'th voxel where the given position belongs too.
@@ -666,6 +690,11 @@ private:
     wmath::WMatrix4x4 m_rotMatrix; //!< stores the custom rotation
 
     wmath::WMatrix4x4 m_stretchMatrix; //!< stores the custom strech manipulation
+
+    /**
+     * Fires whenever the transformation matrix changes.
+     */
+    WCondition::SPtr m_transformationUpdateCondition;
 };
 
 inline unsigned int WGridRegular3D::getNbCoordsX() const
