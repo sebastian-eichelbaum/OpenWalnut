@@ -141,7 +141,6 @@ namespace wge
      * \return the generated image.
      */
     osg::ref_ptr< osg::Image > genWhiteNoiseImage( size_t sizeX, size_t sizeY, size_t sizeZ, size_t channels = 1 );
-
 }
 
 template < typename T >

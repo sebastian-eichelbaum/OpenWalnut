@@ -108,7 +108,7 @@ vec3 scaleMaxToOne( vec3 point )
 vec4 scaleMaxToOne( vec4 point )
 {
     float maxC = max( abs( point.x ), max( abs( point.y ), max( abs( point.z ), abs( point.w ) ) ) ) + 0.00001;
-    return point / maxC;   
+    return point / maxC;
 }
 
 #endif  // WGEUTILS_GLSL

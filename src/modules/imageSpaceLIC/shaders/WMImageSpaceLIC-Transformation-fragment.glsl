@@ -104,7 +104,7 @@ void main()
 
     vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM );
     dir *= sign( dir.x );
-    
+
     // zero length vectors are uninteresting. discard them
     vecProjected = projectVector( dir ).xy;
     if ( isZero( length( dir ), 0.01 ) )

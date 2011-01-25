@@ -89,7 +89,7 @@ WMatrix<double> invertMatrix3x3( WMatrix<double> mat )
                 mat( 0, 1 ) * mat( 1, 0 ) * mat( 2, 2 ) -
                 mat( 0, 0 ) * mat( 1, 2 ) * mat( 2, 1 );
 
-    WAssert( det != 0, "Determinat is zero. This matrix can not be inverted." );
+    WAssert( det != 0, "Determinant is zero. This matrix can not be inverted." );
 
     WMatrix<double> r( 3, 3 );
 
