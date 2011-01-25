@@ -261,7 +261,7 @@ void WMAtlasSurfaces::createOSGNode()
         // colors
         osg::Vec4Array* colors = new osg::Vec4Array;
 
-        colors->push_back( wge::osgColor( wge::createColorFromIndex( i ) ) );
+        colors->push_back( wge::createColorFromIndex( i ) );
 
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );

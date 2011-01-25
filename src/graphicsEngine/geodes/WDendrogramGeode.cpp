@@ -122,8 +122,8 @@ void WDendrogramGeode::layoutLevel( size_t cluster, float left, float right )
             m_lineArray->push_back( m_vertexArray->size() - 2 );
             m_lineArray->push_back( m_vertexArray->size() - 1 );
 
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
 
             layoutLevel( leftCluster, left, right );
         }
@@ -137,8 +137,8 @@ void WDendrogramGeode::layoutLevel( size_t cluster, float left, float right )
             m_lineArray->push_back( m_vertexArray->size() - 2 );
             m_lineArray->push_back( m_vertexArray->size() - 1 );
 
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
 
             layoutLevel( rightCluster, left, right );
         }
@@ -155,10 +155,10 @@ void WDendrogramGeode::layoutLevel( size_t cluster, float left, float right )
             m_vertexArray->push_back( osg::Vec3( ( left  + leftSize * mult  / 2.0 ), leftHeight, 0 ) );
             m_vertexArray->push_back( osg::Vec3( ( right - rightSize * mult / 2.0 ), rightHeight, 0 ) );
 
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
 
             m_lineArray->push_back( m_vertexArray->size() - 4 );
             m_lineArray->push_back( m_vertexArray->size() - 2 );
@@ -198,8 +198,8 @@ void WDendrogramGeode::layoutValue( size_t cluster, float left, float right )
             m_lineArray->push_back( m_vertexArray->size() - 2 );
             m_lineArray->push_back( m_vertexArray->size() - 1 );
 
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
 
             layoutValue( leftCluster, left, right );
         }
@@ -213,8 +213,8 @@ void WDendrogramGeode::layoutValue( size_t cluster, float left, float right )
             m_lineArray->push_back( m_vertexArray->size() - 2 );
             m_lineArray->push_back( m_vertexArray->size() - 1 );
 
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
 
             layoutValue( rightCluster, left, right );
         }
@@ -231,10 +231,10 @@ void WDendrogramGeode::layoutValue( size_t cluster, float left, float right )
             m_vertexArray->push_back( osg::Vec3( ( left  + leftSize * mult  / 2.0 ), leftHeight, 0 ) );
             m_vertexArray->push_back( osg::Vec3( ( right - rightSize * mult / 2.0 ), rightHeight, 0 ) );
 
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
-            m_colors->push_back( wge::osgColor( m_tree->getColor( cluster ) ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
+            m_colors->push_back( m_tree->getColor( cluster ) );
 
             m_lineArray->push_back( m_vertexArray->size() - 4 );
             m_lineArray->push_back( m_vertexArray->size() - 2 );

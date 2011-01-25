@@ -178,8 +178,10 @@ protected:
      */
     WPropString m_dataType;
 
+    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
     /**
-     * grouping the texture display properties
+     * \deprecated Be aware that this will be replaced by WGEColormapping
+     * Grouping the texture display properties
      */
     WPropGroup    m_groupTex;
 
@@ -218,6 +220,7 @@ protected:
      * Opacity value for this data.
      */
     WPropInt m_opacity;
+    // }
 
     bool m_isTexture; //!< Indicates whether the loaded dataSet will be available as texture.
 

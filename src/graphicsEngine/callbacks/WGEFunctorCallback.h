@@ -30,61 +30,8 @@
 #include <osg/Node>
 #include <osg/NodeCallback>
 
+#include "WGECallbackTraits.h"
 #include "../WExportWGE.h"
-
-/**
- * This class is needed as OSG does not define a uniform callback type.
- */
-template < typename Type >
-class WGEFunctorCallbackTraits
-{
-public:
-    /**
-     * The real callback type. Some specific osg classes have specific callbacks. Specialize this template in this case.
-     */
-    typedef typename Type::Callback CallbackType;
-
-    /**
-     * Call traversal method if existing for the specific callback type.
-     *
-     * \param inst the instance to use
-     * \param handled the instance of the handled object
-     * \param nv the node visitor
-     */
-    static void traverse( CallbackType* inst, Type* handled, osg::NodeVisitor* nv );
-};
-
-template < typename Type >
-void WGEFunctorCallbackTraits< Type >::traverse( CallbackType* /*inst*/, Type* /*handled*/, osg::NodeVisitor* /*nv*/ )
-{
-    // the generic case: no nested callbacks -> no traversal
-}
-
-/**
- * Nodes have their own callback type and provide a traverse method (as they can be nested).
- */
-template <>
-class WGEFunctorCallbackTraits< osg::Node >
-{
-public:
-
-    /**
-     * The real callback type. Some specific OSG classes have specific callbacks. Specialize this template in this case.
-     */
-    typedef osg::NodeCallback CallbackType;
-
-    /**
-     * Call traversal method if existing for the specific callback type. This calls osg::NodeCallback::traverse.
-     *
-     * \param inst the instance to use
-     * \param handled the instance of the handled object
-     * \param nv the node visitor
-     */
-    static void traverse( CallbackType* inst, osg::Node* handled, osg::NodeVisitor* nv )
-    {
-        inst->traverse( handled, nv );
-    }
-};
 
 /**
  * This callback allows you a simple usage of callbacks in your module. The callback uses function pointers and calls them every update cycle.
@@ -94,7 +41,7 @@ public:
  * \tparam Type the callback type. You can specify every class that has a nested class called "Callback".
  */
 template < typename Type = osg::Node >
-class WGEFunctorCallback: public WGEFunctorCallbackTraits< Type >::CallbackType
+class WGEFunctorCallback: public WGECallbackTraits< Type >::CallbackType
 {
 public:
 
@@ -134,7 +81,7 @@ private:
 
 template < typename Type >
 WGEFunctorCallback< Type >::WGEFunctorCallback( FunctorType functor ):
-    WGEFunctorCallbackTraits< Type >::CallbackType(),
+    WGECallbackTraits< Type >::CallbackType(),
     m_functor( functor )
 {
     // initialize members
@@ -151,7 +98,7 @@ void WGEFunctorCallback< Type >::operator()( Type* handled, osg::NodeVisitor* nv
 {
     // call functor
     m_functor( handled );
-    WGEFunctorCallbackTraits< Type >::traverse( this, handled, nv );
+    WGECallbackTraits< Type >::traverse( this, handled, nv );
 }
 
 #endif  // WGEFUNCTORCALLBACK_H

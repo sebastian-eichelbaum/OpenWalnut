@@ -133,23 +133,10 @@ void WTriangleMesh::setVertexColor( size_t index, osg::Vec4 color )
     ( *m_vertColors )[index] = color;
 }
 
-void WTriangleMesh::setVertexColor( size_t index, WColor color )
-{
-    WAssert( index < m_countVerts, "set vertex color: index out of range" );
-    setVertexColor( index, osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() ) );
-}
-
-
 void WTriangleMesh::setTriangleColor( size_t index, osg::Vec4 color )
 {
     WAssert( index < m_countTriangles, "set triangle color: index out of range" );
     ( *m_triangleColors )[index] = color;
-}
-
-void WTriangleMesh::setTriangleColor( size_t index, WColor color )
-{
-    WAssert( index < m_countTriangles, "set triangle color: index out of range" );
-    setTriangleColor( index, osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() ) );
 }
 
 osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getVertexArray()

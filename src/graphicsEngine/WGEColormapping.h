@@ -26,17 +26,24 @@
 #define WGECOLORMAPPING_H
 
 #include <map>
+#include <string>
+#include <algorithm>
 #include <vector>
+
+#include <boost/signals2/signal.hpp>
+#include <boost/function.hpp>
 
 #include <osg/Node>
 
 #include "../common/WLogger.h"
 #include "../common/WSharedSequenceContainer.h"
 #include "../common/WSharedAssociativeContainer.h"
+#include "../common/math/WMatrix4x4.h"
 
 #include "callbacks/WGEFunctorCallback.h"
 
 #include "WGETexture.h"
+#include "shaders/WGEShader.h"
 #include "WExportWGE.h"
 
 /**
@@ -47,6 +54,41 @@
 class WGE_EXPORT WGEColormapping // NOLINT
 {
 public:
+    /**
+     * The alias for a shared container.
+     */
+    typedef WSharedSequenceContainer< std::vector< osg::ref_ptr< WGETexture3D > > > TextureContainerType;
+
+    /**
+     * Iterator to access the texture list.
+     */
+    typedef TextureContainerType::Iterator TextureIterator;
+
+    /**
+     * Const iterator to access the texture list.
+     */
+    typedef TextureContainerType::ConstIterator TextureConstIterator;
+
+    /**
+     * The type of handler used for being notified about added textures.
+     */
+    typedef boost::function< void ( osg::ref_ptr< WGETexture3D > ) > TextureRegisterHandler;
+
+    /**
+     * The type of handler used for being notified about removed textures.
+     */
+    typedef TextureRegisterHandler TextureDeregisterHandler;
+
+    /**
+     * The type of handler used for being notified about replaced textures.
+     */
+    typedef boost::function< void ( osg::ref_ptr< WGETexture3D >, osg::ref_ptr< WGETexture3D > ) > TextureReplaceHandler;
+
+    /**
+     * The type of handler called whenever the texture list got resorted.
+     */
+    typedef boost::function< void ( void ) > TextureSortHandler;
+
     /**
      * Destructor.
      */
@@ -63,16 +105,33 @@ public:
      * Apply the colormapping to the specified node.
      *
      * \param node the node.
-     * \param useDefaultShader if true, a standard colormapping shader is used. This is useful for plain geometry.
+     * \param shader the shader to use for colormapping. Provide your own shader here to let WGEColormap set some defines needed. If not
+     * specified, a default shader is used.
+     * \param preTransform Transformation matrix getting applied to your texture coordinates before applying texture matrices. This allows you to
+     * specify any kind of texture coordinates as long as you use this matrix to transform them to the right space.
+     * \param startTexUnit the first texture unit allowed to be used
      */
-    static void apply( osg::ref_ptr< osg::Node > node, bool useDefaultShader = true );
+    static void apply( osg::ref_ptr< osg::Node > node, wmath::WMatrix4x4 preTransform = wmath::WMatrix4x4::identity(),
+                       osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
+
+    /**
+     * Apply the colormapping to the specified node.
+     *
+     * \param node the node.
+     * \param shader the shader to use for colormapping. Provide your own shader here to let WGEColormap set some defines needed. If not
+     * specified, a default shader is used.
+     * \param startTexUnit the first texture unit allowed to be used
+     */
+    static void apply( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
 
     /**
      * Register the specified texture to the colormapper. The registered texture is the automatically applied to all users of WGEColormapping.
+     * The texture gets inserted at the beginning of the texture list.
      *
      * \param texture the texture to add
+     * \param name the name of the texture to add
      */
-    static void registerTexture( osg::ref_ptr< WGETexture3D > texture );
+    static void registerTexture( osg::ref_ptr< WGETexture3D > texture, std::string name = "" );
 
     /**
      * De-register the specified texture to the colormapper. The texture is the automatically removed from all users of WGEColormapping. If the
@@ -81,6 +140,90 @@ public:
      * \param texture the texture to remove
      */
     static void deregisterTexture( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
+     * Replaces the specified texture with the given new one. If the old texture does not exist, the new one gets inserted at the front of the
+     * list as \ref registerTexture does.
+     *
+     * \param old the texture to remove
+     * \param newTex the new texture to put at the position of the old one
+     * \param name the name of the texture.
+     */
+    static void replaceTexture( osg::ref_ptr< WGETexture3D > old, osg::ref_ptr< WGETexture3D > newTex, std::string name = "" );
+
+    /**
+     * Resorts the texture list using the specified comparator.
+     *
+     * \tparam Comparator the comparator type. Usually a boost::function or class providing the operator().
+     * \param comp the comparator
+     */
+    template < typename Comparator >
+    void sort( Comparator comp );
+
+    /**
+     * Move the specified texture one item up in the list. Causes the sort signal to fire.
+     *
+     * \param texture the texture swapped with its ascendant
+     * \return true if swap was successful. False if not (texture not found, texture already at beginning).
+     */
+    bool moveUp( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
+     * Move the specified texture one item down in the list. Causes the sort signal to fire.
+     *
+     * \param texture the texture swapped with its descendant
+     * \return true if swap was successful. False if not (texture not found, texture already at end).
+     */
+    bool moveDown( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
+     * Possible signals that can be subscribed for being notified about texture list changes.
+     */
+    typedef enum
+    {
+        Registered = 0, //!< texture got added
+        Deregistered,   //!< texture got removed
+        Replaced,       //!< texture got replaced
+        Sorted          //!< texture list was resorted
+    }
+    TextureListSignal;
+
+    /**
+     * Subscribe to the specified signal. See \ref TextureListSignal for details about their meaning.
+     *
+     * \param signal the signal to subscribe
+     * \param notifier the notifier
+     *
+     * \return the connection. Keep this and disconnect it properly!
+     */
+    boost::signals2::connection subscribeSignal( TextureListSignal signal, TextureRegisterHandler notifier );
+
+    /**
+     * Subscribe to the specified signal. See \ref TextureListSignal for details about their meaning.
+     *
+     * \param signal the signal to subscribe
+     * \param notifier the notifier
+     *
+     * \return the connection. Keep this and disconnect it properly!
+     */
+    boost::signals2::connection subscribeSignal( TextureListSignal signal, TextureReplaceHandler notifier );
+
+    /**
+     * Subscribe to the specified signal. See \ref TextureListSignal for details about their meaning.
+     *
+     * \param signal the signal to subscribe
+     * \param notifier the notifier
+     *
+     * \return the connection. Keep this and disconnect it properly!
+     */
+    boost::signals2::connection subscribeSignal( TextureListSignal signal, TextureSortHandler notifier );
+
+    /**
+     * Returns a read ticket to the texture array. Useful to iterate the textures.
+     *
+     * \return the read ticket
+     */
+    TextureContainerType::ReadTicket getReadTicket();
 
 protected:
 
@@ -93,16 +236,22 @@ protected:
      * Apply the colormapping to the specified node.
      *
      * \param node the node.
-     * \param useDefaultShader if true, a standard colormapping shader is used. This is useful for plain geometry.
+     * \param preTransform Transformation matrix getting applied to your texture coordinates before applying texture matrices. This allows you to
+     * specify any kind of texture coordinates as long as you use this matrix to transform them to the right space.
+     * \param shader the shader to use for colormapping. Provide your own shader here to let WGEColormap set some defines needed. If not
+     * specified, a default shader is used.
+     * \param startTexUnit the first texture unit allowed to be used
      */
-    void applyInst( osg::ref_ptr< osg::Node > node, bool useDefaultShader = true );
+    void applyInst( osg::ref_ptr< osg::Node > node, wmath::WMatrix4x4 preTransform = wmath::WMatrix4x4::identity(),
+                    osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
 
     /**
      * Register the specified texture to the colormapper. The registered texture is the automatically applied to all users of WGEColormapping.
      *
      * \param texture the texture to add
+     * \param name the name of the texture.
      */
-    void registerTextureInst( osg::ref_ptr< WGETexture3D > texture );
+    void registerTextureInst( osg::ref_ptr< WGETexture3D > texture, std::string name );
 
     /**
      * De-register the specified texture to the colormapper. The texture is the automatically removed from all users of WGEColormapping.
@@ -110,6 +259,16 @@ protected:
      * \param texture the texture to remove
      */
     void deregisterTextureInst( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
+     * Replaces the specified texture with the given new one. If the old texture does not exist, the new one gets inserted at the front of the
+     * list as \ref registerTexture does.
+     *
+     * \param old the texture to remove
+     * \param newTex the new texture to put at the position of the old one
+     * \param name the name of the texture.
+     */
+    void replaceTextureInst( osg::ref_ptr< WGETexture3D > old, osg::ref_ptr< WGETexture3D > newTex, std::string name = "" );
 
     /**
      * This callback handles all the updates needed. It is called by the m_callback instance every update cycle for each node using this
@@ -132,11 +291,6 @@ private:
     static boost::shared_ptr< WGEColormapping > m_instance;
 
     /**
-     * The alias for a shared container.
-     */
-    typedef WSharedSequenceContainer< std::vector< osg::ref_ptr< WGETexture3D > > > TextureContainerType;
-
-    /**
      * The textures managed by this instance.
      */
     TextureContainerType m_textures;
@@ -151,14 +305,15 @@ private:
      */
     struct NodeInfo
     {
-        bool   m_initial;       //!< true if the node has not been callback'ed before
+        bool   m_rebind;        //!< true if the node has not been callback'ed before
         size_t m_texUnitStart;  //!< the start index of the texture unit to use
+        wmath::WMatrix4x4 m_preTransform; //!< matrix used for transforming arbitrary texture coordinates to the proper space.
     };
 
     /**
      * The alias for a shared container with a set of node-nodeInfo pairs
      */
-    typedef WSharedAssociativeContainer< std::map< osg::Node*, NodeInfo > > NodeInfoContainerType;
+    typedef WSharedAssociativeContainer< std::map< osg::Node*, NodeInfo* > > NodeInfoContainerType;
 
     /**
      * This map is needed to keep track of several node specific settings
@@ -166,10 +321,31 @@ private:
     NodeInfoContainerType m_nodeInfo;
 
     /**
-     * Boolean is true if the texture list has changed somehow (sorted, added, removed, ...)
+     * Called whenever a texture got registered.
      */
-    bool m_texUpdate;
+    boost::signals2::signal< void( osg::ref_ptr< WGETexture3D > ) > m_registerSignal;
+
+    /**
+     * Called whenever a texture got removed.
+     */
+    boost::signals2::signal< void( osg::ref_ptr< WGETexture3D > ) > m_deregisterSignal;
+
+    /**
+     * Called whenever a texture got replaced.
+     */
+    boost::signals2::signal< void( osg::ref_ptr< WGETexture3D >, osg::ref_ptr< WGETexture3D > ) > m_replaceSignal;
+
+    /**
+     * Called whenever the texture list got resorted
+     */
+    boost::signals2::signal< void( void ) > m_sortSignal;
 };
+
+template < typename Comparator >
+void WGEColormapping::sort( Comparator comp )
+{
+    m_textures.sort< Comparator >( comp );
+}
 
 #endif  // WGECOLORMAPPING_H
 

@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WGEColormapping-vertex.glsl"
+
 #include "WGETransformationTools.glsl"
 
 #include "WMImageSpaceLIC-Transformation-varyings.glsl"
@@ -33,6 +35,8 @@
  */
 void main()
 {
+    colormapping( gl_TextureMatrix[0] );
+
     // for easy access to texture coordinates
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 
@@ -51,13 +55,5 @@ void main()
 
     // transform position
     gl_Position = ftransform();
-
-    // TODO(ebaum): make this nice
-    VaryingTexCoord0 = gl_TexCoord[0];
-    VaryingTexCoord1 = gl_TexCoord[0];
-    VaryingTexCoord2 = gl_TexCoord[0];
-    VaryingTexCoord3 = gl_TexCoord[0];
-    VaryingTexCoord4 = gl_TexCoord[0];
-    VaryingTexCoord5 = gl_TexCoord[0];
 }
 

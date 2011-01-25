@@ -28,7 +28,6 @@
 #include <osg/Array>
 
 #include "../common/math/WPosition.h"
-#include "../common/exceptions/WPreconditionNotMet.h"
 
 #include "WGETexture.h"
 
@@ -60,7 +59,7 @@ WColor wge::createColorFromIndex( int index )
 
     if ( index == 0 )
     {
-        return WColor( 0.0, 0.0, 0.0 );
+        return WColor( 0.0, 0.0, 0.0, 1.0 );
     }
 
     if ( ( index & 1 ) == 1 )
@@ -122,7 +121,7 @@ WColor wge::createColorFromIndex( int index )
     g *= mult;
     b *= mult;
 
-    return WColor( r, g, b );
+    return WColor( r, g, b, 1.0 );
 }
 
 WColor wge::createColorFromHSV( int h, float s, float v )
@@ -157,78 +156,50 @@ WColor wge::createColorFromHSV( int h, float s, float v )
     }
 }
 
-WColor wge::getNthHSVColor( int n, int parts )
+WColor wge::getNthHSVColor( int n )
 {
-    parts = (std::max)( 1, parts );
-    if ( parts > 360 )
-    {
-        parts = 360;
-    }
-    int frac = 360 / parts;
+    int h = 0;
+    float s = 1.0;
+    float v = 1.0;
 
-    if ( parts > 320 )
+    if ( ( n & 1 ) == 1 )
     {
-        return createColorFromHSV( n * frac );
+        h += 180;
     }
-    else
+    if ( ( n & 2 ) == 2 )
     {
-        int preset[320] = {
-          0, 180, 90, 270, 45, 225, 135, 315, 22, 202, 112, 292, 67, 247, 157, 337, 11, 191, 101, 281, 56, 236, 146, 326, 33, 213, 123, 303, 78, 258,
-          168, 348, 5, 185, 95, 275, 50, 230, 140, 320, 27, 207, 117, 297, 72, 252, 162, 342, 16, 196, 106, 286, 61, 241, 151, 331, 38, 218, 128,
-          308, 83, 263, 173, 353, 2, 182, 92, 272, 47, 227, 137, 317, 24, 204, 114, 294, 69, 249, 159, 339, 13, 193, 103, 283, 58, 238, 148, 328, 35,
-          215, 125, 305, 80, 260, 170, 350, 7, 187, 97, 277, 52, 232, 142, 322, 29, 209, 119, 299, 74, 254, 164, 344, 18, 198, 108, 288, 63, 243,
-          153, 333, 40, 220, 130, 310, 85, 265, 175, 355, 1, 181, 91, 271, 46, 226, 136, 316, 23, 203, 113, 293, 68, 248, 158, 338, 12, 192, 102,
-          282, 57, 237, 147, 327, 34, 214, 124, 304, 79, 259, 169, 349, 6, 186, 96, 276, 51, 231, 141, 321, 28, 208, 118, 298, 73, 253, 163, 343, 17,
-          197, 107, 287, 62, 242, 152, 332, 39, 219, 129, 309, 84, 264, 174, 354, 3, 183, 93, 273, 48, 228, 138, 318, 25, 205, 115, 295, 70, 250,
-          160, 340, 14, 194, 104, 284, 59, 239, 149, 329, 36, 216, 126, 306, 81, 261, 171, 351, 8, 188, 98, 278, 53, 233, 143, 323, 30, 210, 120,
-          300, 75, 255, 165, 345, 19, 199, 109, 289, 64, 244, 154, 334, 41, 221, 131, 311, 86, 266, 176, 356, 4, 184, 94, 274, 49, 229, 139, 319, 26,
-          206, 116, 296, 71, 251, 161, 341, 15, 195, 105, 285, 60, 240, 150, 330, 37, 217, 127, 307, 82, 262, 172, 352, 9, 189, 99, 279, 54, 234,
-          144, 324, 31, 211, 121, 301, 76, 256, 166, 346, 20, 200, 110, 290, 65, 245, 155, 335, 42, 222, 132, 312, 87, 267, 177, 357
-        };
-        return createColorFromHSV( preset[n] );
+        h += 90;
     }
-}
-
-osg::ref_ptr< WGETexture2D > wge::genWhiteNoiseTexture( size_t size, size_t channels )
-{
-    WPrecond( ( channels == 1 ) || ( channels == 3 ) || ( channels == 4 ), "Invalid number of channels. Valid are: 1, 3 and 4."  );
-
-    // create an osg::Image at first.
-    std::srand( time( 0 ) );
-    osg::ref_ptr< osg::Image > randImage = new osg::Image();
-    GLenum type = GL_LUMINANCE;
-    if ( channels == 3 )
+    if ( ( n & 4 ) == 4 )
     {
-        type = GL_RGB;
+        h += 45;
     }
-    else if ( channels == 4 )
+    if ( ( n & 8 ) == 8 )
     {
-        type = GL_RGBA;
+        h += 202;
+        h = h % 360;
     }
-    randImage->allocateImage( size, size, 1, type, GL_UNSIGNED_BYTE );
-    unsigned char *randomLuminance = randImage->data();  // should be 4 megs
-    for( unsigned int channel = 0; channel < channels; channel++ )
+    if ( ( n & 16 ) == 16 )
     {
-        for( unsigned int x = 0; x < size; x++ )
-        {
-            for( unsigned int y = 0; y < size; y++ )
-            {
-                // - stylechecker says "use rand_r" but I am not sure about portability.
-                unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
-                randomLuminance[ ( y * size * channels ) + ( x * channels ) + channel ] = r;
-            }
-        }
+        v -= .25;
+    }
+    if ( ( n & 32 ) == 32 )
+    {
+        s -= .25;
+    }
+    if ( ( n & 64 ) == 64 )
+    {
+        v -= .25;
+    }
+    if ( ( n & 128 ) == 128 )
+    {
+        s -= 0.25;
+    }
+    if ( ( n & 256 ) == 256 )
+    {
+        v -= 0.25;
     }
 
-    // put it into an texture
-    osg::ref_ptr< WGETexture2D > randTexture = new WGETexture2D( randImage );
-    randTexture->setTextureWidth( size );
-    randTexture->setTextureHeight( size );
-    randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
-    randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
-    randTexture->setWrap( osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT );
-    randTexture->setWrap( osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT );
-
-    return randTexture;
+    return createColorFromHSV( h, s, v );
 }
 

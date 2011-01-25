@@ -84,6 +84,13 @@ public:
     virtual WItemSelector getSelectorFirst();
 
     /**
+     * Creates an default selection (last item selected). The selector gets invalid if another item is added.
+     *
+     * \return an selector.
+     */
+    virtual WItemSelector getSelectorLast();
+
+    /**
      * Creates an default selection (a specified items selected). The selector gets invalid if another item is added.
      *
      * \param item the item to select.

@@ -182,8 +182,7 @@ void WMProbTractDisplaySP::properties()
         m_colorMap[i] = m_properties->addPropertyGroup( ss.str(), "String and color properties for an input connector" );
         WPropString label = m_colorMap[i]->addProperty( "Filename", "The file name this group is connected with", std::string( "/no/such/file" ) );
         label->setPurpose( PV_PURPOSE_INFORMATION );
-        WColor color( 0.0, 0.0, 0.0, 1.0 );
-        color.setHSV( i * hue_increment, 1.0, 0.75 );
+        WColor color = convertHSVtoRGBA( i * hue_increment, 1.0, 0.75 );
         m_colorMap[i]->addProperty( "Color", "The color for the probabilistic tractogram this group is associated with", color, m_colorChanged );
         m_colorMap[i]->setHidden(); // per default for each unconnected input the property group is hidden
     }

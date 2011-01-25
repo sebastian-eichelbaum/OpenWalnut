@@ -115,6 +115,13 @@ public:
      */
     void clear();
 
+    /**
+     * Activates/Deactivates the post-processing. This is a shortcut for getProperties()->getProperty( "Enable" )->toPropBool()->set( enable ).
+     *
+     * \param enable if true, post-processing is active-
+     */
+    void setEnabled( bool enable = true );
+
 protected:
 
 private:

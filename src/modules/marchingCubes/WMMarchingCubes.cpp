@@ -425,8 +425,7 @@ void WMMarchingCubes::renderMesh()
     // colors
     osg::ref_ptr< osg::Vec4Array > colors( new osg::Vec4Array );
 
-    WColor c = m_surfaceColor->get( true );
-    colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
+    colors->push_back( m_surfaceColor->get( true ) );
     surfaceGeometry->setColorArray( colors );
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
@@ -571,8 +570,7 @@ void WMMarchingCubes::updateGraphicsCallback()
     {
         osg::ref_ptr< osg::Vec4Array > colors( new osg::Vec4Array );
 
-        WColor c = m_surfaceColor->get( true );
-        colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
+        colors->push_back( m_surfaceColor->get( true ) );
         osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );

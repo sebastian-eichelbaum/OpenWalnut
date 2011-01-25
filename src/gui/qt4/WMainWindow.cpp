@@ -242,8 +242,7 @@ void WMainWindow::setupGUI()
     }
 
     // Default background color from config file
-    {
-        WColor bgColor;
+        WColor bgColor( 1.0, 1.0, 1.0, 1.0 );
         double r;
         double g;
         double b;
@@ -251,7 +250,7 @@ void WMainWindow::setupGUI()
             && WPreferences::getPreference( "ge.bgColor.g", &g )
             && WPreferences::getPreference( "ge.bgColor.b", &b ) )
         {
-            bgColor.setRGB( r, g, b );
+            bgColor.set( r, g, b, 1.0 );
             m_mainGLWidget->setBgColor( bgColor );
 
             if( m_navAxial )
@@ -267,7 +266,6 @@ void WMainWindow::setupGUI()
                 m_navSagittal->getGLWidget()->setBgColor( bgColor );
             }
         }
-    }
 }
 
 void WMainWindow::setupPermanentToolBar()

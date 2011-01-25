@@ -26,11 +26,9 @@
 #define WGEUNIFORMTYPETRAITS_H
 
 #include <osg/Vec3>
-#include <osg/Vec4>
 
 #include "../WExportWGE.h"
 
-class WColor;
 class WItemSelector;
 namespace wmath
 {
@@ -69,19 +67,6 @@ namespace wge
     };
 
     /**
-     * Maps WColor to osg::Vec4 (float vector).
-     */
-    template<>
-    class WGE_EXPORT UniformType< WColor >
-    {
-    public:
-        /**
-         * The best matching GLSL uniform type for the specified template parameter.
-         */
-        typedef osg::Vec4 Type;
-    };
-
-    /**
      * Maps WVector3D/WPosition to osg::Vec3.
      */
     template<>
@@ -104,7 +89,7 @@ namespace wge
         /**
          * The best matching GLSL uniform type for the specified template parameter.
          */
-        typedef unsigned int Type;
+        typedef int Type;
     };
 }
 

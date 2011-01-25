@@ -24,12 +24,14 @@
 
 #version 120
 
+#include "WGEColormapping-fragment.glsl"
+
 #include "WGEShadingTools.glsl"
 #include "WGETextureTools.glsl"
 #include "WGETransformationTools.glsl"
 #include "WGEUtils.glsl"
 
-#include "WGEColorMaps.glsl"
+//#include "WGEColorMaps.glsl"
 
 #include "WMImageSpaceLIC-Transformation-varyings.glsl"
 
@@ -41,50 +43,27 @@ uniform sampler3D u_texture0Sampler;
 /**
  * Scaling factor to unscale the texture
  */
-uniform float u_texture0Scale;
+uniform float u_texture0Scale = 1.0;
 
 /**
  * Smallest possible value in the texture
  */
-uniform float u_texture0Min;
+uniform float u_texture0Min = 0.0;
 
 /**
  * Size of input texture in pixels
  */
-uniform int u_texture0SizeX;
+uniform int u_texture0SizeX = 255;
 
 /**
  * Size of input texture in pixels
  */
-uniform int u_texture0SizeY;
+uniform int u_texture0SizeY = 255;
 
 /**
  * Size of input texture in pixels
  */
-uniform int u_texture0SizeZ;
-
-// TODO(ebaum): make this nice
-void lookupTex( inout vec4 col, in int type, in sampler3D tex, in float threshold, in vec3 v, in float alpha, in int cmap )
-{
-    vec3 col1 = vec3( 0.0 );
-
-    col1 = clamp( texture3D( tex, v ).rgb, 0.0, 1.0 );
-
-    if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
-
-    if( cmap != 0 )
-    {
-        if(threshold < 1.0)
-        {
-            col1.r = ( col1.r - threshold ) / ( 1.0 - threshold );
-            if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
-        }
-
-        colorMap( col1, col1.r, cmap );
-    }
-
-    col.rgb = mix( col.rgb, col1.rgb, alpha );
-}
+uniform int u_texture0SizeZ = 255;
 
 /**
  * Transforms each vector on each pixel to image space.
@@ -147,38 +126,6 @@ void main()
             normalize( v_lightSource ) );
 
     gl_FragData[0] = vec4( textureNormalize( vecProjected ), light, 1.0 );
-    gl_FragData[1] = vec4( texture3D( u_texture0Sampler, gl_TexCoord[0].xyz ).rgb , 1.0 );
-
-    // TODO(ebaum): this belongs to some central place
-    vec4 col = vec4( 0.0, 0.0, 0.0, 1.0 );
-
-    if ( type5 > 0 )
-    {
-        lookupTex( col, type5, tex5, threshold5, VaryingTexCoord5.xyz, alpha5, useCmap5 );
-    }
-    if ( type4 > 0 )
-    {
-        lookupTex( col, type4, tex4, threshold4, VaryingTexCoord4.xyz, alpha4, useCmap4 );
-    }
-    if ( type3 > 0 )
-    {
-        lookupTex( col, type3, tex3, threshold3, VaryingTexCoord3.xyz, alpha3, useCmap3 );
-    }
-    if ( type2 > 0 )
-    {
-        lookupTex( col, type2, tex2, threshold2, VaryingTexCoord2.xyz, alpha2, useCmap2 );
-    }
-    if ( type1 > 0 )
-    {
-        lookupTex( col, type1, tex1, threshold1, VaryingTexCoord1.xyz, alpha1, useCmap1 );
-    }
-    if ( type0 > 0 )
-    {
-        lookupTex( col, type0, tex0, threshold0, VaryingTexCoord0.xyz, alpha0, useCmap0 );
-    }
-
-    col = clamp( col, 0.0, 1.0 );
-
-    gl_FragData[1] = col;
+    gl_FragData[1] = colormapping();
 }
 

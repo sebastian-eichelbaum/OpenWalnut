@@ -34,7 +34,7 @@
 #include <osg/Projection>
 
 #include "../../kernel/WKernel.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../common/WColor.h"
 #include "../../common/WBoundingBox.h"
 #include "../../graphicsEngine/WGEUtils.h"
@@ -144,14 +144,12 @@ osg::ref_ptr< osg::Node > WMSurfaceParameterAnimator::renderSurface( const WBoun
     m_shader->apply( cube );
 
     // bind the texture to the node
-    osg::ref_ptr< osg::Texture3D > texture3D = m_dataSet->getTexture()->getTexture();
-    osg::ref_ptr< osg::Texture3D > tracesTexture3D = m_tracesDataSet->getTexture()->getTexture();
     osg::StateSet* rootState = cube->getOrCreateStateSet();
-    rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
-    rootState->setTextureAttributeAndModes( 1, tracesTexture3D, osg::StateAttribute::ON );
 
-    //tracesTexture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
-    //tracesTexture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
+    osg::ref_ptr< WGETexture3D > texture3D = m_dataSet->getTexture2();
+    osg::ref_ptr< WGETexture3D > tracesTexture3D = m_tracesDataSet->getTexture2();
+    texture3D->bind( cube, 0 );
+    tracesTexture3D->bind( cube, 1 );
 
     // enable transparency
     rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
@@ -159,15 +157,6 @@ osg::ref_ptr< osg::Node > WMSurfaceParameterAnimator::renderSurface( const WBoun
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     // setup all those uniforms
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    // for the texture, also bind the appropriate uniforms
-    rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
-    rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
-
-    // we need to specify the texture scaling parameters to the shader
-    rootState->addUniform( new osg::Uniform( "u_tex1Scale", m_tracesDataSet->getTexture()->getMinMaxScale() ) );
-    rootState->addUniform( new osg::Uniform( "u_tex1Min", m_tracesDataSet->getTexture()->getMinValue() ) );
-    rootState->addUniform( new osg::Uniform( "u_tex1Max", m_tracesDataSet->getTexture()->getMaxValue() ) );
 
     osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
     isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
@@ -299,12 +288,9 @@ void WMSurfaceParameterAnimator::SafeUpdateCallback::operator()( osg::Node* node
     // update material info
     if ( m_module->m_isoColor->changed() || m_initialUpdate )
     {
-        // Grab the color
-        WColor c = m_module->m_isoColor->get( true );
-
         // Set the diffuse color and material:
         osg::ref_ptr< osg::Material > mat = new osg::Material();
-        mat->setDiffuse( osg::Material::FRONT, osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() ) );
+        mat->setDiffuse( osg::Material::FRONT, m_module->m_isoColor->get( true ) );
         node->getOrCreateStateSet()->setAttribute( mat, osg::StateAttribute::ON );
 
         m_initialUpdate = false;
