@@ -180,6 +180,7 @@ template< typename T > WMatrix< T >::WMatrix( const WMatrix& newMatrix )
 template< typename T > WMatrix< T >::WMatrix( const WMatrix4x4& newMatrix )
     : WValue< T >( 4 * 4 )
 {
+    m_nbCols = 4;
     for( size_t i = 0; i < 4; ++i )
     {
         for( size_t j = 0; j < 4; ++j )
