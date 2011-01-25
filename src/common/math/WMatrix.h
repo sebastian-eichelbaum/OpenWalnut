@@ -29,6 +29,7 @@
 
 #include "WValue.h"
 #include "WVector3D.h"
+#include "WMatrix4x4.h"
 
 namespace wmath
 {
@@ -64,6 +65,13 @@ public:
     WMatrix( const WMatrix& newMatrix );
 
     /**
+     * Copies the specified 4x4 matrix.
+     *
+     * \param newMatrix the matrix to copy
+     */
+    WMatrix( const WMatrix4x4& newMatrix );
+
+    /**
      * Makes the matrix contain the identity matrix, i.e. 1 on the diagonal.
      */
     WMatrix& makeIdentity();
@@ -93,6 +101,13 @@ public:
      * \param j column
      */
     const T& operator()( size_t i, size_t j ) const;
+
+    /**
+     * Cast this matrix to an 4x matrix if it is a 4x4 matrix.
+     *
+     * \return casted matrix
+     */
+    operator WMatrix4x4() const;
 
     /**
      * Compares two matrices and returns true if they are equal.
@@ -160,6 +175,33 @@ template< typename T > WMatrix< T >::WMatrix( const WMatrix& newMatrix )
     : WValue< T >( newMatrix )
 {
     m_nbCols = newMatrix.m_nbCols;
+}
+
+template< typename T > WMatrix< T >::WMatrix( const WMatrix4x4& newMatrix )
+    : WValue< T >( 4 * 4 )
+{
+    for( size_t i = 0; i < 4; ++i )
+    {
+        for( size_t j = 0; j < 4; ++j )
+        {
+            ( *this )( i, j ) = newMatrix( i, j );
+        }
+    }
+}
+
+template< typename T > WMatrix< T >::operator WMatrix4x4() const
+{
+    size_t nbRows = this->size() / m_nbCols;
+    WAssert( m_nbCols == 4 && nbRows == 4, "This is no 4x4 matrix." );
+    WMatrix4x4 m;
+    for( size_t i = 0; i < nbRows; ++i )
+    {
+        for( size_t j = 0; j < m_nbCols; ++j )
+        {
+            m( i, j ) = ( *this )( i, j );
+        }
+    }
+    return m;
 }
 
 /**

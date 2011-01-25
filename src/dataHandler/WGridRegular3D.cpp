@@ -31,11 +31,14 @@
 #include "../common/WBoundingBox.h"
 #include "../common/exceptions/WOutOfBounds.h"
 #include "../common/math/WLinearAlgebraFunctions.h"
+#include "../common/math/WLinearAlgebraFunctions.h"
+
 #include "WGridRegular3D.h"
 
 using wmath::WVector3D;
 using wmath::WPosition;
 using wmath::WMatrix;
+using wmath::WMatrix4x4;
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                                 double originX, double originY, double originZ,
@@ -55,16 +58,16 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetXorig( offsetX ),
       m_offsetYorig( offsetY ),
       m_offsetZorig( offsetZ ),
-      m_matrix( 4, 4 ),
-      m_matrixTexToWorld( 4, 4 ),
-      m_matrixWorldToTex( 4, 4 ),
-      m_matrixNoMatrix( 4, 4 ),
-      m_matrixQForm( 4, 4 ),
-      m_matrixSForm( 4, 4 ),
+      m_matrix(),
+      m_matrixTexToWorld(),
+      m_matrixWorldToTex(),
+      m_matrixNoMatrix(),
+      m_matrixQForm(),
+      m_matrixSForm(),
       m_matrixActive( 0 ),
-      m_translateMatrix( 4, 4 ),
-      m_rotMatrix( 4, 4 ),
-      m_stretchMatrix( 4, 4 )
+      m_translateMatrix(),
+      m_rotMatrix(),
+      m_stretchMatrix()
 {
     m_matrix( 0, 0 ) = directionX[0];
     m_matrix( 0, 1 ) = directionY[0];
@@ -109,16 +112,16 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetXorig( offsetX ),
       m_offsetYorig( offsetY ),
       m_offsetZorig( offsetZ ),
-      m_matrix( wmath::WMatrix<double>( mat ) ),
-      m_matrixTexToWorld( 4, 4 ),
-      m_matrixWorldToTex( 4, 4 ),
-      m_matrixNoMatrix( 4, 4 ),
-      m_matrixQForm( 4, 4 ),
-      m_matrixSForm( 4, 4 ),
+      m_matrix( mat ),
+      m_matrixTexToWorld(),
+      m_matrixWorldToTex(),
+      m_matrixNoMatrix(),
+      m_matrixQForm(),
+      m_matrixSForm(),
       m_matrixActive( 1 ),
-      m_translateMatrix( 4, 4 ),
-      m_rotMatrix( 4, 4 ),
-      m_stretchMatrix( 4, 4 )
+      m_translateMatrix(),
+      m_rotMatrix(),
+      m_stretchMatrix()
 {
     WAssert( mat.getNbRows() == 4 && mat.getNbCols() == 4, "Transformation matrix has wrong dimensions." );
     // only affine transformations are allowed
@@ -129,8 +132,6 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_directionX = WVector3D( mat( 0, 0 ) / mat( 3, 3 ), mat( 1, 0 ) / mat( 3, 3 ), mat( 2, 0 ) / mat( 3, 3 ) );
     m_directionY = WVector3D( mat( 0, 1 ) / mat( 3, 3 ), mat( 1, 1 ) / mat( 3, 3 ), mat( 2, 1 ) / mat( 3, 3 ) );
     m_directionZ = WVector3D( mat( 0, 2 ) / mat( 3, 3 ), mat( 1, 2 ) / mat( 3, 3 ), mat( 2, 2 ) / mat( 3, 3 ) );
-
-    m_matrix = mat;
 
     /**
      * both qform and sform are initialized with the given matrix, need to call setActiveMatrix to name the
@@ -167,16 +168,16 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetXorig( offsetX ),
       m_offsetYorig( offsetY ),
       m_offsetZorig( offsetZ ),
-      m_matrix( 4, 4 ),
-      m_matrixTexToWorld( 4, 4 ),
-      m_matrixWorldToTex( 4, 4 ),
-      m_matrixNoMatrix( 4, 4 ),
-      m_matrixQForm( 4, 4 ),
-      m_matrixSForm( 4, 4 ),
+      m_matrix(),
+      m_matrixTexToWorld(),
+      m_matrixWorldToTex(),
+      m_matrixNoMatrix(),
+      m_matrixQForm(),
+      m_matrixSForm(),
       m_matrixActive( 1 ),
-      m_translateMatrix( 4, 4 ),
-      m_rotMatrix( 4, 4 ),
-      m_stretchMatrix( 4, 4 )
+      m_translateMatrix(),
+      m_rotMatrix(),
+      m_stretchMatrix()
 {
     m_matrixQForm = qFormMat;
     m_matrixSForm = sFormMat;
@@ -238,16 +239,16 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetXorig( offsetX ),
       m_offsetYorig( offsetY ),
       m_offsetZorig( offsetZ ),
-      m_matrix( 4, 4 ),
-      m_matrixTexToWorld( 4, 4 ),
-      m_matrixWorldToTex( 4, 4 ),
-      m_matrixNoMatrix( 4, 4 ),
-      m_matrixQForm( 4, 4 ),
-      m_matrixSForm( 4, 4 ),
+      m_matrix(),
+      m_matrixTexToWorld(),
+      m_matrixWorldToTex(),
+      m_matrixNoMatrix(),
+      m_matrixQForm(),
+      m_matrixSForm(),
       m_matrixActive( 0 ),
-      m_translateMatrix( 4, 4 ),
-      m_rotMatrix( 4, 4 ),
-      m_stretchMatrix( 4, 4 )
+      m_translateMatrix(),
+      m_rotMatrix(),
+      m_stretchMatrix()
 {
     m_matrix( 0, 0 ) = offsetX;
     m_matrix( 1, 1 ) = offsetY;
@@ -287,16 +288,16 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetXorig( offsetX ),
       m_offsetYorig( offsetY ),
       m_offsetZorig( offsetZ ),
-      m_matrix( 4, 4 ),
-      m_matrixTexToWorld( 4, 4 ),
-      m_matrixWorldToTex( 4, 4 ),
-      m_matrixNoMatrix( 4, 4 ),
-      m_matrixQForm( 4, 4 ),
-      m_matrixSForm( 4, 4 ),
+      m_matrix(),
+      m_matrixTexToWorld(),
+      m_matrixWorldToTex(),
+      m_matrixNoMatrix(),
+      m_matrixQForm(),
+      m_matrixSForm(),
       m_matrixActive( 0 ),
-      m_translateMatrix( 4, 4 ),
-      m_rotMatrix( 4, 4 ),
-      m_stretchMatrix( 4, 4 )
+      m_translateMatrix(),
+      m_rotMatrix(),
+      m_stretchMatrix()
 {
     m_matrix( 0, 0 ) = offsetX;
     m_matrix( 1, 1 ) = offsetY;
@@ -335,16 +336,16 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetXorig( offsetX ),
       m_offsetYorig( offsetY ),
       m_offsetZorig( offsetZ ),
-      m_matrix( 4, 4 ),
-      m_matrixTexToWorld( 4, 4 ),
-      m_matrixWorldToTex( 4, 4 ),
-      m_matrixNoMatrix( 4, 4 ),
-      m_matrixQForm( 4, 4 ),
-      m_matrixSForm( 4, 4 ),
+      m_matrix(),
+      m_matrixTexToWorld(),
+      m_matrixWorldToTex(),
+      m_matrixNoMatrix(),
+      m_matrixQForm(),
+      m_matrixSForm(),
       m_matrixActive( 0 ),
-      m_translateMatrix( 4, 4 ),
-      m_rotMatrix( 4, 4 ),
-      m_stretchMatrix( 4, 4 )
+      m_translateMatrix(),
+      m_rotMatrix(),
+      m_stretchMatrix()
 {
     m_matrix( 0, 0 ) = offsetX;
     m_matrix( 1, 1 ) = offsetY;
@@ -376,33 +377,28 @@ WPosition WGridRegular3D::getPosition( unsigned int iX, unsigned int iY, unsigne
 
 wmath::WMatrix< double > WGridRegular3D::getTransformationMatrix() const
 {
-    return m_matrix;
+    // TODO(ebaum): remove this or replace this with a function returning WMatrix4x4
+    return m_matrix; // this automatically casts
 }
 
 void WGridRegular3D::recreateTextureTransformationMatrices()
 {
     // World-to-Tex:
-    wmath::WMatrix< double > inv = wmath::invertMatrix4x4( m_matrix );
 
     // Scale according to bbox
-    wmath::WMatrix< double > scale( 4, 4 );
+    WMatrix4x4 scale;
     scale( 0, 0 ) = 1.0 / m_nbPosX;
     scale( 1, 1 ) = 1.0 / m_nbPosY;
     scale( 2, 2 ) = 1.0 / m_nbPosZ;
     scale( 3, 3 ) = 1.0;
 
     // Move to voxel center
-    wmath::WMatrix< double > offset( 4, 4 );
+    WMatrix4x4 offset = WMatrix4x4::identity();
     offset( 0, 3 ) = 0.5 / m_nbPosX;
     offset( 1, 3 ) = 0.5 / m_nbPosY;
     offset( 2, 3 ) = 0.5 / m_nbPosZ;
-    offset( 3, 3 ) = 1.0;
-    offset( 0, 0 ) = 1.0;
-    offset( 1, 1 ) = 1.0;
-    offset( 2, 2 ) = 1.0;
-    offset( 3, 3 ) = 1.0;
 
-    m_matrixWorldToTex = offset * scale * inv;
+    m_matrixWorldToTex = WMatrix4x4::inverse( m_matrix ) * scale * offset;
 
     // Tex-To-World:
     // Scale according to bbox
@@ -1056,13 +1052,13 @@ void WGridRegular3D::rotate( osg::Matrixf osgrot, wmath::WPosition center )
             m_matrix = m_matrixNoMatrix;
     }
 
-    wmath::WMatrix<double> rotmat( 4, 4 );
+    WMatrix4x4 rotmat;
     rotmat.makeIdentity();
 
-    wmath::WMatrix<double> transTo( 4, 4 );
+    WMatrix4x4 transTo;
     transTo.makeIdentity();
 
-    wmath::WMatrix<double> transFrom( 4, 4 );
+    WMatrix4x4 transFrom;
     transFrom.makeIdentity();
 
     transTo( 0, 3 ) = -center.x();

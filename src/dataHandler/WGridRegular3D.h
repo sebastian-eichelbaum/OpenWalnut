@@ -32,8 +32,8 @@
 
 #include <osg/Matrix>
 #include <osg/Vec3>
-
 #include "../common/math/WMatrix.h"
+#include "../common/math/WMatrix4x4.h"
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
 #include "../common/WBoundingBox.h"
@@ -625,32 +625,32 @@ private:
      *
      * This is the matrix we are working with
      */
-    wmath::WMatrix<double> m_matrix;
+    wmath::WMatrix4x4 m_matrix;
 
     /**
      * This matrix converts a texture coordinate inside the grid to a world coordinate. It also handles the 0.5 voxel offset.
      */
-    wmath::WMatrix<double> m_matrixTexToWorld;
+    wmath::WMatrix4x4 m_matrixTexToWorld;
 
     /**
      * This matrix converts a world coordinate to a texture coordinate inside the grid. It also handles the 0.5 voxel offset.
      */
-    wmath::WMatrix<double> m_matrixWorldToTex;
+    wmath::WMatrix4x4 m_matrixWorldToTex;
 
     /**
      * Matrix storing the original stretch and translation
      */
-    wmath::WMatrix<double> m_matrixNoMatrix;
+    wmath::WMatrix4x4 m_matrixNoMatrix;
 
     /**
      * Matrix storing the original qform matrix from the niftii file header
      */
-    wmath::WMatrix<double> m_matrixQForm;
+    wmath::WMatrix4x4 m_matrixQForm;
 
     /**
      * Matrix storing the original sform matrix from the niftii file header
      */
-    wmath::WMatrix<double> m_matrixSForm;
+    wmath::WMatrix4x4 m_matrixSForm;
 
     /**
      * indicates which transformation matrix is used
@@ -661,11 +661,11 @@ private:
      */
     int m_matrixActive;
 
-    wmath::WMatrix<double> m_translateMatrix; //!< stores the custom rotation
+    wmath::WMatrix4x4 m_translateMatrix; //!< stores the custom rotation
 
-    wmath::WMatrix<double> m_rotMatrix; //!< stores the custom rotation
+    wmath::WMatrix4x4 m_rotMatrix; //!< stores the custom rotation
 
-    wmath::WMatrix<double> m_stretchMatrix; //!< stores the custom strech manipulation
+    wmath::WMatrix4x4 m_stretchMatrix; //!< stores the custom strech manipulation
 };
 
 inline unsigned int WGridRegular3D::getNbCoordsX() const
