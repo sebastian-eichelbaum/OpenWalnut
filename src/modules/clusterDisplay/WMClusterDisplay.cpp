@@ -589,8 +589,8 @@ void WMClusterDisplay::handleBiggestClustersChanged()
     for ( size_t k = 0; k < m_biggestClusters.size(); ++k )
     {
         size_t current = m_biggestClusters[k];
-        setColor( m_tree.getLeafesForCluster( current ), wge::getNthHSVColor( k, m_biggestClusters.size() ) );
-        m_tree.colorCluster( current, wge::getNthHSVColor( k, m_biggestClusters.size() ) );
+        setColor( m_tree.getLeafesForCluster( current ), wge::getNthHSVColor( k ) );
+        m_tree.colorCluster( current, wge::getNthHSVColor( k ) );
     }
 
     m_dendrogramDirty = true;
@@ -627,8 +627,8 @@ void WMClusterDisplay::handleRoiChanged()
         for ( size_t k = 0; k < m_biggestClusters.size(); ++k )
         {
             size_t current = m_biggestClusters[k];
-            setColor( m_tree.getLeafesForCluster( current ), wge::getNthHSVColor( k, m_biggestClusters.size() ) );
-            m_tree.colorCluster( current, wge::getNthHSVColor( k, m_biggestClusters.size() ) );
+            setColor( m_tree.getLeafesForCluster( current ), wge::getNthHSVColor( k ) );
+            m_tree.colorCluster( current, wge::getNthHSVColor( k ) );
         }
 
         m_widgetDirty = true;
@@ -722,7 +722,7 @@ void WMClusterDisplay::updateWidgets()
             newButton1->managed( m_wm );
             m_wm->addChild( newButton1 );
             m_biggestClustersButtonList.push_back( newButton1 );
-            newButton1->setBackgroundColor( wge::getNthHSVColor( i, m_biggestClusters.size() ) );
+            newButton1->setBackgroundColor( wge::getNthHSVColor( i ) );
 
             osg::ref_ptr<WOSGButton> newButton = osg::ref_ptr<WOSGButton>( new WOSGButton( std::string( "" ),
                     osgWidget::Box::VERTICAL, true, true ) );
@@ -732,7 +732,7 @@ void WMClusterDisplay::updateWidgets()
             newButton->managed( m_wm );
             m_wm->addChild( newButton );
             m_biggestClustersButtonList.push_back( newButton );
-            newButton->setBackgroundColor( wge::getNthHSVColor( i, m_biggestClusters.size() ) );
+            newButton->setBackgroundColor( wge::getNthHSVColor( i ) );
         }
         osg::ref_ptr<WOSGButton> newButton1 = osg::ref_ptr<WOSGButton>( new WOSGButton( std::string( "" ),
                 osgWidget::Box::VERTICAL, true, false ) );
@@ -933,14 +933,12 @@ void WMClusterDisplay::colorClusters( size_t current )
     }
 
     int n = 0;
-    int parts = finalList.size();
-
 
     for ( size_t i = 0; i < finalList.size(); ++i )
     {
         size_t cluster = finalList[i];
-        m_tree.colorCluster( cluster, wge::getNthHSVColor( n, parts ) );
-        setColor( m_tree.getLeafesForCluster( cluster ), wge::getNthHSVColor( n++, parts ) );
+        m_tree.colorCluster( cluster, wge::getNthHSVColor( n ) );
+        setColor( m_tree.getLeafesForCluster( cluster ), wge::getNthHSVColor( n++ ) );
     }
 
     m_fiberDrawable->setBitfield( m_tree.getOutputBitfield( finalList ) );
