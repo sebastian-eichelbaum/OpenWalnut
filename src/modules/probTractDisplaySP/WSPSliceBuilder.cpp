@@ -118,10 +118,15 @@ WColor WSPSliceBuilder::colorMap( size_t probTractNum ) const
 //}
 //
 
+bool WSPSliceBuilder::alphaBelowThreshold( const WColor& c, const double threshold ) const
+{
+    return c[3] < threshold;
+}
+
 osg::ref_ptr< osg::Vec4Array > WSPSliceBuilder::computeColorsFor( const osg::Vec3& pos ) const
 {
     osg::ref_ptr< osg::Vec4Array > result( new osg::Vec4Array );
-    result->reserve( m_probTracts->size() );
+    result->reserve( m_probTracts.size() );
 
     size_t interpolationFailures = 0;
     size_t probTractNum = 0;
@@ -140,7 +145,7 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceBuilder::computeColorsFor( const osg::Vec
         if( success )
         {
             WColor c = colorMap( probTractNum );
-            c.setAlpha( static_cast< float >( probability ) );
+            c[3] = static_cast< float >( probability );
             result->push_back( c );
         }
         else

@@ -91,7 +91,17 @@ protected:
      */
     WColor colorMap( size_t probTractNum ) const;
 
-    std::vector< WColor > computeColorsFor( const osg::Vec3& pos ) const;
+    /**
+     * Compares the color's alpha value and the threshold.
+     *
+     * \param c The given color
+     * \param threshold The given Threshold
+     *
+     * \return ture if the color has an alpha value below the given threshold.
+     */
+    bool alphaBelowThreshold( const WColor& c, const double threshold ) const;
+
+    osg::ref_ptr< osg::Vec4Array > computeColorsFor( const osg::Vec3& pos ) const;
 
     /**
      * The grid of the first tractogram. It is assumed that all given probablilisitc tractograms operate on the same grid.

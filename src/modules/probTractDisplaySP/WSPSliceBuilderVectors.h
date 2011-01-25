@@ -72,13 +72,13 @@ public:
 
 private:
 //    osg::ref_ptr< osg::Vec3Array > generateQuadStubs( const wmath::WPosition& pos ) const;
-    osg::ref_ptr< osg::Vec3Array > generateQuadTexCoords( unsigned char sliceNum ) const;
+    osg::ref_ptr< osg::Vec3Array > generateQuadTexCoords( std::pair< unsigned char, unsigned char > activeDims, double size ) const;
 
-//    boost::shared_ptr< std::vector< wmath::WVector3D > > generateClockwiseDir( std::pair< unsigned char > activeDims, double distance ) const;
+//    boost::shared_ptr< std::vector< wmath::WVector3D > > generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims, double distance ) const;
 
     boost::shared_ptr< const WDataSetVector > m_vectors;
 
-    std::pair< unsigned char > computeSliceBase( const unsigned char sliceNum, boost::shared_ptr< wmath::WVector3D > origin,
+    std::pair< unsigned char, unsigned char > computeSliceBase( const unsigned char sliceNum, boost::shared_ptr< wmath::WVector3D > origin,
             boost::shared_ptr< wmath::WVector3D > a, boost::shared_ptr< wmath::WVector3D > b ) const;
 
     boost::shared_ptr< const WPVInt > m_spacing;

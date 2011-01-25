@@ -76,8 +76,8 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
 {
     boost::shared_ptr< wmath::WPosition > origin( new wmath::WPosition );
     boost::shared_ptr< wmath::WVector3D > a( new wmath::WVector3D );
-    boost::shared_ptr< wmath::WVector3D > b( new wmath::WVector3D )
-    std::pair< unsigned char > activeDims = computeSliceBase( sliceNum, origin, a, b );
+    boost::shared_ptr< wmath::WVector3D > b( new wmath::WVector3D );
+    std::pair< unsigned char, unsigned char > activeDims = computeSliceBase( sliceNum, origin, a, b );
 
     std::vector< size_t > numCoords;
     numCoords.push_back( m_grid->getNbCoordsX() );
@@ -93,13 +93,13 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Vec4Array > quadColors( new osg::Vec4Array );
     quadColors->push_back( WColor( 1.0, 0.0, 0.0, 1.0 ) );
 
-    osg::ref_ptr< const osg::Vec3Array > texCoordsPerPrimitve = generateQuadTexCoords( activeDims, 1.0 );
+    osg::ref_ptr< const osg::Vec3Array > texCoordsPerPrimitive = generateQuadTexCoords( activeDims, 1.0 );
 
-    for( size_t x = 0; x < numCoords[ activeDims.first ]; x += m_spacing )
+    for( size_t x = 0; x < numCoords[ activeDims.first ]; x += m_spacing->get() )
     {
-        for( size_t y = 0; y < numCoord[ activeDims.second ]; y += m_spacing )
+        for( size_t y = 0; y < numCoords[ activeDims.second ]; y += m_spacing->get() )
         {
-            wmath::WPosition pos =  origin + x * a + y * b;
+            wmath::WPosition pos =  ( *origin ) + x * ( *a ) + y * ( *b );
             quadVertices->push_back( pos );
             quadVertices->push_back( pos );
             quadVertices->push_back( pos );
@@ -135,9 +135,14 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     return result;
 }
 
-osg::ref_ptr< osg::Vec3Array > generateQuadTexCoords( std::pair< unsigned char > activeDims, double size ) const
+osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadTexCoords( std::pair< unsigned char, unsigned char > activeDims, double size ) const
 {
-    osg::ref_ptr< osg::Vec3Array > result( new osg::Vec3Array( 4, wmath::WPosition( 0.0, 0.0, 0.0 ) ) );
+    osg::ref_ptr< osg::Vec3Array > result( new osg::Vec3Array );
+    result->reserve( 4 );
+    result->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+    result->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+    result->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+    result->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
     result->at( 0 )[ activeDims.first ] = -0.5 * size;   result->at( 0 )[ activeDims.second ] = -0.5 * size;
     result->at( 1 )[ activeDims.first ] =  0.5 * size;   result->at( 1 )[ activeDims.second ] = -0.5 * size;
     result->at( 2 )[ activeDims.first ] =  0.5 * size;   result->at( 2 )[ activeDims.second ] =  0.5 * size;
@@ -145,28 +150,28 @@ osg::ref_ptr< osg::Vec3Array > generateQuadTexCoords( std::pair< unsigned char >
     return result;
 }
 
-std::pair< unsigned char > WSPSliceBuilderVectors::computeSliceBase( const unsigned char sliceNum,
+std::pair< unsigned char, unsigned char > WSPSliceBuilderVectors::computeSliceBase( const unsigned char sliceNum,
         boost::shared_ptr< wmath::WVector3D > origin, boost::shared_ptr< wmath::WVector3D > a, boost::shared_ptr< wmath::WVector3D > b ) const
 {
     std::vector< wmath::WVector3D > dir;
-    dir.push_back( m_grid->getDirectionX() * m_grid->getOffSetX() );
-    dir.push_back( m_grid->getDirectionY() * m_grid->getOffSetY() );
-    dir.push_back( m_grid->getDirectionZ() * m_grid->getOffSetZ() );
-    *origin = m_grid->getOrigin() + dir[ sliceNum ] * m_slicePos[ sliceNum ];
+    dir.push_back( m_grid->getDirectionX() * m_grid->getOffsetX() );
+    dir.push_back( m_grid->getDirectionY() * m_grid->getOffsetY() );
+    dir.push_back( m_grid->getDirectionZ() * m_grid->getOffsetZ() );
+    *origin = m_grid->getOrigin() + dir[ sliceNum ] * m_slicePos[ sliceNum ]->get();
 
     std::set< unsigned char > slices;
-    slices.push_back( 0 );
-    slices.push_back( 1 );
-    slices.push_back( 2 );
+    slices.insert( 0 );
+    slices.insert( 1 );
+    slices.insert( 2 );
     slices.erase( sliceNum );
     WAssert( slices.size() == 2, "Bug: mapping the selected slice to the other dimensions did not succeeded as expected." );
-    *a = dir[ slices.front() ];
-    *b = dir[ slices.back() ];
+    *a = dir[ *( slices.begin() ) ];
+    *b = dir[ *( slices.rbegin() ) ];
 
-    return std::make_pair< unsigned char >( slices.front(), slices.back() );
+    return std::make_pair< unsigned char, unsigned char >( *( slices.begin() ), *( slices.rbegin() ) );
 }
 
-// boost::shared_ptr< std::vector< wmath::WVector3D > > WSPSliceBuilderVectors::generateClockwiseDir( std::pair< unsigned char > activeDims,
+// boost::shared_ptr< std::vector< wmath::WVector3D > > WSPSliceBuilderVectors::generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims,
 //         double distance ) const
 // {
 //     boost::shared_ptr< std::vector< wmath::WVector3D > > result( new std::vector< wmath::WVector3D >( 9, wmath::WVector3D( 0.0, 0.0, 0.0 ) ) );

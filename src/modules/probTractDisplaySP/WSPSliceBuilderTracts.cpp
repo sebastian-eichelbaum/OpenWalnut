@@ -22,8 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include <algorithm>
-#include <functional>
+#include <boost/lambda/bind.hpp>
 
 #include <osg/Geometry>
 #include <osg/LineStipple>
@@ -129,8 +128,8 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceBuilderTracts::colorVertices( osg::ref_pt
         osg::ref_ptr< osg::Vec4Array > colors = computeColorsFor( *cit );
 
         // erase those colors where the alpha (aka probability) is below the threshold
-        colors->erase( std::remove_if( colors->begin(), colors->end(), std::bind2nd( std::less< double >(), m_probThreshold->get() ) ),
-                colors->end() );
+        colors->erase( std::remove_if( colors->begin(), colors->end(), boost::bind( &WSPSliceBuilderTracts::alphaBelowThreshold, this, _1,
+                        m_probThreshold->get() ) ), colors->end() );
 
         // compose all eligible vertices to one color!
         WColor color( 0.0, 0.0, 0.0, 0.0 );
