@@ -133,9 +133,9 @@ namespace wge
     /**
      * Generates an image only containing white noise in its channels.
      *
-     * \param sizeX size in x/y direction (in pixels))
-     * \param sizeX size in x/y direction (in pixels))
-     * \param sizeX size in x/y direction (in pixels))
+     * \param sizeX size in x direction (in pixels)
+     * \param sizeY size in y direction (in pixels)
+     * \param sizeZ size in z direction (in pixels)
      * \param channels the number of channels. Valid are 1, 3 and 4.
      *
      * \return the generated image.
