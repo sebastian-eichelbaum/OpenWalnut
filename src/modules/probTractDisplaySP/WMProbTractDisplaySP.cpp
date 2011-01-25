@@ -190,14 +190,18 @@ void WMProbTractDisplaySP::properties()
 
     // properties only relevant if the method is: "With deterministic tracts" was selected
     m_tractGroup     = m_properties->addPropertyGroup( "Tract Group", "Parameters for drawing via deterministic tracts." );
-    m_showIntersection = m_tractGroup->addProperty( "Show Intersections", "Show intersecition stipplets", false );
-    m_showProjection   = m_tractGroup->addProperty( "Show Projections", "Show projection stipplets", true );
-    m_delta            = m_tractGroup->addProperty( "Slices Environment", "Cut off the tracts after this distance.", 1.0, m_sliceChanged );
     m_probThreshold    = m_tractGroup->addProperty( "Prob Threshold", "Only vertices with probabil. greater this contribute.", 0.1, m_sliceChanged );
     m_probThreshold->setMin( 0.0 );
     m_probThreshold->setMax( 1.0 );
+    m_showIntersection = m_tractGroup->addProperty( "Show Intersections", "Show intersecition stipplets", false );
+    m_showProjection   = m_tractGroup->addProperty( "Show Projections", "Show projection stipplets", true );
+    m_delta            = m_tractGroup->addProperty( "Slices Environment", "Cut off the tracts after this distance.", 1.0, m_sliceChanged );
 
     m_vectorGroup     = m_properties->addPropertyGroup( "Vector Group", "Parameters for drawing via eigen vectors." );
+    m_vectorGroup->addProperty( m_probThreshold ); // this is also needed in this property group
+    WPropInt spacing = m_vectorGroup->addProperty( "Spacing", "Spacing of the sprites", 5, m_sliceChanged );
+    spacing->setMin( 0 );
+    spacing->setMax( 30 );
 
     // call WModule's initialization
     WModule::properties();
@@ -324,7 +328,7 @@ void WMProbTractDisplaySP::moduleMain()
                 else
                 {
                     builder = boost::shared_ptr< WSPSliceBuilderVectors >( new WSPSliceBuilderVectors( probTracts, m_sliceGroup, m_colorMap,
-                                vectors ) );
+                                vectors, m_vectorGroup ) );
                 }
             }
             else if( algo.at( 0 )->getName() == std::string( "With deterministic tracts" ) )

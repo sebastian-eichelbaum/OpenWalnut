@@ -34,8 +34,7 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "WSPSliceBuilder.h"
 
-WSPSliceBuilder::WSPSliceBuilder( ProbTractList probTracts, WPropGroup sliceGroup,
-        std::vector< WPropGroup > colorMap )
+WSPSliceBuilder::WSPSliceBuilder( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap )
     : m_slicePos( 3 ),
       m_probTracts( probTracts ),
       m_colorMap( colorMap ) // yes this is a COPY of the vector but WPropGroup is a boost::shared_ptr so updates will propagate!
@@ -118,3 +117,42 @@ WColor WSPSliceBuilder::colorMap( size_t probTractNum ) const
 //    wlog::error( "WSPSliceBuilder" ) << "Bug: This virtual function should never be called, I should consider making this abstract";
 //}
 //
+
+osg::ref_ptr< osg::Vec4Array > WSPSliceBuilder::computeColorsFor( const osg::Vec3& pos ) const
+{
+    osg::ref_ptr< osg::Vec4Array > result( new osg::Vec4Array );
+    result->reserve( m_probTracts->size() );
+
+    size_t interpolationFailures = 0;
+    size_t probTractNum = 0;
+    // for each probabilisitc tractogram look up if its probability at this vertex is below a certain threshold or not
+    for( ProbTractList::const_iterator probTract = m_probTracts.begin(); probTract != m_probTracts.end(); ++probTract, ++probTractNum )
+    {
+        bool success = false;
+        double probability = ( *probTract )->interpolate( wmath::WPosition( pos ), &success );
+        if( ( *probTract )->getMax() > 10 )
+        {
+            // Todo(math): Solve this hack in a better way!
+            // the probability is clearly not 0..1 distributed, we assume 0..255 instead.
+            // We compute probability:
+            probability /= 255.0;
+        }
+        if( success )
+        {
+            WColor c = colorMap( probTractNum );
+            c.setAlpha( static_cast< float >( probability ) );
+            result->push_back( c );
+        }
+        else
+        {
+            ++interpolationFailures;
+        }
+    }
+
+    if( interpolationFailures > 0 )
+    {
+        wlog::warn( "WSPSliceBuilderTracts" ) << "While computing colors for the probabilistic tracts, the interpolation of probabilistic"
+            " tractograms failed: " << interpolationFailures << " many times.";
+    }
+    return result;
+}

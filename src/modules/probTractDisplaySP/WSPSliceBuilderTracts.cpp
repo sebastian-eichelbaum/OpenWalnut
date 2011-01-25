@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+#include <functional>
 
 #include <osg/Geometry>
 #include <osg/LineStipple>
@@ -122,49 +124,22 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceBuilderTracts::colorVertices( osg::ref_pt
     osg::ref_ptr< osg::Vec4Array > result( new osg::Vec4Array );
     result->reserve( vertices->size() );
 
-    // for each vertex its accumulated colors
-    std::vector< WColor > vertexColorPerTract;
-    vertexColorPerTract.reserve( m_probTracts.size() );
-
-    size_t interpolationFailures = 0;
-
     for( osg::Vec3Array::const_iterator cit = vertices->begin(); cit != vertices->end(); ++cit )
     {
-        const wmath::WPosition vertex( *cit );
-        vertexColorPerTract.clear();
+        osg::ref_ptr< osg::Vec4Array > colors = computeColorsFor( *cit );
 
-        size_t probTractNum = 0;
-        // for each probabilisitc tractogram look up if its probability at this vertex is below a certain threshold or not
-        for( ProbTractList::const_iterator probTract = m_probTracts.begin(); probTract != m_probTracts.end(); ++probTract, ++probTractNum )
-        {
-            bool success = false;
-            double probability = ( *probTract )->interpolate( vertex, &success );
-            if( ( *probTract )->getMax() > 10 )
-            {
-                // Todo(math): Solve this hack in a better way!
-                // the probability is clearly not 0..1 distributed, we assume 0..255 instead.
-                // We compute probability:
-                probability /= 255.0;
-            }
-            if( success && ( probability > probThreshold ) )
-            {
-                WColor c = colorMap( probTractNum );
-                c.setAlpha( static_cast< float >( probability ) );
-                vertexColorPerTract.push_back( c );
-            }
-            if( !success )
-            {
-                ++interpolationFailures;
-            }
-        }
+        // erase those colors where the alpha (aka probability) is below the threshold
+        colors->erase( std::remove_if( colors->begin(), colors->end(), std::bind2nd( std::less< double >(), m_probThreshold->get() ) ),
+                colors->end() );
 
         // compose all eligible vertices to one color!
         WColor color( 0.0, 0.0, 0.0, 0.0 );
-        double share = static_cast< double >( vertexColorPerTract.size() );
+        double share = static_cast< double >( colors->size() );
         if( share > wlimits::DBL_EPS )
         {
-            for( std::vector< WColor >::const_iterator vc = vertexColorPerTract.begin(); vc != vertexColorPerTract.end(); ++vc )
+            for( osg::Vec4Array::const_iterator vc = colors->begin(); vc != colors->end(); ++vc )
             {
+                WAssert( ( *vc )[3] >= m_probThreshold->get(), "Bug: There were colors left, below the given threshold" );
                 color += *vc / share;
             }
         }
@@ -172,11 +147,6 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceBuilderTracts::colorVertices( osg::ref_pt
         result->push_back( color );
     }
 
-    if( interpolationFailures > 0 )
-    {
-        wlog::warn( "WSPSliceBuilderTracts" ) << "While coloring vertices, the interpolation of probabilistic tractograms failed: "
-            << interpolationFailures << " many times.";
-    }
     WAssert( result->size() == vertices->size(), "Bug: There are not as many colors as vertices computed!" );
     return result;
 }

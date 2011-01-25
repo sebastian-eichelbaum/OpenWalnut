@@ -91,6 +91,8 @@ protected:
      */
     WColor colorMap( size_t probTractNum ) const;
 
+    std::vector< WColor > computeColorsFor( const osg::Vec3& pos ) const;
+
     /**
      * The grid of the first tractogram. It is assumed that all given probablilisitc tractograms operate on the same grid.
      */

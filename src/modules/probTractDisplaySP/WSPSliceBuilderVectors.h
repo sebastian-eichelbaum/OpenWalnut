@@ -50,9 +50,10 @@ public:
      * \param sliceGroup Slice positions
      * \param colorMap For each connected probabilistic trac its color
      * \param vector Vector dataset with the largest eigen vectors.
+     * \param vectorGroup Properties for some parameters of this drawing method
      */
     WSPSliceBuilderVectors( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap,
-            boost::shared_ptr< const WDataSetVector > vector );
+            boost::shared_ptr< const WDataSetVector > vector, WPropGroup vectorGroup );
 
     /**
      * Implements the preprocessing interface \ref WSPSliceBuilder.
@@ -68,6 +69,21 @@ public:
      * \return The group of nodes for the given slice.
      */
     osg::ref_ptr< WGEGroupNode > generateSlice( const unsigned char sliceNum ) const;
+
+private:
+//    osg::ref_ptr< osg::Vec3Array > generateQuadStubs( const wmath::WPosition& pos ) const;
+    osg::ref_ptr< osg::Vec3Array > generateQuadTexCoords( unsigned char sliceNum ) const;
+
+//    boost::shared_ptr< std::vector< wmath::WVector3D > > generateClockwiseDir( std::pair< unsigned char > activeDims, double distance ) const;
+
+    boost::shared_ptr< const WDataSetVector > m_vectors;
+
+    std::pair< unsigned char > computeSliceBase( const unsigned char sliceNum, boost::shared_ptr< wmath::WVector3D > origin,
+            boost::shared_ptr< wmath::WVector3D > a, boost::shared_ptr< wmath::WVector3D > b ) const;
+
+    boost::shared_ptr< const WPVInt > m_spacing;
+
+    boost::shared_ptr< const WPVDouble > m_probThreshold;
 };
 
 #endif  // WSPSLICEBUILDERVECTORS_H
