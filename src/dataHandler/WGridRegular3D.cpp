@@ -56,7 +56,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetYorig( offsetY ),
       m_offsetZorig( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixInverse( 3, 3 ),
+      m_matrixTexToWorld( 4, 4 ),
+      m_matrixWorldToTex( 4, 4 ),
       m_matrixNoMatrix( 4, 4 ),
       m_matrixQForm( 4, 4 ),
       m_matrixSForm( 4, 4 ),
@@ -90,7 +91,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_rotMatrix.makeIdentity();
     m_stretchMatrix.makeIdentity();
 
-    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+    recreateTextureTransformationMatrices();
 
     initInformationProperties();
 }
@@ -109,7 +110,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetYorig( offsetY ),
       m_offsetZorig( offsetZ ),
       m_matrix( wmath::WMatrix<double>( mat ) ),
-      m_matrixInverse( 3, 3 ),
+      m_matrixTexToWorld( 4, 4 ),
+      m_matrixWorldToTex( 4, 4 ),
       m_matrixNoMatrix( 4, 4 ),
       m_matrixQForm( 4, 4 ),
       m_matrixSForm( 4, 4 ),
@@ -137,7 +139,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrixQForm = m_matrix;
     m_matrixSForm = m_matrix;
 
-    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+    recreateTextureTransformationMatrices();
 
     m_matrixNoMatrix.makeIdentity();
     m_matrixNoMatrix( 0, 0 ) = fabs( offsetX );
@@ -166,7 +168,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetYorig( offsetY ),
       m_offsetZorig( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixInverse( 3, 3 ),
+      m_matrixTexToWorld( 4, 4 ),
+      m_matrixWorldToTex( 4, 4 ),
       m_matrixNoMatrix( 4, 4 ),
       m_matrixQForm( 4, 4 ),
       m_matrixSForm( 4, 4 ),
@@ -202,7 +205,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrixNoMatrix( 2, 2 ) = fabs( m_offsetZ );
 
     m_matrix = m_matrixNoMatrix;
-    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+    recreateTextureTransformationMatrices();
     m_matrixActive = 0;
 
     // TODO(all): this seems quite wrong
@@ -236,7 +239,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetYorig( offsetY ),
       m_offsetZorig( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixInverse( 3, 3 ),
+      m_matrixTexToWorld( 4, 4 ),
+      m_matrixWorldToTex( 4, 4 ),
       m_matrixNoMatrix( 4, 4 ),
       m_matrixQForm( 4, 4 ),
       m_matrixSForm( 4, 4 ),
@@ -257,7 +261,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrixQForm = m_matrix;
     m_matrixSForm = m_matrix;
 
-    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+    recreateTextureTransformationMatrices();
 
     m_translateMatrix.makeIdentity();
     m_rotMatrix.makeIdentity();
@@ -284,7 +288,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetYorig( offsetY ),
       m_offsetZorig( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixInverse( 3, 3 ),
+      m_matrixTexToWorld( 4, 4 ),
+      m_matrixWorldToTex( 4, 4 ),
       m_matrixNoMatrix( 4, 4 ),
       m_matrixQForm( 4, 4 ),
       m_matrixSForm( 4, 4 ),
@@ -305,7 +310,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrixQForm = m_matrix;
     m_matrixSForm = m_matrix;
 
-    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+    recreateTextureTransformationMatrices();
 
     m_translateMatrix.makeIdentity();
     m_rotMatrix.makeIdentity();
@@ -331,7 +336,8 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
       m_offsetYorig( offsetY ),
       m_offsetZorig( offsetZ ),
       m_matrix( 4, 4 ),
-      m_matrixInverse( 3, 3 ),
+      m_matrixTexToWorld( 4, 4 ),
+      m_matrixWorldToTex( 4, 4 ),
       m_matrixNoMatrix( 4, 4 ),
       m_matrixQForm( 4, 4 ),
       m_matrixSForm( 4, 4 ),
@@ -349,7 +355,7 @@ WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsign
     m_matrixQForm = m_matrix;
     m_matrixSForm = m_matrix;
 
-    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+    recreateTextureTransformationMatrices();
 
     m_translateMatrix.makeIdentity();
     m_rotMatrix.makeIdentity();
@@ -373,38 +379,56 @@ wmath::WMatrix< double > WGridRegular3D::getTransformationMatrix() const
     return m_matrix;
 }
 
+void WGridRegular3D::recreateTextureTransformationMatrices()
+{
+    // World-to-Tex:
+    wmath::WMatrix< double > inv = wmath::invertMatrix4x4( m_matrix );
+
+    // Scale according to bbox
+    wmath::WMatrix< double > scale( 4, 4 );
+    scale( 0, 0 ) = 1.0 / m_nbPosX;
+    scale( 1, 1 ) = 1.0 / m_nbPosY;
+    scale( 2, 2 ) = 1.0 / m_nbPosZ;
+    scale( 3, 3 ) = 1.0;
+
+    // Move to voxel center
+    wmath::WMatrix< double > offset( 4, 4 );
+    offset( 0, 3 ) = 0.5 / m_nbPosX;
+    offset( 1, 3 ) = 0.5 / m_nbPosY;
+    offset( 2, 3 ) = 0.5 / m_nbPosZ;
+    offset( 3, 3 ) = 1.0;
+    offset( 0, 0 ) = 1.0;
+    offset( 1, 1 ) = 1.0;
+    offset( 2, 2 ) = 1.0;
+    offset( 3, 3 ) = 1.0;
+
+    m_matrixWorldToTex = offset * scale * inv;
+
+    // Tex-To-World:
+    // Scale according to bbox
+    // actually, this is the inverse of scale
+    scale( 0, 0 ) = m_nbPosX;
+    scale( 1, 1 ) = m_nbPosY;
+    scale( 2, 2 ) = m_nbPosZ;
+
+    // Move to voxel center
+    // actually, this is the inverse of offset
+    offset( 3, 0 ) = -0.5 / m_nbPosX;
+    offset( 3, 1 ) = -0.5 / m_nbPosY;
+    offset( 3, 2 ) = -0.5 / m_nbPosZ;
+
+    // actually, this is the inverse of m_matrixWorldToTex
+    m_matrixTexToWorld = offset * scale * m_matrix;
+}
+
 wmath::WVector3D WGridRegular3D::worldCoordToTexCoord( wmath::WPosition point )
 {
-    wmath::WVector3D r( wmath::transformPosition3DWithMatrix4D( m_matrixInverse, point ) );
-
-    // Scale to [0,1]
-    r[0] = r[0] / m_nbPosX;
-    r[1] = r[1] / m_nbPosY;
-    r[2] = r[2] / m_nbPosZ;
-
-    // Correct the coordinates to have the position at the center of the texture voxel.
-    r[0] += 0.5 / m_nbPosX;
-    r[1] += 0.5 / m_nbPosY;
-    r[2] += 0.5 / m_nbPosZ;
-
-    return r;
+    return wmath::transformPosition3DWithMatrix4D( m_matrixWorldToTex, point );
 }
 
 wmath::WPosition WGridRegular3D::texCoordToWorldCoord( wmath::WVector3D coords )
 {
-    wmath::WVector3D r( wmath::transformPosition3DWithMatrix4D( m_matrix, coords ) );
-
-    // Correct the coordinates to have the position at the center of the texture voxel.
-    r[0] -= 0.5 / m_nbPosX;
-    r[1] -= 0.5 / m_nbPosY;
-    r[2] -= 0.5 / m_nbPosZ;
-
-    // Scale to [0,max]
-    r[0] = r[0] * m_nbPosX;
-    r[1] = r[1] * m_nbPosY;
-    r[2] = r[2] * m_nbPosZ;
-
-    return r;
+    return wmath::transformPosition3DWithMatrix4D( m_matrixTexToWorld, coords );
 }
 
 int WGridRegular3D::getVoxelNum( const wmath::WPosition& pos ) const
@@ -975,7 +999,7 @@ void WGridRegular3D::translate( wmath::WPosition translate )
     m_matrix = m_matrix * m_stretchMatrix;
     m_matrix = m_matrix * m_rotMatrix;
 
-    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+    recreateTextureTransformationMatrices();
 }
 
 
@@ -1010,7 +1034,7 @@ void WGridRegular3D::stretch( wmath::WPosition str )
     m_matrix = m_matrix * m_stretchMatrix;
     m_matrix = m_matrix * m_rotMatrix;
 
-    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+    recreateTextureTransformationMatrices();
 }
 
 void WGridRegular3D::rotate( osg::Matrixf osgrot, wmath::WPosition center )
@@ -1069,7 +1093,7 @@ void WGridRegular3D::rotate( osg::Matrixf osgrot, wmath::WPosition center )
     m_matrix = m_matrix * m_stretchMatrix;
     m_matrix = m_matrix * m_rotMatrix;
 
-    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+    recreateTextureTransformationMatrices();
 }
 
 void WGridRegular3D::setActiveMatrix( int matrix )
@@ -1092,7 +1116,7 @@ void WGridRegular3D::setActiveMatrix( int matrix )
         default:
             m_matrix = m_matrixNoMatrix;
     }
-    m_matrixInverse = wmath::invertMatrix4x4( m_matrix );
+    recreateTextureTransformationMatrices();
 
     m_directionX = WVector3D( m_matrix( 0, 0 ) / m_matrix( 3, 3 ), m_matrix( 1, 0 ) / m_matrix( 3, 3 ), m_matrix( 2, 0 ) / m_matrix( 3, 3 ) );
     m_directionY = WVector3D( m_matrix( 0, 1 ) / m_matrix( 3, 3 ), m_matrix( 1, 1 ) / m_matrix( 3, 3 ), m_matrix( 2, 1 ) / m_matrix( 3, 3 ) );

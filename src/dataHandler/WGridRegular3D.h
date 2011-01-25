@@ -595,6 +595,11 @@ private:
      */
     void initInformationProperties();
 
+    /**
+     * Recalculates the m_matrixInverse and the corresponding scaling and offset matrices m_matrixTexToWorld and m_matrixWorldToTex
+     */
+    void recreateTextureTransformationMatrices();
+
     wmath::WPosition m_origin; //!< Origin of the grid.
 
     unsigned int m_nbPosX; //!< Number of positions in x direction
@@ -622,7 +627,15 @@ private:
      */
     wmath::WMatrix<double> m_matrix;
 
-    wmath::WMatrix<double> m_matrixInverse; //!< Inverse of m_matrix
+    /**
+     * This matrix converts a texture coordinate inside the grid to a world coordinate. It also handles the 0.5 voxel offset.
+     */
+    wmath::WMatrix<double> m_matrixTexToWorld;
+
+    /**
+     * This matrix converts a world coordinate to a texture coordinate inside the grid. It also handles the 0.5 voxel offset.
+     */
+    wmath::WMatrix<double> m_matrixWorldToTex;
 
     /**
      * Matrix storing the original stretch and translation
