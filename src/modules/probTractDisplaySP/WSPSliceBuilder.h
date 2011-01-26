@@ -30,14 +30,12 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <osg/ref_ptr>
+
+#include "../../common/WBoundingBox.h"
 #include "../../common/WProperties.h"
 #include "../../common/WPropertyTypes.h"
 
-// forward declarations
-namespace osg
-{
-    template< class T > class ref_ptr;
-}
 class WDataSetScalar;
 class WGEGroupNode;
 class WGridRegular3D;
@@ -101,7 +99,21 @@ protected:
      */
     bool alphaBelowThreshold( const WColor& c, const double threshold ) const;
 
+    /**
+     * Compute for each probabilistic tractogram the color at the given pos and sets the alpha value to the interpolated probability.
+     *
+     * \param pos The position to look up colors and probabilities for.
+     *
+     * \return The vector of colors.
+     */
     osg::ref_ptr< osg::Vec4Array > computeColorsFor( const osg::Vec3& pos ) const;
+
+    /**
+     * Computes the bouding boxes for the slices.
+     *
+     * \note Whenever the xPos, yPos or zPos of the slice change those have to be recomputed!
+     */
+    void computeSliceBB();
 
     /**
      * The grid of the first tractogram. It is assumed that all given probablilisitc tractograms operate on the same grid.
@@ -117,6 +129,11 @@ protected:
      * List of probabilisitc tractograms.
      */
     ProbTractList m_probTracts;
+
+    /**
+     * Axis aligned bounding box for each slice.
+     */
+    std::vector< WBoundingBox > m_sliceBB;
 
 private:
     /**

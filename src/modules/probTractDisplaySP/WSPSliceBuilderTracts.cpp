@@ -41,7 +41,6 @@
 WSPSliceBuilderTracts::WSPSliceBuilderTracts( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap,
         boost::shared_ptr< const WDataSetFibers > detTracts, WPropGroup tractGroup )
     : WSPSliceBuilder( probTracts, sliceGroup, colorMap ),
-      m_sliceBB( 3 ),
       m_detTracts( detTracts ),
       m_intersectionList( 3 )
 {
@@ -62,26 +61,6 @@ WSPSliceBuilderTracts::WSPSliceBuilderTracts( ProbTractList probTracts, WPropGro
     {
         m_tractBB.push_back( wmath::computeBoundingBox( ( *detTracts )[i] ) );
     }
-
-    computeSliceBB(); // just to be sure those are initialized, since they may change due to m_slicePos[0], et al. anyway
-}
-
-void WSPSliceBuilderTracts::computeSliceBB()
-{
-    if( !m_grid )
-    {
-        wlog::warn( "WSPSliceBuilder" ) << "Invalid grid while BB computation!";
-        return;
-    }
-    m_sliceBB[0] = WBoundingBox( m_grid->getOrigin() + m_slicePos[0]->get() * m_grid->getDirectionX(),
-            m_grid->getOrigin() + m_slicePos[0]->get() * m_grid->getDirectionX() + m_grid->getNbCoordsY() * m_grid->getDirectionY() +
-            m_grid->getNbCoordsZ() * m_grid->getDirectionZ() );
-    m_sliceBB[1] = WBoundingBox( m_grid->getOrigin() + m_slicePos[1]->get() * m_grid->getDirectionY(),
-            m_grid->getOrigin() + m_slicePos[1]->get() * m_grid->getDirectionY() + m_grid->getNbCoordsX() * m_grid->getDirectionX() +
-            m_grid->getNbCoordsZ() * m_grid->getDirectionZ() );
-    m_sliceBB[2] = WBoundingBox( m_grid->getOrigin() + m_slicePos[2]->get() * m_grid->getDirectionZ(),
-            m_grid->getOrigin() + m_slicePos[2]->get() * m_grid->getDirectionZ() + m_grid->getNbCoordsY() * m_grid->getDirectionY() +
-            m_grid->getNbCoordsX() * m_grid->getDirectionX() );
 }
 
 void WSPSliceBuilderTracts::preprocess()

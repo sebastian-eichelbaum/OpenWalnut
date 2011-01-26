@@ -81,13 +81,6 @@ protected:
 
 private:
     /**
-     * Computes the bouding boxes for the slices.
-     *
-     * \note Whenever the xPos, yPos or zPos of the slice change those have to be recomputed!
-     */
-    void computeSliceBB();
-
-    /**
      * Projects a given line strip onto the given slice simply by setting its components to the slice position.
      *
      * \param sliceNum Which slice 0 == xSlice, 1 == ySlice and 2 == zSlice
@@ -111,10 +104,6 @@ private:
      */
     osg::ref_ptr< osg::Vec4Array > colorVertices( osg::ref_ptr< const osg::Vec3Array > vertices, const double probThreshold ) const;
 
-    /**
-     * Axis aligned bounding box for each slice.
-     */
-    std::vector< WBoundingBox > m_sliceBB;
 
     /**
      * Reference to the deterministic tracts.

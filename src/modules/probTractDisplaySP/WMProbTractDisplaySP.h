@@ -29,15 +29,14 @@
 #include <string>
 #include <vector>
 
-#include "../../common/WBoundingBox.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/WDataSetVector.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
 
+// forward declarations to reduce compile dependencies
+template< class T > class WModuleInputData;
+class WDataSetFibers;
+class WDataSetScalar;
+class WDataSetVector;
+class WGEManagedGroupNode;
 class WSPSliceBuilder;
 
 /**

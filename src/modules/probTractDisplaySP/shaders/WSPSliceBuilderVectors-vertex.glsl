@@ -22,18 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#version 120
-
 void main()
 {
-    // pass the color to the fragment shader
-    gl_FrontColor = gl_Color;
-    gl_BackColor =  gl_Color;
-
-    // pass tex coordinates
-    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-
-    // transform position
-    gl_Position = ftransform();
+    gl_TexCoord[0] = gl_MultiTexCoord0;
+    vec4 v = gl_Vertex + vec4( gl_TexCoord[0].xyz, 0.0 );
+    gl_Position = gl_ModelViewProjectionMatrix * v;
 }
-

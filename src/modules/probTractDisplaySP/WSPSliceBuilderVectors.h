@@ -25,8 +25,10 @@
 #ifndef WSPSLICEBUILDERVECTORS_H
 #define WSPSLICEBUILDERVECTORS_H
 
+#include <utility>
 #include <vector>
 
+#include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Geode>
@@ -35,7 +37,9 @@
 #include "../../common/WPropertyTypes.h"
 #include "WSPSliceBuilder.h"
 
+// forward declarations
 class WDataSetVector;
+class WGEShader;
 
 /**
  * This Builder is used to generate views of probabilistic tractograms ala Schmahmann and Pandya.
@@ -51,9 +55,10 @@ public:
      * \param colorMap For each connected probabilistic trac its color
      * \param vector Vector dataset with the largest eigen vectors.
      * \param vectorGroup Properties for some parameters of this drawing method
+     * \param shaderPath The filesystem path where the shader file is located.
      */
     WSPSliceBuilderVectors( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap,
-            boost::shared_ptr< const WDataSetVector > vector, WPropGroup vectorGroup );
+            boost::shared_ptr< const WDataSetVector > vector, WPropGroup vectorGroup, boost::filesystem::path shaderPath  );
 
     /**
      * Implements the preprocessing interface \ref WSPSliceBuilder.
@@ -72,18 +77,59 @@ public:
 
 private:
 //    osg::ref_ptr< osg::Vec3Array > generateQuadStubs( const wmath::WPosition& pos ) const;
+
+    /**
+     * Computes the texture coordinates which are used in the shader to span the quads out of their middle points per slice.
+     *
+     * \param activeDims This are the opposite indices of the current slice.
+     * \param size How big the spanning is.
+     *
+     * \return All four coordinate transformations, for each vertex in a slice.
+     */
     osg::ref_ptr< osg::Vec3Array > generateQuadTexCoords( std::pair< unsigned char, unsigned char > activeDims, double size ) const;
 
-//    boost::shared_ptr< std::vector< wmath::WVector3D > > generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims, double distance ) const;
+    /**
+     * Generates directions clockwise around a center where the other quads will be placed later on.
+     *
+     * \param activeDims This are the opposite indices of the current slice.
+     * \param distance How far the other quads are placed around the center point
+     *
+     * \return A array of direction to add to the center point to get the new centerpoints around in clockwise manner.
+     */
+    osg::ref_ptr< osg::Vec3Array > generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims, double distance ) const;
 
-    boost::shared_ptr< const WDataSetVector > m_vectors;
-
+    /**
+     * Compute the origin and the base vectors of each slice, and returns the other opposite indices.
+     *
+     * \param sliceNum The current slice index: 0 sagittal (xSlice), 1 coronal (ySlice), 2 axial (zSlice)
+     * \param origin There will be put the origin of the given slice
+     * \param a The first base vector of the given slice
+     * \param b The second base vector of the given slice
+     *
+     * \return If \c sliceNum=0 the oppsite indices are \c 1 and \c 2. For \c sliceNum=1, they are \c 0,2, and for \c sliceNum=2 they are \c 1,2.
+     */
     std::pair< unsigned char, unsigned char > computeSliceBase( const unsigned char sliceNum, boost::shared_ptr< wmath::WVector3D > origin,
             boost::shared_ptr< wmath::WVector3D > a, boost::shared_ptr< wmath::WVector3D > b ) const;
 
+    /**
+     * The eigenvectors.
+     */
+    boost::shared_ptr< const WDataSetVector > m_vectors;
+
+    /**
+     * A reference to the property which denotes the space between the primary quads (aka subdivision).
+     */
     boost::shared_ptr< const WPVInt > m_spacing;
 
+    /**
+     * Upto which threshold the quads should be discarded.
+     */
     boost::shared_ptr< const WPVDouble > m_probThreshold;
+
+    /**
+     * Shading the quads and transform them to the glyphs (line stipples).
+     */
+    osg::ref_ptr< WGEShader > m_shader;
 };
 
 #endif  // WSPSLICEBUILDERVECTORS_H

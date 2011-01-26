@@ -33,44 +33,23 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "WSPSliceBuilderVectors.h"
 
 WSPSliceBuilderVectors::WSPSliceBuilderVectors( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap,
-        boost::shared_ptr< const WDataSetVector > vector, WPropGroup vectorGroup )
+        boost::shared_ptr< const WDataSetVector > vector, WPropGroup vectorGroup, boost::filesystem::path shaderPath )
     : WSPSliceBuilder( probTracts, sliceGroup, colorMap ),
-      m_vectors( vector )
+      m_vectors( vector ),
+      m_shader( new WGEShader( "WSPSliceBuilderVectors", shaderPath ) )
 {
     m_probThreshold = vectorGroup->findProperty( "Prob Threshold" )->toPropDouble();
     m_spacing = vectorGroup->findProperty( "Spacing" )->toPropInt();
-
 }
 
 void WSPSliceBuilderVectors::preprocess()
 {
-    // no preprocessing needed, but we have to implement this to be not abstract anymore
+    computeSliceBB();
 }
-
-// namespace
-// {
-//     /**
-//      * Operator compares if a color has an alpha value below a given threshold.
-//      */
-//     struct alphaBelowThreshold:
-//     {
-//         /**
-//          * Compares the color's alpha value and the threshold.
-//          *
-//          * \param c The given color
-//          * \param threshold The given Threshold
-//          *
-//          * \return ture if the color has an alpha value below the given threshold.
-//          */
-//         bool operator()( const WColor& c, const double threshold ) const
-//         {
-//             return c[3] < threshold;
-//         }
-//     };
-// }
 
 osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsigned char sliceNum ) const
 {
@@ -93,7 +72,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Vec4Array > quadColors( new osg::Vec4Array );
     quadColors->push_back( WColor( 1.0, 0.0, 0.0, 1.0 ) );
 
-    osg::ref_ptr< const osg::Vec3Array > texCoordsPerPrimitive = generateQuadTexCoords( activeDims, 1.0 );
+    osg::ref_ptr< osg::Vec3Array > texCoordsPerPrimitive = generateQuadTexCoords( activeDims, 1.0 );
 
     for( size_t x = 0; x < numCoords[ activeDims.first ]; x += m_spacing->get() )
     {
@@ -105,15 +84,11 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
             quadVertices->push_back( pos );
             quadVertices->push_back( pos );
 
-            // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a real quad out of the 4
-            // center points
+            // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a real
+            // quad out of the four center points
             quadTexCoords->insert( quadTexCoords->end(), texCoordsPerPrimitive->begin(), texCoordsPerPrimitive->end() );
 
-//            osg::ref_ptr< osg::Vec4Array > colors = computeColorsFor( pos );
-
-            // erase those colors where the alpha (aka probability) is below the threshold
-            // colors->erase( std::remove_if( colors->begin(), colors->end(), std::bind2nd( alphaBelowThreshold(), m_probThreshold->get() ) ),
-            //         colors->end() );
+            osg::ref_ptr< osg::Vec4Array > colors = computeColorsFor( pos );
 
             // draw degenerated quads around this point if alpha value of color is greater than threshold
         }
@@ -132,10 +107,15 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Geode > geode( new osg::Geode );
     geode->addDrawable( geometry );
     result->insert( geode );
+    result->insert( wge::generateBoundingBoxGeode( m_sliceBB[ sliceNum ], WColor( 0.0, 0.0, 0.0, 1.0 ) ) );
+
+    m_shader->apply( geode );
+
     return result;
 }
 
-osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadTexCoords( std::pair< unsigned char, unsigned char > activeDims, double size ) const
+osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadTexCoords( std::pair< unsigned char, unsigned char > activeDims,
+        double size ) const
 {
     osg::ref_ptr< osg::Vec3Array > result( new osg::Vec3Array );
     result->reserve( 4 );
@@ -143,10 +123,14 @@ osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadTexCoords( st
     result->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
     result->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
     result->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
-    result->at( 0 )[ activeDims.first ] = -0.5 * size;   result->at( 0 )[ activeDims.second ] = -0.5 * size;
-    result->at( 1 )[ activeDims.first ] =  0.5 * size;   result->at( 1 )[ activeDims.second ] = -0.5 * size;
-    result->at( 2 )[ activeDims.first ] =  0.5 * size;   result->at( 2 )[ activeDims.second ] =  0.5 * size;
-    result->at( 3 )[ activeDims.first ] = -0.5 * size;   result->at( 3 )[ activeDims.second ] =  0.5 * size;
+    result->at( 0 )[ activeDims.first ]  = -0.5 * size;
+    result->at( 1 )[ activeDims.first ]  =  0.5 * size;
+    result->at( 2 )[ activeDims.first ]  =  0.5 * size;
+    result->at( 3 )[ activeDims.first ]  = -0.5 * size;
+    result->at( 0 )[ activeDims.second ] = -0.5 * size;
+    result->at( 1 )[ activeDims.second ] = -0.5 * size;
+    result->at( 2 )[ activeDims.second ] =  0.5 * size;
+    result->at( 3 )[ activeDims.second ] =  0.5 * size;
     return result;
 }
 
@@ -171,22 +155,32 @@ std::pair< unsigned char, unsigned char > WSPSliceBuilderVectors::computeSliceBa
     return std::make_pair< unsigned char, unsigned char >( *( slices.begin() ), *( slices.rbegin() ) );
 }
 
-// boost::shared_ptr< std::vector< wmath::WVector3D > > WSPSliceBuilderVectors::generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims,
-//         double distance ) const
-// {
-//     boost::shared_ptr< std::vector< wmath::WVector3D > > result( new std::vector< wmath::WVector3D >( 9, wmath::WVector3D( 0.0, 0.0, 0.0 ) ) );
-//     result->at( 0 )[ activeDims.first ] =  0.0;    result->at( 0 )[ activeDims.second ] =  0.0;
-//     result->at( 1 )[ activeDims.first ] =  1.0;    result->at( 1 )[ activeDims.second ] =  0.0;
-//     result->at( 2 )[ activeDims.first ] =  1.0;    result->at( 2 )[ activeDims.second ] =  1.0;
-//     result->at( 3 )[ activeDims.first ] =  0.0;    result->at( 3 )[ activeDims.second ] =  1.0;
-//     result->at( 4 )[ activeDims.first ] = -1.0;    result->at( 4 )[ activeDims.second ] =  1.0;
-//     result->at( 5 )[ activeDims.first ] = -1.0;    result->at( 5 )[ activeDims.second ] =  0.0;
-//     result->at( 6 )[ activeDims.first ] = -1.0;    result->at( 6 )[ activeDims.second ] = -1.0;
-//     result->at( 7 )[ activeDims.first ] =  0.0;    result->at( 7 )[ activeDims.second ] = -1.0;
-//     result->at( 8 )[ activeDims.first ] =  1.0;    result->at( 8 )[ activeDims.second ] = -1.0;
-//     return result;
-// }
-//
+osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims,
+        double distance ) const
+{
+    osg::ref_ptr< osg::Vec3Array > result( new osg::Vec3Array( 9 ) );
+    std::fill( result->begin(), result->begin() + 9, osg::Vec3( 0.0, 0.0, 0.0 ) );
+    result->at( 0 )[ activeDims.first ]  =  0.0 * distance;
+    result->at( 1 )[ activeDims.first ]  =  1.0 * distance;
+    result->at( 2 )[ activeDims.first ]  =  1.0 * distance;
+    result->at( 3 )[ activeDims.first ]  =  0.0 * distance;
+    result->at( 4 )[ activeDims.first ]  = -1.0 * distance;
+    result->at( 5 )[ activeDims.first ]  = -1.0 * distance;
+    result->at( 6 )[ activeDims.first ]  = -1.0 * distance;
+    result->at( 7 )[ activeDims.first ]  =  0.0 * distance;
+    result->at( 8 )[ activeDims.first ]  =  1.0 * distance;
+    result->at( 0 )[ activeDims.second ] =  0.0 * distance;
+    result->at( 1 )[ activeDims.second ] =  0.0 * distance;
+    result->at( 2 )[ activeDims.second ] =  1.0 * distance;
+    result->at( 3 )[ activeDims.second ] =  1.0 * distance;
+    result->at( 4 )[ activeDims.second ] =  1.0 * distance;
+    result->at( 5 )[ activeDims.second ] =  0.0 * distance;
+    result->at( 6 )[ activeDims.second ] = -1.0 * distance;
+    result->at( 7 )[ activeDims.second ] = -1.0 * distance;
+    result->at( 8 )[ activeDims.second ] = -1.0 * distance;
+    return result;
+}
+
 // osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadStubs( const wmath::WPosition& pos ) const
 // {
 //     osg::ref_ptr< osg::Vec3Array > result( new osg::Vec3Array );

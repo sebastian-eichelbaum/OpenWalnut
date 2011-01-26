@@ -22,32 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#include <cmath>
-#include <cstdlib>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include <osg/Vec3>
-#include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Drawable>
 
 #include "../../common/exceptions/WNotImplemented.h"
 #include "../../common/exceptions/WOutOfBounds.h"
-#include "../../common/math/WMath.h"
-#include "../../common/math/WPlane.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WDataSetFibers.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetVector.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
-#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
-#include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
-#include "../../graphicsEngine/offscreen/WGEOffscreenRenderNode.h"
-#include "../../graphicsEngine/offscreen/WGEOffscreenRenderPass.h"
-#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleConnectorSignals.h"
 #include "WMProbTractDisplaySP.h"
@@ -61,7 +47,7 @@ W_LOADABLE_MODULE( WMProbTractDisplaySP )
 
 namespace
 {
-    const size_t NUM_ICS = 10;
+    const size_t NUM_ICS = 9;
 }
 
 WMProbTractDisplaySP::WMProbTractDisplaySP()
@@ -199,7 +185,7 @@ void WMProbTractDisplaySP::properties()
     m_vectorGroup     = m_properties->addPropertyGroup( "Vector Group", "Parameters for drawing via eigen vectors." );
     m_vectorGroup->addProperty( m_probThreshold ); // this is also needed in this property group
     WPropInt spacing = m_vectorGroup->addProperty( "Spacing", "Spacing of the sprites", 5, m_sliceChanged );
-    spacing->setMin( 0 );
+    spacing->setMin( 1 );
     spacing->setMax( 30 );
 
     // call WModule's initialization
@@ -327,7 +313,7 @@ void WMProbTractDisplaySP::moduleMain()
                 else
                 {
                     builder = boost::shared_ptr< WSPSliceBuilderVectors >( new WSPSliceBuilderVectors( probTracts, m_sliceGroup, m_colorMap,
-                                vectors, m_vectorGroup ) );
+                                vectors, m_vectorGroup, m_localPath ) );
                 }
             }
             else if( algo.at( 0 )->getName() == std::string( "With deterministic tracts" ) )

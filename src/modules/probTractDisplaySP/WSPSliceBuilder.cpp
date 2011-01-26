@@ -37,6 +37,7 @@
 WSPSliceBuilder::WSPSliceBuilder( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap )
     : m_slicePos( 3 ),
       m_probTracts( probTracts ),
+      m_sliceBB( 3 ),
       m_colorMap( colorMap ) // yes this is a COPY of the vector but WPropGroup is a boost::shared_ptr so updates will propagate!
 {
     m_slicePos[2] = sliceGroup->findProperty( "Axial Position" )->toPropInt();
@@ -44,6 +45,7 @@ WSPSliceBuilder::WSPSliceBuilder( ProbTractList probTracts, WPropGroup sliceGrou
     m_slicePos[0] = sliceGroup->findProperty( "Sagittal Position" )->toPropInt();
 
     checkAndExtractGrids();
+    computeSliceBB(); // just to be sure those are initialized, since they may change due to m_slicePos[0], et al. anyway
 }
 
 WSPSliceBuilder::~WSPSliceBuilder()
@@ -160,4 +162,22 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceBuilder::computeColorsFor( const osg::Vec
             " tractograms failed: " << interpolationFailures << " many times.";
     }
     return result;
+}
+
+void WSPSliceBuilder::computeSliceBB()
+{
+    if( !m_grid )
+    {
+        wlog::warn( "WSPSliceBuilder" ) << "Invalid grid while BB computation!";
+        return;
+    }
+    m_sliceBB[0] = WBoundingBox( m_grid->getOrigin() + m_slicePos[0]->get() * m_grid->getDirectionX(),
+            m_grid->getOrigin() + m_slicePos[0]->get() * m_grid->getDirectionX() + m_grid->getNbCoordsY() * m_grid->getDirectionY() +
+            m_grid->getNbCoordsZ() * m_grid->getDirectionZ() );
+    m_sliceBB[1] = WBoundingBox( m_grid->getOrigin() + m_slicePos[1]->get() * m_grid->getDirectionY(),
+            m_grid->getOrigin() + m_slicePos[1]->get() * m_grid->getDirectionY() + m_grid->getNbCoordsX() * m_grid->getDirectionX() +
+            m_grid->getNbCoordsZ() * m_grid->getDirectionZ() );
+    m_sliceBB[2] = WBoundingBox( m_grid->getOrigin() + m_slicePos[2]->get() * m_grid->getDirectionZ(),
+            m_grid->getOrigin() + m_slicePos[2]->get() * m_grid->getDirectionZ() + m_grid->getNbCoordsY() * m_grid->getDirectionY() +
+            m_grid->getNbCoordsX() * m_grid->getDirectionX() );
 }
