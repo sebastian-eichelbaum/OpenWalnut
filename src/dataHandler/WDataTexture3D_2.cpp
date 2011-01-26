@@ -121,9 +121,6 @@ void WDataTexture3D_2::create()
         wlog::debug( "WDataTexture3D_2" ) << "Creating Texture of type" << m_valueSet->getDataType();
         wlog::error( "WDataTexture3D_2" ) << "Conversion of this data type to texture not supported yet.";
     }
-    wlog::debug( "jwwwwh" ) <<      transformation()->get();
-    transformation()->set( m_grid->getWorldToTexMatrix() );
-    wlog::debug( "jwwwwh" ) <<      transformation()->get();
 
     setImage( ima );
     dirtyTextureObject();

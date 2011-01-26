@@ -366,7 +366,7 @@ void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, float minV
  *
  * \note if your are using this method, the call to colormapping() inside your vertex shader is NOT needed.
  *
- * \param texcoord the texture coordinate in the bounding box unit space of the data
+ * \param texcoord the texture coordinate in the bounding box space of the data
  * \return the final color determined by the user defined colormapping
  */
 vec4 colormapping( vec4 texcoord )

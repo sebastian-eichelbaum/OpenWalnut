@@ -43,6 +43,10 @@
 // texture containing the data
 uniform sampler3D u_texture0Sampler;
 
+uniform int u_texture0SizeX;
+uniform int u_texture0SizeY;
+uniform int u_texture0SizeZ;
+
 #ifdef STOCHASTICJITTER_ENABLED
 // texture containing the stochastic jitter texture
 uniform sampler2D u_texture1Sampler;
@@ -196,7 +200,10 @@ void main()
 #endif
 
             // mix color with colormap
-            vec4 color = mix( colormapping( vec4( curPoint, 1.0 ) ), vec4( gl_Color.rgb, u_alpha ), 1.0 - u_colormapRatio );
+            vec4 color = mix( 
+                colormapping( vec4( curPoint.x * u_texture0SizeX, curPoint.y * u_texture0SizeY, curPoint.z * u_texture0SizeZ, 1.0 ) ),
+                vec4( gl_Color.rgb, u_alpha ),
+                1.0 - u_colormapRatio );
             // 5: the final color construction
             wge_FragColor = vec4( light * color.rgb, color.a );
 
