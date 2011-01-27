@@ -36,16 +36,13 @@
 
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
-
-#include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
-
+#include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-
-#include "WMClusterDisplayVoxels.xpm"
-
+#include "../../kernel/WSelectionManager.h"
 #include "WFileParser.h"
 #include "WMClusterDisplayVoxels.h"
+#include "WMClusterDisplayVoxels.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMClusterDisplayVoxels )

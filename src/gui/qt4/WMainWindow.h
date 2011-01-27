@@ -25,36 +25,33 @@
 #ifndef WMAINWINDOW_H
 #define WMAINWINDOW_H
 
-#include <list>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
-#include <boost/program_options.hpp>
-#include <boost/shared_ptr.hpp>
+//#include <boost/program_options.hpp>
+//#include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
+#include <boost/thread.hpp>
 
-#include <QtGui/QCloseEvent>
-#include <QtGui/QIcon>
 #include <QtGui/QMainWindow>
-#include <QtGui/QSlider>
-#include <QtGui/QWidget>
 
-#include "../../common/WProjectFileIO.h"
-#include "../../kernel/WModule.h"
 #include "WIconManager.h"
-#include "WQtCombinerToolbar.h"
-#include "WQtConfigWidget.h"
-#include "WQtCustomDockWidget.h"
-#include "WQtGLWidget.h"
-#include "WQtNavGLWidget.h"
 #include "WQtToolBar.h"
-#include "controlPanel/WQtControlPanel.h"
-#include "ribbonMenu/WQtRibbonMenu.h"
+#include "WQtGLWidget.h"
 
 // forward declarations
 class QMenuBar;
+class WModule;
+class WProjectFileIO;
+class WQtCombinerToolbar;
+class WQtConfigWidget;
+class WQtControlPanel;
+class WQtCustomDockWidget;
+class WQtNavGLWidget;
 class WQtPropertyBoolAction;
+class WPropertyBase;
+class WQtControlPanel;
 
 /**
  * This class contains the main window and the layout of the widgets within the window.
@@ -79,11 +76,6 @@ public:
      * returns a pointer to the control panel object
      */
     WQtControlPanel* getControlPanel();
-
-    /**
-     *  returns a pointer to the ribbon menu object
-     */
-    WQtRibbonMenu* getRibbonMenu();
 
     /**
      * Return icon manager
@@ -330,7 +322,7 @@ private:
 
     WQtControlPanel* m_controlPanel; //!< control panel
 
-    boost::shared_ptr<WQtGLWidget> m_mainGLWidget; //!< the main GL widget of the GUI
+    boost::shared_ptr< WQtGLWidget > m_mainGLWidget; //!< the main GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal; //!< the sgittal view widget GL widget of the GUI

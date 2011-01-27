@@ -47,6 +47,7 @@
 #include "../../../dataHandler/io/WReaderELC.h"
 #include "../../../dataHandler/io/WReaderFiberVTK.h"
 #include "../../../graphicsEngine/WGEColormapping.h"
+#include "../../../kernel/WModuleOutputData.h"
 #include "WMData.h"
 #include "data.xpm"
 

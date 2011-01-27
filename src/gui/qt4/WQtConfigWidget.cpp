@@ -29,11 +29,11 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 
-#include "WCfgOperations.h"
-#include "../../kernel/WModuleFactory.h"
 #include "../../common/WConditionOneShot.h"
 #include "../../common/WPathHelper.h"
-
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleFactory.h"
+#include "WCfgOperations.h"
 #include "WQtConfigWidget.h"
 
 WQtConfigWidget::WQtConfigWidget() :

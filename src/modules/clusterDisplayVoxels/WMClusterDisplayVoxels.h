@@ -32,20 +32,17 @@
 #include <osg/Geode>
 
 #include "../../common/WHierarchicalTreeVoxels.h"
-
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/WValueSet.h"
 #include "../../graphicsEngine/geodes/WDendrogramGeode.h"
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/widgets/WOSGButton.h"
-
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WValueSet.h"
 
 const unsigned int MASK_2D = 0xF0000000; //!< used for osgWidget stuff
 const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff

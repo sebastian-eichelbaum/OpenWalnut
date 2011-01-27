@@ -31,21 +31,15 @@
 
 #include <osg/Node>
 
-
-#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
+// forward declarations
+class WFiberCluster;
+
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "wiebel".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
- *
+ * Module to compute a plane along a line and color it with a scalar parameter.
  * \ingroup modules
  */
 class WMLineGuidedSlice : public WModule, public osg::Referenced
