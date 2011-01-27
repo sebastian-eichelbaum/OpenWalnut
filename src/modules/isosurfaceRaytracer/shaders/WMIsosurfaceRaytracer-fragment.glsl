@@ -180,7 +180,7 @@ void main()
                 1.0,               // light diffuse
                 0.3,               // light ambient
                 normalize( normal ),                 // normal
-                vec4( 0.0, 0.0, 1.0, 1.0 ).xyz,      // view direction  // in world space, this always is the view-dir
+                vec3( 0.0, 0.0, 1.0 ),      // view direction  // in world space, this always is the view-dir
                 gl_LightSource[0].position.xyz       // light source position
             );
 #endif
