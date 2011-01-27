@@ -92,7 +92,7 @@ namespace wge
      * \param parts partition size
      * \return the color
      */
-    WColor WGE_EXPORT getNthHSVColor( int n, int parts = 10 );
+    WColor WGE_EXPORT getNthHSVColor( int n );
 
     /**
      * This method converts an WMatrix to the corresponding osg::Matrixd.
