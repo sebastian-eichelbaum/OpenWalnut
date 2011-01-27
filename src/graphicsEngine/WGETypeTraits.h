@@ -125,6 +125,8 @@ namespace wge
 
     /**
      * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
+     *
+     * \note integral types get downscaled to float. This is done for easiness but might be better if the real type is used instead.
      */
     template <>
     class WGE_EXPORT GLType< int16_t >
@@ -133,16 +135,18 @@ namespace wge
         /**
          * The best matching OpenGL type for the specified template parameter.
          */
-        typedef int16_t Type;
+        typedef float Type;
 
         /**
          * The enum type of OpenGL
          */
-        static const GLenum TypeEnum = GL_SHORT;
+        static const GLenum TypeEnum = GL_FLOAT;
     };
 
     /**
      * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
+     *
+     * \note integral types get downscaled to float. This is done for easiness but might be better if the real type is used instead.
      */
     template <>
     class WGE_EXPORT GLType< uint16_t >
@@ -151,16 +155,18 @@ namespace wge
         /**
          * The best matching OpenGL type for the specified template parameter.
          */
-        typedef uint16_t Type;
+        typedef float Type;
 
         /**
          * The enum type of OpenGL
          */
-        static const GLenum TypeEnum = GL_UNSIGNED_SHORT;
+        static const GLenum TypeEnum = GL_FLOAT;
     };
 
     /**
      * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
+     *
+     * \note integral types get downscaled to float. This is done for easiness but might be better if the real type is used instead.
      */
     template <>
     class WGE_EXPORT GLType< int32_t >
@@ -169,16 +175,18 @@ namespace wge
         /**
          * The best matching OpenGL type for the specified template parameter.
          */
-        typedef int32_t Type;
+        typedef float Type;
 
         /**
          * The enum type of OpenGL
          */
-        static const GLenum TypeEnum = GL_INT;
+        static const GLenum TypeEnum = GL_FLOAT;
     };
 
     /**
      * Class helping to adapt types specified as template parameter into the best matching OpenGL type.
+     *
+     * \note integral types get downscaled to float. This is done for easiness but might be better if the real type is used instead.
      */
     template <>
     class WGE_EXPORT GLType< uint32_t >
@@ -187,12 +195,12 @@ namespace wge
         /**
          * The best matching OpenGL type for the specified template parameter.
          */
-        typedef uint32_t Type;
+        typedef float Type;
 
         /**
          * The enum type of OpenGL
          */
-        static const GLenum TypeEnum = GL_UNSIGNED_INT;
+        static const GLenum TypeEnum = GL_FLOAT;
     };
 }
 

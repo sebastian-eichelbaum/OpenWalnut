@@ -26,9 +26,11 @@
 #define WDATATEXTURE3D_2_H
 
 #include <algorithm>
+#include <limits>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/signals2.hpp>
 
 #include "../graphicsEngine/WGETexture.h"
 #include "../graphicsEngine/WGETypeTraits.h"
@@ -49,47 +51,42 @@ namespace WDataTexture3D_2Scalers
      * problem.
      *
      * \param value the value to scale
+     * \param minimum the min value
+     * \param maximum the max value
+     * \param scaler the scaler
      *
      * \return the value scaled to [0,1]
      *
-     * \note For integral types no scaling is needed. Specialize this for float/double
+     * \note Most integral types need to be scaled. See WGETypeTraits.h for details.
      */
     template < typename T >
-    inline T scaleInterval( T value, T /*minimum*/, T /*maximum*/, double /*scaler*/ )
+    inline typename wge::GLType< T >::Type scaleInterval( T value, T minimum, T maximum, double scaler )
+    {
+        return static_cast< double >( std::min( std::max( value, minimum ), maximum ) - minimum ) / scaler;
+    }
+
+    /**
+     * Byte data is transferred to texture mem as is without any scaling.
+     *
+     * \param value the value to scale
+     *
+     * \return the value
+     */
+    inline int8_t scaleInterval( int8_t value, int8_t /*minimum*/, int8_t /*maximum*/, double /*scaler*/ )
     {
         return value;
     }
 
     /**
-     * Scales the specified value to the interval [0,1] using m_min and m_scale. As the method is inline, the additional parameters are no
-     * problem.
+     * Byte data is transferred to texture mem as is without any scaling.
      *
      * \param value the value to scale
-     * \param minimum the min value
-     * \param maximum the max value
-     * \param scaler the scaler
      *
-     * \return the value scaled to [0,1]
+     * \return the value
      */
-    inline float scaleInterval( float value, float minimum, float maximum, double scaler )
+    inline uint8_t scaleInterval( uint8_t value, uint8_t /*minimum*/, uint8_t /*maximum*/, double /*scaler*/ )
     {
-        return ( std::min( std::max( value, minimum ), maximum ) - minimum ) / scaler;
-    }
-
-    /**
-     * Scales the specified value to the interval [0,1] using m_min and m_scale. As the method is inline, the additional parameters are no
-     * problem.
-     *
-     * \param value the value to scale
-     * \param minimum the min value
-     * \param maximum the max value
-     * \param scaler the scaler
-     *
-     * \return the value scaled to [0,1]
-     */
-    inline double scaleInterval( double value, double minimum, double maximum, double scaler )
-    {
-        return static_cast< double >( std::min( std::max( value, minimum ), maximum ) - minimum ) / scaler;
+        return value;
     }
 }
 
@@ -147,6 +144,11 @@ private:
     boost::shared_mutex m_creationLock;
 
     /**
+     * Connection of subscribed update condition from grid. Remove this if the grid really is const!
+     */
+    boost::signals2::connection m_transformationUpdateConnection;
+
+    /**
      * Creates a properly sized osg::Image from the specified source data.
      *
      * \param source the source data
@@ -157,6 +159,11 @@ private:
      */
     template < typename T >
     osg::ref_ptr< osg::Image > createTexture( T* source, int components = 1 );
+
+    /**
+     * Updated the transformation property of the texture according to the grid's worldToTex matrix.
+     */
+    void updateTransform();
 };
 
 /**
@@ -206,13 +213,14 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
     if ( components == 1)
     {
         // OpenGL just supports float textures
-        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, type );
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE_ALPHA, type );
         TexType* data = reinterpret_cast< TexType* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
         {
-            data[i] = WDataTexture3D_2Scalers::scaleInterval( source[i], min, max, scaler );
+            data[ 2 * i ] = WDataTexture3D_2Scalers::scaleInterval( source[i], min, max, scaler );
+            data[ ( 2 * i ) + 1] = source[i] != min;
         }
     }
     else if ( components == 2)

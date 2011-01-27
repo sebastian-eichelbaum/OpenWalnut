@@ -364,10 +364,7 @@ void WMDirectVolumeRendering::moduleMain()
             // setup all those uniforms
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            osg::ref_ptr< osg::Uniform > samples = new osg::Uniform( "u_samples", m_samples->get() );
-            samples->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            rootState->addUniform( samples );
+            rootState->addUniform( new WGEPropertyUniform< WPropInt >( "u_samples", m_samples ) );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // build spatial search structure
@@ -392,14 +389,5 @@ void WMDirectVolumeRendering::moduleMain()
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
     // allocated memory and remove all OSG nodes.
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( rootNode );
-}
-
-void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
-{
-    // update some uniforms:
-    if ( m_module->m_samples->changed() && ( uniform->getName() == "u_samples" ) )
-    {
-        uniform->set( m_module->m_samples->get( true ) );
-    }
 }
 

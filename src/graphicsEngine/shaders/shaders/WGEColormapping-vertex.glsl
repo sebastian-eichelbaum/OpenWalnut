@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGECOLORMAPPING_VERTEX_GLSL
+#define WGECOLORMAPPING_VERTEX_GLSL
+
+#version 120
+
 #include "WGEColormapping-uniforms.glsl"
 #include "WGEColormapping-varyings.glsl"
 
@@ -29,12 +34,13 @@
  * This method prepares some needed internal variables. Please call this in your vertex shader.
  * Be aware that this only works with the WGEColormapping class.
  *
- * \param texMatrix this additional matrix allows further modification of gl_MultiTexCoord0 to meet the requirements of WGEColormapping.
+ * \param texMatrix this additional matrix allows further modification of gl_Vertex to meet the requirements of WGEColormapping.
+ * \param point the point inside the volume.
  */
-void colormapping( mat4 texMatrix )
+void colormapping( mat4 texMatrix, vec4 point )
 {
     // ColormapPreTransform is a mat4 defined by OpenWalnut before compilation
-    vec4 texCoord = ColormapPreTransform * texMatrix * gl_MultiTexCoord0;
+    vec4 texCoord = texMatrix * ColormapPreTransform * point;
 
 #ifdef Colormap0Enabled
     v_colormap0TexCoord = ( gl_TextureMatrix[ Colormap0Unit ] * texCoord ).xyz;
@@ -65,6 +71,31 @@ void colormapping( mat4 texMatrix )
 /**
  * This method prepares some needed internal variables. Please call this in your vertex shader.
  * Be aware that this only works with the WGEColormapping class.
+ *
+ * \param texMatrix this additional matrix allows further modification of gl_Vertex to meet the requirements of WGEColormapping.
+ */
+void colormapping( mat4 texMatrix )
+{
+    colormapping( texMatrix, gl_Vertex );
+}
+
+/**
+ * This method prepares some needed internal variables. Please call this in your vertex shader.
+ * Be aware that this only works with the WGEColormapping class.
+ *
+ * \param point the point inside the volume.
+ */
+void colormapping( vec4 point )
+{
+    colormapping( mat4( 1.0, 0.0, 0.0, 0.0,
+                        0.0, 1.0, 0.0, 0.0,
+                        0.0, 0.0, 1.0, 0.0,
+                        0.0, 0.0, 0.0, 1.0 ), point );
+}
+
+/**
+ * This method prepares some needed internal variables. Please call this in your vertex shader.
+ * Be aware that this only works with the WGEColormapping class.
  */
 void colormapping()
 {
@@ -73,4 +104,6 @@ void colormapping()
                         0.0, 0.0, 1.0, 0.0,
                         0.0, 0.0, 0.0, 1.0 ) ); // simply call it with the identity transform
 }
+
+#endif // WGECOLORMAPPING_VERTEX_GLSL
 

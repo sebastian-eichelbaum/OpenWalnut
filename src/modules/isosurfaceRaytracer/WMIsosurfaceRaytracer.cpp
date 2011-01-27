@@ -243,7 +243,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             osg::StateSet* rootState = cube->getOrCreateStateSet();
             osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture2();
             texture3D->bind( cube );
-            WGEColormapping::apply( cube, m_shader, 2 );
+            WGEColormapping::apply( cube, grid->getTransformationMatrix(), m_shader, 2 );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup all those uniforms

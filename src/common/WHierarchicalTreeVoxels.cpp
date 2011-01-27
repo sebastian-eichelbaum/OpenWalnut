@@ -151,49 +151,18 @@ std::vector< size_t >WHierarchicalTreeVoxels::findClustersForBranchLength( float
     std::list<size_t>worklist;
     std::vector<size_t>returnVector;
 
-    std::vector<bool>distanceCheckVector( m_clusterCount, false );
+    std::vector<int>distanceCheckVector( m_clusterCount, 0 );
 
-    for ( size_t i = 0; i < m_clusterCount; ++i )
+    for ( size_t i = m_leafCount; i < m_clusterCount; ++i )
     {
-        if ( ( ( m_containsLeafes[i].size() >= minSize ) && ( ( m_customData[m_parents[i]] - m_customData[i] ) > value ) ) ||
-                distanceCheckVector[m_children[i].first] || distanceCheckVector[m_children[i].second] )
+        if ( ( distanceCheckVector[m_children[i].first] > 0 ) || ( distanceCheckVector[m_children[i].second] > 0 ) )
         {
-            distanceCheckVector[i] = true;
+            distanceCheckVector[i] = 2;
         }
-    }
-
-    worklist.push_back( m_clusterCount - 1 );
-
-
-    while ( !worklist.empty() )
-    {
-        size_t current = worklist.front();
-        worklist.pop_front();
-        if ( m_containsLeafes[current].size() > 1 )
+        else if ( ( ( m_containsLeafes[i].size() >= minSize ) && ( ( m_customData[m_parents[i]] - m_customData[i] ) > value ) ) )
         {
-            size_t left = m_children[current].first;
-            size_t right = m_children[current].second;
-
-            if ( distanceCheckVector[left] && distanceCheckVector[right] )
-            {
-                worklist.push_back( left );
-                worklist.push_back( right );
-            }
-            else
-            {
-                if ( ( m_containsLeafes[left].size() < minSize ) && ( m_containsLeafes[right].size() >= minSize ) )
-                {
-                    worklist.push_back( right );
-                }
-                else if ( ( m_containsLeafes[right].size() < minSize ) && ( m_containsLeafes[left].size() > minSize ) )
-                {
-                    worklist.push_back( left );
-                }
-                else
-                {
-                    returnVector.push_back( current );
-                }
-            }
+            distanceCheckVector[i] = 1;
+            returnVector.push_back( i );
         }
     }
     return returnVector;

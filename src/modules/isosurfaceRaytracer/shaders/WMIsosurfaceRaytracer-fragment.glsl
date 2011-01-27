@@ -43,6 +43,10 @@
 // texture containing the data
 uniform sampler3D u_texture0Sampler;
 
+uniform int u_texture0SizeX;
+uniform int u_texture0SizeY;
+uniform int u_texture0SizeZ;
+
 #ifdef STOCHASTICJITTER_ENABLED
 // texture containing the stochastic jitter texture
 uniform sampler2D u_texture1Sampler;
@@ -176,7 +180,7 @@ void main()
                 1.0,               // light diffuse
                 0.3,               // light ambient
                 normalize( normal ),                 // normal
-                vec4( 0.0, 0.0, 1.0, 1.0 ).xyz,      // view direction  // in world space, this always is the view-dir
+                vec3( 0.0, 0.0, 1.0 ),      // view direction  // in world space, this always is the view-dir
                 gl_LightSource[0].position.xyz       // light source position
             );
 #endif
@@ -196,7 +200,10 @@ void main()
 #endif
 
             // mix color with colormap
-            vec4 color = mix( colormapping( vec4( curPoint, 1.0 ) ), vec4( gl_Color.rgb, u_alpha ), 1.0 - u_colormapRatio );
+            vec4 color = mix(
+                colormapping( vec4( curPoint.x * u_texture0SizeX, curPoint.y * u_texture0SizeY, curPoint.z * u_texture0SizeZ, 1.0 ) ),
+                vec4( gl_Color.rgb, u_alpha ),
+                1.0 - u_colormapRatio );
             // 5: the final color construction
             wge_FragColor = vec4( light * color.rgb, color.a );
 

@@ -182,7 +182,7 @@ void WMImageExtractor::moduleMain()
             {
                 m_properties->removeProperty( m_outData->getTexture2()->getProperties() );
                 m_infoProperties->removeProperty( m_outData->getTexture2()->getInformationProperties() );
-                WDataHandler::deregisterDataSet( m_outData );
+                WGEColormapping::deregisterTexture( m_outData->getTexture2() );
             }
             m_outData = boost::shared_ptr< WDataSetScalar >();
             m_output->updateData( m_outData );

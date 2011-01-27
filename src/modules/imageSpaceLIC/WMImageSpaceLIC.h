@@ -144,21 +144,6 @@ private:
      */
     osg::ref_ptr< WGEManagedGroupNode > m_output;
 
-    /**
-     * The transformation node moving the X slice through the dataset space if the sliders are used
-     */
-    osg::ref_ptr< WGEManagedGroupNode > m_xSlice;
-
-    /**
-     * The transformation node moving the Y slice through the dataset space if the sliders are used
-     */
-    osg::ref_ptr< WGEManagedGroupNode > m_ySlice;
-
-    /**
-     * The transformation node moving the Z slice through the dataset space if the sliders are used
-     */
-    osg::ref_ptr< WGEManagedGroupNode > m_zSlice;
-
     WPropGroup    m_sliceGroup; //!< the group contains several slice properties
 
     WPropGroup    m_geometryGroup; //!< the group contains several input geometry parameters
