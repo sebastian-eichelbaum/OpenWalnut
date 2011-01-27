@@ -56,7 +56,7 @@ public:
      * \param nbRows number of rows in the matrix
      * \param nbCols number of columns in the matrix
      */
-    explicit WMatrix( size_t nbRows, size_t nbCols );
+    WMatrix( size_t nbRows, size_t nbCols );
 
     /**
      * Produces a matrix as copy of the one given as parameter.
@@ -69,7 +69,7 @@ public:
      *
      * \param newMatrix the matrix to copy
      */
-    WMatrix( const WMatrix4x4& newMatrix );
+    WMatrix( const WMatrix4x4& newMatrix ); // NOLINT
 
     /**
      * Makes the matrix contain the identity matrix, i.e. 1 on the diagonal.

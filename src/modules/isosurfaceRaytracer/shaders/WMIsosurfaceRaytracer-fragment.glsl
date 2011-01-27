@@ -200,7 +200,7 @@ void main()
 #endif
 
             // mix color with colormap
-            vec4 color = mix( 
+            vec4 color = mix(
                 colormapping( vec4( curPoint.x * u_texture0SizeX, curPoint.y * u_texture0SizeY, curPoint.z * u_texture0SizeZ, 1.0 ) ),
                 vec4( gl_Color.rgb, u_alpha ),
                 1.0 - u_colormapRatio );

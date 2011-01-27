@@ -31,7 +31,6 @@
 #include "../common/WBoundingBox.h"
 #include "../common/exceptions/WOutOfBounds.h"
 #include "../common/math/WLinearAlgebraFunctions.h"
-#include "../common/math/WLinearAlgebraFunctions.h"
 
 #include "WGridRegular3D.h"
 
