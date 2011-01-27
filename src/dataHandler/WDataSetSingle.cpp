@@ -98,7 +98,7 @@ boost::shared_ptr< WDataTexture3D > WDataSetSingle::getTexture()
     return m_texture3D;
 }
 
-osg::ref_ptr< WDataTexture3D_2 > WDataSetSingle::getTexture2()
+osg::ref_ptr< WDataTexture3D_2 > WDataSetSingle::getTexture2() const
 {
     return m_texture;
 }
