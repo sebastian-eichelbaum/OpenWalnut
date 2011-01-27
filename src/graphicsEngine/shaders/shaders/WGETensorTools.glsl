@@ -22,8 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-// (c) 2007 by Mario Hlawitschka
+#ifndef WGETENSORTOOLS_GLSL
+#define WGETENSORTOOLS_GLSL
 
+#version 120
+
+// (c) 2007 by Mario Hlawitschka
 
 // tensors have to be stored in the following way:
 // diag.x = Dxx     Diagonal elements are stored in one vector
@@ -219,30 +223,5 @@ vec4 getColorAlpha( vec3 evec, vec3 evalues )
   return vec4( abs( evec ), 1. ) * fa;
 }
 
-//
-// some code that does nothing but shows how things should be used
-//
-// void main()
-// {
-//   vec3 diag;
-//   vec3 offdiag;
-//
-//   vec3 evec1;
-//   vec3 evec2;
-//   vec3 evec3;
-//
-//   vec3 eigenvalues = getEigenvalues( diag, offdiag );
-//
-//   vec3 ABC1 = diag-vec3(eigenvalues.x, eigenvalues.x, eigenvalues.x );
-//   evec1 = getEigenvector( ABC1, offdiag );
-//   vec3 ABC2 = diag-vec3(eigenvalues.y, eigenvalues.y, eigenvalues.y );
-//   evec2 = getEigenvector( ABC2, offdiag );
-//   vec3 ABC3 = diag-vec3(eigenvalues.z, eigenvalues.z, eigenvalues.z );
-//   evec3 = getEigenvector( ABC3, offdiag );
-//
-//   vec4 evecColor = getColor(  evec1, eigenvalues );
-//
-//   gl_FragColor = getColorAlpha( evec1, eigenvalues );
-// }
-
+#endif // WGETENSORTOOLS_GLSL
 

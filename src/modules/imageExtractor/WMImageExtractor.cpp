@@ -29,7 +29,11 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../dataHandler/WDataHandler.h"
+// { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
 #include "../../dataHandler/WDataTexture3D.h"
+// }
+#include "../../dataHandler/WDataTexture3D_2.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../common/WPropertyHelper.h"
 
 #include "WMImageExtractor.xpm"
@@ -96,6 +100,7 @@ void WMImageExtractor::properties()
     m_maxValuePct->setMin( 0.0 );
     m_maxValuePct->setMax( 100.0 );
 
+    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
     // these are taken from WMData
     m_interpolation = m_properties->addProperty( "Interpolation",
                                                   "If active, the boundaries of single voxels"
@@ -120,7 +125,7 @@ void WMImageExtractor::properties()
 
     m_colorMapSelection = m_properties->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
-
+    // }
     WModule::properties();
 }
 
@@ -128,7 +133,10 @@ void WMImageExtractor::activate()
 {
     if( m_outData )
     {
+        // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
         m_outData->getTexture()->setGloballyActive( m_active->get() );
+        // }
+        m_outData->getTexture2()->active()->set( m_active->get() );
     }
     WModule::activate();
 }
@@ -175,21 +183,29 @@ void WMImageExtractor::moduleMain()
 
                 std::size_t i = static_cast< std::size_t >( m_selectedImage->get( true ) );
 
+                WGEColormapping::deregisterTexture( m_outData->getTexture2() );
                 boost::shared_ptr< WDataSetScalar > oldOut = m_outData;
                 m_outData = extract( i );
 
                 if( m_outData )
                 {
+                    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
                     if( m_outData != oldOut )
                     {
                         m_threshold->setMin( m_outData->getMin() - 1 );
                         m_threshold->setMax( m_outData->getMax() );
                         m_threshold->set( m_outData->getMin() - 1 );
                     }
-
+                    // }
                     setOutputProps();
                     m_outData->setFileName( makeImageName( i ) );
+                    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
                     WDataHandler::registerDataSet( m_outData );
+                    // }
+                    // provide the texture's properties as own properties
+                    m_properties->addProperty( m_outData->getTexture2()->getProperties() );
+                    m_infoProperties->addProperty( m_outData->getTexture2()->getInformationProperties() );
+                    WGEColormapping::registerTexture( m_outData->getTexture2() );
                 }
 
                 m_output->updateData( m_outData );
@@ -206,7 +222,12 @@ void WMImageExtractor::moduleMain()
         {
             if( m_outData )
             {
+                m_properties->removeProperty( m_outData->getTexture2()->getProperties() );
+                m_infoProperties->removeProperty( m_outData->getTexture2()->getInformationProperties() );
+                WGEColormapping::deregisterTexture( m_outData->getTexture2() );
+                // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
                 WDataHandler::deregisterDataSet( m_outData );
+                // }
             }
             m_outData = boost::shared_ptr< WDataSetScalar >();
             m_output->updateData( m_outData );
@@ -395,11 +416,15 @@ void WMImageExtractor::setOutputProps()
         float fmin = static_cast< float >( min + ( max - min ) * m_minValuePct->get( true ) * 0.01 );
         float fmax = static_cast< float >( min + ( max - min ) * m_maxValuePct->get( true ) * 0.01 );
 
+        // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
         m_outData->getTexture()->setMinValue( fmin );
         m_outData->getTexture()->setMaxValue( std::max( fmax, fmin + 1.0f ) );
         m_outData->getTexture()->setThreshold( m_threshold->get( true ) );
         m_outData->getTexture()->setOpacity( m_opacity->get( true ) );
         m_outData->getTexture()->setInterpolation( m_interpolation->get( true ) );
         m_outData->getTexture()->setSelectedColormap( m_colorMapSelection->get( true ).getItemIndexOfSelected( 0 ) );
+        // }
+        m_outData->getTexture2()->minimum()->set( fmin );
+        m_outData->getTexture2()->scale()->set( std::max( fmax, fmin + 1.0f ) - fmin );
     }
 }

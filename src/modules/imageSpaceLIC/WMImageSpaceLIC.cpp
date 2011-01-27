@@ -164,7 +164,6 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
     if ( mesh && !m_useSlices->get( true ) )
     {
         // we have a mesh and want to use it
-        warnLog() << "MESH.";
         // create geometry and geode
         osg::Geometry* surfaceGeometry = new osg::Geometry();
         osg::ref_ptr< osg::Geode > surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
@@ -179,7 +178,6 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
             surfaceElement->push_back( tris[vertId] );
         }
         surfaceGeometry->addPrimitiveSet( surfaceElement );
-
 
         // normals
         surfaceGeometry->setNormalArray( mesh->getVertexNormalArray() );
@@ -198,41 +196,35 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
     }
     else
     {
-        warnLog() << "SLICE";
         // we want the tex matrix for each slice to be modified too,
         osg::ref_ptr< osg::TexMat > texMat;
 
-        // create all the transformation nodes
-        m_xSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonX ) );
-        m_ySlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonY ) );
-        m_zSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonZ ) );
-
-        texMat = new osg::TexMat( osg::Matrix::identity() );
-        m_xSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos, texMat ) );
-        m_xSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
-        texMat = new osg::TexMat( osg::Matrix::identity() );
-        m_ySlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos, texMat ) );
-        m_ySlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
-        texMat = new osg::TexMat( osg::Matrix::identity() );
-        m_zSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos, texMat ) );
-        m_zSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
         // create a new geode containing the slices
-        m_xSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
-                                                                    grid->getNbCoordsZ() * grid->getDirectionZ() ) );
+        osg::ref_ptr< osg::Node > xSlice = wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
+                                                                                   grid->getNbCoordsZ() * grid->getDirectionZ() );
 
-        m_ySlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
-                                                                    grid->getNbCoordsZ() * grid->getDirectionZ() ) );
+        osg::ref_ptr< osg::Node > ySlice = wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
+                                                                                   grid->getNbCoordsZ() * grid->getDirectionZ() );
 
-        m_zSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
-                                                                    grid->getNbCoordsY() * grid->getDirectionY() ) );
+        osg::ref_ptr< osg::Node > zSlice =  wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
+                                                                                    grid->getNbCoordsY() * grid->getDirectionY() );
+
+        // The movement of the slice is done in the shader. An alternative would be WGELinearTranslationCallback but there, the needed matrix is
+        // not available in the shader
+        osg::StateSet* ss = xSlice->getOrCreateStateSet();
+        ss->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", m_xPos ) );
+        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionX() ) );  // the axis to move along
+        ss = ySlice->getOrCreateStateSet();
+        ss->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", m_yPos ) );
+        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionY() ) );  // the axis to move along
+        ss = zSlice->getOrCreateStateSet();
+        ss->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", m_zPos ) );
+        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionZ() ) );  // the axis to move along
 
         // add the transformation nodes to the output group
-        m_output->insert( m_xSlice );
-        m_output->insert( m_ySlice );
-        m_output->insert( m_zSlice );
+        m_output->insert( xSlice );
+        m_output->insert( ySlice );
+        m_output->insert( zSlice );
     }
 }
 

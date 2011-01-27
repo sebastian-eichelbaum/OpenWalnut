@@ -89,7 +89,6 @@ namespace wge
      * creates the nth color of a partition of the hsv color circle
      *
      * \param n number of the color
-     * \param parts partition size
      * \return the color
      */
     WColor WGE_EXPORT getNthHSVColor( int n );

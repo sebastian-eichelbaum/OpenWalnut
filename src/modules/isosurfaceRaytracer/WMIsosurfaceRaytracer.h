@@ -36,6 +36,9 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
+class WDataSetVector;
+class WDataSetScalar;
+
 /**
  * This module builds the base for fast raytracing of isosurfacesin OpenWalnut. It uses shader based raytracing.
  *
@@ -108,6 +111,11 @@ private:
      * An input connector used to get datasets from other modules. The connection management between connectors must not be handled by the module.
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
+
+    /**
+     * The gradient field input
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_gradients;
 
     /**
      * The Isovalue used in the case m_isoSurface is true.

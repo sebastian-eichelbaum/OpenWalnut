@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGECOLORMAPPING_VARYINGS_GLSL
+#define WGECOLORMAPPING_VARYINGS_GLSL
+
+#version 120
+
 /**
  * The texture coordinate in local texture space.
  */
@@ -61,4 +66,6 @@ varying vec3 v_colormap6TexCoord;
  * The texture coordinate in local texture space.
  */
 varying vec3 v_colormap7TexCoord;
+
+#endif // WGECOLORMAPPING_VARYINGS_GLSL
 

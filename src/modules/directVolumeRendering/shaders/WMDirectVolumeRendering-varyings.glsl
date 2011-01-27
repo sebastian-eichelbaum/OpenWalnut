@@ -39,8 +39,3 @@ varying float v_sampleDistance;
 // The steps in relation to a default steps of 128.
 varying float v_relativeSampleDistance;
 
-#ifdef LOCALILLUMINATION_PHONG
-// The light source in local coordinates, normalized
-varying vec3 v_lightSource;
-#endif
-

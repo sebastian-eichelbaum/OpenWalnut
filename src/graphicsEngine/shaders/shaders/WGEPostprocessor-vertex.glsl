@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGEPOSTPROCESSOR_VERTEX_GLSL
+#define WGEPOSTPROCESSOR_VERTEX_GLSL
+
 #version 120
 
 /**
@@ -39,4 +42,6 @@ void main()
     // transform position
     gl_Position = ftransform();
 }
+
+#endif // WGEPOSTPROCESSOR_VERTEX_GLSL
 

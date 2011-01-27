@@ -22,131 +22,186 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGECOLORMAPS_GLSL
+#define WGECOLORMAPS_GLSL
+
+#version 120
+
 uniform int useColorMap;
 
-vec3 blueGreenPurpleColorMap( in float value )
+vec4 blueGreenPurpleColorMap( in float value )
 {
     value *= 5.0;
-    vec3 color;
+    vec4 color;
     if( value < 0.0 )
-        color = vec3( 0.0, 0.0, 0.0 );
+    {
+        color = vec4( 0.0, 0.0, 0.0, 1.0 );
+    }
     else if( value < 1.0 )
-        color = vec3( 0.0, value, 1.0 );
+    {
+        color = vec4( 0.0, value, 1.0, 1.0 );
+    }
     else if( value < 2.0 )
-        color = vec3( 0.0, 1.0, 2.0-value );
+    {
+        color = vec4( 0.0, 1.0, 2.0 - value, 1.0 );
+    }
     else if( value < 3.0 )
-        color =  vec3( value-2.0, 1.0, 0.0 );
+    {
+        color =  vec4( value - 2.0, 1.0, 0.0, 1.0 );
+    }
     else if( value < 4.0 )
-        color = vec3( 1.0, 4.0-value, 0.0 );
+    {
+        color = vec4( 1.0, 4.0 - value, 0.0, 1.0 );
+    }
     else if( value <= 5.0 )
-        color = vec3( 1.0, 0.0, value-4.0 );
+    {
+        color = vec4( 1.0, 0.0, value - 4.0, 1.0 );
+    }
     else
-        color =  vec3( 1.0, 0.0, 1.0 );
+    {
+        color =  vec4( 1.0, 0.0, 1.0, 1.0 );
+    }
+
     return color;
 }
 
-
-vec3 rainbowColorMap( in float value )
+vec4 rainbowColorMap( in float value )
 {
-    float i = floor( 6. * value );
-    float f = 6. * value - i;
+    float i = floor( 6.0 * value );
+    float f = 6.0 * value - i;
     float q = 1.0 - f;
 
-    int iq = int( mod( i, 6. ) );
+    int iq = int( mod( i, 6.0 ) );
 
     if ( ( iq == 0 ) || ( iq == 6 ) )
-        return vec3( 1., f, 0. );
-    else if (iq == 1)
-        return vec3( q, 1., 0. );
-    else if (iq == 2)
-        return vec3( 0., 1., f );
-    else if (iq == 3)
-        return vec3( 0., q, 1. );
-    else if (iq == 4)
-        return vec3( f, 0., 1. );
+    {
+        return vec4( 1.0, f, 0.0, 1.0 );
+    }
+    else if ( iq == 1 )
+    {
+        return vec4( q, 1.0, 0.0, 1.0 );
+    }
+    else if ( iq == 2 )
+    {
+        return vec4( 0.0, 1.0, f, 1.0 );
+    }
+    else if ( iq == 3 )
+    {
+        return vec4( 0.0, q, 1.0, 1.0 );
+    }
+    else if ( iq == 4 )
+    {
+        return vec4( f, 0.0, 1.0, 1.0 );
+    }
     else // iq == 5
-        return vec3( 1., 0., q );
+    {
+        return vec4( 1.0, 0.0, q, 1.0 );
+    }
 }
 
-vec3 hotIronColorMap( in float value )
+vec4 hotIronColorMap( in float value )
 {
-    vec4 color8  = vec4( 255. / 255., 255. / 255., 204. / 255., 1. );
-    vec4 color7  = vec4( 255. / 255., 237. / 255., 160. / 255., 1. );
-    vec4 color6  = vec4( 254. / 255., 217. / 255., 118. / 255., 1. );
-    vec4 color5  = vec4( 254. / 255., 178. / 255.,  76. / 255., 1. );
-    vec4 color4  = vec4( 253. / 255., 141. / 255.,  60. / 255., 1. );
-    vec4 color3  = vec4( 252. / 255.,  78. / 255.,  42. / 255., 1. );
-    vec4 color2  = vec4( 227. / 255.,  26. / 255.,  28. / 255., 1. );
-    vec4 color1  = vec4( 189. / 255.,   0. / 255.,  38. / 255., 1. );
-    vec4 color0  = vec4( 128. / 255.,   0. / 255.,  38. / 255., 1. );
+    vec4 color8  = vec4( 255.0 / 255.0, 255.0 / 255.0, 204.0 / 255.0, 1.0 );
+    vec4 color7  = vec4( 255.0 / 255.0, 237.0 / 255.0, 160.0 / 255.0, 1.0 );
+    vec4 color6  = vec4( 254.0 / 255.0, 217.0 / 255.0, 118.0 / 255.0, 1.0 );
+    vec4 color5  = vec4( 254.0 / 255.0, 178.0 / 255.0,  76.0 / 255.0, 1.0 );
+    vec4 color4  = vec4( 253.0 / 255.0, 141.0 / 255.0,  60.0 / 255.0, 1.0 );
+    vec4 color3  = vec4( 252.0 / 255.0,  78.0 / 255.0,  42.0 / 255.0, 1.0 );
+    vec4 color2  = vec4( 227.0 / 255.0,  26.0 / 255.0,  28.0 / 255.0, 1.0 );
+    vec4 color1  = vec4( 189.0 / 255.0,   0.0 / 255.0,  38.0 / 255.0, 1.0 );
+    vec4 color0  = vec4( 128.0 / 255.0,   0.0 / 255.0,  38.0 / 255.0, 1.0 );
 
-    float colorValue = value * 8.;
+    float colorValue = value * 8.0;
     int sel = int( floor( colorValue ) );
 
     if ( sel >= 8 )
-        return color0.rgb;
+    {
+        return color0;
+    }
     else if ( sel < 0 )
-        return color0.rgb;
+    {
+        return color0;
+    }
     else
     {
         colorValue -= float( sel );
 
         if ( sel < 1 )
-            return ( color1 * colorValue + color0 * ( 1. - colorValue ) ).rgb;
+        {
+            return ( color1 * colorValue + color0 * ( 1.0 - colorValue ) );
+        }
         else if ( sel < 2 )
-            return ( color2 * colorValue + color1 * ( 1. - colorValue ) ).rgb;
+        {
+            return ( color2 * colorValue + color1 * ( 1.0 - colorValue ) );
+        }
         else if ( sel < 3 )
-            return ( color3 * colorValue + color2 * ( 1. - colorValue ) ).rgb;
+        {
+            return ( color3 * colorValue + color2 * ( 1.0 - colorValue ) );
+        }
         else if ( sel < 4 )
-            return ( color4 * colorValue + color3 * ( 1. - colorValue ) ).rgb;
+        {
+            return ( color4 * colorValue + color3 * ( 1.0 - colorValue ) );
+        }
         else if ( sel < 5 )
-            return ( color5 * colorValue + color4 * ( 1. - colorValue ) ).rgb;
+        {
+            return ( color5 * colorValue + color4 * ( 1.0 - colorValue ) );
+        }
         else if ( sel < 6 )
-            return ( color6 * colorValue + color5 * ( 1. - colorValue ) ).rgb;
+        {
+            return ( color6 * colorValue + color5 * ( 1.0 - colorValue ) );
+        }
         else if ( sel < 7 )
-            return ( color7 * colorValue + color6 * ( 1. - colorValue ) ).rgb;
+        {
+            return ( color7 * colorValue + color6 * ( 1.0 - colorValue ) );
+        }
         else if ( sel < 8 )
-            return ( color8 * colorValue + color7 * ( 1. - colorValue ) ).rgb;
+        {
+            return ( color8 * colorValue + color7 * ( 1.0 - colorValue ) );
+        }
         else
-            return color0.rgb;
+        {
+            return color0;
+        }
     }
 }
 
-vec3 redYellowColorMap( in float value )
+vec4 redYellowColorMap( in float value )
 {
-    vec4 color0 = vec4( 1., 0., 0., 1. );
-    vec4 color1 = vec4( 1., 1., 0., 1. );
-    return ( color1 * value + color0 * ( 1. - value ) ).rgb;
+    vec4 color0 = vec4( 1.0, 0.0, 0.0, 1.0 );
+    vec4 color1 = vec4( 1.0, 1.0, 0.0, 1.0 );
+    return ( color1 * value + color0 * ( 1.0 - value ) );
 }
 
-vec3 vectorColorMap( in vec3 col )
+vec4 vectorColorMap( in vec3 col )
 {
     // These weird computations give me the vector directions back as I want them. See WDataTexture3D for floats with dim==3
     float fac = 2.0;
     float dist = 0.5;
-    vec3 result = clamp( vec3( abs( col.r - dist ) * fac, abs( col.g - dist ) * fac, abs( col.b - dist ) * fac ), 0.0, 1.0 );
+    vec3 result = clamp( vec3( abs( col.r - dist ) * fac,
+                               abs( col.g - dist ) * fac,
+                               abs( col.b - dist ) * fac ), 0.0, 1.0 );
     // This eliminate the effect of the fac concerning zero closeness
     if( result.r + result.g + result.b < ( 0.01 * fac ) )
     {
         result = vec3( 0.0 );
     }
-    return result;
+    return vec4( result, 1.0 );
 }
 
-vec3 blueLightBlueColorMap( in float value )
+vec4 blueLightBlueColorMap( in float value )
 {
-    vec4 color0 = vec4( 0., 0., 1., 1. );
-    vec4 color1 = vec4( 0.78, 1., 1., 1. );
-    return ( color1 * value + color0 * ( 1. - value ) ).rgb;
+    vec4 color0 = vec4( 0.0, 0.0, 1.0, 1.0 );
+    vec4 color1 = vec4( 0.78, 1.0, 1.0, 1.0 );
+    return ( color1 * value + color0 * ( 1.0 - value ) );
 }
 
-vec3 negative2positive( in float value )
+vec4 negative2positive( in float value )
 {
     float val = value * 2.0 - 1.0;
 
-    vec3 zeroColor = vec3( 1., 1., 1. );
-    vec3 negColor = vec3( 1., 1., 0. );
-    vec3 posColor= vec3( 0., 1., 1. );
+    vec4 zeroColor = vec4( 1.0, 1.0, 1.0, 1.0 );
+    vec4 negColor = vec4( 1.0, 1.0, 0.0, 1.0 );
+    vec4 posColor= vec4( 0.0, 1.0, 1.0, 1.0 );
     if ( val < -0.5 )
     {
         return ( zeroColor + negColor * val );
@@ -156,7 +211,9 @@ vec3 negative2positive( in float value )
         return ( zeroColor - posColor * val );
     }
     else
-        return vec3( 0.0, 0.0, 0.0 );
+    {
+        return vec4( 0.0, 0.0, 0.0, 1.0 );
+    }
 }
 
 // TODO(math): Remove this function and replace its calls with bitwise operations as soon as there
@@ -168,7 +225,7 @@ bool isBitSet( in float value, in float bitpos )
     return ( abs( mod( floor( value / pow( 2.0, bitpos ) ), 2.0 ) - 1.0 ) ) < 0.001;
 }
 
-vec3 atlasColorMap( in float value )
+vec4 atlasColorMap( in float value )
 {
     float val = floor( value * 255.0 );
     float r = 0.0;
@@ -178,15 +235,21 @@ vec3 atlasColorMap( in float value )
 
     if ( val == 0.0 )
     {
-        return vec3( 0.0 );
+        return vec4( vec3( 0.0 ), 1.0 );
     }
 
     if ( isBitSet( val, 0.0 ) )
+    {
         b = 1.0;
+    }
     if ( isBitSet( val, 1.0 ) )
+    {
         g = 1.0;
+    }
     if ( isBitSet( val, 2.0 ) )
+    {
         r = 1.0;
+    }
     if ( isBitSet( val, 3.0 ) )
     {
         mult -= 0.15;
@@ -235,69 +298,89 @@ vec3 atlasColorMap( in float value )
     g *= mult;
     b *= mult;
 
-    clamp( r, 0., 1. );
-    clamp( g, 0., 1. );
-    clamp( b, 0., 1. );
+    clamp( r, 0.0, 1.0 );
+    clamp( g, 0.0, 1.0 );
+    clamp( b, 0.0, 1.0 );
 
-    return vec3( r, g, b );
+    return vec4( r, g, b, 1.0 );
 }
 
-
-
-vec3 colorMap5( in float value )
+vec4 colorMap5( in float value )
 {
-    vec4 color0 = vec4( 255. / 255., 255. / 255., 217. / 255., 1. );
-    vec4 color1 = vec4( 237. / 255., 248. / 255., 177. / 255., 1. );
-    vec4 color2 = vec4( 199. / 255., 233. / 255., 180. / 255., 1. );
-    vec4 color3 = vec4( 127. / 255., 205. / 255., 187. / 255., 1. );
-    vec4 color4 = vec4(  65. / 255., 182. / 255., 196. / 255., 1. );
-    vec4 color5 = vec4(  29. / 255., 145. / 255., 192. / 255., 1. );
-    vec4 color6 = vec4(  34. / 255.,  94. / 255., 168. / 255., 1. );
-    vec4 color7 = vec4(  37. / 255.,  52. / 255., 148. / 255., 1. );
-    vec4 color8 = vec4(   8. / 255.,  29. / 255.,  88. / 255., 1. );
+    vec4 color0 = vec4( 255.0 / 255.0, 255.0 / 255.0, 217.0 / 255.0, 1.0 );
+    vec4 color1 = vec4( 237.0 / 255.0, 248.0 / 255.0, 177.0 / 255.0, 1.0 );
+    vec4 color2 = vec4( 199.0 / 255.0, 233.0 / 255.0, 180.0 / 255.0, 1.0 );
+    vec4 color3 = vec4( 127.0 / 255.0, 205.0 / 255.0, 187.0 / 255.0, 1.0 );
+    vec4 color4 = vec4(  65.0 / 255.0, 182.0 / 255.0, 196.0 / 255.0, 1.0 );
+    vec4 color5 = vec4(  29.0 / 255.0, 145.0 / 255.0, 192.0 / 255.0, 1.0 );
+    vec4 color6 = vec4(  34.0 / 255.0,  94.0 / 255.0, 168.0 / 255.0, 1.0 );
+    vec4 color7 = vec4(  37.0 / 255.0,  52.0 / 255.0, 148.0 / 255.0, 1.0 );
+    vec4 color8 = vec4(   8.0 / 255.0,  29.0 / 255.0,  88.0 / 255.0, 1.0 );
 
-    float colorValue = value * 8.;
+    float colorValue = value * 8.0;
     int sel = int( floor( colorValue ) );
 
     if ( sel >= 8 )
-        return color0.rgb;
+    {
+        return color0;
+    }
     else if ( sel < 0 )
-        return color0.rgb;
+    {
+        return color0;
+    }
     else
     {
         colorValue -= float( sel );
 
         if( sel < 1 )
-            return ( color1 * colorValue + color0 * ( 1. - colorValue ) ).rgb;
-        else if (sel < 2)
-            return ( color2 * colorValue + color1 * ( 1. - colorValue ) ).rgb;
-        else if (sel < 3)
-            return ( color3 * colorValue + color2 * ( 1. - colorValue ) ).rgb;
-        else if (sel < 4)
-            return ( color4 * colorValue + color3 * ( 1. - colorValue ) ).rgb;
-        else if (sel < 5)
-            return ( color5 * colorValue + color4 * ( 1. - colorValue ) ).rgb;
-        else if (sel < 6)
-            return ( color6 * colorValue + color5 * ( 1. - colorValue ) ).rgb;
-        else if (sel < 7)
-            return ( color7 * colorValue + color6 * ( 1. - colorValue ) ).rgb;
-        else if (sel < 8)
-            return ( color8 * colorValue + color7 * ( 1. - colorValue ) ).rgb;
+        {
+            return ( color1 * colorValue + color0 * ( 1. - colorValue ) );
+        }
+        else if ( sel < 2 )
+        {
+            return ( color2 * colorValue + color1 * ( 1. - colorValue ) );
+        }
+        else if ( sel < 3 )
+        {
+            return ( color3 * colorValue + color2 * ( 1. - colorValue ) );
+        }
+        else if ( sel < 4 )
+        {
+            return ( color4 * colorValue + color3 * ( 1. - colorValue ) );
+        }
+        else if ( sel < 5 )
+        {
+            return ( color5 * colorValue + color4 * ( 1. - colorValue ) );
+        }
+        else if ( sel < 6 )
+        {
+            return ( color6 * colorValue + color5 * ( 1. - colorValue ) );
+        }
+        else if ( sel < 7 )
+        {
+            return ( color7 * colorValue + color6 * ( 1. - colorValue ) );
+        }
+        else if ( sel < 8 )
+        {
+            return ( color8 * colorValue + color7 * ( 1. - colorValue ) );
+        }
         else
-            return color0.rgb;
+        {
+            return color0;
+        }
     }
 }
 
-vec3 colorMap6( in float value )
+vec4 colorMap6( in float value )
 {
     float basecolor = 0.0;
     float frequency = 5.0;
-    float sqrt3 = sqrt( 3. );
-    float onedtwodsqrt3 = 1. / 2. / sqrt3;
-    float onepsqrt3 = 1. + sqrt3;
-    float onemsqrt3 = 1. - sqrt3;
-    float wvalue = sqrt( 3. / 2. ) * value * ( 1. - value ); // = omega(value)
-    float twotz = 2. * sqrt3 * value; // = 2. * z(value)
+    float sqrt3 = sqrt( 3.0 );
+    float onedtwodsqrt3 = 1.0 / 2.0 / sqrt3;
+    float onepsqrt3 = 1.0 + sqrt3;
+    float onemsqrt3 = 1.0 - sqrt3;
+    float wvalue = sqrt( 3.0 / 2.0 ) * value * ( 1.0 - value ); // = omega(value)
+    float twotz = 2.0 * sqrt3 * value; // = 2.0 * z(value)
     float sinTerm = sin( frequency * value + basecolor );
     float cosTerm = cos( frequency * value + basecolor );
     float wtsinTerm = wvalue * sinTerm;
@@ -305,23 +388,38 @@ vec3 colorMap6( in float value )
 
     float colorRed   = ( onedtwodsqrt3 * ( onepsqrt3 * wtsinTerm + onemsqrt3 * wtcosTerm + twotz ) );
     float colorGreen = ( onedtwodsqrt3 * ( onemsqrt3 * wtsinTerm + onepsqrt3 * wtcosTerm + twotz ) );
-    float colorBlue  = ( onedtwodsqrt3 * ( -2. * ( wtsinTerm + wtcosTerm ) + twotz ) );
+    float colorBlue  = ( onedtwodsqrt3 * ( -2.0 * ( wtsinTerm + wtcosTerm ) + twotz ) );
 
-    return vec3( colorRed, colorGreen, colorBlue );
+    return vec4( colorRed, colorGreen, colorBlue, 1.0 );
 }
 
 void colorMap( inout vec3 col, in float value, int cmap )
 {
     if ( cmap == 1 )
-        col = rainbowColorMap( value );
+    {
+        col = rainbowColorMap( value ).rgb;
+    }
     else if ( cmap == 2 )
-        col = hotIronColorMap( value );
+    {
+        col = hotIronColorMap( value ).rgb;
+    }
     else if ( cmap == 3 )
-        col = negative2positive( value );
+    {
+        col = negative2positive( value ).rgb;
+    }
     else if ( cmap == 4 )
-        col = atlasColorMap( value );
+    {
+        col = atlasColorMap( value ).rgb;
+    }
     else if ( cmap == 5 )
-        col = blueGreenPurpleColorMap( value );
+    {
+        col = blueGreenPurpleColorMap( value ).rgb;
+    }
     else if ( cmap == 6 )
-        col = vectorColorMap( col );
+    {
+        col = vectorColorMap( col ).rgb;
+    }
 }
+
+#endif // WGECOLORMAPS_GLSL
+

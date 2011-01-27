@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGECOLORMAPPING_UNIFORMS_GLSL
+#define WGECOLORMAPPING_UNIFORMS_GLSL
+
+#version 120
+
 // All the uniforms needed. These uniforms get set by the WGEColormapping class for your Node.
 
 /////////////////////////////////////////////////////////////////////////////
@@ -223,4 +228,6 @@ uniform bool u_colormap7Active;
 
 //!< The sampler for texture access.
 uniform sampler3D u_colormap7Sampler;
+
+#endif // WGECOLORMAPPING_UNIFORMS_GLSL
 
