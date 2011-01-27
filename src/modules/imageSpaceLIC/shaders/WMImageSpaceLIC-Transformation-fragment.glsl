@@ -95,19 +95,19 @@ void main()
     float sx = 1.0 / u_texture0SizeX;
     float sy = 1.0 / u_texture0SizeY;
     float sz = 1.0 / u_texture0SizeZ;
-    float valueXP = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz + vec3( sx, 0.0, 0.0 ), u_texture0Min, u_texture0Scale ).r;
-    float valueXM = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz - vec3( sx, 0.0, 0.0 ), u_texture0Min, u_texture0Scale ).r;
-    float valueYP = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz + vec3( 0.0, sy, 0.0 ), u_texture0Min, u_texture0Scale ).r;
-    float valueYM = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz - vec3( 0.0, sy, 0.0 ), u_texture0Min, u_texture0Scale ).r;
-    float valueZP = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz + vec3( 0.0, 0.0, sz ), u_texture0Min, u_texture0Scale ).r;
-    float valueZM = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz - vec3( 0.0, 0.0, sz ), u_texture0Min, u_texture0Scale ).r;
+    float valueXP = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz + vec3( sx, 0.0, 0.0 ), 0.0, 1.0 ).r;
+    float valueXM = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz - vec3( sx, 0.0, 0.0 ), 0.0, 1.0 ).r;
+    float valueYP = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz + vec3( 0.0, sy, 0.0 ), 0.0, 1.0 ).r;
+    float valueYM = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz - vec3( 0.0, sy, 0.0 ), 0.0, 1.0 ).r;
+    float valueZP = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz + vec3( 0.0, 0.0, sz ), 0.0, 1.0 ).r;
+    float valueZM = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz - vec3( 0.0, 0.0, sz ), 0.0, 1.0 ).r;
 
-    vec3 dir = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM );
-    dir *= sign( dir.x );
+    vec3 vec = vec3( valueXP - valueXM, valueYP - valueYM, valueZP - valueZM );
+    vec *= sign( vec.x );
 
     // zero length vectors are uninteresting. discard them
-    vecProjected = projectVector( dir ).xy;
-    if ( isZero( length( dir ), 0.01 ) )
+    vecProjected = projectVector( vec ).xyz;
+    if ( isZero( length( vec ), 0.01 ) )
     {
         discard;
     }

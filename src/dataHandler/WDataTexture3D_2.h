@@ -26,6 +26,7 @@
 #define WDATATEXTURE3D_2_H
 
 #include <algorithm>
+#include <limits>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
@@ -56,9 +57,9 @@ namespace WDataTexture3D_2Scalers
      * \note For integral types no scaling is needed. Specialize this for float/double
      */
     template < typename T >
-    inline T scaleInterval( T value, T /*minimum*/, T /*maximum*/, double /*scaler*/ )
+    inline typename wge::GLType< T >::Type scaleInterval( T value, T minimum, T maximum, double scaler )
     {
-        return value;
+        return static_cast< double >( std::min( std::max( value, minimum ), maximum ) - minimum ) / scaler;
     }
 
     /**
@@ -86,7 +87,7 @@ namespace WDataTexture3D_2Scalers
      * \param maximum the max value
      * \param scaler the scaler
      *
-     * \return the value scaled to [0,1]
+     * \return the value scaled to [numerical_limits::min(),numerical_limits::max]
      */
     inline double scaleInterval( double value, double minimum, double maximum, double scaler )
     {
@@ -217,13 +218,14 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
     if ( components == 1)
     {
         // OpenGL just supports float textures
-        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE, type );
+        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE_ALPHA, type );
         TexType* data = reinterpret_cast< TexType* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
         for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
         {
-            data[i] = WDataTexture3D_2Scalers::scaleInterval( source[i], min, max, scaler );
+            data[ 2 * i ] = WDataTexture3D_2Scalers::scaleInterval( source[i], min, max, scaler );
+            data[ ( 2 * i ) + 1] = source[i] != min;
         }
     }
     else if ( components == 2)

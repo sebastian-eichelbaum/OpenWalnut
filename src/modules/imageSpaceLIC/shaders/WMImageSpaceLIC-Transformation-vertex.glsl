@@ -45,7 +45,7 @@ void main()
     colormapping( vertex );
     
     // for easy access to texture coordinates
-    // NOTE: The vertex is specified in ow-scene-space. The texture matris was set by WGEDataTexture for the dataset and transforms the vertex in
+    // NOTE: The vertex is specified in ow-scene-space. The texture matrix was set by WGEDataTexture for the dataset and transforms the vertex in
     // ow-scene-space to the textures space.
     gl_TexCoord[0] = gl_TextureMatrix[0] * vertex;
 

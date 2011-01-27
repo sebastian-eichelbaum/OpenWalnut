@@ -133,12 +133,12 @@ namespace wge
         /**
          * The best matching OpenGL type for the specified template parameter.
          */
-        typedef int16_t Type;
+        typedef float Type;
 
         /**
          * The enum type of OpenGL
          */
-        static const GLenum TypeEnum = GL_SHORT;
+        static const GLenum TypeEnum = GL_FLOAT;
     };
 
     /**
@@ -151,12 +151,12 @@ namespace wge
         /**
          * The best matching OpenGL type for the specified template parameter.
          */
-        typedef uint16_t Type;
+        typedef float Type;
 
         /**
          * The enum type of OpenGL
          */
-        static const GLenum TypeEnum = GL_UNSIGNED_SHORT;
+        static const GLenum TypeEnum = GL_FLOAT;
     };
 
     /**
@@ -169,12 +169,12 @@ namespace wge
         /**
          * The best matching OpenGL type for the specified template parameter.
          */
-        typedef int32_t Type;
+        typedef float Type;
 
         /**
          * The enum type of OpenGL
          */
-        static const GLenum TypeEnum = GL_INT;
+        static const GLenum TypeEnum = GL_FLOAT;
     };
 
     /**
@@ -187,12 +187,12 @@ namespace wge
         /**
          * The best matching OpenGL type for the specified template parameter.
          */
-        typedef uint32_t Type;
+        typedef float Type;
 
         /**
          * The enum type of OpenGL
          */
-        static const GLenum TypeEnum = GL_UNSIGNED_INT;
+        static const GLenum TypeEnum = GL_FLOAT;
     };
 }
 
