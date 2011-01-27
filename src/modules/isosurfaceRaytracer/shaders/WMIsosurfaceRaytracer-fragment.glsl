@@ -55,6 +55,10 @@ uniform sampler2D u_texture1Sampler;
 uniform int u_texture1SizeX;
 #endif
 
+#ifdef GRADIENTTEXTURE_ENABLED
+uniform sampler3D u_gradientsSampler;
+#endif
+
 // The number of steps to use.
 uniform int u_steps;
 
@@ -102,6 +106,24 @@ vec3 findRayEnd( out float d )
 float pointDistance( vec3 p1, vec3 p2 )
 {
     return length( p1 - p2 );
+}
+
+/**
+ * Returns the gradient vector at the given position.
+ *
+ * \param position the voxel for which to get the gradient
+ *
+ * \return the gradient, NOT normalized
+ */
+vec3 getNormal( in vec3 position )
+{
+    vec3 grad;
+#ifdef GRADIENTTEXTURE_ENABLED
+    grad = ( 2.0 * texture3D( u_gradientsSampler, position ).rgb ) + vec3( -1.0 );
+#else
+    grad = getGradient( u_texture0Sampler, position );
+#endif
+    return sign( dot( grad, -v_ray ) ) * grad;
 }
 
 /**
@@ -164,7 +186,7 @@ void main()
             // 4: Shading
 
             // find a proper normal for a headlight in world-space
-            vec3 normal = ( gl_ModelViewMatrix * vec4( getGradientViewAligned( u_texture0Sampler, curPoint, v_ray ), 0.0 ) ).xyz;
+            vec3 normal = ( gl_ModelViewMatrix * vec4( getNormal( curPoint ), 0.0 ) ).xyz;
 #ifdef WGE_POSTPROCESSING_ENABLED
             wge_FragNormal = textureNormalize( normal );
 #endif
