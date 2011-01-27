@@ -51,10 +51,13 @@ namespace WDataTexture3D_2Scalers
      * problem.
      *
      * \param value the value to scale
+     * \param minimum the min value
+     * \param maximum the max value
+     * \param scaler the scaler
      *
      * \return the value scaled to [0,1]
      *
-     * \note For integral types no scaling is needed. Specialize this for float/double
+     * \note Most integral types need to be scaled. See WGETypeTraits.h for details.
      */
     template < typename T >
     inline typename wge::GLType< T >::Type scaleInterval( T value, T minimum, T maximum, double scaler )
@@ -63,35 +66,27 @@ namespace WDataTexture3D_2Scalers
     }
 
     /**
-     * Scales the specified value to the interval [0,1] using m_min and m_scale. As the method is inline, the additional parameters are no
-     * problem.
+     * Byte data is transferred to texture mem as is without any scaling.
      *
      * \param value the value to scale
-     * \param minimum the min value
-     * \param maximum the max value
-     * \param scaler the scaler
      *
-     * \return the value scaled to [0,1]
+     * \return the value
      */
-    inline float scaleInterval( float value, float minimum, float maximum, double scaler )
+    inline int8_t scaleInterval( int8_t value, int8_t /*minimum*/, int8_t /*maximum*/, double /*scaler*/ )
     {
-        return ( std::min( std::max( value, minimum ), maximum ) - minimum ) / scaler;
+        return value;
     }
 
     /**
-     * Scales the specified value to the interval [0,1] using m_min and m_scale. As the method is inline, the additional parameters are no
-     * problem.
+     * Byte data is transferred to texture mem as is without any scaling.
      *
      * \param value the value to scale
-     * \param minimum the min value
-     * \param maximum the max value
-     * \param scaler the scaler
      *
-     * \return the value scaled to [numerical_limits::min(),numerical_limits::max]
+     * \return the value
      */
-    inline double scaleInterval( double value, double minimum, double maximum, double scaler )
+    inline uint8_t scaleInterval( uint8_t value, uint8_t /*minimum*/, uint8_t /*maximum*/, double /*scaler*/ )
     {
-        return static_cast< double >( std::min( std::max( value, minimum ), maximum ) - minimum ) / scaler;
+        return value;
     }
 }
 
