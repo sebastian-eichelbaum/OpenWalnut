@@ -25,8 +25,8 @@
 #include <iostream>
 
 #include "../kernel/WKernel.h"
-
 #include "WFiberSelector.h"
+#include "WROIManager.h"
 
 WFiberSelector::WFiberSelector( boost::shared_ptr< const WDataSetFibers > fibers ) :
     m_fibers( fibers ),

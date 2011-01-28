@@ -30,17 +30,20 @@
 #include <vector>
 #include <utility>
 
+#include <osg/Geometry>
 #include <osg/Node>
 
-#include "../../../dataHandler/WDataSet.h"
-#include "../../../graphicsEngine/shaders/WGEShader.h"
-#include "../../../graphicsEngine/WGEGroupNode.h"
-#include "../../../graphicsEngine/WPickInfo.h"
 #include "../../WModule.h"
-#include "../../WModuleConnector.h"
-#include "../../WModuleInputData.h"
 
+#include "../../../graphicsEngine/WGEViewer.h"
 #include "../../WExportKernel.h"
+
+// forward declarations
+class WGEGroupNode;
+class WGEShader;
+class WModuleConnector;
+class WPickInfo;
+template< class T > class WModuleInputData;
 
 /**
  * Navigation slice module

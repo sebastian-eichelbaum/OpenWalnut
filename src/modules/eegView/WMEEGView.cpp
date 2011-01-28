@@ -29,14 +29,20 @@
 #include <osgSim/ColorRange>
 
 #include "../../dataHandler/WEEG2.h"
-#include "../../dataHandler/WEEGChannelInfo.h"
 #include "../../dataHandler/WEEG2Segment.h"
+#include "../../dataHandler/WEEGChannelInfo.h"
 #include "../../dataHandler/WEEGValueMatrix.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WROIBox.h"
+#include "../../gui/WCustomWidget.h"
+#include "../../gui/WGUI.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleInputData.h"
+#include "../../kernel/WROIManager.h"
+#include "WEEGEvent.h"
 #include "WEEGSourceCalculator.h"
 #include "WEEGViewHandler.h"
 #include "WElectrodePositionCallback.h"
@@ -44,9 +50,9 @@
 #include "WLabelsTransformCallback.h"
 #include "WLineStripCallback.h"
 #include "WMEEGView.h"
+#include "WMEEGView.xpm"
 #include "WPanTransformCallback.h"
 #include "WScaleTransformCallback.h"
-#include "WMEEGView.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEEGView )
@@ -353,8 +359,7 @@ void WMEEGView::moduleMain()
 bool WMEEGView::openCustomWidget()
 {
     debugLog() << "Try to open EEG View widget...";
-    m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget(
-        getName(), WGECamera::TWO_D, m_shutdownFlag.getCondition() );
+    m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget( getName(), WGECamera::TWO_D, m_shutdownFlag.getCondition() );
     bool success = m_widget.get();
     if( success )
     {

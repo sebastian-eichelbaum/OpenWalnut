@@ -36,6 +36,7 @@
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleConnectorSignals.h"
+#include "../../kernel/WModuleInputData.h"
 #include "WMProbTractDisplaySP.h"
 #include "WMProbTractDisplaySP.xpm"
 #include "WSPSliceBuilder.h"

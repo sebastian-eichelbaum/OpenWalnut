@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include "QtGui/QMenu"
+#include <QtGui/QMenu>
 
 #include "../../common/WPreferences.h"
 #include "../../kernel/WModule.h"

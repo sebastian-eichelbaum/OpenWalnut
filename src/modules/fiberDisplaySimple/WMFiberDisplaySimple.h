@@ -27,12 +27,13 @@
 
 #include <string>
 
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
+
+// forward declarations
+class WDataSetFibers;
+class WGEShader;
 
 /**
  * This modules takes a dataset and equalizes its histogram.

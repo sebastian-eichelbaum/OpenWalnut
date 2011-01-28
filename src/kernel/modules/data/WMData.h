@@ -30,15 +30,16 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../../WKernel.h"
+// #include "../../WKernel.h"
 #include "../../WModule.h"
-#include "../../WModuleConnector.h"
-#include "../../WModuleOutputData.h"
-
-#include "../../../dataHandler/WDataSet.h"
-#include "../../../dataHandler/WDataSetSingle.h"
 
 #include "../../WExportKernel.h"
+
+// forward declarations
+class WDataSet;
+class WDataSetSingle;
+class WModuleConnector;
+template< class T > class WModuleOutputData;
 
 /**
  * Module for encapsulating WDataSets. It can encapsulate almost everything, but is intended to be used with WDataSets and its

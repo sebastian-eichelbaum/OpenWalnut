@@ -138,6 +138,7 @@ private:
     //! The data value percent that maps to 1.0 in the texture.
     WPropDouble m_maxValuePct;
 
+    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
     // the following 5 members are taken from WMData
     /**
      * Interpolation?
@@ -163,6 +164,7 @@ private:
      * Opacity value for this data.
      */
     WPropInt m_opacity;
+    // }
 
     /**
      * An input connector that accepts order 1 datasets.

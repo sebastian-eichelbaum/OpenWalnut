@@ -30,15 +30,24 @@
 
 #include "WMImageSpaceLIC-Transformation-varyings.glsl"
 
+uniform int u_vertexShift;
+uniform vec3 u_vertexShiftDirection;
+
 /**
  * Vertex Main. Simply transforms the geometry. The work is done per fragment.
  */
 void main()
 {
-    colormapping( gl_TextureMatrix[0] );
+    // Calculate the real vertex coordinate in openwalnut-scene-space
+    vec4 vertex = ( vec4( u_vertexShiftDirection.xyz, 0.0 ) * u_vertexShift ) + gl_Vertex;
+
+    // Allow the colormapper to do some precalculations with the real vertex coordinate in ow-scene-space
+    colormapping( vertex );
 
     // for easy access to texture coordinates
-    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+    // NOTE: The vertex is specified in ow-scene-space. The texture matrix was set by WGEDataTexture for the dataset and transforms the vertex in
+    // ow-scene-space to the textures space.
+    gl_TexCoord[0] = gl_TextureMatrix[0] * vertex;
 
     // some light precalculations
     v_normal = gl_Normal;
@@ -54,6 +63,6 @@ void main()
     v_viewDir = worldToLocal( camPos ).xyz;
 
     // transform position
-    gl_Position = ftransform();
+    gl_Position = gl_ModelViewProjectionMatrix * vertex;
 }
 

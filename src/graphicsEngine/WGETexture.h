@@ -142,7 +142,8 @@ public:
     WPropBool active() const;
 
     /**
-     * Returns the texture transformation matrix. The property can be changed. A change affects all colormaps using this texture.
+     * Returns the texture transformation matrix. The property can be changed. A change affects all colormaps using this texture. This matrix
+     * converts an world-space coordinate to an texture coordinate! This can be seen as a scaled inverse matrix of the grid's transformation.
      *
      * \return the matrix
      */

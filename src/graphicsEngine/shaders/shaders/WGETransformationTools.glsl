@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGETRANSFORMATIONTOOLS_GLSL
+#define WGETRANSFORMATIONTOOLS_GLSL
+
+#version 120
+
 /**
  * Projects a given point to screen-space, where (0,0) is the lower left corner and (1,1) the upper right. The Depth
  * is stored in the returned vector's Z value.
@@ -150,4 +155,6 @@ vec4 worldToLocal( vec3 point1, vec3 point2 )
 {
     return worldToLocal( vec4( point1 - point2, 0.0 ) );
 }
+
+#endif // WGETRANSFORMATIONTOOLS_GLSL
 

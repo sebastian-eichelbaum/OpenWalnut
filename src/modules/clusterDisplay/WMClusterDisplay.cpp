@@ -28,8 +28,8 @@
 
 #include <boost/regex.hpp>
 
-#include <osgGA/TrackballManipulator>
 #include <osgGA/StateSetManipulator>
+#include <osgGA/TrackballManipulator>
 #include <osgViewer/ViewerEventHandlers>
 #include <osgWidget/Util> //NOLINT
 #include <osgWidget/ViewerEventHandlers> //NOLINT
@@ -37,13 +37,11 @@
 
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
-
 #include "../../graphicsEngine/WGEUtils.h"
-
 #include "../../kernel/WKernel.h"
-#include "WMClusterDisplay.xpm" // Please put a real icon here.
-
+#include "../../kernel/WROIManager.h"
 #include "WMClusterDisplay.h"
+#include "WMClusterDisplay.xpm" // Please put a real icon here.
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMClusterDisplay )

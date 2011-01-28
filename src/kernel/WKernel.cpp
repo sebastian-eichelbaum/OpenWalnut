@@ -42,10 +42,13 @@
 #include "../common/WStringUtils.h"
 #include "../common/WThreadedRunner.h"
 #include "../dataHandler/WDataHandler.h"
-#include "../graphicsEngine/WGraphicsEngine.h"
+#include "../gui/WGUI.h"
 #include "WKernel.h"
 #include "WModule.h"
+#include "WModuleContainer.h"
 #include "WModuleFactory.h"
+#include "WROIManager.h"
+#include "WSelectionManager.h"
 
 /**
  * Used for program wide access to the kernel.

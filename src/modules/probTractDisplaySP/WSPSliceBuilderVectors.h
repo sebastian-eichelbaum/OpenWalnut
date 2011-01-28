@@ -35,11 +35,11 @@
 
 #include "../../common/WProperties.h"
 #include "../../common/WPropertyTypes.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "WSPSliceBuilder.h"
 
 // forward declarations
 class WDataSetVector;
-class WGEShader;
 
 /**
  * This Builder is used to generate views of probabilistic tractograms ala Schmahmann and Pandya.

@@ -38,6 +38,7 @@
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WValueSet.h"
 
+#include "../../graphicsEngine/WGETexture.h"
 
 /**
  * Someone should add some documentation here.
@@ -132,13 +133,6 @@ private:
     void createTexture();
 
     /**
-     * Called whenever a property changes.
-     *
-     * \param property the property that has been changed
-     */
-    void propertyChanged( boost::shared_ptr< WPropertyBase > property );
-
-    /**
      * updates the output connector
      */
     void updateOutDataset();
@@ -191,11 +185,6 @@ private:
     WPropSelection m_colorMapSelection;
 
     /**
-     * Opacity value for this data.
-     */
-    WPropInt m_opacity;
-
-    /**
      * true when a new paint coordinate is added to the queue
      */
     WPropBool m_queueAdded;
@@ -233,7 +222,7 @@ private:
     /**
      * stores a pointer to the texture we paint in
      */
-    osg::ref_ptr<osg::Texture3D>m_texture;
+    osg::ref_ptr< WGETexture3D > m_texture;
 
     /**
      * stores a pointer to the grid we use;

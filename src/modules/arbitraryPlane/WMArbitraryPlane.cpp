@@ -25,20 +25,18 @@
 #include <string>
 #include <vector>
 
-#include "../../kernel/WKernel.h"
-
-#include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
-
 #include "../../graphicsEngine/WGEUtils.h"
-
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMArbitraryPlane.h"
 #include "WMArbitraryPlane.xpm"
 

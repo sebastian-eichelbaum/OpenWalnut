@@ -33,7 +33,6 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "WSPSliceBuilderVectors.h"
 
 WSPSliceBuilderVectors::WSPSliceBuilderVectors( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap,

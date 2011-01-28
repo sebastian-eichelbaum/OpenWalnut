@@ -31,18 +31,18 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../dataHandler/WDataSetSingle.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../common/math/WVector3D.h"
-#include "../../common/math/WMatrix.h"
 #include "../../common/WThreadedFunction.h"
 #include "../../dataHandler/WThreadedPerVoxelOperation.h"
 #include "../../dataHandler/WThreadedTrackingFunction.h"
 #include "../../dataHandler/WFiberAccumulator.h"
+
+// forward delcarations
+class WDataSetFiberVector;
+class WDataSetSingle;
+template< class T > class WModuleInputData;
+template< class T > class WModuleOutputData;
 
 #define WM_MORI_NUM_CORES W_AUTOMATIC_NB_THREADS
 

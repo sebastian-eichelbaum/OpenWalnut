@@ -66,7 +66,7 @@ boost::shared_ptr< WDataTexture3D > WDataSet::getTexture()
     throw WDHException( std::string( "This dataset does not provide a texture." ) );
 }
 
-osg::ref_ptr< WDataTexture3D_2 > WDataSet::getTexture2()
+osg::ref_ptr< WDataTexture3D_2 > WDataSet::getTexture2() const
 {
     throw WDHException( std::string( "This dataset does not provide a texture." ) );
 }

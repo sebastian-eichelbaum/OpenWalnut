@@ -148,17 +148,24 @@ vec4 transferFunction( float value )
 vec4 localIllumination( in vec3 position, in vec4 color )
 {
 #ifdef LOCALILLUMINATION_PHONG
+    // get a gradient and get it to world-space
+    vec3 worldNormal = ( gl_ModelViewMatrix * vec4( getGradient( position ), 0.0 ) ).xyz;
+    // let the normal point towards the viewer. Technically this would be:
+    // worldNormal *= sign( dot( worldNormal, vec3( 0.0, 0.0, 1.0 ) ) );
+    // but as the most of the components in the view vector are 0 we can use:
+    worldNormal *= sign( worldNormal.z );
+
     // Phong:
     vec4 light = blinnPhongIllumination(
-            0.1 * color.rgb,                              // material ambient
-            color.rgb,                                    // material diffuse
-            1.0 * color.rgb,                              // material specular
+            0.2 * color.rgb,                              // material ambient
+            1.0 * color.rgb,                                    // material diffuse
+            0.5 * color.rgb,                              // material specular
             10.0,                                         // shinines
             vec3( 1.0, 1.0, 1.0 ),                        // light diffuse
             vec3( 0.3, 0.3, 0.3 ),                        // light ambient
-            normalize( -getGradient( position ) ),        // normal
-            v_ray,                                        // view direction
-            v_lightSource                                 // light source position
+            normalize( worldNormal ),                     // normal
+            vec3( 0.0, 0.0, 1.0 ),                        // view direction  // in world space, this always is the view-dir
+            gl_LightSource[0].position.xyz                // light source position
     );
     light.a = color.a;
     return light;
@@ -234,7 +241,7 @@ void main()
     }
 
     // have we hit something which was classified not to be transparent?
-    // This is, visually, not needed but useful if volume rendere is used in conjunction with other geometry.
+    // This is, visually, not needed but useful if volume renderer is used in conjunction with other geometry.
     // if ( isZero( dst.a ) )
     // {
     //    discard;
