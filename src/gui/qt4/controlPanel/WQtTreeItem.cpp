@@ -38,12 +38,12 @@
 #include "../events/WModuleDeleteEvent.h"
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"
-
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"
 
-#include "WTreeItemTypes.h"
+#include "WQtControlPanel.h"
 #include "WQtTreeItem.h"
+#include "WTreeItemTypes.h"
 
 WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::shared_ptr< WModule > module ) :
     QTreeWidgetItem( parent, type ),

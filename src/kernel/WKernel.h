@@ -25,25 +25,22 @@
 #ifndef WKERNEL_H
 #define WKERNEL_H
 
-#include <list>
 #include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/filesystem.hpp>
 
-#include "../common/WFlag.h"
 #include "../common/WLogger.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
-#include "../gui/WGUI.h"
-#include "WROIManager.h"
-#include "WSelectionManager.h"
-#include "WModule.h"
-#include "WModuleContainer.h"
-#include "WModuleFactory.h"
-
 #include "WExportKernel.h"
+#include "WModule.h"
 
+// forward declarations
+class WGUI;
+class WModuleContainer;
+class WModuleFactory;
+class WROIManager;
+class WSelectionManager;
 class WThreadedRunner;
 
 /**

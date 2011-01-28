@@ -28,14 +28,15 @@
 #include "../../common/WPropertyHelper.h"
 #include "../../common/WPropertyObserver.h"
 #include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
 #include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../kernel/WKernel.h"
-
 #include "WMFiberDisplaySimple.h"
 #include "WMFiberDisplaySimple.xpm"
 

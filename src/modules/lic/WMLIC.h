@@ -29,11 +29,14 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetVector.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
+
+// forward declarations
+class WGEShader;
+class WDataSetVector;
+class WTriangleMesh;
 
 /**
  * Computes a Line Intregrated Convolution from a vector field onto a triangle mesh.

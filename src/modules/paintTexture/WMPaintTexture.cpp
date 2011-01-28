@@ -31,10 +31,10 @@
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WROIArbitrary.h"
 #include "../../kernel/WKernel.h"
-
-#include "WMPaintTexture.xpm" // Please put a real icon here.
-
+#include "../../kernel/WROIManager.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMPaintTexture.h"
+#include "WMPaintTexture.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMPaintTexture )

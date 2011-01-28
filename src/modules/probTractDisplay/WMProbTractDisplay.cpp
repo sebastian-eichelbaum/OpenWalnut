@@ -28,8 +28,10 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../../dataHandler/WDataSetScalar.h"
-#include "WMProbTractDisplay.xpm"
+#include "../../kernel/WModuleFactory.h"
+#include "../../kernel/WModuleInputForwardData.h"
 #include "WMProbTractDisplay.h"
+#include "WMProbTractDisplay.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMProbTractDisplay )

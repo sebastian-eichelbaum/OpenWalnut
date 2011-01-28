@@ -26,15 +26,15 @@
 #include <string>
 #include <vector>
 
-#include <osg/ShapeDrawable>
-#include <osg/Group>
 #include <osg/Geode>
+#include <osg/Group>
 #include <osg/Material>
+#include <osg/ShapeDrawable>
 #include <osg/StateAttribute>
 
-#include "../../kernel/WKernel.h"
 #include "../../common/WColor.h"
-
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMVectorPlot.h"
 #include "WMVectorPlot.xpm"
 

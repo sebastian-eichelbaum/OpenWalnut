@@ -26,13 +26,17 @@
 #include <string>
 #include <vector>
 
-#include "../../common/math/WTensorSym.h"
-#include "../../common/math/WTensorFunctions.h"
-#include "../../common/WAssert.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/io/WWriterFiberVTK.h"
-#include "../../dataHandler/WValueSet.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
+#include "../../common/math/WTensorFunctions.h"
+#include "../../common/math/WTensorSym.h"
+#include "../../common/WAssert.h"
+#include "../../dataHandler/io/WWriterFiberVTK.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
+#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "../../dataHandler/WValueSet.h"
+#include "../../kernel/WModuleInputData.h"
+#include "../../kernel/WModuleOutputData.h"
 
 #include "WMDeterministicFTMori.h"
 #include "WMDeterministicFTMori.xpm"

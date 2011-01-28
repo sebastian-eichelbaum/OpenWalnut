@@ -51,6 +51,7 @@
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleFactory.h"
 #include "../../kernel/WModuleOutputData.h"
 #include "../../graphicsEngine/widgets/labeling/WGEBorderLayout.h"
 #include "../../graphicsEngine/widgets/labeling/WGELabel.h"
