@@ -79,14 +79,14 @@ private:
 //    osg::ref_ptr< osg::Vec3Array > generateQuadStubs( const wmath::WPosition& pos ) const;
 
     /**
-     * Computes the texture coordinates which are used in the shader to span the quads out of their middle points per slice.
+     * Computes four vertices so each describe the translation of the middle point to one of the four quad corners.
      *
      * \param activeDims This are the opposite indices of the current slice.
      * \param size How big the spanning is.
      *
      * \return All four coordinate transformations, for each vertex in a slice.
      */
-    osg::ref_ptr< osg::Vec3Array > generateQuadTexCoords( std::pair< unsigned char, unsigned char > activeDims, double size ) const;
+    osg::ref_ptr< osg::Vec3Array > generateQuadSpanning( std::pair< unsigned char, unsigned char > activeDims ) const;
 
     /**
      * Generates directions clockwise around a center where the other quads will be placed later on.
@@ -111,6 +111,8 @@ private:
     std::pair< unsigned char, unsigned char > computeSliceBase( const unsigned char sliceNum, boost::shared_ptr< wmath::WVector3D > origin,
             boost::shared_ptr< wmath::WVector3D > a, boost::shared_ptr< wmath::WVector3D > b ) const;
 
+    void bindTextures( osg::ref_ptr< osg::Node > node ) const;
+
     /**
      * The eigenvectors.
      */
@@ -120,6 +122,11 @@ private:
      * A reference to the property which denotes the space between the primary quads (aka subdivision).
      */
     boost::shared_ptr< const WPVInt > m_spacing;
+
+    /**
+     * A reference to the property which controls the size of the quads.
+     */
+    WPropDouble m_glyphSize; // we cannot make const here since we need the WPropType for the WGEPropertyUniform creation
 
     /**
      * Upto which threshold the quads should be discarded.

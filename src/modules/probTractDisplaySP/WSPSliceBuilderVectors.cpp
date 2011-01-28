@@ -44,6 +44,7 @@ WSPSliceBuilderVectors::WSPSliceBuilderVectors( ProbTractList probTracts, WPropG
 {
     m_probThreshold = vectorGroup->findProperty( "Prob Threshold" )->toPropDouble();
     m_spacing = vectorGroup->findProperty( "Spacing" )->toPropInt();
+    m_glyphSize = vectorGroup->findProperty( "Glyph size" )->toPropDouble();
 }
 
 void WSPSliceBuilderVectors::preprocess()
@@ -64,7 +65,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     numCoords.push_back( m_grid->getNbCoordsZ() );
 
     osg::ref_ptr< osg::Vec3Array > quadVertices( new osg::Vec3Array );
-    osg::ref_ptr< osg::Vec3Array > quadTexCoords( new osg::Vec3Array );
+    osg::ref_ptr< osg::Vec3Array > quadSpanning( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec3Array > quadNormals( new osg::Vec3Array );
     wmath::WVector3D normal( 0.0, 0.0, 0.0 );
     normal[ sliceNum ] = -1.0;
@@ -72,7 +73,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Vec4Array > quadColors( new osg::Vec4Array );
     quadColors->push_back( WColor( 1.0, 0.0, 0.0, 1.0 ) );
 
-    osg::ref_ptr< osg::Vec3Array > texCoordsPerPrimitive = generateQuadTexCoords( activeDims, 1.0 );
+    osg::ref_ptr< osg::Vec3Array > texCoordsPerPrimitive = generateQuadSpanning( activeDims );
 
     for( size_t x = 0; x < numCoords[ activeDims.first ]; x += m_spacing->get() )
     {
@@ -86,7 +87,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
 
             // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a real
             // quad out of the four center points
-            quadTexCoords->insert( quadTexCoords->end(), texCoordsPerPrimitive->begin(), texCoordsPerPrimitive->end() );
+            quadSpanning->insert( quadSpanning->end(), texCoordsPerPrimitive->begin(), texCoordsPerPrimitive->end() );
 
             osg::ref_ptr< osg::Vec4Array > colors = computeColorsFor( pos );
 
@@ -96,7 +97,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
 
     osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry();
     geometry->setVertexArray( quadVertices );
-    geometry->setTexCoordArray( 0, quadTexCoords );
+    geometry->setTexCoordArray( 0, quadSpanning );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
     geometry->setNormalArray( quadNormals );
@@ -111,11 +112,27 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
 
     m_shader->apply( geode );
 
+    geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_glyphSize", m_glyphSize ) ) ;
+
+    bindTextures( geode );
+
     return result;
 }
 
-osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadTexCoords( std::pair< unsigned char, unsigned char > activeDims,
-        double size ) const
+void WSPSliceBuilderVectors::bindTextures( osg::ref_ptr< osg::Node > node ) const
+{
+    if( m_probTracts.size() > 8 )
+    {
+        wlog::warn( "WSPSliceBuilderVectors" ) << "Trying to bind more than 8 textures to a single geode, this might not be possible due to "
+            "graphics card, or driver limitations";
+    }
+    for( ProbTractList::const_iterator cit = m_probTracts.begin(); cit != m_probTracts.end(); ++cit )
+    {
+        wge::bindTexture( node, ( *cit )->getTexture2() );
+    }
+}
+
+osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadSpanning( std::pair< unsigned char, unsigned char > activeDims ) const
 {
     osg::ref_ptr< osg::Vec3Array > result( new osg::Vec3Array );
     result->reserve( 4 );
@@ -123,14 +140,14 @@ osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadTexCoords( st
     result->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
     result->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
     result->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
-    result->at( 0 )[ activeDims.first ]  = -0.5 * size;
-    result->at( 1 )[ activeDims.first ]  =  0.5 * size;
-    result->at( 2 )[ activeDims.first ]  =  0.5 * size;
-    result->at( 3 )[ activeDims.first ]  = -0.5 * size;
-    result->at( 0 )[ activeDims.second ] = -0.5 * size;
-    result->at( 1 )[ activeDims.second ] = -0.5 * size;
-    result->at( 2 )[ activeDims.second ] =  0.5 * size;
-    result->at( 3 )[ activeDims.second ] =  0.5 * size;
+    result->at( 0 )[ activeDims.first ]  = -0.5;
+    result->at( 1 )[ activeDims.first ]  =  0.5;
+    result->at( 2 )[ activeDims.first ]  =  0.5;
+    result->at( 3 )[ activeDims.first ]  = -0.5;
+    result->at( 0 )[ activeDims.second ] = -0.5;
+    result->at( 1 )[ activeDims.second ] = -0.5;
+    result->at( 2 )[ activeDims.second ] =  0.5;
+    result->at( 3 )[ activeDims.second ] =  0.5;
     return result;
 }
 

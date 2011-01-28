@@ -187,6 +187,9 @@ void WMProbTractDisplaySP::properties()
     WPropInt spacing = m_vectorGroup->addProperty( "Spacing", "Spacing of the sprites", 5, m_sliceChanged );
     spacing->setMin( 1 );
     spacing->setMax( 30 );
+    WPropDouble glyphSize = m_vectorGroup->addProperty( "Glyph size", "Size of the quads transformed to the glyphs", 1.0 );
+    spacing->setMin( 1.0 );
+    spacing->setMax( 5.0 );
 
     // call WModule's initialization
     WModule::properties();
