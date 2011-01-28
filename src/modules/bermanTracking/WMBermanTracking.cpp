@@ -34,7 +34,9 @@
 #include "../../common/exceptions/WPreconditionNotMet.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WROIManager.h"
 #include "WMBermanTracking.xpm"
 #include "WMBermanTracking.h"
 
