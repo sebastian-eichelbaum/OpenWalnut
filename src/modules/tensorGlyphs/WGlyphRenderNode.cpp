@@ -26,73 +26,15 @@
 
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/shared_array.hpp>
 
-#include "../../common/WLogger.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WValueSet.h"
 
 #include "WGlyphRenderNode.h"
 
-static OpenThreads::Mutex mutex;
+/*-------------------------------------------------------------------------------------------------------------------*/
 
-/**
- * Calculates a multinomial coefficient.
- */
-inline unsigned int Multinomial( const unsigned int& n, unsigned int k2, unsigned int k3 )
-{
-    unsigned int k1 = n - k2 - k3;
-
-    if ( k3 > k2 )
-    {
-        unsigned int tmp = k3;
-
-        k3 = k2;
-        k2 = tmp;
-    }
-
-    if ( k2 > k1 )
-    {
-        unsigned int tmp = k2;
-
-        k2 = k1;
-        k1 = tmp;
-    }
-
-    unsigned int value = 1;
-
-    for ( unsigned int i = 1; i <= k2; i++ )
-    {
-        value = value * (n - i + 1) / i;
-    }
-
-    for ( unsigned int i = 1; i <= k3; i++ )
-    {
-        value = value * ( n - k2 - i + 1 ) / i;
-    }
-
-    return value;
-}
-
-/**
- * Calculates the monomial factors for glyph evaluation.
- */
-inline boost::shared_array< float > calcFactors( const unsigned int& order, const unsigned int& numOfCoeffs )
-{
-    float* factorSet = new float[ numOfCoeffs ];
-
-    unsigned int i = 0;
-
-    for ( unsigned int z = 0; z <= order; z++ )
-    {
-        for ( unsigned int y = 0; y <= order - z; y++, i++ )
-        {
-            factorSet[ i ] = Multinomial( order, y, z );
-        }
-    }
-
-    return boost::shared_array< float >( factorSet );
-}
+size_t WGlyphRenderNode::m_lws[ 2 ] = { 4, 32 };
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
@@ -102,11 +44,7 @@ inline bool readKernelSource( std::string& kernelSource, const std::string& file
 
     if ( !sourceFile.is_open() )
     {
-        WLogger::getLogger()->addLogMessage
-        (
-            "Can not open kernel file \"" + filePath + "\".", 
-            "WGlyphRenderNode", LL_ERROR 
-        );
+        osg::notify( osg::FATAL ) << "Can not open kernel file \"" + filePath + "\"." << std::endl;
 
         return false;
     }
@@ -127,59 +65,8 @@ inline bool readKernelSource( std::string& kernelSource, const std::string& file
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-WGlyphRenderNode::DataChangeCallback::DataChangeCallback(): m_dataChanged( false )
+WGlyphRenderNode::ReloadCallback::ReloadCallback( int dim ): m_dimension( dim )
 {}
-
-/*-------------------------------------------------------------------------------------------------------------------*/
-
-void WGlyphRenderNode::DataChangeCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    if ( m_changed )
-    {
-        OpenThreads::ScopedLock< OpenThreads::Mutex > lock( mutex );
-
-        WGlyphRenderNode& renderNode = *static_cast< WGlyphRenderNode* >( node );
-
-        if ( m_dataChanged )
-        {
-            if ( renderNode.m_order != m_order )
-            {
-                renderNode.reset();
-            }
-            else
-            {
-                renderNode.changeDataSet( ReloadCallback() );
-            }
-
-            WGridRegular3D* grid = static_cast< WGridRegular3D* >( m_tensorData->getGrid().get() );
-
-            renderNode.m_numOfTensors[ 0 ] = grid->getNbCoordsX();
-            renderNode.m_numOfTensors[ 1 ] = grid->getNbCoordsY();
-            renderNode.m_numOfTensors[ 2 ] = grid->getNbCoordsZ();
-
-            renderNode.m_order = m_order;
-            renderNode.m_tensorData = m_tensorData;
-
-            renderNode.dirtyBound();
-
-            m_tensorData.reset();
-
-            m_dataChanged = false;
-        }
-
-        renderNode.m_slices[ 0 ] = m_slices[ 0 ];
-        renderNode.m_slices[ 1 ] = m_slices[ 1 ];
-        renderNode.m_slices[ 2 ] = m_slices[ 2 ];
-
-        renderNode.m_sliceEnabled[ 0 ] = m_sliceEnabled[ 0 ];
-        renderNode.m_sliceEnabled[ 1 ] = m_sliceEnabled[ 1 ];
-        renderNode.m_sliceEnabled[ 2 ] = m_sliceEnabled[ 2 ];
-
-        m_changed = false;
-    }
-
-    traverse( node, nv );
-}
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
@@ -187,38 +74,67 @@ void WGlyphRenderNode::ReloadCallback::change( CLProgramDataSet* clProgramDataSe
 {
     CLObjects& clObjects = *static_cast< CLObjects* >( clProgramDataSet );
 
-    clObjects.reloadData = true;
+    switch ( m_dimension )
+    {
+        case 0: clObjects.m_reloadX = true;
+                break;
+        case 1: clObjects.m_reloadY = true;
+                break;
+        case 2: clObjects.m_reloadZ = true;
+                break;
+    }
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-WGlyphRenderNode::CLObjects::CLObjects(): reloadData( false )
+void WGlyphRenderNode::ChangeCallback::change( CLProgramDataSet* clProgramDataSet ) const
+{
+    CLObjects& clObjects = *static_cast< CLObjects* >( clProgramDataSet );
+
+    clObjects.m_setVisibility = true;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+WGlyphRenderNode::CLObjects::CLObjects():
+    m_dataLoaded( false ),
+    m_reloadX( true ),
+    m_reloadY( true ),
+    m_reloadZ( true ),
+    m_setVisibility( true )
 {}
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 WGlyphRenderNode::CLObjects::~CLObjects()
 {
-    if ( !reloadData )
+    if ( m_dataLoaded )
     {
-        clReleaseMemObject( tensorData );
-        clReleaseMemObject( factors );
+        if ( !m_reloadX )
+        {
+            clReleaseMemObject( m_sliceX );
+        }
+
+        if ( !m_reloadY )
+        {
+            clReleaseMemObject( m_sliceY );
+        }
+
+        if ( !m_reloadZ )
+        {
+            clReleaseMemObject( m_sliceZ );
+        }
     }
 
-    clReleaseKernel( clScaleKernel );
-    clReleaseKernel( clRenderKernel );
-    clReleaseProgram( clProgram );
+    clReleaseKernel( m_scaleKernel );
+    clReleaseKernel( m_renderKernel );
+    clReleaseProgram( m_program );
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-WGlyphRenderNode::WGlyphRenderNode( const boost::shared_ptr< WDataSetSingle >& data, const int& order, 
-                                    const int& sliceX, const int& sliceY, const int& sliceZ, 
-                                    const bool& enabledX, const bool& enabledY, const bool& enabledZ, 
-                                    const boost::filesystem::path& search ): 
-    WCLRenderNode(),
-    m_order( order ),
-    m_tensorData( data ),
+WGlyphRenderNode::WGlyphRenderNode( const boost::filesystem::path& search, bool deactivated ):
+    WCLRenderNode( deactivated ),
     m_sourceRead( false )
 {
     // load kernel source code
@@ -232,31 +148,14 @@ WGlyphRenderNode::WGlyphRenderNode( const boost::shared_ptr< WDataSetSingle >& d
         return;
     }
 
-    // set tensor data
+    // for thread safety during data changes
 
-    WGridRegular3D* grid = static_cast< WGridRegular3D* >( data->getGrid().get() );
-
-    m_numOfTensors[ 0 ] = grid->getNbCoordsX();
-    m_numOfTensors[ 1 ] = grid->getNbCoordsY();
-    m_numOfTensors[ 2 ] = grid->getNbCoordsZ();
-
-    m_slices[ 0 ] = sliceX;
-    m_slices[ 1 ] = sliceY;
-    m_slices[ 2 ] = sliceZ;
-
-    m_sliceEnabled[ 0 ] = enabledX;
-    m_sliceEnabled[ 1 ] = enabledY;
-    m_sliceEnabled[ 2 ] = enabledZ;
-
-    // create callback for data changes
-
-    setUpdateCallback( new DataChangeCallback() );
     setDataVariance( DYNAMIC );
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-WGlyphRenderNode::WGlyphRenderNode( const WGlyphRenderNode& wGlyphRenderNode, const osg::CopyOp& copyop ): 
+WGlyphRenderNode::WGlyphRenderNode( const WGlyphRenderNode& wGlyphRenderNode, const osg::CopyOp& copyop ):
     WCLRenderNode( wGlyphRenderNode, copyop ),
     m_order( wGlyphRenderNode.m_order ),
     m_tensorData( wGlyphRenderNode.m_tensorData ),
@@ -267,13 +166,13 @@ WGlyphRenderNode::WGlyphRenderNode( const WGlyphRenderNode& wGlyphRenderNode, co
     m_numOfTensors[ 1 ] = wGlyphRenderNode.m_numOfTensors[ 1 ];
     m_numOfTensors[ 2 ] = wGlyphRenderNode.m_numOfTensors[ 2 ];
 
-    m_slices[ 0 ] = wGlyphRenderNode.m_slices[ 0 ];
-    m_slices[ 1 ] = wGlyphRenderNode.m_slices[ 1 ];
-    m_slices[ 2 ] = wGlyphRenderNode.m_slices[ 2 ];
+    m_slicePosition[ 0 ] = wGlyphRenderNode.m_slicePosition[ 0 ];
+    m_slicePosition[ 1 ] = wGlyphRenderNode.m_slicePosition[ 1 ];
+    m_slicePosition[ 2 ] = wGlyphRenderNode.m_slicePosition[ 2 ];
 
-    m_sliceEnabled[ 0 ] = wGlyphRenderNode.m_sliceEnabled[ 0 ];
-    m_sliceEnabled[ 1 ] = wGlyphRenderNode.m_sliceEnabled[ 1 ];
-    m_sliceEnabled[ 2 ] = wGlyphRenderNode.m_sliceEnabled[ 2 ];
+    m_sliceVisibility[ 0 ] = wGlyphRenderNode.m_sliceVisibility[ 0 ];
+    m_sliceVisibility[ 1 ] = wGlyphRenderNode.m_sliceVisibility[ 1 ];
+    m_sliceVisibility[ 2 ] = wGlyphRenderNode.m_sliceVisibility[ 2 ];
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -285,12 +184,12 @@ WGlyphRenderNode::~WGlyphRenderNode()
 
 osg::BoundingBox WGlyphRenderNode::computeBoundingBox() const
 {
-    int numHalf[ 3 ] = { ( m_numOfTensors[0] / 2 ), ( m_numOfTensors[1] / 2 ), ( m_numOfTensors[2] / 2 ) };
+    int numHalf[ 3 ] = { m_numOfTensors[0] / 2, m_numOfTensors[1] / 2, m_numOfTensors[2] / 2 };
 
     osg::BoundingBox box
     (
-        osg::Vec3( -numHalf[ 0 ], -numHalf[ 1 ], -numHalf[ 2 ] ), 
-        osg::Vec3( ( m_numOfTensors[ 0 ] - numHalf[ 0 ] ), ( m_numOfTensors[ 1 ] - numHalf[ 1 ] ), ( m_numOfTensors[ 2 ] - numHalf[ 2 ] ) ) 
+        osg::Vec3( -numHalf[ 0 ], -numHalf[ 1 ], -numHalf[ 2 ] ),
+        osg::Vec3( m_numOfTensors[ 0 ] - numHalf[ 0 ], m_numOfTensors[ 1 ] - numHalf[ 1 ], m_numOfTensors[ 2 ] - numHalf[ 2 ] )
     );
 
     return box;
@@ -298,52 +197,7 @@ osg::BoundingBox WGlyphRenderNode::computeBoundingBox() const
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-void WGlyphRenderNode::setTensorData( const boost::shared_ptr< WDataSetSingle >& data, const int& order, 
-                                      const int& sliceX, const int& sliceY, const int& sliceZ, 
-                                      const bool& enabledX, const bool& enabledY, const bool& enabledZ )
-{
-    OpenThreads::ScopedLock< OpenThreads::Mutex > lock( mutex );
-
-    DataChangeCallback& changeCallback = *static_cast< DataChangeCallback* >( getUpdateCallback() );
-
-    changeCallback.m_slices[ 0 ] = sliceX;
-    changeCallback.m_slices[ 1 ] = sliceY;
-    changeCallback.m_slices[ 2 ] = sliceZ;
-
-    changeCallback.m_sliceEnabled[ 0 ] = enabledX;
-    changeCallback.m_sliceEnabled[ 1 ] = enabledY;
-    changeCallback.m_sliceEnabled[ 2 ] = enabledZ;
-
-    changeCallback.m_order = order;
-    changeCallback.m_tensorData = data;
-
-    changeCallback.m_changed = true;
-    changeCallback.m_dataChanged = true;
-}
-
-/*-------------------------------------------------------------------------------------------------------------------*/
-
-void WGlyphRenderNode::setSlices( const int& sliceX, const int& sliceY, const int& sliceZ, 
-                                  const bool& enabledX, const bool& enabledY, const bool& enabledZ )
-{
-    OpenThreads::ScopedLock< OpenThreads::Mutex > lock( mutex );
-
-    DataChangeCallback& changeCallback = *static_cast< DataChangeCallback* >( getUpdateCallback() );
-
-    changeCallback.m_slices[ 0 ] = sliceX;
-    changeCallback.m_slices[ 1 ] = sliceY;
-    changeCallback.m_slices[ 2 ] = sliceZ;
-
-    changeCallback.m_sliceEnabled[ 0 ] = enabledX;
-    changeCallback.m_sliceEnabled[ 1 ] = enabledY;
-    changeCallback.m_sliceEnabled[ 2 ] = enabledZ;
-
-    changeCallback.m_changed = true;
-}
-
-/*-------------------------------------------------------------------------------------------------------------------*/
-
-WCLRenderNode::CLProgramDataSet* WGlyphRenderNode::initProgram( const WCLRenderNode::CLViewInformation& clViewInfo ) const
+WCLRenderNode::CLProgramDataSet* WGlyphRenderNode::initProgram( const CLViewInformation& clViewInfo ) const
 {
     if ( !m_sourceRead )
     {
@@ -352,21 +206,16 @@ WCLRenderNode::CLProgramDataSet* WGlyphRenderNode::initProgram( const WCLRenderN
 
     cl_int clError;
 
-    const char* cSource = m_kernelSource.c_str();
+    const char* source = m_kernelSource.c_str();
     size_t sourceLength = m_kernelSource.length();
 
-    cl_program clProgram;
-    cl_kernel clScaleKernel;
-    cl_kernel clRenderKernel;
-    cl_mem tensorData;
-    cl_mem factors;
-
-    const cl_context& clContext = clViewInfo.clContext;
-    const cl_device_id& clDevice = clViewInfo.clDevice;
+    cl_program program;
+    cl_kernel scaleKernel;
+    cl_kernel renderKernel;
 
     // create CL program
 
-    clProgram = clCreateProgramWithSource( clContext,1, &cSource, &sourceLength, &clError );
+    program = clCreateProgramWithSource( clViewInfo.getContext(),1, &source, &sourceLength, &clError );
 
     if ( clError != CL_SUCCESS )
     {
@@ -379,7 +228,7 @@ WCLRenderNode::CLProgramDataSet* WGlyphRenderNode::initProgram( const WCLRenderN
 
     std::string options = std::string( "-D Order=" ) + boost::lexical_cast< std::string, int >( m_order );
 
-    clError = clBuildProgram( clProgram, 0, 0, options.c_str(), 0, 0 );
+    clError = clBuildProgram( program, 0, 0, options.c_str(), 0, 0 );
 
     if ( clError != CL_SUCCESS )
     {
@@ -389,177 +238,104 @@ WCLRenderNode::CLProgramDataSet* WGlyphRenderNode::initProgram( const WCLRenderN
         {
             size_t logLength;
 
-            clGetProgramBuildInfo( clProgram, clDevice, CL_PROGRAM_BUILD_LOG, 0, 0, &logLength );
+            clGetProgramBuildInfo( program, clViewInfo.getDevice(), CL_PROGRAM_BUILD_LOG, 0, 0, &logLength );
 
             char* buildLog = new char[ logLength ];
 
-            clGetProgramBuildInfo( clProgram, clDevice, CL_PROGRAM_BUILD_LOG, logLength, buildLog, 0 );
+            clGetProgramBuildInfo( program, clViewInfo.getDevice(), CL_PROGRAM_BUILD_LOG, logLength, buildLog, 0 );
 
             osg::notify( osg::FATAL ) << buildLog << std::endl;
 
             delete[] buildLog;
         }
 
-        clReleaseProgram( clProgram );
+        clReleaseProgram( program );
 
         return 0;
     }
 
-    // create CL scaling kernel
+    // create scaling kernel
 
-    clScaleKernel = clCreateKernel( clProgram, "scaleGlyphs", &clError );
+    scaleKernel = clCreateKernel( program, "scaleGlyphs", &clError );
 
     if ( clError != CL_SUCCESS )
     {
         osg::notify( osg::FATAL ) << "Could not create the scaling kernel: " << getCLError( clError ) << std::endl;
 
-        clReleaseProgram( clProgram );
+        clReleaseProgram( program );
 
         return 0;
     }
 
-    // create CL rendering kernel
+    // create rendering kernel
 
-    clRenderKernel = clCreateKernel( clProgram, "renderGlyphs", &clError );
+    renderKernel = clCreateKernel( program, "renderGlyphs", &clError );
 
     if ( clError != CL_SUCCESS )
     {
         osg::notify( osg::FATAL ) << "Could not create the rendering kernel: " << getCLError( clError ) << std::endl;
 
-        clReleaseKernel( clScaleKernel );
-        clReleaseProgram( clProgram );
+        clReleaseKernel( scaleKernel );
+        clReleaseProgram( program );
 
         return 0;
     }
 
-    // load data set
-
-    WValueSet< float >* valueSet = static_cast< WValueSet< float >* >( m_tensorData->getValueSet().get() );
-
-    tensorData = clCreateBuffer
-    (
-        clViewInfo.clContext, 
-        CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR|CL_MEM_ALLOC_HOST_PTR, 
-        ( valueSet->rawSize() * sizeof( float ) ), const_cast< float* >( valueSet->rawData() ), &clError 
-    );
-
-    if ( clError != CL_SUCCESS )
-    {
-        osg::notify( osg::FATAL ) << "Could not load the data to GPU memory: " << getCLError( clError ) << std::endl;
-
-        clReleaseKernel( clRenderKernel );
-        clReleaseKernel( clScaleKernel );
-        clReleaseProgram( clProgram );
-
-        return 0;
-    }
-
-    // load factors
-
-    unsigned int numOfCoeffs = valueSet->dimension();
-
-    factors = clCreateBuffer
-    (
-        clViewInfo.clContext, 
-        CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR|CL_MEM_ALLOC_HOST_PTR, 
-        ( numOfCoeffs * sizeof( float ) ), calcFactors( m_order, numOfCoeffs ).get(), &clError 
-    );
-
-    if ( clError != CL_SUCCESS )
-    {
-        osg::notify( osg::FATAL ) << "Could not load the aux data to GPU memory: " << getCLError( clError ) << std::endl;
-
-        clReleaseMemObject( tensorData );
-        clReleaseKernel( clRenderKernel );
-        clReleaseKernel( clScaleKernel );
-        clReleaseProgram( clProgram );
-
-        return 0;
-    }
-
-    // set kernel arguments
-
-    int numOfTensors[ 4 ] = { m_numOfTensors[ 0 ], m_numOfTensors[ 1 ], m_numOfTensors[ 2 ], 0 };
-
-    clSetKernelArg( clRenderKernel, 10, ( 4 * sizeof( int ) ), numOfTensors );
-    clSetKernelArg( clRenderKernel, 11, sizeof( cl_mem ), &tensorData );
-
-    // scale tensors
-
-    clSetKernelArg( clScaleKernel, 0, sizeof( cl_mem ), &tensorData );
-    clSetKernelArg( clScaleKernel, 1, sizeof( cl_mem ), &factors );
-    clSetKernelArg( clScaleKernel, 2, ( 4 * sizeof( int ) ), numOfTensors );
-
-    size_t gwsX = ( numOfTensors[ 0 ] / 16 ) * 16;
-    size_t gwsY = ( numOfTensors[ 1 ] / 16 ) * 16;
-
-    if ( gwsX != numOfTensors[ 0 ] )
-    {
-        gwsX += 16;
-    }
-
-    if ( gwsY != numOfTensors[ 1 ] )
-    {
-        gwsY += 16;
-    }
-
-    size_t gws[ 3 ] = { gwsX, gwsY, numOfTensors[ 2 ] };
-    size_t lws[ 3 ] = { 16, 16, 1 };
-
-    clError = clEnqueueNDRangeKernel( clViewInfo.clCommQueue, clScaleKernel, 3, 0, gws, lws, 0, 0, 0 );
-
-    if ( clError != CL_SUCCESS )
-    {
-        osg::notify( osg::FATAL ) << "Could not run the scaling kernel: " << getCLError( clError ) << std::endl;
-
-        clReleaseMemObject( factors );
-        clReleaseMemObject( tensorData );
-        clReleaseKernel( clRenderKernel );
-        clReleaseKernel( clScaleKernel );
-        clReleaseProgram( clProgram );
-
-        return 0;
-    }
+    // assemble
 
     CLObjects* clObjects = new CLObjects();
 
-    clObjects->clProgram = clProgram;
-    clObjects->clScaleKernel = clScaleKernel;
-    clObjects->clRenderKernel = clRenderKernel;
-    clObjects->tensorData = tensorData;
-    clObjects->factors = factors;
+    clObjects->m_program = program;
+    clObjects->m_scaleKernel = scaleKernel;
+    clObjects->m_renderKernel = renderKernel;
 
     return clObjects;
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-void WGlyphRenderNode::setBuffers( const WCLRenderNode::CLViewInformation& clViewInfo, 
-                                   WCLRenderNode::CLProgramDataSet* clProgramDataSet ) const
+void WGlyphRenderNode::setBuffers( const CLViewInformation& clViewInfo, CLProgramDataSet* clProgramDataSet ) const
 {
-    cl_kernel& clRenderKernel = static_cast< CLObjects* >(clProgramDataSet)->clRenderKernel;
+    CLObjects& clObjects = *static_cast< CLObjects* >( clProgramDataSet );
 
-    clSetKernelArg( clRenderKernel, 6, sizeof( unsigned int ), &clViewInfo.width );
-    clSetKernelArg( clRenderKernel, 7, sizeof( unsigned int ), &clViewInfo.height );
-    clSetKernelArg( clRenderKernel, 12, sizeof( cl_mem), &clViewInfo.colorBuffer );
-    clSetKernelArg( clRenderKernel, 13, sizeof( cl_mem), &clViewInfo.depthBuffer );
+    // set static kernel arguments
+
+    clSetKernelArg( clObjects.m_renderKernel, 6, sizeof( unsigned int ), &clViewInfo.getWidth() );
+    clSetKernelArg( clObjects.m_renderKernel, 7, sizeof( unsigned int ), &clViewInfo.getHeight() );
+    clSetKernelArg( clObjects.m_renderKernel, 13, sizeof( cl_mem), &clViewInfo.getColorBuffer() );
+    clSetKernelArg( clObjects.m_renderKernel, 14, sizeof( cl_mem), &clViewInfo.getDepthBuffer() );
+
+    // calculate global work size which has to be a multiple of local work size
+
+    clObjects.m_gws[ 0 ] = clViewInfo.getWidth() / m_lws[ 0 ];
+    clObjects.m_gws[ 1 ] = clViewInfo.getHeight() / m_lws[ 1 ];
+
+    if ( ( clObjects.m_gws[ 0 ] * m_lws[ 0 ] ) != clViewInfo.getWidth() )
+    {
+        clObjects.m_gws[ 0 ]++;
+    }
+
+    if ( ( clObjects.m_gws[ 1 ] * m_lws[ 1 ] ) != clViewInfo.getWidth() )
+    {
+        clObjects.m_gws[ 1 ]++;
+    }
+
+    clObjects.m_gws[ 0 ] *= m_lws[ 0 ];
+    clObjects.m_gws[ 1 ] *= m_lws[ 1 ];
 }
 
-void WGlyphRenderNode::render( const WCLRenderNode::CLViewInformation& clViewInfo, 
-                               WCLRenderNode::CLProgramDataSet* clProgramDataSet) const
+void WGlyphRenderNode::render( const CLViewInformation& clViewInfo, CLProgramDataSet* clProgramDataSet) const
 {
     CLObjects& clObjects = *static_cast< CLObjects* >( clProgramDataSet );
 
     // check for new data and load them
 
-    if ( clObjects.reloadData )
+    if ( clObjects.m_reloadX || clObjects.m_reloadY || clObjects.m_reloadZ || clObjects.m_setVisibility )
     {
-        if ( !loadCLData( clViewInfo, clObjects ) )
+        if ( updateData( clViewInfo, clObjects ) )
         {
             return;
         }
-
-        clObjects.reloadData = false;
     }
 
     // get view properties
@@ -570,51 +346,27 @@ void WGlyphRenderNode::render( const WCLRenderNode::CLViewInformation& clViewInf
 
     // set camera position relative to the center of the data set beginning at (0,0,0)
 
-    props.origin += osg::Vec3f
+    osg::Vec3f origin = props.getOrigin() + osg::Vec3f
     (
-        ( m_numOfTensors[ 0 ] / 2 ), 
-        ( m_numOfTensors[ 1 ] / 2 ), 
-        ( m_numOfTensors[ 2 ] / 2 ) 
+        m_numOfTensors[ 0 ] / 2,
+        m_numOfTensors[ 1 ] / 2,
+        m_numOfTensors[ 2 ] / 2
     );
 
     // set kernel view arguments
 
-    clSetKernelArg( clObjects.clRenderKernel, 0, ( 4 * sizeof( float ) ), osg::Vec4f( props.origin, 0.0f ).ptr() );
-    clSetKernelArg( clObjects.clRenderKernel, 1, ( 4 * sizeof( float ) ), osg::Vec4f( props.origin2LowerLeft, 0.0f ).ptr() );
-    clSetKernelArg( clObjects.clRenderKernel, 2, ( 4 * sizeof( float ) ), osg::Vec4f( props.edgeX, 0.0f ).ptr() );
-    clSetKernelArg( clObjects.clRenderKernel, 3, ( 4 * sizeof( float ) ), osg::Vec4f( props.edgeY, 0.0f ).ptr() );
-    clSetKernelArg( clObjects.clRenderKernel, 4, sizeof( float ), &props.planeNear );
-    clSetKernelArg( clObjects.clRenderKernel, 5, sizeof( float ), &props.planeFar );
-
-    int slices[ 4 ] = { m_slices[ 0 ], m_slices[ 1 ], m_slices[ 2 ], 0 };
-    int sliceEnabled[ 4 ] = { m_sliceEnabled[ 0 ], m_sliceEnabled[ 1 ], m_sliceEnabled[ 2 ], 0 };
-
-    clSetKernelArg( clObjects.clRenderKernel, 8, (4 * sizeof( int ) ), slices );
-    clSetKernelArg( clObjects.clRenderKernel, 9, (4 * sizeof( int ) ), sliceEnabled );
-
-    // global work size has to be a multiple of local work size
-
-    size_t gwsX = ( clViewInfo.width / 16 ) * 16;
-    size_t gwsY = ( clViewInfo.height / 16 ) * 16;
-
-    if ( gwsX != clViewInfo.width )
-    {
-        gwsX += 16;
-    }
-
-    if ( gwsY != clViewInfo.height )
-    {
-        gwsY += 16;
-    }
-
-    size_t gws[ 2 ] = { gwsX,gwsY };
-    size_t lws[ 2 ] = { 16,16 };
+    clSetKernelArg( clObjects.m_renderKernel, 0, ( 4 * sizeof( float ) ), osg::Vec4f( origin, 0.0f ).ptr() );
+    clSetKernelArg( clObjects.m_renderKernel, 1, ( 4 * sizeof( float ) ), osg::Vec4f( props.getOriginToLowerLeft(), 0.0f ).ptr() );
+    clSetKernelArg( clObjects.m_renderKernel, 2, ( 4 * sizeof( float ) ), osg::Vec4f( props.getEdgeX(), 0.0f ).ptr() );
+    clSetKernelArg( clObjects.m_renderKernel, 3, ( 4 * sizeof( float ) ), osg::Vec4f( props.getEdgeY(), 0.0f ).ptr() );
+    clSetKernelArg( clObjects.m_renderKernel, 4, sizeof( float ), &props.getNearPlane() );
+    clSetKernelArg( clObjects.m_renderKernel, 5, sizeof( float ), &props.getFarPlane() );
 
     // run kernel
 
     cl_int clError;
 
-    clError = clEnqueueNDRangeKernel( clViewInfo.clCommQueue, clObjects.clRenderKernel, 2, 0, gws, lws, 0, 0, 0 );
+    clError = clEnqueueNDRangeKernel( clViewInfo.getCommQueue(), clObjects.m_renderKernel, 2, 0, clObjects.m_gws, m_lws, 0, 0, 0 );
 
     if ( clError != CL_SUCCESS )
     {
@@ -624,71 +376,163 @@ void WGlyphRenderNode::render( const WCLRenderNode::CLViewInformation& clViewInf
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-bool WGlyphRenderNode::loadCLData( const CLViewInformation& clViewInfo, CLObjects& clObjects ) const
+bool WGlyphRenderNode::loadSlice( const CLViewInformation& clViewInfo, CLObjects& clObjects, cl_mem& slice, int dim ) const
 {
     cl_int clError;
 
-    // release existing data
+    if ( clObjects.m_dataLoaded )
+    {
+        clReleaseMemObject( slice );
+    }
 
-    clReleaseMemObject( clObjects.tensorData );
+    int dim2 = ( dim + 1 ) % 3;
+    int dim3 = ( dim + 2 ) % 3;
 
-    // load new data set
+    // load slice
 
-    WValueSet< float >* valueSet = static_cast< WValueSet< float >* >( m_tensorData->getValueSet().get() );
-
-    clObjects.tensorData = clCreateBuffer
+    slice = clCreateBuffer
     (
-        clViewInfo.clContext, 
-        CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR|CL_MEM_ALLOC_HOST_PTR, 
-        ( valueSet->rawSize() * sizeof( float ) ), 
-        const_cast< float* >( valueSet->rawData() ), &clError 
+        clViewInfo.getContext(),
+        CL_MEM_READ_ONLY|CL_MEM_ALLOC_HOST_PTR,
+        m_numOfTensors[ dim2 ] * m_numOfTensors[ dim3 ],
+        0, &clError
     );
 
     if ( clError != CL_SUCCESS )
     {
         osg::notify( osg::FATAL ) << "Could not load the data to GPU memory: " << getCLError( clError ) << std::endl;
 
-        return false;
+        return true;
     }
+
+    float* data = static_cast< float* >
+    (
+        clEnqueueMapBuffer
+        (
+            clViewInfo.getCommQueue(), slice,
+            CL_TRUE, CL_MAP_WRITE, 0, m_numOfTensors[ dim2 ] * m_numOfTensors[ dim3 ],
+            0, 0, 0, &clError
+        )
+    );
+
+    if ( clError != CL_SUCCESS )
+    {
+        osg::notify( osg::FATAL ) << "Could not load the data to GPU memory: " << getCLError( clError ) << std::endl;
+
+        clReleaseMemObject( slice );
+
+        return true;
+    }
+
+    int numOfCoeffs = ( m_order + 1 ) * ( m_order + 1 ) / 2;
+    int factors[ 3 ] = { 1, m_numOfTensors[ 0 ], m_numOfTensors[ 0 ] * m_numOfTensors[ 1 ] };
+
+    for ( int idx1 = 0, i = 0; idx1 < m_numOfTensors[ dim2 ]; idx1++ )
+    {
+        for ( int idx2 = 0; idx2 < m_numOfTensors[ dim3 ]; idx2++, i++ )
+        {
+            int mapCoord = numOfCoeffs * i;
+            int dataCoord = numOfCoeffs * ( m_slicePosition[ dim ] * factors[ dim ] + idx1 * factors[ dim2 ] + idx2 * factors[ dim3 ] );
+
+            for ( int j = 0; j < numOfCoeffs; j++ )
+            {
+                data[ mapCoord + j ] = static_cast< float >( m_tensorData->getValueSet()->getScalarDouble( dataCoord + j ) );
+            }
+        }
+    }
+
+    clError = clEnqueueUnmapMemObject
+    (
+        clViewInfo.getCommQueue(), slice,
+        data, 0, 0, 0
+    );
+
+    if ( clError != CL_SUCCESS )
+    {
+        osg::notify( osg::FATAL ) << "Could not load the data to GPU memory: " << getCLError( clError ) << std::endl;
+
+        clReleaseMemObject( slice );
+
+        return true;
+    }
+
+    // scale tensors
+
+    size_t gws[ 2 ];
+    size_t lws[ 2 ] = { 16, 16 };
+    float dimension[ 2 ] = { m_numOfTensors[ dim2 ], m_numOfTensors[ dim3 ] };
+
+    gws[ 0 ] = dimension[ 0 ] / lws[ 0 ];
+    gws[ 1 ] = dimension[ 1 ] / lws[ 1 ];
+
+    if ( ( gws[ 0 ] * lws[ 0 ] ) != dimension[ 0 ] )
+    {
+        gws[ 0 ]++;
+    }
+
+    if ( ( gws[ 1 ] * lws[ 1 ] ) != dimension[ 1 ] )
+    {
+        gws[ 1 ]++;
+    }
+
+    gws[ 0 ] *= lws[ 0 ];
+    gws[ 1 ] *= lws[ 1 ];
+    
+    clSetKernelArg( clObjects.m_scaleKernel, 0, sizeof( cl_mem ), &slice);
+    clSetKernelArg( clObjects.m_scaleKernel, 1, 2 * sizeof( float ), dimension);
+
+    clError = clEnqueueNDRangeKernel( clViewInfo.getCommQueue(), clObjects.m_scaleKernel, 2, 0, gws, lws, 0, 0, 0 );
+
+    if ( clError != CL_SUCCESS )
+    {
+        osg::notify( osg::FATAL ) << "Could not run the scaling kernel: " << getCLError( clError ) << std::endl;
+    }
+
+    return false;
+}
+
+bool WGlyphRenderNode::updateData( const CLViewInformation& clViewInfo, CLObjects& clObjects ) const
+{
+    if ( clObjects.m_reloadX )
+    {
+        if ( loadSlice( clViewInfo, clObjects, clObjects.m_sliceX, 0 ) )
+        {
+            return true;
+        }
+
+        clObjects.m_reloadX = false;
+    }
+
+    if ( clObjects.m_reloadY )
+    {
+        if ( loadSlice( clViewInfo, clObjects, clObjects.m_sliceY, 1 ) )
+        {
+            return true;
+        }
+
+        clObjects.m_reloadY = false;
+    }
+
+    if ( clObjects.m_reloadZ )
+    {
+        if ( loadSlice( clViewInfo, clObjects, clObjects.m_sliceZ, 2 ) )
+        {
+            return true;
+        }
+
+        clObjects.m_reloadZ = false;
+    }
+
+    clObjects.m_dataLoaded = true;
 
     // set new kernel arguments
 
     int numOfTensors[ 4 ] = { m_numOfTensors[ 0 ], m_numOfTensors[ 1 ], m_numOfTensors[ 2 ], 0 };
 
-    clSetKernelArg( clObjects.clRenderKernel, 10, (4 * sizeof( int ) ), numOfTensors );
-    clSetKernelArg( clObjects.clRenderKernel, 11, sizeof( cl_mem ), &clObjects.tensorData );
-
-    // scale tensors
-
-    clSetKernelArg( clObjects.clScaleKernel, 0, sizeof( cl_mem ), &clObjects.tensorData );
-    clSetKernelArg( clObjects.clScaleKernel, 2, (4 * sizeof( int ) ), numOfTensors );
-
-    size_t gwsX = ( numOfTensors[ 0 ] / 16 ) * 16;
-    size_t gwsY = ( numOfTensors[ 1 ] / 16 ) * 16;
-
-    if ( gwsX != numOfTensors[ 0 ] )
-    {
-        gwsX += 16;
-    }
-
-    if ( gwsY != numOfTensors[ 1 ] )
-    {
-        gwsY += 16;
-    }
-
-    size_t gws[ 3 ] = { gwsX, gwsY, numOfTensors[ 2 ] };
-    size_t lws[ 3 ] = { 16, 16, 1 };
-
-    clError = clEnqueueNDRangeKernel( clViewInfo.clCommQueue, clObjects.clScaleKernel, 3, 0, gws, lws, 0, 0, 0 );
-
-    if ( clError != CL_SUCCESS )
-    {
-        osg::notify( osg::FATAL ) << "Could not run the scaling kernel: " << getCLError( clError ) << std::endl;
-
-        clReleaseMemObject( clObjects.tensorData );
-
-        return false;
-    }
+    clSetKernelArg( clObjects.m_renderKernel, 9, ( 4 * sizeof( int ) ), numOfTensors );
+    clSetKernelArg( clObjects.m_renderKernel, 10, sizeof( cl_mem ), &clObjects.m_sliceX );
+    clSetKernelArg( clObjects.m_renderKernel, 11, sizeof( cl_mem ), &clObjects.m_sliceY );
+    clSetKernelArg( clObjects.m_renderKernel, 12, sizeof( cl_mem ), &clObjects.m_sliceZ );
 
     return true;
 }

@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <boost/thread/locks.hpp>
+
 #include <osg/BufferObject>
 #include <osg/Matrix>
 #include <osg/Notify>
@@ -40,16 +42,6 @@
     #else
         #include <windows.h>
     #endif
-#endif
-
-#if defined ( __APPLE__ ) || defined ( MACOSX )
-    #define GL_SHARING_EXTENSION "cl_APPLE_gl_sharing"
-#else
-    #define GL_SHARING_EXTENSION "cl_khr_gl_sharing"
-#endif
-
-#ifndef APIENTRY
-    #define APIENTRY
 #endif
 
 #define GL_R32F 0x822E
@@ -74,20 +66,18 @@ static const char* fragmentShaderSource =
 "   gl_FragDepth = texture2D(depthBuffer,gl_TexCoord[0].st).r;"
 "}";
 
-static unsigned int instances = 0;
-
 WCLRenderNode::DrawQuad WCLRenderNode::m_drawQuad;
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-WCLRenderNode::CLViewInformation::CLViewInformation(): width( 0 ), height( 0 )
+WCLRenderNode::CLViewInformation::CLViewInformation(): m_width( 0 ), m_height( 0 )
 {}
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 void WCLRenderNode::CLViewInformation::getViewProperties( ViewProperties& properties ) const
 {
-    const osg::Matrix& pm = *m_projectionMatrix;
+    const osg::Matrix& pm = m_state->getProjectionMatrix();
 
     double pNear, pFar, pLeft, pRight, pTop, pBottom;
 
@@ -102,7 +92,7 @@ void WCLRenderNode::CLViewInformation::getViewProperties( ViewProperties& proper
         //  ( (right + left) / (right - left)   |(top + bottom) / (top - bottom)    |-(far + near) / (far - near)   |-1 )
         //  ( 0                                 |0                                  |-2 * far * near / (far - near) |0  )
 
-        properties.type = PERSPECTIVE;
+        properties.m_type = PERSPECTIVE;
 
         pNear = pm( 3, 2 ) / ( pm( 2, 2 ) - 1.0 );
         pFar = pm( 3, 2 ) / ( pm( 2, 2 ) + 1.0 );
@@ -124,7 +114,7 @@ void WCLRenderNode::CLViewInformation::getViewProperties( ViewProperties& proper
         //  ( 0                                 |0                                  |-2 / (far - near)              |0 )
         //  ( -(right + left) / (right - left)  |-(top + bottom) / (top - bottom)   |-(far + near) / (far - near)   |1 )
 
-        properties.type = ORTHOGRAPHIC;
+        properties.m_type = ORTHOGRAPHIC;
 
         pNear = ( pm( 3, 2 ) + 1.0 ) / pm( 2, 2 );
         pFar = ( pm( 3,2 ) - 1.0 ) / pm( 2, 2 );
@@ -136,10 +126,10 @@ void WCLRenderNode::CLViewInformation::getViewProperties( ViewProperties& proper
         pTop = ( 1.0 - pm( 3, 1 ) ) / pm( 1, 1 );
     }
 
-    properties.planeNear = pNear;
-    properties.planeFar = pFar;
+    properties.m_planeNear = pNear;
+    properties.m_planeFar = pFar;
 
-    const osg::Matrix& mvm = *m_modelViewMatrix;
+    const osg::Matrix& mvm = m_state->getModelViewMatrix();
 
     //  mvm :
     //
@@ -186,15 +176,15 @@ void WCLRenderNode::CLViewInformation::getViewProperties( ViewProperties& proper
     invMvm[ 3 ][ 1 ] = -( mvm( 3, 0 ) * invMvm[ 0 ][ 1 ] + mvm( 3, 1 ) * invMvm[ 1 ][ 1 ] + mvm( 3, 2 ) * invMvm[ 2 ][ 1 ] );
     invMvm[ 3 ][ 2 ] = -( mvm( 3, 0 ) * invMvm[ 0 ][ 2 ] + mvm( 3, 1 ) * invMvm[ 1 ][ 2 ] + mvm( 3, 2 ) * invMvm[ 2 ][ 2 ] );
 
-    if ( properties.type == PERSPECTIVE )
+    if ( properties.m_type == PERSPECTIVE )
     {
         // origin = (0,0,0,1) * Inverse(mvm)
 
-        properties.origin.set( invMvm[ 3 ][ 0 ], invMvm[ 3 ][ 1 ], invMvm[ 3 ][ 2 ] );
+        properties.m_origin.set( invMvm[ 3 ][ 0 ], invMvm[ 3 ][ 1 ], invMvm[ 3 ][ 2 ] );
 
-        // origin2LowerLeft = (left,bottom,-near,0) * Inverse(mvm)
+        // originToLowerLeft = (left,bottom,-near,0) * Inverse(mvm)
 
-        properties.origin2LowerLeft.set
+        properties.m_originToLowerLeft.set
         (
             pLeft * invMvm[ 0 ][ 0 ] + pBottom * invMvm[ 1 ][ 0 ] - pNear * invMvm[ 2 ][ 0 ],
             pLeft * invMvm[ 0 ][ 1 ] + pBottom * invMvm[ 1 ][ 1 ] - pNear * invMvm[ 2 ][ 1 ],
@@ -205,7 +195,7 @@ void WCLRenderNode::CLViewInformation::getViewProperties( ViewProperties& proper
     {
         // origin = (left,bottom,0,1) * Inverse(mvm)
 
-        properties.origin.set
+        properties.m_origin.set
         (
             pLeft * invMvm[ 0 ][ 0 ] + pBottom * invMvm[ 1 ][ 0 ] + invMvm[ 3 ][ 0 ],
             pLeft * invMvm[ 0 ][ 1 ] + pBottom * invMvm[ 1 ][ 1 ] + invMvm[ 3 ][ 1 ],
@@ -213,9 +203,9 @@ void WCLRenderNode::CLViewInformation::getViewProperties( ViewProperties& proper
         );
 
 
-        // origin2LowerLeft = (0,0,-near,0) * Inverse(mvm)
+        // originToLowerLeft = (0,0,-near,0) * Inverse(mvm)
 
-        properties.origin2LowerLeft.set
+        properties.m_originToLowerLeft.set
         (
             -pNear * invMvm[ 2 ][ 0 ],
             -pNear * invMvm[ 2 ][ 1 ],
@@ -223,18 +213,18 @@ void WCLRenderNode::CLViewInformation::getViewProperties( ViewProperties& proper
         );
     }
 
-    // edgeX = ((right - left),0,0,0) * Inverse(mvm)
+    // edgeX = (right - left,0,0,0) * Inverse(mvm)
 
-    properties.edgeX.set
+    properties.m_edgeX.set
     (
 	    ( pRight - pLeft ) * invMvm[ 0 ][ 0 ],
 	    ( pRight - pLeft ) * invMvm[ 0 ][ 1 ],
 	    ( pRight - pLeft ) * invMvm[ 0 ][ 2 ]
     );
 
-    // edgeY = (0,(top - bottom),0,0) * Inverse(mvm)
+    // edgeY = (0,top - bottom,0,0) * Inverse(mvm)
 
-    properties.edgeY.set
+    properties.m_edgeY.set
     (
 	    ( pTop - pBottom ) * invMvm[ 1 ][ 0 ],
 	    ( pTop - pBottom ) * invMvm[ 1 ][ 1 ],
@@ -250,10 +240,10 @@ WCLRenderNode::CLProgramDataSet::~CLProgramDataSet()
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 WCLRenderNode::PerContextInformation::PerContextInformation():
-    contextSharing( true ),
-    clInitialized( false ),
-    buffersInitialized( false ),
-    initializationError( false )
+    m_contextSharing( true ),
+    m_clInitialized( false ),
+    m_buffersInitialized( false ),
+    m_initializationError( false )
 {}
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -267,35 +257,36 @@ WCLRenderNode::PerContextInformation::~PerContextInformation()
 
 void WCLRenderNode::PerContextInformation::reset()
 {
-    if ( buffersInitialized )
+    if ( m_buffersInitialized )
     {
-        clReleaseMemObject( clViewInfo.colorBuffer );
-        clReleaseMemObject( clViewInfo.depthBuffer );
+        clReleaseMemObject( m_clViewInfo.m_colorBuffer );
+        clReleaseMemObject( m_clViewInfo.m_depthBuffer );
 
-        buffersInitialized = false;
+        m_buffersInitialized = false;
     }
 
-    if ( clInitialized )
+    if ( m_clInitialized )
     {
-        delete clProgramDataSet;
+        delete m_clProgramDataSet;
 
-        clReleaseCommandQueue( clViewInfo.clCommQueue );
-        clReleaseContext( clViewInfo.clContext );
+        clReleaseCommandQueue( m_clViewInfo.m_commQueue );
+        clReleaseContext( m_clViewInfo.m_context );
 
-        clInitialized = false;
+        m_clInitialized = false;
     }
 
-    initializationError = false;
-    contextSharing = true;
+    m_initializationError = false;
+    m_contextSharing = true;
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-void WCLRenderNode::DrawQuad::initQuad()
+WCLRenderNode::DrawQuad::DrawQuad()
 {
     // create state
 
-    osg::StateSet* state = new osg::StateSet();
+    m_drawState = new osg::StateSet();
+
     osg::Program* program = new osg::Program();
     osg::Shader* vertexShader = new osg::Shader( osg::Shader::VERTEX );
     osg::Shader* fragmentShader = new osg::Shader( osg::Shader::FRAGMENT );
@@ -306,27 +297,27 @@ void WCLRenderNode::DrawQuad::initQuad()
     program->addShader( vertexShader );
     program->addShader( fragmentShader );
 
-    state->setAttributeAndModes( program, osg::StateAttribute::ON );
-    state->addUniform( new osg::Uniform( "colorBuffer", 0 ), osg::StateAttribute::ON );
-    state->addUniform( new osg::Uniform( "depthBuffer", 1 ), osg::StateAttribute::ON );
+    m_drawState->setAttributeAndModes( program, osg::StateAttribute::ON );
+    m_drawState->addUniform( new osg::Uniform( "colorBuffer", 0 ), osg::StateAttribute::ON );
+    m_drawState->addUniform( new osg::Uniform( "depthBuffer", 1 ), osg::StateAttribute::ON );
 
     // create vertices
 
-    osg::Vec2Array* vertices = new osg::Vec2Array();
+    m_vertices = new osg::Vec2Array();
 
-    vertices->push_back( osg::Vec2( -1.0f, -1.0f ) );
-    vertices->push_back( osg::Vec2( -1.0f, 1.0f ) );
-    vertices->push_back( osg::Vec2( 1.0f, 1.0f ) );
-    vertices->push_back( osg::Vec2( 1.0f, -1.0f ) );
+    m_vertices->push_back( osg::Vec2( -1.0f, -1.0f ) );
+    m_vertices->push_back( osg::Vec2( -1.0f, 1.0f ) );
+    m_vertices->push_back( osg::Vec2( 1.0f, 1.0f ) );
+    m_vertices->push_back( osg::Vec2( 1.0f, -1.0f ) );
 
     // create coordinates
 
-    osg::Vec2Array* coordinates = new osg::Vec2Array();
+    m_coordinates = new osg::Vec2Array();
 
-    coordinates->push_back( osg::Vec2( 0.0f, 0.0f ) );
-    coordinates->push_back( osg::Vec2( 0.0f, 1.0f ) );
-    coordinates->push_back( osg::Vec2( 1.0f, 1.0f ) );
-    coordinates->push_back( osg::Vec2( 1.0f, 0.0f ) );
+    m_coordinates->push_back( osg::Vec2( 0.0f, 0.0f ) );
+    m_coordinates->push_back( osg::Vec2( 0.0f, 1.0f ) );
+    m_coordinates->push_back( osg::Vec2( 1.0f, 1.0f ) );
+    m_coordinates->push_back( osg::Vec2( 1.0f, 0.0f ) );
 
     // create VBO
 
@@ -334,31 +325,16 @@ void WCLRenderNode::DrawQuad::initQuad()
 
     vbo->setUsage( GL_STATIC_DRAW );
 
-    vertices->setVertexBufferObject( vbo );
-    coordinates->setVertexBufferObject( vbo );
-
-    // assemble
-
-    m_drawQuad.drawState = state;
-    m_drawQuad.vertices = vertices;
-    m_drawQuad.coordinates = coordinates;
-}
-
-/*-------------------------------------------------------------------------------------------------------------------*/
-
-void WCLRenderNode::DrawQuad::releaseQuad()
-{
-    m_drawQuad.drawState.release();
-    m_drawQuad.vertices.release();
-    m_drawQuad.coordinates.release();
+    m_vertices->setVertexBufferObject( vbo );
+    m_coordinates->setVertexBufferObject( vbo );
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 WCLRenderNode::CLRenderBin::CLRenderBin( osg::RefMatrix* modelView, osg::RefMatrix* projection ):
     RenderBin(),
-    modelView( modelView ),
-    projection( projection )
+    m_modelView( modelView ),
+    m_projection( projection )
 {}
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -369,14 +345,14 @@ void WCLRenderNode::CLRenderBin::draw( osg::RenderInfo& renderInfo, osgUtil::Ren
 
     // apply matrices to state
 
-    state.applyModelViewMatrix( modelView.get() );
-    state.applyProjectionMatrix( projection.get() );
+    state.applyModelViewMatrix( m_modelView.get() );
+    state.applyProjectionMatrix( m_projection.get() );
 
     // initialize rendering
 
-    for ( std::vector< osg::ref_ptr< WCLRenderNode > >::iterator it = nodes.begin(); it != nodes.end(); it++ )
+    for ( std::vector< osg::ref_ptr< WCLRenderNode > >::iterator it = m_nodes.begin(); it != m_nodes.end(); it++ )
     {
-        (*it)->renderStart( state );
+        ( *it )->renderStart( state );
     }
 }
 
@@ -389,15 +365,15 @@ unsigned int WCLRenderNode::CLRenderBin::computeNumberOfDynamicRenderLeaves() co
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-WCLRenderNode::CLRenderBin* WCLRenderNode::CLRenderBin::getOrCreateRenderBin( osgUtil::RenderStage* stage, 
-                                                                              osg::RefMatrix* modelView, 
-                                                                              osg::RefMatrix* projection)
+WCLRenderNode::CLRenderBin* WCLRenderNode::CLRenderBin::getOrCreateRenderBin( osgUtil::RenderStage* stage,
+                                                                              osg::RefMatrix* modelView,
+                                                                              osg::RefMatrix* projection )
 {
     RenderBinList& binList = stage->getRenderBinList();
 
     // look for existing CLRenderBin
 
-    for ( RenderBinList::iterator it = binList.begin(); (it != binList.end()) && (it->first < 0); it++ )
+    for ( RenderBinList::iterator it = binList.begin(); ( it != binList.end() ) && ( it->first < 0 ); it++ )
     {
         WCLRenderNode::CLRenderBin* bin = dynamic_cast< WCLRenderNode::CLRenderBin* >( it->second.get() );
 
@@ -437,7 +413,7 @@ WCLRenderNode::CLRenderBin* WCLRenderNode::CLRenderBin::getOrCreateRenderBin( os
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-WCLRenderNode::CLDrawBin::CLDrawBin(): RenderBin(), dynamicNodes( 0 )
+WCLRenderNode::CLDrawBin::CLDrawBin(): RenderBin(), m_dynamicNodes( 0 )
 {}
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -446,16 +422,22 @@ void WCLRenderNode::CLDrawBin::draw( osg::RenderInfo& renderInfo, osgUtil::Rende
 {
     osg::State& state = *renderInfo.getState();
 
+    // add camera attributes to current GL state if not already done
+
     if ( previous == 0 )
     {
         state.pushStateSet( renderInfo.getCurrentCamera()->getStateSet() );
     }
 
-    state.apply( WCLRenderNode::m_drawQuad.drawState );
-    state.setVertexPointer( WCLRenderNode::m_drawQuad.vertices );
-    state.setTexCoordPointer( 0, WCLRenderNode::m_drawQuad.coordinates );
+    // prepare the quad for drawing
 
-    for ( std::vector< osg::ref_ptr< WCLRenderNode > >::iterator it = nodes.begin(); it != nodes.end(); it++ )
+    state.apply( WCLRenderNode::m_drawQuad.m_drawState );
+    state.setVertexPointer( WCLRenderNode::m_drawQuad.m_vertices );
+    state.setTexCoordPointer( 0, WCLRenderNode::m_drawQuad.m_coordinates );
+
+    // draw the rendered nodes
+
+    for ( std::vector< osg::ref_ptr< WCLRenderNode > >::iterator it = m_nodes.begin(); it != m_nodes.end(); it++ )
     {
         WCLRenderNode* node = *it;
 
@@ -463,6 +445,8 @@ void WCLRenderNode::CLDrawBin::draw( osg::RenderInfo& renderInfo, osgUtil::Rende
         state.applyTextureAttribute( 1, node->m_depthBuffer );
 
         node->draw( state );
+
+        // update the states dynamic object count if necessary
 
         if ( node->getDataVariance() == DYNAMIC )
         {
@@ -475,7 +459,7 @@ void WCLRenderNode::CLDrawBin::draw( osg::RenderInfo& renderInfo, osgUtil::Rende
 
 unsigned int WCLRenderNode::CLDrawBin::computeNumberOfDynamicRenderLeaves() const
 {
-    return dynamicNodes;
+    return m_dynamicNodes;
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -486,7 +470,7 @@ WCLRenderNode::CLDrawBin* WCLRenderNode::CLDrawBin::getOrCreateDrawBin( osgUtil:
 
     // look for existing CLDrawBin
 
-    for ( RenderBinList::reverse_iterator it = binList.rbegin(); (it != binList.rend()) && (it->first > 0); it++ )
+    for ( RenderBinList::reverse_iterator it = binList.rbegin(); ( it != binList.rend() ) && ( it->first > 0 ); it++ )
     {
         WCLRenderNode::CLDrawBin* bin = dynamic_cast< WCLRenderNode::CLDrawBin* >( it->second.get() );
 
@@ -526,7 +510,7 @@ WCLRenderNode::CLDrawBin* WCLRenderNode::CLDrawBin::getOrCreateDrawBin( osgUtil:
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-WCLRenderNode::WCLRenderNode(): Node()
+WCLRenderNode::WCLRenderNode( bool deactivated ): Node(), m_deactivated( deactivated )
 {
     // create dummy callback to avoid unnecessary texture loads
 
@@ -561,15 +545,6 @@ WCLRenderNode::WCLRenderNode(): Node()
     m_depthBuffer->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
     m_depthBuffer->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
     m_depthBuffer->setSubloadCallback( callback );
-
-    // create the draw quad if necessary
-
-    if ( instances == 0 )
-    {
-        DrawQuad::initQuad();
-    }
-
-    instances++;
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -577,76 +552,79 @@ WCLRenderNode::WCLRenderNode(): Node()
 WCLRenderNode::WCLRenderNode( const WCLRenderNode& node, const osg::CopyOp& copyop ):
     Node( node, copyop ),
     m_box( node.m_box ),
+    m_perContextInformation(),
     m_colorBuffer( new osg::Texture2D( *node.m_colorBuffer, copyop ) ),
-    m_depthBuffer( new osg::Texture2D( *node.m_depthBuffer, copyop ) )
-{
-    instances++;
-}
+    m_depthBuffer( new osg::Texture2D( *node.m_depthBuffer, copyop ) ),
+    m_deactivated( node.m_deactivated ),
+    m_wait(),
+    m_mutex()
+{}
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
 WCLRenderNode::~WCLRenderNode()
 {
-    // release CL objects
-
     reset();
-
-    // release the draw quad if it is no longer needed
-
-    instances--;
-
-    if ( instances == 0 )
-    {
-        DrawQuad::releaseQuad();
-    }
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
-void WCLRenderNode::traverse(osg::NodeVisitor& nv)
+void WCLRenderNode::traverse( osg::NodeVisitor& nv )
 {
-    // check visitor type
-
-    if (nv.getVisitorType() != osg::NodeVisitor::CULL_VISITOR)
+    if ( nv.getVisitorType() == osg::NodeVisitor::UPDATE_VISITOR )
     {
-        return;
+        m_wait.notify_one();
     }
 
-    osgUtil::CullVisitor* cv = static_cast< osgUtil::CullVisitor* >(&nv);
-
-    // cull operations
-
-    if (!cv->getCurrentCullingSet().getFrustum().contains(m_box))
+    if ( nv.getVisitorType() == osg::NodeVisitor::CULL_VISITOR )
     {
-        return;
-    }
+        // node mustn't be drawn if it's deactivated
 
-    // fit near and far planes if necessary
+        boost::unique_lock< boost::mutex > lock( m_mutex );
 
-    if ( cv->getComputeNearFarMode() != osgUtil::CullVisitor::DO_NOT_COMPUTE_NEAR_FAR )
-    {
-        cv->updateCalculatedNearFar( *cv->getModelViewMatrix(), m_box );
-    }
+        if ( m_deactivated )
+        {
+            return;
+        }
 
-    // create CLRenderBin
+        lock.unlock();
 
-    osgUtil::RenderStage* stage = cv->getRenderStage();
+        // cull operations
 
-    CLRenderBin* renderBin = CLRenderBin::getOrCreateRenderBin( stage, cv->getModelViewMatrix(), cv->getProjectionMatrix() );
+        osgUtil::CullVisitor* cv = static_cast< osgUtil::CullVisitor* >( &nv );
 
-    renderBin->nodes.push_back( this );
+        if ( !cv->getCurrentCullingSet().getFrustum().contains( m_box ) )
+        {
+            return;
+        }
 
-    // create CLDrawBin
+        // fit near and far planes if necessary
 
-    CLDrawBin* drawBin = CLDrawBin::getOrCreateDrawBin( stage );
+        if ( cv->getComputeNearFarMode() != osgUtil::CullVisitor::DO_NOT_COMPUTE_NEAR_FAR )
+        {
+            cv->updateCalculatedNearFar( *cv->getModelViewMatrix(), m_box );
+        }
 
-    drawBin->nodes.push_back( this );
+        // create CLRenderBin
 
-    // check data variance
+        osgUtil::RenderStage* stage = cv->getRenderStage();
 
-    if ( getDataVariance() == DYNAMIC )
-    {
-        drawBin->dynamicNodes++;
+        CLRenderBin* renderBin = CLRenderBin::getOrCreateRenderBin( stage, cv->getModelViewMatrix(), cv->getProjectionMatrix() );
+
+        renderBin->m_nodes.push_back( this );
+
+        // create CLDrawBin
+
+        CLDrawBin* drawBin = CLDrawBin::getOrCreateDrawBin( stage );
+
+        drawBin->m_nodes.push_back( this );
+
+        // check data variance
+
+        if ( getDataVariance() == DYNAMIC )
+        {
+            drawBin->m_dynamicNodes++;
+        }
     }
 }
 
@@ -668,8 +646,8 @@ void WCLRenderNode::resizeGLObjectBuffers( unsigned int maxSize )
     m_colorBuffer->resizeGLObjectBuffers( maxSize );
     m_depthBuffer->resizeGLObjectBuffers( maxSize );
 
-    m_drawQuad.drawState->resizeGLObjectBuffers( maxSize );
-    m_drawQuad.vertices->getVertexBufferObject()->resizeGLObjectBuffers( maxSize );
+    m_drawQuad.m_drawState->resizeGLObjectBuffers( maxSize );
+    m_drawQuad.m_vertices->getVertexBufferObject()->resizeGLObjectBuffers( maxSize );
 
     Node::resizeGLObjectBuffers( maxSize );
 }
@@ -694,8 +672,8 @@ void WCLRenderNode::releaseGLObjects( osg::State* state )
     m_colorBuffer->releaseGLObjects( state );
     m_depthBuffer->releaseGLObjects( state );
 
-    m_drawQuad.drawState->releaseGLObjects( state );
-    m_drawQuad.vertices->getVertexBufferObject()->releaseGLObjects( state );
+    m_drawQuad.m_drawState->releaseGLObjects( state );
+    m_drawQuad.m_vertices->getVertexBufferObject()->releaseGLObjects( state );
 
     Node::releaseGLObjects( state );
 }
@@ -715,7 +693,7 @@ bool WCLRenderNode::initializationFailed() const
 
     for ( unsigned int i = 0; i < size; i++ )
     {
-        if ( m_perContextInformation[ i ].initializationError )
+        if ( m_perContextInformation[ i ].m_initializationError )
         {
             return true;
         }
@@ -738,58 +716,92 @@ void WCLRenderNode::reset() const
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 
+void WCLRenderNode::activate() const
+{
+    boost::unique_lock< boost::mutex > lock( m_mutex );
+
+    m_deactivated = false;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+void WCLRenderNode::deactivate() const
+{
+    boost::unique_lock< boost::mutex > lock( m_mutex );
+
+    m_deactivated = true;
+
+    m_wait.wait( lock );
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+bool WCLRenderNode::isDeactivated() const
+{
+    return m_deactivated;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+void WCLRenderNode::setDeactivated( bool deactivated ) const
+{
+    m_deactivated = deactivated;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
 std::string WCLRenderNode::getCLError( cl_int clError )
 {
     switch ( clError )
     {
-        case CL_SUCCESS: return "CL_SUCCESS";
-        case CL_DEVICE_NOT_FOUND: return "CL_DEVICE_NOT_FOUND";
-        case CL_DEVICE_NOT_AVAILABLE: return "CL_DEVICE_NOT_AVAILABLE";
-        case CL_COMPILER_NOT_AVAILABLE: return "CL_COMPILER_NOT_AVAILABLE";
-        case CL_MEM_OBJECT_ALLOCATION_FAILURE: return "CL_MEM_OBJECT_ALLOCATION_FAILURE";
-        case CL_OUT_OF_RESOURCES: return "CL_OUT_OF_RESOURCES";
-        case CL_OUT_OF_HOST_MEMORY: return "CL_OUT_OF_HOST_MEMORY";
-        case CL_PROFILING_INFO_NOT_AVAILABLE: return "CL_PROFILING_INFO_NOT_AVAILABLE";
-        case CL_MEM_COPY_OVERLAP: return "CL_MEM_COPY_OVERLAP";
-        case CL_IMAGE_FORMAT_MISMATCH: return "CL_IMAGE_FORMAT_MISMATCH";
-        case CL_IMAGE_FORMAT_NOT_SUPPORTED: return "CL_IMAGE_FORMAT_NOT_SUPPORTED";
-        case CL_BUILD_PROGRAM_FAILURE: return "CL_BUILD_PROGRAM_FAILURE";
-        case CL_MAP_FAILURE: return "CL_MAP_FAILURE";
+        case CL_SUCCESS:                            return "CL_SUCCESS";
+        case CL_DEVICE_NOT_FOUND:                   return "CL_DEVICE_NOT_FOUND";
+        case CL_DEVICE_NOT_AVAILABLE:               return "CL_DEVICE_NOT_AVAILABLE";
+        case CL_COMPILER_NOT_AVAILABLE:             return "CL_COMPILER_NOT_AVAILABLE";
+        case CL_MEM_OBJECT_ALLOCATION_FAILURE:      return "CL_MEM_OBJECT_ALLOCATION_FAILURE";
+        case CL_OUT_OF_RESOURCES:                   return "CL_OUT_OF_RESOURCES";
+        case CL_OUT_OF_HOST_MEMORY:                 return "CL_OUT_OF_HOST_MEMORY";
+        case CL_PROFILING_INFO_NOT_AVAILABLE:       return "CL_PROFILING_INFO_NOT_AVAILABLE";
+        case CL_MEM_COPY_OVERLAP:                   return "CL_MEM_COPY_OVERLAP";
+        case CL_IMAGE_FORMAT_MISMATCH:              return "CL_IMAGE_FORMAT_MISMATCH";
+        case CL_IMAGE_FORMAT_NOT_SUPPORTED:         return "CL_IMAGE_FORMAT_NOT_SUPPORTED";
+        case CL_BUILD_PROGRAM_FAILURE:              return "CL_BUILD_PROGRAM_FAILURE";
+        case CL_MAP_FAILURE:                        return "CL_MAP_FAILURE";
 
-        case CL_INVALID_VALUE: return "CL_INVALID_VALUE";
-        case CL_INVALID_DEVICE_TYPE: return "CL_INVALID_DEVICE_TYPE";
-        case CL_INVALID_PLATFORM: return "CL_INVALID_PLATFORM";
-        case CL_INVALID_DEVICE: return "CL_INVALID_DEVICE";
-        case CL_INVALID_CONTEXT: return "CL_INVALID_CONTEXT";
-        case CL_INVALID_QUEUE_PROPERTIES: return "CL_INVALID_QUEUE_PROPERTIES";
-        case CL_INVALID_COMMAND_QUEUE: return "CL_INVALID_COMMAND_QUEUE";
-        case CL_INVALID_HOST_PTR: return "CL_INVALID_HOST_PTR";
-        case CL_INVALID_MEM_OBJECT: return "CL_INVALID_MEM_OBJECT";
-        case CL_INVALID_IMAGE_FORMAT_DESCRIPTOR: return "CL_INVALID_IMAGE_FORMAT_DESCRIPTOR";
-        case CL_INVALID_IMAGE_SIZE: return "CL_INVALID_IMAGE_SIZE";
-        case CL_INVALID_SAMPLER: return "CL_INVALID_SAMPLER";
-        case CL_INVALID_BINARY: return "CL_INVALID_BINARY";
-        case CL_INVALID_BUILD_OPTIONS: return "CL_INVALID_BUILD_OPTIONS";
-        case CL_INVALID_PROGRAM: return "CL_INVALID_PROGRAM";
-        case CL_INVALID_PROGRAM_EXECUTABLE: return "CL_INVALID_PROGRAM_EXECUTABLE";
-        case CL_INVALID_KERNEL_NAME: return "CL_INVALID_KERNEL_NAME";
-        case CL_INVALID_KERNEL_DEFINITION: return "CL_INVALID_KERNEL_DEFINITION";
-        case CL_INVALID_KERNEL: return "CL_INVALID_KERNEL";
-        case CL_INVALID_ARG_INDEX: return "CL_INVALID_ARG_INDEX";
-        case CL_INVALID_ARG_VALUE: return "CL_INVALID_ARG_VALUE";
-        case CL_INVALID_ARG_SIZE: return "CL_INVALID_ARG_SIZE";
-        case CL_INVALID_KERNEL_ARGS: return "CL_INVALID_KERNEL_ARGS";
-        case CL_INVALID_WORK_DIMENSION: return "CL_INVALID_WORK_DIMENSION";
-        case CL_INVALID_WORK_GROUP_SIZE: return "CL_INVALID_WORK_GROUP_SIZE";
-        case CL_INVALID_WORK_ITEM_SIZE: return "CL_INVALID_WORK_ITEM_SIZE";
-        case CL_INVALID_GLOBAL_OFFSET: return "CL_INVALID_GLOBAL_OFFSET";
-        case CL_INVALID_EVENT_WAIT_LIST: return "CL_INVALID_EVENT_WAIT_LIST";
-        case CL_INVALID_EVENT: return "CL_INVALID_EVENT";
-        case CL_INVALID_OPERATION: return "CL_INVALID_OPERATION";
-        case CL_INVALID_GL_OBJECT: return "CL_INVALID_GL_OBJECT";
-        case CL_INVALID_BUFFER_SIZE: return "CL_INVALID_BUFFER_SIZE";
-        case CL_INVALID_MIP_LEVEL: return "CL_INVALID_MIP_LEVEL";
-        case CL_INVALID_GLOBAL_WORK_SIZE: return "CL_INVALID_GLOBAL_WORK_SIZE";
+        case CL_INVALID_VALUE:                      return "CL_INVALID_VALUE";
+        case CL_INVALID_DEVICE_TYPE:                return "CL_INVALID_DEVICE_TYPE";
+        case CL_INVALID_PLATFORM:                   return "CL_INVALID_PLATFORM";
+        case CL_INVALID_DEVICE:                     return "CL_INVALID_DEVICE";
+        case CL_INVALID_CONTEXT:                    return "CL_INVALID_CONTEXT";
+        case CL_INVALID_QUEUE_PROPERTIES:           return "CL_INVALID_QUEUE_PROPERTIES";
+        case CL_INVALID_COMMAND_QUEUE:              return "CL_INVALID_COMMAND_QUEUE";
+        case CL_INVALID_HOST_PTR:                   return "CL_INVALID_HOST_PTR";
+        case CL_INVALID_MEM_OBJECT:                 return "CL_INVALID_MEM_OBJECT";
+        case CL_INVALID_IMAGE_FORMAT_DESCRIPTOR:    return "CL_INVALID_IMAGE_FORMAT_DESCRIPTOR";
+        case CL_INVALID_IMAGE_SIZE:                 return "CL_INVALID_IMAGE_SIZE";
+        case CL_INVALID_SAMPLER:                    return "CL_INVALID_SAMPLER";
+        case CL_INVALID_BINARY:                     return "CL_INVALID_BINARY";
+        case CL_INVALID_BUILD_OPTIONS:              return "CL_INVALID_BUILD_OPTIONS";
+        case CL_INVALID_PROGRAM:                    return "CL_INVALID_PROGRAM";
+        case CL_INVALID_PROGRAM_EXECUTABLE:         return "CL_INVALID_PROGRAM_EXECUTABLE";
+        case CL_INVALID_KERNEL_NAME:                return "CL_INVALID_KERNEL_NAME";
+        case CL_INVALID_KERNEL_DEFINITION:          return "CL_INVALID_KERNEL_DEFINITION";
+        case CL_INVALID_KERNEL:                     return "CL_INVALID_KERNEL";
+        case CL_INVALID_ARG_INDEX:                  return "CL_INVALID_ARG_INDEX";
+        case CL_INVALID_ARG_VALUE:                  return "CL_INVALID_ARG_VALUE";
+        case CL_INVALID_ARG_SIZE:                   return "CL_INVALID_ARG_SIZE";
+        case CL_INVALID_KERNEL_ARGS:                return "CL_INVALID_KERNEL_ARGS";
+        case CL_INVALID_WORK_DIMENSION:             return "CL_INVALID_WORK_DIMENSION";
+        case CL_INVALID_WORK_GROUP_SIZE:            return "CL_INVALID_WORK_GROUP_SIZE";
+        case CL_INVALID_WORK_ITEM_SIZE:             return "CL_INVALID_WORK_ITEM_SIZE";
+        case CL_INVALID_GLOBAL_OFFSET:              return "CL_INVALID_GLOBAL_OFFSET";
+        case CL_INVALID_EVENT_WAIT_LIST:            return "CL_INVALID_EVENT_WAIT_LIST";
+        case CL_INVALID_EVENT:                      return "CL_INVALID_EVENT";
+        case CL_INVALID_OPERATION:                  return "CL_INVALID_OPERATION";
+        case CL_INVALID_GL_OBJECT:                  return "CL_INVALID_GL_OBJECT";
+        case CL_INVALID_BUFFER_SIZE:                return "CL_INVALID_BUFFER_SIZE";
+        case CL_INVALID_MIP_LEVEL:                  return "CL_INVALID_MIP_LEVEL";
+        case CL_INVALID_GLOBAL_WORK_SIZE:           return "CL_INVALID_GLOBAL_WORK_SIZE";
     }
 
     return "";
@@ -805,9 +817,9 @@ void WCLRenderNode::changeDataSet( const CLDataChangeCallback& callback )
     {
         PerContextInformation& perContextInfo = m_perContextInformation[ i ];
 
-        if ( perContextInfo.clInitialized )
+        if ( perContextInfo.m_clInitialized )
         {
-            callback.change( perContextInfo.clProgramDataSet );
+            callback.change( perContextInfo.m_clProgramDataSet );
         }
     }
 }
@@ -818,74 +830,73 @@ void WCLRenderNode::renderStart( osg::State& state ) const
 {
     PerContextInformation& perContextInfo = m_perContextInformation[ state.getContextID() ];
 
-    perContextInfo.clViewInfo.m_modelViewMatrix = &state.getModelViewMatrix();
-    perContextInfo.clViewInfo.m_projectionMatrix = &state.getProjectionMatrix();
-
     // do nothing if an initialization attempt has failed already
 
-    if ( perContextInfo.initializationError )
+    if ( perContextInfo.m_initializationError )
     {
         return;
     }
 
     // initialize CL objects if required
 
-    if ( !perContextInfo.clInitialized )
+    if ( !perContextInfo.m_clInitialized )
     {
         if ( !initCL( perContextInfo ) )
         {
-            perContextInfo.initializationError = true;
+            perContextInfo.m_initializationError = true;
 
             return;
         }
 
-        perContextInfo.clProgramDataSet = initProgram( perContextInfo.clViewInfo );
+        perContextInfo.m_clProgramDataSet = initProgram( perContextInfo.m_clViewInfo );
 
-        if ( perContextInfo.clProgramDataSet == 0 )
+        if ( perContextInfo.m_clProgramDataSet == 0 )
         {
-            perContextInfo.initializationError = true;
+            perContextInfo.m_initializationError = true;
 
             return;
         }
 
-        perContextInfo.clInitialized = true;
+        perContextInfo.m_clInitialized = true;
     }
 
-    // initialize or refit buffers if required
+    // initialize or resize buffers if required
 
     const osg::Viewport* currentViewport = state.getCurrentViewport();
 
     unsigned int currentWidth = currentViewport->width();
     unsigned int currentHeight = currentViewport->height();
 
-    if ( !perContextInfo.buffersInitialized || 
-         ( currentWidth != perContextInfo.clViewInfo.width ) || 
-         ( currentHeight != perContextInfo.clViewInfo.height ) )
+    if ( !perContextInfo.m_buffersInitialized ||
+         ( currentWidth != perContextInfo.m_clViewInfo.m_width ) ||
+         ( currentHeight != perContextInfo.m_clViewInfo.m_height ) )
     {
-        perContextInfo.clViewInfo.width = currentWidth;
-        perContextInfo.clViewInfo.height = currentHeight;
+        perContextInfo.m_clViewInfo.m_width = currentWidth;
+        perContextInfo.m_clViewInfo.m_height = currentHeight;
 
         if ( !initBuffers( perContextInfo, state ) )
         {
-            perContextInfo.initializationError = true;
+            perContextInfo.m_initializationError = true;
 
             return;
         }
 
-        perContextInfo.buffersInitialized = true;
+        perContextInfo.m_buffersInitialized = true;
     }
 
     // start rendering
 
-    if ( perContextInfo.contextSharing )
+    perContextInfo.m_clViewInfo.m_state = &state;
+
+    if ( perContextInfo.m_contextSharing )
     {
         glFinish();
 
         cl_int clError;
 
-        cl_mem glObjects[ 2 ] = { perContextInfo.clViewInfo.colorBuffer, perContextInfo.clViewInfo.depthBuffer };
+        cl_mem glObjects[ 2 ] = { perContextInfo.m_clViewInfo.m_colorBuffer, perContextInfo.m_clViewInfo.m_depthBuffer };
 
-        clError = clEnqueueAcquireGLObjects( perContextInfo.clViewInfo.clCommQueue, 2, glObjects, 0, 0, 0 );
+        clError = clEnqueueAcquireGLObjects( perContextInfo.m_clViewInfo.m_commQueue, 2, glObjects, 0, 0, 0 );
 
         if ( clError != CL_SUCCESS )
         {
@@ -894,9 +905,9 @@ void WCLRenderNode::renderStart( osg::State& state ) const
             return;
         }
 
-        render( perContextInfo.clViewInfo, perContextInfo.clProgramDataSet );
+        render( perContextInfo.m_clViewInfo, perContextInfo.m_clProgramDataSet );
 
-        clError = clEnqueueReleaseGLObjects( perContextInfo.clViewInfo.clCommQueue, 2, glObjects, 0, 0, 0 );
+        clError = clEnqueueReleaseGLObjects( perContextInfo.m_clViewInfo.m_commQueue, 2, glObjects, 0, 0, 0 );
 
         if ( clError != CL_SUCCESS )
         {
@@ -907,7 +918,7 @@ void WCLRenderNode::renderStart( osg::State& state ) const
     }
     else
     {
-        render( perContextInfo.clViewInfo, perContextInfo.clProgramDataSet );
+        render( perContextInfo.m_clViewInfo, perContextInfo.m_clProgramDataSet );
     }
 }
 
@@ -919,16 +930,16 @@ void WCLRenderNode::draw( osg::State& state ) const
 
     // do nothing if an initialization attempt has failed already
 
-    if ( perContextInfo.initializationError )
+    if ( perContextInfo.m_initializationError )
     {
         return;
     }
 
     // draw
 
-    if ( perContextInfo.contextSharing )
+    if ( perContextInfo.m_contextSharing )
     {
-        clFinish( perContextInfo.clViewInfo.clCommQueue );
+        clFinish( perContextInfo.m_clViewInfo.m_commQueue );
     }
     else
     {
@@ -936,17 +947,17 @@ void WCLRenderNode::draw( osg::State& state ) const
 
         cl_int clError;
 
-        float* colorData = new float[ perContextInfo.clViewInfo.width * perContextInfo.clViewInfo.height * 4 ];
-        float* depthData = new float[ perContextInfo.clViewInfo.width * perContextInfo.clViewInfo.height ];
+        float* colorData = new float[ perContextInfo.m_clViewInfo.m_width * perContextInfo.m_clViewInfo.m_height * 4 ];
+        float* depthData = new float[ perContextInfo.m_clViewInfo.m_width * perContextInfo.m_clViewInfo.m_height ];
 
         size_t origin[ 3 ] = { 0, 0, 0 };
-        size_t region[ 3 ] = { perContextInfo.clViewInfo.width, perContextInfo.clViewInfo.height, 1 };
+        size_t region[ 3 ] = { perContextInfo.m_clViewInfo.m_width, perContextInfo.m_clViewInfo.m_height, 1 };
 
         clError = clEnqueueReadImage
         (
-            perContextInfo.clViewInfo.clCommQueue, 
-            perContextInfo.clViewInfo.colorBuffer, 
-            CL_TRUE, origin, region, 0, 0, colorData, 0, 0, 0 
+            perContextInfo.m_clViewInfo.m_commQueue,
+            perContextInfo.m_clViewInfo.m_colorBuffer,
+            CL_TRUE, origin, region, 0, 0, colorData, 0, 0, 0
         );
 
         if ( clError != CL_SUCCESS )
@@ -958,9 +969,9 @@ void WCLRenderNode::draw( osg::State& state ) const
 
         clError = clEnqueueReadImage
         (
-            perContextInfo.clViewInfo.clCommQueue, 
-            perContextInfo.clViewInfo.depthBuffer, 
-            CL_TRUE, origin, region, 0, 0, depthData, 0, 0, 0 
+            perContextInfo.m_clViewInfo.m_commQueue,
+            perContextInfo.m_clViewInfo.m_depthBuffer,
+            CL_TRUE, origin, region, 0, 0, depthData, 0, 0, 0
         );
 
         if ( clError != CL_SUCCESS )
@@ -976,18 +987,18 @@ void WCLRenderNode::draw( osg::State& state ) const
 
         glTexSubImage2D
         (
-            GL_TEXTURE_2D, 0, 0, 0, 
-            perContextInfo.clViewInfo.width, perContextInfo.clViewInfo.height, 
-            GL_RGBA, GL_FLOAT, colorData 
+            GL_TEXTURE_2D, 0, 0, 0,
+            perContextInfo.m_clViewInfo.m_width, perContextInfo.m_clViewInfo.m_height,
+            GL_RGBA, GL_FLOAT, colorData
         );
 
         state.setActiveTextureUnit( 1 );
 
         glTexSubImage2D
         (
-            GL_TEXTURE_2D, 0, 0, 0, 
-            perContextInfo.clViewInfo.width, perContextInfo.clViewInfo.height, 
-            GL_RED, GL_FLOAT, depthData 
+            GL_TEXTURE_2D, 0, 0, 0,
+            perContextInfo.m_clViewInfo.m_width, perContextInfo.m_clViewInfo.m_height,
+            GL_RED, GL_FLOAT, depthData
         );
 
         delete[] colorData;
@@ -1072,11 +1083,11 @@ bool WCLRenderNode::initCL( PerContextInformation& perContextInfo ) const
         {
             properties[ 1 ] = reinterpret_cast< cl_context_properties >( platforms[ i ] );
 
-            perContextInfo.clViewInfo.clContext = clCreateContext( properties, 1, &devices[ i ][ j ], 0, 0, &clError );
+            perContextInfo.m_clViewInfo.m_context = clCreateContext( properties, 1, &devices[ i ][ j ], 0, 0, &clError );
 
             if ( clError == CL_SUCCESS )
             {
-                perContextInfo.clViewInfo.clDevice = devices[ i ][ j ];
+                perContextInfo.m_clViewInfo.m_device = devices[ i ][ j ];
 
                 i = numOfPlatforms;
 
@@ -1089,7 +1100,7 @@ bool WCLRenderNode::initCL( PerContextInformation& perContextInfo ) const
 
     if ( clError != CL_SUCCESS )
     {
-        perContextInfo.contextSharing = false;
+        perContextInfo.m_contextSharing = false;
 
         properties[ 2 ] = 0;
 
@@ -1099,11 +1110,11 @@ bool WCLRenderNode::initCL( PerContextInformation& perContextInfo ) const
             {
                 properties[ 1 ] = reinterpret_cast< cl_context_properties >( platforms[ i ] );
 
-                perContextInfo.clViewInfo.clContext = clCreateContext( properties, 1, &devices[ i ][ j ], 0, 0, &clError );
+                perContextInfo.m_clViewInfo.m_context = clCreateContext( properties, 1, &devices[ i ][ j ], 0, 0, &clError );
 
                 if ( clError == CL_SUCCESS )
                 {
-                    perContextInfo.clViewInfo.clDevice = devices[ i ][ j ];
+                    perContextInfo.m_clViewInfo.m_device = devices[ i ][ j ];
 
                     i = numOfPlatforms;
 
@@ -1131,18 +1142,18 @@ bool WCLRenderNode::initCL( PerContextInformation& perContextInfo ) const
 
     // create CL command queue
 
-    perContextInfo.clViewInfo.clCommQueue = clCreateCommandQueue
+    perContextInfo.m_clViewInfo.m_commQueue = clCreateCommandQueue
     (
-        perContextInfo.clViewInfo.clContext, 
-        perContextInfo.clViewInfo.clDevice, 
-        0, &clError 
+        perContextInfo.m_clViewInfo.m_context,
+        perContextInfo.m_clViewInfo.m_device,
+        0, &clError
     );
 
     if ( clError != CL_SUCCESS )
     {
         osg::notify( osg::FATAL ) << "Could not create an OpenCL command-queue: " << getCLError( clError ) << std::endl;
 
-        clReleaseContext( perContextInfo.clViewInfo.clContext );
+        clReleaseContext( perContextInfo.m_clViewInfo.m_context );
 
         return false;
     }
@@ -1156,10 +1167,10 @@ bool WCLRenderNode::initBuffers( PerContextInformation& perContextInfo, osg::Sta
 {
     // release existing buffers
 
-    if ( perContextInfo.buffersInitialized )
+    if ( perContextInfo.m_buffersInitialized )
     {
-        clReleaseMemObject( perContextInfo.clViewInfo.colorBuffer );
-        clReleaseMemObject( perContextInfo.clViewInfo.depthBuffer );
+        clReleaseMemObject( perContextInfo.m_clViewInfo.m_colorBuffer );
+        clReleaseMemObject( perContextInfo.m_clViewInfo.m_depthBuffer );
     }
 
     // resize color and depth texture
@@ -1168,33 +1179,33 @@ bool WCLRenderNode::initBuffers( PerContextInformation& perContextInfo, osg::Sta
 
     glTexImage2D
     (
-        GL_TEXTURE_2D, 0, GL_RGBA32F, 
-        perContextInfo.clViewInfo.width, perContextInfo.clViewInfo.height, 
-        0, GL_RGBA, GL_FLOAT, 0 
+        GL_TEXTURE_2D, 0, GL_RGBA32F,
+        perContextInfo.m_clViewInfo.m_width, perContextInfo.m_clViewInfo.m_height,
+        0, GL_RGBA, GL_FLOAT, 0
     );
 
     state.applyTextureAttribute( 1, m_depthBuffer );
 
     glTexImage2D
     (
-        GL_TEXTURE_2D, 0, GL_R32F, 
-        perContextInfo.clViewInfo.width, perContextInfo.clViewInfo.height, 
-        0, GL_RED, GL_FLOAT, 0 
+        GL_TEXTURE_2D, 0, GL_R32F,
+        perContextInfo.m_clViewInfo.m_width, perContextInfo.m_clViewInfo.m_height,
+        0, GL_RED, GL_FLOAT, 0
     );
 
     // create colorBuffer and depthBuffer
 
     cl_int clError;
 
-    if ( perContextInfo.contextSharing )
+    if ( perContextInfo.m_contextSharing )
     {
         unsigned int contextID = state.getContextID();
 
-        perContextInfo.clViewInfo.colorBuffer = clCreateFromGLTexture2D
+        perContextInfo.m_clViewInfo.m_colorBuffer = clCreateFromGLTexture2D
         (
-            perContextInfo.clViewInfo.clContext, 
-            CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0, 
-            m_colorBuffer->getTextureObject( contextID )->_id, &clError 
+            perContextInfo.m_clViewInfo.m_context,
+            CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
+            m_colorBuffer->getTextureObject( contextID )->_id, &clError
         );
 
         if ( clError != CL_SUCCESS )
@@ -1204,18 +1215,18 @@ bool WCLRenderNode::initBuffers( PerContextInformation& perContextInfo, osg::Sta
             return false;
         }
 
-        perContextInfo.clViewInfo.depthBuffer = clCreateFromGLTexture2D
+        perContextInfo.m_clViewInfo.m_depthBuffer = clCreateFromGLTexture2D
         (
-            perContextInfo.clViewInfo.clContext, 
-            CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0, 
-            m_depthBuffer->getTextureObject(contextID)->_id, &clError 
+            perContextInfo.m_clViewInfo.m_context,
+            CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
+            m_depthBuffer->getTextureObject(contextID)->_id, &clError
         );
 
         if ( clError != CL_SUCCESS )
         {
             osg::notify( osg::FATAL ) << "Could not create the depth buffer: " << getCLError( clError ) << std::endl;
 
-            clReleaseMemObject( perContextInfo.clViewInfo.colorBuffer );
+            clReleaseMemObject( perContextInfo.m_clViewInfo.m_colorBuffer );
 
             return false;
         }
@@ -1227,12 +1238,12 @@ bool WCLRenderNode::initBuffers( PerContextInformation& perContextInfo, osg::Sta
 	    format.image_channel_order = CL_RGBA;
 	    format.image_channel_data_type = CL_FLOAT;
 
-	    perContextInfo.clViewInfo.colorBuffer = clCreateImage2D
+	    perContextInfo.m_clViewInfo.m_colorBuffer = clCreateImage2D
 	    (
-            perContextInfo.clViewInfo.clContext, 
-            CL_MEM_READ_WRITE, &format, 
-            perContextInfo.clViewInfo.width, perContextInfo.clViewInfo.height, 
-            0, 0, &clError 
+            perContextInfo.m_clViewInfo.m_context,
+            CL_MEM_READ_WRITE, &format,
+            perContextInfo.m_clViewInfo.m_width, perContextInfo.m_clViewInfo.m_height,
+            0, 0, &clError
 	    );
 
 	    if ( clError != CL_SUCCESS )
@@ -1244,19 +1255,19 @@ bool WCLRenderNode::initBuffers( PerContextInformation& perContextInfo, osg::Sta
 
 	    format.image_channel_order = CL_R;
 
-	    perContextInfo.clViewInfo.depthBuffer = clCreateImage2D
+	    perContextInfo.m_clViewInfo.m_depthBuffer = clCreateImage2D
 	    (
-            perContextInfo.clViewInfo.clContext, 
-            CL_MEM_READ_WRITE, &format, 
-            perContextInfo.clViewInfo.width, perContextInfo.clViewInfo.height, 
-            0, 0, &clError 
+            perContextInfo.m_clViewInfo.m_context,
+            CL_MEM_READ_WRITE, &format,
+            perContextInfo.m_clViewInfo.m_width, perContextInfo.m_clViewInfo.m_height,
+            0, 0, &clError
 	    );
 
 	    if ( clError != CL_SUCCESS )
 	    {
             osg::notify( osg::FATAL ) << "Could not create the depth buffer: " << getCLError( clError ) << std::endl;
 
-            clReleaseMemObject( perContextInfo.clViewInfo.colorBuffer );
+            clReleaseMemObject( perContextInfo.m_clViewInfo.m_colorBuffer );
 
             return false;
 	    }
@@ -1264,7 +1275,7 @@ bool WCLRenderNode::initBuffers( PerContextInformation& perContextInfo, osg::Sta
 
     // set buffer kernel arguments
 
-    setBuffers( perContextInfo.clViewInfo,perContextInfo.clProgramDataSet );
+    setBuffers( perContextInfo.m_clViewInfo,perContextInfo.m_clProgramDataSet );
 
     return true;
 }

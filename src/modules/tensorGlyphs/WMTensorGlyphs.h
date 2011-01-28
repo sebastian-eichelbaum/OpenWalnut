@@ -25,19 +25,22 @@
 #ifndef WMTENSORGLYPHS_H
 #define WMTENSORGLYPHS_H
 
+//---------------------------------------------------------------------------------------------------------------------
+
 #include <boost/shared_ptr.hpp>
 
-#include <osg/Geode>
-
+#include "../../common/WCondition.h"
+#include "../../common/WPropertyTypes.h"
+#include "../../dataHandler/WDataSetSingle.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
-#include "../../dataHandler/WDataSetSingle.h"
-
-#include "WGlyphRenderNode.h"
+//---------------------------------------------------------------------------------------------------------------------
 
 /**
- * Module for the GPU-based rendering of high order tensor glyphs.
+ * Module for rendering of high order tensor glyphs.
+ *
+ * @ingroup modules
  */
 class WMTensorGlyphs: public WModule
 {
@@ -99,16 +102,6 @@ protected:
      */
     virtual void properties();
 
-    /**
-     * Overrides WModule::activate().
-     */
-    virtual void activate();
-
-    /**
-     * The root node used for this modules graphics.
-     */
-    osg::ref_ptr< WGlyphRenderNode > renderNode;
-
 private:
 
     /**
@@ -119,17 +112,20 @@ private:
     /**
      * A condition used to notify about changes in several properties.
      */
-    boost::shared_ptr< WCondition > m_propertyChanged;
+    boost::shared_ptr< WCondition > m_changed;
 
     /**
      * Slice positions.
      */
-    WPropInt m_slices[ 3 ];
+    WPropInt m_slicePosition[ 3 ];
 
     /**
-     * Show slices.
+     * Slice visibility.
      */
-    WPropBool m_sliceEnabled[ 3 ];
+    WPropBool m_sliceVisibility[ 3 ];
+
 };
+
+//---------------------------------------------------------------------------------------------------------------------
 
 #endif  // WMTENSORGLYPHS_H

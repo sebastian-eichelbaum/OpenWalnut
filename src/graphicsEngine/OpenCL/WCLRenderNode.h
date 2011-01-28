@@ -28,6 +28,9 @@
 #include <string>
 #include <vector>
 
+#include <boost/thread/condition_variable.hpp>
+#include <boost/thread/mutex.hpp>
+
 #include <osg/Array>
 #include <osg/BoundingBox>
 #include <osg/buffered_value>
@@ -67,12 +70,17 @@
  *  - setBuffers()
  *  - render()
  *
- * It is also recommended to implement:
+ * It is recommended to reimplement:
+ *
+ *  - computeBoundingBox()
+ *
+ * You may also reimplement:
  *
  *  - isSameKindAs()
  *  - libraryName()
  *  - className()
- *  - computeBoundingBox()
+ *
+ * @ingroup ge
  */
 class WGE_EXPORT WCLRenderNode: public osg::Node
 {
@@ -81,8 +89,10 @@ public:
 
     /**
      * Standard constructor.
+     *
+     * @param deactivated Set whether the node should be set to deactivated state.
      */
-    WCLRenderNode();
+    WCLRenderNode( bool deactivated = false );
 
     /**
      * Copy construcor.
@@ -161,7 +171,8 @@ public:
 
     /**
      * Override this method to create a bounding box around your renderable objects.
-     * You should do this to ensure that nothing is being clipped away.
+     * You should do this to ensure that nothing is being clipped away. The bounding
+     * sphere will encompass this box.
      *
      * @return The bounding box.
      */
@@ -182,6 +193,35 @@ public:
     void reset() const;
 
     /**
+     * Activates the node thread safely if it is deactivated.
+     */
+    void activate() const;
+
+    /**
+     * Deactivates the node thread safely, so its data can be changed after calling this method.
+     * However the node's data variance still has to be set to DYNAMIC.
+     *
+     * @note This method may only be invoked if the node is already being rendered or it won't return. Use setDeactivated() otherwise.
+     */
+    void deactivate() const;
+
+    /**
+     * Check whether the node is deactivated.
+     *
+     * @return The state.
+     */
+    bool isDeactivated() const;
+
+    /**
+     * Set whether the node should be set to deactivated state.
+     *
+     * @param The state.
+     *
+     * @note This method mustn't be invoked if the node is already being rendered since it's not thread safe. Use activate() and deactivate() inatead.
+     */
+    void setDeactivated( bool deactivated ) const;
+
+    /**
      * Returns the string form of a specific CL error. If the error is undefined getCLError returns "".
      *
      * @param clError The CL error.
@@ -192,13 +232,27 @@ public:
 
 protected:
 
+    class WGE_EXPORT ViewProperties;
+    class WGE_EXPORT CLViewInformation;
+    class WGE_EXPORT CLProgramDataSet;
+    class WGE_EXPORT CLDataChangeCallback;
+
+private:
+
+    class PerContextInformation;
+    class DrawQuad;
+    class CLRenderBin;
+    class CLDrawBin;
+
+protected:
+
     /**
      * Destructor.
      */
     virtual ~WCLRenderNode();
 
     /**
-     * The type of a projection, see CLViewInformation::getViewProperties().
+     * The type of a projection.
      */
     enum ProjectionType
     {
@@ -207,22 +261,109 @@ protected:
     };
 
     /**
-     * Contains view properties, see CLViewInformation::getViewProperties().
+     * Contains the view properties. All vectors are given in model space.
+     *
+     * A ray's direction vector and initial point are given as:
+     *
+     * Perspective projections:
+     *
+     *     - @f$ direction = originToLowerLeft + edgeX * (pixel.x / width) + edgeY * (pixel.y / height) @f$
+     *     - @f$ inititialPoint = origin @f$
+     *
+     * Orthographic projections:
+     *
+     *     - @f$ direction = originToLowerLeft @f$
+     *     - @f$ inititialPoint = origin + edgeX * (pixel.x / width) + edgeY * (pixel.y / height) @f$
+     *
+     * Let @f$ p @f$ be a point to render, @f$ t @f$ be a float and @f$ p = inititialPoint + t * direction @f$.
+     * Then the depth value of @f$ p @f$ is calculated as follows:
+     *
+     * Perspective projections:     @f$ depth = (t - 1) / (planeFar - planeNear) * planeFar / t @f$
+     *
+     * Orthographic projections:    @f$ depth = (t - 1) / (planeFar - planeNear) * planeNear @f$
+     *
+     * If @f$ depth < 0 @f$ or @f$ depth > 1 @f$, then the point is outside of the view volume and should be
+     * discarded by setting depth to 1.
      */
     class WGE_EXPORT ViewProperties
     {
 
     public:
 
-        osg::Vec3f origin;
-        osg::Vec3f origin2LowerLeft;
-        osg::Vec3f edgeX;
-        osg::Vec3f edgeY;
+        /**
+         * Get the eye point.
+         */
+        const osg::Vec3f& getOrigin() const;
 
-        ProjectionType type;
+        /**
+         * Get the vector from the eye point to the lower left corner of the near plane.
+         */
+        const osg::Vec3f& getOriginToLowerLeft() const;
 
-        float planeNear;
-        float planeFar;
+        /**
+         * Get the vector along the horizontal edge of the view's near plane.
+         */
+        const osg::Vec3f& getEdgeX() const;
+
+        /**
+         * Get the vector along the vertical edge of the view's near plane.
+         */
+        const osg::Vec3f& getEdgeY() const;
+
+        /**
+         * Get the projection's type, either PERSPECTIVE or ORTHOGRAPHIC.
+         */
+        const ProjectionType& getProjectionType() const;
+
+        /**
+         * Get the distance from the eye point to the near plane.
+         */
+        const float& getNearPlane() const;
+
+        /**
+         * Get the distance from the eye point to the far plane.
+         */
+        const float& getFarPlane() const;
+
+    private:
+
+        /**
+         * The eye point.
+         */
+        osg::Vec3f m_origin;
+
+        /**
+         * The vector from the eye point to the lower left corner of the near plane.
+         */
+        osg::Vec3f m_originToLowerLeft;
+
+        /**
+         * The vector along the horizontal edge of the view's near plane.
+         */
+        osg::Vec3f m_edgeX;
+
+        /**
+         * The vector along the vertical edge of the view's near plane.
+         */
+        osg::Vec3f m_edgeY;
+
+        /**
+         * The projection's type, either PERSPECTIVE or ORTHOGRAPHIC.
+         */
+        ProjectionType m_type;
+
+        /**
+         * The distance from the eye point to the near plane.
+         */
+        float m_planeNear;
+
+        /**
+         * The distance from the eye point to the far plane.
+         */
+        float m_planeFar;
+
+    friend class CLViewInformation;
+
     };
 
     /**
@@ -243,107 +384,90 @@ protected:
         /**
          * The CL context.
          */
-        cl_context clContext;
+        const cl_context& getContext() const;
 
         /**
          * The CL device.
          */
-        cl_device_id clDevice;
+        const cl_device_id& getDevice() const;
 
         /**
          * The CL command queue.
          */
-        cl_command_queue clCommQueue;
+        const cl_command_queue& getCommQueue() const;
 
         /**
          * The color buffer.
          */
-        cl_mem colorBuffer;
+        const cl_mem& getColorBuffer() const;
 
         /**
          * The depth buffer.
          */
-        cl_mem depthBuffer;
+        const cl_mem& getDepthBuffer() const;
 
         /**
          * The view's width.
          */
-        unsigned int width;
+        const unsigned int& getWidth() const;
 
         /**
          * The view's height.
          */
-        unsigned int height;
+        const unsigned int& getHeight() const;
 
         /**
-         * This method gives the following view properties:
+         * This method gives the view properties.
          *
-         *  - type:         the projection's type, either PERSPECTIVE or ORTHOGRAPHIC
-         *  - edgeX:        a vector along the horizontal edge of the view's near plane in model space
-         *  - edgeY:        a vector along the vertical edge of the view's near plane in model space
-         *  - planeNear:    the distance from the eye point to the near plane
-         *  - planeNear:    the distance from the eye point to the far plane
-         *
-         *  Perspective projections:
-         *
-         *      - origin:               the eye point in model space
-         *      - origin2LowerLeft:     a vector from the eye point to the lower left corner of the near
-         *                              plane in model space
-         *
-         *  Orthographic projections:
-         *
-         *      - origin:               the eye point in model space moved parallel along the near plane to
-         *                              its lower left corner
-         *      - origin2LowerLeft:     a vector from the origin to the lower left corner of the near plane
-         *                              in model space
-         *
-         * A ray's direction vector and initial point are given as:
-         *
-         *  Perspective projections:
-         *
-         *      - @f$ direction = origin2LowerLeft + edgeX * (pixel.x / width) + edgeY * (pixel.y / height) @f$
-         *      - @f$ inititialPoint = origin @f$
-         *
-         *  Orthographic projections:
-         *
-         *      - @f$ direction = origin2LowerLeft @f$
-         *      - @f$ inititialPoint = origin + edgeX * (pixel.x / width) + edgeY * (pixel.y / height) @f$
-         *
-         * Let @f$ p @f$ be a point to render, @f$ t @f$ be a float and @f$ p = direction * t + inititialPoint @f$.
-         * Then the depth value of @f$ p @f$ is calculated as follows:
-         *
-         *  Perspective projections:    @f$ depth = (t - 1) / (planeFar - planeNear) * planeFar / t @f$
-         *
-         *  Orthographic projections:   @f$ depth = (t - 1) / (planeFar - planeNear) * planeNear @f$
-         *
-         * If @f$ depth < 0 @f$ or @f$ depth > 1 @f$, then the point is outside of the view volume and should be
-         * discarded by setting depth to 1.
-         *
-         * @param properties A ViewProperties objects to save the view information to.
+         * @param properties A ViewProperties object to save the view information.
          */
         void getViewProperties( ViewProperties& properties ) const;
 
     private:
 
         /**
-         * The current model view matrix.
+         * The CL context.
          */
-        const osg::Matrix* m_modelViewMatrix;
+        cl_context m_context;
 
         /**
-         * The current projection matrix.
+         * The CL device.
          */
-        const osg::Matrix* m_projectionMatrix;
+        cl_device_id m_device;
+
+        /**
+         * The CL command queue.
+         */
+        cl_command_queue m_commQueue;
+
+        /**
+         * The color buffer.
+         */
+        cl_mem m_colorBuffer;
+
+        /**
+         * The depth buffer.
+         */
+        cl_mem m_depthBuffer;
+
+        /**
+         * The view's width.
+         */
+        unsigned int m_width;
+
+        /**
+         * The view's height.
+         */
+        unsigned int m_height;
+
+        /**
+         * The current GL state.
+         */
+        osg::ref_ptr< osg::State > m_state;
 
     friend class WCLRenderNode;
 
     };
-
-private:
-
-    class WGE_EXPORT PerContextInformation;
-
-protected:
 
     /**
      * Base class to store your CL objects. Derive from it and add your data.
@@ -378,6 +502,7 @@ protected:
          * @param clProgramDataSet The CLProgramDataSet to be changed.
          */
         virtual void change( CLProgramDataSet* clProgramDataSet ) const = 0;
+
     };
 
     /**
@@ -427,7 +552,7 @@ private:
     /**
      * Contains data per GL context.
      */
-    class WGE_EXPORT PerContextInformation
+    class PerContextInformation
     {
 
     public:
@@ -450,32 +575,33 @@ private:
         /**
          * The view information and basic CL objects.
          */
-        CLViewInformation clViewInfo;
+        CLViewInformation m_clViewInfo;
 
         /**
          * Custom CL objects.
          */
-        CLProgramDataSet* clProgramDataSet;
+        CLProgramDataSet* m_clProgramDataSet;
 
         /**
          * Use CL-GL context sharing.
          */
-        bool contextSharing;
+        bool m_contextSharing;
 
         /**
          * CL initialized.
          */
-        bool clInitialized;
+        bool m_clInitialized;
 
         /**
          * Buffers initialized.
          */
-        bool buffersInitialized;
+        bool m_buffersInitialized;
 
         /**
          * Initialization failed.
          */
-        bool initializationError;
+        bool m_initializationError;
+
     };
 
     /**
@@ -487,29 +613,25 @@ private:
     public:
 
         /**
-         * Initialize the quad.
+         * Constructor.
          */
-        static void initQuad();
-
-        /**
-         * Release the quad data.
-         */
-        static void releaseQuad();
+        DrawQuad();
 
         /**
          * The state settings needed for drawing.
          */
-        osg::ref_ptr< osg::StateSet > drawState;
+        osg::ref_ptr< osg::StateSet > m_drawState;
 
         /**
          * The quad vertices.
          */
-        osg::ref_ptr< osg::Vec2Array > vertices;
+        osg::ref_ptr< osg::Vec2Array > m_vertices;
 
         /**
          * The quad texture coordinates.
          */
-        osg::ref_ptr< osg::Vec2Array > coordinates;
+        osg::ref_ptr< osg::Vec2Array > m_coordinates;
+
     };
 
     /**
@@ -550,24 +672,25 @@ private:
          * @param modelView The current model view matrix.
          * @param projection The current projection matrix.
          */
-        static CLRenderBin* getOrCreateRenderBin( osgUtil::RenderStage* stage, 
-                                                  osg::RefMatrix* modelView, 
+        static CLRenderBin* getOrCreateRenderBin( osgUtil::RenderStage* stage,
+                                                  osg::RefMatrix* modelView,
                                                   osg::RefMatrix* projection );
 
         /**
          * The WCLRenderNodes to draw.
          */
-        std::vector< osg::ref_ptr< WCLRenderNode > > nodes;
+        std::vector< osg::ref_ptr< WCLRenderNode > > m_nodes;
 
         /**
          * The model view matrix to use.
          */
-        osg::ref_ptr< osg::RefMatrix > modelView;
+        osg::ref_ptr< osg::RefMatrix > m_modelView;
 
         /**
          * The projection matrix to use.
          */
-        osg::ref_ptr< osg::RefMatrix > projection;
+        osg::ref_ptr< osg::RefMatrix > m_projection;
+
     };
 
     /**
@@ -608,12 +731,13 @@ private:
         /**
          * The WCLRenderNodes to draw.
          */
-        std::vector< osg::ref_ptr< WCLRenderNode > > nodes;
+        std::vector< osg::ref_ptr< WCLRenderNode > > m_nodes;
 
         /**
          * The Number of dynamic WCLRenderNodes.
          */
-        unsigned int dynamicNodes;
+        unsigned int m_dynamicNodes;
+
     };
 
     /**
@@ -666,9 +790,25 @@ private:
     mutable osg::ref_ptr< osg::Texture2D > m_depthBuffer;
 
     /**
+     * Condition for thread safe deactivation.
+     */
+    mutable boost::condition_variable m_wait;
+
+    /**
+     * Mutex for thread safe activation and deactivation.
+     */
+    mutable boost::mutex m_mutex;
+
+    /**
+     * The deactivation state.
+     */
+    mutable bool m_deactivated;
+
+    /**
      * The draw quad.
      */
     static DrawQuad m_drawQuad;
+
 };
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -682,7 +822,7 @@ inline bool WCLRenderNode::isSameKindAs( const osg::Object* obj ) const
 
 inline const char* WCLRenderNode::libraryName() const
 {
-	return "osgCL";
+	return "OWge";
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -690,6 +830,104 @@ inline const char* WCLRenderNode::libraryName() const
 inline const char* WCLRenderNode::className() const
 {
 	return "WCLRenderNode";
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const osg::Vec3f& WCLRenderNode::ViewProperties::getOrigin() const
+{
+    return m_origin;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const osg::Vec3f& WCLRenderNode::ViewProperties::getOriginToLowerLeft() const
+{
+    return m_originToLowerLeft;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const osg::Vec3f& WCLRenderNode::ViewProperties::getEdgeX() const
+{
+    return m_edgeX;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const osg::Vec3f& WCLRenderNode::ViewProperties::getEdgeY() const
+{
+    return m_edgeY;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const WCLRenderNode::ProjectionType& WCLRenderNode::ViewProperties::getProjectionType() const
+{
+    return m_type;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const float& WCLRenderNode::ViewProperties::getNearPlane() const
+{
+    return m_planeNear;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const float& WCLRenderNode::ViewProperties::getFarPlane() const
+{
+    return m_planeFar;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const cl_context& WCLRenderNode::CLViewInformation::getContext() const
+{
+    return m_context;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const cl_device_id& WCLRenderNode::CLViewInformation::getDevice() const
+{
+    return m_device;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const cl_command_queue& WCLRenderNode::CLViewInformation::getCommQueue() const
+{
+    return m_commQueue;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const cl_mem& WCLRenderNode::CLViewInformation::getColorBuffer() const
+{
+    return m_colorBuffer;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const cl_mem& WCLRenderNode::CLViewInformation::getDepthBuffer() const
+{
+    return m_depthBuffer;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const unsigned int& WCLRenderNode::CLViewInformation::getWidth() const
+{
+    return m_width;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline const unsigned int& WCLRenderNode::CLViewInformation::getHeight() const
+{
+    return m_height;
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/

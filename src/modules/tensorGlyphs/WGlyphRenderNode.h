@@ -33,7 +33,9 @@
 #include "../../graphicsEngine/OpenCL/WCLRenderNode.h"
 
 /**
- * A Node for rendering high order tensor glyphs with OpenCL.
+ * This node type renders high order tensor glyphs.
+ *
+ * @todo Replace 4-component data by 3-component when OpenCL 1.1 drivers are available. NVIDIA is dilly-dallying around...
  */
 class WGlyphRenderNode: public WCLRenderNode
 {
@@ -43,20 +45,10 @@ public:
     /**
      * Constructor.
      *
-     * @param data The tensor data.
-     * @param order The tensor order.
-     * @param sliceX The x slice to display.
-     * @param sliceY The y slice to display.
-     * @param sliceZ The z slice to display.
-     * @param enabledX States whether the x slice is to be drawn.
-     * @param enabledY States whether the y slice is to be drawn.
-     * @param enabledZ States whether the z slice is to be drawn.
      * @param search The path of the kernel file.
+     * @param deactivated Set whether the node should be set to deactivated state.
      */
-    WGlyphRenderNode( const boost::shared_ptr< WDataSetSingle >& data, const int& order, 
-                      const int& sliceX, const int& sliceY, const int& sliceZ, 
-                      const bool& enabledX, const bool& enabledY, const bool& enabledZ, 
-                      const boost::filesystem::path& search );
+    WGlyphRenderNode( const boost::filesystem::path& search, bool deactivated );
 
     /**
      * Copy constructor.
@@ -121,29 +113,50 @@ public:
      *
      * @param data The tensor data.
      * @param order The tensor order.
-     * @param sliceX The x slice to display.
-     * @param sliceY The y slice to display.
-     * @param sliceZ The z slice to display.
-     * @param enabledX States whether the x slice is to be drawn.
-     * @param enabledY States whether the y slice is to be drawn.
-     * @param enabledZ States whether the z slice is to be drawn.
      */
-    void setTensorData( const boost::shared_ptr< WDataSetSingle >& data, const int& order, 
-                        const int& sliceX, const int& sliceY, const int& sliceZ, 
-                        const bool& enabledX, const bool& enabledY, const bool& enabledZ );
+    void setTensorData( const boost::shared_ptr< WDataSetSingle >& data, const int& order );
 
     /**
-     * Set the slice properties to render.
+     * Set the x-slice position.
      *
-     * @param sliceX The x slice to display.
-     * @param sliceY The y slice to display.
-     * @param sliceZ The z slice to display.
-     * @param enabledX States whether the x slice is to be drawn.
-     * @param enabledY States whether the y slice is to be drawn.
-     * @param enabledZ States whether the z slice is to be drawn.
+     * @param slice The position.
      */
-    void setSlices( const int& sliceX, const int& sliceY, const int& sliceZ,
-                    const bool& enabledX,const bool& enabledY,const bool& enabledZ );
+    void setPositionX( const int& slice );
+
+    /**
+     * Set the y-slice position.
+     *
+     * @param slice The position.
+     */
+    void setPositionY( const int& slice );
+
+    /**
+     * Set the z-slice position.
+     *
+     * @param slice The position.
+     */
+    void setPositionZ( const int& slice );
+
+    /**
+     * Set the x-slice visibility.
+     *
+     * @param slice The visibility.
+     */
+    void setVisibilityX( const bool& slice );
+
+    /**
+     * Set the y-slice visibility.
+     *
+     * @param slice The visibility.
+     */
+    void setVisibilityY( const bool& slice );
+
+    /**
+     * Set the z-slice visibility.
+     *
+     * @param slice The visibility.
+     */
+    void setVisibilityZ( const bool& slice );
 
 protected:
 
@@ -155,62 +168,38 @@ protected:
 private:
 
     /**
-     * Callback used to update the data thread-safe without removing and readding the glyph render
-     * object from the scene graph.
+     * Callback to mark data for reload.
      */
-    class DataChangeCallback: public osg::NodeCallback
+    class ReloadCallback: public CLDataChangeCallback
     {
 
     public:
 
         /**
          * Constructor.
-         */
-        DataChangeCallback();
-
-        /**
-         * Overrides osg::NodeCallback::operator().
          *
-         * @param node The node to change.
-         * @param nv The traversal's NodeVisitor.
+         * @param dim The dimension to set.
          */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
+        ReloadCallback( int dim );
 
         /**
-         * Data or slices changed.
+         * Overrides WCLRenderNode::CLDataChangeCallback::change().
+         *
+         * @param clProgramDataSet The CLProgramDataSet to be changed.
          */
-        bool m_changed;
+        virtual void change( CLProgramDataSet* clProgramDataSet ) const;
 
         /**
-         * Data changed.
+         * The dimension. What else?
          */
-        bool m_dataChanged;
+        int m_dimension;
 
-        /**
-         * The new data's tensor order.
-         */
-        int m_order;
-
-        /**
-         * The new slice positions.
-         */
-        int m_slices[ 3 ];
-
-        /**
-         * The new slice status.
-         */
-        int m_sliceEnabled[ 3 ];
-
-        /**
-         * The new tensor data.
-         */
-        boost::shared_ptr< WDataSetSingle > m_tensorData;
     };
 
     /**
-     * Callback used to update the CL objects.
+     * Callback to set slice visibility.
      */
-    class ReloadCallback: public CLDataChangeCallback
+    class ChangeCallback: public CLDataChangeCallback
     {
 
     public:
@@ -221,6 +210,7 @@ private:
          * @param clProgramDataSet The CLProgramDataSet to be changed.
          */
         virtual void change( CLProgramDataSet* clProgramDataSet ) const;
+
     };
 
     /**
@@ -244,32 +234,63 @@ private:
         /**
          * The CL program containing scaling and rendering kernel.
          */
-        cl_program clProgram;
+        cl_program m_program;
 
         /**
          * The scaling kernel.
          */
-        cl_kernel clScaleKernel;
+        cl_kernel m_scaleKernel;
 
         /**
          * The rendering kernel.
          */
-        cl_kernel clRenderKernel;
+        cl_kernel m_renderKernel;
 
         /**
-         * The tensor data.
+         * The x-slice tensor data.
          */
-        cl_mem tensorData;
+        cl_mem m_sliceX;
 
         /**
-         * The multinomial factors.
+         * The y-slice tensor data.
          */
-        cl_mem factors;
+        cl_mem m_sliceY;
 
         /**
-         * Data has to be reloaded.
+         * The z-slice tensor data.
          */
-        bool reloadData;
+        cl_mem m_sliceZ;
+
+        /**
+         * Data have already been loaded.
+         */
+        bool m_dataLoaded;
+
+        /**
+         * X slice has to be reloaded.
+         */
+        bool m_reloadX;
+
+        /**
+         * Y slice has to be reloaded.
+         */
+        bool m_reloadY;
+
+        /**
+         * Z slice has to be reloaded.
+         */
+        bool m_reloadZ;
+
+        /**
+         * Slice visibility has to be set.
+         */
+        bool m_setVisibility;
+
+        /**
+         * Global work size.
+         */
+        size_t m_gws[ 2 ];
+
     };
 
     /**
@@ -298,12 +319,26 @@ private:
     virtual void render( const CLViewInformation& clViewInfo, CLProgramDataSet* clProgramDataSet ) const;
 
     /**
-     * Loads new data to GPU memory.
+     * Loads slice data to GPU memory.
      *
-     * @param clViewInfo The CLViewInformation needed for data loading.
+     * @param clViewInfo The CLViewInformation.
      * @param clObjects The CL objects.
+     * @param slice The slice object.
+     * @param dim The slice dimension.
+     *
+     * @return States whether there have been errors.
      */
-    bool loadCLData( const CLViewInformation& clViewInfo, CLObjects& clObjects ) const;
+    bool loadSlice( const CLViewInformation& clViewInfo, CLObjects& objects, cl_mem& slice, int dim ) const;
+
+    /**
+     * Updates the data on GPU memory.
+     *
+     * @param clViewInfo The CLViewInformation.
+     * @param clObjects The CL objects.
+     *
+     * @return States whether there have been errors.
+     */
+    bool updateData( const CLViewInformation& clViewInfo, CLObjects& objects ) const;
 
     /**
      * Tensor order.
@@ -313,17 +348,17 @@ private:
     /**
      * Number of tensors in grid's x, y and z direction.
      */
-    int m_numOfTensors[ 3 ];
+    int m_numOfTensors[ 4 ];
 
     /**
      * Slice positions.
      */
-    int m_slices[ 3 ];
+    int m_slicePosition[ 4 ];
 
     /**
-     * Show slices.
+     * Slice visibility.
      */
-    int m_sliceEnabled[ 3 ];
+    int m_sliceVisibility[ 4 ];
 
     /**
      * The tensor data set.
@@ -339,6 +374,12 @@ private:
      * Has the kernel source code successfully been read?
      */
     mutable bool m_sourceRead;
+
+    /**
+     * Local work size.
+     */
+    static size_t m_lws[ 2 ];
+
 };
 
 /*-------------------------------------------------------------------------------------------------------------------*/
@@ -381,6 +422,74 @@ inline const char* WGlyphRenderNode::className() const
 inline bool WGlyphRenderNode::isSourceRead() const
 {
     return m_sourceRead;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline void WGlyphRenderNode::setTensorData( const boost::shared_ptr< WDataSetSingle >& data, const int& order )
+{
+    WGridRegular3D* grid = static_cast< WGridRegular3D* >( data->getGrid().get() );
+
+    m_numOfTensors[ 0 ] = grid->getNbCoordsX();
+    m_numOfTensors[ 1 ] = grid->getNbCoordsY();
+    m_numOfTensors[ 2 ] = grid->getNbCoordsZ();
+
+    m_tensorData = data;
+    m_order = order;
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline void WGlyphRenderNode::setPositionX( const int& slice )
+{
+    m_slicePosition[ 0 ] = slice;
+
+    changeDataSet( ReloadCallback( 0 ) );
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline void WGlyphRenderNode::setPositionY( const int& slice )
+{
+    m_slicePosition[ 1 ] = slice;
+
+    changeDataSet( ReloadCallback( 1 ) );
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline void WGlyphRenderNode::setPositionZ( const int& slice )
+{
+    m_slicePosition[ 2 ] = slice;
+
+    changeDataSet( ReloadCallback( 2 ) );
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline void WGlyphRenderNode::setVisibilityX( const bool& slice )
+{
+    m_sliceVisibility[ 0 ] = slice ? 1 : 0;
+
+    changeDataSet( ChangeCallback() );
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline void WGlyphRenderNode::setVisibilityY( const bool& slice )
+{
+    m_sliceVisibility[ 1 ] = slice ? 1 : 0;
+
+    changeDataSet( ChangeCallback() );
+}
+
+/*-------------------------------------------------------------------------------------------------------------------*/
+
+inline void WGlyphRenderNode::setVisibilityZ( const bool& slice )
+{
+    m_sliceVisibility[ 2 ] = slice ? 1 : 0;
+
+    changeDataSet( ChangeCallback() );
 }
 
 /*-------------------------------------------------------------------------------------------------------------------*/

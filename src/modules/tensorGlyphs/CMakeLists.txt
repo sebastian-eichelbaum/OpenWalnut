@@ -43,13 +43,13 @@ IF(MSVC_IDE)
     SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES PREFIX "../")
 ENDIF(MSVC_IDE)
 
-# Copy local kernels to module target directory
-IF( OW_COPY_SHADERS AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/kernels )    # copy kernels only if the user wants it
-    ADD_CUSTOM_TARGET( ${MODULE_NAME}_CopyKernels
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/kernels ${MODULE_TARGET_DIR}/kernels/
-        COMMENT "Copy kernels of ${MODULE_NAME}"
+# Copy local shaders to module target directory
+IF( OW_COPY_SHADERS AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/shaders )    # copy shaders only if the user wants it
+    ADD_CUSTOM_TARGET( ${MODULE_NAME}_CopyShaders
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/shaders ${MODULE_TARGET_DIR}/shaders/
+        COMMENT "Copy shaders of ${MODULE_NAME}"
     )
-    ADD_DEPENDENCIES( ${MODULE_NAME} ${MODULE_NAME}_CopyKernels )
+    ADD_DEPENDENCIES( ${MODULE_NAME} ${MODULE_NAME}_CopyShaders )
 ENDIF()
 
 # Build unit tests
