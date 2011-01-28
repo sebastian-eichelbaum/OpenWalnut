@@ -33,6 +33,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QScrollArea>
 #include <QtGui/QShortcut>
+#include <QtGui/QSplitter>
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPreferences.h"
@@ -118,16 +119,17 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     bool combineThem = false;
     WPreferences::getPreference( "qt4gui.combineTreeAndRoiAndTextureSorter", &combineThem );
 
-    m_layout = new QVBoxLayout();
+    m_splitter = new QSplitter();
+
     if ( !combineThem )
     {
-        m_layout->addWidget( m_moduleTreeWidget );
+        m_splitter->addWidget( m_moduleTreeWidget );
     }
     else
     {
         m_tabWidget2->addTab( m_moduleTreeWidget, QString( "Modules" ) );
     }
-    m_layout->addWidget( m_tabWidget2 );
+    m_splitter->addWidget( m_tabWidget2 );
 
     m_tabWidget2->addTab( m_textureSorter, QString( "Texture Sorter" ) );
 
@@ -143,7 +145,10 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_tabWidget2->addTab( m_roiTreeWidget, QString( "ROIs" ) );
 
 
-    m_layout->addWidget( m_tabWidget );
+    m_splitter->addWidget( m_tabWidget );
+
+    m_layout = new QVBoxLayout();
+    m_layout->addWidget( m_splitter );
 
     m_panel->setLayout( m_layout );
 
@@ -205,7 +210,7 @@ WQtSubjectTreeItem* WQtControlPanel::addSubject( std::string name )
 
 bool WQtControlPanel::event( QEvent* event )
 {
-    // a subject singals a newly registered data set
+    // a subject signals a newly registered data set
     if ( event->type() == WQT_UPDATE_TEXTURE_SORTER_EVENT )
     {
         m_textureSorter->update();
