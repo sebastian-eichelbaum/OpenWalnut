@@ -119,7 +119,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     bool combineThem = false;
     WPreferences::getPreference( "qt4gui.combineTreeAndRoiAndTextureSorter", &combineThem );
 
-    m_splitter = new QSplitter();
+    m_splitter = new QSplitter( Qt::Vertical );
 
     if ( !combineThem )
     {
