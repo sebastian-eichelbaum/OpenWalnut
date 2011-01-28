@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-unifrom float u_glyphSize;
+uniform float u_glyphSize;
 
 void main()
 {
