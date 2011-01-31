@@ -28,9 +28,6 @@
 #include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
 
-template< typename T >
-class WPropertyVariable;
-
 /**
  * This class allows constraining selection properties to not allow selection of multiple items.
  */
