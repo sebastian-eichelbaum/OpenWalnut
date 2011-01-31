@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGEPOSTPROCESSING_GLSL
+#define WGEPOSTPROCESSING_GLSL
+
+#version 120
+
 // This defines some stuff needed to enable your shader to allow the result to be post-processed.
 // You'll need to do the following:
 //  * Set a fragment-depth! If you render simple geometry, this is done by your GPU automatically. If you do ray-tracing or similar, where the
@@ -42,4 +47,6 @@
     #define wge_FragNormal WGE_POSTPROCESSING_ENABLED_dummyVec3
     #define wge_FragColor  gl_FragData[0]
 #endif
+
+#endif // WGEPOSTPROCESSING_GLSL
 

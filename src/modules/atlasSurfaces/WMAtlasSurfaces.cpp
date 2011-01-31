@@ -30,27 +30,25 @@
 
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Material>
-#include <osg/StateSet>
-#include <osg/StateAttribute>
-#include <osg/PolygonMode>
 #include <osg/LightModel>
+#include <osg/Material>
+#include <osg/PolygonMode>
+#include <osg/StateAttribute>
+#include <osg/StateSet>
 
 #include "../../common/WAssert.h"
 #include "../../common/WThreadedFunction.h"
 #include "../../dataHandler/WDataSetScalar.h"
-#include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
-#include "../../kernel/WKernel.h"
-
-#include "../../graphicsEngine/WROIArbitrary.h"
-#include "../../graphicsEngine/WROI.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
-
+#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WROI.h"
+#include "../../graphicsEngine/WROIArbitrary.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WROIManager.h"
 #include "WCreateSurfaceJob.h"
-
 #include "WMAtlasSurfaces.h"
 #include "WMAtlasSurfaces.xpm"
 
@@ -261,7 +259,7 @@ void WMAtlasSurfaces::createOSGNode()
         // colors
         osg::Vec4Array* colors = new osg::Vec4Array;
 
-        colors->push_back( wge::osgColor( wge::createColorFromIndex( i ) ) );
+        colors->push_back( wge::createColorFromIndex( i ) );
 
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );

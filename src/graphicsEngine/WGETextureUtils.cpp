@@ -48,7 +48,47 @@ size_t wge::getMaxTexUnits()
     return 8;
 }
 
-osg::ref_ptr< WGETexture2D > wge::genWhiteNoiseTexture( size_t size, size_t channels )
+osg::ref_ptr< WGETexture< osg::Texture1D > > wge::genWhiteNoiseTexture( size_t sizeX, size_t channels )
+{
+    // put it into an texture
+    osg::ref_ptr< WGETexture1D > randTexture = new WGETexture1D( genWhiteNoiseImage( sizeX, 1, 1, channels ) );
+    randTexture->setTextureWidth( sizeX );
+    randTexture->setFilter( osg::Texture1D::MIN_FILTER, osg::Texture1D::NEAREST );
+    randTexture->setFilter( osg::Texture1D::MAG_FILTER, osg::Texture1D::NEAREST );
+    randTexture->setWrap( osg::Texture1D::WRAP_S, osg::Texture1D::REPEAT );
+
+    return randTexture;
+}
+
+osg::ref_ptr< WGETexture< osg::Texture2D > > wge::genWhiteNoiseTexture( size_t sizeX, size_t sizeY, size_t channels )
+{
+    osg::ref_ptr< WGETexture2D > randTexture = new WGETexture2D( genWhiteNoiseImage( sizeX, sizeY, 1, channels ) );
+    randTexture->setTextureWidth( sizeX );
+    randTexture->setTextureHeight( sizeY );
+    randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
+    randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
+    randTexture->setWrap( osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT );
+    randTexture->setWrap( osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT );
+
+    return randTexture;
+}
+
+osg::ref_ptr< WGETexture< osg::Texture3D > > wge::genWhiteNoiseTexture( size_t sizeX, size_t sizeY, size_t sizeZ, size_t channels )
+{
+    osg::ref_ptr< WGETexture3D > randTexture = new WGETexture3D( genWhiteNoiseImage( sizeX, sizeY, sizeZ, channels ) );
+    randTexture->setTextureWidth( sizeX );
+    randTexture->setTextureHeight( sizeY );
+    randTexture->setTextureDepth( sizeZ );
+    randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
+    randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
+    randTexture->setWrap( osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT );
+    randTexture->setWrap( osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT );
+    randTexture->setWrap( osg::Texture2D::WRAP_R, osg::Texture2D::REPEAT );
+
+    return randTexture;
+}
+
+osg::ref_ptr< osg::Image > wge::genWhiteNoiseImage( size_t sizeX, size_t sizeY, size_t sizeZ, size_t channels )
 {
     WPrecond( ( channels == 1 ) || ( channels == 3 ) || ( channels == 4 ), "Invalid number of channels. Valid are: 1, 3 and 4."  );
 
@@ -64,30 +104,15 @@ osg::ref_ptr< WGETexture2D > wge::genWhiteNoiseTexture( size_t size, size_t chan
     {
         type = GL_RGBA;
     }
-    randImage->allocateImage( size, size, 1, type, GL_UNSIGNED_BYTE );
+    randImage->allocateImage( sizeX, sizeY, sizeZ, type, GL_UNSIGNED_BYTE );
     unsigned char *randomLuminance = randImage->data();  // should be 4 megs
-    for( unsigned int channel = 0; channel < channels; channel++ )
+    for( size_t i = 0; i < channels * sizeX * sizeY * sizeZ; ++i )
     {
-        for( unsigned int x = 0; x < size; x++ )
-        {
-            for( unsigned int y = 0; y < size; y++ )
-            {
-                // - stylechecker says "use rand_r" but I am not sure about portability.
-                unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
-                randomLuminance[ ( y * size * channels ) + ( x * channels ) + channel ] = r;
-            }
-        }
+        // - stylechecker says "use rand_r" but I am not sure about portability.
+        unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
+        randomLuminance[ i ] = r;
     }
 
-    // put it into an texture
-    osg::ref_ptr< WGETexture2D > randTexture = new WGETexture2D( randImage );
-    randTexture->setTextureWidth( size );
-    randTexture->setTextureHeight( size );
-    randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
-    randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
-    randTexture->setWrap( osg::Texture2D::WRAP_S, osg::Texture2D::REPEAT );
-    randTexture->setWrap( osg::Texture2D::WRAP_T, osg::Texture2D::REPEAT );
-
-    return randTexture;
+    return randImage;
 }
 

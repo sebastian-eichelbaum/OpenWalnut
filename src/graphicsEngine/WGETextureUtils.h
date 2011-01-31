@@ -30,7 +30,9 @@
 #include <osg/Node>
 #include <osg/StateSet>
 #include <osg/TexMat>
+#include <osg/Texture1D>
 #include <osg/Texture2D>
+#include <osg/Texture3D>
 
 #include <boost/lexical_cast.hpp>
 
@@ -96,14 +98,49 @@ namespace wge
     size_t WGE_EXPORT getMaxTexUnits();
 
     /**
-     * This generates an 2D texture only containing white noise in its channels.
+     * This generates an 1D texture only containing white noise in its channels.
      *
-     * \param size size in x/y direction (in pixels)
+     * \param sizeX size in x direction (in pixels)
      * \param channels the number of channels. Valid are 1, 3 and 4.
      *
      * \return the generated texture.
      */
-    osg::ref_ptr< WGETexture< osg::Texture2D > > genWhiteNoiseTexture( size_t size, size_t channels = 1 );
+    osg::ref_ptr< WGETexture< osg::Texture1D > > genWhiteNoiseTexture( size_t sizeX, size_t channels );
+
+    /**
+     * This generates an 2D texture only containing white noise in its channels.
+     *
+     * \param sizeX size in x direction (in pixels)
+     * \param sizeY size in y direction (in pixels)
+     * \param channels the number of channels. Valid are 1, 3 and 4.
+     *
+     * \return the generated texture.
+     */
+    osg::ref_ptr< WGETexture< osg::Texture2D > > genWhiteNoiseTexture( size_t sizeX, size_t sizeY, size_t channels );
+
+    /**
+     * This generates an 3D texture only containing white noise in its channels.
+     *
+     * \param sizeX size in x direction (in pixels)
+     * \param sizeY size in y direction (in pixels)
+     * \param sizeZ size in z direction (in pixels)
+     * \param channels the number of channels. Valid are 1, 3 and 4.
+     *
+     * \return the generated texture.
+     */
+    osg::ref_ptr< WGETexture< osg::Texture3D > > genWhiteNoiseTexture( size_t sizeX, size_t sizeY, size_t sizeZ, size_t channels );
+
+    /**
+     * Generates an image only containing white noise in its channels.
+     *
+     * \param sizeX size in x direction (in pixels)
+     * \param sizeY size in y direction (in pixels)
+     * \param sizeZ size in z direction (in pixels)
+     * \param channels the number of channels. Valid are 1, 3 and 4.
+     *
+     * \return the generated image.
+     */
+    osg::ref_ptr< osg::Image > genWhiteNoiseImage( size_t sizeX, size_t sizeY, size_t sizeZ, size_t channels = 1 );
 }
 
 template < typename T >
@@ -134,7 +171,7 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture<
     wge::bindTexture< T >( node, osg::ref_ptr< T >( texture ), unit, prefix );
 
     // set the texture matrix to the stateset
-    osg::TexMat* texMat = new osg::TexMat();
+    osg::TexMat* texMat = new osg::TexMat( osg::Matrix::identity() );
     // use a callback to update the tex matrix if needed according to transformation property of texture
     texMat->setUpdateCallback( new WGEPropertyTransformationCallback< osg::StateAttribute, osg::TexMat >( texture->transformation() ) );
     node->getOrCreateStateSet()->setTextureAttributeAndModes( unit, texMat, osg::StateAttribute::ON );

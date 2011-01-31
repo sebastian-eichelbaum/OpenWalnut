@@ -33,6 +33,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QScrollArea>
 #include <QtGui/QShortcut>
+#include <QtGui/QSplitter>
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPreferences.h"
@@ -40,7 +41,9 @@
 #include "../../../kernel/modules/data/WMData.h"
 #include "../../../kernel/WKernel.h"
 #include "../../../kernel/WModule.h"
+#include "../../../kernel/WModuleContainer.h"
 #include "../../../kernel/WModuleFactory.h"
+#include "../../../kernel/WROIManager.h"
 #include "../events/WEventTypes.h"
 #include "../events/WModuleAssocEvent.h"
 #include "../events/WModuleConnectEvent.h"
@@ -71,7 +74,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_moduleTreeWidget->setDragEnabled( false );
     m_moduleTreeWidget->viewport()->setAcceptDrops( true );
     m_moduleTreeWidget->setDropIndicatorShown( true );
-    m_moduleTreeWidget->setMinimumHeight( 250 );
+    m_moduleTreeWidget->setMinimumHeight( 100 );
 
     // create context menu for tree items
 
@@ -110,22 +113,23 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
 
     m_tabWidget = new QTabWidget( m_panel );
     m_tabWidget2 = new QTabWidget( m_panel );
-    m_tabWidget->setMinimumHeight( 220 );
+    m_tabWidget->setMinimumHeight( 250 );
 
     // should the Tree, Texture Sorter and the ROI Display be combined in one tab widget?
     bool combineThem = false;
     WPreferences::getPreference( "qt4gui.combineTreeAndRoiAndTextureSorter", &combineThem );
 
-    m_layout = new QVBoxLayout();
+    m_splitter = new QSplitter( Qt::Vertical );
+
     if ( !combineThem )
     {
-        m_layout->addWidget( m_moduleTreeWidget );
+        m_splitter->addWidget( m_moduleTreeWidget );
     }
     else
     {
         m_tabWidget2->addTab( m_moduleTreeWidget, QString( "Modules" ) );
     }
-    m_layout->addWidget( m_tabWidget2 );
+    m_splitter->addWidget( m_tabWidget2 );
 
     m_tabWidget2->addTab( m_textureSorter, QString( "Texture Sorter" ) );
 
@@ -140,8 +144,20 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_roiTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
     m_tabWidget2->addTab( m_roiTreeWidget, QString( "ROIs" ) );
 
+    m_splitter->addWidget( m_tabWidget );
 
-    m_layout->addWidget( m_tabWidget );
+    // set the initial sizes.
+    QList< int > splitterList;
+    splitterList.push_back( 200 );
+    if ( !combineThem )
+    {
+        splitterList.push_back( 200 );
+    }
+    splitterList.push_back( 400 );
+    m_splitter->setSizes( splitterList );
+
+    m_layout = new QVBoxLayout();
+    m_layout->addWidget( m_splitter );
 
     m_panel->setLayout( m_layout );
 
@@ -203,7 +219,7 @@ WQtSubjectTreeItem* WQtControlPanel::addSubject( std::string name )
 
 bool WQtControlPanel::event( QEvent* event )
 {
-    // a subject singals a newly registered data set
+    // a subject signals a newly registered data set
     if ( event->type() == WQT_UPDATE_TEXTURE_SORTER_EVENT )
     {
         m_textureSorter->update();

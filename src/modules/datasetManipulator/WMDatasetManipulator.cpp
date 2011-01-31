@@ -30,7 +30,7 @@
 
 #include "../../common/WBoundingBox.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../dataHandler/WSubject.h"
 #include "WMDatasetManipulator.xpm"
 
@@ -135,7 +135,7 @@ void WMDatasetManipulator::properties()
 
 void WMDatasetManipulator::init()
 {
-    m_grid = m_input->getData()->getTexture()->getGrid();
+    m_grid = m_input->getData()->getTexture2()->getGrid();
     WBoundingBox bb = m_grid->getBoundingBox();
 
     wmath::WPosition center = bb.center();

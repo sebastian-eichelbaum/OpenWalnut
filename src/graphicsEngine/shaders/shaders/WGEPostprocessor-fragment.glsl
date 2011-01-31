@@ -22,6 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
+#ifndef WGEPOSTPROCESSOR_FRAGMENT_GLSL
+#define WGEPOSTPROCESSOR_FRAGMENT_GLSL
+
 #version 120
 
 #include "WGEShadingTools.glsl"
@@ -607,4 +610,6 @@ void main()
     // output the depth and final color.
     gl_FragColor = color;
 }
+
+#endif // WGEPOSTPROCESSOR_FRAGMENT_GLSL
 

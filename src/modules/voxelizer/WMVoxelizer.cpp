@@ -167,7 +167,7 @@ void WMVoxelizer::properties()
     m_fiberTransparency = m_properties->addProperty( "Fiber Transparency", "", 1.0, m_fullUpdate );
     m_fiberTransparency->setMin( 0.0 );
     m_fiberTransparency->setMax( 1.0 );
-    m_explicitFiberColor = m_properties->addProperty( "Explicit Fiber Color", "", WColor( 0.2, 0.2, 0.2 ), m_fullUpdate );
+    m_explicitFiberColor = m_properties->addProperty( "Explicit Fiber Color", "", WColor( 0.2, 0.2, 0.2, 1.0 ), m_fullUpdate );
 
     WModule::properties();
 }
@@ -213,12 +213,12 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
         {
             vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
             WColor col = m_explicitFiberColor->get( true );
-            if( m_explicitFiberColor->get() == WColor( 0.2, 0.2, 0.2 ) )
+            if( m_explicitFiberColor->get() == WColor( 0.2, 0.2, 0.2, 1.0 ) )
             {
                 col = wge::getRGBAColorFromDirection( fib[i], fib[i-1] );
             }
-            col.setAlpha( m_fiberTransparency->get( true ) );
-            colors->push_back( wge::osgColor( col ) );
+            col[3] = m_fiberTransparency->get( true );
+            colors->push_back( col );
         }
         colors->push_back( colors->back() );
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fib.size(), fib.size() ) );
@@ -469,13 +469,13 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
             for( size_t j = 0; j < ver->size(); ++j )
             {
                 double transparency = ( values[i] <= 1.0 ? values[i] : 1.0 );
-                colors->push_back( wge::osgColor( WColor( 1, 0, 0, transparency ) ) );
+                colors->push_back( WColor( 1.0, 0.0, 0.0, transparency ) );
             }
         }
     }
 
     geometry->setVertexArray( vertices );
-    colors->push_back( wge::osgColor( WColor( 1, 0, 0, 0.1 ) ) );
+    colors->push_back( WColor( 1.0, 0.0, 0.0, 0.1 ) );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     geometry->setNormalArray( normals );

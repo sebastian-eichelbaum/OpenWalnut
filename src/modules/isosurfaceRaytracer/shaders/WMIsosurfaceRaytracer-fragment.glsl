@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WGEColormapping-fragment.glsl"
+
 #include "WGEShadingTools.glsl"
 #include "WGETextureTools.glsl"
 #include "WGEPostprocessing.glsl"
@@ -39,7 +41,11 @@
 /////////////////////////////////////////////////////////////////////////////
 
 // texture containing the data
-uniform sampler3D tex0;
+uniform sampler3D u_texture0Sampler;
+
+uniform int u_texture0SizeX;
+uniform int u_texture0SizeY;
+uniform int u_texture0SizeZ;
 
 #ifdef STOCHASTICJITTER_ENABLED
 // texture containing the stochastic jitter texture
@@ -49,14 +55,18 @@ uniform sampler2D u_texture1Sampler;
 uniform int u_texture1SizeX;
 #endif
 
-// The isovalue to use.
-uniform float u_isovalue;
+#ifdef GRADIENTTEXTURE_ENABLED
+uniform sampler3D u_gradientsSampler;
+#endif
 
 // The number of steps to use.
 uniform int u_steps;
 
 // The alpha value to set
 uniform float u_alpha;
+
+// the ratio between normal color and the colormapping color.
+uniform float u_colormapRatio;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -99,6 +109,24 @@ float pointDistance( vec3 p1, vec3 p2 )
 }
 
 /**
+ * Returns the gradient vector at the given position.
+ *
+ * \param position the voxel for which to get the gradient
+ *
+ * \return the gradient, NOT normalized
+ */
+vec3 getNormal( in vec3 position )
+{
+    vec3 grad;
+#ifdef GRADIENTTEXTURE_ENABLED
+    grad = ( 2.0 * texture3D( u_gradientsSampler, position ).rgb ) + vec3( -1.0 );
+#else
+    grad = getGradient( u_texture0Sampler, position );
+#endif
+    return sign( dot( grad, -v_ray ) ) * grad;
+}
+
+/**
  * Main entry point of the fragment shader.
  */
 void main()
@@ -132,10 +160,10 @@ void main()
     while ( i < u_steps - 1 ) // we do not need to ch
     {
         // get current value
-        value = texture3D( tex0, curPoint ).r;
+        value = texture3D( u_texture0Sampler, curPoint ).r;
 
         // is it the isovalue?
-        if ( abs( value - u_isovalue ) < 0.1 )
+        if ( abs( value - v_isovalue ) < 0.1 )
         {
             // we need to know the depth value of the current point inside the cube
             // Therefore, the complete standard pipeline is reproduced here:
@@ -158,7 +186,7 @@ void main()
             // 4: Shading
 
             // find a proper normal for a headlight in world-space
-            vec3 normal = ( gl_ModelViewMatrix * vec4( getGradientViewAligned( tex0, curPoint, v_ray ), 0.0 ) ).xyz;
+            vec3 normal = ( gl_ModelViewMatrix * vec4( getNormal( curPoint ), 0.0 ) ).xyz;
 #ifdef WGE_POSTPROCESSING_ENABLED
             wge_FragNormal = textureNormalize( normal );
 #endif
@@ -174,7 +202,7 @@ void main()
                 1.0,               // light diffuse
                 0.3,               // light ambient
                 normalize( normal ),                 // normal
-                vec4( 0.0, 0.0, 1.0, 1.0 ).xyz,      // view direction  // in world space, this always is the view-dir
+                vec3( 0.0, 0.0, 1.0 ),      // view direction  // in world space, this always is the view-dir
                 gl_LightSource[0].position.xyz       // light source position
             );
 #endif
@@ -193,8 +221,13 @@ void main()
             light = light * 11.0 * d2;
 #endif
 
+            // mix color with colormap
+            vec4 color = mix(
+                colormapping( vec4( curPoint.x * u_texture0SizeX, curPoint.y * u_texture0SizeY, curPoint.z * u_texture0SizeZ, 1.0 ) ),
+                vec4( gl_Color.rgb, u_alpha ),
+                1.0 - u_colormapRatio );
             // 5: the final color construction
-            wge_FragColor = vec4( light * gl_Color.rgb, u_alpha );
+            wge_FragColor = vec4( light * color.rgb, color.a );
 
             break;
         }

@@ -52,14 +52,6 @@ namespace wge
     WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
 
     /**
-     * Converts a WColor to an OSG compatible color
-     *
-     * \param color The color in WColor format
-     * \return A color which may be used inside of OSG
-     */
-    osg::Vec4 osgColor( const WColor& color );
-
-    /**
      * Converts a whole vector of WPositions into an osg::Vec3Array.
      *
      * \param posArray The given positions vector
@@ -97,10 +89,9 @@ namespace wge
      * creates the nth color of a partition of the hsv color circle
      *
      * \param n number of the color
-     * \param parts partition size
      * \return the color
      */
-    WColor WGE_EXPORT getNthHSVColor( int n, int parts = 10 );
+    WColor WGE_EXPORT getNthHSVColor( int n );
 
     /**
      * This method converts an WMatrix to the corresponding osg::Matrixd.
@@ -116,12 +107,7 @@ inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, cons
 {
     wmath::WPosition direction( ( pos2 - pos1 ) );
     direction.normalize();
-    return WColor( std::abs( direction[0] ), std::abs( direction[1] ), std::abs( direction[2] ) );
-}
-
-inline osg::Vec4 wge::osgColor( const WColor& color )
-{
-    return osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() );
+    return WColor( std::abs( direction[0] ), std::abs( direction[1] ), std::abs( direction[2] ), 1.0f );
 }
 
 inline osg::Matrixd wge::toOSGMatrix( const wmath::WMatrix<double>& matrix )

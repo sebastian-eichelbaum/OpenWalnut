@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <QtGui/QDockWidget>
+#include <QtGui/QSplitter>
 #include <QtGui/QTabWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
@@ -231,6 +232,8 @@ private:
     QWidget* m_panel; //!< panel
 
     QVBoxLayout* m_layout; //!< layout
+
+    QSplitter* m_splitter; //!< splitter to have resizable widgets in the control panel
 
     WQtModuleHeaderTreeItem* m_tiModules; //!< header for modules
 

@@ -24,13 +24,13 @@
 
 #include <string>
 
-#include "../../dataHandler/WDataHandlerEnums.h"
+#include "../../common/WPathHelper.h"
 #include "../../dataHandler/io/WReaderNIfTI.h"
+#include "../../dataHandler/WDataHandlerEnums.h"
 #include "../../graphicsEngine/WGERequirement.h"
 #include "../../kernel/WKernel.h"
-#include "WMReadSphericalHarmonics.xpm"
-
 #include "WMReadSphericalHarmonics.h"
+#include "WMReadSphericalHarmonics.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMReadSphericalHarmonics )

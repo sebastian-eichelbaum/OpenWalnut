@@ -28,9 +28,6 @@
 #include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
 
-template< typename T >
-class WPropertyVariable;
-
 /**
  * This class allows constraining properties to be existing filenames. This is especially useful for WPropFilename.
  */

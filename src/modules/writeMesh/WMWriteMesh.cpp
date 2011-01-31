@@ -25,9 +25,9 @@
 #include <string>
 
 #include "../../common/math/WMath.h"
+#include "../../common/WPathHelper.h"
 #include "../../kernel/WKernel.h"
 #include "../emptyIcon.xpm" // Please put a real icon here.
-
 #include "WMWriteMesh.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.

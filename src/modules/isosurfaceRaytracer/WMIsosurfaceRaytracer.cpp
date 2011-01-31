@@ -34,11 +34,13 @@
 #include "../../common/WColor.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WDataSetVector.h"
+#include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
 #include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
@@ -95,6 +97,9 @@ void WMIsosurfaceRaytracer::connectors()
     // As properties, every connector needs to be added to the list of connectors.
     addConnector( m_input );
 
+    // Optional: the gradient field
+    m_gradients = WModuleInputData< WDataSetVector >::createAndAdd( shared_from_this(), "gradients", "The gradient field of the dataset to display" );
+
     // call WModules initialization
     WModule::connectors();
 }
@@ -105,7 +110,8 @@ void WMIsosurfaceRaytracer::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     m_isoValue      = m_properties->addProperty( "Isovalue",         "The isovalue used whenever the isosurface Mode is turned on.",
-                                                                      50 );
+                                                                      128.0 );
+
     m_isoColor      = m_properties->addProperty( "Iso color",        "The color to blend the isosurface with.", WColor( 1.0, 1.0, 1.0, 1.0 ),
                       m_propCondition );
 
@@ -114,7 +120,13 @@ void WMIsosurfaceRaytracer::properties()
     m_stepCount->setMin( 1 );
     m_stepCount->setMax( 1000 );
 
-    m_alpha         = m_properties->addProperty( "Opacity %",        "The opacity in %. Transparency = 100 - Opacity.", 100 );
+    m_alpha         = m_properties->addProperty( "Opacity %",        "The opacity in %. Transparency = 1 - Opacity.", 1.0 );
+    m_alpha->setMin( 0.0 );
+    m_alpha->setMax( 1.0 );
+
+    m_colormapRatio = m_properties->addProperty( "Colormap Ratio",   "The intensity of the colormap in contrast to surface shading.", 0.5 );
+    m_colormapRatio->setMin( 0.0 );
+    m_colormapRatio->setMax( 1.0 );
 
     m_phongShading  = m_properties->addProperty( "Phong Shading", "If enabled, Phong shading gets applied on a per-pixel basis.", true );
 
@@ -143,10 +155,12 @@ void WMIsosurfaceRaytracer::moduleMain()
     m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
         new WGEShaderPropertyDefineOptions< WPropBool >( m_phongShading, "PHONGSHADING_DISABLED", "PHONGSHADING_ENABLED" ) )
     );
+    WGEShaderDefineSwitch::SPtr gradTexEnableDefine = m_shader->setDefine( "GRADIENTTEXTURE_ENABLED" );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_gradients->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
 
     // Signal ready state.
@@ -187,7 +201,7 @@ void WMIsosurfaceRaytracer::moduleMain()
         }
 
         // was there an update?
-        bool dataUpdated = m_input->updated();
+        bool dataUpdated = m_input->updated() || m_gradients->updated();
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
         bool dataValid   = ( dataSet );
 
@@ -210,6 +224,10 @@ void WMIsosurfaceRaytracer::moduleMain()
         {
             debugLog() << "Data changed. Uploading new data as texture.";
 
+            m_isoValue->setMin( dataSet->getTexture2()->minimum()->get() );
+            m_isoValue->setMax( dataSet->getTexture2()->scale()->get() + dataSet->getTexture2()->minimum()->get() );
+            m_isoValue->set( dataSet->getTexture2()->minimum()->get() + ( 0.5 * dataSet->getTexture2()->scale()->get() ) );
+
             // First, grab the grid
             boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
             if ( !grid )
@@ -227,37 +245,40 @@ void WMIsosurfaceRaytracer::moduleMain()
             // we also set the grid's transformation here
             rootNode->setMatrix( wge::toOSGMatrix( grid->getTransformationMatrix() ) );
 
-            m_shader->apply( cube );
-
             // bind the texture to the node
-            osg::ref_ptr< osg::Texture3D > texture3D = dataSet->getTexture()->getTexture();
-            osg::StateSet* rootState = rootNode->getOrCreateStateSet();
-            rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
+            osg::StateSet* rootState = cube->getOrCreateStateSet();
+            osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture2();
+            texture3D->bind( cube );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // setup all those uniforms
+            // setup all those uniforms and additional textures
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            // for the texture, also bind the appropriate uniforms
-            rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
-
-            osg::ref_ptr< osg::Uniform > isovalue = new osg::Uniform( "u_isovalue", static_cast< float >( m_isoValue->get() / 100.0 ) );
-            isovalue->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
-            steps->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            osg::ref_ptr< osg::Uniform > alpha = new osg::Uniform( "u_alpha", static_cast< float >( m_alpha->get() / 100.0 ) );
-            alpha->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            rootState->addUniform( isovalue );
-            rootState->addUniform( steps );
-            rootState->addUniform( alpha );
-
+            rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_isovalue", m_isoValue ) );
+            rootState->addUniform( new WGEPropertyUniform< WPropInt >( "u_steps", m_stepCount ) );
+            rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_alpha", m_alpha ) );
+            rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio ) );
             // Stochastic jitter?
             const size_t size = 64;
-            osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size );
+            osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size, size, 1 );
             wge::bindTexture( cube, randTex, 1 );
+
+            // if there is a gradient field available -> apply as texture too
+            boost::shared_ptr< WDataSetVector > gradients = m_gradients->getData();
+            if ( gradients )
+            {
+                debugLog() << "Uploading specified gradient field.";
+
+                // bind the texture to the node
+                osg::ref_ptr< WDataTexture3D_2 > gradTexture3D = gradients->getTexture2();
+                wge::bindTexture( cube, gradTexture3D, 2, "u_gradients" );
+                gradTexEnableDefine->setActive( true );
+            }
+            else
+            {
+                gradTexEnableDefine->setActive( false ); // disable gradient texture
+            }
+            WGEColormapping::apply( cube, grid->getTransformationMatrix(), m_shader, 3 );
 
             // update node
             debugLog() << "Adding new rendering.";
@@ -276,28 +297,5 @@ void WMIsosurfaceRaytracer::moduleMain()
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
     // allocated memory and remove all OSG nodes.
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( postNode );
-}
-
-void WMIsosurfaceRaytracer::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    // currently, there is nothing to update
-    traverse( node, nv );
-}
-
-void WMIsosurfaceRaytracer::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
-{
-    // update some uniforms:
-    if ( m_module->m_isoValue->changed() && ( uniform->getName() == "u_isovalue" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) ) / 100.0f );
-    }
-    if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
-    {
-        uniform->set( m_module->m_stepCount->get( true ) );
-    }
-    if ( m_module->m_alpha->changed() && ( uniform->getName() == "u_alpha" ) )
-    {
-        uniform->set( static_cast< float >( m_module->m_alpha->get( true ) / 100.0 ) );
-    }
 }
 
