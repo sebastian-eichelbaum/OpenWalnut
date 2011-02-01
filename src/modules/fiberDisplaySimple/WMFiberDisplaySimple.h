@@ -149,6 +149,16 @@ private:
     WPropDouble m_clipPlaneDistance;
 
     /**
+     * Prop denoting whether to use tubes or line strips
+     */
+    WPropBool m_useTubes;
+
+    /**
+     * Group containing tube specific properties
+     */
+    WPropGroup m_tubeGroup;
+
+    /**
      * Uniform for plane point.
      */
     osg::ref_ptr< WGEPropertyUniform< WPropPosition > > m_clipPlanePointUniform;
@@ -168,7 +178,22 @@ private:
      *
      * \param node the transform node
      */
-    void clipPlaneCallback( osg::Node* node );
+    void clipPlaneCallback( osg::Node* node ) const;
+
+    /**
+     * Creates the clip plane with corresponding callbacks.
+     *
+     * \return the clip plane node
+     */
+    osg::ref_ptr< osg::Node > createClipPlane() const;
+
+    /**
+     * Creates a geode containing the fiber geometry
+     *
+     * \return the geode
+     */
+    osg::ref_ptr< osg::Node > createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers ) const;
+
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H

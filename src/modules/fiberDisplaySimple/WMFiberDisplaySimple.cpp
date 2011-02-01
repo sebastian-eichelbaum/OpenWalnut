@@ -100,6 +100,9 @@ void WMFiberDisplaySimple::properties()
     m_clipPlaneDistance= m_clipPlaneGroup->addProperty( "Clip distance", "The distance from the plane where fibers get clipped.",  10.0 );
     m_clipPlaneDistance->removeConstraint( m_clipPlaneDistance->getMax() ); // there simply is no max.
 
+    m_tubeGroup = m_properties->addPropertyGroup( "Tube Rendering", "If true, advanced fake-tube rendering is used." );
+    m_useTubes = m_tubeGroup->addProperty( "Enable Tubes", "If set, fake-tube rendering is used.", false, m_propCondition  );
+
     // call WModule's initialization
     WModule::properties();
 }
@@ -148,6 +151,12 @@ void WMFiberDisplaySimple::moduleMain()
 
     // this node keeps the geode
     osg::ref_ptr< WGEManagedGroupNode > rootNode = osg::ref_ptr< WGEManagedGroupNode >( new WGEManagedGroupNode( m_active ) );
+    osg::StateSet* rootState = rootNode->getOrCreateStateSet();
+
+    // do not forget to add the uniforms
+    rootState->addUniform( m_clipPlanePointUniform );
+    rootState->addUniform( m_clipPlaneVectorUniform );
+    rootState->addUniform( m_clipPlaneDistanceUniform );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
 
     // needed to observe the properties of the input connector data
@@ -165,6 +174,10 @@ void WMFiberDisplaySimple::moduleMain()
         {
             break;
         }
+
+        //////////////////////////////////////////////////////////////////////////////////////////
+        // Get and check data
+        //////////////////////////////////////////////////////////////////////////////////////////
 
         // To query whether an input was updated, simply ask the input:
         bool dataUpdated = m_fiberInput->updated();
@@ -200,139 +213,21 @@ void WMFiberDisplaySimple::moduleMain()
         m_properties->addProperty( m_fibProps );
 
         //////////////////////////////////////////////////////////////////////////////////////////
-        // Create new fiber geode
+        // Create new rendering
         //////////////////////////////////////////////////////////////////////////////////////////
-
-        // geode and geometry
-        osg::ref_ptr< osg::Geode > geode = new osg::Geode();
-        osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-        osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-        osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
-
-        // needed arrays for iterating the fibers
-        WDataSetFibers::IndexArray  fibStart = fibers->getLineStartIndexes();
-        WDataSetFibers::LengthArray fibLen   = fibers->getLineLengths();
-        WDataSetFibers::VertexArray fibVerts = fibers->getVertices();
-        // get current color scheme - the mode is important as it defines the number of floats in the color array per vertex.
-        WDataSetFibers::ColorScheme::ColorMode fibColorMode = fibers->getColorScheme()->getMode();
-        debugLog() << "Color mode is " << fibColorMode << ".";
-        WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
-
-        // progress indication
-        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Adding fibers to geode", fibStart->size() ) );
-        m_progress->addSubProgress( progress1 );
-
-        // for each fiber:
-        debugLog() << "Iterating over all fibers.";
-        size_t currentStart = 0;
-        for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
-        {
-            ++*progress1;
-
-            // the start vertex index
-            size_t sidx = fibStart->at( fidx ) * 3;
-            size_t csidx = fibStart->at( fidx ) * fibColorMode;
-
-            // the length of the fiber
-            size_t len = fibLen->at( fidx );
-
-            // walk along the fiber
-            for ( size_t k = 0; k < len; ++k )
-            {
-                vertices->push_back( osg::Vec3( fibVerts->at( ( 3 * k ) + sidx ),
-                                                fibVerts->at( ( 3 * k ) + sidx + 1 ),
-                                                fibVerts->at( ( 3 * k ) + sidx + 2 ) ) );
-
-                // for correctly indexing the color array, the offset depends on the color mode.
-                if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
-                {
-                    colors->push_back( osg::Vec4( fibColors->at( ( fibColorMode * k ) + csidx + ( 0 % fibColorMode ) ),
-                                                  fibColors->at( ( fibColorMode * k ) + csidx + ( 1 % fibColorMode ) ),
-                                                  fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
-                                                  fibColors->at( ( fibColorMode * k ) + csidx + ( 3 % fibColorMode ) ) ) );
-                }
-                else
-                {
-                    colors->push_back( osg::Vec4( fibColors->at( ( fibColorMode * k ) + csidx + ( 0 % fibColorMode ) ),
-                                                  fibColors->at( ( fibColorMode * k ) + csidx + ( 1 % fibColorMode ) ),
-                                                  fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
-                                                  1.0 ) );
-                }
-            }
-
-            // add the above line-strip
-            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, currentStart, len ) );
-            currentStart += len;
-        }
-
-        geometry->setVertexArray( vertices );
-        geometry->setColorArray( colors );
-        geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
-
-        geode->addDrawable( geometry );
-
-        osg::StateSet* state = geode->getOrCreateStateSet();
-
-        // enable blending, select transparent bin if RGBA mode is used
-        if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
-        {
-            enableTransparency( state );
-        }
-        else
-        {
-            state->setMode( GL_BLEND, osg::StateAttribute::OFF );
-        }
-
-        // disable light for this geode as lines can't be lit properly
-        state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
 
         // add geode to module node
         rootNode->clear();
 
+        // create the fiber geode
+        osg::ref_ptr< osg::Node > geode = createFiberGeode( fibers );
+
         // Apply the shader. This is for clipping.
-        state->addUniform( m_clipPlanePointUniform );
-        state->addUniform( m_clipPlaneVectorUniform );
-        state->addUniform( m_clipPlaneDistanceUniform );
-
-        // add the clipping plane
-        osg::ref_ptr< osg::Geode > planeGeode = new osg::Geode();
-        osg::ref_ptr< osg::MatrixTransform > planeTransform = new osg::MatrixTransform();
-        osg::ref_ptr< osg::Vec3Array > planeVertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
-        osg::ref_ptr< osg::Vec4Array > planeColor = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-        osg::ref_ptr< osg::Geometry > planeGeometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
-
-
-        planeColor->push_back( osg::Vec4( 1.0, 0.0, 0.0, 0.125 ) );
-        planeVertices->push_back( osg::Vec3( 0.0, -100.0, -100.0 ) );
-        planeVertices->push_back( osg::Vec3( 0.0, -100.0,  100.0 ) );
-        planeVertices->push_back( osg::Vec3( 0.0,  100.0,  100.0 ) );
-        planeVertices->push_back( osg::Vec3( 0.0,  100.0, -100.0 ) );
-
-        // build geometry
-        planeGeometry->setVertexArray( planeVertices );
-        planeGeometry->setColorArray( planeColor );
-        planeGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-        planeGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
-        planeGeode->addDrawable( planeGeometry );
-
-        enableTransparency( planeGeode->getOrCreateStateSet() );
-
-        // add a callback for showing and hiding the plane
-        planeTransform->addUpdateCallback( new WGENodeMaskCallback( m_clipPlaneShowPlane ) );
-        // add a callback which actually moves, scales and rotates the plane according to the plane parameter
-        planeTransform->addUpdateCallback( new WGEFunctorCallback< osg::Node >(
-            boost::bind( &WMFiberDisplaySimple::clipPlaneCallback, this, _1 ) )
-        );
-
-        // add the geode to the root and provide an callback
-        planeTransform->addChild( planeGeode );
-        rootNode->insert( planeTransform );
-
         m_shader->apply( geode );
-        rootNode->insert( geode );
 
-        debugLog() << "Iterating over all fibers: done!";
-        progress1->finish();
+        // Add geometry
+        rootNode->insert( createClipPlane() );
+        rootNode->insert( geode );
     }
 
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
@@ -340,7 +235,7 @@ void WMFiberDisplaySimple::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( rootNode );
 }
 
-void WMFiberDisplaySimple::clipPlaneCallback( osg::Node* node )
+void WMFiberDisplaySimple::clipPlaneCallback( osg::Node* node ) const
 {
     // NOTE: this callback is only executed if the plane is enabled since the NodeMaskCallback ensures proper activation of the node
     osg::MatrixTransform* transform = static_cast< osg::MatrixTransform* >( node );
@@ -355,5 +250,164 @@ void WMFiberDisplaySimple::clipPlaneCallback( osg::Node* node )
     osg::Matrix rotation = osg::Matrix::rotate( osg::Vec3d( 1.0, 0.0, 0.0 ), v );
 
     transform->setMatrix( rotation * translation );
+}
+
+osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createClipPlane() const
+{
+    // add the clipping plane
+    osg::ref_ptr< osg::Geode > planeGeode = new osg::Geode();
+    osg::ref_ptr< osg::MatrixTransform > planeTransform = new osg::MatrixTransform();
+    osg::ref_ptr< osg::Vec3Array > planeVertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    osg::ref_ptr< osg::Vec4Array > planeColor = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    osg::ref_ptr< osg::Geometry > planeGeometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
+
+
+    planeColor->push_back( osg::Vec4( 1.0, 0.0, 0.0, 0.125 ) );
+    planeVertices->push_back( osg::Vec3( 0.0, -100.0, -100.0 ) );
+    planeVertices->push_back( osg::Vec3( 0.0, -100.0,  100.0 ) );
+    planeVertices->push_back( osg::Vec3( 0.0,  100.0,  100.0 ) );
+    planeVertices->push_back( osg::Vec3( 0.0,  100.0, -100.0 ) );
+
+    // build geometry
+    planeGeometry->setVertexArray( planeVertices );
+    planeGeometry->setColorArray( planeColor );
+    planeGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    planeGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUADS, 0, 4 ) );
+    planeGeode->addDrawable( planeGeometry );
+
+    enableTransparency( planeGeode->getOrCreateStateSet() );
+
+    // add a callback for showing and hiding the plane
+    planeTransform->addUpdateCallback( new WGENodeMaskCallback( m_clipPlaneShowPlane ) );
+    // add a callback which actually moves, scales and rotates the plane according to the plane parameter
+    planeTransform->addUpdateCallback( new WGEFunctorCallback< osg::Node >(
+        boost::bind( &WMFiberDisplaySimple::clipPlaneCallback, this, _1 ) )
+    );
+
+    // add the geode to the root and provide an callback
+    planeTransform->addChild( planeGeode );
+
+    return planeTransform;
+}
+
+osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers ) const
+{
+    // geode and geometry
+    osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+    osg::StateSet* state = geode->getOrCreateStateSet();
+
+    // disable light for this geode as lines can't be lit properly
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
+    // create everytring needed for the line_strip drawable
+    osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    osg::ref_ptr< osg::Vec3Array > tangents = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    osg::ref_ptr< osg::FloatArray > texcoords = osg::ref_ptr< osg::FloatArray >( new osg::FloatArray );
+    osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
+
+    // needed arrays for iterating the fibers
+    WDataSetFibers::IndexArray  fibStart = fibers->getLineStartIndexes();
+    WDataSetFibers::LengthArray fibLen   = fibers->getLineLengths();
+    WDataSetFibers::VertexArray fibVerts = fibers->getVertices();
+    WDataSetFibers::TangentArray fibTangents = fibers->getTangents();
+
+    // get current color scheme - the mode is important as it defines the number of floats in the color array per vertex.
+    WDataSetFibers::ColorScheme::ColorMode fibColorMode = fibers->getColorScheme()->getMode();
+    debugLog() << "Color mode is " << fibColorMode << ".";
+    WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
+    // enable blending, select transparent bin if RGBA mode is used
+    if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
+    {
+        enableTransparency( state );
+    }
+    else
+    {
+        state->setMode( GL_BLEND, osg::StateAttribute::OFF );
+    }
+
+    // progress indication
+    boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Adding fibers to geode", fibStart->size() ) );
+    m_progress->addSubProgress( progress1 );
+
+    // for each fiber:
+    debugLog() << "Iterating over all fibers.";
+    size_t currentStart = 0;
+    for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
+    {
+        ++*progress1;
+
+        // the start vertex index
+        size_t sidx = fibStart->at( fidx ) * 3;
+        size_t csidx = fibStart->at( fidx ) * fibColorMode;
+
+        // the length of the fiber
+        size_t len = fibLen->at( fidx );
+
+        // walk along the fiber
+        for ( size_t k = 0; k < len; ++k )
+        {
+            osg::Vec3 vert = osg::Vec3( fibVerts->at( ( 3 * k ) + sidx ),
+                                        fibVerts->at( ( 3 * k ) + sidx + 1 ),
+                                        fibVerts->at( ( 3 * k ) + sidx + 2 ) );
+            osg::Vec4 color = osg::Vec4( fibColors->at( ( fibColorMode * k ) + csidx + ( 0 % fibColorMode ) ),
+                                         fibColors->at( ( fibColorMode * k ) + csidx + ( 1 % fibColorMode ) ),
+                                         fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
+                                         ( fibColorMode == WDataSetFibers::ColorScheme::RGBA ) ?  fibColors->at( ( fibColorMode * k ) + csidx + ( 3 % fibColorMode ) ) : 1.0 );
+            osg::Vec3 tangent = osg::Vec3( fibTangents->at( ( 3 * k ) + sidx ),
+                                           fibTangents->at( ( 3 * k ) + sidx + 1 ),
+                                           fibTangents->at( ( 3 * k ) + sidx + 2 ) );
+            tangent.normalize();
+
+            vertices->push_back( vert );
+            colors->push_back( color );
+            tangents->push_back( tangent );
+
+            if ( m_useTubes->get() )
+            {
+                vertices->push_back( vert );
+                colors->push_back( color );
+                tangents->push_back( tangent );
+
+                // tex coords are only needed for fake-tubes
+                // NOTE: another possibility to transport the information of top and bottom vertex is to use the sign of tangent.x for example.
+                // This saves some mem.
+                texcoords->push_back( 1.0 );
+                texcoords->push_back( -1.0 );
+            }
+
+        }
+
+        // add the above line-strip
+        if ( m_useTubes->get() )
+        {
+            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUAD_STRIP, 2 * currentStart, 2 * len ) );
+        }
+        else
+        {
+            geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, currentStart, len ) );
+        }
+
+        currentStart += len;
+    }
+
+    // combine these arrays to the geometry
+    geometry->setVertexArray( vertices );
+    geometry->setColorArray( colors );
+    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+    geometry->setNormalArray( tangents );
+    geometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+    if ( m_useTubes->get() )    // tex coords are only needed for fake-tubes
+    {
+        geometry->setTexCoordArray( 0, texcoords );
+    }
+
+    // set drawable
+    geode->addDrawable( geometry );
+
+    debugLog() << "Iterating over all fibers: done!";
+    progress1->finish();
+
+    return geode;
 }
 
