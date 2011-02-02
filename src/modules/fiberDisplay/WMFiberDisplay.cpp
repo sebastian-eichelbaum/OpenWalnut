@@ -22,7 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <list>
 #include <string>
 #include <vector>
 
@@ -39,6 +38,7 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WSelectionManager.h"
 #include "fiberdisplay2.xpm"
 #include "WMFiberDisplay.h"
 
@@ -184,8 +184,8 @@ void WMFiberDisplay::properties()
 void WMFiberDisplay::moduleMain()
 {
     // setup shaders
-    m_shaderTubes = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplay2-FakeTubes", m_localPath ) );
-    m_shaderTexturedFibers = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplay2-Textured", m_localPath ) );
+    m_shaderTubes = osg::ref_ptr< WGEShader > ( new WGEShader( "WMFiberDisplay2-FakeTubes", m_localPath ) );
+    m_shaderTexturedFibers = osg::ref_ptr< WGEShader > ( new WGEShader( "WMFiberDisplay2-Textured", m_localPath ) );
 
     // additional fire-condition: "data changed" flag
     m_moduleState.setResetable( true, true );

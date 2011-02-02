@@ -40,15 +40,15 @@ void WROI::properties()
 {
     m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "This ROI's properties" ) );
 
-    m_active = m_properties->addProperty( "active", "description", true, boost::bind( &WROI::propertyChanged, this ) );
+    m_active = m_properties->addProperty( "active", "", true, boost::bind( &WROI::propertyChanged, this ) );
     m_active->setHidden( true );
 
-    m_show = m_properties->addProperty( "show", "Toggles visibility of the roi", true, boost::bind( &WROI::propertyChanged, this ) );
+    m_show = m_properties->addProperty( "Show", "Toggles visibility of the roi", true, boost::bind( &WROI::propertyChanged, this ) );
 
-    m_dirty = m_properties->addProperty( "Dirty", "description", true ); // boost::bind( &WROI::propertyChanged, this ) );
+    m_dirty = m_properties->addProperty( "Dirty", "", true ); // boost::bind( &WROI::propertyChanged, this ) );
     m_dirty->setHidden( true );
 
-    m_not = m_properties->addProperty( "NOT", "description", false, boost::bind( &WROI::propertyChanged, this ) );
+    m_not = m_properties->addProperty( "Not", "Negates the effect of this ROI.", false, boost::bind( &WROI::propertyChanged, this ) );
 }
 
 void WROI::propertyChanged()

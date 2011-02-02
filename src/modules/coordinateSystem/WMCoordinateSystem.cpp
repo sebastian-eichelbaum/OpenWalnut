@@ -31,18 +31,17 @@
 #include <osg/Geometry>
 
 #include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/WDataSet.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/exceptions/WDHNoSuchSubject.h"
+#include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../kernel/WKernel.h"
-
-#include "WTalairachConverter.h"
-#include "WMCoordinateSystem.xpm"
-
+#include "../../kernel/WSelectionManager.h"
 #include "WMCoordinateSystem.h"
+#include "WMCoordinateSystem.xpm"
+#include "WTalairachConverter.h"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMCoordinateSystem )
@@ -102,9 +101,12 @@ void WMCoordinateSystem::moduleMain()
             // acquire data from the input connector
             m_dataSet = m_input->getData();
 
-            findBoundingBox();
-            createGeometry();
-            m_dirty = true;
+            if( m_dataSet )
+            {
+                findBoundingBox();
+                createGeometry();
+                m_dirty = true;
+            }
         }
     }
     // clean up stuff
@@ -573,9 +575,9 @@ void WMCoordinateSystem::addSagittalGrid( float position )
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
-    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_coordConverter->getBoundingBox();
-    wmath::WPosition p1 = boundingBox.first;
-    wmath::WPosition p2 = boundingBox.second;
+    WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
+    wmath::WPosition p1 = boundingBox.getMin();
+    wmath::WPosition p2 = boundingBox.getMax();
 
     switch ( m_coordConverter->getCoordinateSystemMode() )
     {
@@ -654,9 +656,9 @@ void WMCoordinateSystem::addCoronalGrid( float position )
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
-    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_coordConverter->getBoundingBox();
-    wmath::WPosition p1 = boundingBox.first;
-    wmath::WPosition p2 = boundingBox.second;
+    WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
+    wmath::WPosition p1 = boundingBox.getMin();
+    wmath::WPosition p2 = boundingBox.getMax();
 
     switch ( m_coordConverter->getCoordinateSystemMode() )
     {
@@ -735,9 +737,9 @@ void WMCoordinateSystem::addAxialGrid( float position )
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
-    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_coordConverter->getBoundingBox();
-    wmath::WPosition p1 = boundingBox.first;
-    wmath::WPosition p2 = boundingBox.second;
+    WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
+    wmath::WPosition p1 = boundingBox.getMin();
+    wmath::WPosition p2 = boundingBox.getMax();
 
     switch ( m_coordConverter->getCoordinateSystemMode() )
     {

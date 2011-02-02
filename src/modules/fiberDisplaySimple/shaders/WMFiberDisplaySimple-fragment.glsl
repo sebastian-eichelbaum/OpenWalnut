@@ -24,14 +24,25 @@
 
 #version 120
 
+#include "WGEShadingTools.glsl"
+#include "WGETextureTools.glsl"
+#include "WGEPostprocessing.glsl"
+
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
 /////////////////////////////////////////////////////////////////////////////
 
+#ifdef CLIPPLANE_ENABLED
 /**
  * The distance to the plane
  */
 varying float dist;
+#endif
+
+/**
+ * The surface normal. Needed for nice lighting.
+ */
+varying vec3 v_normal;
 
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
@@ -59,13 +70,22 @@ uniform float u_distance = 1.0;
  */
 void main()
 {
+#ifdef CLIPPLANE_ENABLED
     // discard fragment if too far from plane
     if ( abs( dist ) >= u_distance )
     {
         discard;
     }
+#endif
 
-    gl_FragColor = gl_Color;
+#ifdef ILLUMINATION_ENABLED
+    float light = blinnPhongIlluminationIntensity( wge_DefaultLightIntensityLessDiffuse, normalize( v_normal ) );
+#else
+    float light = 1.0;
+#endif
+
+    wge_FragColor = vec4( vec3( gl_Color.xyz * light ), gl_Color.a );
+    wge_FragNormal = textureNormalize( v_normal );
     gl_FragDepth = gl_FragCoord.z;
 }
 

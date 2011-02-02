@@ -31,11 +31,11 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "WDataSet.h"
 #include "WGrid.h"
 #include "WGridRegular3D.h"
 #include "WValueSet.h"
 
-#include "WDataSet.h"
 #include "WExportDataHandler.h"
 
 class WDataTexture3D;
@@ -114,7 +114,7 @@ public:
      *
      * \return the texture.
      */
-    virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2();
+    virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2() const;
 
     /**
      * Gets the name of this prototype.

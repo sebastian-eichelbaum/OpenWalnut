@@ -32,25 +32,34 @@
 #include <osg/Geode>
 
 #include "../../common/WHierarchicalTreeVoxels.h"
-
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/WValueSet.h"
 #include "../../graphicsEngine/geodes/WDendrogramGeode.h"
-#include "../../graphicsEngine/WOSGButton.h"
-
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../graphicsEngine/widgets/WOSGButton.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WValueSet.h"
-
 const unsigned int MASK_2D = 0xF0000000; //!< used for osgWidget stuff
 const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff
 
-/** 
+typedef enum
+{
+    CDV_SINGLE,
+    CDV_BIGGEST,
+    CDV_X,
+    CDV_SIMILARITY,
+    CDV_LEVELSFROMTOP,
+    CDV_MINBRANCHLENGTH,
+    CDV_LOADED
+}
+CDV_DISPLAYMODE;
+
+/**
  * Someone should add some documentation here.
  * Probably the best person would be the module's
  * creator, i.e. "schurade".
@@ -119,13 +128,6 @@ protected:
 
 
 private:
-    /**
-     * helper function to read a text file
-     * \param fileName
-     * \return string containing the file
-     */
-    std::vector< std::string > readFile( const std::string fileName );
-
     /**
      * loads and parses the clustering text file
      * \param clusterFile to the clustering file
@@ -226,6 +228,16 @@ private:
     boost::shared_ptr< WGridRegular3D > m_grid;
 
     /**
+     * the currently active display mode
+     */
+    CDV_DISPLAYMODE m_currentDisplayMode;
+
+    /**
+     * the currently active display mode as string
+     */
+    std::string m_currentDisplayModeString;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
@@ -244,9 +256,35 @@ private:
     WPropInt m_propXBiggestClusters;
 
     /**
+     * the similarity value for selecting clusters
+     */
+    WPropDouble m_propValue;
+
+    /**
+     * property to select a loaded partition
+     */
+    WPropInt m_propSelectedLoadedPartion;
+
+    /**
      * how many levels to go down from top
      */
     WPropInt m_propLevelsFromTop;
+
+    /**
+     * how many levels to go down from top
+     */
+    WPropInt m_propXClusters;
+
+
+    /**
+     * minimum branch length
+     */
+    WPropDouble m_propMinBranchLength;
+
+    /**
+     * minimum branch size
+     */
+    WPropInt m_propMinBranchSize;
 
     /**
      * show or hide outliers
@@ -254,9 +292,19 @@ private:
     WPropBool m_propHideOutliers;
 
     /**
+     * show or hide outliers
+     */
+    WPropBool m_propShowSelectedButtons;
+
+    /**
      * specifies a minimum size for a cluster so that too small cluster won't get an own color
      */
     WPropInt m_propMinSizeToColor;
+
+    /**
+     * grouping the different selection methods
+     */
+    WPropGroup m_groupSelection;
 
     /**
      * grouping the dendrogram manipulation properties
@@ -264,9 +312,25 @@ private:
     WPropGroup m_groupDendrogram;
 
     /**
+     * grouping the dendrogram manipulation properties
+     */
+    WPropGroup m_groupTriangulation;
+
+
+    /**
+     * grouping the properties controlling cluster selection for minimum branch length
+     */
+    WPropGroup m_groupMinBranchLength;
+
+    /**
      * controls the display of the dendrogram overlay
      */
     WPropBool m_propShowDendrogram;
+
+    /**
+     * controls plotting the height of a join
+     */
+    WPropBool m_propPlotHeightByLevel;
 
     /**
      * if true position and size sliders will have no effect
@@ -283,6 +347,11 @@ private:
      */
     WPropBool m_propShowVoxelTriangulation;
 
+    /**
+     * if true clusters not in the current selection list will be rendered grey in the texture and triangulation
+     */
+    WPropBool m_showNotInClusters;
+
     WHierarchicalTreeVoxels m_tree; //!< the tree object as loaded from the file
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
@@ -291,7 +360,9 @@ private:
 
     std::vector<osg::ref_ptr< osg::Geode > > m_outputGeodes; //!< a vector of dendrogram nodes
 
-    std::vector<boost::shared_ptr< WTriangleMesh > >m_triMeshes; //!< This triangle mesh is provided as output through the connector.
+    std::vector<boost::shared_ptr< WTriangleMesh > >m_triMeshes; //!< triangulation of the active clusters
+
+    boost::shared_ptr< WTriangleMesh >m_nonActiveMesh; //!< triangulation of the voxels not in active clusters
 
     std::vector<size_t>m_activatedClusters; //!< stores the currently activated clusters
 
@@ -306,9 +377,7 @@ private:
 
     osgWidget::WindowManager* m_wm; //!< stores a pointer to the window manager used for osg wdgets and overlay stuff
 
-    bool m_widgetDirty; //!< true if the widgets need redrawing
-
-    bool m_biggestClusterButtonsChanged; //!< true if the buttons for the biggest clusters need updating
+    bool m_selectionChanged; //!< true if the selection changed and widgets need redrawing
 
     bool m_dendrogramDirty; //!< true if the dendrogram needs redrawing
 
@@ -323,6 +392,8 @@ private:
     WPropInt m_infoCountLeafes; //!< info property
     WPropInt m_infoCountClusters; //!< info property
     WPropInt m_infoMaxLevel; //!< info property
+
+    std::vector< std::vector<size_t> >m_loadedPartitions; //!< set partitions loaded from file
 };
 
 #endif  // WMCLUSTERDISPLAYVOXELS_H

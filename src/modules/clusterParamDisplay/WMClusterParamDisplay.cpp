@@ -26,7 +26,7 @@
 #include <string>
 
 #include "../../common/WColor.h"
-#include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleFactory.h"
 #include "WMClusterParamDisplay.h"
 #include "WMClusterParamDisplay.xpm"
 

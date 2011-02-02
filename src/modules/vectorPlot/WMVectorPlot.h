@@ -31,7 +31,7 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/WDataSetVector.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -161,7 +161,7 @@ private:
 
     WPropColor    m_aColor; //!< color
 
-    osg::ref_ptr< WShader > m_shader; //!< the shader object for this module
+    osg::ref_ptr< WGEShader > m_shader; //!< the shader object for this module
 
     wmath::WPosition m_oldPos; //!< The previous position of the slides.
 };

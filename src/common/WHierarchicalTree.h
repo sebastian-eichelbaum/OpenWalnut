@@ -35,7 +35,6 @@
 #include "WColor.h"
 #include "WExportCommon.h"
 
-
 /**
  * base class for hierarchical tree implementations
  */
@@ -161,14 +160,6 @@ public:
      * \param number of sub clusters
      */
     std::vector< size_t >findXBiggestClusters2( size_t cluster, size_t number = 10 );
-
-
-    /**
-     * helper function to sort a list of clusters depending on the number of leafes in them
-     * \param input reference to the list to be sorted
-     */
-    void sortList( std::list<size_t> &input ); //NOLINT
-
 
     /**
      * sets the color for a selected cluster and all sub clusters
@@ -310,5 +301,58 @@ inline std::vector<size_t>WHierarchicalTree::getLeafesForCluster( size_t cluster
 {
     return m_containsLeafes[cluster];
 }
+/**
+ * implements a compare operator for clusters, depending on leaf count
+ */
+struct compSize
+{
+    WHierarchicalTree* m_tree; //!< stores pointer to tree we work on
+
+    /**
+     * constructor
+     * \param tree
+     */
+    explicit compSize( WHierarchicalTree* tree ) :
+        m_tree( tree )
+    {
+    }
+
+    /**
+     * compares two clusters
+     * \param lhs
+     * \param rhs
+     * \return bool
+     */
+    bool operator()( const size_t lhs, const size_t rhs ) const  //NOLINT
+    {
+        return m_tree->size( lhs ) > m_tree->size( rhs ); //NOLINT
+    }
+};
+/**
+ * implements a compare operator for clusters, depending on custom value of the cluster
+ */
+struct compValue
+{
+    WHierarchicalTree* m_tree; //!< stores pointer to tree we work on
+
+    /**
+     * constructor
+     * \param tree
+     */
+    explicit compValue( WHierarchicalTree* tree ) :
+        m_tree( tree )
+    {
+    }
+    /**
+     * compares two clusters
+     * \param lhs
+     * \param rhs
+     * \return bool
+     */
+    bool operator()( const size_t lhs, const size_t rhs ) const
+    {
+        return m_tree->getCustomData( lhs ) > m_tree->getCustomData( rhs );
+    }
+};
 
 #endif  // WHIERARCHICALTREE_H

@@ -31,6 +31,7 @@
 #endif
 
 #include "WMatrix.h"
+#include "WMatrix4x4.h"
 #include "WValue.h"
 #include "WVector3D.h"
 #include "../WAssert.h"
@@ -78,6 +79,12 @@ WPosition transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec )
     return result;
 }
 
+WVector3D transformPosition3DWithMatrix4D( WMatrix4x4 mat, WPosition vec )
+{
+    osg::Vec4f v = osg::Vec4f( vec, 1.0 ) * mat;
+    return WVector3D( v.x(), v.y(), v.z() );
+}
+
 WMatrix<double> invertMatrix3x3( WMatrix<double> mat )
 {
     WAssert( mat.getNbRows(), "Zero rows found." );
@@ -89,7 +96,7 @@ WMatrix<double> invertMatrix3x3( WMatrix<double> mat )
                 mat( 0, 1 ) * mat( 1, 0 ) * mat( 2, 2 ) -
                 mat( 0, 0 ) * mat( 1, 2 ) * mat( 2, 1 );
 
-    WAssert( det != 0, "Determinat is zero. This matrix can not be inverted." );
+    WAssert( det != 0, "Determinant is zero. This matrix can not be inverted." );
 
     WMatrix<double> r( 3, 3 );
 

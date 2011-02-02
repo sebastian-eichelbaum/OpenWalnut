@@ -92,7 +92,7 @@ void WMTriangleMeshRenderer::connectors()
 
 void WMTriangleMeshRenderer::properties()
 {
-    m_meshColor   = m_properties->addProperty( "Mesh Color", "Color of the mesh.", WColor( .9f, .9f, 0.9f ) );
+    m_meshColor   = m_properties->addProperty( "Mesh Color", "Color of the mesh.", WColor( .9f, .9f, 0.9f, 1.0f ) );
     m_mainComponentOnly = m_properties->addProperty( "Main Component", "Main component only", false );
     m_opacityProp = m_properties->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );
@@ -208,7 +208,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
     if( !colorMap.get() || m_meshColor->changed() )
     {
         debugLog() << "No Color Map found, using a single color";
-        colors->push_back( wge::osgColor( m_meshColor->get( true ) ) );
+        colors->push_back( m_meshColor->get( true ) );
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     }
@@ -217,14 +217,14 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
         debugLog() << "Color Map found... using it";
         for( size_t i = 0; i < mesh->vertSize(); ++i )
         {
-            colors->push_back( wge::osgColor( m_meshColor->get() ) );
+            colors->push_back( m_meshColor->get() );
         }
         for( std::map< size_t, WColor >::const_iterator vc = colorMap->getData().begin(); vc != colorMap->getData().end(); ++vc )
         {
             // ATTENTION: the colormap might not be available and hence an old one, but the new mesh might have triggered the update
             if( vc->first < colors->size() )
             {
-                colors->at( vc->first ) = wge::osgColor( vc->second );
+                colors->at( vc->first ) = vc->second;
             }
         }
 
@@ -250,7 +250,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
     state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", m_opacityProp->get( true ) ) ) );
 
     m_moduleNode->insert( m_surfaceGeode );
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMTriangleMeshRenderer", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMTriangleMeshRenderer", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
 

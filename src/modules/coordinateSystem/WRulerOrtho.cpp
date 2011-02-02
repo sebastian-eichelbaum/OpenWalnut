@@ -43,8 +43,8 @@ WRulerOrtho::WRulerOrtho( boost::shared_ptr<WCoordConverter>coordConverter, osg:
     m_scaleMode( mode ),
     m_showNumbers( showNumbers )
 {
-    m_lb = m_coordConverter->getBoundingBox().first;
-    m_ub = m_coordConverter->getBoundingBox().second;
+    m_lb = m_coordConverter->getBoundingBox().getMin();
+    m_ub = m_coordConverter->getBoundingBox().getMax();
 
     create();
 }

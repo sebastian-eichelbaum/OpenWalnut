@@ -51,9 +51,9 @@ public:
     /**
      * Returns dummy bounding box.
      */
-    virtual std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const
+    virtual WBoundingBox getBoundingBox() const
     {
-        return std::make_pair( wmath::WPosition( 0, 0, 0 ), wmath::WPosition( 1, 1, 1 ) );
+        return WBoundingBox( wmath::WPosition( 0, 0, 0 ), wmath::WPosition( 1, 1, 1 ) );
     }
 };
 

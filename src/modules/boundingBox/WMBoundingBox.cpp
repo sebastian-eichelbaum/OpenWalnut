@@ -22,26 +22,26 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <utility>
-
 #include <cmath>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include <osg/MatrixTransform>
 #include <osg/PositionAttitudeTransform>
 #include <osgText/Text>
 
+#include "../../common/math/WPosition.h"
+#include "../../common/math/WVector3D.h"
 #include "../../common/WAssert.h"
+#include "../../common/WBoundingBox.h"
 #include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../kernel/WKernel.h"
-#include "../../common/math/WPosition.h"
-#include "../../common/math/WVector3D.h"
 #include "../../kernel/modules/data/WMData.h"
+#include "../../kernel/WKernel.h"
 #include "WMBoundingBox.h"
 #include "WMBoundingBox.xpm"
 
@@ -127,17 +127,17 @@ void WMBoundingBox::createGFX()
 
     WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_bBoxNode );
 
-    std::pair< wmath::WPosition, wmath::WPosition > bb = grid->getBoundingBox();
+    WBoundingBox bb = grid->getBoundingBox();
 
     m_bBoxNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
     m_bBoxNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
 
-    m_bBoxNode->insert( wge::generateBoundingBoxGeode( bb.first, bb.second, WColor( 0.3, 0.3, 0.3, 1 ) ) );
+    m_bBoxNode->insert( wge::generateBoundingBoxGeode( bb, WColor( 0.3, 0.3, 0.3, 1 ) ) );
 
     if( m_showCornerCoordinates->get( true ) )
     {
-        wmath::WVector3D pos1 = bb.first;
-        wmath::WVector3D pos2 = bb.second;
+        const wmath::WVector3D& pos1 = bb.getMin();
+        const wmath::WVector3D& pos2 = bb.getMax();
         m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos1[2] ) ) );
         m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos2[2] ) ) );
         m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos1[2] ) ) );

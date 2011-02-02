@@ -46,7 +46,7 @@ public:
      */
     void testLineIntegration( void )
     {
-        WSimpleResampler r;
+//        WSimpleResampler r;
 //        TS_ASSERT_DELTA( r.lineIntegration( m_equiTractVerts, m_startIdx, m_length ), std::sqrt( 3.0 ) * 4.0, 1.0e-6 );
 //        TS_ASSERT_DELTA( r.lineIntegration( m_nonEquiTractVerts, m_startIdx, m_length ),
 //                         2 * std::sqrt( 0.05 * 0.05 + 0.9 * 0.9 ) + 2 * std::sqrt( 0.2 * 0.2 + 0.1 * 0.1 ),

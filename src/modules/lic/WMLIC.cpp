@@ -30,8 +30,11 @@
 #include "../../common/WSharedSequenceContainer.h"
 #include "../../dataHandler/exceptions/WDHNoSuchSubject.h"
 #include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataSetVector.h"
 #include "../../dataHandler/WSubject.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WKernel.h"
 #include "fibernavigator/SurfaceLIC.h"
 #include "WMLIC.h"
@@ -156,7 +159,7 @@ void WMLIC::renderMesh( boost::shared_ptr< WTriangleMesh > mesh )
     }
 
     m_moduleNode->insert( m_surfaceGeode );
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMLIC", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMLIC", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );

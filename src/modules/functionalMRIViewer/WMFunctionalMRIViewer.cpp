@@ -133,8 +133,12 @@ void WMFunctionalMRIViewer::moduleMain()
             m_dataSetAtTime = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( ds->getValueSet(), ds->getGrid() ) );
             if( m_texScaleNormalized->get( true ) )
             {
+                // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
                 m_dataSetAtTime->getTexture()->setMinValue( static_cast< float >( m_dataSet->getMinValue() ) );
                 m_dataSetAtTime->getTexture()->setMaxValue( static_cast< float >( m_dataSet->getMaxValue() ) );
+                // }
+                m_dataSetAtTime->getTexture2()->minimum()->set( static_cast< float >( m_dataSet->getMinValue() ) );
+                m_dataSetAtTime->getTexture2()->scale()->set( static_cast< float >( m_dataSet->getMaxValue() - m_dataSet->getMinValue() ) );
             }
             WDataHandler::registerDataSet( m_dataSetAtTime );
             m_output->updateData( m_dataSetAtTime );

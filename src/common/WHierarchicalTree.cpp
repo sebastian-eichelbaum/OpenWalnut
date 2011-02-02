@@ -65,7 +65,8 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
             worklist.push_back( current );
         }
     }
-    sortList( worklist );
+
+    worklist.sort( compSize( this ) );
 
     bool newSplit = true;
 
@@ -84,7 +85,7 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
             {
                 worklist.pop_front();
                 worklist.push_back( left );
-                sortList( worklist );
+                worklist.sort( compSize( this ) );
                 newSplit = true;
             }
 
@@ -100,11 +101,10 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
                     worklist.pop_back();
                 }
                 worklist.push_back( right );
-                sortList( worklist );
+                worklist.sort( compSize( this ) );
                 newSplit = true;
             }
         }
-        sortList( worklist );
     }
 
     std::vector<size_t>returnVector;
@@ -148,7 +148,8 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters2( size_t cluster, 
             worklist.push_back( current );
         }
     }
-    sortList( worklist );
+
+    worklist.sort( compSize( this ) );
 
     bool newSplit = true;
 
@@ -170,7 +171,8 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters2( size_t cluster, 
                 {
                     worklist.pop_front();
                     worklist.push_back( left );
-                    sortList( worklist );
+
+                    worklist.sort( compSize( this ) );
                     newSplit = true;
                 }
 
@@ -186,12 +188,12 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters2( size_t cluster, 
                         worklist.pop_back();
                     }
                     worklist.push_back( right );
-                    sortList( worklist );
+
+                    worklist.sort( compSize( this ) );
                     newSplit = true;
                 }
             }
         }
-        sortList( worklist );
     }
 
     std::vector<size_t>returnVector;
@@ -252,7 +254,7 @@ std::vector< size_t > WHierarchicalTree::downXLevelsFromTop( size_t level, bool 
         worklist = newChildList;
     }
 
-    sortList( worklist );
+    worklist.sort( compSize( this ) );
 
     std::list<size_t>::iterator it;
     for ( it = worklist.begin(); it != worklist.end(); ++it )
@@ -264,60 +266,13 @@ std::vector< size_t > WHierarchicalTree::downXLevelsFromTop( size_t level, bool 
     return returnVector;
 }
 
-
-void WHierarchicalTree::sortList( std::list<size_t> &input ) //NOLINT
-{
-    if ( input.size() == 0 )
-    {
-        return;
-    }
-
-    std::vector<size_t>vec;
-    std::list<size_t>::iterator it;
-
-    for ( it = input.begin(); it != input.end(); ++it )
-    {
-        vec.push_back( *it );
-    }
-
-    for ( size_t n = vec.size() - 1; n > 0; --n )
-    {
-        for ( size_t i = 0; i < n; ++i )
-        {
-            if ( m_containsLeafes[vec[i]].size() < m_containsLeafes[vec[i+1]].size() )
-            {
-                size_t tmp = vec[i];
-                vec[i] = vec[i+1];
-                vec[i+1] = tmp;
-            }
-        }
-    }
-
-    input.clear();
-    for ( size_t k = 0; k < vec.size(); ++k )
-    {
-        input.push_back( vec[k] );
-    }
-}
-
 void WHierarchicalTree::colorCluster( size_t cluster, WColor color )
 {
-    std::list<size_t>worklist;
-    worklist.push_back( cluster );
-
-    while ( !worklist.empty() )
+    m_colors[cluster] = color;
+    if ( m_containsLeafes[cluster].size() > 1 )
     {
-        size_t current = worklist.front();
-        worklist.pop_front();
-
-        m_colors[current] = color;
-
-        if ( m_containsLeafes[current].size() > 1 )
-        {
-            size_t left = m_children[current].first;
-            size_t right = m_children[current].second;
-            worklist.push_back( left );
-            worklist.push_back( right );
-        }
+        colorCluster( m_children[cluster].first, color );
+        colorCluster( m_children[cluster].second, color );
     }
 }
+

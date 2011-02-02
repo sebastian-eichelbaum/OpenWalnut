@@ -75,13 +75,6 @@ void main()
     v_sampleDistance = 1.0 / float( u_samples );
     v_relativeSampleDistance = 128.0 /  float( u_samples );
 
-#ifdef LOCALILLUMINATION_PHONG
-    // also get the coordinates of the light
-    vec4 lpos = gl_LightSource[0].position;
-    lpos = vec4( 0.0, 0.0, 1000.0, 1.0 );
-    v_lightSource = normalize( worldToLocal( lpos ).xyz );
-#endif
-
     // Simply project the vertex
     gl_Position = ftransform();
     gl_FrontColor = gl_Color;

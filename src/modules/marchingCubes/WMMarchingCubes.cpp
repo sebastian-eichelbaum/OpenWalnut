@@ -22,41 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
-#include <limits>
-
-#include "WMMarchingCubes.xpm"
-#include "../../common/WLimits.h"
-#include "../../common/WAssert.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Material>
-#include <osg/StateSet>
-#include <osg/StateAttribute>
-#include <osg/PolygonMode>
 #include <osg/LightModel>
+#include <osg/Material>
+#include <osg/PolygonMode>
+#include <osg/StateAttribute>
+#include <osg/StateSet>
 #include <osgDB/WriteFile>
 
-#include "../../common/WPathHelper.h"
-#include "../../common/WProgress.h"
-#include "../../common/WPreferences.h"
-#include "../../common/math/WVector3D.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
 #include "../../common/math/WMath.h"
+#include "../../common/math/WVector3D.h"
+#include "../../common/WAssert.h"
+#include "../../common/WLimits.h"
+#include "../../common/WPathHelper.h"
+#include "../../common/WPreferences.h"
+#include "../../common/WProgress.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataTexture3D.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
-#include "../../kernel/WKernel.h"
-
+#include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
+#include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMMarchingCubes.h"
+#include "WMMarchingCubes.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMMarchingCubes )
@@ -425,8 +424,7 @@ void WMMarchingCubes::renderMesh()
     // colors
     osg::ref_ptr< osg::Vec4Array > colors( new osg::Vec4Array );
 
-    WColor c = m_surfaceColor->get( true );
-    colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
+    colors->push_back( m_surfaceColor->get( true ) );
     surfaceGeometry->setColorArray( colors );
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
@@ -544,7 +542,7 @@ void WMMarchingCubes::renderMesh()
         state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", 100 ) ) );
     }
 
-    m_shader = osg::ref_ptr< WShader >( new WShader( "WMMarchingCubes", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader >( new WGEShader( "WMMarchingCubes", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );
@@ -571,8 +569,7 @@ void WMMarchingCubes::updateGraphicsCallback()
     {
         osg::ref_ptr< osg::Vec4Array > colors( new osg::Vec4Array );
 
-        WColor c = m_surfaceColor->get( true );
-        colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
+        colors->push_back( m_surfaceColor->get( true ) );
         osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );

@@ -134,9 +134,9 @@ osg::ref_ptr< WGEGroupNode > WGEViewerAll::getScene()
     return m_scene;
 }
 
-void WGEViewerAll::setBgColor( WColor bgColor )
+void WGEViewerAll::setBgColor( const WColor& bgColor )
 {
-    m_View->getCamera()->setClearColor( osg::Vec4( bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), 1. ) );
+    m_View->getCamera()->setClearColor( bgColor );
 }
 
 void WGEViewerAll::resize( int width, int height )

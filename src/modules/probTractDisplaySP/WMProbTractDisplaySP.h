@@ -25,9 +25,11 @@
 #ifndef WMPROBTRACTDISPLAYSP_H
 #define WMPROBTRACTDISPLAYSP_H
 
+#include <list>
 #include <string>
 #include <vector>
 
+#include "../../common/WBoundingBox.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WSubject.h"
@@ -35,15 +37,17 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
+class WSPSliceGeodeBuilder;
+
 /**
- * This module
+ * This module computes for axial, coronal and sagittal views so called Schmahmann and Pandya slices in order to visualize
+ * probabilistic tractograms.
  *
  * \ingroup modules
  */
 class WMProbTractDisplaySP: public WModule
 {
 public:
-
     /**
      * Default constructor.
      */
@@ -97,21 +101,50 @@ protected:
 
 private:
     /**
-     * Initializes the needed geodes, transformations and vertex arrays. This needs to be done once for each new dataset.
-     *
-     * \param grid the grid to places the slices in
+     * Creates for each slice (axial, sagittal and coronal) a root node, to put there projections and intersection geometries.
      */
-    void initOSG( boost::shared_ptr< WGridRegular3D > grid );
+    void initOSG();
+
+    /**
+     * Whenever the grid changes we must update the slide properties, in order to represent valid maxima and minima again.
+     *
+     * \param grid The grid of the probabilistic tractogram
+     */
+    void updateProperties( boost::shared_ptr< const WGridRegular3D > grid );
+
+    /**
+     * Updates the axial, coronal or sagittal slices.
+     *
+     * \param sliceNum 0 means xSlice or sagittal slice, 1 means ySlice and 2 means zSlice.
+     * \param builder An instance of a slice builder, correctly initialized and ready to use.
+     */
+    void updateSlices( const unsigned char sliceNum, boost::shared_ptr< const WSPSliceGeodeBuilder > builder );
+
+    /**
+     * If there is a change on the probTract ICs then this update callback is called and ensures that for every connected
+     * probabilistic tractogram input connector there is a visible (unhidden) property group to specify the color.
+     *
+     * \param receiver unused here
+     * \param sender unused here
+     */
+    void updateProperitesForTheInputConnectors( boost::shared_ptr< WModuleConnector > receiver, boost::shared_ptr< WModuleConnector > sender );
+
+    /**
+     * Checks if every probabilistic tract is in range 0..1, if not e.g. max > 10 range 0..255 is assumed and a warning is printed.
+     *
+     * \param probTracts All probabilistic tracts to check.
+     */
+    void checkProbabilityRanges( std::list< boost::shared_ptr< const WDataSetScalar > > probTracts ) const;
 
     /**
      * The probabilistic tractogram input connector.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_probIC;
+    std::vector< boost::shared_ptr< WModuleInputData< WDataSetScalar > > > m_probICs;
 
     /**
-     * The fibers input connector.
+     * The tracts input connector.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_fibersIC;
+    boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_tractsIC;
 
     /**
      * The Geode containing all the slices and the mesh
@@ -146,7 +179,29 @@ private:
     WPropBool     m_showonY; //!< indicates whether the vector should be shown on slice Y
 
     WPropBool     m_showonZ; //!< indicates whether the vector should be shown on slice Z
+
+    WPropBool     m_showIntersection; //!< Switch on or off the intersecting line stipplings
+
+    WPropBool     m_showProjection; //!< Switch on or off the projections of the intersecting line stipplings
+
+    WPropDouble   m_delta; //!< Environment around the slices where to cut off the tracts
+
+    WPropDouble   m_probThreshold; //!< Probabilities a position below this threshold does not contribute to the vertex coloring
+
+    /**
+     * There is one group for each pobTract input connector holding a string property and a color property.
+     */
+    std::vector< WPropGroup > m_colorMap;
+
+    /**
+     * Fires whenever a color group has changed its color value.
+     */
+    boost::shared_ptr< WCondition > m_colorChanged;
+
+    /**
+     * Condition to notify about changes of the slices.
+     */
+    boost::shared_ptr< WCondition > m_sliceChanged;
 };
 
 #endif  // WMPROBTRACTDISPLAYSP_H
-

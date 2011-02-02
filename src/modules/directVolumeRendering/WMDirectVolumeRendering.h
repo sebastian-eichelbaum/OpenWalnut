@@ -30,7 +30,7 @@
 #include <osg/Node>
 #include <osg/Uniform>
 
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataSetVector.h"
 #include "../../kernel/WModule.h"
@@ -184,37 +184,7 @@ private:
     /**
      * the DVR shader.
      */
-    osg::ref_ptr< WShader > m_shader;
-
-    /**
-     * Class handling uniform update during render traversal
-     */
-    class SafeUniformCallback: public osg::Uniform::Callback
-    {
-    public:
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUniformCallback( WMDirectVolumeRendering* module ): m_module( module )
-        {
-        };
-
-        /**
-         * The callback. Called every render traversal for the uniform.
-         *
-         * \param uniform the uniform for which this callback is.
-         * \param nv the visitor.
-         */
-        virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         */
-        WMDirectVolumeRendering* m_module;
-    };
+    osg::ref_ptr< WGEShader > m_shader;
 };
 
 #endif  // WMDIRECTVOLUMERENDERING_H

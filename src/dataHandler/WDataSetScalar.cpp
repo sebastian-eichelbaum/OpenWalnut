@@ -75,7 +75,7 @@ boost::shared_ptr< WPrototyped > WDataSetScalar::getPrototype()
     return m_prototype;
 }
 
-double WDataSetScalar::interpolate( const wmath::WPosition& pos, bool* success )
+double WDataSetScalar::interpolate( const wmath::WPosition& pos, bool* success ) const
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
 

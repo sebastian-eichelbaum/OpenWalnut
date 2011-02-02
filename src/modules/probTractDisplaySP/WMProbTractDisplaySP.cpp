@@ -32,30 +32,41 @@
 #include <osg/Geometry>
 #include <osg/Drawable>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WPropertyHelper.h"
+#include "../../common/exceptions/WOutOfBounds.h"
 #include "../../common/math/WMath.h"
 #include "../../common/math/WPlane.h"
+#include "../../common/WPropertyHelper.h"
+#include "../../kernel/WModuleConnectorSignals.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WGEOffscreenRenderPass.h"
-#include "../../graphicsEngine/WGEOffscreenRenderNode.h"
-#include "../../graphicsEngine/WGEPropertyUniform.h"
-
+#include "../../graphicsEngine/offscreen/WGEOffscreenRenderNode.h"
+#include "../../graphicsEngine/offscreen/WGEOffscreenRenderPass.h"
+#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "../../kernel/WKernel.h"
 #include "WMProbTractDisplaySP.h"
 #include "WMProbTractDisplaySP.xpm"
+#include "WSPSliceGeodeBuilder.h"
 
 // This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMProbTractDisplaySP )
 
-WMProbTractDisplaySP::WMProbTractDisplaySP():
-    WModule()
+namespace
+{
+    const size_t NUM_ICS = 10;
+}
+
+WMProbTractDisplaySP::WMProbTractDisplaySP()
+    : WModule(),
+      m_probICs( NUM_ICS ),
+      m_colorMap( NUM_ICS ),
+      m_colorChanged( new WCondition ),
+      m_sliceChanged( new WCondition )
 {
 }
 
@@ -84,10 +95,44 @@ const std::string WMProbTractDisplaySP::getDescription() const
     return "Slice based probabilistic tract display based on Schmahmann y Pandya";
 }
 
+void WMProbTractDisplaySP::updateProperitesForTheInputConnectors( boost::shared_ptr< WModuleConnector > /* receiver */,
+        boost::shared_ptr< WModuleConnector > /* sender */ )
+{
+    debugLog() << "Input Connector was connected or closed => so all ICs and corresponding PropertyGroups will be checked....";
+    // iterate overall connectors and if one is left with an hidden property unhide it or do the opposite
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        if( ( m_probICs[i]->isConnected() > 0 ) && ( m_colorMap[i]->isHidden() ) )
+        {
+            debugLog() << "Found a connected IC, but hidden prop group at index: " << i;
+            m_colorMap[i]->setHidden( false );
+            if( m_probICs[i]->getData() )
+            {
+                m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( m_probICs[i]->getData()->getFileName() );
+            }
+        }
+        if( ( m_probICs[i]->isConnected() == 0 ) && ( !m_colorMap[i]->isHidden() ) )
+        {
+            debugLog() << "Found an unconnected IC, but unhidden prop group at index: " << i;
+            m_colorMap[i]->setHidden();
+            m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( "/no/such/file" );
+        }
+    }
+}
+
 void WMProbTractDisplaySP::connectors()
 {
-    m_fibersIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "fibersInput", "The deterministic tractograms." );
-    m_probIC = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "probTractInput", "The probabilistic tractogram" );
+    m_tractsIC = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractsInput", "The deterministic tractograms." );
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        std::stringstream ss;
+        ss << "probTract" << i << "Input";
+        m_probICs[i] = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), ss.str(), "A probabilistic tractogram" );
+        m_probICs[i]->subscribeSignal( CONNECTION_ESTABLISHED,
+                boost::bind( &WMProbTractDisplaySP::updateProperitesForTheInputConnectors, this, _1, _2 ) );
+        m_probICs[i]->subscribeSignal( CONNECTION_CLOSED,
+                boost::bind( &WMProbTractDisplaySP::updateProperitesForTheInputConnectors, this, _1, _2 ) );
+    }
 
     // call WModule's initialization
     WModule::connectors();
@@ -102,12 +147,23 @@ void WMProbTractDisplaySP::properties()
     m_showonY        = m_sliceGroup->addProperty( "Show Coronal", "Show instersection of deterministic tracts on coronal slice.", true );
     m_showonZ        = m_sliceGroup->addProperty( "Show Axial", "Show instersection of deterministic tracts on axial slice.", true );
 
+    m_showIntersection = m_properties->addProperty( "Show Intersections", "Show intersecition stipplets", false );
+    m_showProjection = m_properties->addProperty( "Show Projections", "Show projection stipplets", true );
+
     // The slice positions. These get update externally.
     // TODO(math): get the dimensions and MinMax's directly from the probabilistic tractorgram
     // TODO(all): this should somehow be connected to the nav slices.
-    m_xPos           = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0 );
-    m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0 );
-    m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0 );
+    m_xPos           = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0, m_sliceChanged );
+    m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0, m_sliceChanged );
+    m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0, m_sliceChanged );
+
+    m_delta  = m_properties->addProperty( "Slices Environment", "Only parts inside this environment intersecting the slice contribute.",
+            1.0, m_sliceChanged );
+
+    m_probThreshold = m_properties->addProperty( "Prob Threshold", "Probabilities a position below this threshold does not"
+            " contribute to the vertex coloring.", 0.1, m_sliceChanged );
+    m_probThreshold->setMin( 0.0 );
+    m_probThreshold->setMax( 1.0 );
 
     // since we don't know anything yet => make them unusable
     m_xPos->setMin( 0 );
@@ -117,44 +173,42 @@ void WMProbTractDisplaySP::properties()
     m_zPos->setMin( 0 );
     m_zPos->setMax( 0 );
 
+    double hue_increment = 1.0 / NUM_ICS;
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        std::stringstream ss;
+        ss << "Color for " << i << "InputConnector";
+        m_colorMap[i] = m_properties->addPropertyGroup( ss.str(), "String and color properties for an input connector" );
+        WPropString label = m_colorMap[i]->addProperty( "Filename", "The file name this group is connected with", std::string( "/no/such/file" ) );
+        label->setPurpose( PV_PURPOSE_INFORMATION );
+        WColor color = convertHSVtoRGBA( i * hue_increment, 1.0, 0.75 );
+        m_colorMap[i]->addProperty( "Color", "The color for the probabilistic tractogram this group is associated with", color, m_colorChanged );
+        m_colorMap[i]->setHidden(); // per default for each unconnected input the property group is hidden
+    }
+
     // call WModule's initialization
     WModule::properties();
 }
 
-void WMProbTractDisplaySP::initOSG( boost::shared_ptr< WGridRegular3D > grid )
+void WMProbTractDisplaySP::updateProperties( boost::shared_ptr< const WGridRegular3D > grid )
+{
+    m_xPos->setMax( grid->getNbCoordsX() - 1 );
+    m_xPos->set( ( grid->getNbCoordsX() - 1 ) / 2, true );
+    m_yPos->setMax( grid->getNbCoordsY() - 1 );
+    m_yPos->set( ( grid->getNbCoordsY() - 1 ) / 2, true );
+    m_zPos->setMax( grid->getNbCoordsZ() - 1 );
+    m_zPos->set( ( grid->getNbCoordsZ() - 1 ) / 2, true );
+}
+
+void WMProbTractDisplaySP::initOSG()
 {
     // remove the old slices
     m_output->clear();
-
-    // we want the tex matrix for each slice to be modified too,
-    osg::ref_ptr< osg::TexMat > texMat;
 
     // create all the transformation nodes
     m_xSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonX ) );
     m_ySlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonY ) );
     m_zSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonZ ) );
-
-    texMat = new osg::TexMat();
-    m_xSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos, texMat ) );
-    m_xSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
-    texMat = new osg::TexMat();
-    m_ySlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos, texMat ) );
-    m_ySlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
-    texMat = new osg::TexMat();
-    m_zSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos, texMat ) );
-    m_zSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
-    // create a new geode containing the slices
-//    m_xSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
-//                grid->getNbCoordsZ() * grid->getDirectionZ() ) );
-//
-//    m_ySlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
-//                grid->getNbCoordsZ() * grid->getDirectionZ() ) );
-//
-//    m_zSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
-//                grid->getNbCoordsY() * grid->getDirectionY() ) );
 
     // add the transformation nodes to the output group
     m_output->insert( m_xSlice );
@@ -166,13 +220,24 @@ void WMProbTractDisplaySP::moduleMain()
 {
     // get notified about data changes
     m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_probIC->getDataChangedCondition() );
-    m_moduleState.add( m_fibersIC->getDataChangedCondition() );
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        m_moduleState.add( m_probICs[i]->getDataChangedCondition() );
+    }
+    m_moduleState.add( m_tractsIC->getDataChangedCondition() );
+    m_moduleState.add( m_sliceChanged );
+    m_moduleState.add( m_colorChanged );
 
     ready();
 
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
+    m_output->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    debugLog() << "Init OSG";
+    initOSG();
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
+    boost::shared_ptr< WSPSliceGeodeBuilder > builder;
+    std::list< boost::shared_ptr< const WDataSetScalar > > probTracts;
 
     // main loop
     while ( !m_shutdownFlag() )
@@ -185,30 +250,46 @@ void WMProbTractDisplaySP::moduleMain()
         {
             break;
         }
+        boost::shared_ptr< WDataSetFibers > detTracts = m_tractsIC->getData();
+        boost::shared_ptr< WGridRegular3D > grid;
+        probTracts.clear(); // discard all prob tracts so far
 
-        // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_probIC->handledUpdate() || m_fibersIC->handledUpdate();
-
-        boost::shared_ptr< WDataSetFibers > fibers = m_fibersIC->getData();
-        boost::shared_ptr< WDataSetScalar > probTract = m_probIC->getData();
-        bool dataValid = fibers && probTract;
-
-        if( dataValid && dataUpdated )
+        bool dataUpdated = m_tractsIC->handledUpdate(); // this call must be made befor getData() on the ICs
+        bool probDataValid = false;
+        for( size_t i = 0; i < NUM_ICS; ++i )
         {
-            // get grid and prepare OSG
-            boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( probTract->getGrid() );
+            dataUpdated = dataUpdated || m_probICs[i]->handledUpdate();
+            probDataValid = probDataValid || m_probICs[i]->getData(); // at least one probabilistic tract must be there
+            if( m_probICs[i]->getData() )
+            {
+                probTracts.push_back( m_probICs[i]->getData() );
+            }
+        }
+        bool dataValid = detTracts && probDataValid;
+
+        if( dataValid )
+        {
+            grid = boost::shared_dynamic_cast< WGridRegular3D >( probTracts.front()->getGrid() ); // assume all grids are the same and get the first
+            if( !grid )
+            {
+                errorLog() << "A grid beside WGridRegular3D was used, aborting...";
+                continue;
+            }
+        }
+        else
+        {
+            continue;
+        }
+
+        if( dataUpdated )
+        {
+            infoLog() << "Handling data update..";
+            checkProbabilityRanges( probTracts );
             if( grid->getNbCoordsX() > 0 && grid->getNbCoordsY() > 0 &&  grid->getNbCoordsZ() > 0 )
             {
-                m_xPos->setMax( grid->getNbCoordsX() - 1 );
-                m_xPos->set( ( grid->getNbCoordsX() - 1 ) / 2, true );
-                m_yPos->setMax( grid->getNbCoordsY() - 1 );
-                m_yPos->set( ( grid->getNbCoordsY() - 1 ) / 2, true );
-                m_zPos->setMax( grid->getNbCoordsZ() - 1 );
-                m_zPos->set( ( grid->getNbCoordsZ() - 1 ) / 2, true );
-
-                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
-                initOSG( grid );
-                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
+                debugLog() << "Updating Properites";
+                updateProperties( grid );
+                builder = boost::shared_ptr< WSPSliceGeodeBuilder >( new WSPSliceGeodeBuilder( probTracts, detTracts, m_sliceGroup, m_colorMap ) );
             }
             else
             {
@@ -217,9 +298,60 @@ void WMProbTractDisplaySP::moduleMain()
             }
         }
 
-        infoLog() << "Done";
+        // NOTE: we know that we could arrange much more specific updates here, just update the slice that has changed, but this is too complex to
+        // consider also color, m_delta, etc. changes..., and ofcourse: we have the time to calc that every loop-cycle again and again, it does
+        // not really matter
+        builder->determineIntersectingDeterministicTracts();
+        updateSlices( 0, builder );
+        updateSlices( 1, builder );
+        updateSlices( 2, builder );
     }
 
-    // WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( offscreen );
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
 }
 
+void WMProbTractDisplaySP::checkProbabilityRanges( std::list< boost::shared_ptr< const WDataSetScalar > > probTracts ) const
+{
+    bool otherRange = false;
+
+    // check probabilistic tractograms on their probability distribution, we assume value between 0..1 but also 0..255 may be possible sometimes
+    std::stringstream ss;
+    ss << "The probabilistic tractograms: ";
+    size_t i = 0;
+    for( std::list< boost::shared_ptr< const WDataSetScalar > >::const_iterator p = probTracts.begin(); p != probTracts.end(); ++p, ++i )
+    {
+        if( ( *p )->getMax() > 10 ) // Note: same check is made in the builder, later when colors are deterimined and alpha values depending on prob
+        {
+            ss << ( *p )->getFileName() << " ";
+            otherRange = true;
+        }
+    }
+    ss << "which have probabilites > 10 may be invalid => range 0..255 assumed instead";
+    if( otherRange )
+    {
+        warnLog() << ss.str();
+    }
+}
+
+void WMProbTractDisplaySP::updateSlices( const unsigned char sliceNum, boost::shared_ptr< const WSPSliceGeodeBuilder > builder )
+{
+    std::pair< osg::ref_ptr< osg::Geode >, osg::ref_ptr< osg::Geode > > intersectionAndProjection;
+    intersectionAndProjection = builder->generateSlices( sliceNum, m_delta->get(), m_probThreshold->get() );
+
+    // determine correct slice group node
+    osg::ref_ptr< WGEManagedGroupNode > sliceGroup;
+    switch( sliceNum )
+    {
+        case 0 : sliceGroup = m_xSlice; break;
+        case 1 : sliceGroup = m_ySlice; break;
+        case 2 : sliceGroup = m_zSlice; break;
+        default : throw WOutOfBounds( "Invalid slice number given. Must be in 0..2 in order to select x-, y- or z-Slice" );
+    }
+    sliceGroup->clear();
+    osg::ref_ptr< WGEManagedGroupNode > intersection( new WGEManagedGroupNode( m_showIntersection ) );
+    intersection->insert( intersectionAndProjection.first );
+    sliceGroup->insert( intersection );
+    osg::ref_ptr< WGEManagedGroupNode > projection( new WGEManagedGroupNode( m_showProjection ) );
+    projection->insert( intersectionAndProjection.second );
+    sliceGroup->insert( projection );
+}

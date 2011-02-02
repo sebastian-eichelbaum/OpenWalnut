@@ -26,17 +26,16 @@
 
 #include <osg/Matrix>
 
-#include "WKernel.h"
 #include "../common/math/WLinearAlgebraFunctions.h"
-
+#include "../graphicsEngine/WGEViewer.h"
 #include "../graphicsEngine/WGEZoomTrackballManipulator.h"
-
+#include "../graphicsEngine/WGraphicsEngine.h"
+#include "WKernel.h"
 #include "WSelectionManager.h"
 
 using wmath::WVector3D;
 using wmath::WPosition;
 using wmath::WMatrix;
-
 
 WSelectionManager::WSelectionManager() :
     m_paintMode( PAINTMODE_NONE ),

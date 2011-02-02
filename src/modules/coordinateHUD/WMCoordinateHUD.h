@@ -34,7 +34,7 @@
 
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
@@ -151,7 +151,7 @@ class WMCoordinateHUD: public WModule, public osg::Referenced
         /**
          * the shader
          */
-        osg::ref_ptr< WShader > m_shader;
+        osg::ref_ptr< WGEShader > m_shader;
 
         /**
          * A condition used to notify about changes in several properties.

@@ -37,8 +37,9 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMOverlayAtlas.h"
 #include "WMOverlayAtlas.xpm"
 
@@ -146,7 +147,7 @@ void WMOverlayAtlas::moduleMain()
     m_propCoronalSlicePos->setMax( m_coronalSlices.size() - 1 );
     m_propCoronalSlicePos->set( m_coronalSlices.size() / 2 );
 
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMOverlayAtlas", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMOverlayAtlas", m_localPath ) );
 
     init();
 

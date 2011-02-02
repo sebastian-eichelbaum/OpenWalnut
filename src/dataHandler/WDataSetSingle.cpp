@@ -25,15 +25,14 @@
 #include <string>
 #include <vector>
 
+#include "../common/WAssert.h"
+#include "../common/WException.h"
+#include "../common/WPrototyped.h"
 #include "WDataTexture3D.h"
 #include "WDataTexture3D_2.h"
-
-#include "WValueSet.h"
 #include "WGrid.h"
 #include "WGridRegular3D.h"
-#include "../common/WAssert.h"
-#include "../common/WPrototyped.h"
-#include "../common/WException.h"
+#include "WValueSet.h"
 
 #include "WDataSetSingle.h"
 
@@ -99,7 +98,7 @@ boost::shared_ptr< WDataTexture3D > WDataSetSingle::getTexture()
     return m_texture3D;
 }
 
-osg::ref_ptr< WDataTexture3D_2 > WDataSetSingle::getTexture2()
+osg::ref_ptr< WDataTexture3D_2 > WDataSetSingle::getTexture2() const
 {
     return m_texture;
 }

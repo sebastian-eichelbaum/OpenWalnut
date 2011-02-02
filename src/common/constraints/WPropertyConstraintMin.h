@@ -28,9 +28,6 @@
 #include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
 
-template < typename T >
-class WPropertyVariable;
-
 /**
  * This class allows constraining properties using a minimum value and the corresponding >= operator.
  */

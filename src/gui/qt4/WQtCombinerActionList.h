@@ -60,6 +60,11 @@ public:
     WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WDisconnectList disconnects );
 
     /**
+     * Creates a completely empty list.
+     */
+    WQtCombinerActionList();
+
+    /**
      * Destructor.
      */
     virtual ~WQtCombinerActionList();

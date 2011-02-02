@@ -30,40 +30,47 @@
 #include <boost/thread.hpp>
 
 #include <QtGui/QApplication>
+#include <QtGui/QCloseEvent>
 #include <QtGui/QDockWidget>
 #include <QtGui/QFileDialog>
-#include <QtGui/QMainWindow>
+#include <QtGui/QIcon>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QMessageBox>
 #include <QtGui/QShortcut>
 #include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QWidget>
 
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
+#include "../../common/WProjectFileIO.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WEEG2.h"
-#include "../../graphicsEngine/WROIBox.h"
 #include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
+#include "../../graphicsEngine/WROIBox.h"
+#include "../../kernel/modules/data/WMData.h"
+#include "../../kernel/modules/navSlices/WMNavSlices.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleCombiner.h"
 #include "../../kernel/WModuleCombinerTypes.h"
 #include "../../kernel/WProjectFile.h"
-#include "../../kernel/modules/data/WMData.h"
-#include "../../kernel/modules/navSlices/WMNavSlices.h"
+#include "../../kernel/WROIManager.h"
+#include "../../kernel/WSelectionManager.h"
 #include "../icons/WIcons.h"
 #include "controlPanel/WPropertyBoolWidget.h"
+#include "controlPanel/WQtControlPanel.h"
 #include "events/WEventTypes.h"
 #include "events/WModuleCrashEvent.h"
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleRemovedEvent.h"
 #include "events/WOpenCustomDockWidgetEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
+#include "WQtCombinerToolbar.h"
+#include "WQtConfigWidget.h"
 #include "WQtCustomDockWidget.h"
-#include "WQtGLWidget.h"
 #include "WQtNavGLWidget.h"
 
 #include "WMainWindow.h"
@@ -185,7 +192,7 @@ void WMainWindow::setupGUI()
     this->addAction( viewMenu->addAction( "Posterior", this, SLOT( setPresetViewPosterior() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) ) );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
-    helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Introduction", this, SLOT( openIntroductionDialog() ),
+    helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
                          QKeySequence( QKeySequence::HelpContents ) );
     helpMenu->addSeparator();
     helpMenu->addAction( m_iconManager.getIcon( "logo" ), "About OpenWalnut", this, SLOT( openAboutDialog() ) );
@@ -242,8 +249,7 @@ void WMainWindow::setupGUI()
     }
 
     // Default background color from config file
-    {
-        WColor bgColor;
+        WColor bgColor( 1.0, 1.0, 1.0, 1.0 );
         double r;
         double g;
         double b;
@@ -251,7 +257,7 @@ void WMainWindow::setupGUI()
             && WPreferences::getPreference( "ge.bgColor.g", &g )
             && WPreferences::getPreference( "ge.bgColor.b", &b ) )
         {
-            bgColor.setRGB( r, g, b );
+            bgColor.set( r, g, b, 1.0 );
             m_mainGLWidget->setBgColor( bgColor );
 
             if( m_navAxial )
@@ -267,7 +273,6 @@ void WMainWindow::setupGUI()
                 m_navSagittal->getGLWidget()->setBgColor( bgColor );
             }
         }
-    }
 }
 
 void WMainWindow::setupPermanentToolBar()
@@ -612,7 +617,7 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
     {
         // ok, reset the toolbar
         // So create a dummy to permanently reserve the space
-        m_currentCompatiblesToolbar = new WQtCombinerToolbar( this, WCombinerTypes::WCompatiblesList() );
+        m_currentCompatiblesToolbar = new WQtCombinerToolbar( this );
     }
 
     // optional toolbar break
@@ -806,9 +811,9 @@ void WMainWindow::openAboutDialog()
                         "Thank you for using OpenWalnut." );
 }
 
-void WMainWindow::openIntroductionDialog()
+void WMainWindow::openOpenWalnutHelpDialog()
 {
-    QMessageBox::information( this, "OpenWalnut Introduction",
+    QMessageBox::information( this, "OpenWalnut Help",
                               "<h3>Navigation in Main View</h3>"
                               "<table>"
                               "<tr><td><b><i>Mouse Button&nbsp;&nbsp;</i></b></td><td><b><i>Action</i></b></td></tr>"

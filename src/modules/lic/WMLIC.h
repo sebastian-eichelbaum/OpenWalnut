@@ -29,11 +29,14 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetVector.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
+
+// forward declarations
+class WGEShader;
+class WDataSetVector;
+class WTriangleMesh;
 
 /**
  * Computes a Line Intregrated Convolution from a vector field onto a triangle mesh.
@@ -121,7 +124,7 @@ private:
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
-    osg::ref_ptr< WShader > m_shader; //!< The shader used for the iso surface in m_geode
+    osg::ref_ptr< WGEShader > m_shader; //!< The shader used for the iso surface in m_geode
 };
 
 #endif  // WMLIC_H

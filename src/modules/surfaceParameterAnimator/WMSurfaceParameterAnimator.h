@@ -32,10 +32,11 @@
 #include <osg/Uniform>
 #include <osgDB/WriteFile>
 
+#include "../../common/WBoundingBox.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../graphicsEngine/WShader.h"
 
 /**
  * This module is a ray-tracing based isosurface using special methods for animating particle flow on its surface. The modules needs a scalar
@@ -198,7 +199,7 @@ private:
      *
      * \return the node which contains the cube with the surface rendering
      */
-    osg::ref_ptr< osg::Node > renderSurface( std::pair< wmath::WPosition, wmath::WPosition > bbox );
+    osg::ref_ptr< osg::Node > renderSurface( const WBoundingBox& bbox );
 
     /**
      * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
@@ -208,7 +209,7 @@ private:
     /**
      * the DVR shader.
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in

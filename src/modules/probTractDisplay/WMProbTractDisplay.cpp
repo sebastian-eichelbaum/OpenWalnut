@@ -28,8 +28,10 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../../dataHandler/WDataSetScalar.h"
-#include "WMProbTractDisplay.xpm"
+#include "../../kernel/WModuleFactory.h"
+#include "../../kernel/WModuleInputForwardData.h"
 #include "WMProbTractDisplay.h"
+#include "WMProbTractDisplay.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMProbTractDisplay )
@@ -97,7 +99,7 @@ void WMProbTractDisplay::moduleMain()
 
 void WMProbTractDisplay::initSubModules()
 {
-    static WColor colorInit[] = { WColor::green, WColor::blue, WColor::red }; // NOLINT
+    static WColor colorInit[] = { defaultColor::GREEN, defaultColor::BLUE, defaultColor::RED }; // NOLINT curly braces
     std::vector< WColor > preDefinedColors( colorInit, colorInit + sizeof colorInit / sizeof colorInit[ 0 ] );
 
     static int init[] = { 100, 30, 0 }; // NOLINT

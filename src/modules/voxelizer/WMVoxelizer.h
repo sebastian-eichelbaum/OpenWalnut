@@ -149,9 +149,9 @@ protected:
      *
      * \param cluster With its fibers
      *
-     * \return Pair of WPositions: first == front lower left, second == back upper right
+     * \return The axis aligned bounding box.
      */
-    std::pair< wmath::WPosition, wmath::WPosition > createBoundingBox( const WFiberCluster& cluster ) const;
+    WBoundingBox createBoundingBox( const WFiberCluster& cluster ) const;
 
     /**
      * Constructs a grid out of the given bounding box.
@@ -160,7 +160,7 @@ protected:
      *
      * \return A WGridRegular3D reference wherein the voxels may be marked.
      */
-    boost::shared_ptr< WGridRegular3D > constructGrid( const std::pair< wmath::WPosition, wmath::WPosition >& bb ) const;
+    boost::shared_ptr< WGridRegular3D > constructGrid( const WBoundingBox& bb ) const;
 
     /**
      * Callback for m_active. Overwrite this in your modules to handle m_active changes separately.

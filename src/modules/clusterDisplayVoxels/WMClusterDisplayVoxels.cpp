@@ -26,8 +26,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/regex.hpp>
-
 #include <osgGA/TrackballManipulator>
 #include <osgGA/StateSetManipulator>
 #include <osgViewer/ViewerEventHandlers>
@@ -38,15 +36,13 @@
 
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
-
-#include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
-
+#include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-
-#include "WMClusterDisplayVoxels.xpm"
-
+#include "../../kernel/WSelectionManager.h"
+#include "WFileParser.h"
 #include "WMClusterDisplayVoxels.h"
+#include "WMClusterDisplayVoxels.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMClusterDisplayVoxels )
@@ -56,8 +52,7 @@ WMClusterDisplayVoxels::WMClusterDisplayVoxels():
     m_moduleNode( new WGEGroupNode() ),
     m_dendrogramNode( new WGEGroupNode() ),
     m_meshNode( new WGEGroupNode() ),
-    m_widgetDirty( false ),
-    m_biggestClusterButtonsChanged( false ),
+    m_selectionChanged( false ),
     m_dendrogramDirty( false )
 {
 }
@@ -104,39 +99,6 @@ void WMClusterDisplayVoxels::connectors()
     WModule::connectors();
 }
 
-std::vector< std::string > WMClusterDisplayVoxels::readFile( const std::string fileName )
-{
-    std::ifstream ifs( fileName.c_str(), std::ifstream::in );
-
-    std::vector< std::string > lines;
-
-    std::string line;
-
-    if ( ifs.is_open() )
-    {
-        debugLog() << "trying to load " << fileName;
-        debugLog() << "file exists";
-    }
-    else
-    {
-        debugLog() << "trying to load " << fileName;
-        debugLog() << "file doesn\'t exist";
-        ifs.close();
-        return lines;
-    }
-
-    while ( !ifs.eof() )
-    {
-        getline( ifs, line );
-
-        lines.push_back( std::string( line ) );
-    }
-
-    ifs.close();
-
-    return lines;
-}
-
 void WMClusterDisplayVoxels::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
@@ -144,26 +106,61 @@ void WMClusterDisplayVoxels::properties()
     m_propClusterFile = m_properties->addProperty( "Cluster file", "", boost::filesystem::path( "/SCR/schurade/data/david/whole/avg.txt" ) );
     m_propReadTrigger = m_properties->addProperty( "Do read",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 
-    m_propLevelsFromTop = m_properties->addProperty( "Levels from top", "", 0, m_propCondition );
-    m_propHideOutliers = m_properties->addProperty( "Hide outliers", "", false, m_propCondition );
 
-    m_propSelectedCluster = m_properties->addProperty( "Selected Cluster", "", 0, m_propCondition );
+    // Group selection
+    m_groupSelection = m_properties->addPropertyGroup( "Cluster selections",  "Groups the different cluster selection methods" ); //NOLINT
+
+    m_propSelectedCluster = m_groupSelection->addProperty( "Selected Cluster", "", 0, m_propCondition );
     m_propSelectedCluster->setMin( 0 );
     m_propSelectedCluster->setMax( 0 );
 
-    m_propXBiggestClusters = m_properties->addProperty( "Biggest Clusters", "", 5, m_propCondition );
+    m_propXBiggestClusters = m_groupSelection->addProperty( "Biggest Clusters", "", 5, m_propCondition );
     m_propXBiggestClusters->setMin( 1 );
     m_propXBiggestClusters->setMax( 1000 );
 
-    m_propShowVoxelTriangulation = m_properties->addProperty( "Triangulate", "", false, m_propCondition );
+    m_propXClusters = m_groupSelection->addProperty( "X Clusters", "", 5, m_propCondition );
+    m_propXClusters->setMin( 1 );
+    m_propXClusters->setMax( 1000 );
 
-    m_propMinSizeToColor = m_properties->addProperty( "Min size to show", "Specifies a minimum size for a cluster to be drawn", 1, m_propCondition ); // NOLINT
-    m_propMinSizeToColor->setMin( 1 );
-    m_propMinSizeToColor->setMax( 200 );
+    m_propValue = m_groupSelection->addProperty( "Similarity Value", "", 1.0, m_propCondition );
+    m_propValue->setMin( 0.0 );
+    m_propValue->setMax( 1.0 );
 
+    m_propLevelsFromTop = m_groupSelection->addProperty( "Levels from top", "", 0, m_propCondition );
+    m_propHideOutliers = m_groupSelection->addProperty( "Hide outliers", "", false, m_propCondition );
+
+    m_propSelectedLoadedPartion = m_groupSelection->addProperty( "Loaded Partition", "Activates a predetermined partition, loaded from file", 0, m_propCondition ); // NOLINT
+    m_propSelectedLoadedPartion->setMin( 1 );
+    m_propSelectedLoadedPartion->setMax( 1 );
+
+    m_propShowSelectedButtons = m_groupSelection->addProperty( "Show Buttons", "Shows/Hides the buttons for selected cluster on the left side", true, m_propCondition ); //NOLINT
+
+
+    // Group branch length
+    m_groupMinBranchLength = m_properties->addPropertyGroup( "Branch length",  "Cluster Selection depending on the distance of a cluster to it's parent" ); //NOLINT
+
+    m_propMinBranchLength = m_groupMinBranchLength->addProperty( "Minimum branch length", "", 0.1, m_propCondition );
+    m_propMinBranchLength->setMin( 0.0 );
+    m_propMinBranchLength->setMax( 1.0 );
+
+    m_propMinBranchSize = m_groupMinBranchLength->addProperty( "Minimum branch size", "", 50, m_propCondition );
+    m_propMinBranchSize->setMin( 1 );
+    m_propMinBranchSize->setMax( 500 );
+
+    //  Group Triangulation
+    m_groupTriangulation = m_properties->addPropertyGroup( "Triangulation",  "Groups the triangulation properties" ); //NOLINT
+    m_propShowVoxelTriangulation = m_groupTriangulation->addProperty( "Triangulate", "", false, m_propCondition );
+    m_showNotInClusters = m_groupTriangulation->addProperty( "Show non active", "", false, m_propCondition );
+
+    // Group Dendrogram
     m_groupDendrogram = m_properties->addPropertyGroup( "Dendrogram",  "Properties only related to the dendrogram." );
 
     m_propShowDendrogram = m_groupDendrogram->addProperty( "Show dendrogram", "", true, m_propCondition );
+    m_propPlotHeightByLevel = m_groupDendrogram->addProperty( "Height by Level or Value", "", false, m_propCondition );
+
+    m_propMinSizeToColor = m_groupDendrogram->addProperty( "Min size to show", "Specifies a minimum size for a cluster to be drawn", 1, m_propCondition ); // NOLINT
+    m_propMinSizeToColor->setMin( 1 );
+    m_propMinSizeToColor->setMax( 200 );
 
     m_propResizeWithWindow = m_groupDendrogram->addProperty( "Resize with window", "", true, m_propCondition );
 
@@ -180,6 +177,12 @@ void WMClusterDisplayVoxels::properties()
     m_propDendrogramOffsetY->setMin( -9000 );
     m_propDendrogramOffsetY->setMax( 1000 );
 
+    m_groupSelection->setHidden( true );
+    m_groupMinBranchLength->setHidden( true );
+    m_groupTriangulation->setHidden( true );
+    m_groupDendrogram->setHidden( true );
+
+    // Info properties
     m_infoCountLeafes = m_infoProperties->addProperty( "Count voxels", "", 0 );
     m_infoCountClusters  = m_infoProperties->addProperty( "Count clusters", "", 0 );
     m_infoMaxLevel = m_infoProperties->addProperty( "Max Level", "", 0 );
@@ -196,15 +199,25 @@ void WMClusterDisplayVoxels::setPropertyBoundaries()
     m_propSelectedCluster->setMax( m_tree.getClusterCount() - 1 );
     m_propSelectedCluster->set( m_tree.getClusterCount() - 1 );
 
-    m_infoCountLeafes->set( static_cast<int>( m_tree.getLeafCount() ) );
-    m_infoCountClusters->set( static_cast<int>( m_tree.getClusterCount() ) );
+    m_infoCountLeafes->set( m_tree.getLeafCount() );
+    m_infoCountClusters->set( m_tree.getClusterCount() );
     m_infoMaxLevel->set( m_tree.getMaxLevel() );
 
-    m_propMinSizeToColor->setMax( 100 );
+    m_propMinSizeToColor->setMax( 1000 );
     m_rootCluster = m_propSelectedCluster->get();
 
     m_propLevelsFromTop->setMin( 0 );
     m_propLevelsFromTop->setMax( m_tree.getMaxLevel() );
+
+    if ( m_loadedPartitions.empty() )
+    {
+        m_propSelectedLoadedPartion->setHidden( true );
+    }
+    else
+    {
+        m_propSelectedLoadedPartion->setMin( 1 );
+        m_propSelectedLoadedPartion->setMax( m_loadedPartitions.size() );
+    }
 }
 
 void WMClusterDisplayVoxels::moduleMain()
@@ -220,6 +233,7 @@ void WMClusterDisplayVoxels::moduleMain()
 
     ready();
 
+    // wait for a dataset to be connected, most likely an anatomy dataset
     while ( !m_shutdownFlag() )
     {
         m_moduleState.wait();
@@ -244,6 +258,7 @@ void WMClusterDisplayVoxels::moduleMain()
         }
     }
 
+    // wait for a cluster file to be loaded
     while ( !m_shutdownFlag() )
     {
         m_moduleState.wait();
@@ -262,24 +277,43 @@ void WMClusterDisplayVoxels::moduleMain()
             {
                 m_propReadTrigger->setHidden( true );
                 m_propClusterFile->setHidden( true );
+
+                m_groupSelection->setHidden( false );
+                m_groupMinBranchLength->setHidden( false );
+                m_groupTriangulation->setHidden( false );
+                m_groupDendrogram->setHidden( false );
+
                 break;
             }
         }
     }
 
-    createTexture();
-    setPropertyBoundaries();
+    // initialize
+    if ( !m_shutdownFlag() )
+    {
+        createTexture();
+        setPropertyBoundaries();
 
-    initWidgets();
-    m_widgetDirty = true;
-    updateWidgets();
+        initWidgets();
+        m_selectionChanged = true;
+        updateWidgets();
 
-    m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_rootCluster, 1000, 500 );
-    m_camera->addChild( m_dendrogramGeode );
+        m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_rootCluster, 1000, 500 );
+        m_camera->addChild( m_dendrogramGeode );
 
-    m_propSelectedCluster->get( true );
-    m_propMinSizeToColor->get( true );
+        m_propSelectedCluster->get( true );
+        m_propSelectedLoadedPartion->get( true );
+        m_propMinSizeToColor->get( true );
+        m_propXClusters->get( true );
+        m_propXBiggestClusters->get( true );
+        m_propValue->get( true );
+        m_propMinBranchLength->get( true );
+        m_propMinBranchSize->get( true );
+        m_propLevelsFromTop->get( true );
+        m_showNotInClusters->get( true );
+    }
 
+    // main loop, respond to controls
     while ( !m_shutdownFlag() )
     {
         m_moduleState.wait();
@@ -293,34 +327,72 @@ void WMClusterDisplayVoxels::moduleMain()
         {
             m_activatedClusters.clear();
             m_activatedClusters.push_back( m_propSelectedCluster->get( true ) );
+            m_currentDisplayMode = CDV_SINGLE;
             updateAll();
         }
 
         if( m_propXBiggestClusters->changed() )
         {
             m_activatedClusters = m_tree.findXBiggestClusters2( m_propSelectedCluster->get(), m_propXBiggestClusters->get( true ) );
+            m_currentDisplayMode = CDV_BIGGEST;
+            updateAll();
+        }
+
+        if( m_propXClusters->changed() )
+        {
+            m_activatedClusters = m_tree.findXClusters( m_propSelectedCluster->get(), m_propXClusters->get( true ) );
+            m_currentDisplayMode = CDV_X;
+            updateAll();
+        }
+
+
+        if ( m_propValue->changed() )
+        {
+            m_activatedClusters = m_tree.findClustersForValue( m_propValue->get( true ) );
+            m_currentDisplayMode = CDV_SIMILARITY;
+            updateAll();
+        }
+
+        if ( m_propMinBranchLength->changed() || m_propMinBranchSize->changed() )
+        {
+            m_activatedClusters = m_tree.findClustersForBranchLength( m_propMinBranchLength->get( true ), m_propMinBranchSize->get( true ) );
+            m_currentDisplayMode = CDV_MINBRANCHLENGTH;
             updateAll();
         }
 
         if ( m_propLevelsFromTop->changed() || m_propHideOutliers->changed() )
         {
             m_activatedClusters = m_tree.downXLevelsFromTop( m_propLevelsFromTop->get( true ), m_propHideOutliers->get( true ) );
+            m_currentDisplayMode = CDV_LEVELSFROMTOP;
             updateAll();
         }
 
-        if( m_propShowVoxelTriangulation->changed() )
+        if ( m_propSelectedLoadedPartion->changed() )
+        {
+            m_activatedClusters = m_loadedPartitions[ m_propSelectedLoadedPartion->get( true ) - 1 ];
+            m_currentDisplayMode = CDV_LOADED;
+            updateAll();
+        }
+
+        if( m_propShowVoxelTriangulation->changed( true ) )
         {
             createMesh();
             renderMesh();
         }
 
-        if ( m_propMinSizeToColor->changed() )
+        if ( m_showNotInClusters->changed( true ) )
+        {
+            updateAll();
+        }
+
+        if ( m_propMinSizeToColor->changed( true ) )
         {
             handleMinSizeChanged();
         }
 
-        if ( m_propShowDendrogram->changed() || m_propResizeWithWindow->changed() || m_propDendrogramSizeX->changed() ||
-                m_propDendrogramSizeY->changed() || m_propDendrogramOffsetX->changed() || m_propDendrogramOffsetY->changed() )
+        if ( m_propShowDendrogram->changed( true ) || m_propResizeWithWindow->changed( true ) || m_propDendrogramSizeX->changed( true ) ||
+                m_propDendrogramSizeY->changed( true ) || m_propDendrogramOffsetX->changed( true ) || m_propDendrogramOffsetY->changed( true ) ||
+                m_propPlotHeightByLevel->changed( true ) || m_propShowSelectedButtons->changed( true ) )
         {
             m_dendrogramDirty = true;
         }
@@ -333,20 +405,25 @@ void WMClusterDisplayVoxels::moduleMain()
 
 void WMClusterDisplayVoxels::updateAll()
 {
-    debugLog() << "start erasing clusters";
+    // set colors for cluster in the tree
     m_tree.colorCluster( m_tree.getClusterCount() - 1, WColor( 0.3, 0.3, 0.3, 1.0 ) );
-    debugLog() << "end erasing clusters";
-
-    debugLog() << "start color clusters";
     for ( size_t k = 0; k < m_activatedClusters.size(); ++k )
     {
         size_t current = m_activatedClusters[k];
-        m_tree.colorCluster( current, wge::getNthHSVColor( k, m_activatedClusters.size() ) );
+        m_tree.colorCluster( current, wge::getNthHSVColor( k ) );
     }
-    debugLog() << "end color clusters";
 
-    debugLog() << "start label voxels";
-    m_data.resize( m_data.size(), 0 );
+    // redraw the texture
+    m_data.clear();
+    m_data.resize( m_grid->size(), 0 );
+    std::vector<size_t> vox = m_tree.getVoxelsForCluster( m_tree.getClusterCount() - 1 );
+    if ( m_showNotInClusters->get() )
+    {
+        for ( size_t k = 0; k < vox.size(); ++k )
+        {
+            m_data[vox[k]] = 999999;
+        }
+    }
     for ( size_t i = 0; i < m_activatedClusters.size(); ++i )
     {
         std::vector<size_t> voxels = m_tree.getVoxelsForCluster( m_activatedClusters[i] );
@@ -356,18 +433,21 @@ void WMClusterDisplayVoxels::updateAll()
             m_data[voxels[k]] = i + 1;
         }
     }
-    debugLog() << "end label voxels";
-
-    debugLog() << "start fill texture";
     unsigned char* data = m_texture->getImage()->data();
     for ( size_t i = 0; i < m_grid->size(); ++i )
     {
-        if ( m_data[i] )
+        if ( m_data[i] == 999999 )
         {
-            WColor color = wge::getNthHSVColor( m_data[i] - 1, m_activatedClusters.size() );
-            data[i * 3    ] = color.getRed() * 255;
-            data[i * 3 + 1] = color.getGreen() * 255;
-            data[i * 3 + 2] = color.getBlue() * 255;
+            data[i * 3    ] = 75;
+            data[i * 3 + 1] = 75;
+            data[i * 3 + 2] = 75;
+        }
+        else if ( m_data[i] != 0 )
+        {
+            WColor color = wge::getNthHSVColor( m_data[i] - 1 );
+            data[i * 3    ] = color[0] * 255;
+            data[i * 3 + 1] = color[1] * 255;
+            data[i * 3 + 2] = color[2] * 255;
         }
         else
         {
@@ -376,16 +456,14 @@ void WMClusterDisplayVoxels::updateAll()
             data[i * 3 + 2] = 0.0;
         }
     }
-
     m_texture->dirtyTextureObject();
-    debugLog() << "end fill texture";
+
 
     createMesh();
     renderMesh();
 
+    m_selectionChanged = true;
     m_dendrogramDirty = true;
-    m_widgetDirty = true;
-    m_biggestClusterButtonsChanged = true;
 }
 
 void WMClusterDisplayVoxels::handleMinSizeChanged()
@@ -396,15 +474,15 @@ void WMClusterDisplayVoxels::handleMinSizeChanged()
 bool WMClusterDisplayVoxels::loadClustering( boost::filesystem::path clusterFile )
 {
     debugLog() << "start parsing tree file...";
-    using namespace boost::filesystem; //NOLINT
 
-    if ( !exists( clusterFile ) )
+    WFileParser parser( clusterFile.string() );
+    if ( !parser.readFile() )
     {
-        debugLog() << "file doesn't exist";
+        debugLog() << "parser error";
         return false;
     }
-    std::vector<std::string> lines;
-    lines = readFile( clusterFile.string() );
+
+    std::vector<std::string>lines = parser.getRawLines();
 
     if ( lines.size() == 0 )
     {
@@ -412,81 +490,41 @@ bool WMClusterDisplayVoxels::loadClustering( boost::filesystem::path clusterFile
         return false;
     }
 
-    size_t i = 0;
-    while ( i < lines.size() )
+    std::vector< std::vector< std::string> >coords = parser.getLinesForTagSeparated( "coordinates" );
+
+    for ( size_t i = 0; i < coords.size(); ++i )
     {
-        if ( lines[i] == "#coordinates" )
-        {
-            debugLog() << "coordinates tag at line " << i;
-            ++i;
-            break;
-        }
-        else
-        {
-            ++i;
-        }
-    }
-    while ( i < lines.size() )
-    {
-        if ( lines[i] == "#endcoordinates" )
-        {
-            debugLog() << "endcoordinates tag at line " << i;
-            ++i;
-            break;
-        }
-        else
-        {
-            std::vector<std::string>svec;
-            boost::regex reg( "," );
-            boost::sregex_token_iterator it( lines[i].begin(), lines[i].end(), reg, -1 );
-            boost::sregex_token_iterator end;
-            while ( it != end )
-            {
-                svec.push_back( *it++ );
-            }
-            m_tree.addLeaf( m_grid->getVoxelNum( boost::lexical_cast< size_t >( svec[0] ),
-                                                  boost::lexical_cast< size_t >( svec[1] ),
-                                                  boost::lexical_cast< size_t >( svec[2] ) ) );
-            ++i;
-        }
+        std::vector< std::string > svec = coords[i];
+
+        m_tree.addLeaf( m_grid->getVoxelNum( boost::lexical_cast< size_t >( svec[0] ),
+                                             boost::lexical_cast< size_t >( svec[1] ),
+                                             boost::lexical_cast< size_t >( svec[2] ) ) );
     }
 
-    while ( i < lines.size() )
+    std::vector< std::vector< std::string> >clusters = parser.getLinesForTagSeparated( "clusters" );
+
+    for ( size_t i = 0; i < clusters.size(); ++i )
     {
-        if ( lines[i] == "#clusters" )
-        {
-            debugLog() << "clusters tag at line " << i;
-            ++i;
-            break;
-        }
-        else
-        {
-            ++i;
-        }
+        std::vector< std::string > svec = clusters[i];
+
+        m_tree.addCluster( boost::lexical_cast< size_t >( svec[0] ),
+                           boost::lexical_cast< size_t >( svec[1] ),
+                           boost::lexical_cast< float >( svec[2] ) );
     }
-    while ( i < lines.size() )
+
+    std::vector< std::vector< std::string> >partitions = parser.getLinesForTagSeparated( "partitions" );
+
+    for ( size_t i = 0; i < partitions.size(); ++i )
     {
-        if ( lines[i] == "#endclusters" )
+        std::vector< std::string > svec = partitions[i];
+
+        std::vector<size_t>partition;
+
+        for ( size_t k = 0; k < svec.size(); ++k )
         {
-            debugLog() << "endclusters tag at line " << i;
-            ++i;
-            break;
+            partition.push_back( boost::lexical_cast< size_t >( svec[k] ) );
         }
-        else
-        {
-            std::vector<std::string>svec;
-            boost::regex reg( "," );
-            boost::sregex_token_iterator it( lines[i].begin(), lines[i].end(), reg, -1 );
-            boost::sregex_token_iterator end;
-            while ( it != end )
-            {
-                svec.push_back( *it++ );
-            }
-            m_tree.addCluster( boost::lexical_cast< size_t >( svec[0] ) - 1,
-                                boost::lexical_cast< size_t >( svec[1] ) - 1,
-                                boost::lexical_cast< float >( svec[2] ) );
-            ++i;
-        }
+        m_loadedPartitions.push_back( partition );
     }
     return true;
 }
@@ -523,31 +561,22 @@ void WMClusterDisplayVoxels::createMesh()
 {
     m_triMeshes.clear();
 
-    size_t order = ( *m_dataSet ).getValueSet()->order();
-    size_t vDim = ( *m_dataSet ).getValueSet()->dimension();
-
     for ( size_t k = 1; k <= m_activatedClusters.size(); ++k )
     {
-        std::vector< float > newVals( m_grid->size(), 0 );
-
-        for ( size_t i = 0; i < m_grid->size(); ++i )
-        {
-            if ( m_data[i] == k )
-            {
-                newVals[i] = 1.0;
-            }
-        }
-
-        boost::shared_ptr< WValueSet< float > >newValueSet = boost::shared_ptr< WValueSet< float > >(
-            new WValueSet< float >( order,
-                                    vDim,
-                                    boost::shared_ptr< std::vector< float > >( new std::vector< float >( newVals ) ),
-                                    W_DT_FLOAT ) );
         WMarchingLegoAlgorithm mlAlgo;
-        m_triMeshes.push_back( mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+        m_triMeshes.push_back( mlAlgo.genSurfaceOneValue( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                             m_grid->getTransformationMatrix(),
-                                            newValueSet->rawDataVectorPointer(),
-                                            0.9 ) );
+                                            &m_data,
+                                            k ) );
+    }
+
+    if ( m_showNotInClusters->get() )
+    {
+        WMarchingLegoAlgorithm mlAlgo;
+        m_nonActiveMesh = mlAlgo.genSurfaceOneValue( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
+                                            m_grid->getTransformationMatrix(),
+                                            &m_data,
+                                            999999 );
     }
 }
 
@@ -581,9 +610,7 @@ void WMClusterDisplayVoxels::renderMesh()
             // ------------------------------------------------
             // colors
             osg::Vec4Array* colors = new osg::Vec4Array;
-
-            WColor color = wge::getNthHSVColor( i, m_triMeshes.size() );
-            colors->push_back( osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), 1.0f ) );
+            colors->push_back( wge::getNthHSVColor( i ) );
             surfaceGeometry->setColorArray( colors );
             surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
@@ -608,6 +635,49 @@ void WMClusterDisplayVoxels::renderMesh()
             m_meshNode->insert( outputGeode );
             m_outputGeodes.push_back( outputGeode );
         }
+    }
+    if ( m_propShowVoxelTriangulation->get( true ) && m_showNotInClusters->get() )
+    {
+        osg::Geometry* surfaceGeometry = new osg::Geometry();
+        osg::ref_ptr< osg::Geode >outputGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
+
+        outputGeode->setName( ( std::string( "non active" ) ).c_str() );
+
+        surfaceGeometry->setVertexArray( m_nonActiveMesh->getVertexArray() );
+
+        // ------------------------------------------------
+        // normals
+        surfaceGeometry->setNormalArray( m_nonActiveMesh->getTriangleNormalArray() );
+        surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
+
+        // ------------------------------------------------
+        // colors
+        osg::Vec4Array* colors = new osg::Vec4Array;
+
+        colors->push_back( osg::Vec4( 0.3, 0.3, 0.3, 1.0f ) );
+        surfaceGeometry->setColorArray( colors );
+        surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+        osg::DrawElementsUInt* surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
+
+        std::vector< size_t >tris = m_nonActiveMesh->getTriangles();
+        surfaceElement->reserve( tris.size() );
+
+        for( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
+        {
+            surfaceElement->push_back( tris[vertId] );
+        }
+        surfaceGeometry->addPrimitiveSet( surfaceElement );
+        outputGeode->addDrawable( surfaceGeometry );
+
+        osg::StateSet* state = outputGeode->getOrCreateStateSet();
+        osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
+        lightModel->setTwoSided( true );
+        state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
+        state->setMode(  GL_BLEND, osg::StateAttribute::ON );
+
+        m_meshNode->insert( outputGeode );
+        m_outputGeodes.push_back( outputGeode );
     }
 }
 
@@ -662,6 +732,8 @@ void WMClusterDisplayVoxels::updateWidgets()
     int height = viewer->getCamera()->getViewport()->height();
     int width = viewer->getCamera()->getViewport()->width();
 
+    int rows = height / 20;
+
     if ( ( height != m_oldViewHeight ) || width != m_oldViewWidth )
     {
         m_oldViewHeight = height;
@@ -670,12 +742,12 @@ void WMClusterDisplayVoxels::updateWidgets()
         m_dendrogramDirty = true;
     }
 
-    if ( !widgetClicked() && !m_widgetDirty && !m_dendrogramDirty )
+    if ( !widgetClicked() && !m_dendrogramDirty )
     {
         return;
     }
 
-    if ( m_biggestClusterButtonsChanged )
+    if ( m_selectionChanged || m_propShowSelectedButtons->changed( true ) )
     {
         for ( size_t i = 0; i < m_activeClustersButtonList.size(); ++i )
         {
@@ -683,49 +755,25 @@ void WMClusterDisplayVoxels::updateWidgets()
         }
 
         m_activeClustersButtonList.clear();
-        for ( size_t i = 0; i < m_activatedClusters.size(); ++i )
+
+        if ( m_propShowSelectedButtons->get() )
         {
-            osg::ref_ptr<WOSGButton> newButton1 = osg::ref_ptr<WOSGButton>( new WOSGButton( std::string( "" ),
-                    osgWidget::Box::VERTICAL, true, false ) );
-            newButton1->setPosition( osg::Vec3( 10.f,  i * 20.f, 0 ) );
-            newButton1->setId( 10000000 + m_activatedClusters[i] );
-            newButton1->setLabel( std::string( " S " ) );
-            newButton1->managed( m_wm );
-            m_wm->addChild( newButton1 );
-            m_activeClustersButtonList.push_back( newButton1 );
-            newButton1->setBackgroundColor( wge::getNthHSVColor( i, m_activatedClusters.size() ) );
-
-            osg::ref_ptr<WOSGButton> newButton = osg::ref_ptr<WOSGButton>( new WOSGButton( std::string( "" ),
-                    osgWidget::Box::VERTICAL, true, true ) );
-            newButton->setPosition( osg::Vec3( 35.f,  i * 20.f, 0 ) );
-            newButton->setId( m_activatedClusters[i] );
-            newButton->setLabel( boost::lexical_cast<std::string>( m_tree.size( m_activatedClusters[i] ) ) );
-            newButton->managed( m_wm );
-            m_wm->addChild( newButton );
-            m_activeClustersButtonList.push_back( newButton );
-            newButton->setBackgroundColor( wge::getNthHSVColor( i, m_activatedClusters.size() ) );
-        }
-        osg::ref_ptr<WOSGButton> newButton1 = osg::ref_ptr<WOSGButton>( new WOSGButton( std::string( "" ),
-                osgWidget::Box::VERTICAL, true, false ) );
-        newButton1->setPosition( osg::Vec3( 10.f,  m_activatedClusters.size() * 20.f, 0 ) );
-        newButton1->setId( 10000000 + m_propSelectedCluster->get() );
-        newButton1->setLabel( std::string( " S " ) );
-        newButton1->managed( m_wm );
-        m_wm->addChild( newButton1 );
-        m_activeClustersButtonList.push_back( newButton1 );
-        newButton1->setBackgroundColor( WColor( 0.4, 0.4, 0.4, 1.0 ) );
-
-        osg::ref_ptr<WOSGButton> newButton = osg::ref_ptr<WOSGButton>( new WOSGButton( std::string( "" ),
+            for ( size_t i = 0; i < m_activatedClusters.size(); ++i )
+            {
+                osg::ref_ptr<WOSGButton> newButton = osg::ref_ptr<WOSGButton>( new WOSGButton( std::string( "" ),
                         osgWidget::Box::VERTICAL, true, true ) );
-        newButton->setPosition( osg::Vec3( 35.f,  m_activatedClusters.size() * 20.f, 0 ) );
-        newButton->setId( m_propSelectedCluster->get() );
-        newButton->setLabel( boost::lexical_cast<std::string>( m_tree.size( m_propSelectedCluster->get() ) ) );
-        newButton->managed( m_wm );
-        m_wm->addChild( newButton );
+                newButton->setPosition( osg::Vec3( 5.f + ( i / rows ) * 60,  ( i % rows ) * 20.f, 0 ) );
+                newButton->setId( m_activatedClusters[i] );
+                //newButton->setLabel( boost::lexical_cast<std::string>( m_tree.size( m_activatedClusters[i] ) ) );
+                newButton->setLabel( boost::lexical_cast<std::string>( m_activatedClusters[i] ) );
+                newButton->managed( m_wm );
+                m_wm->addChild( newButton );
+                m_activeClustersButtonList.push_back( newButton );
+                newButton->setBackgroundColor( wge::getNthHSVColor( i ) );
+            }
+        }
 
-        m_activeClustersButtonList.push_back( newButton );
-        newButton->setBackgroundColor( WColor( 0.4, 0.4, 0.4, 1.0 ) );
-        m_biggestClusterButtonsChanged = false;
+        m_selectionChanged = false;
     }
     m_wm->resizeAllWindows();
 
@@ -743,12 +791,21 @@ void WMClusterDisplayVoxels::updateWidgets()
         {
             if ( m_propResizeWithWindow->get( true ) )
             {
-                m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1,
-                        m_propMinSizeToColor->get(), width - 120, height / 2 , 100 );
+                if ( m_propShowSelectedButtons->get() )
+                {
+                    m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1, m_propPlotHeightByLevel->get( true ),
+                                        m_propMinSizeToColor->get(), width - ( ( m_activatedClusters.size() / rows ) + 1 ) * 62, height / 2 ,
+                                        ( ( m_activatedClusters.size() / rows ) + 1 ) * 60 );
+                }
+                else
+                {
+                    m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1, m_propPlotHeightByLevel->get( true ),
+                                            m_propMinSizeToColor->get(), width - 20, height / 2 , 10 );
+                }
             }
             else
             {
-                m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1,
+                m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1, m_propPlotHeightByLevel->get( true ),
                         m_propMinSizeToColor->get(), dwidth, dheight, dxOff, dyOff );
             }
             m_camera->addChild( m_dendrogramGeode );
@@ -802,5 +859,7 @@ void WMClusterDisplayVoxels::dendrogramClick( WPickInfo pickInfo )
     int x = pickInfo.getPickPixelPosition().first;
     int y = pickInfo.getPickPixelPosition().second;
 
-    m_propSelectedCluster->set( m_dendrogramGeode->getClickedCluster( x, y ) );
+    size_t cluster = m_dendrogramGeode->getClickedCluster( x, y );
+    std::cout << cluster << std::endl;
+    m_propSelectedCluster->set( cluster );
 }

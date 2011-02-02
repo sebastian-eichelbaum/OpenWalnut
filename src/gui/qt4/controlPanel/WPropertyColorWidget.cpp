@@ -87,10 +87,10 @@ void WPropertyColorWidget::update()
 QColor WPropertyColorWidget::toQColor( WColor color )
 {
     QColor tmp;
-    tmp.setRgbF( color.getRed(),
-                 color.getGreen(),
-                 color.getBlue(),
-                 color.getAlpha() );
+    tmp.setRgbF( color[0],
+                 color[1],
+                 color[2],
+                 color[3] );
 
     return tmp;
 }

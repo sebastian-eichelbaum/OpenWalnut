@@ -32,12 +32,14 @@
 
 #include <osg/Matrix>
 #include <osg/Vec3>
-
 #include "../common/math/WMatrix.h"
+#include "../common/math/WMatrix4x4.h"
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
-#include "WGrid.h"
+#include "../common/WBoundingBox.h"
+#include "../common/WCondition.h"
 #include "WExportDataHandler.h"
+#include "WGrid.h"
 
 /**
  * A grid that has parallelepiped cells which all have the same proportion. I.e.
@@ -222,9 +224,9 @@ public:
     wmath::WPosition getOrigin() const;
 
     /**
-     * Returns the two positions representing the bounding box of the grid.
+     * \return The two positions representing the bounding box of the grid.
      */
-    std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const;
+    WBoundingBox getBoundingBox() const;
 
     /**
      * Returns the i-th position on the grid.
@@ -259,6 +261,29 @@ public:
      * \param coords The point with these coordinates will be transformed.
      */
     wmath::WPosition texCoordToWorldCoord( wmath::WVector3D coords );
+
+    /**
+     * Matrix converting a specified world coordinate to texture space according in this grid.
+     *
+     * \return the matrix.
+     */
+    const wmath::WMatrix4x4& getWorldToTexMatrix() const;
+
+    /**
+     * Matrix converting a specified texture coordinate to world space according to this grid.
+     *
+     * \return the matrix.
+     */
+    const wmath::WMatrix4x4& getTexToWorldMatrix() const;
+
+    /**
+     * This method returns the condition that fires on changes in this grid's transformation matrix. This is ugly and should not be used since,
+     * technically, we want const grids. For WDataTexture_2, this is needed right now because we have a module which allows modification of the
+     * grid transformation (dataManipulator). Remove this if the grid really is const as it is not needed anymore.
+     *
+     * \return the condition
+     */
+    WCondition::SPtr getTransformationUpdateCondition() const;
 
     /**
      * Returns the i'th voxel where the given position belongs too.
@@ -594,6 +619,11 @@ private:
      */
     void initInformationProperties();
 
+    /**
+     * Recalculates the m_matrixInverse and the corresponding scaling and offset matrices m_matrixTexToWorld and m_matrixWorldToTex
+     */
+    void recreateTextureTransformationMatrices();
+
     wmath::WPosition m_origin; //!< Origin of the grid.
 
     unsigned int m_nbPosX; //!< Number of positions in x direction
@@ -619,24 +649,32 @@ private:
      *
      * This is the matrix we are working with
      */
-    wmath::WMatrix<double> m_matrix;
+    wmath::WMatrix4x4 m_matrix;
 
-    wmath::WMatrix<double> m_matrixInverse; //!< Inverse of m_matrix
+    /**
+     * This matrix converts a texture coordinate inside the grid to a world coordinate. It also handles the 0.5 voxel offset.
+     */
+    wmath::WMatrix4x4 m_matrixTexToWorld;
+
+    /**
+     * This matrix converts a world coordinate to a texture coordinate inside the grid. It also handles the 0.5 voxel offset.
+     */
+    wmath::WMatrix4x4 m_matrixWorldToTex;
 
     /**
      * Matrix storing the original stretch and translation
      */
-    wmath::WMatrix<double> m_matrixNoMatrix;
+    wmath::WMatrix4x4 m_matrixNoMatrix;
 
     /**
      * Matrix storing the original qform matrix from the niftii file header
      */
-    wmath::WMatrix<double> m_matrixQForm;
+    wmath::WMatrix4x4 m_matrixQForm;
 
     /**
      * Matrix storing the original sform matrix from the niftii file header
      */
-    wmath::WMatrix<double> m_matrixSForm;
+    wmath::WMatrix4x4 m_matrixSForm;
 
     /**
      * indicates which transformation matrix is used
@@ -647,11 +685,16 @@ private:
      */
     int m_matrixActive;
 
-    wmath::WMatrix<double> m_translateMatrix; //!< stores the custom rotation
+    wmath::WMatrix4x4 m_translateMatrix; //!< stores the custom rotation
 
-    wmath::WMatrix<double> m_rotMatrix; //!< stores the custom rotation
+    wmath::WMatrix4x4 m_rotMatrix; //!< stores the custom rotation
 
-    wmath::WMatrix<double> m_stretchMatrix; //!< stores the custom strech manipulation
+    wmath::WMatrix4x4 m_stretchMatrix; //!< stores the custom strech manipulation
+
+    /**
+     * Fires whenever the transformation matrix changes.
+     */
+    WCondition::SPtr m_transformationUpdateCondition;
 };
 
 inline unsigned int WGridRegular3D::getNbCoordsX() const

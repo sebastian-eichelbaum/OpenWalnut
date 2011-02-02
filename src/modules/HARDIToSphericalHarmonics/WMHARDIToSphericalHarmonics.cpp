@@ -247,7 +247,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
 
             // create final output data
             boost::shared_ptr< WValueSet<double> > sphericalHarmonicsData
-                    = boost::shared_ptr< WValueSet<double> >( new WValueSet<double>( 1, dimension, *data, W_DT_DOUBLE ) );
+                    = boost::shared_ptr< WValueSet<double> >( new WValueSet<double>( 1, dimension, data, W_DT_DOUBLE ) );
 
             newData = boost::shared_ptr< WDataSetSphericalHarmonics >(
                         new WDataSetSphericalHarmonics( sphericalHarmonicsData, m_dataSet->getGrid() ) );
@@ -259,7 +259,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             if ( parameter.m_doResidualCalculation )
             {
                 boost::shared_ptr< WValueSet<double> > residualsData = boost::shared_ptr< WValueSet<double> >(
-                        new WValueSet<double>( 1, parameter.m_validIndices.size(), *parameter.m_dataResiduals, W_DT_DOUBLE ) );
+                        new WValueSet<double>( 1, parameter.m_validIndices.size(), parameter.m_dataResiduals, W_DT_DOUBLE ) );
 
                 boost::shared_ptr< WDataSetSingle > newResidualData =
                           boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( residualsData, m_dataSet->getGrid() ) );

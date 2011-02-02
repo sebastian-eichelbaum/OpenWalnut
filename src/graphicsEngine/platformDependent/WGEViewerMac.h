@@ -161,7 +161,7 @@ public:
      * Determine the color of the viewer's background.
      * \param bgColor the new background color
      */
-    void setBgColor( WColor bgColor );
+    void setBgColor( const WColor& bgColor );
 
     /**
      * Getter for the pick handler

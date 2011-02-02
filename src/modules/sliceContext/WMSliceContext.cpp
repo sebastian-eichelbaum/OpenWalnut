@@ -112,7 +112,7 @@ void WMSliceContext::moduleMain()
     ready();
 
     m_rootNode = new osg::Group();
-    m_shaderFibers = osg::ref_ptr< WShader > ( new WShader( "WMSliceContext", m_localPath ) );
+    m_shaderFibers = osg::ref_ptr< WGEShader > ( new WGEShader( "WMSliceContext", m_localPath ) );
 
     // main loop
     while ( !m_shutdownFlag() )
@@ -215,7 +215,7 @@ osg::ref_ptr< osg::Geode > WMSliceContext::genTractGeode( const std::vector< siz
     geometry->setVertexArray( vertices );
 
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    colors->push_back( wge::osgColor( WColor( 1.0, 0.0, 1.0 ) ) );
+    colors->push_back( WColor( 1.0, 0.0, 1.0, 1.0 ) );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );

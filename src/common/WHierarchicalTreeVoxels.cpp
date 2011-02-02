@@ -93,7 +93,7 @@ void WHierarchicalTreeVoxels::addCluster( size_t cluster1, size_t cluster2, floa
     ++m_clusterCount;
 }
 
-std::vector<size_t>WHierarchicalTreeVoxels::getVoxelsForCluster( size_t cluster )
+std::vector<size_t> WHierarchicalTreeVoxels::getVoxelsForCluster( size_t cluster )
 {
     std::vector<size_t>returnVec = getLeafesForCluster( cluster );
 
@@ -102,4 +102,100 @@ std::vector<size_t>WHierarchicalTreeVoxels::getVoxelsForCluster( size_t cluster 
         returnVec[i] = m_voxelnums[returnVec[i]];
     }
     return returnVec;
+}
+
+std::vector< size_t > WHierarchicalTreeVoxels::findClustersForValue( float value )
+{
+    // init
+    std::list<size_t>worklist;
+    std::vector<size_t>returnVector;
+
+    if ( value < getCustomData( m_clusterCount - 1 ) )
+    {
+        worklist.push_back( m_clusterCount - 1 );
+    }
+
+    while ( !worklist.empty() )
+    {
+        size_t current = worklist.front();
+        worklist.pop_front();
+        if ( m_containsLeafes[current].size() > 1 )
+        {
+            size_t left = m_children[current].first;
+            size_t right = m_children[current].second;
+
+            if ( value < getCustomData( left ) )
+            {
+                worklist.push_back( left );
+            }
+            else
+            {
+                returnVector.push_back( left );
+            }
+            if ( value < getCustomData( right ) )
+            {
+                worklist.push_back( right );
+            }
+            else
+            {
+                returnVector.push_back( right );
+            }
+        }
+    }
+    return returnVector;
+}
+
+std::vector< size_t >WHierarchicalTreeVoxels::findClustersForBranchLength( float value, size_t minSize )
+{
+    // init
+    std::list<size_t>worklist;
+    std::vector<size_t>returnVector;
+
+    std::vector<int>distanceCheckVector( m_clusterCount, 0 );
+
+    for ( size_t i = m_leafCount; i < m_clusterCount; ++i )
+    {
+        if ( ( distanceCheckVector[m_children[i].first] > 0 ) || ( distanceCheckVector[m_children[i].second] > 0 ) )
+        {
+            distanceCheckVector[i] = 2;
+        }
+        else if ( ( ( m_containsLeafes[i].size() >= minSize ) && ( ( m_customData[m_parents[i]] - m_customData[i] ) > value ) ) )
+        {
+            distanceCheckVector[i] = 1;
+            returnVector.push_back( i );
+        }
+    }
+    return returnVector;
+}
+
+std::vector< size_t >WHierarchicalTreeVoxels::findXClusters( size_t root, size_t number )
+{
+    std::vector<size_t>returnVector;
+
+    std::list<size_t>worklist;
+    worklist.push_back( root );
+
+    while ( worklist.size() < number )
+    {
+        size_t current = worklist.front();
+        worklist.pop_front();
+
+        size_t left = m_children[current].first;
+        size_t right = m_children[current].second;
+
+        worklist.push_back( left );
+        worklist.push_back( right );
+
+        worklist.sort( compValue( this ) );
+    }
+    std::cout << number << " clusters at " << m_customData[worklist.front()] << " energy" << std::endl;
+
+    std::list<size_t>::iterator it;
+    for ( it = worklist.begin(); it != worklist.end(); ++it )
+    {
+        size_t current = *it;
+        returnVector.push_back( current );
+    }
+
+    return returnVector;
 }

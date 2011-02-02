@@ -30,27 +30,25 @@
 
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Material>
-#include <osg/StateSet>
-#include <osg/StateAttribute>
-#include <osg/PolygonMode>
 #include <osg/LightModel>
+#include <osg/Material>
+#include <osg/PolygonMode>
+#include <osg/StateAttribute>
+#include <osg/StateSet>
 
 #include "../../common/WAssert.h"
 #include "../../common/WThreadedFunction.h"
 #include "../../dataHandler/WDataSetScalar.h"
-#include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
-#include "../../kernel/WKernel.h"
-
-#include "../../graphicsEngine/WROIArbitrary.h"
-#include "../../graphicsEngine/WROI.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
-
+#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WROI.h"
+#include "../../graphicsEngine/WROIArbitrary.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WROIManager.h"
 #include "WCreateSurfaceJob.h"
-
 #include "WMAtlasSurfaces.h"
 #include "WMAtlasSurfaces.xpm"
 
@@ -123,6 +121,7 @@ void WMAtlasSurfaces::moduleMain()
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
+    m_moduleState.add( m_active->getUpdateCondition() );
     m_moduleState.add( m_input->getDataChangedCondition() );
 
     // signal ready state
@@ -159,6 +158,18 @@ void WMAtlasSurfaces::moduleMain()
                 case W_DT_DOUBLE:
                 default:
                     WAssert( false, "Wrong data type in AtlasSurfaces module" );
+            }
+        }
+
+        if ( m_active->changed() )
+        {
+            if ( m_active->get( true ) )
+            {
+                m_moduleNode->setNodeMask( 0xFFFFFFFF );
+            }
+            else
+            {
+                m_moduleNode->setNodeMask( 0x0 );
             }
         }
 
@@ -248,7 +259,7 @@ void WMAtlasSurfaces::createOSGNode()
         // colors
         osg::Vec4Array* colors = new osg::Vec4Array;
 
-        colors->push_back( wge::osgColor( wge::createColorFromIndex( i ) ) );
+        colors->push_back( wge::createColorFromIndex( i ) );
 
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );

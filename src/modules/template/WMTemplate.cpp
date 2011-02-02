@@ -263,6 +263,12 @@ void WMTemplate::properties()
     m_group1a->addProperty( m_aDouble );
     m_group1a->addProperty( m_enableFeature );
 
+    // and add another button to group2. But this time, we do not want to wake up the main thread. We handle this directly. Fortunately,
+    // WPropertyVariable offers you the possibility to specify your own change callback. This callback is used for hiding the m_aColor property
+    // on the fly.
+    m_hideButton = m_group2->addProperty( "(Un-)Hide Color", "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY,
+                                          boost::bind( &WMTemplate::hideButtonPressed, this ) );
+
     // How can the values of the properties be changed? You can take a look at moduleMain where this is shown. For short: m_anInteger->set( 2 )
     // and m_anInteger->get().
 
@@ -325,9 +331,13 @@ void WMTemplate::properties()
     m_infoProperties->addProperty( m_aStringOutput );   // we can also re-add properties
     m_aTriggerOutput = m_infoProperties->addProperty( "A trigger", "Trigger As String", WPVBaseTypes::PV_TRIGGER_READY );
     m_aDoubleOutput = m_infoProperties->addProperty( "Some double", "a Double. Nice isn't it?", 3.1415 );
+    m_aIntOutput = m_infoProperties->addProperty( "Some int", "a int. Nice isn't it?", 123456 );
     m_aColorOutput = m_infoProperties->addProperty( "A color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
     m_aFilenameOutput = m_infoProperties->addProperty( "Nice file", "a Double. Nice isn't it?", WPathHelper::getAppPath() );
     m_aSelectionOutput = m_infoProperties->addProperty( "A selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
+    // One important note regarding information properties. If a property gets added in a group which is an information property-group, then
+    // each added property does NOT contain any constraints. If a property gets an information property AFTER its creation, like m_aStringOutput,
+    // then it keeps its constraints!
 
     WModule::properties();
 }
@@ -663,12 +673,9 @@ void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisit
     // gets set in your thread main and checked here or, as done in this module, by checking whether the callback is called the first time.
     if( m_module->m_aColor->changed() || m_initialUpdate )
     {
-        // Grab the color
-        WColor c = m_module->m_aColor->get( true );
-
         // Set the diffuse color and material:
         osg::ref_ptr< osg::Material > mat = new osg::Material();
-        mat->setDiffuse( osg::Material::FRONT, osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() ) );
+        mat->setDiffuse( osg::Material::FRONT, m_module->m_aColor->get( true ) );
         node->getOrCreateStateSet()->setAttribute( mat, osg::StateAttribute::ON );
     }
     traverse( node, nv );
@@ -732,3 +739,20 @@ void WMTemplate::activate()
     WModule::activate();
 }
 
+void WMTemplate::hideButtonPressed()
+{
+    // This method is called whenever m_hideButton changes its value. You can use such callbacks to avoid waking-up or disturbing the module
+    // thread for certain operations.
+
+    // If the button was triggered, switch the hide-state of m_aColor.
+    if ( m_hideButton->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+    {
+        // switch the hide flag of the color prop.
+        m_aColor->setHidden( !m_aColor->isHidden() );
+
+        // never forget to reset a trigger. If not done, the trigger is disabled in the GUI and can't be used again.
+        m_hideButton->set( WPVBaseTypes::PV_TRIGGER_READY );
+
+        // NOTE: this again triggers an update, which is why we need to check the state of the trigger in this if-clause.
+    }
+}
