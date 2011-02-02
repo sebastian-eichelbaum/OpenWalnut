@@ -76,7 +76,12 @@ void main()
     }
 #endif
 
-    float light = blinnPhongIlluminationIntensity( normalize( v_normal ) );
-    gl_FragColor = vec4( vec3( (1.5- gl_FragCoord.z)*light ), 1.0 ); //gl_Color;
+#ifdef ILLUMINATION_ENABLED
+    float light = blinnPhongIlluminationIntensity( wge_DefaultLightIntensityLessDiffuse, normalize( v_normal ) );
+#else
+    float light = 1.0;
+#endif
+
+    gl_FragColor = vec4( vec3( gl_Color.xyz * light ), gl_Color.a );
 }
 

@@ -91,6 +91,8 @@ void WMFiberDisplaySimple::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    m_illuminationEnable = m_properties->addProperty( "Illumination", "Enable line illumination.", true );
+
     m_clipPlaneGroup = m_properties->addPropertyGroup( "Clipping",  "Clip the fiber data basing on an arbitrary plane." );
     m_clipPlaneEnabled = m_clipPlaneGroup->addProperty( "Enabled", "If set, clipping of fibers is done using an arbitrary plane and plane distance.",
                                                         false );
@@ -137,8 +139,14 @@ void enableTransparency( osg::StateSet* state )
 
 void WMFiberDisplaySimple::moduleMain()
 {
-    // initialize clipping shader
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMFiberDisplaySimple", m_localPath ) );
+
+    // initialize illumination shader
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_illuminationEnable, "ILLUMINATION_DISABLED", "ILLUMINATION_ENABLED" ) )
+    );
+
+    // initialize clipping shader
     osg::ref_ptr< WGEPropertyUniform< WPropPosition > > clipPlanePointUniform    = new WGEPropertyUniform< WPropPosition >( "u_planePoint",
                                                                                                                             m_clipPlanePoint );
     osg::ref_ptr< WGEPropertyUniform< WPropPosition > > clipPlaneVectorUniform   = new WGEPropertyUniform< WPropPosition >( "u_planeVector",
@@ -150,6 +158,9 @@ void WMFiberDisplaySimple::moduleMain()
     );
 
     // init tube shader
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_tubeEnable, "TUBE_DISABLED", "TUBE_ENABLED" ) )
+    );
     m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
         new WGEShaderPropertyDefineOptions< WPropBool >( m_tubeZoomable, "ZOOMABLE_DISABLED", "ZOOMABLE_ENABLED" ) )
     );

@@ -119,6 +119,11 @@ private:
     osg::ref_ptr< WGEShader > m_shader;
 
     /**
+     * Illumination.
+     */
+    WPropBool m_illuminationEnable;
+
+    /**
      * A property group for all the clipping related props.
      */
     WPropGroup m_clipPlaneGroup;
