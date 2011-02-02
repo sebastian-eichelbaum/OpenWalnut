@@ -151,27 +151,23 @@ private:
     /**
      * Prop denoting whether to use tubes or line strips
      */
-    WPropBool m_useTubes;
+    WPropBool m_tubeEnable;
+
+    /**
+     * Prop denoting whether tubes can be zoomed or not.
+     */
+    WPropBool m_tubeZoomable;
+
+    /**
+     * The size. The meaning somehow relates to tubeZoomable. If a tube is zoomable, the size is the smallest size in pixels on screen of totally
+     * zoomed out.
+     */
+    WPropDouble m_tubeSize;
 
     /**
      * Group containing tube specific properties
      */
     WPropGroup m_tubeGroup;
-
-    /**
-     * Uniform for plane point.
-     */
-    osg::ref_ptr< WGEPropertyUniform< WPropPosition > > m_clipPlanePointUniform;
-
-    /**
-     * Uniform for plane vector.
-     */
-    osg::ref_ptr< WGEPropertyUniform< WPropPosition > > m_clipPlaneVectorUniform;
-
-    /**
-     * Uniform for plane distance.
-     */
-    osg::ref_ptr< WGEPropertyUniform< WPropDouble > > m_clipPlaneDistanceUniform;
 
     /**
      * Update the transform node to provide an cue were the plane actually is.

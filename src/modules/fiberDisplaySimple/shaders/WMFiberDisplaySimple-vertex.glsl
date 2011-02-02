@@ -35,6 +35,11 @@
 varying float dist;
 #endif
 
+/**
+ * The surface normal. Needed for nice lighting.
+ */
+varying vec3 v_normal;
+
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
 /////////////////////////////////////////////////////////////////////////////
@@ -48,6 +53,11 @@ uniform vec3 u_planePoint;
  * The normal vector of the plane
  */
 uniform vec3 u_planeVector;
+
+/**
+ * The size of the tube
+ */
+uniform float u_tubeSize;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -83,9 +93,20 @@ void main()
     // The view direction in world-space. In OpenGL this is always defined by this vector
     vec3 view = vec3( 0.0, 0.0, -1.0 );
 
+#ifdef ZOOMABLE_ENABLED
     // To avoid that the quad strip gets thinner and thinner when zooming in (or the other way around: to avoid the quad strip always occupies
     // the same screen space), we need to calculate the zoom factor involved in OpenWalnut's current camera.
     float worldScale = length( ( gl_ModelViewMatrix * vec4( 1.0, 1.0, 1.0, 0.0 ) ).xyz );
+
+    // worldScale now contains the scaling which is done by ModelView transformation (including the camera).
+    // With this, we can ensure that our offset (calculated later), which is of unit-length, is scaled acccording to the camera zoom. The
+    // additional uniform u_tubeSize allows the user to scale the tubes.
+    // We clamp the value to ensure a minimum width of the quadstrip of 1px on screen:
+    worldScale = clamp( u_tubeSize * worldScale, 1.0, 1000000.0 );
+#else
+    // In this mode, the tubes should not be zoomed. Just use the user defined size here.
+    float worldScale = clamp( u_tubeSize, 1.0, 1000000.0 );
+#endif
 
     // To enforce that each quad's normal points towards the user, we move the two vertex (which are at the same point currently) according to
     // the direction stored in gl_MultiTexCoord0
@@ -93,6 +114,10 @@ void main()
 
     // Apply the offset and scale correctly.
     vertex.xyz += 0.1 * worldScale * offset;
+
+    // with the tangent and the view vector we got the offset vector. We can noch get the normal using the tangent and the offset.
+    v_normal = cross( offset, tangent );
+    v_normal *= sign( dot( v_normal, vec3(0.0, 0.0, 1.0 ) ) );
 
     // Simply project the vertex afterwards
     gl_Position = gl_ProjectionMatrix * vertex;

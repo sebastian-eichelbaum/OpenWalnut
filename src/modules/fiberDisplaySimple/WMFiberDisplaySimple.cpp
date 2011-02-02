@@ -101,7 +101,12 @@ void WMFiberDisplaySimple::properties()
     m_clipPlaneDistance->removeConstraint( m_clipPlaneDistance->getMax() ); // there simply is no max.
 
     m_tubeGroup = m_properties->addPropertyGroup( "Tube Rendering", "If true, advanced fake-tube rendering is used." );
-    m_useTubes = m_tubeGroup->addProperty( "Enable Tubes", "If set, fake-tube rendering is used.", false, m_propCondition  );
+    m_tubeEnable = m_tubeGroup->addProperty( "Enable Tubes", "If set, fake-tube rendering is used.", false, m_propCondition  );
+    m_tubeZoomable = m_tubeGroup->addProperty( "Zoomable", "If set, fake-tube get thicker when zoomed in. If not set, they always keep the same "
+                                                            "size in screen-space. This emulates standard OpenGL lines.", true );
+    m_tubeSize = m_tubeGroup->addProperty( "Width", "The size of the tubes.", 2.0 );
+    m_tubeSize->setMin( 0.10 );
+    m_tubeSize->setMax( 25.0 );
 
     // call WModule's initialization
     WModule::properties();
@@ -134,12 +139,21 @@ void WMFiberDisplaySimple::moduleMain()
 {
     // initialize clipping shader
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMFiberDisplaySimple", m_localPath ) );
-    m_clipPlanePointUniform = new WGEPropertyUniform< WPropPosition >( "u_planePoint", m_clipPlanePoint );
-    m_clipPlaneVectorUniform = new WGEPropertyUniform< WPropPosition >( "u_planeVector", m_clipPlaneVector );
-    m_clipPlaneDistanceUniform = new WGEPropertyUniform< WPropDouble >( "u_distance", m_clipPlaneDistance );
+    osg::ref_ptr< WGEPropertyUniform< WPropPosition > > clipPlanePointUniform    = new WGEPropertyUniform< WPropPosition >( "u_planePoint",
+                                                                                                                            m_clipPlanePoint );
+    osg::ref_ptr< WGEPropertyUniform< WPropPosition > > clipPlaneVectorUniform   = new WGEPropertyUniform< WPropPosition >( "u_planeVector",
+                                                                                                                            m_clipPlaneVector );
+    osg::ref_ptr< WGEPropertyUniform< WPropDouble > >   clipPlaneDistanceUniform = new WGEPropertyUniform< WPropDouble >( "u_distance",
+                                                                                                                           m_clipPlaneDistance );
     m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
         new WGEShaderPropertyDefineOptions< WPropBool >( m_clipPlaneEnabled, "CLIPPLANE_DISABLED", "CLIPPLANE_ENABLED" ) )
     );
+
+    // init tube shader
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_tubeZoomable, "ZOOMABLE_DISABLED", "ZOOMABLE_ENABLED" ) )
+    );
+    osg::ref_ptr< WGEPropertyUniform< WPropDouble > > tubeSizeUniform = new WGEPropertyUniform< WPropDouble >( "u_tubeSize", m_tubeSize );
 
     // get notified about data changes
     m_moduleState.setResetable( true, true );
@@ -154,9 +168,10 @@ void WMFiberDisplaySimple::moduleMain()
     osg::StateSet* rootState = rootNode->getOrCreateStateSet();
 
     // do not forget to add the uniforms
-    rootState->addUniform( m_clipPlanePointUniform );
-    rootState->addUniform( m_clipPlaneVectorUniform );
-    rootState->addUniform( m_clipPlaneDistanceUniform );
+    rootState->addUniform( clipPlanePointUniform );
+    rootState->addUniform( clipPlaneVectorUniform );
+    rootState->addUniform( clipPlaneDistanceUniform );
+    rootState->addUniform( tubeSizeUniform );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( rootNode );
 
     // needed to observe the properties of the input connector data
@@ -261,7 +276,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createClipPlane() const
     osg::ref_ptr< osg::Vec4Array > planeColor = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     osg::ref_ptr< osg::Geometry > planeGeometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
-
+    // the plane vertices
     planeColor->push_back( osg::Vec4( 1.0, 0.0, 0.0, 0.125 ) );
     planeVertices->push_back( osg::Vec3( 0.0, -100.0, -100.0 ) );
     planeVertices->push_back( osg::Vec3( 0.0, -100.0,  100.0 ) );
@@ -363,7 +378,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
             colors->push_back( color );
             tangents->push_back( tangent );
 
-            if ( m_useTubes->get() )
+            if ( m_tubeEnable->get() )
             {
                 vertices->push_back( vert );
                 colors->push_back( color );
@@ -379,7 +394,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
         }
 
         // add the above line-strip
-        if ( m_useTubes->get() )
+        if ( m_tubeEnable->get() )
         {
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUAD_STRIP, 2 * currentStart, 2 * len ) );
         }
@@ -397,7 +412,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
     geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     geometry->setNormalArray( tangents );
     geometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
-    if ( m_useTubes->get() )    // tex coords are only needed for fake-tubes
+    if ( m_tubeEnable->get() )    // tex coords are only needed for fake-tubes
     {
         geometry->setTexCoordArray( 0, texcoords );
     }

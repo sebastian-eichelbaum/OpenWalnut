@@ -24,7 +24,7 @@
 
 #version 120
 
-#include "WGETextureTools.glsl"
+#include "WGEShadingTools.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
@@ -36,6 +36,11 @@
  */
 varying float dist;
 #endif
+
+/**
+ * The surface normal. Needed for nice lighting.
+ */
+varying vec3 v_normal;
 
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
@@ -71,6 +76,7 @@ void main()
     }
 #endif
 
-    gl_FragColor = gl_Color;
+    float light = blinnPhongIlluminationIntensity( normalize( v_normal ) );
+    gl_FragColor = vec4( vec3( (1.5- gl_FragCoord.z)*light ), 1.0 ); //gl_Color;
 }
 
