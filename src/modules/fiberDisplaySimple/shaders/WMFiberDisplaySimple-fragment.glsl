@@ -25,6 +25,8 @@
 #version 120
 
 #include "WGEShadingTools.glsl"
+#include "WGETextureTools.glsl"
+#include "WGEPostprocessing.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
 // Varyings
@@ -82,6 +84,8 @@ void main()
     float light = 1.0;
 #endif
 
-    gl_FragColor = vec4( vec3( gl_Color.xyz * light ), gl_Color.a );
+    wge_FragColor = vec4( vec3( gl_Color.xyz * light ), gl_Color.a );
+    wge_FragNormal = textureNormalize( v_normal );
+    gl_FragDepth = gl_FragCoord.z;
 }
 
