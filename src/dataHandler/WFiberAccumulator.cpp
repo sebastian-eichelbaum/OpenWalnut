@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#include "../../common/WAssert.h"
+#include "../common/WAssert.h"
 
 #include "WFiberAccumulator.h"
 
