@@ -69,7 +69,7 @@ wge_LightIntensityParameter wge_DefaultLightIntensity = wge_LightIntensityParame
  */
 wge_LightIntensityParameter wge_DefaultLightIntensityLessDiffuse = wge_LightIntensityParameter(
     0.2,                             // material ambient
-    0.3,                            // material diffuse
+    0.35,                            // material diffuse
     1.0,                             // material specular
     100.0,                           // material shininess
     1.0,                             // light diffuse
