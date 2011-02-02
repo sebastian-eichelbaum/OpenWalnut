@@ -116,33 +116,6 @@ WColor convertHSVtoRGBA( double h, double s, double v )
     return WColor( r, g, b, 1.0f );
 }
 
-// Note (ledig): this is totaly ambigous becaus its already defined for osg::vec4f so would someone compile ow with unity buuild it fails
-#if 0
-std::ostream& operator<<( std::ostream& out, const WColor& c )
-{
-    return out << c[0] << ";" << c[1] << ";" << c[2] << ";" << c[3];
-}
-
-std::istream& operator>>( std::istream& in, WColor& c )
-{
-    std::string str;
-    in >> str;
-    std::vector< std::string > tokens;
-    tokens = string_utils::tokenize( str, ";" );
-    if( tokens.size() != 4 )
-    {
-        throw WOutOfBounds( "Expected 4 color values for a WColor but got " + boost::lexical_cast< std::string >( tokens.size() ) );
-    }
-
-    c[0] = boost::lexical_cast< float >( tokens[0] );
-    c[1] = boost::lexical_cast< float >( tokens[1] );
-    c[2] = boost::lexical_cast< float >( tokens[2] );
-    c[3] = boost::lexical_cast< float >( tokens[3] );
-
-    return in;
-}
-#endif
-
 WColor inverseColor( const WColor& other )
 {
     return WColor( std::abs( 1.0f - other[0] ), std::abs( 1.0f - other[1] ), std::abs( 1.0f - other[2] ), other[3] );
