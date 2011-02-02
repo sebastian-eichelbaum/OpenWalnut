@@ -22,28 +22,47 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERNIFTI_TEST_H
-#define WLOADERNIFTI_TEST_H
+#ifndef WREADERNIFTI_TEST_H
+#define WREADERNIFTI_TEST_H
 
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 #include <cxxtest/TestSuite.h>
 
-#include "../WLoaderNIfTI.h"
-#include "../WLoaderNIfTI.cpp" //need this to be able instatiate template function
+#include "../../../common/WLogger.h"
+#include "../../exceptions/WDHNoSuchFile.h"
+#include "../WReaderNIfTI.h"
+#include "../WReaderNIfTI.cpp" //need this to be able instatiate template function
 
 /**
- * test class the nifti loader class
+ * test class the nifti reader class
  */
-class WLoaderNIfTITest : public CxxTest::TestSuite
+class WReaderNIfTITest : public CxxTest::TestSuite
 {
 public:
+    /**
+     * Per test initialization routines
+     */
+    void setUp( void )
+    {
+        WLogger::startup();
+    }
+
+    /**
+     * For each test the tidy up function.
+     */
+    void tearDown( void )
+    {
+    }
+
     /**
      * Test instantiation with non existing file
      */
     void testInstantiationNonExisting( void )
     {
-        TS_ASSERT_THROWS( WLoaderNIfTI( "no such file" ), WDHIOFailure );
+        TS_ASSERT_THROWS( WReaderNIfTI( "no such file" ), const WDHNoSuchFile &e );
     }
 
     /**
@@ -51,12 +70,12 @@ public:
      */
     void testInstantiation( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/scalar_signed_short.nii.gz" ) );
-        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/scalar_unsigned_char.nii.gz" ) );
-        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/scalar_float.nii.gz" ) );
-        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/vector_float.nii.gz" ) );
-        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/symmetric_2nd_order_tensor_float.nii.gz" ) );
-        TS_ASSERT_THROWS_NOTHING( WLoaderNIfTI( "../fixtures/vector_unsigned_char.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( "../fixtures/scalar_signed_short.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( "../fixtures/scalar_unsigned_char.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( "../fixtures/scalar_float.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( "../fixtures/vector_float.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( "../fixtures/symmetric_2nd_order_tensor_float.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( "../fixtures/vector_unsigned_char.nii.gz" ) );
     }
 
     /**
@@ -64,19 +83,19 @@ public:
      */
     void testLoading( void )
     {
-        WLoaderNIfTI loader1( "../fixtures/scalar_signed_short.nii.gz" );
-        WLoaderNIfTI loader2( "../fixtures/scalar_unsigned_char.nii.gz" );
-        WLoaderNIfTI loader3( "../fixtures/scalar_float.nii.gz" );
-        WLoaderNIfTI loader4( "../fixtures/vector_float.nii.gz" );
-        WLoaderNIfTI loader5( "../fixtures/symmetric_2nd_order_tensor_float.nii.gz" );
-        WLoaderNIfTI loader6( "../fixtures/vector_unsigned_char.nii.gz" );
+        WReaderNIfTI reader1( "../fixtures/scalar_signed_short.nii.gz" );
+        WReaderNIfTI reader2( "../fixtures/scalar_unsigned_char.nii.gz" );
+        WReaderNIfTI reader3( "../fixtures/scalar_float.nii.gz" );
+        WReaderNIfTI reader4( "../fixtures/vector_float.nii.gz" );
+        WReaderNIfTI reader5( "../fixtures/symmetric_2nd_order_tensor_float.nii.gz" );
+        WReaderNIfTI reader6( "../fixtures/vector_unsigned_char.nii.gz" );
 
-        TS_ASSERT( loader1.load() );
-        TS_ASSERT( loader2.load() );
-        TS_ASSERT( loader3.load() );
-        TS_ASSERT( loader4.load() );
-        TS_ASSERT( loader5.load() );
-        TS_ASSERT( loader6.load() );
+        TS_ASSERT( reader1.load() );
+        TS_ASSERT( reader2.load() );
+        TS_ASSERT( reader3.load() );
+        TS_ASSERT( reader4.load() );
+        TS_ASSERT( reader5.load() );
+        TS_ASSERT( reader6.load() );
     }
 
     /**
@@ -103,9 +122,9 @@ public:
         dummy.m[3][3] = 1.17;
 
         // need this for calling the function
-        WLoaderNIfTI loader1( "../fixtures/scalar_signed_short.nii.gz" );
+        WReaderNIfTI reader1( "../fixtures/scalar_signed_short.nii.gz" );
 
-        wmath::WMatrix< double >  result = loader1.convertMatrix( dummy );
+        wmath::WMatrix< double >  result = reader1.convertMatrix( dummy );
 
         TS_ASSERT_EQUALS( result.getNbRows(), 4 );
         TS_ASSERT_EQUALS( result.getNbCols(), 4 );
@@ -135,7 +154,7 @@ public:
     void testCopyArray( void )
     {
         // need this for calling the function
-        WLoaderNIfTI loader1( "../fixtures/scalar_signed_short.nii.gz" );
+        WReaderNIfTI reader1( "../fixtures/scalar_signed_short.nii.gz" );
 
         const size_t nbVoxels = 10;
         const size_t vDim = 3;
@@ -149,9 +168,9 @@ public:
                 dataArray[i] = 1.1 * i;
             }
         }
-        std::vector< double > vec = loader1.copyArray( dataArray, nbVoxels, vDim );
+        boost::shared_ptr< std::vector< double > > vec = reader1.copyArray( dataArray, nbVoxels, vDim );
 
-        TS_ASSERT_EQUALS( vec.size(), nbVoxels * vDim );
+        TS_ASSERT_EQUALS( vec->size(), nbVoxels * vDim );
 
         double delta = 1e-16;
         for( unsigned int voxId = 0; voxId < nbVoxels; ++voxId )
@@ -159,12 +178,12 @@ public:
             for( unsigned int dim = 0; dim < vDim; ++dim )
             {
                 // The following two test exactly the same thing.
-                TS_ASSERT_DELTA( vec[voxId * vDim + dim], dataArray[voxId + nbVoxels * dim], delta );
-                TS_ASSERT_DELTA( vec[voxId * vDim + dim], 1.1 * ( voxId + nbVoxels * dim ), delta );
+                TS_ASSERT_DELTA( vec->at( voxId * vDim + dim ), dataArray[voxId + nbVoxels * dim], delta );
+                TS_ASSERT_DELTA( vec->at( voxId * vDim + dim ), 1.1 * ( voxId + nbVoxels * dim ), delta );
             }
         }
         delete[] dataArray;
     }
 };
 
-#endif  // WLOADERNIFTI_TEST_H
+#endif  // WREADERNIFTI_TEST_H
