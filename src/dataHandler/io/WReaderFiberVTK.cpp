@@ -51,22 +51,15 @@ WReaderFiberVTK::~WReaderFiberVTK() throw()
 
 boost::shared_ptr< WDataSetFibers > WReaderFiberVTK::read()
 {
-    try
+    m_ifs = boost::shared_ptr< std::ifstream >( new std::ifstream() );
+    m_ifs->open( m_fname.c_str(), std::ifstream::in | std::ifstream::binary );
+    if( !m_ifs || m_ifs->bad() )
     {
-        m_ifs = boost::shared_ptr< std::ifstream >( new std::ifstream() );
-        m_ifs->open( m_fname.c_str(), std::ifstream::in | std::ifstream::binary );
-        if( !m_ifs || m_ifs->bad() )
-        {
-            throw WDHIOFailure( std::string( "internal error while opening" ) );
-        }
-        readHeader();
-        readPoints();
-        readLines();
+        throw WDHIOFailure( std::string( "internal error while opening" ) );
     }
-    catch( WDHException e )
-    {
-        wlog::error( "WReaderFiberVTK" ) << "Abort loading VTK fiber file: " << m_fname << ", due to: " << e.what();
-    }
+    readHeader();
+    readPoints();
+    readLines();
 
     boost::shared_ptr< WDataSetFibers > fibers = boost::shared_ptr< WDataSetFibers >( new WDataSetFibers( m_points,
                                                                                                           m_fiberStartIndices,

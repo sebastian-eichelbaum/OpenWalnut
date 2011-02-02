@@ -22,20 +22,20 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADEREEGASCII_TEST_H
-#define WLOADEREEGASCII_TEST_H
+#ifndef WREADEREEGASCII_TEST_H
+#define WREADEREEGASCII_TEST_H
 
 #include <ctime>
 #include <string>
 #include <cxxtest/TestSuite.h>
 #include <boost/thread.hpp>
 
-#include "../WLoaderEEGASCII.h"
+#include "../WReaderEEGASCII.h"
 
 /**
  * Tests for the loader of ASCII EEG files.
  */
-class WLoaderEEGASCIITest : public CxxTest::TestSuite
+class WReaderEEGASCIITest : public CxxTest::TestSuite
 {
 public:
     /**
@@ -46,9 +46,9 @@ public:
         std::string fileName = "../fixtures/eeg_testData.asc";
         std::cout << std::endl << "Test loading of " << fileName << "." << std::endl;
 
-        WLoaderEEGASCII eegASCIILoader( fileName );
-        TS_ASSERT( eegASCIILoader.load() );
+        WReaderEEGASCII eegASCIIReader( fileName );
+        TS_ASSERT( eegASCIIReader.load() );
     }
 };
 
-#endif  // WLOADEREEGASCII_TEST_H
+#endif  // WREADEREEGASCII_TEST_H

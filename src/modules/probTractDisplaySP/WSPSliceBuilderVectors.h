@@ -82,7 +82,6 @@ private:
      * Computes four vertices so each describe the translation of the middle point to one of the four quad corners.
      *
      * \param activeDims This are the opposite indices of the current slice.
-     * \param size How big the spanning is.
      *
      * \return All four coordinate transformations, for each vertex in a slice.
      */
@@ -111,6 +110,11 @@ private:
     std::pair< unsigned char, unsigned char > computeSliceBase( const unsigned char sliceNum, boost::shared_ptr< wmath::WVector3D > origin,
             boost::shared_ptr< wmath::WVector3D > a, boost::shared_ptr< wmath::WVector3D > b ) const;
 
+    /**
+     * For every probabilistic tractogram the texture is bound to the given osg node.
+     *
+     * \param node Where to bind the probabilistic tractograms
+     */
     void bindTextures( osg::ref_ptr< osg::Node > node ) const;
 
     /**

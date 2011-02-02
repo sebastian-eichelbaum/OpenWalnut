@@ -62,9 +62,11 @@ WColor inverseColor( const WColor& other );
  */
 namespace defaultColor
 {
+    // \cond
     static const WColor GREEN( 0.0, 1.0, 0.0, 1.0 ); //!< Default for green
     static const WColor RED( 1.0, 0.0, 0.0, 1.0 ); //!< Default for red
     static const WColor BLUE( 0.0, 0.0, 1.0, 1.0 ); //!< Default for blue
+    // \endcond
 }
 
 #endif  // WCOLOR_H

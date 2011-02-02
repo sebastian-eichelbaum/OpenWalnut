@@ -74,7 +74,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_moduleTreeWidget->setDragEnabled( false );
     m_moduleTreeWidget->viewport()->setAcceptDrops( true );
     m_moduleTreeWidget->setDropIndicatorShown( true );
-    m_moduleTreeWidget->setMinimumHeight( 250 );
+    m_moduleTreeWidget->setMinimumHeight( 100 );
 
     // create context menu for tree items
 
@@ -113,13 +113,13 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
 
     m_tabWidget = new QTabWidget( m_panel );
     m_tabWidget2 = new QTabWidget( m_panel );
-    m_tabWidget->setMinimumHeight( 220 );
+    m_tabWidget->setMinimumHeight( 250 );
 
     // should the Tree, Texture Sorter and the ROI Display be combined in one tab widget?
     bool combineThem = false;
     WPreferences::getPreference( "qt4gui.combineTreeAndRoiAndTextureSorter", &combineThem );
 
-    m_splitter = new QSplitter();
+    m_splitter = new QSplitter( Qt::Vertical );
 
     if ( !combineThem )
     {
@@ -144,8 +144,17 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_roiTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
     m_tabWidget2->addTab( m_roiTreeWidget, QString( "ROIs" ) );
 
-
     m_splitter->addWidget( m_tabWidget );
+
+    // set the initial sizes.
+    QList< int > splitterList;
+    splitterList.push_back( 200 );
+    if ( !combineThem )
+    {
+        splitterList.push_back( 200 );
+    }
+    splitterList.push_back( 400 );
+    m_splitter->setSizes( splitterList );
 
     m_layout = new QVBoxLayout();
     m_layout->addWidget( m_splitter );
