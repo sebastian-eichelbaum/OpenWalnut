@@ -30,6 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WCondition.h"
+#include "../../common/WItemSelection.h"
 #include "../../common/WPropertyTypes.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../kernel/WModule.h"
@@ -105,14 +106,24 @@ protected:
 private:
 
     /**
+     * A condition used to notify about changes in several properties.
+     */
+    boost::shared_ptr< WCondition > m_changed;
+
+    /**
      * The input dataset containing the tensor data.
      */
     boost::shared_ptr< WModuleInputData< WDataSetSingle> > m_input;
 
     /**
-     * A condition used to notify about changes in several properties.
+     * List containing the coloring modes.
      */
-    boost::shared_ptr< WCondition > m_changed;
+    boost::shared_ptr< WItemSelection > m_coloringList;
+
+    /**
+     * The coloring mode.
+     */
+    WPropSelection m_coloring;
 
     /**
      * Slice positions.

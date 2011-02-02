@@ -188,6 +188,11 @@ protected:
 private:
 
     /**
+     * The WGERenderNodeCL object this module is connected to.
+     */
+    WGERenderNodeCL* m_node;
+
+    /**
      * Bounding box computed.
      */
     mutable bool m_boundComputed;
@@ -196,11 +201,6 @@ private:
      * Bounding box surrounding the renderable objects.
      */
     mutable osg::BoundingBox m_box;
-
-    /**
-     * The WGERenderNodeCL object this module is connected to.
-     */
-    mutable osg::ref_ptr< WGERenderNodeCL > m_node;
 
 friend class WGERenderNodeCL;
 
@@ -588,14 +588,14 @@ inline const osg::BoundingBox& WGEModuleCL::getBound() const
 
 inline WGERenderNodeCL* WGEModuleCL::getNode()
 {
-    return m_node.get();
+    return m_node;
 }
 
 //---------------------------------------------------------------------------------------------------------------------
 
 inline const WGERenderNodeCL* WGEModuleCL::getNode() const
 {
-    return m_node.get();
+    return m_node;
 }
 
 //---------------------------------------------------------------------------------------------------------------------

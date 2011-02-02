@@ -33,38 +33,48 @@
 
 //---------------------------------------------------------------------------------------------------------------------
 
-WGlyphModule::ChangeCallback::ChangeCallback( WGlyphModule* module, ChangeOperation operation, int slice ):
+WGlyphModule::ChangeCallback::ChangeCallback( WGlyphModule* module, ChangeOperation operation ):
     m_module( module ),
-    m_operation( operation ),
-    m_slice( slice )
+    m_operation( operation )
 {}
 
 //---------------------------------------------------------------------------------------------------------------------
 
 void WGlyphModule::ChangeCallback::change( const CLViewData &viewData, CLData &data ) const
 {
-    if ( m_operation == VISIBILITY )
+    CLObjects& objects = static_cast< CLObjects& >( data );
+
+    switch ( m_operation )
     {
-        m_module->loadVisibility( viewData, static_cast< CLObjects& >( data ) );
+        case UPDATE_SLICEX: m_module->updateSlice( viewData, objects, 0 );
+                            m_module->loadVisibility( objects );
 
-        return;
-    }
+                            return;
 
-    if ( m_operation == UPDATE_SLICE )
-    {
-        m_module->updateSlice( viewData, static_cast< CLObjects& >( data ), m_slice );
-        
-        return;
-    }
+        case UPDATE_SLICEY: m_module->updateSlice( viewData, objects, 1 );
+                            m_module->loadVisibility( objects );
 
-    if ( m_operation == LOAD_DATA_SET )
-    {
-        CLObjects& objects = static_cast< CLObjects& >( data );
+                            return;
 
-        objects.m_scaleKernel = cl::Kernel();
-        objects.m_renderKernel = cl::Kernel();
+        case UPDATE_SLICEZ: m_module->updateSlice( viewData, objects, 2 );
+                            m_module->loadVisibility( objects );
 
-        m_module->loadDataset( viewData, static_cast< CLObjects& >( data ) );
+                            return;
+
+        case VISIBILITY:    m_module->loadVisibility( objects );
+
+                            return;
+
+        case SET_COLORING:  objects.m_renderKernel.setArg< cl_int >( 14, m_module->m_mode );
+
+                            return;
+
+        case LOAD_DATA_SET: objects.m_scaleKernel = cl::Kernel();
+                            objects.m_renderKernel = cl::Kernel();
+
+                            m_module->loadDataset( viewData, objects );
+
+                            return;
     }
 }
 
@@ -126,7 +136,7 @@ WGEModuleCL::CLData* WGlyphModule::initCLData( const CLViewData& viewData ) cons
 
     // create data container ------------------------------------------------------------------------------------------
 
-    boost::shared_ptr< CLObjects > objects( new CLObjects() );
+    CLObjects* objects = new CLObjects();
 
     objects->m_program = program;
 
@@ -134,27 +144,12 @@ WGEModuleCL::CLData* WGlyphModule::initCLData( const CLViewData& viewData ) cons
 
     if ( loadDataset( viewData, *objects ) )
     {
+        delete objects;
+
         return 0;
     }
 
-    if ( updateSlice( viewData, *objects, 0 ) )
-    {
-        return 0;
-    }
-
-    if ( updateSlice( viewData, *objects, 1 ) )
-    {
-        return 0;
-    }
-
-    if ( updateSlice( viewData, *objects, 2 ) )
-    {
-        return 0;
-    }
-
-    loadVisibility( viewData, *objects );
-
-    return objects.get();
+    return objects;
 }
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -167,8 +162,8 @@ void WGlyphModule::setBuffers( const CLViewData& viewData, CLData& data ) const
 
     objects.m_renderKernel.setArg< cl_uint >( 6, viewData.getWidth() );
     objects.m_renderKernel.setArg< cl_uint >( 7, viewData.getHeight() );
-    objects.m_renderKernel.setArg< cl::Image2DGL >( 13, viewData.getColorBuffer() );
-    objects.m_renderKernel.setArg< cl::Image2DGL >( 14, viewData.getDepthBuffer() );
+    objects.m_renderKernel.setArg< cl::Image2DGL >( 12, viewData.getColorBuffer() );
+    objects.m_renderKernel.setArg< cl::Image2DGL >( 13, viewData.getDepthBuffer() );
 
     // calculate global work size which has to be a multiple of local work size ---------------------------------------
 
@@ -185,19 +180,9 @@ bool WGlyphModule::render( const CLViewData& viewData, CLData& data ) const
 
     ViewProperties props( viewData );
 
-    // set camera position relative to the center of the data set beginning at (0,0,0) --------------------------------
-
-    cl_float4 origin =
-    {
-        props.getOrigin().s[ 0 ] + m_numOfTensors[ 0 ] / 2,
-        props.getOrigin().s[ 1 ] + m_numOfTensors[ 1 ] / 2,
-        props.getOrigin().s[ 2 ] + m_numOfTensors[ 2 ] / 2,
-        1.0f
-    };
-
     // set kernel view arguments --------------------------------------------------------------------------------------
 
-    objects.m_renderKernel.setArg< cl_float4 >( 0, origin );
+    objects.m_renderKernel.setArg< cl_float4 >( 0, props.getOrigin() );
     objects.m_renderKernel.setArg< cl_float4 >( 1, props.getOriginToLowerLeft() );
     objects.m_renderKernel.setArg< cl_float4 >( 2, props.getEdgeX() );
     objects.m_renderKernel.setArg< cl_float4 >( 3, props.getEdgeY() );
@@ -223,24 +208,10 @@ bool WGlyphModule::render( const CLViewData& viewData, CLData& data ) const
 
 osg::BoundingBox WGlyphModule::computeBoundingBox() const
 {
-    int lowerHalf[ 3 ] =
-    {
-        -m_numOfTensors[0] / 2,
-        -m_numOfTensors[1] / 2,
-        -m_numOfTensors[2] / 2
-    };
-
-    int upperHalf[ 3 ] =
-    {
-        m_numOfTensors[ 0 ] + lowerHalf[ 0 ],
-        m_numOfTensors[ 1 ] + lowerHalf[ 1 ],
-        m_numOfTensors[ 2 ] + lowerHalf[ 2 ]
-    };
-
     osg::BoundingBox box
     (
-        osg::Vec3( lowerHalf[ 0 ], lowerHalf[ 1 ], lowerHalf[ 2 ] ),
-        osg::Vec3( upperHalf[ 0 ], upperHalf[ 1 ], upperHalf[ 2 ] )
+        osg::Vec3( 0.0f, 0.0f, 0.0f ),
+        osg::Vec3( m_numOfTensors[ 0 ], m_numOfTensors[ 1 ], m_numOfTensors[ 2 ] )
     );
 
     return box;
@@ -248,13 +219,50 @@ osg::BoundingBox WGlyphModule::computeBoundingBox() const
 
 //---------------------------------------------------------------------------------------------------------------------
 
-void WGlyphModule::loadVisibility( const CLViewData& viewData, CLObjects& objects ) const
+boost::shared_array< cl_float > WGlyphModule::extractSlice( int dim )
+{
+    int dim2 = ( dim + 1 ) % 3;
+    int dim3 = ( dim + 2 ) % 3;
+
+    int numOfCoeffs = ( m_order + 1 ) * ( m_order + 2 ) / 2;
+
+    int factors[ 3 ] = { 1, m_numOfTensors[ 0 ], m_numOfTensors[ 0 ] * m_numOfTensors[ 1 ] };
+
+    factors[ 0 ] *= numOfCoeffs;
+    factors[ 1 ] *= numOfCoeffs;
+    factors[ 2 ] *= numOfCoeffs;
+
+    boost::shared_array< cl_float > slice( new cl_float[ numOfCoeffs * m_numOfTensors[ dim2 ] * m_numOfTensors[ dim3 ] ] );
+
+    int i = 0;
+
+    for ( int id3 = 0; id3 < m_numOfTensors[ dim3 ]; id3++ )
+    {
+        for ( int id2 = 0; id2 < m_numOfTensors[ dim2 ]; id2++ )
+        {
+            int dataCoord = m_slicePosition[ dim ] * factors[ dim ] + id2 * factors[ dim2 ] + id3 * factors[ dim3 ];
+
+            for ( int j = 0; j < numOfCoeffs; j++ )
+            {
+                slice.get()[ i + j ] = static_cast< cl_float >( m_tensorData->getValueAt( dataCoord + j ) );
+            }
+
+            i += numOfCoeffs;
+        }
+    }
+
+    return slice;
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void WGlyphModule::loadVisibility( CLObjects& objects ) const
 {
     cl_float4 slicePosition =
     {
-        m_sliceVisibility[0] ? m_slicePosition[0] : CL_INFINITY,
-        m_sliceVisibility[1] ? m_slicePosition[1] : CL_INFINITY,
-        m_sliceVisibility[2] ? m_slicePosition[2] : CL_INFINITY,
+        m_sliceVisibility[ 0 ] ? m_slicePosition[ 0 ] : CL_INFINITY,
+        m_sliceVisibility[ 1 ] ? m_slicePosition[ 1 ] : CL_INFINITY,
+        m_sliceVisibility[ 2 ] ? m_slicePosition[ 2 ] : CL_INFINITY,
         0.0f
     };
 
@@ -265,18 +273,6 @@ void WGlyphModule::loadVisibility( const CLViewData& viewData, CLObjects& object
 
 bool WGlyphModule::updateSlice( const CLViewData& viewData, CLObjects& objects, int dim ) const
 {
-    cl::Buffer* slice;
-
-    switch ( dim )
-    {
-        case 0: slice = &objects.m_sliceX;
-                break;
-        case 1: slice = &objects.m_sliceY;
-                break;
-        case 2: slice = &objects.m_sliceZ;
-                break;
-    }
-
     cl_int error;
 
     int dim2 = ( dim + 1 ) % 3;
@@ -286,39 +282,12 @@ bool WGlyphModule::updateSlice( const CLViewData& viewData, CLObjects& objects, 
 
     int numOfCoeffs = ( m_order + 1 ) * ( m_order + 2 ) / 2;
 
-    cl_float* data = static_cast< cl_float* >
+    error = viewData.getCommQueue().enqueueWriteBuffer
     (
-        viewData.getCommQueue().enqueueMapBuffer
-        (
-            *slice, CL_TRUE, CL_MAP_WRITE, 0,
-            numOfCoeffs * m_numOfTensors[ dim2 ] * m_numOfTensors[ dim3 ] * sizeof( cl_float ),
-            0, 0, &error
-        )
+        objects.m_slices[ dim ], CL_TRUE, 0,
+        numOfCoeffs * m_numOfTensors[ dim2 ] * m_numOfTensors[ dim3 ] * sizeof( cl_float ),
+        m_sliceData[ dim ].get()
     );
-
-    if ( error != CL_SUCCESS )
-    {
-        return true;
-    }
-
-    int factors[ 3 ] = { 1, m_numOfTensors[ 0 ], m_numOfTensors[ 0 ] * m_numOfTensors[ 1 ] };
-
-    for ( int idx1 = 0, i = 0; idx1 < m_numOfTensors[ dim2 ]; idx1++ )
-    {
-        for ( int idx2 = 0; idx2 < m_numOfTensors[ dim3 ]; idx2++, i += numOfCoeffs )
-        {
-            int dataCoord = m_slicePosition[ dim ] * factors[ dim ] + idx1 * factors[ dim2 ] + idx2 * factors[ dim3 ];
-
-            dataCoord *= numOfCoeffs;
-
-            for ( int j = 0; j < numOfCoeffs; j++ )
-            {
-                data[ i + j ] = static_cast< cl_float >( m_tensorData->getValueAt( dataCoord + j ) );
-            }
-        }
-    }
-
-    error = viewData.getCommQueue().enqueueUnmapMemObject( *slice, data );
 
     if ( error != CL_SUCCESS )
     {
@@ -331,8 +300,8 @@ bool WGlyphModule::updateSlice( const CLViewData& viewData, CLObjects& objects, 
     cl::NDRange bufferSize( m_numOfTensors[ dim2 ] * m_numOfTensors[ dim3 ] );
     cl::NDRange globalSize = computeGlobalWorkSize( localSize, bufferSize );
 
-    objects.m_scaleKernel.setArg< cl::Buffer >( 0, *slice );
-    objects.m_scaleKernel.setArg< cl_int >( 1, bufferSize[ 0 ] );
+    objects.m_scaleKernel.setArg< cl::Buffer >( 0, objects.m_slices[ dim ] );
+    objects.m_scaleKernel.setArg< cl_uint >( 1, bufferSize[ 0 ] );
 
     error = viewData.getCommQueue().enqueueNDRangeKernel( objects.m_scaleKernel, cl::NDRange(), globalSize, localSize );
 
@@ -352,7 +321,12 @@ bool WGlyphModule::loadDataset( const CLViewData& viewData, CLObjects& objects )
 
     // build program --------------------------------------------------------------------------------------------------
 
-    std::string options = std::string( "-D Order=" ) + boost::lexical_cast< std::string, int >( m_order );
+    std::string options = "-D Order=" + boost::lexical_cast< std::string, int >( m_order ) + " " +
+                          "-D NumOfTensors=(float4)(" +
+                          boost::lexical_cast< std::string, int >( m_numOfTensors[ 0 ] ) + "," +
+                          boost::lexical_cast< std::string, int >( m_numOfTensors[ 1 ] ) + "," +
+                          boost::lexical_cast< std::string, int >( m_numOfTensors[ 2 ] ) + "," +
+                          "0)";
 
     error = objects.m_program.build( std::vector< cl::Device >( 1, viewData.getDevice() ), options.c_str() );
 
@@ -364,7 +338,7 @@ bool WGlyphModule::loadDataset( const CLViewData& viewData, CLObjects& objects )
             {
                 std::string log;
 
-                program.getBuildInfo< std::string >( viewData.getDevice(), CL_PROGRAM_BUILD_LOG, &log );
+                objects.m_program.getBuildInfo< std::string >( viewData.getDevice(), CL_PROGRAM_BUILD_LOG, &log );
 
                 osg::notify( osg::FATAL ) << log << std::endl;
             }
@@ -390,76 +364,46 @@ bool WGlyphModule::loadDataset( const CLViewData& viewData, CLObjects& objects )
         return true;
     }
 
-    // create new buffers ---------------------------------------------------------------------------------------------
+    // load data set --------------------------------------------------------------------------------------------------
 
     int numOfCoeffs = ( m_order + 1 ) * ( m_order + 2 ) / 2;
 
-    objects.m_sliceX = cl::Buffer
-    (
-        viewData.getContext(),
-        CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
-        numOfCoeffs * m_numOfTensors[ 1 ] * m_numOfTensors[ 2 ] * sizeof( cl_float ),
-        0, &error
-    );
-
-    if ( error != CL_SUCCESS )
+    for ( int dim = 0; dim < 3; dim++ )
     {
-        return true;
-    }
+        int dim2 = ( dim + 1 ) % 3;
+        int dim3 = ( dim + 2 ) % 3;
 
-    objects.m_sliceY = cl::Buffer
-    (
-        viewData.getContext(),
-        CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
-        numOfCoeffs * m_numOfTensors[ 0 ] * m_numOfTensors[ 2 ] * sizeof( cl_float ),
-        0, &error
-    );
+        // create new buffers -----------------------------------------------------------------------------------------
 
-    if ( error != CL_SUCCESS )
-    {
-        return true;
-    }
+        objects.m_slices[ dim ] = cl::Buffer
+        (
+            viewData.getContext(),
+            CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
+            numOfCoeffs * m_numOfTensors[ dim2 ] * m_numOfTensors[ dim3 ] * sizeof( cl_float ),
+            0, &error
+        );
 
-    objects.m_sliceZ = cl::Buffer
-    (
-        viewData.getContext(),
-        CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR,
-        numOfCoeffs * m_numOfTensors[ 0 ] * m_numOfTensors[ 1 ] * sizeof( cl_float ),
-        0, &error
-    );
+        if ( error != CL_SUCCESS )
+        {
+            return true;
+        }
 
-    if ( error != CL_SUCCESS )
-    {
-        return true;
-    }
+        // load tensors -----------------------------------------------------------------------------------------------
 
-    // load tensors ---------------------------------------------------------------------------------------------------
-
-    if ( updateSlice( viewData, objects, 0 ) )
-    {
-        return true;
-    }
-
-    if ( updateSlice( viewData, objects, 1 ) )
-    {
-        return true;
-    }
-
-    if ( updateSlice( viewData, objects, 2 ) )
-    {
-        return true;
+        if ( updateSlice( viewData, objects, dim ) )
+        {
+            return true;
+        }
     }
 
     // set kernel arguments -------------------------------------------------------------------------------------------
 
-    loadVisibility( viewData, objects );
+    loadVisibility( objects );
 
-    cl_float4 numOfTensors = { m_numOfTensors[ 0 ], m_numOfTensors[ 1 ], m_numOfTensors[ 2 ], 0 };
-
-    objects.m_renderKernel.setArg< cl_float4 >( 9, numOfTensors );
-    objects.m_renderKernel.setArg< cl::Buffer >( 10, objects.m_sliceX );
-    objects.m_renderKernel.setArg< cl::Buffer >( 11, objects.m_sliceY );
-    objects.m_renderKernel.setArg< cl::Buffer >( 12, objects.m_sliceZ );
+    objects.m_renderKernel.setArg< cl::Buffer >( 9, objects.m_slices[ 0 ] );
+    objects.m_renderKernel.setArg< cl::Buffer >( 10, objects.m_slices[ 1 ] );
+    objects.m_renderKernel.setArg< cl::Buffer >( 11, objects.m_slices[ 2 ] );
+    objects.m_renderKernel.setArg< cl_int >( 14, m_mode );
 
     return false;
 }

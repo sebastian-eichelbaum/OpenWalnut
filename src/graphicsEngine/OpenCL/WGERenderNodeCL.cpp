@@ -59,7 +59,7 @@ WGERenderNodeCL::DrawQuad WGERenderNodeCL::m_drawQuad;
 
 //---------------------------------------------------------------------------------------------------------------------
 
-WGERenderNodeCL::PerContextInformation::PerContextInformation(): m_invalid( true )
+WGERenderNodeCL::PerContextInformation::PerContextInformation(): m_clData( 0 ), m_invalid( true )
 {}
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -185,9 +185,6 @@ void WGERenderNodeCL::CLDrawBin::draw( osg::RenderInfo& renderInfo, osgUtil::Ren
     for ( unsigned int i = 0; i < size; i++ )
     {
         osg::ref_ptr< WGERenderNodeCL >& node = m_nodes[ i ];
-
-        state.applyTextureAttribute( 0, node->m_colorBufferTex );
-        state.applyTextureAttribute( 1, node->m_depthBufferTex );
 
         node->draw( state );
 
@@ -327,6 +324,8 @@ WGERenderNodeCL::WGERenderNodeCL( bool deactivated ):
     m_colorBufferTex = new osg::Texture2D();
 
     m_colorBufferTex->setInternalFormat( GL_RGBA32F );
+    m_colorBufferTex->setSourceFormat( GL_RGBA );
+    m_colorBufferTex->setSourceType( GL_FLOAT );
     m_colorBufferTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
     m_colorBufferTex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
 
@@ -335,6 +334,8 @@ WGERenderNodeCL::WGERenderNodeCL( bool deactivated ):
     m_depthBufferTex = new osg::Texture2D();
 
     m_depthBufferTex->setInternalFormat( GL_R32F );
+    m_depthBufferTex->setSourceFormat( GL_RED );
+    m_depthBufferTex->setSourceType( GL_FLOAT );
     m_depthBufferTex->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
     m_depthBufferTex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
 }
@@ -354,7 +355,9 @@ WGERenderNodeCL::WGERenderNodeCL( const WGERenderNodeCL& node, const osg::CopyOp
 //---------------------------------------------------------------------------------------------------------------------
 
 WGERenderNodeCL::~WGERenderNodeCL()
-{}
+{
+    disconnectModule();
+}
 
 //---------------------------------------------------------------------------------------------------------------------
 
@@ -587,6 +590,7 @@ bool WGERenderNodeCL::initCL( PerContextInformation& perContextInfo ) const
     #endif
 
     cl_int error;
+
     unsigned int sizePlatforms;
     unsigned int sizeDevices;
 
@@ -651,14 +655,14 @@ bool WGERenderNodeCL::initBuffers( PerContextInformation& perContextInfo, osg::S
 
     m_colorBufferTex->setTextureSize
     (
-        static_cast< int >( perContextInfo.m_clViewData.m_width ),
-        static_cast< int >( perContextInfo.m_clViewData.m_height )
+        perContextInfo.m_clViewData.m_width,
+        perContextInfo.m_clViewData.m_height
     );
 
     m_depthBufferTex->setTextureSize
     (
-        static_cast< int >( perContextInfo.m_clViewData.m_width ),
-        static_cast< int >( perContextInfo.m_clViewData.m_height )
+        perContextInfo.m_clViewData.m_width,
+        perContextInfo.m_clViewData.m_height
     );
 
     m_colorBufferTex->dirtyTextureObject();
@@ -674,7 +678,7 @@ bool WGERenderNodeCL::initBuffers( PerContextInformation& perContextInfo, osg::S
     perContextInfo.m_clViewData.m_buffers[ 0 ] = cl::Image2DGL
     (
         perContextInfo.m_clViewData.m_context,
-        CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
+        CL_MEM_WRITE_ONLY, GL_TEXTURE_2D, 0,
         m_colorBufferTex->getTextureObject( state.getContextID() )->_id,
         &error
     );
@@ -687,7 +691,7 @@ bool WGERenderNodeCL::initBuffers( PerContextInformation& perContextInfo, osg::S
     perContextInfo.m_clViewData.m_buffers[ 1 ] = cl::Image2DGL
     (
         perContextInfo.m_clViewData.m_context,
-        CL_MEM_READ_WRITE, GL_TEXTURE_2D, 0,
+        CL_MEM_WRITE_ONLY, GL_TEXTURE_2D, 0,
         m_depthBufferTex->getTextureObject( state.getContextID() )->_id,
         &error
     );
@@ -750,7 +754,9 @@ void WGERenderNodeCL::render( osg::State& state, osg::RefMatrix* mvm, osg::RefMa
 
     // acquire buffers ------------------------------------------------------------------------------------------------
 
-    cl_int error = perContextInfo.m_clViewData.m_commQueue.enqueueAcquireGLObjects
+    cl_int error;
+
+    error = perContextInfo.m_clViewData.m_commQueue.enqueueAcquireGLObjects
     (
         reinterpret_cast< std::vector< cl::Memory >* >( &perContextInfo.m_clViewData.m_buffers ), 0, 0
     );
@@ -779,7 +785,7 @@ void WGERenderNodeCL::render( osg::State& state, osg::RefMatrix* mvm, osg::RefMa
         reinterpret_cast< std::vector< cl::Memory >* >( &perContextInfo.m_clViewData.m_buffers ), 0, 0
     );
 
-    if ( error != CL_SUCCESS || renderError )
+    if ( ( error != CL_SUCCESS ) || renderError )
     {
         perContextInfo.m_invalid = true;
 
@@ -802,6 +808,9 @@ void WGERenderNodeCL::draw( osg::State& state ) const
     else
     {
         perContextInfo.m_clViewData.m_commQueue.finish();
+
+        state.applyTextureAttribute( 0, m_colorBufferTex );
+        state.applyTextureAttribute( 1, m_depthBufferTex );
 
         glDrawArrays( GL_QUADS, 0, 4 );
     }

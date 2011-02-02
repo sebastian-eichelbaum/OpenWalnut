@@ -163,7 +163,7 @@ WGEModuleCL::ViewProperties::ViewProperties( const CLViewData& viewData )
         m_origin.s[ 0 ] = cast( pLeft * invMvm[ 0 ][ 0 ] + pBottom * invMvm[ 1 ][ 0 ] + invMvm[ 3 ][ 0 ] );
         m_origin.s[ 1 ] = cast( pLeft * invMvm[ 0 ][ 1 ] + pBottom * invMvm[ 1 ][ 1 ] + invMvm[ 3 ][ 1 ] );
         m_origin.s[ 2 ] = cast( pLeft * invMvm[ 0 ][ 2 ] + pBottom * invMvm[ 1 ][ 2 ] + invMvm[ 3 ][ 2 ] );
-        m_origin.s[ 3 ] = cast( 1.0f );
+        m_origin.s[ 3 ] = cast( 0.0f );
 
         // originToLowerLeft = (0,0,-near,0) * Inverse(mvm) -----------------------------------------------------------
 
@@ -209,7 +209,7 @@ void WGEModuleCL::dirtyBound()
 {
     m_boundComputed = false;
 
-    if ( m_node.valid() )
+    if ( m_node != 0 )
     {
         m_node->dirtyBound();
     }

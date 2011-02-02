@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../../common/WItemSelector.h"
+#include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/OpenCL/WGEManagedRenderNodeCL.h"
 #include "../../kernel/WKernel.h"
 #include "WGlyphModule.h"
@@ -96,18 +98,31 @@ void WMTensorGlyphs::connectors()
 void WMTensorGlyphs::properties()
 {
     m_changed = boost::shared_ptr< WCondition >( new WCondition() );
+    m_coloringList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
 
-    m_slicePosition[ 0 ] = m_properties->addProperty( "Sagittal Position", "X Slice position.", 0, m_changed );
-    m_slicePosition[ 1 ] = m_properties->addProperty( "Coronal Position", "Y Slice position.", 0, m_changed );
-    m_slicePosition[ 2 ] = m_properties->addProperty( "Axial Position", "Z Slice position.", 0, m_changed );
+    m_coloringList->addItem( "Magnitude", "Glyph coloring by magnitude." );
+    m_coloringList->addItem( "Direction", "Glyph coloring by direction." );
+
+    m_coloring = m_properties->addProperty
+    (
+        "Coloring scheme", "Select the coloring scheme.",
+        m_coloringList->getSelectorFirst(), m_changed
+    );
+
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_coloring );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_coloring );
+
+    m_slicePosition[ 0 ] = m_properties->addProperty( "Sagittal Position", "Sagittal slice position.", 0, m_changed );
+    m_slicePosition[ 1 ] = m_properties->addProperty( "Coronal Position", "Coronal slice position.", 0, m_changed );
+    m_slicePosition[ 2 ] = m_properties->addProperty( "Axial Position", "Axial slice position.", 0, m_changed );
 
     m_slicePosition[ 0 ]->setMin( 0 );
     m_slicePosition[ 1 ]->setMin( 0 );
     m_slicePosition[ 2 ]->setMin( 0 );
 
-    m_sliceVisibility[ 0 ] = m_properties->addProperty( "Show Sagittal", "Show vectors on sagittal slice.", true, m_changed );
-    m_sliceVisibility[ 1 ] = m_properties->addProperty( "Show Coronal", "Show vectors on coronal slice.", true, m_changed );
-    m_sliceVisibility[ 2 ] = m_properties->addProperty( "Show Axial", "Show vectors on axial slice.", true, m_changed );
+    m_sliceVisibility[ 0 ] = m_properties->addProperty( "Show Sagittal", "Show sagittal slice.", true, m_changed );
+    m_sliceVisibility[ 1 ] = m_properties->addProperty( "Show Coronal", "Show coronal slice.", true, m_changed );
+    m_sliceVisibility[ 2 ] = m_properties->addProperty( "Show Axial", "Show axial slice.", true, m_changed );
 }
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -151,11 +166,9 @@ void WMTensorGlyphs::moduleMain()
             break;
         }
 
-        node->setDeactivated( true );
-
         boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
 
-        if ( dataSet != newDataSet )
+        if ( ( dataSet != newDataSet ) && ( newDataSet != 0 ) )
         {
             // check the data validity --------------------------------------------------------------------------------
 
@@ -206,7 +219,7 @@ void WMTensorGlyphs::moduleMain()
 
             // check the grid validity --------------------------------------------------------------------------------
 
-            if ( dynamic_cast< WGridRegular3D* >( newDataSet->getGrid().get() ) != 0 )
+            if ( dynamic_cast< WGridRegular3D* >( newDataSet->getGrid().get() ) == 0 )
             {
                 dataValid = false;
             }
@@ -242,26 +255,24 @@ void WMTensorGlyphs::moduleMain()
                 m_sliceVisibility[ 1 ]->set( true, true );
                 m_sliceVisibility[ 2 ]->set( true, true );
 
-                module->setTensorData( dataSet, order );
+                module->setTensorData( dataSet, order, m_coloring->get( true ) );
             }
         }
         else
         {
             // handle property changes --------------------------------------------------------------------------------
 
-            if ( m_slicePosition[ 0 ]->changed() )
+            if ( m_coloring->changed() )
             {
-                module->setPositionX( m_slicePosition[ 0 ]->get( true ) );
+                module->setColoring( m_coloring->get( true ) );
             }
 
-            if ( m_slicePosition[ 1 ]->changed() )
+            for ( int i = 0; i < 3; i++ )
             {
-                module->setPositionY( m_slicePosition[ 1 ]->get( true ) );
-            }
-
-            if ( m_slicePosition[ 2 ]->changed() )
-            {
-                module->setPositionZ( m_slicePosition[ 2 ]->get( true ) );
+                if ( m_slicePosition[ i ]->changed() )
+                {
+                    module->setPosition( i, m_slicePosition[ i ]->get( true ) );
+                }
             }
 
             if ( m_sliceVisibility[ 0 ]->changed() ||
@@ -276,13 +287,9 @@ void WMTensorGlyphs::moduleMain()
                 );
             }
         }
-
-        node->setDeactivated( false );
     }
 
     // remove node ----------------------------------------------------------------------------------------------------
-
-    node->disconnectModule();
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( node );
 }

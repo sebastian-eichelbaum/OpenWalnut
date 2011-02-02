@@ -30,11 +30,13 @@
 #include <string>
 
 #include <boost/filesystem.hpp>
+#include <boost/shared_array.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/OpenCL/WGEModuleCL.h"
+#include "../../graphicsEngine/OpenCL/WGERenderNodeCL.h"
 
 //---------------------------------------------------------------------------------------------------------------------
 
@@ -67,29 +69,17 @@ public:
      *
      * @param data The tensor data.
      * @param order The tensor order.
+     * @param mode The coloring mode.
      */
-    void setTensorData( const boost::shared_ptr< WDataSetSingle >& data, int order );
+    void setTensorData( const boost::shared_ptr< WDataSetSingle >& data, int order, int mode );
 
     /**
-     * Set the x-slice position.
+     * Set a slice position.
      *
-     * @param slice The position.
+     * @param slice The slice dimension.
+     * @param coord The position.
      */
-    void setPositionX( int slice );
-
-    /**
-     * Set the y-slice position.
-     *
-     * @param slice The position.
-     */
-    void setPositionY( int slice );
-
-    /**
-     * Set the z-slice position.
-     *
-     * @param slice The position.
-     */
-    void setPositionZ( int slice );
+    void setPosition( int slice, int coord );
 
     /**
      * Set the slice visibility.
@@ -99,6 +89,13 @@ public:
      * @param sliceZ The z-slice visibility.
      */
     void setVisibility( bool sliceX, bool sliceY, bool sliceZ );
+
+    /**
+     * Set the coloring mode.
+     *
+     * @param mode The coloring mode.
+     */
+    void setColoring( int mode );
 
 protected:
 
@@ -147,14 +144,22 @@ private:
     class ChangeCallback;
 
     /**
+     * Extract a slice out of the complete data set.
+     *
+     * @param dim The slice dimension.
+     *
+     * @return The slice data.
+     */
+    boost::shared_array< cl_float > extractSlice( int dim );
+
+    /**
      * Set the visibility kernel argument.
      *
-     * @param viewData The CLViewData object.
      * @param objects The CL objects.
      *
      * @return True if a CL error occurred, false otherwise.
      */
-    void loadVisibility( const CLViewData& viewData, CLObjects& objects ) const;
+    void loadVisibility( CLObjects& objects ) const;
 
     /**
      * Updates slice data on GPU memory.
@@ -183,6 +188,11 @@ private:
     int m_order;
 
     /**
+     * The coloring mode.
+     */
+    int m_mode;
+
+    /**
      * Number of tensors in grid's x, y and z direction.
      */
     int m_numOfTensors[ 3 ];
@@ -196,6 +206,11 @@ private:
      * Slice visibility.
      */
     bool m_sliceVisibility[ 3 ];
+
+    /**
+     * The slice data.
+     */
+    boost::shared_array< cl_float > m_sliceData[ 3 ];
 
     /**
      * The tensor data set.
@@ -240,19 +255,9 @@ public:
     cl::Kernel m_renderKernel;
 
     /**
-     * The x-slice tensor data.
+     * The slice tensor data.
      */
-    cl::Buffer m_sliceX;
-
-    /**
-     * The y-slice tensor data.
-     */
-    cl::Buffer m_sliceY;
-
-    /**
-     * The z-slice tensor data.
-     */
-    cl::Buffer m_sliceZ;
+    cl::Buffer m_slices[ 3 ];
 
     /**
      * Global work size.
@@ -276,8 +281,11 @@ public:
      */
     enum ChangeOperation
     {
+        UPDATE_SLICEX = 0,
+        UPDATE_SLICEY = 1,
+        UPDATE_SLICEZ = 2,
         VISIBILITY,
-        UPDATE_SLICE,
+        SET_COLORING,
         LOAD_DATA_SET
     };
 
@@ -286,9 +294,8 @@ public:
      *
      * @param module The module to update.
      * @param operation The operation to execute.
-     * @param slice The optional slice dimension to update.
      */
-    ChangeCallback( WGlyphModule* module, ChangeOperation operation, int slice = 0 );
+    ChangeCallback( WGlyphModule* module, ChangeOperation operation );
 
     /**
      * Overrides WGEModuleCL::CLDataChangeCallback::change().
@@ -304,14 +311,9 @@ public:
     WGlyphModule* m_module;
 
     /**
-     * The module to update.
+     * The operation to execute.
      */
     ChangeOperation m_operation;
-
-    /**
-     * The slice dimension to update.
-     */
-    int m_slice;
 
 };
 
@@ -324,13 +326,18 @@ inline bool WGlyphModule::isSourceRead() const
 
 //---------------------------------------------------------------------------------------------------------------------
 
-inline void WGlyphModule::setTensorData( const boost::shared_ptr< WDataSetSingle >& data, int order )
+inline void WGlyphModule::setTensorData( const boost::shared_ptr< WDataSetSingle >& data, int order, int mode )
 {
+    getNode()->setDeactivated( true );
+
     WGridRegular3D* grid = static_cast< WGridRegular3D* >( data->getGrid().get() );
 
-    m_numOfTensors[ 0 ] = static_cast< int >( grid->getNbCoordsX() );
-    m_numOfTensors[ 1 ] = static_cast< int >( grid->getNbCoordsY() );
-    m_numOfTensors[ 2 ] = static_cast< int >( grid->getNbCoordsZ() );
+    m_order = order;
+    m_mode = mode;
+
+    m_numOfTensors[ 0 ] = grid->getNbCoordsX();
+    m_numOfTensors[ 1 ] = grid->getNbCoordsY();
+    m_numOfTensors[ 2 ] = grid->getNbCoordsZ();
 
     m_slicePosition[ 0 ] = m_numOfTensors[ 0 ] / 2;
     m_slicePosition[ 1 ] = m_numOfTensors[ 1 ] / 2;
@@ -341,47 +348,61 @@ inline void WGlyphModule::setTensorData( const boost::shared_ptr< WDataSetSingle
     m_sliceVisibility[ 2 ] = true;
 
     m_tensorData = data;
-    m_order = order;
+
+    m_sliceData[ 0 ] = extractSlice( 0 );
+    m_sliceData[ 1 ] = extractSlice( 1 );
+    m_sliceData[ 2 ] = extractSlice( 2 );
+
+    dirtyBound();
 
     changeCLData( ChangeCallback( this, ChangeCallback::LOAD_DATA_SET ) );
+
+    getNode()->setDeactivated( false );
 }
 
 //---------------------------------------------------------------------------------------------------------------------
 
-inline void WGlyphModule::setPositionX( int slice )
+inline void WGlyphModule::setPosition( int slice, int coord )
 {
-    m_slicePosition[ 0 ] = slice;
+    boost::shared_array< cl_float > sliceData = extractSlice( slice );
 
-    changeCLData( ChangeCallback( this, ChangeCallback::UPDATE_SLICE, 0 ) );
-}
+    getNode()->setDeactivated( true );
 
-//---------------------------------------------------------------------------------------------------------------------
+    m_slicePosition[ slice ] = coord;
 
-inline void WGlyphModule::setPositionY( int slice )
-{
-    m_slicePosition[ 1 ] = slice;
+    m_sliceData[ slice ] = sliceData;
 
-    changeCLData( ChangeCallback( this, ChangeCallback::UPDATE_SLICE, 1 ) );
-}
+    changeCLData( ChangeCallback( this, static_cast< ChangeCallback::ChangeOperation >( slice ) ) );
 
-//---------------------------------------------------------------------------------------------------------------------
-
-inline void WGlyphModule::setPositionZ( int slice )
-{
-    m_slicePosition[ 2 ] = slice;
-
-    changeCLData( ChangeCallback( this, ChangeCallback::UPDATE_SLICE, 2 ) );
+    getNode()->setDeactivated( false );
 }
 
 //---------------------------------------------------------------------------------------------------------------------
 
 inline void WGlyphModule::setVisibility( bool sliceX, bool sliceY, bool sliceZ )
 {
+    getNode()->setDeactivated( true );
+
     m_sliceVisibility[ 0 ] = sliceX;
     m_sliceVisibility[ 1 ] = sliceY;
     m_sliceVisibility[ 2 ] = sliceZ;
 
     changeCLData( ChangeCallback( this, ChangeCallback::VISIBILITY ) );
+
+    getNode()->setDeactivated( false );
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+inline void WGlyphModule::setColoring( int mode )
+{
+    getNode()->setDeactivated( true );
+
+    m_mode = mode;
+    
+    changeCLData( ChangeCallback( this, ChangeCallback::SET_COLORING ) );
+
+    getNode()->setDeactivated( false );
 }
 
 //---------------------------------------------------------------------------------------------------------------------

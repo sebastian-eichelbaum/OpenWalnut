@@ -473,7 +473,7 @@ inline void WGERenderNodeCL::setModule( WGEModuleCL* module )
 {
     if ( ( module != 0 ) && ( module != m_module.get() ) )
     {
-        if ( module->m_node.valid() )
+        if ( module->m_node != 0 )
         {
             module->m_node->disconnectModule();
         }
