@@ -24,6 +24,7 @@
 
 #version 120
 
+#include "WGEShadingTools.glsl"
 #include "WGETextureTools.glsl"
 #include "WGEPostprocessing.glsl"
 
@@ -37,6 +38,11 @@
  */
 varying float dist;
 #endif
+
+/**
+ * The surface normal. Needed for nice lighting.
+ */
+varying vec3 v_normal;
 
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
@@ -72,8 +78,14 @@ void main()
     }
 #endif
 
-    wge_FragColor = gl_Color;
-    wge_FragNormal = textureNormalize( ( gl_ModelViewMatrix * vec4( gl_Color.rgb, 0.0 ) ).rgb );
+#ifdef ILLUMINATION_ENABLED
+    float light = blinnPhongIlluminationIntensity( wge_DefaultLightIntensityLessDiffuse, normalize( v_normal ) );
+#else
+    float light = 1.0;
+#endif
+
+    wge_FragColor = vec4( vec3( gl_Color.xyz * light ), gl_Color.a );
+    wge_FragNormal = textureNormalize( v_normal );
     gl_FragDepth = gl_FragCoord.z;
 }
 

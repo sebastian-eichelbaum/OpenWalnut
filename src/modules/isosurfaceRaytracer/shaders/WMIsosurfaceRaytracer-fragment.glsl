@@ -194,17 +194,7 @@ void main()
             float light = 1.0;
 #ifdef PHONGSHADING_ENABLED
             // only calculate the phong illumination only if needed
-            light = blinnPhongIlluminationIntensity(
-                0.2 ,               // material ambient
-                0.75,               // material diffuse
-                0.5,               // material specular
-                100.0,                               // shinines
-                1.0,               // light diffuse
-                0.3,               // light ambient
-                normalize( normal ),                 // normal
-                vec3( 0.0, 0.0, 1.0 ),      // view direction  // in world space, this always is the view-dir
-                gl_LightSource[0].position.xyz       // light source position
-            );
+            light = blinnPhongIlluminationIntensity( normalize( normal ) );
 #endif
             // 4: set color
 

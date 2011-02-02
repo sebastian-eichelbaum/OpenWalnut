@@ -32,8 +32,6 @@
 #include "../../common/math/WSymmetricSphericalHarmonic.h"
 #include "../../common/WLimits.h"
 #include "../../common/exceptions/WPreconditionNotMet.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WROIManager.h"
@@ -208,11 +206,6 @@ void WMBermanTracking::moduleMain()
 
             if( m_dataSet && m_dataSetResidual && m_gfa )
             {
-                if( m_result )
-                {
-                    WDataHandler::deregisterDataSet( m_result );
-                }
-
                 // calculate some matrices needed for the residuals
                 std::vector< wmath::WUnitSphereCoordinates > c;
                 for( std::size_t i = 0; i < m_dataSetResidual->getOrientations().size(); ++i )
@@ -258,16 +251,11 @@ void WMBermanTracking::moduleMain()
 
             m_result = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_dataSet->getGrid() ) );
             m_result->setFileName( "Berman_prob_tracking_result" );
-            // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-            m_result->getTexture()->setThreshold( 0.05f );
-            m_result->getTexture()->setSelectedColormap( 2 );
-            m_result->getTexture()->setInterpolation( false );
-            // }
+
             m_result->getTexture2()->threshold()->set( 0.05f );
             m_result->getTexture2()->colormap()->set( m_result->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 2 ) ) );
             m_result->getTexture2()->interpolation()->set( false );
             m_output->updateData( m_result );
-            WDataHandler::registerDataSet( m_result );
 
             m_hits = boost::shared_ptr< std::vector< float > >();
         }
