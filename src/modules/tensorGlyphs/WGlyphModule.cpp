@@ -111,6 +111,87 @@ WGlyphModule::~WGlyphModule()
 
 //---------------------------------------------------------------------------------------------------------------------
 
+void WGlyphModule::setTensorData( const boost::shared_ptr< WDataSetSingle >& data, int order, int mode )
+{
+    getNode()->setDeactivated( true );
+
+    WGridRegular3D* grid = static_cast< WGridRegular3D* >( data->getGrid().get() );
+
+    m_order = order;
+    m_mode = mode;
+
+    m_numOfTensors[ 0 ] = grid->getNbCoordsX();
+    m_numOfTensors[ 1 ] = grid->getNbCoordsY();
+    m_numOfTensors[ 2 ] = grid->getNbCoordsZ();
+
+    m_slicePosition[ 0 ] = m_numOfTensors[ 0 ] / 2;
+    m_slicePosition[ 1 ] = m_numOfTensors[ 1 ] / 2;
+    m_slicePosition[ 2 ] = m_numOfTensors[ 2 ] / 2;
+
+    m_sliceVisibility[ 0 ] = true;
+    m_sliceVisibility[ 1 ] = true;
+    m_sliceVisibility[ 2 ] = true;
+
+    m_tensorData = data;
+
+    m_sliceData[ 0 ] = extractSlice( 0 );
+    m_sliceData[ 1 ] = extractSlice( 1 );
+    m_sliceData[ 2 ] = extractSlice( 2 );
+
+    dirtyBound();
+
+    changeCLData( ChangeCallback( this, ChangeCallback::LOAD_DATA_SET ) );
+
+    getNode()->setDeactivated( false );
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void WGlyphModule::setPosition( int slice, int coord )
+{
+    boost::shared_array< cl_float > sliceData = extractSlice( slice );
+
+    getNode()->setDeactivated( true );
+
+    m_slicePosition[ slice ] = coord;
+
+    m_sliceData[ slice ] = sliceData;
+
+    changeCLData( ChangeCallback( this, static_cast< ChangeCallback::ChangeOperation >( slice ) ) );
+
+    getNode()->setDeactivated( false );
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void WGlyphModule::setVisibility( bool sliceX, bool sliceY, bool sliceZ )
+{
+    getNode()->setDeactivated( true );
+
+    m_sliceVisibility[ 0 ] = sliceX;
+    m_sliceVisibility[ 1 ] = sliceY;
+    m_sliceVisibility[ 2 ] = sliceZ;
+
+    changeCLData( ChangeCallback( this, ChangeCallback::VISIBILITY ) );
+
+    getNode()->setDeactivated( false );
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void WGlyphModule::setColoring( int mode )
+{
+    getNode()->setDeactivated( true );
+
+    m_mode = mode;
+    
+    changeCLData( ChangeCallback( this, ChangeCallback::SET_COLORING ) );
+
+    getNode()->setDeactivated( false );
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
 WGEModuleCL::CLData* WGlyphModule::initCLData( const CLViewData& viewData ) const
 {
     if ( m_source == "" )

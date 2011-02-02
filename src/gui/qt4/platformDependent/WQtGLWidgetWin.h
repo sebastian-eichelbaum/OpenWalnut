@@ -37,8 +37,6 @@
 #include "../../../graphicsEngine/WGECamera.h"
 #include "../../../graphicsEngine/WGEViewer.h"
 
-class WColor;
-
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
  * engine.

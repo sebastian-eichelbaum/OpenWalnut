@@ -186,7 +186,7 @@ namespace wge
      * \param prefix if specified, defines the uniform name prefix. (Sampler, Unit, Sizes, ...)
      * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
      */
-    void bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WDataTexture3D_2 > texture, size_t unit = 0, std::string prefix = ""  );
+    void OWDATAHANDLER_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WDataTexture3D_2 > texture, size_t unit = 0, std::string prefix = ""  );
 }
 
 template < typename T >
