@@ -30,6 +30,8 @@
 #include <osg/Vec4>
 #include <osg/io_utils> // for the operator<< and operator>> for Vec4
 
+#include "WExportCommon.h"
+
 /**
  * Represents a RGBA Color.
  */
@@ -46,7 +48,7 @@ typedef osg::Vec4 WColor;
  *
  * \return The same color but in rgba format.
  */
-WColor convertHSVtoRGBA( double h, double s, double v );
+WColor OWCOMMON_EXPORT convertHSVtoRGBA( double h, double s, double v );
 
 /**
  * Computes the inverse of this color in means of RGB space. The alpha value is untouched.
@@ -55,7 +57,7 @@ WColor convertHSVtoRGBA( double h, double s, double v );
  *
  * \param other The color (RGBA) from which the inverse should be calculated.
  */
-WColor inverseColor( const WColor& other );
+WColor OWCOMMON_EXPORT inverseColor( const WColor& other );
 
 /**
  * Some default colors.

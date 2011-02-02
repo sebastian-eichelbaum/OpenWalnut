@@ -116,6 +116,8 @@ WColor convertHSVtoRGBA( double h, double s, double v )
     return WColor( r, g, b, 1.0f );
 }
 
+// Note (ledig): this is totaly ambigous becaus its already defined for osg::vec4f so would someone compile ow with unity buuild it fails
+#if 0
 std::ostream& operator<<( std::ostream& out, const WColor& c )
 {
     return out << c[0] << ";" << c[1] << ";" << c[2] << ";" << c[3];
@@ -139,6 +141,7 @@ std::istream& operator>>( std::istream& in, WColor& c )
 
     return in;
 }
+#endif
 
 WColor inverseColor( const WColor& other )
 {
