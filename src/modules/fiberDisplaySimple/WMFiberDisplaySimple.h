@@ -191,10 +191,11 @@ private:
     /**
      * Creates a geode containing the fiber geometry
      *
+     * \param fibers the fiber dataset to render
+     *
      * \return the geode
      */
     osg::ref_ptr< osg::Node > createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers ) const;
-
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H

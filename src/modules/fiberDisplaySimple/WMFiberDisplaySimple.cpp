@@ -379,7 +379,8 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
             osg::Vec4 color = osg::Vec4( fibColors->at( ( fibColorMode * k ) + csidx + ( 0 % fibColorMode ) ),
                                          fibColors->at( ( fibColorMode * k ) + csidx + ( 1 % fibColorMode ) ),
                                          fibColors->at( ( fibColorMode * k ) + csidx + ( 2 % fibColorMode ) ),
-                                         ( fibColorMode == WDataSetFibers::ColorScheme::RGBA ) ?  fibColors->at( ( fibColorMode * k ) + csidx + ( 3 % fibColorMode ) ) : 1.0 );
+                                         ( fibColorMode == WDataSetFibers::ColorScheme::RGBA ) ?
+                                            fibColors->at( ( fibColorMode * k ) + csidx + ( 3 % fibColorMode ) ) : 1.0 );
             osg::Vec3 tangent = osg::Vec3( fibTangents->at( ( 3 * k ) + sidx ),
                                            fibTangents->at( ( 3 * k ) + sidx + 1 ),
                                            fibTangents->at( ( 3 * k ) + sidx + 2 ) );
@@ -401,7 +402,6 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
                 texcoords->push_back( 1.0 );
                 texcoords->push_back( -1.0 );
             }
-
         }
 
         // add the above line-strip

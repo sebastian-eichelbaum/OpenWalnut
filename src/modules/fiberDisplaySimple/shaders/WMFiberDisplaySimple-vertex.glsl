@@ -127,7 +127,7 @@ void main()
 
     // with the tangent and the view vector we got the offset vector. We can noch get the normal using the tangent and the offset.
     v_normal = cross( offset, tangent );
-    v_normal *= sign( dot( v_normal, vec3(0.0, 0.0, 1.0 ) ) );
+    v_normal *= sign( dot( v_normal, vec3( 0.0, 0.0, 1.0 ) ) );
 #endif  // ( defined ILLUMINATION_ENABLED || defined TUBE_ENABLED )
 
     // Simply project the vertex afterwards
