@@ -185,7 +185,7 @@ float getDepth( in vec2 where )
  * Grabs the depth at the current pixel.
  *
  * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
- * 
+ *
  * \return the depth
  */
 float getDepth()
@@ -393,11 +393,18 @@ float getGaussedDepth()
     return getGaussedDepth( pixelCoord );
 }
 
+vec3 test( vec2 pos )
+{
+    vec3 t = getNormal( pos ).xyz;
+    return t;
+}
+
 /**
  * Calculate the screen-space ambient occlusion from normal and depth map.
  *
  * \return the SSAO factor
  */
+uniform float u_ssaoRadius = 1.0;
 float getSSAO()
 {
     // NOTE: Currently, most of the code is from http://www.gamerendering.com/2009/01/14/ssao/
@@ -441,7 +448,7 @@ float getSSAO()
     // grab a normal for reflecting the sample rays later on
     vec3 fres = normalize( ( texture2D( u_texture3Sampler, pixelCoord * u_texture3SizeX ).xyz * 2.0 ) - vec3( 1.0 ) );
 
-    vec3 currentPixelSample = getNormal( pixelCoord ).xyz;
+    vec3 currentPixelSample = test( pixelCoord ).xyz;
     float currentPixelDepth = getDepth( pixelCoord );
 
     // current fragment coords in screen space
@@ -463,7 +470,7 @@ float getSSAO()
     for( int i = 0; i < SAMPLES; ++i )
     {
         // get a vector (randomized inside of a sphere with radius 1.0) from a texture and reflect it
-        ray = radD * reflect( pSphere[i], fres );
+        ray = u_ssaoRadius * radD * reflect( pSphere[i], fres );
 
         // if the ray is outside the hemisphere then change direction
         se = ep + sign( dot( ray, norm ) ) * ray;
@@ -472,7 +479,7 @@ float getSSAO()
         occDepth = getDepth( se.xy );
 
         // get the normal of the occluder fragment
-        occNorm = 0.75 * getNormal( se.xy ).xyz;
+        occNorm = 0.75 * test( se.xy ).xyz;
 
         // if depthDifference is negative = occluder is behind current fragment
         depthDifference = currentPixelDepth - occDepth;
