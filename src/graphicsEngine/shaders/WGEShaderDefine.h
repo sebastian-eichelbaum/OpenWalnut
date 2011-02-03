@@ -38,7 +38,7 @@
  * This class is able to provide arbitrary values as define statements in GLSL code.
  */
 template< typename ValueType = bool >
-class WGE_EXPORT WGEShaderDefine: public WGEShaderPreprocessor
+class WGEShaderDefine: public WGEShaderPreprocessor
 {
 public:
     /**

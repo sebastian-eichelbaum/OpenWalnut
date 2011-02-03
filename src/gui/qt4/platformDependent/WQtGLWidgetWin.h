@@ -27,17 +27,16 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
+
 #include <QtCore/QTimer>
 #include <QtGui/QWidget>
 #include <QtOpenGL/QGLWidget>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/signals2/signal.hpp>
-
+#include "../../../common/WColor.h" // not forwarded due to duplicated typedef
 #include "../../../graphicsEngine/WGECamera.h"
 #include "../../../graphicsEngine/WGEViewer.h"
-
-class WColor;
 
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the

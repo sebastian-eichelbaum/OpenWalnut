@@ -22,53 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WCOLOR_H
-#define WCOLOR_H
+/////////////////////////////////////////////////////////////////////////////
+// Varyings
+/////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-
-#include <osg/Vec4>
-#include <osg/io_utils> // for the operator<< and operator>> for Vec4
-
-#include "WExportCommon.h"
+#ifdef CLIPPLANE_ENABLED
+/**
+ * The distance to the plane
+ */
+varying float dist;
+#endif
 
 /**
- * Represents a RGBA Color.
+ * The surface normal. Needed for nice lighting.
  */
-typedef osg::Vec4 WColor;
+varying vec3 v_normal;
 
 /**
- * Creates a color from a hue, saturation and value (HSV).
- *
- * \ingroup Color utils
- *
- * \param h hue
- * \param s saturation
- * \param v value
- *
- * \return The same color but in rgba format.
+ * The normal parameterizing the surface in orthogonal tangent direction.
  */
-WColor OWCOMMON_EXPORT convertHSVtoRGBA( double h, double s, double v );
+varying vec3 v_biNormal;
 
 /**
- * Computes the inverse of this color in means of RGB space. The alpha value is untouched.
- *
- * \ingroup Color utils
- *
- * \param other The color (RGBA) from which the inverse should be calculated.
+ * The actual, corrected vertex.
  */
-WColor OWCOMMON_EXPORT inverseColor( const WColor& other );
+varying vec4 v_vertex;
 
 /**
- * Some default colors.
+ * The diameter of the tube in world-space.
  */
-namespace defaultColor
-{
-    // \cond
-    static const WColor GREEN( 0.0, 1.0, 0.0, 1.0 ); //!< Default for green
-    static const WColor RED( 1.0, 0.0, 0.0, 1.0 ); //!< Default for red
-    static const WColor BLUE( 0.0, 0.0, 1.0, 1.0 ); //!< Default for blue
-    // \endcond
-}
+varying float v_diameter;
 
-#endif  // WCOLOR_H
+/**
+ * This is the interpolated surface parameter describing the surface orthogonal to the tangent. 0 is the center of the strip and -1 and 1 the
+ * borders.
+ */
+varying float v_surfaceParam;
+

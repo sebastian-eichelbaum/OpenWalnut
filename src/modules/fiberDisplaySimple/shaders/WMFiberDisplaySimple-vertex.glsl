@@ -24,21 +24,7 @@
 
 #version 120
 
-/////////////////////////////////////////////////////////////////////////////
-// Varyings
-/////////////////////////////////////////////////////////////////////////////
-
-#ifdef CLIPPLANE_ENABLED
-/**
- * The distance to the plane
- */
-varying float dist;
-#endif
-
-/**
- * The surface normal. Needed for nice lighting.
- */
-varying vec3 v_normal;
+#include "WMFiberDisplaySimple-varyings.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
@@ -84,7 +70,7 @@ void main()
 #endif  // CLIPPLANE_ENABLED
 
     // The same accounds for the vertex. Transfer it to world-space.
-    vec4 vertex  = gl_ModelViewMatrix * gl_Vertex;
+    v_vertex  = gl_ModelViewMatrix * gl_Vertex;
 
 #if ( defined ILLUMINATION_ENABLED || defined TUBE_ENABLED )
     // Grab the tangent. We have uploaded it normalized in gl_Normal per vertex
@@ -96,14 +82,15 @@ void main()
 
     // Each vertex on the quad which are on the same position have a texture coordinate to differentiate them. But only if the tube mode is
     // active.
-    float upDownIndicator = gl_MultiTexCoord0.s;
+    v_surfaceParam = gl_MultiTexCoord0.s;
 #ifndef TUBE_ENABLED
-    upDownIndicator = 1.0;
+    v_surfaceParam = 1.0;
 #endif  // !TUBE_ENABLED
 
     // To enforce that each quad's normal points towards the user, we move the two vertex (which are at the same point currently) according to
     // the direction stored in gl_MultiTexCoord0
-    vec3 offset = normalize( upDownIndicator * cross( view, tangent ) );
+    vec3 offset = normalize( v_surfaceParam * cross( view, tangent ) );
+    v_biNormal = offset;
 
 #ifdef TUBE_ENABLED
 #ifdef ZOOMABLE_ENABLED
@@ -112,7 +99,7 @@ void main()
     float worldScale = length( ( gl_ModelViewMatrix * vec4( 1.0, 1.0, 1.0, 0.0 ) ).xyz );
 
     // worldScale now contains the scaling which is done by ModelView transformation (including the camera).
-    // With this, we can ensure that our offset (calculated later), which is of unit-length, is scaled acccording to the camera zoom. The
+    // With this, we can ensure that our offset, which is of unit-length, is scaled acccording to the camera zoom. The
     // additional uniform u_tubeSize allows the user to scale the tubes.
     // We clamp the value to ensure a minimum width of the quadstrip of 1px on screen:
     worldScale = clamp( u_tubeSize * worldScale, 1.0, 1000000.0 );
@@ -122,7 +109,8 @@ void main()
 #endif
 
     // Apply the offset and scale correctly.
-    vertex.xyz += 0.1 * worldScale * offset;
+    v_vertex.xyz += 0.1 * worldScale * offset;
+    v_diameter = 0.1 * worldScale;
 #endif  // TUBE_ENABLED
 
     // with the tangent and the view vector we got the offset vector. We can noch get the normal using the tangent and the offset.
@@ -131,7 +119,7 @@ void main()
 #endif  // ( defined ILLUMINATION_ENABLED || defined TUBE_ENABLED )
 
     // Simply project the vertex afterwards
-    gl_Position = gl_ProjectionMatrix * vertex;
+    gl_Position = gl_ProjectionMatrix * v_vertex;
     gl_FrontColor = gl_Color;
 }
 
