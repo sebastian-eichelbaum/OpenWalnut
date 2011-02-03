@@ -38,8 +38,6 @@
 
 #include "WGEShaderDefineOptions.h"
 
-#include "../WExportWGE.h"
-
 template< typename PropType >
 class WGEShaderPropertyDefineOptionsIndexAdapter;
 
