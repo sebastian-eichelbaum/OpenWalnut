@@ -139,16 +139,19 @@ int WQt4Gui::run()
     m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQt4Gui::slotAddLog, this, _1 ) );
     wlog::info( "GUI" ) << "Bringing up GUI";
 
+    // make qapp instance before using the applicationDirPath() function
+    QApplication appl( m_argc, m_argv, true );
+
     // the call path of the application
-    boost::filesystem::path walnutBin = boost::filesystem::path( std::string( m_argv[0] ) );
+    boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
+    wlog::debug( "WQt4GUI" ) << "Walnut binary path: " << walnutBin;
 
     // setup path helper which provides several paths to others
-    WPathHelper::getPathHelper()->setAppPath( walnutBin.parent_path() );
+    WPathHelper::getPathHelper()->setAppPath( walnutBin );
 
     // init preference system
     WPreferences::setPreferenceFile( WPathHelper::getConfigFile() );
 
-    QApplication appl( m_argc, m_argv, true );
 
     // startup graphics engine
     m_ge = WGraphicsEngine::getGraphicsEngine();

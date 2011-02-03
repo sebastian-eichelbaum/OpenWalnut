@@ -164,6 +164,11 @@ private:
     WPropBool m_tubeZoomable;
 
     /**
+     * Creates a ribbon-like appearance.
+     */
+    WPropBool m_tubeRibbon;
+
+    /**
      * The size. The meaning somehow relates to tubeZoomable. If a tube is zoomable, the size is the smallest size in pixels on screen of totally
      * zoomed out.
      */
