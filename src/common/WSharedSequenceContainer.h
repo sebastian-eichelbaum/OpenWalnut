@@ -234,7 +234,7 @@ public:
      *
      * \return the iterator pointing to the found element.
      */
-    typename WSharedSequenceContainer< S >::Iterator find( const typename S::value_type& value );
+    typename WSharedSequenceContainer< S >::ConstIterator find( const typename S::value_type& value );
 
 protected:
 
@@ -392,7 +392,7 @@ typename WSharedSequenceContainer< S >::Iterator WSharedSequenceContainer< S >::
 }
 
 template < typename S >
-typename WSharedSequenceContainer< S >::Iterator WSharedSequenceContainer< S >::find( const typename S::value_type& value )
+typename WSharedSequenceContainer< S >::ConstIterator WSharedSequenceContainer< S >::find( const typename S::value_type& value )
 {
     typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();
     return std::find( a->get().begin(), a->get().end(), value );

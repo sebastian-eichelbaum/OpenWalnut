@@ -35,7 +35,7 @@
  * here. If a bool prop is used, the callback can trigger between child 0 and 1. Technically, WPropDouble is also possible.
  */
 template < typename PropType >
-class WGE_EXPORT WGESwitchCallback: public osg::NodeCallback
+class WGESwitchCallback: public osg::NodeCallback
 {
 public:
     /**

@@ -104,6 +104,7 @@ void WMFiberDisplaySimple::properties()
 
     m_tubeGroup = m_properties->addPropertyGroup( "Tube Rendering", "If true, advanced fake-tube rendering is used." );
     m_tubeEnable = m_tubeGroup->addProperty( "Enable Tubes", "If set, fake-tube rendering is used.", false, m_propCondition  );
+    m_tubeRibbon = m_tubeGroup->addProperty( "Ribbon mode", "If set, the tubes look like flat ribbons.", false );
     m_tubeZoomable = m_tubeGroup->addProperty( "Zoomable", "If set, fake-tube get thicker when zoomed in. If not set, they always keep the same "
                                                             "size in screen-space. This emulates standard OpenGL lines.", true );
     m_tubeSize = m_tubeGroup->addProperty( "Width", "The size of the tubes.", 2.0 );
@@ -163,6 +164,9 @@ void WMFiberDisplaySimple::moduleMain()
     );
     m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
         new WGEShaderPropertyDefineOptions< WPropBool >( m_tubeZoomable, "ZOOMABLE_DISABLED", "ZOOMABLE_ENABLED" ) )
+    );
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_tubeRibbon, "RIBBON_DISABLED", "RIBBON_ENABLED" ) )
     );
     osg::ref_ptr< WGEPropertyUniform< WPropDouble > > tubeSizeUniform = new WGEPropertyUniform< WPropDouble >( "u_tubeSize", m_tubeSize );
 

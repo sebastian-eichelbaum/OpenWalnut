@@ -28,21 +28,7 @@
 #include "WGETextureTools.glsl"
 #include "WGEPostprocessing.glsl"
 
-/////////////////////////////////////////////////////////////////////////////
-// Varyings
-/////////////////////////////////////////////////////////////////////////////
-
-#ifdef CLIPPLANE_ENABLED
-/**
- * The distance to the plane
- */
-varying float dist;
-#endif
-
-/**
- * The surface normal. Needed for nice lighting.
- */
-varying vec3 v_normal;
+#include "WMFiberDisplaySimple-varyings.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
 // Uniforms
@@ -78,14 +64,55 @@ void main()
     }
 #endif
 
+    // the depth of the fragment. For lines and flattubes this is the fragments z value. Tubes need to recalculate this
+    float depth = gl_FragCoord.z;
+
+    // this allows modification of surface brightness corresponding to current surface parameter
+    float colorScaler = 1.0;
+
+    // the normal acutally used for lighting
+    vec3 normal = normalize( v_normal );
+
+    // We need to differentiate several cases here: Lines, FlatTubes and Tubes
+#ifdef TUBE_ENABLED
+#ifdef RIBBON_ENABLED
+    // colorScaler = 1.0;  // surface parameter should have no influence
+    // normal = v_normal   // apply lighting equally on the surface
+    // depth = gl_FragCoord.z; // as it is a flat ribbon
+#else
+#ifndef ILLUMINATION_ENABLED
+    // For tubes, we need to create some "tube-effect" with the surface parameter if lighting is disabled.
+    // If light is enabled, the corrected normal ensures proper tube-effect.
+    colorScaler = 1.0 - abs( v_surfaceParam );
+#endif
+    // The normal needs to be adopted too. Use the surface parameter to interpolate along the ortogonal tangent direction using the biNormal.
+    normal = normalize( mix( normal, normalize( v_biNormal ), abs( v_surfaceParam ) ) );
+
+    // Correct fragment depth
+    // We use the known world-space diameter and move the vertex along the corrected normal using the surface parameter
+    vec3 v = v_vertex.xyz + normal * v_diameter * ( 1.0 - abs( v_surfaceParam ) );
+
+    // apply standard projection:
+    vec4 vProj = gl_ProjectionMatrix * vec4( v.xyz, 1.0 );
+    depth = ( 0.5 * vProj.z / vProj.w ) + 0.5;
+
+#endif  // RIBBON_ENABLED
+#else   // !TUBE_ENABLED
+    // colorScaler = 1.0;  // surface parameter should have no influence as lines are 1px thick
+    // normal = v_normal;  // for lines, the normal does not need to be modified
+    // depth = gl_FragCoord.z; // the vertex is at the correct depth -> fragment too.
+#endif  // TUBE_ENABLED
+
+    // Calculate light finally
 #ifdef ILLUMINATION_ENABLED
-    float light = blinnPhongIlluminationIntensity( wge_DefaultLightIntensityLessDiffuse, normalize( v_normal ) );
+    float light = blinnPhongIlluminationIntensity( wge_DefaultLightIntensityLessDiffuse, normal );
 #else
     float light = 1.0;
 #endif
 
-    wge_FragColor = vec4( vec3( gl_Color.xyz * light ), gl_Color.a );
-    wge_FragNormal = textureNormalize( v_normal );
-    gl_FragDepth = gl_FragCoord.z;
+    // finally set the color and depth
+    wge_FragColor = vec4( vec3( gl_Color.xyz * light * colorScaler ), gl_Color.a );
+    wge_FragNormal = textureNormalize( normal );
+    gl_FragDepth = depth;
 }
 
