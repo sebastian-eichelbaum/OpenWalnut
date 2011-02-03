@@ -224,7 +224,7 @@ friend class WGERenderNodeCL;
  *
  * Orthographic projections:    @f$ depth = (t - 1) / (planeFar - planeNear) * planeNear @f$
  */
-class WGE_EXPORT WGEModuleCL::ViewProperties
+class WGEModuleCL::ViewProperties
 {
 public:
 
@@ -233,7 +233,7 @@ public:
      *
      * \param viewData The current CLViewData object.
      */
-    ViewProperties( const CLViewData& viewData );
+    explicit ViewProperties( const CLViewData& viewData );
 
     /**
      * Get the eye point.
@@ -327,7 +327,7 @@ private:
  * color buffer and depth buffer. The color buffer and depth buffer are 2D images in CL_RGBA and CL_R format
  * with CL_FLOAT components. Hence depth data are stored within the depth buffer's Red component.
  */
-class WGE_EXPORT WGEModuleCL::CLViewData
+class WGEModuleCL::CLViewData
 {
 public:
 
@@ -434,7 +434,7 @@ friend class WGERenderNodeCL;
 /**
  * Base class to store your CL objects or more precisely all CL context specific data. Derive from it and add your data.
  */
-class WGE_EXPORT WGEModuleCL::CLData
+class WGEModuleCL::CLData
 {
     // intensionally empty
 };
@@ -443,7 +443,7 @@ class WGE_EXPORT WGEModuleCL::CLData
  * Abstract Callback you have to implement if you want to make changes in your CLData objects.
  * It has to be used in conjuntion with changeCLData().
  */
-class WGE_EXPORT WGEModuleCL::CLDataChangeCallback      // NOLINT
+class WGEModuleCL::CLDataChangeCallback      // NOLINT
 {
 public:
 
