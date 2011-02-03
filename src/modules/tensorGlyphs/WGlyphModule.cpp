@@ -38,9 +38,9 @@
 WGlyphModule::ChangeCallback::ChangeCallback( WGlyphModule* module, ChangeOperation operation ):
     m_module( module ),
     m_operation( operation )
-{}
-
-//---------------------------------------------------------------------------------------------------------------------
+{
+    // initialize
+}
 
 void WGlyphModule::ChangeCallback::change( const CLViewData &viewData, CLData &data ) const
 {
@@ -49,21 +49,21 @@ void WGlyphModule::ChangeCallback::change( const CLViewData &viewData, CLData &d
     switch ( m_operation )
     {
         case UPDATE_SLICEX: m_module->updateSlice( viewData, objects, 0 );
-                            m_module->loadVisibility( objects );
+                            m_module->loadVisibility( &objects );
 
                             return;
 
         case UPDATE_SLICEY: m_module->updateSlice( viewData, objects, 1 );
-                            m_module->loadVisibility( objects );
+                            m_module->loadVisibility( &objects );
 
                             return;
 
         case UPDATE_SLICEZ: m_module->updateSlice( viewData, objects, 2 );
-                            m_module->loadVisibility( objects );
+                            m_module->loadVisibility( &objects );
 
                             return;
 
-        case VISIBILITY:    m_module->loadVisibility( objects );
+        case VISIBILITY:    m_module->loadVisibility( &objects );
 
                             return;
 
@@ -79,8 +79,6 @@ void WGlyphModule::ChangeCallback::change( const CLViewData &viewData, CLData &d
                             return;
     }
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 WGlyphModule::WGlyphModule( const boost::filesystem::path& path ):
     WGEModuleCL(),
@@ -106,12 +104,10 @@ WGlyphModule::WGlyphModule( const boost::filesystem::path& path ):
     sourceFile.close();
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 WGlyphModule::~WGlyphModule()
-{}
-
-//---------------------------------------------------------------------------------------------------------------------
+{
+    // shutdown
+}
 
 void WGlyphModule::setTensorData( const boost::shared_ptr< WDataSetSingle >& data, int order, int mode )
 {
@@ -147,8 +143,6 @@ void WGlyphModule::setTensorData( const boost::shared_ptr< WDataSetSingle >& dat
     getNode()->setDeactivated( false );
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 void WGlyphModule::setPosition( int slice, int coord )
 {
     boost::shared_array< cl_float > sliceData = extractSlice( slice );
@@ -164,8 +158,6 @@ void WGlyphModule::setPosition( int slice, int coord )
     getNode()->setDeactivated( false );
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 void WGlyphModule::setVisibility( bool sliceX, bool sliceY, bool sliceZ )
 {
     getNode()->setDeactivated( true );
@@ -179,8 +171,6 @@ void WGlyphModule::setVisibility( bool sliceX, bool sliceY, bool sliceZ )
     getNode()->setDeactivated( false );
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 void WGlyphModule::setColoring( int mode )
 {
     getNode()->setDeactivated( true );
@@ -191,8 +181,6 @@ void WGlyphModule::setColoring( int mode )
 
     getNode()->setDeactivated( false );
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 WGEModuleCL::CLData* WGlyphModule::initCLData( const CLViewData& viewData ) const
 {
@@ -235,8 +223,6 @@ WGEModuleCL::CLData* WGlyphModule::initCLData( const CLViewData& viewData ) cons
     return objects;
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 void WGlyphModule::setBuffers( const CLViewData& viewData, CLData& data ) const
 {
     CLObjects& objects = static_cast< CLObjects& >( data );
@@ -252,8 +238,6 @@ void WGlyphModule::setBuffers( const CLViewData& viewData, CLData& data ) const
 
     objects.m_globalSize = computeGlobalWorkSize( m_localSize, cl::NDRange( viewData.getWidth(), viewData.getHeight() ) );
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 bool WGlyphModule::render( const CLViewData& viewData, CLData& data ) const
 {
@@ -287,8 +271,6 @@ bool WGlyphModule::render( const CLViewData& viewData, CLData& data ) const
     return false;
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 osg::BoundingBox WGlyphModule::computeBoundingBox() const
 {
     osg::BoundingBox box
@@ -299,8 +281,6 @@ osg::BoundingBox WGlyphModule::computeBoundingBox() const
 
     return box;
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 boost::shared_array< cl_float > WGlyphModule::extractSlice( int dim )
 {
@@ -337,22 +317,20 @@ boost::shared_array< cl_float > WGlyphModule::extractSlice( int dim )
     return slice;
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
-void WGlyphModule::loadVisibility( CLObjects& objects ) const
+void WGlyphModule::loadVisibility( CLObjects* objects ) const
 {
     cl_float4 slicePosition =
     {
-        m_sliceVisibility[ 0 ] ? m_slicePosition[ 0 ] : CL_INFINITY,
-        m_sliceVisibility[ 1 ] ? m_slicePosition[ 1 ] : CL_INFINITY,
-        m_sliceVisibility[ 2 ] ? m_slicePosition[ 2 ] : CL_INFINITY,
-        0.0f
+        {
+            m_sliceVisibility[ 0 ] ? m_slicePosition[ 0 ] : CL_INFINITY,
+            m_sliceVisibility[ 1 ] ? m_slicePosition[ 1 ] : CL_INFINITY,
+            m_sliceVisibility[ 2 ] ? m_slicePosition[ 2 ] : CL_INFINITY,
+            0.0f
+        }
     };
 
-    objects.m_renderKernel.setArg< cl_float4 >( 8, slicePosition );
+    objects->m_renderKernel.setArg< cl_float4 >( 8, slicePosition );
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 bool WGlyphModule::updateSlice( const CLViewData& viewData, CLObjects& objects, int dim ) const
 {
@@ -395,8 +373,6 @@ bool WGlyphModule::updateSlice( const CLViewData& viewData, CLObjects& objects, 
 
     return false;
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 bool WGlyphModule::loadDataset( const CLViewData& viewData, CLObjects& objects ) const
 {
@@ -481,7 +457,7 @@ bool WGlyphModule::loadDataset( const CLViewData& viewData, CLObjects& objects )
 
     // set kernel arguments -------------------------------------------------------------------------------------------
 
-    loadVisibility( objects );
+    loadVisibility( &objects );
 
     objects.m_renderKernel.setArg< cl::Buffer >( 9, objects.m_slices[ 0 ] );
     objects.m_renderKernel.setArg< cl::Buffer >( 10, objects.m_slices[ 1 ] );
@@ -491,4 +467,3 @@ bool WGlyphModule::loadDataset( const CLViewData& viewData, CLObjects& objects )
     return false;
 }
 
-//---------------------------------------------------------------------------------------------------------------------

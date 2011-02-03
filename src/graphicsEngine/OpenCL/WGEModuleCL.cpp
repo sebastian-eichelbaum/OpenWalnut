@@ -25,12 +25,6 @@
 #include "WGERenderNodeCL.h"
 #include "WGEModuleCL.h"
 
-//---------------------------------------------------------------------------------------------------------------------
-
-#define cast( x ) static_cast< cl_float >( x )
-
-//---------------------------------------------------------------------------------------------------------------------
-
 WGEModuleCL::ViewProperties::ViewProperties( const CLViewData& viewData )
 {
     const osg::Matrix& pm = *viewData.m_projection.get();
@@ -77,7 +71,7 @@ WGEModuleCL::ViewProperties::ViewProperties( const CLViewData& viewData )
         m_type = ORTHOGRAPHIC;
 
         pNear = ( pm( 3, 2 ) + 1.0 ) / pm( 2, 2 );
-        pFar = ( pm( 3,2 ) - 1.0 ) / pm( 2, 2 );
+        pFar = ( pm( 3, 2 ) - 1.0 ) / pm( 2, 2 );
 
         pLeft = -( 1.0 + pm( 3, 0 ) ) / pm( 0, 0 );
         pRight = ( 1.0 - pm( 3, 0 ) ) / pm( 0, 0 );
@@ -86,8 +80,8 @@ WGEModuleCL::ViewProperties::ViewProperties( const CLViewData& viewData )
         pTop = ( 1.0 - pm( 3, 1 ) ) / pm( 1, 1 );
     }
 
-    m_planeNear = cast( pNear );
-    m_planeFar = cast( pFar );
+    m_planeNear = static_cast< cl_float >( pNear );
+    m_planeFar = static_cast< cl_float >( pFar );
 
     const osg::Matrix& mvm = *viewData.m_modelView.get();
 
@@ -144,66 +138,64 @@ WGEModuleCL::ViewProperties::ViewProperties( const CLViewData& viewData )
     {
         // origin = (0,0,0,1) * Inverse(mvm) --------------------------------------------------------------------------
 
-        m_origin.s[ 0 ] = cast( invMvm[ 3 ][ 0 ] );
-        m_origin.s[ 1 ] = cast( invMvm[ 3 ][ 1 ] );
-        m_origin.s[ 2 ] = cast( invMvm[ 3 ][ 2 ] );
-        m_origin.s[ 3 ] = cast( 1.0f );
+        m_origin.s[ 0 ] = static_cast< cl_float >( invMvm[ 3 ][ 0 ] );
+        m_origin.s[ 1 ] = static_cast< cl_float >( invMvm[ 3 ][ 1 ] );
+        m_origin.s[ 2 ] = static_cast< cl_float >( invMvm[ 3 ][ 2 ] );
+        m_origin.s[ 3 ] = static_cast< cl_float >( 1.0f );
 
         // originToLowerLeft = (left,bottom,-near,0) * Inverse(mvm) ---------------------------------------------------
 
-        m_originToLowerLeft.s[ 0 ] = cast( pLeft * invMvm[ 0 ][ 0 ] + pBottom * invMvm[ 1 ][ 0 ] - pNear * invMvm[ 2 ][ 0 ] );
-        m_originToLowerLeft.s[ 1 ] = cast( pLeft * invMvm[ 0 ][ 1 ] + pBottom * invMvm[ 1 ][ 1 ] - pNear * invMvm[ 2 ][ 1 ] );
-        m_originToLowerLeft.s[ 2 ] = cast( pLeft * invMvm[ 0 ][ 2 ] + pBottom * invMvm[ 1 ][ 2 ] - pNear * invMvm[ 2 ][ 2 ] );
-        m_originToLowerLeft.s[ 3 ] = cast( 0.0f );
+        m_originToLowerLeft.s[ 0 ] = static_cast< cl_float >( pLeft * invMvm[ 0 ][ 0 ] + pBottom * invMvm[ 1 ][ 0 ] - pNear * invMvm[ 2 ][ 0 ] );
+        m_originToLowerLeft.s[ 1 ] = static_cast< cl_float >( pLeft * invMvm[ 0 ][ 1 ] + pBottom * invMvm[ 1 ][ 1 ] - pNear * invMvm[ 2 ][ 1 ] );
+        m_originToLowerLeft.s[ 2 ] = static_cast< cl_float >( pLeft * invMvm[ 0 ][ 2 ] + pBottom * invMvm[ 1 ][ 2 ] - pNear * invMvm[ 2 ][ 2 ] );
+        m_originToLowerLeft.s[ 3 ] = static_cast< cl_float >( 0.0f );
     }
     else
     {
         // origin = (left,bottom,0,1) * Inverse(mvm) ------------------------------------------------------------------
 
-        m_origin.s[ 0 ] = cast( pLeft * invMvm[ 0 ][ 0 ] + pBottom * invMvm[ 1 ][ 0 ] + invMvm[ 3 ][ 0 ] );
-        m_origin.s[ 1 ] = cast( pLeft * invMvm[ 0 ][ 1 ] + pBottom * invMvm[ 1 ][ 1 ] + invMvm[ 3 ][ 1 ] );
-        m_origin.s[ 2 ] = cast( pLeft * invMvm[ 0 ][ 2 ] + pBottom * invMvm[ 1 ][ 2 ] + invMvm[ 3 ][ 2 ] );
-        m_origin.s[ 3 ] = cast( 0.0f );
+        m_origin.s[ 0 ] = static_cast< cl_float >( pLeft * invMvm[ 0 ][ 0 ] + pBottom * invMvm[ 1 ][ 0 ] + invMvm[ 3 ][ 0 ] );
+        m_origin.s[ 1 ] = static_cast< cl_float >( pLeft * invMvm[ 0 ][ 1 ] + pBottom * invMvm[ 1 ][ 1 ] + invMvm[ 3 ][ 1 ] );
+        m_origin.s[ 2 ] = static_cast< cl_float >( pLeft * invMvm[ 0 ][ 2 ] + pBottom * invMvm[ 1 ][ 2 ] + invMvm[ 3 ][ 2 ] );
+        m_origin.s[ 3 ] = static_cast< cl_float >( 0.0f );
 
         // originToLowerLeft = (0,0,-near,0) * Inverse(mvm) -----------------------------------------------------------
 
-        m_originToLowerLeft.s[ 0 ] = cast( -pNear * invMvm[ 2 ][ 0 ] );
-        m_originToLowerLeft.s[ 1 ] = cast( -pNear * invMvm[ 2 ][ 1 ] );
-        m_originToLowerLeft.s[ 2 ] = cast( -pNear * invMvm[ 2 ][ 2 ] );
-        m_originToLowerLeft.s[ 3 ] = cast( 0.0f );
+        m_originToLowerLeft.s[ 0 ] = static_cast< cl_float >( -pNear * invMvm[ 2 ][ 0 ] );
+        m_originToLowerLeft.s[ 1 ] = static_cast< cl_float >( -pNear * invMvm[ 2 ][ 1 ] );
+        m_originToLowerLeft.s[ 2 ] = static_cast< cl_float >( -pNear * invMvm[ 2 ][ 2 ] );
+        m_originToLowerLeft.s[ 3 ] = static_cast< cl_float >( 0.0f );
     }
 
     // edgeX = (right - left,0,0,0) * Inverse(mvm) --------------------------------------------------------------------
 
-    m_edgeX.s[ 0 ] = cast( ( pRight - pLeft ) * invMvm[ 0 ][ 0 ] );
-    m_edgeX.s[ 1 ] = cast( ( pRight - pLeft ) * invMvm[ 0 ][ 1 ] );
-    m_edgeX.s[ 2 ] = cast( ( pRight - pLeft ) * invMvm[ 0 ][ 2 ] );
-    m_edgeX.s[ 3 ] = cast( 0.0f );
+    m_edgeX.s[ 0 ] = static_cast< cl_float >( ( pRight - pLeft ) * invMvm[ 0 ][ 0 ] );
+    m_edgeX.s[ 1 ] = static_cast< cl_float >( ( pRight - pLeft ) * invMvm[ 0 ][ 1 ] );
+    m_edgeX.s[ 2 ] = static_cast< cl_float >( ( pRight - pLeft ) * invMvm[ 0 ][ 2 ] );
+    m_edgeX.s[ 3 ] = static_cast< cl_float >( 0.0f );
 
     // edgeY = (0,top - bottom,0,0) * Inverse(mvm) --------------------------------------------------------------------
 
-    m_edgeY.s[ 0 ] = cast( ( pTop - pBottom ) * invMvm[ 1 ][ 0 ] );
-    m_edgeY.s[ 1 ] = cast( ( pTop - pBottom ) * invMvm[ 1 ][ 1 ] );
-    m_edgeY.s[ 2 ] = cast( ( pTop - pBottom ) * invMvm[ 1 ][ 2 ] );
-    m_edgeY.s[ 3 ] = cast( 0.0f );
+    m_edgeY.s[ 0 ] = static_cast< cl_float >( ( pTop - pBottom ) * invMvm[ 1 ][ 0 ] );
+    m_edgeY.s[ 1 ] = static_cast< cl_float >( ( pTop - pBottom ) * invMvm[ 1 ][ 1 ] );
+    m_edgeY.s[ 2 ] = static_cast< cl_float >( ( pTop - pBottom ) * invMvm[ 1 ][ 2 ] );
+    m_edgeY.s[ 3 ] = static_cast< cl_float >( 0.0f );
 }
 
-//---------------------------------------------------------------------------------------------------------------------
+WGEModuleCL::CLViewData::CLViewData(): m_width( 0 ), m_height( 0 ), m_buffers( 2 )
+{
+    // initialize
+}
 
-WGEModuleCL::CLViewData::CLViewData(): m_buffers( 2 ), m_width( 0 ), m_height( 0 )
-{}
-
-//---------------------------------------------------------------------------------------------------------------------
-
-WGEModuleCL::WGEModuleCL(): Referenced(), m_boundComputed( false ), m_node( 0 )
-{}
-
-//---------------------------------------------------------------------------------------------------------------------
+WGEModuleCL::WGEModuleCL(): Referenced(), m_node( 0 ), m_boundComputed( false )
+{
+    // initialize
+}
 
 WGEModuleCL::~WGEModuleCL()
-{}
-
-//---------------------------------------------------------------------------------------------------------------------
+{
+    // clean up
+}
 
 void WGEModuleCL::dirtyBound()
 {
@@ -215,14 +207,10 @@ void WGEModuleCL::dirtyBound()
     }
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 osg::BoundingBox WGEModuleCL::computeBoundingBox() const
 {
     return osg::BoundingBox();
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 void WGEModuleCL::changeCLData( const CLDataChangeCallback& callback )
 {
@@ -240,8 +228,6 @@ void WGEModuleCL::changeCLData( const CLDataChangeCallback& callback )
         }
     }
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 cl::NDRange WGEModuleCL::computeGlobalWorkSize( const cl::NDRange& localWorkSize, const cl::NDRange& workItems ) const
 {
@@ -285,4 +271,3 @@ cl::NDRange WGEModuleCL::computeGlobalWorkSize( const cl::NDRange& localWorkSize
     }
 }
 
-//---------------------------------------------------------------------------------------------------------------------

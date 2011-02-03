@@ -25,11 +25,9 @@
 #ifndef WGERENDERNODECL_H
 #define WGERENDERNODECL_H
 
-//---------------------------------------------------------------------------------------------------------------------
-
 #include <vector>
 
-#include <OpenThreads/Atomic>
+#include <OpenThreads/Atomic>       // NOLINT - he thinks this is a c system header
 #include <osg/Array>
 #include <osg/buffered_value>
 #include <osg/Node>
@@ -38,122 +36,120 @@
 #include <osgUtil/RenderBin>
 #include <osgUtil/RenderStage>
 
-#include "../WExportWGE.h"
 #include "WGEModuleCL.h"
 
-//---------------------------------------------------------------------------------------------------------------------
+#include "../WExportWGE.h"
 
 /**
  * WGERenderNodeCL allows for OpenCL rendering. It has to be connected to a WGEModuleCL object
  * that implements the render functionality.
  *
- * @ingroup ge
+ * \ingroup ge
  */
 class WGE_EXPORT WGERenderNodeCL: public osg::Node
 {
-
 public:
 
     /**
      * Standard constructor.
      *
-     * @param deactivated Set whether the node should be set to deactivated state.
+     * \param deactivated Set whether the node should be set to deactivated state.
      */
     WGERenderNodeCL( bool deactivated = false );
 
     /**
      * Copy construcor.
      *
-     * @param node The node to copy.
-     * @param copyop The optional OSG copy operator.
+     * \param node The node to copy.
+     * \param copyop The optional OSG copy operator.
      */
     WGERenderNodeCL( const WGERenderNodeCL& node, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY );
 
     /**
      * Overrides osg::Referenced::setThreadSafeRefUnref().
      *
-     * @param threadSafe The thread safe state.
+     * \param threadSafe The thread safe state.
      */
     virtual void setThreadSafeRefUnref( bool threadSafe );
 
     /**
      * Overrides osg::Object::cloneType().
      *
-     * @return The cloned node.
+     * \return The cloned node.
      */
     virtual osg::Object* cloneType() const;
 
     /**
      * Overrides osg::Object::clone().
      *
-     * @param copyop The optional OSG copy operator.
+     * \param copyop The optional OSG copy operator.
      *
-     * @return The cloned node.
+     * \return The cloned node.
      */
     virtual osg::Object* clone( const osg::CopyOp& copyop ) const;
 
     /**
      * Overrides osg::Object::isSameKindAs().
      *
-     * @param object The object to compare with.
+     * \param object The object to compare with.
      *
-     * @return States whether this node and object are of same type.
+     * \return States whether this node and object are of same type.
      */
     virtual bool isSameKindAs( const osg::Object* object ) const;
 
     /**
      * Overrides osg::Object::libraryName().
      *
-     * @return Gives the node's library name.
+     * \return Gives the node's library name.
      */
     virtual const char* libraryName() const;
 
     /**
      * Overrides osg::Object::className().
      *
-     * @return Gives the node's class name.
+     * \return Gives the node's class name.
      */
     virtual const char* className() const;
 
     /**
      * Overrides osg::Node::accept().
      *
-     * @param nv The traversal's NodeVisitor.
+     * \param nv The traversal's NodeVisitor.
      */
-    virtual void accept( osg::NodeVisitor& nv );
+    virtual void accept( osg::NodeVisitor& nv );  // NOLINT - non const ref. Needed since derived from OSG
 
     /**
      * Overrides osg::Node::traverse().
      *
-     * @param nv The traversal's NodeVisitor.
+     * \param nv The traversal's NodeVisitor.
      */
-    virtual void traverse( osg::NodeVisitor& nv );
+    virtual void traverse( osg::NodeVisitor& nv );   // NOLINT - non const ref. Needed since derived from OSG
 
     /**
      * Overrides osg::Node::computeBound().
      *
-     * @return A bounding sphere enclosing the node.
+     * \return A bounding sphere enclosing the node.
      */
     virtual osg::BoundingSphere computeBound() const;
 
     /**
      * Overrides osg::Object::resizeGLObjectBuffers().
      *
-     * @param maxSize The new buffer size.
+     * \param maxSize The new buffer size.
      */
     virtual void resizeGLObjectBuffers( unsigned int maxSize );
 
     /**
      * Overrides osg::Object::releaseGLObjects().
      *
-     * @param state The state for which to release all GL objects.
+     * \param state The state for which to release all GL objects.
      */
     virtual void releaseGLObjects( osg::State* state = 0 );
 
     /**
      * Check whether the node is deactivated.
      *
-     * @return The activation state.
+     * \return The activation state.
      */
     bool isDeactivated() const;
 
@@ -162,28 +158,28 @@ public:
      * connected module's data without using callbacks. This method is thread safe and will return after
      * successfully setting the state.
      *
-     * @param The activation state.
+     * \param deactivated The activation state.
      */
     void setDeactivated( bool deactivated ) const;
 
     /**
      * Get the connected module.
      *
-     * @return The connected module or 0.
+     * \return The connected module or 0.
      */
     WGEModuleCL* getModule();
 
     /**
      * Get the connected module.
      *
-     * @return The connected module or 0.
+     * \return The connected module or 0.
      */
     const WGEModuleCL* getModule() const;
 
     /**
      * Connect a module to the node. If the module is already connected to another node it will get disconnected.
      *
-     * @param module The module to connect.
+     * \param module The module to connect.
      */
     void setModule( WGEModuleCL* module );
 
@@ -209,37 +205,37 @@ private:
     /**
      * Initializes basic CL objects.
      *
-     * @param perContextInfo The PerContextInformation object to initialize.
+     * \param perContextInfo The PerContextInformation object to initialize.
      *
-     * @return True if an error occurred, false otherwise.
+     * \return True if an error occurred, false otherwise.
      */
-    bool initCL( PerContextInformation& perContextInfo ) const;
+    bool initCL( PerContextInformation& perContextInfo ) const;     // NOLINT - non const ref. Needed since derived from OSG
 
     /**
      * Initializes color buffer and depth buffer.
      *
-     * @param perContextInfo The PerContextInformation object containing the color buffer and depth buffer.
-     * @param state The corresponding GL state.
+     * \param perContextInfo The PerContextInformation object containing the color buffer and depth buffer.
+     * \param state The corresponding GL state.
      *
-     * @return True if an error occurred, false otherwise.
+     * \return True if an error occurred, false otherwise.
      */
-    bool initBuffers( PerContextInformation& perContextInfo, osg::State& state ) const;
+    bool initBuffers( PerContextInformation& perContextInfo, osg::State& state ) const;   // NOLINT - non const ref. Needed since derived from OSG
 
     /**
      * Starts the rendering process.
      *
-     * @param state The state.
-     * @param mvm The model view matrix.
-     * @param pm The projection matrix.
+     * \param state The state.
+     * \param mvm The model view matrix.
+     * \param pm The projection matrix.
      */
-    void render( osg::State& state, osg::RefMatrix* mvm, osg::RefMatrix* pm ) const;
+    void render( osg::State& state, osg::RefMatrix* mvm, osg::RefMatrix* pm ) const;   // NOLINT - non const ref. Needed since derived from OSG
 
     /**
      * Draws the rendered scene.
      *
-     * @param state The state.
+     * \param state The state.
      */
-    void draw( osg::State& state ) const;
+    void draw( osg::State& state ) const;       // NOLINT - non const ref. Needed since derived from OSG
 
     /**
      * GL context specific data.
@@ -277,17 +273,13 @@ private:
     static DrawQuad m_drawQuad;
 
 friend class WGEModuleCL;
-
 };
-
-//---------------------------------------------------------------------------------------------------------------------
 
 /**
  * Contains the data that have to be stored for every GL context.
  */
 class WGERenderNodeCL::PerContextInformation
 {
-
 public:
 
     /**
@@ -319,40 +311,36 @@ public:
      * Render step invalid.
      */
     bool m_invalid;
-
 };
-
-//---------------------------------------------------------------------------------------------------------------------
 
 /**
  * RenderBin rendering the scene.
  */
 class WGERenderNodeCL::CLRenderBin: public osgUtil::RenderBin
 {
-
 public:
 
     /**
      * Overrides osgUtil::RenderBin::draw().
      *
-     * @param renderInfo The current render information.
-     * @param previous The previously rendered RenderLeaf.
+     * \param renderInfo The current render information.
+     * \param previous The previously rendered RenderLeaf.
      */
-    virtual void draw( osg::RenderInfo& renderInfo, osgUtil::RenderLeaf*& previous );
+    virtual void draw( osg::RenderInfo& renderInfo, osgUtil::RenderLeaf*& previous );  // NOLINT - non const ref. Needed since derived from OSG
 
     /**
      * Overrides osgUtil::RenderBin::computeNumberOfDynamicRenderLeaves().
      *
-     * @return 0.
+     * \return 0.
      */
     virtual unsigned int computeNumberOfDynamicRenderLeaves() const;
 
     /**
      * Get the current stage's CLRenderBin object.
      *
-     * @param stage The current RenderStage.
+     * \param stage The current RenderStage.
      *
-     * @return The CLRenderBin object.
+     * \return The CLRenderBin object.
      */
     static CLRenderBin* getOrCreateRenderBin( osgUtil::RenderStage* stage );
 
@@ -370,40 +358,36 @@ public:
      * The projection matrices to use.
      */
     std::vector< osg::ref_ptr< osg::RefMatrix > > m_projections;
-
 };
-
-//---------------------------------------------------------------------------------------------------------------------
 
 /**
  * RenderBin drawing the rendered scene.
  */
 class WGERenderNodeCL::CLDrawBin: public osgUtil::RenderBin
 {
-
 public:
 
     /**
      * Overrides osgUtil::RenderBin::draw().
      *
-     * @param renderInfo The current render information.
-     * @param previous The previously rendered RenderLeaf.
+     * \param renderInfo The current render information.
+     * \param previous The previously rendered RenderLeaf.
      */
-    virtual void draw( osg::RenderInfo& renderInfo, osgUtil::RenderLeaf*& previous );
+    virtual void draw( osg::RenderInfo& renderInfo, osgUtil::RenderLeaf*& previous );  // NOLINT - non const ref. Needed since derived from OSG
 
     /**
      * Overrides osgUtil::RenderBin::computeNumberOfDynamicRenderLeaves().
      *
-     * @return The number of dynamic nodes.
+     * \return The number of dynamic nodes.
      */
     virtual unsigned int computeNumberOfDynamicRenderLeaves() const;
 
     /**
      * Get the current stage's CLDrawBin object.
      *
-     * @param stage The current RenderStage.
+     * \param stage The current RenderStage.
      *
-     * @return The CLDrawBin object.
+     * \return The CLDrawBin object.
      */
     static CLDrawBin* getOrCreateDrawBin( osgUtil::RenderStage* stage );
 
@@ -411,17 +395,13 @@ public:
      * The nodes to draw.
      */
     std::vector< osg::ref_ptr< WGERenderNodeCL > > m_nodes;
-
 };
-
-//---------------------------------------------------------------------------------------------------------------------
 
 /**
  * The draw quad's properties.
  */
 class WGERenderNodeCL::DrawQuad
 {
-
 public:
 
     /**
@@ -443,31 +423,22 @@ public:
      * The quad texture coordinates.
      */
     osg::ref_ptr< osg::Vec2Array > m_coordinates;
-
 };
-
-//---------------------------------------------------------------------------------------------------------------------
 
 inline bool WGERenderNodeCL::isDeactivated() const
 {
     return m_deactivated;
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 inline WGEModuleCL* WGERenderNodeCL::getModule()
 {
     return m_module.get();
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 inline const WGEModuleCL* WGERenderNodeCL::getModule() const
 {
     return m_module.get();
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 inline void WGERenderNodeCL::setModule( WGEModuleCL* module )
 {
@@ -490,8 +461,6 @@ inline void WGERenderNodeCL::setModule( WGEModuleCL* module )
     }
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 inline void WGERenderNodeCL::disconnectModule()
 {
     if ( m_module.valid() )
@@ -500,7 +469,5 @@ inline void WGERenderNodeCL::disconnectModule()
         m_module = 0;
     }
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 #endif  // WGERENDERNODECL_H

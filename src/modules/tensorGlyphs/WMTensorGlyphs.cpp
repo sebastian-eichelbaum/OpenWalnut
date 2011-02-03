@@ -30,51 +30,37 @@
 #include "WMTensorGlyphs.xpm"
 #include "WMTensorGlyphs.h"
 
-//---------------------------------------------------------------------------------------------------------------------
-
 W_LOADABLE_MODULE( WMTensorGlyphs )
 
-//---------------------------------------------------------------------------------------------------------------------
-
 WMTensorGlyphs::WMTensorGlyphs(): WModule()
-{}
-
-//---------------------------------------------------------------------------------------------------------------------
+{
+    // initialize
+}
 
 WMTensorGlyphs::~WMTensorGlyphs()
 {
     cleanup();
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 boost::shared_ptr< WModule > WMTensorGlyphs::factory() const
 {
     return boost::shared_ptr< WModule >( new WMTensorGlyphs() );
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 const char** WMTensorGlyphs::getXPMIcon() const
 {
     return glyph_xpm;
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 const std::string WMTensorGlyphs::getName() const
 {
     return "Tensor Glyphs";
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 const std::string WMTensorGlyphs::getDescription() const
 {
     return "GPU based raytracing of high order tensor glyphs.";
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 void WMTensorGlyphs::connectors()
 {
@@ -92,8 +78,6 @@ void WMTensorGlyphs::connectors()
 
     WModule::connectors();
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 void WMTensorGlyphs::properties()
 {
@@ -125,8 +109,6 @@ void WMTensorGlyphs::properties()
     m_sliceVisibility[ 2 ] = m_properties->addProperty( "Show Axial", "Show axial slice.", true, m_changed );
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 void WMTensorGlyphs::moduleMain()
 {
     // set conditions for data and property changes -------------------------------------------------------------------
@@ -145,7 +127,7 @@ void WMTensorGlyphs::moduleMain()
     if ( !module->isSourceRead() )
     {
         errorLog() << " Couldn't find kernel source file ( WMTensorGlyphs.cl ). " << std::endl;
-        
+
         return;
     }
 
@@ -176,8 +158,7 @@ void WMTensorGlyphs::moduleMain()
 
             // check the order of the new tensor data -----------------------------------------------------------------
 
-            // TODO: substitute this bullshit as soon as there is a working tensor data set class ---------------------
-
+            // TODO(reichenbach): substitute this as soon as there is a working tensor data set class ---------------------
             int dimension = newValueSet->dimension();
             int order = 0;
 
@@ -290,8 +271,6 @@ void WMTensorGlyphs::moduleMain()
     }
 
     // remove node ----------------------------------------------------------------------------------------------------
-
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( node );
 }
 
-//---------------------------------------------------------------------------------------------------------------------

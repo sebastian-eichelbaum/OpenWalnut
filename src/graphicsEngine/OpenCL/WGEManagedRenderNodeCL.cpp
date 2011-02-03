@@ -24,56 +24,46 @@
 
 #include "WGEManagedRenderNodeCL.h"
 
-//---------------------------------------------------------------------------------------------------------------------
-
 WGEManagedRenderNodeCL::WGEManagedRenderNodeCL( boost::shared_ptr< WBoolFlag > active, bool deactivated ):
     WGERenderNodeCL( deactivated ),
     m_flag( active )
-{}
-
-//---------------------------------------------------------------------------------------------------------------------
+{
+    // initialize
+}
 
 WGEManagedRenderNodeCL::WGEManagedRenderNodeCL( const WGEManagedRenderNodeCL& node, const osg::CopyOp& copyop ):
     WGERenderNodeCL( node, copyop ),
     m_flag( node.m_flag )
-{}
-
-//---------------------------------------------------------------------------------------------------------------------
+{
+    // initialize
+}
 
 WGEManagedRenderNodeCL::~WGEManagedRenderNodeCL()
-{}
-
-//---------------------------------------------------------------------------------------------------------------------
+{
+    // initialize
+}
 
 osg::Object* WGEManagedRenderNodeCL::cloneType() const
 {
     return new WGEManagedRenderNodeCL( *this );
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 osg::Object* WGEManagedRenderNodeCL::clone( const osg::CopyOp& copyop ) const
 {
     return new WGEManagedRenderNodeCL( *this, copyop );
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 bool WGEManagedRenderNodeCL::isSameKindAs( const osg::Object* object ) const
 {
     return ( dynamic_cast< const WGEManagedRenderNodeCL* >( object ) != 0 );
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 const char* WGEManagedRenderNodeCL::className() const
 {
     return "WGEManagedRenderNodeCL";
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
-void WGEManagedRenderNodeCL::accept( osg::NodeVisitor& nv )
+void WGEManagedRenderNodeCL::accept( osg::NodeVisitor& nv ) // NOLINT  // non-const reference
 {
     if ( m_flag->get() )
     {
@@ -81,4 +71,3 @@ void WGEManagedRenderNodeCL::accept( osg::NodeVisitor& nv )
     }
 }
 
-//---------------------------------------------------------------------------------------------------------------------

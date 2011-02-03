@@ -25,7 +25,7 @@
 #ifndef WMTENSORGLYPHS_H
 #define WMTENSORGLYPHS_H
 
-//---------------------------------------------------------------------------------------------------------------------
+#include <string>
 
 #include <boost/shared_ptr.hpp>
 
@@ -36,16 +36,13 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
-//---------------------------------------------------------------------------------------------------------------------
-
 /**
  * Module for rendering of high order tensor glyphs.
  *
- * @ingroup modules
+ * \ingroup modules
  */
 class WMTensorGlyphs: public WModule
 {
-
 public:
 
     /**
@@ -61,28 +58,28 @@ public:
     /**
      * Overrides WModule::getName().
      *
-     * @return The module's name.
+     * \return The module's name.
      */
     virtual const std::string getName() const;
 
     /**
      * Overrides WModule::getDescription().
      *
-     * @return The module's description.
+     * \return The module's description.
      */
     virtual const std::string getDescription() const;
 
     /**
      * Overrides WModule::factory().
      *
-     * @return An instance of this module.
+     * \return An instance of this module.
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
     /**
      * Overrides WModule::getXPMIcon().
      *
-     * @return The module's icon.
+     * \return The module's icon.
      */
     virtual const char** getXPMIcon() const;
 
@@ -134,9 +131,6 @@ private:
      * Slice visibility.
      */
     WPropBool m_sliceVisibility[ 3 ];
-
 };
-
-//---------------------------------------------------------------------------------------------------------------------
 
 #endif  // WMTENSORGLYPHS_H

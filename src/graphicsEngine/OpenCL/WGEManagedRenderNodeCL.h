@@ -25,81 +25,76 @@
 #ifndef WGEMANAGEDRENDERNODECL_H
 #define WGEMANAGEDRENDERNODECL_H
 
-//---------------------------------------------------------------------------------------------------------------------
-
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WFlag.h"
 #include "../WExportWGE.h"
 #include "WGERenderNodeCL.h"
 
-//---------------------------------------------------------------------------------------------------------------------
-
 /**
  * WGEManagedRenderNodeCL extends WGERenderNodeCL by a flag to switch the node on and off.
  * This switch is independent of WGERenderNodeCL's activation state.
  *
- * @ingroup ge
+ * \ingroup ge
  */
 class WGE_EXPORT WGEManagedRenderNodeCL: public WGERenderNodeCL
 {
-
 public:
 
     /**
      * Constructor.
      *
-     * @param active The flag denoting the node to be online (true) or offline (false).
-     * @param deactivated Set whether the node should be set to deactivated state.
+     * \param active The flag denoting the node to be online (true) or offline (false).
+     * \param deactivated Set whether the node should be set to deactivated state.
      */
     explicit WGEManagedRenderNodeCL( boost::shared_ptr< WBoolFlag > active, bool deactivated = false );
 
     /**
      * Copy construcor.
      *
-     * @param node The node to copy.
-     * @param copyop The optional OSG copy operator.
+     * \param node The node to copy.
+     * \param copyop The optional OSG copy operator.
      */
     WGEManagedRenderNodeCL( const WGEManagedRenderNodeCL& node, const osg::CopyOp& copyop = osg::CopyOp::SHALLOW_COPY );
 
     /**
      * Overrides osg::Object::cloneType().
      *
-     * @return The cloned node.
+     * \return The cloned node.
      */
     virtual osg::Object* cloneType() const;
 
     /**
      * Overrides osg::Object::clone().
      *
-     * @param copyop The optional OSG copy operator.
+     * \param copyop The optional OSG copy operator.
      *
-     * @return The cloned node.
+     * \return The cloned node.
      */
     virtual osg::Object* clone( const osg::CopyOp& copyop ) const;
 
     /**
      * Overrides osg::Object::isSameKindAs().
      *
-     * @param object The object to compare with.
+     * \param object The object to compare with.
      *
-     * @return States whether this node and object are of same type.
+     * \return States whether this node and object are of same type.
      */
     virtual bool isSameKindAs( const osg::Object* object ) const;
 
     /**
      * Overrides osg::Object::className().
      *
-     * @return Gives the node's class name.
+     * \return Gives the node's class name.
      */
     virtual const char* className() const;
 
     /**
      * Overrides osg::Node::accept().
      *
-     * @param nv The traversal's NodeVisitor.
+     * \param nv The traversal's NodeVisitor.
      */
-    virtual void accept( osg::NodeVisitor& nv );
+    virtual void accept( osg::NodeVisitor& nv );    // NOLINT - non const reference. Derived from OSG. We can't change signature.
 
 protected:
 
@@ -114,9 +109,6 @@ private:
      * The flag to control the node's state.
      */
     boost::shared_ptr< WBoolFlag > m_flag;
-
 };
-
-//---------------------------------------------------------------------------------------------------------------------
 
 #endif  // WGEMANAGEDRENDERNODECL_H

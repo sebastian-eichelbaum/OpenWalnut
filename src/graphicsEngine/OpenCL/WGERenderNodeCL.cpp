@@ -34,12 +34,8 @@
 
 #include "WGERenderNodeCL.h"
 
-//---------------------------------------------------------------------------------------------------------------------
-
 #define GL_R32F 0x822E
 #define GL_RGBA32F 0x8814
-
-//---------------------------------------------------------------------------------------------------------------------
 
 static const char* vertexShaderSource =
 "void main()"
@@ -61,19 +57,16 @@ static const char* fragmentShaderSource =
 
 WGERenderNodeCL::DrawQuad WGERenderNodeCL::m_drawQuad;
 
-//---------------------------------------------------------------------------------------------------------------------
 
 WGERenderNodeCL::PerContextInformation::PerContextInformation(): m_clData( 0 ), m_invalid( true )
-{}
-
-//---------------------------------------------------------------------------------------------------------------------
+{
+    // initialize
+}
 
 WGERenderNodeCL::PerContextInformation::~PerContextInformation()
 {
     delete m_clData;
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 void WGERenderNodeCL::PerContextInformation::reset()
 {
@@ -94,9 +87,7 @@ void WGERenderNodeCL::PerContextInformation::reset()
     m_invalid = true;
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
-void WGERenderNodeCL::CLRenderBin::draw( osg::RenderInfo& renderInfo, osgUtil::RenderLeaf*& previous )
+void WGERenderNodeCL::CLRenderBin::draw( osg::RenderInfo& renderInfo, osgUtil::RenderLeaf*& /*previous*/ )  // NOLINT - non const ref.
 {
     osg::State& state = *renderInfo.getState();
 
@@ -110,14 +101,10 @@ void WGERenderNodeCL::CLRenderBin::draw( osg::RenderInfo& renderInfo, osgUtil::R
     }
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 unsigned int WGERenderNodeCL::CLRenderBin::computeNumberOfDynamicRenderLeaves() const
 {
     return 0;
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 WGERenderNodeCL::CLRenderBin* WGERenderNodeCL::CLRenderBin::getOrCreateRenderBin( osgUtil::RenderStage* stage )
 {
@@ -163,9 +150,7 @@ WGERenderNodeCL::CLRenderBin* WGERenderNodeCL::CLRenderBin::getOrCreateRenderBin
     return bin;
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
-void WGERenderNodeCL::CLDrawBin::draw( osg::RenderInfo& renderInfo, osgUtil::RenderLeaf*& previous )
+void WGERenderNodeCL::CLDrawBin::draw( osg::RenderInfo& renderInfo, osgUtil::RenderLeaf*& previous )   // NOLINT - non const ref.
 {
     osg::State& state = *renderInfo.getState();
 
@@ -201,8 +186,6 @@ void WGERenderNodeCL::CLDrawBin::draw( osg::RenderInfo& renderInfo, osgUtil::Ren
     }
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 unsigned int WGERenderNodeCL::CLDrawBin::computeNumberOfDynamicRenderLeaves() const
 {
     unsigned int count = 0;
@@ -218,8 +201,6 @@ unsigned int WGERenderNodeCL::CLDrawBin::computeNumberOfDynamicRenderLeaves() co
 
     return count;
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 WGERenderNodeCL::CLDrawBin* WGERenderNodeCL::CLDrawBin::getOrCreateDrawBin( osgUtil::RenderStage* stage )
 {
@@ -264,8 +245,6 @@ WGERenderNodeCL::CLDrawBin* WGERenderNodeCL::CLDrawBin::getOrCreateDrawBin( osgU
 
     return bin;
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 WGERenderNodeCL::DrawQuad::DrawQuad()
 {
@@ -315,8 +294,6 @@ WGERenderNodeCL::DrawQuad::DrawQuad()
     m_coordinates->setVertexBufferObject( vbo );
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 WGERenderNodeCL::WGERenderNodeCL( bool deactivated ):
     Node(),
     m_deactivated( deactivated ),
@@ -344,9 +321,7 @@ WGERenderNodeCL::WGERenderNodeCL( bool deactivated ):
     m_depthBufferTex->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
-WGERenderNodeCL::WGERenderNodeCL( const WGERenderNodeCL& node, const osg::CopyOp& copyop ):
+WGERenderNodeCL::WGERenderNodeCL( const WGERenderNodeCL& node, const osg::CopyOp& copyop ): // NOLINT - non const ref.
     Node( node, copyop ),
     m_perContextInformation(),
     m_colorBufferTex( new osg::Texture2D( *node.m_colorBufferTex, copyop ) ),
@@ -354,16 +329,14 @@ WGERenderNodeCL::WGERenderNodeCL( const WGERenderNodeCL& node, const osg::CopyOp
     m_deactivated( node.m_deactivated ),
     m_count( 0 ),
     m_module( 0 )
-{}
-
-//---------------------------------------------------------------------------------------------------------------------
+{
+    // initialize
+}
 
 WGERenderNodeCL::~WGERenderNodeCL()
 {
     disconnectModule();
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 void WGERenderNodeCL::setThreadSafeRefUnref( bool threadSafe )
 {
@@ -382,44 +355,32 @@ void WGERenderNodeCL::setThreadSafeRefUnref( bool threadSafe )
     Node::setThreadSafeRefUnref( threadSafe );
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 osg::Object* WGERenderNodeCL::cloneType() const
 {
     return new WGERenderNodeCL();
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 osg::Object* WGERenderNodeCL::clone( const osg::CopyOp& copyop ) const
 {
     return new WGERenderNodeCL( *this, copyop );
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 bool WGERenderNodeCL::isSameKindAs( const osg::Object* object ) const
 {
     return ( dynamic_cast< const WGERenderNodeCL* >( object ) != 0 );
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 const char* WGERenderNodeCL::libraryName() const
 {
     return "WGE";
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 const char* WGERenderNodeCL::className() const
 {
     return "WGERenderNodeCL";
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
-void WGERenderNodeCL::accept( osg::NodeVisitor& nv )
+void WGERenderNodeCL::accept( osg::NodeVisitor& nv )  // NOLINT - non const ref.
 {
     if ( m_deactivated || !m_module.valid() )
     {
@@ -440,9 +401,7 @@ void WGERenderNodeCL::accept( osg::NodeVisitor& nv )
     --m_count;
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
-void WGERenderNodeCL::traverse( osg::NodeVisitor& nv )
+void WGERenderNodeCL::traverse( osg::NodeVisitor& nv )         // NOLINT - non const ref.
 {
     if ( nv.getVisitorType() == osg::NodeVisitor::CULL_VISITOR )
     {
@@ -482,8 +441,6 @@ void WGERenderNodeCL::traverse( osg::NodeVisitor& nv )
     }
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 osg::BoundingSphere WGERenderNodeCL::computeBound() const
 {
     if ( m_module.valid() )
@@ -495,8 +452,6 @@ osg::BoundingSphere WGERenderNodeCL::computeBound() const
         return osg::BoundingSphere();
     }
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 void WGERenderNodeCL::resizeGLObjectBuffers( unsigned int maxSize )
 {
@@ -510,8 +465,6 @@ void WGERenderNodeCL::resizeGLObjectBuffers( unsigned int maxSize )
 
     Node::resizeGLObjectBuffers( maxSize );
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 void WGERenderNodeCL::releaseGLObjects( osg::State* state )
 {
@@ -538,8 +491,6 @@ void WGERenderNodeCL::releaseGLObjects( osg::State* state )
     Node::releaseGLObjects( state );
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
 void WGERenderNodeCL::setDeactivated( bool deactivated ) const
 {
     m_deactivated = deactivated;
@@ -550,11 +501,9 @@ void WGERenderNodeCL::setDeactivated( bool deactivated ) const
     }
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
-bool WGERenderNodeCL::initCL( PerContextInformation& perContextInfo ) const
+bool WGERenderNodeCL::initCL( PerContextInformation& perContextInfo ) const   // NOLINT - non const ref.
 {
-    #if defined ( __APPLE__ )
+    #if defined( __APPLE__ )
 
         cl_context_properties properties[ 5 ] =
         {
@@ -565,7 +514,7 @@ bool WGERenderNodeCL::initCL( PerContextInformation& perContextInfo ) const
             0
         };
 
-    #elif defined ( __linux__ )
+    #elif defined( __linux__ )
 
         cl_context_properties properties[ 7 ] =
         {
@@ -593,7 +542,7 @@ bool WGERenderNodeCL::initCL( PerContextInformation& perContextInfo ) const
 
     #endif
 
-    cl_int error;
+    cl_int error = 0;
 
     unsigned int sizePlatforms;
     unsigned int sizeDevices;
@@ -651,9 +600,7 @@ bool WGERenderNodeCL::initCL( PerContextInformation& perContextInfo ) const
     return false;
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
-bool WGERenderNodeCL::initBuffers( PerContextInformation& perContextInfo, osg::State& state ) const
+bool WGERenderNodeCL::initBuffers( PerContextInformation& perContextInfo, osg::State& state ) const        // NOLINT - non const ref.
 {
     // resize color and depth texture ---------------------------------------------------------------------------------
 
@@ -712,9 +659,7 @@ bool WGERenderNodeCL::initBuffers( PerContextInformation& perContextInfo, osg::S
     return false;
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
-void WGERenderNodeCL::render( osg::State& state, osg::RefMatrix* mvm, osg::RefMatrix* pm ) const
+void WGERenderNodeCL::render( osg::State& state, osg::RefMatrix* mvm, osg::RefMatrix* pm ) const // NOLINT - non const ref.
 {
     PerContextInformation& perContextInfo = m_perContextInformation[ state.getContextID() ];
 
@@ -758,9 +703,7 @@ void WGERenderNodeCL::render( osg::State& state, osg::RefMatrix* mvm, osg::RefMa
 
     // acquire buffers ------------------------------------------------------------------------------------------------
 
-    cl_int error;
-
-    error = perContextInfo.m_clViewData.m_commQueue.enqueueAcquireGLObjects
+    cl_int error = perContextInfo.m_clViewData.m_commQueue.enqueueAcquireGLObjects
     (
         reinterpret_cast< std::vector< cl::Memory >* >( &perContextInfo.m_clViewData.m_buffers ), 0, 0
     );
@@ -799,9 +742,7 @@ void WGERenderNodeCL::render( osg::State& state, osg::RefMatrix* mvm, osg::RefMa
     perContextInfo.m_invalid = false;
 }
 
-//---------------------------------------------------------------------------------------------------------------------
-
-void WGERenderNodeCL::draw( osg::State& state ) const
+void WGERenderNodeCL::draw( osg::State& state ) const          // NOLINT - non const ref.
 {
     PerContextInformation& perContextInfo = m_perContextInformation[ state.getContextID() ];
 
@@ -822,4 +763,3 @@ void WGERenderNodeCL::draw( osg::State& state ) const
     --m_count;
 }
 
-//---------------------------------------------------------------------------------------------------------------------

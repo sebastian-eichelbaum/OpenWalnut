@@ -25,8 +25,6 @@
 #ifndef WGLYPHMODULE_H
 #define WGLYPHMODULE_H
 
-//---------------------------------------------------------------------------------------------------------------------
-
 #include <string>
 
 #include <boost/filesystem.hpp>
@@ -38,62 +36,59 @@
 #include "../../graphicsEngine/OpenCL/WGEModuleCL.h"
 #include "../../graphicsEngine/OpenCL/WGERenderNodeCL.h"
 
-//---------------------------------------------------------------------------------------------------------------------
-
 /**
  * WGlyphModule renders high order tensor glyphs.
  *
- * @todo Replace 4-component data by 3-component when OpenCL 1.1 drivers are available. NVIDIA is dilly-dallying around...
+ * \todo Replace 4-component data by 3-component when OpenCL 1.1 drivers are available. NVIDIA is dilly-dallying around...
  */
 class WGlyphModule: public WGEModuleCL
 {
-
 public:
 
     /**
      * Constructor.
      *
-     * @param search The path of the kernel file.
+     * \param path The path of the kernel file.
      */
-    WGlyphModule( const boost::filesystem::path& path );
+    explicit WGlyphModule( const boost::filesystem::path& path );
 
     /**
      * States whether the source file has been read.
      *
-     * @return True if successful, false otherwise.
+     * \return True if successful, false otherwise.
      */
     bool isSourceRead() const;
 
     /**
      * Set the new tensor data to render. This method assumes data validity.
      *
-     * @param data The tensor data.
-     * @param order The tensor order.
-     * @param mode The coloring mode.
+     * \param data The tensor data.
+     * \param order The tensor order.
+     * \param mode The coloring mode.
      */
     void setTensorData( const boost::shared_ptr< WDataSetSingle >& data, int order, int mode );
 
     /**
      * Set a slice position.
      *
-     * @param slice The slice dimension.
-     * @param coord The position.
+     * \param slice The slice dimension.
+     * \param coord The position.
      */
     void setPosition( int slice, int coord );
 
     /**
      * Set the slice visibility.
      *
-     * @param sliceX The x-slice visibility.
-     * @param sliceY The y-slice visibility.
-     * @param sliceZ The z-slice visibility.
+     * \param sliceX The x-slice visibility.
+     * \param sliceY The y-slice visibility.
+     * \param sliceZ The z-slice visibility.
      */
     void setVisibility( bool sliceX, bool sliceY, bool sliceZ );
 
     /**
      * Set the coloring mode.
      *
-     * @param mode The coloring mode.
+     * \param mode The coloring mode.
      */
     void setColoring( int mode );
 
@@ -107,34 +102,34 @@ protected:
     /**
      * Overrides WGlyphModule::initCLData().
      *
-     * @param viewData The CLViewData object you may need to initialize your data.
+     * \param viewData The CLViewData object you may need to initialize your data.
      *
-     * @return A CLData object.
+     * \return A CLData object.
      */
     virtual CLData* initCLData( const CLViewData& viewData ) const;
 
     /**
      * Overrides WGlyphModule::setBuffers().
      *
-     * @param viewData The CLViewData object containing the color buffer and depth buffer.
-     * @param data The CLData object containing your data.
+     * \param viewData The CLViewData object containing the color buffer and depth buffer.
+     * \param data The CLData object containing your data.
      */
     virtual void setBuffers( const CLViewData& viewData, CLData& data ) const;
 
     /**
      * Overrides WGlyphModule::render().
      *
-     * @param viewData The CLViewData object needed for rendering.
-     * @param data The CLData containing your data.
+     * \param viewData The CLViewData object needed for rendering.
+     * \param data The CLData containing your data.
      *
-     * @return True if a CL error occurred, false otherwise.
+     * \return True if a CL error occurred, false otherwise.
      */
     virtual bool render( const CLViewData& viewData, CLData& data ) const;
 
     /**
      * Overrides WGlyphModule::computeBoundingBox().
      *
-     * @return The bounding box.
+     * \return The bounding box.
      */
     virtual osg::BoundingBox computeBoundingBox() const;
 
@@ -146,39 +141,39 @@ private:
     /**
      * Extract a slice out of the complete data set.
      *
-     * @param dim The slice dimension.
+     * \param dim The slice dimension.
      *
-     * @return The slice data.
+     * \return The slice data.
      */
     boost::shared_array< cl_float > extractSlice( int dim );
 
     /**
      * Set the visibility kernel argument.
      *
-     * @param objects The CL objects.
+     * \param objects The CL objects.
      *
-     * @return True if a CL error occurred, false otherwise.
+     * \return True if a CL error occurred, false otherwise.
      */
-    void loadVisibility( CLObjects& objects ) const;
+    void loadVisibility( CLObjects* objects ) const;
 
     /**
      * Updates slice data on GPU memory.
      *
-     * @param viewData The CLViewData object.
-     * @param objects The CL objects.
-     * @param dim The slice dimension.
+     * \param viewData The CLViewData object.
+     * \param objects The CL objects.
+     * \param dim The slice dimension.
      *
-     * @return True if a CL error occurred, false otherwise.
+     * \return True if a CL error occurred, false otherwise.
      */
     bool updateSlice( const CLViewData& viewData, CLObjects& objects, int dim ) const;
 
     /**
      * Loads the tensor data set to GPU memory and updates kernels.
      *
-     * @param viewData The CLViewData object.
-     * @param objects The CL objects.
+     * \param viewData The CLViewData object.
+     * \param objects The CL objects.
      *
-     * @return True if a CL error occurred, false otherwise.
+     * \return True if a CL error occurred, false otherwise.
      */
     bool loadDataset( const CLViewData& viewData, CLObjects& objects ) const;
 
@@ -226,17 +221,13 @@ private:
      * The kernel source code.
      */
     std::string m_source;
-
 };
-
-//---------------------------------------------------------------------------------------------------------------------
 
 /**
  * CLObjects stores all necessary CL data.
  */
 class WGlyphModule::CLObjects: public WGEModuleCL::CLData
 {
-
 public:
 
     /**
@@ -263,17 +254,13 @@ public:
      * Global work size.
      */
     cl::NDRange m_globalSize;
-
 };
-
-//---------------------------------------------------------------------------------------------------------------------
 
 /**
  * Callback that handles data and visibility changes.
  */
 class WGlyphModule::ChangeCallback: public CLDataChangeCallback
 {
-
 public:
 
     /**
@@ -292,16 +279,16 @@ public:
     /**
      * Constructor.
      *
-     * @param module The module to update.
-     * @param operation The operation to execute.
+     * \param module The module to update.
+     * \param operation The operation to execute.
      */
     ChangeCallback( WGlyphModule* module, ChangeOperation operation );
 
     /**
      * Overrides WGEModuleCL::CLDataChangeCallback::change().
      *
-     * @param viewData The CLViewData object.
-     * @param data The CLData object to be changed.
+     * \param viewData The CLViewData object.
+     * \param data The CLData object to be changed.
      */
     virtual void change( const CLViewData& viewData, CLData& data ) const;
 
@@ -314,16 +301,11 @@ public:
      * The operation to execute.
      */
     ChangeOperation m_operation;
-
 };
-
-//---------------------------------------------------------------------------------------------------------------------
 
 inline bool WGlyphModule::isSourceRead() const
 {
     return ( m_source != "" );
 }
-
-//---------------------------------------------------------------------------------------------------------------------
 
 #endif  // WGLYPHMODULE_H
