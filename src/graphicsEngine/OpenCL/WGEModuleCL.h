@@ -33,10 +33,10 @@
 #include <osg/State>
 #include <osg/Vec3f>
 
-#if defined ( __APPLE__ )
+#if defined( __APPLE__ )
     #include <OpenCL/cl.hpp>
 #else
-    #include <CL/cl.hpp>
+    #include <CL/cl.hpp>    // NOTE: this header can be grabbed from http://www.khronos.org/registry/cl/. Its the c++ binding header.
 #endif
 
 #include "../WExportWGE.h"

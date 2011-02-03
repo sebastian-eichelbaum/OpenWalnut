@@ -22,9 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#include <fstream>
+
 #include <boost/lexical_cast.hpp>
 
-#include <osg/notify>
+#include <osg/Notify>
 
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WValueSet.h"
@@ -184,7 +186,7 @@ void WGlyphModule::setColoring( int mode )
     getNode()->setDeactivated( true );
 
     m_mode = mode;
-    
+
     changeCLData( ChangeCallback( this, ChangeCallback::SET_COLORING ) );
 
     getNode()->setDeactivated( false );

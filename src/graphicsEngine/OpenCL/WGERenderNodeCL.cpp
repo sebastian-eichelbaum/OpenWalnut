@@ -22,6 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
+#ifdef __linux__
+    #include <GL/glx.h>
+#endif
+
 #include <osg/BufferObject>
 #include <osg/Program>
 #include <osg/Shader>
