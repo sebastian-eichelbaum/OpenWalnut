@@ -65,6 +65,11 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         std::string isFileName = i->path().filename();
 #endif // _MSC_VER
 
+        // we want to strip the search directory from the path
+        std::string relPath = i->path().file_string();
+        relPath.erase( 0, dir.file_string().length() + 1 ); // NOTE: +1 because we want to remove the "/" too
+
+        // is it a lib?
         if( !boost::filesystem::is_directory( *i ) && ( suffix == WSharedLib::getSystemSuffix() ) &&
             ( stem.compare( 0, getModulePrefix().length(), getModulePrefix() ) == 0 )
 #ifdef _MSC_VER
@@ -88,7 +93,7 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                 // could the prototype be created?
                 if( m.empty() )
                 {
-                    WLogger::getLogger()->addLogMessage( "Load failed for module \"" + i->path().file_string() + "\". Could not create any " +
+                    WLogger::getLogger()->addLogMessage( "Load failed for module \"" + relPath + "\". Could not create any " +
                                                          "prototype instance.", "Module Loader", LL_ERROR );
                     continue;
                 }
@@ -102,14 +107,14 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                         m_libs.push_back( l );
                     }
 
-                    wlog::info( "Module Loader" ) << "Loaded " << m.size() << " modules from " << i->path().file_string();
+                    wlog::info( "Module Loader" ) << "Loaded " << m.size() << " modules from " << relPath;
                 }
 
                 // lib gets closed if l looses focus
             }
             catch( const WException& e )
             {
-                WLogger::getLogger()->addLogMessage( "Load failed for module \"" + i->path().file_string() + "\". " + e.what() + ". Ignoring.",
+                WLogger::getLogger()->addLogMessage( "Load failed for module \"" + relPath + "\". " + e.what() + ". Ignoring.",
                                                      "Module Loader", LL_ERROR );
             }
         }
