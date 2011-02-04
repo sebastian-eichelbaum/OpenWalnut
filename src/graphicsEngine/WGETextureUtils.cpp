@@ -22,8 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <GL/gl.h>
-
 #include "../common/exceptions/WPreconditionNotMet.h"
 
 #include "WGETexture.h"
