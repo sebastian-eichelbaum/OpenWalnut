@@ -34,6 +34,10 @@ ADD_SUBDIRECTORY( surfaceParameterAnimator )
 ADD_SUBDIRECTORY( textureMapper )
 ADD_SUBDIRECTORY( vectorOperator )
 
+IF( OPENCL_FOUND )
+  ADD_SUBDIRECTORY( tensorGlyphs )
+ENDIF()
+
 IF( Teem_FOUND )
   IF( OSSIM_FOUND AND OW_USE_OSSIM )
     ADD_SUBDIRECTORY( bermanTracking )
