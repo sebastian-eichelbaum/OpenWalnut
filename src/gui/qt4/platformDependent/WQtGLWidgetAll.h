@@ -30,6 +30,7 @@
 #include <QtCore/QTimer>
 #include <QtGui/QWidget>
 #include <QtOpenGL/QGLWidget>
+#include <QtOpenGL/QGLFormat>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
@@ -114,6 +115,13 @@ public:
      * \return a shared pointer to the viewer
      */
     boost::shared_ptr< WGEViewer > getViewer() const;
+
+    /**
+     * Creates and returns a default OpenGL format description with vertical sync enabled.
+     *
+     * \return the format descriptor
+     */
+    static const QGLFormat getDefaultFormat();
 
 public slots:
     /**

@@ -38,8 +38,6 @@
 
 #include "WGEShaderDefineOptions.h"
 
-#include "../WExportWGE.h"
-
 template< typename PropType >
 class WGEShaderPropertyDefineOptionsIndexAdapter;
 
@@ -54,7 +52,7 @@ class WGEShaderPropertyDefineOptionsIndexAdapter;
  * update the property.
  */
 template< typename PropType = WPropSelection, typename PropIndexAdapter = WGEShaderPropertyDefineOptionsIndexAdapter< PropType > >
-class WGE_EXPORT WGEShaderPropertyDefineOptions: public WGEShaderDefineOptions
+class WGEShaderPropertyDefineOptions: public WGEShaderDefineOptions
 {
 public:
 
