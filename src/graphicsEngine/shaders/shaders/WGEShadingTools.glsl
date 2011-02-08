@@ -53,12 +53,12 @@ struct wge_LightIntensityParameter
  * rendered images.
  */
 wge_LightIntensityParameter wge_DefaultLightIntensity = wge_LightIntensityParameter(
-    0.2,                             // material ambient
+    0.04,                            // material ambient
     0.75,                            // material diffuse
     1.0,                             // material specular
     100.0,                           // material shininess
     1.0,                             // light diffuse
-    0.2,                             // light ambient
+    1.0,                             // light ambient
     gl_LightSource[0].position.xyz,  // light position
     vec3( 0.0, 0.0, 1.0 )            // view direction
 );
@@ -68,12 +68,12 @@ wge_LightIntensityParameter wge_DefaultLightIntensity = wge_LightIntensityParame
  * rendered images. This version looks a little bit more metallic.
  */
 wge_LightIntensityParameter wge_DefaultLightIntensityLessDiffuse = wge_LightIntensityParameter(
-    0.2,                             // material ambient
+    0.0,                             // material ambient
     0.35,                            // material diffuse
     1.0,                             // material specular
     100.0,                           // material shininess
     1.0,                             // light diffuse
-    0.2,                             // light ambient
+    1.0,                             // light ambient
     gl_LightSource[0].position.xyz,  // light position
     vec3( 0.0, 0.0, 1.0 )            // view direction
 );

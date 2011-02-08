@@ -71,11 +71,6 @@ uniform int u_texture0SizeX;
 uniform int u_texture0SizeY;
 
 /**
- * Size of texture in pixels
- */
-uniform int u_texture0SizeZ;
-
-/**
  * Offset to access the neighbouring pixel in a texture.
  */
 float offsetX = 1.0 / u_texture0SizeX;
@@ -244,23 +239,25 @@ void blendAdd( in float f )
  * Phong based Per-Pixel-Lighting.
  *
  * \param normal the surface normal. Normalized.
+ * \param lightParams the ligh parameters
  *
  * \return the intensity.
  */
-float getPPLPhong( vec3 normal )
+float getPPLPhong( in wge_LightIntensityParameter lightParams, in vec3 normal )
 {
-    // TODO(ebaum): provide properties/uniforms for the scaling factors here
-    return blinnPhongIlluminationIntensity(
-        0.2 ,               // material ambient
-        0.75,               // material diffuse
-        0.5,               // material specular
-        100.0,                               // shinines
-        1.0,               // light diffuse
-        0.3,               // light ambient
-        normal,                              // normal
-        vec4( 0.0, 0.0, 1.0, 1.0 ).xyz,      // view direction  // in world space, this always is the view-dir
-        gl_LightSource[0].position.xyz       // light source position
-    );
+    return blinnPhongIlluminationIntensity( lightParams, normal );
+}
+
+/**
+ * Phong based Per-Pixel-Lighting.
+ *
+ * \param normal the surface normal. Normalized.
+ *
+ * \return the intensity.
+ */
+float getPPLPhong( in vec3 normal )
+{
+    return blinnPhongIlluminationIntensity( normal );
 }
 
 /**
@@ -271,6 +268,18 @@ float getPPLPhong( vec3 normal )
 float getPPLPhong()
 {
     return getPPLPhong( getNormal().xyz );
+}
+
+/**
+ * Phong based Per-Pixel-Lighting based on the specified color.
+ *
+ * \param lightParams the ligh parameters
+ *
+ * \return the intensity.
+ */
+float getPPLPhong( in wge_LightIntensityParameter lightParams )
+{
+    return getPPLPhong( lightParams, getNormal().xyz );
 }
 
 /**
@@ -393,107 +402,140 @@ float getGaussedDepth()
     return getGaussedDepth( pixelCoord );
 }
 
-vec3 test( vec2 pos )
-{
-    vec3 t = getNormal( pos ).xyz;
-    return t;
-}
+/**
+ * The total influence of SSAO.
+ */
+const float u_ssaoTotalStrength = 2.5; // 1.38;   // total strength - scaling the resulting AO
+
+/**
+ * The strength of the occluder influence in relation to the geometry density. The heigher the value, the larger the influence. Low values remove
+ * the drop-shadow effect.
+ */
+const float u_ssaoDensityWeight = 1.0; //0.07;
+
+/**
+ * The radius of the hemispshere in screen-space which gets scaled.
+ */
+const float u_ssaoRadiusSS = 15.0;
 
 /**
  * Calculate the screen-space ambient occlusion from normal and depth map.
  *
+ * \param where the pixel to get SSAO for
+ *
  * \return the SSAO factor
  */
-uniform float u_ssaoRadius = 1.0;
-float getSSAO()
+float getSSAO( vec2 where )
 {
-    // NOTE: Currently, most of the code is from http://www.gamerendering.com/2009/01/14/ssao/
+    // NOTE: The code was inspired by http://www.gamerendering.com/2009/01/14/ssao/ but quite intensivly modified until now
 
-    // TODO(ebaum): optimize code. It is quite slow curretly.
+    #define SAMPLES 32  // the numbers of samples to check on the hemisphere
+    const float invSamples = 1.0 / float( SAMPLES );
 
-    // some switches which can be used to fine-tune this.
-    // TODO(ebaum): provide uniforms for this
-    float totStrength = 5.00; // 1.38;   // total strength - scaling the resulting AO
-    float falloff = 0.000002;
-    float rad = 0.006;
-    #define SAMPLES 32 // 10+ is good
-    const float invSamples = 1.0/float( SAMPLES );
-    const float strength = 10.0; //0.07;
+    // Fall-off for SSAO per occluder. This hould be zero (or nearly zero) since it defines what is counted as before, or behind.
+    const float falloff = 0.00001;
 
     // these are the random vectors inside a unit sphere
-    vec3 pSphere[46] = vec3[]( vec3( 0.53812504, 0.18565957, -0.43192 ),       vec3( 0.13790712, 0.24864247, 0.44301823 ),
-                               vec3( 0.33715037, 0.56794053, -0.005789503 ),   vec3( -0.6999805, -0.04511441, -0.0019965635 ),
-                               vec3( 0.06896307, -0.15983082, -0.85477847 ),   vec3( 0.056099437, 0.006954967, -0.1843352 ),
-                               vec3( -0.014653638, 0.14027752, 0.0762037 ),    vec3( 0.010019933, -0.1924225, -0.034443386 ),
-                               vec3( -0.35775623, -0.5301969, -0.43581226 ),   vec3( -0.3169221, 0.106360726, 0.015860917 ),
-                               vec3( 0.010350345, -0.58698344, 0.0046293875 ), vec3( -0.08972908, -0.49408212, 0.3287904 ),
-                               vec3( 0.7119986, -0.0154690035, -0.09183723 ),  vec3( -0.053382345, 0.059675813, -0.5411899 ),
-                               vec3( 0.035267662, -0.063188605, 0.54602677 ),  vec3( -0.47761092, 0.2847911, -0.0271716 ),
-                               vec3( 0.24710192, 0.6445882, 0.033550154 ),     vec3( 0.00991752, -0.21947019, 0.7196721 ),
-                               vec3( 0.25109035, -0.1787317, -0.011580509 ),   vec3( -0.08781511, 0.44514698, 0.56647956 ),
-                               vec3( -0.011737816, -0.0643377, 0.16030222 ),   vec3( 0.035941467, 0.04990871, -0.46533614 ),
-                               vec3( -0.058801126, 0.7347013, -0.25399926 ),   vec3( -0.24799341, -0.022052078, -0.13399573 ),
-                               vec3( -0.13657719, 0.30651027, 0.16118456 ),    vec3( -0.14714938, 0.33245975, -0.113095455 ),
-                               vec3( 0.030659059, 0.27887347, -0.7332209 ),    vec3( 0.009913514, -0.89884496, 0.07381549 ),
-                               vec3( 0.040318526, 0.40091, 0.6847858 ),        vec3( 0.22311053, -0.3039437, -0.19340435 ),
-                               vec3( 0.36235332, 0.21894878, -0.05407306 ),    vec3( -0.15198798, -0.38409665, -0.46785462 ),
-                               vec3( -0.013492276, -0.5345803, 0.11307949 ),   vec3( -0.4972847, 0.037064247, -0.4381323 ),
-                               vec3( -0.024175806, -0.008928787, 0.17719103 ), vec3( 0.694014, -0.122672155, 0.33098832 ),
-                               vec3( -0.010735935, 0.01647018, 0.0062425877 ), vec3( -0.06533369, 0.3647007, -0.13746321 ),
-                               vec3( -0.6539235, -0.016726388, -0.53000957 ),  vec3( 0.40958285, 0.0052428036, -0.5591124 ),
-                               vec3( -0.1465366, 0.09899267, 0.15571679 ),     vec3( -0.44122112, -0.5458797, 0.04912532 ),
-                               vec3( 0.03755566, -0.10961345, -0.33040273 ),   vec3( 0.019100213, 0.29652783, 0.066237666 ),
-                               vec3( 0.8765323, 0.011236004, 0.28265962 ),     vec3( 0.29264435, -0.40794238, 0.15964167 ) );
+    vec3 randSphereNormals[32] = vec3[]( vec3(  0.53812504,   0.18565957,   -0.43192 ),      vec3(  0.13790712,   0.24864247,    0.44301823 ),
+                                         vec3(  0.33715037,   0.56794053,   -0.005789503 ),  vec3( -0.6999805,   -0.04511441,   -0.0019965635 ),
+                                         vec3(  0.06896307,  -0.15983082,   -0.85477847 ),   vec3(  0.056099437,  0.006954967,  -0.1843352 ),
+                                         vec3( -0.014653638,  0.14027752,    0.0762037 ),    vec3(  0.010019933, -0.1924225,    -0.034443386 ),
+                                         vec3( -0.35775623,  -0.5301969,    -0.43581226 ),   vec3( -0.3169221,    0.106360726,   0.015860917 ),
+                                         vec3(  0.010350345, -0.58698344,    0.0046293875 ), vec3( -0.08972908,  -0.49408212,    0.3287904 ),
+                                         vec3(  0.7119986,   -0.0154690035, -0.09183723 ),   vec3( -0.053382345,  0.059675813,  -0.5411899 ),
+                                         vec3(  0.035267662, -0.063188605,   0.54602677 ),   vec3( -0.47761092,   0.2847911,    -0.0271716 ),
+                                         vec3(  0.24710192,   0.6445882,     0.033550154 ),  vec3(  0.00991752,  -0.21947019,    0.7196721 ),
+                                         vec3(  0.25109035,  -0.1787317,    -0.011580509 ),  vec3( -0.08781511,   0.44514698,    0.56647956 ),
+                                         vec3( -0.011737816, -0.0643377,     0.16030222 ),   vec3(  0.035941467,  0.04990871,   -0.46533614 ),
+                                         vec3( -0.058801126,  0.7347013,    -0.25399926 ),   vec3( -0.24799341,  -0.022052078,  -0.13399573 ),
+                                         vec3( -0.13657719,   0.30651027,    0.16118456 ),   vec3( -0.14714938,   0.33245975,   -0.113095455 ),
+                                         vec3(  0.030659059,  0.27887347,   -0.7332209 ),    vec3(  0.009913514, -0.89884496,    0.07381549 ),
+                                         vec3(  0.040318526,  0.40091,       0.6847858 ),    vec3(  0.22311053,  -0.3039437,    -0.19340435 ),
+                                         vec3(  0.36235332,   0.21894878,   -0.05407306 ),   vec3( -0.15198798,  -0.38409665,   -0.46785462 ) /*,
+                                         vec3( -0.013492276, -0.5345803,     0.11307949 ),   vec3( -0.4972847,    0.037064247,  -0.4381323 ),
+                                         vec3( -0.024175806, -0.008928787,   0.17719103 ),   vec3(  0.694014,    -0.122672155,   0.33098832 ),
+                                         vec3( -0.010735935,  0.01647018,    0.0062425877 ), vec3( -0.06533369,   0.3647007,    -0.13746321 ),
+                                         vec3( -0.6539235,   -0.016726388,  -0.53000957 ),   vec3(  0.40958285,   0.0052428036, -0.5591124 ),
+                                         vec3( -0.1465366,    0.09899267,    0.15571679 ),   vec3( -0.44122112,  -0.5458797,     0.04912532 ),
+                                         vec3(  0.03755566,  -0.10961345,   -0.33040273 ),   vec3(  0.019100213,  0.29652783,    0.066237666 ),
+                                         vec3(  0.8765323,    0.011236004,   0.28265962 ),   vec3(  0.29264435,  -0.40794238,    0.15964167 ) */
+                                         );
 
-    // grab a normal for reflecting the sample rays later on
-    vec3 fres = normalize( ( texture2D( u_texture3Sampler, pixelCoord * u_texture3SizeX ).xyz * 2.0 ) - vec3( 1.0 ) );
 
-    vec3 currentPixelSample = test( pixelCoord ).xyz;
-    float currentPixelDepth = getDepth( pixelCoord );
+    // grab a random normal for reflecting the sample rays later on
+    vec3 randNormal = normalize( ( texture2D( u_texture3Sampler, where * u_texture3SizeX ).xyz * 2.0 ) - vec3( 1.0 ) );
+
+    // grab the current pixel's normal and depth
+    vec3 currentPixelSample = getNormal( where ).xyz;
+    float currentPixelDepth = getDepth( where );
 
     // current fragment coords in screen space
-    vec3 ep = vec3( pixelCoord.xy, currentPixelDepth );
+    vec3 ep = vec3( where.xy, currentPixelDepth );
 
     // get the normal of current fragment
-    vec3 norm = currentPixelSample.xyz;
+    vec3 normal = currentPixelSample.xyz;
+
+    // the radius of the sphere is, in screen-space, half a pixel. So the hemisphere covers nearly one pixel. Scaling by depth somehow makes it
+    // more invariant for zooming
+    float radius = ( u_ssaoRadiusSS / float( u_texture0SizeX ) ) / currentPixelDepth;
+
+    // some temporaries needed inside the loop
+    vec3 ray;                     // the current ray inside the sphere
+    vec3 hemispherePoint;         // the point on the hemisphere
+    vec3 occluderNormal;          // the normal at the point on the hemisphere
+
+    float occluderDepth;          // the depth of the potential occluder on the hemisphere
+    float depthDifference;        // the depth difference between the current point and the occluder (point on hemisphere)
+    float normalDifference;       // the projection of the occluderNormal to the surface normal
 
     // accumulated occlusion
-    float bl = 0.0;
+    float occlusion = 0.0;
 
-    // adjust for the depth ( not sure if this is good..)
-    float radD = rad / currentPixelDepth;
-
-    // some temporaries
-    vec3 ray, se, occNorm;
-    float occDepth, depthDifference, normDiff;
-
+    // Get SAMPLES-times samples on the hemisphere and check for occluders
     for( int i = 0; i < SAMPLES; ++i )
     {
         // get a vector (randomized inside of a sphere with radius 1.0) from a texture and reflect it
-        ray = u_ssaoRadius * radD * reflect( pSphere[i], fres );
+        ray = radius * reflect( randSphereNormals[i], randNormal );
 
         // if the ray is outside the hemisphere then change direction
-        se = ep + sign( dot( ray, norm ) ) * ray;
+        hemispherePoint = ( sign( dot( ray, normal ) ) * ray ) + ep;
 
         // get the depth of the occluder fragment
-        occDepth = getDepth( se.xy );
+        occluderDepth = getDepth( hemispherePoint.xy );
 
         // get the normal of the occluder fragment
-        occNorm = 0.75 * test( se.xy ).xyz;
+        occluderNormal = getNormal( hemispherePoint.xy ).xyz;
 
-        // if depthDifference is negative = occluder is behind current fragment
-        depthDifference = currentPixelDepth - occDepth;
+        // if depthDifference is negative = occluder is behind the current fragment -> occluding this fragment
+        depthDifference = currentPixelDepth - occluderDepth;
 
-        // calculate the difference between the normals as a weight
-        normDiff = 1.0 - dot( occNorm, norm );
+        // calculate the difference between the normals as a weight. This weight determines how much the occluder occludes the fragment
+        normalDifference = 1.0 - dot( occluderNormal, normal );
 
-        // the falloff equation, starts at falloff and is kind of 1/x^2 falling
-        bl += step( falloff, depthDifference ) * 1.0 * normDiff * ( 1.0 - smoothstep( falloff, strength, depthDifference ) );
+        // the higher the depth difference, the less it should influence the occlusion value since large space between geometry normally allows
+        // many light. It somehow can be described with "shadowiness". In other words, it describes the density of geometry and its influence to
+        // the occlusion.
+        float densityWeight = ( 1.0 - smoothstep( falloff, u_ssaoDensityWeight, depthDifference ) );
+
+        // the following step function ensures that negative depthDifference values get clamped to 0, meaning that this occluder should have NO
+        // influence on the occlusion value. A positive value (fragment is behind the occluder) increases the occlusion factor according to the
+        // normal weight and density weight
+        occlusion += normalDifference * densityWeight * step( falloff, depthDifference );
     }
 
     // output the result
-    float ao = 1.0 - ( totStrength * bl * invSamples );
-    return ao;
+    return ( 1.0 - ( u_ssaoTotalStrength * occlusion * invSamples ) );
+}
+
+
+/**
+ * Calculate the screen-space ambient occlusion from normal and depth map for the current pixel.
+ *
+ * \return the SSAO factor
+ */
+float getSSAO()
+{
+    return getSSAO( pixelCoord );
 }
 
 /**
@@ -582,6 +624,13 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_SSAO
     blendScale( getSSAO() );
+#endif
+
+#ifdef WGE_POSTPROCESSOR_SSAOWITHPHONG
+    float ao = getSSAO();
+    ao = 2.0 * ( ao - 0.5 );
+    float l = clamp( 0.6 * getPPLPhong( wge_DefaultLightIntensityLessDiffuse ) + 0.4 * ao, 0.0, 1.0 );
+    blend( vec4( getColor().rgb * l, getColor().a ) );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_CELSHADING
