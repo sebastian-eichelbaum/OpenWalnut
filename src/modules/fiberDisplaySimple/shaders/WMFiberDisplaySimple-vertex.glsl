@@ -72,7 +72,7 @@ void main()
     // The same accounds for the vertex. Transfer it to world-space.
     v_vertex  = gl_ModelViewMatrix * gl_Vertex;
 
-#if ( defined ILLUMINATION_ENABLED || defined TUBE_ENABLED )
+#if ( defined ILLUMINATION_ENABLED || defined TUBE_ENABLED || defined WGE_POSTPROCESSING_ENABLED  )
     // Grab the tangent. We have uploaded it normalized in gl_Normal per vertex
     // We need to transfer it to the world-space ass all further operations are done there.
     vec3 tangent = normalize( ( gl_ModelViewMatrix * vec4( gl_Normal, 0.0 ) ).xyz );
