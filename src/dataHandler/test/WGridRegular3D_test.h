@@ -70,7 +70,7 @@ public:
      */
     void testSize( void )
     {
-        boost::shared_ptr< WGridTransformOrtho > t( new WGridTransformOrtho( WMatrix< double >( 4, 4 ).makeIdentity() ) );
+        WGridTransformOrtho t( WMatrix< double >( 4, 4 ).makeIdentity() );
         WGridRegular3D grid( 3, 3, 3, t );
         TS_ASSERT_EQUALS( grid.size(), 27 );
     }
@@ -86,7 +86,7 @@ public:
         mat( 1, 1 ) = 3.3;
         mat( 2, 2 ) = 4.4;
 
-        boost::shared_ptr< WGridTransformOrtho > t( new WGridTransformOrtho( mat ) );
+        WGridTransformOrtho t( mat );
         WGridRegular3D grid( 3, 3, 3, t );
         TS_ASSERT_EQUALS( grid.size(), 27 );
         TS_ASSERT_EQUALS( grid.getOrigin(), WPosition( 0., 0., 0. ) );
@@ -131,7 +131,7 @@ public:
         mat( 1, 2 ) = z[ 1 ];
         mat( 2, 2 ) = z[ 2 ];
 
-        boost::shared_ptr< WGridTransformOrtho > t( new WGridTransformOrtho( mat ) );
+        WGridTransformOrtho t( mat );
         WGridRegular3D grid( 3, 3, 3, t );
 
         TS_ASSERT_DELTA( grid.getOffsetX(), x.norm(), m_delta );
@@ -170,7 +170,7 @@ public:
         mat( 2, 3 ) = orZ;
 
         WPosition expected( x, y, z );
-        boost::shared_ptr< WGridTransformOrtho > t( new WGridTransformOrtho( mat ) );
+        WGridTransformOrtho t( mat );
         WGridRegular3D grid( nX, nY, nZ, t );
 
         TS_ASSERT_DELTA( grid.getPosition( iX, iY, iZ )[0], expected[0], m_delta );
@@ -216,7 +216,7 @@ public:
         mat( 1, 3 ) = 3.2;
         mat( 2, 3 ) = -6.;
 
-        boost::shared_ptr< WGridTransformOrtho > t( new WGridTransformOrtho( mat ) );
+        WGridTransformOrtho t( mat );
         shared_ptr< WGridRegular3D > g = shared_ptr< WGridRegular3D >( new WGridRegular3D( 3, 3, 3, t ) );
         TS_ASSERT_EQUALS( g->getVoxelNum( wmath::WPosition( 4.35, 5.0, -6 ) ), 7 );
     }
@@ -328,7 +328,7 @@ public:
         mat( 2, 2 ) = z[ 2 ];
         mat( 0, 3 ) = 1.0;
 
-        boost::shared_ptr< WGridTransformOrtho > t( new WGridTransformOrtho( mat ) );
+        WGridTransformOrtho t( mat );
         WGridRegular3D g( 5, 5, 5, t );
 
         wmath::WVector3D v = wmath::WVector3D( 1.0, 0.0, 0.0 ) + 0.3 * z + 2.4 * y + 2.9 * x;
@@ -364,7 +364,7 @@ public:
         mat( 2, 2 ) = z[ 2 ];
         mat( 0, 3 ) = 1.0;
 
-        boost::shared_ptr< WGridTransformOrtho > t( new WGridTransformOrtho( mat ) );
+        WGridTransformOrtho t( mat );
         WGridRegular3D g( 5, 5, 5, t );
 
         wmath::WVector3D v( 1.0, 0.0, 0.0 );
@@ -548,7 +548,7 @@ public:
         mat( 2, 2 ) = z[ 2 ];
         mat( 0, 3 ) = 1.0;
 
-        boost::shared_ptr< WGridTransformOrtho > t( new WGridTransformOrtho( mat ) );
+        WGridTransformOrtho t( mat );
         WGridRegular3D g( 5, 5, 5, t );
 
         wmath::WVector3D o = wmath::WVector3D( 1.0, 0.0, 0.0 ) + ( x + y + z ) * 2.0 * wlimits::FLT_EPS;

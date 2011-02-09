@@ -177,3 +177,9 @@ wmath::WMatrix< double > WGridTransformOrtho::getTransformationMatrix() const
     return mat;
 }
 
+bool WGridTransformOrtho::isNotRotated() const
+{
+    return m_directionX == wmath::WVector3D( 1.0, 0.0, 0.0 )
+        && m_directionY == wmath::WVector3D( 0.0, 1.0, 0.0 )
+        && m_directionZ == wmath::WVector3D( 0.0, 0.0, 1.0 );
+}

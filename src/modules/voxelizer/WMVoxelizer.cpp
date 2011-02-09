@@ -252,7 +252,7 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
     mat( 1, 3 ) = bb.first[ 1 ];
     mat( 2, 3 ) = bb.first[ 2 ];
 
-    boost::shared_ptr< WGridTransformOrtho > transform( new WGridTransformOrtho( mat ) );
+    WGridTransformOrtho transform( mat );
 
     boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX,
                                                                   nbVoxelsPerUnit * nbPosY,

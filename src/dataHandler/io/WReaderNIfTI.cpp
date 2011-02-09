@@ -180,9 +180,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
     }
 
     newGrid = boost::shared_ptr< WGridRegular3D >(
-                        new WGridRegular3D( columns, rows, frames,
-                                            boost::shared_ptr< WGridTransformOrtho >(
-                                                             new WGridTransformOrtho( convertMatrix( header->sto_xyz ) ) ) ) );
+                        new WGridRegular3D( columns, rows, frames, WGridTransformOrtho( convertMatrix( header->sto_xyz ) ) ) );
 
     boost::shared_ptr< WDataSet > newDataSet;
     // known description

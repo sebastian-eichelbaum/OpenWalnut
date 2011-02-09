@@ -37,7 +37,7 @@ using wmath::WPosition;
 using wmath::WMatrix;
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
-                                boost::shared_ptr< WGridTransform const > transform )
+                                WGridTransformOrtho const transform )
     : WGrid( nbPosX * nbPosY * nbPosZ ),
       m_nbPosX( nbPosX ),
       m_nbPosY( nbPosY ),
@@ -55,12 +55,12 @@ WPosition WGridRegular3D::getPosition( unsigned int i ) const
 WPosition WGridRegular3D::getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const
 {
     wmath::WVector3D i( iX, iY, iZ );
-    return m_transform->positionToWorldSpace( i );
+    return m_transform.positionToWorldSpace( i );
 }
 
 wmath::WVector3D WGridRegular3D::worldCoordToTexCoord( wmath::WPosition point )
 {
-    wmath::WVector3D r( m_transform->positionToGridSpace( point ) );
+    wmath::WVector3D r( m_transform.positionToGridSpace( point ) );
 
     // Scale to [0,1]
     r[0] = r[0] / m_nbPosX;
@@ -124,7 +124,7 @@ void WGridRegular3D::initInformationProperties()
 int WGridRegular3D::getXVoxelCoord( const wmath::WPosition& pos ) const
 {
     // the current get*Voxel stuff is too complicated anyway
-    wmath::WPosition v = m_transform->positionToGridSpace( pos );
+    wmath::WPosition v = m_transform.positionToGridSpace( pos );
 
     // this part could be refactored into an inline function
     v[ 2 ] = modf( v[ 0 ] + 0.5, &v[ 1 ] );
@@ -134,7 +134,7 @@ int WGridRegular3D::getXVoxelCoord( const wmath::WPosition& pos ) const
 
 int WGridRegular3D::getYVoxelCoord( const wmath::WPosition& pos ) const
 {
-    wmath::WPosition v = m_transform->positionToGridSpace( pos );
+    wmath::WPosition v = m_transform.positionToGridSpace( pos );
 
     v[ 0 ] = modf( v[ 1 ] + 0.5, &v[ 2 ] );
     int i = static_cast< int >( v[ 1 ] >= 0.0 && v[ 1 ] < m_nbPosY - 1.0 );
@@ -143,7 +143,7 @@ int WGridRegular3D::getYVoxelCoord( const wmath::WPosition& pos ) const
 
 int WGridRegular3D::getZVoxelCoord( const wmath::WPosition& pos ) const
 {
-    wmath::WPosition v = m_transform->positionToGridSpace( pos );
+    wmath::WPosition v = m_transform.positionToGridSpace( pos );
 
     v[ 0 ] = modf( v[ 2 ] + 0.5, &v[ 1 ] );
     int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosZ - 1.0 );
@@ -159,15 +159,14 @@ wmath::WValue< int > WGridRegular3D::getVoxelCoord( const wmath::WPosition& pos 
     return result;
 }
 
-bool WGridRegular3D::isNotRotatedOrSheared() const
+bool WGridRegular3D::isNotRotated() const
 {
-    // this could be changed to a bool function in the transform
-    return boost::shared_dynamic_cast< WGridTransformOrtho const >( m_transform ) != NULL;
+    return m_transform.isNotRotated();
 }
 
 size_t WGridRegular3D::getCellId( const wmath::WPosition& pos, bool* success ) const
 {
-    WAssert( isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
+    WAssert( isNotRotated(), "Only feasible for grids that are only translated or scaled so far." );
 
     wmath::WPosition posRelativeToOrigin = pos - getOrigin();
 
@@ -513,7 +512,7 @@ std::vector< size_t > WGridRegular3D::getNeighbours9XZ( size_t id ) const
 
 bool WGridRegular3D::encloses( wmath::WPosition const& pos ) const
 {
-    wmath::WVector3D v = m_transform->positionToGridSpace( pos );
+    wmath::WVector3D v = m_transform.positionToGridSpace( pos );
 
     if( v[ 0 ] < 0.0 || v[ 0 ] >= m_nbPosX - 1 )
     {
@@ -534,14 +533,14 @@ std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox()
 {
     // Get the transformed corner points of the regular grid
     std::vector< wmath::WPosition > cornerPs;
-    cornerPs.push_back( m_transform->positionToWorldSpace( wmath::WPosition( 0.0,                0.0,                0.0            ) ) );
-    cornerPs.push_back( m_transform->positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, 0.0,                0.0            ) ) );
-    cornerPs.push_back( m_transform->positionToWorldSpace( wmath::WPosition( 0.0,                getNbCoordsY() - 1, 0.0            ) ) );
-    cornerPs.push_back( m_transform->positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, 0.0            ) ) );
-    cornerPs.push_back( m_transform->positionToWorldSpace( wmath::WPosition( 0.0,                0.0,                getNbCoordsZ() - 1 ) ) );
-    cornerPs.push_back( m_transform->positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, 0.0,                getNbCoordsZ() - 1 ) ) );
-    cornerPs.push_back( m_transform->positionToWorldSpace( wmath::WPosition( 0.0,                getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
-    cornerPs.push_back( m_transform->positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
+    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( 0.0,                0.0,                0.0            ) ) );
+    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, 0.0,                0.0            ) ) );
+    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( 0.0,                getNbCoordsY() - 1, 0.0            ) ) );
+    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, 0.0            ) ) );
+    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( 0.0,                0.0,                getNbCoordsZ() - 1 ) ) );
+    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, 0.0,                getNbCoordsZ() - 1 ) ) );
+    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( 0.0,                getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
+    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
 
     wmath::WPosition minBB( wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE );
     wmath::WPosition maxBB( wlimits::MIN_DOUBLE, wlimits::MIN_DOUBLE, wlimits::MIN_DOUBLE );
@@ -558,5 +557,3 @@ std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox()
 
     return std::make_pair( minBB, maxBB );
 }
-
-// TODO(all): compiler warning: warning: unused parameter 'center'

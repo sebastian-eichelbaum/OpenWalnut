@@ -25,14 +25,15 @@
 #ifndef WGRIDTRANSFORMORTHO_H
 #define WGRIDTRANSFORMORTHO_H
 
-#include "WGridTransform.h"
+#include "../common/math/WVector3D.h"
+#include "../common/math/WMatrix.h"
 
 /**
  * Implements an orthogonal grid transformation.
  *
  * \class WGridTransformOrtho
  */
-class WGridTransformOrtho : public WGridTransform
+class WGridTransformOrtho
 {
 public:
     /**
@@ -58,98 +59,105 @@ public:
     /**
      * Destructor.
      */
-    virtual ~WGridTransformOrtho();
+    ~WGridTransformOrtho();
 
     /**
      * Transforms a position from grid space to world space.
      * \param position The position in grid space.
      * \return The same position in world space.
      */
-    virtual wmath::WVector3D positionToWorldSpace( wmath::WVector3D const& position ) const;
+    wmath::WVector3D positionToWorldSpace( wmath::WVector3D const& position ) const;
 
     /**
      * Transforms a position from world space to grid space.
      * \param position The position in world space.
      * \return The same position in grid space.
      */
-    virtual wmath::WVector3D positionToGridSpace( wmath::WVector3D const& position ) const;
+    wmath::WVector3D positionToGridSpace( wmath::WVector3D const& position ) const;
 
     /**
      * Transforms a direction from grid space to world space.
      * \param direction The direction in grid space.
      * \return The same direction in world space.
      */
-    virtual wmath::WVector3D directionToWorldSpace( wmath::WVector3D const& direction ) const;
+    wmath::WVector3D directionToWorldSpace( wmath::WVector3D const& direction ) const;
 
     /**
      * Transforms a direction from world space to grid space.
      * \param direction The position in world space.
      * \return The same position in grid space.
      */
-    virtual wmath::WVector3D directionToGridSpace( wmath::WVector3D const& direction ) const;
+    wmath::WVector3D directionToGridSpace( wmath::WVector3D const& direction ) const;
 
     /**
      * Returns the distance between samples in x direction.
      */
-    virtual double getOffsetX() const;
+    double getOffsetX() const;
 
     /**
      * Returns the distance between samples in y direction.
      */
-    virtual double getOffsetY() const;
+    double getOffsetY() const;
 
     /**
      * Returns the distance between samples in z direction.
      */
-    virtual double getOffsetZ() const;
+    double getOffsetZ() const;
 
     /**
      * Returns the vector determining the direction of samples in x direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) x-axis.
      */
-    virtual wmath::WVector3D getDirectionX() const;
+    wmath::WVector3D getDirectionX() const;
 
     /**
      * Returns the vector determining the direction of samples in y direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) y-axis.
      */
-    virtual wmath::WVector3D getDirectionY() const;
+    wmath::WVector3D getDirectionY() const;
 
     /**
      * Returns the vector determining the direction of samples in z direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) z-axis.
      */
-    virtual wmath::WVector3D getDirectionZ() const;
+    wmath::WVector3D getDirectionZ() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in x direction.
      */
-    virtual wmath::WVector3D getUnitDirectionX() const;
+    wmath::WVector3D getUnitDirectionX() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in y direction.
      */
-    virtual wmath::WVector3D getUnitDirectionY() const;
+    wmath::WVector3D getUnitDirectionY() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in z direction.
      */
-    virtual wmath::WVector3D getUnitDirectionZ() const;
+    wmath::WVector3D getUnitDirectionZ() const;
 
     /**
      * Returns the position of the origin of the grid.
      */
-    virtual wmath::WPosition getOrigin() const;
+    wmath::WPosition getOrigin() const;
 
     /**
      * Returns a 4x4 matrix that represents the grid's transformaion.
      */
     // NOTE: this is temporary and should be removed as soon as all modules are
     // adapted to the grid transform object
-    virtual wmath::WMatrix< double > getTransformationMatrix() const;
+    wmath::WMatrix< double > getTransformationMatrix() const;
+
+    /**
+     * Check if this transform does not include a rotation.
+     *
+     * \return True, if this transform only scales and translates.
+     */
+    bool isNotRotated() const;
 
 private:
     //! normalized direction of the grid's x-axis in world coordinates

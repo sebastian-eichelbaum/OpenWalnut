@@ -80,7 +80,7 @@ double WDataSetScalar::interpolate( const wmath::WPosition& pos, bool* success )
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
 
     WAssert( grid, "This data set has a grid whose type is not yet supported for interpolation." );
-    WAssert( grid->isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
+    WAssert( grid->isNotRotated(), "Only feasible for grids that are only translated or scaled so far." );
     WAssert( ( m_valueSet->order() == 0 &&  m_valueSet->dimension() == 1 ),
              "Only implemented for scalar values so far." );
 

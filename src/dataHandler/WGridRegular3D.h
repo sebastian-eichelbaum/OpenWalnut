@@ -65,8 +65,7 @@ public:
      * \param transform a grid transformation
      */
     WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
-                    boost::shared_ptr< WGridTransform const > transform
-                    = boost::shared_ptr< WGridTransform const >( new WGridTransformOrtho() ) );
+                    WGridTransformOrtho const transform = WGridTransformOrtho() );
 
     /**
      * Returns the number of samples in x direction.
@@ -428,13 +427,13 @@ public:
     /**
      * Return whether the transformations of the grid are only translation and/or scaling
      */
-    bool isNotRotatedOrSheared() const;
+    bool isNotRotated() const;
 
     /**
      * Returns the transformation used by this grid.
      * \return The transformation.
      */
-    boost::shared_ptr< WGridTransform const > getTransform() const;
+    WGridTransformOrtho const getTransform() const;
 
 protected:
 
@@ -462,7 +461,7 @@ private:
     unsigned int m_nbPosZ; //!< Number of positions in z direction
 
     //! The grid's transformation.
-    boost::shared_ptr< WGridTransform const > const m_transform;
+    WGridTransformOrtho const m_transform;
 };
 
 inline unsigned int WGridRegular3D::getNbCoordsX() const
@@ -482,61 +481,61 @@ inline unsigned int WGridRegular3D::getNbCoordsZ() const
 
 inline double WGridRegular3D::getOffsetX() const
 {
-    return m_transform->getOffsetX();
+    return m_transform.getOffsetX();
 }
 
 inline double WGridRegular3D::getOffsetY() const
 {
-    return m_transform->getOffsetY();
+    return m_transform.getOffsetY();
 }
 
 inline double WGridRegular3D::getOffsetZ() const
 {
-    return m_transform->getOffsetZ();
+    return m_transform.getOffsetZ();
 }
 
 inline wmath::WVector3D WGridRegular3D::getUnitDirectionX() const
 {
-    return m_transform->getUnitDirectionX();
+    return m_transform.getUnitDirectionX();
 }
 
 inline wmath::WVector3D WGridRegular3D::getUnitDirectionY() const
 {
-    return m_transform->getUnitDirectionY();
+    return m_transform.getUnitDirectionY();
 }
 
 inline wmath::WVector3D WGridRegular3D::getUnitDirectionZ() const
 {
-    return m_transform->getUnitDirectionZ();
+    return m_transform.getUnitDirectionZ();
 }
 
 inline wmath::WVector3D WGridRegular3D::getDirectionX() const
 {
-    return m_transform->getDirectionX();
+    return m_transform.getDirectionX();
 }
 
 inline wmath::WVector3D WGridRegular3D::getDirectionY() const
 {
-    return m_transform->getDirectionY();
+    return m_transform.getDirectionY();
 }
 
 inline wmath::WVector3D WGridRegular3D::getDirectionZ() const
 {
-    return m_transform->getDirectionZ();
+    return m_transform.getDirectionZ();
 }
 
 inline wmath::WPosition WGridRegular3D::getOrigin() const
 {
-    return m_transform->getOrigin();
+    return m_transform.getOrigin();
 }
 
-inline boost::shared_ptr< WGridTransform const > WGridRegular3D::getTransform() const
+inline WGridTransformOrtho const WGridRegular3D::getTransform() const
 {
     return m_transform;
 }
 
 inline wmath::WMatrix< double > WGridRegular3D::getTransformationMatrix() const
 {
-    return m_transform->getTransformationMatrix();
+    return m_transform.getTransformationMatrix();
 }
 #endif  // WGRIDREGULAR3D_H

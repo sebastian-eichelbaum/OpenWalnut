@@ -94,7 +94,7 @@ public:
             mat( 1, 1 ) = 0.5;
             mat( 2, 2 ) = 2.0;
 
-            boost::shared_ptr< WGridTransformOrtho > transform( new WGridTransformOrtho( mat ) );
+            WGridTransformOrtho transform( mat );
             boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, transform ) );
 
             std::vector< double > v( 27, 4 );
@@ -151,7 +151,7 @@ public:
             mat( 1, 1 ) = 0.5;
             mat( 2, 2 ) = 2.0;
 
-            boost::shared_ptr< WGridTransformOrtho > transform( new WGridTransformOrtho( mat ) );
+            WGridTransformOrtho transform( mat );
             boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, transform ) );
 
             std::vector< double > v( 27, 4 );
@@ -554,7 +554,7 @@ private:
         mat( 1, 1 ) = 0.5;
         mat( 2, 2 ) = 2.0;
 
-        boost::shared_ptr< WGridTransformOrtho > transform( new WGridTransformOrtho( mat ) );
+        WGridTransformOrtho transform( mat );
         boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, transform ) );
 
         for( int i = 0; i < number; ++i )
