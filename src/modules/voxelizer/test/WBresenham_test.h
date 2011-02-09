@@ -117,8 +117,8 @@ public:
         mat( 1, 3 ) = -2.0;
         mat( 2, 3 ) = -2.0;
 
-        WGridTransformOrtho transform( mat ); // NOLINT this is not std::transform
-        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3, transform ) );
+        WGridTransformOrtho trans( mat );
+        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3, trans ) );
         m_algo = boost::shared_ptr< WBresenham >( new WBresenham( grid, false ) );
 
         wmath::WLine l;
