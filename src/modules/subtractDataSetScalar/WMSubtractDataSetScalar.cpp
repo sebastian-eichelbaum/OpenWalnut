@@ -135,6 +135,6 @@ void WMSubtractDataSetScalar::subtract()
         subtractTyped< int16_t >();
         break;
     default:
-        throw WException( "Unknown datatype." );
+        throw WException( std::string( "Unknown datatype." ) );
     }
 }

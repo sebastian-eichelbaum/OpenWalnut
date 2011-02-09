@@ -35,7 +35,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-/** 
+/**
  * Someone should add some documentation here.
  * Probably the best person would be the module's
  * creator, i.e. "schurade".
@@ -150,6 +150,8 @@ private:
      */
     WPropBool m_rotationMode;
 
+    boost::shared_ptr< boost::function< void() > > m_changeRotRoiSignal; //!< Signal that can be used to update the rotation manipulator
+    boost::shared_ptr< boost::function< void() > > m_changeRoiSignal; //!< Signal that can be used to update the translation manipulator
 
     boost::shared_ptr<WROISphere> m_knobCenter; //!< stores pointer to the center manipulator
     boost::shared_ptr<WROISphere> m_knobx1; //!< stores pointer to manipulator 1

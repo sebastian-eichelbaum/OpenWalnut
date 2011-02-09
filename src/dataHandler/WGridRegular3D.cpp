@@ -28,13 +28,16 @@
 #include <utility>
 
 #include "../common/exceptions/WPreconditionNotMet.h"
+#include "../common/WBoundingBox.h"
 #include "../common/exceptions/WOutOfBounds.h"
 #include "../common/math/WLinearAlgebraFunctions.h"
+
 #include "WGridRegular3D.h"
 
 using wmath::WVector3D;
 using wmath::WPosition;
 using wmath::WMatrix;
+using wmath::WMatrix4x4;
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                                 WGridTransformOrtho const transform )
@@ -529,31 +532,16 @@ bool WGridRegular3D::encloses( wmath::WPosition const& pos ) const
     return true;
 }
 
-std::pair< wmath::WPosition, wmath::WPosition > WGridRegular3D::getBoundingBox() const
+WBoundingBox WGridRegular3D::getBoundingBox() const
 {
-    // Get the transformed corner points of the regular grid
-    std::vector< wmath::WPosition > cornerPs;
-    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( 0.0,                0.0,                0.0            ) ) );
-    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, 0.0,                0.0            ) ) );
-    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( 0.0,                getNbCoordsY() - 1, 0.0            ) ) );
-    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, 0.0            ) ) );
-    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( 0.0,                0.0,                getNbCoordsZ() - 1 ) ) );
-    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, 0.0,                getNbCoordsZ() - 1 ) ) );
-    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( 0.0,                getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
-    cornerPs.push_back( m_transform.positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
-
-    wmath::WPosition minBB( wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE );
-    wmath::WPosition maxBB( wlimits::MIN_DOUBLE, wlimits::MIN_DOUBLE, wlimits::MIN_DOUBLE );
-
-    // Check the components of the corner points separately against the components of the current maxBB and minBB
-    for( size_t posId = 0; posId < cornerPs.size(); ++posId)
-    {
-        for( size_t compId = 0; compId < 3; ++compId )
-        {
-            minBB[compId] = cornerPs[posId][compId] < minBB[compId] ? cornerPs[posId][compId] : minBB[compId];
-            maxBB[compId] = cornerPs[posId][compId] > maxBB[compId] ? cornerPs[posId][compId] : maxBB[compId];
-        }
-    }
-
-    return std::make_pair( minBB, maxBB );
+    WBoundingBox result;
+    result.expandBy( m_transform.positionToWorldSpace( wmath::WPosition( 0.0,                0.0,                0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, 0.0,                0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( wmath::WPosition( 0.0,                getNbCoordsY() - 1, 0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, 0.0            ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( wmath::WPosition( 0.0,                0.0,                getNbCoordsZ() - 1 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, 0.0,                getNbCoordsZ() - 1 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( wmath::WPosition( 0.0,                getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
+    result.expandBy( m_transform.positionToWorldSpace( wmath::WPosition( getNbCoordsX() - 1, getNbCoordsY() - 1, getNbCoordsZ() - 1 ) ) );
+    return result;
 }

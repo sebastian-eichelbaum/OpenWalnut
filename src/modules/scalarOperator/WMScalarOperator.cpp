@@ -105,6 +105,7 @@ void WMScalarOperator::properties()
     m_operations->addItem( "A * B", "Scale A by B." );
     m_operations->addItem( "A / B", "Divide A by B." );
     m_operations->addItem( "abs( A - B )", "Absolute value of A - B." );
+    m_operations->addItem( "abs( A )", "Absolute value of A." );
 
     m_opSelection = m_properties->addProperty( "Operation", "The operation to apply on A and B.", m_operations->getSelectorFirst(),
                                                m_propCondition );
@@ -112,6 +113,99 @@ void WMScalarOperator::properties()
     WPropertyHelper::PC_NOTEMPTY::addTo( m_opSelection );
 
     WModule::properties();
+}
+
+/**
+ * Some math ops.
+ */
+namespace math
+{
+    /**
+     * Absolute value of the specified parameter.
+     * \param u the value for which the absolute value should be returned
+     *
+     * \return absolute of u
+     */
+    template < typename T >
+    inline T wabs( T u )
+    {
+        return std::abs( u );
+    }
+
+    /**
+     * Absolute value of the specified parameter. This is a template specialization for std::abs as 64bit Ints are not supported everywhere.
+     *
+     * \param u the value for which the absolute value should be returned
+     *
+     * \return absolute of u
+     */
+    inline int64_t wabs( int64_t u )
+    {
+        return u < 0 ? -u : u;
+    }
+
+    /**
+     * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
+     *
+     * \param u the value for which the absolute value should be returned
+     *
+     * \return absolute of u
+     */
+    inline uint8_t wabs( uint8_t u )
+    {
+        return u;
+    }
+
+    /**
+     * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
+     *
+     * \param u the value for which the absolute value should be returned
+     *
+     * \return absolute of u
+     */
+    inline uint16_t wabs( uint16_t u )
+    {
+        return u;
+    }
+
+    /**
+     * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
+     *
+     * \param u the value for which the absolute value should be returned
+     *
+     * \return absolute of u
+     */
+    inline uint32_t wabs( uint32_t u )
+    {
+        return u;
+    }
+
+    /**
+     * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
+     *
+     * \param u the value for which the absolute value should be returned
+     *
+     * \return absolute of u
+     */
+    inline uint64_t wabs( uint64_t u )
+    {
+        return u;
+    }
+}
+
+/**
+ * Operator applying some op to both arguments.
+ *
+ * \tparam T Type of each parameter and the result
+ * \param a the first operant
+ * \param b the second operant
+ *
+ * \return result
+ */
+template< typename T >
+inline T opAbsMinus( T a, T b )
+{
+    return math::wabs( a - b );
 }
 
 /**
@@ -171,78 +265,21 @@ inline T opTimes( T a, T b )
 template< typename T >
 inline T opDiv( T a, T b )
 {
-    return a * b;
+    return a / b;
 }
 
 /**
- * Some math ops.
- */
-namespace math
-{
-    using std::abs;
-
-    /**
-     * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
-     *
-     * \param u the value for which the absolute value should be returned
-     *
-     * \return absolute of u
-     */
-    inline uint8_t abs( uint8_t u )
-    {
-        return u;
-    }
-
-    /**
-     * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
-     *
-     * \param u the value for which the absolute value should be returned
-     *
-     * \return absolute of u
-     */
-    inline uint16_t abs( uint16_t u )
-    {
-        return u;
-    }
-
-    /**
-     * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
-     *
-     * \param u the value for which the absolute value should be returned
-     *
-     * \return absolute of u
-     */
-    inline uint32_t abs( uint32_t u )
-    {
-        return u;
-    }
-
-    /**
-     * Absolute value of the specified parameter. This is a template specialization for std::abs as it does not allow unsigned types.
-     *
-     * \param u the value for which the absolute value should be returned
-     *
-     * \return absolute of u
-     */
-    inline uint64_t abs( uint64_t u )
-    {
-        return u;
-    }
-}
-
-/**
- * Operator applying some op to both arguments.
+ * Operator applying some op to argument.
  *
  * \tparam T Type of each parameter and the result
  * \param a the first operant
- * \param b the second operant
  *
  * \return result
  */
 template< typename T >
-inline T opAbsMinus( T a, T b )
+inline T opAbs( T a )
 {
-    return math::abs( a - b );
+    return math::wabs( a );
 }
 
 /**
@@ -323,7 +360,10 @@ public:
 
         // create result value set
         boost::shared_ptr< WValueSet< ResultT > > result = boost::shared_ptr< WValueSet< ResultT > >(
-            new WValueSet< ResultT >( order, dim, data, type )
+            new WValueSet< ResultT >( order,
+                                      dim,
+                                      boost::shared_ptr< std::vector< ResultT > >( new std::vector< ResultT >( data ) ),
+                                      type )
         );
         return result;
     }
@@ -386,6 +426,80 @@ public:
     size_t m_opIdx;
 };
 
+/**
+ * Visitor for discriminating the type of the first valueset. It should be used for operations on ONE valueset.
+ */
+class VisitorVSetSingleArgument: public boost::static_visitor< boost::shared_ptr< WValueSetBase > >
+{
+public:
+    /**
+     * Create visitor instance. The specified valueset gets visited if the first one is visited using this visitor.
+     *
+     * \param opIdx The operator index. Forwarded to VisitorVSetB
+     */
+    explicit VisitorVSetSingleArgument( size_t opIdx = 0 ):
+        boost::static_visitor< result_type >(),
+        m_opIdx( opIdx )
+    {
+    }
+
+    /**
+     * Called by boost::varying during static visiting. Applies the operation to it
+     *
+     * \tparam T the real integral type of the first value set.
+     * \param vsetA the first valueset currently visited.
+     *
+     * \return the result from the operation with this and the second value set
+     */
+    template < typename T >
+    result_type operator()( const WValueSet< T >* const& vsetA ) const             // NOLINT
+    {
+        // get best matching return scalar type
+        typedef T ResultT;
+
+        size_t order = vsetA->order();
+        size_t dim = vsetA->dimension();
+        dataType type = DataType< ResultT >::type;
+        std::vector< ResultT > data;
+        data.resize( vsetA->rawSize() );
+
+        // discriminate the right operation with the correct type. It would be nicer to use some kind of strategy pattern here, but the template
+        // character of the operators forbids it as template methods can't be virtual. Besides this, at some point in the module main the
+        // selector needs to be queried and its index mapped to a pointer. This is what we do here.
+        boost::function< ResultT( ResultT ) > op;
+        switch ( m_opIdx )
+        {
+            case 5:
+                op = &opAbs< ResultT >;
+                break;
+            default:
+                op = &opAbs< ResultT >;
+                break;
+        }
+
+        // apply op to each value
+        const T* a = vsetA->rawData();
+        for ( size_t i = 0; i < vsetA->rawSize(); ++i )
+        {
+            data[ i ] = op( a[ i ] );
+        }
+
+        // create result value set
+        boost::shared_ptr< WValueSet< ResultT > > result = boost::shared_ptr< WValueSet< ResultT > >(
+            new WValueSet< ResultT >( order,
+                                      dim,
+                                      boost::shared_ptr< std::vector< ResultT > >( new std::vector< ResultT >( data ) ),
+                                      type )
+        );
+        return result;
+    }
+
+    /**
+     * The operator index.
+     */
+    size_t m_opIdx;
+};
+
 void WMScalarOperator::moduleMain()
 {
     // let the main loop awake if the data changes or the properties changed.
@@ -416,41 +530,82 @@ void WMScalarOperator::moduleMain()
         {
             boost::shared_ptr< WDataSetScalar > dataSetA = m_inputA->getData();
             boost::shared_ptr< WDataSetScalar > dataSetB = m_inputB->getData();
+            if ( !dataSetA )
+            {
+                // reset output if input was reset/disconnected
+                debugLog() << "Resetting output.";
+                m_output->reset();
+                continue;
+            }
 
+            // the first value-set is always needed -> grab it
+            boost::shared_ptr< WValueSetBase > valueSetA = dataSetA->getValueSet();
+
+             // use a custom progress combiner
+            boost::shared_ptr< WProgress > prog = boost::shared_ptr< WProgress >(
+                new WProgress( "Applying operator on data" ) );
+            m_progress->addSubProgress( prog );
+
+            // apply the operation to each voxel
+            debugLog() << "Processing ...";
+
+            // kind of operation?
             WItemSelector s = m_opSelection->get( true );
 
-            // valid data?
-            if( dataSetA && dataSetB )
+            // this keeps the result
+            boost::shared_ptr< WValueSetBase > newValueSet;
+
+            // single operator operation?
+            if ( s == 5 )
             {
-                boost::shared_ptr< WValueSetBase > valueSetA = dataSetA->getValueSet();
-                boost::shared_ptr< WValueSetBase > valueSetB = dataSetB->getValueSet();
-
-                // both value sets need to be the same
-                bool match = ( valueSetA->dimension() == valueSetB->dimension() ) &&
-                             ( valueSetA->order() == valueSetB->order() ) &&
-                             ( valueSetA->rawSize() == valueSetB->rawSize() );
-                if ( !match )
-                {
-                    throw WDHValueSetMismatch( std::string( "The both value sets are not of equal size, dimension and order." ) );
-                }
-
-                // use a custom progress combiner
-                boost::shared_ptr< WProgress > prog = boost::shared_ptr< WProgress >(
-                    new WProgress( "Applying operator on data" ) );
-                m_progress->addSubProgress( prog );
-
-                // apply the operation to each voxel
-                debugLog() << "Processing ...";
-                VisitorVSetA visitor( valueSetB.get(), s );    // the visitor cascades to the second value set
-                boost::shared_ptr< WValueSetBase > newValueSet = valueSetA->applyFunction( visitor );
-
-                // Create the new dataset and export it
-                m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, m_inputA->getData()->getGrid() ) ) );
-
-                // done
-                prog->finish();
-                m_progress->removeSubProgress( prog );
+                VisitorVSetSingleArgument visitor( s );    // the visitor cascades to the second value set
+                newValueSet = valueSetA->applyFunction( visitor );
             }
+            else  // no multiple operators:
+            {
+                // valid data?
+                if( dataSetB )
+                {
+                    boost::shared_ptr< WValueSetBase > valueSetB = dataSetB->getValueSet();
+
+                    // both value sets need to be the same
+                    bool match = ( valueSetA->dimension() == valueSetB->dimension() ) &&
+                                 ( valueSetA->order() == valueSetB->order() ) &&
+                                 ( valueSetA->rawSize() == valueSetB->rawSize() );
+                    if ( !match )
+                    {
+                        throw WDHValueSetMismatch( std::string( "The both value sets are not of equal size, dimension and order." ) );
+                    }
+
+                    VisitorVSetA visitor( valueSetB.get(), s );    // the visitor cascades to the second value set
+                    newValueSet = valueSetA->applyFunction( visitor );
+
+                    // Create the new dataset and export it
+                    m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, m_inputA->getData()->getGrid() ) ) );
+                }
+                else
+                {
+                    // reset output if input was reset/disconnected
+                    debugLog() << "Resetting output.";
+                    m_output->reset();
+
+                    // remove progress too
+                    prog->finish();
+                    m_progress->removeSubProgress( prog );
+
+                    continue;
+                }
+            }
+
+            // Create the new dataset and export it
+            if ( newValueSet )
+            {
+                m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, dataSetA->getGrid() ) ) );
+            }
+
+            // done
+            prog->finish();
+            m_progress->removeSubProgress( prog );
         }
     }
 }

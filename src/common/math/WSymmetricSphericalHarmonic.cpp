@@ -94,6 +94,59 @@ const wmath::WValue<double>& WSymmetricSphericalHarmonic::getCoefficients() cons
   return m_SHCoefficients;
 }
 
+wmath::WValue< double > WSymmetricSphericalHarmonic::getCoefficientsSchultz() const
+{
+    wmath::WValue< double > res( m_SHCoefficients.size() );
+    size_t k = 0;
+    for ( int l = 0; l <= static_cast< int >( m_order ); l += 2 )
+    {
+        for ( int m = -l; m <= l; ++m )
+        {
+            res[ k ] = m_SHCoefficients[ k ];
+            if( m < 0 && ( ( -m ) % 2 == 1 ) )
+            {
+                res[ k ] *= -1.0;
+            }
+            else if( m > 0 && ( m % 2 == 0 ) )
+            {
+                res[ k ] *= -1.0;
+            }
+            ++k;
+        }
+    }
+    return res;
+}
+
+wmath::WValue< std::complex< double > > WSymmetricSphericalHarmonic::getCoefficientsComplex() const
+{
+    wmath::WValue< std::complex< double > > res( m_SHCoefficients.size() );
+    size_t k = 0;
+    double r = 1.0 / sqrt( 2.0 );
+    std::complex< double > i( 0.0, -1.0 );
+    for( int l = 0; l <= static_cast< int >( m_order ); l += 2 )
+    {
+        for ( int m = -l; m <= l; ++m )
+        {
+            if( m == 0 )
+            {
+                res[ k ] = m_SHCoefficients[ k ];
+            }
+            else if( m < 0 )
+            {
+                res[ k ] += i * r * m_SHCoefficients[ k - 2 * m ];
+                res[ k ] += ( -m % 2 == 1 ? -r : r ) * m_SHCoefficients[ k ];
+            }
+            else if( m > 0 )
+            {
+                res[ k ] += i * ( -m % 2 == 0 ? -r : r ) * m_SHCoefficients[ k ];
+                res[ k ] += r * m_SHCoefficients[ k - 2 * m ];
+            }
+            ++k;
+        }
+    }
+    return res;
+}
+
 double WSymmetricSphericalHarmonic::calcGFA( std::vector< wmath::WUnitSphereCoordinates > const& orientations ) const
 {
     double n = static_cast< double >( orientations.size() );
@@ -275,6 +328,35 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcBaseMatrix( const std::v
   return B;
 }
 
+wmath::WMatrix< std::complex< double > >
+WSymmetricSphericalHarmonic::calcComplexBaseMatrix( std::vector< wmath::WUnitSphereCoordinates > const& orientations, int order )
+{
+    wmath::WMatrix< std::complex< double > > B( orientations.size(), ( ( order + 1 ) * ( order + 2 ) ) / 2 );
+
+    for( std::size_t row = 0; row < orientations.size(); row++ )
+    {
+        const double theta = orientations[ row ].getTheta();
+        const double phi = orientations[ row ].getPhi();
+
+        int j = 0;
+        for( int k = 0; k <= order; k += 2 )
+        {
+            for ( int m = -k; m < 0; m++ )
+            {
+                B( row, j ) = boost::math::spherical_harmonic( k, m, theta, phi );
+                ++j;
+            }
+            B( row, j ) = boost::math::spherical_harmonic( k, 0, theta, phi );
+            ++j;
+            for( int m = 1; m <= k; m++ )
+            {
+                B( row, j ) = boost::math::spherical_harmonic( k, m, theta, phi );
+                ++j;
+            }
+        }
+    }
+    return B;
+}
 
 wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcSmoothingMatrix( size_t order )
 {
@@ -283,7 +365,7 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcSmoothingMatrix( size_t 
     wmath::WMatrix<double> L( R, R );
     for ( size_t k = 0; k <= order; k += 2 )
     {
-        for ( int m = -k; m <= static_cast< int >( k ); ++m )
+        for ( int m = -static_cast< int >( k ); m <= static_cast< int >( k ); ++m )
         {
             L( i, i ) = static_cast< double > ( k * k * ( k + 1 ) * ( k + 1 ) );
             ++i;
@@ -301,7 +383,7 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order 
     {
         double h = 2.0 * wmath::piDouble * static_cast< double >( std::pow( static_cast< double >( -1 ), static_cast< double >( k / 2 ) ) ) *
                     static_cast< double >( wmath::oddFactorial( ( k <= 1 ) ? 1 : k - 1 ) ) / static_cast<double>( wmath::evenFactorial( k ) );
-        for ( int m = -k; m <= static_cast< int >( k ); ++m )
+        for ( int m = -static_cast< int >( k ); m <= static_cast< int >( k ); ++m )
         {
             result( i, i ) = h;
             ++i;

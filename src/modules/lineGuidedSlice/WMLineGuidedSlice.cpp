@@ -29,9 +29,11 @@
 #include "../../common/math/WVector3D.h"
 #include "../../common/WAssert.h"
 #include "../../common/WLogger.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WSubject.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
@@ -45,7 +47,7 @@ WMLineGuidedSlice::WMLineGuidedSlice():
     m_textureChanged( true ),
     m_isPicked( false )
 {
-    m_shader = osg::ref_ptr< WShader >( new WShader( "WMLineGuidedSlice" ) );
+    m_shader = osg::ref_ptr< WGEShader >( new WGEShader( "WMLineGuidedSlice" ) );
 }
 
 WMLineGuidedSlice::~WMLineGuidedSlice()

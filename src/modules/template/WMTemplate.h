@@ -220,6 +220,11 @@ private:
     WPropDouble   m_aDoubleOutput;
 
     /**
+     * A property simply providing a int value to the outside world.
+     */
+    WPropInt      m_aIntOutput;
+
+    /**
      * A property simply providing some text to the outside world.
      */
     WPropString   m_aStringOutput;
@@ -253,6 +258,16 @@ private:
      * A list of items that can be selected using m_aSingleSelection or m_aMultiSelection.
      */
     boost::shared_ptr< WItemSelection > m_possibleSelections;
+
+    /**
+     * A Property used to show the callback mechanism avoiding the thread wake up on change.
+     */
+    WPropTrigger m_hideButton;
+
+    /**
+     * The callback triggering the hide flag of m_aColor for demonstration.
+     */
+    void hideButtonPressed();
 
     /**
      * Node callback to change the color of the shapes inside the root node. For more details on this class, refer to the documentation in

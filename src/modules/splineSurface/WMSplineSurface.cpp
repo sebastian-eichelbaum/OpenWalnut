@@ -234,9 +234,7 @@ void WMSplineSurface::renderMesh()
     // ------------------------------------------------
     // colors
     osg::Vec4Array* colors = new osg::Vec4Array;
-
-    WColor c = m_surfaceColor->get( true );
-    colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
+    colors->push_back( m_surfaceColor->get( true ) );
     surfaceGeometry->setColorArray( colors );
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
@@ -336,7 +334,7 @@ void WMSplineSurface::renderMesh()
     // initially. Just set the texture changed flag to true. If this however might be needed use WSubject::getDataTextures.
     m_textureChanged = true;
 
-    m_shader = osg::ref_ptr< WShader >( new WShader( "surface", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader >( new WGEShader( "surface", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );
@@ -438,9 +436,7 @@ void WMSplineSurface::updateGraphics()
     if ( m_surfaceColor->changed() )
     {
         osg::Vec4Array* colors = new osg::Vec4Array;
-
-        WColor c = m_surfaceColor->get( true );
-        colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
+        colors->push_back( m_surfaceColor->get( true ) );
         osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );

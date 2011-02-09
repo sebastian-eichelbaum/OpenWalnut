@@ -47,6 +47,8 @@ class WColor;
 class WQtGLWidgetMac
     : public QGLWidget
 {
+    Q_OBJECT
+
 public:
     /**
      * Default constructor.
@@ -77,7 +79,7 @@ public:
      */
     enum CameraManipulators
     {
-        TRACKBALL, TERRAIN, UFO, DRIVE, FLIGHT, TWO_D
+        TRACKBALL, TWO_D
     };
 
     /**
@@ -106,6 +108,12 @@ public:
      * \return a shared pointer to the viewer
      */
     boost::shared_ptr< WGEViewerMac > getViewer() const;
+
+public slots:
+    /**
+     * Resets the contained view using the installed manipulator.
+     */
+    void reset();
 
 protected:
     /**

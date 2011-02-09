@@ -30,7 +30,9 @@
 #include <osg/Node>
 #include <osg/Uniform>
 
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetVector.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -109,9 +111,14 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
 
     /**
-     * The number of steps to walk along the ray.
+     * The gradient field input
      */
-    WPropInt m_stepCount;
+    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_gradients;
+
+    /**
+     * The number of samples to walk along the ray.
+     */
+    WPropInt m_samples;
 
     /**
      * Types of local illumination supported.
@@ -154,6 +161,22 @@ private:
     WPropTrigger m_tfLoaderTrigger;
 
     /**
+     * All properties for those nice improvement methods.
+     */
+    WPropGroup m_improvementGroup;
+
+    /**
+     * If true, stochastic jittering is used for image quality improvement.
+     */
+    WPropBool m_stochasticJitterEnabled;
+
+    /**
+     * If active, the opacity of the classified fragment gets scaled according to sample count to ensure relative opacities even if sampling
+     * number changes (m_samples)
+     */
+    WPropBool m_opacityCorrectionEnabled;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
@@ -161,37 +184,7 @@ private:
     /**
      * the DVR shader.
      */
-    osg::ref_ptr< WShader > m_shader;
-
-    /**
-     * Class handling uniform update during render traversal
-     */
-    class SafeUniformCallback: public osg::Uniform::Callback
-    {
-    public:
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUniformCallback( WMDirectVolumeRendering* module ): m_module( module )
-        {
-        };
-
-        /**
-         * The callback. Called every render traversal for the uniform.
-         *
-         * \param uniform the uniform for which this callback is.
-         * \param nv the visitor.
-         */
-        virtual void operator() ( osg::Uniform* uniform, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         */
-        WMDirectVolumeRendering* m_module;
-    };
+    osg::ref_ptr< WGEShader > m_shader;
 };
 
 #endif  // WMDIRECTVOLUMERENDERING_H

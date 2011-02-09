@@ -55,6 +55,14 @@ compatiblesToolBarPos = 0 # position of the compatibles toolbar (overrides toolB
 # dsbInvisibleByDefault = yes # hide the control panel on startup. Can be shown using F9.
 # dsbFloatingByDefault = yes  # should the control panel be undocked on startup?
 
+# Here you can put any key sequence you would like to result in removing modules or ROIs
+# Examples: 
+# deleteKey = Backspace
+# deleteKey = Ctrl+J
+# deleteKey = B
+deleteModuleKey = Backspace
+deleteROIKey = Del
+
 ####################################################################
 # Other GUI settings
 
@@ -65,4 +73,4 @@ compatiblesToolBarPos = 0 # position of the compatibles toolbar (overrides toolB
 # bgColor.g = .9 # background color (green part)
 # bgColor.b = .9 # background color (blue part)
 zoomTrackballManipulator.allowThrow = yes # allow the auto-rotation thing when "throwing" an object with the mouse
-# multiThreadedViewers = no # Use multiple threads for the multiple viewers. Causes hanging on some machines when opening a new view.
+multiThreadedViewers = no # Use multiple threads for the multiple viewers. Causes hanging on some machines when opening a new view.

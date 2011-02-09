@@ -96,6 +96,11 @@ void WMFiberParameterColoring::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    m_baseColor  = m_properties->addProperty( "Base Color", "The base color. Some kind of color offset.", WColor( 1.0, 1.0, 1.0, 0.0 ),
+                                              m_propCondition );
+    m_scaleColor = m_properties->addProperty( "Scale Color", "The color which gets scaled with the calculated value and added to the base color.",
+                                              WColor( 0.0, 0.0, 0.0, 1.0 ), m_propCondition );
+
     // call WModule's initialization
     WModule::properties();
 }
@@ -147,7 +152,17 @@ void WMFiberParameterColoring::moduleMain()
         bool dataUpdated = m_fiberInput->handledUpdate();
         boost::shared_ptr< WDataSetFibers > dataSet = m_fiberInput->getData();
         bool dataValid = ( dataSet );
-        if ( !dataValid || ( dataValid && !dataUpdated ) )
+        bool propUpdated = m_baseColor->changed() || m_scaleColor->changed();
+
+        // reset everything if input was disconnected/invalid
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting output.";
+            m_fiberOutput->reset();
+            continue;
+        }
+
+        if ( dataValid && !( dataUpdated || propUpdated ) )
         {
             continue;
         }
@@ -173,6 +188,18 @@ void WMFiberParameterColoring::moduleMain()
                                                                                                   fibStart->size() ) );
         m_progress->addSubProgress( progress1 );
         m_progress->addSubProgress( progress2 );
+
+        // for fastness:
+        WColor baseColor = m_baseColor->get( true );
+        double baseColorR = baseColor[0];
+        double baseColorG = baseColor[1];
+        double baseColorB = baseColor[2];
+        double baseColorA = baseColor[3];
+        WColor scaleColor = m_scaleColor->get( true );
+        double scaleColorR = scaleColor[0];
+        double scaleColorG = scaleColor[1];
+        double scaleColorB = scaleColor[2];
+        double scaleColorA = scaleColor[3];
 
         // for each fiber:
         debugLog() << "Iterating over all fibers.";
@@ -235,10 +262,10 @@ void WMFiberParameterColoring::moduleMain()
                 double z = ( 2.0 / ( lenLast + segLen ) ) * ( current[2] - prev[2] );
                 double curvature = std::sqrt( x*x + y*y + z*z );
 
-                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 0 ] = 1.5 * curvature;
-                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
-                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 2 ] = 0.0;
-                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
+                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 0 ] = baseColorR + ( 1.5 * scaleColorR * curvature );
+                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 1 ] = baseColorG + ( 1.5 * scaleColorG * curvature );
+                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 2 ] = baseColorB + ( 1.5 * scaleColorB * curvature );
+                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 3 ] = baseColorA + ( 1.5 * scaleColorA * curvature );
 
                 ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] = segLen;
                 ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
@@ -273,10 +300,10 @@ void WMFiberParameterColoring::moduleMain()
             for ( size_t k = 1; k < len - 1; ++k )  // len -1 because we interpret it as segments
             {
                 double relSegLen = ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] / maxSegLengths[ fidx ];
-                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] = relSegLen;
-                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 1 ] = relSegLen;
-                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 2 ] = relSegLen;
-                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
+                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] = baseColorR + ( scaleColorR * relSegLen );
+                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 1 ] = baseColorG + ( scaleColorG * relSegLen );
+                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 2 ] = baseColorB + ( scaleColorB * relSegLen );
+                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 3 ] = baseColorA + ( scaleColorA * relSegLen );
             }
         }
         progress2->finish();

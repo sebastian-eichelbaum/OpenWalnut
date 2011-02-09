@@ -28,6 +28,9 @@
 #include <osg/Array>
 
 #include "../common/math/WPosition.h"
+
+#include "WGETexture.h"
+
 #include "WGEUtils.h"
 
 osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< wmath::WPosition >& posArray )
@@ -56,7 +59,7 @@ WColor wge::createColorFromIndex( int index )
 
     if ( index == 0 )
     {
-        return WColor( 0.0, 0.0, 0.0 );
+        return WColor( 0.0, 0.0, 0.0, 1.0 );
     }
 
     if ( ( index & 1 ) == 1 )
@@ -118,7 +121,7 @@ WColor wge::createColorFromIndex( int index )
     g *= mult;
     b *= mult;
 
-    return WColor( r, g, b );
+    return WColor( r, g, b, 1.0 );
 }
 
 WColor wge::createColorFromHSV( int h, float s, float v )
@@ -153,13 +156,50 @@ WColor wge::createColorFromHSV( int h, float s, float v )
     }
 }
 
-WColor wge::getNthHSVColor( int n, int parts )
+WColor wge::getNthHSVColor( int n )
 {
-    parts = (std::max)( 1, parts );
-    if ( parts > 360 )
+    int h = 0;
+    float s = 1.0;
+    float v = 1.0;
+
+    if ( ( n & 1 ) == 1 )
     {
-        parts = 360;
+        h += 180;
     }
-    int frac = 360 / parts;
-    return createColorFromHSV( n * frac );
+    if ( ( n & 2 ) == 2 )
+    {
+        h += 90;
+    }
+    if ( ( n & 4 ) == 4 )
+    {
+        h += 45;
+    }
+    if ( ( n & 8 ) == 8 )
+    {
+        h += 202;
+        h = h % 360;
+    }
+    if ( ( n & 16 ) == 16 )
+    {
+        v -= .25;
+    }
+    if ( ( n & 32 ) == 32 )
+    {
+        s -= .25;
+    }
+    if ( ( n & 64 ) == 64 )
+    {
+        v -= .25;
+    }
+    if ( ( n & 128 ) == 128 )
+    {
+        s -= 0.25;
+    }
+    if ( ( n & 256 ) == 256 )
+    {
+        v -= 0.25;
+    }
+
+    return createColorFromHSV( h, s, v );
 }
+

@@ -35,9 +35,10 @@
 #include "itkGradientAnisotropicDiffusionImageFilter.h"
 #include "itkCastImageFilter.h"
 
-#include "../../graphicsEngine/WROIBox.h"
-
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WROIManager.h"
+
+#include "../../graphicsEngine/WROIBox.h"
 
 #include "../../dataHandler/WITKImageConversion.h"
 

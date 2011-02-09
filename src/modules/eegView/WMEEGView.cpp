@@ -29,14 +29,20 @@
 #include <osgSim/ColorRange>
 
 #include "../../dataHandler/WEEG2.h"
-#include "../../dataHandler/WEEGChannelInfo.h"
 #include "../../dataHandler/WEEG2Segment.h"
+#include "../../dataHandler/WEEGChannelInfo.h"
 #include "../../dataHandler/WEEGValueMatrix.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WROIBox.h"
+#include "../../gui/WCustomWidget.h"
+#include "../../gui/WGUI.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleInputData.h"
+#include "../../kernel/WROIManager.h"
+#include "WEEGEvent.h"
 #include "WEEGSourceCalculator.h"
 #include "WEEGViewHandler.h"
 #include "WElectrodePositionCallback.h"
@@ -44,9 +50,9 @@
 #include "WLabelsTransformCallback.h"
 #include "WLineStripCallback.h"
 #include "WMEEGView.h"
+#include "WMEEGView.xpm"
 #include "WPanTransformCallback.h"
 #include "WScaleTransformCallback.h"
-#include "WMEEGView.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEEGView )
@@ -288,22 +294,21 @@ void WMEEGView::moduleMain()
         {
             debugLog() << "New event position: " << event->getTime();
 
-            if( boost::shared_ptr< WRMROIRepresentation > roi = m_roi.lock() )
+            if( m_roi )
             {
-                WKernel::getRunningKernel()->getRoiManager()->removeRoi( roi );
+                WKernel::getRunningKernel()->getRoiManager()->removeRoi( m_roi );
             }
 
-            if( WKernel::getRunningKernel()->getRoiManager()->getBitField() && m_sourceCalculator )
+            if(  m_sourceCalculator )
             {
                 wmath::WPosition position = m_sourceCalculator->calculate( event );
-
-                m_roi = WKernel::getRunningKernel()->getRoiManager()->addRoi( new WROIBox(
-                            position - wmath::WVector3D( 5.0, 5.0, 5.0 ),
-                            position + wmath::WVector3D( 5.0, 5.0, 5.0 ) ) );
+                m_roi = new WROIBox( position - wmath::WVector3D( 5.0, 5.0, 5.0 ),
+                                     position + wmath::WVector3D( 5.0, 5.0, 5.0 ) );
+                WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
             }
             else
             {
-                m_roi.reset();
+                m_roi.release();
             }
 
             m_currentEventTime = event->getTime();
@@ -354,8 +359,7 @@ void WMEEGView::moduleMain()
 bool WMEEGView::openCustomWidget()
 {
     debugLog() << "Try to open EEG View widget...";
-    m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget(
-        getName(), WGECamera::TWO_D, m_shutdownFlag.getCondition() );
+    m_widget = WKernel::getRunningKernel()->getGui()->openCustomWidget( getName(), WGECamera::TWO_D, m_shutdownFlag.getCondition() );
     bool success = m_widget.get();
     if( success )
     {
@@ -600,7 +604,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawElectrodes()
         boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
         try
         {
-            osg::Vec3 pos = wge::osgVec3( channelInfo->getPosition() );
+            osg::Vec3 pos = channelInfo->getPosition();
 
             // create sphere geode on electrode position
             osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( pos, sphereSize ) );
@@ -687,7 +691,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawLabels()
         boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
         try
         {
-            osg::Vec3 pos = wge::osgVec3( channelInfo->getPosition() );
+            osg::Vec3 pos = channelInfo->getPosition();
 
             // create text geode for the channel label
             osgText::Text* text = new osgText::Text;

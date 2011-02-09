@@ -40,8 +40,11 @@
 #include "WGEUtils.h"
 
 
-osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color )
+osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const WBoundingBox& bb, const WColor& color )
 {
+    const wmath::WPosition& pos1 = bb.getMin();
+    const wmath::WPosition& pos2 = bb.getMax();
+
     WAssert( pos1[0] <= pos2[0] && pos1[1] <= pos2[1] && pos1[2] <= pos2[2], "pos1 does not seem to be the frontLowerLeft corner of the BB!" );
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
@@ -71,7 +74,7 @@ osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const wmath::WPosition
     geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, vertices->size() - 6, 6 ) );
 
     geometry->setVertexArray( vertices );
-    colors->push_back( wge::osgColor( color ) );
+    colors->push_back( color );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
@@ -146,17 +149,16 @@ osg::ref_ptr< osg::Geometry > wge::createUnitCube( const WColor& color )
     cube->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
 
     // finally, the colors
-    colors->push_back( wge::osgColor( color ) );
+    colors->push_back( color );
     cube->setColorArray( colors );
     cube->setColorBinding( osg::Geometry::BIND_OVERALL );
 
     return cube;
 }
 
-osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosition& pos1, const wmath::WPosition& pos2, const WColor& color,
-        bool threeDTexCoords )
+osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const WBoundingBox& bb, const WColor& color, bool threeDTexCoords )
 {
-    WAssert( pos1[0] <= pos2[0] && pos1[1] <= pos2[1] && pos1[2] <= pos2[2], "pos1 doesn't seem to be the frontLowerLeft corner of the BB!" );
+    WAssert( bb.valid(), "Invalid bounding box!" );
 
     // create a uni cube
     osg::ref_ptr< osg::Geode > cube = new osg::Geode();
@@ -168,15 +170,15 @@ osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const wmath::WPosit
     else
     {
         osg::ref_ptr< osg::ShapeDrawable > cubeDrawable = new osg::ShapeDrawable( new osg::Box( osg::Vec3( 0.5, 0.5, 0.5 ), 1.0 ) );
-        cubeDrawable->setColor( wge::osgColor( color ) );
+        cubeDrawable->setColor( color );
         cube->addDrawable( cubeDrawable );
     }
 
     // transform the cube to match the bbox
     osg::Matrixd transformM;
     osg::Matrixd scaleM;
-    transformM.makeTranslate( pos1 );
-    scaleM.makeScale( pos2 - pos1 );
+    transformM.makeTranslate( bb.getMin() );
+    scaleM.makeScale( bb.getMax() - bb.getMin() );
 
     // apply transformation to bbox
     osg::ref_ptr< osg::MatrixTransform > transform = new osg::MatrixTransform();
@@ -226,7 +228,7 @@ osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const wmath::WLine& line
     for( size_t i = 1; i < line.size(); ++i )
     {
         vertices->push_back( osg::Vec3( line[i-1][0], line[i-1][1], line[i-1][2] ) );
-        colors->push_back( wge::osgColor( wge::getRGBAColorFromDirection( line[i-1], line[i] ) ) );
+        colors->push_back( wge::getRGBAColorFromDirection( line[i-1], line[i] ) );
     }
     vertices->push_back( osg::Vec3( line.back()[0], line.back()[1], line.back()[2] ) );
     colors->push_back( colors->back() );
@@ -237,7 +239,7 @@ osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const wmath::WLine& line
     if( color != WColor( 0, 0, 0, 0 ) )
     {
         colors->clear();
-        colors->push_back( wge::osgColor( color ) );
+        colors->push_back( color );
         geometry->setColorArray( colors );
         geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     }
@@ -302,7 +304,7 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( double xSize, double ySize, cons
     ref_ptr< osg::Vec4Array > colors   = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     ref_ptr< osg::Geometry >  geometry = ref_ptr< osg::Geometry >( new osg::Geometry );
 
-    colors->push_back( wge::osgColor( color ) );
+    colors->push_back( color );
 
     vertices->push_back( p.getPointInPlane(  xSize,  ySize ) );
     vertices->push_back( p.getPointInPlane( -xSize,  ySize ) );
@@ -328,9 +330,7 @@ osg::ref_ptr< osg::Geode > wge::genFinitePlane( double xSize, double ySize, cons
         borderGeom->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, 4 ) );
         borderGeom->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 3, 2 ) );
         ref_ptr< osg::Vec4Array > colors   = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-        WColor borderColor = color;
-        borderColor.inverse();
-        colors->push_back( wge::osgColor( borderColor ) );
+        colors->push_back( inverseColor( color ) );
         borderGeom->setColorArray( colors );
         borderGeom->setColorBinding( osg::Geometry::BIND_OVERALL );
         borderGeom->setVertexArray( vertices );

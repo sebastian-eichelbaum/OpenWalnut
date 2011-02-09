@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+function findDepsForFile
+{
+    if [ -f $1 ] ; then
+        for i in `g++ -MM -pthread -fexceptions $1 | awk '{print $1}' `; do
+          basename $i;
+        done | grep -v ".o:" | sort  | uniq
+    else
+        echo "Warning: $1 does not exists"
+    fi
+}
+
+function findDepsForDir
+{
+    for i in `find $1 -type f -iname '*.cpp' -or -iname '*.h' -and -not -wholename '*/visualStudio/*'` ; do
+        findDepsForFile $i ;
+    done
+}
+
+# Exit if no argument was specified
+if [ $# -eq 0 ]; then
+    echo "Usage: deps [FILE|DIR]"
+    echo "  FILE: If a file was specified, the needed headers for this get printed."
+    echo "  DIR:  If a directory was specified, deps calculates the usage count for"
+    echo "        every header included in cpp files in the specified directory."
+    exit 1
+fi
+
+# Handle directories and files differently
+if [ -d $1 ]; then
+    findDepsForDir $1 | sort | uniq -c | sort -n
+else
+    findDepsForFile $1
+fi

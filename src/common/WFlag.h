@@ -25,6 +25,8 @@
 #ifndef WFLAG_H
 #define WFLAG_H
 
+#include <boost/shared_ptr.hpp>
+
 #include "WCondition.h"
 
 /**
@@ -39,6 +41,16 @@ public:
      * The type for later access.
      */
     typedef T ValueType;
+
+    /**
+     * Convenience typedef for a boost::shared_ptr.
+     */
+    typedef boost::shared_ptr< WFlag< T > > SPtr;
+
+    /**
+     * Convenience typedef for a boost::shared_ptr. Const.
+     */
+    typedef boost::shared_ptr< const WFlag< T > > ConstSPtr;
 
     /**
      * Constructor. Uses a given condition to realize the wait/notify functionality. By using this constructor, the specified
@@ -156,11 +168,14 @@ public:
     virtual bool isValid();
 
     /**
-     * True whenever the value inside this flag has changed since the last reset. It stays true until get( true ) is called.
+     * True whenever the value inside this flag has changed since the last reset. It stays true until get( true ) is called or the reset value is
+     * true.
+     *
+     * \param reset if true, the change flag gets reset.
      *
      * \return true when the value has changed and not yet been reseted.
      */
-    virtual bool changed();
+    virtual bool changed( bool reset = false );
 
 protected:
 
@@ -313,9 +328,14 @@ bool WFlag< T >::isValid()
 }
 
 template < typename T >
-bool WFlag< T >::changed()
+bool WFlag< T >::changed( bool reset )
 {
-    return m_changed;
+    bool tmp = m_changed;
+    if ( reset )
+    {
+        m_changed = false;
+    }
+    return tmp;
 }
 
 #endif  // WFLAG_H

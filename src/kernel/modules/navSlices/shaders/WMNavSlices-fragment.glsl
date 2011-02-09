@@ -85,24 +85,35 @@ uniform bool showComplete;
 
 void lookupTex( inout vec4 col, in int type, in sampler3D tex, in float threshold, in vec3 v, in float alpha, in int cmap )
 {
-    vec3 col1 = vec3( 0.0 );
+    vec4 col1 = vec4( 0.0 );
 
-    col1 = clamp( texture3D( tex, v ).rgb, 0.0, 1.0 );
-
-    if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
+    col1 = clamp( texture3D( tex, v ), 0.0, 1.0 );
+    if( col1.a < 1.0 )
+    {
+        alpha = 0.0;
+    }
 
     if( cmap != 0 )
     {
-        if(threshold < 1.0)
+        if( cmap != 6 )
         {
-            col1.r = ( col1.r - threshold ) / ( 1.0 - threshold );
-            if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
+            if( threshold < 1.0 )
+            {
+                // be aware that this changes the color mapping if the threshold is changed
+                col1.r = ( col1.r - threshold ) / ( 1.0 - threshold );
+
+                if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
+            }
         }
 
-        colorMap( col1, col1.r, cmap );
+        colorMap( col1.rgb, col1.r, cmap );
+    }
+    else
+    {
+        if( ( col1.r + col1.g + col1.b ) / 3.0  - threshold <= 0.0 ) return;
     }
 
-    col.rgb = mix( col.rgb, col1.rgb, alpha );
+    col.rgba = mix( col, col1, alpha );
 }
 
 void main()
@@ -122,7 +133,7 @@ void main()
 
     if ( ( col.r + col.g + col.b ) < 0.01 )
     {
-        if( highlighted )
+        if( highlighted && !showComplete )
         {
             // higlight picked slice in the areas where ther are zero (very small) values
             col = vec4( .7, .7, 1, 1 );
@@ -130,7 +141,9 @@ void main()
         else
         {
             if ( !showComplete )
-            discard;
+            {
+                discard;
+            }
         }
     }
 

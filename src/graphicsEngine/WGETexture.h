@@ -38,10 +38,12 @@
 #include <osg/Texture3D>
 
 #include "callbacks/WGEFunctorCallback.h"
+#include "../common/WLimits.h"
 #include "../common/WProperties.h"
 #include "../common/WPropertyHelper.h"
+#include "../common/math/WMatrix4x4.h"
 
-#include "WGEUtils.h"
+#include "WGETextureUtils.h"
 
 /**
  * This calls serves a simple purpose: have a texture and its scaling information together which allows very easy binding of textures to nodes
@@ -80,6 +82,13 @@ public:
      * Destructor.
      */
     virtual ~WGETexture();
+
+    /**
+     * Returns the name property of the texture. You should set it if you create a texture.
+     *
+     * \return texture name property
+     */
+    WPropString name() const;
 
     /**
      * Get the minimum in the de-scaled value space. The property can be changed. A change affects all colormaps using this texture. But be
@@ -133,11 +142,12 @@ public:
     WPropBool active() const;
 
     /**
-     * Returns the matrix used for transforming the texture coordinates to match the texture.
+     * Returns the texture transformation matrix. The property can be changed. A change affects all colormaps using this texture. This matrix
+     * converts an world-space coordinate to an texture coordinate! This can be seen as a scaled inverse matrix of the grid's transformation.
      *
-     * \return the matrix allowing direct application to osg::TexMat.
+     * \return the matrix
      */
-    virtual osg::Matrix getTexMatrix() const;
+    WPropMatrix4X4 transformation() const;
 
     /**
      * Binds the texture to the specified node and texture unit. It also adds two uniforms: u_textureXMin and u_textureXScale, where X
@@ -171,6 +181,20 @@ public:
      */
     virtual void applyUniforms( std::string prefix, osg::StateSet* states ) const;
 
+    /**
+     * For all the lazy guys to set the filter MIN and MAG at once.
+     *
+     * \param mode the new mode for MIN_FILTER and MAG_FILTER.
+     */
+    void setFilterMinMag( osg::Texture::FilterMode mode );
+
+    /**
+     * For all the lazy guys to set the wrapping for s,t and r directions at once.
+     *
+     * \param mode the new mode for WRAP_S, WRAP_T and WRAP_R.
+     */
+    void setWrapSTR( osg::Texture::WrapMode mode );
+
 protected:
 
     /**
@@ -191,6 +215,13 @@ protected:
     virtual void updateCallback( osg::StateAttribute* state );
 
 private:
+    /**
+     * Creates and assigns all properties.
+     *
+     * \param min the min value of the texture
+     * \param scale the scale value of the texture
+     */
+    void setupProperties( double scale, double min );
 
     /**
      * A condition used to notify about changes in several properties.
@@ -213,6 +244,11 @@ private:
      * If true, the texture gets created. This is used to create texture on demand.
      */
     bool m_needCreate;
+
+    /**
+     * The texture name. This might be useful to identify textures.
+     */
+    WPropString m_name;
 
     /**
      * The minimum of each value in the texture in unscaled space.
@@ -253,6 +289,44 @@ private:
      * True if the texture is active.
      */
     WPropBool m_active;
+
+    /**
+     * The texture transformation matrix.
+     */
+    WPropMatrix4X4 m_texMatrix;
+
+    /**
+     * Initialize the size of the texture properly according to real texture type (1D,2D,3D).
+     * \note This is needed because osg::Texture::setImage is not virtual and does not set the size from the image.
+     *
+     * \param texture the texture where to set the size
+     * \param width the new width
+     * \param height the new height
+     * \param depth the new depth
+     */
+    static void initTextureSize( osg::Texture1D* texture, int width, int height, int depth );
+
+    /**
+     * Initialize the size of the texture properly according to real texture type (1D,2D,3D).
+     * \note This is needed because osg::Texture::setImage is not virtual and does not set the size from the image.
+     *
+     * \param texture the texture where to set the size
+     * \param width the new width
+     * \param height the new height
+     * \param depth the new depth
+     */
+    static void initTextureSize( osg::Texture2D* texture, int width, int height, int depth );
+
+    /**
+     * Initialize the size of the texture properly according to real texture type (1D,2D,3D).
+     * \note This is needed because osg::Texture::setImage is not virtual and does not set the size from the image.
+     *
+     * \param texture the texture where to set the size
+     * \param width the new width
+     * \param height the new height
+     * \param depth the new depth
+     */
+    static void initTextureSize( osg::Texture3D* texture, int width, int height, int depth );
 };
 
 // Some convenience typedefs
@@ -272,6 +346,7 @@ typedef WGETexture< osg::Texture2D > WGETexture2D;
  */
 typedef WGETexture< osg::Texture3D > WGETexture3D;
 
+
 template < typename TextureType >
 WGETexture< TextureType >::WGETexture( double scale, double min ):
     TextureType(),
@@ -280,41 +355,7 @@ WGETexture< TextureType >::WGETexture( double scale, double min ):
     m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) ),
     m_needCreate( true )
 {
-    m_propCondition->subscribeSignal( boost::bind( &WGETexture< TextureType >::handleUpdate, this ) );
-
-    // initialize members
-    m_min = m_properties->addProperty( "Minimum", "The minimum value in the original space.", min );
-    m_scale = m_properties->addProperty( "Scale", "The scaling factor to un-scale the texture values to the original space.", scale );
-
-    m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0, m_propCondition );
-    m_alpha->setMin( 0.0 );
-    m_alpha->setMax( 1.0 );
-
-    m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0, m_propCondition );
-    m_threshold->setMin( 0.0 );
-    m_threshold->setMin( 1.0 );
-
-    m_interpolation = m_properties->addProperty( "Interpolate", "Interpolation of the volume data.", true, m_propCondition );
-
-    m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_colorMapSelectionsList->addItem( "Grayscale", "" );
-    m_colorMapSelectionsList->addItem( "Rainbow", "" );
-    m_colorMapSelectionsList->addItem( "Hot iron", "" );
-    m_colorMapSelectionsList->addItem( "Red-Yellow", "" );
-    m_colorMapSelectionsList->addItem( "Atlas", "" );
-    m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
-
-    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst(),
-        m_propCondition
-    );
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMap );
-
-    m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true, m_propCondition );
-
-    TextureType::setResizeNonPowerOfTwoHint( false );
-    TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >(
-        boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) )
-    );
+    setupProperties( scale, min );
 }
 
 template < typename TextureType >
@@ -325,41 +366,8 @@ WGETexture< TextureType >::WGETexture( osg::Image* image, double scale, double m
     m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Texture Info Properties", "Texture's information properties." ) ) ),
     m_needCreate( true )
 {
-    m_propCondition->subscribeSignal( boost::bind( &WGETexture< TextureType >::handleUpdate, this ) );
-
-    // initialize members
-    m_min = m_properties->addProperty( "Minimum", "The minimum value in the original space.", min );
-    m_scale = m_properties->addProperty( "Scale", "The scaling factor to un-scale the texture values to the original space.", scale );
-
-    m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0, m_propCondition );
-    m_alpha->setMin( 0.0 );
-    m_alpha->setMax( 1.0 );
-
-    m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0, m_propCondition );
-    m_threshold->setMin( 0.0 );
-    m_threshold->setMin( 1.0 );
-
-    m_interpolation = m_properties->addProperty( "Interpolate", "Interpolation of the volume data.", true, m_propCondition );
-
-    m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_colorMapSelectionsList->addItem( "Grayscale", "" );
-    m_colorMapSelectionsList->addItem( "Rainbow", "" );
-    m_colorMapSelectionsList->addItem( "Hot iron", "" );
-    m_colorMapSelectionsList->addItem( "Red-Yellow", "" );
-    m_colorMapSelectionsList->addItem( "Atlas", "" );
-    m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
-
-    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst(),
-        m_propCondition
-    );
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMap );
-
-    m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true, m_propCondition );
-
-    TextureType::setResizeNonPowerOfTwoHint( false );
-    TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >(
-        boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) )
-    );
+    setupProperties( scale, min );
+    WGETexture< TextureType >::initTextureSize( this, image->s(), image->t(), image->r() );
 }
 
 template < typename TextureType >
@@ -369,6 +377,58 @@ WGETexture< TextureType >::WGETexture( const WGETexture< TextureType >& texture,
     m_scale( texture.m_scale )
 {
     // initialize members
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::setupProperties( double scale, double min )
+{
+    m_propCondition->subscribeSignal( boost::bind( &WGETexture< TextureType >::handleUpdate, this ) );
+
+    m_name = m_properties->addProperty( "Name", "The name of the texture.", std::string( "Unnamed" ) );
+
+    // initialize members
+    m_min = m_properties->addProperty( "Minimum", "The minimum value in the original space.", min, true );
+    m_min->removeConstraint( m_min->getMin() );
+    m_min->removeConstraint( m_min->getMax() );
+
+    m_scale = m_properties->addProperty( "Scale", "The scaling factor to un-scale the texture values to the original space.", scale, true );
+    m_scale->removeConstraint( m_scale->getMin() );
+    m_scale->removeConstraint( m_scale->getMax() );
+
+    m_alpha = m_properties->addProperty( "Alpha", "The alpha blending value.", 1.0 );
+    m_alpha->setMin( 0.0 );
+    m_alpha->setMax( 1.0 );
+
+    m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0 );
+    m_threshold->setMin( min );
+    m_threshold->setMax( min + scale );
+
+    m_interpolation = m_properties->addProperty( "Interpolate", "Interpolation of the volume data.", true, m_propCondition );
+
+    m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_colorMapSelectionsList->addItem( "Grayscale", "" );
+    m_colorMapSelectionsList->addItem( "Rainbow", "" );
+    m_colorMapSelectionsList->addItem( "Hot iron", "" );
+    m_colorMapSelectionsList->addItem( "Negative to positive", "" );
+    m_colorMapSelectionsList->addItem( "Atlas", "" );
+    m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
+    m_colorMapSelectionsList->addItem( "Vector", "" );
+
+    m_colorMap = m_properties->addProperty( "Colormap", "The colormap of this texture.", m_colorMapSelectionsList->getSelectorFirst() );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMap );
+
+    m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true );
+
+    m_texMatrix = m_properties->addProperty( "Texture Transformation", "Usable to transform the texture.", osg::Matrix::identity() );
+
+    TextureType::setResizeNonPowerOfTwoHint( false );
+    TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >(
+        boost::bind( &WGETexture< TextureType >::updateCallback, this, _1 ) )
+    );
+
+    // init filters
+    TextureType::setFilter( osg::Texture::MIN_FILTER, m_interpolation->get( true ) ? osg::Texture::LINEAR : osg::Texture::NEAREST );
+    TextureType::setFilter( osg::Texture::MAG_FILTER, m_interpolation->get( true ) ? osg::Texture::LINEAR : osg::Texture::NEAREST );
 }
 
 template < typename TextureType >
@@ -387,6 +447,12 @@ template < typename TextureType >
 boost::shared_ptr< WProperties > WGETexture< TextureType >::getInformationProperties() const
 {
     return m_infoProperties;
+}
+
+template < typename TextureType >
+inline WPropString WGETexture< TextureType >::name() const
+{
+    return m_name;
 }
 
 template < typename TextureType >
@@ -432,6 +498,12 @@ inline WPropBool WGETexture< TextureType >::active() const
 }
 
 template < typename TextureType >
+inline WPropMatrix4X4 WGETexture< TextureType >::transformation() const
+{
+    return m_texMatrix;
+}
+
+template < typename TextureType >
 void  WGETexture< TextureType >::handleUpdate()
 {
     if ( m_interpolation->changed() )
@@ -460,12 +532,6 @@ void WGETexture< TextureType >::bind( osg::ref_ptr< osg::Node > node, size_t uni
 }
 
 template < typename TextureType >
-osg::Matrix WGETexture< TextureType >::getTexMatrix() const
-{
-    return osg::Matrix::identity();
-}
-
-template < typename TextureType >
 void WGETexture< TextureType >::create()
 {
     // do nothing. Derived classes may implement this.
@@ -479,7 +545,41 @@ void WGETexture< TextureType >::updateCallback( osg::StateAttribute* /*state*/ )
     {
         m_needCreate = false;
         create();
+        TextureType::dirtyTextureObject();
     }
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::setFilterMinMag( osg::Texture::FilterMode mode )
+{
+    this->setFilter( osg::Texture2D::MIN_FILTER, mode );
+    this->setFilter( osg::Texture2D::MAG_FILTER, mode );
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::setWrapSTR( osg::Texture::WrapMode mode )
+{
+    this->setWrap( osg::Texture2D::WRAP_S, mode );
+    this->setWrap( osg::Texture2D::WRAP_T, mode );
+    this->setWrap( osg::Texture2D::WRAP_R, mode );
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::initTextureSize( osg::Texture1D* texture, int width, int /*height*/, int /*depth*/ )
+{
+    texture->setTextureWidth( width );
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::initTextureSize( osg::Texture2D* texture, int width, int height, int /*depth*/ )
+{
+    texture->setTextureSize( width, height );
+}
+
+template < typename TextureType >
+void WGETexture< TextureType >::initTextureSize( osg::Texture3D* texture, int width, int height, int depth )
+{
+    texture->setTextureSize( width, height, depth );
 }
 
 #endif  // WGETEXTURE_H

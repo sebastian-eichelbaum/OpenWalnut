@@ -236,12 +236,12 @@ private:
 
         data.normalize();
 
-        std::vector< double > v( 5 * 5 * 5 * 3 );
+        boost::shared_ptr< std::vector< double > > v = boost::shared_ptr< std::vector< double > >( new  std::vector< double > ( 5 * 5 * 5 * 3 ) );
         for( std::size_t k = 0; k < 5 * 5 * 5; ++k )
         {
-            v.at( 3 * k + 0 ) = data[ 0 ];
-            v.at( 3 * k + 1 ) = data[ 1 ];
-            v.at( 3 * k + 2 ) = data[ 2 ];
+            v->at( 3 * k + 0 ) = data[ 0 ];
+            v->at( 3 * k + 1 ) = data[ 1 ];
+            v->at( 3 * k + 2 ) = data[ 2 ];
         }
 
         boost::shared_ptr< WValueSetBase > vs( new WValueSet< double >( 1, 3, v, W_DT_DOUBLE ) );
@@ -601,12 +601,12 @@ private:
 
         data.normalize();
 
-        std::vector< double > v( n * n * n * 3 );
+        boost::shared_ptr< std::vector< double > > v = boost::shared_ptr< std::vector< double > >( new  std::vector< double >( n * n * n * 3 ) );
         for( std::size_t k = 0; k < static_cast< std::size_t >( n * n * n ); ++k )
         {
-            v.at( 3 * k + 0 ) = data[ 0 ];
-            v.at( 3 * k + 1 ) = data[ 1 ];
-            v.at( 3 * k + 2 ) = data[ 2 ];
+            v->at( 3 * k + 0 ) = data[ 0 ];
+            v->at( 3 * k + 1 ) = data[ 1 ];
+            v->at( 3 * k + 2 ) = data[ 2 ];
         }
 
         boost::shared_ptr< WValueSetBase > vs( new WValueSet< double >( 1, 3, v, W_DT_DOUBLE ) );

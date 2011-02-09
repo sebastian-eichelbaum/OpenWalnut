@@ -32,21 +32,24 @@
 #include <osg/Geometry>
 #include <osg/Drawable>
 
-#include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../common/math/WMath.h"
 #include "../../common/math/WPlane.h"
 #include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../graphicsEngine/WGEColormapping.h"
+#include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/WGETextureUtils.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WGEOffscreenRenderPass.h"
-#include "../../graphicsEngine/WGEOffscreenRenderNode.h"
-#include "../../graphicsEngine/WGEPropertyUniform.h"
+#include "../../graphicsEngine/offscreen/WGEOffscreenRenderNode.h"
+#include "../../graphicsEngine/offscreen/WGEOffscreenRenderPass.h"
+#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "../../kernel/WKernel.h"
 
 #include "WMImageSpaceLIC.h"
 #include "WMImageSpaceLIC.xpm"
@@ -161,7 +164,6 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
     if ( mesh && !m_useSlices->get( true ) )
     {
         // we have a mesh and want to use it
-
         // create geometry and geode
         osg::Geometry* surfaceGeometry = new osg::Geometry();
         osg::ref_ptr< osg::Geode > surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
@@ -176,7 +178,6 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
             surfaceElement->push_back( tris[vertId] );
         }
         surfaceGeometry->addPrimitiveSet( surfaceElement );
-
 
         // normals
         surfaceGeometry->setNormalArray( mesh->getVertexNormalArray() );
@@ -198,65 +199,33 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
         // we want the tex matrix for each slice to be modified too,
         osg::ref_ptr< osg::TexMat > texMat;
 
-        // create all the transformation nodes
-        m_xSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonX ) );
-        m_ySlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonY ) );
-        m_zSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonZ ) );
-
-        texMat = new osg::TexMat();
-        m_xSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos, texMat ) );
-        m_xSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
-        texMat = new osg::TexMat();
-        m_ySlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos, texMat ) );
-        m_ySlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
-        texMat = new osg::TexMat();
-        m_zSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos, texMat ) );
-        m_zSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
         // create a new geode containing the slices
-        m_xSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
-                                                                    grid->getNbCoordsZ() * grid->getDirectionZ() ) );
+        osg::ref_ptr< osg::Node > xSlice = wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
+                                                                                   grid->getNbCoordsZ() * grid->getDirectionZ() );
 
-        m_ySlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
-                                                                    grid->getNbCoordsZ() * grid->getDirectionZ() ) );
+        osg::ref_ptr< osg::Node > ySlice = wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
+                                                                                   grid->getNbCoordsZ() * grid->getDirectionZ() );
 
-        m_zSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
-                                                                    grid->getNbCoordsY() * grid->getDirectionY() ) );
+        osg::ref_ptr< osg::Node > zSlice =  wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsX() * grid->getDirectionX(),
+                                                                                    grid->getNbCoordsY() * grid->getDirectionY() );
+
+        // The movement of the slice is done in the shader. An alternative would be WGELinearTranslationCallback but there, the needed matrix is
+        // not available in the shader
+        osg::StateSet* ss = xSlice->getOrCreateStateSet();
+        ss->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", m_xPos ) );
+        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionX() ) );  // the axis to move along
+        ss = ySlice->getOrCreateStateSet();
+        ss->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", m_yPos ) );
+        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionY() ) );  // the axis to move along
+        ss = zSlice->getOrCreateStateSet();
+        ss->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", m_zPos ) );
+        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionZ() ) );  // the axis to move along
 
         // add the transformation nodes to the output group
-        m_output->insert( m_xSlice );
-        m_output->insert( m_ySlice );
-        m_output->insert( m_zSlice );
+        m_output->insert( xSlice );
+        m_output->insert( ySlice );
+        m_output->insert( zSlice );
     }
-}
-
-/**
- * Generates a white noise texture with given resolution.
- *
- * \param resX the resolution
- *
- * \return a image with resX*resX resolution.
- */
-osg::ref_ptr< osg::Image > genWhiteNoise( size_t resX )
-{
-    std::srand( time( 0 ) );
-
-    osg::ref_ptr< osg::Image > randImage = new osg::Image();
-    randImage->allocateImage( resX, resX, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
-    unsigned char *randomLuminance = randImage->data();  // should be 4 megs
-    for( unsigned int x = 0; x < resX; x++ )
-    {
-        for( unsigned int y = 0; y < resX; y++ )
-        {
-            // - stylechecker says "use rand_r" but I am not sure about portability.
-            unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
-            randomLuminance[ ( y * resX ) + x ] = r;
-        }
-    }
-
-    return randImage;
 }
 
 void WMImageSpaceLIC::moduleMain()
@@ -277,11 +246,7 @@ void WMImageSpaceLIC::moduleMain()
     const size_t resX = 1024;
 
     // finally, create a texture from the image
-    osg::ref_ptr< osg::Texture2D > randTexture = new osg::Texture2D();
-    randTexture->setFilter( osg::Texture2D::MIN_FILTER, osg::Texture2D::NEAREST );
-    randTexture->setFilter( osg::Texture2D::MAG_FILTER, osg::Texture2D::NEAREST );
-    randTexture->setImage( genWhiteNoise( resX ) );
-    randTexture->setResizeNonPowerOfTwoHint( false );
+    osg::ref_ptr< osg::Texture2D > randTexture = wge::genWhiteNoiseTexture( resX, resX, 1 );
     // done.
     ready();
 
@@ -291,39 +256,42 @@ void WMImageSpaceLIC::moduleMain()
 
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
-    setupTexturing();
 
     // the WGEOffscreenRenderNode manages each of the render-passes for us
     osg::ref_ptr< WGEOffscreenRenderNode > offscreen = new WGEOffscreenRenderNode(
         WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getCamera()
     );
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
 
     // allow en-/disabling the HUD:
     offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
 
     // setup all the passes needed for image space advection
-    osg::ref_ptr< WShader > transformationShader = new WShader( "WMImageSpaceLIC-Transformation", m_localPath );
+    osg::ref_ptr< WGEShader > transformationShader = new WGEShader( "WMImageSpaceLIC-Transformation", m_localPath );
+    WGEShaderDefineOptions::SPtr availableDataDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "SCALARDATA", "VECTORDATA" ) );
+    transformationShader->addPreprocessor( availableDataDefines );
     osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass(
         m_output,
         transformationShader,
         "Transformation"
     );
+    // apply colormapping to transformation
+    WGEColormapping::apply( transformation, transformationShader, 1 );
+
     osg::ref_ptr< WGEOffscreenRenderPass > edgeDetection =  offscreen->addTextureProcessingPass(
-        new WShader( "WMImageSpaceLIC-Edge", m_localPath ),
+        new WGEShader( "WMImageSpaceLIC-Edge", m_localPath ),
         "Edge Detection"
     );
 
     // we use two advection passes per frame as the input A of the first produces the output B whereas the second pass uses B as input and
     // produces A as output. This way we can use A as input for the next step (clipping and blending).
     osg::ref_ptr< WGEOffscreenRenderPass > advection =  offscreen->addTextureProcessingPass(
-        new WShader( "WMImageSpaceLIC-Advection", m_localPath ),
+        new WGEShader( "WMImageSpaceLIC-Advection", m_localPath ),
         "Advection"
     );
 
     // finally, put it back on screen, clip it, color it and apply depth buffer to on-screen buffer
     osg::ref_ptr< WGEOffscreenRenderPass > clipBlend =  offscreen->addFinalOnScreenPass(
-        new WShader( "WMImageSpaceLIC-ClipBlend", m_localPath ),
+        new WGEShader( "WMImageSpaceLIC-ClipBlend", m_localPath ),
         "Clip & Blend"
     );
 
@@ -391,10 +359,23 @@ void WMImageSpaceLIC::moduleMain()
         boost::shared_ptr< WTriangleMesh > mesh = m_meshIn->getData();
 
         bool dataValid = ( dataSetVec || dataSetScal );
-        if ( !dataValid || ( dataValid && !dataUpdated && !propertyUpdated ) )
+
+        // is data valid? If not, remove graphics
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting.";
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( offscreen );
+            continue;
+        }
+
+        // something interesting for us?
+        if ( dataValid && !dataUpdated && !propertyUpdated )
         {
             continue;
         }
+
+        // maybe it was removed earlier
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
 
         // prefer vector dataset if existing
         if ( dataSetVec )
@@ -410,9 +391,8 @@ void WMImageSpaceLIC::moduleMain()
 
             // prepare offscreen render chain
             edgeDetection->bind( randTexture, 1 );
-            transformationShader->eraseDefine( "SCALARDATA" );
-            transformationShader->setDefine( "VECTORDATA" );
-            transformation->bind( dataSetVec->getTexture()->getTexture(), 0 );
+            availableDataDefines->activateOption( 1 );  // vector input
+            transformation->bind( dataSetVec->getTexture2(), 0 );
         }
         else if ( dataSetScal )
         {
@@ -427,10 +407,8 @@ void WMImageSpaceLIC::moduleMain()
 
             // prepare offscreen render chain
             edgeDetection->bind( randTexture, 1 );
-            transformationShader->eraseDefine( "VECTORDATA" );
-            transformationShader->setDefine( "SCALARDATA" );
-            transformation->bind( dataSetScal->getTexture()->getTexture(), 0 );
-            transformation->bind( randTexture, 1 );
+            availableDataDefines->activateOption( 0 );  // scalar input
+            transformation->bind( dataSetScal->getTexture2(), 0 );
         }
 
         debugLog() << "Done";

@@ -24,13 +24,13 @@
 
 #include <string>
 
-#include "../../dataHandler/WDataHandlerEnums.h"
+#include "../../common/WPathHelper.h"
 #include "../../dataHandler/io/WReaderNIfTI.h"
+#include "../../dataHandler/WDataHandlerEnums.h"
 #include "../../graphicsEngine/WGERequirement.h"
 #include "../../kernel/WKernel.h"
-#include "WMReadSphericalHarmonics.xpm"
-
 #include "WMReadSphericalHarmonics.h"
+#include "WMReadSphericalHarmonics.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMReadSphericalHarmonics )
@@ -103,9 +103,16 @@ void WMReadSphericalHarmonics::moduleMain()
         }
         std::string fileName = m_dataFile->get().string();
 
+        boost::shared_ptr< WProgress > progress;
+        progress = boost::shared_ptr< WProgress >( new WProgress( "Glyph Generation", 2 ) );
+        m_progress->addSubProgress( progress );
+
         WReaderNIfTI niiLoader( fileName );
         boost::shared_ptr< WDataSet > data;
         data = niiLoader.load( W_DATASET_SPHERICALHARMONICS );
+
+        ++*progress;
+
         if( data )
         {
             m_data = boost::shared_dynamic_cast< WDataSetSphericalHarmonics >( data );
@@ -116,5 +123,7 @@ void WMReadSphericalHarmonics::moduleMain()
             }
         }
         m_readTriggerProp->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+
+        progress->finish();
     }
 }

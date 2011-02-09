@@ -40,7 +40,10 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "../../graphicsEngine/shaders/WGEShaderDefine.h"
+#include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "../../graphicsEngine/WGETextureUtils.h"
 #include "../../graphicsEngine/WGERequirement.h"
 #include "../../kernel/WKernel.h"
 #include "WMDirectVolumeRendering.xpm"
@@ -85,12 +88,10 @@ const std::string WMDirectVolumeRendering::getDescription() const
 void WMDirectVolumeRendering::connectors()
 {
     // DVR needs one input: the scalar dataset
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar  > >(
-        new WModuleInputData< WDataSetScalar >( shared_from_this(), "in", "The scalar dataset shown using isosurface." )
-    );
+    m_input = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "in", "The scalar dataset." );
 
-    // As properties, every connector needs to be added to the list of connectors.
-    addConnector( m_input );
+    // Optional: the gradient field
+    m_gradients = WModuleInputData< WDataSetVector >::createAndAdd( shared_from_this(), "gradients", "The gradient field of the dataset to display" );
 
     // call WModules initialization
     WModule::connectors();
@@ -101,10 +102,10 @@ void WMDirectVolumeRendering::properties()
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_stepCount     = m_properties->addProperty( "Step count",       "The number of steps to walk along the ray during raycasting. A low value "
-                                                                      "may cause artifacts whilst a high value slows down rendering.", 250 );
-    m_stepCount->setMin( 1 );
-    m_stepCount->setMax( 1000 );
+    m_samples     = m_properties->addProperty( "Sample count", "The number of samples to walk along the ray during raycasting. A low value "
+                                                                 "may cause artifacts whilst a high value slows down rendering.", 256 );
+    m_samples->setMin( 1 );
+    m_samples->setMax( 5000 );
 
     // illumination model
     m_localIlluminationSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
@@ -123,6 +124,19 @@ void WMDirectVolumeRendering::properties()
                                                     WPathHelper::getAppPath(), m_propCondition );
     WPropertyHelper::PC_PATHEXISTS::addTo( m_tfLoaderFile );
     m_tfLoaderTrigger = m_tfLoaderGroup->addProperty( "Load", "Triggers loading.", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+
+    // additional artifact removal methods
+    m_improvementGroup = m_properties->addPropertyGroup( "Improvements", "Methods for improving image quality. Most of these methods imply "
+                                                         "additional calculation/texture overhead and therefore slow down rendering." );
+    m_stochasticJitterEnabled = m_improvementGroup->addProperty( "Stochastic Jitter", "With stochastic jitter, wood-grain artifacts can be "
+                                                                                      "removed with the cost of possible noise artifacts.", true,
+                                                                                      m_propCondition );
+
+    m_opacityCorrectionEnabled = m_improvementGroup->addProperty( "Opacity Correction", "If enabled, opacities are assumed to be relative to the "
+                                                                                        "sample count. If disabled, changing the sample count "
+                                                                                        "varies brightness of the image.", true,
+                                                                                      m_propCondition );
+
     WModule::properties();
 }
 
@@ -131,13 +145,66 @@ void WMDirectVolumeRendering::requirements()
     m_requirements.push_back( new WGERequirement() );
 }
 
+/**
+ * Generates a white noise texture with given resolution.
+ *
+ * \param resX the resolution
+ *
+ * \return a image with resX*resX resolution.
+ */
+osg::ref_ptr< osg::Image > genWhiteNoise( size_t resX )
+{
+    std::srand( time( 0 ) );
+
+    osg::ref_ptr< osg::Image > randImage = new osg::Image();
+    randImage->allocateImage( resX, resX, 1, GL_LUMINANCE, GL_UNSIGNED_BYTE );
+    unsigned char *randomLuminance = randImage->data();  // should be 4 megs
+    for( unsigned int x = 0; x < resX; x++ )
+    {
+        for( unsigned int y = 0; y < resX; y++ )
+        {
+            // - stylechecker says "use rand_r" but I am not sure about portability.
+            unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
+            randomLuminance[ ( y * resX ) + x ] = r;
+        }
+    }
+
+    return randImage;
+}
+
 void WMDirectVolumeRendering::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMDirectVolumeRendering", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMDirectVolumeRendering", m_localPath ) );
+
+    // setup all the defines needed
+
+    // local illumination model
+    WGEShaderDefineOptions::SPtr illuminationAlgoDefines = WGEShaderDefineOptions::SPtr(
+        new WGEShaderDefineOptions( "LOCALILLUMINATION_NONE", "LOCALILLUMINATION_PHONG" )
+    );
+    m_shader->addPreprocessor( illuminationAlgoDefines );
+
+    // gradient texture settings
+    WGEShaderDefine< std::string >::SPtr gradTexSamplerDefine = m_shader->setDefine( "GRADIENTTEXTURE_SAMPLER", std::string( "tex1" ) );
+    WGEShaderDefineSwitch::SPtr gradTexEnableDefine = m_shader->setDefine( "GRADIENTTEXTURE_ENABLED" );
+
+    // transfer function texture settings
+    WGEShaderDefine< std::string >::SPtr tfTexSamplerDefine = m_shader->setDefine( "TRANSFERFUNCTION_SAMPLER", std::string( "tex2" ) );
+    WGEShaderDefineSwitch::SPtr tfTexEnableDefine = m_shader->setDefine( "TRANSFERFUNCTION_ENABLED" );
+
+    // jitter
+    WGEShaderDefine< std::string >::SPtr jitterSamplerDefine = m_shader->setDefine( "JITTERTEXTURE_SAMPLER", std::string( "tex3" ) );
+    WGEShaderDefine< int >::SPtr jitterSizeXDefine = m_shader->setDefine( "JITTERTEXTURE_SIZEX", 0 );
+    WGEShaderDefineSwitch::SPtr jitterEnableDefine = m_shader->setDefine( "JITTERTEXTURE_ENABLED" );
+
+    // opacity correction enabled?
+    WGEShaderDefineSwitch::SPtr opacityCorrectionEnableDefine = m_shader->setDefine( "OPACITYCORRECTION_ENABLED" );
+
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_gradients->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
 
     // Signal ready state.
@@ -164,15 +231,27 @@ void WMDirectVolumeRendering::moduleMain()
         }
 
         // was there an update?
-        bool dataUpdated = m_input->updated();
+        bool dataUpdated = m_input->updated() || m_gradients->updated();
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
         bool dataValid   = ( dataSet );
-        bool propUpdated = m_localIlluminationAlgo->changed() || m_tfLoaderEnabled || m_tfLoaderFile->changed() || m_tfLoaderTrigger->changed();
+        bool propUpdated = m_localIlluminationAlgo->changed() || m_tfLoaderEnabled || m_tfLoaderFile->changed() || m_tfLoaderTrigger->changed() ||
+                           m_stochasticJitterEnabled->changed() ||  m_opacityCorrectionEnabled->changed();
+
+        // reset module in case of invalid data. This accounts only for the scalar field input
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting.";
+            rootNode->clear();
+            continue;
+        }
 
         // As the data has changed, we need to recreate the texture.
         if ( ( propUpdated || dataUpdated ) && dataValid )
         {
             debugLog() << "Data changed. Uploading new data as texture.";
+
+            // there are several updates. Clear the root node and later on insert the new rendering.
+            rootNode->clear();
 
             // First, grab the grid
             boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
@@ -183,11 +262,9 @@ void WMDirectVolumeRendering::moduleMain()
             }
 
             // use the OSG Shapes, create unit cube
-            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode(
-                wmath::WPosition( 0.0, 0.0, 0.0 ),
-                wmath::WPosition( grid->getNbCoordsX() - 1, grid->getNbCoordsY() - 1, grid->getNbCoordsZ() - 1 ),
-                WColor( 1.0, 1.0, 1.0, 1.0 )
-            );
+            WBoundingBox bb( wmath::WPosition( 0.0, 0.0, 0.0 ),
+                    wmath::WPosition( grid->getNbCoordsX() - 1, grid->getNbCoordsY() - 1, grid->getNbCoordsZ() - 1 ) );
+            osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb, WColor( 1.0, 1.0, 1.0, 1.0 ) );
             cube->asTransform()->getChild( 0 )->setName( "_DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
                                                                               // because of the underscore in front it won't be picked
             // we also set the grid's transformation here
@@ -196,26 +273,34 @@ void WMDirectVolumeRendering::moduleMain()
             m_shader->apply( cube );
 
             // bind the texture to the node
-            osg::ref_ptr< osg::Texture3D > texture3D = dataSet->getTexture()->getTexture();
-            osg::StateSet* rootState = cube->getOrCreateStateSet();
-            rootState->setTextureAttributeAndModes( 0, texture3D, osg::StateAttribute::ON );
+            osg::ref_ptr< WDataTexture3D_2 > texture3D = dataSet->getTexture2();
+            wge::bindTexture( cube, texture3D, 0, "u_volume" );
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // setup illumination
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // enable transparency
+            osg::StateSet* rootState = cube->getOrCreateStateSet();
             rootState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // setup defines (illumination)
-            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // set proper illumination define
+            illuminationAlgoDefines->activateOption( m_localIlluminationAlgo->get( true ).getItemIndexOfSelected( 0 ) );
 
-            size_t localIlluminationAlgo = m_localIlluminationAlgo->get( true ).getItemIndexOfSelected( 0 );
-            m_shader->eraseAllDefines();
-            switch ( localIlluminationAlgo )
+            // if there is a gradient field available -> apply as texture too
+            boost::shared_ptr< WDataSetVector > gradients = m_gradients->getData();
+            if ( gradients )
             {
-                case Phong:
-                    m_shader->setDefine( "LOCALILLUMINATION_PHONG" );
-                    break;
-                default:
-                    break;
+                debugLog() << "Uploading specified gradient field.";
+
+                // bind the texture to the node
+                osg::ref_ptr< WDataTexture3D_2 > gradTexture3D = gradients->getTexture2();
+                wge::bindTexture( cube, gradTexture3D, 1, "u_gradients" );
+                gradTexEnableDefine->setActive( true );
+            }
+            else
+            {
+                gradTexEnableDefine->setActive( false ); // disable gradient texture
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,6 +308,7 @@ void WMDirectVolumeRendering::moduleMain()
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // try to load the tf from file if existent
+            tfTexEnableDefine->setActive( false );
             if ( m_tfLoaderEnabled->get( true ) )
             {
                 osg::ref_ptr< osg::Image > tfImg = osgDB::readImageFile( m_tfLoaderFile->get( true ).file_string() );
@@ -233,39 +319,59 @@ void WMDirectVolumeRendering::moduleMain()
                     tfTexture->setImage( tfImg );
 
                     // apply it
-                    rootState->setTextureAttributeAndModes( 1, tfTexture, osg::StateAttribute::ON );
-                    rootState->addUniform( new osg::Uniform( "tex1", 1 ) );
-                    m_shader->setDefine( "TRANSFERFUNCTION_SAMPLER", "tex1" );
-                    m_shader->setDefine( "TRANSFERFUNCTION_ENABLED" );
+                    wge::bindTexture( cube, tfTexture, 2, "u_transferFunction" );
+                    tfTexEnableDefine->setActive( true );        // enable it
                 }
                 else
                 {
                     warnLog() << "Transfer function texture could not be loaded from " << m_tfLoaderFile->get( true ).file_string() << ".";
                 }
+                m_tfLoaderTrigger->get( true );
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // stochastic jittering texture
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // create some random noise
+            jitterSamplerDefine->setActive( false );
+            if ( m_stochasticJitterEnabled->get( true ) )
+            {
+                const size_t size = 64;
+                osg::ref_ptr< WGETexture2D > randTexture = new WGETexture2D( genWhiteNoise( size ) );
+                randTexture->setFilterMinMag( osg::Texture2D::NEAREST );
+                randTexture->setWrapSTR( osg::Texture2D::REPEAT );
+                wge::bindTexture( cube, randTexture, 3, "u_jitter" );
+                jitterSamplerDefine->setActive( true );
+                jitterSizeXDefine->setValue( size );
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // opacity correction
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // create some random noise
+            if ( m_opacityCorrectionEnabled->get( true ) )
+            {
+                opacityCorrectionEnableDefine->setActive( true );
+            }
+            else
+            {
+                opacityCorrectionEnableDefine->setActive( false );
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // setup all those uniforms
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            // for the texture, also bind the appropriate uniforms
-            rootState->addUniform( new osg::Uniform( "tex0", 0 ) );
-
-            osg::ref_ptr< osg::Uniform > steps = new osg::Uniform( "u_steps", m_stepCount->get() );
-            steps->setUpdateCallback( new SafeUniformCallback( this ) );
-
-            rootState->addUniform( steps );
-
-            WGEColormapping::apply( cube, false );
+            rootState->addUniform( new WGEPropertyUniform< WPropInt >( "u_samples", m_samples ) );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             // build spatial search structure
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
             // update node
             debugLog() << "Adding new rendering.";
-            rootNode->clear();
             rootNode->insert( cube );
             // insert root node if needed. This way, we ensure that the root node gets added only if the proxy cube has been added AND the bbox
             // can be calculated properly by the OSG to ensure the proxy cube is centered in the scene if no other item has been added earlier.
@@ -283,14 +389,5 @@ void WMDirectVolumeRendering::moduleMain()
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
     // allocated memory and remove all OSG nodes.
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( rootNode );
-}
-
-void WMDirectVolumeRendering::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
-{
-    // update some uniforms:
-    if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
-    {
-        uniform->set( m_module->m_stepCount->get( true ) );
-    }
 }
 

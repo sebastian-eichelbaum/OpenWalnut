@@ -30,11 +30,12 @@
 #include <utility>
 
 #include "../WException.h"
+#include "../WExportCommon.h"
 
 /**
  * An exception that gets thrown when preconditions of a function are not met.
  */
-class WPreconditionNotMet : public WException
+class OWCOMMON_EXPORT WPreconditionNotMet : public WException
 {
 public:
     /**
@@ -143,12 +144,12 @@ void __WPrecondLessImpl( std::string const& expr1, std::string const& expr2, T1 
 
 }  // namespace utility
 
-#define WPrecond( expr, msg ) ( ( expr ) ? ( ( void )0 ) : ( utility::__WPrecondImpl( #expr, msg ) ) )
+#define WPrecond( expr, msg ) ( ( expr ) ? ( ( void )0 ) : ( ::utility::__WPrecondImpl( #expr, msg ) ) )
 
-#define WPrecondDiffers( expr1, expr2 ) ( utility::__WPrecondDiffersImpl( #expr1, #expr2, ( expr1 ), ( expr2 ) ) ) // NOLINT
+#define WPrecondDiffers( expr1, expr2 ) ( ::utility::__WPrecondDiffersImpl( #expr1, #expr2, ( expr1 ), ( expr2 ) ) ) // NOLINT
 
-#define WPrecondEquals( expr1, expr2 ) ( utility::__WPrecondEqualsImpl( #expr1, #expr2, ( expr1 ), ( expr2 ) ) ) // NOLINT
+#define WPrecondEquals( expr1, expr2 ) ( ::utility::__WPrecondEqualsImpl( #expr1, #expr2, ( expr1 ), ( expr2 ) ) ) // NOLINT
 
-#define WPrecondLess( expr1, expr2 ) ( utility::__WPrecondLessImpl( #expr1, #expr2, ( expr1 ), ( expr2 ) ) ) // NOLINT
+#define WPrecondLess( expr1, expr2 ) ( ::utility::__WPrecondLessImpl( #expr1, #expr2, ( expr1 ), ( expr2 ) ) ) // NOLINT
 
 #endif  // WPRECONDITIONNOTMET_H

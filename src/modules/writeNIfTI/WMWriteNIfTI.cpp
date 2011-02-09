@@ -196,7 +196,7 @@ void WMWriteNIfTI::writeToFile()
     outField->slice_dim = 3;
 
     outField->qform_code = 1;
-    outField->sform_code = 0;
+    outField->sform_code = 1;
 
     // TODO(philips): solve ticket 334
     // set time dimension to 1
@@ -212,13 +212,13 @@ void WMWriteNIfTI::writeToFile()
     // a description max. 80 char
     description.copy( outField->descrip, 80 );
 
-
     wmath::WMatrix< double > matrix = grid->getTransformationMatrix();
     for( size_t i = 0; i < 4; ++i )
     {
         for( size_t j = 0; j < 4; ++j )
         {
             outField->qto_xyz.m[i][j] = matrix( i, j );
+            outField->sto_xyz.m[i][j] = matrix( i, j );
         }
     }
 
@@ -233,6 +233,7 @@ void WMWriteNIfTI::writeToFile()
     }
 
     outField->qto_ijk = nifti_mat44_inverse( outField->qto_xyz );
+    outField->sto_ijk = nifti_mat44_inverse( outField->sto_xyz );
 
     void* data = 0;
     switch( ( *m_dataSet ).getValueSet()->getDataType() )

@@ -56,10 +56,10 @@ public:
     {
 #ifdef OW_USE_ITK
         // build a dataset
-        std::vector< int > values( 27, 0 );
+        boost::shared_ptr< std::vector< int > > values( new std::vector< int >( 27, 0 ) );
         for( int k = 0; k < 27; ++k )
         {
-            values[ k ] = 27 - k;
+            ( *values )[ k ] = 27 - k;
         }
         boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3 ) );
         boost::shared_ptr< WValueSet< int > > v( new WValueSet< int >( 0, 1, values, W_DT_SIGNED_INT ) );

@@ -30,6 +30,7 @@
 #include <vector>
 
 #include <QtGui/QDockWidget>
+#include <QtGui/QSplitter>
 #include <QtGui/QTabWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
@@ -190,9 +191,8 @@ protected:
      *
      * \param module pointer to the currently selected module
      *
-     * \return the new toolbar instance
      */
-    WQtCombinerToolbar* createCompatibleButtons( boost::shared_ptr< WModule >module );
+    void createCompatibleButtons( boost::shared_ptr< WModule > module );
 
     /**
      * Reference to the main window of the application.
@@ -233,6 +233,8 @@ private:
 
     QVBoxLayout* m_layout; //!< layout
 
+    QSplitter* m_splitter; //!< splitter to have resizable widgets in the control panel
+
     WQtModuleHeaderTreeItem* m_tiModules; //!< header for modules
 
     WQtRoiHeaderTreeItem* m_tiRois; //!< header for rois
@@ -258,6 +260,30 @@ private:
      * Action which disconnects a connector from the module.
      */
     QAction* m_disconnectAction;
+
+    /**
+     * List all actions created for applying a prototype. Is needed for m_connectWithPrototypeAction.
+     *
+     * \note We need to store this action list here as Qt is not able to delete the actions if they get replaced. We need to handle this
+     * manually.
+     */
+    WQtCombinerActionList m_connectWithPrototypeActionList;
+
+    /**
+     * List all actions created for applying a prototype. Is needed for m_connectWithModuleAction.
+     *
+     * \note We need to store this action list here as Qt is not able to delete the actions if they get replaced. We need to handle this
+     * manually.
+     */
+    WQtCombinerActionList m_connectWithModuleActionList;
+
+    /**
+     * List all actions created for applying a prototype. Is needed for m_disconnectAction.
+     *
+     * \note We need to store this action list here as Qt is not able to delete the actions if they get replaced. We need to handle this
+     * manually.
+     */
+    WQtCombinerActionList m_disconnectActionList;
 
     /**
      * If true, a selection change does not cause the property tab to rebuild. This is useful if multiple items get selected at once
@@ -302,12 +328,13 @@ private slots:
     /**
      * function gets called when a change to a tree item, eg. check box status, occurs
      */
-    void changeTreeItem();
-
     /**
-     * function gets called when a change to a tree item, eg. check box status, occurs
+     * Function gets change when a change to a tree item occurs.
+     *
+     * \param item the item
+     * \param column column index
      */
-    void changeRoiTreeItem();
+    void changeTreeItem( QTreeWidgetItem* item, int column );
 
     /**
      * delete a ROI tree item
@@ -318,6 +345,11 @@ private slots:
      * delete a module tree item
      */
     void deleteModuleTreeItem();
+
+    /**
+     * function to notify the roi manager of any drag&drop action in the roi tree
+     */
+    void handleDragDrop();
 };
 
 #endif  // WQTCONTROLPANEL_H

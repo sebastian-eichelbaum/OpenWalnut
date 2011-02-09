@@ -133,9 +133,9 @@ osg::ref_ptr< WGEGroupNode > WGEViewerMac::getScene()
     return m_scene;
 }
 
-void WGEViewerMac::setBgColor( WColor bgColor )
+void WGEViewerMac::setBgColor( const WColor& bgColor )
 {
-    m_View->getCamera()->setClearColor( osg::Vec4( bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue(), 1. ) );
+    m_View->getCamera()->setClearColor( bgColor );
 }
 
 void WGEViewerMac::paint()

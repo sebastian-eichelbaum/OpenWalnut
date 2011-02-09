@@ -11,12 +11,12 @@ IF( EIGEN3_FOUND )
     SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
     SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
     SET( MODULE_DIRNAME ${MODULE_NAME} )
-    SET( MODULE_NAME    "OWmodule_${MODULE_NAME}" )      # prefix all module names with "OWmodule_" to separate them from other libs
+    SET( MODULE_NAME    "${OWmodulesPrefix}_${MODULE_NAME}" )      # prefix all module names with "OWmodule_" to separate them from other libs
 
     # Build module lib
     INCLUDE_DIRECTORIES( ${EIGEN3_INCLUDE_DIR} )
     ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
-    TARGET_LINK_LIBRARIES( ${MODULE_NAME} OWkernel )
+    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWKernelName} )
 
     # Copy local shaders to module target directory
     IF( OW_COPY_SHADERS AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/shaders )    # copy shaders only if the user wants it
@@ -32,7 +32,7 @@ IF( EIGEN3_FOUND )
         # This ensures that the test is copied to the module directory
         SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
         CXXTEST_ADD_TESTS_FROM_LIST( "${MODULES_SRC}"
-            "OWkernel;${MODULE_NAME}"
+            "${OWKernelName};${MODULE_NAME}"
             )
 
         # Copy fixtures if they exist

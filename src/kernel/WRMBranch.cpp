@@ -47,9 +47,10 @@ void WRMBranch::properties()
 
     m_dirty = m_properties->addProperty( "Dirty", "", true, boost::bind( &WRMBranch::propertyChanged, this ) );
     m_dirty->setHidden( true );
-    m_isNot = m_properties->addProperty( "NOT", "description", false, boost::bind( &WRMBranch::propertyChanged, this ) );
-    m_bundleColor = m_properties->addProperty( "Bundle Color", "description", WColor( 1.0, 0.0, 0.0, 1.0 ),
-            boost::bind( &WRMBranch::propertyChanged, this ) );
+    m_isNot = m_properties->addProperty( "Not", "Negate the effect of this branch.", false, boost::bind( &WRMBranch::propertyChanged, this ) );
+    m_bundleColor = m_properties->addProperty( "Bundle color", "", WColor( 1.0, 0.0, 0.0, 1.0 ),
+                                               boost::bind( &WRMBranch::propertyChanged, this ) );
+    m_changeRoiSignal = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WRMBranch::setDirty, this ) ) );
 }
 
 void WRMBranch::propertyChanged()
@@ -61,8 +62,7 @@ void WRMBranch::propertyChanged()
 void WRMBranch::addRoi( osg::ref_ptr< WROI > roi )
 {
     m_rois.push_back( roi );
-    boost::function< void() > changeRoiSignal = boost::bind( &WRMBranch::setDirty, this );
-    roi->addChangeNotifier( changeRoiSignal );
+    roi->addROIChangeNotifier( m_changeRoiSignal );
 
     setDirty();
 }
@@ -81,6 +81,7 @@ bool WRMBranch::contains( osg::ref_ptr< WROI > roi )
 
 void WRMBranch::removeRoi( osg::ref_ptr< WROI > roi )
 {
+    roi->removeROIChangeNotifier( m_changeRoiSignal );
     for( std::list< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
         if ( ( *iter ) == roi )
@@ -115,10 +116,10 @@ void WRMBranch::setDirty()
     m_dirty->set( true );
     m_roiManager->setDirty();
 
-    for ( std::list< boost::function< void() > >::iterator iter = m_changeNotifiers.begin();
+    for ( std::list< boost::shared_ptr< boost::function< void() > > >::iterator iter = m_changeNotifiers.begin();
                 iter != m_changeNotifiers.end(); ++iter )
     {
-        ( *iter )();
+        ( **iter )();
     }
 }
 
@@ -137,10 +138,23 @@ boost::shared_ptr< WProperties > WRMBranch::getProperties()
     return m_properties;
 }
 
-void WRMBranch::addChangeNotifier( boost::function< void() > notifier )
+void WRMBranch::addChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier )
 {
     boost::unique_lock< boost::shared_mutex > lock;
     lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
     m_changeNotifiers.push_back( notifier );
+    lock.unlock();
+}
+
+void WRMBranch::removeChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier )
+{
+    boost::unique_lock< boost::shared_mutex > lock;
+    lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
+    std::list<  boost::shared_ptr< boost::function< void() > > >::iterator it;
+    it = std::find( m_changeNotifiers.begin(), m_changeNotifiers.end(), notifier );
+    if( it != m_changeNotifiers.end() )
+    {
+        m_changeNotifiers.erase( it );
+    }
     lock.unlock();
 }

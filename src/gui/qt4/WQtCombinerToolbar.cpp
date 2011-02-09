@@ -34,12 +34,12 @@
 
 #include "WMainWindow.h"
 #include "WQtToolBar.h"
-#include "WQtCombinerActionList.h"
 
 #include "WQtCombinerToolbar.h"
 
-WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCompatiblesList compatibles )
-    : QToolBar( "Compatible Modules", parent )
+WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerActionList& compatibles )
+    : QToolBar( "Compatible Modules", parent ),
+      m_parent( parent )
 {
     // setup toolbar
     setAllowedAreas( Qt::AllToolBarAreas );
@@ -56,16 +56,57 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCo
     setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
 
     // create the list of actions possible
-    addActions( WQtCombinerActionList( this, parent->getIconManager(), compatibles ) );
+    addActions( compatibles );
+    insertDummyButton();
+}
 
-    // The following makes the bar having button size from the beginning.
+WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent )
+    : QToolBar( "Compatible Modules", parent ),
+      m_parent( parent )
+{
+    // setup toolbar
+    setAllowedAreas( Qt::AllToolBarAreas );
+
+    // this sets the toolbar style
+    int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
+    WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );
+    if ( ( compToolBarStyle < 0 ) || ( compToolBarStyle > 3 ) ) // ensure a valid value
+    {
+        compToolBarStyle = 0;
+    }
+
+    // cast and set
+    setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
+
+    // reserve size
+    insertDummyButton();
+}
+
+WQtCombinerToolbar::~WQtCombinerToolbar()
+{
+}
+
+void WQtCombinerToolbar::makeEmpty()
+{
+    clear();
+    insertDummyButton();
+}
+
+void WQtCombinerToolbar::updateButtons( const WQtCombinerActionList& compatibles )
+{
+    clear();
+    addActions( compatibles );
+}
+
+void WQtCombinerToolbar::insertDummyButton()
+{
+    // The following makes the bar having button size.
     QPushButton* dummyButton = new QPushButton;
-
-    if ( ( parent->toQtToolBarArea( parent->getCompatiblesToolbarPos() ) ==  Qt::TopToolBarArea ) ||
-         ( parent->toQtToolBarArea( parent->getCompatiblesToolbarPos() ) ==  Qt::BottomToolBarArea ) )
+    if ( ( m_parent->toQtToolBarArea( m_parent->getCompatiblesToolbarPos() ) ==  Qt::TopToolBarArea ) ||
+         ( m_parent->toQtToolBarArea( m_parent->getCompatiblesToolbarPos() ) ==  Qt::BottomToolBarArea ) )
     {
         dummyButton->setFixedWidth( 0 );
-        dummyButton->setFixedHeight( 32 );
+        dummyButton->setFixedHeight( 30 );
     }
     else
     {
@@ -75,8 +116,3 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, WCombinerTypes::WCo
 
     addWidget( dummyButton );
 }
-
-WQtCombinerToolbar::~WQtCombinerToolbar()
-{
-}
-

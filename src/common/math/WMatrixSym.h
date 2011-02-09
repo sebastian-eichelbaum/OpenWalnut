@@ -30,7 +30,6 @@
 #include <vector>
 
 #include "../exceptions/WOutOfBounds.h"
-#include "../WExportCommon.h"
 
 /**
  * Symmetric square matrix, storing only the elements of the triangular matrix without the main
@@ -39,7 +38,7 @@
  * \note There exists also a WWriter and WReader for storing/reading the matrix in VTK file format.
  */
 template< typename T >
-class OWCOMMON_EXPORT WMatrixSymImpl
+class WMatrixSymImpl
 {
 friend class WMatrixSymTest;
 public:
@@ -53,7 +52,7 @@ public:
      *
      * \param n number of rows and cols
      */
-    WMatrixSymImpl( size_t n );
+    explicit WMatrixSymImpl( size_t n );
 
     /**
      * Default constructor leaving all empty.
@@ -167,6 +166,7 @@ inline void WMatrixSymImpl< T >::setData( const std::vector< T > &data ) throw( 
     m_data = std::vector< T >( data ); // copy content
 }
 
-typedef WMatrixSymImpl< double > WMatrixSym;
+typedef WMatrixSymImpl< double > WMatrixSymDBL;
+typedef WMatrixSymImpl< float > WMatrixSymFLT;
 
 #endif  // WMATRIXSYM_H

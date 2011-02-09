@@ -31,7 +31,7 @@
 #include <osg/Geode>
 
 #include "../../dataHandler/WDataSetVector.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -152,18 +152,16 @@ private:
 
     WPropDouble      m_zSlice; //!< z position of the slice
 
-    WPropBool     m_showonX; //!< indicates whether the vector should be shown on slice X
+    WPropBool     m_showOnSagittal; //!< indicates whether the vector should be shown on sagittal slice
 
-    WPropBool     m_showonY; //!< indicates whether the vector should be shown on slice Y
+    WPropBool     m_showOnCoronal; //!< indicates whether the vector should be shown on coronal slice
 
-    WPropBool     m_showonZ; //!< indicates whether the vector should be shown on slice Z
+    WPropBool     m_showOnAxial; //!< indicates whether the vector should be shown on axial slice
 
 
     WPropColor    m_aColor; //!< color
 
-    osg::ref_ptr< WShader > m_shader; //!< the shader object for this module
-
-    wmath::WMatrix< double > m_mat; //!< The 4x4 transformation matrix for the glyph vertices.
+    osg::ref_ptr< WGEShader > m_shader; //!< the shader object for this module
 
     wmath::WPosition m_oldPos; //!< The previous position of the slides.
 };

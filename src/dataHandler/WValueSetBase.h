@@ -30,6 +30,7 @@
 
 #include <boost/variant.hpp>
 
+#include "../common/math/WValue.h"
 #include "WDataHandlerEnums.h"
 #include "WExportDataHandler.h"
 
@@ -85,6 +86,12 @@ public:
      * \return The i-th scalar stored in this value set. There are rawSize() such scalars.
      */
     virtual double getScalarDouble( size_t i ) const = 0;
+
+    /**
+     * \param i id of the WValue to retrieve
+     * \return The i-th WValue stored in this value set. There are size() such scalars.
+     */
+    virtual wmath::WValue< double > getWValueDouble( size_t i ) const = 0;
 
     /**
      * \return Dimension of the values in this ValueSet

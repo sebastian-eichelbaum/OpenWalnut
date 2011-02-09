@@ -1,0 +1,79 @@
+## This is a sample configuration file for OpenWalnut.
+## Uncomment the options you are interested in.
+
+[modules]
+## use this to specify the default module to add during load.
+## It is a comma seperated list. If this is not specified the 
+## default empty is assumed. Be sure to NOT add "" around the list.
+## An example could be
+# default=HUD
+## A list of modules that will be provided through the GUI. 
+## If the list is empty all available modules are provided.
+whiteList = Arbitrary Plane,Coordinate System,Image Extractor,Paint Texture,Arbitrary Rois,Bounding Box,Distance Map Isosurface,Gauss Filtering,HUD,Isosurface,Isosurface Raytracer,LIC,Read Mesh,Voxelizer,Superquadric Glyphs,Triangle Mesh Renderer,Vector Plot,Write NIfTI,Fiber Display,Read Spherical Harmonics,Navigation Slices,Deterministic Tract Clustering using Gaussian Processes,Deterministic Tract to Gaussian Process Converter,Cluster Param Display,Write Tracts,Fiber Resampling,Teem Glyphs
+
+## Specify a ";" separated list of additional paths for modules. The order of appearance is the order of loading. The following additional rules apply here:
+## 1. if the directory contains one or more libOWmodule_XYZ it/they get loaded
+## 2. if the directory does not contain any libOWmodule_XYZ, the subdirectories get searched.
+## 3. DO NOT use this string thing --> " <-- to enclose the string!
+## NOTE: you do not need to specify the global module path as it gets search automatically
+#path = /home/user/otherModules;/usr/local/OpenWalnut/niceModule/
+
+[qt4gui]
+####################################################################
+# Views
+
+# hideAxial = yes # hide the axial view widget
+# hideCoronal = yes # hide the coronal view widget
+# hideSagittal = yes # hide the sagittal view widget
+
+####################################################################
+# Toolbars
+
+# useToolBarBreak = no # put compatibles toolbar in separate row
+# useAutoDisplay = no # automatically add a standard module after loading a data module.
+
+# The next property controls the style of ALL toolbars in OpenWalnut.
+# 0 -> Only display the icon. This also is the default on Qt
+# 1 -> Only display the text.
+# 2 -> The text appears beside the icon.
+# 3 -> The text appears under the icon.
+toolBarStyle = 0
+compatiblesToolBarStyle = 0 # this pref allows the compatibles toolbar to have a different style (overrides toolBarStyle)
+
+# Position of the compatibles toolbar
+# 0 -> top
+# 1 -> bottom
+# 2 -> left
+# 3 -> right
+# 4 -> hide completely
+# 5 -> inside the control panel ( not possible for compatiblesToolBarPos! This will be mapped to right (=3) )
+toolBarPos = 0 # default position of the toolbars
+compatiblesToolBarPos = 0 # position of the compatibles toolbar (overrides toolBarPos)
+
+####################################################################
+# Control panel
+
+# combineTreeAndRoiAndTextureSorter = yes # should the module tree, ROI tree and the Texture Sorter be combined in ONE Tab widget?
+# dsbWidth = 400  # the width of the control panel
+# dsbInvisibleByDefault = yes # hide the control panel on startup. Can be shown using F9.
+# dsbFloatingByDefault = yes  # should the control panel be undocked on startup?
+
+# Here you can put any key sequence you would like to result in removing modules or ROIs
+# Examples: 
+# deleteKey = Backspace
+# deleteKey = Ctrl+J
+# deleteKey = B
+deleteModuleKey = Backspace
+deleteROIKey = Del
+
+####################################################################
+# Other GUI settings
+
+# hideMenuBar = yes # hide the menu bar
+
+[ge] ## Settings for the graphics engine
+# bgColor.r = .9 # background color (red part)
+# bgColor.g = .9 # background color (green part)
+# bgColor.b = .9 # background color (blue part)
+zoomTrackballManipulator.allowThrow = no # allow the auto-rotation thing when "throwing" an object with the mouse
+multiThreadedViewers = no # Use multiple threads for the multiple viewers. Causes hanging on some machines when opening a new view.

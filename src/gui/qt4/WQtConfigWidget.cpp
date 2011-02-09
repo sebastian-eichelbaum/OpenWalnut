@@ -29,11 +29,11 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QVBoxLayout>
 
-#include "WCfgOperations.h"
-#include "../../kernel/WModuleFactory.h"
 #include "../../common/WConditionOneShot.h"
 #include "../../common/WPathHelper.h"
-
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleFactory.h"
+#include "WCfgOperations.h"
 #include "WQtConfigWidget.h"
 
 WQtConfigWidget::WQtConfigWidget() :
@@ -101,7 +101,7 @@ void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > pro
 
     // Colors:
     // this may also be updated when either color or one of the values gets updated
-    if ( groupName == "ge.bgColor" )
+    if( groupName == "ge.bgColor" )
     {
         WPropGroup backgroundColor = properties->findProperty( "ge.bgColor" )->toPropGroup();
         WPropDouble r, g, b;
@@ -110,32 +110,33 @@ void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > pro
         b = backgroundColor->findProperty( "ge.bgColor.b" )->toPropDouble();
         WPropColor wColorProp = backgroundColor->findProperty( "ge.sColorWidget" )->toPropColor();
 
-        if ( fromConfig )
+        if( fromConfig )
         {
-            WColor color( static_cast< double >( r->get( true ) ), static_cast< double >( g->get( true ) ), static_cast< double >( b->get( true ) ) );
+            WColor color( static_cast< double >( r->get( true ) ), static_cast< double >( g->get( true ) ),
+                    static_cast< double >( b->get( true ) ), 1.0 );
             wColorProp->set( color, true );
         }
         else
         {
             WColor color = wColorProp->get( true );
-            r->set( static_cast< double >( color.getRed() ), true );
-            g->set( static_cast< double >( color.getGreen() ), true );
-            b->set( static_cast< double >( color.getBlue() ), true );
+            r->set( static_cast< double >( color[0] ), true );
+            g->set( static_cast< double >( color[1] ), true );
+            b->set( static_cast< double >( color[2] ), true );
         }
     }
     size_t i;
-    if ( groupName == "modules.whiteListGroup" )
+    if( groupName == "modules.whiteListGroup" )
     {
         WPropGroup moduleWhiteList = properties->findProperty( "modules.whiteListGroup" )->toPropGroup();
         WPropString whiteList = moduleWhiteList->findProperty( "modules.whiteList" )->toPropString();
 
-        if ( fromConfig )
+        if( fromConfig )
         {
             for ( i = 0; i < m_moduleNames.size(); ++i )
             {
                 bool isWhiteListed = false;
                 std::string whiteString = whiteList->get();
-                if ( whiteString.find( m_moduleNames[i] ) != std::string::npos )
+                if( whiteString.find( m_moduleNames[i] ) != std::string::npos )
                 {
                     isWhiteListed = true;
                 }
@@ -149,9 +150,9 @@ void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > pro
             for ( i = 0; i < m_moduleNames.size(); ++i )
             {
                 bool isWhiteListed = moduleWhiteList->findProperty( "modules.whitelist." + m_moduleNames[i] )->toPropBool()->get( true );
-                if ( isWhiteListed )
+                if( isWhiteListed )
                 {
-                    if ( setStr.length() > 0 )
+                    if( setStr.length() > 0 )
                     {
                         setStr += ',';
                     }
@@ -162,17 +163,17 @@ void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > pro
         }
     }
 
-    if ( groupName == "modules.defaultList" )
+    if( groupName == "modules.defaultList" )
     {
         WPropGroup moduleDefaultList = properties->findProperty( "modules.defaultList" )->toPropGroup();
         WPropString defaultList = moduleDefaultList->findProperty( "modules.default" )->toPropString();
-        if ( fromConfig )
+        if( fromConfig )
         {
             for ( i = 0; i < m_moduleNames.size(); ++i )
             {
                 bool isDefaultListed = false;
                 std::string defaultString = defaultList->get();
-                if ( defaultString.find( m_moduleNames[i] ) != std::string::npos )
+                if( defaultString.find( m_moduleNames[i] ) != std::string::npos )
                 {
                     isDefaultListed = true;
                 }
@@ -186,9 +187,9 @@ void WQtConfigWidget::updatePropertyGroups( boost::shared_ptr< WProperties > pro
             for ( i = 0; i < m_moduleNames.size(); ++i )
             {
                 bool isDefaultListed = moduleDefaultList->findProperty( "modules.defaultList." + m_moduleNames[i] )->toPropBool()->get( true );
-                if ( isDefaultListed )
+                if( isDefaultListed )
                 {
-                    if ( setStr.length() > 0 )
+                    if( setStr.length() > 0 )
                     {
                         setStr += ',';
                     }
@@ -256,13 +257,12 @@ void WQtConfigWidget::registerComponents()
     g->setMax( 1.0 );
     b->setMin( 0.0 );
     b->setMax( 1.0 );
-    WColor color( static_cast< double >( r->get() ), static_cast< double >( g->get() ), static_cast< double >( b->get() ) );
+    WColor color( static_cast< double >( r->get() ), static_cast< double >( g->get() ), static_cast< double >( b->get() ), 1.0 );
     backgroundColor->addProperty( "ge.sColorWidget", "Color pick widget", color, m_propCondition );
     m_skipPropertyWrite.push_back( "ge.sColorWidget" );
 
     m_defaultProperties->addProperty( "qt4gui.useAutoDisplay", "use Auto Display", true, m_propCondition );
     m_defaultProperties->addProperty( "qt4gui.useToolBarBreak", "use ToolBarBreak", true, m_propCondition );
-    m_defaultProperties->addProperty( "general.allowOnlyOneFiberDataSet", "allow only one FiberDataSet", false, m_propCondition );
     WPropInt tbs = m_defaultProperties->addProperty( "qt4gui.toolBarStyle", "The style of all toolbars in OpenWalnut", 0, m_propCondition );
     WPropInt ctbs = m_defaultProperties->addProperty( "qt4gui.compatiblesToolBarStyle", "The style of all compatibles toolbar in OpenWalnut", 0,
                                                       m_propCondition );
@@ -297,7 +297,7 @@ void WQtConfigWidget::registerComponents()
     {
         bool isWhiteListed = false;
         std::string whiteString = whiteList->toPropString()->get();
-        if ( whiteString.find( m_moduleNames[i] ) != std::string::npos )
+        if( whiteString.find( m_moduleNames[i] ) != std::string::npos )
         {
             isWhiteListed = true;
         }
@@ -313,7 +313,7 @@ void WQtConfigWidget::registerComponents()
     {
         bool isDefaultListed = false;
         std::string defaultString = defaultList->toPropString()->get();
-        if ( defaultString.find( m_moduleNames[i] ) != std::string::npos )
+        if( defaultString.find( m_moduleNames[i] ) != std::string::npos )
         {
             isDefaultListed = true;
         }
@@ -343,7 +343,7 @@ boost::shared_ptr< WProperties > WQtConfigWidget::copyProperties( boost::shared_
     while ( !propertyStack.empty() )
     {
         // check if at the end of group, if so pop and continue
-        if ( iteratorStack.back() == propertyStack.back()->getAccessObject()->get().end() )
+        if( iteratorStack.back() == propertyStack.back()->getAccessObject()->get().end() )
         {
             propertyStack.pop_back();
             iteratorStack.pop_back();
@@ -351,7 +351,7 @@ boost::shared_ptr< WProperties > WQtConfigWidget::copyProperties( boost::shared_
         }
 
         // add group to stack, and move iterator
-        if ( ( *( iteratorStack.back() ) )->getType() == PV_GROUP )
+        if( ( *( iteratorStack.back() ) )->getType() == PV_GROUP )
         {
             propertyStack.push_back( ( *iteratorStack.back() )->toPropGroup() );
             ++iteratorStack.back();
@@ -379,7 +379,7 @@ void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > f
     WProperties::PropertyAccessType accesObject2 = to->getAccessObject();
 
     // in recursive calls, this avoids concurrent locks (even if concurrent read locks are allowed).
-    if ( lock )
+    if( lock )
     {
         // Temporarily disabled since locking causes several problems here :-/
         // accesObject->beginRead();
@@ -411,7 +411,7 @@ void WQtConfigWidget::copyPropertiesContents( boost::shared_ptr< WProperties > f
         }
     }
 
-    if ( lock )
+    if( lock )
     {
         // Temporarily disabled since locking causes several problems here :-/
         // accesObject2->endRead();
@@ -423,7 +423,7 @@ void WQtConfigWidget::addLineToProperty( boost::shared_ptr< WProperties > var, s
 {
     LinePropertySet::iterator lPSitr;
     lPSitr = m_lineAssociationList.find( var );
-    if ( lPSitr != m_lineAssociationList.end() )
+    if( lPSitr != m_lineAssociationList.end() )
     {
         lPSitr->second.push_back( lineNumber );
     }
@@ -440,7 +440,7 @@ boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost
     WProperties::PropertyAccessType accesObject = searchIn->getAccessObject();
 
     // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
-    if ( lock )
+    if( lock )
     {
         // Temporarily disabled since locking causes several problems here :-/
         // accesObject->beginRead();
@@ -452,24 +452,24 @@ boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost
     WProperties::PropertyIterator iter;
     for ( iter = accesObject->get().begin(); iter != accesObject->get().end(); ++iter )
     {
-        if ( ( *iter )->getName() == name )
+        if( ( *iter )->getName() == name )
         {
             result = ( *iter )->toPropGroup();
             // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
-            if ( lock )
+            if( lock )
             {
                 // Temporarily disabled since locking causes several problems here :-/
                 // accesObject->endRead();
             }
             return result;
         }
-        if ( ( *iter )->getType() == PV_GROUP )
+        if( ( *iter )->getType() == PV_GROUP )
         {
             boost::shared_ptr< WPropertyBase > tmp = findPropertyRecursive( ( *iter )->toPropGroup(), name );
-            if ( tmp )
+            if( tmp )
             {
                 // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
-                if ( lock )
+                if( lock )
                 {
                     // Temporarily disabled since locking causes several problems here :-/
                     // accesObject->endRead();
@@ -480,7 +480,7 @@ boost::shared_ptr< WPropertyBase > WQtConfigWidget::findPropertyRecursive( boost
     }
 
      // avoid concurrent locks in recursive calls (even if concurrent read locks are allowed)
-    if ( lock )
+    if( lock )
     {
         // Temporarily disabled since locking causes several problems here :-/
         // accesObject->endRead();
@@ -504,10 +504,10 @@ void WQtConfigWidget::createLineAssociation()
     size_t i;
     for ( i = 0; i < m_configLines.size(); ++i )
     {
-        if ( !WCfgOperations::isAssignment( m_configLines[i] ) &&
+        if( !WCfgOperations::isAssignment( m_configLines[i] ) &&
              !WCfgOperations::isCommentedAssignment( m_configLines[i] ) )
         {
-            if ( WCfgOperations::isSection( m_configLines[i] ) )
+            if( WCfgOperations::isSection( m_configLines[i] ) )
             {
                 lastSection = WCfgOperations::getSectionName( m_configLines[i] );
             }
@@ -519,7 +519,7 @@ void WQtConfigWidget::createLineAssociation()
             std::string curLine = m_configLines[i];
             std::string propertyVal;
             bool commentedAssignment = WCfgOperations::isCommentedAssignment( curLine );
-            if ( commentedAssignment )
+            if( commentedAssignment )
             {
                 curLine = WCfgOperations::uncommentLine( curLine );
             }
@@ -529,21 +529,21 @@ void WQtConfigWidget::createLineAssociation()
 
             boost::shared_ptr< WPropertyBase > foundProperty = findPropertyRecursive( m_loadedProperties, propertyName );
 
-            if ( !foundProperty )
+            if( !foundProperty )
             {
                 addLineToProperty( noVar, i );
             }
             else
             {
                 addLineToProperty( foundProperty->toPropGroup() , i );
-                if ( !commentedAssignment )
+                if( !commentedAssignment )
                 {
                     // set the variable
                     switch ( foundProperty->getType() )
                     {
                     case PV_BOOL:
                         {
-                            if ( WCfgOperations::isBool( propertyVal ) )
+                            if( WCfgOperations::isBool( propertyVal ) )
                             {
                                 foundProperty->toPropBool()->set( WCfgOperations::getAsBool( propertyVal ), true );
                             }
@@ -551,7 +551,7 @@ void WQtConfigWidget::createLineAssociation()
                         }
                     case PV_INT:
                         {
-                            if ( WCfgOperations::isInt( propertyVal ) )
+                            if( WCfgOperations::isInt( propertyVal ) )
                             {
                                 foundProperty->toPropInt()->set( WCfgOperations::getAsInt( propertyVal ), true );
                             }
@@ -559,7 +559,7 @@ void WQtConfigWidget::createLineAssociation()
                         }
                     case PV_DOUBLE:
                         {
-                            if ( WCfgOperations::isDouble( propertyVal ) )
+                            if( WCfgOperations::isDouble( propertyVal ) )
                             {
                                 foundProperty->toPropDouble()->set( WCfgOperations::getAsDouble( propertyVal ), true );
                             }
@@ -567,7 +567,7 @@ void WQtConfigWidget::createLineAssociation()
                         }
                     case PV_STRING:
                         {
-                            if ( WCfgOperations::isString( propertyVal ) )
+                            if( WCfgOperations::isString( propertyVal ) )
                             {
                                 foundProperty->toPropString()->set( WCfgOperations::getAsString( propertyVal ), true );
                             }
@@ -591,7 +591,7 @@ bool WQtConfigWidget::isPropertyEqual( boost::shared_ptr< WProperties > prop1, b
 
     bool result = false;
 
-    if ( !( found1.get() && found2.get() ) )
+    if( !( found1.get() && found2.get() ) )
     {
         return result;
     }
@@ -677,14 +677,14 @@ void WQtConfigWidget::saveToConfig()
     while ( !finished )
     {
         // not associated with a property, so either its a comment (without assignment), a section or an empty line
-        if ( cLine < propertyInLine.size() )
+        if( cLine < propertyInLine.size() )
         {
-            if ( propertyInLine[cLine].get() == noVar.get() )
+            if( propertyInLine[cLine].get() == noVar.get() )
             {
-                if ( WCfgOperations::isSection( m_configLines[cLine] ) )
+                if( WCfgOperations::isSection( m_configLines[cLine] ) )
                 {
                     // check whether we switch from empty section or another section
-                    if ( current_section != std::string( "" ) )
+                    if( current_section != std::string( "" ) )
                     {
                         // find all so far unwritten none-default properties from the previous section
                         propertyStack.push_back( m_properties );
@@ -700,7 +700,7 @@ void WQtConfigWidget::saveToConfig()
                         while ( !propertyStack.empty() )
                         {
                             // check if at the end of group, if so pop and continue
-                            if ( iteratorStack.back() == propertyStack.back()->getAccessObject()->get().end() )
+                            if( iteratorStack.back() == propertyStack.back()->getAccessObject()->get().end() )
                             {
                                 propertyStack.pop_back();
                                 iteratorStack.pop_back();
@@ -708,7 +708,7 @@ void WQtConfigWidget::saveToConfig()
                             }
 
                             // add group to stack, and move iterator
-                            if ( ( *( iteratorStack.back() ) )->getType() == PV_GROUP )
+                            if( ( *( iteratorStack.back() ) )->getType() == PV_GROUP )
                             {
                                 propertyStack.push_back( ( *iteratorStack.back() )->toPropGroup() );
                                 ++iteratorStack.back();
@@ -722,13 +722,13 @@ void WQtConfigWidget::saveToConfig()
                                 std::string propName = prop->getName();
                                 std::string sectionName = propName;
                                 sectionName.erase( sectionName.find( '.' ), sectionName.length() - sectionName.find( '.' ) );
-                                if ( sectionName == current_section && !isPropertyEqual( m_properties, m_defaultProperties, propName ) )
+                                if( sectionName == current_section && !isPropertyEqual( m_properties, m_defaultProperties, propName ) )
                                 {
                                     size_t j;
                                     bool skip = false;
                                     for ( j = 0; j < m_skipPropertyWrite.size(); ++j )
                                     {
-                                        if ( propName == m_skipPropertyWrite[j] )
+                                        if( propName == m_skipPropertyWrite[j] )
                                         {
                                             skip = true;
                                             break;
@@ -737,7 +737,7 @@ void WQtConfigWidget::saveToConfig()
                                     bool written = false;
                                     for ( j = 0; j < propertyWriten.size(); ++j )
                                     {
-                                        if ( propName == propertyWriten[j] )
+                                        if( propName == propertyWriten[j] )
                                         {
                                             written = true;
                                             break;
@@ -745,7 +745,7 @@ void WQtConfigWidget::saveToConfig()
                                     }
                                     // only write the variable if its not already written, is not in the skip list
                                     // has the same section name as the section we just left and its value does not equal the default value
-                                    if ( !skip && !written )
+                                    if( !skip && !written )
                                     {
                                         propertyWriten.push_back( propName );
                                         propName = propName.erase( 0, propName.find( '.' ) + 1 );
@@ -764,13 +764,13 @@ void WQtConfigWidget::saveToConfig()
                     } // IF switch from none-empty section
 
                     std::string sn = WCfgOperations::getSectionName( m_configLines[cLine] );
-                    if ( sn != std::string( "" ) )
+                    if( sn != std::string( "" ) )
                     {
                         current_section = sn;
                     }
                 } // IF isSectionSwitch
                 // if it was an empty section don't write the line
-                if ( m_configLines[cLine] != std::string( "[]" ) )
+                if( m_configLines[cLine] != std::string( "[]" ) )
                 {
                     configOut.push_back( m_configLines[cLine] );
                 }
@@ -799,7 +799,7 @@ void WQtConfigWidget::saveToConfig()
 
                 // TODO(ledig): use this information to count the comments for a property
                 // and therefore reduce them to a special count so the cfg file won't explode of comments
-                if ( m_lineAssociationList[ curProp ][ m_lineAssociationList[ curProp ].size() - 1 ] == cLine )
+                if( m_lineAssociationList[ curProp ][ m_lineAssociationList[ curProp ].size() - 1 ] == cLine )
                 {
                     isLastLineOfProperty = true;
                 }
@@ -809,7 +809,7 @@ void WQtConfigWidget::saveToConfig()
                 size_t j;
                 for ( j = 0; j < propertyWriten.size(); ++j )
                 {
-                    if ( propertyWriten[j] == curPropName )
+                    if( propertyWriten[j] == curPropName )
                     {
                         isWritten = true;
                         break;
@@ -817,7 +817,7 @@ void WQtConfigWidget::saveToConfig()
                 }
 
                 // is comment:
-                if ( WCfgOperations::isComment( m_configLines[cLine] ) )
+                if( WCfgOperations::isComment( m_configLines[cLine] ) )
                 {
                     //  - comment val equals default -> keep as comment, but mark as written if the current value also is equal to default
                     //  - comment val equals current val, write it uncommented and mark as written
@@ -827,11 +827,11 @@ void WQtConfigWidget::saveToConfig()
                     std::string dummy;
                     WCfgOperations::getAssignementComponents( lineUncommented, &dummy, &propVal );
 
-                    if ( propVal == propDefaultValAsString )
+                    if( propVal == propDefaultValAsString )
                     {
                         configOut.push_back( m_configLines[cLine] );
 
-                        if ( propDefaultValAsString == propSetValAsString && !isWritten )
+                        if( propDefaultValAsString == propSetValAsString && !isWritten )
                         {
                             propertyWriten.push_back( curPropName );
                             isWritten = true;
@@ -839,10 +839,10 @@ void WQtConfigWidget::saveToConfig()
                     }
                     else
                     {
-                        if ( propVal == propSetValAsString )
+                        if( propVal == propSetValAsString )
                         {
                             configOut.push_back( lineUncommented );
-                            if ( !isWritten )
+                            if( !isWritten )
                             {
                                 propertyWriten.push_back( curPropName );
                                 isWritten = true;
@@ -867,12 +867,12 @@ void WQtConfigWidget::saveToConfig()
                     std::string dummy;
                     WCfgOperations::getAssignementComponents( line, &dummy, &propVal );
 
-                    if ( propVal == propDefaultValAsString )
+                    if( propVal == propDefaultValAsString )
                     {
-                        if ( !isWritten )
+                        if( !isWritten )
                         {
                             configOut.push_back( "# " + line );
-                            if ( propDefaultValAsString == propSetValAsString && !isWritten )
+                            if( propDefaultValAsString == propSetValAsString && !isWritten )
                             {
                                 propertyWriten.push_back( curPropName );
                                 isWritten = true;
@@ -881,10 +881,10 @@ void WQtConfigWidget::saveToConfig()
                     }
                     else
                     {
-                        if ( propVal == propSetValAsString )
+                        if( propVal == propSetValAsString )
                         {
                             configOut.push_back( line );
-                            if ( !isWritten )
+                            if( !isWritten )
                             {
                                 propertyWriten.push_back( curPropName );
                                 isWritten = true;
@@ -896,7 +896,7 @@ void WQtConfigWidget::saveToConfig()
                         }
                     }
                     // if we didn't write the property so far, we will write it here, because we are at the only assignment line
-                    if ( !isWritten )
+                    if( !isWritten )
                     {
                         std::string writePropName = curPropName;
                         writePropName = writePropName.erase( 0, writePropName.find( '.' ) + 1 );
@@ -908,7 +908,7 @@ void WQtConfigWidget::saveToConfig()
             }
         } // IF not all lines written
 
-        if ( cLine == propertyInLine.size() )
+        if( cLine == propertyInLine.size() )
         {
             // at the end of the previous config file make sure
             // - we wrote all registered sections
@@ -927,14 +927,14 @@ void WQtConfigWidget::saveToConfig()
                 bool sectionWritten = false;
                 for ( k = 0; k < sectionsWriten.size(); ++k )
                 {
-                    if ( m_registeredSections[j] == sectionsWriten[k] )
+                    if( m_registeredSections[j] == sectionsWriten[k] )
                     {
                         sectionWritten = true;
                         break;
                     }
                 }
                 // is this sections not written?
-                if ( !sectionWritten )
+                if( !sectionWritten )
                 {
                     allSectionsWritten = false;
                     // add the missing section and an empty section to the config file which will invoke flush of all unwritten
@@ -945,14 +945,14 @@ void WQtConfigWidget::saveToConfig()
                     bool currentSectionWriten = false;
                     for ( k = 0; k < sectionsWriten.size(); ++k )
                     {
-                        if ( sectionsWriten[k] == current_section )
+                        if( sectionsWriten[k] == current_section )
                         {
                             currentSectionWriten = true;
                             break;
                         }
                     }
 
-                    if ( currentSectionWriten || current_section == std::string( "" ) )
+                    if( currentSectionWriten || current_section == std::string( "" ) )
                     {
                         m_configLines.push_back( "[" + m_registeredSections[j] + "]" );
                         propertyInLine.push_back( noVar );
@@ -962,7 +962,7 @@ void WQtConfigWidget::saveToConfig()
                     break;
                 }
             }
-            if ( allSectionsWritten )
+            if( allSectionsWritten )
             {
                 finished = true;
             }
@@ -975,7 +975,7 @@ void WQtConfigWidget::saveToConfig()
 void WQtConfigWidget::loadConfigFile()
 {
     namespace fs = boost::filesystem;
-    if ( fs::exists( WPathHelper::getConfigFile() ) )
+    if( fs::exists( WPathHelper::getConfigFile() ) )
     {
         m_configLines = WCfgOperations::readCfg( WPathHelper::getConfigFile().file_string() );
     }
@@ -1007,7 +1007,7 @@ WQtPropertyGroupWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr<
     // accesObject->beginRead();
 
     std::string name = std::string( "" );
-    if ( from->getType() == PV_GROUP )
+    if( from->getType() == PV_GROUP )
     {
         name = from->getName();
     }
@@ -1018,12 +1018,12 @@ WQtPropertyGroupWidget *WQtConfigWidget::createTabForSection( boost::shared_ptr<
     for ( iter = accesObject->get().begin(); iter != accesObject->get().end(); ++iter )
     {
         std::string propName = ( *iter )->getName();
-        if ( propName.find( '.' ) == std::string::npos || ( *iter )->isHidden() )
+        if( propName.find( '.' ) == std::string::npos || ( *iter )->isHidden() )
         {
             continue;
         }
         std::string propSectionName = propName.erase( propName.find( '.' ), propName.length() - propName.find( '.' ) );
-        if ( sectionName == propSectionName )
+        if( sectionName == propSectionName )
         {
             switch ( ( *iter )->getType() )
             {
@@ -1104,29 +1104,29 @@ void WQtConfigWidget::threadMain()
     {
         m_configState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
 
         // react on the changes of gui elements which influence other gui values
-        if ( findPropertyRecursive( m_properties, "ge.bgColor.r" )->toPropDouble()->changed() ||
+        if( findPropertyRecursive( m_properties, "ge.bgColor.r" )->toPropDouble()->changed() ||
              findPropertyRecursive( m_properties, "ge.bgColor.g" )->toPropDouble()->changed() ||
              findPropertyRecursive( m_properties, "ge.bgColor.b" )->toPropDouble()->changed() )
         {
             updatePropertyGroups( m_properties, "ge.bgColor", true );
         }
-        if ( findPropertyRecursive( m_properties, "ge.sColorWidget" )->toPropColor()->changed() )
+        if( findPropertyRecursive( m_properties, "ge.sColorWidget" )->toPropColor()->changed() )
         {
             updatePropertyGroups( m_properties, "ge.bgColor", false );
         }
         for ( i = 0; i < m_moduleNames.size(); ++i )
         {
-            if ( findPropertyRecursive( m_properties, "modules.whitelist." + m_moduleNames[i] )->toPropBool()->changed() )
+            if( findPropertyRecursive( m_properties, "modules.whitelist." + m_moduleNames[i] )->toPropBool()->changed() )
             {
                 updatePropertyGroups( m_properties, "modules.whiteListGroup", false );
             }
-            if ( findPropertyRecursive( m_properties, "modules.defaultList." + m_moduleNames[i] )->toPropBool()->changed() )
+            if( findPropertyRecursive( m_properties, "modules.defaultList." + m_moduleNames[i] )->toPropBool()->changed() )
             {
                 updatePropertyGroups( m_properties, "modules.defaultList", false );
             }
@@ -1144,7 +1144,7 @@ bool WQtConfigWidget::setWalnutFromProperties()
     propertyToSet = findPropertyRecursive( m_properties, propertyName );
     propertyLoaded = findPropertyRecursive( m_loadedProperties, propertyName );
 
-    if ( propertyToSet->toPropColor()->get() != propertyLoaded->toPropColor()->get() )
+    if( propertyToSet->toPropColor()->get() != propertyLoaded->toPropColor()->get() )
     {
         // set the color
 
@@ -1154,22 +1154,22 @@ bool WQtConfigWidget::setWalnutFromProperties()
 
     boost::shared_ptr< WGEViewer > view;
     view = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "main" );
-    if ( view )
+    if( view )
     {
         view->setBgColor( color );
     }
     view = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Axial View" );
-    if ( view )
+    if( view )
     {
         view->setBgColor( color );
     }
     view = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Coronal View" );
-    if ( view )
+    if( view )
     {
         view->setBgColor( color );
     }
     view = WKernel::getRunningKernel()->getGraphicsEngine()->getViewerByName( "Sagittal View" );
-    if ( view )
+    if( view )
     {
         view->setBgColor( color );
     }
@@ -1191,7 +1191,7 @@ void WQtConfigWidget::resetToDefaults()
     updateGui( m_properties );
 
     //
-    if ( m_previewed )
+    if( m_previewed )
     {
         // reset the preview
         setWalnutFromProperties();
@@ -1207,7 +1207,7 @@ void WQtConfigWidget::resetToBackup()
     copyPropertiesContents( m_loadedProperties, m_properties );
     updateGui( m_properties );
 
-    if ( m_previewed )
+    if( m_previewed )
     {
         // reset the preview
         setWalnutFromProperties();
@@ -1228,7 +1228,7 @@ void WQtConfigWidget::save()
 void WQtConfigWidget::cancel()
 {
     // reset to the loaded state
-    if ( m_previewed )
+    if( m_previewed )
     {
         copyPropertiesContents( m_loadedProperties, m_properties );
 

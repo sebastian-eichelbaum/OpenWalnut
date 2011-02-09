@@ -78,34 +78,6 @@ void WQtGLWidgetMac::setCameraManipulator( WQtGLWidgetMac::CameraManipulators ma
     m_CurrentManipulator = manipulator;
     switch ( manipulator )
     {
-        case DRIVE:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"drive\".",
-                                                 "WQtGLWidgetMac(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
-            m_Viewer->setCameraManipulator( new( osgGA::DriveManipulator ) );
-            break;
-        case FLIGHT:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"flight\".",
-                                                 "WQtGLWidgetMac(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
-            m_Viewer->setCameraManipulator( new( osgGA::FlightManipulator ) );
-            break;
-        case TERRAIN:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"terrain\".",
-                                                 "WQtGLWidgetMac(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
-            m_Viewer->setCameraManipulator( new( osgGA::TerrainManipulator ) );
-            break;
-        case UFO:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"ufo\".",
-                                                 "WQtGLWidgetMac(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
-            m_Viewer->setCameraManipulator( new( osgGA::UFOManipulator ) );
-            break;
         case TWO_D:
             WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGE2D\".",
                                                  "WQtGLWidgetMac(" + m_Viewer->getName() + ")",
@@ -197,18 +169,6 @@ void WQtGLWidgetMac::keyReleaseEvent( QKeyEvent* event )
             setCameraManipulator( TRACKBALL );
             break;
         case Qt::Key_2:
-            setCameraManipulator( FLIGHT );
-            break;
-        case Qt::Key_3:
-            setCameraManipulator( DRIVE );
-            break;
-        case Qt::Key_4:
-            setCameraManipulator( TERRAIN );
-            break;
-        case Qt::Key_5:
-            setCameraManipulator( UFO );
-            break;
-        case Qt::Key_6:
             setCameraManipulator( TWO_D );
             break;
     }
@@ -261,4 +221,9 @@ void WQtGLWidgetMac::wheelEvent( QWheelEvent* event )
         y = 0;
     }
     m_Viewer->mouseEvent( WGEViewerMac::MOUSESCROLL, x, y, 0 );
+}
+
+void WQtGLWidgetMac::reset()
+{
+    m_Viewer->reset();
 }

@@ -30,17 +30,20 @@
 #include <vector>
 #include <utility>
 
+#include <osg/Geometry>
 #include <osg/Node>
 
-#include "../../../dataHandler/WDataSet.h"
-#include "../../../graphicsEngine/WShader.h"
-#include "../../../graphicsEngine/WGEGroupNode.h"
-#include "../../../graphicsEngine/WPickInfo.h"
 #include "../../WModule.h"
-#include "../../WModuleConnector.h"
-#include "../../WModuleInputData.h"
 
+#include "../../../graphicsEngine/WGEViewer.h"
 #include "../../WExportKernel.h"
+
+// forward declarations
+class WGEGroupNode;
+class WGEShader;
+class WModuleConnector;
+class WPickInfo;
+template< class T > class WModuleInputData;
 
 /**
  * Navigation slice module
@@ -150,8 +153,7 @@ private:
      */
     void setMaxMinFromBoundingBox();
 
-
-    std::pair< wmath::WPosition, wmath::WPosition > m_bb; //!< bounding box of textures.
+    WBoundingBox m_bb; //!< bounding box of textures.
 
     /**
      * True when textures have changed.
@@ -297,7 +299,7 @@ private:
     /**
      * the shader object for this module
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * lock to prevent concurrent threads trying to update the osg node

@@ -30,6 +30,7 @@
 #include <QtCore/QTimer>
 #include <QtGui/QWidget>
 #include <QtOpenGL/QGLWidget>
+#include <QtOpenGL/QGLFormat>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
@@ -37,7 +38,13 @@
 #include "../../../graphicsEngine/WGECamera.h"
 #include "../../../graphicsEngine/WGEViewer.h"
 
-class WColor;
+namespace osg
+{
+    class Vec4f;
+    typedef Vec4f Vec4;
+}
+
+typedef osg::Vec4 WColor;
 
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
@@ -47,6 +54,8 @@ class WColor;
 class WQtGLWidgetAll
     : public QGLWidget
 {
+    Q_OBJECT
+
 public:
     /**
      * Default constructor.
@@ -77,7 +86,7 @@ public:
      */
     enum CameraManipulators
     {
-        TRACKBALL, TERRAIN, UFO, DRIVE, FLIGHT, TWO_D
+        TRACKBALL, TWO_D
     };
 
     /**
@@ -91,7 +100,7 @@ public:
      * Sets the background color of the widget.
      * \param bgColor the new backgorund color
      */
-    void setBgColor( WColor bgColor );
+    void setBgColor( const WColor& bgColor );
 
     /**
      * Returns the actually set camera manipulator.
@@ -106,6 +115,19 @@ public:
      * \return a shared pointer to the viewer
      */
     boost::shared_ptr< WGEViewer > getViewer() const;
+
+    /**
+     * Creates and returns a default OpenGL format description with vertical sync enabled.
+     *
+     * \return the format descriptor
+     */
+    static const QGLFormat getDefaultFormat();
+
+public slots:
+    /**
+     * Resets the contained view using the installed manipulator.
+     */
+    void reset();
 
 protected:
     /**

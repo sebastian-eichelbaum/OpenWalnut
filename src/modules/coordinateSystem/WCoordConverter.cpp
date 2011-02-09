@@ -24,6 +24,7 @@
 
 #include <utility>
 
+#include "../../common/WBoundingBox.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
 
 #include "WCoordConverter.h"
@@ -49,12 +50,12 @@ WVector3D WCoordConverter::operator()( WVector3D in )
     return out;
 }
 
-std::pair< wmath::WPosition, wmath::WPosition > WCoordConverter::getBoundingBox()
+WBoundingBox WCoordConverter::getBoundingBox()
 {
     return m_boundingBox;
 }
 
-void WCoordConverter::setBoundingBox( std::pair< wmath::WPosition, wmath::WPosition > boundingBox )
+void WCoordConverter::setBoundingBox( WBoundingBox boundingBox )
 {
     m_boundingBox = boundingBox;
 }
@@ -83,7 +84,7 @@ int WCoordConverter::numberToCsX( int number )
             return number;
             break;
         case CS_CANONICAL:
-            return static_cast<int>( m_boundingBox.second[0] - number );
+            return static_cast<int>( m_boundingBox.xMax() - number );
             break;
         case CS_TALAIRACH:
         {
@@ -105,7 +106,7 @@ int WCoordConverter::numberToCsY( int number )
             return number;
             break;
         case CS_CANONICAL:
-            return static_cast<int>( number - m_boundingBox.first[1] );
+            return static_cast<int>( number - m_boundingBox.yMin() );
             break;
         case CS_TALAIRACH:
         {
@@ -127,7 +128,7 @@ int WCoordConverter::numberToCsZ( int number )
             return number;
             break;
         case CS_CANONICAL:
-            return static_cast<int>( number - m_boundingBox.first[2] );
+            return static_cast<int>( number - m_boundingBox.zMin() );
             break;
         case CS_TALAIRACH:
         {
@@ -153,12 +154,12 @@ boost::shared_ptr<WTalairachConverter> WCoordConverter::getTalairachConverter()
 
 WVector3D WCoordConverter::w2c( WVector3D in )
 {
-    return WVector3D( in[1], m_boundingBox.second[0] - in[0], in[2] );
+    return WVector3D( in[1], m_boundingBox.xMax() - in[0], in[2] );
 }
 
 WVector3D WCoordConverter::c2w( WVector3D in )
 {
-    return WVector3D( m_boundingBox.second[0] - in[1], in[0] , in[2] );
+    return WVector3D( m_boundingBox.xMax() - in[1], in[0] , in[2] );
 }
 
 

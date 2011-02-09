@@ -85,6 +85,8 @@ bool WPropertyWidget::event( QEvent* event )
     // a property changed
     if ( event->type() == WQT_PROPERTY_CHANGED_EVENT )
     {
+        setHidden( m_property->isHidden() );
+        m_label.setHidden( m_property->isHidden() );
         update();
         return true;
     }

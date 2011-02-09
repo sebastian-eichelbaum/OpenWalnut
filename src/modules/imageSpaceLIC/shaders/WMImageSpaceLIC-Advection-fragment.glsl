@@ -63,6 +63,18 @@ uniform float u_noiseRatio;
 uniform int u_numIter;
 
 /**
+ * Returns the vector at the given point.
+ *
+ * \param pos the position to retrieve the vector for
+ *
+ * \return the unscaled vector in [-1, 1]
+ */
+vec2 getVec( in vec2 pos )
+{
+    return ( 2.0 * ( texture2D( u_texture0Sampler, pos ).rg - vec2( 0.5, 0.5 ) ) );
+}
+
+/**
  * Main. Calculates the Laplace Filter for each pixel.
  */
 void main()
@@ -73,7 +85,7 @@ void main()
     float edge  = texture2D( u_texture1Sampler, texCoord ).r;
     float depth = texture2D( u_texture1Sampler, texCoord ).g;
     float noise = texture2D( u_texture1Sampler, texCoord ).b;
-    vec2 vec    = ( 2.0 * ( texture2D( u_texture0Sampler, texCoord ).rg - vec2( 0.5, 0.5 ) ) );
+    vec2 vec    = getVec( texCoord );
 
     // simply iterate along the line using the vector at each point
     vec2 lastVec1 = vec;
@@ -86,13 +98,14 @@ void main()
     {
         vec2 newPos1 = lastPos1 + vec2( lastVec1.x / ( 2.0 * u_texture0SizeX ), lastVec1.y / ( 2.0 * u_texture0SizeY ) );
         vec2 newPos2 = lastPos2 - vec2( lastVec2.x / ( 2.0 * u_texture0SizeX ), lastVec2.y / ( 2.0 * u_texture0SizeY ) );
-        vec2 newVec1 = ( 2.0 * ( texture2D( u_texture0Sampler, newPos1 ).rg - vec2( 0.5, 0.5 ) ) );
-        vec2 newVec2 = ( 2.0 * ( texture2D( u_texture0Sampler, newPos2 ).rg - vec2( 0.5, 0.5 ) ) );
-        if ( ( length( newVec1 ) < 0.01 ) || ( length( newVec2 )  < 0.01 ) )
-        {
-            m = 2 * i;
-            break;
-        }
+        vec2 newVec1 = getVec( newPos1 );
+        vec2 newVec2 = getVec( newPos2 );
+
+        // if ( ( length( newVec1 ) < 0.01 ) || ( length( newVec2 )  < 0.01 ) )
+        // {
+        //     m = 2 * i;
+        //     break;
+        // }
 
         // it is also possible to scale using a Geometric progression: float( u_numIter - i ) / u_numIter * texture2D
         sum += texture2D( u_texture1Sampler, newPos1 ).b;

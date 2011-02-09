@@ -31,7 +31,7 @@
 #include <osgDB/ReadFile>
 
 #include "../../kernel/WKernel.h"
-#include "../emptyIcon.xpm" // Please put a real icon here.
+#include "WMAtlasCreator.xpm"
 
 #include "WMAtlasCreator.h"
 
@@ -56,7 +56,7 @@ boost::shared_ptr< WModule > WMAtlasCreator::factory() const
 
 const char** WMAtlasCreator::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMAtlasCreator_xpm; // Please put a real icon here.
 }
 const std::string WMAtlasCreator::getName() const
 {
@@ -222,7 +222,8 @@ void WMAtlasCreator::addPngToVolume( boost::filesystem::path image )
 void WMAtlasCreator::updateOutDataset()
 {
     boost::shared_ptr< WValueSet< unsigned char > > vs =
-        boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >( 0, 1, m_volume, W_DT_UINT8 ) );
+        boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >(
+        0, 1, boost::shared_ptr< std::vector< uint8_t > >( new std::vector< uint8_t >( m_volume ) ), W_DT_UINT8 ) );
 
     boost::shared_ptr<WGridRegular3D> grid = boost::shared_ptr<WGridRegular3D>( new WGridRegular3D( m_xDim, m_yDim, m_zDim,
                 0.0, 0.0, 0.0, 0.1, 1.0, 0.1 ) );

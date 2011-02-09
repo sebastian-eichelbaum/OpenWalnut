@@ -28,14 +28,13 @@
 #include <vector>
 
 #include "../../kernel/WKernel.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WDataTexture3D_2.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../common/WPropertyHelper.h"
 
 #include "WMImageExtractor.xpm"
 #include "WMImageExtractor.h"
 
-// This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMImageExtractor )
 
 WMImageExtractor::WMImageExtractor():
@@ -96,31 +95,6 @@ void WMImageExtractor::properties()
     m_maxValuePct->setMin( 0.0 );
     m_maxValuePct->setMax( 100.0 );
 
-    // these are taken from WMData
-    m_interpolation = m_properties->addProperty( "Interpolation",
-                                                  "If active, the boundaries of single voxels"
-                                                  " will not be visible in colormaps. The transition between"
-                                                  " them will be smooth by using interpolation then.",
-                                                  true,
-                                                  m_propCondition );
-    m_threshold = m_properties->addProperty( "Threshold", "Values below this threshold will not be "
-                                              "shown in colormaps.", 0., m_propCondition );
-    m_opacity = m_properties->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
-                                            " values from several data sets.", 100, m_propCondition );
-    m_opacity->setMax( 100 );
-    m_opacity->setMin( 0 );
-
-    m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_colorMapSelectionsList->addItem( "Grayscale", "" );
-    m_colorMapSelectionsList->addItem( "Rainbow", "" );
-    m_colorMapSelectionsList->addItem( "Hot iron", "" );
-    m_colorMapSelectionsList->addItem( "Red-Yellow", "" );
-    m_colorMapSelectionsList->addItem( "Blue-Lightblue", "" );
-    m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
-
-    m_colorMapSelection = m_properties->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), m_propCondition );
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
-
     WModule::properties();
 }
 
@@ -128,7 +102,7 @@ void WMImageExtractor::activate()
 {
     if( m_outData )
     {
-        m_outData->getTexture()->setGloballyActive( m_active->get() );
+        m_outData->getTexture2()->active()->set( m_active->get() );
     }
     WModule::activate();
 }
@@ -170,7 +144,9 @@ void WMImageExtractor::moduleMain()
 
                 if( m_outData )
                 {
-                    WDataHandler::deregisterDataSet( m_outData );
+                    m_properties->removeProperty( m_outData->getTexture2()->getProperties() );
+                    m_infoProperties->removeProperty( m_outData->getTexture2()->getInformationProperties() );
+                    WGEColormapping::deregisterTexture( m_outData->getTexture2() );
                 }
 
                 std::size_t i = static_cast< std::size_t >( m_selectedImage->get( true ) );
@@ -180,16 +156,14 @@ void WMImageExtractor::moduleMain()
 
                 if( m_outData )
                 {
-                    if( m_outData != oldOut )
-                    {
-                        m_threshold->setMin( m_outData->getMin() - 1 );
-                        m_threshold->setMax( m_outData->getMax() );
-                        m_threshold->set( m_outData->getMin() - 1 );
-                    }
-
                     setOutputProps();
+
                     m_outData->setFileName( makeImageName( i ) );
-                    WDataHandler::registerDataSet( m_outData );
+
+                    // provide the texture's properties as own properties
+                    m_properties->addProperty( m_outData->getTexture2()->getProperties() );
+                    m_infoProperties->addProperty( m_outData->getTexture2()->getInformationProperties() );
+                    WGEColormapping::registerTexture( m_outData->getTexture2() );
                 }
 
                 m_output->updateData( m_outData );
@@ -206,7 +180,9 @@ void WMImageExtractor::moduleMain()
         {
             if( m_outData )
             {
-                WDataHandler::deregisterDataSet( m_outData );
+                m_properties->removeProperty( m_outData->getTexture2()->getProperties() );
+                m_infoProperties->removeProperty( m_outData->getTexture2()->getInformationProperties() );
+                WGEColormapping::deregisterTexture( m_outData->getTexture2() );
             }
             m_outData = boost::shared_ptr< WDataSetScalar >();
             m_output->updateData( m_outData );
@@ -217,7 +193,9 @@ void WMImageExtractor::moduleMain()
 
     if( m_outData )
     {
-        WDataHandler::deregisterDataSet( m_outData );
+        m_properties->removeProperty( m_outData->getTexture2()->getProperties() );
+        m_infoProperties->removeProperty( m_outData->getTexture2()->getInformationProperties() );
+        WGEColormapping::deregisterTexture( m_outData->getTexture2() );
     }
 
     debugLog() << "Finished! Good Bye!";
@@ -244,12 +222,13 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
     {
     case W_DT_FLOAT:
         {
-            std::vector< float > values( m_dataSet->getGrid()->size() );
+            boost::shared_ptr< std::vector< float > > values = boost::shared_ptr< std::vector< float > >(
+                new std::vector< float >( m_dataSet->getGrid()->size() ) );
             boost::shared_ptr< WValueSet< float > > v = boost::shared_dynamic_cast< WValueSet< float > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
             boost::shared_ptr< WValueSet< float > > vs =
@@ -259,12 +238,13 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
         }
     case W_DT_DOUBLE:
         {
-            std::vector< double > values( m_dataSet->getGrid()->size() );
+            boost::shared_ptr< std::vector< double > > values = boost::shared_ptr< std::vector< double > >(
+                new std::vector< double >( m_dataSet->getGrid()->size() ) );
             boost::shared_ptr< WValueSet< double > > v = boost::shared_dynamic_cast< WValueSet< double > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
             boost::shared_ptr< WValueSet< double > > vs =
@@ -274,12 +254,13 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
         }
     case W_DT_UINT8:
         {
-            std::vector< uint8_t > values( m_dataSet->getGrid()->size() );
+            boost::shared_ptr< std::vector< uint8_t > > values = boost::shared_ptr< std::vector< uint8_t > >(
+                new std::vector< uint8_t >( m_dataSet->getGrid()->size() ) );
             boost::shared_ptr< WValueSet< uint8_t > > v = boost::shared_dynamic_cast< WValueSet< uint8_t > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
             boost::shared_ptr< WValueSet< uint8_t > > vs =
@@ -289,12 +270,13 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
         }
     case W_DT_UINT16:
         {
-            std::vector< uint16_t > values( m_dataSet->getGrid()->size() );
+            boost::shared_ptr< std::vector< uint16_t > > values = boost::shared_ptr< std::vector< uint16_t > >(
+                new std::vector< uint16_t >( m_dataSet->getGrid()->size() ) );
             boost::shared_ptr< WValueSet< uint16_t > > v = boost::shared_dynamic_cast< WValueSet< uint16_t > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
             boost::shared_ptr< WValueSet< uint16_t > > vs =
@@ -304,12 +286,13 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
         }
     case W_DT_UINT32:
         {
-            std::vector< uint32_t > values( m_dataSet->getGrid()->size() );
+            boost::shared_ptr< std::vector< uint32_t > > values = boost::shared_ptr< std::vector< uint32_t > >(
+                new std::vector< uint32_t >( m_dataSet->getGrid()->size() ) );
             boost::shared_ptr< WValueSet< uint32_t > > v = boost::shared_dynamic_cast< WValueSet< uint32_t > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
             boost::shared_ptr< WValueSet< uint32_t > > vs =
@@ -319,12 +302,13 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
         }
     case W_DT_INT8:
         {
-            std::vector< int8_t > values( m_dataSet->getGrid()->size() );
+            boost::shared_ptr< std::vector< int8_t > > values = boost::shared_ptr< std::vector< int8_t > >(
+                new std::vector< int8_t >( m_dataSet->getGrid()->size() ) );
             boost::shared_ptr< WValueSet< int8_t > > v = boost::shared_dynamic_cast< WValueSet< int8_t > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
             boost::shared_ptr< WValueSet< int8_t > > vs =
@@ -334,12 +318,13 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
         }
     case W_DT_INT16:
         {
-            std::vector< int16_t > values( m_dataSet->getGrid()->size() );
+            boost::shared_ptr< std::vector< int16_t > > values = boost::shared_ptr< std::vector< int16_t > >(
+                new std::vector< int16_t >( m_dataSet->getGrid()->size() ) );
             boost::shared_ptr< WValueSet< int16_t > > v = boost::shared_dynamic_cast< WValueSet< int16_t > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] =  v->rawData()[ dim * k + i ];
+                ( *values )[k] =  v->rawData()[ dim * k + i ];
             }
 
             boost::shared_ptr< WValueSet< int16_t > > vs =
@@ -349,12 +334,13 @@ boost::shared_ptr< WDataSetScalar > WMImageExtractor::extract( std::size_t i ) c
         }
     case W_DT_SIGNED_INT:
         {
-            std::vector< int32_t > values( m_dataSet->getGrid()->size() );
+            boost::shared_ptr< std::vector< int32_t > > values = boost::shared_ptr< std::vector< int32_t > >(
+                new std::vector< int32_t >( m_dataSet->getGrid()->size() ) );
             boost::shared_ptr< WValueSet< int32_t > > v = boost::shared_dynamic_cast< WValueSet< int32_t > >( m_dataSet->getValueSet() );
             WAssert( v, "" );
             for( std::size_t k = 0; k < grid->size(); ++k )
             {
-                values[ k ] = v->rawData()[ dim * k + i ];
+                ( *values )[k] = v->rawData()[ dim * k + i ];
             }
 
             boost::shared_ptr< WValueSet< int32_t > > vs =
@@ -387,11 +373,7 @@ void WMImageExtractor::setOutputProps()
         float fmin = static_cast< float >( min + ( max - min ) * m_minValuePct->get( true ) * 0.01 );
         float fmax = static_cast< float >( min + ( max - min ) * m_maxValuePct->get( true ) * 0.01 );
 
-        m_outData->getTexture()->setMinValue( fmin );
-        m_outData->getTexture()->setMaxValue( std::max( fmax, fmin + 1.0f ) );
-        m_outData->getTexture()->setThreshold( m_threshold->get( true ) );
-        m_outData->getTexture()->setOpacity( m_opacity->get( true ) );
-        m_outData->getTexture()->setInterpolation( m_interpolation->get( true ) );
-        m_outData->getTexture()->setSelectedColormap( m_colorMapSelection->get( true ).getItemIndexOfSelected( 0 ) );
+        m_outData->getTexture2()->minimum()->set( fmin );
+        m_outData->getTexture2()->scale()->set( std::max( fmax, fmin + 1.0f ) - fmin );
     }
 }

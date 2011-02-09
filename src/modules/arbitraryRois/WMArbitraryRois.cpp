@@ -27,21 +27,20 @@
 
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Material>
-#include <osg/StateSet>
-#include <osg/StateAttribute>
-#include <osg/PolygonMode>
 #include <osg/LightModel>
+#include <osg/Material>
+#include <osg/PolygonMode>
+#include <osg/StateAttribute>
+#include <osg/StateSet>
 
 #include "../../common/WAssert.h"
 #include "../../dataHandler/WDataSetScalar.h"
-#include "../../kernel/WKernel.h"
-
+#include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
 #include "../../graphicsEngine/WROIArbitrary.h"
 #include "../../graphicsEngine/WROIBox.h"
-
-#include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
-
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WROIManager.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMArbitraryRois.h"
 #include "WMArbitraryRois.xpm"
 
@@ -191,7 +190,7 @@ void WMArbitraryRois::createCutDataset()
     size_t vDim = ( *m_dataSet ).getValueSet()->dimension();
 
     float threshold = m_threshold->get();
-    std::vector< float > data;
+    boost::shared_ptr< std::vector< float > > data = boost::shared_ptr< std::vector< float > >( new std::vector< float >() );
 
     switch( ( *m_dataSet ).getValueSet()->getDataType() )
     {
@@ -247,7 +246,8 @@ void WMArbitraryRois::createCutDataset()
                                         threshold );
 }
 
-template< typename T > std::vector< float > WMArbitraryRois::cutArea( boost::shared_ptr< WGrid > inGrid, boost::shared_ptr< WValueSet< T > > vals )
+template< typename T >
+boost::shared_ptr< std::vector< float > > WMArbitraryRois::cutArea( boost::shared_ptr< WGrid > inGrid, boost::shared_ptr< WValueSet< T > > vals )
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( inGrid );
 
@@ -266,17 +266,18 @@ template< typename T > std::vector< float > WMArbitraryRois::cutArea( boost::sha
     size_t yMax = static_cast<size_t>( m_selectionRoi->getMaxPos()[1] / dy );
     size_t zMax = static_cast<size_t>( m_selectionRoi->getMaxPos()[2] / dz );
 
-    std::vector< float >newVals( nx * ny * nz, 0 );
+    boost::shared_ptr< std::vector< float > > newVals = boost::shared_ptr< std::vector< float > >( new std::vector< float >( nx * ny * nz, 0 ) );
 
-    for ( size_t z = 0; z < nz; ++z )
+    size_t x, y, z;
+    for ( z = 0; z < nz; ++z )
     {
-        for ( size_t y = 0 ; y < ny; ++y )
+        for ( y = 0 ; y < ny; ++y )
         {
-            for ( size_t x = 0 ; x < nx; ++x )
+            for ( x = 0 ; x < nx; ++x )
             {
                  if ( ( x > xMin ) && ( x < xMax ) && ( y > yMin ) && ( y < yMax ) && ( z > zMin ) && ( z < zMax ) )
                  {
-                     newVals[ x + nx * y + nx * ny * z ] = static_cast<float>( vals->getScalar( x + nx * y + nx * ny * z ) );
+                     ( *newVals )[ x + nx * y + nx * ny * z ] = static_cast< float >( vals->getScalar( x + nx * y + nx * ny * z ) );
                  }
             }
         }

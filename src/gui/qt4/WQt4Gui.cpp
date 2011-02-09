@@ -37,24 +37,27 @@
 #include "WMainWindow.h" // this has to be included before any other includes
 #include "../../common/WConditionOneShot.h"
 #include "../../common/WIOTools.h"
-#include "../../common/WPreferences.h"
 #include "../../common/WPathHelper.h"
+#include "../../common/WPreferences.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
+#include "../../kernel/modules/data/WMData.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleContainer.h"
 #include "../../kernel/WProjectFile.h"
+#include "../../kernel/WROIManager.h"
+#include "controlPanel/WQtControlPanel.h"
 #include "events/WModuleAssocEvent.h"
+#include "events/WModuleConnectEvent.h"
 #include "events/WModuleCrashEvent.h"
+#include "events/WModuleDisconnectEvent.h"
 #include "events/WModuleReadyEvent.h"
 #include "events/WModuleRemovedEvent.h"
-#include "events/WModuleConnectEvent.h"
-#include "events/WModuleDisconnectEvent.h"
 #include "events/WOpenCustomDockWidgetEvent.h"
 #include "events/WRoiAssocEvent.h"
 #include "events/WRoiRemoveEvent.h"
 #include "events/WUpdateTextureSorterEvent.h"
-
 #include "WQt4Gui.h"
 
 WMainWindow* WQt4Gui::m_mainWindow = NULL;
@@ -136,16 +139,19 @@ int WQt4Gui::run()
     m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQt4Gui::slotAddLog, this, _1 ) );
     wlog::info( "GUI" ) << "Bringing up GUI";
 
+    // make qapp instance before using the applicationDirPath() function
+    QApplication appl( m_argc, m_argv, true );
+
     // the call path of the application
-    boost::filesystem::path walnutBin = boost::filesystem::path( std::string( m_argv[0] ) );
+    boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
+    wlog::debug( "WQt4GUI" ) << "Walnut binary path: " << walnutBin;
 
     // setup path helper which provides several paths to others
-    WPathHelper::getPathHelper()->setAppPath( walnutBin.parent_path() );
+    WPathHelper::getPathHelper()->setAppPath( walnutBin );
 
     // init preference system
     WPreferences::setPreferenceFile( WPathHelper::getConfigFile() );
 
-    QApplication appl( m_argc, m_argv, true );
 
     // startup graphics engine
     m_ge = WGraphicsEngine::getGraphicsEngine();
@@ -193,11 +199,17 @@ int WQt4Gui::run()
     t_GenericSignalHandlerType connectionClosedSignal = boost::bind( &WQt4Gui::slotConnectionClosed, this, _1, _2 );
     m_kernel->getRootContainer()->addDefaultNotifier( CONNECTION_CLOSED, connectionClosedSignal );
 
-    boost::function< void( osg::ref_ptr< WROI > ) > assocRoiSignal =
-            boost::bind( &WQt4Gui::slotAddRoiToTree, this, _1 );
+    boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > assocRoiSignal;
+    assocRoiSignal =
+        boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > >(
+            new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQt4Gui::slotAddRoiToTree, this, _1 ) ) );
     m_kernel->getRoiManager()->addAddNotifier( assocRoiSignal );
-    boost::function< void( osg::ref_ptr< WROI > ) > removeRoiSignal =
-            boost::bind( &WQt4Gui::slotRemoveRoiFromTree, this, _1 );
+
+
+    boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > removeRoiSignal;
+    removeRoiSignal =
+        boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > >(
+            new boost::function< void( osg::ref_ptr< WROI > ) > ( boost::bind( &WQt4Gui::slotRemoveRoiFromTree, this, _1 ) ) );
     m_kernel->getRoiManager()->addRemoveNotifier( removeRoiSignal );
 
     // now we are initialized
@@ -206,40 +218,7 @@ int WQt4Gui::run()
     // check if we want to load data due to command line and call the respective function
     if( m_optionsMap.count("input") )
     {
-        //
-        // WE KNOW THAT THIS IS KIND OF A HACK. Iis is only provided to prevent naive users from having trouble.
-        //
-        bool allowOnlyOneFiberDataSet = false;
-        bool doubleFibersFound = false; // have we detected the multiple loading of fibers?
-        if( WPreferences::getPreference( "general.allowOnlyOneFiberDataSet", &allowOnlyOneFiberDataSet ) && allowOnlyOneFiberDataSet )
-        {
-            bool fibFound = false;
-            std::vector< std::string > tmpFiles = m_optionsMap["input"].as< std::vector< std::string > >();
-            for( std::vector< std::string >::iterator it = tmpFiles.begin(); it != tmpFiles.end(); ++it )
-            {
-                std::string suffix = wiotools::getSuffix( *it );
-                bool isFib = ( suffix == ".fib" );
-                if( fibFound && isFib )
-                {
-                    QCoreApplication::postEvent( m_mainWindow, new WModuleCrashEvent(
-                                                     WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" ),
-                                                     std::string( "Tried to load two fiber data sets. This is not allowed by your preferences." ) ) );
-                    doubleFibersFound = true;
-                }
-                fibFound |= isFib;
-            }
-            if( fibFound && !doubleFibersFound )
-            {
-                // Found exactly one fiber data set. So signal this to main window.
-                // If more than one are found we do not load them anyways. Thus we can allow to load a new one.
-                m_mainWindow->setFibersLoaded( true );
-            }
-        }
-
-        if( !doubleFibersFound )
-        {
-            m_kernel->loadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
-        }
+        m_kernel->loadDataSets( m_optionsMap["input"].as< std::vector< std::string > >() );
     }
 
     // Load project file
@@ -314,13 +293,9 @@ void WQt4Gui::slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > modu
     {
         boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
         WAssert( dataModule, "Internal failure." );
-        std::string suffix = wiotools::getSuffix( dataModule->getFilename().file_string() );
-        if(  suffix == ".fib" )
-        {
-            m_mainWindow->setFibersLoaded( false );
-        }
     }
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleRemovedEvent( module ) );
+    QCoreApplication::postEvent( m_mainWindow, new WModuleRemovedEvent( module ) );
 }
 
 void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )

@@ -23,8 +23,12 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <utility>
 #include <vector>
 
+#include "../../../common/WLimits.h"
+#include "../../../common/datastructures/WDendrogram.h"
+#include "../../../common/datastructures/WUnionFind.h"
 #include "../../../kernel/WKernel.h"
 #include "../../emptyIcon.xpm" // Please put a real icon here.
 #include "WMDetTractClusteringGP.h"
@@ -61,6 +65,7 @@ const std::string WMDetTractClusteringGP::getDescription() const
 void WMDetTractClusteringGP::connectors()
 {
     m_gpIC = WModuleInputData< WDataSetGP >::createAndAdd( shared_from_this(), "gpInput", "WDataSetGP providing the gaussian processes" );
+    m_dendOC = WModuleOutputData< WDendrogram >::createAndAdd( shared_from_this(), "dendrogramOutput", "WDendrogram as a result of this clustering" );
 
     WModule::connectors();
 }
@@ -87,7 +92,7 @@ void WMDetTractClusteringGP::moduleMain()
         }
 
         boost::shared_ptr< WDataSetGP > dataSet = m_gpIC->getData();
-        if( !dataSet )
+        if( !dataSet || dataSet->size() == 0 )
         {
             debugLog() << "Invalid data--> continue";
             continue;
@@ -96,45 +101,45 @@ void WMDetTractClusteringGP::moduleMain()
         {
             debugLog() << "Input has been updated...";
         }
-        debugLog() << "Start Clustering";
 
-        m_maxSegmentLength = searchGlobalMaxSegementLength( dataSet );
+        infoLog() << "Generating similarity matrix...";
+
         computeDistanceMatrix( dataSet );
+        if( m_shutdownFlag() ) // since computeDistanceMatrix may quit earlier due to the m_shutdownFlag()
+        {
+            debugLog() << "Abort all computations since shutdown requested";
+            break;
+        }
+
+        infoLog() << "Building dendrogram...";
+        boost::shared_ptr< WDendrogram > result( computeDendrogram( dataSet->size() ) );
+        if( m_shutdownFlag() ) // since computeDendrogram may quit earlier due to the m_shutdownFlag()
+        {
+            debugLog() << "Abort all computations since shutdown requested";
+            break;
+        }
+        m_dendOC->updateData( result );
+
+        infoLog() << "Done.";
     }
-}
-
-double WMDetTractClusteringGP::searchGlobalMaxSegementLength( boost::shared_ptr< const WDataSetGP > dataSet ) const
-{
-    WDataSetGP::const_iterator cit = std::max_element( dataSet->begin(), dataSet->end(),
-        boost::bind( &WGaussProcess::getMaxSegmentLength, _1 ) < boost::bind( &WGaussProcess::getMaxSegmentLength, _2 ) );
-
-    return cit->getMaxSegmentLength();
-    // NOLINT return std::max_element( dataSet->begin(), dataSet->end(), [](WGaussProcess p1, WGaussProcess p2){ return p1.getMaxSegmentLength() < p2.getMaxSegmentLength(); } )->getMaxSegmentLength();
 }
 
 void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDataSetGP > dataSet )
 {
-    boost::shared_ptr< WProgress > progress( new WProgress( "Similarity matrix computation", ( dataSet->size()*dataSet->size() - dataSet->size() ) / 2 + dataSet->size() ) ); // NOLINT line length
+    const size_t steps = dataSet->size() * ( dataSet->size() - 2 ) / 2; // n(n-2)/2
+    boost::shared_ptr< WProgress > progress( new WProgress( "Similarity matrix computation", steps ) );
     m_progress->addSubProgress( progress );
-    std::vector< double > diagonal( dataSet->size() );
-    for( size_t i = 0; i < dataSet->size(); ++i )
-    {
-        diagonal[i] = std::sqrt( gauss::innerProduct( ( *dataSet )[i], ( *dataSet )[i] ) );
-        ++*progress;
-    }
 
-    m_similarities = WMatrixSym( dataSet->size() );
-    for( size_t i = 0; i < dataSet->size(); ++i )
+    m_similarities = WMatrixSymFLT( dataSet->size() );
+    for( size_t i = 0; i < dataSet->size() && !m_shutdownFlag(); ++i )
     {
-        for( size_t j = i + 1; j < dataSet->size(); ++j )
+        for( size_t j = i + 1; j < dataSet->size() && !m_shutdownFlag(); ++j )
         {
             const WGaussProcess& p1 = ( *dataSet )[i];
             const WGaussProcess& p2 = ( *dataSet )[j];
-            const WBoundingBox& bb1 = p1.getBB();
-            const WBoundingBox& bb2 = p2.getBB();
-            if( bb1.minDistance( bb2 ) < p1.getMaxSegmentLength() + p2.getMaxSegmentLength() )
+            if( p1.getBB().minDistance( p2.getBB() ) < p1.getRadius() + p2.getRadius() )
             {
-                m_similarities( i, j ) = gauss::innerProduct( p1, p2 ) / diagonal[i] / diagonal[j];
+                m_similarities( i, j ) = gauss::innerProduct( p1, p2 ); // As written in the paper, we don't use the normalized inner product
             }
             else
             {
@@ -145,4 +150,80 @@ void WMDetTractClusteringGP::computeDistanceMatrix( boost::shared_ptr< const WDa
     }
     progress->finish();
     m_progress->removeSubProgress( progress );
+}
+
+boost::shared_ptr< WDendrogram > WMDetTractClusteringGP::computeDendrogram( size_t n )
+{
+    boost::shared_ptr< WDendrogram > dend( new WDendrogram( n ) );
+    boost::shared_ptr< WProgress > progress( new WProgress( "Matrix => Dendrogram", n - 1 ) );
+    m_progress->addSubProgress( progress );
+
+    WUnionFind uf( n );
+    std::vector< size_t > innerNode( n ); // The refernces from the canonical Elements (cE) to the inner nodes.
+    std::set< size_t > idx; // valid indexes, to keep trac of already erased columns
+    std::vector< size_t > clusterSize( n, 1 ); // to keep trac how many elements a cluster has.
+
+    for( size_t i = 0; i < n; ++i )
+    {
+        innerNode[i] = i; // initialize them with their corresponding leafs.
+        idx.insert( i );
+    }
+
+    for( size_t i = 0; i < n - 1 && !m_shutdownFlag(); ++i )
+    {
+        // Nearest Neighbour find: update p, q, and sim, so iterate over all valid matrix entries
+        // NOTE, WARNING, ATTENTION: This is brute force NN finding strategy and requires O(n^2) time
+        float maxSim = -wlimits::MAX_FLOAT; // This is not 0.0, since the similarity maybe very near to 0.0, and thus no new pair would be found!
+        size_t p = 0;
+        size_t q = 0;
+        for( std::set< size_t >::const_iterator it = idx.begin(); it != idx.end() && !m_shutdownFlag(); ++it )
+        {
+            for( std::set< size_t >::const_iterator jt = boost::next( it ); jt != idx.end() && !m_shutdownFlag(); ++jt )
+            {
+                if( m_similarities( *it, *jt ) > maxSim )
+                {
+                    maxSim = m_similarities( *it, *jt );
+                    p = *it;
+                    q = *jt;
+                }
+            }
+        }
+        if( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        uf.merge( p, q );
+        size_t newCE = uf.find( p );
+        innerNode[ newCE ] = dend->merge( innerNode[ p ], innerNode[ q ], maxSim );
+
+        // erase one of the columns
+        size_t col_to_delete = p;
+        if( newCE == p )
+        {
+            col_to_delete = q;
+        }
+        idx.erase( col_to_delete );
+
+        // update the column where now the new cluster pq resides
+        for( std::set< size_t >::const_iterator it = idx.begin(); it != idx.end(); ++it )
+        {
+            if( *it != newCE )
+            {
+                // we have two gauss processes p and q. We have merged p and q into pq. Hence for all valid indexes we must
+                // recompute < pq, k > where k is a GP identified through an valid index, where:
+                // < pq, k > = |p| / ( |p| + |q| ) < p, k > + |q| / (|p| + |q|) < q, k >
+                double firstFactor = static_cast< double >( clusterSize[ p ] ) / ( clusterSize[ p ] + clusterSize[ q ] );
+                double secondFactor = static_cast< double >( clusterSize[ q ] ) / ( clusterSize[ p ] + clusterSize[ q ] );
+                m_similarities( newCE, *it ) = firstFactor * m_similarities( p, *it ) + secondFactor * m_similarities( q, *it );
+            }
+        }
+        clusterSize[ newCE ] = clusterSize[ p ] + clusterSize[ q ];
+        ++*progress;
+    }
+
+    progress->finish();
+    m_progress->removeSubProgress( progress );
+
+    return dend;
 }

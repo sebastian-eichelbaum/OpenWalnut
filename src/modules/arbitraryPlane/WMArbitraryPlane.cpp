@@ -25,20 +25,18 @@
 #include <string>
 #include <vector>
 
-#include "../../kernel/WKernel.h"
-
-#include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
-#include "../../graphicsEngine/WShader.h"
-
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/WGEUtils.h"
-
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMArbitraryPlane.h"
 #include "WMArbitraryPlane.xpm"
 
@@ -108,7 +106,7 @@ void WMArbitraryPlane::properties()
 
 void WMArbitraryPlane::moduleMain()
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMArbitraryPlane", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMArbitraryPlane", m_localPath ) );
 
     initPlane();
 
@@ -216,6 +214,10 @@ void WMArbitraryPlane::moduleMain()
     WGraphicsEngine::getGraphicsEngine()->getScene()->remove( &( *m_s1 ) );
     WGraphicsEngine::getGraphicsEngine()->getScene()->remove( &( *m_s2 ) );
 
+    m_s0->removeROIChangeNotifier( m_changeRoiSignal );
+    m_s1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_s2->removeROIChangeNotifier( m_changeRoiSignal );
+
     con.disconnect();
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
@@ -236,20 +238,21 @@ void WMArbitraryPlane::initPlane()
     m_p1 = wmath::WPosition( center[0] - 100, center[1], center[2] );
     m_p2 = wmath::WPosition( center[0], center[1] - 100, center[2] );
 
-    m_s0 = boost::shared_ptr<WROISphere>( new WROISphere( m_p0, 2.5 ) );
-    m_s1 = boost::shared_ptr<WROISphere>( new WROISphere( m_p1, 2.5 ) );
+    m_s0 = osg::ref_ptr<WROISphere>( new WROISphere( m_p0, 2.5 ) );
+    m_s1 = osg::ref_ptr<WROISphere>( new WROISphere( m_p1, 2.5 ) );
     m_s1->setLockY();
-    m_s2 = boost::shared_ptr<WROISphere>( new WROISphere( m_p2, 2.5 ) );
+    m_s2 = osg::ref_ptr<WROISphere>( new WROISphere( m_p2, 2.5 ) );
     m_s2->setLockX();
 
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s0 ) );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s1 ) );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s2 ) );
 
-    boost::function< void() > changeRoiSignal = boost::bind( &WMArbitraryPlane::setDirty, this );
-    m_s0->addChangeNotifier( changeRoiSignal );
-    m_s1->addChangeNotifier( changeRoiSignal );
-    m_s2->addChangeNotifier( changeRoiSignal );
+    m_changeRoiSignal
+        = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WMArbitraryPlane::setDirty, this ) ) );
+    m_s0->addROIChangeNotifier( m_changeRoiSignal );
+    m_s1->addROIChangeNotifier( m_changeRoiSignal );
+    m_s2->addROIChangeNotifier( m_changeRoiSignal );
 }
 
 void WMArbitraryPlane::updatePlane()

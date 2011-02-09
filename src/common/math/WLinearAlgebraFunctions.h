@@ -27,9 +27,15 @@
 
 #include "../WExportCommon.h"
 
+namespace osg
+{
+    class Matrixd;
+}
+
 namespace wmath
 {
     class WVector3D;
+    typedef osg::Matrixd WMatrix4x4;
     typedef WVector3D WPosition;
     template< typename > class WValue;
     template< typename > class WMatrix;
@@ -59,6 +65,15 @@ namespace wmath
      * \param vec vector
      */
     WVector3D OWCOMMON_EXPORT transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec );
+
+    /**
+     * Applies a coordinate transformation in homogenous coordinates to a position.
+     * This differs from transformVector3DWithMatrix4D in that it incorporates the translation.
+     *
+     * \param mat 4x4 matrix
+     * \param vec vector
+     */
+    WVector3D OWCOMMON_EXPORT transformPosition3DWithMatrix4D( WMatrix4x4 mat, WPosition vec );
 
     /**
      * helper routine to invert a 3x3 matrix

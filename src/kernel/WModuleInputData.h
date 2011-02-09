@@ -99,8 +99,9 @@ public:
      * \param name The name of this connector.
      * \param description Short description of this connector.
      */
-    WModuleInputData( boost::shared_ptr< WModule > module, std::string name = "", std::string description = "" )
-        :WModuleInputConnector( module, name, description )
+    WModuleInputData( boost::shared_ptr< WModule > module, std::string name = "", std::string description = "" ):
+        WModuleInputConnector( module, name, description ),
+        m_disconnecting( false )
     {
     };
 
@@ -112,19 +113,33 @@ public:
     };
 
     /**
-     * Gives the currently set data.
+     * Disconnects this connector if connected. If it is not connected: nothing happens.
+     *
+     * \param con the connector to disconnect.
+     * \param removeFromOwnList if true the specified connection is also removed from the own connection list. If false it won't.
+     */
+    virtual void disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList = true );
+
+    /**
+     * Gives the currently set data and resets the update flag.
+     *
+     * \param reset reset the flag of updated() if true (default).
      *
      * \return the data currently set. NULL if no data has been sent yet or the connector is unconnected.
      */
-    const boost::shared_ptr< T > getData()
+    const boost::shared_ptr< T > getData( bool reset = true )
     {
         // get a lock
         boost::shared_lock<boost::shared_mutex> lock = boost::shared_lock<boost::shared_mutex>( m_connectionListLock );
 
-        handledUpdate();
+        // Only reset change flag of requested
+        if ( reset )
+        {
+            handledUpdate();
+        }
 
         // is there something in the list?
-        if ( m_connected.begin() == m_connected.end() )
+        if ( m_disconnecting || m_connected.empty() )
         {
             lock.unlock();
             return boost::shared_ptr< T >();
@@ -170,7 +185,20 @@ public:
 protected:
 
 private:
+
+    /**
+     * If true, the returned data will be NULL. Needed because disconnection process is based on multiple steps.
+     */
+    bool m_disconnecting;
 };
+
+template < typename T >
+void WModuleInputData< T >::disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList )
+{
+    m_disconnecting = true;
+    WModuleInputConnector::disconnect( con, removeFromOwnList );
+    m_disconnecting = false;
+}
 
 template < typename T >
 typename WModuleInputData< T >::PtrType WModuleInputData< T >::create( boost::shared_ptr< WModule > module, std::string name,

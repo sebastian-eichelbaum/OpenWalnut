@@ -32,13 +32,15 @@
 
 #include <osg/Matrix>
 #include <osg/Vec3>
-
 #include "../common/math/WMatrix.h"
+#include "../common/math/WMatrix4x4.h"
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
+#include "../common/WBoundingBox.h"
 #include "WGridTransformOrtho.h"
-#include "WGrid.h"
+#include "../common/WCondition.h"
 #include "WExportDataHandler.h"
+#include "WGrid.h"
 
 /**
  * A grid that has parallelepiped cells which all have the same proportion. I.e.
@@ -144,9 +146,8 @@ public:
     wmath::WMatrix< double > getTransformationMatrix() const;
 
     /**
-     * Returns the two positions representing the bounding box of the grid.
      */
-    std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const;
+    WBoundingBox getBoundingBox() const;
 
     /**
      * Returns the i-th position on the grid.
@@ -165,9 +166,38 @@ public:
 
     /**
      * Transforms world coordinates to texture coordinates.
-     * \param point The point with these coordinated will be transformed.
+     * \param point The point with these coordinates will be transformed.
      */
     wmath::WVector3D worldCoordToTexCoord( wmath::WPosition point );
+
+    /**
+     * Transforms texture coordinates to world coordinates.
+     * \param coords The point with these coordinates will be transformed.
+     */
+    wmath::WPosition texCoordToWorldCoord( wmath::WVector3D coords );
+
+    /**
+     * Matrix converting a specified world coordinate to texture space according in this grid.
+     *
+     * \return the matrix.
+     */
+    const wmath::WMatrix4x4& getWorldToTexMatrix() const;
+
+    /**
+     * Matrix converting a specified texture coordinate to world space according to this grid.
+     *
+     * \return the matrix.
+     */
+    const wmath::WMatrix4x4& getTexToWorldMatrix() const;
+
+    /**
+     * This method returns the condition that fires on changes in this grid's transformation matrix. This is ugly and should not be used since,
+     * technically, we want const grids. For WDataTexture_2, this is needed right now because we have a module which allows modification of the
+     * grid transformation (dataManipulator). Remove this if the grid really is const as it is not needed anymore.
+     *
+     * \return the condition
+     */
+    WCondition::SPtr getTransformationUpdateCondition() const;
 
     /**
      * Returns the i'th voxel where the given position belongs too.

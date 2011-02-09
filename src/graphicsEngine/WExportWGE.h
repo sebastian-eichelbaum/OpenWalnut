@@ -29,7 +29,7 @@
 
 #pragma warning( disable: 4251 )
 
-    #ifdef OWge_EXPORTS
+    #if defined( owge_EXPORTS ) || defined( OWge_EXPORTS )
     #define WGE_EXPORT __declspec( dllexport )
     #else
     #define WGE_EXPORT __declspec( dllimport )

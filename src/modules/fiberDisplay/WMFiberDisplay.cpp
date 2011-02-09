@@ -22,7 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <list>
 #include <string>
 #include <vector>
 
@@ -39,6 +38,7 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WSelectionManager.h"
 #include "fiberdisplay2.xpm"
 #include "WMFiberDisplay.h"
 
@@ -184,8 +184,8 @@ void WMFiberDisplay::properties()
 void WMFiberDisplay::moduleMain()
 {
     // setup shaders
-    m_shaderTubes = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplay2-FakeTubes", m_localPath ) );
-    m_shaderTexturedFibers = osg::ref_ptr< WShader > ( new WShader( "WMFiberDisplay2-Textured", m_localPath ) );
+    m_shaderTubes = osg::ref_ptr< WGEShader > ( new WGEShader( "WMFiberDisplay2-FakeTubes", m_localPath ) );
+    m_shaderTexturedFibers = osg::ref_ptr< WGEShader > ( new WGEShader( "WMFiberDisplay2-Textured", m_localPath ) );
 
     // additional fire-condition: "data changed" flag
     m_moduleState.setResetable( true, true );
@@ -251,7 +251,7 @@ void WMFiberDisplay::inputUpdated()
     m_dataset = m_fiberInput->getData();
 
     // ensure the data is valid (not NULL)
-    if ( !m_fiberInput->getData().get() ) // ok, the output has been reset, so we can ignore the "data change"
+    if ( !m_dataset ) // ok, the output has been reset, so we can ignore the "data change"
     {
         m_noData.set( true );
         debugLog() << "Data reset on " << m_fiberInput->getCanonicalName() << ". Ignoring.";
@@ -443,7 +443,10 @@ void WMFiberDisplay::updateCallback()
 {
     update();
 
-    m_fiberDrawable->setColor( m_dataset->getColorScheme()->getColor() );
+    if( m_dataset )
+    {
+        m_fiberDrawable->setColor( m_dataset->getColorScheme()->getColor() );
+    }
 
     if ( m_tubeThickness->changed() && m_useTubesProp->get() )
     {

@@ -117,6 +117,13 @@ private:
      */
     void createGFX();
 
+    /**
+     * This condition denotes whether we need to recompute the surface
+     */
+    boost::shared_ptr< WCondition > m_recompute;
+
+    WPropBool     m_showCornerCoordinates; //!< Show/hide the coordinates in the rendering.
+
     osg::ref_ptr< WGEGroupNode > m_bBoxNode; //!< OSG root node for this module
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
 };

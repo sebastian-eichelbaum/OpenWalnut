@@ -34,10 +34,8 @@
 
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
-#include "WExportDataHandler.h"
-
-
 #include "WDataTexture3D_2.h"
+#include "WExportDataHandler.h"
 
 class WDataTexture3D;
 class WCondition;
@@ -105,7 +103,7 @@ public:
      *
      * \return The texture.
      */
-    virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2();
+    virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2() const;
 
     /**
      * Gets the name of this prototype.

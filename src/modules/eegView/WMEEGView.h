@@ -26,21 +26,20 @@
 #define WMEEGVIEW_H
 
 #include <string>
-#include <vector>
 
 #include <osg/Texture1D>
 #include <osgSim/ScalarsToColors>
 
-#include "../../dataHandler/WEEG2.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../gui/WCustomWidget.h"
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
-#include "WEEGEvent.h"
-#include "WEEGSourceCalculator.h"
-#include "WEEGViewHandler.h"
 
+// forward declarations
+class WCustomWidget;
+class WEEG2;
+class WGEGroupNode;
+class WROIBox;
+class WEEGViewHandler;
+class WEEGSourceCalculator;
+template< class T > class WModuleInputData;
 
 /**
  * Test module to open a new widget and display EEG data
@@ -235,7 +234,7 @@ private:
      * m_event.
      * Used to select the fibers around this dipole.
      */
-    boost::weak_ptr< WRMROIRepresentation > m_roi;
+    osg::ref_ptr< WROIBox > m_roi;
 
     /**
      * Bool flag which gets set when the data was changed.

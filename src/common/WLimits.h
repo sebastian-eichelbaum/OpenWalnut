@@ -66,6 +66,8 @@ namespace wlimits
 
     static const double MAX_DOUBLE = std::numeric_limits< double >::max(); //!< Maximum double value
 
+    static const float MAX_FLOAT = std::numeric_limits< float >::max(); //!< Maximum float value
+
     static const size_t MAX_SIZE_T = std::numeric_limits< size_t >::max(); //!< Maximum size value
 
     static const int32_t MAX_INT32_T = std::numeric_limits< int32_t >::max(); //!< Maximum int32_t value

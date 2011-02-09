@@ -55,7 +55,7 @@ enum dataType
     W_DT_FLOAT128        =     1536,     /* long double (128 bits)       */
     W_DT_COMPLEX128      =     1792,     /* double pair (128 bits)       */
     W_DT_COMPLEX256      =     2048,     /* long double pair (256 bits)  */
-    W_DT_RGBA32          =     2304     /* 4 byte RGBA (32 bits/voxel)  */
+    W_DT_RGBA32          =     2304      /* 4 byte RGBA (32 bits/voxel)  */
 };
 
 /**

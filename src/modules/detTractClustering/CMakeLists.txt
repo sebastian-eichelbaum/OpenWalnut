@@ -28,16 +28,34 @@ SET( MODULE_TARGET_DIR ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/modules/${MODULE_NAME} 
 SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
 SET( MODULE_DIRNAME ${MODULE_NAME} )
-SET( MODULE_NAME    "OWmodule_${MODULE_NAME}" )      # prefix all module names with "OWmodule_" to separate them from other libs
+SET( MODULE_NAME    "${OWmodulesPrefix}_${MODULE_NAME}" )      # prefix all module names with "OWmodule_" to separate them from other libs
 
-# Build module lib
+SET( ${MODULE_NAME}_COMBINER_SRC ${MODULES_SRC} )
+SET( ${MODULE_NAME}_ALL_CPP ${MODULES_SRC} )
+FILE( GLOB_RECURSE ${MODULE_NAME}_REMOVE_H "*.h"  )
+FILE( GLOB_RECURSE ${MODULE_NAME}_REMOVE_PCH "*${MODULE_NAME}_PCH.*" )
+
+LIST( REMOVE_ITEM ${MODULE_NAME}_ALL_CPP ${${MODULE_NAME}_REMOVE_H} )
+
+IF( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/" )
+    FILE( GLOB_RECURSE ${MODULE_NAME}_REMOVE_TEST "test/*.cpp" "test/*.h" )
+    LIST( REMOVE_ITEM ${MODULE_NAME}_ALL_CPP ${${MODULE_NAME}_REMOVE_TEST} )
+    LIST( REMOVE_ITEM ${MODULE_NAME}_COMBINER_SRC ${${MODULE_NAME}_REMOVE_TEST} )
+ENDIF( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/" )
+
+LIST( LENGTH ${MODULE_NAME}_ALL_CPP cpp_count )
+
 IF( CUDA_FOUND )
     CUDA_ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
 ELSE( CUDA_FOUND )
     ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
 ENDIF( CUDA_FOUND )
 
-TARGET_LINK_LIBRARIES( ${MODULE_NAME} OWkernel )
+
+# Build module lib
+#ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
+
+TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWKernelName} )
 
 IF( CUDA_FOUND )
     TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${CUDA_LIBRARIES} )
@@ -61,7 +79,7 @@ IF( OW_COMPILE_TESTS )
     # This ensures that the test is copied to the module directory
     SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
     CXXTEST_ADD_TESTS_FROM_LIST( "${MODULES_SRC}"
-                                 "OWkernel;${MODULE_NAME}"
+                                 "${OWKernelName};${MODULE_NAME}"
                                )
 
     # Copy fixtures if they exist

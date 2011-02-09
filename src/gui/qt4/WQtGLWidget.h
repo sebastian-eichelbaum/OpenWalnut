@@ -26,11 +26,16 @@
 #define WQTGLWIDGET_H
 
 #if defined( __APPLE__ )
-#include "platformDependent/WQtGLWidgetMac.h"
-typedef WQtGLWidgetMac WQtGLWidget;
+    #include "platformDependent/WQtGLWidgetMac.h"
+    typedef WQtGLWidgetMac WQtGLWidget;
 #else
-#include "platformDependent/WQtGLWidgetAll.h"
-typedef WQtGLWidgetAll WQtGLWidget;
+    #ifdef _MSC_VER
+        #include "platformDependent/WQtGLWidgetWin.h"
+        typedef WQtGLWidgetWin WQtGLWidget;
+    #else
+        #include "platformDependent/WQtGLWidgetAll.h"
+        typedef WQtGLWidgetAll WQtGLWidget;
+    #endif
 #endif
 
 #endif  // WQTGLWIDGET_H

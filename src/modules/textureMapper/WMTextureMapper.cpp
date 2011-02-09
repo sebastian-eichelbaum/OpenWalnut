@@ -138,11 +138,10 @@ void WMTextureMapper::moduleMain()
         {
             boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
 
-            debugLog() << "Registering new texture";
-
             // de-register at datahandler
             if ( m_lastDataSet )
             {
+                debugLog() << "Removing previous texture.";
                 WDataHandler::deregisterDataSet( m_lastDataSet );
             }
 
@@ -154,6 +153,7 @@ void WMTextureMapper::moduleMain()
                 // register new
                 if ( m_lastDataSet->isTexture() )
                 {
+                    debugLog() << "Registering new texture";
                     WDataHandler::registerDataSet( m_lastDataSet );
                 }
                 else
@@ -162,6 +162,12 @@ void WMTextureMapper::moduleMain()
                 }
             }
         }
+    }
+
+    // remove if module is removed
+    if ( m_lastDataSet )
+    {
+        WDataHandler::deregisterDataSet( m_lastDataSet );
     }
 }
 

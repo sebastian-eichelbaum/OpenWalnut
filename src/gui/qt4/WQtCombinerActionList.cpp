@@ -27,16 +27,15 @@
 #include <string>
 #include <vector>
 
-#include "QtGui/QMenu"
+#include <QtGui/QMenu>
 
 #include "../../common/WPreferences.h"
+#include "../../kernel/combiner/WApplyCombiner.h"
+#include "../../kernel/combiner/WModuleOneToOneCombiner.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleCombiner.h"
-#include "../../kernel/combiner/WModuleOneToOneCombiner.h"
-#include "../../kernel/combiner/WApplyCombiner.h"
 #include "guiElements/WQtModuleOneToOneCombinerAction.h"
 #include "WMainWindow.h"
-
 #include "WQtCombinerActionList.h"
 
 WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles,
@@ -110,6 +109,12 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
             group->setMenu( groupMenu );
         }
     }
+}
+
+WQtCombinerActionList::WQtCombinerActionList():
+    QList< QAction* >()
+{
+    // do nothing here
 }
 
 WQtCombinerActionList::~WQtCombinerActionList()

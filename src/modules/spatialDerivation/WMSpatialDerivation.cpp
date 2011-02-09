@@ -118,7 +118,15 @@ void WMSpatialDerivation::moduleMain()
         boost::shared_ptr< WDataSetScalar > dataSet = m_scalarIn->getData();
 
         bool dataValid = ( dataSet );
-        if ( !dataValid || ( dataValid && !dataUpdated ) )
+
+        // reset output if input was reset/disconnected
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting output.";
+            m_vectorOut->reset();
+            continue;
+        }
+        if ( dataValid && !dataUpdated )
         {
             continue;
         }
@@ -201,7 +209,8 @@ void WMSpatialDerivation::derive( boost::shared_ptr< WGridRegular3D > grid, boos
     size_t nY = grid->getNbCoordsY();
     size_t nZ = grid->getNbCoordsZ();
 
-    std::vector< double > vectors( 3 * nX * nY * nZ, 0.0 );
+    boost::shared_ptr< std::vector< double > > vectors =
+        boost::shared_ptr< std::vector< double > >( new std::vector< double >( 3 * nX * nY * nZ, 0.0 ) );
 
     // iterate field
     for( size_t z = 1; z < nZ - 1; z++ )
@@ -229,9 +238,9 @@ void WMSpatialDerivation::derive( boost::shared_ptr< WGridRegular3D > grid, boos
                 if ( len == 0.0 )
                     scal = 0.0;
 
-                vectors[ getId( nX, nY, nZ, x, y, z, 0, 3 ) ] = scal * vx;
-                vectors[ getId( nX, nY, nZ, x, y, z, 1, 3 ) ] = scal * vy;
-                vectors[ getId( nX, nY, nZ, x, y, z, 2, 3 ) ] = scal * vz;
+                ( *vectors )[ getId( nX, nY, nZ, x, y, z, 0, 3 ) ] = scal * vx;
+                ( *vectors )[ getId( nX, nY, nZ, x, y, z, 1, 3 ) ] = scal * vy;
+                ( *vectors )[ getId( nX, nY, nZ, x, y, z, 2, 3 ) ] = scal * vz;
             }
         }
     }

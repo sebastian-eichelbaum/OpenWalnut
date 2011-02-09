@@ -22,41 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
-#include <limits>
-
-#include "WMMarchingCubes.xpm"
-#include "../../common/WLimits.h"
-#include "../../common/WAssert.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Material>
-#include <osg/StateSet>
-#include <osg/StateAttribute>
-#include <osg/PolygonMode>
 #include <osg/LightModel>
+#include <osg/Material>
+#include <osg/PolygonMode>
+#include <osg/StateAttribute>
+#include <osg/StateSet>
 #include <osgDB/WriteFile>
 
-#include "../../common/WPathHelper.h"
-#include "../../common/WProgress.h"
-#include "../../common/WPreferences.h"
-#include "../../common/math/WVector3D.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
 #include "../../common/math/WMath.h"
+#include "../../common/math/WVector3D.h"
+#include "../../common/WAssert.h"
+#include "../../common/WLimits.h"
+#include "../../common/WPathHelper.h"
+#include "../../common/WPreferences.h"
+#include "../../common/WProgress.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataTexture3D.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
-#include "../../kernel/WKernel.h"
-
+#include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
+#include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMMarchingCubes.h"
+#include "WMMarchingCubes.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMMarchingCubes )
@@ -123,16 +122,28 @@ void WMMarchingCubes::moduleMain()
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
     {
-        if ( !m_input->getData().get() )
+        debugLog() << "Waiting ...";
+        m_moduleState.wait();
+
+        // woke up since the module is requested to finish?
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        // query changes in data and data validity
+        bool dataChanged = m_input->handledUpdate();
+        boost::shared_ptr< WDataSetScalar > incomingDataSet = m_input->getData();
+        bool propChanged = m_useMarchingLego->changed() || m_isoValueProp->changed();
+        if ( !incomingDataSet )
         {
             // OK, the output has not yet sent data
-            // NOTE: see comment at the end of this while loop for m_moduleState
             debugLog() << "Waiting for data ...";
-            m_moduleState.wait();
             continue;
         }
 
-        if( m_dataSet != m_input->getData() )
+        // new data available?
+        if( dataChanged )
         {
             // acquire data from the input connector
             m_dataSet = m_input->getData();
@@ -147,13 +158,19 @@ void WMMarchingCubes::moduleMain()
             }
         }
 
+        // if nothing has changed, continue waiting
+        if ( !propChanged && !dataChanged )
+        {
+            continue;
+        }
+
         // update isosurface
         debugLog() << "Computing surface ...";
 
         boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Marching Cubes", 2 ) );
         m_progress->addSubProgress( progress );
 
-        generateSurfacePre( m_isoValueProp->get() );
+        generateSurfacePre( m_isoValueProp->get( true ) );
 
         ++*progress;
         debugLog() << "Rendering surface ...";
@@ -167,10 +184,6 @@ void WMMarchingCubes::moduleMain()
 
         debugLog() << "Done!";
         progress->finish();
-
-        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
-        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
-        m_moduleState.wait();
     }
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getScene()->remove( m_moduleNode );
@@ -224,7 +237,7 @@ void WMMarchingCubes::properties()
 
     m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
 
-    m_useMarchingLego = m_properties->addProperty( "voxel surface", "Not interpolated surface", false, m_recompute );
+    m_useMarchingLego = m_properties->addProperty( "Voxel surface", "Not interpolated surface", false, m_recompute );
 
     WModule::properties();
 }
@@ -248,7 +261,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             vals =  boost::shared_dynamic_cast< WValueSet< unsigned char > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
 
-            if ( m_useMarchingLego->get() )
+            if ( m_useMarchingLego->get( true ) )
             {
                 m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                                     m_grid->getTransformationMatrix(),
@@ -270,7 +283,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< int16_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int16_t > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            if ( m_useMarchingLego->get() )
+            if ( m_useMarchingLego->get( true ) )
             {
                 m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                                     m_grid->getTransformationMatrix(),
@@ -292,7 +305,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< int32_t > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< int32_t > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            if ( m_useMarchingLego->get() )
+            if ( m_useMarchingLego->get( true ) )
             {
                 m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                                     m_grid->getTransformationMatrix(),
@@ -314,7 +327,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< float > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< float > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            if ( m_useMarchingLego->get() )
+            if ( m_useMarchingLego->get( true ) )
             {
                 m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                                     m_grid->getTransformationMatrix(),
@@ -336,7 +349,7 @@ void WMMarchingCubes::generateSurfacePre( double isoValue )
             boost::shared_ptr< WValueSet< double > > vals;
             vals =  boost::shared_dynamic_cast< WValueSet< double > >( ( *m_dataSet ).getValueSet() );
             WAssert( vals, "Data type and data type indicator must fit." );
-            if ( m_useMarchingLego->get() )
+            if ( m_useMarchingLego->get( true ) )
             {
                 m_triMesh = mlAlgo.generateSurface( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(),
                                                     m_grid->getTransformationMatrix(),
@@ -374,17 +387,15 @@ void WMMarchingCubes::renderMesh()
         lock.unlock();
     }
 
-    osg::Geometry* surfaceGeometry = new osg::Geometry();
+    osg::ref_ptr< osg::Geometry > surfaceGeometry( new osg::Geometry() );
     m_surfaceGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
 
     m_surfaceGeode->setName( "iso surface" );
 
     surfaceGeometry->setVertexArray( m_triMesh->getVertexArray() );
-    osg::DrawElementsUInt* surfaceElement;
+    osg::ref_ptr< osg::DrawElementsUInt > surfaceElement( new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 ) );
 
-    surfaceElement = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
-
-    std::vector< size_t >tris = m_triMesh->getTriangles();
+    std::vector< size_t > tris = m_triMesh->getTriangles();
     surfaceElement->reserve( tris.size() );
 
     for( unsigned int vertId = 0; vertId < tris.size(); ++vertId )
@@ -395,7 +406,7 @@ void WMMarchingCubes::renderMesh()
 
     // ------------------------------------------------
     // normals
-    if ( m_useMarchingLego->get() )
+    if ( m_useMarchingLego->get( true ) )
     {
         surfaceGeometry->setNormalArray( m_triMesh->getTriangleNormalArray() );
         surfaceGeometry->setNormalBinding( osg::Geometry::BIND_PER_PRIMITIVE );
@@ -407,22 +418,21 @@ void WMMarchingCubes::renderMesh()
     }
 
     m_surfaceGeode->addDrawable( surfaceGeometry );
-    osg::StateSet* state = m_surfaceGeode->getOrCreateStateSet();
+    osg::ref_ptr< osg::StateSet > state = m_surfaceGeode->getOrCreateStateSet();
 
     // ------------------------------------------------
     // colors
-    osg::Vec4Array* colors = new osg::Vec4Array;
+    osg::ref_ptr< osg::Vec4Array > colors( new osg::Vec4Array );
 
-    WColor c = m_surfaceColor->get( true );
-    colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
+    colors->push_back( m_surfaceColor->get( true ) );
     surfaceGeometry->setColorArray( colors );
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
-    osg::ref_ptr<osg::LightModel> lightModel = new osg::LightModel();
+    osg::ref_ptr<osg::LightModel> lightModel( new osg::LightModel() );
     lightModel->setTwoSided( true );
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     {
-        osg::ref_ptr< osg::Material > material = new osg::Material();
+        osg::ref_ptr< osg::Material > material( new osg::Material() );
         material->setDiffuse(   osg::Material::FRONT, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
         material->setSpecular(  osg::Material::FRONT, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
         material->setAmbient(   osg::Material::FRONT, osg::Vec4( 0.1, 0.1, 0.1, 1.0 ) );
@@ -532,11 +542,7 @@ void WMMarchingCubes::renderMesh()
         state->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "opacity", 100 ) ) );
     }
 
-    // NOTE: the following code should not be necessary. The update callback does this job just before the mesh is rendered
-    // initially. Just set the texture changed flag to true. If this however might be needed use WSubject::getDataTextures.
-    m_textureChanged = true;
-
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMMarchingCubes", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader >( new WGEShader( "WMMarchingCubes", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );
@@ -561,10 +567,9 @@ void WMMarchingCubes::updateGraphicsCallback()
 
     if( m_surfaceColor->changed() )
     {
-        osg::Vec4Array* colors = new osg::Vec4Array;
+        osg::ref_ptr< osg::Vec4Array > colors( new osg::Vec4Array );
 
-        WColor c = m_surfaceColor->get( true );
-        colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
+        colors->push_back( m_surfaceColor->get( true ) );
         osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
@@ -572,7 +577,7 @@ void WMMarchingCubes::updateGraphicsCallback()
 
     if( m_textureChanged || m_opacityProp->changed() || m_useTextureProp->changed()  )
     {
-        bool localTextureChangedFlag = m_textureChanged;
+        bool localTextureChangedFlag = m_textureChanged || m_useTextureProp->changed();
         m_textureChanged = false;
 
         // grab a list of data textures
@@ -580,7 +585,7 @@ void WMMarchingCubes::updateGraphicsCallback()
 
         if( tex.size() > 0 )
         {
-            osg::StateSet* rootState = m_surfaceGeode->getOrCreateStateSet();
+            osg::ref_ptr< osg::StateSet > rootState = m_surfaceGeode->getOrCreateStateSet();
 
             // reset all uniforms
             for( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
@@ -607,7 +612,7 @@ void WMMarchingCubes::updateGraphicsCallback()
             {
                 boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
                 osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
-                osg::Vec3Array* texCoords = new osg::Vec3Array;
+                osg::ref_ptr< osg::Vec3Array > texCoords( new osg::Vec3Array );
 
                 for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
                 {
@@ -638,7 +643,7 @@ void WMMarchingCubes::updateGraphicsCallback()
                 if( localTextureChangedFlag )
                 {
                     osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
-                    osg::Vec3Array* texCoords = new osg::Vec3Array;
+                    osg::ref_ptr< osg::Vec3Array > texCoords( new osg::Vec3Array );
                     boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
                     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
                     {

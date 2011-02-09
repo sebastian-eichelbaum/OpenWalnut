@@ -31,17 +31,15 @@
 
 #include <osg/Geode>
 
+#include "../../common/WHierarchicalTreeFibers.h"
+#include "../../graphicsEngine/geodes/WDendrogramGeode.h"
+#include "../../graphicsEngine/WFiberDrawable.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
-
+#include "../../graphicsEngine/widgets/WOSGButton.h"
+#include "../../kernel/WFiberSelector.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-
-#include "../../kernel/WFiberSelector.h"
-
-#include "WDendrogramGeode.h"
-#include "WOSGButton.h"
-#include "../../common/WHierarchicalTreeFibers.h"
 
 const unsigned int MASK_2D = 0xF0000000; //!< used for osgWidget stuff
 const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff
@@ -339,45 +337,6 @@ private:
     int m_oldViewHeight; //!< stores the old viewport resolution to check whether a resize happened
 
     int m_oldViewWidth; //!< stores the old viewport resolution to check whether a resize happened
-
-    /**
-     * Node callback to change position and appearance of the plane within the OSG thread
-     */
-    class SafeUpdateCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUpdateCallback( WMClusterDisplay* module ): m_module( module )
-        {
-        };
-
-        /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         * Please do not use shared_ptr here as this would prevent deletion of the module as the callback contains
-         * a reference to it. It is safe to use a simple pointer here as callback get deleted before the module.
-         */
-        WMClusterDisplay* m_module;
-    };
 };
-
-inline void WMClusterDisplay::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    m_module->updateWidgets();
-
-    traverse( node, nv );
-}
 
 #endif  // WMCLUSTERDISPLAY_H

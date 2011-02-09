@@ -32,6 +32,7 @@
 #include "../WMatrix.h"
 #include "../WValue.h"
 
+#include "../WGeometryFunctions.h"
 #include "../WSymmetricSphericalHarmonic.h"
 #include "../WTensorSym.h"
 #include "../WTensorFunctions.h"
@@ -122,6 +123,47 @@ public:
             TS_ASSERT_DELTA( i.getValue( *it ), wmath::evaluateSphericalFunction( t, it->getEuclidean() ), 0.001 );
         }
 #endif  // OW_USE_OSSIM
+    }
+
+    /**
+     * Test complex SH coefficient conversion.
+     */
+    void testComplex()
+    {
+        // calc a conversion matrix
+        std::vector< wmath::WVector3D > grad;
+        std::vector< unsigned int > edges;
+        wmath::tesselateIcosahedron( &grad, &edges, 3 );
+        edges.clear();
+
+        std::vector< wmath::WUnitSphereCoordinates > orientations;
+        for( std::size_t i = 0; i < grad.size(); ++i )
+        {
+            if( grad[ i ][ 0 ] > 0.0 )
+            {
+                orientations.push_back( wmath::WUnitSphereCoordinates( grad[ i ] ) );
+            }
+        }
+        grad.clear();
+
+        wmath::WValue< double > values( 15 );
+        for( std::size_t i = 0; i < 15; ++i )
+        {
+            values[ i ] = i / 15.0;
+        }
+        wmath::WSymmetricSphericalHarmonic sh( values );
+
+        wmath::WValue< std::complex< double > > values2 = sh.getCoefficientsComplex();
+
+        wmath::WMatrix< std::complex< double > > complexBaseMatrix = wmath::WSymmetricSphericalHarmonic::calcComplexBaseMatrix( orientations, 4 );
+
+        wmath::WValue< std::complex< double > > res = complexBaseMatrix * values2;
+
+        for( std::size_t k = 0; k < orientations.size(); ++k )
+        {
+            TS_ASSERT_DELTA( res[ k ].imag(), 0.0, 1e-15 );
+            TS_ASSERT_DELTA( res[ k ].real(), sh.getValue( orientations[ k ] ), 1e-15 );
+        }
     }
 };
 

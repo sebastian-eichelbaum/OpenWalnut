@@ -28,9 +28,6 @@
 #include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
 
-template< typename T >
-class WPropertyVariable;
-
 /**
  * This class allows constraining properties to be not empty. This is especially useful for strings. This works on all types
  * providing an empty() member function (as std::string and boost::filesystem::path do).

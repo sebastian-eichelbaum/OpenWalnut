@@ -112,7 +112,6 @@ void estimateNormalsAntipodal( limnPolyData *glyph, const char normalize )
 
 WMTeemGlyphs::~WMTeemGlyphs()
 {
-    // Cleanup!
 }
 
 boost::shared_ptr< WModule > WMTeemGlyphs::factory() const
@@ -158,31 +157,43 @@ void WMTeemGlyphs::properties()
     m_sliceOrientations->addItem( "x", "x-slice" );
     m_sliceOrientations->addItem( "y", "y-slice" );
     m_sliceOrientations->addItem( "z", "z-slice" );
-    m_sliceOrientationSelection = m_properties->addProperty( "Slice orientation",
+    m_sliceOrientationSelectionProp = m_properties->addProperty( "Slice orientation",
                                                              "Which slice will be shown?",
-                                                             m_sliceOrientations->getSelector( 1 ),
-                                                             m_recompute );
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_sliceOrientationSelection );
+                                                                 m_sliceOrientations->getSelector( 1 ), m_recompute );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_sliceOrientationSelectionProp );
+
+    m_sliceIdProp = m_properties->addProperty( "Slice ID", "Number of the slice to display", 100, m_recompute );
+    m_sliceIdProp->setMin( 0 );
+    m_sliceIdProp->setMax( 128 );
+
+    m_orders = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_orders->addItem( "2", "Order 2" );
+    m_orders->addItem( "4", "Order 4" );
+    m_orders->addItem( "6", "Order 6" );
+
+    m_orderProp = m_properties->addProperty( "Order",
+                                             "Order of the displayed spherical harmonics."
+                                             " If actual order is higer, the additional coefficients are ignored.",
+                                             m_orders->getSelector( 1 ),
+                                             m_recompute );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_orderProp );
 
     m_GFAThresholdProp = m_properties->addProperty( "GFA threshold", "Show only glyphs at voxels above the given generalized fractional"
                                                     " anisotropy (GFA) threshold"
                                                     " (if GFA data is present at input connector).",
                                                     0.0,
                                                     m_recompute );
-    m_GFAThresholdProp->setMin( 0 );
-    m_GFAThresholdProp->setMax( 1. );
+    m_GFAThresholdProp->setMin( 0.0 );
+    m_GFAThresholdProp->setMax( 1.0 );
 
-    m_glyphSizeProp = m_properties->addProperty( "Glyph size", "Size of the displayed glyphs.", 0.5, m_recompute );
+    m_glyphSizeProp = m_properties->addProperty( "Glyph size", "Size of the displayed glyphs.", 1.0, m_recompute );
     m_glyphSizeProp->setMin( 0 );
     m_glyphSizeProp->setMax( 100. );
 
-    m_sliceIdProp = m_properties->addProperty( "Slice ID", "Number of the slice to display", 0, m_recompute );
-    m_sliceIdProp->setMin( 0 );
-    m_sliceIdProp->setMax( 128 );
 
-    m_moduloProp = m_properties->addProperty( "Modulo", "Shows only every Modulo-th glyph in the two slice directions", 3, m_recompute );
-    m_moduloProp->setMin( 0 );
-    m_moduloProp->setMax( 20 );
+    m_moduloProp = m_properties->addProperty( "Modulo", "Shows only every Modulo-th glyph in the two slice directions", 2, m_recompute );
+    m_moduloProp->setMin( 1 );
+    m_moduloProp->setMax( 10 );
 
     m_subdivisionLevelProp = m_properties->addProperty( "Subdivision level",
                                                         "Determines the glyph resolution. Subdivision level of"
@@ -193,7 +204,17 @@ void WMTeemGlyphs::properties()
     m_subdivisionLevelProp->setMax( 5 );
 
     m_usePolarPlotProp = m_properties->addProperty( "Use polar plot", "Use polar plot for glyph instead of HOME?", true, m_recompute );
-    m_useNormalizationProp = m_properties->addProperty( "Radius normalization", "Scale the radius of each glyph to be in [0,1].", true, m_recompute );
+    m_useNormalizationProp = m_properties->addProperty( "Min-max normalization", "Scale the radius of each glyph to be in [0,1]."
+                                                        " Do <b>not</b> use with \"Hide negative lobes\"!",
+                                                        true,
+                                                        m_recompute );
+    m_useRadiusNormalizationProp = m_properties->addProperty( "Radius normalization", "Make all glyphs have similar size.",
+                                                        true,
+                                                        m_recompute );
+    m_hideNegativeLobesProp = m_properties->addProperty( "Hide negative lobes", "Hide glyph lobes that have negative radius."
+                                                        " Do <b>not</b> use with \"Min-max normalization\"!",
+                                                        false,
+                                                        m_recompute );
 
     WModule::properties();
 }
@@ -215,28 +236,93 @@ void WMTeemGlyphs::moduleMain()
             m_moduleState.wait();
             continue;
         }
-        debugLog() << "-------- Enter renderSlice...";
-        renderSlice( m_sliceIdProp->get() );
-        debugLog() << "-------- Exit renderSlice...";
+        if( m_input->getData().get() )
+        {
+            bool dataChanged = false;
+            if( m_dataSet != m_input->getData() )
+            {
+                // acquire data from the input connector
+                m_dataSet = m_input->getData();
+                dataChanged = true;
+            }
 
-        m_moduleState.wait();
+            boost::shared_ptr< WGridRegular3D > gridReg = boost::shared_dynamic_cast< WGridRegular3D >( m_input->getData().get()->getGrid() );
+            switch( m_sliceOrientationSelectionProp->get( true ).getItemIndexOfSelected( 0 ) )
+            {
+                case 0:
+                    m_sliceIdProp->setMax( gridReg->getNbCoordsX() - 1 );
+                    break;
+                case 1:
+                    m_sliceIdProp->setMax( gridReg->getNbCoordsY() - 1 );
+                    break;
+                case 2:
+                    m_sliceIdProp->setMax( gridReg->getNbCoordsZ() - 1 );
+                    break;
+            }
+
+            if( dataChanged )
+            {
+                m_sliceIdProp->set( m_sliceIdProp->getMax()->getMax() / 2 );
+            }
+
+            boost::shared_ptr< WDataSetScalar > gfa = m_inputGFA->getData();
+            if( gfa )
+            {
+                m_GFAThresholdProp->setMax( gfa->getMax() );
+                m_GFAThresholdProp->setMin( gfa->getMin() );
+            }
+
+            renderSlice( m_sliceIdProp->get( true ) );
+        }
+
+        if( !( m_sliceIdProp->changed()
+               || m_sliceOrientationSelectionProp->changed()
+               || m_orderProp->changed()
+               || m_GFAThresholdProp->changed()
+               || m_glyphSizeProp->changed()
+               || m_subdivisionLevelProp->changed()
+               || m_moduloProp->changed()
+               || m_usePolarPlotProp->changed()
+               || m_useNormalizationProp->changed()
+               || m_useRadiusNormalizationProp->changed()
+               || m_hideNegativeLobesProp->changed()
+                )
+            )
+        {
+            m_moduleState.wait();
+        }
     }
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+
+    {
+        boost::unique_lock< boost::mutex > lock( m_moduleNodeLock );
+
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+
+        lock.unlock();
+    }
 }
 
 void  WMTeemGlyphs::renderSlice( size_t sliceId )
 {
+    // Please look here  http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
+
+    debugLog() << "Rendering Slice " << sliceId;
     boost::shared_ptr< WProgress > progress;
     progress = boost::shared_ptr< WProgress >( new WProgress( "Glyph Generation", 2 ) );
     m_progress->addSubProgress( progress );
 
-    size_t sliceType = m_sliceOrientationSelection->get( true ).getItemIndexOfSelected( 0 );
+    size_t sliceType = m_sliceOrientationSelectionProp->get( true ).getItemIndexOfSelected( 0 );
+    size_t order = boost::lexical_cast< float >(  m_orders->getSelector( m_orderProp->get( true ).getItemIndexOfSelected( 0 ) ) .at( 0 )->getName() );
 
-    debugLog() << "Rendering slice ... " << sliceId;
-    // Please look here  http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.htm
-    if( m_moduleNode )
     {
-       WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+        boost::unique_lock< boost::mutex > lock( m_moduleNodeLock );
+
+        if( m_moduleNode )
+        {
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_moduleNode );
+        }
+
+        lock.unlock();
     }
 
     //-----------------------------------------------------------
@@ -245,30 +331,38 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
     generator = boost::shared_ptr< GlyphGeneration >(
                   new GlyphGeneration( boost::shared_dynamic_cast< WDataSetSphericalHarmonics >( m_input->getData() ),
                                        boost::shared_dynamic_cast< WDataSetScalar >( m_inputGFA->getData() ),
-                                       m_GFAThresholdProp->get(),
+                                       m_GFAThresholdProp->get( true ),
                                        sliceId,
-                                       m_subdivisionLevelProp->get(),
+                                       order,
+                                       m_subdivisionLevelProp->get( true ),
+                                       m_moduloProp->get( true ),
                                        sliceType,
-                                       m_usePolarPlotProp->get(),
-                                       m_glyphSizeProp->get(),
-                                      m_useNormalizationProp->get() ) );
+                                       m_usePolarPlotProp->get( true ),
+                                       m_glyphSizeProp->get( true ),
+                                       m_useNormalizationProp->get( true ),
+                                       m_useRadiusNormalizationProp->get( true ),
+                                       m_hideNegativeLobesProp->get( true ) ) );
     WThreadedFunction< GlyphGeneration > generatorThreaded( W_AUTOMATIC_NB_THREADS, generator );
     generatorThreaded.run();
     generatorThreaded.wait();
 
     ++*progress;
 
-    m_moduleNode = new WGEGroupNode();
-    osg::ref_ptr< osg::Geode > glyphsGeode = generator->getGraphics();
-    m_moduleNode->insert( glyphsGeode );
+    {
+        boost::unique_lock< boost::mutex > lock( m_moduleNodeLock );
 
-    debugLog() << "end loop ... " << sliceId;
+        m_moduleNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
+        osg::ref_ptr< osg::Geode > glyphsGeode = generator->getGraphics();
+        m_moduleNode->insert( glyphsGeode );
+        m_moduleNode->setName( "teem glyphs module node" );
 
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMTeemGlyphs", m_localPath ) );
-    m_shader->apply( glyphsGeode );
+        m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMTeemGlyphs", m_localPath ) );
+        m_shader->apply( glyphsGeode );
 
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
+        lock.unlock();
+    }
 
     progress->finish();
 }
@@ -276,6 +370,8 @@ void  WMTeemGlyphs::renderSlice( size_t sliceId )
 
 void WMTeemGlyphs::activate()
 {
+    boost::unique_lock< boost::mutex > lock( m_moduleNodeLock );
+
     if( m_moduleNode )
     {
         if( m_active->get() )
@@ -287,6 +383,9 @@ void WMTeemGlyphs::activate()
             m_moduleNode->setNodeMask( 0x0 );
         }
     }
+
+    lock.unlock();
+
     WModule::activate();
 }
 
@@ -300,6 +399,7 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
     {
         wmath::WPosition pos( glyph->xyzw[nbVertCoords*vertID], glyph->xyzw[nbVertCoords*vertID+1],  glyph->xyzw[nbVertCoords*vertID+2] );
         double norm = pos.norm();
+
         if( norm < min )
         {
             min = norm;
@@ -336,20 +436,28 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
                                                 boost::shared_ptr< WDataSetScalar > dataGFA,
                                                 double thresholdGFA,
                                                 const size_t& sliceId,
+                                                const size_t& order,
                                                 const size_t& subdivisionLevel,
+                                                const size_t& modulo,
                                                 const size_t& sliceType,
                                                 const bool& usePolar,
                                                 const float& scale,
-                                                const bool& useNormalization ) :
+                                                const bool& useNormalization,
+                                                const bool& useRadiusNormalization,
+                                                const bool& hideNegativeLobes ) :
     m_dataSet( dataSet ),
     m_dataGFA( dataGFA ),
     m_grid( boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() ) ),
     m_thresholdGFA( thresholdGFA ),
+    m_order( order ),
     m_sliceType( sliceType ),
     m_subdivisionLevel( subdivisionLevel ),
+    m_modulo( modulo ),
     m_usePolar( usePolar ),
     m_scale( scale ),
-    m_useNormalization( useNormalization )
+    m_useNormalization( useNormalization ),
+    m_useRadiusNormalization( useRadiusNormalization ),
+    m_hideNegativeLobes( hideNegativeLobes )
 {
     enum sliceTypeEnum
     {
@@ -362,7 +470,6 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
     m_nX =  m_grid->getNbCoordsX();
     m_nY =  m_grid->getNbCoordsY();
     m_nZ =  m_grid->getNbCoordsZ();
-    WAssert( sliceId < m_nX, "Slice id to large." );
     m_sliceId = sliceId;
 
     switch( sliceType )
@@ -380,8 +487,7 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
             m_nB = m_nY;
             break;
     }
-
-    size_t nbGlyphs = m_nA * m_nB; // / m_moduloProp->get() / m_moduloProp->get();
+    size_t nbGlyphs = ( ( m_nA + ( m_modulo - 1 ) ) / m_modulo ) * ( ( m_nB + ( m_modulo - 1 ) ) / m_modulo );
 
     const unsigned int level = m_subdivisionLevel; // subdivision level of sphere
     unsigned int infoBitFlag = ( 1 << limnPolyDataInfoNorm ) | ( 1 << limnPolyDataInfoRGBA );
@@ -403,10 +509,8 @@ WMTeemGlyphs::GlyphGeneration::GlyphGeneration( boost::shared_ptr< WDataSetSpher
 
 WMTeemGlyphs::GlyphGeneration::~GlyphGeneration()
 {
-    std::cout << "Destructor ... " << std::endl;
     // free memory
     m_sphere = limnPolyDataNix( m_sphere );
-    std::cout << "... done! " << std::endl;
 }
 
 void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WBoolFlag& /*b*/ )
@@ -421,36 +525,55 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
         zSlice
     };
 
-
     WAssert( m_sphere->xyzwNum == m_sphere->normNum, "Wrong size of arrays." );
     WAssert( m_sphere->xyzwNum == m_sphere->rgbaNum, "Wrong size of arrays." );
     size_t nbVerts = m_sphere->xyzwNum;
 
-    const tijk_type *type = tijk_4o3d_sym;
+    const tijk_type *type = 0; // Initialized to quiet compiler
+    switch( m_order )
+    {
+        case 2:
+            type = tijk_2o3d_sym;
+            break;
+        case 4:
+            type = tijk_4o3d_sym;
+            break;
+        case 6:
+            type = tijk_6o3d_sym;
+            break;
+        default:
+            WAssert( false, "order above 6 not supported yet." );
+    }
 
     // memory for the tensor and spherical harmonics data.
     float* ten = new float[type->num];
     float* res = new float[type->num];
     float* esh = new float[type->num];
 
-    size_t chunkSize = m_nA / numThreads;
+
+    size_t chunkSize = m_nA / ( numThreads - 1 );
     size_t first = id * chunkSize;
-    size_t last = ( id + 1 ) * chunkSize - 1;
+
+    size_t lastPlusOne = ( id + 1 ) * chunkSize;
+
     if( id == numThreads - 1 )
     {
-        last = m_nA - 1;
+        lastPlusOne = m_nA;
     }
 
     std::stringstream ss;
-    ss << id << "/" << numThreads <<" (" << first << " ... " << last << ")[" << chunkSize << "/" << m_nA << "]" << std::endl;
+    ss << id << "/" << numThreads <<" (" << first << " ... " << lastPlusOne - 1 << ")[" << chunkSize << "/" << m_nA << "]" << std::endl;
     WLogger::getLogger()->addLogMessage( ss.str(), "______", LL_DEBUG );
 
-    for( size_t aId = first; aId <= last; ++aId )
+    for( size_t aId = first; aId < lastPlusOne; ++aId )
     {
         for( size_t bId = 0; bId < m_nB; ++bId )
         {
-            size_t glyphId = aId * m_nB + bId;
-
+            if( ( aId % m_modulo != 0) || ( bId % m_modulo != 0 ) )
+            {
+                continue;
+            }
+            size_t glyphId = ( aId / m_modulo ) * ( ( m_nB + ( m_modulo - 1 ) ) / m_modulo ) + ( bId / m_modulo );
 
             size_t vertsUpToCurrentIteration = glyphId * nbVerts;
             size_t idsUpToCurrentIteration = glyphId * m_sphere->indxNum;
@@ -471,7 +594,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
 
             //-------------------------------
             // vertex indices
-            // We have to set them also if we do not darw the glyph becaus otherwise we would leave their
+            // We have to set them also if we do not draw the glyph because otherwise we would leave their
             // to be zero. If many indices are zero, they block each other because of synchronized
             // memory access to the same memory address.
             for( unsigned int vertId = 0; vertId < localSphere->indxNum; ++vertId )
@@ -486,24 +609,48 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             }
 
             wmath::WValue< double > coeffs = m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
-            WAssert( coeffs.size() == 15,
-                     "This module can handle only 4th order spherical harmonics."
-                     "Thus the input has to be 15 dimensional vectors." );
+            switch( m_order )
+            {
+                case 2:
+                    coeffs.resize( 6 );
+                    break;
+                case 4:
+                    coeffs.resize( 15 );
+                    break;
+                case 6:
+                    coeffs.resize( 28 );
+                    break;
+                default:
+                    WAssert( false, "order above 6 not supported yet." );
+            }
 
-            for( size_t coeffId = 0; coeffId < 15; coeffId++ )
+            for( size_t coeffId = 0; coeffId < coeffs.size(); coeffId++ )
             {
                 esh[coeffId] = coeffs[coeffId];
             }
-            // convert even-order spherical harmonics to higher-order tensor
-            tijk_esh_to_3d_sym_f( ten, esh, 4 );
 
-            // create positive approximation of the tensor
-            tijk_refine_rankk_parm *parm = tijk_refine_rankk_parm_new();
-            parm->pos = 1;
-            int ret = tijk_approx_rankk_3d_f( NULL, NULL, res, ten, type, 6, parm );
-            WAssert( ret == 0, "Error condition in call to tijk_approx_rankk_3d_f." );
-            parm = tijk_refine_rankk_parm_nix( parm );
-            tijk_sub_f( ten, ten, res, type );
+            // change Descoteaux basis to Schulz/teem basis
+            // Descoteaux basis: see his PhD thesis page 66
+            // Schultz basis: see PDF "Real Spherical Harmonic basis" - Luke Bloy 9. December 2009
+            size_t k = 0;
+            for ( int l = 0; l <= static_cast<int>( m_order ); l += 2 )
+            {
+                for ( int m = -l; m <= l; ++m )
+                {
+                    if ( m < 0 && ( ( -m ) % 2 == 1 ) )
+                    {
+                        esh[k] *= -1.0;
+                    }
+                    else if ( m > 0 && ( m % 2 == 0 ) )
+                    {
+                        esh[k] *= -1.0;
+                    }
+                    ++k;
+                }
+            }
+
+            // convert even-order spherical harmonics to higher-order tensor
+            tijk_esh_to_3d_sym_f( ten, esh, m_order );
 
             const char normalize = 0;
 
@@ -514,11 +661,18 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             if( m_usePolar )
             {
                 char isdef = 3; // some initialization
-                radius = elfGlyphPolar( glyph, 1, ten, type, &isdef, 0, normalize, NULL, NULL );
-                WAssert( isdef != 0, "Tensor is non positive definite. Think about that." );
+                radius = elfGlyphPolar( glyph, 1, ten, type, &isdef,  m_hideNegativeLobes, normalize, NULL, NULL );
             }
             else
             {
+                // create positive approximation of the tensor
+                tijk_refine_rankk_parm *parm = tijk_refine_rankk_parm_new();
+                parm->pos = 1;
+                int ret = tijk_approx_rankk_3d_f( NULL, NULL, res, ten, type, 6, parm );
+                WAssert( ret == 0, "Error condition in call to tijk_approx_rankk_3d_f." );
+                parm = tijk_refine_rankk_parm_nix( parm );
+                tijk_sub_f( ten, ten, res, type );
+
                 radius = elfGlyphHOME( glyph, 1, ten, type, NULL, normalize );
             }
 
@@ -526,14 +680,29 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             // One can insert per-peak coloring here (see http://www.ci.uchicago.edu/~schultz/sphinx/home-glyph.html )
             // -------------------------------------------------------------------------------------------------------
 
+            float scale = m_scale;
 
             if( m_useNormalization )
             {
                 minMaxNormalization( glyph, nbVertCoords );
+                if( !m_useRadiusNormalization )
+                {
+                    scale = m_scale * radius;
+                }
             }
             else
             {
-                m_scale = m_scale / radius;
+                if( m_useRadiusNormalization )
+                {
+                    if( radius != 0 )
+                    {
+                        scale = m_scale / radius;
+                    }
+                    else
+                    {
+                        scale = 0.0;
+                    }
+                }
             }
             estimateNormalsAntipodal( glyph, normalize );
 
@@ -545,9 +714,9 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
                 size_t globalVertexId = vertsUpToCurrentIteration + vertId;
                 //-------------------------------
                 // vertices
-                ( *m_vertArray )[globalVertexId][0] = glyph->xyzw[nbVertCoords*vertId  ] * m_scale + glyphPos[0];
-                ( *m_vertArray )[globalVertexId][1] = glyph->xyzw[nbVertCoords*vertId+1] * m_scale + glyphPos[1];
-                ( *m_vertArray )[globalVertexId][2] = glyph->xyzw[nbVertCoords*vertId+2] * m_scale + glyphPos[2];
+                ( *m_vertArray )[globalVertexId][0] = glyph->xyzw[nbVertCoords*vertId  ] * scale + glyphPos[0];
+                ( *m_vertArray )[globalVertexId][1] = glyph->xyzw[nbVertCoords*vertId+1] * scale + glyphPos[1];
+                ( *m_vertArray )[globalVertexId][2] = glyph->xyzw[nbVertCoords*vertId+2] * scale + glyphPos[2];
 
                 // ------------------------------------------------
                 // normals

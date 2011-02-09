@@ -182,7 +182,7 @@ void WMDetTractClustering::update()
     if( !( m_dLtTableExists = dLtTableExists() ) )
     {
         debugLog() << "Consider old table as invalid.";
-        m_dLtTable.reset( new WMatrixSym( m_tracts->size() ) );
+        m_dLtTable.reset( new WMatrixSymDBL( m_tracts->size() ) );
     }
 
     cluster();
@@ -236,7 +236,7 @@ bool WMDetTractClustering::dLtTableExists()
             WReaderMatrixSymVTK r( dLtFileName );
             boost::shared_ptr< std::vector< double > > data( new std::vector< double >() );
             r.readTable( data );
-            m_dLtTable.reset( new WMatrixSym( static_cast< size_t >( data->back() ) ) );
+            m_dLtTable.reset( new WMatrixSymDBL( static_cast< size_t >( data->back() ) ) );
             m_lastTractsSize = static_cast< size_t >( data->back() );
 
             // remove the dimension from data array since it's not representing any distance
@@ -362,7 +362,7 @@ osg::ref_ptr< osg::Geode > WMDetTractClustering::genTractGeode( const WFiberClus
     geometry->setVertexArray( vertices );
 
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    colors->push_back( wge::osgColor( color ) );
+    colors->push_back( color );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
@@ -384,7 +384,7 @@ osg::ref_ptr< WGEManagedGroupNode > WMDetTractClustering::paint() const
     std::stringstream clusterLog;
     for( size_t i = 0; i < m_clusters.size(); ++i, hue += hue_increment )
     {
-        color.setHSV( hue, 1.0, 0.75 );
+        color = convertHSVtoRGBA( hue, 1.0, 0.75 );
         result->insert( genTractGeode( m_clusters[i], color ).get() );
         clusterLog << m_clusters[i].size() << " ";
         numUsedTracts += m_clusters[i].size();
@@ -452,7 +452,7 @@ bool WMDetTractClustering::OutputIDBound::accept( boost::shared_ptr< WPropertyVa
 }
 
 WMDetTractClustering::SimilarityMatrixComputation::SimilarityMatrixComputation(
-        boost::shared_ptr< WMatrixSym > dLtTable,
+        boost::shared_ptr< WMatrixSymDBL > dLtTable,
         boost::shared_ptr< WDataSetFiberVector > tracts,
         double proxSquare,
         const WBoolFlag& shutdownFlag )

@@ -28,7 +28,6 @@
 #include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
 
 #include "WMHistogramEqualization.h"
 #include "WMHistogramEqualization.xpm"
@@ -151,6 +150,8 @@ void WMHistogramEqualization::moduleMain()
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
         if ( !dataSet )
         {
+            debugLog() << "Resetting output.";
+            m_output->reset();
             continue;
         }
         boost::shared_ptr< WValueSetBase > valueSet = dataSet->getValueSet();
@@ -259,7 +260,7 @@ void WMHistogramEqualization::moduleMain()
             for ( size_t vi = 0; vi < valueSet->rawSize(); ++vi )
             {
                 size_t idx = hist->getIndexForValue( valueSet->getScalarDouble( vi ) );
-                newData[ vi ] = static_cast< unsigned char >( idx / maxI * 255 );
+                newData[ vi ] = static_cast< unsigned char >( static_cast< double >( idx )/ static_cast< double >( maxI ) * 255.0 );
             }
         }
         ++*progress;
@@ -270,7 +271,11 @@ void WMHistogramEqualization::moduleMain()
         // construct
         m_output->updateData( boost::shared_ptr< WDataSetScalar >(
             new WDataSetScalar( boost::shared_ptr< WValueSetBase >(
-                new WValueSet< unsigned char >( 0, 1, newData, W_DT_UNSIGNED_CHAR ) ), dataSet->getGrid() )
+                                    new WValueSet< unsigned char >( 0,
+                                                                    1,
+                                                                    boost::shared_ptr< std::vector< unsigned char > >(
+                                                                        new std::vector< unsigned char >( newData ) ),
+                                                                    W_DT_UNSIGNED_CHAR ) ), dataSet->getGrid() )
         ) );
 
         debugLog() << "Done";

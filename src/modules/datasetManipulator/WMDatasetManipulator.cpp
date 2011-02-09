@@ -27,11 +27,12 @@
 #include <utility>
 
 #include "../../kernel/WKernel.h"
-#include "../emptyIcon.xpm" // Please put a real icon here.
 
+#include "../../common/WBoundingBox.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../dataHandler/WSubject.h"
+#include "WMDatasetManipulator.xpm"
 
 #include "WMDatasetManipulator.h"
 
@@ -56,7 +57,7 @@ boost::shared_ptr< WModule > WMDatasetManipulator::factory() const
 
 const char** WMDatasetManipulator::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMDatasetManipulator_xpm; // Please put a real icon here.
 }
 const std::string WMDatasetManipulator::getName() const
 {
@@ -134,12 +135,10 @@ void WMDatasetManipulator::properties()
 
 void WMDatasetManipulator::init()
 {
-    m_grid = m_input->getData()->getTexture()->getGrid();
-    std::pair< wmath::WVector3D, wmath::WVector3D >bb = m_grid->getBoundingBox();
+    m_grid = m_input->getData()->getTexture2()->getGrid();
+    WBoundingBox bb = m_grid->getBoundingBox();
 
-    wmath::WPosition center = wmath::WPosition( ( bb.second[0] - bb.first[0] ) / 2.0,
-                                                ( bb.second[1] - bb.first[1] ) / 2.0,
-                                                ( bb.second[2] - bb.first[2] ) / 2.0 );
+    wmath::WPosition center = bb.center();
 
     m_knobCenter = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
     m_knobx1 = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
@@ -165,36 +164,37 @@ void WMDatasetManipulator::init()
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_knobRotCenter ) );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_knobRot ) );
 
-    boost::function< void() > changeRoiSignal = boost::bind( &WMDatasetManipulator::manipulatorMoved, this );
-    m_knobCenter->addChangeNotifier( changeRoiSignal );
-    m_knobx1->addChangeNotifier( changeRoiSignal );
-    m_knobx2->addChangeNotifier( changeRoiSignal );
-    m_knoby1->addChangeNotifier( changeRoiSignal );
-    m_knoby2->addChangeNotifier( changeRoiSignal );
-    m_knobz1->addChangeNotifier( changeRoiSignal );
-    m_knobz2->addChangeNotifier( changeRoiSignal );
+    using boost::function;
+    m_changeRoiSignal
+        = boost::shared_ptr< function< void() > >( new function< void() >( boost::bind( &WMDatasetManipulator::manipulatorMoved, this ) ) );
+    m_knobCenter->addROIChangeNotifier( m_changeRoiSignal );
+    m_knobx1->addROIChangeNotifier( m_changeRoiSignal );
+    m_knobx2->addROIChangeNotifier( m_changeRoiSignal );
+    m_knoby1->addROIChangeNotifier( m_changeRoiSignal );
+    m_knoby2->addROIChangeNotifier( m_changeRoiSignal );
+    m_knobz1->addROIChangeNotifier( m_changeRoiSignal );
+    m_knobz2->addROIChangeNotifier( m_changeRoiSignal );
 
-    boost::function< void() > changeRotRoiSignal = boost::bind( &WMDatasetManipulator::manipulatorRotMoved, this );
-    m_knobRotCenter->addChangeNotifier( changeRotRoiSignal );
-    m_knobRot->addChangeNotifier( changeRotRoiSignal );
+    m_changeRotRoiSignal
+        = boost::shared_ptr< function< void() > >( new function< void() >( boost::bind( &WMDatasetManipulator::manipulatorRotMoved, this ) ) );
+    m_knobRotCenter->addROIChangeNotifier( m_changeRotRoiSignal );
+    m_knobRot->addROIChangeNotifier( m_changeRotRoiSignal );
 
     setManipulatorMode();
 }
 
 void WMDatasetManipulator::setManipulatorsFromBoundingBox()
 {
-    std::pair< wmath::WVector3D, wmath::WVector3D >bb = m_grid->getBoundingBox();
+    WBoundingBox bb = m_grid->getBoundingBox();
 
-    m_posCenter = wmath::WPosition( bb.first[0] + ( bb.second[0] - bb.first[0] ) / 2.0,
-                                    bb.first[1] + ( bb.second[1] - bb.first[1] ) / 2.0,
-                                    bb.first[2] + ( bb.second[2] - bb.first[2] ) / 2.0 );
+    m_posCenter = bb.center();
 
-    m_posx1 = wmath::WPosition( bb.first[0], m_posCenter[1], m_posCenter[2] );
-    m_posx2 = wmath::WPosition( bb.second[0], m_posCenter[1], m_posCenter[2] );
-    m_posy1 = wmath::WPosition( m_posCenter[0], bb.first[1], m_posCenter[2] );
-    m_posy2 = wmath::WPosition( m_posCenter[0], bb.second[1], m_posCenter[2] );
-    m_posz1 = wmath::WPosition( m_posCenter[0], m_posCenter[1], bb.first[2] );
-    m_posz2 = wmath::WPosition( m_posCenter[0], m_posCenter[1], bb.second[2] );
+    m_posx1 = wmath::WPosition( bb.xMin(), m_posCenter[1], m_posCenter[2] );
+    m_posx2 = wmath::WPosition( bb.xMax(), m_posCenter[1], m_posCenter[2] );
+    m_posy1 = wmath::WPosition( m_posCenter[0], bb.yMin(), m_posCenter[2] );
+    m_posy2 = wmath::WPosition( m_posCenter[0], bb.yMax(), m_posCenter[2] );
+    m_posz1 = wmath::WPosition( m_posCenter[0], m_posCenter[1], bb.zMin() );
+    m_posz2 = wmath::WPosition( m_posCenter[0], m_posCenter[1], bb.zMax() );
 
     m_knobCenter->setPosition( m_posCenter );
     m_knobx1->setPosition( m_posx1 );
@@ -283,17 +283,23 @@ void WMDatasetManipulator::manipulatorMoved()
 
     wmath::WPosition stretch( 1.0, 1.0, 1.0 );
 
-    m_grid->translate( wmath::WPosition( m_grid->getTranslate().x() + m_knobx1->getPosition().x() - m_posx1.x(),
-                                         m_grid->getTranslate().y() + m_knoby1->getPosition().y() - m_posy1.y(),
-                                         m_grid->getTranslate().z() + m_knobz1->getPosition().z() - m_posz1.z() ) );
+    float orgsizex = static_cast<float>( ( m_posx2Orig - m_posx1Orig ).x() );
+    float orgsizey = static_cast<float>( ( m_posy2Orig - m_posy1Orig ).y() );
+    float orgsizez = static_cast<float>( ( m_posz2Orig - m_posz1Orig ).z() );
 
+    m_grid->translate( wmath::WPosition( m_grid->getTranslate().x() + ( m_knobx1->getPosition().x() - m_posx1.x() ) *
+                                            ( static_cast<float>( m_grid->getNbCoordsX() / orgsizex ) ),
+                                         m_grid->getTranslate().y() + ( m_knoby1->getPosition().y() - m_posy1.y() ) *
+                                            ( static_cast<float>( m_grid->getNbCoordsY() / orgsizey ) ),
+                                         m_grid->getTranslate().z() + ( m_knobz1->getPosition().z() - m_posz1.z() ) *
+                                            ( static_cast<float>( m_grid->getNbCoordsZ() / orgsizez ) ) ) );
     m_translationX->set( m_grid->getTranslate().x(), true );
     m_translationY->set( m_grid->getTranslate().y(), true );
     m_translationZ->set( m_grid->getTranslate().z(), true );
 
-    stretch.x() = ( m_knobx2->getPosition().x() - m_knobx1->getPosition().x() ) / static_cast<float>( m_grid->getNbCoordsX() );
-    stretch.y() = ( m_knoby2->getPosition().y() - m_knoby1->getPosition().y() ) / static_cast<float>( m_grid->getNbCoordsY() );
-    stretch.z() = ( m_knobz2->getPosition().z() - m_knobz1->getPosition().z() ) / static_cast<float>( m_grid->getNbCoordsZ() );
+    stretch.x() = ( m_knobx2->getPosition().x() - m_knobx1->getPosition().x() ) / orgsizex;
+    stretch.y() = ( m_knoby2->getPosition().y() - m_knoby1->getPosition().y() ) / orgsizey;
+    stretch.z() = ( m_knobz2->getPosition().z() - m_knobz1->getPosition().z() ) / orgsizez;
 
     m_grid->stretch( stretch );
 
@@ -449,5 +455,16 @@ void WMDatasetManipulator::moduleMain()
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
         }
     }
+
+    m_knobCenter->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knobx1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knobx2->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knoby1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knoby2->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knobz1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_knobz2->removeROIChangeNotifier( m_changeRoiSignal );
+
+    m_knobRotCenter->removeROIChangeNotifier( m_changeRotRoiSignal );
+    m_knobRot->removeROIChangeNotifier( m_changeRotRoiSignal );
 }
 

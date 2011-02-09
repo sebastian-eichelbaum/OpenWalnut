@@ -117,7 +117,7 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
-    boost::shared_ptr< WValueSet<double> > m_valueSet;
+    boost::shared_ptr< WValueSetBase > m_valueSet;
 };
 
 #endif  // WDATASETSPHERICALHARMONICS_H

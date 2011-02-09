@@ -40,15 +40,15 @@ void WROI::properties()
 {
     m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "This ROI's properties" ) );
 
-    m_active = m_properties->addProperty( "active", "description", true, boost::bind( &WROI::propertyChanged, this ) );
+    m_active = m_properties->addProperty( "active", "", true, boost::bind( &WROI::propertyChanged, this ) );
     m_active->setHidden( true );
 
-    m_show = m_properties->addProperty( "show", "Toggles visibility of the roi", true, boost::bind( &WROI::propertyChanged, this ) );
+    m_show = m_properties->addProperty( "Show", "Toggles visibility of the roi", true, boost::bind( &WROI::propertyChanged, this ) );
 
-    m_dirty = m_properties->addProperty( "Dirty", "description", true ); // boost::bind( &WROI::propertyChanged, this ) );
+    m_dirty = m_properties->addProperty( "Dirty", "", true ); // boost::bind( &WROI::propertyChanged, this ) );
     m_dirty->setHidden( true );
 
-    m_not = m_properties->addProperty( "NOT", "description", false, boost::bind( &WROI::propertyChanged, this ) );
+    m_not = m_properties->addProperty( "Not", "Negates the effect of this ROI.", false, boost::bind( &WROI::propertyChanged, this ) );
 }
 
 void WROI::propertyChanged()
@@ -118,17 +118,30 @@ void WROI::unhide()
 
 void WROI::signalRoiChange()
 {
-    for ( std::list< boost::function< void() > >::iterator iter = m_changeNotifiers.begin();
+    for ( std::list< boost::shared_ptr< boost::function< void() > > >::iterator iter = m_changeNotifiers.begin();
                 iter != m_changeNotifiers.end(); ++iter )
     {
-        ( *iter )();
+        ( **iter )();
     }
 }
 
-void WROI::addChangeNotifier( boost::function< void() > notifier )
+void WROI::addROIChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier )
 {
     boost::unique_lock< boost::shared_mutex > lock;
     lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
     m_changeNotifiers.push_back( notifier );
+    lock.unlock();
+}
+
+void WROI::removeROIChangeNotifier( boost::shared_ptr< boost::function< void() > > notifier )
+{
+    boost::unique_lock< boost::shared_mutex > lock;
+    lock = boost::unique_lock< boost::shared_mutex >( m_associatedNotifiersLock );
+    std::list<  boost::shared_ptr< boost::function< void() > > >::iterator it;
+    it = std::find( m_changeNotifiers.begin(), m_changeNotifiers.end(), notifier );
+    if( it != m_changeNotifiers.end() )
+    {
+        m_changeNotifiers.erase( it );
+    }
     lock.unlock();
 }

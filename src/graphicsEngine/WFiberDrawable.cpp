@@ -125,7 +125,3 @@ void WFiberDrawable::drawTubes() const
     }
 }
 
-void WFiberDrawable::setDataset( boost::shared_ptr< const WDataSetFibers > dataset )
-{
-    m_dataset = dataset;
-}

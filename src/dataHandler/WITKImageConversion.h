@@ -140,7 +140,7 @@ boost::shared_ptr< WDataSetScalar > makeDataSetFromImage( typename itk::Image< T
 
     WGridTransformOrtho t( smat );
     boost::shared_ptr< WGrid > grid( new WGridRegular3D( s[ 0 ], s[ 1 ], s[ 2 ], t ) );
-    std::vector< T > v( s[ 0 ] * s[ 1 ] * s[ 2 ] );
+    boost::shared_ptr< std::vector< T > > v = boost::shared_ptr< std::vector< T > >( new std::vector< T >( s[ 0 ] * s[ 1 ] * s[ 2 ] ) );
 
     typename itk::Image< T, 3 >::IndexType i;
 
@@ -150,7 +150,7 @@ boost::shared_ptr< WDataSetScalar > makeDataSetFromImage( typename itk::Image< T
         {
             for( i[ 2 ] = 0; i[ 2 ] < static_cast< int >( s[ 2 ] ); ++i[ 2 ] )
             {
-                v.at( i[ 0 ] + i[ 1 ] * s[ 0 ] + i[ 2 ] * s[ 0 ] * s[ 1 ] ) = img->GetPixel( i );
+                v->at( i[ 0 ] + i[ 1 ] * s[ 0 ] + i[ 2 ] * s[ 0 ] * s[ 1 ] ) = img->GetPixel( i );
             }
         }
     }

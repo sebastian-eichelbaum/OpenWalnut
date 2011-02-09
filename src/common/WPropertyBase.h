@@ -33,7 +33,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
-#include "WPropertyTypes.h"
+#include "WProperties_Fwd.h"
 #include "WCondition.h"
 #include "WConditionSet.h"
 #include "WExportCommon.h"
@@ -244,6 +244,13 @@ public:
      * \return the property as trigger property
      */
     WPropTrigger toPropTrigger();
+
+    /**
+     * Helper converts this instance to its native type.
+     *
+     * \return the property as matrix4x4 property
+     */
+    WPropMatrix4X4 toPropMatrix4X4();
 
     /**
      * Helper converts this instance to its native type.

@@ -37,8 +37,9 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
-#include "../../graphicsEngine/WShader.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMOverlayAtlas.h"
 #include "WMOverlayAtlas.xpm"
 
@@ -146,7 +147,7 @@ void WMOverlayAtlas::moduleMain()
     m_propCoronalSlicePos->setMax( m_coronalSlices.size() - 1 );
     m_propCoronalSlicePos->set( m_coronalSlices.size() / 2 );
 
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMOverlayAtlas", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMOverlayAtlas", m_localPath ) );
 
     init();
 
@@ -202,6 +203,12 @@ void WMOverlayAtlas::moduleMain()
     }
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+
+    m_s0->removeROIChangeNotifier( m_changeRoiSignal );
+    m_s1->removeROIChangeNotifier( m_changeRoiSignal );
+    m_s2->removeROIChangeNotifier( m_changeRoiSignal );
+    m_s3->removeROIChangeNotifier( m_changeRoiSignal );
+    m_s4->removeROIChangeNotifier( m_changeRoiSignal );
 }
 
 void WMOverlayAtlas::init()
@@ -210,7 +217,8 @@ void WMOverlayAtlas::init()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     m_geode = new osg::Geode();
     m_geode->setName( "_atlasSlice" );
-    m_rootNode->addUpdateCallback( new SafeUpdateCallback( this ) );
+
+    m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMOverlayAtlas::updateCallback, this ) ) );
     m_rootNode->insert( m_geode );
 
     wmath::WPosition center;
@@ -254,12 +262,13 @@ void WMOverlayAtlas::init()
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s3 ) );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *m_s4 ) );
 
-    boost::function< void() > changeRoiSignal = boost::bind( &WMOverlayAtlas::manipulatorMoved, this );
-    m_s0->addChangeNotifier( changeRoiSignal );
-    m_s1->addChangeNotifier( changeRoiSignal );
-    m_s2->addChangeNotifier( changeRoiSignal );
-    m_s3->addChangeNotifier( changeRoiSignal );
-    m_s4->addChangeNotifier( changeRoiSignal );
+    m_changeRoiSignal =
+        boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WMOverlayAtlas::manipulatorMoved, this ) ) );
+    m_s0->addROIChangeNotifier( m_changeRoiSignal );
+    m_s1->addROIChangeNotifier( m_changeRoiSignal );
+    m_s2->addROIChangeNotifier( m_changeRoiSignal );
+    m_s3->addROIChangeNotifier( m_changeRoiSignal );
+    m_s4->addROIChangeNotifier( m_changeRoiSignal );
 
     toggleManipulators();
 }
@@ -397,16 +406,6 @@ void WMOverlayAtlas::updatePlane()
     m_geode->addDrawable( planeGeometry );
 
     m_dirty = false;
-}
-
-void WMOverlayAtlas::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    if ( m_module->isDirty() )
-    {
-        m_module->updatePlane();
-        m_module->updateTextures();
-    }
-    traverse( node, nv );
 }
 
 void WMOverlayAtlas::updateTextures()
@@ -739,5 +738,14 @@ void WMOverlayAtlas::toggleManipulators()
         m_s2->hide();
         m_s3->hide();
         m_s4->hide();
+    }
+}
+
+void WMOverlayAtlas::updateCallback()
+{
+    if ( isDirty() )
+    {
+        updatePlane();
+        updateTextures();
     }
 }

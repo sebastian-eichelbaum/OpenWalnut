@@ -35,11 +35,12 @@
 
 #include "WKdTree.h"
 
+#include "WExportKernel.h"
 
 /**
  * Adaptor class between the roi manager and the fiber display
  */
-class WFiberSelector
+class OWKERNEL_EXPORT WFiberSelector // NOLINT
 {
 public:
     /**
@@ -127,6 +128,11 @@ private:
     boost::shared_ptr< std::vector< bool > >m_workerBitfield; //!< bit field of activated fibers
 
     std::list< boost::shared_ptr<WSelectorBranch> >m_branches; //!< list of branches int he roi structure
+
+    boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > m_assocRoiSignal; //!< Signal that can be used to update the selector
+    boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > m_removeRoiSignal; //!< Signal that can be used to update the selector
+    boost::shared_ptr< boost::function< void( boost::shared_ptr< WRMBranch > ) > > m_removeBranchSignal; //!< Signal for updating the selector
+    boost::shared_ptr< boost::function< void() > > m_changeRoiSignal; //!< Signal that can be used to update the selector
 };
 
 inline size_t WFiberSelector::size()

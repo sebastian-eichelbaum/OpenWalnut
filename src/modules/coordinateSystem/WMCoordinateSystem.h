@@ -148,7 +148,7 @@ private:
 
     float m_drawOffset; //!< offset from slices to draw geometry on
 
-    boost::shared_ptr<WCoordConverter>m_coordConverter; //!< stores pointer
+    boost::shared_ptr< WCoordConverter > m_coordConverter; //!< stores pointer
 
     int m_viewAngle; //!< stores the last view angle
 
@@ -205,7 +205,7 @@ private:
     /**
      * the shader object for this module
      */
-    // boost::shared_ptr< WShader >m_shader;
+    // boost::shared_ptr< WGEShader >m_shader;
 
     /**
      * update function, called with each update pass of the osg render loop

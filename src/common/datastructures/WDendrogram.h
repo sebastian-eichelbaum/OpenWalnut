@@ -25,92 +25,137 @@
 #ifndef WDENDROGRAM_H
 #define WDENDROGRAM_H
 
+#include <sstream>
+#include <string>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
+#include "../WTransferable.h"
+
+#include "../WExportCommon.h"
+
 /**
- * Hirachical binary tree datastructure with spatial layout information. Since
- * join points in a dendrogram do normally not intersect a special index is
- * needed. Additionally a parameter for each node and leaf, its height, is
- * available.
+ * Hirachical binary tree datastructure with spatial layout information called dendrogram. Please note that there are some
+ * limitations of this implementation: First of all there are exactly <dfn>n-1</dfn> many inner nodes, and only inner nodes may
+ * have a height. In order to use this class for your objects ensure that the objects are labeled from <dfn>0,...,n-1</dfn>.
  *
- * Each leaf and inner node will obtain a new index called TreeIndex, so the
- * hirachy will not overlap or intersect. As a leaf already has an index we
- * call this index the DataIndex. So a leaf with DataIndex 5 is the fifth data
- * element in the dataset of which this dendrogram is used for. Where as a leaf
- * with TreeIndex 5 is the fifth leaf from left.
+ * The following description is taken from: http://en.wikipedia.org/wiki/Dendrogram A dendrogram (from Greek
+ * dendron "tree", -gramma "drawing") is a tree diagram frequently used to illustrate the arrangement of
+ * clusters produced by hierarchical clustering. Please note that each level has its height.
+ *
+   \verbatim
+                     |
+              ,------'--.     --- 4th level
+              |         |
+          |```````|     |     --- 3rd level
+          |       |     |
+          |       |  ...'...  --- 2nd level
+          |       |  |     |
+     |''''''''|   |  |     |  --- 1st level
+     |        |   |  |     |
+     |        |   |  |     |
+     o        o   o  o     o  --- 0   level
+   \endverbatim
+ *
  */
-class WDendrogram
+class OWCOMMON_EXPORT WDendrogram : public WTransferable // NOLINT
 {
 friend class WDendrogramTest;
 public:
     /**
-     * Creates a new Dendrogram with unjoined elements aka leafs.
+     * Gets the name of this prototype.
      *
-     * \param numElements The number of unjoined or initial elements
-     *
-     * TODO(math): Unsigned int is used to save memory here, but can't we use
-     * size_t (8bytes) => ask christian..
+     * \return the name.
      */
-    explicit WDendrogram( unsigned int numElements );
+    virtual const std::string getName() const;
 
     /**
-     * Destructs a Dendrogram.
+     * Gets the description for this prototype.
+     *
+     * \return the description
      */
-    virtual ~WDendrogram();
+    virtual const std::string getDescription() const;
+
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
+
+    /**
+     * Constructs a new dendrogram for \c n many objects.
+     *
+     * \param n The number of leafs.
+     */
+    explicit WDendrogram( size_t n );
+
+    /**
+     * Default constructs an empty dendrogram.
+     */
+    WDendrogram();
+
+    /**
+     * Merges two elements (either inner nodes or leafs) given via the indices \e i and \e j.
+     *
+     * \param i The index referring either to an inner node or to a leaf.
+     * \param j The other index of a leaf or inner node.
+     * \param height The height at which those to elements join.
+     *
+     * \return The number of the inner node now representing now the parent of \e i and \e j.
+     */
+    size_t merge( size_t i, size_t j, double height );
+
+    /**
+     * Transform this dendrogram into a string, where each leaf or inner node is mapped to a special string.
+     * <dfn>"(level, (all leafs incorporated by this node), (the two direct predecessors), height if available )"</dfn>
+     *
+     * \return The special string as constructed from the scheme above.
+     */
+    std::string toString() const;
 
 protected:
-    /**
-     * Representing a node inside of the Dendrogram.
-     *
-     * \note Be aware of the different kinds of indices used in here. See
-     * Description of the WDendrogram class for more details on TreeIndices and
-     * DataIndices.
-     */
-    struct Node
-    {
-        /**
-         * Default constructor for a new node. So all members are an valid
-         * initial value: zero.
-         */
-        Node();
+    static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
 
-        /**
-         * The TreeIndex of the parent it belongs to.
-         */
-        unsigned int parentTreeIdx;
-
-        /**
-         * All leafs grouped by this node have an bigger or equal TreeIndex
-         * then this \e minTreeIdx. In other words: The leftmost leaf of the
-         * subtree with this node as root has this TreeIndex.
-         */
-        unsigned int minTreeIdx;
-
-        /**
-         * All leafs grouped by this node have an lower or equal TreeIndex then
-         * this \e maxTreeIdx. In other words: The rightmost leaf of the
-         * subtree with this node as root has this TreeIndex.
-         */
-        unsigned int maxTreeIdx;
-
-        /**
-         * This is used to have a reference to the data element this node
-         * represents. For inner nodes clearly none exists, but for leafs this
-         * is the number inside of the dataset.
-         */
-        unsigned int dataIdx;
-
-        /**
-         * The height of each node. Leafs have an default height of zero.
-         */
-        double height;
-    };
 private:
     /**
-     * Save the whole dendrogram and keep track of the link from leafs to the
-     * dataset, as well as information of parents and leafs for each node.
+     * Resets the whole dendrogram to the number of elements it should be used for.
+     *
+     * \param n number of leafs
      */
-    std::vector< Node > m_tree;
+    void reset( size_t n );
+
+    /**
+     * Checks if this instance is initialized. If not, it throws an exception.
+     * \throw WOutOfBounds
+     * \param caller A string identifying the class member function.
+     */
+    void checkAndThrowExceptionIfUsedUninitialized( std::string caller ) const;
+
+    /**
+     * Stores the parents of leafs as well as of inner nodes. The first half of the arrary corresponds to the
+     * parents of the leafs and the second of the inner nodes. The last inner node is the top of the
+     * dendrogram.
+     */
+    std::vector< size_t > m_parents;
+
+    /**
+     * Stores only for the inner nodes their heights.
+     */
+    std::vector< double > m_heights;
 };
+
+inline const std::string WDendrogram::getName() const
+{
+    return "WDendrogram";
+}
+
+inline const std::string WDendrogram::getDescription() const
+{
+    return "A Dendrogram as a array with additional heights for each inner node.";
+}
+
 
 #endif  // WDENDROGRAM_H

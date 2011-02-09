@@ -210,9 +210,9 @@ private:
     wmath::WPosition m_p1; //!< stores the last position of  manipulator 1
     wmath::WPosition m_p2; //!< stores the last position of  manipulator 2
 
-    boost::shared_ptr<WROISphere> m_s0; //!< stores pointer to the center manipulator
-    boost::shared_ptr<WROISphere> m_s1; //!< stores pointer to manipulator 1
-    boost::shared_ptr<WROISphere> m_s2; //!< stores pointer to manipulator 2
+    osg::ref_ptr<WROISphere> m_s0; //!< stores pointer to the center manipulator
+    osg::ref_ptr<WROISphere> m_s1; //!< stores pointer to manipulator 1
+    osg::ref_ptr<WROISphere> m_s2; //!< stores pointer to manipulator 2
 
     bool m_dirty; //!< dirty flag, used when manipulator positions change
 
@@ -224,7 +224,7 @@ private:
     /**
      * the shader object for this module
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * vector of uniforms for type of texture
@@ -252,6 +252,8 @@ private:
     std::vector< osg::ref_ptr<osg::Uniform> > m_samplerUniforms;
 
     osg::ref_ptr<osg::Uniform> m_showCompleteUniform; //!< Determines whether the slice should be drawn completely
+
+    boost::shared_ptr< boost::function< void() > > m_changeRoiSignal; //!< Signal that can be used to update the plane
 };
 
 #endif  // WMARBITRARYPLANE_H

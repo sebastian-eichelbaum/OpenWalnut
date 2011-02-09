@@ -35,10 +35,12 @@
 #include <osg/ShapeDrawable>
 #include <osg/Group>
 
+#include "WExportWGE.h"
+
 /**
  * Class implements an osg::Drawable that paints fiber representations either using lines or tubes
  */
-class WFiberDrawable: public osg::Drawable
+class WGE_EXPORT WFiberDrawable: public osg::Drawable // NOLINT
 {
 public:
 
@@ -88,13 +90,6 @@ public:
     * \param renderInfo
     */
     virtual void drawImplementation( osg::RenderInfo& renderInfo ) const; //NOLINT
-
-    /**
-     * sets the dataset pointer which provides access to the necessary array
-     *
-     * \param dataset
-     */
-    void setDataset( boost::shared_ptr< const WDataSetFibers > dataset );
 
     /**
      * toggles drawing of tubes
@@ -158,8 +153,6 @@ private:
      * Draw fibers as fake tubes.
      */
     void drawTubes() const;
-
-    boost::shared_ptr< const WDataSetFibers > m_dataset; //!< stores pointer to dataset
 
     boost::shared_mutex m_recalcLock; //!< lock
 

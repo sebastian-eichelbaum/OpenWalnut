@@ -25,35 +25,33 @@
 #ifndef WMAINWINDOW_H
 #define WMAINWINDOW_H
 
-#include <list>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
-#include <boost/program_options.hpp>
-#include <boost/shared_ptr.hpp>
+//#include <boost/program_options.hpp>
+//#include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
+#include <boost/thread.hpp>
 
-#include <QtGui/QCloseEvent>
-#include <QtGui/QIcon>
 #include <QtGui/QMainWindow>
-#include <QtGui/QSlider>
-#include <QtGui/QWidget>
 
-#include "../../common/WProjectFileIO.h"
-#include "../../kernel/WModule.h"
 #include "WIconManager.h"
-#include "WQtCombinerToolbar.h"
-#include "WQtConfigWidget.h"
-#include "WQtCustomDockWidget.h"
-#include "WQtGLWidget.h"
-#include "WQtNavGLWidget.h"
 #include "WQtToolBar.h"
-#include "controlPanel/WQtControlPanel.h"
-#include "ribbonMenu/WQtRibbonMenu.h"
+#include "WQtGLWidget.h"
 
 // forward declarations
 class QMenuBar;
+class WModule;
+class WProjectFileIO;
+class WQtCombinerToolbar;
+class WQtConfigWidget;
+class WQtControlPanel;
+class WQtCustomDockWidget;
+class WQtNavGLWidget;
+class WQtPropertyBoolAction;
+class WPropertyBase;
+class WQtControlPanel;
 
 /**
  * This class contains the main window and the layout of the widgets within the window.
@@ -78,11 +76,6 @@ public:
      * returns a pointer to the control panel object
      */
     WQtControlPanel* getControlPanel();
-
-    /**
-     *  returns a pointer to the ribbon menu object
-     */
-    WQtRibbonMenu* getRibbonMenu();
 
     /**
      * Return icon manager
@@ -162,6 +155,13 @@ public:
      */
     void setCompatiblesToolbar( WQtCombinerToolbar* toolbar = NULL );
 
+    /**
+     * This method returns the a pointer to the current compatibles toolbar.
+     *
+     * \return a pointer to the current compatibles toolbar.
+     */
+    WQtCombinerToolbar* getCompatiblesToolbar();
+
 protected:
 
     /**
@@ -170,6 +170,12 @@ protected:
      * \param module the module to setup the GUI for.
      */
     void moduleSpecificSetup( boost::shared_ptr< WModule > module );
+    /**
+     * Cleanup the GUI by handling special modules. NavSlices for example remove several toolbar buttons.
+     *
+     * \param module the module to setup the GUI for.
+     */
+    void moduleSpecificCleanup( boost::shared_ptr< WModule > module );
 
     /**
      * We want to react on close events.
@@ -214,6 +220,16 @@ public slots:
      * gets called when menu entry "About OpenWalnut" is activated
      */
     void openAboutDialog();
+
+    /**
+     * Gets called when menu entry "About Qt" is activated
+     */
+    void openAboutQtDialog();
+
+    /**
+     * Gets called when menu entry "OpenWalnut Help" is activated
+     */
+    void openOpenWalnutHelpDialog();
 
     /**
      * Sets the left preset view of the main viewer.
@@ -281,12 +297,6 @@ public slots:
     void projectSaveModuleOnly();
 
     /**
-     * Sets that a fiber data set has already been loaded. Thi shelps to prevent multiple fiber data sets to be loaded.
-     * \param flag Indicates how to set the internal state.
-     */
-    void setFibersLoaded( bool flag );
-
-    /**
      * Gets called when menu option or toolbar button load is activated
      */
     void openConfigDialog();
@@ -312,7 +322,7 @@ private:
 
     WQtControlPanel* m_controlPanel; //!< control panel
 
-    boost::shared_ptr<WQtGLWidget> m_mainGLWidget; //!< the main GL widget of the GUI
+    boost::shared_ptr< WQtGLWidget > m_mainGLWidget; //!< the main GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal; //!< the sgittal view widget GL widget of the GUI
@@ -322,12 +332,6 @@ private:
      * shared pointer for the configuration widget
      */
     boost::shared_ptr< WQtConfigWidget > m_configWidget;
-
-    /**
-     * Used to ensure that only one fiber dataset can be loaded since the
-     * ROIManager is not known to work with more than one fiber dataset
-     */
-    bool m_fibLoaded; // TODO(all): remove this when its possible to display more than one fiber dataset
 
     /**
      * All registered WQtCustomDockWidgets.
@@ -348,6 +352,12 @@ private:
      * \param proto the prototype to combine with the module.
      */
     void autoAdd( boost::shared_ptr< WModule > module, std::string proto );
+
+    /**
+     * Map holding the actions for module properties added automatically. So they can be removed again automatically
+     * if the module is removed.
+     */
+    std::map< boost::shared_ptr< WPropertyBase >, WQtPropertyBoolAction* > propertyActionMap;
 };
 
 #endif  // WMAINWINDOW_H

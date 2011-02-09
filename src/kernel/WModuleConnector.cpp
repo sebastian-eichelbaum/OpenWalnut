@@ -49,6 +49,7 @@
 #include "exceptions/WModuleConnectorsIncompatible.h"
 #include "exceptions/WModuleDisconnectFailed.h"
 #include "exceptions/WModuleSignalSubscriptionFailed.h"
+#include "exceptions/WModuleConnectorModuleLockFailed.h"
 
 #include "WModuleConnector.h"
 
@@ -114,8 +115,13 @@ unsigned int WModuleConnector::isConnected()
 void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
 {
     boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
-    boost::shared_ptr< WModuleContainer > container = module->getAssociatedContainer();
-    std::string containerName = container.get() ? container->getName() : "Unknown";
+    std::string containerName = "Unknown";
+    if ( module )
+    {
+        boost::shared_ptr< WModuleContainer > container;
+        container = module->getAssociatedContainer();
+        containerName = container.get() ? container->getName() : "Unknown";
+    }
     WLogger::getLogger()->addLogMessage( "Connecting " + con->getCanonicalName() + " with " + getCanonicalName(),
                                          "ModuleContainer (" + containerName + ")", LL_INFO );
 
@@ -236,6 +242,10 @@ const t_GenericSignalHandlerType WModuleConnector::getSignalHandler( MODULE_CONN
 {
     // the module instance knows that
     boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
+    if ( !module )
+    {
+        throw WModuleConnectorModuleLockFailed();
+    }
     return module->getSignalHandler( signal );
 }
 
@@ -247,8 +257,13 @@ boost::shared_ptr< WModule > WModuleConnector::getModule() const
 void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool removeFromOwnList )
 {
     boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
-    boost::shared_ptr< WModuleContainer > container = module->getAssociatedContainer();
-    std::string containerName = container.get() ? container->getName() : "Unknown";
+    std::string containerName = "Unknown";
+    if ( module )
+    {
+        boost::shared_ptr< WModuleContainer > container;
+        container = module->getAssociatedContainer();
+        containerName = container.get() ? container->getName() : "Unknown";
+    }
 
     if ( !isConnectedTo( con ) )
     {
@@ -282,7 +297,9 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
         con->m_connected.erase( shared_from_this() );
         lock.unlock();
 
-        // signal closed connection
+        // signal "closed connection"
+        // NOTE: at this point, there might be an connected input connector even though we disconnected it. This is because of removeFromOwnList.
+        // The input connectors handle this with an additional member variable denoting their disconnect state
         signal_ConnectionClosed( shared_from_this(), con );
         con->signal_ConnectionClosed( shared_from_this(), con );
     }

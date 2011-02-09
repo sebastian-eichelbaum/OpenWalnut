@@ -38,12 +38,12 @@
 #include "../events/WModuleDeleteEvent.h"
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"
-
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"
 
-#include "WTreeItemTypes.h"
+#include "WQtControlPanel.h"
 #include "WQtTreeItem.h"
+#include "WTreeItemTypes.h"
 
 WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::shared_ptr< WModule > module ) :
     QTreeWidgetItem( parent, type ),
@@ -164,6 +164,7 @@ void WQtTreeItem::updateState()
     std::string progress = "Waiting";
     if ( m_module->isCrashed()() )
     {
+        progress = "Problem occurred";
         setText( 0, ( m_name + " (problem occurred)"  + connInfo ).c_str() );
 
         // strike out the name of the module to show the crash visually.
@@ -177,17 +178,26 @@ void WQtTreeItem::updateState()
     }
     else if ( p->isPending() )
     {
+        progress = "Busy " + p->getCombinedNames();
         setIcon( 0, WQt4Gui::getMainWindow()->getIconManager()->getIcon( "moduleBusy" ) );
         std::ostringstream title;
+
+        // construct a name for the progress indicator
+        std::string name = p->getName();
+        if ( !name.empty() )
+        {
+            name = " [" + name + "]";
+        }
+
         if ( p->isDetermined() )
         {
             title.setf( std::ios::fixed );
             title.precision( 0 );
-            title << p->getProgress() << "%";
+            title << p->getProgress() << "%" << name;
         }
         else
         {
-            title << "Pending";
+            title << "Pending" << name;
         }
 
         setText( 0, ( m_name + " - " + title.str() + connInfo ).c_str() );
@@ -210,6 +220,16 @@ void WQtTreeItem::updateState()
     {
         m_needPostDeleteEvent = false;  // this ensures the event is only posted once
         QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getControlPanel(), new WModuleDeleteEvent( this ) );
+    }
+
+    // active ?
+    if ( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
+    {
+        setCheckState( 0, Qt::Checked );
+    }
+    else
+    {
+        setCheckState( 0, Qt::Unchecked );
     }
 
     // update tooltip
@@ -248,5 +268,18 @@ std::string WQtTreeItem::getHandledOutput() const
 void WQtTreeItem::setHandledOutput( std::string out )
 {
     m_handledOutput = out;
+}
+
+void WQtTreeItem::handleCheckStateChange()
+{
+    // active ?
+    if ( checkState( 0 ) == Qt::Checked )
+    {
+        m_module->getProperties()->getProperty( "active" )->toPropBool()->set( true );
+    }
+    else
+    {
+        m_module->getProperties()->getProperty( "active" )->toPropBool()->set( false );
+    }
 }
 

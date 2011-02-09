@@ -195,6 +195,21 @@ void WMFiberSelection::moduleMain()
         bool dataValid =   ( newFibers && newVoi1 && newVoi2 );
         bool propChanged = ( m_cutFibers->changed() || m_voi1Threshold->changed() || m_voi2Threshold->changed() || m_preferShortestPath->changed() );
 
+        // cleanup if no valid data is available
+        if ( !dataValid )
+        {
+            debugLog() << "Resetting output.";
+
+            // remove my refs to the data
+            m_fibers.reset();
+            m_voi1.reset();
+            m_voi2.reset();
+
+            // reset outputs too
+            m_fiberOutput->reset();
+            m_clusterOutput->reset();
+        }
+
         if ( ( propChanged || dataChanged ) && dataValid )
         {
             debugLog() << "Data received. Recalculating.";
@@ -215,7 +230,7 @@ void WMFiberSelection::moduleMain()
             boost::shared_ptr< std::vector< size_t > > fibLen   = m_fibers->getLineLengths();
             boost::shared_ptr< std::vector< float > >  fibVerts = m_fibers->getVertices();
 
-            // TODO(ebaum): currently, both grids need to be the same
+            // currently, both grids need to be the same
             // the grid of voi1 and voi2 is needed here
             boost::shared_ptr< WGridRegular3D > grid1 = boost::shared_dynamic_cast< WGridRegular3D >( m_voi1->getGrid() );
             boost::shared_ptr< WGridRegular3D > grid2 = boost::shared_dynamic_cast< WGridRegular3D >( m_voi2->getGrid() );
