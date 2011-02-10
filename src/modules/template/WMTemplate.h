@@ -193,6 +193,11 @@ private:
     WPropColor    m_aColor;
 
     /**
+     * A int property used to show hide/un-hide feature.
+     */
+    WPropInt      m_aHiddenInt;
+
+    /**
      * A trigger which can be used to trigger some kind of operation.
      */
     WPropTrigger  m_aTrigger;
