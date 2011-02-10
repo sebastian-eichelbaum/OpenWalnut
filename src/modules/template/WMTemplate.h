@@ -198,6 +198,11 @@ private:
     WPropInt      m_aHiddenInt;
 
     /**
+     * A group used to show that even hiding whole groups is possible.
+     */
+    WPropGroup    m_aHiddenGroup;
+
+    /**
      * A trigger which can be used to trigger some kind of operation.
      */
     WPropTrigger  m_aTrigger;

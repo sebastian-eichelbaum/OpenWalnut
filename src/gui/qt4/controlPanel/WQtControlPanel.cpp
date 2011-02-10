@@ -804,8 +804,7 @@ void WQtControlPanel::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
 
 WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( boost::shared_ptr< WProperties > props )
 {
-    WQtPropertyGroupWidget* tab = new WQtPropertyGroupWidget( props->getName() );
-
+    WQtPropertyGroupWidget* tab = new WQtPropertyGroupWidget( props );
     if ( props.get() )
     {
         // read lock, gets unlocked upon destruction (out of scope)
