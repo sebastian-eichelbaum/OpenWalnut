@@ -159,6 +159,22 @@ public:
      */
     bool isNotRotated() const;
 
+    /**
+     * Translate by a vector.
+     *
+     * \param vec The vector.
+     */
+    template< typename VecType >
+    void translate( VecType const& vec );
+
+    /**
+     * Scale the transform.
+     *
+     * \param scale A vector of scaling coeffs for the 3 directions.
+     */
+    template< typename VecType >
+    void scale( VecType const& scale );
+
 private:
     //! normalized direction of the grid's x-axis in world coordinates
     wmath::WVector3D m_directionX;
@@ -175,5 +191,21 @@ private:
     //! the origin of the grid in world coordinates
     wmath::WVector3D m_origin;
 };
+
+template< typename VecType >
+void WGridTransformOrtho::translate( VecType const& vec )
+{
+    m_origin[ 0 ] += vec[ 0 ];
+    m_origin[ 1 ] += vec[ 1 ];
+    m_origin[ 2 ] += vec[ 2 ];
+}
+
+template< typename VecType >
+void WGridTransformOrtho::scale( VecType const& scale )
+{
+    m_scaling[ 0 ] *= scale[ 0 ];
+    m_scaling[ 1 ] *= scale[ 1 ];
+    m_scaling[ 2 ] *= scale[ 2 ];
+}
 
 #endif  // WGRIDTRANSFORMORTHO_H
