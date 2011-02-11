@@ -40,6 +40,7 @@
 #include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../kernel/modules/data/WMData.h"
 #include "../../kernel/WKernel.h"
 #include "WMBoundingBox.h"
@@ -95,6 +96,9 @@ void WMBoundingBox::moduleMain()
     // loop until the module container requests the module to quit
     while( !m_shutdownFlag() )
     {
+        debugLog() << "Waiting for data ...";
+        m_moduleState.wait();
+
         boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
         bool dataValid = ( dataSet );
 
@@ -102,54 +106,32 @@ void WMBoundingBox::moduleMain()
         {
             // OK, the output has not yet sent data
             // NOTE: see comment at the end of this while loop for m_moduleState
-            debugLog() << "Waiting for data ...";
-            m_moduleState.wait();
+            WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_gridNode );
             continue;
         }
 
-        createGFX();
+        WGridRegular3D::SPtr regGrid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
+        if ( !regGrid )
+        {
+            // the data has no regular 3d grid.
+            errorLog() << "Dataset does not contain a regular 3D grid.";
+            WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_gridNode );
+            continue;
+        }
 
-        // this waits for m_moduleState to fire. By default, this is only the m_shutdownFlag condition.
-        // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
-        m_moduleState.wait();
+        // create the new grid node if it not exists
+        if ( !m_gridNode )
+        {
+            m_gridNode = new WGEGridNode( regGrid );
+            m_gridNode->addUpdateCallback( new WGENodeMaskCallback( m_active ) );
+            WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_gridNode );
+        }
+
+        m_gridNode->setEnableLabels( m_showCornerCoordinates->get( true ) );
+        m_gridNode->setGrid( regGrid );
     }
 
-    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_bBoxNode );
-}
-
-void WMBoundingBox::createGFX()
-{
-    boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
-
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
-
-    WAssert( grid, "Seems that grid is of wrong type." );
-
-    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_bBoxNode );
-
-    WBoundingBox bb = grid->getBoundingBox();
-
-    m_bBoxNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
-    m_bBoxNode->setNodeMask( m_active->get() ? 0xFFFFFFFF : 0x0 );
-
-    m_bBoxNode->insert( wge::generateBoundingBoxGeode( bb, WColor( 0.3, 0.3, 0.3, 1 ) ) );
-
-    if( m_showCornerCoordinates->get( true ) )
-    {
-        const wmath::WVector3D& pos1 = bb.getMin();
-        const wmath::WVector3D& pos2 = bb.getMax();
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos1[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos2[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos1[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos2[1], pos1[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos1[1], pos1[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos2[1], pos2[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos1[1], pos2[2] ) ) );
-        m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos2[2] ) ) );
-    }
-
-
-    WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_bBoxNode );
+    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_gridNode );
 }
 
 void WMBoundingBox::connectors()
@@ -163,7 +145,6 @@ void WMBoundingBox::connectors()
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
     addConnector( m_input );
 
-
     // call WModules initialization
     WModule::connectors();
 }
@@ -174,18 +155,3 @@ void WMBoundingBox::properties()
     WModule::properties();
 }
 
-void WMBoundingBox::activate()
-{
-    if( m_bBoxNode )
-    {
-        if( m_active->get() )
-        {
-            m_bBoxNode->setNodeMask( 0xFFFFFFFF );
-        }
-        else
-        {
-            m_bBoxNode->setNodeMask( 0x0 );
-        }
-    }
-    WModule::activate();
-}

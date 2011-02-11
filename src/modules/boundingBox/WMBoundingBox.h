@@ -35,6 +35,7 @@
 
 #include "../../common/math/WVector3D.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/geodes/WGEGridNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
@@ -106,25 +107,18 @@ protected:
 
 private:
 
-    /**
-     * Gets signaled from the properties object when something was changed. Now, only m_active is used. This method therefore simply
-     * activates/deactivates the BBox.
-     */
-    void activate();
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
 
-    /**
-     * creates the actual bounding box graphics with coordinate labels at the corners
-     */
-    void createGFX();
+    WPropBool     m_showCornerCoordinates; //!< Show/hide the coordinates in the rendering.
 
     /**
      * This condition denotes whether we need to recompute the surface
      */
     boost::shared_ptr< WCondition > m_recompute;
 
-    WPropBool     m_showCornerCoordinates; //!< Show/hide the coordinates in the rendering.
-
-    osg::ref_ptr< WGEGroupNode > m_bBoxNode; //!< OSG root node for this module
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
+    /**
+     * The node actually drawing the grid.
+     */
+    WGEGridNode::SPtr m_gridNode;
 };
 #endif  // WMBOUNDINGBOX_H

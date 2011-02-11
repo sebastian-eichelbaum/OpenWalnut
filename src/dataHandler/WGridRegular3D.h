@@ -58,9 +58,19 @@ class OWDATAHANDLER_EXPORT WGridRegular3D : public WGrid // NOLINT
     friend class WGridRegular3DTest;
 public:
     /**
+     * Convenience typedef for a boost::shared_ptr< WGridRegular3D >.
+     */
+    typedef boost::shared_ptr< WGridRegular3D > SPtr;
+
+    /**
+     * Convenience typedef for a boost::shared_ptr< const WGridRegular3D >.
+     */
+    typedef boost::shared_ptr< const WGridRegular3D > ConstSPtr;
+
+    /**
      * Defines the number of samples in each coordinate direction as ints,
      * and the transformation of the grid via a grid transform.
-     * 
+     *
      * \param nbPosX number of positions along first axis
      * \param nbPosY number of positions along second axis
      * \param nbPosZ number of positions along third axis

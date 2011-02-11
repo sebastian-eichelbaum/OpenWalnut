@@ -27,6 +27,7 @@
 
 #include "../common/math/WVector3D.h"
 #include "../common/math/WMatrix.h"
+#include "../common/math/WMatrix4x4.h"
 
 /**
  * Implements an orthogonal grid transformation.
@@ -151,6 +152,13 @@ public:
     // NOTE: this is temporary and should be removed as soon as all modules are
     // adapted to the grid transform object
     wmath::WMatrix< double > getTransformationMatrix() const;
+
+    /**
+     * Cast the transformation to the corresponding 4x4 matrix.
+     *
+     * \return the matrix representing the transform
+     */
+    operator wmath::WMatrix4x4() const;
 
     /**
      * Check if this transform does not include a rotation.
