@@ -129,7 +129,7 @@ void WMData::connectors()
 void WMData::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    
+
     // properties
     m_dataName = m_infoProperties->addProperty( "Filename", "The filename of the dataset.", std::string( "" ) );
     m_dataType = m_infoProperties->addProperty( "Data type", "The type of the the single data values.", std::string( "" ) );
@@ -193,7 +193,7 @@ void WMData::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
-    
+
     WAssert( m_fileNameSet, "No filename specified." );
 
     using wiotools::getSuffix;
@@ -227,7 +227,7 @@ void WMData::moduleMain()
         m_transformNoMatrix = niiLoader.getStandardTransform();
         m_transformSForm = niiLoader.getSFormTransform();
         m_transformQForm = niiLoader.getQFormTransform();
-        
+
         m_isTexture = m_dataSet->isTexture();
 
         boost::shared_ptr< WDataSetSingle > dss = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
@@ -332,7 +332,7 @@ void WMData::moduleMain()
             boost::shared_ptr< WGrid > newGrid;
             boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
             boost::shared_ptr< WGridRegular3D > oldGrid = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
-            
+
             switch( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) )
             {
             case 0:

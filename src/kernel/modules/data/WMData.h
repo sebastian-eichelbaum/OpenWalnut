@@ -210,7 +210,7 @@ protected:
 
     //! a standard transform (should be an identity transform)
     wmath::WMatrix< double > m_transformQForm;
-   
+
 private:
 
     /**
