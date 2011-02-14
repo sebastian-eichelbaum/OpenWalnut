@@ -49,3 +49,9 @@ wmath::WTensorSym< 2, 3, float > WDataSetDTI::getTensor( size_t index ) const
     WAssert( values, "The value set of a WDataSetDTI must be a WValueSet< float >, nothing else!" );
     return wmath::WTensorSym< 2, 3, float >( values->getWValue( index ) );
 }
+
+boost::shared_ptr< WDataSet > WDataSetDTI::clone( boost::shared_ptr< WValueSetBase > vs, boost::shared_ptr< WGrid > grid ) const
+{
+    return boost::shared_ptr< WDataSet >( new WDataSetDTI( vs, grid ) );
+}
+

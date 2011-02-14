@@ -135,3 +135,8 @@ bool WDataSetSphericalHarmonics::isTexture() const
 {
     return false;
 }
+
+boost::shared_ptr< WDataSet > WDataSetSphericalHarmonics::clone( boost::shared_ptr< WValueSetBase > vs, boost::shared_ptr< WGrid > grid ) const
+{
+    return boost::shared_ptr< WDataSet >( new WDataSetSphericalHarmonics( vs, grid ) );
+}

@@ -33,6 +33,7 @@
 #include "../../../dataHandler/WDataSetScalar.h"
 #include "../../../dataHandler/WDataSetTimeSeries.h"
 #include "../../../dataHandler/WDataSetVector.h"
+#include "../../../dataHandler/WDataSetRawHARDI.h"
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WDataHandler.h"
 #include "../../../dataHandler/WDataTexture3D.h"
@@ -54,7 +55,10 @@
 WMData::WMData():
     WModule(),
     m_fileNameSet( false ),
-    m_isTexture()
+    m_isTexture(),
+    m_transformNoMatrix( 4, 4 ),
+    m_transformSForm( 4, 4 ),
+    m_transformQForm( 4, 4 )
 {
     // initialize members
 }
@@ -124,13 +128,20 @@ void WMData::connectors()
 
 void WMData::properties()
 {
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    
     // properties
-
     m_dataName = m_infoProperties->addProperty( "Filename", "The filename of the dataset.", std::string( "" ) );
     m_dataType = m_infoProperties->addProperty( "Data type", "The type of the the single data values.", std::string( "" ) );
 
-    // use this callback for the other properties
-    WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMData::propertyChanged, this, _1 );
+    m_matrixSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_matrixSelectionsList->addItem( "No matrix", "" );
+    m_matrixSelectionsList->addItem( "qform", "" );
+    m_matrixSelectionsList->addItem( "sform", "" );
+
+    m_matrixSelection = m_properties->addProperty( "Transformation matrix",  "matrix",
+                                    m_matrixSelectionsList->getSelectorFirst(), m_propCondition );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_matrixSelection );
 }
 
 void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
@@ -180,6 +191,9 @@ void WMData::notifyStop()
 
 void WMData::moduleMain()
 {
+    m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_propCondition );
+    
     WAssert( m_fileNameSet, "No filename specified." );
 
     using wiotools::getSuffix;
@@ -210,6 +224,10 @@ void WMData::moduleMain()
 
         WReaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
+        m_transformNoMatrix = niiLoader.getStandardTransform();
+        m_transformSForm = niiLoader.getSFormTransform();
+        m_transformQForm = niiLoader.getQFormTransform();
+        
         m_isTexture = m_dataSet->isTexture();
 
         boost::shared_ptr< WDataSetSingle > dss = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
@@ -299,8 +317,63 @@ void WMData::moduleMain()
     m_output->updateData( m_dataSet );
     ready();
 
-    // go to idle mode
-    waitForStop();  // WThreadedRunner offers this for us. It uses boost::condition to avoid wasting CPU cycles with while loops.
+    while( !m_shutdownFlag() )
+    {
+        m_moduleState.wait();
+        if( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        // change transform matrix
+        if( m_matrixSelection->changed() )
+        {
+            // a new grid
+            boost::shared_ptr< WGrid > newGrid;
+            boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+            boost::shared_ptr< WGridRegular3D > oldGrid = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+            
+            switch( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) )
+            {
+            case 0:
+                newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
+                                                                          WGridTransformOrtho( m_transformNoMatrix ) ) );
+                break;
+            case 1:
+                newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
+                                                                          WGridTransformOrtho( m_transformSForm ) ) );
+                break;
+            case 2:
+                newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
+                                                                          WGridTransformOrtho( m_transformQForm ) ) );
+                break;
+            }
+
+            if( boost::shared_dynamic_cast< WDataSetRawHARDI >( m_dataSet ) )
+            {
+                typedef std::vector< wmath::WVector3D > OrientationType;
+                // hardi datasets are a morre difficult case because of additional parameters
+                boost::shared_ptr< WDataSetRawHARDI > hardi = boost::shared_dynamic_cast< WDataSetRawHARDI >( m_dataSet );
+                m_dataSet = boost::shared_ptr< WDataSet >(
+                                new WDataSetRawHARDI( hardi->getValueSet(), newGrid,
+                                            boost::shared_ptr< OrientationType >( new OrientationType( hardi->getOrientations() ) ),
+                                            hardi->getDiffusionBValue() ) );
+                // TODO( reichenbach ): remove copying orientations
+            }
+            else
+            {
+                // this creates a dataset of the same type as m_dataSet without explicit knowledge of the correct type
+                m_dataSet = m_dataSet->clone( ds->getValueSet(), newGrid );
+            }
+
+            // the clone() may have returned a zero-pointer, only update if it hasn't
+            // this may happen if the clone() operation has not been implemented in the derived dataset class
+            if( m_dataSet )
+            {
+                m_output->updateData( m_dataSet );
+            }
+        }
+    }
 
     // remove dataset from datahandler
     if ( m_dataSet->isTexture() )
