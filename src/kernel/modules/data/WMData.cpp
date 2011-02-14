@@ -136,8 +136,8 @@ void WMData::properties()
 
     m_matrixSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_matrixSelectionsList->addItem( "No matrix", "" );
-    m_matrixSelectionsList->addItem( "qform", "" );
     m_matrixSelectionsList->addItem( "sform", "" );
+    m_matrixSelectionsList->addItem( "qform", "" );
 
     m_matrixSelection = m_properties->addProperty( "Transformation matrix",  "matrix",
                                     m_matrixSelectionsList->getSelectorFirst(), m_propCondition );
