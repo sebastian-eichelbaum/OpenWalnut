@@ -212,7 +212,8 @@ void WMHistogramEqualization::moduleMain()
                 curI++;
             }
 
-            debugLog() << "Clamped " << perc << "% of [" << hist->getMinimum() << ", " << hist->getMaximum() << "]" << " resulting in new interval [" << lower << ", " << upper <<").";
+            debugLog() << "Clamped " << perc << "% of [" << hist->getMinimum() << ", " << hist->getMaximum() << "]" <<
+                          " resulting in new interval [" << lower << ", " << upper <<").";
 
             // with this new interval, extract a new histogram and use it for equalization
             hist = boost::shared_ptr< const WValueSetHistogram >( new WValueSetHistogram( valueSet, lower, upper, cdfHistRes ) );
@@ -281,7 +282,7 @@ void WMHistogramEqualization::moduleMain()
                                                              boost::shared_ptr< std::vector< double > >(
                                                                  new std::vector< double >( newData ) ),
                                                              W_DT_DOUBLE ) ), dataSet->getGrid() )
-        ) ;
+        );
         m_output->updateData( d );
 
         debugLog() << "Done";
