@@ -47,7 +47,7 @@ typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
 
 
 WQtGLWidgetAll::WQtGLWidgetAll( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QGLWidget * shareWidget )
-    : QGLWidget( parent, shareWidget ),
+    : QGLWidget( getDefaultFormat(), parent, shareWidget ),
       m_nameOfViewer( nameOfViewer ),
       m_recommendedSize()
 {
@@ -243,3 +243,11 @@ void WQtGLWidgetAll::reset()
 {
     m_Viewer->reset();
 }
+
+const QGLFormat WQtGLWidgetAll::getDefaultFormat()
+{
+    QGLFormat format;
+    format.setSwapInterval( 1 );    // according to Qt Doc, this should enable VSync. But it doesn't.
+    return format;
+}
+

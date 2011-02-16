@@ -263,10 +263,15 @@ void WMTemplate::properties()
     m_group1a->addProperty( m_aDouble );
     m_group1a->addProperty( m_enableFeature );
 
-    // and add another button to group2. But this time, we do not want to wake up the main thread. We handle this directly. Fortunately,
+    // Properties can be hidden on the fly. The GUI updates automatically. This is a very useful feature. You can create properties which depend
+    // on a current selection and blend them in our out accordingly.
+    m_aHiddenInt = m_group2->addProperty( "Hide me please", "A property used to demonstrate the hidden feature.", 1, true );
+    m_aHiddenGroup = m_group2->addPropertyGroup( "Hide me please too", "A property used to demonstrate the hidden feature.", true );
+
+    // Add another button to group2. But this time, we do not want to wake up the main thread. We handle this directly. Fortunately,
     // WPropertyVariable offers you the possibility to specify your own change callback. This callback is used for hiding the m_aColor property
     // on the fly.
-    m_hideButton = m_group2->addProperty( "(Un-)Hide Color", "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY,
+    m_hideButton = m_group2->addProperty( "(Un-)Hide", "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY,
                                           boost::bind( &WMTemplate::hideButtonPressed, this ) );
 
     // How can the values of the properties be changed? You can take a look at moduleMain where this is shown. For short: m_anInteger->set( 2 )
@@ -744,15 +749,16 @@ void WMTemplate::hideButtonPressed()
     // This method is called whenever m_hideButton changes its value. You can use such callbacks to avoid waking-up or disturbing the module
     // thread for certain operations.
 
-    // If the button was triggered, switch the hide-state of m_aColor.
+    // If the button was triggered, switch the hide-state of m_aColor and m_aHiddenInt.
     if ( m_hideButton->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
     {
         // switch the hide flag of the color prop.
         m_aColor->setHidden( !m_aColor->isHidden() );
+        m_aHiddenInt->setHidden( !m_aHiddenInt->isHidden() );
+        m_aHiddenGroup->setHidden( !m_aHiddenGroup->isHidden() );
 
         // never forget to reset a trigger. If not done, the trigger is disabled in the GUI and can't be used again.
         m_hideButton->set( WPVBaseTypes::PV_TRIGGER_READY );
-
         // NOTE: this again triggers an update, which is why we need to check the state of the trigger in this if-clause.
     }
 }

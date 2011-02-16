@@ -804,8 +804,7 @@ void WQtControlPanel::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
 
 WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( boost::shared_ptr< WProperties > props )
 {
-    WQtPropertyGroupWidget* tab = new WQtPropertyGroupWidget( props->getName() );
-
+    WQtPropertyGroupWidget* tab = new WQtPropertyGroupWidget( props );
     if ( props.get() )
     {
         // read lock, gets unlocked upon destruction (out of scope)
@@ -816,47 +815,44 @@ WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( boost::shared_ptr< WP
         // iterate all properties.
         for ( WProperties::PropertyConstIterator iter = propAccess->get().begin(); iter != propAccess->get().end(); ++iter )
         {
-            if ( !( *iter )->isHidden() )
+            switch ( ( *iter )->getType() )
             {
-                switch ( ( *iter )->getType() )
-                {
-                    case PV_BOOL:
-                        tab->addProp( ( *iter )->toPropBool() );
-                        break;
-                    case PV_INT:
-                        tab->addProp( ( *iter )->toPropInt() );
-                        break;
-                    case PV_DOUBLE:
-                        tab->addProp( ( *iter )->toPropDouble() );
-                        break;
-                    case PV_STRING:
-                        tab->addProp( ( *iter )->toPropString() );
-                        break;
-                    case PV_PATH:
-                        tab->addProp( ( *iter )->toPropFilename() );
-                        break;
-                    case PV_SELECTION:
-                        tab->addProp( ( *iter )->toPropSelection() );
-                        break;
-                    case PV_COLOR:
-                        tab->addProp( ( *iter )->toPropColor() );
-                        break;
-                    case PV_POSITION:
-                        tab->addProp( ( *iter )->toPropPosition() );
-                        break;
-                    case PV_TRIGGER:
-                        tab->addProp( ( *iter )->toPropTrigger() );
-                        break;
-                    case PV_GROUP:
-                        tab->addGroup( buildPropWidget( ( *iter )->toPropGroup() ) );
-                        break;
-                    case PV_MATRIX4X4:
-                        tab->addProp( ( *iter )->toPropMatrix4X4() );
-                        break;
-                    default:
-                        WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "ControlPanel", LL_WARNING );
-                        break;
-                }
+                case PV_BOOL:
+                    tab->addProp( ( *iter )->toPropBool() );
+                    break;
+                case PV_INT:
+                    tab->addProp( ( *iter )->toPropInt() );
+                    break;
+                case PV_DOUBLE:
+                    tab->addProp( ( *iter )->toPropDouble() );
+                    break;
+                case PV_STRING:
+                    tab->addProp( ( *iter )->toPropString() );
+                    break;
+                case PV_PATH:
+                    tab->addProp( ( *iter )->toPropFilename() );
+                    break;
+                case PV_SELECTION:
+                    tab->addProp( ( *iter )->toPropSelection() );
+                    break;
+                case PV_COLOR:
+                    tab->addProp( ( *iter )->toPropColor() );
+                    break;
+                case PV_POSITION:
+                    tab->addProp( ( *iter )->toPropPosition() );
+                    break;
+                case PV_TRIGGER:
+                    tab->addProp( ( *iter )->toPropTrigger() );
+                    break;
+                case PV_GROUP:
+                    tab->addGroup( buildPropWidget( ( *iter )->toPropGroup() ) );
+                    break;
+                case PV_MATRIX4X4:
+                    tab->addProp( ( *iter )->toPropMatrix4X4() );
+                    break;
+                default:
+                    WLogger::getLogger()->addLogMessage( "This property type is not yet supported.", "ControlPanel", LL_WARNING );
+                    break;
             }
         }
     }
