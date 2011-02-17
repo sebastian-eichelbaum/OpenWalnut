@@ -52,11 +52,18 @@ class WQtPropertyGroupWidget : public QWidget
 
 public:
     /**
+     * Creates new widget for a property group. Use this constructor to provide automatic hidden-flag management.
+     * \param group The group
+     * \param parent The widget managing this widget
+     */
+    WQtPropertyGroupWidget( WPropGroup group, QWidget* parent = 0 );
+
+    /**
      * Creates new widget for a property group
      * \param name Name of the widget
      * \param parent The widget managing this widget
      */
-    explicit WQtPropertyGroupWidget( std::string name, QWidget* parent = 0 );
+    WQtPropertyGroupWidget( std::string name, QWidget* parent = 0 );
 
     /**
      * destructor
@@ -191,7 +198,33 @@ public:
      */
     void setName( QString name );
 
+signals:
+
+    /**
+     * A Signal which gets emitted whenever the widget should be hidden. This is a useful signal for containers which embed this group.
+     *
+     * \param hide if true, the widget should be hidden.
+     */
+    void hideSignal( bool hide );
+
 protected:
+
+    /**
+     * Callback for WPropertyBase::getChangeCondition. It emits an event to ensure all updates are done in gui thread.
+     */
+    virtual void propertyChangeNotifier();
+
+    /**
+     * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
+     * processes property change events.
+     *
+     * \note QT Doc says: use event() for custom events.
+     * \param event the event that got transmitted.
+     *
+     * \return true if the event got handled properly.
+     */
+    virtual bool event( QEvent* event );
+
 private:
 
     /**
@@ -213,6 +246,16 @@ private:
      * The number of widgets inside this one.
      */
     unsigned int m_numberOfWidgets;
+
+    /**
+     * The property group handled here.
+     */
+    WPropGroup m_group;
+
+    /**
+     * The connection for propertyChangeNotifier().
+     */
+    boost::signals2::connection m_connection;
 };
 
 #endif  // WQTPROPERTYGROUPWIDGET_H

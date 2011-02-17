@@ -158,6 +158,16 @@ private:
     WPropBool m_stochasticJitter;
 
     /**
+     * If true, a certain border area can be clipped. Very useful for non-peeled noisy data.
+     */
+    WPropBool m_borderClip;
+
+    /**
+     * The distance used for clipping.
+     */
+    WPropDouble m_borderClipDistance;
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

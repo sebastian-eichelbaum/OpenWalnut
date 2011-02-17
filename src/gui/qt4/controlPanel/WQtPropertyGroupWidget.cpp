@@ -24,18 +24,45 @@
 
 #include <string>
 
+#include <QtGui/QApplication>
 #include <QtGui/QGroupBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QScrollArea>
 
+#include "../events/WEventTypes.h"
+#include "../events/WPropertyChangedEvent.h"
+
+#include "../../../common/WProperties.h"
+
 #include "WQtPropertyGroupWidget.h"
+
+WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropGroup group, QWidget* parent )
+    : QWidget( parent ),
+    m_name( group->getName().c_str() ),
+    m_numberOfWidgets( 0 ),
+    m_group( group )
+{
+    // note: never do layouts as none pointers
+    // on destruction of a widget it will try to delete them which will cause crashes
+    m_pageLayout = new QVBoxLayout();
+    m_controlLayout = new QGridLayout();
+    m_pageLayout->addLayout( m_controlLayout );
+
+    // NOTE: a simple setHidden( group->isHidden() ) causes the QWidgets to popup if hidden is false. This is why we set hidden only if it really
+    // is needed
+    if ( group->isHidden() )
+    {
+        setHidden( true );
+    }
+    // setup the update callback
+    m_connection = m_group->getUpdateCondition()->subscribeSignal( boost::bind( &WQtPropertyGroupWidget::propertyChangeNotifier, this ) );
+}
 
 WQtPropertyGroupWidget::WQtPropertyGroupWidget( std::string name, QWidget* parent  )
     : QWidget( parent ),
     m_name( name.c_str() ),
-//    m_controlLayout(),
-//    m_pageLayout(),
-    m_numberOfWidgets( 0 )
+    m_numberOfWidgets( 0 ),
+    m_group()
 {
     // note: never do layouts as none pointers
     // on destruction of a widget it will try to delete them which will cause crashes
@@ -46,6 +73,26 @@ WQtPropertyGroupWidget::WQtPropertyGroupWidget( std::string name, QWidget* paren
 
 WQtPropertyGroupWidget::~WQtPropertyGroupWidget()
 {
+    // cleanup
+    m_connection.disconnect();
+}
+
+void WQtPropertyGroupWidget::propertyChangeNotifier()
+{
+    QCoreApplication::postEvent( this, new WPropertyChangedEvent() );
+}
+
+bool WQtPropertyGroupWidget::event( QEvent* event )
+{
+    // a property changed
+    if ( event->type() == WQT_PROPERTY_CHANGED_EVENT )
+    {
+        setHidden( m_group->isHidden() );
+        emit hideSignal( m_group->isHidden() );
+        return true;
+    }
+
+    return QWidget::event( event );
 }
 
 WPropertyBoolWidget* WQtPropertyGroupWidget::addProp( WPropBool property )
@@ -177,6 +224,10 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     // insert into layout
     int row = m_controlLayout->rowCount();
     m_controlLayout->addWidget( box, row, 0, 1, 2 );
+
+    // hide the box too if the property gets hidden
+    box->setHidden( widget->isHidden() );
+    connect( widget, SIGNAL( hideSignal( bool ) ), box, SLOT( setHidden( bool ) ) );
 }
 
 void WQtPropertyGroupWidget::addSpacer()
