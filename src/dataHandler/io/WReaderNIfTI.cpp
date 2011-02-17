@@ -51,7 +51,9 @@
 #include "WReaderNIfTI.h"
 
 WReaderNIfTI::WReaderNIfTI( std::string fileName )
-    : WReader( fileName )
+    : WReader( fileName ),
+      m_sform( 4, 4 ),
+      m_qform( 4, 4 )
 {
 }
 
@@ -179,8 +181,10 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
         throw e;
     }
 
+    m_sform = convertMatrix( header->sto_xyz );
+    m_qform = convertMatrix( header->qto_xyz );
     newGrid = boost::shared_ptr< WGridRegular3D >(
-                        new WGridRegular3D( columns, rows, frames, WGridTransformOrtho( convertMatrix( header->sto_xyz ) ) ) );
+                        new WGridRegular3D( columns, rows, frames, WGridTransformOrtho( getStandardTransform() ) ) );
 
     boost::shared_ptr< WDataSet > newDataSet;
     // known description
@@ -401,4 +405,19 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
     nifti_image_free( filedata );
 
     return newDataSet;
+}
+
+wmath::WMatrix< double > WReaderNIfTI::getStandardTransform() const
+{
+    return wmath::WMatrix< double >( 4, 4 ).makeIdentity();
+}
+
+wmath::WMatrix< double > WReaderNIfTI::getSFormTransform() const
+{
+    return m_sform;
+}
+
+wmath::WMatrix< double > WReaderNIfTI::getQFormTransform() const
+{
+    return m_qform;
 }

@@ -167,3 +167,7 @@ boost::shared_ptr< const WValueSetHistogram > WDataSetScalar::getHistogram( size
     return m_histograms[ buckets ];
 }
 
+boost::shared_ptr< WDataSet > WDataSetScalar::clone( boost::shared_ptr< WValueSetBase > vs, boost::shared_ptr< WGrid > grid ) const
+{
+    return boost::shared_ptr< WDataSet >( new WDataSetScalar( vs, grid ) );
+}
