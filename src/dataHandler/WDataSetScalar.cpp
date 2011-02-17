@@ -55,6 +55,21 @@ WDataSetScalar::~WDataSetScalar()
 {
 }
 
+WDataSetSingle::SPtr WDataSetScalar::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetScalar( newValueSet, getGrid() ) );
+}
+
+WDataSetSingle::SPtr WDataSetScalar::clone( boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetScalar( getValueSet(), newGrid ) );
+}
+
+WDataSetSingle::SPtr WDataSetScalar::clone() const
+{
+    return WDataSetSingle::SPtr( new WDataSetScalar( getValueSet(), getGrid() ) );
+}
+
 double WDataSetScalar::getMax() const
 {
     return m_valueSet->getMaximumValue();

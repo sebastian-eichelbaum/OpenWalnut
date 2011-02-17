@@ -422,7 +422,10 @@ void WMDatasetManipulator::moduleMain()
                                                                         m_grid->getNbCoordsY(),
                                                                         m_grid->getNbCoordsZ(),
                                                                         *m_transform ) );
-                m_output->updateData( boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( m_dataSet->getValueSet(), newGrid ) ) );
+                // NOTE: we NEED to use clone here as we need to keep the dynamic type of the input data set.
+                // This means: clone a WDataSetSingle which was constructed as WDataSetVector -> result is a WDataSetSingle which was constructed
+                // as WDataSetVector too.
+                m_output->updateData( m_dataSet->clone( newGrid ) );
             }
 
             boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();

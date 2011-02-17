@@ -53,6 +53,21 @@ WDataSetVector::~WDataSetVector()
 {
 }
 
+WDataSetSingle::SPtr WDataSetVector::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetVector( newValueSet, getGrid() ) );
+}
+
+WDataSetSingle::SPtr WDataSetVector::clone( boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetVector( getValueSet(), newGrid ) );
+}
+
+WDataSetSingle::SPtr WDataSetVector::clone() const
+{
+    return WDataSetSingle::SPtr( new WDataSetVector( getValueSet(), getGrid() ) );
+}
+
 boost::shared_ptr< WPrototyped > WDataSetVector::getPrototype()
 {
     if ( !m_prototype )

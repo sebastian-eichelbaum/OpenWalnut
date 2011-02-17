@@ -51,6 +51,21 @@ WDataSetSphericalHarmonics::~WDataSetSphericalHarmonics()
 {
 }
 
+WDataSetSingle::SPtr WDataSetSphericalHarmonics::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetSphericalHarmonics( newValueSet, getGrid() ) );
+}
+
+WDataSetSingle::SPtr WDataSetSphericalHarmonics::clone( boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetSphericalHarmonics( getValueSet(), newGrid ) );
+}
+
+WDataSetSingle::SPtr WDataSetSphericalHarmonics::clone() const
+{
+    return WDataSetSingle::SPtr( new WDataSetSphericalHarmonics( getValueSet(), getGrid() ) );
+}
+
 boost::shared_ptr< WPrototyped > WDataSetSphericalHarmonics::getPrototype()
 {
     if ( !m_prototype )

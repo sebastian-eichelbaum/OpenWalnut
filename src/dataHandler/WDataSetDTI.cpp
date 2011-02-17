@@ -42,6 +42,20 @@ WDataSetDTI::~WDataSetDTI()
 {
 }
 
+WDataSetSingle::SPtr WDataSetDTI::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetDTI( newValueSet, getGrid() ) );
+}
+
+WDataSetSingle::SPtr WDataSetDTI::clone( boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetDTI( getValueSet(), newGrid ) );
+}
+
+WDataSetSingle::SPtr WDataSetDTI::clone() const
+{
+    return WDataSetSingle::SPtr( new WDataSetDTI( getValueSet(), getGrid() ) );
+}
 
 wmath::WTensorSym< 2, 3, float > WDataSetDTI::getTensor( size_t index ) const
 {
