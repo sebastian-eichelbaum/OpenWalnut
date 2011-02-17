@@ -131,7 +131,7 @@ private:
     /**
      * The value set from which the texture gets created.
      */
-    boost::shared_ptr<WValueSetBase> m_valueSet;
+    boost::shared_ptr< WValueSetBase > m_valueSet;
 
     /**
      * The grid used to set up the texture.
