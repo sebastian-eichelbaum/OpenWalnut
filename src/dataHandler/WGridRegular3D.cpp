@@ -122,6 +122,8 @@ void WGridRegular3D::initInformationProperties()
     WPropDouble xOffset = m_infoProperties->addProperty( "X offset: ", "The distance between samples in x direction", getOffsetX() );
     WPropDouble yOffset = m_infoProperties->addProperty( "Y offset: ", "The distance between samples in y direction", getOffsetY() );
     WPropDouble zOffset = m_infoProperties->addProperty( "Z offset: ", "The distance between samples in z direction", getOffsetZ() );
+    WPropMatrix4X4 transformation = m_infoProperties->addProperty( "Transformation", "The transformation of this grid.",
+        static_cast< WMatrix4x4 >( getTransform() ) );
 }
 
 int WGridRegular3D::getXVoxelCoord( const wmath::WPosition& pos ) const
