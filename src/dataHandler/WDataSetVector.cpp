@@ -167,7 +167,3 @@ bool WDataSetVector::isTexture() const
     return true;
 }
 
-boost::shared_ptr< WDataSet > WDataSetVector::clone( boost::shared_ptr< WValueSetBase > vs, boost::shared_ptr< WGrid > grid ) const
-{
-    return boost::shared_ptr< WDataSet >( new WDataSetVector( vs, grid ) );
-}

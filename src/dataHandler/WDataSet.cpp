@@ -119,7 +119,3 @@ boost::shared_ptr< WProperties > WDataSet::getInformationProperties() const
     return m_infoProperties;
 }
 
-boost::shared_ptr< WDataSet > WDataSet::clone( boost::shared_ptr< WValueSetBase >, boost::shared_ptr< WGrid > ) const
-{
-    return boost::shared_ptr< WDataSet >();
-}

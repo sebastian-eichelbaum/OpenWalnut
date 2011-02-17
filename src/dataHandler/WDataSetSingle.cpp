@@ -170,7 +170,3 @@ double WDataSetSingle::getValueAt( size_t id ) const
     return 0.0; // should not be reached. Just there to quiet compiler.
 }
 
-boost::shared_ptr< WDataSet > WDataSetSingle::clone( boost::shared_ptr< WValueSetBase > vs, boost::shared_ptr< WGrid > grid ) const
-{
-    return boost::shared_ptr< WDataSet >( new WDataSetSingle( vs, grid ) );
-}

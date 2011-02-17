@@ -317,6 +317,8 @@ void WMData::moduleMain()
     m_output->updateData( m_dataSet );
     ready();
 
+    WDataSetSingle::SPtr dataSetAsSingle = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+
     while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
@@ -325,13 +327,12 @@ void WMData::moduleMain()
             break;
         }
 
-        // change transform matrix
-        if( m_matrixSelection->changed() )
+        // change transform matrix (only if we have a dataset single which contains the grid)
+        if( m_matrixSelection->changed() && dataSetAsSingle )
         {
             // a new grid
             boost::shared_ptr< WGrid > newGrid;
-            boost::shared_ptr< WDataSetSingle > ds = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
-            boost::shared_ptr< WGridRegular3D > oldGrid = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
+            boost::shared_ptr< WGridRegular3D > oldGrid = boost::shared_dynamic_cast< WGridRegular3D >( dataSetAsSingle->getGrid() );
 
             switch( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) )
             {
@@ -349,22 +350,7 @@ void WMData::moduleMain()
                 break;
             }
 
-            if( boost::shared_dynamic_cast< WDataSetRawHARDI >( m_dataSet ) )
-            {
-                typedef std::vector< wmath::WVector3D > OrientationType;
-                // hardi datasets are a morre difficult case because of additional parameters
-                boost::shared_ptr< WDataSetRawHARDI > hardi = boost::shared_dynamic_cast< WDataSetRawHARDI >( m_dataSet );
-                m_dataSet = boost::shared_ptr< WDataSet >(
-                                new WDataSetRawHARDI( hardi->getValueSet(), newGrid,
-                                            boost::shared_ptr< OrientationType >( new OrientationType( hardi->getOrientations() ) ),
-                                            hardi->getDiffusionBValue() ) );
-                // TODO( reichenbach ): remove copying orientations
-            }
-            else
-            {
-                // this creates a dataset of the same type as m_dataSet without explicit knowledge of the correct type
-                m_dataSet = m_dataSet->clone( ds->getValueSet(), newGrid );
-            }
+            m_dataSet = dataSetAsSingle->clone( newGrid );
 
             // the clone() may have returned a zero-pointer, only update if it hasn't
             // this may happen if the clone() operation has not been implemented in the derived dataset class

@@ -149,15 +149,6 @@ public:
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
 
-    /**
-     * Returns a new dataset with the given valueset and grid that is of the same type as this dataset.
-     *
-     * \param vs The valueset.
-     * \param grid The grid.
-     * \return The new dataset.
-     */
-    virtual boost::shared_ptr< WDataSet > clone( boost::shared_ptr< WValueSetBase > vs, boost::shared_ptr< WGrid > grid ) const;
-
 protected:
 
     /**
