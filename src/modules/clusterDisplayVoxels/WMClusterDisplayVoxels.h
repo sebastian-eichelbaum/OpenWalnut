@@ -35,6 +35,7 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../graphicsEngine/WGETexture.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
 #include "../../graphicsEngine/geodes/WDendrogramGeode.h"
@@ -227,6 +228,12 @@ private:
      * stores a pointer to the texture we paint in
      */
     osg::ref_ptr<osg::Texture3D>m_texture;
+
+    /**
+     * stores a pointer to the texture we paint in
+     */
+//    osg::ref_ptr< WGETexture3D > m_texture;
+
 
     /**
      * label vector for texture creation

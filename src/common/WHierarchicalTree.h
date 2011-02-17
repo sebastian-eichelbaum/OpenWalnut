@@ -153,14 +153,6 @@ public:
      */
     std::vector< size_t >findXBiggestClusters( size_t cluster, size_t number = 10 );
 
-    // TODO(schurade): merge these two function
-    /**
-     * finds the X biggest clusters for a given cluster
-     * \param cluster
-     * \param number of sub clusters
-     */
-    std::vector< size_t >findXBiggestClusters2( size_t cluster, size_t number = 10 );
-
     /**
      * sets the color for a selected cluster and all sub clusters
      * \param cluster
