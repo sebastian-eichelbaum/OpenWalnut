@@ -151,9 +151,13 @@ void WMImageSpaceLIC::properties()
     m_3dNoise        = m_advancedLicGroup->addProperty( "Use 3D noise", "Use 3D noise? This provides better coherence during transformation of "
                                                         "the geometry but might introduce resolution problems.", false );
     m_3dNoiseRes     = m_advancedLicGroup->addProperty( "3D Noise Resolution", "The 3D noise is of 128^3 pixels size. This scaler allows "
-                                                        "modification of this size.", 4.0 );
+                                                        "modification of this size.", 3.0 );
     m_3dNoiseRes->setMin( 1 );
     m_3dNoiseRes->setMax( 10 );
+
+    m_3dNoiseAutoRes = m_advancedLicGroup->addProperty( "3D Noise Auto-Resolution", "If checked, the resolution of the 3D noise gets calculated "
+                                                       "automatically according to the screen size. If disabled, the user can zoom into the LIC.",
+                                                       true );
 
     m_numIters     = m_advancedLicGroup->addProperty( "Number of Iterations", "How much iterations along a streamline should be done per frame.",
                                                       30 );
@@ -286,6 +290,9 @@ void WMImageSpaceLIC::moduleMain()
     WGEShaderDefineOptions::SPtr availableDataDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "SCALARDATA", "VECTORDATA" ) );
     transformationShader->addPreprocessor( availableDataDefines );
     transformationShader->addPreprocessor( define3dNoise );
+    transformationShader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_3dNoiseAutoRes, "NOISE3DAUTORES_DISABLED", "NOISE3DAUTORES_ENABLED" )
+    ) );
 
     osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass(
         m_output,

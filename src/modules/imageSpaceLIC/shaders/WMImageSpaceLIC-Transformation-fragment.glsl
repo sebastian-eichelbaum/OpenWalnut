@@ -70,13 +70,6 @@ uniform int u_texture0SizeY = 255;
  */
 uniform int u_texture0SizeZ = 255;
 
-#ifdef NOISE3D_ENABLED
-/**
- * The "virtual" resolution of the 3D noise texture in u_texture1Sampler
- */
-uniform float u_noise3DResoultuion = 4.0;
-#endif
-
 /**
  * Transforms each vector on each pixel to image space.
  */
@@ -86,7 +79,7 @@ void main()
 
     // if we have a 3D noise texture, use it.
 #ifdef NOISE3D_ENABLED
-    float noise3D = texture3D( u_texture1Sampler, gl_TexCoord[0].xyz * u_noise3DResoultuion ).r;
+    float noise3D = texture3D( u_texture1Sampler, gl_TexCoord[0].xyz * v_noiseScaleFactor.xyz ).r;
 #else
     float noise3D = 1.0;
 #endif

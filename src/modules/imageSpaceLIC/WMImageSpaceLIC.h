@@ -192,6 +192,11 @@ private:
      * The resolution scaling for the 3d noise
      */
     WPropDouble   m_3dNoiseRes;
+
+    /**
+     * Automatically adapt resolution of 3d texture according to zoom level
+     */
+    WPropBool     m_3dNoiseAutoRes;
 };
 
 #endif  // WMIMAGESPACELIC_H
