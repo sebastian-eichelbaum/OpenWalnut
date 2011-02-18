@@ -41,6 +41,11 @@
 uniform sampler3D u_texture0Sampler;
 
 /**
+ * The texture unit sampler for the 3D noise texture
+ */
+uniform sampler3D u_texture1Sampler;
+
+/**
  * Scaling factor to unscale the texture
  */
 uniform float u_texture0Scale = 1.0;
@@ -65,12 +70,26 @@ uniform int u_texture0SizeY = 255;
  */
 uniform int u_texture0SizeZ = 255;
 
+#ifdef NOISE3D_ENABLED
+/**
+ * The "virtual" resolution of the 3D noise texture in u_texture1Sampler
+ */
+uniform float u_noise3DResoultuion = 4.0;
+#endif
+
 /**
  * Transforms each vector on each pixel to image space.
  */
 void main()
 {
     vec3 vecProjected;    // contains the final vector at each fragment
+
+    // if we have a 3D noise texture, use it.
+#ifdef NOISE3D_ENABLED
+    float noise3D = texture3D( u_texture1Sampler, gl_TexCoord[0].xyz * u_noise3DResoultuion ).r;
+#else
+    float noise3D = 1.0;
+#endif
 
 #ifdef VECTORDATA
     // get the current vector at this position
@@ -129,7 +148,7 @@ void main()
 
     // is the vector very orthogonal to the surface?
     vec2 dotScaled = ( 1.0 - dot( v_normal.xyz, vec.xyz  ) ) * scaleMaxToOne( vecProjected ).xy;
-    gl_FragData[0] = vec4( vec2( 0.5 ) + ( 0.5  * dotScaled ), light, 1.0 );
+    gl_FragData[0] = vec4( vec2( 0.5 ) + ( 0.5  * dotScaled ), light, noise3D );
     gl_FragData[1] = colormapping();
 }
 

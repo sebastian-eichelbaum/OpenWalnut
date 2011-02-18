@@ -80,7 +80,11 @@ void main()
     vec4 br = texture2D( u_texture0Sampler, texCoord + vec2(  offsetW,  offsetH ) );
     vec4 b  = texture2D( u_texture0Sampler, texCoord + vec2(     0.0,  -offsetH ) );
 
+#ifdef NOISE3D_ENABLED
+    float noise = texture2D( u_texture2Sampler, texCoord ).a;
+#else
     float noise = texture2D( u_texture1Sampler, texCoord ).r;
+#endif
     float light = texture2D( u_texture2Sampler, texCoord ).b;
 
     /////////////////////////////////////////////////////////////////////////////////////////////
