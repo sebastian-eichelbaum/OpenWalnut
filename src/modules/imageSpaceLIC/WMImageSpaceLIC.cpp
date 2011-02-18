@@ -374,7 +374,8 @@ void WMImageSpaceLIC::moduleMain()
             continue;
         }
 
-        // maybe it was removed earlier
+        // ensure it gets added
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( offscreen );
         WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
 
         // prefer vector dataset if existing
