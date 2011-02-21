@@ -59,6 +59,13 @@ uniform int u_texture1SizeX;
 uniform sampler3D u_gradientsSampler;
 #endif
 
+#ifdef BORDERCLIP_ENABLED
+/**
+ * The distance before the entry/exit point that should be clipped.
+ */
+uniform float u_borderClipDistance = 0.05;
+#endif
+
 // The number of steps to use.
 uniform int u_steps;
 
@@ -133,7 +140,7 @@ void main()
 {
     // please do not laugh, it is a very very very simple "isosurface" shader
     wge_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-    gl_FragDepth = gl_FragCoord.z;
+    gl_FragDepth = 1.0;
 
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
     // when done for each vertex.
@@ -149,21 +156,29 @@ void main()
     // introduce some noise artifacts.
     float jitter = 0.5 - texture2D( u_texture1Sampler, gl_FragCoord.xy / u_texture1SizeX ).r;
     // the point along the ray in cube coordinates
-    vec3 curPoint = ( 1.0 * v_ray ) + v_rayStart + ( v_ray * stepDistance * jitter );
+    vec3 curPoint = v_ray + v_rayStart + ( v_ray * stepDistance * jitter );
+    vec3 rayStart = curPoint;
 #else
     // the point along the ray in cube coordinates
-    vec3 curPoint = ( 1.0 * v_ray ) + v_rayStart;
+    vec3 curPoint = v_ray + v_rayStart;
 #endif
 
     // the step counter
-    int i = 0;
-    while ( i < u_steps - 1 ) // we do not need to ch
+    int i = 1;
+    while ( i < u_steps )
     {
         // get current value
         value = texture3D( u_texture0Sampler, curPoint ).r;
 
         // is it the isovalue?
-        if ( abs( value - v_isovalue ) < 0.1 )
+        if ( ( abs( value - v_isovalue ) < 0.1 )
+#ifdef BORDERCLIP_ENABLED
+                &&
+            !( length( curPoint - rayStart ) < u_borderClipDistance )
+                &&
+            !( length( curPoint - rayEnd ) < u_borderClipDistance )
+#endif
+        )
         {
             // we need to know the depth value of the current point inside the cube
             // Therefore, the complete standard pipeline is reproduced here:
@@ -230,12 +245,6 @@ void main()
 
         // do not miss to count the steps already done
         i++;
-    }
-
-    // the ray did never hit the surface --> discard the pixel
-    if ( i == u_steps - 1 )
-    {
-        discard;
     }
 }
 

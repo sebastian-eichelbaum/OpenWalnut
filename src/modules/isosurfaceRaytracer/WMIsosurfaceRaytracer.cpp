@@ -136,6 +136,13 @@ void WMIsosurfaceRaytracer::properties()
     m_stochasticJitter = m_properties->addProperty( "Stochastic Jitter", "Improves image quality at low sampling rates but introduces slight "
                                                                          "noise effect.", true );
 
+    m_borderClip = m_properties->addProperty( "Border Clip", "If enabled, a certain area on the volume boundary can be clipped. This is useful "
+                                                             "for noise and non-peeled data but will consume a lot of GPU power.", false );
+
+    m_borderClipDistance = m_properties->addProperty( "Border Clip Distance", "The distance that should be ignored.", 0.05 );
+    m_borderClipDistance->setMin( 0.0 );
+    m_borderClipDistance->setMax( 0.1 );
+
     WModule::properties();
 }
 
@@ -157,6 +164,9 @@ void WMIsosurfaceRaytracer::moduleMain()
         new WGEShaderPropertyDefineOptions< WPropBool >( m_phongShading, "PHONGSHADING_DISABLED", "PHONGSHADING_ENABLED" ) )
     );
     WGEShaderDefineSwitch::SPtr gradTexEnableDefine = m_shader->setDefine( "GRADIENTTEXTURE_ENABLED" );
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_borderClip, "BORDERCLIP_DISABLED", "BORDERCLIP_ENABLED" ) )
+    );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
@@ -259,6 +269,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootState->addUniform( new WGEPropertyUniform< WPropInt >( "u_steps", m_stepCount ) );
             rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_alpha", m_alpha ) );
             rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio ) );
+            rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_borderClipDistance", m_borderClipDistance ) );
             // Stochastic jitter?
             const size_t size = 64;
             osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size, size, 1 );

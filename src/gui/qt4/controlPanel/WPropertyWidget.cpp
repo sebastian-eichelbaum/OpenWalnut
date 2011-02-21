@@ -65,6 +65,10 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
         setCurrentIndex( 1 );
     }
 
+    // if the property is hidden initially, hide widget too
+    setHidden( m_property->isHidden() );
+    m_label.setHidden( m_property->isHidden() );
+
     // setup the update callback
     m_connection = m_property->getUpdateCondition()->subscribeSignal( boost::bind( &WPropertyWidget::propertyChangeNotifier, this ) );
 }
