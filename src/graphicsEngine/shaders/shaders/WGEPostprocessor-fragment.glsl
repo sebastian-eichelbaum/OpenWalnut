@@ -410,7 +410,8 @@ float getGaussedDepth()
 /**
  * The total influence of SSAO.
  */
-const float u_ssaoTotalStrength = 2.5; // 1.38;   // total strength - scaling the resulting AO
+//const float u_ssaoTotalStrength = 2.0; // 1.38;   // total strength - scaling the resulting AO
+const float u_ssaoTotalStrength = 5.5; // 1.38;   // total strength - scaling the resulting AO
 
 /**
  * The strength of the occluder influence in relation to the geometry density. The heigher the value, the larger the influence. Low values remove
@@ -432,7 +433,7 @@ const float u_ssaoRadiusSS = 5.0;
  */
 float getSSAO( vec2 where )
 {
-    #define SCALERS 5
+    #define SCALERS 2
     #define SAMPLES 32  // the numbers of samples to check on the hemisphere
     const float invSamples = 1.0 / float( SAMPLES );
 
@@ -473,7 +474,7 @@ float getSSAO( vec2 where )
    for( int l = 1; l <= SCALERS; ++l )
     {
         float occlusionStep = 0.0;  // this variable accumulates the occlusion for the current radius
-        radiusScaler += l;    // increment radius each time.
+        radiusScaler += 1.0;    // increment radius each time.
 
         // Get SAMPLES-times samples on the hemisphere and check for occluders
         for( int i = 0; i < SAMPLES; ++i )
@@ -492,7 +493,7 @@ float getSSAO( vec2 where )
             occluderDepth = getDepth( hemispherePoint.xy );
 
             // get the normal of the occluder fragment
-            occluderNormal = getNormal( hemispherePoint.xy ).xyz;
+            occluderNormal = 0.75 * getNormal( hemispherePoint.xy ).xyz;
 
             // if depthDifference is negative = occluder is behind the current fragment -> occluding this fragment
             depthDifference = currentPixelDepth - occluderDepth;
@@ -620,11 +621,11 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_SSAOWITHPHONG
     float ao = getSSAO();
-    //ao = 2.0 * ( ao - 0.5 );
-    /*float lPhong = getPPLPhong( wge_DefaultLightIntensity );
+    ao = 2.0 * ( ao - 0.5 );
+    float lPhong = getPPLPhong( wge_DefaultLightIntensityLessDiffuse );
     float lKrueger = kruegerNonLinearIllumination( getNormal().xyz, 5.0 );
-    float l =  lPhong;//Krueger;*/
-    blend( vec4( getColor().rgb *  ao, getColor().a ) );
+    float l =  ao + lPhong;//Krueger;
+    blend( vec4( getColor().rgb * l, getColor().a ) );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_CELSHADING
