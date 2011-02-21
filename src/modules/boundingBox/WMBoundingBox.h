@@ -109,7 +109,13 @@ private:
 
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
 
-    WPropBool     m_showCornerCoordinates; //!< Show/hide the coordinates in the rendering.
+    WItemSelection::SPtr m_possibleModes; //!< the modes available.
+
+    WPropSelection m_mode; //!< the mode (bbox, grid, both)
+
+    WPropColor m_bboxColor; //!< the color of the bounding box
+
+    WPropColor m_gridColor; //!< the color of the grid
 
     /**
      * This condition denotes whether we need to recompute the surface
@@ -120,5 +126,12 @@ private:
      * The node actually drawing the grid.
      */
     WGEGridNode::SPtr m_gridNode;
+
+    /**
+     * Handles updates in properties.
+     *
+     * \param property the property that has updated.
+     */
+    void updateNode( WPropertyBase::SPtr property );
 };
 #endif  // WMBOUNDINGBOX_H

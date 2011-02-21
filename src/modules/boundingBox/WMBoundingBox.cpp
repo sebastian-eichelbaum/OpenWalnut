@@ -45,6 +45,9 @@
 #include "../../kernel/WKernel.h"
 #include "WMBoundingBox.h"
 #include "WMBoundingBox.xpm"
+#include "WMBoundingBox_boundary.xpm"
+#include "WMBoundingBox_grid.xpm"
+#include "WMBoundingBox_label.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMBoundingBox )
@@ -70,7 +73,7 @@ boost::shared_ptr< WModule > WMBoundingBox::factory() const
 
 const char** WMBoundingBox::getXPMIcon() const
 {
-    return boundingbox_xpm;
+    return WMBoundingBox_xpm;
 }
 
 const std::string WMBoundingBox::getName() const
@@ -127,7 +130,9 @@ void WMBoundingBox::moduleMain()
             WGraphicsEngine::getGraphicsEngine()->getScene()->insert( m_gridNode );
         }
 
-        m_gridNode->setEnableLabels( m_showCornerCoordinates->get( true ) );
+        m_gridNode->setBBoxColor( *m_bboxColor );
+        m_gridNode->setGridColor( *m_gridColor );
+        updateNode( m_mode );
         m_gridNode->setGrid( regGrid );
     }
 
@@ -151,7 +156,67 @@ void WMBoundingBox::connectors()
 
 void WMBoundingBox::properties()
 {
-    m_showCornerCoordinates = m_properties->addProperty( "Show coordinates", "Show coordinates at the corners of the box.", true, m_recompute );
+    WPropertyBase::PropertyChangeNotifierType  notifier = boost::bind( &WMBoundingBox::updateNode, this, _1 );
+
+    m_bboxColor = m_properties->addProperty( "Bounding Box Color", "The color of the bounding box.", WColor( 0.3, 0.3, 0.3, 1.0 ), notifier );
+
+    m_gridColor = m_properties->addProperty( "Grid Color", "The color of the grid.", WColor( 0.1, 0.1, 0.1, 1.0 ), notifier );
+
+    m_possibleModes = WItemSelection::SPtr( new WItemSelection() );
+    m_possibleModes->addItem( "Labels", "Show the boundary labels.", WMBoundingBox_label_xpm );          // NOTE: you can add XPM images here.
+    m_possibleModes->addItem( "Bounding Box", "Show the bounding box.", WMBoundingBox_boundary_xpm );
+    m_possibleModes->addItem( "Grid", "Show the inner grid.",  WMBoundingBox_grid_xpm );
+
+    // selecting all at once might be a bad idea since the grid rendering can be very very slow. So, by default, only show bbox and labels.
+    WItemSelector sel = m_possibleModes->getSelectorFirst();
+    m_mode = m_properties->addProperty( "Mode", "What should be rendered.",  sel.newSelector( 1 ), notifier );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_mode );
+
     WModule::properties();
 }
 
+void WMBoundingBox::updateNode( WPropertyBase::SPtr property )
+{
+    // only update if there is a grid node
+    if ( !m_gridNode )
+    {
+        return;
+    }
+
+    // color of bbox changed
+    if ( property == m_bboxColor )
+    {
+        m_gridNode->setBBoxColor( *m_bboxColor );
+    }
+
+    // color of grid changed
+    if ( property == m_gridColor )
+    {
+        m_gridNode->setGridColor( *m_gridColor );
+    }
+
+    // mode changed
+    if ( property == m_mode )
+    {
+        WItemSelector s = m_mode->get( true );
+
+        bool labels = false;
+        bool bbox = false;
+        bool grid = false;
+
+        // The multi property allows the selection of several items. So, iteration needs to be done here:
+        for( size_t i = 0; i < s.size(); ++i )
+        {
+            size_t idx = s.getItemIndexOfSelected( i );
+
+            // check what was selected
+            labels = labels || ( idx == 0 );
+            bbox = bbox || ( idx == 1 );
+            grid = grid || ( idx == 2 );
+        }
+
+        m_gridNode->setEnableLabels( labels );
+        m_gridNode->setEnableGrid( grid );
+        m_gridNode->setEnableBBox( bbox );
+    }
+}

@@ -95,6 +95,63 @@ public:
      */
     void setEnableLabels( bool enable = true );
 
+    /**
+     * Returns whether bbox mode is enabled or not.
+     *
+     * \return true if bbox rendering are enabled
+     */
+    bool getEnableBBox() const;
+
+    /**
+     * En- or disable bbox mode.
+     *
+     * \param enable true to enbable
+     */
+    void setEnableBBox( bool enable = true );
+
+    /**
+     * Returns whether grid mode is enabled or not.
+     *
+     * \return true if grid rendering are enabled
+     */
+    bool getEnableGrid() const;
+
+    /**
+     * En- or disable grid mode.
+     *
+     * \param enable true to enbable
+     */
+    void setEnableGrid( bool enable = true );
+
+    /**
+     * The currently set color used for rendering the bbox.
+     *
+     * \return the current color.
+     */
+    const WColor& getBBoxColor() const;
+
+    /**
+     * Sets the color of the rendered bbox.
+     *
+     * \param color the color
+     */
+    void setBBoxColor( const WColor& color );
+
+    /**
+     * The currently set color used for rendering the grid.
+     *
+     * \return the current color.
+     */
+    const WColor& getGridColor() const;
+
+    /**
+     * Sets the color of the rendered grid.
+     *
+     * \param color the color
+     */
+    void setGridColor( const WColor& color );
+
+
 protected:
 
 private:
@@ -137,9 +194,34 @@ private:
     bool m_gridUpdate;
 
     /**
+     * If true, the inner grid geometry gets recreated.
+     */
+    bool m_gridGeometryUpdate;
+
+    /**
      * If true, labels get used.
      */
     bool m_showLabels;
+
+    /**
+     * True if the bbox should be rendered
+     */
+    bool m_showBBox;
+
+    /**
+     * True if the grid should be rendered.
+     */
+    bool m_showGrid;
+
+    /**
+     * The color of bbox/grid
+     */
+    WColor m_bbColor;
+
+    /**
+     * The color of the grid.
+     */
+    WColor m_gridColor;
 };
 
 #endif  // WGEGRIDNODE_H
