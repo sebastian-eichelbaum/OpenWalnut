@@ -1,5 +1,5 @@
 /* XPM */
-static const char * WMBoundingBox_xpm[] = {
+static const char * WMGridRenderer_xpm[] = {
 "32 32 3 1",
 " 	c None",
 ".	c #7D7D7D",

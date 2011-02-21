@@ -43,16 +43,16 @@
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../kernel/modules/data/WMData.h"
 #include "../../kernel/WKernel.h"
-#include "WMBoundingBox.h"
-#include "WMBoundingBox.xpm"
-#include "WMBoundingBox_boundary.xpm"
-#include "WMBoundingBox_grid.xpm"
-#include "WMBoundingBox_label.xpm"
+#include "WMGridRenderer.h"
+#include "WMGridRenderer.xpm"
+#include "WMGridRenderer_boundary.xpm"
+#include "WMGridRenderer_grid.xpm"
+#include "WMGridRenderer_label.xpm"
 
 // This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMBoundingBox )
+W_LOADABLE_MODULE( WMGridRenderer )
 
-WMBoundingBox::WMBoundingBox():
+WMGridRenderer::WMGridRenderer():
     WModule(),
     m_recompute( boost::shared_ptr< WCondition >( new WCondition() ) )
 {
@@ -60,33 +60,33 @@ WMBoundingBox::WMBoundingBox():
     // Implement WModule::initializeConnectors instead.
 }
 
-WMBoundingBox::~WMBoundingBox()
+WMGridRenderer::~WMGridRenderer()
 {
     // cleanup
     removeConnectors();
 }
 
-boost::shared_ptr< WModule > WMBoundingBox::factory() const
+boost::shared_ptr< WModule > WMGridRenderer::factory() const
 {
-    return boost::shared_ptr< WModule >( new WMBoundingBox() );
+    return boost::shared_ptr< WModule >( new WMGridRenderer() );
 }
 
-const char** WMBoundingBox::getXPMIcon() const
+const char** WMGridRenderer::getXPMIcon() const
 {
-    return WMBoundingBox_xpm;
+    return WMGridRenderer_xpm;
 }
 
-const std::string WMBoundingBox::getName() const
+const std::string WMGridRenderer::getName() const
 {
-    return "Bounding Box";
+    return "Grid Renderer";
 }
 
-const std::string WMBoundingBox::getDescription() const
+const std::string WMGridRenderer::getDescription() const
 {
-    return "Shows the bounding box of a data set.";
+    return "Shows the bounding box and grid of a data set.";
 }
 
-void WMBoundingBox::moduleMain()
+void WMGridRenderer::moduleMain()
 {
     // use the m_input "data changed" flag
     m_moduleState.setResetable( true, true );
@@ -139,7 +139,7 @@ void WMBoundingBox::moduleMain()
     WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_gridNode );
 }
 
-void WMBoundingBox::connectors()
+void WMGridRenderer::connectors()
 {
     // initialize connectors
     m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
@@ -154,18 +154,18 @@ void WMBoundingBox::connectors()
     WModule::connectors();
 }
 
-void WMBoundingBox::properties()
+void WMGridRenderer::properties()
 {
-    WPropertyBase::PropertyChangeNotifierType  notifier = boost::bind( &WMBoundingBox::updateNode, this, _1 );
+    WPropertyBase::PropertyChangeNotifierType  notifier = boost::bind( &WMGridRenderer::updateNode, this, _1 );
 
     m_bboxColor = m_properties->addProperty( "Bounding Box Color", "The color of the bounding box.", WColor( 0.3, 0.3, 0.3, 1.0 ), notifier );
 
     m_gridColor = m_properties->addProperty( "Grid Color", "The color of the grid.", WColor( 0.1, 0.1, 0.1, 1.0 ), notifier );
 
     m_possibleModes = WItemSelection::SPtr( new WItemSelection() );
-    m_possibleModes->addItem( "Labels", "Show the boundary labels.", WMBoundingBox_label_xpm );          // NOTE: you can add XPM images here.
-    m_possibleModes->addItem( "Bounding Box", "Show the bounding box.", WMBoundingBox_boundary_xpm );
-    m_possibleModes->addItem( "Grid", "Show the inner grid.",  WMBoundingBox_grid_xpm );
+    m_possibleModes->addItem( "Labels", "Show the boundary labels.", WMGridRenderer_label_xpm );          // NOTE: you can add XPM images here.
+    m_possibleModes->addItem( "Bounding Box", "Show the bounding box.", WMGridRenderer_boundary_xpm );
+    m_possibleModes->addItem( "Grid", "Show the inner grid.",  WMGridRenderer_grid_xpm );
 
     // selecting all at once might be a bad idea since the grid rendering can be very very slow. So, by default, only show bbox and labels.
     WItemSelector sel = m_possibleModes->getSelectorFirst();
@@ -175,7 +175,7 @@ void WMBoundingBox::properties()
     WModule::properties();
 }
 
-void WMBoundingBox::updateNode( WPropertyBase::SPtr property )
+void WMGridRenderer::updateNode( WPropertyBase::SPtr property )
 {
     // only update if there is a grid node
     if ( !m_gridNode )

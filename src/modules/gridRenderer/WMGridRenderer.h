@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMBOUNDINGBOX_H
-#define WMBOUNDINGBOX_H
+#ifndef WMGRIDRENDERER_H
+#define WMGRIDRENDERER_H
 
 #include <map>
 #include <string>
@@ -39,24 +39,22 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
-class WPickHandler;
-
 /**
- * Show the bounding box of a WDataSetSingle
+ * Show the bounding box and grid of a WDataSetSingle
  * \ingroup modules
  */
-class WMBoundingBox : public WModule
+class WMGridRenderer : public WModule
 {
 public:
     /**
      * Standard constructor.
      */
-    WMBoundingBox();
+    WMGridRenderer();
 
     /**
      * Destructor.
      */
-    ~WMBoundingBox();
+    ~WMGridRenderer();
 
     /**
      * Gives back the name of this module.
@@ -134,4 +132,4 @@ private:
      */
     void updateNode( WPropertyBase::SPtr property );
 };
-#endif  // WMBOUNDINGBOX_H
+#endif  // WMGRIDRENDERER_H
