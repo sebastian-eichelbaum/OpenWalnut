@@ -112,6 +112,13 @@ public:
     virtual const T operator()() const;
 
     /**
+     * Operator returns value of the flag. It does not reset the change flag.
+     *
+     * \return the value.
+     */
+    virtual operator T() const;
+
+    /**
      * Wait for the flag to change its value. For WConditionOneShot is also recognizes if the flag has changed before.
      */
     virtual void wait() const;
@@ -260,6 +267,12 @@ template < typename T >
 const T WFlag< T >::get() const
 {
     return m_flag;
+}
+
+template < typename T >
+WFlag< T >::operator T() const
+{
+    return get();
 }
 
 template < typename T >
