@@ -111,7 +111,7 @@ void main()
 #endif
 
     // finally set the color and depth
-    wge_FragColor = vec4( vec3( gl_Color.xyz * light * colorScaler ), gl_Color.a );
+    wge_FragColor = vec4( gl_Color.rgb * light * colorScaler, gl_Color.a );
     wge_FragNormal = textureNormalize( normal );
     gl_FragDepth = depth;
 }
