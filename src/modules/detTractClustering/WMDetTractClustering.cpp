@@ -33,24 +33,29 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiber.h"
+#include "../../common/math/WMatrixSym.h"
 #include "../../common/WAssert.h"
 #include "../../common/WColor.h"
 #include "../../common/WIOTools.h"
 #include "../../common/WLogger.h"
 #include "../../common/WProgress.h"
 #include "../../common/WStringUtils.h"
+#include "../../common/WThreadedFunction.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/exceptions/WDHIOFailure.h"
-#include "../../dataHandler/io/WReaderLookUpTableVTK.h"
-#include "../../dataHandler/io/WWriterLookUpTableVTK.h"
+#include "../../dataHandler/io/WReaderMatrixSymVTK.h"
+#include "../../dataHandler/io/WWriterMatrixSymVTK.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
-#include "detTractClustering.xpm"
 #include "WMDetTractClustering.h"
+#include "WMDetTractClustering.xpm"
+
+#ifdef CUDA_FOUND
+#include "WMDetTractClusteringCudaInterface.h"
+#endif
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMDetTractClustering )
@@ -90,10 +95,16 @@ void WMDetTractClustering::moduleMain()
     {
         m_moduleState.wait();
 
+        if ( m_shutdownFlag() ) // in case of shutdown => abort
+        {
+            break;
+        }
+
         if ( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
         {
             continue;
         }
+
         if( m_rawTracts != m_tractInput->getData() ) // in case data has changed
         {
             m_rawTracts = m_tractInput->getData();
@@ -143,6 +154,11 @@ void WMDetTractClustering::properties()
     m_numValidClusters->setMin( 0 );
     m_numValidClusters->setMax( wlimits::MAX_INT32_T );
     m_clusterSizes = m_infoProperties->addProperty( "Cluster sizes:", "Size of each valid cluster", std::string() );
+#ifdef CUDA_FOUND
+    m_useCuda         = m_properties->addProperty( "Use CUDA", "Prefer CUDA algorithm over CPU algorithm", true );
+#endif
+
+    WModule::properties();
 }
 
 void WMDetTractClustering::updateOutput()
@@ -166,7 +182,7 @@ void WMDetTractClustering::update()
     if( !( m_dLtTableExists = dLtTableExists() ) )
     {
         debugLog() << "Consider old table as invalid.";
-        m_dLtTable.reset( new WDXtLookUpTable( m_tracts->size() ) );
+        m_dLtTable.reset( new WMatrixSymDBL( m_tracts->size() ) );
     }
 
     cluster();
@@ -175,7 +191,7 @@ void WMDetTractClustering::update()
     m_progress->addSubProgress( saveProgress );
     if( !wiotools::fileExists( lookUpTableFileName() ) )
     {
-        WWriterLookUpTableVTK w( lookUpTableFileName(), true );
+        WWriterMatrixSymVTK w( lookUpTableFileName(), true );
         try
         {
             w.writeTable( m_dLtTable->getData(), m_lastTractsSize );
@@ -217,10 +233,10 @@ bool WMDetTractClustering::dLtTableExists()
         try
         {
             debugLog() << "trying to read table from: " << dLtFileName;
-            WReaderLookUpTableVTK r( dLtFileName );
+            WReaderMatrixSymVTK r( dLtFileName );
             boost::shared_ptr< std::vector< double > > data( new std::vector< double >() );
             r.readTable( data );
-            m_dLtTable.reset( new WDXtLookUpTable( static_cast< size_t >( data->back() ) ) );
+            m_dLtTable.reset( new WMatrixSymDBL( static_cast< size_t >( data->back() ) ) );
             m_lastTractsSize = static_cast< size_t >( data->back() );
 
             // remove the dimension from data array since it's not representing any distance
@@ -241,6 +257,10 @@ bool WMDetTractClustering::dLtTableExists()
 
 void WMDetTractClustering::cluster()
 {
+    bool useCuda = false;
+#ifdef CUDA_FOUND
+    useCuda = m_useCuda->get();
+#endif
     double proximity_t = m_proximity_t->get();
     double maxDistance_t = m_maxDistance_t->get();
     size_t minClusterSize = m_minClusterSize->get();
@@ -259,12 +279,25 @@ void WMDetTractClustering::cluster()
         m_clusterIDs[i] = i;
     }
 
+    if( !m_dLtTableExists && useCuda )
+    {
+#ifdef CUDA_FOUND
+        m_dLtTableExists = initDLtTableCuda( m_dLtTable, m_tracts, proximity_t, m_progress );
+#endif
+    }
+
     boost::shared_ptr< WProgress > progress( new WProgress( "Tract clustering", numTracts ) );
     m_progress->addSubProgress( progress );
 
-    boost::function< double ( const wmath::WFiber& q, const wmath::WFiber& r ) > dLt; // NOLINT
-    const double proxSquare = proximity_t * proximity_t;
-    dLt = boost::bind( wmath::WFiber::distDLT, proxSquare, _1, _2 );
+    if( !m_dLtTableExists )
+    {
+        boost::shared_ptr< SimilarityMatrixComputation > threadInstance( new SimilarityMatrixComputation( m_dLtTable,
+                                                                                                          m_tracts, proximity_t * proximity_t,
+                                                                                                          m_shutdownFlag ) );
+        WThreadedFunction< SimilarityMatrixComputation > threadPool( 2, threadInstance );
+        threadPool.run();
+        threadPool.wait();
+    }
 
     for( size_t q = 0; q < numTracts; ++q )  // loop over all "symmetric" tract pairs
     {
@@ -272,10 +305,6 @@ void WMDetTractClustering::cluster()
         {
             if( m_clusterIDs[q] != m_clusterIDs[r] )  // both tracts are in different clusters
             {
-                if( !m_dLtTableExists )
-                {
-                    (*m_dLtTable)( q, r ) = dLt( (*m_tracts)[q], (*m_tracts)[r] );
-                }
                 if( (*m_dLtTable)( q, r ) < maxDistance_t )  // q and r provide an inter-cluster-link
                 {
                     meld( m_clusterIDs[q], m_clusterIDs[r] );
@@ -284,11 +313,11 @@ void WMDetTractClustering::cluster()
         }
         ++*progress;
     }
+
     progress->finish();
     m_dLtTableExists = true;
 
     boost::shared_ptr< WProgress > eraseProgress( new WProgress( "Erasing clusters", 1 ) );
-//    m_progress->addSubProgress( eraseProgress );
 
     // remove empty clusters
     WFiberCluster emptyCluster;
@@ -322,7 +351,7 @@ osg::ref_ptr< osg::Geode > WMDetTractClustering::genTractGeode( const WFiberClus
     std::list< size_t >::const_iterator cit = cluster.getIndices().begin();
     for( ; cit !=  cluster.getIndices().end(); ++cit )
     {
-        const wmath::WFiber &fib = (*m_tracts)[ *cit ];
+        const WFiber &fib = (*m_tracts)[ *cit ];
         for( size_t i = 0; i < fib.size(); ++i )
         {
             vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
@@ -333,7 +362,7 @@ osg::ref_ptr< osg::Geode > WMDetTractClustering::genTractGeode( const WFiberClus
     geometry->setVertexArray( vertices );
 
     ref_ptr< osg::Vec4Array > colors = ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
-    colors->push_back( wge::osgColor( color ) );
+    colors->push_back( color );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
     osg::ref_ptr< osg::Geode > geode = osg::ref_ptr< osg::Geode >( new osg::Geode );
@@ -355,7 +384,7 @@ osg::ref_ptr< WGEManagedGroupNode > WMDetTractClustering::paint() const
     std::stringstream clusterLog;
     for( size_t i = 0; i < m_clusters.size(); ++i, hue += hue_increment )
     {
-        color.setHSV( hue, 1.0, 0.75 );
+        color = convertHSVtoRGBA( hue, 1.0, 0.75 );
         result->insert( genTractGeode( m_clusters[i], color ).get() );
         clusterLog << m_clusters[i].size() << " ";
         numUsedTracts += m_clusters[i].size();
@@ -395,14 +424,9 @@ void WMDetTractClustering::meld( size_t qClusterID, size_t rClusterID )
 
 void WMDetTractClustering::connectors()
 {
-    typedef WModuleInputData< WDataSetFibers > InputData;  // just an alias
-    typedef WModuleOutputData< WFiberCluster > OutputData; // -"-
+    m_tractInput = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "A deterministic tract dataset." );
+    m_output = WModuleOutputData< WFiberCluster >::createAndAdd( shared_from_this(), "clusterOutput", "A set of tract indices aka cluster" );
 
-    m_tractInput = boost::shared_ptr< InputData >( new InputData( shared_from_this(), "tractInput", "A deterministic tract dataset." ) );
-    m_output = boost::shared_ptr< OutputData >( new OutputData( shared_from_this(), "clusterOutput", "A set of tract indices aka cluster" ) );
-
-    addConnector( m_tractInput );
-    addConnector( m_output );
     WModule::connectors();  // call WModules initialization
 }
 
@@ -426,3 +450,42 @@ bool WMDetTractClustering::OutputIDBound::accept( boost::shared_ptr< WPropertyVa
 {
     return ( value >= 0 ) && ( value < static_cast< int >( m_clusters.size() ) );
 }
+
+WMDetTractClustering::SimilarityMatrixComputation::SimilarityMatrixComputation(
+        boost::shared_ptr< WMatrixSymDBL > dLtTable,
+        boost::shared_ptr< WDataSetFiberVector > tracts,
+        double proxSquare,
+        const WBoolFlag& shutdownFlag )
+    : m_table( dLtTable ),
+      m_tracts( tracts ),
+      m_proxSquare( proxSquare ),
+      m_shutdownFlag( shutdownFlag )
+{
+}
+
+void WMDetTractClustering::SimilarityMatrixComputation::operator()( size_t id, size_t numThreads, WBoolFlag& b ) // NOLINT const ref
+{
+    wlog::debug( "WMDetTractClustering::SimilarityMatrixComputation" ) << "Thread: " << id << " starting its work";
+    ( void ) b; // NOLINT for removing the warning about unused variables
+
+    boost::function< double ( const WFiber& q, const WFiber& r ) > dLt; // NOLINT
+    dLt = boost::bind( WFiber::distDLT, m_proxSquare, _1, _2 );
+
+    size_t numTracts = m_tracts->size();
+    size_t lines = 0;
+
+    for( size_t q = 0; q < numTracts && !m_shutdownFlag() ; ++q )  // loop over all "symmetric" tract pairs
+    {
+        if( q % numThreads == id )
+        {
+            lines++;
+            for( size_t r = q + 1;  r < numTracts; ++r )
+            {
+                (*m_table)( q, r ) = dLt( (*m_tracts)[q], (*m_tracts)[r] );
+            }
+        }
+    }
+    wlog::debug( "WMDetTractClustering::SimilarityMatrixComputation" ) << "Thread: " << id << " done processing " << lines << " lines.";
+}
+
+

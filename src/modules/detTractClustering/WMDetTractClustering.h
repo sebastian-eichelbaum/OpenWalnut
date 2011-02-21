@@ -32,8 +32,8 @@
 
 #include <osg/Geode>
 
-#include "../../common/datastructures/WDXtLookUpTable.h"
 #include "../../common/datastructures/WFiber.h"
+#include "../../common/math/WMatrixSym.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
@@ -181,12 +181,13 @@ private:
     WPropInt     m_numClusters; //!< Number of clusters computed
     WPropInt     m_numValidClusters; //!< Number of clusters used for rendering
     WPropString  m_clusterSizes; //!< Sizes of the clusters
+    WPropBool    m_useCuda; //!< If compiled with cuda choose whether to use cuda or cpu implementation
 
     boost::shared_ptr< WDataSetFiberVector >                m_tracts; //!< Reference to the WDataSetFiberVector object
     boost::shared_ptr< WDataSetFibers >                     m_rawTracts; //!< Reference to the WDataSetFibers object
     boost::shared_ptr< WModuleInputData< WDataSetFibers > > m_tractInput; //!< Input connector for a tract dataset.
     boost::shared_ptr< WModuleOutputData< WFiberCluster > > m_output; //!< Output connector for the first cluster.
-    boost::shared_ptr< WDXtLookUpTable >                    m_dLtTable; //!< Distance matrix lookUpTable
+    boost::shared_ptr< WMatrixSymDBL >                    m_dLtTable; //!< Distance matrix lookUpTable
 
     boost::shared_ptr< WCondition > m_update; //!< Used for register properties indicating a rerun of the moduleMain loop
 
@@ -215,6 +216,67 @@ private:
         virtual bool accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_INT > >  property, WPVBaseTypes::PV_INT value );
     private:
         const std::vector< WFiberCluster >& m_clusters; //!< accept() need to look into the cluster array for max size constraint
+    };
+
+    /**
+     * Implements the work each thread has to do, when computing tract
+     * similarities. This class is intended to work well WThreadedFunction.
+     */
+    class SimilarityMatrixComputation
+    {
+    public:
+        /**
+         * Creates the environment for the thread, so all data access it will
+         * need is referenced in this instance.
+         *
+         * \note There is no mutex nor locking done for the data each thread
+         * uses due to two reasons. First, the tracts are read only, and second
+         * the writing of the results is disjoint which means, that each thread
+         * will never write at a place where another thread will write to.
+         *
+         * \param dLtTable pointer to the similarity matrix
+         * \param tracts dataset of all tracts
+         * \param proxSquare the square of the proximity threshold to construct
+         * the boost::function instance
+         * \param shutdownFlag a bool flag indicating an abort.
+         */
+        SimilarityMatrixComputation( const boost::shared_ptr< WMatrixSymDBL > dLtTable,
+                                     boost::shared_ptr< WDataSetFiberVector > tracts,
+                                     double proxSquare,
+                                     const WBoolFlag& shutdownFlag );
+
+        /**
+         * Describes the work of each thread. In accordance to each thread \e
+         * id several rows in the similarity matrix are computed.
+         *
+         * \param id Thread ID
+         * \param numThreads How many threads there are
+         * \param b Unused here. Since this is an interface we cannot ommit this.
+         */
+        void operator()( size_t id, size_t numThreads, WBoolFlag& b ); // NOLINT
+
+    private:
+        /**
+         * The table where the similarity computation results should be saved.
+         */
+        boost::shared_ptr< WMatrixSymDBL > m_table;
+
+        /**
+         * Reference to the dataset of the tracts.
+         */
+        boost::shared_ptr< WDataSetFiberVector > m_tracts;
+
+        /**
+         * The Square of the proximity threshold to construct the boost
+         * function object.
+         */
+        double m_proxSquare;
+
+        /**
+         * This flag is checked during computation serval times to terminate
+         * all computations incase this is true.
+         */
+        const WBoolFlag& m_shutdownFlag;
     };
 };
 

@@ -50,7 +50,7 @@
 #include "WRasterAlgorithm.h"
 #include "WIntegrationParameterization.h"
 #include "WCenterlineParameterization.h"
-#include "voxelizer.xpm"
+#include "WMVoxelizer.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMVoxelizer )
@@ -167,7 +167,9 @@ void WMVoxelizer::properties()
     m_fiberTransparency = m_properties->addProperty( "Fiber Transparency", "", 1.0, m_fullUpdate );
     m_fiberTransparency->setMin( 0.0 );
     m_fiberTransparency->setMax( 1.0 );
-    m_explicitFiberColor = m_properties->addProperty( "Explicit Fiber Color", "", WColor( 0.2, 0.2, 0.2 ), m_fullUpdate );
+    m_explicitFiberColor = m_properties->addProperty( "Explicit Fiber Color", "", WColor( 0.2, 0.2, 0.2, 1.0 ), m_fullUpdate );
+
+    WModule::properties();
 }
 
 void WMVoxelizer::activate()
@@ -205,18 +207,18 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
 
     for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
     {
-        const wmath::WFiber& fib = fibs[*cit];
+        const WFiber& fib = fibs[*cit];
         vertices->push_back( osg::Vec3( fib[0][0], fib[0][1], fib[0][2] ) );
         for( size_t i = 1; i < fib.size(); ++i )
         {
             vertices->push_back( osg::Vec3( fib[i][0], fib[i][1], fib[i][2] ) );
             WColor col = m_explicitFiberColor->get( true );
-            if( m_explicitFiberColor->get() == WColor( 0.2, 0.2, 0.2 ) )
+            if( m_explicitFiberColor->get() == WColor( 0.2, 0.2, 0.2, 1.0 ) )
             {
                 col = wge::getRGBAColorFromDirection( fib[i], fib[i-1] );
             }
-            col.setAlpha( m_fiberTransparency->get( true ) );
-            colors->push_back( wge::osgColor( col ) );
+            col[3] = m_fiberTransparency->get( true );
+            colors->push_back( col );
         }
         colors->push_back( colors->back() );
         geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, vertices->size() - fib.size(), fib.size() ) );
@@ -230,7 +232,7 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genFiberGeode() const
     return geode;
 }
 
-boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair< wmath::WPosition, wmath::WPosition >& bb ) const
+boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const WBoundingBox& bb ) const
 {
     int32_t nbVoxelsPerUnit = m_voxelsPerUnit->get( true );
 
@@ -238,14 +240,12 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const std::pair<
     // TODO(math): remove hardcoded meta grid here.
     // the "+1" in the following three statements is because there are may be some more voxels
     // The first and last voxel are only half sized! hence one more position is needed
-    size_t nbPosX = std::ceil( bb.second[0] - bb.first[0] ) + 1;
-    size_t nbPosY = std::ceil( bb.second[1] - bb.first[1] ) + 1;
-    size_t nbPosZ = std::ceil( bb.second[2] - bb.first[2] ) + 1;
+    size_t nbPosX = std::ceil( bb.xMax() - bb.xMin() ) + 1;
+    size_t nbPosY = std::ceil( bb.yMax() - bb.yMin() ) + 1;
+    size_t nbPosZ = std::ceil( bb.zMax() - bb.zMin() ) + 1;
 
-    boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX,
-                                                                  nbVoxelsPerUnit * nbPosY,
-                                                                  nbVoxelsPerUnit * nbPosZ,
-                                                                  bb.first, 1.0 / nbVoxelsPerUnit, 1.0 / nbVoxelsPerUnit, 1.0 / nbVoxelsPerUnit ) );
+    boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX, nbVoxelsPerUnit * nbPosY, nbVoxelsPerUnit * nbPosZ,
+                bb.getMin(), 1.0 / nbVoxelsPerUnit, 1.0 / nbVoxelsPerUnit, 1.0 / nbVoxelsPerUnit ) );
     return grid;
 }
 
@@ -270,7 +270,7 @@ void WMVoxelizer::updateCenterLine()
     assert( m_osgNode );
     if( m_drawCenterLine->get( true ) )
     {
-        boost::shared_ptr< wmath::WFiber > centerLine = m_clusters->getCenterLine();
+        boost::shared_ptr< WFiber > centerLine = m_clusters->getCenterLine();
         if( centerLine )
         {
             m_centerLineGeode = wge::generateLineStripGeode( *centerLine, 3.f );
@@ -299,9 +299,9 @@ void WMVoxelizer::update()
 
     updateCenterLine();
 
-    std::pair< wmath::WPosition, wmath::WPosition > bb = createBoundingBox( *m_clusters );
+    WBoundingBox bb = createBoundingBox( *m_clusters );
 
-    m_boundingBoxGeode = wge::generateBoundingBoxGeode( bb.first, bb.second, WColor( 0.3, 0.3, 0.3, 1 ) );
+    m_boundingBoxGeode = wge::generateBoundingBoxGeode( bb, WColor( 0.3, 0.3, 0.3, 1 ) );
     m_osgNode->insert( m_boundingBoxGeode );
 
     boost::shared_ptr< WGridRegular3D > grid = constructGrid( bb );
@@ -408,22 +408,15 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
 
 void WMVoxelizer::connectors()
 {
-    typedef WModuleInputData< const WFiberCluster > InputType; // just an alias
-    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "voxelInput", "A loaded dataset with grid." ) );
-    addConnector( m_input );
-
-    typedef WModuleOutputData< WDataSetScalar > OutputType; // just an alias
-    m_output = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "voxelOutput", "The voxelized data set." ) );
-    addConnector( m_output );
-
-    m_parameterizationOutput = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "parameterizationOutput",
-                                                                                               "The parameter field for the voxelized fibers." ) );
-    addConnector( m_parameterizationOutput );
-
+    m_input = WModuleInputData< const WFiberCluster >::createAndAdd( shared_from_this(), "tractInput", "A cluster of tracts" );
+    m_output = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(), "voxelOutput", "The voxelized data set" );
+    m_parameterizationOutput = WModuleOutputData< WDataSetScalar >::createAndAdd( shared_from_this(),
+                                                                                  "parameterizationOutput",
+                                                                                  "The parameter field for the voxelized fibers." );
     WModule::connectors();  // call WModules initialization
 }
 
-std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( const WFiberCluster& cluster ) const
+WBoundingBox WMVoxelizer::createBoundingBox( const WFiberCluster& cluster ) const
 {
     const WDataSetFiberVector& fibs = *cluster.getDataSetReference();
 
@@ -434,21 +427,18 @@ std::pair< wmath::WPosition, wmath::WPosition > WMVoxelizer::createBoundingBox( 
     WAssert( fibs[0].size() > 0, "no empty fibers in a cluster allowed in WMVoxelizer::createBoundingBox" );
     WAssert( fiberIDs.size() > 0, "no empty clusters allowed in WMVoxelizer::createBoundingBox" );
 
-    wmath::WPosition fll = fibs[0][0]; // front lower left corner ( initialize with first WPosition of first fiber )
-    wmath::WPosition bur = fibs[0][0]; // back upper right corner ( initialize with first WPosition of first fiber )
+    WBoundingBox result;
+
     for( cit = fiberIDs.begin(); cit != fiberIDs.end(); ++cit )
     {
-        const wmath::WFiber& fiber = fibs[*cit];
+        const WFiber& fiber = fibs[ *cit ];
         for( size_t i = 0; i < fiber.size(); ++i )
         {
-            for( int x = 0; x < 3; ++x )
-            {
-                fll[x] = std::min( fiber[i][x], fll[x] );
-                bur[x] = std::max( fiber[i][x], bur[x] );
-            }
+            result.expandBy( fiber[i] );
         }
     }
-    return std::make_pair( fll, bur );
+
+    return result;
 }
 
 osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDataSetScalar > dataset ) const
@@ -479,13 +469,13 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
             for( size_t j = 0; j < ver->size(); ++j )
             {
                 double transparency = ( values[i] <= 1.0 ? values[i] : 1.0 );
-                colors->push_back( wge::osgColor( WColor( 1, 0, 0, transparency ) ) );
+                colors->push_back( WColor( 1.0, 0.0, 0.0, transparency ) );
             }
         }
     }
 
     geometry->setVertexArray( vertices );
-    colors->push_back( wge::osgColor( WColor( 1, 0, 0, 0.1 ) ) );
+    colors->push_back( WColor( 1.0, 0.0, 0.0, 0.1 ) );
     geometry->setColorArray( colors );
     geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     geometry->setNormalArray( normals );

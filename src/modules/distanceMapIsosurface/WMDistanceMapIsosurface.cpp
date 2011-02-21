@@ -28,10 +28,11 @@
 #include <vector>
 
 #include "WMDistanceMapIsosurface.h"
-#include "distancemapIsosurface.xpm"
+#include "WMDistanceMapIsosurface.xpm"
 
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleFactory.h"
+#include "../../kernel/WPrototypeRequirement.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
 
@@ -42,9 +43,10 @@ WMDistanceMapIsosurface::WMDistanceMapIsosurface():
     WModuleContainer( "Distance Map Isosurface",
                       "Computes a smoothed version of the dataset"
                       " and a distance map on it. Finally it renders"
-                      "this distance map using an isosurface. This isosurface"
+                      " this distance map using an isosurface. This isosurface"
                       " can be textured with values from scalar data sets in order to display"
-                      "the structures at the given distance." )
+                      " the structures at the given distance."
+                      " This is <b>only</b> useful for peeled data." )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
     // NOTE: Do not use the module factory inside this constructor. This will cause a dead lock as the module factory is locked
@@ -170,6 +172,12 @@ void WMDistanceMapIsosurface::connectors()
 
     // call WModules initialization
     WModule::connectors();
+}
+
+void WMDistanceMapIsosurface::requirements()
+{
+    m_requirements.push_back( new WPrototypeRequirement( "Distance Map" ) );
+    m_requirements.push_back( new WPrototypeRequirement( "Isosurface" ) );
 }
 
 void WMDistanceMapIsosurface::activate()

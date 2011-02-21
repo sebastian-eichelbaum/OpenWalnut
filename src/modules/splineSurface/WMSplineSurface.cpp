@@ -29,7 +29,7 @@
 
 #include <cmath>
 
-#include "spline_surface.xpm"
+#include "WMSplineSurface.xpm"
 #include "../../common/WLimits.h"
 #include "../../common/WAssert.h"
 
@@ -165,8 +165,13 @@ void WMSplineSurface::moduleMain()
 
 void WMSplineSurface::connectors()
 {
-    // initialize connectors
-    m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > >( new WModuleOutputData< WTriangleMesh2 > ( shared_from_this(), "out",
+    // TODO(someone): This connector should be used as soon as the module gets more functionality.
+    // The surface will aligned to these tracts.
+    typedef WModuleInputData< const WFiberCluster > InputType; // just an alias
+    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "Tracts", "A cluster of tracts." ) );
+    addConnector( m_input );
+
+    m_output = boost::shared_ptr< WModuleOutputData< WTriangleMesh > >( new WModuleOutputData< WTriangleMesh > ( shared_from_this(), "out",
             "The mesh representing the spline surface." ) );
 
     addConnector( m_output );
@@ -190,6 +195,8 @@ void WMSplineSurface::properties()
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMSplineSurface::save, this ) );
 
     m_meshFile = m_savePropGroup->addProperty( "Mesh file", "", WPathHelper::getAppPath() );
+
+    WModule::properties();
 }
 
 void WMSplineSurface::renderMesh()
@@ -227,9 +234,7 @@ void WMSplineSurface::renderMesh()
     // ------------------------------------------------
     // colors
     osg::Vec4Array* colors = new osg::Vec4Array;
-
-    WColor c = m_surfaceColor->get( true );
-    colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
+    colors->push_back( m_surfaceColor->get( true ) );
     surfaceGeometry->setColorArray( colors );
     surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
@@ -306,7 +311,7 @@ void WMSplineSurface::renderMesh()
     m_cmapUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useCmap8", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useCmap9", 0 ) ) );
 
-    for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+    for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
     {
         state->addUniform( m_typeUniforms[i] );
         state->addUniform( m_thresholdUniforms[i] );
@@ -329,7 +334,7 @@ void WMSplineSurface::renderMesh()
     // initially. Just set the texture changed flag to true. If this however might be needed use WSubject::getDataTextures.
     m_textureChanged = true;
 
-    m_shader = osg::ref_ptr< WShader >( new WShader( "surface", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader >( new WGEShader( "surface", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     m_moduleNode->insert( m_surfaceGeode );
@@ -431,9 +436,7 @@ void WMSplineSurface::updateGraphics()
     if ( m_surfaceColor->changed() )
     {
         osg::Vec4Array* colors = new osg::Vec4Array;
-
-        WColor c = m_surfaceColor->get( true );
-        colors->push_back( osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), 1.0f ) );
+        colors->push_back( m_surfaceColor->get( true ) );
         osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
@@ -454,7 +457,7 @@ void WMSplineSurface::updateGraphics()
             osg::StateSet* rootState = m_surfaceGeode->getOrCreateStateSet();
 
             // reset all uniforms
-            for ( int i = 0; i < m_maxNumberOfTextures; ++i )
+            for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
@@ -472,7 +475,7 @@ void WMSplineSurface::updateGraphics()
             }
 
             // for each texture -> apply
-            int c = 0;
+            size_t c = 0;
             for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
                 if ( localTextureChangedFlag )
@@ -483,7 +486,7 @@ void WMSplineSurface::updateGraphics()
                     for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
                     {
                         osg::Vec3 vertPos = m_triMesh->getVertex( i );
-                        texCoords->push_back( wge::wv3D2ov3( grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) );
                     }
                     surfaceGeometry->setTexCoordArray( c, texCoords );
                 }
@@ -504,7 +507,7 @@ void WMSplineSurface::updateGraphics()
                 m_cmapUniforms[c]->set( cmap );
 
                 ++c;
-                if ( c == m_maxNumberOfTextures )
+                if ( c == wlimits::MAX_NUMBER_OF_TEXTURES )
                 {
                     break;
                 }

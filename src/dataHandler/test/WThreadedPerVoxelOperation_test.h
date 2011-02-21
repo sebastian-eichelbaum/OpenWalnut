@@ -36,16 +36,6 @@
 #include "../WThreadedPerVoxelOperation.h"
 
 /**
- * The logger instance used by some tests
- */
-static WLogger logger;
-
-/**
- * True if the logger has been initialized in the past.
- */
-static bool loggerInitialized = false;
-
-/**
  * \class WThreadedPerVoxelOperationTest
  *
  * Test the WThreadedPerVoxelOperation template.
@@ -65,22 +55,12 @@ class WThreadedPerVoxelOperationTest : public CxxTest::TestSuite
     typedef TPVO::OutTransmitType OutArrayType;
 
 public:
-
     /**
-     * Constructs unit test environment.
+     * Setup logger and other stuff for each test.
      */
-    void setUp( void )
+    void setUp()
     {
-        if ( !loggerInitialized )
-        {
-            std::cout << "Initialize logger." << std::endl;
-            logger.setColored( false );
-
-            // NOTE: the logger does not need to be run, since the logger main thread just prints the messages. If compiled in
-            // debug mode, the messages will be printed directly, without the logger thread.
-            //logger.run();
-            loggerInitialized = true;
-        }
+        WLogger::startup();
     }
 
     /**
@@ -198,7 +178,7 @@ private:
     boost::shared_ptr< WDataSetSingle > buildTestData()
     {
         int a[] = { 1, 2, 3, -5, 7, 8, 2, -4, 12, -28, 3, 3, 4, -4, -5, 2 };
-        std::vector< int > v( a, a + 16 );
+        boost::shared_ptr< std::vector< int > > v = boost::shared_ptr< std::vector< int > >( new std::vector< int >( a, a + 16 ) );
         dataType r = DataType< int >::type;
         boost::shared_ptr< ValueSetType > vs( new ValueSetType( 1, 2, v, r ) );
         boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 2, 2, 2, 1.0, 1.0, 1.0 ) );

@@ -25,89 +25,13 @@
 #ifndef WGEGRAPHICSWINDOW_H
 #define WGEGRAPHICSWINDOW_H
 
-#include <boost/shared_ptr.hpp>
-#include <osgViewer/GraphicsWindow>
-
-/**
- * Class managing a single graphics context and OSG GraphicsWindow.
- * \ingroup ge
- */
-class WGEGraphicsWindow
-{
-public:
-
-    /**
-     * Default constructor.
-     *
-     * \param x X coordinate of widget where to create the context.
-     * \param y Y coordinate of widget where to create the context.
-     * \param width Width of the widget.
-     * \param height Height of the Widget.
-     * \exception WGEInitFailed thrown if initialization of graphics context or graphics window has failed.
-     */
-    WGEGraphicsWindow( int x, int y, int width, int height );
-
-    /**
-     * Destructor.
-     */
-    virtual ~WGEGraphicsWindow();
-
-    /**
-     * Event types for the keyEvent() handler.
-     */
-    enum KeyEvents
-    {
-        KEYPRESS, KEYRELEASE
-    };
-
-    /**
-     * Mouse event types for the mouseEvent() handler.
-     */
-    enum MouseEvents
-    {
-        MOUSEPRESS, MOUSERELEASE, MOUSEDOUBLECLICK, MOUSEMOVE, MOUSESCROLL
-    };
-
-    /**
-     * Updates size information.
-     *
-     * \param width new width.
-     * \param height new height.
-     */
-    virtual void resize( int width, int height );
-
-    /**
-     * Initiates a close event for this viewer. It destroys the graphics context and invalidates the viewer.
-     * This should be called whenever a QT Widget closes to also free its OSG Viewer resources.
-     */
-    virtual void close();
-
-    /**
-     * Handles key events (if forwarded to this Viewer instance).
-     *
-     * \param key the key code.
-     * \param eventType the type of event.
-     */
-    virtual void keyEvent( KeyEvents eventType, int key );
-
-    /**
-     * Handles mouse events forwarded from widget.
-     *
-     * \param eventType the event type.
-     * \param x x coordinate of event.
-     * \param y y coordinate of event.
-     * \param button mouse button.
-     */
-    virtual void mouseEvent( MouseEvents eventType, int x, int y, int button );
-
-protected:
-
-    /**
-     * OpenSceneGraph render window.
-     */
-    osg::ref_ptr<osgViewer::GraphicsWindow> m_GraphicsWindow;
-private:
-};
+#if defined( __APPLE__ )
+#include "platformDependent/WGEGraphicsWindowMac.h"
+typedef WGEGraphicsWindowMac WGEGraphicsWindow;
+#else
+#include "platformDependent/WGEGraphicsWindowAll.h"
+typedef WGEGraphicsWindowAll WGEGraphicsWindow;
+#endif
 
 #endif  // WGEGRAPHICSWINDOW_H
 

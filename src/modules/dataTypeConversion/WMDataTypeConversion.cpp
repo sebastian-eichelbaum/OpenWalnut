@@ -39,7 +39,7 @@
 #include "../../common/math/WPosition.h"
 #include "../../common/math/WVector3D.h"
 #include "WMDataTypeConversion.h"
-#include "datatypeconversion.xpm"
+#include "WMDataTypeConversion.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMDataTypeConversion )
@@ -69,7 +69,7 @@ const char** WMDataTypeConversion::getXPMIcon() const
 
 const std::string WMDataTypeConversion::getName() const
 {
-    return "Data Type Conversion";
+    return "Data Type Conversion (to float)";
 }
 
 const std::string WMDataTypeConversion::getDescription() const
@@ -177,15 +177,16 @@ void WMDataTypeConversion::connectors()
 
 void WMDataTypeConversion::properties()
 {
+    WModule::properties();
 }
 
 
 template< typename T > void WMDataTypeConversion::convertDataSet( boost::shared_ptr< WValueSet< T > > vals )
 {
-    std::vector< float > newVals( vals->size() );
-    for( size_t i = 0; i < newVals.size(); ++i )
+    boost::shared_ptr< std::vector< float > > newVals = boost::shared_ptr< std::vector< float > >( new std::vector< float >( vals->size() ) );
+    for( size_t i = 0; i < newVals->size(); ++i )
     {
-        newVals[i] = static_cast< float >( vals->getScalar( i ) );
+        ( *newVals )[i] = static_cast< float >( vals->getScalar( i ) );
     }
 
     boost::shared_ptr< WValueSet< float > > valueSet;

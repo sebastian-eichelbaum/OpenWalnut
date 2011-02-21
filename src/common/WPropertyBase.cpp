@@ -156,6 +156,11 @@ WPropGroup WPropertyBase::toPropGroup()
     return boost::shared_static_cast< WPVGroup >( shared_from_this() );
 }
 
+WPropMatrix4X4 WPropertyBase::toPropMatrix4X4()
+{
+    return boost::shared_static_cast< WPVMatrix4X4 >( shared_from_this() );
+}
+
 WPropTrigger WPropertyBase::toPropTrigger()
 {
     return boost::shared_static_cast< WPVTrigger >( shared_from_this() );

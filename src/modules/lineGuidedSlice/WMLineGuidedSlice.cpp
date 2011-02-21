@@ -29,13 +29,16 @@
 #include "../../common/math/WVector3D.h"
 #include "../../common/WAssert.h"
 #include "../../common/WLogger.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WSubject.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "WMLineGuidedSlice.h"
+#include "WMLineGuidedSlice.xpm"
 
 W_LOADABLE_MODULE( WMLineGuidedSlice )
 
@@ -44,7 +47,7 @@ WMLineGuidedSlice::WMLineGuidedSlice():
     m_textureChanged( true ),
     m_isPicked( false )
 {
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "lineGuidedSlice" ) );
+    m_shader = osg::ref_ptr< WGEShader >( new WGEShader( "WMLineGuidedSlice" ) );
 }
 
 WMLineGuidedSlice::~WMLineGuidedSlice()
@@ -54,6 +57,11 @@ WMLineGuidedSlice::~WMLineGuidedSlice()
 boost::shared_ptr< WModule > WMLineGuidedSlice::factory() const
 {
     return boost::shared_ptr< WModule >( new WMLineGuidedSlice() );
+}
+
+const char** WMLineGuidedSlice::getXPMIcon() const
+{
+    return lineGuidedSlice_xpm;
 }
 
 const std::string WMLineGuidedSlice::getName() const
@@ -84,6 +92,8 @@ void WMLineGuidedSlice::properties()
     m_pos = m_properties->addProperty( "Slice Position", "Position of ths slice along the line.", 0., true );
     m_pos->setMin( 0. );
     m_pos->setMax( 1. );
+
+    WModule::properties();
 }
 
 void WMLineGuidedSlice::moduleMain()
@@ -106,9 +116,9 @@ void WMLineGuidedSlice::moduleMain()
 
     m_rootNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        if ( !m_input->getData() ) // ok, the output has not yet sent data
+        if( !m_input->getData() ) // ok, the output has not yet sent data
         {
             m_moduleState.wait();
             continue;
@@ -143,7 +153,7 @@ void WMLineGuidedSlice::updateCenterLine()
     m_centerLine = m_input->getData()->getCenterLine();
     if( m_centerLine )
     {
-        debugLog() << "Draw center line representation." << m_centerLine->pathLength();
+        debugLog() << "Draw center line representation." << wmath::pathLength( *m_centerLine );
         m_centerLineGeode = wge::generateLineStripGeode( *m_centerLine, 2.f );
     }
     else
@@ -175,11 +185,6 @@ void WMLineGuidedSlice::create()
     m_sliceNode->addUpdateCallback( new sliceNodeCallback );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
-}
-
-osg::Vec3 wv3D2ov3( wmath::WVector3D v ) // WVector3D to osg::Vec3 conversion
-{
-    return osg::Vec3( v[0], v[1], v[2] );
 }
 
 void WMLineGuidedSlice::setSlicePosFromPick( WPickInfo pickInfo )
@@ -242,15 +247,15 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
     {
         const double radius = 100;
         std::vector< wmath::WPosition > vertices;
-        vertices.push_back( startPos + radius * (      sliceVec1 + sliceVec2 ) );
-        vertices.push_back( startPos + radius * ( -1 * sliceVec1 + sliceVec2 ) );
-        vertices.push_back( startPos + radius * ( -1 * sliceVec1 - sliceVec2 ) );
-        vertices.push_back( startPos + radius * (      sliceVec1 - sliceVec2 ) );
+        vertices.push_back( startPos + (      sliceVec1 + sliceVec2 ) * radius );
+        vertices.push_back( startPos + ( -1 * sliceVec1 + sliceVec2 ) * radius );
+        vertices.push_back( startPos + ( -1 * sliceVec1 - sliceVec2 ) * radius );
+        vertices.push_back( startPos + (      sliceVec1 - sliceVec2 ) * radius );
 
         const size_t nbVerts = 4;
         for( size_t i = 0; i < nbVerts; ++i )
         {
-            sliceVertices->push_back( wv3D2ov3( vertices[i] ) );
+            sliceVertices->push_back( vertices[i] );
         }
         sliceGeometry->setVertexArray( sliceVertices );
 
@@ -263,7 +268,7 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
             texCoords->clear();
             for( size_t i = 0; i < nbVerts; ++i )
             {
-                texCoords->push_back( wv3D2ov3( grid->worldCoordToTexCoord( vertices[i] + wmath::WVector3D( 0.5, 0.5, 0.5 ) ) ) );
+                texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] + wmath::WVector3D( 0.5, 0.5, 0.5 ) ) );
             }
             sliceGeometry->setTexCoordArray( counter, texCoords );
             ++counter;
@@ -299,17 +304,17 @@ void WMLineGuidedSlice::updateGeometry()
 void WMLineGuidedSlice::updateTextures()
 {
     osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
-    if ( m_textureChanged )
+    if( m_textureChanged )
     {
         m_textureChanged = false;
 
         // grab a list of data textures
         std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
-        if ( tex.size() > 0 )
+        if( tex.size() > 0 )
         {
             // reset all uniforms
-            for ( int i = 0; i < 2; ++i )
+            for( int i = 0; i < 2; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
@@ -332,7 +337,7 @@ void WMLineGuidedSlice::updateTextures()
                 ++c;
             }
 
-            bool useTexture = m_properties->getProperty( "Use Texture" )->toPropBool()->get();
+            bool useTexture = m_properties->getProperty( "Use texture" )->toPropBool()->get();
             sliceState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", useTexture ) ) );
         }
     }
@@ -359,7 +364,7 @@ void WMLineGuidedSlice::initUniforms( osg::StateSet* sliceState )
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex0", 0 ) ) );
     m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex1", 1 ) ) );
 
-    for ( int i = 0; i < 2; ++i )
+    for( int i = 0; i < 2; ++i )
     {
         sliceState->addUniform( m_typeUniforms[i] );
         sliceState->addUniform( m_thresholdUniforms[i] );

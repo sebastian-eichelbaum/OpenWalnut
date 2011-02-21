@@ -30,14 +30,14 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WExportDataHandler.h"
+#include "../WExportCommon.h"
 #include "WPosition.h"
 #include "WVector3D.h"
 
 /**
  * Represents a plane with a normal vector and a position in space.
  */
-class OWDATAHANDLER_EXPORT WPlane // NOLINT
+class OWCOMMON_EXPORT WPlane // NOLINT
 {
 public:
     /**
@@ -58,7 +58,7 @@ public:
      * \param first First vector perpendicular to the normal
      * \param second Second vector perpendicular to the normal and linearly independent from first.
      *
-     * \note Due to numerical stability a comparision to 0.0 is not performed. Instead the absolute value of the dot product is checked to
+     * \note Due to numerical stability a comparison to 0.0 is not performed. Instead the absolute value of the dot product is checked to
      * be smaller than the FLT_EPS. FLT_EPS is used instead of DBL_EPS just numerical errors may sum up above DBL_EPS.
      */
     WPlane( const wmath::WVector3D& normal, const wmath::WPosition& pos, const wmath::WVector3D& first, const wmath::WVector3D& second );

@@ -27,11 +27,13 @@
 
 #include <string>
 
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
+
+// forward declarations
+class WDataSetFibers;
+class WGEShader;
 
 /**
  * This modules takes a dataset and equalizes its histogram.
@@ -107,9 +109,98 @@ private:
     boost::shared_ptr< WCondition > m_propCondition;
 
     /**
-     * The root node used for this modules graphics. For OSG nodes, always use osg::ref_ptr to ensure proper resource management.
+     * The properties of the fiber dataset.
      */
-    osg::ref_ptr< WGEManagedGroupNode > m_rootNode;
+    WProperties::SPtr m_fibProps;
+
+    /**
+     * The shader used for clipping of fibers using an arbitrary plane.
+     */
+    osg::ref_ptr< WGEShader > m_shader;
+
+    /**
+     * Illumination.
+     */
+    WPropBool m_illuminationEnable;
+
+    /**
+     * A property group for all the clipping related props.
+     */
+    WPropGroup m_clipPlaneGroup;
+
+    /**
+     * Property for en-/disable clipping.
+     */
+    WPropBool m_clipPlaneEnabled;
+
+    /**
+     * Property for en-/disabling of the clip plane plane.
+     */
+    WPropBool m_clipPlaneShowPlane;
+
+    /**
+     * Point on the plane. Defines the plane.
+     */
+    WPropPosition m_clipPlanePoint;
+
+    /**
+     * Vector of the plane. Defines the plane.
+     */
+    WPropPosition m_clipPlaneVector;
+
+    /**
+     * Distance from plane. Used as threshold.
+     */
+    WPropDouble m_clipPlaneDistance;
+
+    /**
+     * Prop denoting whether to use tubes or line strips
+     */
+    WPropBool m_tubeEnable;
+
+    /**
+     * Prop denoting whether tubes can be zoomed or not.
+     */
+    WPropBool m_tubeZoomable;
+
+    /**
+     * Creates a ribbon-like appearance.
+     */
+    WPropBool m_tubeRibbon;
+
+    /**
+     * The size. The meaning somehow relates to tubeZoomable. If a tube is zoomable, the size is the smallest size in pixels on screen of totally
+     * zoomed out.
+     */
+    WPropDouble m_tubeSize;
+
+    /**
+     * Group containing tube specific properties
+     */
+    WPropGroup m_tubeGroup;
+
+    /**
+     * Update the transform node to provide an cue were the plane actually is.
+     *
+     * \param node the transform node
+     */
+    void clipPlaneCallback( osg::Node* node ) const;
+
+    /**
+     * Creates the clip plane with corresponding callbacks.
+     *
+     * \return the clip plane node
+     */
+    osg::ref_ptr< osg::Node > createClipPlane() const;
+
+    /**
+     * Creates a geode containing the fiber geometry
+     *
+     * \param fibers the fiber dataset to render
+     *
+     * \return the geode
+     */
+    osg::ref_ptr< osg::Node > createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers ) const;
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H

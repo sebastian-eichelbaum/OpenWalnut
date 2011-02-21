@@ -25,13 +25,8 @@
 #ifndef WPROPERTYCONSTRAINTMAX_H
 #define WPROPERTYCONSTRAINTMAX_H
 
-#include <iostream>
-
 #include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
-
-template< typename T >
-class WPropertyVariable;
 
 /**
  * This class allows constraining properties using a maximum value and the corresponding <= operator.

@@ -45,9 +45,10 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WKernel.h"
 #include "WMClusterSlicer.h"
+#include "WMClusterSlicer.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMClusterSlicer )
@@ -70,6 +71,11 @@ boost::shared_ptr< WModule > WMClusterSlicer::factory() const
     return boost::shared_ptr< WModule >( new WMClusterSlicer() );
 }
 
+const char** WMClusterSlicer::getXPMIcon() const
+{
+    return clusterSlicer_xpm;
+}
+
 const std::string WMClusterSlicer::getName() const
 {
     return "Cluster Slicer";
@@ -82,32 +88,21 @@ const std::string WMClusterSlicer::getDescription() const
 
 void WMClusterSlicer::connectors()
 {
-    m_fiberClusterInput = boost::shared_ptr< InputClusterType >( new InputClusterType( shared_from_this(), "cluster", "A cluster of fibers" ) );
-    addConnector( m_fiberClusterInput );
-
-    m_clusterDataSetInput = boost::shared_ptr< InputDataSetType >( new InputDataSetType( shared_from_this(), "clusterDS", "DataSet from cluster" ) );
-    addConnector( m_clusterDataSetInput );
-
-    m_paramDataSetInput = boost::shared_ptr< InputDataSetType >( new InputDataSetType( shared_from_this(), "paramDS", "DataSet of the parameters" ) );
-    addConnector( m_paramDataSetInput );
-
-    m_triangleMeshInput = boost::shared_ptr< InputMeshType >( new InputMeshType( shared_from_this(), "meshIN", "TrianglMesh" ) );
-    addConnector( m_triangleMeshInput );
-
-    m_colorMapOutput = boost::shared_ptr< OutputColorMapType >( new OutputColorMapType( shared_from_this(), "colorMap", "VertexID and colors" ) );
-    addConnector( m_colorMapOutput );
-
-    m_meshOutput = boost::shared_ptr< OutputMeshType >( new OutputMeshType( shared_from_this(), "meshOUT", "The Mesh to forward it for rendering" ) );
-    addConnector( m_meshOutput );
+    m_fiberClusterInput = WModuleInputData< WFiberCluster >::createAndAdd( shared_from_this(), "clusterInput", "A cluster of fibers" );
+    m_clusterDataSetInput = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "clusterDSInput", "DataSet from cluster" );
+    m_paramDataSetInput = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), "paramInput", "DataSet of the parameters" );
+    m_triangleMeshInput = WModuleInputData< WTriangleMesh >::createAndAdd( shared_from_this(), "meshInput", "TrianglMesh" );
+    m_colorMapOutput = WModuleOutputData< WColoredVertices >::createAndAdd( shared_from_this(), "colorMapOutput", "VertexID and colors" );
+    m_meshOutput = WModuleOutputData< WTriangleMesh >::createAndAdd( shared_from_this(), "meshOutput", "The Mesh to forward it for rendering" );
 
     WModule::connectors();
 }
 
 void WMClusterSlicer::properties()
 {
-    m_drawISOVoxels     = m_properties->addProperty( "Show|Hide ISO Voxels", "Show|Hide voxels withing a given ISOSurface.", true );
+    m_drawIsoVoxels     = m_properties->addProperty( "Show|Hide Iso Voxels", "Show|Hide voxels withing a given isosurface.", true );
     m_drawSlices        = m_properties->addProperty( "Show|Hide Slices", "Show|Hide slices along center line", false );
-    m_isoValue          = m_properties->addProperty( "Iso Value", "", 0.01 );
+    m_isoValue          = m_properties->addProperty( "Iso value", "", 0.01 );
     m_meanSelector      = m_properties->addProperty( "Mean Type", "Selects the mean type, must be on of:"
                                                                    " 0==arithmetic, 1==geometric, 2==median", 2, m_fullUpdate );
     m_planeNumX         = m_properties->addProperty( "Planes #X-SamplePoints", "#samplePoints in first direction", 40, m_fullUpdate );
@@ -134,6 +129,8 @@ void WMClusterSlicer::properties()
     m_maxScale->setMax( 1.0 );
     m_minScaleColor     = m_properties->addProperty( "MinScaleColor", "", WColor( 1.0, 0.0, 0.0, 1.0 ), m_fullUpdate );
     m_maxScaleColor     = m_properties->addProperty( "MaxScaleColor", "", WColor( 1.0, 0.0, 0.0, 1.0 ), m_fullUpdate );
+
+    WModule::properties();
 }
 
 void WMClusterSlicer::moduleMain()
@@ -144,7 +141,7 @@ void WMClusterSlicer::moduleMain()
     m_moduleState.add( m_paramDataSetInput->getDataChangedCondition() );
     m_moduleState.add( m_triangleMeshInput->getDataChangedCondition() );
     m_moduleState.add( m_drawSlices->getCondition() );
-    m_moduleState.add( m_drawISOVoxels->getCondition() );
+    m_moduleState.add( m_drawIsoVoxels->getCondition() );
     m_moduleState.add( m_fullUpdate );
     m_moduleState.add( m_selectBiggestComponentOnly->getCondition() );
 
@@ -163,7 +160,7 @@ void WMClusterSlicer::moduleMain()
         boost::shared_ptr< WDataSetScalar > newClusterDS = m_clusterDataSetInput->getData();
         boost::shared_ptr< WFiberCluster >  newCluster   = m_fiberClusterInput->getData();
         boost::shared_ptr< WDataSetScalar > newParamDS   = m_paramDataSetInput->getData();
-        boost::shared_ptr< WTriangleMesh2 > newMesh      = m_triangleMeshInput->getData();
+        boost::shared_ptr< WTriangleMesh > newMesh      = m_triangleMeshInput->getData();
         bool meshChanged = ( m_mesh != newMesh );
         bool paramDSChanged = ( m_paramDS != newParamDS );
         bool clusterChanged = ( m_cluster != newCluster );
@@ -200,7 +197,7 @@ void WMClusterSlicer::moduleMain()
                     debugLog() << "Finished building Join Tree";
                 }
                 // when the mesh has changed the isoValue must have had changed too
-                m_isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByISOSurface( m_isoValue->get() );
+                m_isoVoxels = m_joinTree->getVolumeVoxelsEnclosedByIsoSurface( m_isoValue->get() );
                 if( m_selectBiggestComponentOnly->get( true ) )
                 {
                     debugLog() << "Start mesh decomposition";
@@ -220,7 +217,7 @@ void WMClusterSlicer::moduleMain()
             updateDisplay( true ); // force display update here (erasing invalid planes)
             debugLog() << "Full update done.";
         }
-        else if( m_drawSlices->changed() || m_drawISOVoxels->changed() )
+        else if( m_drawSlices->changed() || m_drawIsoVoxels->changed() )
         {
             updateDisplay();
         }
@@ -296,13 +293,13 @@ wmath::WValue< double > WMClusterSlicer::meanParameter( boost::shared_ptr< std::
 void WMClusterSlicer::generateSlices()
 {
     debugLog() << "Generating Slices";
-    wmath::WFiber centerLine( *m_cluster->getCenterLine() ); // copy the centerline
+    WFiber centerLine( *m_cluster->getCenterLine() ); // copy the centerline
     if( centerLine.empty() )
     {
         errorLog() << "CenterLine of the bundle is empty => no slices are drawn";
         return;
     }
-    centerLine.resample( static_cast< size_t >( m_centerLineScale->get( true ) * centerLine.size() ) );
+    centerLine.resampleByNumberOfPoints( static_cast< size_t >( m_centerLineScale->get( true ) * centerLine.size() ) );
 
     m_slices = boost::shared_ptr< std::vector< std::pair< double, WPlane > > >( new std::vector< std::pair< double, WPlane > > );
     m_maxMean = wlimits::MIN_DOUBLE;
@@ -314,8 +311,8 @@ void WMClusterSlicer::generateSlices()
     m_rootNode->remove( m_samplePointsGeode );
     m_samplePointsGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old geode
 
-    wmath::WVector3D generator = ( centerLine.front() - centerLine.midPoint() );
-    generator = generator.crossProduct( centerLine.back() - centerLine.midPoint() );
+    wmath::WVector3D generator = ( centerLine.front() - wmath::midPoint( centerLine ) );
+    generator = generator.crossProduct( centerLine.back() - wmath::midPoint( centerLine ) );
     for( size_t i = 1; i < centerLine.size(); ++i )
     {
         wmath::WVector3D tangent = centerLine[i] - centerLine[i-1];
@@ -360,16 +357,16 @@ struct WMeshSizeComp
      *
      * \return True if and only if the first Mesh has less vertices as the second mesh.
      */
-    bool operator()( const boost::shared_ptr< WTriangleMesh2 >& m, const boost::shared_ptr< WTriangleMesh2 >& n ) const
+    bool operator()( const boost::shared_ptr< WTriangleMesh >& m, const boost::shared_ptr< WTriangleMesh >& n ) const
     {
         return m->vertSize() < n->vertSize();
     }
 };
 
-void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
+void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh )
 {
     debugLog() << "Selecting mesh component...";
-    boost::shared_ptr< WTriangleMesh2 > renderMesh = mesh;
+    boost::shared_ptr< WTriangleMesh > renderMesh = mesh;
     assert( renderMesh.get() );
     if( m_selectBiggestComponentOnly->get( true ) )
     {
@@ -418,7 +415,7 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh2 > mes
 //
 //        for( std::map< size_t, std::pair< double, int > >::const_iterator vertexColor = cm.begin(); vertexColor != cm.end(); ++vertexColor )
 //        {
-//            cmData[ vertexColor->first ] = WColor( 0.0, vertexColor->second.first / vertexColor->second.second, 1.0 );
+//            cmData[ vertexColor->first ] = WColor( 0.0, vertexColor->second.first / vertexColor->second.second, 1.0, 1.0 );
 //        }
     }
     else
@@ -536,20 +533,20 @@ WColor WMClusterSlicer::colorFromPlanePair( const wmath::WPosition& vertex, cons
     double colorQ = ( *m_slices )[ pp.second ].first;
     double vertexColor = colorQ * ( distanceToP / ( distanceToP + distanceToQ ) ) + colorP * ( distanceToQ / ( distanceToP + distanceToQ ) );
     // std::cout << "colorP, colorQ, vertexColor: " << colorP << " " << colorQ << " " << vertexColor << std::endl;
-    return WColor( 0, mapMeanOntoScale( vertexColor ), 1 );
+    return WColor( 0.0, mapMeanOntoScale( vertexColor ), 1.0, 1.0 );
 }
 
 void WMClusterSlicer::updateDisplay( bool force )
 {
     debugLog() << "Forced updating display: " << force;
-    if( m_drawISOVoxels->changed() || force )
+    if( m_drawIsoVoxels->changed() || force )
     {
         m_rootNode->remove( m_isoVoxelGeode );
         m_isoVoxelGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() ); // discard old geode
-        if( m_drawISOVoxels->get( true ) )
+        if( m_drawIsoVoxels->get( true ) )
         {
             assert( m_isoVoxels && "JoinTree cannot be valid since there is no valid m_clusterDS." );
-            m_isoVoxelGeode = generateISOVoxelGeode();
+            m_isoVoxelGeode = generateIsoVoxelGeode();
             m_rootNode->insert( m_isoVoxelGeode );
         }
     }
@@ -568,7 +565,7 @@ void WMClusterSlicer::updateDisplay( bool force )
             for( std::vector< std::pair< double, WPlane > >::const_iterator cit = m_slices->begin(); cit != m_slices->end(); ++cit )
             {
                 double scaledMean = mapMeanOntoScale( cit->first );
-                WColor color( scaledMean, scaledMean, 1 );
+                WColor color( scaledMean, scaledMean, 1.0, 1.0 );
                 m_sliceGeode->insert( wge::genFinitePlane( width, height, cit->second, color, true ) );
             }
             m_rootNode->insert( m_sliceGeode );
@@ -576,7 +573,7 @@ void WMClusterSlicer::updateDisplay( bool force )
     }
 }
 
-osg::ref_ptr< osg::Geode > WMClusterSlicer::generateISOVoxelGeode() const
+osg::ref_ptr< osg::Geode > WMClusterSlicer::generateIsoVoxelGeode() const
 {
     boost::shared_ptr< std::set< wmath::WPosition > > points( new std::set< wmath::WPosition > );
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_clusterDS->getGrid() );
@@ -598,8 +595,8 @@ double WMClusterSlicer::countTractPointsInsideVolume( double isoValue ) const
     size_t pointsInside = 0;
     for( iter = indices.begin(); iter != indices.end(); ++iter )
     {
-        const wmath::WFiber& tract = ( *tracts )[ *iter ];
-        wmath::WFiber::const_iterator pos;
+        const WFiber& tract = ( *tracts )[ *iter ];
+        WFiber::const_iterator pos;
         for( pos = tract.begin(); pos != tract.end(); ++pos, ++pointCounter )
         {
             bool inGrid = false;
@@ -623,8 +620,8 @@ double WMClusterSlicer::computeOptimalIsoValue( double coverage ) const
 
     for( iter = indices.begin(); iter != indices.end(); ++iter )
     {
-        const wmath::WFiber& tract = ( *tracts )[ *iter ];
-        wmath::WFiber::const_iterator pos;
+        const WFiber& tract = ( *tracts )[ *iter ];
+        WFiber::const_iterator pos;
         for( pos = tract.begin(); pos != tract.end(); ++pos )
         {
             bool inGrid = false;

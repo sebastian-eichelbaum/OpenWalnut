@@ -27,6 +27,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataTexture3D.h"
 
 #include "WMFunctionalMRIViewer.h"
 
@@ -70,7 +71,12 @@ void WMFunctionalMRIViewer::connectors()
                                 "in", "A time series." )
             );
 
+    m_output = boost::shared_ptr< WModuleOutputData< WDataSetScalar > >(
+                            new WModuleOutputData< WDataSetScalar >( shared_from_this(),
+                                "out", "The selected time slice." ) );
+
     addConnector( m_input );
+    addConnector( m_output );
 
     WModule::connectors();
 }
@@ -82,6 +88,10 @@ void WMFunctionalMRIViewer::properties()
     m_time = m_properties->addProperty( "Time", "The current time.", 0.0, m_propCondition );
     m_time->setMax( 1.0 );
     m_time->setMin( 0.0 );
+
+    m_texScaleNormalized = m_properties->addProperty( "Norm. Tex Scale", "Use the same texture scaling for all textures.", true, m_propCondition );
+
+    WModule::properties();
 }
 
 void WMFunctionalMRIViewer::moduleMain()
@@ -98,7 +108,7 @@ void WMFunctionalMRIViewer::moduleMain()
 
         boost::shared_ptr< WDataSetTimeSeries > inData = m_input->getData();
         bool dataChanged = ( m_dataSet != inData );
-        if( dataChanged && inData )
+        if( ( dataChanged && inData ) || ( m_dataSet && m_time->changed() ) )
         {
             // remove old texture
             if( m_dataSetAtTime )
@@ -110,9 +120,7 @@ void WMFunctionalMRIViewer::moduleMain()
             m_time->setMin( m_dataSet->getMinTime() );
             m_time->setMax( m_dataSet->getMaxTime() );
             m_time->ensureValidity( m_dataSet->getMinTime() );
-        }
-        if( m_dataSet )
-        {
+
             float time = m_time->get( true );
             if( m_dataSetAtTime )
             {
@@ -121,8 +129,25 @@ void WMFunctionalMRIViewer::moduleMain()
             std::stringstream s;
             s << m_dataSet->getFileName() << "_time" << time;
             boost::shared_ptr< WDataSetScalar const > ds = m_dataSet->calcDataSetAtTime( time, s.str() );
+            // get rid of the const
             m_dataSetAtTime = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( ds->getValueSet(), ds->getGrid() ) );
+            if( m_texScaleNormalized->get( true ) )
+            {
+                // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
+                m_dataSetAtTime->getTexture()->setMinValue( static_cast< float >( m_dataSet->getMinValue() ) );
+                m_dataSetAtTime->getTexture()->setMaxValue( static_cast< float >( m_dataSet->getMaxValue() ) );
+                // }
+                m_dataSetAtTime->getTexture2()->minimum()->set( static_cast< float >( m_dataSet->getMinValue() ) );
+                m_dataSetAtTime->getTexture2()->scale()->set( static_cast< float >( m_dataSet->getMaxValue() - m_dataSet->getMinValue() ) );
+            }
             WDataHandler::registerDataSet( m_dataSetAtTime );
+            m_output->updateData( m_dataSetAtTime );
         }
+    }
+
+    if( m_dataSetAtTime )
+    {
+        WDataHandler::deregisterDataSet( m_dataSetAtTime );
+        m_dataSetAtTime = boost::shared_ptr< WDataSetScalar >();
     }
 }

@@ -35,19 +35,19 @@
 boost::shared_ptr< WPrototyped > WDataSetFiberVector::m_prototype = boost::shared_ptr< WPrototyped >();
 
 WDataSetFiberVector::WDataSetFiberVector()
-    : WMixinVector< wmath::WFiber >(),
+    : WMixinVector< WFiber >(),
       WDataSet()
 {
 }
 
-WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< std::vector< wmath::WFiber > > fibs )
-    : WMixinVector< wmath::WFiber >( *fibs ), // COPYING this into this since, WMixinVector has no possibility for references or boost::shared_ptr
+WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< std::vector< WFiber > > fibs )
+    : WMixinVector< WFiber >( *fibs ), // COPYING this into this since, WMixinVector has no possibility for references or boost::shared_ptr
       WDataSet()
 {
 }
 
-WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< WDataSetFibers > fiberDS )
-    : WMixinVector< wmath::WFiber >(),
+WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< const WDataSetFibers > fiberDS )
+    : WMixinVector< WFiber >(),
       WDataSet()
 {
     if( !fiberDS.get() )
@@ -66,7 +66,7 @@ WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< WDataSetFibers > fi
 
     while( size() < numLines )
     {
-        wmath::WFiber fib;
+        WFiber fib;
         for( size_t i = 0; i < lineLengths[ size() ]; ++i )
         {
             fib.push_back( fiberDS->getPosition( size(), i ) );
@@ -76,7 +76,7 @@ WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< WDataSetFibers > fi
 }
 
 WDataSetFiberVector::WDataSetFiberVector( const WDataSetFiberVector& other )
-    : WMixinVector< wmath::WFiber >( other ),
+    : WMixinVector< WFiber >( other ),
       WDataSet()
 {
 }
@@ -98,7 +98,7 @@ WDataSetFiberVector::~WDataSetFiberVector()
 
 void WDataSetFiberVector::sortDescLength()
 {
-    std::sort( begin(), end(), wmath::hasGreaterLengthThen );
+    std::sort( begin(), end(), wmath::hasMorePointsThen );
 }
 
 boost::shared_ptr< WDataSetFiberVector > WDataSetFiberVector::generateDataSetOutOfUsedFibers( const std::vector< bool > &unused ) const
@@ -154,11 +154,11 @@ boost::shared_ptr< WDataSetFibers > WDataSetFiberVector::toWDataSetFibers() cons
     size_t fiberID = 0;
     for( const_iterator cit = begin(); cit != end(); ++cit, ++fiberID )
     {
-        const wmath::WFiber& fib = *cit;
+        const WFiber& fib = *cit;
         // the division by 3 is necessary since it carries the point numbers not the number of the i'th component
         fiberStartIndices->push_back( points->size() / 3 );
         fiberLengths->push_back( fib.size() );
-        for( wmath::WFiber::const_iterator fit = fib.begin(); fit != fib.end(); ++fit )
+        for( WFiber::const_iterator fit = fib.begin(); fit != fib.end(); ++fit )
         {
             points->push_back( ( *fit )[0] );
             points->push_back( ( *fit )[1] );

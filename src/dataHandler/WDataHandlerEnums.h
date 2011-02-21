@@ -28,7 +28,7 @@
 #include <stdint.h>
 
 /**
- *  Dataset types and number values taken from the nifti1.h, at this point it's unknown if it makes sense
+ *  Data types and number values taken from the nifti1.h, at this point it's unknown if it makes sense
  *  to keep the bit coding, but it doesn't hurt either
  * \ingroup dataHandler
  */
@@ -55,7 +55,7 @@ enum dataType
     W_DT_FLOAT128        =     1536,     /* long double (128 bits)       */
     W_DT_COMPLEX128      =     1792,     /* double pair (128 bits)       */
     W_DT_COMPLEX256      =     2048,     /* long double pair (256 bits)  */
-    W_DT_RGBA32          =     2304     /* 4 byte RGBA (32 bits/voxel)  */
+    W_DT_RGBA32          =     2304      /* 4 byte RGBA (32 bits/voxel)  */
 };
 
 /**
@@ -70,7 +70,7 @@ struct DataType
  * Specialization for a specific datatype.
  */
 template<>
-struct DataType< signed char >
+struct DataType< int8_t >
 {
     //! the dataType flag
     static dataType const type = W_DT_INT8;
@@ -80,7 +80,7 @@ struct DataType< signed char >
  * Specialization for a specific datatype.
  */
 template<>
-struct DataType< unsigned char >
+struct DataType< uint8_t >
 {
     //! the dataType flag
     static dataType const type = W_DT_UINT8;
@@ -110,7 +110,7 @@ struct DataType< uint16_t >
  * Specialization for a specific datatype.
  */
 template<>
-struct DataType< int >
+struct DataType< int32_t >
 {
     //! the dataType flag
     static dataType const type = W_DT_SIGNED_INT;
@@ -120,7 +120,7 @@ struct DataType< int >
  * Specialization for a specific datatype.
  */
 template<>
-struct DataType< unsigned int >
+struct DataType< uint32_t >
 {
     //! the dataType flag
     static dataType const type = W_DT_UINT32;
@@ -171,6 +171,17 @@ enum qformOrientation
     Left_to_Right,
     Posterior_to_Anterior,
     Inferior_to_Superior
+};
+
+/**
+ *  Data set types. Not complete! Only those used for distinctions so far.
+ * \ingroup dataHandler
+ */
+enum DataSetType
+{
+    W_DATASET_NONE               =        0,
+    W_DATASET_SINGLE             =        1,
+    W_DATASET_SPHERICALHARMONICS =        2
 };
 
 /**

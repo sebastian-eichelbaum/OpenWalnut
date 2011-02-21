@@ -33,14 +33,14 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 
 /**
  * Module implementing the marching cubes algorithm with consistent triangulation for data
@@ -91,9 +91,9 @@ public:
     virtual const char** getXPMIcon() const;
 
     /**
-     *  updates textures and shader parameters
+     *  updates textures and shader parameters when called (usually from the callback)
      */
-    void updateGraphics();
+    void updateGraphicsCallback();
 
 protected:
     /**
@@ -124,22 +124,13 @@ private:
     void renderMesh();
 
     /**
-     * Store the mesh in legacy vtk file format.
-     */
-    bool save() const;
-
-    /**
-     * Load meshes saved with WMMarchingCubes::save
-     * \param fileName the mesh will be loaded from this file
-     */
-    WTriangleMesh2 load( std::string fileName );
-
-    /**
      * Kind of a convenience function for generate surface.
      * It performs the conversions of the value sets of different data types.
      * \param isoValue The surface will represent this value.
      */
     void generateSurfacePre( double isoValue );
+
+    boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
 
     WPropInt m_nbTriangles; //!< Info-property showing the number of triangles in the mesh.
     WPropInt m_nbVertices; //!< Info-property showing the number of vertices in the mesh.
@@ -149,9 +140,7 @@ private:
     WPropBool m_useTextureProp; //!< Property indicating whether to use texturing with scalar data sets.
     WPropColor m_surfaceColor; //!< Property determining the color for the surface if no textures are displayed
 
-    WPropGroup    m_savePropGroup; //!< Property group containing properties needed for saving the mesh.
-    WPropTrigger  m_saveTriggerProp; //!< This property triggers the actual writing,
-    WPropFilename m_meshFile; //!< The mesh will be written to this file.
+    WPropBool m_useMarchingLego; //!< Property indicating whether to use interpolated or non interpolated triangulation
 
     /**
      * True when textures haven changed.
@@ -165,9 +154,9 @@ private:
 
 
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;  //!< Input connector required by this module.
-    boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > > m_output;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output;  //!< Input connector required by this module.
 
-    boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
 
     static const unsigned int m_edgeTable[256];  //!< Lookup table for edges used in the construction of the isosurface.
     static const int m_triTable[256][16];  //!< Lookup table for triangles used in the construction of the isosurface.
@@ -179,7 +168,7 @@ private:
     bool m_shaderUseTransparency; //!< shall the shader use transparency?
     bool m_firstDataProcessed; //!< Indicates if we already processed the first arrived data. This helps us to reset the isovalue only the first time.
 
-    osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node. We need it to be able to update it when callback is invoked.
+    osg::ref_ptr< WGEManagedGroupNode > m_moduleNode; //!< Pointer to the module's group node. We need it to be able to update it for callback.
     bool m_moduleNodeInserted; //!< ensures that the above module node gets inserted once the first triangle mesh has been calculated.
 
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
@@ -187,52 +176,13 @@ private:
     /**
      * The shader used for the iso surface in m_geode
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     std::vector< osg::ref_ptr< osg::Uniform > > m_typeUniforms; //!< uniforms for ...... ? for shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_alphaUniforms; //!< uniforms for opacities of textures in shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_thresholdUniforms; //!< uniforms for thresholds of textures in shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< uniforms for ids of textures in shader
     std::vector< osg::ref_ptr<osg::Uniform> > m_cmapUniforms; //!< uniforms for color maps per texture in shader
-
-    static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
 };
-
-/**
- * Adapter object for realizing callbacks of the node representing the isosurface in the osg
- */
-class SurfaceNodeCallback : public osg::NodeCallback
-{
-public:
-    /**
-     * Constructor of the callback adapter.
-     * \param module A function of this module will be called
-     */
-    explicit SurfaceNodeCallback( WMMarchingCubes* module );
-
-    /**
-     * Function that is called by the osg and that call the function in the module.
-     * \param node The node we are called.
-     * \param nv the visitor calling us.
-     */
-    virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-private:
-    WMMarchingCubes* m_module; //!< Pointer to the module to which the function that is called belongs to.
-};
-
-inline SurfaceNodeCallback::SurfaceNodeCallback( WMMarchingCubes* module )
-    : m_module( module )
-{
-}
-
-inline void SurfaceNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
-{
-    if ( m_module )
-    {
-        m_module->updateGraphics();
-    }
-    traverse( node, nv );
-}
 
 #endif  // WMMARCHINGCUBES_H

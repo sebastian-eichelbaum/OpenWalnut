@@ -31,10 +31,19 @@
 #include "../../common/WItemSelection.h"
 #include "../../common/WItemSelector.h"
 
+#include "../../dataHandler/WDataHandler.h"
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 #include "../../dataHandler/WDataSetScalar.h"
+
+#include "WSegmentationAlgoThreshold.h"
+
+#include "WSegmentationAlgoWatershed.h"
+#include "WSegmentationAlgoOtsu.h"
+#include "WSegmentationAlgoRegionGrowingConfidenceConnected.h"
+#include "WSegmentationAlgoLevelSetCanny.h"
 
 /**
  * First version of a module that implements 3D-image segmentation algorithms.
@@ -107,75 +116,40 @@ protected:
 
 private:
 
+    //! A List type for all available algorithms.
+    typedef std::vector< boost::shared_ptr< WSegmentationAlgo > > AlgoList;
+
     /**
      * Do a segmentation depending on the current module property values.
-     *
-     * \param dataSet A scalar dataSet to perform the segmentation on.
-     *
-     * \return the resulting segmented dataset.
      */
-    boost::shared_ptr< WDataSetScalar > doSegmentation( boost::shared_ptr< WDataSetScalar > dataSet );
+    void doSegmentation();
 
-    /**
-     * Do a simple threshold value segmentation.
-     *
-     * \param dataSet A scalar dataSet to perform the segmentation on.
-     * \param threshold the threshold value.
-     *
-     * \return the resulting segmented dataset.
-     */
-    boost::shared_ptr< WDataSetScalar > segmentationSimple( boost::shared_ptr< WDataSetScalar > dataSet, double threshold );
-
-    /**
-     * An input connector used to get datasets from other modules.
-     */
+    //! An input connector used to get datasets from other modules.
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
 
-    /**
-     * The output connector used to provide the calculated data to other modules.
-     */
+    //! The output connector used to provide the calculated data to other modules.
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
 
-    /**
-     * This is a pointer to the dataset the module is currently working on.
-     */
+    //! This is a pointer to the dataset the module is currently working on.
     boost::shared_ptr< WDataSetScalar > m_dataSet;
 
-    /**
-     * This is a pointer to the segmented dataset.
-     */
+    //! This is a pointer to the segmented dataset.
     boost::shared_ptr< WDataSetScalar > m_result;
 
-    /**
-     * A condition used to notify about changes in several properties.
-     */
+    //! A condition used to notify about changes in several properties.
     boost::shared_ptr< WCondition > m_propCondition;
 
-    /**
-     * The number of the currently selected segmentation method.
-     */
+    //! The number of the currently selected segmentation method.
     std::size_t m_algoIndex;
 
-    /**
-     * List of property groups.
-     */
-    std::vector< WPropGroup > m_propGroups;
+    //! A list of possible segmentation algorithms.
+    boost::shared_ptr< WItemSelection > m_algoSelection;
 
-    /**
-     * A list of possible segmentation algorithms.
-     */
-    boost::shared_ptr< WItemSelection > m_algos;
-
-    /**
-     * A selection box for segmentation algorithms.
-     */
+    //! A selection box for segmentation algorithms.
     WPropSelection m_algoType;
 
-    /**
-     * The threshold property for the simple threshold segmentation.
-     */
-    WPropDouble   m_threshold;
+    //! A list of algorithm objects.
+    AlgoList m_algos;
 };
 
 #endif  // WMSCALARSEGMENTATION_H
-

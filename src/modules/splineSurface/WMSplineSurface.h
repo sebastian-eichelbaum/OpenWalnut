@@ -33,14 +33,15 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WShader.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
 
 /**
  * Module implementing the marching cubes algorithm with consistent triangulation for data
@@ -141,9 +142,10 @@ private:
      */
     boost::shared_ptr< WCondition > m_recompute;
 
-    boost::shared_ptr< WModuleOutputData< WTriangleMesh2 > > m_output; //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster
+    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output; //!< Input connector required by this module.
 
-    boost::shared_ptr< WTriangleMesh2 > m_triMesh; //!< This triangle mesh is provided as output through the connector.
+    boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
 
     bool m_shaderUseLighting; //!< shall the shader use lighting?
     bool m_shaderUseTransparency; //!< shall the shader use transparency?
@@ -155,15 +157,13 @@ private:
     /**
      * The shader used for the iso surface in m_geode
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     std::vector< osg::ref_ptr< osg::Uniform > > m_typeUniforms; //!< uniforms for ...... ? for shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_alphaUniforms; //!< uniforms for opacities of textures in shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_thresholdUniforms; //!< uniforms for thresholds of textures in shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< uniforms for ids of textures in shader
     std::vector< osg::ref_ptr< osg::Uniform > > m_cmapUniforms; //!< uniforms for color maps per texture in shader
-
-    static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
 };
 
 /**

@@ -6,6 +6,6 @@ Directory Structure:
     -gui
     -dataHandler
     -graphicsEngine
-    -math
     -common
     -kernel
+    -tools

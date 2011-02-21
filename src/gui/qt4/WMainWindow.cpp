@@ -30,39 +30,47 @@
 #include <boost/thread.hpp>
 
 #include <QtGui/QApplication>
+#include <QtGui/QCloseEvent>
 #include <QtGui/QDockWidget>
 #include <QtGui/QFileDialog>
-#include <QtGui/QMainWindow>
+#include <QtGui/QIcon>
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QMessageBox>
 #include <QtGui/QShortcut>
 #include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QWidget>
 
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
+#include "../../common/WProjectFileIO.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WEEG2.h"
-#include "../../graphicsEngine/WROIBox.h"
 #include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
+#include "../../graphicsEngine/WROIBox.h"
+#include "../../kernel/modules/data/WMData.h"
+#include "../../kernel/modules/navSlices/WMNavSlices.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleCombiner.h"
 #include "../../kernel/WModuleCombinerTypes.h"
 #include "../../kernel/WProjectFile.h"
-#include "../../kernel/modules/data/WMData.h"
-#include "../../kernel/modules/navSlices/WMNavSlices.h"
+#include "../../kernel/WROIManager.h"
+#include "../../kernel/WSelectionManager.h"
 #include "../icons/WIcons.h"
-#include "datasetbrowser/WPropertyBoolWidget.h"
+#include "controlPanel/WPropertyBoolWidget.h"
+#include "controlPanel/WQtControlPanel.h"
 #include "events/WEventTypes.h"
 #include "events/WModuleCrashEvent.h"
 #include "events/WModuleReadyEvent.h"
+#include "events/WModuleRemovedEvent.h"
 #include "events/WOpenCustomDockWidgetEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
+#include "WQtCombinerToolbar.h"
+#include "WQtConfigWidget.h"
 #include "WQtCustomDockWidget.h"
-#include "WQtGLWidget.h"
 #include "WQtNavGLWidget.h"
 
 #include "WMainWindow.h"
@@ -70,8 +78,7 @@
 WMainWindow::WMainWindow() :
     QMainWindow(),
     m_currentCompatiblesToolbar( NULL ),
-    m_iconManager(),
-    m_fibLoaded( false )
+    m_iconManager()
 {
 }
 
@@ -99,38 +106,38 @@ void WMainWindow::setupGUI()
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
 
-    // the dataset browser instance is needed for the menu
-    m_datasetBrowser = new WQtDatasetBrowser( this );
-    m_datasetBrowser->setFeatures( QDockWidget::AllDockWidgetFeatures );
-    addDockWidget( Qt::RightDockWidgetArea, m_datasetBrowser );
-    m_datasetBrowser->addSubject( "Default Subject" );
+    // the control panel instance is needed for the menu
+    m_controlPanel = new WQtControlPanel( this );
+    m_controlPanel->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
+    m_controlPanel->addSubject( "Default Subject" );
 
     setupPermanentToolBar();
 
     // we want the upper most tree item to be selected. This helps to make the always compatible modules
     // show up in the tool bar from the beginning. And ... it doesn't hurt.
-    m_datasetBrowser->selectUpperMostEntry();
+    m_controlPanel->selectUpperMostEntry();
 
-    // set the size of the dsb according to config file
-    int dsbWidth = 250;
-    if( WPreferences::getPreference( "qt4gui.dsbWidth", &dsbWidth ) )
+    // set the size of the control panel according to config file
+    int controlPanelWidth = 250;
+    if( WPreferences::getPreference( "qt4gui.dsbWidth", &controlPanelWidth ) )
     {
-        m_datasetBrowser->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
-        m_datasetBrowser->setMinimumWidth( dsbWidth );
+        m_controlPanel->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
+        m_controlPanel->setMinimumWidth( controlPanelWidth );
     }
 
-    // hide the DSB by default?
-    bool dsbInvisibleByDefault = false;
-    if( WPreferences::getPreference( "qt4gui.dsbInvisibleByDefault", &dsbInvisibleByDefault ) )
+    // hide the control panel by default?
+    bool controlPanelInvisibleByDefault = false;
+    if( WPreferences::getPreference( "qt4gui.dsbInvisibleByDefault", &controlPanelInvisibleByDefault ) )
     {
-        m_datasetBrowser->setVisible( !dsbInvisibleByDefault );
+        m_controlPanel->setVisible( !controlPanelInvisibleByDefault );
     }
 
-    // undock the DSB by default?
-    bool dsbFloatingByDefault = false;
-    if( WPreferences::getPreference( "qt4gui.dsbFloatingByDefault", &dsbFloatingByDefault ) )
+    // undock the control panel by default?
+    bool controlPanelFloatingByDefault = false;
+    if( WPreferences::getPreference( "qt4gui.dsbFloatingByDefault", &controlPanelFloatingByDefault ) )
     {
-        m_datasetBrowser->setFloating( dsbFloatingByDefault );
+        m_controlPanel->setFloating( controlPanelFloatingByDefault );
     }
 
     // NOTE: Please be aware that not every menu needs a shortcut key. If you add a shortcut, you should use one of the
@@ -165,13 +172,13 @@ void WMainWindow::setupGUI()
     // directly -> set shortcuts, and some further properties using QAction's interface
     QMenu* viewMenu = m_menuBar->addMenu( "View" );
 
-    QAction* dsbTrigger = m_datasetBrowser->toggleViewAction();
-    QList< QKeySequence > dsbShortcut;
-    dsbShortcut.append( QKeySequence( Qt::Key_F9 ) );
-    dsbTrigger->setShortcuts( dsbShortcut );
-    viewMenu->addAction( dsbTrigger );
+    QAction* controlPanelTrigger = m_controlPanel->toggleViewAction();
+    QList< QKeySequence > controlPanelShortcut;
+    controlPanelShortcut.append( QKeySequence( Qt::Key_F9 ) );
+    controlPanelTrigger->setShortcuts( controlPanelShortcut );
+    viewMenu->addAction( controlPanelTrigger );
     viewMenu->addSeparator();
-    this->addAction( dsbTrigger );  // this enables the action even if the menu bar is invisible
+    this->addAction( controlPanelTrigger );  // this enables the action even if the menu bar is invisible
 
     // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
@@ -185,33 +192,46 @@ void WMainWindow::setupGUI()
     this->addAction( viewMenu->addAction( "Posterior", this, SLOT( setPresetViewPosterior() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) ) );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
-    helpMenu->addAction( m_iconManager.getIcon( "help" ), "About OpenWalnut", this, SLOT( openAboutDialog() ),
-                         QKeySequence( QKeySequence::HelpContents )
-    );
+    helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
+                         QKeySequence( QKeySequence::HelpContents ) );
+    helpMenu->addSeparator();
+    helpMenu->addAction( m_iconManager.getIcon( "logo" ), "About OpenWalnut", this, SLOT( openAboutDialog() ) );
+    helpMenu->addAction( "About Qt", this, SLOT( openAboutQtDialog() ) );
 
     setMenuBar( m_menuBar );
-
-    m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
-    setCentralWidget( m_mainGLWidget.get() );
 
     // initially 3 navigation views
     {
         bool hideWidget;
         if( !( WPreferences::getPreference( "qt4gui.hideAxial", &hideWidget ) && hideWidget) )
         {
+#ifndef _MSC_VER
+            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", this, "Axial Slice", m_mainGLWidget.get() ) );
+#else
             m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", this, "Axial Slice" ) );
+#endif
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
         {
+#ifndef _MSC_VER
+            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", this, "Coronal Slice", m_mainGLWidget.get() ) );
+#else
             m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", this, "Coronal Slice" ) );
+#endif
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
         {
-            m_navSagittal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", this, "Sagittal Slice" ) );
+#ifndef _MSC_VER
+            m_navSagittal =
+                boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", this, "Sagittal Slice", m_mainGLWidget.get() ) );
+#else
+            m_navSagittal =
+                boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", this, "Sagittal Slice" ) );
+#endif
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
         }
@@ -229,8 +249,7 @@ void WMainWindow::setupGUI()
     }
 
     // Default background color from config file
-    {
-        WColor bgColor;
+        WColor bgColor( 1.0, 1.0, 1.0, 1.0 );
         double r;
         double g;
         double b;
@@ -238,7 +257,7 @@ void WMainWindow::setupGUI()
             && WPreferences::getPreference( "ge.bgColor.g", &g )
             && WPreferences::getPreference( "ge.bgColor.b", &b ) )
         {
-            bgColor.setRGB( r, g, b );
+            bgColor.set( r, g, b, 1.0 );
             m_mainGLWidget->setBgColor( bgColor );
 
             if( m_navAxial )
@@ -254,16 +273,18 @@ void WMainWindow::setupGUI()
                 m_navSagittal->getGLWidget()->setBgColor( bgColor );
             }
         }
-    }
 
     //network Editor
     m_networkEditor = new WQtNetworkEditor( this );
     m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
-    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor ); 
+    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
 }
 
 void WMainWindow::setupPermanentToolBar()
 {
+    m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
+    setCentralWidget( m_mainGLWidget.get() );
+
     m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
 
     // Set the style of the toolbar
@@ -271,6 +292,7 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->setToolButtonStyle( getToolbarStyle() );
 
     m_iconManager.addIcon( std::string( "ROI icon" ), box_xpm );
+    m_iconManager.addIcon( std::string( "Reset icon" ), o_xpm );
     m_iconManager.addIcon( std::string( "axial icon" ), axial_xpm );
     m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
     m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
@@ -278,6 +300,8 @@ void WMainWindow::setupPermanentToolBar()
     // TODO(all): this should be QActions to allow the toolbar style to work properly
     m_loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
     WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
+    WQtPushButton* resetButton = new WQtPushButton( m_iconManager.getIcon( "Reset icon" ), "Reset", m_permanentToolBar );
+    resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
     WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
     WQtPushButton* projectSaveButton = new WQtPushButton( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
 
@@ -291,11 +315,13 @@ void WMainWindow::setupPermanentToolBar()
     projectSaveButton->setMenu( saveMenu );
 
     connect( m_loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
+    connect( resetButton, SIGNAL( pressed() ), m_mainGLWidget.get(), SLOT( reset() ) );
     connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
     connect( projectLoadButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
     connect( projectSaveButton, SIGNAL( pressed() ), this, SLOT( projectSaveAll() ) );
 
     m_loadButton->setToolTip( "Load Data" );
+    resetButton->setToolTip( "Reset main view" );
     roiButton->setToolTip( "Create New ROI" );
     projectLoadButton->setToolTip( "Load a project from file" );
     projectSaveButton->setToolTip( "Save current project to file" );
@@ -305,13 +331,14 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addWidget( projectLoadButton );
     m_permanentToolBar->addWidget( projectSaveButton );
     m_permanentToolBar->addSeparator();
+    m_permanentToolBar->addWidget( resetButton );
     m_permanentToolBar->addWidget( roiButton );
     m_permanentToolBar->addSeparator();
 
-    if( getToolbarPos() == InDSB )
+    if( getToolbarPos() == InControlPanel )
     {
-        m_datasetBrowser->addToolbar( m_permanentToolBar );
-        //m_datasetBrowser->setTitleBarWidget( m_permanentToolBar );
+        m_controlPanel->addToolbar( m_permanentToolBar );
+        //m_controlPanel->setTitleBarWidget( m_permanentToolBar );
     }
     else if( getToolbarPos() == Hide )
     {
@@ -331,6 +358,46 @@ void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string prot
     {
         WLogger::getLogger()->addLogMessage( "Auto Display active but module " + proto + " could not be added.",
                                              "GUI", LL_ERROR );
+    }
+}
+
+void WMainWindow::moduleSpecificCleanup( boost::shared_ptr< WModule > module )
+{
+    // nav slices use separate buttons for slice on/off switching
+    if( module->getName() == "Navigation Slices" )
+    {
+        boost::shared_ptr< WPropertyBase > prop;
+
+        prop = module->getProperties()->findProperty( "showAxial" );
+        m_permanentToolBar->removeAction( propertyActionMap[prop] );
+        propertyActionMap.erase( prop );
+
+        prop = module->getProperties()->findProperty( "showCoronal" );
+        m_permanentToolBar->removeAction( propertyActionMap[prop] );
+        propertyActionMap.erase( prop );
+
+        prop = module->getProperties()->findProperty( "showSagittal" );
+        m_permanentToolBar->removeAction( propertyActionMap[prop] );
+        propertyActionMap.erase( prop );
+
+
+        prop = module->getProperties()->findProperty( "Axial Slice" );
+        if( m_navAxial )
+        {
+            m_navAxial->removeSliderProperty( prop );
+        }
+
+        prop = module->getProperties()->findProperty( "Coronal Slice" );
+        if( m_navCoronal )
+        {
+            m_navCoronal->removeSliderProperty( prop );
+        }
+
+        prop = module->getProperties()->findProperty( "Sagittal Slice" );
+        if( m_navSagittal )
+        {
+            m_navSagittal->removeSliderProperty( prop );
+        }
     }
 }
 
@@ -366,12 +433,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         else if( dataModule->getDataSet()->isA< WDataSetFibers >() )
         {
             // it is a fiber dataset -> add the FiberDisplay module
-
-            // if it not already is running: add it
-            if( !WMFiberDisplay::isRunning() )
-            {
-                autoAdd( module, "Fiber Display" );
-            }
+            autoAdd( module, "Fiber Display" );
         }
         else if( dataModule->getDataSet()->isA< WEEG2 >() )
         {
@@ -397,6 +459,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             a->setText( "Toggle Axial Slice" );
             a->setIcon( m_iconManager.getIcon( "axial icon" ) );
             m_permanentToolBar->addAction( a );
+            propertyActionMap[prop] = a;
         }
 
         prop = module->getProperties()->findProperty( "showCoronal" );
@@ -413,6 +476,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             a->setText( "Toggle Coronal Slice" );
             a->setIcon( m_iconManager.getIcon( "coronal icon" ) );
             m_permanentToolBar->addAction( a );
+            propertyActionMap[prop] = a;
         }
 
         prop = module->getProperties()->findProperty( "showSagittal" );
@@ -429,6 +493,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             a->setText( "Toggle Saggital Slice" );
             a->setIcon( m_iconManager.getIcon( "sagittal icon" ) );
             m_permanentToolBar->addAction( a );
+            propertyActionMap[prop] = a;
         }
 
         // now setup the nav widget sliders
@@ -443,7 +508,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navAxial )
             {
-                m_navAxial->setSliderProperty( prop->toPropInt() );
+                m_navAxial->setSliderProperty( prop );
             }
         }
 
@@ -458,7 +523,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navCoronal )
             {
-                m_navCoronal->setSliderProperty( prop->toPropInt() );
+                m_navCoronal->setSliderProperty( prop );
             }
         }
 
@@ -473,7 +538,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             if( m_navSagittal )
             {
-               m_navSagittal->setSliderProperty( prop->toPropInt() );
+               m_navSagittal->setSliderProperty( prop );
             }
         }
     }
@@ -527,7 +592,7 @@ Qt::ToolBarArea WMainWindow::toQtToolBarArea( ToolBarPosition pos )
         case Right:
             return Qt::RightToolBarArea;
             break;
-        case InDSB:
+        case InControlPanel:
             return Qt::RightToolBarArea;
         default:
             return Qt::NoToolBarArea;
@@ -557,7 +622,7 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
     {
         // ok, reset the toolbar
         // So create a dummy to permanently reserve the space
-        m_currentCompatiblesToolbar = new WQtCombinerToolbar( this, WCombinerTypes::WCompatiblesList() );
+        m_currentCompatiblesToolbar = new WQtCombinerToolbar( this );
     }
 
     // optional toolbar break
@@ -574,9 +639,14 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
     addToolBar( toQtToolBarArea( getCompatiblesToolbarPos() ), m_currentCompatiblesToolbar );
 }
 
-WQtDatasetBrowser* WMainWindow::getDatasetBrowser()
+WQtCombinerToolbar* WMainWindow::getCompatiblesToolbar()
 {
-    return m_datasetBrowser;
+    return m_currentCompatiblesToolbar;
+}
+
+WQtControlPanel* WMainWindow::getControlPanel()
+{
+    return m_controlPanel;
 }
 
 WQtNetworkEditor* WMainWindow::getNetworkEditor()
@@ -592,7 +662,7 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     fd.setAcceptMode( QFileDialog::AcceptSave );
 
     QStringList filters;
-    filters << "Project File (*.owproj)"
+    filters << "Project File (*.owproj *.owp)"
             << "Any files (*)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
@@ -665,7 +735,7 @@ void WMainWindow::projectLoad()
     fd.setFileMode( QFileDialog::ExistingFiles );
 
     QStringList filters;
-    filters << "Simple Project File (*.owproj)"
+    filters << "Simple Project File (*.owproj *.owp)"
             << "Any files (*)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
@@ -689,6 +759,17 @@ void WMainWindow::projectLoad()
 
 void WMainWindow::openLoadDialog()
 {
+#ifdef _MSC_VER
+    QStringList fileNames;
+    QString filters;
+    filters = QString::fromStdString( std::string( "Known file types (*.cnt *.edf *.asc *.nii *.nii.gz *.fib);;" )
+        + std::string( "EEG files (*.cnt *.edf *.asc);;" )
+        + std::string( "NIfTI (*.nii *.nii.gz);;" )
+        + std::string( "Fibers (*.fib);;" )
+        + std::string( "Any files (*)" ) );
+
+    fileNames = QFileDialog::getOpenFileNames( this, "Open", "", filters  );
+#else
     QFileDialog fd;
     fd.setFileMode( QFileDialog::ExistingFiles );
 
@@ -705,6 +786,7 @@ void WMainWindow::openLoadDialog()
     {
         fileNames = fd.selectedFiles();
     }
+#endif
 
     std::vector< std::string > stdFileNames;
 
@@ -714,38 +796,16 @@ void WMainWindow::openLoadDialog()
         stdFileNames.push_back( ( *constIterator ).toLocal8Bit().constData() );
     }
 
-    //
-    // WE KNOW THAT THIS IS KIND OF A HACK. It is only provided to prevent naive users from having trouble.
-    //
-    bool allowOnlyOneFiberDataSet = false;
-    bool doubleFibersFound = false; // have we detected the multiple loading of fibers?
-    if( WPreferences::getPreference( "general.allowOnlyOneFiberDataSet", &allowOnlyOneFiberDataSet ) && allowOnlyOneFiberDataSet )
-    {
-        for( std::vector< std::string >::iterator it = stdFileNames.begin(); it != stdFileNames.end(); ++it )
-        {
-            using wiotools::getSuffix;
-            std::string suffix = getSuffix( *it );
-            bool isFib = ( suffix == ".fib" );
-            if( m_fibLoaded && isFib )
-            {
-                QCoreApplication::postEvent( this, new WModuleCrashEvent(
-                                                 WModuleFactory::getModuleFactory()->getPrototypeByName( "Data Module" ),
-                                                 std::string( "Tried to load two fiber data sets. This is not allowed by your preferences." ) ) );
-                doubleFibersFound = true;
-            }
-            m_fibLoaded |= isFib;
-        }
-    }
-
-    if( !doubleFibersFound )
-    {
-        m_loaderSignal( stdFileNames );
-    }
+    m_loaderSignal( stdFileNames );
 
     // walkaround that a button keeps his down state after invoking a dialog
     m_loadButton->setDown( false );
 }
 
+void WMainWindow::openAboutQtDialog()
+{
+    QMessageBox::aboutQt( this, "About Qt" );
+}
 void WMainWindow::openAboutDialog()
 {
     QMessageBox::about( this, "About OpenWalnut",
@@ -759,6 +819,41 @@ void WMainWindow::openAboutDialog()
                         "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.\n"
                         "\n"
                         "Thank you for using OpenWalnut." );
+}
+
+void WMainWindow::openOpenWalnutHelpDialog()
+{
+    QMessageBox::information( this, "OpenWalnut Help",
+                              "<h3>Navigation in Main View</h3>"
+                              "<table>"
+                              "<tr><td><b><i>Mouse Button&nbsp;&nbsp;</i></b></td><td><b><i>Action</i></b></td></tr>"
+                              "<tr><td>Left</td><td>Rotate</td></tr>"
+                              "<tr><td>Middle</td><td>Pan</td></tr>"
+                              "<tr><td>Right</td><td>Pick, move ROI box or move slice</td></tr>"
+                              "<tr><td>Right + Shift</td><td>Resize ROI box</td></tr>"
+                              "<tr><td>Wheel</td><td>Zoom</td></tr>"
+                              "<tr><td><b><i>Key</i></b></td><td><b><i>Action</i></b></td></tr>"
+                              "<tr><td>+</td><td>Zoom in</td></tr>"
+                              "<tr><td>-</td><td>Zoom out</td></tr>"
+                              "<tr><td>[space]</td><td>Reset view</td></tr>"
+                              "</table>"
+                              "<h3>Navigation in EEG View</h3>"
+                              "<table>"
+                              "<tr><td><b><i>Mouse Button</i></b></td><td><b><i>Action</i></b></td></tr>"
+                              "<tr><td>Left</td><td>Mark event position</td></tr>"
+                              "<tr><td>Middle</td><td>Pan</td></tr>"
+                              "<tr><td>Right</td><td>Zoom in time</td></tr>"
+                              "<tr><td>Wheel</td><td>Scale voltage</td></tr>"
+                              "<tr><td>Wheel + Right</td><td>Change spacing between graphs</td></tr>"
+                              "<tr><td>Wheel + Left</td><td>Change sensitivity of the coloring of the head surface</td></tr>"
+                              "</table>"
+                              "<h3>Program-wide Keyboard Shortcuts</h3>"
+                              "<table>"
+                              "<tr><td><b><i>Key</i></b></td><td><b><i>Action</i></b></td></tr>"
+                              "<tr><td>Ctrl + q</td><td>Quit</td></tr>"
+                              "<tr><td>Esc</td><td>Resets main view</td></tr>"
+                              "<tr><td>F1</td><td>Opens this help window</td></tr>"
+                              "</table>" );
 }
 
 void WMainWindow::setPresetViewLeft()
@@ -946,6 +1041,16 @@ bool WMainWindow::event( QEvent* event )
         }
     }
 
+    if( event->type() == WQT_MODULE_REMOVE_EVENT )
+    {
+        // convert event to ready event
+        WModuleRemovedEvent* e1 = dynamic_cast< WModuleRemovedEvent* >( event );     // NOLINT
+        if( e1 )
+        {
+            moduleSpecificCleanup( e1->getModule() );
+        }
+    }
+
     return QMainWindow::event( event );
 }
 
@@ -977,17 +1082,11 @@ void WMainWindow::closeCustomDockWidget( std::string title )
 void WMainWindow::newRoi()
 {
     // do nothing if we can not get
-    if( !WKernel::getRunningKernel()->getRoiManager()->getBitField() )
-    {
-        wlog::warn( "WMainWindow" ) << "Refused to add ROI, as ROIManager does not have computed its bitfield yet.";
-        return;
-    }
-
     wmath::WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
     wmath::WPosition minROIPos = crossHairPos - wmath::WPosition( 10., 10., 10. );
     wmath::WPosition maxROIPos = crossHairPos + wmath::WPosition( 10., 10., 10. );
 
-    if( m_datasetBrowser->getFirstRoiInSelectedBranch().get() == NULL )
+    if( m_controlPanel->getFirstRoiInSelectedBranch().get() == NULL )
     {
         osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
@@ -995,13 +1094,8 @@ void WMainWindow::newRoi()
     else
     {
         osg::ref_ptr< WROIBox > newRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
-        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, m_datasetBrowser->getFirstRoiInSelectedBranch()->getROI() );
+        WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, m_controlPanel->getFirstRoiInSelectedBranch() );
     }
-}
-
-void WMainWindow::setFibersLoaded( bool flag )
-{
-    m_fibLoaded = flag;
 }
 
 void WMainWindow::openConfigDialog()

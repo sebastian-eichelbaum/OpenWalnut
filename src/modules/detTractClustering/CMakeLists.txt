@@ -1,21 +1,74 @@
 FILE( GLOB_RECURSE MODULES_SRC "*.cpp" "*.h" )
 
+IF( CUDA_FOUND )
+    FILE( GLOB_RECURSE CUDA_SRC "*.cu" )
+    LIST( APPEND MODULES_SRC ${CUDA_SRC} )
+ELSE()
+    # Remove files that do including cuda stuff
+    LIST( REMOVE_ITEM MODULES_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WCheckCudaError.h )
+    LIST( REMOVE_ITEM MODULES_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WCheckCudaError.cpp )
+    LIST( REMOVE_ITEM MODULES_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WMDetTractClusteringCudaKernel.h )
+    LIST( REMOVE_ITEM MODULES_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WMDetTractClusteringCudaInterface.cpp )
+    LIST( REMOVE_ITEM MODULES_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WMDetTractClusteringCudaInterface.h )
+ENDIF()
+
+IF( CUDA_FOUND )
+    ADD_DEFINITIONS( -DCUDA_FOUND )
+    set( CUDA_ATTACH_VS_BUILD_RULE_TO_CUDA_FILE ON )
+    set( BUILD_SHARED_LIBS ON )
+    set( CUDA_NVCC_FLAGS --compiler-options -fno-inline --ptxas-options=-v -arch=sm_12 )
+    set( CUDA_PROPAGATE_HOST_FLAGS OFF )
+    INCLUDE_DIRECTORIES( ${CUDA_TOOLKIT_INCLUDE} )
+    INCLUDE_DIRECTORIES( "${CUDA_SDK_ROOT_DIR}/common/inc" )
+ENDIF( CUDA_FOUND )
+
 # Grab module name and setup target directories
 GET_FILENAME_COMPONENT( MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
 SET( MODULE_TARGET_DIR ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/modules/${MODULE_NAME} )
 SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
 SET( MODULE_DIRNAME ${MODULE_NAME} )
-SET( MODULE_NAME    "OWmodule_${MODULE_NAME}" )      # prefix all module names with "OWmodule_" to separate them from other libs
+SET( MODULE_NAME    "${OWmodulesPrefix}_${MODULE_NAME}" )      # prefix all module names with "OWmodule_" to separate them from other libs
+
+SET( ${MODULE_NAME}_COMBINER_SRC ${MODULES_SRC} )
+SET( ${MODULE_NAME}_ALL_CPP ${MODULES_SRC} )
+FILE( GLOB_RECURSE ${MODULE_NAME}_REMOVE_H "*.h"  )
+FILE( GLOB_RECURSE ${MODULE_NAME}_REMOVE_PCH "*${MODULE_NAME}_PCH.*" )
+
+LIST( REMOVE_ITEM ${MODULE_NAME}_ALL_CPP ${${MODULE_NAME}_REMOVE_H} )
+
+IF( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/" )
+    FILE( GLOB_RECURSE ${MODULE_NAME}_REMOVE_TEST "test/*.cpp" "test/*.h" )
+    LIST( REMOVE_ITEM ${MODULE_NAME}_ALL_CPP ${${MODULE_NAME}_REMOVE_TEST} )
+    LIST( REMOVE_ITEM ${MODULE_NAME}_COMBINER_SRC ${${MODULE_NAME}_REMOVE_TEST} )
+ENDIF( EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/" )
+
+LIST( LENGTH ${MODULE_NAME}_ALL_CPP cpp_count )
+
+IF( CUDA_FOUND )
+    CUDA_ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
+ELSE( CUDA_FOUND )
+    ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
+ENDIF( CUDA_FOUND )
+
 
 # Build module lib
-ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
-TARGET_LINK_LIBRARIES( ${MODULE_NAME} OWkernel )
+#ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
+
+TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWKernelName} )
+
+IF( CUDA_FOUND )
+    TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${CUDA_LIBRARIES} )
+ENDIF( CUDA_FOUND )
+
+IF(MSVC_IDE)
+    SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES PREFIX "../")
+ENDIF(MSVC_IDE)
 
 # Copy local shaders to module target directory
 IF( OW_COPY_SHADERS AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/shaders )    # copy shaders only if the user wants it
     ADD_CUSTOM_TARGET( ${MODULE_NAME}_CopyShaders
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/shaders ${MODULE_TARGET_DIR}/shaders/ 
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/shaders ${MODULE_TARGET_DIR}/shaders/
         COMMENT "Copy shaders of ${MODULE_NAME}"
     )
     ADD_DEPENDENCIES( ${MODULE_NAME} ${MODULE_NAME}_CopyShaders )
@@ -26,7 +79,7 @@ IF( OW_COMPILE_TESTS )
     # This ensures that the test is copied to the module directory
     SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
     CXXTEST_ADD_TESTS_FROM_LIST( "${MODULES_SRC}"
-                                 "OWkernel;${MODULE_NAME}"
+                                 "${OWKernelName};${MODULE_NAME}"
                                )
 
     # Copy fixtures if they exist

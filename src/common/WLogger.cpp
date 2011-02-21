@@ -22,34 +22,34 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
+#include <ostream>
 #include <string>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem/fstream.hpp>
+
+#include "exceptions/WSignalSubscriptionInvalid.h"
+#include "exceptions/WPreconditionNotMet.h"
 
 #include "WLogger.h"
 
 /**
  * Used for program wide access to the logger.
  */
-
 WLogger* logger = NULL;
 
-WLogger::WLogger( std::string fileName, LogLevel level ):
-    WThreadedRunner(),
-    m_LogLevel( level ),
-
-    m_STDOUTLevel( level ),
-    m_STDERRLevel( LL_ERROR ),
-    m_LogFileLevel( level ),
-    m_LogFileName( fileName ),
-    m_QueueMutex(),
-    m_colored( true ),
-    m_defaultFormat( "*%l [%s] %m \n" ),
-    m_defaultFileFormat( "[%t] *%l*%s* %m \n" )
+void WLogger::startup( std::ostream& output, LogLevel level )  // NOLINT - we need this non-const ref here
 {
-    logger = this;
+    if ( !logger )
+    {
+        logger = new WLogger( output, level );
+    }
+}
+
+WLogger::WLogger( std::ostream& output, LogLevel level ):       // NOLINT - we need this non-const ref here
+    m_outputs()
+{
+    m_outputs.push_back( WLogStream::SharedPtr( new WLogStream( output, level ) ) );
 
     addLogMessage( "Initalizing Logger", "Logger", LL_INFO );
     addLogMessage( "===============================================================================", "Logger", LL_INFO );
@@ -63,143 +63,57 @@ WLogger::~WLogger()
 
 WLogger* WLogger::getLogger()
 {
+    if ( !logger )
+    {
+        throw new WPreconditionNotMet( std::string( "Logger not yet initialized." ) );
+    }
     return logger;
 }
 
-void WLogger::setLogLevel( LogLevel level )
+boost::signals2::connection WLogger::subscribeSignal( LogEvent event, LogEntryCallback callback )
 {
-    m_LogLevel = level;
-}
-
-void WLogger::setSTDOUTLevel( LogLevel level )
-{
-    m_STDOUTLevel = level;
-}
-
-void WLogger::setSTDERRLevel( LogLevel level )
-{
-    m_STDERRLevel = level;
-}
-
-void WLogger::setLogFileLevel( LogLevel level )
-{
-    m_LogFileLevel = level;
-}
-
-void WLogger::setLogFileName( std::string fileName )
-{
-    boost::filesystem::path p( fileName );
-
-    m_LogFileName = fileName;
+    switch ( event ) // subscription
+    {
+    case AddLog:
+        return m_addLogSignal.connect( callback );
+    default:
+        throw new WSignalSubscriptionInvalid( std::string( "Signal could not be subscribed. The event is not compatible with the callback." ) );
+    }
 }
 
 void WLogger::addLogMessage( std::string message, std::string source, LogLevel level )
 {
-    if ( m_LogLevel > level || m_shutdownFlag() )
-    {
-        return;
-    }
-
     boost::posix_time::ptime t( boost::posix_time::second_clock::local_time() );
     std::string timeString( to_simple_string( t ) );
-    WLogEntry entry( timeString, message, level, source, m_colored );
+    WLogEntry entry( timeString, message, level, source );
 
-  // NOTE: in DEBUG mode, we do not use the process queue, since it prints messages delayed and is, therefore, not very usable during debugging.
-#ifndef DEBUG
-    // NOTE(ebaum): as we have a lot of segfaults we need the log messages to be in sync in release mode too.
-    // This helps us to find the problem. This will be undone as we solved the problems with the SegFaults.
+    // signal to all interested
+    m_addLogSignal( entry );
 
-    // boost::mutex::scoped_lock l( m_QueueMutex );
-    // m_LogQueue.push( entry );
-    std::cout << entry.getLogString( m_defaultFormat );
-#else
-    // in Debug mode, also add the source
-    std::cout << entry.getLogString( m_defaultFormat );
-#endif
-}
-
-void WLogger::processQueue()
-{
-    boost::mutex::scoped_lock l( m_QueueMutex );
-
-    while ( !m_LogQueue.empty() )
+    // output
+    Outputs::ReadTicket r = m_outputs.getReadTicket();
+    for ( Outputs::ConstIterator i = r->get().begin(); i != r->get().end(); ++i )
     {
-        WLogEntry entry = m_LogQueue.front();
-        m_LogQueue.pop();
-
-        m_SessionLog.push_back( entry );
-
-        if ( entry.getLogLevel() >= m_STDOUTLevel )
-        {
-            std::cout << entry.getLogString( m_defaultFormat );
-        }
-
-        if ( entry.getLogLevel() >= m_STDERRLevel )
-        {
-            std::cerr << entry.getLogString( m_defaultFormat );
-        }
-
-        if ( entry.getLogLevel() >= m_LogFileLevel )
-        {
-            // TODO(schurade): first open file, then write to file, then close the file
-            // for atomic file usage.
-            boost::filesystem::path p( "walnut.log" );
-            boost::filesystem::ofstream ofs( p, boost::filesystem::ofstream::app );
-
-            bool tmp = entry.isColored();
-            entry.setColored( false );
-            ofs << entry.getLogString( m_defaultFileFormat );
-            entry.setColored( tmp );
-        }
+        ( *i )->printEntry( entry );
     }
-}
-
-void WLogger::threadMain()
-{
-  // NOTE: in DEBUG mode, we do not use the process queue, since it prints messages delayed and is, therefore, not very usable during debugging.
-#ifndef DEBUG
-    // Since the modules run in a separate thread: such loops are possible
-    while ( !m_shutdownFlag() )
-    {
-        processQueue();
-        // do fancy stuff
-        sleep( 1 );
-    }
-    // clean up stuff and process remaining entries
-    // write remaining log messages
-    processQueue();
-#else
-    waitForStop();
-#endif
-}
-
-void WLogger::setColored( bool colors )
-{
-    m_colored = colors;
-}
-
-bool WLogger::isColored()
-{
-    return m_colored;
 }
 
 void WLogger::setDefaultFormat( std::string format )
 {
-    m_defaultFormat = format;
+    m_outputs[0]->setFormat( format );
 }
 
 std::string WLogger::getDefaultFormat()
 {
-    return m_defaultFormat;
+    return m_outputs[0]->getFormat();
 }
 
-void WLogger::setDefaultFileFormat( std::string format )
+void WLogger::addStream( WLogStream::SharedPtr s )
 {
-    m_defaultFileFormat = format;
+    m_outputs.push_back( s );
 }
 
-std::string WLogger::getDefaultFileFormat()
+wlog::WStreamedLogger::Buffer::~Buffer()
 {
-    return m_defaultFileFormat;
+    WLogger::getLogger()->addLogMessage( m_logString.str(), m_source, m_level );
 }
-

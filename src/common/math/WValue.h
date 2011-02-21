@@ -39,6 +39,8 @@ namespace wmath
  */
 template< typename T > class WValue
 {
+template< typename S > friend class WValue; //!< All WValues are friends of each other.
+
 // We exclude this from doxygen since they are documented already as functions and I don't want to duplicate that documentation
 // \cond
 template< typename U > friend std::ostream& operator<<( std::ostream& os, const WValue< U > &rhs );
@@ -62,6 +64,19 @@ public:
     WValue( const WValue& newValue )
         : m_components( newValue.m_components )
     {
+    }
+
+    /**
+     * Create a WValue as copy of the one given as parameter but with another template type.
+     * \param newValue The WValue to be copied.
+     */
+    template< typename S > explicit WValue( const WValue< S >& newValue )
+    {
+        m_components.resize( newValue.m_components.size() );
+        for( size_t i = 0; i < m_components.size(); ++i )
+        {
+            m_components[i] = newValue.m_components[i];
+        }
     }
 
     /**
@@ -123,7 +138,7 @@ public:
     }
 
     /**
-     * Adds a the argument componentwise to the components of this WValue
+     * Adds a the argument component-wise to the components of this WValue
      * \param rhs The right hand side of the assignment
      */
     WValue& operator+=( const WValue& rhs )
@@ -135,7 +150,7 @@ public:
     }
 
     /**
-     * Subtracts the argument componentwise from the components of this WValue
+     * Subtracts the argument component-wise from the components of this WValue
      * \param rhs The right hand side of the assignment
      */
     WValue& operator-=( const WValue& rhs )
@@ -158,7 +173,7 @@ public:
     }
 
     /**
-     * Scales each component of this WValue with the coressponding
+     * Scales each component of this WValue with the corresponding
      * component of the given argument WValue
      * \param rhs The right hand side of the assignment
      */
@@ -183,7 +198,7 @@ public:
 
 
     /**
-     * Componentwise addition.
+     * Component-wise addition.
      * \param summand2 The right hand side of the summation
      */
     const WValue operator+( const WValue& summand2 ) const
@@ -195,7 +210,7 @@ public:
     }
 
     /**
-     * Componentwise subtraction.
+     * Component-wise subtraction.
      * \param subtrahend The right hand side of the subtraction
      */
     const WValue operator-( const WValue& subtrahend ) const
@@ -207,7 +222,7 @@ public:
     }
 
     /**
-     * Componentwise multiplication.
+     * Component-wise multiplication.
      * \param factor2 The right hand side of the product
      */
     const WValue operator*( const WValue& factor2 ) const
@@ -298,6 +313,15 @@ public:
         return components[ components.size() / 2 ];
     }
 
+    /**
+     * Changes the number of scalars held by this WValue.
+     * \param size The number of scalars stored in the WValue.
+     */
+    void resize( size_t size )
+    {
+        m_components.resize( size );
+    }
+
 protected:
 private:
     /**
@@ -348,7 +372,7 @@ template< typename T > inline const WValue< T > operator/( const WValue< T >& lh
  * \param os The operator will write to this stream.
  * \param rhs This will be written to the stream.
  *
- * \return the outputstream
+ * \return the output stream
  */
 template< typename U > inline std::ostream& operator<<( std::ostream& os, const WValue< U > &rhs )
 {
@@ -361,7 +385,7 @@ template< typename U > inline std::ostream& operator<<( std::ostream& os, const 
  * \param in the input stream
  * \param rhs the value to where to write the stream
  *
- * \return the inputstream
+ * \return the input stream
  */
 template< typename U > inline std::istream& operator>>( std::istream& in, WValue< U >& rhs )
 {

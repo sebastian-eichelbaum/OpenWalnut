@@ -26,16 +26,20 @@
 #include <string>
 #include <vector>
 
-#include "../../common/math/WTensorSym.h"
-#include "../../common/math/WTensorFunctions.h"
-#include "../../common/WAssert.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/io/WWriterFiberVTK.h"
-#include "../../dataHandler/WValueSet.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
+#include "../../common/math/WTensorFunctions.h"
+#include "../../common/math/WTensorSym.h"
+#include "../../common/WAssert.h"
+#include "../../dataHandler/io/WWriterFiberVTK.h"
+#include "../../dataHandler/WDataSetFiberVector.h"
+#include "../../dataHandler/WDataSetSingle.h"
+#include "../../dataHandler/WGridRegular3D.h"
+#include "../../dataHandler/WValueSet.h"
+#include "../../kernel/WModuleInputData.h"
+#include "../../kernel/WModuleOutputData.h"
 
 #include "WMDeterministicFTMori.h"
-#include "moriTracking.xpm"
+#include "WMDeterministicFTMori.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMDeterministicFTMori )
@@ -109,7 +113,7 @@ void WMDeterministicFTMori::moduleMain()
             }
         }
 
-        if( dataChanged )
+        if( dataChanged && m_dataSet )
         {
             resetEigenFunction();
             // start the eigenvector computation
@@ -211,6 +215,8 @@ void WMDeterministicFTMori::properties()
                                            " adjacent fiber segments.", 0.80, m_propCondition );
     m_minCos->setMax( 1.0 );
     m_minCos->setMin( 0.0 );
+
+    WModule::properties();
 }
 
 void WMDeterministicFTMori::activate()

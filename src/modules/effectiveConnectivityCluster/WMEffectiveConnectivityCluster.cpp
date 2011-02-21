@@ -51,13 +51,14 @@
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleFactory.h"
 #include "../../kernel/WModuleOutputData.h"
-#include "../../graphicsEngine/WGEBorderLayout.h"
+#include "../../graphicsEngine/widgets/labeling/WGEBorderLayout.h"
+#include "../../graphicsEngine/widgets/labeling/WGELabel.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
-#include "../../graphicsEngine/WGELabel.h"
 #include "../../graphicsEngine/WGEUtils.h"
 
-#include "effectiveConnectivityCluster.xpm"
+#include "WMEffectiveConnectivityCluster.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMEffectiveConnectivityCluster )
@@ -86,7 +87,7 @@ boost::shared_ptr< WModule > WMEffectiveConnectivityCluster::factory() const
 
 const char** WMEffectiveConnectivityCluster::getXPMIcon() const
 {
-    return effectiveConnectivityCluster_xpm;
+    return WMEffectiveConnectivityCluster_xpm;
 }
 
 const std::string WMEffectiveConnectivityCluster::getName() const
@@ -120,7 +121,7 @@ void WMEffectiveConnectivityCluster::fiberDataChange( boost::shared_ptr< WModule
 
     // grab data
     boost::shared_ptr< WFiberCluster > fibs = o->getData();
-    boost::shared_ptr< wmath::WFiber > lline = fibs->getLongestLine();
+    boost::shared_ptr< WFiber > lline = fibs->getLongestLine();
 
     // the first and the last point of the longest line are required:
     m_labelPos2 = ( *lline )[ lline->size() - 2 ];
@@ -245,7 +246,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
     //////////////////////////////////////////////////////////////////////////////////
 
     // Connect voxelizer input with the selected fibers
-    m_voxelizer->getInputConnector( "voxelInput" )->connect( m_fiberSelection->getOutputConnector( "cluster" ) );
+    m_voxelizer->getInputConnector( "tractInput" )->connect( m_fiberSelection->getOutputConnector( "cluster" ) );
 
     // Connect voxelizer output with the gauss filter
     m_gauss->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
@@ -307,7 +308,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
             {
                 osg::ref_ptr< WGELabel > label1 = new WGELabel();
                 label1->setText( voi1 );
-                label1->setAnchor( wge::osgVec3( m_labelPos1 ) ); // the position relative to the current world coordinate system
+                label1->setAnchor( m_labelPos1 ); // the position relative to the current world coordinate system
                 label1->setCharacterSize( m_labelCharacterSize->get( true ) );
                 layouter->addLayoutable( label1 );
             }
@@ -316,7 +317,7 @@ void WMEffectiveConnectivityCluster::moduleMain()
             {
                 osg::ref_ptr< WGELabel > label2 = new WGELabel();
                 label2->setText( voi2 );
-                label2->setAnchor( wge::osgVec3( m_labelPos2 ) ); // the position relative to the current world coordinate system
+                label2->setAnchor( m_labelPos2 ); // the position relative to the current world coordinate system
                 label2->setCharacterSize( m_labelCharacterSize->get( true ) );
                 layouter->addLayoutable( label2 );
             }
@@ -404,6 +405,8 @@ void WMEffectiveConnectivityCluster::properties()
     m_voi2Name = m_properties->addProperty( "Name of VOI2", "The name of the VOI2.", std::string( "" ), m_propCondition );
 
     m_labelCharacterSize = m_properties->addProperty( "Font size", "The size of the label fonts.", 20, m_propCondition );
+
+    WModule::properties();
 }
 
 void WMEffectiveConnectivityCluster::activate()

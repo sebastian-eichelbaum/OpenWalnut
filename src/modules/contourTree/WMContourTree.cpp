@@ -35,7 +35,7 @@
 #include "../../dataHandler/datastructures/WJoinContourTree.h"
 #include "../../kernel/WKernel.h"
 #include "WMContourTree.h"
-#include "contourTree.xpm"
+#include "WMContourTree.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMContourTree )
@@ -71,13 +71,8 @@ const std::string WMContourTree::getDescription() const
 
 void WMContourTree::connectors()
 {
-    typedef WModuleInputData< WDataSetSingle > InputType;
-    m_input = boost::shared_ptr< InputType >( new InputType( shared_from_this(), "scalarField", "DataSetSingle to compute contour tree for" ) );
-    addConnector( m_input );
-
-    typedef WModuleOutputData< WJoinContourTree > OutputType;
-    m_output = boost::shared_ptr< OutputType >( new OutputType( shared_from_this(), "joinTree", "Join-Tree of the dataset" ) );
-    addConnector( m_output );
+    m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "scalarField", "DataSetSingle to compute contour tree for" );
+    m_output = WModuleOutputData< WJoinContourTree >::createAndAdd( shared_from_this(), "joinTree", "Join-Tree of the dataset" );
 
     WModule::connectors();
 }

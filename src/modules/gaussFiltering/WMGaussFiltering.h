@@ -150,7 +150,7 @@ private:
      * Run the 1D Gaussian filter over the field
      * \param newVals result of the filtering
      * \param vals the values to work on
-     * \param prog the progess used for this filter iteration
+     * \param prog the progress used for this filter iteration
      * \param Nx dimension along the filter
      * \param Ny first dimension perpendicular to the filter
      * \param Nz second dimension perpendicular to the filter
@@ -169,7 +169,7 @@ private:
      * Run the 1D Gaussian filter over the field
      * \param newVals result of the filtering
      * \param vals the values to work on
-     * \param prog the progess used for this filter iteration
+     * \param prog the progress used for this filter iteration
      * \param Nx dimension along the filter
      * \param Ny first dimension perpendicular to the filter
      * \param Nz second dimension perpendicular to the filter

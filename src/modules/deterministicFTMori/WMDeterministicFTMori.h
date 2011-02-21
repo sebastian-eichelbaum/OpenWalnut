@@ -31,20 +31,20 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../dataHandler/WDataSetSingle.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../common/math/WVector3D.h"
-#include "../../common/math/WMatrix.h"
 #include "../../common/WThreadedFunction.h"
 #include "../../dataHandler/WThreadedPerVoxelOperation.h"
 #include "../../dataHandler/WThreadedTrackingFunction.h"
 #include "../../dataHandler/WFiberAccumulator.h"
 
-#define WM_MORI_NUM_CORES 0
+// forward delcarations
+class WDataSetFiberVector;
+class WDataSetSingle;
+template< class T > class WModuleInputData;
+template< class T > class WModuleOutputData;
+
+#define WM_MORI_NUM_CORES W_AUTOMATIC_NB_THREADS
 
 /**
  * \class WMDeterministicFTMori
@@ -161,26 +161,26 @@ private:
      * \param ds The dataset.
      * \param j The job, that means the current position and direction of the last fiber segment.
      *
-     * \return The direction to follow. 
+     * \return The direction to follow.
      */
     wmath::WVector3D getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
                                         wtracking::WTrackingUtility::JobType const& j );
 
-	/**
-	 * The fiber visitor. Adds a fiber to the result data and increment the progress.
-	 *
-	 * \param f The fiber.
-	 */
+    /**
+     * The fiber visitor. Adds a fiber to the result data and increment the progress.
+     *
+     * \param f The fiber.
+     */
     void fiberVis( FiberType const& f );
 
-	/**
-	 * The point visitor. Does nothing.
-	 */
+    /**
+     * The point visitor. Does nothing.
+     */
     void pointVis( wmath::WVector3D const& );
 
-	/**
-	 * Reset the tracking function and abort the current one, if there is a current one.
-	 */
+    /**
+     * Reset the tracking function and abort the current one, if there is a current one.
+     */
     void resetTracking();
 
     /**

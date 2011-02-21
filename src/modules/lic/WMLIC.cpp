@@ -30,12 +30,15 @@
 #include "../../common/WSharedSequenceContainer.h"
 #include "../../dataHandler/exceptions/WDHNoSuchSubject.h"
 #include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataSetVector.h"
 #include "../../dataHandler/WSubject.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WKernel.h"
 #include "fibernavigator/SurfaceLIC.h"
 #include "WMLIC.h"
-#include "lic.xpm"
+#include "WMLIC.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMLIC )
@@ -74,8 +77,8 @@ const std::string WMLIC::getDescription() const
 
 void WMLIC::connectors()
 {
-    m_meshIC = boost::shared_ptr< WModuleInputData < WTriangleMesh2 > >(
-            new WModuleInputData< WTriangleMesh2 >( shared_from_this(),
+    m_meshIC = boost::shared_ptr< WModuleInputData < WTriangleMesh > >(
+            new WModuleInputData< WTriangleMesh >( shared_from_this(),
                 "inMesh", "The triangle mesh used for painting the LIC" )
             );
 // TODO(math): reenable the connector when selecting of two input in GUI is possible.
@@ -89,8 +92,8 @@ void WMLIC::connectors()
 //            );
 
 // TODO(math): ATM we are unsure about providing an output. Caution the input mesh is modified!
-//    m_meshOC = boost::shared_ptr< WModuleOutputData < WTriangleMesh2 > >(
-//            new WModuleOutputData< WTriangleMesh2 >( shared_from_this(),
+//    m_meshOC = boost::shared_ptr< WModuleOutputData < WTriangleMesh > >(
+//            new WModuleOutputData< WTriangleMesh >( shared_from_this(),
 //                "outMesh", "The LIC" )
 //            );
 
@@ -102,9 +105,10 @@ void WMLIC::connectors()
 
 void WMLIC::properties()
 {
+    WModule::properties();
 }
 
-void WMLIC::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
+void WMLIC::renderMesh( boost::shared_ptr< WTriangleMesh > mesh )
 {
     m_moduleNode->remove( m_surfaceGeode );
     osg::Geometry* surfaceGeometry = new osg::Geometry();
@@ -155,7 +159,7 @@ void WMLIC::renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh )
     }
 
     m_moduleNode->insert( m_surfaceGeode );
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMLIC", m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMLIC", m_localPath ) );
     m_shader->apply( m_surfaceGeode );
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
@@ -178,7 +182,7 @@ void WMLIC::moduleMain()
             break;
         }
 
-        boost::shared_ptr< WTriangleMesh2 > newMesh = m_meshIC->getData();
+        boost::shared_ptr< WTriangleMesh > newMesh = m_meshIC->getData();
 // TODO(math): if the vector input is available again please enable this again too
 //        boost::shared_ptr< WDataSetVector > newVector = m_vectorIC->getData();
 //        bool dataChanged = ( m_inMesh != newMesh ) || ( m_inVector != newVector );

@@ -25,33 +25,34 @@
 #ifndef WLOGGER_H
 #define WLOGGER_H
 
-#include <queue>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/thread.hpp>
+#include <boost/signals2/signal.hpp>
 
 #include "WLogEntry.h"
+#include "WLogStream.h"
 #include "WStringUtils.h"
-#include "WThreadedRunner.h"
+#include "WSharedSequenceContainer.h"
 #include "WExportCommon.h"
 
 /**
- * Does actual logging of WLogEntries down to stdout or something similar.
+ * This class defines the interface for adding logs and managing several output streams for them. The actual log entry is in \ref WLogEntry and
+ * the output is done in \ref WLogStream.
  */
-class OWCOMMON_EXPORT WLogger: public WThreadedRunner
+class OWCOMMON_EXPORT WLogger       // NOLINT
 {
 public:
     /**
-     * Constructor
-     * \param fileName the log will be stored in this file
-     * \param level logging level, i.e. verboseness
+     * Create the first and only instance of the logger as it is a singleton.
+     *
+     * \param output the output stream to use
+     * \param level the default log level
      */
-    WLogger( std::string fileName = "walnut.log", LogLevel level = LL_DEBUG );
+    static void startup( std::ostream& output = std::cout, LogLevel level = LL_DEBUG );  // NOLINT - we need this non-const ref here
 
     /**
      * Destructor.
@@ -66,49 +67,12 @@ public:
     static WLogger* getLogger();
 
     /**
-     * Sets the global log level
-     * \param level the new global logging level
-     */
-    void setLogLevel( LogLevel level );
-
-    /**
-     * Sets the log level for stdout.
-     * \param level the new logging level for stdout
-     */
-    void setSTDOUTLevel( LogLevel level );
-
-    /**
-     * Sets the log level for stderr.
-     * \param level the new logging level for stderr
-     */
-    void setSTDERRLevel( LogLevel level );
-
-    /**
-     * Sets the log level for the given log file.
-     * \param level the new level for logging to file
-     */
-    void setLogFileLevel( LogLevel level );
-
-    /**
-     * Specifies the path for logging to this file and checks if the path
-     * exists by an assertion.
-     * \param fileName the name and path of the file to be used for logging.
-     */
-    void setLogFileName( std::string fileName );
-
-    /**
-     * Set whether to use colors or not. Note: this is only useful on Linux systems currently.
+     * Adds a new stream to the logger. This is useful to register file streams or uncolored GUI based outputs.
+     * \note It is not intended to allow getting streams or modifying them except you are the owner/creator.
      *
-     * \param colors true if colors should be used.
+     * \param s the stream to add.
      */
-    void setColored( bool colors );
-
-    /**
-     * Getter determining whether to use colors or not.
-     *
-     * \return true if colors should be used.
-     */
-    bool isColored();
+    void addStream( WLogStream::SharedPtr s );
 
     /**
      * Set the default format used for log entries.
@@ -118,25 +82,11 @@ public:
     void setDefaultFormat( std::string format );
 
     /**
-     * Gets the default format used for log entries.
+     * Gets the default format used for log entries. This actually returns the format of the first log stream.
      *
      * \return format string. See WLogEntry for details.
      */
     std::string getDefaultFormat();
-
-    /**
-     * Set the default format used for log entries in log files.
-     *
-     * \param format the format string. See WLogEntry for details.
-     */
-    void setDefaultFileFormat( std::string format );
-
-    /**
-     * Gets the default format used for log entries in log files.
-     *
-     * \return format string. See WLogEntry for details.
-     */
-    std::string getDefaultFileFormat();
 
     /**
      * Appends a log message to the logging queue.
@@ -147,83 +97,63 @@ public:
     void addLogMessage( std::string message, std::string source = "", LogLevel level = LL_DEBUG );
 
     /**
-     * Locks this logging instance for threadsafeness and prints the
-     * items of the queue.
+     * Types of signals supported by the logger
      */
-    void processQueue();
+    typedef enum
+    {
+        AddLog = 0 //!< for added logs
+    }
+    LogEvent;
 
     /**
-     * Entry point after loading the module. Runs in separate thread.
+     * The type for all callbacks which get a log entry as parameter.
      */
-    virtual void threadMain();
+    typedef boost::function< void ( WLogEntry& ) > LogEntryCallback;
+
+    /**
+     * Subscribe to the specified signal.
+     *
+     * \note If you want to listen to incoming log entries, you can also utilize the WLogStream class.
+     *
+     * \param event the kind of signal the callback should be used for.
+     * \param callback the callback.
+     */
+    boost::signals2::connection subscribeSignal( LogEvent event, LogEntryCallback callback );
 
 protected:
 
 private:
+    /**
+     * Constructor. The logger is created using the static method startup.
+     *
+     * \param output the stream where to print log messages to
+     * \param level logging level, i.e. verboseness
+     */
+    WLogger( std::ostream& output, LogLevel level );  // NOLINT - we need this non-const ref here
+
     /**
      * We do not want a copy constructor, so we define it private.
      */
     WLogger( const WLogger& );
 
     /**
-     * The actual level of logging so messages with a lower level will be
-     * discarded.
+     * The output stream list type.
      */
-    LogLevel m_LogLevel;
+    typedef WSharedSequenceContainer< std::vector< WLogStream::SharedPtr > > Outputs;
 
     /**
-     * LogLevel for stdout
+     * The list of outputs to print the messages to.
      */
-    LogLevel m_STDOUTLevel;
+    Outputs m_outputs;
 
     /**
-     * LogLevel for stderr
+     * Signal called whenever a new log message arrives.
      */
-    LogLevel m_STDERRLevel;
-
-    /**
-     * LogLevel for the given log file
-     */
-    LogLevel m_LogFileLevel;
-
-    /**
-     * Filename of the log file
-     */
-    std::string m_LogFileName;
-
-    /**
-     * Storage for all WLogEntries that were given to our logging instance
-     */
-    std::vector< WLogEntry > m_SessionLog;
-
-    /**
-     * Queue for storing pending WLogEntries.
-     */
-    std::queue< WLogEntry > m_LogQueue;
-
-    /**
-     * Mutex for doing locking due to thread-safety.
-     */
-    boost::mutex m_QueueMutex;
-
-    /**
-     * Flag determining whether log entries can be colored or not.
-     */
-    bool m_colored;
-
-    /**
-     * The default format used for new log entries.
-     */
-    std::string m_defaultFormat;
-
-    /**
-     * The default format used for new log entries in files.
-     */
-    std::string m_defaultFileFormat;
+    boost::signals2::signal< void( WLogEntry& ) > m_addLogSignal;
 };
 
 /**
- * This namespace collects several convinient access points such as wlog::err
+ * This namespace collects several convenient access points such as wlog::err
  * for logging with streams to our WLogger.
  */
 namespace wlog
@@ -231,7 +161,7 @@ namespace wlog
     /**
      * Resource class for streamed logging.
      */
-    class WStreamedLogger
+    class OWCOMMON_EXPORT WStreamedLogger // NOLINT
     {
     public:
         /**
@@ -256,7 +186,6 @@ namespace wlog
         typedef std::basic_ostream< char, std::char_traits< char > > OutStreamType;
         typedef OutStreamType& ( *StreamManipulatorFunctor )( OutStreamType& );
         // \endcond
-
 
         /**
          * This is totally crazy man! Don't get dizzy on that, watch out and
@@ -313,7 +242,7 @@ namespace wlog
 
     template< typename T > inline WStreamedLogger WStreamedLogger::operator<<( const T& loggable )
     {
-        using string_utils::operator<<; // incase we want to log arrays or vectors
+        using string_utils::operator<<; // in case we want to log arrays or vectors
         m_buffer->m_logString << loggable;
         return *this;
     }
@@ -324,11 +253,6 @@ namespace wlog
         return *this;
     }
 
-    inline WStreamedLogger::Buffer::~Buffer()
-    {
-        WLogger::getLogger()->addLogMessage( m_logString.str(), m_source, m_level );
-    }
-
     inline WStreamedLogger::Buffer::Buffer( const std::string& source, LogLevel level )
         : m_logString(),
         m_level( level ),
@@ -337,7 +261,7 @@ namespace wlog
     }
 
     /**
-     * Convinient function for logging messages to our WLogger but not for
+     * Convenient function for logging messages to our WLogger but not for
      * public use outside of this module.
      *
      * \param source Indicate the source where this log message origins.
@@ -359,7 +283,7 @@ namespace wlog
     }
 
     /**
-     * Loggin a warning message.
+     * Logging a warning message.
      *
      * \param source Indicate the source where this log message origins.
      */
@@ -369,7 +293,7 @@ namespace wlog
     }
 
     /**
-     * Loggin an information message.
+     * Logging an information message.
      *
      * \param source Indicate the source where this log message origins.
      */
@@ -379,7 +303,7 @@ namespace wlog
     }
 
     /**
-     * Loggin a debug message.
+     * Logging a debug message.
      *
      * \param source Indicate the source where this log message origins.
      */

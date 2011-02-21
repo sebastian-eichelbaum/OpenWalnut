@@ -29,7 +29,7 @@
 
     #pragma warning( disable: 4251 )
 
-    #ifdef OWdataHandler_EXPORTS
+    #if defined( owdataHandler_EXPORTS ) || defined( OWdataHandler_EXPORTS )
     #define OWDATAHANDLER_EXPORT __declspec( dllexport )
     #else
     #define OWDATAHANDLER_EXPORT __declspec( dllimport )

@@ -31,24 +31,24 @@
 #include <osg/Geometry>
 
 #include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/WDataSet.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/exceptions/WDHNoSuchSubject.h"
+#include "../../dataHandler/WDataHandler.h"
+#include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../kernel/WKernel.h"
-
-#include "WTalairachConverter.h"
-#include "coordinateSystem.xpm"
-
+#include "../../kernel/WSelectionManager.h"
 #include "WMCoordinateSystem.h"
+#include "WMCoordinateSystem.xpm"
+#include "WTalairachConverter.h"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMCoordinateSystem )
 
 WMCoordinateSystem::WMCoordinateSystem() :
-    WModule(), m_dirty( false ), m_drawOffset( 0.02 )
+    WModule(), m_dirty( false ), m_drawOffset( 0.02 ),
+    m_viewAngle( 0 )
 {
 }
 
@@ -101,9 +101,12 @@ void WMCoordinateSystem::moduleMain()
             // acquire data from the input connector
             m_dataSet = m_input->getData();
 
-            findBoundingBox();
-            createGeometry();
-            m_dirty = true;
+            if( m_dataSet )
+            {
+                findBoundingBox();
+                createGeometry();
+                m_dirty = true;
+            }
         }
     }
     // clean up stuff
@@ -159,6 +162,8 @@ void WMCoordinateSystem::properties()
     m_acTrigger = m_properties->addProperty( "Set AC", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );
     m_pcTrigger = m_properties->addProperty( "Set PC", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );
     m_ihpTrigger = m_properties->addProperty( "Set IHP", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );
+
+    WModule::properties();
 }
 
 void WMCoordinateSystem::propertyChanged()
@@ -222,12 +227,7 @@ void WMCoordinateSystem::createGeometry()
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
-    osg::ref_ptr< userData > usrData = osg::ref_ptr< userData >(
-        new userData( boost::shared_dynamic_cast< WMCoordinateSystem >( shared_from_this() ) )
-        );
-
-    m_rootNode->setUserData( usrData );
-    m_rootNode->addUpdateCallback( new coordinateNodeCallback );
+    m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMCoordinateSystem::updateCallback, this ) ) );
 
     if ( m_active->get() )
     {
@@ -239,10 +239,17 @@ void WMCoordinateSystem::createGeometry()
     }
 }
 
-void WMCoordinateSystem::updateGeometry()
+void WMCoordinateSystem::updateCallback()
 {
+    if ( WKernel::getRunningKernel()->getSelectionManager()->getFrontSector() != m_viewAngle )
+    {
+        m_viewAngle = WKernel::getRunningKernel()->getSelectionManager()->getFrontSector();
+        m_dirty = true;
+    }
+
     wmath::WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
     wmath::WPosition cho = m_crosshair->get();
+
     if ( ch[0] != cho[0] || ch[1] != cho[1] || ch[2] != cho[2] || m_dirty )
     {
         m_crosshair->set( ch );
@@ -486,11 +493,21 @@ void WMCoordinateSystem::initTalairachConverter()
 
 void WMCoordinateSystem::addRulersSagittal()
 {
+    float offset = 0.0;
+    if ( m_viewAngle < 4 )
+    {
+        offset = -1.0;
+    }
+    else
+    {
+        offset = 1.0;
+    }
+
     osg::ref_ptr< WRulerOrtho > ruler1 = osg::ref_ptr< WRulerOrtho >(
-            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] ),
+            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0] + offset, m_crosshair->get()[1], m_crosshair->get()[2] ),
                     RULER_ALONG_Y_AXIS_SCALE_Z, m_showNumbersOnRulers->get() ) );
     osg::ref_ptr< WRulerOrtho > ruler2 = osg::ref_ptr< WRulerOrtho >(
-            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] ),
+            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0] + offset, m_crosshair->get()[1], m_crosshair->get()[2] ),
                     RULER_ALONG_Z_AXIS_SCALE_Y, m_showNumbersOnRulers->get() ) );
 
     m_rulerNode->addChild( ruler1 );
@@ -499,11 +516,21 @@ void WMCoordinateSystem::addRulersSagittal()
 
 void WMCoordinateSystem::addRulersAxial()
 {
+    float offset = 0.0;
+    if ( ( m_viewAngle == 1 ) || ( m_viewAngle == 2 ) || ( m_viewAngle == 5 ) || ( m_viewAngle == 6 ) )
+    {
+        offset = 1.0;
+    }
+    else
+    {
+        offset = -1.0;
+    }
+
     osg::ref_ptr< WRulerOrtho > ruler1 = osg::ref_ptr< WRulerOrtho >(
-            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] ),
+            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] + offset ),
             RULER_ALONG_X_AXIS_SCALE_Y, m_showNumbersOnRulers->get() ) );
     osg::ref_ptr< WRulerOrtho > ruler2 = osg::ref_ptr< WRulerOrtho >(
-            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] ),
+            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] + offset ),
             RULER_ALONG_Y_AXIS_SCALE_X, m_showNumbersOnRulers->get() ) );
 
     m_rulerNode->addChild( ruler1 );
@@ -512,11 +539,21 @@ void WMCoordinateSystem::addRulersAxial()
 
 void WMCoordinateSystem::addRulersCoronal()
 {
+    float offset = 0.0;
+    if ( ( m_viewAngle == 2 ) || ( m_viewAngle == 3 ) || ( m_viewAngle == 4 ) || ( m_viewAngle == 5 ) )
+    {
+        offset = 1.0;
+    }
+    else
+    {
+        offset = - 1.0;
+    }
+
     osg::ref_ptr< WRulerOrtho > ruler1 = osg::ref_ptr< WRulerOrtho >(
-            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] ),
+            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1] + offset, m_crosshair->get()[2] ),
                     RULER_ALONG_X_AXIS_SCALE_Z, m_showNumbersOnRulers->get() ) );
     osg::ref_ptr< WRulerOrtho > ruler2 = osg::ref_ptr< WRulerOrtho >(
-            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1], m_crosshair->get()[2] ),
+            new WRulerOrtho( m_coordConverter, osg::Vec3( m_crosshair->get()[0], m_crosshair->get()[1] + offset, m_crosshair->get()[2] ),
                     RULER_ALONG_Z_AXIS_SCALE_X, m_showNumbersOnRulers->get() ) );
 
     m_rulerNode->addChild( ruler1 );
@@ -525,13 +562,22 @@ void WMCoordinateSystem::addRulersCoronal()
 
 void WMCoordinateSystem::addSagittalGrid( float position )
 {
+    if ( m_viewAngle < 4 )
+    {
+        position -= 1.0;
+    }
+    else
+    {
+        position += 1.0;
+    }
+
     osg::ref_ptr< osg::Geode > gridGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
-    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_coordConverter->getBoundingBox();
-    wmath::WPosition p1 = boundingBox.first;
-    wmath::WPosition p2 = boundingBox.second;
+    WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
+    wmath::WPosition p1 = boundingBox.getMin();
+    wmath::WPosition p2 = boundingBox.getMax();
 
     switch ( m_coordConverter->getCoordinateSystemMode() )
     {
@@ -597,13 +643,22 @@ void WMCoordinateSystem::addSagittalGrid( float position )
 
 void WMCoordinateSystem::addCoronalGrid( float position )
 {
+    if ( ( m_viewAngle == 2 ) || ( m_viewAngle == 3 ) || ( m_viewAngle == 4 ) || ( m_viewAngle == 5 ) )
+    {
+        position += 1.0;
+    }
+    else
+    {
+        position -= 1.0;
+    }
+
     osg::ref_ptr< osg::Geode > gridGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
-    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_coordConverter->getBoundingBox();
-    wmath::WPosition p1 = boundingBox.first;
-    wmath::WPosition p2 = boundingBox.second;
+    WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
+    wmath::WPosition p1 = boundingBox.getMin();
+    wmath::WPosition p2 = boundingBox.getMax();
 
     switch ( m_coordConverter->getCoordinateSystemMode() )
     {
@@ -669,13 +724,22 @@ void WMCoordinateSystem::addCoronalGrid( float position )
 
 void WMCoordinateSystem::addAxialGrid( float position )
 {
+    if ( ( m_viewAngle == 1 ) || ( m_viewAngle == 2 ) || ( m_viewAngle == 5 ) || ( m_viewAngle == 6 ) )
+    {
+        position += 1.0;
+    }
+    else
+    {
+        position -= 1.0;
+    }
+
     osg::ref_ptr< osg::Geode > gridGeode = osg::ref_ptr< osg::Geode >( new osg::Geode() );
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry() );
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
-    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_coordConverter->getBoundingBox();
-    wmath::WPosition p1 = boundingBox.first;
-    wmath::WPosition p2 = boundingBox.second;
+    WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
+    wmath::WPosition p1 = boundingBox.getMin();
+    wmath::WPosition p2 = boundingBox.getMax();
 
     switch ( m_coordConverter->getCoordinateSystemMode() )
     {
@@ -737,9 +801,4 @@ void WMCoordinateSystem::addAxialGrid( float position )
     gridGeode->addDrawable( geometry );
 
     m_rulerNode->addChild( gridGeode );
-}
-
-void WMCoordinateSystem::userData::updateGeometry()
-{
-    m_parent->updateGeometry();
 }

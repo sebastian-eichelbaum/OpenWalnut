@@ -40,7 +40,7 @@
 #include "../../graphicsEngine/WGEUtils.h"
 
 #include "WMCoordinateHUD.h"
-#include "coordinateHUD.xpm"
+#include "WMCoordinateHUD.xpm"
 #include "option_1.xpm"
 #include "option_2.xpm"
 #include "option_3.xpm"
@@ -96,14 +96,15 @@ void WMCoordinateHUD::properties()
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_aSingleSelection );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_aSingleSelection );
-
     // set the x axis color if in color axis or color cube mode
+
+    WModule::properties();
 }
 
 void WMCoordinateHUD::moduleMain()
 {
     // added own shader for visualisation as HUD
-    m_shader = osg::ref_ptr< WShader > ( new WShader( "WMCoordinateHUD" , m_localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMCoordinateHUD" , m_localPath ) );
 
     m_rootNode = new WGEManagedGroupNode( m_active );
     m_rootNode->setName( "coordHUDNode" );

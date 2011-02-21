@@ -42,12 +42,17 @@ WModuleInputConnector::WModuleInputConnector( boost::shared_ptr< WModule > modul
 
     // setup conditions
     m_dataChangedCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    // if connection is closed, also fire "data change"
+    signal_ConnectionClosed.connect( boost::bind( &WModuleInputConnector::setUpdated, this ) );
+    signal_ConnectionClosed.connect( boost::bind( &WCondition::notify, m_dataChangedCondition ) );
 }
 
 WModuleInputConnector::~WModuleInputConnector()
 {
     // cleanup
     m_DataChangedConnection.disconnect();
+    signal_ConnectionClosed.disconnect_all_slots();
 }
 
 bool WModuleInputConnector::connectable( boost::shared_ptr<WModuleConnector> con )

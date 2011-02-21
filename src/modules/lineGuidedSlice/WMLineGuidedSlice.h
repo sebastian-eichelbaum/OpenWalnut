@@ -31,21 +31,15 @@
 
 #include <osg/Node>
 
-
-#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
+// forward declarations
+class WFiberCluster;
+
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "wiebel".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
- *
+ * Module to compute a plane along a line and color it with a scalar parameter.
  * \ingroup modules
  */
 class WMLineGuidedSlice : public WModule, public osg::Referenced
@@ -81,6 +75,11 @@ public:
      * \return the prototype used to create every module in OpenWalnut.
      */
     virtual boost::shared_ptr< WModule > factory() const;
+
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
 
 protected:
 
@@ -159,7 +158,7 @@ private:
     osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node for this module.
     osg::ref_ptr< osg::Geode > m_sliceNode; //!< OSG node for slice.
     osg::ref_ptr< osg::Geode > m_centerLineGeode; //!< OSG center line of the current cluster geode.
-    osg::ref_ptr< WShader > m_shader; //!< The shader object for this module.
+    osg::ref_ptr< WGEShader > m_shader; //!< The shader object for this module.
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node.
     std::vector< osg::ref_ptr< osg::Uniform > > m_typeUniforms; //!< Vector of uniforms for type of texture.
     std::vector< osg::ref_ptr< osg::Uniform > > m_alphaUniforms; //!< Vector of alpha values per texture.
@@ -167,7 +166,7 @@ private:
     std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< Vector of samplers.
     osg::ref_ptr< osg::Uniform > m_highlightUniform; //!< Determines whether the slice is highlighted.
 
-    boost::shared_ptr< wmath::WFiber > m_centerLine; //!< The line that guides the slice.
+    boost::shared_ptr< WFiber > m_centerLine; //!< The line that guides the slice.
 
     /**
      * Node callback to handle updates properly
@@ -185,7 +184,7 @@ private:
         {
             osg::ref_ptr< WMLineGuidedSlice > module = static_cast< WMLineGuidedSlice* > ( node->getUserData() );
 
-            if ( module )
+            if( module )
             {
                 module->updateGeometry();
                 module->updateTextures();

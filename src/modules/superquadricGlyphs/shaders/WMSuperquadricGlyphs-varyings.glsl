@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-// IMPORTANT: 
+// IMPORTANT:
 //  Due to the fact that the graphics hardware limits the number of varying floats and the
 //  fact that NVIDIA stores vec3 varyings as vec4 and mat3 as mat4 we get a lot of unused
 //  floats. The most varying variables here just need three components but as said before
@@ -31,7 +31,7 @@
 //  this we can delay the problem of having to much variables and to less space to store
 //  them.
 //
-//  To increase clearness there are USAGE comments on all varying variables that explain 
+//  To increase clearness there are USAGE comments on all varying variables that explain
 //  for which data the unused component is used (to avoid unnesesary confusion).
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ varying vec4 v_lightDir;
 // camera direction vector
 // USAGE:
 // x,y,z components:        the direction vector
-// w component:             unused 
+// w component:             unused
 varying vec4 v_planePoint;
 
 // point on projection plane of current pixel
@@ -75,9 +75,6 @@ varying vec4 v_alphaBeta;
 
 // scale glyphs
 uniform float u_scaling;
-
-// unify largest eigenvalue ?
-uniform bool u_unifyEV;
 
 // fractional anisotropy threshold to skip some glyphs
 uniform float u_faThreshold;

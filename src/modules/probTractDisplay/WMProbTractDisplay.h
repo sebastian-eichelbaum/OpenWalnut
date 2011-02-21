@@ -28,10 +28,11 @@
 #include <string>
 #include <vector>
 
-#include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleContainer.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleInputForwardData.h"
+
+// forward declarations
+class WModule;
+template< class T > class WModuleInputForwardData;
 
 /**
  * This module generates a visualization of probabilistic tracts using iso surfaces.
@@ -42,7 +43,6 @@
 class WMProbTractDisplay: public WModuleContainer
 {
 public:
-
     /**
      * Default constructor.
      */

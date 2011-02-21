@@ -41,6 +41,7 @@
 #include "sag.xpm"
 
 #include "box.xpm"
+#include "o.xpm"
 #include "question.xpm"
 
 #include "moduleBusy.xpm"

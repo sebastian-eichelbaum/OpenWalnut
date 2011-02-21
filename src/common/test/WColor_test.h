@@ -34,77 +34,35 @@
 #include "WColorTraits.h"
 
 /**
- * Unit tests the WColor class
+ * Unit tests the color helping functions
  */
 class WColorTest : public CxxTest::TestSuite
 {
 public:
-    /**
-     * To write a WColor object to an output stream we must ensure that every
-     * component (red, green, blue and alpha) are written to that stream and
-     * that we have a special delimiter char.
-     */
-    void testOutputOperator( void )
-    {
-        std::stringstream ss;
-        WColor c;
-        c.setBlue( 0.4711 );
-        ss << c;
-        std::string expected = "0;0;0.4711;1";
-        TS_ASSERT_EQUALS( ss.str(), expected );
-    }
-
-    /**
-     * When given a string separated by semicolons then it should be handled
-     * as red green blue and alpha values. There has to be 4 such values.
-     */
-    void testInputOperator( void )
-    {
-        WColor c( 1.0, 0.5, 0.25 );
-        std::stringstream ss( "1.0;0.5;0.25;0.0" );
-        ss >> c;
-        TS_ASSERT_EQUALS( c.getRed(), 1.0 );
-        TS_ASSERT_EQUALS( c.getGreen(), 0.5 );
-        TS_ASSERT_EQUALS( c.getBlue(), 0.25 );
-        TS_ASSERT_EQUALS( c.getAlpha(), 0.0 );
-    }
 
     /**
      * Red in HSV is ( 0, 1, 1 ) and in RGB ( 1, 0, 0 )
      * Green in HSV is ( 0.3, 1, 1 ) and in RGB ( 0, 1, 0 )
      * and checks some dark green
      */
-    void testResetHSV( void )
+    void testHSVConversion( void )
     {
-        WColor c;
-        c.setHSV( 0, 1, 1 );
-        TS_ASSERT_DELTA( c.getRed(), 1, 0.00001 );
-        TS_ASSERT_DELTA( c.getGreen(), 0, 0.00001 );
-        TS_ASSERT_DELTA( c.getBlue(), 0, 0.00001 );
-        c.setHSV( 1, 1, 1 ); // this is also red
-        TS_ASSERT_DELTA( c.getRed(), 1, 0.00001 );
-        TS_ASSERT_DELTA( c.getGreen(), 0, 0.00001 );
-        TS_ASSERT_DELTA( c.getBlue(), 0, 0.00001 );
-        c.setHSV( 1.0 / 3.0, 1, 1 );
-        TS_ASSERT_DELTA( c.getRed(), 0, 0.00001 );
-        TS_ASSERT_DELTA( c.getGreen(), 1, 0.00001 );
-        TS_ASSERT_DELTA( c.getBlue(), 0, 0.00001 );
-        c.setHSV( 0.3, 0.3, 0.3 ); // dark green
-        TS_ASSERT_DELTA( c.getRed(), 0.2280, 0.0001 );
-        TS_ASSERT_DELTA( c.getGreen(), 0.3, 0.0001 );
-        TS_ASSERT_DELTA( c.getBlue(), 0.2099, 0.0001 );
-    }
-
-    /**
-     * Two colors are equal if they share the same value in all four channels.
-     */
-    void testEquality( void )
-    {
-        WColor foo( 0.1, 0.2, 0.3, 0.4 );
-        WColor bar( 0.10001, 0.2, 0.3, 0.4 );
-        TS_ASSERT_DIFFERS( foo, bar );
-        WColor pansen( 0.1, 0.2, 0.3, 0.4 );
-        TS_ASSERT_EQUALS( foo, pansen );
+        WColor c = convertHSVtoRGBA( 0, 1, 1 );
+        TS_ASSERT_DELTA( c[0], 1, 0.00001 );
+        TS_ASSERT_DELTA( c[1], 0, 0.00001 );
+        TS_ASSERT_DELTA( c[2], 0, 0.00001 );
+        c = convertHSVtoRGBA( 1, 1, 1 ); // this is also red
+        TS_ASSERT_DELTA( c[0], 1, 0.00001 );
+        TS_ASSERT_DELTA( c[1], 0, 0.00001 );
+        TS_ASSERT_DELTA( c[2], 0, 0.00001 );
+        c = convertHSVtoRGBA( 1.0 / 3.0, 1, 1 );
+        TS_ASSERT_DELTA( c[0], 0, 0.00001 );
+        TS_ASSERT_DELTA( c[1], 1, 0.00001 );
+        TS_ASSERT_DELTA( c[2], 0, 0.00001 );
+        c = convertHSVtoRGBA( 0.3, 0.3, 0.3 ); // dark green
+        TS_ASSERT_DELTA( c[0], 0.2280, 0.0001 );
+        TS_ASSERT_DELTA( c[1], 0.3, 0.0001 );
+        TS_ASSERT_DELTA( c[2], 0.2099, 0.0001 );
     }
 };
 

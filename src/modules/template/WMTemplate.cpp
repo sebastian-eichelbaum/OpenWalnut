@@ -63,8 +63,9 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGERequirement.h"
 
-#include "template.xpm"
+#include "WMTemplate.xpm"
 #include "icons/bier.xpm"
 #include "icons/wurst.xpm"
 #include "icons/steak.xpm"
@@ -170,6 +171,10 @@ void WMTemplate::connectors()
     // As properties, every connector needs to be added to the list of connectors.
     addConnector( m_input );
 
+    // For all the lazy programmers, the creation and addition of the connector can be simplified to one type-less-compatible step:
+    // m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to display" );
+    // This is fully equivalent to the above calls and works for output connectors too.
+
     // Now, lets add an output connector. We want to provide data calculated here to other modules. The output connector is initialized the same
     // way as input connectors. You need the type, the module-wide unique name and the description. The type you specify here also determines
     // which input connectors can be connected to this output connector: only connectors with a type equal or lower in class hierarchy.
@@ -206,7 +211,7 @@ void WMTemplate::properties()
                                                     "A property which gets modified if \"Number of shape rows\" gets modified.", 10 );
     m_aDouble          = m_properties->addProperty( "Shape radii",              "Shape radii.", 20.0, m_propCondition );
     m_aString          = m_properties->addProperty( "A string",                 "Something.", std::string( "hello" ), m_propCondition );
-    m_aFile            = m_properties->addProperty( "A filenname",              "Description.", WPathHelper::getAppPath(), m_propCondition );
+    m_aFile            = m_properties->addProperty( "A filename",              "Description.", WPathHelper::getAppPath(), m_propCondition );
     m_aColor           = m_properties->addProperty( "A color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
     m_aPosition        = m_properties->addProperty( "Somewhere",                "Description.", wmath::WPosition( 0.0, 0.0, 0.0 ) );
 
@@ -258,6 +263,12 @@ void WMTemplate::properties()
     m_group1a->addProperty( m_aDouble );
     m_group1a->addProperty( m_enableFeature );
 
+    // and add another button to group2. But this time, we do not want to wake up the main thread. We handle this directly. Fortunately,
+    // WPropertyVariable offers you the possibility to specify your own change callback. This callback is used for hiding the m_aColor property
+    // on the fly.
+    m_hideButton = m_group2->addProperty( "(Un-)Hide Color", "Trigger Button Text.", WPVBaseTypes::PV_TRIGGER_READY,
+                                          boost::bind( &WMTemplate::hideButtonPressed, this ) );
+
     // How can the values of the properties be changed? You can take a look at moduleMain where this is shown. For short: m_anInteger->set( 2 )
     // and m_anInteger->get().
 
@@ -287,7 +298,7 @@ void WMTemplate::properties()
     WPropertyHelper::PC_NOTEMPTY::addTo( m_aString );
 
     // One last thing to mention is the active property. This property is available in all modules and represents the activation state of the
-    // module. Int the GUI this is simply a checkbox beneath the module. The active property should be taken into account in ALL modules.
+    // module. In the GUI this is simply a checkbox beneath the module. The active property should be taken into account in ALL modules.
     // Visualization modules should turn off their graphics. There are basically three ways to react on changes in m_active, which is the member
     // variable for this property.
     // 1: overwrite WModule::activate() in your module
@@ -313,16 +324,32 @@ void WMTemplate::properties()
     m_aStringOutput = m_group1a->addProperty( "A message", "A message to the user.", message );
     m_aStringOutput->setPurpose( PV_PURPOSE_INFORMATION );
     // This adds the property m_aStringOutput to your group and sets its purpose. The default purpose for all properties is always
-    // "PV_PURPOSE_PARAMETER". It simply denotes the meaning of the property - its meant to be used as modifier for the module's behaviour; a
+    // "PV_PURPOSE_PARAMETER". It simply denotes the meaning of the property - its meant to be used as modifier for the module's behavior; a
     // parameter.
     //
     // Some more examples. Please note: Although every property type can be used as information property, not everything is really useful.
     m_infoProperties->addProperty( m_aStringOutput );   // we can also re-add properties
     m_aTriggerOutput = m_infoProperties->addProperty( "A trigger", "Trigger As String", WPVBaseTypes::PV_TRIGGER_READY );
     m_aDoubleOutput = m_infoProperties->addProperty( "Some double", "a Double. Nice isn't it?", 3.1415 );
+    m_aIntOutput = m_infoProperties->addProperty( "Some int", "a int. Nice isn't it?", 123456 );
     m_aColorOutput = m_infoProperties->addProperty( "A color", "Some Color. Nice isn't it?", WColor( 0.5, 0.5, 1.0, 1.0 ) );
     m_aFilenameOutput = m_infoProperties->addProperty( "Nice file", "a Double. Nice isn't it?", WPathHelper::getAppPath() );
     m_aSelectionOutput = m_infoProperties->addProperty( "A selection", "Selection As String",  m_possibleSelections->getSelectorFirst() );
+    // One important note regarding information properties. If a property gets added in a group which is an information property-group, then
+    // each added property does NOT contain any constraints. If a property gets an information property AFTER its creation, like m_aStringOutput,
+    // then it keeps its constraints!
+
+    WModule::properties();
+}
+
+void WMTemplate::requirements()
+{
+    // This method allows modules to specify what they need to run properly. This module, for example, needs the WGE. It therefore adds the
+    // WGERequirement to the list of requirements. Modules only get started if all the requirements of it are met by the current running
+    // OpenWalnut. This is a very handy tool for NO-GUI versions or script versions of OpenWalnut where there simply is no graphics engine
+    // running. This way, the kernel can ensure that only modules are allowed to run who do not require the WGE.
+    // Another useful example are module containers. Usually, they need several other modules to work properly.
+    m_requirements.push_back( new WGERequirement() );
 }
 
 void WMTemplate::moduleMain()
@@ -332,7 +359,7 @@ void WMTemplate::moduleMain()
     // properties(). You always can assume the kernel, the GUI, the graphics engine and the data handler to be initialized and ready. Please keep
     // in mind, that this method is running in its own thread.
 
-    // You can output log messages everywhere and everytime in your module. The WModule base class therefore provides debugLog, infoLog, warnLog
+    // You can output log messages everywhere and any time in your module. The WModule base class therefore provides debugLog, infoLog, warnLog
     // and errorLog. You can use them very similar to the common std::cout streams.
     debugLog() << "Entering moduleMain()";
 
@@ -350,7 +377,7 @@ void WMTemplate::moduleMain()
     // Remember the condition provided to some properties in properties()? The condition can now be used with this condition set.
     m_moduleState.add( m_propCondition );
     // One note about "setResetable": It might happen, that a condition fires and your thread does not currently waits on it. This would mean,
-    // that your thread misses the event. The resetable flag for those condition sets can help here. Whenever a condition, managed by the
+    // that your thread misses the event. The resettable flag for those condition sets can help here. Whenever a condition, managed by the
     // condition set, fires, the moduleState variable remembers it. So, the next call to m_moduleState.wait() will immediately return and reset
     // the "memory" of the moduleState. For more details, see: http://berkeley.informatik.uni-leipzig.de/trac/ow-public/wiki/HowtoWaitCorrectly
 
@@ -376,7 +403,7 @@ void WMTemplate::moduleMain()
     // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
     // connectors or on changed in your properties.
     debugLog() << "Entering main loop";
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         // Now, the moduleState variable comes into play. The module can wait for the condition, which gets fired whenever the input receives data
         // or an property changes. The main loop now waits until something happens.
@@ -393,7 +420,7 @@ void WMTemplate::moduleMain()
         // After waking up, the module has to check whether the shutdownFlag fired. If yes, simply quit the module.
 
         // woke up since the module is requested to finish
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -430,10 +457,20 @@ void WMTemplate::moduleMain()
         // there to ensure its proper deletion.
 
         // do something with the data
-        if ( dataUpdated && dataValid )
+        if( dataUpdated && dataValid )
         {
             // The data is valid and we received an update. The data is not NULL but may be the same as in previous loops.
             debugLog() << "Received Data.";
+        }
+
+        // If there is no data, this might have the following reasons: the connector never has been connected or it got disconnected. Especially
+        // in the case of a disconnect, you should always clean up your renderings and internal states. A disconnected module should not render
+        // anything anymore. Locally stored referenced to the old input data have to be reset to. Only this way, it is guaranteed that not used
+        // data gets deleted properly.
+        if( !dataValid )
+        {
+            debugLog() << "Data changed. No valid data anymore. Cleaning up.";
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
         }
 
         // Here we collect our properties. You, as with input connectors, always check if a property really has changed. You most probably do not
@@ -442,7 +479,7 @@ void WMTemplate::moduleMain()
         //
         // To check whether a property changed, WPropertyVariable provides a changed() method which is true whenever the property has changed.
         // Please note: creating the property with addProperty( ... ) will set changed to true.
-        if ( m_aFile->changed() )
+        if( m_aFile->changed() )
         {
             // To reset the changed flag, supply a "true" to the get method. This resets the changed-flag and next loop you can again check
             // whether it has been changed externally.
@@ -454,9 +491,9 @@ void WMTemplate::moduleMain()
         }
 
         // m_aFile got handled above. Now, handle two properties which together are used as parameters for an operation.
-        if ( m_aString->changed() )
+        if( m_aString->changed() )
         {
-            // This is a simple example for doing an operation which is depends on all, but m_anFile,  properties.
+            // This is a simple example for doing an operation which is depends on all, but m_aFile,  properties.
             debugLog() << "Doing an operation basing on m_aString ... ";
             debugLog() << "m_aString: " << m_aString->get( true );
 
@@ -465,7 +502,7 @@ void WMTemplate::moduleMain()
 
         // This example code now shows how to modify your OSG nodes basing on changes in your dataset or properties.
         // The if statement also checks for data validity as it uses the data! You should also always do that.
-        if ( ( m_anInteger->changed() || m_aDouble->changed() || dataUpdated  ) && dataValid )
+        if( ( m_anInteger->changed() || m_aDouble->changed() || dataUpdated  ) && dataValid )
         {
             debugLog() << "Creating new OSG node";
 
@@ -488,7 +525,7 @@ void WMTemplate::moduleMain()
             osg::ref_ptr< osg::Geode > newGeode = new osg::Geode();
             // When working with the OpenSceneGraph, always use ref_ptr to store pointers to OSG objects. This allows OpenSceneGraph to manage
             // its resources automatically.
-            for ( int32_t i = 0; i < rows; ++i )
+            for( int32_t i = 0; i < rows; ++i )
             {
                 newGeode->addDrawable(
                         new osg::ShapeDrawable( new osg::Box(             osg::Vec3(  25, 128, i * 15 ), radii ) ) );
@@ -502,7 +539,7 @@ void WMTemplate::moduleMain()
                         new osg::ShapeDrawable( new osg::Capsule(         osg::Vec3( 225, 128, i * 15 ), radii, radii ) ) );
             }
 
-            // The old root node needs to be removed safely. The OpenSceneGraph traverses the graph at every frame. This traversion is done in a
+            // The old root node needs to be removed safely. The OpenSceneGraph traverses the graph at every frame. This traversal is done in a
             // separate thread. Therefore, adding a node directly may cause the OpenSceneGraph to crash. Thats why the Group node (WGEGroupNode)
             // offers safe remove and insert methods. Use them to manipulate the scene node.
             // First remove the old node:
@@ -521,7 +558,7 @@ void WMTemplate::moduleMain()
         // Now we updated the visualization after the dataset has changed. Your module might also calculate some other datasets basing on the
         // input data.
         // To ensure that all datasets are valid, check dataUpdated and dataValid. If both are true, you can safely use the data.
-        if ( dataUpdated && dataValid )
+        if( dataUpdated && dataValid )
         {
             debugLog() << "Data changed. Recalculating output.";
 
@@ -535,7 +572,7 @@ void WMTemplate::moduleMain()
             int steps = 10;
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Doing work 1", steps ) );
             m_progress->addSubProgress( progress1 );
-            for ( int i = 0; i < steps; ++i )
+            for( int i = 0; i < steps; ++i )
             {
                 ++*progress1;
                 sleep( 1 );
@@ -560,7 +597,7 @@ void WMTemplate::moduleMain()
 
         // As we provided our condition to m_aTrigger too, the main thread will wake up if it changes. The GUI can change the trigger only to the
         // state "PV_TRIGGER_TRIGGERED" (this is the case if the user presses the button).
-        if ( m_aTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_aTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             // Now that the trigger has the state "triggered", a time consuming operation can be done here.
             debugLog() << "User triggered an important and time consuming operation.";
@@ -585,7 +622,7 @@ void WMTemplate::moduleMain()
             int steps = 10;
             boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Doing something important", steps ) );
             m_progress->addSubProgress( progress1 );
-            for ( int i = 0; i < steps; ++i )
+            for( int i = 0; i < steps; ++i )
             {
                 ++*progress1;
                 sleep( 1 );
@@ -604,7 +641,7 @@ void WMTemplate::moduleMain()
         }
 
         // This checks the selections.
-        if ( m_aMultiSelection->changed() ||  m_aSingleSelection->changed() )
+        if( m_aMultiSelection->changed() ||  m_aSingleSelection->changed() )
         {
             // The single selector allows only one selected item and requires one item to be selected all the time. So accessing it by index
             // is trivial:
@@ -613,20 +650,20 @@ void WMTemplate::moduleMain()
 
             // The multi property allows the selection of several items. So, iteration needs to be done here:
             s = m_aMultiSelection->get( true );
-            for ( size_t i = 0; i < s.size(); ++i )
+            for( size_t i = 0; i < s.size(); ++i )
             {
                 infoLog() << "The user likes " << s.at( i )->getName();
             }
         }
     }
 
-    // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up:
+    // At this point, the container managing this module signaled to shutdown. The main loop has ended and you should clean up:
     //
     //  * remove allocated memory
     //  * remove all OSG nodes
     //  * stop any pending threads you may have started earlier
     //  * ...
-    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
+    //  NOTE: as the module gets disconnected prior to shutdown, most of the cleanup should have been done already.
 }
 
 void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
@@ -634,14 +671,11 @@ void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisit
     // One note about m_aColor: As you might have notices, changing one of the properties, which recreate the OSG node, causes the material to be
     // gray again. This is simply caused by m_aColor->changed() is still false! To resolve this problem, use some m_osgNeedsUpdate boolean which
     // gets set in your thread main and checked here or, as done in this module, by checking whether the callback is called the first time.
-    if ( m_module->m_aColor->changed() || m_initialUpdate )
+    if( m_module->m_aColor->changed() || m_initialUpdate )
     {
-        // Grab the color
-        WColor c = m_module->m_aColor->get( true );
-
         // Set the diffuse color and material:
         osg::ref_ptr< osg::Material > mat = new osg::Material();
-        mat->setDiffuse( osg::Material::FRONT, osg::Vec4( c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() ) );
+        mat->setDiffuse( osg::Material::FRONT, m_module->m_aColor->get( true ) );
         node->getOrCreateStateSet()->setAttribute( mat, osg::StateAttribute::ON );
     }
     traverse( node, nv );
@@ -650,13 +684,13 @@ void WMTemplate::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisit
 void WMTemplate::TranslateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     // Update the transformation matrix according to m_aPosition if it has changed.
-    if ( m_module->m_aPosition->changed() || m_initialUpdate )
+    if( m_module->m_aPosition->changed() || m_initialUpdate )
     {
         // The node to which this callback has been attached needs to be an osg::MatrixTransform:
         osg::ref_ptr< osg::MatrixTransform > transform = static_cast< osg::MatrixTransform* >( node );
 
         // Build a translation matrix (to comfortably convert between WPosition and osg::Vec3 use the convenience methods in "wge::" namespace)
-        osg::Matrixd translate = osg::Matrixd::translate( wge::osgVec3( m_module->m_aPosition->get( true  ) ) );
+        osg::Matrixd translate = osg::Matrixd::translate( m_module->m_aPosition->get( true  ) );
 
         // and set the translation matrix
         transform->setMatrix( translate );
@@ -670,7 +704,7 @@ void WMTemplate::TranslateCallback::operator()( osg::Node* node, osg::NodeVisito
 bool WMTemplate::StringLength::accept( boost::shared_ptr< WPropertyVariable< WPVBaseTypes::PV_STRING > > /* property */,
                                        WPVBaseTypes::PV_STRING value )
 {
-    // This method gets called everytime the m_aString property is going to be changed. It can decide whether the new value is valid or not. If
+    // This method gets called every time the m_aString property is going to be changed. It can decide whether the new value is valid or not. If
     // the method returns true, the new value is set. If it returns false, the value is rejected.
     //
     // Note: always use WPVBaseTypes when specializing the WPropertyVariable template.
@@ -690,7 +724,7 @@ void WMTemplate::activate()
 {
     // This method gets called, whenever the m_active property changes. Your module should always handle this if you do not use the
     // WGEManagedGroupNode for your scene. The user can (de-)activate modules in his GUI and you can handle this case here:
-    if ( m_active->get() )
+    if( m_active->get() )
     {
         debugLog() << "Activate.";
     }
@@ -705,3 +739,20 @@ void WMTemplate::activate()
     WModule::activate();
 }
 
+void WMTemplate::hideButtonPressed()
+{
+    // This method is called whenever m_hideButton changes its value. You can use such callbacks to avoid waking-up or disturbing the module
+    // thread for certain operations.
+
+    // If the button was triggered, switch the hide-state of m_aColor.
+    if ( m_hideButton->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+    {
+        // switch the hide flag of the color prop.
+        m_aColor->setHidden( !m_aColor->isHidden() );
+
+        // never forget to reset a trigger. If not done, the trigger is disabled in the GUI and can't be used again.
+        m_hideButton->set( WPVBaseTypes::PV_TRIGGER_READY );
+
+        // NOTE: this again triggers an update, which is why we need to check the state of the trigger in this if-clause.
+    }
+}

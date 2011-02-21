@@ -103,11 +103,17 @@ private:
     //! The dataset at the current time.
     boost::shared_ptr< WDataSetScalar > m_dataSetAtTime;
 
-    //! The input Connector for the SH data.
+    //! The input connector for the time series.
     boost::shared_ptr< WModuleInputData< WDataSetTimeSeries > > m_input;
+
+    //! The output connector for the currently selected time slice.
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
 
     //! The current time.
     WPropDouble m_time;
+
+    //! True, iff all textures should be scaled to the same intervall.
+    WPropBool m_texScaleNormalized;
 
     //! A condition for property changes.
     boost::shared_ptr< WCondition > m_propCondition;

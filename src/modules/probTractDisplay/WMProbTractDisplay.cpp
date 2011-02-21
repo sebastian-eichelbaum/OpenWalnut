@@ -28,8 +28,10 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../../dataHandler/WDataSetScalar.h"
-#include "probtractdisplay.xpm"
+#include "../../kernel/WModuleFactory.h"
+#include "../../kernel/WModuleInputForwardData.h"
 #include "WMProbTractDisplay.h"
+#include "WMProbTractDisplay.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMProbTractDisplay )
@@ -65,16 +67,15 @@ const std::string WMProbTractDisplay::getDescription() const
 
 void WMProbTractDisplay::connectors()
 {
-    m_input = boost::shared_ptr< WModuleInputForwardData < WDataSetScalar  > >(
-        new WModuleInputForwardData< WDataSetScalar >( shared_from_this(), "probTract", "The probabilistic tractogram as scalar dataset." )
-    );
-
-    addConnector( m_input );
+    m_input = WModuleInputForwardData < WDataSetScalar >::createAndAdd( shared_from_this(),
+                                                                        "probTractInput",
+                                                                        "The probabilistic tractogram as scalar dataset." );
     WModule::connectors();
 }
 
 void WMProbTractDisplay::properties()
 {
+    WModule::properties();
 }
 
 void WMProbTractDisplay::moduleMain()
@@ -84,12 +85,12 @@ void WMProbTractDisplay::moduleMain()
     initSubModules();
     ready();
     debugLog() << "Module is now ready.";
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -98,7 +99,7 @@ void WMProbTractDisplay::moduleMain()
 
 void WMProbTractDisplay::initSubModules()
 {
-    static WColor colorInit[] = { WColor::green, WColor::blue, WColor::red }; // NOLINT
+    static WColor colorInit[] = { defaultColor::GREEN, defaultColor::BLUE, defaultColor::RED }; // NOLINT curly braces
     std::vector< WColor > preDefinedColors( colorInit, colorInit + sizeof colorInit / sizeof colorInit[ 0 ] );
 
     static int init[] = { 100, 30, 0 }; // NOLINT

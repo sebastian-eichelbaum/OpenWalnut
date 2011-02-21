@@ -27,16 +27,14 @@
 #include <vector>
 
 #include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
-#include "../../dataHandler/WSubject.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../graphicsEngine/WROIArbitrary.h"
 #include "../../kernel/WKernel.h"
-
-#include "paintTexture.xpm" // Please put a real icon here.
-
+#include "../../kernel/WROIManager.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMPaintTexture.h"
+#include "WMPaintTexture.xpm"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
 W_LOADABLE_MODULE( WMPaintTexture )
@@ -88,9 +86,6 @@ void WMPaintTexture::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    // use this callback for the other properties
-    WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMPaintTexture::propertyChanged, this, _1 );
-
     m_painting = m_properties->addProperty( "Paint", "If active, left click in the scene with pressed ctrl key"
                                                       " will paint something.", false, m_propCondition );
 
@@ -106,11 +101,6 @@ void WMPaintTexture::properties()
     m_paintIndex = m_properties->addProperty( "Paint index", "Index we paint into the output texture", 1 );
     m_paintIndex->setMin( 0 );
     m_paintIndex->setMax( 255 );
-
-    m_opacity = m_properties->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
-                                            " values from several data sets.", 100, propertyCallback );
-    m_opacity->setMax( 100 );
-    m_opacity->setMin( 0 );
 
     m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_colorMapSelectionsList->addItem( "Grayscale", "" );
@@ -133,15 +123,8 @@ void WMPaintTexture::properties()
             WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
     m_buttonCreateRoi = m_properties->addProperty( "Create ROI", "Create a ROI from the currently selected paint value",
                 WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
-}
 
-void WMPaintTexture::propertyChanged( boost::shared_ptr< WPropertyBase > property )
-{
-    if ( property == m_opacity )
-    {
-        WKernel::getRunningKernel()->getSelectionManager()->setTextureOpacity( m_opacity->get( true ) / 100.0 );
-        WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
-    }
+    WModule::properties();
 }
 
 void WMPaintTexture::moduleMain()
@@ -202,14 +185,15 @@ void WMPaintTexture::moduleMain()
                     {
                         WKernel::getRunningKernel()->getSelectionManager()->setPaintMode( PAINTMODE_PAINT );
                     }
-                    WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( true );
-                    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+                    if ( m_texture )
+                    {
+                        m_texture->active()->set( true );
+                    }
                 }
                 else
                 {
-                    WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( false );
+                    m_texture->active()->set( false );
                     WKernel::getRunningKernel()->getSelectionManager()->setPaintMode( PAINTMODE_NONE );
-                    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
                 }
             }
 
@@ -246,9 +230,8 @@ void WMPaintTexture::moduleMain()
 
     debugLog() << "Shutting down...";
 
-    WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( false );
+    WGEColormapping::deregisterTexture( m_texture );
     WKernel::getRunningKernel()->getSelectionManager()->setPaintMode( PAINTMODE_NONE );
-    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
 
     con.disconnect();
 
@@ -430,19 +413,13 @@ void WMPaintTexture::createTexture()
         data[i] = 0.0;
     }
 
-    m_texture = osg::ref_ptr<osg::Texture3D>( new osg::Texture3D );
-    m_texture->setFilter( osg::Texture3D::MIN_FILTER, osg::Texture3D::LINEAR );
-    m_texture->setFilter( osg::Texture3D::MAG_FILTER, osg::Texture3D::LINEAR );
-    m_texture->setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER );
-    m_texture->setWrap( osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_BORDER );
-    m_texture->setWrap( osg::Texture::WRAP_R, osg::Texture::CLAMP_TO_BORDER );
-    m_texture->setImage( ima );
-    m_texture->setResizeNonPowerOfTwoHint( false );
+    m_texture = osg::ref_ptr< WGETexture3D >( new WGETexture3D( ima ) );
+    m_texture->setFilterMinMag( osg::Texture3D::LINEAR );
+    m_texture->setWrapSTR( osg::Texture::CLAMP_TO_BORDER );
+    m_texture->colormap()->set( m_texture->colormap()->get().newSelector( WItemSelector::IndexList( 1, 4 ) ) );
+    m_properties->addProperty( m_texture->alpha() );
 
-    WKernel::getRunningKernel()->getSelectionManager()->setTexture( m_texture, m_grid );
-    WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( true );
-
-    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+    WGEColormapping::registerTexture( m_texture, "Painted Texture" );
 }
 
 void WMPaintTexture::updateOutDataset()
@@ -452,11 +429,12 @@ void WMPaintTexture::updateOutDataset()
     WAssert( m_dataSet->getGrid(), "" );
 
     unsigned char* data = m_texture->getImage()->data();
-    std::vector<unsigned char>values( m_grid->size(), 0.0 );
+    boost::shared_ptr< std::vector< unsigned char > > values =
+        boost::shared_ptr< std::vector< unsigned char > >( new std::vector< unsigned char >( m_grid->size(), 0.0 ) );
 
     for ( unsigned int i = 0; i < m_grid->size(); ++i )
     {
-        values[i] = data[i];
+        ( *values )[i] = data[i];
     }
 
     boost::shared_ptr< WValueSet< unsigned char > > vs =
@@ -484,12 +462,6 @@ void WMPaintTexture::copyFromInput()
 
 void WMPaintTexture::createROI()
 {
-    if( !WKernel::getRunningKernel()->getRoiManager()->getBitField() )
-    {
-        wlog::warn( "WMPaintTexture" ) << "Refused to add ROI, as ROIManager does not have computed its bitfield yet.";
-        return;
-    }
-
     bool valid = false;
     std::vector<float>roiVals( m_grid->size(), 0 );
     unsigned char index = m_paintIndex->get();
@@ -513,13 +485,13 @@ void WMPaintTexture::createROI()
 
         if ( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
         {
-            std::cout << " new roi without parent " << std::endl;
+            WLogger::getLogger()->addLogMessage( " new roi without parent ", "WMPaintTexture", LL_DEBUG );
             WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
         }
         else
         {
-            std::cout << " new roi with parent " << std::endl;
-            WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi()->getROI() );
+            WLogger::getLogger()->addLogMessage( " new roi with parent ", "WMPaintTexture", LL_DEBUG );
+            WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi, WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() );
         }
     }
 }

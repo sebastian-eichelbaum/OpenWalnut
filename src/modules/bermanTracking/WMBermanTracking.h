@@ -37,8 +37,12 @@
 #include "../../dataHandler/WDataSetSphericalHarmonics.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetRawHARDI.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WThreadedTrackingFunction.h"
 #include "../../dataHandler/WFiberAccumulator.h"
+
+// forward declarations
+class WROIBox;
 
 /**
  * Implements the probabilistic tracking algorithm by Berman at al.
@@ -46,7 +50,7 @@
  * Jeffrey I. Berman, SungWon Chung, Pratik Mukherjee, Christopher P. Hess, Eric T. Han, Roland G. Henry,
  * "Probabilistic streamline q-ball tractography using the residual bootstrap",
  * NeuroImage, Volume 39, Issue 1, 1 January 2008, Pages 215-222
- * 
+ *
  * \ingroup modules
  */
 class WMBermanTracking: public WModule
@@ -161,15 +165,6 @@ private:
     void handleException( WException const& e );
 
     /**
-     * A function that gets called for every voxel in the input SH-dataset. Calculates a
-     * fractional anisotropy measure.
-     *
-     * \param s An array of SH-coefficients.
-     * \return A boost::array of size 1 that contains the result for the given voxel.
-     */
-    boost::array< double, 1 > perVoxelGFAFunc( WValueSet< double >::SubArray const& s );
-
-    /**
      * Calculate the spherical harmonics fitting matrix.
      */
     void calcSHFittingMatrix();
@@ -192,13 +187,8 @@ private:
      */
     wmath::WSymmetricSphericalHarmonic createRandomODF( std::size_t i );
 
-    /**
-     * Calculate the gfa measure for every voxel of the current input data.
-     */
-    void calcGFA();
-
     //! Stores the gfa measure for the input data.
-    boost::shared_ptr< WDataSetSingle > m_gfa;
+    boost::shared_ptr< WDataSetScalar > m_gfa;
 
     //! Stores a matrix representing the funk-radon-transform.
     wmath::WMatrix< double > m_frtMat;
@@ -228,7 +218,7 @@ private:
     boost::shared_ptr< WDataSetRawHARDI > m_dataSetResidual;
 
     //! The output dataset.
-    boost::shared_ptr< WDataSetSingle > m_result;
+    boost::shared_ptr< WDataSetScalar > m_result;
 
     //! Stores the number of hits for a voxel.
     boost::shared_ptr< std::vector< float > > m_hits;
@@ -237,13 +227,10 @@ private:
     boost::shared_ptr< WDataSetFibers > m_fiberSet;
 
     //! The output Connector.
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output;
+    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
 
     //! The fiber output, used for testing.
     boost::shared_ptr< WModuleOutputData< WDataSetFibers > > m_outputFibers;
-
-    //! An output connector for the gfa data.
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_outputGFA;
 
     //! The input Connector for the SH data.
     boost::shared_ptr< WModuleInputData< WDataSetSphericalHarmonics > > m_input;
@@ -252,7 +239,7 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetRawHARDI > > m_inputResidual;
 
     //! The input for the gfa.
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_inputGFA;
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputGFA;
 
     //! The threadpool for the tracking.
     boost::shared_ptr< TrackingFuncType > m_trackingPool;
@@ -284,7 +271,7 @@ private:
     //! The number of seeds per position in a voxel.
     WPropInt m_seedsPerPosition;
 
-    //! Wether the harmonics should be randomized via bootstrapping.
+    //! Whether the harmonics should be randomized via bootstrapping.
     WPropBool m_probabilistic;
 
     //! Start the tracking.
@@ -299,7 +286,7 @@ private:
     //! The current minimum cosine property.
     double m_currentMinCos;
 
-    //! The current probabilistic proberty.
+    //! The current probabilistic property.
     bool m_currentProbabilistic;
 
     //! A parameter for the fiber bundle detection.

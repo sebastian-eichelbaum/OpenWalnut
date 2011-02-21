@@ -27,7 +27,7 @@
 
 #include <QtCore/QEvent>
 
-#include "../datasetbrowser/WQtTreeItem.h"
+#include "../controlPanel/WQtTreeItem.h"
 
 /**
  * Event signalling a module item should be deleted.

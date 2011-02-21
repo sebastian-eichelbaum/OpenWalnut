@@ -25,85 +25,102 @@
 #ifndef WVECTOR3D_H
 #define WVECTOR3D_H
 
+#include <iomanip>
 #include <string>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-
-#include "../WLimits.h"
-#include "WValue.h"
+#include <osg/Vec3d>
 
 #include "../WExportCommon.h"
+#include "../WLimits.h"
+#include "../WStringUtils.h"
 
 namespace wmath
 {
 /**
- * Efficient three-dimensional vector that allows many vector algebra operations
+ * Efficient three-dimensional vector that allows many vector algebra operations.
+ * It is based on osg::vec3d
+ *
+ * \warning Do not introduce any virtual functions to this class! It might reduce performance significantly.
  */
-class OWCOMMON_EXPORT WVector3D : public WValue< double >
+class OWCOMMON_EXPORT WVector3D : public osg::Vec3d
 {
-    /**
-     * Only UnitTests are allowed to be friends of this class
-     */
-    friend class WVector3DTest;
 public:
     /**
-     * Produces a zero vector.
+     * Copy constructor from osg::Vec3d
+     *
+     * \param vec This vector is used to initialize the constructed one.
      */
-    WVector3D();
+    inline WVector3D( osg::Vec3d vec );
 
     /**
-     * Produces a vector consisting of the given components.
-     * \param x first component of the vector
-     * \param y second component of the vector
-     * \param z third component of the vector
+     * Constructor that initializes all member with zero.
      */
-    WVector3D( double x, double y, double z );
+    inline WVector3D();
 
     /**
-     * Copies the values of the given WVector3D.
-     * \param newVector The vector to be copied
+     * Constructs a new vector from the three given value.
+     *
+     * \param x x-component of vector
+     * \param y y-component of vector
+     * \param z z-component of vector
      */
-    WVector3D( const WVector3D& newVector );
+    inline WVector3D( osg::Vec3d::value_type x, osg::Vec3d::value_type y, osg::Vec3d::value_type z );
 
     /**
-     * TODO(wiebel): Ticket #141 (How to use WValue-operators in child classes)
-     * Copies the values of the given WValue< double >. Used for casting.
-     * \param newVector The WValue to be cast to WVector3D
-     */
-    WVector3D( const WValue< double >& newVector );  // NOLINT because this constructor is intended for implicit casting
-
-    /**
-     * Compute the cross product of the current WValue with the parameter.
-     * \param factor2 This vector will be multiplied with the current vector. (right hand side of the product)
-     */
-    WVector3D crossProduct( const WVector3D& factor2 ) const;
-
-    /**
-     * Compute the dot product of the current WValue with the parameter.
-     * \param factor2 This vector will be multiplied with the current vector. (right hand side of the product)
-     */
-    double dotProduct( const WVector3D& factor2 ) const;
-
-    /**
-     * Calculate euclidean square distance between this Position and another one.
+     * Calculate Euclidean square distance between this Position and another one.
      *
      * \param other The other position.
      * \return Square distance.
      */
-    double distanceSquare( const WVector3D &other ) const;
+    inline osg::Vec3d::value_type distanceSquare( const WVector3D &other ) const;
 
     /**
-     * Determines if a position is "smaller" than another one.
-     * \warning This ordering makes no sense at all, but is needed for a map or set!
-     *
-     * \param rhs Right hand side vector to compare with
-     *
-     * \return True if and only if the first, second or third components of the vectors are smaller
+     * Returns the norm of the vector
      */
-    bool operator<( const wmath::WVector3D& rhs ) const;
+    inline osg::Vec3d::value_type norm() const;
 
-protected:
+    /**
+     * Returns a normalized version of the vector
+     */
+    inline WVector3D normalized() const;
+
+    /**
+     * Compute the cross product of the current WVector3D with the parameter.
+     * \param factor2 This vector will be multiplied with the current vector. (right hand side of the product)
+     *
+     * \return the crossproduct
+     */
+    const WVector3D crossProduct( const WVector3D& factor2 ) const;
+
+    /**
+     * Compute the dot product of the current WVector3D with the parameter.
+     * \param factor2 This vector will be multiplied with the current vector. (right hand side of the product)
+     */
+    inline osg::Vec3d::value_type dotProduct( const WVector3D& factor2 ) const;
+
+    /**
+     * Sum of squares of elements.
+     */
+    inline osg::Vec3d::value_type normSquare() const;
+
+    /**
+     * Return number of elements.
+     */
+    inline size_t size() const;
+
+    /**
+     * Component-wise addition.
+     * \param addend The right hand side of the addition
+     */
+    inline const WVector3D operator+( const WVector3D& addend ) const;
+
+    /**
+     * Component-wise subtraction.
+     * \param subtrahend The right hand side of the subtraction
+     */
+    inline const WVector3D operator-( const WVector3D& subtrahend ) const;
+
 private:
 };
 
@@ -112,54 +129,129 @@ private:
  */
 typedef WVector3D WPosition;
 
-inline WVector3D WVector3D::crossProduct( const WVector3D& factor2 ) const
+/**
+ * Writes a meaningful representation of that object to the given stream.
+ *
+ * \param os The operator will write to this stream.
+ * \param rhs This will be written to the stream.
+ *
+ * \return the output stream
+ */
+
+inline std::ostream& operator<<( std::ostream& os, const WVector3D &rhs )
+{
+    os << "[" << std::scientific << std::setprecision( 16 );
+    os << rhs.x() << ", " << rhs.y() << ", " << rhs.z() << "]";
+    return os;
+}
+
+/**
+ * Write an input stream into a WVector3D.
+ *
+ * \param in the input stream
+ * \param rhs the value to where to write the stream
+ *
+ * \return the input stream
+ */
+inline std::istream& operator>>( std::istream& in, WVector3D &rhs )
+{
+    std::string str;
+    in >> str;
+    string_utils::trim( str, "[]" ); // remove preceeding and trailing brackets '[', ']' if any
+    std::vector< std::string > tokens = string_utils::tokenize( str, ", " );
+    for( size_t i = 0; i < tokens.size(); ++i )
+    {
+        rhs[i] = boost::lexical_cast< osg::Vec3d::value_type >( tokens[i] );
+    }
+    return in;
+}
+
+/**
+ * Multiplies a WVector3D with a scalar
+ * This functions only exists to make scalar multiplication commutative
+ * \param lhs left hand side of product
+ * \param rhs right hand side of product
+ */
+inline WVector3D operator*( osg::Vec3d::value_type lhs, const WVector3D& rhs )
+{
+    WVector3D result( rhs );
+    result *= lhs;
+    return result;
+}
+
+inline WVector3D::WVector3D( osg::Vec3d vec ) :
+    osg::Vec3d( vec )
+{
+}
+
+inline WVector3D::WVector3D() :
+    osg::Vec3d()
+{
+}
+
+inline WVector3D::WVector3D( osg::Vec3d::value_type x, osg::Vec3d::value_type y, osg::Vec3d::value_type z ) :
+    osg::Vec3d( x, y, z )
+{
+}
+
+inline const WVector3D WVector3D::operator+( const WVector3D& addend ) const
+{
+    WVector3D result( *this );
+    result += addend;
+    return result;
+}
+
+inline const WVector3D WVector3D::operator-( const WVector3D& subtrahend ) const
+{
+    WVector3D result( *this );
+    result -= subtrahend;
+    return result;
+}
+
+inline size_t WVector3D::size() const
+{
+    return num_components;
+}
+
+inline osg::Vec3d::value_type WVector3D::normSquare() const
+{
+    return this->length2();
+}
+
+inline osg::Vec3d::value_type WVector3D::dotProduct( const WVector3D& factor2 ) const
+{
+    return *this * factor2;
+}
+
+inline const WVector3D WVector3D::crossProduct( const WVector3D& factor2 ) const
 {
     WVector3D result;
-    result[0] = (*this)[1] * factor2[2] - (*this)[2] * factor2[1];
-    result[1] = (*this)[2] * factor2[0] - (*this)[0] * factor2[2];
-    result[2] = (*this)[0] * factor2[1] - (*this)[1] * factor2[0];
+    result = ( *this ^ factor2 );
     return result;
 }
 
-inline double WVector3D::dotProduct( const WVector3D& factor2 ) const
+inline WVector3D WVector3D::normalized() const
 {
-    double result = 0.0;
-    for( unsigned int i = 0; i < 3; ++i )
-    {
-        result += (*this)[i] * factor2[i];
-    }
+    WVector3D result = *this;
+    result.normalize();
     return result;
 }
 
-inline bool WVector3D::operator<( const wmath::WVector3D& rhs ) const
+inline osg::Vec3d::value_type WVector3D::norm() const
 {
-    if( (*this)[0] < rhs[0] )
+    return this->length();
+}
+
+inline osg::Vec3d::value_type WVector3D::distanceSquare( const WVector3D &other ) const
+{
+    osg::Vec3d::value_type dist = 0.0;
+    osg::Vec3d::value_type tmp = 0;
+    for( size_t i = 0; i < num_components; ++i )
     {
-        return true;
+            tmp = (*this)[i] - other[i];
+            dist += tmp * tmp;
     }
-    if( (*this)[0] > rhs[0] )
-    {
-        return false;
-    }
-    else
-    {
-        if( (*this)[1] < rhs[1] )
-        {
-            return true;
-        }
-        if( (*this)[1] > rhs[1] )
-        {
-            return false;
-        }
-        else
-        {
-            if( (*this)[2] < rhs[2] )
-            {
-                return true;
-            }
-            return false;
-        }
-    }
+    return dist;
 }
 }  // End of namespace
 #endif  // WVECTOR3D_H

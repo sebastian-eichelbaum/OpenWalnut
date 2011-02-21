@@ -36,5 +36,6 @@ varying vec3 v_ray;
 // the Surface normal at this point
 varying vec3 v_normal;
 
-// The light source in local coordinates
-varying vec3 v_lightSource;
+// The isovalue scaled using texture scaling information to [0,1]
+varying float v_isovalue;
+

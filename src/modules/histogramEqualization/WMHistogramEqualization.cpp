@@ -28,7 +28,6 @@
 #include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
 
 #include "WMHistogramEqualization.h"
 #include "WMHistogramEqualization.xpm"
@@ -118,7 +117,6 @@ void WMHistogramEqualization::properties()
     m_cdfResolution->setMin( 10 );
     m_cdfResolution->setMax( 1000000 );
 
-
     // call WModule's initialization
     WModule::properties();
 }
@@ -150,6 +148,12 @@ void WMHistogramEqualization::moduleMain()
 
         // Remember the above criteria. We now need to check if the data is valid. After a connect-update, it might be NULL.
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
+        if ( !dataSet )
+        {
+            debugLog() << "Resetting output.";
+            m_output->reset();
+            continue;
+        }
         boost::shared_ptr< WValueSetBase > valueSet = dataSet->getValueSet();
         dataUpdated = dataUpdated && dataSet;
 
@@ -256,7 +260,7 @@ void WMHistogramEqualization::moduleMain()
             for ( size_t vi = 0; vi < valueSet->rawSize(); ++vi )
             {
                 size_t idx = hist->getIndexForValue( valueSet->getScalarDouble( vi ) );
-                newData[ vi ] = static_cast< unsigned char >( idx / maxI * 255 );
+                newData[ vi ] = static_cast< unsigned char >( static_cast< double >( idx )/ static_cast< double >( maxI ) * 255.0 );
             }
         }
         ++*progress;
@@ -264,23 +268,15 @@ void WMHistogramEqualization::moduleMain()
         // update output with a new dataset, reuse grid
         debugLog() << "Updating output";
 
-        // de-register at datahandler
-        if ( m_lastOutputDataSet )
-        {
-            WDataHandler::deregisterDataSet( m_lastOutputDataSet );
-        }
-
         // construct
-        m_lastOutputDataSet = boost::shared_ptr< WDataSetScalar >(
+        m_output->updateData( boost::shared_ptr< WDataSetScalar >(
             new WDataSetScalar( boost::shared_ptr< WValueSetBase >(
-                new WValueSet< unsigned char >( 0, 1, newData, W_DT_UNSIGNED_CHAR ) ), dataSet->getGrid() )
-        );
-
-        m_lastOutputDataSet->getTexture()->setSelectedColormap( 4 );
-
-        // register new
-        WDataHandler::registerDataSet( m_lastOutputDataSet );
-        m_output->updateData( m_lastOutputDataSet );
+                                    new WValueSet< unsigned char >( 0,
+                                                                    1,
+                                                                    boost::shared_ptr< std::vector< unsigned char > >(
+                                                                        new std::vector< unsigned char >( newData ) ),
+                                                                    W_DT_UNSIGNED_CHAR ) ), dataSet->getGrid() )
+        ) );
 
         debugLog() << "Done";
 

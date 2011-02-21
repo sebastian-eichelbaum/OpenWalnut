@@ -26,8 +26,9 @@
 #include <string>
 
 #include "../../common/WColor.h"
-#include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleFactory.h"
 #include "WMClusterParamDisplay.h"
+#include "WMClusterParamDisplay.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMClusterParamDisplay )
@@ -46,32 +47,34 @@ boost::shared_ptr< WModule > WMClusterParamDisplay::factory() const
     return boost::shared_ptr< WModule >( new WMClusterParamDisplay() );
 }
 
+const char** WMClusterParamDisplay::getXPMIcon() const
+{
+    return clusterParamDisplay_xpm;
+}
+
 void WMClusterParamDisplay::connectors()
 {
-    typedef WModuleInputForwardData< WDataSetFibers > InFiberType;
-    m_fibers = boost::shared_ptr< InFiberType >( new InFiberType( shared_from_this(), "fiberInput", "DataSetFibers to cluster and display" ) );
-    addConnector( m_fibers );
-
-    typedef WModuleInputForwardData< WDataSetScalar > InParamDSType;
-    m_paramDS = boost::shared_ptr< InParamDSType >( new InParamDSType( shared_from_this(), "paramDS", "Parameter Dataset such as FA" ) );
-    addConnector( m_paramDS );
+    m_fibers = WModuleInputForwardData< WDataSetFibers >::createAndAdd( shared_from_this(), "fiberInput", "DataSetFibers to cluster and display" );
+    m_paramDS = WModuleInputForwardData< WDataSetScalar >::createAndAdd( shared_from_this(), "paramInput", "Parameter Dataset such as FA" );
 
     WModule::connectors();
 }
 
 void WMClusterParamDisplay::properties()
 {
-    m_isoValue = m_properties->addProperty( "Iso Value", "", 0.2 );
+    m_isoValue = m_properties->addProperty( "Iso value", "", 0.2 );
     m_isoValue->setMin( 0.0 );
     m_isoValue->setMax( 100.0 );
-    m_drawISOSurface = m_properties->addProperty( "ISO Surface", "En/Disables the display of the ISO Surface", true );
+    m_drawIsoSurface = m_properties->addProperty( "Iso Surface", "En/Disables the display of the iso surface", true );
+
+    WModule::properties();
 }
 
 void WMClusterParamDisplay::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_isoValue->getCondition() );
-    m_moduleState.add( m_drawISOSurface->getCondition() );
+    m_moduleState.add( m_drawIsoSurface->getCondition() );
 
     initSubModules();
 
@@ -92,13 +95,13 @@ void WMClusterParamDisplay::moduleMain()
         if( m_isoValue->changed() )
         {
             std::cout <<  m_isoValue->get() << std::endl;
-            m_isoSurface->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get() );
-            m_clusterSlicer->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( m_isoValue->get( true ) );
+            m_isoSurface->getProperties()->getProperty( "Iso value" )->toPropDouble()->set( m_isoValue->get() );
+            m_clusterSlicer->getProperties()->getProperty( "Iso value" )->toPropDouble()->set( m_isoValue->get( true ) );
         }
 
-        if( m_drawISOSurface->changed() )
+        if( m_drawIsoSurface->changed() )
         {
-            m_meshRenderer->getProperties()->getProperty( "active" )->toPropBool()->set( m_drawISOSurface->get( true ) );
+            m_meshRenderer->getProperties()->getProperty( "active" )->toPropBool()->set( m_drawIsoSurface->get( true ) );
         }
     }
 }
@@ -138,26 +141,26 @@ void WMClusterParamDisplay::initSubModules()
     m_voxelizer->getProperties()->getProperty( "Bounding Box Enable Feature" )->toPropBool()->set( false, true );
     m_voxelizer->getProperties()->getProperty( "Lighting" )->toPropBool()->set( false, true );
     m_gaussFiltering->getProperties()->getProperty( "Iterations" )->toPropInt()->set( 3, true );
-    m_clusterSlicer->getProperties()->getProperty( "Show|Hide ISO Voxels" )->toPropBool()->set( false );
+    m_clusterSlicer->getProperties()->getProperty( "Show|Hide Iso Voxels" )->toPropBool()->set( false );
     m_clusterSlicer->getProperties()->getProperty( "Biggest Component Only" )->toPropBool()->set( false );
     m_isoSurface->getProperties()->getProperty( "active" )->toPropBool()->set( false, true );
-    m_isoSurface->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set( 0.2, true );
-    m_clusterSlicer->getProperties()->getProperty( "Iso Value" )->toPropDouble()->set(  0.2, true );
+    m_isoSurface->getProperties()->getProperty( "Iso value" )->toPropDouble()->set( 0.2, true );
+    m_clusterSlicer->getProperties()->getProperty( "Iso value" )->toPropDouble()->set(  0.2, true );
     debugLog() << "Submodule properties set";
 
     // wiring
     debugLog() << "Start wiring";
-    m_paramDS->forward( m_clusterSlicer->getInputConnector( "paramDS" ) );
+    m_paramDS->forward( m_clusterSlicer->getInputConnector( "paramInput" ) );
 
     m_gaussFiltering->getInputConnector( "in" )->connect( m_voxelizer->getOutputConnector( "voxelOutput" ) );
     m_isoSurface->getInputConnector( "values" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
-    m_clusterSlicer->getInputConnector( "cluster" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
-    m_clusterSlicer->getInputConnector( "clusterDS" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
-    m_clusterSlicer->getInputConnector( "meshIN" )->connect( m_isoSurface->getOutputConnector( "surface mesh" ) );
-    m_meshRenderer->getInputConnector( "mesh" )->connect( m_clusterSlicer->getOutputConnector( "meshOUT" ) );
-    m_meshRenderer->getInputConnector( "colorMap" )->connect( m_clusterSlicer->getOutputConnector( "colorMap" ) );
+    m_clusterSlicer->getInputConnector( "clusterInput" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
+    m_clusterSlicer->getInputConnector( "clusterDSInput" )->connect( m_gaussFiltering->getOutputConnector( "out" ) );
+    m_clusterSlicer->getInputConnector( "meshInput" )->connect( m_isoSurface->getOutputConnector( "surface mesh" ) );
+    m_meshRenderer->getInputConnector( "mesh" )->connect( m_clusterSlicer->getOutputConnector( "meshOutput" ) );
+    m_meshRenderer->getInputConnector( "colorMap" )->connect( m_clusterSlicer->getOutputConnector( "colorMapOutput" ) );
 
-    m_voxelizer->getInputConnector( "voxelInput" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
+    m_voxelizer->getInputConnector( "tractInput" )->connect( m_detTractClustering->getOutputConnector( "clusterOutput" ) );
     m_fibers->forward( m_detTractClustering->getInputConnector( "tractInput" ) ); // init rippling
     debugLog() << "Wiring done";
 
@@ -172,7 +175,7 @@ void WMClusterParamDisplay::initSubModules()
     m_properties->addProperty( m_gaussFiltering->getProperties()->getProperty( "Iterations" ) );
     m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Opacity %" ) );
     m_properties->addProperty( m_meshRenderer->getProperties()->getProperty( "Mesh Color" ) );
-    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show|Hide ISO Voxels" ) );
+    m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show|Hide Iso Voxels" ) );
     m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Mean Type" ) );
     m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Show|Hide Slices" ) );
     m_properties->addProperty( m_clusterSlicer->getProperties()->getProperty( "Planes #X-SamplePoints" ) );

@@ -29,8 +29,8 @@
 
 #include <osg/Array>
 
-#include "../common/datastructures/WTriangleMesh.h"
 #include "../common/math/WPosition.h"
+#include "WTriangleMesh.h"
 
 #include "WExportWGE.h"
 

@@ -30,6 +30,10 @@
 #include <algorithm>
 
 #include <cxxtest/TestSuite.h>
+
+#include "../../WAssert.h"
+#include "../../WLimits.h"
+#include "../../WStringUtils.h"
 #include "../WTensorFunctions.h"
 
 /**
@@ -38,6 +42,37 @@
 class WTensorFunctionsTest : public CxxTest::TestSuite
 {
 public:
+    /**
+     * The eigenvalue of the symmetrical matrix:
+     * 0.000179516, 2.09569e-05, 2.76557e-06, 0.000170189, -5.52619e-07, 0.00015239
+     * (0.000196397;0.000155074;0.000150625)
+     */
+    void testSpecialSymMatrixEigenvalueTestCaseNumericalPansenStability( void )
+    {
+        wmath::WTensorSym< 2, 3 > t;
+        std::vector< double > vals( 3, 0 );
+        std::vector< wmath::WVector3D > vecs( 3 );
+        t( 0, 0 ) =  0.000179516;
+        t( 0, 1 ) =  2.09569e-05;
+        t( 0, 2 ) =  2.76557e-06;
+        t( 1, 1 ) =  0.000170189;
+        t( 1, 2 ) = -5.52619e-07;
+        t( 2, 2 ) =  0.00015239;
+        wmath::jacobiEigenvector3D( t, &vals, &vecs );
+        WAssert( !wlimits::isnan( vals[0] ), "Damn!" );
+        // Note: We don't use TS_ASSERT_DELTA here since its output is restricted to 4 digits after the point aka comma.
+        double delta = 1.0e-8;
+        if( std::abs( vals[0] - 0.000196397 ) > delta ||
+            std::abs( vals[1] - 0.000155074 ) > delta ||
+            std::abs( vals[2] - 0.000150625 ) > delta )
+        {
+            TS_FAIL( "The eigenvalues are incorrect: " );
+            using string_utils::operator<<;
+            std::cout << std::fixed << std::setprecision( 16 ) << std::endl << vals << std::endl;
+            std::cout << "but got:" << std::endl << 0.000196397 << " " << 0.000155074 << " " << 0.00015062 << std::endl;
+        }
+    }
+
     /**
      * Test the jacobi eigenvector calculation.
      */
@@ -572,6 +607,44 @@ public:
         TS_ASSERT_EQUALS( srdm1 * rdm1, res4 );
     }
 
+    /**
+     * The optimizations for symmetric tensors should not corrupt the result.
+     */
+    void testEvaluateSphericalFunction()
+    {
+        wmath::WTensorSym< 4, 3, double > t;
+        // the tensor
+        t( 0, 0, 0, 0 ) = 2.5476;
+        t( 1, 1, 1, 1 ) = 3.5476;
+        t( 2, 2, 2, 2 ) = 4.5476;
+        t( 0, 0, 0, 1 ) = 5.5476;
+        t( 0, 0, 0, 2 ) = 6.5476;
+        t( 1, 1, 1, 0 ) = 7.5476;
+        t( 1, 1, 1, 2 ) = 8.5476;
+        t( 2, 2, 2, 0 ) = 9.5476;
+        t( 2, 2, 2, 1 ) = 10.5476;
+        t( 0, 0, 1, 2 ) = 11.5476;
+        t( 1, 1, 0, 2 ) = 12.5476;
+        t( 2, 2, 0, 1 ) = 13.5476;
+        t( 0, 0, 1, 1 ) = 14.5476;
+        t( 0, 0, 2, 2 ) = 15.5476;
+        t( 1, 1, 2, 2 ) = 16.5476;
+
+        // the gradients
+        std::vector< wmath::WVector3D > gradients;
+        gradients.push_back( wmath::WVector3D( 1.0, 0.0, 0.0 ) );
+        gradients.push_back( wmath::WVector3D( 0.0, 1.0, 0.0 ) );
+        gradients.push_back( wmath::WVector3D( 1.0, 1.0, 0.0 ).normalized() );
+        gradients.push_back( wmath::WVector3D( 0.3, 0.4, 0.5 ).normalized() );
+        gradients.push_back( wmath::WVector3D( -7.0, 3.0, -1.0 ).normalized() );
+
+        for( int k = 0; k < 5; ++k )
+        {
+            double res = calcTens( t, gradients[ k ] );
+            TS_ASSERT_DELTA( res, evaluateSphericalFunction( t, gradients[ k ] ), 0.001 );
+        }
+    }
+
 private:
     /**
      * Initialize a lot of tensors.
@@ -649,6 +722,31 @@ private:
         res4( 2, 2 ) = 22;
     }
 
+    /**
+     * A helper function that implements the simple approach to tensor evaluation.
+     *
+     * \param t The tensor.
+     * \param v The gradient.
+     */
+    double calcTens( wmath::WTensorSym< 4, 3, double > const& t, wmath::WVector3D const& v )
+    {
+        double res = 0.0;
+        for( int a = 0; a < 3; ++a )
+        {
+            for( int b = 0; b < 3; ++b )
+            {
+                for( int c = 0; c < 3; ++c )
+                {
+                    for( int d = 0; d < 3; ++d )
+                    {
+                        res += v[ a ] * v[ b ] * v[ c ] * v[ d ] * t( a, b, c, d );
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
     //! a test tensor
     wmath::WTensor< 2, 3, int > one;
     //! a test tensor
@@ -675,5 +773,4 @@ private:
     wmath::WTensorSym< 2, 3, int > srdm2;
 };
 
-    //! a test tensor
 #endif  // WTENSORFUNCTIONS_TEST_H

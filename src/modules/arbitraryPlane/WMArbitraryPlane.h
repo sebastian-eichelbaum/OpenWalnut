@@ -148,6 +148,11 @@ protected:
      */
     wmath::WPosition getCenterPosition();
 
+    /**
+     * update function, called with each update pass of the osg render loop
+     */
+    void updateCallback();
+
 
 private:
     /**
@@ -205,9 +210,9 @@ private:
     wmath::WPosition m_p1; //!< stores the last position of  manipulator 1
     wmath::WPosition m_p2; //!< stores the last position of  manipulator 2
 
-    boost::shared_ptr<WROISphere> m_s0; //!< stores pointer to the center manipulator
-    boost::shared_ptr<WROISphere> m_s1; //!< stores pointer to manipulator 1
-    boost::shared_ptr<WROISphere> m_s2; //!< stores pointer to manipulator 2
+    osg::ref_ptr<WROISphere> m_s0; //!< stores pointer to the center manipulator
+    osg::ref_ptr<WROISphere> m_s1; //!< stores pointer to manipulator 1
+    osg::ref_ptr<WROISphere> m_s2; //!< stores pointer to manipulator 2
 
     bool m_dirty; //!< dirty flag, used when manipulator positions change
 
@@ -219,7 +224,7 @@ private:
     /**
      * the shader object for this module
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * vector of uniforms for type of texture
@@ -248,45 +253,7 @@ private:
 
     osg::ref_ptr<osg::Uniform> m_showCompleteUniform; //!< Determines whether the slice should be drawn completely
 
-    static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
-
-    /**
-     * Node callback to change position and appearance of the plane within the OSG thread
-     */
-    class SafeUpdateCallback : public osg::NodeCallback
-    {
-    public: // NOLINT
-
-        /**
-         * Constructor.
-         *
-         * \param module just set the creating module as pointer for later reference.
-         */
-        explicit SafeUpdateCallback( WMArbitraryPlane* module ): m_module( module ), m_initialUpdate( true )
-        {
-        };
-
-        /**
-         * operator () - called during the update traversal.
-         *
-         * \param node the osg node
-         * \param nv the node visitor
-         */
-        virtual void operator()( osg::Node* node, osg::NodeVisitor* nv );
-
-        /**
-         * Pointer used to access members of the module to modify the node.
-         * Please do not use shared_ptr here as this would prevent deletion of the module as the callback contains
-         * a reference to it. It is safe to use a simple pointer here as callback get deleted before the module.
-         */
-        WMArbitraryPlane* m_module;
-
-        /**
-         * Denotes whether the update callback is called the first time. It is especially useful
-         * to set some initial value even if the property has not yet changed.
-         */
-        bool m_initialUpdate;
-    };
+    boost::shared_ptr< boost::function< void() > > m_changeRoiSignal; //!< Signal that can be used to update the plane
 };
 
 #endif  // WMARBITRARYPLANE_H

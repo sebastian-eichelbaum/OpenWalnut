@@ -78,7 +78,7 @@ public:
      *
      * \return Set of voxel indices
      */
-    boost::shared_ptr< std::set< size_t > > getVolumeVoxelsEnclosedByISOSurface( const double isoValue ) const;
+    boost::shared_ptr< std::set< size_t > > getVolumeVoxelsEnclosedByIsoSurface( const double isoValue ) const;
 
     /**
      * Gets the name of this prototype.

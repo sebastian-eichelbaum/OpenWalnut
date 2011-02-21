@@ -277,6 +277,16 @@ protected:
      */
     virtual void notifyConnectionClosed( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there );
 
+    /**
+     * Signal emitted whenever connection has been established.
+     */
+    t_GenericSignalType signal_ConnectionEstablished;
+
+    /**
+     * Signal emitted whenever connection has been closed.
+     */
+    t_GenericSignalType signal_ConnectionClosed;
+
 private:
 
     /**
@@ -288,16 +298,6 @@ private:
      * The connections description.
      */
     std::string m_description;
-
-    /**
-     * Signal emitted whenever connection has been established.
-     */
-    t_GenericSignalType signal_ConnectionEstablished;
-
-    /**
-     * Signal emitted whenever connection has been closed.
-     */
-    t_GenericSignalType signal_ConnectionClosed;
 };
 
 #endif  // WMODULECONNECTOR_H

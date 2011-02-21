@@ -28,6 +28,7 @@
 #include <string>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 
 /**
  * This namespace contains some useful helper classes which use some common class methods as predicate. This is especially useful and handy if
@@ -110,6 +111,92 @@ namespace WPredicateHelper
          * The string to check against.
          */
         std::string m_check;
+    };
+
+    /**
+     * This class builds the base for wrapping around nearly every possible predicates like functors, classes with operator() and so on. It is
+     * especially useful to have an base class allowing predicate evaluation without knowing the exact predicate type. In multi-threaded
+     * environments, command queues are a common way to add/remove/replace items in a list. With this base class it is possible to provide
+     * predicates in such queues. The direct use of this class for std algorithms (find_if, remove_if, count_if, ... ) is not recommended as it
+     * simply is not needed.
+     *
+     * \tparam the type to evaluate the predicate for. Usually, this is the type of list elements.
+     */
+    template < typename T >
+    class ArbitraryPredicateBase
+    {
+    public:
+        /**
+         * Creates instance.
+         */
+        ArbitraryPredicateBase()
+        {
+        };
+
+        /**
+         * Destructor.
+         */
+        virtual ~ArbitraryPredicateBase()
+        {
+        };
+
+        /**
+         * Checks the instance of T against an arbitrary predicate.
+         *
+         * \param inst the value to check against a predicate
+         *
+         * \return true if predicate evaluates to true
+         */
+        virtual bool operator()( T const& inst ) const = 0;
+    };
+
+    /**
+     * The actual class implementing the predicate evaluation. The default predicate is a functor evaluating to true or false. For more details
+     * see \ref ArbitraryPredicateBase.
+     *
+     * \tparam T the type to check. This usually is the type of the elements in a list or similar.
+     * \tparam Predicate this is the predicate type. By default, it is a functor.
+     */
+    template < typename T, typename Predicate = boost::function1< bool, T > >
+    class ArbitraryPredicate: public ArbitraryPredicateBase< T >
+    {
+    public:
+        /**
+         * Creates instance.
+         *
+         * \param predicate the predicate used for checking
+         */
+        explicit ArbitraryPredicate( Predicate predicate ):
+            ArbitraryPredicateBase< T >(),
+            m_predicate( predicate )
+        {
+        };
+
+        /**
+         * Destructor.
+         */
+        virtual ~ArbitraryPredicate()
+        {
+        };
+
+        /**
+         * Checks the instance of T against an arbitrary predicate.
+         *
+         * \param inst the value to check against a predicate
+         *
+         * \return true if predicate evaluates to true
+         */
+        virtual bool operator()( T const& inst ) const
+        {
+            return m_predicate( inst );
+        };
+
+    private:
+
+        /**
+         * The predicate to use for checking
+         */
+        Predicate m_predicate;
     };
 }
 

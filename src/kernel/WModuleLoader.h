@@ -30,13 +30,13 @@
 #include <vector>
 
 #include <boost/filesystem.hpp>
+#include <boost/shared_ptr.hpp>
 
-#include "../common/WSharedLib.h"
-#include "../common/WSharedAssociativeContainer.h"
 #include "../common/WLogger.h"
-#include "WModule.h"
-
+#include "../common/WSharedAssociativeContainer.h"
+#include "../common/WSharedLib.h"
 #include "WExportKernel.h"
+#include "WModule.h"
 
 /**
  * Loads module prototypes from shared objects in a given directory and injects it into the module factory.
@@ -45,22 +45,22 @@ class OWKERNEL_EXPORT WModuleLoader
 {
 public:
 
-	/**
-	 * Constructor. It does not load any files. Use load to do this.
-	 *
+    /**
+     * Constructor. It does not load any files. Use load to do this.
+     *
      */
     explicit WModuleLoader();
 
-	/**
-	 * Destructor, closes all handles to shared libraries.
-	 */
+    /**
+     * Destructor, closes all handles to shared libraries.
+     */
     ~WModuleLoader();
 
-	/**
-	 * Load the module prototypes from the shared libraries.
-	 *
-	 * \param ticket A write ticket to a shared container.
-	 */
+    /**
+     * Load the module prototypes from the shared libraries.
+     *
+     * \param ticket A write ticket to a shared container.
+     */
     void load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket );
 
     /**
@@ -75,16 +75,16 @@ private:
     /**
      * All the loaded shared libraries. Get freed on destruction. So do NOT free this instance while the libs are used.
      */
-    std::vector< WSharedLib > m_libs;
+    std::vector< boost::shared_ptr< WSharedLib > > m_libs;
 
-   	/**
-	 * Load the module prototypes from the shared libraries from the specified directory. It traverses the subdirectories and searches there.
+    /**
+     * Load the module prototypes from the shared libraries from the specified directory. It traverses the subdirectories and searches there.
      * Traversion depth is 1.
-	 *
-	 * \param ticket A write ticket to a shared container.
+     *
+     * \param ticket A write ticket to a shared container.
      * \param dir the directory to load
      * \param level the traversion level
-	 */
+     */
     void load( WSharedAssociativeContainer< std::set< boost::shared_ptr< WModule > > >::WriteTicket ticket, boost::filesystem::path dir,
                unsigned int level = 0 );
 };

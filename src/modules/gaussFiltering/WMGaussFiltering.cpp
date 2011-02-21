@@ -37,7 +37,7 @@
 #include "../../common/WStringUtils.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../kernel/WKernel.h"
-#include "gaussfiltering.xpm"
+#include "WMGaussFiltering.xpm"
 #include "WMGaussFiltering.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -225,12 +225,16 @@ boost::shared_ptr< WValueSet< double > > WMGaussFiltering::iterativeFilterField(
 
     // iterate filter, apply at least once
     boost::shared_ptr< WValueSet< double > > valueSet = boost::shared_ptr< WValueSet< double > >(
-        new WValueSet<double> ( vals->order(), vals->dimension(), filterField( vals, grid, prog ), W_DT_DOUBLE )
+        new WValueSet<double> ( vals->order(), vals->dimension(),
+        boost::shared_ptr< std::vector< double > >( new std::vector< double >( filterField( vals, grid, prog ) ) ),
+        W_DT_DOUBLE )
     );
     for( unsigned int i = 1; i < iterations; ++i )    // this only runs if iter > 1
     {
         valueSet = boost::shared_ptr< WValueSet< double > >(
-            new WValueSet<double> ( valueSet->order(), valueSet->dimension(), filterField( valueSet, grid, prog ), W_DT_DOUBLE )
+            new WValueSet<double> ( valueSet->order(), valueSet->dimension(),
+            boost::shared_ptr< std::vector< double > >( new std::vector< double >( filterField( valueSet, grid, prog ) ) ),
+            W_DT_DOUBLE )
         );
     }
 
@@ -280,7 +284,9 @@ void WMGaussFiltering::moduleMain()
             // invalid data
             if( !m_dataSet )
             {
-                debugLog() << "Invalid Data. Disabling.";
+                debugLog() << "Resetting output.";
+                m_output->reset();
+                // NOTE: m_dataSet is already reset
                 continue;
             }
         }
@@ -390,4 +396,6 @@ void WMGaussFiltering::properties()
     m_iterations->setMax( 100 );
 
     m_mode            = m_properties->addProperty( "Mode", "", false, m_propCondition );
+
+    WModule::properties();
 }

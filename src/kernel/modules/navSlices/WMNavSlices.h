@@ -30,17 +30,20 @@
 #include <vector>
 #include <utility>
 
+#include <osg/Geometry>
 #include <osg/Node>
 
-#include "../../../dataHandler/WDataSet.h"
-#include "../../../graphicsEngine/WShader.h"
-#include "../../../graphicsEngine/WGEGroupNode.h"
-#include "../../../graphicsEngine/WPickInfo.h"
 #include "../../WModule.h"
-#include "../../WModuleConnector.h"
-#include "../../WModuleInputData.h"
 
+#include "../../../graphicsEngine/WGEViewer.h"
 #include "../../WExportKernel.h"
+
+// forward declarations
+class WGEGroupNode;
+class WGEShader;
+class WModuleConnector;
+class WPickInfo;
+template< class T > class WModuleInputData;
 
 /**
  * Navigation slice module
@@ -150,8 +153,7 @@ private:
      */
     void setMaxMinFromBoundingBox();
 
-
-    std::pair< wmath::WPosition, wmath::WPosition > m_bb; //!< bounding box of textures.
+    WBoundingBox m_bb; //!< bounding box of textures.
 
     /**
      * True when textures have changed.
@@ -242,7 +244,7 @@ private:
      */
     void initUniforms( osg::StateSet* rootState );
 
-    std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
+    std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for comparison
     bool m_isPicked; //!< Indicates whether a slice is currently picked or not.
     bool m_isPickedSagittal; //!< Indicates whether a sagittal slice is currently picked or not.
     bool m_isPickedCoronal; //!< Indicates whether coronal slice is currently picked or not.
@@ -297,7 +299,7 @@ private:
     /**
      * the shader object for this module
      */
-    osg::ref_ptr< WShader > m_shader;
+    osg::ref_ptr< WGEShader > m_shader;
 
     /**
      * lock to prevent concurrent threads trying to update the osg node
@@ -340,8 +342,6 @@ private:
      */
     static bool m_navsliceRunning;
 
-    static const int m_maxNumberOfTextures = 8; //!< We support only 8 textures because some known hardware does not support more texture coordinates.
-
     /**
     * Current width of the axial widget
     */
@@ -380,8 +380,8 @@ private:
         friend class WMNavSlices;
     public:
         /**
-        * userData Constructur with shared pointer to module
-        * \param _parent pointer to the module 
+        * userData Constructor with shared pointer to module
+        * \param _parent pointer to the module
         */
         explicit userData( boost::shared_ptr< WMNavSlices > _parent )
         {

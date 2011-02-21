@@ -28,10 +28,12 @@
 
 #include "stdint.h"
 
+#include "../exceptions/WPreconditionNotMet.h"
 #include "WLinearAlgebraFunctions.h"
 #include "WMatrix.h"
 #include "WUnitSphereCoordinates.h"
 #include "WValue.h"
+#include "WTensorSym.h"
 
 #include "WSymmetricSphericalHarmonic.h"
 
@@ -90,6 +92,59 @@ double WSymmetricSphericalHarmonic::getValue( const WUnitSphereCoordinates& coor
 const wmath::WValue<double>& WSymmetricSphericalHarmonic::getCoefficients() const
 {
   return m_SHCoefficients;
+}
+
+wmath::WValue< double > WSymmetricSphericalHarmonic::getCoefficientsSchultz() const
+{
+    wmath::WValue< double > res( m_SHCoefficients.size() );
+    size_t k = 0;
+    for ( int l = 0; l <= static_cast< int >( m_order ); l += 2 )
+    {
+        for ( int m = -l; m <= l; ++m )
+        {
+            res[ k ] = m_SHCoefficients[ k ];
+            if( m < 0 && ( ( -m ) % 2 == 1 ) )
+            {
+                res[ k ] *= -1.0;
+            }
+            else if( m > 0 && ( m % 2 == 0 ) )
+            {
+                res[ k ] *= -1.0;
+            }
+            ++k;
+        }
+    }
+    return res;
+}
+
+wmath::WValue< std::complex< double > > WSymmetricSphericalHarmonic::getCoefficientsComplex() const
+{
+    wmath::WValue< std::complex< double > > res( m_SHCoefficients.size() );
+    size_t k = 0;
+    double r = 1.0 / sqrt( 2.0 );
+    std::complex< double > i( 0.0, -1.0 );
+    for( int l = 0; l <= static_cast< int >( m_order ); l += 2 )
+    {
+        for ( int m = -l; m <= l; ++m )
+        {
+            if( m == 0 )
+            {
+                res[ k ] = m_SHCoefficients[ k ];
+            }
+            else if( m < 0 )
+            {
+                res[ k ] += i * r * m_SHCoefficients[ k - 2 * m ];
+                res[ k ] += ( -m % 2 == 1 ? -r : r ) * m_SHCoefficients[ k ];
+            }
+            else if( m > 0 )
+            {
+                res[ k ] += i * ( -m % 2 == 0 ? -r : r ) * m_SHCoefficients[ k ];
+                res[ k ] += r * m_SHCoefficients[ k - 2 * m ];
+            }
+            ++k;
+        }
+    }
+    return res;
 }
 
 double WSymmetricSphericalHarmonic::calcGFA( std::vector< wmath::WUnitSphereCoordinates > const& orientations ) const
@@ -273,6 +328,35 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcBaseMatrix( const std::v
   return B;
 }
 
+wmath::WMatrix< std::complex< double > >
+WSymmetricSphericalHarmonic::calcComplexBaseMatrix( std::vector< wmath::WUnitSphereCoordinates > const& orientations, int order )
+{
+    wmath::WMatrix< std::complex< double > > B( orientations.size(), ( ( order + 1 ) * ( order + 2 ) ) / 2 );
+
+    for( std::size_t row = 0; row < orientations.size(); row++ )
+    {
+        const double theta = orientations[ row ].getTheta();
+        const double phi = orientations[ row ].getPhi();
+
+        int j = 0;
+        for( int k = 0; k <= order; k += 2 )
+        {
+            for ( int m = -k; m < 0; m++ )
+            {
+                B( row, j ) = boost::math::spherical_harmonic( k, m, theta, phi );
+                ++j;
+            }
+            B( row, j ) = boost::math::spherical_harmonic( k, 0, theta, phi );
+            ++j;
+            for( int m = 1; m <= k; m++ )
+            {
+                B( row, j ) = boost::math::spherical_harmonic( k, m, theta, phi );
+                ++j;
+            }
+        }
+    }
+    return B;
+}
 
 wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcSmoothingMatrix( size_t order )
 {
@@ -281,7 +365,7 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcSmoothingMatrix( size_t 
     wmath::WMatrix<double> L( R, R );
     for ( size_t k = 0; k <= order; k += 2 )
     {
-        for ( int m = -k; m <= static_cast< int >( k ); ++m )
+        for ( int m = -static_cast< int >( k ); m <= static_cast< int >( k ); ++m )
         {
             L( i, i ) = static_cast< double > ( k * k * ( k + 1 ) * ( k + 1 ) );
             ++i;
@@ -299,7 +383,7 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order 
     {
         double h = 2.0 * wmath::piDouble * static_cast< double >( std::pow( static_cast< double >( -1 ), static_cast< double >( k / 2 ) ) ) *
                     static_cast< double >( wmath::oddFactorial( ( k <= 1 ) ? 1 : k - 1 ) ) / static_cast<double>( wmath::evenFactorial( k ) );
-        for ( int m = -k; m <= static_cast< int >( k ); ++m )
+        for ( int m = -static_cast< int >( k ); m <= static_cast< int >( k ); ++m )
         {
             result( i, i ) = h;
             ++i;
@@ -307,4 +391,60 @@ wmath::WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order 
     }
     return result;
 }
-} // Namespace WMath
+
+#ifdef OW_USE_OSSIM
+
+wmath::WMatrix< double > WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( std::size_t order,
+                                                                               const std::vector< wmath::WUnitSphereCoordinates >& orientations )
+{
+    std::size_t numElements = ( order + 1 ) * ( order + 2 ) / 2;
+    WPrecondEquals( order % 2, 0u );
+    WPrecondLess( numElements, orientations.size() + 1 );
+
+    // store first numElements orientations as 3d-vectors
+    std::vector< wmath::WVector3D > directions( numElements );
+    for( std::size_t i = 0; i < numElements; ++i )
+    {
+        directions[ i ] = orientations[ i ].getEuclidean();
+    }
+
+    // initialize an index array
+    std::vector< std::size_t > indices( order, 0 );
+
+    // calc tensor evaluation matrix
+    wmath::WMatrix< double > TEMat( numElements, numElements );
+    for( std::size_t j = 0; j < numElements; ++j ) // j is the 'permutation index'
+    {
+        // stores how often each value is represented in the index array
+        std::size_t amount[ 3 ] = { 0, 0, 0 };
+        for( std::size_t k = 0; k < order; ++k )
+        {
+            ++amount[ indices[ k ] ];
+        }
+
+        // from WTensorSym.h
+        std::size_t multiplicity = calcSupersymmetricTensorMultiplicity( order, amount[ 0 ], amount[ 1 ], amount[ 2 ] );
+        for( std::size_t i = 0; i < numElements; ++i ) // i is the 'direction index'
+        {
+            TEMat( i, j ) = multiplicity;
+            for( std::size_t k = 0; k < order; ++k )
+            {
+                TEMat( i, j ) *= directions[ i ][ indices[ k ] ];
+            }
+        }
+
+        // from TensorBase.h
+        positionIterateSortedOneStep( order, 3, indices );
+    }
+    directions.clear();
+
+    // we do not want more orientations than nessessary
+    std::vector< wmath::WUnitSphereCoordinates > ori2( orientations.begin(), orientations.begin() + numElements );
+
+    wmath::WMatrix< double > p = wmath::pseudoInverse( TEMat );
+
+    return p * calcBaseMatrix( ori2, order );
+}
+#endif // OW_USE_OSSIM
+// NOLINT
+} // Namespace wmath

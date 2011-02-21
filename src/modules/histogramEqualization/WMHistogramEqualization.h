@@ -107,11 +107,6 @@ private:
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output;
 
     /**
-     * This is a pointer to the dataset the module is currently working on.
-     */
-    boost::shared_ptr< WDataSetScalar > m_lastOutputDataSet;
-
-    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;

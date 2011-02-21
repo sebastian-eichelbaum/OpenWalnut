@@ -38,7 +38,7 @@
 
 #include "WException.h"
 
-/** 
+/**
  * initialize static member.
  */
 bool WException::noBacktrace = false;

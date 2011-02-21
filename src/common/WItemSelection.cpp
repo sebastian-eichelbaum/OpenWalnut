@@ -75,6 +75,18 @@ WItemSelector WItemSelection::getSelectorFirst()
     return WItemSelector( shared_from_this(), l );
 }
 
+WItemSelector WItemSelection::getSelectorLast()
+{
+    WItemSelector::IndexList l;
+    ReadTicket r = getReadTicket();
+
+    if ( r->get().size() >= 1 )
+    {
+        l.push_back( r->get().size() - 1 );
+    }
+    return WItemSelector( shared_from_this(), l );
+}
+
 WItemSelector WItemSelection::getSelector( size_t item )
 {
     WItemSelector::IndexList l;

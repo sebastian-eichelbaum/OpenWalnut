@@ -36,12 +36,10 @@ boost::shared_ptr< WPrototyped > WDataSetSphericalHarmonics::m_prototype = boost
 
 WDataSetSphericalHarmonics::WDataSetSphericalHarmonics( boost::shared_ptr< WValueSetBase > newValueSet,
                                                         boost::shared_ptr< WGrid > newGrid ) :
-    WDataSetSingle( newValueSet, newGrid )
+    WDataSetSingle( newValueSet, newGrid ), m_valueSet( newValueSet )
 {
-    m_valueSet = boost::shared_dynamic_cast< WValueSet<double> >( newValueSet );
     WAssert( newValueSet, "No value set given." );
     WAssert( newGrid, "No grid given." );
-    WAssert( m_valueSet, "No WValueSet<double given." );
 }
 
 WDataSetSphericalHarmonics::WDataSetSphericalHarmonics()
@@ -109,7 +107,7 @@ wmath::WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( cons
     wmath::WValue< double > interpolatedCoefficients( m_valueSet->dimension() );
     for( size_t i = 0; i < 8; ++i )
     {
-        interpolatedCoefficients += h[i] * m_valueSet->getWValue( vertexIds[i] );
+        interpolatedCoefficients += h[i] * m_valueSet->getWValueDouble( vertexIds[i] );
     }
 
     *success = true;
@@ -119,7 +117,7 @@ wmath::WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( cons
 
 wmath::WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::getSphericalHarmonicAt( size_t index ) const
 {
-    if ( index < m_valueSet->size() ) return wmath::WSymmetricSphericalHarmonic( m_valueSet->getWValue( index ) );
+    if ( index < m_valueSet->size() ) return wmath::WSymmetricSphericalHarmonic( m_valueSet->getWValueDouble( index ) );
     return wmath::WSymmetricSphericalHarmonic();
 }
 

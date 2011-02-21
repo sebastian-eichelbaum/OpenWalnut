@@ -37,6 +37,7 @@
 #include "../common/WSharedObject.h"
 #include "../common/WSharedSequenceContainer.h"
 #include "WDataSetSingle.h"
+#include "WDataSetScalar.h"
 #include "WValueSet.h"
 #include "WDataHandlerEnums.h"
 
@@ -223,10 +224,20 @@ void WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::com
 template< typename Value_T, std::size_t numValues, typename Output_T, std::size_t numOutputs >
 boost::shared_ptr< WDataSetSingle > WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::getResult()
 {
-    boost::shared_ptr< OutValueSetType > values( new OutValueSetType( 1, numOutputs,
-                                                                m_output.getReadTicket()->get(),
-                                                                DataType< Output_T >::type ) );
-    return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( values, m_grid ) );
+    boost::shared_ptr< OutValueSetType > values;
+    boost::shared_ptr< std::vector< Output_T > > vals =
+        boost::shared_ptr< std::vector< Output_T > >( new std::vector< Output_T >( m_output.getReadTicket()->get() ) );
+    switch( numOutputs )
+    {
+    case 1:
+        values = boost::shared_ptr< OutValueSetType >( new OutValueSetType( 0, 1, vals,
+                                                                            DataType< Output_T >::type ) );
+        return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( values, m_grid ) );
+    default:
+        values = boost::shared_ptr< OutValueSetType >( new OutValueSetType( 1, numOutputs, vals,
+                                                                            DataType< Output_T >::type ) );
+        return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( values, m_grid ) );
+    }
 }
 
 #endif  // WTHREADEDPERVOXELOPERATION_H

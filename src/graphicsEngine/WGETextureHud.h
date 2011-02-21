@@ -26,15 +26,16 @@
 #define WGETEXTUREHUD_H
 
 #include <list>
+#include <string>
 
 #include <boost/thread.hpp>
 
 #include <osg/Projection>
 #include <osg/Geode>
 #include <osg/Texture2D>
+#include <osg/TexMat>
 
 #include "WGEGroupNode.h"
-
 
 /**
  * This class implements a HUD showing several textures on screen. This is especially useful as debugging tool during offscreen rendering. It is
@@ -66,9 +67,10 @@ public:
          * Constructor.
          *
          * \param texture the texture to show in the HUD
+         * \param name a telling name to support the illustrative function of the HUD
          * \param transparency true if transparency should be shown
          */
-        WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, bool transparency = false );
+        WGETextureHudEntry( osg::ref_ptr< osg::Texture2D > texture, std::string name, bool transparency = false );
 
         /**
          * Destructor.
@@ -80,14 +82,35 @@ public:
          *
          * \return the real width.
          */
-        unsigned int getRealWidth();
+        unsigned int getRealWidth() const;
 
         /**
          * Returns the real height of the contained texture.
          *
          * \return the real height.
          */
-        unsigned int getRealHeight();
+        unsigned int getRealHeight() const;
+
+        /**
+         * Get the texture matrix state for this entry.
+         *
+         * \return the texture matrix state
+         */
+        osg::ref_ptr< osg::TexMat > getTextureMatrix() const;
+
+        /**
+         * Returns the name of the entry.
+         *
+         * \return name of the entry.
+         */
+        std::string getName() const;
+
+        /**
+         * Gets the texture associated with the entry.
+         *
+         * \return the texture
+         */
+        osg::ref_ptr< osg::Texture2D > getTexture() const;
 
     protected:
 
@@ -95,6 +118,17 @@ public:
          * The texture.
          */
         osg::ref_ptr< osg::Texture2D > m_texture;
+
+        /**
+         * The texture matrix for this entry.
+         */
+        osg::ref_ptr< osg::TexMat > m_texMat;
+
+        /**
+         * The name for this HUD entry.
+         */
+        std::string m_name;
+
     private:
     };
 
@@ -113,11 +147,18 @@ public:
     void removeTexture( osg::ref_ptr< WGETextureHudEntry > texture );
 
     /**
+     * Remove the texture from the HUD.
+     *
+     * \param texture the texture to remove.
+     */
+    void removeTexture( osg::ref_ptr< osg::Texture > texture );
+
+    /**
      * Gets the maximum width of a tex element.
      *
      * \return the maximum width.
      */
-    unsigned int getMaxElementWidth();
+    unsigned int getMaxElementWidth() const;
 
     /**
      * Sets the new maximum width of a texture column.
@@ -125,6 +166,29 @@ public:
      * \param width the new width
      */
     void setMaxElementWidth( unsigned int width );
+
+    /**
+     * Sets the viewport of the camera housing this HUD. It is needed to have proper scaling of each texture tile. You can use
+     * \ref WGEViewportCallback to handle this automatically.
+     *
+     * \param viewport the viewport
+     */
+    void setViewport( osg::Viewport* viewport );
+
+    /**
+     * Set the viewport to be used for textures too. This is useful if an offscreen rendering renders only into a part of the texture. If
+     * coupling is disabled, the whole texture gets rendered.
+     *
+     * \param couple if true, the viewport set by \ref setViewport gets also used for texture space.
+     */
+    void coupleViewportWithTextureViewport( bool couple = true );
+
+    /**
+     * Returns the render bin used by the HUD.
+     *
+     * \return the bin number
+     */
+    size_t getRenderBin() const;
 
 protected:
 
@@ -138,6 +202,21 @@ protected:
      * The maximum element width.
      */
     unsigned int m_maxElementWidth;
+
+    /**
+     * The render bin to use
+     */
+    size_t m_renderBin;
+
+    /**
+     * The current viewport of
+     */
+    osg::Viewport* m_viewport;
+
+    /**
+     * The viewport in texture space to allow viewing parts of the texture.
+     */
+    bool m_coupleTexViewport;
 
 private:
 
@@ -153,7 +232,7 @@ private:
          *
          * \param hud just set the creating HUD as pointer for later reference.
          */
-        explicit SafeUpdateCallback( osg::ref_ptr< WGETextureHud > hud ): m_hud( hud )
+        explicit SafeUpdateCallback( WGETextureHud* hud ): m_hud( hud )
         {
         };
 
@@ -168,7 +247,7 @@ private:
         /**
          * Pointer used to access members of the hud. This is faster than casting the first parameter of operator() to WGETextureHud.
          */
-        osg::ref_ptr< WGETextureHud > m_hud;
+        WGETextureHud* m_hud;
     };
 };
 

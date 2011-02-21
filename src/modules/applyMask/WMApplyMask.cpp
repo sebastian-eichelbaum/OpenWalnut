@@ -36,7 +36,7 @@
 #include "../../common/WAssert.h"
 #include "../../kernel/WKernel.h"
 #include "WMApplyMask.h"
-#include "apply_mask.xpm"
+#include "WMApplyMask.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMApplyMask )
@@ -182,34 +182,33 @@ void WMApplyMask::connectors()
 
 void WMApplyMask::properties()
 {
+    WModule::properties();
 }
 
 template< typename T > void WMApplyMask::applyMask( boost::shared_ptr< WValueSet< T > > valSet, dataType type )
 {
-    typedef int16_t maskType;
-
     boost::shared_ptr< WValueSetBase > maskBase = m_mask->getValueSet();
-    boost::shared_ptr< WValueSet< maskType > > mask = boost::shared_dynamic_cast< WValueSet< maskType > >( maskBase );
+    boost::shared_ptr< WValueSet< float > > mask = boost::shared_dynamic_cast< WValueSet< float > >( maskBase );
 
     if( !mask )
     {
-        throw WException( std::string( "Incorrect mask." ) );
+        throw WException( std::string( "Mask is not of type float." ) );
     }
 
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Apply Mask", valSet->size() ) );
     m_progress->addSubProgress( progress );
 
-    std::vector< T > newVals( valSet->size() );
+    boost::shared_ptr< std::vector< T > > newVals = boost::shared_ptr< std::vector< T > >( new std::vector< T >( valSet->size() ) );
     for( size_t i = 0; i < valSet->size(); ++i )
     {
         ++*progress;
         if( mask->getScalar( i ) == 0 )
         {
-            newVals[i] = 0;
+            ( *newVals )[i] = 0;
         }
         else
         {
-            newVals[i] = valSet->getScalar( i );
+            ( *newVals )[i] = valSet->getScalar( i );
         }
     }
     progress->finish();

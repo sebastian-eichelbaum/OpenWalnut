@@ -25,7 +25,10 @@
 #ifndef WGEUTILS_H
 #define WGEUTILS_H
 
+#include <string>
 #include <vector>
+
+#include <boost/lexical_cast.hpp>
 
 #include <osg/Array>
 #include <osg/Vec3>
@@ -49,23 +52,6 @@ namespace wge
     WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
 
     /**
-     * Converts a WColor to an OSG compatible color
-     *
-     * \param color The color in WColor format
-     * \return A color which may be used inside of OSG
-     */
-    osg::Vec4 osgColor( const WColor& color );
-
-    /**
-     * Converts a given WPosition into an osg::Vec3.
-     *
-     * \param pos The WPosition which should be converted
-     *
-     * \return The osg::Vec3 vector of pos
-     */
-    osg::Vec3 osgVec3( const wmath::WPosition& pos );
-
-    /**
      * Converts a whole vector of WPositions into an osg::Vec3Array.
      *
      * \param posArray The given positions vector
@@ -81,12 +67,6 @@ namespace wge
      * \param camera The matrices of this camera will used for unprojecting.
      */
     osg::Vec3 WGE_EXPORT unprojectFromScreen( const osg::Vec3 screen, osg::ref_ptr< osg::Camera > camera  );
-
-    /**
-     * Conversion of WVector3D to osg::Vec3
-     * \param v the vector to convert.
-     */
-    osg::Vec3 wv3D2ov3( wmath::WVector3D v );
 
     /**
      * creates the same color as the atlas colormap shader from the index
@@ -109,10 +89,9 @@ namespace wge
      * creates the nth color of a partition of the hsv color circle
      *
      * \param n number of the color
-     * \param parts partition size
      * \return the color
      */
-    WColor WGE_EXPORT getNthHSVColor( int n, int parts = 10 );
+    WColor WGE_EXPORT getNthHSVColor( int n );
 
     /**
      * This method converts an WMatrix to the corresponding osg::Matrixd.
@@ -128,25 +107,10 @@ inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, cons
 {
     wmath::WPosition direction( ( pos2 - pos1 ) );
     direction.normalize();
-    return WColor( std::abs( direction[0] ), std::abs( direction[1] ), std::abs( direction[2] ) );
+    return WColor( std::abs( direction[0] ), std::abs( direction[1] ), std::abs( direction[2] ), 1.0f );
 }
 
-inline osg::Vec4 wge::osgColor( const WColor& color )
-{
-    return osg::Vec4( color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha() );
-}
-
-inline osg::Vec3 wge::osgVec3( const wmath::WPosition& pos )
-{
-    return osg::Vec3( pos[0], pos[1], pos[2] );
-}
-
-inline osg::Vec3 wge::wv3D2ov3( wmath::WVector3D v )
-{
-    return osg::Vec3( v[0], v[1], v[2] );
-}
-
-inline osg::Matrixd WGE_EXPORT wge::toOSGMatrix( const wmath::WMatrix<double>& matrix )
+inline osg::Matrixd wge::toOSGMatrix( const wmath::WMatrix<double>& matrix )
 {
     WAssert( ( matrix.getNbRows() == 3 || matrix.getNbRows() == 4 ) && ( matrix.getNbCols() == 3 || matrix.getNbCols() == 4 ),
              "Only 3x3 or 4x4 matrices allowed." );
@@ -171,3 +135,4 @@ inline osg::Matrixd WGE_EXPORT wge::toOSGMatrix( const wmath::WMatrix<double>& m
 }
 
 #endif  // WGEUTILS_H
+

@@ -25,6 +25,7 @@
 #ifndef WQTNAVGLWIDGET_H
 #define WQTNAVGLWIDGET_H
 
+#include <map>
 #include <string>
 
 #include <QtGui/QDockWidget>
@@ -32,7 +33,7 @@
 
 #include "../../common/WPropertyVariable.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
-#include "datasetbrowser/WPropertyIntWidget.h"
+#include "controlPanel/WPropertyIntWidget.h"
 
 #include "WQtGLWidget.h"
 
@@ -50,8 +51,9 @@ public:
      * \param title Title will be displayed above the widget
      * \param parent The widget that manages this widget
      * \param sliderTitle Name of the slider corresponding to the property it manipulates
+     * \param shareWidget this widget will share OpenGL display lists and texture objects with shareWidget
      */
-    explicit WQtNavGLWidget( QString title, QWidget* parent, std::string sliderTitle="pos" );
+    explicit WQtNavGLWidget( QString title, QWidget* parent, std::string sliderTitle="pos", const QGLWidget * shareWidget = 0 );
 
     /**
      * destructor.
@@ -77,7 +79,14 @@ public:
      *
      * \param prop the property
      */
-    void setSliderProperty( WPropInt prop );
+    void setSliderProperty( boost::shared_ptr< WPropertyBase > prop );
+
+    /**
+     * Remove the property to control by the slider.
+     *
+     * \param prop the property
+     */
+    void removeSliderProperty( boost::shared_ptr< WPropertyBase > prop );
 
 protected:
 private:
@@ -86,11 +95,6 @@ private:
      * The slider's title.
      */
     QString m_sliderTitle;
-
-    /**
-     * The property widget representing the slice slider.
-     */
-    WPropertyIntWidget* m_propWidget;
 
     /**
      * My GL widget.
@@ -111,6 +115,12 @@ private:
      * Layout of this widget.
      */
     QVBoxLayout* m_layout;
+
+    /**
+     * Map holding the widgets for module properties added automatically. So they can be removed again automatically
+     * if the module is removed.
+     */
+    std::map< boost::shared_ptr< WPropertyBase >, WPropertyIntWidget* > propertyWidgetMap;
 };
 
 #endif  // WQTNAVGLWIDGET_H

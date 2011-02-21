@@ -98,6 +98,103 @@ std::string WProperties::getAsString()
     return "";
 }
 
+/**
+ * Add the default constraints for a certain type of property. By default, nothing is added.
+ *
+ * \note Information properties never get constraints by default
+ *
+ * \param prop the property
+ *
+ * \return the property inserted gets returned.
+ */
+template< typename T >
+T _addDefaultConstraints( T prop )
+{
+    return prop;
+}
+
+/**
+ * Add the default constraints for a certain type of property. For ints, a min and max is set to 0 and 100.
+ *
+ * \note Information properties never get constraints by default
+ *
+ * \param prop the property
+ *
+ * \return the property inserted gets returned.
+ */
+WPropInt _addDefaultConstraints( WPropInt prop )
+{
+    prop->setMin( 0 );
+    prop->setMax( 100 );
+    return prop;
+}
+
+/**
+ * Add the default constraints for a certain type of property. For doubles, a min and max is set to 0 and 100.
+ *
+ * \note Information properties never get constraints by default
+ *
+ * \param prop the property
+ *
+ * \return the property inserted gets returned.
+ */
+WPropDouble _addDefaultConstraints( WPropDouble prop )
+{
+    prop->setMin( 0.0 );
+    prop->setMax( 100.0 );
+    return prop;
+}
+
+/**
+ * Add the default constraints for a certain type of property. For selections, the PC_ISVALID constraint is added.
+ *
+ * \note Information properties never get constraints by default
+ *
+ * \param prop the property
+ *
+ * \return the property inserted gets returned.
+ */
+WPropSelection _addDefaultConstraints( WPropSelection prop )
+{
+    WPropertyHelper::PC_ISVALID::addTo( prop );
+    return prop;
+}
+
+/**
+ * Add the default constraints for a certain type of property. For filenames, the PC_NOTEMPTY constraint is added.
+ *
+ * \note Information properties never get constraints by default
+ *
+ * \param prop the property
+ *
+ * \return the property inserted gets returned.
+ */
+WPropFilename _addDefaultConstraints( WPropFilename prop )
+{
+    WPropertyHelper::PC_NOTEMPTY::addTo( prop );
+    return prop;
+}
+
+/**
+ * Add the default constraints for a certain type of property. Please specialize _addDefaultConstraints for your special needs and prop types.
+ *
+ * \note Information properties never get constraints by default
+ *
+ * \param prop the property to add the constraints to
+ *
+ * \return the property inserted
+ */
+template< typename T >
+T addDefaultConstraints( T prop )
+{
+    if ( prop->getPurpose() == PV_PURPOSE_INFORMATION )
+    {
+        return prop;
+    }
+
+    return _addDefaultConstraints( prop );
+}
+
 bool WProperties::set( boost::shared_ptr< WPropertyBase > /*value*/ )
 {
     return true;
@@ -148,6 +245,11 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
 
 void WProperties::removeProperty( boost::shared_ptr< WPropertyBase > prop )
 {
+    if ( !prop )
+    {
+        return;
+    }
+
     // lock, unlocked if l looses focus
     PropertySharedContainerType::WriteTicket l = m_properties.getWriteTicket();
     l->get().erase( std::remove( l->get().begin(), l->get().end(), prop ), l->get().end() );
@@ -272,57 +374,47 @@ boost::shared_ptr< WCondition > WProperties::getChildUpdateCondition() const
 
 WPropBool WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, hide ) );
 }
 
 WPropInt WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial, bool hide )
 {
-    WPropInt p = addProperty< WPVBaseTypes::PV_INT >( name, description, initial, hide );
-    p->setMin( 0 );
-    p->setMax( 100 );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_INT >( name, description, initial, hide ) );
 }
 
 WPropDouble WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial, bool hide )
 {
-    WPropDouble p = addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, hide );
-    p->setMin( 0.0 );
-    p->setMax( 100.0 );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, hide ) );
 }
 
 WPropString WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, hide ) );
 }
 
 WPropFilename WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial, bool hide )
 {
-    WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, hide );
-    WPropertyHelper::PC_NOTEMPTY::addTo( p );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, hide ) );
 }
 
 WPropSelection WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial, bool hide )
 {
-    WPropSelection p = addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, hide );
-    WPropertyHelper::PC_ISVALID::addTo( p );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, hide ) );
 }
 
 WPropPosition WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, hide ) );
 }
 
 WPropColor WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, hide ) );
 }
 
 WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, hide ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -335,65 +427,55 @@ WPropTrigger WProperties::addProperty( std::string name, std::string description
 WPropBool WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
                                      boost::shared_ptr< WCondition > condition, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, condition, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, condition, hide ) );
 }
 
 WPropInt WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
                                     boost::shared_ptr< WCondition > condition, bool hide )
 {
-    WPropInt p = addProperty< WPVBaseTypes::PV_INT >( name, description, initial, condition, hide );
-    p->setMin( 0 );
-    p->setMax( 100 );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_INT >( name, description, initial, condition, hide ) );
 }
 
 WPropDouble WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
                                        boost::shared_ptr< WCondition > condition, bool hide )
 {
-    WPropDouble p = addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, condition, hide );
-    p->setMin( 0.0 );
-    p->setMax( 100.0 );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, condition, hide ) );
 }
 
 WPropString WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
                                        boost::shared_ptr< WCondition > condition, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, condition, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, condition, hide ) );
 }
 
 WPropFilename WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
                                          boost::shared_ptr< WCondition > condition, bool hide )
 {
-    WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, hide );
-    WPropertyHelper::PC_NOTEMPTY::addTo( p );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, hide ) );
 }
 
 WPropSelection WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
                                           boost::shared_ptr< WCondition > condition, bool hide )
 {
-    WPropSelection p = addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, condition, hide );
-    WPropertyHelper::PC_ISVALID::addTo( p );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, condition, hide ) );
 }
 
 WPropPosition WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
                                          boost::shared_ptr< WCondition > condition, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, condition, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, condition, hide ) );
 }
 
 WPropColor WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
                                      boost::shared_ptr< WCondition > condition, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, hide ) );
 }
 
 WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
                                        boost::shared_ptr< WCondition > condition, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, condition, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, condition, hide ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -406,65 +488,55 @@ WPropTrigger WProperties::addProperty( std::string name, std::string description
 WPropBool WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_BOOL&   initial,
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, notifier, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, notifier, hide ) );
 }
 
 WPropInt WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
                                     WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    WPropInt p = addProperty< WPVBaseTypes::PV_INT >( name, description, initial, notifier, hide );
-    p->setMin( 0 );
-    p->setMax( 100 );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_INT >( name, description, initial, notifier, hide ) );
 }
 
 WPropDouble WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
                                        WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    WPropDouble p = addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, notifier, hide );
-    p->setMin( 0.0 );
-    p->setMax( 100.0 );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, notifier, hide ) );
 }
 
 WPropString WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
                                        WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, notifier, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, notifier, hide ) );
 }
 
 WPropFilename WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, notifier, hide );
-    WPropertyHelper::PC_NOTEMPTY::addTo( p );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, notifier, hide ) );
 }
 
 WPropSelection WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
                                           WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    WPropSelection p = addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, notifier, hide );
-    WPropertyHelper::PC_ISVALID::addTo( p );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, notifier, hide ) );
 }
 
 WPropPosition WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, notifier, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, notifier, hide ) );
 }
 
 WPropColor WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, notifier, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, notifier, hide ) );
 }
 
 WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
                                        WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, notifier, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, notifier, hide ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -479,72 +551,62 @@ WPropBool WProperties::addProperty( std::string name, std::string description, c
                                      boost::shared_ptr< WCondition > condition,
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, condition, notifier, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_BOOL >( name, description, initial, condition, notifier, hide ) );
 }
 
 WPropInt WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_INT&    initial,
                                      boost::shared_ptr< WCondition > condition,
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    WPropInt p = addProperty< WPVBaseTypes::PV_INT >( name, description, initial, condition, notifier, hide );
-    p->setMin( 0 );
-    p->setMax( 100 );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_INT >( name, description, initial, condition, notifier, hide ) );
 }
 
 WPropDouble WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_DOUBLE& initial,
                                      boost::shared_ptr< WCondition > condition,
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    WPropDouble p = addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, condition, notifier, hide );
-    p->setMin( 0.0 );
-    p->setMax( 100.0 );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_DOUBLE >( name, description, initial, condition, notifier, hide ) );
 }
 
 WPropString WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_STRING& initial,
                                      boost::shared_ptr< WCondition > condition,
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, condition, notifier, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_STRING >( name, description, initial, condition, notifier, hide ) );
 }
 
 WPropFilename WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_PATH&   initial,
                                      boost::shared_ptr< WCondition > condition,
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    WPropFilename p = addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, notifier, hide );
-    WPropertyHelper::PC_NOTEMPTY::addTo( p );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_PATH >( name, description, initial, condition, notifier, hide ) );
 }
 
 WPropSelection WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_SELECTION&   initial,
                                           boost::shared_ptr< WCondition > condition,
                                           WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    WPropSelection p = addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, condition, notifier, hide );
-    WPropertyHelper::PC_ISVALID::addTo( p );
-    return p;
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_SELECTION >( name, description, initial, condition, notifier, hide ) );
 }
 
 WPropPosition WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_POSITION&   initial,
                                          boost::shared_ptr< WCondition > condition,
                                          WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, condition, notifier, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_POSITION >( name, description, initial, condition, notifier, hide ) );
 }
 
 WPropColor WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_COLOR&   initial,
                                      boost::shared_ptr< WCondition > condition,
                                      WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, notifier, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_COLOR >( name, description, initial, condition, notifier, hide ) );
 }
 
 WPropTrigger WProperties::addProperty( std::string name, std::string description, const WPVBaseTypes::PV_TRIGGER&   initial,
                                        boost::shared_ptr< WCondition > condition,
                                        WPropertyBase::PropertyChangeNotifierType notifier, bool hide )
 {
-    return addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, condition, notifier, hide );
+    return addDefaultConstraints( addProperty< WPVBaseTypes::PV_TRIGGER >( name, description, initial, condition, notifier, hide ) );
 }
 

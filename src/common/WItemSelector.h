@@ -218,6 +218,21 @@ public:
      */
     void unlock();
 
+    /**
+     * Allow cast from selector to unsigned int.
+     *
+     * \return the index of the first selected item in the selection.
+     */
+    operator unsigned int() const;
+
+    /**
+     * Casts the selector to a list of indices currently selected. It contains the list of index in the corresponding WItemSelection. This is
+     * especially useful if the whole index list is needed without nasty iterations.
+     *
+     * \return the list of index.
+     */
+    IndexList getIndexList() const;
+
 protected:
 
     /**

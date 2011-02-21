@@ -249,6 +249,23 @@ public:
         TS_ASSERT( std::abs( ( *cutPoint )[1] - 1 ) <= 2*wlimits::DBL_EPS );
         TS_ASSERT( std::abs( ( *cutPoint )[2] - 0 ) <= 2*wlimits::DBL_EPS );
     }
+
+    /**
+     * Test the factorial calculation.
+     */
+    void testFactorials( void )
+    {
+        // TODO( philips ): add even and odd factorials
+        TS_ASSERT_EQUALS( wmath::factorial( 0 ), 1 );
+        TS_ASSERT_EQUALS( wmath::factorial( 1 ), 1 );
+        TS_ASSERT_EQUALS( wmath::factorial( 2 ), 2 );
+        TS_ASSERT_EQUALS( wmath::factorial( 3 ), 6 );
+        TS_ASSERT_EQUALS( wmath::factorial( 4 ), 24 );
+        TS_ASSERT_EQUALS( wmath::factorial( 5 ), 120 );
+        TS_ASSERT_EQUALS( wmath::factorial( 6 ), 720 );
+        TS_ASSERT_EQUALS( wmath::factorial( 7 ), 5040 );
+        TS_ASSERT_EQUALS( wmath::factorial( 8 ), 40320 );
+    }
 };
 
 #endif  // WMATH_TEST_H

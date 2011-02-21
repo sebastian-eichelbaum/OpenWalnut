@@ -26,11 +26,12 @@
 
 #include "WLinearAlgebraFunctions.h"
 
-#ifdef USEOSSIM
+#ifdef OW_USE_OSSIM
 #include "WOSSIMHelper.h"
 #endif
 
 #include "WMatrix.h"
+#include "WMatrix4x4.h"
 #include "WValue.h"
 #include "WVector3D.h"
 #include "../WAssert.h"
@@ -78,6 +79,12 @@ WPosition transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec )
     return result;
 }
 
+WVector3D transformPosition3DWithMatrix4D( WMatrix4x4 mat, WPosition vec )
+{
+    osg::Vec4f v = osg::Vec4f( vec, 1.0 ) * mat;
+    return WVector3D( v.x(), v.y(), v.z() );
+}
+
 WMatrix<double> invertMatrix3x3( WMatrix<double> mat )
 {
     WAssert( mat.getNbRows(), "Zero rows found." );
@@ -89,7 +96,7 @@ WMatrix<double> invertMatrix3x3( WMatrix<double> mat )
                 mat( 0, 1 ) * mat( 1, 0 ) * mat( 2, 2 ) -
                 mat( 0, 0 ) * mat( 1, 2 ) * mat( 2, 1 );
 
-    WAssert( det != 0, "Determinat is zero. This matrix can not be inverted." );
+    WAssert( det != 0, "Determinant is zero. This matrix can not be inverted." );
 
     WMatrix<double> r( 3, 3 );
 
@@ -303,7 +310,7 @@ void wmath::computeSVD( const wmath::WMatrix< double >& A,
                         wmath::WMatrix< double >& V,
                         wmath::WValue< double >& S )
 {
-#ifdef USEOSSIM
+#ifdef OW_USE_OSSIM
       wmath::WOSSIMHelper::computeSVD( A, U, V, S );
 #else
       (void) A; (void) U; (void) V; (void) S; // NOLINT to prevent "unused variable" warnings
@@ -313,17 +320,17 @@ void wmath::computeSVD( const wmath::WMatrix< double >& A,
 
 wmath::WMatrix<double> wmath::pseudoInverse( const WMatrix<double>& input )
 {
-            // calc pseudo inverse
-            wmath::WMatrix< double > U( input.getNbRows(), input.getNbCols() );
-            wmath::WMatrix< double > V( input.getNbCols(), input.getNbCols() );
-            wmath::WValue< double > Svec( input.getNbCols() );
-            wmath::computeSVD( input, U, V, Svec );
+    // calc pseudo inverse
+    wmath::WMatrix< double > U( input.getNbRows(), input.getNbCols() );
+    wmath::WMatrix< double > V( input.getNbCols(), input.getNbCols() );
+    wmath::WValue< double > Svec( input.getNbCols() );
+    wmath::computeSVD( input, U, V, Svec );
 
-            // create diagonal matrix S
-            wmath::WMatrix< double > S( input.getNbCols(), input.getNbCols() );
+    // create diagonal matrix S
+    wmath::WMatrix< double > S( input.getNbCols(), input.getNbCols() );
 
-            for ( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
-              S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
+    for ( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
+      S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
 
-            return wmath::WMatrix< double >( V*S*U.transposed() );
+    return wmath::WMatrix< double >( V*S*U.transposed() );
 }

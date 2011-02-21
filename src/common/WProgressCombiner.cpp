@@ -22,8 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#include <sstream>
 #include <string>
 #include <set>
+
+#include <boost/utility.hpp>
 
 #include "WProgressCombiner.h"
 
@@ -76,6 +79,29 @@ void WProgressCombiner::update()
     }
 
     rlock.unlock();
+}
+
+std::string WProgressCombiner::getCombinedNames() const
+{
+    // read lock combiner
+    boost::shared_lock< boost::shared_mutex > rlock = boost::shared_lock< boost::shared_mutex >( m_updateLock );
+
+    std::stringstream ss;
+    ss << "[";
+    for( std::set< boost::shared_ptr< WProgress > >::const_iterator i = m_children.begin(); i != m_children.end(); ++i )
+    {
+        // enforce child to update
+        ss << ( *i )->getName();
+        if( boost::next( i ) != m_children.end() )
+        {
+            ss << ", ";
+        }
+    }
+    ss << "]";
+
+    // Done. Free lock.
+    rlock.unlock();
+    return ss.str();
 }
 
 void WProgressCombiner::addSubProgress( boost::shared_ptr< WProgress > progress )

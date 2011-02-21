@@ -55,8 +55,8 @@ public:
      * \param voxelIdx the voxel index in the common grid calculated using "voxel" (this is for convenience)
      * \param axis  Along which axis the traversal takes place. Since when walking in e.g. X-direction there are not supporting voxels in the
      * \param value the new voxel value
-     * \param start Start point of the line segement (used to computed the distance)
-     * \param end   End point of the line segement (used to computed the distance)
+     * \param start Start point of the line segment (used to computed the distance)
+     * \param end   End point of the line segment (used to computed the distance)
      */
     virtual void parameterizeVoxel( const wmath::WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
                                     const wmath::WPosition& start,
@@ -100,4 +100,3 @@ private:
 };
 
 #endif  // WINTEGRATIONPARAMETERIZATION_H
-

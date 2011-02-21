@@ -754,7 +754,7 @@ istream& operator>> ( istream& is , FMatrix& a)
   vector<double> tmp;
   double tmpdouble;
 
-  while (isspace(c) && (is >> c));
+  while (isspace(c) && (is >> c)) {};
   if (c != '[')
     { is.putback(c);
     THROW_EXCEPTION( FSyntaxErrorException, "no matrix definition found");
@@ -767,7 +767,7 @@ istream& operator>> ( istream& is , FMatrix& a)
 
       // If the Matrix definition has ended there should appear
       // a character different from '['
-      while (isspace(c) && (is >> c));
+      while (isspace(c) && (is >> c)) {};
       if (c == ']')
         { break;}
 

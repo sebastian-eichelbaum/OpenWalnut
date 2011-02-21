@@ -104,6 +104,7 @@ private:
     WPropPosition   m_matrix0Prop; //!< Row 0 of matrix part of the transformation.
     WPropPosition   m_matrix1Prop; //!< Row 1 of matrix part of the transformation.
     WPropPosition   m_matrix2Prop; //!< Row 2 of matrix part of the transformation.
+    WPropPosition   m_matrix3Prop; //!< Row 3 of matrix part of the transformation.
 
     /**
      * ReTransforms the scene.

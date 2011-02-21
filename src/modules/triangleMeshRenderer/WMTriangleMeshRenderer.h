@@ -31,21 +31,17 @@
 
 #include "../../common/datastructures/WColoredVertices.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-class WTriangleMesh2;
+class WTriangleMesh;
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "wiebel".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
+ * This module renders the triangle mesh given at its input connector
+ * as a surface.
  *
  * \ingroup modules
  */
@@ -118,27 +114,27 @@ protected:
 private:
 
     /**
-     * An input connector used to get mehses from other modules. The connection management between connectors must not be handled by the module.
+     * An input connector used to get meshes from other modules. The connection management between connectors must not be handled by the module.
      */
-    boost::shared_ptr< WModuleInputData< WTriangleMesh2 > > m_meshInput;
+    boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshInput;
     boost::shared_ptr< WModuleInputData< WColoredVertices > > m_colorMapInput; //!< for each vertex ID in that container a special color is given.
 
     WPropColor m_meshColor; //!< The color of the mesh
-    WPropInt m_opacityProp; //!< Property holding the opacity valueassigned to the surface
+    WPropInt m_opacityProp; //!< Property holding the opacity value assigned to the surface
     WPropBool m_mainComponentOnly; //!< En/Disable display of only the main component (biggest vertices number)
 
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
 
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
 
-    osg::ref_ptr< WShader > m_shader; //!< The shader used for the iso surface in m_geode
+    osg::ref_ptr< WGEShader > m_shader; //!< The shader used for the iso surface in m_geode
 
 
     /**
      * This function generates the osg geometry from the WTriangleMesh.
      * \param mesh The triangle mesh that will be rendered.
      */
-    void renderMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
+    void renderMesh( boost::shared_ptr< WTriangleMesh > mesh );
 };
 
 /**

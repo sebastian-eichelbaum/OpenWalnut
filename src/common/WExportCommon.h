@@ -29,7 +29,7 @@
 
     #pragma warning( disable: 4251 )
 
-    #ifdef OWcommon_EXPORTS
+    #if defined( owcommon_EXPORTS ) || defined( OWcommon_EXPORTS )
     #define OWCOMMON_EXPORT __declspec( dllexport )
     #else
     #define OWCOMMON_EXPORT __declspec( dllimport )

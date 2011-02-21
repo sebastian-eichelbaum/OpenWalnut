@@ -38,7 +38,7 @@
 #include "../../dataHandler/datastructures/WJoinContourTree.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh2.h"
+#include "../../graphicsEngine/WTriangleMesh.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
@@ -83,6 +83,11 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
 
     /**
@@ -106,7 +111,7 @@ protected:
     virtual void activate();
 
     /**
-     * Updates either the planes representing the slices or the ISOVoxels of the volume
+     * Updates either the planes representing the slices or the isovoxels of the volume
      *
      * \param force If true the scene is updated even if no property changed
      */
@@ -120,9 +125,9 @@ protected:
     /**
      * Slices the given mesh with the color of the slices used for slicing.
      *
-     * \param mesh Triangle mesh describing the ISO surface
+     * \param mesh Triangle mesh describing the isosurface
      */
-    void sliceAndColorMesh( boost::shared_ptr< WTriangleMesh2 > mesh );
+    void sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh );
 
     /**
      * Computes the average of the positions inside the paramDS which are also inside the cluster volume main component.
@@ -130,7 +135,7 @@ protected:
      *
      * \param samplePoints Set of position where the parameter should be gained out of the paramDS, be aware
      *
-     * \return The average value of those value where its positions are inside the ISO-Surface/Volume/Cluster. If no position is inside, 0.0 is returned.
+     * \return The average value of those value where its positions are inside the Iso-Surface/Volume/Cluster. If no position is inside, 0.0 is returned.
      */
     wmath::WValue< double > meanParameter( boost::shared_ptr< std::set< wmath::WPosition > > samplePoints ) const;
 
@@ -139,7 +144,7 @@ protected:
      *
      * \return Newly constructed geode
      */
-    osg::ref_ptr< osg::Geode > generateISOVoxelGeode() const;
+    osg::ref_ptr< osg::Geode > generateIsoVoxelGeode() const;
 
     /**
      * Computes how much percent of the points of the cluster are enclosed by the isosurface.
@@ -169,29 +174,29 @@ protected:
     typedef WModuleInputData< WDataSetScalar > InputDataSetType; //!< Internal alias for m_*DataSets types
     boost::shared_ptr< InputDataSetType >   m_clusterDataSetInput; //!< InputConnector for the dataset derived from a voxelized cluster
     boost::shared_ptr< InputDataSetType >   m_paramDataSetInput; //!< InputConnector for the dataset of parameters like FA etc.
-    typedef WModuleInputData< WTriangleMesh2 > InputMeshType; //!< Internal alias for the m_triangleMesh type
+    typedef WModuleInputData< WTriangleMesh > InputMeshType; //!< Internal alias for the m_triangleMesh type
     boost::shared_ptr< InputMeshType >      m_triangleMeshInput; //!< InputConnector for the triangle mesh
     typedef WModuleOutputData< WColoredVertices > OutputColorMapType; //!< Interal alias for the ColorMap Type
     boost::shared_ptr< OutputColorMapType > m_colorMapOutput; //!< OutputConnector to forward the color Map to TriangleMeshRenderer
-    typedef WModuleOutputData< WTriangleMesh2 > OutputMeshType; //!< Internal alias for the Mesh Type
+    typedef WModuleOutputData< WTriangleMesh > OutputMeshType; //!< Internal alias for the Mesh Type
     boost::shared_ptr< OutputMeshType > m_meshOutput; //!< OutputConnector to forwarde the selected Mesh (e.g. if component selection is enabled )
 
     boost::shared_ptr< WFiberCluster >  m_cluster; //!< A cluster with its CenterLine
     boost::shared_ptr< WDataSetScalar > m_clusterDS; //!< Dataset derived from a voxelized cluster
     boost::shared_ptr< WDataSetScalar > m_paramDS; //!< Dataset derived from a voxelized cluster
     boost::shared_ptr< std::vector< std::pair< double, WPlane > > > m_slices; //!< stores all planes and their average parameters along centerLine
-    boost::shared_ptr< WTriangleMesh2 > m_mesh; //!< Reference to the TriangleMesh to make intersections
+    boost::shared_ptr< WTriangleMesh > m_mesh; //!< Reference to the TriangleMesh to make intersections
     boost::shared_ptr< WColoredVertices > m_colorMap; //!< Stores the color for vertices belonging to the intersection with the mesh and the planes
 
     boost::shared_ptr< WJoinContourTree >   m_joinTree; //!< Stores the JoinTree
     boost::shared_ptr< std::set< size_t > > m_isoVoxels; //!< Stores the voxels belonging to the cluster volume of a certain iso value
-    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh2 > > > m_components; //!< Mesh decomposed into connected components
+    boost::shared_ptr< std::list< boost::shared_ptr< WTriangleMesh > > > m_components; //!< Mesh decomposed into connected components
 
     boost::shared_ptr< WCondition > m_fullUpdate; //!< Indicates a complete update of display and computed data (time consuming)
 
-    WPropBool   m_drawISOVoxels; //!< En/Disable the display of cluster volume voxels
+    WPropBool   m_drawIsoVoxels; //!< En/Disable the display of cluster volume voxels
     WPropBool   m_drawSlices; //!< En/Disable the display of slices along center line
-    WPropDouble m_isoValue; //!< The ISO value selecting the size of the cluster volume
+    WPropDouble m_isoValue; //!< The isovalue selecting the size of the cluster volume
     WPropInt    m_meanSelector; //!< Selects the mean: 0 == arithmeticMean, 1 == geometricMean, 2 == median (default)
     WPropInt    m_planeNumX; //!< how many sample points in first direction of the slice
     WPropInt    m_planeNumY; //!< how many sample points in the second direction of the slice

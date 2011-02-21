@@ -40,6 +40,7 @@
 
 #include "../../../kernel/WModule.h"
 #include "../../../kernel/WModuleFactory.h"
+#include "../controlPanel/WQtControlPanel.h"
 #include "../events/WEventTypes.h"
 #include "../events/WModuleAssocEvent.h"
 #include "../events/WModuleConnectEvent.h"
@@ -75,7 +76,7 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     this->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     this->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
     setWidget( m_panel );
-    connectSlots();
+    connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
 
     // this fakeitem is added to the scene to get a better behavior of the forced
     // based layout. ALL WQtNetworkItems in the scene are "connected" to this
@@ -93,24 +94,19 @@ WQtNetworkEditor::~WQtNetworkEditor()
 {
 }
 
-void WQtNetworkEditor::connectSlots()
-{
-    connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
-}
-
 void WQtNetworkEditor::selectItem()
 {
     boost::shared_ptr< WModule > module;
-    boost::shared_ptr< WProperties > props;
-    boost::shared_ptr< WProperties > infoProps;
 
-    WQtCombinerToolbar* newToolbar = NULL;
+    //WQtCombinerToolbar* newToolbar = NULL;
 
     if ( m_scene->selectedItems().size() != 0 &&
          m_scene->selectedItems().at( 0 )->type() == WQtNetworkItem::Type )
     {
         if ( m_scene->selectedItems().at(0)->type() == WQtNetworkItem::Type )
-        module = ( static_cast< WQtNetworkItem* >( m_scene->selectedItems().at( 0 ) ) )->getModule();
+        {
+            module = ( static_cast< WQtNetworkItem* >( m_scene->selectedItems().at( 0 ) ) )->getModule();
+        }
 
         // crashed modules should not provide any props
         if ( module->isCrashed()() )
@@ -118,30 +114,16 @@ void WQtNetworkEditor::selectItem()
              return;
         }
 
-        props = module->getProperties();
-        infoProps = module->getInformationProperties();
-        m_mainWindow->getDatasetBrowser()->setPropTab( props, infoProps );
-
-        newToolbar = createCompatibleButtons( module );
+        m_mainWindow->getControlPanel()->setNewActiveModule( module );
     }
     else
     {
-        m_mainWindow->getDatasetBrowser()->setPropTab( props, infoProps );
-        newToolbar = createCompatibleButtons( module );
+        m_mainWindow->getControlPanel()->setNewActiveModule( module );
     }
 
     // set the new toolbar
     // NOTE: setCompatiblesToolbar removes the toolbar if NULL is specified.
-    m_mainWindow->setCompatiblesToolbar( newToolbar );
-}
-
-WQtCombinerToolbar* WQtNetworkEditor::createCompatibleButtons( boost::shared_ptr< WModule >module )
-{
-    // every module may have compatibles: create ribbon menu entry
-    // NOTE: if module is NULL, getCompatiblePrototypes returns the list
-    // of modules without input connector (nav slices and so on)
-    WCombinerTypes::WCompatiblesList comps = WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module );
-    return new WQtCombinerToolbar( m_mainWindow, comps );
+    //m_mainWindow->setCompatiblesToolbar( newToolbar );
 }
 
 void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
@@ -401,7 +383,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Removeing \"" + e->getModule()->getName() +
+        WLogger::getLogger()->addLogMessage( "Removing \"" + e->getModule()->getName() +
                                              "\"from network editor.", "NetworkEditor", LL_DEBUG );
 
 
@@ -409,7 +391,7 @@ bool WQtNetworkEditor::event( QEvent* event )
         if( item != 0 )
         {
             item->activate( false );
-            e->getModule()->requestStop();
+            //e->getModule()->requestStop(); // TODO(rfrohl): do we need this ?
         }
 
         return true;

@@ -25,25 +25,22 @@
 #ifndef WKERNEL_H
 #define WKERNEL_H
 
-#include <list>
 #include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/filesystem.hpp>
 
-#include "../common/WFlag.h"
 #include "../common/WLogger.h"
 #include "../graphicsEngine/WGraphicsEngine.h"
-#include "../gui/WGUI.h"
-#include "modules/fiberDisplay/WROIManagerFibers.h"
-#include "WSelectionManager.h"
-#include "WModule.h"
-#include "WModuleContainer.h"
-#include "WModuleFactory.h"
-
 #include "WExportKernel.h"
+#include "WModule.h"
 
+// forward declarations
+class WGUI;
+class WModuleContainer;
+class WModuleFactory;
+class WROIManager;
+class WSelectionManager;
 class WThreadedRunner;
 
 /**
@@ -64,12 +61,15 @@ class OWKERNEL_EXPORT WKernel: public WThreadedRunner
 public:
 
     /**
-     * Constructor. Awaits an INITIALIZED graphics engine an gui.
+     * Returns pointer to the running kernel or a new if no kernel was there.
+     * If a running kernel exists the function return it and does not check if
+     * ge and gui of the running kernel are equivalent to the ones given as parameters.
      *
      * \param ge initialized graphics engine.
      * \param gui initialized gui.
+     * \return the kernel instance.
      */
-    WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui );
+    static WKernel* instance( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui );
 
     /**
      * Destructor.
@@ -147,7 +147,7 @@ public:
     /**
      * get for roi manager
      */
-    boost::shared_ptr< WROIManagerFibers>getRoiManager();
+    boost::shared_ptr< WROIManager> getRoiManager();
 
     /**
      * get for selection manager
@@ -155,6 +155,14 @@ public:
     boost::shared_ptr< WSelectionManager>getSelectionManager();
 
 protected:
+    /**
+     * Constructor is protected because this class is a singleton. Awaits an INITIALIZED graphics engine an gui.
+     *
+     * \param ge initialized graphics engine.
+     * \param gui initialized gui.
+     */
+    WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui );
+
 
     /**
      * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
@@ -175,7 +183,7 @@ protected:
     /**
      * Pointer to a roi manager
      */
-    boost::shared_ptr< WROIManagerFibers >m_roiManager;
+    boost::shared_ptr< WROIManager >m_roiManager;
 
     /**
      * pointer to a selection manager
@@ -202,6 +210,11 @@ private:
      * Initializes the graphics engine, data handler and so on.
      */
     void init();
+
+    /**
+     * Pointer to the unique instance of this singleton class.
+     */
+    static WKernel* m_kernel;
 };
 
 #endif  // WKERNEL_H

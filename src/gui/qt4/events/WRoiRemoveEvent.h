@@ -30,8 +30,6 @@
 #include <QtCore/QEvent>
 
 #include "../../../graphicsEngine/WROI.h"
-#include "../../../kernel/modules/fiberDisplay/WRMROIRepresentation.h"
-
 
 /**
  * Event signalling a roi has been removed from the roi manager in the kernel.
@@ -43,7 +41,7 @@ public:
      * constructor
      * \param roi
      */
-    explicit WRoiRemoveEvent( boost::shared_ptr< WRMROIRepresentation > roi );
+    explicit WRoiRemoveEvent( osg::ref_ptr< WROI > roi );
 
     /**
      * destructor
@@ -55,13 +53,13 @@ public:
      *
      * \return the roi.
      */
-    boost::shared_ptr< WRMROIRepresentation > getRoi();
+    osg::ref_ptr< WROI > getRoi();
 
 protected:
     /**
      * The roi that got removed.
      */
-    boost::shared_ptr< WRMROIRepresentation > m_roi;
+    osg::ref_ptr< WROI > m_roi;
 
 private:
 };

@@ -67,6 +67,11 @@ public:
      */
     virtual boost::shared_ptr< WModule > factory() const;
 
+    /**
+     * Get the icon for this module in XPM format.
+     */
+    virtual const char** getXPMIcon() const;
+
 protected:
     /**
      * Entry point after loading the module. Runs in separate thread.
@@ -101,12 +106,12 @@ private:
     boost::shared_ptr< WModule > m_detTractClustering; //!< Submodule doing clustering of the fibers and center line generation
     boost::shared_ptr< WModule > m_voxelizer; //!< Submodule doing voxelization of a cluster
     boost::shared_ptr< WModule > m_gaussFiltering; //!< Submodule blurring the generated voxelized dataset
-    boost::shared_ptr< WModule > m_isoSurface; //!< Selects the appropriate ISO value
+    boost::shared_ptr< WModule > m_isoSurface; //!< Selects the appropriate isovalue
     boost::shared_ptr< WModule > m_clusterSlicer; //!< Module slicing the cluster volume
     boost::shared_ptr< WModule > m_meshRenderer; //!< Renders the triangle Mesh with a certain color
 
-    WPropDouble m_isoValue; //!< ISO Value for selecting the volume
-    WPropBool   m_drawISOSurface; //!< En/Disable the display of the ISO Surface
+    WPropDouble m_isoValue; //!< Isovalue for selecting the volume
+    WPropBool   m_drawIsoSurface; //!< En/Disable the display of the isosurface
 };
 
 #endif  // WMCLUSTERPARAMDISPLAY_H

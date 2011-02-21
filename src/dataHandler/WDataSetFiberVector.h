@@ -38,7 +38,7 @@
 /**
  * Represents a simple set of WFibers.
  */
-class OWDATAHANDLER_EXPORT WDataSetFiberVector : public WMixinVector< wmath::WFiber >, public WDataSet // NOLINT
+class OWDATAHANDLER_EXPORT WDataSetFiberVector : public WMixinVector< WFiber >, public WDataSet // NOLINT
 {
 public:
     /**
@@ -51,14 +51,14 @@ public:
      *
      * \param fibs Fiber vector to store in this data set
      */
-    explicit WDataSetFiberVector( boost::shared_ptr< std::vector< wmath::WFiber > > fibs );
+    explicit WDataSetFiberVector( boost::shared_ptr< std::vector< WFiber > > fibs );
 
     /**
      * Convert a WDataSetFibers into a fiber vector dataset.
      *
      * \param fiberDS Dataset which has to be converted
      */
-    explicit WDataSetFiberVector( boost::shared_ptr< WDataSetFibers > fiberDS );
+    explicit WDataSetFiberVector( boost::shared_ptr< const WDataSetFibers > fiberDS );
 
     /**
      * Copy constructor for fibers

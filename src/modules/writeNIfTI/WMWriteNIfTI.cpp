@@ -137,6 +137,8 @@ void WMWriteNIfTI::properties()
     m_saveTriggerProp = m_properties->addProperty( "Do save",  "Press!",
                                                   WPVBaseTypes::PV_TRIGGER_READY );
     m_saveTriggerProp->getCondition()->subscribeSignal( boost::bind( &WMWriteNIfTI::writeToFile, this ) );
+
+    WModule::properties();
 }
 
 template< typename T > void WMWriteNIfTI::castData( void*& returnData )
@@ -194,7 +196,7 @@ void WMWriteNIfTI::writeToFile()
     outField->slice_dim = 3;
 
     outField->qform_code = 1;
-    outField->sform_code = 0;
+    outField->sform_code = 1;
 
     // TODO(philips): solve ticket 334
     // set time dimension to 1
@@ -211,6 +213,8 @@ void WMWriteNIfTI::writeToFile()
     description.copy( outField->descrip, 80 );
 
 
+    int i = grid->getActiveMatrix();
+    grid->setActiveMatrix( 1 );
     wmath::WMatrix< double > matrix = grid->getTransformationMatrix();
     for( size_t i = 0; i < 4; ++i )
     {
@@ -219,6 +223,17 @@ void WMWriteNIfTI::writeToFile()
             outField->qto_xyz.m[i][j] = matrix( i, j );
         }
     }
+
+    grid->setActiveMatrix( 2 );
+    matrix = grid->getTransformationMatrix();
+    for( size_t i = 0; i < 4; ++i )
+    {
+        for( size_t j = 0; j < 4; ++j )
+        {
+            outField->sto_xyz.m[i][j] = matrix( i, j );
+        }
+    }
+    grid->setActiveMatrix( i );
 
     {
         float dx, dy, dz;
@@ -231,6 +246,7 @@ void WMWriteNIfTI::writeToFile()
     }
 
     outField->qto_ijk = nifti_mat44_inverse( outField->qto_xyz );
+    outField->sto_ijk = nifti_mat44_inverse( outField->sto_xyz );
 
     void* data = 0;
     switch( ( *m_dataSet ).getValueSet()->getDataType() )
@@ -247,12 +263,12 @@ void WMWriteNIfTI::writeToFile()
             break;
         case W_DT_UNSIGNED_CHAR:
             outField->datatype = DT_UNSIGNED_CHAR;
-            castData< unsigned char > ( data );
+            castData< uint8_t > ( data );
             outField->nbyper = 1;
             break;
         case W_DT_INT8:
             outField->datatype = DT_INT8;
-            castData< char > ( data );
+            castData< int8_t > ( data );
             outField->nbyper = 1;
             break;
         case W_DT_UINT16:

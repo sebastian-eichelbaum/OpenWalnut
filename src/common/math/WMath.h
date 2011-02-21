@@ -38,17 +38,19 @@
 #include "WPlane.h"
 #include "WLine.h"
 
+#include "../WExportCommon.h"
+
 /**
  * Classes and functions of math module of OpenWalnut.
  */
 namespace wmath
 {
-//   Pi constants - we dont use the macro M_PI, because it is not part of the C++-standard.
-//   ref.: http://stackoverflow.com/questions/1727881/how-to-use-the-pi-constant-in-c
-  /** the pi constant in float format */
-  const float piFloat = boost::math::constants::pi<float>();
-  /** the pi constant in double format */
-  const double piDouble = boost::math::constants::pi<double>();
+    // Pi constants - we don't use the macro M_PI, because it is not part of the C++-standard.
+    // ref.: http://stackoverflow.com/questions/1727881/how-to-use-the-pi-constant-in-c
+    /** the pi constant in float format */
+    const float piFloat = boost::math::constants::pi<float>();
+    /** the pi constant in double format */
+    const double piDouble = boost::math::constants::pi<double>();
 
     /**
      * Tests whether the number stored in the parameter is finite.
@@ -67,7 +69,7 @@ namespace wmath
 #endif
     }
     /**
-     * Checks if the triangle intersects with the given plane. If you are interessted in the points of
+     * Checks if the triangle intersects with the given plane. If you are interested in the points of
      * intersection if any \see intersection().
      *
      * \param p1 first point of the triangle
@@ -77,39 +79,39 @@ namespace wmath
      *
      * \return True if both intersects otherwise false.
      */
-    bool testIntersectTriangle( const wmath::WPosition& p1, const wmath::WPosition& p2, const wmath::WPosition& p3, const WPlane& p );
+    bool OWCOMMON_EXPORT testIntersectTriangle( const wmath::WPosition& p1, const wmath::WPosition& p2, const wmath::WPosition& p3, const WPlane& p );
 
     /**
      * Checks if the given segment intersects with the plane or not. Even if
      * just one endpoint intersects with the plane it should be returned as
-     * point of intersection. If the segement is totally inside of that plane
+     * point of intersection. If the segment is totally inside of that plane
      * the first endpoint (which was given: p1 ) should be returned in the
      * cutPoint parameter.
      *
      * \param p The plane to test with intersection
-     * \param p1 The first endpoint of the line segement
-     * \param p2 The second endpoint of the line segement
+     * \param p1 The first endpoint of the line segment
+     * \param p2 The second endpoint of the line segment
      * \param pointOfIntersection The point of intersection if any, otherwise 0,0,0
      *
      * \return True if an intersection was detected, false otherwise.
      */
-    bool intersectPlaneSegment( const WPlane& p,
+    bool OWCOMMON_EXPORT intersectPlaneSegment( const WPlane& p,
                                 const wmath::WPosition& p1,
                                 const wmath::WPosition& p2,
                                 boost::shared_ptr< wmath::WPosition > pointOfIntersection );
 
     /**
-     * Checks a line (consecutive line segements) on intersection with a plane
+     * Checks a line (consecutive line segments) on intersection with a plane
      * and selects (if there are more than one point of intersection) the
      * closest to the base point of the plane.
      *
      * \param p The plane to test with intersection
-     * \param l The line segements
+     * \param l The line segments
      * \param cutPoint The return parameter for the point of intersection
      *
      * \return True if an intersection was detected, false otherwise.
      */
-    bool intersectPlaneLineNearCP( const WPlane& p, const wmath::WLine& l, boost::shared_ptr< wmath::WPosition > cutPoint );
+    bool OWCOMMON_EXPORT intersectPlaneLineNearCP( const WPlane& p, const wmath::WLine& l, boost::shared_ptr< wmath::WPosition > cutPoint );
 
     /**
      * Computes the signum for the given value.
@@ -125,7 +127,7 @@ namespace wmath
      * Calculates the odd factorial. This means 1*3*5* ... * border if border is odd, or 1*3*5* ... * (border-1) if border is even.
      * \param border the threshold for the factorial calculation.
      */
-    inline unsigned int oddFactorial( unsigned int border )
+    inline unsigned int OWCOMMON_EXPORT oddFactorial( unsigned int border )
     {
         unsigned int result = 1;
         for ( unsigned int i = 3; i <= border; i+=2 )
@@ -137,12 +139,36 @@ namespace wmath
      * Calculates the even factorial. This means 2*4*6 ... * \param border if border is even, or 2*4*6* ... * ( \param border - 1 ) if border is odd.
      * \param border the threshold for the factorial calculation.
      */
-    inline unsigned int evenFactorial( unsigned int border )
+    inline unsigned int OWCOMMON_EXPORT evenFactorial( unsigned int border )
     {
         unsigned int result = 1;
         for ( unsigned int i = 2; i <= border; i+=2 )
             result *= i;
         return result;
+    }
+
+    /**
+     * Calculates the factorial i! for positive i.
+     *
+     * \note For i < 0, the result is undefined.
+     * 
+     * \tparam The type of i.
+     * \param i The input.
+     * \return i!.
+     */
+    template< typename T >
+    T factorial( T i )
+    {
+        T res = static_cast< T >( 1 );
+        if( i < res )
+        {
+            return res;
+        }
+        for( T k = res; k <= i; ++k )
+        {
+            res *= k;
+        }
+        return res;
     }
 }
 

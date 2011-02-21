@@ -30,7 +30,7 @@
 #include "../../common/WColor.h"
 #include "../../common/WPropertyHelper.h"
 
-#include "scalarSegmentation.xpm"
+#include "WMScalarSegmentation.xpm"
 #include "WMScalarSegmentation.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -40,10 +40,18 @@ WMScalarSegmentation::WMScalarSegmentation():
     WModule()
 {
     m_algoIndex = 0;
+    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoThreshold() ) );
+#ifdef OW_USE_ITK
+    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoWatershed() ) );
+    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoOtsu() ) );
+    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoRegionGrowingConfidenceConnected() ) );
+    m_algos.push_back( boost::shared_ptr< WSegmentationAlgo >( new WSegmentationAlgoLevelSetCanny() ) );
+#endif  // OW_USE_ITK
 }
 
 WMScalarSegmentation::~WMScalarSegmentation()
 {
+    m_algos.clear();
 }
 
 boost::shared_ptr< WModule > WMScalarSegmentation::factory() const
@@ -63,7 +71,7 @@ const std::string WMScalarSegmentation::getName() const
 
 const std::string WMScalarSegmentation::getDescription() const
 {
-    return "This module segments scalar datasets by threshold.";
+    return "This module segments scalar datasets.";
 }
 
 void WMScalarSegmentation::connectors()
@@ -87,30 +95,40 @@ void WMScalarSegmentation::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    m_algos = boost::shared_ptr< WItemSelection >( new WItemSelection );
-    m_algos->addItem( "Simple Threshold", "" );
+    m_algoSelection = boost::shared_ptr< WItemSelection >( new WItemSelection );
+    for( AlgoList::iterator it = m_algos.begin(); it != m_algos.end(); ++it )
+    {
+        m_algoSelection->addItem( ( *it )->getName(), ( *it )->getDescription() );
+    }
+    m_algoType = m_properties->addProperty( "Segmentation algorithm", "Choose a segmentation method.",
+                                            m_algoSelection->getSelectorFirst(), m_propCondition );
 
-    m_algoType = m_properties->addProperty( "Seg Algo", "Choose a segmentation method.", m_algos->getSelectorFirst(), m_propCondition );
+    for( AlgoList::iterator it = m_algos.begin(); it != m_algos.end(); ++it )
+    {
+        ( *it )->initProperties( m_properties->addPropertyGroup( ( *it )->getName(), "The properties for this segmentation algorithm.", true ) );
+    }
 
-    m_propGroups.resize( 1 );
-    m_propGroups[ 0 ] = m_properties->addPropertyGroup( "Simple Threshold", "" );
+    m_algos.at( 0 )->hideProperties( false );
 
-    m_threshold = m_propGroups[ 0 ]->addProperty( "Threshold", "Threshold value for segmentation.", 0.8, m_propCondition );
-    m_threshold->setMax( 255.0 );
-    m_threshold->setMin( 0.0 );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_algoType );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_algoType );
+
+    WModule::properties();
 }
 
 void WMScalarSegmentation::moduleMain()
 {
-    debugLog() << "Entering moduleMain()";
-
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
+    for( AlgoList::iterator it = m_algos.begin(); it != m_algos.end(); ++it )
+    {
+        m_moduleState.add( ( *it )->getCondition() );
+    }
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
@@ -123,35 +141,38 @@ void WMScalarSegmentation::moduleMain()
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
 
-        if( dataChanged )
+        if( dataChanged && dataValid )
         {
             m_dataSet = newDataSet;
+            if( !m_dataSet->getValueSet() || !m_dataSet->getGrid()
+                || m_dataSet->getValueSet()->dimension() != 1 || m_dataSet->getValueSet()->order() != 0 )
+            {
+                m_dataSet = boost::shared_ptr< WDataSetScalar >();
+            }
         }
 
-        //bool propChanged = false;
-        //if( !m_algoType->changed() )
-        //{
-            //WPVGroup::PropertyConstIterator it;
-            //for( it = m_propGroups[ m_algoIndex ]->begin(); it != m_propGroups[ m_algoIndex ]->end(); ++it )
-            //{
-                //propChanged = propChanged || it->changed();
-            //}
-        //}
-        //else
-        //{
-            //WItemSelector w = m_algoType.get( true );
-            //m_algoIndex = w.getItemIndexOfSelected( 0 );
-            //propChanged = true;
-        //}
+        bool algoChanged = m_algoType->changed();
 
-        bool propChanged = m_threshold->changed();
-        if ( ( dataChanged && dataValid ) || ( propChanged && dataValid ) )
+        if( algoChanged )
+        {
+            WItemSelector w = m_algoType->get( true );
+            m_algos.at( m_algoIndex )->hideProperties( true );
+            m_algoIndex = w.getItemIndexOfSelected( 0 );
+            m_algos.at( m_algoIndex )->hideProperties( false );
+        }
+
+        bool propChanged = m_algos.at( m_algoIndex )->propChanged();
+        if( m_dataSet && ( dataChanged || propChanged || algoChanged ) )
         {
             // redo calculation
-            m_result = doSegmentation( m_dataSet );
-
+            doSegmentation();
             m_output->updateData( m_result );
         }
+    }
+
+    for( AlgoList::iterator it = m_algos.begin(); it != m_algos.end(); ++it )
+    {
+        m_moduleState.remove( ( *it )->getCondition() );
     }
 }
 
@@ -160,44 +181,9 @@ void WMScalarSegmentation::activate()
     WModule::activate();
 }
 
-boost::shared_ptr< WDataSetScalar > WMScalarSegmentation::doSegmentation( boost::shared_ptr< WDataSetScalar > dataSet )
+void WMScalarSegmentation::doSegmentation()
 {
-    switch( m_algoIndex )
-    {
-    case 0:
-        return segmentationSimple( dataSet, m_threshold->get( true ) );
-    default:
-        return boost::shared_ptr< WDataSetScalar >();
-    }
-}
-
-boost::shared_ptr< WDataSetScalar > WMScalarSegmentation::segmentationSimple( boost::shared_ptr< WDataSetScalar > dataSet, double threshold )
-{
-    debugLog() << "Computing!";
-
-    WAssert( m_dataSet, "" );
-    WAssert( m_dataSet->getValueSet(), "" );
-    WAssert( m_dataSet->getGrid(), "" );
-    WAssert( m_dataSet->getValueSet()->dimension() == 1, "" );
-    WAssert( m_dataSet->getValueSet()->order() == 0, "" );
-
-    boost::shared_ptr< WValueSetBase > values = boost::shared_dynamic_cast< WValueSetBase >( dataSet->getValueSet() );
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
-    WAssert( values, "" );
-    WAssert( grid, "" );
-
-    std::vector< float > v( grid->size() );
-
-    for( std::size_t k = 0; k < grid->size(); ++k )
-    {
-        v[ k ] = ( values->getScalarDouble( k ) < threshold ? 0.0f : 255.0f );
-    }
-
-    boost::shared_ptr< WGridRegular3D > resGrid = boost::shared_ptr< WGridRegular3D >(
-                            new WGridRegular3D( *( grid.get() ) ) );
-    boost::shared_ptr< WValueSet< float > > resValues = boost::shared_ptr< WValueSet< float > >(
-                            new WValueSet< float >( values->order(), values->dimension(), v, W_DT_FLOAT ) );
-    boost::shared_ptr< WDataSetScalar > result = boost::shared_ptr< WDataSetScalar >(
-                            new WDataSetScalar( resValues, resGrid ) );
-    return result;
+    debugLog() << "Starting segmentation.";
+    m_result = m_algos.at( m_algoIndex )->segment( m_dataSet );
+    debugLog() << "Segmentation finished.";
 }

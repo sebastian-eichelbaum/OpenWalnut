@@ -6,7 +6,7 @@
 #include <algorithm>
 
 // Construction
-TriangleMesh::TriangleMesh ( boost::shared_ptr< WTriangleMesh2 > mesh, boost::shared_ptr< WGridRegular3D > grid )
+TriangleMesh::TriangleMesh ( boost::shared_ptr< WTriangleMesh > mesh, boost::shared_ptr< WGridRegular3D > grid )
     : m_grid( grid )
 {
     // copy over content
@@ -151,27 +151,27 @@ void TriangleMesh::setTriangleColor(const unsigned int triNum, const float r, co
 
 void TriangleMesh::setTriangleColor(const unsigned int triNum, const float r, const float g, const float b)
 {
-    triangleColor[triNum] = WColor( r, g, b, triangleColor[triNum].getAlpha() );
+    triangleColor[triNum] = WColor( r, g, b, triangleColor[triNum][3] );
 }
 
 void TriangleMesh::setTriangleAlpha(const unsigned int triNum, const float a)
 {
-    triangleColor[triNum].setAlpha( a );
+    triangleColor[triNum][3] = a;
 }
 
 void TriangleMesh::setTriangleRed(const unsigned int triNum, const float r)
 {
-    triangleColor[triNum].setRed( r );
+    triangleColor[triNum][0] = r;
 }
 
 void TriangleMesh::setTriangleGreen(const unsigned int triNum, const float g)
 {
-    triangleColor[triNum].setGreen( g );
+    triangleColor[triNum][1] = g;
 }
 
 void TriangleMesh::setTriangleBlue(const unsigned int triNum, const float b)
 {
-    triangleColor[triNum].setBlue( b );
+    triangleColor[triNum][2] = b;
 }
 
 Vector TriangleMesh::calcTriangleNormal(const Triangle t)

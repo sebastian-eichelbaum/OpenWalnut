@@ -47,7 +47,7 @@ public:
     /**
      * Creates new raster algorithm within the given grid. The grid may later
      * also be used to generate a real DataSet, \see generateDataSet() for
-     * furter instructions.
+     * further instructions.
      *
      * \param grid The grid specifying the voxels.
      */
@@ -105,7 +105,7 @@ protected:
      *  - First we need it when creating the final dataset
      *  - Second we need it to determine how many voxels are there at
      *    construction time
-     *  - Thrid we need it when computing the value number out of a position
+     *  - Third we need it when computing the value number out of a position
      */
     boost::shared_ptr< WGridRegular3D > m_grid;
 
@@ -123,8 +123,8 @@ protected:
      * \param voxelIdx the voxel index in the common grid calculated using "voxel" (this is for convenience)
      * \param axis  Along which axis the traversal takes place. Since when walking in e.g. X-direction there are not supporting voxels in the
      * \param value the new voxel value
-     * \param start Start point of the line segement (used to computed the distance)
-     * \param end   End point of the line segement (used to computed the distance)
+     * \param start Start point of the line segment (used to computed the distance)
+     * \param end   End point of the line segment (used to computed the distance)
      */
     virtual void parameterizeVoxel( const wmath::WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
                                     const wmath::WPosition& start,

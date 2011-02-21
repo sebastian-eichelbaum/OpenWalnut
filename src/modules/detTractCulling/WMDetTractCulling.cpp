@@ -39,7 +39,7 @@
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../kernel/WKernel.h"
-#include "detTractCulling.xpm"
+#include "WMDetTractCulling.xpm"
 #include "WMDetTractCulling.h"
 
 // This line is needed by the module loader to actually find your module.
@@ -110,14 +110,9 @@ void WMDetTractCulling::moduleMain()
 
 void WMDetTractCulling::connectors()
 {
-    typedef WModuleInputData< WDataSetFibers > TractInputData;  // just an alias
-    m_tractInput = boost::shared_ptr< TractInputData >( new TractInputData( shared_from_this(), "tractInput", "A loaded tract dataset." ) );
+    m_tractInput = WModuleInputData< WDataSetFibers >::createAndAdd( shared_from_this(), "tractInput", "A loaded tract dataset." );
+    m_output = WModuleOutputData< WDataSetFibers >::createAndAdd( shared_from_this(),  "tractOutput", "The tracts that survied culling." );
 
-    typedef WModuleOutputData< WDataSetFibers > TractOutputData;  // just an alias
-    m_output = boost::shared_ptr< TractOutputData >( new TractOutputData( shared_from_this(), "tractOutput", "The tracts that survied culling." ) );
-
-    addConnector( m_tractInput );
-    addConnector( m_output );
     WModule::connectors();  // call WModules initialization
 }
 
@@ -135,6 +130,8 @@ void WMDetTractCulling::properties()
     m_numTracts = m_infoProperties->addProperty( "#Tracts", "Number of tracts beeing processed", 0 );
     m_numTracts->setMin( 0 );
     m_numTracts->setMax( wlimits::MAX_INT32_T );
+
+    WModule::properties();
 }
 
 void WMDetTractCulling::cullOutTracts()
@@ -152,9 +149,9 @@ void WMDetTractCulling::cullOutTracts()
 
     std::vector< bool > unusedTracts( numTracts, false );
 
-    boost::function< double ( const wmath::WFiber& q, const wmath::WFiber& r ) > dSt; // NOLINT
+    boost::function< double ( const WFiber& q, const WFiber& r ) > dSt; // NOLINT
     const double proxSquare = proximity_t * proximity_t;
-    dSt = boost::bind( wmath::WFiber::distDST, proxSquare, _1, _2 );
+    dSt = boost::bind( WFiber::distDST, proxSquare, _1, _2 );
 
     boost::shared_ptr< WProgress > progress( new WProgress( "Tract culling", numTracts ) );
     m_progress->addSubProgress( progress );

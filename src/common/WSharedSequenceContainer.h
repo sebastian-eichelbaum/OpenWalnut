@@ -33,7 +33,7 @@
 
 /**
  * This class provides a common interface for thread-safe access to sequence containers (list, vector, dequeue ).
- * \param S the sequence container to use. Everything is allowed here which privides push_back and pop_back as well as size functionality.
+ * \param S the sequence container to use. Everything is allowed here which provides push_back and pop_back as well as size functionality.
  */
 template < typename S >
 class WSharedSequenceContainer: public WSharedObject< S >
@@ -80,6 +80,13 @@ public:
      * \param x the new element.
      */
     void push_back( const typename S::value_type& x );
+
+    /**
+     * Adds a new element at the beginning of the container.
+     *
+     * \param x the new element.
+     */
+    void push_front( const typename S::value_type& x );
 
     /**
      * Removes an element from the end.
@@ -187,6 +194,48 @@ public:
      */
     size_t count( const value_type& value );
 
+    /**
+     * Resorts the container using the specified comparator from its begin to its end.
+     *
+     * \tparam Comparator the comparator type. Usually a boost::function or class providing the operator().
+     *
+     * \param comp the comparator
+     */
+    template < typename Comparator >
+    void sort( Comparator comp );
+
+    /**
+     * Resorts the container using the specified comparator between [first,last) in ascending order.
+     *
+     * \param first the first element
+     * \param last the last element
+     * \param comp the comparator
+     */
+    template < typename Comparator >
+    void sort( typename WSharedSequenceContainer< S >::Iterator first, typename WSharedSequenceContainer< S >::Iterator last, Comparator comp );
+
+    /**
+     * Searches the specified value in the range [first,last).
+     *
+     * \param first the first element
+     * \param last the last element
+     * \param value the value to search.
+     *
+     * \return the iterator pointing to the found element.
+     */
+    typename WSharedSequenceContainer< S >::Iterator find( typename WSharedSequenceContainer< S >::Iterator first,
+                                                           typename WSharedSequenceContainer< S >::Iterator last,
+                                                           const typename S::value_type& value );
+
+    /**
+     * Searches the specified value in the range [begin,end).
+     *
+     * \param value the value to search.
+     *
+     * \return the iterator pointing to the found element.
+     */
+    typename WSharedSequenceContainer< S >::ConstIterator find( const typename S::value_type& value );
+
 protected:
 
 private:
@@ -211,6 +260,14 @@ void WSharedSequenceContainer< S >::push_back( const typename S::value_type& x )
     // Lock, if "a" looses focus -> look is freed
     typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
     a->get().push_back( x );
+}
+
+template < typename S >
+void WSharedSequenceContainer< S >::push_front( const typename S::value_type& x )
+{
+    // Lock, if "a" looses focus -> look is freed
+    typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
+    a->get().insert( a->get().begin(), x );
 }
 
 template < typename S >
@@ -306,6 +363,39 @@ size_t WSharedSequenceContainer< S >::count( const value_type& value )
 {
     typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();
     return std::count( a->get().begin(), a->get().end(), value );
+}
+
+template < typename S >
+template < typename Comparator >
+void WSharedSequenceContainer< S >::sort( Comparator comp )
+{
+    typename WSharedObject< S >::WriteTicket a = WSharedObject< S >::getWriteTicket();
+    return std::sort( a->get().begin(), a->get().end(), comp );
+}
+
+template < typename S >
+template < typename Comparator >
+void WSharedSequenceContainer< S >::sort( typename WSharedSequenceContainer< S >::Iterator first,
+                                          typename WSharedSequenceContainer< S >::Iterator last,
+                                          Comparator comp )
+{
+    return std::sort( first, last, comp );
+}
+
+template < typename S >
+typename WSharedSequenceContainer< S >::Iterator WSharedSequenceContainer< S >::find(
+        typename WSharedSequenceContainer< S >::Iterator first,
+        typename WSharedSequenceContainer< S >::Iterator last,
+        const typename S::value_type& value )
+{
+    return std::find( first, last, value );
+}
+
+template < typename S >
+typename WSharedSequenceContainer< S >::ConstIterator WSharedSequenceContainer< S >::find( const typename S::value_type& value )
+{
+    typename WSharedObject< S >::ReadTicket a = WSharedObject< S >::getReadTicket();
+    return std::find( a->get().begin(), a->get().end(), value );
 }
 
 #endif  // WSHAREDSEQUENCECONTAINER_H
