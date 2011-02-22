@@ -34,6 +34,8 @@
 
 #include "../../../common/WProperties.h"
 
+#include "../WGuiConsts.h"
+
 #include "WQtPropertyGroupWidget.h"
 
 WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropGroup group, QWidget* parent )
@@ -45,7 +47,13 @@ WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropGroup group, QWidget* paren
     // note: never do layouts as none pointers
     // on destruction of a widget it will try to delete them which will cause crashes
     m_pageLayout = new QVBoxLayout();
+    m_pageLayout->setMargin( WGLOBAL_MARGIN );
+    m_pageLayout->setSpacing( WGLOBAL_SPACING );
+
     m_controlLayout = new QGridLayout();
+    m_controlLayout->setMargin( WGLOBAL_MARGIN );
+    m_controlLayout->setSpacing( WGLOBAL_SPACING );
+
     m_pageLayout->addLayout( m_controlLayout );
 
     // NOTE: a simple setHidden( group->isHidden() ) causes the QWidgets to popup if hidden is false. This is why we set hidden only if it really
@@ -67,7 +75,12 @@ WQtPropertyGroupWidget::WQtPropertyGroupWidget( std::string name, QWidget* paren
     // note: never do layouts as none pointers
     // on destruction of a widget it will try to delete them which will cause crashes
     m_pageLayout = new QVBoxLayout();
+    m_pageLayout->setMargin( WGLOBAL_MARGIN );
+    m_pageLayout->setSpacing( WGLOBAL_SPACING );
+
     m_controlLayout = new QGridLayout();
+    m_controlLayout->setMargin( WGLOBAL_MARGIN );
+    m_controlLayout->setSpacing( WGLOBAL_SPACING );
     m_pageLayout->addLayout( m_controlLayout );
 }
 
@@ -175,6 +188,8 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     QScrollArea* scrollArea = 0;
     QGridLayout* grid = new QGridLayout();
     grid->addWidget( widget, 0, 0 );
+    grid->setMargin( WGLOBAL_MARGIN );
+    grid->setSpacing( WGLOBAL_SPACING );
 
     group->setLayout( grid );
     if ( asScrollArea )
@@ -189,6 +204,8 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     box->setFrameShape( QFrame::StyledPanel );
     box->setFrameShadow( QFrame::Raised );
     QGridLayout* boxLayout = new QGridLayout( box );
+    boxLayout->setMargin( WGLOBAL_MARGIN );
+    boxLayout->setSpacing( WGLOBAL_SPACING );
 
     // create a button as title
     QPushButton* boxTitle = new QPushButton( this );

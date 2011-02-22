@@ -32,6 +32,7 @@
 #include "../../../common/WLogger.h"
 #include "../../../common/WPropertyVariable.h"
 #include "../../../common/constraints/WPropertyConstraintTypes.h"
+#include "../WGuiConsts.h"
 
 #include "WPropertyFilenameWidget.h"
 
@@ -48,9 +49,13 @@ WPropertyFilenameWidget::WPropertyFilenameWidget( WPropFilename property, QGridL
 
     // layout both against each other
     m_layout.addWidget( &m_button );
+    m_layout.setMargin( WGLOBAL_MARGIN );
+    m_layout.setSpacing( WGLOBAL_SPACING );
 
     // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
     m_infoLayout.addWidget( &m_asText );
+    m_infoLayout.setMargin( WGLOBAL_MARGIN );
+    m_infoLayout.setSpacing( WGLOBAL_SPACING );
     m_informationWidgets.setLayout( &m_infoLayout );
 
     // set the initial values

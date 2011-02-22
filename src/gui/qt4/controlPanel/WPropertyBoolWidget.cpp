@@ -24,6 +24,7 @@
 
 #include "WPropertyBoolWidget.h"
 
+#include "../WGuiConsts.h"
 #include "../../../common/WPropertyVariable.h"
 
 WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* propertyGrid, QWidget* parent ):
@@ -39,10 +40,14 @@ WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* prope
 
     // layout both against each other
     m_layout.addWidget( static_cast< QWidget* >( &m_checkbox ) );
+    m_layout.setMargin( WGLOBAL_MARGIN );
+    m_layout.setSpacing( WGLOBAL_SPACING );
     m_parameterWidgets.setLayout( &m_layout );
 
     // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
     m_infoLayout.addWidget( &m_asText );
+    m_infoLayout.setMargin( WGLOBAL_MARGIN );
+    m_infoLayout.setSpacing( WGLOBAL_SPACING );
     m_informationWidgets.setLayout( &m_infoLayout );
 
     // connect the modification signal of m_checkbox with our callback

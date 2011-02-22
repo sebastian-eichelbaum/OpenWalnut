@@ -31,6 +31,7 @@
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPropertyVariable.h"
+#include "../WGuiConsts.h"
 
 #include "WPropertyColorWidget.h"
 
@@ -47,9 +48,13 @@ WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* pr
 
     // layout both against each other
     m_layout.addWidget( &m_button );
+    m_layout.setMargin( WGLOBAL_MARGIN );
+    m_layout.setSpacing( WGLOBAL_SPACING );
 
     // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
     m_infoLayout.addWidget( &m_asText );
+    m_infoLayout.setMargin( WGLOBAL_MARGIN );
+    m_infoLayout.setSpacing( WGLOBAL_SPACING );
     m_informationWidgets.setLayout( &m_infoLayout );
 
     // set the initial values
