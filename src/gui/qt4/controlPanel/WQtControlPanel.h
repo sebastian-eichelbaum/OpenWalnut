@@ -175,6 +175,27 @@ public:
      **/
     void setNewActiveModule( boost::shared_ptr< WModule > module );
 
+    /**
+     * Gets the ROI dock widget.
+     *
+     * \return the ROI dock.
+     */
+    QDockWidget* getRoiDock() const;
+
+    /**
+     * Gets the module dock widget.
+     *
+     * \return the module dock
+     */
+    QDockWidget* getModuleDock() const;
+
+    /**
+     * Gets the texture sorter dock
+     *
+     * \return the dock
+     */
+    QDockWidget* getTextureSorterDock() const;
+
 protected:
 
     /**
@@ -247,6 +268,9 @@ private:
     WQtRoiHeaderTreeItem* m_tiRois; //!< header for rois
 
     bool m_showToolBarText; //!< Show tool bar icons with text
+
+    QDockWidget* m_roiDock;     //!< the dock widget with the roi tree
+    QDockWidget* m_moduleDock;  //!< the dock widget with the module tree
 
     /**
      * The action to remove a module from the tree.

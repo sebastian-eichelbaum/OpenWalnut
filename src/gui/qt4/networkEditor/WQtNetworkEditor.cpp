@@ -50,9 +50,10 @@
 #include "../events/WModuleRemovedEvent.h"
 
 WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
-    : QDockWidget( "NetworkEditor", parent ),
+    : QDockWidget( "Module Graph", parent ),
     timerId( 0 )
 {
+    setObjectName( "Module Graph Dock" );
     m_mainWindow = parent;
 
     m_panel = new QWidget( this );
@@ -73,8 +74,8 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
 
     m_panel->setLayout( m_layout );
 
-    this->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
-    this->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
+    this->setAllowedAreas( Qt::AllDockWidgetAreas );
+    this->setFeatures( QDockWidget::DockWidgetClosable |QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
     setWidget( m_panel );
     connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
 

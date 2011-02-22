@@ -66,7 +66,12 @@ public:
     /**
      * Constructor of the main window
      */
-    explicit WMainWindow();
+    WMainWindow();
+
+    /**
+     * Destructor. Stores window state.
+     */
+    virtual ~WMainWindow();
 
     /**
      * Set up all widgets menus an buttons in the main window.

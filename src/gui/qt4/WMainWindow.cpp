@@ -41,6 +41,7 @@
 #include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
+#include <QtCore/QSettings>
 
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
@@ -82,6 +83,11 @@ WMainWindow::WMainWindow() :
 {
 }
 
+WMainWindow::~WMainWindow()
+{
+    // cleanup
+}
+
 void WMainWindow::setupGUI()
 {
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
@@ -95,7 +101,6 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
     m_iconManager.addIcon( std::string( "config" ), preferences_system_xpm );
 
-
     if( objectName().isEmpty() )
     {
         setObjectName( QString::fromUtf8( "MainWindow" ) );
@@ -105,16 +110,27 @@ void WMainWindow::setupGUI()
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
+    setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
+
     //network Editor
     m_networkEditor = new WQtNetworkEditor( this );
     m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
-    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
 
     // the control panel instance is needed for the menu
     m_controlPanel = new WQtControlPanel( this );
     m_controlPanel->setFeatures( QDockWidget::AllDockWidgetFeatures );
-    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
     m_controlPanel->addSubject( "Default Subject" );
+
+    // add all docks
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getModuleDock() );
+    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
+    tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
+
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getTextureSorterDock() );
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
+    tabifyDockWidget( m_controlPanel->getTextureSorterDock(), m_controlPanel->getRoiDock() );
+
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
     setupPermanentToolBar();
 
@@ -253,30 +269,36 @@ void WMainWindow::setupGUI()
     }
 
     // Default background color from config file
-        WColor bgColor( 1.0, 1.0, 1.0, 1.0 );
-        double r;
-        double g;
-        double b;
-        if( WPreferences::getPreference( "ge.bgColor.r", &r )
-            && WPreferences::getPreference( "ge.bgColor.g", &g )
-            && WPreferences::getPreference( "ge.bgColor.b", &b ) )
-        {
-            bgColor.set( r, g, b, 1.0 );
-            m_mainGLWidget->setBgColor( bgColor );
+    WColor bgColor( 1.0, 1.0, 1.0, 1.0 );
+    double r;
+    double g;
+    double b;
+    if( WPreferences::getPreference( "ge.bgColor.r", &r )
+        && WPreferences::getPreference( "ge.bgColor.g", &g )
+        && WPreferences::getPreference( "ge.bgColor.b", &b ) )
+    {
+        bgColor.set( r, g, b, 1.0 );
+        m_mainGLWidget->setBgColor( bgColor );
 
-            if( m_navAxial )
-            {
-                m_navAxial->getGLWidget()->setBgColor( bgColor );
-            }
-            if( m_navCoronal )
-            {
-                m_navCoronal->getGLWidget()->setBgColor( bgColor );
-            }
-            if( m_navSagittal )
-            {
-                m_navSagittal->getGLWidget()->setBgColor( bgColor );
-            }
+        if( m_navAxial )
+        {
+            m_navAxial->getGLWidget()->setBgColor( bgColor );
         }
+        if( m_navCoronal )
+        {
+            m_navCoronal->getGLWidget()->setBgColor( bgColor );
+        }
+        if( m_navSagittal )
+        {
+            m_navSagittal->getGLWidget()->setBgColor( bgColor );
+        }
+    }
+
+    // after creating the GUI, restore its saved state
+    QSettings setting( "OpenWalnut.org", "OpenWalnut" );
+    QByteArray state = setting.value( "MainWindowState", "" ).toByteArray();
+    restoreGeometry( setting.value( "MainWindowGeometry", "" ).toByteArray() );
+    restoreState( state );
 }
 
 void WMainWindow::setupPermanentToolBar()
@@ -931,10 +953,16 @@ void WMainWindow::closeEvent( QCloseEvent* e )
     // use some "Really Close?" Dialog here
     bool reallyClose = true;
 
-
     // handle close event
     if( reallyClose )
     {
+        // this saves the window state to some common location on the target OS in user scope.
+        QByteArray state = saveState();
+        QSettings setting( "OpenWalnut.org", "OpenWalnut" );
+        setting.setValue( "MainWindowState", state );
+        // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
+        setting.setValue( "MainWindowGeometry", saveGeometry() );
+
         // signal everybody to shut down properly.
         WKernel::getRunningKernel()->finalize();
 

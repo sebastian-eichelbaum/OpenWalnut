@@ -243,6 +243,8 @@ int WQt4Gui::run()
     // run
     int qtRetCode = appl.exec();
 
+    delete m_mainWindow;
+
     // signal everybody to shut down properly.
     WKernel::getRunningKernel()->wait( true );
     WKernel::getRunningKernel()->getGraphicsEngine()->wait( true );
