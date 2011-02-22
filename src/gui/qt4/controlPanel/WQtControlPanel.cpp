@@ -108,6 +108,14 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
 
+    // the network editor also needs the context menu
+    // TODO(rfrohl): context menu gets not opened if a graphicitem is clicked. This should be fixed.
+    m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
+    m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
+    m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
+    m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
+    m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
+
     m_textureSorter = new WQtTextureSorter( this );
     m_textureSorter->setToolTip( "Reorder the textures." );
 

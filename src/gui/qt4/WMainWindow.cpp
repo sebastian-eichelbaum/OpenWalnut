@@ -105,6 +105,10 @@ void WMainWindow::setupGUI()
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
+    //network Editor
+    m_networkEditor = new WQtNetworkEditor( this );
+    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
+    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
 
     // the control panel instance is needed for the menu
     m_controlPanel = new WQtControlPanel( this );
@@ -273,11 +277,6 @@ void WMainWindow::setupGUI()
                 m_navSagittal->getGLWidget()->setBgColor( bgColor );
             }
         }
-
-    //network Editor
-    m_networkEditor = new WQtNetworkEditor( this );
-    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
-    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
 }
 
 void WMainWindow::setupPermanentToolBar()
