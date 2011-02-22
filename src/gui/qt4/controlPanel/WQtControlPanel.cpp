@@ -805,8 +805,13 @@ void WQtControlPanel::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
 void WQtControlPanel::setNewActiveModule( boost::shared_ptr< WModule > module )
 {
     m_tabWidget->clear();
+
+    // NOTE: this handles null pointers properly.
+    createCompatibleButtons( module );
+
     if ( module )
     {
+        createCompatibleButtons( module );
         buildPropTab( module->getProperties(), module->getInformationProperties() );
     }
 }

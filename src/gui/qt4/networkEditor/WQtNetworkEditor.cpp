@@ -98,8 +98,6 @@ void WQtNetworkEditor::selectItem()
 {
     boost::shared_ptr< WModule > module;
 
-    //WQtCombinerToolbar* newToolbar = NULL;
-
     if ( m_scene->selectedItems().size() != 0 &&
          m_scene->selectedItems().at( 0 )->type() == WQtNetworkItem::Type )
     {
@@ -120,10 +118,6 @@ void WQtNetworkEditor::selectItem()
     {
         m_mainWindow->getControlPanel()->setNewActiveModule( module );
     }
-
-    // set the new toolbar
-    // NOTE: setCompatiblesToolbar removes the toolbar if NULL is specified.
-    //m_mainWindow->setCompatiblesToolbar( newToolbar );
 }
 
 void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
