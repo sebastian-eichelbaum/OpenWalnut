@@ -39,6 +39,7 @@
 #include "WIconManager.h"
 #include "WQtToolBar.h"
 #include "WQtGLWidget.h"
+#include "networkEditor/WQtNetworkEditor.h"
 
 // forward declarations
 class QMenuBar;
@@ -65,12 +66,22 @@ public:
     /**
      * Constructor of the main window
      */
-    explicit WMainWindow();
+    WMainWindow();
+
+    /**
+     * Destructor. Stores window state.
+     */
+    virtual ~WMainWindow();
 
     /**
      * Set up all widgets menus an buttons in the main window.
      */
     void setupGUI();
+
+    /**
+     * returns a pointer to the network editor object
+     */
+    WQtNetworkEditor* getNetworkEditor();
 
     /**
      * returns a pointer to the control panel object
@@ -321,6 +332,8 @@ private:
     WQtPushButton* m_loadButton; //!< the load Data Button
 
     WQtControlPanel* m_controlPanel; //!< control panel
+
+    WQtNetworkEditor* m_networkEditor; //!< network editor
 
     boost::shared_ptr< WQtGLWidget > m_mainGLWidget; //!< the main GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI

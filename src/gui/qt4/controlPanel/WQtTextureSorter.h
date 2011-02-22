@@ -28,7 +28,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QWidget>
+#include <QtGui/QDockWidget>
 #include <QtGui/QListWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QPushButton>
@@ -41,7 +41,7 @@ class WDataSet;
 /**
  * container widget for a tree widget with context menu and some control widgets
  */
-class WQtTextureSorter : public QWidget
+class WQtTextureSorter : public QDockWidget
 {
     Q_OBJECT
 

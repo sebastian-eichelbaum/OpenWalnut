@@ -50,11 +50,6 @@ compatiblesToolBarPos = 0 # position of the compatibles toolbar (overrides toolB
 ####################################################################
 # Control panel
 
-# combineTreeAndRoiAndTextureSorter = yes # should the module tree, ROI tree and the Texture Sorter be combined in ONE Tab widget?
-# dsbWidth = 400  # the width of the control panel
-# dsbInvisibleByDefault = yes # hide the control panel on startup. Can be shown using F9.
-# dsbFloatingByDefault = yes  # should the control panel be undocked on startup?
-
 # Here you can put any key sequence you would like to result in removing modules or ROIs
 # Examples: 
 # deleteKey = Backspace

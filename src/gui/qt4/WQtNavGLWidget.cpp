@@ -40,6 +40,7 @@
 WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string sliderTitle, const QGLWidget * shareWidget )
     : QDockWidget( title, parent )
 {
+    setObjectName( QString( "Navigation Window " ) + title );
     propertyWidgetMap.clear();
     m_sliderTitle = QString( sliderTitle.c_str() );
 

@@ -47,12 +47,18 @@
 
 
 WQtTextureSorter::WQtTextureSorter( QWidget* parent )
-    : QWidget( parent )
+    : QDockWidget( "Texture Sorter", parent )
 {
+    setObjectName( "Texture Sorter Dock" );
+
     m_textureListWidget = new QListWidget( this );
     m_textureListWidget->setToolTip( "List of available textures. Only the upper <b>"
                                      + QString().setNum( wlimits::MAX_NUMBER_OF_TEXTURES )
                                      + "</b> textures will be applied." );
+    this->setAllowedAreas( Qt::AllDockWidgetAreas );
+    this->setFeatures( QDockWidget::DockWidgetClosable |QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
+
+    QWidget* panel = new QWidget( this );
 
     m_layout = new QVBoxLayout();
 
@@ -73,7 +79,8 @@ WQtTextureSorter::WQtTextureSorter( QWidget* parent )
 
     connect( m_textureListWidget, SIGNAL( itemClicked( QListWidgetItem* ) ), this, SLOT( handleTextureClicked() ) );
 
-    setLayout( m_layout );
+    panel->setLayout( m_layout );
+    setWidget( panel );
 }
 
 WQtTextureSorter::~WQtTextureSorter()
