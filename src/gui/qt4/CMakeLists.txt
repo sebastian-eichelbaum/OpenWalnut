@@ -37,7 +37,7 @@ SET(GUI_QT4_MOC_HDRS
     controlPanel/WQtTextureSorter.h
 )
 IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
-  LIST( APPEND GUI_QT4_MOC_HDRS platformDependent/WQtGLWidgetMac.h ) 
+  LIST( APPEND GUI_QT4_MOC_HDRS platformDependent/WQtGLWidgetMac.h )
 
 ELSE()
   IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
@@ -51,21 +51,21 @@ QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 
 FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "controlPanel/*.cpp" "ribbonMenu/*.cpp" "events/*.cpp" "*.h" "guiElements/*.h" "controlPanel/*.h" "ribbonMenu/*.h" "events/*.h" "../icons/WIcons.h" )
 IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
-  FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC 
-    "platformDependent/WQtGLWidgetMac.cpp" 
+  FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC
+    "platformDependent/WQtGLWidgetMac.cpp"
     "platformDependent/WQtGLWidgetMac.h" )
 ELSE()
   IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
-    FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC 
-      "platformDependent/WQtGLWidgetWin.cpp" 
+    FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC
+      "platformDependent/WQtGLWidgetWin.cpp"
       "platformDependent/WQtGLWidgetWin.h" )
   ELSE( CMAKE_GENERATOR MATCHES "Visual Studio" )
-    FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC 
-      "platformDependent/WQtGLWidgetAll.cpp" 
+    FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC
+      "platformDependent/WQtGLWidgetAll.cpp"
       "platformDependent/WQtGLWidgetAll.h" )
   ENDIF( CMAKE_GENERATOR MATCHES "Visual Studio" )
 ENDIF()
-  
+
 SET( LIB_NAME "${OWguiqt4Name}" )
 
 SET( ${LIB_NAME}_COMBINER_SRC ${GUI_QT4_SRC} ${GUIQT4_PLATFORMDEPENDENT_SRC} ${GUI_QT4_MOC_SRCS} )
@@ -79,14 +79,14 @@ LIST( REMOVE_ITEM ${LIB_NAME}_ALL_CPP_WITHOUT_MOC ${${LIB_NAME}_REMOVE_H} )
 IF( OW_BUILD_AS_ONE_BIG_FILE )
 	SET( UNITY_BUILD_FILE_NAME "${LIB_NAME}UnityBuildFile.cpp" )
 	GENERATE_UNITY_BUILD_FILE( ${LIB_NAME}_ALL_CPP )
-	
+
 	ADD_LIBRARY( ${LIB_NAME} ${UNITY_BUILD_FILE_NAME} ${${LIB_NAME}_COMBINER_SRC} )
 ENDIF( OW_BUILD_AS_ONE_BIG_FILE )
 
 IF( NOT OW_BUILD_AS_ONE_BIG_FILE )
     ADD_LIBRARY( ${LIB_NAME} ${${LIB_NAME}_COMBINER_SRC} )
 ENDIF( NOT OW_BUILD_AS_ONE_BIG_FILE )
-  
+
 #IF( OW_BUILD_AS_ONE_BIG_FILE )
 #	SET( ALL_GUI_QT4_COMBINER_SRC ${GUI_QT4_SRC} ${GUIQT4_PLATFORMDEPENDENT_SRC} ${GUI_QT4_MOC_SRCS} )
 #	SET( UNITY_BUILD_FILE_NAME "GuiQt4UnityBuildFile.cpp" )
