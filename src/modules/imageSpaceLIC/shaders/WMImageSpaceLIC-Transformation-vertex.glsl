@@ -30,8 +30,52 @@
 
 #include "WMImageSpaceLIC-Transformation-varyings.glsl"
 
+/**
+ * How much should the slice be moved along u_vertexShiftDirection?
+ */
 uniform int u_vertexShift;
+
+/**
+ * The direction along which the slice gets moved
+ */
 uniform vec3 u_vertexShiftDirection;
+
+/**
+ * Size of input texture in pixels
+ */
+uniform int u_texture0SizeX = 255;
+
+/**
+ * Size of input texture in pixels
+ */
+uniform int u_texture0SizeY = 255;
+
+/**
+ * Size of input texture in pixels
+ */
+uniform int u_texture0SizeZ = 255;
+
+/**
+ * Size of input noise texture in pixels
+ */
+uniform int u_texture1SizeX = 255;
+
+/**
+ * Size of input noise texture in pixels
+ */
+uniform int u_texture1SizeY = 255;
+
+/**
+ * Size of input noise texture in pixels
+ */
+uniform int u_texture1SizeZ = 255;
+
+#ifdef NOISE3D_ENABLED
+/**
+ * The "virtual" resolution of the 3D noise texture in u_texture1Sampler
+ */
+uniform float u_noise3DResoultuion = 3.0;
+#endif
 
 /**
  * Vertex Main. Simply transforms the geometry. The work is done per fragment.
@@ -52,6 +96,17 @@ void main()
     // some light precalculations
     v_normal = gl_Normal;
 
+    // if we use 3d noise textures and auto resolution feature:
+#ifdef NOISE3D_ENABLED
+    vec4 vec1 = vec4( float( u_texture0SizeX ) / float( u_texture1SizeX ),
+                      float( u_texture0SizeY ) / float( u_texture1SizeY ),
+                      float( u_texture0SizeZ ) / float( u_texture1SizeZ ), 0.0 );
+    v_noiseScaleFactor = vec1.xyz;
+#ifdef NOISE3DAUTORES_ENABLED
+    vec4 vecMV = gl_ModelViewMatrix * vec4( vec3( 1.0 ), 0.0 ); // if the resolution should be modified, use the scaling info from the MV matrix
+    v_noiseScaleFactor *= u_noise3DResoultuion * length( vecMV.xyz );
+#endif
+#endif
     // also get the coordinates of the light
     vec4 lpos = gl_LightSource[0].position; // this simply doesn't work well with OSG
     lpos = vec4( 0.0, 0.0, 1000.0, 1.0 );

@@ -37,6 +37,7 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WSelectionManager.h"
@@ -127,19 +128,19 @@ void WMClusterDisplayVoxels::properties()
 
 
 
-    m_propSelectedCluster = m_groupSelection->addProperty( "Selected Cluster", "", 0, m_propCondition );
+    m_propSelectedCluster = m_groupSelection->addProperty( "Selected Cluster", "Selects a single cluster by number.", 0, m_propCondition );
     m_propSelectedCluster->setMin( 0 );
     m_propSelectedCluster->setMax( 0 );
 
-    m_propXBiggestClusters = m_groupSelection->addProperty( "Biggest Clusters", "", 5, m_propCondition );
+    m_propXBiggestClusters = m_groupSelection->addProperty( "Biggest Clusters", "Selects a number of biggest clusters.", 5, m_propCondition );
     m_propXBiggestClusters->setMin( 1 );
     m_propXBiggestClusters->setMax( 1000 );
 
-    m_propXClusters = m_groupSelection->addProperty( "X Clusters", "", 5, m_propCondition );
+    m_propXClusters = m_groupSelection->addProperty( "X Clusters", "Selects a number of clusters by dividing clusters.", 5, m_propCondition );
     m_propXClusters->setMin( 1 );
     m_propXClusters->setMax( 1000 );
 
-    m_propValue = m_groupSelection->addProperty( "Similarity Value", "", 1.0, m_propCondition );
+    m_propValue = m_groupSelection->addProperty( "Similarity Value", "Selects clusters below a given similarity value", 1.0, m_propCondition );
     m_propValue->setMin( 0.0 );
     m_propValue->setMax( 1.0 );
 
@@ -365,9 +366,11 @@ void WMClusterDisplayVoxels::moduleMain()
                     m_propSelectedCluster->setHidden( false );
                     break;
                 case 1:
+                    m_propSelectedCluster->setHidden( false );
                     m_propXBiggestClusters->setHidden( false );
                     break;
                 case 2:
+                    m_propSelectedCluster->setHidden( false );
                     m_propXClusters->setHidden( false );
                     break;
                 case 3:
@@ -473,7 +476,7 @@ void WMClusterDisplayVoxels::updateAll()
             m_currentDisplayModeString = std::string( "Single selection" );
             break;
         case CDV_BIGGEST:
-            m_activatedClusters = m_tree.findXBiggestClusters2( m_propSelectedCluster->get(), m_propXBiggestClusters->get( true ) );
+            m_activatedClusters = m_tree.findXBiggestClusters( m_propSelectedCluster->get(), m_propXBiggestClusters->get( true ) );
             m_currentDisplayModeString = std::string( "Biggest clusters" );
             break;
         case CDV_X:
@@ -650,6 +653,26 @@ void WMClusterDisplayVoxels::createTexture()
      WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( true );
 
      WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+
+
+//     osg::ref_ptr< osg::Image > ima = new osg::Image;
+//     ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGB, GL_UNSIGNED_BYTE );
+//
+//     unsigned char* data = ima->data();
+//     m_data.resize( m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(), 0 );
+//
+//     for ( unsigned int i = 0; i < m_grid->size() * 3; ++i )
+//     {
+//         data[i] = 0.0;
+//     }
+//
+//     m_texture = osg::ref_ptr< WGETexture3D >( new WGETexture3D( ima ) );
+//     m_texture->setFilterMinMag( osg::Texture3D::LINEAR );
+//     m_texture->setWrapSTR( osg::Texture::CLAMP_TO_BORDER );
+//     m_texture->colormap()->set( m_texture->colormap()->get().newSelector( WItemSelector::IndexList( 1, 4 ) ) );
+//     m_properties->addProperty( m_texture->alpha() );
+//
+//     WGEColormapping::registerTexture( m_texture, "Cluster Texture" );
 }
 
 void WMClusterDisplayVoxels::createMesh()

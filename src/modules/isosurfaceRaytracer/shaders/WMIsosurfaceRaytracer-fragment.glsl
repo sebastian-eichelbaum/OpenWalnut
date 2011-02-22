@@ -171,7 +171,7 @@ void main()
         value = texture3D( u_texture0Sampler, curPoint ).r;
 
         // is it the isovalue?
-        if ( ( abs( value - v_isovalue ) < 0.01 )
+        if ( ( abs( value - v_isovalue ) < 0.1 )
 #ifdef BORDERCLIP_ENABLED
                 &&
             !( length( curPoint - rayStart ) < u_borderClipDistance )
