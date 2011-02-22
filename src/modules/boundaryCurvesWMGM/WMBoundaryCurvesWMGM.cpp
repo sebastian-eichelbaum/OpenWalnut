@@ -142,9 +142,9 @@ void WMBoundaryCurvesWMGM::initOSG( boost::shared_ptr< WGridRegular3D > grid, bo
 
     osg::ref_ptr< osg::Uniform > u_grayMatter = new WGEPropertyUniform< WPropDouble >( "u_grayMatter", m_grayMatter );
     osg::ref_ptr< osg::Uniform > u_whiteMatter = new WGEPropertyUniform< WPropDouble >( "u_whiteMatter", m_whiteMatter );
-    wge::bindTexture( m_xSlice, dataset->getTexture()->getTexture() );
-    wge::bindTexture( m_ySlice, dataset->getTexture()->getTexture() );
-    wge::bindTexture( m_zSlice, dataset->getTexture()->getTexture() );
+    wge::bindTexture( m_xSlice, dataset->getTexture2() );
+    wge::bindTexture( m_ySlice, dataset->getTexture2() );
+    wge::bindTexture( m_zSlice, dataset->getTexture2() );
 
     // transform X,Y,Z dependent expressions into numbers dependent (0,1,2) to loop over them
     // NOTE: we can remove double curly braces when compiler is standard compliant according to:
