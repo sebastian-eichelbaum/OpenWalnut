@@ -35,6 +35,7 @@
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataTexture3D.h"
+#include "../../graphicsEngine/WGETexture.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
 #include "../../graphicsEngine/geodes/WDendrogramGeode.h"
@@ -186,6 +187,17 @@ private:
      */
     void dendrogramClick( WPickInfo pickInfo );
 
+    /**
+     * update the output connector on demand, for performance reasons this is not done every time
+     * a change to the cluster selection is applied
+     */
+    void updateOutDataset();
+
+    /**
+     * helper function to set the label on the in scene buttons depending on which labeling scheme is selected
+     */
+    void setButtonLabels();
+
 
     /**
      * An input connector that accepts order 1 datasets.
@@ -216,6 +228,12 @@ private:
      * stores a pointer to the texture we paint in
      */
     osg::ref_ptr<osg::Texture3D>m_texture;
+
+    /**
+     * stores a pointer to the texture we paint in
+     */
+//    osg::ref_ptr< WGETexture3D > m_texture;
+
 
     /**
      * label vector for texture creation
@@ -316,12 +334,6 @@ private:
      */
     WPropGroup m_groupTriangulation;
 
-
-    /**
-     * grouping the properties controlling cluster selection for minimum branch length
-     */
-    WPropGroup m_groupMinBranchLength;
-
     /**
      * controls the display of the dendrogram overlay
      */
@@ -394,6 +406,36 @@ private:
     WPropInt m_infoMaxLevel; //!< info property
 
     std::vector< std::vector<size_t> >m_loadedPartitions; //!< set partitions loaded from file
+
+    /**
+     * updates the output connector on demand, as we don't want to do this every paint command
+     */
+    WPropTrigger m_buttonUpdateOutput;
+
+    /**
+     * A list of cluster selection methods
+     */
+    boost::shared_ptr< WItemSelection > m_clusterSelectionsList;
+
+    /**
+     * Selection property for clusters
+     */
+    WPropSelection m_clusterSelection;
+
+    /**
+     * triggers the cluster selection update
+     */
+    WPropTrigger m_buttonExecuteSelection;
+
+    /**
+     * A list of button labels
+     */
+    boost::shared_ptr< WItemSelection > m_buttonLabelList;
+
+    /**
+     * Selection property for button labels
+     */
+    WPropSelection m_buttonLabelSelection;
 };
 
 #endif  // WMCLUSTERDISPLAYVOXELS_H

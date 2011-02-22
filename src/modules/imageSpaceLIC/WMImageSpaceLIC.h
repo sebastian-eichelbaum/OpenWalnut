@@ -177,6 +177,26 @@ private:
     WPropInt      m_numIters; //!< the number of iterations done per frame
 
     WPropDouble   m_cmapRatio; //!< the ratio between colormap and LIC
+
+    /**
+     * The group for more advanced LIC features
+     */
+    WPropGroup    m_advancedLicGroup;
+
+    /**
+     * If true, a 3d noise texture is used for advection
+     */
+    WPropBool     m_3dNoise;
+
+    /**
+     * The resolution scaling for the 3d noise
+     */
+    WPropDouble   m_3dNoiseRes;
+
+    /**
+     * Automatically adapt resolution of 3d texture according to zoom level
+     */
+    WPropBool     m_3dNoiseAutoRes;
 };
 
 #endif  // WMIMAGESPACELIC_H

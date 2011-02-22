@@ -37,6 +37,7 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WSelectionManager.h"
@@ -49,6 +50,8 @@ W_LOADABLE_MODULE( WMClusterDisplayVoxels )
 
 WMClusterDisplayVoxels::WMClusterDisplayVoxels():
     WModule(),
+    m_currentDisplayMode( CDV_SINGLE ),
+    m_currentDisplayModeString( "" ),
     m_moduleNode( new WGEGroupNode() ),
     m_dendrogramNode( new WGEGroupNode() ),
     m_meshNode( new WGEGroupNode() ),
@@ -110,19 +113,34 @@ void WMClusterDisplayVoxels::properties()
     // Group selection
     m_groupSelection = m_properties->addPropertyGroup( "Cluster selections",  "Groups the different cluster selection methods" ); //NOLINT
 
-    m_propSelectedCluster = m_groupSelection->addProperty( "Selected Cluster", "", 0, m_propCondition );
+    m_clusterSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_clusterSelectionsList->addItem( "Single", "" );
+    m_clusterSelectionsList->addItem( "Biggest", "" );
+    m_clusterSelectionsList->addItem( "X Clusters", "" );
+    m_clusterSelectionsList->addItem( "Similarity", "" );
+    m_clusterSelectionsList->addItem( "Levels from top", "" );
+    m_clusterSelectionsList->addItem( "Minimum branch length", "" );
+    m_clusterSelectionsList->addItem( "Loaded partition", "" );
+
+    m_clusterSelection = m_groupSelection->addProperty( "Selection method",  "selection",
+            m_clusterSelectionsList->getSelectorFirst(), m_propCondition );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_clusterSelection );
+
+
+
+    m_propSelectedCluster = m_groupSelection->addProperty( "Selected Cluster", "Selects a single cluster by number.", 0, m_propCondition );
     m_propSelectedCluster->setMin( 0 );
     m_propSelectedCluster->setMax( 0 );
 
-    m_propXBiggestClusters = m_groupSelection->addProperty( "Biggest Clusters", "", 5, m_propCondition );
+    m_propXBiggestClusters = m_groupSelection->addProperty( "Biggest Clusters", "Selects a number of biggest clusters.", 5, m_propCondition );
     m_propXBiggestClusters->setMin( 1 );
     m_propXBiggestClusters->setMax( 1000 );
 
-    m_propXClusters = m_groupSelection->addProperty( "X Clusters", "", 5, m_propCondition );
+    m_propXClusters = m_groupSelection->addProperty( "X Clusters", "Selects a number of clusters by dividing clusters.", 5, m_propCondition );
     m_propXClusters->setMin( 1 );
     m_propXClusters->setMax( 1000 );
 
-    m_propValue = m_groupSelection->addProperty( "Similarity Value", "", 1.0, m_propCondition );
+    m_propValue = m_groupSelection->addProperty( "Similarity Value", "Selects clusters below a given similarity value", 1.0, m_propCondition );
     m_propValue->setMin( 0.0 );
     m_propValue->setMax( 1.0 );
 
@@ -133,19 +151,28 @@ void WMClusterDisplayVoxels::properties()
     m_propSelectedLoadedPartion->setMin( 1 );
     m_propSelectedLoadedPartion->setMax( 1 );
 
-    m_propShowSelectedButtons = m_groupSelection->addProperty( "Show Buttons", "Shows/Hides the buttons for selected cluster on the left side", true, m_propCondition ); //NOLINT
-
-
-    // Group branch length
-    m_groupMinBranchLength = m_properties->addPropertyGroup( "Branch length",  "Cluster Selection depending on the distance of a cluster to it's parent" ); //NOLINT
-
-    m_propMinBranchLength = m_groupMinBranchLength->addProperty( "Minimum branch length", "", 0.1, m_propCondition );
+    m_propMinBranchLength = m_groupSelection->addProperty( "Minimum branch length", "", 0.1, m_propCondition );
     m_propMinBranchLength->setMin( 0.0 );
     m_propMinBranchLength->setMax( 1.0 );
 
-    m_propMinBranchSize = m_groupMinBranchLength->addProperty( "Minimum branch size", "", 50, m_propCondition );
+    m_propMinBranchSize = m_groupSelection->addProperty( "Minimum branch size", "", 50, m_propCondition );
     m_propMinBranchSize->setMin( 1 );
     m_propMinBranchSize->setMax( 500 );
+
+    m_buttonExecuteSelection = m_groupSelection->addProperty( "Update",  "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+
+    m_propShowSelectedButtons = m_groupSelection->addProperty( "Show Buttons", "Shows/Hides the buttons for selected cluster on the left side", true, m_propCondition ); //NOLINT
+
+    m_buttonLabelList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
+    m_buttonLabelList->addItem( "Number", "" );
+    m_buttonLabelList->addItem( "Size", "" );
+    m_buttonLabelList->addItem( "Level", "" );
+    m_buttonLabelList->addItem( "Similarity", "" );
+
+    m_buttonLabelSelection = m_groupSelection->addProperty( "Button label",  "selection",
+                m_buttonLabelList->getSelectorFirst(), m_propCondition );
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_buttonLabelSelection );
+
 
     //  Group Triangulation
     m_groupTriangulation = m_properties->addPropertyGroup( "Triangulation",  "Groups the triangulation properties" ); //NOLINT
@@ -178,9 +205,12 @@ void WMClusterDisplayVoxels::properties()
     m_propDendrogramOffsetY->setMax( 1000 );
 
     m_groupSelection->setHidden( true );
-    m_groupMinBranchLength->setHidden( true );
     m_groupTriangulation->setHidden( true );
     m_groupDendrogram->setHidden( true );
+
+    m_buttonUpdateOutput = m_properties->addProperty( "Update output", "Updates the output connector",
+            WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
+
 
     // Info properties
     m_infoCountLeafes = m_infoProperties->addProperty( "Count voxels", "", 0 );
@@ -277,9 +307,7 @@ void WMClusterDisplayVoxels::moduleMain()
             {
                 m_propReadTrigger->setHidden( true );
                 m_propClusterFile->setHidden( true );
-
                 m_groupSelection->setHidden( false );
-                m_groupMinBranchLength->setHidden( false );
                 m_groupTriangulation->setHidden( false );
                 m_groupDendrogram->setHidden( false );
 
@@ -293,13 +321,7 @@ void WMClusterDisplayVoxels::moduleMain()
     {
         createTexture();
         setPropertyBoundaries();
-
         initWidgets();
-        m_selectionChanged = true;
-        updateWidgets();
-
-        m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_rootCluster, 1000, 500 );
-        m_camera->addChild( m_dendrogramGeode );
 
         m_propSelectedCluster->get( true );
         m_propSelectedLoadedPartion->get( true );
@@ -310,7 +332,10 @@ void WMClusterDisplayVoxels::moduleMain()
         m_propMinBranchLength->get( true );
         m_propMinBranchSize->get( true );
         m_propLevelsFromTop->get( true );
+        m_propHideOutliers->get( true );
         m_showNotInClusters->get( true );
+
+        updateAll();
     }
 
     // main loop, respond to controls
@@ -323,54 +348,81 @@ void WMClusterDisplayVoxels::moduleMain()
             break;
         }
 
-        if( m_propSelectedCluster->changed() )
+        if ( m_clusterSelection->changed( true ) )
         {
-            m_activatedClusters.clear();
-            m_activatedClusters.push_back( m_propSelectedCluster->get( true ) );
-            m_currentDisplayMode = CDV_SINGLE;
-            updateAll();
+            m_propSelectedCluster->setHidden( true );
+            m_propXBiggestClusters->setHidden( true );
+            m_propXClusters->setHidden( true );
+            m_propValue->setHidden( true );
+            m_propLevelsFromTop->setHidden( true );
+            m_propHideOutliers->setHidden( true );
+            m_propMinBranchLength->setHidden( true );
+            m_propMinBranchSize->setHidden( true );
+            m_propSelectedLoadedPartion->setHidden( true );
+
+            switch ( m_clusterSelection->get( true ).getItemIndexOfSelected( 0 ) )
+            {
+                case 0:
+                    m_propSelectedCluster->setHidden( false );
+                    break;
+                case 1:
+                    m_propSelectedCluster->setHidden( false );
+                    m_propXBiggestClusters->setHidden( false );
+                    break;
+                case 2:
+                    m_propSelectedCluster->setHidden( false );
+                    m_propXClusters->setHidden( false );
+                    break;
+                case 3:
+                    m_propValue->setHidden( false );
+                    break;
+                case 4:
+                    m_propLevelsFromTop->setHidden( false );
+                    m_propHideOutliers->setHidden( false );
+                    break;
+                case 5:
+                    m_propMinBranchLength->setHidden( false );
+                    m_propMinBranchSize->setHidden( false );
+                    break;
+                case 6:
+                    m_propSelectedLoadedPartion->setHidden( false );
+                    break;
+                default:
+                    m_propSelectedCluster->setHidden( false );
+                    break;
+            }
         }
 
-        if( m_propXBiggestClusters->changed() )
+        if ( m_buttonExecuteSelection->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            m_activatedClusters = m_tree.findXBiggestClusters2( m_propSelectedCluster->get(), m_propXBiggestClusters->get( true ) );
-            m_currentDisplayMode = CDV_BIGGEST;
-            updateAll();
-        }
-
-        if( m_propXClusters->changed() )
-        {
-            m_activatedClusters = m_tree.findXClusters( m_propSelectedCluster->get(), m_propXClusters->get( true ) );
-            m_currentDisplayMode = CDV_X;
-            updateAll();
-        }
-
-
-        if ( m_propValue->changed() )
-        {
-            m_activatedClusters = m_tree.findClustersForValue( m_propValue->get( true ) );
-            m_currentDisplayMode = CDV_SIMILARITY;
-            updateAll();
-        }
-
-        if ( m_propMinBranchLength->changed() || m_propMinBranchSize->changed() )
-        {
-            m_activatedClusters = m_tree.findClustersForBranchLength( m_propMinBranchLength->get( true ), m_propMinBranchSize->get( true ) );
-            m_currentDisplayMode = CDV_MINBRANCHLENGTH;
-            updateAll();
-        }
-
-        if ( m_propLevelsFromTop->changed() || m_propHideOutliers->changed() )
-        {
-            m_activatedClusters = m_tree.downXLevelsFromTop( m_propLevelsFromTop->get( true ), m_propHideOutliers->get( true ) );
-            m_currentDisplayMode = CDV_LEVELSFROMTOP;
-            updateAll();
-        }
-
-        if ( m_propSelectedLoadedPartion->changed() )
-        {
-            m_activatedClusters = m_loadedPartitions[ m_propSelectedLoadedPartion->get( true ) - 1 ];
-            m_currentDisplayMode = CDV_LOADED;
+            m_buttonExecuteSelection->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+            switch ( m_clusterSelection->get( true ).getItemIndexOfSelected( 0 ) )
+            {
+                case 0:
+                    m_currentDisplayMode = CDV_SINGLE;
+                    break;
+                case 1:
+                    m_currentDisplayMode = CDV_BIGGEST;
+                    break;
+                case 2:
+                    m_currentDisplayMode = CDV_X;
+                    break;
+                case 3:
+                    m_currentDisplayMode = CDV_SIMILARITY;
+                    break;
+                case 4:
+                    m_currentDisplayMode = CDV_LEVELSFROMTOP;
+                    break;
+                case 5:
+                    m_currentDisplayMode = CDV_MINBRANCHLENGTH;
+                    break;
+                case 6:
+                    m_currentDisplayMode = CDV_LOADED;
+                    break;
+                default:
+                    m_currentDisplayMode = CDV_SINGLE;
+                    break;
+            }
             updateAll();
         }
 
@@ -390,11 +442,22 @@ void WMClusterDisplayVoxels::moduleMain()
             handleMinSizeChanged();
         }
 
+        if ( m_buttonLabelSelection->changed() )
+        {
+            setButtonLabels();
+        }
+
         if ( m_propShowDendrogram->changed( true ) || m_propResizeWithWindow->changed( true ) || m_propDendrogramSizeX->changed( true ) ||
                 m_propDendrogramSizeY->changed( true ) || m_propDendrogramOffsetX->changed( true ) || m_propDendrogramOffsetY->changed( true ) ||
-                m_propPlotHeightByLevel->changed( true ) || m_propShowSelectedButtons->changed( true ) )
+                m_propPlotHeightByLevel->changed( true ) || m_propShowSelectedButtons->changed() )
         {
             m_dendrogramDirty = true;
+        }
+
+        if ( m_buttonUpdateOutput->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        {
+            updateOutDataset();
+            m_buttonUpdateOutput->set( WPVBaseTypes::PV_TRIGGER_READY, false );
         }
     }
 
@@ -405,6 +468,42 @@ void WMClusterDisplayVoxels::moduleMain()
 
 void WMClusterDisplayVoxels::updateAll()
 {
+    switch ( m_currentDisplayMode )
+    {
+        case CDV_SINGLE:
+            m_activatedClusters.clear();
+            m_activatedClusters.push_back( m_propSelectedCluster->get( true ) );
+            m_currentDisplayModeString = std::string( "Single selection" );
+            break;
+        case CDV_BIGGEST:
+            m_activatedClusters = m_tree.findXBiggestClusters( m_propSelectedCluster->get(), m_propXBiggestClusters->get( true ) );
+            m_currentDisplayModeString = std::string( "Biggest clusters" );
+            break;
+        case CDV_X:
+            m_activatedClusters = m_tree.findXClusters( m_propSelectedCluster->get(), m_propXClusters->get( true ) );
+            m_currentDisplayModeString = std::string( "X clusters" );
+            break;
+        case CDV_SIMILARITY:
+            m_activatedClusters = m_tree.findClustersForValue( m_propValue->get( true ) );
+            m_currentDisplayModeString = std::string( "Similarity value selection" );
+            break;
+        case CDV_LEVELSFROMTOP:
+            m_activatedClusters = m_tree.downXLevelsFromTop( m_propLevelsFromTop->get( true ), m_propHideOutliers->get( true ) );
+            m_currentDisplayModeString = std::string( "Levels from top" );
+            break;
+        case CDV_MINBRANCHLENGTH:
+            m_activatedClusters = m_tree.findClustersForBranchLength( m_propMinBranchLength->get( true ), m_propMinBranchSize->get( true ) );
+            m_currentDisplayModeString = std::string( "Minimum branch length" );
+            break;
+        case CDV_LOADED:
+            m_activatedClusters = m_loadedPartitions[ m_propSelectedLoadedPartion->get( true ) - 1 ];
+            m_currentDisplayModeString = std::string( "Loaded Partition" );
+            break;
+        default:
+            break;
+    };
+
+
     // set colors for cluster in the tree
     m_tree.colorCluster( m_tree.getClusterCount() - 1, WColor( 0.3, 0.3, 0.3, 1.0 ) );
     for ( size_t k = 0; k < m_activatedClusters.size(); ++k )
@@ -457,7 +556,6 @@ void WMClusterDisplayVoxels::updateAll()
         }
     }
     m_texture->dirtyTextureObject();
-
 
     createMesh();
     renderMesh();
@@ -555,6 +653,26 @@ void WMClusterDisplayVoxels::createTexture()
      WKernel::getRunningKernel()->getSelectionManager()->setUseTexture( true );
 
      WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+
+
+//     osg::ref_ptr< osg::Image > ima = new osg::Image;
+//     ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGB, GL_UNSIGNED_BYTE );
+//
+//     unsigned char* data = ima->data();
+//     m_data.resize( m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ(), 0 );
+//
+//     for ( unsigned int i = 0; i < m_grid->size() * 3; ++i )
+//     {
+//         data[i] = 0.0;
+//     }
+//
+//     m_texture = osg::ref_ptr< WGETexture3D >( new WGETexture3D( ima ) );
+//     m_texture->setFilterMinMag( osg::Texture3D::LINEAR );
+//     m_texture->setWrapSTR( osg::Texture::CLAMP_TO_BORDER );
+//     m_texture->colormap()->set( m_texture->colormap()->get().newSelector( WItemSelector::IndexList( 1, 4 ) ) );
+//     m_properties->addProperty( m_texture->alpha() );
+//
+//     WGEColormapping::registerTexture( m_texture, "Cluster Texture" );
 }
 
 void WMClusterDisplayVoxels::createMesh()
@@ -732,7 +850,8 @@ void WMClusterDisplayVoxels::updateWidgets()
     int height = viewer->getCamera()->getViewport()->height();
     int width = viewer->getCamera()->getViewport()->width();
 
-    int rows = height / 20;
+    int rows = ( height - 20 ) / 20;
+    int buttonWidth = 70;
 
     if ( ( height != m_oldViewHeight ) || width != m_oldViewWidth )
     {
@@ -742,12 +861,14 @@ void WMClusterDisplayVoxels::updateWidgets()
         m_dendrogramDirty = true;
     }
 
-    if ( !widgetClicked() && !m_dendrogramDirty )
+    bool buttonClicked = widgetClicked();
+
+    if ( !buttonClicked && !m_dendrogramDirty )
     {
         return;
     }
 
-    if ( m_selectionChanged || m_propShowSelectedButtons->changed( true ) )
+    if ( m_selectionChanged || m_propShowSelectedButtons->changed() || m_dendrogramDirty )
     {
         for ( size_t i = 0; i < m_activeClustersButtonList.size(); ++i )
         {
@@ -756,16 +877,14 @@ void WMClusterDisplayVoxels::updateWidgets()
 
         m_activeClustersButtonList.clear();
 
-        if ( m_propShowSelectedButtons->get() )
+        if ( m_propShowSelectedButtons->get( true ) )
         {
             for ( size_t i = 0; i < m_activatedClusters.size(); ++i )
             {
                 osg::ref_ptr<WOSGButton> newButton = osg::ref_ptr<WOSGButton>( new WOSGButton( std::string( "" ),
                         osgWidget::Box::VERTICAL, true, true ) );
-                newButton->setPosition( osg::Vec3( 5.f + ( i / rows ) * 60,  ( i % rows ) * 20.f, 0 ) );
+                newButton->setPosition( osg::Vec3( 5.f + ( i / rows ) * buttonWidth,  ( i % rows ) * 20.f, 0 ) );
                 newButton->setId( m_activatedClusters[i] );
-                //newButton->setLabel( boost::lexical_cast<std::string>( m_tree.size( m_activatedClusters[i] ) ) );
-                newButton->setLabel( boost::lexical_cast<std::string>( m_activatedClusters[i] ) );
                 newButton->managed( m_wm );
                 m_wm->addChild( newButton );
                 m_activeClustersButtonList.push_back( newButton );
@@ -773,9 +892,37 @@ void WMClusterDisplayVoxels::updateWidgets()
             }
         }
 
+        setButtonLabels();
+
+        osg::ref_ptr<WOSGButton> newButton = osg::ref_ptr<WOSGButton>( new WOSGButton( std::string( "" ),
+                                osgWidget::Box::VERTICAL, true, true ) );
+        newButton->setPosition( osg::Vec3( 5.f, height - 20.f, 0 ) );
+        newButton->setId( 0 );
+        newButton->setLabel( m_currentDisplayModeString );
+        newButton->managed( m_wm );
+        m_wm->addChild( newButton );
+        m_activeClustersButtonList.push_back( newButton );
+        newButton->setBackgroundColor( wge::getNthHSVColor( m_currentDisplayMode ) );
+
         m_selectionChanged = false;
     }
     m_wm->resizeAllWindows();
+
+    if ( m_propShowSelectedButtons && buttonClicked )
+    {
+        m_tree.colorCluster( m_tree.getClusterCount() - 1, WColor( 0.3, 0.3, 0.3, 1.0 ) );
+        for ( size_t k = 0; k < m_activatedClusters.size(); ++k )
+        {
+            if ( m_activeClustersButtonList[k]->pushed() )
+            {
+                size_t current = m_activatedClusters[k];
+                m_tree.colorCluster( current, wge::getNthHSVColor( k ) );
+            }
+        }
+        m_dendrogramDirty = true;
+    }
+
+
 
     if ( m_dendrogramDirty )
     {
@@ -794,8 +941,8 @@ void WMClusterDisplayVoxels::updateWidgets()
                 if ( m_propShowSelectedButtons->get() )
                 {
                     m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1, m_propPlotHeightByLevel->get( true ),
-                                        m_propMinSizeToColor->get(), width - ( ( m_activatedClusters.size() / rows ) + 1 ) * 62, height / 2 ,
-                                        ( ( m_activatedClusters.size() / rows ) + 1 ) * 60 );
+                                        m_propMinSizeToColor->get(), width - ( ( m_activatedClusters.size() / rows ) + 1 ) * buttonWidth, height / 2 ,
+                                        ( ( m_activatedClusters.size() / rows ) + 1 ) * buttonWidth );
                 }
                 else
                 {
@@ -817,7 +964,7 @@ void WMClusterDisplayVoxels::updateWidgets()
 bool WMClusterDisplayVoxels::widgetClicked()
 {
     bool clicked = false;
-    bool biggestClusterSelectionChanged = false;
+    bool selectionChanged = false;
 
     for ( size_t i = 0; i < m_activeClustersButtonList.size(); ++i )
     {
@@ -825,25 +972,30 @@ bool WMClusterDisplayVoxels::widgetClicked()
         {
             if ( m_activeClustersButtonList[i]->getId() < 10000000 )
             {
-                biggestClusterSelectionChanged = true;
+                selectionChanged = true;
                 clicked = true;
-            }
-            else
-            {
-                clicked = true;
-                m_propSelectedCluster->set( m_activeClustersButtonList[i]->getId() - 10000000 );
             }
         }
     }
 
-    if ( biggestClusterSelectionChanged )
+    if ( selectionChanged )
     {
         std::vector<size_t>activeClusters;
         for ( size_t i = 0; i < m_activeClustersButtonList.size(); ++i )
         {
             if ( m_activeClustersButtonList[i]->pushed() )
             {
-                activeClusters.push_back( m_activeClustersButtonList[i]->getId() );
+                if ( m_outputGeodes.size() > i )
+                {
+                    m_outputGeodes[i]->setNodeMask( 0xFFFFFFFF );
+                }
+            }
+            else
+            {
+                if ( m_outputGeodes.size() > i )
+                {
+                    m_outputGeodes[i]->setNodeMask( 0x00000000 );
+                }
             }
         }
     }
@@ -862,4 +1014,72 @@ void WMClusterDisplayVoxels::dendrogramClick( WPickInfo pickInfo )
     size_t cluster = m_dendrogramGeode->getClickedCluster( x, y );
     std::cout << cluster << std::endl;
     m_propSelectedCluster->set( cluster );
+}
+
+void WMClusterDisplayVoxels::updateOutDataset()
+{
+    WAssert( m_dataSet, "" );
+    WAssert( m_dataSet->getValueSet(), "" );
+    WAssert( m_dataSet->getGrid(), "" );
+
+    boost::shared_ptr< std::vector< float > >ptr( new std::vector< float >( m_data.size() ) );
+
+    for ( size_t i = 0; i < m_data.size(); ++i )
+    {
+        ptr->at( i ) = static_cast<float>( m_data[i] );
+    }
+
+    boost::shared_ptr< WValueSet< float > > vs =
+        boost::shared_ptr< WValueSet< float > >( new WValueSet< float >( 0, 1, ptr, W_DT_FLOAT ) );
+
+    m_outData = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_grid ) );
+    m_output->updateData( m_outData );
+}
+
+void WMClusterDisplayVoxels::setButtonLabels()
+{
+    if ( m_propShowSelectedButtons->get() )
+    {
+        std::string ns;
+        for ( size_t i = 0; i < m_activatedClusters.size(); ++i )
+        {
+            if ( m_buttonLabelSelection->get( true ).getItemIndexOfSelected( 0 ) == 0 )
+            {
+                ns = boost::lexical_cast<std::string>( m_activatedClusters[i] );
+            }
+            else if ( m_buttonLabelSelection->get( true ).getItemIndexOfSelected( 0 ) == 1 )
+            {
+                ns = boost::lexical_cast<std::string>( m_tree.size( m_activatedClusters[i] ) );
+            }
+            else if ( m_buttonLabelSelection->get( true ).getItemIndexOfSelected( 0 ) == 2 )
+            {
+                ns = boost::lexical_cast<std::string>( m_tree.getLevel( m_activatedClusters[i] ) );
+            }
+            else
+            {
+                ns = boost::lexical_cast<std::string>( m_tree.getCustomData( m_activatedClusters[i] ) );
+                if ( ns.size() > 8 )
+                {
+                    ns = ns.substr( 0, 8 );
+                }
+            }
+
+
+            for ( size_t k = 8 - ns.size(); k > 0; --k )
+            {
+                if ( k %2 == 1 )
+                {
+                    ns = std::string( " " ) + ns;
+                }
+                else
+                {
+                    ns = ns + std::string( " " );
+                }
+            }
+            if ( m_activeClustersButtonList.size() > i )
+            {
+                m_activeClustersButtonList[i]->setLabel( ns );
+            }
+        }
+    }
 }

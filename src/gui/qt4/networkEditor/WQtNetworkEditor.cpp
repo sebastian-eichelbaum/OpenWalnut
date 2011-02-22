@@ -391,7 +391,7 @@ bool WQtNetworkEditor::event( QEvent* event )
         if( item != 0 )
         {
             item->activate( false );
-            //e->getModule()->requestStop(); // TODO(rfrohl): do we need this ?
+            e->getModule()->requestStop(); // TODO(rfrohl): do we need this ?
         }
 
         return true;

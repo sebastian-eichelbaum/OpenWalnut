@@ -270,12 +270,12 @@ inline size_t WValueSetHistogram::getIndexForValue( double value ) const
     // the position on the scala
     double pos = ( value - m_minimum ) / static_cast< double >( m_mappedBucketSize );
     // the index is the floor( position )
-    size_t idx = static_cast< size_t >( pos );
+    size_t idx = static_cast< size_t >( std::floor( pos ) );
 
     // is the index larger than the size?
     bool inU = ( idx < m_nMappedBuckets );
     // is the index smaller than the size?
-    bool inL = ( pos > 0.0 );
+    bool inL = ( pos >= 0.0 );
 
     // the trick done here is to clamp value into [m_minimum,m_maximum] without using if statements. The C++ Standard says that booleans are
     // always 1 if true.

@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <vector>
+#include <fstream>
 #include <string>
 
 #include "../../kernel/WKernel.h"
@@ -211,15 +212,20 @@ void WMHistogramEqualization::moduleMain()
                 curI++;
             }
 
-            debugLog() << "Clamped " << perc << "% resulting in new interval ["<< lower << ", " << upper <<").";
+            debugLog() << "Clamped " << perc << "% of [" << hist->getMinimum() << ", " << hist->getMaximum() << "]" <<
+                          " resulting in new interval [" << lower << ", " << upper <<").";
 
             // with this new interval, extract a new histogram and use it for equalization
             hist = boost::shared_ptr< const WValueSetHistogram >( new WValueSetHistogram( valueSet, lower, upper, cdfHistRes ) );
         }
 
         // the new data
-        std::vector< unsigned char > newData;
+        std::vector< double > newData;
         newData.resize( hist->getTotalElementCount(), 0 );
+
+        // these values are needed to rescale the data to the original interval
+        double valueMin = hist->getMinimum();
+        double valueScaler = hist->getMaximum() - valueMin;
 
         // equalize?
         ++*progress;
@@ -232,24 +238,23 @@ void WMHistogramEqualization::moduleMain()
 
             // go through each CDF item and fill it, which is the sum of all previous items in hist
             size_t accum = 0;
+            double cdfMin = ( *hist )[ 0 ];
+            double cdfScaler = static_cast< double >( valueSet->rawSize() ) - cdfMin;
             for( size_t i = 0; i < hist->size(); ++i )
             {
                 // the CDF at i is the summed up histogram from 0 to i
                 // we additionally require the histogram to be normalized so divide by the total count
                 accum += ( *hist )[ i ];
-                cdf[ i ] = accum;
+                cdf[ i ] = accum - cdfMin;
             }
 
             // finally, build the new dataset
             debugLog() << "Calculating equalized value-set";
-            double cdfMin = cdf[ 0 ];
             for ( size_t vi = 0; vi < valueSet->rawSize(); ++vi )
             {
-                double cdfVI = cdf[ hist->getIndexForValue( valueSet->getScalarDouble( vi ) ) ];
-
-                newData[ vi ] = static_cast< unsigned char >(
-                        255.0 * ( cdfVI - cdfMin ) / (  static_cast< double >( valueSet->rawSize() ) - cdfMin )
-                );
+                size_t idx = hist->getIndexForValue( valueSet->getScalarDouble( vi ) );
+                double cdfVI = cdf[ idx ];
+                newData[ vi ] = valueMin + ( valueScaler * cdfVI / cdfScaler );
             }
         }
         else
@@ -260,7 +265,8 @@ void WMHistogramEqualization::moduleMain()
             for ( size_t vi = 0; vi < valueSet->rawSize(); ++vi )
             {
                 size_t idx = hist->getIndexForValue( valueSet->getScalarDouble( vi ) );
-                newData[ vi ] = static_cast< unsigned char >( static_cast< double >( idx )/ static_cast< double >( maxI ) * 255.0 );
+                double idxScaled = ( static_cast< double >( idx )/ static_cast< double >( maxI ) );
+                newData[ vi ] = valueMin + ( valueScaler * idxScaled );
             }
         }
         ++*progress;
@@ -269,14 +275,15 @@ void WMHistogramEqualization::moduleMain()
         debugLog() << "Updating output";
 
         // construct
-        m_output->updateData( boost::shared_ptr< WDataSetScalar >(
+        boost::shared_ptr< WDataSetScalar > d = boost::shared_ptr< WDataSetScalar >(
             new WDataSetScalar( boost::shared_ptr< WValueSetBase >(
-                                    new WValueSet< unsigned char >( 0,
-                                                                    1,
-                                                                    boost::shared_ptr< std::vector< unsigned char > >(
-                                                                        new std::vector< unsigned char >( newData ) ),
-                                                                    W_DT_UNSIGNED_CHAR ) ), dataSet->getGrid() )
-        ) );
+                                    new WValueSet< double >( 0,
+                                                             1,
+                                                             boost::shared_ptr< std::vector< double > >(
+                                                                 new std::vector< double >( newData ) ),
+                                                             W_DT_DOUBLE ) ), dataSet->getGrid() )
+        );
+        m_output->updateData( d );
 
         debugLog() << "Done";
 
