@@ -371,6 +371,16 @@ private:
      * if the module is removed.
      */
     std::map< boost::shared_ptr< WPropertyBase >, WQtPropertyBoolAction* > propertyActionMap;
+
+    /**
+     * Loads the window states and geometries from a file.
+     */
+    void restoreSavedState();
+
+    /**
+     * Saves the current window states and geometries to a file.
+     */
+    void saveWindowState();
 };
 
 #endif  // WMAINWINDOW_H

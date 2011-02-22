@@ -281,10 +281,7 @@ void WMainWindow::setupGUI()
     }
 
     // after creating the GUI, restore its saved state
-    QSettings setting( "OpenWalnut.org", "OpenWalnut" );
-    QByteArray state = setting.value( "MainWindowState", "" ).toByteArray();
-    restoreGeometry( setting.value( "MainWindowGeometry", "" ).toByteArray() );
-    restoreState( state );
+    restoreSavedState();
 }
 
 void WMainWindow::setupPermanentToolBar()
@@ -942,12 +939,7 @@ void WMainWindow::closeEvent( QCloseEvent* e )
     // handle close event
     if( reallyClose )
     {
-        // this saves the window state to some common location on the target OS in user scope.
-        QByteArray state = saveState();
-        QSettings setting( "OpenWalnut.org", "OpenWalnut" );
-        setting.setValue( "MainWindowState", state );
-        // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
-        setting.setValue( "MainWindowGeometry", saveGeometry() );
+        saveWindowState();
 
         // signal everybody to shut down properly.
         WKernel::getRunningKernel()->finalize();
@@ -1121,5 +1113,53 @@ void WMainWindow::openConfigDialog()
     m_configWidget = boost::shared_ptr< WQtConfigWidget >( new WQtConfigWidget );
 
     m_configWidget->initAndShow();
+}
+
+void WMainWindow::restoreSavedState()
+{
+    // should we do it?
+    bool saveStateEnabled = true;
+    WPreferences::getPreference( "qt4gui.saveState", &saveStateEnabled );
+    if ( !saveStateEnabled )
+    {
+        return;
+    }
+
+    // the state name postfix allows especially developers to have multiple OW with different GUI settings.
+    std::string postfix = "";
+    if ( WPreferences::getPreference( "qt4gui.stateNamePostfix", &postfix ) )
+    {
+        postfix = "-" + postfix;
+    }
+
+    QSettings setting( "OpenWalnut.org", "OpenWalnut" + QString::fromStdString( postfix ) );
+    QByteArray state = setting.value( "MainWindowState", "" ).toByteArray();
+    restoreGeometry( setting.value( "MainWindowGeometry", "" ).toByteArray() );
+    restoreState( state );
+}
+
+void WMainWindow::saveWindowState()
+{
+    // should we do it?
+    bool saveStateEnabled = true;
+    WPreferences::getPreference( "qt4gui.saveState", &saveStateEnabled );
+    if ( !saveStateEnabled )
+    {
+        return;
+    }
+
+    // the state name postfix allows especially developers to have multiple OW with different GUI settings.
+    std::string postfix = "";
+    if ( WPreferences::getPreference( "qt4gui.stateNamePostfix", &postfix ) )
+    {
+        postfix = "-" + postfix;
+    }
+
+    // this saves the window state to some common location on the target OS in user scope.
+    QByteArray state = saveState();
+    QSettings setting( "OpenWalnut.org", "OpenWalnut" + QString::fromStdString( postfix ) );
+    setting.setValue( "MainWindowState", state );
+    // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
+    setting.setValue( "MainWindowGeometry", saveGeometry() );
 }
 
