@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include <boost/array.hpp>
+
 #include <osg/Vec3>
 #include <osg/Geode>
 
@@ -118,25 +120,10 @@ void WMBoundaryCurvesWMGM::initOSG( boost::shared_ptr< WGridRegular3D > grid, bo
     // remove the old slices
     m_output->clear();
 
-    // we want the tex matrix for each slice to be modified too,
-    osg::ref_ptr< osg::TexMat > texMat;
-
     // create all the transformation nodes
     m_xSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonX ) );
     m_ySlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonY ) );
     m_zSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonZ ) );
-
-    texMat = new osg::TexMat();
-    m_xSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos, texMat ) );
-    m_xSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
-    texMat = new osg::TexMat();
-    m_ySlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos, texMat ) );
-    m_ySlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
-
-    texMat = new osg::TexMat();
-    m_zSlice->addUpdateCallback( new WGELinearTranslationCallback< WPropInt >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos, texMat ) );
-    m_zSlice->getOrCreateStateSet()->setTextureAttributeAndModes( 0, texMat, osg::StateAttribute::ON );
 
     // create a new geode containing the slices
     m_xSlice->addChild( wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
@@ -158,16 +145,21 @@ void WMBoundaryCurvesWMGM::initOSG( boost::shared_ptr< WGridRegular3D > grid, bo
     wge::bindTexture( m_xSlice, dataset->getTexture()->getTexture() );
     wge::bindTexture( m_ySlice, dataset->getTexture()->getTexture() );
     wge::bindTexture( m_zSlice, dataset->getTexture()->getTexture() );
-    osg::StateSet* xState = m_xSlice->getOrCreateStateSet();
-    osg::StateSet* yState = m_ySlice->getOrCreateStateSet();
-    osg::StateSet* zState = m_zSlice->getOrCreateStateSet();
-    xState->addUniform( u_grayMatter );
-    yState->addUniform( u_grayMatter );
-    zState->addUniform( u_grayMatter );
-    xState->addUniform( u_whiteMatter );
-    yState->addUniform( u_whiteMatter );
-    zState->addUniform( u_whiteMatter );
 
+    // transform X,Y,Z dependent expressions into numbers dependent (0,1,2) to loop over them
+    // NOTE: we can remove double curly braces when compiler is standard compliant according to:
+    //       http://www.boost.org/doc/libs/1_42_0/doc/html/array/rationale.html
+    boost::array< osg::StateSet*, 3 > ss = { { m_xSlice->getOrCreateStateSet(), m_ySlice->getOrCreateStateSet(), m_zSlice->getOrCreateStateSet() } }; // NOLINT curly braces
+    boost::array< WPropInt, 3 > pos = { { m_xPos, m_yPos, m_zPos } }; // NOLINT curly braces
+    boost::array< wmath::WVector3D, 3 > dir = { { grid->getDirectionX(), grid->getDirectionY(), grid->getDirectionZ() } }; // NOLINT curly braces
+
+    for( int i = 0; i < 3; ++i )
+    {
+        ss.at( i )->addUniform( u_grayMatter );
+        ss.at( i )->addUniform( u_whiteMatter );
+        ss.at( i )->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", pos.at( i ) ) );
+        ss.at( i )->addUniform( new osg::Uniform( "u_vertexShiftDirection", dir.at( i ) ) );
+    }
 
     // add the transformation nodes to the output group
     m_output->insert( m_xSlice );
