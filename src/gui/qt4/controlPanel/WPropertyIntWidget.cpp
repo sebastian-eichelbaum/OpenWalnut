@@ -92,6 +92,8 @@ void WPropertyIntWidget::update()
         m_slider.setMinimum( minC->getMin() );
         m_slider.setMaximum( maxC->getMax() );
         m_slider.setValue( m_intProperty->get() );
+
+        m_edit.setMaximumWidth( fontMetrics().width( QString::number( - ( maxC->getMax() - minC->getMin() ) ) ) + 5 ); 
     }
     else
     {
