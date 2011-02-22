@@ -46,117 +46,117 @@ class WQtNetworkInputPort;
  */
 class WQtNetworkArrow : public QGraphicsLineItem
 {
-    public:
+public:
 
-        /**
-         * This customize the return value of type()
-         */
-        enum
-        {
-           Type = UserType + 4
-        };
+    /**
+     * This customize the return value of type()
+     */
+    enum
+    {
+       Type = UserType + 4
+    };
 
-        /**
-         * Constructor
-         *
-         * \param outPort the outputport that provide the data
-         * \param inPort the inputport that recive the data
-         */
-        explicit WQtNetworkArrow( WQtNetworkOutputPort *outPort, WQtNetworkInputPort *inPort );
+    /**
+     * Constructor
+     *
+     * \param outPort the outputport that provide the data
+     * \param inPort the inputport that recive the data
+     */
+    explicit WQtNetworkArrow( WQtNetworkOutputPort *outPort, WQtNetworkInputPort *inPort );
 
-        /**
-         * Destructor
-         */ 
-        ~WQtNetworkArrow();
+    /**
+     * Destructor
+     */
+    ~WQtNetworkArrow();
 
-        /**
-         * Reimplementation from QGraphicsItem
-         * \return the type of the item as int
-         */
-        int type() const;
+    /**
+     * Reimplementation from QGraphicsItem
+     * \return the type of the item as int
+     */
+    int type() const;
 
-        /**
-         * Calculated the new position of the lines endpoints in the scene.
-         * Is called everytime the parentItem is changed or after construction.
-         */
-        void updatePosition();
+    /**
+     * Calculated the new position of the lines endpoints in the scene.
+     * Is called everytime the parentItem is changed or after construction.
+     */
+    void updatePosition();
 
-        /**
-         * Returns the WQtNetworkOutputPort where the arrow starts.
-         *\return the WQtNetworkInputPort where the connection starts
-         */
-        WQtNetworkOutputPort* getStartPort();
+    /**
+     * Returns the WQtNetworkOutputPort where the arrow starts.
+     *\return the WQtNetworkInputPort where the connection starts
+     */
+    WQtNetworkOutputPort* getStartPort();
 
-        /**
-         * Returns the WQtNetworkInputPort where the arrow ends.
-         *\return the WQtNetworkInputPort where the connection ends
-         */
-        WQtNetworkInputPort* getEndPort();
+    /**
+     * Returns the WQtNetworkInputPort where the arrow ends.
+     *\return the WQtNetworkInputPort where the connection ends
+     */
+    WQtNetworkInputPort* getEndPort();
 
-        /**
-         * Reimplementation form QGraphicsItem, because the arrowhead is added
-         * to the line. Its needed that QGraphicsView knows which area needs to
-         * be redrawn.
-         * \return a QRectF that bounds the drawn object
-         */
-        QRectF boundingRect() const;
+    /**
+     * Reimplementation form QGraphicsItem, because the arrowhead is added
+     * to the line. Its needed that QGraphicsView knows which area needs to
+     * be redrawn.
+     * \return a QRectF that bounds the drawn object
+     */
+    QRectF boundingRect() const;
 
-        /**
-         * Reimplementation from QGraphicsItem.
-         * Return the shape of this item as a QPainterPath in local coordinates
-         * \return shape as QPainterPath of this object
-         */
-        QPainterPath shape() const;
+    /**
+     * Reimplementation from QGraphicsItem.
+     * Return the shape of this item as a QPainterPath in local coordinates
+     * \return shape as QPainterPath of this object
+     */
+    QPainterPath shape() const;
 
-        /**
-         * If the item is changed we want to get notified.
-         *
-         * \param change
-         * \param value
-         * \return
-         */
-        QVariant itemChange( GraphicsItemChange change, const QVariant &value );
+    /**
+     * If the item is changed we want to get notified.
+     *
+     * \param change
+     * \param value
+     * \return
+     */
+    QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
-    protected:
+protected:
 
-        /**
-         * Draw some customized stuff in the scene.
-         *
-         * \param painter
-         * \param option
-         * \param w
-         */
-        void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
+    /**
+     * Draw some customized stuff in the scene.
+     *
+     * \param painter
+     * \param option
+     * \param w
+     */
+    void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
 
-         /**
-         * If the cursor enters the arrow, the arrow becomes geen.
-         *
-         * \param event the hover event
-         */
-        void hoverEnterEvent( QGraphicsSceneHoverEvent * event );
+     /**
+     * If the cursor enters the arrow, the arrow becomes geen.
+     *
+     * \param event the hover event
+     */
+    void hoverEnterEvent( QGraphicsSceneHoverEvent * event );
 
-        /**
-         * If the cursor leaves the arrow, the arrow gets his default color.
-         *
-         * \param event the hover event
-         */
-        void hoverLeaveEvent( QGraphicsSceneHoverEvent * event );
+    /**
+     * If the cursor leaves the arrow, the arrow gets his default color.
+     *
+     * \param event the hover event
+     */
+    void hoverLeaveEvent( QGraphicsSceneHoverEvent * event );
 
-    private:
+private:
 
-        /**
-         * This method changes the color of the arrow.
-         * 
-         * \param color the choosen color
-         */
-        void changeColor( QColor color );
+    /**
+     * This method changes the color of the arrow.
+     *
+     * \param color the choosen color
+     */
+    void changeColor( QColor color );
 
-        WQtNetworkOutputPort *m_startPort; //!< the start port
+    WQtNetworkOutputPort *m_startPort; //!< the start port
 
-        WQtNetworkInputPort *m_endPort; //!< the end port
+    WQtNetworkInputPort *m_endPort; //!< the end port
 
-        QColor m_color; //!< the current color
+    QColor m_color; //!< the current color
 
-        QPolygonF arrowHead; //!< the arrowhead
+    QPolygonF arrowHead; //!< the arrowhead
 };
 #endif  // WQTNETWORKARROW_H

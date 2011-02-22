@@ -37,120 +37,122 @@ class WQtNetworkArrow;
 /**
  * This class represents the ports a module have. Two ports from different
  * modules can be connected by the corresponding ports.
- */ 
+ */
 class WQtNetworkInputPort : public WQtNetworkPort
 {
-    public:
+public:
 
-        /**
-         * Constructor
-         * \param connector the related WModuleInputConnector
-         */
-        explicit WQtNetworkInputPort( boost::shared_ptr<WModuleInputConnector> connector );
+    /**
+     * Constructor
+     * \param connector the related WModuleInputConnector
+     */
+    explicit WQtNetworkInputPort( boost::shared_ptr<WModuleInputConnector> connector );
 
-        /**
-         * Destructor
-         */
-        ~WQtNetworkInputPort();
+    /**
+     * Destructor
+     */
+    ~WQtNetworkInputPort();
 
-        /**
-         * This customize the return value of type()
-         */
-        enum
-        {
-            Type = UserType + 11
-        };
+    /**
+     * This customize the return value of type()
+     */
+    enum
+    {
+        Type = UserType + 11
+    };
 
-        /**
-         * Reimplementation from QGraphicsItem
-         * \return the type of the item as int
-         */
-        int type() const;
+    /**
+     * Reimplementation from QGraphicsItem
+     * \return the type of the item as int
+     */
+    int type() const;
 
-        /**
-         * Every Arrow connected with this port is updating its position in the
-         * scene.
-         */
-        void updateArrows();
+    /**
+     * Every Arrow connected with this port is updating its position in the
+     * scene.
+     */
+    void updateArrows();
 
-        /**
-         * Removes a specific arrow
-         * \param arrow an arrow
-         */
-        void removeArrow( WQtNetworkArrow *arrow );
+    /**
+     * Removes a specific arrow
+     * \param arrow an arrow
+     */
+    void removeArrow( WQtNetworkArrow *arrow );
 
-        /**
-         * Removes all connected arrows
-         */
-        void removeArrows();
+    /**
+     * Removes all connected arrows
+     */
+    void removeArrows();
 
-        /**
-         * Calculates the position inside a item for each port to get a correct
-         * alignment
-         * \param size the total number of ports ( distinguished by in- and
-         *          outport
-         * \param portNumber the number of the current port (distinguised by in-
-         *          and outport
-         * \param rect the rect of the parent item
-         * \param inOut is it an in- or outport
-         */
-        void alignPosition( int size, int portNumber, QRectF rect, bool outPort );
+    /**
+     * Calculates the position inside a item for each port to get a correct
+     * alignment
+     * \param size the total number of ports ( distinguished by in- and
+     *          outport
+     * \param portNumber the number of the current port (distinguised by in-
+     *          and outport
+     * \param rect the rect of the parent item
+     * \param outPort is it an in- or outport
+     */
+    void alignPosition( int size, int portNumber, QRectF rect, bool outPort );
 
-        /**
-         * Set the type of the port.
-         * \param type true if out / false if in
-         */
-        void setOutPort( bool type );
+    /**
+     * Set the type of the port.
+     * \param type true if out / false if in
+     */
+    void setOutPort( bool type );
 
-        /**
-         * Returns the porttype.
-         * \return is it a outport
-         */
-        bool isOutPort();
+    /**
+     * Returns the porttype.
+     * \return is it a outport
+     */
+    bool isOutPort();
 
-        /**
-         * Returns the Name.
-         * \return Name
-         */
-        QString getPortName();
+    /**
+     * Returns the Name.
+     * \return Name
+     */
+    QString getPortName();
 
-        /**
-         * Set the Name
-         * \param str Name as string
-         */
-        void setPortName( QString str );
+    /**
+     * Set the Name
+     * \param str Name as string
+     */
+    void setPortName( QString str );
 
-        /**
-         * Return the number of connections
-         * \return number of connections
-         */
-        int getNumberOfArrows();
+    /**
+     * Return the number of connections
+     * \return number of connections
+     */
+    int getNumberOfArrows();
 
-        /**
-         * Returns the WModuleInputConnecter that belongs to this object.
-         * \return a WModuleInputConnector
-         */
-        boost::shared_ptr<WModuleInputConnector> getConnector();
+    /**
+     * Returns the WModuleInputConnecter that belongs to this object.
+     * \return a WModuleInputConnector
+     */
+    boost::shared_ptr<WModuleInputConnector> getConnector();
 
-        /**
-         * Adds an arrow to the port
-         */
-        void addArrow( WQtNetworkArrow *arrow );
+    /**
+     * Adds an arrow to the port
+     *
+     * \param arrow the arrow to add
+     */
+    void addArrow( WQtNetworkArrow* arrow );
 
-        /**
-         * Get a QList of all arrows connected to this port
-         * \return a QList of WQtNetworkArrows
-         */
-        QList< WQtNetworkArrow *> getArrowList();
+    /**
+     * Get a QList of all arrows connected to this port
+     * \return a QList of WQtNetworkArrows
+     */
+    QList< WQtNetworkArrow *> getArrowList();
 
-    private:
+private:
 
-        bool m_isOutPort; //!< is the port an outport
+    bool m_isOutPort; //!< is the port an outport
 
-        QList< WQtNetworkArrow *> m_arrows; //!< the connected arrows
+    QList< WQtNetworkArrow *> m_arrows; //!< the connected arrows
 
-        QString m_name; //!< the portname
+    QString m_name; //!< the portname
 
-        boost::shared_ptr<WModuleInputConnector> m_connector; //!< the related WModuleInputConnector
+    boost::shared_ptr<WModuleInputConnector> m_connector; //!< the related WModuleInputConnector
 };
 #endif  // WQTNETWORKINPUTPORT_H

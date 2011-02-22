@@ -28,51 +28,58 @@
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsItem>
 
-class WQtNetworkScene : public QGraphicsScene
+/**
+ * The scene containing the whole graph
+ */
+class WQtNetworkScene: public QGraphicsScene
 {
-    Q_OBJECT
+Q_OBJECT
 
-    public:
+public:
 
-        /**
-         * Constructor
-         */
-        explicit WQtNetworkScene();
+    /**
+     * Constructor
+     */
+    explicit WQtNetworkScene();
 
-        /**
-         * Destructor
-         */
-        virtual ~WQtNetworkScene();
+    /**
+     * Destructor
+     */
+    virtual ~WQtNetworkScene();
 
-        /**
-         * Set a fakeitem to the scene to avoid that groups of connected items
-         * or single items in the scene push away each other.
-         *
-         * \param the fakeitem
-         */
-        void setFakeItem( QGraphicsItem *fake );
+    /**
+     * Set a fakeitem to the scene to avoid that groups of connected items
+     * or single items in the scene push away each other.
+     *
+     * \param fake the fake item
+     */
+    void setFakeItem( QGraphicsItem* fake );
 
-        /**
-         * Return the fakeitem in the scene to calculate forces in a more
-         * beautiful way.
-         */
-        QGraphicsItem* getFakeItem();
+    /**
+     * Return the fakeitem in the scene to calculate forces in a more
+     * beautiful way.
+     */
+    QGraphicsItem* getFakeItem();
 
-    protected:
+protected:
 
-        /**
-         * Emits a Signal to notify the WQtNetworkEditor to build a default WQtCombinerToolbar
-         */
-        void mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent );
+    /**
+     * Emits a Signal to notify the WQtNetworkEditor to build a default WQtCombinerToolbar
+     *
+     * \param mouseEvent the mouse event
+     */
+    void mousePressEvent( QGraphicsSceneMouseEvent* mouseEvent );
 
-        /**
-         * Controls how to respond on key events.
-         * Current it only delets selected items.
-         */
-        void keyPressEvent( QKeyEvent *keyEvent );
+    /**
+     * Controls how to respond on key events.
+     * Current it only delets selected items.
+     *
+     * \param keyEvent the key press event
+     */
+    void keyPressEvent( QKeyEvent* keyEvent );
 
-    private:
-
-        QGraphicsItem *m_fakeItem; //!< the fakeitem for the forcebased layout
+private:
+    QGraphicsItem *m_fakeItem; //!< the fakeitem for the forcebased layout
 };
 #endif  // WQTNETWORKSCENE_H
+

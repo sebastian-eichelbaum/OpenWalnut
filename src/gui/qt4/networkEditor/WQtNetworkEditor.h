@@ -55,7 +55,6 @@ public:
     /**
      * default constructor
      *
-     * \param title Title will be displayed above the widget
      * \param parent The widget that manages this widget
      */
     explicit WQtNetworkEditor( WMainWindow* parent = 0 );
@@ -67,7 +66,7 @@ public:
 
     /**
      * Create a new WQtNetworkItem for a given WModule
-     * \param a new WModule
+     * \param module a new WModule
      */
     void addModule(  boost::shared_ptr< WModule > module );
 
@@ -100,20 +99,18 @@ protected:
     /**
      * Everytime a module is associated, ready, connected, disconnected, removed or
      * deleted the kernels emits a signal and here we look how to behave.
+     *
+     * \param event the event that should be handled here.
      */
     virtual bool event( QEvent* event );
 
     /**
-     * Determines compatible prototypes
-     * \return list of modules without possible input connectors
-     */
-    WQtCombinerToolbar* createCompatibleButtons( boost::shared_ptr< WModule >module );
-
-    /**
      * This event is called every 'timerID' in ms. If the WQtNetworkItems don't
      * move as result of the calculated forces the timer won't be reseted.
+     *
+     * \param event the timer event
      */
-    void timerEvent( QTimerEvent *event );
+    void timerEvent( QTimerEvent* event );
 
 private:
 
