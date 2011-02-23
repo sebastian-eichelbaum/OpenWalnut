@@ -35,10 +35,8 @@ WQtToolBar::WQtToolBar( const QString & title, QWidget* parent )
 
     this->setAllowedAreas( Qt::AllToolBarAreas );
 
-    // The following makes the bar having button size from the beginning.
-    QPushButton* dummyButton = new QPushButton;
-    dummyButton->setFixedWidth( 0 );
-    addWidget( dummyButton );
+    setMinimumWidth( 50 );
+    setMinimumHeight( 30 );
 }
 
 WQtToolBar::~WQtToolBar()
@@ -79,9 +77,5 @@ void WQtToolBar::clearButtons()
 
     // clear the lists
     m_widgets.clear();
-
-    // The following prevents the bar from changing size when it has no real buttons.
-    QPushButton* dummyButton = new QPushButton;
-    dummyButton->setFixedWidth( 0 );
-    addWidget( dummyButton );
 }
+

@@ -46,6 +46,9 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerAc
     setAllowedAreas( Qt::AllToolBarAreas );
     setObjectName( QString( "Compatible Modules" ) );
 
+    setMinimumWidth( 50 );
+    setMinimumHeight( 30 );
+
     // this sets the toolbar style
     int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
     WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );
@@ -59,7 +62,6 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerAc
 
     // create the list of actions possible
     addActions( compatibles );
-    insertDummyButton();
 }
 
 WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent )
@@ -79,9 +81,6 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent )
 
     // cast and set
     setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
-
-    // reserve size
-    insertDummyButton();
 }
 
 WQtCombinerToolbar::~WQtCombinerToolbar()
@@ -91,23 +90,11 @@ WQtCombinerToolbar::~WQtCombinerToolbar()
 void WQtCombinerToolbar::makeEmpty()
 {
     clear();
-    insertDummyButton();
 }
 
 void WQtCombinerToolbar::updateButtons( const WQtCombinerActionList& compatibles )
 {
     clear();
     addActions( compatibles );
-    insertDummyButton();
 }
 
-void WQtCombinerToolbar::insertDummyButton()
-{
-    // this is needed to ensure a constant height or width (if toolbar is in vertical mode). We use a label as an empty label has no graphical
-    // representation. The width and height are set both because we do not know a priori how the toolbar is oriented as it might change after
-    // creation.
-    QLabel* dummy = new QLabel;
-    dummy->setFixedWidth( 50 );
-    dummy->setFixedHeight( 30 );
-    addWidget( dummy );
-}
