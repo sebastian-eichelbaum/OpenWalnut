@@ -262,7 +262,6 @@ void WQtConfigWidget::registerComponents()
     m_skipPropertyWrite.push_back( "ge.sColorWidget" );
 
     m_defaultProperties->addProperty( "qt4gui.useAutoDisplay", "use Auto Display", true, m_propCondition );
-    m_defaultProperties->addProperty( "qt4gui.useToolBarBreak", "use ToolBarBreak", true, m_propCondition );
     WPropInt tbs = m_defaultProperties->addProperty( "qt4gui.toolBarStyle", "The style of all toolbars in OpenWalnut", 0, m_propCondition );
     WPropInt ctbs = m_defaultProperties->addProperty( "qt4gui.compatiblesToolBarStyle", "The style of all compatibles toolbar in OpenWalnut", 0,
                                                       m_propCondition );
@@ -270,14 +269,7 @@ void WQtConfigWidget::registerComponents()
     tbs->setMax( 3 );
     ctbs->setMin( 0 );
     ctbs->setMax( 3 );
-    WPropInt tbpos = m_defaultProperties->addProperty( "qt4gui.toolBarPos", "The position of the toolbar in OpenWalnut", 0,
-                                                       m_propCondition );
-    WPropInt ctbpos = m_defaultProperties->addProperty( "qt4gui.compatiblesToolBarPos", "The position of the compatibles toolbar in OpenWalnut", 0,
-                                                        m_propCondition );
-    tbpos->setMin( 0 );
-    tbpos->setMax( 5 );
-    ctbpos->setMin( 0 );
-    ctbpos->setMax( 5 );
+
     m_defaultProperties->addProperty( "qt4gui.hideMenuBar", "Hide the menu bar.", false, m_propCondition );
 
     WPropGroup moduleWhiteList =  m_defaultProperties->addPropertyGroup( "modules.whiteListGroup", "moduleWhiteList" );

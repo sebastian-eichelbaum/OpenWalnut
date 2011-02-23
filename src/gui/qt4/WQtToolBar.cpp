@@ -31,7 +31,9 @@
 WQtToolBar::WQtToolBar( const QString & title, QWidget* parent )
     : QToolBar( title, parent )
 {
-    this->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
+    setObjectName( title );
+
+    this->setAllowedAreas( Qt::AllToolBarAreas );
 
     // The following makes the bar having button size from the beginning.
     QPushButton* dummyButton = new QPushButton;

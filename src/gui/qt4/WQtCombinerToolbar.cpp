@@ -26,6 +26,7 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QPushButton>
+#include <QtGui/QLabel>
 #include <QtGui/QMenu>
 
 #include "../../common/WPreferences.h"
@@ -43,6 +44,7 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerAc
 {
     // setup toolbar
     setAllowedAreas( Qt::AllToolBarAreas );
+    setObjectName( QString( "Compatible Modules" ) );
 
     // this sets the toolbar style
     int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
@@ -96,23 +98,16 @@ void WQtCombinerToolbar::updateButtons( const WQtCombinerActionList& compatibles
 {
     clear();
     addActions( compatibles );
+    insertDummyButton();
 }
 
 void WQtCombinerToolbar::insertDummyButton()
 {
-    // The following makes the bar having button size.
-    QPushButton* dummyButton = new QPushButton;
-    if ( ( m_parent->toQtToolBarArea( m_parent->getCompatiblesToolbarPos() ) ==  Qt::TopToolBarArea ) ||
-         ( m_parent->toQtToolBarArea( m_parent->getCompatiblesToolbarPos() ) ==  Qt::BottomToolBarArea ) )
-    {
-        dummyButton->setFixedWidth( 0 );
-        dummyButton->setFixedHeight( 30 );
-    }
-    else
-    {
-        dummyButton->setFixedWidth( 48 );   // well this size must be more than 32 as there might be these little submenu arrows besides the icon
-        dummyButton->setFixedHeight( 0 );
-    }
-
-    addWidget( dummyButton );
+    // this is needed to ensure a constant height or width (if toolbar is in vertical mode). We use a label as an empty label has no graphical
+    // representation. The width and height are set both because we do not know a priori how the toolbar is oriented as it might change after
+    // creation.
+    QLabel* dummy = new QLabel;
+    dummy->setFixedWidth( 50 );
+    dummy->setFixedHeight( 30 );
+    addWidget( dummy );
 }

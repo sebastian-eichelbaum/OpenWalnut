@@ -339,20 +339,7 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addWidget( roiButton );
     m_permanentToolBar->addSeparator();
 
-    if( getToolbarPos() == InControlPanel )
-    {
-        m_controlPanel->addToolbar( m_permanentToolBar );
-        //m_controlPanel->setTitleBarWidget( m_permanentToolBar );
-    }
-    else if( getToolbarPos() == Hide )
-    {
-        m_permanentToolBar->setVisible( false );
-        addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
-    }
-    else
-    {
-        addToolBar( toQtToolBarArea( getToolbarPos() ), m_permanentToolBar );
-    }
+    addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
 }
 
 void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )
@@ -562,48 +549,6 @@ Qt::ToolButtonStyle WMainWindow::getToolbarStyle() const
     return static_cast< Qt::ToolButtonStyle >( toolBarStyle );
 }
 
-WMainWindow::ToolBarPosition WMainWindow::getToolbarPos()
-{
-    int toolbarPos = 0;
-    WPreferences::getPreference( "qt4gui.toolBarPos", &toolbarPos );
-    return static_cast< ToolBarPosition >( toolbarPos );
-}
-
-WMainWindow::ToolBarPosition WMainWindow::getCompatiblesToolbarPos()
-{
-    int compatiblesToolbarPos = 0;
-    if( !WPreferences::getPreference( "qt4gui.compatiblesToolBarPos", &compatiblesToolbarPos ) )
-    {
-        return getToolbarPos();
-    }
-
-    return static_cast< ToolBarPosition >( compatiblesToolbarPos );
-}
-
-Qt::ToolBarArea WMainWindow::toQtToolBarArea( ToolBarPosition pos )
-{
-    switch ( pos )
-    {
-        case Top:
-            return Qt::TopToolBarArea;
-            break;
-        case Bottom:
-            return Qt::BottomToolBarArea;
-            break;
-        case Left:
-            return Qt::LeftToolBarArea;
-            break;
-        case Right:
-            return Qt::RightToolBarArea;
-            break;
-        case InControlPanel:
-            return Qt::RightToolBarArea;
-        default:
-            return Qt::NoToolBarArea;
-            break;
-      }
-}
-
 void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
 {
     if( m_currentCompatiblesToolbar )
@@ -612,16 +557,6 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
     }
     m_currentCompatiblesToolbar = toolbar;
 
-    // hide it?
-    if( getCompatiblesToolbarPos() == Hide )
-    {
-        if( toolbar )
-        {
-            toolbar->setVisible( false );
-        }
-        return;
-    }
-
     if( !toolbar )
     {
         // ok, reset the toolbar
@@ -629,18 +564,8 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
         m_currentCompatiblesToolbar = new WQtCombinerToolbar( this );
     }
 
-    // optional toolbar break
-    {
-        bool useToolBarBreak = true;
-        WPreferences::getPreference( "qt4gui.useToolBarBreak", &useToolBarBreak );
-        if( useToolBarBreak )
-        {
-            addToolBarBreak( toQtToolBarArea( getCompatiblesToolbarPos() ) );
-        }
-    }
-
     // and the position of the toolbar
-    addToolBar( toQtToolBarArea( getCompatiblesToolbarPos() ), m_currentCompatiblesToolbar );
+    addToolBar( Qt::TopToolBarArea, m_currentCompatiblesToolbar );
 }
 
 WQtCombinerToolbar* WMainWindow::getCompatiblesToolbar()
@@ -1126,13 +1051,15 @@ void WMainWindow::restoreSavedState()
     }
 
     // the state name postfix allows especially developers to have multiple OW with different GUI settings.
-    std::string postfix = "";
-    if ( WPreferences::getPreference( "qt4gui.stateNamePostfix", &postfix ) )
+    std::string stateName = "";
+    if ( WPreferences::getPreference( "qt4gui.stateNamePostfix", &stateName ) )
     {
-        postfix = "-" + postfix;
+        stateName = "-" + stateName;
     }
+    stateName = "OpenWalnut" + stateName;
+    wlog::info( "MainWindow" ) << "Restoring window state from \"" << stateName << "\"";
 
-    QSettings setting( "OpenWalnut.org", "OpenWalnut" + QString::fromStdString( postfix ) );
+    QSettings setting( "OpenWalnut.org", QString::fromStdString( stateName ) );
     QByteArray state = setting.value( "MainWindowState", "" ).toByteArray();
     restoreGeometry( setting.value( "MainWindowGeometry", "" ).toByteArray() );
     restoreState( state );
@@ -1148,16 +1075,17 @@ void WMainWindow::saveWindowState()
         return;
     }
 
-    // the state name postfix allows especially developers to have multiple OW with different GUI settings.
-    std::string postfix = "";
-    if ( WPreferences::getPreference( "qt4gui.stateNamePostfix", &postfix ) )
+    std::string stateName = "";
+    if ( WPreferences::getPreference( "qt4gui.stateNamePostfix", &stateName ) )
     {
-        postfix = "-" + postfix;
+        stateName = "-" + stateName;
     }
+    stateName = "OpenWalnut" + stateName;
+    wlog::info( "MainWindow" ) << "Saving window state for \"" << stateName << "\"";
 
     // this saves the window state to some common location on the target OS in user scope.
     QByteArray state = saveState();
-    QSettings setting( "OpenWalnut.org", "OpenWalnut" + QString::fromStdString( postfix ) );
+    QSettings setting( "OpenWalnut.org", QString::fromStdString( stateName ) );
     setting.setValue( "MainWindowState", state );
     // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
     setting.setValue( "MainWindowGeometry", saveGeometry() );
