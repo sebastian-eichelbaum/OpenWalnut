@@ -46,7 +46,6 @@ class QMenuBar;
 class WModule;
 class WProjectFileIO;
 class WQtCombinerToolbar;
-class WQtConfigWidget;
 class WQtControlPanel;
 class WQtCustomDockWidget;
 class WQtNavGLWidget;
@@ -304,11 +303,6 @@ private:
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal; //!< the sgittal view widget GL widget of the GUI
     QDockWidget* m_dummyWidget; //!< The dummywidget serves as spacer in the dockwidget area;
-
-    /**
-     * shared pointer for the configuration widget
-     */
-    boost::shared_ptr< WQtConfigWidget > m_configWidget;
 
     /**
      * All registered WQtCustomDockWidgets.

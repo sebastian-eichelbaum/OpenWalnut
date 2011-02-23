@@ -42,6 +42,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 #include <QtCore/QSettings>
+#include <QtGui/QMessageBox>
 
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
@@ -70,7 +71,6 @@
 #include "events/WOpenCustomDockWidgetEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
 #include "WQtCombinerToolbar.h"
-#include "WQtConfigWidget.h"
 #include "WQtCustomDockWidget.h"
 #include "WQtNavGLWidget.h"
 
@@ -1019,14 +1019,12 @@ void WMainWindow::newRoi()
 
 void WMainWindow::openConfigDialog()
 {
-    if( m_configWidget.get() )
-    {
-        m_configWidget->wait( true );
-    }
-
-    m_configWidget = boost::shared_ptr< WQtConfigWidget >( new WQtConfigWidget );
-
-    m_configWidget->initAndShow();
+    // TODO(all): we need a nice dialog box here.
+    QString msg = "OpenWalnut allows you to configure several features. Most of these options are only useful to advanced users. "
+                  "You can have a user-scope configuration in your HOME as \".walnut.cfg\". "
+                  "If this file exists, OpenWalnut loads this file. You can also specify a \"walnut.cfg\" in your OpenWalnut directory under "
+                  "\"share/OpenWalnut/\". The file is very well documented.";
+    QMessageBox::information( this, "OpenWalnut - Configuration", msg );
 }
 
 void WMainWindow::restoreSavedState()
