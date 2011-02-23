@@ -306,8 +306,6 @@ bool WQtNetworkEditor::event( QEvent* event )
         WQtNetworkInputPort *ip = NULL;
         WQtNetworkOutputPort *op = NULL;
 
-        WLogger::getLogger()->addLogMessage( "1.", "NetworkEditor", LL_ERROR );
-
         for ( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
             iter != inItem->getInPorts().end();
             ++iter )
@@ -318,8 +316,6 @@ bool WQtNetworkEditor::event( QEvent* event )
                ip = inP;
            }
         }
-            WLogger::getLogger()->addLogMessage( "2", "NetworkEditor", LL_ERROR );
-
             for ( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
                     iter != outItem->getOutPorts().end();
                     ++iter )
@@ -331,17 +327,12 @@ bool WQtNetworkEditor::event( QEvent* event )
                 }
             }
 
-        WLogger::getLogger()->addLogMessage( "3", "NetworkEditor", LL_ERROR );
-
         WQtNetworkArrow *ar = NULL;
-
-        wlog::error( "networkeditor" ) <<  "gehe durch " << m_scene->items().size() << " items";
 
         for ( QList< QGraphicsItem * >::const_iterator iter = m_scene->items().begin();
                 iter != m_scene->items().end();
                 ++iter )
         {
-            wlog::error( "netw" ) <<  *iter;
             ar = dynamic_cast< WQtNetworkArrow* >( *iter );
             if( ar &&
                 ar->getStartPort() == op &&
