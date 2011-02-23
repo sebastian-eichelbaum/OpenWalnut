@@ -42,7 +42,6 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 #include <QtCore/QSettings>
-#include <QtGui/QMessageBox>
 
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"

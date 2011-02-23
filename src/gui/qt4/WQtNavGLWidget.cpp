@@ -72,7 +72,7 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string slid
     setWidget( panel );
 
     // we need to know whether the dock is visible or not
-    connect( this, SIGNAL( visibilityChanged ( bool ) ), this, SLOT( handleVisibilityChange( bool ) ) );
+    connect( this, SIGNAL( visibilityChanged( bool ) ), this, SLOT( handleVisibilityChange( bool ) ) );
 }
 
 WQtNavGLWidget::~WQtNavGLWidget()
