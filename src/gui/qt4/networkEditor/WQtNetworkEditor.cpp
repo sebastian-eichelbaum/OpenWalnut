@@ -129,8 +129,7 @@ void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
 
     // set the object at a random start position
     time( &m_time );
-    netItem->setPos( ( std::rand() + m_time ) % 200,
-                     ( std::rand() + m_time ) % 200 );
+    netItem->setPos( ( std::rand() + m_time ) % 200, ( std::rand() + m_time ) % 200 );  // NOLINT - no we want std::rand instead of rand_r
 
     m_scene->addItem( netItem );
 
