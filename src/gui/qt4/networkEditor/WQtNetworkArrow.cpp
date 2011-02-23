@@ -35,7 +35,6 @@
 
 const qreal Pi = 3.14;
 
-
 WQtNetworkArrow::WQtNetworkArrow( WQtNetworkOutputPort *startPort, WQtNetworkInputPort *endPort )
     : QGraphicsLineItem()
 {

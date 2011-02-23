@@ -33,9 +33,7 @@
 #include "WQtNetworkItem.h"
 #include "WQtNetworkScene.h"
 #include "WQtNetworkEditor.h"
-
-const float MINWIDTH = 100;
-const float MINHEIGHT = 50;
+#include "WQtNetworkEditorGlobals.h"
 
 WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WModule > module )
     : QGraphicsRectItem()
@@ -234,8 +232,14 @@ void WQtNetworkItem::fitLook()
     {
         m_width = m_text->boundingRect().width() + 10;
         m_height = m_text->boundingRect().height() + 10;
-        if( m_width < MINWIDTH ) m_width = MINWIDTH;
-        if( m_height < MINHEIGHT ) m_height = MINHEIGHT;
+        if( m_width < WNETWORKITEM_MINIMUM_WIDTH )
+        {
+            m_width = WNETWORKITEM_MINIMUM_WIDTH;
+        }
+        if( m_height < WNETWORKITEM_MINIMUM_HEIGHT )
+        {
+            m_height = WNETWORKITEM_MINIMUM_HEIGHT;
+        }
         QRectF rect( 0, 0, m_width, m_height );
         m_rect = rect;
         setRect( m_rect );
