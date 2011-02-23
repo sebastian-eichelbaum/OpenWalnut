@@ -30,12 +30,12 @@
 
 #include "WQtNetworkOutputPort.h"
 
-const float SIZE = 10.0;
+const float WSIZE2 = 10.0;
 
 WQtNetworkOutputPort::WQtNetworkOutputPort( boost::shared_ptr<WModuleOutputConnector> connector )
     : WQtNetworkPort()
 {
-    setRect( 0.0, 0.0, SIZE, SIZE );
+    setRect( 0.0, 0.0, WSIZE2, WSIZE2 );
     setBrush( Qt::gray );
     setPen( QPen( Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
 
