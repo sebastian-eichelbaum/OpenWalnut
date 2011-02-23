@@ -41,6 +41,8 @@ SET(GUI_QT4_MOC_HDRS
     networkEditor/WQtNetworkInputPort.h
     networkEditor/WQtNetworkOutputPort.h
     networkEditor/WQtNetworkArrow.h
+    commandPrompt/WQtCommandPromptToolbar.h
+    commandPrompt/WQtCommandPrompt.h
 )
 IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
   LIST( APPEND GUI_QT4_MOC_HDRS platformDependent/WQtGLWidgetMac.h )
@@ -55,7 +57,8 @@ ENDIF()
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 
-FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "controlPanel/*.cpp" "events/*.cpp" "networkEditor/*.cpp" "*.h" "guiElements/*.h" "controlPanel/*.h" "events/*.h" "networkEditor/*.h" "../icons/WIcons.h" )
+FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "controlPanel/*.cpp" "events/*.cpp" "networkEditor/*.cpp" "*.h" "guiElements/*.h"
+        "controlPanel/*.h" "events/*.h" "networkEditor/*.h" "../icons/WIcons.h" "commandPrompt/*.h" "commandPrompt/*.cpp" )
 IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
   FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC
     "platformDependent/WQtGLWidgetMac.cpp"

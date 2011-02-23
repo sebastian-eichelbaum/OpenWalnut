@@ -268,6 +268,11 @@ void WMainWindow::setupGUI()
         }
     }
 
+    // create command prompt toolbar
+    m_commandPrompt = new WQtCommandPromptToolbar( "Command Prompt", this );
+    addToolBar( Qt::TopToolBarArea, m_commandPrompt );
+    this->addAction( m_commandPrompt->toggleViewAction() );  // this enables the action even if the menu bar is invisible
+
     // after creating the GUI, restore its saved state
     restoreSavedState();
 }
