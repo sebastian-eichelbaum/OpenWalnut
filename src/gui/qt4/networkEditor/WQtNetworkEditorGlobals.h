@@ -31,7 +31,7 @@
 
 // The minimum width and heigh of items inside the scene
 #define WNETWORKITEM_MINIMUM_WIDTH  100
-#define WNETWORKITEM_MINIMUM_HEIGHT  150
+#define WNETWORKITEM_MINIMUM_HEIGHT  50
 
 #endif  // WQTNETWORKEDITORGLOBALS_H
 

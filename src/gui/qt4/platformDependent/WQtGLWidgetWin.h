@@ -215,11 +215,6 @@ private:
      * Holds the recommended size for the widget
      */
     QSize m_recommendedSize;
-
-    /**
-     * True when the widget got drawn the very first time.
-     */
-    bool m_firstPaint;
 };
 
 #endif  // WQTGLWIDGETWIN_H

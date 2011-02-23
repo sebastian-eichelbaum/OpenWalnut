@@ -243,17 +243,6 @@ void WMainWindow::setupGUI()
         }
     }
 
-    // we do not need the dummy widget if there are no other widgets.
-    if( m_navAxial || m_navCoronal || m_navSagittal )
-    {
-        m_dummyWidget = new QDockWidget( "Spacer", this );
-        QWidget* tmp = new QWidget( m_dummyWidget );
-        m_dummyWidget->setTitleBarWidget( tmp );
-        m_dummyWidget->setFeatures( QDockWidget::DockWidgetClosable );
-        m_dummyWidget->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Ignored );
-        addDockWidget( Qt::LeftDockWidgetArea, m_dummyWidget );
-    }
-
     // Default background color from config file
     WColor bgColor( 1.0, 1.0, 1.0, 1.0 );
     double r;
