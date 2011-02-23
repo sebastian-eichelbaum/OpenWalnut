@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <cstdlib>
 #include <iostream>
 
 #include <boost/shared_ptr.hpp>
@@ -128,13 +129,8 @@ void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
 
     // set the object at a random start position
     time( &m_time );
-#ifndef _MSC_VER
-    netItem->setPos( rand_r( ( unsigned int * ) &m_time ) % 200,
-                     rand_r( ( unsigned int * ) &m_time ) % 200 );
-#else
-    netItem->setPos( ( rand() + m_time ) % 200,
-                     ( rand() + m_time ) % 200 );
-#endif
+    netItem->setPos( ( std::rand() + m_time ) % 200,
+                     ( std::rand() + m_time ) % 200 );
 
     m_scene->addItem( netItem );
 
