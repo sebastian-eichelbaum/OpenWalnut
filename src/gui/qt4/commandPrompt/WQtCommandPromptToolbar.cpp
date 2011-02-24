@@ -37,7 +37,7 @@ WQtCommandPromptToolbar::WQtCommandPromptToolbar( const QString& title, WMainWin
     setObjectName( title );
     this->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
     setMinimumWidth( 50 );
-    setMinimumHeight( 30 );
+    setMinimumHeight( 20 );
     setVisible( false );
 
     // toggle it using ":"
@@ -46,11 +46,22 @@ WQtCommandPromptToolbar::WQtCommandPromptToolbar( const QString& title, WMainWin
     toggleViewAction()->setShortcuts( commandPromptShortcut );
 
     QLabel* label = new QLabel( this );
-    label->setText( "<b># </b>" );
+    label->setText( "<b>:</b>" );
+    label->setStyleSheet( "background: #080808;" );
     addWidget( label );
 
     m_prompt = new WQtCommandPrompt( this );
     addWidget( m_prompt );
+
+    // some nice style
+    // TODO(ebaum): make this configurable
+    setStyleSheet( "background: #080808;"
+                   "border: 2px solid #080808;"
+                   "margin: 0px;"
+                   "padding: 0px;"
+                   "spacing: 0;"
+                   "color: white;"
+    );
 
     // if the toolbar is triggered:
     connect( toggleViewAction(), SIGNAL( triggered( bool ) ), this, SLOT( show() ) );

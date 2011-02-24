@@ -35,6 +35,16 @@
 WQtCommandPrompt::WQtCommandPrompt( QWidget* parent ):
     QLineEdit( parent )
 {
+    // some nice style
+    // TODO(ebaum): make this configurable
+    setStyleSheet( "color: white;"
+                   "border: 0px solid gray;"
+                   "border-radius: 0px;"
+                   "border-color: #080808;"
+                   "padding: 0 0px;"
+                   "background: #080808;"
+                   "selection-background-color: gray;" );
+
     setText( "Not yet implemented. But as you tried the command prompt I assume you are a cool VIM user ;-)." );
     connect( this, SIGNAL( returnPressed() ), this, SLOT( commit() ) );
 }
