@@ -49,7 +49,6 @@ class WMainWindow;
 class WQtNetworkEditor : public QDockWidget
 {
     Q_OBJECT
-
 public:
 
     /**

@@ -36,11 +36,6 @@ SET(GUI_QT4_MOC_HDRS
     controlPanel/WQtTextureSorter.h
     networkEditor/WQtNetworkEditor.h
     networkEditor/WQtNetworkScene.h
-    networkEditor/WQtNetworkItem.h
-    networkEditor/WQtNetworkPort.h
-    networkEditor/WQtNetworkInputPort.h
-    networkEditor/WQtNetworkOutputPort.h
-    networkEditor/WQtNetworkArrow.h
     commandPrompt/WQtCommandPromptToolbar.h
     commandPrompt/WQtCommandPrompt.h
 )
