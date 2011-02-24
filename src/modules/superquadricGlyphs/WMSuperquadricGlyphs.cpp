@@ -424,13 +424,6 @@ void WMSuperquadricGlyphs::moduleMain()
         boost::shared_ptr< WDataSetDTI > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
-        // TODO(ebaum): as long as we do not have a proper second order tensor field:
-        if ( dataValid && ( newDataSet->getValueSet()->order() != 1 ) && ( newDataSet->getValueSet()->dimension() != 6 ) )
-        {
-            warnLog() << "Received data with order=" <<  newDataSet->getValueSet()->order() <<
-                         " and dimension=" << newDataSet->getValueSet()->dimension() << " not compatible with this module. Ignoring!";
-            dataValid = false;
-        }
 
         // if data is invalid, remove rendering
         if ( !dataValid )

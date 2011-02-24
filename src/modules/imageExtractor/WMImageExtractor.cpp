@@ -28,7 +28,6 @@
 #include <vector>
 
 #include "../../kernel/WKernel.h"
-#include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../graphicsEngine/WGEColormapping.h"
 #include "../../common/WPropertyHelper.h"
@@ -36,7 +35,6 @@
 #include "WMImageExtractor.xpm"
 #include "WMImageExtractor.h"
 
-// This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMImageExtractor )
 
 WMImageExtractor::WMImageExtractor():
@@ -146,18 +144,20 @@ void WMImageExtractor::moduleMain()
 
                 if( m_outData )
                 {
-                    WDataHandler::deregisterDataSet( m_outData );
+                    m_properties->removeProperty( m_outData->getTexture2()->getProperties() );
+                    m_infoProperties->removeProperty( m_outData->getTexture2()->getInformationProperties() );
+                    WGEColormapping::deregisterTexture( m_outData->getTexture2() );
                 }
 
                 std::size_t i = static_cast< std::size_t >( m_selectedImage->get( true ) );
 
-                WGEColormapping::deregisterTexture( m_outData->getTexture2() );
                 boost::shared_ptr< WDataSetScalar > oldOut = m_outData;
                 m_outData = extract( i );
 
                 if( m_outData )
                 {
                     setOutputProps();
+
                     m_outData->setFileName( makeImageName( i ) );
 
                     // provide the texture's properties as own properties
@@ -193,7 +193,9 @@ void WMImageExtractor::moduleMain()
 
     if( m_outData )
     {
-        WDataHandler::deregisterDataSet( m_outData );
+        m_properties->removeProperty( m_outData->getTexture2()->getProperties() );
+        m_infoProperties->removeProperty( m_outData->getTexture2()->getInformationProperties() );
+        WGEColormapping::deregisterTexture( m_outData->getTexture2() );
     }
 
     debugLog() << "Finished! Good Bye!";

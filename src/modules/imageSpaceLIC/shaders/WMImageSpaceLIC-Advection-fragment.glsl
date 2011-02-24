@@ -55,12 +55,12 @@ uniform int u_texture0SizeZ;
 /**
  * The blending ratio between noise and advected noise
  */
-uniform float u_noiseRatio;
+uniform float u_noiseRatio = 0.0;
 
 /**
  * Number of iterations per frame.
  */
-uniform int u_numIter;
+uniform int u_numIter = 30;
 
 /**
  * Returns the vector at the given point.
@@ -75,6 +75,18 @@ vec2 getVec( in vec2 pos )
 }
 
 /**
+ * Returns noise for the given position.
+ *
+ * \param pos the position
+ *
+ * \return noise
+ */
+float getNoise( in vec2 pos )
+{
+    return texture2D( u_texture1Sampler, pos ).b;
+}
+
+/**
  * Main. Calculates the Laplace Filter for each pixel.
  */
 void main()
@@ -84,7 +96,7 @@ void main()
     // get some needed values
     float edge  = texture2D( u_texture1Sampler, texCoord ).r;
     float depth = texture2D( u_texture1Sampler, texCoord ).g;
-    float noise = texture2D( u_texture1Sampler, texCoord ).b;
+    float noise = getNoise( texCoord );
     vec2 vec    = getVec( texCoord );
 
     // simply iterate along the line using the vector at each point
@@ -108,8 +120,8 @@ void main()
         // }
 
         // it is also possible to scale using a Geometric progression: float( u_numIter - i ) / u_numIter * texture2D
-        sum += texture2D( u_texture1Sampler, newPos1 ).b;
-        sum += texture2D( u_texture1Sampler, newPos2 ).b;
+        sum += getNoise( newPos1 );
+        sum += getNoise( newPos2 );
 
         lastPos1 = newPos1;
         lastVec1 = newVec1;

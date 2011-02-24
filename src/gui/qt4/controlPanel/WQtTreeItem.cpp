@@ -38,12 +38,12 @@
 #include "../events/WModuleDeleteEvent.h"
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"
-
 #include "../WQt4Gui.h"
 #include "../WMainWindow.h"
 
-#include "WTreeItemTypes.h"
+#include "WQtControlPanel.h"
 #include "WQtTreeItem.h"
+#include "WTreeItemTypes.h"
 
 WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::shared_ptr< WModule > module ) :
     QTreeWidgetItem( parent, type ),
@@ -219,6 +219,7 @@ void WQtTreeItem::updateState()
     if ( m_deleteInProgress && !m_module->isRunning().get() && m_needPostDeleteEvent )
     {
         m_needPostDeleteEvent = false;  // this ensures the event is only posted once
+        QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getNetworkEditor(), new WModuleDeleteEvent( this ) );
         QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getControlPanel(), new WModuleDeleteEvent( this ) );
     }
 

@@ -39,6 +39,7 @@
 #include "../../dataHandler/WValueSet.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMOverlayAtlas.h"
 #include "WMOverlayAtlas.xpm"
 

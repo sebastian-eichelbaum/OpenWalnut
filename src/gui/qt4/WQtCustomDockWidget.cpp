@@ -33,6 +33,8 @@ WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WG
     : QDockWidget( QString::fromStdString( title ), parent ),
       m_useCount( 1 )
 {
+    setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( title ) );
+
     // setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
     setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
     setFloating( true );

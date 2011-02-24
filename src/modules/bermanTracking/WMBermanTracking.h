@@ -41,6 +41,9 @@
 #include "../../dataHandler/WThreadedTrackingFunction.h"
 #include "../../dataHandler/WFiberAccumulator.h"
 
+// forward declarations
+class WROIBox;
+
 /**
  * Implements the probabilistic tracking algorithm by Berman at al.
  *

@@ -27,21 +27,20 @@
 
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Material>
-#include <osg/StateSet>
-#include <osg/StateAttribute>
-#include <osg/PolygonMode>
 #include <osg/LightModel>
+#include <osg/Material>
+#include <osg/PolygonMode>
+#include <osg/StateAttribute>
+#include <osg/StateSet>
 
 #include "../../common/WAssert.h"
 #include "../../dataHandler/WDataSetScalar.h"
-#include "../../kernel/WKernel.h"
-
+#include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
 #include "../../graphicsEngine/WROIArbitrary.h"
 #include "../../graphicsEngine/WROIBox.h"
-
-#include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
-
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WROIManager.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMArbitraryRois.h"
 #include "WMArbitraryRois.xpm"
 

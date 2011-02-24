@@ -28,14 +28,12 @@
 #include <osg/Node>
 #include <osg/Switch>
 
-#include "../WExportWGE.h"
-
 /**
  * This callback is able to switch a osg::Switch node using a property. Although this callback is a template, only int and bool props are useful
  * here. If a bool prop is used, the callback can trigger between child 0 and 1. Technically, WPropDouble is also possible.
  */
 template < typename PropType >
-class WGE_EXPORT WGESwitchCallback: public osg::NodeCallback
+class WGESwitchCallback: public osg::NodeCallback
 {
 public:
     /**

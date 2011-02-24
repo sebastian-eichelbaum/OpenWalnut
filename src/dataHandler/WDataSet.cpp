@@ -60,7 +60,7 @@ bool WDataSet::isTexture() const
     return false;
 }
 
-osg::ref_ptr< WDataTexture3D_2 > WDataSet::getTexture2()
+osg::ref_ptr< WDataTexture3D_2 > WDataSet::getTexture2() const
 {
     throw WDHException( std::string( "This dataset does not provide a texture." ) );
 }
@@ -89,7 +89,6 @@ boost::shared_ptr< WCondition > WDataSet::getChangeCondition()
 {
     // this just forwards to the texture condition. In the future maybe datasets may also change so we need an separate condition in every
     // dataset.
-    // TODO(ebaum): remove if property stuff is used everywhere
     return boost::shared_ptr< WCondition >();
 }
 

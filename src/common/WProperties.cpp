@@ -335,12 +335,6 @@ WProperties::PropertySharedContainerType::ReadTicket WProperties::getProperties(
     return m_properties.getReadTicket();
 }
 
-WProperties::PropertySharedContainerType::WSharedAccess WProperties::getAccessObject()
-{
-    // TODO(ebaum): deprecated. Clean up if not needed anymore.
-    return m_properties.getAccessObject();
-}
-
 WProperties::PropertySharedContainerType::ReadTicket WProperties::getReadTicket() const
 {
     return m_properties.getReadTicket();

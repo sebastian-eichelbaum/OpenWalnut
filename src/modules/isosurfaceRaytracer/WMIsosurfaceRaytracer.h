@@ -36,6 +36,9 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
+class WDataSetVector;
+class WDataSetScalar;
+
 /**
  * This module builds the base for fast raytracing of isosurfacesin OpenWalnut. It uses shader based raytracing.
  *
@@ -110,6 +113,11 @@ private:
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
 
     /**
+     * The gradient field input
+     */
+    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_gradients;
+
+    /**
      * The Isovalue used in the case m_isoSurface is true.
      */
     WPropDouble m_isoValue;
@@ -148,6 +156,16 @@ private:
      * If true, the ray-tracer uses stochastic jitter to improve image quality.
      */
     WPropBool m_stochasticJitter;
+
+    /**
+     * If true, a certain border area can be clipped. Very useful for non-peeled noisy data.
+     */
+    WPropBool m_borderClip;
+
+    /**
+     * The distance used for clipping.
+     */
+    WPropDouble m_borderClipDistance;
 
     /**
      * A condition used to notify about changes in several properties.

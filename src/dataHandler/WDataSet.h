@@ -95,7 +95,7 @@ public:
      *
      * \return The texture.
      */
-    virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2();
+    virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2() const;
 
     /**
      * Gets the name of this prototype.

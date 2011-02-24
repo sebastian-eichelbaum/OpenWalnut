@@ -72,11 +72,6 @@ public:
     typedef WSharedObject< ModuleContainerType > ModuleSharedContainerType;
 
     /**
-     * The access type
-     */
-    typedef ModuleSharedContainerType::WSharedAccess ModuleAccessType;
-
-    /**
      * The const iterator type of the container.
      */
     typedef ModuleContainerType::const_iterator ModuleConstIterator;

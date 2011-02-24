@@ -22,33 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADEREEGASCII_TEST_H
-#define WLOADEREEGASCII_TEST_H
+/////////////////////////////////////////////////////////////////////////////
+// Varyings
+/////////////////////////////////////////////////////////////////////////////
 
-#include <ctime>
-#include <string>
-#include <cxxtest/TestSuite.h>
-#include <boost/thread.hpp>
-
-#include "../WLoaderEEGASCII.h"
+#ifdef CLIPPLANE_ENABLED
+/**
+ * The distance to the plane
+ */
+varying float dist;
+#endif
 
 /**
- * Tests for the loader of ASCII EEG files.
+ * The surface normal. Needed for nice lighting.
  */
-class WLoaderEEGASCIITest : public CxxTest::TestSuite
-{
-public:
-    /**
-     * Test whether loading itself does not throw an error.
-     */
-    void testLoading( void )
-    {
-        std::string fileName = "../fixtures/eeg_testData.asc";
-        std::cout << std::endl << "Test loading of " << fileName << "." << std::endl;
+varying vec3 v_normal;
 
-        WLoaderEEGASCII eegASCIILoader( fileName );
-        TS_ASSERT( eegASCIILoader.load() );
-    }
-};
+/**
+ * The normal parameterizing the surface in orthogonal tangent direction.
+ */
+varying vec3 v_biNormal;
 
-#endif  // WLOADEREEGASCII_TEST_H
+/**
+ * The actual, corrected vertex.
+ */
+varying vec4 v_vertex;
+
+/**
+ * The diameter of the tube in world-space.
+ */
+varying float v_diameter;
+
+/**
+ * This is the interpolated surface parameter describing the surface orthogonal to the tangent. 0 is the center of the strip and -1 and 1 the
+ * borders.
+ */
+varying float v_surfaceParam;
+

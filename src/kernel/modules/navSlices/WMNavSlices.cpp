@@ -37,26 +37,29 @@
 #include <osg/Group>
 #include <osg/LineWidth>
 
+#include "../../../common/math/WVector3D.h"
 #include "../../../common/WAssert.h"
 #include "../../../common/WLimits.h"
-#include "../../../common/math/WVector3D.h"
-#include "../../../dataHandler/WDataSet.h"
 #include "../../../dataHandler/WDataHandler.h"
-#include "../../../dataHandler/WDataSetSingle.h"
+#include "../../../dataHandler/WDataSet.h"
 #include "../../../dataHandler/WDataSetScalar.h"
+#include "../../../dataHandler/WDataSetSingle.h"
 #include "../../../dataHandler/WDataTexture3D.h"
 #include "../../../dataHandler/WGridRegular3D.h"
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WValueSet.h"
 #include "../../../graphicsEngine/shaders/WGEShader.h"
-#include "../../../graphicsEngine/WGraphicsEngine.h"
+#include "../../../graphicsEngine/WGEGroupNode.h"
 #include "../../../graphicsEngine/WGEUtils.h"
+#include "../../../graphicsEngine/WGraphicsEngine.h"
+#include "../../../graphicsEngine/WPickInfo.h"
 #include "../../WKernel.h"
 #include "../../WModule.h"
 #include "../../WModuleConnector.h"
 #include "../../WModuleInputData.h"
-#include "WMNavSlices.h"
+#include "../../WSelectionManager.h"
 #include "navslices.xpm"
+#include "WMNavSlices.h"
 
 bool WMNavSlices::m_navsliceRunning = false;
 

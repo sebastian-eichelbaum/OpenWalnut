@@ -22,41 +22,40 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
-#include <limits>
-
-#include "WMMarchingCubes.xpm"
-#include "../../common/WLimits.h"
-#include "../../common/WAssert.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
-#include <osg/Material>
-#include <osg/StateSet>
-#include <osg/StateAttribute>
-#include <osg/PolygonMode>
 #include <osg/LightModel>
+#include <osg/Material>
+#include <osg/PolygonMode>
+#include <osg/StateAttribute>
+#include <osg/StateSet>
 #include <osgDB/WriteFile>
 
-#include "../../common/WPathHelper.h"
-#include "../../common/WProgress.h"
-#include "../../common/WPreferences.h"
-#include "../../common/math/WVector3D.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
 #include "../../common/math/WMath.h"
+#include "../../common/math/WVector3D.h"
+#include "../../common/WAssert.h"
+#include "../../common/WLimits.h"
+#include "../../common/WPathHelper.h"
+#include "../../common/WPreferences.h"
+#include "../../common/WProgress.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WDataTexture3D.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
-#include "../../kernel/WKernel.h"
-
+#include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
+#include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
+#include "../../graphicsEngine/WGEUtils.h"
+#include "../../kernel/WKernel.h"
+#include "../../kernel/WSelectionManager.h"
 #include "WMMarchingCubes.h"
+#include "WMMarchingCubes.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMMarchingCubes )

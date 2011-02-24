@@ -55,6 +55,17 @@ uniform sampler2D u_texture1Sampler;
 uniform int u_texture1SizeX;
 #endif
 
+#ifdef GRADIENTTEXTURE_ENABLED
+uniform sampler3D u_gradientsSampler;
+#endif
+
+#ifdef BORDERCLIP_ENABLED
+/**
+ * The distance before the entry/exit point that should be clipped.
+ */
+uniform float u_borderClipDistance = 0.05;
+#endif
+
 // The number of steps to use.
 uniform int u_steps;
 
@@ -105,13 +116,31 @@ float pointDistance( vec3 p1, vec3 p2 )
 }
 
 /**
+ * Returns the gradient vector at the given position.
+ *
+ * \param position the voxel for which to get the gradient
+ *
+ * \return the gradient, NOT normalized
+ */
+vec3 getNormal( in vec3 position )
+{
+    vec3 grad;
+#ifdef GRADIENTTEXTURE_ENABLED
+    grad = ( 2.0 * texture3D( u_gradientsSampler, position ).rgb ) + vec3( -1.0 );
+#else
+    grad = getGradient( u_texture0Sampler, position );
+#endif
+    return sign( dot( grad, -v_ray ) ) * grad;
+}
+
+/**
  * Main entry point of the fragment shader.
  */
 void main()
 {
     // please do not laugh, it is a very very very simple "isosurface" shader
     wge_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
-    gl_FragDepth = gl_FragCoord.z;
+    gl_FragDepth = 1.0;
 
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
     // when done for each vertex.
@@ -127,21 +156,29 @@ void main()
     // introduce some noise artifacts.
     float jitter = 0.5 - texture2D( u_texture1Sampler, gl_FragCoord.xy / u_texture1SizeX ).r;
     // the point along the ray in cube coordinates
-    vec3 curPoint = ( 1.0 * v_ray ) + v_rayStart + ( v_ray * stepDistance * jitter );
+    vec3 curPoint = v_ray + v_rayStart + ( v_ray * stepDistance * jitter );
+    vec3 rayStart = curPoint;
 #else
     // the point along the ray in cube coordinates
-    vec3 curPoint = ( 1.0 * v_ray ) + v_rayStart;
+    vec3 curPoint = v_ray + v_rayStart;
 #endif
 
     // the step counter
-    int i = 0;
-    while ( i < u_steps - 1 ) // we do not need to ch
+    int i = 1;
+    while ( i < u_steps )
     {
         // get current value
         value = texture3D( u_texture0Sampler, curPoint ).r;
 
         // is it the isovalue?
-        if ( abs( value - v_isovalue ) < 0.1 )
+        if ( ( abs( value - v_isovalue ) < 0.1 )
+#ifdef BORDERCLIP_ENABLED
+                &&
+            !( length( curPoint - rayStart ) < u_borderClipDistance )
+                &&
+            !( length( curPoint - rayEnd ) < u_borderClipDistance )
+#endif
+        )
         {
             // we need to know the depth value of the current point inside the cube
             // Therefore, the complete standard pipeline is reproduced here:
@@ -164,7 +201,7 @@ void main()
             // 4: Shading
 
             // find a proper normal for a headlight in world-space
-            vec3 normal = ( gl_ModelViewMatrix * vec4( getGradientViewAligned( u_texture0Sampler, curPoint, v_ray ), 0.0 ) ).xyz;
+            vec3 normal = ( gl_ModelViewMatrix * vec4( getNormal( curPoint ), 0.0 ) ).xyz;
 #ifdef WGE_POSTPROCESSING_ENABLED
             wge_FragNormal = textureNormalize( normal );
 #endif
@@ -172,17 +209,7 @@ void main()
             float light = 1.0;
 #ifdef PHONGSHADING_ENABLED
             // only calculate the phong illumination only if needed
-            light = blinnPhongIlluminationIntensity(
-                0.2 ,               // material ambient
-                0.75,               // material diffuse
-                0.5,               // material specular
-                100.0,                               // shinines
-                1.0,               // light diffuse
-                0.3,               // light ambient
-                normalize( normal ),                 // normal
-                vec3( 0.0, 0.0, 1.0 ),      // view direction  // in world space, this always is the view-dir
-                gl_LightSource[0].position.xyz       // light source position
-            );
+            light = blinnPhongIlluminationIntensity( normalize( normal ) );
 #endif
             // 4: set color
 
@@ -218,12 +245,6 @@ void main()
 
         // do not miss to count the steps already done
         i++;
-    }
-
-    // the ray did never hit the surface --> discard the pixel
-    if ( i == u_steps - 1 )
-    {
-        discard;
     }
 }
 

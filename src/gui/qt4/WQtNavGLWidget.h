@@ -89,6 +89,15 @@ public:
     void removeSliderProperty( boost::shared_ptr< WPropertyBase > prop );
 
 protected:
+
+private slots:
+    /**
+     * If the dock widget changes its visibility.
+     *
+     * \param visible if true, the dock is visible
+     */
+    void handleVisibilityChange( bool visible );
+
 private:
 
     /**

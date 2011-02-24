@@ -61,7 +61,7 @@ namespace wge
      * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
      */
     template < typename T >
-    void WGE_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture, size_t unit = 0, std::string prefix = "" );
+    void bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture, size_t unit = 0, std::string prefix = "" );
 
     /**
      * Binds the specified texture to the specified unit. It automatically adds several uniforms which then can be utilized in the shader:
@@ -79,7 +79,7 @@ namespace wge
      * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
      */
     template < typename T >
-    void WGE_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture< T > > texture, size_t unit = 0, std::string prefix = ""  );
+    void bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture< T > > texture, size_t unit = 0, std::string prefix = ""  );
 
     /**
      * Removes the binding associated with the specified unit.
@@ -105,7 +105,7 @@ namespace wge
      *
      * \return the generated texture.
      */
-    osg::ref_ptr< WGETexture< osg::Texture1D > > genWhiteNoiseTexture( size_t sizeX, size_t channels );
+    osg::ref_ptr< WGETexture< osg::Texture1D > > WGE_EXPORT genWhiteNoiseTexture( size_t sizeX, size_t channels );
 
     /**
      * This generates an 2D texture only containing white noise in its channels.
@@ -116,7 +116,7 @@ namespace wge
      *
      * \return the generated texture.
      */
-    osg::ref_ptr< WGETexture< osg::Texture2D > > genWhiteNoiseTexture( size_t sizeX, size_t sizeY, size_t channels );
+    osg::ref_ptr< WGETexture< osg::Texture2D > > WGE_EXPORT genWhiteNoiseTexture( size_t sizeX, size_t sizeY, size_t channels );
 
     /**
      * This generates an 3D texture only containing white noise in its channels.
@@ -128,7 +128,7 @@ namespace wge
      *
      * \return the generated texture.
      */
-    osg::ref_ptr< WGETexture< osg::Texture3D > > genWhiteNoiseTexture( size_t sizeX, size_t sizeY, size_t sizeZ, size_t channels );
+    osg::ref_ptr< WGETexture< osg::Texture3D > > WGE_EXPORT genWhiteNoiseTexture( size_t sizeX, size_t sizeY, size_t sizeZ, size_t channels );
 
     /**
      * Generates an image only containing white noise in its channels.
@@ -140,7 +140,7 @@ namespace wge
      *
      * \return the generated image.
      */
-    osg::ref_ptr< osg::Image > genWhiteNoiseImage( size_t sizeX, size_t sizeY, size_t sizeZ, size_t channels = 1 );
+    osg::ref_ptr< osg::Image > WGE_EXPORT genWhiteNoiseImage( size_t sizeX, size_t sizeY, size_t sizeZ, size_t channels = 1 );
 }
 
 template < typename T >
@@ -171,7 +171,7 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture<
     wge::bindTexture< T >( node, osg::ref_ptr< T >( texture ), unit, prefix );
 
     // set the texture matrix to the stateset
-    osg::TexMat* texMat = new osg::TexMat( osg::Matrix::identity() );
+    osg::TexMat* texMat = new osg::TexMat( texture->transformation()->get() );
     // use a callback to update the tex matrix if needed according to transformation property of texture
     texMat->setUpdateCallback( new WGEPropertyTransformationCallback< osg::StateAttribute, osg::TexMat >( texture->transformation() ) );
     node->getOrCreateStateSet()->setTextureAttributeAndModes( unit, texMat, osg::StateAttribute::ON );

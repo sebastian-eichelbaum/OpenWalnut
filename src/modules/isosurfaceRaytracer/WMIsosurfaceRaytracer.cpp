@@ -34,11 +34,13 @@
 #include "../../common/WColor.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetVector.h"
 #include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGETextureUtils.h"
 #include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
@@ -96,6 +98,9 @@ void WMIsosurfaceRaytracer::connectors()
     // As properties, every connector needs to be added to the list of connectors.
     addConnector( m_input );
 
+    // Optional: the gradient field
+    m_gradients = WModuleInputData< WDataSetVector >::createAndAdd( shared_from_this(), "gradients", "The gradient field of the dataset to display" );
+
     // call WModules initialization
     WModule::connectors();
 }
@@ -131,6 +136,13 @@ void WMIsosurfaceRaytracer::properties()
     m_stochasticJitter = m_properties->addProperty( "Stochastic Jitter", "Improves image quality at low sampling rates but introduces slight "
                                                                          "noise effect.", true );
 
+    m_borderClip = m_properties->addProperty( "Border Clip", "If enabled, a certain area on the volume boundary can be clipped. This is useful "
+                                                             "for noise and non-peeled data but will consume a lot of GPU power.", false );
+
+    m_borderClipDistance = m_properties->addProperty( "Border Clip Distance", "The distance that should be ignored.", 0.05 );
+    m_borderClipDistance->setMin( 0.0 );
+    m_borderClipDistance->setMax( 0.1 );
+
     WModule::properties();
 }
 
@@ -151,10 +163,15 @@ void WMIsosurfaceRaytracer::moduleMain()
     m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
         new WGEShaderPropertyDefineOptions< WPropBool >( m_phongShading, "PHONGSHADING_DISABLED", "PHONGSHADING_ENABLED" ) )
     );
+    WGEShaderDefineSwitch::SPtr gradTexEnableDefine = m_shader->setDefine( "GRADIENTTEXTURE_ENABLED" );
+    m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_borderClip, "BORDERCLIP_DISABLED", "BORDERCLIP_ENABLED" ) )
+    );
 
     // let the main loop awake if the data changes or the properties changed.
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_gradients->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
 
     // Signal ready state.
@@ -195,7 +212,7 @@ void WMIsosurfaceRaytracer::moduleMain()
         }
 
         // was there an update?
-        bool dataUpdated = m_input->updated();
+        bool dataUpdated = m_input->updated() || m_gradients->updated();
         boost::shared_ptr< WDataSetScalar > dataSet = m_input->getData();
         bool dataValid   = ( dataSet );
 
@@ -243,20 +260,37 @@ void WMIsosurfaceRaytracer::moduleMain()
             osg::StateSet* rootState = cube->getOrCreateStateSet();
             osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture2();
             texture3D->bind( cube );
-            WGEColormapping::apply( cube, grid->getTransformationMatrix(), m_shader, 2 );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
-            // setup all those uniforms
+            // setup all those uniforms and additional textures
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
             rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_isovalue", m_isoValue ) );
             rootState->addUniform( new WGEPropertyUniform< WPropInt >( "u_steps", m_stepCount ) );
             rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_alpha", m_alpha ) );
             rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio ) );
+            rootState->addUniform( new WGEPropertyUniform< WPropDouble >( "u_borderClipDistance", m_borderClipDistance ) );
             // Stochastic jitter?
             const size_t size = 64;
             osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size, size, 1 );
             wge::bindTexture( cube, randTex, 1 );
+
+            // if there is a gradient field available -> apply as texture too
+            boost::shared_ptr< WDataSetVector > gradients = m_gradients->getData();
+            if ( gradients )
+            {
+                debugLog() << "Uploading specified gradient field.";
+
+                // bind the texture to the node
+                osg::ref_ptr< WDataTexture3D_2 > gradTexture3D = gradients->getTexture2();
+                wge::bindTexture( cube, gradTexture3D, 2, "u_gradients" );
+                gradTexEnableDefine->setActive( true );
+            }
+            else
+            {
+                gradTexEnableDefine->setActive( false ); // disable gradient texture
+            }
+            WGEColormapping::apply( cube, grid->getTransformationMatrix(), m_shader, 3 );
 
             // update node
             debugLog() << "Adding new rendering.";

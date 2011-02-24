@@ -22,27 +22,33 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WLOADERLIBEEP_TEST_H
-#define WLOADERLIBEEP_TEST_H
+#ifndef WREADEREEGASCII_TEST_H
+#define WREADEREEGASCII_TEST_H
 
+#include <ctime>
+#include <string>
 #include <cxxtest/TestSuite.h>
+#include <boost/thread.hpp>
 
-#include "../WLoaderLibeep.h"
-
+#include "../WReaderEEGASCII.h"
 
 /**
- * Tests for the loader for the CNT format supported by the libeep library.
+ * Tests for the loader of ASCII EEG files.
  */
-class WLoaderLibeepTest : public CxxTest::TestSuite
+class WReaderEEGASCIITest : public CxxTest::TestSuite
 {
 public:
     /**
-     * Test loading a CNT file
+     * Test whether loading itself does not throw an error.
      */
     void testLoading( void )
     {
-        // Need a fixture to test anything ...
+        std::string fileName = "../fixtures/eeg_testData.asc";
+        std::cout << std::endl << "Test loading of " << fileName << "." << std::endl;
+
+        WReaderEEGASCII eegASCIIReader( fileName );
+        TS_ASSERT( eegASCIIReader.load() );
     }
 };
 
-#endif  // WLOADERLIBEEP_TEST_H
+#endif  // WREADEREEGASCII_TEST_H

@@ -22,25 +22,57 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMDETTRACTCLUSTERING_TEST_H
-#define WMDETTRACTCLUSTERING_TEST_H
+#ifndef WQTCOMMANDPROMPTTOOLBAR_H
+#define WQTCOMMANDPROMPTTOOLBAR_H
 
-#include <cxxtest/TestSuite.h>
+#include <QtGui/QToolBar>
 
-#include "../WMDetTractClustering.h"
+class WQtCommandPrompt;
+class WMainWindow;
 
 /**
- * TODO(math): Document this!
+ * This is a toolbar. It provides a command prompt -like interface for adding, removing and connecting modules
  */
-class WMDetTractClusteringTest : public CxxTest::TestSuite
+class WQtCommandPromptToolbar: public QToolBar
 {
+    Q_OBJECT
 public:
     /**
-     * TODO(math): Document this!
+     * Constructs the toolbar.
+     * \param title name of the toolbar.
+     * \param parent the parent widget of this widget, i.e. the widget that manages it.
      */
-    void testSomething( void )
-    {
-    }
+    explicit WQtCommandPromptToolbar( const QString& title, WMainWindow* parent );
+
+    /**
+     * destructor
+     */
+    virtual ~WQtCommandPromptToolbar();
+
+protected:
+
+private slots:
+
+    /**
+     * Toggles the prompt toolbar
+     */
+    void show();
+
+    /**
+     * Exit prompt
+     */
+    void exit();
+
+private:
+    /**
+     * The main window parent.
+     */
+    WMainWindow* m_mainWindow;
+
+    /**
+     * The actual prompt edit.
+     */
+    WQtCommandPrompt* m_prompt;
 };
 
-#endif  // WMDETTRACTCLUSTERING_TEST_H
+#endif  // WQTCOMMANDPROMPTTOOLBAR_H

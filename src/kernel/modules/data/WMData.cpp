@@ -32,6 +32,7 @@
 #include "../../../dataHandler/WDataSetSingle.h"
 #include "../../../dataHandler/WDataSetScalar.h"
 #include "../../../dataHandler/WDataSetTimeSeries.h"
+#include "../../../dataHandler/WDataSetVector.h"
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WDataHandler.h"
 #include "../../../dataHandler/WDataTexture3D.h"
@@ -46,6 +47,7 @@
 #include "../../../dataHandler/io/WReaderELC.h"
 #include "../../../dataHandler/io/WReaderFiberVTK.h"
 #include "../../../graphicsEngine/WGEColormapping.h"
+#include "../../../kernel/WModuleOutputData.h"
 #include "WMData.h"
 #include "data.xpm"
 
@@ -123,6 +125,7 @@ void WMData::connectors()
 void WMData::properties()
 {
     // properties
+
     m_dataName = m_infoProperties->addProperty( "Filename", "The filename of the dataset.", std::string( "" ) );
     m_dataType = m_infoProperties->addProperty( "Data type", "The type of the the single data values.", std::string( "" ) );
 
@@ -217,9 +220,6 @@ void WMData::moduleMain()
                 case W_DT_UNSIGNED_CHAR:
                 case W_DT_INT16:
                 case W_DT_SIGNED_INT:
-                    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-                    m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 0 ) );
-                    // }
                     m_dataSet->getTexture2()->colormap()->set(
                         m_dataSet->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 0 ) )
                     );
@@ -228,10 +228,6 @@ void WMData::moduleMain()
                 case W_DT_DOUBLE:
                     if( boost::shared_dynamic_cast< WDataSetVector >( m_dataSet ) )
                     {
-                        // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-                        m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 6 ) );
-                        m_interpolation->set( false );
-                        // }
                         m_dataSet->getTexture2()->colormap()->set(
                             m_dataSet->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 6 ) )
                         );
@@ -239,9 +235,6 @@ void WMData::moduleMain()
                     }
                     else
                     {
-                        // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-                        m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 5 ) );
-                        // }
                         m_dataSet->getTexture2()->colormap()->set(
                             m_dataSet->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 5 ) )
                         );

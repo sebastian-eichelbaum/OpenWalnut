@@ -47,7 +47,7 @@ typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
 
 
 WQtGLWidgetAll::WQtGLWidgetAll( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QGLWidget * shareWidget )
-    : QGLWidget( parent, shareWidget ),
+    : QGLWidget( getDefaultFormat(), parent, shareWidget ),
       m_nameOfViewer( nameOfViewer ),
       m_recommendedSize()
 {
@@ -120,15 +120,6 @@ boost::shared_ptr< WGEViewer > WQtGLWidgetAll::getViewer() const
 
 void WQtGLWidgetAll::paintEvent( QPaintEvent* /*event*/ )
 {
-    // maybe this helps finding the startup segfaults. This will be removed after the problem has been found.
-    if ( !m_firstPaint )
-    {
-        WLogger::getLogger()->addLogMessage( "Painted the first time.",
-                                             "WQtGLWidget(" + m_Viewer->getName() + ")",
-                                             LL_DEBUG );
-        m_firstPaint = true;
-    }
-
     // m_Viewer->paint();
 }
 
@@ -243,3 +234,11 @@ void WQtGLWidgetAll::reset()
 {
     m_Viewer->reset();
 }
+
+const QGLFormat WQtGLWidgetAll::getDefaultFormat()
+{
+    QGLFormat format;
+    format.setSwapInterval( 1 );    // according to Qt Doc, this should enable VSync. But it doesn't.
+    return format;
+}
+

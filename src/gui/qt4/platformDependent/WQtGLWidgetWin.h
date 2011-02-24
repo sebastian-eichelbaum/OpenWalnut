@@ -27,17 +27,16 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
+
 #include <QtCore/QTimer>
 #include <QtGui/QWidget>
 #include <QtOpenGL/QGLWidget>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/signals2/signal.hpp>
-
+#include "../../../common/WColor.h" // not forwarded due to duplicated typedef
 #include "../../../graphicsEngine/WGECamera.h"
 #include "../../../graphicsEngine/WGEViewer.h"
-
-class WColor;
 
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
@@ -216,11 +215,6 @@ private:
      * Holds the recommended size for the widget
      */
     QSize m_recommendedSize;
-
-    /**
-     * True when the widget got drawn the very first time.
-     */
-    bool m_firstPaint;
 };
 
 #endif  // WQTGLWIDGETWIN_H

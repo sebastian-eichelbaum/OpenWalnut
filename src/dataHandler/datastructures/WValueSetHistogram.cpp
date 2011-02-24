@@ -254,10 +254,12 @@ std::ostream& operator<<( std::ostream& out, const WValueSetHistogram& h )
     {
         std::pair< double, double > interval = h.getIntervalForIndex( i );
         // NOTE: the notation for open intervals is [a,b) or alternatively [a,b[.
-        out << i << " = [" << interval.first << ", " << interval.second << ") = " << h[ i ] << std::endl;
+        //out << i << " = [" << interval.first << ", " << interval.second << ") = " << h[ i ] << std::endl;
+        out << interval.first << " " <<  interval.second << " " << std::min( h[ i ], size_t( 3000 ) ) << std::endl;
     }
     // the last interval is handled special
-    out << h.size() - 1 << " = [" << h.getIntervalForIndex( h.size() - 1 ).first << ", inf) = " << h[ h.size() - 1 ] << std::endl;
+    //out << h.size() - 1 << " = [" << h.getIntervalForIndex( h.size() - 1 ).first << ", inf) = " << h[ h.size() - 1 ] << std::endl;
+    out << h.getIntervalForIndex( h.size() - 1 ).first << " inf " << std::min( h[ h.size() - 1 ], size_t( 3000 ) ) << std::endl;
 
     return out;
 }

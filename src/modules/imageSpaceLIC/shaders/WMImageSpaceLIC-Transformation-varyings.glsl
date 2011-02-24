@@ -37,3 +37,10 @@ varying vec3 v_lightSource;
  */
 varying vec3 v_viewDir;
 
+/**
+ * The factor which scales the 3d noise texture to a proper size according to screen size.
+ */
+#ifdef NOISE3D_ENABLED
+varying vec3 v_noiseScaleFactor;
+#endif
+

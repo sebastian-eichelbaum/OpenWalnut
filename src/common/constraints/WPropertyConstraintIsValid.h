@@ -28,9 +28,6 @@
 #include "../WPropertyTypes.h"
 #include "WPropertyConstraintTypes.h"
 
-template < typename T >
-class WPropertyVariable;
-
 /**
  * This class allows constraining properties to only be set if a isValid method returns true. This constraint is especially useful for class-type
  * typenames T providing a isValid method.

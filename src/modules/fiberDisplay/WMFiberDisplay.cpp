@@ -22,7 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <list>
 #include <string>
 #include <vector>
 
@@ -39,6 +38,7 @@
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WSelectionManager.h"
 #include "fiberdisplay2.xpm"
 #include "WMFiberDisplay.h"
 
