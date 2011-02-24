@@ -48,9 +48,14 @@ WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropGroup group, QWidget* paren
     m_controlLayout = new QGridLayout();
     m_pageLayout->addLayout( m_controlLayout );
 
+    // empty groups are hidden too
+    // NOTE: the WProperties class fires the update condition if a prop gets added. So it automatically un-hides if a prop is added.
+    WProperties::PropertySharedContainerType::ReadTicket r = m_group->getReadTicket();
+    bool hide = ( r->get().empty() | m_group->isHidden() );
+    r.reset();
     // NOTE: a simple setHidden( group->isHidden() ) causes the QWidgets to popup if hidden is false. This is why we set hidden only if it really
     // is needed
-    if ( group->isHidden() )
+    if ( hide )
     {
         setHidden( true );
     }
@@ -87,7 +92,8 @@ bool WQtPropertyGroupWidget::event( QEvent* event )
     // a property changed
     if ( event->type() == WQT_PROPERTY_CHANGED_EVENT )
     {
-        setHidden( m_group->isHidden() );
+        WProperties::PropertySharedContainerType::ReadTicket r = m_group->getReadTicket();
+        setHidden( r->get().empty() | m_group->isHidden() );
         emit hideSignal( m_group->isHidden() );
         return true;
     }
