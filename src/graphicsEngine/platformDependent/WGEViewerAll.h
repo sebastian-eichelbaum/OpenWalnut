@@ -31,13 +31,23 @@
 #include <boost/enable_shared_from_this.hpp>
 
 #include <osg/Node>
-
-#include <osgGA/FlightManipulator>
+#include <osg/Version>
 #include <osgGA/DriveManipulator>
+#include <osgGA/FlightManipulator>
 #include <osgGA/TerrainManipulator>
 #include <osgGA/UFOManipulator>
-
 #include <osgViewer/View>
+
+// OSG interface changed in 2.9.7, to make it compile also with those versions we do this:
+#if OSG_MIN_VERSION_REQUIRED(2,9,8) // NOLINT spaces after commas
+    #include <osgGA/CameraManipulator>
+    namespace osgGA
+    {
+        typedef CameraManipulator MatrixManipulator;
+    }
+#else
+    #include <osgGA/MatrixManipulator>
+#endif
 
 #include "../../common/WColor.h"
 #include "../../common/WThreadedRunner.h"
@@ -46,7 +56,6 @@
 #include "../WGEGraphicsWindow.h"
 #include "../WGEGroupNode.h"
 #include "../WPickHandler.h"
-
 
 /**
  * Class for managing one view to the scene. This includes viewport, camera and graphics context.

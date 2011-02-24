@@ -25,9 +25,21 @@
 #ifndef WGE2DMANIPULATOR_H
 #define WGE2DMANIPULATOR_H
 
-#include <osgGA/MatrixManipulator>
+#include <osg/Version>
+
+// OSG interface changed in 2.9.7, to make it compile also with those versions we do this:
+#if OSG_MIN_VERSION_REQUIRED(2,9,8) // NOLINT spaces after commas
+    #include <osgGA/CameraManipulator>
+    namespace osgGA
+    {
+        typedef CameraManipulator MatrixManipulator;
+    }
+#else
+    #include <osgGA/MatrixManipulator>
+#endif
 
 #include "WExportWGE.h"
+
 /**
  * A manipulator which changes the view of a 2D scene. Does things like panning
  * and zooming.
