@@ -31,6 +31,7 @@
 #include "../../common/WAssert.h"
 #include "../../common/WPathHelper.h"
 #include "../../kernel/WKernel.h"
+#include "../../graphicsEngine/WGEViewer.h"
 
 #include "WMHud.h"
 #include "WMHud.xpm"
