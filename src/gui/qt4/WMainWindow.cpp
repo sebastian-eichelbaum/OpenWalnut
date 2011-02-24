@@ -137,14 +137,6 @@ void WMainWindow::setupGUI()
     // show up in the tool bar from the beginning. And ... it doesn't hurt.
     m_controlPanel->selectUpperMostEntry();
 
-    // set the size of the control panel according to config file
-    int controlPanelWidth = 250;
-    if( WPreferences::getPreference( "qt4gui.dsbWidth", &controlPanelWidth ) )
-    {
-        m_controlPanel->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
-        m_controlPanel->setMinimumWidth( controlPanelWidth );
-    }
-
     // NOTE: Please be aware that not every menu needs a shortcut key. If you add a shortcut, you should use one of the
     // QKeySequence::StandardKey defaults and avoid ambiguities like Ctrl-C for the configure dialog is not the best choice as Ctrl-C, for the
     // most users is the Copy shortcut.
