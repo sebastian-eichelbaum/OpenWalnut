@@ -40,6 +40,7 @@
 WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string sliderTitle, const QGLWidget * shareWidget )
     : QDockWidget( title, parent )
 {
+    setObjectName( QString( "Navigation Window " ) + title );
     propertyWidgetMap.clear();
     m_sliderTitle = QString( sliderTitle.c_str() );
 
@@ -57,7 +58,7 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string slid
 #endif
 
     setMinimumSize( 160, 240 );
-    setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
+    //setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
 
     m_scene = new WGEScene();
     m_scene->setDataVariance( osg::Object::DYNAMIC );
@@ -69,6 +70,9 @@ WQtNavGLWidget::WQtNavGLWidget( QString title, QWidget* parent, std::string slid
     panel->setLayout( m_layout );
 
     setWidget( panel );
+
+    // we need to know whether the dock is visible or not
+    connect( this, SIGNAL( visibilityChanged( bool ) ), this, SLOT( handleVisibilityChange( bool ) ) );
 }
 
 WQtNavGLWidget::~WQtNavGLWidget()
@@ -110,5 +114,11 @@ void WQtNavGLWidget::removeSliderProperty( boost::shared_ptr< WPropertyBase > pr
     m_layout->removeWidget( propWidget );
     delete propWidget;
     propertyWidgetMap.erase( prop );
+}
+
+void WQtNavGLWidget::handleVisibilityChange( bool visible )
+{
+    // this canhelp to reduce CPU load. Especially if multithreading viewers are used with cull thread per context.
+    m_glWidget->getViewer()->getView()->getScene()->getSceneData()->setNodeMask( visible * 0xFFFFFFFF );
 }
 

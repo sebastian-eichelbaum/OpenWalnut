@@ -22,60 +22,57 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTCOMBINERTOOLBAR_H
-#define WQTCOMBINERTOOLBAR_H
+#ifndef WQTCOMMANDPROMPTTOOLBAR_H
+#define WQTCOMMANDPROMPTTOOLBAR_H
 
 #include <QtGui/QToolBar>
 
-#include "../../kernel/WModuleCombinerTypes.h"
-
-#include "WQtCombinerActionList.h"
-
+class WQtCommandPrompt;
 class WMainWindow;
 
 /**
- * This is a toolbar. Its main usage for now is the "compatible modules" toolbar.
+ * This is a toolbar. It provides a command prompt -like interface for adding, removing and connecting modules
  */
-class WQtCombinerToolbar : public QToolBar
+class WQtCommandPromptToolbar: public QToolBar
 {
     Q_OBJECT
-
 public:
     /**
      * Constructs the toolbar.
+     * \param title name of the toolbar.
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
-     * \param compatibles the list of combiners
      */
-    WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerActionList& compatibles );
-
-    /**
-     * This creates an empty toolbar only containing the dummy button to reserve the size.
-     *
-     * \param parent the parent widget.
-     */
-    explicit WQtCombinerToolbar( WMainWindow* parent );
+    explicit WQtCommandPromptToolbar( const QString& title, WMainWindow* parent );
 
     /**
      * destructor
      */
-    virtual ~WQtCombinerToolbar();
-
-    /**
-     * Update the toolbar to represent the compatibles given as parameter.
-     *
-     * \param compatibles The compatibles to produce the buttons for.
-     */
-    void updateButtons( const WQtCombinerActionList& compatibles );
-
-    /**
-     * Make the toolbar appear empty but not disappear.
-     */
-    void makeEmpty();
+    virtual ~WQtCommandPromptToolbar();
 
 protected:
+
+private slots:
+
+    /**
+     * Toggles the prompt toolbar
+     */
+    void show();
+
+    /**
+     * Exit prompt
+     */
+    void exit();
+
 private:
-    WMainWindow* m_parent; //!< The widget managing this widget.
+    /**
+     * The main window parent.
+     */
+    WMainWindow* m_mainWindow;
+
+    /**
+     * The actual prompt edit.
+     */
+    WQtCommandPrompt* m_prompt;
 };
 
-#endif  // WQTCOMBINERTOOLBAR_H
-
+#endif  // WQTCOMMANDPROMPTTOOLBAR_H

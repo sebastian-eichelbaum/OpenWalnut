@@ -64,6 +64,8 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     : QDockWidget( "Control Panel", parent ),
     m_ignoreSelectionChange( false )
 {
+    setObjectName( "Control Panel Dock" );
+
     m_mainWindow = parent;
 
     m_panel = new QWidget( this );
@@ -108,31 +110,26 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
 
-    m_textureSorter = new WQtTextureSorter( this );
+    // the network editor also needs the context menu
+    // TODO(rfrohl): context menu gets not opened if a graphicitem is clicked. This should be fixed.
+    m_mainWindow->getNetworkEditor()->setContextMenuPolicy( Qt::ActionsContextMenu );
+    m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
+    m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
+    m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
+    m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
+
+    m_textureSorter = new WQtTextureSorter( m_mainWindow );
     m_textureSorter->setToolTip( "Reorder the textures." );
 
     m_tabWidget = new QTabWidget( m_panel );
-    m_tabWidget2 = new QTabWidget( m_panel );
     m_tabWidget->setMinimumHeight( 250 );
 
-    // should the Tree, Texture Sorter and the ROI Display be combined in one tab widget?
-    bool combineThem = false;
-    WPreferences::getPreference( "qt4gui.combineTreeAndRoiAndTextureSorter", &combineThem );
+    m_moduleDock = new QDockWidget( "Module Tree", m_mainWindow );
+    m_moduleDock->setObjectName( "Module Dock" );
+    m_moduleDock->setWidget( m_moduleTreeWidget );
 
-    m_splitter = new QSplitter( Qt::Vertical );
-
-    if ( !combineThem )
-    {
-        m_splitter->addWidget( m_moduleTreeWidget );
-    }
-    else
-    {
-        m_tabWidget2->addTab( m_moduleTreeWidget, QString( "Modules" ) );
-    }
-    m_splitter->addWidget( m_tabWidget2 );
-
-    m_tabWidget2->addTab( m_textureSorter, QString( "Texture Sorter" ) );
-
+    m_roiDock = new QDockWidget( "ROIs", m_mainWindow );
+    m_roiDock->setObjectName( "ROI Dock" );
     m_roiTreeWidget = new WQtTreeWidget();
     m_roiTreeWidget->setToolTip( "Regions of intrest (ROIs) for selecting fiber  clusters. Branches are combined using logic <b>or</b>, "
 "inside the branches the ROIs are combined using logic <b>and</b>." );
@@ -142,27 +139,15 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_roiTreeWidget->viewport()->setAcceptDrops( true );
     m_roiTreeWidget->setDropIndicatorShown( true );
     m_roiTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
-    m_tabWidget2->addTab( m_roiTreeWidget, QString( "ROIs" ) );
-
-    m_splitter->addWidget( m_tabWidget );
-
-    // set the initial sizes.
-    QList< int > splitterList;
-    splitterList.push_back( 200 );
-    if ( !combineThem )
-    {
-        splitterList.push_back( 200 );
-    }
-    splitterList.push_back( 400 );
-    m_splitter->setSizes( splitterList );
+    m_roiDock->setWidget( m_roiTreeWidget );
 
     m_layout = new QVBoxLayout();
-    m_layout->addWidget( m_splitter );
+    m_layout->addWidget( m_tabWidget );
 
     m_panel->setLayout( m_layout );
 
-    this->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
-    this->setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
+    this->setAllowedAreas( Qt::AllDockWidgetAreas );
+    this->setFeatures( QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
     this->setWidget( m_panel );
 
     m_tiModules = new WQtModuleHeaderTreeItem( m_moduleTreeWidget );
@@ -579,7 +564,6 @@ void WQtControlPanel::addRoi( osg::ref_ptr< WROI > roi )
         branchItem = m_tiRois->addBranch( WKernel::getRunningKernel()->getRoiManager()->getBranch( roi ) );
     }
 
-    m_tabWidget2->setCurrentIndex( m_tabWidget2->indexOf( m_roiTreeWidget ) );
     branchItem->setExpanded( true );
     newItem = branchItem->addRoiItem( roi );
     newItem->setDisabled( false );
@@ -800,6 +784,20 @@ void WQtControlPanel::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
     }
 
     selectTreeItem();
+}
+
+void WQtControlPanel::setNewActiveModule( boost::shared_ptr< WModule > module )
+{
+    m_tabWidget->clear();
+
+    // NOTE: this handles null pointers properly.
+    createCompatibleButtons( module );
+
+    if ( module )
+    {
+        createCompatibleButtons( module );
+        buildPropTab( module->getProperties(), module->getInformationProperties() );
+    }
 }
 
 WQtPropertyGroupWidget*  WQtControlPanel::buildPropWidget( boost::shared_ptr< WProperties > props )
@@ -1105,5 +1103,20 @@ void WQtControlPanel::selectUpperMostEntry()
 void WQtControlPanel::handleDragDrop()
 {
     WLogger::getLogger()->addLogMessage( "Drag and drop handler not implemented yet!", "ControlPanel", LL_DEBUG );
+}
+
+QDockWidget* WQtControlPanel::getRoiDock() const
+{
+    return m_roiDock;
+}
+
+QDockWidget* WQtControlPanel::getModuleDock() const
+{
+    return m_moduleDock;
+}
+
+QDockWidget* WQtControlPanel::getTextureSorterDock() const
+{
+    return m_textureSorter;
 }
 

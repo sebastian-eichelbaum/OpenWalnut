@@ -41,6 +41,7 @@
 #include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
+#include <QtCore/QSettings>
 
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
@@ -69,7 +70,6 @@
 #include "events/WOpenCustomDockWidgetEvent.h"
 #include "guiElements/WQtPropertyBoolAction.h"
 #include "WQtCombinerToolbar.h"
-#include "WQtConfigWidget.h"
 #include "WQtCustomDockWidget.h"
 #include "WQtNavGLWidget.h"
 
@@ -80,6 +80,11 @@ WMainWindow::WMainWindow() :
     m_currentCompatiblesToolbar( NULL ),
     m_iconManager()
 {
+}
+
+WMainWindow::~WMainWindow()
+{
+    // cleanup
 }
 
 void WMainWindow::setupGUI()
@@ -95,7 +100,6 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
     m_iconManager.addIcon( std::string( "config" ), preferences_system_xpm );
 
-
     if( objectName().isEmpty() )
     {
         setObjectName( QString::fromUtf8( "MainWindow" ) );
@@ -105,40 +109,33 @@ void WMainWindow::setupGUI()
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
+    setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
+
+    //network Editor
+    m_networkEditor = new WQtNetworkEditor( this );
+    m_networkEditor->setFeatures( QDockWidget::AllDockWidgetFeatures );
 
     // the control panel instance is needed for the menu
     m_controlPanel = new WQtControlPanel( this );
     m_controlPanel->setFeatures( QDockWidget::AllDockWidgetFeatures );
-    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
     m_controlPanel->addSubject( "Default Subject" );
+
+    // add all docks
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getModuleDock() );
+    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
+    tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
+
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getTextureSorterDock() );
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
+    tabifyDockWidget( m_controlPanel->getTextureSorterDock(), m_controlPanel->getRoiDock() );
+
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
     setupPermanentToolBar();
 
     // we want the upper most tree item to be selected. This helps to make the always compatible modules
     // show up in the tool bar from the beginning. And ... it doesn't hurt.
     m_controlPanel->selectUpperMostEntry();
-
-    // set the size of the control panel according to config file
-    int controlPanelWidth = 250;
-    if( WPreferences::getPreference( "qt4gui.dsbWidth", &controlPanelWidth ) )
-    {
-        m_controlPanel->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
-        m_controlPanel->setMinimumWidth( controlPanelWidth );
-    }
-
-    // hide the control panel by default?
-    bool controlPanelInvisibleByDefault = false;
-    if( WPreferences::getPreference( "qt4gui.dsbInvisibleByDefault", &controlPanelInvisibleByDefault ) )
-    {
-        m_controlPanel->setVisible( !controlPanelInvisibleByDefault );
-    }
-
-    // undock the control panel by default?
-    bool controlPanelFloatingByDefault = false;
-    if( WPreferences::getPreference( "qt4gui.dsbFloatingByDefault", &controlPanelFloatingByDefault ) )
-    {
-        m_controlPanel->setFloating( controlPanelFloatingByDefault );
-    }
 
     // NOTE: Please be aware that not every menu needs a shortcut key. If you add a shortcut, you should use one of the
     // QKeySequence::StandardKey defaults and avoid ambiguities like Ctrl-C for the configure dialog is not the best choice as Ctrl-C, for the
@@ -237,42 +234,39 @@ void WMainWindow::setupGUI()
         }
     }
 
-    // we do not need the dummy widget if there are no other widgets.
-    if( m_navAxial || m_navCoronal || m_navSagittal )
+    // Default background color from config file
+    WColor bgColor( 1.0, 1.0, 1.0, 1.0 );
+    double r;
+    double g;
+    double b;
+    if( WPreferences::getPreference( "ge.bgColor.r", &r )
+        && WPreferences::getPreference( "ge.bgColor.g", &g )
+        && WPreferences::getPreference( "ge.bgColor.b", &b ) )
     {
-        m_dummyWidget = new QDockWidget( "Spacer", this );
-        QWidget* tmp = new QWidget( m_dummyWidget );
-        m_dummyWidget->setTitleBarWidget( tmp );
-        m_dummyWidget->setFeatures( QDockWidget::DockWidgetClosable );
-        m_dummyWidget->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Ignored );
-        addDockWidget( Qt::LeftDockWidgetArea, m_dummyWidget );
+        bgColor.set( r, g, b, 1.0 );
+        m_mainGLWidget->setBgColor( bgColor );
+
+        if( m_navAxial )
+        {
+            m_navAxial->getGLWidget()->setBgColor( bgColor );
+        }
+        if( m_navCoronal )
+        {
+            m_navCoronal->getGLWidget()->setBgColor( bgColor );
+        }
+        if( m_navSagittal )
+        {
+            m_navSagittal->getGLWidget()->setBgColor( bgColor );
+        }
     }
 
-    // Default background color from config file
-        WColor bgColor( 1.0, 1.0, 1.0, 1.0 );
-        double r;
-        double g;
-        double b;
-        if( WPreferences::getPreference( "ge.bgColor.r", &r )
-            && WPreferences::getPreference( "ge.bgColor.g", &g )
-            && WPreferences::getPreference( "ge.bgColor.b", &b ) )
-        {
-            bgColor.set( r, g, b, 1.0 );
-            m_mainGLWidget->setBgColor( bgColor );
+    // create command prompt toolbar
+    m_commandPrompt = new WQtCommandPromptToolbar( "Command Prompt", this );
+    addToolBar( Qt::TopToolBarArea, m_commandPrompt );
+    this->addAction( m_commandPrompt->toggleViewAction() );  // this enables the action even if the menu bar is invisible
 
-            if( m_navAxial )
-            {
-                m_navAxial->getGLWidget()->setBgColor( bgColor );
-            }
-            if( m_navCoronal )
-            {
-                m_navCoronal->getGLWidget()->setBgColor( bgColor );
-            }
-            if( m_navSagittal )
-            {
-                m_navSagittal->getGLWidget()->setBgColor( bgColor );
-            }
-        }
+    // after creating the GUI, restore its saved state
+    restoreSavedState();
 }
 
 void WMainWindow::setupPermanentToolBar()
@@ -330,20 +324,7 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addWidget( roiButton );
     m_permanentToolBar->addSeparator();
 
-    if( getToolbarPos() == InControlPanel )
-    {
-        m_controlPanel->addToolbar( m_permanentToolBar );
-        //m_controlPanel->setTitleBarWidget( m_permanentToolBar );
-    }
-    else if( getToolbarPos() == Hide )
-    {
-        m_permanentToolBar->setVisible( false );
-        addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
-    }
-    else
-    {
-        addToolBar( toQtToolBarArea( getToolbarPos() ), m_permanentToolBar );
-    }
+    addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
 }
 
 void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )
@@ -553,48 +534,6 @@ Qt::ToolButtonStyle WMainWindow::getToolbarStyle() const
     return static_cast< Qt::ToolButtonStyle >( toolBarStyle );
 }
 
-WMainWindow::ToolBarPosition WMainWindow::getToolbarPos()
-{
-    int toolbarPos = 0;
-    WPreferences::getPreference( "qt4gui.toolBarPos", &toolbarPos );
-    return static_cast< ToolBarPosition >( toolbarPos );
-}
-
-WMainWindow::ToolBarPosition WMainWindow::getCompatiblesToolbarPos()
-{
-    int compatiblesToolbarPos = 0;
-    if( !WPreferences::getPreference( "qt4gui.compatiblesToolBarPos", &compatiblesToolbarPos ) )
-    {
-        return getToolbarPos();
-    }
-
-    return static_cast< ToolBarPosition >( compatiblesToolbarPos );
-}
-
-Qt::ToolBarArea WMainWindow::toQtToolBarArea( ToolBarPosition pos )
-{
-    switch ( pos )
-    {
-        case Top:
-            return Qt::TopToolBarArea;
-            break;
-        case Bottom:
-            return Qt::BottomToolBarArea;
-            break;
-        case Left:
-            return Qt::LeftToolBarArea;
-            break;
-        case Right:
-            return Qt::RightToolBarArea;
-            break;
-        case InControlPanel:
-            return Qt::RightToolBarArea;
-        default:
-            return Qt::NoToolBarArea;
-            break;
-      }
-}
-
 void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
 {
     if( m_currentCompatiblesToolbar )
@@ -603,16 +542,6 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
     }
     m_currentCompatiblesToolbar = toolbar;
 
-    // hide it?
-    if( getCompatiblesToolbarPos() == Hide )
-    {
-        if( toolbar )
-        {
-            toolbar->setVisible( false );
-        }
-        return;
-    }
-
     if( !toolbar )
     {
         // ok, reset the toolbar
@@ -620,18 +549,8 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
         m_currentCompatiblesToolbar = new WQtCombinerToolbar( this );
     }
 
-    // optional toolbar break
-    {
-        bool useToolBarBreak = true;
-        WPreferences::getPreference( "qt4gui.useToolBarBreak", &useToolBarBreak );
-        if( useToolBarBreak )
-        {
-            addToolBarBreak( toQtToolBarArea( getCompatiblesToolbarPos() ) );
-        }
-    }
-
     // and the position of the toolbar
-    addToolBar( toQtToolBarArea( getCompatiblesToolbarPos() ), m_currentCompatiblesToolbar );
+    addToolBar( Qt::TopToolBarArea, m_currentCompatiblesToolbar );
 }
 
 WQtCombinerToolbar* WMainWindow::getCompatiblesToolbar()
@@ -642,6 +561,11 @@ WQtCombinerToolbar* WMainWindow::getCompatiblesToolbar()
 WQtControlPanel* WMainWindow::getControlPanel()
 {
     return m_controlPanel;
+}
+
+WQtNetworkEditor* WMainWindow::getNetworkEditor()
+{
+    return m_networkEditor;
 }
 
 void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFileIO > >& writer )
@@ -922,10 +846,11 @@ void WMainWindow::closeEvent( QCloseEvent* e )
     // use some "Really Close?" Dialog here
     bool reallyClose = true;
 
-
     // handle close event
     if( reallyClose )
     {
+        saveWindowState();
+
         // signal everybody to shut down properly.
         WKernel::getRunningKernel()->finalize();
 
@@ -1090,13 +1015,62 @@ void WMainWindow::newRoi()
 
 void WMainWindow::openConfigDialog()
 {
-    if( m_configWidget.get() )
+    // TODO(all): we need a nice dialog box here.
+    QString msg = "OpenWalnut allows you to configure several features. Most of these options are only useful to advanced users. "
+                  "You can have a user-scope configuration in your HOME as \".walnut.cfg\". "
+                  "If this file exists, OpenWalnut loads this file. You can also specify a \"walnut.cfg\" in your OpenWalnut directory under "
+                  "\"share/OpenWalnut/\". The file is very well documented.";
+    QMessageBox::information( this, "OpenWalnut - Configuration", msg );
+}
+
+void WMainWindow::restoreSavedState()
+{
+    // should we do it?
+    bool saveStateEnabled = true;
+    WPreferences::getPreference( "qt4gui.saveState", &saveStateEnabled );
+    if ( !saveStateEnabled )
     {
-        m_configWidget->wait( true );
+        return;
     }
 
-    m_configWidget = boost::shared_ptr< WQtConfigWidget >( new WQtConfigWidget );
+    // the state name postfix allows especially developers to have multiple OW with different GUI settings.
+    std::string stateName = "";
+    if ( WPreferences::getPreference( "qt4gui.stateNamePostfix", &stateName ) )
+    {
+        stateName = "-" + stateName;
+    }
+    stateName = "OpenWalnut" + stateName;
+    wlog::info( "MainWindow" ) << "Restoring window state from \"" << stateName << "\"";
 
-    m_configWidget->initAndShow();
+    QSettings setting( "OpenWalnut.org", QString::fromStdString( stateName ) );
+    QByteArray state = setting.value( "MainWindowState", "" ).toByteArray();
+    restoreGeometry( setting.value( "MainWindowGeometry", "" ).toByteArray() );
+    restoreState( state );
+}
+
+void WMainWindow::saveWindowState()
+{
+    // should we do it?
+    bool saveStateEnabled = true;
+    WPreferences::getPreference( "qt4gui.saveState", &saveStateEnabled );
+    if ( !saveStateEnabled )
+    {
+        return;
+    }
+
+    std::string stateName = "";
+    if ( WPreferences::getPreference( "qt4gui.stateNamePostfix", &stateName ) )
+    {
+        stateName = "-" + stateName;
+    }
+    stateName = "OpenWalnut" + stateName;
+    wlog::info( "MainWindow" ) << "Saving window state for \"" << stateName << "\"";
+
+    // this saves the window state to some common location on the target OS in user scope.
+    QByteArray state = saveState();
+    QSettings setting( "OpenWalnut.org", QString::fromStdString( stateName ) );
+    setting.setValue( "MainWindowState", state );
+    // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
+    setting.setValue( "MainWindowGeometry", saveGeometry() );
 }
 
