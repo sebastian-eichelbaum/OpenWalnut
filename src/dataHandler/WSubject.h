@@ -81,11 +81,6 @@ public:
     typedef DatasetContainerType::const_iterator DatasetConstIterator;
 
     /**
-     * Alias for the proper access object
-     */
-    typedef DatasetSharedContainerType::WSharedAccess DatasetAccess;
-
-    /**
      * Constructs a dummy subject.
      */
     WSubject();

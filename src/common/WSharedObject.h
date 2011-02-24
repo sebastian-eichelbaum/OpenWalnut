@@ -53,96 +53,6 @@ public:
     virtual ~WSharedObject();
 
     /**
-     * Class allowing thread-safe access to an object. It provides some convenience methods to read and write lock the access.
-     * OBSOLETE.
-     */
-    class WSharedObjectAccess
-    {
-    public:
-
-        /**
-         * Constructor. It uses the specified mutex which is shared among all access objects of the same WSharedObject.
-         *
-         * \param mutex the mutex used to lock the access.
-         * \param object the object to be shared.
-         * \param condition the condition that should be used for notifying changes.
-         */
-        WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex,  boost::shared_ptr< WCondition > condition ); // NOLINT
-
-        /**
-         * Constructor. It uses the specified mutex which is shared among all access objects of the same WSharedObject.
-         *
-         * \param mutex the mutex used to lock the access.
-         * \param object the object to be shared.
-         */
-        WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex ); // NOLINT - we need non const refs here
-
-        /**
-         * Desctructor.
-         */
-        virtual ~WSharedObjectAccess();
-
-        /**
-         * Gets the contained, and protected object.
-         *
-         * \return the contained object
-         */
-        T& get();
-
-        /**
-         * Acquires a read lock to the protected object for easy access. Use this EVERYTIME you want to read from the object. Use
-         * endRead() to free the lock.
-         */
-        void beginRead();
-
-        /**
-         * Frees the lock to the object. If you do not free the lock, no write access will be granted in the future. To nobody!
-         * So always free the lock.
-         */
-        void endRead();
-
-        /**
-         * Acquires a write lock to the object
-         */
-        void beginWrite();
-
-        /**
-         * Frees the lock to the object. If you do not free the lock, no read or write access will be granted in the future. To nobody!
-         * So always free the lock.
-         *
-         * \param suppressNotify if true, the change condition won't fire.
-         */
-        void endWrite( bool suppressNotify = false );
-
-    protected:
-
-        /**
-         * The write lock. Used by beginWrite and endWrite.
-         */
-        boost::unique_lock< boost::shared_mutex > m_writeLock;
-
-        /**
-         * The read lock. Used by beginRead and endRead.
-         */
-        boost::shared_lock< boost::shared_mutex > m_readLock;
-
-        /**
-         * The lock to ensure thread safe access. It is the lock provided by WSharedObject.
-         */
-        boost::shared_ptr< boost::shared_mutex > m_lock;
-
-        /**
-         * the object protected.
-         */
-        T& m_object;
-
-        /**
-         * The pointer to the global change condition. Fired whenever endWrite() got called.
-         */
-        boost::shared_ptr< WCondition > m_objectChangeCondition;
-    };
-
-    /**
      * Type for read tickets.
      */
     typedef boost::shared_ptr< WSharedObjectTicketRead< T > > ReadTicket;
@@ -167,20 +77,6 @@ public:
      * \return the ticket
      */
     WriteTicket getWriteTicket( bool suppressNotify = false ) const;
-
-    /**
-     * Use a shared_ptr since the shared and unique locks from boost are non-copyable.
-     */
-    typedef boost::shared_ptr< WSharedObjectAccess > WSharedAccess;
-
-    /**
-     * This method distributes access objects. These objects are able to read/write lock the object and grant access to it, in
-     * a thread-safe manner.
-     *
-     * \deprecated do not use this anymore. Use getReadTicket and getWriteTicket instead
-     * \return the access object which allows thread safe access to the object.
-     */
-    WSharedAccess getAccessObject();
 
     /**
      * This condition fires whenever the encapsulated object changed. This is fired automatically by endWrite().
@@ -223,74 +119,6 @@ template < typename T >
 WSharedObject< T >::~WSharedObject()
 {
     // clean up
-}
-
-template < typename T >
-typename WSharedObject< T >::WSharedAccess WSharedObject< T >::getAccessObject()
-{
-    // TODO(ebaum): deprecated. Clean up if not needed anymore.
-    return typename WSharedObject< T >::WSharedAccess( new typename WSharedObject< T>::WSharedObjectAccess( m_object, m_lock, m_changeCondition ) );
-}
-
-
-template < typename T >
-WSharedObject< T >::WSharedObjectAccess::WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex ): // NOLINT
-    m_lock( mutex ),
-    m_object( object ),
-    m_objectChangeCondition()
-{
-}
-
-template < typename T >
-WSharedObject< T >::WSharedObjectAccess::WSharedObjectAccess( T& object, boost::shared_ptr< boost::shared_mutex > mutex, // NOLINT
-                                                              boost::shared_ptr< WCondition > condition ):
-    m_lock( mutex ),
-    m_object( object ),
-    m_objectChangeCondition( condition )
-{
-}
-
-template < typename T >
-WSharedObject< T >::WSharedObjectAccess::~WSharedObjectAccess()
-{
-    // this shouldn't be necessary as the locks automatically unlock if the get destroyed
-    // m_readLock.unlock();
-    // m_writeLock.unlock();
-}
-
-template < typename T >
-void WSharedObject< T >::WSharedObjectAccess::beginRead()
-{
-    m_readLock = boost::shared_lock< boost::shared_mutex >( *m_lock );
-}
-
-template < typename T >
-void WSharedObject< T >::WSharedObjectAccess::endRead()
-{
-    m_readLock.unlock();
-}
-
-template < typename T >
-void WSharedObject< T >::WSharedObjectAccess::beginWrite()
-{
-    m_writeLock = boost::unique_lock< boost::shared_mutex >( *m_lock );
-}
-
-template < typename T >
-void WSharedObject< T >::WSharedObjectAccess::endWrite( bool suppressNotify )
-{
-    m_writeLock.unlock();
-
-    if ( !suppressNotify && m_objectChangeCondition.get() )
-    {
-        m_objectChangeCondition->notify();
-    }
-}
-
-template < typename T >
-T& WSharedObject< T >::WSharedObjectAccess::get()
-{
-    return m_object;
 }
 
 template < typename T >

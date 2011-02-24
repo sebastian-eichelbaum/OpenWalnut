@@ -70,7 +70,6 @@ boost::filesystem::path WPathHelper::getAppPath()
 
 boost::filesystem::path WPathHelper::getConfigFile()
 {
-    // TODO(ebaum): we should prefer a user config file in ~.walnut.cfg in future. This needs to be platform independent of course.
     namespace fs = boost::filesystem;
 
     // I know that this work only for linux, but it should not break anything elsewhere.

@@ -95,7 +95,6 @@ boost::shared_ptr< WCondition > WDataSet::getChangeCondition()
 {
     // this just forwards to the texture condition. In the future maybe datasets may also change so we need an separate condition in every
     // dataset.
-    // TODO(ebaum): remove if property stuff is used everywhere
     if ( isTexture() )
     {
         return getTexture()->getChangeCondition();
