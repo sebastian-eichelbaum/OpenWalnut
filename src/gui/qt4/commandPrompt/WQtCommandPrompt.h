@@ -22,60 +22,67 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTCOMBINERTOOLBAR_H
-#define WQTCOMBINERTOOLBAR_H
+#ifndef WQTCOMMANDPROMPT_H
+#define WQTCOMMANDPROMPT_H
 
-#include <QtGui/QToolBar>
-
-#include "../../kernel/WModuleCombinerTypes.h"
-
-#include "WQtCombinerActionList.h"
-
-class WMainWindow;
+#include <QtGui/QLineEdit>
 
 /**
- * This is a toolbar. Its main usage for now is the "compatible modules" toolbar.
+ * This is a toolbar. It provides a command prompt -like interface for adding, removing and connecting modules
  */
-class WQtCombinerToolbar : public QToolBar
+class WQtCommandPrompt: public QLineEdit
 {
     Q_OBJECT
-
 public:
     /**
-     * Constructs the toolbar.
-     * \param parent the parent widget of this widget, i.e. the widget that manages it.
-     * \param compatibles the list of combiners
-     */
-    WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerActionList& compatibles );
-
-    /**
-     * This creates an empty toolbar only containing the dummy button to reserve the size.
+     * Constructs the prompt.
      *
-     * \param parent the parent widget.
+     * \param parent the parent widget of this widget, i.e. the widget that manages it.
      */
-    explicit WQtCombinerToolbar( WMainWindow* parent );
+    explicit WQtCommandPrompt( QWidget* parent );
 
     /**
      * destructor
      */
-    virtual ~WQtCombinerToolbar();
+    virtual ~WQtCommandPrompt();
+
+signals:
 
     /**
-     * Update the toolbar to represent the compatibles given as parameter.
-     *
-     * \param compatibles The compatibles to produce the buttons for.
+     * Emited if the prompt should quit. On ESC or after commiting a command.
      */
-    void updateButtons( const WQtCombinerActionList& compatibles );
-
-    /**
-     * Make the toolbar appear empty but not disappear.
-     */
-    void makeEmpty();
+    void done();
 
 protected:
+
+    /**
+     * Converts the given key press event into a line edit action.
+     *
+     * \param event the key
+     */
+    virtual void keyPressEvent( QKeyEvent* event );
+
+    /**
+     * Event handler
+     *
+     * \param event the event
+     *
+     * \return true if event was handled.
+     */
+    bool event( QEvent* event );
+
+private slots:
+    /**
+     * This aborts. The typed command will not be sent.
+     */
+    void abort();
+
+    /**
+     * Commit the current command.
+     */
+    void commit();
+
 private:
-    WMainWindow* m_parent; //!< The widget managing this widget.
 };
 
-#endif  // WQTCOMBINERTOOLBAR_H
-
+#endif  // WQTCOMMANDPROMPT_H

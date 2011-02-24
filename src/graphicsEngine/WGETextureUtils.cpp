@@ -107,7 +107,7 @@ osg::ref_ptr< osg::Image > wge::genWhiteNoiseImage( size_t sizeX, size_t sizeY, 
     for( size_t i = 0; i < channels * sizeX * sizeY * sizeZ; ++i )
     {
         // - stylechecker says "use rand_r" but I am not sure about portability.
-        unsigned char r = ( unsigned char )( std::rand() % 255 );  // NOLINT
+        unsigned char r = static_cast< unsigned char >( std::rand() % 255 );  // NOLINT - no we want std::rand instead of rand_r
         randomLuminance[ i ] = r;
     }
 

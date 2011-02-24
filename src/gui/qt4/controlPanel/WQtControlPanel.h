@@ -168,6 +168,34 @@ public:
      */
     void selectUpperMostEntry();
 
+    /**
+     * allows other objects to build the property tab (probably only for WQtNetworkeditor)
+     *
+     * \param module the module from which the property tab is created
+     **/
+    void setNewActiveModule( boost::shared_ptr< WModule > module );
+
+    /**
+     * Gets the ROI dock widget.
+     *
+     * \return the ROI dock.
+     */
+    QDockWidget* getRoiDock() const;
+
+    /**
+     * Gets the module dock widget.
+     *
+     * \return the module dock
+     */
+    QDockWidget* getModuleDock() const;
+
+    /**
+     * Gets the texture sorter dock
+     *
+     * \return the dock
+     */
+    QDockWidget* getTextureSorterDock() const;
+
 protected:
 
     /**
@@ -213,7 +241,7 @@ protected:
      * Searches the tree for all tree items matching the specified module.
      *
      * \param module the module uses as search criteria.
-          *
+     *
      * \return a list of all matching items.
      */
     std::list< WQtTreeItem* > findItemsByModule( boost::shared_ptr< WModule > module );
@@ -240,6 +268,9 @@ private:
     WQtRoiHeaderTreeItem* m_tiRois; //!< header for rois
 
     bool m_showToolBarText; //!< Show tool bar icons with text
+
+    QDockWidget* m_roiDock;     //!< the dock widget with the roi tree
+    QDockWidget* m_moduleDock;  //!< the dock widget with the module tree
 
     /**
      * The action to remove a module from the tree.

@@ -243,6 +243,8 @@ int WQt4Gui::run()
     // run
     int qtRetCode = appl.exec();
 
+    delete m_mainWindow;
+
     // signal everybody to shut down properly.
     WKernel::getRunningKernel()->wait( true );
     WKernel::getRunningKernel()->getGraphicsEngine()->wait( true );
@@ -267,6 +269,7 @@ void WQt4Gui::slotAddDatasetOrModuleToTree( boost::shared_ptr< WModule > module 
 {
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleAssocEvent( module ) );
+    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleAssocEvent( module ) );
 }
 
 void WQt4Gui::slotAddRoiToTree( osg::ref_ptr< WROI > roi )
@@ -284,6 +287,7 @@ void WQt4Gui::slotActivateDatasetOrModuleInTree( boost::shared_ptr< WModule > mo
     // create a new event for this and insert it into event queue
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleReadyEvent( module ) );
     QCoreApplication::postEvent( m_mainWindow, new WModuleReadyEvent( module ) );
+    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleReadyEvent( module ) );
 }
 
 void WQt4Gui::slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > module )
@@ -294,6 +298,7 @@ void WQt4Gui::slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > modu
         boost::shared_ptr< WMData > dataModule = boost::shared_dynamic_cast< WMData >( module );
         WAssert( dataModule, "Internal failure." );
     }
+    QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleRemovedEvent( module ) );
     QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleRemovedEvent( module ) );
     QCoreApplication::postEvent( m_mainWindow, new WModuleRemovedEvent( module ) );
 }
@@ -304,10 +309,12 @@ void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in,
     if ( in->isInputConnector() )
     {
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleConnectEvent( in, out ) );
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( in, out ) );
     }
     else
     {
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleConnectEvent( out, in ) );
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( out, in ) );
     }
 }
 
@@ -316,10 +323,12 @@ void WQt4Gui::slotConnectionClosed( boost::shared_ptr<WModuleConnector> in, boos
     // create a new event for this and insert it into event queue
     if ( in->isInputConnector() )
     {
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( in, out ) );
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleDisconnectEvent( in, out ) );
     }
     else
     {
+        QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( out, in ) );
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleDisconnectEvent( out, in ) );
     }
 }

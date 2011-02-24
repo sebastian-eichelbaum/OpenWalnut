@@ -22,60 +22,54 @@
 //
 //---------------------------------------------------------------------------
 
-#include <list>
-
 #include <QtGui/QAction>
+#include <QtGui/QLabel>
 
-#include "WQtToolBar.h"
+#include "../WMainWindow.h"
 
-WQtToolBar::WQtToolBar( const QString & title, QWidget* parent )
-    : QToolBar( title, parent )
+#include "WQtCommandPrompt.h"
+#include "WQtCommandPromptToolbar.h"
+
+WQtCommandPromptToolbar::WQtCommandPromptToolbar( const QString& title, WMainWindow* parent ):
+    QToolBar( title, parent ),
+    m_mainWindow( parent )
 {
     setObjectName( title );
-
-    this->setAllowedAreas( Qt::AllToolBarAreas );
-
+    this->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
     setMinimumWidth( 50 );
     setMinimumHeight( 30 );
+    setVisible( false );
+
+    // toggle it using ":"
+    QList< QKeySequence > commandPromptShortcut;
+    commandPromptShortcut.append( QKeySequence( Qt::Key_Colon ) );
+    toggleViewAction()->setShortcuts( commandPromptShortcut );
+
+    QLabel* label = new QLabel( this );
+    label->setText( "<b># </b>" );
+    addWidget( label );
+
+    m_prompt = new WQtCommandPrompt( this );
+    addWidget( m_prompt );
+
+    // if the toolbar is triggered:
+    connect( toggleViewAction(), SIGNAL( triggered( bool ) ), this, SLOT( show() ) );
+    connect( m_prompt, SIGNAL( done() ), this, SLOT( exit() ) );
 }
 
-WQtToolBar::~WQtToolBar()
+WQtCommandPromptToolbar::~WQtCommandPromptToolbar()
 {
+    // cleanup
 }
 
-WQtPushButton* WQtToolBar::addPushButton( QString name, QIcon icon, QString label )
+void WQtCommandPromptToolbar::show()
 {
-    WQtPushButton* button = new WQtPushButton( icon, label, this, label );
-
-    button->setName( name );
-
-    addWidget( button );
-
-    return button;
+    setVisible( true );
+    m_prompt->setFocus();
 }
 
-QAction* WQtToolBar::addWidget( QWidget* widget )
+void WQtCommandPromptToolbar::exit()
 {
-    m_widgets.push_back( widget );
-    return QToolBar::addWidget( widget );
-}
-
-void WQtToolBar::addAction( QAction* action )
-{
-    QToolBar::addAction( action );
-}
-
-void WQtToolBar::clearButtons()
-{
-    clear();
-
-    // iterate all items and delete them
-    for ( std::list< QWidget* >::iterator it = m_widgets.begin(); it != m_widgets.end(); ++it )
-    {
-        delete ( *it );
-    }
-
-    // clear the lists
-    m_widgets.clear();
+    setVisible( false );
 }
 

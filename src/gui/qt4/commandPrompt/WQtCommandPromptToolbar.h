@@ -22,25 +22,57 @@
 //
 //---------------------------------------------------------------------------
 
-/**
- * The normal interpolated
- */
-varying vec3 v_normal;
+#ifndef WQTCOMMANDPROMPTTOOLBAR_H
+#define WQTCOMMANDPROMPTTOOLBAR_H
+
+#include <QtGui/QToolBar>
+
+class WQtCommandPrompt;
+class WMainWindow;
 
 /**
- * The light source in local coordinates
+ * This is a toolbar. It provides a command prompt -like interface for adding, removing and connecting modules
  */
-varying vec3 v_lightSource;
+class WQtCommandPromptToolbar: public QToolBar
+{
+    Q_OBJECT
+public:
+    /**
+     * Constructs the toolbar.
+     * \param title name of the toolbar.
+     * \param parent the parent widget of this widget, i.e. the widget that manages it.
+     */
+    explicit WQtCommandPromptToolbar( const QString& title, WMainWindow* parent );
 
-/**
- * The light source in local coordinates
- */
-varying vec3 v_viewDir;
+    /**
+     * destructor
+     */
+    virtual ~WQtCommandPromptToolbar();
 
-/**
- * The factor which scales the 3d noise texture to a proper size according to screen size.
- */
-#ifdef NOISE3D_ENABLED
-varying vec3 v_noiseScaleFactor;
-#endif
+protected:
 
+private slots:
+
+    /**
+     * Toggles the prompt toolbar
+     */
+    void show();
+
+    /**
+     * Exit prompt
+     */
+    void exit();
+
+private:
+    /**
+     * The main window parent.
+     */
+    WMainWindow* m_mainWindow;
+
+    /**
+     * The actual prompt edit.
+     */
+    WQtCommandPrompt* m_prompt;
+};
+
+#endif  // WQTCOMMANDPROMPTTOOLBAR_H

@@ -43,12 +43,12 @@
 #include "../../graphicsEngine/WGETextureUtils.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
-#include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 #include "../../graphicsEngine/offscreen/WGEOffscreenRenderNode.h"
 #include "../../graphicsEngine/offscreen/WGEOffscreenRenderPass.h"
 #include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
+#include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
 #include "../../kernel/WKernel.h"
 
 #include "WMImageSpaceLIC.h"
@@ -134,23 +134,35 @@ void WMImageSpaceLIC::properties()
 
     m_licGroup      = m_properties->addPropertyGroup( "LIC",  "LIC properties." );
 
-    // show hud?
-    m_showHUD        = m_licGroup->addProperty( "Show HUD", "Check to enable the debugging texture HUD.", false );
-
     m_useLight       = m_licGroup->addProperty( "Use Light", "Check to enable lightning using the Phong model.", false );
 
     m_useEdges       = m_licGroup->addProperty( "Edges", "Check to enable blending in edges.", true );
-    m_useDepthCueing = m_licGroup->addProperty( "Depth Cueing", "Use depth as additional cue? Blends in the depth. Mostly useful for isosurfaces.",
-                                                false );
     m_useHighContrast = m_licGroup->addProperty( "High Contrast", "Use an extremely increased contrast.", false );
-
-    m_numIters     = m_licGroup->addProperty( "Number of Iterations", "How much iterations along a streamline should be done per frame.", 30 );
-    m_numIters->setMin( 1 );
-    m_numIters->setMax( 100 );
 
     m_cmapRatio    = m_licGroup->addProperty( "Ratio Colormap to LIC", "Blending ratio between LIC and colormap.", 0.5 );
     m_cmapRatio->setMin( 0.0 );
     m_cmapRatio->setMax( 1.0 );
+
+    m_advancedLicGroup      = m_properties->addPropertyGroup( "Advanced",  "More advanced LIC properties." );
+    // show hud?
+    m_showHUD        = m_advancedLicGroup->addProperty( "Show HUD", "Check to enable the debugging texture HUD.", false );
+    m_useDepthCueing = m_advancedLicGroup->addProperty( "Depth Cueing", "Use depth as additional cue? Mostly useful for isosurfaces.",
+                                                false );
+    m_3dNoise        = m_advancedLicGroup->addProperty( "Use 3D noise", "Use 3D noise? This provides better coherence during transformation of "
+                                                        "the geometry but might introduce resolution problems.", false );
+    m_3dNoiseRes     = m_advancedLicGroup->addProperty( "3D Noise Resolution", "The 3D noise is of 128^3 pixels size. This scaler allows "
+                                                        "modification of this size.", 3.0 );
+    m_3dNoiseRes->setMin( 1 );
+    m_3dNoiseRes->setMax( 10 );
+
+    m_3dNoiseAutoRes = m_advancedLicGroup->addProperty( "3D Noise Auto-Resolution", "If checked, the resolution of the 3D noise gets calculated "
+                                                       "automatically according to the screen size. If disabled, the user can zoom into the LIC.",
+                                                       true );
+
+    m_numIters     = m_advancedLicGroup->addProperty( "Number of Iterations", "How much iterations along a streamline should be done per frame.",
+                                                      30 );
+    m_numIters->setMin( 1 );
+    m_numIters->setMax( 100 );
 
     // call WModule's initialization
     WModule::properties();
@@ -247,6 +259,14 @@ void WMImageSpaceLIC::moduleMain()
 
     // finally, create a texture from the image
     osg::ref_ptr< osg::Texture2D > randTexture = wge::genWhiteNoiseTexture( resX, resX, 1 );
+
+    // create a 3D texture too. This allows transformation-invariant noise but is prone to flickering artifacts due to down/upscaling
+    osg::ref_ptr< osg::Texture3D > rand3DTexture = wge::genWhiteNoiseTexture( 128, 128, 128, 1 );
+    rand3DTexture->setWrap( osg::Texture::WRAP_S, osg::Texture::REPEAT );
+    rand3DTexture->setWrap( osg::Texture::WRAP_T, osg::Texture::REPEAT );
+    rand3DTexture->setWrap( osg::Texture::WRAP_R, osg::Texture::REPEAT );
+    WGEShaderPreprocessor::SPtr define3dNoise( new WGEShaderPropertyDefineOptions< WPropBool >( m_3dNoise, "NOISE3D_DISABLED", "NOISE3D_ENABLED" ) );
+
     // done.
     ready();
 
@@ -269,18 +289,26 @@ void WMImageSpaceLIC::moduleMain()
     osg::ref_ptr< WGEShader > transformationShader = new WGEShader( "WMImageSpaceLIC-Transformation", m_localPath );
     WGEShaderDefineOptions::SPtr availableDataDefines = WGEShaderDefineOptions::SPtr( new WGEShaderDefineOptions( "SCALARDATA", "VECTORDATA" ) );
     transformationShader->addPreprocessor( availableDataDefines );
+    transformationShader->addPreprocessor( define3dNoise );
+    transformationShader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_3dNoiseAutoRes, "NOISE3DAUTORES_DISABLED", "NOISE3DAUTORES_ENABLED" )
+    ) );
+
     osg::ref_ptr< WGEOffscreenRenderPass > transformation = offscreen->addGeometryRenderPass(
         m_output,
         transformationShader,
         "Transformation"
     );
+    transformation->bind( rand3DTexture, 1 );
     // apply colormapping to transformation
-    WGEColormapping::apply( transformation, transformationShader, 1 );
+    WGEColormapping::apply( transformation, transformationShader, 2 );
 
+    osg::ref_ptr< WGEShader > edgeShader = new WGEShader( "WMImageSpaceLIC-Edge", m_localPath );
     osg::ref_ptr< WGEOffscreenRenderPass > edgeDetection =  offscreen->addTextureProcessingPass(
-        new WGEShader( "WMImageSpaceLIC-Edge", m_localPath ),
+        edgeShader,
         "Edge Detection"
     );
+    edgeShader->addPreprocessor( define3dNoise );
 
     // we use two advection passes per frame as the input A of the first produces the output B whereas the second pass uses B as input and
     // produces A as output. This way we can use A as input for the next step (clipping and blending).
@@ -304,6 +332,8 @@ void WMImageSpaceLIC::moduleMain()
     osg::ref_ptr< osg::Texture2D > transformationOut1  = transformation->attach( osg::Camera::COLOR_BUFFER0 );
     osg::ref_ptr< osg::Texture2D > transformationColormapped  = transformation->attach( osg::Camera::COLOR_BUFFER1 );
     osg::ref_ptr< osg::Texture2D > transformationDepth = transformation->attach( osg::Camera::DEPTH_BUFFER );
+    // and some uniforms
+    transformation->addUniform( new WGEPropertyUniform< WPropDouble >( "u_noise3DResoultuion", m_3dNoiseRes ) );
 
     // Edge Detection Pass, needs Depth as input
     //  * Edges in R
@@ -374,7 +404,8 @@ void WMImageSpaceLIC::moduleMain()
             continue;
         }
 
-        // maybe it was removed earlier
+        // ensure it gets added
+        WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( offscreen );
         WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( offscreen );
 
         // prefer vector dataset if existing
@@ -390,7 +421,6 @@ void WMImageSpaceLIC::moduleMain()
             initOSG( grid, mesh );
 
             // prepare offscreen render chain
-            edgeDetection->bind( randTexture, 1 );
             availableDataDefines->activateOption( 1 );  // vector input
             transformation->bind( dataSetVec->getTexture2(), 0 );
         }
@@ -406,7 +436,6 @@ void WMImageSpaceLIC::moduleMain()
             initOSG( grid, mesh );
 
             // prepare offscreen render chain
-            edgeDetection->bind( randTexture, 1 );
             availableDataDefines->activateOption( 0 );  // scalar input
             transformation->bind( dataSetScal->getTexture2(), 0 );
         }
