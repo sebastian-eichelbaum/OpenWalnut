@@ -33,8 +33,7 @@
  */
 class WQtNetworkScene: public QGraphicsScene
 {
-Q_OBJECT
-
+    Q_OBJECT
 public:
 
     /**
