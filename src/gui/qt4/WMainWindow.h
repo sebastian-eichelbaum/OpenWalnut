@@ -293,7 +293,7 @@ private:
 
     WQtToolBar* m_permanentToolBar; //!< The permanent toolbar of the main window.
 
-    WQtPushButton* m_loadButton; //!< the load Data Button
+    QAction* m_loadButton; //!< the load Data Button
 
     WQtControlPanel* m_controlPanel; //!< control panel
 

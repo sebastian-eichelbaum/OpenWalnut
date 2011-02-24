@@ -46,8 +46,8 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerAc
     setAllowedAreas( Qt::AllToolBarAreas );
     setObjectName( QString( "Compatible Modules" ) );
 
-    setMinimumWidth( 50 );
-    setMinimumHeight( 30 );
+    setMinimumWidth( 60 );
+    setMinimumHeight( 40 );
 
     // this sets the toolbar style
     int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style

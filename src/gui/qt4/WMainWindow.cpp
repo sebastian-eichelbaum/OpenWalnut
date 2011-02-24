@@ -286,28 +286,26 @@ void WMainWindow::setupPermanentToolBar()
     m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
     m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
 
-    // TODO(all): this should be QActions to allow the toolbar style to work properly
-    m_loadButton = new WQtPushButton( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
-    WQtPushButton* roiButton = new WQtPushButton( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
-    WQtPushButton* resetButton = new WQtPushButton( m_iconManager.getIcon( "Reset icon" ), "Reset", m_permanentToolBar );
+    m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
+    QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
+    QAction* resetButton = new QAction( m_iconManager.getIcon( "Reset icon" ), "Reset", m_permanentToolBar );
     resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
-    WQtPushButton* projectLoadButton = new WQtPushButton( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
-    WQtPushButton* projectSaveButton = new WQtPushButton( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
+    QAction* projectLoadButton = new QAction( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
+    QAction* projectSaveButton = new QAction( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
 
     // setup save button
-    QMenu* saveMenu = new QMenu( "Save Project", projectSaveButton );
+    QMenu* saveMenu = new QMenu( "Save Project" );
     saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ) );
     saveMenu->addAction( "Save Modules", this, SLOT( projectSaveModuleOnly() ) );
     saveMenu->addAction( "Save Camera", this, SLOT( projectSaveCameraOnly() ) );
     saveMenu->addAction( "Save ROIs", this, SLOT( projectSaveROIOnly() ) );
-    projectSaveButton->setPopupMode( QToolButton::MenuButtonPopup );
     projectSaveButton->setMenu( saveMenu );
 
-    connect( m_loadButton, SIGNAL( pressed() ), this, SLOT( openLoadDialog() ) );
-    connect( resetButton, SIGNAL( pressed() ), m_mainGLWidget.get(), SLOT( reset() ) );
-    connect( roiButton, SIGNAL( pressed() ), this, SLOT( newRoi() ) );
-    connect( projectLoadButton, SIGNAL( pressed() ), this, SLOT( projectLoad() ) );
-    connect( projectSaveButton, SIGNAL( pressed() ), this, SLOT( projectSaveAll() ) );
+    connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
+    connect( resetButton, SIGNAL(  triggered( bool ) ), m_mainGLWidget.get(), SLOT( reset() ) );
+    connect( roiButton, SIGNAL(  triggered( bool ) ), this, SLOT( newRoi() ) );
+    connect( projectLoadButton, SIGNAL(  triggered( bool ) ), this, SLOT( projectLoad() ) );
+    connect( projectSaveButton, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
 
     m_loadButton->setToolTip( "Load Data" );
     resetButton->setToolTip( "Reset main view" );
@@ -315,13 +313,13 @@ void WMainWindow::setupPermanentToolBar()
     projectLoadButton->setToolTip( "Load a project from file" );
     projectSaveButton->setToolTip( "Save current project to file" );
 
-    m_permanentToolBar->addWidget( m_loadButton );
+    m_permanentToolBar->addAction( m_loadButton );
     m_permanentToolBar->addSeparator();
-    m_permanentToolBar->addWidget( projectLoadButton );
-    m_permanentToolBar->addWidget( projectSaveButton );
+    m_permanentToolBar->addAction( projectLoadButton );
+    m_permanentToolBar->addAction( projectSaveButton );
     m_permanentToolBar->addSeparator();
-    m_permanentToolBar->addWidget( resetButton );
-    m_permanentToolBar->addWidget( roiButton );
+    m_permanentToolBar->addAction( resetButton );
+    m_permanentToolBar->addAction( roiButton );
     m_permanentToolBar->addSeparator();
 
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
@@ -711,9 +709,6 @@ void WMainWindow::openLoadDialog()
     }
 
     m_loaderSignal( stdFileNames );
-
-    // walkaround that a button keeps his down state after invoking a dialog
-    m_loadButton->setDown( false );
 }
 
 void WMainWindow::openAboutQtDialog()

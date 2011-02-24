@@ -35,33 +35,17 @@ WQtToolBar::WQtToolBar( const QString & title, QWidget* parent )
 
     this->setAllowedAreas( Qt::AllToolBarAreas );
 
-    setMinimumWidth( 50 );
-    setMinimumHeight( 30 );
+    setMinimumWidth( 60 );
+    setMinimumHeight( 40 );
 }
 
 WQtToolBar::~WQtToolBar()
 {
 }
 
-WQtPushButton* WQtToolBar::addPushButton( QString name, QIcon icon, QString label )
-{
-    WQtPushButton* button = new WQtPushButton( icon, label, this, label );
-
-    button->setName( name );
-
-    addWidget( button );
-
-    return button;
-}
-
-QAction* WQtToolBar::addWidget( QWidget* widget )
-{
-    m_widgets.push_back( widget );
-    return QToolBar::addWidget( widget );
-}
-
 void WQtToolBar::addAction( QAction* action )
 {
+    m_actions.push_back( action );
     QToolBar::addAction( action );
 }
 
@@ -70,12 +54,12 @@ void WQtToolBar::clearButtons()
     clear();
 
     // iterate all items and delete them
-    for ( std::list< QWidget* >::iterator it = m_widgets.begin(); it != m_widgets.end(); ++it )
+    for ( std::list< QAction* >::iterator it = m_actions.begin(); it != m_actions.end(); ++it )
     {
         delete ( *it );
     }
 
     // clear the lists
-    m_widgets.clear();
+    m_actions.clear();
 }
 
