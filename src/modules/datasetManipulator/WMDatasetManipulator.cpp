@@ -191,7 +191,8 @@ void WMDatasetManipulator::init()
 
 void WMDatasetManipulator::setManipulatorsFromBoundingBox()
 {
-    WBoundingBox bb = m_grid->getBoundingBox();
+    WGridRegular3D g( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), *m_transform );
+    WBoundingBox bb = g.getBoundingBox();
 
     m_posCenter = bb.center();
 
