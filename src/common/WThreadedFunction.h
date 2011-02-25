@@ -56,11 +56,95 @@ enum WThreadedFunctionNbThreads
     W_AUTOMATIC_NB_THREADS = 0      //!< Use half the available cores as number of threads
 };
 
+/**
+ * \class WThreadedFunctionBase
+ *
+ * A virtual base class for threaded functions (see below).
+ */
+class WThreadedFunctionBase
+{
+    //! a type for exception signals
+    typedef boost::signal< void ( WException const& ) > ExceptionSignal;
+
+public:
+
+    //! a type for exception callbacks
+    typedef boost::function< void ( WException const& ) > ExceptionFunction;
+
+    /**
+     * Standard constructor.
+     */
+    WThreadedFunctionBase();
+
+    /**
+     * Destroys the thread pool and stops all threads, if any one of them is still running.
+     *
+     * \note Of course, the client has to make sure the threads do not work endlessly on a single job.
+     */
+    virtual ~WThreadedFunctionBase();
+
+    /**
+     * Starts the threads.
+     */
+    virtual void run() = 0;
+
+    /**
+     * Request all threads to stop. Returns immediately, so you might
+     * have to wait() for the threads to actually finish.
+     */
+    virtual void stop() = 0;
+
+    /**
+     * Wait for all threads to stop.
+     */
+    virtual void wait() = 0;
+
+    /**
+     * Get the status of the threads.
+     *
+     * \return The current status.
+     */
+    WThreadedFunctionStatus status();
+
+    /**
+     * Returns a condition that gets fired when all threads have finished.
+     *
+     * \return The condition indicating all threads are done.
+     */
+    boost::shared_ptr< WCondition > getThreadsDoneCondition();
+
+    /**
+     * Subscribe a function to an exception signal.
+     *
+     * \param func The function to subscribe.
+     */
+    void subscribeExceptionSignal( ExceptionFunction func );
+
+protected:
+    /**
+     * WThreadedFunctionBase is non-copyable, so the copy constructor is not implemented.
+     */
+    WThreadedFunctionBase( WThreadedFunctionBase const& ); // NOLINT
+
+    /**
+     * WThreadedFunctionBase is non-copyable, so the copy operator is not implemented.
+     */
+    WThreadedFunctionBase& operator = ( WThreadedFunctionBase const& );
+
+    //! a condition that gets notified when the work is complete
+    boost::shared_ptr< WCondition > m_doneCondition;
+
+    //! a signal for exceptions
+    ExceptionSignal m_exceptionSignal;
+
+    //! the current status
+    WSharedObject< WThreadedFunctionStatus > m_status;
+};
 
 /**
  * \class WThreadedFunction
  *
- * Creates threads that compute a function in a multithreaded fashion. The template parameter
+ * Creates threads that computes a function in a multithreaded fashion. The template parameter
  * is an object that provides a function to execute. The following function needs to be implemented:
  *
  * void operator ( std::size_t id, std::size_t mx, WBoolFlag const& s );
@@ -70,7 +154,7 @@ enum WThreadedFunctionNbThreads
  * if the execution should be stopped. Make sure to check the flag often, so that the threads
  * can be stopped when needed.
  *
- * This class is NOT thread-safe, do not access it from different threads simultaneously.
+ * This class itself is NOT thread-safe, do not access it from different threads simultaneously.
  * Also, make sure any resources used by your function are accessed in a threadsafe manner,
  * as all threads share the same function object.
  *
@@ -86,7 +170,7 @@ enum WThreadedFunctionNbThreads
  * \ingroup common
  */
 template< class Function_T >
-class WThreadedFunction
+class WThreadedFunction : public WThreadedFunctionBase
 {
     //! a type for exception signals
     typedef boost::signal< void ( WException const& ) > ExceptionSignal;
@@ -111,44 +195,23 @@ public:
      *
      * \note Of course, the client has to make sure the threads do not work endlessly on a single job.
      */
-    ~WThreadedFunction();
+    virtual ~WThreadedFunction();
 
     /**
      * Starts the threads.
      */
-    void run();
+    virtual void run();
 
     /**
      * Request all threads to stop. Returns immediately, so you might
      * have to wait() for the threads to actually finish.
      */
-    void stop();
+    virtual void stop();
 
     /**
      * Wait for all threads to stop.
      */
-    void wait();
-
-    /**
-     * Get the status of the threads.
-     *
-     * \return The current status.
-     */
-    WThreadedFunctionStatus status();
-
-    /**
-     * Returns a condition that gets fired when all threads have finished.
-     *
-     * \return The condition indicating all threads are done.
-     */
-    boost::shared_ptr< WCondition > getThreadsDoneCondition();
-
-    /**
-     * Subscribe a function to an exception signal.
-     *
-     * \param func The function to subscribe.
-     */
-    void subscribeExceptionSignal( ExceptionFunction func );
+    virtual void wait();
 
 private:
     /**
@@ -183,28 +246,17 @@ private:
     //! the function object
     boost::shared_ptr< Function_T > m_func;
 
-    //! a condition that gets notified when the work is complete
-    boost::shared_ptr< WCondition > m_doneCondition;
-
     //! a counter that keeps track of how many threads have finished
     WSharedObject< std::size_t > m_threadsDone;
-
-    //! a signal for exceptions
-    ExceptionSignal m_exceptionSignal;
-
-    //! the current status
-    WSharedObject< WThreadedFunctionStatus > m_status;
 };
 
 template< class Function_T >
 WThreadedFunction< Function_T >::WThreadedFunction( std::size_t numThreads, boost::shared_ptr< Function_T > function )
-    : m_numThreads( numThreads ),
+    : WThreadedFunctionBase(),
+      m_numThreads( numThreads ),
       m_threads(),
       m_func( function ),
-      m_doneCondition( new WCondition ),
-      m_threadsDone(),
-      m_exceptionSignal(),
-      m_status()
+      m_threadsDone()
 {
     if( !m_func )
     {
@@ -224,9 +276,6 @@ WThreadedFunction< Function_T >::WThreadedFunction( std::size_t numThreads, boos
     // set number of finished threads to 0
     m_threadsDone.getWriteTicket()->get() = 0;
 
-    // set initial status
-    m_status.getWriteTicket()->get() = W_THREADS_INITIALIZED;
-
     // create threads
     for( std::size_t k = 0; k < m_numThreads; ++k )
     {
@@ -241,7 +290,6 @@ template< class Function_T >
 WThreadedFunction< Function_T >::~WThreadedFunction()
 {
     stop();
-    m_exceptionSignal.disconnect_all_slots();
 }
 
 template< class Function_T >
@@ -280,27 +328,6 @@ void WThreadedFunction< Function_T >::wait()
     for( it = m_threads.begin(); it != m_threads.end(); ++it )
     {
         ( *it )->wait();
-    }
-}
-
-template< class Function_T >
-WThreadedFunctionStatus WThreadedFunction< Function_T >::status()
-{
-    return m_status.getReadTicket()->get();
-}
-
-template< class Function_T >
-boost::shared_ptr< WCondition > WThreadedFunction< Function_T >::getThreadsDoneCondition()
-{
-    return m_doneCondition;
-}
-
-template< class Function_T >
-void WThreadedFunction< Function_T >::subscribeExceptionSignal( ExceptionFunction func )
-{
-    if( func )
-    {
-        m_exceptionSignal.connect( func );
     }
 }
 

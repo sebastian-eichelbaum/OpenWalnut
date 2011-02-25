@@ -49,7 +49,8 @@ WMDeterministicFTMori::WMDeterministicFTMori()
       m_dataSet(),
       m_fiberSet(),
       m_eigenField(),
-      m_eigenOperation(),
+      m_eigenOperationFloat(),
+      m_eigenOperationDouble(),
       m_eigenPool()
 {
 }
@@ -128,9 +129,18 @@ void WMDeterministicFTMori::moduleMain()
             // the computation of the eigenvectors has finished
             // we have a new eigenvectorfield
             m_currentProgress->finish();
-            WAssert( m_eigenOperation, "" );
-            m_eigenField = m_eigenOperation->getResult();
-            m_eigenPool = boost::shared_ptr< EigenFunctionType >();
+            WAssert( m_eigenOperationFloat || m_eigenOperationDouble, "" );
+
+            if( m_dataSet->getValueSet()->getDataType() == W_DT_DOUBLE )
+            {
+                m_eigenField = m_eigenOperationDouble->getResult();
+            }
+            else
+            {
+                m_eigenField = m_eigenOperationFloat->getResult();
+            }
+
+            m_eigenPool = boost::shared_ptr< WThreadedFunctionBase >();
             debugLog() << "Eigenvectors computed.";
 
             m_currentMinFA = m_minFA->get( true );
@@ -242,10 +252,29 @@ void WMDeterministicFTMori::resetEigenFunction()
     }
     // the threadpool should have finished computing by now
 
+    m_eigenOperationFloat = boost::shared_ptr< TPVOFloat >();
+    m_eigenOperationDouble = boost::shared_ptr< TPVODouble >();
+
     // create a new one
-    m_eigenOperation = boost::shared_ptr< TPVO >( new TPVO( m_dataSet, boost::bind( &WMDeterministicFTMori::eigenFunc, this, _1 ) ) );
-    m_eigenPool = boost::shared_ptr< EigenFunctionType >( new EigenFunctionType( WM_MORI_NUM_CORES, m_eigenOperation ) );
-    m_moduleState.add( m_eigenPool->getThreadsDoneCondition() );
+    if( m_dataSet->getValueSet()->getDataType() == W_DT_DOUBLE )
+    {
+        m_eigenOperationDouble = boost::shared_ptr< TPVODouble >( new TPVODouble( m_dataSet,
+                                                boost::bind( &WMDeterministicFTMori::eigenFuncDouble, this, _1 ) ) );
+        m_eigenPool = boost::shared_ptr< WThreadedFunctionBase >( new EigenFunctionTypeDouble( WM_MORI_NUM_CORES, m_eigenOperationDouble ) );
+        m_moduleState.add( m_eigenPool->getThreadsDoneCondition() );
+    }
+    else if( m_dataSet->getValueSet()->getDataType() == W_DT_FLOAT )
+    {
+        m_eigenOperationFloat = boost::shared_ptr< TPVOFloat >( new TPVOFloat( m_dataSet,
+                                                boost::bind( &WMDeterministicFTMori::eigenFuncFloat, this, _1 ) ) );
+        m_eigenPool = boost::shared_ptr< WThreadedFunctionBase >( new EigenFunctionTypeFloat( WM_MORI_NUM_CORES, m_eigenOperationFloat ) );
+        m_moduleState.add( m_eigenPool->getThreadsDoneCondition() );
+    }
+    else
+    {
+        errorLog() << "Input data does not contain floating point values, skipping.";
+        m_eigenPool = boost::shared_ptr< WThreadedFunctionBase >();
+    }
 }
 
 void WMDeterministicFTMori::resetTracking()
@@ -332,17 +361,9 @@ void WMDeterministicFTMori::pointVis( wmath::WVector3D const& )
 {
 }
 
-WMDeterministicFTMori::EigenOutArrayType const WMDeterministicFTMori::eigenFunc( EigenInArrayType const& input )
+boost::array< double, 4 > const WMDeterministicFTMori::computeFaAndEigenVec( wmath::WTensorSym< 2, 3, double > const& m ) const
 {
-    EigenOutArrayType a;
-
-    wmath::WTensorSym< 2, 3, double > m;
-    m( 0, 0 ) = static_cast< double >( input[ 0 ] );
-    m( 0, 1 ) = static_cast< double >( input[ 1 ] );
-    m( 0, 2 ) = static_cast< double >( input[ 2 ] );
-    m( 1, 1 ) = static_cast< double >( input[ 3 ] );
-    m( 1, 2 ) = static_cast< double >( input[ 4 ] );
-    m( 2, 2 ) = static_cast< double >( input[ 5 ] );
+    boost::array< double, 4 > a;
 
     std::vector< double > ev( 3 );
     std::vector< wmath::WVector3D > t( 3 );
@@ -381,9 +402,37 @@ WMDeterministicFTMori::EigenOutArrayType const WMDeterministicFTMori::eigenFunc(
                              + ( ev[ 2 ] - trace ) * ( ev[ 2 ] - trace ) ) / d );
     }
 
+    return a;
+}
+
+WMDeterministicFTMori::TPVOFloat::OutTransmitType const WMDeterministicFTMori::eigenFuncFloat( TPVOFloat::TransmitType const& input )
+{
+    wmath::WTensorSym< 2, 3, double > m;
+    m( 0, 0 ) = static_cast< double >( input[ 0 ] );
+    m( 0, 1 ) = static_cast< double >( input[ 1 ] );
+    m( 0, 2 ) = static_cast< double >( input[ 2 ] );
+    m( 1, 1 ) = static_cast< double >( input[ 3 ] );
+    m( 1, 2 ) = static_cast< double >( input[ 4 ] );
+    m( 2, 2 ) = static_cast< double >( input[ 5 ] );
+
     ++*m_currentProgress;
 
-    return a;
+    return computeFaAndEigenVec( m );
+}
+
+WMDeterministicFTMori::TPVODouble::OutTransmitType const WMDeterministicFTMori::eigenFuncDouble( TPVODouble::TransmitType const& input )
+{
+    wmath::WTensorSym< 2, 3, double > m;
+    m( 0, 0 ) = static_cast< double >( input[ 0 ] );
+    m( 0, 1 ) = static_cast< double >( input[ 1 ] );
+    m( 0, 2 ) = static_cast< double >( input[ 2 ] );
+    m( 1, 1 ) = static_cast< double >( input[ 3 ] );
+    m( 1, 2 ) = static_cast< double >( input[ 4 ] );
+    m( 2, 2 ) = static_cast< double >( input[ 5 ] );
+
+    ++*m_currentProgress;
+
+    return computeFaAndEigenVec( m );
 }
 
 void WMDeterministicFTMori::resetProgress( std::size_t todo )
