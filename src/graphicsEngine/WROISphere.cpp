@@ -48,7 +48,10 @@ WROISphere::WROISphere( wmath::WPosition position, float radius ) :
     m_notColor( osg::Vec4( 1.0f, 0.0f, 0.0f, 0.4f ) ),
     m_lockPoint( wmath::WVector3D( 0.0, 0.0, 0.0 ) ),
     m_lockVector( wmath::WVector3D( 1.0, 1.0, 1.0 ) ),
-    m_lockOnVector( false )
+    m_lockOnVector( false ),
+    m_lockX( false ),
+    m_lockY( false ),
+    m_lockZ( false )
 {
     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
     assert( ge );
@@ -72,6 +75,7 @@ void WROISphere::redrawSphere()
     removeDrawables( 0 );
 
     osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( osg::Vec3( m_position[0], m_position[1], m_position[2] ), m_radius ) );
+    shape->setColor( m_color );
 
     std::stringstream ss;
     ss << "ROISphere" << sphereId;
@@ -205,6 +209,21 @@ void WROISphere::moveSphere( wmath::WVector3D offset )
 {
     m_position += offset;
 
+    if ( m_lockX )
+    {
+        m_position[0] = m_lockPoint[0];
+    }
+
+    if ( m_lockY )
+    {
+        m_position[1] = m_lockPoint[1];
+    }
+
+    if ( m_lockZ )
+    {
+        m_position[2] = m_lockPoint[2];
+    }
+
     if ( m_lockOnVector )
     {
         float k = ( ( m_lockPoint[0] * m_lockVector[0] ) - ( m_position.x() * m_lockVector[0] ) +
@@ -217,50 +236,27 @@ void WROISphere::moveSphere( wmath::WVector3D offset )
 
 void WROISphere::setLockX( bool value )
 {
-    m_lockOnVector = value;
+    m_lockX = value;
     m_lockPoint = m_position;
-    if ( value )
-    {
-        m_lockVector[0] = 0.0;
-    }
-    else
-    {
-        m_lockVector[0] = 1.0;
-    }
 }
 
 void WROISphere::setLockY( bool value )
 {
-    m_lockOnVector = value;
+    m_lockY = value;
     m_lockPoint = m_position;
-    if ( value )
-    {
-        m_lockVector[1] = 0.0;
-    }
-    else
-    {
-        m_lockVector[1] = 1.0;
-    }
 }
 
 void WROISphere::setLockZ( bool value )
 {
-    m_lockOnVector = value;
+    m_lockZ = value;
     m_lockPoint = m_position;
-    if ( value )
-    {
-        m_lockVector[2] = 0.0;
-    }
-    else
-    {
-        m_lockVector[2] = 1.0;
-    }
 }
 
 
 void WROISphere::setColor( osg::Vec4 color )
 {
     m_color = color;
+    redrawSphere();
 }
 
 void WROISphere::setNotColor( osg::Vec4 color )
