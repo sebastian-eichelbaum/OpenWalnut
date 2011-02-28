@@ -110,13 +110,10 @@ void main()
     float light = 1.0;
 #endif
 
-    // vec4 sScene = normalize( vec4( 1.0, 1.0, 1.0, 0.0 ) );
-    // vec4 sWorld = gl_ModelViewMatrix * sScene;
-    // float s = 0.1*length( sWorld.rgb );
-
     // finally set the color and depth
     wge_FragColor = vec4( gl_Color.rgb * light * colorScaler, gl_Color.a );
     wge_FragNormal = textureNormalize( normal );
+    wge_FragZoom = 0.1 * v_woldScale;
     gl_FragDepth = depth;
 }
 

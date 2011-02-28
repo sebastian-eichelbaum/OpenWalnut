@@ -56,11 +56,6 @@ uniform sampler2D u_texture2Sampler;
 uniform sampler2D u_texture3Sampler;
 
 /**
- * The white-noise 3 channel texture: sampler
- */
-uniform sampler1D u_texture4Sampler;
-
-/**
  * The white-noise 3 channel texture: size in x direction
  */
 uniform int u_texture3SizeX;
@@ -191,6 +186,29 @@ float getDepth( in vec2 where )
 float getDepth()
 {
     return getDepth( pixelCoord );
+}
+
+/**
+ * Returns the zoom factor for the current pixel if set by the output shader of the geometry getting post-processed here.
+ *
+ * \param where the pixel to grab
+ *
+ * \return the zoom factor
+ */
+float getZoom( in vec2 where )
+{
+    // TODO(ebaum): somehow remove this scaler
+    return texture2D( u_texture1Sampler, pixelCoord ).a * 10.0;
+}
+
+/**
+ * Returns the zoom factor for the current pixel if set by the output shader of the geometry getting post-processed here.
+ *
+ * \return the zoom factor
+ */
+float getZoom()
+{
+    return getZoom( pixelCoord );
 }
 
 /**
@@ -411,18 +429,18 @@ float getGaussedDepth()
  * The total influence of SSAO.
  */
 //const float u_ssaoTotalStrength = 2.0; // 1.38;   // total strength - scaling the resulting AO
-const float u_ssaoTotalStrength = 5.5; // 1.38;   // total strength - scaling the resulting AO
+uniform float u_ssaoTotalStrength = 5.5; // 1.38;   // total strength - scaling the resulting AO
 
 /**
  * The strength of the occluder influence in relation to the geometry density. The heigher the value, the larger the influence. Low values remove
  * the drop-shadow effect.
  */
-const float u_ssaoDensityWeight = 1.0; //0.07;
+uniform float u_ssaoDensityWeight = 1.0; //0.07;
 
 /**
  * The radius of the hemispshere in screen-space which gets scaled.
  */
-const float u_ssaoRadiusSS = 2.0;
+uniform float u_ssaoRadiusSS = 2.0;
 
 /**
  * Calculate the screen-space ambient occlusion from normal and depth map.
@@ -455,7 +473,7 @@ float getSSAO( vec2 where )
 
     // the radius of the sphere is, in screen-space, half a pixel. So the hemisphere covers nearly one pixel. Scaling by depth somehow makes it
     // more invariant for zooming
-    float radius = ( u_ssaoRadiusSS / float( u_texture0SizeX ) ) / ( 1.0 - currentPixelDepth );
+    float radius = ( getZoom() * u_ssaoRadiusSS / float( u_texture0SizeX ) ) / ( 1.0 - currentPixelDepth );
 
     // some temporaries needed inside the loop
     vec3 ray;                     // the current ray inside the sphere
@@ -470,13 +488,11 @@ float getSSAO( vec2 where )
     float occlusion = 0.0;
     float radiusScaler = 0.0;     // we sample with multiple radii, so use a scaling factor here
 
-    float s = 1.0;// getColor().a * 10.0 ;
-
     // sample for different radii
     for( int l = 1; l <= SCALERS; ++l )
     {
         float occlusionStep = 0.0;  // this variable accumulates the occlusion for the current radius
-        radiusScaler += 1.0;    // increment radius each time.
+        radiusScaler += 1;    // increment radius each time.
 
         // Get SAMPLES-times samples on the hemisphere and check for occluders
         for( int i = 0; i < SAMPLES; ++i )
@@ -486,7 +502,7 @@ float getSSAO( vec2 where )
                                                                           float( l ) / float( SCALERS ) ) ).rgb * 2.0 ) - vec3( 1.0 );
 
             // get a vector (randomized inside of a sphere with radius 1.0) from a texture and reflect it
-            ray = s * radiusScaler * radius * reflect( randSphereNormal, randNormal );
+            ray = radiusScaler * radius * reflect( randSphereNormal, randNormal );
 
             // if the ray is outside the hemisphere then change direction
             hemispherePoint = ( sign( dot( ray, normal ) ) * ray ) + ep;
@@ -623,7 +639,7 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_SSAOWITHPHONG
     float ao = getSSAO();
-    //ao = 2.0 * ( ao - 0.5 );
+    ao = 2.0 * ( ao - 0.5 );
     float lPhong = getPPLPhong( wge_DefaultLightIntensityLessDiffuse );
     float lKrueger = kruegerNonLinearIllumination( getNormal().xyz, 5.0 );
     float l = ao + lPhong;
