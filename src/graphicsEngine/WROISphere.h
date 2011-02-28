@@ -186,6 +186,10 @@ private:
 
     bool m_lockOnVector; //!< flag indicatin wether the movement of the sphere is restricted
 
+    bool m_lockX; //!< flag indicatin wether the movement of the sphere is restricted
+    bool m_lockY; //!< flag indicatin wether the movement of the sphere is restricted
+    bool m_lockZ; //!< flag indicatin wether the movement of the sphere is restricted
+
 
     /**
      * note that there was a pick
