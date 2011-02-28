@@ -221,7 +221,7 @@ void WMOverlayAtlas::init()
     m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMOverlayAtlas::updateCallback, this ) ) );
     m_rootNode->insert( m_geode );
 
-    wmath::WPosition center;
+    WPosition center;
 
     size_t p = m_propCoronalSlicePos->get();
 
@@ -229,11 +229,11 @@ void WMOverlayAtlas::init()
     center[1] = m_coronalSlices[p].position();
     center[2] = m_coronalSlices[p].bottom() + ( ( m_coronalSlices[p].top() - m_coronalSlices[p].bottom() ) / 2. );
 
-    m_p0 = wmath::WPosition( center );
-    m_p1 = wmath::WPosition( center[0], center[1], center[2] );
-    m_p2 = wmath::WPosition( center[0], center[1], center[2] );
-    m_p3 = wmath::WPosition( center[0], center[1], center[2] );
-    m_p4 = wmath::WPosition( center[0], center[1], center[2] );
+    m_p0 = WPosition( center );
+    m_p1 = WPosition( center[0], center[1], center[2] );
+    m_p2 = WPosition( center[0], center[1], center[2] );
+    m_p3 = WPosition( center[0], center[1], center[2] );
+    m_p4 = WPosition( center[0], center[1], center[2] );
 
     m_p1[0] = m_coronalSlices[0].left();
     m_p2[2] = m_coronalSlices[0].top();
@@ -276,9 +276,9 @@ void WMOverlayAtlas::init()
 void WMOverlayAtlas::manipulatorMoved()
 {
     size_t i = m_propCoronalSlicePos->get();
-    m_s0->setPosition( wmath::WPosition( m_s0->getPosition()[0], m_coronalSlices[i].position(), m_s0->getPosition()[2] ) );
+    m_s0->setPosition( WPosition( m_s0->getPosition()[0], m_coronalSlices[i].position(), m_s0->getPosition()[2] ) );
 
-    wmath::WPosition s0Move = m_s0->getPosition() - m_p0;
+    WPosition s0Move = m_s0->getPosition() - m_p0;
     m_p0 = m_s0->getPosition();
 
     m_s1->setPosition( m_s1->getPosition() + s0Move );
@@ -329,10 +329,10 @@ void WMOverlayAtlas::updatePlane()
 {
     m_geode->removeDrawables( 0, 1 );
 
-    wmath::WPosition v0( m_p1[0], m_p1[1], m_p2[2] );
-    wmath::WPosition v1( m_p3[0], m_p3[1], m_p2[2] );
-    wmath::WPosition v2( m_p3[0], m_p3[1], m_p4[2] );
-    wmath::WPosition v3( m_p1[0], m_p1[1], m_p4[2] );
+    WPosition v0( m_p1[0], m_p1[1], m_p2[2] );
+    WPosition v1( m_p3[0], m_p3[1], m_p2[2] );
+    WPosition v2( m_p3[0], m_p3[1], m_p4[2] );
+    WPosition v3( m_p1[0], m_p1[1], m_p4[2] );
 
     osg::ref_ptr<osg::Geometry> planeGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
     osg::Vec3Array* planeVertices = new osg::Vec3Array;

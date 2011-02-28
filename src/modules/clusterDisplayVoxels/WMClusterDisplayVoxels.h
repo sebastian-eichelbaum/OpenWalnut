@@ -349,6 +349,12 @@ private:
      */
     WPropBool m_propResizeWithWindow;
 
+    /**
+     * draw the dendrogramm from the root node or fromt he currently selected cluster
+     */
+    WPropBool m_propZoomIntoTree;
+
+
     WPropInt m_propDendrogramSizeX; //!< controls the width of the dendrogram
     WPropInt m_propDendrogramSizeY; //!< controls the height of the dendrogram
     WPropInt m_propDendrogramOffsetX; //!< controls the horizontal origin of the dendrogram

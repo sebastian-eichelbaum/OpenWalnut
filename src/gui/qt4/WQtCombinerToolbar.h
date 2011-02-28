@@ -73,13 +73,7 @@ public:
     void makeEmpty();
 
 protected:
-
 private:
-    /**
-     * Insert dummy button so that the toolbar is not hidden.
-     */
-    void insertDummyButton();
-
     WMainWindow* m_parent; //!< The widget managing this widget.
 };
 

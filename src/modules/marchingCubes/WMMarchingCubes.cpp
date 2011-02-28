@@ -617,7 +617,7 @@ void WMMarchingCubes::updateGraphicsCallback()
                 for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
                 {
                     osg::Vec3 vertPos = m_triMesh->getVertex( i );
-                    texCoords->push_back( grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) );
+                    texCoords->push_back( grid->worldCoordToTexCoord( WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) );
                 }
                 surfaceGeometry->setTexCoordArray( c, texCoords );
 
@@ -648,7 +648,7 @@ void WMMarchingCubes::updateGraphicsCallback()
                     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
                     {
                         osg::Vec3 vertPos = m_triMesh->getVertex( i );
-                        texCoords->push_back( grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) );
                     }
                     surfaceGeometry->setTexCoordArray( c, texCoords );
                 }

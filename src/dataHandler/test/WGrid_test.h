@@ -53,7 +53,7 @@ public:
      */
     virtual WBoundingBox getBoundingBox() const
     {
-        return WBoundingBox( wmath::WPosition( 0, 0, 0 ), wmath::WPosition( 1, 1, 1 ) );
+        return WBoundingBox( WPosition( 0, 0, 0 ), WPosition( 1, 1, 1 ) );
     }
 };
 

@@ -208,7 +208,9 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
         {
             // forward to texture
             m_dataSet->getTexture2()->active()->set( m_active->get( true ) );
+            // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
             m_dataSet->getTexture()->setGloballyActive( m_active->get() );
+            // }
         }
     }
     else

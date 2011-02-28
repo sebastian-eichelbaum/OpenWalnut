@@ -98,23 +98,23 @@ void WMCalculateGFA::moduleMain()
     m_moduleState.add( m_exceptionCondition );
 
     std::vector< unsigned int > temp;
-    std::vector< wmath::WVector3D > grad;
+    std::vector< WVector3D > grad;
 
-    wmath::tesselateIcosahedron( &grad, &temp, 2 );
+    tesselateIcosahedron( &grad, &temp, 2 );
 
     temp.clear();
 
-    std::vector< wmath::WUnitSphereCoordinates > ori;
+    std::vector< WUnitSphereCoordinates > ori;
     for( std::size_t k = 0; k < grad.size(); ++k )
     {
         if( grad[ k ][ 0 ] >= 0.0 )
         {
-            ori.push_back( wmath::WUnitSphereCoordinates( grad[ k ] ) );
+            ori.push_back( WUnitSphereCoordinates( grad[ k ] ) );
         }
     }
     grad.clear();
 
-    m_BMat = wmath::WSymmetricSphericalHarmonic::calcBaseMatrix( ori, 4 );
+    m_BMat = WSymmetricSphericalHarmonic::calcBaseMatrix( ori, 4 );
     ori.clear();
 
     ready();
@@ -212,12 +212,12 @@ boost::array< double, 1 > WMCalculateGFA::perVoxelGFAFunc( WValueSet< double >::
 {
     ++*m_currentProgress;
     boost::array< double, 1 > a;
-    wmath::WValue< double > w( 15 );
+    WValue< double > w( 15 );
     for( int i = 0; i < 15; ++i )
     {
         w[ i ] = s[ i ];
     }
-    wmath::WSymmetricSphericalHarmonic h( w );
+    WSymmetricSphericalHarmonic h( w );
     a[ 0 ] = h.calcGFA( m_BMat );
 
     return a;

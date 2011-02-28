@@ -42,8 +42,8 @@
 
 osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const WBoundingBox& bb, const WColor& color )
 {
-    const wmath::WPosition& pos1 = bb.getMin();
-    const wmath::WPosition& pos2 = bb.getMax();
+    const WPosition& pos1 = bb.getMin();
+    const WPosition& pos2 = bb.getMax();
 
     WAssert( pos1[0] <= pos2[0] && pos1[1] <= pos2[1] && pos1[2] <= pos2[2], "pos1 does not seem to be the frontLowerLeft corner of the BB!" );
     using osg::ref_ptr;
@@ -218,7 +218,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bo
     return geometry;
 }
 
-osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const wmath::WLine& line, const float thickness, const WColor& color )
+osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const WLine& line, const float thickness, const WColor& color )
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );

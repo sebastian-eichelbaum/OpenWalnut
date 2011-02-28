@@ -30,66 +30,62 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include <osg/Matrix>
 #include <osg/io_utils>
+#include <osg/Matrix>
 
-#include "../WStringUtils.h"
 #include "../WAssert.h"
+#include "../WStringUtils.h"
 
-namespace wmath
+/**
+ * Use osg 4x4 matrices as WMatrix4x4
+ */
+typedef osg::Matrixd WMatrix4x4;
+
+/**
+ * Write a 4x4 matrix in string representation.
+ *
+ * \param c  the matrix
+ *
+ * \return the matrix as string
+ */
+inline std::string toString( const WMatrix4x4& c )
 {
-    /**
-     * Use osg 4x4 matrices as WMatrix4x4
-     */
-    typedef osg::Matrixd WMatrix4x4;
-
-    /**
-     * Write a 4x4 matrix in string representation.
-     *
-     * \param c  the matrix
-     *
-     * \return the matrix as string
-     */
-    inline std::string toString( const WMatrix4x4& c )
+    std::ostringstream out;
+    for ( size_t row = 0; row < 4; ++row )
     {
-        std::ostringstream out;
-        for ( size_t row = 0; row < 4; ++row )
+        for ( size_t col = 0; col < 4; ++col )
         {
-            for ( size_t col = 0; col < 4; ++col )
-            {
-                out << c( row, col ) << ";";
-            }
+            out << c( row, col ) << ";";
         }
-        return out.str();
+    }
+    return out.str();
+}
+
+/**
+ * Read a 4x4 matrix in string representation from the given string.
+ *
+ * \param str the string to parse
+ *
+ * \return the matrix
+ */
+inline WMatrix4x4 fromString( std::string str )
+{
+    WMatrix4x4 c;
+    std::vector< std::string > tokens;
+    tokens = string_utils::tokenize( str, ";" );
+    WAssert( tokens.size() >= 16, "There weren't 16 values for a 4x4 Matrix" );
+
+    size_t idx = 0;
+    for ( size_t row = 0; row < 4; ++row )
+    {
+        for ( size_t col = 0; col < 4; ++col )
+        {
+            c( row, col ) = boost::lexical_cast< double >( tokens[ idx ] );
+            idx++;
+        }
     }
 
-    /**
-     * Read a 4x4 matrix in string representation from the given string.
-     *
-     * \param str the string to parse
-     *
-     * \return the matrix
-     */
-    inline WMatrix4x4 fromString( std::string str )
-    {
-        WMatrix4x4 c;
-        std::vector< std::string > tokens;
-        tokens = string_utils::tokenize( str, ";" );
-        WAssert( tokens.size() >= 16, "There weren't 16 values for a 4x4 Matrix" );
-
-        size_t idx = 0;
-        for ( size_t row = 0; row < 4; ++row )
-        {
-            for ( size_t col = 0; col < 4; ++col )
-            {
-                c( row, col ) = boost::lexical_cast< double >( tokens[ idx ] );
-                idx++;
-            }
-        }
-
-        return c;
-    }
+    return c;
 }
 
 #endif  // WMATRIX4X4_H
-

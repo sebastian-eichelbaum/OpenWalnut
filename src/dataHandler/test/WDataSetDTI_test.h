@@ -75,7 +75,7 @@ public:
         boost::shared_ptr< WValueSetBase > newValueSet( new WValueSet< float >( 1, 6, data, W_DT_FLOAT ) );
         boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
         WDataSetDTI dataset( newValueSet, newGrid );
-        wmath::WTensorSym< 2, 3, float > expected;
+        WTensorSym< 2, 3, float > expected;
         expected( 0, 0 ) = 0.0;
         expected( 0, 1 ) = 1.0;
         expected( 0, 2 ) = 2.0;

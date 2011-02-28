@@ -63,7 +63,7 @@ boost::shared_ptr< WPrototyped > WDataSetVector::getPrototype()
     return m_prototype;
 }
 
-wmath::WVector3D WDataSetVector::interpolate( const wmath::WPosition& pos, bool *success ) const
+WVector3D WDataSetVector::interpolate( const WPosition& pos, bool *success ) const
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
 
@@ -78,11 +78,11 @@ wmath::WVector3D WDataSetVector::interpolate( const wmath::WPosition& pos, bool 
     if( !isInside )
     {
         *success = false;
-        return wmath::WVector3D();
+        return WVector3D();
     }
     std::vector< size_t > vertexIds = grid->getCellVertexIds( cellId );
 
-    wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
+    WPosition localPos = pos - grid->getPosition( vertexIds[0] );
 
     double lambdaX = localPos[0] / grid->getOffsetX();
     double lambdaY = localPos[1] / grid->getOffsetY();
@@ -106,7 +106,7 @@ wmath::WVector3D WDataSetVector::interpolate( const wmath::WPosition& pos, bool 
     h[6] = ( 1 - lambdaX ) * (     lambdaY ) * (     lambdaZ );
     h[7] = (     lambdaX ) * (     lambdaY ) * (     lambdaZ );
 
-    wmath::WVector3D result( 0, 0, 0 );
+    WVector3D result( 0, 0, 0 );
     for( size_t i = 0; i < 8; ++i )
     {
         result += h[i] * getVectorAt( vertexIds[i] );
@@ -116,7 +116,7 @@ wmath::WVector3D WDataSetVector::interpolate( const wmath::WPosition& pos, bool 
     return result;
 }
 
-wmath::WVector3D WDataSetVector::getVectorAt( size_t index ) const
+WVector3D WDataSetVector::getVectorAt( size_t index ) const
 {
     switch( getValueSet()->getDataType() )
     {
@@ -144,7 +144,7 @@ wmath::WVector3D WDataSetVector::getVectorAt( size_t index ) const
             WAssert( false, "Unknow data type in dataset." );
     }
 
-    return wmath::WVector3D( 0, 0, 0 );
+    return WVector3D( 0, 0, 0 );
 }
 
 bool WDataSetVector::isTexture() const

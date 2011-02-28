@@ -70,9 +70,9 @@ template< typename T >  boost::shared_ptr< std::vector< T > > WReaderNIfTI::copy
 }
 
 
-wmath::WMatrix< double > WReaderNIfTI::convertMatrix( const mat44& in )
+WMatrix< double > WReaderNIfTI::convertMatrix( const mat44& in )
 {
-    wmath::WMatrix< double > out( 4, 4 );
+    WMatrix< double > out( 4, 4 );
     for( size_t i = 0; i < 4; ++i )
     {
         for( size_t j = 0; j < 4; ++j )
@@ -358,7 +358,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
             else
             {
                 // read gradients, there should be 3 * vDim values in the file
-                typedef std::vector< wmath::WVector3D > GradVec;
+                typedef std::vector< WVector3D > GradVec;
                 boost::shared_ptr< GradVec > newGradients = boost::shared_ptr< GradVec >( new GradVec( vDim ) );
 
                 // the file should contain the x-coordinates in line 0, y-coordinates in line 1,

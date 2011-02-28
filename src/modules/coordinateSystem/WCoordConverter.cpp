@@ -29,8 +29,6 @@
 
 #include "WCoordConverter.h"
 
-using wmath::WMatrix;
-using wmath::WVector3D;
 
 WCoordConverter::WCoordConverter( WMatrix<double> rotMat, WVector3D origin, WVector3D scale ) :
     m_rotMat( rotMat ),
@@ -60,9 +58,9 @@ void WCoordConverter::setBoundingBox( WBoundingBox boundingBox )
     m_boundingBox = boundingBox;
 }
 
-wmath::WVector3D WCoordConverter::worldCoordTransformed( wmath::WPosition point )
+WVector3D WCoordConverter::worldCoordTransformed( WPosition point )
 {
-    wmath::WVector3D r( wmath::transformPosition3DWithMatrix4D( m_rotMat, point ) );
+    WVector3D r( transformPosition3DWithMatrix4D( m_rotMat, point ) );
     return r;
 }
 

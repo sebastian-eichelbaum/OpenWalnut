@@ -151,7 +151,7 @@ void WMBoundaryCurvesWMGM::initOSG( boost::shared_ptr< WGridRegular3D > grid, bo
     //       http://www.boost.org/doc/libs/1_42_0/doc/html/array/rationale.html
     boost::array< osg::StateSet*, 3 > ss = { { m_xSlice->getOrCreateStateSet(), m_ySlice->getOrCreateStateSet(), m_zSlice->getOrCreateStateSet() } }; // NOLINT curly braces
     boost::array< WPropInt, 3 > pos = { { m_xPos, m_yPos, m_zPos } }; // NOLINT curly braces
-    boost::array< wmath::WVector3D, 3 > dir = { { grid->getDirectionX(), grid->getDirectionY(), grid->getDirectionZ() } }; // NOLINT curly braces
+    boost::array< WVector3D, 3 > dir = { { grid->getDirectionX(), grid->getDirectionY(), grid->getDirectionZ() } }; // NOLINT curly braces
 
     for( int i = 0; i < 3; ++i )
     {

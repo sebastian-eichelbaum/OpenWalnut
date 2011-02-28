@@ -31,7 +31,6 @@
 
 #include "../WValue.h"
 
-using wmath::WValue;
 
 /**
  * Testsuite for WValue.

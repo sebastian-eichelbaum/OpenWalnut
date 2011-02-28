@@ -34,23 +34,26 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
-#include "../../common/datastructures/WFiber.h"
 #include "../../common/WPropertyHelper.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleInputData.h"
 #include "WBresenham.h"
 #include "WBresenhamDBL.h"
-#include "WMVoxelizer.h"
-#include "WRasterAlgorithm.h"
-#include "WIntegrationParameterization.h"
 #include "WCenterlineParameterization.h"
+#include "WIntegrationParameterization.h"
+#include "WMVoxelizer.h"
 #include "WMVoxelizer.xpm"
+#include "WRasterAlgorithm.h"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMVoxelizer )
@@ -400,9 +403,9 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
     algo->finished();
 
     // TODO(math): This is just a line for testing purposes
-//    wmath::WLine l;
-//    l.push_back( wmath::WPosition( 73, 38, 29 ) );
-//    l.push_back( wmath::WPosition( 120, 150, 130 ) );
+//    WLine l;
+//    l.push_back( WPosition( 73, 38, 29 ) );
+//    l.push_back( WPosition( 120, 150, 130 ) );
 //    algo->raster( l );
 }
 
@@ -459,8 +462,8 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     {
         if( values[i] != 0.0 )
         {
-            wmath::WPosition pos = grid->getPosition( i );
-            boost::shared_ptr< std::vector< wmath::WPosition > > voxelCornerVertices = grid->getVoxelVertices( pos, 0.01 );
+            WPosition pos = grid->getPosition( i );
+            boost::shared_ptr< std::vector< WPosition > > voxelCornerVertices = grid->getVoxelVertices( pos, 0.01 );
             osg::ref_ptr< osg::Vec3Array > ver = wge::generateCuboidQuads( *voxelCornerVertices );
             vertices->insert( vertices->end(), ver->begin(), ver->end() );
             osg::ref_ptr< osg::Vec3Array > nor = wge::generateCuboidQuadNormals( *voxelCornerVertices );

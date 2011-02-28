@@ -87,25 +87,6 @@ void WGEGraphicsWindowAll::createContext( int x, int y, int width, int height )
     traits->samples = ds->getNumMultiSamples();
     traits->inheritedWindowData = m_WindowData;
 
-    // Stereo
-    // TODO(ebaum): Stereo Mode: test whether it works
-    if ( ds->getStereo() )
-    {
-        switch( ds->getStereoMode() )
-        {
-            case( osg::DisplaySettings::QUAD_BUFFER ):
-                traits->quadBufferStereo = true;
-                break;
-            case( osg::DisplaySettings::VERTICAL_INTERLACE ):
-            case( osg::DisplaySettings::CHECKERBOARD ):
-            case( osg::DisplaySettings::HORIZONTAL_INTERLACE ):
-                traits->stencil = 8;
-                break;
-            default:
-                break;
-        }
-    }
-
     // finally create graphics context and window
     m_GraphicsContext = osg::GraphicsContext::createGraphicsContext( traits.get() );
 

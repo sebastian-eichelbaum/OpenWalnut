@@ -31,37 +31,21 @@
 WQtToolBar::WQtToolBar( const QString & title, QWidget* parent )
     : QToolBar( title, parent )
 {
-    this->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
+    setObjectName( title );
 
-    // The following makes the bar having button size from the beginning.
-    QPushButton* dummyButton = new QPushButton;
-    dummyButton->setFixedWidth( 0 );
-    addWidget( dummyButton );
+    this->setAllowedAreas( Qt::AllToolBarAreas );
+
+    setMinimumWidth( 60 );
+    setMinimumHeight( 40 );
 }
 
 WQtToolBar::~WQtToolBar()
 {
 }
 
-WQtPushButton* WQtToolBar::addPushButton( QString name, QIcon icon, QString label )
-{
-    WQtPushButton* button = new WQtPushButton( icon, label, this, label );
-
-    button->setName( name );
-
-    addWidget( button );
-
-    return button;
-}
-
-QAction* WQtToolBar::addWidget( QWidget* widget )
-{
-    m_widgets.push_back( widget );
-    return QToolBar::addWidget( widget );
-}
-
 void WQtToolBar::addAction( QAction* action )
 {
+    m_actions.push_back( action );
     QToolBar::addAction( action );
 }
 
@@ -70,16 +54,12 @@ void WQtToolBar::clearButtons()
     clear();
 
     // iterate all items and delete them
-    for ( std::list< QWidget* >::iterator it = m_widgets.begin(); it != m_widgets.end(); ++it )
+    for ( std::list< QAction* >::iterator it = m_actions.begin(); it != m_actions.end(); ++it )
     {
         delete ( *it );
     }
 
     // clear the lists
-    m_widgets.clear();
-
-    // The following prevents the bar from changing size when it has no real buttons.
-    QPushButton* dummyButton = new QPushButton;
-    dummyButton->setFixedWidth( 0 );
-    addWidget( dummyButton );
+    m_actions.clear();
 }
+

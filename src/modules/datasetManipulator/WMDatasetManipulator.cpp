@@ -138,7 +138,7 @@ void WMDatasetManipulator::init()
     m_grid = m_input->getData()->getTexture2()->getGrid();
     WBoundingBox bb = m_grid->getBoundingBox();
 
-    wmath::WPosition center = bb.center();
+    WPosition center = bb.center();
 
     m_knobCenter = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
     m_knobx1 = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
@@ -189,12 +189,12 @@ void WMDatasetManipulator::setManipulatorsFromBoundingBox()
 
     m_posCenter = bb.center();
 
-    m_posx1 = wmath::WPosition( bb.xMin(), m_posCenter[1], m_posCenter[2] );
-    m_posx2 = wmath::WPosition( bb.xMax(), m_posCenter[1], m_posCenter[2] );
-    m_posy1 = wmath::WPosition( m_posCenter[0], bb.yMin(), m_posCenter[2] );
-    m_posy2 = wmath::WPosition( m_posCenter[0], bb.yMax(), m_posCenter[2] );
-    m_posz1 = wmath::WPosition( m_posCenter[0], m_posCenter[1], bb.zMin() );
-    m_posz2 = wmath::WPosition( m_posCenter[0], m_posCenter[1], bb.zMax() );
+    m_posx1 = WPosition( bb.xMin(), m_posCenter[1], m_posCenter[2] );
+    m_posx2 = WPosition( bb.xMax(), m_posCenter[1], m_posCenter[2] );
+    m_posy1 = WPosition( m_posCenter[0], bb.yMin(), m_posCenter[2] );
+    m_posy2 = WPosition( m_posCenter[0], bb.yMax(), m_posCenter[2] );
+    m_posz1 = WPosition( m_posCenter[0], m_posCenter[1], bb.zMin() );
+    m_posz2 = WPosition( m_posCenter[0], m_posCenter[1], bb.zMax() );
 
     m_knobCenter->setPosition( m_posCenter );
     m_knobx1->setPosition( m_posx1 );
@@ -213,7 +213,7 @@ void WMDatasetManipulator::setManipulatorsFromBoundingBox()
     m_posz2Orig = m_posz2;
 
     m_posRotCenter = m_posCenter;
-    m_posRot = wmath::WPosition( ( m_posCenter.x() + ( fabs( m_posCenter.x() - m_posx1.x() ) / 2.0 ) ), m_posx1.y(), m_posx1.z() );
+    m_posRot = WPosition( ( m_posCenter.x() + ( fabs( m_posCenter.x() - m_posx1.x() ) / 2.0 ) ), m_posx1.y(), m_posx1.z() );
     m_posRotOrig = m_posRot;
 
     m_knobRotCenter->setPosition( m_posRotCenter );
@@ -273,7 +273,7 @@ void WMDatasetManipulator::setManipulatorMode()
 
 void WMDatasetManipulator::manipulatorMoved()
 {
-    wmath::WPosition newOffset( m_knobCenter->getPosition() - m_posCenter );
+    WPosition newOffset( m_knobCenter->getPosition() - m_posCenter );
     m_knobx1->setPosition( m_knobx1->getPosition() + newOffset );
     m_knobx2->setPosition( m_knobx2->getPosition() + newOffset );
     m_knoby1->setPosition( m_knoby1->getPosition() + newOffset );
@@ -281,13 +281,13 @@ void WMDatasetManipulator::manipulatorMoved()
     m_knobz1->setPosition( m_knobz1->getPosition() + newOffset );
     m_knobz2->setPosition( m_knobz2->getPosition() + newOffset );
 
-    wmath::WPosition stretch( 1.0, 1.0, 1.0 );
+    WPosition stretch( 1.0, 1.0, 1.0 );
 
     float orgsizex = static_cast<float>( ( m_posx2Orig - m_posx1Orig ).x() );
     float orgsizey = static_cast<float>( ( m_posy2Orig - m_posy1Orig ).y() );
     float orgsizez = static_cast<float>( ( m_posz2Orig - m_posz1Orig ).z() );
 
-    m_grid->translate( wmath::WPosition( m_grid->getTranslate().x() + ( m_knobx1->getPosition().x() - m_posx1.x() ) *
+    m_grid->translate( WPosition( m_grid->getTranslate().x() + ( m_knobx1->getPosition().x() - m_posx1.x() ) *
                                             ( static_cast<float>( m_grid->getNbCoordsX() / orgsizex ) ),
                                          m_grid->getTranslate().y() + ( m_knoby1->getPosition().y() - m_posy1.y() ) *
                                             ( static_cast<float>( m_grid->getNbCoordsY() / orgsizey ) ),
@@ -314,15 +314,15 @@ void WMDatasetManipulator::manipulatorMoved()
 
 void WMDatasetManipulator::manipulatorRotMoved()
 {
-    wmath::WPosition newOffset( m_knobRotCenter->getPosition() - m_posRotCenter );
+    WPosition newOffset( m_knobRotCenter->getPosition() - m_posRotCenter );
     m_knobRot->setPosition( m_knobRot->getPosition() + newOffset );
 
-    wmath::WPosition p1 = ( m_posRotCenter - m_posRot );
+    WPosition p1 = ( m_posRotCenter - m_posRot );
 
     m_posRotCenter = m_knobRotCenter->getPosition();
     m_posRot = m_knobRot->getPosition();
 
-    wmath::WPosition p2 = ( m_posRotCenter - m_posRot );
+    WPosition p2 = ( m_posRotCenter - m_posRot );
 
     osg::Matrixf rot;
     rot.makeRotate( p2, p1 );
@@ -338,7 +338,7 @@ void WMDatasetManipulator::adjustManipulatorPositions()
     float cy = m_knoby1->getPosition().y() + ( ( m_knoby2->getPosition().y() - m_knoby1->getPosition().y() ) / 2.0 );
     float cz = m_knobz1->getPosition().z() + ( ( m_knobz2->getPosition().z() - m_knobz1->getPosition().z() ) / 2.0 );
 
-    m_knobCenter->setPosition( wmath::WPosition( cx, cy, cz ) );
+    m_knobCenter->setPosition( WPosition( cx, cy, cz ) );
     m_knobx1->setY( cy );
     m_knobx2->setY( cy );
     m_knobx1->setZ( cz );
@@ -431,14 +431,14 @@ void WMDatasetManipulator::moduleMain()
 
         if ( m_translationX->changed() || m_translationY->changed() || m_translationZ->changed() )
         {
-            wmath::WPosition pos( m_translationX->get( true ), m_translationY->get( true ), m_translationZ->get( true ) );
+            WPosition pos( m_translationX->get( true ), m_translationY->get( true ), m_translationZ->get( true ) );
             m_grid->translate( pos );
             setManipulatorsFromBoundingBox();
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
         }
         if ( m_stretchX->changed() || m_stretchY->changed() || m_stretchZ->changed() )
         {
-            wmath::WPosition str( m_stretchX->get( true ), m_stretchY->get( true ), m_stretchZ->get( true ) );
+            WPosition str( m_stretchX->get( true ), m_stretchY->get( true ), m_stretchZ->get( true ) );
             m_grid->stretch( str );
             setManipulatorsFromBoundingBox();
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
@@ -450,7 +450,7 @@ void WMDatasetManipulator::moduleMain()
             float roty = static_cast<float>( m_rotationY->get( true ) ) / 180. * pi;
             float rotz = static_cast<float>( m_rotationZ->get( true ) ) / 180. * pi;
 
-            wmath::WPosition rot( rotx, roty, rotz );
+            WPosition rot( rotx, roty, rotz );
             //grid->rotate( rot );
             WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
         }

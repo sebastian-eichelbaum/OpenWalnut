@@ -22,14 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
 #include <algorithm>
+#include <iostream>
+#include <string>
 #include <utility>
 #include <vector>
-#include <iostream>
+
 #include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "../common/datastructures/WFiber.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
@@ -37,9 +39,9 @@
 #include "../common/WPropertyHelper.h"
 #include "../graphicsEngine/WGEUtils.h"
 #include "exceptions/WDHNoSuchDataSet.h"
+#include "WCreateColorArraysThread.h"
 #include "WDataSet.h"
 #include "WDataSetFibers.h"
-#include "WCreateColorArraysThread.h"
 
 // prototype instance as singleton
 boost::shared_ptr< WPrototyped > WDataSetFibers::m_prototype = boost::shared_ptr< WPrototyped >();
@@ -54,15 +56,13 @@ WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
                 WDataSetFibers::IndexArray lineStartIndexes,
                 WDataSetFibers::LengthArray lineLengths,
                 WDataSetFibers::IndexArray verticesReverse,
-                std::pair< wmath::WPosition, wmath::WPosition > boundingBox )
+                WBoundingBox boundingBox )
     : WDataSet(),
-    m_vertices( vertices ),
-    m_lineStartIndexes( lineStartIndexes ),
-    m_lineLengths( lineLengths ),
-    m_verticesReverse( verticesReverse ),
-    m_bbMin( boundingBox.first ),
-    m_bbMax( boundingBox.second )
-
+      m_vertices( vertices ),
+      m_lineStartIndexes( lineStartIndexes ),
+      m_lineLengths( lineLengths ),
+      m_verticesReverse( verticesReverse ),
+      m_bb( boundingBox )
 {
     WAssert( m_vertices->size() % 3 == 0,  "Invalid vertex array."  );
     init();
@@ -73,23 +73,16 @@ WDataSetFibers::WDataSetFibers( WDataSetFibers::VertexArray vertices,
                 WDataSetFibers::LengthArray lineLengths,
                 WDataSetFibers::IndexArray verticesReverse )
     : WDataSet(),
-    m_vertices( vertices ),
-    m_lineStartIndexes( lineStartIndexes ),
-    m_lineLengths( lineLengths ),
-    m_verticesReverse( verticesReverse )
+      m_vertices( vertices ),
+      m_lineStartIndexes( lineStartIndexes ),
+      m_lineLengths( lineLengths ),
+      m_verticesReverse( verticesReverse )
 {
     WAssert( m_vertices->size() % 3 == 0,  "Invalid vertex array."  );
     // determine bounding box
-    m_bbMin = wmath::WPosition( wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE, wlimits::MAX_DOUBLE );
-    m_bbMax = wmath::WPosition( -wlimits::MAX_DOUBLE, -wlimits::MAX_DOUBLE, -wlimits::MAX_DOUBLE );
     for( size_t i = 0; i < vertices->size()/3; ++i )
     {
-        if( (*vertices)[ 3 * i + 0 ] > m_bbMax[0] ) m_bbMax[0] = (*vertices)[ 3 * i + 0 ];
-        if( (*vertices)[ 3 * i + 1 ] > m_bbMax[1] ) m_bbMax[1] = (*vertices)[ 3 * i + 1 ];
-        if( (*vertices)[ 3 * i + 2 ] > m_bbMax[2] ) m_bbMax[2] = (*vertices)[ 3 * i + 2 ];
-        if( (*vertices)[ 3 * i + 0 ] < m_bbMin[0] ) m_bbMin[0] = (*vertices)[ 3 * i + 0 ];
-        if( (*vertices)[ 3 * i + 1 ] < m_bbMin[1] ) m_bbMin[1] = (*vertices)[ 3 * i + 1 ];
-        if( (*vertices)[ 3 * i + 2 ] < m_bbMin[2] ) m_bbMin[2] = (*vertices)[ 3 * i + 2 ];
+        m_bb.expandBy( (*vertices)[ 3 * i + 0 ], (*vertices)[ 3 * i + 1 ], (*vertices)[ 3 * i + 2 ] );
     }
     // remaining initilisation
     init();
@@ -306,37 +299,61 @@ const WPropSelection WDataSetFibers::getColorSchemeProperty() const
     return m_colorProp;
 }
 
-wmath::WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
+WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
 {
     size_t index = m_lineStartIndexes->at( fiber ) * 3;
     index += vertex * 3;
-    return wmath::WPosition( m_vertices->at( index ), m_vertices->at( index + 1 ), m_vertices->at( index + 2 ) );
+    return WPosition( m_vertices->at( index ), m_vertices->at( index + 1 ), m_vertices->at( index + 2 ) );
 }
 
-wmath::WPosition WDataSetFibers::getTangent( size_t fiber, size_t vertex ) const
+WPosition WDataSetFibers::getTangent( size_t fiber, size_t vertex ) const
 {
-    wmath::WPosition point = getPosition( fiber, vertex );
-    wmath::WPosition tangent;
+    WPosition point = getPosition( fiber, vertex );
+    WPosition tangent;
 
     if ( vertex == 0 ) // first point
     {
-        wmath::WPosition pointNext = getPosition( fiber, vertex + 1 );
+        WPosition pointNext = getPosition( fiber, vertex + 1 );
         tangent = point - pointNext;
     }
     else if ( vertex == m_lineLengths->at( fiber ) - 1 ) // last point
     {
-        wmath::WPosition pointBefore = getPosition( fiber, vertex - 1 );
+        WPosition pointBefore = getPosition( fiber, vertex - 1 );
         tangent = pointBefore - point;
     }
     else // somewhere in between
     {
-        wmath::WPosition pointBefore = getPosition( fiber, vertex - 1 );
-        wmath::WPosition pointNext = getPosition( fiber, vertex + 1 );
+        WPosition pointBefore = getPosition( fiber, vertex - 1 );
+        WPosition pointNext = getPosition( fiber, vertex + 1 );
         tangent = pointBefore - pointNext;
     }
 
     tangent.normalize();
     return tangent;
+}
+
+/**
+ * Special helper functions for the saveSelected member function.
+ */
+namespace
+{
+    /**
+     * converts an integer into a byte array and back
+     */
+    union converterByteINT32
+    {
+        unsigned char b[4]; //!< the bytes
+        int i; //!< the int
+    };
+
+    /**
+     * converts a float into a byte array and back
+     */
+    union converterByteFloat
+    {
+        unsigned char b[4]; //!< the bytes
+        float f; //!< the float
+    };
 }
 
 void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std::vector< bool > > active ) const
@@ -450,9 +467,9 @@ void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std:
     }
 }
 
-std::pair< wmath::WPosition, wmath::WPosition > WDataSetFibers::getBoundingBox() const
+WBoundingBox WDataSetFibers::getBoundingBox() const
 {
-    return std::make_pair( m_bbMin, m_bbMax );
+    return m_bb;
 }
 
 WFiber WDataSetFibers::operator[]( size_t numTract ) const
@@ -463,7 +480,7 @@ WFiber WDataSetFibers::operator[]( size_t numTract ) const
     size_t vIdx = ( *m_lineStartIndexes )[ numTract ] * 3;
     for( size_t vertexNum = 0; vertexNum < ( *m_lineLengths )[ numTract ]; ++vertexNum )
     {
-        result.push_back( wmath::WPosition( ( *m_vertices )[vIdx], ( *m_vertices )[vIdx + 1], ( *m_vertices )[vIdx + 2]  ) );
+        result.push_back( WPosition( ( *m_vertices )[vIdx], ( *m_vertices )[vIdx + 1], ( *m_vertices )[vIdx + 2]  ) );
         vIdx += 3;
     }
     return result;

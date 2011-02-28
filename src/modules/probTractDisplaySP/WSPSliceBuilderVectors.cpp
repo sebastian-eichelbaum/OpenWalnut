@@ -53,9 +53,9 @@ void WSPSliceBuilderVectors::preprocess()
 
 osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsigned char sliceNum ) const
 {
-    boost::shared_ptr< wmath::WPosition > origin( new wmath::WPosition );
-    boost::shared_ptr< wmath::WVector3D > a( new wmath::WVector3D );
-    boost::shared_ptr< wmath::WVector3D > b( new wmath::WVector3D );
+    boost::shared_ptr< WPosition > origin( new WPosition );
+    boost::shared_ptr< WVector3D > a( new WVector3D );
+    boost::shared_ptr< WVector3D > b( new WVector3D );
     std::pair< unsigned char, unsigned char > activeDims = computeSliceBase( sliceNum, origin, a, b );
 
     std::vector< size_t > numCoords;
@@ -66,7 +66,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Vec3Array > quadVertices( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec3Array > quadSpanning( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec3Array > quadNormals( new osg::Vec3Array );
-    wmath::WVector3D normal( 0.0, 0.0, 0.0 );
+    WVector3D normal( 0.0, 0.0, 0.0 );
     normal[ sliceNum ] = -1.0;
     quadNormals->push_back( normal );
     osg::ref_ptr< osg::Vec4Array > quadColors( new osg::Vec4Array );
@@ -78,7 +78,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     {
         for( size_t y = 0; y < numCoords[ activeDims.second ]; y += m_spacing->get() )
         {
-            wmath::WPosition pos =  ( *origin ) + x * ( *a ) + y * ( *b );
+            WPosition pos =  ( *origin ) + x * ( *a ) + y * ( *b );
             quadVertices->push_back( pos );
             quadVertices->push_back( pos );
             quadVertices->push_back( pos );
@@ -151,9 +151,9 @@ osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadSpanning( std
 }
 
 std::pair< unsigned char, unsigned char > WSPSliceBuilderVectors::computeSliceBase( const unsigned char sliceNum,
-        boost::shared_ptr< wmath::WVector3D > origin, boost::shared_ptr< wmath::WVector3D > a, boost::shared_ptr< wmath::WVector3D > b ) const
+        boost::shared_ptr< WVector3D > origin, boost::shared_ptr< WVector3D > a, boost::shared_ptr< WVector3D > b ) const
 {
-    std::vector< wmath::WVector3D > dir;
+    std::vector< WVector3D > dir;
     dir.push_back( m_grid->getDirectionX() * m_grid->getOffsetX() );
     dir.push_back( m_grid->getDirectionY() * m_grid->getOffsetY() );
     dir.push_back( m_grid->getDirectionZ() * m_grid->getOffsetZ() );
@@ -197,7 +197,7 @@ osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateClockwiseDir( std
     return result;
 }
 
-// osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadStubs( const wmath::WPosition& pos ) const
+// osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadStubs( const WPosition& pos ) const
 // {
 //     osg::ref_ptr< osg::Vec3Array > result( new osg::Vec3Array );
 //     result->reserve( m_probTracts->size() * 4 ); // four corners for each quad stub
@@ -207,7 +207,7 @@ osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateClockwiseDir( std
 //         throw WNotImplemented( "Bug: The jittering works only for at most 9 tracts." );
 //     }
 //
-//     std::vector< wmath::WVector3D > dir;
+//     std::vector< WVector3D > dir;
 //
 //     for( size_t i = 0; i < m_probTracts->size(); ++i )
 //     {

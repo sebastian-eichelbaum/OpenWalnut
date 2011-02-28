@@ -189,6 +189,8 @@ void WMClusterDisplayVoxels::properties()
     m_propMinSizeToColor->setMin( 1 );
     m_propMinSizeToColor->setMax( 200 );
 
+    m_propZoomIntoTree = m_groupDendrogram->addProperty( "Zoom into tree", "When active this takes the currently selected cluster as the root cluster for the dendrogram", false, m_propCondition ); //NOLINT
+
     m_propResizeWithWindow = m_groupDendrogram->addProperty( "Resize with window", "", true, m_propCondition );
 
     m_propDendrogramSizeX = m_groupDendrogram->addProperty( "Width", "", 100, m_propCondition );
@@ -449,7 +451,7 @@ void WMClusterDisplayVoxels::moduleMain()
 
         if ( m_propShowDendrogram->changed( true ) || m_propResizeWithWindow->changed( true ) || m_propDendrogramSizeX->changed( true ) ||
                 m_propDendrogramSizeY->changed( true ) || m_propDendrogramOffsetX->changed( true ) || m_propDendrogramOffsetY->changed( true ) ||
-                m_propPlotHeightByLevel->changed( true ) || m_propShowSelectedButtons->changed() )
+                m_propPlotHeightByLevel->changed( true ) || m_propShowSelectedButtons->changed() || m_propZoomIntoTree->changed() )
         {
             m_dendrogramDirty = true;
         }
@@ -532,6 +534,7 @@ void WMClusterDisplayVoxels::updateAll()
             m_data[voxels[k]] = i + 1;
         }
     }
+
     unsigned char* data = m_texture->getImage()->data();
     for ( size_t i = 0; i < m_grid->size(); ++i )
     {
@@ -936,23 +939,30 @@ void WMClusterDisplayVoxels::updateWidgets()
 
         if ( m_propShowDendrogram->get( true ) )
         {
+            size_t rootCluster = m_tree.getClusterCount() - 1;
+            if ( m_propZoomIntoTree->get( true ) )
+            {
+                rootCluster = m_propSelectedCluster->get();
+            }
+
+
             if ( m_propResizeWithWindow->get( true ) )
             {
                 if ( m_propShowSelectedButtons->get() )
                 {
-                    m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1, m_propPlotHeightByLevel->get( true ),
+                    m_dendrogramGeode = new WDendrogramGeode( &m_tree, rootCluster, m_propPlotHeightByLevel->get( true ),
                                         m_propMinSizeToColor->get(), width - ( ( m_activatedClusters.size() / rows ) + 1 ) * buttonWidth, height / 2 ,
                                         ( ( m_activatedClusters.size() / rows ) + 1 ) * buttonWidth );
                 }
                 else
                 {
-                    m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1, m_propPlotHeightByLevel->get( true ),
+                    m_dendrogramGeode = new WDendrogramGeode( &m_tree, rootCluster, m_propPlotHeightByLevel->get( true ),
                                             m_propMinSizeToColor->get(), width - 20, height / 2 , 10 );
                 }
             }
             else
             {
-                m_dendrogramGeode = new WDendrogramGeode( &m_tree, m_tree.getClusterCount() - 1, m_propPlotHeightByLevel->get( true ),
+                m_dendrogramGeode = new WDendrogramGeode( &m_tree, rootCluster, m_propPlotHeightByLevel->get( true ),
                         m_propMinSizeToColor->get(), dwidth, dheight, dxOff, dyOff );
             }
             m_camera->addChild( m_dendrogramGeode );

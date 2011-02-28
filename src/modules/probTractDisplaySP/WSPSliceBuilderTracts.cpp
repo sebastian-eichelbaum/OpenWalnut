@@ -27,6 +27,7 @@
 #include <osg/Geometry>
 #include <osg/LineStipple>
 
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/exceptions/WTypeMismatch.h"
 #include "../../common/math/WPosition.h"
 #include "../../common/WLogger.h"
@@ -59,7 +60,7 @@ WSPSliceBuilderTracts::WSPSliceBuilderTracts( ProbTractList probTracts, WPropGro
     m_tractBB.reserve( detTracts->size() );
     for( size_t i = 0; i < detTracts->size(); ++i )
     {
-        m_tractBB.push_back( wmath::computeBoundingBox( ( *detTracts )[i] ) );
+        m_tractBB.push_back( computeBoundingBox( ( *detTracts )[i] ) );
     }
 }
 
@@ -167,7 +168,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderTracts::generateSlice( const unsigne
             WBoundingBox cBB;
             while( ( k < len ) &&  std::abs( slicePos - fibVerts->at( ( 3 * k ) + sidx + sliceNum ) ) <= m_maxDistance->get() )
             {
-                wmath::WPosition cv( fibVerts->at( ( 3 * k ) + sidx ),
+                WPosition cv( fibVerts->at( ( 3 * k ) + sidx ),
                             fibVerts->at( ( 3 * k ) + sidx + 1 ),
                             fibVerts->at( ( 3 * k ) + sidx + 2 ) );
                 candidate->push_back( cv );

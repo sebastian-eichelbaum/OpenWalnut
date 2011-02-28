@@ -64,26 +64,26 @@ public:
 
         bool success = false;
 
-        TS_ASSERT_EQUALS( ds.interpolate( wmath::WPosition(), &success ), ( *data )[0] );
+        TS_ASSERT_EQUALS( ds.interpolate( WPosition(), &success ), ( *data )[0] );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 0, 0 ), &success ), ( *data )[1], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 0, 0 ), &success ), ( *data )[1], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0, 1, 0 ), &success ), ( *data )[5], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0, 1, 0 ), &success ), ( *data )[5], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 1, 0 ), &success ), ( *data )[6], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 1, 0 ), &success ), ( *data )[6], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0, 0, 1 ), &success ), ( *data )[15], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0, 0, 1 ), &success ), ( *data )[15], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 0, 1 ), &success ), ( *data )[16], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 0, 1 ), &success ), ( *data )[16], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0, 1, 1 ), &success ), ( *data )[20], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0, 1, 1 ), &success ), ( *data )[20], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 1, 1, 1 ), &success ), ( *data )[21], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 1, 1 ), &success ), ( *data )[21], 1e-9 );
         TS_ASSERT( success );
 
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0.3, 0.4, 0.5 ), &success ), 9.8, 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0.3, 0.4, 0.5 ), &success ), 9.8, 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( wmath::WPosition( 0.5, 0.5, 0.5 ), &success ), 10.5, 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0.5, 0.5, 0.5 ), &success ), 10.5, 1e-9 );
         TS_ASSERT( success );
     }
 };

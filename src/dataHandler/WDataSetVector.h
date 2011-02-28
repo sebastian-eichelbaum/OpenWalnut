@@ -70,7 +70,7 @@ public:
      *
      * \return Vector beeing the interpolate.
      */
-    wmath::WVector3D interpolate( const wmath::WPosition &pos, bool *success ) const;
+    WVector3D interpolate( const WPosition &pos, bool *success ) const;
 
     /**
      * Get the vector on the given position in value set.
@@ -80,7 +80,7 @@ public:
      *
      * \return the vector
      */
-    wmath::WVector3D getVectorAt( size_t index ) const;
+    WVector3D getVectorAt( size_t index ) const;
 
     /**
      * Determines whether this dataset can be used as a texture.

@@ -76,7 +76,7 @@ void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFiberVector > 
         rawLineData[lnsPosOffset++] = static_cast< unsigned int >( fib.size() );
         for( size_t j = 0; j < fib.size(); ++j )
         {
-            const wmath::WPosition &point = fib[j];
+            const WPosition &point = fib[j];
             WAssert( pntPosOffset % 3 == 0, "(pOff % 3) was not equal to 0" );
             WAssert( pntPosOffset / 3 < numPoints, "pntPosOffset is to large." );
             rawLineData[lnsPosOffset++] = static_cast< unsigned int >( pntPosOffset / 3 );

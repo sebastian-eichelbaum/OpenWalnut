@@ -354,8 +354,7 @@ osg::Vec3Array* WMCoordinateHUD::buildCubeVertices()
     return vertices;
 }
 
-// TODO(ebaum):
-// text only shown as huge rectangle with the WMCoordinateHUD shader
+// TODO(ebaum): text only shown as huge rectangle with the WMCoordinateHUD shader
 // up: kranial, bottom: kaudal, front: anterior, back: posterior,
 // left: sinistra, right: dexter
 void WMCoordinateHUD::buildCaption()

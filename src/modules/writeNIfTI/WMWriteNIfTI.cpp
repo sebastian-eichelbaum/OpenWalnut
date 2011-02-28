@@ -215,7 +215,7 @@ void WMWriteNIfTI::writeToFile()
 
     int i = grid->getActiveMatrix();
     grid->setActiveMatrix( 1 );
-    wmath::WMatrix< double > matrix = grid->getTransformationMatrix();
+    WMatrix< double > matrix = grid->getTransformationMatrix();
     for( size_t i = 0; i < 4; ++i )
     {
         for( size_t j = 0; j < 4; ++j )

@@ -22,49 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#include <vector>
+#ifndef WQTNETWORKEDITORGLOBALS_H
+#define WQTNETWORKEDITORGLOBALS_H
 
-#include "WQtMenuPage.h"
+// The size of in/out ports
+#define WNETWORKPORT_SIZEX 10
+#define WNETWORKPORT_SIZEY 10
 
-WQtMenuPage::WQtMenuPage( QString name, bool persistent )
-    : QWidget()
-{
-    m_name = name;
+// The minimum width and heigh of items inside the scene
+#define WNETWORKITEM_MINIMUM_WIDTH  100
+#define WNETWORKITEM_MINIMUM_HEIGHT  50
 
-    m_persistent = persistent;
-
-    m_pageLayout = new QHBoxLayout();
-
-    m_pageLayout->addStretch();
-
-    this->setLayout( m_pageLayout );
-}
-
-WQtMenuPage::~WQtMenuPage()
-{
-}
-
-QString WQtMenuPage::getName()
-{
-    return m_name;
-}
-
-std::vector< QString > WQtMenuPage::getButtons()
-{
-    return m_ownButtons;
-}
-
-void WQtMenuPage::addButton( WQtPushButton* button )
-{
-    int count = m_pageLayout->count();
-    m_pageLayout->insertWidget( count -1, button );
-    this->setLayout( m_pageLayout );
-
-    m_ownButtons.push_back( button->getName() );
-}
-
-bool WQtMenuPage::isPersistent() const
-{
-    return m_persistent;
-}
+#endif  // WQTNETWORKEDITORGLOBALS_H
 

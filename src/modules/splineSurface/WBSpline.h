@@ -41,7 +41,7 @@ public:
      * \param order Order of the spline.
      * \param deBoorPoints The de Boor points for the spline
      */
-    WBSpline( int order, std::vector< wmath::WVector3D > deBoorPoints );
+    WBSpline( int order, std::vector< WVector3D > deBoorPoints );
 
     /**
      * Constructor for the spline that takes the order de Boor points and knots as arguments.
@@ -49,7 +49,7 @@ public:
      * \param deBoorPoints The de Boor points for the spline
      * \param knots The knots for the spline
      */
-    WBSpline( int order, std::vector< wmath::WVector3D > deBoorPoints, std::vector<double> knots );
+    WBSpline( int order, std::vector< WVector3D > deBoorPoints, std::vector<double> knots );
 
     /**
      * Empty destructor.
@@ -59,7 +59,7 @@ public:
     /**
      * Returns the stored de Boor points.
      */
-    std::vector< wmath::WVector3D > getDeBoorPoints();
+    std::vector< WVector3D > getDeBoorPoints();
 
     /**
      * Returns the stored knots.
@@ -75,7 +75,7 @@ public:
      * Sets new de Boor points for the spline.
      * \param deBoorPoints The new de Boor points for the spline.
      */
-    void setDeBoorPoints( std::vector< wmath::WVector3D > deBoorPoints );
+    void setDeBoorPoints( std::vector< WVector3D > deBoorPoints );
 
     /**
      * Sets new knots for the spline.
@@ -95,17 +95,17 @@ public:
      * \param p The pointer for returning the sample points.
      * \param resolution The resolution of the sample points.
      */
-    void samplePoints( std::vector< wmath::WVector3D > *p, double resolution );
+    void samplePoints( std::vector< WVector3D > *p, double resolution );
 
     /**
      * Compute a single sample point on the spline for the given parameter.
      * \param t parameter on spline curve.
      */
-    wmath::WVector3D f( double t );
+    WVector3D f( double t );
 
 private:
     int m_order; //!< The order of the spline.
-    std::vector< wmath::WVector3D > m_deBoorPoints; //!< The de Boor points of the spline.
+    std::vector< WVector3D > m_deBoorPoints; //!< The de Boor points of the spline.
     std::vector<double> m_knots; //!< The knots of the spline.
     double m_t; //!< The parameter value of the last spline evaluation i.e. the last call to f().
 
@@ -121,7 +121,7 @@ private:
      * \param _i First recursion parameter.
      * \param _j Second recursion parameter.
      */
-    wmath::WVector3D controlPoint_i_j( int _i, int _j );
+    WVector3D controlPoint_i_j( int _i, int _j );
 };
 
 #endif  // WBSPLINE_H

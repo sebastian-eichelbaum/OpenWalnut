@@ -136,8 +136,8 @@ void WMBoundingBox::createGFX()
 
     if( m_showCornerCoordinates->get( true ) )
     {
-        const wmath::WVector3D& pos1 = bb.getMin();
-        const wmath::WVector3D& pos2 = bb.getMax();
+        const WVector3D& pos1 = bb.getMin();
+        const WVector3D& pos2 = bb.getMax();
         m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos1[0], pos1[1], pos1[2] ) ) );
         m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos2[2] ) ) );
         m_bBoxNode->addChild( wge::vector2label( osg::Vec3( pos2[0], pos2[1], pos1[2] ) ) );

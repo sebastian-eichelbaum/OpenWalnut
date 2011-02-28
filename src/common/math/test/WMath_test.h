@@ -32,8 +32,6 @@
 #include "../WMath.h"
 #include "WPositionTraits.h"
 
-using wmath::WPosition;
-using wmath::WVector3D;
 
 /**
  * Unit tests wmath's helper functions.
@@ -47,9 +45,9 @@ public:
     void testTrianglePlaneIntersectionWithPointsInPlane( void )
     {
         WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
-        TS_ASSERT( wmath::testIntersectTriangle( WPosition( 0, 0, 0 ), WPosition( 0, 0, 1 ), WPosition( 1, 0, 1 ), p ) );
-        TS_ASSERT( wmath::testIntersectTriangle( WPosition( 0, 0, 0 ), WPosition( 0, 1, 0 ), WPosition( 1, 0, 1 ), p ) );
-        TS_ASSERT( wmath::testIntersectTriangle( WPosition( 0, 0, 0 ), WPosition( 0, 1, 0 ), WPosition( 1, 0, 0 ), p ) );
+        TS_ASSERT( testIntersectTriangle( WPosition( 0, 0, 0 ), WPosition( 0, 0, 1 ), WPosition( 1, 0, 1 ), p ) );
+        TS_ASSERT( testIntersectTriangle( WPosition( 0, 0, 0 ), WPosition( 0, 1, 0 ), WPosition( 1, 0, 1 ), p ) );
+        TS_ASSERT( testIntersectTriangle( WPosition( 0, 0, 0 ), WPosition( 0, 1, 0 ), WPosition( 1, 0, 0 ), p ) );
     }
 
     /**
@@ -58,7 +56,7 @@ public:
     void testTrianglePlaneIntersectionWithNoPointInPlane( void )
     {
         WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
-        TS_ASSERT( wmath::testIntersectTriangle( WPosition( 0, 0, -1 ), WPosition( 0, 0, 1 ), WPosition( 1, 0, 1 ), p ) );
+        TS_ASSERT( testIntersectTriangle( WPosition( 0, 0, -1 ), WPosition( 0, 0, 1 ), WPosition( 1, 0, 1 ), p ) );
     }
 
     /**
@@ -67,7 +65,7 @@ public:
     void testTrianglePlaneIntersectionWithAllPointsOnOneSide( void )
     {
         WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
-        TS_ASSERT( !wmath::testIntersectTriangle( WPosition( 0, 0, -1 ), WPosition( 0, 1, -1 ), WPosition( 1, 0, -3 ), p ) );
+        TS_ASSERT( !testIntersectTriangle( WPosition( 0, 0, -1 ), WPosition( 0, 1, -1 ), WPosition( 1, 0, -3 ), p ) );
     }
 
 
@@ -79,13 +77,13 @@ public:
     void testIntersectionOfPlaneWithSegment( void )
     {
         WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
-        boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
-        bool actual = wmath::intersectPlaneSegment( p, wmath::WPosition( 3, 0, 1 ), wmath::WPosition( 1, 0, -1 ), cutPoint );
+        boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
+        bool actual = intersectPlaneSegment( p, WPosition( 3, 0, 1 ), WPosition( 1, 0, -1 ), cutPoint );
         TS_ASSERT_EQUALS( actual, true );
-        TS_ASSERT_EQUALS( *cutPoint, wmath::WPosition( 2, 0, 0 ) );
-        actual = wmath::intersectPlaneSegment( p, wmath::WPosition( 1, 0, -1 ), wmath::WPosition( 3, 0, 1 ), cutPoint );
+        TS_ASSERT_EQUALS( *cutPoint, WPosition( 2, 0, 0 ) );
+        actual = intersectPlaneSegment( p, WPosition( 1, 0, -1 ), WPosition( 3, 0, 1 ), cutPoint );
         TS_ASSERT_EQUALS( actual, true );
-        TS_ASSERT_EQUALS( *cutPoint, wmath::WPosition( 2, 0, 0 ) );
+        TS_ASSERT_EQUALS( *cutPoint, WPosition( 2, 0, 0 ) );
     }
 
     /**
@@ -95,12 +93,12 @@ public:
     void testNoIntersectionOfPlaneWithSegment( void )
     {
         WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
-        boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
-        bool actual = wmath::intersectPlaneSegment( p,
-                                                    wmath::WPosition( 3, 0, 10 * wlimits::DBL_EPS ),
-                                                    wmath::WPosition( 10 * wlimits::DBL_EPS, 0, 10 * wlimits::DBL_EPS ), cutPoint );
+        boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
+        bool actual = intersectPlaneSegment( p,
+                                                    WPosition( 3, 0, 10 * wlimits::DBL_EPS ),
+                                                    WPosition( 10 * wlimits::DBL_EPS, 0, 10 * wlimits::DBL_EPS ), cutPoint );
         TS_ASSERT_EQUALS( actual, false );
-        TS_ASSERT_EQUALS( *cutPoint, wmath::WPosition( 0, 0, 0 ) );
+        TS_ASSERT_EQUALS( *cutPoint, WPosition( 0, 0, 0 ) );
     }
 
     /**
@@ -110,13 +108,13 @@ public:
     void testIntersectionOfPlaneWithSegmentHavingOnePointInPlane( void )
     {
         WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
-        boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
-        bool actual = wmath::intersectPlaneSegment( p, wmath::WPosition( 3, 0, wlimits::DBL_EPS ), wmath::WPosition( 1, 0, 1 ), cutPoint );
+        boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
+        bool actual = intersectPlaneSegment( p, WPosition( 3, 0, wlimits::DBL_EPS ), WPosition( 1, 0, 1 ), cutPoint );
         TS_ASSERT_EQUALS( actual, true );
         TS_ASSERT( std::abs( ( *cutPoint )[0] - 3.0 ) <= 2*wlimits::DBL_EPS );
         TS_ASSERT( std::abs( ( *cutPoint )[1] - 0 ) <= 2*wlimits::DBL_EPS );
         TS_ASSERT( std::abs( ( *cutPoint )[2] - 0 ) <= 2*wlimits::DBL_EPS );
-        actual = wmath::intersectPlaneSegment( p, wmath::WPosition( 1, 0, 1 ), wmath::WPosition( 3, 0, wlimits::DBL_EPS ), cutPoint );
+        actual = intersectPlaneSegment( p, WPosition( 1, 0, 1 ), WPosition( 3, 0, wlimits::DBL_EPS ), cutPoint );
         TS_ASSERT_EQUALS( actual, true );
         TS_ASSERT( std::abs( ( *cutPoint )[0] - 3.0 ) <= 2*wlimits::DBL_EPS );
         TS_ASSERT( std::abs( ( *cutPoint )[1] - 0 ) <= 2*wlimits::DBL_EPS );
@@ -131,13 +129,13 @@ public:
     void testIntersectionOfPlaneWithSegmentInPlane( void )
     {
         WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
-        boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
-        bool actual = wmath::intersectPlaneSegment( p, wmath::WPosition( 3, 0, 0 ), wmath::WPosition( 1, 0, 0 ), cutPoint );
+        boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
+        bool actual = intersectPlaneSegment( p, WPosition( 3, 0, 0 ), WPosition( 1, 0, 0 ), cutPoint );
         TS_ASSERT_EQUALS( actual, true );
-        TS_ASSERT_EQUALS( *cutPoint, wmath::WPosition( 3, 0, 0 ) );
-        actual = wmath::intersectPlaneSegment( p, wmath::WPosition( 1, 0, 0 ), wmath::WPosition( 3, 0, 0 ), cutPoint );
+        TS_ASSERT_EQUALS( *cutPoint, WPosition( 3, 0, 0 ) );
+        actual = intersectPlaneSegment( p, WPosition( 1, 0, 0 ), WPosition( 3, 0, 0 ), cutPoint );
         TS_ASSERT_EQUALS( actual, true );
-        TS_ASSERT_EQUALS( *cutPoint, wmath::WPosition( 1, 0, 0 ) );
+        TS_ASSERT_EQUALS( *cutPoint, WPosition( 1, 0, 0 ) );
     }
 
     /**
@@ -146,14 +144,14 @@ public:
      */
     void testIntersectionOfPlaneWithLine( void )
     {
-        wmath::WLine l;
-        l.push_back( wmath::WPosition( -1, 0, 0 ) );
-        l.push_back( wmath::WPosition( 1, 0, 0 ) );
-        l.push_back( wmath::WPosition( 2, 0, 0 ) );
-        l.push_back( wmath::WPosition( 5, 0, 0 ) );
-        l.push_back( wmath::WPosition( 5, 4, 0 ) );
+        WLine l;
+        l.push_back( WPosition( -1, 0, 0 ) );
+        l.push_back( WPosition( 1, 0, 0 ) );
+        l.push_back( WPosition( 2, 0, 0 ) );
+        l.push_back( WPosition( 5, 0, 0 ) );
+        l.push_back( WPosition( 5, 4, 0 ) );
         WPlane p( WVector3D( 1, 0, 0 ), WPosition( 3.5, 13, 23 ) );
-        boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
+        boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneLineNearCP( p, l, cutPoint );
         TS_ASSERT( actual );
         TS_ASSERT( std::abs( ( *cutPoint )[0] - 3.5 ) <= 2*wlimits::DBL_EPS );
@@ -167,14 +165,14 @@ public:
      */
     void testNoIntersectionOfPlaneWithLine( void )
     {
-        wmath::WLine l;
-        l.push_back( wmath::WPosition( -1, 0, 0 ) );
-        l.push_back( wmath::WPosition( 1, 0, 0 ) );
-        l.push_back( wmath::WPosition( 2, 0, 0 ) );
-        l.push_back( wmath::WPosition( 5, 0, 0 ) );
-        l.push_back( wmath::WPosition( 5, 4, 0 ) );
+        WLine l;
+        l.push_back( WPosition( -1, 0, 0 ) );
+        l.push_back( WPosition( 1, 0, 0 ) );
+        l.push_back( WPosition( 2, 0, 0 ) );
+        l.push_back( WPosition( 5, 0, 0 ) );
+        l.push_back( WPosition( 5, 4, 0 ) );
         WPlane p( WVector3D( 1, 0, 0 ), WPosition( 5.0001, 13, 23 ) );
-        boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
+        boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneLineNearCP( p, l, cutPoint );
         TS_ASSERT( !actual );
         WPlane q( WVector3D( -1.1, 0, 0 ), WPosition( 5.0001, 13, 23 ) );
@@ -188,14 +186,14 @@ public:
      */
     void testIntersectionPlaneLineWithJustOnePoint( void )
     {
-        wmath::WLine l;
-        l.push_back( wmath::WPosition( -1, 0, 0 ) );
-        l.push_back( wmath::WPosition( 1, 0, 0 ) );
-        l.push_back( wmath::WPosition( 2, 0, 0 ) );
-        l.push_back( wmath::WPosition( 5, 0, 0 ) );
-        l.push_back( wmath::WPosition( 5, 4, 0 ) );
+        WLine l;
+        l.push_back( WPosition( -1, 0, 0 ) );
+        l.push_back( WPosition( 1, 0, 0 ) );
+        l.push_back( WPosition( 2, 0, 0 ) );
+        l.push_back( WPosition( 5, 0, 0 ) );
+        l.push_back( WPosition( 5, 4, 0 ) );
         WPlane p( WVector3D( 1, 0, 0 ), WPosition( -1, 13, 23 ) );
-        boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
+        boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneLineNearCP( p, l, cutPoint );
         TS_ASSERT( actual );
         TS_ASSERT( std::abs( ( *cutPoint )[0] - ( -1 ) ) <= 2*wlimits::DBL_EPS );
@@ -209,14 +207,14 @@ public:
      */
     void testIntersectionPlaneLineWithSegmentInPlane( void )
     {
-        wmath::WLine l;
-        l.push_back( wmath::WPosition( -1, 0, 0 ) );
-        l.push_back( wmath::WPosition( 1, 0, 0 ) );
-        l.push_back( wmath::WPosition( 2, 0, 0 ) );
-        l.push_back( wmath::WPosition( 5, 0, 0 ) );
-        l.push_back( wmath::WPosition( 5, 4, 0 ) );
+        WLine l;
+        l.push_back( WPosition( -1, 0, 0 ) );
+        l.push_back( WPosition( 1, 0, 0 ) );
+        l.push_back( WPosition( 2, 0, 0 ) );
+        l.push_back( WPosition( 5, 0, 0 ) );
+        l.push_back( WPosition( 5, 4, 0 ) );
         WPlane p( WVector3D( 1, 0, 0 ), WPosition( 5, 13, 23 ) );
-        boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
+        boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneLineNearCP( p, l, cutPoint );
         TS_ASSERT( actual );
         TS_ASSERT( std::abs( ( *cutPoint )[0] - 5 ) <= 2*wlimits::DBL_EPS );
@@ -230,13 +228,13 @@ public:
      */
     void testMultipleIntersectionPlaneLine( void )
     {
-        wmath::WLine l;
-        l.push_back( wmath::WPosition( -1, 0, 0 ) );
-        l.push_back( wmath::WPosition( 1, 0, 0 ) );
-        l.push_back( wmath::WPosition( 2, 1, 0 ) );
-        l.push_back( wmath::WPosition( -1, 1, 0 ) );
+        WLine l;
+        l.push_back( WPosition( -1, 0, 0 ) );
+        l.push_back( WPosition( 1, 0, 0 ) );
+        l.push_back( WPosition( 2, 1, 0 ) );
+        l.push_back( WPosition( -1, 1, 0 ) );
         WPlane p( WVector3D( 1, 0, 0 ), WPosition( 0, 0, 0 ) );
-        boost::shared_ptr< wmath::WPosition > cutPoint( new wmath::WPosition( 0, 0, 0 ) );
+        boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneLineNearCP( p, l, cutPoint );
         TS_ASSERT( actual );
         TS_ASSERT( std::abs( ( *cutPoint )[0] - 0 ) <= 2*wlimits::DBL_EPS );
@@ -256,15 +254,15 @@ public:
     void testFactorials( void )
     {
         // TODO( philips ): add even and odd factorials
-        TS_ASSERT_EQUALS( wmath::factorial( 0 ), 1 );
-        TS_ASSERT_EQUALS( wmath::factorial( 1 ), 1 );
-        TS_ASSERT_EQUALS( wmath::factorial( 2 ), 2 );
-        TS_ASSERT_EQUALS( wmath::factorial( 3 ), 6 );
-        TS_ASSERT_EQUALS( wmath::factorial( 4 ), 24 );
-        TS_ASSERT_EQUALS( wmath::factorial( 5 ), 120 );
-        TS_ASSERT_EQUALS( wmath::factorial( 6 ), 720 );
-        TS_ASSERT_EQUALS( wmath::factorial( 7 ), 5040 );
-        TS_ASSERT_EQUALS( wmath::factorial( 8 ), 40320 );
+        TS_ASSERT_EQUALS( factorial( 0 ), 1 );
+        TS_ASSERT_EQUALS( factorial( 1 ), 1 );
+        TS_ASSERT_EQUALS( factorial( 2 ), 2 );
+        TS_ASSERT_EQUALS( factorial( 3 ), 6 );
+        TS_ASSERT_EQUALS( factorial( 4 ), 24 );
+        TS_ASSERT_EQUALS( factorial( 5 ), 120 );
+        TS_ASSERT_EQUALS( factorial( 6 ), 720 );
+        TS_ASSERT_EQUALS( factorial( 7 ), 5040 );
+        TS_ASSERT_EQUALS( factorial( 8 ), 40320 );
     }
 };
 

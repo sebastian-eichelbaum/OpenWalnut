@@ -76,7 +76,7 @@ public:
     osg::ref_ptr< WGEGroupNode > generateSlice( const unsigned char sliceNum ) const;
 
 private:
-//    osg::ref_ptr< osg::Vec3Array > generateQuadStubs( const wmath::WPosition& pos ) const;
+//    osg::ref_ptr< osg::Vec3Array > generateQuadStubs( const WPosition& pos ) const;
 
     /**
      * Computes four vertices so each describe the translation of the middle point to one of the four quad corners.
@@ -107,8 +107,8 @@ private:
      *
      * \return If \c sliceNum=0 the oppsite indices are \c 1 and \c 2. For \c sliceNum=1, they are \c 0,2, and for \c sliceNum=2 they are \c 1,2.
      */
-    std::pair< unsigned char, unsigned char > computeSliceBase( const unsigned char sliceNum, boost::shared_ptr< wmath::WVector3D > origin,
-            boost::shared_ptr< wmath::WVector3D > a, boost::shared_ptr< wmath::WVector3D > b ) const;
+    std::pair< unsigned char, unsigned char > computeSliceBase( const unsigned char sliceNum, boost::shared_ptr< WVector3D > origin,
+            boost::shared_ptr< WVector3D > a, boost::shared_ptr< WVector3D > b ) const;
 
     /**
      * For every probabilistic tractogram the texture is bound to the given osg node.

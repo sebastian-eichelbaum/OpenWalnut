@@ -25,13 +25,11 @@
 #ifndef WTENSOR_H
 #define WTENSOR_H
 
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #include "WTensorSym.h"
 
-namespace wmath
-{
 // ############################# class WTensor<> #############################################
 /**
  * Implements a tensor that has the same number of components in every
@@ -59,7 +57,7 @@ namespace wmath
  *
  * - Construct a tensor of order 2 and dimension 3 (i.e. a 3x3-Matrix):
  *
- *     wmath::WTensor< 2, 3 > w;
+ *     WTensor< 2, 3 > w;
  *
  * - Change Element (2,0) to 4.0:
  *
@@ -67,7 +65,7 @@ namespace wmath
  *
  * - Construct a 4D-vector:
  *
- *     wmath::WTensor< 1, 4 > v;
+ *     WTensor< 1, 4 > v;
  *
  * - Access v at position 2:
  *
@@ -102,13 +100,13 @@ public:
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 WTensor< order, dim, Data_T >::WTensor()
-    : WTensorFunc< wmath::WTensorBase, order, dim, Data_T >()
+    : WTensorFunc< WTensorBase, order, dim, Data_T >()
 {
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 WTensor< order, dim, Data_T >::WTensor( WTensorSym< order, dim, Data_T > const& t )
-    : WTensorFunc< wmath::WTensorBase, order, dim, Data_T >()
+    : WTensorFunc< WTensorBase, order, dim, Data_T >()
 {
     WTensorBase< order, dim, Data_T >::operator = ( t );
 }
@@ -177,7 +175,5 @@ std::ostream& operator << ( std::ostream& o, WTensor< 2, dim, Data_T > const& t 
     }
     return o;
 }
-
-}  // namespace wmath
 
 #endif  // WTENSOR_H

@@ -28,7 +28,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QWidget>
+#include <QtGui/QDockWidget>
 #include <QtGui/QListWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QPushButton>
@@ -41,7 +41,7 @@ class WDataSet;
 /**
  * container widget for a tree widget with context menu and some control widgets
  */
-class WQtTextureSorter : public QWidget
+class WQtTextureSorter : public QDockWidget
 {
     Q_OBJECT
 
@@ -87,7 +87,6 @@ private:
 
     typedef std::vector< boost::shared_ptr< WDataSet > > DatasetContainerType; //!< Short for container we want to access b< WSharedSequenceContainer
     typedef WSharedSequenceContainer< DatasetContainerType > DatasetSharedContainerType; //!< The SharedContainer
-    typedef DatasetSharedContainerType::WSharedAccess DatasetAccess; //!< Shorthand for the access handler.
     DatasetSharedContainerType m_textures; //!< Local list of of the textures to sort.
 
     /**

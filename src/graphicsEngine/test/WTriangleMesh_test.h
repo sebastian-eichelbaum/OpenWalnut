@@ -79,7 +79,7 @@ public:
 //    {
 //        WTriangleMesh mesh;
 //        mesh.resizeVertices( 2 );
-//        wmath::WPosition newVert;
+//        WPosition newVert;
 //
 //        TS_ASSERT_EQUALS( mesh.m_fastAddVertId, 0 );
 //        mesh.fastAddVert( newVert );
@@ -109,7 +109,7 @@ public:
 //    void testSetVertices()
 //    {
 //        WTriangleMesh mesh;
-//        std::vector< wmath::WPosition > vertices( 4 );
+//        std::vector< WPosition > vertices( 4 );
 //
 //        TS_ASSERT_EQUALS( mesh.m_fastAddVertId, 0 );
 //        TS_ASSERT_EQUALS( mesh.m_vertices.size(), 0 );
@@ -141,26 +141,26 @@ public:
 //        WTriangleMesh mesh;
 //
 //        mesh.resizeVertices( 5 );
-//        wmath::WPosition newVert0( 0, 0, 0 );
+//        WPosition newVert0( 0, 0, 0 );
 //        mesh.fastAddVert( newVert0 );
 //
-//        wmath::WPosition newVert1( 1.3, 2.25, 3.435 );
+//        WPosition newVert1( 1.3, 2.25, 3.435 );
 //        mesh.fastAddVert( newVert1 );
 //
-//        wmath::WPosition newVert2( 1, 2, 3 );
+//        WPosition newVert2( 1, 2, 3 );
 //        mesh.fastAddVert( newVert2 );
 //
-//        wmath::WPosition newVert3( 1.2, 1.5, 1.7 );
+//        WPosition newVert3( 1.2, 1.5, 1.7 );
 //        mesh.fastAddVert( newVert3 );
 //
-//        wmath::WPosition newVert4( 1, 1, 1 );
+//        WPosition newVert4( 1, 1, 1 );
 //        mesh.fastAddVert( newVert4 );
 //
 //        // one triangles
 //        mesh.resizeTriangles( 1 );
 //        mesh.fastAddTriangle( 0, 2, 4 );
 //
-//        wmath::WVector3D expectedNormal( -0.40824829, 0.816496581, -0.40824829 );
+//        WVector3D expectedNormal( -0.40824829, 0.816496581, -0.40824829 );
 //
 //        double delta = 1e-7;
 //        TS_ASSERT_DELTA( mesh.getTriangleNormal( 0 )[0], expectedNormal[0], delta );
@@ -176,19 +176,19 @@ public:
 //        WTriangleMesh mesh;
 //
 //        mesh.resizeVertices( 5 );
-//        wmath::WPosition newVert0( 0, 0, 0 );
+//        WPosition newVert0( 0, 0, 0 );
 //        mesh.fastAddVert( newVert0 );
 //
-//        wmath::WPosition newVert1( 1.3, 2.25, 3.435 );
+//        WPosition newVert1( 1.3, 2.25, 3.435 );
 //        mesh.fastAddVert( newVert1 );
 //
-//        wmath::WPosition newVert2( 1, 2, 3 );
+//        WPosition newVert2( 1, 2, 3 );
 //        mesh.fastAddVert( newVert2 );
 //
-//        wmath::WPosition newVert3( 1.2, 1.5, 1.7 );
+//        WPosition newVert3( 1.2, 1.5, 1.7 );
 //        mesh.fastAddVert( newVert3 );
 //
-//        wmath::WPosition newVert4( 1, 1, 1 );
+//        WPosition newVert4( 1, 1, 1 );
 //        mesh.fastAddVert( newVert4 );
 //
 //        // two triangles
@@ -205,7 +205,7 @@ public:
 //        TS_ASSERT_EQUALS( mesh.m_triNormals.size(), 2 );
 //
 //        double delta = 1e-7;
-//        wmath::WVector3D expectedNormal( -0.40824829, 0.816496581, -0.40824829 );
+//        WVector3D expectedNormal( -0.40824829, 0.816496581, -0.40824829 );
 //        TS_ASSERT_DELTA( expectedNormal.norm(), 1, delta ); // check ouu expectance :-)
 //
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0].norm(), 1, delta );
@@ -223,19 +223,19 @@ public:
 //        WTriangleMesh mesh;
 //
 //        mesh.resizeVertices( 5 );
-//        wmath::WPosition newVert0( 0, 0, 0 );
+//        WPosition newVert0( 0, 0, 0 );
 //        mesh.fastAddVert( newVert0 );
 //
-//        wmath::WPosition newVert1( 1.3, 2.25, 3.435 );
+//        WPosition newVert1( 1.3, 2.25, 3.435 );
 //        mesh.fastAddVert( newVert1 );
 //
-//        wmath::WPosition newVert2( 1, 2, 3 );
+//        WPosition newVert2( 1, 2, 3 );
 //        mesh.fastAddVert( newVert2 );
 //
-//        wmath::WPosition newVert3( 1.2, 1.5, 1.7 );
+//        WPosition newVert3( 1.2, 1.5, 1.7 );
 //        mesh.fastAddVert( newVert3 );
 //
-//        wmath::WPosition newVert4( 1, 1, 1 );
+//        WPosition newVert4( 1, 1, 1 );
 //        mesh.fastAddVert( newVert4 );
 //
 //        // two triangles
@@ -254,8 +254,8 @@ public:
 //        mesh.computeVertNormals();
 //
 //        // what we expect
-//        wmath::WVector3D expectedNormal0( -0.40824829, 0.816496581, -0.40824829 );
-//        wmath::WVector3D expectedNormal1( -0.452271958, 0.814852852, -0.362580895 );
+//        WVector3D expectedNormal0( -0.40824829, 0.816496581, -0.40824829 );
+//        WVector3D expectedNormal1( -0.452271958, 0.814852852, -0.362580895 );
 //        double delta = 1e-7;
 //
 //        // check this triangle stuff too. We need the tri normals for the vert normals
@@ -282,7 +282,7 @@ public:
 //        TS_ASSERT_DELTA( mesh.m_vertNormals[1][2], expectedNormal1[2], delta );
 //
 //        // vertex 0 belongs to two triangles so it should have the average normal of the two triangles
-//        wmath::WVector3D expectedVertNormal = 0.5 * ( expectedNormal0 + expectedNormal1 );
+//        WVector3D expectedVertNormal = 0.5 * ( expectedNormal0 + expectedNormal1 );
 //        expectedVertNormal.normalize();
 //        TS_ASSERT_DELTA( mesh.m_vertNormals[0][0], expectedVertNormal[0], delta );
 //        TS_ASSERT_DELTA( mesh.m_vertNormals[0][1], expectedVertNormal[1], delta );
@@ -299,9 +299,9 @@ public:
     void testEqualityOperator( void )
     {
         WTriangleMesh mesh( 3, 1 );
-        mesh.addVertex( wmath::WPosition( 1,  0, 0 ) );
-        mesh.addVertex( wmath::WPosition( 0,  1, 0 ) );
-        mesh.addVertex( wmath::WPosition( 1,  0, 0 ) );
+        mesh.addVertex( WPosition( 1,  0, 0 ) );
+        mesh.addVertex( WPosition( 0,  1, 0 ) );
+        mesh.addVertex( WPosition( 1,  0, 0 ) );
         mesh.addTriangle(  0,  1,  2 );
 
         WTriangleMesh expected( mesh );
@@ -349,31 +349,31 @@ public:
     {
         WTriangleMesh mesh( 25, 16 );
 
-        mesh.addVertex( wmath::WPosition( 1,  0, 0 ) ); // 0
-        mesh.addVertex( wmath::WPosition( 0,  1, 0 ) ); // 1
-        mesh.addVertex( wmath::WPosition( 2,  1, 0 ) ); // 2
-        mesh.addVertex( wmath::WPosition( 0,  2, 0 ) ); // 3
-        mesh.addVertex( wmath::WPosition( 2,  2, 0 ) ); // 4
-        mesh.addVertex( wmath::WPosition( 0,  3, 0 ) ); // 5
-        mesh.addVertex( wmath::WPosition( 3,  4, 0 ) ); // 6
-        mesh.addVertex( wmath::WPosition( 3,  5, 0 ) ); // 7
-        mesh.addVertex( wmath::WPosition( 5,  5, 0 ) ); // 8
-        mesh.addVertex( wmath::WPosition( 0,  6, 0 ) ); // 9
-        mesh.addVertex( wmath::WPosition( 2,  6, 0 ) ); // 10
-        mesh.addVertex( wmath::WPosition( 4,  6, 0 ) ); // 11
-        mesh.addVertex( wmath::WPosition( 1,  7, 0 ) ); // 12
-        mesh.addVertex( wmath::WPosition( 3,  8, 0 ) ); // 13
-        mesh.addVertex( wmath::WPosition( 1,  9, 0 ) ); // 14
-        mesh.addVertex( wmath::WPosition( 3,  9, 0 ) ); // 15
-        mesh.addVertex( wmath::WPosition( 6, 10, 0 ) ); // 16
-        mesh.addVertex( wmath::WPosition( 7, 10, 0 ) ); // 17
-        mesh.addVertex( wmath::WPosition( 0, 11, 0 ) ); // 18
-        mesh.addVertex( wmath::WPosition( 2, 11, 0 ) ); // 19
-        mesh.addVertex( wmath::WPosition( 4, 11, 0 ) ); // 20
-        mesh.addVertex( wmath::WPosition( 1, 12, 0 ) ); // 21
-        mesh.addVertex( wmath::WPosition( 3, 12, 0 ) ); // 23
-        mesh.addVertex( wmath::WPosition( 6, 12, 0 ) ); // 23
-        mesh.addVertex( wmath::WPosition( 7, 12, 0 ) ); // 24
+        mesh.addVertex( WPosition( 1,  0, 0 ) ); // 0
+        mesh.addVertex( WPosition( 0,  1, 0 ) ); // 1
+        mesh.addVertex( WPosition( 2,  1, 0 ) ); // 2
+        mesh.addVertex( WPosition( 0,  2, 0 ) ); // 3
+        mesh.addVertex( WPosition( 2,  2, 0 ) ); // 4
+        mesh.addVertex( WPosition( 0,  3, 0 ) ); // 5
+        mesh.addVertex( WPosition( 3,  4, 0 ) ); // 6
+        mesh.addVertex( WPosition( 3,  5, 0 ) ); // 7
+        mesh.addVertex( WPosition( 5,  5, 0 ) ); // 8
+        mesh.addVertex( WPosition( 0,  6, 0 ) ); // 9
+        mesh.addVertex( WPosition( 2,  6, 0 ) ); // 10
+        mesh.addVertex( WPosition( 4,  6, 0 ) ); // 11
+        mesh.addVertex( WPosition( 1,  7, 0 ) ); // 12
+        mesh.addVertex( WPosition( 3,  8, 0 ) ); // 13
+        mesh.addVertex( WPosition( 1,  9, 0 ) ); // 14
+        mesh.addVertex( WPosition( 3,  9, 0 ) ); // 15
+        mesh.addVertex( WPosition( 6, 10, 0 ) ); // 16
+        mesh.addVertex( WPosition( 7, 10, 0 ) ); // 17
+        mesh.addVertex( WPosition( 0, 11, 0 ) ); // 18
+        mesh.addVertex( WPosition( 2, 11, 0 ) ); // 19
+        mesh.addVertex( WPosition( 4, 11, 0 ) ); // 20
+        mesh.addVertex( WPosition( 1, 12, 0 ) ); // 21
+        mesh.addVertex( WPosition( 3, 12, 0 ) ); // 23
+        mesh.addVertex( WPosition( 6, 12, 0 ) ); // 23
+        mesh.addVertex( WPosition( 7, 12, 0 ) ); // 24
 
         mesh.addTriangle(  0,  1,  2 ); // 0
         mesh.addTriangle(  3,  4,  4 ); // 1
@@ -397,33 +397,33 @@ public:
 
         std::list< boost::shared_ptr< WTriangleMesh > >::const_iterator cit = components->begin();
         WTriangleMesh expected( 3, 1 );
-        expected.addVertex( wmath::WPosition( 1, 0, 0 ) );
-        expected.addVertex( wmath::WPosition( 0, 1, 0 ) );
-        expected.addVertex( wmath::WPosition( 2, 1, 0 ) );
+        expected.addVertex( WPosition( 1, 0, 0 ) );
+        expected.addVertex( WPosition( 0, 1, 0 ) );
+        expected.addVertex( WPosition( 2, 1, 0 ) );
         expected.addTriangle( 0, 1, 2 );
         TS_ASSERT_EQUALS( **cit, expected );
 
 //        expected.resizeVertices( 2 );
-//        expected.m_vertices[ 0 ] = wmath::WPosition( 0, 2, 0 );
-//        expected.m_vertices[ 1 ] = wmath::WPosition( 2, 2, 0 );
+//        expected.m_vertices[ 0 ] = WPosition( 0, 2, 0 );
+//        expected.m_vertices[ 1 ] = WPosition( 2, 2, 0 );
 //        expected.resizeTriangles( 1 );
 //        Triangle x1 = { { 0, 1, 1 } }; // NOLINT
 //        expected.m_triangles[ 0 ] = x1;
 //        TS_ASSERT_EQUALS( **( ++cit ), expected );
 //
 //        expected.resizeVertices( 1 );
-//        expected.m_vertices[ 0 ] = wmath::WPosition( 0, 3, 0 );
+//        expected.m_vertices[ 0 ] = WPosition( 0, 3, 0 );
 //        expected.resizeTriangles( 1 );
 //        Triangle x2 = { { 0, 0, 0 } }; // NOLINT
 //        expected.m_triangles[ 0 ] = x2;
 //        TS_ASSERT_EQUALS( **( ++cit ), expected );
 //
 //        expected.resizeVertices( 5 );
-//        expected.m_vertices[ 0 ] = wmath::WPosition( 0,  6, 0 );
-//        expected.m_vertices[ 1 ] = wmath::WPosition( 2,  6, 0 );
-//        expected.m_vertices[ 2 ] = wmath::WPosition( 1,  7, 0 );
-//        expected.m_vertices[ 3 ] = wmath::WPosition( 3,  4, 0 );
-//        expected.m_vertices[ 4 ] = wmath::WPosition( 4,  6, 0 );
+//        expected.m_vertices[ 0 ] = WPosition( 0,  6, 0 );
+//        expected.m_vertices[ 1 ] = WPosition( 2,  6, 0 );
+//        expected.m_vertices[ 2 ] = WPosition( 1,  7, 0 );
+//        expected.m_vertices[ 3 ] = WPosition( 3,  4, 0 );
+//        expected.m_vertices[ 4 ] = WPosition( 4,  6, 0 );
 //        expected.resizeTriangles( 2 );
 //        Triangle x3 = { { 0, 1, 2 } }; // NOLINT
 //        Triangle x4 = { { 1, 3, 4 } }; // NOLINT

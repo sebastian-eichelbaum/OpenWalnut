@@ -136,7 +136,7 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceBuilder::computeColorsFor( const osg::Vec
     for( ProbTractList::const_iterator probTract = m_probTracts.begin(); probTract != m_probTracts.end(); ++probTract, ++probTractNum )
     {
         bool success = false;
-        double probability = ( *probTract )->interpolate( wmath::WPosition( pos ), &success );
+        double probability = ( *probTract )->interpolate( WPosition( pos ), &success );
         if( ( *probTract )->getMax() > 10 )
         {
             // Todo(math): Solve this hack in a better way!
