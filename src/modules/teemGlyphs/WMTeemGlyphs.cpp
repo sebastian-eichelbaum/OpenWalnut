@@ -397,7 +397,7 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
     double max = -1e15;
     for( size_t vertID = 0; vertID < glyph->xyzwNum; ++vertID )
     {
-        wmath::WPosition pos( glyph->xyzw[nbVertCoords*vertID], glyph->xyzw[nbVertCoords*vertID+1],  glyph->xyzw[nbVertCoords*vertID+2] );
+        WPosition pos( glyph->xyzw[nbVertCoords*vertID], glyph->xyzw[nbVertCoords*vertID+1],  glyph->xyzw[nbVertCoords*vertID+2] );
         double norm = pos.norm();
 
         if( norm < min )
@@ -418,10 +418,10 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
          for( size_t i = 0; i < glyph->xyzwNum; ++i )
          {
              size_t coordIdBase = nbVertCoords * i;
-             wmath::WPosition pos( glyph->xyzw[coordIdBase], glyph->xyzw[coordIdBase+1],  glyph->xyzw[coordIdBase+2] );
+             WPosition pos( glyph->xyzw[coordIdBase], glyph->xyzw[coordIdBase+1],  glyph->xyzw[coordIdBase+2] );
              double norm = pos.norm();
              const double epsilon = 1e-9;
-             wmath::WPosition newPos;
+             WPosition newPos;
 //             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos.normalized();
              newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos / norm;
              glyph->xyzw[coordIdBase] = newPos[0];
@@ -608,7 +608,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
                 continue;
             }
 
-            wmath::WValue< double > coeffs = m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
+            WValue< double > coeffs = m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
             switch( m_order )
             {
                 case 2:
@@ -706,7 +706,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             }
             estimateNormalsAntipodal( glyph, normalize );
 
-            wmath::WPosition glyphPos = m_grid->getPosition( posId );
+            WPosition glyphPos = m_grid->getPosition( posId );
 
 
             for( unsigned int vertId = 0; vertId < glyph->xyzwNum; ++vertId )

@@ -61,7 +61,7 @@ WEEGSourceCalculator::WEEGSourceCalculator( const boost::shared_ptr< const WEEG2
     }
 }
 
-wmath::WPosition WEEGSourceCalculator::calculate( const boost::shared_ptr< const WEEGEvent > event ) const
+WPosition WEEGSourceCalculator::calculate( const boost::shared_ptr< const WEEGEvent > event ) const
 {
     const std::vector< double >& values = event->getValues();
 
@@ -83,7 +83,7 @@ wmath::WPosition WEEGSourceCalculator::calculate( const boost::shared_ptr< const
 
     sum -= m_numPositions * min;
 
-    wmath::WPosition source;
+    WPosition source;
     for( std::size_t channelID = 0; channelID < values.size(); ++channelID )
     {
         if( m_hasPosition[channelID] )

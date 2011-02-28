@@ -29,7 +29,6 @@
 #include "../WVector3D.h"
 #include "../WValue.h"
 
-using wmath::WVector3D;
 
 /**
  * Test for WVector3D

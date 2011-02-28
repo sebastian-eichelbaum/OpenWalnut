@@ -43,18 +43,18 @@ public:
 //     */
 //    void testSamplePointsFromCenter( void )
 //    {
-//        WPlane p( wmath::WVector3D( 0, 0, 1 ), wmath::WPosition( 1.5, 1.5, 1. ) );
+//        WPlane p( WVector3D( 0, 0, 1 ), WPosition( 1.5, 1.5, 1. ) );
 //        WGridRegular3D grid( 2, 2, 2, 1., 1., 1. );
-//        boost::shared_ptr< std::set< wmath::WPosition > > expected( new std::set< wmath::WPosition > );
-//        expected->insert( wmath::WPosition(   1,   1, 1 ) );
-//        expected->insert( wmath::WPosition( 1.5,   1, 1 ) );
-//        expected->insert( wmath::WPosition(   2,   1, 1 ) );
-//        expected->insert( wmath::WPosition(   1, 1.5, 1 ) );
-//        expected->insert( wmath::WPosition( 1.5, 1.5, 1 ) );
-//        expected->insert( wmath::WPosition(   2, 1.5, 1 ) );
-//        expected->insert( wmath::WPosition(   1,   2, 1 ) );
-//        expected->insert( wmath::WPosition( 1.5,   2, 1 ) );
-//        expected->insert( wmath::WPosition(   2,   2, 1 ) );
+//        boost::shared_ptr< std::set< WPosition > > expected( new std::set< WPosition > );
+//        expected->insert( WPosition(   1,   1, 1 ) );
+//        expected->insert( WPosition( 1.5,   1, 1 ) );
+//        expected->insert( WPosition(   2,   1, 1 ) );
+//        expected->insert( WPosition(   1, 1.5, 1 ) );
+//        expected->insert( WPosition( 1.5, 1.5, 1 ) );
+//        expected->insert( WPosition(   2, 1.5, 1 ) );
+//        expected->insert( WPosition(   1,   2, 1 ) );
+//        expected->insert( WPosition( 1.5,   2, 1 ) );
+//        expected->insert( WPosition(   2,   2, 1 ) );
 //        using string_utils::operator<<;
 //        TS_ASSERT_EQUALS( *expected, *p.samplePoints( grid, 0.5 ) );
 //    }
@@ -64,18 +64,18 @@ public:
      */
     void testFixedSampling( void )
     {
-        WPlane p( wmath::WVector3D( 0, 0, 1 ), wmath::WPosition( 1.5, 1.5, 1. ) );
-        boost::shared_ptr< std::set< wmath::WPosition > > expected( new std::set< wmath::WPosition > );
-        expected->insert( wmath::WPosition(   1,   1, 1 ) );
-        expected->insert( wmath::WPosition(   1, 1.5, 1 ) );
-        expected->insert( wmath::WPosition(   1,   2, 1 ) );
-        expected->insert( wmath::WPosition( 1.5,   1, 1 ) );
-        expected->insert( wmath::WPosition(   2,   1, 1 ) );
-        expected->insert( wmath::WPosition( 1.5, 1.5, 1 ) );
-        expected->insert( wmath::WPosition(   2, 1.5, 1 ) );
-        expected->insert( wmath::WPosition(   1, 1.5, 1 ) );
-        expected->insert( wmath::WPosition( 1.5,   2, 1 ) );
-        expected->insert( wmath::WPosition(   2,   2, 1 ) );
+        WPlane p( WVector3D( 0, 0, 1 ), WPosition( 1.5, 1.5, 1. ) );
+        boost::shared_ptr< std::set< WPosition > > expected( new std::set< WPosition > );
+        expected->insert( WPosition(   1,   1, 1 ) );
+        expected->insert( WPosition(   1, 1.5, 1 ) );
+        expected->insert( WPosition(   1,   2, 1 ) );
+        expected->insert( WPosition( 1.5,   1, 1 ) );
+        expected->insert( WPosition(   2,   1, 1 ) );
+        expected->insert( WPosition( 1.5, 1.5, 1 ) );
+        expected->insert( WPosition(   2, 1.5, 1 ) );
+        expected->insert( WPosition(   1, 1.5, 1 ) );
+        expected->insert( WPosition( 1.5,   2, 1 ) );
+        expected->insert( WPosition(   2,   2, 1 ) );
         TS_ASSERT_EQUALS( *expected, *p.samplePoints( 0.5, 2, 2 ) );
      }
 };

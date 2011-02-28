@@ -35,7 +35,7 @@
 #include "WTriangleMesh.h"
 #include "exceptions/WGEException.h"
 
-osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< wmath::WPosition >& corners )
+osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< WPosition >& corners )
 {
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
 
@@ -72,18 +72,18 @@ osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuads( const std::vector< wmat
     return vertices;
 }
 
-osg::Vec3 wge::getQuadNormal( const wmath::WPosition& a,
-                              const wmath::WPosition& b,
-                              const wmath::WPosition& c )
+osg::Vec3 wge::getQuadNormal( const WPosition& a,
+                              const WPosition& b,
+                              const WPosition& c )
 {
-    wmath::WPosition vec1 = a - b;
-    wmath::WPosition vec2 = c - b;
-    wmath::WPosition normal = vec2.crossProduct( vec1 );
+    WPosition vec1 = a - b;
+    WPosition vec2 = c - b;
+    WPosition normal = vec2.crossProduct( vec1 );
     normal.normalize();
     return normal;
 }
 
-osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector< wmath::WPosition >& corners )
+osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector< WPosition >& corners )
 {
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
 
@@ -96,7 +96,7 @@ osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector
     return vertices;
 }
 
-WTriangleMesh wge::triangulate( const std::vector< wmath::WPosition >& points, double transformationFactor )
+WTriangleMesh wge::triangulate( const std::vector< WPosition >& points, double transformationFactor )
 {
     WAssert( points.size() > 2, "The Delaunay triangulation needs at least 3 vertices!" );
 

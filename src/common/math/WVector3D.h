@@ -35,8 +35,6 @@
 #include "../WLimits.h"
 #include "../WStringUtils.h"
 
-namespace wmath
-{
 /**
  * Efficient three-dimensional vector that allows many vector algebra operations.
  * It is based on osg::vec3d
@@ -253,5 +251,5 @@ inline osg::Vec3d::value_type WVector3D::distanceSquare( const WVector3D &other 
     }
     return dist;
 }
-}  // End of namespace
+
 #endif  // WVECTOR3D_H

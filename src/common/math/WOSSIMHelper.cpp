@@ -31,7 +31,7 @@
 
 #include "WOSSIMHelper.h"
 
-boost::shared_ptr< NEWMAT::Matrix > wmath::WOSSIMHelper::OWMatrixToOSSIMMatrix( const wmath::WMatrix<double> &input )
+boost::shared_ptr< NEWMAT::Matrix > WOSSIMHelper::OWMatrixToOSSIMMatrix( const WMatrix<double> &input )
 {
   boost::shared_ptr< NEWMAT::Matrix > result( new NEWMAT::Matrix( input.getNbRows(), input.getNbCols() ) );
   for ( size_t row = 0; row < input.getNbRows(); row++ )
@@ -44,9 +44,9 @@ boost::shared_ptr< NEWMAT::Matrix > wmath::WOSSIMHelper::OWMatrixToOSSIMMatrix( 
   return result;
 }
 
-wmath::WMatrix<double> wmath::WOSSIMHelper::OSSIMMatrixToOWMatrix( const NEWMAT::Matrix& input )
+WMatrix<double> WOSSIMHelper::OSSIMMatrixToOWMatrix( const NEWMAT::Matrix& input )
 {
-  wmath::WMatrix<double> result( static_cast<size_t>( input.Nrows() ), static_cast<size_t>( input.Ncols() ) );
+  WMatrix<double> result( static_cast<size_t>( input.Nrows() ), static_cast<size_t>( input.Ncols() ) );
 
   for ( size_t row = 0; row < result.getNbRows(); row++ )
   {
@@ -58,9 +58,9 @@ wmath::WMatrix<double> wmath::WOSSIMHelper::OSSIMMatrixToOWMatrix( const NEWMAT:
   return result;
 }
 
-wmath::WMatrix<double> wmath::WOSSIMHelper::OSSIMDiagonalMatrixToOWMatrix( const NEWMAT::DiagonalMatrix& input )
+WMatrix<double> WOSSIMHelper::OSSIMDiagonalMatrixToOWMatrix( const NEWMAT::DiagonalMatrix& input )
 {
-  wmath::WMatrix<double> result( static_cast<size_t>( input.Nrows() ), static_cast<size_t>( input.Ncols() ) );
+  WMatrix<double> result( static_cast<size_t>( input.Nrows() ), static_cast<size_t>( input.Ncols() ) );
 
   for ( size_t i = 0; i < result.getNbRows(); i++ )
   {
@@ -69,9 +69,9 @@ wmath::WMatrix<double> wmath::WOSSIMHelper::OSSIMDiagonalMatrixToOWMatrix( const
   return result;
 }
 
-wmath::WValue<double> wmath::WOSSIMHelper::OSSIMDiagonalMatrixToOWVector( const NEWMAT::DiagonalMatrix& input )
+WValue<double> WOSSIMHelper::OSSIMDiagonalMatrixToOWVector( const NEWMAT::DiagonalMatrix& input )
 {
-  wmath::WValue<double> result( static_cast<size_t>( input.Nrows() ) );
+  WValue<double> result( static_cast<size_t>( input.Nrows() ) );
 
   for ( size_t i = 0; i < result.size(); i++ )
   {
@@ -80,19 +80,19 @@ wmath::WValue<double> wmath::WOSSIMHelper::OSSIMDiagonalMatrixToOWVector( const 
   return result;
 }
 
-// gsl_vector* wmath::OSSIMHelper::OWVectorToOSSIMVector( const WValue<double> &input )
+// gsl_vector* OSSIMHelper::OWVectorToOSSIMVector( const WValue<double> &input )
 // {
 // }
 //
-// wmath::WValue<double> wmath::OSSIMHelper::OSSIMVectorToOWVector( const gsl_vector* input )
+// WValue<double> OSSIMHelper::OSSIMVectorToOWVector( const gsl_vector* input )
 // {
 // }
 
 
-void wmath::WOSSIMHelper::computeSVD( const wmath::WMatrix< double >& A,
-                                     wmath::WMatrix< double >& U,
-                                     wmath::WMatrix< double >& V,
-                                     wmath::WValue< double >& S )
+void WOSSIMHelper::computeSVD( const WMatrix< double >& A,
+                                     WMatrix< double >& U,
+                                     WMatrix< double >& V,
+                                     WValue< double >& S )
 {
   // create matrices in OSSIM format
   boost::shared_ptr< NEWMAT::Matrix > AA( OWMatrixToOSSIMMatrix( A ) );
@@ -107,20 +107,20 @@ void wmath::WOSSIMHelper::computeSVD( const wmath::WMatrix< double >& A,
   V = OSSIMMatrixToOWMatrix( VV );
 }
 
-// wmath::WMatrix<double> wmath::WOSSIMHelper::pseudoInverse( const WMatrix<double>& input )
+// WMatrix<double> WOSSIMHelper::pseudoInverse( const WMatrix<double>& input )
 // {
 //             // calc pseudo inverse
-//             wmath::WMatrix< double > U( input.getNbRows(), input.getNbCols() );
-//             wmath::WMatrix< double > V( input.getNbCols(), input.getNbCols() );
-//             wmath::WValue< double > Svec( input.getNbCols() );
-//             wmath::WOSSIMHelper::computeSVD( input, U, V, Svec );
+//             WMatrix< double > U( input.getNbRows(), input.getNbCols() );
+//             WMatrix< double > V( input.getNbCols(), input.getNbCols() );
+//             WValue< double > Svec( input.getNbCols() );
+//             WOSSIMHelper::computeSVD( input, U, V, Svec );
 //
 //             // create diagonal matrix S
-//             wmath::WMatrix< double > S( input.getNbCols(), input.getNbCols() );
+//             WMatrix< double > S( input.getNbCols(), input.getNbCols() );
 //
 //             for ( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
 //               S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
 //
-//             return wmath::WMatrix< double >( V*S*U.transposed() );
+//             return WMatrix< double >( V*S*U.transposed() );
 // }
 #endif

@@ -59,11 +59,11 @@ public:
     void testTensorBaseConstructor()
     {
         // define tensor types
-        typedef wmath::WTensorBase< 1, 2, double > T12;
-        typedef wmath::WTensorBase< 2, 3, float > T23;
-        typedef wmath::WTensorBase< 4, 2, int > T42;
-        typedef wmath::WTensorBase< 6, 3, double > T63;
-        typedef wmath::WTensorBase< 0, 0, int > T00;
+        typedef WTensorBase< 1, 2, double > T12;
+        typedef WTensorBase< 2, 3, float > T23;
+        typedef WTensorBase< 4, 2, int > T42;
+        typedef WTensorBase< 6, 3, double > T63;
+        typedef WTensorBase< 0, 0, int > T00;
 
         // standard constructor should never throw
         TS_ASSERT_THROWS_NOTHING( T12 t12() );
@@ -119,10 +119,10 @@ public:
      */
     void testWTensorBaseCopyConstructor()
     {
-        typedef wmath::WTensorBase< 2, 3, int > T23;
-        typedef wmath::WTensorBase< 5, 4, double > T54;
-        typedef wmath::WTensorBase< 3, 3, float > T33;
-        typedef wmath::WTensorBase< 0, 2, int > T02;
+        typedef WTensorBase< 2, 3, int > T23;
+        typedef WTensorBase< 5, 4, double > T54;
+        typedef WTensorBase< 3, 3, float > T33;
+        typedef WTensorBase< 0, 2, int > T02;
 
         {
             // create a tensor and fill in some values
@@ -213,10 +213,10 @@ public:
     {
         // this is essentially the same test as with the copy constructor,
         // only this time we use the copy operator
-        typedef wmath::WTensorBase< 2, 3, int > T23;
-        typedef wmath::WTensorBase< 5, 4, double > T54;
-        typedef wmath::WTensorBase< 3, 3, float > T33;
-        typedef wmath::WTensorBase< 0, 3, double > T03;
+        typedef WTensorBase< 2, 3, int > T23;
+        typedef WTensorBase< 5, 4, double > T54;
+        typedef WTensorBase< 3, 3, float > T33;
+        typedef WTensorBase< 0, 3, double > T03;
 
         {
             // create a tensor and fill in some values
@@ -333,8 +333,8 @@ public:
      */
     void testWTensorBaseCopyOperatorSelfCopy()
     {
-        typedef wmath::WTensorBase< 3, 3, double > T33;
-        typedef wmath::WTensorBase< 0, 0, int > T00;
+        typedef WTensorBase< 3, 3, double > T33;
+        typedef WTensorBase< 0, 0, int > T00;
 
         {
             T33 t;
@@ -377,10 +377,10 @@ public:
      */
     void testWTensorBaseArrayAccessErrorConditions()
     {
-        typedef wmath::WTensorBase< 4, 4, double > T44;
-        typedef wmath::WTensorBase< 1, 4, int > T14;
-        typedef wmath::WTensorBase< 3, 2, float > T32;
-        typedef wmath::WTensorBase< 0, 654, int > T0;
+        typedef WTensorBase< 4, 4, double > T44;
+        typedef WTensorBase< 1, 4, int > T14;
+        typedef WTensorBase< 3, 2, float > T32;
+        typedef WTensorBase< 0, 654, int > T0;
 
         {
             // instantiate a tensor
@@ -522,9 +522,9 @@ public:
      */
     void testWTensorBaseArrayAccess()
     {
-        typedef wmath::WTensorBase< 2, 3, std::size_t > T23;
-        typedef wmath::WTensorBase< 3, 4, std::size_t > T34;
-        typedef wmath::WTensorBase< 0, 1, std::size_t > T01;
+        typedef WTensorBase< 2, 3, std::size_t > T23;
+        typedef WTensorBase< 3, 4, std::size_t > T34;
+        typedef WTensorBase< 0, 1, std::size_t > T01;
 
         // now test if operator [] returns the correct elements
         {
@@ -639,10 +639,10 @@ public:
      */
     void testWTensorBaseVectorAccess()
     {
-        typedef wmath::WTensorBase< 4, 4, double > T44;
-        typedef wmath::WTensorBase< 1, 4, double > T14;
-        typedef wmath::WTensorBase< 6, 2, double > T62;
-        typedef wmath::WTensorBase< 0, 1, double > T01;
+        typedef WTensorBase< 4, 4, double > T44;
+        typedef WTensorBase< 1, 4, double > T14;
+        typedef WTensorBase< 6, 2, double > T62;
+        typedef WTensorBase< 0, 1, double > T01;
 
         {
             T44 t;
@@ -755,9 +755,9 @@ public:
      */
     void testWTensorBaseCompareOperator()
     {
-        typedef wmath::WTensorBase< 1, 7, double > T17;
-        typedef wmath::WTensorBase< 3, 2, int > T32;
-        typedef wmath::WTensorBase< 0, 0, float > T00;
+        typedef WTensorBase< 1, 7, double > T17;
+        typedef WTensorBase< 3, 2, int > T32;
+        typedef WTensorBase< 0, 0, float > T00;
 
         {
             T17 t, m;
@@ -901,8 +901,8 @@ public:
      */
     void testWTensorBaseCompareOperator2()
     {
-        typedef wmath::WTensorBase< 3, 3, int > T33;
-        typedef wmath::WTensorBase< 0, 0, int > T00;
+        typedef WTensorBase< 3, 3, int > T33;
+        typedef WTensorBase< 0, 0, int > T00;
 
         {
             T33 t, m;
@@ -991,11 +991,11 @@ public:
     void testTensorBaseSymConstructor()
     {
         // define tensor types
-        typedef wmath::WTensorBaseSym< 1, 2, double > T12;
-        typedef wmath::WTensorBaseSym< 2, 3, float > T23;
-        typedef wmath::WTensorBaseSym< 4, 2, int > T42;
-        typedef wmath::WTensorBaseSym< 6, 3, double > T63;
-        typedef wmath::WTensorBaseSym< 0, 0, int > T00;
+        typedef WTensorBaseSym< 1, 2, double > T12;
+        typedef WTensorBaseSym< 2, 3, float > T23;
+        typedef WTensorBaseSym< 4, 2, int > T42;
+        typedef WTensorBaseSym< 6, 3, double > T63;
+        typedef WTensorBaseSym< 0, 0, int > T00;
 
         // standard constructor should never throw
         TS_ASSERT_THROWS_NOTHING( T12 t12() );
@@ -1052,10 +1052,10 @@ public:
      */
     void testWTensorBaseSymCopyConstructor()
     {
-        typedef wmath::WTensorBaseSym< 2, 3, int > T23;
-        typedef wmath::WTensorBaseSym< 5, 4, double > T54;
-        typedef wmath::WTensorBaseSym< 3, 3, float > T33;
-        typedef wmath::WTensorBaseSym< 0, 2, int > T02;
+        typedef WTensorBaseSym< 2, 3, int > T23;
+        typedef WTensorBaseSym< 5, 4, double > T54;
+        typedef WTensorBaseSym< 3, 3, float > T33;
+        typedef WTensorBaseSym< 0, 2, int > T02;
 
         {
             // create a tensor and fill in some values
@@ -1170,10 +1170,10 @@ public:
         // this is essentially the same test as with the copy constructor,
         // only this time we use the copy operator
 
-        typedef wmath::WTensorBaseSym< 2, 3, int > T23;
-        typedef wmath::WTensorBaseSym< 5, 4, double > T54;
-        typedef wmath::WTensorBaseSym< 3, 3, float > T33;
-        typedef wmath::WTensorBaseSym< 0, 3, double > T03;
+        typedef WTensorBaseSym< 2, 3, int > T23;
+        typedef WTensorBaseSym< 5, 4, double > T54;
+        typedef WTensorBaseSym< 3, 3, float > T33;
+        typedef WTensorBaseSym< 0, 3, double > T03;
 
         {
             // create a tensor and fill in some values
@@ -1266,8 +1266,8 @@ public:
      */
     void testWTensorBaseSymCopyOperatorSelfCopy()
     {
-        typedef wmath::WTensorBaseSym< 3, 3, double > T33;
-        typedef wmath::WTensorBaseSym< 0, 0, int > T00;
+        typedef WTensorBaseSym< 3, 3, double > T33;
+        typedef WTensorBaseSym< 0, 0, int > T00;
 
         {
             T33 t;
@@ -1310,10 +1310,10 @@ public:
      */
     void testWTensorBaseSymArrayAccessErrorConditions()
     {
-        typedef wmath::WTensorBaseSym< 4, 4, double > T44;
-        typedef wmath::WTensorBaseSym< 1, 4, int > T14;
-        typedef wmath::WTensorBaseSym< 3, 2, float > T32;
-        typedef wmath::WTensorBaseSym< 0, 654, int > T0;
+        typedef WTensorBaseSym< 4, 4, double > T44;
+        typedef WTensorBaseSym< 1, 4, int > T14;
+        typedef WTensorBaseSym< 3, 2, float > T32;
+        typedef WTensorBaseSym< 0, 654, int > T0;
 
         // first, we'll check some error conditions
         {
@@ -1456,8 +1456,8 @@ public:
      */
     void testWTensorBaseSymArrayAccess()
     {
-        typedef wmath::WTensorBaseSym< 2, 3, std::size_t > T23;
-        typedef wmath::WTensorBaseSym< 3, 4, std::size_t > T34;
+        typedef WTensorBaseSym< 2, 3, std::size_t > T23;
+        typedef WTensorBaseSym< 3, 4, std::size_t > T34;
 
         // now test if operator [] returns the correct elements
         {
@@ -1560,7 +1560,7 @@ public:
      */
     void testWTensorBaseSymAccessOperatorPermutations()
     {
-        typedef wmath::WTensorBaseSym< 3, 4, std::size_t > T34;
+        typedef WTensorBaseSym< 3, 4, std::size_t > T34;
 
         T34 t;
 
@@ -1631,9 +1631,9 @@ public:
      */
     void testWTensorBaseSymVectorAccess()
     {
-        typedef wmath::WTensorBaseSym< 4, 4, double > T44;
-        typedef wmath::WTensorBaseSym< 1, 4, double > T14;
-        typedef wmath::WTensorBaseSym< 6, 2, double > T62;
+        typedef WTensorBaseSym< 4, 4, double > T44;
+        typedef WTensorBaseSym< 1, 4, double > T14;
+        typedef WTensorBaseSym< 6, 2, double > T62;
 
         {
             T44 t;
@@ -1736,9 +1736,9 @@ public:
      */
     void testWTensorBaseSymCompareOperator()
     {
-        typedef wmath::WTensorBaseSym< 1, 7, double > T17;
-        typedef wmath::WTensorBaseSym< 3, 2, int > T32;
-        typedef wmath::WTensorBaseSym< 0, 0, float > T00;
+        typedef WTensorBaseSym< 1, 7, double > T17;
+        typedef WTensorBaseSym< 3, 2, int > T32;
+        typedef WTensorBaseSym< 0, 0, float > T00;
 
         {
             T17 t, m;
@@ -1874,8 +1874,8 @@ public:
      */
     void testWTensorBaseSymCompareOperator2()
     {
-        typedef wmath::WTensorBaseSym< 3, 3, int > T33;
-        typedef wmath::WTensorBaseSym< 0, 0, int > T00;
+        typedef WTensorBaseSym< 3, 3, int > T33;
+        typedef WTensorBaseSym< 0, 0, int > T00;
 
         {
             T33 t, m;
@@ -1963,8 +1963,8 @@ public:
     void testAccessOperatorErrors()
     {
         // first test with an asymmetric tensor base
-        typedef wmath::WTensorFunc< wmath::WTensorBase, 3, 3, double > F33;
-        typedef wmath::WTensorFunc< wmath::WTensorBase, 1, 5, int > F15;
+        typedef WTensorFunc< WTensorBase, 3, 3, double > F33;
+        typedef WTensorFunc< WTensorBase, 1, 5, int > F15;
 
         {
             F33 f;
@@ -2000,7 +2000,7 @@ public:
         }
 
         // now try a symmetric tensor base
-        typedef wmath::WTensorFunc< wmath::WTensorBaseSym, 2, 4, double > F24;
+        typedef WTensorFunc< WTensorBaseSym, 2, 4, double > F24;
 
         {
             F24 f;
@@ -2021,8 +2021,8 @@ public:
      */
     void testAccessOperator()
     {
-        typedef wmath::WTensorFunc< wmath::WTensorBase, 6, 2, std::size_t > F62;
-        typedef wmath::WTensorBase< 6, 2, std::size_t > Base62;
+        typedef WTensorFunc< WTensorBase, 6, 2, std::size_t > F62;
+        typedef WTensorBase< 6, 2, std::size_t > Base62;
 
         F62 f;
         Base62& b = f;
@@ -2055,8 +2055,8 @@ public:
      */
     void testAccessOperatorSymmetry()
     {
-        typedef wmath::WTensorFunc< wmath::WTensorBaseSym, 4, 5, std::size_t > F45;
-        typedef wmath::WTensorBaseSym< 4, 5, std::size_t > Base45;
+        typedef WTensorFunc< WTensorBaseSym, 4, 5, std::size_t > F45;
+        typedef WTensorBaseSym< 4, 5, std::size_t > Base45;
 
         F45 f;
         Base45& b = f;
@@ -2115,12 +2115,12 @@ public:
      */
     void testCopyContructorBaseFromBaseSym()
     {
-        typedef wmath::WTensorBaseSym< 2, 4, double > S24;
-        typedef wmath::WTensorBase< 2, 4, double > T24;
-        typedef wmath::WTensorBaseSym< 1, 4, double > S14;
-        typedef wmath::WTensorBase< 1, 4, double > T14;
-        typedef wmath::WTensorBaseSym< 0, 4, double > S04;
-        typedef wmath::WTensorBase< 0, 4, double > T04;
+        typedef WTensorBaseSym< 2, 4, double > S24;
+        typedef WTensorBase< 2, 4, double > T24;
+        typedef WTensorBaseSym< 1, 4, double > S14;
+        typedef WTensorBase< 1, 4, double > T14;
+        typedef WTensorBaseSym< 0, 4, double > S04;
+        typedef WTensorBase< 0, 4, double > T04;
 
         // construct a symmetric tensor and initialize an asymmetric tensor from it
         {
@@ -2192,12 +2192,12 @@ public:
     void testCopyOperatorBaseFromSym()
     {
         // same test as the last one, only this time we use the copy operator
-        typedef wmath::WTensorBaseSym< 2, 4, double > S24;
-        typedef wmath::WTensorBase< 2, 4, double > T24;
-        typedef wmath::WTensorBaseSym< 1, 4, double > S14;
-        typedef wmath::WTensorBase< 1, 4, double > T14;
-        typedef wmath::WTensorBaseSym< 0, 4, double > S04;
-        typedef wmath::WTensorBase< 0, 4, double > T04;
+        typedef WTensorBaseSym< 2, 4, double > S24;
+        typedef WTensorBase< 2, 4, double > T24;
+        typedef WTensorBaseSym< 1, 4, double > S14;
+        typedef WTensorBase< 1, 4, double > T14;
+        typedef WTensorBaseSym< 0, 4, double > S04;
+        typedef WTensorBase< 0, 4, double > T04;
 
         {
             S24 s;
@@ -2273,9 +2273,9 @@ public:
         // create some "scalar tensors" and cast them to their respective Data_T
         {
             // types
-            wmath::WTensorFunc< wmath::WTensorBase, 0, 1, double > td;
-            wmath::WTensorFunc< wmath::WTensorBase, 0, 0, float > tf;
-            wmath::WTensorFunc< wmath::WTensorBase, 0, 456, int > ti;
+            WTensorFunc< WTensorBase, 0, 1, double > td;
+            WTensorFunc< WTensorBase, 0, 0, float > tf;
+            WTensorFunc< WTensorBase, 0, 456, int > ti;
 
             // implicitly cast to Data_T
             td() = 3.0;
@@ -2292,9 +2292,9 @@ public:
         }
         // do the same test with symmetric tensors
         {
-            wmath::WTensorFunc< wmath::WTensorBase, 0, 1, double > td;
-            wmath::WTensorFunc< wmath::WTensorBase, 0, 0, float > tf;
-            wmath::WTensorFunc< wmath::WTensorBase, 0, 456, int > ti;
+            WTensorFunc< WTensorBase, 0, 1, double > td;
+            WTensorFunc< WTensorBase, 0, 0, float > tf;
+            WTensorFunc< WTensorBase, 0, 456, int > ti;
 
             td() = 3.0;
             double d = td;
@@ -2316,12 +2316,12 @@ public:
     void testCastTensorToVector()
     {
         {
-            wmath::WTensorFunc< wmath::WTensorBase, 1, 5, double > t;
+            WTensorFunc< WTensorBase, 1, 5, double > t;
             t( 0 ) = -9.765;
             t( 1 ) = 154.06;
             t( 4 ) = -57.0;
 
-            wmath::WValue< double > v = t;
+            WValue< double > v = t;
 
             TS_ASSERT_EQUALS( v.size(), 5 );
 
@@ -2332,12 +2332,12 @@ public:
             TS_ASSERT_EQUALS( v[ 4 ], -57.0 );
         }
         {
-            wmath::WTensorFunc< wmath::WTensorBaseSym, 1, 5, double > t;
+            WTensorFunc< WTensorBaseSym, 1, 5, double > t;
             t( 0 ) = -9.765;
             t( 1 ) = 154.06;
             t( 4 ) = -57.0;
 
-            wmath::WValue< double > v = t;
+            WValue< double > v = t;
 
             TS_ASSERT_EQUALS( v.size(), 5 );
 
@@ -2355,12 +2355,12 @@ public:
     void testCastTensorToMatrix()
     {
         {
-            wmath::WTensorFunc< wmath::WTensorBase, 2, 3, double > t;
+            WTensorFunc< WTensorBase, 2, 3, double > t;
             t( 0, 0 ) = -9.765;
             t( 1, 0 ) = 154.06;
             t( 2, 2 ) = -57.0;
 
-            wmath::WMatrix< double > m = t;
+            WMatrix< double > m = t;
 
             TS_ASSERT_EQUALS( m.getNbCols(), 3 );
             TS_ASSERT_EQUALS( m.getNbRows(), 3 );
@@ -2374,12 +2374,12 @@ public:
             }
         }
         {
-            wmath::WTensorFunc< wmath::WTensorBaseSym, 2, 3, double > t;
+            WTensorFunc< WTensorBaseSym, 2, 3, double > t;
             t( 0, 0 ) = -9.765;
             t( 1, 0 ) = 154.06;
             t( 2, 2 ) = -57.0;
 
-            wmath::WMatrix< double > m = t;
+            WMatrix< double > m = t;
 
             TS_ASSERT_EQUALS( m.getNbCols(), 3 );
             TS_ASSERT_EQUALS( m.getNbRows(), 3 );
@@ -2413,25 +2413,25 @@ public:
         std::vector< std::size_t > shouldBe( 3, 0 );
         shouldBe[ 2 ] = 1; // shouldBe == ( 0, 0, 1 )
 
-        wmath::positionIterateOneStep< 3, 3 >( is );
+        positionIterateOneStep< 3, 3 >( is );
         TS_ASSERT_SAME_DATA( &is[ 0 ], &shouldBe[ 0 ], 3 * sizeof( std::size_t ) );
 
-        wmath::positionIterateOneStep< 3, 3 >( is );
-        wmath::positionIterateOneStep< 3, 3 >( is );
+        positionIterateOneStep< 3, 3 >( is );
+        positionIterateOneStep< 3, 3 >( is );
         shouldBe[ 1 ] = 1;
         shouldBe[ 2 ] = 0; // shouldBe == ( 0, 1, 0 )
 
         TS_ASSERT_SAME_DATA( &is[ 0 ], &shouldBe[ 0 ], 3 * sizeof( std::size_t ) );
 
         // the dim = 2 case is more interesting
-        wmath::positionIterateOneStep< 3, 2 >( is );
-        wmath::positionIterateOneStep< 3, 2 >( is );
+        positionIterateOneStep< 3, 2 >( is );
+        positionIterateOneStep< 3, 2 >( is );
         shouldBe[ 0 ] = 1;
         shouldBe[ 1 ] = 0; // shouldBe == ( 1, 0, 0 )
 
         TS_ASSERT_SAME_DATA( &is[ 0 ], &shouldBe[ 0 ], 3 * sizeof( std::size_t ) );
 
-        wmath::positionIterateOneStep< 3, 2 >( is );
+        positionIterateOneStep< 3, 2 >( is );
         shouldBe[ 2 ] = 1;
 
         TS_ASSERT_SAME_DATA( &is[ 0 ], &shouldBe[ 0 ], 3 * sizeof( std::size_t ) );
@@ -2443,12 +2443,12 @@ public:
     void testIndexIterationSorted()
     {
         std::vector< std::size_t > v( 3, 0 );
-        std::size_t numIter = wmath::WBinom< 5, 3 >::value - 1;
+        std::size_t numIter = WBinom< 5, 3 >::value - 1;
 
         // the indices should always be sorted
         for( std::size_t k = 0; k < numIter; ++k )
         {
-            wmath::positionIterateSortedOneStep< 3, 3 >( v );
+            positionIterateSortedOneStep< 3, 3 >( v );
             TS_ASSERT( v[ 0 ] <= v[ 1 ] );
             TS_ASSERT( v[ 1 ] <= v[ 2 ] );
         }
@@ -2460,12 +2460,12 @@ public:
 
         // now test the dim = 2 case
         v[ 0 ] = v[ 1 ] = v[ 2 ] = 0;
-        numIter = wmath::WBinom< 4, 3 >::value - 1;
+        numIter = WBinom< 4, 3 >::value - 1;
 
         // the indices should always be sorted
         for( std::size_t k = 0; k < numIter; ++k )
         {
-            wmath::positionIterateSortedOneStep< 3, 2 >( v );
+            positionIterateSortedOneStep< 3, 2 >( v );
             TS_ASSERT( v[ 0 ] <= v[ 1 ] );
             TS_ASSERT( v[ 1 ] <= v[ 2 ] );
         }

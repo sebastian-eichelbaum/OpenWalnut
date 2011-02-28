@@ -327,7 +327,7 @@ public:
      * \param fiber
      * \param vertex
      */
-    wmath::WPosition getPosition( size_t fiber, size_t vertex ) const;
+    WPosition getPosition( size_t fiber, size_t vertex ) const;
 
     /**
      * calculates the tangent for a point on the fiber
@@ -335,7 +335,7 @@ public:
      * \param fiber
      * \param vertex
      */
-    wmath::WPosition getTangent( size_t fiber, size_t vertex ) const;
+    WPosition getTangent( size_t fiber, size_t vertex ) const;
 
     /**
      * saves the selected fiber bundles to a file

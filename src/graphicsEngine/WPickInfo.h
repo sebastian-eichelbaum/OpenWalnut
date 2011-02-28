@@ -77,11 +77,11 @@ public:
      */
     inline WPickInfo( std::string name,
                       std::string viewerName,
-                      wmath::WPosition pickPosition,
+                      WPosition pickPosition,
                       std::pair< float, float > pixelCoords,
                       modifierKey modKey,
                       WMouseButton mButton = WPickInfo::MOUSE_LEFT,
-                      wmath::WVector3D pickNormal = wmath::WVector3D() );
+                      WVector3D pickNormal = WVector3D() );
 
     /**
      * Creates an object with the empty name, zero position and no modkey.
@@ -124,12 +124,12 @@ public:
     /**
      * Get position where object was hit.
      */
-    inline wmath::WPosition getPickPosition() const;
+    inline WPosition getPickPosition() const;
 
     /**
      * Get normal at position where object was hit.
      */
-    inline wmath::WVector3D getPickNormal() const;
+    inline WVector3D getPickNormal() const;
 
     /**
      * Get pixel coordinates where object was hit.
@@ -153,20 +153,20 @@ private:
 
     std::string m_name; //!< name of picked object.
     std::string m_viewerName; //!< name of the viewer
-    wmath::WPosition m_pickPosition; //!< position where object was hit.
+    WPosition m_pickPosition; //!< position where object was hit.
     std::pair< float, float > m_pixelCoords; //!< Pixel coordinates of the mouse.
     modifierKey m_modKey; //!< modifier key associated with the pick
     WMouseButton m_mouseButton; //!< which mouse button was used for the pick
-    wmath::WVector3D m_pickNormal; //!< normal at position where object was hit.
+    WVector3D m_pickNormal; //!< normal at position where object was hit.
 };
 
 WPickInfo::WPickInfo( std::string name,
                       std::string viewerName,
-                      wmath::WPosition pickPosition,
+                      WPosition pickPosition,
                       std::pair< float, float > pixelCoords,
                       modifierKey modKey,
                       WMouseButton mButton,
-                      wmath::WVector3D pickNormal ) :
+                      WVector3D pickNormal ) :
     m_name( name ),
     m_viewerName( viewerName ),
     m_pickPosition( pickPosition ),
@@ -180,7 +180,7 @@ WPickInfo::WPickInfo( std::string name,
 WPickInfo::WPickInfo() :
     m_name( "" ),
     m_viewerName( "" ),
-    m_pickPosition( wmath::WPosition() ),
+    m_pickPosition( WPosition() ),
     m_pixelCoords( std::make_pair( 0.0, 0.0 ) ),
     m_modKey( WPickInfo::NONE ),
     m_mouseButton( WPickInfo::MOUSE_LEFT )
@@ -217,12 +217,12 @@ std::string WPickInfo::getViewerName() const
     return m_viewerName;
 }
 
-wmath::WPosition WPickInfo::getPickPosition() const
+WPosition WPickInfo::getPickPosition() const
 {
     return m_pickPosition;
 }
 
-wmath::WVector3D WPickInfo::getPickNormal() const
+WVector3D WPickInfo::getPickNormal() const
 {
     return m_pickNormal;
 }

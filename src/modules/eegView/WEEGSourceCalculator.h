@@ -56,7 +56,7 @@ public:
      * \param event an event marking a time position
      * \return the calculated position
      */
-    wmath::WPosition calculate( const boost::shared_ptr< const WEEGEvent > event ) const;
+    WPosition calculate( const boost::shared_ptr< const WEEGEvent > event ) const;
 
 protected:
 private:

@@ -70,7 +70,7 @@ public:
      *
      * \return The value of the new mean function.
      */
-    double mean( const wmath::WPosition& p ) const;
+    double mean( const WPosition& p ) const;
 
     /**
      * Determines whether this dataset can be used as a texture.

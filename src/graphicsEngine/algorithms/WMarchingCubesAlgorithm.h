@@ -109,7 +109,7 @@ public:
      */
     template< typename T >
     boost::shared_ptr< WTriangleMesh > generateSurface(  size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
-                                                          const wmath::WMatrix< double >& mat,
+                                                          const WMatrix< double >& mat,
                                                           const std::vector< T >* vals,
                                                           double isoValue,
                                                           boost::shared_ptr< WProgressCombiner > mainProgress );
@@ -166,7 +166,7 @@ private:
 
     double m_tIsoLevel;  //!< The isovalue.
 
-    wmath::WMatrix< double > m_matrix; //!< The 4x4 transformation matrix for the triangle vertices.
+    WMatrix< double > m_matrix; //!< The 4x4 transformation matrix for the triangle vertices.
 
     ID2WPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
     WMCTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
@@ -174,7 +174,7 @@ private:
 
 
 template<typename T> boost::shared_ptr<WTriangleMesh> WMarchingCubesAlgorithm::generateSurface( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
-                                                                                                 const wmath::WMatrix< double >& mat,
+                                                                                                 const WMatrix< double >& mat,
                                                                                                  const std::vector< T >* vals,
                                                                                                  double isoValue,
                                                                                                  boost::shared_ptr< WProgressCombiner > mainProgress )
@@ -342,12 +342,12 @@ template<typename T> boost::shared_ptr<WTriangleMesh> WMarchingCubesAlgorithm::g
     ID2WPointXYZId::iterator mapIterator = m_idToVertices.begin();
     while ( mapIterator != m_idToVertices.end() )
     {
-        wmath::WPosition texCoord = wmath::WPosition( mapIterator->second.x / nbCoordsX,
+        WPosition texCoord = WPosition( mapIterator->second.x / nbCoordsX,
                                                       mapIterator->second.y / nbCoordsY,
                                                       mapIterator->second.z / nbCoordsZ );
 
         // transform from grid coordinate system to world coordinates
-        wmath::WPosition pos = wmath::WPosition( mapIterator->second.x, mapIterator->second.y, mapIterator->second.z );
+        WPosition pos = WPosition( mapIterator->second.x, mapIterator->second.y, mapIterator->second.z );
 
         std::vector< double > resultPos4D( 4 );
         resultPos4D[0] = m_matrix( 0, 0 ) * pos[0] + m_matrix( 0, 1 ) * pos[1] + m_matrix( 0, 2 ) * pos[2] + m_matrix( 0, 3 ) * 1;

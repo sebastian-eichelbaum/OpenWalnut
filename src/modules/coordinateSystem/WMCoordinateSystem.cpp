@@ -148,16 +148,16 @@ void WMCoordinateSystem::properties()
 
     m_showNumbersOnRulers = m_properties->addProperty( "Show numbers on rulers", "Does exactly what it says", true, propertyCallback );
 
-    wmath::WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
     m_crosshair = m_properties->addProperty( "Crosshair", "", ch );
     // initialize the properties with a certain standard set
     // those properties will be updatet as soon as the first dataset is looaded
-    m_flt = m_infoProperties->addProperty( "Front left top", "", wmath::WPosition( 0.0, 0.0, 0.0 ) );
-    m_brb = m_infoProperties->addProperty( "Bottom right back", "", wmath::WPosition( 160.0, 200.0, 160.0 ) );
+    m_flt = m_infoProperties->addProperty( "Front left top", "", WPosition( 0.0, 0.0, 0.0 ) );
+    m_brb = m_infoProperties->addProperty( "Bottom right back", "", WPosition( 160.0, 200.0, 160.0 ) );
 
-    m_ac = m_infoProperties->addProperty( "Anterior commisure", "", wmath::WPosition( 80.0, 119.0, 80.0 ) );
-    m_pc = m_infoProperties->addProperty( "Posterior commisure", "", wmath::WPosition( 80.0, 80.0, 80.0 ) );
-    m_ihp = m_infoProperties->addProperty( "Interhemispherical point", "", wmath::WPosition( 80.0, 119.0, 110.0 ) );
+    m_ac = m_infoProperties->addProperty( "Anterior commisure", "", WPosition( 80.0, 119.0, 80.0 ) );
+    m_pc = m_infoProperties->addProperty( "Posterior commisure", "", WPosition( 80.0, 80.0, 80.0 ) );
+    m_ihp = m_infoProperties->addProperty( "Interhemispherical point", "", WPosition( 80.0, 119.0, 110.0 ) );
 
     m_acTrigger = m_properties->addProperty( "Set AC", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );
     m_pcTrigger = m_properties->addProperty( "Set PC", "Press me.", WPVBaseTypes::PV_TRIGGER_READY, propertyCallback );
@@ -247,8 +247,8 @@ void WMCoordinateSystem::updateCallback()
         m_dirty = true;
     }
 
-    wmath::WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    wmath::WPosition cho = m_crosshair->get();
+    WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition cho = m_crosshair->get();
 
     if ( ch[0] != cho[0] || ch[1] != cho[1] || ch[2] != cho[2] || m_dirty )
     {
@@ -313,7 +313,7 @@ void WMCoordinateSystem::findBoundingBox()
     double yOff = grid->getOffsetY();
     double zOff = grid->getOffsetZ();
 
-    wmath::WVector3D offset( xOff, yOff, zOff );
+    WVector3D offset( xOff, yOff, zOff );
     m_coordConverter = boost::shared_ptr< WCoordConverter >( new WCoordConverter( grid->getTransformationMatrix(), grid->getOrigin(), offset ) );
 
     WItemSelector s = m_csSelection->get( true );
@@ -321,8 +321,8 @@ void WMCoordinateSystem::findBoundingBox()
     m_coordConverter->setBoundingBox( m_dataSet->getGrid()->getBoundingBox() );
 
     // now compute the innerBoundingBox for the actual data
-    wmath::WPosition flt = m_flt->get();
-    wmath::WPosition brb = m_brb->get();
+    WPosition flt = m_flt->get();
+    WPosition brb = m_brb->get();
 
     for ( size_t x = 0; x < grid->getNbCoordsX(); ++x )
     {
@@ -447,8 +447,8 @@ void WMCoordinateSystem::findBoundingBox()
         }
     }
 
-    wmath::WPosition tmpflt = m_coordConverter->worldCoordTransformed( flt );
-    wmath::WPosition tmpbrb = m_coordConverter->worldCoordTransformed( brb );
+    WPosition tmpflt = m_coordConverter->worldCoordTransformed( flt );
+    WPosition tmpbrb = m_coordConverter->worldCoordTransformed( brb );
 
     flt[0] = std::min( tmpflt[0], tmpbrb[0] );
     flt[1] = std::max( tmpflt[1], tmpbrb[1] );
@@ -465,21 +465,21 @@ void WMCoordinateSystem::findBoundingBox()
 
 void WMCoordinateSystem::initTalairachConverter()
 {
-    wmath::WVector3D ac_c( m_coordConverter->w2c( m_ac->get() ) );
-    wmath::WVector3D pc_c( m_coordConverter->w2c( m_pc->get() ) );
-    wmath::WVector3D ihp_c( m_coordConverter->w2c( m_ihp->get() ) );
+    WVector3D ac_c( m_coordConverter->w2c( m_ac->get() ) );
+    WVector3D pc_c( m_coordConverter->w2c( m_pc->get() ) );
+    WVector3D ihp_c( m_coordConverter->w2c( m_ihp->get() ) );
     boost::shared_ptr< WTalairachConverter > talairachConverter =
         boost::shared_ptr< WTalairachConverter >( new WTalairachConverter( ac_c, pc_c, ihp_c ) );
 
-    wmath::WVector3D flt_c( m_coordConverter->w2c( m_flt->get() ) );
-    wmath::WVector3D brb_c( m_coordConverter->w2c( m_brb->get() ) );
+    WVector3D flt_c( m_coordConverter->w2c( m_flt->get() ) );
+    WVector3D brb_c( m_coordConverter->w2c( m_brb->get() ) );
 
-    wmath::WVector3D ap( flt_c[0], 0., 0. );
-    wmath::WVector3D pp( brb_c[0], 0., 0. );
-    wmath::WVector3D lp( 0., flt_c[1], 0. );
-    wmath::WVector3D rp( 0., brb_c[1], 0. );
-    wmath::WVector3D sp( 0., 0., flt_c[2] );
-    wmath::WVector3D ip( 0., 0., brb_c[2] );
+    WVector3D ap( flt_c[0], 0., 0. );
+    WVector3D pp( brb_c[0], 0., 0. );
+    WVector3D lp( 0., flt_c[1], 0. );
+    WVector3D rp( 0., brb_c[1], 0. );
+    WVector3D sp( 0., 0., flt_c[2] );
+    WVector3D ip( 0., 0., brb_c[2] );
 
     talairachConverter->setAp( ap );
     talairachConverter->setPp( pp );
@@ -576,8 +576,8 @@ void WMCoordinateSystem::addSagittalGrid( float position )
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
-    wmath::WPosition p1 = boundingBox.getMin();
-    wmath::WPosition p2 = boundingBox.getMax();
+    WPosition p1 = boundingBox.getMin();
+    WPosition p2 = boundingBox.getMax();
 
     switch ( m_coordConverter->getCoordinateSystemMode() )
     {
@@ -606,16 +606,16 @@ void WMCoordinateSystem::addSagittalGrid( float position )
 
             for ( int i = -110; i < 81; i += 10 )
             {
-                wmath::WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( i, 0, -50 ) );
-                wmath::WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( i, 0, 80 ) );
+                WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( i, 0, -50 ) );
+                WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( i, 0, 80 ) );
 
                 vertices->push_back( osg::Vec3( position, tmpPoint1[1], tmpPoint1[2] ) );
                 vertices->push_back( osg::Vec3( position, tmpPoint2[1], tmpPoint2[2] ) );
             }
             for ( int i = -50; i < 81; i += 10 )
             {
-                wmath::WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( -110, 0, i ) );
-                wmath::WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( 80, 0, i ) );
+                WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( -110, 0, i ) );
+                WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( 80, 0, i ) );
 
                 vertices->push_back( osg::Vec3( position, tmpPoint1[1], tmpPoint1[2] ) );
                 vertices->push_back( osg::Vec3( position, tmpPoint2[1], tmpPoint2[2] ) );
@@ -657,8 +657,8 @@ void WMCoordinateSystem::addCoronalGrid( float position )
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
-    wmath::WPosition p1 = boundingBox.getMin();
-    wmath::WPosition p2 = boundingBox.getMax();
+    WPosition p1 = boundingBox.getMin();
+    WPosition p2 = boundingBox.getMax();
 
     switch ( m_coordConverter->getCoordinateSystemMode() )
     {
@@ -687,16 +687,16 @@ void WMCoordinateSystem::addCoronalGrid( float position )
 
             for ( int i = -80; i < 81; i += 10 )
             {
-                wmath::WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( 0, i, -50 ) );
-                wmath::WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( 0, i, 80 ) );
+                WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( 0, i, -50 ) );
+                WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( 0, i, 80 ) );
 
                 vertices->push_back( osg::Vec3( tmpPoint1[0], position, tmpPoint1[2] ) );
                 vertices->push_back( osg::Vec3( tmpPoint2[0], position, tmpPoint2[2] ) );
             }
             for ( int i = -50; i < 81; i += 10 )
             {
-                wmath::WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( 0, -80, i ) );
-                wmath::WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( 0, 80, i ) );
+                WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( 0, -80, i ) );
+                WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( 0, 80, i ) );
 
                 vertices->push_back( osg::Vec3( tmpPoint1[0], position, tmpPoint1[2] ) );
                 vertices->push_back( osg::Vec3( tmpPoint2[0], position, tmpPoint2[2] ) );
@@ -738,8 +738,8 @@ void WMCoordinateSystem::addAxialGrid( float position )
     osg::Vec3Array* vertices = new osg::Vec3Array;
 
     WBoundingBox boundingBox = m_coordConverter->getBoundingBox();
-    wmath::WPosition p1 = boundingBox.getMin();
-    wmath::WPosition p2 = boundingBox.getMax();
+    WPosition p1 = boundingBox.getMin();
+    WPosition p2 = boundingBox.getMax();
 
     switch ( m_coordConverter->getCoordinateSystemMode() )
     {
@@ -768,16 +768,16 @@ void WMCoordinateSystem::addAxialGrid( float position )
 
             for ( int i = -80; i < 81; i += 10 )
             {
-                wmath::WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( -110, i, 0 ) );
-                wmath::WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( 80, i, 0 ) );
+                WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( -110, i, 0 ) );
+                WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( 80, i, 0 ) );
 
                 vertices->push_back( osg::Vec3( tmpPoint1[0], tmpPoint1[1], position ) );
                 vertices->push_back( osg::Vec3( tmpPoint2[0], tmpPoint2[1], position ) );
             }
             for ( int i = -110; i < 81; i += 10 )
             {
-                wmath::WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( i, -80, 0 ) );
-                wmath::WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( i, 80, 0 ) );
+                WVector3D tmpPoint1 = m_coordConverter->t2w( WVector3D( i, -80, 0 ) );
+                WVector3D tmpPoint2 = m_coordConverter->t2w( WVector3D( i, 80, 0 ) );
 
                 vertices->push_back( osg::Vec3( tmpPoint1[0], tmpPoint1[1], position ) );
                 vertices->push_back( osg::Vec3( tmpPoint2[0], tmpPoint2[1], position ) );

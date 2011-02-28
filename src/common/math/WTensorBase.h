@@ -25,16 +25,16 @@
 #ifndef WTENSORBASE_H
 #define WTENSORBASE_H
 
-#include <vector>
-#include <map>
 #include <algorithm>
+#include <map>
+#include <vector>
 
 #include <boost/static_assert.hpp>
 
+#include "../WAssert.h"
 #include "WCompileTimeFunctions.h"
 #include "WMatrix.h"
 #include "WValue.h"
-#include "../WAssert.h"
 
 // TODO(reichenbach): Remove vectors (because of the enum dataSize).
 
@@ -43,8 +43,6 @@ class WTensorFuncTest;
 class WTensorBaseTest;
 class WTensorBaseSymTest;
 
-namespace wmath
-{
 // forward declaration
 template< std::size_t order, std::size_t dim, typename Data_T >
 class WTensorBaseSym;
@@ -1559,7 +1557,5 @@ WTensorFunc< TensorBase_T, 0, dim, Data_T >::operator Data_T() const
     return TensorBase_T< 0, dim, Data_T >::template operator[]< std::size_t >( NULL );
 #endif
 }
-
-} // namespace wmath
 
 #endif  // WTENSORBASE_H

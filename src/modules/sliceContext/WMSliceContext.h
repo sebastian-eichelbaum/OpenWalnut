@@ -143,7 +143,7 @@ private:
 
     boost::shared_ptr< WCondition > m_propCondition; //!< A condition used to notify about changes in several properties.
 
-    wmath::WPosition m_current; //!< The current position of the slices.
+    WPosition m_current; //!< The current position of the slices.
     boost::shared_ptr< const WDataSetFibers > m_tracts; //!< The fiber data set used for the context.
     osg::ref_ptr< WGEManagedGroupNode > m_osgNode; //!< OSG node for this module.
     osg::ref_ptr< osg::Group > m_rootNode; //!< OSG node for this module.

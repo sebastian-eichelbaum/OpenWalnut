@@ -31,15 +31,12 @@
 #include "../math/WPosition.h"
 #include "../WExportCommon.h"
 
-// we need this to find the WFiberTest class which is not inside wmath namespace
-// Additionally I found no way to put the WFiberTest class into wmath and CXXTest
-// finds it by it self. Hence this is the only solution that might work
 class WFiberTest;
 
 /**
  * Represents a neural pathway.
  */
-class OWCOMMON_EXPORT WFiber : public wmath::WLine
+class OWCOMMON_EXPORT WFiber : public WLine
 {
 friend class WFiberTest;
 public:
@@ -48,7 +45,7 @@ public:
      *
      * \param points Reference to the points which belong to this fiber
      */
-    explicit WFiber( const std::vector< wmath::WPosition > &points );
+    explicit WFiber( const std::vector< WPosition > &points );
 
     /**
      * Creates an empty fiber.

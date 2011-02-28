@@ -29,7 +29,6 @@
 
 #include "../WMatrix.h"
 
-using wmath::WMatrix;
 /**
  * Tests for WMatrix.
  */

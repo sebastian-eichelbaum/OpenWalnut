@@ -273,8 +273,8 @@ void WMFiberSelection::moduleMain()
                     float z = fibVerts->at( ( 3 * k ) + sidx + 2 );
 
                     // get the voxel id
-                    int voxel1 = grid1->getVoxelNum( wmath::WPosition( x, y, z ) );
-                    int voxel2 = grid2->getVoxelNum( wmath::WPosition( x, y, z ) );
+                    int voxel1 = grid1->getVoxelNum( WPosition( x, y, z ) );
+                    int voxel2 = grid2->getVoxelNum( WPosition( x, y, z ) );
                     if ( ( voxel1 < 0 ) || ( voxel2 < 0 ) )
                     {
                         warnLog() << "Fiber vertex (" << x << "," << y << "," << z << ") not in VOI1 or VOI2 grid. Ignoring vertex.";

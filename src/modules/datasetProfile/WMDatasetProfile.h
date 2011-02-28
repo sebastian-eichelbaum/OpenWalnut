@@ -157,7 +157,7 @@ private:
      * adds a control knob
      * \param pos Position of the new knob
      */
-    void addKnob( wmath::WPosition pos );
+    void addKnob( WPosition pos );
 
     /**
      * An input connector that accepts order 1 datasets.

@@ -27,8 +27,6 @@
 
 #include <string>
 
-namespace wmath
-{
 /**
  * Implements compile-time calculation of binomial coefficients.
  *
@@ -157,7 +155,5 @@ struct WPower< 0, exponent >
         value = 0
     };
 };
-
-} // namespace wmath
 
 #endif  // WCOMPILETIMEFUNCTIONS_H

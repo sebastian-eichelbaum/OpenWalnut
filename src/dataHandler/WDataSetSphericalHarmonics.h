@@ -77,7 +77,7 @@ public:
      *
      * \return Interpolated spherical harmonic.
      */
-    wmath::WSymmetricSphericalHarmonic interpolate( const wmath::WPosition &pos, bool *success ) const;
+    WSymmetricSphericalHarmonic interpolate( const WPosition &pos, bool *success ) const;
 
     /**
      * Get the spherical harmonic on the given position in value set.
@@ -86,7 +86,7 @@ public:
      *
      * \return the spherical harmonic
      */
-    wmath::WSymmetricSphericalHarmonic getSphericalHarmonicAt( size_t index ) const;
+    WSymmetricSphericalHarmonic getSphericalHarmonicAt( size_t index ) const;
 
     /**
      * Gets the name of this prototype.

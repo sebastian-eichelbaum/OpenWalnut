@@ -307,7 +307,7 @@ void WMDeterministicFTMori::resetTracking()
     m_moduleState.add( m_trackingPool->getThreadsDoneCondition() );
 }
 
-wmath::WVector3D WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
+WVector3D WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
                                                            wtracking::WTrackingUtility::JobType const& j )
 {
     WAssert( ds, "" );
@@ -320,11 +320,11 @@ wmath::WVector3D WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WD
     WAssert( vs, "" );
     if( vs->rawData()[ 4 * i + 3 ] < m_currentMinFA )
     {
-        return wmath::WVector3D( 0.0, 0.0, 0.0 );
+        return WVector3D( 0.0, 0.0, 0.0 );
     }
     else
     {
-        wmath::WVector3D v;
+        WVector3D v;
         v[ 0 ] = vs->rawData()[ 4 * i + 0 ];
         v[ 1 ] = vs->rawData()[ 4 * i + 1 ];
         v[ 2 ] = vs->rawData()[ 4 * i + 2 ];
@@ -343,7 +343,7 @@ wmath::WVector3D WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WD
         }
         else
         {
-            return wmath::WVector3D( 0.0, 0.0, 0.0 );
+            return WVector3D( 0.0, 0.0, 0.0 );
         }
     }
 }
@@ -357,19 +357,19 @@ void WMDeterministicFTMori::fiberVis( FiberType const& f )
     ++*m_currentProgress;
 }
 
-void WMDeterministicFTMori::pointVis( wmath::WVector3D const& )
+void WMDeterministicFTMori::pointVis( WVector3D const& )
 {
 }
 
-boost::array< double, 4 > const WMDeterministicFTMori::computeFaAndEigenVec( wmath::WTensorSym< 2, 3, double > const& m ) const
+boost::array< double, 4 > const WMDeterministicFTMori::computeFaAndEigenVec( WTensorSym< 2, 3, double > const& m ) const
 {
     boost::array< double, 4 > a;
 
     std::vector< double > ev( 3 );
-    std::vector< wmath::WVector3D > t( 3 );
+    std::vector< WVector3D > t( 3 );
 
     // calc eigenvectors
-    wmath::jacobiEigenvector3D( m, &ev, &t );
+    jacobiEigenvector3D( m, &ev, &t );
 
     // find the eigenvector with largest absolute eigenvalue
     int u = 0;
@@ -407,7 +407,7 @@ boost::array< double, 4 > const WMDeterministicFTMori::computeFaAndEigenVec( wma
 
 WMDeterministicFTMori::TPVOFloat::OutTransmitType const WMDeterministicFTMori::eigenFuncFloat( TPVOFloat::TransmitType const& input )
 {
-    wmath::WTensorSym< 2, 3, double > m;
+    WTensorSym< 2, 3, double > m;
     m( 0, 0 ) = static_cast< double >( input[ 0 ] );
     m( 0, 1 ) = static_cast< double >( input[ 1 ] );
     m( 0, 2 ) = static_cast< double >( input[ 2 ] );
@@ -422,7 +422,7 @@ WMDeterministicFTMori::TPVOFloat::OutTransmitType const WMDeterministicFTMori::e
 
 WMDeterministicFTMori::TPVODouble::OutTransmitType const WMDeterministicFTMori::eigenFuncDouble( TPVODouble::TransmitType const& input )
 {
-    wmath::WTensorSym< 2, 3, double > m;
+    WTensorSym< 2, 3, double > m;
     m( 0, 0 ) = static_cast< double >( input[ 0 ] );
     m( 0, 1 ) = static_cast< double >( input[ 1 ] );
     m( 0, 2 ) = static_cast< double >( input[ 2 ] );

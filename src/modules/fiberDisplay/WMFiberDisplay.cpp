@@ -154,9 +154,9 @@ void WMFiberDisplay::initUniforms( osg::StateSet* rootState )
 
 void WMFiberDisplay::initCullBox()
 {
-    wmath::WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    wmath::WPosition minROIPos = crossHairPos - wmath::WPosition( 10., 10., 10. );
-    wmath::WPosition maxROIPos = crossHairPos + wmath::WPosition( 10., 10., 10. );
+    WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition minROIPos = crossHairPos - WPosition( 10., 10., 10. );
+    WPosition maxROIPos = crossHairPos + WPosition( 10., 10., 10. );
 
     m_cullBox = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
     m_cullBox->setColor( osg::Vec4( 1.0, 0., 1.0, 0.4 ) );

@@ -96,7 +96,7 @@ WEEGElectrodeLibrary WReaderEEG::extractElectrodePositions()
             double posX = boost::lexical_cast< double >( posTokens.at( 1 ) );
             double posY = boost::lexical_cast< double >( posTokens.at( 2 ) );
             double posZ = boost::lexical_cast< double >( posTokens.at( 3 ) );
-            wmath::WPosition pos( posX, posY, posZ );
+            WPosition pos( posX, posY, posZ );
             elecPos.push_back( WEEGElectrodeObject( pos ) );
 //                 std::cout << "Loading positions: " << pos << std::endl;
         }

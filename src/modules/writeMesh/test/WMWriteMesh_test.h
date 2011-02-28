@@ -88,7 +88,7 @@ public:
         boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( nbPos, 3 ) );
         mc.m_triMesh = triMesh;
 
-        std::vector< wmath::WPosition > vertices( 0 );
+        std::vector< WPosition > vertices( 0 );
         for( unsigned int posId = 0; posId < nbPos; ++posId )
         {
             double x = posId * posId + 3.4;

@@ -75,7 +75,7 @@ boost::shared_ptr< WPrototyped > WDataSetScalar::getPrototype()
     return m_prototype;
 }
 
-double WDataSetScalar::interpolate( const wmath::WPosition& pos, bool* success ) const
+double WDataSetScalar::interpolate( const WPosition& pos, bool* success ) const
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
 
@@ -95,7 +95,7 @@ double WDataSetScalar::interpolate( const wmath::WPosition& pos, bool* success )
 
     std::vector< size_t > vertexIds = grid->getCellVertexIds( cellId );
 
-    wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
+    WPosition localPos = pos - grid->getPosition( vertexIds[0] );
 
     double lambdaX = localPos[0] / grid->getOffsetX();
     double lambdaY = localPos[1] / grid->getOffsetY();

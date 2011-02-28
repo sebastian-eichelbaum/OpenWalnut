@@ -61,7 +61,7 @@ public:
    */
   FTensor(unsigned char dimension, unsigned char order, bool clear=false);
 
-  FTensor( const wmath::WVector3D& vec );
+  FTensor( const WVector3D& vec );
 
   /**
    *\par Description:

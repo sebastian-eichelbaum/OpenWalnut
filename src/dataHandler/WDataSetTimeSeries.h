@@ -159,7 +159,7 @@ public:
      * \return The value at the given location.
      */
     template< typename Data_T >
-    Data_T interpolate( wmath::WVector3D const& pos, float time, bool* success ) const;
+    Data_T interpolate( WVector3D const& pos, float time, bool* success ) const;
 
     /**
      * Get the smallest value in all datasets.
@@ -258,7 +258,7 @@ private:
 };
 
 template< typename Data_T >
-Data_T WDataSetTimeSeries::interpolate( wmath::WVector3D const& pos, float time, bool* success ) const
+Data_T WDataSetTimeSeries::interpolate( WVector3D const& pos, float time, bool* success ) const
 {
     static const float inf = std::numeric_limits< float >::infinity();
     WAssert( success, "" );

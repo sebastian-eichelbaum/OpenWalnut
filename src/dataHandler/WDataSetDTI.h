@@ -59,7 +59,7 @@ public:
      *
      * \return The new constructed symmetrical matrix as tensor.
      */
-    wmath::WTensorSym< 2, 3, float > getTensor( size_t index ) const;
+    WTensorSym< 2, 3, float > getTensor( size_t index ) const;
 
 protected:
     /**

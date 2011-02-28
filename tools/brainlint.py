@@ -197,13 +197,13 @@ _CPP_HEADERS = frozenset([
     'numeric', 'ostream', 'ostream.h', 'parsestream.h', 'pfstream.h', 'PlotFile.h',
     'procbuf.h', 'pthread_alloc.h', 'rope', 'rope.h', 'ropeimpl.h',
     'SFile.h', 'slist', 'slist.h', 'stack.h', 'stdexcept',
-    'stdiostream.h', 'streambuf.h', 'stream.h', 'strfile.h', 'string',
+    'stdiostream.h', 'stdint.h', 'streambuf.h', 'stream.h', 'strfile.h', 'string',
     'strstream', 'strstream.h', 'tempbuf.h', 'tree.h', 'typeinfo', 'valarray',
     ])
 
 # Other heders which are include like system headers, starting with a '<'
 _OTHER_HEADERS = frozenset([
-    'QtGui', 'QtCore', 'QtOpenGL', 'GL', 'cxxtest', 'boost', 'osg','osgText', 'osgViewer', 'osgDB', 'osgUtil', 'osgGA', 'osgSim', 'Eigen'
+    'QtGui', 'QtCore', 'QtOpenGL', 'GL', 'cxxtest', 'boost', 'osg','osgText', 'osgViewer', 'osgDB', 'osgUtil', 'osgGA', 'osgSim', 'Eigen', 'matrix'
     ])
 
 # Assertion macros.  These are defined in base/logging.h and

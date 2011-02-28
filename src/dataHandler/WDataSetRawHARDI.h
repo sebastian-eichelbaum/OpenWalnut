@@ -53,7 +53,7 @@ public:
      */
     WDataSetRawHARDI( boost::shared_ptr< WValueSetBase > newValueSet,
                       boost::shared_ptr< WGrid > newGrid,
-                      boost::shared_ptr< std::vector< wmath::WVector3D > > newGradients,
+                      boost::shared_ptr< std::vector< WVector3D > > newGradients,
                       double diffusionBValue = 1.0 );
 
     /**
@@ -80,7 +80,7 @@ public:
      *
      * \param index
      */
-    const wmath::WVector3D& getGradient( size_t index ) const;
+    const WVector3D& getGradient( size_t index ) const;
 
     /**
      * Returns the count of measurements per voxel, which is equal to the count of the used gradients.
@@ -108,7 +108,7 @@ public:
      *
      * \return A vector of orientations.
      */
-    std::vector< wmath::WVector3D > const& getOrientations() const;
+    std::vector< WVector3D > const& getOrientations() const;
 
     /**
      * Returns the \e b-value of the diffusion.
@@ -125,7 +125,7 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
-    boost::shared_ptr< std::vector< wmath::WVector3D > > m_gradients; //!< Gradients of measurements
+    boost::shared_ptr< std::vector< WVector3D > > m_gradients; //!< Gradients of measurements
     /**
      * Strength (b-value) of the so-called magnetic diffusion gradient.
      */

@@ -296,6 +296,6 @@ inline const typename WBoundingBoxImpl< VT >::vec_type& WBoundingBoxImpl< VT >::
     return  osg::BoundingBoxImpl< VT >::_max;
 }
 
-typedef WBoundingBoxImpl< wmath::WVector3D > WBoundingBox;
+typedef WBoundingBoxImpl< WVector3D > WBoundingBox;
 
 #endif  // WBOUNDINGBOX_H

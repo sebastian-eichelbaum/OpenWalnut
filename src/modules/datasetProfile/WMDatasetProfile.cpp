@@ -161,7 +161,7 @@ void WMDatasetProfile::moduleMain()
 
         if ( m_propAddKnobTrigger->changed( true ) )
         {
-            wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+            WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
             addKnob( center );
 
             m_propAddKnobTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
@@ -185,7 +185,7 @@ void WMDatasetProfile::moduleMain()
 
 void WMDatasetProfile::updateCallback()
 {
-    wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
 
     for ( size_t i = 0; i < knobs.size(); ++i )
     {
@@ -226,8 +226,8 @@ void WMDatasetProfile::updateCallback()
         {
             for ( size_t i = 0; i < knobs.size() - 1; ++i )
             {
-                wmath::WPosition p1 = knobs[i]->getPosition();
-                wmath::WPosition p2 = knobs[i+1]->getPosition();
+                WPosition p1 = knobs[i]->getPosition();
+                WPosition p2 = knobs[i+1]->getPosition();
 
                 float l = sqrt( ( p1[0] - p2[0] ) * ( p1[0] - p2[0] ) +
                                 ( p1[1] - p2[1] ) * ( p1[1] - p2[1] ) +
@@ -235,7 +235,7 @@ void WMDatasetProfile::updateCallback()
 
                 float mult = m_propLength->get( true ) / l;
 
-                wmath::WPosition vec = p2 - p1;
+                WPosition vec = p2 - p1;
 
                 if ( ( fabs( l - static_cast<float>( m_propLength->get( true ) ) ) ) > 0.001 )
                 {
@@ -265,10 +265,10 @@ void WMDatasetProfile::init()
     m_changeRoiSignal
             = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WMDatasetProfile::setDirty, this ) ) );
 
-    wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
 
-    addKnob( wmath::WPosition( center[0] + 30, center[1], center[2] ) );
-    addKnob( wmath::WPosition( center[0] - 30, center[1], center[2] ) );
+    addKnob( WPosition( center[0] + 30, center[1], center[2] ) );
+    addKnob( WPosition( center[0] - 30, center[1], center[2] ) );
 
     osg::ref_ptr<osgViewer::View> viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView();
 
@@ -308,7 +308,7 @@ void WMDatasetProfile::init()
     m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMDatasetProfile::updateCallback, this ) ) );
 }
 
-void WMDatasetProfile::addKnob( wmath::WPosition pos )
+void WMDatasetProfile::addKnob( WPosition pos )
 {
     osg::ref_ptr<WROISphere> s = osg::ref_ptr<WROISphere>( new WROISphere( pos, 2.5 ) );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *s ) );
@@ -459,7 +459,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
     std::vector<float>segmentLengths;
     for ( size_t k = 0; k < knobs.size() - 1 ; ++k )
     {
-        wmath::WPosition p = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() );
+        WPosition p = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() );
         segmentLengths.push_back( p.length() );
         overallLength += p.length();
     }
@@ -472,7 +472,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
         int steps = 100 * l1;
 
         knobPositions.push_back( x );
-        wmath::WPosition p1 = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() ) / static_cast<float>( steps );
+        WPosition p1 = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() ) / static_cast<float>( steps );
 
         for ( int i = 0; i < steps; ++i )
         {

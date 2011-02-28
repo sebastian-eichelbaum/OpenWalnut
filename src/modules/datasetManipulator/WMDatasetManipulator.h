@@ -161,30 +161,30 @@ private:
     boost::shared_ptr<WROISphere> m_knobz1; //!< stores pointer to manipulator 1
     boost::shared_ptr<WROISphere> m_knobz2; //!< stores pointer to manipulator 2
 
-    wmath::WPosition m_posCenter; //!< stores the old position of the manipulator
-    wmath::WPosition m_posx1; //!< stores the old position of the manipulator
-    wmath::WPosition m_posx2; //!< stores the old position of the manipulator
-    wmath::WPosition m_posy1; //!< stores the old position of the manipulator
-    wmath::WPosition m_posy2; //!< stores the old position of the manipulator
-    wmath::WPosition m_posz1; //!< stores the old position of the manipulator
-    wmath::WPosition m_posz2; //!< stores the old position of the manipulator
+    WPosition m_posCenter; //!< stores the old position of the manipulator
+    WPosition m_posx1; //!< stores the old position of the manipulator
+    WPosition m_posx2; //!< stores the old position of the manipulator
+    WPosition m_posy1; //!< stores the old position of the manipulator
+    WPosition m_posy2; //!< stores the old position of the manipulator
+    WPosition m_posz1; //!< stores the old position of the manipulator
+    WPosition m_posz2; //!< stores the old position of the manipulator
 
-    wmath::WPosition m_posCenterOrig; //!< stores the old position of the manipulator
-    wmath::WPosition m_posx1Orig; //!< stores the old position of the manipulator
-    wmath::WPosition m_posx2Orig; //!< stores the old position of the manipulator
-    wmath::WPosition m_posy1Orig; //!< stores the old position of the manipulator
-    wmath::WPosition m_posy2Orig; //!< stores the old position of the manipulator
-    wmath::WPosition m_posz1Orig; //!< stores the old position of the manipulator
-    wmath::WPosition m_posz2Orig; //!< stores the old position of the manipulator
+    WPosition m_posCenterOrig; //!< stores the old position of the manipulator
+    WPosition m_posx1Orig; //!< stores the old position of the manipulator
+    WPosition m_posx2Orig; //!< stores the old position of the manipulator
+    WPosition m_posy1Orig; //!< stores the old position of the manipulator
+    WPosition m_posy2Orig; //!< stores the old position of the manipulator
+    WPosition m_posz1Orig; //!< stores the old position of the manipulator
+    WPosition m_posz2Orig; //!< stores the old position of the manipulator
 
     boost::shared_ptr<WROISphere> m_knobRotCenter; //!< stores pointer to the center manipulator
     boost::shared_ptr<WROISphere> m_knobRot; //!< stores pointer to manipulator 1
 
-    wmath::WPosition m_posRotCenter; //!< stores the old position of the manipulator
-    wmath::WPosition m_posRot; //!< stores the old position of the manipulator
+    WPosition m_posRotCenter; //!< stores the old position of the manipulator
+    WPosition m_posRot; //!< stores the old position of the manipulator
 
-    wmath::WPosition m_posRotCenterOrig; //!< stores the old position of the manipulator
-    wmath::WPosition m_posRotOrig; //!< stores the old position of the manipulator
+    WPosition m_posRotCenterOrig; //!< stores the old position of the manipulator
+    WPosition m_posRotOrig; //!< stores the old position of the manipulator
 
     /**
      * An input connector that accepts order 1 datasets.

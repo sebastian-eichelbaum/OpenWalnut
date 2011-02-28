@@ -301,9 +301,9 @@ void WMEEGView::moduleMain()
 
             if(  m_sourceCalculator )
             {
-                wmath::WPosition position = m_sourceCalculator->calculate( event );
-                m_roi = new WROIBox( position - wmath::WVector3D( 5.0, 5.0, 5.0 ),
-                                     position + wmath::WVector3D( 5.0, 5.0, 5.0 ) );
+                WPosition position = m_sourceCalculator->calculate( event );
+                m_roi = new WROIBox( position - WVector3D( 5.0, 5.0, 5.0 ),
+                                     position + WVector3D( 5.0, 5.0, 5.0 ) );
                 WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
             }
             else
@@ -629,7 +629,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
     // draw head surface
     const size_t nbChannels = m_eeg->getNumberOfChannels();
 
-    std::vector< wmath::WPosition > positions;
+    std::vector< WPosition > positions;
     positions.reserve( nbChannels );
     std::vector< std::size_t > channelIDs;
     channelIDs.reserve( nbChannels );
@@ -638,7 +638,7 @@ osg::ref_ptr< osg::Node > WMEEGView::drawHeadSurface()
         boost::shared_ptr< WEEGChannelInfo > channelInfo = m_eeg->getChannelInfo( channelID );
         try
         {
-            wmath::WPosition position = channelInfo->getPosition();
+            WPosition position = channelInfo->getPosition();
             positions.push_back( position );
             channelIDs.push_back( channelID );
         }

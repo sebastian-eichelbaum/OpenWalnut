@@ -118,7 +118,7 @@ boost::shared_ptr< WDataSetScalar > makeDataSetFromImage( typename itk::Image< T
 {
     typename itk::Image< T, 3 >::SizeType const& s = img->GetLargestPossibleRegion().GetSize();
 
-    wmath::WMatrix< double > smat( 4, 4 );
+    WMatrix< double > smat( 4, 4 );
     typename itk::Image< T, 3 >::DirectionType dirMat = img->GetDirection();
 
     smat( 0, 0 ) = dirMat( 0, 0 );

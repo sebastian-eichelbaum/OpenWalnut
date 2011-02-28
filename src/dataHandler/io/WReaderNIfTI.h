@@ -80,7 +80,7 @@ private:
      * used by OpenWalnut.
      * \param in this matrix will be converted.
      */
-    wmath::WMatrix< double > convertMatrix( const mat44& in );
+    WMatrix< double > convertMatrix( const mat44& in );
 };
 
 #endif  // WREADERNIFTI_H

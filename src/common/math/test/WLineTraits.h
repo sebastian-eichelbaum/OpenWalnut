@@ -41,7 +41,7 @@ CXXTEST_TEMPLATE_INSTANTIATION
  * Enables better UnitTest OutPut if something fails with WLine, so you see
  * immedeatly what is failing.
  */
-class ValueTraits< wmath::WLine > : public WTraitsBase
+class ValueTraits< WLine > : public WTraitsBase
 {
 public:
     /**
@@ -49,7 +49,7 @@ public:
      *
      * \param m the WLine to print
      */
-    explicit ValueTraits( const wmath::WLine &line )
+    explicit ValueTraits( const WLine &line )
     {
         std::stringstream tmp;
         tmp.precision( 16 );

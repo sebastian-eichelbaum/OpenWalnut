@@ -24,20 +24,17 @@
 
 #include <vector>
 
+#include "../WAssert.h"
 #include "WLinearAlgebraFunctions.h"
-
-#ifdef OW_USE_OSSIM
-#include "WOSSIMHelper.h"
-#endif
-
 #include "WMatrix.h"
 #include "WMatrix4x4.h"
 #include "WValue.h"
 #include "WVector3D.h"
-#include "../WAssert.h"
 
-namespace wmath
-{
+#ifdef OW_USE_OSSIM
+    #include "WOSSIMHelper.h"
+#endif
+
 WVector3D multMatrixWithVector3D( WMatrix<double> mat, WVector3D vec )
 {
     WVector3D result;
@@ -56,7 +53,7 @@ WVector3D transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3D vec )
     resultVec4D[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2] /* + mat( 2, 3 ) * 0 */;
     resultVec4D[3] = mat( 3, 0 ) * vec[0] + mat( 3, 1 ) * vec[1] + mat( 3, 2 ) * vec[2] /* + mat( 3, 3 ) * 0 */;
 
-    wmath::WVector3D result;
+    WVector3D result;
     result[0] = resultVec4D[0] / resultVec4D[3];
     result[1] = resultVec4D[1] / resultVec4D[3];
     result[2] = resultVec4D[2] / resultVec4D[3];
@@ -72,7 +69,7 @@ WPosition transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec )
     resultVec4D[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2] + mat( 2, 3 ) * 1;
     resultVec4D[3] = mat( 3, 0 ) * vec[0] + mat( 3, 1 ) * vec[1] + mat( 3, 2 ) * vec[2] + mat( 3, 3 ) * 1;
 
-    wmath::WVector3D result;
+    WVector3D result;
     result[0] = resultVec4D[0] / resultVec4D[3];
     result[1] = resultVec4D[1] / resultVec4D[3];
     result[2] = resultVec4D[2] / resultVec4D[3];
@@ -294,43 +291,42 @@ WMatrix<double> invertMatrix4x4( WMatrix<double> mat )
     return result;
 }
 
-bool linearIndependent( const wmath::WVector3D& u, const wmath::WVector3D& v )
+bool linearIndependent( const WVector3D& u, const WVector3D& v )
 {
-    wmath::WVector3D cp = u.crossProduct( v );
+    WVector3D cp = u.crossProduct( v );
     if( std::fabs( cp[0] ) < wlimits::DBL_EPS && std::fabs( cp[1] ) < wlimits::DBL_EPS && std::fabs( cp[2] ) < wlimits::DBL_EPS )
     {
         return false;
     }
     return true;
 }
-}
 
-void wmath::computeSVD( const wmath::WMatrix< double >& A,
-                        wmath::WMatrix< double >& U,
-                        wmath::WMatrix< double >& V,
-                        wmath::WValue< double >& S )
+void computeSVD( const WMatrix< double >& A,
+                        WMatrix< double >& U,
+                        WMatrix< double >& V,
+                        WValue< double >& S )
 {
 #ifdef OW_USE_OSSIM
-      wmath::WOSSIMHelper::computeSVD( A, U, V, S );
+      WOSSIMHelper::computeSVD( A, U, V, S );
 #else
       (void) A; (void) U; (void) V; (void) S; // NOLINT to prevent "unused variable" warnings
       WAssert( false, "OpenWalnut must be compiled with OSSIM to support SVD." );
 #endif
 }
 
-wmath::WMatrix<double> wmath::pseudoInverse( const WMatrix<double>& input )
+WMatrix<double> pseudoInverse( const WMatrix<double>& input )
 {
     // calc pseudo inverse
-    wmath::WMatrix< double > U( input.getNbRows(), input.getNbCols() );
-    wmath::WMatrix< double > V( input.getNbCols(), input.getNbCols() );
-    wmath::WValue< double > Svec( input.getNbCols() );
-    wmath::computeSVD( input, U, V, Svec );
+    WMatrix< double > U( input.getNbRows(), input.getNbCols() );
+    WMatrix< double > V( input.getNbCols(), input.getNbCols() );
+    WValue< double > Svec( input.getNbCols() );
+    computeSVD( input, U, V, Svec );
 
     // create diagonal matrix S
-    wmath::WMatrix< double > S( input.getNbCols(), input.getNbCols() );
+    WMatrix< double > S( input.getNbCols(), input.getNbCols() );
 
     for ( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
       S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
 
-    return wmath::WMatrix< double >( V*S*U.transposed() );
+    return WMatrix< double >( V*S*U.transposed() );
 }

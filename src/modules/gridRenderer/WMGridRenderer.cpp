@@ -126,7 +126,7 @@ void WMGridRenderer::render()
 
     for( unsigned int vertId = 0; vertId < gridR3D->size(); ++vertId )
     {
-        wmath::WPosition gridPos = gridR3D->getPosition( vertId );
+        WPosition gridPos = gridR3D->getPosition( vertId );
         ( *vertArray )[vertId][0] = gridPos[0];
         ( *vertArray )[vertId][1] = gridPos[1];
         ( *vertArray )[vertId][2] = gridPos[2];

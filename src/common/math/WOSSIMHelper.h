@@ -26,42 +26,38 @@
 #define WOSSIMHELPER_H
 
 #ifdef OW_USE_OSSIM
+    #include <algorithm>
+    #include <iostream>
+    #include <vector>
 
-#include <matrix/newmat.h>
+    #include <matrix/newmat.h>
 
-#include <algorithm>
-#include <iostream>
-#include <vector>
+    #include <boost/shared_ptr.hpp>
 
-#include <boost/shared_ptr.hpp>
+    #include "WMatrix.h"
+    #include "WValue.h"
 
-#include "WMatrix.h"
-#include "WValue.h"
-
-namespace wmath
-{
     /**
      * Class with functions to use the GNU scientific library
      */
     class WOSSIMHelper
     {
     public:
-      static boost::shared_ptr< NEWMAT::Matrix > OWMatrixToOSSIMMatrix( const wmath::WMatrix<double> &input );
-      static wmath::WMatrix<double> OSSIMMatrixToOWMatrix( const NEWMAT::Matrix& input );
-      static wmath::WMatrix<double> OSSIMDiagonalMatrixToOWMatrix( const NEWMAT::DiagonalMatrix& input );
-      static wmath::WValue<double> OSSIMDiagonalMatrixToOWVector( const NEWMAT::DiagonalMatrix& input );
-//       static gsl_vector* OWVectorToOSSIMVector( const WValue<double> &input );
-//       static WValue<double> OSSIMVectorToOWVector( const gsl_vector* input );
-
+      static boost::shared_ptr< NEWMAT::Matrix > OWMatrixToOSSIMMatrix( const WMatrix< double > &input );
+      static WMatrix< double > OSSIMMatrixToOWMatrix( const NEWMAT::Matrix& input );
+      static WMatrix< double > OSSIMDiagonalMatrixToOWMatrix( const NEWMAT::DiagonalMatrix& input );
+      static WValue< double > OSSIMDiagonalMatrixToOWVector( const NEWMAT::DiagonalMatrix& input );
+      // static gsl_vector* OWVectorToOSSIMVector( const WValue<double> &input );
+      // static WValue<double> OSSIMVectorToOWVector( const gsl_vector* input );
 
       // computes the SVD of the Matrix A
-      static void computeSVD( const wmath::WMatrix< double >& A,
-                              wmath::WMatrix< double >& U,
-                              wmath::WMatrix< double >& V,
-                              wmath::WValue< double >& S );
+      static void computeSVD( const WMatrix< double >& A,
+                              WMatrix< double >& U,
+                              WMatrix< double >& V,
+                              WValue< double >& S );
       // computes the pseudo inverse of the Matrix A
-//       static WMatrix<double> pseudoInverse( const WMatrix<double>& input );
+      // static WMatrix<double> pseudoInverse( const WMatrix<double>& input );
     };
-} // end of namespace
-#endif
+#endif  // OW_USE_OSSIM
+
 #endif  // WOSSIMHELPER_H
