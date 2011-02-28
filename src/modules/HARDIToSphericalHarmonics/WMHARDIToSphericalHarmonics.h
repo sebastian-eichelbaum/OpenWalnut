@@ -160,7 +160,7 @@ private:
     /**
      * The reprojection error for each measurement.
      */
-    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_outputResiduals;
+    boost::shared_ptr< WModuleOutputData< WDataSetRawHARDI > > m_outputResiduals;
 
     /**
      * A condition used to notify about changes in several properties.
