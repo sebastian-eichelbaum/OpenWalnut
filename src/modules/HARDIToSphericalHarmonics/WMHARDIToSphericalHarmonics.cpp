@@ -261,8 +261,10 @@ void WMHARDIToSphericalHarmonics::moduleMain()
                 boost::shared_ptr< WValueSet<double> > residualsData = boost::shared_ptr< WValueSet<double> >(
                         new WValueSet<double>( 1, parameter.m_validIndices.size(), parameter.m_dataResiduals, W_DT_DOUBLE ) );
 
-                boost::shared_ptr< WDataSetSingle > newResidualData =
-                          boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( residualsData, m_dataSet->getGrid() ) );
+                boost::shared_ptr< WDataSetRawHARDI > newResidualData =
+                          boost::shared_ptr< WDataSetRawHARDI >( new WDataSetRawHARDI( residualsData, m_dataSet->getGrid(),
+                                                                                       boost::shared_ptr< std::vector< wmath::WVector3D > >(
+                                                                                           new std::vector< wmath::WVector3D >( gradients ) ) ) );
                 m_outputResiduals->updateData( newResidualData );
             }
         }
@@ -283,8 +285,8 @@ void WMHARDIToSphericalHarmonics::connectors()
 
     addConnector( m_output );
 
-    m_outputResiduals = boost::shared_ptr< WModuleOutputData< WDataSetSingle > >(
-            new WModuleOutputData< WDataSetSingle >( shared_from_this(), "residualsOut", "The residual of the reprojection." ) );
+    m_outputResiduals = boost::shared_ptr< WModuleOutputData< WDataSetRawHARDI > >(
+            new WModuleOutputData< WDataSetRawHARDI >( shared_from_this(), "residualsOut", "The residual of the reprojection." ) );
 
     addConnector( m_outputResiduals );
 
