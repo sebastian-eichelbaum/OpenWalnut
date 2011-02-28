@@ -201,6 +201,11 @@ private:
      * \return the geode
      */
     osg::ref_ptr< osg::Node > createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers ) const;
+
+    /**
+     * The plane node.
+     */
+    osg::ref_ptr< osg::Node > m_plane;
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H

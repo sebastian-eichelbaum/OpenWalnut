@@ -96,9 +96,9 @@ void WMFiberDisplaySimple::properties()
     m_clipPlaneGroup = m_properties->addPropertyGroup( "Clipping",  "Clip the fiber data basing on an arbitrary plane." );
     m_clipPlaneEnabled = m_clipPlaneGroup->addProperty( "Enabled", "If set, clipping of fibers is done using an arbitrary plane and plane distance.",
                                                         false );
-    m_clipPlaneShowPlane = m_clipPlaneGroup->addProperty( "Show Clip Plane", "If set, the clipping plane will be shown.", false );
-    m_clipPlanePoint = m_clipPlaneGroup->addProperty( "Plane point", "An point on the plane.",  WPosition( 0.0, 0.0, 0.0 ) );
-    m_clipPlaneVector = m_clipPlaneGroup->addProperty( "Plane normal", "The normal of the plane.",  WPosition( 1.0, 0.0, 0.0 ) );
+    m_clipPlaneShowPlane = m_clipPlaneGroup->addProperty( "Show Clip Plane", "If set, the clipping plane will be shown.", false, m_propCondition );
+    m_clipPlanePoint = m_clipPlaneGroup->addProperty( "Plane point", "An point on the plane.", WPosition( 0.0, 0.0, 0.0 ) );
+    m_clipPlaneVector = m_clipPlaneGroup->addProperty( "Plane normal", "The normal of the plane.", WPosition( 1.0, 0.0, 0.0 ) );
     m_clipPlaneDistance= m_clipPlaneGroup->addProperty( "Clip distance", "The distance from the plane where fibers get clipped.",  10.0 );
     m_clipPlaneDistance->removeConstraint( m_clipPlaneDistance->getMax() ); // there simply is no max.
 
@@ -193,6 +193,8 @@ void WMFiberDisplaySimple::moduleMain()
     boost::shared_ptr< WPropertyObserver > propObserver = WPropertyObserver::create();
     m_moduleState.add( propObserver );
 
+    m_plane = createClipPlane();
+
     // main loop
     while ( !m_shutdownFlag() )
     {
@@ -214,7 +216,7 @@ void WMFiberDisplaySimple::moduleMain()
         boost::shared_ptr< WDataSetFibers > fibers = m_fiberInput->getData();
         bool dataValid = ( fibers );
         bool dataPropertiesUpdated = propObserver->updated();
-        bool propertiesUpdated = m_clipPlaneEnabled->changed();
+        bool propertiesUpdated = m_clipPlaneShowPlane->changed();
 
         // reset graphics if noting is on the input
         if ( !dataValid )
@@ -256,7 +258,16 @@ void WMFiberDisplaySimple::moduleMain()
         m_shader->apply( geode );
 
         // Add geometry
-        rootNode->insert( createClipPlane() );
+        // Add geometry
+        if ( m_clipPlaneShowPlane->get() )
+        {
+            rootNode->insert( m_plane );
+        }
+        else
+        {
+            rootNode->remove( m_plane );
+        }
+
         rootNode->insert( geode );
     }
 
