@@ -505,8 +505,6 @@ WCombinerTypes::WCompatiblesList WModuleContainer::getPossibleConnections( boost
     // read lock the container
     ModuleSharedContainerType::ReadTicket lock = m_modules.getReadTicket();
 
-    // TODO(ebaum): do the same for inputs (module->getInputConnectors())
-
     // handle each module
     for( ModuleConstIterator listIter = lock->get().begin(); listIter != lock->get().end(); ++listIter )
     {

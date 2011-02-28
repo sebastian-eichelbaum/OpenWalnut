@@ -382,7 +382,6 @@ WPosition WGridRegular3D::getPosition( unsigned int iX, unsigned int iY, unsigne
 
 wmath::WMatrix< double > WGridRegular3D::getTransformationMatrix() const
 {
-    // TODO(ebaum): remove this or replace this with a function returning WMatrix4x4
     return m_matrix; // this automatically casts
 }
 

@@ -111,7 +111,6 @@ private:
      */
     boost::shared_ptr< WDataSetSingle > m_lastDataSet;
 
-    // TODO(ebaum): cleanup -> belongs to some central place
     /**
      * Called whenever a property changes.
      *

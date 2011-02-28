@@ -422,7 +422,7 @@ const float u_ssaoDensityWeight = 1.0; //0.07;
 /**
  * The radius of the hemispshere in screen-space which gets scaled.
  */
-const float u_ssaoRadiusSS = 5.0;
+const float u_ssaoRadiusSS = 2.0;
 
 /**
  * Calculate the screen-space ambient occlusion from normal and depth map.
@@ -455,7 +455,7 @@ float getSSAO( vec2 where )
 
     // the radius of the sphere is, in screen-space, half a pixel. So the hemisphere covers nearly one pixel. Scaling by depth somehow makes it
     // more invariant for zooming
-    float radius = ( u_ssaoRadiusSS / float( u_texture0SizeX ) ) / currentPixelDepth;
+    float radius = ( u_ssaoRadiusSS / float( u_texture0SizeX ) ) / ( 1.0 - currentPixelDepth );
 
     // some temporaries needed inside the loop
     vec3 ray;                     // the current ray inside the sphere
@@ -470,8 +470,10 @@ float getSSAO( vec2 where )
     float occlusion = 0.0;
     float radiusScaler = 0.0;     // we sample with multiple radii, so use a scaling factor here
 
+    float s = 1.0;// getColor().a * 10.0 ;
+
     // sample for different radii
-   for( int l = 1; l <= SCALERS; ++l )
+    for( int l = 1; l <= SCALERS; ++l )
     {
         float occlusionStep = 0.0;  // this variable accumulates the occlusion for the current radius
         radiusScaler += 1.0;    // increment radius each time.
@@ -484,7 +486,7 @@ float getSSAO( vec2 where )
                                                                           float( l ) / float( SCALERS ) ) ).rgb * 2.0 ) - vec3( 1.0 );
 
             // get a vector (randomized inside of a sphere with radius 1.0) from a texture and reflect it
-            ray = radiusScaler * radius * reflect( randSphereNormal, randNormal );
+            ray = s * radiusScaler * radius * reflect( randSphereNormal, randNormal );
 
             // if the ray is outside the hemisphere then change direction
             hemispherePoint = ( sign( dot( ray, normal ) ) * ray ) + ep;
@@ -621,11 +623,11 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_SSAOWITHPHONG
     float ao = getSSAO();
-    ao = 2.0 * ( ao - 0.5 );
+    //ao = 2.0 * ( ao - 0.5 );
     float lPhong = getPPLPhong( wge_DefaultLightIntensityLessDiffuse );
     float lKrueger = kruegerNonLinearIllumination( getNormal().xyz, 5.0 );
-    float l =  ao + lPhong;//Krueger;
-    blend( vec4( getColor().rgb * l, getColor().a ) );
+    float l = ao + lPhong;
+    blend( vec4( vec3( getColor().rgb * l * 0.5 ), 1.0 ) );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_CELSHADING

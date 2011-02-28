@@ -59,3 +59,7 @@ varying float v_diameter;
  */
 varying float v_surfaceParam;
 
+/**
+ * The scaling component of the modelview matrix.
+ */
+varying float v_woldScale;
