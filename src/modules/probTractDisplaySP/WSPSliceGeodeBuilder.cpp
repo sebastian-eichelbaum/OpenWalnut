@@ -25,9 +25,10 @@
 
 #include <osg/Geometry>
 
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/exceptions/WTypeMismatch.h"
-#include "../../common/WLogger.h"
 #include "../../common/math/WPosition.h"
+#include "../../common/WLogger.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "WSPSliceGeodeBuilder.h"
 
