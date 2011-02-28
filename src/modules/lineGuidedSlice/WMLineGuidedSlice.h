@@ -34,6 +34,7 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
+#include "../../graphicsEngine/WGEViewer.h"
 
 // forward declarations
 class WFiberCluster;
