@@ -34,23 +34,26 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
-#include "../../common/datastructures/WFiber.h"
 #include "../../common/WPropertyHelper.h"
+#include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataSetFiberVector.h"
+#include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
 #include "../../kernel/WKernel.h"
+#include "../../kernel/WModuleInputData.h"
 #include "WBresenham.h"
 #include "WBresenhamDBL.h"
-#include "WMVoxelizer.h"
-#include "WRasterAlgorithm.h"
-#include "WIntegrationParameterization.h"
 #include "WCenterlineParameterization.h"
+#include "WIntegrationParameterization.h"
+#include "WMVoxelizer.h"
 #include "WMVoxelizer.xpm"
+#include "WRasterAlgorithm.h"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMVoxelizer )
