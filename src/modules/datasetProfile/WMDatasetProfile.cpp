@@ -80,8 +80,8 @@ const std::string WMDatasetProfile::getDescription() const
 void WMDatasetProfile::connectors()
 {
     // the input dataset is just used as source for resolurtion and transformation matrix
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(), "in", "The input dataset." ) );
+    m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar  > >(
+        new WModuleInputData< WDataSetScalar >( shared_from_this(), "in", "The input dataset." ) );
     addConnector( m_input );
 
     WModule::connectors();
@@ -109,6 +109,12 @@ void WMDatasetProfile::properties()
     m_propLength->setMin( 1 );
     m_propLength->setMax( 500 );
     m_propUseLength = m_properties->addProperty( "Use length", "Description.", false );
+
+    m_propInterpolate = m_properties->addProperty( "interpolate", "Description.", true );
+
+    m_propNumSamples = m_properties->addProperty( "Number of sample points", "Description.", 100 );
+    m_propNumSamples->setMin( 1 );
+    m_propNumSamples->setMax( 500 );
 
     WModule::properties();
 }
@@ -141,7 +147,7 @@ void WMDatasetProfile::moduleMain()
             break;
         }
 
-        boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
+        boost::shared_ptr< WDataSetScalar > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
 
@@ -168,7 +174,7 @@ void WMDatasetProfile::moduleMain()
         }
 
 
-        if ( m_propUseLength->changed() || m_propLength->changed() )
+        if ( m_propUseLength->changed() || m_propLength->changed() || m_propInterpolate->changed( true ) || m_propNumSamples->changed( true ) )
         {
             m_dirty = true;
         }
@@ -476,7 +482,17 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
 
         for ( int i = 0; i < steps; ++i )
         {
-            value = m_dataSet->getValueAt( m_grid->getVoxelNum( knobs[k]->getPosition() + p1 * i ) );
+            if ( m_propInterpolate->get() )
+            {
+                bool success;
+                value = m_dataSet->interpolate( knobs[k]->getPosition() + p1 * i, &success );
+            }
+            else
+            {
+                value = m_dataSet->getValueAt( m_grid->getVoxelNum( knobs[k]->getPosition() + p1 * i ) );
+            }
+
+
             x = x + ( m_oldViewWidth /  100 );
             y = 10 + ( value / max * ( m_oldViewHeight - 20 ) / 2 );
             vertices->push_back( osg::Vec3( x, y, 0 ) );
