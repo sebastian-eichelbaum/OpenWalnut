@@ -137,6 +137,9 @@ private:
      */
     boost::shared_ptr< const WPVDouble > m_probThreshold;
 
+    /**
+     * Spacing between the glyphs around the grid points.
+     */
     boost::shared_ptr< const WPVDouble > m_glyphSpacing;
 
     /**
