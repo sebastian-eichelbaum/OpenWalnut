@@ -26,6 +26,7 @@ uniform float u_glyphSize;
 
 void main()
 {
+    gl_FrontColor = gl_Color;
     gl_TexCoord[0] = gl_MultiTexCoord0;
     vec4 v = gl_Vertex + u_glyphSize * vec4( gl_TexCoord[0].xyz, 0.0 );
     gl_Position = gl_ModelViewProjectionMatrix * v;

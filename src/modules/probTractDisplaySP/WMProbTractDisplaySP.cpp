@@ -185,12 +185,15 @@ void WMProbTractDisplaySP::properties()
 
     m_vectorGroup     = m_properties->addPropertyGroup( "Vector Group", "Parameters for drawing via eigen vectors." );
     m_vectorGroup->addProperty( m_probThreshold ); // this is also needed in this property group
-    WPropInt spacing = m_vectorGroup->addProperty( "Spacing", "Spacing of the sprites", 5, m_sliceChanged );
+    WPropInt spacing = m_vectorGroup->addProperty( "Spacing", "Spacing of the sprites", 1, m_sliceChanged );
     spacing->setMin( 1 );
     spacing->setMax( 30 );
-    WPropDouble glyphSize = m_vectorGroup->addProperty( "Glyph size", "Size of the quads transformed to the glyphs", 1.0 );
+    WPropDouble glyphSize = m_vectorGroup->addProperty( "Glyph size", "Size of the quads transformed to the glyphs", 0.5 );
     spacing->setMin( 1.0 );
     spacing->setMax( 5.0 );
+    WPropDouble glyphSpacing = m_vectorGroup->addProperty( "Glyph Spacing", "Spacing ", 0.4, m_sliceChanged );
+    glyphSpacing->setMin( 0.0 );
+    glyphSpacing->setMax( 5.0 );
 
     // call WModule's initialization
     WModule::properties();
@@ -309,6 +312,8 @@ void WMProbTractDisplaySP::moduleMain()
             WItemSelector algo = m_drawAlgorithm->get( true );
             if( algo.at( 0 )->getName() == std::string( "With largest eigen vectors" ) )
             {
+                m_vectorGroup->setHidden( false );
+                m_tractGroup->setHidden( true );
                 if( !vectors )
                 {
                     errorLog() << "No vector dataset available, but selected method needs one. Please connect one!";
@@ -322,6 +327,8 @@ void WMProbTractDisplaySP::moduleMain()
             }
             else if( algo.at( 0 )->getName() == std::string( "With deterministic tracts" ) )
             {
+                m_vectorGroup->setHidden( true );
+                m_tractGroup->setHidden( false );
                 if( !detTracts )
                 {
                     errorLog() << "No deterministic tracts on the connector present, but selected method needs one. Please connect one!";

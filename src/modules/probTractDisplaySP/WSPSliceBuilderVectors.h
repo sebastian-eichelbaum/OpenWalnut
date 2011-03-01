@@ -95,7 +95,7 @@ private:
      *
      * \return A array of direction to add to the center point to get the new centerpoints around in clockwise manner.
      */
-    osg::ref_ptr< osg::Vec3Array > generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims, double distance ) const;
+    boost::shared_ptr< std::vector< WVector3D > > generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims, double distance ) const;
 
     /**
      * Compute the origin and the base vectors of each slice, and returns the other opposite indices.
@@ -136,6 +136,8 @@ private:
      * Upto which threshold the quads should be discarded.
      */
     boost::shared_ptr< const WPVDouble > m_probThreshold;
+
+    boost::shared_ptr< const WPVDouble > m_glyphSpacing;
 
     /**
      * Shading the quads and transform them to the glyphs (line stipples).

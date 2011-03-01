@@ -44,6 +44,7 @@ WSPSliceBuilderVectors::WSPSliceBuilderVectors( ProbTractList probTracts, WPropG
     m_probThreshold = vectorGroup->findProperty( "Prob Threshold" )->toPropDouble();
     m_spacing = vectorGroup->findProperty( "Spacing" )->toPropInt();
     m_glyphSize = vectorGroup->findProperty( "Glyph size" )->toPropDouble();
+    m_glyphSpacing = vectorGroup->findProperty( "Glyph Spacing" )->toPropDouble();
 }
 
 void WSPSliceBuilderVectors::preprocess()
@@ -70,25 +71,35 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     normal[ sliceNum ] = -1.0;
     quadNormals->push_back( normal );
     osg::ref_ptr< osg::Vec4Array > quadColors( new osg::Vec4Array );
-    quadColors->push_back( WColor( 1.0, 0.0, 0.0, 1.0 ) );
 
     osg::ref_ptr< osg::Vec3Array > texCoordsPerPrimitive = generateQuadSpanning( activeDims );
+    boost::shared_ptr< std::vector< WVector3D > > glyphDirections = generateClockwiseDir( activeDims, m_glyphSpacing->get() );
 
     for( size_t x = 0; x < numCoords[ activeDims.first ]; x += m_spacing->get() )
     {
         for( size_t y = 0; y < numCoords[ activeDims.second ]; y += m_spacing->get() )
         {
             WPosition pos =  ( *origin ) + x * ( *a ) + y * ( *b );
-            quadVertices->push_back( pos );
-            quadVertices->push_back( pos );
-            quadVertices->push_back( pos );
-            quadVertices->push_back( pos );
-
-            // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a real
-            // quad out of the four center points
-            quadSpanning->insert( quadSpanning->end(), texCoordsPerPrimitive->begin(), texCoordsPerPrimitive->end() );
-
             osg::ref_ptr< osg::Vec4Array > colors = computeColorsFor( pos );
+            for( size_t i = 0; i < colors->size(); ++i )
+            {
+                if( colors->at( i )[3] > m_probThreshold->get() )
+                {
+                    quadVertices->push_back( pos + glyphDirections->at( i ) );
+                    quadVertices->push_back( pos + glyphDirections->at( i ) );
+                    quadVertices->push_back( pos + glyphDirections->at( i ) );
+                    quadVertices->push_back( pos + glyphDirections->at( i ) );
+
+                    // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a real
+                    // quad out of the four center points
+                    quadSpanning->insert( quadSpanning->end(), texCoordsPerPrimitive->begin(), texCoordsPerPrimitive->end() );
+
+                    quadColors->push_back( colors->at( i ) );
+                    quadColors->push_back( colors->at( i ) );
+                    quadColors->push_back( colors->at( i ) );
+                    quadColors->push_back( colors->at( i ) );
+                }
+            }
 
             // draw degenerated quads around this point if alpha value of color is greater than threshold
         }
@@ -97,7 +108,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry();
     geometry->setVertexArray( quadVertices );
     geometry->setTexCoordArray( 0, quadSpanning );
-    geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+    geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
     geometry->setNormalArray( quadNormals );
     geometry->setColorArray( quadColors );
@@ -112,7 +123,9 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     m_shader->apply( geode );
 
     geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_glyphSize", m_glyphSize ) );
-
+    osg::StateSet* state = geode->getOrCreateStateSet();
+    state->setMode( GL_BLEND, osg::StateAttribute::ON );
+    state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
     bindTextures( geode );
 
     return result;
@@ -171,11 +184,10 @@ std::pair< unsigned char, unsigned char > WSPSliceBuilderVectors::computeSliceBa
     return std::make_pair< unsigned char, unsigned char >( *( slices.begin() ), *( slices.rbegin() ) );
 }
 
-osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims,
+boost::shared_ptr< std::vector< WVector3D > > WSPSliceBuilderVectors::generateClockwiseDir( std::pair< unsigned char, unsigned char > activeDims,
         double distance ) const
 {
-    osg::ref_ptr< osg::Vec3Array > result( new osg::Vec3Array( 9 ) );
-    std::fill( result->begin(), result->begin() + 9, osg::Vec3( 0.0, 0.0, 0.0 ) );
+    boost::shared_ptr< std::vector< WVector3D > > result( new std::vector< WVector3D >( 9, WVector3D( 0.0, 0.0, 0.0 ) ) );
     result->at( 0 )[ activeDims.first ]  =  0.0 * distance;
     result->at( 1 )[ activeDims.first ]  =  1.0 * distance;
     result->at( 2 )[ activeDims.first ]  =  1.0 * distance;
