@@ -121,6 +121,8 @@ public:
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
 
+    using WDataSetSingle::getValueAt;
+
 protected:
 
     /**
