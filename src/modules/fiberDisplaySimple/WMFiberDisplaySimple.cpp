@@ -25,6 +25,8 @@
 #include <vector>
 #include <string>
 
+#include <osg/Point>
+
 #include "../../common/WPropertyHelper.h"
 #include "../../common/WPropertyObserver.h"
 #include "../../dataHandler/WDataHandler.h"
@@ -142,6 +144,12 @@ void enableTransparency( osg::StateSet* state )
 void WMFiberDisplaySimple::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMFiberDisplaySimple", m_localPath ) );
+
+    // this shader also includes a geometry shader, so set some needed options
+    m_endCapShader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMFiberDisplaySimple-EndCap", m_localPath ) );
+    m_endCapShader->setParameter( GL_GEOMETRY_VERTICES_OUT_EXT, 4 );
+    m_endCapShader->setParameter( GL_GEOMETRY_INPUT_TYPE_EXT, GL_POINTS );
+    m_endCapShader->setParameter( GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP );
 
     // initialize illumination shader
     m_shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
@@ -263,12 +271,14 @@ void WMFiberDisplaySimple::moduleMain()
         rootNode->clear();
 
         // create the fiber geode
-        osg::ref_ptr< osg::Node > geode = createFiberGeode( fibers );
+        osg::ref_ptr< osg::Geode > geode = new osg::Geode();
+        osg::ref_ptr< osg::Geode > endCapGeode = new osg::Geode();
+        createFiberGeode( fibers, geode, endCapGeode );
 
         // Apply the shader. This is for clipping.
         m_shader->apply( geode );
+        m_endCapShader->apply( endCapGeode );
 
-        // Add geometry
         // Add geometry
         if ( m_clipPlaneShowPlane->get() )
         {
@@ -278,8 +288,8 @@ void WMFiberDisplaySimple::moduleMain()
         {
             rootNode->remove( m_plane );
         }
-
         rootNode->insert( geode );
+        rootNode->insert( endCapGeode );
     }
 
     // At this point, the container managing this module signalled to shutdown. The main loop has ended and you should clean up. Always remove
@@ -342,11 +352,11 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createClipPlane() const
     return planeTransform;
 }
 
-osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers ) const
+void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers, osg::ref_ptr< osg::Geode > fibGeode,
+                                                                                         osg::ref_ptr< osg::Geode > endCapGeode ) const
 {
     // geode and geometry
-    osg::ref_ptr< osg::Geode > geode = new osg::Geode();
-    osg::StateSet* state = geode->getOrCreateStateSet();
+    osg::StateSet* state = fibGeode->getOrCreateStateSet();
 
     // disable light for this geode as lines can't be lit properly
     state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
@@ -357,6 +367,12 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
     osg::ref_ptr< osg::Vec3Array > tangents = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     osg::ref_ptr< osg::FloatArray > texcoords = osg::ref_ptr< osg::FloatArray >( new osg::FloatArray );
     osg::ref_ptr< osg::Geometry > geometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
+
+    // this is needed for the end- sprites
+    osg::ref_ptr< osg::Vec3Array > endVertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    osg::ref_ptr< osg::Vec4Array > endColors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+    osg::ref_ptr< osg::Vec3Array > endTangents = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    osg::ref_ptr< osg::Geometry > endGeometry = osg::ref_ptr< osg::Geometry >( new osg::Geometry );
 
     // needed arrays for iterating the fibers
     WDataSetFibers::IndexArray  fibStart = fibers->getLineStartIndexes();
@@ -418,6 +434,14 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
 
             if ( m_tubeEnable->get() )
             {
+                // if in tube-mode, some final sprites are needed to provide some kind of ending for the tube
+                if ( ( k == 0 ) || ( k == len - 1 ) )
+                {
+                    endVertices->push_back( vert );
+                    endColors->push_back( color );
+                    endTangents->push_back( tangent );
+                }
+
                 vertices->push_back( vert );
                 colors->push_back( color );
                 tangents->push_back( tangent );
@@ -452,13 +476,26 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
     if ( m_tubeEnable->get() )    // tex coords are only needed for fake-tubes
     {
         geometry->setTexCoordArray( 0, texcoords );
+
+        // also create the end-sprite geometry
+        endGeometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::POINTS, 0, endVertices->size() ) );
+        endGeometry->setVertexArray( endVertices );
+        endGeometry->setColorArray( endColors );
+        endGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+        endGeometry->setNormalArray( endTangents );
+        endGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
+        endCapGeode->addDrawable( endGeometry );
+
+        osg::StateSet* endState = endCapGeode->getOrCreateStateSet();
+        endState->setAttribute( new osg::Point( 30.0f ), osg::StateAttribute::ON );
+        endState->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+
+        // apply the end-cap shader
     }
 
     // set drawable
-    geode->addDrawable( geometry );
+    fibGeode->addDrawable( geometry );
 
     debugLog() << "Iterating over all fibers: done!";
     progress1->finish();
-
-    return geode;
 }
