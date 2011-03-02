@@ -247,7 +247,7 @@ void WMProbTractDisplaySP::moduleMain()
     initOSG();
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
     boost::shared_ptr< WSPSliceBuilder > builder;
-    std::list< boost::shared_ptr< const WDataSetScalar > > probTracts;
+    std::vector< boost::shared_ptr< const WDataSetScalar > > probTracts;
 
     // main loop
     while ( !m_shutdownFlag() )
@@ -355,7 +355,7 @@ void WMProbTractDisplaySP::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
 }
 
-void WMProbTractDisplaySP::checkProbabilityRanges( std::list< boost::shared_ptr< const WDataSetScalar > > probTracts ) const
+void WMProbTractDisplaySP::checkProbabilityRanges( std::vector< boost::shared_ptr< const WDataSetScalar > > probTracts ) const
 {
     bool otherRange = false;
 
@@ -363,7 +363,7 @@ void WMProbTractDisplaySP::checkProbabilityRanges( std::list< boost::shared_ptr<
     std::stringstream ss;
     ss << "The probabilistic tractograms: ";
     size_t i = 0;
-    for( std::list< boost::shared_ptr< const WDataSetScalar > >::const_iterator p = probTracts.begin(); p != probTracts.end(); ++p, ++i )
+    for( std::vector< boost::shared_ptr< const WDataSetScalar > >::const_iterator p = probTracts.begin(); p != probTracts.end(); ++p, ++i )
     {
         if( ( *p )->getMax() > 10 ) // Note: same check is made in the builder, later when colors are deterimined and alpha values depending on prob
         {

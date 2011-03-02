@@ -25,7 +25,6 @@
 #ifndef WMPROBTRACTDISPLAYSP_H
 #define WMPROBTRACTDISPLAYSP_H
 
-#include <list>
 #include <string>
 #include <vector>
 
@@ -133,7 +132,7 @@ private:
      *
      * \param probTracts All probabilistic tracts to check.
      */
-    void checkProbabilityRanges( std::list< boost::shared_ptr< const WDataSetScalar > > probTracts ) const;
+    void checkProbabilityRanges( std::vector< boost::shared_ptr< const WDataSetScalar > > probTracts ) const;
 
     /**
      * The probabilistic tractogram input connector.

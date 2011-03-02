@@ -29,6 +29,7 @@
 #include "../../common/math/WPosition.h"
 #include "../../common/WLogger.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetVector.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
@@ -67,6 +68,9 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Vec3Array > quadVertices( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec3Array > quadSpanning( new osg::Vec3Array );
     osg::ref_ptr< osg::Vec3Array > quadNormals( new osg::Vec3Array );
+    osg::ref_ptr< osg::Vec3Array > firstFocalPoint( new osg::Vec3Array );
+    osg::ref_ptr< osg::Vec3Array > secondFocalPoint( new osg::Vec3Array );
+
     WVector3D normal( 0.0, 0.0, 0.0 );
     normal[ sliceNum ] = -1.0;
     quadNormals->push_back( normal );
@@ -79,25 +83,26 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     {
         for( size_t y = 0; y < numCoords[ activeDims.second ]; y += m_spacing->get() )
         {
-            WPosition pos =  ( *origin ) + x * ( *a ) + y * ( *b );
-            osg::ref_ptr< osg::Vec4Array > colors = computeColorsFor( pos );
-            for( size_t i = 0; i < colors->size(); ++i )
+            WPosition pos = ( *origin ) + x * ( *a ) + y * ( *b );
+
+            for( size_t i = 0; i < m_probTracts.size(); ++i )
             {
-                if( colors->at( i )[3] > m_probThreshold->get() )
+                WPosition realPos = pos + glyphDirections->at( i );
+                WColor tractColor = lookUpColor( realPos, i );
+                if( tractColor[3] > m_probThreshold->get() )
                 {
-                    quadVertices->push_back( pos + glyphDirections->at( i ) );
-                    quadVertices->push_back( pos + glyphDirections->at( i ) );
-                    quadVertices->push_back( pos + glyphDirections->at( i ) );
-                    quadVertices->push_back( pos + glyphDirections->at( i ) );
+                    std::pair< WPosition, WPosition > focalPoints = computeFocalPoints( realPos, sliceNum );
+                    for( int j = 0; j < 4; ++j )
+                    {
+                        quadVertices->push_back( realPos );
+                        quadColors->push_back( tractColor );
+                        firstFocalPoint->push_back( focalPoints.first );
+                        secondFocalPoint->push_back( focalPoints.second );
+                    }
 
                     // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a real
                     // quad out of the four center points
                     quadSpanning->insert( quadSpanning->end(), texCoordsPerPrimitive->begin(), texCoordsPerPrimitive->end() );
-
-                    quadColors->push_back( colors->at( i ) );
-                    quadColors->push_back( colors->at( i ) );
-                    quadColors->push_back( colors->at( i ) );
-                    quadColors->push_back( colors->at( i ) );
                 }
             }
 
@@ -108,6 +113,8 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Geometry > geometry = new osg::Geometry();
     geometry->setVertexArray( quadVertices );
     geometry->setTexCoordArray( 0, quadSpanning );
+    geometry->setTexCoordArray( 1, firstFocalPoint );
+    geometry->setTexCoordArray( 2, secondFocalPoint );
     geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     geometry->setNormalBinding( osg::Geometry::BIND_OVERALL );
     geometry->setNormalArray( quadNormals );
@@ -126,22 +133,28 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::StateSet* state = geode->getOrCreateStateSet();
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
     state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
-    bindTextures( geode );
+
+    // bind vector field as texture
+    wge::bindTexture( geode, m_vectors->getTexture2() );
 
     return result;
 }
 
-void WSPSliceBuilderVectors::bindTextures( osg::ref_ptr< osg::Node > node ) const
+std::pair< WPosition, WPosition > WSPSliceBuilderVectors::computeFocalPoints( const WPosition& pos, size_t sliceNum ) const
 {
-    if( m_probTracts.size() > 8 )
-    {
-        wlog::warn( "WSPSliceBuilderVectors" ) << "Trying to bind more than 8 textures to a single geode, this might not be possible due to "
-            "graphics card, or driver limitations";
-    }
-    for( ProbTractList::const_iterator cit = m_probTracts.begin(); cit != m_probTracts.end(); ++cit )
-    {
-        wge::bindTexture( node, ( *cit )->getTexture2() );
-    }
+    std::pair< WPosition, WPosition > result;
+
+    bool success = false;
+    WVector3D vec = m_vectors->interpolate( pos, &success );
+    vec.normalize();
+
+    // project into plane
+    vec[ sliceNum ] = 0.0;
+
+    result.first = -0.5 * vec;
+    result.second = 0.5 * vec;
+
+    return result;
 }
 
 osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadSpanning( std::pair< unsigned char, unsigned char > activeDims ) const
@@ -208,22 +221,3 @@ boost::shared_ptr< std::vector< WVector3D > > WSPSliceBuilderVectors::generateCl
     result->at( 8 )[ activeDims.second ] = -1.0 * distance;
     return result;
 }
-
-// osg::ref_ptr< osg::Vec3Array > WSPSliceBuilderVectors::generateQuadStubs( const WPosition& pos ) const
-// {
-//     osg::ref_ptr< osg::Vec3Array > result( new osg::Vec3Array );
-//     result->reserve( m_probTracts->size() * 4 ); // four corners for each quad stub
-//
-//     if( m_probTracts->size() < 10 )
-//     {
-//         throw WNotImplemented( "Bug: The jittering works only for at most 9 tracts." );
-//     }
-//
-//     std::vector< WVector3D > dir;
-//
-//     for( size_t i = 0; i < m_probTracts->size(); ++i )
-//     {
-//
-//     }
-//     return result;
-// }

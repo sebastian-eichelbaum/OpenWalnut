@@ -22,7 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
+#version 120
+
 void main()
 {
-    gl_FragColor = gl_Color;
+    // ellipsoiden scheiss
+    if( ( length( gl_TexCoord[0] - gl_TexCoord[1] ) + length( gl_TexCoord[0] - gl_TexCoord[2] ) ) < 1.2 )
+    {
+        gl_FragColor = gl_Color;
+    }
+    else
+    {
+        discard;
+    }
 }

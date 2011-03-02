@@ -22,7 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <list>
 #include <vector>
 
 #include <osg/ref_ptr>
@@ -108,21 +107,23 @@ WColor WSPSliceBuilder::colorMap( size_t probTractNum ) const
     return m_colorMap.at( probTractNum )->findProperty( "Color" )->toPropColor()->get();
 }
 
-//osg::ref_ptr< WGEGroupNode > WSPSliceBuilder::generateSlice( size_t /* sliceNum */ ) const
-//{
-//    wlog::error( "WSPSliceBuilder" ) << "Bug: This virtual function should never be called, I should consider making this abstract";
-//    return osg::ref_ptr< WGEGroupNode >( new WGEGroupNode );
-//}
-//
-//void WSPSliceBuilder::preprocess()
-//{
-//    wlog::error( "WSPSliceBuilder" ) << "Bug: This virtual function should never be called, I should consider making this abstract";
-//}
-//
-
 bool WSPSliceBuilder::alphaBelowThreshold( const WColor& c, const double threshold ) const
 {
     return c[3] < threshold;
+}
+
+WColor WSPSliceBuilder::lookUpColor( const WPosition& pos, size_t tractID ) const
+{
+    WColor c = colorMap( tractID );
+    bool success = false;
+    double probability = m_probTracts.at( tractID )->interpolate( pos, &success );
+    if( m_probTracts.at( tractID )->getMax() > 10 )
+    {
+        probability /= 255.0;
+    }
+    c[3] = ( success ? probability : -1.0 );
+
+    return c;
 }
 
 osg::ref_ptr< osg::Vec4Array > WSPSliceBuilder::computeColorsFor( const osg::Vec3& pos ) const
@@ -130,37 +131,16 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceBuilder::computeColorsFor( const osg::Vec
     osg::ref_ptr< osg::Vec4Array > result( new osg::Vec4Array );
     result->reserve( m_probTracts.size() );
 
-    size_t interpolationFailures = 0;
-    size_t probTractNum = 0;
     // for each probabilisitc tractogram look up if its probability at this vertex is below a certain threshold or not
-    for( ProbTractList::const_iterator probTract = m_probTracts.begin(); probTract != m_probTracts.end(); ++probTract, ++probTractNum )
+    for( size_t tractID = 0; tractID < m_probTracts.size(); ++tractID )
     {
-        bool success = false;
-        double probability = ( *probTract )->interpolate( WPosition( pos ), &success );
-        if( ( *probTract )->getMax() > 10 )
+        WColor c = lookUpColor( WPosition( pos ), tractID );
+        if( c[3] != -1.0 )
         {
-            // Todo(math): Solve this hack in a better way!
-            // the probability is clearly not 0..1 distributed, we assume 0..255 instead.
-            // We compute probability:
-            probability /= 255.0;
-        }
-        if( success )
-        {
-            WColor c = colorMap( probTractNum );
-            c[3] = static_cast< float >( probability );
             result->push_back( c );
-        }
-        else
-        {
-            ++interpolationFailures;
         }
     }
 
-    if( interpolationFailures > 0 )
-    {
-        wlog::warn( "WSPSliceBuilderTracts" ) << "While computing colors for the probabilistic tracts, the interpolation of probabilistic"
-            " tractograms failed: " << interpolationFailures << " many times.";
-    }
     return result;
 }
 

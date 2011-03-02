@@ -25,7 +25,6 @@
 #ifndef WSPSLICEBUILDER_H
 #define WSPSLICEBUILDER_H
 
-#include <list>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
@@ -47,14 +46,14 @@ class WSPSliceBuilder
 {
 public:
     /**
-     * List of scalar datasets e.g. probabilistic tractograms.
+     * Vector of scalar datasets e.g. probabilistic tractograms.
      */
-    typedef std::list< boost::shared_ptr< const WDataSetScalar > > ProbTractList;
+    typedef std::vector< boost::shared_ptr< const WDataSetScalar > > ProbTractList;
 
     /**
      * Creates a geode builder to build axial, coronal and sagittal slices ala Schahmann y Pandya.
      *
-     * \param probTracts The list of probabilistic tractograms which should be taken into account.
+     * \param probTracts The vector of probabilistic tractograms which should be taken into account.
      * \param sliceGroup Slice positions
      * \param colorMap For each connected probabilistic trac its color
      */
@@ -98,6 +97,17 @@ protected:
      * \return ture if the color has an alpha value below the given threshold.
      */
     bool alphaBelowThreshold( const WColor& c, const double threshold ) const;
+
+    /**
+     * For a certain tractogram the color is looked up in the color map and the alpha value is set to the interpolated
+     * probability value.
+     *
+     * \param pos The position to look up the color and probability.
+     * \param tractID For which tract the color should be looked up
+     *
+     * \return The color of the tract, where the alpha value is either the interpolated tract probability or -1.0 if interpolation has failed.
+     */
+    WColor lookUpColor( const WPosition& pos, size_t tractID ) const;
 
     /**
      * Compute for each probabilistic tractogram the color at the given pos and sets the alpha value to the interpolated probability.

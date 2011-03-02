@@ -110,12 +110,7 @@ private:
     std::pair< unsigned char, unsigned char > computeSliceBase( const unsigned char sliceNum, boost::shared_ptr< WVector3D > origin,
             boost::shared_ptr< WVector3D > a, boost::shared_ptr< WVector3D > b ) const;
 
-    /**
-     * For every probabilistic tractogram the texture is bound to the given osg node.
-     *
-     * \param node Where to bind the probabilistic tractograms
-     */
-    void bindTextures( osg::ref_ptr< osg::Node > node ) const;
+    std::pair< WPosition, WPosition > computeFocalPoints( const WPosition& pos, size_t sliceNum ) const;
 
     /**
      * The eigenvectors.
