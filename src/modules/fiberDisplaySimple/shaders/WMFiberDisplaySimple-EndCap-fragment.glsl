@@ -100,7 +100,7 @@ void main()
 
     // done
     wge_FragColor = vec4( light * w * gl_Color.rgb, outside * gl_Color.a );
-    wge_FragNormal = textureNormalize( normalize( normal ));
+    wge_FragNormal = textureNormalize( normalize( normal ) );
     wge_FragZoom = v_worldScale;
     gl_FragDepth = depth;
 }

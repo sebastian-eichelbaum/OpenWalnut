@@ -93,7 +93,6 @@ varying out float v_worldScale;
  */
 void main()
 {
-
 #ifdef CLIPPLANE_ENABLED
     // define the plane
     vec3 n = normalize( u_planeVector );
@@ -105,7 +104,6 @@ void main()
         return;
     }
 #endif  // CLIPPLANE_ENABLED
-
 
     // discard the caps if in ribbon mode or non-zoomable mode. it not yet works.
 #if !( defined( RIBBON_ENABLED ) || !defined( ZOOMABLE_ENABLED ) )
@@ -134,22 +132,26 @@ void main()
     // vertex 1
     gl_TexCoord[0] = vec4( -1.0, -1.0, 0.0, angle );
     v_vertex = gl_ModelViewMatrix * ( vertex + ( -0.5 * a ) + ( -0.5 * b ) );
-    gl_Position = gl_ProjectionMatrix * v_vertex; EmitVertex();
+    gl_Position = gl_ProjectionMatrix * v_vertex;
+    EmitVertex();
 
     // vertex 2
     gl_TexCoord[0] = vec4( -1.0, 1.0, 0.0, angle );
     v_vertex = gl_ModelViewMatrix * ( vertex + ( -0.5 * a ) + ( 0.5 * b ) );
-    gl_Position = gl_ProjectionMatrix * v_vertex; EmitVertex();
+    gl_Position = gl_ProjectionMatrix * v_vertex;
+    EmitVertex();
 
     // vertex 3
     gl_TexCoord[0] = vec4( 1.0, -1.0, 0.0, angle );
     v_vertex = gl_ModelViewMatrix * ( vertex + ( 0.5 * a ) + ( -0.5 * b ) );
-    gl_Position = gl_ProjectionMatrix * v_vertex; EmitVertex();
+    gl_Position = gl_ProjectionMatrix * v_vertex;
+    EmitVertex();
 
     // vertex 4
     gl_TexCoord[0] = vec4( 1.0, 1.0, 0.0, angle );
     v_vertex = gl_ModelViewMatrix * ( vertex + ( 0.5 * a ) + ( 0.5 * b ) );
-    gl_Position = gl_ProjectionMatrix * v_vertex; EmitVertex();
+    gl_Position = gl_ProjectionMatrix * v_vertex;
+    EmitVertex();
 
     EndPrimitive();
 #endif
