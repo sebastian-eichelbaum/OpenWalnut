@@ -298,7 +298,7 @@ void WMData::moduleMain()
         m_transformNoMatrix = niiLoader.getStandardTransform();
         m_transformSForm = niiLoader.getSFormTransform();
         m_transformQForm = niiLoader.getQFormTransform();
- 
+
         m_isTexture = m_dataSet->isTexture();
 
         boost::shared_ptr< WDataSetSingle > dss = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
@@ -438,7 +438,7 @@ void WMData::moduleMain()
                     WGEColormapping::deregisterTexture( m_dataSet->getTexture2() );
                 }
             }
-            
+
             // a new grid
             boost::shared_ptr< WGrid > newGrid;
             boost::shared_ptr< WGridRegular3D > oldGrid = boost::shared_dynamic_cast< WGridRegular3D >( dataSetAsSingle->getGrid() );
