@@ -52,7 +52,7 @@ public:
      */
     void testInterpolate( void )
     {
-        boost::shared_ptr< WGrid > grid = boost::shared_ptr< WGrid >( new WGridRegular3D( 5, 3, 3, 1, 1, 1 ) );
+        boost::shared_ptr< WGrid > grid = boost::shared_ptr< WGrid >( new WGridRegular3D( 5, 3, 3 ) );
         boost::shared_ptr< std::vector< double > > data = boost::shared_ptr< std::vector< double > >( new std::vector< double >( grid->size() * 3 ) );
         for( size_t i = 0; i < grid->size() * 3; ++i )
         {
@@ -111,7 +111,7 @@ public:
      */
     void testBoundary_ticket313( void )
     {
-        boost::shared_ptr< WGridRegular3D > grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( 3, 4, 5, 1, 1, 1 ) );
+        boost::shared_ptr< WGridRegular3D > grid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D( 3, 4, 5 ) );
         bool success = false;
         boost::shared_ptr< std::vector< double > > data = boost::shared_ptr< std::vector< double > >( new std::vector< double >( grid->size() * 3 ) );
         for( size_t i = 0; i < grid->size() * 3; ++i )

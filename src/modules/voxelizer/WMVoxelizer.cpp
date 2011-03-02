@@ -42,6 +42,7 @@
 #include "../../dataHandler/WDataSetFiberVector.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WSubject.h"
+#include "../../dataHandler/WGridTransformOrtho.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEGeometryUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
@@ -247,8 +248,19 @@ boost::shared_ptr< WGridRegular3D > WMVoxelizer::constructGrid( const WBoundingB
     size_t nbPosY = std::ceil( bb.yMax() - bb.yMin() ) + 1;
     size_t nbPosZ = std::ceil( bb.zMax() - bb.zMin() ) + 1;
 
-    boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX, nbVoxelsPerUnit * nbPosY, nbVoxelsPerUnit * nbPosZ,
-                bb.getMin(), 1.0 / nbVoxelsPerUnit, 1.0 / nbVoxelsPerUnit, 1.0 / nbVoxelsPerUnit ) );
+    WMatrix< double > mat( 4, 4 );
+    mat.makeIdentity();
+    mat( 0, 0 ) = mat( 1, 1 ) = mat( 2, 2 ) = 1.0 / nbVoxelsPerUnit;
+    mat( 0, 3 ) = bb.getMin()[ 0 ];
+    mat( 1, 3 ) = bb.getMin()[ 1 ];
+    mat( 2, 3 ) = bb.getMin()[ 2 ];
+
+    WGridTransformOrtho transform( mat );
+
+    boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( nbVoxelsPerUnit * nbPosX,
+                                                                  nbVoxelsPerUnit * nbPosY,
+                                                                  nbVoxelsPerUnit * nbPosZ,
+                                                                  transform ) );
     return grid;
 }
 

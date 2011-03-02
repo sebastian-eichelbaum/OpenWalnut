@@ -61,7 +61,7 @@ public:
         {
             ( *values )[ k ] = 27 - k;
         }
-        boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, 1, 1, 1 ) );
+        boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3 ) );
         boost::shared_ptr< WValueSet< int > > v( new WValueSet< int >( 0, 1, values, W_DT_SIGNED_INT ) );
         boost::shared_ptr< WDataSetScalar > ds( new WDataSetScalar( v, g ) );
 

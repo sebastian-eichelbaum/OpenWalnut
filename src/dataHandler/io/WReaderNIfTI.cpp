@@ -32,6 +32,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WIOTools.h"
+#include "../../common/WLogger.h"
 #include "../WDataHandlerEnums.h"
 #include "../WDataSet.h"
 #include "../WDataSetDTI.h"
@@ -48,10 +49,11 @@
 #include "../WValueSet.h"
 #include "../WValueSetBase.h"
 #include "WReaderNIfTI.h"
-#include "../../common/WLogger.h"
 
 WReaderNIfTI::WReaderNIfTI( std::string fileName )
-    : WReader( fileName )
+    : WReader( fileName ),
+      m_sform( 4, 4 ),
+      m_qform( 4, 4 )
 {
 }
 
@@ -73,6 +75,7 @@ template< typename T >  boost::shared_ptr< std::vector< T > > WReaderNIfTI::copy
 WMatrix< double > WReaderNIfTI::convertMatrix( const mat44& in )
 {
     WMatrix< double > out( 4, 4 );
+
     for( size_t i = 0; i < 4; ++i )
     {
         for( size_t j = 0; j < 4; ++j )
@@ -80,6 +83,7 @@ WMatrix< double > WReaderNIfTI::convertMatrix( const mat44& in )
             out( i, j ) = in.m[i][j];
         }
     }
+
     return out;
 }
 
@@ -169,11 +173,10 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
         throw e;
     }
 
-    newGrid = boost::shared_ptr< WGridRegular3D >( new WGridRegular3D(
-        columns, rows, frames,
-        convertMatrix( header->qto_xyz ),
-        convertMatrix( header->sto_xyz ),
-        header->dx, header->dy, header->dz ) );
+    m_sform = convertMatrix( header->sto_xyz );
+    m_qform = convertMatrix( header->qto_xyz );
+    newGrid = boost::shared_ptr< WGridRegular3D >(
+                        new WGridRegular3D( columns, rows, frames, WGridTransformOrtho( getStandardTransform() ) ) );
 
     boost::shared_ptr< WDataSet > newDataSet;
     // known description
@@ -394,4 +397,19 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
     nifti_image_free( filedata );
 
     return newDataSet;
+}
+
+WMatrix< double > WReaderNIfTI::getStandardTransform() const
+{
+    return WMatrix< double >( 4, 4 ).makeIdentity();
+}
+
+WMatrix< double > WReaderNIfTI::getSFormTransform() const
+{
+    return m_sform;
+}
+
+WMatrix< double > WReaderNIfTI::getQFormTransform() const
+{
+    return m_qform;
 }

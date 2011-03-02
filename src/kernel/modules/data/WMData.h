@@ -159,6 +159,9 @@ protected:
      */
     virtual void notifyStop();
 
+    //! a condition for property changes
+    boost::shared_ptr< WCondition > m_propCondition;
+
     /**
      * The filename of the dataset to load.
      */
@@ -179,28 +182,6 @@ protected:
      */
     WPropString m_dataType;
 
-    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-    /**
-     * \deprecated Be aware that this will be replaced by WGEColormapping
-     * Grouping the texture display properties
-     */
-    WPropGroup    m_groupTex;
-
-    /**
-     * Interpolation?
-     */
-    WPropBool m_interpolation;
-
-    /**
-     * A list of color map selection types
-     */
-    boost::shared_ptr< WItemSelection > m_colorMapSelectionsList;
-
-    /**
-     * Selection property for color map
-     */
-    WPropSelection m_colorMapSelection;
-
     /**
      * A list of color map selection types
      */
@@ -211,18 +192,6 @@ protected:
      */
     WPropSelection m_matrixSelection;
 
-
-    /**
-     * Threshold value for this data.
-     */
-    WPropDouble m_threshold;
-
-    /**
-     * Opacity value for this data.
-     */
-    WPropInt m_opacity;
-    // }
-
     bool m_isTexture; //!< Indicates whether the loaded dataSet will be available as texture.
 
     /**
@@ -231,6 +200,16 @@ protected:
      * \param property the property that has been changed
      */
     void propertyChanged( boost::shared_ptr< WPropertyBase > property );
+
+    // in case of a nifti file, there may be several transforms specified in the file
+    //! a standard transform (should be an identity transform)
+    WMatrix< double > m_transformNoMatrix;
+
+    //! a standard transform (should be an identity transform)
+    WMatrix< double > m_transformSForm;
+
+    //! a standard transform (should be an identity transform)
+    WMatrix< double > m_transformQForm;
 
 private:
 

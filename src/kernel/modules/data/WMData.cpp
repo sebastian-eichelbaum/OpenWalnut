@@ -33,6 +33,7 @@
 #include "../../../dataHandler/WDataSetScalar.h"
 #include "../../../dataHandler/WDataSetTimeSeries.h"
 #include "../../../dataHandler/WDataSetVector.h"
+#include "../../../dataHandler/WDataSetRawHARDI.h"
 #include "../../../dataHandler/WSubject.h"
 #include "../../../dataHandler/WDataHandler.h"
 #include "../../../dataHandler/WDataTexture3D.h"
@@ -54,7 +55,10 @@
 WMData::WMData():
     WModule(),
     m_fileNameSet( false ),
-    m_isTexture()
+    m_isTexture(),
+    m_transformNoMatrix( 4, 4 ),
+    m_transformSForm( 4, 4 ),
+    m_transformQForm( 4, 4 )
 {
     // initialize members
 }
@@ -124,86 +128,26 @@ void WMData::connectors()
 
 void WMData::properties()
 {
-    // properties
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    // properties
     m_dataName = m_infoProperties->addProperty( "Filename", "The filename of the dataset.", std::string( "" ) );
     m_dataType = m_infoProperties->addProperty( "Data type", "The type of the the single data values.", std::string( "" ) );
 
-    // use this callback for the other properties
-    WPropertyBase::PropertyChangeNotifierType propertyCallback = boost::bind( &WMData::propertyChanged, this, _1 );
-
-    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-    m_groupTex = m_properties->addPropertyGroup( "Texture Properties ",  "Properties only related to the texture representation." );
-
-    // several other properties
-    m_interpolation = m_groupTex->addProperty( "Interpolation",
-                                                  "If active, the boundaries of single voxels"
-                                                  " will not be visible in colormaps. The transition between"
-                                                  " them will be smooth by using interpolation then.",
-                                                  true,
-                                                  propertyCallback );
-    m_threshold = m_groupTex->addProperty( "Threshold", "Values below this threshold will not be "
-                                              "shown in colormaps.", 0.0, propertyCallback );
-    m_threshold->setMax( 1.0 );
-    m_threshold->setMin( 0.0 );
-
-    m_opacity = m_groupTex->addProperty( "Opacity %", "The opacity of this data in colormaps combining"
-                                            " values from several data sets.", 100, propertyCallback );
-    m_opacity->setMax( 100 );
-    m_opacity->setMin( 0 );
-
-    m_colorMapSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_colorMapSelectionsList->addItem( "Grayscale", "" );
-    m_colorMapSelectionsList->addItem( "Rainbow", "" );
-    m_colorMapSelectionsList->addItem( "Hot iron", "" );
-    m_colorMapSelectionsList->addItem( "Negative to positive", "" );
-    m_colorMapSelectionsList->addItem( "Atlas", "" );
-    m_colorMapSelectionsList->addItem( "Blue-Green-Purple", "" );
-    m_colorMapSelectionsList->addItem( "Vector", "" );
-
-    m_colorMapSelection = m_groupTex->addProperty( "Colormap",  "Colormap type.", m_colorMapSelectionsList->getSelectorFirst(), propertyCallback );
-    WPropertyHelper::PC_SELECTONLYONE::addTo( m_colorMapSelection );
-
     m_matrixSelectionsList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_matrixSelectionsList->addItem( "No matrix", "" );
-    m_matrixSelectionsList->addItem( "qform", "" );
     m_matrixSelectionsList->addItem( "sform", "" );
+    m_matrixSelectionsList->addItem( "qform", "" );
 
     m_matrixSelection = m_properties->addProperty( "Transformation matrix",  "matrix",
-            m_matrixSelectionsList->getSelectorFirst(), propertyCallback );
+                                    m_matrixSelectionsList->getSelectorFirst(), m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_matrixSelection );
-    // }
 }
 
 void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
 {
     if( m_isTexture )
     {
-        // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-        if ( property == m_threshold )
-        {
-            m_dataSet->getTexture()->setThreshold( m_threshold->get() );
-        }
-        else if ( property == m_opacity )
-        {
-            m_dataSet->getTexture()->setOpacity( m_opacity->get() );
-        }
-        else if ( property == m_interpolation )
-        {
-            m_dataSet->getTexture()->setInterpolation( m_interpolation->get() );
-        }
-        else if ( property == m_colorMapSelection )
-        {
-            m_dataSet->getTexture()->setSelectedColormap( m_colorMapSelection->get( true ).getItemIndexOfSelected( 0 ) );
-        }
-        else if ( property == m_matrixSelection )
-        {
-            boost::shared_ptr< WGridRegular3D > grid = m_dataSet->getTexture()->getGrid();
-            grid->setActiveMatrix( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) );
-            WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
-            m_output->triggerUpdate();
-        }
-        // }
         if ( property == m_active )
         {
             // forward to texture
@@ -249,6 +193,9 @@ void WMData::notifyStop()
 
 void WMData::moduleMain()
 {
+    m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_propCondition );
+
     WAssert( m_fileNameSet, "No filename specified." );
 
     using wiotools::getSuffix;
@@ -266,17 +213,6 @@ void WMData::moduleMain()
     // load it now
     std::string suffix = getSuffix( fileName );
 
-    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-    if( suffix == ".fib"
-        || suffix == ".cnt"
-        || suffix == ".asc"
-        || suffix == ".edf" )
-    {
-        // hide other properties since they make no sense fo these data set types.
-        m_groupTex->setHidden();
-    }
-    // }
-
     if( suffix == ".nii"
         || ( suffix == ".gz" && ::nifti_compiled_with_zlib() ) )
     {
@@ -290,6 +226,10 @@ void WMData::moduleMain()
 
         WReaderNIfTI niiLoader( fileName );
         m_dataSet = niiLoader.load();
+        m_transformNoMatrix = niiLoader.getStandardTransform();
+        m_transformSForm = niiLoader.getSFormTransform();
+        m_transformQForm = niiLoader.getQFormTransform();
+
         m_isTexture = m_dataSet->isTexture();
 
         boost::shared_ptr< WDataSetSingle > dss = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
@@ -301,9 +241,6 @@ void WMData::moduleMain()
                 case W_DT_UNSIGNED_CHAR:
                 case W_DT_INT16:
                 case W_DT_SIGNED_INT:
-                    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-                    m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 0 ) );
-                    // }
                     m_dataSet->getTexture2()->colormap()->set(
                         m_dataSet->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 0 ) )
                     );
@@ -312,10 +249,6 @@ void WMData::moduleMain()
                 case W_DT_DOUBLE:
                     if( boost::shared_dynamic_cast< WDataSetVector >( m_dataSet ) )
                     {
-                        // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-                        m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 6 ) );
-                        m_interpolation->set( false );
-                        // }
                         m_dataSet->getTexture2()->colormap()->set(
                             m_dataSet->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 6 ) )
                         );
@@ -323,9 +256,6 @@ void WMData::moduleMain()
                     }
                     else
                     {
-                        // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-                        m_colorMapSelection->set( m_colorMapSelectionsList->getSelector( 5 ) );
-                        // }
                         m_dataSet->getTexture2()->colormap()->set(
                             m_dataSet->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 5 ) )
                         );
@@ -335,15 +265,6 @@ void WMData::moduleMain()
                     WAssert( false, "Unknow data type in Data module" );
             }
         }
-
-        // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-        if( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet ) )
-        {
-            m_threshold->setMin( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
-            m_threshold->setMax( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMax() );
-            m_threshold->set( boost::shared_dynamic_cast< WDataSetScalar >( m_dataSet )->getMin() );
-        }
-        // }
     }
     else if( suffix == ".edf" )
     {
@@ -394,22 +315,55 @@ void WMData::moduleMain()
     // I am interested in the active property ( manually subscribe signal )
     m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );
 
-    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-    // register at datahandler
-    WDataHandler::registerDataSet( m_dataSet ); // this will get obsolete soon
-    // }
-
     // notify
     m_output->updateData( m_dataSet );
     ready();
 
-    // go to idle mode
-    waitForStop();  // WThreadedRunner offers this for us. It uses boost::condition to avoid wasting CPU cycles with while loops.
+    WDataSetSingle::SPtr dataSetAsSingle = boost::shared_dynamic_cast< WDataSetSingle >( m_dataSet );
+
+    while( !m_shutdownFlag() )
+    {
+        m_moduleState.wait();
+        if( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        // change transform matrix (only if we have a dataset single which contains the grid)
+        if( m_matrixSelection->changed() && dataSetAsSingle )
+        {
+            // a new grid
+            boost::shared_ptr< WGrid > newGrid;
+            boost::shared_ptr< WGridRegular3D > oldGrid = boost::shared_dynamic_cast< WGridRegular3D >( dataSetAsSingle->getGrid() );
+
+            switch( m_matrixSelection->get( true ).getItemIndexOfSelected( 0 ) )
+            {
+            case 0:
+                newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
+                                                                          WGridTransformOrtho( m_transformNoMatrix ) ) );
+                break;
+            case 1:
+                newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
+                                                                          WGridTransformOrtho( m_transformSForm ) ) );
+                break;
+            case 2:
+                newGrid = boost::shared_ptr< WGrid >( new WGridRegular3D( oldGrid->getNbCoordsX(), oldGrid->getNbCoordsY(), oldGrid->getNbCoordsZ(),
+                                                                          WGridTransformOrtho( m_transformQForm ) ) );
+                break;
+            }
+
+            m_dataSet = dataSetAsSingle->clone( newGrid );
+
+            // the clone() may have returned a zero-pointer, only update if it hasn't
+            // this may happen if the clone() operation has not been implemented in the derived dataset class
+            if( m_dataSet )
+            {
+                m_output->updateData( m_dataSet );
+            }
+        }
+    }
 
     // remove dataset from datahandler
-    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-    WDataHandler::deregisterDataSet( m_dataSet );
-    // }
     if ( m_dataSet->isTexture() )
     {
         m_properties->removeProperty( m_dataSet->getTexture2()->getProperties() );

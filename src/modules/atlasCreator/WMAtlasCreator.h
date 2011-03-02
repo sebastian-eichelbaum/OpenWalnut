@@ -38,7 +38,7 @@
 #include "../../dataHandler/WValueSet.h"
 
 
-/** 
+/**
  * Someone should add some documentation here.
  * Probably the best person would be the module's
  * creator, i.e. "schurade".

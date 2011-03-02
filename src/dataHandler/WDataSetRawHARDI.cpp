@@ -55,6 +55,21 @@ WDataSetRawHARDI::~WDataSetRawHARDI()
 {
 }
 
+WDataSetSingle::SPtr WDataSetRawHARDI::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetRawHARDI( newValueSet, getGrid(), m_gradients, getDiffusionBValue() ) );
+}
+
+WDataSetSingle::SPtr WDataSetRawHARDI::clone( boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetRawHARDI( getValueSet(), newGrid, m_gradients, getDiffusionBValue() ) );
+}
+
+WDataSetSingle::SPtr WDataSetRawHARDI::clone() const
+{
+    return WDataSetSingle::SPtr( new WDataSetRawHARDI( getValueSet(), getGrid(), m_gradients, getDiffusionBValue() ) );
+}
+
 boost::shared_ptr< WPrototyped > WDataSetRawHARDI::getPrototype()
 {
     if ( !m_prototype )

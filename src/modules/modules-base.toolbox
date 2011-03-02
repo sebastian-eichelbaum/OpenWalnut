@@ -1,7 +1,8 @@
 # mostly modules from our default whitelist
 
+ADD_SUBDIRECTORY( clusterDisplayVoxels )
+ADD_SUBDIRECTORY( overlayAtlas )
 ADD_SUBDIRECTORY( arbitraryRois )
-ADD_SUBDIRECTORY( boundingBox )
 ADD_SUBDIRECTORY( coordinateHUD )
 ADD_SUBDIRECTORY( coordinateSystem )
 ADD_SUBDIRECTORY( distanceMap )
