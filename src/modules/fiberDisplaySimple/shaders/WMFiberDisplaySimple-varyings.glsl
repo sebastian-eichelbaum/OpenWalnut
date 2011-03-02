@@ -30,7 +30,7 @@
 /**
  * The distance to the plane
  */
-varying float dist;
+varying float v_dist;
 #endif
 
 /**
@@ -62,4 +62,4 @@ varying float v_surfaceParam;
 /**
  * The scaling component of the modelview matrix.
  */
-varying float v_woldScale;
+varying float v_worldScale;

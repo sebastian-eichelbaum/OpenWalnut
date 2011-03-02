@@ -58,7 +58,7 @@ void main()
 {
 #ifdef CLIPPLANE_ENABLED
     // discard fragment if too far from plane
-    if ( abs( dist ) >= u_distance )
+    if ( abs( v_dist ) >= u_distance )
     {
         discard;
     }
@@ -113,7 +113,7 @@ void main()
     // finally set the color and depth
     wge_FragColor = vec4( gl_Color.rgb * light * colorScaler, gl_Color.a );
     wge_FragNormal = textureNormalize( normal );
-    wge_FragZoom = 0.1 * v_woldScale;
+    wge_FragZoom = 0.1 * v_worldScale;
     gl_FragDepth = depth;
 }
 
