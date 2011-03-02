@@ -76,14 +76,20 @@ WMatrix< double > WReaderNIfTI::convertMatrix( const mat44& in )
 {
     WMatrix< double > out( 4, 4 );
 
+    bool isZero = true;
     for( size_t i = 0; i < 4; ++i )
     {
         for( size_t j = 0; j < 4; ++j )
         {
             out( i, j ) = in.m[i][j];
+            isZero = isZero && out( i, j ) == 0.0;
         }
     }
 
+    if( isZero )
+    {
+        out.makeIdentity();
+    }
     return out;
 }
 
