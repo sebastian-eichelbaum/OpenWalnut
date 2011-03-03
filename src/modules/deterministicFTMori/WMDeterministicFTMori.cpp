@@ -91,6 +91,10 @@ void WMDeterministicFTMori::moduleMain()
     {
         debugLog() << "Waiting.";
         m_moduleState.wait();
+        if( m_shutdownFlag() )
+        {
+            break;
+        }
 
         if( m_trackingPool && m_trackingPool->status() == W_THREADS_FINISHED )
         {
