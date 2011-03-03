@@ -177,20 +177,19 @@ void WSurface::execute()
 
     WTensorSym< 2, 3, double > myTensor = getCovarianceMatrix( m_supportPoints );
 
-    std::vector< double > eigenValues( 3 );
-    std::vector< WVector3D > eigenVectors( 3 );
+    RealEigenSystem eigenSys;
 
-    jacobiEigenvector3D( myTensor, &eigenValues, &eigenVectors );
+    jacobiEigenvector3D( myTensor, &eigenSys );
 
-    eigenVectors[0].normalize();
-    eigenVectors[1].normalize();
-    eigenVectors[2].normalize();
+    eigenSys[0].second.normalize();
+    eigenSys[1].second.normalize();
+    eigenSys[2].second.normalize();
 
     // This sorts the entries automatically :-)
     std::map< double, WVector3D > sortedEigenSystem;
     for( size_t i = 0; i < 3 ; ++i )
     {
-        sortedEigenSystem[eigenValues[i]] = eigenVectors[i];
+        sortedEigenSystem[eigenSys[i].first] = eigenSys[i].second;
     }
 
     WMatrix< double > transMatrix = WMatrix< double >( 3, 3 );

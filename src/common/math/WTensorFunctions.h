@@ -26,7 +26,11 @@
 #define WTENSORFUNCTIONS_H
 
 #include <cmath>
+#include <complex>
+#include <utility>
 #include <vector>
+
+#include <boost/array.hpp>
 
 #include "../WAssert.h"
 #include "../WLimits.h"
@@ -36,20 +40,29 @@
 #include "WVector3D.h"
 
 /**
+ * An eigensystem has all eigenvalues as well as its corresponding eigenvectors. A RealEigenSystem is an EigenSystem where all
+ * eigenvalues are real and not complex.
+ */
+typedef boost::array< std::pair< double, WVector3D >, 3 > RealEigenSystem;
+
+/**
+ * An eigensystem has all eigenvalues as well its corresponding eigenvectors.
+ */
+typedef boost::array< std::pair< std::complex< double >, WVector3D >, 3 > EigenSystem;
+
+/**
  * Compute all eigenvalues as well as the corresponding eigenvectors of a
  * symmetric real Matrix.
  *
  * \note Data_T must be castable to double.
  *
  * \param[in] mat A real symmetric matrix.
- * \param[out] eigenValues A pointer to a vector of eigenvalues.
- * \param[out] eigenVectors A pointer to a vector of eigenvectors.
+ * \param[out] RealEigenSystem A pointer to an RealEigenSystem.
  */
 template< typename Data_T >
-void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat,
-                          std::vector< Data_T >* eigenValues,
-                          std::vector< WVector3D >* eigenVectors )
+void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat, RealEigenSystem* es )
 {
+    RealEigenSystem& result = *es; // alias for the result
     WTensorSym< 2, 3, Data_T > in( mat );
     WTensor< 2, 3, Data_T > ev;
     ev( 0, 0 ) = ev( 1, 1 ) = ev( 2, 2 ) = 1.0;
@@ -78,10 +91,10 @@ void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat,
         {
             for( int i = 0; i < 3; ++i )
             {
-                eigenValues->at( i ) = in( i, i );
+                result[i].first = in( i, i );
                 for( int j = 0; j < 3; ++j )
                 {
-                    eigenVectors->at( i )[ j ] = static_cast< double >( ev( j, i ) );
+                    result[i].second[j] = static_cast< double >( ev( j, i ) );
                 }
             }
             return;
