@@ -59,7 +59,7 @@ public:
      *
      * This function is threadsafe.
      */
-    void add( std::vector< wmath::WVector3D > const& in );
+    void add( std::vector< WVector3D > const& in );
 
     /**
      * Return the dataset that has been accumulated to this point

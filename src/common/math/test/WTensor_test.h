@@ -42,7 +42,7 @@ public:
      */
     void testAccessOperator1()
     {
-        wmath::WTensor< 3, 2 > w;
+        WTensor< 3, 2 > w;
         w( 0, 0, 0 ) = 2;
         w( 0, 0, 1 ) = 3;
         w( 0, 1, 0 ) = 0;
@@ -68,7 +68,7 @@ public:
     void testAccessOperator2()
     {
         std::vector< unsigned int > v( 3, 0 );
-        wmath::WTensor< 3, 4 > w;
+        WTensor< 3, 4 > w;
 
         for( v[ 0 ] = 0; v[ 0 ] < 4; ++v[ 0 ] )
         {
@@ -101,28 +101,28 @@ public:
     {
         // create lots of tensors
         // these should all compile
-        wmath::WTensor< 0, 0 > t00d;
-        wmath::WTensor< 0, 3 > t03d;
-        wmath::WTensor< 1, 1 > t11d;
-        wmath::WTensor< 1, 2 > t12d;
-        wmath::WTensor< 1, 3 > t13d;
-        wmath::WTensor< 1, 4 > t14d;
-        wmath::WTensor< 1, 1, float > t11f;
-        wmath::WTensor< 1, 2, int > t12i;
-        wmath::WTensor< 1, 3, char > t13c;
-        wmath::WTensor< 1, 4, std::string > t14s;
-        wmath::WTensor< 2, 1 > t21d;
-        wmath::WTensor< 2, 2 > t22d;
-        wmath::WTensor< 2, 3 > t23d;
-        wmath::WTensor< 2, 4 > t24d;
-        wmath::WTensor< 2, 1, int > t21i;
-        wmath::WTensor< 2, 2, char > t22c;
-        wmath::WTensor< 2, 3, float > t23f;
-        wmath::WTensor< 2, 4, float > t24f;
-        wmath::WTensor< 3, 5 > t35d;
-        wmath::WTensor< 4, 3 > t43d;
-        wmath::WTensor< 5, 2 > t52d;
-        wmath::WTensor< 6, 3 > t63d;
+        WTensor< 0, 0 > t00d;
+        WTensor< 0, 3 > t03d;
+        WTensor< 1, 1 > t11d;
+        WTensor< 1, 2 > t12d;
+        WTensor< 1, 3 > t13d;
+        WTensor< 1, 4 > t14d;
+        WTensor< 1, 1, float > t11f;
+        WTensor< 1, 2, int > t12i;
+        WTensor< 1, 3, char > t13c;
+        WTensor< 1, 4, std::string > t14s;
+        WTensor< 2, 1 > t21d;
+        WTensor< 2, 2 > t22d;
+        WTensor< 2, 3 > t23d;
+        WTensor< 2, 4 > t24d;
+        WTensor< 2, 1, int > t21i;
+        WTensor< 2, 2, char > t22c;
+        WTensor< 2, 3, float > t23f;
+        WTensor< 2, 4, float > t24f;
+        WTensor< 3, 5 > t35d;
+        WTensor< 4, 3 > t43d;
+        WTensor< 5, 2 > t52d;
+        WTensor< 6, 3 > t63d;
 
         TS_ASSERT_EQUALS( t35d( 0, 4, 2 ), 0.0 );
         TS_ASSERT_EQUALS( t35d( 1, 4, 0 ), 0.0 );
@@ -142,11 +142,11 @@ public:
      */
     void testCopyConstructor()
     {
-        wmath::WTensor< 2, 3 > w;
+        WTensor< 2, 3 > w;
         w( 0, 1 ) = 2;
         w( 2, 1 ) = 0.456;
 
-        wmath::WTensor< 2, 3 > m( w );
+        WTensor< 2, 3 > m( w );
         TS_ASSERT_EQUALS( m( 0, 1 ), 2 );
         TS_ASSERT_EQUALS( m( 2, 1 ), 0.456 );
     }
@@ -156,10 +156,10 @@ public:
      */
     void testCopyOperator()
     {
-        wmath::WTensor< 6, 2 > w;
+        WTensor< 6, 2 > w;
         w( 0, 0, 1, 1, 0, 1 ) = 4.0;
         w( 1, 1, 0, 0, 0, 0 ) = 0.56;
-        wmath::WTensor< 6, 2 > m;
+        WTensor< 6, 2 > m;
 
         {
             m = w;
@@ -176,14 +176,14 @@ public:
     {
         // order = 3
         {
-            wmath::WTensorSym< 3, 3 > s;
+            WTensorSym< 3, 3 > s;
             s( 2, 1, 0 ) = 2.0;
 
             // copy construct t from s
-            wmath::WTensor< 3, 3 > t( s );
+            WTensor< 3, 3 > t( s );
             TS_ASSERT_EQUALS( t( 1, 2, 0 ), 2.0 );
 
-            wmath::WTensor< 3, 3 > w;
+            WTensor< 3, 3 > w;
             w( 0, 0, 0 ) = 3.0;
 
             // copy from s
@@ -193,14 +193,14 @@ public:
         }
         // order = 1
         {
-            wmath::WTensorSym< 1, 3 > s;
+            WTensorSym< 1, 3 > s;
             s( 2 ) = 2.0;
 
             // copy construct t from s
-            wmath::WTensor< 1, 3 > t( s );
+            WTensor< 1, 3 > t( s );
             TS_ASSERT_EQUALS( t( 2 ), 2.0 );
 
-            wmath::WTensor< 1, 3 > w;
+            WTensor< 1, 3 > w;
             w( 0 ) = 3.0;
 
             // copy from s
@@ -210,14 +210,14 @@ public:
         }
         // order = 0
         {
-            wmath::WTensorSym< 0, 3 > s;
+            WTensorSym< 0, 3 > s;
             s() = 2.0;
 
             // copy construct t from s
-            wmath::WTensor< 0, 3 > t( s );
+            WTensor< 0, 3 > t( s );
             TS_ASSERT_EQUALS( t(), 2.0 );
 
-            wmath::WTensor< 0, 3 > w;
+            WTensor< 0, 3 > w;
             w() = 3.0;
 
             // copy from s
@@ -236,23 +236,23 @@ public:
         // more sophisticated tests can be found in WTensorFuncTest
         // cast to Data_T
         {
-            wmath::WTensor< 0, 0, double > t;
+            WTensor< 0, 0, double > t;
             t() = 3.0;
             double d = t;
             TS_ASSERT_EQUALS( d, 3.0 );
         }
         // cast to WValue
         {
-            wmath::WTensor< 1, 2, int > t;
+            WTensor< 1, 2, int > t;
             t( 0 ) = 3.0;
-            wmath::WValue< int > v = t;
+            WValue< int > v = t;
             TS_ASSERT_EQUALS( v[ 0 ], 3.0 );
         }
         // cast to WMatrix
         {
-            wmath::WTensor< 2, 3, float > t;
+            WTensor< 2, 3, float > t;
             t( 0, 1 ) = 3.0;
-            wmath::WMatrix< float > m = t;
+            WMatrix< float > m = t;
             TS_ASSERT_EQUALS( m( 0, 1 ), 3.0 );
         }
     }

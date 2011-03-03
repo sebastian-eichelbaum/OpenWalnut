@@ -41,7 +41,7 @@ CXXTEST_TEMPLATE_INSTANTIATION
  * Enables better UnitTest OutPut if something fails with WPositions, so you see
  * immedeatly what is failing.
  */
-class ValueTraits< wmath::WPosition > : public WTraitsBase
+class ValueTraits< WPosition > : public WTraitsBase
 {
 public:
     /**
@@ -49,7 +49,7 @@ public:
      *
      * \param m the WVector to print
      */
-    explicit ValueTraits( const wmath::WPosition &m )
+    explicit ValueTraits( const WPosition &m )
     {
         std::stringstream tmp;
         tmp.precision( 16 );

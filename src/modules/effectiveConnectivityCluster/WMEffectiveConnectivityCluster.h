@@ -156,12 +156,12 @@ private:
     /**
      * The position of the first label showing m_voi1Name
      */
-    wmath::WPosition m_labelPos1;
+    WPosition m_labelPos1;
 
     /**
      * The position of the second label showing m_voi2Name
      */
-    wmath::WPosition m_labelPos2;
+    WPosition m_labelPos2;
 
     /////////////////////////////////////////////////////////////////////
     // The Properties

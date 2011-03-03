@@ -25,18 +25,16 @@
 #ifndef WTENSORFUNCTIONS_H
 #define WTENSORFUNCTIONS_H
 
-#include <vector>
 #include <cmath>
+#include <vector>
 
-#include "WVector3D.h"
-#include "WTensor.h"
-#include "WTensorSym.h"
-#include "WCompileTimeFunctions.h"
 #include "../WAssert.h"
 #include "../WLimits.h"
+#include "WCompileTimeFunctions.h"
+#include "WTensor.h"
+#include "WTensorSym.h"
+#include "WVector3D.h"
 
-namespace wmath
-{
 /**
  * Compute all eigenvalues as well as the corresponding eigenvectors of a
  * symmetric real Matrix.
@@ -206,7 +204,7 @@ WTensor< 2, dim, Data_T > operator * ( TensorType1< 2, dim, Data_T > const& one,
  * \note If the gradient is not normalized, the result is undefined.
  */
 template< typename Data_T >
-double evaluateSphericalFunction( WTensorSym< 4, 3, Data_T > const& tens, wmath::WVector3D const& gradient )
+double evaluateSphericalFunction( WTensorSym< 4, 3, Data_T > const& tens, WVector3D const& gradient )
 {
     // use symmetry to reduce computation overhead
     // temporaries for some of the gradient element multiplications could further reduce
@@ -242,7 +240,7 @@ double evaluateSphericalFunction( WTensorSym< 4, 3, Data_T > const& tens, wmath:
  * \note If the gradient is not normalized, the result is undefined.
  */
 template< typename Data_T >
-double evaluateSphericalFunction( WTensorSym< 2, 3, Data_T > const& tens, wmath::WVector3D const& gradient )
+double evaluateSphericalFunction( WTensorSym< 2, 3, Data_T > const& tens, WVector3D const& gradient )
 {
     return gradient[ 0 ] * gradient[ 0 ] * tens( 0, 0 )
          + gradient[ 1 ] * gradient[ 1 ] * tens( 1, 1 )
@@ -252,6 +250,5 @@ double evaluateSphericalFunction( WTensorSym< 2, 3, Data_T > const& tens, wmath:
          + gradient[ 0 ] * gradient[ 2 ] * tens( 0, 2 )
          + gradient[ 1 ] * gradient[ 2 ] * tens( 1, 2 ) );
 }
-} // namespace wmath
 
 #endif  // WTENSORFUNCTIONS_H

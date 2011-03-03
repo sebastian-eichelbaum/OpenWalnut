@@ -25,7 +25,7 @@ TriangleMesh::TriangleMesh ( boost::shared_ptr< WTriangleMesh > mesh, boost::sha
     // copy vertices
     for( size_t i = 0; i < mesh->vertSize(); ++i )
     {
-        wmath::WPosition pos = mesh->getVertexAsPosition( i );
+        WPosition pos = mesh->getVertexAsPosition( i );
         fastAddVert( Vector( pos[0], pos[1], pos[2] ) );
     }
     // copy triangles

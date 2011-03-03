@@ -40,7 +40,9 @@
 W_LOADABLE_MODULE( WMDatasetManipulator )
 
 WMDatasetManipulator::WMDatasetManipulator():
-    WModule()
+    WModule(),
+    m_updated( false ),
+    m_updateMutex()
 {
 }
 
@@ -90,6 +92,7 @@ void WMDatasetManipulator::properties()
 {
     // Initialize the properties
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    m_transformChangedCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     m_showManipulators = m_properties->addProperty( "Show manipulators", "Hide/Show manipulators.", true, m_propCondition );
     m_rotationMode = m_properties->addProperty( "Rotation mode", "Toggles rotation mode", false, m_propCondition );
@@ -135,10 +138,13 @@ void WMDatasetManipulator::properties()
 
 void WMDatasetManipulator::init()
 {
-    m_grid = m_input->getData()->getTexture2()->getGrid();
+    m_grid = boost::shared_dynamic_cast< WGridRegular3D >( m_input->getData()->getGrid() );
+    WAssert( m_grid, "The grid needs to be a regular 3D grid." );
+    m_transform = boost::shared_ptr< WGridTransformOrtho >( new WGridTransformOrtho( m_grid->getTransform() ) );
+
     WBoundingBox bb = m_grid->getBoundingBox();
 
-    wmath::WPosition center = bb.center();
+    WPosition center = bb.center();
 
     m_knobCenter = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
     m_knobx1 = boost::shared_ptr<WROISphere>( new WROISphere( center, 2.5 ) );
@@ -185,16 +191,17 @@ void WMDatasetManipulator::init()
 
 void WMDatasetManipulator::setManipulatorsFromBoundingBox()
 {
-    WBoundingBox bb = m_grid->getBoundingBox();
+    WGridRegular3D g( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), *m_transform );
+    WBoundingBox bb = g.getBoundingBox();
 
     m_posCenter = bb.center();
 
-    m_posx1 = wmath::WPosition( bb.xMin(), m_posCenter[1], m_posCenter[2] );
-    m_posx2 = wmath::WPosition( bb.xMax(), m_posCenter[1], m_posCenter[2] );
-    m_posy1 = wmath::WPosition( m_posCenter[0], bb.yMin(), m_posCenter[2] );
-    m_posy2 = wmath::WPosition( m_posCenter[0], bb.yMax(), m_posCenter[2] );
-    m_posz1 = wmath::WPosition( m_posCenter[0], m_posCenter[1], bb.zMin() );
-    m_posz2 = wmath::WPosition( m_posCenter[0], m_posCenter[1], bb.zMax() );
+    m_posx1 = WPosition( bb.xMin(), m_posCenter[1], m_posCenter[2] );
+    m_posx2 = WPosition( bb.xMax(), m_posCenter[1], m_posCenter[2] );
+    m_posy1 = WPosition( m_posCenter[0], bb.yMin(), m_posCenter[2] );
+    m_posy2 = WPosition( m_posCenter[0], bb.yMax(), m_posCenter[2] );
+    m_posz1 = WPosition( m_posCenter[0], m_posCenter[1], bb.zMin() );
+    m_posz2 = WPosition( m_posCenter[0], m_posCenter[1], bb.zMax() );
 
     m_knobCenter->setPosition( m_posCenter );
     m_knobx1->setPosition( m_posx1 );
@@ -213,7 +220,7 @@ void WMDatasetManipulator::setManipulatorsFromBoundingBox()
     m_posz2Orig = m_posz2;
 
     m_posRotCenter = m_posCenter;
-    m_posRot = wmath::WPosition( ( m_posCenter.x() + ( fabs( m_posCenter.x() - m_posx1.x() ) / 2.0 ) ), m_posx1.y(), m_posx1.z() );
+    m_posRot = WPosition( ( m_posCenter.x() + ( fabs( m_posCenter.x() - m_posx1.x() ) / 2.0 ) ), m_posx1.y(), m_posx1.z() );
     m_posRotOrig = m_posRot;
 
     m_knobRotCenter->setPosition( m_posRotCenter );
@@ -273,7 +280,7 @@ void WMDatasetManipulator::setManipulatorMode()
 
 void WMDatasetManipulator::manipulatorMoved()
 {
-    wmath::WPosition newOffset( m_knobCenter->getPosition() - m_posCenter );
+    WPosition newOffset( m_knobCenter->getPosition() - m_posCenter );
     m_knobx1->setPosition( m_knobx1->getPosition() + newOffset );
     m_knobx2->setPosition( m_knobx2->getPosition() + newOffset );
     m_knoby1->setPosition( m_knoby1->getPosition() + newOffset );
@@ -281,55 +288,73 @@ void WMDatasetManipulator::manipulatorMoved()
     m_knobz1->setPosition( m_knobz1->getPosition() + newOffset );
     m_knobz2->setPosition( m_knobz2->getPosition() + newOffset );
 
-    wmath::WPosition stretch( 1.0, 1.0, 1.0 );
+    WPosition stretch( 1.0, 1.0, 1.0 );
 
-    float orgsizex = static_cast<float>( ( m_posx2Orig - m_posx1Orig ).x() );
-    float orgsizey = static_cast<float>( ( m_posy2Orig - m_posy1Orig ).y() );
-    float orgsizez = static_cast<float>( ( m_posz2Orig - m_posz1Orig ).z() );
+    // write changes to the transformation stored in the module using a write lock
+    // open a new scope for the write lock
+    {
+        boost::unique_lock< boost::mutex > lock( m_updateMutex );
 
-    m_grid->translate( wmath::WPosition( m_grid->getTranslate().x() + ( m_knobx1->getPosition().x() - m_posx1.x() ) *
-                                            ( static_cast<float>( m_grid->getNbCoordsX() / orgsizex ) ),
-                                         m_grid->getTranslate().y() + ( m_knoby1->getPosition().y() - m_posy1.y() ) *
-                                            ( static_cast<float>( m_grid->getNbCoordsY() / orgsizey ) ),
-                                         m_grid->getTranslate().z() + ( m_knobz1->getPosition().z() - m_posz1.z() ) *
-                                            ( static_cast<float>( m_grid->getNbCoordsZ() / orgsizez ) ) ) );
-    m_translationX->set( m_grid->getTranslate().x(), true );
-    m_translationY->set( m_grid->getTranslate().y(), true );
-    m_translationZ->set( m_grid->getTranslate().z(), true );
+        float orgsizex = static_cast<float>( ( m_posx2Orig - m_posx1Orig ).x() );
+        float orgsizey = static_cast<float>( ( m_posy2Orig - m_posy1Orig ).y() );
+        float orgsizez = static_cast<float>( ( m_posz2Orig - m_posz1Orig ).z() );
 
-    stretch.x() = ( m_knobx2->getPosition().x() - m_knobx1->getPosition().x() ) / orgsizex;
-    stretch.y() = ( m_knoby2->getPosition().y() - m_knoby1->getPosition().y() ) / orgsizey;
-    stretch.z() = ( m_knobz2->getPosition().z() - m_knobz1->getPosition().z() ) / orgsizez;
+        WPosition translate( ( m_knobx1->getPosition().x() - m_posx1.x() ) *
+                             ( static_cast<float>( m_grid->getNbCoordsX() / orgsizex ) ),
+                             ( m_knoby1->getPosition().y() - m_posy1.y() ) *
+                             ( static_cast<float>( m_grid->getNbCoordsY() / orgsizey ) ),
+                             ( m_knobz1->getPosition().z() - m_posz1.z() ) *
+                             ( static_cast<float>( m_grid->getNbCoordsZ() / orgsizez ) ) );
 
-    m_grid->stretch( stretch );
+        m_translationX->set( translate[ 0 ], true );
+        m_translationY->set( translate[ 1 ], true );
+        m_translationZ->set( translate[ 2 ], true );
 
-    m_stretchX->set( stretch.x(), true );
-    m_stretchY->set( stretch.y(), true );
-    m_stretchZ->set( stretch.z(), true );
+        stretch.x() = ( m_knobx2->getPosition().x() - m_knobx1->getPosition().x() ) / orgsizex;
+        stretch.y() = ( m_knoby2->getPosition().y() - m_knoby1->getPosition().y() ) / orgsizey;
+        stretch.z() = ( m_knobz2->getPosition().z() - m_knobz1->getPosition().z() ) / orgsizez;
 
-    adjustManipulatorPositions();
+        m_stretchX->set( stretch.x(), true );
+        m_stretchY->set( stretch.y(), true );
+        m_stretchZ->set( stretch.z(), true );
 
-    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+        adjustManipulatorPositions();
+
+        m_transform->translate( translate );
+        m_transform->scale( stretch );
+    } // write lock goes out of scope and is released
+
+    // notify the module of changes to the transformation,
+    // so it can do a thread-safe update of the grid
+    notifyChanged();
 }
 
 void WMDatasetManipulator::manipulatorRotMoved()
 {
-    wmath::WPosition newOffset( m_knobRotCenter->getPosition() - m_posRotCenter );
-    m_knobRot->setPosition( m_knobRot->getPosition() + newOffset );
+    // write changes to the transformation stored in the module using a write lock
+    // open a new scope for the write lock
+    {
+        boost::unique_lock< boost::mutex > lock( m_updateMutex );
 
-    wmath::WPosition p1 = ( m_posRotCenter - m_posRot );
+        WPosition newOffset( m_knobRotCenter->getPosition() - m_posRotCenter );
+        m_knobRot->setPosition( m_knobRot->getPosition() + newOffset );
 
-    m_posRotCenter = m_knobRotCenter->getPosition();
-    m_posRot = m_knobRot->getPosition();
+        WPosition p1 = ( m_posRotCenter - m_posRot );
 
-    wmath::WPosition p2 = ( m_posRotCenter - m_posRot );
+        m_posRotCenter = m_knobRotCenter->getPosition();
+        m_posRot = m_knobRot->getPosition();
 
-    osg::Matrixf rot;
-    rot.makeRotate( p2, p1 );
+        WPosition p2 = ( m_posRotCenter - m_posRot );
 
-    m_grid->rotate( rot, m_posRotCenter );
+        osg::Matrixf rot;
+        rot.makeRotate( p2, p1 );
 
-    WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+        // m_transform->rotate( rot, m_posRotCenter );
+    } // write lock goes out of scope and is released
+
+    // notify the module of changes to the transformation,
+    // so it can do a thread-safe update of the grid
+    notifyChanged();
 }
 
 void WMDatasetManipulator::adjustManipulatorPositions()
@@ -338,7 +363,7 @@ void WMDatasetManipulator::adjustManipulatorPositions()
     float cy = m_knoby1->getPosition().y() + ( ( m_knoby2->getPosition().y() - m_knoby1->getPosition().y() ) / 2.0 );
     float cz = m_knobz1->getPosition().z() + ( ( m_knobz2->getPosition().z() - m_knobz1->getPosition().z() ) / 2.0 );
 
-    m_knobCenter->setPosition( wmath::WPosition( cx, cy, cz ) );
+    m_knobCenter->setPosition( WPosition( cx, cy, cz ) );
     m_knobx1->setY( cy );
     m_knobx2->setY( cy );
     m_knobx1->setZ( cz );
@@ -363,12 +388,20 @@ void WMDatasetManipulator::adjustManipulatorPositions()
     m_posz2 = m_knobz2->getPosition();
 }
 
+void WMDatasetManipulator::notifyChanged()
+{
+    boost::unique_lock< boost::mutex > lock( m_updateMutex );
+    m_updated = true;
+    m_transformChangedCondition->notify();
+}
+
 void WMDatasetManipulator::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
     m_moduleState.add( m_active->getUpdateCondition() );
     m_moduleState.add( m_input->getDataChangedCondition() );
+    m_moduleState.add( m_transformChangedCondition );
 
     ready();
 
@@ -380,34 +413,45 @@ void WMDatasetManipulator::moduleMain()
         {
             break;
         }
-        boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
-        bool dataChanged = ( m_dataSet != newDataSet );
-        bool dataValid   = ( newDataSet );
 
-        if( dataValid )
+        // test if any updates were made to the transformation
         {
-            if( dataChanged )
+            boost::unique_lock< boost::mutex > lock( m_updateMutex );
+            if( m_updated )
             {
-                m_dataSet = newDataSet;
-                init();
-                break;
+                m_updated = false;
+                boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( m_grid->getNbCoordsX(),
+                                                                        m_grid->getNbCoordsY(),
+                                                                        m_grid->getNbCoordsZ(),
+                                                                        *m_transform ) );
+                // NOTE: we NEED to use clone here as we need to keep the dynamic type of the input data set.
+                // This means: clone a WDataSetSingle which was constructed as WDataSetVector -> result is a WDataSetSingle which was constructed
+                // as WDataSetVector too.
+                m_output->updateData( m_dataSet->clone( newGrid ) );
             }
-        }
-    }
 
-    while ( !m_shutdownFlag() )
-    {
-        m_moduleState.wait();
+            boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
+            bool dataChanged = ( m_dataSet != newDataSet );
+            bool dataValid   = ( newDataSet );
 
-        if ( m_shutdownFlag() )
-        {
-            break;
+            if( dataValid )
+            {
+                if( dataChanged )
+                {
+                    {
+                        m_dataSet = newDataSet;
+                        init();
+                        debugLog() << "New dataset on input connector.";
+                    }
+                }
+            }
         }
 
         if ( m_active->changed() || m_showManipulators->changed() )
         {
             if ( m_active->get( true ) && m_showManipulators->get( true ) )
             {
+                boost::unique_lock< boost::mutex > lock( m_updateMutex );
                 setManipulatorMode();
             }
             else
@@ -426,22 +470,29 @@ void WMDatasetManipulator::moduleMain()
 
         if ( m_rotationMode->changed() )
         {
+            boost::unique_lock< boost::mutex > lock( m_updateMutex );
             setManipulatorMode();
         }
 
         if ( m_translationX->changed() || m_translationY->changed() || m_translationZ->changed() )
         {
-            wmath::WPosition pos( m_translationX->get( true ), m_translationY->get( true ), m_translationZ->get( true ) );
-            m_grid->translate( pos );
-            setManipulatorsFromBoundingBox();
-            WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+            {
+                boost::unique_lock< boost::mutex > lock( m_updateMutex );
+                WPosition pos( m_translationX->get( true ), m_translationY->get( true ), m_translationZ->get( true ) );
+                m_transform->translate( pos );
+                setManipulatorsFromBoundingBox();
+            }
+            notifyChanged();
         }
         if ( m_stretchX->changed() || m_stretchY->changed() || m_stretchZ->changed() )
         {
-            wmath::WPosition str( m_stretchX->get( true ), m_stretchY->get( true ), m_stretchZ->get( true ) );
-            m_grid->stretch( str );
-            setManipulatorsFromBoundingBox();
-            WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+            {
+                boost::unique_lock< boost::mutex > lock( m_updateMutex );
+                WPosition str( m_stretchX->get( true ), m_stretchY->get( true ), m_stretchZ->get( true ) );
+                m_transform->scale( str );
+                setManipulatorsFromBoundingBox();
+            }
+            notifyChanged();
         }
         if ( m_rotationX->changed() || m_rotationY->changed() || m_rotationZ->changed() )
         {
@@ -450,9 +501,13 @@ void WMDatasetManipulator::moduleMain()
             float roty = static_cast<float>( m_rotationY->get( true ) ) / 180. * pi;
             float rotz = static_cast<float>( m_rotationZ->get( true ) ) / 180. * pi;
 
-            wmath::WPosition rot( rotx, roty, rotz );
-            //grid->rotate( rot );
-            WDataHandler::getDefaultSubject()->getChangeCondition()->notify();
+            {
+                boost::unique_lock< boost::mutex > lock( m_updateMutex );
+                // m_transform->rotateX( rotx );
+                // m_transform->rotateY( rotx );
+                // m_transform->rotateZ( rotx );
+            }
+            notifyChanged();
         }
     }
 

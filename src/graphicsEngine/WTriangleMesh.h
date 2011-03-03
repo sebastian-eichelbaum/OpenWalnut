@@ -107,7 +107,7 @@ public:
      *
      * \param vert
      */
-    void addVertex( wmath::WPosition vert );
+    void addVertex( WPosition vert );
 
     /**
      * Adds a texture coordinate for the vertex.
@@ -165,7 +165,7 @@ public:
      * \param index
      * \param normal
      */
-    void setVertexNormal( size_t index, wmath::WPosition normal );
+    void setVertexNormal( size_t index, WPosition normal );
 
     /**
      * sets the color for a given vertex
@@ -280,7 +280,7 @@ public:
      * \param index
      * \return vertex
      */
-    wmath::WPosition getVertexAsPosition( size_t index ) const;
+    WPosition getVertexAsPosition( size_t index ) const;
 
     /**
      * getter
@@ -289,7 +289,7 @@ public:
      * \param vertNum
      * \return vertex
      */
-    wmath::WPosition getVertexAsPosition( size_t triangleIndex, size_t vertNum );
+    WPosition getVertexAsPosition( size_t triangleIndex, size_t vertNum );
 
     /**
      * getter

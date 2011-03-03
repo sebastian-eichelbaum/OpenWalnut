@@ -32,8 +32,6 @@
 #include "../WAssert.h"
 #include "../WStringUtils.h"
 
-namespace wmath
-{
 /**
  * Base class for all higher level values like tensors, vectors, matrices and so on.
  */
@@ -392,5 +390,4 @@ template< typename U > inline std::istream& operator>>( std::istream& in, WValue
     return string_utils::operator>>( in, rhs.m_components );
 }
 
-}  // End of namespace
 #endif  // WVALUE_H

@@ -71,7 +71,7 @@ public:
      *
      * \return The mean value of this gaussian process at the point \e p.
      */
-    double mean( const wmath::WPosition& p ) const;
+    double mean( const WPosition& p ) const;
 
     /**
      * Returns the reference to precomputed \f$ C_{ff}^{-1} * 1 * l \f$ see \ref m_Cff_1_l_product.
@@ -107,7 +107,7 @@ public:
      * \return Real number indicating the covariance between two points representing the smoothness
      * of the tract
      */
-    double cov_s( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
+    double cov_s( const WPosition& p1, const WPosition& p2 ) const;
 
     /**
      * Returns the precomputed bounding box, see \ref m_bb.
@@ -147,7 +147,7 @@ private:
      * \return Real number indicating the covariance between two points representing the diffusion
      * associated blurring.
      */
-    double cov_d( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
+    double cov_d( const WPosition& p1, const WPosition& p2 ) const;
 
     /**
      * Covariance function of this gaussian process.
@@ -160,7 +160,7 @@ private:
      *
      * \return The sum of the cov_s and cov_d covariance function.
      */
-    double cov( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const;
+    double cov( const WPosition& p1, const WPosition& p2 ) const;
 
     /**
      * The id of the tract inside the \ref WDataSetFibers this gaussian process is representing.
@@ -219,7 +219,7 @@ inline double WGaussProcess::getRadius() const
     return m_R;
 }
 
-inline double WGaussProcess::cov_s( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const
+inline double WGaussProcess::cov_s( const WPosition& p1, const WPosition& p2 ) const
 {
     double r = ( p1 - p2 ).norm();
     if( r >  m_R )
@@ -229,7 +229,7 @@ inline double WGaussProcess::cov_s( const wmath::WPosition& p1, const wmath::WPo
     return 2 * std::abs( r * r * r ) - 3 * m_R * r * r + m_R * m_R * m_R;
 }
 
-inline double WGaussProcess::cov( const wmath::WPosition& p1, const wmath::WPosition& p2 ) const
+inline double WGaussProcess::cov( const WPosition& p1, const WPosition& p2 ) const
 {
     return cov_s( p1, p2 ); // not implemented the cov_d yet: + cov_d( p1, p2 );
 }

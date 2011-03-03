@@ -232,7 +232,20 @@ protected:
      */
     void propertyChanged( boost::shared_ptr< WPropertyBase > property );
 
+    // in case of a nifti file, there may be several transforms specified in the file
+    //! a standard transform (should be an identity transform)
+    WMatrix< double > m_transformNoMatrix;
+
+    //! a standard transform (should be an identity transform)
+    WMatrix< double > m_transformSForm;
+
+    //! a standard transform (should be an identity transform)
+    WMatrix< double > m_transformQForm;
+
 private:
+
+    //! a condition for the matrix selection
+    boost::shared_ptr< WCondition > m_propCondition;
 
     /**
      * Get a string for the datatype of the given dataset.

@@ -48,19 +48,19 @@ public:
      * \param minPos Left, lower, front corner. Minimal x, y and z coordinates.
      * \param maxPos Right, upper, back corner. Maximal x, y and z coordinates.
      */
-    WROIBox(  wmath::WPosition minPos, wmath::WPosition maxPos );
+    WROIBox(  WPosition minPos, WPosition maxPos );
 
     virtual ~WROIBox();
 
     /**
      * Get the corner of the box that has minimal x, y and z values
      */
-    wmath::WPosition getMinPos() const;
+    WPosition getMinPos() const;
 
     /**
      * Get the corner of the box that has maximal x, y and z values
      */
-    wmath::WPosition getMaxPos() const;
+    WPosition getMaxPos() const;
 
     /**
      * Setter for standard color
@@ -79,11 +79,11 @@ private:
     static size_t maxBoxId; //!< Current maximum boxId over all boxes.
     size_t boxId; //!< Id of the current box.
 
-    wmath::WPosition m_minPos; //!< The minimum position of the box
-    wmath::WPosition m_maxPos; //!< The maximum position of the box
+    WPosition m_minPos; //!< The minimum position of the box
+    WPosition m_maxPos; //!< The maximum position of the box
     bool m_isPicked; //!< Indicates whether the box is currently picked or not.
-    wmath::WPosition m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
-    wmath::WVector3D m_pickNormal; //!< Store the normal that occured when the pick action was started.
+    WPosition m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
+    WVector3D m_pickNormal; //!< Store the normal that occured when the pick action was started.
     std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
     osg::ref_ptr< osg::Geometry > m_surfaceGeometry; //!< store this pointer for use in updates

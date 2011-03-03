@@ -86,12 +86,12 @@ boost::shared_ptr< WPrototyped > WEEG::getPrototype()
 }
 
 
-WEEGElectrodeObject::WEEGElectrodeObject( wmath::WPosition position ):
+WEEGElectrodeObject::WEEGElectrodeObject( WPosition position ):
     m_position( position )
 {
 }
 
-wmath::WPosition WEEGElectrodeObject::getPosition() const
+WPosition WEEGElectrodeObject::getPosition() const
 {
     return m_position;
 }

@@ -25,9 +25,10 @@
 
 #include <osg/Geometry>
 
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/exceptions/WTypeMismatch.h"
-#include "../../common/WLogger.h"
 #include "../../common/math/WPosition.h"
+#include "../../common/WLogger.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "WSPSliceGeodeBuilder.h"
 
@@ -57,7 +58,7 @@ WSPSliceGeodeBuilder::WSPSliceGeodeBuilder( ProbTractList probTracts, boost::sha
     m_tractBB.reserve( detTracts->size() );
     for( size_t i = 0; i < detTracts->size(); ++i )
     {
-        m_tractBB.push_back( wmath::computeBoundingBox( ( *detTracts )[i] ) );
+        m_tractBB.push_back( computeBoundingBox( ( *detTracts )[i] ) );
     }
 
     computeSliceBB(); // just to be sure those are initialized, since they may change due to m_slicePos[0], et al. anyway
@@ -184,7 +185,7 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceGeodeBuilder::colorVertices( osg::ref_ptr
 
     for( osg::Vec3Array::const_iterator cit = vertices->begin(); cit != vertices->end(); ++cit )
     {
-        const wmath::WPosition vertex( *cit );
+        const WPosition vertex( *cit );
         vertexColorPerTract.clear();
 
         size_t probTractNum = 0;
@@ -274,7 +275,7 @@ WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsi
             WBoundingBox cBB;
             while( ( k < len ) &&  std::abs( slicePos - fibVerts->at( ( 3 * k ) + sidx + sliceNum ) ) <= maxDistance )
             {
-                wmath::WPosition cv( fibVerts->at( ( 3 * k ) + sidx ),
+                WPosition cv( fibVerts->at( ( 3 * k ) + sidx ),
                             fibVerts->at( ( 3 * k ) + sidx + 1 ),
                             fibVerts->at( ( 3 * k ) + sidx + 2 ) );
                 candidate->push_back( cv );

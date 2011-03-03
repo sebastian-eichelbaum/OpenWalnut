@@ -48,6 +48,17 @@ class WDataTexture3D_2;
 class OWDATAHANDLER_EXPORT WDataSetSingle : public WDataSet // NOLINT
 {
 public:
+
+    /**
+     * Convenience typedef for a boost::shared_ptr
+     */
+    typedef boost::shared_ptr< WDataSetSingle > SPtr;
+
+    /**
+     * Convenience typedef for a boost::shared_ptr; const
+     */
+    typedef boost::shared_ptr< const WDataSetSingle > ConstSPtr;
+
     /**
      * Constructs an instance out of a value set and a grid.
      *
@@ -66,6 +77,34 @@ public:
      * Destroys this DataSet instance
      */
     virtual ~WDataSetSingle();
+
+    /**
+     * Creates a copy (clone) of this instance but allows to change the valueset. Unlike copy construction, this is a very useful function if you
+     * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
+     *
+     * \param newValueSet the new valueset.
+     *
+     * \return the clone
+     */
+    virtual WDataSetSingle::SPtr clone( boost::shared_ptr< WValueSetBase > newValueSet ) const;
+
+    /**
+     * Creates a copy (clone) of this instance but allows to change the grid. Unlike copy construction, this is a very useful function if you
+     * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
+     *
+     * \param newGrid the new grid.
+     *
+     * \return the clone
+     */
+    virtual WDataSetSingle::SPtr clone( boost::shared_ptr< WGrid > newGrid ) const;
+
+    /**
+     * Creates a copy (clone) of this instance. Unlike copy construction, this is a very useful function if you
+     * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
+     *
+     * \return the clone
+     */
+    virtual WDataSetSingle::SPtr clone() const;
 
     /**
      * \return Reference to its WValueSet

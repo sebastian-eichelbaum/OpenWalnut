@@ -43,7 +43,7 @@ public:
      * \param pc posterior point
      * \param ihp interhemispherical plane
      */
-    WTalairachConverter( wmath::WVector3D ac, wmath::WVector3D pc, wmath::WVector3D ihp );
+    WTalairachConverter( WVector3D ac, WVector3D pc, WVector3D ihp );
 
     /**
      * destructor
@@ -57,7 +57,7 @@ public:
      *
      * \return vector
      */
-    wmath::WVector3D Canonical2ACPC( const wmath::WVector3D point );
+    WVector3D Canonical2ACPC( const WVector3D point );
 
     /**
      * ACPC2Canonical
@@ -66,7 +66,7 @@ public:
      *
      * \return vector
      */
-    wmath::WVector3D ACPC2Canonical( const wmath::WVector3D point );
+    WVector3D ACPC2Canonical( const WVector3D point );
 
     /**
      * Canonical2Talairach
@@ -75,7 +75,7 @@ public:
      *
      * \return vector
      */
-    wmath::WVector3D Canonical2Talairach( const wmath::WVector3D point );
+    WVector3D Canonical2Talairach( const WVector3D point );
 
     /**
      * Talairach2Canonical
@@ -84,7 +84,7 @@ public:
      *
      * \return vector
      */
-    wmath::WVector3D Talairach2Canonical( const wmath::WVector3D point );
+    WVector3D Talairach2Canonical( const WVector3D point );
 
     /**
      * ACPC2Talairach
@@ -93,7 +93,7 @@ public:
      *
      * \return vector
      */
-    wmath::WVector3D ACPC2Talairach( const wmath::WVector3D point );
+    WVector3D ACPC2Talairach( const WVector3D point );
 
     /**
      * Talairach2ACPC
@@ -102,152 +102,152 @@ public:
      *
      * \return vector
      */
-    wmath::WVector3D Talairach2ACPC( const wmath::WVector3D point );
+    WVector3D Talairach2ACPC( const WVector3D point );
 
     /**
      * getter for ac
      *
      * \return vector
      */
-    wmath::WVector3D getAc() const;
+    WVector3D getAc() const;
 
     /**
      * setter for ac
      *
      * \param ac coordinate of point
      */
-    void setAc( wmath::WVector3D ac );
+    void setAc( WVector3D ac );
 
     /**
      * getter for pc
      *
      * \return vector
      */
-    wmath::WVector3D getPc() const;
+    WVector3D getPc() const;
 
     /**
      * setter for pc
      *
      * \param pc coordinate of point
      */
-    void setPc( wmath::WVector3D pc );
+    void setPc( WVector3D pc );
 
     /**
      * getter for ihp
      *
      * \return vector
      */
-    wmath::WVector3D getIhp() const;
+    WVector3D getIhp() const;
 
     /**
      * setter for ihp
      *
      * \param ihp coordinate of point
      */
-    void setIhp( wmath::WVector3D ihp );
+    void setIhp( WVector3D ihp );
 
     /**
      * getter for ap
      *
      * \return vector
      */
-    wmath::WVector3D getAp() const;
+    WVector3D getAp() const;
 
     /**
      * setter for ap
      *
      * \param ap coordinate of point
      */
-    void setAp( wmath::WVector3D ap );
+    void setAp( WVector3D ap );
 
     /**
      * getter for pp
      *
      * \return vector
      */
-    wmath::WVector3D getPp() const;
+    WVector3D getPp() const;
 
     /**
      * setter for pp
      *
      * \param pp coordinate of point
      */
-    void setPp( wmath::WVector3D pp );
+    void setPp( WVector3D pp );
 
     /**
      * getter for sp
      *
      * \return vector
      */
-    wmath::WVector3D getSp() const;
+    WVector3D getSp() const;
 
     /**
      * setter for sp
      *
      * \param sp coordinate of point
      */
-    void setSp( wmath::WVector3D sp );
+    void setSp( WVector3D sp );
 
     /**
      * getter for ip
      *
      * \return vector
      */
-    wmath::WVector3D getIp() const;
+    WVector3D getIp() const;
 
     /**
      * setter for ip
      *
      * \param ip coordinate of point
      */
-    void setIp( wmath::WVector3D ip );
+    void setIp( WVector3D ip );
 
     /**
      * getter for rp
      *
      * \return vector
      */
-    wmath::WVector3D getRp() const;
+    WVector3D getRp() const;
 
     /**
      * setter for rp
      *
      * \param rp coordinate of point
      */
-    void setRp( wmath::WVector3D rp );
+    void setRp( WVector3D rp );
 
     /**
      * getter for lp
      *
      * \return vector
      */
-    wmath::WVector3D getLp() const;
+    WVector3D getLp() const;
 
     /**
      * setter for lp
      *
      * \param lp coordinate of point
      */
-    void setLp( wmath::WVector3D lp );
+    void setLp( WVector3D lp );
 
     /**
      * getter for the rotation matrix
      *
      * \return the rotation matrix
      */
-    wmath::WMatrix<double> getRotMat();
+    WMatrix<double> getRotMat();
 
     /**
      * getter for the inverted rotation matrix
      *
      * \return the inverted rotation matrix
      */
-    wmath::WMatrix<double> getInvRotMat();
+    WMatrix<double> getInvRotMat();
 
     /**
      * projected interhemispherical point
      */
-    wmath::WVector3D m_ihp_proj;
+    WVector3D m_ihp_proj;
 protected:
 private:
     /**
@@ -255,19 +255,19 @@ private:
      */
     void defineRotationMatrix();
 
-    wmath::WMatrix<double> m_rotMat; //!< the rotation matrix
-    wmath::WMatrix<double> m_rotMatInvert; //!< the inverted rotation matrix
+    WMatrix<double> m_rotMat; //!< the rotation matrix
+    WMatrix<double> m_rotMatInvert; //!< the inverted rotation matrix
 
-    wmath::WVector3D m_ac; //!< anterior commisure
-    wmath::WVector3D m_pc; //!< inferior commisure
-    wmath::WVector3D m_ihp; //!< inter hemispherical point
+    WVector3D m_ac; //!< anterior commisure
+    WVector3D m_pc; //!< inferior commisure
+    WVector3D m_ihp; //!< inter hemispherical point
 
-    wmath::WVector3D m_ap; //!< anterior point
-    wmath::WVector3D m_pp; //!< posterior point
-    wmath::WVector3D m_sp; //!< superior point
-    wmath::WVector3D m_ip; //!< inferior point
-    wmath::WVector3D m_rp; //!< right point
-    wmath::WVector3D m_lp; //!< left point
+    WVector3D m_ap; //!< anterior point
+    WVector3D m_pp; //!< posterior point
+    WVector3D m_sp; //!< superior point
+    WVector3D m_ip; //!< inferior point
+    WVector3D m_rp; //!< right point
+    WVector3D m_lp; //!< left point
 };
 
 #endif  // WTALAIRACHCONVERTER_H

@@ -82,7 +82,7 @@ std::string WEEGChannelInfo::getLabel() const
     return m_label;
 }
 
-wmath::WPosition WEEGChannelInfo::getPosition() const throw( WDHException )
+WPosition WEEGChannelInfo::getPosition() const throw( WDHException )
 {
     if( m_hasPosition )
     {

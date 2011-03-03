@@ -34,8 +34,6 @@
 
 #include "WTalairachConverter.h"
 
-using wmath::WMatrix;
-using wmath::WVector3D;
 
 typedef enum
 {
@@ -78,7 +76,7 @@ public:
      * Transforms world coordinates.
      * \param point The point which will be transformed.
      */
-    wmath::WVector3D worldCoordTransformed( wmath::WPosition point );
+    WVector3D worldCoordTransformed( WPosition point );
 
     /**
      * Gets the bounding box
@@ -171,11 +169,11 @@ public:
 
 protected:
 private:
-    wmath::WMatrix<double> m_rotMat; //!< the rotation matrix to use
+    WMatrix<double> m_rotMat; //!< the rotation matrix to use
 
-    wmath::WVector3D m_origin; //!< the offset to the point of origin
+    WVector3D m_origin; //!< the offset to the point of origin
 
-    wmath::WVector3D m_scale; //!< scaling of voxels
+    WVector3D m_scale; //!< scaling of voxels
 
     WBoundingBox m_boundingBox; //!< bounding box of the wholy volume as provided by the dataset
 

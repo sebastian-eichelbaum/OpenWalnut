@@ -80,6 +80,15 @@ namespace wge
     osg::ref_ptr< osg::Geometry > WGE_EXPORT createUnitCube( const WColor& color );
 
     /**
+     * Creates a osg::Geometry containing an unit cube as line-strips, having 3D texture coordinates.
+     *
+     * \param color the color to set for all vertices
+     *
+     * \return the geometry
+     */
+    osg::ref_ptr< osg::Geometry > WGE_EXPORT createUnitCubeAsLines( const WColor& color );
+
+    /**
      * Extract the vertices and triangles from a WTriangleMesh and save them
      * into an osg::Geometry.
      *
@@ -99,7 +108,7 @@ namespace wge
      *
      * \return The new assembled geode for this line
      */
-    osg::ref_ptr< osg::Geode > WGE_EXPORT generateLineStripGeode( const wmath::WLine& line,
+    osg::ref_ptr< osg::Geode > WGE_EXPORT generateLineStripGeode( const WLine& line,
                                                                   const float thickness = 3.0f,
                                                                   const WColor& color = WColor( 0, 0, 0, 0 ) );
 
@@ -165,7 +174,7 @@ namespace wge
      * \param points Center point of the cubes
      * \param size The size of the cubes
      * \param color The color of the cubes
-     * \tparam An STL container with wmath::WPositions as elements ( don't try it with different than vector, set, list or queue )
+     * \tparam An STL container with WPositions as elements ( don't try it with different than vector, set, list or queue )
      *
      * \return Geode with as many cubes as points in the container where each cube is around a certain position.
      */
@@ -185,18 +194,18 @@ template< class Container > inline osg::ref_ptr< osg::Geode > wge::genPointBlobs
 
     for( typename Container::const_iterator point = points->begin(); point != points->end(); ++point )
     {
-        const wmath::WPosition& pos = *point;
-        std::vector< wmath::WPosition > corners;
+        const WPosition& pos = *point;
+        std::vector< WPosition > corners;
         corners.reserve( 8 );
         double halfSize = size / 2.0;
-        corners.push_back( wmath::WPosition( pos[0] - halfSize, pos[1] - halfSize, pos[2] - halfSize ) );
-        corners.push_back( wmath::WPosition( pos[0] + halfSize, pos[1] - halfSize, pos[2] - halfSize ) );
-        corners.push_back( wmath::WPosition( pos[0] + halfSize, pos[1] - halfSize, pos[2] + halfSize ) );
-        corners.push_back( wmath::WPosition( pos[0] - halfSize, pos[1] - halfSize, pos[2] + halfSize ) );
-        corners.push_back( wmath::WPosition( pos[0] - halfSize, pos[1] + halfSize, pos[2] - halfSize ) );
-        corners.push_back( wmath::WPosition( pos[0] + halfSize, pos[1] + halfSize, pos[2] - halfSize ) );
-        corners.push_back( wmath::WPosition( pos[0] + halfSize, pos[1] + halfSize, pos[2] + halfSize ) );
-        corners.push_back( wmath::WPosition( pos[0] - halfSize, pos[1] + halfSize, pos[2] + halfSize ) );
+        corners.push_back( WPosition( pos[0] - halfSize, pos[1] - halfSize, pos[2] - halfSize ) );
+        corners.push_back( WPosition( pos[0] + halfSize, pos[1] - halfSize, pos[2] - halfSize ) );
+        corners.push_back( WPosition( pos[0] + halfSize, pos[1] - halfSize, pos[2] + halfSize ) );
+        corners.push_back( WPosition( pos[0] - halfSize, pos[1] - halfSize, pos[2] + halfSize ) );
+        corners.push_back( WPosition( pos[0] - halfSize, pos[1] + halfSize, pos[2] - halfSize ) );
+        corners.push_back( WPosition( pos[0] + halfSize, pos[1] + halfSize, pos[2] - halfSize ) );
+        corners.push_back( WPosition( pos[0] + halfSize, pos[1] + halfSize, pos[2] + halfSize ) );
+        corners.push_back( WPosition( pos[0] - halfSize, pos[1] + halfSize, pos[2] + halfSize ) );
 
         osg::ref_ptr< osg::Vec3Array > ver = generateCuboidQuads( corners );
         vertices->insert( vertices->end(), ver->begin(), ver->end() );

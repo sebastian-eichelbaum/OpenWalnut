@@ -85,7 +85,7 @@ public:
      */
     template< typename T >
     boost::shared_ptr< WTriangleMesh > generateSurface(  size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
-                                                          const wmath::WMatrix< double >& mat,
+                                                          const WMatrix< double >& mat,
                                                           const std::vector< T >* vals,
                                                           double isoValue );
 
@@ -101,7 +101,7 @@ public:
      * \param isoValue The surface will run through all positions with this value.
      */
     boost::shared_ptr< WTriangleMesh > genSurfaceOneValue(  size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
-                                                              const wmath::WMatrix< double >& mat,
+                                                              const WMatrix< double >& mat,
                                                               const std::vector< size_t >* vals,
                                                               size_t isoValue );
 
@@ -131,14 +131,14 @@ private:
 
     double m_tIsoLevel;  //!< The isovalue.
 
-    wmath::WMatrix< double > m_matrix; //!< The 4x4 transformation matrix for the triangle vertices.
+    WMatrix< double > m_matrix; //!< The 4x4 transformation matrix for the triangle vertices.
 
     ID2WMLPointXYZId m_idToVertices;  //!< List of WPointXYZIds which form the isosurface.
     WMLTriangleVECTOR m_trivecTriangles;  //!< List of WMCTriangleS which form the triangulation of the isosurface.
 };
 
 template<typename T> boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::generateSurface( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
-                                                                                                 const wmath::WMatrix< double >& mat,
+                                                                                                 const WMatrix< double >& mat,
                                                                                                  const std::vector< T >* vals,
                                                                                                  double isoValue )
 {
@@ -239,12 +239,12 @@ template<typename T> boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::ge
     ID2WMLPointXYZId::iterator mapIterator = m_idToVertices.begin();
     while ( mapIterator != m_idToVertices.end() )
     {
-        wmath::WPosition texCoord = wmath::WPosition( mapIterator->second.x / nbCoordsX,
+        WPosition texCoord = WPosition( mapIterator->second.x / nbCoordsX,
                                                       mapIterator->second.y / nbCoordsY,
                                                       mapIterator->second.z / nbCoordsZ );
 
         // transform from grid coordinate system to world coordinates
-        wmath::WPosition pos = wmath::WPosition( mapIterator->second.x, mapIterator->second.y, mapIterator->second.z );
+        WPosition pos = WPosition( mapIterator->second.x, mapIterator->second.y, mapIterator->second.z );
 
         std::vector< double > resultPos4D( 4 );
         resultPos4D[0] = m_matrix( 0, 0 ) * pos[0] + m_matrix( 0, 1 ) * pos[1] + m_matrix( 0, 2 ) * pos[2] + m_matrix( 0, 3 ) * 1;

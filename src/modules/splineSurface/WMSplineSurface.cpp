@@ -119,7 +119,7 @@ void WMSplineSurface::moduleMain()
         WSurface surf;
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
-        std::vector< wmath::WVector3D > givenPoints;
+        std::vector< WVector3D > givenPoints;
         for( int y = 0; y < 11; ++y )
         {
             for( int z = 0; z < 11; ++z )
@@ -129,7 +129,7 @@ void WMSplineSurface::moduleMain()
                 float yy = pi2 * y / 10.;
                 float zz = pi2 * z / 10.;
 
-                wmath::WVector3D p;
+                WVector3D p;
                 p[0] = 60. + sin( yy ) * 10 + cos( zz ) * 10;
                 p[1] = y * 20.;
                 p[2] = z * 16.;
@@ -385,7 +385,7 @@ bool WMSplineSurface::save() const
     //    dataFile << ( "ASCII\n" );
     //    dataFile << ( "DATASET UNSTRUCTURED_GRID\n" );
     //
-    //    wmath::WPosition point;
+    //    WPosition point;
     //    dataFile << "POINTS " << m_triMesh->vertSize() << " float\n";
     //    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     //    {
@@ -486,7 +486,7 @@ void WMSplineSurface::updateGraphics()
                     for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
                     {
                         osg::Vec3 vertPos = m_triMesh->getVertex( i );
-                        texCoords->push_back( grid->worldCoordToTexCoord( wmath::WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) );
                     }
                     surfaceGeometry->setTexCoordArray( c, texCoords );
                 }

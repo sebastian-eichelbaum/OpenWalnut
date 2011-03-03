@@ -212,28 +212,15 @@ void WMWriteNIfTI::writeToFile()
     // a description max. 80 char
     description.copy( outField->descrip, 80 );
 
-
-    int i = grid->getActiveMatrix();
-    grid->setActiveMatrix( 1 );
-    wmath::WMatrix< double > matrix = grid->getTransformationMatrix();
+    WMatrix< double > matrix = grid->getTransformationMatrix();
     for( size_t i = 0; i < 4; ++i )
     {
         for( size_t j = 0; j < 4; ++j )
         {
             outField->qto_xyz.m[i][j] = matrix( i, j );
-        }
-    }
-
-    grid->setActiveMatrix( 2 );
-    matrix = grid->getTransformationMatrix();
-    for( size_t i = 0; i < 4; ++i )
-    {
-        for( size_t j = 0; j < 4; ++j )
-        {
             outField->sto_xyz.m[i][j] = matrix( i, j );
         }
     }
-    grid->setActiveMatrix( i );
 
     {
         float dx, dy, dz;

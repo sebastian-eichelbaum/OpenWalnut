@@ -45,7 +45,7 @@ public:
      *
      * \param positions mapping from labels to positions
      */
-    explicit WEEGPositionsLibrary( const std::map< std::string, wmath::WPosition >& positions );
+    explicit WEEGPositionsLibrary( const std::map< std::string, WPosition >& positions );
 
     /**
      * Get the position of an electrode with the given label
@@ -53,11 +53,11 @@ public:
      * \param label label of the electrode
      * \return position of the electrode
      */
-    wmath::WPosition getPosition( std::string label ) const throw( WOutOfBounds );
+    WPosition getPosition( std::string label ) const throw( WOutOfBounds );
 
 protected:
 private:
-    std::map< std::string, wmath::WPosition > m_positions; //!< mapping from labels to positions
+    std::map< std::string, WPosition > m_positions; //!< mapping from labels to positions
 };
 
 #endif  // WEEGPOSITIONSLIBRARY_H

@@ -41,6 +41,16 @@ class WGE_EXPORT WGELabel: public osgText::Text,
 public:
 
     /**
+     * Convenience typedef for a osg::ref_ptr< WGELabel >.
+     */
+    typedef osg::ref_ptr< WGELabel > SPtr;
+
+    /**
+     * Convenience typedef for a osg::ref_ptr< const WGELabel >.
+     */
+    typedef osg::ref_ptr< const WGELabel > ConstSPtr;
+
+    /**
      * Default constructor.
      */
     WGELabel();

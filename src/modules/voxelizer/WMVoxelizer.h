@@ -30,12 +30,13 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../dataHandler/WDataSetScalar.h"
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "WBresenhamDBL.h"
-#include "WRasterAlgorithm.h"
+
+class WBresenhamDBL;
+class WDataSetScalar;
+class WFiberCluster;
+class WRasterAlgorithm;
+template< class T > class WModuleInputData;
 
 /**
  * Traces a given set of deterministic tracts as given by a WFiberCluster in a voxel-wise manner.

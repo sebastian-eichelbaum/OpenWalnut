@@ -981,13 +981,7 @@ void WMClusterDisplay::dendrogramClick( WPickInfo pickInfo )
 void WMClusterDisplay::createFiberGeode()
 {
     m_fiberDrawable = osg::ref_ptr< WFiberDrawable >( new WFiberDrawable );
-    m_fiberDrawable->setBoundingBox( osg::BoundingBox( m_dataSet->getBoundingBox().first[0],
-                                                       m_dataSet->getBoundingBox().first[1],
-                                                       m_dataSet->getBoundingBox().first[2],
-                                                       m_dataSet->getBoundingBox().second[0],
-                                                       m_dataSet->getBoundingBox().second[1],
-                                                       m_dataSet->getBoundingBox().second[2] ) );
-
+    m_fiberDrawable->setBound( m_dataSet->getBoundingBox().toOSGBB() );
     m_fiberDrawable->setStartIndexes( m_dataSet->getLineStartIndexes() );
     m_fiberDrawable->setPointsPerLine( m_dataSet->getLineLengths() );
     m_fiberDrawable->setVerts( m_dataSet->getVertices() );

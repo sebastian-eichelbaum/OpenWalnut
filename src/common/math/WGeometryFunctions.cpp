@@ -27,7 +27,7 @@
 
 #include "WGeometryFunctions.h"
 
-void wmath::tesselateIcosahedron( std::vector< WVector3D >* vertices, std::vector< unsigned int >* triangles, unsigned int level )
+void tesselateIcosahedron( std::vector< WVector3D >* vertices, std::vector< unsigned int >* triangles, unsigned int level )
 {
     WAssert( vertices, "Missing input vector." );
     WAssert( triangles, "Missing input vector." );

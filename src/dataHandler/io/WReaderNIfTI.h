@@ -64,6 +64,27 @@ public:
      */
     virtual boost::shared_ptr< WDataSet > load( DataSetType dataSetType = W_DATASET_NONE  );
 
+    /**
+     * Returns a standard transformation.
+     *
+     * \return A Wmatrix that represents the dataset's transformation.
+     */
+    WMatrix< double > getStandardTransform() const;
+
+    /**
+     * Returns the SForm transformation stored in the nifti file's header.
+     *
+     * \return A Wmatrix that represents the dataset's transformation.
+     */
+    WMatrix< double > getSFormTransform() const;
+
+    /**
+     * Returns the QForm transformation stored in the nifti file's header.
+     *
+     * \return A Wmatrix that represents the dataset's transformation.
+     */
+    WMatrix< double > getQFormTransform() const;
+
 protected:
 private:
     /**
@@ -80,7 +101,13 @@ private:
      * used by OpenWalnut.
      * \param in this matrix will be converted.
      */
-    wmath::WMatrix< double > convertMatrix( const mat44& in );
+    WMatrix< double > convertMatrix( const mat44& in );
+
+    //! the sform transform stored in the file header
+    WMatrix< double > m_sform;
+
+    //! the qform transform stored in the file header
+    WMatrix< double > m_qform;
 };
 
 #endif  // WREADERNIFTI_H

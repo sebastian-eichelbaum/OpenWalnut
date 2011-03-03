@@ -459,6 +459,8 @@ void WMSuperquadricGlyphs::moduleMain()
             m_nbGlyphsY = m_maxX * m_maxZ;
             m_nbGlyphsZ = m_maxX * m_maxY;
 
+            m_output->setMatrix( m_dataSetGrid->getTransform() );
+
             // new data -> update OSG Stuff
             initOSG();
             progress1->finish();

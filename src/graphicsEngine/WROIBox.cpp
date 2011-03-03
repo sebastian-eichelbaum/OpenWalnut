@@ -98,7 +98,7 @@ void buildLinesFromPoints( osg::DrawElementsUInt* surfaceElements )
     surfaceElements->push_back( 5 );
 }
 
-void setVertices( osg::Vec3Array* vertices, wmath::WPosition minPos, wmath::WPosition maxPos )
+void setVertices( osg::Vec3Array* vertices, WPosition minPos, WPosition maxPos )
 {
     vertices->push_back( osg::Vec3( minPos[0], minPos[1], minPos[2] ) );
     vertices->push_back( osg::Vec3( minPos[0], minPos[1], maxPos[2] ) );
@@ -110,10 +110,10 @@ void setVertices( osg::Vec3Array* vertices, wmath::WPosition minPos, wmath::WPos
     vertices->push_back( osg::Vec3( maxPos[0], maxPos[1], maxPos[2] ) );
 }
 
-WROIBox::WROIBox( wmath::WPosition minPos, wmath::WPosition maxPos ) :
+WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     WROI(),
     boxId( maxBoxId++ ),
-    m_pickNormal( wmath::WVector3D() ),
+    m_pickNormal( WVector3D() ),
     m_oldPixelPosition( std::make_pair( 0, 0 ) ),
     m_color( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) ),
     m_notColor( osg::Vec4( 1.0f, 0.0f, 0.0f, 0.4f ) )
@@ -193,12 +193,12 @@ WROIBox::~WROIBox()
 //    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_geode );
 }
 
-wmath::WPosition WROIBox::getMinPos() const
+WPosition WROIBox::getMinPos() const
 {
     return m_minPos;
 }
 
-wmath::WPosition WROIBox::getMaxPos() const
+WPosition WROIBox::getMaxPos() const
 {
     return m_maxPos;
 }
@@ -228,8 +228,8 @@ void WROIBox::updateGFX()
             osg::Vec3 in( newPixelPos.first, newPixelPos.second, 0.0 );
             osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
 
-            wmath::WPosition newPixelWorldPos( world[0], world[1], world[2] );
-            wmath::WPosition oldPixelWorldPos;
+            WPosition newPixelWorldPos( world[0], world[1], world[2] );
+            WPosition oldPixelWorldPos;
             if(  m_oldPixelPosition.first == 0 && m_oldPixelPosition.second == 0 )
             {
                 oldPixelWorldPos = newPixelWorldPos;
@@ -238,10 +238,10 @@ void WROIBox::updateGFX()
             {
                 osg::Vec3 in( m_oldPixelPosition.first, m_oldPixelPosition.second, 0.0 );
                 osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
-                oldPixelWorldPos = wmath::WPosition( world[0], world[1], world[2] );
+                oldPixelWorldPos = WPosition( world[0], world[1], world[2] );
             }
 
-            wmath::WVector3D moveVec = newPixelWorldPos - oldPixelWorldPos;
+            WVector3D moveVec = newPixelWorldPos - oldPixelWorldPos;
 
             osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
 
@@ -314,7 +314,7 @@ void WROIBox::updateGFX()
             colors->push_back( m_color );
         }
         m_surfaceGeometry->setColorArray( colors );
-        m_pickNormal = wmath::WVector3D();
+        m_pickNormal = WVector3D();
         m_isPicked = false;
     }
 

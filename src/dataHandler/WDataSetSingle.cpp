@@ -77,6 +77,21 @@ WDataSetSingle::~WDataSetSingle()
 {
 }
 
+WDataSetSingle::SPtr WDataSetSingle::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetSingle( newValueSet, getGrid() ) );
+}
+
+WDataSetSingle::SPtr WDataSetSingle::clone( boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetSingle( getValueSet(), newGrid ) );
+}
+
+WDataSetSingle::SPtr WDataSetSingle::clone() const
+{
+    return WDataSetSingle::SPtr( new WDataSetSingle( getValueSet(), getGrid() ) );
+}
+
 boost::shared_ptr< WValueSetBase > WDataSetSingle::getValueSet() const
 {
     return m_valueSet;
@@ -90,7 +105,7 @@ boost::shared_ptr< WGrid > WDataSetSingle::getGrid() const
 bool WDataSetSingle::isTexture() const
 {
     // TODO(all): this is not sophisticated. This should depend on type of data (vectors? scalars? tensors?)
-    return true;
+    return m_texture;
 }
 
 boost::shared_ptr< WDataTexture3D > WDataSetSingle::getTexture()
@@ -154,3 +169,4 @@ double WDataSetSingle::getValueAt( size_t id ) const
 
     return 0.0; // should not be reached. Just there to quiet compiler.
 }
+

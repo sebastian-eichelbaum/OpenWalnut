@@ -30,10 +30,7 @@
 #include "../WExportWGE.h"
 
 class WItemSelector;
-namespace wmath
-{
-    class WVector3D;
-}
+class WVector3D;
 
 namespace wge
 {
@@ -70,7 +67,7 @@ namespace wge
      * Maps WVector3D/WPosition to osg::Vec3.
      */
     template<>
-    class WGE_EXPORT UniformType< wmath::WVector3D >
+    class WGE_EXPORT UniformType< WVector3D >
     {
     public:
         /**

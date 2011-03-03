@@ -33,11 +33,11 @@
 
 #include "WGEUtils.h"
 
-osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< wmath::WPosition >& posArray )
+osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< WPosition >& posArray )
 {
     osg::ref_ptr< osg::Vec3Array > result = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     result->reserve( posArray.size() );
-    std::vector< wmath::WPosition >::const_iterator cit;
+    std::vector< WPosition >::const_iterator cit;
     for( cit = posArray.begin(); cit != posArray.end(); ++cit )
     {
         result->push_back( *cit );

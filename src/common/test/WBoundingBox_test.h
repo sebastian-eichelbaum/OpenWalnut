@@ -47,7 +47,7 @@ public:
         WBoundingBox bb( 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
         WBoundingBox bb1( bb );
         WBoundingBox bb2;
-        WBoundingBox bb3( wmath::WVector3D( 0.0, 0.0, 0.0 ), wmath::WVector3D( 1.0, 1.0, 1.0 ) );
+        WBoundingBox bb3( WVector3D( 0.0, 0.0, 0.0 ), WVector3D( 1.0, 1.0, 1.0 ) );
         WBoundingBox bb4( osg::Vec3d( 0.0, 0.0, 0.0 ), osg::Vec3d( 1.0, 1.0, 1.0 ) );
         bb4.expandBy( bb3 );
         TS_ASSERT( bb4.intersects( bb3 ) );
@@ -84,7 +84,7 @@ public:
     {
         WBoundingBox box;
         TS_ASSERT( !box.valid() );
-        box.expandBy( wmath::WPosition( 0.0, 0.0, 0.0 ) );
+        box.expandBy( WPosition( 0.0, 0.0, 0.0 ) );
         TS_ASSERT( box.valid() );
         TS_ASSERT_DELTA( box.xMin(), 0.0, wlimits::DBL_EPS );
         TS_ASSERT_DELTA( box.yMin(), 0.0, wlimits::DBL_EPS );
@@ -92,9 +92,9 @@ public:
         TS_ASSERT_DELTA( box.xMax(), 0.0, wlimits::DBL_EPS );
         TS_ASSERT_DELTA( box.yMax(), 0.0, wlimits::DBL_EPS );
         TS_ASSERT_DELTA( box.zMax(), 0.0, wlimits::DBL_EPS );
-        box.expandBy( wmath::WPosition(  1.0, 0.0, 0.0 ) );
-        box.expandBy( wmath::WPosition( -1.0, 0.0, 0.0 ) );
-        box.expandBy( wmath::WPosition( -1.0, 3.0, 0.0 ) );
+        box.expandBy( WPosition(  1.0, 0.0, 0.0 ) );
+        box.expandBy( WPosition( -1.0, 0.0, 0.0 ) );
+        box.expandBy( WPosition( -1.0, 3.0, 0.0 ) );
         TS_ASSERT_DELTA( box.xMin(), -1.0, wlimits::DBL_EPS );
         TS_ASSERT_DELTA( box.yMin(),  0.0, wlimits::DBL_EPS );
         TS_ASSERT_DELTA( box.zMin(),  0.0, wlimits::DBL_EPS );

@@ -61,7 +61,7 @@ void WRasterAlgorithm::addParameterizationAlgorithm( boost::shared_ptr< WRasterP
     lock.unlock();
 }
 
-void WRasterAlgorithm::newLine( const wmath::WLine& line )
+void WRasterAlgorithm::newLine( const WLine& line )
 {
     // NOTE: the list already is locked (in raster method, hopefully)
     for ( size_t i = 0; i < m_parameterizations.size(); ++i )
@@ -70,7 +70,7 @@ void WRasterAlgorithm::newLine( const wmath::WLine& line )
     }
 }
 
-void WRasterAlgorithm::newSegment( const wmath::WPosition& start, const wmath::WPosition& end )
+void WRasterAlgorithm::newSegment( const WPosition& start, const WPosition& end )
 {
     // NOTE: the list already is locked (in raster method, hopefully)
     for ( size_t i = 0; i < m_parameterizations.size(); ++i )
@@ -79,9 +79,9 @@ void WRasterAlgorithm::newSegment( const wmath::WPosition& start, const wmath::W
     }
 }
 
-void WRasterAlgorithm::parameterizeVoxel( const wmath::WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
-                                    const wmath::WPosition& start,
-                                    const wmath::WPosition& end )
+void WRasterAlgorithm::parameterizeVoxel( const WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
+                                    const WPosition& start,
+                                    const WPosition& end )
 {
     // NOTE: the list already is locked (in raster method, hopefully)
     for ( size_t i = 0; i < m_parameterizations.size(); ++i )

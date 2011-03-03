@@ -88,20 +88,20 @@ public:
     void testCenterLine( void )
     {
         WFiber expected;
-        expected.push_back( wmath::WPosition( 0,                                                                                           1, 0 ) );
+        expected.push_back( WPosition( 0,                                                                                           1, 0 ) );
 #ifndef _MSC_VER
-        expected.push_back( wmath::WPosition( ( ( 9.0 - 3 * std::sqrt( 2 ) ) / 4.0 - 1.0 ) / 2.0 + 1,                                    1.5, 0 ) );
-        expected.push_back( wmath::WPosition( ( ( 9.0 - 3 * std::sqrt( 2 ) ) / 4.0 + ( 5 + std::sqrt( 2 ) ) / 4.0 - 2.0 ) / 2.0 + 2,     1.5, 0 ) );
-        expected.push_back( wmath::WPosition( ( ( 9.0 - 3 * std::sqrt( 2 ) ) / 4.0 + 2 * ( 5 + std::sqrt( 2 ) ) / 4.0 - 3.0 ) / 2.0 + 3, 1.5, 0 ) );
-        expected.push_back( wmath::WPosition( 5,                                                                                         1.5, 0 ) );
+        expected.push_back( WPosition( ( ( 9.0 - 3 * std::sqrt( 2 ) ) / 4.0 - 1.0 ) / 2.0 + 1,                                    1.5, 0 ) );
+        expected.push_back( WPosition( ( ( 9.0 - 3 * std::sqrt( 2 ) ) / 4.0 + ( 5 + std::sqrt( 2 ) ) / 4.0 - 2.0 ) / 2.0 + 2,     1.5, 0 ) );
+        expected.push_back( WPosition( ( ( 9.0 - 3 * std::sqrt( 2 ) ) / 4.0 + 2 * ( 5 + std::sqrt( 2 ) ) / 4.0 - 3.0 ) / 2.0 + 3, 1.5, 0 ) );
+        expected.push_back( WPosition( 5,                                                                                         1.5, 0 ) );
 #else
-        expected.push_back( wmath::WPosition( ( ( 9.0 - 3 * std::sqrt( static_cast< double >( 2 ) ) ) / 4.0 - 1.0 ) / 2.0 + 1,
+        expected.push_back( WPosition( ( ( 9.0 - 3 * std::sqrt( static_cast< double >( 2 ) ) ) / 4.0 - 1.0 ) / 2.0 + 1,
             1.5, 0 ) );
-        expected.push_back( wmath::WPosition( ( ( 9.0 - 3 * std::sqrt( static_cast< double >( 2 ) ) ) / 4.0
+        expected.push_back( WPosition( ( ( 9.0 - 3 * std::sqrt( static_cast< double >( 2 ) ) ) / 4.0
             + ( 5 + std::sqrt( static_cast< double >( 2 ) ) ) / 4.0 - 2.0 ) / 2.0 + 2, 1.5, 0 ) );
-        expected.push_back( wmath::WPosition( ( ( 9.0 - 3 * std::sqrt( static_cast< double >( 2 ) ) ) / 4.0
+        expected.push_back( WPosition( ( ( 9.0 - 3 * std::sqrt( static_cast< double >( 2 ) ) ) / 4.0
             + 2 * ( 5 + std::sqrt( static_cast< double >( 2 ) ) ) / 4.0 - 3.0 ) / 2.0 + 3, 1.5, 0 ) );
-        expected.push_back( wmath::WPosition( 5,                                                                                         1.5, 0 ) );
+        expected.push_back( WPosition( 5,                                                                                         1.5, 0 ) );
 #endif
         m_cluster->generateCenterLine();
         assert_equals_delta( *m_cluster->getCenterLine(), expected, wlimits::FLT_EPS ); // decrese precision since it fails occasionally
@@ -133,21 +133,21 @@ public:
     void testUnifyDirectionOnTwoConsecutiveFibers( void )
     {
         WFiber a;
-        a.push_back( wmath::WPosition(  0, 0, 0 ) );
-        a.push_back( wmath::WPosition(  1, 0, 0 ) );
-        a.push_back( wmath::WPosition(  2, 0, 0 ) );
-        a.push_back( wmath::WPosition(  3, 0, 0 ) );
-        a.push_back( wmath::WPosition(  4, 0, 0 ) );
-        a.push_back( wmath::WPosition(  5, 0, 0 ) );
-        a.push_back( wmath::WPosition(  6, 0, 0 ) );
+        a.push_back( WPosition(  0, 0, 0 ) );
+        a.push_back( WPosition(  1, 0, 0 ) );
+        a.push_back( WPosition(  2, 0, 0 ) );
+        a.push_back( WPosition(  3, 0, 0 ) );
+        a.push_back( WPosition(  4, 0, 0 ) );
+        a.push_back( WPosition(  5, 0, 0 ) );
+        a.push_back( WPosition(  6, 0, 0 ) );
         WFiber b;
-        b.push_back( wmath::WPosition( 10, 0, 0 ) );
-        b.push_back( wmath::WPosition( 11, 0, 0 ) );
-        b.push_back( wmath::WPosition( 12, 0, 0 ) );
-        b.push_back( wmath::WPosition( 13, 0, 0 ) );
-        b.push_back( wmath::WPosition( 14, 0, 0 ) );
-        b.push_back( wmath::WPosition( 15, 0, 0 ) );
-        b.push_back( wmath::WPosition( 16, 0, 0 ) );
+        b.push_back( WPosition( 10, 0, 0 ) );
+        b.push_back( WPosition( 11, 0, 0 ) );
+        b.push_back( WPosition( 12, 0, 0 ) );
+        b.push_back( WPosition( 13, 0, 0 ) );
+        b.push_back( WPosition( 14, 0, 0 ) );
+        b.push_back( WPosition( 15, 0, 0 ) );
+        b.push_back( WPosition( 16, 0, 0 ) );
         WDataSetFiberVector expected;
         expected.push_back( a );
         expected.push_back( b );
@@ -182,19 +182,19 @@ public:
     void testUnifyDirectionOnTwoCSTShapedFibers( void )
     {
         WFiber a;
-        a.push_back( wmath::WPosition(  0,  0, 0 ) );
-        a.push_back( wmath::WPosition(  5,  1, 0 ) );
-        a.push_back( wmath::WPosition(  8,  3, 0 ) );
-        a.push_back( wmath::WPosition( 11,  7, 0 ) );
-        a.push_back( wmath::WPosition( 11, 10, 0 ) );
-        a.push_back( wmath::WPosition( 11, 12, 0 ) );
+        a.push_back( WPosition(  0,  0, 0 ) );
+        a.push_back( WPosition(  5,  1, 0 ) );
+        a.push_back( WPosition(  8,  3, 0 ) );
+        a.push_back( WPosition( 11,  7, 0 ) );
+        a.push_back( WPosition( 11, 10, 0 ) );
+        a.push_back( WPosition( 11, 12, 0 ) );
         WFiber b;
-        b.push_back( wmath::WPosition( 23,  0, 0 ) );
-        b.push_back( wmath::WPosition( 19,  2, 0 ) );
-        b.push_back( wmath::WPosition( 17,  5, 0 ) );
-        b.push_back( wmath::WPosition( 15,  7, 0 ) );
-        b.push_back( wmath::WPosition( 16, 10, 0 ) );
-        b.push_back( wmath::WPosition( 16, 12, 0 ) );
+        b.push_back( WPosition( 23,  0, 0 ) );
+        b.push_back( WPosition( 19,  2, 0 ) );
+        b.push_back( WPosition( 17,  5, 0 ) );
+        b.push_back( WPosition( 15,  7, 0 ) );
+        b.push_back( WPosition( 16, 10, 0 ) );
+        b.push_back( WPosition( 16, 12, 0 ) );
         WDataSetFiberVector expected;
         expected.push_back( a );
         expected.push_back( b );
@@ -228,22 +228,22 @@ public:
     void testUnifyDirectionOnTwoCircularShapedFibersInSameCircle( void )
     {
         WFiber a;
-        a.push_back( wmath::WPosition( 14,  0, 0 ) );
-        a.push_back( wmath::WPosition(  5,  1, 0 ) );
-        a.push_back( wmath::WPosition(  2,  4, 0 ) );
-        a.push_back( wmath::WPosition(  3,  9, 0 ) );
-        a.push_back( wmath::WPosition( 11, 11, 0 ) );
-        a.push_back( wmath::WPosition( 19, 10, 0 ) );
-        a.push_back( wmath::WPosition( 24,  8, 0 ) );
-        a.push_back( wmath::WPosition( 23,  4, 0 ) );
+        a.push_back( WPosition( 14,  0, 0 ) );
+        a.push_back( WPosition(  5,  1, 0 ) );
+        a.push_back( WPosition(  2,  4, 0 ) );
+        a.push_back( WPosition(  3,  9, 0 ) );
+        a.push_back( WPosition( 11, 11, 0 ) );
+        a.push_back( WPosition( 19, 10, 0 ) );
+        a.push_back( WPosition( 24,  8, 0 ) );
+        a.push_back( WPosition( 23,  4, 0 ) );
         WFiber b;
-        b.push_back( wmath::WPosition( 13,  2, 0 ) );
-        b.push_back( wmath::WPosition(  7,  4, 0 ) );
-        b.push_back( wmath::WPosition(  6,  8, 0 ) );
-        b.push_back( wmath::WPosition( 10, 10, 0 ) );
-        b.push_back( wmath::WPosition( 17,  9, 0 ) );
-        b.push_back( wmath::WPosition( 19,  7, 0 ) );
-        b.push_back( wmath::WPosition( 19,  5, 0 ) );
+        b.push_back( WPosition( 13,  2, 0 ) );
+        b.push_back( WPosition(  7,  4, 0 ) );
+        b.push_back( WPosition(  6,  8, 0 ) );
+        b.push_back( WPosition( 10, 10, 0 ) );
+        b.push_back( WPosition( 17,  9, 0 ) );
+        b.push_back( WPosition( 19,  7, 0 ) );
+        b.push_back( WPosition( 19,  5, 0 ) );
         WDataSetFiberVector expected;
         expected.push_back( a );
         expected.push_back( b );
@@ -281,25 +281,25 @@ public:
     void testUnifyDirectionOnTwoCircularShapedFibersInDifferentCircle( void )
     {
         WFiber a;
-        a.push_back( wmath::WPosition(  6,  6, 0 ) );
-        a.push_back( wmath::WPosition(  3,  5, 0 ) );
-        a.push_back( wmath::WPosition(  2,  3, 0 ) );
-        a.push_back( wmath::WPosition(  4,  1, 0 ) );
-        a.push_back( wmath::WPosition(  7,  0, 0 ) );
-        a.push_back( wmath::WPosition( 11,  0, 0 ) );
-        a.push_back( wmath::WPosition( 14,  2, 0 ) );
-        a.push_back( wmath::WPosition( 13,  4, 0 ) );
-        a.push_back( wmath::WPosition( 11,  6, 0 ) );
+        a.push_back( WPosition(  6,  6, 0 ) );
+        a.push_back( WPosition(  3,  5, 0 ) );
+        a.push_back( WPosition(  2,  3, 0 ) );
+        a.push_back( WPosition(  4,  1, 0 ) );
+        a.push_back( WPosition(  7,  0, 0 ) );
+        a.push_back( WPosition( 11,  0, 0 ) );
+        a.push_back( WPosition( 14,  2, 0 ) );
+        a.push_back( WPosition( 13,  4, 0 ) );
+        a.push_back( WPosition( 11,  6, 0 ) );
         WFiber b;
-        b.push_back( wmath::WPosition(  6,  7, 0 ) );
-        b.push_back( wmath::WPosition(  3,  9, 0 ) );
-        b.push_back( wmath::WPosition(  1, 11, 0 ) );
-        b.push_back( wmath::WPosition(  3, 14, 0 ) );
-        b.push_back( wmath::WPosition(  8, 15, 0 ) );
-        b.push_back( wmath::WPosition( 13, 14, 0 ) );
-        b.push_back( wmath::WPosition( 15, 12, 0 ) );
-        b.push_back( wmath::WPosition( 14,  9, 0 ) );
-        b.push_back( wmath::WPosition( 11,  7, 0 ) );
+        b.push_back( WPosition(  6,  7, 0 ) );
+        b.push_back( WPosition(  3,  9, 0 ) );
+        b.push_back( WPosition(  1, 11, 0 ) );
+        b.push_back( WPosition(  3, 14, 0 ) );
+        b.push_back( WPosition(  8, 15, 0 ) );
+        b.push_back( WPosition( 13, 14, 0 ) );
+        b.push_back( WPosition( 15, 12, 0 ) );
+        b.push_back( WPosition( 14,  9, 0 ) );
+        b.push_back( WPosition( 11,  7, 0 ) );
         WDataSetFiberVector expected;
         expected.push_back( a );
         expected.push_back( b );
@@ -334,19 +334,19 @@ public:
     void testUnifyDirectionOnTwoInverseCSTShapedFibers( void )
     {
         WFiber a;
-        a.push_back( wmath::WPosition(  1, 12, 0 ) );
-        a.push_back( wmath::WPosition(  1,  9, 0 ) );
-        a.push_back( wmath::WPosition(  2,  5, 0 ) );
-        a.push_back( wmath::WPosition(  5,  1, 0 ) );
-        a.push_back( wmath::WPosition(  9,  0, 0 ) );
-        a.push_back( wmath::WPosition( 14,  0, 0 ) );
+        a.push_back( WPosition(  1, 12, 0 ) );
+        a.push_back( WPosition(  1,  9, 0 ) );
+        a.push_back( WPosition(  2,  5, 0 ) );
+        a.push_back( WPosition(  5,  1, 0 ) );
+        a.push_back( WPosition(  9,  0, 0 ) );
+        a.push_back( WPosition( 14,  0, 0 ) );
         WFiber b;
-        b.push_back( wmath::WPosition( 19,  0, 0 ) );
-        b.push_back( wmath::WPosition( 24,  0, 0 ) );
-        b.push_back( wmath::WPosition( 29,  2, 0 ) );
-        b.push_back( wmath::WPosition( 32,  5, 0 ) );
-        b.push_back( wmath::WPosition( 33,  8, 0 ) );
-        b.push_back( wmath::WPosition( 33, 12, 0 ) );
+        b.push_back( WPosition( 19,  0, 0 ) );
+        b.push_back( WPosition( 24,  0, 0 ) );
+        b.push_back( WPosition( 29,  2, 0 ) );
+        b.push_back( WPosition( 32,  5, 0 ) );
+        b.push_back( WPosition( 33,  8, 0 ) );
+        b.push_back( WPosition( 33, 12, 0 ) );
         WDataSetFiberVector expected;
         expected.push_back( a );
         expected.push_back( b );
@@ -368,10 +368,10 @@ private:
      * \param second Second line to compare with
      * \param delta The delta within two points are considered as equally
      */
-    void assert_equals_delta( const wmath::WLine& first, const wmath::WLine& second, double delta = wlimits::DBL_EPS ) const
+    void assert_equals_delta( const WLine& first, const WLine& second, double delta = wlimits::DBL_EPS ) const
     {
         int diffPos = 0;
-        if( ( diffPos =  wmath::equalsDelta( first, second, delta ) ) != -1 )
+        if( ( diffPos =  equalsDelta( first, second, delta ) ) != -1 )
         {
             using string_utils::operator<<;
             std::stringstream msg;
@@ -412,17 +412,17 @@ private:
     {
         // generate fiber dataset to operate on
         WFiber fib_a;
-        fib_a.push_back( wmath::WPosition( 0, 0, 0 ) );
-        fib_a.push_back( wmath::WPosition( 1, 1, 0 ) );
-        fib_a.push_back( wmath::WPosition( 2, 1, 0 ) );
-        fib_a.push_back( wmath::WPosition( 3, 1, 0 ) );
-        fib_a.push_back( wmath::WPosition( 4, 1, 0 ) );
-        fib_a.push_back( wmath::WPosition( 5, 1, 0 ) );
-        fib_a.push_back( wmath::WPosition( 6, 1, 0 ) );
+        fib_a.push_back( WPosition( 0, 0, 0 ) );
+        fib_a.push_back( WPosition( 1, 1, 0 ) );
+        fib_a.push_back( WPosition( 2, 1, 0 ) );
+        fib_a.push_back( WPosition( 3, 1, 0 ) );
+        fib_a.push_back( WPosition( 4, 1, 0 ) );
+        fib_a.push_back( WPosition( 5, 1, 0 ) );
+        fib_a.push_back( WPosition( 6, 1, 0 ) );
         WFiber fib_b;
-        fib_b.push_back( wmath::WPosition( 0, 2, 0 ) );
-        fib_b.push_back( wmath::WPosition( 2, 2, 0 ) );
-        fib_b.push_back( wmath::WPosition( 4, 2, 0 ) );
+        fib_b.push_back( WPosition( 0, 2, 0 ) );
+        fib_b.push_back( WPosition( 2, 2, 0 ) );
+        fib_b.push_back( WPosition( 4, 2, 0 ) );
         boost::shared_ptr< WDataSetFiberVector > ds( new WDataSetFiberVector() );
         ds->push_back( fib_a );
         ds->push_back( fib_b );
