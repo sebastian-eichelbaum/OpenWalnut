@@ -185,15 +185,18 @@ void WMProbTractDisplaySP::properties()
 
     m_vectorGroup     = m_properties->addPropertyGroup( "Vector Group", "Parameters for drawing via eigen vectors." );
     m_vectorGroup->addProperty( m_probThreshold ); // this is also needed in this property group
-    WPropInt spacing = m_vectorGroup->addProperty( "Spacing", "Spacing of the sprites", 1, m_sliceChanged );
-    spacing->setMin( 1 );
-    spacing->setMax( 30 );
+    WPropDouble spacing = m_vectorGroup->addProperty( "Spacing", "Spacing of the sprites", 0.5, m_sliceChanged );
+    spacing->setMin( 0.01 );
+    spacing->setMax( 10 );
     WPropDouble glyphSize = m_vectorGroup->addProperty( "Glyph size", "Size of the quads transformed to the glyphs", 0.5 );
-    spacing->setMin( 1.0 );
-    spacing->setMax( 5.0 );
+    glyphSize->setMin( 0.01 );
+    glyphSize->setMax( 3.0 );
     WPropDouble glyphSpacing = m_vectorGroup->addProperty( "Glyph Spacing", "Spacing ", 0.4, m_sliceChanged );
     glyphSpacing->setMin( 0.0 );
     glyphSpacing->setMax( 5.0 );
+    WPropDouble glyphThickness = m_vectorGroup->addProperty( "Glyph Thickness", "Line thickness of the glyphs", 0.2 );
+    glyphThickness->setMin( 0.01 );
+    glyphThickness->setMax( 1.0 );
 
     // call WModule's initialization
     WModule::properties();

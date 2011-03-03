@@ -24,6 +24,8 @@
 
 #version 120
 
+uniform float u_glyphThickness;
+
 float minimum_distance( vec3 v, vec3 w, vec3 p )
 {
   // Return minimum distance between line segment vw and point p
@@ -55,7 +57,7 @@ void main()
     // if( ( length( gl_TexCoord[0] - gl_TexCoord[1] ) + length( gl_TexCoord[0] - gl_TexCoord[2] ) ) < 1.2 )
 
     // line stipple
-    if( minimum_distance( gl_TexCoord[1].xyz, gl_TexCoord[2].xyz, gl_TexCoord[0].xyz ) < 0.2 )
+    if( minimum_distance( gl_TexCoord[1].xyz, gl_TexCoord[2].xyz, gl_TexCoord[0].xyz ) < u_glyphThickness )
     {
         gl_FragColor = gl_Color;
     }

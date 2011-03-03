@@ -43,9 +43,10 @@ WSPSliceBuilderVectors::WSPSliceBuilderVectors( ProbTractList probTracts, WPropG
       m_shader( new WGEShader( "WSPSliceBuilderVectors", shaderPath ) )
 {
     m_probThreshold = vectorGroup->findProperty( "Prob Threshold" )->toPropDouble();
-    m_spacing = vectorGroup->findProperty( "Spacing" )->toPropInt();
+    m_spacing = vectorGroup->findProperty( "Spacing" )->toPropDouble();
     m_glyphSize = vectorGroup->findProperty( "Glyph size" )->toPropDouble();
     m_glyphSpacing = vectorGroup->findProperty( "Glyph Spacing" )->toPropDouble();
+    m_glyphThickness = vectorGroup->findProperty( "Glyph Thickness" )->toPropDouble();
 }
 
 void WSPSliceBuilderVectors::preprocess()
@@ -79,9 +80,9 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Vec3Array > texCoordsPerPrimitive = generateQuadSpanning( activeDims );
     boost::shared_ptr< std::vector< WVector3D > > glyphDirections = generateClockwiseDir( activeDims, m_glyphSpacing->get() );
 
-    for( size_t x = 0; x < numCoords[ activeDims.first ]; x += m_spacing->get() )
+    for( double x = 0.0; x < numCoords[ activeDims.first ]; x += m_spacing->get() )
     {
-        for( size_t y = 0; y < numCoords[ activeDims.second ]; y += m_spacing->get() )
+        for( double y = 0.0; y < numCoords[ activeDims.second ]; y += m_spacing->get() )
         {
             WPosition pos = ( *origin ) + x * ( *a ) + y * ( *b );
 
@@ -130,6 +131,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     m_shader->apply( geode );
 
     geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_glyphSize", m_glyphSize ) );
+    geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_glyphThickness", m_glyphThickness ) );
     osg::StateSet* state = geode->getOrCreateStateSet();
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
     state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );

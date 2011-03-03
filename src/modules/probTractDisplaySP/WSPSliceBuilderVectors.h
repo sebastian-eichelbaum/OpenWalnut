@@ -129,7 +129,7 @@ private:
     /**
      * A reference to the property which denotes the space between the primary quads (aka subdivision).
      */
-    boost::shared_ptr< const WPVInt > m_spacing;
+    boost::shared_ptr< const WPVDouble > m_spacing;
 
     /**
      * A reference to the property which controls the size of the quads.
@@ -145,6 +145,11 @@ private:
      * Spacing between the glyphs around the grid points.
      */
     boost::shared_ptr< const WPVDouble > m_glyphSpacing;
+
+    /**
+     * Thickness of the line used to draw the glyph.
+     */
+    WPropDouble m_glyphThickness;
 
     /**
      * Shading the quads and transform them to the glyphs (line stipples).
