@@ -207,7 +207,10 @@ public:
             WGridTransformOrtho t( mat );
             WVector3D v( 1.0, 1.0, 1.0 );
 
-            TS_ASSERT_EQUALS( WVector3D( 0.0, 7.0, 4.9 ), t.positionToWorldSpace( v ) );
+            WVector3D w = t.positionToWorldSpace( v );
+            TS_ASSERT_DELTA( 0.0, w[ 0 ], 0.0001 );
+            TS_ASSERT_DELTA( 7.0, w[ 1 ], 0.0001 );
+            TS_ASSERT_DELTA( 4.9, w[ 2 ], 0.0001 );
             TS_ASSERT_EQUALS( WVector3D( -1.0, 5.0, 4.4 ), t.directionToWorldSpace( v ) );
         }
     }
