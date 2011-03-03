@@ -110,6 +110,15 @@ private:
     std::pair< unsigned char, unsigned char > computeSliceBase( const unsigned char sliceNum, boost::shared_ptr< WVector3D > origin,
             boost::shared_ptr< WVector3D > a, boost::shared_ptr< WVector3D > b ) const;
 
+    /**
+     * Compute the focal points for ellipsoid generation within the fragment shader. Basically this are just the start and end points of
+     * the principal diffusion direction, e.g. the interpolated vector at that given point projected onto the current slice.
+     *
+     * \param pos Where the interpolation should start
+     * \param sliceNum Which slice to project on
+     *
+     * \return The foci describing the ellipsoid.
+     */
     std::pair< WPosition, WPosition > computeFocalPoints( const WPosition& pos, size_t sliceNum ) const;
 
     /**
