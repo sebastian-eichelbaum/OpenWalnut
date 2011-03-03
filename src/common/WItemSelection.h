@@ -53,6 +53,16 @@ class OWCOMMON_EXPORT WItemSelection: public boost::enable_shared_from_this< WIt
 friend class WItemSelector; // for proper locking and unlocking
 public:
     /**
+     * Convenience typedef for a boost::shared_ptr< WItemSelection >
+     */
+    typedef boost::shared_ptr< WItemSelection > SPtr;
+
+    /**
+     * Convenience typedef for a  boost::shared_ptr< const WItemSelection >
+     */
+    typedef boost::shared_ptr< const WItemSelection > ConstSPtr;
+
+    /**
      * Default constructor.
      */
     WItemSelection();

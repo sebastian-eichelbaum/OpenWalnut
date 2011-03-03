@@ -29,9 +29,6 @@
 
 #include "../WOSSIMHelper.h"
 
-#ifdef OW_USE_OSSIM
-using WOSSIMHelper;
-#endif
 /**
  * Tests for WOSSIMHelper.
  */

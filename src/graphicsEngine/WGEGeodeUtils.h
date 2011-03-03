@@ -80,6 +80,15 @@ namespace wge
     osg::ref_ptr< osg::Geometry > WGE_EXPORT createUnitCube( const WColor& color );
 
     /**
+     * Creates a osg::Geometry containing an unit cube as line-strips, having 3D texture coordinates.
+     *
+     * \param color the color to set for all vertices
+     *
+     * \return the geometry
+     */
+    osg::ref_ptr< osg::Geometry > WGE_EXPORT createUnitCubeAsLines( const WColor& color );
+
+    /**
      * Extract the vertices and triangles from a WTriangleMesh and save them
      * into an osg::Geometry.
      *

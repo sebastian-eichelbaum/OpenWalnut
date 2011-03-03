@@ -58,7 +58,7 @@ public:
             boost::shared_ptr< std::vector< float > >(
                 new  std::vector< float >( &dataArray[0], &dataArray[0] + sizeof( dataArray ) / sizeof( float ) ) );
         boost::shared_ptr< WValueSetBase > newValueSet( new WValueSet< float >( 1, 6, data, W_DT_FLOAT ) );
-        boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
+        boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1 ) );
         TS_ASSERT_THROWS_NOTHING( WDataSetDTI( newValueSet, newGrid ) );
     }
 
@@ -73,7 +73,7 @@ public:
             boost::shared_ptr< std::vector< float > >(
                 new std::vector< float >( &dataArray[0], &dataArray[0] + sizeof( dataArray ) / sizeof( float ) ) );
         boost::shared_ptr< WValueSetBase > newValueSet( new WValueSet< float >( 1, 6, data, W_DT_FLOAT ) );
-        boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
+        boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1 ) );
         WDataSetDTI dataset( newValueSet, newGrid );
         WTensorSym< 2, 3, float > expected;
         expected( 0, 0 ) = 0.0;

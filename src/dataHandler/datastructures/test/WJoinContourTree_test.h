@@ -135,7 +135,7 @@ protected:
         //   |___ |___ |____|      |___ |___ |____|
         //  15   11   -1   -3      0    1    2    3
 
-        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 4, 4, 1, 1, 1, 1 ) );
+        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 4, 4, 1 ) );
         double isoValuesData[] = { 15, 11, -1, -3, 13, 12, 1, 0, 3, 5, 10, 9, 2, 4, 8, 14 }; // NOLINT
         boost::shared_ptr< std::vector< double > > isoValues =
             boost::shared_ptr< std::vector< double > >( new std::vector< double >( isoValuesData, isoValuesData + 16 ) );

@@ -120,6 +120,8 @@ boost::shared_ptr< WGEViewer > WQtGLWidgetAll::getViewer() const
 
 void WQtGLWidgetAll::paintEvent( QPaintEvent* /*event*/ )
 {
+    // TODO(math): Remove this if there are now startup segfaults
+    //   ^--- Or maybe not but producing some :), since its not initialized :D haha
     // m_Viewer->paint();
 }
 

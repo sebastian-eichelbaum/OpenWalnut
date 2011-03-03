@@ -136,6 +136,11 @@ private:
     void setManipulatorsFromBoundingBox();
 
     /**
+     * Notify the module of an update of the transform.
+     */
+    void notifyChanged();
+
+    /**
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
@@ -255,6 +260,18 @@ private:
      * rotation around the z axis
      */
     WPropInt m_rotationZ;
+
+    //! The grid's transformation.
+    boost::shared_ptr< WGridTransformOrtho > m_transform;
+
+    //! Whether the output connector should be updated.
+    bool m_updated;
+
+    //! A condition that gets notified when any changes were made to the transformation.
+    boost::shared_ptr< WCondition > m_transformChangedCondition;
+
+    //! A mutex for changes to members of this module.
+    boost::mutex m_updateMutex;
 };
 
 #endif  // WMDATASETMANIPULATOR_H
