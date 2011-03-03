@@ -24,10 +24,38 @@
 
 #version 120
 
+float minimum_distance( vec3 v, vec3 w, vec3 p )
+{
+  // Return minimum distance between line segment vw and point p
+  float len = length( v - w );
+  if( len == 0.0 )   // v == w case
+  {
+      return distance(p, v);
+  }
+  // Consider the line extending the segment, parameterized as v + t (w - v).
+  // We find projection of point p onto the line.
+  // It falls where t = [(p-v) . (w-v)] / |w-v|^2
+  float t = dot( p - v, w - v ) / ( len * len );
+
+  if( t < 0.0 )      // Beyond the 'v' end of the segment
+  {
+      return distance( p, v );
+  }
+  else if( t > 1.0 ) // Beyond the 'w' end of the segment
+  {
+      return distance( p, w );
+  }
+  vec3 projection = v + t * ( w - v );  // Projection falls on the segment
+  return distance( p, projection );
+}
+
 void main()
 {
     // ellipsoiden scheiss
-    if( ( length( gl_TexCoord[0] - gl_TexCoord[1] ) + length( gl_TexCoord[0] - gl_TexCoord[2] ) ) < 1.2 )
+    // if( ( length( gl_TexCoord[0] - gl_TexCoord[1] ) + length( gl_TexCoord[0] - gl_TexCoord[2] ) ) < 1.2 )
+
+    // line stipple
+    if( minimum_distance( gl_TexCoord[1].xyz, gl_TexCoord[2].xyz, gl_TexCoord[0].xyz ) < 0.2 )
     {
         gl_FragColor = gl_Color;
     }
