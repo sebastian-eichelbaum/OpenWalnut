@@ -44,7 +44,8 @@ class WDataSetSingle;
 template< class T > class WModuleInputData;
 template< class T > class WModuleOutputData;
 
-#define WM_MORI_NUM_CORES W_AUTOMATIC_NB_THREADS
+// #define WM_MORI_NUM_CORES W_AUTOMATIC_NB_THREADS
+ #define WM_MORI_NUM_CORES 16
 
 /**
  * \class WMDeterministicFTMori
