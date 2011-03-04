@@ -35,7 +35,7 @@
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WSelectionManager.h"
 
-#include "../emptyIcon.xpm" // Please put a real icon here.
+#include "WMDatasetProfile.xpm" // Please put a real icon here.
 
 #include "WMDatasetProfile.h"
 
@@ -61,7 +61,7 @@ boost::shared_ptr< WModule > WMDatasetProfile::factory() const
 
 const char** WMDatasetProfile::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMDatasetProfile_xpm; // Please put a real icon here.
 }
 const std::string WMDatasetProfile::getName() const
 {
