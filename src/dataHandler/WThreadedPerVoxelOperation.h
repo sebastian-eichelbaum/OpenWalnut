@@ -128,7 +128,7 @@ public:
 
 private:
     //! a threadsafe vector (container)
-    typedef WSharedSequenceContainer< std::vector< Output_T > > OutputVectorType;
+    typedef boost::shared_ptr< std::vector< Output_T > > OutputVectorType;
 
     //! stores the output of the per-voxel-operation
     OutputVectorType m_output;
@@ -139,7 +139,7 @@ private:
     //! the size of the valueset
     std::size_t m_size;
 
-    //! the function
+    //! the function applied to every voxel
     FunctionType m_func;
 
     //! store the grid
@@ -183,7 +183,7 @@ WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::WThreade
     try
     {
         // allocate enough memory for the output data
-        m_output.getWriteTicket()->get().resize( m_size * numOutputs );
+        m_output = OutputVectorType( new std::vector< Output_T >( m_size * numOutputs ) );
     }
     catch( std::exception const& e )
     {
@@ -214,10 +214,9 @@ void WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::com
 {
     TransmitType t = input->getSubArray( job * numValues, numValues );
     OutTransmitType o = m_func( t );
-    typename OutputVectorType::WriteTicket w = m_output.getWriteTicket();
     for( std::size_t k = 0; k < numOutputs; ++k )
     {
-        w->get()[ job * numOutputs + k ] = o[ k ];
+        ( *m_output )[ job * numOutputs + k ] = o[ k ];
     }
 }
 
@@ -225,16 +224,14 @@ template< typename Value_T, std::size_t numValues, typename Output_T, std::size_
 boost::shared_ptr< WDataSetSingle > WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::getResult()
 {
     boost::shared_ptr< OutValueSetType > values;
-    boost::shared_ptr< std::vector< Output_T > > vals =
-        boost::shared_ptr< std::vector< Output_T > >( new std::vector< Output_T >( m_output.getReadTicket()->get() ) );
     switch( numOutputs )
     {
     case 1:
-        values = boost::shared_ptr< OutValueSetType >( new OutValueSetType( 0, 1, vals,
+        values = boost::shared_ptr< OutValueSetType >( new OutValueSetType( 0, 1, m_output,
                                                                             DataType< Output_T >::type ) );
         return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( values, m_grid ) );
     default:
-        values = boost::shared_ptr< OutValueSetType >( new OutValueSetType( 1, numOutputs, vals,
+        values = boost::shared_ptr< OutValueSetType >( new OutValueSetType( 1, numOutputs, m_output,
                                                                             DataType< Output_T >::type ) );
         return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( values, m_grid ) );
     }
