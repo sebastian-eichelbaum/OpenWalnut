@@ -62,7 +62,7 @@ enum WThreadedFunctionNbThreads
  *
  * A virtual base class for threaded functions (see below).
  */
-class OWCOMMON_EXPORT WThreadedFunctionBase
+class OWCOMMON_EXPORT WThreadedFunctionBase // NOLINT
 {
     //! a type for exception signals
     typedef boost::signal< void ( WException const& ) > ExceptionSignal;
