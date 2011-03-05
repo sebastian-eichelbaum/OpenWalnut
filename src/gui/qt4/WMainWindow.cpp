@@ -46,6 +46,8 @@
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
 #include "../../common/WProjectFileIO.h"
+#include "../../common/WPathHelper.h"
+#include "../../common/exceptions/WFileNotFound.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WEEG2.h"
@@ -732,37 +734,25 @@ void WMainWindow::openAboutDialog()
 
 void WMainWindow::openOpenWalnutHelpDialog()
 {
-    QMessageBox::information( this, "OpenWalnut Help",
-                              "<h3>Navigation in Main View</h3>"
-                              "<table>"
-                              "<tr><td><b><i>Mouse Button&nbsp;&nbsp;</i></b></td><td><b><i>Action</i></b></td></tr>"
-                              "<tr><td>Left</td><td>Rotate</td></tr>"
-                              "<tr><td>Middle</td><td>Pan</td></tr>"
-                              "<tr><td>Right</td><td>Pick, move ROI box or move slice</td></tr>"
-                              "<tr><td>Right + Shift</td><td>Resize ROI box</td></tr>"
-                              "<tr><td>Wheel</td><td>Zoom</td></tr>"
-                              "<tr><td><b><i>Key</i></b></td><td><b><i>Action</i></b></td></tr>"
-                              "<tr><td>+</td><td>Zoom in</td></tr>"
-                              "<tr><td>-</td><td>Zoom out</td></tr>"
-                              "<tr><td>[space]</td><td>Reset view</td></tr>"
-                              "</table>"
-                              "<h3>Navigation in EEG View</h3>"
-                              "<table>"
-                              "<tr><td><b><i>Mouse Button</i></b></td><td><b><i>Action</i></b></td></tr>"
-                              "<tr><td>Left</td><td>Mark event position</td></tr>"
-                              "<tr><td>Middle</td><td>Pan</td></tr>"
-                              "<tr><td>Right</td><td>Zoom in time</td></tr>"
-                              "<tr><td>Wheel</td><td>Scale voltage</td></tr>"
-                              "<tr><td>Wheel + Right</td><td>Change spacing between graphs</td></tr>"
-                              "<tr><td>Wheel + Left</td><td>Change sensitivity of the coloring of the head surface</td></tr>"
-                              "</table>"
-                              "<h3>Program-wide Keyboard Shortcuts</h3>"
-                              "<table>"
-                              "<tr><td><b><i>Key</i></b></td><td><b><i>Action</i></b></td></tr>"
-                              "<tr><td>Ctrl + q</td><td>Quit</td></tr>"
-                              "<tr><td>Esc</td><td>Resets main view</td></tr>"
-                              "<tr><td>F1</td><td>Opens this help window</td></tr>"
-                              "</table>" );
+    //read the file
+    //std::string filename( WPathHelper::getAppPath().file_string() + "/../../../src/gui/qt4/OpenWalnutHelp.html" );
+    std::string filename( WPathHelper::getAppPath().file_string() + "/../share/OpenWalnut/OpenWalnutHelp.html" );
+    std::ifstream input( filename.c_str() );
+    if ( !input.is_open() )
+    {
+        std::cout<< filename << std::endl;
+        throw WFileNotFound( std::string( "The project file \"" ) + filename +
+            std::string( "\" does not exist." ) );
+    }
+
+    std::string buf;
+    std::string line;
+    while( std::getline( input, line ) )
+    {
+        buf += line;
+    }
+
+    QMessageBox::information( this, "OpenWalnut Help", buf.c_str() );
 }
 
 void WMainWindow::setPresetViewLeft()

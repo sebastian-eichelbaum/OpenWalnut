@@ -300,6 +300,14 @@ add_custom_target( fontsDirectoryConfiguration
   COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D SHARED_FILES_RELATIVE:PATH=${SHARED_FILES_RELATIVE} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/CopyFonts.cmake
   COMMENT "Put all fonts to the right place."
   )
+  
+  
+#---------- online help -------------
+ADD_CUSTOM_TARGET( onlineHelp
+    ALL
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/gui/qt4/OpenWalnutHelp.html ${PROJECT_BINARY_DIR}/share/OpenWalnut
+    COMMENT "Copy online help"
+)
 
 #---------- shell scripts -------------
 IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
