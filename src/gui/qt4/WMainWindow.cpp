@@ -734,13 +734,10 @@ void WMainWindow::openAboutDialog()
 
 void WMainWindow::openOpenWalnutHelpDialog()
 {
-    //read the file
-    //std::string filename( WPathHelper::getAppPath().file_string() + "/../../../src/gui/qt4/OpenWalnutHelp.html" );
     std::string filename( WPathHelper::getAppPath().file_string() + "/../share/OpenWalnut/OpenWalnutHelp.html" );
     std::ifstream input( filename.c_str() );
     if ( !input.is_open() )
     {
-        std::cout<< filename << std::endl;
         throw WFileNotFound( std::string( "The project file \"" ) + filename +
             std::string( "\" does not exist." ) );
     }
