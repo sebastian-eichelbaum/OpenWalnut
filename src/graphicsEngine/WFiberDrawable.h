@@ -98,11 +98,7 @@ public:
      */
     void setUseTubes( bool flag );
 
-    /**
-     * Set the bounding box of all fibers.
-     * \param bb The new bounding box.
-     */
-    void setBoundingBox( const osg::BoundingBox & bb );
+    using osg::Drawable::setBound;
 
     /**
      * setter
@@ -170,11 +166,6 @@ private:
 inline void WFiberDrawable::setUseTubes( bool flag )
 {
     m_useTubes = flag;
-}
-
-inline void WFiberDrawable::setBoundingBox( const osg::BoundingBox & bb )
-{
-    setBound( bb );
 }
 
 inline void WFiberDrawable::setBitfield( boost::shared_ptr< std::vector< bool > > bitField )

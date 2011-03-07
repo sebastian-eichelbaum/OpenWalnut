@@ -63,6 +63,34 @@ public:
     virtual ~WDataSetSphericalHarmonics();
 
     /**
+     * Creates a copy (clone) of this instance but allows to change the valueset. Unlike copy construction, this is a very useful function if you
+     * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
+     *
+     * \param newValueSet the new valueset.
+     *
+     * \return the clone
+     */
+    virtual WDataSetSingle::SPtr clone( boost::shared_ptr< WValueSetBase > newValueSet ) const;
+
+    /**
+     * Creates a copy (clone) of this instance but allows to change the grid. Unlike copy construction, this is a very useful function if you
+     * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
+     *
+     * \param newGrid the new grid.
+     *
+     * \return the clone
+     */
+    virtual WDataSetSingle::SPtr clone( boost::shared_ptr< WGrid > newGrid ) const;
+
+    /**
+     * Creates a copy (clone) of this instance. Unlike copy construction, this is a very useful function if you
+     * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
+     *
+     * \return the clone
+     */
+    virtual WDataSetSingle::SPtr clone() const;
+
+    /**
      * Returns a prototype instantiated with the true type of the deriving class.
      *
      * \return the prototype.
@@ -77,7 +105,7 @@ public:
      *
      * \return Interpolated spherical harmonic.
      */
-    wmath::WSymmetricSphericalHarmonic interpolate( const wmath::WPosition &pos, bool *success ) const;
+    WSymmetricSphericalHarmonic interpolate( const WPosition &pos, bool *success ) const;
 
     /**
      * Get the spherical harmonic on the given position in value set.
@@ -86,7 +114,7 @@ public:
      *
      * \return the spherical harmonic
      */
-    wmath::WSymmetricSphericalHarmonic getSphericalHarmonicAt( size_t index ) const;
+    WSymmetricSphericalHarmonic getSphericalHarmonicAt( size_t index ) const;
 
     /**
      * Gets the name of this prototype.

@@ -137,7 +137,7 @@ protected:
      *
      * \return The average value of those value where its positions are inside the Iso-Surface/Volume/Cluster. If no position is inside, 0.0 is returned.
      */
-    wmath::WValue< double > meanParameter( boost::shared_ptr< std::set< wmath::WPosition > > samplePoints ) const;
+    WValue< double > meanParameter( boost::shared_ptr< std::set< WPosition > > samplePoints ) const;
 
     /**
      * Generates new geode for marking the volume voxels
@@ -226,7 +226,7 @@ private:
      *
      * \return True if and only if the vertex is really in between the given two planes.
      */
-    bool isInBetween( const wmath::WPosition& vertex, const PlanePair& pp ) const;
+    bool isInBetween( const WPosition& vertex, const PlanePair& pp ) const;
 
     /**
      * Determines all possible plane pairs then enclose the given vertex.
@@ -235,7 +235,7 @@ private:
      *
      * \return A vector of plane pairs
      */
-    std::vector< PlanePair > computeNeighbouringPlanePairs( const wmath::WPosition& vertex ) const;
+    std::vector< PlanePair > computeNeighbouringPlanePairs( const WPosition& vertex ) const;
 
     /**
      * Check for every consecutive pair of planes if it encloses the point better than any other consecutive pair. Also check
@@ -246,7 +246,7 @@ private:
      *
      * \return The closes plane pair (pair of indices) or (0,0) if its outside of all planes.
      */
-    PlanePair closestPlanePair( const std::vector< PlanePair >& pairs, const wmath::WPosition& vertex ) const;
+    PlanePair closestPlanePair( const std::vector< PlanePair >& pairs, const WPosition& vertex ) const;
 
     /**
      * Interpolates the color of two planes depending on which the vertex is closer.
@@ -256,7 +256,7 @@ private:
      *
      * \return The color of the vertex dependen on its distance to the planes and their colors.
      */
-    WColor colorFromPlanePair( const wmath::WPosition& vertex, const PlanePair& pp ) const;
+    WColor colorFromPlanePair( const WPosition& vertex, const PlanePair& pp ) const;
 
     /**
      * Maps the given mean value into an Interval [0,1] so later you may use this as a color channel.

@@ -32,6 +32,9 @@
 
 #include <osg/Geode>
 
+#include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetSingle.h"
+
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../graphicsEngine/WROISphere.h"
 
@@ -157,17 +160,17 @@ private:
      * adds a control knob
      * \param pos Position of the new knob
      */
-    void addKnob( wmath::WPosition pos );
+    void addKnob( WPosition pos );
 
     /**
      * An input connector that accepts order 1 datasets.
      */
-    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_input;
 
     /**
      * This is a pointer to the dataset the module is currently working on.
      */
-    boost::shared_ptr< WDataSetSingle > m_dataSet;
+    boost::shared_ptr< WDataSetScalar > m_dataSet;
 
     /**
      * stores a pointer to the grid we use;
@@ -199,6 +202,10 @@ private:
     WPropDouble m_propLength; //!< length between knobs
 
     WPropBool m_propUseLength; //!< enforce lengths
+
+    WPropBool m_propInterpolate; //!< interpolate the graph
+
+    WPropInt m_propNumSamples; //!< number of sample points on the graph
 
     /**
      * The root node used for this modules graphics.

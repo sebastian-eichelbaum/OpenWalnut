@@ -33,26 +33,25 @@
 #include "../exceptions/WEquationHasNoRoots.h"
 #include "../WLimits.h"
 
-namespace wmath
-{
-    /**
-     * Solves a quadratic equation: ax^2 + bx + c = 0 where a,b,c are real coefficient.
-     *
-     * \param a first coefficient
-     * \param b second coefficient
-     * \param c remainder
-     *
-     * \throw WEquationHasNoRoots In case there are no roots for this equation.
-     *
-     * \return Solutions to the equation above as complex numbers. If only one solution exists both
-     * complex numbers are the same!
-     */
-    template< typename T > typename std::pair< typename std::complex< T >, typename std::complex< T > > solveRealQuadraticEquation( T a, T b, T c );
-}
+
+/**
+ * Solves a quadratic equation: ax^2 + bx + c = 0 where a,b,c are real coefficient.
+ *
+ * \param a first coefficient
+ * \param b second coefficient
+ * \param c remainder
+ *
+ * \throw WEquationHasNoRoots In case there are no roots for this equation.
+ *
+ * \return Solutions to the equation above as complex numbers. If only one solution exists both
+ * complex numbers are the same!
+ */
+template< typename T > typename std::pair< typename std::complex< T >, typename std::complex< T > > solveRealQuadraticEquation( T a, T b, T c );
+
 
 
 template< typename T >
-inline typename std::pair< typename std::complex< T >, typename std::complex< T > > wmath::solveRealQuadraticEquation( T a, T b, T c )
+inline typename std::pair< typename std::complex< T >, typename std::complex< T > > solveRealQuadraticEquation( T a, T b, T c )
 {
     typename std::pair< typename std::complex< T >, typename std::complex< T > > result( std::complex< T >( 0.0, 0.0 ), std::complex< T >( 0.0, 0.0 ) ); // NOLINT line length
     if( a != 1.0 ) // normalize

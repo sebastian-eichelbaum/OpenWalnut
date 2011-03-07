@@ -29,11 +29,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-namespace wmath
-{
-    class WVector3D;
-    typedef WVector3D WPosition;
-}
+// forward declarations
+class WVector3D;
+typedef WVector3D WPosition;
 
 /**
  * Adapter
@@ -57,14 +55,14 @@ public:
     size_t numPoints() const;
 
     /**
-     * Constructs and returns a \ref wmath::WPosition out of the i'th position of this tract.
+     * Constructs and returns a \ref WPosition out of the i'th position of this tract.
      *
      * \param index The index of the position of this tract. It may start at \c 0 and is always
      * smaller than \ref numPoints().
      *
-     * \return The i'th position of this tract as \ref wmath::WPosition.
+     * \return The i'th position of this tract as \ref WPosition.
      */
-    wmath::WPosition operator[]( size_t index ) const;
+    WPosition operator[]( size_t index ) const;
 
 //    void reset( boost::shared_ptr< const WTractData > tracts, size_t startIndex, size_t numPoints )
 

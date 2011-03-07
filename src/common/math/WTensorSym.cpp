@@ -26,15 +26,11 @@
 #include "WMath.h"
 #include "WTensorSym.h"
 
-namespace wmath
-{
-// NOLINT
 std::size_t calcSupersymmetricTensorMultiplicity( std::size_t order, std::size_t numZeros, std::size_t numOnes, std::size_t numTwos )
 {
     WPrecondEquals( order, numZeros + numOnes + numTwos );
-    return wmath::factorial( order )
-       / ( wmath::factorial( numZeros )
-         * wmath::factorial( numOnes )
-         * wmath::factorial( numTwos ) );
+    return factorial( order )
+       / ( factorial( numZeros )
+         * factorial( numOnes )
+         * factorial( numTwos ) );
 }
-}  // namespace wmath

@@ -91,6 +91,10 @@ void WMDeterministicFTMori::moduleMain()
     {
         debugLog() << "Waiting.";
         m_moduleState.wait();
+        if( m_shutdownFlag() )
+        {
+            break;
+        }
 
         if( m_trackingPool && m_trackingPool->status() == W_THREADS_FINISHED )
         {
@@ -307,7 +311,7 @@ void WMDeterministicFTMori::resetTracking()
     m_moduleState.add( m_trackingPool->getThreadsDoneCondition() );
 }
 
-wmath::WVector3D WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
+WVector3D WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
                                                            wtracking::WTrackingUtility::JobType const& j )
 {
     WAssert( ds, "" );
@@ -320,11 +324,11 @@ wmath::WVector3D WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WD
     WAssert( vs, "" );
     if( vs->rawData()[ 4 * i + 3 ] < m_currentMinFA )
     {
-        return wmath::WVector3D( 0.0, 0.0, 0.0 );
+        return WVector3D( 0.0, 0.0, 0.0 );
     }
     else
     {
-        wmath::WVector3D v;
+        WVector3D v;
         v[ 0 ] = vs->rawData()[ 4 * i + 0 ];
         v[ 1 ] = vs->rawData()[ 4 * i + 1 ];
         v[ 2 ] = vs->rawData()[ 4 * i + 2 ];
@@ -343,7 +347,7 @@ wmath::WVector3D WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WD
         }
         else
         {
-            return wmath::WVector3D( 0.0, 0.0, 0.0 );
+            return WVector3D( 0.0, 0.0, 0.0 );
         }
     }
 }
@@ -357,49 +361,50 @@ void WMDeterministicFTMori::fiberVis( FiberType const& f )
     ++*m_currentProgress;
 }
 
-void WMDeterministicFTMori::pointVis( wmath::WVector3D const& )
+void WMDeterministicFTMori::pointVis( WVector3D const& )
 {
 }
 
-boost::array< double, 4 > const WMDeterministicFTMori::computeFaAndEigenVec( wmath::WTensorSym< 2, 3, double > const& m ) const
+boost::array< double, 4 > const WMDeterministicFTMori::computeFaAndEigenVec( WTensorSym< 2, 3, double > const& m ) const
 {
     boost::array< double, 4 > a;
 
+    RealEigenSystem eigenSys;
     std::vector< double > ev( 3 );
-    std::vector< wmath::WVector3D > t( 3 );
+    std::vector< WVector3D > t( 3 );
 
     // calc eigenvectors
-    wmath::jacobiEigenvector3D( m, &ev, &t );
+    jacobiEigenvector3D( m, &eigenSys );
 
     // find the eigenvector with largest absolute eigenvalue
     int u = 0;
     double h = 0.0;
     for( int n = 0; n < 3; ++n )
     {
-        if( fabs( ev[ n ] ) > h )
+        if( fabs( eigenSys[ n ].first ) > h )
         {
-            h = fabs( ev[ n ] );
+            h = fabs( eigenSys[ n ].first );
             u = n;
         }
     }
 
     // copy them to the output
-    a[ 0 ] = t[ u ][ 0 ];
-    a[ 1 ] = t[ u ][ 1 ];
-    a[ 2 ] = t[ u ][ 2 ];
+    a[ 0 ] = eigenSys[ u ].second[ 0 ];
+    a[ 1 ] = eigenSys[ u ].second[ 1 ];
+    a[ 2 ] = eigenSys[ u ].second[ 2 ];
 
     // calc fa
-    double d = ev[ 0 ] * ev[ 0 ] + ev[ 1 ] * ev[ 1 ] + ev[ 2 ] * ev[ 2 ];
+    double d = eigenSys[ 0 ].first * eigenSys[ 0 ].first + eigenSys[ 1 ].first * eigenSys[ 1 ].first + eigenSys[ 2 ].first * eigenSys[ 2 ].first;
     if( fabs( d ) == 0.0 )
     {
         a[ 3 ] = 0.0;
     }
     else
     {
-        double trace = ( ev[ 0 ] + ev[ 1 ] + ev[ 2 ] ) / 3;
-        a[ 3 ] = sqrt( 1.5 * ( ( ev[ 0 ] - trace ) * ( ev[ 0 ] - trace )
-                             + ( ev[ 1 ] - trace ) * ( ev[ 1 ] - trace )
-                             + ( ev[ 2 ] - trace ) * ( ev[ 2 ] - trace ) ) / d );
+        double trace = ( eigenSys[ 0 ].first + eigenSys[ 1 ].first + eigenSys[ 2 ].first ) / 3;
+        a[ 3 ] = sqrt( 1.5 * ( ( eigenSys[ 0 ].first - trace ) * ( eigenSys[ 0 ].first - trace )
+                             + ( eigenSys[ 1 ].first - trace ) * ( eigenSys[ 1 ].first - trace )
+                             + ( eigenSys[ 2 ].first - trace ) * ( eigenSys[ 2 ].first - trace ) ) / d );
     }
 
     return a;
@@ -407,7 +412,7 @@ boost::array< double, 4 > const WMDeterministicFTMori::computeFaAndEigenVec( wma
 
 WMDeterministicFTMori::TPVOFloat::OutTransmitType const WMDeterministicFTMori::eigenFuncFloat( TPVOFloat::TransmitType const& input )
 {
-    wmath::WTensorSym< 2, 3, double > m;
+    WTensorSym< 2, 3, double > m;
     m( 0, 0 ) = static_cast< double >( input[ 0 ] );
     m( 0, 1 ) = static_cast< double >( input[ 1 ] );
     m( 0, 2 ) = static_cast< double >( input[ 2 ] );
@@ -422,7 +427,7 @@ WMDeterministicFTMori::TPVOFloat::OutTransmitType const WMDeterministicFTMori::e
 
 WMDeterministicFTMori::TPVODouble::OutTransmitType const WMDeterministicFTMori::eigenFuncDouble( TPVODouble::TransmitType const& input )
 {
-    wmath::WTensorSym< 2, 3, double > m;
+    WTensorSym< 2, 3, double > m;
     m( 0, 0 ) = static_cast< double >( input[ 0 ] );
     m( 0, 1 ) = static_cast< double >( input[ 1 ] );
     m( 0, 2 ) = static_cast< double >( input[ 2 ] );

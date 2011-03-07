@@ -182,30 +182,30 @@ void WMArbitraryPlane::moduleMain()
 
         if ( m_buttonReset2Axial->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+            WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
             m_s0->setPosition( center );
-            m_s1->setPosition( wmath::WPosition( center[0] - 100, center[1], center[2] ) );
-            m_s2->setPosition( wmath::WPosition( center[0], center[1] - 100, center[2] ) );
+            m_s1->setPosition( WPosition( center[0] - 100, center[1], center[2] ) );
+            m_s2->setPosition( WPosition( center[0], center[1] - 100, center[2] ) );
             m_buttonReset2Axial->set( WPVBaseTypes::PV_TRIGGER_READY, false );
             m_dirty = true;
         }
 
         if ( m_buttonReset2Coronal->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+            WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
             m_s0->setPosition( center );
-            m_s1->setPosition( wmath::WPosition( center[0] - 100, center[1], center[2] ) );
-            m_s2->setPosition( wmath::WPosition( center[0], center[1], center[2] - 100 ) );
+            m_s1->setPosition( WPosition( center[0] - 100, center[1], center[2] ) );
+            m_s2->setPosition( WPosition( center[0], center[1], center[2] - 100 ) );
             m_buttonReset2Coronal->set( WPVBaseTypes::PV_TRIGGER_READY, false );
             m_dirty = true;
         }
 
         if ( m_buttonReset2Sagittal->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
-            wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+            WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
             m_s0->setPosition( center );
-            m_s1->setPosition( wmath::WPosition( center[0], center[1], center[2] - 100 ) );
-            m_s2->setPosition( wmath::WPosition( center[0], center[1] - 100, center[2] ) );
+            m_s1->setPosition( WPosition( center[0], center[1], center[2] - 100 ) );
+            m_s2->setPosition( WPosition( center[0], center[1] - 100, center[2] ) );
             m_buttonReset2Sagittal->set( WPVBaseTypes::PV_TRIGGER_READY, false );
             m_dirty = true;
         }
@@ -233,10 +233,10 @@ void WMArbitraryPlane::initPlane()
 
     m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMArbitraryPlane::updateCallback, this ) ) );
 
-    wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    m_p0 = wmath::WPosition( center );
-    m_p1 = wmath::WPosition( center[0] - 100, center[1], center[2] );
-    m_p2 = wmath::WPosition( center[0], center[1] - 100, center[2] );
+    WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    m_p0 = WPosition( center );
+    m_p1 = WPosition( center[0] - 100, center[1], center[2] );
+    m_p2 = WPosition( center[0], center[1] - 100, center[2] );
 
     m_s0 = osg::ref_ptr<WROISphere>( new WROISphere( m_p0, 2.5 ) );
     m_s1 = osg::ref_ptr<WROISphere>( new WROISphere( m_p1, 2.5 ) );
@@ -264,22 +264,22 @@ void WMArbitraryPlane::updatePlane()
         m_s0->setPosition( WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition() );
     }
 
-    wmath::WPosition p0 = m_s0->getPosition();
+    WPosition p0 = m_s0->getPosition();
 
     if ( p0 != m_p0 )
     {
-        wmath::WVector3D offset = p0 - m_p0;
+        WVector3D offset = p0 - m_p0;
         m_p0 = p0;
         m_s1->setPosition( m_s1->getPosition() + offset );
         m_s2->setPosition( m_s2->getPosition() + offset );
     }
-    wmath::WPosition p1 = m_s1->getPosition();
-    wmath::WPosition p2 = m_s2->getPosition();
+    WPosition p1 = m_s1->getPosition();
+    WPosition p2 = m_s2->getPosition();
 
-    wmath::WPosition v0( p1[0]                  , p2[1]                 , p0[2] - ( p0[2] - p1[2] ) - ( p0[2] - p2[2] ) );
-    wmath::WPosition v1( p1[0]                  , p0[1] + p0[1] - p2[1] , p0[2] - ( p0[2] - p1[2] ) + ( p0[2] - p2[2] ) );
-    wmath::WPosition v2( p0[0] + p0[0] - p1[0]  , p0[1] + p0[1] - p2[1] , p0[2] + ( p0[2] - p1[2] ) + ( p0[2] - p2[2] ) );
-    wmath::WPosition v3( p0[0] + p0[0] - p1[0]  , p2[1]                 , p0[2] + ( p0[2] - p1[2] ) - ( p0[2] - p2[2] ) );
+    WPosition v0( p1[0]                  , p2[1]                 , p0[2] - ( p0[2] - p1[2] ) - ( p0[2] - p2[2] ) );
+    WPosition v1( p1[0]                  , p0[1] + p0[1] - p2[1] , p0[2] - ( p0[2] - p1[2] ) + ( p0[2] - p2[2] ) );
+    WPosition v2( p0[0] + p0[0] - p1[0]  , p0[1] + p0[1] - p2[1] , p0[2] + ( p0[2] - p1[2] ) + ( p0[2] - p2[2] ) );
+    WPosition v3( p0[0] + p0[0] - p1[0]  , p2[1]                 , p0[2] + ( p0[2] - p1[2] ) - ( p0[2] - p2[2] ) );
 
     osg::ref_ptr<osg::Geometry> planeGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
     osg::Vec3Array* planeVertices = new osg::Vec3Array;
@@ -338,8 +338,8 @@ void WMArbitraryPlane::updatePlane()
 
 void WMArbitraryPlane::updateCallback()
 {
-    wmath::WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    wmath::WPosition cho = getCenterPosition();
+    WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition cho = getCenterPosition();
     if ( ch[0] != cho[0] || ch[1] != cho[1] || ch[2] != cho[2] )
     {
         setDirty();
@@ -519,7 +519,7 @@ void WMArbitraryPlane::initUniforms( osg::StateSet* rootState )
     rootState->addUniform( m_showCompleteUniform );
 }
 
-wmath::WPosition WMArbitraryPlane::getCenterPosition()
+WPosition WMArbitraryPlane::getCenterPosition()
 {
     return m_s0->getPosition();
 }

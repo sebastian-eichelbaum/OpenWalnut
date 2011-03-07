@@ -39,17 +39,17 @@ WGaussProcess::WGaussProcess( const size_t tractID,
 {
     WFiber tract = generateTract();
     m_Cff_1_l_product = Eigen::VectorXd( static_cast< int >( tract.size() ) );
-    m_R = 2.0 * wmath::maxSegmentLength( tract );
+    m_R = 2.0 * maxSegmentLength( tract );
     m_Cff_1_l_product = generateCffInverse( tract ) * ( Eigen::VectorXd::Ones( m_Cff_1_l_product.size() ) * m_maxLevel );
     generateTauParameter();
-    m_bb = wmath::computeBoundingBox( tract );
+    m_bb = computeBoundingBox( tract );
 }
 
 WGaussProcess::~WGaussProcess()
 {
 }
 
-double WGaussProcess::mean( const wmath::WPosition& p ) const
+double WGaussProcess::mean( const WPosition& p ) const
 {
     Eigen::VectorXd Sf( m_Cff_1_l_product.size() );
 
@@ -96,7 +96,7 @@ double WGaussProcess::generateTauParameter()
     // component wise) which is not trivial, but the out come does not contribute significantly to
     // the result, so I ommit the implementation at first.
     //
-    // wmath::WTensorSym< 2, 3 > t = tensors->interpolate( *cit );
+    // WTensorSym< 2, 3 > t = tensors->interpolate( *cit );
     // it may occur due to interpolation and noise that negative eigenvalues will occour!
     // double lambda_1 = 0.0; // = t.eigenvalues(
     // newTau = m_R / std::sqrt( lambda_1 );
@@ -104,7 +104,7 @@ double WGaussProcess::generateTauParameter()
     return result;
 }
 
-double WGaussProcess::cov_d( const wmath::WPosition& /* p1 */, const wmath::WPosition& /* p2 */ ) const
+double WGaussProcess::cov_d( const WPosition& /* p1 */, const WPosition& /* p2 */ ) const
 {
     // According to Demian this function is very complex, involing tensor interpolation (not
     // component wise) which is not trivial, but the out come does not contribute significantly to

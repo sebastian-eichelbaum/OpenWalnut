@@ -38,11 +38,11 @@ WBresenhamDBL::~WBresenhamDBL()
 {
 }
 
-void WBresenhamDBL::rasterSegment( const wmath::WPosition& start, const wmath::WPosition& end )
+void WBresenhamDBL::rasterSegment( const WPosition& start, const WPosition& end )
 {
     int i;
-    wmath::WValue< int > gridStartPos = m_grid->getVoxelCoord( start );
-    wmath::WValue< int > gridEndPos = m_grid->getVoxelCoord( end );
+    WValue< int > gridStartPos = m_grid->getVoxelCoord( start );
+    WValue< int > gridEndPos = m_grid->getVoxelCoord( end );
     int dx = gridEndPos[0] - gridStartPos[0];
     int dy = gridEndPos[1] - gridStartPos[1];
     int dz = gridEndPos[2] - gridStartPos[2];
@@ -56,8 +56,8 @@ void WBresenhamDBL::rasterSegment( const wmath::WPosition& start, const wmath::W
     int dx2 = l << 1;
     int dy2 = m << 1;
     int dz2 = n << 1;
-    wmath::WValue< int > voxel = gridStartPos;
-    wmath::WPosition gridOffset( 0, 0, 0 );
+    WValue< int > voxel = gridStartPos;
+    WPosition gridOffset( 0, 0, 0 );
     gridOffset[0] = start[0] - gridStartPos[0];
     gridOffset[1] = start[1] - gridStartPos[1];
     gridOffset[2] = start[2] - gridStartPos[2];

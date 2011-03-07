@@ -44,7 +44,6 @@ public:
      */
     void setUp( void )
     {
-        using wmath::WPosition;
         using std::vector;
         m_somefibs = boost::shared_ptr< vector< WFiber > >( new vector< WFiber > );
         vector< WPosition > points;
@@ -61,7 +60,6 @@ public:
      */
     void testBasicAccessAndCreation( void )
     {
-        using wmath::WPosition;
         std::vector< WPosition > points;
         points.push_back( WPosition( 0., 0., 1. ) );
         points.push_back( WPosition( 0., 0., 2. ) );

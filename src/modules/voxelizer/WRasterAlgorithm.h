@@ -64,7 +64,7 @@ public:
      *
      * \param line Polyline which is about to be rastered.
      */
-    virtual void raster( const wmath::WLine& line ) = 0;
+    virtual void raster( const WLine& line ) = 0;
 
     /**
      * Computes a dataset out of our voxel values and the previously given
@@ -126,16 +126,16 @@ protected:
      * \param start Start point of the line segment (used to computed the distance)
      * \param end   End point of the line segment (used to computed the distance)
      */
-    virtual void parameterizeVoxel( const wmath::WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
-                                    const wmath::WPosition& start,
-                                    const wmath::WPosition& end );
+    virtual void parameterizeVoxel( const WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
+                                    const WPosition& start,
+                                    const WPosition& end );
 
     /**
      * Distribute a new line getting rasterized to all parameterize algorithms.
      *
      * \param line the new line.
      */
-    virtual void newLine( const wmath::WLine& line );
+    virtual void newLine( const WLine& line );
 
     /**
      * Distribute a new segment of a line to all parameterization algorithms.
@@ -144,7 +144,7 @@ protected:
      * \param start start point of the new line segment
      * \param end end point of the new line segment
      */
-    virtual void newSegment( const wmath::WPosition& start, const wmath::WPosition& end );
+    virtual void newSegment( const WPosition& start, const WPosition& end );
 
 private:
 };

@@ -39,7 +39,7 @@ boost::shared_ptr< WPrototyped > WDataSet::m_prototype = boost::shared_ptr< WPro
 WDataSet::WDataSet()
     : WTransferable(),
     m_properties( boost::shared_ptr< WProperties >( new WProperties( "Data-Set Properties", "Properties of a data-set" ) ) ),
-    m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Informational Properties", "Data-set's information properties" ) ) ),
+    m_infoProperties( boost::shared_ptr< WProperties >( new WProperties( "Data-Set Info Properties", "Data-set's information properties" ) ) ),
     m_fileName( "" )
 {
     m_infoProperties->setPurpose( PV_PURPOSE_INFORMATION );

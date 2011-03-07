@@ -44,6 +44,15 @@
 class OWCOMMON_EXPORT WPropertyBase: public boost::enable_shared_from_this< WPropertyBase >
 {
 public:
+    /**
+     * Convenience typedef for a boost::shared_ptr< WPropertyBase >
+     */
+    typedef boost::shared_ptr< WPropertyBase > SPtr;
+
+    /**
+     * Convenience typedef for a  boost::shared_ptr< const WPropertyBase >
+     */
+    typedef boost::shared_ptr< const WPropertyBase > ConstSPtr;
 
     /**
      * Create an empty named property.

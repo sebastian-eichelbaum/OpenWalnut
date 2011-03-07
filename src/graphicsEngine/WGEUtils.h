@@ -49,7 +49,7 @@ namespace wge
      * \param pos1 First point
      * \param pos2 Second point
      */
-    WColor getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 );
+    WColor getRGBAColorFromDirection( const WPosition &pos1, const WPosition &pos2 );
 
     /**
      * Converts a whole vector of WPositions into an osg::Vec3Array.
@@ -58,7 +58,7 @@ namespace wge
      *
      * \return Refernce to the same vector but as osg::Vec3Array.
      */
-    osg::ref_ptr< osg::Vec3Array > WGE_EXPORT osgVec3Array( const std::vector< wmath::WPosition >& posArray );
+    osg::ref_ptr< osg::Vec3Array > WGE_EXPORT osgVec3Array( const std::vector< WPosition >& posArray );
 
     /**
      * Converts screen coordinates into Camera coordinates.
@@ -100,17 +100,17 @@ namespace wge
      *
      * \return the osg matrix.
      */
-    osg::Matrixd WGE_EXPORT toOSGMatrix( const wmath::WMatrix<double>& matrix );
+    osg::Matrixd WGE_EXPORT toOSGMatrix( const WMatrix<double>& matrix );
 }
 
-inline WColor wge::getRGBAColorFromDirection( const wmath::WPosition &pos1, const wmath::WPosition &pos2 )
+inline WColor wge::getRGBAColorFromDirection( const WPosition &pos1, const WPosition &pos2 )
 {
-    wmath::WPosition direction( ( pos2 - pos1 ) );
+    WPosition direction( ( pos2 - pos1 ) );
     direction.normalize();
     return WColor( std::abs( direction[0] ), std::abs( direction[1] ), std::abs( direction[2] ), 1.0f );
 }
 
-inline osg::Matrixd wge::toOSGMatrix( const wmath::WMatrix<double>& matrix )
+inline osg::Matrixd wge::toOSGMatrix( const WMatrix<double>& matrix )
 {
     WAssert( ( matrix.getNbRows() == 3 || matrix.getNbRows() == 4 ) && ( matrix.getNbCols() == 3 || matrix.getNbCols() == 4 ),
              "Only 3x3 or 4x4 matrices allowed." );

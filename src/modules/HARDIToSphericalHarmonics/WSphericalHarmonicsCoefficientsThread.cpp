@@ -54,10 +54,10 @@ void WSphericalHarmonicsCoefficientsThread::threadMain()
   {
     if ( m_shutdownFlag.get( true ) ) break;
     // get measure vector
-    wmath::WValue< int16_t > allMeasures( m_parameter.m_valueSet->getWValue( i ) );
+    WValue< int16_t > allMeasures( m_parameter.m_valueSet->getWValue( i ) );
 
     // extract measures for gradients != 0
-    wmath::WValue< double > measures( m_parameter.m_validIndices.size() );
+    WValue< double > measures( m_parameter.m_validIndices.size() );
     unsigned int idx = 0;
 
     // find max S0 value
@@ -79,15 +79,15 @@ void WSphericalHarmonicsCoefficientsThread::threadMain()
         if ( measures[ idx ] > maxVal ) maxVal = measures[ idx ];
       }
 
-    wmath::WValue< double > coefficients( ( *m_parameter.m_TransformMatrix ) * measures );
+    WValue< double > coefficients( ( *m_parameter.m_TransformMatrix ) * measures );
 
     if ( m_parameter.m_doResidualCalculation || m_parameter.m_doErrorCalculation )
     {
-        wmath::WSymmetricSphericalHarmonic currentSphericalHarmonic( coefficients );
+        WSymmetricSphericalHarmonic currentSphericalHarmonic( coefficients );
         for ( idx = 0; idx < m_parameter.m_validIndices.size(); idx++ )
         {
             double error = static_cast< double >( measures[ idx ] )
-                          - currentSphericalHarmonic.getValue( wmath::WUnitSphereCoordinates( m_parameter.m_gradients[ idx ] ) );
+                          - currentSphericalHarmonic.getValue( WUnitSphereCoordinates( m_parameter.m_gradients[ idx ] ) );
 
             if( m_parameter.m_doResidualCalculation )
             {
@@ -111,7 +111,7 @@ void WSphericalHarmonicsCoefficientsThread::threadMain()
     double scale = 1.0;
     if( m_parameter.m_normalize )
     {
-        scale *= std::sqrt( 4.0 * wmath::piDouble ) / coefficients[ 0 ];
+        scale *= std::sqrt( 4.0 * piDouble ) / coefficients[ 0 ];
     }
 
     for ( size_t j = 0; j < l; j++ ) m_parameter.m_data->operator[]( l*i + j ) = coefficients[ j ];

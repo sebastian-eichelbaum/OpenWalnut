@@ -35,7 +35,7 @@
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WSelectionManager.h"
 
-#include "../emptyIcon.xpm" // Please put a real icon here.
+#include "WMDatasetProfile.xpm" // Please put a real icon here.
 
 #include "WMDatasetProfile.h"
 
@@ -61,7 +61,7 @@ boost::shared_ptr< WModule > WMDatasetProfile::factory() const
 
 const char** WMDatasetProfile::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMDatasetProfile_xpm; // Please put a real icon here.
 }
 const std::string WMDatasetProfile::getName() const
 {
@@ -80,8 +80,8 @@ const std::string WMDatasetProfile::getDescription() const
 void WMDatasetProfile::connectors()
 {
     // the input dataset is just used as source for resolurtion and transformation matrix
-    m_input = boost::shared_ptr< WModuleInputData < WDataSetSingle  > >(
-        new WModuleInputData< WDataSetSingle >( shared_from_this(), "in", "The input dataset." ) );
+    m_input = boost::shared_ptr< WModuleInputData < WDataSetScalar  > >(
+        new WModuleInputData< WDataSetScalar >( shared_from_this(), "in", "The input dataset." ) );
     addConnector( m_input );
 
     WModule::connectors();
@@ -109,6 +109,12 @@ void WMDatasetProfile::properties()
     m_propLength->setMin( 1 );
     m_propLength->setMax( 500 );
     m_propUseLength = m_properties->addProperty( "Use length", "Description.", false );
+
+    m_propInterpolate = m_properties->addProperty( "interpolate", "Description.", true );
+
+    m_propNumSamples = m_properties->addProperty( "Number of sample points", "Description.", 100 );
+    m_propNumSamples->setMin( 1 );
+    m_propNumSamples->setMax( 500 );
 
     WModule::properties();
 }
@@ -141,7 +147,7 @@ void WMDatasetProfile::moduleMain()
             break;
         }
 
-        boost::shared_ptr< WDataSetSingle > newDataSet = m_input->getData();
+        boost::shared_ptr< WDataSetScalar > newDataSet = m_input->getData();
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
 
@@ -161,14 +167,14 @@ void WMDatasetProfile::moduleMain()
 
         if ( m_propAddKnobTrigger->changed( true ) )
         {
-            wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+            WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
             addKnob( center );
 
             m_propAddKnobTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
 
 
-        if ( m_propUseLength->changed() || m_propLength->changed() )
+        if ( m_propUseLength->changed() || m_propLength->changed() || m_propInterpolate->changed( true ) || m_propNumSamples->changed( true ) )
         {
             m_dirty = true;
         }
@@ -185,7 +191,7 @@ void WMDatasetProfile::moduleMain()
 
 void WMDatasetProfile::updateCallback()
 {
-    wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
 
     for ( size_t i = 0; i < knobs.size(); ++i )
     {
@@ -226,8 +232,8 @@ void WMDatasetProfile::updateCallback()
         {
             for ( size_t i = 0; i < knobs.size() - 1; ++i )
             {
-                wmath::WPosition p1 = knobs[i]->getPosition();
-                wmath::WPosition p2 = knobs[i+1]->getPosition();
+                WPosition p1 = knobs[i]->getPosition();
+                WPosition p2 = knobs[i+1]->getPosition();
 
                 float l = sqrt( ( p1[0] - p2[0] ) * ( p1[0] - p2[0] ) +
                                 ( p1[1] - p2[1] ) * ( p1[1] - p2[1] ) +
@@ -235,7 +241,7 @@ void WMDatasetProfile::updateCallback()
 
                 float mult = m_propLength->get( true ) / l;
 
-                wmath::WPosition vec = p2 - p1;
+                WPosition vec = p2 - p1;
 
                 if ( ( fabs( l - static_cast<float>( m_propLength->get( true ) ) ) ) > 0.001 )
                 {
@@ -265,10 +271,10 @@ void WMDatasetProfile::init()
     m_changeRoiSignal
             = boost::shared_ptr< boost::function< void() > >( new boost::function< void() >( boost::bind( &WMDatasetProfile::setDirty, this ) ) );
 
-    wmath::WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
 
-    addKnob( wmath::WPosition( center[0] + 30, center[1], center[2] ) );
-    addKnob( wmath::WPosition( center[0] - 30, center[1], center[2] ) );
+    addKnob( WPosition( center[0] + 30, center[1], center[2] ) );
+    addKnob( WPosition( center[0] - 30, center[1], center[2] ) );
 
     osg::ref_ptr<osgViewer::View> viewer = WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getView();
 
@@ -308,7 +314,7 @@ void WMDatasetProfile::init()
     m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMDatasetProfile::updateCallback, this ) ) );
 }
 
-void WMDatasetProfile::addKnob( wmath::WPosition pos )
+void WMDatasetProfile::addKnob( WPosition pos )
 {
     osg::ref_ptr<WROISphere> s = osg::ref_ptr<WROISphere>( new WROISphere( pos, 2.5 ) );
     WGraphicsEngine::getGraphicsEngine()->getScene()->addChild( &( *s ) );
@@ -459,7 +465,7 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
     std::vector<float>segmentLengths;
     for ( size_t k = 0; k < knobs.size() - 1 ; ++k )
     {
-        wmath::WPosition p = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() );
+        WPosition p = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() );
         segmentLengths.push_back( p.length() );
         overallLength += p.length();
     }
@@ -472,11 +478,21 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
         int steps = 100 * l1;
 
         knobPositions.push_back( x );
-        wmath::WPosition p1 = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() ) / static_cast<float>( steps );
+        WPosition p1 = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() ) / static_cast<float>( steps );
 
         for ( int i = 0; i < steps; ++i )
         {
-            value = m_dataSet->getValueAt( m_grid->getVoxelNum( knobs[k]->getPosition() + p1 * i ) );
+            if ( m_propInterpolate->get() )
+            {
+                bool success;
+                value = m_dataSet->interpolate( knobs[k]->getPosition() + p1 * i, &success );
+            }
+            else
+            {
+                value = m_dataSet->getValueAt( m_grid->getVoxelNum( knobs[k]->getPosition() + p1 * i ) );
+            }
+
+
             x = x + ( m_oldViewWidth /  100 );
             y = 10 + ( value / max * ( m_oldViewHeight - 20 ) / 2 );
             vertices->push_back( osg::Vec3( x, y, 0 ) );

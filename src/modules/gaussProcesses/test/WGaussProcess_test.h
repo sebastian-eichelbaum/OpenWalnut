@@ -48,7 +48,7 @@ public:
     void testMeanFunctionOutsideOf_R_Environment( void )
     {
         WGaussProcess p( m_tractID, m_tracts, m_emptyDTIDataSet );
-        TS_ASSERT_DELTA( p.mean( wmath::WPosition( -( p.m_R + wlimits::DBL_EPS ), 0.0, 0.0 ) ), 0.0, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( p.mean( WPosition( -( p.m_R + wlimits::DBL_EPS ), 0.0, 0.0 ) ), 0.0, wlimits::DBL_EPS );
     }
 
     /**
@@ -58,7 +58,7 @@ public:
     void testMeanFunctionInsideOf_R_Environment( void )
     {
         WGaussProcess p( m_tractID, m_tracts, m_emptyDTIDataSet );
-        TS_ASSERT( std::abs( p.mean( wmath::WPosition( -p.m_R + 1.0e-8, 0.0, 0.0 ) ) ) > wlimits::DBL_EPS );
+        TS_ASSERT( std::abs( p.mean( WPosition( -p.m_R + 1.0e-8, 0.0, 0.0 ) ) ) > wlimits::DBL_EPS );
     }
 
     /**
@@ -68,8 +68,8 @@ public:
     void testMeanFunctionMonotonyIn_R_Environment( void )
     {
         WGaussProcess p( m_tractID, m_tracts, m_emptyDTIDataSet );
-        TS_ASSERT( std::abs( p.mean( wmath::WPosition( -p.m_R + 1.0e-8, 0.0, 0.0 ) ) ) >
-                             p.mean( wmath::WPosition( -p.m_R + 0.5e-8, 0.0, 0.0 ) ) );
+        TS_ASSERT( std::abs( p.mean( WPosition( -p.m_R + 1.0e-8, 0.0, 0.0 ) ) ) >
+                             p.mean( WPosition( -p.m_R + 0.5e-8, 0.0, 0.0 ) ) );
     }
 
     /**
@@ -78,13 +78,13 @@ public:
     void testMeanFunctionOnSamplePoint( void )
     {
         WGaussProcess p( m_tractID, m_tracts, m_emptyDTIDataSet );
-        TS_ASSERT_DELTA( p.mean( wmath::WPosition( 0.0, 0.0, 0.0 ) ), p.m_maxLevel, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( p.mean( WPosition( 0.0, 0.0, 0.0 ) ), p.m_maxLevel, wlimits::DBL_EPS );
     }
 
 //    void testMeanFunctionOnSegmentButNotOnSamplePoint( void )
 //    {
 //        WGaussProcess p( m_tract, m_emptyDTIDataSet );
-//        TS_ASSERT_DELTA( p.mean( wmath::WPosition( 0.4, 0.4, 0.0 ) ), p.m_maxLevel, wlimits::DBL_EPS );
+//        TS_ASSERT_DELTA( p.mean( WPosition( 0.4, 0.4, 0.0 ) ), p.m_maxLevel, wlimits::DBL_EPS );
 //    }
 
     /**
@@ -108,17 +108,17 @@ public:
         WFiber tract;
         for( size_t i = 0; i < 10; ++i )
         {
-            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+            tract.push_back( WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
         }
         tracts->push_back( tract );
         tract.clear();
         for( size_t i = 0; i < 5; ++i )
         {
-            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+            tract.push_back( WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
         }
         for( size_t i = 1; i < 6; ++i )
         {
-            tract.push_back( wmath::WPosition( 4.0, static_cast< double >( i ), 0.0 ) );
+            tract.push_back( WPosition( 4.0, static_cast< double >( i ), 0.0 ) );
         }
         tracts->push_back( tract );
         boost::shared_ptr< WDataSetFiberVector > fvDS( new WDataSetFiberVector( tracts ) );
@@ -139,17 +139,17 @@ public:
         WFiber tract;
         for( size_t i = 0; i < 100; ++i )
         {
-            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+            tract.push_back( WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
         }
         tracts->push_back( tract );
         tract.clear();
         for( size_t i = 0; i < 50; ++i )
         {
-            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+            tract.push_back( WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
         }
         for( size_t i = 1; i < 51; ++i )
         {
-            tract.push_back( wmath::WPosition( 49.0, static_cast< double >( i ), 0.0 ) );
+            tract.push_back( WPosition( 49.0, static_cast< double >( i ), 0.0 ) );
         }
         tracts->push_back( tract );
         boost::shared_ptr< WDataSetFiberVector > fvDS( new WDataSetFiberVector( tracts ) );
@@ -169,13 +169,13 @@ public:
 //        WFiber tract;
 //        for( size_t i = 0; i < 1000; ++i )
 //        {
-//            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+//            tract.push_back( WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
 //        }
 //        tracts->push_back( tract );
 //        tract.clear();
 //        for( size_t i = 20; i < 25; ++i )
 //        {
-//            tract.push_back( wmath::WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
+//            tract.push_back( WPosition( static_cast< double >( i ), 0.0, 0.0 ) );
 //        }
 //        tracts->push_back( tract );
 //        boost::shared_ptr< WDataSetFiberVector > fvDS( new WDataSetFiberVector( tracts ) );
@@ -199,19 +199,19 @@ protected:
         boost::shared_ptr< std::vector< float > > data( new std::vector< float >( &dataArray[0],
                     &dataArray[0] + sizeof( dataArray ) / sizeof( float ) ) );
         boost::shared_ptr< WValueSetBase > newValueSet( new WValueSet< float >( 1, 6, data, W_DT_FLOAT ) );
-        boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1, 1, 1, 1 ) );
+        boost::shared_ptr< WGrid > newGrid( new WGridRegular3D( 1, 1, 1 ) );
         m_emptyDTIDataSet = boost::shared_ptr< WDataSetDTI >(  new WDataSetDTI( newValueSet, newGrid ) );
 
         boost::shared_ptr< std::vector< WFiber > > tracts( new std::vector< WFiber > );
         WFiber tract0;
-        tract0.push_back( wmath::WPosition( 0.0, 0.0, 0.0 ) );
-        tract0.push_back( wmath::WPosition( 1.0, 1.0, 0.0 ) );
-        tract0.push_back( wmath::WPosition( 1.0, 2.0, 0.0 ) );
-        tract0.push_back( wmath::WPosition( 2.0, 2.0, 0.0 ) );
+        tract0.push_back( WPosition( 0.0, 0.0, 0.0 ) );
+        tract0.push_back( WPosition( 1.0, 1.0, 0.0 ) );
+        tract0.push_back( WPosition( 1.0, 2.0, 0.0 ) );
+        tract0.push_back( WPosition( 2.0, 2.0, 0.0 ) );
         tracts->push_back( tract0 );
         WFiber tract1;
-        tract1.push_back( wmath::WPosition( 2.0 + 2.0 * sqrt( 8.0 ), 2.0, 0.0 ) );
-        tract1.push_back( wmath::WPosition( 2.0 + 2.0 * sqrt( 8.0 ) + 1.0, 2.0, 0.0 ) );
+        tract1.push_back( WPosition( 2.0 + 2.0 * sqrt( 8.0 ), 2.0, 0.0 ) );
+        tract1.push_back( WPosition( 2.0 + 2.0 * sqrt( 8.0 ) + 1.0, 2.0, 0.0 ) );
         tracts->push_back( tract1 );
         boost::shared_ptr< WDataSetFiberVector > fvDS( new WDataSetFiberVector( tracts ) );
         m_tracts = fvDS->toWDataSetFibers();

@@ -161,12 +161,12 @@ bool WMWriteMesh::save() const
     dataFile << ( "ASCII\n" );
     dataFile << ( "DATASET UNSTRUCTURED_GRID\n" );
 
-    wmath::WPosition point;
+    WPosition point;
     dataFile << "POINTS " << m_triMesh->vertSize() << " float\n";
     for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         point = m_triMesh->getVertexAsPosition( i );
-        if( !( wmath::myIsfinite( point[0] ) && wmath::myIsfinite( point[1] ) && wmath::myIsfinite( point[2] ) ) )
+        if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
         {
             WLogger::getLogger()->addLogMessage( "Will not write file from data that contains NAN or INF.", "Marching Cubes", LL_ERROR );
             return false;

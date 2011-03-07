@@ -37,6 +37,7 @@
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
 #include "../common/WBoundingBox.h"
+#include "WGridTransformOrtho.h"
 #include "../common/WCondition.h"
 #include "WExportDataHandler.h"
 #include "WGrid.h"
@@ -57,121 +58,26 @@ class OWDATAHANDLER_EXPORT WGridRegular3D : public WGrid // NOLINT
     friend class WGridRegular3DTest;
 public:
     /**
-     * Defines the position of the origin of the grid, the number of
-     * samples in each coordinate direction and the offset between the
-     * samples in the different coordinate directions as vector.
-     * \param nbPosX number of positions along first axis
-     * \param nbPosY number of positions along second axis
-     * \param nbPosZ number of positions along third axis
-     * \param originX x-coordinate of grid origin
-     * \param originY y-coordinate of grid origin
-     * \param originZ z-coordinate of grid origin
-     * \param directionX direction of the first axis
-     * \param directionY direction of the second axis
-     * \param directionZ direction of the third axis
-     * \param offsetX distance of samples along first axis
-     * \param offsetY distance of samples along second axis
-     * \param offsetZ distance of samples along third axis
+     * Convenience typedef for a boost::shared_ptr< WGridRegular3D >.
      */
-    WGridRegular3D(
-                   unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
-                   double originX, double originY, double originZ,
-                   const wmath::WVector3D& directionX,
-                   const wmath::WVector3D& directionY,
-                   const wmath::WVector3D& directionZ,
-                   double offsetX, double offsetY, double offsetZ );
+    typedef boost::shared_ptr< WGridRegular3D > SPtr;
+
+    /**
+     * Convenience typedef for a boost::shared_ptr< const WGridRegular3D >.
+     */
+    typedef boost::shared_ptr< const WGridRegular3D > ConstSPtr;
 
     /**
      * Defines the number of samples in each coordinate direction as ints,
-     * and the position of the origin of the grid and the offset between the
-     * samples in the different coordinate directions as one 4x4 transformation
-     * matrix using homogeneous coordinates (but only affine transformations are
-     * allowed).
+     * and the transformation of the grid via a grid transform.
+     *
      * \param nbPosX number of positions along first axis
      * \param nbPosY number of positions along second axis
      * \param nbPosZ number of positions along third axis
-     * \param mat 4x4 transformation matrix using homogeneous coordinates
-     * \param offsetX distance of samples along first axis
-     * \param offsetY distance of samples along second axis
-     * \param offsetZ distance of samples along third axis
+     * \param transform a grid transformation
      */
-    WGridRegular3D(
-                   unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
-                   const wmath::WMatrix< double >& mat,
-                   double offsetX, double offsetY, double offsetZ );
-
-    /**
-     * Defines the number of samples in each coordinate direction as ints,
-     * and the position of the origin of the grid and the offset between the
-     * samples in the different coordinate directions as one 4x4 transformation
-     * matrix using homogeneous coordinates (but only affine transformations are
-     * allowed).
-     * \param nbPosX number of positions along first axis
-     * \param nbPosY number of positions along second axis
-     * \param nbPosZ number of positions along third axis
-     * \param qFormMat 4x4 transformation matrix using homogeneous coordinates
-     * \param sFormMat 4x4 transformation matrix using homogeneous coordinates
-     * \param offsetX distance of samples along first axis
-     * \param offsetY distance of samples along second axis
-     * \param offsetZ distance of samples along third axis
-     */
-    WGridRegular3D(
-                   unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
-                   const wmath::WMatrix< double >& qFormMat,
-                   const wmath::WMatrix< double >& sFormMat,
-                   double offsetX, double offsetY, double offsetZ );
-
-
-
-    /**
-     * Defines the position of the origin of the grid, the number of
-     * samples in each coordinate direction and the offset between the
-     * samples in the different coordinate directions as scalar.
-     * \param nbPosX number of positions along first axis
-     * \param nbPosY number of positions along second axis
-     * \param nbPosZ number of positions along third axis
-     * \param originX x-coordinate of grid origin
-     * \param originY y-coordinate of grid origin
-     * \param originZ z-coordinate of grid origin
-     * \param offsetX distance of samples along first axis
-     * \param offsetY distance of samples along second axis
-     * \param offsetZ distance of samples along third axis
-     */
-    WGridRegular3D(
-                   unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
-                   double originX, double originY, double originZ,
-                   double offsetX, double offsetY, double offsetZ );
-
-    /**
-     * Defines the position of the origin of the grid, the number of
-     * samples in each coordinate direction and the offset between the
-     * samples in the different coordinate directions as scalar.
-     * \param nbPosX number of positions along first axis
-     * \param nbPosY number of positions along second axis
-     * \param nbPosZ number of positions along third axis
-     * \param origin the point of origin of this grid
-     * \param offsetX distance of samples along first axis
-     * \param offsetY distance of samples along second axis
-     * \param offsetZ distance of samples along third axis
-     */
-    WGridRegular3D(
-                   unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
-                   wmath::WPosition origin,
-                   double offsetX, double offsetY, double offsetZ );
-
-    /**
-     * Convenience constructor that does the same as the one above but
-     * uses the origin (0,0,0) as default.
-     * \param nbPosX number of positions along first axis
-     * \param nbPosY number of positions along second axis
-     * \param nbPosZ number of positions along third axis
-     * \param offsetX distance of samples along first axis
-     * \param offsetY distance of samples along second axis
-     * \param offsetZ distance of samples along third axis
-     */
-    WGridRegular3D(
-                   unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
-                   double offsetX, double offsetY, double offsetZ );
+    WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
+                    WGridTransformOrtho const transform = WGridTransformOrtho() );
 
     /**
      * Returns the number of samples in x direction.
@@ -205,26 +111,51 @@ public:
 
     /**
      * Returns the vector determining the direction of samples in x direction.
+     * Adding this vector to a grid position in world coordinates yields the position of the next sample
+     * along the grids (world coordinate) x-axis.
      */
-    const wmath::WVector3D& getDirectionX() const;
+    WVector3D getDirectionX() const;
 
     /**
      * Returns the vector determining the direction of samples in y direction.
+     * Adding this vector to a grid position in world coordinates yields the position of the next sample
+     * along the grids (world coordinate) y-axis.
      */
-    const wmath::WVector3D& getDirectionY() const;
+    WVector3D getDirectionY() const;
 
     /**
      * Returns the vector determining the direction of samples in z direction.
+     * Adding this vector to a grid position in world coordinates yields the position of the next sample
+     * along the grids (world coordinate) z-axis.
      */
-    const wmath::WVector3D& getDirectionZ() const;
+    WVector3D getDirectionZ() const;
+
+    /**
+     * Returns the vector determining the unit (normalized) direction of samples in x direction.
+     */
+    WVector3D getUnitDirectionX() const;
+
+    /**
+     * Returns the vector determining the unit (normalized) direction of samples in y direction.
+     */
+    WVector3D getUnitDirectionY() const;
+
+    /**
+     * Returns the vector determining the unit (normalized) direction of samples in z direction.
+     */
+    WVector3D getUnitDirectionZ() const;
 
     /**
      * Returns the position of the origin of the grid.
      */
-    wmath::WPosition getOrigin() const;
+    WPosition getOrigin() const;
 
     /**
-     * \return The two positions representing the bounding box of the grid.
+     * Returns a 4x4 matrix that represents the grid's transformaion.
+     */
+    WMatrix< double > getTransformationMatrix() const;
+
+    /**
      */
     WBoundingBox getBoundingBox() const;
 
@@ -232,7 +163,7 @@ public:
      * Returns the i-th position on the grid.
      * \param i id of position to be obtained
      */
-    wmath::WPosition getPosition( unsigned int i ) const;
+    WPosition getPosition( unsigned int i ) const;
 
     /**
      * Returns the position that is the iX-th in x direction, the iY-th in
@@ -241,40 +172,33 @@ public:
      * \param iY id along second axis of position to be obtained
      * \param iZ id along third axis of position to be obtained
      */
-    wmath::WPosition getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const;
-
-    /**
-     * Return the matrix storing the transformation of the grid. This information is redundant.
-     * Please use m_origin and m_direction? for all normal computations.
-     * Use matrix only where you really need a matrix for multiplication.
-     */
-    wmath::WMatrix<double> getTransformationMatrix() const;
+    WPosition getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const;
 
     /**
      * Transforms world coordinates to texture coordinates.
      * \param point The point with these coordinates will be transformed.
      */
-    wmath::WVector3D worldCoordToTexCoord( wmath::WPosition point );
+    WVector3D worldCoordToTexCoord( WPosition point );
 
     /**
      * Transforms texture coordinates to world coordinates.
      * \param coords The point with these coordinates will be transformed.
      */
-    wmath::WPosition texCoordToWorldCoord( wmath::WVector3D coords );
+    WPosition texCoordToWorldCoord( WVector3D coords );
 
     /**
      * Matrix converting a specified world coordinate to texture space according in this grid.
      *
      * \return the matrix.
      */
-    const wmath::WMatrix4x4& getWorldToTexMatrix() const;
+    const WMatrix4x4& getWorldToTexMatrix() const;
 
     /**
      * Matrix converting a specified texture coordinate to world space according to this grid.
      *
      * \return the matrix.
      */
-    const wmath::WMatrix4x4& getTexToWorldMatrix() const;
+    const WMatrix4x4& getTexToWorldMatrix() const;
 
     /**
      * This method returns the condition that fires on changes in this grid's transformation matrix. This is ugly and should not be used since,
@@ -319,7 +243,7 @@ public:
      * \return Voxel number or -1 if the position refers to a point outside of
      * the grid.
      */
-    int getVoxelNum( const wmath::WPosition& pos ) const;
+    int getVoxelNum( const WPosition& pos ) const;
 
     /**
      * returns the voxel index for a given discrete position in the grid
@@ -343,7 +267,7 @@ public:
      * \return The X coordinate or -1 if pos refers to point outside of the
      * grid.
      */
-    int getXVoxelCoord( const wmath::WPosition& pos ) const;
+    int getXVoxelCoord( const WPosition& pos ) const;
 
     /**
      * Computes the Y coordinate of that voxel that contains the
@@ -355,7 +279,7 @@ public:
      * \return The Y coordinate or -1 if pos refers to point outside of the
      * grid.
      */
-    int getYVoxelCoord( const wmath::WPosition& pos ) const;
+    int getYVoxelCoord( const WPosition& pos ) const;
 
     /**
      * Computes the Z coordinate of that voxel that contains the
@@ -367,7 +291,7 @@ public:
      * \return The Z coordinate or -1 if pos refers to point outside of the
      * grid.
      */
-    int getZVoxelCoord( const wmath::WPosition& pos ) const;
+    int getZVoxelCoord( const WPosition& pos ) const;
 
     /**
      * Computes the X coordinate of that voxel that contains the
@@ -379,7 +303,7 @@ public:
      * \return The X coordinate or -1 if pos refers to point outside of the
      * grid.
      */
-    int getXVoxelCoordRotated( const wmath::WPosition& pos ) const;
+    int getXVoxelCoordRotated( const WPosition& pos ) const;
 
     /**
      * Computes the Y coordinate of that voxel that contains the
@@ -391,7 +315,7 @@ public:
      * \return The Y coordinate or -1 if pos refers to point outside of the
      * grid.
      */
-    int getYVoxelCoordRotated( const wmath::WPosition& pos ) const;
+    int getYVoxelCoordRotated( const WPosition& pos ) const;
 
     /**
      * Computes the Z coordinate of that voxel that contains the
@@ -403,7 +327,7 @@ public:
      * \return The Z coordinate or -1 if pos refers to point outside of the
      * grid.
      */
-    int getZVoxelCoordRotated( const wmath::WPosition& pos ) const;
+    int getZVoxelCoordRotated( const WPosition& pos ) const;
 
     /**
      * Computes the voxel coordinates of that voxel which contains
@@ -416,7 +340,7 @@ public:
      * Z component of the voxel coordinate. If the selecting position is
      * outside of the grid then -1 -1 -1 is returned.
      */
-    wmath::WValue< int > getVoxelCoord( const wmath::WPosition& pos ) const;
+    WValue< int > getVoxelCoord( const WPosition& pos ) const;
 
     /**
      * Computes the id of the cell containing the position pos. Note that the upper
@@ -425,7 +349,7 @@ public:
      * \param pos The position selecting the cell.
      * \param success True if the position pos is inside the grid.
      */
-    size_t getCellId( const wmath::WPosition& pos, bool* success ) const;
+    size_t getCellId( const WPosition& pos, bool* success ) const;
 
     /**
      * Computes the ids of the vertices of a cell given by its id.
@@ -473,7 +397,7 @@ public:
      * voxel. If you need voxels at grid positions fill this function with
      * voxel center positions aka grid points.
      */
-    boost::shared_ptr< std::vector< wmath::WPosition > > getVoxelVertices( const wmath::WPosition& point,
+    boost::shared_ptr< std::vector< WPosition > > getVoxelVertices( const WPosition& point,
                                                                            const double margin = 0.0 ) const;
 
     /**
@@ -538,65 +462,18 @@ public:
      *
      * \return True if and only if the given point is inside or on boundary of this grid, otherwise false.
      */
-    bool encloses( const wmath::WPosition& pos ) const;
-
-    /**
-     * Decides whether a certain position is inside this grid or not. Works on rotated grids.
-     *
-     * \param pos Position to test
-     *
-     * \return True if and only if the given point is inside or on boundary of this grid, otherwise false.
-     */
-    bool enclosesRotated( wmath::WPosition const& pos ) const;
+    bool encloses( const WPosition& pos ) const;
 
     /**
      * Return whether the transformations of the grid are only translation and/or scaling
      */
-    bool isNotRotatedOrSheared() const;
+    bool isNotRotated() const;
 
     /**
-     * translates the texture along a given vector, this vector is added to the already existing translation
-     *
-     * \param translate the translation vector
+     * Returns the transformation used by this grid.
+     * \return The transformation.
      */
-    void translate( wmath::WPosition translate );
-
-    /**
-     * stretches the texture
-     *
-     * \param str the stretch factors in x,y,z direction
-     */
-    void stretch( wmath::WPosition str );
-
-    /**
-     * rotates the texture around the x,y,z axis
-     * take a rotation that is multiplied to the custom rotation matrix, so this doesn't describe the rotation
-     * fromt he original state to a point, but from the current state
-     *
-     * \param osgrot the rotation matrix for this step
-     * \param center, center point of the rotation, not functional yet
-     */
-    void rotate( osg::Matrixf osgrot, wmath::WPosition center );
-
-    /**
-     * sets the active matrix
-     *
-     * \param matrix which matrix to use
-     */
-    void setActiveMatrix( int matrix );
-
-    /**
-     * gets the active matrix
-     *
-     * \return matrix in use
-     */
-    int getActiveMatrix();
-
-    /**
-     * getter
-     * \return the absolute translate Vector
-     */
-    wmath::WPosition getTranslate();
+    WGridTransformOrtho const getTransform() const;
 
 protected:
 
@@ -611,7 +488,7 @@ private:
      *
      * \return The n'th component of the voxel coordinate
      */
-    int getNVoxelCoord( const wmath::WPosition& pos, size_t axis ) const;
+    int getNVoxelCoord( const WPosition& pos, size_t axis ) const;
 
     /**
      * Adds the specific information of this grid type to the
@@ -619,82 +496,12 @@ private:
      */
     void initInformationProperties();
 
-    /**
-     * Recalculates the m_matrixInverse and the corresponding scaling and offset matrices m_matrixTexToWorld and m_matrixWorldToTex
-     */
-    void recreateTextureTransformationMatrices();
-
-    wmath::WPosition m_origin; //!< Origin of the grid.
-
     unsigned int m_nbPosX; //!< Number of positions in x direction
     unsigned int m_nbPosY; //!< Number of positions in y direction
     unsigned int m_nbPosZ; //!< Number of positions in z direction
 
-    wmath::WVector3D m_directionX; //!< Direction of the x axis
-    wmath::WVector3D m_directionY; //!< Direction of the y axis
-    wmath::WVector3D m_directionZ; //!< Direction of the z axis
-
-    double m_offsetX; //!< Offset between samples along x axis
-    double m_offsetY; //!< Offset between samples along y axis
-    double m_offsetZ; //!< Offset between samples along z axis
-
-    double m_offsetXorig; //!< Offset between samples along x axis, stores the original value for manipulation
-    double m_offsetYorig; //!< Offset between samples along y axis, stores the original value for manipulation
-    double m_offsetZorig; //!< Offset between samples along z axis, stores the original value for manipulation
-
-    /**
-     * Matrix storing the transformation of the grid. This is redundant.
-     * Please use m_origin and m_direction? for all normal computations.
-     * Use matrix only where you really need a matrix for multiplication.
-     *
-     * This is the matrix we are working with
-     */
-    wmath::WMatrix4x4 m_matrix;
-
-    /**
-     * This matrix converts a texture coordinate inside the grid to a world coordinate. It also handles the 0.5 voxel offset.
-     */
-    wmath::WMatrix4x4 m_matrixTexToWorld;
-
-    /**
-     * This matrix converts a world coordinate to a texture coordinate inside the grid. It also handles the 0.5 voxel offset.
-     */
-    wmath::WMatrix4x4 m_matrixWorldToTex;
-
-    /**
-     * Matrix storing the original stretch and translation
-     */
-    wmath::WMatrix4x4 m_matrixNoMatrix;
-
-    /**
-     * Matrix storing the original qform matrix from the niftii file header
-     */
-    wmath::WMatrix4x4 m_matrixQForm;
-
-    /**
-     * Matrix storing the original sform matrix from the niftii file header
-     */
-    wmath::WMatrix4x4 m_matrixSForm;
-
-    /**
-     * indicates which transformation matrix is used
-     *
-     * 0 = no matrix, just stretch and translation
-     * 1 = matrix 0, usually the qform matrix
-     * 2 = matrix 1, usually the sform matrix
-     */
-    int m_matrixActive;
-
-    wmath::WMatrix4x4 m_translateMatrix; //!< stores the custom rotation
-
-    wmath::WMatrix4x4 m_rotMatrix; //!< stores the custom rotation
-
-    wmath::WMatrix4x4 m_stretchMatrix; //!< stores the custom strech manipulation
-
-    /**
-     * Fires whenever the transformation matrix changes.
-     */
-    WCondition::SPtr m_transformationUpdateCondition;
+    //! The grid's transformation.
+    WGridTransformOrtho const m_transform;
 };
 
 inline unsigned int WGridRegular3D::getNbCoordsX() const
@@ -714,36 +521,61 @@ inline unsigned int WGridRegular3D::getNbCoordsZ() const
 
 inline double WGridRegular3D::getOffsetX() const
 {
-    return m_directionX.norm();
+    return m_transform.getOffsetX();
 }
 
 inline double WGridRegular3D::getOffsetY() const
 {
-    return m_directionY.norm();
+    return m_transform.getOffsetY();
 }
 
 inline double WGridRegular3D::getOffsetZ() const
 {
-    return m_directionZ.norm();
+    return m_transform.getOffsetZ();
 }
 
-inline const wmath::WVector3D& WGridRegular3D::getDirectionX() const
+inline WVector3D WGridRegular3D::getUnitDirectionX() const
 {
-    return m_directionX;
+    return m_transform.getUnitDirectionX();
 }
 
-inline const wmath::WVector3D& WGridRegular3D::getDirectionY() const
+inline WVector3D WGridRegular3D::getUnitDirectionY() const
 {
-    return m_directionY;
+    return m_transform.getUnitDirectionY();
 }
 
-inline const wmath::WVector3D& WGridRegular3D::getDirectionZ() const
+inline WVector3D WGridRegular3D::getUnitDirectionZ() const
 {
-    return m_directionZ;
+    return m_transform.getUnitDirectionZ();
 }
 
-inline wmath::WPosition WGridRegular3D::getOrigin() const
+inline WVector3D WGridRegular3D::getDirectionX() const
 {
-    return m_origin;
+    return m_transform.getDirectionX();
+}
+
+inline WVector3D WGridRegular3D::getDirectionY() const
+{
+    return m_transform.getDirectionY();
+}
+
+inline WVector3D WGridRegular3D::getDirectionZ() const
+{
+    return m_transform.getDirectionZ();
+}
+
+inline WPosition WGridRegular3D::getOrigin() const
+{
+    return m_transform.getOrigin();
+}
+
+inline WGridTransformOrtho const WGridRegular3D::getTransform() const
+{
+    return m_transform;
+}
+
+inline WMatrix< double > WGridRegular3D::getTransformationMatrix() const
+{
+    return m_transform.getTransformationMatrix();
 }
 #endif  // WGRIDREGULAR3D_H

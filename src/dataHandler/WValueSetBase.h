@@ -91,7 +91,7 @@ public:
      * \param i id of the WValue to retrieve
      * \return The i-th WValue stored in this value set. There are size() such scalars.
      */
-    virtual wmath::WValue< double > getWValueDouble( size_t i ) const = 0;
+    virtual WValue< double > getWValueDouble( size_t i ) const = 0;
 
     /**
      * \return Dimension of the values in this ValueSet

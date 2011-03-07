@@ -61,9 +61,9 @@ public:
      * \param start Start point of the line segment (used to computed the distance)
      * \param end   End point of the line segment (used to computed the distance)
      */
-    virtual void parameterizeVoxel( const wmath::WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
-                                    const wmath::WPosition& start,
-                                    const wmath::WPosition& end );
+    virtual void parameterizeVoxel( const WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
+                                    const WPosition& start,
+                                    const WPosition& end );
 
     /**
      * Gets the dataset representing the parameterization.
@@ -77,7 +77,7 @@ public:
      *
      * \param line the new line.
      */
-    virtual void newLine( const wmath::WLine& line );
+    virtual void newLine( const WLine& line );
 
     /**
      * Gets called for each new line segment getting rasterized, as one segment can have multiple voxels.
@@ -85,7 +85,7 @@ public:
      * \param start start point of the new line segment
      * \param end end point of the new line segment
      */
-    virtual void newSegment( const wmath::WPosition& start, const wmath::WPosition& end );
+    virtual void newSegment( const WPosition& start, const WPosition& end );
 
     /**
      * Gets called whenever all lines have been rasterized.

@@ -154,9 +154,9 @@ void WMFiberDisplay::initUniforms( osg::StateSet* rootState )
 
 void WMFiberDisplay::initCullBox()
 {
-    wmath::WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    wmath::WPosition minROIPos = crossHairPos - wmath::WPosition( 10., 10., 10. );
-    wmath::WPosition maxROIPos = crossHairPos + wmath::WPosition( 10., 10., 10. );
+    WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition minROIPos = crossHairPos - WPosition( 10., 10., 10. );
+    WPosition maxROIPos = crossHairPos + WPosition( 10., 10., 10. );
 
     m_cullBox = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
     m_cullBox->setColor( osg::Vec4( 1.0, 0., 1.0, 0.4 ) );
@@ -285,13 +285,7 @@ void WMFiberDisplay::create()
     osg::ref_ptr< osg::Group > osgNodeNew = osg::ref_ptr< osg::Group >( new osg::Group );
 
     m_fiberDrawable = osg::ref_ptr< WFiberDrawable >( new WFiberDrawable );
-    m_fiberDrawable->setBoundingBox( osg::BoundingBox( m_dataset->getBoundingBox().first[0],
-                                                      m_dataset->getBoundingBox().first[1],
-                                                      m_dataset->getBoundingBox().first[2],
-                                                      m_dataset->getBoundingBox().second[0],
-                                                      m_dataset->getBoundingBox().second[1],
-                                                      m_dataset->getBoundingBox().second[2] ) );
-
+    m_fiberDrawable->setBound( m_dataset->getBoundingBox().toOSGBB() );
     m_fiberDrawable->setStartIndexes( m_dataset->getLineStartIndexes() );
     m_fiberDrawable->setPointsPerLine( m_dataset->getLineLengths() );
     m_fiberDrawable->setVerts( m_dataset->getVertices() );
@@ -463,7 +457,6 @@ void WMFiberDisplay::updateOutput()
     boost::shared_ptr< std::vector< size_t > > lineStartIndexes = boost::shared_ptr< std::vector< size_t > > ( new std::vector< size_t >() );
     boost::shared_ptr< std::vector< size_t > > lineLengths = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t >() );
     boost::shared_ptr< std::vector< size_t > > verticesReverse = boost::shared_ptr< std::vector< size_t > >( new std::vector< size_t >() );
-    std::pair< wmath::WPosition, wmath::WPosition > boundingBox = m_dataset->getBoundingBox();
 
     size_t countLines = 0;
 
@@ -489,7 +482,7 @@ void WMFiberDisplay::updateOutput()
             ++countLines;
         }
     }
-    boost::shared_ptr< WDataSetFibers> newOutput =
-            boost::shared_ptr< WDataSetFibers>( new WDataSetFibers( vertices, lineStartIndexes, lineLengths, verticesReverse, boundingBox ) );
+    boost::shared_ptr< WDataSetFibers> newOutput( new WDataSetFibers( vertices, lineStartIndexes, lineLengths, verticesReverse,
+                m_dataset->getBoundingBox() ) );
     m_fiberOutput->updateData( newOutput );
 }

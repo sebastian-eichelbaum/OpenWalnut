@@ -35,6 +35,7 @@
 #include "WAssert.h"
 #include "WWorkerThread.h"
 #include "WSharedObject.h"
+#include "WExportCommon.h"
 
 /**
  * An enum indicating the status of a multithreaded computation
@@ -61,7 +62,7 @@ enum WThreadedFunctionNbThreads
  *
  * A virtual base class for threaded functions (see below).
  */
-class WThreadedFunctionBase
+class OWCOMMON_EXPORT WThreadedFunctionBase // NOLINT
 {
     //! a type for exception signals
     typedef boost::signal< void ( WException const& ) > ExceptionSignal;

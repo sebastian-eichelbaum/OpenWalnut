@@ -123,6 +123,8 @@ private:
     WPropInt m_opacityProp; //!< Property holding the opacity value assigned to the surface
     WPropBool m_mainComponentOnly; //!< En/Disable display of only the main component (biggest vertices number)
 
+    WPropBool m_usePerVertexColor; //!< En/Disable display of only the main component (biggest vertices number)
+
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
 
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.

@@ -139,7 +139,7 @@ private:
     typedef WValueSet< double > FloatValueSetType;
 
     //! the fiber type
-    typedef std::vector< wmath::WVector3D > FiberType;
+    typedef std::vector< WVector3D > FiberType;
 
     //! the threaded tracking functor
     typedef wtracking::WThreadedTrackingFunction Tracking;
@@ -169,7 +169,7 @@ private:
      * \param m The tensor to calculate the fa and largest eigenvector from.
      * \return The largest eigenvector and fa (in this order).
      */
-    boost::array< double, 4 > const computeFaAndEigenVec( wmath::WTensorSym< 2, 3, double > const& m ) const;
+    boost::array< double, 4 > const computeFaAndEigenVec( WTensorSym< 2, 3, double > const& m ) const;
 
     /**
      * Calculate the direction of the eigenvector with largest magnitude.
@@ -179,7 +179,7 @@ private:
      *
      * \return The direction to follow.
      */
-    wmath::WVector3D getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
+    WVector3D getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
                                         wtracking::WTrackingUtility::JobType const& j );
 
     /**
@@ -192,7 +192,7 @@ private:
     /**
      * The point visitor. Does nothing.
      */
-    void pointVis( wmath::WVector3D const& );
+    void pointVis( WVector3D const& );
 
     /**
      * Reset the tracking function and abort the current one, if there is a current one.

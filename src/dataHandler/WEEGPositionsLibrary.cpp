@@ -31,18 +31,18 @@
 #include "WEEGPositionsLibrary.h"
 
 
-WEEGPositionsLibrary::WEEGPositionsLibrary( const std::map< std::string, wmath::WPosition >& positions )
+WEEGPositionsLibrary::WEEGPositionsLibrary( const std::map< std::string, WPosition >& positions )
 {
     // put all the elements from positions in m_posititions, but convert the labels to uppercase
-    for( std::map< std::string, wmath::WPosition >::const_iterator iter = positions.begin(); iter != positions.end(); ++iter )
+    for( std::map< std::string, WPosition >::const_iterator iter = positions.begin(); iter != positions.end(); ++iter )
     {
         m_positions[string_utils::toUpper( iter->first )] = iter->second;
     }
 }
 
-wmath::WPosition WEEGPositionsLibrary::getPosition( std::string label ) const throw( WOutOfBounds )
+WPosition WEEGPositionsLibrary::getPosition( std::string label ) const throw( WOutOfBounds )
 {
-    std::map< std::string, wmath::WPosition >::const_iterator iter = m_positions.find( string_utils::toUpper( label ) );
+    std::map< std::string, WPosition >::const_iterator iter = m_positions.find( string_utils::toUpper( label ) );
 
     if( iter == m_positions.end() )
     {

@@ -25,12 +25,14 @@
 #ifndef WTHREADEDJOBS_H
 #define WTHREADEDJOBS_H
 
+#include <iostream>
 #include <string>
 
 #include <boost/shared_ptr.hpp>
 
 #include "WException.h"
 #include "WFlag.h"
+#include "WLogger.h"
 
 /**
  * \class WThreadedJobs
@@ -117,12 +119,98 @@ WThreadedJobs< Input_T, Job_T >::~WThreadedJobs()
 }
 
 template< class Input_T, class Job_T >
-void WThreadedJobs< Input_T, Job_T >::operator() ( std::size_t, std::size_t, WBoolFlag const& shutdown )
+void WThreadedJobs< Input_T, Job_T >::operator() ( std::size_t /* id */, std::size_t /* numThreads */, WBoolFlag const& shutdown )
 {
     JobType job;
     while( getJob( job ) && !shutdown() )
     {
         compute( m_input, job );
+    }
+}
+
+/**
+ * Nearly the same class as WThreadedJobs, but this class is intended to be used for multithreaded operations on voxels and therefore it
+ * uses Striping to partition the data. This is necessarry since if the threads are not operating on blocks, they slow down!
+ */
+template< class Input_T, class Job_T >
+class WThreadedStripingJobs
+{
+public:
+    //! the input type
+    typedef Input_T InputType;
+
+    //! the job type
+    typedef Job_T JobType;
+
+    /**
+     * Constructor.
+     *
+     * \param input The input.
+     */
+    WThreadedStripingJobs( boost::shared_ptr< InputType const > input ); // NOLINT
+
+    /**
+     * Destructor.
+     */
+    virtual ~WThreadedStripingJobs();
+
+    /**
+     * The threaded function operation. Pulls jobs and executes the \see compute()
+     * function.
+     *
+     * \param id The thread's ID.
+     * \param numThreads How many threads are working on the jobs.
+     * \param shutdown A shared flag indicating the thread should be stopped.
+     */
+    void operator() ( std::size_t id, std::size_t numThreads, WBoolFlag const& shutdown );
+
+    /**
+     * Abstract function that performs the actual computation per voxel.
+     *
+     * \param input The input data.
+     * \param voxelNum The voxel number to operate on.
+     */
+    virtual void compute( boost::shared_ptr< InputType const > input, std::size_t voxelNum ) = 0;
+
+protected:
+
+    //! the input
+    boost::shared_ptr< InputType const > m_input;
+private:
+};
+
+template< class Input_T, class Job_T >
+WThreadedStripingJobs< Input_T, Job_T >::WThreadedStripingJobs( boost::shared_ptr< InputType const > input )
+    : m_input( input )
+{
+    if( !m_input )
+    {
+        throw WException( std::string( "Invalid input." ) );
+    }
+}
+
+template< class Input_T, class Job_T >
+WThreadedStripingJobs< Input_T, Job_T >::~WThreadedStripingJobs()
+{
+}
+
+template< class Input_T, class Job_T >
+void WThreadedStripingJobs< Input_T, Job_T >::operator() ( std::size_t id, std::size_t numThreads, WBoolFlag const& shutdown )
+{
+    WAssert( m_input, "Bug: operations of an invalid input requested." );
+    size_t numElements = m_input->size();
+
+    // partition the voxels via simple striping
+    size_t start = numElements / numThreads * id;
+    size_t end = ( id + 1 ) * ( numElements / numThreads );
+    if( id == numThreads - 1 ) // last thread may have less elements to take care.
+    {
+        end = numElements;
+    }
+
+    for( size_t voxelNum = start; ( voxelNum < end ) && !shutdown(); ++voxelNum )
+    {
+        compute( m_input, voxelNum );
     }
 }
 

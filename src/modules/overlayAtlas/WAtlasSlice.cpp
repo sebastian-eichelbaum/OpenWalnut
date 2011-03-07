@@ -113,8 +113,16 @@ void WAtlasSlice::createGridCoronal()
     float sizeX = ( m_right - m_left ) / m_image->s();
     float sizeY = ( m_top - m_bottom ) / m_image->t();
 
-    m_grid = boost::shared_ptr<WGridRegular3D>( new WGridRegular3D( m_newImage->s(), m_newImage->t(), m_newImage->r(),
-            m_left, m_position, m_bottom, sizeX, 2.0, sizeY ) );
+    WMatrix< double > mat( 4, 4 );
+    mat.makeIdentity();
+    mat( 0, 0 ) = sizeX;
+    mat( 1, 1 ) = 2.0;
+    mat( 2, 2 ) = sizeY;
+    mat( 0, 3 ) = m_left;
+    mat( 1, 3 ) = m_position;
+    mat( 2, 3 ) = m_bottom;
+
+    m_grid = boost::shared_ptr<WGridRegular3D>( new WGridRegular3D( m_newImage->s(), m_newImage->t(), m_newImage->r(), WGridTransformOrtho( mat ) ) );
 
     m_dirty = false;
 }

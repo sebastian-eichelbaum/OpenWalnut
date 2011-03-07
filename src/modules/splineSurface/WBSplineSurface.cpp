@@ -30,7 +30,7 @@
 
 WBSplineSurface::WBSplineSurface( int order1,
                                   int order2,
-                                  std::vector< wmath::WVector3D > deBoorPoints,
+                                  std::vector< WVector3D > deBoorPoints,
                                   int numDeBoorPoints1,
                                   int numDeBoorPoints2 )
 {
@@ -75,7 +75,7 @@ WBSplineSurface::WBSplineSurface( int order1,
 
 WBSplineSurface::WBSplineSurface( int order1,
                                   int order2,
-                                  std::vector< wmath::WVector3D > deBoorPoints,
+                                  std::vector< WVector3D > deBoorPoints,
                                   int numDeBoorPoints1,
                                   int numDeBoorPoints2,
                                   std::vector<double> knots1,
@@ -94,7 +94,7 @@ WBSplineSurface::~WBSplineSurface()
 {
 }
 
-wmath::WVector3D WBSplineSurface::f( double _t, double _u )
+WVector3D WBSplineSurface::f( double _t, double _u )
 {
       // numDeBoorPoints1 -> t-parameter (knots1)
       // n 0,0 _____________x_____________
@@ -115,11 +115,11 @@ wmath::WVector3D WBSplineSurface::f( double _t, double _u )
       // (knots2)|  |  |  |  |  |  |  |  |  |
       // |_____________x____________|
 
-    std::vector< wmath::WVector3D > uSplineDeBoorPoints;
+    std::vector< WVector3D > uSplineDeBoorPoints;
 
     for( int row = 0; row < m_numDeBoorPoints2; row++ )
     {
-        std::vector< wmath::WVector3D > tSplineDeBoorPoints;
+        std::vector< WVector3D > tSplineDeBoorPoints;
 
         for( int col = 0; col < m_numDeBoorPoints1; col++ )
         {
@@ -127,16 +127,16 @@ wmath::WVector3D WBSplineSurface::f( double _t, double _u )
         }
 
         WBSpline tSpline( m_order1, tSplineDeBoorPoints );
-        wmath::WVector3D dmyArray = tSpline.f( _t );
+        WVector3D dmyArray = tSpline.f( _t );
 
-        uSplineDeBoorPoints.push_back( wmath::WVector3D( dmyArray[0], dmyArray[1], dmyArray[2] ) );
+        uSplineDeBoorPoints.push_back( WVector3D( dmyArray[0], dmyArray[1], dmyArray[2] ) );
     }
 
     WBSpline uSpline( m_order2, uSplineDeBoorPoints );
     return uSpline.f( _u );
 }
 
-std::vector< wmath::WVector3D > WBSplineSurface::getDeBoorPoints()
+std::vector< WVector3D > WBSplineSurface::getDeBoorPoints()
 {
     return m_deBoorPoints;
 }
@@ -181,7 +181,7 @@ int WBSplineSurface::getNumSamplePointsU()
     return m_numSamplePointsU;
 }
 
-void WBSplineSurface::setDeBoorPoints( std::vector< wmath::WVector3D > deBoorPoints, int numDeBoorPoints1, int numDeBoorPoints2 )
+void WBSplineSurface::setDeBoorPoints( std::vector< WVector3D > deBoorPoints, int numDeBoorPoints1, int numDeBoorPoints2 )
 {
     m_deBoorPoints = deBoorPoints;
     m_numDeBoorPoints1 = numDeBoorPoints1;
@@ -208,7 +208,7 @@ void WBSplineSurface::setOrder2( int order )
     m_order2 = order;
 }
 
-void WBSplineSurface::samplePoints( std::vector< wmath::WVector3D > *points, double tResolution, double uResolution )
+void WBSplineSurface::samplePoints( std::vector< WVector3D > *points, double tResolution, double uResolution )
 {
     double currentT = m_knots1[0];
     double currentU = m_knots2[0];
@@ -229,7 +229,7 @@ void WBSplineSurface::samplePoints( std::vector< wmath::WVector3D > *points, dou
         for( stepT = 0; stepT < stepsT; stepT++ )
         {
             currentT = m_knots1[0] + stepT * deltaT;
-            wmath::WVector3D samplePoint = f( currentT, currentU );
+            WVector3D samplePoint = f( currentT, currentU );
             points->push_back( samplePoint );
         }
     }

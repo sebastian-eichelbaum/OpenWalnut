@@ -25,13 +25,11 @@
 #ifndef WTENSORSYM_H
 #define WTENSORSYM_H
 
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #include "WTensorBase.h"
 
-namespace wmath
-{
 // ############################# class WTensorSym<> #############################################
 
 /**
@@ -92,13 +90,13 @@ private:
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 WTensorSym< order, dim, Data_T >::WTensorSym()
-    : wmath::WTensorFunc< wmath::WTensorBaseSym, order, dim, Data_T >()
+    : WTensorFunc< WTensorBaseSym, order, dim, Data_T >()
 {
 }
 
 template< std::size_t order, std::size_t dim, typename Data_T >
 WTensorSym< order, dim, Data_T >::WTensorSym( const WValue< Data_T >& data )
-    : WTensorFunc< wmath::WTensorBaseSym, order, dim, Data_T >( data )
+    : WTensorFunc< WTensorBaseSym, order, dim, Data_T >( data )
 {
 }
 // ######################## stream output operators #################################
@@ -176,7 +174,5 @@ std::ostream& operator << ( std::ostream& o, WTensorSym< 2, dim, Data_T > const&
  * \param numTwos How many elements of the permutation equal 2.
  */
 std::size_t calcSupersymmetricTensorMultiplicity( std::size_t order, std::size_t numZeros, std::size_t numOnes, std::size_t numTwos );
-
-}  // namespace wmath
 
 #endif  // WTENSORSYM_H

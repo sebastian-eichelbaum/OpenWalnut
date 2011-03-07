@@ -71,6 +71,7 @@ public:
 
     /**
      * Simple search the WQtNetworkItem that belongs to the WModule
+     *
      * \param module a WModule
      * \return WQtNetworkItem belongs to the WModule
      */

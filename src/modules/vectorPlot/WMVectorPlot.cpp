@@ -178,7 +178,7 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Vector Plot", 4 ) );
     m_progress->addSubProgress( progress );
 
-    wmath::WPosition current = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition current = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
 
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
     boost::shared_ptr< WValueSet< float > > vals = boost::shared_dynamic_cast< WValueSet<float> >( m_dataSet->getValueSet() );
@@ -187,7 +187,7 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
     m_ySlice->setMax( grid->getNbCoordsY() - 1 );
     m_zSlice->setMax( grid->getNbCoordsZ() - 1 );
 
-    wmath::WPosition texPos = grid->worldCoordToTexCoord( current );
+    WPosition texPos = grid->worldCoordToTexCoord( current );
     double xSlice = texPos[0] * grid->getNbCoordsX() - 0.5;
     double ySlice = texPos[1] * grid->getNbCoordsY() - 0.5;
     double zSlice = texPos[2] * grid->getNbCoordsZ() - 0.5;
@@ -399,7 +399,7 @@ osg::ref_ptr<osg::Geometry> WMVectorPlot::buildPlotSlices()
 
 void WMVectorPlot::updateCallback()
 {
-    wmath::WPosition current = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition current = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
 
     if( ( m_oldPos != current ) || m_coloringMode->changed() || m_aColor->changed() || m_projectOnSlice->changed() ||
             m_showOnSagittal->changed() || m_showOnCoronal->changed() || m_showOnAxial->changed() )
@@ -432,7 +432,7 @@ void WMVectorPlot::activate()
 
 void WMVectorPlot::transformVerts( osg::ref_ptr< osg::Vec3Array > verts )
 {
-    wmath::WMatrix< double > mat = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() )->getTransformationMatrix();
+    WMatrix< double > mat = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() )->getTransformationMatrix();
 
     for( size_t i = 0; i < verts->size(); ++i )
     {

@@ -47,28 +47,27 @@ public:
      * 0.000179516, 2.09569e-05, 2.76557e-06, 0.000170189, -5.52619e-07, 0.00015239
      * (0.000196397;0.000155074;0.000150625)
      */
-    void testSpecialSymMatrixEigenvalueTestCaseNumericalPansenStability( void )
+    void testSpecialSymMatrixEigenvalueTestCaseNumericalStability( void )
     {
-        wmath::WTensorSym< 2, 3 > t;
-        std::vector< double > vals( 3, 0 );
-        std::vector< wmath::WVector3D > vecs( 3 );
+        WTensorSym< 2, 3 > t;
         t( 0, 0 ) =  0.000179516;
         t( 0, 1 ) =  2.09569e-05;
         t( 0, 2 ) =  2.76557e-06;
         t( 1, 1 ) =  0.000170189;
         t( 1, 2 ) = -5.52619e-07;
         t( 2, 2 ) =  0.00015239;
-        wmath::jacobiEigenvector3D( t, &vals, &vecs );
-        WAssert( !wlimits::isnan( vals[0] ), "Damn!" );
+        RealEigenSystem sys;
+        jacobiEigenvector3D( t, &sys );
+        WAssert( !wlimits::isnan( sys[0].first ), "Damn!" );
         // Note: We don't use TS_ASSERT_DELTA here since its output is restricted to 4 digits after the point aka comma.
         double delta = 1.0e-8;
-        if( std::abs( vals[0] - 0.000196397 ) > delta ||
-            std::abs( vals[1] - 0.000155074 ) > delta ||
-            std::abs( vals[2] - 0.000150625 ) > delta )
+        if( std::abs( sys[0].first - 0.000196397 ) > delta ||
+            std::abs( sys[1].first - 0.000155074 ) > delta ||
+            std::abs( sys[2].first - 0.000150625 ) > delta )
         {
             TS_FAIL( "The eigenvalues are incorrect: " );
             using string_utils::operator<<;
-            std::cout << std::fixed << std::setprecision( 16 ) << std::endl << vals << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << std::endl << WVector3D( sys[0].first, sys[1].first, sys[2].first ) << std::endl;
             std::cout << "but got:" << std::endl << 0.000196397 << " " << 0.000155074 << " " << 0.00015062 << std::endl;
         }
     }
@@ -79,115 +78,112 @@ public:
     void testJacobiEigenvectors()
     {
         // the test matrix
-        wmath::WTensorSym< 2, 3 > t;
-        // variables for the output values
-        std::vector< double > d( 3 );
-        std::vector< wmath::WVector3D > v( 3 );
+        WTensorSym< 2, 3 > t;
 
         // simple diagonal matrices should be decomposed correctly
-
         // 1 2 3
         t( 0, 0 ) = 1.0;
         t( 1, 1 ) = 2.0;
         t( 2, 2 ) = 3.0;
 
-        wmath::jacobiEigenvector3D( t, &d, &v );
+        RealEigenSystem sys;
+        jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( d[ 0 ], 1.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 1 ], 2.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 2 ], 3.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 3.0, 1e-6 );
         // eigenvectors should be perpendicular
-        TS_ASSERT_DELTA( v[ 0 ].dotProduct( v[ 1 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].dotProduct( v[ 2 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].dotProduct( v[ 0 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 0 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
 
         // 1 2 -3
         t( 0, 0 ) = 1.0;
         t( 1, 1 ) = 2.0;
         t( 2, 2 ) = -3.0;
 
-        wmath::jacobiEigenvector3D( t, &d, &v );
+        jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( d[ 0 ], 1.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 1 ], 2.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 2 ], -3.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].dotProduct( v[ 1 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].dotProduct( v[ 2 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].dotProduct( v[ 0 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 0 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, -3.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
 
         // 1 2 2
         t( 0, 0 ) = 1.0;
         t( 1, 1 ) = 2.0;
         t( 2, 2 ) = 2.0;
 
-        wmath::jacobiEigenvector3D( t, &d, &v );
+        jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( d[ 0 ], 1.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 1 ], 2.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 2 ], 2.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].dotProduct( v[ 1 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].dotProduct( v[ 2 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].dotProduct( v[ 0 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 0 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
 
         // -1 -1 -1
         t( 0, 0 ) = -1.0;
         t( 1, 1 ) = -1.0;
         t( 2, 2 ) = -1.0;
 
-        wmath::jacobiEigenvector3D( t, &d, &v );
+        jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( d[ 0 ], -1.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 1 ], -1.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 2 ], -1.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].dotProduct( v[ 1 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].dotProduct( v[ 2 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].dotProduct( v[ 0 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 0 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].first, -1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, -1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, -1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
 
         // 1 0 1
         t( 0, 0 ) = 1.0;
         t( 1, 1 ) = 0.0;
         t( 2, 2 ) = 1.0;
 
-        wmath::jacobiEigenvector3D( t, &d, &v );
+        jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( d[ 0 ], 1.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 1 ], 0.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 2 ], 1.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].dotProduct( v[ 1 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].dotProduct( v[ 2 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].dotProduct( v[ 0 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 0 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
 
         // 0 0 0
         t( 0, 0 ) = 0.0;
         t( 1, 1 ) = 0.0;
         t( 2, 2 ) = 0.0;
 
-        wmath::jacobiEigenvector3D( t, &d, &v );
+        jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( d[ 0 ], 0.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 1 ], 0.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 2 ], 0.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].dotProduct( v[ 1 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].dotProduct( v[ 2 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].dotProduct( v[ 0 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 0 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].first, 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
 
         // similar eigenvalues
         // 2.000001 0.0 1.999998
@@ -195,17 +191,17 @@ public:
         t( 1, 1 ) = 0.0;
         t( 2, 2 ) = 1.999998;
 
-        wmath::jacobiEigenvector3D( t, &d, &v );
+        jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( d[ 0 ], 2.000001, 1e-6 );
-        TS_ASSERT_DELTA( d[ 1 ], 0.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 2 ], 1.999998, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].dotProduct( v[ 1 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].dotProduct( v[ 2 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].dotProduct( v[ 0 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 0 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].first, 2.000001, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 1.999998, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
 
         // very large eigenvalues
         // 3.824572321236e1000 1 2
@@ -213,17 +209,17 @@ public:
         t( 1, 1 ) = 1.0;
         t( 2, 2 ) = 2.0;
 
-        wmath::jacobiEigenvector3D( t, &d, &v );
+        jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( d[ 0 ], 3.824572321236e30, 1e-6 );
-        TS_ASSERT_DELTA( d[ 1 ], 1.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 2 ], 2.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].dotProduct( v[ 1 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].dotProduct( v[ 2 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].dotProduct( v[ 0 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 0 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].first, 3.824572321236e30, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
 
         // very small eigenvalues
         // 3.824572321236e-1000 1 2
@@ -231,17 +227,17 @@ public:
         t( 1, 1 ) = 1.0;
         t( 2, 2 ) = 2.0;
 
-        wmath::jacobiEigenvector3D( t, &d, &v );
+        jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( d[ 0 ], 3.824572321236e-30, 1e-6 );
-        TS_ASSERT_DELTA( d[ 1 ], 1.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 2 ], 2.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].dotProduct( v[ 1 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].dotProduct( v[ 2 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].dotProduct( v[ 0 ] ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 0 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].first, 3.824572321236e-30, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
 
         // some more sophisticated tests
         // (using similarity transformations on diagonal matrices to create test cases)
@@ -253,20 +249,20 @@ public:
         // eigenvectors that were found
         t = similarity_rotate_givens( t, 0, 2, 2.78 );
 
-        wmath::jacobiEigenvector3D( t, &d, &v );
+        jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( d[ 0 ], 1.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 1 ], 2.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 2 ], 3.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].dotProduct( v[ 1 ] ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 1 ].dotProduct( v[ 2 ] ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 2 ].dotProduct( v[ 0 ] ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].norm(), 1.0, 1e-9 );
-        compare_results( t, d, v );
+        TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 3.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
+        compare_results( t, sys );
 
-        t = wmath::WTensorSym< 2, 3 >();
+        t = WTensorSym< 2, 3 >();
         t( 0, 0 ) = 2;
         t( 1, 1 ) = 1;
         t( 2, 2 ) = 3;
@@ -276,20 +272,20 @@ public:
         t = similarity_rotate_givens( t, 1, 0, -0.46 );
         t = similarity_rotate_givens( t, 2, 1, 5.98 );
 
-        wmath::jacobiEigenvector3D( t, &d, &v );
+        jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( d[ 0 ], 2.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 1 ], 1.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 2 ], 3.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].dotProduct( v[ 1 ] ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 1 ].dotProduct( v[ 2 ] ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 2 ].dotProduct( v[ 0 ] ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].norm(), 1.0, 1e-9 );
-        compare_results( t, d, v );
+        TS_ASSERT_DELTA( sys[0].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 3.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
+        compare_results( t, sys );
 
-        t = wmath::WTensorSym< 2, 3 >();
+        t = WTensorSym< 2, 3 >();
         t( 0, 0 ) = 2;
         t( 1, 1 ) = 2;
         t( 2, 2 ) = 2;
@@ -299,18 +295,18 @@ public:
         t = similarity_rotate_givens( t, 0, 2, 2.79 );
         t = similarity_rotate_givens( t, 1, 0, -0.46 );
 
-        wmath::jacobiEigenvector3D( t, &d, &v );
+        jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( d[ 0 ], 2.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 1 ], 2.0, 1e-6 );
-        TS_ASSERT_DELTA( d[ 2 ], 2.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].dotProduct( v[ 1 ] ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 1 ].dotProduct( v[ 2 ] ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 2 ].dotProduct( v[ 0 ] ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( v[ 0 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 1 ].norm(), 1.0, 1e-9 );
-        TS_ASSERT_DELTA( v[ 2 ].norm(), 1.0, 1e-9 );
-        compare_results( t, d, v );
+        TS_ASSERT_DELTA( sys[0].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
+        compare_results( t, sys );
     }
 
     /**
@@ -319,7 +315,7 @@ public:
     void testCardanoEigenvalues()
     {
         // the test matrix
-        wmath::WTensorSym< 2, 3 > t;
+        WTensorSym< 2, 3 > t;
         // variables for the output values
         std::vector< double > d( 3 );
 
@@ -330,7 +326,7 @@ public:
         t( 1, 1 ) = 2.0;
         t( 2, 2 ) = 3.0;
 
-        d = wmath::getEigenvaluesCardano( t );
+        d = getEigenvaluesCardano( t );
 
         TS_ASSERT_DELTA( d[ 0 ], 3.0, 1e-6 );
         TS_ASSERT_DELTA( d[ 1 ], 2.0, 1e-6 );
@@ -341,7 +337,7 @@ public:
         t( 1, 1 ) = 2.0;
         t( 2, 2 ) = -3.0;
 
-        d = wmath::getEigenvaluesCardano( t );
+        d = getEigenvaluesCardano( t );
 
         TS_ASSERT_DELTA( d[ 0 ], 2.0, 1e-6 );
         TS_ASSERT_DELTA( d[ 1 ], 1.0, 1e-6 );
@@ -352,7 +348,7 @@ public:
         t( 1, 1 ) = 2.0;
         t( 2, 2 ) = 2.0;
 
-        d = wmath::getEigenvaluesCardano( t );
+        d = getEigenvaluesCardano( t );
 
         TS_ASSERT_DELTA( d[ 0 ], 2.0, 1e-6 );
         TS_ASSERT_DELTA( d[ 1 ], 2.0, 1e-6 );
@@ -363,7 +359,7 @@ public:
         t( 1, 1 ) = -1.0;
         t( 2, 2 ) = -1.0;
 
-        d = wmath::getEigenvaluesCardano( t );
+        d = getEigenvaluesCardano( t );
 
         TS_ASSERT_DELTA( d[ 0 ], -1.0, 1e-6 );
         TS_ASSERT_DELTA( d[ 1 ], -1.0, 1e-6 );
@@ -374,7 +370,7 @@ public:
         t( 1, 1 ) = 0.0;
         t( 2, 2 ) = 1.0;
 
-        d = wmath::getEigenvaluesCardano( t );
+        d = getEigenvaluesCardano( t );
 
         TS_ASSERT_DELTA( d[ 0 ], 1.0, 1e-6 );
         TS_ASSERT_DELTA( d[ 1 ], 1.0, 1e-6 );
@@ -385,7 +381,7 @@ public:
         t( 1, 1 ) = 0.0;
         t( 2, 2 ) = 0.0;
 
-        d = wmath::getEigenvaluesCardano( t );
+        d = getEigenvaluesCardano( t );
 
         TS_ASSERT_DELTA( d[ 0 ], 0.0, 1e-6 );
         TS_ASSERT_DELTA( d[ 1 ], 0.0, 1e-6 );
@@ -397,7 +393,7 @@ public:
         t( 1, 1 ) = 0.0;
         t( 2, 2 ) = 1.999998;
 
-        d = wmath::getEigenvaluesCardano( t );
+        d = getEigenvaluesCardano( t );
 
         TS_ASSERT_DELTA( d[ 0 ], 2.000001, 1e-6 );
         TS_ASSERT_DELTA( d[ 1 ], 1.999998, 1e-6 );
@@ -409,7 +405,7 @@ public:
         t( 1, 1 ) = 1.0;
         t( 2, 2 ) = 2.0;
 
-        d = wmath::getEigenvaluesCardano( t );
+        d = getEigenvaluesCardano( t );
 
         TS_ASSERT_DELTA( d[ 0 ], 3.824572321236e10, 1e-6 );
         TS_ASSERT_DELTA( d[ 1 ], 2.0, 1e-6 );
@@ -421,7 +417,7 @@ public:
         t( 1, 1 ) = 1.0;
         t( 2, 2 ) = 2.0;
 
-        d = wmath::getEigenvaluesCardano( t );
+        d = getEigenvaluesCardano( t );
 
         TS_ASSERT_DELTA( d[ 0 ], 2.0, 1e-6 );
         TS_ASSERT_DELTA( d[ 1 ], 1.0, 1e-6 );
@@ -437,14 +433,14 @@ public:
         // eigenvectors that were found
         t = similarity_rotate_givens( t, 0, 2, 2.78 );
 
-        d = wmath::getEigenvaluesCardano( t );
+        d = getEigenvaluesCardano( t );
 
         TS_ASSERT_DELTA( d[ 0 ], 3.0, 1e-6 );
         TS_ASSERT_DELTA( d[ 1 ], 2.0, 1e-6 );
         TS_ASSERT_DELTA( d[ 2 ], 1.0, 1e-6 );
 
         // the eigenvalues calculated for this test are a bit off
-        //t = wmath::WTensorSym< 2, 3 >();
+        //t = WTensorSym< 2, 3 >();
         //t( 0, 0 ) = 2;
         //t( 1, 1 ) = 1;
         //t( 2, 2 ) = 3;
@@ -454,13 +450,13 @@ public:
         //t = similarity_rotate_givens( t, 1, 0, -0.46 );
         //t = similarity_rotate_givens( t, 2, 1, 5.98 );
 
-        //d = wmath::getEigenvaluesCardano( t );
+        //d = getEigenvaluesCardano( t );
 
         //TS_ASSERT_DELTA( d[ 0 ], 3.0, 1e-6 );
         //TS_ASSERT_DELTA( d[ 1 ], 2.0, 1e-6 );
         //TS_ASSERT_DELTA( d[ 2 ], 1.0, 1e-6 );
 
-        t = wmath::WTensorSym< 2, 3 >();
+        t = WTensorSym< 2, 3 >();
         t( 0, 0 ) = 2;
         t( 1, 1 ) = 2;
         t( 2, 2 ) = 2;
@@ -470,7 +466,7 @@ public:
         t = similarity_rotate_givens( t, 0, 2, 2.79 );
         t = similarity_rotate_givens( t, 1, 0, -0.46 );
 
-        d = wmath::getEigenvaluesCardano( t );
+        d = getEigenvaluesCardano( t );
 
         TS_ASSERT_DELTA( d[ 0 ], 2.0, 1e-6 );
         TS_ASSERT_DELTA( d[ 1 ], 2.0, 1e-6 );
@@ -489,7 +485,7 @@ private:
      * \note i must not have the same values as j
      */
     template< std::size_t dim, typename Data_T >
-    wmath::WTensorSym< 2, dim, Data_T > similarity_rotate_givens( wmath::WTensorSym< 2, dim, Data_T > const& m,
+    WTensorSym< 2, dim, Data_T > similarity_rotate_givens( WTensorSym< 2, dim, Data_T > const& m,
                                                                   std::size_t i,
                                                                   std::size_t j,
                                                                   double angle )
@@ -498,7 +494,7 @@ private:
 
         double s = sin( angle );
         double c = cos( angle );
-        wmath::WTensor< 2, dim, Data_T > r;
+        WTensor< 2, dim, Data_T > r;
         for( std::size_t k = 0; k < dim; ++k )
         {
             if( k == i || k == j )
@@ -512,11 +508,11 @@ private:
         }
         r( i, j ) = s;
         r( j, i ) = -s;
-        wmath::WTensor< 2, dim, Data_T > t( r );
+        WTensor< 2, dim, Data_T > t( r );
         std::swap( t( i, j ), t( j, i ) );
 
         r = t * m * r;
-        wmath::WTensorSym< 2, dim, Data_T > res;
+        WTensorSym< 2, dim, Data_T > res;
         res( 0, 0 ) = r( 0, 0 );
         res( 1, 0 ) = r( 1, 0 );
         res( 2, 0 ) = r( 2, 0 );
@@ -532,20 +528,18 @@ private:
      * symmetric matrix.
      *
      * \param m A symmetric matrix.
-     * \param d A vector of eigenvalues.
-     * \param v A vector of eigenvectors.
+     * \param sys The eigen system ( eigenvalues and eigenvectors )
      */
     template< std::size_t dim, typename Data_T >
-    void compare_results( wmath::WTensorSym< 2, dim, Data_T > const& m, std::vector< double > const& d,
-                          std::vector< wmath::WVector3D > const& v )
+    void compare_results( WTensorSym< 2, dim, Data_T > const& m, RealEigenSystem const& sys )
     {
-        wmath::WTensor< 2, dim, Data_T > t, r;
+        WTensor< 2, dim, Data_T > t, r;
         for( std::size_t i = 0; i < dim; ++i )
         {
             for( std::size_t j = 0; j < dim; ++j )
             {
-                t( j, i ) = v[ i ][ j ];
-                r( j, i ) = d[ i ] * v[ i ][ j ];
+                t( j, i ) = sys[i].second[j];
+                r( j, i ) = sys[i].first * sys[i].second[j];
             }
         }
 
@@ -612,7 +606,7 @@ public:
      */
     void testEvaluateSphericalFunction()
     {
-        wmath::WTensorSym< 4, 3, double > t;
+        WTensorSym< 4, 3, double > t;
         // the tensor
         t( 0, 0, 0, 0 ) = 2.5476;
         t( 1, 1, 1, 1 ) = 3.5476;
@@ -631,12 +625,12 @@ public:
         t( 1, 1, 2, 2 ) = 16.5476;
 
         // the gradients
-        std::vector< wmath::WVector3D > gradients;
-        gradients.push_back( wmath::WVector3D( 1.0, 0.0, 0.0 ) );
-        gradients.push_back( wmath::WVector3D( 0.0, 1.0, 0.0 ) );
-        gradients.push_back( wmath::WVector3D( 1.0, 1.0, 0.0 ).normalized() );
-        gradients.push_back( wmath::WVector3D( 0.3, 0.4, 0.5 ).normalized() );
-        gradients.push_back( wmath::WVector3D( -7.0, 3.0, -1.0 ).normalized() );
+        std::vector< WVector3D > gradients;
+        gradients.push_back( WVector3D( 1.0, 0.0, 0.0 ) );
+        gradients.push_back( WVector3D( 0.0, 1.0, 0.0 ) );
+        gradients.push_back( WVector3D( 1.0, 1.0, 0.0 ).normalized() );
+        gradients.push_back( WVector3D( 0.3, 0.4, 0.5 ).normalized() );
+        gradients.push_back( WVector3D( -7.0, 3.0, -1.0 ).normalized() );
 
         for( int k = 0; k < 5; ++k )
         {
@@ -728,7 +722,7 @@ private:
      * \param t The tensor.
      * \param v The gradient.
      */
-    double calcTens( wmath::WTensorSym< 4, 3, double > const& t, wmath::WVector3D const& v )
+    double calcTens( WTensorSym< 4, 3, double > const& t, WVector3D const& v )
     {
         double res = 0.0;
         for( int a = 0; a < 3; ++a )
@@ -748,29 +742,29 @@ private:
     }
 
     //! a test tensor
-    wmath::WTensor< 2, 3, int > one;
+    WTensor< 2, 3, int > one;
     //! a test tensor
-    wmath::WTensor< 2, 3, int > zero;
+    WTensor< 2, 3, int > zero;
     //! a test tensor
-    wmath::WTensor< 2, 3, int > rdm1;
+    WTensor< 2, 3, int > rdm1;
     //! a test tensor
-    wmath::WTensor< 2, 3, int > rdm2;
+    WTensor< 2, 3, int > rdm2;
     //! a test tensor
-    wmath::WTensor< 2, 3, int > res1;
+    WTensor< 2, 3, int > res1;
     //! a test tensor
-    wmath::WTensor< 2, 3, int > res2;
+    WTensor< 2, 3, int > res2;
     //! a test tensor
-    wmath::WTensor< 2, 3, int > res3;
+    WTensor< 2, 3, int > res3;
     //! a test tensor
-    wmath::WTensor< 2, 3, int > res4;
+    WTensor< 2, 3, int > res4;
     //! a test tensor
-    wmath::WTensorSym< 2, 3, int > sone;
+    WTensorSym< 2, 3, int > sone;
     //! a test tensor
-    wmath::WTensorSym< 2, 3, int > szero;
+    WTensorSym< 2, 3, int > szero;
     //! a test tensor
-    wmath::WTensorSym< 2, 3, int > srdm1;
+    WTensorSym< 2, 3, int > srdm1;
     //! a test tensor
-    wmath::WTensorSym< 2, 3, int > srdm2;
+    WTensorSym< 2, 3, int > srdm2;
 };
 
 #endif  // WTENSORFUNCTIONS_TEST_H

@@ -63,6 +63,34 @@ public:
     virtual ~WDataSetScalar();
 
     /**
+     * Creates a copy (clone) of this instance but allows to change the valueset. Unlike copy construction, this is a very useful function if you
+     * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
+     *
+     * \param newValueSet the new valueset.
+     *
+     * \return the clone
+     */
+    virtual WDataSetSingle::SPtr clone( boost::shared_ptr< WValueSetBase > newValueSet ) const;
+
+    /**
+     * Creates a copy (clone) of this instance but allows to change the grid. Unlike copy construction, this is a very useful function if you
+     * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
+     *
+     * \param newGrid the new grid.
+     *
+     * \return the clone
+     */
+    virtual WDataSetSingle::SPtr clone( boost::shared_ptr< WGrid > newGrid ) const;
+
+    /**
+     * Creates a copy (clone) of this instance. Unlike copy construction, this is a very useful function if you
+     * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
+     *
+     * \return the clone
+     */
+    virtual WDataSetSingle::SPtr clone() const;
+
+    /**
      * Returns the largest of the scalars stored in the data set
      */
     double getMax() const;
@@ -93,7 +121,7 @@ public:
      *
      * \return Scalar value for that given position
      */
-    double interpolate( const wmath::WPosition& pos, bool* success ) const;
+    double interpolate( const WPosition& pos, bool* success ) const;
 
     /**
      * Get the value stored at a certain grid position of the data set
@@ -120,6 +148,8 @@ public:
      * \return the prototype.
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
+
+    using WDataSetSingle::getValueAt;
 
 protected:
 
