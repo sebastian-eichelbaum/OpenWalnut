@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cstdlib>
+
 #include <osg/Geometry>
 #include <osg/LineStipple>
 
@@ -80,6 +82,8 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Vec3Array > texCoordsPerPrimitive = generateQuadSpanning( activeDims );
     boost::shared_ptr< std::vector< WVector3D > > glyphDirections = generateClockwiseDir( activeDims, m_glyphSpacing->get() );
 
+    std::srand( 0 ); // we just really need only pseudo random numbers
+
     for( double x = 0.0; x < numCoords[ activeDims.first ]; x += m_spacing->get() )
     {
         for( double y = 0.0; y < numCoords[ activeDims.second ]; y += m_spacing->get() )
@@ -92,18 +96,26 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
                 WColor tractColor = lookUpColor( realPos, i );
                 if( tractColor[3] > m_probThreshold->get() )
                 {
-                    std::pair< WPosition, WPosition > focalPoints = computeFocalPoints( realPos, sliceNum );
-                    for( int j = 0; j < 4; ++j )
+                    // determine density of line stipples 1 => 10 samples. 0 => 0 samples
+                    size_t numSamples = static_cast< size_t >( tractColor[3] * 10 );
+                    for( size_t sample = 0; sample < numSamples; ++sample )
                     {
-                        quadVertices->push_back( realPos );
-                        quadColors->push_back( tractColor );
-                        firstFocalPoint->push_back( focalPoints.first );
-                        secondFocalPoint->push_back( focalPoints.second );
-                    }
+                        double s = 0.9 * m_spacing->get(); // jitter scaling
+                        WVector3D jitter( s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0 ); // NOLINT line length
 
-                    // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a real
-                    // quad out of the four center points
-                    quadSpanning->insert( quadSpanning->end(), texCoordsPerPrimitive->begin(), texCoordsPerPrimitive->end() );
+                        std::pair< WPosition, WPosition > focalPoints = computeFocalPoints( realPos + jitter, sliceNum );
+                        for( int j = 0; j < 4; ++j )
+                        {
+                            quadVertices->push_back( realPos + jitter );
+                            quadColors->push_back( tractColor );
+                            firstFocalPoint->push_back( focalPoints.first );
+                            secondFocalPoint->push_back( focalPoints.second );
+                        }
+
+                        // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a real
+                        // quad out of the four center points
+                        quadSpanning->insert( quadSpanning->end(), texCoordsPerPrimitive->begin(), texCoordsPerPrimitive->end() );
+                    }
                 }
             }
 
@@ -153,8 +165,8 @@ std::pair< WPosition, WPosition > WSPSliceBuilderVectors::computeFocalPoints( co
     // project into plane
     vec[ sliceNum ] = 0.0;
 
-    result.first = -0.5 * vec;
-    result.second = 0.5 * vec;
+    result.first = -0.4 * vec;
+    result.second = 0.4 * vec;
 
     return result;
 }
