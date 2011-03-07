@@ -139,14 +139,14 @@ public:
     {
         boost::shared_ptr< WGrid > grid = boost::shared_ptr< WGrid >( new WGridRegular3D( 2, 2, 2 ) );
         boost::shared_ptr< std::vector< double > > data( new std::vector< double > );
-        boost::array< WVector3D, 8 > d = {{ WVector3D( -1, 0, 0 ),
-                                            WVector3D(  1, 0, 0 ),
-                                            WVector3D(  1, 0, 0 ),
-                                            WVector3D(  1, 0, 0 ),
-                                            WVector3D(  1, 0, 0 ),
-                                            WVector3D(  1, 0, 0 ),
-                                            WVector3D(  1, 0, 0 ),
-                                            WVector3D(  1, 0, 0 ) }};
+        boost::array< WVector3D, 8 > d = { { WVector3D( -1, 0, 0 ), // NOLINT braces
+                                             WVector3D(  1, 0, 0 ),
+                                             WVector3D(  1, 0, 0 ),
+                                             WVector3D(  1, 0, 0 ),
+                                             WVector3D(  1, 0, 0 ),
+                                             WVector3D(  1, 0, 0 ),
+                                             WVector3D(  1, 0, 0 ),
+                                             WVector3D(  1, 0, 0 ) } }; // NOLINT braces
 
         for( size_t i = 0; i < grid->size(); ++i )
         {
@@ -156,9 +156,6 @@ public:
         }
         boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 1, 3, data, W_DT_DOUBLE ) );
         WDataSetVector ds( valueSet, grid );
-
-
-
 
         bool success = false;
         TS_ASSERT_EQUALS( ds.interpolate( WPosition( 0.0, 0.0, 0.0 ), &success ), d[0] );
