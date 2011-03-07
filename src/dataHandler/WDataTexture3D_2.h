@@ -91,7 +91,7 @@ namespace WDataTexture3D_2Scalers
 }
 
 /**
- * This class allows simple creation of WGETexture3D by using a specified grid and value-set. It also automates grid changes. Ony advantage: the
+ * This class allows simple creation of WGETexture3D by using a specified grid and value-set. One advantage: the
  * first call to the texture's update callback ensures texture creation. It is not created earlier.
  */
 class OWDATAHANDLER_EXPORT WDataTexture3D_2: public WGETexture3D
@@ -111,14 +111,6 @@ public:
      */
     virtual ~WDataTexture3D_2();
 
-    /**
-     * The texture got created using this grid. It can help to translate coordinates into the texture coordinate space relating to
-     * the grid.
-     *
-     * \return the grid.
-     */
-    boost::shared_ptr< WGridRegular3D > getGrid() const;
-
 protected:
 
     /**
@@ -131,22 +123,12 @@ private:
     /**
      * The value set from which the texture gets created.
      */
-    boost::shared_ptr<WValueSetBase> m_valueSet;
-
-    /**
-     * The grid used to set up the texture.
-     */
-    boost::shared_ptr< WGridRegular3D > m_grid;
+    boost::shared_ptr< WValueSetBase > m_valueSet;
 
     /**
      * The lock for securing createTexture.
      */
     boost::shared_mutex m_creationLock;
-
-    /**
-     * Connection of subscribed update condition from grid. Remove this if the grid really is const!
-     */
-    boost::signals2::connection m_transformationUpdateConnection;
 
     /**
      * Creates a properly sized osg::Image from the specified source data.
@@ -159,11 +141,6 @@ private:
      */
     template < typename T >
     osg::ref_ptr< osg::Image > createTexture( T* source, int components = 1 );
-
-    /**
-     * Updated the transformation property of the texture according to the grid's worldToTex matrix.
-     */
-    void updateTransform();
 };
 
 /**
@@ -204,21 +181,23 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
     typedef typename wge::GLType< T >::Type TexType;
     GLenum type = wge::GLType< T >::TypeEnum;
 
-    wlog::debug( "WDataTexture3D_2" ) << "Resolution: " << m_grid->getNbCoordsX() << "x" << m_grid->getNbCoordsY() << "x" << m_grid->getNbCoordsZ();
+    wlog::debug( "WDataTexture3D_2" ) << "Resolution: " << getTextureWidth() << "x" << getTextureHeight() << "x" << getTextureDepth();
     wlog::debug( "WDataTexture3D_2" ) << "Channels: " << components;
     // NOTE: the casting is needed as if T == uint8_t -> it will be interpreted as ASCII code -> bad.
     wlog::debug( "WDataTexture3D_2" ) << "Value Range: [" << static_cast< float >( min ) << "," << static_cast< float >( max ) <<
                                                        "] - Scaler: " << scaler;
     osg::ref_ptr< osg::Image > ima = new osg::Image;
 
+    size_t nbVoxels = getTextureWidth() * getTextureHeight() * getTextureDepth();
+
     if ( components == 1)
     {
         // OpenGL just supports float textures
-        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_LUMINANCE_ALPHA, type );
+        ima->allocateImage( getTextureWidth(), getTextureHeight(), getTextureDepth(), GL_LUMINANCE_ALPHA, type );
         TexType* data = reinterpret_cast< TexType* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
-        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
+        for ( unsigned int i = 0; i < nbVoxels; ++i )
         {
             data[ 2 * i ] = WDataTexture3D_2Scalers::scaleInterval( source[i], min, max, scaler );
             data[ ( 2 * i ) + 1] = source[i] != min;
@@ -227,12 +206,12 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
     else if ( components == 2)
     {
         // OpenGL just supports float textures
-        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGBA, type );
+        ima->allocateImage( getTextureWidth(), getTextureHeight(), getTextureDepth(), GL_RGBA, type );
         ima->setInternalTextureFormat( GL_RGBA );
         TexType* data = reinterpret_cast< TexType* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
-        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
+        for ( unsigned int i = 0; i < nbVoxels; ++i )
         {
             data[ ( 4 * i ) ]     = WDataTexture3D_2Scalers::scaleInterval( source[ ( 2 * i ) ], min, max, scaler );
             data[ ( 4 * i ) + 1 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 2 * i ) + 1 ], min, max, scaler );
@@ -243,12 +222,12 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
     else if ( components == 3)
     {
         // OpenGL just supports float textures
-        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGBA, type );
+        ima->allocateImage( getTextureWidth(), getTextureHeight(), getTextureDepth(), GL_RGBA, type );
         ima->setInternalTextureFormat( GL_RGBA );
         TexType* data = reinterpret_cast< TexType* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
-        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
+        for ( unsigned int i = 0; i < nbVoxels; ++i )
         {
             data[ ( 4 * i ) ]     = WDataTexture3D_2Scalers::scaleInterval( source[ ( 3 * i ) ], min, max, scaler );
             data[ ( 4 * i ) + 1 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 3 * i ) + 1 ], min, max, scaler );
@@ -259,12 +238,12 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
     else if ( components == 4)
     {
         // OpenGL just supports float textures
-        ima->allocateImage( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ(), GL_RGBA, type );
+        ima->allocateImage( getTextureWidth(), getTextureHeight(), getTextureDepth(), GL_RGBA, type );
         ima->setInternalTextureFormat( GL_RGBA );
         TexType* data = reinterpret_cast< TexType* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
-        for ( unsigned int i = 0; i < m_grid->getNbCoordsX() * m_grid->getNbCoordsY() * m_grid->getNbCoordsZ() ; ++i )
+        for ( unsigned int i = 0; i < nbVoxels; ++i )
         {
             data[ ( 4 * i ) ]     = WDataTexture3D_2Scalers::scaleInterval( source[ ( 4 * i ) ], min, max, scaler );
             data[ ( 4 * i ) + 1 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 4 * i ) + 1 ], min, max, scaler );

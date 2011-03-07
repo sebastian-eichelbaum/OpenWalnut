@@ -2,7 +2,7 @@
 //
 // Project: OpenWalnut ( http://www.openwalnut.org )
 //
-// Copyright 2009 OpenWalnut Community, BSV-Leipzig and CNCF-CBS
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
 // For more information see http://www.openwalnut.org/copying
 //
 // This file is part of OpenWalnut.
@@ -25,38 +25,36 @@
 #ifndef WMGRIDRENDERER_H
 #define WMGRIDRENDERER_H
 
+#include <map>
 #include <string>
+#include <vector>
 
+#include <osg/Node>
 #include <osg/Geode>
+#include <osg/Uniform>
 
+#include "../../common/math/WVector3D.h"
+#include "../../graphicsEngine/WGEGroupNode.h"
+#include "../../graphicsEngine/geodes/WGEGridNode.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
 
 /**
- * Someone should add some documentation here.
- * Probably the best person would be the module's
- * creator, i.e. "wiebel".
- *
- * This is only an empty template for a new module. For
- * an example module containing many interesting concepts
- * and extensive documentation have a look at "src/modules/template"
- *
+ * Show the bounding box and grid of a WDataSetSingle
  * \ingroup modules
  */
-class WMGridRenderer: public WModule
+class WMGridRenderer : public WModule
 {
 public:
-
     /**
-     *
+     * Standard constructor.
      */
     WMGridRenderer();
 
     /**
-     *
+     * Destructor.
      */
-    virtual ~WMGridRenderer();
+    ~WMGridRenderer();
 
     /**
      * Gives back the name of this module.
@@ -66,9 +64,15 @@ public:
 
     /**
      * Gives back a description of this module.
-     * \return description to module.
+     * \return description of module.
      */
     virtual const std::string getDescription() const;
+
+    /**
+     * Determine what to do if a property was changed.
+     * \param propertyName Name of the property.
+     */
+    void slotPropertyChanged( std::string propertyName );
 
     /**
      * Due to the prototype design pattern used to build modules, this method returns a new instance of this method. NOTE: it
@@ -84,7 +88,6 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
-
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -100,18 +103,33 @@ protected:
      */
     virtual void properties();
 
-
 private:
-    /**
-     * Gets signaled from the properties object when something was changed. Now, only m_active is used. This method therefore simply
-     * activates/deactivates the BBox.
-     */
-    void activate();
 
     boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_input;  //!< Input connector required by this module.
-    void render(); //!< Helper method doing the actual prparation of the graphics.
 
-    osg::ref_ptr< osg::Geode > m_gridGeode; //!< Pointer to geode containing the grid.
-    osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
+    WItemSelection::SPtr m_possibleModes; //!< the modes available.
+
+    WPropSelection m_mode; //!< the mode (bbox, grid, both)
+
+    WPropColor m_bboxColor; //!< the color of the bounding box
+
+    WPropColor m_gridColor; //!< the color of the grid
+
+    /**
+     * This condition denotes whether we need to recompute the surface
+     */
+    boost::shared_ptr< WCondition > m_recompute;
+
+    /**
+     * The node actually drawing the grid.
+     */
+    WGEGridNode::SPtr m_gridNode;
+
+    /**
+     * Handles updates in properties.
+     *
+     * \param property the property that has updated.
+     */
+    void updateNode( WPropertyBase::SPtr property );
 };
 #endif  // WMGRIDRENDERER_H

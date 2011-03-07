@@ -156,6 +156,49 @@ osg::ref_ptr< osg::Geometry > wge::createUnitCube( const WColor& color )
     return cube;
 }
 
+osg::ref_ptr< osg::Geometry > wge::createUnitCubeAsLines( const WColor& color )
+{
+    // create the unit cube manually as the ShapeDrawable and osg::Box does not provide 3D texture coordinates
+    osg::ref_ptr< osg::Geometry > cube = new osg::Geometry();
+    osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+
+    vertices->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 1.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 0.0, 1.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
+    vertices->push_back( osg::Vec3( 0.0, 1.0, 1.0 ) );
+    vertices->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+
+    cube->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, vertices->size() ) );
+
+    vertices->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 0.0, 1.0, 1.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 0.0, 1.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 1.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
+
+    cube->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, vertices->size() - 6, 6 ) );
+
+    // set it up and set arrays
+    cube->setVertexArray( vertices );
+
+    // set 3D texture coordinates here.
+    cube->setTexCoordArray( 0, vertices );
+
+    // finally, the colors
+    colors->push_back( color );
+    cube->setColorArray( colors );
+    cube->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+    return cube;
+}
+
 osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const WBoundingBox& bb, const WColor& color, bool threeDTexCoords )
 {
     WAssert( bb.valid(), "Invalid bounding box!" );

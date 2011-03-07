@@ -46,6 +46,7 @@ class WDataSetTimeSeriesTest;
  * A dataset that stores a time series.
  *
  * \note Only works for scalar datasets at the moment!
+ * \note this is only a temporary solution
  */
 class OWDATAHANDLER_EXPORT WDataSetTimeSeries : public WDataSet
 {

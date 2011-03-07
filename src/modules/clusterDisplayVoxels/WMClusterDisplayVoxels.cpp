@@ -189,7 +189,8 @@ void WMClusterDisplayVoxels::properties()
     m_propMinSizeToColor->setMin( 1 );
     m_propMinSizeToColor->setMax( 200 );
 
-    m_propZoomIntoTree = m_groupDendrogram->addProperty( "Zoom into tree", "When active this takes the currently selected cluster as the root cluster for the dendrogram", false, m_propCondition ); //NOLINT
+    m_propZoomIn = m_groupDendrogram->addProperty( "Zoom in", "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
+    m_propZoomOut = m_groupDendrogram->addProperty( "Zoom out", "Press!", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition );
 
     m_propResizeWithWindow = m_groupDendrogram->addProperty( "Resize with window", "", true, m_propCondition );
 
@@ -250,6 +251,9 @@ void WMClusterDisplayVoxels::setPropertyBoundaries()
         m_propSelectedLoadedPartion->setMin( 1 );
         m_propSelectedLoadedPartion->setMax( m_loadedPartitions.size() );
     }
+
+    m_zoom = false;
+    m_zoomRoot = m_propSelectedCluster->get();
 }
 
 void WMClusterDisplayVoxels::moduleMain()
@@ -312,7 +316,6 @@ void WMClusterDisplayVoxels::moduleMain()
                 m_groupSelection->setHidden( false );
                 m_groupTriangulation->setHidden( false );
                 m_groupDendrogram->setHidden( false );
-
                 break;
             }
         }
@@ -451,7 +454,7 @@ void WMClusterDisplayVoxels::moduleMain()
 
         if ( m_propShowDendrogram->changed( true ) || m_propResizeWithWindow->changed( true ) || m_propDendrogramSizeX->changed( true ) ||
                 m_propDendrogramSizeY->changed( true ) || m_propDendrogramOffsetX->changed( true ) || m_propDendrogramOffsetY->changed( true ) ||
-                m_propPlotHeightByLevel->changed( true ) || m_propShowSelectedButtons->changed() || m_propZoomIntoTree->changed() )
+                m_propPlotHeightByLevel->changed( true ) || m_propShowSelectedButtons->changed() )
         {
             m_dendrogramDirty = true;
         }
@@ -460,6 +463,22 @@ void WMClusterDisplayVoxels::moduleMain()
         {
             updateOutDataset();
             m_buttonUpdateOutput->set( WPVBaseTypes::PV_TRIGGER_READY, false );
+        }
+
+        if ( m_propZoomIn->changed( true ) )
+        {
+            m_zoom = true;
+            m_zoomRoot = m_propSelectedCluster->get( true );
+            m_dendrogramDirty = true;
+            m_propZoomIn->set( WPVBaseTypes::PV_TRIGGER_READY, true );
+            m_propZoomIn->get( true );
+        }
+
+        if ( m_propZoomOut->changed( true ) )
+        {
+            m_zoom = false;
+            m_dendrogramDirty = true;
+            m_propZoomOut->set( WPVBaseTypes::PV_TRIGGER_READY, true );
         }
     }
 
@@ -511,7 +530,8 @@ void WMClusterDisplayVoxels::updateAll()
     for ( size_t k = 0; k < m_activatedClusters.size(); ++k )
     {
         size_t current = m_activatedClusters[k];
-        m_tree.colorCluster( current, wge::getNthHSVColor( k ) );
+        //m_tree.colorCluster( current, wge::getNthHSVColor( k ) );
+        m_tree.colorCluster( current, m_clusterColors[current] );
     }
 
     // redraw the texture
@@ -546,7 +566,7 @@ void WMClusterDisplayVoxels::updateAll()
         }
         else if ( m_data[i] != 0 )
         {
-            WColor color = wge::getNthHSVColor( m_data[i] - 1 );
+            WColor color = m_clusterColors[m_activatedClusters[m_data[i]-1]];
             data[i * 3    ] = color[0] * 255;
             data[i * 3 + 1] = color[1] * 255;
             data[i * 3 + 2] = color[2] * 255;
@@ -627,7 +647,33 @@ bool WMClusterDisplayVoxels::loadClustering( boost::filesystem::path clusterFile
         }
         m_loadedPartitions.push_back( partition );
     }
+
+    m_colorIndex = 0;
+    m_clusterColors.resize( m_tree.getClusterCount() );
+    initColors( m_tree.getClusterCount() - 1, 0 );
     return true;
+}
+
+void WMClusterDisplayVoxels::initColors( size_t root, size_t index )
+{
+    if ( m_tree.size( root ) == 1 )
+    {
+        m_clusterColors[root] = wge::getNthHSVColor( index );
+        return;
+    }
+    m_clusterColors[root] = wge::getNthHSVColor( index );
+    size_t left = m_tree.getChildren( root ).first;
+    size_t right = m_tree.getChildren( root ).second;
+    if ( m_tree.size( left ) >= m_tree.size( right ) )
+    {
+        initColors( left, index );
+        initColors( right, ++m_colorIndex );
+    }
+    else
+    {
+        initColors( left, ++m_colorIndex );
+        initColors( right, index );
+    }
 }
 
 void WMClusterDisplayVoxels::createTexture()
@@ -731,7 +777,7 @@ void WMClusterDisplayVoxels::renderMesh()
             // ------------------------------------------------
             // colors
             osg::Vec4Array* colors = new osg::Vec4Array;
-            colors->push_back( wge::getNthHSVColor( i ) );
+            colors->push_back( m_clusterColors[m_activatedClusters[i]] );
             surfaceGeometry->setColorArray( colors );
             surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
@@ -891,7 +937,7 @@ void WMClusterDisplayVoxels::updateWidgets()
                 newButton->managed( m_wm );
                 m_wm->addChild( newButton );
                 m_activeClustersButtonList.push_back( newButton );
-                newButton->setBackgroundColor( wge::getNthHSVColor( i ) );
+                newButton->setBackgroundColor( m_clusterColors[m_activatedClusters[i]] );
             }
         }
 
@@ -919,7 +965,8 @@ void WMClusterDisplayVoxels::updateWidgets()
             if ( m_activeClustersButtonList[k]->pushed() )
             {
                 size_t current = m_activatedClusters[k];
-                m_tree.colorCluster( current, wge::getNthHSVColor( k ) );
+                //m_tree.colorCluster( current, wge::getNthHSVColor( k ) );
+                m_tree.colorCluster( current, m_clusterColors[current] );
             }
         }
         m_dendrogramDirty = true;
@@ -940,9 +987,10 @@ void WMClusterDisplayVoxels::updateWidgets()
         if ( m_propShowDendrogram->get( true ) )
         {
             size_t rootCluster = m_tree.getClusterCount() - 1;
-            if ( m_propZoomIntoTree->get( true ) )
+
+            if ( m_zoom )
             {
-                rootCluster = m_propSelectedCluster->get();
+                rootCluster = m_zoomRoot;
             }
 
 
@@ -1022,8 +1070,9 @@ void WMClusterDisplayVoxels::dendrogramClick( WPickInfo pickInfo )
     int y = pickInfo.getPickPixelPosition().second;
 
     size_t cluster = m_dendrogramGeode->getClickedCluster( x, y );
-    std::cout << cluster << std::endl;
+    //std::cout << cluster << std::endl;
     m_propSelectedCluster->set( cluster );
+    m_buttonExecuteSelection->set( WPVBaseTypes::PV_TRIGGER_TRIGGERED );
 }
 
 void WMClusterDisplayVoxels::updateOutDataset()

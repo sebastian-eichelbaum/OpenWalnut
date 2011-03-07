@@ -214,6 +214,39 @@ protected:
      */
     virtual void updateCallback( osg::StateAttribute* state );
 
+    /**
+     * Initialize the size of the texture properly according to real texture type (1D,2D,3D).
+     * \note This is needed because osg::Texture::setImage is not virtual and does not set the size from the image.
+     *
+     * \param texture the texture where to set the size
+     * \param width the new width
+     * \param height the new height
+     * \param depth the new depth
+     */
+    static void initTextureSize( osg::Texture1D* texture, int width, int height, int depth );
+
+    /**
+     * Initialize the size of the texture properly according to real texture type (1D,2D,3D).
+     * \note This is needed because osg::Texture::setImage is not virtual and does not set the size from the image.
+     *
+     * \param texture the texture where to set the size
+     * \param width the new width
+     * \param height the new height
+     * \param depth the new depth
+     */
+    static void initTextureSize( osg::Texture2D* texture, int width, int height, int depth );
+
+    /**
+     * Initialize the size of the texture properly according to real texture type (1D,2D,3D).
+     * \note This is needed because osg::Texture::setImage is not virtual and does not set the size from the image.
+     *
+     * \param texture the texture where to set the size
+     * \param width the new width
+     * \param height the new height
+     * \param depth the new depth
+     */
+    static void initTextureSize( osg::Texture3D* texture, int width, int height, int depth );
+
 private:
     /**
      * Creates and assigns all properties.
@@ -294,39 +327,6 @@ private:
      * The texture transformation matrix.
      */
     WPropMatrix4X4 m_texMatrix;
-
-    /**
-     * Initialize the size of the texture properly according to real texture type (1D,2D,3D).
-     * \note This is needed because osg::Texture::setImage is not virtual and does not set the size from the image.
-     *
-     * \param texture the texture where to set the size
-     * \param width the new width
-     * \param height the new height
-     * \param depth the new depth
-     */
-    static void initTextureSize( osg::Texture1D* texture, int width, int height, int depth );
-
-    /**
-     * Initialize the size of the texture properly according to real texture type (1D,2D,3D).
-     * \note This is needed because osg::Texture::setImage is not virtual and does not set the size from the image.
-     *
-     * \param texture the texture where to set the size
-     * \param width the new width
-     * \param height the new height
-     * \param depth the new depth
-     */
-    static void initTextureSize( osg::Texture2D* texture, int width, int height, int depth );
-
-    /**
-     * Initialize the size of the texture properly according to real texture type (1D,2D,3D).
-     * \note This is needed because osg::Texture::setImage is not virtual and does not set the size from the image.
-     *
-     * \param texture the texture where to set the size
-     * \param width the new width
-     * \param height the new height
-     * \param depth the new depth
-     */
-    static void initTextureSize( osg::Texture3D* texture, int width, int height, int depth );
 };
 
 // Some convenience typedefs
@@ -420,6 +420,7 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
     m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true );
 
     m_texMatrix = m_properties->addProperty( "Texture Transformation", "Usable to transform the texture.", osg::Matrix::identity() );
+    m_texMatrix->setPurpose( PV_PURPOSE_INFORMATION );
 
     TextureType::setResizeNonPowerOfTwoHint( false );
     TextureType::setUpdateCallback( new WGEFunctorCallback< osg::StateAttribute >(

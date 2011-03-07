@@ -213,6 +213,8 @@ private:
 
     QGraphicsTextItem* m_text; //!< the caption
 
+    QGraphicsTextItem* m_subtitle; //!< the caption
+
     QPointF m_newPos; //!< the new position in the WQtNetworkScene
 
     WQtNetworkEditor* m_networkEditor; //!< the related WQtNetworkEditor

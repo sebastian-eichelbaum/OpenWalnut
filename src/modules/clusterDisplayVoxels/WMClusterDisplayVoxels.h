@@ -198,6 +198,14 @@ private:
      */
     void setButtonLabels();
 
+    /**
+     * recursive function that initalizes a color for for every cluster, the biggest of the two children of a cluster
+     * inherits the color for its parent
+     * \param root cluster to work on
+     * \param index color index of the parent
+     */
+    void initColors( size_t root, size_t index );
+
 
     /**
      * An input connector that accepts order 1 datasets.
@@ -349,11 +357,10 @@ private:
      */
     WPropBool m_propResizeWithWindow;
 
-    /**
-     * draw the dendrogramm from the root node or fromt he currently selected cluster
-     */
-    WPropBool m_propZoomIntoTree;
-
+    WPropTrigger m_propZoomIn; //!< zoom into tree, sets m_zoom true and m_zoomRoot to the currently selected cluster
+    WPropTrigger m_propZoomOut; //!< zooms out, m_zoom = false, dendrogram shows the whole tree
+    size_t m_zoomRoot; //!< control variable for zoom mode
+    bool m_zoom; //!< control variable for zoom mode
 
     WPropInt m_propDendrogramSizeX; //!< controls the width of the dendrogram
     WPropInt m_propDendrogramSizeY; //!< controls the height of the dendrogram
@@ -442,6 +449,13 @@ private:
      * Selection property for button labels
      */
     WPropSelection m_buttonLabelSelection;
+
+    /**
+     * stores a preset color for every cluster, so clusters can keep the same color through different selection methods
+     */
+    std::vector< WColor >m_clusterColors;
+
+    size_t m_colorIndex; //!< temp variable for the initColors function
 };
 
 #endif  // WMCLUSTERDISPLAYVOXELS_H

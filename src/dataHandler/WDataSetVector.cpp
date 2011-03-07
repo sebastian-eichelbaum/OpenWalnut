@@ -53,6 +53,21 @@ WDataSetVector::~WDataSetVector()
 {
 }
 
+WDataSetSingle::SPtr WDataSetVector::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetVector( newValueSet, getGrid() ) );
+}
+
+WDataSetSingle::SPtr WDataSetVector::clone( boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetVector( getValueSet(), newGrid ) );
+}
+
+WDataSetSingle::SPtr WDataSetVector::clone() const
+{
+    return WDataSetSingle::SPtr( new WDataSetVector( getValueSet(), getGrid() ) );
+}
+
 boost::shared_ptr< WPrototyped > WDataSetVector::getPrototype()
 {
     if ( !m_prototype )
@@ -68,7 +83,7 @@ WVector3D WDataSetVector::interpolate( const WPosition& pos, bool *success ) con
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
 
     WAssert( grid,  "This data set has a grid whose type is not yet supported for interpolation." );
-    WAssert( grid->isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
+    WAssert( grid->isNotRotated(), "Only feasible for grids that are only translated or scaled so far." );
     WAssert( ( m_valueSet->order() == 1 &&  m_valueSet->dimension() == 3 ),
              "Only implemented for 3D Vectors so far." );
 
@@ -151,3 +166,4 @@ bool WDataSetVector::isTexture() const
 {
     return true;
 }
+
