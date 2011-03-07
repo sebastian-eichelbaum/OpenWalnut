@@ -147,7 +147,7 @@ std::pair< WPosition, WPosition > WSPSliceBuilderVectors::computeFocalPoints( co
     std::pair< WPosition, WPosition > result;
 
     bool success = false;
-    WVector3D vec = m_vectors->interpolate( pos, &success );
+    WVector3D vec = m_vectors->eigenVectorInterpolate( pos, &success );
     vec.normalize();
 
     // project into plane
