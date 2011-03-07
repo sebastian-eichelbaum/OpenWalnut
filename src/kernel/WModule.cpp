@@ -559,6 +559,9 @@ void WModule::threadMain()
         m_isCrashed( true );
     }
 
+    // remove all pending connections. This is important as connections that still exists after module deletion can cause segfaults when they get
+    // disconnected in the connector destructor.
+    disconnect();
     m_isRunning( false );
 }
 

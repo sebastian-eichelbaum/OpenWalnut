@@ -101,6 +101,17 @@ public:
     WVector3D interpolate( const WPosition &pos, bool *success ) const;
 
     /**
+     * Interpolates the very same way as \ref interpolate but it assures that all vecs are aligned to point into the same
+     * half-space.  This is useful for eigenvector fields, where -v, and v both are eigenvectors.
+     *
+     * \param pos Position to interpolate a vector for
+     * \param success return parameter which is true if pos was inside of the grid, false otherwise.
+     *
+     * \return The resulting interpolated vector.
+     */
+    WVector3D eigenVectorInterpolate( const WPosition &pos, bool *success ) const;
+
+    /**
      * Get the vector on the given position in value set.
      * \note currently only implmented for WVector3D
      *
