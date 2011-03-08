@@ -23,9 +23,9 @@
 //---------------------------------------------------------------------------
 
 
-#include <Eigen/QR>
-
+#include "../../common/datastructures/WFiber.h"
 #include "../../common/WAssert.h"
+#include "../../ext/Eigen/QR"
 #include "WGaussProcess.h"
 
 WGaussProcess::WGaussProcess( const size_t tractID,

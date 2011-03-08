@@ -25,15 +25,14 @@
 #ifndef WGAUSSPROCESS_H
 #define WGAUSSPROCESS_H
 
-#include <Eigen/Core>
-
-class WFiber;
-
 #include "../../common/math/WMatrix.h"
 #include "../../common/math/WValue.h"
 #include "../../common/WBoundingBox.h"
 #include "../../dataHandler/WDataSetDTI.h"
 #include "../../dataHandler/WDataSetFibers.h"
+#include "../../ext/Eigen/Core"
+
+class WFiber;
 
 /**
  * Represents a basic gaussian process with its mean- and covariance function. Basically this aims
