@@ -35,8 +35,18 @@ WConditionSet::WConditionSet():
 
 WConditionSet::~WConditionSet()
 {
+    // get write lock
+    boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_conditionSetLock );
+
     // clean conditions list
+    // NOTE: we need to disconnect here.
+    for ( ConditionConnectionMap::iterator it = m_conditionSet.begin(); it != m_conditionSet.end(); ++it )
+    {
+        ( *it ).second.disconnect();
+    }
+
     m_conditionSet.clear();
+    lock.unlock();
 }
 
 void WConditionSet::add( boost::shared_ptr< WCondition > condition )

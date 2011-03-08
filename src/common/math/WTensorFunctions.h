@@ -25,8 +25,10 @@
 #ifndef WTENSORFUNCTIONS_H
 #define WTENSORFUNCTIONS_H
 
+#include <algorithm>
 #include <cmath>
 #include <complex>
+#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -49,6 +51,33 @@ typedef boost::array< std::pair< double, WVector3D >, 3 > RealEigenSystem;
  * An eigensystem has all eigenvalues as well its corresponding eigenvectors.
  */
 typedef boost::array< std::pair< std::complex< double >, WVector3D >, 3 > EigenSystem;
+
+std::ostream& operator<<( std::ostream& os, const RealEigenSystem& sys )
+{
+    os << sys[0].first << ", " << sys[0].second << std::endl;
+    os << sys[1].first << ", " << sys[1].second << std::endl;
+    os << sys[2].first << ", " << sys[2].second << std::endl;
+    return os;
+}
+
+namespace
+{
+    void sortRealEigenSystem( RealEigenSystem* es )
+    {
+        if( ( *es )[0].first > ( *es )[2].first )
+        {
+            std::swap( ( *es )[0], ( *es )[2] );
+        }
+        if( ( *es )[0].first > ( *es )[1].first )
+        {
+            std::swap( ( *es )[0], ( *es )[1] );
+        }
+        if( ( *es )[1].first > ( *es )[2].first )
+        {
+            std::swap( ( *es )[1], ( *es )[2] );
+        }
+    }
+}
 
 /**
  * Compute all eigenvalues as well as the corresponding eigenvectors of a
@@ -97,6 +126,7 @@ void jacobiEigenvector3D( WTensorSym< 2, 3, Data_T > const& mat, RealEigenSystem
                     result[i].second[j] = static_cast< double >( ev( j, i ) );
                 }
             }
+            sortRealEigenSystem( es );
             return;
         }
 
