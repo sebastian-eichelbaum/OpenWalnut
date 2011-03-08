@@ -58,18 +58,10 @@ public:
         t( 2, 2 ) =  0.00015239;
         RealEigenSystem sys;
         jacobiEigenvector3D( t, &sys );
-        WAssert( !wlimits::isnan( sys[0].first ), "Damn!" );
-        // Note: We don't use TS_ASSERT_DELTA here since its output is restricted to 4 digits after the point aka comma.
-        double delta = 1.0e-8;
-        if( std::abs( sys[0].first - 0.000196397 ) > delta ||
-            std::abs( sys[1].first - 0.000155074 ) > delta ||
-            std::abs( sys[2].first - 0.000150625 ) > delta )
-        {
-            TS_FAIL( "The eigenvalues are incorrect: " );
-            using string_utils::operator<<;
-            std::cout << std::fixed << std::setprecision( 16 ) << std::endl << WVector3D( sys[0].first, sys[1].first, sys[2].first ) << std::endl;
-            std::cout << "but got:" << std::endl << 0.000196397 << " " << 0.000155074 << " " << 0.00015062 << std::endl;
-        }
+
+        TS_ASSERT_DELTA( sys[0].first, 1.5062467240725114e-04, 1e-9 );
+        TS_ASSERT_DELTA( sys[1].first, 1.5507354000104679e-04, 1e-9 );
+        TS_ASSERT_DELTA( sys[2].first, 1.9639678759170208e-04, 1e-9 );
     }
 
     /**
@@ -107,9 +99,9 @@ public:
 
         jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[2].first, -3.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].first, -3.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 2.0, 1e-6 );
         TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
@@ -158,8 +150,8 @@ public:
 
         jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[1].first, 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].first, 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 1.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 1.0, 1e-6 );
         TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
@@ -193,9 +185,9 @@ public:
 
         jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( sys[0].first, 2.000001, 1e-6 );
-        TS_ASSERT_DELTA( sys[1].first, 0.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[2].first, 1.999998, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].first, 0.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 1.999998, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 2.000001, 1e-6 );
         TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
@@ -211,9 +203,9 @@ public:
 
         jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( sys[0].first, 3.824572321236e30, 1e-6 );
-        TS_ASSERT_DELTA( sys[1].first, 1.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[2].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[2].first, 3.824572321236e30, 1e-6 );
         TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
@@ -274,8 +266,8 @@ public:
 
         jacobiEigenvector3D( t, &sys );
 
-        TS_ASSERT_DELTA( sys[0].first, 2.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[1].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
+        TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 3.0, 1e-6 );
         TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-6 );
         TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-6 );
