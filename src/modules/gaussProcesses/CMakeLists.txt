@@ -9,7 +9,6 @@ SET( MODULE_DIRNAME ${MODULE_NAME} )
 SET( MODULE_NAME    "${OWmodulesPrefix}_${MODULE_NAME}" )      # prefix all module names with "OWmodule_" to separate them from other libs
 
 # Build module lib
-INCLUDE_DIRECTORIES( ${EIGEN3_INCLUDE_DIR} )
 ADD_LIBRARY( ${MODULE_NAME} SHARED ${MODULES_SRC} )
 TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWKernelName} )
 
