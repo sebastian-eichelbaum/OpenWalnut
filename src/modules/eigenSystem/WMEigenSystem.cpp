@@ -156,32 +156,39 @@ void WMEigenSystem::updateOCs( boost::shared_ptr< const WDataSetSingle > es )
     WAssert( vs, "Bug: invalid value-set from WThreadedPerVoxelOperation dataset" );
     boost::shared_ptr< WGrid > grid = es->getGrid();
 
-    typedef boost::shared_ptr< std::vector< double > > DataPointer;
-    std::vector< DataPointer > vecdata( 4, DataPointer( new std::vector< double >( vs->size() * 3 ) ) );
-    std::vector< DataPointer > valdata( 3, DataPointer( new std::vector< double >( vs->size() ) ) );
+    std::vector< boost::shared_ptr< std::vector< double > > > vecdata;
+    for( size_t i = 0; i < 4; ++i )
+    {
+        vecdata.push_back( boost::shared_ptr< std::vector< double > >( new std::vector< double >( vs->size() * 3 ) ) );
+    }
+    std::vector< boost::shared_ptr< std::vector< double > > > valdata;
+    for( size_t i = 0; i < 3; ++i )
+    {
+        valdata.push_back( boost::shared_ptr< std::vector< double > >( new std::vector< double >( vs->size() ) ) );
+    }
 
     for( size_t i = 0; i < vs->size(); ++i )
     {
         WValue< double > sys = vs->getWValue( i );
         // eigenvalues
-        ( *vecdata[0] )[ i * 3 ] = sys[0];
+        ( *vecdata[3] )[ i * 3 ] = sys[0];
         ( *valdata[0] )[ i ] = sys[0];
-        ( *vecdata[0] )[ i * 3 + 1] = sys[4];
+        ( *vecdata[3] )[ i * 3 + 1] = sys[4];
         ( *valdata[1] )[ i ] = sys[4];
-        ( *vecdata[0] )[ i * 3 + 2] = sys[8];
+        ( *vecdata[3] )[ i * 3 + 2] = sys[8];
         ( *valdata[2] )[ i ] = sys[8];
         // first eigenvector
-        ( *vecdata[1] )[ i * 3 ] = sys[1];
-        ( *vecdata[1] )[ i * 3 + 1] = sys[2];
-        ( *vecdata[1] )[ i * 3 + 2] = sys[3];
+        ( *vecdata[0] )[ i * 3 ] = sys[1];
+        ( *vecdata[0] )[ i * 3 + 1] = sys[2];
+        ( *vecdata[0] )[ i * 3 + 2] = sys[3];
         // second eigenvector
-        ( *vecdata[2] )[ i * 3 ] = sys[5];
-        ( *vecdata[2] )[ i * 3 + 1] = sys[6];
-        ( *vecdata[2] )[ i * 3 + 2] = sys[7];
+        ( *vecdata[1] )[ i * 3 ] = sys[5];
+        ( *vecdata[1] )[ i * 3 + 1] = sys[6];
+        ( *vecdata[1] )[ i * 3 + 2] = sys[7];
         // third eigenvector
-        ( *vecdata[3] )[ i * 3 ] = sys[9];
-        ( *vecdata[3] )[ i * 3 + 1] = sys[10];
-        ( *vecdata[3] )[ i * 3 + 2] = sys[11];
+        ( *vecdata[2] )[ i * 3 ] = sys[9];
+        ( *vecdata[2] )[ i * 3 + 1] = sys[10];
+        ( *vecdata[2] )[ i * 3 + 2] = sys[11];
     }
     typedef boost::shared_ptr< WDataSetVector > PDSV;
     typedef boost::shared_ptr< WDataSetScalar > PDSS;
