@@ -22,11 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include <fstream>
+
 #include "WIOTools.h"
 #include "exceptions/WFileNotFound.h"
 
 std::string wiotools::getStringFromFile( const std::string& filename )
-{ 
+{
     std::ifstream input( filename.c_str() );
     if ( !input.is_open() )
     {
