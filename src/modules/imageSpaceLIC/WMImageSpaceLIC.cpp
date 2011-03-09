@@ -27,6 +27,7 @@
 #include <vector>
 #include <string>
 
+#include <osg/BoundingSphere>
 #include <osg/Vec3>
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -233,10 +234,21 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
         ss->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", m_zPos ) );
         ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionZ() ) );  // the axis to move along
 
+        // set callbacks for en-/disabling the nodes
+        xSlice->addUpdateCallback( new WGENodeMaskCallback( m_showonX ) );
+        ySlice->addUpdateCallback( new WGENodeMaskCallback( m_showonY ) );
+        zSlice->addUpdateCallback( new WGENodeMaskCallback( m_showonZ ) );
+
+        // disable culling.
+        xSlice->setCullingActive( false );
+        ySlice->setCullingActive( false );
+        zSlice->setCullingActive( false );
+
         // add the transformation nodes to the output group
         m_output->insert( xSlice );
         m_output->insert( ySlice );
         m_output->insert( zSlice );
+        m_output->dirtyBound();
     }
 }
 
