@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <fstream>
+
 #include "WIOTools.h"
 #include "exceptions/WFileNotFound.h"
 
