@@ -23,3 +23,21 @@
 //---------------------------------------------------------------------------
 
 #include "WIOTools.h"
+#include "exceptions/WFileNotFound.h"
+
+std::string wiotools::getStringFromFile( const std::string& filename )
+{ 
+    std::ifstream input( filename.c_str() );
+    if ( !input.is_open() )
+    {
+        throw WFileNotFound( std::string( "The file \"" ) + filename +
+            std::string( "\" does not exist." ) );
+    }
+    std::string buf;
+    std::string line;
+    while( std::getline( input, line ) )
+    {
+        buf += line;
+    }
+    return buf;
+}
