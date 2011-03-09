@@ -180,7 +180,7 @@ void WMBoundaryCurvesWMGM::moduleMain()
             else if( strategyName == "Iso-Fragments" )
             {
                 infoLog() << "Using: " << strategyName << " strategy";
-                builder = boost::shared_ptr< WBoundaryBuilder >( new WBoundaryFragments( texture, m_properties, &m_slices ) );
+                builder = boost::shared_ptr< WBoundaryBuilder >( new WBoundaryFragments( texture, m_properties, &m_slices, m_localPath ) );
             }
             else
             {

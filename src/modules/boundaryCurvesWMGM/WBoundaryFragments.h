@@ -25,6 +25,8 @@
 #ifndef WBOUNDARYFRAGMENTS_H
 #define WBOUNDARYFRAGMENTS_H
 
+#include <boost/filesystem.hpp>
+
 #include <osg/ref_ptr>
 
 #include "../../graphicsEngine/shaders/WGEShader.h"
@@ -34,12 +36,24 @@
 // forward declarations
 class WDataSetScalar;
 
+/**
+ * Constructs the boundary surface curves of the WM and GM via a shader approach.
+ */
 class WBoundaryFragments : public WBoundaryBuilder
 {
 public:
+     /**
+     * Constructs an builder instance.
+     *
+     * \param texture The underlying scalar dataset to compute those boundaries for
+     * \param properties Properties, like slice positions, thresholds etc.
+     * \param slices Slice geodes which are controlled (hide/unhide) by the module.
+     * \param localPath Path where to search for the shaders.
+     */
     WBoundaryFragments( boost::shared_ptr< const WDataSetScalar > texture,
                         boost::shared_ptr< const WProperties > properties,
-                        boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > *slices );
+                        boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > *slices,
+                        boost::filesystem::path localPath );
 
     /**
      * Starts rendering and finally insert result in output.

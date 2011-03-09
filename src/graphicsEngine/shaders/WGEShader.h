@@ -34,6 +34,7 @@
 
 #include <osg/Shader>
 #include <osg/Program>
+#include <osg/NodeCallback>
 
 #include "../../common/WPathHelper.h"
 #include "../../common/WSharedAssociativeContainer.h"

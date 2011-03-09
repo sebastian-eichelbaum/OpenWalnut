@@ -30,6 +30,6 @@ WBoundaryLines::WBoundaryLines( boost::shared_ptr< const WDataSetScalar > textur
 {
 }
 
-void WBoundaryLines::run( osg::ref_ptr< WGEManagedGroupNode > output )
+void WBoundaryLines::run( osg::ref_ptr< WGEManagedGroupNode > /* output */ )
 {
 }

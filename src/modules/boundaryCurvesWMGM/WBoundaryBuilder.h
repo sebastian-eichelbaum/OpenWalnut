@@ -31,19 +31,33 @@
 #include <osg/ref_ptr>
 
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../common/WProperties.h"
 
 // forward declarations
 class WGEManagedGroupNode;
 class WDataSetScalar;
-class WProperties;
 
+/**
+ * Abstract base class for a boundary builder which needs serveral input paramertes \ref WBoundaryBuilder constructor
+ * and provides an interface: \ref run for generating the graphics.
+ */
 class WBoundaryBuilder
 {
 public:
+    /**
+     * Constructs an builder instance.
+     *
+     * \param texture The underlying scalar dataset to compute those boundaries for
+     * \param properties Properties, like slice positions, thresholds etc.
+     * \param slices Slice geodes which are controlled (hide/unhide) by the module.
+     */
     WBoundaryBuilder( boost::shared_ptr< const WDataSetScalar > texture,
                       boost::shared_ptr< const WProperties > properties,
                       boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > *slices );
 
+    /**
+     * Destructs this.
+     */
     virtual ~WBoundaryBuilder();
 
     /**
@@ -54,15 +68,32 @@ public:
     virtual void run( osg::ref_ptr< WGEManagedGroupNode > output ) = 0;
 
 protected:
+    /**
+     * The underlying scalar dataset to compute those boundaries for.
+     */
     boost::shared_ptr< const WDataSetScalar > m_texture;
 
+    /**
+     * The three slice positions.
+     * 0 : xSlice, 1 : ySlice, 2 : zSlice
+     */
     boost::array< WPropInt, 3 > m_slicePos;
 
+    /**
+     * Pointer to the three slices.
+     * 0 : xSlice, 1 : ySlice, 2 : zSlice
+     */
     boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > m_slices;
 
-    boost::shared_ptr< const WPVDouble > m_grayMatter;
+    /**
+     * Gray matter threshold.
+     */
+    WPropDouble m_grayMatter;
 
-    boost::shared_ptr< const WPVDouble > m_whiteMatter;
+    /**
+     * White matter threshold.
+     */
+    WPropDouble m_whiteMatter;
 
 private:
 };

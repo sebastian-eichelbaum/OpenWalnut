@@ -27,9 +27,19 @@
 
 #include "WBoundaryBuilder.h"
 
+/**
+ * Computes boundary lines with an iso lines approach instead of the fragment shader.
+ */
 class WBoundaryLines : public WBoundaryBuilder
 {
 public:
+    /**
+     * Constructs an builder instance.
+     *
+     * \param texture The underlying scalar dataset to compute those boundaries for
+     * \param properties Properties, like slice positions, thresholds etc.
+     * \param slices Slice geodes which are controlled (hide/unhide) by the module.
+     */
     WBoundaryLines( boost::shared_ptr< const WDataSetScalar > texture,
                     boost::shared_ptr< const WProperties > properties,
                     boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > *slices );
