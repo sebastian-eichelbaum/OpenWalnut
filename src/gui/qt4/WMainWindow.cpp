@@ -739,10 +739,10 @@ void WMainWindow::openOpenWalnutHelpDialog()
     std::string content = wiotools::getStringFromFile( filename );
 
     QWidget* window = new QWidget( this, Qt::Window );
-   
+
     // specify intial layout
     QVBoxLayout *layout = new QVBoxLayout( window );
-    window->setLayout(layout);
+    window->setLayout( layout );
     window->resize( 500, 500 );
 
     window->show();
