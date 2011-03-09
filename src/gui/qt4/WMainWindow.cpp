@@ -1000,9 +1000,9 @@ void WMainWindow::openConfigDialog()
 {
     // TODO(all): we need a nice dialog box here.
     QString msg = "OpenWalnut allows you to configure several features. Most of these options are only useful to advanced users. "
-                  "You can have a user-scope configuration in your HOME as \".walnut.cfg\". "
+                  "You can have a user-scope configuration in your HOME directory as \".walnut.cfg\". "
                   "If this file exists, OpenWalnut loads this file. You can also specify a \"walnut.cfg\" in your OpenWalnut directory under "
-                  "\"share/OpenWalnut/\". The file is very well documented.";
+                  "\"share/OpenWalnut/\". A default file will be there after installation. The default file is very well documented.";
     QMessageBox::information( this, "OpenWalnut - Configuration", msg );
 }
 
