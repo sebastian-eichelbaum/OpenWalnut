@@ -73,6 +73,21 @@ public:
     }
 
     /**
+     * Each convinience function just assembles the three values into an boost array.
+     */
+    void testConvinienceFunctions( void )
+    {
+        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3 ) );
+        boost::array< unsigned int, 3 > expectedNbCoords = { { 3, 3, 3 } }; // NOLINT curly braces
+        TS_ASSERT_EQUALS( expectedNbCoords, getNbCoords( grid ) );
+        boost::array< double, 3 > expectedOffsets = { { 1.0, 1.0, 1.0 } }; // NOLINT curly braces
+        TS_ASSERT_EQUALS( expectedOffsets, getOffsets( grid ) );
+        boost::array< WVector3D, 3 > expectedDirections = { { WVector3D( 1.0, 0.0, 0.0 ), WVector3D( 0.0, 1.0, 0.0 ), WVector3D( 0.0, 0.0, 1.0 ) } }; // NOLINT curly braces line length
+        TS_ASSERT_EQUALS( expectedDirections, getDirections( grid ) );
+        TS_ASSERT_EQUALS( expectedDirections, getUnitDirections( grid ) );
+    }
+
+    /**
      * After instantiation there should be the right vectors, matrix and origin.
      */
     void testOrientation( void )
