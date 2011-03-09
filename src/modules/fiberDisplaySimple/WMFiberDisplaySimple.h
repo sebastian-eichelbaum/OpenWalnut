@@ -124,6 +124,11 @@ private:
     WPropBool m_illuminationEnable;
 
     /**
+     * The ratio between colormap and fiber color.
+     */
+    WPropDouble m_colormapRatio;
+
+    /**
      * A property group for all the clipping related props.
      */
     WPropGroup m_clipPlaneGroup;

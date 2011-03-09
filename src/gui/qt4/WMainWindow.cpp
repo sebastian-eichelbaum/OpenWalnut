@@ -576,8 +576,7 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     fd.setAcceptMode( QFileDialog::AcceptSave );
 
     QStringList filters;
-    filters << "Project File (*.owproj *.owp)"
-            << "Any files (*)";
+    filters << "Project File (*.owproj *.owp)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
     QStringList fileNames;
@@ -589,8 +588,15 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     QStringList::const_iterator constIterator;
     for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
     {
+        std::string filename = ( *constIterator ).toStdString();
+        // append owp if not existent
+        if ( filename.rfind( ".owp" ) == std::string::npos )
+        {
+            filename += ".owp";
+        }
+
         boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
-                new WProjectFile( ( *constIterator ).toStdString() )
+                new WProjectFile( filename )
         );
 
         try
