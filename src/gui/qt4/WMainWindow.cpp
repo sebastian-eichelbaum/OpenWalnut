@@ -45,9 +45,9 @@
 
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
+#include "../../common/WIOTools.h"
 #include "../../common/WProjectFileIO.h"
 #include "../../common/WPathHelper.h"
-#include "../../common/exceptions/WFileNotFound.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WEEG2.h"
@@ -717,39 +717,19 @@ void WMainWindow::openAboutQtDialog()
 {
     QMessageBox::aboutQt( this, "About Qt" );
 }
+
 void WMainWindow::openAboutDialog()
 {
-    QMessageBox::about( this, "About OpenWalnut",
-                        "OpenWalnut ( http://www.openwalnut.org )\n\n"
-                        "Copyright 2009-2010 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS. "
-                        "For more information see http://www.openwalnut.org/copying.\n\n"
-                        "This program comes with ABSOLUTELY NO WARRANTY. "
-                        "This is free software, and you are welcome to redistribute it "
-                        "under the terms of the GNU Lesser General Public License. "
-                        "You should have received a copy of the GNU Lesser General Public License "
-                        "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.\n"
-                        "\n"
-                        "Thank you for using OpenWalnut." );
+    std::string filename( WPathHelper::getAppPath().file_string() + "/../share/OpenWalnut/OpenWalnutAbout.html" );
+    std::string content = wiotools::getStringFromFile( filename );
+    QMessageBox::about( this, "About OpenWalnut", content.c_str() );
 }
 
 void WMainWindow::openOpenWalnutHelpDialog()
 {
     std::string filename( WPathHelper::getAppPath().file_string() + "/../share/OpenWalnut/OpenWalnutHelp.html" );
-    std::ifstream input( filename.c_str() );
-    if ( !input.is_open() )
-    {
-        throw WFileNotFound( std::string( "The project file \"" ) + filename +
-            std::string( "\" does not exist." ) );
-    }
-
-    std::string buf;
-    std::string line;
-    while( std::getline( input, line ) )
-    {
-        buf += line;
-    }
-
-    QMessageBox::information( this, "OpenWalnut Help", buf.c_str() );
+    std::string content = wiotools::getStringFromFile( filename );
+    QMessageBox::information( this, "OpenWalnut Help", content.c_str() );
 }
 
 void WMainWindow::setPresetViewLeft()

@@ -34,6 +34,8 @@
 
 #include <boost/filesystem.hpp>
 
+#include "WExportCommon.h"
+
 /**
  * Namespaces for several tools we may need while doing IO
  */
@@ -124,5 +126,13 @@ namespace wiotools
         // 3. file names like "/tmp/pansen" or "C:\pansen" are platform dependent
         return std::string( std::tmpnam( NULL ) );
     }
+
+    /**
+     * Get the contens of a file as a string.
+     * \param filename 
+     * \return the file content in as string.
+     */
+    std::string OWCOMMON_EXPORT getStringFromFile( const std::string& filename );
+
 }  // end of namespace
 #endif  // WIOTOOLS_H
