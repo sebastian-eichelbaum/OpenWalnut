@@ -28,7 +28,6 @@
 
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleInputData.h"
