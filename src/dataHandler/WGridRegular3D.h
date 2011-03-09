@@ -25,22 +25,24 @@
 #ifndef WGRIDREGULAR3D_H
 #define WGRIDREGULAR3D_H
 
-#include <vector>
 #include <utility>
+#include <vector>
 
+#include <boost/array.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Matrix>
 #include <osg/Vec3>
+
 #include "../common/math/WMatrix.h"
 #include "../common/math/WMatrix4x4.h"
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
 #include "../common/WBoundingBox.h"
-#include "WGridTransformOrtho.h"
 #include "../common/WCondition.h"
 #include "WExportDataHandler.h"
 #include "WGrid.h"
+#include "WGridTransformOrtho.h"
 
 /**
  * A grid that has parallelepiped cells which all have the same proportion. I.e.
@@ -503,6 +505,58 @@ private:
     //! The grid's transformation.
     WGridTransformOrtho const m_transform;
 };
+
+/**
+ * Convinience function returning all offsets per axis.
+ * 0 : xAxis, 1 : yAxis, 2 : zAxis
+ * \param grid The grid having the information.
+ * \note Implementing this as NonMemberNonFriend was intentional.
+ * \return Array of number of samples per axis.
+ */
+inline boost::array< double, 3 > getOffsets( boost::shared_ptr< const WGridRegular3D > grid )
+{
+    boost::array< double, 3 > result = { { grid->getOffsetX(), grid->getOffsetY(), grid->getOffsetZ() } }; // NOLINT curly braces
+    return result;
+}
+
+/**
+ * Convinience function returning all number coords per axis.
+ * 0 : xAxis, 1 : yAxis, 2 : zAxis
+ * \param grid The grid having the information.
+ * \note Implementing this as NonMemberNonFriend was intentional.
+ * \return Array of number of samples per axis.
+ */
+inline boost::array< unsigned int, 3 > getNbCoords( boost::shared_ptr< const WGridRegular3D > grid )
+{
+    boost::array< unsigned int, 3 > result = { { grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() } }; // NOLINT curly braces
+    return result;
+}
+
+/**
+ * Convinience function returning all axis directions.
+ * 0 : xAxis, 1 : yAxis, 2 : zAxis
+ * \param grid The grid having the information.
+ * \note Implementing this as NonMemberNonFriend was intentional.
+ * \return The direction of each axis as array
+ */
+inline boost::array< WVector3D, 3 > getDirections( boost::shared_ptr< const WGridRegular3D > grid )
+{
+    boost::array< WVector3D, 3 > result = { { grid->getDirectionX(), grid->getDirectionY(), grid->getDirectionZ() } }; // NOLINT curly braces
+    return result;
+}
+
+/**
+ * Convinience function returning all axis unit directions.
+ * 0 : xAxis, 1 : yAxis, 2 : zAxis
+ * \param grid The grid having the information.
+ * \note Implementing this as NonMemberNonFriend was intentional.
+ * \return The direction of each axis as array
+ */
+inline boost::array< WVector3D, 3 > getUnitDirections( boost::shared_ptr< const WGridRegular3D > grid )
+{
+    boost::array< WVector3D, 3 > result = { { grid->getUnitDirectionX(), grid->getUnitDirectionY(), grid->getUnitDirectionZ() } }; // NOLINT curly braces
+    return result;
+}
 
 inline unsigned int WGridRegular3D::getNbCoordsX() const
 {

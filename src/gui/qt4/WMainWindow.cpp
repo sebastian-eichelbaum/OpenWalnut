@@ -45,7 +45,9 @@
 
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
+#include "../../common/WIOTools.h"
 #include "../../common/WProjectFileIO.h"
+#include "../../common/WPathHelper.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WEEG2.h"
@@ -574,8 +576,7 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     fd.setAcceptMode( QFileDialog::AcceptSave );
 
     QStringList filters;
-    filters << "Project File (*.owproj *.owp)"
-            << "Any files (*)";
+    filters << "Project File (*.owproj *.owp)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
     QStringList fileNames;
@@ -587,8 +588,15 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     QStringList::const_iterator constIterator;
     for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
     {
+        std::string filename = ( *constIterator ).toStdString();
+        // append owp if not existent
+        if ( filename.rfind( ".owp" ) == std::string::npos )
+        {
+            filename += ".owp";
+        }
+
         boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
-                new WProjectFile( ( *constIterator ).toStdString() )
+                new WProjectFile( filename )
         );
 
         try
@@ -715,54 +723,19 @@ void WMainWindow::openAboutQtDialog()
 {
     QMessageBox::aboutQt( this, "About Qt" );
 }
+
 void WMainWindow::openAboutDialog()
 {
-    QMessageBox::about( this, "About OpenWalnut",
-                        "OpenWalnut ( http://www.openwalnut.org )\n\n"
-                        "Copyright 2009-2010 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS. "
-                        "For more information see http://www.openwalnut.org/copying.\n\n"
-                        "This program comes with ABSOLUTELY NO WARRANTY. "
-                        "This is free software, and you are welcome to redistribute it "
-                        "under the terms of the GNU Lesser General Public License. "
-                        "You should have received a copy of the GNU Lesser General Public License "
-                        "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.\n"
-                        "\n"
-                        "Thank you for using OpenWalnut." );
+    std::string filename( WPathHelper::getAppPath().file_string() + "/../share/OpenWalnut/OpenWalnutAbout.html" );
+    std::string content = wiotools::getStringFromFile( filename );
+    QMessageBox::about( this, "About OpenWalnut", content.c_str() );
 }
 
 void WMainWindow::openOpenWalnutHelpDialog()
 {
-    QMessageBox::information( this, "OpenWalnut Help",
-                              "<h3>Navigation in Main View</h3>"
-                              "<table>"
-                              "<tr><td><b><i>Mouse Button&nbsp;&nbsp;</i></b></td><td><b><i>Action</i></b></td></tr>"
-                              "<tr><td>Left</td><td>Rotate</td></tr>"
-                              "<tr><td>Middle</td><td>Pan</td></tr>"
-                              "<tr><td>Right</td><td>Pick, move ROI box or move slice</td></tr>"
-                              "<tr><td>Right + Shift</td><td>Resize ROI box</td></tr>"
-                              "<tr><td>Wheel</td><td>Zoom</td></tr>"
-                              "<tr><td><b><i>Key</i></b></td><td><b><i>Action</i></b></td></tr>"
-                              "<tr><td>+</td><td>Zoom in</td></tr>"
-                              "<tr><td>-</td><td>Zoom out</td></tr>"
-                              "<tr><td>[space]</td><td>Reset view</td></tr>"
-                              "</table>"
-                              "<h3>Navigation in EEG View</h3>"
-                              "<table>"
-                              "<tr><td><b><i>Mouse Button</i></b></td><td><b><i>Action</i></b></td></tr>"
-                              "<tr><td>Left</td><td>Mark event position</td></tr>"
-                              "<tr><td>Middle</td><td>Pan</td></tr>"
-                              "<tr><td>Right</td><td>Zoom in time</td></tr>"
-                              "<tr><td>Wheel</td><td>Scale voltage</td></tr>"
-                              "<tr><td>Wheel + Right</td><td>Change spacing between graphs</td></tr>"
-                              "<tr><td>Wheel + Left</td><td>Change sensitivity of the coloring of the head surface</td></tr>"
-                              "</table>"
-                              "<h3>Program-wide Keyboard Shortcuts</h3>"
-                              "<table>"
-                              "<tr><td><b><i>Key</i></b></td><td><b><i>Action</i></b></td></tr>"
-                              "<tr><td>Ctrl + q</td><td>Quit</td></tr>"
-                              "<tr><td>Esc</td><td>Resets main view</td></tr>"
-                              "<tr><td>F1</td><td>Opens this help window</td></tr>"
-                              "</table>" );
+    std::string filename( WPathHelper::getAppPath().file_string() + "/../share/OpenWalnut/OpenWalnutHelp.html" );
+    std::string content = wiotools::getStringFromFile( filename );
+    QMessageBox::information( this, "OpenWalnut Help", content.c_str() );
 }
 
 void WMainWindow::setPresetViewLeft()

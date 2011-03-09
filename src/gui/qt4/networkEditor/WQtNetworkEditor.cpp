@@ -145,8 +145,8 @@ bool WQtNetworkEditor::event( QEvent* event )
         WModuleAssocEvent* e1 = dynamic_cast< WModuleAssocEvent* >( event );     // NOLINT
         if ( e1 )
         {
-            WLogger::getLogger()->addLogMessage( "Inserting module \"" + e1->getModule()->getName() +
-                                                "\" to network editor.", "NetworkEditor", LL_DEBUG );
+            WLogger::getLogger()->addLogMessage( "Inserting \"" + e1->getModule()->getName() + "\".",
+                                                "NetworkEditor", LL_DEBUG );
             addModule( e1->getModule() );
         }
 
@@ -168,7 +168,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Activating module \"" + e->getModule()->getName() + "\" in network editor.",
+        WLogger::getLogger()->addLogMessage( "Activating \"" + e->getModule()->getName() + "\".",
                                              "NetworkEditor", LL_DEBUG );
 
         // search all the item matching the module
@@ -263,8 +263,6 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module tree item was disconnected from another one
     if ( event->type() == WQT_MODULE_DISCONNECT_EVENT )
     {
-        WLogger::getLogger()->addLogMessage( "DISCONNECT.", "NetworkEditor", LL_ERROR );
-
         WModuleDisconnectEvent* e = dynamic_cast< WModuleDisconnectEvent* >( event );     // NOLINT
         if ( !e )
         {
@@ -358,8 +356,6 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module was removed from the container
     if ( event->type() == WQT_MODULE_REMOVE_EVENT )
     {
-        WLogger::getLogger()->addLogMessage( "REMOVE.", "NetworkEditor", LL_ERROR );
-
         WModuleRemovedEvent* e = dynamic_cast< WModuleRemovedEvent* >( event );
         if ( !e )
         {
@@ -369,15 +365,15 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Removing \"" + e->getModule()->getName() +
-                                             "\"from network editor.", "NetworkEditor", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Removing \"" + e->getModule()->getName() + "\".",
+                                             "NetworkEditor", LL_DEBUG );
 
 
         WQtNetworkItem *item = findItemByModule( e->getModule() );
         if( item != 0 )
         {
             item->activate( false );
-            e->getModule()->requestStop(); // TODO(rfrohl): do we need this ?
+            e->getModule()->requestStop();
         }
 
         return true;
@@ -386,8 +382,6 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module tree item should be deleted
     if ( event->type() == WQT_MODULE_DELETE_EVENT )
     {
-        WLogger::getLogger()->addLogMessage( "DELETE.", "NetworkEditor", LL_ERROR );
-
         WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );
         if ( !e )
         {
@@ -398,8 +392,8 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Delete \"" + e->getTreeItem()->getModule()->getName() +
-                                             "\" from network editor", "NetworkEditor", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Deleting \"" + e->getTreeItem()->getModule()->getName() + "\".",
+                                             "NetworkEditor", LL_DEBUG );
 
         WQtNetworkItem *item = findItemByModule( e->getTreeItem()->getModule() );
 

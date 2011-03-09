@@ -34,6 +34,7 @@
 #include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
 #include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
@@ -96,6 +97,10 @@ void WMFiberDisplaySimple::properties()
 
     m_illuminationEnable = m_properties->addProperty( "Illumination", "Enable line illumination.", true );
 
+    m_colormapRatio = m_properties->addProperty( "Colormap Ratio", "Defines the ratio between colormap and fiber color.", 0.0 );
+    m_colormapRatio->setMin( 0.0 );
+    m_colormapRatio->setMax( 1.0 );
+
     m_clipPlaneGroup = m_properties->addPropertyGroup( "Clipping",  "Clip the fiber data basing on an arbitrary plane." );
     m_clipPlaneEnabled = m_clipPlaneGroup->addProperty( "Enabled", "If set, clipping of fibers is done using an arbitrary plane and plane distance.",
                                                         false );
@@ -103,7 +108,9 @@ void WMFiberDisplaySimple::properties()
     m_clipPlanePoint = m_clipPlaneGroup->addProperty( "Plane point", "An point on the plane.", WPosition( 0.0, 0.0, 0.0 ) );
     m_clipPlaneVector = m_clipPlaneGroup->addProperty( "Plane normal", "The normal of the plane.", WPosition( 1.0, 0.0, 0.0 ) );
     m_clipPlaneDistance= m_clipPlaneGroup->addProperty( "Clip distance", "The distance from the plane where fibers get clipped.",  10.0 );
-    m_clipPlaneDistance->removeConstraint( m_clipPlaneDistance->getMax() ); // there simply is no max.
+    //m_clipPlaneDistance->removeConstraint( m_clipPlaneDistance->getMax() ); // there simply is no max.
+    m_clipPlaneDistance->setMin( 0.0 );
+    m_clipPlaneDistance->setMax( 1000.0 );
 
     m_tubeGroup = m_properties->addPropertyGroup( "Tube Rendering", "If true, advanced fake-tube rendering is used." );
     m_tubeEnable = m_tubeGroup->addProperty( "Enable Tubes", "If set, fake-tube rendering is used.", false, m_propCondition  );
@@ -187,6 +194,8 @@ void WMFiberDisplaySimple::moduleMain()
     m_endCapShader->addPreprocessor( defineTmp );
 
     osg::ref_ptr< WGEPropertyUniform< WPropDouble > > tubeSizeUniform = new WGEPropertyUniform< WPropDouble >( "u_tubeSize", m_tubeSize );
+    osg::ref_ptr< WGEPropertyUniform< WPropDouble > > colormapRationUniform =
+        new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio );
 
     // get notified about data changes
     m_moduleState.setResetable( true, true );
@@ -212,6 +221,7 @@ void WMFiberDisplaySimple::moduleMain()
     rootState->addUniform( clipPlaneVectorUniform );
     rootState->addUniform( clipPlaneDistanceUniform );
     rootState->addUniform( tubeSizeUniform );
+    rootState->addUniform( colormapRationUniform );
 
     // needed to observe the properties of the input connector data
     boost::shared_ptr< WPropertyObserver > propObserver = WPropertyObserver::create();
@@ -283,6 +293,9 @@ void WMFiberDisplaySimple::moduleMain()
         // Apply the shader. This is for clipping.
         m_shader->apply( geode );
         m_endCapShader->apply( endCapGeode );
+        // apply colormapping
+        WGEColormapping::apply( geode, m_shader );
+        WGEColormapping::apply( endCapGeode, m_endCapShader );
 
         // Add geometry
         if ( m_clipPlaneShowPlane->get() )
@@ -389,15 +402,9 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
     WDataSetFibers::ColorScheme::ColorMode fibColorMode = fibers->getColorScheme()->getMode();
     debugLog() << "Color mode is " << fibColorMode << ".";
     WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
-    // enable blending, select transparent bin if RGBA mode is used
-    if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
-    {
-        enableTransparency( state );
-    }
-    else
-    {
-        state->setMode( GL_BLEND, osg::StateAttribute::OFF );
-    }
+
+    // enable blending, select transparent bin
+    enableTransparency( state );
 
     // progress indication
     boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Adding fibers to geode", fibStart->size() ) );
