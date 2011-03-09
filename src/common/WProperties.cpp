@@ -256,7 +256,7 @@ void WProperties::removeProperty( boost::shared_ptr< WPropertyBase > prop )
     m_childUpdateCondition->remove( prop->getUpdateCondition() );
 }
 
-boost::shared_ptr< WPropertyBase > WProperties::findProperty( WProperties* props, std::string name )
+boost::shared_ptr< WPropertyBase > WProperties::findProperty( const WProperties* const props, std::string name ) const
 {
     boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
 
@@ -277,7 +277,7 @@ boost::shared_ptr< WPropertyBase > WProperties::findProperty( WProperties* props
     return result;
 }
 
-boost::shared_ptr< WPropertyBase > WProperties::findProperty( std::string name )
+boost::shared_ptr< WPropertyBase > WProperties::findProperty( std::string name ) const
 {
     boost::shared_ptr< WPropertyBase > result = boost::shared_ptr< WPropertyBase >();
 
@@ -287,7 +287,7 @@ boost::shared_ptr< WPropertyBase > WProperties::findProperty( std::string name )
     tokenizer tok( name, sep );
 
     // iterate along the path
-    WProperties* curProps = this;       // the group currently in while traversing the path
+    const WProperties* curProps = this;       // the group currently in while traversing the path
     for ( tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
     {
         // was the last token not a group?
