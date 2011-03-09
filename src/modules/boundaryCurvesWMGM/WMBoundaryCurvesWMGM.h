@@ -27,12 +27,12 @@
 
 #include <string>
 
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+
+// forward declarations
+class WGEManagedGroupNode;
+class WDataSetScalar;
+template< class T > class WModuleInputData;
 
 /**
  * This module generates out of an image two isolines, adjustable via two sliders on a axial, coronal and sagittal slice. They each may represent a
@@ -97,14 +97,6 @@ protected:
 
 private:
     /**
-     * Initializes the needed geodes, transformations and vertex arrays. This needs to be done once for each new dataset.
-     *
-     * \param grid the grid to places the slices in.
-     * \param dataset the image to generate the boundary curves.
-     */
-    void initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::shared_ptr< WDataSetScalar > dataset );
-
-    /**
      * Input connector for t1 or t2 images, where the gray and white matter curves are extracted from.
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_textureIC;
@@ -115,48 +107,37 @@ private:
     osg::ref_ptr< WGEManagedGroupNode > m_output;
 
     /**
-     * The transformation node moving the X slice through the dataset space if the sliders are used
+     * Axial, coronal and sagittal slices as array.
+     * 0 : xSlice, 1 : ySlice, 2 : zSlice
      */
-    osg::ref_ptr< WGEManagedGroupNode > m_xSlice;
+    boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > m_slices;
 
     /**
-     * The transformation node moving the Y slice through the dataset space if the sliders are used
+     * The group contains several slice properties
      */
-    osg::ref_ptr< WGEManagedGroupNode > m_ySlice;
+    WPropGroup m_sliceGroup;
 
     /**
-     * The transformation node moving the Z slice through the dataset space if the sliders are used
+     * Position of the axial, sagittal and coronal slices.
+     * 0 : xSlice, 1 : ySlice, 2 : zSlice
      */
-    osg::ref_ptr< WGEManagedGroupNode > m_zSlice;
-
-    WPropGroup    m_sliceGroup; //!< the group contains several slice properties
-
-    WPropInt      m_xPos; //!< x position of the slice
-
-    WPropInt      m_yPos; //!< y position of the slice
-
-    WPropInt      m_zPos; //!< z position of the slice
-
-    WPropBool     m_showonX; //!< indicates whether it should be shown slice X
-
-    WPropBool     m_showonY; //!< indicates whether it should be shown slice Y
-
-    WPropBool     m_showonZ; //!< indicates whether it should be shown slice Z
+    boost::array< WPropInt, 3 > m_slicePos;
 
     /**
-     * Shader generating the curves of gray and white matter.
+     * Indicates if the corresponding slice is shown or not.
+     * 0 : xSlice, 1 : ySlice, 2 : zSlice
      */
-    osg::ref_ptr< WGEShader > m_shader;
+    boost::array< WPropBool, 3 > m_showSlice;
 
     /**
-     * Slider to adjust the gray matter curve.
+     * A condition used to notify about changes in several properties.
      */
-    WPropDouble   m_grayMatter;
+    boost::shared_ptr< WCondition > m_propCondition;
 
     /**
-     * Slider to adjust the white matter curve.
+     * List for selecting the strategy.
      */
-    WPropDouble   m_whiteMatter;
+    WPropSelection m_strategySelector;
 };
 
 #endif  // WMBOUNDARYCURVESWMGM_H
