@@ -176,7 +176,8 @@ void WMFiberDisplaySimple::moduleMain()
         new WGEShaderPropertyDefineOptions< WPropBool >( m_tubeRibbon, "RIBBON_DISABLED", "RIBBON_ENABLED" ) )
     );
     osg::ref_ptr< WGEPropertyUniform< WPropDouble > > tubeSizeUniform = new WGEPropertyUniform< WPropDouble >( "u_tubeSize", m_tubeSize );
-    osg::ref_ptr< WGEPropertyUniform< WPropDouble > > colormapRationUniform = new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio );
+    osg::ref_ptr< WGEPropertyUniform< WPropDouble > > colormapRationUniform =
+        new WGEPropertyUniform< WPropDouble >( "u_colormapRatio", m_colormapRatio );
 
     // get notified about data changes
     m_moduleState.setResetable( true, true );
