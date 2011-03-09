@@ -58,7 +58,7 @@ public:
     void testMeanFunctionInsideOf_R_Environment( void )
     {
         WGaussProcess p( m_tractID, m_tracts, m_emptyDTIDataSet );
-        TS_ASSERT( std::abs( p.mean( WPosition( -p.m_R + 1.0e-8, 0.0, 0.0 ) ) ) > wlimits::DBL_EPS );
+        TS_ASSERT( std::abs( p.mean( WPosition( -p.m_R + 1.0e-7, 0.0, 0.0 ) ) ) > wlimits::DBL_EPS );
     }
 
     /**
@@ -78,7 +78,7 @@ public:
     void testMeanFunctionOnSamplePoint( void )
     {
         WGaussProcess p( m_tractID, m_tracts, m_emptyDTIDataSet );
-        TS_ASSERT_DELTA( p.mean( WPosition( 0.0, 0.0, 0.0 ) ), p.m_maxLevel, wlimits::DBL_EPS );
+        TS_ASSERT_DELTA( p.mean( WPosition( 0.0, 0.0, 0.0 ) ), p.m_maxLevel, 2 * wlimits::DBL_EPS );
     }
 
 //    void testMeanFunctionOnSegmentButNotOnSamplePoint( void )
