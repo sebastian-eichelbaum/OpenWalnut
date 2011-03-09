@@ -173,7 +173,7 @@ public:
      *
      * \return the property or NULL if not found.
      */
-    boost::shared_ptr< WPropertyBase > findProperty( std::string name );
+    boost::shared_ptr< WPropertyBase > findProperty( std::string name ) const;
 
     /**
      * Removes all properties from the list.
@@ -935,7 +935,7 @@ protected:
     *
     * \return the property if found, else NULL.
     */
-    boost::shared_ptr< WPropertyBase > findProperty( WProperties* props, std::string name );
+    boost::shared_ptr< WPropertyBase > findProperty( const WProperties* const props, std::string name ) const;
 
 private:
 
