@@ -37,6 +37,8 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QMessageBox>
+#include <QtGui/QTextEdit>
+#include <QtWebKit/QWebView>
 #include <QtGui/QShortcut>
 #include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
@@ -735,7 +737,20 @@ void WMainWindow::openOpenWalnutHelpDialog()
 {
     std::string filename( WPathHelper::getAppPath().file_string() + "/../share/OpenWalnut/OpenWalnutHelp.html" );
     std::string content = wiotools::getStringFromFile( filename );
-    QMessageBox::information( this, "OpenWalnut Help", content.c_str() );
+
+    QWidget* window = new QWidget( this, Qt::Window );
+   
+    // specify intial layout
+    QVBoxLayout *layout = new QVBoxLayout( window );
+    window->setLayout(layout);
+    window->resize( 500, 500 );
+
+    window->show();
+
+    QWebView *view = new QWebView( this );
+    view->setHtml( content.c_str() );
+    view->show();
+    layout->addWidget( view );
 }
 
 void WMainWindow::setPresetViewLeft()
