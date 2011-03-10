@@ -24,6 +24,8 @@
 
 #include <string>
 
+#include <boost/filesystem.hpp>
+
 #include "../../common/WIOTools.h"
 #include "../exceptions/WDHIOFailure.h"
 #include "WWriter.h"
@@ -37,7 +39,7 @@ WWriter::WWriter( std::string fname, bool overwrite )
 void WWriter::setFileName( std::string fname )
 {
     m_fname = fname;
-    if( !m_overwrite && wiotools::fileExists( m_fname ) )
+    if( !m_overwrite && boost::filesystem::exists( boost::filesystem::path( m_fname ) ) )
     {
         throw WDHIOFailure( std::string( "File '" + m_fname + "' already exists, skip writing" ) );
     }

@@ -189,7 +189,7 @@ void WMDetTractClustering::update()
 
     boost::shared_ptr< WProgress > saveProgress( new WProgress( "Saving tracts", 1 ) );
     m_progress->addSubProgress( saveProgress );
-    if( !wiotools::fileExists( lookUpTableFileName() ) )
+    if( !fileExists( lookUpTableFileName() ) )
     {
         WWriterMatrixSymVTK w( lookUpTableFileName(), true );
         try
@@ -228,7 +228,7 @@ bool WMDetTractClustering::dLtTableExists()
 
     std::string dLtFileName = lookUpTableFileName();
 
-    if( wiotools::fileExists( dLtFileName ) )
+    if( fileExists( dLtFileName ) )
     {
         try
         {

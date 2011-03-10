@@ -86,8 +86,8 @@ void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFiberVector > 
             WAssert( pntPosOffset < ( ( numPoints * 3 ) + 1 ), "pOff < #pts" );
         }
     }
-    wiotools::switchByteOrderOfArray< float >( rawPointData, numPoints * 3 );
-    wiotools::switchByteOrderOfArray< unsigned int >( rawLineData, numLines + numPoints );
+    switchByteOrderOfArray< float >( rawPointData, numPoints * 3 );
+    switchByteOrderOfArray< unsigned int >( rawLineData, numLines + numPoints );
     out.write( reinterpret_cast< char* >( rawPointData ), sizeof( float ) * numPoints * 3 );
     out << lineDelimiter;
     out << "LINES " << numLines << " " << numPoints + numLines << lineDelimiter;

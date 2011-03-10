@@ -60,7 +60,7 @@ void WWriterMatrixSymVTK::writeTable( const std::vector< double > &table, size_t
     }
     data[ numDistances - 1 ] = static_cast< float >( dim );
 
-    wiotools::switchByteOrderOfArray< float >( data, numDistances );
+    switchByteOrderOfArray< float >( data, numDistances );
     out.write( reinterpret_cast< char* >( data ), sizeof( float ) * numDistances );
     out << std::endl;
     out.close();

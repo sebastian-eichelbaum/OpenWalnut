@@ -36,7 +36,7 @@ WReader::WReader( std::string fname ) throw( WDHNoSuchFile )
 void WReader::setFileName( std::string fname ) throw( WDHNoSuchFile )
 {
     m_fname = fname;
-    if( !wiotools::fileExists( m_fname ) )
+    if( !fileExists( m_fname ) )
     {
         throw WDHNoSuchFile( m_fname );
     }

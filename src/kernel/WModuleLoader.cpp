@@ -53,7 +53,7 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
          i != boost::filesystem::directory_iterator(); ++i )
     {
         // all modules need to begin with this
-        std::string suffix = wiotools::getSuffix( i->leaf() );
+        std::string suffix = getSuffix( i->leaf() );
         std::string stem = i->path().stem();
 
 #ifdef _MSC_VER
