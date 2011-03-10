@@ -727,14 +727,14 @@ void WMainWindow::openAboutQtDialog()
 void WMainWindow::openAboutDialog()
 {
     std::string filename( WPathHelper::getAppPath().file_string() + "/../share/OpenWalnut/OpenWalnutAbout.html" );
-    std::string content = wiotools::getStringFromFile( filename );
+    std::string content = readFileIntoString( filename );
     QMessageBox::about( this, "About OpenWalnut", content.c_str() );
 }
 
 void WMainWindow::openOpenWalnutHelpDialog()
 {
     std::string filename( WPathHelper::getAppPath().file_string() + "/../share/OpenWalnut/OpenWalnutHelp.html" );
-    std::string content = wiotools::getStringFromFile( filename );
+    std::string content = readFileIntoString( filename );
     QMessageBox::information( this, "OpenWalnut Help", content.c_str() );
 }
 

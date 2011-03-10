@@ -337,7 +337,6 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
             wlog::debug( "WReaderNIfTI" ) << "Load as WDataSetRawHARDI";
 
             std::string gradientFileName = m_fname;
-            using wiotools::getSuffix;
             std::string suffix = getSuffix( m_fname );
 
             if( suffix == ".gz" )
