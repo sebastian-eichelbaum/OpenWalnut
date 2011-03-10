@@ -103,6 +103,7 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "moduleCrashed" ), moduleCrashed_xpm );
     m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
     m_iconManager.addIcon( std::string( "config" ), preferences_system_xpm );
+    m_iconManager.addIcon( std::string( "view" ), camera_xpm );
 
     if( objectName().isEmpty() )
     {
@@ -135,7 +136,39 @@ void WMainWindow::setupGUI()
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
-    setupPermanentToolBar();
+    m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
+    setCentralWidget( m_mainGLWidget.get() );
+
+    m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
+
+    // Set the style of the toolbar
+    // NOTE: this only works if the toolbar is used with QActions instead of buttons and other widgets
+    m_permanentToolBar->setToolButtonStyle( getToolbarStyle() );
+
+    m_iconManager.addIcon( std::string( "ROI icon" ), box_xpm );
+    m_iconManager.addIcon( std::string( "Reset icon" ), o_xpm );
+    m_iconManager.addIcon( std::string( "axial icon" ), axial_xpm );
+    m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
+    m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
+
+    m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
+    QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
+    QAction* resetButton = new QAction( m_iconManager.getIcon( "view" ), "Reset", m_permanentToolBar );
+    resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
+    QAction* projectLoadButton = new QAction( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
+    QAction* projectSaveButton = new QAction( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
+
+    connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
+    connect( resetButton, SIGNAL(  triggered( bool ) ), m_mainGLWidget.get(), SLOT( reset() ) );
+    connect( roiButton, SIGNAL(  triggered( bool ) ), this, SLOT( newRoi() ) );
+    connect( projectLoadButton, SIGNAL(  triggered( bool ) ), this, SLOT( projectLoad() ) );
+    connect( projectSaveButton, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
+
+    m_loadButton->setToolTip( "Load Data" );
+    resetButton->setToolTip( "Reset main view" );
+    roiButton->setToolTip( "Create New ROI" );
+    projectLoadButton->setToolTip( "Load a project from file" );
+    projectSaveButton->setToolTip( "Save current project to file" );
 
     // we want the upper most tree item to be selected. This helps to make the always compatible modules
     // show up in the tool bar from the beginning. And ... it doesn't hurt.
@@ -162,6 +195,8 @@ void WMainWindow::setupGUI()
     saveMenu->addAction( "Save Modules Only", this, SLOT( projectSaveModuleOnly() ) );
     saveMenu->addAction( "Save Camera Only", this, SLOT( projectSaveCameraOnly() ) );
     saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
+    projectSaveButton->setMenu( saveMenu );
+
     fileMenu->addSeparator();
     fileMenu->addAction( m_iconManager.getIcon( "config" ), "Config", this, SLOT( openConfigDialog() ) );
     fileMenu->addSeparator();
@@ -177,20 +212,43 @@ void WMainWindow::setupGUI()
     QList< QKeySequence > controlPanelShortcut;
     controlPanelShortcut.append( QKeySequence( Qt::Key_F9 ) );
     controlPanelTrigger->setShortcuts( controlPanelShortcut );
-    viewMenu->addAction( controlPanelTrigger );
-    viewMenu->addSeparator();
     this->addAction( controlPanelTrigger );  // this enables the action even if the menu bar is invisible
 
     // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
     // statistics ).
     // By additionally adding the action to the main window, we ensure the action can be triggered even if the menu bar is hidden.
-    this->addAction( viewMenu->addAction( "Left", this, SLOT( setPresetViewLeft() ),           QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) ) );
-    this->addAction( viewMenu->addAction( "Right", this, SLOT( setPresetViewRight() ),         QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) ) );
-    this->addAction( viewMenu->addAction( "Superior", this, SLOT( setPresetViewSuperior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) ) );
-    this->addAction( viewMenu->addAction( "Inferior", this, SLOT( setPresetViewInferior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) ) );
-    this->addAction( viewMenu->addAction( "Anterior", this, SLOT( setPresetViewAnterior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) ) );
-    this->addAction( viewMenu->addAction( "Posterior", this, SLOT( setPresetViewPosterior() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) ) );
+    QAction* tmpAction = viewMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Left", this, SLOT( setPresetViewLeft() ),
+                                             QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
+    tmpAction->setIconVisibleInMenu(true);
+    this->addAction( tmpAction );
+
+    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Right", this, SLOT( setPresetViewRight() ),
+                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
+    tmpAction->setIconVisibleInMenu(true);
+    this->addAction( tmpAction );
+
+    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Superior", this, SLOT( setPresetViewSuperior() ),
+                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
+    tmpAction->setIconVisibleInMenu(true);
+    this->addAction( tmpAction );
+
+    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Inferior", this, SLOT( setPresetViewInferior() ),
+                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
+    tmpAction->setIconVisibleInMenu(true);
+    this->addAction( tmpAction );
+
+    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Anterior", this, SLOT( setPresetViewAnterior() ),
+                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
+    tmpAction->setIconVisibleInMenu(true);
+    this->addAction( tmpAction );
+
+    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Posterior", this, SLOT( setPresetViewPosterior() ),
+                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
+    tmpAction->setIconVisibleInMenu(true);
+    this->addAction( tmpAction );
+
+    resetButton->setMenu( viewMenu );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
     helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
@@ -269,54 +327,7 @@ void WMainWindow::setupGUI()
     addToolBar( Qt::TopToolBarArea, m_commandPrompt );
     this->addAction( m_commandPrompt->toggleViewAction() );  // this enables the action even if the menu bar is invisible
 
-    // after creating the GUI, restore its saved state
-    restoreSavedState();
-}
-
-void WMainWindow::setupPermanentToolBar()
-{
-    m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
-    setCentralWidget( m_mainGLWidget.get() );
-
-    m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
-
-    // Set the style of the toolbar
-    // NOTE: this only works if the toolbar is used with QActions instead of buttons and other widgets
-    m_permanentToolBar->setToolButtonStyle( getToolbarStyle() );
-
-    m_iconManager.addIcon( std::string( "ROI icon" ), box_xpm );
-    m_iconManager.addIcon( std::string( "Reset icon" ), o_xpm );
-    m_iconManager.addIcon( std::string( "axial icon" ), axial_xpm );
-    m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
-    m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
-
-    m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
-    QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
-    QAction* resetButton = new QAction( m_iconManager.getIcon( "Reset icon" ), "Reset", m_permanentToolBar );
-    resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
-    QAction* projectLoadButton = new QAction( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
-    QAction* projectSaveButton = new QAction( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
-
-    // setup save button
-    QMenu* saveMenu = new QMenu( "Save Project" );
-    saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ) );
-    saveMenu->addAction( "Save Modules", this, SLOT( projectSaveModuleOnly() ) );
-    saveMenu->addAction( "Save Camera", this, SLOT( projectSaveCameraOnly() ) );
-    saveMenu->addAction( "Save ROIs", this, SLOT( projectSaveROIOnly() ) );
-    projectSaveButton->setMenu( saveMenu );
-
-    connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
-    connect( resetButton, SIGNAL(  triggered( bool ) ), m_mainGLWidget.get(), SLOT( reset() ) );
-    connect( roiButton, SIGNAL(  triggered( bool ) ), this, SLOT( newRoi() ) );
-    connect( projectLoadButton, SIGNAL(  triggered( bool ) ), this, SLOT( projectLoad() ) );
-    connect( projectSaveButton, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
-
-    m_loadButton->setToolTip( "Load Data" );
-    resetButton->setToolTip( "Reset main view" );
-    roiButton->setToolTip( "Create New ROI" );
-    projectLoadButton->setToolTip( "Load a project from file" );
-    projectSaveButton->setToolTip( "Save current project to file" );
-
+    // setup permanent toolbar
     m_permanentToolBar->addAction( m_loadButton );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( projectLoadButton );
@@ -327,6 +338,9 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addSeparator();
 
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
+
+    // after creating the GUI, restore its saved state
+    restoreSavedState();
 }
 
 void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )

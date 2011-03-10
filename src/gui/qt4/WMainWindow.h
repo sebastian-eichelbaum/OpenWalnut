@@ -278,11 +278,6 @@ public slots:
 
 private:
     /**
-     * Sets up the permanent tool bar.
-     */
-    void setupPermanentToolBar();
-
-    /**
      * The currently set compatibles toolbar
      */
     WQtCombinerToolbar* m_currentCompatiblesToolbar;
