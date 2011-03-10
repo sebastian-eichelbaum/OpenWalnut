@@ -54,6 +54,7 @@ import codecs
 import getopt
 import math  # for log
 import os
+import platform
 import re
 import sre_compile
 import string
@@ -2783,6 +2784,13 @@ def ParseArguments(args):
 
 
 def main():
+  if platform.python_version() > "3.0.0":
+    print( "You use python version "+platform.python_version()+"." )
+    print( "This script is known not to work for some versions above 3.0.0." )
+    print( "The last version known to work currently is 2.7.1." )
+    sys.exit(1);
+
+
   filenames = ParseArguments(sys.argv[1:])
 
   # Change stderr to write with replacement characters so we don't die
