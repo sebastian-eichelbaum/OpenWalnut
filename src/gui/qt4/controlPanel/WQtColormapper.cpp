@@ -49,12 +49,12 @@
 #include "WQtColormapper.h"
 
 WQtColormapper::WQtColormapper( QWidget* parent )
-    : QDockWidget( "Colormapping", parent )
+    : QDockWidget( "Colormaps", parent )
 {
     setObjectName( "Colormapper Dock" );
 
     m_textureListWidget = new QListWidget( this );
-    m_textureListWidget->setToolTip( "List of available textures. Only the upper <b>"
+    m_textureListWidget->setToolTip( "List of available colormaps. Only the upper <b>"
                                      + QString().setNum( wlimits::MAX_NUMBER_OF_TEXTURES )
                                      + "</b> textures will be applied." );
     this->setAllowedAreas( Qt::AllDockWidgetAreas );
@@ -139,7 +139,7 @@ bool WQtColormapper::event( QEvent* event )
         return true;
     }
 
-    return QWidget::event( event );
+    return QDockWidget::event( event );
 }
 
 void WQtColormapper::update()
