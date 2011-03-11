@@ -357,15 +357,15 @@ vec4 getGaussedColor( vec2 where )
     // TODO(ebaum): provide properties/uniforms for the scaling factors here
 
     // get the 8-neighbourhood
-    vec4 gaussedColorc  = getColor( pixelCoord );
-    vec4 gaussedColorbl = getColor( pixelCoord + vec2( -offsetX, -offsetY ) );
-    vec4 gaussedColorl  = getColor( pixelCoord + vec2( -offsetX,     0.0  ) );
-    vec4 gaussedColortl = getColor( pixelCoord + vec2( -offsetX,  offsetY ) );
-    vec4 gaussedColort  = getColor( pixelCoord + vec2(     0.0,   offsetY ) );
-    vec4 gaussedColortr = getColor( pixelCoord + vec2(  offsetX,  offsetY ) );
-    vec4 gaussedColorr  = getColor( pixelCoord + vec2(  offsetX,     0.0  ) );
-    vec4 gaussedColorbr = getColor( pixelCoord + vec2(  offsetX,  offsetY ) );
-    vec4 gaussedColorb  = getColor( pixelCoord + vec2(     0.0,  -offsetY ) );
+    vec4 gaussedColorc  = getColor( where );
+    vec4 gaussedColorbl = getColor( where + vec2( -offsetX, -offsetY ) );
+    vec4 gaussedColorl  = getColor( where + vec2( -offsetX,     0.0  ) );
+    vec4 gaussedColortl = getColor( where + vec2( -offsetX,  offsetY ) );
+    vec4 gaussedColort  = getColor( where + vec2(     0.0,   offsetY ) );
+    vec4 gaussedColortr = getColor( where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorr  = getColor( where + vec2(  offsetX,     0.0  ) );
+    vec4 gaussedColorbr = getColor( where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorb  = getColor( where + vec2(     0.0,  -offsetY ) );
 
     // apply gauss filter
     vec4 gaussed = ( 1.0 / 16.0 ) * (
@@ -600,6 +600,73 @@ float getDepthFading()
     return getDepthFading( pixelCoord );
 }
 
+vec4 getGGColor( vec2 where )
+{
+    // TODO(ebaum): provide properties/uniforms for the scaling factors here
+
+    // get the 8-neighbourhood
+    vec4 gaussedColorc  = getGaussedColor( where );
+    vec4 gaussedColorbl = getGaussedColor( where + vec2( -offsetX, -offsetY ) );
+    vec4 gaussedColorl  = getGaussedColor( where + vec2( -offsetX,     0.0  ) );
+    vec4 gaussedColortl = getGaussedColor( where + vec2( -offsetX,  offsetY ) );
+    vec4 gaussedColort  = getGaussedColor( where + vec2(     0.0,   offsetY ) );
+    vec4 gaussedColortr = getGaussedColor( where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorr  = getGaussedColor( where + vec2(  offsetX,     0.0  ) );
+    vec4 gaussedColorbr = getGaussedColor( where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorb  = getGaussedColor( where + vec2(     0.0,  -offsetY ) );
+
+    // apply gauss filter
+    vec4 gaussed = ( 1.0 / 16.0 ) * (
+            1.0 * gaussedColortl +  2.0 * gaussedColort + 1.0 * gaussedColortr +
+            2.0 * gaussedColorl  +  4.0 * gaussedColorc + 2.0 * gaussedColorr  +
+            1.0 * gaussedColorbl +  2.0 * gaussedColorb + 1.0 * gaussedColorbr );
+    return gaussed;
+}
+
+vec4 getGGGColor( vec2 where )
+{
+    // TODO(ebaum): provide properties/uniforms for the scaling factors here
+
+    // get the 8-neighbourhood
+    vec4 gaussedColorc  = getGGColor( where );
+    vec4 gaussedColorbl = getGGColor( where + vec2( -offsetX, -offsetY ) );
+    vec4 gaussedColorl  = getGGColor( where + vec2( -offsetX,     0.0  ) );
+    vec4 gaussedColortl = getGGColor( where + vec2( -offsetX,  offsetY ) );
+    vec4 gaussedColort  = getGGColor( where + vec2(     0.0,   offsetY ) );
+    vec4 gaussedColortr = getGGColor( where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorr  = getGGColor( where + vec2(  offsetX,     0.0  ) );
+    vec4 gaussedColorbr = getGGColor( where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorb  = getGGColor( where + vec2(     0.0,  -offsetY ) );
+
+    // apply gauss filter
+    vec4 gaussed = ( 1.0 / 16.0 ) * (
+            1.0 * gaussedColortl +  2.0 * gaussedColort + 1.0 * gaussedColortr +
+            2.0 * gaussedColorl  +  4.0 * gaussedColorc + 2.0 * gaussedColorr  +
+            1.0 * gaussedColorbl +  2.0 * gaussedColorb + 1.0 * gaussedColorbr );
+    return gaussed;
+}
+
+
+vec4 getDOF( vec2 where )
+{
+    float targetDepth = getDepth( (gl_TextureMatrix[0] * vec4( 0.5, 0.5, 0.0, 0.0 ) ).xy );
+
+    float focalDistance = targetDepth;
+    float focalRange = 0.1;
+
+    float blur = clamp( abs( getDepth( where ) - focalDistance ) / focalRange, 0.0, 1.0);
+    vec4 gCol = getGGGColor( where );
+    vec4 col = getColor( where );
+
+    float fadeOut = getDepthFading(where );
+    return vec4( fadeOut * mix( col.rgb, gCol.rgb, blur ), 1.0 );
+}
+
+vec4 getDOF()
+{
+    return getDOF( pixelCoord );
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -623,6 +690,7 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_COLOR
     blend( getColor() );
+//    blend( getDOF() );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_GAUSSEDCOLOR
