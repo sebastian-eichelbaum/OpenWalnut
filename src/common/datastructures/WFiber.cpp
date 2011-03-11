@@ -85,13 +85,13 @@ namespace
     }
 }
 
-WFiber::WFiber( const std::vector< wmath::WPosition > &points )
-    : wmath::WLine( points )
+WFiber::WFiber( const std::vector< WPosition > &points )
+    : WLine( points )
 {
 }
 
 WFiber::WFiber()
-    : wmath::WLine()
+    : WLine()
 {
 }
 

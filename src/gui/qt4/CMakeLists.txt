@@ -7,7 +7,8 @@ INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} )
 # Libraries for linking:
 SET( QT_LIBS ${QT_QTCORE_LIBRARY}
              ${QT_QTGUI_LIBRARY}
-             ${QT_QTOPENGL_LIBRARY} )
+             ${QT_QTOPENGL_LIBRARY} 
+             ${QT_QTWEBKIT_LIBRARY} )
 
 # add here all classes that inherit from QObject
 SET(GUI_QT4_MOC_HDRS
@@ -34,6 +35,7 @@ SET(GUI_QT4_MOC_HDRS
     controlPanel/WQtTreeWidget.h
     controlPanel/WQtTreeItem.h
     controlPanel/WQtTextureSorter.h
+    controlPanel/WQtColormapper.h
     networkEditor/WQtNetworkEditor.h
     networkEditor/WQtNetworkScene.h
     commandPrompt/WQtCommandPromptToolbar.h

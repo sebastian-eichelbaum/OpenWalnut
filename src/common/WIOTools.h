@@ -27,102 +27,137 @@
 
 #include <stdint.h>
 
-#include <cstdio>
 #include <algorithm>
-#include <cassert>
+// #include <cstdio>
 #include <string>
 
 #include <boost/filesystem.hpp>
 
+#include "WExportCommon.h"
+#include "WAssert.h"
+
 /**
- * Namespaces for several tools we may need while doing IO
+ * Checks if you are on a big endian machine or not.
  */
-namespace wiotools
+inline bool isBigEndian()
 {
-    /**
-     * Checks if you are on a big endian machine or not.
-     */
-    inline bool isBigEndian()
+    union
     {
-        union
-        {
-            uint32_t i;
-            char c[4];
-        } some = {0x01020305}; // NOLINT assigning an 32 bit unsigned integer
+        uint32_t i;
+        char c[4];
+    } some = {0x01020305}; // NOLINT assigning an 32 bit unsigned integer
 
-        return some.c[0] == 1;
-    }
+    return some.c[0] == 1;
+}
 
 
-    /**
-     * Transforms a value of type T into the opposite byte order.
-     *
-     * \param value The value where byte swapping should be applied to
-     */
-    template< class T > T switchByteOrder( const T value )
+/**
+ * Transforms a value of type T into the opposite byte order.
+ *
+ * \param value The value where byte swapping should be applied to
+ */
+template< class T > T switchByteOrder( const T value )
+{
+    size_t numBytes = sizeof( T );
+    T result = value;
+    if( numBytes == 1 )
     {
-        size_t numBytes = sizeof( T );
-        T result = value;
-        if( numBytes == 1 )
-        {
-            return result;
-        }
-        assert( numBytes % 2 == 0  && numBytes > 0 );
-        char *s  = reinterpret_cast< char* >( &result );
-        for( size_t i = 0; i < numBytes / 2; ++i )
-        {
-            std::swap( s[i], s[ ( numBytes - 1 ) - i ] );
-        }
         return result;
     }
-
-    /**
-     * Transform a whole array of elements (of type T and size of sizeof(T))
-     * into opposite byte order.
-     *
-     * \param array Array containing the data
-     * \param arraySize The number of elements which is not the number of
-     * bytes but e.g. the number of floats
-     */
-    template< class T > void switchByteOrderOfArray( T *array, const size_t arraySize )
+    WAssert( numBytes % 2 == 0  && numBytes > 0, "odd number of bytes whilte switching byte order" );
+    char *s  = reinterpret_cast< char* >( &result );
+    for( size_t i = 0; i < numBytes / 2; ++i )
     {
-        for( size_t i = 0; i < arraySize; ++i )
-        {
-            array[i] = switchByteOrder< T >( array[i] );
-        }
+        std::swap( s[i], s[ ( numBytes - 1 ) - i ] );
     }
+    return result;
+}
 
-    /**
-     * \param name File name to get the extension or suffix from.
-     * \return filename suffix
-     */
-    inline std::string getSuffix( std::string name )
+/**
+ * Transform a whole array of elements (of type T and size of sizeof(T))
+ * into opposite byte order.
+ *
+ * \param array Array containing the data
+ * \param arraySize The number of elements which is not the number of
+ * bytes but e.g. the number of floats
+ */
+template< class T > void switchByteOrderOfArray( T *array, const size_t arraySize )
+{
+    for( size_t i = 0; i < arraySize; ++i )
     {
-        return boost::filesystem::path( name ).extension();
+        array[i] = switchByteOrder< T >( array[i] );
     }
+}
 
-    /**
-     * Checks if a given path already exists or not
-     *
-     * \param path Path to be checked on existence
-     */
-    inline bool fileExists( std::string path )
-    {
-        return boost::filesystem::exists( boost::filesystem::path( path ) );
-    }
+/**
+ * \param name File name to get the extension or suffix from.
+ * \return filename suffix
+ */
+inline std::string getSuffix( std::string name )
+{
+    return boost::filesystem::path( name ).extension();
+}
 
-    /**
-     * Generate a file name with full path for a temp file. Watch out on all
-     * platforms!
-     */
-    inline std::string tempFileName()
-    {
-        // REGARDING THE COMPILER WARNING
-        // 1. mkstemp is only available for POSIX systems
-        // 2. reason: the warning generated here is due to a race condition
-        //    while tmpnam invents the fileName it may be created by another process
-        // 3. file names like "/tmp/pansen" or "C:\pansen" are platform dependent
-        return std::string( std::tmpnam( NULL ) );
-    }
-}  // end of namespace
+/**
+ * Checks if a given path already exists or not
+ *
+ * \param name Path to be checked on existence
+ */
+inline bool fileExists( const std::string& name )
+{
+    return boost::filesystem::exists( boost::filesystem::path( name ) );
+}
+
+/**
+ * Generate a file name with full path for a temp file.
+ * \return The file name.
+ */
+boost::filesystem::path tempFileName();
+
+/**
+ * Get the contens of a file as a string.
+ *
+ * \param path Filename of the file to read.
+ *
+ * \throw WFileNotFound If file cannot be opened for reading
+ *
+ * \note The string is copied, which may result in performance issues when files are getting big.
+ *
+ * \return The file content in as string.
+ */
+std::string OWCOMMON_EXPORT readFileIntoString( const boost::filesystem::path& path );
+
+/**
+ * Get the contens of a file as a string.
+ *
+ * \param name Filename of the file to read.
+ *
+ * \throw WFileNotFound If file cannot be opened for reading
+ *
+ * \note The string is copied, which may result in performance issues when files are getting big.
+ *
+ * \return The file content in as string.
+ */
+std::string OWCOMMON_EXPORT readFileIntoString( const std::string& name );
+
+/**
+ * Writes the contens of a string to the given path.
+ *
+ * \param path The path of the file where all is written to
+ * \param content Payload written into that file
+ *
+ * \throw WFileOpenFailed If file cannot be opened for writing
+ */
+void OWCOMMON_EXPORT writeStringIntoFile( const boost::filesystem::path& path, const std::string& content );
+
+/**
+ * Writes the contens of a string to the given path.
+ *
+ * \param name The path of the file where all is written to
+ * \param content Payload written into that file
+ *
+ * \throw WFileOpenFailed If file cannot be opened for writing
+ */
+void OWCOMMON_EXPORT writeStringIntoFile( const std::string& name, const std::string& content );
+
 #endif  // WIOTOOLS_H

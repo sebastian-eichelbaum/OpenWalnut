@@ -144,7 +144,7 @@ void WMNavSlices::properties()
 
     // Print some nice output: the current nav slice position
     m_currentPosition = m_infoProperties->addProperty( "Position", "Current position of the navigation slices.",
-            wmath::WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
+            WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
 }
 
 void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
@@ -492,7 +492,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
-        wmath::WVector3D normal = pickInfo.getPickNormal();
+        WVector3D normal = pickInfo.getPickNormal();
 
         std::pair< float, float > newPixelPos( pickInfo.getPickPixelPosition() );
         if ( m_isPicked )
@@ -559,7 +559,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
 void WMNavSlices::setMaxMinFromBoundingBox()
 {
     // grab a list of data textures
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
     if ( tex.size() > 0 )
     {
@@ -598,7 +598,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
 
     // grab a list of data textures
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
 
     if ( tex.size() > 0 )
@@ -609,11 +609,11 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
         {
             case 0:
             {
-                std::vector< wmath::WPosition > vertices;
-                vertices.push_back( wmath::WPosition( xPos, m_bb.yMin(),  m_bb.zMin()   ) );
-                vertices.push_back( wmath::WPosition( xPos, m_bb.yMin(),  m_bb.zMax()  ) );
-                vertices.push_back( wmath::WPosition( xPos, m_bb.yMax(), m_bb.zMax()  ) );
-                vertices.push_back( wmath::WPosition( xPos, m_bb.yMax(), m_bb.zMin()   ) );
+                std::vector< WPosition > vertices;
+                vertices.push_back( WPosition( xPos, m_bb.yMin(),  m_bb.zMin()   ) );
+                vertices.push_back( WPosition( xPos, m_bb.yMin(),  m_bb.zMax()  ) );
+                vertices.push_back( WPosition( xPos, m_bb.yMax(), m_bb.zMax()  ) );
+                vertices.push_back( WPosition( xPos, m_bb.yMax(), m_bb.zMin()   ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
                     sliceVertices->push_back( vertices[i] );
@@ -653,11 +653,11 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
             }
             case 1:
             {
-                std::vector< wmath::WPosition > vertices;
-                vertices.push_back( wmath::WPosition( m_bb.xMin(),   yPos, m_bb.zMin()  ) );
-                vertices.push_back( wmath::WPosition( m_bb.xMin(),   yPos, m_bb.zMax() ) );
-                vertices.push_back( wmath::WPosition( m_bb.xMax(),  yPos, m_bb.zMax() ) );
-                vertices.push_back( wmath::WPosition( m_bb.xMax(),  yPos, m_bb.zMin()  ) );
+                std::vector< WPosition > vertices;
+                vertices.push_back( WPosition( m_bb.xMin(),   yPos, m_bb.zMin()  ) );
+                vertices.push_back( WPosition( m_bb.xMin(),   yPos, m_bb.zMax() ) );
+                vertices.push_back( WPosition( m_bb.xMax(),  yPos, m_bb.zMax() ) );
+                vertices.push_back( WPosition( m_bb.xMax(),  yPos, m_bb.zMin()  ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
                     sliceVertices->push_back( vertices[i] );
@@ -695,11 +695,11 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
             }
             case 2:
             {
-                std::vector< wmath::WPosition > vertices;
-                vertices.push_back( wmath::WPosition( m_bb.xMin(),  m_bb.yMin(),  zPos ) );
-                vertices.push_back( wmath::WPosition( m_bb.xMin(),  m_bb.yMax(), zPos ) );
-                vertices.push_back( wmath::WPosition( m_bb.xMax(), m_bb.yMax(), zPos ) );
-                vertices.push_back( wmath::WPosition( m_bb.xMax(), m_bb.yMin(),  zPos ) );
+                std::vector< WPosition > vertices;
+                vertices.push_back( WPosition( m_bb.xMin(),  m_bb.yMin(),  zPos ) );
+                vertices.push_back( WPosition( m_bb.xMin(),  m_bb.yMax(), zPos ) );
+                vertices.push_back( WPosition( m_bb.xMax(), m_bb.yMax(), zPos ) );
+                vertices.push_back( WPosition( m_bb.xMax(), m_bb.yMin(),  zPos ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
                     sliceVertices->push_back( vertices[i] );
@@ -747,7 +747,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
         sliceGeometry->addPrimitiveSet( quad );
     }
     WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->setPosition(
-            wmath::WPosition( m_sagittalPos->get(), m_coronalPos->get(), m_axialPos->get() ) );
+            WPosition( m_sagittalPos->get(), m_coronalPos->get(), m_axialPos->get() ) );
 
     return sliceGeometry;
 }
@@ -774,45 +774,45 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
     float maxy = m_bb.yMax();
     float maxz = m_bb.zMax();
 
-    std::vector< wmath::WPosition > vertices;
+    std::vector< WPosition > vertices;
 
     switch ( slice )
     {
     case 0:
         {
-            vertices.push_back( wmath::WPosition( xPos - 1.0f, miny, zPos ) );
-            vertices.push_back( wmath::WPosition( xPos - 1.0f, maxy, zPos ) );
-            vertices.push_back( wmath::WPosition( xPos - 1.0f, yPos, minz ) );
-            vertices.push_back( wmath::WPosition( xPos - 1.0f, yPos, maxz ) );
+            vertices.push_back( WPosition( xPos - 1.0f, miny, zPos ) );
+            vertices.push_back( WPosition( xPos - 1.0f, maxy, zPos ) );
+            vertices.push_back( WPosition( xPos - 1.0f, yPos, minz ) );
+            vertices.push_back( WPosition( xPos - 1.0f, yPos, maxz ) );
             break;
         }
     case 1:
         {
 #if defined( __APPLE__ )
-            vertices.push_back( wmath::WPosition( minx, yPos - 1.0f, zPos ) );
-            vertices.push_back( wmath::WPosition( maxx, yPos - 1.0f, zPos ) );
-            vertices.push_back( wmath::WPosition( xPos, yPos - 1.0f, minz ) );
-            vertices.push_back( wmath::WPosition( xPos, yPos - 1.0f, maxz ) );
+            vertices.push_back( WPosition( minx, yPos - 1.0f, zPos ) );
+            vertices.push_back( WPosition( maxx, yPos - 1.0f, zPos ) );
+            vertices.push_back( WPosition( xPos, yPos - 1.0f, minz ) );
+            vertices.push_back( WPosition( xPos, yPos - 1.0f, maxz ) );
 #else
-            vertices.push_back( wmath::WPosition( minx, yPos + 1.0f, zPos ) );
-            vertices.push_back( wmath::WPosition( maxx, yPos + 1.0f, zPos ) );
-            vertices.push_back( wmath::WPosition( xPos, yPos + 1.0f, minz ) );
-            vertices.push_back( wmath::WPosition( xPos, yPos + 1.0f, maxz ) );
+            vertices.push_back( WPosition( minx, yPos + 1.0f, zPos ) );
+            vertices.push_back( WPosition( maxx, yPos + 1.0f, zPos ) );
+            vertices.push_back( WPosition( xPos, yPos + 1.0f, minz ) );
+            vertices.push_back( WPosition( xPos, yPos + 1.0f, maxz ) );
 #endif
             break;
         }
     case 2:
         {
 #if defined( __APPLE__ )
-            vertices.push_back( wmath::WPosition( minx, yPos, zPos + 1.0f ) );
-            vertices.push_back( wmath::WPosition( maxx, yPos, zPos + 1.0f ) );
-            vertices.push_back( wmath::WPosition( xPos, miny, zPos + 1.0f ) );
-            vertices.push_back( wmath::WPosition( xPos, maxy, zPos + 1.0f ) );
+            vertices.push_back( WPosition( minx, yPos, zPos + 1.0f ) );
+            vertices.push_back( WPosition( maxx, yPos, zPos + 1.0f ) );
+            vertices.push_back( WPosition( xPos, miny, zPos + 1.0f ) );
+            vertices.push_back( WPosition( xPos, maxy, zPos + 1.0f ) );
 #else
-            vertices.push_back( wmath::WPosition( minx, yPos, zPos - 1.0f ) );
-            vertices.push_back( wmath::WPosition( maxx, yPos, zPos - 1.0f ) );
-            vertices.push_back( wmath::WPosition( xPos, miny, zPos - 1.0f ) );
-            vertices.push_back( wmath::WPosition( xPos, maxy, zPos - 1.0f ) );
+            vertices.push_back( WPosition( minx, yPos, zPos - 1.0f ) );
+            vertices.push_back( WPosition( maxx, yPos, zPos - 1.0f ) );
+            vertices.push_back( WPosition( xPos, miny, zPos - 1.0f ) );
+            vertices.push_back( WPosition( xPos, maxy, zPos - 1.0f ) );
 #endif
             break;
         }
@@ -905,7 +905,7 @@ void WMNavSlices::updateGeometry()
         )
     {
         // update the information property
-        m_currentPosition->set( wmath::WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
+        m_currentPosition->set( WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
 
         // if the texture got changed we want to rearrange the scene Matrix for the SliceViewports to be centered
         updateViewportMatrix();
@@ -933,7 +933,7 @@ void WMNavSlices::updateGeometry()
         m_zCrossNode->replaceDrawable( oldcz, zCrossGeometry );
     }
 
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
     bool noSlices = ( tex.size() == 0 ) || !m_active->get();
 
     m_slicesSwitchNode->setChildValue( m_zSliceNode, m_showAxial->get() && !noSlices );
@@ -950,7 +950,7 @@ void WMNavSlices::updateTextures()
         m_textureChanged = false;
 
         // grab a list of data textures
-        std::vector< boost::shared_ptr< WDataTexture3D > > tex; // = WDataHandler::getDefaultSubject()->getDataTextures( true );
+        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
         if ( tex.size() > 0 )
         {

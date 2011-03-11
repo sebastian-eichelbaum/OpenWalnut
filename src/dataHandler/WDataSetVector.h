@@ -56,6 +56,34 @@ public:
     virtual ~WDataSetVector();
 
     /**
+     * Creates a copy (clone) of this instance but allows to change the valueset. Unlike copy construction, this is a very useful function if you
+     * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
+     *
+     * \param newValueSet the new valueset.
+     *
+     * \return the clone
+     */
+    virtual WDataSetSingle::SPtr clone( boost::shared_ptr< WValueSetBase > newValueSet ) const;
+
+    /**
+     * Creates a copy (clone) of this instance but allows to change the grid. Unlike copy construction, this is a very useful function if you
+     * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
+     *
+     * \param newGrid the new grid.
+     *
+     * \return the clone
+     */
+    virtual WDataSetSingle::SPtr clone( boost::shared_ptr< WGrid > newGrid ) const;
+
+    /**
+     * Creates a copy (clone) of this instance. Unlike copy construction, this is a very useful function if you
+     * want to keep the dynamic type of your dataset even if you just have a WDataSetSingle.
+     *
+     * \return the clone
+     */
+    virtual WDataSetSingle::SPtr clone() const;
+
+    /**
      * Returns a prototype instantiated with the true type of the deriving class.
      *
      * \return the prototype.
@@ -70,7 +98,18 @@ public:
      *
      * \return Vector beeing the interpolate.
      */
-    wmath::WVector3D interpolate( const wmath::WPosition &pos, bool *success ) const;
+    WVector3D interpolate( const WPosition &pos, bool *success ) const;
+
+    /**
+     * Interpolates the very same way as \ref interpolate but it assures that all vecs are aligned to point into the same
+     * half-space.  This is useful for eigenvector fields, where -v, and v both are eigenvectors.
+     *
+     * \param pos Position to interpolate a vector for
+     * \param success return parameter which is true if pos was inside of the grid, false otherwise.
+     *
+     * \return The resulting interpolated vector.
+     */
+    WVector3D eigenVectorInterpolate( const WPosition &pos, bool *success ) const;
 
     /**
      * Get the vector on the given position in value set.
@@ -80,7 +119,7 @@ public:
      *
      * \return the vector
      */
-    wmath::WVector3D getVectorAt( size_t index ) const;
+    WVector3D getVectorAt( size_t index ) const;
 
     /**
      * Determines whether this dataset can be used as a texture.

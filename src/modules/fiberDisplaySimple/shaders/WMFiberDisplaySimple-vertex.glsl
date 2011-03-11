@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WGEColormapping-vertex.glsl"
+
 #include "WMFiberDisplaySimple-varyings.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -117,6 +119,11 @@ void main()
     v_normal = cross( offset, tangent );
     v_normal *= sign( dot( v_normal, vec3( 0.0, 0.0, 1.0 ) ) );
 #endif  // ( defined ILLUMINATION_ENABLED || defined TUBE_ENABLED )
+
+    // Allow the colormapper to do some precalculations with the real vertex coordinate in ow-scene-space
+    // NOTE: v_vertex is in world-space. We need to get it back to scene space. Directly using gl_Vertex would be possible too but this would
+    // ignore the actual width of the tube.
+    colormapping( gl_ModelViewMatrixInverse * v_vertex );
 
     // Simply project the vertex afterwards
     gl_Position = gl_ProjectionMatrix * v_vertex;

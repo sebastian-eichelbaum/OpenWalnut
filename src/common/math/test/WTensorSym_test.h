@@ -43,7 +43,7 @@ public:
      */
     void testAccessOperator1()
     {
-        wmath::WTensorSym< 3, 2 > w;
+        WTensorSym< 3, 2 > w;
         w( 0, 0, 0 ) = 2;
         w( 0, 0, 1 ) = 3;
         w( 0, 1, 0 ) = 0;
@@ -64,7 +64,7 @@ public:
 
         // test a symmetric tensor of dimension 1
         // this should not segfault
-        wmath::WTensorSym< 4, 1 > t;
+        WTensorSym< 4, 1 > t;
 
         t( 0, 0, 0, 0 ) = 2.0;
 
@@ -77,7 +77,7 @@ public:
     void testAccessOperator2()
     {
         std::vector< unsigned int > v( 3, 0 );
-        wmath::WTensorSym< 3, 4 > w;
+        WTensorSym< 3, 4 > w;
 
         for( v[ 0 ] = 0; v[ 0 ] < 4; ++v[ 0 ] )
         {
@@ -100,26 +100,26 @@ public:
     void testStandardConstructor()
     {
         // create lots of tensors
-        wmath::WTensorSym< 1, 1 > t11d;
-        wmath::WTensorSym< 1, 2 > t12d;
-        wmath::WTensorSym< 1, 3 > t13d;
-        wmath::WTensorSym< 1, 4 > t14d;
-        wmath::WTensorSym< 1, 1, float > t11f;
-        wmath::WTensorSym< 1, 2, int > t12i;
-        wmath::WTensorSym< 1, 3, char > t13c;
-        wmath::WTensorSym< 1, 4, std::string > t14s;
-        wmath::WTensorSym< 2, 1 > t21d;
-        wmath::WTensorSym< 2, 2 > t22d;
-        wmath::WTensorSym< 2, 3 > t23d;
-        wmath::WTensorSym< 2, 4 > t24d;
-        wmath::WTensorSym< 2, 1, int > t21i;
-        wmath::WTensorSym< 2, 2, char > t22c;
-        wmath::WTensorSym< 2, 3, float > t23f;
-        wmath::WTensorSym< 2, 4, float > t24f;
-        wmath::WTensorSym< 3, 5 > t35d;
-        wmath::WTensorSym< 4, 3 > t43d;
-        wmath::WTensorSym< 5, 2 > t52d;
-        wmath::WTensorSym< 6, 3 > t63d;
+        WTensorSym< 1, 1 > t11d;
+        WTensorSym< 1, 2 > t12d;
+        WTensorSym< 1, 3 > t13d;
+        WTensorSym< 1, 4 > t14d;
+        WTensorSym< 1, 1, float > t11f;
+        WTensorSym< 1, 2, int > t12i;
+        WTensorSym< 1, 3, char > t13c;
+        WTensorSym< 1, 4, std::string > t14s;
+        WTensorSym< 2, 1 > t21d;
+        WTensorSym< 2, 2 > t22d;
+        WTensorSym< 2, 3 > t23d;
+        WTensorSym< 2, 4 > t24d;
+        WTensorSym< 2, 1, int > t21i;
+        WTensorSym< 2, 2, char > t22c;
+        WTensorSym< 2, 3, float > t23f;
+        WTensorSym< 2, 4, float > t24f;
+        WTensorSym< 3, 5 > t35d;
+        WTensorSym< 4, 3 > t43d;
+        WTensorSym< 5, 2 > t52d;
+        WTensorSym< 6, 3 > t63d;
 
         TS_ASSERT_EQUALS( t35d( 0, 4, 2 ), 0.0 );
         TS_ASSERT_EQUALS( t35d( 1, 4, 0 ), 0.0 );
@@ -139,11 +139,11 @@ public:
      */
     void testCopyConstructor()
     {
-        wmath::WTensorSym< 2, 3 > w;
+        WTensorSym< 2, 3 > w;
         w( 0, 1 ) = 2;
         w( 2, 1 ) = 0.456;
 
-        wmath::WTensorSym< 2, 3 > m( w );
+        WTensorSym< 2, 3 > m( w );
         TS_ASSERT_EQUALS( m( 1, 0 ), 2 );
         TS_ASSERT_EQUALS( m( 1, 2 ), 0.456 );
     }
@@ -153,10 +153,10 @@ public:
      */
     void testCopyOperator()
     {
-        wmath::WTensorSym< 6, 2 > w;
+        WTensorSym< 6, 2 > w;
         w( 0, 0, 1, 1, 0, 1 ) = 4.0;
         w( 1, 1, 0, 0, 0, 0 ) = 0.56;
-        wmath::WTensorSym< 6, 2 > m;
+        WTensorSym< 6, 2 > m;
 
         {
             m = w;
@@ -176,23 +176,23 @@ public:
         // more sophisticated tests can be found in WTensorFuncTest
         // cast to Data_T
         {
-            wmath::WTensorSym< 0, 0, double > t;
+            WTensorSym< 0, 0, double > t;
             t() = 3.0;
             double d = t;
             TS_ASSERT_EQUALS( d, 3.0 );
         }
         // cast to WValue
         {
-            wmath::WTensorSym< 1, 2, int > t;
+            WTensorSym< 1, 2, int > t;
             t( 0 ) = 3.0;
-            wmath::WValue< int > v = t;
+            WValue< int > v = t;
             TS_ASSERT_EQUALS( v[ 0 ], 3.0 );
         }
         // cast to WMatrix
         {
-            wmath::WTensorSym< 2, 3, float > t;
+            WTensorSym< 2, 3, float > t;
             t( 0, 1 ) = 3.0;
-            wmath::WMatrix< float > m = t;
+            WMatrix< float > m = t;
             TS_ASSERT_EQUALS( m( 1, 0 ), 3.0 );
         }
     }

@@ -36,15 +36,15 @@ WTractAdapter::WTractAdapter( boost::shared_ptr< const std::vector< float > > po
 {
 }
 
-wmath::WPosition WTractAdapter::operator[]( size_t index ) const
+WPosition WTractAdapter::operator[]( size_t index ) const
 {
 #ifdef DEBUG
     assert( m_pointComponents && "Invalid point component array inside of WTractAdapter." );
-    return wmath::WPosition( m_pointComponents->at( m_startIndex + index * 3 ),
+    return WPosition( m_pointComponents->at( m_startIndex + index * 3 ),
                              m_pointComponents->at( m_startIndex + index * 3 + 1 ),
                              m_pointComponents->at( m_startIndex + index * 3 + 2 ) );
 #else
-    return wmath::WPosition( ( *m_pointComponents )[ m_startIndex + index * 3],
+    return WPosition( ( *m_pointComponents )[ m_startIndex + index * 3],
                              ( *m_pointComponents )[ m_startIndex + index * 3 + 1],
                              ( *m_pointComponents )[ m_startIndex + index * 3 + 2] );
 #endif

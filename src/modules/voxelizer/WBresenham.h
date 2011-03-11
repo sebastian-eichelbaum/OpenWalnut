@@ -63,7 +63,7 @@ public:
      *
      * \param line Polyline which is about to be rastered.
      */
-    virtual void raster( const wmath::WLine& line );
+    virtual void raster( const WLine& line );
 
 protected:
     /**
@@ -82,7 +82,7 @@ protected:
      * \param start Start point of the line segment
      * \param end End point of the line segment
      */
-    virtual void rasterSegment( const wmath::WPosition& start, const wmath::WPosition& end );
+    virtual void rasterSegment( const WPosition& start, const WPosition& end );
 
     /**
      * Marks the given voxel as a hit. If anti-aliasing is enabled also some
@@ -98,7 +98,7 @@ protected:
      * \param end End point of the line segment (used to computed the
      * distance)
      */
-    virtual void markVoxel( const wmath::WValue< int >& voxel, const int axis, const wmath::WPosition& start, const wmath::WPosition& end );
+    virtual void markVoxel( const WValue< int >& voxel, const int axis, const WPosition& start, const WPosition& end );
 
     /**
      * Returns the value to mark the hit voxels with, depending on their
@@ -122,7 +122,7 @@ protected:
      * the voxel itself, then x+1, x-1 supporting voxel, then y+1 and y-1
      * and at last z+1 and z-1.
      */
-    std::vector< double > computeDistances( const size_t voxelNum, const wmath::WPosition& start, const wmath::WPosition& end ) const;
+    std::vector< double > computeDistances( const size_t voxelNum, const WPosition& start, const WPosition& end ) const;
 
     /**
      * Compose the new value for a voxel out of a new computed value and the already existing marking.

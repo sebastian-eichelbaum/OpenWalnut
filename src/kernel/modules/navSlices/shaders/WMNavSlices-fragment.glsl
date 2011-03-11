@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#version 120
+
 varying vec4 VaryingTexCoord0;
 varying vec4 VaryingTexCoord1;
 varying vec4 VaryingTexCoord2;

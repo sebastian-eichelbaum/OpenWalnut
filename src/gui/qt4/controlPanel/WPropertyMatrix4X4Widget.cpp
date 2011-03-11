@@ -89,7 +89,7 @@ void WPropertyMatrix4X4Widget::update()
     }
 
     // do not forget to update the label
-    m_asText.setText( QString::fromStdString( wmath::toString( m_matrixProperty->get() ) ) );
+    m_asText.setText( QString::fromStdString( toString( m_matrixProperty->get() ) ) );
 }
 
 void WPropertyMatrix4X4Widget::editChanged()

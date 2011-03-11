@@ -104,17 +104,41 @@ protected:
 
 private:
     /**
-     * Reads the mesh file and creates a WTriangleMesh out of it.
+     * Reads a mesh file and creates a WTriangleMesh out of it.
      *
      * \return Reference to the dataset.
      */
-    virtual boost::shared_ptr< WTriangleMesh > read();
+    virtual boost::shared_ptr< WTriangleMesh > readMesh();
+
+    /**
+     * Reads a dip file and creates a WTriangleMesh out of it.
+     *
+     * \return Reference to the dataset.
+     */
+    virtual boost::shared_ptr< WTriangleMesh > readDip();
+
+    /**
+     * creates a color map for loaded dip file
+     * \param value a value between 0.0 and 1.0
+     * \return the color
+     */
+    osg::Vec4 blueGreenPurpleColorMap( float value );
 
     boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
     boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_output;  //!< Output connector provided by this module.
     boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
     WPropTrigger  m_readTriggerProp; //!< This property triggers the actual reading,
     WPropFilename m_meshFile; //!< The mesh will be read from this file.
+
+    /**
+     * A list of file type selection types
+     */
+    boost::shared_ptr< WItemSelection > m_fileTypeSelectionsList;
+
+    /**
+     * Selection property for file types
+     */
+    WPropSelection m_fileTypeSelection;
 };
 
 #endif  // WMREADMESH_H

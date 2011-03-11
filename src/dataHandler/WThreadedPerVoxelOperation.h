@@ -66,13 +66,13 @@ class WThreadedPerVoxelOperationTest;
  * The subarray will have exactly numInputs entries.
  */
 template< typename Value_T, std::size_t numValues, typename Output_T, std::size_t numOutputs >
-class WThreadedPerVoxelOperation : public WThreadedJobs< WValueSet< Value_T >, std::size_t >
+class WThreadedPerVoxelOperation : public WThreadedStripingJobs< WValueSet< Value_T >, std::size_t >
 {
     //! the test is a friend
     friend class WThreadedPerVoxelOperationTest;
 
     //! the base class
-    typedef WThreadedJobs< WValueSet< Value_T >, std::size_t > BaseType;
+    typedef WThreadedStripingJobs< WValueSet< Value_T >, std::size_t > BaseType;
 
 public:
     //! the input valueset's type
@@ -104,20 +104,12 @@ public:
     virtual ~WThreadedPerVoxelOperation();
 
     /**
-     * Get a job for every voxel.
-     *
-     * \param job The job to be done (in this case the voxel to be processed).
-     * \return false, iff no more voxels need to be processed.
-     */
-    virtual bool getJob( std::size_t& job ); // NOLINT
-
-    /**
      * Perform the computation for a specific voxel.
      *
      * \param input The input dataset.
-     * \param job The job to be done (in this case the voxel to be processed).
+     * \param voxelNum The voxel number to operate on.
      */
-    virtual void compute( boost::shared_ptr< ValueSetType const > input, std::size_t const& job );
+    virtual void compute( boost::shared_ptr< ValueSetType const > input, std::size_t voxelNum );
 
     /**
      * Get the output dataset.
@@ -126,20 +118,17 @@ public:
      */
     boost::shared_ptr< WDataSetSingle > getResult();
 
+protected:
+    using BaseType::m_input;
+
 private:
     //! a threadsafe vector (container)
-    typedef WSharedSequenceContainer< std::vector< Output_T > > OutputVectorType;
+    typedef boost::shared_ptr< std::vector< Output_T > > OutputVectorType;
 
     //! stores the output of the per-voxel-operation
     OutputVectorType m_output;
 
-    //! the current position in the dataset
-    WSharedObject< std::size_t > m_position;
-
-    //! the size of the valueset
-    std::size_t m_size;
-
-    //! the function
+    //! the function applied to every voxel
     FunctionType m_func;
 
     //! store the grid
@@ -178,12 +167,10 @@ WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::WThreade
         throw WException( std::string( "No valid function provided." ) );
     }
 
-    m_position.getWriteTicket()->get() = 0;
-    m_size = dataset->getValueSet()->size();
     try
     {
         // allocate enough memory for the output data
-        m_output.getWriteTicket()->get().resize( m_size * numOutputs );
+        m_output = OutputVectorType( new std::vector< Output_T >( m_input->size() * numOutputs ) );
     }
     catch( std::exception const& e )
     {
@@ -199,25 +186,14 @@ WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::~WThread
 }
 
 template< typename Value_T, std::size_t numValues, typename Output_T, std::size_t numOutputs >
-bool WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::getJob( std::size_t& job ) // NOLINT
-{
-    typename WSharedObject< std::size_t >::WriteTicket t = m_position.getWriteTicket();
-    bool b = t->get() < m_size;
-    job = t->get();
-    t->get() += 1 * static_cast< std::size_t >( b );
-    return b;
-}
-
-template< typename Value_T, std::size_t numValues, typename Output_T, std::size_t numOutputs >
 void WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::compute( boost::shared_ptr< ValueSetType const > input,
-                                                               std::size_t const& job )
+                                                               std::size_t voxelNum )
 {
-    TransmitType t = input->getSubArray( job * numValues, numValues );
+    TransmitType t = input->getSubArray( voxelNum * numValues, numValues );
     OutTransmitType o = m_func( t );
-    typename OutputVectorType::WriteTicket w = m_output.getWriteTicket();
     for( std::size_t k = 0; k < numOutputs; ++k )
     {
-        w->get()[ job * numOutputs + k ] = o[ k ];
+        ( *m_output )[ voxelNum * numOutputs + k ] = o[ k ];
     }
 }
 
@@ -225,16 +201,14 @@ template< typename Value_T, std::size_t numValues, typename Output_T, std::size_
 boost::shared_ptr< WDataSetSingle > WThreadedPerVoxelOperation< Value_T, numValues, Output_T, numOutputs >::getResult()
 {
     boost::shared_ptr< OutValueSetType > values;
-    boost::shared_ptr< std::vector< Output_T > > vals =
-        boost::shared_ptr< std::vector< Output_T > >( new std::vector< Output_T >( m_output.getReadTicket()->get() ) );
     switch( numOutputs )
     {
     case 1:
-        values = boost::shared_ptr< OutValueSetType >( new OutValueSetType( 0, 1, vals,
+        values = boost::shared_ptr< OutValueSetType >( new OutValueSetType( 0, 1, m_output,
                                                                             DataType< Output_T >::type ) );
         return boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( values, m_grid ) );
     default:
-        values = boost::shared_ptr< OutValueSetType >( new OutValueSetType( 1, numOutputs, vals,
+        values = boost::shared_ptr< OutValueSetType >( new OutValueSetType( 1, numOutputs, m_output,
                                                                             DataType< Output_T >::type ) );
         return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( values, m_grid ) );
     }

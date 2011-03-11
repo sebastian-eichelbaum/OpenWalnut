@@ -98,6 +98,8 @@ void WMTriangleMeshRenderer::properties()
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 
+    m_usePerVertexColor = m_properties->addProperty( "Per vertex color", "", false );
+
     WModule::properties();
 }
 
@@ -128,6 +130,7 @@ void WMTriangleMeshRenderer::moduleMain()
     m_moduleState.add( m_colorMapInput->getDataChangedCondition() );
     m_moduleState.add( m_meshColor->getCondition() );
     m_moduleState.add( m_mainComponentOnly->getCondition() );
+    m_moduleState.add( m_usePerVertexColor->getCondition() );
 
     // signal ready state
     ready();
@@ -205,30 +208,39 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
     osg::ref_ptr< osg::Vec4Array > colors   = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     boost::shared_ptr< WColoredVertices > colorMap = m_colorMapInput->getData();
 
-    if( !colorMap.get() || m_meshColor->changed() )
+    if ( !m_usePerVertexColor->get( true ) )
     {
-        debugLog() << "No Color Map found, using a single color";
-        colors->push_back( m_meshColor->get( true ) );
-        surfaceGeometry->setColorArray( colors );
-        surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        if( !colorMap.get() || m_meshColor->changed() )
+        {
+            debugLog() << "No Color Map found, using a single color";
+            colors->push_back( m_meshColor->get( true ) );
+            surfaceGeometry->setColorArray( colors );
+            surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+        }
+        else
+        {
+            debugLog() << "Color Map found... using it";
+            for( size_t i = 0; i < mesh->vertSize(); ++i )
+            {
+                colors->push_back( m_meshColor->get() );
+            }
+            for( std::map< size_t, WColor >::const_iterator vc = colorMap->getData().begin(); vc != colorMap->getData().end(); ++vc )
+            {
+                // ATTENTION: the colormap might not be available and hence an old one, but the new mesh might have triggered the update
+                if( vc->first < colors->size() )
+                {
+                    colors->at( vc->first ) = vc->second;
+                }
+            }
+
+            surfaceGeometry->setColorArray( colors );
+            surfaceGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
+        }
     }
     else
     {
-        debugLog() << "Color Map found... using it";
-        for( size_t i = 0; i < mesh->vertSize(); ++i )
-        {
-            colors->push_back( m_meshColor->get() );
-        }
-        for( std::map< size_t, WColor >::const_iterator vc = colorMap->getData().begin(); vc != colorMap->getData().end(); ++vc )
-        {
-            // ATTENTION: the colormap might not be available and hence an old one, but the new mesh might have triggered the update
-            if( vc->first < colors->size() )
-            {
-                colors->at( vc->first ) = vc->second;
-            }
-        }
-
-        surfaceGeometry->setColorArray( colors );
+        debugLog() << "Using vertex colors from triangle mesh";
+        surfaceGeometry->setColorArray( mesh->getVertexColorArray() );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     }
 

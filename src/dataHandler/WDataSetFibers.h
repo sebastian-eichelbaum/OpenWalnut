@@ -32,29 +32,14 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/tuple/tuple.hpp>
 
-#include "../common/datastructures/WFiber.h"
 #include "../common/math/WPosition.h"
+#include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
 #include "WDataSet.h"
 #include "WExportDataHandler.h"
 
-/**
- * converts an integer into a byte array and back
- */
-union converterByteINT32
-{
-        unsigned char b[4]; //!< the bytes
-        int i; //!< the int
-};
-
-/**
- * converts a float into a byte array and back
- */
-union converterByteFloat
-{
-        unsigned char b[4]; //!< the bytes
-        float f; //!< the float
-};
+// forward declarations
+class WFiber;
 
 /**
  * Represents a simple set of WFibers.
@@ -184,7 +169,7 @@ public:
                     boost::shared_ptr< std::vector< size_t > > lineStartIndexes,
                     boost::shared_ptr< std::vector< size_t > > lineLengths,
                     boost::shared_ptr< std::vector< size_t > > verticesReverse,
-                    std::pair< wmath::WPosition, wmath::WPosition > boundingBox );
+                    WBoundingBox boundingBox );
 
     /**
      * Constructs a new set of fibers. This constructor determines the bounding box by using the coordinates of the vertices.
@@ -200,12 +185,12 @@ public:
                     boost::shared_ptr< std::vector< size_t > > verticesReverse );
 
     /**
-     * Constructs a new set of WFibers. The constructed instance is not usable.
+     * Constructs a new set of tracts. The constructed instance is not usable but needed for prototype mechanism.
      */
     WDataSetFibers();
 
     /**
-     * Get number of fibers in this data set.
+     * Get number of tracts in this data set.
      */
     size_t size() const;
 
@@ -342,7 +327,7 @@ public:
      * \param fiber
      * \param vertex
      */
-    wmath::WPosition getPosition( size_t fiber, size_t vertex ) const;
+    WPosition getPosition( size_t fiber, size_t vertex ) const;
 
     /**
      * calculates the tangent for a point on the fiber
@@ -350,7 +335,7 @@ public:
      * \param fiber
      * \param vertex
      */
-    wmath::WPosition getTangent( size_t fiber, size_t vertex ) const;
+    WPosition getTangent( size_t fiber, size_t vertex ) const;
 
     /**
      * saves the selected fiber bundles to a file
@@ -361,9 +346,9 @@ public:
     void saveSelected( std::string filename, boost::shared_ptr< std::vector< bool > > active ) const;
 
     /**
-     * Get the bounding box as pair of WPositions.
+     * Get the bounding box.
      */
-    std::pair< wmath::WPosition, wmath::WPosition > getBoundingBox() const;
+    WBoundingBox getBoundingBox() const;
 
     /**
      * Constructs a WFiber out of the given tract number.
@@ -426,8 +411,10 @@ private:
      */
     IndexArray m_verticesReverse;
 
-    wmath::WPosition m_bbMin; //!< Minimum position of bounding box of all fibers.
-    wmath::WPosition m_bbMax; //!< Maximum position of bounding box of all fibers.
+    /**
+     * Axis aligned bounding box for all tract-vertices of this dataset.
+     */
+    WBoundingBox m_bb;
 };
 
 #endif  // WDATASETFIBERS_H

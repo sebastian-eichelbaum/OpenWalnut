@@ -86,24 +86,6 @@ public:
         TPVO t( ds, boost::bind( &WThreadedPerVoxelOperationTest::func, this, _1 ) );
 
         TS_ASSERT_EQUALS( ds->getGrid(), t.m_grid );
-        TS_ASSERT_EQUALS( t.m_size, 8 );
-        TS_ASSERT_EQUALS( t.m_position.getWriteTicket()->get(), 0 );
-    }
-
-    /**
-     * Test if jobs get created correctly.
-     */
-    void testGetJobs()
-    {
-        boost::shared_ptr< WDataSetSingle > ds = buildTestData();
-        TPVO t( ds, boost::bind( &WThreadedPerVoxelOperationTest::func, this, _1 ) );
-
-        std::size_t job;
-        for( std::size_t i = 0; i < 8; ++i )
-        {
-            TS_ASSERT( t.getJob( job ) );
-        }
-        TS_ASSERT( !t.getJob( job ) );
     }
 
     /**
@@ -129,14 +111,14 @@ public:
         boost::shared_ptr< WDataSetSingle > res = t->getResult();
 
         float shouldBe[] = {
-                             2.0f, 2.0f, 5.0f,
-                             -5.0f, 4.0f, -7.0f,
-                             8.0f, 8.0f, 23.0f,
-                             -4.0f, 3.0f, -6.0f,
-                             -28.0f, 13.0f, -44.0f,
-                             3.0f, 4.0f, 9.0f,
-                             -4.0f, 5.0f, -4.0f,
-                             2.0f, -4.0f, -1.0f
+                              2.0f,  2.0f,   5.0f,
+                             -5.0f,  4.0f,  -7.0f,
+                              8.0f,  8.0f,  23.0f,
+                             -4.0f,  3.0f,  -6.0f,
+                            -28.0f, 13.0f, -44.0f,
+                              3.0f,  4.0f,   9.0f,
+                             -4.0f,  5.0f,  -4.0f,
+                              2.0f, -4.0f,  -1.0f
                            };
 
         TS_ASSERT( res );
@@ -181,7 +163,7 @@ private:
         boost::shared_ptr< std::vector< int > > v = boost::shared_ptr< std::vector< int > >( new std::vector< int >( a, a + 16 ) );
         dataType r = DataType< int >::type;
         boost::shared_ptr< ValueSetType > vs( new ValueSetType( 1, 2, v, r ) );
-        boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 2, 2, 2, 1.0, 1.0, 1.0 ) );
+        boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 2, 2, 2 ) );
         return boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( vs, g ) );
     }
 

@@ -29,9 +29,6 @@
 
 #include "../WOSSIMHelper.h"
 
-#ifdef OW_USE_OSSIM
-using wmath::WOSSIMHelper;
-#endif
 /**
  * Tests for WOSSIMHelper.
  */
@@ -48,7 +45,7 @@ public:
         const double a = 1.2, b = 2.3, c = 3.4,
                      d = 4.5, e = 5.6, f = 6.7,
                      g = 3.4, h = 1.2, i = 7.0;
-        wmath::WMatrix< double > A( nbRows, nbCols );
+        WMatrix< double > A( nbRows, nbCols );
 
         A( 0, 0 ) = a;
         A( 0, 1 ) = b;
@@ -60,18 +57,18 @@ public:
         A( 2, 1 ) = h;
         A( 2, 2 ) = i;
 
-        wmath::WMatrix< double > U( nbRows, nbCols );
-        wmath::WMatrix< double > V( nbCols, nbCols );
-        wmath::WValue< double > S( nbCols );
+        WMatrix< double > U( nbRows, nbCols );
+        WMatrix< double > V( nbCols, nbCols );
+        WValue< double > S( nbCols );
 
-        wmath::WOSSIMHelper::computeSVD( A, U, V, S );
+        WOSSIMHelper::computeSVD( A, U, V, S );
 
-        wmath::WMatrix< double > Sm( nbRows, nbCols );
+        WMatrix< double > Sm( nbRows, nbCols );
         Sm( 0, 0 ) = S[0];
         Sm( 1, 1 ) = S[1];
         Sm( 2, 2 ) = S[2];
 
-        wmath::WMatrix<double> svd( U*Sm*V.transposed() );
+        WMatrix<double> svd( U*Sm*V.transposed() );
 
         for ( size_t row = 0; row < svd.getNbRows(); row++ )
         {
@@ -91,7 +88,7 @@ public:
 //         const double a = 1.2, b = 2.3, c = 3.4,
 //                      d = 4.5, e = 5.6, f = 6.7,
 //                      g = 3.4, h = 1.2, i = 7.0;
-//         wmath::WMatrix< double > A( nbRows, nbCols );
+//         WMatrix< double > A( nbRows, nbCols );
 //
 //         A( 0, 0 ) = a;
 //         A( 0, 1 ) = b;
@@ -103,8 +100,8 @@ public:
 //         A( 2, 1 ) = h;
 //         A( 2, 2 ) = i;
 //
-//         wmath::WMatrix<double> Ainvers( wmath::WOSSIMHelper::pseudoInverse( A ) );
-//         wmath::WMatrix<double> I( A*Ainvers );
+//         WMatrix<double> Ainvers( WOSSIMHelper::pseudoInverse( A ) );
+//         WMatrix<double> I( A*Ainvers );
 //
 //         for ( size_t row = 0; row < I.getNbRows(); row++ )
 //         {

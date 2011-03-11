@@ -98,7 +98,7 @@ WDataSetFiberVector::~WDataSetFiberVector()
 
 void WDataSetFiberVector::sortDescLength()
 {
-    std::sort( begin(), end(), wmath::hasMorePointsThen );
+    std::sort( begin(), end(), hasMorePointsThen );
 }
 
 boost::shared_ptr< WDataSetFiberVector > WDataSetFiberVector::generateDataSetOutOfUsedFibers( const std::vector< bool > &unused ) const

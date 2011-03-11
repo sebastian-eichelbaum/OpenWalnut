@@ -45,7 +45,7 @@ public:
      */
     void testRealQuadraticEquationWithNoSolution( void )
     {
-        TS_ASSERT_THROWS_EQUALS( wmath::solveRealQuadraticEquation( 0.0, 0.0, 1.0 ), const WEquationHasNoRoots &e,
+        TS_ASSERT_THROWS_EQUALS( solveRealQuadraticEquation( 0.0, 0.0, 1.0 ), const WEquationHasNoRoots &e,
                                  std::string( e.what() ), "The equation: 0x^2 + 0x + 1 = 0.0 has no solutions!" );
     }
 
@@ -55,7 +55,7 @@ public:
     void testRealQuadraticEquationWithOnlyOneSolution( void )
     {
         typedef std::pair< std::complex< double >, std::complex< double > > ComplexPair;
-        ComplexPair actual = wmath::solveRealQuadraticEquation( 1.0, 0.0, 0.0 );
+        ComplexPair actual = solveRealQuadraticEquation( 1.0, 0.0, 0.0 );
         TS_ASSERT_EQUALS( actual.first, std::complex< double >( 0.0, 0.0 ) );
         TS_ASSERT_EQUALS( actual.second, actual.first );
     }
@@ -66,7 +66,7 @@ public:
     void testRealQuadraticEquationWithTwoRealSolutions( void )
     {
         typedef std::pair< std::complex< double >, std::complex< double > > ComplexPair;
-        ComplexPair actual = wmath::solveRealQuadraticEquation( 1.0, 0.0, -1.0 );
+        ComplexPair actual = solveRealQuadraticEquation( 1.0, 0.0, -1.0 );
         ComplexPair expected = ComplexPair( std::complex< double >( -1.0, 0.0 ), std::complex< double >( 1.0, 0.0 ) );
         if(  actual.first != expected.first )
         {
@@ -87,7 +87,7 @@ public:
     void testRealQuadraticEquationWithTwoImaginarySolutions( void )
     {
         typedef std::pair< std::complex< double >, std::complex< double > > ComplexPair;
-        ComplexPair actual = wmath::solveRealQuadraticEquation( 1.0, 0.0, 1.0 );
+        ComplexPair actual = solveRealQuadraticEquation( 1.0, 0.0, 1.0 );
         ComplexPair expected = ComplexPair( std::complex< double >( 0.0, 1.0 ), std::complex< double >( 0.0, -1.0 ) );
         if(  actual.first != expected.first )
         {
@@ -111,7 +111,7 @@ public:
     void testRealQuadraticEquationToTestNumericalIssuesAndPrecisions( void )
     {
         typedef std::pair< std::complex< double >, std::complex< double > > ComplexPair;
-        ComplexPair actual = wmath::solveRealQuadraticEquation( 1.0, 9999999999.0, -9.0e10 );
+        ComplexPair actual = solveRealQuadraticEquation( 1.0, 9999999999.0, -9.0e10 );
         ComplexPair expected = ComplexPair( std::complex< double >( -1.00000000079999999928e10, 0.0 ), std::complex< double >( 8.99999999280000001224, 0.0 ) ); // NOLINT line length
         double delta = 0.00000001; // This precision was found by trial and error
         if( ( ( std::abs( actual.first - expected.first ) > delta ) && ( std::abs( actual.first - expected.second ) > delta ) ) ||

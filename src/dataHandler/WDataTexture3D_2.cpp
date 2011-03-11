@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include "../common/math/WMatrix4x4.h"
+
 #include "WValueSet.h"
 
 #include "../graphicsEngine/WGETextureUtils.h"
@@ -31,11 +33,10 @@
 WDataTexture3D_2::WDataTexture3D_2( boost::shared_ptr< WValueSetBase > valueSet, boost::shared_ptr< WGridRegular3D > grid ):
     WGETexture3D( static_cast< float >( valueSet->getMaximumValue() - valueSet->getMinimumValue() ),
                   static_cast< float >( valueSet->getMinimumValue() ) ),
-    m_valueSet( valueSet ),
-    m_grid( grid )
+    m_valueSet( valueSet )
 {
     // initialize members
-    setTextureSize( m_grid->getNbCoordsX(), m_grid->getNbCoordsY(), m_grid->getNbCoordsZ() );
+    setTextureSize( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() );
 
     // data textures do not repeat or something
     setWrap( osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_BORDER );
@@ -46,21 +47,28 @@ WDataTexture3D_2::WDataTexture3D_2( boost::shared_ptr< WValueSetBase > valueSet,
     threshold()->setMax( valueSet->getMaximumValue() );
     threshold()->set( valueSet->getMinimumValue() );
 
-    // subscribe transformation update callback
-    m_transformationUpdateConnection = m_grid->getTransformationUpdateCondition()->subscribeSignal(
-        boost::bind( &WDataTexture3D_2::updateTransform, this )
-    );
-    transformation()->set( m_grid->getWorldToTexMatrix() );
+    // Scale according to bbox. This scaling is NOT included in the grid's transform, so we need to add it here
+    WMatrix4x4 scale;
+    scale( 0, 0 ) = 1.0 / grid->getNbCoordsX();
+    scale( 1, 1 ) = 1.0 / grid->getNbCoordsY();
+    scale( 2, 2 ) = 1.0 / grid->getNbCoordsZ();
+    scale( 3, 3 ) = 1.0;
+
+    // Move to voxel center. This scaling is NOT included in the grid's transform, so we need to add it here
+    WMatrix4x4 offset = WMatrix4x4::identity();
+    offset( 0, 3 ) = 0.5 / grid->getNbCoordsX();
+    offset( 1, 3 ) = 0.5 / grid->getNbCoordsY();
+    offset( 2, 3 ) = 0.5 / grid->getNbCoordsZ();
+
+    transformation()->set( WMatrix4x4::inverse( grid->getTransform() ) * scale * offset );
+
+    // set the size
+    WGETexture3D::initTextureSize( this, grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() );
 }
 
 WDataTexture3D_2::~WDataTexture3D_2()
 {
     // cleanup
-}
-
-void WDataTexture3D_2::updateTransform()
-{
-    transformation()->set( m_grid->getWorldToTexMatrix() );
 }
 
 void WDataTexture3D_2::create()
@@ -122,6 +130,9 @@ void WDataTexture3D_2::create()
         wlog::error( "WDataTexture3D_2" ) << "Conversion of this data type to texture not supported yet.";
     }
 
+    // remove our link to the value set here. It can be free'd now if no one else uses it anymore
+    m_valueSet.reset();
+
     setImage( ima );
     dirtyTextureObject();
 }
@@ -129,10 +140,5 @@ void WDataTexture3D_2::create()
 void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WDataTexture3D_2 > texture, size_t unit, std::string prefix )
 {
     wge::bindTexture( node, osg::ref_ptr< WGETexture3D >( texture ), unit, prefix );
-}
-
-boost::shared_ptr< WGridRegular3D > WDataTexture3D_2::getGrid() const
-{
-    return m_grid;
 }
 

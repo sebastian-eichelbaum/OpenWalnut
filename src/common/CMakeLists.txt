@@ -44,11 +44,20 @@ ENDIF()
 
 # Unit tests
 IF( OW_COMPILE_TESTS )
-  CXXTEST_ADD_TESTS_FROM_LIST( "${COMMON_SRC}"
-                               "${LIB_NAME}"
-                               "WSegmentationFault.cpp" # can't test seg-faults ;-)
-                               "WTransferable.cpp"  # its an empty class
-                               "WPropertyBase.cpp" # its an abstract class. Its small functionality is tested in WPropertyVariable_test.h
-                               "WLimits.cpp" # there are only some definitions
-                             )
+    CXXTEST_ADD_TESTS_FROM_LIST( "${COMMON_SRC}"
+        "${LIB_NAME}"
+        "WSegmentationFault.cpp" # can't test seg-faults ;-)
+        "WTransferable.cpp"  # its an empty class
+        "WPropertyBase.cpp" # its an abstract class. Its small functionality is tested in WPropertyVariable_test.h
+        "WLimits.cpp" # there are only some definitions
+        )
+
+    # Copy fixtures if existend
+    IF( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures )
+        ADD_CUSTOM_TARGET( ${LIB_NAME}_CopyFixtures
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures ${CMAKE_BINARY_DIR}/common/fixtures/
+            COMMENT "Copy fixtures of ${LIB_NAME}"
+            )
+        ADD_DEPENDENCIES( ${LIB_NAME} ${LIB_NAME}_CopyFixtures )
+    ENDIF( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures )
 ENDIF( OW_COMPILE_TESTS )

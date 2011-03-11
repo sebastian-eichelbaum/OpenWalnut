@@ -37,6 +37,7 @@
 #include "WDataTexture3D_2.h"
 #include "WExportDataHandler.h"
 
+class WDataTexture3D;
 class WCondition;
 class WDataSetVector;
 
@@ -94,6 +95,15 @@ public:
      * Returns the texture- representation of the dataset. May throw an exception if no texture is available.
      *
      * \return The texture.
+     * \deprecated
+     */
+    virtual boost::shared_ptr< WDataTexture3D > getTexture();
+
+    /**
+     * Returns the texture- representation of the dataset. May throw an exception if no texture is available.
+     *
+     * \return The texture.
+     * \deprecated
      */
     virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2() const;
 
@@ -170,3 +180,4 @@ private:
 };
 
 #endif  // WDATASET_H
+

@@ -33,9 +33,6 @@
 #include "WKernel.h"
 #include "WSelectionManager.h"
 
-using wmath::WVector3D;
-using wmath::WPosition;
-using wmath::WMatrix;
 
 WSelectionManager::WSelectionManager() :
     m_paintMode( PAINTMODE_NONE ),

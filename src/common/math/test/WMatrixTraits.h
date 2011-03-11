@@ -41,7 +41,7 @@ CXXTEST_TEMPLATE_INSTANTIATION
  * Enables better UnitTest OutPut if something fails with WFibers, so you see
  * immedeatly what is failing.
  */
-class ValueTraits< wmath::WMatrix< double > > : public WTraitsBase
+class ValueTraits< WMatrix< double > > : public WTraitsBase
 {
 public:
     /**
@@ -49,7 +49,7 @@ public:
      *
      * \param m the WMatrix to print
      */
-    explicit ValueTraits( const wmath::WMatrix<double> &m )
+    explicit ValueTraits( const WMatrix<double> &m )
     {
         std::stringstream tmp;
         tmp.precision( 5 );

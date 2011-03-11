@@ -36,19 +36,22 @@
 size_t WROISphere::maxSphereId = 0;
 
 
-WROISphere::WROISphere( wmath::WPosition position, float radius ) :
+WROISphere::WROISphere( WPosition position, float radius ) :
     WROI(),
     sphereId( maxSphereId++ ),
     m_position( position ),
     m_originalPosition( position ),
     m_radius( radius ),
-    m_pickNormal( wmath::WVector3D() ),
+    m_pickNormal( WVector3D() ),
     m_oldPixelPosition( std::make_pair( 0, 0 ) ),
     m_color( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) ),
     m_notColor( osg::Vec4( 1.0f, 0.0f, 0.0f, 0.4f ) ),
-    m_lockPoint( wmath::WVector3D( 0.0, 0.0, 0.0 ) ),
-    m_lockVector( wmath::WVector3D( 1.0, 1.0, 1.0 ) ),
-    m_lockOnVector( false )
+    m_lockPoint( WVector3D( 0.0, 0.0, 0.0 ) ),
+    m_lockVector( WVector3D( 1.0, 1.0, 1.0 ) ),
+    m_lockOnVector( false ),
+    m_lockX( false ),
+    m_lockY( false ),
+    m_lockZ( false )
 {
     boost::shared_ptr< WGraphicsEngine > ge = WGraphicsEngine::getGraphicsEngine();
     assert( ge );
@@ -72,6 +75,7 @@ void WROISphere::redrawSphere()
     removeDrawables( 0 );
 
     osg::ShapeDrawable* shape = new osg::ShapeDrawable( new osg::Sphere( osg::Vec3( m_position[0], m_position[1], m_position[2] ), m_radius ) );
+    shape->setColor( m_color );
 
     std::stringstream ss;
     ss << "ROISphere" << sphereId;
@@ -90,12 +94,12 @@ WROISphere::~WROISphere()
 //    WGraphicsEngine::getGraphicsEngine()->getScene()->remove( m_geode );
 }
 
-wmath::WPosition WROISphere::getPosition() const
+WPosition WROISphere::getPosition() const
 {
     return m_position;
 }
 
-void WROISphere::setPosition( wmath::WPosition position )
+void WROISphere::setPosition( WPosition position )
 {
     m_position = position;
     m_lockPoint = position;
@@ -105,9 +109,9 @@ void WROISphere::setPosition( wmath::WPosition position )
 
 void WROISphere::setPosition( float x, float y, float z )
 {
-    m_position = wmath::WPosition( x, y, z );
-    m_lockPoint = wmath::WPosition( x, y, z );
-    m_originalPosition = wmath::WPosition( x, y, z );
+    m_position = WPosition( x, y, z );
+    m_lockPoint = WPosition( x, y, z );
+    m_originalPosition = WPosition( x, y, z );
     m_dirty->set( true );
 }
 
@@ -153,8 +157,8 @@ void WROISphere::updateGFX()
             osg::Vec3 in( newPixelPos.first, newPixelPos.second, 0.0 );
             osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
 
-            wmath::WPosition newPixelWorldPos( world[0], world[1], world[2] );
-            wmath::WPosition oldPixelWorldPos;
+            WPosition newPixelWorldPos( world[0], world[1], world[2] );
+            WPosition oldPixelWorldPos;
             if(  m_oldPixelPosition.first == 0 && m_oldPixelPosition.second == 0 )
             {
                 oldPixelWorldPos = newPixelWorldPos;
@@ -163,10 +167,10 @@ void WROISphere::updateGFX()
             {
                 osg::Vec3 in( m_oldPixelPosition.first, m_oldPixelPosition.second, 0.0 );
                 osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
-                oldPixelWorldPos = wmath::WPosition( world[0], world[1], world[2] );
+                oldPixelWorldPos = WPosition( world[0], world[1], world[2] );
             }
 
-            wmath::WVector3D moveVec = newPixelWorldPos - oldPixelWorldPos;
+            WVector3D moveVec = newPixelWorldPos - oldPixelWorldPos;
 
             osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
 
@@ -185,7 +189,7 @@ void WROISphere::updateGFX()
     if ( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
         // Perform all actions necessary for finishing a pick
-        m_pickNormal = wmath::WVector3D();
+        m_pickNormal = WVector3D();
         m_isPicked = false;
     }
 
@@ -201,9 +205,24 @@ void WROISphere::updateGFX()
     }
 }
 
-void WROISphere::moveSphere( wmath::WVector3D offset )
+void WROISphere::moveSphere( WVector3D offset )
 {
     m_position += offset;
+
+    if ( m_lockX )
+    {
+        m_position[0] = m_lockPoint[0];
+    }
+
+    if ( m_lockY )
+    {
+        m_position[1] = m_lockPoint[1];
+    }
+
+    if ( m_lockZ )
+    {
+        m_position[2] = m_lockPoint[2];
+    }
 
     if ( m_lockOnVector )
     {
@@ -217,50 +236,27 @@ void WROISphere::moveSphere( wmath::WVector3D offset )
 
 void WROISphere::setLockX( bool value )
 {
-    m_lockOnVector = value;
+    m_lockX = value;
     m_lockPoint = m_position;
-    if ( value )
-    {
-        m_lockVector[0] = 0.0;
-    }
-    else
-    {
-        m_lockVector[0] = 1.0;
-    }
 }
 
 void WROISphere::setLockY( bool value )
 {
-    m_lockOnVector = value;
+    m_lockY = value;
     m_lockPoint = m_position;
-    if ( value )
-    {
-        m_lockVector[1] = 0.0;
-    }
-    else
-    {
-        m_lockVector[1] = 1.0;
-    }
 }
 
 void WROISphere::setLockZ( bool value )
 {
-    m_lockOnVector = value;
+    m_lockZ = value;
     m_lockPoint = m_position;
-    if ( value )
-    {
-        m_lockVector[2] = 0.0;
-    }
-    else
-    {
-        m_lockVector[2] = 1.0;
-    }
 }
 
 
 void WROISphere::setColor( osg::Vec4 color )
 {
     m_color = color;
+    redrawSphere();
 }
 
 void WROISphere::setNotColor( osg::Vec4 color )
@@ -268,7 +264,7 @@ void WROISphere::setNotColor( osg::Vec4 color )
     m_notColor = color;
 }
 
-void  WROISphere::setLockVector( wmath::WVector3D vector )
+void  WROISphere::setLockVector( WVector3D vector )
 {
     m_lockVector = vector;
     m_lockPoint = m_position;

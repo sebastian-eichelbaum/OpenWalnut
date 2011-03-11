@@ -225,8 +225,13 @@ void WMAtlasCreator::updateOutDataset()
         boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >(
         0, 1, boost::shared_ptr< std::vector< uint8_t > >( new std::vector< uint8_t >( m_volume ) ), W_DT_UINT8 ) );
 
+    WMatrix< double > mat( 4, 4 );
+    mat.makeIdentity();
+    mat( 0, 0 ) = 0.1;
+    mat( 2, 2 ) = 0.1;
+
     boost::shared_ptr<WGridRegular3D> grid = boost::shared_ptr<WGridRegular3D>( new WGridRegular3D( m_xDim, m_yDim, m_zDim,
-                0.0, 0.0, 0.0, 0.1, 1.0, 0.1 ) );
+                WGridTransformOrtho( mat ) ) );
 
     boost::shared_ptr< WDataSetScalar >outData = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, grid ) );
     m_output->updateData( outData );

@@ -26,8 +26,6 @@
 
 #include "WTensorFunctions.h"
 
-namespace wmath
-{
 std::vector< double > getEigenvaluesCardano( WTensorSym< 2, 3 > const& m )
 {
     // this is copied from the gpu glyph shader
@@ -62,4 +60,3 @@ std::vector< double > getEigenvaluesCardano( WTensorSym< 2, 3 > const& m )
     w[ 2 ] -= s;
     return w;
 }
-}  // namespace wmath

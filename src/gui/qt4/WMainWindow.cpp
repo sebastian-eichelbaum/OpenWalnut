@@ -37,6 +37,8 @@
 #include <QtGui/QMenu>
 #include <QtGui/QMenuBar>
 #include <QtGui/QMessageBox>
+#include <QtGui/QTextEdit>
+#include <QtWebKit/QWebView>
 #include <QtGui/QShortcut>
 #include <QtGui/QSlider>
 #include <QtGui/QVBoxLayout>
@@ -45,7 +47,9 @@
 
 #include "../../common/WColor.h"
 #include "../../common/WPreferences.h"
+#include "../../common/WIOTools.h"
 #include "../../common/WProjectFileIO.h"
+#include "../../common/WPathHelper.h"
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetSingle.h"
 #include "../../dataHandler/WEEG2.h"
@@ -99,6 +103,7 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "moduleCrashed" ), moduleCrashed_xpm );
     m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
     m_iconManager.addIcon( std::string( "config" ), preferences_system_xpm );
+    m_iconManager.addIcon( std::string( "view" ), camera_xpm );
 
     if( objectName().isEmpty() )
     {
@@ -125,13 +130,49 @@ void WMainWindow::setupGUI()
     addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
     tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
 
+    // { TODO(all): deprecated. Replaced by WQtColormapper
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getTextureSorterDock() );
+    // }
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
-    tabifyDockWidget( m_controlPanel->getTextureSorterDock(), m_controlPanel->getRoiDock() );
+    tabifyDockWidget( m_controlPanel->getTextureSorterDock(), m_controlPanel->getColormapperDock() );
+    tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
-    setupPermanentToolBar();
+    m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
+    setCentralWidget( m_mainGLWidget.get() );
+
+    m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
+
+    // Set the style of the toolbar
+    // NOTE: this only works if the toolbar is used with QActions instead of buttons and other widgets
+    m_permanentToolBar->setToolButtonStyle( getToolbarStyle() );
+
+    m_iconManager.addIcon( std::string( "ROI icon" ), box_xpm );
+    m_iconManager.addIcon( std::string( "Reset icon" ), o_xpm );
+    m_iconManager.addIcon( std::string( "axial icon" ), axial_xpm );
+    m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
+    m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
+
+    m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
+    QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
+    QAction* resetButton = new QAction( m_iconManager.getIcon( "view" ), "Reset", m_permanentToolBar );
+    resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
+    QAction* projectLoadButton = new QAction( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
+    QAction* projectSaveButton = new QAction( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
+
+    connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
+    connect( resetButton, SIGNAL(  triggered( bool ) ), m_mainGLWidget.get(), SLOT( reset() ) );
+    connect( roiButton, SIGNAL(  triggered( bool ) ), this, SLOT( newRoi() ) );
+    connect( projectLoadButton, SIGNAL(  triggered( bool ) ), this, SLOT( projectLoad() ) );
+    connect( projectSaveButton, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
+
+    m_loadButton->setToolTip( "Load Data" );
+    resetButton->setToolTip( "Reset main view" );
+    roiButton->setToolTip( "Create New ROI" );
+    projectLoadButton->setToolTip( "Load a project from file" );
+    projectSaveButton->setToolTip( "Save current project to file" );
 
     // we want the upper most tree item to be selected. This helps to make the always compatible modules
     // show up in the tool bar from the beginning. And ... it doesn't hurt.
@@ -158,6 +199,8 @@ void WMainWindow::setupGUI()
     saveMenu->addAction( "Save Modules Only", this, SLOT( projectSaveModuleOnly() ) );
     saveMenu->addAction( "Save Camera Only", this, SLOT( projectSaveCameraOnly() ) );
     saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
+    projectSaveButton->setMenu( saveMenu );
+
     fileMenu->addSeparator();
     fileMenu->addAction( m_iconManager.getIcon( "config" ), "Config", this, SLOT( openConfigDialog() ) );
     fileMenu->addSeparator();
@@ -173,20 +216,43 @@ void WMainWindow::setupGUI()
     QList< QKeySequence > controlPanelShortcut;
     controlPanelShortcut.append( QKeySequence( Qt::Key_F9 ) );
     controlPanelTrigger->setShortcuts( controlPanelShortcut );
-    viewMenu->addAction( controlPanelTrigger );
-    viewMenu->addSeparator();
     this->addAction( controlPanelTrigger );  // this enables the action even if the menu bar is invisible
 
     // NOTE: the shortcuts for these view presets should be chosen carefully. Most keysequences have another meaning in the most applications
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
     // statistics ).
     // By additionally adding the action to the main window, we ensure the action can be triggered even if the menu bar is hidden.
-    this->addAction( viewMenu->addAction( "Left", this, SLOT( setPresetViewLeft() ),           QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) ) );
-    this->addAction( viewMenu->addAction( "Right", this, SLOT( setPresetViewRight() ),         QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) ) );
-    this->addAction( viewMenu->addAction( "Superior", this, SLOT( setPresetViewSuperior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) ) );
-    this->addAction( viewMenu->addAction( "Inferior", this, SLOT( setPresetViewInferior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) ) );
-    this->addAction( viewMenu->addAction( "Anterior", this, SLOT( setPresetViewAnterior() ),   QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) ) );
-    this->addAction( viewMenu->addAction( "Posterior", this, SLOT( setPresetViewPosterior() ), QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) ) );
+    QAction* tmpAction = viewMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Left", this, SLOT( setPresetViewLeft() ),
+                                             QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
+    tmpAction->setIconVisibleInMenu( true );
+    this->addAction( tmpAction );
+
+    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Right", this, SLOT( setPresetViewRight() ),
+                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
+    tmpAction->setIconVisibleInMenu( true );
+    this->addAction( tmpAction );
+
+    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Superior", this, SLOT( setPresetViewSuperior() ),
+                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
+    tmpAction->setIconVisibleInMenu( true );
+    this->addAction( tmpAction );
+
+    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Inferior", this, SLOT( setPresetViewInferior() ),
+                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
+    tmpAction->setIconVisibleInMenu( true );
+    this->addAction( tmpAction );
+
+    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Anterior", this, SLOT( setPresetViewAnterior() ),
+                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
+    tmpAction->setIconVisibleInMenu( true );
+    this->addAction( tmpAction );
+
+    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Posterior", this, SLOT( setPresetViewPosterior() ),
+                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
+    tmpAction->setIconVisibleInMenu( true );
+    this->addAction( tmpAction );
+
+    resetButton->setMenu( viewMenu );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
     helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
@@ -265,54 +331,7 @@ void WMainWindow::setupGUI()
     addToolBar( Qt::TopToolBarArea, m_commandPrompt );
     this->addAction( m_commandPrompt->toggleViewAction() );  // this enables the action even if the menu bar is invisible
 
-    // after creating the GUI, restore its saved state
-    restoreSavedState();
-}
-
-void WMainWindow::setupPermanentToolBar()
-{
-    m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
-    setCentralWidget( m_mainGLWidget.get() );
-
-    m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
-
-    // Set the style of the toolbar
-    // NOTE: this only works if the toolbar is used with QActions instead of buttons and other widgets
-    m_permanentToolBar->setToolButtonStyle( getToolbarStyle() );
-
-    m_iconManager.addIcon( std::string( "ROI icon" ), box_xpm );
-    m_iconManager.addIcon( std::string( "Reset icon" ), o_xpm );
-    m_iconManager.addIcon( std::string( "axial icon" ), axial_xpm );
-    m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
-    m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
-
-    m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
-    QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
-    QAction* resetButton = new QAction( m_iconManager.getIcon( "Reset icon" ), "Reset", m_permanentToolBar );
-    resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
-    QAction* projectLoadButton = new QAction( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
-    QAction* projectSaveButton = new QAction( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
-
-    // setup save button
-    QMenu* saveMenu = new QMenu( "Save Project" );
-    saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ) );
-    saveMenu->addAction( "Save Modules", this, SLOT( projectSaveModuleOnly() ) );
-    saveMenu->addAction( "Save Camera", this, SLOT( projectSaveCameraOnly() ) );
-    saveMenu->addAction( "Save ROIs", this, SLOT( projectSaveROIOnly() ) );
-    projectSaveButton->setMenu( saveMenu );
-
-    connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
-    connect( resetButton, SIGNAL(  triggered( bool ) ), m_mainGLWidget.get(), SLOT( reset() ) );
-    connect( roiButton, SIGNAL(  triggered( bool ) ), this, SLOT( newRoi() ) );
-    connect( projectLoadButton, SIGNAL(  triggered( bool ) ), this, SLOT( projectLoad() ) );
-    connect( projectSaveButton, SIGNAL( triggered( bool ) ), this, SLOT( projectSaveAll() ) );
-
-    m_loadButton->setToolTip( "Load Data" );
-    resetButton->setToolTip( "Reset main view" );
-    roiButton->setToolTip( "Create New ROI" );
-    projectLoadButton->setToolTip( "Load a project from file" );
-    projectSaveButton->setToolTip( "Save current project to file" );
-
+    // setup permanent toolbar
     m_permanentToolBar->addAction( m_loadButton );
     m_permanentToolBar->addSeparator();
     m_permanentToolBar->addAction( projectLoadButton );
@@ -323,6 +342,9 @@ void WMainWindow::setupPermanentToolBar()
     m_permanentToolBar->addSeparator();
 
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
+
+    // after creating the GUI, restore its saved state
+    restoreSavedState();
 }
 
 void WMainWindow::autoAdd( boost::shared_ptr< WModule > module, std::string proto )
@@ -574,8 +596,7 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     fd.setAcceptMode( QFileDialog::AcceptSave );
 
     QStringList filters;
-    filters << "Project File (*.owproj *.owp)"
-            << "Any files (*)";
+    filters << "Project File (*.owproj *.owp)";
     fd.setNameFilters( filters );
     fd.setViewMode( QFileDialog::Detail );
     QStringList fileNames;
@@ -587,8 +608,15 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     QStringList::const_iterator constIterator;
     for( constIterator = fileNames.constBegin(); constIterator != fileNames.constEnd(); ++constIterator )
     {
+        std::string filename = ( *constIterator ).toStdString();
+        // append owp if not existent
+        if ( filename.rfind( ".owp" ) == std::string::npos )
+        {
+            filename += ".owp";
+        }
+
         boost::shared_ptr< WProjectFile > proj = boost::shared_ptr< WProjectFile >(
-                new WProjectFile( ( *constIterator ).toStdString() )
+                new WProjectFile( filename )
         );
 
         try
@@ -715,54 +743,32 @@ void WMainWindow::openAboutQtDialog()
 {
     QMessageBox::aboutQt( this, "About Qt" );
 }
+
 void WMainWindow::openAboutDialog()
 {
-    QMessageBox::about( this, "About OpenWalnut",
-                        "OpenWalnut ( http://www.openwalnut.org )\n\n"
-                        "Copyright 2009-2010 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS. "
-                        "For more information see http://www.openwalnut.org/copying.\n\n"
-                        "This program comes with ABSOLUTELY NO WARRANTY. "
-                        "This is free software, and you are welcome to redistribute it "
-                        "under the terms of the GNU Lesser General Public License. "
-                        "You should have received a copy of the GNU Lesser General Public License "
-                        "along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.\n"
-                        "\n"
-                        "Thank you for using OpenWalnut." );
+    std::string filename( WPathHelper::getAppPath().file_string() + "/../share/OpenWalnut/OpenWalnutAbout.html" );
+    std::string content = readFileIntoString( filename );
+    QMessageBox::about( this, "About OpenWalnut", content.c_str() );
 }
 
 void WMainWindow::openOpenWalnutHelpDialog()
 {
-    QMessageBox::information( this, "OpenWalnut Help",
-                              "<h3>Navigation in Main View</h3>"
-                              "<table>"
-                              "<tr><td><b><i>Mouse Button&nbsp;&nbsp;</i></b></td><td><b><i>Action</i></b></td></tr>"
-                              "<tr><td>Left</td><td>Rotate</td></tr>"
-                              "<tr><td>Middle</td><td>Pan</td></tr>"
-                              "<tr><td>Right</td><td>Pick, move ROI box or move slice</td></tr>"
-                              "<tr><td>Right + Shift</td><td>Resize ROI box</td></tr>"
-                              "<tr><td>Wheel</td><td>Zoom</td></tr>"
-                              "<tr><td><b><i>Key</i></b></td><td><b><i>Action</i></b></td></tr>"
-                              "<tr><td>+</td><td>Zoom in</td></tr>"
-                              "<tr><td>-</td><td>Zoom out</td></tr>"
-                              "<tr><td>[space]</td><td>Reset view</td></tr>"
-                              "</table>"
-                              "<h3>Navigation in EEG View</h3>"
-                              "<table>"
-                              "<tr><td><b><i>Mouse Button</i></b></td><td><b><i>Action</i></b></td></tr>"
-                              "<tr><td>Left</td><td>Mark event position</td></tr>"
-                              "<tr><td>Middle</td><td>Pan</td></tr>"
-                              "<tr><td>Right</td><td>Zoom in time</td></tr>"
-                              "<tr><td>Wheel</td><td>Scale voltage</td></tr>"
-                              "<tr><td>Wheel + Right</td><td>Change spacing between graphs</td></tr>"
-                              "<tr><td>Wheel + Left</td><td>Change sensitivity of the coloring of the head surface</td></tr>"
-                              "</table>"
-                              "<h3>Program-wide Keyboard Shortcuts</h3>"
-                              "<table>"
-                              "<tr><td><b><i>Key</i></b></td><td><b><i>Action</i></b></td></tr>"
-                              "<tr><td>Ctrl + q</td><td>Quit</td></tr>"
-                              "<tr><td>Esc</td><td>Resets main view</td></tr>"
-                              "<tr><td>F1</td><td>Opens this help window</td></tr>"
-                              "</table>" );
+    std::string filename( WPathHelper::getAppPath().file_string() + "/../share/OpenWalnut/OpenWalnutHelp.html" );
+    std::string content = readFileIntoString( filename );
+
+    QWidget* window = new QWidget( this, Qt::Window );
+
+    // specify intial layout
+    QVBoxLayout *layout = new QVBoxLayout( window );
+    window->setLayout( layout );
+    window->resize( 500, 500 );
+
+    window->show();
+
+    QWebView *view = new QWebView( this );
+    view->setHtml( content.c_str() );
+    view->show();
+    layout->addWidget( view );
 }
 
 void WMainWindow::setPresetViewLeft()
@@ -992,9 +998,9 @@ void WMainWindow::closeCustomDockWidget( std::string title )
 void WMainWindow::newRoi()
 {
     // do nothing if we can not get
-    wmath::WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    wmath::WPosition minROIPos = crossHairPos - wmath::WPosition( 10., 10., 10. );
-    wmath::WPosition maxROIPos = crossHairPos + wmath::WPosition( 10., 10., 10. );
+    WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition minROIPos = crossHairPos - WPosition( 10., 10., 10. );
+    WPosition maxROIPos = crossHairPos + WPosition( 10., 10., 10. );
 
     if( m_controlPanel->getFirstRoiInSelectedBranch().get() == NULL )
     {
@@ -1012,9 +1018,9 @@ void WMainWindow::openConfigDialog()
 {
     // TODO(all): we need a nice dialog box here.
     QString msg = "OpenWalnut allows you to configure several features. Most of these options are only useful to advanced users. "
-                  "You can have a user-scope configuration in your HOME as \".walnut.cfg\". "
+                  "You can have a user-scope configuration in your HOME directory as \".walnut.cfg\". "
                   "If this file exists, OpenWalnut loads this file. You can also specify a \"walnut.cfg\" in your OpenWalnut directory under "
-                  "\"share/OpenWalnut/\". The file is very well documented.";
+                  "\"share/OpenWalnut/\". A default file will be there after installation. The default file is very well documented.";
     QMessageBox::information( this, "OpenWalnut - Configuration", msg );
 }
 

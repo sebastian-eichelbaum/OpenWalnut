@@ -27,6 +27,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/array.hpp>
+
 #include "../common/WAssert.h"
 #include "WDataSetSingle.h"
 #include "WDataSetVector.h"
@@ -53,6 +55,21 @@ WDataSetVector::~WDataSetVector()
 {
 }
 
+WDataSetSingle::SPtr WDataSetVector::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetVector( newValueSet, getGrid() ) );
+}
+
+WDataSetSingle::SPtr WDataSetVector::clone( boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetVector( getValueSet(), newGrid ) );
+}
+
+WDataSetSingle::SPtr WDataSetVector::clone() const
+{
+    return WDataSetSingle::SPtr( new WDataSetVector( getValueSet(), getGrid() ) );
+}
+
 boost::shared_ptr< WPrototyped > WDataSetVector::getPrototype()
 {
     if ( !m_prototype )
@@ -63,60 +80,99 @@ boost::shared_ptr< WPrototyped > WDataSetVector::getPrototype()
     return m_prototype;
 }
 
-wmath::WVector3D WDataSetVector::interpolate( const wmath::WPosition& pos, bool *success ) const
+namespace
 {
-    boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
-
-    WAssert( grid,  "This data set has a grid whose type is not yet supported for interpolation." );
-    WAssert( grid->isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
-    WAssert( ( m_valueSet->order() == 1 &&  m_valueSet->dimension() == 3 ),
-             "Only implemented for 3D Vectors so far." );
-
-    bool isInside = true;
-    size_t cellId = grid->getCellId( pos, &isInside );
-
-    if( !isInside )
+    boost::array< double, 8 > computePrefactors( const WPosition& pos, boost::shared_ptr< const WGrid > i_grid,
+            boost::shared_ptr< const WValueSetBase > i_valueSet, bool *success, boost::shared_ptr< std::vector< size_t > > vertexIds )
     {
-        *success = false;
-        return wmath::WVector3D();
+        boost::shared_ptr< const WGridRegular3D > grid = boost::shared_dynamic_cast< const WGridRegular3D >( i_grid );
+
+        WAssert( grid,  "This data set has a grid whose type is not yet supported for interpolation." );
+        WAssert( grid->isNotRotated(), "Only feasible for grids that are only translated or scaled so far." );
+        WAssert( ( i_valueSet->order() == 1 &&  i_valueSet->dimension() == 3 ),
+                "Only implemented for 3D Vectors so far." );
+        boost::array< double, 8 > h;
+
+        bool isInside = true;
+        size_t cellId = grid->getCellId( pos, &isInside );
+
+        if( !isInside )
+        {
+            *success = false;
+            return h;
+        }
+        *success = true; // set it here, before the real work is done, because this cannot fail anymore.
+
+        *vertexIds = grid->getCellVertexIds( cellId );
+
+        WPosition localPos = pos - grid->getPosition( ( *vertexIds )[0] );
+
+        double lambdaX = localPos[0] / grid->getOffsetX();
+        double lambdaY = localPos[1] / grid->getOffsetY();
+        double lambdaZ = localPos[2] / grid->getOffsetZ();
+
+        //         lZ     lY
+        //         |      /
+        //         | 6___/_7
+        //         |/:    /|
+        //         4_:___5 |
+        //         | :...|.|
+        //         |.2   | 3
+        //         |_____|/ ____lX
+        //        0      1
+        h[0] = ( 1 - lambdaX ) * ( 1 - lambdaY ) * ( 1 - lambdaZ );
+        h[1] = (     lambdaX ) * ( 1 - lambdaY ) * ( 1 - lambdaZ );
+        h[2] = ( 1 - lambdaX ) * (     lambdaY ) * ( 1 - lambdaZ );
+        h[3] = (     lambdaX ) * (     lambdaY ) * ( 1 - lambdaZ );
+        h[4] = ( 1 - lambdaX ) * ( 1 - lambdaY ) * (     lambdaZ );
+        h[5] = (     lambdaX ) * ( 1 - lambdaY ) * (     lambdaZ );
+        h[6] = ( 1 - lambdaX ) * (     lambdaY ) * (     lambdaZ );
+        h[7] = (     lambdaX ) * (     lambdaY ) * (     lambdaZ );
+
+        return h;
     }
-    std::vector< size_t > vertexIds = grid->getCellVertexIds( cellId );
+}
 
-    wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
+WVector3D WDataSetVector::interpolate( const WPosition& pos, bool *success ) const
+{
+    boost::shared_ptr< std::vector< size_t > > vertexIds( new std::vector< size_t > );
+    boost::array< double, 8 > h = computePrefactors( pos, m_grid, m_valueSet, success, vertexIds );
+    WVector3D result( 0.0, 0.0, 0.0 );
 
-    double lambdaX = localPos[0] / grid->getOffsetX();
-    double lambdaY = localPos[1] / grid->getOffsetY();
-    double lambdaZ = localPos[2] / grid->getOffsetZ();
-    std::vector< double > h( 8 );
-//         lZ     lY
-//         |      /
-//         | 6___/_7
-//         |/:    /|
-//         4_:___5 |
-//         | :...|.|
-//         |.2   | 3
-//         |_____|/ ____lX
-//        0      1
-    h[0] = ( 1 - lambdaX ) * ( 1 - lambdaY ) * ( 1 - lambdaZ );
-    h[1] = (     lambdaX ) * ( 1 - lambdaY ) * ( 1 - lambdaZ );
-    h[2] = ( 1 - lambdaX ) * (     lambdaY ) * ( 1 - lambdaZ );
-    h[3] = (     lambdaX ) * (     lambdaY ) * ( 1 - lambdaZ );
-    h[4] = ( 1 - lambdaX ) * ( 1 - lambdaY ) * (     lambdaZ );
-    h[5] = (     lambdaX ) * ( 1 - lambdaY ) * (     lambdaZ );
-    h[6] = ( 1 - lambdaX ) * (     lambdaY ) * (     lambdaZ );
-    h[7] = (     lambdaX ) * (     lambdaY ) * (     lambdaZ );
-
-    wmath::WVector3D result( 0, 0, 0 );
-    for( size_t i = 0; i < 8; ++i )
+    if( *success ) // only if pos was iniside the grid, we proivde a result different to 0.0, 0.0, 0.0
     {
-        result += h[i] * getVectorAt( vertexIds[i] );
+        for( size_t i = 0; i < 8; ++i )
+        {
+            result += h[i] * getVectorAt( ( *vertexIds )[i] );
+        }
     }
 
-    *success = true;
     return result;
 }
 
-wmath::WVector3D WDataSetVector::getVectorAt( size_t index ) const
+WVector3D WDataSetVector::eigenVectorInterpolate( const WPosition& pos, bool *success ) const
+{
+    boost::shared_ptr< std::vector< size_t > > vertexIds( new std::vector< size_t > );
+    boost::array< double, 8 > h = computePrefactors( pos, m_grid, m_valueSet, success, vertexIds );
+    WVector3D result( 0.0, 0.0, 0.0 );
+
+    if( *success ) // only if pos was iniside the grid, we proivde a result different to 0.0, 0.0, 0.0
+    {
+        for( size_t i = 0; i < 8; ++i )
+        {
+            double sign = 1.0;
+            if( getVectorAt( ( *vertexIds )[0] ).dotProduct( getVectorAt( ( *vertexIds )[i] ) ) < 0.0 )
+            {
+                sign = -1.0;
+            }
+            result += h[i] * sign * getVectorAt( ( *vertexIds )[i] );
+        }
+    }
+
+    return result;
+}
+
+WVector3D WDataSetVector::getVectorAt( size_t index ) const
 {
     switch( getValueSet()->getDataType() )
     {
@@ -144,10 +200,11 @@ wmath::WVector3D WDataSetVector::getVectorAt( size_t index ) const
             WAssert( false, "Unknow data type in dataset." );
     }
 
-    return wmath::WVector3D( 0, 0, 0 );
+    return WVector3D( 0, 0, 0 );
 }
 
 bool WDataSetVector::isTexture() const
 {
     return true;
 }
+

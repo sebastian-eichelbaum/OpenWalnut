@@ -33,6 +33,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QScrollArea>
 #include <QtGui/QShortcut>
+#include <QtGui/QSplitter>
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPreferences.h"
@@ -58,6 +59,7 @@
 #include "WQtBranchTreeItem.h"
 #include "WQtControlPanel.h"
 #include "WQtTextureSorter.h"
+#include "WQtColormapper.h"
 
 WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     : QDockWidget( "Control Panel", parent ),
@@ -117,8 +119,12 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
     m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
 
+    // { TODO(all): deprecated. Replaced by WQtColormapper
     m_textureSorter = new WQtTextureSorter( m_mainWindow );
     m_textureSorter->setToolTip( "Reorder the textures." );
+    // }
+    m_colormapper = new WQtColormapper( m_mainWindow );
+    m_colormapper->setToolTip( "Reorder the textures." );
 
     m_tabWidget = new QTabWidget( m_panel );
     m_tabWidget->setMinimumHeight( 250 );
@@ -181,6 +187,10 @@ void WQtControlPanel::connectSlots()
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
+    // { TODO(all): deprecated. Replaced by WQtColormapper
+    connect( m_textureSorter, SIGNAL( textureSelectionChanged( boost::shared_ptr< WDataSet > ) ),
+             this, SLOT( selectDataModule( boost::shared_ptr< WDataSet > ) ) );
+    // }
     connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleDragDrop() ) );
 }
 
@@ -201,6 +211,14 @@ WQtSubjectTreeItem* WQtControlPanel::addSubject( std::string name )
 
 bool WQtControlPanel::event( QEvent* event )
 {
+    // { TODO(all): deprecated. Replaced by WQtColormapper
+    // a subject signals a newly registered data set
+    if ( event->type() == WQT_UPDATE_TEXTURE_SORTER_EVENT )
+    {
+        m_textureSorter->update();
+    }
+    // }
+
     if ( event->type() == WQT_ROI_ASSOC_EVENT )
     {
         WRoiAssocEvent* e2 = dynamic_cast< WRoiAssocEvent* >( event );     // NOLINT
@@ -654,7 +672,10 @@ void WQtControlPanel::selectTreeItem()
                     {
                         if( dataModule->getDataSet() )
                         {
+                            // { TODO(all): deprecated. Replaced by WQtColormapper
                             m_textureSorter->selectTexture( dataModule->getDataSet() );
+                            // }
+                            m_colormapper->selectTexture( dataModule->getDataSet() );
                         }
                     }
                 }
@@ -1109,5 +1130,10 @@ QDockWidget* WQtControlPanel::getModuleDock() const
 QDockWidget* WQtControlPanel::getTextureSorterDock() const
 {
     return m_textureSorter;
+}
+
+QDockWidget* WQtControlPanel::getColormapperDock() const
+{
+    return m_colormapper;
 }
 

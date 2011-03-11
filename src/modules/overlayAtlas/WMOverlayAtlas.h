@@ -204,11 +204,11 @@ private:
 
     std::vector< WAtlasSlice >m_sagittalSlices; //!< vector containing image objects with sagittal orientation
 
-    wmath::WPosition m_p0; //!< stores the last position of the center manipulator
-    wmath::WPosition m_p1; //!< stores the last position of  manipulator 1
-    wmath::WPosition m_p2; //!< stores the last position of  manipulator 2
-    wmath::WPosition m_p3; //!< stores the last position of  manipulator 3
-    wmath::WPosition m_p4; //!< stores the last position of  manipulator 4
+    WPosition m_p0; //!< stores the last position of the center manipulator
+    WPosition m_p1; //!< stores the last position of  manipulator 1
+    WPosition m_p2; //!< stores the last position of  manipulator 2
+    WPosition m_p3; //!< stores the last position of  manipulator 3
+    WPosition m_p4; //!< stores the last position of  manipulator 4
 
     boost::shared_ptr<WROISphere> m_s0; //!< stores pointer to the center manipulator
     boost::shared_ptr<WROISphere> m_s1; //!< stores pointer to manipulator 1

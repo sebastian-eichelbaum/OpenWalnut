@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WGEColormapping-fragment.glsl"
+
 #include "WGEShadingTools.glsl"
 #include "WGETextureTools.glsl"
 #include "WGEPostprocessing.glsl"
@@ -38,6 +40,11 @@
  * The max distance allowed
  */
 uniform float u_distance = 1.0;
+
+/**
+ * Ratio between colormap and fiber color.
+ */
+uniform float u_colormapRatio = 1.0;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -105,13 +112,16 @@ void main()
 
     // Calculate light finally
 #ifdef ILLUMINATION_ENABLED
-    float light = blinnPhongIlluminationIntensity( wge_DefaultLightIntensityLessDiffuse, normal );
+    float light = blinnPhongIlluminationIntensity( wge_DefaultLightIntensity, normal );
 #else
     float light = 1.0;
 #endif
 
+    // apply colormapping to the input color
+    vec4 finalColor = mix( gl_Color, colormapping(), u_colormapRatio );
+
     // finally set the color and depth
-    wge_FragColor = vec4( vec3( gl_Color.xyz * light * colorScaler ), gl_Color.a );
+    wge_FragColor = vec4( vec3( light * finalColor.xyz * colorScaler ), finalColor.a );
     wge_FragNormal = textureNormalize( normal );
     gl_FragDepth = depth;
 }

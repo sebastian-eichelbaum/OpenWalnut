@@ -51,15 +51,15 @@ WSurface::~WSurface()
 {
 }
 
-wmath::WTensorSym< 2, 3, double > WSurface::getCovarianceMatrix( std::vector< wmath::WVector3D > points )
+WTensorSym< 2, 3, double > WSurface::getCovarianceMatrix( std::vector< WVector3D > points )
 {
-    wmath::WTensorSym< 2, 3, double > result;
+    WTensorSym< 2, 3, double > result;
     m_xAverage = m_yAverage = m_zAverage = 0;
 
-    std::vector< wmath::WVector3D >::iterator pointsIt;
+    std::vector< WVector3D >::iterator pointsIt;
     for( pointsIt = points.begin(); pointsIt != points.end(); ++pointsIt )
     {
-        wmath::WVector3D dmy = *pointsIt;
+        WVector3D dmy = *pointsIt;
         m_xAverage += dmy[0];
         m_yAverage += dmy[1];
         m_zAverage += dmy[2];
@@ -71,7 +71,7 @@ wmath::WTensorSym< 2, 3, double > WSurface::getCovarianceMatrix( std::vector< wm
 
     for( pointsIt = points.begin(); pointsIt != points.end(); ++pointsIt )
     {
-        wmath::WVector3D dmy = *pointsIt;
+        WVector3D dmy = *pointsIt;
 
         result( 0, 0 ) += ( dmy[0] - m_xAverage ) * ( dmy[0] - m_xAverage ); //XX
         result( 0, 1 ) += ( dmy[0] - m_xAverage ) * ( dmy[1] - m_yAverage ); //XY
@@ -90,18 +90,18 @@ wmath::WTensorSym< 2, 3, double > WSurface::getCovarianceMatrix( std::vector< wm
     return result;
 }
 
-void WSurface::getSplineSurfaceDeBoorPoints( std::vector< wmath::WVector3D > &givenPoints, std::vector< wmath::WVector3D > &deBoorPoints, int numRows, int numCols ) // NOLINT
+void WSurface::getSplineSurfaceDeBoorPoints( std::vector< WVector3D > &givenPoints, std::vector< WVector3D > &deBoorPoints, int numRows, int numCols ) // NOLINT
 {
     double xMin = givenPoints[0][0];
     double xMax = givenPoints[0][0];
     double zMin = givenPoints[0][2];
     double zMax = givenPoints[0][2];
 
-    std::vector< wmath::WVector3D >::iterator givenPointsIt;
+    std::vector< WVector3D >::iterator givenPointsIt;
 
     for( givenPointsIt = givenPoints.begin(); givenPointsIt != givenPoints.end(); ++givenPointsIt )
     {
-        wmath::WVector3D dmy = *givenPointsIt;
+        WVector3D dmy = *givenPointsIt;
         if( dmy[0] < xMin )
         {
             xMin = dmy[0];
@@ -137,10 +137,10 @@ void WSurface::getSplineSurfaceDeBoorPoints( std::vector< wmath::WVector3D > &gi
             //<local shepard with franke-little-weights>
             for( givenPointsIt = givenPoints.begin(); givenPointsIt != givenPoints.end(); ++givenPointsIt )
             {
-                wmath::WVector3D dmy1 = *givenPointsIt;
-                wmath::WVector3D dmyArray( dmy1[0], dmy1[1], dmy1[2] );
+                WVector3D dmy1 = *givenPointsIt;
+                WVector3D dmyArray( dmy1[0], dmy1[1], dmy1[2] );
                 dmyArray[1] = 0;
-                wmath::WVector3D thisPoint( x, 0, z );
+                WVector3D thisPoint( x, 0, z );
 
                 double xi; //greek alphabet
 
@@ -165,37 +165,36 @@ void WSurface::getSplineSurfaceDeBoorPoints( std::vector< wmath::WVector3D > &gi
                 y = numerator / denominator;
             }
             //</local shepard with franke-little-weights>
-            deBoorPoints.push_back( wmath::WVector3D( x, y, z ) );
+            deBoorPoints.push_back( WVector3D( x, y, z ) );
         }
     return;
 }
 
 void WSurface::execute()
 {
-    std::vector< wmath::WVector3D > deBoorPoints;
+    std::vector< WVector3D > deBoorPoints;
     m_splinePoints.clear();
 
-    wmath::WTensorSym< 2, 3, double > myTensor = getCovarianceMatrix( m_supportPoints );
+    WTensorSym< 2, 3, double > myTensor = getCovarianceMatrix( m_supportPoints );
 
-    std::vector< double > eigenValues( 3 );
-    std::vector< wmath::WVector3D > eigenVectors( 3 );
+    RealEigenSystem eigenSys;
 
-    wmath::jacobiEigenvector3D( myTensor, &eigenValues, &eigenVectors );
+    jacobiEigenvector3D( myTensor, &eigenSys );
 
-    eigenVectors[0].normalize();
-    eigenVectors[1].normalize();
-    eigenVectors[2].normalize();
+    eigenSys[0].second.normalize();
+    eigenSys[1].second.normalize();
+    eigenSys[2].second.normalize();
 
     // This sorts the entries automatically :-)
-    std::map< double, wmath::WVector3D > sortedEigenSystem;
+    std::map< double, WVector3D > sortedEigenSystem;
     for( size_t i = 0; i < 3 ; ++i )
     {
-        sortedEigenSystem[eigenValues[i]] = eigenVectors[i];
+        sortedEigenSystem[eigenSys[i].first] = eigenSys[i].second;
     }
 
-    wmath::WMatrix< double > transMatrix = wmath::WMatrix< double >( 3, 3 );
+    WMatrix< double > transMatrix = WMatrix< double >( 3, 3 );
 
-    std::map< double, wmath::WVector3D >::iterator sortedSystemIter = sortedEigenSystem.begin();
+    std::map< double, WVector3D >::iterator sortedSystemIter = sortedEigenSystem.begin();
     transMatrix( 1, 0 ) =( *sortedSystemIter ).second[0];
     transMatrix( 1, 1 ) =( *sortedSystemIter ).second[1];
     transMatrix( 1, 2 ) =( *sortedSystemIter ).second[2];
@@ -210,7 +209,7 @@ void WSurface::execute()
     transMatrix( 2, 1 ) =( *sortedSystemIter ).second[1];
     transMatrix( 2, 2 ) =( *sortedSystemIter ).second[2];
 
-    std::vector< wmath::WVector3D >::iterator pointsIt;
+    std::vector< WVector3D >::iterator pointsIt;
 
     //translate and orientate given points to origin
     for( pointsIt = m_supportPoints.begin(); pointsIt != m_supportPoints.end(); ++pointsIt )
@@ -219,9 +218,9 @@ void WSurface::execute()
         ( *pointsIt )[1] -= m_yAverage;
         ( *pointsIt )[2] -= m_zAverage;
 
-        wmath::WVector3D dmy( ( *pointsIt )[0], ( *pointsIt )[1], ( *pointsIt )[2]  );
+        WVector3D dmy( ( *pointsIt )[0], ( *pointsIt )[1], ( *pointsIt )[2]  );
 
-        wmath::WVector3D result = transMatrix * dmy;
+        WVector3D result = transMatrix * dmy;
         ( *pointsIt )[0] = result[0];
         ( *pointsIt )[1] = result[1];
         ( *pointsIt )[2] = result[2];
@@ -231,12 +230,12 @@ void WSurface::execute()
     getSplineSurfaceDeBoorPoints( m_supportPoints, deBoorPoints, m_numDeBoorRows, m_numDeBoorCols );
 
     //translate and orientate de Boor points back
-    transMatrix = wmath::invertMatrix3x3( transMatrix );
+    transMatrix = invertMatrix3x3( transMatrix );
     for( pointsIt = deBoorPoints.begin(); pointsIt != deBoorPoints.end(); ++pointsIt )
     {
-        wmath::WVector3D dmy( ( *pointsIt )[0], ( *pointsIt )[1], ( *pointsIt )[2]  );
+        WVector3D dmy( ( *pointsIt )[0], ( *pointsIt )[1], ( *pointsIt )[2]  );
 
-        wmath::WVector3D result = transMatrix * dmy;
+        WVector3D result = transMatrix * dmy;
         ( *pointsIt )[0] = result[0];
         ( *pointsIt )[1] = result[1];
         ( *pointsIt )[2] = result[2];
@@ -256,7 +255,7 @@ void WSurface::execute()
     boost::shared_ptr< WTriangleMesh > newMesh = boost::shared_ptr< WTriangleMesh >( new WTriangleMesh( m_splinePoints.size(), 2
             * m_renderpointsPerCol * m_renderpointsPerRow ) );
 
-    for( std::vector< wmath::WVector3D >::iterator posIt = m_splinePoints.begin(); posIt != m_splinePoints.end(); ++posIt )
+    for( std::vector< WVector3D >::iterator posIt = m_splinePoints.begin(); posIt != m_splinePoints.end(); ++posIt )
     {
         newMesh->addVertex( ( *posIt )[0], ( *posIt )[1], ( *posIt )[2] );
     }
@@ -278,7 +277,7 @@ void WSurface::execute()
     m_tMesh = newMesh;
 }
 
-std::vector< wmath::WVector3D > WSurface::getSplinePoints()
+std::vector< WVector3D > WSurface::getSplinePoints()
 {
     return m_splinePoints;
 }
@@ -289,7 +288,7 @@ void WSurface::setSetSampleRate( float r )
     execute();
 }
 
-void WSurface::setSupportPoints( std::vector< wmath::WVector3D> supportPoints, bool forceUpdate )
+void WSurface::setSupportPoints( std::vector< WVector3D> supportPoints, bool forceUpdate )
 {
     m_supportPoints = supportPoints;
     if ( forceUpdate )

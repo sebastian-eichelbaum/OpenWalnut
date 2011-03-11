@@ -45,7 +45,6 @@ public:
      */
     void testEqualityOperator( void )
     {
-        using wmath::WPosition;
         WFiber fib1;
         WFiber fib2;
         fib1.push_back( WPosition( 1.2, 3.4, 5.6 ) );
@@ -62,11 +61,11 @@ public:
     void testDLTisSymmetric( void )
     {
         WFiber q;
-        q.push_back( wmath::WPosition( 0, 1, 0 ) );
-        q.push_back( wmath::WPosition( 0, 0, 0 ) );
+        q.push_back( WPosition( 0, 1, 0 ) );
+        q.push_back( WPosition( 0, 0, 0 ) );
         WFiber r;
-        r.push_back( wmath::WPosition( 1, 1, 0 ) );
-        r.push_back( wmath::WPosition( 2, 2, 0 ) );
+        r.push_back( WPosition( 1, 1, 0 ) );
+        r.push_back( WPosition( 2, 2, 0 ) );
 
         TS_ASSERT_EQUALS( WFiber::distDLT( 1.0, q, r ), std::sqrt( 5.0 ) / 2.0 );
         TS_ASSERT_EQUALS( WFiber::distDLT( 1.0, r, q ), std::sqrt( 5.0 ) / 2.0 );
@@ -79,11 +78,11 @@ public:
     void testDSTisSymmetric( void )
     {
         WFiber q;
-        q.push_back( wmath::WPosition( 0, 1, 0 ) );
-        q.push_back( wmath::WPosition( 0, 0, 0 ) );
+        q.push_back( WPosition( 0, 1, 0 ) );
+        q.push_back( WPosition( 0, 0, 0 ) );
         WFiber r;
-        r.push_back( wmath::WPosition( 1, 1, 0 ) );
-        r.push_back( wmath::WPosition( 2, 2, 0 ) );
+        r.push_back( WPosition( 1, 1, 0 ) );
+        r.push_back( WPosition( 2, 2, 0 ) );
 
         TS_ASSERT_EQUALS( WFiber::distDST( 1.0, q, r ), std::sqrt( 2.0 ) / 2.0 );
         TS_ASSERT_EQUALS( WFiber::distDST( 1.0, r, q ), std::sqrt( 2.0 ) / 2.0 );
@@ -96,11 +95,11 @@ public:
     void testDTMeasure( void )
     {
         WFiber q;
-        q.push_back( wmath::WPosition( 0, 1, 0 ) );
-        q.push_back( wmath::WPosition( 0, 0, 0 ) );
+        q.push_back( WPosition( 0, 1, 0 ) );
+        q.push_back( WPosition( 0, 0, 0 ) );
         WFiber r;
-        r.push_back( wmath::WPosition( 1, 1, 0 ) );
-        r.push_back( wmath::WPosition( 2, 2, 0 ) );
+        r.push_back( WPosition( 1, 1, 0 ) );
+        r.push_back( WPosition( 2, 2, 0 ) );
 
         TS_ASSERT_EQUALS( WFiber::distDST( 1.0, q, r ), std::sqrt( 2.0 ) / 2.0 );
         TS_ASSERT_EQUALS( WFiber::distDLT( 1.0, q, r ), std::sqrt( 5.0 ) / 2.0 );

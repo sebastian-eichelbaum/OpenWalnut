@@ -25,15 +25,13 @@
 #ifndef WGEOMETRYFUNCTIONS_H
 #define WGEOMETRYFUNCTIONS_H
 
-#include <utility>
 #include <map>
+#include <utility>
 #include <vector>
 
-#include "WVector3D.h"
 #include "../WAssert.h"
+#include "WVector3D.h"
 
-namespace wmath
-{
 namespace utility
 {
     /**
@@ -90,7 +88,5 @@ namespace utility
  * \param level The tesselation level.
  */
 void OWCOMMON_EXPORT tesselateIcosahedron( std::vector< WVector3D >* vertices, std::vector< unsigned int >* triangles, unsigned int level );
-
-}  // namespace wmath
 
 #endif  // WGEOMETRYFUNCTIONS_H

@@ -143,19 +143,19 @@ private:
      * \param j The job.
      * \return The direction in which to continue.
      */
-    wmath::WVector3D getDirFunc( boost::shared_ptr< WDataSetSingle const >, wtracking::WTrackingUtility::JobType const& j );
+    WVector3D getDirFunc( boost::shared_ptr< WDataSetSingle const >, wtracking::WTrackingUtility::JobType const& j );
 
     /**
      * The fiber visitor. Gets called whenever the tracking function finishes integrating a fiber.
      *
      * \param fiber The fiber.
      */
-    void fiberVis( std::vector< wmath::WVector3D > const& fiber );
+    void fiberVis( std::vector< WVector3D > const& fiber );
 
     /**
      * The point visitor. Gets called whenever the tracking function finds a new point for a fiber.
      */
-    void pointVis( wmath::WVector3D const& );
+    void pointVis( WVector3D const& );
 
     /**
      * Handle an exception that was thrown by the tracking function in any worker thread.
@@ -177,7 +177,7 @@ private:
      * \param j The current job.
      * \return The best direction or a zero-vector, if no direction is of any use.
      */
-    wmath::WVector3D getBestDirectionFromSH( wmath::WSymmetricSphericalHarmonic const& h, wtracking::WTrackingUtility::JobType const& j );
+    WVector3D getBestDirectionFromSH( WSymmetricSphericalHarmonic const& h, wtracking::WTrackingUtility::JobType const& j );
 
     /**
      * Use bootstrapping to create a random ODF for this voxel.
@@ -185,22 +185,22 @@ private:
      * \param i The number of the voxel.
      * \return A random spherical harmonic.
      */
-    wmath::WSymmetricSphericalHarmonic createRandomODF( std::size_t i );
+    WSymmetricSphericalHarmonic createRandomODF( std::size_t i );
 
     //! Stores the gfa measure for the input data.
     boost::shared_ptr< WDataSetScalar > m_gfa;
 
     //! Stores a matrix representing the funk-radon-transform.
-    wmath::WMatrix< double > m_frtMat;
+    WMatrix< double > m_frtMat;
 
     //! The matrix use for fitting SH-coeffs to a HARDI measurement.
-    wmath::WMatrix< double > m_SHFittingMat;
+    WMatrix< double > m_SHFittingMat;
 
     //! A matrix that produces a fitted HARDI measurement from an 'unfitted' one.
-    wmath::WMatrix< double > m_HMat;
+    WMatrix< double > m_HMat;
 
     //! A matrix of SH-base function values.
-    wmath::WMatrix< double > m_BMat;
+    WMatrix< double > m_BMat;
 
     //! A ROI used for selecting seed voxels.
     boost::shared_ptr< WROIBox > m_seedROI;

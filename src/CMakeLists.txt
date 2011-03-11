@@ -143,14 +143,6 @@ IF( ITK_FOUND )
     ENDIF()
 ENDIF()
 
-### Eigen #### (for the gauss process, the covariance matrices tend to be sparse and 20x20, but ~70.000 of them)
-FIND_PACKAGE( Eigen3 QUIET )
-IF( EIGEN3_FOUND )
-    MESSAGE( STATUS "Found Eigen3 in: ${EIGEN3_INCLUDE_DIR} with version: ${EIGEN3_VERSION}" )
-    MARK_AS_ADVANCED( EIGEN3_INCLUDE_DIR )
-    MARK_AS_ADVANCED( EIGEN3_VERSION )
-ENDIF()
-
 ### OPENCL ###
 OPTION( OW_USE_OPENCL "Enable OpenCL if available." )
 IF( OW_USE_OPENCL )
@@ -300,6 +292,21 @@ add_custom_target( fontsDirectoryConfiguration
   COMMAND ${CMAKE_COMMAND} -D OW_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D SHARED_FILES_RELATIVE:PATH=${SHARED_FILES_RELATIVE} -P ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/CopyFonts.cmake
   COMMENT "Put all fonts to the right place."
   )
+  
+  
+#---------- OpenWalnut help -------------
+ADD_CUSTOM_TARGET( onlineHelp
+    ALL
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/gui/qt4/OpenWalnutHelp.html ${PROJECT_BINARY_DIR}/share/OpenWalnut
+    COMMENT "Copy online help"
+)
+
+#---------- About OpenWalnut -------------
+ADD_CUSTOM_TARGET( aboutOpenWalnut
+    ALL
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/gui/qt4/OpenWalnutAbout.html ${PROJECT_BINARY_DIR}/share/OpenWalnut
+    COMMENT "Copy about page"
+)
 
 #---------- shell scripts -------------
 IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
@@ -384,11 +391,26 @@ ENDIF()
 FILE( GLOB_RECURSE STYLE_CPP ${PROJECT_SOURCE_DIR}/*.cpp )
 FILE( GLOB_RECURSE STYLE_H ${PROJECT_SOURCE_DIR}/*.h )
 FILE( GLOB_RECURSE STYLE_GLSL ${PROJECT_SOURCE_DIR}/*.glsl )
+FILE( GLOB_RECURSE EXT_SOURCES ${PROJECT_SOURCE_DIR}/ext/* )
+
+FOREACH( file ${EXT_SOURCES} )
+    LIST( REMOVE_ITEM STYLE_H ${file} )
+    LIST( REMOVE_ITEM STYLE_CPP ${file} )
+ENDFOREACH( file )
+
 # Set dirs to exclude from stylecheck
-SET( EXCLUDE_DIRS "/ext/nifti/;/dataHandler/io/biosig/;/dataHandler/io/biosigWin/;/dataHandler/io/biosig/XMLParser/;/dataHandler/io/biosigWin/XMLParser/;/ext/libeep/avr/;/ext/libeep/cnt/;/ext/libeep/eep/;/common/platformDependent/visualStudio/;/modules/lic/fibernavigator/;/modules/lic/fantom/" )
+LIST( APPEND EXCLUDE_DIRS "/dataHandler/io/biosig" )
+LIST( APPEND EXCLUDE_DIRS "/dataHandler/io/biosigWin" )
+LIST( APPEND EXCLUDE_DIRS "/dataHandler/io/biosig/XMLParser" )
+LIST( APPEND EXCLUDE_DIRS "/dataHandler/io/biosigWin/XMLParser" )
+LIST( APPEND EXCLUDE_DIRS "/common/platformDependent/visualStudio" )
+LIST( APPEND EXCLUDE_DIRS "/modules/lic/fibernavigator" )
+LIST( APPEND EXCLUDE_DIRS "/modules/lic/fantom" )
+LIST( APPEND EXCLUDE_DIRS "/dataHandler/io/biosigWin" )
+
 FOREACH( dirname ${EXCLUDE_DIRS} )
-    FILE( GLOB EXCLUDE_H   ${PROJECT_SOURCE_DIR}${dirname}*.h )
-    FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}*.cpp )
+    FILE( GLOB EXCLUDE_H   ${PROJECT_SOURCE_DIR}${dirname}/*.h )
+    FILE( GLOB EXCLUDE_CPP ${PROJECT_SOURCE_DIR}${dirname}/*.cpp )
 
     FOREACH( fname ${EXCLUDE_H} )
       LIST( REMOVE_ITEM STYLE_H ${fname} )
@@ -398,6 +420,7 @@ FOREACH( dirname ${EXCLUDE_DIRS} )
         LIST( REMOVE_ITEM STYLE_CPP ${fname} )
     ENDFOREACH( fname )
 ENDFOREACH( dirname )
+
 LIST( REMOVE_ITEM STYLE_H ${PROJECT_SOURCE_DIR}/version.h )
 
 IF( CMAKE_COLOR_MAKEFILE )

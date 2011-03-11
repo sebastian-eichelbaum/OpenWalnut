@@ -250,7 +250,7 @@ void WMPaintTexture::doPaint()
     while ( !m_paintQueue.empty() )
     {
         WPickInfo pickInfo = m_paintQueue.front();
-        wmath::WPosition paintPosition = pickInfo.getPickPosition();
+        WPosition paintPosition = pickInfo.getPickPosition();
         m_paintQueue.pop();
 
         int voxelNum = m_grid->getVoxelNum( paintPosition );
@@ -368,6 +368,8 @@ void WMPaintTexture::doPaint()
     m_queueAdded->set( false );
 
     m_texture->dirtyTextureObject();
+
+    updateOutDataset();
 }
 
 void WMPaintTexture::queuePaint( WPickInfo pickInfo )
@@ -389,7 +391,7 @@ void WMPaintTexture::queuePaint( WPickInfo pickInfo )
 
 void WMPaintTexture::setColorFromPick( WPickInfo pickInfo )
 {
-    wmath::WPosition paintPosition = pickInfo.getPickPosition();
+    WPosition paintPosition = pickInfo.getPickPosition();
     int voxelNum = m_grid->getVoxelNum( paintPosition );
 
     if ( voxelNum != -1 )
@@ -441,6 +443,7 @@ void WMPaintTexture::updateOutDataset()
         boost::shared_ptr< WValueSet< unsigned char > >( new WValueSet< unsigned char >( 0, 1, values, W_DT_UINT8 ) );
 
     m_outData = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_grid ) );
+    m_outData->getTexture2()->interpolation()->set( false );
     m_output->updateData( m_outData );
 }
 

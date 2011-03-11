@@ -42,10 +42,25 @@ WDataSetDTI::~WDataSetDTI()
 {
 }
 
+WDataSetSingle::SPtr WDataSetDTI::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetDTI( newValueSet, getGrid() ) );
+}
 
-wmath::WTensorSym< 2, 3, float > WDataSetDTI::getTensor( size_t index ) const
+WDataSetSingle::SPtr WDataSetDTI::clone( boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetDTI( getValueSet(), newGrid ) );
+}
+
+WDataSetSingle::SPtr WDataSetDTI::clone() const
+{
+    return WDataSetSingle::SPtr( new WDataSetDTI( getValueSet(), getGrid() ) );
+}
+
+WTensorSym< 2, 3, float > WDataSetDTI::getTensor( size_t index ) const
 {
     boost::shared_ptr< WValueSet< float > > values = boost::shared_dynamic_cast< WValueSet< float > >( m_valueSet );
     WAssert( values, "The value set of a WDataSetDTI must be a WValueSet< float >, nothing else!" );
-    return wmath::WTensorSym< 2, 3, float >( values->getWValue( index ) );
+    return WTensorSym< 2, 3, float >( values->getWValue( index ) );
 }
+

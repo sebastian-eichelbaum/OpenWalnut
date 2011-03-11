@@ -28,6 +28,7 @@
 #include "../common/WAssert.h"
 #include "../common/WException.h"
 #include "../common/WPrototyped.h"
+#include "WDataTexture3D.h"
 #include "WDataTexture3D_2.h"
 #include "WGrid.h"
 #include "WGridRegular3D.h"
@@ -50,6 +51,7 @@ WDataSetSingle::WDataSetSingle( boost::shared_ptr< WValueSetBase > newValueSet,
 
     m_valueSet = newValueSet;
     m_grid = newGrid;
+    m_texture3D = boost::shared_ptr< WDataTexture3D >( new WDataTexture3D( m_valueSet, m_grid ) );
 
     m_infoProperties->addProperty( m_grid->getInformationProperties() );
 
@@ -65,6 +67,7 @@ WDataSetSingle::WDataSetSingle()
     : WDataSet(),
     m_grid(),
     m_valueSet(),
+    m_texture3D(),
     m_texture()
 {
     // default constructor used by the prototype mechanism
@@ -72,6 +75,21 @@ WDataSetSingle::WDataSetSingle()
 
 WDataSetSingle::~WDataSetSingle()
 {
+}
+
+WDataSetSingle::SPtr WDataSetSingle::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetSingle( newValueSet, getGrid() ) );
+}
+
+WDataSetSingle::SPtr WDataSetSingle::clone( boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetSingle( getValueSet(), newGrid ) );
+}
+
+WDataSetSingle::SPtr WDataSetSingle::clone() const
+{
+    return WDataSetSingle::SPtr( new WDataSetSingle( getValueSet(), getGrid() ) );
 }
 
 boost::shared_ptr< WValueSetBase > WDataSetSingle::getValueSet() const
@@ -87,7 +105,12 @@ boost::shared_ptr< WGrid > WDataSetSingle::getGrid() const
 bool WDataSetSingle::isTexture() const
 {
     // TODO(all): this is not sophisticated. This should depend on type of data (vectors? scalars? tensors?)
-    return true;
+    return m_texture;
+}
+
+boost::shared_ptr< WDataTexture3D > WDataSetSingle::getTexture()
+{
+    return m_texture3D;
 }
 
 osg::ref_ptr< WDataTexture3D_2 > WDataSetSingle::getTexture2() const
@@ -146,3 +169,4 @@ double WDataSetSingle::getValueAt( size_t id ) const
 
     return 0.0; // should not be reached. Just there to quiet compiler.
 }
+
