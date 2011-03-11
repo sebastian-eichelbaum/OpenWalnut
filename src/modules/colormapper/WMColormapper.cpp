@@ -132,7 +132,9 @@ void WMColormapper::moduleMain()
             // add a colorbar
             if ( dataSet && dataSet->isTexture() )
             {
-                // TODO(ebaum): this is not the best possible solution. Actually, its a hack. A nice solution would be some more abstract "widget" system
+                // TODO(ebaum): this is not the best possible solution. Actually, its a hack.
+                //              A nice solution would be some more abstract "widget" system
+
                 // create camera oriented 2d projection
                 m_barProjection = new osg::Projection();
                 m_barProjection->addUpdateCallback( new WGENodeMaskCallback( m_showColorbar ) );
@@ -149,7 +151,8 @@ void WMColormapper::moduleMain()
                 osg::ref_ptr< osg::Geode > colorBarBorder = wge::genFinitePlane( osg::Vec3( 0.025 - borderWidth, 0.1 - borderWidth, 0.0 ),
                                                                                  osg::Vec3( 0.025 + 2.0 * borderWidth, 0.0, 0.0 ),
                                                                                  osg::Vec3( 0.0, 0.8 + 2.0 * borderWidth, 0.0 ) );
-                m_colorBar->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropSelection >( "u_colormap", dataSet->getTexture2()->colormap() ) );
+                m_colorBar->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropSelection >( "u_colormap",
+                                                               dataSet->getTexture2()->colormap() ) );
                 colormapShader->apply( m_colorBar );
 
                 // add the label scale
