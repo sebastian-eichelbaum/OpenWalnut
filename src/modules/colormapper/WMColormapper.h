@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMTEXTUREMAPPER_H
-#define WMTEXTUREMAPPER_H
+#ifndef WMCOLORMAPPER_H
+#define WMCOLORMAPPER_H
 
 #include <string>
 
@@ -118,5 +118,5 @@ private:
     WPropBool m_replace;
 };
 
-#endif  // WMTEXTUREMAPPER_H
+#endif  // WMCOLORMAPPER_H
 
