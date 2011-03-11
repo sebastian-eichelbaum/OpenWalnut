@@ -133,6 +133,13 @@ private:
      * The colorbar.
      */
     osg::ref_ptr< osg::Geode > m_colorBar;
+
+    /**
+     * Updates the label for the dataset name
+     *
+     * \param label the label to update
+     */
+    void updateColorbarName( osg::Drawable* label );
 };
 
 #endif  // WMCOLORMAPPER_H

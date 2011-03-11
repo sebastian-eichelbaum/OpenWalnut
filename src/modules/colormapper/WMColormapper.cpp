@@ -32,6 +32,7 @@
 #include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/widgets/labeling/WGELabel.h"
@@ -90,7 +91,7 @@ void WMColormapper::properties()
     m_replace = m_properties->addProperty( "Keep position",
                                            "If true, new texture on the input connector get placed in the list where the old one was.", true );
 
-    m_showColorbar = m_properties->addProperty( "Show Colorbar", "If true, a colorbar is shown for the current colormap.", true );
+    m_showColorbar = m_properties->addProperty( "Show Colorbar", "If true, a colorbar is shown for the current colormap.", false );
 
     WModule::properties();
 }
@@ -129,7 +130,7 @@ void WMColormapper::moduleMain()
 
             boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
 
-            // add a colorbar
+            // add a colorbar (HACK!)
             if ( dataSet && dataSet->isTexture() )
             {
                 // TODO(ebaum): this is not the best possible solution. Actually, its a hack.
@@ -170,6 +171,15 @@ void WMColormapper::moduleMain()
                 bottomLabel->setPosition( osg::Vec3( 0.055, 0.1, 0.0 ) );
                 bottomLabel->setText( boost::lexical_cast< std::string >( dataSet->getTexture2()->minimum()->get() ) );
                 bottomLabel->setCharacterSize( 0.02 );
+                osg::ref_ptr< WGELabel > nameLabel = new WGELabel();
+                nameLabel->setPosition( osg::Vec3( 0.015, 0.9, 0.0 ) );
+                nameLabel->setText( dataSet->getTexture2()->name()->get() );
+                nameLabel->setCharacterSize( 0.02 );
+                nameLabel->setLayout( osgText::TextBase::VERTICAL );
+                nameLabel->setAlignment( osgText::Text::BASE_LINE );
+                nameLabel->setUpdateCallback( new WGEFunctorCallback< osg::Drawable >(
+                    boost::bind( &WMColormapper::updateColorbarName, this, _1 ) )
+                );
 
                 // the bar and the labels need to be added in an identity modelview matrix node
                 osg::ref_ptr< osg::MatrixTransform > matrix = new osg::MatrixTransform();
@@ -180,6 +190,7 @@ void WMColormapper::moduleMain()
                 osg::ref_ptr< osg::Geode > labels = new osg::Geode();
                 labels->addDrawable( topLabel );
                 labels->addDrawable( bottomLabel );
+                labels->addDrawable( nameLabel );
 
                 // build pipeline
                 matrix->addChild( colorBarBorder );
@@ -252,5 +263,14 @@ void WMColormapper::activate()
 
     // Always call WModule's activate!
     WModule::activate();
+}
+
+void WMColormapper::updateColorbarName( osg::Drawable* label )
+{
+    debugLog() << "hallo:";
+    if ( m_lastDataSet )
+    {
+        dynamic_cast< WGELabel* >(label )->setText( m_lastDataSet->getTexture2()->name()->get() );
+    }
 }
 

@@ -28,6 +28,7 @@
 #include <osg/Node>
 #include <osg/StateAttribute>
 #include <osg/StateSet>
+#include <osg/Drawable>
 
 /**
  * This class is needed as OSG does not define a uniform callback type.
@@ -146,6 +147,34 @@ public:
         // no traverse allowed
     }
 };
+
+/**
+ * Drawables have their own callback type and do NOT provide a traverse method.
+ */
+template <>
+class WGECallbackTraits< osg::Drawable >
+{
+public:
+
+    /**
+     * The real callback type. Some specific OSG classes have specific callbacks. Specialize this template in this case.
+     */
+    typedef osg::Drawable::UpdateCallback CallbackType;
+
+    /**
+     * The type of the element used as parameter in the () operator.
+     */
+    typedef osg::Drawable HandledType;
+
+    /**
+     * Call traversal method if existing for the specific callback type.
+     */
+    static void traverse( CallbackType* /*inst*/, HandledType* /*handled*/, osg::NodeVisitor* /*nv*/ )
+    {
+        // no traverse allowed
+    }
+};
+
 
 #endif  // WGECALLBACKTRAITS_H
 
