@@ -58,7 +58,7 @@ const char** WMColormapper::getXPMIcon() const
 
 const std::string WMColormapper::getName() const
 {
-    return "Texture Mapper";
+    return "Colormapper";
 }
 
 const std::string WMColormapper::getDescription() const
