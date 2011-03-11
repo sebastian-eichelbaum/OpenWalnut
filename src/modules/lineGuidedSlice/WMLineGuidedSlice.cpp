@@ -240,6 +240,7 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
 
+    // { TODO(all): this is deprecated.
     // grab a list of data textures
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
@@ -274,6 +275,7 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
             ++counter;
         }
     }
+    // }
 
     osg::DrawElementsUInt* quad = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
     quad->push_back( 3 );
@@ -295,7 +297,9 @@ void WMLineGuidedSlice::updateGeometry()
     osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_sliceNode->getDrawable( 0 ) );
     m_sliceNode->replaceDrawable( old, sliceGeometry );
 
+    // { TODO(all): this is deprecated.
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    // }
 
     slock.unlock();
 }
@@ -307,7 +311,7 @@ void WMLineGuidedSlice::updateTextures()
     if( m_textureChanged )
     {
         m_textureChanged = false;
-
+        // { TODO(all): this is deprecated.
         // grab a list of data textures
         std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
@@ -340,6 +344,7 @@ void WMLineGuidedSlice::updateTextures()
             bool useTexture = m_properties->getProperty( "Use texture" )->toPropBool()->get();
             sliceState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", useTexture ) ) );
         }
+        // }
     }
 
     m_highlightUniform->set( m_isPicked );

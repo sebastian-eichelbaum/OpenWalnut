@@ -449,6 +449,7 @@ void WMSplineSurface::updateGraphics()
         m_opacityProp->get( true );
         m_useTextureProp->get( true );
 
+        // { TODO(all): this is deprecated.
         // grab a list of data textures
         std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
@@ -513,5 +514,6 @@ void WMSplineSurface::updateGraphics()
                 }
             }
         }
+        // }
     }
 }

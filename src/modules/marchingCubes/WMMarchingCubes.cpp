@@ -580,6 +580,7 @@ void WMMarchingCubes::updateGraphicsCallback()
         bool localTextureChangedFlag = m_textureChanged || m_useTextureProp->changed();
         m_textureChanged = false;
 
+        // { TODO(all): this is deprecated.
         // grab a list of data textures
         std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
@@ -675,6 +676,7 @@ void WMMarchingCubes::updateGraphicsCallback()
                 }
             }
         }
+        // }
     }
     lock.unlock();
 }
