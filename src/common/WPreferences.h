@@ -26,17 +26,16 @@
 #define WPREFERENCES_H
 
 #include <string>
-#include <iostream>
 #include <fstream>
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
-#include "WIOTools.h"
-#include "WProperties.h"
-#include "WLogger.h"
-
 #include "WExportCommon.h"
+#include "WIOTools.h"
+#include "WLogger.h"
+#include "WProperties.h"
+
 /**
  * Fetches and caches preferences set in file.
  */
@@ -94,26 +93,24 @@ template< typename T > bool WPreferences::getPreference( std::string prefName, T
     configurationDescription.add_options()
         ( prefName.c_str(), po::value< T >() );
 
-    std::string cfgFileName = m_preferenceFile.file_string();
-
     boost::program_options::variables_map configuration;
-    if( wiotools::fileExists( cfgFileName ) )
+    if( boost::filesystem::exists( m_preferenceFile ) )
     {
-        std::ifstream ifs( cfgFileName.c_str(), std::ifstream::in );
-
         try
         {
+            // since overloaded function "const char*" dont work in boost 1.42.0
+            std::ifstream ifs( m_preferenceFile.file_string().c_str(), std::ifstream::in );
             po::store( po::parse_config_file( ifs, configurationDescription, true ), configuration );
         }
         catch( const po::error &e )
         {
-            std::cerr << "Error in configuration file \"" << cfgFileName << "\": " << e.what() << std::endl;
+            wlog::error( "WPreferences" ) << "Invalid configuration file \"" << m_preferenceFile.file_string() << "\": " << e.what();
             return false;
         }
     }
     else
     {
-        wlog::info( "Preferences" ) << "No Config file: " << cfgFileName << " found";
+        wlog::info( "WPreferences" ) << "No Config file: " << m_preferenceFile.file_string() << " found";
     }
 
     po::notify( configuration );

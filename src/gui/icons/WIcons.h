@@ -39,6 +39,7 @@
 #include "axial.xpm"
 #include "cor.xpm"
 #include "sag.xpm"
+#include "camera.xpm"
 
 #include "box.xpm"
 #include "o.xpm"

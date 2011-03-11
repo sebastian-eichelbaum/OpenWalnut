@@ -67,7 +67,7 @@ public:
         WMWriteMesh mc;
         boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( 0, 0 ) );
         mc.m_triMesh = triMesh;
-        std::string fileName = wiotools::tempFileName();
+        std::string fileName = tempFileName().file_string();
         mc.m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "Module's properties" ) );
         mc.m_savePropGroup = mc.m_properties->addPropertyGroup( "Save Surface",  "" );
         mc.m_meshFile = mc.m_savePropGroup->addProperty( "Mesh file", "", boost::filesystem::path( fileName.c_str() ) );
@@ -75,7 +75,7 @@ public:
 
         bool result = mc.save();
         TS_ASSERT_EQUALS( result, false ); // should return false as we did not have any vertices or triangles.
-        TS_ASSERT( !wiotools::fileExists( fileName ) );
+        TS_ASSERT( !fileExists( fileName ) );
     }
 
     /**
@@ -97,7 +97,7 @@ public:
             triMesh->addVertex( x, y, z );
         }
 
-        std::string fileName = wiotools::tempFileName();
+        std::string fileName = tempFileName().file_string();
         mc.m_properties = boost::shared_ptr< WProperties >( new WProperties( "Properties", "Module's properties" ) );
         mc.m_savePropGroup = mc.m_properties->addPropertyGroup( "Save Surface",  "" );
         mc.m_meshFile = mc.m_savePropGroup->addProperty( "Mesh file", "", boost::filesystem::path( fileName.c_str() ) );
@@ -107,7 +107,7 @@ public:
 
         bool result = mc.save();
         TS_ASSERT_EQUALS( result, false ); // should return false as we did not have all coordinates values finite.
-        TS_ASSERT( !wiotools::fileExists( fileName ) );
+        TS_ASSERT( !fileExists( fileName ) );
     }
 };
 

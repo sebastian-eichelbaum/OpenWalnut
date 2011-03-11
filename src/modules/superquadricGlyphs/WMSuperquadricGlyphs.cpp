@@ -94,15 +94,15 @@ void WMSuperquadricGlyphs::properties()
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
     // The slice positions. These get update externally
-    m_xPos           = m_properties->addProperty( "Sagittal position", "Slice X position.", 80, m_propCondition );
-    m_yPos           = m_properties->addProperty( "Coronal position", "Slice Y position.", 100, m_propCondition );
-    m_zPos           = m_properties->addProperty( "Axial position", "Slice Z position.", 80, m_propCondition );
+    m_xPos           = m_properties->addProperty( "Sagittal position", "Slice X position.", 0, m_propCondition );
+    m_yPos           = m_properties->addProperty( "Coronal position", "Slice Y position.", 0, m_propCondition );
+    m_zPos           = m_properties->addProperty( "Axial position", "Slice Z position.", 0, m_propCondition );
     m_xPos->setMin( 0 );
-    m_xPos->setMax( 159 );
+    m_xPos->setMax( 1 );
     m_yPos->setMin( 0 );
-    m_yPos->setMax( 199 );
+    m_yPos->setMax( 1 );
     m_zPos->setMin( 0 );
-    m_zPos->setMax( 159 );
+    m_zPos->setMax( 1 );
 
     // Flags denoting whether the glyphs should be shown on the specific slice
     // NOTE: the showon* properties do not need to notify m_propCondition as they get handled by the slice's osg node.
@@ -458,6 +458,14 @@ void WMSuperquadricGlyphs::moduleMain()
             m_nbGlyphsX = m_maxY * m_maxZ;
             m_nbGlyphsY = m_maxX * m_maxZ;
             m_nbGlyphsZ = m_maxX * m_maxY;
+
+            // update properties
+            m_xPos->setMax( m_maxX );
+            m_xPos->set( m_maxX / 2 );
+            m_yPos->setMax( m_maxY );
+            m_yPos->set( m_maxY / 2 );
+            m_zPos->setMax( m_maxZ );
+            m_zPos->set( m_maxZ / 2 );
 
             m_output->setMatrix( m_dataSetGrid->getTransform() );
 

@@ -256,7 +256,6 @@ void WMData::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_propCondition );
 
-    using wiotools::getSuffix;
     std::string fileName = m_fileName.string();
 
     debugLog() << "Loading data from \"" << fileName << "\".";

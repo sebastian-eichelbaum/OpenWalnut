@@ -54,6 +54,7 @@ import codecs
 import getopt
 import math  # for log
 import os
+import platform
 import re
 import sre_compile
 import string
@@ -178,7 +179,7 @@ _STL_HEADERS = frozenset([
     'algobase.h', 'algorithm', 'alloc.h', 'bitset', 'deque', 'exception',
     'function.h', 'functional', 'hash_map', 'hash_map.h', 'hash_set',
     'hash_set.h', 'iterator', 'list', 'list.h', 'map', 'memory', 'pair.h',
-    'pthread_alloc', 'queue', 'set', 'set.h', 'sstream', 'stack',
+    'pthread_alloc', 'queue', 'set', 'set.h', 'sstream', 'streambuf', 'stack',
     'stl_alloc.h', 'stl_relops.h', 'type_traits.h',
     'utility', 'vector', 'vector.h',
     ])
@@ -203,7 +204,7 @@ _CPP_HEADERS = frozenset([
 
 # Other heders which are include like system headers, starting with a '<'
 _OTHER_HEADERS = frozenset([
-    'QtGui', 'QtCore', 'QtOpenGL', 'GL', 'cxxtest', 'boost', 'osg','osgText', 'osgViewer', 'osgDB', 'osgUtil', 'osgGA', 'osgSim', 'Eigen', 'matrix'
+    'QtGui', 'QtCore', 'QtWebKit', 'QtOpenGL', 'GL', 'cxxtest', 'boost', 'osg','osgText', 'osgViewer', 'osgDB', 'osgUtil', 'osgGA', 'osgSim', 'Eigen', 'matrix'
     ])
 
 # Assertion macros.  These are defined in base/logging.h and
@@ -2783,6 +2784,13 @@ def ParseArguments(args):
 
 
 def main():
+  if platform.python_version() > "3.0.0":
+    print( "You use python version "+platform.python_version()+"." )
+    print( "This script is known not to work for some versions above 3.0.0." )
+    print( "The last version known to work currently is 2.7.1." )
+    sys.exit(1);
+
+
   filenames = ParseArguments(sys.argv[1:])
 
   # Change stderr to write with replacement characters so we don't die
