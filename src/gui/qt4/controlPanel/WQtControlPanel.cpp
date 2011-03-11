@@ -182,8 +182,10 @@ void WQtControlPanel::connectSlots()
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
+    // { TODO(all): deprecated. Replaced by WQtColormapper
     connect( m_textureSorter, SIGNAL( textureSelectionChanged( boost::shared_ptr< WDataSet > ) ),
              this, SLOT( selectDataModule( boost::shared_ptr< WDataSet > ) ) );
+    // }
     connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleDragDrop() ) );
 }
 
@@ -204,11 +206,13 @@ WQtSubjectTreeItem* WQtControlPanel::addSubject( std::string name )
 
 bool WQtControlPanel::event( QEvent* event )
 {
+    // { TODO(all): deprecated. Replaced by WQtColormapper
     // a subject signals a newly registered data set
     if ( event->type() == WQT_UPDATE_TEXTURE_SORTER_EVENT )
     {
         m_textureSorter->update();
     }
+    // }
 
     if ( event->type() == WQT_ROI_ASSOC_EVENT )
     {
