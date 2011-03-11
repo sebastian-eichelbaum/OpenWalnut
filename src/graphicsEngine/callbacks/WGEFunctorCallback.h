@@ -113,9 +113,7 @@ void WGEFunctorCallback< Type >::operator()( Type* handled, osg::NodeVisitor* nv
 template < typename Type >
 void WGEFunctorCallback< Type >::update( osg::NodeVisitor* nv, Type* handled )
 {
-    // call functor
-    m_functor( handled );
-    WGECallbackTraits< Type >::traverse( this, handled, nv );
+    operator()( handled, nv );
 }
 
 #endif  // WGEFUNCTORCALLBACK_H
