@@ -496,13 +496,13 @@ void WMDatasetManipulator::moduleMain()
         }
         if ( m_rotationX->changed() || m_rotationY->changed() || m_rotationZ->changed() )
         {
-            float pi = 3.14159265;
-            float rotx = static_cast<float>( m_rotationX->get( true ) ) / 180. * pi;
-            float roty = static_cast<float>( m_rotationY->get( true ) ) / 180. * pi;
-            float rotz = static_cast<float>( m_rotationZ->get( true ) ) / 180. * pi;
+            //float pi = 3.14159265;
+            //float rotx = static_cast<float>( m_rotationX->get( true ) ) / 180. * pi;
+            //float roty = static_cast<float>( m_rotationY->get( true ) ) / 180. * pi;
+            //float rotz = static_cast<float>( m_rotationZ->get( true ) ) / 180. * pi;
 
             {
-                boost::unique_lock< boost::mutex > lock( m_updateMutex );
+                //boost::unique_lock< boost::mutex > lock( m_updateMutex );
                 // m_transform->rotateX( rotx );
                 // m_transform->rotateY( rotx );
                 // m_transform->rotateZ( rotx );
