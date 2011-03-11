@@ -29,6 +29,7 @@
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
+#include "../../common/WPropertyVariable.h"
 
 #include "../../dataHandler/WDataSetSingle.h"
 
@@ -37,19 +38,19 @@
  *
  * \ingroup modules
  */
-class WMTextureMapper: public WModule
+class WMColormapper: public WModule
 {
 public:
 
     /**
      * Standard constructor.
      */
-    WMTextureMapper();
+    WMColormapper();
 
     /**
      * Destructor.
      */
-    ~WMTextureMapper();
+    ~WMColormapper();
 
     /**
      * Gives back the name of this module.
@@ -112,41 +113,9 @@ private:
     boost::shared_ptr< WDataSetSingle > m_lastDataSet;
 
     /**
-     * Called whenever a property changes.
-     *
-     * \param property the property that has been changed
+     * If true, the new texture gets placed at the position of the old one in the texture sorter
      */
-    void propertyChanged( boost::shared_ptr< WPropertyBase > property );
-
-    /**
-     * grouping the texture display properties
-     */
-    WPropGroup    m_groupTex;
-
-    /**
-     * Interpolation?
-     */
-    WPropBool m_interpolation;
-
-    /**
-     * A list of color map selection types
-     */
-    boost::shared_ptr< WItemSelection > m_colorMapSelectionsList;
-
-    /**
-     * Selection property for color map
-     */
-    WPropSelection m_colorMapSelection;
-
-    /**
-     * Threshold value for this data.
-     */
-    WPropDouble m_threshold;
-
-    /**
-     * Opacity value for this data.
-     */
-    WPropInt m_opacity;
+    WPropBool m_replace;
 };
 
 #endif  // WMTEXTUREMAPPER_H
