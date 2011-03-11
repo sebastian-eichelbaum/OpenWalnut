@@ -24,8 +24,17 @@
 
 #include <string>
 
+#include <boost/lexical_cast.hpp>
+
+#include <osg/Projection>
+#include <osg/Geode>
+
 #include "../../dataHandler/WDataTexture3D_2.h"
 #include "../../graphicsEngine/WGEColormapping.h"
+#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "../../graphicsEngine/widgets/labeling/WGELabel.h"
 #include "../../kernel/WKernel.h"
 
 #include "WMColormapper.xpm"
@@ -81,6 +90,8 @@ void WMColormapper::properties()
     m_replace = m_properties->addProperty( "Keep position",
                                            "If true, new texture on the input connector get placed in the list where the old one was.", true );
 
+    m_showColorbar = m_properties->addProperty( "Show Colorbar", "If true, a colorbar is shown for the current colormap.", true );
+
     WModule::properties();
 }
 
@@ -90,6 +101,8 @@ void WMColormapper::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_propCondition );
+
+    osg::ref_ptr< WGEShader > colormapShader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMColormapper", m_localPath ) );
 
     // signal ready state
     ready();
@@ -111,7 +124,69 @@ void WMColormapper::moduleMain()
         // has the data changed?
         if( m_input->handledUpdate() )
         {
+            WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_barProjection );
+            colormapShader->deactivate( m_colorBar );
+
             boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
+
+            // add a colorbar
+            if ( dataSet && dataSet->isTexture() )
+            {
+                // TODO(ebaum): this is not the best possible solution. Actually, its a hack. A nice solution would be some more abstract "widget" system
+                // create camera oriented 2d projection
+                m_barProjection = new osg::Projection();
+                m_barProjection->addUpdateCallback( new WGENodeMaskCallback( m_showColorbar ) );
+                m_barProjection->setMatrix( osg::Matrix::ortho2D( 0, 1.0, 0, 1.0 ) );
+                m_barProjection->getOrCreateStateSet()->setRenderBinDetails( 11, "RenderBin" );
+                m_barProjection->getOrCreateStateSet()->setDataVariance( osg::Object::DYNAMIC );
+                m_barProjection->getOrCreateStateSet()->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
+                m_barProjection->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+
+                float borderWidth = 0.001;
+
+                // create a colorbar geode
+                m_colorBar = wge::genFinitePlane( osg::Vec3( 0.025, 0.1, 0.0 ), osg::Vec3( 0.025, 0.0, 0.0 ), osg::Vec3( 0.0, 0.8, 0.0 ) );
+                osg::ref_ptr< osg::Geode > colorBarBorder = wge::genFinitePlane( osg::Vec3( 0.025 - borderWidth, 0.1 - borderWidth, 0.0 ),
+                                                                                 osg::Vec3( 0.025 + 2.0 * borderWidth, 0.0, 0.0 ),
+                                                                                 osg::Vec3( 0.0, 0.8 + 2.0 * borderWidth, 0.0 ) );
+                m_colorBar->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropSelection >( "u_colormap", dataSet->getTexture2()->colormap() ) );
+                colormapShader->apply( m_colorBar );
+
+                // add the label scale
+                osg::ref_ptr< WGELabel > topLabel = new WGELabel();
+                topLabel->setCharacterSize( 2 );
+                topLabel->setPosition( osg::Vec3( 0.055, 0.9, 0.0 ) );
+                topLabel->setText(
+                    boost::lexical_cast< std::string >(
+                        dataSet->getTexture2()->minimum()->get() + dataSet->getTexture2()->scale()->get()
+                    )
+                );
+                topLabel->setCharacterSize( 0.02 );
+                topLabel->setAlignment( osgText::Text::LEFT_TOP );
+                osg::ref_ptr< WGELabel > bottomLabel = new WGELabel();
+                bottomLabel->setPosition( osg::Vec3( 0.055, 0.1, 0.0 ) );
+                bottomLabel->setText( boost::lexical_cast< std::string >( dataSet->getTexture2()->minimum()->get() ) );
+                bottomLabel->setCharacterSize( 0.02 );
+
+                // the bar and the labels need to be added in an identity modelview matrix node
+                osg::ref_ptr< osg::MatrixTransform > matrix = new osg::MatrixTransform();
+                matrix->setMatrix( osg::Matrix::identity() );
+                matrix->setReferenceFrame( osg::Transform::ABSOLUTE_RF );
+
+                // this geode contains the labels
+                osg::ref_ptr< osg::Geode > labels = new osg::Geode();
+                labels->addDrawable( topLabel );
+                labels->addDrawable( bottomLabel );
+
+                // build pipeline
+                matrix->addChild( colorBarBorder );
+                matrix->addChild( m_colorBar );
+                matrix->addChild( labels );
+                m_barProjection->addChild( matrix );
+
+                // add
+                WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_barProjection );
+            }
 
             // replace texture instead of removing it?
             if ( dataSet && dataSet->isTexture() && m_lastDataSet && m_replace->get( true ) )
@@ -159,6 +234,9 @@ void WMColormapper::moduleMain()
         WGEColormapping::deregisterTexture( m_lastDataSet->getTexture2() );
         // NOTE: the props get removed automatically
     }
+
+    // remove colorbar and its labels
+    WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_barProjection );
 }
 
 void WMColormapper::activate()

@@ -27,6 +27,8 @@
 
 #include <string>
 
+#include <osg/Projection>
+
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 #include "../../common/WPropertyVariable.h"
@@ -116,6 +118,21 @@ private:
      * If true, the new texture gets placed at the position of the old one in the texture sorter
      */
     WPropBool m_replace;
+
+    /**
+     * If true, a colorbar is shown.
+     */
+    WPropBool m_showColorbar;
+
+    /**
+     * The projection node for the colorbar and labels
+     */
+    osg::ref_ptr< osg::Projection > m_barProjection;
+
+    /**
+     * The colorbar.
+     */
+    osg::ref_ptr< osg::Geode > m_colorBar;
 };
 
 #endif  // WMCOLORMAPPER_H
