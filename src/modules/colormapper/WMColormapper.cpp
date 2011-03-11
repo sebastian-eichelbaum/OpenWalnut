@@ -267,10 +267,9 @@ void WMColormapper::activate()
 
 void WMColormapper::updateColorbarName( osg::Drawable* label )
 {
-    debugLog() << "hallo:";
     if ( m_lastDataSet )
     {
-        dynamic_cast< WGELabel* >(label )->setText( m_lastDataSet->getTexture2()->name()->get() );
+        dynamic_cast< WGELabel* >( label )->setText( m_lastDataSet->getTexture2()->name()->get() );
     }
 }
 
