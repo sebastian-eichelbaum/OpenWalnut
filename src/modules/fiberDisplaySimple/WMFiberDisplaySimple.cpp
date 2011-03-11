@@ -388,7 +388,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
     debugLog() << "Color mode is " << fibColorMode << ".";
     WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
 
-   // enable blending, select transparent bin
+    // enable blending, select transparent bin
     if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
     {
         enableTransparency( state );
