@@ -103,7 +103,7 @@ WQtColormapper::~WQtColormapper()
     m_sortConnection.disconnect();
 }
 
-WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGETexture3D > texture, QListWidget* parent ):
+WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGETexture3D > texture, WQtColormapper* cmapper, QListWidget* parent ):
     QListWidgetItem( QString::fromStdString( texture->name()->get() ), parent ),
     m_texture( texture )
 {
@@ -113,10 +113,16 @@ WQtColormapper::WQtTextureListItem::WQtTextureListItem( const osg::ref_ptr< WGET
     {
         setText( QString::fromStdString( names.back() ) );
     }
+
+    // we need to know the name of the texture
+    m_nameConnection = m_texture->name()->getUpdateCondition()->subscribeSignal(
+        boost::bind( &WQtColormapper::pushUpdateEvent, cmapper )
+    );
 }
 
 WQtColormapper::WQtTextureListItem::~WQtTextureListItem()
 {
+    m_nameConnection.disconnect();
 }
 
 const osg::ref_ptr< WGETexture3D > WQtColormapper::WQtTextureListItem::getTexture() const
@@ -160,7 +166,7 @@ void WQtColormapper::update()
     m_textureListWidget->clear();
     for ( WGEColormapping::TextureConstIterator iter = r->get().begin(); iter != r->get().end(); ++iter )
     {
-        WQtTextureListItem* item = new WQtTextureListItem( *iter );
+        WQtTextureListItem* item = new WQtTextureListItem( *iter, this, m_textureListWidget );
         m_textureListWidget->addItem( item );    // the list widget removes the item (and frees the reference to the texture pointer).
 
         // is the item the texture that has been selected previously?
