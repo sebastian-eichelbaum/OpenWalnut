@@ -132,7 +132,6 @@ void WMFiberDisplaySimple::properties()
  */
 void enableTransparency( osg::StateSet* state )
 {
-    // TODO(ebaum): this transparency is problematic. Depth write is on because we need the depth buffer for post-processing
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
     state->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
 
@@ -143,7 +142,24 @@ void enableTransparency( osg::StateSet* state )
     // OSG renders transparent polygons after opaque ones.
     osg::Depth* depth = new osg::Depth;
     depth->setWriteMask( false );
-    //state->setAttributeAndModes( depth, osg::StateAttribute::ON );
+    state->setAttributeAndModes( depth, osg::StateAttribute::ON );
+
+    // disable light for this geode as lines can't be lit properly
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+}
+
+/**
+ * Disables everything which is needed for proper transparency.
+ *
+ * \param state the state of the node
+ */
+void disableTransparency( osg::StateSet* state )
+{
+    // TODO(ebaum): this transparency is problematic. Depth write is on because we need the depth buffer for post-processing
+    state->setMode( GL_BLEND, osg::StateAttribute::OFF );
+
+    // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
 
     // disable light for this geode as lines can't be lit properly
     state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
@@ -375,9 +391,7 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
 {
     // geode and geometry
     osg::StateSet* state = fibGeode->getOrCreateStateSet();
-
-    // disable light for this geode as lines can't be lit properly
-    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+    osg::StateSet* endState = endCapGeode->getOrCreateStateSet();
 
     // create everytring needed for the line_strip drawable
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
@@ -404,7 +418,16 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
     WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
 
     // enable blending, select transparent bin
-    enableTransparency( state );
+    if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
+    {
+        enableTransparency( state );
+        enableTransparency( endState );
+    }
+    else
+    {
+        disableTransparency( state );
+        disableTransparency( endState );
+    }
 
     // progress indication
     boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Adding fibers to geode", fibStart->size() ) );
@@ -528,11 +551,10 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
         endGeometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
         endCapGeode->addDrawable( endGeometry );
 
-        osg::StateSet* endState = endCapGeode->getOrCreateStateSet();
         endState->setAttribute( new osg::Point( 1.0f ), osg::StateAttribute::ON );
-        endState->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
-        //endState->setMode( GL_BLEND, osg::StateAttribute::ON );
-        endState->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+        // NOTE: this must be turned on in any case as it is used to discard some caps
+        endState->setMode( GL_BLEND, osg::StateAttribute::ON );
     }
 
     // set drawable
