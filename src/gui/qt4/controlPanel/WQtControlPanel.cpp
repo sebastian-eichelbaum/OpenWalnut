@@ -716,7 +716,6 @@ void WQtControlPanel::selectTreeItem()
         }
     }
 
-
     buildPropTab( props, infoProps );
 }
 

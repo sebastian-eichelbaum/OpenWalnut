@@ -217,7 +217,7 @@ void WQtNetworkItem::addInputPort( WQtNetworkInputPort *port )
     m_inPorts.append( port );
 }
 
-void WQtNetworkItem::addOutputPort( WQtNetworkOutputPort * port )
+void WQtNetworkItem::addOutputPort( WQtNetworkOutputPort *port )
 {
     m_outPorts.append( port );
 }
