@@ -137,8 +137,9 @@ private:
          *
          * \param texture the texture to handle with this item
          * \param parent parent widget
+         * \param cmapper the colormapper widget managing updates for this item.
          */
-        WQtTextureListItem( const osg::ref_ptr< WGETexture3D > texture, QListWidget * parent = 0 );
+        WQtTextureListItem( const osg::ref_ptr< WGETexture3D > texture, WQtColormapper* cmapper, QListWidget* parent = 0 );
 
         /**
          * Destructor.
@@ -157,6 +158,11 @@ private:
          * The texture that gets handled
          */
         const osg::ref_ptr< WGETexture3D > m_texture;
+
+        /**
+         * Connection for the texture's name property
+         */
+        boost::signals2::connection m_nameConnection;
     };
 
 private slots:

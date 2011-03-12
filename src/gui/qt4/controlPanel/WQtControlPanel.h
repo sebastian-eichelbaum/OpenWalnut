@@ -352,6 +352,12 @@ private slots:
     void selectDataModule( boost::shared_ptr< WDataSet > dataSet );
 
     /**
+     * Will be called to select the data module for the given texture.
+     * \param texture the texture currently selected.
+     */
+    void selectDataModule( osg::ref_ptr< WGETexture3D > texture );
+
+    /**
      * function that builds the property tab
      *
      * \param props the properties.

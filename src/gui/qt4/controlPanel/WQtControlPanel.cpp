@@ -191,6 +191,8 @@ void WQtControlPanel::connectSlots()
     connect( m_textureSorter, SIGNAL( textureSelectionChanged( boost::shared_ptr< WDataSet > ) ),
              this, SLOT( selectDataModule( boost::shared_ptr< WDataSet > ) ) );
     // }
+    connect( m_colormapper, SIGNAL( textureSelectionChanged( osg::ref_ptr< WGETexture3D > ) ),
+             this, SLOT( selectDataModule( osg::ref_ptr< WGETexture3D > ) ) );
     connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleDragDrop() ) );
 }
 
@@ -795,6 +797,12 @@ void WQtControlPanel::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
     }
 
     selectTreeItem();
+}
+
+void WQtControlPanel::selectDataModule( osg::ref_ptr< WGETexture3D > texture )
+{
+    m_tabWidget->clear();
+    buildPropTab( texture->getProperties(), texture->getInformationProperties() );
 }
 
 void WQtControlPanel::setNewActiveModule( boost::shared_ptr< WModule > module )

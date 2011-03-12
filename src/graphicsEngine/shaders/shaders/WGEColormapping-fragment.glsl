@@ -43,53 +43,14 @@
  * \param scaleV the scaler used to downscale the original value to [0-1]
  * \param thresholdV a threshold in original space (you need to downscale it to [0-1] if you want to use it to scaled values.
  * \param alpha the alpha blending value
- * \param colormap the colormap index to use
+ * \param cmap the colormap index to use
  */
-void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, float minV, float scaleV, float thresholdV, float alpha, int colormap,
+void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, float minV, float scaleV, float thresholdV, float alpha, int cmap,
                bool active )
 {
     // get the value
     vec4 value = texture3D( sampler, coord );
-
-    // below threshold?
-    bool clip = ( value.r + value.g + value.b ) / 3.0 < ( ( minV + thresholdV ) / scaleV );
-    if ( clip )
-    {
-        return;
-    }
-
-    vec4 col;
-    if ( colormap == 0 )
-    {
-        col = value;
-    }
-    else if ( colormap == 1 )
-    {
-        col = rainbowColorMap( value.r );
-    }
-    else if ( colormap == 2 )
-    {
-        col = hotIronColorMap( value.r );
-    }
-    else if ( colormap == 3 )
-    {
-        col = negative2positive( value.r );
-    }
-    else if ( colormap == 4 )
-    {
-        col = atlasColorMap( value.r );
-    }
-    else if ( colormap == 5 )
-    {
-        col = blueGreenPurpleColorMap( value.r );
-    }
-    else if ( colormap == 6 )
-    {
-        col = vectorColorMap( value.rgb );
-    }
-
-    // finally mix colors according to alpha
-    color = mix( color, col, float( active ) * alpha );
+    colormap( color, value, minV, scaleV, thresholdV, alpha, cmap, active );
 }
 
 /**
