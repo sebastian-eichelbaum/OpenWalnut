@@ -318,7 +318,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Disonnecting \"" + e->getInput()->getCanonicalName() +
+        WLogger::getLogger()->addLogMessage( "Disconnecting \"" + e->getInput()->getCanonicalName() +
                                              "\" and \"" + e->getOutput()->getCanonicalName() +
                                              "\"." , "NetworkEditor", LL_DEBUG );
 
@@ -390,6 +390,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             op->removeArrow( ar );
             ip->removeArrow( ar );
             m_scene->removeItem( ar );
+            delete ar;
         }
         else
         {

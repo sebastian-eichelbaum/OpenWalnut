@@ -145,6 +145,7 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
 
         // remove current line for real connection
         scene()->removeItem( line );
+        delete line;
 
         if( !endItems.isEmpty() &&
              !startItems.isEmpty() &&
@@ -179,3 +180,17 @@ void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool 
         setPos( rect.width() / ( size+1 ) * portNumber - 5.0, rect.height() - 5 );
     }
 }
+
+void WQtNetworkPort::removeArrows()
+{
+    foreach( WQtNetworkArrow *arrow, m_arrows )
+    {
+        int index = m_arrows.indexOf( arrow );
+        if ( index != -1 )
+        {
+            m_arrows.removeAt( index );
+        }
+        delete arrow;
+    }
+}
+

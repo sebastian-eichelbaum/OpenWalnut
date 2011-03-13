@@ -68,7 +68,7 @@ public:
     /**
      * Removes all connected arrows.
      */
-    virtual void removeArrows() = 0;
+    virtual void removeArrows();
 
     /**
      * Calculates the position inside a item for each port to get a correct
@@ -153,8 +153,10 @@ protected:
      */
     void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
+    QList< WQtNetworkArrow *> m_arrows; //!< the connected arrows
+
 private:
 
-    QGraphicsLineItem *line; //!< the temporary line when you connect two ports
+    QGraphicsLineItem * line; //!< the temporary line when you connect two ports
 };
 #endif  // WQTNETWORKPORT_H

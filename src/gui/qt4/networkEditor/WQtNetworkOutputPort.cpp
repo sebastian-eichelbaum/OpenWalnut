@@ -86,7 +86,6 @@ QList< WQtNetworkArrow *> WQtNetworkOutputPort::getArrowList()
     return m_arrows;
 }
 
-
 QString WQtNetworkOutputPort::getPortName()
 {
     return m_name;
@@ -105,18 +104,6 @@ int WQtNetworkOutputPort::getNumberOfArrows()
 boost::shared_ptr<WModuleOutputConnector> WQtNetworkOutputPort::getConnector()
 {
     return m_connector;
-}
-
-void WQtNetworkOutputPort::removeArrows()
-{
-    foreach( WQtNetworkArrow *arrow, m_arrows )
-    {
-        int index = m_arrows.indexOf( arrow );
-        if ( index != -1 )
-        {
-            m_arrows.removeAt( index );
-        }
-    }
 }
 
 void WQtNetworkOutputPort::updateArrows()

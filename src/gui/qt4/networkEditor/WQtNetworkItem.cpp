@@ -73,15 +73,15 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 
 WQtNetworkItem::~WQtNetworkItem()
 {
-//    foreach( WQtNetworkPort *port, m_inPorts )
-//    {
-//        delete port;
-//    }
-//
-//    foreach( WQtNetworkPort *port, m_outPorts )
-//    {
-//        delete port;
-//    }
+    foreach( WQtNetworkPort *port, m_inPorts )
+    {
+        delete port;
+    }
+
+    foreach( WQtNetworkPort *port, m_outPorts )
+    {
+        delete port;
+    }
 }
 
 int WQtNetworkItem::type() const

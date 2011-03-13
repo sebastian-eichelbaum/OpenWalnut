@@ -80,11 +80,6 @@ public:
     void removeArrow( WQtNetworkArrow *arrow );
 
     /**
-     * Removes all connected arrows
-     */
-    void removeArrows();
-
-    /**
      * Calculates the position inside a item for each port to get a correct
      * alignment
      * \param size the total number of ports ( distinguished by in- and
@@ -148,8 +143,6 @@ public:
 private:
 
     bool m_isOutPort; //!< is the port an outport
-
-    QList< WQtNetworkArrow *> m_arrows; //!< the connected arrows
 
     QString m_name; //!< the portname
 

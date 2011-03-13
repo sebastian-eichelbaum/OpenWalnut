@@ -163,7 +163,6 @@ protected:
      */
     WKernel( boost::shared_ptr< WGraphicsEngine > ge, boost::shared_ptr< WGUI > gui );
 
-
     /**
      * Function that has to be overwritten for execution. It gets executed in a separate thread after run()
      * has been called.

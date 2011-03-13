@@ -61,7 +61,6 @@ WQtNetworkInputPort::WQtNetworkInputPort( boost::shared_ptr<WModuleInputConnecto
 
 WQtNetworkInputPort::~WQtNetworkInputPort()
 {
-    //removeArrows();
 }
 
 int WQtNetworkInputPort::type() const
@@ -105,18 +104,6 @@ int WQtNetworkInputPort::getNumberOfArrows()
 boost::shared_ptr<WModuleInputConnector> WQtNetworkInputPort::getConnector()
 {
     return m_connector;
-}
-
-void WQtNetworkInputPort::removeArrows()
-{
-    foreach( WQtNetworkArrow *arrow, m_arrows )
-    {
-        int index = m_arrows.indexOf( arrow );
-        if ( index != -1 )
-        {
-            m_arrows.removeAt( index );
-        }
-    }
 }
 
 void WQtNetworkInputPort::updateArrows()
