@@ -163,6 +163,6 @@ protected:
 
 private:
 
-    QGraphicsLineItem * line; //!< the temporary line when you connect two ports
+    QGraphicsLineItem * m_line; //!< the temporary line when you connect two ports
 };
 #endif  // WQTNETWORKPORT_H

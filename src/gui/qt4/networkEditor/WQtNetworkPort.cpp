@@ -53,10 +53,10 @@ void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
         if( startItem.first()->type() == WQtNetworkOutputPort::Type &&
             startItem.first()->parentItem()->isEnabled() == true )
         {
-            line = new QGraphicsLineItem( QLineF( mouseEvent->scenePos(),
+            m_line = new QGraphicsLineItem( QLineF( mouseEvent->scenePos(),
                     mouseEvent->scenePos() ) );
-            line->setPen( QPen( Qt::black, 2 ) );
-            scene()->addItem( line );
+            m_line->setPen( QPen( Qt::black, 2 ) );
+            scene()->addItem( m_line );
         }
     }
     else
@@ -67,12 +67,12 @@ void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 
 void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
-    if( line != 0 )
+    if( m_line != 0 )
     {
-        QLineF newLine( line->line().p1(), mouseEvent->scenePos() );
+        QLineF newLine( m_line->line().p1(), mouseEvent->scenePos() );
 
         QList<QGraphicsItem *> endItem = scene()->items( mouseEvent->scenePos() );
-        // because line is first item below the curser
+        // because m_line is first item below the curser
         if( !endItem.isEmpty() &&
                 endItem.first()->type() == QGraphicsLineItem::Type )
         {
@@ -85,7 +85,7 @@ void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
             {
                 WQtNetworkInputPort *endPort = qgraphicsitem_cast<WQtNetworkInputPort *>( endItem.first() );
 
-                QList<QGraphicsItem *> startItems = scene()->items( line->line().p1() );
+                QList<QGraphicsItem *> startItems = scene()->items( m_line->line().p1() );
                 if( startItems.first()->type() == QGraphicsLineItem::Type )
                 {
                     startItems.removeFirst();
@@ -97,27 +97,27 @@ void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
                     endPort->getConnector()->connectable( startPort->getConnector() ) == true
                   )
                 {
-                   line->setPen( QPen( Qt::green, 2 ) );
+                   m_line->setPen( QPen( Qt::green, 2 ) );
                 }
                 else
                 {
-                   line->setPen( QPen( Qt::red, 2 ) );
+                   m_line->setPen( QPen( Qt::red, 2 ) );
                 }
             }
             else if( endItem.first()->type() == WQtNetworkOutputPort::Type )
             {
-                   line->setPen( QPen( Qt::red, 2 ) );
+                   m_line->setPen( QPen( Qt::red, 2 ) );
             }
             else
             {
-                line->setPen( QPen( Qt::black, 2 ) );
+                m_line->setPen( QPen( Qt::black, 2 ) );
             }
         }
         else
         {
-            line->setPen( QPen( Qt::black, 2 ) );
+            m_line->setPen( QPen( Qt::black, 2 ) );
         }
-        line->setLine( newLine );
+        m_line->setLine( newLine );
     }
 }
 
@@ -125,26 +125,26 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
     Q_UNUSED( mouseEvent );
 
-    if( line != 0 )
+    if( m_line != 0 )
     {
-        QList<QGraphicsItem *> startItems = scene()->items( line->line().p1() );
-        QList<QGraphicsItem *> endItems = scene()->items( line->line().p2() );
+        QList<QGraphicsItem *> startItems = scene()->items( m_line->line().p1() );
+        QList<QGraphicsItem *> endItems = scene()->items( m_line->line().p2() );
 
-        // because line is first item below the curser
+        // because m_line is first item below the curser
         if( startItems.first()->type() == QGraphicsLineItem::Type )
         {
             startItems.removeFirst();
         }
 
-        // because line is first item below the curser
+        // because m_line is first item below the curser
         if( endItems.first()->type() == QGraphicsLineItem::Type )
         {
             endItems.removeFirst();
         }
 
-        // remove current line for real connection
-        scene()->removeItem( line );
-        delete line;
+        // remove current m_line for real connection
+        scene()->removeItem( m_line );
+        delete m_line;
 
         if( !endItems.isEmpty() &&
              !startItems.isEmpty() &&
