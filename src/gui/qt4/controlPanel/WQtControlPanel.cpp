@@ -1070,19 +1070,27 @@ QAction* WQtControlPanel::toggleViewAction() const
 
 void WQtControlPanel::deleteModuleTreeItem()
 {
-    if ( m_moduleTreeWidget->selectedItems().count() > 0 )
+    // TODO(rfrohl): check if there is a better way to check for focus
+    if( m_moduleTreeWidget->hasFocus() )
     {
-        if ( ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == MODULE ) ||
-             ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == DATASET ) )
+        if ( m_moduleTreeWidget->selectedItems().count() > 0 )
         {
-            // remove from the container. It will create a new event in the GUI after it has been removed which is then handled by the tree item.
-            // This method deep removes the module ( it also removes depending modules )
-            WKernel::getRunningKernel()->getRootContainer()->removeDeep(
-                static_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->getModule()
-            );
-            // select another item
-            m_moduleTreeWidget->setCurrentItem( m_moduleTreeWidget->topLevelItem( 0 ) );
+            if ( ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == MODULE ) ||
+                    ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == DATASET ) )
+            {
+                // remove from the container. It will create a new event in the GUI after it has been removed which is then handled by the tree item.
+                // This method deep removes the module ( it also removes depending modules )
+                WKernel::getRunningKernel()->getRootContainer()->removeDeep(
+                        static_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->getModule()
+                        );
+                // select another item
+                m_moduleTreeWidget->setCurrentItem( m_moduleTreeWidget->topLevelItem( 0 ) );
+            }
         }
+    }
+    else if ( m_mainWindow->getNetworkEditor()->isActiveWindow() )
+    {
+        m_mainWindow->getNetworkEditor()->deleteSelectedItems();
     }
 }
 

@@ -26,7 +26,6 @@
 #include <iostream>
 
 #include <boost/shared_ptr.hpp>
-#include <QtGui/QGraphicsRectItem>
 #include <QtGui/QStyleOptionGraphicsItem>
 
 #include "WQtNetworkArrow.h"
@@ -184,6 +183,8 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 
 void WQtNetworkItem::mousePressEvent ( QGraphicsSceneMouseEvent *event )
 {
+    // TODO(rfrohl): select the item in the module tree?
+    // boost::shared_ptr< WModule > m_module; //!< the module
     setSelected(true);
     return QGraphicsItem::mousePressEvent( event );
 }

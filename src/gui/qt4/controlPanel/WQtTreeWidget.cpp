@@ -33,7 +33,6 @@ WQtTreeWidget::WQtTreeWidget( QWidget* parent )
     setSelectionMode( QAbstractItemView::SingleSelection );
 }
 
-
 WQtTreeWidget::~WQtTreeWidget()
 {
 }
