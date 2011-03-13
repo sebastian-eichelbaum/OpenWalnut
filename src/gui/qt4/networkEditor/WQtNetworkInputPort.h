@@ -25,8 +25,6 @@
 #ifndef WQTNETWORKINPUTPORT_H
 #define WQTNETWORKINPUTPORT_H
 
-#include <QtGui/QGraphicsRectItem>
-
 #include "../../../kernel/WModuleInputConnector.h"
 #include "WQtNetworkPort.h"
 

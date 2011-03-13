@@ -22,15 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
-#include <iostream>
 #include <boost/shared_ptr.hpp>
 
 #include <QtGui/QGraphicsSceneMouseEvent>
-#include <QtGui/QGraphicsView>
-#include <QtGui/QGraphicsScene>
-#include <QtGui/QGraphicsRectItem>
-#include <QtGui/QGraphicsLineItem>
 
 #include "WQtNetworkPort.h"
 #include "WQtNetworkOutputPort.h"

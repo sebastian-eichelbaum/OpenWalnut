@@ -22,12 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
-#include <iostream>
-#include <boost/shared_ptr.hpp>
-
-#include <QtGui/QGraphicsRectItem>
-
 #include "WQtNetworkOutputPort.h"
 
 WQtNetworkOutputPort::WQtNetworkOutputPort( boost::shared_ptr<WModuleOutputConnector> connector )

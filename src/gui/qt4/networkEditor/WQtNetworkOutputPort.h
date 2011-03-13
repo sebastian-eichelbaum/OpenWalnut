@@ -25,8 +25,6 @@
 #ifndef WQTNETWORKOUTPUTPORT_H
 #define WQTNETWORKOUTPUTPORT_H
 
-#include <QtGui/QGraphicsRectItem>
-
 #include "../../../kernel/WModuleOutputConnector.h"
 #include "WQtNetworkPort.h"
 
@@ -66,18 +64,6 @@ public:
      * \return the type of the item as int
      */
     int type() const;
-
-    /**
-     * Calculates the position inside a item for each port to get a correct
-     * alignment
-     * \param size the total number of ports ( distinguished by in- and
-     *          outport
-     * \param portNumber the number of the current port (distinguised by in-
-     *          and outport
-     * \param rect the rect of the parent item
-     * \param outPort is it an in- or outport
-     */
-    //void alignPosition( int size, int portNumber, QRectF rect, bool outPort );
 
     /**
      * Returns the WModuleOutputConnecter that belongs to this object.
