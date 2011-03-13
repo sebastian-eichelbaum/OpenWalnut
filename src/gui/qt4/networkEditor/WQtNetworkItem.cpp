@@ -181,12 +181,12 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
     m_networkEditor->itemMoved();
 }
 
-void WQtNetworkItem::mousePressEvent ( QGraphicsSceneMouseEvent *event )
+void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
 {
     // TODO(rfrohl): select the item in the module tree?
     // boost::shared_ptr< WModule > m_module; //!< the module
-    setSelected(true);
-    return QGraphicsItem::mousePressEvent( event );
+    QGraphicsItem::mousePressEvent( event );
+    setSelected( true );
 }
 
 QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,

@@ -168,7 +168,7 @@ protected:
      *
      * \param event the mouse event
      **/
-    void mousePressEvent ( QGraphicsSceneMouseEvent *event );
+    void mousePressEvent( QGraphicsSceneMouseEvent *event );
 
     /**
      * If the cursor enters the item, the item gets a green color.
