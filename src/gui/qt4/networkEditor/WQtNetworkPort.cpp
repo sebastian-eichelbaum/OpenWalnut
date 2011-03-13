@@ -39,6 +39,11 @@
 
 WQtNetworkPort::WQtNetworkPort()
 {
+    setRect( 0.0, 0.0, WNETWORKPORT_SIZEX, WNETWORKPORT_SIZEY );
+    setBrush( Qt::gray );
+    setPen( QPen( Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
+
+    setAcceptsHoverEvents( true );
 }
 
 WQtNetworkPort::~WQtNetworkPort()
@@ -181,6 +186,14 @@ void WQtNetworkPort::alignPosition( int size, int portNumber, QRectF rect, bool 
     }
 }
 
+void WQtNetworkPort::removeArrow( WQtNetworkArrow *arrow )
+{
+    int index = m_arrows.indexOf( arrow );
+
+    if (index != -1)
+        m_arrows.removeAt( index );
+}
+
 void WQtNetworkPort::removeArrows()
 {
     foreach( WQtNetworkArrow *arrow, m_arrows )
@@ -192,5 +205,48 @@ void WQtNetworkPort::removeArrows()
         }
         delete arrow;
     }
+}
+
+QList< WQtNetworkArrow *> WQtNetworkPort::getArrowList()
+{
+    return m_arrows;
+}
+
+void WQtNetworkPort::addArrow( WQtNetworkArrow *arrow )
+{
+    m_arrows.append( arrow );
+}
+
+void WQtNetworkPort::updateArrows()
+{
+    foreach( WQtNetworkArrow *arrow, m_arrows )
+    {
+        arrow->updatePosition();
+    }
+}
+
+int WQtNetworkPort::getNumberOfArrows()
+{
+    return m_arrows.size();
+}
+
+QString WQtNetworkPort::getPortName()
+{
+    return m_name;
+}
+
+void WQtNetworkPort::setPortName( QString str )
+{
+    m_name = str;
+}
+
+void WQtNetworkPort::setOutPort( bool type )
+{
+    m_isOutPort = type;
+}
+
+bool WQtNetworkPort::isOutPort()
+{
+    return m_isOutPort;
 }
 

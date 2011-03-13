@@ -29,7 +29,6 @@
 
 #include "../../../kernel/WModuleOutputConnector.h"
 #include "WQtNetworkPort.h"
-#include "WQtNetworkArrow.h"
 
 // forward declaration
 class WQtNetworkArrow;
@@ -69,18 +68,6 @@ public:
     int type() const;
 
     /**
-     * Every Arrow connected with this port is updating its position in the
-     * scene.
-     */
-    void updateArrows();
-
-    /**
-     * Removes a specific arrow
-     * \param arrow a specific arrow
-     */
-    void removeArrow( WQtNetworkArrow *arrow );
-
-    /**
      * Calculates the position inside a item for each port to get a correct
      * alignment
      * \param size the total number of ports ( distinguished by in- and
@@ -90,38 +77,7 @@ public:
      * \param rect the rect of the parent item
      * \param outPort is it an in- or outport
      */
-    void alignPosition( int size, int portNumber, QRectF rect, bool outPort );
-
-    /**
-     * Set the type of the port.
-     * \param type true if out / false if in
-     */
-    void setOutPort( bool type );
-
-    /**
-     * Returns the porttype.
-     * \return is it a outport
-     */
-    bool isOutPort();
-
-    /**
-     * Returns the Name.
-     * \return Name
-     */
-    QString getPortName();
-
-    /**
-     * Set the Name
-     * \param str Name as string
-     */
-    void setPortName( QString str );
-
-    /**
-     * Return the number of connections
-     *
-     * \return number of connections
-     */
-    int getNumberOfArrows();
+    //void alignPosition( int size, int portNumber, QRectF rect, bool outPort );
 
     /**
      * Returns the WModuleOutputConnecter that belongs to this object.
@@ -129,24 +85,7 @@ public:
      */
     boost::shared_ptr<WModuleOutputConnector> getConnector();
 
-    /**
-     * Adds an arrow to the port
-     *
-     * \param arrow the arrow to add
-     */
-    void addArrow( WQtNetworkArrow *arrow );
-
-    /**
-     * Get a QList of all arrows connected to this port
-     * \return a QList of WQtNetworkArrows
-     */
-    QList< WQtNetworkArrow *> getArrowList();
-
 private:
-
-    bool m_isOutPort; //!< is the port an outport
-
-    QString m_name; //!< the portname
 
     boost::shared_ptr<WModuleOutputConnector> m_connector; //!< the related WModuleInputConnector
 };
