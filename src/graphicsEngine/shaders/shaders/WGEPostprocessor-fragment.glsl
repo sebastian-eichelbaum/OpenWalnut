@@ -71,11 +71,6 @@ uniform int u_texture0SizeX;
 uniform int u_texture0SizeY;
 
 /**
- * Size of texture in pixels
- */
-uniform int u_texture0SizeZ;
-
-/**
  * Offset to access the neighbouring pixel in a texture.
  */
 float offsetX = 1.0 / u_texture0SizeX;
@@ -194,6 +189,29 @@ float getDepth()
 }
 
 /**
+ * Returns the zoom factor for the current pixel if set by the output shader of the geometry getting post-processed here.
+ *
+ * \param where the pixel to grab
+ *
+ * \return the zoom factor
+ */
+float getZoom( in vec2 where )
+{
+    // TODO(ebaum): somehow remove this scaler
+    return texture2D( u_texture1Sampler, pixelCoord ).a * 10.0;
+}
+
+/**
+ * Returns the zoom factor for the current pixel if set by the output shader of the geometry getting post-processed here.
+ *
+ * \return the zoom factor
+ */
+float getZoom()
+{
+    return getZoom( pixelCoord );
+}
+
+/**
  * Blends the specified color to the current overall-color.
  *
  * \param newColor the new color to blend in.
@@ -244,23 +262,25 @@ void blendAdd( in float f )
  * Phong based Per-Pixel-Lighting.
  *
  * \param normal the surface normal. Normalized.
+ * \param lightParams the ligh parameters
  *
  * \return the intensity.
  */
-float getPPLPhong( vec3 normal )
+float getPPLPhong( in wge_LightIntensityParameter lightParams, in vec3 normal )
 {
-    // TODO(ebaum): provide properties/uniforms for the scaling factors here
-    return blinnPhongIlluminationIntensity(
-        0.2 ,               // material ambient
-        0.75,               // material diffuse
-        0.5,               // material specular
-        100.0,                               // shinines
-        1.0,               // light diffuse
-        0.3,               // light ambient
-        normal,                              // normal
-        vec4( 0.0, 0.0, 1.0, 1.0 ).xyz,      // view direction  // in world space, this always is the view-dir
-        gl_LightSource[0].position.xyz       // light source position
-    );
+    return blinnPhongIlluminationIntensity( lightParams, normal );
+}
+
+/**
+ * Phong based Per-Pixel-Lighting.
+ *
+ * \param normal the surface normal. Normalized.
+ *
+ * \return the intensity.
+ */
+float getPPLPhong( in vec3 normal )
+{
+    return blinnPhongIlluminationIntensity( normal );
 }
 
 /**
@@ -271,6 +291,18 @@ float getPPLPhong( vec3 normal )
 float getPPLPhong()
 {
     return getPPLPhong( getNormal().xyz );
+}
+
+/**
+ * Phong based Per-Pixel-Lighting based on the specified color.
+ *
+ * \param lightParams the ligh parameters
+ *
+ * \return the intensity.
+ */
+float getPPLPhong( in wge_LightIntensityParameter lightParams )
+{
+    return getPPLPhong( lightParams, getNormal().xyz );
 }
 
 /**
@@ -394,6 +426,130 @@ float getGaussedDepth()
 }
 
 /**
+ * The total influence of SSAO.
+ */
+//const float u_ssaoTotalStrength = 2.0; // 1.38;   // total strength - scaling the resulting AO
+uniform float u_ssaoTotalStrength = 5.5; // 1.38;   // total strength - scaling the resulting AO
+
+/**
+ * The strength of the occluder influence in relation to the geometry density. The heigher the value, the larger the influence. Low values remove
+ * the drop-shadow effect.
+ */
+uniform float u_ssaoDensityWeight = 1.0; //0.07;
+
+/**
+ * The radius of the hemispshere in screen-space which gets scaled.
+ */
+uniform float u_ssaoRadiusSS = 2.0;
+
+/**
+ * Calculate the screen-space ambient occlusion from normal and depth map.
+ *
+ * \param where the pixel to get SSAO for
+ *
+ * \return the SSAO factor
+ */
+float getSSAO( vec2 where )
+{
+    #define SCALERS 2
+    #define SAMPLES 32  // the numbers of samples to check on the hemisphere
+    const float invSamples = 1.0 / float( SAMPLES );
+
+    // Fall-off for SSAO per occluder. This hould be zero (or nearly zero) since it defines what is counted as before, or behind.
+    const float falloff = 0.00001;
+
+    // grab a random normal for reflecting the sample rays later on
+    vec3 randNormal = normalize( ( texture2D( u_texture3Sampler, where * u_texture3SizeX ).xyz * 2.0 ) - vec3( 1.0 ) );
+
+    // grab the current pixel's normal and depth
+    vec3 currentPixelSample = getNormal( where ).xyz;
+    float currentPixelDepth = getDepth( where );
+
+    // current fragment coords in screen space
+    vec3 ep = vec3( where.xy, currentPixelDepth );
+
+    // get the normal of current fragment
+    vec3 normal = currentPixelSample.xyz;
+
+    // the radius of the sphere is, in screen-space, half a pixel. So the hemisphere covers nearly one pixel. Scaling by depth somehow makes it
+    // more invariant for zooming
+    float radius = ( getZoom() * u_ssaoRadiusSS / float( u_texture0SizeX ) ) / ( 1.0 - currentPixelDepth );
+
+    // some temporaries needed inside the loop
+    vec3 ray;                     // the current ray inside the sphere
+    vec3 hemispherePoint;         // the point on the hemisphere
+    vec3 occluderNormal;          // the normal at the point on the hemisphere
+
+    float occluderDepth;          // the depth of the potential occluder on the hemisphere
+    float depthDifference;        // the depth difference between the current point and the occluder (point on hemisphere)
+    float normalDifference;       // the projection of the occluderNormal to the surface normal
+
+    // accumulated occlusion
+    float occlusion = 0.0;
+    float radiusScaler = 0.0;     // we sample with multiple radii, so use a scaling factor here
+
+    // sample for different radii
+    for( int l = 1; l <= SCALERS; ++l )
+    {
+        float occlusionStep = 0.0;  // this variable accumulates the occlusion for the current radius
+        radiusScaler += 1;    // increment radius each time.
+
+        // Get SAMPLES-times samples on the hemisphere and check for occluders
+        for( int i = 0; i < SAMPLES; ++i )
+        {
+            // grab a rand normal from the noise texture
+            vec3 randSphereNormal = ( texture2D( u_texture3Sampler, vec2( float( i ) / float( SAMPLES ),
+                                                                          float( l ) / float( SCALERS ) ) ).rgb * 2.0 ) - vec3( 1.0 );
+
+            // get a vector (randomized inside of a sphere with radius 1.0) from a texture and reflect it
+            ray = radiusScaler * radius * reflect( randSphereNormal, randNormal );
+
+            // if the ray is outside the hemisphere then change direction
+            hemispherePoint = ( sign( dot( ray, normal ) ) * ray ) + ep;
+
+            // get the depth of the occluder fragment
+            occluderDepth = getDepth( hemispherePoint.xy );
+
+            // get the normal of the occluder fragment
+            occluderNormal = 0.75 * getNormal( hemispherePoint.xy ).xyz;
+
+            // if depthDifference is negative = occluder is behind the current fragment -> occluding this fragment
+            depthDifference = currentPixelDepth - occluderDepth;
+
+            // calculate the difference between the normals as a weight. This weight determines how much the occluder occludes the fragment
+            normalDifference = 1.0 - dot( occluderNormal, normal );
+
+            // the higher the depth difference, the less it should influence the occlusion value since large space between geometry normally allows
+            // many light. It somehow can be described with "shadowiness". In other words, it describes the density of geometry and its influence to
+            // the occlusion.
+            float densityWeight = ( 1.0 - smoothstep( falloff, u_ssaoDensityWeight, depthDifference ) );
+
+            // the following step function ensures that negative depthDifference values get clamped to 0, meaning that this occluder should have NO
+            // influence on the occlusion value. A positive value (fragment is behind the occluder) increases the occlusion factor according to the
+            // normal weight and density weight
+            occlusionStep += invSamples * normalDifference * densityWeight * step( falloff, depthDifference );
+        }
+
+        // for this radius, add to total occlusion
+        occlusion += occlusionStep / SCALERS;
+    }
+
+    // output the result
+    return ( 1.0 - ( u_ssaoTotalStrength * occlusion ) );
+}
+
+
+/**
+ * Calculate the screen-space ambient occlusion from normal and depth map for the current pixel.
+ *
+ * \return the SSAO factor
+ */
+float getSSAO()
+{
+    return getSSAO( pixelCoord );
+}
+
+/**
  * Calculate the cel-shading of a specified color. The number of colors is defined by the u_celShadingSamples uniform.
  *
  * \param inColor the color to shade
@@ -431,7 +587,7 @@ float getDepthFading( vec2 where )
 {
     // TODO(ebaum): add uniforms for this limits
     float invD = ( 1.0 - getDepth( where ) );
-    return smoothstep( 0.20, 0.5, invD );
+    return smoothstep( 0.2, 0.5, invD );
 }
 
 /**
@@ -442,6 +598,73 @@ float getDepthFading( vec2 where )
 float getDepthFading()
 {
     return getDepthFading( pixelCoord );
+}
+
+vec4 getGGColor( vec2 where )
+{
+    // TODO(ebaum): provide properties/uniforms for the scaling factors here
+
+    // get the 8-neighbourhood
+    vec4 gaussedColorc  = getGaussedColor( where );
+    vec4 gaussedColorbl = getGaussedColor( where + vec2( -offsetX, -offsetY ) );
+    vec4 gaussedColorl  = getGaussedColor( where + vec2( -offsetX,     0.0  ) );
+    vec4 gaussedColortl = getGaussedColor( where + vec2( -offsetX,  offsetY ) );
+    vec4 gaussedColort  = getGaussedColor( where + vec2(     0.0,   offsetY ) );
+    vec4 gaussedColortr = getGaussedColor( where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorr  = getGaussedColor( where + vec2(  offsetX,     0.0  ) );
+    vec4 gaussedColorbr = getGaussedColor( where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorb  = getGaussedColor( where + vec2(     0.0,  -offsetY ) );
+
+    // apply gauss filter
+    vec4 gaussed = ( 1.0 / 16.0 ) * (
+            1.0 * gaussedColortl +  2.0 * gaussedColort + 1.0 * gaussedColortr +
+            2.0 * gaussedColorl  +  4.0 * gaussedColorc + 2.0 * gaussedColorr  +
+            1.0 * gaussedColorbl +  2.0 * gaussedColorb + 1.0 * gaussedColorbr );
+    return gaussed;
+}
+
+vec4 getGGGColor( vec2 where )
+{
+    // TODO(ebaum): provide properties/uniforms for the scaling factors here
+
+    // get the 8-neighbourhood
+    vec4 gaussedColorc  = getGGColor( where );
+    vec4 gaussedColorbl = getGGColor( where + vec2( -offsetX, -offsetY ) );
+    vec4 gaussedColorl  = getGGColor( where + vec2( -offsetX,     0.0  ) );
+    vec4 gaussedColortl = getGGColor( where + vec2( -offsetX,  offsetY ) );
+    vec4 gaussedColort  = getGGColor( where + vec2(     0.0,   offsetY ) );
+    vec4 gaussedColortr = getGGColor( where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorr  = getGGColor( where + vec2(  offsetX,     0.0  ) );
+    vec4 gaussedColorbr = getGGColor( where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorb  = getGGColor( where + vec2(     0.0,  -offsetY ) );
+
+    // apply gauss filter
+    vec4 gaussed = ( 1.0 / 16.0 ) * (
+            1.0 * gaussedColortl +  2.0 * gaussedColort + 1.0 * gaussedColortr +
+            2.0 * gaussedColorl  +  4.0 * gaussedColorc + 2.0 * gaussedColorr  +
+            1.0 * gaussedColorbl +  2.0 * gaussedColorb + 1.0 * gaussedColorbr );
+    return gaussed;
+}
+
+
+vec4 getDOF( vec2 where )
+{
+    float targetDepth = getDepth( (gl_TextureMatrix[0] * vec4( 0.5, 0.5, 0.0, 0.0 ) ).xy );
+
+    float focalDistance = targetDepth;
+    float focalRange = 0.1;
+
+    float blur = clamp( abs( getDepth( where ) - focalDistance ) / focalRange, 0.0, 1.0);
+    vec4 gCol = getGGGColor( where );
+    vec4 col = getColor( where );
+
+    float fadeOut = getDepthFading(where );
+    return vec4( fadeOut * mix( col.rgb, gCol.rgb, blur ), 1.0 );
+}
+
+vec4 getDOF()
+{
+    return getDOF( pixelCoord );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -467,6 +690,7 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_COLOR
     blend( getColor() );
+//    blend( getDOF() );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_GAUSSEDCOLOR
@@ -475,6 +699,19 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_PPLPHONG
     blendScale( getPPLPhong() );
+#endif
+
+#ifdef WGE_POSTPROCESSOR_SSAO
+    blendScale( getSSAO() );
+#endif
+
+#ifdef WGE_POSTPROCESSOR_SSAOWITHPHONG
+    float ao = getSSAO();
+    ao = 2.0 * ( ao - 0.5 );
+    float lPhong = getPPLPhong( wge_DefaultLightIntensityLessDiffuse );
+    float lKrueger = kruegerNonLinearIllumination( getNormal().xyz, 5.0 );
+    float l = ao + lPhong;
+    blend( vec4( vec3( getColor().rgb * l * 0.5 ), 1.0 ) );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_CELSHADING

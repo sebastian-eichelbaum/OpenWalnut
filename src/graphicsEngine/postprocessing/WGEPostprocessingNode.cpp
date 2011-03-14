@@ -74,6 +74,9 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     namesAndDefs.push_back( Tuple( "Color Only",   "No Post-Processing.",                               "WGE_POSTPROCESSOR_COLOR" ) );
     namesAndDefs.push_back( Tuple( "Smoothed Color", "Smoothed Color Image using Gauss Filter.",        "WGE_POSTPROCESSOR_GAUSSEDCOLOR" ) );
     namesAndDefs.push_back( Tuple( "PPL - Phong",   "Per-Pixel-Lighting using Phong.",                  "WGE_POSTPROCESSOR_PPLPHONG" ) );
+    namesAndDefs.push_back( Tuple( "SSAO", "Screen-Space Ambient Occlusion.",                           "WGE_POSTPROCESSOR_SSAO" ) );
+    namesAndDefs.push_back( Tuple( "SSAO with Phong", "Screen-Space Ambient Occlusion in combination with Phong ( Phong + SSAO * Color ).",
+                                                                                                        "WGE_POSTPROCESSOR_SSAOWITHPHONG" ) );
     namesAndDefs.push_back( Tuple( "Cel-Shading",  "Under-sampling of the color for cartoon-like shading.", "WGE_POSTPROCESSOR_CELSHADING" ) );
     namesAndDefs.push_back( Tuple( "Depth-Cueing", "Use the Depth to fade out the pixel's brightness.", "WGE_POSTPROCESSOR_DEPTHFADING" ) );
     namesAndDefs.push_back( Tuple( "Edge",         "Edge of Rendered Geometry.",                        "WGE_POSTPROCESSOR_EDGE" ) );
@@ -100,6 +103,11 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
     m_offscreen->getTextureHUD()->addUpdateCallback( new WGENodeMaskCallback( m_showHUD ) );
     // let the activePostprocessors property control the options in the shader:
     m_postProcessShader->addPreprocessor( activePostprocessorsOpts );
+
+    // some of the post-processors need some white noise, like the ssao
+    const size_t size = 64;
+    osg::ref_ptr< WGETexture2D > randTex = wge::genWhiteNoiseTexture( size, size, 3 );
+    m_postprocess->bind( randTex, 3 );
 }
 
 WGEPostprocessingNode::~WGEPostprocessingNode()

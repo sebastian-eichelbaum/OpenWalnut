@@ -114,9 +114,14 @@ private:
     WProperties::SPtr m_fibProps;
 
     /**
-     * The shader used for clipping of fibers using an arbitrary plane.
+     * The shader used for actually drawing the fake tubes or lines.
      */
     osg::ref_ptr< WGEShader > m_shader;
+
+    /**
+     * The shader used for drawing end cap sprites if in tube mode.
+     */
+    osg::ref_ptr< WGEShader > m_endCapShader;
 
     /**
      * Illumination.
@@ -201,11 +206,12 @@ private:
     /**
      * Creates a geode containing the fiber geometry
      *
-     * \param fibers the fiber dataset to render
-     *
-     * \return the geode
+     * \param fibers the fiber data
+     * \param fibGeode the geode with the fibers as tube strip or lines
+     * \param endCapGeode the end cap sprites. Not used if not in tube mode.
      */
-    osg::ref_ptr< osg::Node > createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers ) const;
+    void createFiberGeode( boost::shared_ptr< WDataSetFibers > fibers, osg::ref_ptr< osg::Geode > fibGeode,
+                                                                                         osg::ref_ptr< osg::Geode > endCapGeode ) const;
 
     /**
      * The plane node.

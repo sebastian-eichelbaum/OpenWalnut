@@ -54,23 +54,34 @@ public:
 
     virtual void operator () (osg::RenderInfo& renderInfo) const
     {
+        osg::GraphicsContext* gc = renderInfo.getState()->getGraphicsContext();
+        osg::BufferObject::Extensions* ext = osg::BufferObject::getExtensions(gc->getState()->getContextID(),true);
+
+        // get size and color mode
+        size_t width = 0;
+        size_t height = 0;
+        GLenum pixelFormat = GL_RGB;
+        if (gc->getTraits())
+        {
+            width = gc->getTraits()->width;
+            height = gc->getTraits()->height;
+            pixelFormat = gc->getTraits()->alpha ? GL_RGBA : GL_RGB;
+        }
+        std::cout << width << "x" << height << std::endl;
+
         if ( !m_record )
             return;
 
         m_frame++;
-        if ( m_frame >= 24 )
+        /*if ( m_frame >= 24 )
         {
             m_frame = 0;
             m_second++;
-        }
+        }*/
 
         std::stringstream filename;
         filename << "/home/ebaum/test_" << m_second << "-" << m_frame << ".jpg";
         std::cout << filename.str() << std::endl;
-
-
-        osg::GraphicsContext* gc = renderInfo.getState()->getGraphicsContext();
-        osg::BufferObject::Extensions* ext = osg::BufferObject::getExtensions(gc->getState()->getContextID(),true);
 
         glReadBuffer( GL_BACK );
 
@@ -87,18 +98,6 @@ public:
         ext->glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
     }
 */
-
-        // get size and color mode
-        size_t width = 0;
-        size_t height = 0;
-        GLenum pixelFormat = GL_RGB;
-        if (gc->getTraits())
-        {
-            width = gc->getTraits()->width;
-            height = gc->getTraits()->height;
-            pixelFormat = gc->getTraits()->alpha ? GL_RGBA : GL_RGB;
-        }
-
         osg::Image* image = new osg::Image();
         image->readPixels( 0, 0, width, height, pixelFormat, GL_UNSIGNED_BYTE );
 
@@ -109,5 +108,4 @@ public:
     mutable size_t m_second;
     mutable size_t m_frame;
 };
-
 #endif  // WGESCREENCAPTURE_H
