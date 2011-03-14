@@ -22,24 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
-#include <iostream>
-#include <boost/shared_ptr.hpp>
-
-#include <QtGui/QGraphicsRectItem>
-
-#include "WQtNetworkEditorGlobals.h"
 #include "WQtNetworkOutputPort.h"
 
 WQtNetworkOutputPort::WQtNetworkOutputPort( boost::shared_ptr<WModuleOutputConnector> connector )
     : WQtNetworkPort()
 {
-    setRect( 0.0, 0.0, WNETWORKPORT_SIZEX, WNETWORKPORT_SIZEY );
-    setBrush( Qt::gray );
-    setPen( QPen( Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
-
-    setAcceptsHoverEvents( true );
-
     setPortName( connector.get()->getName().c_str() );
     setOutPort( connector.get()->isOutputConnector() );
     m_connector = connector;
@@ -68,71 +55,8 @@ int WQtNetworkOutputPort::type() const
     return Type;
 }
 
-void WQtNetworkOutputPort::addArrow( WQtNetworkArrow *arrow )
-{
-    m_arrows.append( arrow );
-}
-
-void WQtNetworkOutputPort::removeArrow( WQtNetworkArrow *arrow )
-{
-    int index = m_arrows.indexOf( arrow );
-
-    if (index != -1)
-        m_arrows.removeAt( index );
-}
-
-QList< WQtNetworkArrow *> WQtNetworkOutputPort::getArrowList()
-{
-    return m_arrows;
-}
-
-
-QString WQtNetworkOutputPort::getPortName()
-{
-    return m_name;
-}
-
-void WQtNetworkOutputPort::setPortName( QString str )
-{
-    m_name = str;
-}
-
-int WQtNetworkOutputPort::getNumberOfArrows()
-{
-    return m_arrows.size();
-}
-
 boost::shared_ptr<WModuleOutputConnector> WQtNetworkOutputPort::getConnector()
 {
     return m_connector;
 }
 
-void WQtNetworkOutputPort::removeArrows()
-{
-    foreach( WQtNetworkArrow *arrow, m_arrows )
-    {
-        int index = m_arrows.indexOf( arrow );
-        if ( index != -1 )
-        {
-            m_arrows.removeAt( index );
-        }
-    }
-}
-
-void WQtNetworkOutputPort::updateArrows()
-{
-    foreach( WQtNetworkArrow *arrow, m_arrows )
-    {
-        arrow->updatePosition();
-    }
-}
-
-void WQtNetworkOutputPort::setOutPort( bool type )
-{
-    m_isOutPort = type;
-}
-
-bool WQtNetworkOutputPort::isOutPort()
-{
-    return m_isOutPort;
-}

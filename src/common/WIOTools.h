@@ -25,7 +25,7 @@
 #ifndef WIOTOOLS_H
 #define WIOTOOLS_H
 
-// #include <stdint.h>
+#include <stdint.h>
 
 #include <algorithm>
 // #include <cstdio>

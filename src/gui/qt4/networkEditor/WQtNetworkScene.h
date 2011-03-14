@@ -69,14 +69,6 @@ protected:
      */
     void mousePressEvent( QGraphicsSceneMouseEvent* mouseEvent );
 
-    /**
-     * Controls how to respond on key events.
-     * Current it only delets selected items.
-     *
-     * \param keyEvent the key press event
-     */
-    void keyPressEvent( QKeyEvent* keyEvent );
-
 private:
     QGraphicsItem *m_fakeItem; //!< the fakeitem for the forcebased layout
 };

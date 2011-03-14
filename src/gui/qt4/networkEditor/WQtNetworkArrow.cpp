@@ -51,13 +51,13 @@ WQtNetworkArrow::~WQtNetworkArrow()
 {
     m_startPort->removeArrow( this );
     m_endPort->removeArrow( this );
+    this->hide();
 }
 
 int WQtNetworkArrow::type() const
 {
     return Type;
 }
-
 
 void WQtNetworkArrow::updatePosition()
 {

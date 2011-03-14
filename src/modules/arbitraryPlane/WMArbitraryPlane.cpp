@@ -297,6 +297,7 @@ void WMArbitraryPlane::updatePlane()
     quad->push_back( 0 );
     planeGeometry->addPrimitiveSet( quad );
 
+    // { TODO(all): this is deprecated.
     // grab a list of data textures
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
@@ -330,6 +331,7 @@ void WMArbitraryPlane::updatePlane()
         planeGeometry->setTexCoordArray( c, texCoords );
         ++c;
     }
+    // }
 
     m_geode->addDrawable( planeGeometry );
 
@@ -376,6 +378,7 @@ void WMArbitraryPlane::updateTextures()
     {
         m_textureChanged = false;
 
+        // { TODO(all): this is deprecated.
         // grab a list of data textures
         std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
@@ -443,6 +446,7 @@ void WMArbitraryPlane::updateTextures()
                 }
             }
         }
+        // }
     }
 
     m_showCompleteUniform->set( m_showComplete->get() );

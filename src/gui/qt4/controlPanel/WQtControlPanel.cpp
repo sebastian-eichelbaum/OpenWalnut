@@ -59,6 +59,7 @@
 #include "WQtBranchTreeItem.h"
 #include "WQtControlPanel.h"
 #include "WQtTextureSorter.h"
+#include "WQtColormapper.h"
 
 WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     : QDockWidget( "Control Panel", parent ),
@@ -118,8 +119,12 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
     m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
 
+    // { TODO(all): deprecated. Replaced by WQtColormapper
     m_textureSorter = new WQtTextureSorter( m_mainWindow );
     m_textureSorter->setToolTip( "Reorder the textures." );
+    // }
+    m_colormapper = new WQtColormapper( m_mainWindow );
+    m_colormapper->setToolTip( "Reorder the textures." );
 
     m_tabWidget = new QTabWidget( m_panel );
     m_tabWidget->setMinimumHeight( 250 );
@@ -182,8 +187,12 @@ void WQtControlPanel::connectSlots()
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( selectRoiTreeItem() ) );
     connect( m_roiTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), m_moduleTreeWidget, SLOT( clearSelection() ) );
+    // { TODO(all): deprecated. Replaced by WQtColormapper
     connect( m_textureSorter, SIGNAL( textureSelectionChanged( boost::shared_ptr< WDataSet > ) ),
              this, SLOT( selectDataModule( boost::shared_ptr< WDataSet > ) ) );
+    // }
+    connect( m_colormapper, SIGNAL( textureSelectionChanged( osg::ref_ptr< WGETexture3D > ) ),
+             this, SLOT( selectDataModule( osg::ref_ptr< WGETexture3D > ) ) );
     connect( m_roiTreeWidget, SIGNAL( dragDrop() ), this, SLOT( handleDragDrop() ) );
 }
 
@@ -204,11 +213,13 @@ WQtSubjectTreeItem* WQtControlPanel::addSubject( std::string name )
 
 bool WQtControlPanel::event( QEvent* event )
 {
+    // { TODO(all): deprecated. Replaced by WQtColormapper
     // a subject signals a newly registered data set
     if ( event->type() == WQT_UPDATE_TEXTURE_SORTER_EVENT )
     {
         m_textureSorter->update();
     }
+    // }
 
     if ( event->type() == WQT_ROI_ASSOC_EVENT )
     {
@@ -663,7 +674,10 @@ void WQtControlPanel::selectTreeItem()
                     {
                         if( dataModule->getDataSet() )
                         {
+                            // { TODO(all): deprecated. Replaced by WQtColormapper
                             m_textureSorter->selectTexture( dataModule->getDataSet() );
+                            // }
+                            m_colormapper->selectTexture( dataModule->getDataSet() );
                         }
                     }
                 }
@@ -703,7 +717,6 @@ void WQtControlPanel::selectTreeItem()
                 break;
         }
     }
-
 
     buildPropTab( props, infoProps );
 }
@@ -784,6 +797,12 @@ void WQtControlPanel::selectDataModule( boost::shared_ptr< WDataSet > dataSet )
     }
 
     selectTreeItem();
+}
+
+void WQtControlPanel::selectDataModule( osg::ref_ptr< WGETexture3D > texture )
+{
+    m_tabWidget->clear();
+    buildPropTab( texture->getProperties(), texture->getInformationProperties() );
 }
 
 void WQtControlPanel::setNewActiveModule( boost::shared_ptr< WModule > module )
@@ -1051,19 +1070,27 @@ QAction* WQtControlPanel::toggleViewAction() const
 
 void WQtControlPanel::deleteModuleTreeItem()
 {
-    if ( m_moduleTreeWidget->selectedItems().count() > 0 )
+    // TODO(rfrohl): check if there is a better way to check for focus
+    if( m_moduleTreeWidget->hasFocus() )
     {
-        if ( ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == MODULE ) ||
-             ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == DATASET ) )
+        if ( m_moduleTreeWidget->selectedItems().count() > 0 )
         {
-            // remove from the container. It will create a new event in the GUI after it has been removed which is then handled by the tree item.
-            // This method deep removes the module ( it also removes depending modules )
-            WKernel::getRunningKernel()->getRootContainer()->removeDeep(
-                static_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->getModule()
-            );
-            // select another item
-            m_moduleTreeWidget->setCurrentItem( m_moduleTreeWidget->topLevelItem( 0 ) );
+            if ( ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == MODULE ) ||
+                    ( m_moduleTreeWidget->selectedItems().at( 0 )->type() == DATASET ) )
+            {
+                // remove from the container. It will create a new event in the GUI after it has been removed which is then handled by the tree item.
+                // This method deep removes the module ( it also removes depending modules )
+                WKernel::getRunningKernel()->getRootContainer()->removeDeep(
+                        static_cast< WQtTreeItem* >( m_moduleTreeWidget->selectedItems().at( 0 ) )->getModule()
+                        );
+                // select another item
+                m_moduleTreeWidget->setCurrentItem( m_moduleTreeWidget->topLevelItem( 0 ) );
+            }
         }
+    }
+    else if ( m_mainWindow->getNetworkEditor()->isActiveWindow() )
+    {
+        m_mainWindow->getNetworkEditor()->deleteSelectedItems();
     }
 }
 
@@ -1118,5 +1145,10 @@ QDockWidget* WQtControlPanel::getModuleDock() const
 QDockWidget* WQtControlPanel::getTextureSorterDock() const
 {
     return m_textureSorter;
+}
+
+QDockWidget* WQtControlPanel::getColormapperDock() const
+{
+    return m_colormapper;
 }
 

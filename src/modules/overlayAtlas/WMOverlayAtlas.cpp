@@ -350,6 +350,7 @@ void WMOverlayAtlas::updatePlane()
     quad->push_back( 0 );
     planeGeometry->addPrimitiveSet( quad );
 
+    // { TODO(all): this is deprecated.
     // grab a list of data textures
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
@@ -402,6 +403,7 @@ void WMOverlayAtlas::updatePlane()
             break;
         }
     }
+    // }
 
     m_geode->addDrawable( planeGeometry );
 
@@ -415,6 +417,7 @@ void WMOverlayAtlas::updateTextures()
     {
         m_textureChanged = false;
 
+        // { TODO(all): this is deprecated.
         // grab a list of data textures
         std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
@@ -499,6 +502,7 @@ void WMOverlayAtlas::updateTextures()
                 }
             }
         }
+        // }
     }
 
     m_showCompleteUniform->set( m_showComplete->get() );

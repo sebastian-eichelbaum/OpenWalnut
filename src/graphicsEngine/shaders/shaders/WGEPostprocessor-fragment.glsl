@@ -185,7 +185,7 @@ float getDepth( in vec2 where )
  * Grabs the depth at the current pixel.
  *
  * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
- * 
+ *
  * \return the depth
  */
 float getDepth()
@@ -325,15 +325,15 @@ vec4 getGaussedColor( vec2 where )
     // TODO(ebaum): provide properties/uniforms for the scaling factors here
 
     // get the 8-neighbourhood
-    vec4 gaussedColorc  = getColor( pixelCoord );
-    vec4 gaussedColorbl = getColor( pixelCoord + vec2( -offsetX, -offsetY ) );
-    vec4 gaussedColorl  = getColor( pixelCoord + vec2( -offsetX,     0.0  ) );
-    vec4 gaussedColortl = getColor( pixelCoord + vec2( -offsetX,  offsetY ) );
-    vec4 gaussedColort  = getColor( pixelCoord + vec2(     0.0,   offsetY ) );
-    vec4 gaussedColortr = getColor( pixelCoord + vec2(  offsetX,  offsetY ) );
-    vec4 gaussedColorr  = getColor( pixelCoord + vec2(  offsetX,     0.0  ) );
-    vec4 gaussedColorbr = getColor( pixelCoord + vec2(  offsetX,  offsetY ) );
-    vec4 gaussedColorb  = getColor( pixelCoord + vec2(     0.0,  -offsetY ) );
+    vec4 gaussedColorc  = getColor( where );
+    vec4 gaussedColorbl = getColor( where + vec2( -offsetX, -offsetY ) );
+    vec4 gaussedColorl  = getColor( where + vec2( -offsetX,     0.0  ) );
+    vec4 gaussedColortl = getColor( where + vec2( -offsetX,  offsetY ) );
+    vec4 gaussedColort  = getColor( where + vec2(     0.0,   offsetY ) );
+    vec4 gaussedColortr = getColor( where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorr  = getColor( where + vec2(  offsetX,     0.0  ) );
+    vec4 gaussedColorbr = getColor( where + vec2(  offsetX,  offsetY ) );
+    vec4 gaussedColorb  = getColor( where + vec2(     0.0,  -offsetY ) );
 
     // apply gauss filter
     vec4 gaussed = ( 1.0 / 16.0 ) * (

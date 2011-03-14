@@ -130,9 +130,13 @@ void WMainWindow::setupGUI()
     addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
     tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
 
+    // { TODO(all): deprecated. Replaced by WQtColormapper
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getTextureSorterDock() );
+    // }
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
-    tabifyDockWidget( m_controlPanel->getTextureSorterDock(), m_controlPanel->getRoiDock() );
+    tabifyDockWidget( m_controlPanel->getTextureSorterDock(), m_controlPanel->getColormapperDock() );
+    tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 

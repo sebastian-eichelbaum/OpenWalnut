@@ -394,6 +394,7 @@ void WMFiberDisplay::updateTexture()
 {
     osg::StateSet* rootState = m_osgNode->getOrCreateStateSet();
 
+    // { TODO(all): this is deprecated.
     // grab a list of data textures
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures();
 
@@ -426,6 +427,7 @@ void WMFiberDisplay::updateTexture()
         m_uniformDimY->set( static_cast<int>( tex[0]->getGrid()->getNbCoordsY() ) );
         m_uniformDimZ->set( static_cast<int>( tex[0]->getGrid()->getNbCoordsZ() ) );
     }
+    // }
 }
 
 void WMFiberDisplay::notifyTextureChange()

@@ -89,6 +89,11 @@ public:
      */
     void itemMoved();
 
+    /**
+     * Deletes all items in the scene who are selected.
+     **/
+    void deleteSelectedItems();
+
 protected:
 
     /**

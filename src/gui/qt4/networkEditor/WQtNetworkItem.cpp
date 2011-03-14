@@ -26,7 +26,6 @@
 #include <iostream>
 
 #include <boost/shared_ptr.hpp>
-#include <QtGui/QGraphicsRectItem>
 #include <QtGui/QStyleOptionGraphicsItem>
 
 #include "WQtNetworkArrow.h"
@@ -74,15 +73,15 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 
 WQtNetworkItem::~WQtNetworkItem()
 {
-//    foreach( WQtNetworkPort *port, m_inPorts )
-//    {
-//        delete port;
-//    }
-//
-//    foreach( WQtNetworkPort *port, m_outPorts )
-//    {
-//        delete port;
-//    }
+    foreach( WQtNetworkPort *port, m_inPorts )
+    {
+        delete port;
+    }
+
+    foreach( WQtNetworkPort *port, m_outPorts )
+    {
+        delete port;
+    }
 }
 
 int WQtNetworkItem::type() const
@@ -182,6 +181,14 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
     m_networkEditor->itemMoved();
 }
 
+void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
+{
+    // TODO(rfrohl): select the item in the module tree?
+    // boost::shared_ptr< WModule > m_module; //!< the module
+    QGraphicsItem::mousePressEvent( event );
+    setSelected( true );
+}
+
 QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
         const QVariant &value )
 {
@@ -211,7 +218,7 @@ void WQtNetworkItem::addInputPort( WQtNetworkInputPort *port )
     m_inPorts.append( port );
 }
 
-void WQtNetworkItem::addOutputPort( WQtNetworkOutputPort * port )
+void WQtNetworkItem::addOutputPort( WQtNetworkOutputPort *port )
 {
     m_outPorts.append( port );
 }

@@ -39,6 +39,8 @@
 #include "WQtNetworkEditor.h"
 #include "WQtNetworkPort.h"
 
+#include "../../../kernel/combiner/WDisconnectCombiner.h"
+#include "../../../kernel/WKernel.h"
 #include "../../../kernel/WModule.h"
 #include "../../../kernel/WModuleFactory.h"
 #include "../controlPanel/WQtControlPanel.h"
@@ -120,6 +122,50 @@ void WQtNetworkEditor::selectItem()
     {
         m_mainWindow->getControlPanel()->setNewActiveModule( module );
     }
+}
+
+void WQtNetworkEditor::deleteSelectedItems()
+{
+    QList< WQtNetworkItem *> itemList;
+    QList< WQtNetworkArrow *> arrowList;
+    foreach( QGraphicsItem *item, m_scene->selectedItems() )
+    {
+        if ( item->type() == WQtNetworkItem::Type )
+        {
+            WQtNetworkItem *netItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
+            itemList.append( netItem );
+        }
+        else if( item->type() == WQtNetworkArrow::Type )
+        {
+            WQtNetworkArrow *netArrow = qgraphicsitem_cast<WQtNetworkArrow *>( item );
+            arrowList.append( netArrow );
+        }
+    }
+
+    foreach( WQtNetworkArrow *ar, arrowList )
+    {
+        if( ar != 0 )
+        {
+            boost::shared_ptr< WDisconnectCombiner > disconnectCombiner =
+                boost::shared_ptr< WDisconnectCombiner >( new WDisconnectCombiner(
+                            ar->getStartPort()->getConnector()->getModule(),
+                            ar->getStartPort()->getConnector()->getName(),
+                            ar->getEndPort()->getConnector()->getModule(),
+                            ar->getEndPort()->getConnector()->getName() ) );
+            disconnectCombiner->run();
+            disconnectCombiner->wait();
+        }
+    }
+
+    foreach( WQtNetworkItem *it, itemList )
+    {
+        if( it != 0 )
+        {
+            WKernel::getRunningKernel()->getRootContainer()->remove( it->getModule() );
+        }
+    }
+    itemList.clear();
+    arrowList.clear();
 }
 
 void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
@@ -272,7 +318,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Disonnecting \"" + e->getInput()->getCanonicalName() +
+        WLogger::getLogger()->addLogMessage( "Disconnecting \"" + e->getInput()->getCanonicalName() +
                                              "\" and \"" + e->getOutput()->getCanonicalName() +
                                              "\"." , "NetworkEditor", LL_DEBUG );
 
@@ -344,6 +390,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             op->removeArrow( ar );
             ip->removeArrow( ar );
             m_scene->removeItem( ar );
+            delete ar;
         }
         else
         {

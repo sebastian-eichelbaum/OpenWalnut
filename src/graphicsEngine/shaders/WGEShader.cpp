@@ -98,6 +98,11 @@ void WGEShader::applyDirect( osg::State& state ) // NOLINT <- ensure this matche
 
 void WGEShader::deactivate( osg::ref_ptr< osg::Node > node )
 {
+    if ( !node )
+    {
+        return;
+    }
+
     // set the shader attribute
     // NOTE: the attribute is protected to avoid father nodes overwriting it
     osg::StateSet* rootState = node->getOrCreateStateSet();

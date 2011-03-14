@@ -41,6 +41,12 @@ class WDataTexture3D;
 class WCondition;
 class WDataSetVector;
 
+#if ( __GNUC__ > 3 || ( __GNUC__ == 3 && __GNUC_MINOR__ >= 1 ) )
+#define OW_API_DEPRECATED  __attribute__( ( __deprecated__ ) )
+#else
+#define OW_API_DEPRECATED
+#endif /* __GNUC__ */
+
 /**
  * Base class for all data set types. This class has a number of subclasses
  * specifying the different types of data sets. Two of the dataset types
@@ -95,13 +101,16 @@ public:
      * Returns the texture- representation of the dataset. May throw an exception if no texture is available.
      *
      * \return The texture.
+     * \deprecated
      */
+    OW_API_DEPRECATED
     virtual boost::shared_ptr< WDataTexture3D > getTexture();
 
     /**
      * Returns the texture- representation of the dataset. May throw an exception if no texture is available.
      *
      * \return The texture.
+     * \deprecated
      */
     virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2() const;
 
@@ -178,3 +187,4 @@ private:
 };
 
 #endif  // WDATASET_H
+

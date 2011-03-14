@@ -145,6 +145,23 @@ void enableTransparency( osg::StateSet* state )
     state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
 }
 
+/**
+ * Disables everything which is needed for proper transparency.
+ *
+ * \param state the state of the node
+ */
+void disableTransparency( osg::StateSet* state )
+{
+    // TODO(ebaum): this transparency is problematic. Depth write is on because we need the depth buffer for post-processing
+    state->setMode( GL_BLEND, osg::StateAttribute::OFF );
+
+    // Enable depth test so that an opaque polygon will occlude a transparent one behind it.
+    state->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
+
+    // disable light for this geode as lines can't be lit properly
+    state->setMode( GL_LIGHTING, osg::StateAttribute::OFF | osg::StateAttribute::PROTECTED );
+}
+
 void WMFiberDisplaySimple::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMFiberDisplaySimple", m_localPath ) );
@@ -372,7 +389,14 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
     WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
 
     // enable blending, select transparent bin
-    enableTransparency( state );
+    if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
+    {
+        enableTransparency( state );
+    }
+    else
+    {
+        disableTransparency( state );
+    }
 
     // progress indication
     boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Adding fibers to geode", fibStart->size() ) );

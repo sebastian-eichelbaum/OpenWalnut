@@ -70,6 +70,15 @@ public:
      */
     virtual void operator()( Type* handled, osg::NodeVisitor* nv );
 
+    /**
+     * This gets called by OSG every update cycle. It calls the specified functor.
+     * \note we provide several versions here as the OSG does not uniformly use operator().
+     *
+     * \param handled the osg node, stateset or whatever
+     * \param nv the node visitor
+     */
+    virtual void update( osg::NodeVisitor* nv, Type* handled );
+
 protected:
 private:
 
@@ -99,6 +108,12 @@ void WGEFunctorCallback< Type >::operator()( Type* handled, osg::NodeVisitor* nv
     // call functor
     m_functor( handled );
     WGECallbackTraits< Type >::traverse( this, handled, nv );
+}
+
+template < typename Type >
+void WGEFunctorCallback< Type >::update( osg::NodeVisitor* nv, Type* handled )
+{
+    operator()( handled, nv );
 }
 
 #endif  // WGEFUNCTORCALLBACK_H
