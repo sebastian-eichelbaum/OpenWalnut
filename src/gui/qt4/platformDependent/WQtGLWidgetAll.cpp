@@ -67,6 +67,10 @@ WQtGLWidgetAll::WQtGLWidgetAll( std::string nameOfViewer, QWidget* parent, WGECa
     // create viewer
     m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
         m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
+
+    // add screen capture callback
+    m_screenCapture = new WGEScreenCapture();
+    m_Viewer->getCamera()->setFinalDrawCallback( m_screenCapture );
 }
 
 WQtGLWidgetAll::~WQtGLWidgetAll()
@@ -179,6 +183,17 @@ void WQtGLWidgetAll::keyReleaseEvent( QKeyEvent* event )
             break;
         case Qt::Key_2:
             setCameraManipulator( TWO_D );
+            break;
+        case Qt::Key_R:
+            bool r = m_screenCapture->toggleRecord();
+            if ( r )
+            {
+                WLogger::getLogger()->addLogMessage( "Recording.", "WQtGLWidgetAll(" + m_Viewer->getName() + ")", LL_INFO );
+            }
+            else
+            {
+                WLogger::getLogger()->addLogMessage( "Stopped recording.", "WQtGLWidgetAll(" + m_Viewer->getName() + ")", LL_INFO );
+            }
             break;
     }
 

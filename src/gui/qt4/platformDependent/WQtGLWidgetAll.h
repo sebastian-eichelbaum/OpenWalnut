@@ -37,6 +37,7 @@
 
 #include "../../../graphicsEngine/WGECamera.h"
 #include "../../../graphicsEngine/WGEViewer.h"
+#include "../../../graphicsEngine/WGEScreenCapture.h"
 
 namespace osg
 {
@@ -229,6 +230,11 @@ private:
      * Holds the recommended size for the widget
      */
     QSize m_recommendedSize;
+
+    /**
+     * Screen capture callback of the camera of this viewer
+     */
+    osg::ref_ptr< WGEScreenCapture > m_screenCapture;
 };
 
 #endif  // WQTGLWIDGETALL_H
