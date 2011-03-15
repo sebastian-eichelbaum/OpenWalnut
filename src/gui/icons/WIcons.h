@@ -53,4 +53,6 @@
 #include "video.xpm"
 #include "image.xpm"
 
+#include "preferences.xpm"
+
 #endif  // WICONS_H

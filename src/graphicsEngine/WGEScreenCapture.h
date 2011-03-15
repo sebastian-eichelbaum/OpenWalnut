@@ -50,6 +50,19 @@
 class WGE_EXPORT WGEScreenCapture: public osg::Camera::DrawCallback
 {
 public:
+    /**
+     * Keeps track of several frame-counts.
+     */
+    typedef struct
+    {
+        size_t m_frames;        //!< current number of frames.
+        size_t m_framesLeft;    //!< the frames to take until stop.
+    } RecordingInformation;
+
+    /**
+     * The shared access type to the FrameCounting struct.
+     */
+    typedef WSharedObject< RecordingInformation > SharedRecordingInformation;
 
     /**
      * Creates a screen capture callback.
@@ -84,6 +97,11 @@ public:
     void screenshot();
 
     /**
+     * Resets the frame-counter to 0.
+     */
+    void resetFrameCounter();
+
+    /**
      * The draw callback operator. Gets called by OSG in draw traversal.
      *
      * \param renderInfo the OSG renderinfo
@@ -91,18 +109,19 @@ public:
     virtual void operator()( osg::RenderInfo& renderInfo ) const;
 
     /**
-     * Returns the condition which fires if the recording is started.
+     * The condition returned here is actually the change condition of the frame counter. This can be used to update GUI or something as it
+     * contains frame-counts, recording information and so on (updated per frame).
      *
-     * \return the condition.
+     * \return the condition
      */
-    WCondition::ConstSPtr getRecordStartCondition() const;
+    WCondition::ConstSPtr getRecordCondition() const;
 
     /**
-     * Returns the condition which fires if the recording is finished.
+     * Returns the current recording information. Release the lock after you grabbed the info you need.
      *
-     * \return the condition.
+     * \return the info struct - read ticket
      */
-    WCondition::ConstSPtr getRecordStopCondition() const;
+    SharedRecordingInformation::ReadTicket getRecordingInformation() const;
 
 protected:
 
@@ -125,24 +144,9 @@ protected:
 private:
 
     /**
-     * Frame counter. Incremented each frame. Must be mutable to allow the const operator() to change it.
-     */
-    mutable size_t m_frame;
-
-    /**
      * Counts the frames to take.
      */
-    WSharedObject< size_t > m_framesLeft;
-
-    /**
-     * The condition is fired if recording gets started.
-     */
-    WCondition::SPtr m_recordStartCondition;
-
-    /**
-     * The condition is fired if recording is stopped or done.
-     */
-    WCondition::SPtr m_recordStopCondition;
+    SharedRecordingInformation m_recordingInformation;
 };
 
 #endif  // WGESCREENCAPTURE_H

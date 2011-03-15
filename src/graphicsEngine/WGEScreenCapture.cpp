@@ -26,14 +26,12 @@
 
 #include "WGEScreenCapture.h"
 
-WGEScreenCapture::WGEScreenCapture():
-    m_frame( 0 ),
-    m_recordStartCondition( WCondition::SPtr( new WCondition() ) ),
-    m_recordStopCondition( WCondition::SPtr( new WCondition() ) )
+WGEScreenCapture::WGEScreenCapture()
 {
     // initialize
-    WSharedObject< size_t >::WriteTicket w = m_framesLeft.getWriteTicket();
-    w->get() = 0;
+    SharedRecordingInformation::WriteTicket w = m_recordingInformation.getWriteTicket();
+    w->get().m_frames = 0;
+    w->get().m_framesLeft = 0;
 }
 
 WGEScreenCapture::~WGEScreenCapture()
@@ -43,41 +41,38 @@ WGEScreenCapture::~WGEScreenCapture()
 
 void WGEScreenCapture::recordStart()
 {
-    m_recordStartCondition->notify();
     record();
 }
 
 void WGEScreenCapture::recordStop()
 {
     record( 0 );
-    m_recordStopCondition->notify();
 }
 
 void WGEScreenCapture::screenshot()
 {
-    m_recordStartCondition->notify();
     record( 1 );
 }
 
 void WGEScreenCapture::record( size_t frames )
 {
-    WSharedObject< size_t >::WriteTicket w = m_framesLeft.getWriteTicket();
-    w->get() = frames;
+    SharedRecordingInformation::WriteTicket w = m_recordingInformation.getWriteTicket();
+    w->get().m_framesLeft = frames;
 }
 
 bool WGEScreenCapture::isRecording()
 {
-    WSharedObject< size_t >::ReadTicket r = m_framesLeft.getReadTicket();
-    return r->get();
+    SharedRecordingInformation::ReadTicket r = m_recordingInformation.getReadTicket();
+    return r->get().m_framesLeft;
 }
 
 void WGEScreenCapture::operator()( osg::RenderInfo& renderInfo ) const
 {
-    WSharedObject< size_t >::WriteTicket w = m_framesLeft.getWriteTicket();
-    size_t& framesLeft = w->get();
+    SharedRecordingInformation::WriteTicket w = m_recordingInformation.getWriteTicket();
+    RecordingInformation& frameCounter = w->get();
 
     // is there something to record?
-    if ( !framesLeft )
+    if ( !frameCounter.m_framesLeft )
     {
         return;
     }
@@ -97,8 +92,8 @@ void WGEScreenCapture::operator()( osg::RenderInfo& renderInfo ) const
     }
 
     // count frames
-    m_frame++;
-    framesLeft--;
+    frameCounter.m_frames++;
+    frameCounter.m_framesLeft--;
 
     // read back buffer
     glReadBuffer( GL_BACK );
@@ -139,23 +134,22 @@ void WGEScreenCapture::operator()( osg::RenderInfo& renderInfo ) const
     image->readPixels( 0, 0, width, height, pixelFormat, GL_UNSIGNED_BYTE );
 
     // someone wants this image
-    handleImage( framesLeft, m_frame, image );
-
-    // no further frames? notify.
-    if ( !framesLeft )
-    {
-        m_recordStopCondition->notify();
-    }
+    handleImage( frameCounter.m_framesLeft, frameCounter.m_frames, image );
 }
 
-WCondition::ConstSPtr WGEScreenCapture::getRecordStartCondition() const
+WCondition::ConstSPtr WGEScreenCapture::getRecordCondition() const
 {
-    return m_recordStartCondition;
+    return m_recordingInformation.getChangeCondition();
 }
 
-WCondition::ConstSPtr WGEScreenCapture::getRecordStopCondition() const
+WGEScreenCapture::SharedRecordingInformation::ReadTicket WGEScreenCapture::getRecordingInformation() const
 {
-    return m_recordStopCondition;
+    return m_recordingInformation.getReadTicket();
 }
 
+void WGEScreenCapture::resetFrameCounter()
+{
+    SharedRecordingInformation::WriteTicket w = m_recordingInformation.getWriteTicket();
+    w->get().m_frames = 0;
+}
 

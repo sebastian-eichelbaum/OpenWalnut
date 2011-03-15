@@ -32,6 +32,7 @@
 #include <QtCore/QDir>
 #include <QtGui/QApplication>
 #include <QtCore/QEvent>
+#include <QtGui/QGroupBox>
 
 #include "WMainWindow.h"
 #include "events/WEventTypes.h"
@@ -50,28 +51,51 @@ WQtGLScreenCapture::WQtGLScreenCapture( WMainWindow* parent ):
     setAllowedAreas( Qt::AllDockWidgetAreas );
     setFeatures( QDockWidget::AllDockWidgetFeatures );
 
-    QWidget* widget = new QWidget( this );
-    QVBoxLayout* layout = new QVBoxLayout();
-    widget->setLayout( layout );
     m_toolbox = new QToolBox( this );
+    setWidget( m_toolbox );
 
-    QLabel* fileHint = new QLabel();
-    fileHint->setWordWrap( true );
-    fileHint->setText(
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // common config tools
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    m_configWidget = new QWidget();
+    QVBoxLayout* configLayout = new QVBoxLayout();
+    m_configWidget->setLayout( configLayout );
+
+    // frame related stuff
+    QGroupBox* frameCounterGroup = new QGroupBox( "Frame" );
+    QVBoxLayout* frameCounterGroupLayout = new QVBoxLayout();
+    frameCounterGroup->setLayout( frameCounterGroupLayout );
+    m_configFrameLabel = new QLabel();
+    m_configFrameLabel->setText( "Recorded Frames: 0" );
+    m_configFrameResetButton = new QPushButton( "Reset" );
+    connect( m_configFrameResetButton, SIGNAL( clicked( bool ) ), this, SLOT( resetFrames() ) );
+    frameCounterGroupLayout->addWidget( m_configFrameLabel );
+    frameCounterGroupLayout->addWidget( m_configFrameResetButton );
+
+    // filename config
+    QGroupBox* fileGroup = new QGroupBox( "Output Files" );
+    QVBoxLayout* fileGroupLayout = new QVBoxLayout();
+    fileGroup->setLayout( fileGroupLayout );
+
+
+    QLabel* configFileHint = new QLabel();
+    configFileHint->setWordWrap( true );
+    configFileHint->setText(
         "The filename used for all captured frames. This filename can contain some special tags which get replaced:"
                               "<ul>"
                               "<li> %# - the frame number"
                               "</ul>"
     );
 
-    m_fileEdit = new QLineEdit();
-    m_fileEdit->setText( QDir::homePath() + QDir::separator() + "OpenWalnut_Frame_%#.jpg" );
+    m_configFileEdit = new QLineEdit();
+    m_configFileEdit->setText( QDir::homePath() + QDir::separator() + "OpenWalnut_Frame_%#.jpg" );
+    fileGroupLayout->addWidget( configFileHint );
+    fileGroupLayout->addWidget( m_configFileEdit );
 
-
-    layout->addWidget( fileHint );
-    layout->addWidget( m_fileEdit );
-    layout->addWidget( m_toolbox );
-    setWidget( widget );
+    // add the groups
+    configLayout->addWidget( frameCounterGroup );
+    configLayout->addWidget( fileGroup );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // screenshot tools
@@ -108,6 +132,9 @@ WQtGLScreenCapture::WQtGLScreenCapture( WMainWindow* parent ):
                               );
     movieLabel->setTextInteractionFlags( Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse );
 
+    m_movieTimeLabel = new QLabel();
+    m_movieTimeLabel->setText( "Recorded Movie-Time: 0s" );
+
     m_movieRecButton = new QPushButton( "Record" );
     connect( m_movieRecButton, SIGNAL(  clicked( bool ) ), this, SLOT( startRec() ) );
 
@@ -116,29 +143,32 @@ WQtGLScreenCapture::WQtGLScreenCapture( WMainWindow* parent ):
     connect( m_movieStopButton, SIGNAL(  clicked( bool ) ), this, SLOT( stopRec() ) );
 
     movieLayout->addWidget( movieLabel );
+    movieLayout->addWidget( m_movieTimeLabel );
     movieLayout->addWidget( m_movieRecButton );
     movieLayout->addWidget( m_movieStopButton );
 
+    // this forces the elements to be initialized properly
+    QCoreApplication::postEvent( this, new QEvent( static_cast< QEvent::Type >( WQT_SCREENCAPTURE_EVENT ) ) );
+
     // add them
-    m_toolbox->insertItem( 0, m_screenshotWidget, m_iconManager->getIcon( "image" ), "Screenshot" );
-    m_toolbox->insertItem( 1, m_movieWidget, m_iconManager->getIcon( "video" ), "Movie" );
-    m_toolbox->insertItem( 2, NULL, m_iconManager->getIcon( "video" ), "Animation" );
+    m_toolbox->insertItem( 0, m_configWidget, m_iconManager->getIcon( "preferences" ), "Configuration" );
+    m_toolbox->insertItem( 1, m_screenshotWidget, m_iconManager->getIcon( "image" ), "Screenshot" );
+    m_toolbox->insertItem( 2, m_movieWidget, m_iconManager->getIcon( "video" ), "Movie" );
+    m_toolbox->insertItem( 3, NULL, m_iconManager->getIcon( "video" ), "Animation" );
 
     // we need to be notified about the screen grabbers state
-    m_startConnection = getRecordStartCondition()->subscribeSignal( boost::bind( &WQtGLScreenCapture::recStartCallback, this ) );
-    m_stopConnection = getRecordStopCondition()->subscribeSignal( boost::bind( &WQtGLScreenCapture::recStopCallback, this ) );
+    m_recordConnection = getRecordCondition()->subscribeSignal( boost::bind( &WQtGLScreenCapture::recCallback, this ) );
 }
 
 WQtGLScreenCapture::~WQtGLScreenCapture()
 {
     // cleanup
-    m_startConnection.disconnect();
-    m_stopConnection.disconnect();
+    m_recordConnection.disconnect();
 }
 
 void WQtGLScreenCapture::handleImage( size_t /* framesLeft */, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const
 {
-    std::string filename = m_fileEdit->text().toStdString();
+    std::string filename = m_configFileEdit->text().toStdString();
     size_t pos;
     while ( ( pos = filename.find( "%#" ) ) != std::string::npos )
     {
@@ -151,22 +181,39 @@ void WQtGLScreenCapture::handleImage( size_t /* framesLeft */, size_t totalFrame
 bool WQtGLScreenCapture::event( QEvent* event )
 {
     // a module got associated with the root container -> add it to the list
-    if( event->type() == WQT_SCREENCAPTURE_START_EVENT )
+    if( event->type() == WQT_SCREENCAPTURE_EVENT )
     {
-        wlog::info( "WQtGLScreenCapture" ) << "Started recording.";
-        m_screenshotWidget->setDisabled( true );
-        m_movieStopButton->setDisabled( false );
-        m_movieRecButton->setDisabled( true );
-        m_fileEdit->setDisabled( true );
-    }
+        // grab the needed info
+        WGEScreenCapture::SharedRecordingInformation::ReadTicket r = getRecordingInformation();
+        size_t frame = r->get().m_frames;
+        size_t framesLeft = r->get().m_framesLeft;
+        r.reset();
 
-    if( event->type() == WQT_SCREENCAPTURE_STOP_EVENT )
-    {
-        wlog::info( "WQtGLScreenCapture" ) << "Stopped recording.";
-        m_screenshotWidget->setDisabled( false );
-        m_movieStopButton->setDisabled( true );
-        m_movieRecButton->setDisabled( false );
-        m_fileEdit->setDisabled( false );
+        // generate some label texts
+        std::ostringstream time;
+        time.precision( 2 );
+        time << "Recorded Movie-Time: " << static_cast< float >( frame ) / 24.0f;
+        m_movieTimeLabel->setText( QString::fromStdString( time.str() ) );
+
+        std::ostringstream frames;
+        frames << "Recorded Frames: " << frame;
+        m_configFrameLabel->setText( QString::fromStdString( frames.str() ) );
+
+        // disable some elements if in recording mode
+        if ( framesLeft == 0 )   // recording done:
+        {
+            m_screenshotWidget->setDisabled( false );
+            m_configWidget->setDisabled( false );
+            m_movieStopButton->setDisabled( true );
+            m_movieRecButton->setDisabled( false );
+        }
+        else    // still recording
+        {
+            m_screenshotWidget->setDisabled( true );
+            m_configWidget->setDisabled( true );
+            m_movieStopButton->setDisabled( false );
+            m_movieRecButton->setDisabled( true );
+        }
     }
 
     return QDockWidget::event( event );
@@ -179,21 +226,24 @@ void WQtGLScreenCapture::screenShot()
 
 void WQtGLScreenCapture::startRec()
 {
+    wlog::info( "WQtGLScreenCapture" ) << "Started recording.";
     recordStart();
 }
 
 void WQtGLScreenCapture::stopRec()
 {
+    wlog::info( "WQtGLScreenCapture" ) << "Stopped recording.";
     recordStop();
 }
 
-void WQtGLScreenCapture::recStartCallback()
+void WQtGLScreenCapture::resetFrames()
 {
-    QCoreApplication::postEvent( this, new QEvent( static_cast< QEvent::Type >( WQT_SCREENCAPTURE_START_EVENT ) ) );
+    wlog::info( "WQtGLScreenCapture" ) << "Resetting frame-counter.";
+    resetFrameCounter();
 }
 
-void WQtGLScreenCapture::recStopCallback()
+void WQtGLScreenCapture::recCallback()
 {
-    QCoreApplication::postEvent( this, new QEvent( static_cast< QEvent::Type >( WQT_SCREENCAPTURE_STOP_EVENT ) ) );
+    QCoreApplication::postEvent( this, new QEvent( static_cast< QEvent::Type >( WQT_SCREENCAPTURE_EVENT ) ) );
 }
 

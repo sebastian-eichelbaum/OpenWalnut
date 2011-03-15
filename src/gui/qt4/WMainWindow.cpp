@@ -107,6 +107,7 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "view" ), camera_xpm );
     m_iconManager.addIcon( std::string( "video" ), video_xpm );
     m_iconManager.addIcon( std::string( "image" ), image_xpm );
+    m_iconManager.addIcon( std::string( "preferences" ), preferences_xpm );
 
     if( objectName().isEmpty() )
     {

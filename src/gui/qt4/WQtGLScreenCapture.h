@@ -103,27 +103,22 @@ private slots:
      */
     void stopRec();
 
+    /**
+     * Slot triggered by m_configFrameResetButton
+     */
+    void resetFrames();
+
 private:
 
     /**
-     * Called by the screencapture callback to notify this widget about a started recording
+     * Called by the screencapture callback to notify this widget about recording
      */
-    void recStartCallback();
+    void recCallback();
 
     /**
-     * Called by the screencapture callback to notify this widget about a stopped recording
+     * Recording - callback connection
      */
-    void recStopCallback();
-
-    /**
-     * Recording started - callback connection
-     */
-    boost::signals2::connection m_startConnection;
-
-    /**
-     * Recording stopped - callback connection
-     */
-    boost::signals2::connection m_stopConnection;
+    boost::signals2::connection m_recordConnection;
 
     /**
      * The toolbox containing all the stuff
@@ -136,6 +131,26 @@ private:
     WIconManager* m_iconManager;
 
     /**
+     * The configuration widget. It contains the common config stuff
+     */
+    QWidget* m_configWidget;
+
+    /**
+     * The filename for the screenshot
+     */
+    QLineEdit* m_configFileEdit;
+
+    /**
+     * Shows recorded frames.
+     */
+    QLabel* m_configFrameLabel;
+
+    /**
+     * Triggers frame counter reset.
+     */
+    QPushButton* m_configFrameResetButton;
+
+    /**
      * Widget containing all the widgets to control movie recording
      */
     QWidget* m_screenshotWidget;
@@ -146,9 +161,9 @@ private:
     QPushButton* m_screenshotButton;
 
     /**
-     * The filename for the screenshot
+     * Shows recorded time in movie-time.
      */
-    QLineEdit* m_fileEdit;
+    QLabel* m_movieTimeLabel;
 
     /**
      * Widget containing all the widgets to control movie recording
