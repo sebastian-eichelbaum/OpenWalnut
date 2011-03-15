@@ -82,7 +82,7 @@ public:
      *
      * \return the connection.
      */
-    boost::signals2::connection subscribeSignal( t_ConditionNotifierType notifier );
+    boost::signals2::connection subscribeSignal( t_ConditionNotifierType notifier ) const;
 
 protected:
 
@@ -94,7 +94,7 @@ protected:
     /**
      * Signal getting fired whenever the condition fires.
      */
-    t_ConditionSignalType signal_ConditionFired;
+    mutable t_ConditionSignalType signal_ConditionFired;
 
     /**
      * The condition.

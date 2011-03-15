@@ -45,7 +45,7 @@ void WCondition::notify()
     m_condition.notify_all();
 }
 
-boost::signals2::connection WCondition::subscribeSignal( t_ConditionNotifierType notifier )
+boost::signals2::connection WCondition::subscribeSignal( t_ConditionNotifierType notifier ) const
 {
     return signal_ConditionFired.connect( notifier );
 }
