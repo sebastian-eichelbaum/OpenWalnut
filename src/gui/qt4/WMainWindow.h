@@ -53,6 +53,7 @@ class WQtNavGLWidget;
 class WQtPropertyBoolAction;
 class WPropertyBase;
 class WQtControlPanel;
+class WQtGLScreenCapture;
 
 /**
  * This class contains the main window and the layout of the widgets within the window.
@@ -297,6 +298,8 @@ private:
     WQtCommandPromptToolbar* m_commandPrompt; //!< command prompt
 
     boost::shared_ptr< WQtGLWidget > m_mainGLWidget; //!< the main GL widget of the GUI
+    WQtGLScreenCapture* m_mainGLWidgetScreenCapture; //!< screen recorder in m_mainGLWidget
+
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal; //!< the sgittal view widget GL widget of the GUI
@@ -337,6 +340,7 @@ private:
      * Saves the current window states and geometries to a file.
      */
     void saveWindowState();
+
 };
 
 #endif  // WMAINWINDOW_H

@@ -31,6 +31,9 @@
 #include <osg/Image>
 #include <osg/RenderInfo>
 
+#include "../common/WSharedObject.h"
+#include "../common/WCondition.h"
+
 #include "WExportWGE.h"
 
 /**
@@ -59,21 +62,14 @@ public:
     virtual ~WGEScreenCapture();
 
     /**
-     * Starts recording. If already recording, it continues recording.
-     *
-     * \param frames the number of frames to record. 0 means stop, 1 is a single screenshot.
+     * Starts recording. If it already is running, nothing happens.
      */
-    void record( size_t frames = std::numeric_limits< size_t >::max() );
+    void recordStart();
 
     /**
      * Stops recording. If not recording, nothing happens.
      */
     void recordStop();
-
-    /**
-     * Starts endless recording if not yet running. Stops recording if currently running.
-     */
-    bool recordToggle();
 
     /**
      * Checks if there are frames left for recording.
@@ -94,6 +90,20 @@ public:
      */
     virtual void operator()( osg::RenderInfo& renderInfo ) const;
 
+    /**
+     * Returns the condition which fires if the recording is started.
+     *
+     * \return the condition.
+     */
+    WCondition::ConstSPtr getRecordStartCondition() const;
+
+    /**
+     * Returns the condition which fires if the recording is finished.
+     *
+     * \return the condition.
+     */
+    WCondition::ConstSPtr getRecordStopCondition() const;
+
 protected:
 
     /**
@@ -105,17 +115,34 @@ protected:
      */
     virtual void handleImage( size_t framesLeft, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const = 0;
 
-private:
-
     /**
-     * The number of frames to record. If 0, nothing is recorded.
+     * Starts recording. If already recording, it continues recording.
+     *
+     * \param frames the number of frames to record. 0 means stop, 1 is a single screenshot.
      */
-    mutable size_t m_framesToRecord;
+    void record( size_t frames = std::numeric_limits< size_t >::max() );
+
+private:
 
     /**
      * Frame counter. Incremented each frame. Must be mutable to allow the const operator() to change it.
      */
     mutable size_t m_frame;
+
+    /**
+     * Counts the frames to take.
+     */
+    WSharedObject< size_t > m_framesLeft;
+
+    /**
+     * The condition is fired if recording gets started.
+     */
+    WCondition::SPtr m_recordStartCondition;
+
+    /**
+     * The condition is fired if recording is stopped or done.
+     */
+    WCondition::SPtr m_recordStopCondition;
 };
 
 #endif  // WGESCREENCAPTURE_H

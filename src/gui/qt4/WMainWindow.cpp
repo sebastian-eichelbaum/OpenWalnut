@@ -76,6 +76,7 @@
 #include "WQtCombinerToolbar.h"
 #include "WQtCustomDockWidget.h"
 #include "WQtNavGLWidget.h"
+#include "WQtGLScreenCapture.h"
 
 #include "WMainWindow.h"
 
@@ -104,6 +105,8 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
     m_iconManager.addIcon( std::string( "config" ), preferences_system_xpm );
     m_iconManager.addIcon( std::string( "view" ), camera_xpm );
+    m_iconManager.addIcon( std::string( "video" ), video_xpm );
+    m_iconManager.addIcon( std::string( "image" ), image_xpm );
 
     if( objectName().isEmpty() )
     {
@@ -125,22 +128,8 @@ void WMainWindow::setupGUI()
     m_controlPanel->setFeatures( QDockWidget::AllDockWidgetFeatures );
     m_controlPanel->addSubject( "Default Subject" );
 
-    // add all docks
-    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getModuleDock() );
-    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
-    tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
-
-    // { TODO(all): deprecated. Replaced by WQtColormapper
-    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getTextureSorterDock() );
-    // }
-    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
-    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
-    tabifyDockWidget( m_controlPanel->getTextureSorterDock(), m_controlPanel->getColormapperDock() );
-    tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
-
-    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
-
     m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
+    m_mainGLWidgetScreenCapture = m_mainGLWidget->addScreenCapture( this );
     setCentralWidget( m_mainGLWidget.get() );
 
     m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
@@ -342,6 +331,24 @@ void WMainWindow::setupGUI()
     m_permanentToolBar->addSeparator();
 
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
+
+    // add all docks
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getModuleDock() );
+    addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
+    tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
+
+    // { TODO(all): deprecated. Replaced by WQtColormapper
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getTextureSorterDock() );
+    // }
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
+    addDockWidget( Qt::RightDockWidgetArea, m_mainGLWidgetScreenCapture );
+    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
+
+    // group some of the docks together
+    tabifyDockWidget( m_mainGLWidgetScreenCapture, m_controlPanel->getRoiDock() );
+    tabifyDockWidget( m_mainGLWidgetScreenCapture, m_controlPanel->getTextureSorterDock() );
+    tabifyDockWidget( m_mainGLWidgetScreenCapture, m_controlPanel->getColormapperDock() );
 
     // after creating the GUI, restore its saved state
     restoreSavedState();

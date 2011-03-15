@@ -27,23 +27,37 @@
 
 #include <limits>
 
+#include <boost/signals2.hpp>
+
+#include <QtGui/QDockWidget>
+#include <QtGui/QToolBox>
+#include <QtGui/QPushButton>
+#include <QtGui/QLabel>
+#include <QtGui/QLineEdit>
+
 #include <osg/Camera>
 #include <osg/Image>
 #include <osg/RenderInfo>
 
 #include "../../graphicsEngine/WGEScreenCapture.h"
 
+#include "WIconManager.h"
+
+class WMainWindow;
+
 /**
  * This class is a screen recorder adapter in QT. It uses WGEScreenCapture and provides a nice widget around it.
  */
-class WQtGLScreenCapture: public WGEScreenCapture
+class WQtGLScreenCapture: public QDockWidget,
+                          public WGEScreenCapture
 {
+    Q_OBJECT
 public:
 
     /**
      * Creates a screen capture callback.
      */
-    WQtGLScreenCapture();
+    explicit WQtGLScreenCapture( WMainWindow* parent );
 
     /**
      * Destructor. Cleans up.
@@ -61,8 +75,88 @@ protected:
      */
     virtual void handleImage( size_t framesLeft, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const;
 
+    /**
+     * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
+     * processes several custom events, like WModuleAssocEvent.
+     *
+     * \note QT Doc says: use event() for custom events.
+     * \param event the event that got transmitted.
+     *
+     * \return true if the event got handled properly.
+     */
+    virtual bool event( QEvent* event );
+
+private slots:
+
+    /**
+     * Initiates taking a screenshot
+     */
+    void screenShot();
+
+    /**
+     * Slot triggered by m_moveRecButton
+     */
+    void startRec();
+
+    /**
+     * Slot triggered by m_moveStopButton
+     */
+    void stopRec();
+
 private:
 
+    /**
+     * Called by the screencapture callback to notify this widget about a started recording
+     */
+    void recStartCallback();
+
+    /**
+     * Called by the screencapture callback to notify this widget about a stopped recording
+     */
+    void recStopCallback();
+
+    /**
+     * Recording started - callback connection
+     */
+    boost::signals2::connection m_startConnection;
+
+    /**
+     * Recording stopped - callback connection
+     */
+    boost::signals2::connection m_stopConnection;
+
+    /**
+     * The toolbox containing all the stuff
+     */
+    QToolBox* m_toolbox;
+
+    /**
+     * The icons used here.
+     */
+    WIconManager* m_iconManager;
+
+    /**
+     * Widget containing all the widgets to control movie recording
+     */
+    QWidget* m_screenshotWidget;
+
+    /**
+     * The trigger which triggers the screenshot.
+     */
+    QPushButton* m_screenshotButton;
+
+    /**
+     * The filename for the screenshot
+     */
+    QLineEdit* m_fileEdit;
+
+    /**
+     * Widget containing all the widgets to control movie recording
+     */
+    QWidget* m_movieWidget;
+
+    QPushButton* m_movieRecButton;  //!< record button
+    QPushButton* m_movieStopButton;  //!< stop button
 };
 
 #endif  // WQTGLSCREENCAPTURE_H

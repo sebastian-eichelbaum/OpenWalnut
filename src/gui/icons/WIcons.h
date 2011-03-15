@@ -50,4 +50,7 @@
 
 #include "tango/preferences-system.xpm"
 
+#include "video.xpm"
+#include "image.xpm"
+
 #endif  // WICONS_H

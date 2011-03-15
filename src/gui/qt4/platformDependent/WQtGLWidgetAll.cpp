@@ -38,6 +38,7 @@
 #include "../../../graphicsEngine/WGEViewer.h"
 #include "../../../graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "../WQtGLScreenCapture.h"
+#include "../WMainWindow.h"
 #include "../../../kernel/WKernel.h"
 
 #ifndef _MSC_VER
@@ -70,10 +71,6 @@ WQtGLWidgetAll::WQtGLWidgetAll( std::string nameOfViewer, QWidget* parent, WGECa
     // create viewer
     m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
         m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
-
-    // add screen capture callback
-    m_screenCapture = new WQtGLScreenCapture();
-    m_Viewer->getCamera()->setFinalDrawCallback( m_screenCapture );
 }
 
 WQtGLWidgetAll::~WQtGLWidgetAll()
@@ -187,17 +184,6 @@ void WQtGLWidgetAll::keyReleaseEvent( QKeyEvent* event )
         case Qt::Key_2:
             setCameraManipulator( TWO_D );
             break;
-        case Qt::Key_R:
-            bool r = m_screenCapture->recordToggle();
-            if ( r )
-            {
-                WLogger::getLogger()->addLogMessage( "Recording.", "WQtGLWidgetAll(" + m_Viewer->getName() + ")", LL_INFO );
-            }
-            else
-            {
-                WLogger::getLogger()->addLogMessage( "Stopped recording.", "WQtGLWidgetAll(" + m_Viewer->getName() + ")", LL_INFO );
-            }
-            break;
     }
 
     switch( event->modifiers() )
@@ -260,5 +246,12 @@ const QGLFormat WQtGLWidgetAll::getDefaultFormat()
     QGLFormat format;
     format.setSwapInterval( 1 );    // according to Qt Doc, this should enable VSync. But it doesn't.
     return format;
+}
+
+WQtGLScreenCapture* WQtGLWidgetAll::addScreenCapture( WMainWindow* parent )
+{
+    WQtGLScreenCapture* sc = new WQtGLScreenCapture( parent );
+    getViewer()->getCamera()->setFinalDrawCallback( sc );
+    return sc;
 }
 

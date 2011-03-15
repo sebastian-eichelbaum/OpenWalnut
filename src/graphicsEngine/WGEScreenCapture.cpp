@@ -27,10 +27,13 @@
 #include "WGEScreenCapture.h"
 
 WGEScreenCapture::WGEScreenCapture():
-    m_framesToRecord( 0 ),
-    m_frame( 0 )
+    m_frame( 0 ),
+    m_recordStartCondition( WCondition::SPtr( new WCondition() ) ),
+    m_recordStopCondition( WCondition::SPtr( new WCondition() ) )
 {
     // initialize
+    WSharedObject< size_t >::WriteTicket w = m_framesLeft.getWriteTicket();
+    w->get() = 0;
 }
 
 WGEScreenCapture::~WGEScreenCapture()
@@ -38,36 +41,43 @@ WGEScreenCapture::~WGEScreenCapture()
     // cleanup
 }
 
-void WGEScreenCapture::record( size_t frames )
+void WGEScreenCapture::recordStart()
 {
-    m_framesToRecord = frames;
+    m_recordStartCondition->notify();
+    record();
 }
 
 void WGEScreenCapture::recordStop()
 {
-    m_framesToRecord = 0;
-}
-
-bool WGEScreenCapture::recordToggle()
-{
-    m_framesToRecord = m_framesToRecord ? 0 : std::numeric_limits< size_t >::max();
-    return m_framesToRecord;
+    record( 0 );
+    m_recordStopCondition->notify();
 }
 
 void WGEScreenCapture::screenshot()
 {
+    m_recordStartCondition->notify();
     record( 1 );
+}
+
+void WGEScreenCapture::record( size_t frames )
+{
+    WSharedObject< size_t >::WriteTicket w = m_framesLeft.getWriteTicket();
+    w->get() = frames;
 }
 
 bool WGEScreenCapture::isRecording()
 {
-    return m_framesToRecord;
+    WSharedObject< size_t >::ReadTicket r = m_framesLeft.getReadTicket();
+    return r->get();
 }
 
 void WGEScreenCapture::operator()( osg::RenderInfo& renderInfo ) const
 {
+    WSharedObject< size_t >::WriteTicket w = m_framesLeft.getWriteTicket();
+    size_t& framesLeft = w->get();
+
     // is there something to record?
-    if ( !m_framesToRecord )
+    if ( !framesLeft )
     {
         return;
     }
@@ -88,21 +98,21 @@ void WGEScreenCapture::operator()( osg::RenderInfo& renderInfo ) const
 
     // count frames
     m_frame++;
-    m_framesToRecord--;
+    framesLeft--;
 
     // read back buffer
     glReadBuffer( GL_BACK );
 
     /* The following code uses PBO to grab the framebuffer. This sometimes causes errors. I am not sure why. glReadPixels
-    osg::ref_ptr< osg::Image > image = new osg::Image();
+    osg::ref_ptr< osg::Image > imagePBO = new osg::Image();
     osg::BufferObject::Extensions* ext = osg::BufferObject::getExtensions( gc->getState()->getContextID(), true );
-    image->allocateImage( width, height, 1, pixelFormat, GL_UNSIGNED_BYTE );
+    imagePBO->allocateImage( width, height, 1, pixelFormat, GL_UNSIGNED_BYTE );
     if (m_pbo==0)
     {
         std::cout << "CREATE" << std::endl;
         ext->glGenBuffers( 1, &m_pbo );
         ext->glBindBuffer( GL_PIXEL_PACK_BUFFER_ARB, m_pbo );
-        ext->glBufferData( GL_PIXEL_PACK_BUFFER_ARB, image->getTotalSizeInBytes(), 0, GL_STREAM_READ );
+        ext->glBufferData( GL_PIXEL_PACK_BUFFER_ARB, imagePBO->getTotalSizeInBytes(), 0, GL_STREAM_READ );
     }
     else
     {
@@ -116,7 +126,7 @@ void WGEScreenCapture::operator()( osg::RenderInfo& renderInfo ) const
     if(src)
     {
         std::cout << "COPY" << std::endl;
-        memcpy( image->data(), src, image->getTotalSizeInBytes() );
+        memcpy( imagePBO->data(), src, imagePBO->getTotalSizeInBytes() );
         ext->glUnmapBuffer( GL_PIXEL_PACK_BUFFER_ARB );
     }
 
@@ -129,6 +139,23 @@ void WGEScreenCapture::operator()( osg::RenderInfo& renderInfo ) const
     image->readPixels( 0, 0, width, height, pixelFormat, GL_UNSIGNED_BYTE );
 
     // someone wants this image
-    handleImage( m_framesToRecord, m_frame, image );
+    handleImage( framesLeft, m_frame, image );
+
+    // no further frames? notify.
+    if ( !framesLeft )
+    {
+        m_recordStopCondition->notify();
+    }
 }
+
+WCondition::ConstSPtr WGEScreenCapture::getRecordStartCondition() const
+{
+    return m_recordStartCondition;
+}
+
+WCondition::ConstSPtr WGEScreenCapture::getRecordStopCondition() const
+{
+    return m_recordStopCondition;
+}
+
 

@@ -66,4 +66,13 @@
 // when a module connection got closed.
 #define WQT_MODULE_DISCONNECT_EVENT QEvent::User + 11
 
+// when a module connection got closed.
+#define WQT_MODULE_DISCONNECT_EVENT QEvent::User + 11
+
+// when the screencapture was started.
+#define WQT_SCREENCAPTURE_START_EVENT QEvent::User + 12
+
+// when the screencapture was stopped/done.
+#define WQT_SCREENCAPTURE_STOP_EVENT QEvent::User + 13
+
 #endif  // WEVENTTYPES_H
