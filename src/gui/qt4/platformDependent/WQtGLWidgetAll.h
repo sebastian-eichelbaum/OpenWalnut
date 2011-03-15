@@ -37,7 +37,6 @@
 
 #include "../../../graphicsEngine/WGECamera.h"
 #include "../../../graphicsEngine/WGEViewer.h"
-#include "../../../graphicsEngine/WGEScreenCapture.h"
 
 namespace osg
 {
@@ -46,6 +45,8 @@ namespace osg
 }
 
 typedef osg::Vec4 WColor;
+
+class WQtGLScreenCapture;
 
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the
@@ -234,7 +235,8 @@ private:
     /**
      * Screen capture callback of the camera of this viewer
      */
-    osg::ref_ptr< WGEScreenCapture > m_screenCapture;
+    osg::ref_ptr< WQtGLScreenCapture > m_screenCapture;
+
 };
 
 #endif  // WQTGLWIDGETALL_H

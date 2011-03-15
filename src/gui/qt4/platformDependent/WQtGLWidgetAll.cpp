@@ -27,6 +27,8 @@
 
 #include <QtGui/QKeyEvent>
 
+#include <osgDB/WriteFile>
+
 #include "WQtGLWidgetAll.h"
 
 #include "../../../common/WConditionOneShot.h"
@@ -35,6 +37,7 @@
 #include "../../../graphicsEngine/WGE2DManipulator.h"
 #include "../../../graphicsEngine/WGEViewer.h"
 #include "../../../graphicsEngine/WGEZoomTrackballManipulator.h"
+#include "../WQtGLScreenCapture.h"
 #include "../../../kernel/WKernel.h"
 
 #ifndef _MSC_VER
@@ -69,7 +72,7 @@ WQtGLWidgetAll::WQtGLWidgetAll( std::string nameOfViewer, QWidget* parent, WGECa
         m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
 
     // add screen capture callback
-    m_screenCapture = new WGEScreenCapture();
+    m_screenCapture = new WQtGLScreenCapture();
     m_Viewer->getCamera()->setFinalDrawCallback( m_screenCapture );
 }
 
@@ -185,7 +188,7 @@ void WQtGLWidgetAll::keyReleaseEvent( QKeyEvent* event )
             setCameraManipulator( TWO_D );
             break;
         case Qt::Key_R:
-            bool r = m_screenCapture->toggleRecord();
+            bool r = m_screenCapture->recordToggle();
             if ( r )
             {
                 WLogger::getLogger()->addLogMessage( "Recording.", "WQtGLWidgetAll(" + m_Viewer->getName() + ")", LL_INFO );

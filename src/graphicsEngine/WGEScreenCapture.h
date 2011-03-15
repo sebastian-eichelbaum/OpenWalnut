@@ -25,87 +25,97 @@
 #ifndef WGESCREENCAPTURE_H
 #define WGESCREENCAPTURE_H
 
+#include <limits>
+
 #include <osg/Camera>
+#include <osg/Image>
 #include <osg/RenderInfo>
-#include <osgDB/WriteFile>
-#include <osg/GLObjects>
-#include <osg/BufferObject>
 
 #include "WExportWGE.h"
 
 /**
+ * This class is a screen recorder. It records the frame buffer to files on a per-frame-basis. This class is NOT thread-safe due to performance
+ * reasons. You should not distribute the instance among multiple threads. It can be applied to <b>ONE</b> camera only by setting it as
+ * finalDrawCallback (osg::Camera::setFinalDrawCallback). Each camera can only use ONE final draw callback.
+ *
+ * This class is abstract. Derive your own class and handle image writing.
+ *
+ * \note This class does NOT write the images to disk. Set a callback for this.
+ *
  * \ingroup GE
  */
 class WGE_EXPORT WGEScreenCapture: public osg::Camera::DrawCallback
 {
 public:
-    WGEScreenCapture():
-        m_record( false ),
-        m_second( 0 ),
-        m_frame( 0 )
-    {
-    }
 
-    bool toggleRecord()
-    {
-        m_record = !m_record;
-        return m_record;
-    }
+    /**
+     * Creates a screen capture callback.
+     */
+    WGEScreenCapture();
 
-    virtual void operator () (osg::RenderInfo& renderInfo) const
-    {
-        osg::GraphicsContext* gc = renderInfo.getState()->getGraphicsContext();
-        osg::BufferObject::Extensions* ext = osg::BufferObject::getExtensions(gc->getState()->getContextID(),true);
+    /**
+     * Destructor. Cleans up.
+     */
+    virtual ~WGEScreenCapture();
 
-        // get size and color mode
-        size_t width = 0;
-        size_t height = 0;
-        GLenum pixelFormat = GL_RGB;
-        if (gc->getTraits())
-        {
-            width = gc->getTraits()->width;
-            height = gc->getTraits()->height;
-            pixelFormat = gc->getTraits()->alpha ? GL_RGBA : GL_RGB;
-        }
-        std::cout << width << "x" << height << std::endl;
+    /**
+     * Starts recording. If already recording, it continues recording.
+     *
+     * \param frames the number of frames to record. 0 means stop, 1 is a single screenshot.
+     */
+    void record( size_t frames = std::numeric_limits< size_t >::max() );
 
-        if ( !m_record )
-            return;
+    /**
+     * Stops recording. If not recording, nothing happens.
+     */
+    void recordStop();
 
-        m_frame++;
-        /*if ( m_frame >= 24 )
-        {
-            m_frame = 0;
-            m_second++;
-        }*/
+    /**
+     * Starts endless recording if not yet running. Stops recording if currently running.
+     */
+    bool recordToggle();
 
-        std::stringstream filename;
-        filename << "/home/ebaum/test_" << m_second << "-" << m_frame << ".jpg";
-        std::cout << filename.str() << std::endl;
+    /**
+     * Checks if there are frames left for recording.
+     *
+     * \return true if yes.
+     */
+    bool isRecording();
 
-        glReadBuffer( GL_BACK );
+    /**
+     * Makes a screenshot with the <b>next</b> frame. This is a shortcut for record( 1 ).
+     */
+    void screenshot();
 
-    /*if (m_pbo==0)
-    {
-        ext->glGenBuffers(1, &pbo);
-        ext->glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
-        ext->glBufferData(GL_PIXEL_PACK_BUFFER_ARB, image->getTotalSizeInBytes(), 0, GL_STREAM_READ);
+    /**
+     * The draw callback operator. Gets called by OSG in draw traversal.
+     *
+     * \param renderInfo the OSG renderinfo
+     */
+    virtual void operator()( osg::RenderInfo& renderInfo ) const;
 
-        osg::notify(osg::NOTICE)<<"Generating pbo "<<pbo<<std::endl;
-    }
-    else
-    {
-        ext->glBindBuffer(GL_PIXEL_PACK_BUFFER_ARB, pbo);
-    }
-*/
-        osg::Image* image = new osg::Image();
-        image->readPixels( 0, 0, width, height, pixelFormat, GL_UNSIGNED_BYTE );
+protected:
 
-        osgDB::writeImageFile( *image, filename.str() );
-    }
+    /**
+     * The function handles new images. Implement it.
+     *
+     * \param framesLeft how much frames to come
+     * \param totalFrames the total number of frames until now
+     * \param image the image
+     */
+    virtual void handleImage( size_t framesLeft, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const = 0;
 
-    bool m_record;
-    mutable size_t m_second;
+private:
+
+    /**
+     * The number of frames to record. If 0, nothing is recorded.
+     */
+    mutable size_t m_framesToRecord;
+
+    /**
+     * Frame counter. Incremented each frame. Must be mutable to allow the const operator() to change it.
+     */
     mutable size_t m_frame;
 };
+
 #endif  // WGESCREENCAPTURE_H
