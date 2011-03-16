@@ -37,7 +37,7 @@ WBoundaryFragments::WBoundaryFragments( boost::shared_ptr< const WDataSetScalar 
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMBoundaryCurvesWMGM", localPath ) );
 }
 
-void WBoundaryFragments::run( osg::ref_ptr< WGEManagedGroupNode > output )
+void WBoundaryFragments::run( osg::ref_ptr< WGEManagedGroupNode > output, const char /* sliceNum */ )
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_texture->getGrid() );
 

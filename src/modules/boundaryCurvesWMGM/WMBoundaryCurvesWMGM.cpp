@@ -90,9 +90,10 @@ void WMBoundaryCurvesWMGM::properties()
 
     // The slice positions. These get update externally.
     // TODO(all): this should somehow be connected to the nav slices.
-    m_slicePos[0]    = sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0 );
-    m_slicePos[1]    = sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0 );
-    m_slicePos[2]    = sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0 );
+    boost::function< void ( boost::shared_ptr< WPropertyBase > ) > callBack = boost::bind( &WMBoundaryCurvesWMGM::rerunBuilder, this, _1 ); // NOLINT extra space before (, which is not a function call
+    m_slicePos[0] = sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0, callBack );
+    m_slicePos[1] = sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0, callBack );
+    m_slicePos[2] = sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0, callBack );
 
     // since we don't know anything yet => make them unusable
     for( char i = 0; i < 3; ++i )
@@ -101,12 +102,16 @@ void WMBoundaryCurvesWMGM::properties()
         m_slicePos[i]->setMax( 0 );
     }
 
-    WPropDouble grayMatter  = m_properties->addProperty( "Gray Matter", "Isovalue specifying the Gray-Matter-CSF border.", 0.2 );
-    grayMatter->setMin( 0.0 );
-    grayMatter->setMax( 1.0 );
-    WPropDouble whiteMatter = m_properties->addProperty( "White Matter", "Isovalue specifying the White-Matter-Gray-Matter border.", 0.4 );
-    whiteMatter->setMin( 0.0 );
-    whiteMatter->setMax( 1.0 );
+    m_grayMatter  = m_properties->addProperty( "Gray Matter", "Isovalue specifying the Gray-Matter-CSF border.", 0.2, callBack );
+    m_grayMatter->setMin( 0.0 );
+    m_grayMatter->setMax( 1.0 );
+    m_whiteMatter = m_properties->addProperty( "White Matter", "Isovalue specifying the White-Matter-Gray-Matter border.", 0.4, callBack );
+    m_whiteMatter->setMin( 0.0 );
+    m_whiteMatter->setMax( 1.0 );
+
+    m_resolution = m_properties->addProperty( "Resolution", "Size of the quads, used for sampling the Iso-Lines", 1.0, callBack );
+    m_resolution->setMin( 0.25 ); // will take very very very long!!!
+    m_resolution->setMax( 3.0 );
 
     // for selecting the strategy
     boost::shared_ptr< WItemSelection > strategies( new WItemSelection() );
@@ -120,6 +125,37 @@ void WMBoundaryCurvesWMGM::properties()
 
     // call WModule's initialization
     WModule::properties();
+}
+
+void WMBoundaryCurvesWMGM::rerunBuilder( boost::shared_ptr< WPropertyBase > /* prop */ )
+{
+    boost::unique_lock< boost::mutex > lock( m_updateMutex );
+
+    // debugLog() << "Start builder rerun";
+    if( m_builder && m_output && ( m_strategySelector->get().at( 0 )->getName() == "Iso-Lines" ) )
+    {
+        // full update
+        if( m_grayMatter->changed() || m_whiteMatter->changed() || m_resolution->changed() )
+        {
+            m_grayMatter->get( true );
+            m_whiteMatter->get( true );
+            m_resolution->get( true );
+            m_builder->run( m_output );
+        }
+        else // partial slice pos update
+        {
+            for( size_t i = 0; i < 3; ++i )
+            {
+                if( m_slicePos[i]->changed() )
+                {
+                    // debugLog() << "Partial slice update: " << i;
+                    m_slicePos[i]->get( true );
+                    m_builder->run( m_output, i );
+                }
+            }
+        }
+    }
+    // debugLog() << "Stop builder rerun";
 }
 
 void WMBoundaryCurvesWMGM::moduleMain()
@@ -154,8 +190,6 @@ void WMBoundaryCurvesWMGM::moduleMain()
             continue;
         }
 
-        boost::shared_ptr< WBoundaryBuilder > builder;
-
         // get grid and prepare OSG
         boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( texture->getGrid() );
         if( grid->getNbCoordsX() > 0 && grid->getNbCoordsY() > 0 &&  grid->getNbCoordsZ() > 0 )
@@ -173,20 +207,22 @@ void WMBoundaryCurvesWMGM::moduleMain()
             std::string strategyName = m_strategySelector->get( true ).at( 0 )->getName();
             if( strategyName == "Iso-Lines" )
             {
+                m_resolution->setHidden( false );
                 infoLog() << "Using: " << strategyName << " strategy";
-                builder = boost::shared_ptr< WBoundaryBuilder >( new WBoundaryLines( texture, m_properties, &m_slices ) );
+                m_builder = boost::shared_ptr< WBoundaryBuilder >( new WBoundaryLines( texture, m_properties, &m_slices ) );
             }
             else if( strategyName == "Iso-Fragments" )
             {
+                m_resolution->setHidden();
                 infoLog() << "Using: " << strategyName << " strategy";
-                builder = boost::shared_ptr< WBoundaryBuilder >( new WBoundaryFragments( texture, m_properties, &m_slices, m_localPath ) );
+                m_builder = boost::shared_ptr< WBoundaryBuilder >( new WBoundaryFragments( texture, m_properties, &m_slices, m_localPath ) );
             }
             else
             {
                 errorLog() << "Skipping invalid strategy: " << strategyName;
                 continue;
             }
-            builder->run( m_output );
+            m_builder->run( m_output );
 
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
         }

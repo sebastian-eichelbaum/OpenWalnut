@@ -59,8 +59,9 @@ public:
      * Starts rendering and finally insert result in output.
      *
      * \param output Where to put/insert the results.
+     * \param sliceNum If given -1 all slice will perform an update, otherwise only the slice with the given slice number.
      */
-    virtual void run( osg::ref_ptr< WGEManagedGroupNode > output );
+    virtual void run( osg::ref_ptr< WGEManagedGroupNode > output, const char sliceNum = -1 );
 
 protected:
 private:

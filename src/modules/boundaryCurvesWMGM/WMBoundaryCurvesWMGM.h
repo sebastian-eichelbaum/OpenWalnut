@@ -97,6 +97,20 @@ protected:
 
 private:
     /**
+     * This is a callback for the builder, inorder to re-run if certain properties have changed.
+     * It applys only if the selected strategy is "Iso-Lines".
+     *
+     * \note We need this, since the Iso-Fragment builder does not need to be informed about those changes since the properties
+     * are directly coupled to some uniforms inside shaders.  The Iso-Lines strategy instead needs to rebuild its geodes every
+     * e.g. slice change. Of course we could have accomplish this with some logic inside moduleMain's while loop but this way the
+     * logic is simple and clear for every strategy.
+     *
+     * \param prop This is a standard parameter for the callback and not used since each builder has already access to all
+     * properties.
+     */
+    void rerunBuilder( boost::shared_ptr< WPropertyBase > prop );
+
+    /**
      * Input connector for t1 or t2 images, where the gray and white matter curves are extracted from.
      */
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_textureIC;
@@ -138,6 +152,31 @@ private:
      * List for selecting the strategy.
      */
     WPropSelection m_strategySelector;
+
+    /**
+     * Builder for graphic generation with the selected strategy.
+     */
+    boost::shared_ptr< WBoundaryBuilder > m_builder;
+
+    /**
+     * Isovalue specifying the Gray-Matter-CSF border.
+     */
+    WPropDouble m_grayMatter;
+
+    /**
+     * Isovalue specifying the White-Matter-Gray-Matter border.
+     */
+    WPropDouble m_whiteMatter;
+
+    /**
+     * Size of the quads, used for sampling the Iso-Lines.
+     */
+    WPropDouble m_resolution;
+
+    /**
+     * Used to enforce a unique access on slice updates!
+     */
+    boost::mutex m_updateMutex;
 };
 
 #endif  // WMBOUNDARYCURVESWMGM_H

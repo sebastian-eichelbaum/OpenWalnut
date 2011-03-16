@@ -57,11 +57,37 @@ public:
      * Starts rendering and finally insert result in output.
      *
      * \param output Where to put/insert the results.
+     * \param sliceNum If given -1 all slice will perform an update, otherwise only the slice with the given slice number.
      */
-    virtual void run( osg::ref_ptr< WGEManagedGroupNode > output );
+    virtual void run( osg::ref_ptr< WGEManagedGroupNode > output, const char sliceNum = -1 );
 
 protected:
 private:
+    /**
+     * Checks an edge given with two vertices if it is cutting the given isoValue, and return the position
+     * if so.
+     *
+     * \param p0 first vertex of the edge
+     * \param w0 interpolated value at the position of the first vertex
+     * \param p1 second vertex of the edge
+     * \param w1 interpolated value at the position of the second vertex
+     * \param isoValue The isovalue
+     *
+     * \return Array with just the position where the edge cuts the isovalue, or empty otherwise.
+     */
+    osg::ref_ptr< osg::Vec3Array > checkEdge( const WPosition& p0, const double w0, const WPosition& p1, const double w1,
+            const double isoValue ) const;
+
+    /**
+     * Checks each quad it its intersecting the isovalue, and return the vertices for the line segements of the isocurve.
+     *
+     * \param corners
+     * \param isoValue
+     *
+     * \return
+     */
+    osg::ref_ptr< osg::Vec3Array > checkQuad( const boost::array< WPosition, 4 >& corners, const double isoValue ) const;
+
     /**
      * Creates for each slice number the corresponding geodes for a bounding box as well
      * for the boundary curves.
@@ -100,6 +126,11 @@ private:
      * Shortcut for the WRegularGrid3D given via the m_texture dataset.
      */
     boost::shared_ptr< WGridRegular3D > m_grid;
+
+    /**
+     * Defines the size of quads to be processed for the iso curve computation.
+     */
+    WPropDouble m_resolution;
 };
 
 #endif  // WBOUNDARYLINES_H
