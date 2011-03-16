@@ -25,12 +25,12 @@
 #ifndef WGEANIMATIONMANIPULATOR_H
 #define WGEANIMATIONMANIPULATOR_H
 
-#include <iostream>
-
 #include <osgGA/MatrixManipulator>
-#include <osg/Timer>
 
-#include "WExportWGE.h"
+#include "WGEAnimationTimer.h"
+#include "WGEAnimationRealtimeTimer.h"
+
+#include "../WExportWGE.h"
 
 /**
  * New OSG manipulator: AnimationManipulator. Can play back animation paths (not osg::AnimationPath),
@@ -39,9 +39,21 @@ class WGE_EXPORT WGEAnimationManipulator: public osgGA::MatrixManipulator
 {
 public:
     /**
-     * Constructs a animation path manipulator.
+     * Convenience typedef
      */
-    WGEAnimationManipulator();
+    typedef osg::ref_ptr< WGEAnimationManipulator > RefPtr;
+
+    /**
+     * Convenience typedef
+     */
+    typedef osg::ref_ptr< const WGEAnimationManipulator > ConstRefPtr;
+
+    /**
+     * Constructs a animation path manipulator using a realtime timer if not specified.
+     *
+     * \param timer the timer type
+     */
+    WGEAnimationManipulator( WGEAnimationTimer::ConstSPtr timer = WGEAnimationTimer::ConstSPtr( new WGEAnimationRealtimeTimer() ) );
 
     /**
      * Destructor.
@@ -108,9 +120,16 @@ public:
     /**
      * Sets the animation callback to a certain time.
      *
-     * \param currentTime the time to which the manipulator should be set-
+     * \param currentTime the time to which the manipulator should be set.
      */
     virtual void home( double currentTime );
+
+    /**
+     * Allows to switch the timer type. It continues animation at the current timer position.
+     *
+     * \param timer the timer
+     */
+    virtual void setTimer( WGEAnimationTimer::ConstSPtr timer );
 
 private:
 
@@ -120,14 +139,24 @@ private:
     osg::Matrixd m_matrix;
 
     /**
-     * This timer keeps track of the current time.
+     * This timer keeps track of the current animation-time.
      */
-    osg::Timer m_timer;
+    WGEAnimationTimer::ConstSPtr m_timer;
+
+    /**
+     * If home() is called, the homeOffsetTime stores the timers current value.
+     */
+    double m_homeOffsetTime;
 
     /**
      * This method updates m_matrix per frame according to time elapsed.
      */
     void handleFrame();
+
+    /**
+     * If true, the animation is suspended.
+     */
+    bool m_paused;
 };
 
 #endif  // WGEANIMATIONMANIPULATOR_H

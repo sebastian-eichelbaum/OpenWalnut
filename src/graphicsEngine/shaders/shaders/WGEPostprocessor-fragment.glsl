@@ -649,16 +649,16 @@ vec4 getGGGColor( vec2 where )
 
 vec4 getDOF( vec2 where )
 {
-    float targetDepth = getDepth( (gl_TextureMatrix[0] * vec4( 0.5, 0.5, 0.0, 0.0 ) ).xy );
+    float targetDepth = getDepth( ( gl_TextureMatrix[0] * vec4( 0.5, 0.5, 0.0, 0.0 ) ).xy );
 
     float focalDistance = targetDepth;
     float focalRange = 0.1;
 
-    float blur = clamp( abs( getDepth( where ) - focalDistance ) / focalRange, 0.0, 1.0);
+    float blur = clamp( abs( getDepth( where ) - focalDistance ) / focalRange, 0.0, 1.0 );
     vec4 gCol = getGGGColor( where );
     vec4 col = getColor( where );
 
-    float fadeOut = getDepthFading(where );
+    float fadeOut = getDepthFading( where );
     return vec4( fadeOut * mix( col.rgb, gCol.rgb, blur ), 1.0 );
 }
 

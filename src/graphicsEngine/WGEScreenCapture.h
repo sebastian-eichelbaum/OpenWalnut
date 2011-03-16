@@ -27,12 +27,17 @@
 
 #include <limits>
 
+#include <boost/signals2.hpp>
+#include <boost/function.hpp>
+
 #include <osg/Camera>
 #include <osg/Image>
 #include <osg/RenderInfo>
 
 #include "../common/WSharedObject.h"
 #include "../common/WCondition.h"
+
+#include "animation/WGEAnimationFrameTimer.h"
 
 #include "WExportWGE.h"
 
@@ -57,12 +62,28 @@ public:
     {
         size_t m_frames;        //!< current number of frames.
         size_t m_framesLeft;    //!< the frames to take until stop.
-    } RecordingInformation;
+    }
+    RecordingInformation;
 
     /**
      * The shared access type to the FrameCounting struct.
      */
     typedef WSharedObject< RecordingInformation > SharedRecordingInformation;
+
+    /**
+     * Convenience typedef
+     */
+    typedef osg::ref_ptr< WGEScreenCapture > RefPtr;
+
+    /**
+     * Convenience typedef
+     */
+    typedef osg::ref_ptr< const WGEScreenCapture > ConstRefPtr;
+
+    /**
+     * This callback signature is needed to subscribe to the handleImage signal.
+     */
+    typedef boost::function< void( size_t, size_t, osg::ref_ptr< osg::Image > ) > HandleImageCallbackType;
 
     /**
      * Creates a screen capture callback.
@@ -106,7 +127,7 @@ public:
      *
      * \param renderInfo the OSG renderinfo
      */
-    virtual void operator()( osg::RenderInfo& renderInfo ) const;
+    virtual void operator()( osg::RenderInfo& renderInfo ) const;   // NOLINT - osg wants this to be a non-const reference
 
     /**
      * The condition returned here is actually the change condition of the frame counter. This can be used to update GUI or something as it
@@ -123,6 +144,22 @@ public:
      */
     SharedRecordingInformation::ReadTicket getRecordingInformation() const;
 
+    /**
+     * Returns a timer getting ticked on each recorded frame. This can then be used for animations for example.
+     *
+     * \return the timer.
+     */
+    WGEAnimationFrameTimer::ConstSPtr getFrameTimer() const;
+
+    /**
+     * Subscribes a specified function to the new-image-signal. This gets emitted every time a new image was grabbed.
+     *
+     * \param callback the callback
+     *
+     * \return the connection.
+     */
+    boost::signals2::connection subscribeSignal( HandleImageCallbackType callback );
+
 protected:
 
     /**
@@ -132,7 +169,7 @@ protected:
      * \param totalFrames the total number of frames until now
      * \param image the image
      */
-    virtual void handleImage( size_t framesLeft, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const = 0;
+    virtual void handleImage( size_t framesLeft, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const;
 
     /**
      * Starts recording. If already recording, it continues recording.
@@ -147,6 +184,21 @@ private:
      * Counts the frames to take.
      */
     SharedRecordingInformation m_recordingInformation;
+
+    /**
+     * The frame timer. Ticket on each recorded frame.
+     */
+    WGEAnimationFrameTimer::SPtr m_timer;
+
+    /**
+     * The type of the signal for handleSignal.
+     */
+    typedef boost::signals2::signal< void( size_t, size_t, osg::ref_ptr< osg::Image > ) > HandleImageSignalType;
+
+    /**
+     * The signal emitted on every new grabbed image.
+     */
+    HandleImageSignalType m_signalHandleImage;
 };
 
 #endif  // WGESCREENCAPTURE_H

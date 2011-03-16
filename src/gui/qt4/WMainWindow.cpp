@@ -130,7 +130,7 @@ void WMainWindow::setupGUI()
     m_controlPanel->addSubject( "Default Subject" );
 
     m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
-    m_mainGLWidgetScreenCapture = m_mainGLWidget->addScreenCapture( this );
+    m_mainGLWidgetScreenCapture = m_mainGLWidget->getScreenCapture( this );
     setCentralWidget( m_mainGLWidget.get() );
 
     m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
@@ -1081,5 +1081,18 @@ void WMainWindow::saveWindowState()
     setting.setValue( "MainWindowState", state );
     // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
     setting.setValue( "MainWindowGeometry", saveGeometry() );
+}
+
+void WMainWindow::forceMainGLWidgetSize( size_t w, size_t h )
+{
+    m_mainGLWidget->setFixedSize( w, h );
+}
+
+void WMainWindow::restoreMainGLWidgetSize()
+{
+    m_mainGLWidget->setMinimumHeight( 250 );
+    m_mainGLWidget->setMaximumHeight( QWIDGETSIZE_MAX );
+    m_mainGLWidget->setMinimumWidth( 250 );
+    m_mainGLWidget->setMaximumWidth( QWIDGETSIZE_MAX );
 }
 

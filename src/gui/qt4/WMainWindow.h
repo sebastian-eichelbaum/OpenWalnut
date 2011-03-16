@@ -138,6 +138,19 @@ public:
      */
     WQtCombinerToolbar* getCompatiblesToolbar();
 
+    /**
+     * Forces the main gl widget to have the desired size. This is mainly useful for screenshots and similar.
+     *
+     * \param w width
+     * \param h height
+     */
+    void forceMainGLWidgetSize( size_t w, size_t h );
+
+    /**
+     * Restores the main GL widget size if it was fixed with forceMainGLWidgetSize() previously.
+     */
+    void restoreMainGLWidgetSize();
+
 protected:
 
     /**
@@ -340,7 +353,6 @@ private:
      * Saves the current window states and geometries to a file.
      */
     void saveWindowState();
-
 };
 
 #endif  // WMAINWINDOW_H

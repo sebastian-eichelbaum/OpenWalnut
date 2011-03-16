@@ -34,12 +34,13 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
+#include <QtGui/QComboBox>
 
 #include <osg/Camera>
 #include <osg/Image>
 #include <osg/RenderInfo>
 
-#include "../../graphicsEngine/WGEScreenCapture.h"
+#include "../../graphicsEngine/WGEViewer.h"
 
 #include "WIconManager.h"
 
@@ -48,16 +49,18 @@ class WMainWindow;
 /**
  * This class is a screen recorder adapter in QT. It uses WGEScreenCapture and provides a nice widget around it.
  */
-class WQtGLScreenCapture: public QDockWidget,
-                          public WGEScreenCapture
+class WQtGLScreenCapture: public QDockWidget
 {
     Q_OBJECT
 public:
 
     /**
-     * Creates a screen capture callback.
+     * Creates screen capture gui for the specified capture callback of a certain view.
+     *
+     * \param viewer the viewer to control
+     * \param parent the parent
      */
-    explicit WQtGLScreenCapture( WMainWindow* parent );
+    WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* parent );
 
     /**
      * Destructor. Cleans up.
@@ -65,16 +68,6 @@ public:
     virtual ~WQtGLScreenCapture();
 
 protected:
-
-    /**
-     * The function handles new images. Implement it.
-     *
-     * \param framesLeft how much frames to come
-     * \param totalFrames the total number of frames until now
-     * \param image the image
-     */
-    virtual void handleImage( size_t framesLeft, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const;
-
     /**
      * Custom event dispatcher. Gets called by QT's Event system every time an event got sent to this widget. This event handler
      * processes several custom events, like WModuleAssocEvent.
@@ -108,7 +101,45 @@ private slots:
      */
     void resetFrames();
 
+    /**
+     * Slot triggered by m_animationPlayButton.
+     */
+    void playAnim();
+
+    /**
+     * Slot triggered by m_animationStopButton.
+     */
+    void stopAnim();
+
+    /**
+     * Slot triggered by m_animationRecButton.
+     */
+    void recAnim();
+
+    /**
+     * Someone changed the open tab in the toolbox.
+     *
+     * \param index the new index
+     */
+    void toolBoxChanged( int index );
+
+    /**
+     * Changes resolution of gl widget.
+     *
+     * \param force if true, the resolution is set. If not, it gets restored.
+     */
+    void resolutionChange( bool force );
+
 private:
+    /**
+     * My parent.
+     */
+    WMainWindow* m_mainWindow;
+
+    /**
+     * The actual screen capture instance.
+     */
+    WGEViewer::SPtr m_viewer;
 
     /**
      * Called by the screencapture callback to notify this widget about recording
@@ -116,9 +147,23 @@ private:
     void recCallback();
 
     /**
+     * The function handles new images. Implement it.
+     *
+     * \param framesLeft how much frames to come
+     * \param totalFrames the total number of frames until now
+     * \param image the image
+     */
+    void handleImage( size_t framesLeft, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const;
+
+    /**
      * Recording - callback connection
      */
     boost::signals2::connection m_recordConnection;
+
+    /**
+     * New image incoming - callback connection to handleImage.
+     */
+    boost::signals2::connection m_imageConnection;
 
     /**
      * The toolbox containing all the stuff
@@ -172,6 +217,36 @@ private:
 
     QPushButton* m_movieRecButton;  //!< record button
     QPushButton* m_movieStopButton;  //!< stop button
+
+    /**
+     * The widget containing all the animation options and buttons.
+     */
+    QWidget* m_animationWidget;
+
+    /**
+     * Plays the current animation.
+     */
+    QPushButton* m_animationPlayButton;
+
+    /**
+     * Stops animation playback/record
+     */
+    QPushButton* m_animationStopButton;
+
+    /**
+     * Records the animated scene as movie.
+     */
+    QPushButton* m_animationRecButton;
+
+    /**
+     * File containing the animation.
+     */
+    QLineEdit* m_animationFileEdit;
+
+    /**
+     * Stores the resolution the user wants to have.
+     */
+    QComboBox* m_resolutionCombo;
 };
 
 #endif  // WQTGLSCREENCAPTURE_H

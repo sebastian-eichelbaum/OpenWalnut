@@ -88,7 +88,7 @@ public:
      */
     enum CameraManipulators
     {
-        TRACKBALL, TWO_D, ANIMATOR
+        TRACKBALL, TWO_D
     };
 
     /**
@@ -126,12 +126,12 @@ public:
     static const QGLFormat getDefaultFormat();
 
     /**
-     * Adds a screen capture instance to the view's camera and returns it.
+     * Adds a screen capture dock using this view's screen capture callback.
      *
      * \param parent the main window parent
-     * \return the capture instance.
+     * \return the capture dock instance.
      */
-    WQtGLScreenCapture* addScreenCapture( WMainWindow* parent );
+    WQtGLScreenCapture* getScreenCapture( WMainWindow* parent );
 
 public slots:
     /**

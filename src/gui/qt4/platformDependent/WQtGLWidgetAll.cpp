@@ -37,7 +37,6 @@
 #include "../../../graphicsEngine/WGE2DManipulator.h"
 #include "../../../graphicsEngine/WGEViewer.h"
 #include "../../../graphicsEngine/WGEZoomTrackballManipulator.h"
-#include "../../../graphicsEngine/WGEAnimationManipulator.h"
 #include "../WQtGLScreenCapture.h"
 #include "../WMainWindow.h"
 #include "../../../kernel/WKernel.h"
@@ -96,13 +95,6 @@ void WQtGLWidgetAll::setCameraManipulator( WQtGLWidgetAll::CameraManipulators ma
                                                  LL_DEBUG );
 
             m_Viewer->setCameraManipulator( new( WGE2DManipulator ) );
-            break;
-        case ANIMATOR:
-            WLogger::getLogger()->addLogMessage( "Switched to OSG manipulator \"WGEAnimationManipulator\".",
-                                                 "WQtGLWidgetAll(" + m_Viewer->getName() + ")",
-                                                 LL_DEBUG );
-
-            m_Viewer->setCameraManipulator( new( WGEAnimationManipulator ) );
             break;
         case TRACKBALL:
         default:
@@ -192,9 +184,6 @@ void WQtGLWidgetAll::keyReleaseEvent( QKeyEvent* event )
         case Qt::Key_2:
             setCameraManipulator( TWO_D );
             break;
-        case Qt::Key_3:
-            setCameraManipulator( ANIMATOR );
-            break;
     }
 
     switch( event->modifiers() )
@@ -259,10 +248,9 @@ const QGLFormat WQtGLWidgetAll::getDefaultFormat()
     return format;
 }
 
-WQtGLScreenCapture* WQtGLWidgetAll::addScreenCapture( WMainWindow* parent )
+WQtGLScreenCapture* WQtGLWidgetAll::getScreenCapture( WMainWindow* parent )
 {
-    WQtGLScreenCapture* sc = new WQtGLScreenCapture( parent );
-    getViewer()->getCamera()->setFinalDrawCallback( sc );
+    WQtGLScreenCapture* sc = new WQtGLScreenCapture( getViewer(), parent );
     return sc;
 }
 

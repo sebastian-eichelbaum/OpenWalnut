@@ -40,9 +40,10 @@
 
 #include "WQtGLScreenCapture.h"
 
-WQtGLScreenCapture::WQtGLScreenCapture( WMainWindow* parent ):
+WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* parent ):
     QDockWidget( "Animation", parent ),
-    WGEScreenCapture(),
+    m_mainWindow( parent ),
+    m_viewer( viewer ),
     m_iconManager( parent->getIconManager() )
 {
     // initialize
@@ -53,6 +54,7 @@ WQtGLScreenCapture::WQtGLScreenCapture( WMainWindow* parent ):
 
     m_toolbox = new QToolBox( this );
     setWidget( m_toolbox );
+    connect( m_toolbox, SIGNAL( currentChanged( int ) ), this, SLOT( toolBoxChanged( int ) ) );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // common config tools
@@ -73,11 +75,28 @@ WQtGLScreenCapture::WQtGLScreenCapture( WMainWindow* parent ):
     frameCounterGroupLayout->addWidget( m_configFrameLabel );
     frameCounterGroupLayout->addWidget( m_configFrameResetButton );
 
+    QGroupBox* resolutionGroup = new QGroupBox( "Resolution" );
+    QGridLayout* resolutionGroupLayout = new QGridLayout();
+    resolutionGroup->setLayout( resolutionGroupLayout );
+
+    m_resolutionCombo = new QComboBox();
+    m_resolutionCombo->addItem( "640x480" );
+    m_resolutionCombo->addItem( "800x600" );
+    m_resolutionCombo->addItem( "1024x768" );
+    m_resolutionCombo->addItem( "1280x1024" );
+    m_resolutionCombo->addItem( "1280x720 (720p)" );
+    m_resolutionCombo->addItem( "1920x1080 (1080p)" );
+
+    QPushButton* resolutionButton = new QPushButton( "Set" );
+    resolutionButton->setCheckable( true );
+    resolutionGroupLayout->addWidget( m_resolutionCombo, 0, 0 );
+    resolutionGroupLayout->addWidget( resolutionButton, 0, 1 );
+    connect( resolutionButton, SIGNAL( toggled( bool ) ), this, SLOT( resolutionChange( bool ) ) );
+
     // filename config
     QGroupBox* fileGroup = new QGroupBox( "Output Files" );
     QVBoxLayout* fileGroupLayout = new QVBoxLayout();
     fileGroup->setLayout( fileGroupLayout );
-
 
     QLabel* configFileHint = new QLabel();
     configFileHint->setWordWrap( true );
@@ -94,6 +113,7 @@ WQtGLScreenCapture::WQtGLScreenCapture( WMainWindow* parent ):
     fileGroupLayout->addWidget( m_configFileEdit );
 
     // add the groups
+    configLayout->addWidget( resolutionGroup );
     configLayout->addWidget( frameCounterGroup );
     configLayout->addWidget( fileGroup );
 
@@ -147,6 +167,51 @@ WQtGLScreenCapture::WQtGLScreenCapture( WMainWindow* parent ):
     movieLayout->addWidget( m_movieRecButton );
     movieLayout->addWidget( m_movieStopButton );
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // animation tools
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    m_animationWidget = new QWidget();
+    QVBoxLayout* animationLayout = new QVBoxLayout();
+    m_animationWidget->setLayout( animationLayout );
+
+
+    QGroupBox* animationControlGroup = new QGroupBox( "Animation Control" );
+    QGridLayout* animationControlGroupLayout = new QGridLayout();
+    animationControlGroup->setLayout( animationControlGroupLayout );
+
+    m_animationPlayButton = new QPushButton( "Play" );
+    connect( m_animationPlayButton, SIGNAL(  clicked( bool ) ), this, SLOT( playAnim() ) );
+
+    m_animationRecButton = new QPushButton( "Record" );
+    connect( m_animationRecButton, SIGNAL(  clicked( bool ) ), this, SLOT( recAnim() ) );
+
+    m_animationStopButton = new QPushButton( "Stop" );
+    connect( m_animationStopButton, SIGNAL(  clicked( bool ) ), this, SLOT( stopAnim() ) );
+
+    animationControlGroupLayout->addWidget( m_animationPlayButton, 1, 0 );
+    animationControlGroupLayout->addWidget( m_animationRecButton, 1, 1 );
+    animationControlGroupLayout->addWidget( m_animationStopButton, 1, 2 );
+
+    QGroupBox* animationFileGroup = new QGroupBox( "Animation Script" );
+    QVBoxLayout* animationFileGroupLayout = new QVBoxLayout();
+    animationFileGroup->setLayout( animationFileGroupLayout );
+    QLabel* animationFileLabel = new QLabel();
+    animationFileLabel->setText( "Animation Script:" );
+    m_animationFileEdit = new QLineEdit();
+    m_animationFileEdit->setText( QDir::homePath() + QDir::separator() + "Animation.owanim" );
+
+    animationFileGroupLayout->addWidget( animationFileLabel );
+    animationFileGroupLayout->addWidget( m_animationFileEdit );
+
+    // plug it into the layout
+    animationLayout->addWidget( animationFileGroup );
+    animationLayout->addWidget( animationControlGroup );
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // plug it together
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // this forces the elements to be initialized properly
     QCoreApplication::postEvent( this, new QEvent( static_cast< QEvent::Type >( WQT_SCREENCAPTURE_EVENT ) ) );
 
@@ -154,16 +219,18 @@ WQtGLScreenCapture::WQtGLScreenCapture( WMainWindow* parent ):
     m_toolbox->insertItem( 0, m_configWidget, m_iconManager->getIcon( "preferences" ), "Configuration" );
     m_toolbox->insertItem( 1, m_screenshotWidget, m_iconManager->getIcon( "image" ), "Screenshot" );
     m_toolbox->insertItem( 2, m_movieWidget, m_iconManager->getIcon( "video" ), "Movie" );
-    m_toolbox->insertItem( 3, NULL, m_iconManager->getIcon( "video" ), "Animation" );
+    m_toolbox->insertItem( 3, m_animationWidget, m_iconManager->getIcon( "video" ), "Animation" );
 
     // we need to be notified about the screen grabbers state
-    m_recordConnection = getRecordCondition()->subscribeSignal( boost::bind( &WQtGLScreenCapture::recCallback, this ) );
+    m_recordConnection = m_viewer->getScreenCapture()->getRecordCondition()->subscribeSignal( boost::bind( &WQtGLScreenCapture::recCallback, this ) );
+    m_imageConnection = m_viewer->getScreenCapture()->subscribeSignal( boost::bind( &WQtGLScreenCapture::handleImage, this, _1, _2, _3 ) );
 }
 
 WQtGLScreenCapture::~WQtGLScreenCapture()
 {
     // cleanup
     m_recordConnection.disconnect();
+    m_imageConnection.disconnect();
 }
 
 void WQtGLScreenCapture::handleImage( size_t /* framesLeft */, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const
@@ -174,7 +241,8 @@ void WQtGLScreenCapture::handleImage( size_t /* framesLeft */, size_t totalFrame
     {
         filename.replace( pos, 2, boost::lexical_cast< std::string >( totalFrames ) );
     }
-    // wlog::info( "WQtGLScreenCapture" ) << "Writing frame " << totalFrames << " to " << filename;
+
+    wlog::info( "WQtGLScreenCapture" ) << "Writing frame " << totalFrames << " to " << filename;
     osgDB::writeImageFile( *image, filename );
 }
 
@@ -184,7 +252,7 @@ bool WQtGLScreenCapture::event( QEvent* event )
     if( event->type() == WQT_SCREENCAPTURE_EVENT )
     {
         // grab the needed info
-        WGEScreenCapture::SharedRecordingInformation::ReadTicket r = getRecordingInformation();
+        WGEScreenCapture::SharedRecordingInformation::ReadTicket r = m_viewer->getScreenCapture()->getRecordingInformation();
         size_t frame = r->get().m_frames;
         size_t framesLeft = r->get().m_framesLeft;
         r.reset();
@@ -221,29 +289,102 @@ bool WQtGLScreenCapture::event( QEvent* event )
 
 void WQtGLScreenCapture::screenShot()
 {
-    screenshot();
+    m_viewer->getScreenCapture()->screenshot();
 }
 
 void WQtGLScreenCapture::startRec()
 {
     wlog::info( "WQtGLScreenCapture" ) << "Started recording.";
-    recordStart();
+    m_viewer->getScreenCapture()->recordStart();
 }
 
 void WQtGLScreenCapture::stopRec()
 {
     wlog::info( "WQtGLScreenCapture" ) << "Stopped recording.";
-    recordStop();
+    m_viewer->getScreenCapture()->recordStop();
 }
 
 void WQtGLScreenCapture::resetFrames()
 {
     wlog::info( "WQtGLScreenCapture" ) << "Resetting frame-counter.";
-    resetFrameCounter();
+    m_viewer->getScreenCapture()->resetFrameCounter();
 }
 
 void WQtGLScreenCapture::recCallback()
 {
     QCoreApplication::postEvent( this, new QEvent( static_cast< QEvent::Type >( WQT_SCREENCAPTURE_EVENT ) ) );
+}
+
+void WQtGLScreenCapture::playAnim()
+{
+    wlog::info( "WQtGLScreenCapture" ) << "Starting animation playback.";
+}
+
+void WQtGLScreenCapture::stopAnim()
+{
+    wlog::info( "WQtGLScreenCapture" ) << "Stoping animation playback.";
+    m_viewer->getScreenCapture()->recordStop();
+    WGEAnimationManipulator::RefPtr anim = m_viewer->animationMode();
+    anim->home( 0 );
+}
+
+void WQtGLScreenCapture::recAnim()
+{
+    wlog::info( "WQtGLScreenCapture" ) << "Starting animation record.";
+
+    // NOTE: this needs some tuning. This is not really thread-safe
+    WGEAnimationManipulator::RefPtr anim = m_viewer->animationMode();
+    anim->setTimer( m_viewer->getScreenCapture()->getFrameTimer() );
+    anim->home( 0 );
+    m_viewer->getScreenCapture()->recordStart();
+}
+
+void WQtGLScreenCapture::toolBoxChanged( int index )
+{
+    if ( index != 3 )
+    {
+        wlog::info( "WQtGLScreenCapture" ) << "Deactivating animation mode.";
+        m_viewer->animationMode( false );
+        return;
+    }
+
+    wlog::info( "WQtGLScreenCapture" ) << "Activating animation mode.";
+    m_viewer->animationMode();
+}
+
+void WQtGLScreenCapture::resolutionChange( bool force )
+{
+    if ( force )
+    {
+        wlog::debug( "WQtGLScreenCapture" ) << "Forcing resolution";
+
+        // TODO(ebaum): this magic number stuff is ugly.
+        switch( m_resolutionCombo->currentIndex() )
+        {
+        case 0:
+            m_mainWindow->forceMainGLWidgetSize( 640, 480 );
+            break;
+        case 1:
+            m_mainWindow->forceMainGLWidgetSize( 800, 600 );
+            break;
+        case 2:
+            m_mainWindow->forceMainGLWidgetSize( 1024, 768 );
+            break;
+        case 3:
+            m_mainWindow->forceMainGLWidgetSize( 1280, 1024 );
+            break;
+        case 4:
+            m_mainWindow->forceMainGLWidgetSize( 1280, 720 );
+            break;
+        case 5:
+            m_mainWindow->forceMainGLWidgetSize( 1920, 1080 );
+            break;
+        }
+    }
+    else
+    {
+        wlog::debug( "WQtGLScreenCapture" ) << "Restoring resolution";
+        m_mainWindow->restoreMainGLWidgetSize();
+    }
 }
 
