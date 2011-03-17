@@ -236,10 +236,20 @@ WQtGLScreenCapture::~WQtGLScreenCapture()
 void WQtGLScreenCapture::handleImage( size_t /* framesLeft */, size_t totalFrames, osg::ref_ptr< osg::Image > image ) const
 {
     std::string filename = m_configFileEdit->text().toStdString();
+    std::ostringstream ss;
+
+    // this allows 999999 frames -> over 11h of movie material -> should be enough
+    ss.setf( std::ios::right, std::ios::adjustfield );
+    ss.setf( std::ios::fixed, std::ios::floatfield );
+    ss.precision( 6 );
+    ss.width( 6 );
+    ss.fill( '0' );
+    ss << totalFrames;
+
     size_t pos;
     while ( ( pos = filename.find( "%#" ) ) != std::string::npos )
     {
-        filename.replace( pos, 2, boost::lexical_cast< std::string >( totalFrames ) );
+        filename.replace( pos, 2, ss.str() );
     }
 
     wlog::info( "WQtGLScreenCapture" ) << "Writing frame " << totalFrames << " to " << filename;

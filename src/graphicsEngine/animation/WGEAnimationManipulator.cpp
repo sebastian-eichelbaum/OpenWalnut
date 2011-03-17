@@ -25,6 +25,9 @@
 #include <cmath>
 #include <iostream>
 
+#include "../../common/math/WMath.h"
+#include "../../common/math/WVector3D.h"
+
 #include "WGEAnimationTimer.h"
 
 #include "WGEAnimationManipulator.h"
@@ -103,34 +106,252 @@ void WGEAnimationManipulator::setTimer( WGEAnimationTimer::ConstSPtr timer )
     home( 0 );
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 double degToRad( double deg )
 {
-    const double PI = 3.14159265;
-    return ( deg * PI / 180.0 );
+    return deg * ( piDouble / 180.0 );
 }
+
+double radToDeg( double rad )
+{
+    return rad * ( 180.0 / piDouble );
+}
+
+template < typename T >
+T sign( T value )
+{
+    if ( value > T( 0 ) )
+    {
+        return 1;
+    }
+    if ( value < T( 0 ) )
+    {
+        return -1;
+    }
+    return T( 0 );
+}
+
+template < typename T >
+T positive( T value )
+{
+    return value > T( 0 ) ? 1 : 0;
+}
+
+/**
+ * Function which smooths the given value. It uses the cos function to do it. If the value is larger than the maximum, maximum is returned. If
+ * value is smaller then min, min is returned. In between, the function looks like $$cos( pi + x )$$ with $$x \in [0, pi]$$.
+ *
+ * \param value the value.
+ * \param min minimum, used for clamping.
+ * \param max maximum, used for clamping.
+ *
+ * \return
+ */
+double smooth( double value, double min, double max )
+{
+    if ( value >= max )
+    {
+        return max;
+    }
+    if ( value < min )
+    {
+        return min;
+    }
+
+    double scaledValue = ( value - min ) / max;
+    return min + max * ( 0.5 * ( 1.0 + cos( piDouble + ( scaledValue * piDouble ) ) ) );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Transformators
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class Transformation: public osg::Matrixd       // NOTE: yes this is a bad idea since osg::Matrixd does not provide a virtual destructor.
+{
+public:
+    /**
+     * The time in seconds when this transformation is finished.
+     *
+     * \return finish time in seconds.
+     */
+    virtual double finish() const
+    {
+        return m_finishTime;
+    }
+
+    /**
+     * The time in seconds this transformation is running.
+     *
+     * \return duration in seconds
+     */
+    virtual double duration() const
+    {
+        return m_duration;
+    }
+
+    /**
+     * Vector representing the X axe
+     */
+    static WVector3D axeX;
+
+    /**
+     * Vector representing the Y axe
+     */
+    static WVector3D axeY;
+
+    /**
+     * Vector representing the Z axe
+     */
+    static WVector3D axeZ;
+
+protected:
+    /**
+     * The time this is finished.
+     */
+    double m_finishTime;
+
+    /**
+     * Duration time.
+     */
+    double m_duration;
+};
+
+// Initialize the statics
+WVector3D Transformation::axeX = WVector3D( 1.0, 0.0, 0.0 );
+WVector3D Transformation::axeY = WVector3D( 0.0, 1.0, 0.0 );
+WVector3D Transformation::axeZ = WVector3D( 0.0, 0.0, 1.0 );
+
+/**
+ * Provides a time dependent rotation around a specified axis.
+ */
+class Rotator: public Transformation
+{
+public:
+    /**
+     * Create a rotation matrix which rotates a certain number of degree with a given speed. This means, that the time interval is defined by speed
+     * and degree.
+     *
+     * \param degree rotate this number of degree
+     * \param speed  rotation speed in degree per second
+     * \param time   current time in seconds
+     * \param startTime time offset. When to start rotation
+     * \param axes the axes to rotate
+     *
+     * \return the rotation matrix at the current time.
+     */
+    Rotator( double time, double startTime, WVector3D axes, double degree, double speed ):
+        Transformation()
+    {
+        m_duration = degree / speed;
+        m_finishTime = startTime + m_duration;
+
+        double rtime = positive( time - startTime ) * ( time - startTime );
+        double rangle = smooth( speed * rtime, 0.0, degree );
+        makeRotate( degToRad( rangle ), axes[0], axes[1], axes[2] );
+    }
+};
+
+/**
+ * Provides a comfortable zoomer lens.
+ */
+class Zoomer: public Transformation
+{
+public:
+    /**
+     * Zooms the scene with the given factor. This is a scaling on all axes. A factor < 1.0 is zooming out. A factor > 1.0 is zooming in.
+     * Negative values are handled by their absolute value.
+     *
+     * \param time current time
+     * \param startTime when to start the transformation
+     * \param factor zooming factor.
+     * \param speed the speed in zoom / second
+     */
+    Zoomer( double time, double startTime, double factor, double speed ):
+        Transformation()
+    {
+        // get a scaling factor
+        double zfactor = abs( factor );
+        if ( factor < 1.0 )
+        {
+            zfactor = 1.0 / factor;
+        }
+        zfactor -= 1.0;
+
+        m_duration = zfactor / speed;
+        m_finishTime = startTime + m_duration;
+
+        double rtime = time - startTime;
+        double sfactor = 1.0 + smooth( ( speed * rtime ), 0.0, zfactor );
+
+        if ( factor < 1.0 )
+        {
+            makeScale( 1.0 / sfactor, 1.0 / sfactor, 1.0 / sfactor );
+        }
+        else
+        {
+            makeScale( sfactor, sfactor, sfactor );
+        }
+    }
+};
+
+/**
+ * Provides a time-dependent translation.
+ */
+class Translator: public Transformation
+{
+public:
+    /**
+     * Translates the scene using the given direction. The speed is given as units per second.
+     *
+     * \param time current time
+     * \param startTime the time when to start the transformation
+     * \param direction the direction. Length is important here.
+     * \param speed speed in direction-vector per second
+     */
+    Translator( double time, double startTime, WVector3D direction, double speed ):
+        Transformation()
+    {
+        m_duration = 1.0 / speed;
+        m_finishTime = startTime + m_duration;
+
+        double rtime = time - startTime;
+        double scaler = smooth( speed * rtime, 0.0, 1.0 );
+        makeTranslate( direction * scaler );
+    }
+};
 
 void WGEAnimationManipulator::handleFrame()
 {
-    const double PI = 3.14159265;
 
     // calculate the proper sec:frame coordinate:
 
     // time in seconds, it always relates to a 24 frames per second system
     double elapsed = m_timer->elapsed() - m_homeOffsetTime;
 
-    double aSpeed = 22.5;   // 45.0 degree per second
-    double angle = degToRad( aSpeed * elapsed );
-
     // this brings the BBox to the center, makes it larger and rotates the front towards the camera
-    osg::Matrixd mBBScale = osg::Matrixd::scale( 1.75, 1.75, 1.75 );
+    osg::Matrixd mBBScale     = osg::Matrixd::scale( 1.75, 1.75, 1.75 );
     osg::Matrixd mBBTranslate = osg::Matrixd::translate( -159.0 / 2.0, -199.0 / 2.0, -159.0 / 2.0 );
-    osg::Matrixd mBBRotate =  osg::Matrixd::rotate( -PI / 2.0, 1.0, 0.0, 0.0 ) *
-                              osg::Matrixd::rotate(  PI, 0.0, 1.0, 0.0 );
+    osg::Matrixd mBBRotate    = osg::Matrixd::rotate( -piDouble / 2.0, 1.0, 0.0, 0.0 ) *
+                                osg::Matrixd::rotate(  piDouble, 0.0, 1.0, 0.0 );
 
-    osg::Matrixd m1 = osg::Matrixd::rotate( angle, 1.0, 0.0, 0.0 );
-    osg::Matrixd m2 = osg::Matrixd::rotate( angle, 0.0, 1.0, 0.0 );
+    // construct the animation here.
+    Rotator rotateToBack =          Rotator( elapsed, 0.0, Transformation::axeY, 360.0, 22.5 );
+    Rotator rotateToBottom =        Rotator( elapsed, rotateToBack.finish() - 3.0, -1.0 * Transformation::axeX, 15.0, 5.0 );
+    Zoomer  zoomToIrgendwas =        Zoomer( elapsed, rotateToBottom.finish() - 2.0, 2.0, 0.25 );
+    Translator translateABitUp = Translator( elapsed, rotateToBottom.finish() - 2.0, Transformation::axeY * 90.0, 0.25 );
 
+    Zoomer  zoomToNaus =             Zoomer( elapsed, translateABitUp.finish() + 5.0, 0.1, 2.0 );
+    Zoomer  zoomToNei =              Zoomer( elapsed, zoomToNaus.finish(), 10.0, 2.0 );
 
-    m_matrix = mBBTranslate * mBBScale *mBBRotate * m2;
+    m_matrix = mBBTranslate * mBBScale * mBBRotate * rotateToBack
+                                                   * rotateToBottom
+                                                   * zoomToIrgendwas
+                                                   * translateABitUp
+                                                   * zoomToNaus
+                                                   * zoomToNei
+                                                 ;
 }
 
