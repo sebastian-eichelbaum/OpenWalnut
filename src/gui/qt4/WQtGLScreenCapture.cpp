@@ -37,6 +37,7 @@
 #include "WMainWindow.h"
 #include "events/WEventTypes.h"
 #include "../../common/WLogger.h"
+#include "../../common/WPreferences.h"
 
 #include "WQtGLScreenCapture.h"
 
@@ -103,12 +104,15 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     configFileHint->setText(
         "The filename used for all captured frames. This filename can contain some special tags which get replaced:"
                               "<ul>"
-                              "<li> %# - the frame number"
+                              "<li> %f - the frame number"
                               "</ul>"
     );
 
     m_configFileEdit = new QLineEdit();
-    m_configFileEdit->setText( QDir::homePath() + QDir::separator() + "OpenWalnut_Frame_%#.jpg" );
+    std::string defaultFilename = ( QDir::homePath() + QDir::separator() + "OpenWalnut_Frame_%f.jpg" ).toStdString();
+    WPreferences::getPreference( "qt4gui.defaultScreenCaptureFilename", &defaultFilename );
+    m_configFileEdit->setText( QString::fromStdString( defaultFilename ) );
+
     fileGroupLayout->addWidget( configFileHint );
     fileGroupLayout->addWidget( m_configFileEdit );
 
@@ -145,7 +149,7 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     QLabel* movieLabel = new QLabel();
     movieLabel->setWordWrap( true );
     movieLabel->setText( "Take a screenshot for every frame with the current camera. You need to specify a filename. "
-                              "You should always add %# to your filename to differentiate between each frame. "
+                              "You should always add %f to your filename to differentiate between each frame. "
                               "This kind of recording can be very slow and produce a high IO load on your machine. Consider recording movies with "
                               "the animation tool which plays back a previously recorded scene and snapshot it frame-wise. "
                               "To create a movie with these images, you can use free encoders like ffmpeg, transcode or mencoder."
@@ -247,7 +251,7 @@ void WQtGLScreenCapture::handleImage( size_t /* framesLeft */, size_t totalFrame
     ss << totalFrames;
 
     size_t pos;
-    while ( ( pos = filename.find( "%#" ) ) != std::string::npos )
+    while ( ( pos = filename.find( "%f" ) ) != std::string::npos )
     {
         filename.replace( pos, 2, ss.str() );
     }
