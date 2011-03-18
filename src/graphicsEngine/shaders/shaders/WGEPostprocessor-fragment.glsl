@@ -39,21 +39,31 @@
  * The texture Unit for the original color field
  */
 uniform sampler2D u_texture0Sampler;
+#define u_colorSampler u_texture0Sampler
 
 /**
  * The texture Unit for the Normal Map
  */
 uniform sampler2D u_texture1Sampler;
+#define u_normalSampler u_texture1Sampler
+
+/**
+ * The additional parameters from the source
+ */
+uniform sampler2D u_texture2Sampler;
+#define u_parameterSampler u_texture2Sampler
 
 /**
  * The depth texture
  */
-uniform sampler2D u_texture2Sampler;
+uniform sampler2D u_texture3Sampler;
+#define u_depthSampler u_texture3Sampler
 
 /**
  * The white-noise 3 channel texture: sampler
  */
-uniform sampler2D u_texture3Sampler;
+uniform sampler2D u_texture4Sampler;
+#define u_noiseSampler u_texture4Sampler
 
 /**
  * The white-noise 3 channel texture: size in x direction
@@ -125,7 +135,7 @@ const vec2 zeroOneList = vec2( 1.0, 0.0 );
  */
 vec4 getColor( in vec2 where )
 {
-    return texture2D( u_texture0Sampler, where );
+    return texture2D( u_colorSampler, where );
 }
 
 /**
@@ -149,7 +159,7 @@ vec4 getColor()
  */
 vec4 getNormal( in vec2 where )
 {
-    return normalize( texture2DUnscaled( u_texture1Sampler, where, -1.0, 2.0 ).xyz ).xyzz * zeroOneList.xxxy + zeroOneList.yyyx;
+    return normalize( texture2DUnscaled( u_normalSampler, where, -1.0, 2.0 ).xyz ).xyzz * zeroOneList.xxxy + zeroOneList.yyyx;
 }
 
 /**
@@ -173,7 +183,7 @@ vec4 getNormal()
  */
 float getDepth( in vec2 where )
 {
-    return texture2D( u_texture2Sampler, where ).r;
+    return texture2D( u_depthSampler, where ).r;
 }
 
 /**
@@ -198,7 +208,7 @@ float getDepth()
 float getZoom( in vec2 where )
 {
     // TODO(ebaum): somehow remove this scaler
-    return texture2D( u_texture1Sampler, pixelCoord ).a * 10.0;
+    return texture2D( u_parameterSampler, pixelCoord ).r * 10.0;
 }
 
 /**
@@ -459,7 +469,7 @@ float getSSAO( vec2 where )
     const float falloff = 0.00001;
 
     // grab a random normal for reflecting the sample rays later on
-    vec3 randNormal = normalize( ( texture2D( u_texture3Sampler, where * u_texture3SizeX ).xyz * 2.0 ) - vec3( 1.0 ) );
+    vec3 randNormal = normalize( ( texture2D( u_noiseSampler, where * u_texture3SizeX ).xyz * 2.0 ) - vec3( 1.0 ) );
 
     // grab the current pixel's normal and depth
     vec3 currentPixelSample = getNormal( where ).xyz;
@@ -498,8 +508,8 @@ float getSSAO( vec2 where )
         for( int i = 0; i < SAMPLES; ++i )
         {
             // grab a rand normal from the noise texture
-            vec3 randSphereNormal = ( texture2D( u_texture3Sampler, vec2( float( i ) / float( SAMPLES ),
-                                                                          float( l ) / float( SCALERS ) ) ).rgb * 2.0 ) - vec3( 1.0 );
+            vec3 randSphereNormal = ( texture2D( u_noiseSampler, vec2( float( i ) / float( SAMPLES ),
+                                                                       float( l ) / float( SCALERS ) ) ).rgb * 2.0 ) - vec3( 1.0 );
 
             // get a vector (randomized inside of a sphere with radius 1.0) from a texture and reflect it
             ray = radiusScaler * radius * reflect( randSphereNormal, randNormal );

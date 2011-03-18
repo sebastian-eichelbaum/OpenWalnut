@@ -47,7 +47,7 @@
 #ifdef WGE_POSTPROCESSING_ENABLED
     #define wge_FragNormal gl_FragData[1].rgb
     #define wge_FragColor  gl_FragData[0]
-    #define wge_FragZoom   gl_FragData[1].a
+    #define wge_FragZoom   gl_FragData[2].r
 #else
     vec3 WGE_POSTPROCESSING_ENABLED_dummyVec3;
     float WGE_POSTPROCESSING_ENABLED_dummyFloat;
