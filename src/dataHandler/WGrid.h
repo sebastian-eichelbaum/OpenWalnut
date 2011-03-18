@@ -60,7 +60,9 @@ public:
     size_t size() const;
 
     /**
-     * \return The bounding box of the grid.
+     * Axis aligned Bounding Box that encloses this grid.
+     *
+     * \return \copybrief WGrid::getBoundingBox()
      */
     virtual WBoundingBox getBoundingBox() const = 0;
 
