@@ -114,7 +114,13 @@ void WMFiberDisplaySimple::properties()
     m_clipPlaneDistance->setMin( 0.0 );
     m_clipPlaneDistance->setMax( 1000.0 );
 
-    m_tubeGroup = m_properties->addPropertyGroup( "Tube Rendering", "If true, advanced fake-tube rendering is used." );
+    m_lineGroup = m_properties->addPropertyGroup( "Line Rendering", "Line rendering specific options." );
+    m_lineWidth = m_lineGroup->addProperty( "Width", "The line width.", 1.0 );
+    m_lineWidth->setMin( 1.0 );
+    m_lineWidth->setMax( 10.0 );
+    m_lineSmooth = m_lineGroup->addProperty( "Anti-Alias", "Anti-aliased line rendering. This can be slow!", false );
+
+    m_tubeGroup = m_properties->addPropertyGroup( "Tube Rendering", "Tube rendering specific options." );
     m_tubeEnable = m_tubeGroup->addProperty( "Enable Tubes", "If set, fake-tube rendering is used.", false, m_propCondition  );
     m_tubeRibbon = m_tubeGroup->addProperty( "Ribbon mode", "If set, the tubes look like flat ribbons.", false );
     m_tubeZoomable = m_tubeGroup->addProperty( "Zoomable", "If set, fake-tube get thicker when zoomed in. If not set, they always keep the same "
@@ -315,6 +321,11 @@ void WMFiberDisplaySimple::moduleMain()
         WGEColormapping::apply( geode, m_shader );
         WGEColormapping::apply( endCapGeode, m_endCapShader );
 
+        // for line smoothing and width features
+        geode->getOrCreateStateSet()->setUpdateCallback( new WGEFunctorCallback< osg::StateSet >(
+            boost::bind( &WMFiberDisplaySimple::lineGeodeStateCallback, this, _1 ) )
+        );
+
         // Add geometry
         if ( m_clipPlaneShowPlane->get() )
         {
@@ -394,11 +405,6 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
     // geode and geometry
     osg::StateSet* state = fibGeode->getOrCreateStateSet();
     osg::StateSet* endState = endCapGeode->getOrCreateStateSet();
-    // Line smoothing. Will be very slow!
-    /*state->setAttributeAndModes( new osg::LineWidth( 2.0 ), osg::StateAttribute::ON );
-    state->setAttributeAndModes( new osg::Hint( GL_LINE_SMOOTH_HINT, GL_NICEST ), osg::StateAttribute::ON );
-    state->setMode( GL_LINE_SMOOTH, osg::StateAttribute::ON );
-    state->setMode( GL_BLEND, osg::StateAttribute::ON );*/
 
     // create everytring needed for the line_strip drawable
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
@@ -427,11 +433,13 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
     // enable blending, select transparent bin
     if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
     {
+        m_transparency = true;
         enableTransparency( state );
         enableTransparency( endState );
     }
     else
     {
+        m_transparency = false;
         disableTransparency( state );
         disableTransparency( endState );
     }
@@ -570,3 +578,24 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
     debugLog() << "Iterating over all fibers: done!";
     progress1->finish();
 }
+
+void WMFiberDisplaySimple::lineGeodeStateCallback( osg::StateSet* state )
+{
+    if ( m_lineWidth->changed() )
+    {
+        state->setAttributeAndModes( new osg::LineWidth( m_lineWidth->get( true ) ), osg::StateAttribute::ON );
+    }
+
+    if ( m_lineSmooth->changed( true ) )
+    {
+        // Line smoothing. Will be very slow!
+        osg::StateAttribute::GLModeValue onoff = m_lineSmooth->get() ? osg::StateAttribute::ON : osg::StateAttribute::OFF;
+        state->setAttributeAndModes( new osg::Hint( GL_LINE_SMOOTH_HINT, GL_NICEST ), onoff );
+        state->setMode( GL_LINE_SMOOTH, onoff );
+
+        // if transparency is needed, keep blend on, even if smoothing is off
+        onoff = m_lineSmooth->get() || m_transparency ? osg::StateAttribute::ON : osg::StateAttribute::OFF;
+        state->setMode( GL_BLEND, onoff );
+    }
+}
+

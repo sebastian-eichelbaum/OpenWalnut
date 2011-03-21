@@ -722,11 +722,14 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_COLOR
     blend( getColor() );
-//    blend( getDOF() );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_GAUSSEDCOLOR
     blend( getGaussedColor() );
+#endif
+
+#ifdef WGE_POSTPROCESSOR_DOF
+    blend( getDOF() );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_PPLPHONG
@@ -739,11 +742,15 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_SSAOWITHPHONG
     float ao = getSSAO();
-    ao = 2.0 * ( ao - 0.5 );
-    float lPhong = getPPLPhong( wge_DefaultLightIntensityLessDiffuse );
+    ao = 2. * ( ao - 0.5 );
+    float lPhong = getPPLPhong( wge_DefaultLightIntensity );
     float lKrueger = kruegerNonLinearIllumination( getNormal().xyz, 5.0 );
-    float l = ao + lPhong;
-    blend( vec4( vec3( getColor().rgb * l * 0.5 ), 1.0 ) );
+
+    float invD = ( 1.0 - getDepth() );
+    float df = 1.;//0.5 + 0.5*smoothstep( 0.2, 0.3, invD );
+
+    float l = 0.5*( ao + df * lPhong );
+    blend( vec4( vec3( ( vec3( 0.1 ) + getColor().rgb ) * l * 1.0 ), 1.0 ) );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_CELSHADING

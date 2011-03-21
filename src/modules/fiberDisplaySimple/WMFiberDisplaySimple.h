@@ -190,6 +190,21 @@ private:
     WPropGroup m_tubeGroup;
 
     /**
+     * Group containing line specific properties
+     */
+    WPropGroup m_lineGroup;
+
+    /**
+     * Line width.
+     */
+    WPropDouble m_lineWidth;
+
+    /**
+     * Line smoothing.
+     */
+    WPropBool m_lineSmooth;
+
+    /**
      * Update the transform node to provide an cue were the plane actually is.
      *
      * \param node the transform node
@@ -217,6 +232,18 @@ private:
      * The plane node.
      */
     osg::ref_ptr< osg::Node > m_plane;
+
+    /**
+     * Callback for the line geode to allow interactive modification of line smooth and width states.
+     *
+     * \param state the state
+     */
+ 	void lineGeodeStateCallback( osg::StateSet* state );
+
+    /**
+     * If true, the fibs are RGBA colored.
+     */
+    mutable bool m_transparency;
 };
 
 #endif  // WMFIBERDISPLAYSIMPLE_H
