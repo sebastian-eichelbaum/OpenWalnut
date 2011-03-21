@@ -81,6 +81,7 @@ WGEPostprocessingNode::WGEPostprocessingNode( osg::ref_ptr< osg::Camera > refere
                                                                                                         "WGE_POSTPROCESSOR_SSAOWITHPHONG" ) );
     namesAndDefs.push_back( Tuple( "Cel-Shading",  "Under-sampling of the color for cartoon-like shading.", "WGE_POSTPROCESSOR_CELSHADING" ) );
     namesAndDefs.push_back( Tuple( "Depth-Cueing", "Use the Depth to fade out the pixel's brightness.", "WGE_POSTPROCESSOR_DEPTHFADING" ) );
+    namesAndDefs.push_back( Tuple( "Depth-of-Field", "Depth of field effect.",                          "WGE_POSTPROCESSOR_DOF" ) );
     namesAndDefs.push_back( Tuple( "Edge",         "Edge of Rendered Geometry.",                        "WGE_POSTPROCESSOR_EDGE" ) );
     namesAndDefs.push_back( Tuple( "Depth",        "Depth Value only.",                                 "WGE_POSTPROCESSOR_DEPTH" ) );
     namesAndDefs.push_back( Tuple( "Smoothed Depth", "Gauss-Smoothed Depth Value only.",                "WGE_POSTPROCESSOR_GAUSSEDDEPTH" ) );

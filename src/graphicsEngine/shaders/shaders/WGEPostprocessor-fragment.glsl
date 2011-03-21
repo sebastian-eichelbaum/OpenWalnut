@@ -438,14 +438,14 @@ float getGaussedDepth()
 /**
  * The total influence of SSAO.
  */
-//const float u_ssaoTotalStrength = 2.0; // 1.38;   // total strength - scaling the resulting AO
+//uniform float u_ssaoTotalStrength = 2.0; // 1.38;   // total strength - scaling the resulting AO
 uniform float u_ssaoTotalStrength = 5.5; // 1.38;   // total strength - scaling the resulting AO
 
 /**
  * The strength of the occluder influence in relation to the geometry density. The heigher the value, the larger the influence. Low values remove
  * the drop-shadow effect.
  */
-uniform float u_ssaoDensityWeight = 1.0; //0.07;
+uniform float u_ssaoDensityWeight = 0.5; //0.07;
 
 /**
  * The radius of the hemispshere in screen-space which gets scaled.
@@ -461,7 +461,7 @@ uniform float u_ssaoRadiusSS = 2.0;
  */
 float getSSAO( vec2 where )
 {
-    #define SCALERS 2
+    #define SCALERS 3
     #define SAMPLES 32  // the numbers of samples to check on the hemisphere
     const float invSamples = 1.0 / float( SAMPLES );
 
@@ -498,11 +498,33 @@ float getSSAO( vec2 where )
     float occlusion = 0.0;
     float radiusScaler = 0.0;     // we sample with multiple radii, so use a scaling factor here
 
+    // this allows an adaptive radius
+    float[SCALERS] rads;
+    #define radScaleMin 0.5
+    #define radScaleMax 3.0
+    rads[0] = radScaleMin + 0.0 * ( radScaleMax / SCALERS );
+#if ( SCALERS > 1 )
+    rads[1] = radScaleMin + 1.0 * ( radScaleMax / SCALERS );
+#endif
+#if ( SCALERS > 2 )
+    rads[2] = radScaleMin + 2.0 * ( radScaleMax / SCALERS );
+#endif
+#if ( SCALERS > 3 )
+    rads[3] = radScaleMin + 3.0 * ( radScaleMax / SCALERS );
+#endif
+#if ( SCALERS > 4 )
+    rads[4] = radScaleMin + 4.0 * ( radScaleMax / SCALERS );
+#endif
+#if ( SCALERS > 5 )
+    rads[5] = radScaleMin + 5.0 * ( radScaleMax / SCALERS );
+#endif
+    float fac = 0.0;
+
     // sample for different radii
     for( int l = 1; l <= SCALERS; ++l )
     {
         float occlusionStep = 0.0;  // this variable accumulates the occlusion for the current radius
-        radiusScaler += 1;    // increment radius each time.
+        radiusScaler += rads[ l - 1 ];    // increment radius each time.
 
         // Get SAMPLES-times samples on the hemisphere and check for occluders
         for( int i = 0; i < SAMPLES; ++i )
@@ -541,7 +563,7 @@ float getSSAO( vec2 where )
         }
 
         // for this radius, add to total occlusion
-        occlusion += occlusionStep / SCALERS;
+        occlusion += occlusionStep / float( SCALERS );
     }
 
     // output the result

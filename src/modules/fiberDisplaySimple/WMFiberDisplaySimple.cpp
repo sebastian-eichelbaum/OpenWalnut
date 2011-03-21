@@ -26,6 +26,8 @@
 #include <string>
 
 #include <osg/Point>
+#include <osg/LineWidth>
+#include <osg/Hint>
 
 #include "../../common/WPropertyHelper.h"
 #include "../../common/WPropertyObserver.h"
@@ -392,6 +394,11 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
     // geode and geometry
     osg::StateSet* state = fibGeode->getOrCreateStateSet();
     osg::StateSet* endState = endCapGeode->getOrCreateStateSet();
+    // Line smoothing. Will be very slow!
+    /*state->setAttributeAndModes( new osg::LineWidth( 2.0 ), osg::StateAttribute::ON );
+    state->setAttributeAndModes( new osg::Hint( GL_LINE_SMOOTH_HINT, GL_NICEST ), osg::StateAttribute::ON );
+    state->setMode( GL_LINE_SMOOTH, osg::StateAttribute::ON );
+    state->setMode( GL_BLEND, osg::StateAttribute::ON );*/
 
     // create everytring needed for the line_strip drawable
     osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
