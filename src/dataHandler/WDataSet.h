@@ -32,6 +32,7 @@
 
 #include <osg/ref_ptr>
 
+#include "../common/WDefines.h"
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
 #include "WDataTexture3D_2.h"
@@ -40,12 +41,6 @@
 class WDataTexture3D;
 class WCondition;
 class WDataSetVector;
-
-#if ( __GNUC__ > 3 || ( __GNUC__ == 3 && __GNUC_MINOR__ >= 1 ) )
-#define OW_API_DEPRECATED  __attribute__( ( __deprecated__ ) )
-#else
-#define OW_API_DEPRECATED
-#endif /* __GNUC__ */
 
 /**
  * Base class for all data set types. This class has a number of subclasses

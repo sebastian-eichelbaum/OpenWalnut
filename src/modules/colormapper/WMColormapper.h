@@ -115,6 +115,21 @@ private:
     boost::shared_ptr< WDataSetSingle > m_lastDataSet;
 
     /**
+     * The min of the current dataset. We store them here to avoid many calls to getTexture()->minimum()->get() and scale()->get().
+     */
+    double m_valueMin;
+
+    /**
+     * The max of the current dataset. We store them here to avoid many calls to getTexture()->minimum()->get() and scale()->get().
+     */
+    double m_valueMax;
+
+    /**
+     * The scaling factor of the current dataset. We store them here to avoid many calls to getTexture()->minimum()->get() and scale()->get().
+     */
+    double m_valueScale;
+
+    /**
      * If true, the new texture gets placed at the position of the old one in the texture sorter
      */
     WPropBool m_replace;
@@ -123,6 +138,21 @@ private:
      * If true, a colorbar is shown.
      */
     WPropBool m_showColorbar;
+
+    /**
+     * The number of colorbar labels
+     */
+    WPropInt m_colorBarLabels;
+
+    /**
+     * Show colorbar name?
+     */
+    WPropBool m_colorBarName;
+
+    /**
+     * Show the border?
+     */
+    WPropBool m_colorBarBorder;
 
     /**
      * The projection node for the colorbar and labels
@@ -140,6 +170,18 @@ private:
      * \param label the label to update
      */
     void updateColorbarName( osg::Drawable* label );
+
+    /**
+     * The colorbar scale labels
+     */
+    osg::ref_ptr< osg::Geode > m_scaleLabels;
+
+    /**
+     * Callback which adds/removes scale labels to the colorbar.
+     *
+     * \param scaleLabels the geode containing the labels.
+     */
+    void updateColorbarScale( osg::Node* scaleLabels );
 };
 
 #endif  // WMCOLORMAPPER_H

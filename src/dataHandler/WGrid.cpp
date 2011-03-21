@@ -24,6 +24,7 @@
 
 #include <cstddef>
 
+#include "../common/WProperties.h"
 #include "WGrid.h"
 
 WGrid::WGrid( size_t size )
@@ -32,6 +33,10 @@ WGrid::WGrid( size_t size )
 {
     m_infoProperties->setPurpose( PV_PURPOSE_INFORMATION );
     WPropInt sizeGrid = m_infoProperties->addProperty( "Grid size: ", "The number of position in the grid.", static_cast<int>( m_size ) );
+}
+
+WGrid::~WGrid()
+{
 }
 
 size_t WGrid::size() const

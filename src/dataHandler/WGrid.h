@@ -26,12 +26,12 @@
 #define WGRID_H
 
 #include <cstddef>
-#include <utility>
 
 #include "../common/WBoundingBox.h"
-#include "../common/WProperties.h"
-#include "../common/math/WPosition.h"
 #include "WExportDataHandler.h"
+
+// forward declarations
+class WProperties;
 
 /**
  * Base class to all grid types, e.g. a regular grid.
@@ -50,17 +50,19 @@ public:
      * Since WGrid is a base class and thus should be polymorphic we add
      * virtual destructor.
      */
-    virtual ~WGrid()
-    {
-    }
+    virtual ~WGrid();
 
     /**
-     * \return The number of position in this grid.
+     * The number of positions in this grid.
+     *
+     * \return \copybrief WGrid::size()
      */
     size_t size() const;
 
     /**
-     * Returns the two positions representing the bounding box of the grid.
+     * Axis aligned Bounding Box that encloses this grid.
+     *
+     * \return \copybrief WGrid::getBoundingBox()
      */
     virtual WBoundingBox getBoundingBox() const = 0;
 
@@ -77,7 +79,6 @@ protected:
      * to only be of informational nature. The GUI does not modify them.
      */
     boost::shared_ptr< WProperties > m_infoProperties;
-
 
 private:
     /**

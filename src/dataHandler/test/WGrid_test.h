@@ -29,6 +29,7 @@
 
 #include <cxxtest/TestSuite.h>
 
+#include "../../common/WProperties.h"
 #include "../WGrid.h"
 
 /**
