@@ -38,7 +38,7 @@ ENDIF()
 OPTION( OW_BUILD_AS_ONE_BIG_FILE "Build every library as one big cpp" OFF )
 INCLUDE( FindPythonInterp )
 
-# define libnames 
+# define libnames
 SET( OWCommonName "OWcommon" )
 SET( OWDatahandlerName "OWdataHandler" )
 SET( OWgeName "OWge" )

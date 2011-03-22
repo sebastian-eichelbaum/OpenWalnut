@@ -23,15 +23,14 @@
 //---------------------------------------------------------------------------
 
 #include <cmath>
-#include <vector>
 #include <string>
-#include <utility>
+#include <vector>
 
-#include "../common/exceptions/WPreconditionNotMet.h"
-#include "../common/WBoundingBox.h"
 #include "../common/exceptions/WOutOfBounds.h"
+#include "../common/exceptions/WPreconditionNotMet.h"
 #include "../common/math/WLinearAlgebraFunctions.h"
-
+#include "../common/WBoundingBox.h"
+#include "../common/WProperties.h"
 #include "WGridRegular3D.h"
 
 
