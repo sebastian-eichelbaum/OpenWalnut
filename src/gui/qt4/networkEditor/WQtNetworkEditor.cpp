@@ -154,8 +154,8 @@ void WQtNetworkEditor::deleteSelectedItems()
                             ar->getEndPort()->getConnector()->getName() ) );
             disconnectCombiner->run();
             disconnectCombiner->wait();
-            ar->hide();
-            m_scene->removeItem( ar );
+            //ar->hide();
+            //m_scene->removeItem( ar );
         }
     }
 
@@ -164,7 +164,7 @@ void WQtNetworkEditor::deleteSelectedItems()
         if( it != 0 )
         {
             WKernel::getRunningKernel()->getRootContainer()->remove( it->getModule() );
-            it->hide();
+            //it->hide();
             m_scene->removeItem( it );
         }
     }
