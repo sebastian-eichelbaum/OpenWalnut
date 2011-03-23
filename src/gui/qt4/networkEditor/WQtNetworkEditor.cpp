@@ -154,6 +154,8 @@ void WQtNetworkEditor::deleteSelectedItems()
                             ar->getEndPort()->getConnector()->getName() ) );
             disconnectCombiner->run();
             disconnectCombiner->wait();
+            ar->hide();
+            m_scene->removeItem( ar );
         }
     }
 
@@ -162,6 +164,8 @@ void WQtNetworkEditor::deleteSelectedItems()
         if( it != 0 )
         {
             WKernel::getRunningKernel()->getRootContainer()->remove( it->getModule() );
+            it->hide();
+            m_scene->removeItem( it );
         }
     }
     itemList.clear();
@@ -389,7 +393,10 @@ bool WQtNetworkEditor::event( QEvent* event )
         {
             op->removeArrow( ar );
             ip->removeArrow( ar );
-            m_scene->removeItem( ar );
+            if( ar->scene() != NULL )
+            {
+                m_scene->removeItem( ar );
+            }
             delete ar;
         }
         else
@@ -446,7 +453,10 @@ bool WQtNetworkEditor::event( QEvent* event )
 
         if( item != 0 )
         {
-            m_scene->removeItem( item );
+            if( item->scene() != NULL )
+            {
+                m_scene->removeItem( item );
+            }
             m_items.removeAll( item );
             delete item;
         }
@@ -504,3 +514,4 @@ void WQtNetworkEditor::timerEvent( QTimerEvent *event )
         timerId = 0;
     }
 }
+

@@ -49,11 +49,8 @@ WQtNetworkArrow::WQtNetworkArrow( WQtNetworkOutputPort *startPort, WQtNetworkInp
 
 WQtNetworkArrow::~WQtNetworkArrow()
 {
-    //std::cout << "arrow delete start\n";
-    this->hide();
     m_startPort->removeArrow( this );
     m_endPort->removeArrow( this );
-    //std::cout << "arrow delete end\n";
 }
 
 int WQtNetworkArrow::type() const

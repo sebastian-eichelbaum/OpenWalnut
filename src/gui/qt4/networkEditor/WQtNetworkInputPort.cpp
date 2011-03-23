@@ -48,7 +48,6 @@ WQtNetworkInputPort::WQtNetworkInputPort( boost::shared_ptr<WModuleInputConnecto
 
 WQtNetworkInputPort::~WQtNetworkInputPort()
 {
-    //std::cout << "in port delete\n";
 }
 
 int WQtNetworkInputPort::type() const

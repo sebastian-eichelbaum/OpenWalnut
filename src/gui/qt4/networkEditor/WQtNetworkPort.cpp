@@ -43,8 +43,6 @@ WQtNetworkPort::WQtNetworkPort()
 
 WQtNetworkPort::~WQtNetworkPort()
 {
-    //std::cout << "port delete\n";
-    this->hide();
     removeArrows();
 }
 
@@ -148,7 +146,7 @@ void WQtNetworkPort::mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent )
 
         // remove current m_line for real connection
         scene()->removeItem( m_line );
-        //delete m_line;
+        delete m_line;
 
         if( !endItems.isEmpty() &&
              !startItems.isEmpty() &&

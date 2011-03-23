@@ -48,7 +48,6 @@ WQtNetworkOutputPort::WQtNetworkOutputPort( boost::shared_ptr<WModuleOutputConne
 
 WQtNetworkOutputPort::~WQtNetworkOutputPort()
 {
-    //std::cout << "out port delete\n";
 }
 
 int WQtNetworkOutputPort::type() const

@@ -73,7 +73,6 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 
 WQtNetworkItem::~WQtNetworkItem()
 {
-    std::cout << "item delete start\n";
     foreach( WQtNetworkPort *port, m_inPorts )
     {
         delete port;
@@ -83,11 +82,8 @@ WQtNetworkItem::~WQtNetworkItem()
     {
         delete port;
     }
-    this->hide();
-    //this->scene()->removeItem( this );
     delete m_text;
     //delete m_subtitle;
-    std::cout << "item delete end\n";
 }
 
 int WQtNetworkItem::type() const
