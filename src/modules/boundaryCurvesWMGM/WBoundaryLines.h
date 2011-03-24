@@ -28,6 +28,7 @@
 #include <utility>
 
 #include <boost/array.hpp>
+#include <boost/unordered_map.hpp>
 
 #include "../../common/WBoundingBox.h"
 #include "WBoundaryBuilder.h"
@@ -98,18 +99,9 @@ private:
      */
     osg::ref_ptr< WGEGroupNode > generateSlice( const unsigned char sliceNum ) const;
 
-    /**
-     * Computes the origin as well as the base vectors for the given slice number.
-     *
-     * \param sliceNum For which slice the base should be computed for.
-     * \param origin Return parameter of the slice origin
-     * \param a Return parameter of the first base vector
-     * \param b Return parameter of the second base vector
-     *
-     * \return The other two slice numbers.
-     */
-    std::pair< unsigned char, unsigned char > computeSliceBase( const unsigned char sliceNum,
-        boost::shared_ptr< WVector3D > origin, boost::shared_ptr< WVector3D > a, boost::shared_ptr< WVector3D > b ) const;
+    boost::shared_ptr< WGridRegular3D > generateSliceGrid( const unsigned char sliceNum, const double resolution ) const;
+
+    std::list< size_t > extractLS( boost::unordered_map< size_t, std::pair< int , int > > *l ) const;
 
     /**
      * Generates the bounding boxes for all three slices.
