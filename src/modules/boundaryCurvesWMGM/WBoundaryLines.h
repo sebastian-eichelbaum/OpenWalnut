@@ -25,10 +25,14 @@
 #ifndef WBOUNDARYLINES_H
 #define WBOUNDARYLINES_H
 
+#include <list>
 #include <utility>
+#include <vector>
 
 #include <boost/array.hpp>
 #include <boost/unordered_map.hpp>
+
+#include <osg/Geometry>
 
 #include "../../common/WBoundingBox.h"
 #include "WBoundaryBuilder.h"
@@ -65,29 +69,25 @@ public:
 protected:
 private:
     /**
-     * Checks an edge given with two vertices if it is cutting the given isoValue, and return the position
-     * if so.
-     *
-     * \param p0 first vertex of the edge
-     * \param w0 interpolated value at the position of the first vertex
-     * \param p1 second vertex of the edge
-     * \param w1 interpolated value at the position of the second vertex
-     * \param isoValue The isovalue
-     *
-     * \return Array with just the position where the edge cuts the isovalue, or empty otherwise.
+     * Map for edgeID -> ( neighbourEdgeID1, neighbourEdgeID2 ).
      */
-    osg::ref_ptr< osg::Vec3Array > checkEdge( const WPosition& p0, const double w0, const WPosition& p1, const double w1,
-            const double isoValue ) const;
+    typedef boost::unordered_map< size_t, std::pair< int , int > > EdgeNeighbourMap;
 
     /**
-     * Checks each quad it its intersecting the isovalue, and return the vertices for the line segements of the isocurve.
-     *
-     * \param corners
-     * \param isoValue
-     *
-     * \return
+     * Two pointIDs describing an edge.
      */
-    osg::ref_ptr< osg::Vec3Array > checkQuad( const boost::array< WPosition, 4 >& corners, const double isoValue ) const;
+    typedef std::pair< std::size_t, std::size_t > Edge;
+
+    //todo(math): Edge is wrong here, since that are not point but EdgeIDs
+    /**
+     * Vector of segments where two edgeIDs describing an segment.
+     */
+    typedef std::vector< Edge > SegmentVector;
+
+    /**
+     * List of segments where two edgeIDs describing an segment.
+     */
+    typedef std::list< Edge > SegmentList;
 
     /**
      * Creates for each slice number the corresponding geodes for a bounding box as well
@@ -99,9 +99,50 @@ private:
      */
     osg::ref_ptr< WGEGroupNode > generateSlice( const unsigned char sliceNum ) const;
 
+    /**
+     * In order to compute iso lines of the gray and white matter for a specific slice, we need a grid to operate on. This
+     * grid represents a WGridRegular2DIn3D but the last dimension/numCoordsZ() is set to 1.
+     *
+     * \param sliceNum For which slice the grid should be generated.
+     * \param resolution The size of the cells in that grid.
+     *
+     * \return The 2D grid for the given slice.
+     */
     boost::shared_ptr< WGridRegular3D > generateSliceGrid( const unsigned char sliceNum, const double resolution ) const;
 
-    std::list< size_t > extractLS( boost::unordered_map< size_t, std::pair< int , int > > *l ) const;
+    /**
+     * Extracts the sequence of edges representing a line strip, where the first element in the hash map is a member of.
+     *
+     * \param l The hash map, containing edge numbers as keys and their left and right neighbour as the value pair.
+     *
+     * \return List of edge number of the line strip.
+     */
+    std::list< size_t > extractLineStripEdges( EdgeNeighbourMap *l ) const;
+
+    /**
+     * Constructs a hash map where each grid edgeID ( the key ), has a pair of neighbour edgeIDs ( value ).
+     *
+     * \param segments List of segments given as pair of edgeIDs.
+     *
+     * \return The edge neighbour map.
+     */
+    boost::shared_ptr< EdgeNeighbourMap > generateEdgeNeighbourMap( const SegmentList& segments ) const;
+
+    /**
+     * Construct a iso lines geometry for the given isovalue.
+     *
+     * \param isoValue The iso value
+     * \param map Containing edgeIDs as keys and
+     * \param edgeIDToPointIDs
+     * \param interpolates
+     * \param sliceGrid
+     * \param col The color for the lines
+     *
+     * \return
+     */
+    osg::ref_ptr< osg::Geometry > traverseEdgeHashMap( double isoValue, boost::shared_ptr< WBoundaryLines::EdgeNeighbourMap > map,
+            const std::vector< Edge >& edgeIDToPointIDs, const std::vector< double > &interpolates,
+            boost::shared_ptr< const WGridRegular3D > sliceGrid, WColor col ) const;
 
     /**
      * Generates the bounding boxes for all three slices.
