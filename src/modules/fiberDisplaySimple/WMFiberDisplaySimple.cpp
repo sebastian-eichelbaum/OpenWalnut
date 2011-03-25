@@ -449,7 +449,7 @@ void WMFiberDisplaySimple::createFiberGeode( boost::shared_ptr< WDataSetFibers >
     m_progress->addSubProgress( progress1 );
 
     // for each fiber:
-    debugLog() << "Iterating over all fibers.";
+    debugLog() << "Iterating over " << fibStart->size() << " fibers.";
     size_t currentStart = 0;
     bool tubeMode = m_tubeEnable->get();
     for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )

@@ -87,22 +87,107 @@ void WMFiberCreator::properties()
     WModule::properties();
 }
 
-inline double getSegmentVector( size_t segment, size_t offset, boost::shared_ptr< std::vector< float > > verts, double* vec )
+void spiral( size_t numFibers, size_t numVertsPerFiber,
+            WDataSetFibers::VertexArray vertices,
+            WDataSetFibers::IndexArray fibIdx,
+            WDataSetFibers::LengthArray lengths,
+            WDataSetFibers::IndexArray fibIdxVertexMap,
+            WDataSetFibers::ColorArray colors
+        )
 {
-    // get segment coordinates
-    double x = verts->at( ( 3 * segment ) + offset + 0 ) - verts->at( ( 3 * ( segment + 1 ) ) + offset + 0 );
-    double y = verts->at( ( 3 * segment ) + offset + 1 ) - verts->at( ( 3 * ( segment + 1 ) ) + offset + 1 );
-    double z = verts->at( ( 3 * segment ) + offset + 2 ) - verts->at( ( 3 * ( segment + 1 ) ) + offset + 2 );
 
-    // get length
-    double len = std::sqrt( x * x + y * y + z * z );
+    WPosition m_centerPoint = WPosition( 0.0, 0.0, 0.0 );
+    double m_spiralRadius = 10.0;
+    double m_tubeRadius = 1.0;
+    double m_height = 25.0;
+    double m_rotations = 10.0;
 
-    // create vector from this and the previous point
-    vec[0] = x / len;
-    vec[1] = y / len;
-    vec[2] = z / len;
+    // create each
+    for( size_t fidx = 0; fidx < numFibers; ++fidx )
+    {
+        size_t vertOffset = fidx * numVertsPerFiber;
+        fibIdx->push_back( vertOffset );
+        lengths->push_back( numVertsPerFiber );
 
-    return len;
+        double f = static_cast< double >( fidx ) / static_cast< double >( numFibers - 1 );
+
+        double a1 = static_cast< double >( std::rand() % 255 ) / 255.0;
+        double a2 = static_cast< double >( std::rand() % 255 ) / 255.0;
+
+        double seedX = cos( 2.0 * piDouble * a1 ) * m_tubeRadius;
+        double seedY = sin( 2.0 * piDouble * a2 ) * m_tubeRadius;
+        double seedZ = sqrt( m_tubeRadius - ( seedX * seedX ) - ( seedY * seedY ) );
+        WPosition seed = m_centerPoint + WPosition( seedX, seedY, seedZ );
+
+        // create the vertices
+        for( size_t vidx = 0; vidx < numVertsPerFiber; ++vidx )
+        {
+            double v = static_cast< double >( vidx ) / static_cast< double >( numVertsPerFiber - 1 );
+            double degree = v * 2.0 * piDouble * m_rotations;
+
+            double X = seed.x() + cos( degree ) * v * m_spiralRadius;
+            double Y = seed.y() + sin( degree ) * v * m_spiralRadius;
+            double Z = seed.z() + ( v * m_height );
+
+            vertices->push_back( X );
+            vertices->push_back( Y );
+            vertices->push_back( Z );
+
+            colors->push_back( 1.0 );
+            colors->push_back( 0.0 );
+            colors->push_back( 0.0 );
+
+            fibIdxVertexMap->push_back( fidx );
+        }
+    }
+}
+
+void crossing( size_t numFibers, size_t numVertsPerFiber,
+            WDataSetFibers::VertexArray vertices,
+            WDataSetFibers::IndexArray fibIdx,
+            WDataSetFibers::LengthArray lengths,
+            WDataSetFibers::IndexArray fibIdxVertexMap,
+            WDataSetFibers::ColorArray colors
+        )
+{
+    WPosition starts[2];
+    WPosition ends[2];
+    starts[0] = WPosition( -10.0, 0.0, -10.0 );
+    starts[1] = WPosition( -10.0, 5.0,  10.0 );
+    ends[0] = WPosition( 10.0, 0.0,  10.0 );
+    ends[1] = WPosition( 10.0, 5.0, -10.0 );
+
+    // create each
+    unsigned char pidx = 0;
+    for( size_t fidx = 0; fidx < numFibers; ++fidx )
+    {
+        size_t vertOffset = fidx * numVertsPerFiber;
+        fibIdx->push_back( vertOffset );
+        lengths->push_back( numVertsPerFiber );
+
+        // current bundle
+        pidx = ( fidx >= ( numFibers / 2 ) );
+
+        // offset from start for this fib
+        WPosition offset( 0.0, 0.0, static_cast< double >( fidx ) / static_cast< double >( numFibers - 1 ) );
+
+        // create the vertices
+        for( size_t vidx = 0; vidx < numVertsPerFiber; ++vidx )
+        {
+            double v = static_cast< double >( vidx ) / static_cast< double >( numVertsPerFiber - 1 );
+            WPosition vert = v * ( offset + starts[pidx] ) + ( 1.0 - v ) * ( offset + ends[pidx] );
+
+            vertices->push_back( vert.x() );
+            vertices->push_back( vert.y() );
+            vertices->push_back( vert.z() );
+
+            colors->push_back( 1.0 );
+            colors->push_back( 0.0 );
+            colors->push_back( 0.0 );
+
+            fibIdxVertexMap->push_back( fidx );
+        }
+    }
 }
 
 void WMFiberCreator::moduleMain()
@@ -113,16 +198,10 @@ void WMFiberCreator::moduleMain()
     m_moduleState.add( m_propCondition );
 
     ready();
-/*
-    m_fibCurvatureColors = WDataSetFibers::ColorArray();
-    m_fibLengthColors = WDataSetFibers::ColorArray();
 
     // main loop
     while ( !m_shutdownFlag() )
     {
-        debugLog() << "Waiting ...";
-        m_moduleState.wait();
-
         // woke up since the module is requested to finish?
         if ( m_shutdownFlag() )
         {
@@ -130,179 +209,47 @@ void WMFiberCreator::moduleMain()
         }
 
         // To query whether an input was updated, simply ask the input:
-        bool dataUpdated = m_fiberInput->handledUpdate();
-        boost::shared_ptr< WDataSetFibers > dataSet = m_fiberInput->getData();
-        bool dataValid = ( dataSet );
-        bool propUpdated = m_baseColor->changed() || m_scaleColor->changed();
-
-        // reset everything if input was disconnected/invalid
-        if ( !dataValid )
-        {
-            debugLog() << "Resetting output.";
-            m_fiberOutput->reset();
-            continue;
-        }
-
-        if ( dataValid && !( dataUpdated || propUpdated ) )
+        bool propUpdated = true;
+        if ( !propUpdated )
         {
             continue;
         }
-
-        // remove old colorings
-        dataSet->removeColorScheme( m_fibCurvatureColors );     // this can be safely used with NULL pointers
-        dataSet->removeColorScheme( m_fibLengthColors );
-
-        // get the fiber definitions
-        boost::shared_ptr< std::vector< size_t > > fibStart = dataSet->getLineStartIndexes();
-        boost::shared_ptr< std::vector< size_t > > fibLen   = dataSet->getLineLengths();
-        boost::shared_ptr< std::vector< float > >  fibVerts = dataSet->getVertices();
-        m_fibCurvatureColors = WDataSetFibers::ColorArray( new WDataSetFibers::ColorArray::element_type() );
-        m_fibLengthColors = WDataSetFibers::ColorArray( new WDataSetFibers::ColorArray::element_type() );
-        WDataSetFibers::ColorScheme::ColorMode colorMode = WDataSetFibers::ColorScheme::RGBA;
-        m_fibCurvatureColors->resize( colorMode * ( fibVerts->size() / 3  ), 0.0 ); // create an RGBA coloring
-        m_fibLengthColors->resize( colorMode * ( fibVerts->size() / 3  ), 0.0 ); // create an RGBA coloring
-
-        // progress indication
-        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Coloring fibers.",
-                                                                                                  fibStart->size() ) );
-        boost::shared_ptr< WProgress > progress2 = boost::shared_ptr< WProgress >( new WProgress( "Scaling Colors.",
-                                                                                                  fibStart->size() ) );
-        m_progress->addSubProgress( progress1 );
-        m_progress->addSubProgress( progress2 );
-
-        // for fastness:
-        WColor baseColor = m_baseColor->get( true );
-        double baseColorR = baseColor[0];
-        double baseColorG = baseColor[1];
-        double baseColorB = baseColor[2];
-        double baseColorA = baseColor[3];
-        WColor scaleColor = m_scaleColor->get( true );
-        double scaleColorR = scaleColor[0];
-        double scaleColorG = scaleColor[1];
-        double scaleColorB = scaleColor[2];
-        double scaleColorA = scaleColor[3];
 
         // for each fiber:
-        debugLog() << "Iterating over all fibers.";
-        std::vector< double > maxSegLengths;
-        maxSegLengths.resize( fibStart->size(), 0.0 );
-        for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
-        {
-            ++*progress1;
+        size_t m_numFibers = 500;
+        size_t m_numVertsPerFiber = 1000;
+        size_t m_numVerts = m_numVertsPerFiber * m_numFibers;
+        debugLog() << "Creating " << m_numFibers << " fibers.";
+        boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Creating fibers.",
+                                                                                                  m_numFibers ) );
 
-            // the start vertex index
-            size_t sidx = fibStart->at( fidx ) * 3;
-            size_t cidx = fibStart->at( fidx ) * colorMode;
+        // Create needed arrays:
+        WDataSetFibers::VertexArray vertices = WDataSetFibers::VertexArray( new WDataSetFibers::VertexArray::element_type() );
+        WDataSetFibers::IndexArray fibIdx  = WDataSetFibers::IndexArray( new WDataSetFibers::IndexArray::element_type() );
+        WDataSetFibers::LengthArray lengths = WDataSetFibers::LengthArray( new WDataSetFibers::LengthArray::element_type() );
+        WDataSetFibers::IndexArray fibIdxVertexMap = WDataSetFibers::IndexArray( new WDataSetFibers::IndexArray::element_type() );
+        WDataSetFibers::ColorArray colors = WDataSetFibers::ColorArray( new WDataSetFibers::ColorArray::element_type() );
+        vertices->reserve( m_numVerts * 3 );
+        fibIdx->reserve( m_numFibers );
+        lengths->reserve( m_numFibers );
+        fibIdxVertexMap->reserve( m_numVerts );
+        colors->reserve( m_numVerts * 3 );
 
-            // the length of the fiber, if a fiber is smaller than two segments, skip it ( it already is colored white by default )
-            size_t len = fibLen->at( fidx );
-            if ( len < 3 )
-            {
-                continue;
-            }
+        // the bounding box. We calc it during creation to save some time later during WDataSetFibers creation.
+        WBoundingBox bbox;
 
-            // get the first vector and second vertex
-            double prev[3];
-            // we do not need zero length segments
-            if ( getSegmentVector( 0, sidx, fibVerts, &prev[0] ) == 0.0 )
-            {
-                continue;
-            }
+        std::srand( time( 0 ) );
+        spiral( m_numFibers, m_numVertsPerFiber, vertices, fibIdx, lengths, fibIdxVertexMap, colors );
+        //crossing( m_numFibers, m_numVertsPerFiber, vertices, fibIdx, lengths, fibIdxVertexMap, colors );
 
-            // walk along the fiber
-            double lenLast = 0.0;
-            double lenMax = 0.0;
-            for ( size_t k = 1; k < len - 1; ++k )  // len -1 because we interpret it as segments
-            {
-                // get the vector of this segment
-                double current[3];
-                // we do not need zero length segments
-                double segLen = getSegmentVector( k, sidx, fibVerts, &current[0] );
-                if ( segLen == 0.0 )
-                {
-                    continue;
-                }
+        // update output:
+        debugLog() << "Done. Updating output.";
+        WDataSetFibers::SPtr d = WDataSetFibers::SPtr( new WDataSetFibers( vertices, fibIdx, lengths, fibIdxVertexMap ) );
+        d->addColorScheme( colors, "Creator", "The color from Fiber Creator." );
+        m_fiberOutput->updateData( d );
 
-                // how to calculate the curvature?
-                // -------------------------------
-                // Variant 1:
-
-                // calculate angle between both segments
-                // double dot = ( current[0] * prev[0] ) + ( current[1] * prev[1] ) + ( current[2] * prev[2] );
-                // dot = std::max( -1.0, std::min( dot, 1.0 ) ); // dot must not be larger than 1. Unfortunately it might get
-                // larger in the 10^-10th.
-
-                // get angle and curvature
-                // double angleRad = std::acos( dot );
-                // double curvature2 = 2.0 * angleRad / ( lenLast + segLen );
-
-                // Variant 2:
-
-                double x = ( 2.0 / ( lenLast + segLen ) ) * ( current[0] - prev[0] );
-                double y = ( 2.0 / ( lenLast + segLen ) ) * ( current[1] - prev[1] );
-                double z = ( 2.0 / ( lenLast + segLen ) ) * ( current[2] - prev[2] );
-                double curvature = std::sqrt( x*x + y*y + z*z );
-
-                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 0 ] = baseColorR + ( 1.5 * scaleColorR * curvature );
-                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 1 ] = baseColorG + ( 1.5 * scaleColorG * curvature );
-                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 2 ] = baseColorB + ( 1.5 * scaleColorB * curvature );
-                ( *m_fibCurvatureColors )[ ( colorMode * k ) + cidx + 3 ] = baseColorA + ( 1.5 * scaleColorA * curvature );
-
-                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] = segLen;
-                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 1 ] = 0.0;
-                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 2 ] = 0.0;
-                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 3 ] = 1.0;
-
-                prev[0] = current[0];
-                prev[1] = current[1];
-                prev[2] = current[2];
-                lenLast = segLen;
-                lenMax = std::max( segLen, lenMax );
-            }
-            maxSegLengths[ fidx ] = lenMax;
-        }
-        progress1->finish();
-
-        // finally, apply the global scalings needed
-        debugLog() << "Iterating over all fibers for scaling per fiber.";
-        for( size_t fidx = 0; fidx < fibStart->size() ; ++fidx )
-        {
-            ++*progress2;
-
-            // the start vertex index
-            size_t cidx = fibStart->at( fidx ) * colorMode;
-            size_t len = fibLen->at( fidx );
-            if ( len < 3 )
-            {
-                continue;
-            }
-
-            // walk along the fiber
-            for ( size_t k = 1; k < len - 1; ++k )  // len -1 because we interpret it as segments
-            {
-                double relSegLen = ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] / maxSegLengths[ fidx ];
-                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 0 ] = baseColorR + ( scaleColorR * relSegLen );
-                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 1 ] = baseColorG + ( scaleColorG * relSegLen );
-                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 2 ] = baseColorB + ( scaleColorB * relSegLen );
-                ( *m_fibLengthColors )[ ( colorMode * k ) + cidx + 3 ] = baseColorA + ( scaleColorA * relSegLen );
-            }
-        }
-        progress2->finish();
-
-        // add the new scheme
-        dataSet->addColorScheme( m_fibCurvatureColors, "Curvature Coloring",
-                                 "The speed of changing angles between consecutive segments represents the color." );
-        dataSet->addColorScheme( m_fibLengthColors, "Segment Length Coloring",
-                                 "The length of a segment in relation to the longest segment in the fiber." );
-
-        // forward the data
-        m_fiberOutput->updateData( dataSet );
-
-        // remove the progress indicators
-        m_progress->removeSubProgress( progress1 );
-        m_progress->removeSubProgress( progress2 );
-
-        debugLog() << "Done";
-    }*/
+        debugLog() << "Waiting ...";
+        m_moduleState.wait();
+    }
 }
 

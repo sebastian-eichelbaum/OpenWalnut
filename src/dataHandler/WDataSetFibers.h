@@ -49,6 +49,15 @@ class OWDATAHANDLER_EXPORT WDataSetFibers : public WDataSet // NOLINT
 public:
 
     // some type alias for the used arrays.
+    /**
+     * Pointer to dataset.
+     */
+    typedef boost::shared_ptr< WDataSetFibers > SPtr;
+
+    /**
+     * Pointer to const dataset.
+     */
+    typedef boost::shared_ptr< const WDataSetFibers > ConstSPtr;
 
     /**
      * List of vertex coordinates in term of components of vertices.

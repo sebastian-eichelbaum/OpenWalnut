@@ -445,7 +445,7 @@ uniform float u_ssaoTotalStrength = 5.5; // lines
  * The strength of the occluder influence in relation to the geometry density. The heigher the value, the larger the influence. Low values remove
  * the drop-shadow effect.
  */
-uniform float u_ssaoDensityWeight = 1.0; //0.07;
+uniform float u_ssaoDensityWeight = 0.5; //0.07;
 
 /**
  * The radius of the hemispshere in screen-space which gets scaled.
