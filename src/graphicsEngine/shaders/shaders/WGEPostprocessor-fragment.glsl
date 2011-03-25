@@ -438,19 +438,20 @@ float getGaussedDepth()
 /**
  * The total influence of SSAO.
  */
-//uniform float u_ssaoTotalStrength = 2.0; // 1.38;   // total strength - scaling the resulting AO
-uniform float u_ssaoTotalStrength = 5.5; // 1.38;   // total strength - scaling the resulting AO
+//uniform float u_ssaoTotalStrength = 2.0; // 1.38;   // solid
+uniform float u_ssaoTotalStrength = 5.5; // lines
 
 /**
  * The strength of the occluder influence in relation to the geometry density. The heigher the value, the larger the influence. Low values remove
  * the drop-shadow effect.
  */
-uniform float u_ssaoDensityWeight = 0.5; //0.07;
+uniform float u_ssaoDensityWeight = 1.0; //0.07;
 
 /**
  * The radius of the hemispshere in screen-space which gets scaled.
  */
-uniform float u_ssaoRadiusSS = 2.0;
+uniform float u_ssaoRadiusSS = 2.0; // lines
+//uniform float u_ssaoRadiusSS = 3.0; // solid
 
 /**
  * Calculate the screen-space ambient occlusion from normal and depth map.
@@ -741,16 +742,24 @@ void main()
 #endif
 
 #ifdef WGE_POSTPROCESSOR_SSAOWITHPHONG
+    // Teaser:
     float ao = getSSAO();
-    ao = 2. * ( ao - 0.5 );
-    float lPhong = getPPLPhong( wge_DefaultLightIntensity );
-    float lKrueger = kruegerNonLinearIllumination( getNormal().xyz, 5.0 );
+    float ao2 = 2. * ( ao - 0.5 );
+
+    wge_LightIntensityParameter light = wge_DefaultLightIntensity;
+    light.materialShinines = 1000.0;
+
+    float lPhong = getPPLPhong( light );
+    float lKrueger = kruegerNonLinearIllumination( getNormal().xyz, 4.0 );
 
     float invD = ( 1.0 - getDepth() );
-    float df = 1.;//0.5 + 0.5*smoothstep( 0.2, 0.3, invD );
+    float df = 0.5 + 0.5*smoothstep( 0.2, 0.3, invD );
 
-    float l = 0.5*( ao + df * lPhong );
-    blend( vec4( vec3( ( vec3( 0.1 ) + getColor().rgb ) * l * 1.0 ), 1.0 ) );
+    float l = ( ao2 + ao*lPhong );
+    l *= 0.75;
+    blend( vec4( vec3( getColor().rgb * l * 1.0 ), 1.0 ) );
+    //blend( vec4( vec3( 0.5 * ao ), 1.0 ) );
+    //blendScale( getDepthFading() );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_CELSHADING
