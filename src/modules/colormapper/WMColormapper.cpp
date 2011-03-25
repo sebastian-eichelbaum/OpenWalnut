@@ -91,9 +91,62 @@ void WMColormapper::properties()
     m_replace = m_properties->addProperty( "Keep position",
                                            "If true, new texture on the input connector get placed in the list where the old one was.", true );
 
-    m_showColorbar = m_properties->addProperty( "Show Colorbar", "If true, a colorbar is shown for the current colormap.", false );
+    WPropGroup colorBarGroup = m_properties->addPropertyGroup( "Colorbar", "The colorbar with several properties." );
+    m_showColorbar = colorBarGroup->addProperty( "Show Colorbar", "If true, a colorbar is shown for the current colormap.", false );
+    m_colorBarBorder = colorBarGroup->addProperty( "Show Border", "If true, a thin white border is shown around the colorbar.", true );
+    m_colorBarName = colorBarGroup->addProperty( "Show Name", "If true, a shortened version of the data name is shown.", true );
+    m_colorBarLabels = colorBarGroup->addProperty( "Colorbar Labels", "This defines the number of labels.", 10 );
+    m_colorBarLabels->setMin( 0 );
+    m_colorBarLabels->setMax( 55 );
 
     WModule::properties();
+}
+
+/**
+ * Formats a given string to have the specified maximum length.
+ *
+ * \param str the string
+ * \param maxLen max length
+ *
+ * \return formatted string
+ */
+std::string format( std::string str, size_t maxLen = 45 )
+{
+    // string will be at least 9 chars long: because of " [...] " + first and last char.
+    WAssert( maxLen >= 9, "MaxLen has to be 9 or more." );
+    std::ostringstream ss;
+
+    // cut away some stuff
+    if ( str.length() > maxLen )
+    {
+        size_t keep = maxLen - 3;   // how much chars to keep?
+        size_t keepFront = keep / 2;
+        size_t keepEnd = keep - keepFront;
+
+        ss << str.substr( 0, keepFront ) << " [...] " << str.substr( str.length() - keepEnd, keepEnd );
+    }
+    else
+    {
+        ss << str;
+    }
+    return ss.str();
+}
+
+/**
+ * Formats a number properly to be usable as label
+ *
+ * \tparam T the type of value.
+ * \param number the number to format
+ *
+ * \return the formated number
+ */
+template< typename T >
+std::string format( T number )
+{
+    std::ostringstream ss;
+    ss.precision( 3 );
+    ss << number;
+    return ss.str();
 }
 
 void WMColormapper::moduleMain()
@@ -139,8 +192,9 @@ void WMColormapper::moduleMain()
                 // create camera oriented 2d projection
                 m_barProjection = new osg::Projection();
                 m_barProjection->addUpdateCallback( new WGENodeMaskCallback( m_showColorbar ) );
+                m_barProjection->addUpdateCallback( new WGENodeMaskCallback( m_active ) );
                 m_barProjection->setMatrix( osg::Matrix::ortho2D( 0, 1.0, 0, 1.0 ) );
-                m_barProjection->getOrCreateStateSet()->setRenderBinDetails( 11, "RenderBin" );
+                m_barProjection->getOrCreateStateSet()->setRenderBinDetails( 15, "RenderBin" );
                 m_barProjection->getOrCreateStateSet()->setDataVariance( osg::Object::DYNAMIC );
                 m_barProjection->getOrCreateStateSet()->setMode( GL_DEPTH_TEST, osg::StateAttribute::OFF );
                 m_barProjection->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
@@ -149,32 +203,18 @@ void WMColormapper::moduleMain()
 
                 // create a colorbar geode
                 m_colorBar = wge::genFinitePlane( osg::Vec3( 0.025, 0.1, 0.0 ), osg::Vec3( 0.025, 0.0, 0.0 ), osg::Vec3( 0.0, 0.8, 0.0 ) );
-                osg::ref_ptr< osg::Geode > colorBarBorder = wge::genFinitePlane( osg::Vec3( 0.025 - borderWidth, 0.1 - borderWidth, 0.0 ),
-                                                                                 osg::Vec3( 0.025 + 2.0 * borderWidth, 0.0, 0.0 ),
-                                                                                 osg::Vec3( 0.0, 0.8 + 2.0 * borderWidth, 0.0 ) );
+                osg::ref_ptr< osg::Geode > colorBarBorder = wge::genFinitePlane( osg::Vec3( 0.025 - borderWidth, 0.1 - borderWidth, -0.1 ),
+                                                                                 osg::Vec3( 0.025 + 2.0 * borderWidth, 0.0, -0.1 ),
+                                                                                 osg::Vec3( 0.0, 0.8 + 2.0 * borderWidth, -0.1 ) );
                 m_colorBar->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropSelection >( "u_colormap",
                                                                dataSet->getTexture2()->colormap() ) );
                 colormapShader->apply( m_colorBar );
 
-                // add the label scale
-                osg::ref_ptr< WGELabel > topLabel = new WGELabel();
-                topLabel->setCharacterSize( 2 );
-                topLabel->setPosition( osg::Vec3( 0.055, 0.9, 0.0 ) );
-                topLabel->setText(
-                    boost::lexical_cast< std::string >(
-                        dataSet->getTexture2()->minimum()->get() + dataSet->getTexture2()->scale()->get()
-                    )
-                );
-                topLabel->setCharacterSize( 0.02 );
-                topLabel->setAlignment( osgText::Text::LEFT_TOP );
-                osg::ref_ptr< WGELabel > bottomLabel = new WGELabel();
-                bottomLabel->setPosition( osg::Vec3( 0.055, 0.1, 0.0 ) );
-                bottomLabel->setText( boost::lexical_cast< std::string >( dataSet->getTexture2()->minimum()->get() ) );
-                bottomLabel->setCharacterSize( 0.02 );
+                // add the name label
                 osg::ref_ptr< WGELabel > nameLabel = new WGELabel();
                 nameLabel->setPosition( osg::Vec3( 0.015, 0.9, 0.0 ) );
-                nameLabel->setText( dataSet->getTexture2()->name()->get() );
-                nameLabel->setCharacterSize( 0.02 );
+                nameLabel->setText( format( dataSet->getTexture2()->name()->get() ) );
+                nameLabel->setCharacterSize( 0.015 );
                 nameLabel->setLayout( osgText::TextBase::VERTICAL );
                 nameLabel->setAlignment( osgText::Text::BASE_LINE );
                 nameLabel->setUpdateCallback( new WGEFunctorCallback< osg::Drawable >(
@@ -188,15 +228,25 @@ void WMColormapper::moduleMain()
 
                 // this geode contains the labels
                 osg::ref_ptr< osg::Geode > labels = new osg::Geode();
-                labels->addDrawable( topLabel );
-                labels->addDrawable( bottomLabel );
                 labels->addDrawable( nameLabel );
+                m_scaleLabels = new osg::Geode();
+                m_scaleLabels->addUpdateCallback( new WGEFunctorCallback< osg::Node >(
+                    boost::bind( &WMColormapper::updateColorbarScale, this, _1 )
+                ) );
+
+                // set some callbacks
+                colorBarBorder->addUpdateCallback( new WGENodeMaskCallback( m_colorBarBorder ) );
+                labels->addUpdateCallback( new WGENodeMaskCallback( m_colorBarName ) );
 
                 // build pipeline
                 matrix->addChild( colorBarBorder );
                 matrix->addChild( m_colorBar );
+                matrix->addChild( m_scaleLabels );
                 matrix->addChild( labels );
                 m_barProjection->addChild( matrix );
+
+                m_valueMin = dataSet->getTexture2()->minimum()->get();
+                m_valueScale = dataSet->getTexture2()->scale()->get();
 
                 // add
                 WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_barProjection );
@@ -269,7 +319,58 @@ void WMColormapper::updateColorbarName( osg::Drawable* label )
 {
     if ( m_lastDataSet )
     {
-        dynamic_cast< WGELabel* >( label )->setText( m_lastDataSet->getTexture2()->name()->get() );
+        dynamic_cast< WGELabel* >( label )->setText( format( m_lastDataSet->getTexture2()->name()->get() ) );
+    }
+}
+
+void WMColormapper::updateColorbarScale( osg::Node* scaleLabels )
+{
+    if ( m_colorBarLabels->changed( true ) )
+    {
+        const double labelXPos = 0.060;
+        osg::Geode* g = scaleLabels->asGeode();
+        g->removeDrawables( 0, g->getNumDrawables() );
+
+        size_t num = m_colorBarLabels->get( true );
+        double coordStep = 0.8 / static_cast< double >( num - 1 );
+        double valueStep = m_valueScale / static_cast< double >( num - 1 );
+
+        // less than 2 labels is useless
+        if ( num < 2 )
+        {
+            return;
+        }
+
+        osg::Vec3Array* lineVerts = new osg::Vec3Array();
+
+        // create enough labels.
+        for ( size_t i = 0; i < num; ++i )
+        {
+            double value = m_valueMin + ( valueStep * i );
+
+            // create the label
+            osg::ref_ptr< WGELabel > label = new WGELabel();
+            label->setPosition( osg::Vec3( labelXPos, 0.1 + i * coordStep, 0.0 ) );  // bar goes from 0.1 to 0.9 in our coordinate system
+            label->setText( format( value ) );
+            label->setCharacterSize( 0.015 );
+            label->setAlignment( osgText::Text::LEFT_CENTER );
+
+            g->addDrawable( label );
+
+            // create the line next to the label
+            lineVerts->push_back( osg::Vec3( labelXPos - 0.010, 0.1 + i * coordStep, 0.0 ) );
+            lineVerts->push_back( osg::Vec3( labelXPos - 0.005, 0.1 + i * coordStep, 0.0 ) );
+        }
+
+        // create the line drawable
+        osg::Geometry* lines = new osg::Geometry();
+        lines->setVertexArray( lineVerts );
+        osg::Vec3Array* color = new osg::Vec3Array();
+        color->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
+        lines->setColorArray( color );
+        lines->setColorBinding( osg::Geometry::BIND_OVERALL );
+        lines->addPrimitiveSet( new osg::DrawArrays( GL_LINES, 0, lineVerts->size() ) );
+        g->addDrawable( lines );
     }
 }
 
