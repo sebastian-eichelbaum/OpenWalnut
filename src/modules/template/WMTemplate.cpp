@@ -163,6 +163,8 @@ void WMTemplate::connectors()
         new WModuleInputData< WDataSetSingle >( shared_from_this(),
                                                                "in", "The dataset to display" )
         );
+    // Alternative for lazy ones
+    // m_input = WModuleInputData< WDataSetSingle >::createAndAdd( shared_from_this(), "in", "The dataset to display" );
 
     // This creates an input connector which can receive WDataSetSingle. It will never be able to connect to output connectors providing just a
     // WDataSet (which is the father class of WDataSetSingle), but it will be able to be connected to an output connector with a type derived
