@@ -82,6 +82,8 @@ WQtNetworkItem::~WQtNetworkItem()
     {
         delete port;
     }
+    delete m_text;
+    //delete m_subtitle;
 }
 
 int WQtNetworkItem::type() const

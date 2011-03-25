@@ -40,6 +40,9 @@
 WQtNetworkScene::WQtNetworkScene()
     : QGraphicsScene()
 {
+    setItemIndexMethod( NoIndex );
+    // this takes care of the segfault: QGraphicsSceneFindItemBspTreeVisitor::visit
+    // seems to be a Qt bug, testet with qt4 4.7.0
 }
 
 WQtNetworkScene::~WQtNetworkScene()
@@ -66,3 +69,4 @@ QGraphicsItem* WQtNetworkScene::getFakeItem()
 {
     return m_fakeItem;
 }
+
