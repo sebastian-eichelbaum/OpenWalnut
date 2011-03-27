@@ -22,27 +22,15 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGEAnimationRealtimeTimer.h"
+#include "WTimer.h"
 
-WGEAnimationRealtimeTimer::WGEAnimationRealtimeTimer():
-    WGEAnimationTimer(),
-    m_timer( osg::Timer() )
+WTimer::WTimer()
 {
     // initialize
 }
 
-WGEAnimationRealtimeTimer::~WGEAnimationRealtimeTimer()
+WTimer::~WTimer()
 {
     // cleanup
-}
-
-void WGEAnimationRealtimeTimer::reset()
-{
-    m_timer.setStartTick();
-}
-
-double WGEAnimationRealtimeTimer::elapsed() const
-{
-    return m_timer.time_m() / 1000.0;
 }
 

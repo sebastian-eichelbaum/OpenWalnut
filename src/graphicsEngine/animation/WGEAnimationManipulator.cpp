@@ -28,11 +28,11 @@
 #include "../../common/math/WMath.h"
 #include "../../common/math/WVector3D.h"
 
-#include "WGEAnimationTimer.h"
+#include "../../common/WTimer.h"
 
 #include "WGEAnimationManipulator.h"
 
-WGEAnimationManipulator::WGEAnimationManipulator( WGEAnimationTimer::ConstSPtr timer ):
+WGEAnimationManipulator::WGEAnimationManipulator( WTimer::ConstSPtr timer ):
     m_matrix( osg::Matrixd::identity() ),
     m_timer( timer ),
     m_homeOffsetTime( timer->elapsed() ),
@@ -100,7 +100,7 @@ void WGEAnimationManipulator::home( double /* currentTime */ )
     m_homeOffsetTime = m_timer->elapsed();
 }
 
-void WGEAnimationManipulator::setTimer( WGEAnimationTimer::ConstSPtr timer )
+void WGEAnimationManipulator::setTimer( WTimer::ConstSPtr timer )
 {
     m_timer = timer;
     home( 0 );

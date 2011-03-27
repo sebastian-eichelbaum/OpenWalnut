@@ -22,15 +22,53 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGEAnimationTimer.h"
+#ifndef WTIMER_H
+#define WTIMER_H
 
-WGEAnimationTimer::WGEAnimationTimer()
+#include <boost/shared_ptr.hpp>
+
+#include "WExportCommon.h"
+
+/**
+ * Base class for timing. Derive from it to write several timers like a frame-timer or realtime-timer.
+ */
+class OWCOMMON_EXPORT WTimer      // NOLINT - no OWCOMMON_EXPORT does not need an virtual destructor.
 {
-    // initialize
-}
+public:
 
-WGEAnimationTimer::~WGEAnimationTimer()
-{
-    // cleanup
-}
+    /**
+     * Convenience typedef for a shared_ptr
+     */
+    typedef boost::shared_ptr< WTimer > SPtr;
 
+    /**
+     * Convenience typedef for a const shared_ptr.
+     */
+    typedef boost::shared_ptr< const WTimer > ConstSPtr;
+
+    /**
+     * Constructs a animation timer.
+     */
+    WTimer();
+
+    /**
+     * Destructor.
+     */
+    virtual ~WTimer();
+
+    /**
+     * Resets the start-tick.
+     */
+    virtual void reset() = 0;
+
+    /**
+     * Returns the elapsed time since the last reset in seconds with milliseconds precision.
+     *
+     * \return elapsed time in seconds with millisecond precision.
+     */
+    virtual double elapsed() const = 0;
+
+private:
+};
+
+#endif  // WTIMER_H

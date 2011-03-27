@@ -22,43 +22,43 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WGEANIMATIONREALTIMETIMER_H
-#define WGEANIMATIONREALTIMETIMER_H
+#ifndef WREALTIMETIMER_H
+#define WREALTIMETIMER_H
 
 #include <boost/shared_ptr.hpp>
 
 #include <osg/Timer>
 
-#include "WGEAnimationTimer.h"
+#include "WTimer.h"
 
-#include "../WExportWGE.h"
+#include "WExportCommon.h"
 
 /**
- * Realtime animation timing. Internally, this uses an osg::Timer.
+ * Realtime timing. Internally, this uses an osg::Timer.
  */
-class WGE_EXPORT WGEAnimationRealtimeTimer: public WGEAnimationTimer
+class OWCOMMON_EXPORT WRealtimeTimer: public WTimer
 {
 public:
 
     /**
      * Convenience typedef for a shared_ptr
      */
-    typedef boost::shared_ptr< WGEAnimationRealtimeTimer > SPtr;
+    typedef boost::shared_ptr< WRealtimeTimer > SPtr;
 
     /**
      * Convenience typedef for a const shared_ptr.
      */
-    typedef boost::shared_ptr< const WGEAnimationRealtimeTimer > ConstSPtr;
+    typedef boost::shared_ptr< const WRealtimeTimer > ConstSPtr;
 
     /**
      * Constructs a realtime animation timer.
      */
-    WGEAnimationRealtimeTimer();
+    WRealtimeTimer();
 
     /**
      * Destructor.
      */
-    virtual ~WGEAnimationRealtimeTimer();
+    virtual ~WRealtimeTimer();
 
     /**
      * Resets the start-tick.
@@ -80,4 +80,4 @@ private:
     osg::Timer m_timer;
 };
 
-#endif  // WGEANIMATIONREALTIMETIMER_H
+#endif  // WREALTIMETIMER_H
