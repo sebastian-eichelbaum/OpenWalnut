@@ -47,6 +47,7 @@
 #include "../../common/WPropertyVariable.h"
 #include "../../common/WPropertyTypes.h"
 #include "../../common/WLogger.h"
+#include "../../common/math/WVector3D.h"
 
 #include "WModuleProjectFileCombiner.h"
 
@@ -215,7 +216,12 @@ void WModuleProjectFileCombiner::apply()
             if ( prop->getPurpose() != PV_PURPOSE_INFORMATION )
             {
                 // set the property here
-                prop->setAsString( ( *iter ).second );
+                bool result = prop->setAsString( ( *iter ).second );
+                if ( !result )
+                {
+                    wlog::error( "Project Loader" ) << "Failed to set property " << ( *iter ).first.second << " in module \"" <<
+                                                       m->getName() << "\".";
+                }
             }
             else
             {
