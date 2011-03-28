@@ -348,7 +348,8 @@ osg::ref_ptr< osg::Geometry > WBoundaryLines::traverseEdgeHashMap( double isoVal
 
     geometry->setVertexArray( vertices );
     geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-    geometry->getOrCreateStateSet()->setAttributeAndModes( new osg::LineWidth( 4.0f ), osg::StateAttribute::ON );
+    geometry->getOrCreateStateSet()->setAttributeAndModes( new osg::LineWidth( 2.5f ), osg::StateAttribute::ON );
+    geometry->getOrCreateStateSet()->setMode( GL_LINE_SMOOTH, osg::StateAttribute::ON );
     geometry->setColorArray( colors );
 
     return geometry;
