@@ -59,3 +59,4 @@ boost::shared_ptr<WModuleInputConnector> WQtNetworkInputPort::getConnector()
 {
     return m_connector;
 }
+
