@@ -88,6 +88,16 @@ void WMEigenSystem::connectors()
 
 void WMEigenSystem::properties()
 {
+    // for selecting the strategy
+    boost::shared_ptr< WItemSelection > strategies( new WItemSelection() );
+    strategies->addItem( "LibEigen", "Eigensystem is computed via libEigen and its SelfAdjointEigenSolver" );
+    strategies->addItem( "Jacobi", "Self implemented Jacobi iterative eigen decomposition" );
+    m_strategySelector = m_properties->addProperty( "Strategy", "How the eigen system should be computed",
+            strategies->getSelectorFirst() );
+
+    WPropertyHelper::PC_SELECTONLYONE::addTo( m_strategySelector );
+    WPropertyHelper::PC_NOTEMPTY::addTo( m_strategySelector );
+
     WModule::properties();
 }
 
@@ -100,6 +110,7 @@ void WMEigenSystem::moduleMain()
 {
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_tensorIC->getDataChangedCondition() );
+    m_moduleState.add( m_strategySelector->getCondition() );
 
     ready();
 
@@ -243,6 +254,43 @@ WMEigenSystem::TPVODouble::OutTransmitType const WMEigenSystem::eigenFuncDouble(
     return computeEigenSystem( m );
 }
 
+WMEigenSystem::TPVODouble::OutTransmitType const WMEigenSystem::eigenSolverDouble( TPVODouble::TransmitType const &input )
+{
+    Eigen::Matrix3d m;
+    m << input[0], input[1], input[2],
+         input[1], input[3], input[4],
+         input[2], input[4], input[5];
+
+    return applyEigenSolver( m );
+}
+
+WMEigenSystem::TPVOFloat::OutTransmitType const WMEigenSystem::eigenSolverFloat( TPVOFloat::TransmitType const &input )
+{
+    Eigen::Matrix3d m;
+    m << input[0], input[1], input[2],
+         input[1], input[3], input[4],
+         input[2], input[4], input[5];
+
+    return applyEigenSolver( m );
+}
+
+boost::array< double, 12 > WMEigenSystem::applyEigenSolver( const Eigen::Matrix3d &m ) const
+{
+    Eigen::SelfAdjointEigenSolver< Eigen::Matrix3d > es( m );
+    const Eigen::Matrix3d &evecs = es.eigenvectors();
+    const Eigen::Vector3d &evals = es.eigenvalues();
+    boost::array< double, 12 > result = { { evals( 0 ), evecs( 0, 0 ),
+                                                        evecs( 0, 1 ),
+                                                        evecs( 0, 2 ),
+                                            evals( 1 ), evecs( 1, 0 ),
+                                                        evecs( 1, 1 ),
+                                                        evecs( 1, 2 ),
+                                            evals( 2 ), evecs( 2, 0 ),
+                                                        evecs( 2, 1 ),
+                                                        evecs( 2, 2 ) } }; // NOLINT curly braces
+    return result;
+}
+
 void WMEigenSystem::resetProgress( std::size_t todo, std::string name )
 {
     if( m_currentProgress )
@@ -277,15 +325,35 @@ void WMEigenSystem::resetEigenFunction( boost::shared_ptr< WDataSetDTI > tensors
     // create a new one
     if( tensors->getValueSet()->getDataType() == W_DT_DOUBLE )
     {
-        m_eigenOperationDouble = boost::shared_ptr< TPVODouble >( new TPVODouble( tensors,
-                                                boost::bind( &WMEigenSystem::eigenFuncDouble, this, _1 ) ) );
+        if( m_strategySelector->get().at( 0 )->getName() == "LibEigen" )
+        {
+            m_eigenOperationDouble = boost::shared_ptr< TPVODouble >( new TPVODouble( tensors, boost::bind( &WMEigenSystem::eigenSolverDouble, this, _1 ) ) ); // NOLINT line length
+        }
+        else if( m_strategySelector->get().at( 0 )->getName() == "Jacobi" )
+        {
+            m_eigenOperationDouble = boost::shared_ptr< TPVODouble >( new TPVODouble( tensors, boost::bind( &WMEigenSystem::eigenFuncDouble, this, _1 ) ) ); // NOLINT line length
+        }
+        else
+        {
+            WAssert( 0, "Bug: Invalid strategy for eigen decomposition selected!" );
+        }
         m_eigenPool = boost::shared_ptr< WThreadedFunctionBase >( new EigenFunctionTypeDouble( W_AUTOMATIC_NB_THREADS, m_eigenOperationDouble ) );
         m_moduleState.add( m_eigenPool->getThreadsDoneCondition() );
     }
     else if( tensors->getValueSet()->getDataType() == W_DT_FLOAT )
     {
-        m_eigenOperationFloat = boost::shared_ptr< TPVOFloat >( new TPVOFloat( tensors,
-                                                boost::bind( &WMEigenSystem::eigenFuncFloat, this, _1 ) ) );
+        if( m_strategySelector->get().at( 0 )->getName() == "LibEigen" )
+        {
+            m_eigenOperationFloat = boost::shared_ptr< TPVOFloat >( new TPVOFloat( tensors, boost::bind( &WMEigenSystem::eigenSolverFloat, this, _1 ) ) ); // NOLINT line length
+        }
+        else if( m_strategySelector->get().at( 0 )->getName() == "Jacobi" )
+        {
+            m_eigenOperationFloat = boost::shared_ptr< TPVOFloat >( new TPVOFloat( tensors, boost::bind( &WMEigenSystem::eigenFuncFloat, this, _1 ) ) ); // NOLINT line length
+        }
+        else
+        {
+            WAssert( 0, "Bug: Invalid strategy for eigen decomposition selected!" );
+        }
         m_eigenPool = boost::shared_ptr< WThreadedFunctionBase >( new EigenFunctionTypeFloat( W_AUTOMATIC_NB_THREADS, m_eigenOperationFloat ) );
         m_moduleState.add( m_eigenPool->getThreadsDoneCondition() );
     }
