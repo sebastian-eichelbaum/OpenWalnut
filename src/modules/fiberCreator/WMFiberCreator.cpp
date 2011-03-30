@@ -90,11 +90,13 @@ void WMFiberCreator::properties()
     m_numVertsPerFiber->setMin( 1 );
     m_numVertsPerFiber->setMax( 10000 );
 
+    m_fibColor = m_properties->addProperty( "Color", "Color for the fibers.", defaultColor::WHITE, m_propCondition );
+
     // call WModule's initialization
     WModule::properties();
 }
 
-void spiral( size_t numFibers, size_t numVertsPerFiber,
+void WMFiberCreator::spiral( size_t numFibers, size_t numVertsPerFiber,
             WDataSetFibers::VertexArray vertices,
             WDataSetFibers::IndexArray fibIdx,
             WDataSetFibers::LengthArray lengths,
@@ -102,12 +104,12 @@ void spiral( size_t numFibers, size_t numVertsPerFiber,
             WDataSetFibers::ColorArray colors
         )
 {
-
     WPosition m_centerPoint = WPosition( 0.0, 0.0, 0.0 );
     double m_spiralRadius = 10.0;
     double m_tubeRadius = 1.0;
     double m_height = 25.0;
     double m_rotations = 10.0;
+    WColor fibColor = m_fibColor->get();
 
     // create each
     for( size_t fidx = 0; fidx < numFibers; ++fidx )
@@ -115,8 +117,6 @@ void spiral( size_t numFibers, size_t numVertsPerFiber,
         size_t vertOffset = fidx * numVertsPerFiber;
         fibIdx->push_back( vertOffset );
         lengths->push_back( numVertsPerFiber );
-
-        double f = static_cast< double >( fidx ) / static_cast< double >( numFibers - 1 );
 
         double a1 = static_cast< double >( std::rand() % 255 ) / 255.0;
         double a2 = static_cast< double >( std::rand() % 255 ) / 255.0;
@@ -140,16 +140,15 @@ void spiral( size_t numFibers, size_t numVertsPerFiber,
             vertices->push_back( Y );
             vertices->push_back( Z );
 
-            colors->push_back( 1.0 );
-            colors->push_back( 0.0 );
-            colors->push_back( 0.0 );
-
+            colors->push_back( fibColor.x() );
+            colors->push_back( fibColor.y() );
+            colors->push_back( fibColor.z() );
             fibIdxVertexMap->push_back( fidx );
         }
     }
 }
 
-void crossing( size_t numFibers, size_t numVertsPerFiber,
+void WMFiberCreator::crossing( size_t numFibers, size_t numVertsPerFiber,
             WDataSetFibers::VertexArray vertices,
             WDataSetFibers::IndexArray fibIdx,
             WDataSetFibers::LengthArray lengths,
@@ -163,6 +162,7 @@ void crossing( size_t numFibers, size_t numVertsPerFiber,
     starts[1] = WPosition( -10.0, 5.0,  10.0 );
     ends[0] = WPosition( 10.0, 0.0,  10.0 );
     ends[1] = WPosition( 10.0, 5.0, -10.0 );
+    WColor fibColor = m_fibColor->get();
 
     // create each
     unsigned char pidx = 0;
@@ -188,10 +188,9 @@ void crossing( size_t numFibers, size_t numVertsPerFiber,
             vertices->push_back( vert.y() );
             vertices->push_back( vert.z() );
 
-            colors->push_back( 1.0 );
-            colors->push_back( 0.0 );
-            colors->push_back( 0.0 );
-
+            colors->push_back( fibColor.x() );
+            colors->push_back( fibColor.y() );
+            colors->push_back( fibColor.z() );
             fibIdxVertexMap->push_back( fidx );
         }
     }

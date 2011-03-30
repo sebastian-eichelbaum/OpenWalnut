@@ -114,6 +114,47 @@ private:
      * Number of vertices per fiber.
      */
     WPropInt m_numVertsPerFiber;
+
+    /**
+     * Fiber color.
+     */
+    WPropColor m_fibColor;
+
+    /**
+     * Creates a crossing fiber bundle.
+     *
+     * \param numFibers the number of fibers to create
+     * \param numVertsPerFiber the number of vertices per fiber
+     * \param vertices vertices of the line strips
+     * \param fibIdx fibIdx the indices to the vertices
+     * \param lengths lengths of each fiber
+     * \param fibIdxVertexMap index of fiber for each vertex
+     * \param colors colors for each vertex. RGB only.
+     */
+    void crossing( size_t numFibers, size_t numVertsPerFiber,
+            WDataSetFibers::VertexArray vertices,
+            WDataSetFibers::IndexArray fibIdx,
+            WDataSetFibers::LengthArray lengths,
+            WDataSetFibers::IndexArray fibIdxVertexMap,
+            WDataSetFibers::ColorArray colors );
+
+    /**
+     * Creates a spiral fiber bundle.
+     *
+     * \param numFibers the number of fibers to create
+     * \param numVertsPerFiber the number of vertices per fiber
+     * \param vertices vertices of the line strips
+     * \param fibIdx fibIdx the indices to the vertices
+     * \param lengths lengths of each fiber
+     * \param fibIdxVertexMap index of fiber for each vertex
+     * \param colors colors for each vertex. RGB only.
+     */
+    void spiral( size_t numFibers, size_t numVertsPerFiber,
+            WDataSetFibers::VertexArray vertices,
+            WDataSetFibers::IndexArray fibIdx,
+            WDataSetFibers::LengthArray lengths,
+            WDataSetFibers::IndexArray fibIdxVertexMap,
+            WDataSetFibers::ColorArray colors );
 };
 
 #endif  // WMFIBERCREATOR_H
