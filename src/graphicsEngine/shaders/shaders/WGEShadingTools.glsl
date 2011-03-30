@@ -56,7 +56,7 @@ wge_LightIntensityParameter wge_DefaultLightIntensity = wge_LightIntensityParame
     0.04,                            // material ambient
     0.75,                            // material diffuse
     1.0,                             // material specular
-    100.0,                           // material shininess
+    250.0,                           // material shininess
     1.0,                             // light diffuse
     1.0,                             // light ambient
     gl_LightSource[0].position.xyz,  // light position
@@ -71,7 +71,7 @@ wge_LightIntensityParameter wge_DefaultLightIntensityFullDiffuse = wge_LightInte
     0.0,                             // material ambient
     1.0,                             // material diffuse
     1.0,                             // material specular
-    100.0,                           // material shininess
+    250.0,                           // material shininess
     1.0,                             // light diffuse
     1.0,                             // light ambient
     gl_LightSource[0].position.xyz,  // light position
@@ -86,7 +86,7 @@ wge_LightIntensityParameter wge_DefaultLightIntensityLessDiffuse = wge_LightInte
     0.0,                             // material ambient
     0.35,                            // material diffuse
     1.0,                             // material specular
-    100.0,                           // material shininess
+    250.0,                           // material shininess
     1.0,                             // light diffuse
     1.0,                             // light ambient
     gl_LightSource[0].position.xyz,  // light position
