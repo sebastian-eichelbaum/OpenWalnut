@@ -104,6 +104,16 @@ private:
      * A condition used to notify about changes in several properties.
      */
     boost::shared_ptr< WCondition > m_propCondition;
+
+    /**
+     * Number of fibers.
+     */
+    WPropInt m_numFibers;
+
+    /**
+     * Number of vertices per fiber.
+     */
+    WPropInt m_numVertsPerFiber;
 };
 
 #endif  // WMFIBERCREATOR_H

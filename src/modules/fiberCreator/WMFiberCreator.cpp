@@ -83,6 +83,13 @@ void WMFiberCreator::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
+    m_numFibers = m_properties->addProperty( "Num Fibers", "The number of fibers to create.", 500, m_propCondition );
+    m_numFibers->setMin( 1 );
+    m_numFibers->setMax( 10000 );
+    m_numVertsPerFiber = m_properties->addProperty( "Num Vertices", "Vertices per fiber.", 1000, m_propCondition );
+    m_numVertsPerFiber->setMin( 1 );
+    m_numVertsPerFiber->setMax( 10000 );
+
     // call WModule's initialization
     WModule::properties();
 }
@@ -216,12 +223,12 @@ void WMFiberCreator::moduleMain()
         }
 
         // for each fiber:
-        size_t m_numFibers = 500;
-        size_t m_numVertsPerFiber = 1000;
-        size_t m_numVerts = m_numVertsPerFiber * m_numFibers;
-        debugLog() << "Creating " << m_numFibers << " fibers.";
+        size_t numFibers = m_numFibers->get();
+        size_t numVertsPerFiber = m_numVertsPerFiber->get();
+        size_t numVerts = numVertsPerFiber * numFibers;
+        debugLog() << "Creating " << numFibers << " fibers.";
         boost::shared_ptr< WProgress > progress1 = boost::shared_ptr< WProgress >( new WProgress( "Creating fibers.",
-                                                                                                  m_numFibers ) );
+                                                                                                  numFibers ) );
 
         // Create needed arrays:
         WDataSetFibers::VertexArray vertices = WDataSetFibers::VertexArray( new WDataSetFibers::VertexArray::element_type() );
@@ -229,18 +236,18 @@ void WMFiberCreator::moduleMain()
         WDataSetFibers::LengthArray lengths = WDataSetFibers::LengthArray( new WDataSetFibers::LengthArray::element_type() );
         WDataSetFibers::IndexArray fibIdxVertexMap = WDataSetFibers::IndexArray( new WDataSetFibers::IndexArray::element_type() );
         WDataSetFibers::ColorArray colors = WDataSetFibers::ColorArray( new WDataSetFibers::ColorArray::element_type() );
-        vertices->reserve( m_numVerts * 3 );
-        fibIdx->reserve( m_numFibers );
-        lengths->reserve( m_numFibers );
-        fibIdxVertexMap->reserve( m_numVerts );
-        colors->reserve( m_numVerts * 3 );
+        vertices->reserve( numVerts * 3 );
+        fibIdx->reserve( numFibers );
+        lengths->reserve( numFibers );
+        fibIdxVertexMap->reserve( numVerts );
+        colors->reserve( numVerts * 3 );
 
         // the bounding box. We calc it during creation to save some time later during WDataSetFibers creation.
         WBoundingBox bbox;
 
         std::srand( time( 0 ) );
-        spiral( m_numFibers, m_numVertsPerFiber, vertices, fibIdx, lengths, fibIdxVertexMap, colors );
-        //crossing( m_numFibers, m_numVertsPerFiber, vertices, fibIdx, lengths, fibIdxVertexMap, colors );
+        spiral( numFibers, numVertsPerFiber, vertices, fibIdx, lengths, fibIdxVertexMap, colors );
+        //crossing( numFibers, numVertsPerFiber, vertices, fibIdx, lengths, fibIdxVertexMap, colors );
 
         // update output:
         debugLog() << "Done. Updating output.";
