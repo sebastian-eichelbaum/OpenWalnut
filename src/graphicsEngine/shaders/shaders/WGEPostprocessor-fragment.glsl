@@ -783,7 +783,7 @@ void main()
 #endif
 
 #ifdef WGE_POSTPROCESSOR_NORMAL
-    blend( getNormal() );
+    blend( abs( getNormal() ) );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_CUSTOM
