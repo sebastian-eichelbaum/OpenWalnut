@@ -122,6 +122,8 @@ void WMFiberDisplaySimple::properties()
 
     m_tubeGroup = m_properties->addPropertyGroup( "Tube Rendering", "Tube rendering specific options." );
     m_tubeEnable = m_tubeGroup->addProperty( "Enable Tubes", "If set, fake-tube rendering is used.", false, m_propCondition  );
+    m_tubeEndCapsEnable = m_tubeGroup->addProperty( "Use end caps", "If set, fake-tube ends are rendered using another quad simulation a proper"
+                                                                    " ending.", true );
     m_tubeRibbon = m_tubeGroup->addProperty( "Ribbon mode", "If set, the tubes look like flat ribbons.", false );
     m_tubeZoomable = m_tubeGroup->addProperty( "Zoomable", "If set, fake-tube get thicker when zoomed in. If not set, they always keep the same "
                                                             "size in screen-space. This emulates standard OpenGL lines.", true );
@@ -215,6 +217,10 @@ void WMFiberDisplaySimple::moduleMain()
     defineTmp = WGEShaderPreprocessor::SPtr(
         new WGEShaderPropertyDefineOptions< WPropBool >( m_tubeRibbon, "RIBBON_DISABLED", "RIBBON_ENABLED" ) );
     m_shader->addPreprocessor( defineTmp );
+    m_endCapShader->addPreprocessor( defineTmp );
+
+    defineTmp = WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_tubeEndCapsEnable, "ENDCAPS_DISABLED", "ENDCAPS_ENABLED" ) );
     m_endCapShader->addPreprocessor( defineTmp );
 
     osg::ref_ptr< WGEPropertyUniform< WPropDouble > > tubeSizeUniform = new WGEPropertyUniform< WPropDouble >( "u_tubeSize", m_tubeSize );

@@ -169,6 +169,11 @@ private:
     WPropBool m_tubeEnable;
 
     /**
+     * Property denoting whether to use end-caps on tubes
+     */
+    WPropBool m_tubeEndCapsEnable;
+
+    /**
      * Prop denoting whether tubes can be zoomed or not.
      */
     WPropBool m_tubeZoomable;

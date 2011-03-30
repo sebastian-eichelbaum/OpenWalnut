@@ -105,6 +105,12 @@ void main()
     }
 #endif  // CLIPPLANE_ENABLED
 
+#if !( defined( ENDCAPS_ENABLED ) )
+    // no endcaps?
+    // do not emit any vertex
+    return;
+#endif  // ENDCAPS_ENABLED
+
     // discard the caps if in ribbon mode or non-zoomable mode. it not yet works.
 #if !( defined( RIBBON_ENABLED ) || !defined( ZOOMABLE_ENABLED ) )
 
