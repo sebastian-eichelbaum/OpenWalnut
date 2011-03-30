@@ -27,8 +27,8 @@
 
 #include <osgGA/MatrixManipulator>
 
-#include "WGEAnimationTimer.h"
-#include "WGEAnimationRealtimeTimer.h"
+#include "../../common/WTimer.h"
+#include "../../common/WRealtimeTimer.h"
 
 #include "../WExportWGE.h"
 
@@ -53,7 +53,7 @@ public:
      *
      * \param timer the timer type
      */
-    WGEAnimationManipulator( WGEAnimationTimer::ConstSPtr timer = WGEAnimationTimer::ConstSPtr( new WGEAnimationRealtimeTimer() ) );
+    WGEAnimationManipulator( WTimer::ConstSPtr timer = WTimer::ConstSPtr( new WRealtimeTimer() ) );
 
     /**
      * Destructor.
@@ -129,7 +129,7 @@ public:
      *
      * \param timer the timer
      */
-    virtual void setTimer( WGEAnimationTimer::ConstSPtr timer );
+    virtual void setTimer( WTimer::ConstSPtr timer );
 
 private:
 
@@ -141,7 +141,7 @@ private:
     /**
      * This timer keeps track of the current animation-time.
      */
-    WGEAnimationTimer::ConstSPtr m_timer;
+    WTimer::ConstSPtr m_timer;
 
     /**
      * If home() is called, the homeOffsetTime stores the timers current value.

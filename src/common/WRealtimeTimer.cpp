@@ -22,33 +22,27 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WGEAnimationFrameTimer.h"
+#include "WRealtimeTimer.h"
 
-WGEAnimationFrameTimer::WGEAnimationFrameTimer( float framesPerSecond ):
+WRealtimeTimer::WRealtimeTimer():
     WTimer(),
-    m_tick( 0 ),
-    m_framesPerSecond( framesPerSecond )
+    m_timer( osg::Timer() )
 {
     // initialize
 }
 
-WGEAnimationFrameTimer::~WGEAnimationFrameTimer()
+WRealtimeTimer::~WRealtimeTimer()
 {
     // cleanup
 }
 
-void WGEAnimationFrameTimer::reset()
+void WRealtimeTimer::reset()
 {
-    m_tick = 0;
+    m_timer.setStartTick();
 }
 
-double WGEAnimationFrameTimer::elapsed() const
+double WRealtimeTimer::elapsed() const
 {
-    return static_cast< double >( m_tick ) / m_framesPerSecond;
-}
-
-void WGEAnimationFrameTimer::tick()
-{
-    m_tick++;
+    return m_timer.time_m() / 1000.0;
 }
 

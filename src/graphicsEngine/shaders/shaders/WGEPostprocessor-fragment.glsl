@@ -468,20 +468,24 @@ float getGaussedDepth()
 /**
  * The total influence of SSAO.
  */
-//uniform float u_ssaoTotalStrength = 2.0;   // solid
-uniform float u_ssaoTotalStrength = 2.5;     // lines
+//uniform float u_ssaoTotalStrength = 2.5;     // lines
+//uniform float u_ssaoTotalStrength = 1.5;   // smallfibs
+//uniform float u_ssaoTotalStrength = 2.0;   // deltawing tube
+uniform float u_ssaoTotalStrength = 3.0;   // deltawing lines
+
+/**
+ * The radius of the hemispshere in screen-space which gets scaled.
+ */
+//uniform float u_ssaoRadiusSS = 2.0;   // lines
+//uniform float u_ssaoRadiusSS = 2.5; // smallfibs
+//uniform float u_ssaoRadiusSS = 1.0; // deltawing tube
+uniform float u_ssaoRadiusSS = 2.5; // deltawing lines
 
 /**
  * The strength of the occluder influence in relation to the geometry density. The heigher the value, the larger the influence. Low values remove
  * the drop-shadow effect.
  */
 uniform float u_ssaoDensityWeight = 1.0;
-
-/**
- * The radius of the hemispshere in screen-space which gets scaled.
- */
-//uniform float u_ssaoRadiusSS = 1.5;   // lines
-uniform float u_ssaoRadiusSS = 1.5; // solid
 
 /**
  * Calculate the screen-space ambient occlusion from normal and depth map.
@@ -492,8 +496,10 @@ uniform float u_ssaoRadiusSS = 1.5; // solid
  */
 float getSSAO( vec2 where )
 {
-    #define SCALERS 3
-    #define SAMPLES 32  // the numbers of samples to check on the hemisphere
+    // #define SCALERS 3   // all
+    // #define SAMPLES 32  // the numbers of samples to check on the hemisphere // all
+    #define SCALERS 5   // deltawing lines
+    #define SAMPLES 64  // the numbers of samples to check on the hemisphere // deltawing lines
     const float invSamples = 1.0 / float( SAMPLES );
 
     // Fall-off for SSAO per occluder. This hould be zero (or nearly zero) since it defines what is counted as before, or behind.
@@ -548,6 +554,12 @@ float getSSAO( vec2 where )
 #endif
 #if ( SCALERS > 5 )
     rads[5] = radScaleMin + 5.0 * ( radScaleMax / SCALERS );
+#endif
+#if ( SCALERS > 6 )
+    rads[5] = radScaleMin + 6.0 * ( radScaleMax / SCALERS );
+#endif
+#if ( SCALERS > 7 )
+    rads[5] = radScaleMin + 7.0 * ( radScaleMax / SCALERS );
 #endif
     float fac = 0.0;
 
@@ -790,16 +802,20 @@ void main()
 #endif
 
 #ifdef WGE_POSTPROCESSOR_PPLPHONG
-    blendScale( getPPLPhong( wge_DefaultLightIntensityFullDiffuse ) );
+    wge_LightIntensityParameter l = wge_DefaultLightIntensityFullDiffuse;
+    l.materialAmbient = 0.125;
+    l.materialShinines = 2000;
+    blendScale( getPPLPhong( l ) );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_SSAO
-    blendScale( getSSAO() );
+    //blendScale( 2.0 * ( getSSAO() - 0.2 ) );    // smallfibs
+    blendScale( 1.5 * getSSAO() );    // brain
 #endif
 
 #ifdef WGE_POSTPROCESSOR_SSAOWITHPHONG
     // Teaser:
-    /*float ao = getSSAO();
+    float ao = getSSAO();
     float ao2 = 2. * ( ao - 0.5 );
 
     wge_LightIntensityParameter light = wge_DefaultLightIntensity;
@@ -813,7 +829,7 @@ void main()
 
     float l = ( ao2 + ao*lPhong );
     l *= 0.75;
-    blend( vec4( vec3( getColor().rgb * l * 1.0 ), 1.0 ) );*/
+    blend( vec4( vec3( getColor().rgb * l * 1.0 ), 1.0 ) );
 
     /*blend( getColor() );
     blendScale( getPPLPhong( wge_DefaultLightIntensityFullDiffuse ) );
@@ -845,7 +861,7 @@ void main()
 #endif
 
 #ifdef WGE_POSTPROCESSOR_NORMAL
-    blend( getNormal() );
+    blend( abs( getNormal() ) );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_CUSTOM

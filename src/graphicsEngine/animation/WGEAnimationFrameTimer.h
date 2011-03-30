@@ -27,14 +27,14 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WGEAnimationTimer.h"
+#include "../../common/WTimer.h"
 
 #include "../WExportWGE.h"
 
 /**
  * Frame-based animation timing.
  */
-class WGE_EXPORT WGEAnimationFrameTimer: public WGEAnimationTimer
+class WGE_EXPORT WGEAnimationFrameTimer: public WTimer
 {
 public:
 
