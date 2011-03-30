@@ -84,6 +84,7 @@ void main()
     // Grab the tangent. We have uploaded it normalized in gl_Normal per vertex
     // We need to transfer it to the world-space ass all further operations are done there.
     vec3 tangent = normalize( ( gl_ModelViewMatrix * vec4( gl_Normal, 0.0 ) ).xyz );
+    v_tangent = tangent;
 
     // The view direction in world-space. In OpenGL this is always defined by this vector
     vec3 view = vec3( 0.0, 0.0, -1.0 );

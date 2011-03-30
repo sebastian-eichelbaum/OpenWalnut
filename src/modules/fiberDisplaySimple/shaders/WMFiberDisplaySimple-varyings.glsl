@@ -39,6 +39,11 @@ varying float v_dist;
 varying vec3 v_normal;
 
 /**
+ * The line tangent.
+ */
+varying vec3 v_tangent;
+
+/**
  * The normal parameterizing the surface in orthogonal tangent direction.
  */
 varying vec3 v_biNormal;

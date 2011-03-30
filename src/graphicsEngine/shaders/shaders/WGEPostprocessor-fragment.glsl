@@ -66,6 +66,12 @@ uniform sampler2D u_texture4Sampler;
 #define u_noiseSampler u_texture4Sampler
 
 /**
+ * The tangent data
+ */
+uniform sampler2D u_texture5Sampler;
+#define u_tangentSampler u_texture5Sampler
+
+/**
  * The white-noise 3 channel texture: size in x direction
  */
 uniform int u_texture3SizeX;
@@ -170,6 +176,30 @@ vec4 getNormal( in vec2 where )
  * \return the normal
  */
 vec4 getNormal()
+{
+    return getNormal( pixelCoord );
+}
+
+/**
+ * Grabs the normal at the specified point. The returned normal has been de-scaled to [-1,1] and normalized The w component is 1.
+ *
+ * \param where the pixel to grab
+ *
+ * \return the normal
+ */
+vec4 getTangent( in vec2 where )
+{
+    return normalize( texture2DUnscaled( u_tangentSampler, where, -1.0, 2.0 ).xyz ).xyzz * zeroOneList.xxxy + zeroOneList.yyyx;
+}
+
+/**
+ * Grabs the normal at the current pixel. The returned normal has been de-scaled to [-1,1]. The w component is 1.
+ *
+ * \note GLSL does not officially allow default values for function arguments which is why we need this additional function.
+ *
+ * \return the normal
+ */
+vec4 getTangent()
 {
     return getNormal( pixelCoord );
 }
@@ -438,20 +468,20 @@ float getGaussedDepth()
 /**
  * The total influence of SSAO.
  */
-//uniform float u_ssaoTotalStrength = 2.0; // 1.38;   // solid
-uniform float u_ssaoTotalStrength = 5.5; // lines
+//uniform float u_ssaoTotalStrength = 2.0;   // solid
+uniform float u_ssaoTotalStrength = 2.5;     // lines
 
 /**
  * The strength of the occluder influence in relation to the geometry density. The heigher the value, the larger the influence. Low values remove
  * the drop-shadow effect.
  */
-uniform float u_ssaoDensityWeight = 0.75; //0.07;
+uniform float u_ssaoDensityWeight = 1.0;
 
 /**
  * The radius of the hemispshere in screen-space which gets scaled.
  */
-uniform float u_ssaoRadiusSS = 2.0; // lines
-//uniform float u_ssaoRadiusSS = 3.0; // solid
+//uniform float u_ssaoRadiusSS = 1.5;   // lines
+uniform float u_ssaoRadiusSS = 1.5; // solid
 
 /**
  * Calculate the screen-space ambient occlusion from normal and depth map.
@@ -535,7 +565,9 @@ float getSSAO( vec2 where )
                                                                        float( l ) / float( SCALERS ) ) ).rgb * 2.0 ) - vec3( 1.0 );
 
             // get a vector (randomized inside of a sphere with radius 1.0) from a texture and reflect it
-            ray = radiusScaler * radius * reflect( randSphereNormal, randNormal );
+            // TODO(ebaum): well, u_ssaoRadiusSS = 2 but radiusScaler is 0.5 the first time....
+            vec3 hemisphereVector = reflect( randSphereNormal, randNormal );
+            ray = radiusScaler * radius * hemisphereVector;
 
             // if the ray is outside the hemisphere then change direction
             hemispherePoint = ( sign( dot( ray, normal ) ) * ray ) + ep;
@@ -544,18 +576,36 @@ float getSSAO( vec2 where )
             occluderDepth = getDepth( hemispherePoint.xy );
 
             // get the normal of the occluder fragment
-            occluderNormal = 0.75 * getNormal( hemispherePoint.xy ).xyz;
+            occluderNormal = getNormal( hemispherePoint.xy ).xyz;
 
             // if depthDifference is negative = occluder is behind the current fragment -> occluding this fragment
             depthDifference = currentPixelDepth - occluderDepth;
 
             // calculate the difference between the normals as a weight. This weight determines how much the occluder occludes the fragment
-            normalDifference = 1.0 - dot( occluderNormal, normal );
+            // TODO(ebaum): evaluate these alternatives: the first one is the surface direction and occluder surface direction
+            float pointDiffuse = max( dot( hemisphereVector, normal ), 0.0 ); // this equals the diffuse term in Phong if lightDir is the
+                                                                              // occluder's surface
+
+            // TODO(ebaum): check normal again with another light
+            vec3 t = getTangent( hemispherePoint.xy ).xyz;
+            vec3 newnorm = normalize( cross( normalize( cross( t, normalize( hemisphereVector ) ) ), t ) );
+            float occluderDiffuse = max( dot( newnorm, gl_LightSource[0].position.xyz ), 0.0 );
+
+            // TODO(ebaum): better incorporate specular reflection
+            vec3 H = normalize( gl_LightSource[0].position.xyz + normalize( hemisphereVector ) );
+            float occluderSpecular = pow( max( dot( H, occluderNormal ), 0.0 ), 100.0 );
+
+            // this second is as proposed for AO, the omega (hemisphere vector) and surface normal
+            normalDifference = pointDiffuse * ( occluderSpecular + occluderDiffuse );
+            normalDifference = 1.0 - normalDifference;
 
             // the higher the depth difference, the less it should influence the occlusion value since large space between geometry normally allows
             // many light. It somehow can be described with "shadowiness". In other words, it describes the density of geometry and its influence to
             // the occlusion.
-            float densityWeight = ( 1.0 - smoothstep( falloff, u_ssaoDensityWeight, depthDifference ) );
+            float scaler = ( SCALERS - l ) / float( SCALERS - 1 );
+            float densityInfluence = scaler * scaler * u_ssaoDensityWeight;
+            //  This reduces the occlusion if the occluder is far away
+            float densityWeight = ( 1.0 - smoothstep( falloff, densityInfluence, depthDifference ) );
 
             // the following step function ensures that negative depthDifference values get clamped to 0, meaning that this occluder should have NO
             // influence on the occlusion value. A positive value (fragment is behind the occluder) increases the occlusion factor according to the
