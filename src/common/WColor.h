@@ -68,6 +68,8 @@ namespace defaultColor
     static const WColor GREEN( 0.0, 1.0, 0.0, 1.0 ); //!< Default for green
     static const WColor RED( 1.0, 0.0, 0.0, 1.0 ); //!< Default for red
     static const WColor BLUE( 0.0, 0.0, 1.0, 1.0 ); //!< Default for blue
+    static const WColor BLACK( 0.0, 0.0, 0.0, 1.0 ); //!< Default for black
+    static const WColor WHITE( 1.0, 1.0, 1.0, 1.0 ); //!< Default for black
     // \endcond
 }
 
