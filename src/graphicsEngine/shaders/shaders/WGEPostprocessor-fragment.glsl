@@ -552,17 +552,17 @@ float getSSAO( vec2 where )
     float fac = 0.0;
 
     // sample for different radii
-    for( int l = 1; l <= SCALERS; ++l )
+    for( int l = 0; l < SCALERS; ++l )
     {
         float occlusionStep = 0.0;  // this variable accumulates the occlusion for the current radius
-        radiusScaler += rads[ l - 1 ];    // increment radius each time.
+        radiusScaler += rads[ l ];    // increment radius each time.
 
         // Get SAMPLES-times samples on the hemisphere and check for occluders
         for( int i = 0; i < SAMPLES; ++i )
         {
             // grab a rand normal from the noise texture
             vec3 randSphereNormal = ( texture2D( u_noiseSampler, vec2( float( i ) / float( SAMPLES ),
-                                                                       float( l ) / float( SCALERS ) ) ).rgb * 2.0 ) - vec3( 1.0 );
+                                                                       float( l + 1 ) / float( SCALERS ) ) ).rgb * 2.0 ) - vec3( 1.0 );
 
             // get a vector (randomized inside of a sphere with radius 1.0) from a texture and reflect it
             // TODO(ebaum): well, u_ssaoRadiusSS = 2 but radiusScaler is 0.5 the first time....
@@ -602,10 +602,16 @@ float getSSAO( vec2 where )
             // the higher the depth difference, the less it should influence the occlusion value since large space between geometry normally allows
             // many light. It somehow can be described with "shadowiness". In other words, it describes the density of geometry and its influence to
             // the occlusion.
-            float scaler = ( SCALERS - l ) / float( SCALERS - 1 );
+            float scaler = 1.0 - ( l / ( float( SCALERS - 1 ) ) );
             float densityInfluence = scaler * scaler * u_ssaoDensityWeight;
+
             //  This reduces the occlusion if the occluder is far away
-            float densityWeight = ( 1.0 - smoothstep( falloff, densityInfluence, depthDifference ) );
+            float densityWeight = 1.0 - smoothstep( falloff, densityInfluence, depthDifference );
+            // This is the same as:
+            // float e0 = falloff;
+            // float e1 = densityInfluence;
+            // float r = ( depthDifference - e0 ) / ( e1 - e0 );
+            // float densityWeight = 1.0 - smoothstep( 0.0, 1.0, r );
 
             // the following step function ensures that negative depthDifference values get clamped to 0, meaning that this occluder should have NO
             // influence on the occlusion value. A positive value (fragment is behind the occluder) increases the occlusion factor according to the
@@ -618,7 +624,7 @@ float getSSAO( vec2 where )
     }
 
     // output the result
-    return ( 1.0 - ( u_ssaoTotalStrength * occlusion ) );
+    return clamp( ( 1.0 - ( u_ssaoTotalStrength * occlusion ) ), 0, 1 );
 }
 
 
@@ -784,7 +790,7 @@ void main()
 #endif
 
 #ifdef WGE_POSTPROCESSOR_PPLPHONG
-    blendScale( getPPLPhong() );
+    blendScale( getPPLPhong( wge_DefaultLightIntensityFullDiffuse ) );
 #endif
 
 #ifdef WGE_POSTPROCESSOR_SSAO
@@ -793,7 +799,7 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_SSAOWITHPHONG
     // Teaser:
-    float ao = getSSAO();
+    /*float ao = getSSAO();
     float ao2 = 2. * ( ao - 0.5 );
 
     wge_LightIntensityParameter light = wge_DefaultLightIntensity;
@@ -807,7 +813,13 @@ void main()
 
     float l = ( ao2 + ao*lPhong );
     l *= 0.75;
-    blend( vec4( vec3( getColor().rgb * l * 1.0 ), 1.0 ) );
+    blend( vec4( vec3( getColor().rgb * l * 1.0 ), 1.0 ) );*/
+
+    /*blend( getColor() );
+    blendScale( getPPLPhong( wge_DefaultLightIntensityFullDiffuse ) );
+    blendScale( 2.0 * ( getSSAO() - 0.15 ) );*/
+    //blendScale( getSSAO() );
+
     //blend( vec4( vec3( 0.5 * ao ), 1.0 ) );
     //blendScale( getDepthFading() );
 #endif
