@@ -469,8 +469,10 @@ float getGaussedDepth()
  * The total influence of SSAO.
  */
 //uniform float u_ssaoTotalStrength = 2.5;     // lines
-uniform float u_ssaoTotalStrength = 2.5;     // brain lines
+// uniform float u_ssaoTotalStrength = 2.5;     // brain lines
+//uniform float u_ssaoTotalStrength = 2.75;     // brain lines video
 //uniform float u_ssaoTotalStrength = 1.5;   // smallfibs
+uniform float u_ssaoTotalStrength = 2.5;   // smallfibs-corticospinal
 //uniform float u_ssaoTotalStrength = 2.0;   // deltawing tube
 //uniform float u_ssaoTotalStrength = 3.0;   // deltawing lines
 
@@ -478,8 +480,9 @@ uniform float u_ssaoTotalStrength = 2.5;     // brain lines
  * The radius of the hemispshere in screen-space which gets scaled.
  */
 //uniform float u_ssaoRadiusSS = 2.0;   // lines
-uniform float u_ssaoRadiusSS = 2.5;   // brain lines
+//uniform float u_ssaoRadiusSS = 2.5;   // brain lines
 //uniform float u_ssaoRadiusSS = 2.5; // smallfibs
+uniform float u_ssaoRadiusSS = 2.0;   // brain lines -corticospinal
 //uniform float u_ssaoRadiusSS = 1.0; // deltawing tube
 //uniform float u_ssaoRadiusSS = 2.5; // deltawing lines
 
@@ -487,7 +490,8 @@ uniform float u_ssaoRadiusSS = 2.5;   // brain lines
  * The strength of the occluder influence in relation to the geometry density. The heigher the value, the larger the influence. Low values remove
  * the drop-shadow effect.
  */
-uniform float u_ssaoDensityWeight = 1.0;
+uniform float u_ssaoDensityWeight = 2.0;    // video
+//uniform float u_ssaoDensityWeight = 1.0;
 
 /**
  * Calculate the screen-space ambient occlusion from normal and depth map.
@@ -582,9 +586,20 @@ float getSSAO( vec2 where )
             // TODO(ebaum): well, u_ssaoRadiusSS = 2 but radiusScaler is 0.5 the first time....
             vec3 hemisphereVector = reflect( randSphereNormal, randNormal );
             ray = radiusScaler * radius * hemisphereVector;
+            ray = sign( dot( ray, normal ) ) * ray;
 
             // if the ray is outside the hemisphere then change direction
-            hemispherePoint = ( sign( dot( ray, normal ) ) * ray ) + ep;
+            hemispherePoint = ray + ep;
+
+            // HACK! Somehow handle borders
+            /*if ( ( hemispherePoint.x < 0.0 ) || ( hemispherePoint.x > 0.65 ) )
+            {
+                hemispherePoint.x *= -1.0;
+            }
+            if ( ( hemispherePoint.y < 0.0 ) || ( hemispherePoint.y > 0.575 ) )
+            {
+                hemispherePoint.y *= -1.0;
+            }*/
 
             // get the depth of the occluder fragment
             occluderDepth = getDepth( hemispherePoint.xy );
@@ -810,7 +825,8 @@ void main()
     // l.materialShinines = 2000;
 
     // Video
-    l.materialAmbient = 0.1;
+    l.materialAmbient = 0.25;
+    l.materialDiffuse = 0.75;
     l.materialShinines = 500;
 
     blendScale( getPPLPhong( l ) );
