@@ -766,7 +766,8 @@ void WMainWindow::openOpenWalnutHelpDialog()
     window->show();
 
     QWebView *view = new QWebView( this );
-    view->setHtml( content.c_str() );
+    QString location( QString( "file://" ) + WPathHelper::getAppPath().file_string().c_str() + "/../share/OpenWalnut/" );
+    view->setHtml( content.c_str(), QUrl( location  ) );
     view->show();
     layout->addWidget( view );
 }
