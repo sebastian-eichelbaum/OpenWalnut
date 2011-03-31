@@ -469,17 +469,19 @@ float getGaussedDepth()
  * The total influence of SSAO.
  */
 //uniform float u_ssaoTotalStrength = 2.5;     // lines
+uniform float u_ssaoTotalStrength = 2.5;     // brain lines
 //uniform float u_ssaoTotalStrength = 1.5;   // smallfibs
 //uniform float u_ssaoTotalStrength = 2.0;   // deltawing tube
-uniform float u_ssaoTotalStrength = 3.0;   // deltawing lines
+//uniform float u_ssaoTotalStrength = 3.0;   // deltawing lines
 
 /**
  * The radius of the hemispshere in screen-space which gets scaled.
  */
 //uniform float u_ssaoRadiusSS = 2.0;   // lines
+uniform float u_ssaoRadiusSS = 2.5;   // brain lines
 //uniform float u_ssaoRadiusSS = 2.5; // smallfibs
 //uniform float u_ssaoRadiusSS = 1.0; // deltawing tube
-uniform float u_ssaoRadiusSS = 2.5; // deltawing lines
+//uniform float u_ssaoRadiusSS = 2.5; // deltawing lines
 
 /**
  * The strength of the occluder influence in relation to the geometry density. The heigher the value, the larger the influence. Low values remove
@@ -496,10 +498,10 @@ uniform float u_ssaoDensityWeight = 1.0;
  */
 float getSSAO( vec2 where )
 {
-    // #define SCALERS 3   // all
-    // #define SAMPLES 32  // the numbers of samples to check on the hemisphere // all
-    #define SCALERS 5   // deltawing lines
-    #define SAMPLES 64  // the numbers of samples to check on the hemisphere // deltawing lines
+    #define SCALERS 3   // all
+    #define SAMPLES 32  // the numbers of samples to check on the hemisphere // all
+    //#define SCALERS 5   // deltawing lines
+    //#define SAMPLES 64  // the numbers of samples to check on the hemisphere // deltawing lines
     const float invSamples = 1.0 / float( SAMPLES );
 
     // Fall-off for SSAO per occluder. This hould be zero (or nearly zero) since it defines what is counted as before, or behind.
@@ -803,8 +805,14 @@ void main()
 
 #ifdef WGE_POSTPROCESSOR_PPLPHONG
     wge_LightIntensityParameter l = wge_DefaultLightIntensityFullDiffuse;
-    l.materialAmbient = 0.125;
-    l.materialShinines = 2000;
+    // Paper Screenshots:
+    // l.materialAmbient = 0.125;
+    // l.materialShinines = 2000;
+
+    // Video
+    l.materialAmbient = 0.1;
+    l.materialShinines = 500;
+
     blendScale( getPPLPhong( l ) );
 #endif
 
