@@ -297,7 +297,9 @@ add_custom_target( fontsDirectoryConfiguration
 #---------- OpenWalnut help -------------
 ADD_CUSTOM_TARGET( onlineHelp
     ALL
-    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/gui/qt4/OpenWalnutHelp.html ${PROJECT_BINARY_DIR}/share/OpenWalnut
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../doc/user/help/OpenWalnutHelp.html ${PROJECT_BINARY_DIR}/share/OpenWalnut
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../doc/user/help/images/ ${PROJECT_BINARY_DIR}/share/OpenWalnut/images
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/gui/icons/ ${PROJECT_BINARY_DIR}/share/OpenWalnut/icons
     COMMENT "Copy online help"
 )
 
