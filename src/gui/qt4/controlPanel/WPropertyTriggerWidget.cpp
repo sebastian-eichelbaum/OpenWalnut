@@ -24,6 +24,7 @@
 
 #include "WPropertyTriggerWidget.h"
 
+#include "../WGuiConsts.h"
 #include "../../../common/WPropertyVariable.h"
 
 WPropertyTriggerWidget::WPropertyTriggerWidget( WPropTrigger property, QGridLayout* propertyGrid, QWidget* parent ):
@@ -40,12 +41,16 @@ WPropertyTriggerWidget::WPropertyTriggerWidget( WPropTrigger property, QGridLayo
 
     // layout both against each other
     m_layout.addWidget( &m_button );
+    m_layout.setMargin( WGLOBAL_MARGIN );
+    m_layout.setSpacing( WGLOBAL_SPACING );
     m_button.setText( QString::fromStdString( property->getDescription() ) );
 
     m_parameterWidgets.setLayout( &m_layout );
 
     // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
     m_infoLayout.addWidget( &m_asText );
+    m_infoLayout.setMargin( WGLOBAL_MARGIN );
+    m_infoLayout.setSpacing( WGLOBAL_SPACING );
     m_informationWidgets.setLayout( &m_infoLayout );
 
     // connect the modification signal of m_checkbox with our callback

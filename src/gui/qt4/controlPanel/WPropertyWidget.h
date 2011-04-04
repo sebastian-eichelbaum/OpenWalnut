@@ -37,6 +37,8 @@
 #include "../../../common/WPropertyBase.h"
 #include "../../../common/WPropertyTypes.h"
 
+#include "../guiElements/WScaleLabel.h"
+
 /**
  * Class building the base for all widgets representing properties. It simply contains the handled property object.
  */
@@ -101,7 +103,7 @@ protected:
     /**
      * The label used to name the property
      */
-    QLabel m_label;
+    WScaleLabel m_label;
 
     /**
      * If set to true, the widgets uses the control layout to combine the widget with a label

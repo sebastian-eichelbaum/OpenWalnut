@@ -19,6 +19,7 @@ SET(GUI_QT4_MOC_HDRS
     guiElements/WQtPushButton.h
     guiElements/WQtModuleOneToOneCombinerAction.h
     guiElements/WQtPropertyBoolAction.h
+    guiElements/WScaleLabel.h
     controlPanel/WPropertyWidget.h
     controlPanel/WPropertyBoolWidget.h
     controlPanel/WPropertyIntWidget.h

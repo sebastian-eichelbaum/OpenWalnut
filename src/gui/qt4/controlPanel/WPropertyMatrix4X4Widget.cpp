@@ -30,6 +30,8 @@
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPropertyVariable.h"
+#include "../WGuiConsts.h"
+#include "../guiElements/WScaleLabel.h"
 
 #include "WPropertyMatrix4X4Widget.h"
 
@@ -61,9 +63,13 @@ WPropertyMatrix4X4Widget::WPropertyMatrix4X4Widget( WPropMatrix4X4 property, QGr
     }
 
     m_parameterWidgets.setLayout( &m_layout );
+    m_layout.setMargin( WGLOBAL_MARGIN );
+    m_layout.setSpacing( WGLOBAL_SPACING );
 
     // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
     m_infoLayout.addWidget( &m_asText );
+    m_infoLayout.setMargin( WGLOBAL_MARGIN );
+    m_infoLayout.setSpacing( WGLOBAL_SPACING );
     m_informationWidgets.setLayout( &m_infoLayout );
 
     update();

@@ -36,6 +36,8 @@
 #include "../../../common/WItemSelector.h"
 #include "../../../common/WItemSelection.h"
 
+#include "../WGuiConsts.h"
+
 #include "WPropertySelectionWidget.h"
 
 /**
@@ -69,6 +71,8 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
     // initialize members
     m_combo = NULL;
     m_list = NULL;
+    m_layout.setMargin( WGLOBAL_MARGIN );
+    m_layout.setSpacing( WGLOBAL_SPACING );
 
     // initialize the proper widget
     // Lists are used if the selection of multiple elements is allowed
