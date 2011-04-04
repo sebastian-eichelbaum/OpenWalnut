@@ -33,9 +33,9 @@
 
 #include <osg/Geode>
 
-#include "../../common/WProperties.h"
-#include "../../common/WPropertyTypes.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "../../../common/WProperties.h"
+#include "../../../common/WPropertyTypes.h"
+#include "../../../graphicsEngine/shaders/WGEShader.h"
 #include "WSPSliceBuilder.h"
 
 // forward declarations

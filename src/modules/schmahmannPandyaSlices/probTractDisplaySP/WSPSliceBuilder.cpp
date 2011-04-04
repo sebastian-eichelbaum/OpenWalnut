@@ -26,11 +26,11 @@
 
 #include <osg/ref_ptr>
 
-#include "../../common/exceptions/WTypeMismatch.h"
-#include "../../common/WLogger.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WGridRegular3D.h"
+#include "../../../common/exceptions/WTypeMismatch.h"
+#include "../../../common/WLogger.h"
+#include "../../../graphicsEngine/WGEGroupNode.h"
+#include "../../../dataHandler/WDataSetScalar.h"
+#include "../../../dataHandler/WGridRegular3D.h"
 #include "WSPSliceBuilder.h"
 
 WSPSliceBuilder::WSPSliceBuilder( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap )

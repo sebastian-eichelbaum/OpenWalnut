@@ -29,9 +29,9 @@
 #include <osg/Geometry>
 #include <osg/LineWidth>
 
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../../dataHandler/WDataSetScalar.h"
+#include "../../../dataHandler/WGridRegular3D.h"
+#include "../../../graphicsEngine/WGEGeodeUtils.h"
 #include "WBoundaryLines.h"
 
 WBoundaryLines::WBoundaryLines( boost::shared_ptr< const WDataSetScalar > texture, boost::shared_ptr< const WProperties > properties,

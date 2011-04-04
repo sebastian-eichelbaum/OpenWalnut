@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include "../../kernel/WModule.h"
+#include "../../../kernel/WModule.h"
 
 // forward declarations to reduce compile dependencies
 template< class T > class WModuleInputData;

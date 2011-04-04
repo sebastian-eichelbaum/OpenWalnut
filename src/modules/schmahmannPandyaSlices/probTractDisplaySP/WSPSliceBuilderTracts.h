@@ -33,9 +33,9 @@
 
 #include <osg/Geode>
 
-#include "../../common/WBoundingBox.h"
-#include "../../common/WProperties.h"
-#include "../../common/WPropertyTypes.h"
+#include "../../../common/WBoundingBox.h"
+#include "../../../common/WProperties.h"
+#include "../../../common/WPropertyTypes.h"
 #include "WSPSliceBuilder.h"
 
 class WDataSetFibers;

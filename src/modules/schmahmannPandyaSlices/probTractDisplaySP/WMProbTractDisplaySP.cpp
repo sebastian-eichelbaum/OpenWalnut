@@ -27,24 +27,21 @@
 
 #include <osg/Geometry>
 
-#include "../../common/exceptions/WNotImplemented.h"
-#include "../../common/exceptions/WOutOfBounds.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataSetVector.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WModuleConnectorSignals.h"
-#include "../../kernel/WModuleInputData.h"
+#include "../../../common/exceptions/WNotImplemented.h"
+#include "../../../common/exceptions/WOutOfBounds.h"
+#include "../../../dataHandler/WDataSetFibers.h"
+#include "../../../dataHandler/WDataSetScalar.h"
+#include "../../../dataHandler/WDataSetVector.h"
+#include "../../../dataHandler/WGridRegular3D.h"
+#include "../../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../../kernel/WKernel.h"
+#include "../../../kernel/WModuleConnectorSignals.h"
+#include "../../../kernel/WModuleInputData.h"
 #include "WMProbTractDisplaySP.h"
 #include "WMProbTractDisplaySP.xpm"
 #include "WSPSliceBuilder.h"
 #include "WSPSliceBuilderTracts.h"
 #include "WSPSliceBuilderVectors.h"
-
-// This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
-W_LOADABLE_MODULE( WMProbTractDisplaySP )
 
 namespace
 {

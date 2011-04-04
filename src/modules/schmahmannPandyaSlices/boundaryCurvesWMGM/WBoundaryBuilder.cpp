@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../common/WProperties.h"
-#include "../../dataHandler/WDataSetScalar.h"
+#include "../../../common/WProperties.h"
+#include "../../../dataHandler/WDataSetScalar.h"
 #include "WBoundaryBuilder.h"
 
 WBoundaryBuilder::WBoundaryBuilder( boost::shared_ptr< const WDataSetScalar > texture, boost::shared_ptr< const WProperties > properties,

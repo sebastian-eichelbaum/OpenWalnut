@@ -22,12 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../../dataHandler/WDataSetScalar.h"
+#include "../../../dataHandler/WGridRegular3D.h"
+#include "../../../graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "../../../graphicsEngine/shaders/WGEShader.h"
+#include "../../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../../graphicsEngine/WGEManagedGroupNode.h"
 #include "WBoundaryFragments.h"
 
 WBoundaryFragments::WBoundaryFragments( boost::shared_ptr< const WDataSetScalar > texture, boost::shared_ptr< const WProperties > properties,

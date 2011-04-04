@@ -34,7 +34,7 @@
 
 #include <osg/Geometry>
 
-#include "../../common/WBoundingBox.h"
+#include "../../../common/WBoundingBox.h"
 #include "WBoundaryBuilder.h"
 
 // forward declarations

@@ -27,15 +27,15 @@
 #include <osg/Geometry>
 #include <osg/LineStipple>
 
-#include "../../common/exceptions/WTypeMismatch.h"
-#include "../../common/math/WPosition.h"
-#include "../../common/WLogger.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataSetVector.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../../common/exceptions/WTypeMismatch.h"
+#include "../../../common/math/WPosition.h"
+#include "../../../common/WLogger.h"
+#include "../../../dataHandler/WDataSetScalar.h"
+#include "../../../dataHandler/WDataSetVector.h"
+#include "../../../dataHandler/WGridRegular3D.h"
+#include "../../../graphicsEngine/WGEGeodeUtils.h"
+#include "../../../graphicsEngine/WGEGroupNode.h"
+#include "../../../graphicsEngine/WGEManagedGroupNode.h"
 #include "WSPSliceBuilderVectors.h"
 
 WSPSliceBuilderVectors::WSPSliceBuilderVectors( ProbTractList probTracts, WPropGroup sliceGroup, std::vector< WPropGroup > colorMap,

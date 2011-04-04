@@ -30,8 +30,8 @@
 
 #include <osg/ref_ptr>
 
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../common/WProperties.h"
+#include "../../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../../common/WProperties.h"
 
 // forward declarations
 class WGEManagedGroupNode;

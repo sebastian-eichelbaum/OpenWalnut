@@ -27,11 +27,12 @@
 
 #include <string>
 
-#include "../../kernel/WModule.h"
+#include "../../../kernel/WModule.h"
 
 // forward declarations
-class WGEManagedGroupNode;
+class WBoundaryBuilder;
 class WDataSetScalar;
+class WGEManagedGroupNode;
 template< class T > class WModuleInputData;
 
 /**

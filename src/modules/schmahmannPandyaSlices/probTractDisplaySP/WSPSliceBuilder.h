@@ -31,9 +31,9 @@
 
 #include <osg/ref_ptr>
 
-#include "../../common/WBoundingBox.h"
-#include "../../common/WProperties.h"
-#include "../../common/WPropertyTypes.h"
+#include "../../../common/WBoundingBox.h"
+#include "../../../common/WProperties.h"
+#include "../../../common/WPropertyTypes.h"
 
 class WDataSetScalar;
 class WGEGroupNode;
