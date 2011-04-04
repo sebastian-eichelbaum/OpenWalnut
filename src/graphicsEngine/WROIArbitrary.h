@@ -63,7 +63,7 @@ public:
      * \param color the color to use for the ROI.
      */
     WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
-                   const wmath::WMatrix< double >& mat,
+                   const WMatrix< double >& mat,
                    const std::vector< float >& vals,
                    boost::shared_ptr< WTriangleMesh > triMesh,
                    float threshold,
@@ -81,7 +81,7 @@ public:
      * \param color the color to use for the ROI.
      */
     WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
-                   const wmath::WMatrix< double >& mat,
+                   const WMatrix< double >& mat,
                    const std::vector< float >& vals,
                    float maxThreshold,
                    WColor color );
@@ -143,7 +143,7 @@ protected:
 private:
     std::vector< size_t > m_nbCoordsVec; //!< The data's number of vertices in X, Y and Z direction.
 
-    wmath::WMatrix< double > m_matrix; //!< The 4x4 transformation matrix for the vertices.
+    WMatrix< double > m_matrix; //!< The 4x4 transformation matrix for the vertices.
 
     const std::vector< float > m_vals; //!< The data at the vertices.
 

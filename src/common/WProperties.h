@@ -82,11 +82,6 @@ public:
     typedef PropertyContainerType::iterator PropertyIterator;
 
     /**
-     * The access type
-     */
-    typedef PropertySharedContainerType::WSharedAccess PropertyAccessType;
-
-    /**
      * Constructor. Creates an empty list of properties.
      *
      * \note WModule::getProperties always returns an unnamed instance.
@@ -164,14 +159,6 @@ public:
     PropertySharedContainerType::ReadTicket getProperties() const;
 
     /**
-     * Returns the access object usable to iterate/modify the property list in a thread safe manner.
-     *
-     * \deprecated the method should not be used anymore.
-     * \return the access control object.
-     */
-    PropertySharedContainerType::WSharedAccess getAccessObject();
-
-    /**
      * Returns an read ticket for the properties. This, and only this, has to be used for external iteration of properties.
      *
      * \see WSharedObjectTicketRead
@@ -186,7 +173,7 @@ public:
      *
      * \return the property or NULL if not found.
      */
-    boost::shared_ptr< WPropertyBase > findProperty( std::string name );
+    boost::shared_ptr< WPropertyBase > findProperty( std::string name ) const;
 
     /**
      * Removes all properties from the list.
@@ -948,7 +935,7 @@ protected:
     *
     * \return the property if found, else NULL.
     */
-    boost::shared_ptr< WPropertyBase > findProperty( WProperties* props, std::string name );
+    boost::shared_ptr< WPropertyBase > findProperty( const WProperties* const props, std::string name ) const;
 
 private:
 

@@ -29,7 +29,7 @@
 #include "../WAssert.h"
 #include "../WLimits.h"
 
-bool wmath::testIntersectTriangle( const wmath::WPosition& p1, const wmath::WPosition& p2, const wmath::WPosition& p3, const WPlane& p )
+bool testIntersectTriangle( const WPosition& p1, const WPosition& p2, const WPosition& p3, const WPlane& p )
 {
     const WVector3D& normal = p.getNormal();
     const WPosition& planePoint = p.getPosition();
@@ -46,12 +46,12 @@ bool wmath::testIntersectTriangle( const wmath::WPosition& p1, const wmath::WPos
     return true;
 }
 
-bool wmath::intersectPlaneSegment( const WPlane& p,
-                                   const wmath::WPosition& p1,
-                                   const wmath::WPosition& p2,
-                                   boost::shared_ptr< wmath::WPosition > pointOfIntersection )
+bool intersectPlaneSegment( const WPlane& p,
+                                   const WPosition& p1,
+                                   const WPosition& p2,
+                                   boost::shared_ptr< WPosition > pointOfIntersection )
 {
-    const wmath::WVector3D& normal = p.getNormal().normalized();
+    const WVector3D& normal = p.getNormal().normalized();
     double const d = normal.dotProduct( p.getPosition() );
     WAssert( pointOfIntersection.get(), "Place to store a point of intersection is not ready!" );
     *pointOfIntersection = p.getPosition();   // otherwise it would be undefined
@@ -84,15 +84,15 @@ bool wmath::intersectPlaneSegment( const WPlane& p,
     return false;
 }
 
-bool wmath::intersectPlaneLineNearCP( const WPlane& p, const wmath::WLine& l, boost::shared_ptr< wmath::WPosition > cutPoint )
+bool intersectPlaneLineNearCP( const WPlane& p, const WLine& l, boost::shared_ptr< WPosition > cutPoint )
 {
     bool result = false;
     double minDistance = wlimits::MAX_DOUBLE;
     WAssert( cutPoint.get(), "Place to store a point of intersection is not ready!" );
-    *cutPoint = wmath::WPosition( 0, 0, 0 );
+    *cutPoint = WPosition( 0, 0, 0 );
     for( size_t i = 1; i < l.size(); ++i ) // test each segment
     {
-        boost::shared_ptr< wmath::WPosition > cP( new wmath::WPosition( 0, 0, 0 ) );
+        boost::shared_ptr< WPosition > cP( new WPosition( 0, 0, 0 ) );
         if( intersectPlaneSegment( p, l[i-1], l[i], cP ) )
         {
             result = true;

@@ -131,7 +131,7 @@ public:
         // testing for valid dimension and values of the returned WValue
         for ( std::size_t idx = 0; idx < v->size()/dim; idx++ )
         {
-          wmath::WValue< int8_t > currentWValue( dim );
+          WValue< int8_t > currentWValue( dim );
           for ( std::size_t i = 0; i < dim; i++ ) currentWValue[ i ] = ( *v )[ idx*dim + i ];
           TS_ASSERT_EQUALS( set.getWValue( idx ), currentWValue );
           TS_ASSERT_EQUALS( set.getWValue( idx ).size(), dim );

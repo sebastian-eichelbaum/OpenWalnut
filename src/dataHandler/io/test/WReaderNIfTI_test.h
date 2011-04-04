@@ -124,7 +124,7 @@ public:
         // need this for calling the function
         WReaderNIfTI reader1( "../fixtures/scalar_signed_short.nii.gz" );
 
-        wmath::WMatrix< double >  result = reader1.convertMatrix( dummy );
+        WMatrix< double >  result = reader1.convertMatrix( dummy );
 
         TS_ASSERT_EQUALS( result.getNbRows(), 4 );
         TS_ASSERT_EQUALS( result.getNbCols(), 4 );

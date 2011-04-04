@@ -46,7 +46,7 @@ public:
     {
         WLogger::startup();
 
-        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3, 0, 0, 0, 1, 1, 1 ) );
+        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3 ) );
         m_algo = boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid, false ) );
     }
 
@@ -64,9 +64,9 @@ public:
      */
     void testLineSegementWithSameStartAndEndPoint( void )
     {
-        wmath::WLine l;
-        l.push_back( wmath::WPosition( 0.5, 0.5, 0.5 ) );
-        l.push_back( wmath::WPosition( 0.5, 0.5, 0.5 ) );
+        WLine l;
+        l.push_back( WPosition( 0.5, 0.5, 0.5 ) );
+        l.push_back( WPosition( 0.5, 0.5, 0.5 ) );
         m_algo->raster( l );
         std::vector< double > expected( 27, 0.0 );
         expected[13] = 1.0;
@@ -78,10 +78,10 @@ public:
      */
     void testPolySegmentOneVoxelRastering( void )
     {
-        wmath::WLine l;
-        l.push_back( wmath::WPosition( 0.5, 0.5, 0.5 ) );
-        l.push_back( wmath::WPosition( 0.6, 0.6, 0.6 ) );
-        l.push_back( wmath::WPosition( 0.7, 0.7, 0.7 ) );
+        WLine l;
+        l.push_back( WPosition( 0.5, 0.5, 0.5 ) );
+        l.push_back( WPosition( 0.6, 0.6, 0.6 ) );
+        l.push_back( WPosition( 0.7, 0.7, 0.7 ) );
         m_algo->raster( l );
         std::vector< double > expected( 27, 0.0 );
         expected[13] = 1.0;
@@ -94,10 +94,10 @@ public:
      */
     void testPolyLineRastering( void )
     {
-        wmath::WLine l;
-        l.push_back( wmath::WPosition( 0.4, 0.4, 0.4 ) );
-        l.push_back( wmath::WPosition( 0.6, 0.6, 0.6 ) );
-        l.push_back( wmath::WPosition( 1.7, 1.7, 1.7 ) );
+        WLine l;
+        l.push_back( WPosition( 0.4, 0.4, 0.4 ) );
+        l.push_back( WPosition( 0.6, 0.6, 0.6 ) );
+        l.push_back( WPosition( 1.7, 1.7, 1.7 ) );
         m_algo->raster( l );
         std::vector< double > expected( 27, 0.0 );
         expected[0] = 1.0;
@@ -117,10 +117,10 @@ public:
 //        boost::shared_ptr< WGridRegular3D > grid( new WGridRegular3D( 3, 3, 3, -2, -2, -2, 1, 1, 1 ) );
 //        m_algo = boost::shared_ptr< WBresenhamDBL >( new WBresenhamDBL( grid, false ) );
 //
-//        wmath::WLine l;
-//        l.push_back( wmath::WPosition( -1.7, -1.7, -1.7 ) );
-//        l.push_back( wmath::WPosition( -0.6, -0.6, -0.6 ) );
-//        l.push_back( wmath::WPosition( -0.4, -0.4, -0.4 ) );
+//        WLine l;
+//        l.push_back( WPosition( -1.7, -1.7, -1.7 ) );
+//        l.push_back( WPosition( -0.6, -0.6, -0.6 ) );
+//        l.push_back( WPosition( -0.4, -0.4, -0.4 ) );
 //        m_algo->raster( l );
 //        std::vector< double > expected( 27, 0.0 );
 //        expected[0] = 1.0;
@@ -135,10 +135,10 @@ public:
      */
     void testSymmetry( void )
     {
-        wmath::WLine l;
-        l.push_back( wmath::WPosition( 0.4, 0.4, 0.4 ) );
-        l.push_back( wmath::WPosition( 0.6, 0.6, 0.6 ) );
-        l.push_back( wmath::WPosition( 1.7, 1.7, 1.7 ) );
+        WLine l;
+        l.push_back( WPosition( 0.4, 0.4, 0.4 ) );
+        l.push_back( WPosition( 0.6, 0.6, 0.6 ) );
+        l.push_back( WPosition( 1.7, 1.7, 1.7 ) );
         m_algo->raster( l );
         std::vector< double > expected( 27, 0.0 );
         expected[0] = 1.0;
@@ -147,9 +147,9 @@ public:
         TS_ASSERT_EQUALS( m_algo->m_values, expected );
         m_algo->m_values[0] = m_algo->m_values[13] = m_algo->m_values[26] = 0.0; // reset the values array
         l.clear();
-        l.push_back( wmath::WPosition( 1.7, 1.7, 1.7 ) );
-        l.push_back( wmath::WPosition( 0.6, 0.6, 0.6 ) );
-        l.push_back( wmath::WPosition( 0.4, 0.4, 0.4 ) );
+        l.push_back( WPosition( 1.7, 1.7, 1.7 ) );
+        l.push_back( WPosition( 0.6, 0.6, 0.6 ) );
+        l.push_back( WPosition( 0.4, 0.4, 0.4 ) );
         m_algo->raster( l );
         TS_ASSERT_EQUALS( m_algo->m_values, expected );
     }
@@ -159,9 +159,9 @@ public:
      */
     void testExactLineIsNotRasteredTheSameWayAsMidpointLines( void )
     {
-        wmath::WLine l;
-        l.push_back( wmath::WPosition( 0.49, 0.0, 0.0 ) );
-        l.push_back( wmath::WPosition( 1.49, 1.51, 0.0 ) );
+        WLine l;
+        l.push_back( WPosition( 0.49, 0.0, 0.0 ) );
+        l.push_back( WPosition( 1.49, 1.51, 0.0 ) );
         m_algo->raster( l );
         std::vector< double > expected( 27, 0.0 );
         expected[0] = 1.0;
@@ -172,10 +172,10 @@ public:
         // reset the algo
         m_algo->m_values[0] = m_algo->m_values[4] = m_algo->m_values[7] = 0.0;
 
-        wmath::WLine k;
+        WLine k;
         // These two points are supposed to be voxel centers
-        k.push_back( wmath::WPosition( 0.0, 0.0, 0.0 ) );
-        k.push_back( wmath::WPosition( 1.0, 2.0 - wlimits::DBL_EPS, 0.0 ) );
+        k.push_back( WPosition( 0.0, 0.0, 0.0 ) );
+        k.push_back( WPosition( 1.0, 2.0 - wlimits::DBL_EPS, 0.0 ) );
         m_algo->raster( k );
         expected[3] = 1.0;
         expected[4] = 0.0;

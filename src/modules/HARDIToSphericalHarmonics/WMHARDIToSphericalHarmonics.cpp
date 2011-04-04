@@ -149,7 +149,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             std::vector< size_t > validIndices;
             for ( size_t i = 0; i < m_dataSet->getNumberOfMeasurements(); i++ )
             {
-              const wmath::WVector3D& grad = m_dataSet->getGradient( i );
+              const WVector3D& grad = m_dataSet->getGradient( i );
               if ( (grad[0] != 0.0) || (grad[1] != 0.0) || (grad[2] != 0.0) )
                 validIndices.push_back( i );
               else
@@ -161,14 +161,14 @@ void WMHARDIToSphericalHarmonics::moduleMain()
 //             WAssert( S0Index != -1, "No entry with zero gradient. Can't get S0 (basis) signal." );
 
             // build vector with gradients != 0
-            std::vector< wmath::WVector3D > gradients;
+            std::vector< WVector3D > gradients;
             for ( std::vector< size_t >::const_iterator it = validIndices.begin(); it != validIndices.end(); it++ )
               gradients.push_back( m_dataSet->getGradient( *it ) );
 
             int order  = m_order->get( true );
 
-            wmath::WMatrix< double > TransformMatrix(
-                      wmath::WSymmetricSphericalHarmonic::getSHFittingMatrix( gradients,
+            WMatrix< double > TransformMatrix(
+                      WSymmetricSphericalHarmonic::getSHFittingMatrix( gradients,
                                                                               order,
                                                                               m_regularisationFactorLambda->get( true ),
                                                                               m_doFunkRadonTransformation->get( true ) ) );
@@ -202,7 +202,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             parameter.m_S0Indexes = S0Indexes;
             parameter.m_data = data;
             parameter.m_order = order;
-            parameter.m_TransformMatrix = boost::shared_ptr< wmath::WMatrix<double> >( new wmath::WMatrix<double>( TransformMatrix ) );
+            parameter.m_TransformMatrix = boost::shared_ptr< WMatrix<double> >( new WMatrix<double>( TransformMatrix ) );
             parameter.m_gradients = gradients;
             parameter.m_progress = progress;
             parameter.m_doFunkRadonTransformation = m_doFunkRadonTransformation->get( true );
@@ -261,8 +261,10 @@ void WMHARDIToSphericalHarmonics::moduleMain()
                 boost::shared_ptr< WValueSet<double> > residualsData = boost::shared_ptr< WValueSet<double> >(
                         new WValueSet<double>( 1, parameter.m_validIndices.size(), parameter.m_dataResiduals, W_DT_DOUBLE ) );
 
-                boost::shared_ptr< WDataSetSingle > newResidualData =
-                          boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( residualsData, m_dataSet->getGrid() ) );
+                boost::shared_ptr< WDataSetRawHARDI > newResidualData =
+                          boost::shared_ptr< WDataSetRawHARDI >( new WDataSetRawHARDI( residualsData, m_dataSet->getGrid(),
+                                                                                       boost::shared_ptr< std::vector< WVector3D > >(
+                                                                                           new std::vector< WVector3D >( gradients ) ) ) );
                 m_outputResiduals->updateData( newResidualData );
             }
         }
@@ -283,8 +285,8 @@ void WMHARDIToSphericalHarmonics::connectors()
 
     addConnector( m_output );
 
-    m_outputResiduals = boost::shared_ptr< WModuleOutputData< WDataSetSingle > >(
-            new WModuleOutputData< WDataSetSingle >( shared_from_this(), "residualsOut", "The residual of the reprojection." ) );
+    m_outputResiduals = boost::shared_ptr< WModuleOutputData< WDataSetRawHARDI > >(
+            new WModuleOutputData< WDataSetRawHARDI >( shared_from_this(), "residualsOut", "The residual of the reprojection." ) );
 
     addConnector( m_outputResiduals );
 

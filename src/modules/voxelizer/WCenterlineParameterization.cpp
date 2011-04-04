@@ -118,10 +118,10 @@ namespace wcp // WCenterlineParameterization
     }
 }
 
-void WCenterlineParameterization::parameterizeVoxel( const wmath::WValue< int >& voxel, size_t /*voxelIdx*/, const int /*axis*/,
+void WCenterlineParameterization::parameterizeVoxel( const WValue< int >& voxel, size_t /*voxelIdx*/, const int /*axis*/,
                                                       const double /*value*/,
-                                                      const wmath::WPosition& /*start*/,
-                                                      const wmath::WPosition& /*end*/ )
+                                                      const WPosition& /*start*/,
+                                                      const WPosition& /*end*/ )
 {
     // update a 27 neighbourhood
     wcp::Neighbourhood n = wcp::neighbourhood( voxel[0], voxel[1], voxel[2], m_grid );
@@ -143,13 +143,13 @@ void WCenterlineParameterization::parameterizeVoxel( const wmath::WValue< int >&
     }
 }
 
-void WCenterlineParameterization::newLine( const wmath::WLine& line )
+void WCenterlineParameterization::newLine( const WLine& line )
 {
     // do nothing here
     WRasterParameterization::newLine( line );
 }
 
-void WCenterlineParameterization::newSegment( const wmath::WPosition& start, const wmath::WPosition& end )
+void WCenterlineParameterization::newSegment( const WPosition& start, const WPosition& end )
 {
     double curLength = 0.0;                     // the accumulated length along the centerline
     double bestDistStart = ( m_centerline->at( 0 ) - start ).norm();       // the currently best distance to the start point

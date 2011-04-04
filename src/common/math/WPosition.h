@@ -27,8 +27,6 @@
 
 #include "WVector3D.h"
 
-namespace wmath
-{
 /**
  * \class WPosition
  * The file %WPosition.h just includes %WVector3D.h.
@@ -36,6 +34,5 @@ namespace wmath
  * WPosition such is just another name for WVector3D to indicate the specific use
  * for positions in some places.
  */
-}
-// End of namespace
+
 #endif  // WPOSITION_H

@@ -41,7 +41,7 @@ std::string WPagerEEG::getFileName() const
 WPagerEEG::WPagerEEG( std::string fileName )
     : m_fileName( fileName )
 {
-    if( !wiotools::fileExists( m_fileName ) )
+    if( !fileExists( m_fileName ) )
     {
         throw WDHNoSuchFile( m_fileName + " doesn't exist" );
     }

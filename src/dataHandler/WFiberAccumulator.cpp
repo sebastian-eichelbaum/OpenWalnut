@@ -43,7 +43,7 @@ WFiberAccumulator::~WFiberAccumulator()
 {
 }
 
-void WFiberAccumulator::add( std::vector< wmath::WVector3D > const& in )
+void WFiberAccumulator::add( std::vector< WVector3D > const& in )
 {
     boost::unique_lock< boost::mutex > lock( m_fiberMutex );
 

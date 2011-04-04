@@ -230,7 +230,7 @@ void WMClusterSlicer::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
-wmath::WValue< double > WMClusterSlicer::meanParameter( boost::shared_ptr< std::set< wmath::WPosition > > samplePoints ) const
+WValue< double > WMClusterSlicer::meanParameter( boost::shared_ptr< std::set< WPosition > > samplePoints ) const
 {
     std::vector< double > samples;
     samples.reserve( samplePoints->size() );
@@ -238,7 +238,7 @@ wmath::WValue< double > WMClusterSlicer::meanParameter( boost::shared_ptr< std::
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_clusterDS->getGrid() );
     assert( grid != 0 );
 
-    for( std::set< wmath::WPosition >::iterator pos = samplePoints->begin(); pos != samplePoints->end(); )
+    for( std::set< WPosition >::iterator pos = samplePoints->begin(); pos != samplePoints->end(); )
     {
         // ATTENTION: We don't interpolate in m_clusterDS since it might be the wrong component!!
         int id = grid->getVoxelNum( *pos );
@@ -281,7 +281,7 @@ wmath::WValue< double > WMClusterSlicer::meanParameter( boost::shared_ptr< std::
     double geometricMean = std::accumulate( samples.begin(), newEnd, 1.0, std::multiplies< double >() );
     geometricMean = std::pow( geometricMean, ( samples.empty() ? 0.0 : 1.0 / samples.size() ) );
 
-    wmath::WValue< double > result( 5 );
+    WValue< double > result( 5 );
     result[0] = arithmeticMean;
     result[1] = geometricMean;
     result[2] = median;
@@ -311,16 +311,16 @@ void WMClusterSlicer::generateSlices()
     m_rootNode->remove( m_samplePointsGeode );
     m_samplePointsGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old geode
 
-    wmath::WVector3D generator = ( centerLine.front() - wmath::midPoint( centerLine ) );
-    generator = generator.crossProduct( centerLine.back() - wmath::midPoint( centerLine ) );
+    WVector3D generator = ( centerLine.front() - midPoint( centerLine ) );
+    generator = generator.crossProduct( centerLine.back() - midPoint( centerLine ) );
     for( size_t i = 1; i < centerLine.size(); ++i )
     {
-        wmath::WVector3D tangent = centerLine[i] - centerLine[i-1];
-        wmath::WVector3D first = tangent.crossProduct( generator );
-        wmath::WVector3D second = tangent.crossProduct( first );
+        WVector3D tangent = centerLine[i] - centerLine[i-1];
+        WVector3D first = tangent.crossProduct( generator );
+        WVector3D second = tangent.crossProduct( first );
         boost::shared_ptr< WPlane > p = boost::shared_ptr< WPlane >( new WPlane( tangent, centerLine[i-1], first, second ) );
 
-        boost::shared_ptr< std::set< wmath::WPosition > > samplePoints = p->samplePoints( stepWidth, nbX, nbY  );
+        boost::shared_ptr< std::set< WPosition > > samplePoints = p->samplePoints( stepWidth, nbX, nbY  );
         double mean = meanParameter( samplePoints )[ meanType ];
         if( mean > m_maxMean )
         {
@@ -424,7 +424,7 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh
         for( size_t i = 0; i < vertices->size(); ++i )
         {
             WAssert( m_slices->size() > 2, "We only support alternative coloring with more than 2 slices" );
-            wmath::WPosition vertex( ( *vertices)[i].x(), ( *vertices)[i].y(), ( *vertices)[i].z() );
+            WPosition vertex( ( *vertices)[i].x(), ( *vertices)[i].y(), ( *vertices)[i].z() );
             std::vector< PlanePair > planePairs = computeNeighbouringPlanePairs( vertex );
             if( !planePairs.empty() )
             {
@@ -465,20 +465,20 @@ double WMClusterSlicer::mapMeanOntoScale( double meanValue ) const
     }
 }
 
-bool WMClusterSlicer::isInBetween( const wmath::WPosition& vertex, const PlanePair& pp ) const
+bool WMClusterSlicer::isInBetween( const WPosition& vertex, const PlanePair& pp ) const
 {
     const WPlane& p = ( *m_slices )[ pp.first ].second;
     const WPlane& q = ( *m_slices )[ pp.second ].second;
     double r = p.getNormal().dotProduct( vertex - p.getPosition() );
     double s = q.getNormal().dotProduct( vertex - q.getPosition() );
-    if( wmath::signum( r ) != wmath::signum( s ) )
+    if( signum( r ) != signum( s ) )
     {
         return true;
     }
     return false;
 }
 
-std::vector< WMClusterSlicer::PlanePair > WMClusterSlicer::computeNeighbouringPlanePairs( const wmath::WPosition& vertex ) const
+std::vector< WMClusterSlicer::PlanePair > WMClusterSlicer::computeNeighbouringPlanePairs( const WPosition& vertex ) const
 {
     // assume base point/origin of every plane is on center line
     std::vector< PlanePair > result;
@@ -492,7 +492,7 @@ std::vector< WMClusterSlicer::PlanePair > WMClusterSlicer::computeNeighbouringPl
     return result;
 }
 
-WMClusterSlicer::PlanePair WMClusterSlicer::closestPlanePair( const std::vector< PlanePair >& pairs, const wmath::WPosition& vertex ) const
+WMClusterSlicer::PlanePair WMClusterSlicer::closestPlanePair( const std::vector< PlanePair >& pairs, const WPosition& vertex ) const
 {
     double minDistance = wlimits::MAX_DOUBLE;
     PlanePair result( 0, 0 );
@@ -522,7 +522,7 @@ WMClusterSlicer::PlanePair WMClusterSlicer::closestPlanePair( const std::vector<
     return result;
 }
 
-WColor WMClusterSlicer::colorFromPlanePair( const wmath::WPosition& vertex, const PlanePair& pp ) const
+WColor WMClusterSlicer::colorFromPlanePair( const WPosition& vertex, const PlanePair& pp ) const
 {
     const WPlane& p = ( *m_slices )[ pp.first ].second;
     const WPlane& q = ( *m_slices )[ pp.second ].second;
@@ -575,14 +575,14 @@ void WMClusterSlicer::updateDisplay( bool force )
 
 osg::ref_ptr< osg::Geode > WMClusterSlicer::generateIsoVoxelGeode() const
 {
-    boost::shared_ptr< std::set< wmath::WPosition > > points( new std::set< wmath::WPosition > );
+    boost::shared_ptr< std::set< WPosition > > points( new std::set< WPosition > );
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_clusterDS->getGrid() );
     assert( grid != 0 );
     for( std::set< size_t >::const_iterator cit = m_isoVoxels->begin(); cit != m_isoVoxels->end(); ++cit )
     {
         points->insert( grid->getPosition( *cit ) );
     }
-    return wge::genPointBlobs< std::set< wmath::WPosition > >( points, grid->getOffsetX() );
+    return wge::genPointBlobs< std::set< WPosition > >( points, grid->getOffsetX() );
 }
 
 

@@ -87,8 +87,17 @@ public:
             TS_ASSERT_THROWS_NOTHING( WDataSetTimeSeries( d, t ) );
 
             t.push_back( 4.0f );
-            boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, 1.0, 0.5, 2.0 ) );
+
+            WMatrix< double > mat( 4, 4 );
             boost::shared_ptr< std::vector< double > > v = boost::shared_ptr< std::vector< double > >( new std::vector< double >( 27, 4 ) );
+            mat.makeIdentity();
+            mat( 0, 0 ) = 1.0;
+            mat( 1, 1 ) = 0.5;
+            mat( 2, 2 ) = 2.0;
+
+            WGridTransformOrtho transform( mat );
+            boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, transform ) );
+
             boost::shared_ptr< WValueSet< double > > vs( new WValueSet< double >( 0, 1, v, W_DT_DOUBLE ) );
             d.push_back( boost::shared_ptr< WDataSetScalar const >( new WDataSetScalar( vs, g ) ) );
             TS_ASSERT_THROWS( WDataSetTimeSeries( d, t ), WException );
@@ -135,8 +144,17 @@ public:
             TS_ASSERT_THROWS_NOTHING( WDataSetTimeSeries( d, t ) );
 
             t.push_back( 4.0f );
-            boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, 1.0, 0.5, 2.0 ) );
+
+            WMatrix< double > mat( 4, 4 );
             boost::shared_ptr< std::vector< double > > v = boost::shared_ptr< std::vector< double > >( new std::vector< double >( 27, 4 ) );
+            mat.makeIdentity();
+            mat( 0, 0 ) = 1.0;
+            mat( 1, 1 ) = 0.5;
+            mat( 2, 2 ) = 2.0;
+
+            WGridTransformOrtho transform( mat );
+            boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, transform ) );
+
             boost::shared_ptr< WValueSet< double > > vs( new WValueSet< double >( 0, 1, v, W_DT_DOUBLE ) );
             d.push_back( boost::shared_ptr< WDataSetScalar const >( new WDataSetScalar( vs, g ) ) );
             TS_ASSERT_THROWS( WDataSetTimeSeries( d, t ), WException );
@@ -424,7 +442,7 @@ public:
         double h;
 
         // test invalid times
-        wmath::WVector3D pos( 1.0, 0.5, 1.0 );
+        WVector3D pos( 1.0, 0.5, 1.0 );
 
         TS_ASSERT_THROWS( h = ts.interpolate< double >( pos, -inf, &success ), WException );
         TS_ASSERT( !success );
@@ -529,7 +547,16 @@ private:
     {
         dsets.clear();
         times.clear();
-        boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, 1.0, 0.5, 2.0 ) );
+
+        WMatrix< double > mat( 4, 4 );
+        mat.makeIdentity();
+        mat( 0, 0 ) = 1.0;
+        mat( 1, 1 ) = 0.5;
+        mat( 2, 2 ) = 2.0;
+
+        WGridTransformOrtho transform( mat );
+        boost::shared_ptr< WGridRegular3D > g( new WGridRegular3D( 3, 3, 3, transform ) );
+
         for( int i = 0; i < number; ++i )
         {
             boost::shared_ptr< std::vector< double > > v = boost::shared_ptr< std::vector< double > >( new std::vector< double >( 27, data[i] ) );

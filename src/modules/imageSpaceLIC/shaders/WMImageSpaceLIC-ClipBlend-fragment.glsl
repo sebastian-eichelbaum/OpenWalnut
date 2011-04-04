@@ -24,6 +24,8 @@
 
 #version 120
 
+#include "WGEUtils.glsl"
+
 /**
  * The texture Unit for the advection texture
  */

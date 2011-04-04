@@ -29,76 +29,24 @@
 
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
-#include <QtGui/QKeyEvent>
-#include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsView>
-#include <QtGui/QGraphicsItem>
 #include <QtGui/QGraphicsItemGroup>
 #include <QtGui/QGraphicsSceneMouseEvent>
 
 #include "WQtNetworkScene.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkPort.h"
-#include "../../../kernel/combiner/WDisconnectCombiner.h"
-#include "../../../kernel/WKernel.h"
 
 WQtNetworkScene::WQtNetworkScene()
     : QGraphicsScene()
 {
+    setItemIndexMethod( NoIndex );
+    // this takes care of the segfault: QGraphicsSceneFindItemBspTreeVisitor::visit
+    // seems to be a Qt bug, testet with qt4 4.7.0
 }
 
 WQtNetworkScene::~WQtNetworkScene()
 {
-}
-
-void WQtNetworkScene::keyPressEvent( QKeyEvent *keyEvent )
-{
-    switch ( keyEvent->key() )
-    {
-        case Qt::Key_Delete:
-            {
-                QList< WQtNetworkItem *> itemList;
-                QList< WQtNetworkArrow *> arrowList;
-                foreach( QGraphicsItem *item, this->selectedItems() )
-                {
-                    if ( item->type() == WQtNetworkItem::Type )
-                    {
-                        WQtNetworkItem *netItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
-                        itemList.append( netItem );
-                    }
-                    else if( item->type() == WQtNetworkArrow::Type )
-                    {
-                        WQtNetworkArrow *netArrow = qgraphicsitem_cast<WQtNetworkArrow *>( item );
-                        arrowList.append( netArrow );
-                    }
-                }
-
-                foreach( WQtNetworkArrow *ar, arrowList )
-                {
-                    if( ar != 0 )
-                    {
-                        boost::shared_ptr< WDisconnectCombiner > disconnectCombiner =
-                            boost::shared_ptr< WDisconnectCombiner >( new WDisconnectCombiner(
-                                        ar->getStartPort()->getConnector()->getModule(),
-                                        ar->getStartPort()->getConnector()->getName(),
-                                        ar->getEndPort()->getConnector()->getModule(),
-                                        ar->getEndPort()->getConnector()->getName() ) );
-                        disconnectCombiner->run();
-                        disconnectCombiner->wait();
-                    }
-                }
-
-                foreach( WQtNetworkItem *it, itemList )
-                {
-                    if( it != 0 )
-                    {
-                        WKernel::getRunningKernel()->getRootContainer()->remove( it->getModule() );
-                    }
-                }
-                itemList.clear();
-                arrowList.clear();
-            }
-    }
 }
 
 void WQtNetworkScene::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
@@ -121,3 +69,4 @@ QGraphicsItem* WQtNetworkScene::getFakeItem()
 {
     return m_fakeItem;
 }
+

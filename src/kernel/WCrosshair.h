@@ -42,18 +42,18 @@ public:
     /**
      * Get the position of the corsshair.
      */
-    wmath::WPosition getPosition();
+    WPosition getPosition();
 
     /**
      * Set the position of the crosshair for updating it.
      *
      * \param position The new position.
      */
-    void setPosition( wmath::WPosition position );
+    void setPosition( WPosition position );
 
 protected:
 private:
-    wmath::WPosition m_position; //!< Stores the current position of the crosshair.
+    WPosition m_position; //!< Stores the current position of the crosshair.
 };
 
 #endif  // WCROSSHAIR_H

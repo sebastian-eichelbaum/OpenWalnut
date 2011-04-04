@@ -213,7 +213,7 @@ void WMTemplate::properties()
     m_aString          = m_properties->addProperty( "A string",                 "Something.", std::string( "hello" ), m_propCondition );
     m_aFile            = m_properties->addProperty( "A filename",              "Description.", WPathHelper::getAppPath(), m_propCondition );
     m_aColor           = m_properties->addProperty( "A color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
-    m_aPosition        = m_properties->addProperty( "Somewhere",                "Description.", wmath::WPosition( 0.0, 0.0, 0.0 ) );
+    m_aPosition        = m_properties->addProperty( "Somewhere",                "Description.", WPosition( 0.0, 0.0, 0.0 ) );
 
     // These lines create some new properties and add them to the property list of this module. The specific type to create is determined by the
     // initial value specified in the third argument. The first argument is the name of the property, which needs to be unique among all

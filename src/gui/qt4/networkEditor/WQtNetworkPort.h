@@ -29,6 +29,8 @@
 #include <QtGui/QGraphicsLineItem>
 
 #include "WQtNetworkArrow.h"
+#include "WQtNetworkEditorGlobals.h"
+#include "WQtNetworkPort.h"
 
 // forward declaration
 //class WQtNetworkArrow;
@@ -57,18 +59,18 @@ public:
      * The position of every arrow connected with this port is updating its position in the
      * scene.
      */
-    virtual void updateArrows() = 0;
+    virtual void updateArrows();
 
     /**
      * Removes a specific arrow.
      * \param arrow an arrow
      */
-    virtual void removeArrow( WQtNetworkArrow *arrow ) = 0;
+    virtual void removeArrow( WQtNetworkArrow *arrow );
 
     /**
      * Removes all connected arrows.
      */
-    virtual void removeArrows() = 0;
+    virtual void removeArrows();
 
     /**
      * Calculates the position inside a item for each port to get a correct
@@ -86,46 +88,46 @@ public:
      * Set the type of the port.
      * \param type true if out / false if in
      */
-    virtual void setOutPort( bool type ) = 0;
+    virtual void setOutPort( bool type );
 
     /**
      * Returns the porttype - true if outputport, false if inputport
      * \return is it a outport?
      */
-    virtual bool isOutPort() = 0;
+    virtual bool isOutPort();
 
     /**
      * Returns the portname.
      * \return portname
      */
-    virtual QString getPortName() = 0;
+    virtual QString getPortName();
 
     /**
      * Set the Name
      * \param str portname as string
      */
-    virtual void setPortName( QString str ) = 0;
+    virtual void setPortName( QString str );
 
     /**
      * Return the number of connections
      *
      * \return number of connections
      */
-    virtual int getNumberOfArrows() = 0;
+    virtual int getNumberOfArrows();
 
     /**
      * Adds an arrow to the port
      *
      * \param arrow the arrow to add
      */
-    virtual void addArrow( WQtNetworkArrow* arrow ) = 0;
+    virtual void addArrow( WQtNetworkArrow* arrow );
 
     /**
      * Get a QList of all arrows connected to this port
      *
      * \return a QList of WQtNetworkArrows
      */
-    virtual QList< WQtNetworkArrow* > getArrowList() = 0;
+    virtual QList< WQtNetworkArrow* > getArrowList();
 
 protected:
 
@@ -153,8 +155,14 @@ protected:
      */
     void mouseReleaseEvent( QGraphicsSceneMouseEvent *mouseEvent );
 
+    QList< WQtNetworkArrow *> m_arrows; //!< the connected arrows
+
+    bool m_isOutPort; //!< is the port an outport
+
+    QString m_name; //!< the portname
+
 private:
 
-    QGraphicsLineItem *line; //!< the temporary line when you connect two ports
+    QGraphicsLineItem * m_line; //!< the temporary line when you connect two ports
 };
 #endif  // WQTNETWORKPORT_H

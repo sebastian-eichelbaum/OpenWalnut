@@ -126,21 +126,21 @@ protected:
      * \param option
      * \param w
      */
-    void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
+    void paint( QPainter* painter, const QStyleOptionGraphicsItem *option, QWidget *w );
 
      /**
      * If the cursor enters the arrow, the arrow becomes geen.
      *
      * \param event the hover event
      */
-    void hoverEnterEvent( QGraphicsSceneHoverEvent * event );
+    void hoverEnterEvent( QGraphicsSceneHoverEvent *event );
 
     /**
      * If the cursor leaves the arrow, the arrow gets his default color.
      *
      * \param event the hover event
      */
-    void hoverLeaveEvent( QGraphicsSceneHoverEvent * event );
+    void hoverLeaveEvent( QGraphicsSceneHoverEvent *event );
 
 private:
 

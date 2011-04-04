@@ -49,6 +49,7 @@
 #include "WQtTextureSorter.h"
 
 class WMainWindow;
+class WQtColormapper;
 
 /**
  * container widget for a tree widget with context menu and some control widgets
@@ -196,6 +197,13 @@ public:
      */
     QDockWidget* getTextureSorterDock() const;
 
+    /**
+     * Gets the colormapper dock
+     *
+     * \return the dock
+     */
+    QDockWidget* getColormapperDock() const;
+
 protected:
 
     /**
@@ -252,6 +260,8 @@ private:
     WQtTreeWidget* m_roiTreeWidget; //!< pointer to the tree widget
 
     WQtTextureSorter* m_textureSorter; //!< pointer to the tree widget
+
+    WQtColormapper* m_colormapper; //!< the colormapper control widget
 
     QTabWidget* m_tabWidget; //!< pointer to the tab widget
 
@@ -340,6 +350,12 @@ private slots:
      * \param dataSet the module for this dataset will be selected.
      */
     void selectDataModule( boost::shared_ptr< WDataSet > dataSet );
+
+    /**
+     * Will be called to select the data module for the given texture.
+     * \param texture the texture currently selected.
+     */
+    void selectDataModule( osg::ref_ptr< WGETexture3D > texture );
 
     /**
      * function that builds the property tab

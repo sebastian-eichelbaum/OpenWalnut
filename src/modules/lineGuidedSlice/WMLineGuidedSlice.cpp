@@ -153,7 +153,7 @@ void WMLineGuidedSlice::updateCenterLine()
     m_centerLine = m_input->getData()->getCenterLine();
     if( m_centerLine )
     {
-        debugLog() << "Draw center line representation." << wmath::pathLength( *m_centerLine );
+        debugLog() << "Draw center line representation." << pathLength( *m_centerLine );
         m_centerLineGeode = wge::generateLineStripGeode( *m_centerLine, 2.f );
     }
     else
@@ -194,7 +194,7 @@ void WMLineGuidedSlice::setSlicePosFromPick( WPickInfo pickInfo )
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
-        wmath::WVector3D normal = pickInfo.getPickNormal();
+        WVector3D normal = pickInfo.getPickNormal();
 
         std::pair< float, float > newPixelPos( pickInfo.getPickPixelPosition() );
         if( m_isPicked )
@@ -231,22 +231,23 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
     }
 
     WAssert( m_centerLine->size() > 1, "To few positions in center line." );
-    wmath::WPosition startPos = ( *m_centerLine )[posOnLine];
-    wmath::WVector3D startSliceNormal = ( startPos - ( *m_centerLine )[posOnLine + 1] ).normalized();
-    wmath::WVector3D sliceVec1 = wmath::WVector3D( 1, 0, 0 ).crossProduct( startSliceNormal ).normalized();
-    wmath::WVector3D sliceVec2 =  sliceVec1.crossProduct( startSliceNormal ).normalized();
+    WPosition startPos = ( *m_centerLine )[posOnLine];
+    WVector3D startSliceNormal = ( startPos - ( *m_centerLine )[posOnLine + 1] ).normalized();
+    WVector3D sliceVec1 = WVector3D( 1, 0, 0 ).crossProduct( startSliceNormal ).normalized();
+    WVector3D sliceVec2 =  sliceVec1.crossProduct( startSliceNormal ).normalized();
 
     osg::ref_ptr<osg::Geometry> sliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
 
+    // { TODO(all): this is deprecated.
     // grab a list of data textures
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
     if( tex.size() > 0 )
     {
         const double radius = 100;
-        std::vector< wmath::WPosition > vertices;
+        std::vector< WPosition > vertices;
         vertices.push_back( startPos + (      sliceVec1 + sliceVec2 ) * radius );
         vertices.push_back( startPos + ( -1 * sliceVec1 + sliceVec2 ) * radius );
         vertices.push_back( startPos + ( -1 * sliceVec1 - sliceVec2 ) * radius );
@@ -268,12 +269,13 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
             texCoords->clear();
             for( size_t i = 0; i < nbVerts; ++i )
             {
-                texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] + wmath::WVector3D( 0.5, 0.5, 0.5 ) ) );
+                texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] + WVector3D( 0.5, 0.5, 0.5 ) ) );
             }
             sliceGeometry->setTexCoordArray( counter, texCoords );
             ++counter;
         }
     }
+    // }
 
     osg::DrawElementsUInt* quad = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
     quad->push_back( 3 );
@@ -295,7 +297,9 @@ void WMLineGuidedSlice::updateGeometry()
     osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_sliceNode->getDrawable( 0 ) );
     m_sliceNode->replaceDrawable( old, sliceGeometry );
 
+    // { TODO(all): this is deprecated.
     std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    // }
 
     slock.unlock();
 }
@@ -307,7 +311,7 @@ void WMLineGuidedSlice::updateTextures()
     if( m_textureChanged )
     {
         m_textureChanged = false;
-
+        // { TODO(all): this is deprecated.
         // grab a list of data textures
         std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
@@ -340,6 +344,7 @@ void WMLineGuidedSlice::updateTextures()
             bool useTexture = m_properties->getProperty( "Use texture" )->toPropBool()->get();
             sliceState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", useTexture ) ) );
         }
+        // }
     }
 
     m_highlightUniform->set( m_isPicked );

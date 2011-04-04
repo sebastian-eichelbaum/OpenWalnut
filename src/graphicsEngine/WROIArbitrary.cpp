@@ -38,7 +38,7 @@
 #include "WROIArbitrary.h"
 
 WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
-                              const wmath::WMatrix< double >& mat,
+                              const WMatrix< double >& mat,
                               const std::vector< float >& vals,
                               boost::shared_ptr< WTriangleMesh > triMesh,
                               float threshold,
@@ -69,7 +69,7 @@ WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoord
 }
 
 WROIArbitrary::WROIArbitrary( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
-        const wmath::WMatrix< double >& mat,
+        const WMatrix< double >& mat,
         const std::vector< float >& vals,
         float maxThreshold,
         WColor color ) :

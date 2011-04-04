@@ -163,6 +163,14 @@ protected:
     void mouseMoveEvent( QGraphicsSceneMouseEvent* mouseEvent );
 
     /**
+     * Reimplemented from QGraphicsRectItem. Used to enable selection of network items
+     * with right-click and left-click.
+     *
+     * \param event the mouse event
+     **/
+    void mousePressEvent( QGraphicsSceneMouseEvent *event );
+
+    /**
      * If the cursor enters the item, the item gets a green color.
      *
      * \param event the hover event
@@ -212,6 +220,8 @@ private:
     float m_height; //!< the height of the rect
 
     QGraphicsTextItem* m_text; //!< the caption
+
+    QGraphicsTextItem* m_subtitle; //!< the caption
 
     QPointF m_newPos; //!< the new position in the WQtNetworkScene
 

@@ -26,16 +26,13 @@
 #include <iostream>
 
 #include <boost/shared_ptr.hpp>
-#include <QtGui/QGraphicsRectItem>
 #include <QtGui/QStyleOptionGraphicsItem>
 
 #include "WQtNetworkArrow.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkScene.h"
 #include "WQtNetworkEditor.h"
-
-const float MINWIDTH = 100;
-const float MINHEIGHT = 50;
+#include "WQtNetworkEditorGlobals.h"
 
 WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WModule > module )
     : QGraphicsRectItem()
@@ -76,15 +73,17 @@ WQtNetworkItem::WQtNetworkItem( WQtNetworkEditor *editor, boost::shared_ptr< WMo
 
 WQtNetworkItem::~WQtNetworkItem()
 {
-//    foreach( WQtNetworkPort *port, m_inPorts )
-//    {
-//        delete port;
-//    }
-//
-//    foreach( WQtNetworkPort *port, m_outPorts )
-//    {
-//        delete port;
-//    }
+    foreach( WQtNetworkPort *port, m_inPorts )
+    {
+        delete port;
+    }
+
+    foreach( WQtNetworkPort *port, m_outPorts )
+    {
+        delete port;
+    }
+    delete m_text;
+    //delete m_subtitle;
 }
 
 int WQtNetworkItem::type() const
@@ -184,6 +183,14 @@ void WQtNetworkItem::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
     m_networkEditor->itemMoved();
 }
 
+void WQtNetworkItem::mousePressEvent( QGraphicsSceneMouseEvent *event )
+{
+    // TODO(rfrohl): select the item in the module tree?
+    // boost::shared_ptr< WModule > m_module; //!< the module
+    QGraphicsItem::mousePressEvent( event );
+    setSelected( true );
+}
+
 QVariant WQtNetworkItem::itemChange( GraphicsItemChange change,
         const QVariant &value )
 {
@@ -213,7 +220,7 @@ void WQtNetworkItem::addInputPort( WQtNetworkInputPort *port )
     m_inPorts.append( port );
 }
 
-void WQtNetworkItem::addOutputPort( WQtNetworkOutputPort * port )
+void WQtNetworkItem::addOutputPort( WQtNetworkOutputPort *port )
 {
     m_outPorts.append( port );
 }
@@ -234,8 +241,14 @@ void WQtNetworkItem::fitLook()
     {
         m_width = m_text->boundingRect().width() + 10;
         m_height = m_text->boundingRect().height() + 10;
-        if( m_width < MINWIDTH ) m_width = MINWIDTH;
-        if( m_height < MINHEIGHT ) m_height = MINHEIGHT;
+        if( m_width < WNETWORKITEM_MINIMUM_WIDTH )
+        {
+            m_width = WNETWORKITEM_MINIMUM_WIDTH;
+        }
+        if( m_height < WNETWORKITEM_MINIMUM_HEIGHT )
+        {
+            m_height = WNETWORKITEM_MINIMUM_HEIGHT;
+        }
         QRectF rect( 0, 0, m_width, m_height );
         m_rect = rect;
         setRect( m_rect );

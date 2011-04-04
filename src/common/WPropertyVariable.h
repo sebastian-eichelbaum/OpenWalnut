@@ -584,14 +584,12 @@ bool WPropertyVariable< T >::setAsString( std::string value )
     {
         // use the helper class which can handle different kinds of properties for us
         PROPERTY_TYPE_HELPER::WStringConversion< T > h = PROPERTY_TYPE_HELPER::WStringConversion< T >();
-        WFlag< T >::set( h.create( WFlag< T >::get(), value ) );
+        return WFlag< T >::set( h.create( WFlag< T >::get(), value ) );
     }
     catch( const boost::bad_lexical_cast &e )
     {
         return false;
     }
-
-    return true;
 }
 
 template < typename T >

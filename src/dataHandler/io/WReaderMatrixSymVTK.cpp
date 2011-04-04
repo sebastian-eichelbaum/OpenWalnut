@@ -123,7 +123,7 @@ void WReaderMatrixSymVTK::readTable( boost::shared_ptr< std::vector< double > > 
     }
 
     // all 4 bytes of each float are in wrong order we need to reorder them
-    wiotools::switchByteOrderOfArray( data, numDistances );
+    switchByteOrderOfArray( data, numDistances );
 
     for( size_t i = 0; i < numDistances; ++i )
     {

@@ -22,25 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include <string>
-#include <iostream>
-#include <boost/shared_ptr.hpp>
-
-#include <QtGui/QGraphicsRectItem>
-
 #include "WQtNetworkInputPort.h"
-
-const float WSIZE = 10.0;
 
 WQtNetworkInputPort::WQtNetworkInputPort( boost::shared_ptr<WModuleInputConnector> connector )
     : WQtNetworkPort()
 {
-    setRect( 0.0, 0.0, WSIZE, WSIZE );
-    setBrush( Qt::gray );
-    setPen( QPen( Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
-
-    setAcceptsHoverEvents( true );
-
     setPortName( connector.get()->getName().c_str() );
     setOutPort( connector.get()->isOutputConnector() );
     m_connector = connector;
@@ -62,7 +48,6 @@ WQtNetworkInputPort::WQtNetworkInputPort( boost::shared_ptr<WModuleInputConnecto
 
 WQtNetworkInputPort::~WQtNetworkInputPort()
 {
-    //removeArrows();
 }
 
 int WQtNetworkInputPort::type() const
@@ -70,70 +55,8 @@ int WQtNetworkInputPort::type() const
     return Type;
 }
 
-void WQtNetworkInputPort::addArrow( WQtNetworkArrow *arrow )
-{
-    m_arrows.append( arrow );
-}
-
-void WQtNetworkInputPort::removeArrow( WQtNetworkArrow *arrow )
-{
-    int index = m_arrows.indexOf( arrow );
-
-    if (index != -1)
-        m_arrows.removeAt( index );
-}
-
-QList< WQtNetworkArrow *> WQtNetworkInputPort::getArrowList()
-{
-    return m_arrows;
-}
-
-QString WQtNetworkInputPort::getPortName()
-{
-    return m_name;
-}
-
-void WQtNetworkInputPort::setPortName( QString str )
-{
-    m_name = str;
-}
-
-int WQtNetworkInputPort::getNumberOfArrows()
-{
-    return m_arrows.size();
-}
-
 boost::shared_ptr<WModuleInputConnector> WQtNetworkInputPort::getConnector()
 {
     return m_connector;
 }
 
-void WQtNetworkInputPort::removeArrows()
-{
-    foreach( WQtNetworkArrow *arrow, m_arrows )
-    {
-        int index = m_arrows.indexOf( arrow );
-        if ( index != -1 )
-        {
-            m_arrows.removeAt( index );
-        }
-    }
-}
-
-void WQtNetworkInputPort::updateArrows()
-{
-    foreach( WQtNetworkArrow *arrow, m_arrows )
-    {
-        arrow->updatePosition();
-    }
-}
-
-void WQtNetworkInputPort::setOutPort( bool type )
-{
-    m_isOutPort = type;
-}
-
-bool WQtNetworkInputPort::isOutPort()
-{
-    return m_isOutPort;
-}

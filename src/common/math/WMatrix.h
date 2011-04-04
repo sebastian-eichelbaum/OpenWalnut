@@ -27,12 +27,10 @@
 
 #include <iostream>
 
+#include "WMatrix4x4.h"
 #include "WValue.h"
 #include "WVector3D.h"
-#include "WMatrix4x4.h"
 
-namespace wmath
-{
 /**
  * Matrix template class with variable number of rows and columns.
  * The access function are row-major, which means that the rows
@@ -358,10 +356,8 @@ template< typename T > WVector3D WMatrix< T >::operator*( const WVector3D& rhs )
     return result;
 }
 
-}  // End of namespace
-
 template< typename T >
-inline std::ostream& operator<<( std::ostream& os, const wmath::WMatrix< T >& m )
+inline std::ostream& operator<<( std::ostream& os, const WMatrix< T >& m )
 {
     os << std::setprecision( 5 ) << std::fixed;
     for( size_t i = 0; i < m.getNbRows(); ++i )

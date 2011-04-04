@@ -34,7 +34,7 @@ WScaleLabel::WScaleLabel( QWidget *parent /*= NULL */ ):
     setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Expanding );
 }
 
-WScaleLabel::WScaleLabel( const QString &text, QWidget *parent /*= NULL */ ) : 
+WScaleLabel::WScaleLabel( const QString &text, QWidget *parent /*= NULL */ ) :
     QLabel( text, parent ),
     m_orgText( text )
 {
@@ -42,7 +42,7 @@ WScaleLabel::WScaleLabel( const QString &text, QWidget *parent /*= NULL */ ) :
     setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Expanding );
 }
 
-void WScaleLabel::resizeEvent( QResizeEvent *event )
+void WScaleLabel::resizeEvent( QResizeEvent* /*event*/ )
 {
     fitTextToSize();
 }
@@ -71,7 +71,7 @@ void WScaleLabel::fitTextToSize()
     if ( newwidth < fn.width( m_orgText ) )
     {
         QString useText = m_orgText.left( m_orgText.length() - 1 );
-        while ( fn.width( useText + tr( ".." ) ) > newwidth || useText.length() == 0 ) 
+        while ( fn.width( useText + tr( ".." ) ) > newwidth || useText.length() == 0 )
         {
             useText = useText.left( useText.length() - 1 );
         }

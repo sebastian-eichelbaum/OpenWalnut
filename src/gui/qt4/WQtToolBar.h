@@ -50,23 +50,6 @@ public:
     virtual ~WQtToolBar();
 
     /**
-     * Adds a push button to the toolbar. The button is identifiable by its name.
-     * \param name a name for the new button to identifie it
-     * \param icon and icon for the button
-     * \param label The optional text that is displayed besides the icon on the button.
-     */
-    WQtPushButton* addPushButton( QString name, QIcon icon, QString label = 0 );
-
-    /**
-     * Add a widget to the toolbar. This also stores the reference and removes it if clearButtons is called.
-     *
-     * \param widget the widget to add
-     *
-     * \return the corresponding action object
-     */
-    QAction* addWidget( QWidget* widget );
-
-    /**
      * Allows addition of new actions to the toolbar. See the Qt Doc of QToolBar for details. Actions have the advantage that they build a
      * uniform interface for menus, toolbars, buttons and menued toolbuttons.
      *
@@ -84,7 +67,7 @@ protected:
     /**
      * The list of widgets in this toolbar.
      */
-    std::list< QWidget* > m_widgets;
+    std::list< QAction* > m_actions;
 
 private:
 };

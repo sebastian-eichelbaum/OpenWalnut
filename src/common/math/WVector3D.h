@@ -35,8 +35,6 @@
 #include "../WLimits.h"
 #include "../WStringUtils.h"
 
-namespace wmath
-{
 /**
  * Efficient three-dimensional vector that allows many vector algebra operations.
  * It is based on osg::vec3d
@@ -155,9 +153,10 @@ inline std::ostream& operator<<( std::ostream& os, const WVector3D &rhs )
  */
 inline std::istream& operator>>( std::istream& in, WVector3D &rhs )
 {
-    std::string str;
-    in >> str;
-    string_utils::trim( str, "[]" ); // remove preceeding and trailing brackets '[', ']' if any
+    char vec[256];
+    in.getline( vec, 256 );
+    std::string str = std::string( vec );
+    str = string_utils::trim( str, "[]" ); // remove preceeding and trailing brackets '[', ']' if any
     std::vector< std::string > tokens = string_utils::tokenize( str, ", " );
     for( size_t i = 0; i < tokens.size(); ++i )
     {
@@ -253,5 +252,5 @@ inline osg::Vec3d::value_type WVector3D::distanceSquare( const WVector3D &other 
     }
     return dist;
 }
-}  // End of namespace
+
 #endif  // WVECTOR3D_H

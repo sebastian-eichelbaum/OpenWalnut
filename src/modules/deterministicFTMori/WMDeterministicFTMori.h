@@ -123,23 +123,23 @@ protected:
 
 private:
 
-    //! the threaded per-voxel function for the eigenvector computation
-    typedef WThreadedPerVoxelOperation< float, 6, double, 4 > TPVO;
+    //! the threaded per-voxel function for the eigenvector computation (float input)
+    typedef WThreadedPerVoxelOperation< float, 6, double, 4 > TPVOFloat;
 
-    //! the thread pool type for the eigencomputation
-    typedef WThreadedFunction< TPVO > EigenFunctionType;
+    //! the threaded per-voxel function for the eigenvector computation (double input)
+    typedef WThreadedPerVoxelOperation< double, 6, double, 4 > TPVODouble;
 
-    //! the input of the per-voxel operation
-    typedef TPVO::TransmitType EigenInArrayType;
+    //! the thread pool type for the eigencomputation (float input)
+    typedef WThreadedFunction< TPVOFloat > EigenFunctionTypeFloat;
 
-    //! the output of the per-voxel operation
-    typedef TPVO::OutTransmitType EigenOutArrayType;
+    //! the thread pool type for the eigencomputation (double input)
+    typedef WThreadedFunction< TPVODouble > EigenFunctionTypeDouble;
 
     //! the valueset type
     typedef WValueSet< double > FloatValueSetType;
 
     //! the fiber type
-    typedef std::vector< wmath::WVector3D > FiberType;
+    typedef std::vector< WVector3D > FiberType;
 
     //! the threaded tracking functor
     typedef wtracking::WThreadedTrackingFunction Tracking;
@@ -153,7 +153,23 @@ private:
      * \param input A subarray of a valueset that consists of the 6 floats that make up the tensor.
      * \return The components of the largest eigenvector and the fa value in a 4-double array.
      */
-    EigenOutArrayType const eigenFunc( EigenInArrayType const& input );
+    TPVOFloat::OutTransmitType const eigenFuncFloat( TPVOFloat::TransmitType const& input );
+
+    /**
+     * The function that computes the eigenvectors from the input tensor field.
+     *
+     * \param input A subarray of a valueset that consists of the 6 floats that make up the tensor.
+     * \return The components of the largest eigenvector and the fa value in a 4-double array.
+     */
+    TPVODouble::OutTransmitType const eigenFuncDouble( TPVODouble::TransmitType const& input );
+
+    /**
+     * The function that does the actual fa and eigenvector computations.
+     *
+     * \param m The tensor to calculate the fa and largest eigenvector from.
+     * \return The largest eigenvector and fa (in this order).
+     */
+    boost::array< double, 4 > const computeFaAndEigenVec( WTensorSym< 2, 3, double > const& m ) const;
 
     /**
      * Calculate the direction of the eigenvector with largest magnitude.
@@ -163,7 +179,7 @@ private:
      *
      * \return The direction to follow.
      */
-    wmath::WVector3D getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
+    WVector3D getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
                                         wtracking::WTrackingUtility::JobType const& j );
 
     /**
@@ -176,7 +192,7 @@ private:
     /**
      * The point visitor. Does nothing.
      */
-    void pointVis( wmath::WVector3D const& );
+    void pointVis( WVector3D const& );
 
     /**
      * Reset the tracking function and abort the current one, if there is a current one.
@@ -214,13 +230,16 @@ private:
     boost::shared_ptr< WDataSetSingle > m_eigenField;
 
     //! the functor used for the calculation of the eigenvectors
-    boost::shared_ptr< TPVO > m_eigenOperation;
+    boost::shared_ptr< TPVOFloat > m_eigenOperationFloat;
+
+    //! the functor used for the calculation of the eigenvectors
+    boost::shared_ptr< TPVODouble > m_eigenOperationDouble;
 
     //! the object that keeps track of the current progress
     boost::shared_ptr< WProgress > m_currentProgress;
 
     //! The threadpool for the eigenvector and fa computations.
-    boost::shared_ptr< EigenFunctionType > m_eigenPool;
+    boost::shared_ptr< WThreadedFunctionBase > m_eigenPool;
 
     //! The threadpool for the tracking
     boost::shared_ptr< TrackingFuncType > m_trackingPool;

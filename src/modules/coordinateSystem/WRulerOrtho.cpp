@@ -158,17 +158,17 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createXY()
             break;
         case CS_TALAIRACH:
         {
-            wmath::WVector3D origin_t = m_coordConverter->w2t( wmath::WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
+            WVector3D origin_t = m_coordConverter->w2t( WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
 
-            wmath::WVector3D pA = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], -70, origin_t[2] ) );
-            wmath::WVector3D pO = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], +70, origin_t[2] ) );
+            WVector3D pA = m_coordConverter->t2w( WVector3D( origin_t[0], -70, origin_t[2] ) );
+            WVector3D pO = m_coordConverter->t2w( WVector3D( origin_t[0], +70, origin_t[2] ) );
 
             vertices->push_back( osg::Vec3( pA[0], pA[1], m_origin.z() ) );
             vertices->push_back( osg::Vec3( pO[0], pO[1], m_origin.z() ) );
 
             for ( int i = -70; i <= 71; ++i )
             {
-                wmath::WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( origin_t[0], i, origin_t[2] ) );
+                WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( origin_t[0], i, origin_t[2] ) );
                 float rlength = 1.0;
                 if ( i % 10 == 0 )
                 {
@@ -182,8 +182,8 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createXY()
                 {
                     rlength += 1.0;
                 }
-                wmath::WVector3D p1 = m_coordConverter->t2w( WVector3D( origin_t[0] - rlength, i, origin_t[2] ) );
-                wmath::WVector3D p2 = m_coordConverter->t2w( WVector3D( origin_t[0] + rlength, i, origin_t[2] ) );
+                WVector3D p1 = m_coordConverter->t2w( WVector3D( origin_t[0] - rlength, i, origin_t[2] ) );
+                WVector3D p2 = m_coordConverter->t2w( WVector3D( origin_t[0] + rlength, i, origin_t[2] ) );
 
                 vertices->push_back( osg::Vec3( p1[0], p1[1], m_origin.z() ) );
                 vertices->push_back( osg::Vec3( p2[0], p2[1], m_origin.z() ) );
@@ -232,17 +232,17 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createXZ()
             break;
         case CS_TALAIRACH:
         {
-            wmath::WVector3D origin_t = m_coordConverter->w2t( wmath::WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
+            WVector3D origin_t = m_coordConverter->w2t( WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
 
-            wmath::WVector3D pA = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], -70, origin_t[2] ) );
-            wmath::WVector3D pO = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], +70, origin_t[2] ) );
+            WVector3D pA = m_coordConverter->t2w( WVector3D( origin_t[0], -70, origin_t[2] ) );
+            WVector3D pO = m_coordConverter->t2w( WVector3D( origin_t[0], +70, origin_t[2] ) );
 
             vertices->push_back( osg::Vec3( pA[0], m_origin.y(), pA[2] ) );
             vertices->push_back( osg::Vec3( pO[0], m_origin.y(), pO[2] ) );
 
             for ( int i = -70; i <= 71; ++i )
             {
-                wmath::WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( origin_t[0], i, origin_t[2] ) );
+                WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( origin_t[0], i, origin_t[2] ) );
                 float rlength = 1.0;
                 if ( i % 10 == 0 )
                 {
@@ -256,8 +256,8 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createXZ()
                 {
                     rlength += 1.0;
                 }
-                wmath::WVector3D p1 = m_coordConverter->t2w( WVector3D( origin_t[0], i, origin_t[2] - rlength ) );
-                wmath::WVector3D p2 = m_coordConverter->t2w( WVector3D( origin_t[0], i, origin_t[2] + rlength ) );
+                WVector3D p1 = m_coordConverter->t2w( WVector3D( origin_t[0], i, origin_t[2] - rlength ) );
+                WVector3D p2 = m_coordConverter->t2w( WVector3D( origin_t[0], i, origin_t[2] + rlength ) );
 
                 vertices->push_back( osg::Vec3( p1[0], m_origin.y(), p1[2] ) );
                 vertices->push_back( osg::Vec3( p2[0], m_origin.y(), p2[2] ) );
@@ -305,17 +305,17 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createYX()
             break;
         case CS_TALAIRACH:
         {
-            wmath::WVector3D origin_t = m_coordConverter->w2t( wmath::WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
+            WVector3D origin_t = m_coordConverter->w2t( WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
 
-            wmath::WVector3D pA = m_coordConverter->t2w( wmath::WVector3D( -100, origin_t[1], origin_t[2] ) );
-            wmath::WVector3D pO = m_coordConverter->t2w( wmath::WVector3D( 80, origin_t[1], origin_t[2] ) );
+            WVector3D pA = m_coordConverter->t2w( WVector3D( -100, origin_t[1], origin_t[2] ) );
+            WVector3D pO = m_coordConverter->t2w( WVector3D( 80, origin_t[1], origin_t[2] ) );
 
             vertices->push_back( osg::Vec3( pA[0], pA[1], m_origin.z() ) );
             vertices->push_back( osg::Vec3( pO[0], pO[1], m_origin.z() ) );
 
             for ( int i = -100; i <= 81; ++i )
             {
-                wmath::WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( i, origin_t[1], origin_t[2] ) );
+                WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( i, origin_t[1], origin_t[2] ) );
                 float rlength = 1.0;
                 if ( i % 10 == 0 )
                 {
@@ -329,8 +329,8 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createYX()
                 {
                     rlength += 1.0;
                 }
-                wmath::WVector3D p1 = m_coordConverter->t2w( WVector3D( i, origin_t[1] - rlength, origin_t[2] ) );
-                wmath::WVector3D p2 = m_coordConverter->t2w( WVector3D( i, origin_t[1] + rlength, origin_t[2] ) );
+                WVector3D p1 = m_coordConverter->t2w( WVector3D( i, origin_t[1] - rlength, origin_t[2] ) );
+                WVector3D p2 = m_coordConverter->t2w( WVector3D( i, origin_t[1] + rlength, origin_t[2] ) );
 
                 vertices->push_back( osg::Vec3( p1[0], p1[1], m_origin.z() ) );
                 vertices->push_back( osg::Vec3( p2[0], p2[1], m_origin.z() ) );
@@ -380,17 +380,17 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createYZ()
             break;
         case CS_TALAIRACH:
         {
-            wmath::WVector3D origin_t = m_coordConverter->w2t( wmath::WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
+            WVector3D origin_t = m_coordConverter->w2t( WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
 
-            wmath::WVector3D pA = m_coordConverter->t2w( wmath::WVector3D( -100, origin_t[1], origin_t[2] ) );
-            wmath::WVector3D pO = m_coordConverter->t2w( wmath::WVector3D( 80, origin_t[1], origin_t[2] ) );
+            WVector3D pA = m_coordConverter->t2w( WVector3D( -100, origin_t[1], origin_t[2] ) );
+            WVector3D pO = m_coordConverter->t2w( WVector3D( 80, origin_t[1], origin_t[2] ) );
 
             vertices->push_back( osg::Vec3( m_origin.x(), pA[1], pA[2] ) );
             vertices->push_back( osg::Vec3( m_origin.x(), pO[1], pO[2] ) );
 
             for ( int i = -100; i <= 81; ++i )
             {
-                wmath::WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( i, 0, origin_t[2] ) );
+                WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( i, 0, origin_t[2] ) );
                 float rlength = 1.0;
                 if ( i % 10 == 0 )
                 {
@@ -404,8 +404,8 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createYZ()
                 {
                     rlength += 1.0;
                 }
-                wmath::WVector3D p1 = m_coordConverter->t2w( WVector3D( i, origin_t[1], origin_t[2] - rlength ) );
-                wmath::WVector3D p2 = m_coordConverter->t2w( WVector3D( i, origin_t[1], origin_t[2] + rlength ) );
+                WVector3D p1 = m_coordConverter->t2w( WVector3D( i, origin_t[1], origin_t[2] - rlength ) );
+                WVector3D p2 = m_coordConverter->t2w( WVector3D( i, origin_t[1], origin_t[2] + rlength ) );
 
                 vertices->push_back( osg::Vec3( m_origin.x(), p1[1], p1[2] ) );
                 vertices->push_back( osg::Vec3( m_origin.x(), p2[1], p2[2] ) );
@@ -455,17 +455,17 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createZX()
             break;
         case CS_TALAIRACH:
         {
-            wmath::WVector3D origin_t = m_coordConverter->w2t( wmath::WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
+            WVector3D origin_t = m_coordConverter->w2t( WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
 
-            wmath::WVector3D pA = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], origin_t[1], -50 ) );
-            wmath::WVector3D pO = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], origin_t[1], 80 ) );
+            WVector3D pA = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1], -50 ) );
+            WVector3D pO = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1], 80 ) );
 
             vertices->push_back( osg::Vec3( pA[0], m_origin.y(), pA[2] ) );
             vertices->push_back( osg::Vec3( pO[0], m_origin.y(), pO[2] ) );
 
             for ( int i = -50; i <= 81; ++i )
             {
-                wmath::WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1], i ) );
+                WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1], i ) );
                 float rlength = 1.0;
                 if ( i % 10 == 0 )
                 {
@@ -479,8 +479,8 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createZX()
                 {
                     rlength += 1.0;
                 }
-                wmath::WVector3D p1 = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1] - rlength, i ) );
-                wmath::WVector3D p2 = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1] + rlength, i ) );
+                WVector3D p1 = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1] - rlength, i ) );
+                WVector3D p2 = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1] + rlength, i ) );
 
                 vertices->push_back( osg::Vec3( p1[0], m_origin.y(), p1[2] ) );
                 vertices->push_back( osg::Vec3( p2[0], m_origin.y(), p2[2] ) );
@@ -530,17 +530,17 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createZY()
             break;
         case CS_TALAIRACH:
         {
-            wmath::WVector3D origin_t = m_coordConverter->w2t( wmath::WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
+            WVector3D origin_t = m_coordConverter->w2t( WVector3D( m_origin[0], m_origin[1], m_origin[2] ) );
 
-            wmath::WVector3D pA = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], origin_t[1], -50 ) );
-            wmath::WVector3D pO = m_coordConverter->t2w( wmath::WVector3D( origin_t[0], origin_t[1], 80 ) );
+            WVector3D pA = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1], -50 ) );
+            WVector3D pO = m_coordConverter->t2w( WVector3D( origin_t[0], origin_t[1], 80 ) );
 
             vertices->push_back( osg::Vec3( m_origin.x(), pA[1], pA[2] ) );
             vertices->push_back( osg::Vec3( m_origin.x(), pO[1], pO[2] ) );
 
             for ( int i = -50; i <= 81; ++i )
             {
-                wmath::WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( origin_t[0], 0, i ) );
+                WVector3D tmpPoint = m_coordConverter->t2w( WVector3D( origin_t[0], 0, i ) );
                 float rlength = 1.0;
                 if ( i % 10 == 0 )
                 {
@@ -554,8 +554,8 @@ osg::ref_ptr< osg::Geometry > WRulerOrtho::createZY()
                 {
                     rlength += 1.0;
                 }
-                wmath::WVector3D p1 = m_coordConverter->t2w( WVector3D( origin_t[0] - rlength, origin_t[1], i ) );
-                wmath::WVector3D p2 = m_coordConverter->t2w( WVector3D( origin_t[0] + rlength, origin_t[1], i ) );
+                WVector3D p1 = m_coordConverter->t2w( WVector3D( origin_t[0] - rlength, origin_t[1], i ) );
+                WVector3D p2 = m_coordConverter->t2w( WVector3D( origin_t[0] + rlength, origin_t[1], i ) );
 
                 vertices->push_back( osg::Vec3( m_origin.x(), p1[1], p1[2] ) );
                 vertices->push_back( osg::Vec3( m_origin.x(), p2[1], p2[2] ) );

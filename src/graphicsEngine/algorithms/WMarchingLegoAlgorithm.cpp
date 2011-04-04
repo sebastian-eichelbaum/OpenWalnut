@@ -286,7 +286,7 @@ size_t WMarchingLegoAlgorithm::getVertexID( size_t nX, size_t nY, size_t nZ )
 }
 
 boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::genSurfaceOneValue( size_t nbCoordsX, size_t nbCoordsY, size_t nbCoordsZ,
-                                                                                                 const wmath::WMatrix< double >& mat,
+                                                                                                 const WMatrix< double >& mat,
                                                                                                  const std::vector< size_t >* vals,
                                                                                                  size_t isoValue )
 {
@@ -385,12 +385,12 @@ boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::genSurfaceOneValue( siz
     ID2WMLPointXYZId::iterator mapIterator = m_idToVertices.begin();
     while ( mapIterator != m_idToVertices.end() )
     {
-        wmath::WPosition texCoord = wmath::WPosition( mapIterator->second.x / nbCoordsX,
+        WPosition texCoord = WPosition( mapIterator->second.x / nbCoordsX,
                                                       mapIterator->second.y / nbCoordsY,
                                                       mapIterator->second.z / nbCoordsZ );
 
         // transform from grid coordinate system to world coordinates
-        wmath::WPosition pos = wmath::WPosition( mapIterator->second.x, mapIterator->second.y, mapIterator->second.z );
+        WPosition pos = WPosition( mapIterator->second.x, mapIterator->second.y, mapIterator->second.z );
 
         std::vector< double > resultPos4D( 4 );
         resultPos4D[0] = m_matrix( 0, 0 ) * pos[0] + m_matrix( 0, 1 ) * pos[1] + m_matrix( 0, 2 ) * pos[2] + m_matrix( 0, 3 ) * 1;

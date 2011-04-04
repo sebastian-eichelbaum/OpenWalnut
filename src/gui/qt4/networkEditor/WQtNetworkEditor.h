@@ -49,7 +49,6 @@ class WMainWindow;
 class WQtNetworkEditor : public QDockWidget
 {
     Q_OBJECT
-
 public:
 
     /**
@@ -72,6 +71,7 @@ public:
 
     /**
      * Simple search the WQtNetworkItem that belongs to the WModule
+     *
      * \param module a WModule
      * \return WQtNetworkItem belongs to the WModule
      */
@@ -88,6 +88,11 @@ public:
      * forces.
      */
     void itemMoved();
+
+    /**
+     * Deletes all items in the scene who are selected.
+     **/
+    void deleteSelectedItems();
 
 protected:
 

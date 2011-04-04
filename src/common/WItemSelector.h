@@ -94,7 +94,9 @@ public:
     WItemSelector newSelector( IndexList selected ) const;
 
     /**
-     * Creates a new valid instance with the specified items selected. This can be useful to add a certain index.
+     * Creates a new valid instance with the specified items selected. This can be useful to add a certain index. The new selector has the
+     * selection from this AND the specified one. If you want to create a selector containing only one selected item, use the method that uses
+     * the IndexList.
      *
      * \note Please be aware that, in the moment this method returns, another thread can make all selectors invalid again causing the returned
      * one to be invalid too. To avoid this, use the newSelector method only if the old has locked the selection using ::lock and ::unlock.

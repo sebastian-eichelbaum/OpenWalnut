@@ -40,13 +40,13 @@
 #include "WQtToolBar.h"
 #include "WQtGLWidget.h"
 #include "networkEditor/WQtNetworkEditor.h"
+#include "commandPrompt/WQtCommandPromptToolbar.h"
 
 // forward declarations
 class QMenuBar;
 class WModule;
 class WProjectFileIO;
 class WQtCombinerToolbar;
-class WQtConfigWidget;
 class WQtControlPanel;
 class WQtCustomDockWidget;
 class WQtNavGLWidget;
@@ -122,42 +122,6 @@ public:
      * \return the toolbar style
      */
     Qt::ToolButtonStyle getToolbarStyle() const;
-
-    /**
-     * All possible positions of the toolbars.
-     */
-    typedef enum
-    {
-        Top = 0,
-        Bottom,
-        Left,
-        Right,
-        Hide,
-        InControlPanel
-    }
-    ToolBarPosition;
-
-    /**
-     * Returns the preferred position of toolbars.
-     *
-     * \return QT Position for the toolbars used as default for all toolbars.
-     */
-    static ToolBarPosition getToolbarPos();
-
-    /**
-     * Returns the preferred position of toolbars.
-     *
-     * \return QT Position for the toolbars used as default for the compatibles toolbars.
-     */
-    static ToolBarPosition getCompatiblesToolbarPos();
-
-    /**
-     * Converts the specified position to the appropriate qt toolbar area constant. Unknown positions (InControlPanel, Hide) are converted to
-     * Qt::NoToolBarArea.
-     *
-     * \param pos the position to convert.
-     */
-    static Qt::ToolBarArea toQtToolBarArea( ToolBarPosition pos );
 
     /**
      * This method removes the old compatibles toolbar and sets the specified one.
@@ -314,11 +278,6 @@ public slots:
 
 private:
     /**
-     * Sets up the permanent tool bar.
-     */
-    void setupPermanentToolBar();
-
-    /**
      * The currently set compatibles toolbar
      */
     WQtCombinerToolbar* m_currentCompatiblesToolbar;
@@ -329,22 +288,19 @@ private:
 
     WQtToolBar* m_permanentToolBar; //!< The permanent toolbar of the main window.
 
-    WQtPushButton* m_loadButton; //!< the load Data Button
+    QAction* m_loadButton; //!< the load Data Button
 
     WQtControlPanel* m_controlPanel; //!< control panel
 
     WQtNetworkEditor* m_networkEditor; //!< network editor
+
+    WQtCommandPromptToolbar* m_commandPrompt; //!< command prompt
 
     boost::shared_ptr< WQtGLWidget > m_mainGLWidget; //!< the main GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navAxial; //!< the axial view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navCoronal; //!< the coronal view widget GL widget of the GUI
     boost::shared_ptr< WQtNavGLWidget > m_navSagittal; //!< the sgittal view widget GL widget of the GUI
     QDockWidget* m_dummyWidget; //!< The dummywidget serves as spacer in the dockwidget area;
-
-    /**
-     * shared pointer for the configuration widget
-     */
-    boost::shared_ptr< WQtConfigWidget > m_configWidget;
 
     /**
      * All registered WQtCustomDockWidgets.

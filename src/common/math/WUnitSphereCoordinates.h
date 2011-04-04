@@ -28,11 +28,9 @@
 #include <vector>
 
 #include "../../common/math/WVector3D.h"
-
 #include "../../common/WExportCommon.h"
 
-namespace wmath
-{
+
 /**
  * This class stores coordinates on the unit sphere.
  */
@@ -57,7 +55,7 @@ public:
      * Constructor for Euclidean coordinates.
      * \param vector Euclidean coordinates
      */
-    explicit WUnitSphereCoordinates( wmath::WVector3D vector );
+    explicit WUnitSphereCoordinates( WVector3D vector );
 
     /**
      * Destructor.
@@ -89,7 +87,7 @@ public:
     /**
      * Returns the stored sphere coordinates as Euclidean coordinates.
      */
-    wmath::WVector3D getEuclidean() const;
+    WVector3D getEuclidean() const;
 
 protected:
 
@@ -99,6 +97,5 @@ private:
     /** coordinate */
     double m_phi;
 };
-}
 
 #endif  // WUNITSPHERECOORDINATES_H

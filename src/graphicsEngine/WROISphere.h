@@ -49,7 +49,7 @@ public:
      * \param position position of the center of the sphere
      * \param radius radius of the sphere
      */
-    WROISphere(  wmath::WPosition position, float radius = 5.0 );
+    WROISphere(  WPosition position, float radius = 5.0 );
 
     /**
      * standard destructor
@@ -60,13 +60,13 @@ public:
      * getter
      * \return position
      */
-    wmath::WPosition getPosition() const;
+    WPosition getPosition() const;
 
     /**
      * setter
      * \param position
      */
-    void setPosition( wmath::WPosition position );
+    void setPosition( WPosition position );
 
     /**
      * setter
@@ -119,7 +119,7 @@ public:
      *
      * \param offset the distance to move
      */
-    void moveSphere( wmath::WVector3D offset );
+    void moveSphere( WVector3D offset );
 
     /**
      * setter
@@ -144,7 +144,7 @@ public:
      * \param vector together witht he current position this sets line in space to which the movement of the
      * sphere is restricted
      */
-    void  setLockVector( wmath::WVector3D vector );
+    void  setLockVector( WVector3D vector );
 
     /**
      * setter
@@ -158,17 +158,17 @@ private:
     static size_t maxSphereId; //!< Current maximum boxId over all spheres.
     size_t sphereId; //!< Id of the current sphere.
 
-    wmath::WPosition m_position; //!< The position of the sphere
+    WPosition m_position; //!< The position of the sphere
 
-    wmath::WPosition m_originalPosition; //!< The position of the sphere when created, used for locking
+    WPosition m_originalPosition; //!< The position of the sphere when created, used for locking
 
     float m_radius; //!< The radius  of the sphere
 
     bool m_isPicked; //!< Indicates whether the box is currently picked or not.
 
-    wmath::WPosition m_pickedPosition; //!< Caches the old picked position to a allow for comparison
+    WPosition m_pickedPosition; //!< Caches the old picked position to a allow for comparison
 
-    wmath::WVector3D m_pickNormal; //!< Store the normal that occured when the pick action was started.
+    WVector3D m_pickNormal; //!< Store the normal that occured when the pick action was started.
 
     std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
 
@@ -180,11 +180,15 @@ private:
 
     osg::Vec4 m_notColor; //!< the color of the box when negated
 
-    wmath::WVector3D m_lockPoint; //!< stores to point of origin of the lock vector
+    WVector3D m_lockPoint; //!< stores to point of origin of the lock vector
 
-    wmath::WVector3D m_lockVector; //!< stores the lock vector
+    WVector3D m_lockVector; //!< stores the lock vector
 
     bool m_lockOnVector; //!< flag indicatin wether the movement of the sphere is restricted
+
+    bool m_lockX; //!< flag indicatin wether the movement of the sphere is restricted
+    bool m_lockY; //!< flag indicatin wether the movement of the sphere is restricted
+    bool m_lockZ; //!< flag indicatin wether the movement of the sphere is restricted
 
 
     /**

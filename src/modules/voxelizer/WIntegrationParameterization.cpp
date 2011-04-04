@@ -66,10 +66,10 @@ namespace wip //WIntegrationParameterization
     }
 }
 
-void WIntegrationParameterization::parameterizeVoxel( const wmath::WValue< int >& voxel, size_t /*voxelIdx*/, const int /*axis*/,
+void WIntegrationParameterization::parameterizeVoxel( const WValue< int >& voxel, size_t /*voxelIdx*/, const int /*axis*/,
                                                       const double /*value*/,
-                                                      const wmath::WPosition& /*start*/,
-                                                      const wmath::WPosition& /*end*/ )
+                                                      const WPosition& /*start*/,
+                                                      const WPosition& /*end*/ )
 {
     // ok, this looks ugly but setting the whole 27-neighborhood produces better results
     m_lengthValues[ wip::index( voxel[0],   voxel[1]+1, voxel[2]+1, m_grid ) ] = m_curLength;
@@ -103,13 +103,13 @@ void WIntegrationParameterization::parameterizeVoxel( const wmath::WValue< int >
     m_lengthValues[ wip::index( voxel[0]-1, voxel[1],   voxel[2],   m_grid ) ] = m_curLength;
 }
 
-void WIntegrationParameterization::newLine( const wmath::WLine& /*line*/ )
+void WIntegrationParameterization::newLine( const WLine& /*line*/ )
 {
     // new line -> reset length
     m_curLength = 0.0;
 }
 
-void WIntegrationParameterization::newSegment( const wmath::WPosition& start, const wmath::WPosition& end )
+void WIntegrationParameterization::newSegment( const WPosition& start, const WPosition& end )
 {
     // add this segments length
     m_curLength += start.distanceSquare( end );

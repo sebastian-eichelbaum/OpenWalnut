@@ -27,28 +27,37 @@
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <osg/Node>
-
-#include <osgGA/FlightManipulator>
+#include <osg/Version>
 #include <osgGA/DriveManipulator>
+#include <osgGA/FlightManipulator>
 #include <osgGA/TerrainManipulator>
 #include <osgGA/UFOManipulator>
-
 #include <osgViewer/View>
 
-#include "../../common/WThreadedRunner.h"
+// OSG interface changed in 2.9.7, to make it compile also with those versions we do this:
+// OSG_MIN_VERSION_REQUIRED(2, 9, 8) macro is not available in e.g. OSG 2.8.1, hence we use the old way
+#if ( ( OPENSCENEGRAPH_MAJOR_VERSION > 2 ) || ( OPENSCENEGRAPH_MAJOR_VERSION == 2 && ( OPENSCENEGRAPH_MINOR_VERSION > 9 || \
+                            ( OPENSCENEGRAPH_MINOR_VERSION == 9 && OPENSCENEGRAPH_PATCH_VERSION >= 8 ) ) ) )
+    #include <osgGA/CameraManipulator>
+    namespace osgGA
+    {
+        typedef CameraManipulator MatrixManipulator;
+    }
+#else
+    #include <osgGA/MatrixManipulator>
+#endif
+
 #include "../../common/WColor.h"
-
-#include "WGEGraphicsWindowMac.h"
-#include "../WGECamera.h"
-#include "../WPickHandler.h"
-#include "../WGEGroupNode.h"
-
+#include "../../common/WThreadedRunner.h"
 #include "../WExportWGE.h"
-
+#include "../WGECamera.h"
+#include "../WGEGroupNode.h"
+#include "../WPickHandler.h"
+#include "WGEGraphicsWindowMac.h"
 
 /**
  * Class for managing one view to the scene. This includes viewport, camera and graphics context.

@@ -23,3 +23,35 @@
 //---------------------------------------------------------------------------
 
 #include "WThreadedFunction.h"
+
+WThreadedFunctionBase::WThreadedFunctionBase()
+    : m_doneCondition( new WCondition ),
+      m_exceptionSignal(),
+      m_status()
+{
+    // set initial status
+    m_status.getWriteTicket()->get() = W_THREADS_INITIALIZED;
+}
+
+WThreadedFunctionBase::~WThreadedFunctionBase()
+{
+    m_exceptionSignal.disconnect_all_slots();
+}
+
+WThreadedFunctionStatus WThreadedFunctionBase::status()
+{
+    return m_status.getReadTicket()->get();
+}
+
+boost::shared_ptr< WCondition > WThreadedFunctionBase::getThreadsDoneCondition()
+{
+    return m_doneCondition;
+}
+
+void WThreadedFunctionBase::subscribeExceptionSignal( ExceptionFunction func )
+{
+    if( func )
+    {
+        m_exceptionSignal.connect( func );
+    }
+}

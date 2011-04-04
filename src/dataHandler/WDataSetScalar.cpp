@@ -55,6 +55,21 @@ WDataSetScalar::~WDataSetScalar()
 {
 }
 
+WDataSetSingle::SPtr WDataSetScalar::clone( boost::shared_ptr< WValueSetBase > newValueSet ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetScalar( newValueSet, getGrid() ) );
+}
+
+WDataSetSingle::SPtr WDataSetScalar::clone( boost::shared_ptr< WGrid > newGrid ) const
+{
+    return WDataSetSingle::SPtr( new WDataSetScalar( getValueSet(), newGrid ) );
+}
+
+WDataSetSingle::SPtr WDataSetScalar::clone() const
+{
+    return WDataSetSingle::SPtr( new WDataSetScalar( getValueSet(), getGrid() ) );
+}
+
 double WDataSetScalar::getMax() const
 {
     return m_valueSet->getMaximumValue();
@@ -75,12 +90,12 @@ boost::shared_ptr< WPrototyped > WDataSetScalar::getPrototype()
     return m_prototype;
 }
 
-double WDataSetScalar::interpolate( const wmath::WPosition& pos, bool* success ) const
+double WDataSetScalar::interpolate( const WPosition& pos, bool* success ) const
 {
     boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_grid );
 
     WAssert( grid, "This data set has a grid whose type is not yet supported for interpolation." );
-    WAssert( grid->isNotRotatedOrSheared(), "Only feasible for grids that are only translated or scaled so far." );
+    WAssert( grid->isNotRotated(), "Only feasible for grids that are only translated or scaled so far." );
     WAssert( ( m_valueSet->order() == 0 &&  m_valueSet->dimension() == 1 ),
              "Only implemented for scalar values so far." );
 
@@ -95,7 +110,7 @@ double WDataSetScalar::interpolate( const wmath::WPosition& pos, bool* success )
 
     std::vector< size_t > vertexIds = grid->getCellVertexIds( cellId );
 
-    wmath::WPosition localPos = pos - grid->getPosition( vertexIds[0] );
+    WPosition localPos = pos - grid->getPosition( vertexIds[0] );
 
     double lambdaX = localPos[0] / grid->getOffsetX();
     double lambdaY = localPos[1] / grid->getOffsetY();

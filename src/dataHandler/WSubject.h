@@ -81,11 +81,6 @@ public:
     typedef DatasetContainerType::const_iterator DatasetConstIterator;
 
     /**
-     * Alias for the proper access object
-     */
-    typedef DatasetSharedContainerType::WSharedAccess DatasetAccess;
-
-    /**
      * Constructs a dummy subject.
      */
     WSubject();
@@ -154,6 +149,7 @@ public:
      *
      * \param onlyActive true whenever only textures should be returned where isGloballyActive() == true.
      * \return the list of textures.
+     * \deprecated
      */
     std::vector< boost::shared_ptr< WDataTexture3D > > getDataTextures( bool onlyActive = false );
 

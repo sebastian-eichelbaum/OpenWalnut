@@ -202,11 +202,11 @@ vec4 negative2positive( in float value )
     vec4 zeroColor = vec4( 1.0, 1.0, 1.0, 1.0 );
     vec4 negColor = vec4( 1.0, 1.0, 0.0, 1.0 );
     vec4 posColor= vec4( 0.0, 1.0, 1.0, 1.0 );
-    if ( val < -0.5 )
+    if ( val < 0.0 )
     {
         return ( zeroColor + negColor * val );
     }
-    else if ( val > 0.5 )
+    else if ( val >= 0.0 )
     {
         return ( zeroColor - posColor * val );
     }
@@ -419,6 +419,62 @@ void colorMap( inout vec3 col, in float value, int cmap )
     {
         col = vectorColorMap( col ).rgb;
     }
+}
+
+/**
+ * This method applies a colormap to the specified value an mixes it with the specified color. It uses the proper colormap and is able to unscale
+ * values if needed.
+ *
+ * \param color this color gets mixed using alpha value with the new colormap color
+ * \param value the value to map
+ * \param minV the minimum of the original value
+ * \param scaleV the scaler used to downscale the original value to [0-1]
+ * \param thresholdV a threshold in original space (you need to downscale it to [0-1] if you want to use it to scaled values.
+ * \param alpha the alpha blending value
+ * \param colormap the colormap index to use
+ */
+void colormap( inout vec4 color, in vec4 value, float minV, float scaleV, float thresholdV, float alpha, int colormap,
+               bool active )
+{
+    // below threshold?
+    bool clip = ( value.r + value.g + value.b ) / 3.0 < ( ( minV + thresholdV ) / scaleV );
+    if ( clip )
+    {
+        return;
+    }
+
+    vec4 col;
+    if ( colormap == 0 )
+    {
+        col = value;
+    }
+    else if ( colormap == 1 )
+    {
+        col = rainbowColorMap( value.r );
+    }
+    else if ( colormap == 2 )
+    {
+        col = hotIronColorMap( value.r );
+    }
+    else if ( colormap == 3 )
+    {
+        col = negative2positive( value.r );
+    }
+    else if ( colormap == 4 )
+    {
+        col = atlasColorMap( value.r );
+    }
+    else if ( colormap == 5 )
+    {
+        col = blueGreenPurpleColorMap( value.r );
+    }
+    else if ( colormap == 6 )
+    {
+        col = vectorColorMap( value.rgb );
+    }
+
+    // finally mix colors according to alpha
+    color = mix( color, col, float( active ) * alpha );
 }
 
 #endif // WGECOLORMAPS_GLSL

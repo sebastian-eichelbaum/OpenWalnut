@@ -40,7 +40,7 @@ public:
      *
      * \param parent the widgets parent
      */
-    WScaleLabel( QWidget *parent = NULL );
+    explicit WScaleLabel( QWidget *parent = NULL );
 
     /**
      * Constructor. Creates the label with its original text
@@ -90,4 +90,4 @@ private:
     QString m_orgText;
 };
 
-#endif // WSCALELABEL_H
+#endif  // WSCALELABEL_H

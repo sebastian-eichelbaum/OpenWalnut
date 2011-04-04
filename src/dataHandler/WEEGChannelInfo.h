@@ -78,14 +78,14 @@ public:
      *
      * \return position
      */
-    wmath::WPosition getPosition() const throw( WDHException );
+    WPosition getPosition() const throw( WDHException );
 
 protected:
 private:
     std::string m_unit; //!< unit used by the recording of the channel
     std::string m_label; //!< label of the channel
     bool m_hasPosition; //!< whether there is a valid position for this electrode
-    wmath::WPosition m_position; //!< position of the electrode
+    WPosition m_position; //!< position of the electrode
 };
 
 #endif  // WEEGCHANNELINFO_H

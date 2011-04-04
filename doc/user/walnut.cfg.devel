@@ -26,7 +26,6 @@
 ####################################################################
 # Toolbars
 
-# useToolBarBreak = no # put compatibles toolbar in separate row
 useAutoDisplay = no # automatically add a standard module after loading a data module.
 
 # The next property controls the style of ALL toolbars in OpenWalnut.
@@ -36,16 +35,6 @@ useAutoDisplay = no # automatically add a standard module after loading a data m
 # 3 -> The text appears under the icon.
 toolBarStyle = 0
 compatiblesToolBarStyle = 0 # this pref allows the compatibles toolbar to have a different style (overrides toolBarStyle)
-
-# Position of the compatibles toolbar
-# 0 -> top
-# 1 -> bottom
-# 2 -> left
-# 3 -> right
-# 4 -> hide completely
-# 5 -> inside the control panel ( not possible for compatiblesToolBarPos! This will be mapped to right (=3) )
-toolBarPos = 0 # default position of the toolbars
-compatiblesToolBarPos = 0 # position of the compatibles toolbar (overrides toolBarPos)
 
 ####################################################################
 # Control panel

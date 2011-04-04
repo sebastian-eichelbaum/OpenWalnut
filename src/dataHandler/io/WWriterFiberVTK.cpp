@@ -76,7 +76,7 @@ void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFiberVector > 
         rawLineData[lnsPosOffset++] = static_cast< unsigned int >( fib.size() );
         for( size_t j = 0; j < fib.size(); ++j )
         {
-            const wmath::WPosition &point = fib[j];
+            const WPosition &point = fib[j];
             WAssert( pntPosOffset % 3 == 0, "(pOff % 3) was not equal to 0" );
             WAssert( pntPosOffset / 3 < numPoints, "pntPosOffset is to large." );
             rawLineData[lnsPosOffset++] = static_cast< unsigned int >( pntPosOffset / 3 );
@@ -86,8 +86,8 @@ void WWriterFiberVTK::writeFibs( boost::shared_ptr< const WDataSetFiberVector > 
             WAssert( pntPosOffset < ( ( numPoints * 3 ) + 1 ), "pOff < #pts" );
         }
     }
-    wiotools::switchByteOrderOfArray< float >( rawPointData, numPoints * 3 );
-    wiotools::switchByteOrderOfArray< unsigned int >( rawLineData, numLines + numPoints );
+    switchByteOrderOfArray< float >( rawPointData, numPoints * 3 );
+    switchByteOrderOfArray< unsigned int >( rawLineData, numLines + numPoints );
     out.write( reinterpret_cast< char* >( rawPointData ), sizeof( float ) * numPoints * 3 );
     out << lineDelimiter;
     out << "LINES " << numLines << " " << numPoints + numLines << lineDelimiter;

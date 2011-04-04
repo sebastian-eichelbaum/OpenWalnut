@@ -27,17 +27,16 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2/signal.hpp>
+
 #include <QtCore/QTimer>
 #include <QtGui/QWidget>
 #include <QtOpenGL/QGLWidget>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/signals2/signal.hpp>
-
-#include "../../../graphicsEngine/WGECamera.h"
+#include "../../../common/WColor.h"
 #include "../../../graphicsEngine/platformDependent/WGEViewerMac.h"
-
-class WColor;
+#include "../../../graphicsEngine/WGECamera.h"
 
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the

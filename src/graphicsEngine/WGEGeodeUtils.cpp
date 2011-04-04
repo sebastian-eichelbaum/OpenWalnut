@@ -42,8 +42,8 @@
 
 osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const WBoundingBox& bb, const WColor& color )
 {
-    const wmath::WPosition& pos1 = bb.getMin();
-    const wmath::WPosition& pos2 = bb.getMax();
+    const WPosition& pos1 = bb.getMin();
+    const WPosition& pos2 = bb.getMax();
 
     WAssert( pos1[0] <= pos2[0] && pos1[1] <= pos2[1] && pos1[2] <= pos2[2], "pos1 does not seem to be the frontLowerLeft corner of the BB!" );
     using osg::ref_ptr;
@@ -156,6 +156,49 @@ osg::ref_ptr< osg::Geometry > wge::createUnitCube( const WColor& color )
     return cube;
 }
 
+osg::ref_ptr< osg::Geometry > wge::createUnitCubeAsLines( const WColor& color )
+{
+    // create the unit cube manually as the ShapeDrawable and osg::Box does not provide 3D texture coordinates
+    osg::ref_ptr< osg::Geometry > cube = new osg::Geometry();
+    osg::ref_ptr< osg::Vec3Array > vertices = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
+    osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
+
+    vertices->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 1.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 0.0, 0.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 0.0, 1.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
+    vertices->push_back( osg::Vec3( 0.0, 1.0, 1.0 ) );
+    vertices->push_back( osg::Vec3( 0.0, 0.0, 1.0 ) );
+
+    cube->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINE_STRIP, 0, vertices->size() ) );
+
+    vertices->push_back( osg::Vec3( 0.0, 1.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 0.0, 1.0, 1.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 0.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 0.0, 1.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 1.0, 0.0 ) );
+    vertices->push_back( osg::Vec3( 1.0, 1.0, 1.0 ) );
+
+    cube->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::LINES, vertices->size() - 6, 6 ) );
+
+    // set it up and set arrays
+    cube->setVertexArray( vertices );
+
+    // set 3D texture coordinates here.
+    cube->setTexCoordArray( 0, vertices );
+
+    // finally, the colors
+    colors->push_back( color );
+    cube->setColorArray( colors );
+    cube->setColorBinding( osg::Geometry::BIND_OVERALL );
+
+    return cube;
+}
+
 osg::ref_ptr< osg::Node > wge::generateSolidBoundingBoxNode( const WBoundingBox& bb, const WColor& color, bool threeDTexCoords )
 {
     WAssert( bb.valid(), "Invalid bounding box!" );
@@ -218,7 +261,7 @@ osg::ref_ptr< osg::Geometry > wge::convertToOsgGeometry( WTriangleMesh* mesh, bo
     return geometry;
 }
 
-osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const wmath::WLine& line, const float thickness, const WColor& color )
+osg::ref_ptr< osg::Geode > wge::generateLineStripGeode( const WLine& line, const float thickness, const WColor& color )
 {
     using osg::ref_ptr;
     ref_ptr< osg::Vec3Array > vertices = ref_ptr< osg::Vec3Array >( new osg::Vec3Array );

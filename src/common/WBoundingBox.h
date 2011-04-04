@@ -113,11 +113,11 @@ public:
     using osg::BoundingBoxImpl< VT >::corner;
 
     /**
-     * Converts this bounding box to the osg::BoundingBoxImpl< VT >.
+     * Explicit type conversion function to use a WBoundingBox as osg::BoundingBox.
      *
-     * \return Copy of this casted to the osg::BoundingBoxImpl< VT > type
+     * \return A copy of this bounding box as osg::BoundingBox.
      */
-    osg::BoundingBoxImpl< VT > toOSGBB() const;
+    osg::BoundingBox toOSGBB() const;
 
     using osg::BoundingBoxImpl< VT >::expandBy;
 
@@ -202,9 +202,9 @@ inline typename WBoundingBoxImpl< VT >::value_type WBoundingBoxImpl< VT >::radiu
 }
 
 template< class VT >
-inline osg::BoundingBoxImpl< VT > WBoundingBoxImpl< VT >::toOSGBB() const
+inline osg::BoundingBox WBoundingBoxImpl< VT >::toOSGBB() const
 {
-    return *this;
+    return osg::BoundingBox( osg::BoundingBoxImpl< VT >::_min, osg::BoundingBoxImpl< VT >::_max );
 }
 
 template< class VT >
@@ -296,6 +296,6 @@ inline const typename WBoundingBoxImpl< VT >::vec_type& WBoundingBoxImpl< VT >::
     return  osg::BoundingBoxImpl< VT >::_max;
 }
 
-typedef WBoundingBoxImpl< wmath::WVector3D > WBoundingBox;
+typedef WBoundingBoxImpl< WVector3D > WBoundingBox;
 
 #endif  // WBOUNDINGBOX_H

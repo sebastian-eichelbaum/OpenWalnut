@@ -1,7 +1,7 @@
 # mostly modules from our default whitelist
 
 ADD_SUBDIRECTORY( arbitraryRois )
-ADD_SUBDIRECTORY( boundingBox )
+ADD_SUBDIRECTORY( colormapper )
 ADD_SUBDIRECTORY( coordinateHUD )
 ADD_SUBDIRECTORY( coordinateSystem )
 ADD_SUBDIRECTORY( distanceMap )
@@ -14,6 +14,7 @@ ADD_SUBDIRECTORY( imageSpaceLIC )
 ADD_SUBDIRECTORY( isosurfaceRaytracer )
 ADD_SUBDIRECTORY( lic )
 ADD_SUBDIRECTORY( marchingCubes )
+ADD_SUBDIRECTORY( overlayAtlas )
 ADD_SUBDIRECTORY( paintTexture )
 ADD_SUBDIRECTORY( superquadricGlyphs )
 ADD_SUBDIRECTORY( template )

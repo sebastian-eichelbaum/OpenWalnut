@@ -26,6 +26,7 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QPushButton>
+#include <QtGui/QLabel>
 #include <QtGui/QMenu>
 
 #include "../../common/WPreferences.h"
@@ -43,6 +44,10 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerAc
 {
     // setup toolbar
     setAllowedAreas( Qt::AllToolBarAreas );
+    setObjectName( QString( "Compatible Modules" ) );
+
+    setMinimumWidth( 60 );
+    setMinimumHeight( 40 );
 
     // this sets the toolbar style
     int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
@@ -57,7 +62,6 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerAc
 
     // create the list of actions possible
     addActions( compatibles );
-    insertDummyButton();
 }
 
 WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent )
@@ -77,9 +81,6 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent )
 
     // cast and set
     setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
-
-    // reserve size
-    insertDummyButton();
 }
 
 WQtCombinerToolbar::~WQtCombinerToolbar()
@@ -89,7 +90,6 @@ WQtCombinerToolbar::~WQtCombinerToolbar()
 void WQtCombinerToolbar::makeEmpty()
 {
     clear();
-    insertDummyButton();
 }
 
 void WQtCombinerToolbar::updateButtons( const WQtCombinerActionList& compatibles )
@@ -98,21 +98,3 @@ void WQtCombinerToolbar::updateButtons( const WQtCombinerActionList& compatibles
     addActions( compatibles );
 }
 
-void WQtCombinerToolbar::insertDummyButton()
-{
-    // The following makes the bar having button size.
-    QPushButton* dummyButton = new QPushButton;
-    if ( ( m_parent->toQtToolBarArea( m_parent->getCompatiblesToolbarPos() ) ==  Qt::TopToolBarArea ) ||
-         ( m_parent->toQtToolBarArea( m_parent->getCompatiblesToolbarPos() ) ==  Qt::BottomToolBarArea ) )
-    {
-        dummyButton->setFixedWidth( 0 );
-        dummyButton->setFixedHeight( 30 );
-    }
-    else
-    {
-        dummyButton->setFixedWidth( 48 );   // well this size must be more than 32 as there might be these little submenu arrows besides the icon
-        dummyButton->setFixedHeight( 0 );
-    }
-
-    addWidget( dummyButton );
-}

@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <string>
+#include <cstdlib>
 #include <iostream>
 
 #include <boost/shared_ptr.hpp>
@@ -38,6 +39,8 @@
 #include "WQtNetworkEditor.h"
 #include "WQtNetworkPort.h"
 
+#include "../../../kernel/combiner/WDisconnectCombiner.h"
+#include "../../../kernel/WKernel.h"
 #include "../../../kernel/WModule.h"
 #include "../../../kernel/WModuleFactory.h"
 #include "../controlPanel/WQtControlPanel.h"
@@ -121,6 +124,51 @@ void WQtNetworkEditor::selectItem()
     }
 }
 
+void WQtNetworkEditor::deleteSelectedItems()
+{
+    QList< WQtNetworkItem *> itemList;
+    QList< WQtNetworkArrow *> arrowList;
+    foreach( QGraphicsItem *item, m_scene->selectedItems() )
+    {
+        if ( item->type() == WQtNetworkItem::Type )
+        {
+            WQtNetworkItem *netItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
+            itemList.append( netItem );
+        }
+        else if( item->type() == WQtNetworkArrow::Type )
+        {
+            WQtNetworkArrow *netArrow = qgraphicsitem_cast<WQtNetworkArrow *>( item );
+            arrowList.append( netArrow );
+        }
+    }
+
+    foreach( WQtNetworkArrow *ar, arrowList )
+    {
+        if( ar != 0 )
+        {
+            boost::shared_ptr< WDisconnectCombiner > disconnectCombiner =
+                boost::shared_ptr< WDisconnectCombiner >( new WDisconnectCombiner(
+                            ar->getStartPort()->getConnector()->getModule(),
+                            ar->getStartPort()->getConnector()->getName(),
+                            ar->getEndPort()->getConnector()->getModule(),
+                            ar->getEndPort()->getConnector()->getName() ) );
+            disconnectCombiner->run();
+            disconnectCombiner->wait();
+        }
+    }
+
+    foreach( WQtNetworkItem *it, itemList )
+    {
+        if( it != 0 )
+        {
+            WKernel::getRunningKernel()->getRootContainer()->remove( it->getModule() );
+            m_scene->removeItem( it );
+        }
+    }
+    itemList.clear();
+    arrowList.clear();
+}
+
 void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
 {
     WQtNetworkItem *netItem = new WQtNetworkItem( this, module );
@@ -128,13 +176,7 @@ void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
 
     // set the object at a random start position
     time( &m_time );
-#ifndef _MSC_VER
-    netItem->setPos( rand_r( ( unsigned int * ) &m_time ) % 200,
-                     rand_r( ( unsigned int * ) &m_time ) % 200 );
-#else
-    netItem->setPos( ( rand() + m_time ) % 200,
-                     ( rand() + m_time ) % 200 );
-#endif
+    netItem->setPos( ( std::rand() + m_time ) % 200, ( std::rand() + m_time ) % 200 );  // NOLINT - no we want std::rand instead of rand_r
 
     m_scene->addItem( netItem );
 
@@ -150,8 +192,8 @@ bool WQtNetworkEditor::event( QEvent* event )
         WModuleAssocEvent* e1 = dynamic_cast< WModuleAssocEvent* >( event );     // NOLINT
         if ( e1 )
         {
-            WLogger::getLogger()->addLogMessage( "Inserting module \"" + e1->getModule()->getName() +
-                                                "\" to network editor.", "NetworkEditor", LL_DEBUG );
+            WLogger::getLogger()->addLogMessage( "Inserting \"" + e1->getModule()->getName() + "\".",
+                                                "NetworkEditor", LL_DEBUG );
             addModule( e1->getModule() );
         }
 
@@ -173,7 +215,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Activating module \"" + e->getModule()->getName() + "\" in network editor.",
+        WLogger::getLogger()->addLogMessage( "Activating \"" + e->getModule()->getName() + "\".",
                                              "NetworkEditor", LL_DEBUG );
 
         // search all the item matching the module
@@ -268,8 +310,6 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module tree item was disconnected from another one
     if ( event->type() == WQT_MODULE_DISCONNECT_EVENT )
     {
-        WLogger::getLogger()->addLogMessage( "DISCONNECT.", "NetworkEditor", LL_ERROR );
-
         WModuleDisconnectEvent* e = dynamic_cast< WModuleDisconnectEvent* >( event );     // NOLINT
         if ( !e )
         {
@@ -279,7 +319,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Disonnecting \"" + e->getInput()->getCanonicalName() +
+        WLogger::getLogger()->addLogMessage( "Disconnecting \"" + e->getInput()->getCanonicalName() +
                                              "\" and \"" + e->getOutput()->getCanonicalName() +
                                              "\"." , "NetworkEditor", LL_DEBUG );
 
@@ -311,8 +351,6 @@ bool WQtNetworkEditor::event( QEvent* event )
         WQtNetworkInputPort *ip = NULL;
         WQtNetworkOutputPort *op = NULL;
 
-        WLogger::getLogger()->addLogMessage( "1.", "NetworkEditor", LL_ERROR );
-
         for ( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
             iter != inItem->getInPorts().end();
             ++iter )
@@ -323,8 +361,6 @@ bool WQtNetworkEditor::event( QEvent* event )
                ip = inP;
            }
         }
-            WLogger::getLogger()->addLogMessage( "2", "NetworkEditor", LL_ERROR );
-
             for ( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
                     iter != outItem->getOutPorts().end();
                     ++iter )
@@ -336,17 +372,12 @@ bool WQtNetworkEditor::event( QEvent* event )
                 }
             }
 
-        WLogger::getLogger()->addLogMessage( "3", "NetworkEditor", LL_ERROR );
-
         WQtNetworkArrow *ar = NULL;
-
-        wlog::error( "networkeditor" ) <<  "gehe durch " << m_scene->items().size() << " items";
 
         for ( QList< QGraphicsItem * >::const_iterator iter = m_scene->items().begin();
                 iter != m_scene->items().end();
                 ++iter )
         {
-            wlog::error( "netw" ) <<  *iter;
             ar = dynamic_cast< WQtNetworkArrow* >( *iter );
             if( ar &&
                 ar->getStartPort() == op &&
@@ -359,7 +390,11 @@ bool WQtNetworkEditor::event( QEvent* event )
         {
             op->removeArrow( ar );
             ip->removeArrow( ar );
-            m_scene->removeItem( ar );
+            if( ar->scene() != NULL )
+            {
+                m_scene->removeItem( ar );
+            }
+            delete ar;
         }
         else
         {
@@ -372,8 +407,6 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module was removed from the container
     if ( event->type() == WQT_MODULE_REMOVE_EVENT )
     {
-        WLogger::getLogger()->addLogMessage( "REMOVE.", "NetworkEditor", LL_ERROR );
-
         WModuleRemovedEvent* e = dynamic_cast< WModuleRemovedEvent* >( event );
         if ( !e )
         {
@@ -383,15 +416,15 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Removing \"" + e->getModule()->getName() +
-                                             "\"from network editor.", "NetworkEditor", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Removing \"" + e->getModule()->getName() + "\".",
+                                             "NetworkEditor", LL_DEBUG );
 
 
         WQtNetworkItem *item = findItemByModule( e->getModule() );
         if( item != 0 )
         {
             item->activate( false );
-            e->getModule()->requestStop(); // TODO(rfrohl): do we need this ?
+            e->getModule()->requestStop();
         }
 
         return true;
@@ -400,8 +433,6 @@ bool WQtNetworkEditor::event( QEvent* event )
     // a module tree item should be deleted
     if ( event->type() == WQT_MODULE_DELETE_EVENT )
     {
-        WLogger::getLogger()->addLogMessage( "DELETE.", "NetworkEditor", LL_ERROR );
-
         WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );
         if ( !e )
         {
@@ -412,14 +443,17 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Delete \"" + e->getTreeItem()->getModule()->getName() +
-                                             "\" from network editor", "NetworkEditor", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Deleting \"" + e->getTreeItem()->getModule()->getName() + "\".",
+                                             "NetworkEditor", LL_DEBUG );
 
         WQtNetworkItem *item = findItemByModule( e->getTreeItem()->getModule() );
 
         if( item != 0 )
         {
-            m_scene->removeItem( item );
+            if( item->scene() != NULL )
+            {
+                m_scene->removeItem( item );
+            }
             m_items.removeAll( item );
             delete item;
         }
@@ -477,3 +511,4 @@ void WQtNetworkEditor::timerEvent( QTimerEvent *event )
         timerId = 0;
     }
 }
+

@@ -25,12 +25,15 @@
 #ifndef WIOTOOLS_TEST_H
 #define WIOTOOLS_TEST_H
 
+#include <string>
+#include <fstream>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WIOTools.h"
 
 /**
- * Unit test helper functions in the wiotools namespace
+ * Unit test WIOTools functions.
  */
 class WIOToolsTest : public CxxTest::TestSuite
 {
@@ -43,9 +46,9 @@ public:
     {
         uint32_t x = 1;
         TS_ASSERT_EQUALS( x, 1 );
-        x = wiotools::switchByteOrder( x );
+        x = switchByteOrder( x );
         TS_ASSERT_EQUALS( x, 16777216 );
-        x = wiotools::switchByteOrder( x );
+        x = switchByteOrder( x );
         TS_ASSERT_EQUALS( x, 1 );
     }
 
@@ -56,9 +59,9 @@ public:
     {
         double x = 3.141592653589793238462643383279502884197169399375105820974;
         double original = x;
-        x = wiotools::switchByteOrder( x );
+        x = switchByteOrder( x );
         TS_ASSERT_DIFFERS( x, original );
-        x = wiotools::switchByteOrder( x );
+        x = switchByteOrder( x );
         TS_ASSERT_EQUALS( x, original );
     }
 
@@ -68,7 +71,7 @@ public:
     void testByteOrderSwitchingOnSingleBytes( void )
     {
         char x = 1;
-        TS_ASSERT_EQUALS( wiotools::switchByteOrder( x ), x );
+        TS_ASSERT_EQUALS( switchByteOrder( x ), x );
     }
 
     /**
@@ -78,9 +81,37 @@ public:
     void testByteOrderSwitchOnArray( void )
     {
         uint32_t x[] = { 1, 16777216 };
-        wiotools::switchByteOrderOfArray( x, 2 );
+        switchByteOrderOfArray( x, 2 );
         TS_ASSERT_EQUALS( x[0], 16777216 );
         TS_ASSERT_EQUALS( x[1], 1 );
+    }
+
+    /**
+     * Test reading a text file in a string.
+     */
+    void testReadFileIntoString( void )
+    {
+        std::string expected = "Hello Pansen!\r\n";
+        std::string actual = readFileIntoString( boost::filesystem::path( "fixtures/hello.world" ) );
+        TS_ASSERT_EQUALS( expected, actual );
+    }
+
+    /**
+     * Writes a text file, and afterwards checks if its the same, by reading it.
+     */
+    void testWriteStringIntoFile( void )
+    {
+        std::string content = "Hello Pansen!\r\n";
+        boost::filesystem::path fpath = tempFileName();
+        writeStringIntoFile( fpath, content );
+
+        std::ifstream input( fpath.file_string().c_str() );
+        std::string actual;
+        actual.assign( ( std::istreambuf_iterator< char >( input ) ), std::istreambuf_iterator< char >() );
+        input.close();
+        TS_ASSERT_EQUALS( content, actual );
+        TS_ASSERT( boost::filesystem::exists( fpath ) );
+        boost::filesystem::remove( fpath );
     }
 };
 

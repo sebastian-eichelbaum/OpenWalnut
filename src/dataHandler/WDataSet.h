@@ -32,6 +32,7 @@
 
 #include <osg/ref_ptr>
 
+#include "../common/WDefines.h"
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
 #include "WDataTexture3D_2.h"
@@ -95,13 +96,16 @@ public:
      * Returns the texture- representation of the dataset. May throw an exception if no texture is available.
      *
      * \return The texture.
+     * \deprecated
      */
+    OW_API_DEPRECATED
     virtual boost::shared_ptr< WDataTexture3D > getTexture();
 
     /**
      * Returns the texture- representation of the dataset. May throw an exception if no texture is available.
      *
      * \return The texture.
+     * \deprecated
      */
     virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2() const;
 
@@ -178,3 +182,4 @@ private:
 };
 
 #endif  // WDATASET_H
+

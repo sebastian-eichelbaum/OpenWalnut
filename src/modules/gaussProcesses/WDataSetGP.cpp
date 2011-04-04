@@ -48,7 +48,7 @@ WDataSetGP::~WDataSetGP()
 {
 }
 
-double WDataSetGP::mean( const wmath::WPosition& p ) const
+double WDataSetGP::mean( const WPosition& p ) const
 {
     double avg = 0.0;
     for( const_iterator cit = begin(); cit != end(); ++cit )
