@@ -25,25 +25,18 @@
 #ifndef WMODULE_H
 #define WMODULE_H
 
-#include <vector>
 #include <string>
 #include <typeinfo>
+#include <vector>
 
 #include <boost/enable_shared_from_this.hpp>
+// Boost 1.46 uses boost::filesystem3 as new default API, inorder to support old boost versions we still use the old API
+#define BOOST_FILESYSTEM_VERSION 2
 #include <boost/filesystem.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/thread.hpp>
-
-#include "WModuleCombinerTypes.h"
-#include "WModuleConnectorSignals.h"
-#include "WModuleSignals.h"
-#include "WModuleTypes.h"
-
-#include "../dataHandler/WDataSet.h"
-#include "../dataHandler/WDataSetSingle.h"
-#include "../dataHandler/WValueSet.h"
 
 #include "../common/WConditionSet.h"
 #include "../common/WLogger.h"
@@ -53,8 +46,14 @@
 #include "../common/WPrototyped.h"
 #include "../common/WRequirement.h"
 #include "../common/WThreadedRunner.h"
-
+#include "../dataHandler/WDataSet.h"
+#include "../dataHandler/WDataSetSingle.h"
+#include "../dataHandler/WValueSet.h"
 #include "WExportKernel.h"
+#include "WModuleCombinerTypes.h"
+#include "WModuleConnectorSignals.h"
+#include "WModuleSignals.h"
+#include "WModuleTypes.h"
 
 class WModuleConnector;
 class WModuleContainer;

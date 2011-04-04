@@ -24,6 +24,8 @@
 
 #include <string>
 
+// Boost 1.46 uses boost::filesystem3 as new default API, inorder to support old boost versions we still use the old API
+#define BOOST_FILESYSTEM_VERSION 2
 #include <boost/filesystem.hpp>
 
 #include <osg/Image>
@@ -32,7 +34,6 @@
 
 #include "../../kernel/WKernel.h"
 #include "WMAtlasCreator.xpm"
-
 #include "WMAtlasCreator.h"
 
 // This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.

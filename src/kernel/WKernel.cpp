@@ -23,11 +23,11 @@
 //---------------------------------------------------------------------------
 
 #ifdef __linux__
-#include <unistd.h> // used for getcwd (to get current directory)
+    #include <unistd.h> // used for getcwd (to get current directory)
 #endif
 
 #if defined(__APPLE__)
-#include <mach-o/dyld.h>
+    #include <mach-o/dyld.h>
 #endif
 
 #include <iostream>
@@ -35,6 +35,8 @@
 #include <string>
 #include <vector>
 
+// Boost 1.46 uses boost::filesystem3 as new default API, inorder to support old boost versions we still use the old API
+#define BOOST_FILESYSTEM_VERSION 2
 #include <boost/filesystem.hpp>
 #include <boost/thread/xtime.hpp>
 

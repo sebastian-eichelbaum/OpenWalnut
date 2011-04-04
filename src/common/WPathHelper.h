@@ -27,10 +27,13 @@
 
 #include <vector>
 
+// Boost 1.46 uses boost::filesystem3 as new default API, inorder to support old boost versions we still use the old API
+#define BOOST_FILESYSTEM_VERSION 2
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "WExportCommon.h"
+
 /**
  * Singleton class helping to find files and paths. It is a useful to to search for resources and the central place to "hardcode" relative paths.
  * It contains global paths only. Modules have their OWN local paths.

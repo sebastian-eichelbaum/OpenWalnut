@@ -32,18 +32,18 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/locks.hpp>
 
+#include <osg/ref_ptr>
 #include <osg/Vec3>
 #include <osg/Vec4>
-#include <osg/ref_ptr>
 #include <osgViewer/CompositeViewer>
 #include <osgViewer/View>
 #include <osgViewer/Viewer>
 
+#include "../../common/math/WPosition.h"
 #include "../../common/WColor.h"
 #include "../../common/WLogger.h"
 #include "../../common/WPathHelper.h"
 #include "../../common/WPreferences.h"
-#include "../../common/math/WPosition.h"
 #include "../exceptions/WGEInitFailed.h"
 #include "../exceptions/WGESignalSubscriptionFailed.h"
 #include "WGEViewerMac.h"

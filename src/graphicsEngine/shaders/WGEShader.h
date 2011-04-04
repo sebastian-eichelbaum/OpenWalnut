@@ -25,22 +25,24 @@
 #ifndef WGESHADER_H
 #define WGESHADER_H
 
-#include <map>
 #include <list>
+#include <map>
 #include <string>
 
+// Boost 1.46 uses boost::filesystem3 as new default API, inorder to support old boost versions we still use the old API
+#define BOOST_FILESYSTEM_VERSION 2
 #include <boost/filesystem.hpp>
 #include <boost/signals2/signal.hpp>
 
-#include <osg/Shader>
-#include <osg/Program>
 #include <osg/NodeCallback>
+#include <osg/Program>
+#include <osg/Shader>
 
 #include "../../common/WPathHelper.h"
 #include "../../common/WSharedAssociativeContainer.h"
-#include "WGEShaderPreprocessor.h"
-#include "WGEShaderDefine.h"
 #include "../WExportWGE.h"
+#include "WGEShaderDefine.h"
+#include "WGEShaderPreprocessor.h"
 
 /**
  * Class encapsulating the OSG Program class for a more convenient way of adding and modifying shader.

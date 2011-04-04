@@ -27,17 +27,19 @@
 
 #include <stdint.h>
 
-#include <string>
 #include <list>
+#include <string>
 #include <utility>
 
+// Boost 1.46 uses boost::filesystem3 as new default API, inorder to support old boost versions we still use the old API
+#define BOOST_FILESYSTEM_VERSION 2
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "math/WPosition.h"
 #include "math/WMatrix4x4.h"
-#include "WItemSelector.h"
+#include "math/WPosition.h"
 #include "WColor.h"
+#include "WItemSelector.h"
 
 template < typename T >
 class WPropertyVariable;

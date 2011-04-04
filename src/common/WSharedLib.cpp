@@ -26,14 +26,17 @@
 #include <cassert>
 #include <string>
 
+// Boost 1.46 uses boost::filesystem3 as new default API, inorder to support old boost versions we still use the old API
+#define BOOST_FILESYSTEM_VERSION 2
+#include <boost/filesystem.hpp>
+
 #ifdef _WIN32
-#include <iostream>
-#include <windows.h>        // NOLINT
+    #include <iostream>
+    #include <windows.h>        // NOLINT
 #endif
 
 #include "exceptions/WLibraryFetchFailed.h"
 #include "exceptions/WLibraryLoadFailed.h"
-
 #include "WSharedLib.h"
 
 #ifdef _WIN32
