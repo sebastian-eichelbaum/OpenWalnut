@@ -59,7 +59,7 @@ const char** WMBoundaryCurvesWMGM::getXPMIcon() const
 
 const std::string WMBoundaryCurvesWMGM::getName() const
 {
-    return "Boundary Curves GMWM";
+    return "Boundary Curves WMGM";
 }
 
 const std::string WMBoundaryCurvesWMGM::getDescription() const
