@@ -208,10 +208,9 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     // encapsulate it into an collapsable widget
     QFrame* box = new QFrame( this );
     box->setFrameShape( QFrame::StyledPanel );
-    box->setFrameShadow( QFrame::Raised );
     QGridLayout* boxLayout = new QGridLayout( box );
-    boxLayout->setMargin( WGLOBAL_MARGIN );
-    boxLayout->setSpacing( WGLOBAL_SPACING );
+    boxLayout->setMargin( 0 );
+    boxLayout->setSpacing( 0 );
 
     // create a button as title
     QPushButton* boxTitle = new QPushButton( this );
