@@ -133,6 +133,11 @@ private:
     WPropInt m_stepCount;
 
     /**
+     * The numeric precision used for iso-checking.
+     */
+    WPropDouble m_epsilon;
+
+    /**
      * The alpha transparency used for the rendering
      */
     WPropDouble m_alpha;
