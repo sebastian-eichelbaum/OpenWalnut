@@ -124,8 +124,10 @@ public:
      * Simply insert the specified property to the list.
      *
      * \param prop the property to add
+     *
+     * \return The given prop.
      */
-    void addProperty( boost::shared_ptr< WPropertyBase > prop );
+    boost::shared_ptr< WPropertyBase > addProperty( boost::shared_ptr< WPropertyBase > prop );
 
     /**
      * Simply remove the specified property from the list. If the given property is not in the list, nothing happens.

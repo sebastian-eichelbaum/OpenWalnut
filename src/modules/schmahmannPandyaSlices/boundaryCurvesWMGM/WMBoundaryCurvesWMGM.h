@@ -145,11 +145,6 @@ private:
     boost::array< WPropBool, 3 > m_showSlice;
 
     /**
-     * A condition used to notify about changes in several properties.
-     */
-    boost::shared_ptr< WCondition > m_propCondition;
-
-    /**
      * List for selecting the strategy.
      */
     WPropSelection m_strategySelector;

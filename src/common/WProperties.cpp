@@ -205,7 +205,7 @@ bool WProperties::propNamePredicate( boost::shared_ptr< WPropertyBase > prop1, b
     return ( prop1->getName() == prop2->getName() );
 }
 
-void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
+boost::shared_ptr< WPropertyBase > WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
 {
     // lock, unlocked if l looses focus
     PropertySharedContainerType::WriteTicket l = m_properties.getWriteTicket();
@@ -241,6 +241,8 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
 
     // add the child's update condition to the list
     m_childUpdateCondition->add( prop->getUpdateCondition() );
+
+    return prop;
 }
 
 void WProperties::removeProperty( boost::shared_ptr< WPropertyBase > prop )

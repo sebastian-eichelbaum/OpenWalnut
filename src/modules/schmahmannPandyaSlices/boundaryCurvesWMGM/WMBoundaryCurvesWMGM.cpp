@@ -77,8 +77,6 @@ void WMBoundaryCurvesWMGM::connectors()
 
 void WMBoundaryCurvesWMGM::properties()
 {
-    m_propCondition  = boost::shared_ptr< WCondition >( new WCondition() );
-
     WPropGroup sliceGroup = m_properties->addPropertyGroup( "Slices",  "Group of slices for the GM and WM curves." );
 
     m_showSlice[0]   = sliceGroup->addProperty( "Show Sagittal", "Show GM and WM boundary curves on sagittal slice.", true );
@@ -114,8 +112,7 @@ void WMBoundaryCurvesWMGM::properties()
     boost::shared_ptr< WItemSelection > strategies( new WItemSelection() );
     strategies->addItem( "Iso-Lines", "Marching lines" );
     strategies->addItem( "Iso-Fragments", "Small environment" );
-    m_strategySelector = m_properties->addProperty( "Strategy", "How the boundary curves should be draw",
-            strategies->getSelectorFirst(), m_propCondition );
+    m_strategySelector = m_properties->addProperty( "Strategy", "How the boundary curves should be draw", strategies->getSelectorFirst() );
 
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_strategySelector );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_strategySelector );
@@ -160,7 +157,7 @@ void WMBoundaryCurvesWMGM::moduleMain()
     // get notified about data changes
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_textureIC->getDataChangedCondition() );
-    m_moduleState.add( m_propCondition );
+    m_moduleState.add( m_strategySelector->getCondition() );
 
     ready();
 

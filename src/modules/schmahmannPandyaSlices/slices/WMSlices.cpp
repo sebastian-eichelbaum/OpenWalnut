@@ -24,55 +24,69 @@
 
 #include <string>
 
+#include "../../../common/WCondition.h"
+#include "../../../dataHandler/WDataSetScalar.h"
+#include "../../../dataHandler/WDataSetVector.h"
 #include "../../../kernel/WKernel.h"
-#include "../../emptyIcon.xpm" // Please put a real icon here.
-
+#include "../../../kernel/WModule.h"
+#include "../../../kernel/WModuleFactory.h"
+#include "../../../kernel/WModuleInputForwardData.h"
+#include "../../../kernel/WSelectionManager.h"
 #include "WMSlices.h"
+#include "WMSlices.xpm"
 
-WMSlices::WMSlices():
-    WModule()
+WMSlices::WMSlices()
+    : WModuleContainer( "Schmahmann-Pandya slices", "Combines the probTractDisplaySP and boundaryCurvesWMGM modules into one module." )
 {
 }
 
 WMSlices::~WMSlices()
 {
-    // Cleanup!
 }
 
 boost::shared_ptr< WModule > WMSlices::factory() const
 {
-    // See "src/modules/template/" for an extensively documented example.
     return boost::shared_ptr< WModule >( new WMSlices() );
 }
 
 const char** WMSlices::getXPMIcon() const
 {
-    return emptyIcon_xpm; // Please put a real icon here.
+    return WMSlices_xpm;
 }
 const std::string WMSlices::getName() const
 {
-    // Specify your module name here. This name must be UNIQUE!
-    return "Slices";
+    return "Schmahmann-Pandya slices";
 }
 
 const std::string WMSlices::getDescription() const
 {
-    // Specify your module description here. Be detailed. This text is read by the user.
-    // See "src/modules/template/" for an extensively documented example.
-    return "Someone should add some documentation here. "
-    "Probably the best person would be the modules's creator, i.e. \"math\"";
+    return "Slice based display of probabilistic tracts using line stipples, gray matter and white matter boundary curves.";
 }
 
 void WMSlices::connectors()
 {
     // Put the code for your connectors here. See "src/modules/template/" for an extensively documented example.
+    m_probTractIC = WModuleInputForwardData< WDataSetScalar >::createAndAdd( shared_from_this(), "probTractInput", "Probabilistic tract to display." ); // NOLINT line length
+    m_t1ImageIC = WModuleInputForwardData< WDataSetScalar >::createAndAdd( shared_from_this(), "t1Input", "T1 Image for WM/GM estimation." );
+    m_evecsIC = WModuleInputForwardData< WDataSetVector >::createAndAdd( shared_from_this(), "evecInput", "Vector field with principal diffusion direction." ); // NOLINT line length
 
     WModule::connectors();
 }
 
 void WMSlices::properties()
 {
-    // Put the code for your properties here. See "src/modules/template/" for an extensively documented example.
+    WPropGroup sliceGroup = m_properties->addPropertyGroup( "Slices",  "Group of slices for tract rendering ala Schmahmann and Pandya." );
+
+    m_showSlice[0] = sliceGroup->addProperty( "Show Sagittal", "Show rendering on sagittal slice.", true );
+    m_showSlice[1] = sliceGroup->addProperty( "Show Coronal", "Show rendering on coronal slice.", true );
+    m_showSlice[2] = sliceGroup->addProperty( "Show Axial", "Show rendering on axial slice.", true );
+
+    m_slicePos[0] = m_properties->addProperty( boost::shared_dynamic_cast< WPropertyBase >(
+                WKernel::getRunningKernel()->getSelectionManager()->getPropSagittalPos() ) )->toPropInt();
+    m_slicePos[1] = m_properties->addProperty( boost::shared_dynamic_cast< WPropertyBase >(
+                WKernel::getRunningKernel()->getSelectionManager()->getPropCoronalPos() ) )->toPropInt();
+    m_slicePos[2] = m_properties->addProperty( boost::shared_dynamic_cast< WPropertyBase >(
+                WKernel::getRunningKernel()->getSelectionManager()->getPropAxialPos() ) )->toPropInt();
 
     WModule::properties();
 }
@@ -82,8 +96,92 @@ void WMSlices::requirements()
     // Put the code for your requirements here. See "src/modules/template/" for an extensively documented example.
 }
 
+void WMSlices::redrawUntilSlicePosChangingAnymore( unsigned char sliceNum, const std::string &propName )
+{
+    if( m_slicePos[sliceNum]->changed() )
+    {
+        int pos = m_slicePos[sliceNum]->get( true );
+        do
+        {
+            pos = m_slicePos[sliceNum]->get( true ); // to ensure both submodules operate on the same slice
+            m_boundaryCurvesWMGM->getProperties()->findProperty( propName )->toPropInt()->set( pos );
+            m_probTractDisplaySP->getProperties()->findProperty( propName )->toPropInt()->set( pos );
+        }
+        while( m_slicePos[sliceNum]->get() != pos ); // check if pos has changed mean while
+    }
+}
+
 void WMSlices::moduleMain()
 {
-    // Put the code for your module's main functionality here.
-    // See "src/modules/template/" for an extensively documented example.
+    m_moduleState.setResetable( true, true );
+    m_moduleState.add( m_probTractIC->getDataChangedCondition() );
+    m_moduleState.add( m_t1ImageIC->getDataChangedCondition() );
+    m_moduleState.add( m_evecsIC->getDataChangedCondition() );
+    m_moduleState.add( m_active->getCondition() );
+
+    for( size_t i = 0; i < 3; ++i )
+    {
+        m_moduleState.add( m_slicePos[i]->getCondition() );
+        m_moduleState.add( m_showSlice[i]->getCondition() );
+    }
+
+    initSubModules();
+
+    ready();
+
+    while ( !m_shutdownFlag() )
+    {
+        infoLog() << "Waiting ...";
+        m_moduleState.wait();
+
+        // woke up since the module is requested to finish?
+        if ( m_shutdownFlag() )
+        {
+            break;
+        }
+
+        redrawUntilSlicePosChangingAnymore( 0, "Slices/Sagittal Position" );
+        redrawUntilSlicePosChangingAnymore( 1, "Slices/Coronal Position" );
+        redrawUntilSlicePosChangingAnymore( 2, "Slices/Axial Position" );
+
+        m_boundaryCurvesWMGM->getProperties()->findProperty( "Slices/Show Sagittal" )->toPropBool()->set( m_showSlice[0]->get( true ) );
+        m_boundaryCurvesWMGM->getProperties()->findProperty( "Slices/Show Coronal" )->toPropBool()->set( m_showSlice[1]->get( true ) );
+        m_boundaryCurvesWMGM->getProperties()->findProperty( "Slices/Show Axial" )->toPropBool()->set( m_showSlice[2]->get( true ) );
+        m_probTractDisplaySP->getProperties()->findProperty( "Slices/Show Sagittal" )->toPropBool()->set( m_showSlice[0]->get( true ) );
+        m_probTractDisplaySP->getProperties()->findProperty( "Slices/Show Coronal" )->toPropBool()->set( m_showSlice[1]->get( true ) );
+        m_probTractDisplaySP->getProperties()->findProperty( "Slices/Show Axial" )->toPropBool()->set( m_showSlice[2]->get( true ) );
+
+        if( m_active->changed() )
+        {
+            infoLog() << "En/Disabling submodules graphic context.";
+            m_boundaryCurvesWMGM->getProperties()->getProperty( "active" )->toPropBool()->set( m_active->get( true ) );
+            m_probTractDisplaySP->getProperties()->getProperty( "active" )->toPropBool()->set( m_active->get( true ) );
+        }
+    }
+}
+
+boost::shared_ptr< WModule > WMSlices::addNewSubmodule( const std::string &prototypeName )
+{
+    boost::shared_ptr< WModuleFactory > factory = WModuleFactory::getModuleFactory();
+    boost::shared_ptr< WModule > result = factory->create( factory->getPrototypeByName( prototypeName ) );
+    add( result );
+    result->isReady().wait();
+    return result;
+}
+
+void WMSlices::initSubModules()
+{
+    m_boundaryCurvesWMGM = addNewSubmodule( "Boundary Curves WMGM" );
+    m_probTractDisplaySP = addNewSubmodule( "Prob Tract Display SP" );
+
+    infoLog() << "Add properties from submodules";
+    m_properties->addProperty( m_boundaryCurvesWMGM->getProperties()->getProperty( "White Matter" ) );
+    m_properties->addProperty( m_boundaryCurvesWMGM->getProperties()->getProperty( "Gray Matter" ) );
+    m_properties->addProperty( m_probTractDisplaySP->getProperties()->getProperty( "Vector Group" ) );
+    m_properties->addProperty( m_probTractDisplaySP->getProperties()->getProperty( "Color for 0InputConnector" ) );
+
+    infoLog() << "Wiring submodules";
+    m_evecsIC->forward( m_probTractDisplaySP->getInputConnector( "vectorInput" ) );
+    m_probTractIC->forward( m_probTractDisplaySP->getInputConnector( "probTract0Input" ) );
+    m_t1ImageIC->forward( m_boundaryCurvesWMGM->getInputConnector( "textureInput" ) );
 }

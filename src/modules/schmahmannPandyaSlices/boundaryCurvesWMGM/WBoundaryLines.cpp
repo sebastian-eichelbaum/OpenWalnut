@@ -52,8 +52,8 @@ void WBoundaryLines::run( osg::ref_ptr< WGEManagedGroupNode > output, const char
     {
         for( char i = 0; i < 3; ++i )
         {
-            osg::ref_ptr< WGEGroupNode > newNode = generateSlice( i );
             output->remove( m_slices[i] );
+            osg::ref_ptr< WGEGroupNode > newNode = generateSlice( i );
             m_slices[i]->clear();
             m_slices[i]->insert( newNode );
             output->insert( m_slices[i] );
@@ -61,8 +61,8 @@ void WBoundaryLines::run( osg::ref_ptr< WGEManagedGroupNode > output, const char
     }
     else
     {
-        osg::ref_ptr< WGEGroupNode > newNode = generateSlice( sliceNum );
         output->remove( m_slices[ sliceNum ] );
+        osg::ref_ptr< WGEGroupNode > newNode = generateSlice( sliceNum );
         m_slices[ sliceNum ]->clear();
         m_slices[ sliceNum ]->insert( newNode );
         output->insert( m_slices[ sliceNum ] );

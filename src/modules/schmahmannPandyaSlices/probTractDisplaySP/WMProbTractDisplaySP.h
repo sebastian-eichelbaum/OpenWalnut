@@ -105,14 +105,16 @@ private:
     void initOSG();
 
     /**
-     * Whenever the grid changes we must update the slide properties, in order to represent valid maxima and minima again.
+     * Resets the max value for the slice position sliders and sets it afterwards the middle position. Whenever the grid changes
+     * we must update the slice position properties to its min max dimensions.
      *
      * \param grid The grid of the probabilistic tractogram
      */
-    void updateProperties( boost::shared_ptr< const WGridRegular3D > grid );
+    void resetSlicePos( boost::shared_ptr< const WGridRegular3D > grid );
 
     /**
-     * Updates all slices.
+     * Updates all or just one slice depending on which property or situation has changed. E.g. color changes influence all slices
+     * but slice position changes just a single slice.
      *
      * \param builder An instance of a slice builder, correctly initialized and ready to use.
      */
@@ -155,19 +157,10 @@ private:
     osg::ref_ptr< WGEManagedGroupNode > m_output;
 
     /**
-     * The transformation node moving the X slice through the dataset space if the sliders are used
+     * Axial, coronal and sagittal slices as array.
+     * 0 : xSlice, 1 : ySlice, 2 : zSlice
      */
-    osg::ref_ptr< WGEManagedGroupNode > m_xSlice;
-
-    /**
-     * The transformation node moving the Y slice through the dataset space if the sliders are used
-     */
-    osg::ref_ptr< WGEManagedGroupNode > m_ySlice;
-
-    /**
-     * The transformation node moving the Z slice through the dataset space if the sliders are used
-     */
-    osg::ref_ptr< WGEManagedGroupNode > m_zSlice;
+    boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > m_slices;
 
     /**
      * The group contains several slice properties
@@ -175,34 +168,16 @@ private:
     WPropGroup    m_sliceGroup;
 
     /**
-     * X position of the slice
+     * Position of the axial, sagittal and coronal slices.
+     * 0 : xSlice, 1 : ySlice, 2 : zSlice
      */
-    WPropInt      m_xPos;
+    boost::array< WPropInt, 3 > m_slicePos;
 
     /**
-     * Y position of the slice
+     * Indicates if the corresponding slice is shown or not.
+     * 0 : xSlice, 1 : ySlice, 2 : zSlice
      */
-    WPropInt      m_yPos;
-
-    /**
-     * Z position of the slice
-     */
-    WPropInt      m_zPos;
-
-    /**
-     * Indicates whether the vector should be shown on slice X
-     */
-    WPropBool     m_showonX;
-
-    /**
-     * Indicates whether the vector should be shown on slice Y
-     */
-    WPropBool     m_showonY;
-
-    /**
-     * Indicates whether the vector should be shown on slice Z
-     */
-    WPropBool     m_showonZ;
+    boost::array< WPropBool, 3 > m_showSlice;
 
     /**
      * The group contains several properties for tract based drawing
@@ -249,10 +224,6 @@ private:
      */
     boost::shared_ptr< WCondition > m_sliceChanged;
 
-    /**
-     * List of algorithms to select to draw those Schmahmann Pandya slices.
-     */
-    boost::shared_ptr< WItemSelection > m_drawAlgorithmList;
 
     /**
      * Property accessor for the Algorithm list.

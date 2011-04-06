@@ -130,31 +130,28 @@ void WMProbTractDisplaySP::connectors()
 
 void WMProbTractDisplaySP::properties()
 {
-    m_sliceGroup      = m_properties->addPropertyGroup( "Slices",  "Slice based probabilistic tractogram display." );
+    m_sliceGroup     = m_properties->addPropertyGroup( "Slices",  "Slice based probabilistic tractogram display." );
 
-    m_showonX        = m_sliceGroup->addProperty( "Show Sagittal", "Show instersection of deterministic tracts on sagittal slice.", true );
-    m_showonY        = m_sliceGroup->addProperty( "Show Coronal", "Show instersection of deterministic tracts on coronal slice.", true );
-    m_showonZ        = m_sliceGroup->addProperty( "Show Axial", "Show instersection of deterministic tracts on axial slice.", true );
-    // The slice positions. These get update externally.
-    // TODO(math): get the dimensions and MinMax's directly from the probabilistic tractorgram
-    // TODO(all): this should somehow be connected to the nav slices.
-    m_xPos           = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0, m_sliceChanged );
-    m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0, m_sliceChanged );
-    m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0, m_sliceChanged );
+    m_showSlice[ 0 ] = m_sliceGroup->addProperty( "Show Sagittal", "Show instersection of deterministic tracts on sagittal slice.", true );
+    m_showSlice[ 1 ] = m_sliceGroup->addProperty( "Show Coronal", "Show instersection of deterministic tracts on coronal slice.", true );
+    m_showSlice[ 2 ] = m_sliceGroup->addProperty( "Show Axial", "Show instersection of deterministic tracts on axial slice.", true );
+
+    m_slicePos[ 0 ] = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0, m_sliceChanged );
+    m_slicePos[ 1 ] = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0, m_sliceChanged );
+    m_slicePos[ 2 ] = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0, m_sliceChanged );
 
     // since we don't know anything yet => make them unusable
-    m_xPos->setMin( 0 );
-    m_xPos->setMax( 0 );
-    m_yPos->setMin( 0 );
-    m_yPos->setMax( 0 );
-    m_zPos->setMin( 0 );
-    m_zPos->setMax( 0 );
+    for( size_t i = 0; i < 3; ++i )
+    {
+        m_slicePos[i]->setMax( 0 );
+        m_slicePos[i]->setMin( 0 );
+    }
 
-    m_drawAlgorithmList = boost::shared_ptr< WItemSelection >( new WItemSelection() );
-    m_drawAlgorithmList->addItem( "With deterministic tracts", "A WDataSetFibers is needed." );
-    m_drawAlgorithmList->addItem( "With largest eigen vectors", "A WDataSetVectors is needed." );
+    boost::shared_ptr< WItemSelection > drawAlgorithmList( new WItemSelection() );
+    drawAlgorithmList->addItem( "With largest eigen vectors", "A WDataSetVectors is needed." );
+    drawAlgorithmList->addItem( "With deterministic tracts", "A WDataSetFibers is needed." );
     m_drawAlgorithm = m_properties->addProperty( "Method:", "Method which you want to use for the visualization.",
-            m_drawAlgorithmList->getSelectorFirst(), m_sliceChanged );
+            drawAlgorithmList->getSelectorFirst(), m_sliceChanged );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_drawAlgorithm );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_drawAlgorithm );
 
@@ -182,16 +179,16 @@ void WMProbTractDisplaySP::properties()
 
     m_vectorGroup     = m_properties->addPropertyGroup( "Vector Group", "Parameters for drawing via eigen vectors." );
     m_vectorGroup->addProperty( m_probThreshold ); // this is also needed in this property group
-    WPropDouble spacing = m_vectorGroup->addProperty( "Spacing", "Spacing of the sprites", 0.5, m_sliceChanged );
-    spacing->setMin( 0.01 );
-    spacing->setMax( 10 );
-    WPropDouble glyphSize = m_vectorGroup->addProperty( "Glyph size", "Size of the quads transformed to the glyphs", 0.5 );
-    glyphSize->setMin( 0.01 );
-    glyphSize->setMax( 3.0 );
+    WPropDouble spacing = m_vectorGroup->addProperty( "Spacing", "Spacing of the sprites", 1.0, m_sliceChanged );
+    spacing->setMin( 0.25 );
+    spacing->setMax( 5.0 );
+    WPropDouble glyphSize = m_vectorGroup->addProperty( "Glyph size", "Size of the quads transformed to the glyphs", 1.0 );
+    glyphSize->setMin( 0.25 );
+    glyphSize->setMax( 5.0 );
     WPropDouble glyphSpacing = m_vectorGroup->addProperty( "Glyph Spacing", "Spacing ", 0.4, m_sliceChanged );
     glyphSpacing->setMin( 0.0 );
     glyphSpacing->setMax( 5.0 );
-    WPropDouble glyphThickness = m_vectorGroup->addProperty( "Glyph Thickness", "Line thickness of the glyphs", 0.2 );
+    WPropDouble glyphThickness = m_vectorGroup->addProperty( "Glyph Thickness", "Line thickness of the glyphs", 0.07 );
     glyphThickness->setMin( 0.01 );
     glyphThickness->setMax( 1.0 );
 
@@ -199,14 +196,14 @@ void WMProbTractDisplaySP::properties()
     WModule::properties();
 }
 
-void WMProbTractDisplaySP::updateProperties( boost::shared_ptr< const WGridRegular3D > grid )
+void WMProbTractDisplaySP::resetSlicePos( boost::shared_ptr< const WGridRegular3D > grid )
 {
-    m_xPos->setMax( grid->getNbCoordsX() - 1 );
-    m_xPos->set( ( grid->getNbCoordsX() - 1 ) / 2, true );
-    m_yPos->setMax( grid->getNbCoordsY() - 1 );
-    m_yPos->set( ( grid->getNbCoordsY() - 1 ) / 2, true );
-    m_zPos->setMax( grid->getNbCoordsZ() - 1 );
-    m_zPos->set( ( grid->getNbCoordsZ() - 1 ) / 2, true );
+    boost::array< unsigned int, 3 > coords = getNbCoords( grid );
+    for( int i = 0; i < 3; ++i )
+    {
+        m_slicePos[i]->setMax( coords[i] - 1 );
+        m_slicePos[i]->set( ( coords[i] - 1 ) / 2, true );
+    }
 }
 
 void WMProbTractDisplaySP::initOSG()
@@ -214,15 +211,11 @@ void WMProbTractDisplaySP::initOSG()
     // remove the old slices
     m_output->clear();
 
-    // create all the transformation nodes
-    m_xSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonX ) );
-    m_ySlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonY ) );
-    m_zSlice = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showonZ ) );
-
-    // add the transformation nodes to the output group
-    m_output->insert( m_xSlice );
-    m_output->insert( m_ySlice );
-    m_output->insert( m_zSlice );
+    for( int i = 0; i < 3; ++i )
+    {
+        m_slices[i] = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showSlice[i] ) );
+        m_output->insert( m_slices[i] );
+    }
 }
 
 void WMProbTractDisplaySP::moduleMain()
@@ -301,7 +294,7 @@ void WMProbTractDisplaySP::moduleMain()
 
             if( grid->getNbCoordsX() > 0 && grid->getNbCoordsY() > 0 &&  grid->getNbCoordsZ() > 0 )
             {
-                updateProperties( grid );
+                resetSlicePos( grid );
             }
             else
             {
@@ -381,20 +374,34 @@ void WMProbTractDisplaySP::checkProbabilityRanges( std::vector< boost::shared_pt
 void WMProbTractDisplaySP::updateSlices( boost::shared_ptr< WSPSliceBuilder > builder )
 {
     builder->preprocess();
-    for( unsigned char sliceNum = 0; sliceNum < 3; ++sliceNum )
-    {
-        osg::ref_ptr< WGEGroupNode > intersectionAndProjection = builder->generateSlice( sliceNum );
 
-        // determine correct slice group node
-        osg::ref_ptr< WGEManagedGroupNode > sliceGroup;
-        switch( sliceNum )
+    bool fullUpdate = m_delta->changed() || m_probThreshold->changed() || m_properties->findProperty( "Vector Group/Spacing" )->toPropDouble()->changed(); // NOLINT line length
+
+    // eat changes:
+    m_delta->get( true );
+    m_probThreshold->get( true );
+    m_properties->findProperty( "Vector Group/Spacing" )->toPropDouble()->get( true );
+
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        if( m_colorMap[i]->findProperty( "Color" )->toPropColor()->changed() || m_colorMap[i]->findProperty( "Filename" )->toPropString()->changed() )
         {
-            case 0 : sliceGroup = m_xSlice; break;
-            case 1 : sliceGroup = m_ySlice; break;
-            case 2 : sliceGroup = m_zSlice; break;
-            default : throw WOutOfBounds( "Invalid slice number given. Must be in 0..2 in order to select x-, y- or z-Slice" );
+            fullUpdate = true;
+            debugLog() << "Color for input connector: " << i << " changed.";
+            m_colorMap[i]->findProperty( "Color" )->toPropColor()->get( true );
+            m_colorMap[i]->findProperty( "Filename" )->toPropString()->get( true );
         }
-        sliceGroup->clear();
-        sliceGroup->insert( intersectionAndProjection );
+    }
+    for( int i = 0; i < 3; ++i )
+    {
+        // check if slice i needs an update
+        if( fullUpdate || (  m_drawAlgorithm->get( true ).at( 0 )->getName() == std::string( "With largest eigen vectors" ) && m_slicePos[i]->changed() ) ) // NOLINT line length
+        {
+            m_slicePos[i]->get( true ); // eat change
+            m_output->remove( m_slices[i] );
+            m_slices[i]->clear();
+            m_slices[i]->insert( builder->generateSlice( i ) );
+            m_output->insert( m_slices[i] );
+        }
     }
 }
