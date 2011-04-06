@@ -38,10 +38,12 @@ WQtNetworkPort::WQtNetworkPort()
     setPen( QPen( Qt::red, 1, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
 
     setAcceptsHoverEvents( true );
+    m_line = NULL;
 }
 
 WQtNetworkPort::~WQtNetworkPort()
 {
+    removeArrows();
 }
 
 void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
@@ -67,7 +69,7 @@ void WQtNetworkPort::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 
 void WQtNetworkPort::mouseMoveEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
-    if( m_line != 0 )
+    if( m_line )
     {
         QLineF newLine( m_line->line().p1(), mouseEvent->scenePos() );
 

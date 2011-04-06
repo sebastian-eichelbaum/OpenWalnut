@@ -29,6 +29,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "../WGuiConsts.h"
 #include "../../../common/WLogger.h"
 #include "../../../common/WPropertyVariable.h"
 
@@ -46,11 +47,17 @@ WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* property
     // layout both against each other
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );
+    m_layout.setMargin( WGLOBAL_MARGIN );
+    m_layout.setSpacing( WGLOBAL_SPACING );
     m_parameterWidgets.setLayout( &m_layout );
 
     // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
     m_infoLayout.addWidget( &m_asText );
+    m_infoLayout.setMargin( WGLOBAL_MARGIN );
+    m_infoLayout.setSpacing( WGLOBAL_SPACING );
     m_informationWidgets.setLayout( &m_infoLayout );
+
+    m_slider.setMinimumWidth( WMIN_SLIDER_WIDTH );
 
     update();
 
@@ -85,6 +92,8 @@ void WPropertyIntWidget::update()
         m_slider.setMinimum( minC->getMin() );
         m_slider.setMaximum( maxC->getMax() );
         m_slider.setValue( m_intProperty->get() );
+
+        m_edit.setMaximumWidth( fontMetrics().width( QString::number( - ( maxC->getMax() - minC->getMin() ) ) ) + 5 );
     }
     else
     {

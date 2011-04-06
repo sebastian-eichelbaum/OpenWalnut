@@ -41,6 +41,7 @@ public:
 
     /**
      * Constructor
+     *
      * \param connector the related WModuleInputConnector
      */
     explicit WQtNetworkInputPort( boost::shared_ptr<WModuleInputConnector> connector );

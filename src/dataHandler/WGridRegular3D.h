@@ -40,6 +40,7 @@
 #include "../common/math/WVector3D.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WCondition.h"
+#include "../common/WDefines.h"
 #include "WExportDataHandler.h"
 #include "WGrid.h"
 #include "WGridTransformOrtho.h"
@@ -158,6 +159,8 @@ public:
     WMatrix< double > getTransformationMatrix() const;
 
     /**
+     * \copybrief WGrid::getBoundingBox()
+     * \return \copybrief WGrid::getBoundingBox()
      */
     WBoundingBox getBoundingBox() const;
 
@@ -203,12 +206,16 @@ public:
     const WMatrix4x4& getTexToWorldMatrix() const;
 
     /**
-     * This method returns the condition that fires on changes in this grid's transformation matrix. This is ugly and should not be used since,
-     * technically, we want const grids. For WDataTexture_2, this is needed right now because we have a module which allows modification of the
-     * grid transformation (dataManipulator). Remove this if the grid really is const as it is not needed anymore.
+     * The condition that fires on changes in this grid's transformation matrix.
      *
-     * \return the condition
+     * \warning This is ugly and should not be used since, technically, we want const grids. For WDataTexture_2, this is needed
+     * right now because we have a module which allows modification of the grid transformation (dataManipulator). Remove this if
+     * the grid really is const as it is not needed anymore.
+     *
+     * \return \copybrief WGridRegular3D::getTransformationUpdateCondition()
+     * \deprecated
      */
+    OW_API_DEPRECATED
     WCondition::SPtr getTransformationUpdateCondition() const;
 
     /**

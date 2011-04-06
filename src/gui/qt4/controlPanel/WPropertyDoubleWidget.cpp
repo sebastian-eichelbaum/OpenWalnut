@@ -30,6 +30,7 @@
 
 #include "../../../common/WLogger.h"
 #include "../../../common/WPropertyVariable.h"
+#include "../WGuiConsts.h"
 #include "WPropertyDoubleWidget.h"
 
 WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout* propertyGrid, QWidget* parent ):
@@ -44,12 +45,18 @@ WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout*
     // layout both against each other
     m_layout.addWidget( &m_slider );
     m_layout.addWidget( &m_edit );
+    m_layout.setMargin( WGLOBAL_MARGIN );
+    m_layout.setSpacing( WGLOBAL_SPACING );
 
     m_parameterWidgets.setLayout( &m_layout );
 
     // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
     m_infoLayout.addWidget( &m_asText );
+    m_infoLayout.setMargin( WGLOBAL_MARGIN );
+    m_infoLayout.setSpacing( WGLOBAL_SPACING );
     m_informationWidgets.setLayout( &m_infoLayout );
+
+    m_slider.setMinimumWidth( WMIN_SLIDER_WIDTH );
 
     update();
 

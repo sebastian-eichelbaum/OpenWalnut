@@ -33,6 +33,8 @@
 
 #include "WPropertyWidget.h"
 
+class WScaleLabel;
+
 /**
  * Implements a property widget for MATRIX4X4.
  */
@@ -80,7 +82,7 @@ protected:
     /**
      * Used to show the property as text.
      */
-    QLabel m_asText;
+    WScaleLabel m_asText;
 
     /**
      * The layout used for the pure output (information properties)

@@ -53,6 +53,8 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
         int row = m_propertyGrid->rowCount();
         m_propertyGrid->addWidget( &m_label, row, 0 );
         m_propertyGrid->addWidget( this, row, 1 );
+        m_propertyGrid->setColumnStretch( 0, 0.0 );
+        m_propertyGrid->setColumnStretch( 1, 10000.0 );
     }
 
     // add both widgets to the stacked widget, it then uses the first as default.

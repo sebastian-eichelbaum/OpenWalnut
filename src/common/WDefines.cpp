@@ -22,41 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WQtNetworkInputPort.h"
-
-WQtNetworkInputPort::WQtNetworkInputPort( boost::shared_ptr<WModuleInputConnector> connector )
-    : WQtNetworkPort()
-{
-    setPortName( connector.get()->getName().c_str() );
-    setOutPort( connector.get()->isOutputConnector() );
-    m_connector = connector;
-
-    // create tooltip
-    QString tmp;
-    if( isOutPort() == true ) tmp = "output";
-    else if( isOutPort() == false ) tmp = "input";
-    else
-        tmp = "undefined";
-
-    QString str = "<b>Name: </b> " + getPortName() +
-                  "<br/><b>PortType: </b>" + tmp;
-    if( toolTip() != str )
-    {
-        setToolTip( str );
-    }
-}
-
-WQtNetworkInputPort::~WQtNetworkInputPort()
-{
-}
-
-int WQtNetworkInputPort::type() const
-{
-    return Type;
-}
-
-boost::shared_ptr<WModuleInputConnector> WQtNetworkInputPort::getConnector()
-{
-    return m_connector;
-}
+#include "WDefines.h"
 
