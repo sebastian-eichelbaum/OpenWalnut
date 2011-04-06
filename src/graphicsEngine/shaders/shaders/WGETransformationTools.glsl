@@ -101,7 +101,7 @@ vec3 project( vec3 point )
  * This function transforms a point which is in world space, to a point in the local coordinate system of the object
  * currently getting rendered.
  * \note you can use this method with point.w == 0.0 for vector projection too.
- * 
+ *
  * \param point the point in world coordinates
  *
  * \return the point in local coordinates

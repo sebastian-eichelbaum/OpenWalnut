@@ -84,6 +84,19 @@ void main()
     float noise3D = 1.0;
 #endif
 
+    // calculate lighting for the surface
+    // TODO(ebaum): material properties should be used instead
+    float light = blinnPhongIlluminationIntensity(
+            0.2,
+            1.0,
+            1.3,
+            10.0,
+            1.0,
+            0.3,
+            -normalize( v_normal ),
+            normalize( v_viewDir ),
+            normalize( v_lightSource ) );
+
 #ifdef VECTORDATA
     // get the current vector at this position
     vec3 vec = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz, u_texture0Min, u_texture0Scale ).rgb;
@@ -126,22 +139,32 @@ void main()
 
 #endif
 
-    // calculate lighting for the surface
-    // TODO(ebaum): material properties should be used instead
-    float light = blinnPhongIlluminationIntensity(
-            0.2,
-            1.0,
-            1.3,
-            10.0,
-            1.0,
-            0.3,
-            -normalize( v_normal ),
-            normalize( v_viewDir ),
-            normalize( v_lightSource ) );
+    // MPI PAper Hack: {
+    /* vec4 cmap = colormapping();
+    gl_FragData[1] = vec4( vec3( cmap.r ), 1.0 );
 
+    if ( cmap.r < 0.15 )
+        discard;
+    if ( isZero( cmap.r - 0.2, 0.1 ) )
+        gl_FragData[1] = vec4( 0.25, 0.0, 0.0, 1.0 );
+    if ( isZero( cmap.r - 0.3, 0.1 ) )
+        gl_FragData[1] = vec4( 0.5, 0.0, 0.0, 1.0 );
+    if ( isZero( cmap.r - 1.0, 0.15 ) )
+        gl_FragData[1] = vec4( 1.0, 0.0, 0.0, 1.0 );
+    // }
+    */
     // is the vector very orthogonal to the surface?
-    vec2 dotScaled = ( 1.0 - dot( v_normal.xyz, vec.xyz  ) ) * scaleMaxToOne( vecProjected ).xy;
+
+    float dotS = dot( v_normal, vec.xyz );
+    vec2 dotScaled = ( 1.0 + sign( dotS ) ) * scaleMaxToOne( vecProjected ).xy;
+    // MPI Paper Hack;
+    // dotScaled = 40.0*vecProjected.xy;
     gl_FragData[0] = vec4( vec2( 0.5 ) + ( 0.5  * dotScaled ), light, noise3D );
+
+    // MPI PAper Hack:
+    // {
+    // //gl_FragData[1] = colormapping();
+    // }
     gl_FragData[1] = colormapping();
 }
 
