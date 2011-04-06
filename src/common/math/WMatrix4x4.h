@@ -36,10 +36,12 @@
 #include "../WAssert.h"
 #include "../WStringUtils.h"
 
+#include "../WDefines.h"
+
 /**
  * Use osg 4x4 matrices as WMatrix4x4
  */
-typedef osg::Matrixd WMatrix4x4;
+OW_API_DEPRECATED typedef osg::Matrixd WMatrix4x4;
 
 /**
  * Write a 4x4 matrix in string representation.

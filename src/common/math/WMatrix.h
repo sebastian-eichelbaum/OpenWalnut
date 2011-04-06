@@ -31,12 +31,30 @@
 #include "WValue.h"
 #include "WVector3D.h"
 
+#include "../WDefines.h"
+#include "../../ext/Eigen/Core"
+
+/**
+ * A double 3 times 3 matrix. Stack-allocated.
+ */
+typedef Eigen::Matrix< double, 3, 3 > WMatrix3x3_2;
+
+/**
+ * A double 4 times 4 matrix. Stack-allocated.
+ */
+typedef Eigen::Matrix< double, 4, 4 > WMatrix4x4_2;
+
+/**
+ * A double matrix of dynamic size. Heap-allocated.
+ */
+typedef Eigen::MatrixXd WMatrix_2;
+
 /**
  * Matrix template class with variable number of rows and columns.
  * The access function are row-major, which means that the rows
  * are the first parameter or index.
  */
-template< typename T > class WMatrix : public WValue< T >
+template< typename T > class OW_API_DEPRECATED WMatrix : public WValue< T >
 {
 public:
     /**
