@@ -153,6 +153,8 @@ void WMTeemGlyphs::connectors()
 
 void WMTeemGlyphs::properties()
 {
+    m_exceptionCondition = boost::shared_ptr< WCondition >( new WCondition() );
+    
     m_sliceOrientations = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_sliceOrientations->addItem( "x", "x-slice" );
     m_sliceOrientations->addItem( "y", "y-slice" );
@@ -219,10 +221,17 @@ void WMTeemGlyphs::properties()
     WModule::properties();
 }
 
+void WMTeemGlyphs::handleException( WException const& e )
+{
+    m_lastException = boost::shared_ptr< WException >( new WException( e ) );
+    m_exceptionCondition->notify();
+}
+
 void WMTeemGlyphs::moduleMain()
 {
     m_moduleState.add( m_input->getDataChangedCondition() );
     m_moduleState.add( m_recompute );
+    m_moduleState.add( m_exceptionCondition );
 
     ready();
 
@@ -409,11 +418,12 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
             max = norm;
         }
     }
+    // std::cerr << "max: " << max << " min: " << min;
     double dist = max - min;
 
-    if( dist != 0 )
+    if( dist != 0.0 )
     {
-        WAssert( dist > 0, "Max has to be larger than min." );
+        WAssert( dist > 0.0, "Max has to be larger than min." );
 
          for( size_t i = 0; i < glyph->xyzwNum; ++i )
          {
@@ -423,11 +433,11 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
              const double epsilon = 1e-9;
              WPosition newPos;
 //             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos.normalized();
-             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos / norm;
-             glyph->xyzw[coordIdBase] = newPos[0];
-             glyph->xyzw[coordIdBase+1] = newPos[1];
-             glyph->xyzw[coordIdBase+2] = newPos[2];
-         }
+            newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos / norm;
+            glyph->xyzw[coordIdBase] = newPos[0];
+            glyph->xyzw[coordIdBase+1] = newPos[1];
+            glyph->xyzw[coordIdBase+2] = newPos[2];
+        }
     }
     // else do nothing because all values are equal.
 }
@@ -608,7 +618,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
                 continue;
             }
 
-            WValue< double > coeffs = m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
+            WVector_2 coeffs = m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
             switch( m_order )
             {
                 case 2:
