@@ -35,12 +35,29 @@
 #include "../../ext/Eigen/Core"
 
 /**
- * A double 3 times 3 matrix. Stack-allocated.
+ * A double 3 times 3 matrix. Stack-allocated. Column Major!
+ *
+ * Column Major indexes:
+ * [0 3 6
+ *  1 4 7
+ *  2 5 8]
+ * If you want to access coefficients using the operator( size_t, size_t ), the first parameter is the column index, starting with 0.
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
  */
 typedef Eigen::Matrix< double, 3, 3 > WMatrix3x3_2;
 
 /**
- * A double 4 times 4 matrix. Stack-allocated.
+ * A double 4 times 4 matrix. Stack-allocated. Column Major!
+ *
+ * Column Major indexes:
+ * [0 4 8  12
+ *  1 5 9  13
+ *  2 6 10 14
+ *  3 7 11 15]
+ * If you want to access coefficients using the operator( size_t, size_t ), the first parameter is the column index, starting with 0.
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
  */
 typedef Eigen::Matrix< double, 4, 4 > WMatrix4x4_2;
 
