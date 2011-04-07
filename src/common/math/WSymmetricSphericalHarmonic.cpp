@@ -197,8 +197,7 @@ double WSymmetricSphericalHarmonic::calcGFA( const WMatrix_2& B ) const
     {
         s( k, 0 ) = m_SHCoefficients[ k ];
     }
-    // TODO(philips): is this a problem?
-    s = B * WMatrix_2( s );
+    s = B * s;
     WAssert( s.rows() == B.rows(), "" );
     WAssert( s.cols() == 1u, "" );
 
@@ -271,9 +270,9 @@ WMatrix_2 WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< WV
 }
 
 WMatrix_2 WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< WUnitSphereCoordinates >& orientations,
-                                                                        int order,
-                                                                        double lambda,
-                                                                        bool withFRT )
+                                                           int order,
+                                                           double lambda,
+                                                           bool withFRT )
 {
   WMatrix_2 B( WSymmetricSphericalHarmonic::calcBaseMatrix( orientations, order ) );
   WMatrix_2 Bt( B.transpose() );
@@ -283,8 +282,9 @@ WMatrix_2 WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< WU
     WMatrix_2 L( WSymmetricSphericalHarmonic::calcSmoothingMatrix( order ) );
     result += lambda*L;
   }
+
   result = pseudoInverse( result )*Bt;
-//   result *= Bt;
+
   if ( withFRT )
   {
     WMatrix_2 P( WSymmetricSphericalHarmonic::calcFRTMatrix( order ) );
