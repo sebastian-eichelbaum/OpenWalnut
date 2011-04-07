@@ -168,7 +168,7 @@ public:
         WVectorComplex_2 values2 = sh.getCoefficientsComplex();
 
         WMatrixComplex_2 complexBaseMatrix = WSymmetricSphericalHarmonic::calcComplexBaseMatrix( orientations, 4 );
-       
+
         WVectorComplex_2 res = complexBaseMatrix * values2;
 
         for( std::size_t k = 0; k < orientations.size(); ++k )

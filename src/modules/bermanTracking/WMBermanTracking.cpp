@@ -392,8 +392,8 @@ WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_t i )
 {
     WSymmetricSphericalHarmonic h = m_dataSet->getSphericalHarmonicAt( i );
     WAssert( h.getOrder() >= 4, "" );
-    WAssert( m_HMat.rows() == m_dataSetResidual->getNumberOfMeasurements(), "" );
-    WAssert( m_HMat.cols() == m_dataSetResidual->getNumberOfMeasurements(), "" );
+    WAssert( m_HMat.rows() == static_cast< int >( m_dataSetResidual->getNumberOfMeasurements() ), "" );
+    WAssert( m_HMat.cols() == static_cast< int >( m_dataSetResidual->getNumberOfMeasurements() ), "" );
     WAssert( m_frtMat.rows() == 15, "" );
     WAssert( m_frtMat.cols() == 15, "" );
 
@@ -409,7 +409,7 @@ WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_t i )
     // calc hardi data from sh + residual
     WMatrix_2 v = m_BMat * m;
 
-    WAssert( v.rows() == m_dataSetResidual->getNumberOfMeasurements(), "" );
+    WAssert( v.rows() == static_cast< int >( m_dataSetResidual->getNumberOfMeasurements() ), "" );
 
     WMatrix_2 q( v.rows(), 1 );
     q.setZero();

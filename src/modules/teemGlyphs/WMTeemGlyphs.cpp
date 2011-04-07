@@ -154,7 +154,7 @@ void WMTeemGlyphs::connectors()
 void WMTeemGlyphs::properties()
 {
     m_exceptionCondition = boost::shared_ptr< WCondition >( new WCondition() );
-    
+
     m_sliceOrientations = boost::shared_ptr< WItemSelection >( new WItemSelection() );
     m_sliceOrientations->addItem( "x", "x-slice" );
     m_sliceOrientations->addItem( "y", "y-slice" );

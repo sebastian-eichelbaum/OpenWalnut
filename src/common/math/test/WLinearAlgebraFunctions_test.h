@@ -200,16 +200,16 @@ public:
             computeSVD( A, U, V, Svec );
             WMatrix_2 S( Svec.size(), Svec.size() );
             S.setZero();
-            for ( size_t i = 0; i < Svec.size(); ++i )
+            for ( int i = 0; i < Svec.size(); ++i )
             {
                 S( i, i ) = Svec( i );
             }
 
             WMatrix_2 A2( U*S*V.transpose() );
 
-            for ( size_t row = 0; row < A.rows(); ++row )
+            for ( int row = 0; row < A.rows(); ++row )
             {
-                for ( size_t col = 0; col < A.cols(); ++col )
+                for ( int col = 0; col < A.cols(); ++col )
                 {
                     TS_ASSERT_DELTA( A( row, col ), A2( row, col ), 0.0001 );
                 }
