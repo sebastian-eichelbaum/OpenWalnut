@@ -165,7 +165,7 @@ private:
     boost::shared_ptr< GFAPoolType > m_gfaPool;
 
     //! A matrix of SH base function values for various gradients.
-    WMatrix< double > m_BMat;
+    WMatrix_2 m_BMat;
 };
 
 #endif  // WMCALCULATEGFA_H

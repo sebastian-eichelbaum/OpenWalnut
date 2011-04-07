@@ -26,6 +26,8 @@
 #include <vector>
 
 #include "../../common/math/WSymmetricSphericalHarmonic.h"
+#include "../../common/math/WMatrix.h"
+#include "../../common/math/WVector3D.h"
 #include "../../common/WLimits.h"
 #include "../../kernel/WKernel.h"
 
@@ -211,7 +213,7 @@ boost::array< double, 6 > WMCalculateTensors::perVoxelTensorFunc( WValueSet< dou
 {
     ++*m_currentProgress;
     boost::array< double, 6 > a;
-    WValue< double > v( 6 );
+    WVector_2 v( 6 );
 
     // calculation
     for( std::size_t k = 0; k < 6; ++k )

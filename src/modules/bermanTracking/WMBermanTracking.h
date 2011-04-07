@@ -191,16 +191,16 @@ private:
     boost::shared_ptr< WDataSetScalar > m_gfa;
 
     //! Stores a matrix representing the funk-radon-transform.
-    WMatrix< double > m_frtMat;
+    WMatrix_2 m_frtMat;
 
     //! The matrix use for fitting SH-coeffs to a HARDI measurement.
-    WMatrix< double > m_SHFittingMat;
+    WMatrix_2 m_SHFittingMat;
 
     //! A matrix that produces a fitted HARDI measurement from an 'unfitted' one.
-    WMatrix< double > m_HMat;
+    WMatrix_2 m_HMat;
 
     //! A matrix of SH-base function values.
-    WMatrix< double > m_BMat;
+    WMatrix_2 m_BMat;
 
     //! A ROI used for selecting seed voxels.
     boost::shared_ptr< WROIBox > m_seedROI;

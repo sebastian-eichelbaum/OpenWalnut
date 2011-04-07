@@ -167,7 +167,7 @@ void WMBermanTracking::moduleMain()
     m_random->seed( std::time( 0 ) );
 
     m_frtMat = WSymmetricSphericalHarmonic::calcFRTMatrix( 4 );
-    WAssert( m_frtMat.getNbCols() == m_frtMat.getNbRows(), "" );
+    WAssert( m_frtMat.cols() == m_frtMat.rows(), "" );
 
     m_seedROI = boost::shared_ptr< WROIBox >( new WROIBox( WVector3D( 0.0, 0.0, 0.0 ), WVector3D( 200.0, 200.0, 200.0 ) ) );
 
@@ -218,7 +218,7 @@ void WMBermanTracking::moduleMain()
                 m_SHFittingMat = WSymmetricSphericalHarmonic::getSHFittingMatrix( c, 4, 0.0, true );
                 m_BMat = WSymmetricSphericalHarmonic::calcBaseMatrix( c, 4 );
                 m_HMat = m_BMat * WSymmetricSphericalHarmonic::getSHFittingMatrix( c, 4, 0.0, false );
-                WAssert( m_HMat.getNbCols() == m_HMat.getNbRows(), "" );
+                WAssert( m_HMat.cols() == m_HMat.rows(), "" );
 
                 // get current properties
                 m_currentMinFA = m_minFA->get( true );
@@ -392,12 +392,12 @@ WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_t i )
 {
     WSymmetricSphericalHarmonic h = m_dataSet->getSphericalHarmonicAt( i );
     WAssert( h.getOrder() >= 4, "" );
-    WAssert( m_HMat.getNbRows() == m_dataSetResidual->getNumberOfMeasurements(), "" );
-    WAssert( m_HMat.getNbCols() == m_dataSetResidual->getNumberOfMeasurements(), "" );
-    WAssert( m_frtMat.getNbRows() == 15, "" );
-    WAssert( m_frtMat.getNbCols() == 15, "" );
+    WAssert( m_HMat.rows() == static_cast< int >( m_dataSetResidual->getNumberOfMeasurements() ), "" );
+    WAssert( m_HMat.cols() == static_cast< int >( m_dataSetResidual->getNumberOfMeasurements() ), "" );
+    WAssert( m_frtMat.rows() == 15, "" );
+    WAssert( m_frtMat.cols() == 15, "" );
 
-    WMatrix< double > m( 15, 1 );
+    WMatrix_2 m( 15, 1 );
     for( int k = 0; k < 15; ++k )
     {
         m( k, 0 ) = h.getCoefficients()[ k ] / m_frtMat( k, k );
@@ -407,19 +407,20 @@ WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_t i )
     WAssert( g.getOrder() == 4, "" );
 
     // calc hardi data from sh + residual
-    WMatrix< double > v = m_BMat * m;
+    WMatrix_2 v = m_BMat * m;
 
-    WAssert( v.getNbRows() == m_dataSetResidual->getNumberOfMeasurements(), "" );
+    WAssert( v.rows() == static_cast< int >( m_dataSetResidual->getNumberOfMeasurements() ), "" );
 
-    WMatrix< double > q( v.getNbRows(), 1 );
+    WMatrix_2 q( v.rows(), 1 );
+    q.setZero();
 
-    for( std::size_t k = 0; k < v.getNbRows(); ++k )
+    for( int k = 0; k < v.rows(); ++k )
     {
-        int z = static_cast< int >( static_cast< double >( ( *m_random )() ) / ( 1.0 + static_cast< double >( 0u - 1u ) ) * ( v.getNbRows() ) );
-        WAssert( z >= 0 && z < static_cast< int >( v.getNbRows() ), "" );
+        int z = static_cast< int >( static_cast< double >( ( *m_random )() ) / ( 1.0 + static_cast< double >( 0u - 1u ) ) * ( v.rows() ) );
+        WAssert( z >= 0 && z < static_cast< int >( v.rows() ), "" );
 
         // "-", because the residuals in the input dataset have differing sign
-        q( k, 0 ) = v( k, 0 ) - ( m_dataSetResidual->getValueAt( i * v.getNbRows() + z ) / ( sqrt( 1.0 - m_HMat( k, k ) ) ) );
+        q( k, 0 ) = v( k, 0 ) - ( m_dataSetResidual->getValueAt( i * v.rows() + z ) / ( sqrt( 1.0 - m_HMat( k, k ) ) ) );
 
         WAssert( !wlimits::isnan( q( k, 0 ) ), "" );
     }
@@ -429,9 +430,9 @@ WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_t i )
 }
 
 WVector3D WMBermanTracking::getBestDirectionFromSH( WSymmetricSphericalHarmonic const& h,
-                                                           wtracking::WTrackingUtility::JobType const& j )
+                                                    wtracking::WTrackingUtility::JobType const& j )
 {
-    WValue< double > w = h.getCoefficients();
+    WVector_2 w = h.getCoefficients();
     double gfa = h.calcGFA( m_BMat );
     const tijk_type *type = tijk_4o3d_sym;
     double sh[ 15 ];

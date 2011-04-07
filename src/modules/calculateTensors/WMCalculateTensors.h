@@ -165,7 +165,7 @@ private:
     boost::shared_ptr< TensorPoolType > m_tensorPool;
 
     //! The sh->tensor conversion.
-    WMatrix< double > m_SHToTensorMat;
+    WMatrix_2 m_SHToTensorMat;
 };
 
 #endif  // WMCALCULATETENSORS_H

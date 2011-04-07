@@ -35,6 +35,8 @@
 #include "HARDIToSphericalHarmonics.xpm"
 #include "../../common/WLimits.h"
 #include "../../common/WAssert.h"
+#include "../../common/math/WVector3D.h"
+#include "../../common/math/WMatrix.h"
 
 #include "WSphericalHarmonicsCoefficientsThread.h"
 
@@ -57,7 +59,7 @@ void WSphericalHarmonicsCoefficientsThread::threadMain()
     WValue< int16_t > allMeasures( m_parameter.m_valueSet->getWValue( i ) );
 
     // extract measures for gradients != 0
-    WValue< double > measures( m_parameter.m_validIndices.size() );
+    WVector_2 measures( m_parameter.m_validIndices.size() );
     unsigned int idx = 0;
 
     // find max S0 value
@@ -68,18 +70,18 @@ void WSphericalHarmonicsCoefficientsThread::threadMain()
     }
     S0avg /= m_parameter.m_S0Indexes.size();
 
-      double minVal = 1e99;
-      double maxVal = -1e99;
-      for ( std::vector< size_t >::const_iterator it = m_parameter.m_validIndices.begin(); it != m_parameter.m_validIndices.end(); it++, idx++ )
-      {
+    double minVal = 1e99;
+    double maxVal = -1e99;
+    for ( std::vector< size_t >::const_iterator it = m_parameter.m_validIndices.begin(); it != m_parameter.m_validIndices.end(); it++, idx++ )
+    {
         measures[ idx ] = S0avg <= 0.0 ? 0.0 :
-                          static_cast<double>( allMeasures[ *it ] ) / S0avg;
+            static_cast<double>( allMeasures[ *it ] ) / S0avg;
 
         if ( measures[ idx ] < minVal ) minVal = measures[ idx ];
         if ( measures[ idx ] > maxVal ) maxVal = measures[ idx ];
-      }
+    }
 
-    WValue< double > coefficients( ( *m_parameter.m_TransformMatrix ) * measures );
+    WVector_2 coefficients( ( *m_parameter.m_TransformMatrix ) * measures );
 
     if ( m_parameter.m_doResidualCalculation || m_parameter.m_doErrorCalculation )
     {
@@ -114,7 +116,10 @@ void WSphericalHarmonicsCoefficientsThread::threadMain()
         scale *= std::sqrt( 4.0 * piDouble ) / coefficients[ 0 ];
     }
 
-    for ( size_t j = 0; j < l; j++ ) m_parameter.m_data->operator[]( l*i + j ) = coefficients[ j ];
+    for ( size_t j = 0; j < l; j++ )
+    {
+        m_parameter.m_data->operator[]( l*i + j ) = coefficients[ j ];
+    }
   }
 }
 
