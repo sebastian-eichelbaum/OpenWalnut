@@ -39,6 +39,7 @@
 
 #include "callbacks/WGEFunctorCallback.h"
 #include "../common/WLimits.h"
+#include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
 #include "../common/WPropertyHelper.h"
 #include "../common/math/WMatrix4x4.h"
@@ -194,6 +195,14 @@ public:
      * \param mode the new mode for WRAP_S, WRAP_T and WRAP_R.
      */
     void setWrapSTR( osg::Texture::WrapMode mode );
+
+    /**
+     * Returns the texture's bounding box. This is const. Although there exists the transformation() property, it is an information property and
+     * can't be changed.
+     *
+     * \return the bounding box.
+     */
+    virtual WBoundingBox getBoundingBox() const;
 
 protected:
 
@@ -581,6 +590,12 @@ template < typename TextureType >
 void WGETexture< TextureType >::initTextureSize( osg::Texture3D* texture, int width, int height, int depth )
 {
     texture->setTextureSize( width, height, depth );
+}
+
+template < typename TextureType >
+WBoundingBox WGETexture< TextureType >::getBoundingBox() const
+{
+    return WBoundingBox( 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
 }
 
 #endif  // WGETEXTURE_H

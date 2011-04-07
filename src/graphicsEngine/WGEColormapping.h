@@ -35,7 +35,7 @@
 
 #include <osg/Node>
 
-#include "../common/WLogger.h"
+#include "../common/WBoundingBox.h"
 #include "../common/WSharedSequenceContainer.h"
 #include "../common/WSharedAssociativeContainer.h"
 #include "../common/math/WMatrix4x4.h"
@@ -177,6 +177,13 @@ public:
     bool moveDown( osg::ref_ptr< WGETexture3D > texture );
 
     /**
+     * Counts the number of textures in the colormapper.
+     *
+     * \return the number of textures.
+     */
+    size_t size() const;
+
+    /**
      * Possible signals that can be subscribed for being notified about texture list changes.
      */
     typedef enum
@@ -224,6 +231,22 @@ public:
      * \return the read ticket
      */
     TextureContainerType::ReadTicket getReadTicket();
+
+    /**
+     * This returns the bounding box of all the data textures. This is very useful if you implement an universal color-mapped exploration tool.
+     * It returns a copy of the current bounding box. Please note that this can change any moment.
+     *
+     * \return the bounding box.
+     */
+    WBoundingBox getBoundingBox() const;
+
+    /**
+     * Returns the condition firing if the texture list changes (sort, replace, add or remove). If you are interested in a certain event only,
+     * use \ref subscribeSignal.
+     *
+     * \return the change condition
+     */
+    WCondition::SPtr getChangeCondition() const;
 
 protected:
 
@@ -339,6 +362,16 @@ private:
      * Called whenever the texture list got resorted
      */
     boost::signals2::signal< void( void ) > m_sortSignal;
+
+    /**
+     * The bounding box of all the textures.
+     */
+    WSharedObject< WBoundingBox > m_boundingBox;
+
+    /**
+     * Updates the bounding box information. This is called for every write-update in m_textures.
+     */
+    void updateBounds();
 };
 
 template < typename Comparator >

@@ -33,7 +33,8 @@
 WDataTexture3D_2::WDataTexture3D_2( boost::shared_ptr< WValueSetBase > valueSet, boost::shared_ptr< WGridRegular3D > grid ):
     WGETexture3D( static_cast< float >( valueSet->getMaximumValue() - valueSet->getMinimumValue() ),
                   static_cast< float >( valueSet->getMinimumValue() ) ),
-    m_valueSet( valueSet )
+    m_valueSet( valueSet ),
+    m_boundingBox( grid->getBoundingBox() )
 {
     // initialize members
     setTextureSize( grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() );
@@ -135,6 +136,11 @@ void WDataTexture3D_2::create()
 
     setImage( ima );
     dirtyTextureObject();
+}
+
+WBoundingBox WDataTexture3D_2::getBoundingBox() const
+{
+    return m_boundingBox;
 }
 
 void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WDataTexture3D_2 > texture, size_t unit, std::string prefix )

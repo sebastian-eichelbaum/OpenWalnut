@@ -27,6 +27,7 @@
 #include <sstream>
 #include <string>
 
+#include "../common/WLogger.h"
 #include "WGETextureUtils.h"
 #include "exceptions/WGESignalSubscriptionFailed.h"
 
@@ -87,6 +88,7 @@ WGEColormapping::WGEColormapping():
 {
     // initialize members
     m_textures.getChangeCondition()->subscribeSignal( boost::bind( &WGEColormapping::textureUpdate, this ) );
+    m_boundingBox.getWriteTicket()->get().set( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
 }
 
 WGEColormapping::~WGEColormapping()
@@ -170,6 +172,7 @@ void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture,
             texture->name()->set( name );
         }
         m_textures.push_front( texture );
+        updateBounds();
         m_registerSignal( texture );
     }
 }
@@ -180,6 +183,7 @@ void WGEColormapping::deregisterTextureInst( osg::ref_ptr< WGETexture3D > textur
     if ( m_textures.count( texture ) )
     {
         m_textures.remove( texture );
+        updateBounds();
         m_deregisterSignal( texture );
     }
 }
@@ -196,12 +200,38 @@ void WGEColormapping::replaceTextureInst( osg::ref_ptr< WGETexture3D > old, osg:
     if ( m_textures.count( old ) )
     {
         m_textures.replace( old, newTex );
+        updateBounds();
         m_replaceSignal( old, newTex );
     }
     else    // <- if not exists: add
     {
         registerTextureInst( newTex, name );
     }
+}
+
+void WGEColormapping::updateBounds()
+{
+    TextureContainerType::ReadTicket r = m_textures.getReadTicket();
+    WSharedObject< WBoundingBox >::WriteTicket bbw = m_boundingBox.getWriteTicket();
+
+    bool first = true;
+    for( TextureContainerType::ConstIterator iter = r->get().begin(); iter != r->get().end(); ++iter )
+    {
+        if ( first )
+        {
+            bbw->get() = ( *iter )->getBoundingBox();
+            first = false;
+        }
+        else
+        {
+            bbw->get().expandBy( ( *iter )->getBoundingBox() );
+        }
+    }
+}
+
+WBoundingBox WGEColormapping::getBoundingBox() const
+{
+    return m_boundingBox.getReadTicket()->get();
 }
 
 void WGEColormapping::textureUpdate()
@@ -304,6 +334,11 @@ bool WGEColormapping::moveUp( osg::ref_ptr< WGETexture3D > texture )
     return true;
 }
 
+size_t WGEColormapping::size() const
+{
+    return m_textures.size();
+}
+
 boost::signals2::connection WGEColormapping::subscribeSignal( TextureListSignal signal, TextureRegisterHandler notifier )
 {
     switch( signal )
@@ -342,5 +377,10 @@ boost::signals2::connection WGEColormapping::subscribeSignal( TextureListSignal 
 WGEColormapping::TextureContainerType::ReadTicket WGEColormapping::getReadTicket()
 {
     return m_textures.getReadTicket();
+}
+
+WCondition::SPtr WGEColormapping::getChangeCondition() const
+{
+    return m_textures.getChangeCondition();
 }
 
