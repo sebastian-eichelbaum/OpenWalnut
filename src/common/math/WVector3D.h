@@ -63,6 +63,14 @@ typedef WVector3D_2 WPosition_2;
 typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > WVector_2;
 
 /**
+ * A complex double vector of dynamic size. Heap-allocated.
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
+ */
+typedef Eigen::VectorXcd WVectorComplex_2;
+
+/**
  * Forward declare the OLD vector class. Needed for the conversion functions.
  */
 class WVector3D;
