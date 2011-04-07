@@ -27,15 +27,19 @@
 #include "WGEColormapping-vertex.glsl"
 
 /**
+ * The matrix describes the transformation of gl_Vertex to OpenWalnut Scene Space
+ */
+uniform mat4 u_WorldTransform;
+
+/**
  * Vertex Main. Simply transforms the geometry. The work is done per fragment.
  */
 void main()
 {
     // Allow the colormapper to do some precalculations with the real vertex coordinate in ow-scene-space
-    colormapping( gl_Vertex );
+    colormapping( u_WorldTransform * gl_Vertex );
 
     // transform position
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 }
-
 

@@ -45,7 +45,8 @@
 W_LOADABLE_MODULE( WMNavigationSlices )
 
 WMNavigationSlices::WMNavigationSlices():
-    WModule()
+    WModule(),
+    m_first( true )
 {
 }
 
@@ -83,8 +84,6 @@ void WMNavigationSlices::connectors()
 
 void WMNavigationSlices::properties()
 {
-    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
-
     m_sliceGroup      = m_properties->addPropertyGroup( "Slices",  "Slice Options." );
 
     // enable slices
@@ -94,15 +93,9 @@ void WMNavigationSlices::properties()
     m_showonZ        = m_sliceGroup->addProperty( "Show Axial", "Show vectors on axial slice.", true );
 
     // The slice positions.
-    m_xPos           = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 80.0 );
-    m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 100.0 );
-    m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 80.0 );
-    m_xPos->setMin( 0.0 );
-    m_xPos->setMax( 200.0 );
-    m_yPos->setMin( 0.0 );
-    m_yPos->setMax( 200.0 );
-    m_zPos->setMin( 0.0 );
-    m_zPos->setMax( 200.0 );
+    m_xPos           = m_sliceGroup->addProperty( "Sagittal Position", "Slice X position.", 0.0, true );
+    m_yPos           = m_sliceGroup->addProperty( "Coronal Position", "Slice Y position.", 0.0, true );
+    m_zPos           = m_sliceGroup->addProperty( "Axial Position", "Slice Z position.", 0.0, true );
 
     // call WModule's initialization
     WModule::properties();
@@ -113,29 +106,98 @@ void WMNavigationSlices::initOSG()
     // remove the old slices
     m_output->clear();
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Property Setup
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    // no colormaps -> no slices
+    bool empty = !WGEColormapping::instance()->size();
+    if ( empty )
+    {
+        // hide the slider properties.
+        m_xPos->setHidden();
+        m_yPos->setHidden();
+        m_zPos->setHidden();
+        return;
+    }
+
+    // grab the current bounding box
+    WBoundingBox bb = WGEColormapping::instance()->getBoundingBox();
+    WVector3D minV = bb.getMin();
+    WVector3D maxV = bb.getMax();
+
+    // update the properties
+    m_xPos->setMin( minV[0] );
+    m_xPos->setMax( maxV[0] );
+    m_yPos->setMin( minV[1] );
+    m_yPos->setMax( maxV[1] );
+    m_zPos->setMin( minV[2] );
+    m_zPos->setMax( maxV[2] );
+    // un-hide the slider properties.
+    m_xPos->setHidden( false );
+    m_yPos->setHidden( false );
+    m_zPos->setHidden( false );
+
+    // if this is done the first time, set the slices to the center of the dataset
+    if ( m_first )
+    {
+        m_first = false;
+        m_xPos->set( ( maxV[0] - minV[0] ) / 2.0 );
+        m_yPos->set( ( maxV[1] - minV[1] ) / 2.0 );
+        m_zPos->set( ( maxV[2] - minV[2] ) / 2.0 );
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Slice Setup
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     // create a new geode containing the slices
-    // TODO(all): if we have a proper picking mechanism providing the node pointer, the names can be removed
     osg::Vec3f org = osg::Vec3( 0.0, 0.0, 0.0 );
-    osg::ref_ptr< osg::Node > xSlice = wge::genFinitePlane( org, osg::Vec3( 0.0, 200.0, 0.0 ),
-                                                                 osg::Vec3( 0.0, 0.0, 200.0 ) );
+
+    // X Slice
+    osg::ref_ptr< osg::Node > xSlice = wge::genFinitePlane( minV, osg::Vec3( 0.0, maxV[1], 0.0 ),
+                                                                  osg::Vec3( 0.0, 0.0, maxV[2] ) );
     xSlice->setName( "Sagittal Slice" );
-    osg::ref_ptr< osg::Node > ySlice = wge::genFinitePlane( org, osg::Vec3( 200.0, 0.0, 0.0 ),
-                                                                 osg::Vec3( 0.0, 0.0, 200.0 ) );
+    osg::Uniform* xSliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
+    xSlice->getOrCreateStateSet()->addUniform( xSliceUniform );
+
+    // Y Slice
+    osg::ref_ptr< osg::Node > ySlice = wge::genFinitePlane( minV, osg::Vec3( maxV[0], 0.0, 0.0 ),
+                                                                  osg::Vec3( 0.0, 0.0, maxV[2] ) );
     ySlice->setName( "Coronal Slice" );
+    osg::Uniform* ySliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
+    ySlice->getOrCreateStateSet()->addUniform( ySliceUniform );
 
-    osg::ref_ptr< osg::Node > zSlice = wge::genFinitePlane( org, osg::Vec3( 200.0, 0.0, 0.0 ),
-                                                                 osg::Vec3( 0.0, 200.0, 0.0 ) );
+    // Z Slice
+    osg::ref_ptr< osg::Node > zSlice = wge::genFinitePlane( minV, osg::Vec3( maxV[0], 0.0, 0.0 ),
+                                                                  osg::Vec3( 0.0, maxV[1], 0.0 ) );
     zSlice->setName( "Axial Slice" );
+    osg::Uniform* zSliceUniform = new osg::Uniform( "u_WorldTransform", osg::Matrix::identity() );
+    zSlice->getOrCreateStateSet()->addUniform( zSliceUniform );
 
+    // disable culling.
+    // NOTE: Somehow, this is ignore by OSG. If you know why: tell me please
+    xSlice->setCullingActive( false );
+    ySlice->setCullingActive( false );
+    zSlice->setCullingActive( false );
+
+    // each slice is child of an transformation node
     osg::ref_ptr< osg::MatrixTransform > mX = new osg::MatrixTransform();
-    mX->addUpdateCallback( new WGELinearTranslationCallback< WPropDouble >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos ) );
     mX->addChild( xSlice );
     osg::ref_ptr< osg::MatrixTransform > mY = new osg::MatrixTransform();
-    mY->addUpdateCallback( new WGELinearTranslationCallback< WPropDouble >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos ) );
     mY->addChild( ySlice );
     osg::ref_ptr< osg::MatrixTransform > mZ = new osg::MatrixTransform();
-    mZ->addUpdateCallback( new WGELinearTranslationCallback< WPropDouble >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos ) );
     mZ->addChild( zSlice );
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Callback Setup
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Control transformation node by properties. We use an additional uniform here to provide the shader the transformation matrix used to
+    // translate the slice.
+    mX->addUpdateCallback( new WGELinearTranslationCallback< WPropDouble >( osg::Vec3( 1.0, 0.0, 0.0 ), m_xPos, xSliceUniform ) );
+    mY->addUpdateCallback( new WGELinearTranslationCallback< WPropDouble >( osg::Vec3( 0.0, 1.0, 0.0 ), m_yPos, ySliceUniform ) );
+    mZ->addUpdateCallback( new WGELinearTranslationCallback< WPropDouble >( osg::Vec3( 0.0, 0.0, 1.0 ), m_zPos, zSliceUniform ) );
 
     // set callbacks for en-/disabling the nodes
     xSlice->addUpdateCallback( new WGENodeMaskCallback( m_showonX ) );
@@ -147,21 +209,14 @@ void WMNavigationSlices::initOSG()
     m_ySlicePicker = PickCallback::SPtr( new PickCallback( ySlice, m_yPos, true ) );
     m_zSlicePicker = PickCallback::SPtr( new PickCallback( zSlice, m_zPos ) );
 
-    // disable culling.
-    // NOTE: Somehow, this is ignore by OSG. If you know why: tell me please
-    xSlice->setCullingActive( false );
-    ySlice->setCullingActive( false );
-    zSlice->setCullingActive( false );
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Done
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     // add the transformation nodes to the output group
     m_output->insert( mX );
     m_output->insert( mY );
     m_output->insert( mZ );
-
-    // apply colormapping to transformation
-    osg::ref_ptr< WGEShader > shader = new WGEShader( "WMNavigationSlices", m_localPath );
-    WGEColormapping::apply( m_output, shader ); // this automatically applies the shader
-
     m_output->dirtyBound();
 }
 
@@ -210,8 +265,6 @@ void WMNavigationSlices::moduleMain()
 {
     // get notified about data changes
     m_moduleState.setResetable( true, true );
-    // Remember the condition provided to some properties in properties()? The condition can now be used with this condition set.
-    m_moduleState.add( m_propCondition );
 
     // done.
     ready();
@@ -219,7 +272,13 @@ void WMNavigationSlices::moduleMain()
     // create the root node for all the geometry
     m_output = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_active ) );
     m_output->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    // apply colormapping to transformation
+    osg::ref_ptr< WGEShader > shader = new WGEShader( "WMNavigationSlices", m_localPath );
+    WGEColormapping::apply( m_output, shader ); // this automatically applies the shader
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_output );
+
+    // we need to be informed if the bounding box of the volume containing all the data changes.
+    m_moduleState.add( WGEColormapping::instance()->getChangeCondition() );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Main loop
@@ -234,11 +293,10 @@ void WMNavigationSlices::moduleMain()
             break;
         }
 
-        // create the slices.
+        // create the slices. This loop is only entered if WGEColormapper was fired or shutdown.
         initOSG();
 
         // Thats it. Nothing more to do. Slide movement and colormapping is done by the pick handler and WGEColormapper
-        debugLog() << "Done";
         debugLog() << "Waiting ...";
         m_moduleState.wait();
     }
