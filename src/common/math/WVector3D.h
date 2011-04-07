@@ -40,13 +40,27 @@
 
 /**
  * The new vector type. It is a stack-allocated double vector with three dimension.
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
  */
 typedef Eigen::Matrix< double, 3, 1 > WVector3D_2;
 
 /**
  * Define WPosition as an alias for WVector3D_2
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
  */
 typedef WVector3D_2 WPosition_2;
+
+/**
+ * The new dynamic vector type. It is a heap-allocated double vector with dynamic size.
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
+ */
+typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > WVector_2;
 
 /**
  * Forward declare the OLD vector class. Needed for the conversion functions.
