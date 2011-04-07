@@ -29,6 +29,21 @@ osg::Vec3f toOsgVec3f( const WVector3D_2& v )
     return osg::Vec3f( v( 0 ), v( 1 ), v( 2 ) );
 }
 
+WVector3D toWVector3D( const WVector3D_2& v )
+{
+    return WVector3D( v( 0 ), v( 1 ), v( 2 ) );
+}
+
+WVector3D_2 toWVector3D_2( const WVector3D& v )
+{
+    return WVector3D_2( v[ 0 ], v[ 1 ], v[ 2 ] );
+}
+
+WVector3D_2 toWVector3D_2( const osg::Vec3f& v )
+{
+    return WVector3D_2( v[ 0 ], v[ 1 ], v[ 2 ] );
+}
+
 WVector3D::WVector3D( osg::Vec3d vec ) :
     osg::Vec3d( vec )
 {

@@ -49,6 +49,11 @@ typedef Eigen::Matrix< double, 3, 1 > WVector3D_2;
 typedef WVector3D_2 WPosition_2;
 
 /**
+ * Forward declare the OLD vector class. Needed for the conversion functions.
+ */
+class WVector3D;
+
+/**
  * Converts a WVector3D_2 to a osg::Vec3f which is commonly used in many modules.
  *
  * \param v the vector to convert
@@ -56,6 +61,33 @@ typedef WVector3D_2 WPosition_2;
  * \return the osg::Vec3f instance.
  */
 osg::Vec3f toOsgVec3f( const WVector3D_2& v );
+
+/**
+ * Convert a WVector3D_2 to WVector3D.
+ *
+ * \param v the vector to convert
+ *
+ * \return the new vector
+ */
+WVector3D toWVector3D( const WVector3D_2& v );
+
+/**
+ * Convert a WVector3D to an WVector3D_2
+ *
+ * \param v the vector to convert
+ *
+ * \return the new vector
+ */
+WVector3D_2 toWVector3D_2( const WVector3D& v );
+
+/**
+ * Convert an osg::Vec3f to an WVector3D_2
+ *
+ * \param v the vector to convert
+ *
+ * \return the new vector
+ */
+WVector3D_2 toWVector3D_2( const osg::Vec3f& v );
 
 /**
  * Efficient three-dimensional vector that allows many vector algebra operations.
