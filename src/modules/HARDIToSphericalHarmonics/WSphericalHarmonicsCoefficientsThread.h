@@ -81,7 +81,7 @@ public:
         * Transformation-Matrix for conversion from HARDI measurements to spherical harmonics coefficients
         * (see Descoteaux dissertation)
         */
-      boost::shared_ptr< WMatrix< double > > m_TransformMatrix;
+      boost::shared_ptr< WMatrix_2 > m_TransformMatrix;
 
       /**
         * Gradients of all measurements (including )

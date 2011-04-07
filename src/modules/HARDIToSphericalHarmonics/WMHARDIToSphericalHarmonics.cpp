@@ -167,11 +167,11 @@ void WMHARDIToSphericalHarmonics::moduleMain()
 
             int order  = m_order->get( true );
 
-            WMatrix< double > TransformMatrix(
-                      WSymmetricSphericalHarmonic::getSHFittingMatrix( gradients,
-                                                                              order,
-                                                                              m_regularisationFactorLambda->get( true ),
-                                                                              m_doFunkRadonTransformation->get( true ) ) );
+            WMatrix_2 TransformMatrix(
+                WSymmetricSphericalHarmonic::getSHFittingMatrix( gradients,
+                                                                 order,
+                                                                 m_regularisationFactorLambda->get( true ),
+                                                                 m_doFunkRadonTransformation->get( true ) ) );
 
             double overallError = 0.0;
             boost::shared_ptr< WValueSet< int16_t > > valueSet = boost::shared_dynamic_cast< WValueSet< int16_t > >( m_dataSet->getValueSet() );
@@ -202,7 +202,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             parameter.m_S0Indexes = S0Indexes;
             parameter.m_data = data;
             parameter.m_order = order;
-            parameter.m_TransformMatrix = boost::shared_ptr< WMatrix<double> >( new WMatrix<double>( TransformMatrix ) );
+            parameter.m_TransformMatrix = boost::shared_ptr< WMatrix_2 >( new WMatrix_2( TransformMatrix ) );
             parameter.m_gradients = gradients;
             parameter.m_progress = progress;
             parameter.m_doFunkRadonTransformation = m_doFunkRadonTransformation->get( true );
