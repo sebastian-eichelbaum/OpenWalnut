@@ -35,11 +35,13 @@
 #include "WBoundaryLines.h"
 
 WBoundaryLines::WBoundaryLines( boost::shared_ptr< const WDataSetScalar > texture, boost::shared_ptr< const WProperties > properties,
-    boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > *slices )
+    boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > *slices, boost::filesystem::path localPath )
     : WBoundaryBuilder( texture, properties, slices )
 {
     m_grid = boost::shared_dynamic_cast< WGridRegular3D >( m_texture->getGrid() );
     m_resolution = properties->findProperty( "Resolution" )->toPropDouble();
+
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMBoundaryCurvesWMGM-IsoLines", localPath ) );
 
     WAssert( m_grid, "Bug: each DataSetScalar should have a regular grid 3d!!!" );
 }
@@ -56,6 +58,7 @@ void WBoundaryLines::run( osg::ref_ptr< WGEManagedGroupNode > output, const char
             osg::ref_ptr< WGEGroupNode > newNode = generateSlice( i );
             m_slices[i]->clear();
             m_slices[i]->insert( newNode );
+            m_shader->apply( m_slices[i] );
             output->insert( m_slices[i] );
         }
     }
@@ -278,12 +281,20 @@ osg::ref_ptr< WGEGroupNode > WBoundaryLines::generateSlice( const unsigned char 
 
     osg::ref_ptr< WGEGroupNode > result( new WGEGroupNode );
     osg::ref_ptr< osg::Geode > geode( new osg::Geode );
-    geode->addDrawable( traverseEdgeHashMap( isoValues[0], edgeLineStrips[0], edgeIDToPointIDs, interpolates, sliceGrid,
-                WColor( 0.0, 0.0, 0.0, 1.0 ) ) );
-    geode->addDrawable( traverseEdgeHashMap( isoValues[1], edgeLineStrips[1], edgeIDToPointIDs, interpolates, sliceGrid,
-                WColor( 0.5, 0.5, 0.5, 1.0 ) ) );
+    geode->addDrawable( traverseEdgeHashMap( isoValues[0], edgeLineStrips[0], edgeIDToPointIDs, interpolates, sliceGrid ) );
+    geode->addDrawable( traverseEdgeHashMap( isoValues[1], edgeLineStrips[1], edgeIDToPointIDs, interpolates, sliceGrid ) );
     result->insert( geode );
     result->insert( wge::generateBoundingBoxGeode( m_sliceBB[ sliceNum ], WColor( 0.0, 0.0, 0.0, 1.0 ) ) );
+
+    osg::ref_ptr< osg::Uniform > u_gmColor = new WGEPropertyUniform< WPropColor >( "u_gwColor", m_gmColor );
+    osg::ref_ptr< osg::Uniform > u_wmColor = new WGEPropertyUniform< WPropColor >( "u_gwColor", m_wmColor );
+
+    osg::StateSet *ss_gm = geode->getDrawable( 0 )->getOrCreateStateSet();
+    ss_gm->addUniform( u_gmColor );
+    osg::StateSet *ss_wm = geode->getDrawable( 1 )->getOrCreateStateSet();
+    ss_wm->addUniform( u_wmColor );
+
+    m_shader->apply( geode );
 
     return result;
 }
@@ -316,14 +327,13 @@ boost::shared_ptr< WBoundaryLines::EdgeNeighbourMap > WBoundaryLines::generateEd
 }
 
 osg::ref_ptr< osg::Geometry > WBoundaryLines::traverseEdgeHashMap( double isoValue, boost::shared_ptr< WBoundaryLines::EdgeNeighbourMap > map,
-        const std::vector< Edge >& edgeIDToPointIDs, const std::vector< double > &interpolates, boost::shared_ptr< const WGridRegular3D > sliceGrid,
-        WColor col ) const
+        const std::vector< Edge >& edgeIDToPointIDs, const std::vector< double > &interpolates, boost::shared_ptr< const WGridRegular3D > sliceGrid ) const // NOLINT line length
 {
     std::list< std::list< size_t > > eLS;
     osg::ref_ptr< osg::Vec3Array > vertices( new osg::Vec3Array );
     osg::ref_ptr< osg::Geometry > geometry( new osg::Geometry() );
     osg::ref_ptr< osg::Vec4Array > colors( new osg::Vec4Array );
-    colors->push_back( col );
+    colors->push_back( WColor( 0.0, 0.0, 0.0, 1.0 ) ); // Note: coloring takes place in the shader!
 
     while( !map->empty() )
     {

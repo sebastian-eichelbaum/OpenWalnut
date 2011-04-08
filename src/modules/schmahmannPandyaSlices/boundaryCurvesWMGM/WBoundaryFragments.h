@@ -67,10 +67,6 @@ public:
 
 protected:
 private:
-    /**
-     * Shader generating the curves of gray and white matter.
-     */
-    osg::ref_ptr< WGEShader > m_shader;
 };
 
 #endif  // WBOUNDARYFRAGMENTS_H

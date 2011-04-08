@@ -37,6 +37,9 @@ WBoundaryBuilder::WBoundaryBuilder( boost::shared_ptr< const WDataSetScalar > te
 
     m_grayMatter = properties->findProperty( "Gray Matter" )->toPropDouble();
     m_whiteMatter = properties->findProperty( "White Matter" )->toPropDouble();
+
+    m_gmColor = properties->findProperty( "Gray Matter Color" )->toPropColor();
+    m_wmColor = properties->findProperty( "White Matter Color" )->toPropColor();
 }
 
 WBoundaryBuilder::~WBoundaryBuilder()

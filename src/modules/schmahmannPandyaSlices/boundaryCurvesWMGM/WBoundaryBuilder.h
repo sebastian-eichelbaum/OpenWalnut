@@ -30,8 +30,9 @@
 
 #include <osg/ref_ptr>
 
-#include "../../../graphicsEngine/WGEManagedGroupNode.h"
 #include "../../../common/WProperties.h"
+#include "../../../graphicsEngine/shaders/WGEShader.h"
+#include "../../../graphicsEngine/WGEManagedGroupNode.h"
 
 // forward declarations
 class WGEManagedGroupNode;
@@ -95,6 +96,21 @@ protected:
      * White matter threshold.
      */
     WPropDouble m_whiteMatter;
+
+    /**
+     * Shader generating the curves of gray and white matter.
+     */
+    osg::ref_ptr< WGEShader > m_shader;
+
+    /**
+     * Gray matter color.
+     */
+    WPropColor m_gmColor;
+
+    /**
+     * White matter color.
+     */
+    WPropColor m_wmColor;
 
 private:
 };

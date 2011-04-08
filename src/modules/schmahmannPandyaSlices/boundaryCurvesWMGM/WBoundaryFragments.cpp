@@ -25,7 +25,6 @@
 #include "../../../dataHandler/WDataSetScalar.h"
 #include "../../../dataHandler/WGridRegular3D.h"
 #include "../../../graphicsEngine/shaders/WGEPropertyUniform.h"
-#include "../../../graphicsEngine/shaders/WGEShader.h"
 #include "../../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../../graphicsEngine/WGEManagedGroupNode.h"
 #include "WBoundaryFragments.h"
@@ -34,7 +33,7 @@ WBoundaryFragments::WBoundaryFragments( boost::shared_ptr< const WDataSetScalar 
     boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > *slices, boost::filesystem::path localPath )
     : WBoundaryBuilder( texture, properties, slices )
 {
-    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMBoundaryCurvesWMGM", localPath ) );
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMBoundaryCurvesWMGM-Fragments", localPath ) );
 }
 
 void WBoundaryFragments::run( osg::ref_ptr< WGEManagedGroupNode > output, const char /* sliceNum */ )

@@ -104,6 +104,9 @@ void WMBoundaryCurvesWMGM::properties()
     m_whiteMatter->setMin( 0.0 );
     m_whiteMatter->setMax( 1.0 );
 
+    WPropColor gmColor = m_properties->addProperty( "Gray Matter Color", "Color for the GM border", WColor( 0.0, 0.0, 0.0, 1.0 ) );
+    WPropColor wmColor = m_properties->addProperty( "White Matter Color", "Color for the WM border", WColor( 0.5, 0.5, 0.5, 1.0 ) );
+
     m_resolution = m_properties->addProperty( "Resolution", "Size of the quads, used for sampling the Iso-Lines", 1.0, callBack );
     m_resolution->setMin( 0.25 ); // will take very very very long!!!
     m_resolution->setMax( 3.0 );
@@ -203,7 +206,7 @@ void WMBoundaryCurvesWMGM::moduleMain()
             {
                 m_resolution->setHidden( false );
                 infoLog() << "Using: " << strategyName << " strategy";
-                m_builder = boost::shared_ptr< WBoundaryBuilder >( new WBoundaryLines( texture, m_properties, &m_slices ) );
+                m_builder = boost::shared_ptr< WBoundaryBuilder >( new WBoundaryLines( texture, m_properties, &m_slices, m_localPath ) );
             }
             else if( strategyName == "Iso-Fragments" )
             {

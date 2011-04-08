@@ -53,10 +53,12 @@ public:
      * \param texture The underlying scalar dataset to compute those boundaries for
      * \param properties Properties, like slice positions, thresholds etc.
      * \param slices Slice geodes which are controlled (hide/unhide) by the module.
+     * \param localPath The path where the shaders reside
      */
     WBoundaryLines( boost::shared_ptr< const WDataSetScalar > texture,
                     boost::shared_ptr< const WProperties > properties,
-                    boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > *slices );
+                    boost::array< osg::ref_ptr< WGEManagedGroupNode >, 3 > *slices,
+                    boost::filesystem::path localPath );
 
     /**
      * Starts rendering and finally insert result in output.
@@ -136,13 +138,12 @@ private:
      * \param edgeIDToPointIDs
      * \param interpolates
      * \param sliceGrid
-     * \param col The color for the lines
      *
-     * \return
+     * \return The osg geometry.
      */
     osg::ref_ptr< osg::Geometry > traverseEdgeHashMap( double isoValue, boost::shared_ptr< WBoundaryLines::EdgeNeighbourMap > map,
             const std::vector< Edge >& edgeIDToPointIDs, const std::vector< double > &interpolates,
-            boost::shared_ptr< const WGridRegular3D > sliceGrid, WColor col ) const;
+            boost::shared_ptr< const WGridRegular3D > sliceGrid ) const;
 
     /**
      * Generates the bounding boxes for all three slices.

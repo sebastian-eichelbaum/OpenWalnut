@@ -173,6 +173,18 @@ private:
      * Used to enforce a unique access on slice updates!
      */
     boost::mutex m_updateMutex;
+
+    /**
+     * The color used for the gray matter.
+     * \note: ATM only the IsoLines strategy makes use of this.
+     */
+    WPropColor m_grayMatterColor;
+
+    /**
+     * The color used for the white matter.
+     * \note: ATM only the IsoLines strategy makes use of this.
+     */
+    WPropColor m_whiteMatterColor;
 };
 
 #endif  // WMBOUNDARYCURVESWMGM_H
