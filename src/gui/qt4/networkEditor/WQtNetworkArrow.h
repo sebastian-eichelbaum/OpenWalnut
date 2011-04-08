@@ -117,6 +117,7 @@ public:
      */
     QVariant itemChange( GraphicsItemChange change, const QVariant &value );
 
+
 protected:
 
     /**
