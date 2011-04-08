@@ -184,11 +184,9 @@ bool WGridTransformOrtho::isNotRotated() const
         && m_directionZ == WVector3D( 0.0, 0.0, 1.0 );
 }
 
-WGridTransformOrtho::operator WMatrix4x4() const
+WGridTransformOrtho::operator WMatrix4x4_2() const
 {
-    // NOTE: OSG matrices are row-major!
-    WMatrix4x4 mat;
-    mat.makeIdentity();
+    WMatrix4x4_2 mat = WMatrix4x4_2::Identity();
     mat( 0, 0 ) = m_scaling[ 0 ] * m_directionX[ 0 ];
     mat( 0, 1 ) = m_scaling[ 0 ] * m_directionX[ 1 ];
     mat( 0, 2 ) = m_scaling[ 0 ] * m_directionX[ 2 ];

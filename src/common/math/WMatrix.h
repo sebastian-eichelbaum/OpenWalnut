@@ -33,6 +33,7 @@
 
 #include "../WDefines.h"
 #include "../../ext/Eigen/Core"
+#include "../../ext/Eigen/LU"
 
 /**
  * A double 3 times 3 matrix. Stack-allocated. Column Major!
@@ -80,6 +81,26 @@ typedef Eigen::MatrixXd WMatrix_2;
  * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
  */
 typedef Eigen::MatrixXcd WMatrixComplex_2;
+
+/**
+ * Converts a given WMatrix4x4_2 to an osg matrix.
+ *
+ * \param m the matrix to convert
+ *
+ * \return the converted matrix
+ */
+inline osg::Matrixd toOsgMatrixd( WMatrix4x4_2 m )
+{
+    osg::Matrixd m2;
+    for ( size_t row = 0; row < 4; ++row )
+    {
+        for ( size_t col = 0; col < 4; ++col )
+        {
+            m2( row, col ) = m( row, col );
+        }
+    }
+    return m2;
+}
 
 /**
  * Matrix template class with variable number of rows and columns.

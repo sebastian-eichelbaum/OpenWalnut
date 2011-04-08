@@ -42,7 +42,7 @@
 #include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
 #include "../common/WPropertyHelper.h"
-#include "../common/math/WMatrix4x4.h"
+#include "../common/math/WMatrix.h"
 
 #include "WGETextureUtils.h"
 
@@ -428,7 +428,8 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
 
     m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true );
 
-    m_texMatrix = m_properties->addProperty( "Texture Transformation", "Usable to transform the texture.", osg::Matrix::identity() );
+    WMatrix4x4_2 m = WMatrix4x4_2::Identity();
+    m_texMatrix = m_properties->addProperty( "Texture Transformation", "Usable to transform the texture.", m );
     m_texMatrix->setPurpose( PV_PURPOSE_INFORMATION );
 
     TextureType::setResizeNonPowerOfTwoHint( false );
