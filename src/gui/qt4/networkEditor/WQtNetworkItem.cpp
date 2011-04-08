@@ -235,6 +235,11 @@ QList< WQtNetworkOutputPort *> WQtNetworkItem::getOutPorts()
     return m_outPorts;
 }
 
+WNetworkLayoutItem * WQtNetworkItem::getLayoutItem()
+{
+    return m_layoutItem;
+}
+
 void WQtNetworkItem::fitLook()
 {
     if( m_text != 0)
@@ -425,3 +430,4 @@ bool WQtNetworkItem::advance()
 
     return true;
 }
+

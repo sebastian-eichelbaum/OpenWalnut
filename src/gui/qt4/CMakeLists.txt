@@ -7,7 +7,7 @@ INCLUDE_DIRECTORIES( ${QT_INCLUDE_DIR} )
 # Libraries for linking:
 SET( QT_LIBS ${QT_QTCORE_LIBRARY}
              ${QT_QTGUI_LIBRARY}
-             ${QT_QTOPENGL_LIBRARY} 
+             ${QT_QTOPENGL_LIBRARY}
              ${QT_QTWEBKIT_LIBRARY} )
 
 # add here all classes that inherit from QObject
@@ -55,8 +55,10 @@ ENDIF()
 
 QT4_WRAP_CPP(GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
 
-FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "controlPanel/*.cpp" "events/*.cpp" "networkEditor/*.cpp" "*.h" "guiElements/*.h"
-        "controlPanel/*.h" "events/*.h" "networkEditor/*.h" "../icons/WIcons.h" "commandPrompt/*.h" "commandPrompt/*.cpp" )
+FILE(GLOB GUI_QT4_SRC "*.cpp" "guiElements/*.cpp" "controlPanel/*.cpp" "events/*.cpp"
+    "networkEditor/*.cpp" "*.h" "guiElements/*.h" "networkEditor/layout/*.cpp"
+        "controlPanel/*.h" "events/*.h" "networkEditor/*.h" "../icons/WIcons.h" "commandPrompt/*.h"
+        "commandPrompt/*.cpp" "networkEditor/layout/*.h" )
 IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
   FILE( GLOB GUIQT4_PLATFORMDEPENDENT_SRC
     "platformDependent/WQtGLWidgetMac.cpp"

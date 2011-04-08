@@ -29,11 +29,14 @@
 #include <QtGui/QGraphicsTextItem>
 #include <QtGui/QPainter>
 #include <QtGui/QColor>
+
 #include "../../../kernel/WModule.h"
 
+#include "layout/WNetworkLayoutItem.h"
 #include "WQtNetworkInputPort.h"
 #include "WQtNetworkOutputPort.h"
 
+class WNetworkLayoutItem;
 class WQtNetworkEditor;
 class QGraphicsWidget;
 
@@ -43,6 +46,7 @@ class QGraphicsWidget;
  */
 class WQtNetworkItem : public QGraphicsRectItem
 {
+    friend class WNetworkLayoutItem;
 public:
     /**
      * Constructs new item in the network scene.
@@ -124,6 +128,11 @@ public:
     boost::shared_ptr< WModule > getModule();
 
     /**
+     * returns the layout item for this network item, layout item is set through the layout item (friend)
+     **/
+    WNetworkLayoutItem * getLayoutItem();
+
+    /**
      * Here the module can be enabled when the WModule is ready.
      * \param active true if module is ready.
      */
@@ -200,7 +209,6 @@ protected:
      */
     void paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* w );
 
-
 private:
 
     boost::shared_ptr< WModule > m_module; //!< the module
@@ -221,10 +229,12 @@ private:
 
     QGraphicsTextItem* m_text; //!< the caption
 
-    QGraphicsTextItem* m_subtitle; //!< the caption
+    QGraphicsTextItem *m_subtitle; //!< the caption
 
     QPointF m_newPos; //!< the new position in the WQtNetworkScene
 
     WQtNetworkEditor* m_networkEditor; //!< the related WQtNetworkEditor
+
+    WNetworkLayoutItem *m_layoutItem; //!< the layout item
 };
 #endif  // WQTNETWORKITEM_H

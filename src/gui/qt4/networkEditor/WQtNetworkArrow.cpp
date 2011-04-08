@@ -157,3 +157,4 @@ void WQtNetworkArrow::changeColor( QColor color )
     m_color = color;
     setPen( QPen( m_color, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin ) );
 }
+
