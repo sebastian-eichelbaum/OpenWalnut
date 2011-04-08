@@ -133,7 +133,7 @@ private:
     /**
      * The probabilisitc tract which should be rendered.
      */
-    boost::shared_ptr< WModuleInputForwardData< WDataSetScalar > > m_probTractIC;
+    boost::array< boost::shared_ptr< WModuleInputForwardData< WDataSetScalar > >, 9 > m_probICs;
 
     /**
      * Dataset used for the boundary surface generation of WM and GM.

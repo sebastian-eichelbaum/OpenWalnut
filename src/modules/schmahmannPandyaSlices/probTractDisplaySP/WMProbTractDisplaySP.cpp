@@ -85,24 +85,22 @@ const std::string WMProbTractDisplaySP::getDescription() const
 void WMProbTractDisplaySP::updateProperitesForTheInputConnectors( boost::shared_ptr< WModuleConnector > /* receiver */,
         boost::shared_ptr< WModuleConnector > /* sender */ )
 {
-    debugLog() << "Input Connector was connected or closed => so all ICs and corresponding PropertyGroups will be checked....";
+    debugLog() << "Data changed on an input connector => so all ICs and corresponding PropertyGroups will be checked....";
     // iterate overall connectors and if one is left with an hidden property unhide it or do the opposite
     for( size_t i = 0; i < NUM_ICS; ++i )
     {
-        if( ( m_probICs[i]->isConnected() > 0 ) && ( m_colorMap[i]->isHidden() ) )
+        if( m_probICs[i]->updated() )
         {
-            debugLog() << "Found a connected IC, but hidden prop group at index: " << i;
-            m_colorMap[i]->setHidden( false );
-            if( m_probICs[i]->getData( false ) )
+            if( ( m_probICs[i]->getData( false ) ) && ( m_colorMap[i]->isHidden() ) )
             {
-                 m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( m_probICs[i]->getData( false )->getFileName() );
+                m_colorMap[i]->setHidden( false );
+                m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( m_probICs[i]->getData( false )->getFileName() );
             }
-        }
-        if( ( m_probICs[i]->isConnected() == 0 ) && ( !m_colorMap[i]->isHidden() ) )
-        {
-            debugLog() << "Found an unconnected IC, but unhidden prop group at index: " << i;
-            m_colorMap[i]->setHidden();
-            m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( "/no/such/file" );
+            if( !m_probICs[i]->getData( false ) )
+            {
+                m_colorMap[i]->setHidden();
+                m_colorMap[i]->findProperty( "Filename" )->toPropString()->set( "/no/such/file" );
+            }
         }
     }
 }
@@ -118,9 +116,7 @@ void WMProbTractDisplaySP::connectors()
         std::stringstream ss;
         ss << "probTract" << i << "Input";
         m_probICs[i] = WModuleInputData< WDataSetScalar >::createAndAdd( shared_from_this(), ss.str(), "A probabilistic tractogram" );
-        m_probICs[i]->subscribeSignal( CONNECTION_ESTABLISHED,
-                boost::bind( &WMProbTractDisplaySP::updateProperitesForTheInputConnectors, this, _1, _2 ) );
-        m_probICs[i]->subscribeSignal( CONNECTION_CLOSED,
+        m_probICs[i]->subscribeSignal( DATA_CHANGED,
                 boost::bind( &WMProbTractDisplaySP::updateProperitesForTheInputConnectors, this, _1, _2 ) );
     }
 

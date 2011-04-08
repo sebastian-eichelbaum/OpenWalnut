@@ -35,6 +35,11 @@
 #include "WMSlices.h"
 #include "WMSlices.xpm"
 
+namespace
+{
+    const size_t NUM_ICS = 9;
+}
+
 WMSlices::WMSlices()
     : WModuleContainer( "Schmahmann-Pandya slices", "Combines the probTractDisplaySP and boundaryCurvesWMGM modules into one module." )
 {
@@ -66,7 +71,12 @@ const std::string WMSlices::getDescription() const
 void WMSlices::connectors()
 {
     // Put the code for your connectors here. See "src/modules/template/" for an extensively documented example.
-    m_probTractIC = WModuleInputForwardData< WDataSetScalar >::createAndAdd( shared_from_this(), "probTractInput", "Probabilistic tract to display." ); // NOLINT line length
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        std::stringstream ss;
+        ss << "probTract" << i << "Input";
+        m_probICs[i] = WModuleInputForwardData< WDataSetScalar >::createAndAdd( shared_from_this(), ss.str(), "Probabilistic tract to display." ); // NOLINT line length
+    }
     m_t1ImageIC = WModuleInputForwardData< WDataSetScalar >::createAndAdd( shared_from_this(), "t1Input", "T1 Image for WM/GM estimation." );
     m_evecsIC = WModuleInputForwardData< WDataSetVector >::createAndAdd( shared_from_this(), "evecInput", "Vector field with principal diffusion direction." ); // NOLINT line length
 
@@ -114,7 +124,10 @@ void WMSlices::redrawUntilSlicePosChangingAnymore( unsigned char sliceNum, const
 void WMSlices::moduleMain()
 {
     m_moduleState.setResetable( true, true );
-    m_moduleState.add( m_probTractIC->getDataChangedCondition() );
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        m_moduleState.add( m_probICs[i]->getDataChangedCondition() );
+    }
     m_moduleState.add( m_t1ImageIC->getDataChangedCondition() );
     m_moduleState.add( m_evecsIC->getDataChangedCondition() );
     m_moduleState.add( m_active->getCondition() );
@@ -178,10 +191,18 @@ void WMSlices::initSubModules()
     m_properties->addProperty( m_boundaryCurvesWMGM->getProperties()->getProperty( "White Matter" ) );
     m_properties->addProperty( m_boundaryCurvesWMGM->getProperties()->getProperty( "Gray Matter" ) );
     m_properties->addProperty( m_probTractDisplaySP->getProperties()->getProperty( "Vector Group" ) );
-    m_properties->addProperty( m_probTractDisplaySP->getProperties()->getProperty( "Color for 0InputConnector" ) );
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        std::stringstream ss;
+        ss << "Color for " << i << "InputConnector";
+        m_properties->addProperty( m_probTractDisplaySP->getProperties()->getProperty( ss.str() ) );
+    }
 
     infoLog() << "Wiring submodules";
     m_evecsIC->forward( m_probTractDisplaySP->getInputConnector( "vectorInput" ) );
-    m_probTractIC->forward( m_probTractDisplaySP->getInputConnector( "probTract0Input" ) );
+    for( size_t i = 0; i < NUM_ICS; ++i )
+    {
+        m_probICs[i]->forward( m_probTractDisplaySP->getInputConnector( m_probICs[i]->getName() ) );
+    }
     m_t1ImageIC->forward( m_boundaryCurvesWMGM->getInputConnector( "textureInput" ) );
 }
