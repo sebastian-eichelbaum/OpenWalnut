@@ -108,17 +108,14 @@ void WMSlices::requirements()
 
 void WMSlices::redrawUntilSlicePosChangingAnymore( unsigned char sliceNum, const std::string &propName )
 {
-    if( m_slicePos[sliceNum]->changed() )
+    int pos;;
+    do
     {
-        int pos = m_slicePos[sliceNum]->get( true );
-        do
-        {
-            pos = m_slicePos[sliceNum]->get( true ); // to ensure both submodules operate on the same slice
-            m_boundaryCurvesWMGM->getProperties()->findProperty( propName )->toPropInt()->set( pos );
-            m_probTractDisplaySP->getProperties()->findProperty( propName )->toPropInt()->set( pos );
-        }
-        while( m_slicePos[sliceNum]->get() != pos ); // check if pos has changed mean while
+        pos = m_slicePos[sliceNum]->get();
+        m_boundaryCurvesWMGM->getProperties()->findProperty( propName )->toPropInt()->set( pos );
+        m_probTractDisplaySP->getProperties()->findProperty( propName )->toPropInt()->set( pos );
     }
+    while( m_slicePos[sliceNum]->get() != pos );
 }
 
 void WMSlices::moduleMain()
