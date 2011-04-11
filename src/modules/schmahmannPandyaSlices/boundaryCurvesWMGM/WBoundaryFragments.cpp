@@ -50,6 +50,8 @@ void WBoundaryFragments::run( osg::ref_ptr< WGEManagedGroupNode > output, const 
 
     osg::ref_ptr< osg::Uniform > u_grayMatter = new WGEPropertyUniform< WPropDouble >( "u_grayMatter", m_grayMatter );
     osg::ref_ptr< osg::Uniform > u_whiteMatter = new WGEPropertyUniform< WPropDouble >( "u_whiteMatter", m_whiteMatter );
+    osg::ref_ptr< osg::Uniform > u_gmColor = new WGEPropertyUniform< WPropColor >( "u_gmColor", m_gmColor );
+    osg::ref_ptr< osg::Uniform > u_wmColor = new WGEPropertyUniform< WPropColor >( "u_wmColor", m_wmColor );
 
     for( char i = 0; i < 3; ++i )
     {
@@ -58,6 +60,8 @@ void WBoundaryFragments::run( osg::ref_ptr< WGEManagedGroupNode > output, const 
         osg::StateSet *ss = m_slices[i]->getOrCreateStateSet();
         ss->addUniform( u_grayMatter );
         ss->addUniform( u_whiteMatter );
+        ss->addUniform( u_gmColor );
+        ss->addUniform( u_wmColor );
         ss->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", m_slicePos[i] ) );
         ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", getDirections( grid )[i] ) );
         output->insert( m_slices[i] );

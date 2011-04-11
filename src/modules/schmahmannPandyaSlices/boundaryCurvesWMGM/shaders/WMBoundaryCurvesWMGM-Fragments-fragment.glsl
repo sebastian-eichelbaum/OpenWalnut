@@ -31,6 +31,9 @@ uniform int u_texture0SizeX;
 uniform float u_grayMatter;
 uniform float u_whiteMatter;
 
+uniform vec4 u_gmColor;
+uniform vec4 u_wmColor;
+
 void main()
 {
     vec4 col = clamp( texture3D( u_texture0Sampler, gl_TexCoord[0].xyz ), 0.0, 1.0 );
@@ -58,13 +61,12 @@ void main()
     }
     if( abs( col.r - u_grayMatter ) < eps )
     {
-        col.rgb = vec3( 0.0 );
+        col = u_gmColor;
     }
     else // if( abs( col.r - u_whiteMatter ) < eps )
     {
-        col.rgb = vec3( 0.5 );
+        col = u_wmColor;
     }
 
-    col.a = 1;
     gl_FragColor = col;
 }

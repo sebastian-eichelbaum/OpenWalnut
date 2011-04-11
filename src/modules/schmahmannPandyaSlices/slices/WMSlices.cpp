@@ -187,6 +187,8 @@ void WMSlices::initSubModules()
     infoLog() << "Add properties from submodules";
     m_properties->addProperty( m_boundaryCurvesWMGM->getProperties()->getProperty( "White Matter" ) );
     m_properties->addProperty( m_boundaryCurvesWMGM->getProperties()->getProperty( "Gray Matter" ) );
+    m_properties->addProperty( m_boundaryCurvesWMGM->getProperties()->getProperty( "White Matter Color" ) );
+    m_properties->addProperty( m_boundaryCurvesWMGM->getProperties()->getProperty( "Gray Matter Color" ) );
     m_properties->addProperty( m_probTractDisplaySP->getProperties()->getProperty( "Vector Group" ) );
     for( size_t i = 0; i < NUM_ICS; ++i )
     {
