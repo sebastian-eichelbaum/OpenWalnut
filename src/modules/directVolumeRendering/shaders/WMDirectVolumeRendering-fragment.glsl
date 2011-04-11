@@ -149,7 +149,13 @@ vec4 localIllumination( in vec3 position, in vec4 color )
 {
 #ifdef LOCALILLUMINATION_PHONG
     // get a gradient and get it to world-space
-    vec3 worldNormal = ( gl_ModelViewMatrix * vec4( getGradient( position ), 0.0 ) ).xyz;
+    vec3 g = getGradient( position );
+    vec3 worldNormal = ( gl_ModelViewMatrix * vec4( g, 0.0 ) ).xyz;
+    if ( length( g ) < 0.01 )
+    {
+        return vec4( 0.0, 0.0, 0.0, 0.0 );
+    }
+
     // let the normal point towards the viewer. Technically this would be:
     // worldNormal *= sign( dot( worldNormal, vec3( 0.0, 0.0, 1.0 ) ) );
     // but as the most of the components in the view vector are 0 we can use:
@@ -196,7 +202,7 @@ void main()
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
     // when done for each vertex.
     float totalDistance = 0.0;      // the maximal distance along the ray until the BBox ends
-    float currentDistance = 0.0;    // accumulated distance along the ray
+    float currentDistance = 0.1;    // accumulated distance along the ray
 
 #ifdef JITTERTEXTURE_ENABLED
     // stochastic jittering can help to void these ugly wood-grain artifacts with larger sampling distances but might
