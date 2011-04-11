@@ -915,12 +915,11 @@ void WMainWindow::customEvent( QEvent* event )
         {
             // create new custom dock widget
             widget = boost::shared_ptr< WQtCustomDockWidget >(
-                new WQtCustomDockWidget( title, this, ocdwEvent->getProjectionMode() ) );
-            m_glDock->addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
+                new WQtCustomDockWidget( title, m_glDock, ocdwEvent->getProjectionMode() ) );
+            // m_glDock->addDockWidget( Qt::BottomDockWidgetArea, widget.get() );
 
             // restore state and geometry
-            // TODO(ebaum): this is critical. The dock widgets get closed before saveState. This means the restored docks are closed too.
-            // m_glDock->restoreDockWidget( widget.get() );
+            m_glDock->restoreDockWidget( widget.get() );
 
             // store it in CustomDockWidget list
             m_customDockWidgets.insert( make_pair( title, widget ) );
