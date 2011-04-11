@@ -28,6 +28,8 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
 
+#include "../../graphicsEngine/WGECamera.h"
+
 #include "WQtGLWidget.h"
 
 /**
@@ -44,9 +46,11 @@ public:
      * \param viewTitle Title will be used as view title
      * \param dockTitle The title of the dock widget.
      * \param parent The widget that manages this widget
+     * \param projectionMode The projection mode used in the GL widget.
      * \param shareWidget this widget will share OpenGL display lists and texture objects with shareWidget
      */
-    WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget* parent , const QGLWidget* shareWidget = 0 );
+    WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget* parent, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC,
+                                                                            const QGLWidget* shareWidget = 0 );
 
     /**
      * destructor.

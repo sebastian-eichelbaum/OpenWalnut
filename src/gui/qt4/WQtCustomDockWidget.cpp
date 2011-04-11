@@ -30,22 +30,14 @@
 #include "../../graphicsEngine/WGEViewer.h"
 
 WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WGECamera::ProjectionMode projectionMode )
-    : QDockWidget( QString::fromStdString( title ), parent ),
+    : WQtGLDockWidget( QString::fromStdString( title ), QString::fromStdString( title ), parent, projectionMode ),
       m_useCount( 1 )
 {
     setObjectName( QString( "Custom Dock Window " ) + QString::fromStdString( title ) );
 
-    // setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
-    setFeatures( QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
-    setFloating( true );
-    resize( 1024, 768 );
-
-    m_glWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( title, this, projectionMode ) );
     m_scene = new WGEGroupNode();
     m_scene->setDataVariance( osg::Object::DYNAMIC );
-    m_glWidget->getViewer()->setScene( m_scene );
-
-    setWidget( m_glWidget.get() );
+    getGLWidget()->getViewer()->setScene( m_scene );
 }
 
 osg::ref_ptr< WGEGroupNode > WQtCustomDockWidget::getScene() const
@@ -55,7 +47,7 @@ osg::ref_ptr< WGEGroupNode > WQtCustomDockWidget::getScene() const
 
 boost::shared_ptr< WGEViewer > WQtCustomDockWidget::getViewer() const
 {
-    return m_glWidget->getViewer();
+    return getGLWidget()->getViewer();
 }
 
 void WQtCustomDockWidget::increaseUseCount()

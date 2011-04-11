@@ -30,6 +30,7 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QApplication>
 
+#include "../../graphicsEngine/WGECamera.h"
 #include "../../graphicsEngine/WGEViewer.h"
 #include "../../graphicsEngine/WGEScene.h"
 #include "events/WPropertyChangedEvent.h"
@@ -38,7 +39,7 @@
 #include "WQtNavGLWidget.h"
 
 WQtNavGLWidget::WQtNavGLWidget( QString viewTitle, QString dockTitle, QWidget* parent, std::string sliderTitle, const QGLWidget * shareWidget )
-    : WQtGLDockWidget( viewTitle, dockTitle, parent, shareWidget )
+    : WQtGLDockWidget( viewTitle, dockTitle, parent, WGECamera::ORTHOGRAPHIC, shareWidget )
 {
     propertyWidgetMap.clear();
     m_sliderTitle = QString( sliderTitle.c_str() );

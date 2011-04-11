@@ -30,13 +30,15 @@
 #include "../../graphicsEngine/WGEGroupNode.h"
 
 #include <QtGui/QDockWidget>
-#include "WQtGLWidget.h"
+
+#include "WQtGLDockWidget.h"
+
 #include "../WCustomWidget.h"
 
 /**
  * Dock Widget which is created by a module to display custom information.
  */
-class WQtCustomDockWidget : public QDockWidget,
+class WQtCustomDockWidget : public WQtGLDockWidget,
                             public WCustomWidget
 {
 public:
@@ -77,11 +79,6 @@ public:
 
 protected:
 private:
-    /**
-     * the included GL widget
-     */
-    boost::shared_ptr<WQtGLWidget> m_glWidget;
-
     /**
      * the scene which is displayed by the GL widget
      */
