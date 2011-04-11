@@ -35,12 +35,12 @@
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "controlPanel/WPropertyIntWidget.h"
 
-#include "WQtGLWidget.h"
+#include "WQtGLDockWidget.h"
 
 /**
  * container widget to hold as GL widget and a slider
  */
-class WQtNavGLWidget : public QDockWidget
+class WQtNavGLWidget : public WQtGLDockWidget
 {
     Q_OBJECT
 
@@ -48,24 +48,18 @@ public:
     /**
      * default constructor
      *
-     * \param title Title will be displayed above the widget
+     * \param viewTitle Title will be used as view title
+     * \param dockTitle The title of the dock widget.
      * \param parent The widget that manages this widget
      * \param sliderTitle Name of the slider corresponding to the property it manipulates
      * \param shareWidget this widget will share OpenGL display lists and texture objects with shareWidget
      */
-    explicit WQtNavGLWidget( QString title, QWidget* parent, std::string sliderTitle="pos", const QGLWidget * shareWidget = 0 );
+    WQtNavGLWidget( QString viewTitle, QString dockTitle, QWidget* parent, std::string sliderTitle="pos", const QGLWidget * shareWidget = 0 );
 
     /**
      * destructor.
      */
     virtual ~WQtNavGLWidget();
-
-    /**
-     * Gets the contained GL widget instance.
-     *
-     * \return pointer to GL widget
-     */
-    boost::shared_ptr< WQtGLWidget > getGLWidget();
 
     /**
      * Set the title of the slider used in this nav widget
@@ -90,25 +84,12 @@ public:
 
 protected:
 
-private slots:
-    /**
-     * If the dock widget changes its visibility.
-     *
-     * \param visible if true, the dock is visible
-     */
-    void handleVisibilityChange( bool visible );
-
 private:
 
     /**
      * The slider's title.
      */
     QString m_sliderTitle;
-
-    /**
-     * My GL widget.
-     */
-    boost::shared_ptr<WQtGLWidget> m_glWidget;
 
     /**
      * the scene which is displayed by the GL widget
@@ -119,11 +100,6 @@ private:
      * Update slider if property changed.
      */
     void handleChangedPropertyValue();
-
-    /**
-     * Layout of this widget.
-     */
-    QVBoxLayout* m_layout;
 
     /**
      * Map holding the widgets for module properties added automatically. So they can be removed again automatically

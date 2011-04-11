@@ -76,6 +76,7 @@
 #include "WQtCombinerToolbar.h"
 #include "WQtCustomDockWidget.h"
 #include "WQtNavGLWidget.h"
+#include "WQtGLDockWidget.h"
 
 #include "WMainWindow.h"
 
@@ -140,8 +141,14 @@ void WMainWindow::setupGUI()
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
-    m_mainGLWidget = boost::shared_ptr< WQtGLWidget >( new WQtGLWidget( "main", this, WGECamera::ORTHOGRAPHIC ) );
-    setCentralWidget( m_mainGLWidget.get() );
+    m_glDock = new QMainWindow();
+    m_glDock->setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
+    m_glDock->setDocumentMode( true );
+    setCentralWidget( m_glDock );
+    WQtGLDockWidget* mainGLDock = new WQtGLDockWidget( "main", "3D View", m_glDock );
+    mainGLDock->getGLWidget()->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+    m_mainGLWidget = mainGLDock->getGLWidget();
+    m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
 
     m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
 
@@ -269,34 +276,37 @@ void WMainWindow::setupGUI()
         if( !( WPreferences::getPreference( "qt4gui.hideAxial", &hideWidget ) && hideWidget) )
         {
 #ifndef _MSC_VER
-            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", this, "Axial Slice", m_mainGLWidget.get() ) );
+            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", "Axial View", this, "Axial Slice",
+                                                                                  m_mainGLWidget.get() ) );
 #else
-            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", this, "Axial Slice" ) );
+            m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", "Axial View", this, "Axial Slice" ) );
 #endif
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
-            addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
+            m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
         {
 #ifndef _MSC_VER
-            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", this, "Coronal Slice", m_mainGLWidget.get() ) );
+            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", "Coronal View", this, "Coronal Slice",
+                                                                                    m_mainGLWidget.get() ) );
 #else
-            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", this, "Coronal Slice" ) );
+            m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", "Coronal View", this, "Coronal Slice" ) );
 #endif
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
-            addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
+            m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
         }
         if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
         {
 #ifndef _MSC_VER
             m_navSagittal =
-                boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", this, "Sagittal Slice", m_mainGLWidget.get() ) );
+                boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", "Sagittal View", this, "Sagittal Slice",
+                                                                         m_mainGLWidget.get() ) );
 #else
             m_navSagittal =
-                boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", this, "Sagittal Slice" ) );
+                boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", "Sagittal View", this, "Sagittal Slice" ) );
 #endif
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
-            addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
+            m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
         }
     }
 
@@ -1045,9 +1055,11 @@ void WMainWindow::restoreSavedState()
     wlog::info( "MainWindow" ) << "Restoring window state from \"" << stateName << "\"";
 
     QSettings setting( "OpenWalnut.org", QString::fromStdString( stateName ) );
-    QByteArray state = setting.value( "MainWindowState", "" ).toByteArray();
     restoreGeometry( setting.value( "MainWindowGeometry", "" ).toByteArray() );
-    restoreState( state );
+    restoreState( setting.value( "MainWindowState", "" ).toByteArray() );
+
+    m_glDock->restoreGeometry( setting.value( "GLDockWindowGeometry", "" ).toByteArray() );
+    m_glDock->restoreState( setting.value( "GLDockWindowState", "" ).toByteArray() );
 }
 
 void WMainWindow::saveWindowState()
@@ -1069,10 +1081,12 @@ void WMainWindow::saveWindowState()
     wlog::info( "MainWindow" ) << "Saving window state for \"" << stateName << "\"";
 
     // this saves the window state to some common location on the target OS in user scope.
-    QByteArray state = saveState();
     QSettings setting( "OpenWalnut.org", QString::fromStdString( stateName ) );
-    setting.setValue( "MainWindowState", state );
+    setting.setValue( "MainWindowState", saveState() );
+    setting.setValue( "GLDockWindowState", m_glDock->saveState() );
+
     // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
     setting.setValue( "MainWindowGeometry", saveGeometry() );
+    setting.setValue( "GLDockWindowGeometry", m_glDock->saveGeometry() );
 }
 
