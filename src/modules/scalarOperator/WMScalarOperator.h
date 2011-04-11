@@ -118,6 +118,16 @@ private:
      */
     WPropSelection m_opSelection;
 
+    /**
+     * Lower border used for clamping.
+     */
+    WPropDouble m_lowerBorder;
+
+    /**
+     * Upper border used for clamping.
+     */
+    WPropDouble m_upperBorder;
+
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputA;  //!< Input connector required by this module.
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_inputB;  //!< Input connector required by this module.
 

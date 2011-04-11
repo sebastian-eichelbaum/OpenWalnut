@@ -106,11 +106,19 @@ void WMScalarOperator::properties()
     m_operations->addItem( "A / B", "Divide A by B." );
     m_operations->addItem( "abs( A - B )", "Absolute value of A - B." );
     m_operations->addItem( "abs( A )", "Absolute value of A." );
+    m_operations->addItem( "clamp( lower, upper, A )", "Clamp A between lower and upper so that l <= A <= u." );
 
     m_opSelection = m_properties->addProperty( "Operation", "The operation to apply on A and B.", m_operations->getSelectorFirst(),
                                                m_propCondition );
     WPropertyHelper::PC_SELECTONLYONE::addTo( m_opSelection );
     WPropertyHelper::PC_NOTEMPTY::addTo( m_opSelection );
+
+    m_lowerBorder = m_properties->addProperty( "Lower", "Lower border used for clamping.", 0.0, m_propCondition );
+    m_lowerBorder->removeConstraint( PC_MIN );
+    m_lowerBorder->removeConstraint( PC_MAX );
+    m_upperBorder = m_properties->addProperty( "Upper", "Upper border used for clamping.", 1.0, m_propCondition );
+    m_upperBorder->removeConstraint( PC_MIN );
+    m_upperBorder->removeConstraint( PC_MAX );
 
     WModule::properties();
 }
@@ -273,13 +281,32 @@ inline T opDiv( T a, T b )
  *
  * \tparam T Type of each parameter and the result
  * \param a the first operant
+ * \param l lower border
+ * \param u upper border
  *
  * \return result
  */
 template< typename T >
-inline T opAbs( T a )
+inline T opAbs( T a, T /* l */, T /* u */ )
 {
     return math::wabs( a );
+}
+
+/**
+ * Operator applying some op to argument.
+ *
+ * \tparam T Type of each parameter and the result
+ * \param a the first operant
+ * \param l lower border
+ * \param u upper border
+ *
+ * \return result
+ */
+template< typename T >
+inline T opClamp( T a, T l, T u )
+{
+    T uclamp = a > u ? u : a;
+    return uclamp < l ? l : uclamp;
 }
 
 /**
@@ -466,11 +493,14 @@ public:
         // discriminate the right operation with the correct type. It would be nicer to use some kind of strategy pattern here, but the template
         // character of the operators forbids it as template methods can't be virtual. Besides this, at some point in the module main the
         // selector needs to be queried and its index mapped to a pointer. This is what we do here.
-        boost::function< ResultT( ResultT ) > op;
+        boost::function< ResultT( ResultT, ResultT l, ResultT u ) > op;
         switch ( m_opIdx )
         {
             case 5:
                 op = &opAbs< ResultT >;
+                break;
+            case 6:
+                op = &opClamp< ResultT >;
                 break;
             default:
                 op = &opAbs< ResultT >;
@@ -481,7 +511,7 @@ public:
         const T* a = vsetA->rawData();
         for ( size_t i = 0; i < vsetA->rawSize(); ++i )
         {
-            data[ i ] = op( a[ i ] );
+            data[ i ] = op( a[ i ], m_lowerBorder, m_upperBorder );
         }
 
         // create result value set
@@ -495,9 +525,31 @@ public:
     }
 
     /**
+     * Set lower and upper border needed for several ops.
+     *
+     * \param l lower border
+     * \param u upper border
+     */
+    void setBorder( double l, double u )
+    {
+        m_lowerBorder = l;
+        m_upperBorder = u;
+    }
+
+    /**
      * The operator index.
      */
     size_t m_opIdx;
+
+    /**
+     * Lower border needed for several ops.
+     */
+    double m_lowerBorder;
+
+    /**
+     * Upper border needed for several ops.
+     */
+    double m_upperBorder;
 };
 
 void WMScalarOperator::moduleMain()
@@ -525,8 +577,10 @@ void WMScalarOperator::moduleMain()
             break;
         }
 
+        bool propsChanged = m_lowerBorder->changed() || m_upperBorder->changed();
+
         // has the data changed?
-        if( m_opSelection->changed() || m_inputA->handledUpdate() || m_inputB->handledUpdate() )
+        if( m_opSelection->changed() || propsChanged || m_inputA->handledUpdate() || m_inputB->handledUpdate() )
         {
             boost::shared_ptr< WDataSetScalar > dataSetA = m_inputA->getData();
             boost::shared_ptr< WDataSetScalar > dataSetB = m_inputB->getData();
@@ -556,9 +610,10 @@ void WMScalarOperator::moduleMain()
             boost::shared_ptr< WValueSetBase > newValueSet;
 
             // single operator operation?
-            if ( s == 5 )
+            if ( ( s == 5 ) || ( s == 6 ) )
             {
                 VisitorVSetSingleArgument visitor( s );    // the visitor cascades to the second value set
+                visitor.setBorder( m_lowerBorder->get( true ), m_upperBorder->get( true ) );
                 newValueSet = valueSetA->applyFunction( visitor );
             }
             else  // no multiple operators:
