@@ -432,7 +432,7 @@ void WMData::moduleMain()
                 // }
                 if ( m_dataSet->isTexture() )
                 {
-                    // m_properties->removeProperty( m_dataSet->getTexture2()->getProperties() );
+                    m_properties->removeProperty( m_dataSet->getTexture2()->getProperties() );
                     m_infoProperties->removeProperty( m_dataSet->getTexture2()->getInformationProperties() );
                     WGEColormapping::deregisterTexture( m_dataSet->getTexture2() );
                 }
