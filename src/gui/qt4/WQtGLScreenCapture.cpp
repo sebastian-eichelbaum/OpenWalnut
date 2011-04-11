@@ -83,6 +83,7 @@ WQtGLScreenCapture::WQtGLScreenCapture( WGEViewer::SPtr viewer, WMainWindow* par
     m_resolutionCombo = new QComboBox();
     m_resolutionCombo->addItem( "640x480" );
     m_resolutionCombo->addItem( "800x600" );
+    m_resolutionCombo->addItem( "850x650" );
     m_resolutionCombo->addItem( "1024x768" );
     m_resolutionCombo->addItem( "1280x1024" );
     m_resolutionCombo->addItem( "1330x1074" );
@@ -382,19 +383,22 @@ void WQtGLScreenCapture::resolutionChange( bool force )
         case 1:
             m_mainWindow->forceMainGLWidgetSize( 800, 600 );
             break;
-        case 2:
-            m_mainWindow->forceMainGLWidgetSize( 1024, 768 );
+        case 2: // TODO(ebaum): add offset edits
+            m_mainWindow->forceMainGLWidgetSize( 800 + 50, 600 + 50 );
             break;
         case 3:
+            m_mainWindow->forceMainGLWidgetSize( 1024, 768 );
+            break;
+        case 4:
             m_mainWindow->forceMainGLWidgetSize( 1280, 1024 );
             break;
-        case 4: // TODO(ebaum): add offset edits
+        case 5: // TODO(ebaum): add offset edits
             m_mainWindow->forceMainGLWidgetSize( 1280 + 50, 1024 + 50 );
             break;
-        case 5:
+        case 6:
             m_mainWindow->forceMainGLWidgetSize( 1280, 720 );
             break;
-        case 6:
+        case 7:
             m_mainWindow->forceMainGLWidgetSize( 1920, 1080 );
             break;
         }

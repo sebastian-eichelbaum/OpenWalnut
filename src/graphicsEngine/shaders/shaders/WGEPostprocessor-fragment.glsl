@@ -470,9 +470,10 @@ float getGaussedDepth()
  */
 //uniform float u_ssaoTotalStrength = 2.5;     // lines
 // uniform float u_ssaoTotalStrength = 2.5;     // brain lines
-//uniform float u_ssaoTotalStrength = 2.75;     // brain lines video
+//uniform float u_ssaoTotalStrength = 2.25;     // brain lines video
 //uniform float u_ssaoTotalStrength = 1.5;   // smallfibs
-uniform float u_ssaoTotalStrength = 2.5;   // smallfibs-corticospinal
+uniform float u_ssaoTotalStrength =2.0;   // smallfibs-corticospinal-tubes
+//uniform float u_ssaoTotalStrength =2.5;   // smallfibs-corticospinal-lines
 //uniform float u_ssaoTotalStrength = 2.0;   // deltawing tube
 //uniform float u_ssaoTotalStrength = 3.0;   // deltawing lines
 
@@ -481,8 +482,9 @@ uniform float u_ssaoTotalStrength = 2.5;   // smallfibs-corticospinal
  */
 //uniform float u_ssaoRadiusSS = 2.0;   // lines
 //uniform float u_ssaoRadiusSS = 2.5;   // brain lines
+//uniform float u_ssaoRadiusSS = 2.0;   // brain lines-video
 //uniform float u_ssaoRadiusSS = 2.5; // smallfibs
-uniform float u_ssaoRadiusSS = 2.0;   // brain lines -corticospinal
+uniform float u_ssaoRadiusSS = 2.5;   // brain lines -corticospinal
 //uniform float u_ssaoRadiusSS = 1.0; // deltawing tube
 //uniform float u_ssaoRadiusSS = 2.5; // deltawing lines
 
@@ -827,6 +829,11 @@ void main()
     // Video
     l.materialAmbient = 0.25;
     l.materialDiffuse = 0.75;
+    l.materialShinines = 1000;
+
+    // Smallfibs - Cortico
+    l.materialAmbient = 0.25;
+    l.materialDiffuse = 1.0;
     l.materialShinines = 500;
 
     blendScale( getPPLPhong( l ) );

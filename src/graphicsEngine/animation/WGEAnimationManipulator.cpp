@@ -330,28 +330,49 @@ void WGEAnimationManipulator::handleFrame()
 
     // time in seconds, it always relates to a 24 frames per second system
     double elapsed = m_timer->elapsed() - m_homeOffsetTime;
-
+/*
     // this brings the BBox to the center, makes it larger and rotates the front towards the camera
-    osg::Matrixd mBBScale     = osg::Matrixd::scale( 1.75, 1.75, 1.75 );
     osg::Matrixd mBBTranslate = osg::Matrixd::translate( -159.0 / 2.0, -199.0 / 2.0, -159.0 / 2.0 );
+    osg::Matrixd mBBScale     = osg::Matrixd::scale( 1.5, 1.5, 1.5 );
     osg::Matrixd mBBRotate    = osg::Matrixd::rotate( -piDouble / 2.0, 1.0, 0.0, 0.0 ) *
                                 osg::Matrixd::rotate(  piDouble, 0.0, 1.0, 0.0 );
-
+    // Scene 1:
     // construct the animation here.
     Rotator rotateToBack =          Rotator( elapsed, 0.0, Transformation::axeY, 360.0, 22.5 );
     Rotator rotateToBottom =        Rotator( elapsed, rotateToBack.finish() - 3.0, -1.0 * Transformation::axeX, 15.0, 5.0 );
     Zoomer  zoomToIrgendwas =        Zoomer( elapsed, rotateToBottom.finish() - 2.0, 2.0, 0.25 );
     Translator translateABitUp = Translator( elapsed, rotateToBottom.finish() - 2.0, Transformation::axeY * 90.0, 0.25 );
 
-    Zoomer  zoomToNaus =             Zoomer( elapsed, translateABitUp.finish() + 5.0, 0.1, 2.0 );
-    Zoomer  zoomToNei =              Zoomer( elapsed, zoomToNaus.finish(), 10.0, 2.0 );
+    Zoomer  zoomToNei1 =              Zoomer( elapsed, translateABitUp.finish() - 2.0, 2.0, 0.15 );
+    Zoomer  zoomToNaus =             Zoomer( elapsed, zoomToNei1.finish() + 1.0, 0.1, 3.0 );
+    Zoomer  zoomToNei2 =              Zoomer( elapsed, zoomToNaus.finish(), 5.0, 1.5 );
 
     m_matrix = mBBTranslate * mBBScale * mBBRotate * rotateToBack
                                                    * rotateToBottom
                                                    * zoomToIrgendwas
                                                    * translateABitUp
+                                                   * zoomToNei1
                                                    * zoomToNaus
-                                                   * zoomToNei
+                                                   * zoomToNei2
                                                  ;
+*/
+    // Scene 2:
+    // this brings the BBox to the center, makes it larger and rotates the front towards the camera
+    osg::Matrixd mBBTranslate = osg::Matrixd::translate( -159.0 / 2.0, -199.0 / 2.0, -179.0 / 2.0 );
+    osg::Matrixd mBBScale     = osg::Matrixd::scale( 2.0, 2.0, 2.0 );
+    osg::Matrixd mBBRotate    = osg::Matrixd::rotate( -piDouble / 2.0, 1.0, 0.0, 0.0 ) *
+                                osg::Matrixd::rotate(  piDouble, 0.0, 1.0, 0.0 );
+    Transformation rotateToBack =          Rotator( elapsed, 0.0, Transformation::axeY, 360.0, 22.5 );
+    Transformation translateABitUp = Translator( elapsed, rotateToBack.finish() - 5.0, Transformation::axeY * -45.0, 0.25 );
+    Transformation zoomNei = Zoomer( elapsed,  rotateToBack.finish() - 5.0, 2.00, 0.25 );
+    Transformation rotateABit = Rotator( elapsed, zoomNei.finish() -1.0, Transformation::axeY, 360.0 + 45.0, 12.0 );
+
+
+    m_matrix = mBBTranslate * mBBScale * mBBRotate * rotateToBack
+                                                   * translateABitUp
+                                                   * zoomNei
+                                                   * rotateABit
+                                                 ;
+
 }
 
