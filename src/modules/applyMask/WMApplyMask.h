@@ -35,6 +35,7 @@
 
 #include "../../common/math/WVector3D.h"
 #include "../../dataHandler/WDataSetScalar.h"
+#include "../../dataHandler/WDataSetSingle.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
@@ -116,11 +117,11 @@ private:
     //! A condition for property changes.
     boost::shared_ptr< WCondition > m_propCondition;
 
-    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_dataInput;  //!< Input connector for getting the data.
+    boost::shared_ptr< WModuleInputData< WDataSetSingle > > m_dataInput;  //!< Input connector for getting the data.
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_maskInput;  //!< Input connector for getting the mask.
-    boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< The only output of this mask module.
-    boost::shared_ptr< WDataSetScalar > m_dataSet; //!< Pointer providing access to the data set in the whole module.
-    boost::shared_ptr< WDataSetScalar > m_dataSetOut; //!< Pointer providing access to the resulting data set in the whole module.
+    boost::shared_ptr< WModuleOutputData< WDataSetSingle > > m_output; //!< The only output of this mask module.
+    boost::shared_ptr< WDataSetSingle > m_dataSet; //!< Pointer providing access to the data set in the whole module.
+    boost::shared_ptr< WDataSetSingle > m_dataSetOut; //!< Pointer providing access to the resulting data set in the whole module.
     boost::shared_ptr< WDataSetScalar > m_mask; //!< Pointer providing access to the mask in the whole module.
 };
 

@@ -155,7 +155,7 @@ void WMApplyMask::moduleMain()
 void WMApplyMask::connectors()
 {
     // initialize connectors
-    m_dataInput = boost::shared_ptr< WModuleInputData< WDataSetScalar > >( new WModuleInputData< WDataSetScalar >(
+    m_dataInput = boost::shared_ptr< WModuleInputData< WDataSetSingle > >( new WModuleInputData< WDataSetSingle >(
                     shared_from_this(), "dataSet", "The dataset to apply the mask to." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -170,8 +170,8 @@ void WMApplyMask::connectors()
     addConnector( m_maskInput );
 
     // initialize connectors
-    m_output = boost::shared_ptr< WModuleOutputData< WDataSetScalar > >(
-            new WModuleOutputData< WDataSetScalar >( shared_from_this(), "out",
+    m_output = boost::shared_ptr< WModuleOutputData< WDataSetSingle > >(
+            new WModuleOutputData< WDataSetSingle >( shared_from_this(), "out",
                     "The filtered data set." ) );
 
     // add it to the list of connectors. Please note, that a connector NOT added via addConnector will not work as expected.
@@ -208,24 +208,30 @@ template< typename T > void WMApplyMask::applyMask( boost::shared_ptr< WValueSet
     boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "Apply Mask", valSet->size() ) );
     m_progress->addSubProgress( progress );
 
-    boost::shared_ptr< std::vector< T > > newVals = boost::shared_ptr< std::vector< T > >( new std::vector< T >( valSet->size() ) );
+    size_t numberOfValueElements = valSet->elementsPerValue();
+    std::cout << "---.. " << numberOfValueElements << std::endl;
+
+    boost::shared_ptr< std::vector< T > > newVals = boost::shared_ptr< std::vector< T > >( new std::vector< T >( valSet->rawSize() ) );
     for( size_t i = 0; i < valSet->size(); ++i )
     {
         ++*progress;
-        if( mask->getScalar( i ) <= m_threshold->get() )
+        for( size_t elementId = 0; elementId < numberOfValueElements; ++elementId )
         {
-            ( *newVals )[i] = 0;
-        }
-        else
-        {
-            ( *newVals )[i] = valSet->getScalar( i );
+            if( mask->getScalar( i ) <= m_threshold->get() )
+            {
+                ( *newVals )[i*numberOfValueElements + elementId] = 0;
+            }
+            else
+            {
+                ( *newVals )[i*numberOfValueElements + elementId] = valSet->getScalar( i*numberOfValueElements + elementId );
+            }
         }
     }
     progress->finish();
 
     boost::shared_ptr< WValueSet< T > > valueSet;
-    valueSet = boost::shared_ptr< WValueSet< T > >( new WValueSet< T >( 0, 1, newVals, type ) );
+    valueSet = boost::shared_ptr< WValueSet< T > >( new WValueSet< T >( valSet->order(), valSet->dimension(), newVals, type ) );
 
-    m_dataSetOut = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( valueSet, m_dataSet->getGrid() ) );
+    m_dataSetOut = boost::shared_ptr< WDataSetSingle >( new WDataSetSingle( valueSet, m_dataSet->getGrid() ) );
     m_output->updateData( m_dataSetOut );
 }
