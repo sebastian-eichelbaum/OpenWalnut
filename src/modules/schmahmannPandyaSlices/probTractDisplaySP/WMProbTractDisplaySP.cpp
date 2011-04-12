@@ -198,7 +198,7 @@ void WMProbTractDisplaySP::resetSlicePos( boost::shared_ptr< const WGridRegular3
     for( int i = 0; i < 3; ++i )
     {
         m_slicePos[i]->setMax( coords[i] - 1 );
-        m_slicePos[i]->set( ( coords[i] - 1 ) / 2, true );
+        m_slicePos[i]->ensureValidity( ( coords[i] - 1 ) / 2, true );
     }
 }
 
@@ -280,6 +280,8 @@ void WMProbTractDisplaySP::moduleMain()
         }
         else
         {
+            m_output->clear();
+            builder.reset();
             continue;
         }
 

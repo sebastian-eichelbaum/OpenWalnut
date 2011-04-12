@@ -184,6 +184,7 @@ void WMBoundaryCurvesWMGM::moduleMain()
         if( !texture ) // invalid data
         {
             m_output->clear();
+            m_builder.reset();
             continue;
         }
 
@@ -193,11 +194,12 @@ void WMBoundaryCurvesWMGM::moduleMain()
         {
             WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_output );
             m_output->clear();
+            m_builder.reset();
 
             for( char i = 0; i < 3; ++i )
             {
                 m_slicePos[i]->setMax( getNbCoords( grid )[i] - 1 );
-                m_slicePos[i]->set( ( getNbCoords( grid )[i] - 1 ) / 2, true );
+                m_slicePos[i]->ensureValidity( ( getNbCoords( grid )[i] - 1 ) / 2, true );
                 m_slices[i] = osg::ref_ptr< WGEManagedGroupNode > ( new WGEManagedGroupNode( m_showSlice[i] ) );
             }
 
