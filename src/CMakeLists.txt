@@ -497,6 +497,10 @@ ADD_CUSTOM_TARGET( many
 #-------------------------------------------------------------------------------------------------------------
 # Make target for MacOS. The difference to the normal one is that we need to fix some paths in libraries.
 IF( CMAKE_HOST_SYSTEM MATCHES Darwin )
+ADD_CUSTOM_TARGET( tarball
+                   hg clone --pull "${PROJECT_SOURCE_DIR}/../" ow && tar cjf OpenWalnut-mpinf-`date +%Y-%m-%d`.tbz ow && rm -rf ow
+                   COMMENT "Creates a clone from this repository and makes a tarball out of it."
+                 )
 ADD_CUSTOM_TARGET( macos
                    $(MAKE) all && ${PROJECT_SOURCE_DIR}/../tools/MacOS/macOS_install_tool
                    COMMENT "Make on MacOS. This incudes fixing paths in libraries."
