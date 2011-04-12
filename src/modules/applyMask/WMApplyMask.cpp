@@ -71,7 +71,7 @@ const std::string WMApplyMask::getName() const
 
 const std::string WMApplyMask::getDescription() const
 {
-    return "Applies a mask to a data set, i.e. sets all voxels to zero which are zero in the mask.";
+    return "Applies a mask to a data set, i.e. sets all voxels to zero which are below a threshold in the mask.";
 }
 
 void WMApplyMask::moduleMain()
@@ -80,6 +80,7 @@ void WMApplyMask::moduleMain()
     m_moduleState.setResetable( true, true );
     m_moduleState.add( m_dataInput->getDataChangedCondition() );
     m_moduleState.add( m_maskInput->getDataChangedCondition() );
+    m_moduleState.add( m_propCondition );
 
     // signal ready state
     ready();
@@ -182,6 +183,15 @@ void WMApplyMask::connectors()
 
 void WMApplyMask::properties()
 {
+    m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
+
+    m_threshold = m_properties->addProperty( "Threshold",
+                                             "Data at positions where the mask is below this threshold will be set to zero.",
+                                             1e-9,
+                                             m_propCondition );
+    m_threshold->setMax( 1.0 );
+    m_threshold->setMin( 0.0 );
+
     WModule::properties();
 }
 
@@ -202,7 +212,7 @@ template< typename T > void WMApplyMask::applyMask( boost::shared_ptr< WValueSet
     for( size_t i = 0; i < valSet->size(); ++i )
     {
         ++*progress;
-        if( mask->getScalar( i ) == 0 )
+        if( mask->getScalar( i ) <= m_threshold->get() )
         {
             ( *newVals )[i] = 0;
         }

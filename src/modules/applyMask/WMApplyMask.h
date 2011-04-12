@@ -110,6 +110,12 @@ private:
      */
     template< typename T > void applyMask( boost::shared_ptr< WValueSet< T > > valSet, dataType type );
 
+    //! Data at positions where the mask is below this threshold will be set to zero.
+    WPropDouble m_threshold;
+
+    //! A condition for property changes.
+    boost::shared_ptr< WCondition > m_propCondition;
+
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_dataInput;  //!< Input connector for getting the data.
     boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_maskInput;  //!< Input connector for getting the mask.
     boost::shared_ptr< WModuleOutputData< WDataSetScalar > > m_output; //!< The only output of this mask module.
