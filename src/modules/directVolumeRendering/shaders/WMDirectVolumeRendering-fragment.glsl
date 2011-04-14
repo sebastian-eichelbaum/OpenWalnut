@@ -28,6 +28,9 @@
 #include "WGEShadingTools.glsl"
 #endif
 
+// This is needed if the modulo operator % is required
+// #extension GL_EXT_gpu_shader4 : enable
+
 #include "WGEUtils.glsl"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -46,6 +49,7 @@ uniform sampler1D u_transferFunctionSampler;
 uniform sampler3D u_gradientsSampler;
 uniform sampler2D u_jitterSampler;
 uniform int       u_jitterSizeX;
+uniform int       u_samples;
 
 /////////////////////////////////////////////////////////////////////////////
 // Attributes
@@ -134,6 +138,26 @@ vec4 transferFunction( float value )
     {
         return vec4( 0.0 );
     }
+    // Example TF
+    /*if ( isZero( value - 0.5, 0.005  ) )
+        return vec4( 0.0 );
+    vec4 c = vec4( 0.0 );
+    if ( value >= 0.5 )
+    {
+        c = vec4( 1.0, 0.34, 0.34, 2.0 * ( value - 0.5 ) );
+    }
+    else
+    {
+        vec4 cols[2];
+        cols[1] = vec4( 0.0, 0.37, 1.0, 0.1 );
+        cols[0] = vec4( 0.0, 1.0, 1.0, 0.1 );
+
+        int i = int(2.0 * value * 2.0 * 15.0);
+        int imod = i % 2;
+        c = cols[ imod ];
+    }
+    return c;
+    */
 #endif
 }
 
@@ -163,12 +187,12 @@ vec4 localIllumination( in vec3 position, in vec4 color )
 
     // Phong:
     vec4 light = blinnPhongIllumination(
-            0.2 * color.rgb,                              // material ambient
+            0.1 * color.rgb,                              // material ambient
             1.0 * color.rgb,                                    // material diffuse
             0.5 * color.rgb,                              // material specular
-            10.0,                                         // shinines
+            1000.0,                                         // shinines
             vec3( 1.0, 1.0, 1.0 ),                        // light diffuse
-            vec3( 0.3, 0.3, 0.3 ),                        // light ambient
+            vec3( 1.0, 1.0, 1.0 ),                        // light ambient
             normalize( worldNormal ),                     // normal
             vec3( 0.0, 0.0, 1.0 ),                        // view direction  // in world space, this always is the view-dir
             gl_LightSource[0].position.xyz                // light source position
@@ -202,7 +226,7 @@ void main()
     // First, find the rayEnd point. We need to do it in the fragment shader as the ray end point may be interpolated wrong
     // when done for each vertex.
     float totalDistance = 0.0;      // the maximal distance along the ray until the BBox ends
-    float currentDistance = 0.1;    // accumulated distance along the ray
+    float currentDistance = 0.05;   // accumulated distance along the ray
 
 #ifdef JITTERTEXTURE_ENABLED
     // stochastic jittering can help to void these ugly wood-grain artifacts with larger sampling distances but might
@@ -217,7 +241,7 @@ void main()
 
     // walk along the ray
     vec4 dst = vec4( 0.0 );
-    while ( currentDistance <= totalDistance )
+    while ( currentDistance <= ( totalDistance - 0.05 )  )
     {
         // do not dynamically branch every cycle for early-ray termination, so do n steps before checking alpha value
         for ( int i = 0; i < 4; ++i )
@@ -225,6 +249,8 @@ void main()
             // get current value, classify and illuminate
             vec3 rayPoint = rayStart + ( currentDistance * v_ray );
             vec4 src = localIllumination( rayPoint, transferFunction( texture3D( u_volumeSampler, rayPoint ).r ) );
+            // associated colors needed
+            src.rgb *= src.a;
 
 #ifdef OPACITYCORRECTION_ENABLED
             // opacity correction
