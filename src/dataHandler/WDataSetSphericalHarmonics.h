@@ -145,6 +145,7 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
+    boost::shared_ptr< WGridRegular3D > m_gridRegular3D;
     boost::shared_ptr< WValueSetBase > m_valueSet;
 };
 

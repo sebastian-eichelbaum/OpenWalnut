@@ -36,10 +36,12 @@
 #include "../WAssert.h"
 #include "../WStringUtils.h"
 
+#include "../WDefines.h"
+
 /**
  * Use osg 4x4 matrices as WMatrix4x4
  */
-typedef osg::Matrixd WMatrix4x4;
+OW_API_DEPRECATED typedef osg::Matrixd WMatrix4x4;
 
 /**
  * Write a 4x4 matrix in string representation.
@@ -48,7 +50,7 @@ typedef osg::Matrixd WMatrix4x4;
  *
  * \return the matrix as string
  */
-inline std::string toString( const WMatrix4x4& c )
+/*inline std::string toString( const WMatrix4x4& c )
 {
     std::ostringstream out;
     for ( size_t row = 0; row < 4; ++row )
@@ -60,7 +62,7 @@ inline std::string toString( const WMatrix4x4& c )
     }
     return out.str();
 }
-
+*/
 /**
  * Read a 4x4 matrix in string representation from the given string.
  *
@@ -68,7 +70,7 @@ inline std::string toString( const WMatrix4x4& c )
  *
  * \return the matrix
  */
-inline WMatrix4x4 fromString( std::string str )
+/*inline WMatrix4x4 fromString( std::string str )
 {
     WMatrix4x4 c;
     std::vector< std::string > tokens;
@@ -86,6 +88,6 @@ inline WMatrix4x4 fromString( std::string str )
     }
 
     return c;
-}
+}*/
 
 #endif  // WMATRIX4X4_H

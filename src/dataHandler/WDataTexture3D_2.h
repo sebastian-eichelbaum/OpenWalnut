@@ -111,6 +111,14 @@ public:
      */
     virtual ~WDataTexture3D_2();
 
+    /**
+     * Returns the texture's bounding box. This is const. Although there exists the transformation() property, it is an information property and
+     * can't be changed. This represents the underlying grid.
+     *
+     * \return the bounding box.
+     */
+    virtual WBoundingBox getBoundingBox() const;
+
 protected:
 
     /**
@@ -124,6 +132,11 @@ private:
      * The value set from which the texture gets created.
      */
     boost::shared_ptr< WValueSetBase > m_valueSet;
+
+    /**
+     * The bounding box of the underlying grid.
+     */
+    WBoundingBox m_boundingBox;
 
     /**
      * The lock for securing createTexture.

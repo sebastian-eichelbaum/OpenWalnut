@@ -83,7 +83,7 @@ public:
      *
      * \return the condition
      */
-    boost::shared_ptr< WCondition > getChangeCondition();
+    boost::shared_ptr< WCondition > getChangeCondition() const;
 
 protected:
 
@@ -122,7 +122,7 @@ WSharedObject< T >::~WSharedObject()
 }
 
 template < typename T >
-boost::shared_ptr< WCondition > WSharedObject< T >::getChangeCondition()
+boost::shared_ptr< WCondition > WSharedObject< T >::getChangeCondition() const
 {
     return m_changeCondition;
 }

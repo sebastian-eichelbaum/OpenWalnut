@@ -102,6 +102,12 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Handle an exception that was thrown by the threaded function in any worker thread.
+     *
+     * \param e The exception that was thrown.
+     */
+    void handleException( WException const& e );
 
 private:
     /**
@@ -153,7 +159,12 @@ private:
     osg::ref_ptr< osg::Geode > m_glyphsGeode; //!< Pointer to geode containing the glyphs.
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node.
 
+    //! The last exception thrown by any worker thread.
+    boost::shared_ptr< WException > m_lastException;
     boost::mutex m_moduleNodeLock; //!< Lock to prevent concurrent threads trying access m_moduleNode
+
+    //! condition indicating if any exception was thrown.
+    boost::shared_ptr< WCondition > m_exceptionCondition;
 
     /**
      * This class actually generated the glyph geometry. This class has () operator that the work.

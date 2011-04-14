@@ -27,6 +27,7 @@
 #include <sstream>
 #include <string>
 
+#include "../common/WLogger.h"
 #include "WGETextureUtils.h"
 #include "exceptions/WGESignalSubscriptionFailed.h"
 
@@ -87,6 +88,7 @@ WGEColormapping::WGEColormapping():
 {
     // initialize members
     m_textures.getChangeCondition()->subscribeSignal( boost::bind( &WGEColormapping::textureUpdate, this ) );
+    m_boundingBox.getWriteTicket()->get().set( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
 }
 
 WGEColormapping::~WGEColormapping()
@@ -106,10 +108,10 @@ boost::shared_ptr< WGEColormapping > WGEColormapping::instance()
 
 void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGEShader > shader, size_t startTexUnit )
 {
-    instance()->applyInst( node, WMatrix4x4::identity(), shader, startTexUnit );
+    instance()->applyInst( node, WMatrix4x4_2( WMatrix4x4_2::Identity() ), shader, startTexUnit );
 }
 
-void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, WMatrix4x4 preTransform, osg::ref_ptr< WGEShader > shader,
+void WGEColormapping::apply( osg::ref_ptr< osg::Node > node, WMatrix4x4_2 preTransform, osg::ref_ptr< WGEShader > shader,
                              size_t startTexUnit )
 {
     instance()->applyInst( node, preTransform, shader, startTexUnit );
@@ -131,7 +133,7 @@ void WGEColormapping::replaceTexture( osg::ref_ptr< WGETexture3D > old, osg::ref
     instance()->replaceTextureInst( old, newTex, name );
 }
 
-void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, WMatrix4x4 preTransform, osg::ref_ptr< WGEShader > shader,
+void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, WMatrix4x4_2 preTransform, osg::ref_ptr< WGEShader > shader,
                                  size_t startTexUnit )
 {
     // applying to a node simply means adding a callback :-)
@@ -149,13 +151,13 @@ void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, WMatrix4x4 preT
         // we use a new instance of the default shader here because the preTransform is varying between several nodes.
         osg::ref_ptr< WGEShader > s = new WGEShader( "WGEDefaultColormapper" );
         setDefines( s, 0 );
-        setPreTransform( s, preTransform );
+        setPreTransform( s, toOsgMatrixd( preTransform ) );
         s->apply( node );
     }
     else
     {
         setDefines( shader, startTexUnit );
-        setPreTransform( shader, preTransform );
+        setPreTransform( shader, toOsgMatrixd( preTransform ) );
         shader->apply( node );
     }
 }
@@ -170,6 +172,7 @@ void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture,
             texture->name()->set( name );
         }
         m_textures.push_front( texture );
+        updateBounds();
         m_registerSignal( texture );
     }
 }
@@ -180,6 +183,7 @@ void WGEColormapping::deregisterTextureInst( osg::ref_ptr< WGETexture3D > textur
     if ( m_textures.count( texture ) )
     {
         m_textures.remove( texture );
+        updateBounds();
         m_deregisterSignal( texture );
     }
 }
@@ -196,12 +200,38 @@ void WGEColormapping::replaceTextureInst( osg::ref_ptr< WGETexture3D > old, osg:
     if ( m_textures.count( old ) )
     {
         m_textures.replace( old, newTex );
+        updateBounds();
         m_replaceSignal( old, newTex );
     }
     else    // <- if not exists: add
     {
         registerTextureInst( newTex, name );
     }
+}
+
+void WGEColormapping::updateBounds()
+{
+    TextureContainerType::ReadTicket r = m_textures.getReadTicket();
+    WSharedObject< WBoundingBox >::WriteTicket bbw = m_boundingBox.getWriteTicket();
+
+    bool first = true;
+    for( TextureContainerType::ConstIterator iter = r->get().begin(); iter != r->get().end(); ++iter )
+    {
+        if ( first )
+        {
+            bbw->get() = ( *iter )->getBoundingBox();
+            first = false;
+        }
+        else
+        {
+            bbw->get().expandBy( ( *iter )->getBoundingBox() );
+        }
+    }
+}
+
+WBoundingBox WGEColormapping::getBoundingBox() const
+{
+    return m_boundingBox.getReadTicket()->get();
 }
 
 void WGEColormapping::textureUpdate()
@@ -304,6 +334,11 @@ bool WGEColormapping::moveUp( osg::ref_ptr< WGETexture3D > texture )
     return true;
 }
 
+size_t WGEColormapping::size() const
+{
+    return m_textures.size();
+}
+
 boost::signals2::connection WGEColormapping::subscribeSignal( TextureListSignal signal, TextureRegisterHandler notifier )
 {
     switch( signal )
@@ -342,5 +377,10 @@ boost::signals2::connection WGEColormapping::subscribeSignal( TextureListSignal 
 WGEColormapping::TextureContainerType::ReadTicket WGEColormapping::getReadTicket()
 {
     return m_textures.getReadTicket();
+}
+
+WCondition::SPtr WGEColormapping::getChangeCondition() const
+{
+    return m_textures.getChangeCondition();
 }
 

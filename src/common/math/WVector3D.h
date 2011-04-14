@@ -35,6 +35,90 @@
 #include "../WLimits.h"
 #include "../WStringUtils.h"
 
+#include "../WDefines.h"
+#include "../../ext/Eigen/Core"
+
+/**
+ * The new vector type. It is a stack-allocated double vector with three dimension.
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
+ */
+typedef Eigen::Matrix< double, 3, 1 > WVector3D_2;
+
+/**
+ * The new vector type. It is a stack-allocated double vector with three dimension.
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
+ */
+typedef Eigen::Matrix< double, 2, 1 > WVector2D_2;
+
+/**
+ * Define WPosition as an alias for WVector3D_2
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
+ */
+typedef WVector3D_2 WPosition_2;
+
+/**
+ * The new dynamic vector type. It is a heap-allocated double vector with dynamic size.
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
+ */
+typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > WVector_2;
+
+/**
+ * A complex double vector of dynamic size. Heap-allocated.
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
+ */
+typedef Eigen::VectorXcd WVectorComplex_2;
+
+/**
+ * Forward declare the OLD vector class. Needed for the conversion functions.
+ */
+class WVector3D;
+
+/**
+ * Converts a WVector3D_2 to a osg::Vec3f which is commonly used in many modules.
+ *
+ * \param v the vector to convert
+ *
+ * \return the osg::Vec3f instance.
+ */
+osg::Vec3f toOsgVec3f( const WVector3D_2& v );
+
+/**
+ * Convert a WVector3D_2 to WVector3D.
+ *
+ * \param v the vector to convert
+ *
+ * \return the new vector
+ */
+WVector3D toWVector3D( const WVector3D_2& v );
+
+/**
+ * Convert a WVector3D to an WVector3D_2
+ *
+ * \param v the vector to convert
+ *
+ * \return the new vector
+ */
+WVector3D_2 toWVector3D_2( const WVector3D& v );
+
+/**
+ * Convert an osg::Vec3f to an WVector3D_2
+ *
+ * \param v the vector to convert
+ *
+ * \return the new vector
+ */
+WVector3D_2 toWVector3D_2( const osg::Vec3f& v );
+
 /**
  * Efficient three-dimensional vector that allows many vector algebra operations.
  * It is based on osg::vec3d
@@ -49,12 +133,12 @@ public:
      *
      * \param vec This vector is used to initialize the constructed one.
      */
-    inline WVector3D( osg::Vec3d vec );
+    WVector3D( osg::Vec3d vec );
 
     /**
      * Constructor that initializes all member with zero.
      */
-    inline WVector3D();
+    WVector3D();
 
     /**
      * Constructs a new vector from the three given value.
@@ -63,7 +147,24 @@ public:
      * \param y y-component of vector
      * \param z z-component of vector
      */
-    inline WVector3D( osg::Vec3d::value_type x, osg::Vec3d::value_type y, osg::Vec3d::value_type z );
+    WVector3D( osg::Vec3d::value_type x, osg::Vec3d::value_type y, osg::Vec3d::value_type z );
+
+    // NOTE: osg::Vec3d members made deprecated.
+    OW_API_DEPRECATED double length() const { return osg::Vec3d::length(); } // NOLINT
+    OW_API_DEPRECATED double length2() const { return osg::Vec3d::length2(); } // NOLINT
+    OW_API_DEPRECATED double normalize() { return osg::Vec3d::normalize(); } // NOLINT
+    OW_API_DEPRECATED void 	set (double x, double y, double z) { osg::Vec3d::set( x, y, z ); } // NOLINT
+    OW_API_DEPRECATED void 	set (const Vec3d &rhs) { osg::Vec3d::set( rhs ); } // NOLINT
+    OW_API_DEPRECATED double & 	operator[] (int i) { return osg::Vec3d::operator[]( i ); } // NOLINT
+    OW_API_DEPRECATED double 	operator[] (int i) const  { return osg::Vec3d::operator[]( i ); } // NOLINT
+    OW_API_DEPRECATED double & 	x ()  { return osg::Vec3d::x(); } // NOLINT
+    OW_API_DEPRECATED double & 	y ()  { return osg::Vec3d::y(); } // NOLINT
+    OW_API_DEPRECATED double & 	z ()  { return osg::Vec3d::z(); } // NOLINT
+    OW_API_DEPRECATED double 	x () const { return osg::Vec3d::x(); } // NOLINT
+    OW_API_DEPRECATED double 	y () const { return osg::Vec3d::y(); } // NOLINT
+    OW_API_DEPRECATED double 	z () const { return osg::Vec3d::z(); } // NOLINT
+    OW_API_DEPRECATED bool valid() const { return osg::Vec3d::valid(); } // NOLINT
+    OW_API_DEPRECATED bool isNaN() const { return osg::Vec3d::isNaN(); } // NOLINT
 
     /**
      * Calculate Euclidean square distance between this Position and another one.
@@ -71,17 +172,17 @@ public:
      * \param other The other position.
      * \return Square distance.
      */
-    inline osg::Vec3d::value_type distanceSquare( const WVector3D &other ) const;
+    OW_API_DEPRECATED osg::Vec3d::value_type distanceSquare( const WVector3D &other ) const;
 
     /**
      * Returns the norm of the vector
      */
-    inline osg::Vec3d::value_type norm() const;
+    OW_API_DEPRECATED osg::Vec3d::value_type norm() const;
 
     /**
      * Returns a normalized version of the vector
      */
-    inline WVector3D normalized() const;
+    OW_API_DEPRECATED WVector3D normalized() const;
 
     /**
      * Compute the cross product of the current WVector3D with the parameter.
@@ -89,35 +190,35 @@ public:
      *
      * \return the crossproduct
      */
-    const WVector3D crossProduct( const WVector3D& factor2 ) const;
+    OW_API_DEPRECATED const WVector3D crossProduct( const WVector3D& factor2 ) const;
 
     /**
      * Compute the dot product of the current WVector3D with the parameter.
      * \param factor2 This vector will be multiplied with the current vector. (right hand side of the product)
      */
-    inline osg::Vec3d::value_type dotProduct( const WVector3D& factor2 ) const;
+    OW_API_DEPRECATED osg::Vec3d::value_type dotProduct( const WVector3D& factor2 ) const;
 
     /**
      * Sum of squares of elements.
      */
-    inline osg::Vec3d::value_type normSquare() const;
+    OW_API_DEPRECATED osg::Vec3d::value_type normSquare() const;
 
     /**
      * Return number of elements.
      */
-    inline size_t size() const;
+    OW_API_DEPRECATED size_t size() const;
 
     /**
      * Component-wise addition.
      * \param addend The right hand side of the addition
      */
-    inline const WVector3D operator+( const WVector3D& addend ) const;
+    OW_API_DEPRECATED const WVector3D operator+( const WVector3D& addend ) const;
 
     /**
      * Component-wise subtraction.
      * \param subtrahend The right hand side of the subtraction
      */
-    inline const WVector3D operator-( const WVector3D& subtrahend ) const;
+    OW_API_DEPRECATED const WVector3D operator-( const WVector3D& subtrahend ) const;
 
 private:
 };
@@ -135,13 +236,8 @@ typedef WVector3D WPosition;
  *
  * \return the output stream
  */
+OW_API_DEPRECATED std::ostream& operator<<( std::ostream& os, const WVector3D &rhs );
 
-inline std::ostream& operator<<( std::ostream& os, const WVector3D &rhs )
-{
-    os << "[" << std::scientific << std::setprecision( 16 );
-    os << rhs.x() << ", " << rhs.y() << ", " << rhs.z() << "]";
-    return os;
-}
 
 /**
  * Write an input stream into a WVector3D.
@@ -151,19 +247,7 @@ inline std::ostream& operator<<( std::ostream& os, const WVector3D &rhs )
  *
  * \return the input stream
  */
-inline std::istream& operator>>( std::istream& in, WVector3D &rhs )
-{
-    char vec[256];
-    in.getline( vec, 256 );
-    std::string str = std::string( vec );
-    str = string_utils::trim( str, "[]" ); // remove preceeding and trailing brackets '[', ']' if any
-    std::vector< std::string > tokens = string_utils::tokenize( str, ", " );
-    for( size_t i = 0; i < tokens.size(); ++i )
-    {
-        rhs[i] = boost::lexical_cast< osg::Vec3d::value_type >( tokens[i] );
-    }
-    return in;
-}
+OW_API_DEPRECATED std::istream& operator>>( std::istream& in, WVector3D &rhs );
 
 /**
  * Multiplies a WVector3D with a scalar
@@ -171,86 +255,6 @@ inline std::istream& operator>>( std::istream& in, WVector3D &rhs )
  * \param lhs left hand side of product
  * \param rhs right hand side of product
  */
-inline WVector3D operator*( osg::Vec3d::value_type lhs, const WVector3D& rhs )
-{
-    WVector3D result( rhs );
-    result *= lhs;
-    return result;
-}
-
-inline WVector3D::WVector3D( osg::Vec3d vec ) :
-    osg::Vec3d( vec )
-{
-}
-
-inline WVector3D::WVector3D() :
-    osg::Vec3d()
-{
-}
-
-inline WVector3D::WVector3D( osg::Vec3d::value_type x, osg::Vec3d::value_type y, osg::Vec3d::value_type z ) :
-    osg::Vec3d( x, y, z )
-{
-}
-
-inline const WVector3D WVector3D::operator+( const WVector3D& addend ) const
-{
-    WVector3D result( *this );
-    result += addend;
-    return result;
-}
-
-inline const WVector3D WVector3D::operator-( const WVector3D& subtrahend ) const
-{
-    WVector3D result( *this );
-    result -= subtrahend;
-    return result;
-}
-
-inline size_t WVector3D::size() const
-{
-    return num_components;
-}
-
-inline osg::Vec3d::value_type WVector3D::normSquare() const
-{
-    return this->length2();
-}
-
-inline osg::Vec3d::value_type WVector3D::dotProduct( const WVector3D& factor2 ) const
-{
-    return *this * factor2;
-}
-
-inline const WVector3D WVector3D::crossProduct( const WVector3D& factor2 ) const
-{
-    WVector3D result;
-    result = ( *this ^ factor2 );
-    return result;
-}
-
-inline WVector3D WVector3D::normalized() const
-{
-    WVector3D result = *this;
-    result.normalize();
-    return result;
-}
-
-inline osg::Vec3d::value_type WVector3D::norm() const
-{
-    return this->length();
-}
-
-inline osg::Vec3d::value_type WVector3D::distanceSquare( const WVector3D &other ) const
-{
-    osg::Vec3d::value_type dist = 0.0;
-    osg::Vec3d::value_type tmp = 0;
-    for( size_t i = 0; i < num_components; ++i )
-    {
-            tmp = (*this)[i] - other[i];
-            dist += tmp * tmp;
-    }
-    return dist;
-}
+OW_API_DEPRECATED WVector3D operator*( osg::Vec3d::value_type lhs, const WVector3D& rhs );
 
 #endif  // WVECTOR3D_H

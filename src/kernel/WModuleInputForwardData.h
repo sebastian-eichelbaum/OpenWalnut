@@ -149,6 +149,20 @@ protected:
         WModuleInputData< T >::notifyDataChange( input, output );
     }
 
+    /**
+     * Gets called whenever a connection between a remote and local connector gets closed. This is used here to forward the NULL data.
+     *
+     * \param here the connector of THIS module getting disconnected.
+     * \param there the connector of the other module getting disconnected.
+     */
+    virtual void notifyConnectionClosed( boost::shared_ptr<WModuleConnector> here, boost::shared_ptr<WModuleConnector> there )
+    {
+        m_out->reset();
+
+        // simply forward the call
+        WModuleInputData< T >::notifyConnectionClosed( here, there );
+    }
+
 private:
 };
 

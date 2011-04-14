@@ -28,8 +28,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <QtGui/QDockWidget>
-#include <QtGui/QVBoxLayout>
 #include <QtGui/QKeyEvent>
 #include <QtGui/QGraphicsView>
 #include <QtGui/QGraphicsItem>
@@ -59,27 +57,27 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     setObjectName( "Module Graph Dock" );
     m_mainWindow = parent;
 
-    m_panel = new QWidget( this );
+    QWidget *panel = new QWidget( this );
 
-    m_view = new QGraphicsView();
-    m_view->setDragMode( QGraphicsView::RubberBandDrag );
-    m_view->setRenderHint( QPainter::Antialiasing );
-    m_view->setMinimumSize( 20, 20 );
+    QGraphicsView *view = new QGraphicsView();
+    view->setDragMode( QGraphicsView::RubberBandDrag );
+    view->setRenderHint( QPainter::Antialiasing );
+    view->setMinimumSize( 20, 20 );
 
     m_scene = new WQtNetworkScene();
 //    m_scene->setSceneRect( -200.0, -200.0, 400.0, 400.0 );
     m_scene->setSceneRect( m_scene->itemsBoundingRect() );
 
-    m_view->setScene( m_scene );
+    view->setScene( m_scene );
 
-    m_layout = new QVBoxLayout;
-    m_layout->addWidget( m_view );
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget( view );
 
-    m_panel->setLayout( m_layout );
+    panel->setLayout( layout );
 
     this->setAllowedAreas( Qt::AllDockWidgetAreas );
     this->setFeatures( QDockWidget::DockWidgetClosable |QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable );
-    setWidget( m_panel );
+    setWidget( panel );
     connect( m_scene, SIGNAL( selectionChanged() ), this, SLOT( selectItem() ) );
 
     // this fakeitem is added to the scene to get a better behavior of the forced
@@ -92,10 +90,13 @@ WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     fake->setFlag( QGraphicsItem::ItemIsMovable, true );
     m_scene->addItem( fake );
     m_scene->setFakeItem( fake );
+
+    m_layout = new WNetworkLayout();
 }
 
 WQtNetworkEditor::~WQtNetworkEditor()
 {
+    delete m_layout;
 }
 
 void WQtNetworkEditor::selectItem()
@@ -180,7 +181,7 @@ void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
 
     m_scene->addItem( netItem );
 
-    itemMoved();
+    //itemMoved();
 }
 
 bool WQtNetworkEditor::event( QEvent* event )
@@ -194,7 +195,11 @@ bool WQtNetworkEditor::event( QEvent* event )
         {
             WLogger::getLogger()->addLogMessage( "Inserting \"" + e1->getModule()->getName() + "\".",
                                                 "NetworkEditor", LL_DEBUG );
-            addModule( e1->getModule() );
+            //addModule( e1->getModule() );
+            WQtNetworkItem *item = new WQtNetworkItem( this, e1->getModule() );
+            m_items.push_back( item );
+            m_layout->addItem( item );
+            m_scene->addItem( item );
         }
 
         //TODO(skiunke): disablen des moduls solange nicht rdy!
@@ -240,8 +245,8 @@ bool WQtNetworkEditor::event( QEvent* event )
             return true;
         }
 
-        WLogger::getLogger()->addLogMessage( "Connecting \"" + e->getInput()->getModule()->getName() + "\" and \"" +
-                                                             e->getOutput()->getModule()->getName() + "\".", "NetworkEditor", LL_DEBUG );
+        WLogger::getLogger()->addLogMessage( "Connecting \"" + e->getInput()->getModule()->getName() +
+                "\" and \"" + e->getOutput()->getModule()->getName() + "\".", "NetworkEditor", LL_DEBUG );
 
         boost::shared_ptr< WModule > mIn;
         boost::shared_ptr< WModule > mOut;
@@ -303,6 +308,8 @@ bool WQtNetworkEditor::event( QEvent* event )
             arrow->updatePosition();
 
             m_scene->addItem( arrow );
+
+            m_layout->connectItems( outItem, inItem );
         }
     }
 
@@ -388,6 +395,8 @@ bool WQtNetworkEditor::event( QEvent* event )
         }
         if ( ar )
         {
+            m_layout->disconnectItem( inItem );
+
             op->removeArrow( ar );
             ip->removeArrow( ar );
             if( ar->scene() != NULL )
@@ -450,6 +459,8 @@ bool WQtNetworkEditor::event( QEvent* event )
 
         if( item != 0 )
         {
+            m_layout->removeItem( item );
+
             if( item->scene() != NULL )
             {
                 m_scene->removeItem( item );
@@ -469,8 +480,7 @@ WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule >
     for( QList< WQtNetworkItem* >::const_iterator iter = m_items.begin(); iter != m_items.end(); ++iter )
     {
        WQtNetworkItem *itemModule = dynamic_cast< WQtNetworkItem* >( *iter );
-       if( itemModule &&
-           itemModule->getModule() == module )
+       if( itemModule && itemModule->getModule() == module )
        {
            return itemModule;
        }
@@ -486,29 +496,29 @@ void WQtNetworkEditor::itemMoved()
 
 void WQtNetworkEditor::timerEvent( QTimerEvent *event )
 {
-    Q_UNUSED( event );
+    //Q_UNUSED( event );
 
-    QList< WQtNetworkItem *> items;
-    foreach( QGraphicsItem *item, m_scene->items() )
-    {
-        if ( WQtNetworkItem *netItem = dynamic_cast< WQtNetworkItem  *>( item ) )
-            items << netItem;
-    }
+    //QList< WQtNetworkItem *> items;
+    //foreach( QGraphicsItem *item, m_scene->items() )
+    //{
+    //    if ( WQtNetworkItem *netItem = dynamic_cast< WQtNetworkItem  *>( item ) )
+    //        items << netItem;
+    //}
 
-    foreach( WQtNetworkItem *netItem, items )
-        netItem->calculateForces();
+    //foreach( WQtNetworkItem *netItem, items )
+    //    netItem->calculateForces();
 
-    bool itemsMoved = false;
-    foreach( WQtNetworkItem *netItem, items )
-    {
-        if ( netItem->advance() )
-            itemsMoved = true;
-    }
+    //bool itemsMoved = false;
+    //foreach( WQtNetworkItem *netItem, items )
+    //{
+    //    if ( netItem->advance() )
+    //        itemsMoved = true;
+    //}
 
-    if ( !itemsMoved )
-    {
-        killTimer( timerId );
-        timerId = 0;
-    }
+    //if ( !itemsMoved )
+    //{
+    //    killTimer( timerId );
+    //    timerId = 0;
+    //}
 }
 

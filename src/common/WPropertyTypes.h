@@ -28,6 +28,11 @@
 #include <stdint.h>
 
 #include <string>
+#include <vector>
+
+#include <boost/lexical_cast.hpp>
+
+#include <string>
 #include <list>
 #include <utility>
 
@@ -35,7 +40,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "math/WPosition.h"
-#include "math/WMatrix4x4.h"
+#include "math/WMatrix.h"
 #include "WItemSelector.h"
 #include "WColor.h"
 
@@ -98,9 +103,9 @@ namespace WPVBaseTypes
     typedef std::string                                     PV_STRING;      //!< base type used for every WPVString
     typedef boost::filesystem::path                         PV_PATH;        //!< base type used for every WPVFilename
     typedef WItemSelector                                   PV_SELECTION;   //!< base type used for every WPVSelection
-    typedef WPosition                                PV_POSITION;    //!< base type used for every WPVPosition
+    typedef WPosition                                       PV_POSITION;    //!< base type used for every WPVPosition
     typedef WColor                                          PV_COLOR;       //!< base type used for every WPVColor
-    typedef WMatrix4x4                               PV_MATRIX4X4;   //!< base type used for every WPVMatrix4X4
+    typedef WMatrix4x4_2                                    PV_MATRIX4X4;   //!< base type used for every WPVMatrix4X4
 
     /**
      * Enum denoting the possible trigger states. It is used for trigger properties.
@@ -543,7 +548,22 @@ namespace PROPERTY_TYPE_HELPER
          */
         WPVBaseTypes::PV_MATRIX4X4 create( const WPVBaseTypes::PV_MATRIX4X4& /*old*/, const std::string str )
         {
-            return fromString( str );
+            WMatrix4x4_2 c;
+            std::vector< std::string > tokens;
+            tokens = string_utils::tokenize( str, ";" );
+            WAssert( tokens.size() >= 16, "There weren't 16 values for a 4x4 Matrix" );
+
+            size_t idx = 0;
+            for ( size_t row = 0; row < 4; ++row )
+            {
+                for ( size_t col = 0; col < 4; ++col )
+                {
+                    c( row, col ) = boost::lexical_cast< double >( tokens[ idx ] );
+                    idx++;
+                }
+            }
+
+            return c;
         }
 
         /**
@@ -555,7 +575,64 @@ namespace PROPERTY_TYPE_HELPER
          */
         std::string asString( const WPVBaseTypes::PV_MATRIX4X4& v )
         {
-            return toString( v );
+            std::ostringstream out;
+            for ( size_t row = 0; row < 4; ++row )
+            {
+                for ( size_t col = 0; col < 4; ++col )
+                {
+                    out << v( row, col ) << ";";
+                }
+            }
+            return out.str();
+        }
+    };
+
+    /**
+     * Class helping to create a new instance of the property content from an old one. Selections need this special care since they contain not
+     * serializable content which needs to be acquired from its predecessor instance.
+     */
+    template<>
+    class WStringConversion< WPVBaseTypes::PV_POSITION >
+    {
+    public:
+        /**
+         * Creates a new instance of the type from a given string. Some classes need a predecessor which is also specified here.
+         *
+         * \param str the new value as string
+         *
+         * \return the new instance
+         */
+        WPVBaseTypes::PV_POSITION create( const WPVBaseTypes::PV_POSITION& /*old*/, const std::string str )
+        {
+            WPVBaseTypes::PV_POSITION c;
+            std::vector< std::string > tokens;
+            tokens = string_utils::tokenize( str, ";" );
+            WAssert( tokens.size() >= 3, "There weren't 3 values for a 3D vector" );
+
+            size_t idx = 0;
+            for ( size_t col = 0; col < 3; ++col )
+            {
+                c[ col ] = boost::lexical_cast< double >( tokens[ idx ] );
+                idx++;
+            }
+            return c;
+        }
+
+        /**
+         * Creates a string from the specified value.
+         *
+         * \param v the value to convert
+         *
+         * \return the string representation
+         */
+        std::string asString( const WPVBaseTypes::PV_POSITION& v )
+        {
+            std::ostringstream out;
+            for ( size_t col = 0; col < 3; ++col )
+            {
+                out << v[ col ] << ";";
+            }
+            return out.str();
         }
     };
 }

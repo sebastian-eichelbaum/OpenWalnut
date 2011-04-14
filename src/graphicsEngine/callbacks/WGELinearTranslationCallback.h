@@ -27,6 +27,7 @@
 
 #include <osg/Node>
 #include <osg/TexMat>
+#include <osg/Uniform>
 #include <osg/MatrixTransform>
 
 #include "../../common/WProperties.h"
@@ -50,7 +51,25 @@ public:
      * \param property the property containing the value
      * \param texMatrix optional pointer to a texture matrix which can be modified too to contain the normalized translation.
      */
-    WGELinearTranslationCallback( osg::Vec3 axe, T property, osg::ref_ptr< osg::TexMat > texMatrix = osg::ref_ptr< osg::TexMat >() );
+    WGELinearTranslationCallback( osg::Vec3 axe, T property, osg::ref_ptr< osg::TexMat > texMatrix );
+
+    /**
+     * Constructor. Creates the callback. You still need to add it to the desired node.
+     *
+     * \param axe the axe to translate along. Should be normalized. If not, it scales the translation.
+     * \param property the property containing the value
+     * \param uniform optional pointer to a uniform that will contain the matrix. Useful if no tex-matrix is available anymore. The matrix is the
+     *                matrix that is NOT scaled to be in texture space.
+     */
+    WGELinearTranslationCallback( osg::Vec3 axe, T property, osg::ref_ptr< osg::Uniform > uniform );
+
+    /**
+     * Constructor. Creates the callback. You still need to add it to the desired node.
+     *
+     * \param axe the axe to translate along. Should be normalized. If not, it scales the translation.
+     * \param property the property containing the value
+     */
+    WGELinearTranslationCallback( osg::Vec3 axe, T property );
 
     /**
      * Destructor.
@@ -86,6 +105,11 @@ protected:
      * Texture matrix that contains normalized translation.
      */
     osg::ref_ptr< osg::TexMat > m_texMat;
+
+    /**
+     * The uniform to set the matrix to.
+     */
+    osg::ref_ptr< osg::Uniform > m_uniform;
 private:
 };
 
@@ -96,6 +120,27 @@ WGELinearTranslationCallback< T >::WGELinearTranslationCallback( osg::Vec3 axe, 
     m_pos( property ),
     m_oldPos( -1.0 ),
     m_texMat( texMatrix )
+{
+    // initialize members
+}
+
+template< typename T >
+WGELinearTranslationCallback< T >::WGELinearTranslationCallback( osg::Vec3 axe, T property, osg::ref_ptr< osg::Uniform > uniform ):
+    osg::NodeCallback(),
+    m_axe( axe ),
+    m_pos( property ),
+    m_oldPos( -1.0 ),
+    m_uniform( uniform )
+{
+    // initialize members
+}
+
+template< typename T >
+WGELinearTranslationCallback< T >::WGELinearTranslationCallback( osg::Vec3 axe, T property ):
+    osg::NodeCallback(),
+    m_axe( axe ),
+    m_pos( property ),
+    m_oldPos( -1.0 )
 {
     // initialize members
 }
@@ -125,6 +170,11 @@ void WGELinearTranslationCallback< T >::operator()( osg::Node* node, osg::NodeVi
             {
                 m_texMat->setMatrix( osg::Matrix::translate( translation / static_cast< float >( m_pos->getMax()->getMax() ) / axeLen ) );
             }
+            if ( m_uniform )
+            {
+                m_uniform->set( osg::Matrix::translate( translation ) );
+            }
+
             m->setMatrix( osg::Matrix::translate( translation ) );
         }
     }
