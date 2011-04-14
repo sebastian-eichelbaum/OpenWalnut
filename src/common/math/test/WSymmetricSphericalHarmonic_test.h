@@ -105,7 +105,6 @@ public:
      */
     void testCalcSHtoTensorMatrix()
     {
-#ifdef OW_USE_OSSIM
         WVector_2 w( 6 );
         for( int i = 0; i < 6; ++i )
         {
@@ -134,7 +133,6 @@ public:
         {
             TS_ASSERT_DELTA( i.getValue( *it ), evaluateSphericalFunction( t, it->getEuclidean() ), 0.001 );
         }
-#endif  // OW_USE_OSSIM
     }
 
     /**
