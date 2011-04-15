@@ -494,8 +494,8 @@ ADD_CUSTOM_TARGET( many
                    COMMENT "Make many special make targets in combination."
                  )
 
-ADD_CUSTOM_TARGET( tarball
-                   rm -rf ow OpenWalnut-mpinf-`date +%Y-%m-%d`.tbz && hg clone --pull "${PROJECT_SOURCE_DIR}/../" ow && tar cjf OpenWalnut-mpinf-`date +%Y-%m-%d`.tbz ow && rm -rf ow
+ADD_CUSTOM_TARGET( cologne_tarball
+                   rm -rf ow OpenWalnut-mpinf-`date +%Y-%m-%d`.tbz && hg clone --pull "${PROJECT_SOURCE_DIR}/../" -u probtractdisplaysp ow && tar cjf OpenWalnut-mpinf-`date +%Y-%m-%d`.tbz ow && rm -rf ow
                    COMMENT "Creates a clone from this local repository and makes a tarball out of it."
                  )
 
