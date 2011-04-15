@@ -24,6 +24,7 @@
 
 #include <string>
 #include <utility>
+#include <cmath>
 
 #include <osg/Geode>
 #include <osg/Group>
@@ -31,6 +32,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/StateAttribute>
 #include <osgDB/ReadFile>
+#include <osgDB/WriteFile>
 
 #include "../../common/WColor.h"
 #include "../../common/WPropertyHelper.h"
@@ -170,6 +172,50 @@ osg::ref_ptr< osg::Image > genWhiteNoise( size_t resX )
     }
 
     return randImage;
+}
+
+/**
+ * Example TF generator. This will be extended with some strategy-pattern later.
+ *
+ * \return TF as image.
+ */
+osg::ref_ptr< osg::Image > genTF()
+{
+    const size_t resX = 256;
+    osg::ref_ptr< osg::Image > tfImage = new osg::Image();
+    tfImage->allocateImage( resX, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE );
+    unsigned char *tf = tfImage->data();
+    for( size_t x = 0; x < resX; ++x )
+    {
+        if ( x > 127 )
+        {
+            double i = ( static_cast< double >( x - 128 ) / 128.0 ) * 2.0 * 15.0;
+            size_t imod = fmod( i, 2 );
+            std::cout << imod << std::endl;
+            if ( imod == 0 )
+            {
+                tf[ 4 * x + 0 ] = 255;
+                tf[ 4 * x + 1 ] = 86;
+                tf[ 4 * x + 2 ] = 86;
+                tf[ 4 * x + 3 ] = 127;//26;
+            }
+            else
+            {
+                tf[ 4 * x + 0 ] = 255;
+                tf[ 4 * x + 1 ] = 191;
+                tf[ 4 * x + 2 ] = 0;
+                tf[ 4 * x + 3 ] = 64;//26;
+            }
+        }
+        if ( x <= 127 )
+        {
+            tf[ 4 * x + 0 ] = 0;
+            tf[ 4 * x + 1 ] = 94;
+            tf[ 4 * x + 2 ] = 255;
+            tf[ 4 * x + 3 ] = 2 * ( 127 - x );
+        }
+    }
+    return tfImage;
 }
 
 void WMDirectVolumeRendering::moduleMain()
