@@ -102,14 +102,17 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
                     {
                         double s = 0.9 * m_spacing->get(); // jitter scaling
                         WVector3D jitter( s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0 ); // NOLINT line length
-
-                        std::pair< WPosition, WPosition > focalPoints = computeFocalPoints( realPos + jitter, sliceNum );
-                        for( int j = 0; j < 4; ++j )
+                        WColor stippleColor = lookUpColor( realPos + jitter, i );
+                        if( stippleColor[3] > m_probThreshold->get() )
                         {
-                            quadVertices->push_back( realPos + jitter );
-                            quadColors->push_back( tractColor );
-                            firstFocalPoint->push_back( focalPoints.first );
-                            secondFocalPoint->push_back( focalPoints.second );
+                            std::pair< WPosition, WPosition > focalPoints = computeFocalPoints( realPos + jitter, sliceNum );
+                            for( int j = 0; j < 4; ++j )
+                            {
+                                quadVertices->push_back( realPos + jitter );
+                                quadColors->push_back( stippleColor );
+                                firstFocalPoint->push_back( focalPoints.first );
+                                secondFocalPoint->push_back( focalPoints.second );
+                            }
                         }
 
                         // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a real
