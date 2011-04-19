@@ -25,6 +25,7 @@
 #version 120
 
 uniform float u_glyphThickness;
+uniform float u_glyphSize;
 
 float minimum_distance( vec3 v, vec3 w, vec3 p )
 {
@@ -56,8 +57,33 @@ void main()
     // ellipsoiden scheiss
     // if( ( length( gl_TexCoord[0] - gl_TexCoord[1] ) + length( gl_TexCoord[0] - gl_TexCoord[2] ) ) < 1.2 )
 
-    // line stipple
-    if( minimum_distance( gl_TexCoord[1].xyz, gl_TexCoord[2].xyz, gl_TexCoord[0].xyz ) < u_glyphThickness )
+    // determine if this is a long or short line stipple
+
+    //    Old radius driven behaviour:
+    //    ############################
+    //
+    //    float scaleFactor = 1 - length( gl_TexCoord[1].xyz - gl_TexCoord[2].xyz ) / u_glyphSize;
+    //    scaleFactor = 1 + scaleFactor * scaleFactor;
+    //
+    //    // line stipple
+    ////    if( minimum_distance( gl_TexCoord[1].xyz, gl_TexCoord[2].xyz, gl_TexCoord[0].xyz ) < scaleFactor * u_glyphThickness )
+    //    if( minimum_distance( gl_TexCoord[1].xyz, gl_TexCoord[2].xyz, gl_TexCoord[0].xyz ) < u_glyphThickness )
+    //    {
+    //        gl_FragColor = gl_Color;
+    //    }
+    //    else
+    //    {
+    //        discard;
+    //    }
+
+    float area = u_glyphThickness * u_glyphSize * u_glyphSize;
+    float l = length(  gl_TexCoord[1].xyz - gl_TexCoord[2].xyz );
+    float p2 = -l / 3.14159265;
+    float q = area / 3.14159265;
+    float r1 = p2 + sqrt( p2 * p2 + q );
+    float r2 = p2 - sqrt( p2 * p2 + q );
+    float radius = max( r1, r2 );
+    if( minimum_distance( gl_TexCoord[1].xyz, gl_TexCoord[2].xyz, gl_TexCoord[0].xyz ) < radius )
     {
         gl_FragColor = gl_Color;
     }
@@ -65,4 +91,5 @@ void main()
     {
         discard;
     }
+
 }
