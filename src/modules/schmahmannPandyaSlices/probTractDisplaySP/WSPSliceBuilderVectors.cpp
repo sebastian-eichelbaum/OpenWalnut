@@ -119,7 +119,6 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
                             // quad out of the four center points
                             quadSpanning->insert( quadSpanning->end(), texCoordsPerPrimitive->begin(), texCoordsPerPrimitive->end() );
                         }
-
                     }
                 }
             }
