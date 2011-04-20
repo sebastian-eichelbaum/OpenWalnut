@@ -284,7 +284,7 @@ osg::ref_ptr< WGEGroupNode > WBoundaryLines::generateSlice( const unsigned char 
     geode->addDrawable( traverseEdgeHashMap( isoValues[0], edgeLineStrips[0], edgeIDToPointIDs, interpolates, sliceGrid ) );
     geode->addDrawable( traverseEdgeHashMap( isoValues[1], edgeLineStrips[1], edgeIDToPointIDs, interpolates, sliceGrid ) );
     result->insert( geode );
-    result->insert( wge::generateBoundingBoxGeode( m_sliceBB[ sliceNum ], WColor( 0.0, 0.0, 0.0, 1.0 ) ) );
+    // result->insert( wge::generateBoundingBoxGeode( m_sliceBB[ sliceNum ], WColor( 0.0, 0.0, 0.0, 1.0 ) ) );
 
     osg::ref_ptr< osg::Uniform > u_gmColor = new WGEPropertyUniform< WPropColor >( "u_gwColor", m_gmColor );
     osg::ref_ptr< osg::Uniform > u_wmColor = new WGEPropertyUniform< WPropColor >( "u_gwColor", m_wmColor );

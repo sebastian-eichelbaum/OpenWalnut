@@ -133,7 +133,10 @@ WColor WSPSliceBuilder::lookUpColor( const WPosition& pos, size_t tractID ) cons
     {
         probability /= 255.0;
     }
-    c[3] = ( success ? probability : -1.0 );
+    if( c[3] != 0.0 )
+    {
+        c[3] = ( success ? probability : -1.0 );
+    }
 
     return c;
 }

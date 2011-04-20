@@ -127,14 +127,9 @@ private:
     boost::shared_ptr< const WDataSetVector > m_vectors;
 
     /**
-     * A reference to the property which denotes the space between the primary quads (aka subdivision).
+     * A reference to the property which denotes the space between the primary quads (aka subdivision) as well as the size of the cell borders.
      */
-    boost::shared_ptr< const WPVDouble > m_spacing;
-
-    /**
-     * A reference to the property which controls the size of the quads.
-     */
-    WPropDouble m_glyphSize; // we cannot make const here since we need the WPropType for the WGEPropertyUniform creation
+    WPropDouble m_spacing; // we cannot make const here since we need the WPropType for the WGEPropertyUniform creation
 
     /**
      * Upto which threshold the quads should be discarded.

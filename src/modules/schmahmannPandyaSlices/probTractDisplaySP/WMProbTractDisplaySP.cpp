@@ -178,15 +178,15 @@ void WMProbTractDisplaySP::properties()
     WPropDouble spacing = m_vectorGroup->addProperty( "Spacing", "Spacing of the sprites", 1.0, m_sliceChanged );
     spacing->setMin( 0.25 );
     spacing->setMax( 5.0 );
-    WPropDouble glyphSize = m_vectorGroup->addProperty( "Glyph size", "Size of the quads transformed to the glyphs", 1.0 );
-    glyphSize->setMin( 0.25 );
-    glyphSize->setMax( 5.0 );
-    WPropDouble glyphSpacing = m_vectorGroup->addProperty( "Glyph Spacing", "Spacing ", 0.4, m_sliceChanged );
-    glyphSpacing->setMin( 0.0 );
-    glyphSpacing->setMax( 5.0 );
-    WPropDouble glyphThickness = m_vectorGroup->addProperty( "Glyph Thickness", "Line thickness of the glyphs", 0.07 );
+//    WPropDouble glyphSize = m_vectorGroup->addProperty( "Glyph size", "Size of the quads transformed to the glyphs", 1.0 );
+//    glyphSize->setMin( 0.25 );
+//    glyphSize->setMax( 5.0 );
+//    WPropDouble glyphSpacing = m_vectorGroup->addProperty( "Glyph Spacing", "Spacing ", 0.4, m_sliceChanged );
+//    glyphSpacing->setMin( 0.0 );
+//    glyphSpacing->setMax( 5.0 );
+    WPropDouble glyphThickness = m_vectorGroup->addProperty( "Glyph Thickness", "Line thickness of the glyphs", 1.0 );
     glyphThickness->setMin( 0.01 );
-    glyphThickness->setMax( 1.0 );
+    glyphThickness->setMax( 2.0 );
 
     // call WModule's initialization
     WModule::properties();

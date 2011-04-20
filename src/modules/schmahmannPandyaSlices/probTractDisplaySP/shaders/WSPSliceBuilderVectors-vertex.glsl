@@ -25,13 +25,15 @@
 #version 120
 
 uniform float u_glyphSize;
+varying vec4 v_middlePoint;
 
 void main()
 {
-    gl_TexCoord[0] = gl_MultiTexCoord0;
-    gl_TexCoord[1] = gl_MultiTexCoord1;
-    gl_TexCoord[2] = gl_MultiTexCoord2;
-    vec4 v = gl_Vertex + u_glyphSize * vec4( gl_TexCoord[0].xyz, 0.0 );
+    gl_TexCoord[0] = u_glyphSize * gl_MultiTexCoord0;
+    gl_TexCoord[1] = u_glyphSize * gl_MultiTexCoord1;
+    gl_TexCoord[2] = u_glyphSize * gl_MultiTexCoord2;
+    vec4 v = gl_Vertex + vec4( gl_TexCoord[0].xyz, 0.0 );
+    v_middlePoint =  gl_Vertex;
 
     gl_FrontColor = gl_Color;
 

@@ -46,8 +46,7 @@ WSPSliceBuilderVectors::WSPSliceBuilderVectors( ProbTractList probTracts, WPropG
 {
     m_probThreshold = vectorGroup->findProperty( "Prob Threshold" )->toPropDouble();
     m_spacing = vectorGroup->findProperty( "Spacing" )->toPropDouble();
-    m_glyphSize = vectorGroup->findProperty( "Glyph size" )->toPropDouble();
-    m_glyphSpacing = vectorGroup->findProperty( "Glyph Spacing" )->toPropDouble();
+//    m_glyphSpacing = vectorGroup->findProperty( "Glyph Spacing" )->toPropDouble();
     m_glyphThickness = vectorGroup->findProperty( "Glyph Thickness" )->toPropDouble();
 }
 
@@ -80,7 +79,7 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Vec4Array > quadColors( new osg::Vec4Array );
 
     osg::ref_ptr< osg::Vec3Array > texCoordsPerPrimitive = generateQuadSpanning( activeDims );
-    boost::shared_ptr< std::vector< WVector3D > > glyphDirections = generateClockwiseDir( activeDims, m_glyphSpacing->get() );
+    boost::shared_ptr< std::vector< WVector3D > > glyphDirections = generateClockwiseDir( activeDims, 0.4 ); // m_glyphSpacing->get() );
 
     std::srand( 0 ); // we just really need only pseudo random numbers
 
@@ -97,11 +96,13 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
                 if( tractColor[3] > m_probThreshold->get() )
                 {
                     // determine density of line stipples 1 => 10 samples. 0 => 0 samples
-                    size_t numSamples = static_cast< size_t >( tractColor[3] * 10 );
+                    size_t numSamples = static_cast< size_t >( tractColor[3] * 10 ); // / m_spacing->get() );
                     for( size_t sample = 0; sample < numSamples; ++sample )
                     {
                         double s = 0.9 * m_spacing->get(); // jitter scaling
                         WVector3D jitter( s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0, s * ( std::rand() % 1000 ) / 1000.0 ); // NOLINT line length
+//                        WVector3D jitter;
+                        jitter[sliceNum] = 0.001;
                         WColor stippleColor = lookUpColor( realPos + jitter, i );
                         if( stippleColor[3] > m_probThreshold->get() )
                         {
@@ -113,11 +114,12 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
                                 firstFocalPoint->push_back( focalPoints.first );
                                 secondFocalPoint->push_back( focalPoints.second );
                             }
+
+                            // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a real
+                            // quad out of the four center points
+                            quadSpanning->insert( quadSpanning->end(), texCoordsPerPrimitive->begin(), texCoordsPerPrimitive->end() );
                         }
 
-                        // for each primitive copy the same texture coordinates, misused as the vertex transformation information to make a real
-                        // quad out of the four center points
-                        quadSpanning->insert( quadSpanning->end(), texCoordsPerPrimitive->begin(), texCoordsPerPrimitive->end() );
                     }
                 }
             }
@@ -141,11 +143,11 @@ osg::ref_ptr< WGEGroupNode > WSPSliceBuilderVectors::generateSlice( const unsign
     osg::ref_ptr< osg::Geode > geode( new osg::Geode );
     geode->addDrawable( geometry );
     result->insert( geode );
-    result->insert( wge::generateBoundingBoxGeode( m_sliceBB[ sliceNum ], WColor( 0.0, 0.0, 0.0, 1.0 ) ) );
+    // result->insert( wge::generateBoundingBoxGeode( m_sliceBB[ sliceNum ], WColor( 0.0, 0.0, 0.0, 1.0 ) ) );
 
     m_shader->apply( geode );
 
-    geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_glyphSize", m_glyphSize ) );
+    geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_glyphSize", m_spacing ) );
     geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropDouble >( "u_glyphThickness", m_glyphThickness ) );
     osg::StateSet* state = geode->getOrCreateStateSet();
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
@@ -168,8 +170,8 @@ std::pair< WPosition, WPosition > WSPSliceBuilderVectors::computeFocalPoints( co
     // project into plane
     vec[ sliceNum ] = 0.0;
 
-    result.first = -0.4 * vec;
-    result.second = 0.4 * vec;
+    result.first = -0.5 * vec;
+    result.second = 0.5 * vec;
 
     return result;
 }
