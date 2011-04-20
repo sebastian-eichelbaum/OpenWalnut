@@ -7,6 +7,9 @@ IF( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
 ENDIF()
 
 
+IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
+    ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
+ENDIF()
 
 # append search path for FindModules:
 #------------------------------------

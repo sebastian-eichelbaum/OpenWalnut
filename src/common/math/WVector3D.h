@@ -255,6 +255,6 @@ OW_API_DEPRECATED OWCOMMON_EXPORT std::istream& operator>>( std::istream& in, WV
  * \param lhs left hand side of product
  * \param rhs right hand side of product
  */
-OW_API_DEPRECATED OWCOMMON_EXPORT osg::Vec3d operator*( osg::Vec3d::value_type lhs, const osg::Vec3d& rhs );
+OW_API_DEPRECATED OWCOMMON_EXPORT WVector3D operator*( osg::Vec3d::value_type lhs, const WVector3D& rhs );
 
 #endif  // WVECTOR3D_H
