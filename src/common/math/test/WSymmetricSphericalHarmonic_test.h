@@ -138,43 +138,43 @@ public:
     /**
      * Test complex SH coefficient conversion.
      */
-    void testComplex()
-    {
-        // calc a conversion matrix
-        std::vector< WVector3D > grad;
-        std::vector< unsigned int > edges;
-        tesselateIcosahedron( &grad, &edges, 3 );
-        edges.clear();
+    // void testComplex()
+    // {
+    //     // calc a conversion matrix
+    //     std::vector< WVector3D > grad;
+    //     std::vector< unsigned int > edges;
+    //     tesselateIcosahedron( &grad, &edges, 3 );
+    //     edges.clear();
 
-        std::vector< WUnitSphereCoordinates > orientations;
-        for( std::size_t i = 0; i < grad.size(); ++i )
-        {
-            if( grad[ i ][ 0 ] > 0.0 )
-            {
-                orientations.push_back( WUnitSphereCoordinates( grad[ i ] ) );
-            }
-        }
-        grad.clear();
+    //     std::vector< WUnitSphereCoordinates > orientations;
+    //     for( std::size_t i = 0; i < grad.size(); ++i )
+    //     {
+    //         if( grad[ i ][ 0 ] > 0.0 )
+    //         {
+    //             orientations.push_back( WUnitSphereCoordinates( grad[ i ] ) );
+    //         }
+    //     }
+    //     grad.clear();
 
-        WVector_2 values( 15 );
-        for( std::size_t i = 0; i < 15; ++i )
-        {
-            values[ i ] = i / 15.0;
-        }
-        WSymmetricSphericalHarmonic sh( values );
+    //     WVector_2 values( 15 );
+    //     for( std::size_t i = 0; i < 15; ++i )
+    //     {
+    //         values[ i ] = i / 15.0;
+    //     }
+    //     WSymmetricSphericalHarmonic sh( values );
 
-        WVectorComplex_2 values2 = sh.getCoefficientsComplex();
+    //     WVectorComplex_2 values2 = sh.getCoefficientsComplex();
 
-        WMatrixComplex_2 complexBaseMatrix = WSymmetricSphericalHarmonic::calcComplexBaseMatrix( orientations, 4 );
+    //     WMatrixComplex_2 complexBaseMatrix = WSymmetricSphericalHarmonic::calcComplexBaseMatrix( orientations, 4 );
 
-        WVectorComplex_2 res = complexBaseMatrix * values2;
+    //     WVectorComplex_2 res = complexBaseMatrix * values2;
 
-        for( std::size_t k = 0; k < orientations.size(); ++k )
-        {
-            TS_ASSERT_DELTA( res[ k ].imag(), 0.0, 1e-15 );
-            TS_ASSERT_DELTA( res[ k ].real(), sh.getValue( orientations[ k ] ), 1e-15 );
-        }
-    }
+    //     for( std::size_t k = 0; k < orientations.size(); ++k )
+    //     {
+    //         TS_ASSERT_DELTA( res[ k ].imag(), 0.0, 1e-15 );
+    //         TS_ASSERT_DELTA( res[ k ].real(), sh.getValue( orientations[ k ] ), 1e-15 );
+    //     }
+    // }
 };
 
 #endif  // WSYMMETRICSPHERICALHARMONIC_TEST_H
