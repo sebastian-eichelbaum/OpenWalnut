@@ -36,6 +36,9 @@
 #include "../WStringUtils.h"
 
 #include "../WDefines.h"
+
+#define EIGEN_DONT_ALIGN_STATICALLY
+
 #include "../../ext/Eigen/Core"
 
 /**
@@ -236,7 +239,7 @@ typedef WVector3D WPosition;
  *
  * \return the output stream
  */
-OW_API_DEPRECATED std::ostream& operator<<( std::ostream& os, const WVector3D &rhs );
+OW_API_DEPRECATED OWCOMMON_EXPORT std::ostream& operator<<( std::ostream& os, const WVector3D &rhs );
 
 
 /**
@@ -247,7 +250,7 @@ OW_API_DEPRECATED std::ostream& operator<<( std::ostream& os, const WVector3D &r
  *
  * \return the input stream
  */
-OW_API_DEPRECATED std::istream& operator>>( std::istream& in, WVector3D &rhs );
+OW_API_DEPRECATED OWCOMMON_EXPORT std::istream& operator>>( std::istream& in, WVector3D &rhs );
 
 /**
  * Multiplies a WVector3D with a scalar
@@ -255,6 +258,6 @@ OW_API_DEPRECATED std::istream& operator>>( std::istream& in, WVector3D &rhs );
  * \param lhs left hand side of product
  * \param rhs right hand side of product
  */
-OW_API_DEPRECATED WVector3D operator*( osg::Vec3d::value_type lhs, const WVector3D& rhs );
+OW_API_DEPRECATED OWCOMMON_EXPORT WVector3D operator*( osg::Vec3d::value_type lhs, const WVector3D& rhs );
 
 #endif  // WVECTOR3D_H

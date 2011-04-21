@@ -81,20 +81,54 @@ public:
     /**
      * Test if the loaded files are really loaded
      */
-    void testLoading( void )
+    void testLoading1( void )
     {
         WReaderNIfTI reader1( "../fixtures/scalar_signed_short.nii.gz" );
-        WReaderNIfTI reader2( "../fixtures/scalar_unsigned_char.nii.gz" );
-        WReaderNIfTI reader3( "../fixtures/scalar_float.nii.gz" );
-        WReaderNIfTI reader4( "../fixtures/vector_float.nii.gz" );
-        WReaderNIfTI reader5( "../fixtures/symmetric_2nd_order_tensor_float.nii.gz" );
-        WReaderNIfTI reader6( "../fixtures/vector_unsigned_char.nii.gz" );
-
         TS_ASSERT( reader1.load() );
+    }
+
+    /**
+     * Test if the loaded files are really loaded
+     */
+    void testLoading2( void )
+    {
+        WReaderNIfTI reader2( "../fixtures/scalar_unsigned_char.nii.gz" );
         TS_ASSERT( reader2.load() );
+    }
+
+    /**
+     * Test if the loaded files are really loaded
+     */
+    void testLoading3( void )
+    {
+        WReaderNIfTI reader3( "../fixtures/scalar_float.nii.gz" );
         TS_ASSERT( reader3.load() );
+    }
+
+    /**
+     * Test if the loaded files are really loaded
+     */
+    void testLoading4( void )
+    {
+        WReaderNIfTI reader4( "../fixtures/vector_float.nii.gz" );
         TS_ASSERT( reader4.load() );
+    }
+
+    /**
+     * Test if the loaded files are really loaded
+     */
+    void testLoading5( void )
+    {
+        WReaderNIfTI reader5( "../fixtures/symmetric_2nd_order_tensor_float.nii.gz" );
         TS_ASSERT( reader5.load() );
+    }
+
+    /**
+     * Test if the loaded files are really loaded
+     */
+    void testLoading6( void )
+    {
+        WReaderNIfTI reader6( "../fixtures/vector_unsigned_char.nii.gz" );
         TS_ASSERT( reader6.load() );
     }
 

@@ -32,6 +32,9 @@
 #include "WVector3D.h"
 
 #include "../WDefines.h"
+
+#define EIGEN_DONT_ALIGN_STATICALLY
+
 #include "../../ext/Eigen/Core"
 #include "../../ext/Eigen/LU"
 

@@ -8,6 +8,9 @@
 # default=HUD
 #whiteList =Isosurface,Bounding Box, Direct Volume Rendering,Distance Map Isosurface,Gauss Filtering,HUD,Vector Plot,Write NIfTI # A list of modules that will be provided through the GUI. If the list is empty all available modules are provided.
 
+## A list of modules that will be prevented from being present in the GUI. 
+blackList = Data Module
+
 ## Specify a ";" separated list of additional paths for modules. The order of appearance is the order of loading. The following additional rules apply here:
 ## 1. if the directory contains one or more libOWmodule_XYZ it/they get loaded
 ## 2. if the directory does not contain any libOWmodule_XYZ, the subdirectories get searched.

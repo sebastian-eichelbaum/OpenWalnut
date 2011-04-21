@@ -11,6 +11,9 @@
 ## If the list is empty all available modules are provided.
 whiteList = Arbitrary Plane,Coordinate System,Image Extractor,Paint Texture,Arbitrary Rois,Bounding Box,Distance Map Isosurface,Gauss Filtering,HUD,Isosurface,Isosurface Raytracer,LIC,Read Mesh,Voxelizer,Superquadric Glyphs,Triangle Mesh Renderer,Vector Plot,Write NIfTI,Fiber Display,Read Spherical Harmonics,Navigation Slices,Deterministic Tract Clustering using Gaussian Processes,Deterministic Tract to Gaussian Process Converter,Cluster Param Display,Write Tracts,Fiber Resampling,Teem Glyphs
 
+## A list of modules that will be prevented from being present in the GUI. 
+blackList = Data Module
+
 ## Specify a ";" separated list of additional paths for modules. The order of appearance is the order of loading. The following additional rules apply here:
 ## 1. if the directory contains one or more libOWmodule_XYZ it/they get loaded
 ## 2. if the directory does not contain any libOWmodule_XYZ, the subdirectories get searched.
