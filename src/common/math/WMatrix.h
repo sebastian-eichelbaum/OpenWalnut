@@ -27,7 +27,8 @@
 
 #include <iostream>
 
-#include "WMatrix4x4.h"
+#include <osg/Matrix>
+
 #include "WValue.h"
 #include "WVector3D.h"
 
@@ -110,7 +111,7 @@ inline osg::Matrixd toOsgMatrixd( WMatrix4x4_2 m )
  * The access function are row-major, which means that the rows
  * are the first parameter or index.
  */
-template< typename T > class OW_API_DEPRECATED WMatrix : public WValue< T >
+template< typename T > class WMatrix : public WValue< T >
 {
 public:
     /**
@@ -141,7 +142,7 @@ public:
      *
      * \param newMatrix the matrix to copy
      */
-    WMatrix( const WMatrix4x4& newMatrix ); // NOLINT
+    WMatrix( const WMatrix4x4_2& newMatrix ); // NOLINT
 
     /**
      * Makes the matrix contain the identity matrix, i.e. 1 on the diagonal.
@@ -179,7 +180,7 @@ public:
      *
      * \return casted matrix
      */
-    operator WMatrix4x4() const;
+    operator WMatrix4x4_2() const;
 
     /**
      * Compares two matrices and returns true if they are equal.
@@ -249,7 +250,7 @@ template< typename T > WMatrix< T >::WMatrix( const WMatrix& newMatrix )
     m_nbCols = newMatrix.m_nbCols;
 }
 
-template< typename T > WMatrix< T >::WMatrix( const WMatrix4x4& newMatrix )
+template< typename T > WMatrix< T >::WMatrix( const WMatrix4x4_2& newMatrix )
     : WValue< T >( 4 * 4 )
 {
     m_nbCols = 4;
@@ -262,11 +263,11 @@ template< typename T > WMatrix< T >::WMatrix( const WMatrix4x4& newMatrix )
     }
 }
 
-template< typename T > WMatrix< T >::operator WMatrix4x4() const
+template< typename T > WMatrix< T >::operator WMatrix4x4_2() const
 {
     size_t nbRows = this->size() / m_nbCols;
     WAssert( m_nbCols == 4 && nbRows == 4, "This is no 4x4 matrix." );
-    WMatrix4x4 m;
+    WMatrix4x4_2 m;
     for( size_t i = 0; i < nbRows; ++i )
     {
         for( size_t j = 0; j < m_nbCols; ++j )

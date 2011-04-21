@@ -30,7 +30,6 @@
 
 #include "WLinearAlgebraFunctions.h"
 #include "WMatrix.h"
-#include "WMatrix4x4.h"
 #include "WValue.h"
 #include "WVector3D.h"
 
@@ -73,12 +72,6 @@ WPosition transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec )
     result[1] = resultVec4D[1] / resultVec4D[3];
     result[2] = resultVec4D[2] / resultVec4D[3];
     return result;
-}
-
-WVector3D transformPosition3DWithMatrix4D( WMatrix4x4 mat, WPosition vec )
-{
-    osg::Vec4f v = osg::Vec4f( vec, 1.0 ) * mat;
-    return WVector3D( v.x(), v.y(), v.z() );
 }
 
 WMatrix<double> invertMatrix3x3( WMatrix<double> mat )
