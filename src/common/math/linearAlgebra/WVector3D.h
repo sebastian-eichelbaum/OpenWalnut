@@ -22,12 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMATRIXALL_H
-#define WMATRIXALL_H
+#ifndef WVECTOR3D_H
+#define WVECTOR3D_H
 
+// defined in WMatrixFixed
 #include "WMatrixFixed.h"
-#include "WMatrixConversions.h"
 
-#include "WMatrixEigen.h"
-
-#endif  // WMATRIXALL_H
+#endif  // WVECTOR3D_H

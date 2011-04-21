@@ -27,6 +27,7 @@
 
 #include "../WExportCommon.h"
 #include "WMatrix.h"
+#include "linearAlgebra/WMatrix.h"
 
 namespace osg
 {

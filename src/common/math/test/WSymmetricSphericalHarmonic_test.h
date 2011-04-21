@@ -39,6 +39,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WMatrix.h"
+#include "../linearAlgebra/WMatrix.h"
 #include "../WValue.h"
 #include "../WVector3D.h"
 

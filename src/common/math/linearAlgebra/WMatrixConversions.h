@@ -22,12 +22,29 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMATRIXALL_H
-#define WMATRIXALL_H
+#ifndef WMATRIXCONVERSIONS_H
+#define WMATRIXCONVERSIONS_H
 
-#include "WMatrixFixed.h"
-#include "WMatrixConversions.h"
+#include <osg/Matrix>
 
-#include "WMatrixEigen.h"
+/**
+ * Converts a given WMatrix4d_2 to an osg matrix.
+ *
+ * \param m the matrix to convert
+ *
+ * \return the converted matrix
+ */
+inline osg::Matrixd toOsgMatrixd( WMatrix4d_2 m )
+{
+    osg::Matrixd m2;
+    for ( size_t row = 0; row < 4; ++row )
+    {
+        for ( size_t col = 0; col < 4; ++col )
+        {
+            m2( row, col ) = m( row, col );
+        }
+    }
+    return m2;
+}
 
-#endif  // WMATRIXALL_H
+#endif  // WMATRIXCONVERSIONS_H

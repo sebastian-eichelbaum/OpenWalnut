@@ -35,7 +35,6 @@
 #include <osg/Vec3>
 
 #include "../common/math/WMatrix.h"
-#include "../common/math/WMatrix.h"
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
 #include "../common/WBoundingBox.h"

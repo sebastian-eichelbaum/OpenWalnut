@@ -30,6 +30,7 @@
 #include "../WExportCommon.h"
 #include "WMath.h"
 #include "WMatrix.h"
+#include "linearAlgebra/WMatrix.h"
 #include "WUnitSphereCoordinates.h"
 #include "WVector3D.h"
 

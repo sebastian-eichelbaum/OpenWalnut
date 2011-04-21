@@ -44,9 +44,10 @@
 #include <boost/lexical_cast.hpp>
 
 #include "math/WPosition.h"
-#include "math/WMatrix.h"
+#include "math/linearAlgebra/WMatrix.h"
 #include "WItemSelector.h"
 #include "WColor.h"
+#include "WAssert.h"
 
 template < typename T >
 class WPropertyVariable;
@@ -109,7 +110,7 @@ namespace WPVBaseTypes
     typedef WItemSelector                                   PV_SELECTION;   //!< base type used for every WPVSelection
     typedef WPosition                                       PV_POSITION;    //!< base type used for every WPVPosition
     typedef WColor                                          PV_COLOR;       //!< base type used for every WPVColor
-    typedef WMatrix4x4_2                                    PV_MATRIX4X4;   //!< base type used for every WPVMatrix4X4
+    typedef WMatrix4d_2                                     PV_MATRIX4X4;   //!< base type used for every WPVMatrix4X4
 
     /**
      * Enum denoting the possible trigger states. It is used for trigger properties.
@@ -552,7 +553,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         WPVBaseTypes::PV_MATRIX4X4 create( const WPVBaseTypes::PV_MATRIX4X4& /*old*/, const std::string str )
         {
-            WMatrix4x4_2 c;
+            WMatrix4d_2 c;
             std::vector< std::string > tokens;
             tokens = string_utils::tokenize( str, ";" );
             WAssert( tokens.size() >= 16, "There weren't 16 values for a 4x4 Matrix" );

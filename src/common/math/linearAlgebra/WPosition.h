@@ -22,12 +22,18 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMATRIXALL_H
-#define WMATRIXALL_H
+#ifndef WPOSITION_H
+#define WPOSITION_H
 
-#include "WMatrixFixed.h"
-#include "WMatrixConversions.h"
+#include "WVector3D.h"
 
-#include "WMatrixEigen.h"
+/**
+ * \class WPosition
+ * The file %WPosition.h just includes %WVector3D.h.
+ * There is "typedef WVector3D WPosition;" in %WVector3D.h.
+ * WPosition such is just another name for WVector3D to indicate the specific use
+ * for positions in some places.
+ */
 
-#endif  // WMATRIXALL_H
+#endif  // WPOSITION_H
+

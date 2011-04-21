@@ -22,12 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMATRIXALL_H
-#define WMATRIXALL_H
+#include "WVector3D.h"
 
-#include "WMatrixFixed.h"
-#include "WMatrixConversions.h"
-
-#include "WMatrixEigen.h"
-
-#endif  // WMATRIXALL_H

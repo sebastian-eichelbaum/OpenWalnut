@@ -32,6 +32,7 @@
 #include "../../WException.h"
 #include "../WLinearAlgebraFunctions.h"
 #include "../WMatrix.h"
+#include "../linearAlgebra/WMatrix.h"
 #include "../WVector3D.h"
 #include "WVector3DTraits.h"
 

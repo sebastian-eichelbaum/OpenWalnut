@@ -27,7 +27,7 @@
 
 #include "../common/math/WVector3D.h"
 #include "../common/math/WMatrix.h"
-#include "../common/math/WMatrix.h"
+#include "../common/math/linearAlgebra/WMatrix.h"
 
 #include "WExportDataHandler.h"
 
@@ -160,7 +160,7 @@ public:
      *
      * \return the matrix representing the transform
      */
-    operator WMatrix4x4_2() const;
+    operator WMatrix4d_2() const;
 
     /**
      * Check if this transform does not include a rotation.

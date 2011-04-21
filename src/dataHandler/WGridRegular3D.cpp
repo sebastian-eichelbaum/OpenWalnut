@@ -31,8 +31,9 @@
 #include "../common/math/WLinearAlgebraFunctions.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
-#include "WGridRegular3D.h"
+#include "../common/math/linearAlgebra/WMatrix.h"
 
+#include "WGridRegular3D.h"
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                                 WGridTransformOrtho const transform )
@@ -118,7 +119,7 @@ void WGridRegular3D::initInformationProperties()
     WPropDouble yOffset = m_infoProperties->addProperty( "Y offset: ", "The distance between samples in y direction", getOffsetY() );
     WPropDouble zOffset = m_infoProperties->addProperty( "Z offset: ", "The distance between samples in z direction", getOffsetZ() );
     WPropMatrix4X4 transformation = m_infoProperties->addProperty( "Transformation", "The transformation of this grid.",
-        static_cast< WMatrix4x4_2 >( getTransform() ) );
+        static_cast< WMatrix4d_2 >( getTransform() ) );
 }
 
 int WGridRegular3D::getXVoxelCoord( const WPosition& pos ) const

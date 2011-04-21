@@ -5,6 +5,8 @@ IF( OW_COMPILE_TESTS )
   CXXTEST_ADD_TESTS_FROM_LIST( "${LINALG_SRC}"
                                "OWcommon"
                                "WMatrix" # only header
+                               "WPosition" # is a WMatrixFixed. Gets tested there
+                               "WVector3D" # is a WMatrixFixed. Gets tested there
                              )
 ENDIF( OW_COMPILE_TESTS )
 
