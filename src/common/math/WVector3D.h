@@ -36,6 +36,9 @@
 #include "../WStringUtils.h"
 
 #include "../WDefines.h"
+
+#define EIGEN_DONT_ALIGN_STATICALLY
+
 #include "../../ext/Eigen/Core"
 
 /**
