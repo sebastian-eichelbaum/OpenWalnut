@@ -63,16 +63,17 @@ public:
     {
         WMatrix_2 result( WSymmetricSphericalHarmonic::calcFRTMatrix( 4 ) );
         WMatrix_2 reference( 15, 15 );
+        reference.setZero();
         // j  01 02 03 04 05 06 07 08 09 10 11 12 13 14 15
         // lj  0  2  2  2  2  2  4  4  4  4  4  4  4  4  4
         reference( 0, 0 ) = 2.0 * piDouble;
         for ( size_t i = 1; i <= 5; i++ )
         {
-          reference( i, i ) = -2.0 * piDouble * 1.0 / 2.0;
+            reference( i, i ) = -2.0 * piDouble * 1.0 / 2.0;
         }
         for ( size_t i = 6; i <= 14; i++ )
         {
-          reference( i, i ) = 2.0 * piDouble * 3.0 / 8.0;
+            reference( i, i ) = 2.0 * piDouble * 3.0 / 8.0;
         }
         TS_ASSERT_EQUALS( result, reference );
     }
@@ -85,16 +86,17 @@ public:
     {
         WMatrix_2 result( WSymmetricSphericalHarmonic::calcSmoothingMatrix( 4 ) );
         WMatrix_2 reference( 15, 15 );
+        reference.setZero();
         // j  01 02 03 04 05 06 07 08 09 10 11 12 13 14 15
         // lj  0  2  2  2  2  2  4  4  4  4  4  4  4  4  4
         reference( 0, 0 ) = 0.0;
         for ( size_t i = 1; i <= 5; i++ )
         {
-          reference( i, i ) = 36.0;
+            reference( i, i ) = 36.0;
         }
         for ( size_t i = 6; i <= 14; i++ )
         {
-          reference( i, i ) = 400.0;
+            reference( i, i ) = 400.0;
         }
         TS_ASSERT_EQUALS( result, reference );
     }
