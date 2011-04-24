@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cmath>
 #include <vector>
 
 #include <osg/ref_ptr>
@@ -135,7 +136,12 @@ WColor WSPSliceBuilder::lookUpColor( const WPosition& pos, size_t tractID ) cons
     }
     if( c[3] != 0.0 )
     {
-        c[3] = ( success ? probability : -1.0 );
+        // linear mapping
+        // c[3] = ( success ? probability : -1.0 );
+
+        // logarithmic mapping
+        double pi2 = 2*3.14159265358979323846;
+        c[3] = ( success ? ( pi2*probability - std::sin(pi2*probability) ) / ( pi2 ) : -1.0 );
     }
 
     return c;
