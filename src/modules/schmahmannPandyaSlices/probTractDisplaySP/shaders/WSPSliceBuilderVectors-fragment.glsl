@@ -91,7 +91,7 @@ void main()
     // // Scalar values for zoom pansen
     // float magicZoom = length( ( gl_ModelViewMatrix * normalize( vec4( 1.0, 1.0, 1.0, 0.0 ) ) ).xyz );
 
-    float area =  u_glyphSize * u_glyphSize / 8.0; // 10 * u_glyphThickness * 1.0 /  (2 * u_glyphSize) * optArea;
+    float area =  u_glyphSize * u_glyphSize / 10.0; // 10 * u_glyphThickness * 1.0 /  (2 * u_glyphSize) * optArea;
 
     // generally the area of a line stipple is a circle with radius R (each half for the endings of the line stipple) plus
     // a quad with height 2R and width length of the focalPoints v and w. hence we have this equation in R to solve:
