@@ -31,7 +31,7 @@
 
 #include "WValue.h"
 #include "WVector3D.h"
-#include "linearAlgebra/WMatrix.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 
 #include "../WDefines.h"
 

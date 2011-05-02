@@ -33,8 +33,8 @@
 #include <boost/tokenizer.hpp>
 
 // Needed for conversion: OSG Types
-#include <osg/Vec3d>
-#include <osg/Vec3f>
+#include <osg/Vec2d>
+#include <osg/Vec2f>
 #include <osg/Vec3d>
 #include <osg/Vec3f>
 #include <osg/Vec4d>
@@ -483,7 +483,7 @@ public:
      *
      * \param m the Eigen3 matrix.
      */
-    WMatrixFixed( const Eigen::Matrix< ValueT, Rows, Cols >& m )
+    WMatrixFixed( const Eigen::Matrix< ValueT, Rows, Cols >& m )    // NOLINT - we do not want it explicit
     {
         for ( size_t row = 0; row < Rows; ++row )
         {
@@ -499,7 +499,7 @@ public:
      *
      * \param m the OSG matrix.
      */
-    WMatrixFixed( const osg::Matrixd& m )
+    explicit WMatrixFixed( const osg::Matrixd& m )     // NOLINT - we do not want it explicit
     {
         BOOST_STATIC_ASSERT( Rows == 4 );
         BOOST_STATIC_ASSERT( Cols == 4 );
@@ -892,7 +892,7 @@ typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result dot( const WMatr
 template< typename AValueT, ValueStoreTemplate AValueStoreT,
           typename BValueT, ValueStoreTemplate BValueStoreT,
           ValueStoreTemplate ResultValueStoreT >
- WMatrixFixed< typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result, 3, 1, ResultValueStoreT >
+WMatrixFixed< typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result, 3, 1, ResultValueStoreT >
     cross( const WMatrixFixed< AValueT, 3, 1, AValueStoreT >& a, const WMatrixFixed< BValueT, 3, 1, BValueStoreT >& b )
 {
     typedef WMatrixFixed< typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result, 3, 1, ResultValueStoreT > ResultT;

@@ -139,25 +139,24 @@ vec4 transferFunction( float value )
         return vec4( 0.0 );
     }
     // Example TF
-    /*if ( isZero( value - 0.5, 0.005  ) )
-        return vec4( 0.0 );
-    vec4 c = vec4( 0.0 );
-    if ( value >= 0.5 )
-    {
-        c = vec4( 1.0, 0.34, 0.34, 2.0 * ( value - 0.5 ) );
-    }
-    else
-    {
-        vec4 cols[2];
-        cols[1] = vec4( 0.0, 0.37, 1.0, 0.1 );
-        cols[0] = vec4( 0.0, 1.0, 1.0, 0.1 );
-
-        int i = int(2.0 * value * 2.0 * 15.0);
-        int imod = i % 2;
-        c = cols[ imod ];
-    }
-    return c;
-    */
+    // if ( isZero( value - 0.5, 0.005  ) )
+    //     return vec4( 0.0 );
+    // vec4 c = vec4( 0.0 );
+    // if ( value >= 0.5 )
+    // {
+    //     c = vec4( 1.0, 0.34, 0.34, 2.0 * ( value - 0.5 ) );
+    // }
+    // else
+    // {
+    //     vec4 cols[2];
+    //     cols[1] = vec4( 0.0, 0.37, 1.0, 0.1 );
+    //     cols[0] = vec4( 0.0, 1.0, 1.0, 0.1 );
+    //
+    //     int i = int(2.0 * value * 2.0 * 15.0);
+    //     int imod = i % 2;
+    //     c = cols[ imod ];
+    // }
+    // return c;
 #endif
 }
 

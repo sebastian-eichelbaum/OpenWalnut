@@ -31,7 +31,7 @@
 #include "../common/math/WLinearAlgebraFunctions.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
-#include "../common/math/linearAlgebra/WMatrix.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WGridRegular3D.h"
 

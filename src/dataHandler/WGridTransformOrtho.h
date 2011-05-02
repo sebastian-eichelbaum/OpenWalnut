@@ -27,7 +27,7 @@
 
 #include "../common/math/WVector3D.h"
 #include "../common/math/WMatrix.h"
-#include "../common/math/linearAlgebra/WMatrix.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WExportDataHandler.h"
 

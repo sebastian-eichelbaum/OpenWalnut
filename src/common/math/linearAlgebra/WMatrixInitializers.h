@@ -123,9 +123,9 @@ WMatrix4d_2 makeRotate( ValueT angle, ValueT x, ValueT y, ValueT z )
     WVector3dRow_2 uT( transpose( u ) );
     WMatrix3d_2 uuT = u * uT;
     WMatrix3d_2 s;
-    s( 0, 0 ) = 0.0;   s( 0, 1 ) = -u[2]; s( 0, 2 ) = u[1];
-    s( 1, 0 ) = u[2];  s( 1, 1 ) = 0.0;   s( 1, 2 ) = -u[0];
-    s( 2, 0 ) = -u[1]; s( 2, 1 ) = u[0];  s( 2, 2 ) = 0.0;
+    s( 0, 0 ) = 0.0;   s( 0, 1 ) = -u[2]; s( 0, 2 ) = u[1];     // NOLINT - multiple commands on one line
+    s( 1, 0 ) = u[2];  s( 1, 1 ) = 0.0;   s( 1, 2 ) = -u[0];    // NOLINT - multiple commands on one line
+    s( 2, 0 ) = -u[1]; s( 2, 1 ) = u[0];  s( 2, 2 ) = 0.0;      // NOLINT - multiple commands on one line
 
     // Now we can formulate the rotation matrix:
     return WMatrix4d_2::fromMatrices(

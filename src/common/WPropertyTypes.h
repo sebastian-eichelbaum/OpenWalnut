@@ -29,10 +29,6 @@
 
 #include <string>
 #include <vector>
-
-#include <boost/lexical_cast.hpp>
-
-#include <string>
 #include <list>
 #include <utility>
 
@@ -44,7 +40,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "math/WPosition.h"
-#include "math/linearAlgebra/WMatrix.h"
+#include "math/linearAlgebra/WMatrixFixed.h"
 #include "WItemSelector.h"
 #include "WColor.h"
 #include "WAssert.h"

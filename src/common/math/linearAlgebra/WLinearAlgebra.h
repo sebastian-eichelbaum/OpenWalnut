@@ -22,11 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMATRIXALL_H
-#define WMATRIXALL_H
+#ifndef WLINEARALGEBRA_H
+#define WLINEARALGEBRA_H
 
 #include "WMatrixFixed.h"
 #include "WMatrixEigen.h"
 #include "WVectorFixed.h"
 
-#endif  // WMATRIXALL_H
+#endif  // WLINEARALGEBRA_H

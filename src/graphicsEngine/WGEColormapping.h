@@ -28,6 +28,7 @@
 #include <map>
 #include <string>
 #include <algorithm>
+#include <functional>
 #include <vector>
 
 #include <boost/signals2/signal.hpp>
@@ -38,7 +39,7 @@
 #include "../common/WBoundingBox.h"
 #include "../common/WSharedSequenceContainer.h"
 #include "../common/WSharedAssociativeContainer.h"
-#include "../common/math/linearAlgebra/WMatrix.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "callbacks/WGEFunctorCallback.h"
 

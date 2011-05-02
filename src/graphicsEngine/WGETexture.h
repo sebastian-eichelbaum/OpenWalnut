@@ -42,7 +42,7 @@
 #include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
 #include "../common/WPropertyHelper.h"
-#include "../common/math/linearAlgebra/WMatrix.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WGETextureUtils.h"
 

@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../common/math/linearAlgebra/WMatrix.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WValueSet.h"
 
