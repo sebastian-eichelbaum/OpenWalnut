@@ -216,7 +216,7 @@ void WGEGridNode::callback( osg::Node* /*node*/ )
 
         // apply the grid transformation
         osg::Matrix m = osg::Matrix::scale( grid->getNbCoordsX() - 1, grid->getNbCoordsY() - 1, grid->getNbCoordsZ() - 1 ) *
-                        toOsgMatrixd( grid->getTransform() );
+                        static_cast< osg::Matrixd >( static_cast< WMatrix4d_2 >( grid->getTransform() ) );
         setMatrix( m );
 
         // set the labels correspondingly

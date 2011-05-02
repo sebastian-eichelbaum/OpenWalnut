@@ -1,7 +1,7 @@
 FILE( GLOB COMMON_SRC "*.cpp" "*.h" )
 FILE( GLOB COMMON_DATASTRUCTURES_SRC "datastructures/*.cpp" "datastructures/*.h" )
 FILE( GLOB COMMON_EXCEPTIONS_SRC "exceptions/*.cpp" "exceptions/*.h" )
-FILE( GLOB MATH_SRC "math/*.cpp" "math/*.h" )
+FILE( GLOB_RECURSE MATH_SRC "math/*.cpp" "math/*.h" )
 
 ADD_SUBDIRECTORY( datastructures )
 ADD_SUBDIRECTORY( constraints )

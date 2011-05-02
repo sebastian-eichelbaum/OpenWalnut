@@ -22,10 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WVECTOR3D_H
-#define WVECTOR3D_H
+#include "WVectorFixed.h"
 
-// defined in WMatrixFixed
-#include "WMatrixFixed.h"
-
-#endif  // WVECTOR3D_H

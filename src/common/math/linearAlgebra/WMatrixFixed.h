@@ -28,17 +28,28 @@
 #include <string>
 #include <algorithm>
 
+#include <boost/static_assert.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
+
+// Needed for conversion: OSG Types
+#include <osg/Vec3d>
+#include <osg/Vec3f>
+#include <osg/Vec3d>
+#include <osg/Vec3f>
+#include <osg/Vec4d>
+#include <osg/Vec4f>
+#include <osg/Matrixd>
+
+// Needed for conversion: Eigen3 Types
+#include "../../../ext/Eigen/Core"
+#include "../../../ext/Eigen/LU" // needed for the inverse() function
 
 #include "../../WDefines.h"
 #include "../../WStringUtils.h"
 #include "../../WTypeTraits.h"
 
 #include "../../exceptions/WOutOfBounds.h"
-
-#include "../../../ext/Eigen/Core"
-#include "../../../ext/Eigen/LU" // needed for the inverse() function
 
 /**
  * Macro for handling the value store template.
@@ -65,7 +76,7 @@ class ValueStore
 public:
     /**
      * Returns a reference to the component of an row and column in order to provide access to the component. It does not check for validity of
-     * the indices. Use \ref at for this.
+     * the indices.
      *
      * \param row the row, staring with 0
      * \param col the column, starting with 0
@@ -77,7 +88,7 @@ public:
 
     /**
      * Returns a reference to the component of an row and column in order to provide access to the component. It does not check for validity of
-     * the indices. Use \ref at for this.
+     * the indices.
      *
      * \param row the row, staring with 0
      * \param col the column, starting with 0
@@ -103,7 +114,7 @@ public:
         {
             for ( size_t col = 0; col < Cols; ++col )
             {
-                ( row, col ) = rhs( row, col );
+                operator()( row, col ) = rhs( row, col );
             }
         }
     }
@@ -192,6 +203,40 @@ public:
     }
 
     /**
+     * Constructor easing the initialization of vectors. This won't compile if Cols != 1 and Rows != 3.
+     *
+     * \param x x coefficient
+     * \param y y coefficient
+     * \param z z coefficient
+     */
+    WMatrixFixed( const ValueT& x, const ValueT& y, const ValueT& z )
+    {
+        BOOST_STATIC_ASSERT( Rows == 3 );
+        // NOTE: The static Cols == 1 check is done by operator []
+        operator()[ 0 ] = x;
+        operator()[ 1 ] = y;
+        operator()[ 2 ] = z;
+    }
+
+    /**
+     * Constructor easing the initialization of vectors. This won't compile if Cols != 1 and Rows != 4.
+     *
+     * \param x x coefficient
+     * \param y y coefficient
+     * \param z z coefficient
+     * \param w w coefficient
+     */
+    WMatrixFixed( const ValueT& x, const ValueT& y, const ValueT& z, const ValueT& w )
+    {
+        BOOST_STATIC_ASSERT( Rows == 4 );
+        // NOTE: The static Cols == 1 check is done by operator []
+        operator()[ 0 ] = x;
+        operator()[ 1 ] = y;
+        operator()[ 2 ] = z;
+        operator()[ 3 ] = w;
+    }
+
+    /**
      * Returns an identity matrix.
      *
      * \return the identity matrix.
@@ -246,6 +291,78 @@ public:
         return zero();
     }
 
+    /**
+     * Copy construction allowing the creation of a WMatrixFixed by another matrix of different size.
+     * Please see \ref fromMatrices for more details, since this call is equivalent to fromMatrices( zero(), src, rowOffset, colOffset ).
+     *
+     * \see fromMatrices
+     *
+     * \tparam RHSValueT Value type of the given matrix
+     * \tparam RHSRows Number of rows of the given matrix.
+     * \tparam RHSCols Number of cols of the given matrix.
+     * \tparam RHSValueStoreT Value store of the given matrix.
+     *
+     * \param src the matrix to copy
+     * \param rowOffset row offset, defaults to 0
+     * \param colOffset col offset, defaults to 0
+     */
+    template< typename RHSValueT, size_t RHSRows, size_t RHSCols, ValueStoreTemplate RHSValueStoreT >
+    static MatrixType fromMatrix( const WMatrixFixed< RHSValueT, RHSRows, RHSCols, RHSValueStoreT >& src, size_t rowOffset = 0,
+                                                                                                          size_t colOffset = 0 )
+    {
+        return fromMatrices( zero(), src, rowOffset, colOffset );
+    }
+
+    /**
+     * Copy construction allowing the creation of a WMatrixFixed by another matrix of different size.
+     * The specified source matrix gets copied into the area specified by its dimensions and the offset. On all other places, the specified
+     * reference matrix is used.
+     *
+     * \tparam RHSValueT Value type of the given matrix
+     * \tparam RHSRows Number of rows of the given matrix.
+     * \tparam RHSCols Number of cols of the given matrix.
+     * \tparam RHSValueStoreT Value store of the given matrix.
+     *
+     * \param m the reference matrix to use where src is not defined or used (due to offset)
+     * \param src the matrix to copy
+     * \param rowOffset row offset, defaults to 0
+     * \param colOffset col offset, defaults to 0
+     */
+    template< typename RHSValueT, size_t RHSRows, size_t RHSCols, ValueStoreTemplate RHSValueStoreT >
+    static MatrixType fromMatrices( const MatrixType& m,
+                                    const WMatrixFixed< RHSValueT, RHSRows, RHSCols, RHSValueStoreT >& src, size_t rowOffset = 0,
+                                                                                                            size_t colOffset = 0 )
+    {
+        MatrixType result;
+        for ( size_t row = 0; row < Rows; ++row )
+        {
+            for ( size_t col = 0; col < Cols; ++col )
+            {
+                if ( ( row >= rowOffset ) && ( col >= colOffset ) )
+                {
+                    // find the correct index in the src matrix
+                    size_t srcRow = row - rowOffset;
+                    size_t srcCol = col - colOffset;
+
+                    // is this a valid index?
+                    if ( ( srcRow < RHSRows ) && ( srcCol < RHSCols ) )
+                    {
+                        result( row, col ) = src( srcRow, srcCol );
+                    }
+                    else
+                    {
+                        result( row, col ) = m( row, col );
+                    }
+                }
+                else
+                {
+                    result( row, col ) = m( row, col );
+                }
+            }
+        }
+        return result;
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Conversion
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -269,6 +386,99 @@ public:
     }
 
     /**
+     * Cast to OSG Vector. This will only compile for matrices with only one col and 2 rows.
+     *
+     * \return OSG vector.
+     */
+    operator osg::Vec2d() const
+    {
+        // NOTE: operator[] already manages Cols=0 assert and casting is done implicitly
+        BOOST_STATIC_ASSERT( Rows == 2 );
+        return osg::Vec2d( operator[]( 0 ), operator[]( 1 ) );
+    }
+
+    /**
+     * Cast to OSG Vector. This will only compile for matrices with only one col and 3 or 4 rows.
+     *
+     * \return OSG vector.
+     */
+    operator osg::Vec2f() const
+    {
+        // NOTE: operator[] already manages Cols=0 assert and casting is done implicitly
+        BOOST_STATIC_ASSERT( Rows == 2 );
+        return osg::Vec2f( operator[]( 0 ), operator[]( 1 ) );
+    }
+
+    /**
+     * Cast to OSG Vector. This will only compile for matrices with only one col and 3 or 4 rows.
+     *
+     * \return OSG vector.
+     */
+    operator osg::Vec3d() const
+    {
+        // NOTE: operator[] already manages Cols=0 assert and casting is done implicitly
+        BOOST_STATIC_ASSERT( ( Rows == 3 ) || ( Rows == 4 ) );
+        return osg::Vec3d( operator[]( 0 ), operator[]( 1 ), operator[]( 2 ) );
+    }
+
+    /**
+     * Cast to OSG Vector. This will only compile for matrices with only one col and 3 or 4 rows.
+     *
+     * \return OSG vector.
+     */
+    operator osg::Vec3f() const
+    {
+        // NOTE: operator[] already manages Cols=0 assert and casting is done implicitly
+        BOOST_STATIC_ASSERT( ( Rows == 3 ) || ( Rows == 4 ) );
+        return osg::Vec3f( operator[]( 0 ), operator[]( 1 ), operator[]( 2 ) );
+    }
+
+    /**
+     * Cast to OSG Vector. This will only compile for matrices with only one col and 4 rows.
+     *
+     * \return OSG vector.
+     */
+    operator osg::Vec4d() const
+    {
+        // NOTE: operator[] already manages Cols=0 assert and casting is done implicitly
+        BOOST_STATIC_ASSERT( Rows == 4 );
+        return osg::Vec4d( operator[]( 0 ), operator[]( 1 ), operator[]( 2 ), operator[]( 3 ) );
+    }
+
+    /**
+     * Cast to OSG Vector. This will only compile for matrices with only one col and 4 rows.
+     *
+     * \return OSG vector.
+     */
+    operator osg::Vec4f() const
+    {
+        // NOTE: operator[] already manages Cols=0 assert and casting is done implicitly
+        BOOST_STATIC_ASSERT( Rows == 4 );
+        return osg::Vec4f( operator[]( 0 ), operator[]( 1 ), operator[]( 2 ), operator[]( 3 ) );
+    }
+
+    /**
+     * Convert this matrix to a OSG Matrix of size 4x4. This compiles only for 4x4 WMatrix types.
+     *
+     * \return the OSG Matrix
+     */
+    operator osg::Matrixd() const
+    {
+        BOOST_STATIC_ASSERT( Rows == 4 );
+        BOOST_STATIC_ASSERT( Cols == 4 );
+
+        osg::Matrixd m2;
+        for ( size_t row = 0; row < 4; ++row )
+        {
+            for ( size_t col = 0; col < 4; ++col )
+            {
+                m2( row, col ) = operator()( row, col );
+            }
+        }
+        return m2;
+    }
+
+    /**
      * Creates a WMatrix from a given Eigen3 Matrix
      *
      * \param m the Eigen3 matrix.
@@ -279,7 +489,26 @@ public:
         {
             for ( size_t col = 0; col < Cols; ++col )
             {
-                operator() ( row, col ) = m( row, col );
+                operator()( row, col ) = m( row, col );
+            }
+        }
+    }
+
+    /**
+     * Creates a WMatrix from a given OSG 4x4 Matrix. Will not compile if Rows != 4 or Cols != 4.
+     *
+     * \param m the OSG matrix.
+     */
+    WMatrixFixed( const osg::Matrixd& m )
+    {
+        BOOST_STATIC_ASSERT( Rows == 4 );
+        BOOST_STATIC_ASSERT( Cols == 4 );
+
+        for ( size_t row = 0; row < 4; ++row )
+        {
+            for ( size_t col = 0; col < 4; ++col )
+            {
+                operator()( row, col ) = m( row, col );
             }
         }
     }
@@ -364,7 +593,7 @@ public:
         {
             for ( size_t col = 0; col < Cols; ++col )
             {
-                m( row, col ) = operator() ( row, col ) * rhs;
+                m( row, col ) = operator()( row, col ) * rhs;
             }
         }
         return m;
@@ -397,7 +626,7 @@ public:
         {
             for ( size_t col = 0; col < Cols; ++col )
             {
-                m( row, col ) = operator() ( row, col ) + rhs( row, col );
+                m( row, col ) = operator()( row, col ) + rhs( row, col );
             }
         }
         return m;
@@ -430,7 +659,7 @@ public:
         {
             for ( size_t col = 0; col < Cols; ++col )
             {
-                m( row, col ) = operator() ( row, col ) - rhs( row, col );
+                m( row, col ) = operator()( row, col ) - rhs( row, col );
             }
         }
         return m;
@@ -478,29 +707,31 @@ public:
 
     /**
      * Returns a reference to the component of the first column to provide access to the component. It does not check for validity of
-     * the indices. Use this for single-column matrices (i.e. vectors).
+     * the indices. Use this for single-column matrices (i.e. vectors). For matrices with cols!=0, this will not compile.
      *
      * \param row the row, staring with 0
      */
     ValueT& operator[]( size_t row ) throw()
     {
+        BOOST_STATIC_ASSERT( Cols == 1 );
         return m_values( row, 0 );
     }
 
     /**
      * Returns a reference to the component of the first column to provide access to the component. It does not check for validity of
-     * the indices. Use this for single-column matrices (i.e. vectors).
+     * the indices. Use this for single-column matrices (i.e. vectors). For matrices with cols!=0, this will not compile.
      *
      * \param row the row, staring with 0
      */
     const ValueT& operator[]( size_t row ) const throw()
     {
+        BOOST_STATIC_ASSERT( Cols == 1 );
         return m_values( row, 0 );
     }
 
     /**
      * Returns a reference to the component of an row and column in order to provide access to the component. It does check for validity of
-     * the indices. Use \ref operator() for avoiding this check.
+     * the indices. Use operator() for avoiding this check.
      *
      * \param row the row, staring with 0
      * \param col the column, starting with 0
@@ -515,12 +746,12 @@ public:
                                 ") is invalid for " + boost::lexical_cast< std::string >( Rows ) + "x" + boost::lexical_cast< std::string >( Cols ) +
                                 " matrix." );
         }
-        return operator() ( row, col );
+        return operator()( row, col );
     }
 
     /**
      * Returns a reference to the component of an row and column in order to provide access to the component. It does check for validity of
-     * the indices. Use \ref operator() for avoiding this check.
+     * the indices. Use operator() for avoiding this check.
      *
      * \param row the row, staring with 0
      * \param col the column, starting with 0
@@ -535,7 +766,7 @@ public:
                                 ") is invalid for " + boost::lexical_cast< std::string >( Rows ) + "x" + boost::lexical_cast< std::string >( Cols ) +
                                 " matrix." );
         }
-        return operator() ( row, col );
+        return operator()( row, col );
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -559,7 +790,7 @@ public:
         {
             for ( size_t col = 0; col < Cols; ++col )
             {
-                eq &= ( operator() ( row, col ) == rhs( row, col ) );
+                eq &= ( operator()( row, col ) == rhs( row, col ) );
             }
         }
         return eq;
@@ -609,15 +840,8 @@ private:
 
 typedef WMatrixFixed< double, 3, 3 > WMatrix3d_2;
 typedef WMatrixFixed< double, 4, 4 > WMatrix4d_2;
-typedef WMatrixFixed< double, 2, 1 > WVector2d_2;
-typedef WMatrixFixed< double, 3, 1 > WVector3d_2;
-typedef WMatrixFixed< double, 4, 1 > WVector4d_2;
-
 typedef WMatrixFixed< float, 3, 3 > WMatrix3f_2;
 typedef WMatrixFixed< float, 4, 4 > WMatrix4f_2;
-typedef WMatrixFixed< float, 2, 1 > WVector2f_2;
-typedef WMatrixFixed< float, 3, 1 > WVector3f_2;
-typedef WMatrixFixed< float, 4, 1 > WVector4f_2;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Non-friend Non-Member functions
@@ -650,6 +874,36 @@ typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result dot( const WMatr
         r += a( i, 0 ) * b( i, 0 );
     }
     return r;
+}
+
+/**
+ * Calculate cross product between two 3D vectors.
+ *
+ * \tparam AValueT Value type of the first vector
+ * \tparam AValueStoreT ValueStore type of the first vector
+ * \tparam BValueT Value type of the second vector
+ * \tparam BValueStoreT ValueStore type of the second vector
+ * \tparam ResultValueStoreT resulting valuestore
+ * \param a the first vector
+ * \param b the second vector
+ *
+ * \return cross product
+ */
+template< typename AValueT, ValueStoreTemplate AValueStoreT,
+          typename BValueT, ValueStoreTemplate BValueStoreT,
+          ValueStoreTemplate ResultValueStoreT >
+ WMatrixFixed< typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result, 3, 1, ResultValueStoreT >
+    cross( const WMatrixFixed< AValueT, 3, 1, AValueStoreT >& a, const WMatrixFixed< BValueT, 3, 1, BValueStoreT >& b )
+{
+    typedef WMatrixFixed< typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result, 3, 1, ResultValueStoreT > ResultT;
+
+    // NOTE: to implement a general cross product for arbitrary row counts, the implementation is more complex and requires the implementation of
+    // the Levi Civita symbol.
+    ResultT v;
+    v[0] = a[1] * b[2] - a[2] * b[1];
+    v[1] = a[2] * b[0] - a[0] * b[2];
+    v[2] = a[0] * b[1] - a[1] * b[0];
+    return v;
 }
 
 /**

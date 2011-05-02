@@ -271,7 +271,7 @@ public:
     public:
         /**
          * Returns a reference to the component of an row and column in order to provide access to the component. It does not check for validity of
-         * the indices. Use \ref at for this.
+         * the indices.
          *
          * \param row the row, staring with 0
          * \param col the column, starting with 0
@@ -283,7 +283,7 @@ public:
 
         /**
          * Returns a reference to the component of an row and column in order to provide access to the component. It does not check for validity of
-         * the indices. Use \ref at for this.
+         * the indices.
          *
          * \param row the row, staring with 0
          * \param col the column, starting with 0

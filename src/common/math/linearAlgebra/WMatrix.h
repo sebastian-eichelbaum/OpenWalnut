@@ -26,8 +26,7 @@
 #define WMATRIXALL_H
 
 #include "WMatrixFixed.h"
-#include "WMatrixConversions.h"
-
 #include "WMatrixEigen.h"
+#include "WVectorFixed.h"
 
 #endif  // WMATRIXALL_H

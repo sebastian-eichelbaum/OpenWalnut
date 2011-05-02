@@ -6,7 +6,7 @@ IF( OW_COMPILE_TESTS )
                                "OWcommon"
                                "WMatrix" # only header
                                "WPosition" # is a WMatrixFixed. Gets tested there
-                               "WVector3D" # is a WMatrixFixed. Gets tested there
+                               "WVectorFixed" # is a WMatrixFixed. Gets tested there
                              )
 ENDIF( OW_COMPILE_TESTS )
 

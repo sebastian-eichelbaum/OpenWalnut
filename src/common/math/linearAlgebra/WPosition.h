@@ -25,7 +25,7 @@
 #ifndef WPOSITION_H
 #define WPOSITION_H
 
-#include "WVector3D.h"
+#include "WVectorFixed.h"
 
 /**
  * \class WPosition

@@ -151,13 +151,13 @@ void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, WMatrix4d_2 pre
         // we use a new instance of the default shader here because the preTransform is varying between several nodes.
         osg::ref_ptr< WGEShader > s = new WGEShader( "WGEDefaultColormapper" );
         setDefines( s, 0 );
-        setPreTransform( s, toOsgMatrixd( preTransform ) );
+        setPreTransform( s, preTransform );
         s->apply( node );
     }
     else
     {
         setDefines( shader, startTexUnit );
-        setPreTransform( shader, toOsgMatrixd( preTransform ) );
+        setPreTransform( shader, preTransform );
         shader->apply( node );
     }
 }
