@@ -30,6 +30,7 @@
 #include <boost/array.hpp>
 
 #include "../WMatrixFixed.h"
+#include "../WVectorFixed.h"
 
 /**
  * Tests for WMatrixFixed.
