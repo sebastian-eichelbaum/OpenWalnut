@@ -625,7 +625,7 @@ private:
                               wtracking::WThreadedTrackingFunction::JobType const& j,
                               WVector3d_2 d )
     {
-        if( dot( j, d ) > 0.0 )
+        if( dot( j.second, d ) > 0.0 )
         {
             return d;
         }

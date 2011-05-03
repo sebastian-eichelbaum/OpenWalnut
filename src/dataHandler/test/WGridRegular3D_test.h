@@ -35,7 +35,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../../common/exceptions/WOutOfBounds.h"
-#include "../../common/math/test/WVector3d_2Traits.h"
+#include "../../common/math/test/WVector3dTraits.h"
 #include "../../common/WLimits.h"
 #include "../WGridRegular3D.h"
 

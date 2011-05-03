@@ -30,6 +30,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WMath.h"
+#include "../../WLimits.h"
 #include "WPositionTraits.h"
 
 

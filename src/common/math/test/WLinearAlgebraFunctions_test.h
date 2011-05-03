@@ -30,9 +30,9 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../../WException.h"
+#include "../../WLimits.h"
 #include "../WLinearAlgebraFunctions.h"
 #include "../WMatrix.h"
-#include "../linearAlgebra/WLinearAlgebra.h"
 #include "../linearAlgebra/WLinearAlgebra.h"
 #include "WVector3dTraits.h"
 
@@ -241,9 +241,9 @@ public:
             WMatrix_2 Ainvers( pseudoInverse( A ) );
             WMatrix_2 I( A*Ainvers );
 
-            for ( size_t row = 0; row < I.rows(); row++ )
+            for ( int row = 0; row < I.rows(); row++ )
             {
-                for ( size_t col = 0; col < I.cols(); col++ )
+                for ( int col = 0; col < I.cols(); col++ )
                 {
                     if ( row == col )
                     {

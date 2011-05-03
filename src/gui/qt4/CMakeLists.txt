@@ -14,7 +14,6 @@ SET( QT_LIBS ${QT_QTCORE_LIBRARY}
 SET(GUI_QT4_MOC_HDRS
     WMainWindow.h
     WQtNavGLWidget.h
-    WQtGLWidget.h
     WQtGLDockWidget.h
     WQtCombinerToolbar.h
     guiElements/WQtPushButton.h

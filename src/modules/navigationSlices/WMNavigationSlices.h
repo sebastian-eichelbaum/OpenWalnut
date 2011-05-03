@@ -33,6 +33,7 @@
 #include <boost/signals2.hpp>
 
 #include "../../graphicsEngine/WGEManagedGroupNode.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WPropertyTypes.h"
 #include "../../graphicsEngine/WPickInfo.h"
 
@@ -162,7 +163,7 @@ private:
         /**
          * The stored pixel position of a previous drag event.
          */
-        WVector2D_2 m_oldPixelPosition;
+        WVector2d_2 m_oldPixelPosition;
 
         /**
          * The transformation direction. This is needed since the OSG coord system has a mirrored coronal direction.

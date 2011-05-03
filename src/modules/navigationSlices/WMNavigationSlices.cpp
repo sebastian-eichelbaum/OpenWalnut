@@ -236,7 +236,7 @@ void WMNavigationSlices::PickCallback::pick( WPickInfo pickInfo )
     if ( pickInfo.getName() == m_node->getName() )
     {
         WVector3d_2 normal = pickInfo.getPickNormal();
-        WVector2D_2 newPixelPos = pickInfo.getPickPixel();
+        WVector2d_2 newPixelPos = pickInfo.getPickPixel();
         // dragging was initialized earlier
         if ( m_isPicked )
         {
