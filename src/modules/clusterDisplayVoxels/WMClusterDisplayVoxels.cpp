@@ -1066,8 +1066,8 @@ void WMClusterDisplayVoxels::dendrogramClick( WPickInfo pickInfo )
     {
         return;
     }
-    int x = pickInfo.getPickPixelPosition().first;
-    int y = pickInfo.getPickPixelPosition().second;
+    int x = pickInfo.getPickPixel().x();
+    int y = pickInfo.getPickPixel().y();
 
     size_t cluster = m_dendrogramGeode->getClickedCluster( x, y );
     //std::cout << cluster << std::endl;

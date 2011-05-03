@@ -170,7 +170,7 @@ private:
 
     WVector3d_2 m_pickNormal; //!< Store the normal that occured when the pick action was started.
 
-    std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
+    WVector2d_2 m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
 
     WPickInfo m_pickInfo; //!< Stores the pick information for potential redraw
 

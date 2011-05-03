@@ -132,11 +132,6 @@ public:
     inline WVector3d_2 getPickNormal() const;
 
     /**
-     * Get pixel coordinates where object was hit.
-     */
-    OW_API_DEPRECATED inline std::pair< float, float > getPickPixelPosition() const;
-
-    /**
      * Returns the picked pixel coordinates in screen-space.
      *
      * \return the coordinates
@@ -232,11 +227,6 @@ WPosition_2 WPickInfo::getPickPosition() const
 WVector3d_2 WPickInfo::getPickNormal() const
 {
     return m_pickNormal;
-}
-
-std::pair< float, float > WPickInfo::getPickPixelPosition() const
-{
-    return m_pixelCoords;
 }
 
 inline bool WPickInfo::operator==( WPickInfo rhs ) const

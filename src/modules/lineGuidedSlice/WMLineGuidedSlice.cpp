@@ -196,10 +196,10 @@ void WMLineGuidedSlice::setSlicePosFromPick( WPickInfo pickInfo )
 
         WVector3d_2 normal = pickInfo.getPickNormal();
 
-        std::pair< float, float > newPixelPos( pickInfo.getPickPixelPosition() );
+        WVector2d_2 newPixelPos( pickInfo.getPickPixel() );
         if( m_isPicked )
         {
-            float diff = newPixelPos.first - m_oldPixelPosition.first;
+            float diff = newPixelPos.x() - m_oldPixelPosition.x();
 
             diff *= 0.01;
 

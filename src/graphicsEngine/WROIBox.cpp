@@ -114,7 +114,7 @@ WROIBox::WROIBox( WPosition_2 minPos, WPosition_2 maxPos ) :
     WROI(),
     boxId( maxBoxId++ ),
     m_pickNormal( WVector3d_2() ),
-    m_oldPixelPosition( std::make_pair( 0, 0 ) ),
+    m_oldPixelPosition( WVector2d_2::zero() ),
     m_color( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) ),
     m_notColor( osg::Vec4( 1.0f, 0.0f, 0.0f, 0.4f ) )
 {
@@ -222,21 +222,21 @@ void WROIBox::updateGFX()
     ss << "ROIBox" << boxId << "";
     if ( m_pickInfo.getName() == ss.str() )
     {
-        std::pair< float, float > newPixelPos( m_pickInfo.getPickPixelPosition() );
+        WVector2d_2 newPixelPos( m_pickInfo.getPickPixel() );
         if ( m_isPicked )
         {
-            osg::Vec3 in( newPixelPos.first, newPixelPos.second, 0.0 );
+            osg::Vec3 in( newPixelPos.x(), newPixelPos.y(), 0.0 );
             osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
 
             WPosition_2 newPixelWorldPos( world[0], world[1], world[2] );
             WPosition_2 oldPixelWorldPos;
-            if(  m_oldPixelPosition.first == 0 && m_oldPixelPosition.second == 0 )
+            if(  m_oldPixelPosition.x() == 0 && m_oldPixelPosition.y() == 0 )
             {
                 oldPixelWorldPos = newPixelWorldPos;
             }
             else
             {
-                osg::Vec3 in( m_oldPixelPosition.first, m_oldPixelPosition.second, 0.0 );
+                osg::Vec3 in( m_oldPixelPosition.x(), m_oldPixelPosition.y(), 0.0 );
                 osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
                 oldPixelWorldPos = WPosition_2( world[0], world[1], world[2] );
             }
