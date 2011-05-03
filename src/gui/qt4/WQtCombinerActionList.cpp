@@ -56,10 +56,12 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
     for ( WCombinerTypes::WCompatiblesList::iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
     {
         // check current prototype against whitelist and blacklist
-        if( !ignoreWhiteList &&                 // ignore the whitelist?
+        if(
+            !ignoreWhiteList &&                 // ignore the whitelist?
             moduleWhiteList.size() &&           // whitelist empty?
-            std::find( moduleWhiteList.begin(), moduleWhiteList.end(), groups->first->getName() ) == moduleWhiteList.end()
-            || std::find( moduleBlackList.begin(), moduleBlackList.end(), groups->first->getName() ) != moduleBlackList.end() )
+            ( ( std::find( moduleWhiteList.begin(), moduleWhiteList.end(), groups->first->getName() ) == moduleWhiteList.end() ) ||
+            ( std::find( moduleBlackList.begin(), moduleBlackList.end(), groups->first->getName() ) != moduleBlackList.end() ) )
+          )
         {
             continue;
         }

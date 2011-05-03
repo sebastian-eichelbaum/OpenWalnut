@@ -494,7 +494,7 @@ void WQtNetworkEditor::itemMoved()
         timerId = startTimer( 1000 / 25 );
 }
 
-void WQtNetworkEditor::timerEvent( QTimerEvent *event )
+void WQtNetworkEditor::timerEvent( QTimerEvent* /*event*/ )
 {
     //Q_UNUSED( event );
 
