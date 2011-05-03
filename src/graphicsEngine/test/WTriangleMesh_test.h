@@ -206,13 +206,13 @@ public:
 //
 //        double delta = 1e-7;
 //        WVector3d_2 expectedNormal( -0.40824829, 0.816496581, -0.40824829 );
-//        TS_ASSERT_DELTA( expectedNormal.norm(), 1, delta ); // check ouu expectance :-)
+//        TS_ASSERT_DELTA( length( expectedNormal ), 1, delta ); // check ouu expectance :-)
 //
-//        TS_ASSERT_DELTA( mesh.m_triNormals[0].norm(), 1, delta );
+//        TS_ASSERT_DELTA( length( mesh.m_triNormals[0] ), 1, delta );
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0][0], expectedNormal[0], delta );
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0][1], expectedNormal[1], delta );
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0][2], expectedNormal[2], delta );
-//        TS_ASSERT_DELTA( mesh.m_triNormals[1].norm(), 1, delta );
+//        TS_ASSERT_DELTA( length( mesh.m_triNormals[1] ), 1, delta );
 //    };
 //
 //    /**
@@ -261,7 +261,7 @@ public:
 //        // check this triangle stuff too. We need the tri normals for the vert normals
 //        TS_ASSERT_EQUALS( mesh.m_computedTriNormals, true );
 //        TS_ASSERT_EQUALS( mesh.m_triNormals.size(), 2 );
-//        TS_ASSERT_DELTA( mesh.m_triNormals[0].norm(), 1, delta );
+//        TS_ASSERT_DELTA( length( mesh.m_triNormals[0] ), 1, delta );
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0][0], expectedNormal0[0], delta );
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0][1], expectedNormal0[1], delta );
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0][2], expectedNormal0[2], delta );

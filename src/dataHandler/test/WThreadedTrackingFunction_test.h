@@ -183,7 +183,7 @@ public:
             TS_ASSERT( !wtracking::WTrackingUtility::onBoundary( g, j.first ) );
             TS_ASSERT( g->encloses( j.first ) );
             v += x * 0.8;
-            TS_ASSERT_DELTA( ( j.first - v ).norm(), 0.0, 2.0 * TRACKING_EPS );
+            TS_ASSERT_DELTA( length( j.first - v ), 0.0, 2.0 * TRACKING_EPS );
         }
     }
 

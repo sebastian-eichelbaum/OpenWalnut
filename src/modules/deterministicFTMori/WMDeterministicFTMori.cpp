@@ -333,7 +333,7 @@ WVector3d_2 WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WDataSe
         v[ 1 ] = vs->rawData()[ 4 * i + 1 ];
         v[ 2 ] = vs->rawData()[ 4 * i + 2 ];
         v.normalize();
-        if( j.second.norm() == 0 )
+        if( length( j.second ) == 0 )
         {
             return v;
         }

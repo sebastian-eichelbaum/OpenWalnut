@@ -996,14 +996,7 @@ public:
 
     double normalize()  // 28 files use this
     {
-    }
-
-    MatrixType normalized() const  // 19 files use this
-    {
-    }
-
-    ValueType norm() const      // 32 files use this
-    {
+        return 0.0;
     }
 
 private:

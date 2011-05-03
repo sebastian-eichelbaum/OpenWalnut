@@ -146,9 +146,9 @@ public:
         WGridTransformOrtho t( mat );
         WGridRegular3D grid( 3, 3, 3, t );
 
-        TS_ASSERT_DELTA( grid.getOffsetX(), x.norm(), m_delta );
-        TS_ASSERT_DELTA( grid.getOffsetY(), y.norm(), m_delta );
-        TS_ASSERT_DELTA( grid.getOffsetZ(), z.norm(), m_delta );
+        TS_ASSERT_DELTA( grid.getOffsetX(), length( x ), m_delta );
+        TS_ASSERT_DELTA( grid.getOffsetY(), length( y ), m_delta );
+        TS_ASSERT_DELTA( grid.getOffsetZ(), length( z ), m_delta );
     }
 
     /**

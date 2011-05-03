@@ -144,9 +144,9 @@ void WSurface::getSplineSurfaceDeBoorPoints( std::vector< WVector3d_2 > &givenPo
 
                 double xi; //greek alphabet
 
-                if( ( thisPoint - dmyArray ).norm() < m_radius )
+                if( length( thisPoint - dmyArray ) < m_radius )
                 {
-                    xi = 1 - ( thisPoint - dmyArray ).norm() / m_radius;
+                    xi = 1 - length( thisPoint - dmyArray ) / m_radius;
                 }
                 else
                 {

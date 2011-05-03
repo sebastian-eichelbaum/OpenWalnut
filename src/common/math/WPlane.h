@@ -135,7 +135,7 @@ public:
      */
     void setNormal( const WVector3d_2& normal )
     {
-        m_normal = normal.normalized();
+        m_normal = normalize( normal );
         WVector3d_2 gen( 1, 0, 0 );
         if( cross( normal, gen ) ==  WVector3d_2( 0, 0, 0 ) )
         {

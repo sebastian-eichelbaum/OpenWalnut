@@ -407,7 +407,7 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
     for( size_t vertID = 0; vertID < glyph->xyzwNum; ++vertID )
     {
         WPosition_2 pos( glyph->xyzw[nbVertCoords*vertID], glyph->xyzw[nbVertCoords*vertID+1],  glyph->xyzw[nbVertCoords*vertID+2] );
-        double norm = pos.norm();
+        double norm = length( pos );
 
         if( norm < min )
         {
@@ -428,10 +428,10 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
          {
              size_t coordIdBase = nbVertCoords * i;
              WPosition_2 pos( glyph->xyzw[coordIdBase], glyph->xyzw[coordIdBase+1],  glyph->xyzw[coordIdBase+2] );
-             double norm = pos.norm();
+             double norm = length( pos );
              const double epsilon = 1e-9;
              WPosition_2 newPos;
-//             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos.normalized();
+//             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * normalize( pos );
             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos / norm;
             glyph->xyzw[coordIdBase] = newPos[0];
             glyph->xyzw[coordIdBase+1] = newPos[1];

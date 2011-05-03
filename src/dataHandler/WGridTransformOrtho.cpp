@@ -52,7 +52,7 @@ WGridTransformOrtho::WGridTransformOrtho( WMatrix< double > const& mat )
     m_directionY = WVector3d_2( mat( 0, 1 ), mat( 1, 1 ), mat( 2, 1 ) );
     m_directionZ = WVector3d_2( mat( 0, 2 ), mat( 1, 2 ), mat( 2, 2 ) );
 
-    m_scaling = WVector3d_2( m_directionX.norm(), m_directionY.norm(), m_directionZ.norm() );
+    m_scaling = WVector3d_2( length( m_directionX ), length( m_directionY ), length( m_directionZ ) );
 
     WPrecond( m_scaling[ 0 ] != 0.0 && m_scaling[ 1 ] != 0.0 && m_scaling[ 2 ] != 0.0, "" );
     m_directionX /= m_scaling[ 0 ];

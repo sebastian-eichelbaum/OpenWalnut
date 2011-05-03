@@ -117,14 +117,14 @@ public:
         WSymmetricSphericalHarmonic i( w );
 
         std::vector< WUnitSphereCoordinates > orientations;
-        orientations.push_back( WUnitSphereCoordinates( WVector3d_2( 1.0, 0.0, 0.0 ).normalized() ) );
-        orientations.push_back( WUnitSphereCoordinates( WVector3d_2( 0.6, -0.1, 0.2 ).normalized() ) );
-        orientations.push_back( WUnitSphereCoordinates( WVector3d_2( 1.0, 1.0, 1.0 ).normalized() ) );
-        orientations.push_back( WUnitSphereCoordinates( WVector3d_2( -0.1, -0.3, 0.5 ).normalized() ) );
-        orientations.push_back( WUnitSphereCoordinates( WVector3d_2( 0.56347, 0.374, 0.676676 ).normalized() ) );
-        orientations.push_back( WUnitSphereCoordinates( WVector3d_2( 0.56347, 0.374, -0.676676 ).normalized() ) );
-        orientations.push_back( WUnitSphereCoordinates( WVector3d_2( 0.0, 0.0, -4.0 ).normalized() ) );
-        orientations.push_back( WUnitSphereCoordinates( WVector3d_2( 0.0, 4.0, 1.0 ).normalized() ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 1.0, 0.0, 0.0 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 0.6, -0.1, 0.2 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 1.0, 1.0, 1.0 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( -0.1, -0.3, 0.5 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 0.56347, 0.374, 0.676676 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 0.56347, 0.374, -0.676676 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 0.0, 0.0, -4.0 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 0.0, 4.0, 1.0 ) ) ) );
 
         WMatrix_2 SHToTensor = WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( 2, orientations );
         // TODO(all): remove the WValue from the following line, when WTensorSym supports WVector_2

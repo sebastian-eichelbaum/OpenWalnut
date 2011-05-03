@@ -233,7 +233,7 @@ void WFiberCluster::elongateCenterLine() const
         {
             if( intersectPlaneLineNearCP( p, *cit, cutPoint ) )
             {
-                if( ( *cutPoint - p.getPosition() ).norm() < 20 )
+                if( length( *cutPoint - p.getPosition() ) < 20 )
                 {
 //                    avg += *cutPoint;
                     intersectingFibers++;
@@ -286,7 +286,7 @@ void WFiberCluster::elongateCenterLine() const
         {
             if( intersectPlaneLineNearCP( q, *cit, cutPoint ) )
             {
-                if( ( *cutPoint - q.getPosition() ).norm() < 20 )
+                if( length( *cutPoint - q.getPosition() ) < 20 )
                 {
 //                    avg += *cutPoint;
                     intersectingFibers++;

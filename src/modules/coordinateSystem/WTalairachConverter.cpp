@@ -81,13 +81,13 @@ WVector3d_2 WTalairachConverter::ACPC2Talairach( const WVector3d_2 point )
     double y = point[1];
     double z = point[2];
 
-//    double X1 = ( m_pp - m_pc ).norm();
-//    double X2 = ( m_ac - m_pc ).norm();
-//    double X3 = ( m_ap - m_ac ).norm();
-//    double Y1 = ( m_ac - m_rp ).norm();
-//    double Y2 = ( m_lp - m_ac ).norm();
-//    double Z1 = ( m_ac - m_ip ).norm();
-//    double Z2 = ( m_sp - m_ac ).norm();
+//    double X1 = length( m_pp - m_pc );
+//    double X2 = length( m_ac - m_pc );
+//    double X3 = length( m_ap - m_ac );
+//    double Y1 = length( m_ac - m_rp );
+//    double Y2 = length( m_lp - m_ac );
+//    double Z1 = length( m_ac - m_ip );
+//    double Z2 = length( m_sp - m_ac );
 
     double X1 = fabs( m_pp[0] - m_pc[0] );
     double X2 = fabs( m_ac[0] - m_pc[0] );
@@ -150,13 +150,13 @@ WVector3d_2 WTalairachConverter::Talairach2ACPC( const WVector3d_2 point )
     double yt = point[1];
     double zt = point[2];
 
-//    double X1 = ( m_pp - m_pc ).norm();
-//    double X2 = ( m_ac - m_pc ).norm();
-//    double X3 = ( m_ap - m_ac ).norm();
-//    double Y1 = ( m_ac - m_rp ).norm();
-//    double Y2 = ( m_lp - m_ac ).norm();
-//    double Z1 = ( m_ac - m_ip ).norm();
-//    double Z2 = ( m_sp - m_ac ).norm();
+//    double X1 = length( m_pp - m_pc );
+//    double X2 = length( m_ac - m_pc );
+//    double X3 = length( m_ap - m_ac );
+//    double Y1 = length( m_ac - m_rp );
+//    double Y2 = length( m_lp - m_ac );
+//    double Z1 = length( m_ac - m_ip );
+//    double Z2 = length( m_sp - m_ac );
 
     double X1 = fabs( m_pp[0] - m_pc[0] );
     double X2 = fabs( m_ac[0] - m_pc[0] );

@@ -177,7 +177,7 @@ double gauss::innerProduct( const WGaussProcess& p1, const WGaussProcess& p2 )
     {
         for( WFiber::const_iterator cit2 = f2.begin(); cit2 != f2.end(); ++cit2, ++j )
         {
-            integralMatrix( i, j ) = covIntegralThinPlateR3Normalized( ( *cit - *cit2 ).norm(), Q, R );
+            integralMatrix( i, j ) = covIntegralThinPlateR3Normalized( length( *cit - *cit2 ), Q, R );
         }
         j = 0; // reset every loop!
     }

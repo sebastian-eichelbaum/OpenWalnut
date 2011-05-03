@@ -66,7 +66,7 @@ void tesselateIcosahedron( std::vector< WVector3d_2 >* vertices, std::vector< un
 
     for( std::vector< WVector3d_2 >::iterator it = vertices->begin(); it != vertices->end(); ++it )
     {
-        *it = it->normalized();
+        *it = normalize( *it );
     }
 
     // add triangle indices
@@ -114,7 +114,7 @@ void tesselateIcosahedron( std::vector< WVector3d_2 >* vertices, std::vector< un
                     WVector3d_2 v0 = vertices->at( e.first );
                     WVector3d_2 v1 = vertices->at( e.second );
                     WVector3d_2 v = v0 + v1;
-                    v = v.normalized();
+                    v = normalize( v );
                     vertices->push_back( v );
                     edgeVertices[ e ] = vertices->size() - 1;
                 }

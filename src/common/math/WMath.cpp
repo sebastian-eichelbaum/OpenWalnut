@@ -51,7 +51,7 @@ bool intersectPlaneSegment( const WPlane& p,
                                    const WPosition_2& p2,
                                    boost::shared_ptr< WPosition_2 > pointOfIntersection )
 {
-    const WVector3d_2& normal = p.getNormal().normalized();
+    const WVector3d_2& normal = normalize( p.getNormal() );
     double const d = dot( normal, p.getPosition() );
     WAssert( pointOfIntersection.get(), "Place to store a point of intersection is not ready!" );
     *pointOfIntersection = p.getPosition();   // otherwise it would be undefined

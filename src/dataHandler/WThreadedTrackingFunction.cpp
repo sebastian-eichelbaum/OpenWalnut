@@ -42,7 +42,7 @@ namespace wtracking
         // find matching direction
         WVector3d_2 dir = dirFunc( dataset, job );
 
-        if( fabs( dir.norm() - 1.0 ) > TRACKING_EPS )
+        if( fabs( length( dir ) - 1.0 ) > TRACKING_EPS )
         {
             return false;
         }
@@ -210,7 +210,7 @@ namespace wtracking
         j.second = e;
 
         std::vector< WVector3d_2 > fiber;
-        if( fabs( e.norm() - 1.0 ) > TRACKING_EPS )
+        if( fabs( length( e ) - 1.0 ) > TRACKING_EPS )
         {
             if( m_fiberVisitor )
             {
@@ -228,7 +228,7 @@ namespace wtracking
         // forward integration
         for( std::size_t k = 0; k < m_maxPoints; ++k )
         {
-            if( fabs( j.second.norm() - 1.0 ) > TRACKING_EPS )
+            if( fabs( length( j.second ) - 1.0 ) > TRACKING_EPS )
             {
                 break;
             }
@@ -249,7 +249,7 @@ namespace wtracking
         j.second = e * -1.0;
         for( std::size_t k = 0; k < m_maxPoints; ++k )
         {
-            if( fabs( j.second.norm() - 1.0 ) > TRACKING_EPS )
+            if( fabs( length( j.second ) - 1.0 ) > TRACKING_EPS )
             {
                 break;
             }

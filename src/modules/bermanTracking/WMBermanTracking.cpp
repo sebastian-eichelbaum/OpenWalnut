@@ -210,7 +210,7 @@ void WMBermanTracking::moduleMain()
                 std::vector< WUnitSphereCoordinates > c;
                 for( std::size_t i = 0; i < m_dataSetResidual->getOrientations().size(); ++i )
                 {
-                    if( m_dataSetResidual->getOrientations().at( i ).norm() != 0.0 )
+                    if( length( m_dataSetResidual->getOrientations().at( i ) ) != 0.0 )
                     {
                         c.push_back( WUnitSphereCoordinates( m_dataSetResidual->getOrientations().at( i ) ) );
                     }
@@ -514,7 +514,7 @@ WVector3d_2 WMBermanTracking::getBestDirectionFromSH( WSymmetricSphericalHarmoni
     {
         r = WVector3d_2( 0.0, 0.0, 0.0 );
     }
-    else if( j.second.norm() == 0.0 )
+    else if( length( j.second ) == 0.0 )
     {
         int i = static_cast< int >( static_cast< double >( ( *m_random )() ) / ( 1.0 + static_cast< double >( 0u - 1u ) ) * ( 2.0 * k ) );
         WAssert( i >= 0 && i <= 2 * k, "" );

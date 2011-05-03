@@ -168,8 +168,8 @@ public:
         line.push_back( WPosition_2( 1, 2, 3 ) );
         line.push_back( WPosition_2( 4, 5, 6 ) );
         line.push_back( WPosition_2( 7, 8, 9 ) );
-        double expected = ( WPosition_2( 1, 2, 3 ) - WPosition_2( 4, 5, 6 ) ).norm() +
-                          ( WPosition_2( 4, 5, 6 ) - WPosition_2( 7, 8, 9 ) ).norm();
+        double expected = length( WPosition_2( 1, 2, 3 ) - WPosition_2( 4, 5, 6 ) ) +
+                          length( WPosition_2( 4, 5, 6 ) - WPosition_2( 7, 8, 9 ) );
         TS_ASSERT_EQUALS( expected, pathLength( line ) );
     }
 

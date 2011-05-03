@@ -220,7 +220,7 @@ inline double WGaussProcess::getRadius() const
 
 inline double WGaussProcess::cov_s( const WPosition_2& p1, const WPosition_2& p2 ) const
 {
-    double r = ( p1 - p2 ).norm();
+    double r = length( p1 - p2 );
     if( r >  m_R )
     {
         return 0.0;

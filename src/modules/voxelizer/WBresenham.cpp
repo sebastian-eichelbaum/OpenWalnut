@@ -180,7 +180,7 @@ std::vector< double > WBresenham::computeDistances( const size_t voxelNum,
     for( size_t i = 0; i < x.size(); ++i )
     {
         WPosition_2 lot = dot( u, x[i] ) * u; // lot == perpendicular
-        result.push_back( std::abs( ( x[i] - lot ).norm() ) );
+        result.push_back( std::abs( length( x[i] - lot ) ) );
     }
     return result;
 }
