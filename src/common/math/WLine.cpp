@@ -155,7 +155,7 @@ void WLine::resampleBySegmentLength( double newSegmentLength )
     {
         if( length( newLine.back() - ( *this )[i] ) > newSegmentLength )
         {
-            const WVector3d_2& pred = ( *this )[i - 1];
+            const WPosition_2& pred = ( *this )[i - 1];
             if( pred == newLine.back() )
             {
                 // Then there is no triangle and the old Segment Length is bigger as the new segment
@@ -239,7 +239,7 @@ double maxSegmentLength( const WLine& line )
     }
     for( size_t i = 0; i < line.size() - 1; ++i )
     {
-        result = std::max( result, length( line[i] - line[i+1] ) );
+        result = std::max( result, static_cast< double >( length( line[i] - line[i+1] ) ) );
     }
     return result;
 }

@@ -67,7 +67,7 @@ WPosition_2 transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition_2 ve
     resultVec4D[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2] + mat( 2, 3 ) * 1;
     resultVec4D[3] = mat( 3, 0 ) * vec[0] + mat( 3, 1 ) * vec[1] + mat( 3, 2 ) * vec[2] + mat( 3, 3 ) * 1;
 
-    WVector3d_2 result;
+    WPosition_2 result;
     result[0] = resultVec4D[0] / resultVec4D[3];
     result[1] = resultVec4D[1] / resultVec4D[3];
     result[2] = resultVec4D[2] / resultVec4D[3];

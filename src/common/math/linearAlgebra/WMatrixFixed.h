@@ -195,12 +195,19 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Default constructor. The values are un-initialized! Use the static methods \ref zero(), \ref identity() or any of the predefined
+     * Default constructor. The values are initialized with 0. Use the static methods \ref zero(), \ref identity() or any of the predefined
      * transformations if an initialized matrix is wished.
      */
     WMatrixFixed()
     {
-        // No initialization needed. Matrix values are initialized by ValueStoreT.
+        // initialize to zero
+        for ( size_t row = 0; row < Rows; ++row )
+        {
+            for ( size_t col = 0; col < Cols; ++col )
+            {
+                operator()( row, col ) = ValueT( 0 );
+            }
+        }
     }
 
     /**
@@ -235,6 +242,19 @@ public:
         operator[]( 1 ) = y;
         operator[]( 2 ) = z;
         operator[]( 3 ) = w;
+    }
+
+    /**
+     * Copy construction casting the given value type. This is useful to create matrices with matrices using another value type.
+     *
+     * \tparam RHSValueT  Value type of the given matrix to copy
+     * \tparam RHSValueStoreT Valuestore type of the given matrix to copy
+     * \param m the matrix to copy
+     */
+    template< typename RHSValueT, ValueStoreTemplate RHSValueStoreT >
+    explicit WMatrixFixed( const WMatrixFixed< RHSValueT, Rows, Cols, RHSValueStoreT >& m )     // NOLINT - we do not want it explicit
+    {
+        setValues( m.m_values );
     }
 
     /**
@@ -477,6 +497,22 @@ public:
             }
         }
         return m2;
+    }
+
+    /**
+     * Cast to matrix of same size with different value type.
+     *
+     * \tparam ResultValueType resulting value type
+     * \tparam ResultValueStore resulting value store
+     *
+     * \return the converted matrix.
+     */
+    template < typename ResultValueType, ValueStoreTemplate ResultValueStore >
+    operator WMatrixFixed< ResultValueType, Rows, Cols, ResultValueStore >() const
+    {
+        WMatrixFixed< ResultValueType, Rows, Cols, ResultValueStore > result;
+        result.setValues( m_values );
+        return result;
     }
 
     /**
@@ -994,10 +1030,7 @@ public:
     // For compatibility to the old vec/matrix types. They are ALL deprecated and will be removed
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    double normalize()  // 28 files use this
-    {
-        return 0.0;
-    }
+    double normalize();
 
 private:
     /**
@@ -1051,9 +1084,9 @@ typedef WMatrixFixed< float, 4, 4 > WMatrix4f_2;
  * \return scaled matrix.
  */
 template < typename ScalarT,
-           typename MatrixValueT, size_t MatrixRows, size_t MatrixCols, ValueStoreTemplate MatrixValueStoreT >
-WMatrixFixed< MatrixValueT, MatrixRows, MatrixCols, MatrixValueStoreT >
-    operator*( const ScalarT n, const WMatrixFixed< MatrixValueT, MatrixRows, MatrixCols, MatrixValueStoreT >& mat )
+           typename RHSValueT, size_t RHSRows, size_t RHSCols, ValueStoreTemplate RHSValueStoreT >
+WMatrixFixed< typename WTypeTraits::TypePromotion< ScalarT, RHSValueT >::Result, RHSRows, RHSCols, RHSValueStoreT >
+    operator*( const ScalarT n, const WMatrixFixed< RHSValueT, RHSRows, RHSCols, RHSValueStoreT >& mat )
 {
     return mat * n;
 }
@@ -1197,15 +1230,27 @@ ValueT length( const WMatrixFixed< ValueT, 1, Cols, ValueStoreT >& a )
 /**
  * Normalizes the given vector.
  *
- * \tparam MatrixType type of matrix. This type needs to be supported by length().
+ * \tparam RHSValueT given matrix value type
+ * \tparam Rows given row number
+ * \tparam Cols given col number
+ * \tparam RHSValueStoreT given matrix' valuestore
  * \param m the vector
  *
  * \return normalized vector
  */
-template< typename MatrixType >
-MatrixType normalize( const MatrixType& m )
+template< typename RHSValueT, size_t Rows, size_t Cols, ValueStoreTemplate RHSValueStoreT >
+WMatrixFixed< RHSValueT, Rows, Cols, RHSValueStoreT > normalize( const WMatrixFixed< RHSValueT, Rows, Cols, RHSValueStoreT >& m )
 {
-    return m * ( 1.0 / length( m ) );
+    // NOTE: the static cast ensures that the returned matrix value type is the same as the input one.
+    return m * static_cast< RHSValueT >( 1.0 / length( m ) );
+}
+
+template< typename ValueT, size_t Rows, size_t Cols, ValueStoreTemplate ValueStoreT >
+double WMatrixFixed< ValueT, Rows, Cols, ValueStoreT >::normalize()
+{
+    ValueT l = length( *this );
+    operator/=( l );
+    return l;
 }
 
 /**

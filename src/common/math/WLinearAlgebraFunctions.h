@@ -55,7 +55,7 @@ WVector3d_2 OWCOMMON_EXPORT transformVector3DWithMatrix4D( WMatrix<double> mat, 
  * \param mat 4x4 matrix
  * \param vec vector
  */
-WVector3d_2 OWCOMMON_EXPORT transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition_2 vec );
+WPosition_2 OWCOMMON_EXPORT transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition_2 vec );
 
 /**
  * helper routine to invert a 3x3 matrix

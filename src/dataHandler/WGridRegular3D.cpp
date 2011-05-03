@@ -128,27 +128,30 @@ int WGridRegular3D::getXVoxelCoord( const WPosition_2& pos ) const
     WPosition_2 v = m_transform.positionToGridSpace( pos );
 
     // this part could be refactored into an inline function
-    v[ 2 ] = modf( v[ 0 ] + 0.5, &v[ 1 ] );
+    double d;
+    v[ 2 ] = modf( v[ 0 ] + 0.5, &d );
     int i = static_cast< int >( v[ 0 ] >= 0.0 && v[ 0 ] < m_nbPosX - 1.0 );
-    return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
+    return -1 + i * static_cast< int >( 1.0 + d );
 }
 
 int WGridRegular3D::getYVoxelCoord( const WPosition_2& pos ) const
 {
     WPosition_2 v = m_transform.positionToGridSpace( pos );
 
-    v[ 0 ] = modf( v[ 1 ] + 0.5, &v[ 2 ] );
+    double d;
+    v[ 0 ] = modf( v[ 1 ] + 0.5, &d );
     int i = static_cast< int >( v[ 1 ] >= 0.0 && v[ 1 ] < m_nbPosY - 1.0 );
-    return -1 + i * static_cast< int >( 1.0 + v[ 2 ] );
+    return -1 + i * static_cast< int >( 1.0 + d );
 }
 
 int WGridRegular3D::getZVoxelCoord( const WPosition_2& pos ) const
 {
     WPosition_2 v = m_transform.positionToGridSpace( pos );
 
-    v[ 0 ] = modf( v[ 2 ] + 0.5, &v[ 1 ] );
+    double d;
+    v[ 0 ] = modf( v[ 2 ] + 0.5, &d );
     int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosZ - 1.0 );
-    return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
+    return -1 + i * static_cast< int >( 1.0 + d );
 }
 
 WValue< int > WGridRegular3D::getVoxelCoord( const WPosition_2& pos ) const

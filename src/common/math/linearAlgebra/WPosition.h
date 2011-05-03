@@ -34,6 +34,7 @@
  * WPosition_2 such is just another name for WVector3d_2 to indicate the specific use
  * for positions in some places.
  */
+typedef WVector3d_2 WPosition_2;
 
 #endif  // WPOSITION_H
 

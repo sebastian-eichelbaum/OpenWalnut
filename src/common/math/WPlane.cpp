@@ -149,7 +149,11 @@ boost::shared_ptr< std::set< WPosition_2 > > WPlane::samplePoints( double stepWi
 
 WPosition_2 WPlane::getPointInPlane( double x, double y ) const
 {
-    return m_pos + x * m_first + y * m_second;
+    WVector3d_2 sd= m_pos +
+                    x * m_first
+                    +
+                    y * m_second;
+    return sd;
 }
 
 void WPlane::setPlaneVectors( const WVector3d_2& first, const WVector3d_2& second )
