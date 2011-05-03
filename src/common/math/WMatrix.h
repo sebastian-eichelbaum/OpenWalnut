@@ -30,7 +30,6 @@
 #include <osg/Matrix>
 
 #include "WValue.h"
-#include "WVector3D.h"
 #include "linearAlgebra/WLinearAlgebra.h"
 
 #include "../WDefines.h"
@@ -112,6 +111,13 @@ public:
     operator WMatrix4d_2() const;
 
     /**
+     * Cast this matrix to an 4x4 osg matrix if it is a 4x4 matrix.
+     *
+     * \return casted matrix.
+     */
+    operator osg::Matrixd() const;
+
+    /**
      * Compares two matrices and returns true if they are equal.
      * \param rhs The right hand side of the comparison
      */
@@ -145,7 +151,7 @@ public:
      * Multiplication with a vector.
      * \param rhs The right hand side of the multiplication
      */
-    WVector3D operator*( const WVector3D& rhs ) const;
+    WVector3d_2 operator*( const WVector3d_2& rhs ) const;
 
     /**
      * Returns the transposed matrix.
@@ -205,6 +211,30 @@ template< typename T > WMatrix< T >::operator WMatrix4d_2() const
         }
     }
     return m;
+}
+
+template< typename T > WMatrix< T >::operator osg::Matrixd() const
+{
+    WAssert( ( getNbRows() == 3 || getNbRows() == 4 ) && ( getNbCols() == 3 || getNbCols() == 4 ),
+             "Only 3x3 or 4x4 matrices allowed." );
+
+    // handle 4x4 and 3x3 separately
+    if ( getNbRows() == 4 )
+    {
+        return osg::Matrixd( ( *this )[ 0 ], ( *this )[ 4 ], ( *this )[ 8 ], ( *this )[ 12 ],
+                             ( *this )[ 1 ], ( *this )[ 5 ], ( *this )[ 9 ], ( *this )[ 13 ],
+                             ( *this )[ 2 ], ( *this )[ 6 ], ( *this )[ 10 ], ( *this )[ 14 ],
+                             ( *this )[ 3 ], ( *this )[ 7 ], ( *this )[ 11 ], ( *this )[ 15 ]
+                           );
+    }
+    else
+    {
+        return osg::Matrixd( ( *this )[ 0 ], ( *this )[ 1 ], ( *this )[ 2 ], 0.0,
+                             ( *this )[ 3 ], ( *this )[ 4 ], ( *this )[ 5 ], 0.0,
+                             ( *this )[ 6 ], ( *this )[ 7 ], ( *this )[ 8 ], 0.0,
+                             ( *this )[ 9 ], ( *this )[ 10 ], ( *this )[ 11 ], 1.0
+                           );
+    }
 }
 
 /**
@@ -345,10 +375,10 @@ template< typename T > WValue< T > WMatrix< T >::operator*( const WValue< T >& r
     return result;
 }
 
-template< typename T > WVector3D WMatrix< T >::operator*( const WVector3D& rhs ) const
+template< typename T > WVector3d_2 WMatrix< T >::operator*( const WVector3d_2& rhs ) const
 {
-    WAssert( rhs.num_components == getNbCols(), "Incompatible number of rows of rhs and columns of lhs." );
-    WVector3D result;
+    WAssert( rhs.getRows() == getNbCols(), "Incompatible number of rows of rhs and columns of lhs." );
+    WVector3d_2 result;
 
     for( size_t r = 0; r < getNbRows(); ++r)
     {

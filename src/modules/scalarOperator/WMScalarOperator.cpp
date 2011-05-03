@@ -32,8 +32,8 @@
 
 #include <boost/variant.hpp>
 
-#include "../../common/math/WPosition.h"
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WAssert.h"
 #include "../../common/WProgress.h"
 #include "../../common/WStringUtils.h"

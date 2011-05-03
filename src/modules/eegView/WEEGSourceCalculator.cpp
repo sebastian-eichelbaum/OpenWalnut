@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WAssert.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../dataHandler/WEEG2.h"
 #include "../../dataHandler/WEEGChannelInfo.h"
 #include "../../dataHandler/exceptions/WDHException.h"
@@ -61,7 +61,7 @@ WEEGSourceCalculator::WEEGSourceCalculator( const boost::shared_ptr< const WEEG2
     }
 }
 
-WPosition WEEGSourceCalculator::calculate( const boost::shared_ptr< const WEEGEvent > event ) const
+WPosition_2 WEEGSourceCalculator::calculate( const boost::shared_ptr< const WEEGEvent > event ) const
 {
     const std::vector< double >& values = event->getValues();
 
@@ -83,7 +83,7 @@ WPosition WEEGSourceCalculator::calculate( const boost::shared_ptr< const WEEGEv
 
     sum -= m_numPositions * min;
 
-    WPosition source;
+    WPosition_2 source;
     for( std::size_t channelID = 0; channelID < values.size(); ++channelID )
     {
         if( m_hasPosition[channelID] )

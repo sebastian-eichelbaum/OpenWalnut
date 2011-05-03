@@ -28,5 +28,25 @@
 #include "WMatrixFixed.h"
 #include "WMatrixEigen.h"
 #include "WVectorFixed.h"
+#include "WPosition.h"
+
+//TODO(ebaum): move this somewhere else
+
+/**
+ * The new dynamic vector type. It is a heap-allocated double vector with dynamic size.
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
+ */
+typedef Eigen::Matrix< double, Eigen::Dynamic, 1 > WVector_2;
+
+/**
+ * A complex double vector of dynamic size. Heap-allocated.
+ *
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
+ * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
+ */
+typedef Eigen::VectorXcd WVectorComplex_2;
+
 
 #endif  // WLINEARALGEBRA_H

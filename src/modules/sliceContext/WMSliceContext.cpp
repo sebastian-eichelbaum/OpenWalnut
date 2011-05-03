@@ -88,7 +88,7 @@ void WMSliceContext::properties()
 {
     m_propCondition = boost::shared_ptr< WCondition >( new WCondition() );
 
-    WPosition ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition_2 ch = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
     m_crosshairProp = m_infoProperties->addProperty( "Slice Position", "Position where the three navigation slices intersect.", ch, m_propCondition );
 
     m_insideCountProp =
@@ -188,7 +188,7 @@ osg::ref_ptr< osg::Geode > WMSliceContext::genTractGeode( const std::vector< siz
     //         size_t fiberLength = ( *lineLengths )[fiberId];
     //         for( size_t posId = 0; posId < fiberLength; ++posId )
     //         {
-    //             WPosition pos;
+    //             WPosition_2 pos;
     //             vertices->push_back( m_tracts->getPosition( fiberId, posId     ) );
 
     //         }
@@ -203,7 +203,7 @@ osg::ref_ptr< osg::Geode > WMSliceContext::genTractGeode( const std::vector< siz
             size_t fiberLength = ( *lineLengths )[fiberId];
             for( size_t posId = 0; posId < fiberLength - 1 ; ++posId )
             {
-                WPosition pos;
+                WPosition_2 pos;
                 vertices->push_back( m_tracts->getPosition( fiberId, posId     ) );
                 vertices->push_back( m_tracts->getPosition( fiberId, posId + 1 ) );
             }
@@ -226,7 +226,7 @@ osg::ref_ptr< osg::Geode > WMSliceContext::genTractGeode( const std::vector< siz
     for( size_t i = 0; i < vertices->size(); ++i )
     {
         double distance = fabs( m_crosshairProp->get()[0] - ( *vertices )[i][0] );
-        texCoords->push_back( WPosition( distance, m_contextWidthProp->get(), 0.0 ) );
+        texCoords->push_back( WPosition_2( distance, m_contextWidthProp->get(), 0.0 ) );
     }
     geometry->setTexCoordArray( 0, texCoords );
 
@@ -246,7 +246,7 @@ void WMSliceContext::checkContainment( std::vector< size_t >* selected, bool cou
     {
         for( size_t posId = 0; posId < ( *lineLengths )[fiberId]; ++posId )
         {
-            WPosition pos = m_tracts->getPosition( fiberId, posId );
+            WPosition_2 pos = m_tracts->getPosition( fiberId, posId );
             if( fabs( m_crosshairProp->get()[0] - pos[0] ) < distance )
             {
                 ++( ( *selected )[fiberId] );

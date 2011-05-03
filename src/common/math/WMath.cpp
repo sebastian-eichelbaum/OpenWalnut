@@ -24,19 +24,19 @@
 
 #include "WMath.h"
 #include "WPlane.h"
-#include "WPosition.h"
-#include "WVector3D.h"
+#include "linearAlgebra/WLinearAlgebra.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 #include "../WAssert.h"
 #include "../WLimits.h"
 
-bool testIntersectTriangle( const WPosition& p1, const WPosition& p2, const WPosition& p3, const WPlane& p )
+bool testIntersectTriangle( const WPosition_2& p1, const WPosition_2& p2, const WPosition_2& p3, const WPlane& p )
 {
-    const WVector3D& normal = p.getNormal();
-    const WPosition& planePoint = p.getPosition();
+    const WVector3d_2& normal = p.getNormal();
+    const WPosition_2& planePoint = p.getPosition();
 
-    double r1 = normal.dotProduct( p1 - planePoint );
-    double r2 = normal.dotProduct( p2 - planePoint );
-    double r3 = normal.dotProduct( p3 - planePoint );
+    double r1 = dot( normal, p1 - planePoint );
+    double r2 = dot( normal, p2 - planePoint );
+    double r3 = dot( normal, p3 - planePoint );
 
     // TODO(math): use signum here!
     if( std::abs( ( ( r1 > 0 ) - ( r1 < 0 ) ) + ( ( r2 > 0) - ( r2 < 0 ) ) + ( ( r3 > 0 ) - ( r3 < 0 ) ) ) == 3 )
@@ -47,33 +47,33 @@ bool testIntersectTriangle( const WPosition& p1, const WPosition& p2, const WPos
 }
 
 bool intersectPlaneSegment( const WPlane& p,
-                                   const WPosition& p1,
-                                   const WPosition& p2,
-                                   boost::shared_ptr< WPosition > pointOfIntersection )
+                                   const WPosition_2& p1,
+                                   const WPosition_2& p2,
+                                   boost::shared_ptr< WPosition_2 > pointOfIntersection )
 {
-    const WVector3D& normal = p.getNormal().normalized();
-    double const d = normal.dotProduct( p.getPosition() );
+    const WVector3d_2& normal = p.getNormal().normalized();
+    double const d = dot( normal, p.getPosition() );
     WAssert( pointOfIntersection.get(), "Place to store a point of intersection is not ready!" );
     *pointOfIntersection = p.getPosition();   // otherwise it would be undefined
 
     // at least one point is in plane (maybe the whole segment)
-    if( std::abs( normal.dotProduct( p1 - p.getPosition() ) ) <= 2*wlimits::DBL_EPS )
+    if( std::abs( dot( normal, p1 - p.getPosition() ) ) <= 2 * wlimits::DBL_EPS )
     {
         *pointOfIntersection = p1;
         return true;
     }
-    else if( std::abs( normal.dotProduct( p2 - p.getPosition() ) ) <= 2*wlimits::DBL_EPS )
+    else if( std::abs( dot( normal, p2 - p.getPosition() ) ) <= 2 * wlimits::DBL_EPS )
     {
         *pointOfIntersection = p2;
         return true;
     }
 
-    if( std::abs( normal.dotProduct( p1 - p2 ) ) < wlimits::DBL_EPS ) // plane and line are parallel
+    if( std::abs( dot( normal,  p1 - p2 ) ) < wlimits::DBL_EPS ) // plane and line are parallel
     {
         return false;
     }
 
-    double const t = ( d - normal.dotProduct( p2 ) ) / ( normal.dotProduct( p1 - p2 ) );
+    double const t = ( d - dot( normal, p2 ) ) / ( dot( normal, p1 - p2 ) );
 
     *pointOfIntersection = p2 + t * ( p1 - p2 );
 
@@ -84,19 +84,19 @@ bool intersectPlaneSegment( const WPlane& p,
     return false;
 }
 
-bool intersectPlaneLineNearCP( const WPlane& p, const WLine& l, boost::shared_ptr< WPosition > cutPoint )
+bool intersectPlaneLineNearCP( const WPlane& p, const WLine& l, boost::shared_ptr< WPosition_2 > cutPoint )
 {
     bool result = false;
     double minDistance = wlimits::MAX_DOUBLE;
     WAssert( cutPoint.get(), "Place to store a point of intersection is not ready!" );
-    *cutPoint = WPosition( 0, 0, 0 );
+    *cutPoint = WPosition_2( 0, 0, 0 );
     for( size_t i = 1; i < l.size(); ++i ) // test each segment
     {
-        boost::shared_ptr< WPosition > cP( new WPosition( 0, 0, 0 ) );
+        boost::shared_ptr< WPosition_2 > cP( new WPosition_2( 0, 0, 0 ) );
         if( intersectPlaneSegment( p, l[i-1], l[i], cP ) )
         {
             result = true;
-            double dist = WVector3D( *cP - p.getPosition() ).normSquare();
+            double dist = length2( *cP - p.getPosition() );
             if( dist < minDistance )
             {
                 minDistance = dist;

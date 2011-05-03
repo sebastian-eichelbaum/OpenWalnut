@@ -36,7 +36,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Show an glyph plot (in this case the glyphs are arrows) of a vector data set.
@@ -140,7 +140,7 @@ private:
     /**
      * list of positions to plot vectors on, this will come from a selection tool class
      */
-    boost::shared_ptr< std::vector< WPosition > > m_positions;
+    boost::shared_ptr< std::vector< WPosition_2 > > m_positions;
 
     WPropBool     m_projectOnSlice; //!< projects the vectors on the slice.
 
@@ -163,7 +163,7 @@ private:
 
     osg::ref_ptr< WGEShader > m_shader; //!< the shader object for this module
 
-    WPosition m_oldPos; //!< The previous position of the slides.
+    WPosition_2 m_oldPos; //!< The previous position of the slides.
 };
 
 #endif  // WMVECTORPLOT_H

@@ -29,7 +29,7 @@
 #include <string>
 
 #include "../common/exceptions/WOutOfBounds.h"
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WExportDataHandler.h"
 
 
@@ -45,7 +45,7 @@ public:
      *
      * \param positions mapping from labels to positions
      */
-    explicit WEEGPositionsLibrary( const std::map< std::string, WPosition >& positions );
+    explicit WEEGPositionsLibrary( const std::map< std::string, WPosition_2 >& positions );
 
     /**
      * Get the position of an electrode with the given label
@@ -53,11 +53,11 @@ public:
      * \param label label of the electrode
      * \return position of the electrode
      */
-    WPosition getPosition( std::string label ) const throw( WOutOfBounds );
+    WPosition_2 getPosition( std::string label ) const throw( WOutOfBounds );
 
 protected:
 private:
-    std::map< std::string, WPosition > m_positions; //!< mapping from labels to positions
+    std::map< std::string, WPosition_2 > m_positions; //!< mapping from labels to positions
 };
 
 #endif  // WEEGPOSITIONSLIBRARY_H

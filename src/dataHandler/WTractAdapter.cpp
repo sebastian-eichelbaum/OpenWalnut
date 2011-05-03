@@ -26,7 +26,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WTractAdapter.h"
 
 WTractAdapter::WTractAdapter( boost::shared_ptr< const std::vector< float > > pointComponents, size_t startIndex, size_t numPoints )
@@ -36,15 +36,15 @@ WTractAdapter::WTractAdapter( boost::shared_ptr< const std::vector< float > > po
 {
 }
 
-WPosition WTractAdapter::operator[]( size_t index ) const
+WPosition_2 WTractAdapter::operator[]( size_t index ) const
 {
 #ifdef DEBUG
     assert( m_pointComponents && "Invalid point component array inside of WTractAdapter." );
-    return WPosition( m_pointComponents->at( m_startIndex + index * 3 ),
+    return WPosition_2( m_pointComponents->at( m_startIndex + index * 3 ),
                              m_pointComponents->at( m_startIndex + index * 3 + 1 ),
                              m_pointComponents->at( m_startIndex + index * 3 + 2 ) );
 #else
-    return WPosition( ( *m_pointComponents )[ m_startIndex + index * 3],
+    return WPosition_2( ( *m_pointComponents )[ m_startIndex + index * 3],
                              ( *m_pointComponents )[ m_startIndex + index * 3 + 1],
                              ( *m_pointComponents )[ m_startIndex + index * 3 + 2] );
 #endif

@@ -46,7 +46,7 @@
 
 #include "../../common/WThreadedRunner.h"
 #include "../../common/WColor.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../WGEGraphicsWindow.h"
 #include "../WGEScene.h"
 #include "../WGEViewer.h"

@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../common/math/WValue.h"
-#include "../common/math/WVector3D.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WAssert.h"
 #include "../common/WLimits.h"
 #include "WDataHandlerEnums.h"
@@ -202,7 +202,7 @@ public:
      *
      * \return the vector
      */
-    WVector3D getVector3D( size_t index ) const;
+    WVector3d_2 getVector3D( size_t index ) const;
 
 
     /**
@@ -297,12 +297,12 @@ private:
     }
 };
 
-template< typename T > WVector3D WValueSet< T >::getVector3D( size_t index ) const
+template< typename T > WVector3d_2 WValueSet< T >::getVector3D( size_t index ) const
 {
     WAssert( m_order == 1 && m_dimension == 3, "WValueSet<T>::getVector3D only implemented for order==1, dim==3 value sets" );
     WAssert( ( index + 1 ) * 3 <= m_data->size(), "index in WValueSet<T>::getVector3D too big" );
     size_t offset = index * 3;
-    return WVector3D( ( *m_data )[offset], ( *m_data )[offset + 1], ( *m_data )[offset + 2] );
+    return WVector3d_2( ( *m_data )[offset], ( *m_data )[offset + 1], ( *m_data )[offset + 2] );
 }
 
 template< typename T > WValue< T > WValueSet< T >::getWValue( size_t index ) const

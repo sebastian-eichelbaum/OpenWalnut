@@ -32,7 +32,7 @@
 
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../common/math/WLine.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/math/WValue.h"
 #include "WRasterAlgorithm.h"
 
@@ -82,7 +82,7 @@ protected:
      * \param start Start point of the line segment
      * \param end End point of the line segment
      */
-    virtual void rasterSegment( const WPosition& start, const WPosition& end );
+    virtual void rasterSegment( const WPosition_2& start, const WPosition_2& end );
 
     /**
      * Marks the given voxel as a hit. If anti-aliasing is enabled also some
@@ -98,7 +98,7 @@ protected:
      * \param end End point of the line segment (used to computed the
      * distance)
      */
-    virtual void markVoxel( const WValue< int >& voxel, const int axis, const WPosition& start, const WPosition& end );
+    virtual void markVoxel( const WValue< int >& voxel, const int axis, const WPosition_2& start, const WPosition_2& end );
 
     /**
      * Returns the value to mark the hit voxels with, depending on their
@@ -122,7 +122,7 @@ protected:
      * the voxel itself, then x+1, x-1 supporting voxel, then y+1 and y-1
      * and at last z+1 and z-1.
      */
-    std::vector< double > computeDistances( const size_t voxelNum, const WPosition& start, const WPosition& end ) const;
+    std::vector< double > computeDistances( const size_t voxelNum, const WPosition_2& start, const WPosition_2& end ) const;
 
     /**
      * Compose the new value for a voxel out of a new computed value and the already existing marking.

@@ -161,7 +161,7 @@ bool WMWriteMesh::save() const
     dataFile << ( "ASCII\n" );
     dataFile << ( "DATASET UNSTRUCTURED_GRID\n" );
 
-    WPosition point;
+    WPosition_2 point;
     dataFile << "POINTS " << m_triMesh->vertSize() << " float\n";
     for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {

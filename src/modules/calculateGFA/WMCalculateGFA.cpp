@@ -27,7 +27,7 @@
 
 #include "../../common/math/WSymmetricSphericalHarmonic.h"
 #include "../../common/WLimits.h"
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/math/WGeometryFunctions.h"
 #include "../../kernel/WKernel.h"
 #include "WMCalculateGFA.xpm"
@@ -98,7 +98,7 @@ void WMCalculateGFA::moduleMain()
     m_moduleState.add( m_exceptionCondition );
 
     std::vector< unsigned int > temp;
-    std::vector< WVector3D > grad;
+    std::vector< WVector3d_2 > grad;
 
     tesselateIcosahedron( &grad, &temp, 2 );
 

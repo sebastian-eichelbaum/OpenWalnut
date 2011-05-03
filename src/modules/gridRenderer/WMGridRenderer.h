@@ -33,7 +33,7 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../graphicsEngine/WGEGroupNode.h"
 #include "../../graphicsEngine/geodes/WGEGridNode.h"
 #include "../../kernel/WModule.h"

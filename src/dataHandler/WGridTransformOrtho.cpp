@@ -48,30 +48,30 @@ WGridTransformOrtho::WGridTransformOrtho( double scaleX, double scaleY, double s
 WGridTransformOrtho::WGridTransformOrtho( WMatrix< double > const& mat )
 {
     WPrecond( mat.getNbRows() == 4 && mat.getNbCols() == 4, "" );
-    m_directionX = WVector3D( mat( 0, 0 ), mat( 1, 0 ), mat( 2, 0 ) );
-    m_directionY = WVector3D( mat( 0, 1 ), mat( 1, 1 ), mat( 2, 1 ) );
-    m_directionZ = WVector3D( mat( 0, 2 ), mat( 1, 2 ), mat( 2, 2 ) );
+    m_directionX = WVector3d_2( mat( 0, 0 ), mat( 1, 0 ), mat( 2, 0 ) );
+    m_directionY = WVector3d_2( mat( 0, 1 ), mat( 1, 1 ), mat( 2, 1 ) );
+    m_directionZ = WVector3d_2( mat( 0, 2 ), mat( 1, 2 ), mat( 2, 2 ) );
 
-    m_scaling = WVector3D( m_directionX.norm(), m_directionY.norm(), m_directionZ.norm() );
+    m_scaling = WVector3d_2( m_directionX.norm(), m_directionY.norm(), m_directionZ.norm() );
 
     WPrecond( m_scaling[ 0 ] != 0.0 && m_scaling[ 1 ] != 0.0 && m_scaling[ 2 ] != 0.0, "" );
     m_directionX /= m_scaling[ 0 ];
     m_directionY /= m_scaling[ 1 ];
     m_directionZ /= m_scaling[ 2 ];
 
-    WPrecondLess( fabs( m_directionX.dotProduct( m_directionY ) ), 0.0001 );
-    WPrecondLess( fabs( m_directionX.dotProduct( m_directionZ ) ), 0.0001 );
-    WPrecondLess( fabs( m_directionY.dotProduct( m_directionZ ) ), 0.0001 );
-    m_origin = WVector3D( mat( 0, 3 ), mat( 1, 3 ), mat( 2, 3 ) );
+    WPrecondLess( fabs( dot( m_directionX, m_directionY ) ), 0.0001 );
+    WPrecondLess( fabs( dot( m_directionX, m_directionZ ) ), 0.0001 );
+    WPrecondLess( fabs( dot( m_directionY, m_directionZ ) ), 0.0001 );
+    m_origin = WVector3d_2( mat( 0, 3 ), mat( 1, 3 ), mat( 2, 3 ) );
 }
 
 WGridTransformOrtho::~WGridTransformOrtho()
 {
 }
 
-WVector3D WGridTransformOrtho::positionToWorldSpace( WVector3D const& position ) const
+WVector3d_2 WGridTransformOrtho::positionToWorldSpace( WVector3d_2 const& position ) const
 {
-    return WVector3D( m_scaling[ 0 ] * position[ 0 ] * m_directionX[ 0 ] + m_scaling[ 1 ] * position[ 1 ] * m_directionY[ 0 ]
+    return WVector3d_2( m_scaling[ 0 ] * position[ 0 ] * m_directionX[ 0 ] + m_scaling[ 1 ] * position[ 1 ] * m_directionY[ 0 ]
                     + m_scaling[ 2 ] * position[ 2 ] * m_directionZ[ 0 ] + m_origin[ 0 ],
                       m_scaling[ 0 ] * position[ 0 ] * m_directionX[ 1 ] + m_scaling[ 1 ] * position[ 1 ] * m_directionY[ 1 ]
                     + m_scaling[ 2 ] * position[ 2 ] * m_directionZ[ 1 ] + m_origin[ 1 ],
@@ -79,19 +79,19 @@ WVector3D WGridTransformOrtho::positionToWorldSpace( WVector3D const& position )
                     + m_scaling[ 2 ] * position[ 2 ] * m_directionZ[ 2 ] + m_origin[ 2 ] );
 }
 
-WVector3D WGridTransformOrtho::positionToGridSpace( WVector3D const& position ) const
+WVector3d_2 WGridTransformOrtho::positionToGridSpace( WVector3d_2 const& position ) const
 {
-    WVector3D p = position - m_origin;
-    p = WVector3D( p.dotProduct( m_directionX ), p.dotProduct( m_directionY ), p.dotProduct( m_directionZ ) );
+    WVector3d_2 p = position - m_origin;
+    p = WVector3d_2( dot( p, m_directionX ), dot( p, m_directionY ), dot( p, m_directionZ ) );
     p[ 0 ] /= m_scaling[ 0 ];
     p[ 1 ] /= m_scaling[ 1 ];
     p[ 2 ] /= m_scaling[ 2 ];
     return p;
 }
 
-WVector3D WGridTransformOrtho::directionToWorldSpace( WVector3D const& direction ) const
+WVector3d_2 WGridTransformOrtho::directionToWorldSpace( WVector3d_2 const& direction ) const
 {
-    return WVector3D( m_scaling[ 0 ] * direction[ 0 ] * m_directionX[ 0 ] + m_scaling[ 1 ] * direction[ 1 ] * m_directionY[ 0 ]
+    return WVector3d_2( m_scaling[ 0 ] * direction[ 0 ] * m_directionX[ 0 ] + m_scaling[ 1 ] * direction[ 1 ] * m_directionY[ 0 ]
                     + m_scaling[ 2 ] * direction[ 2 ] * m_directionZ[ 0 ],
                       m_scaling[ 0 ] * direction[ 0 ] * m_directionX[ 1 ] + m_scaling[ 1 ] * direction[ 1 ] * m_directionY[ 1 ]
                     + m_scaling[ 2 ] * direction[ 2 ] * m_directionZ[ 1 ],
@@ -99,9 +99,9 @@ WVector3D WGridTransformOrtho::directionToWorldSpace( WVector3D const& direction
                     + m_scaling[ 2 ] * direction[ 2 ] * m_directionZ[ 2 ] );
 }
 
-WVector3D WGridTransformOrtho::directionToGridSpace( WVector3D const& direction ) const
+WVector3d_2 WGridTransformOrtho::directionToGridSpace( WVector3d_2 const& direction ) const
 {
-    WVector3D p( direction.dotProduct( m_directionX ), direction.dotProduct( m_directionY ), direction.dotProduct( m_directionZ ) );
+    WVector3d_2 p( dot( direction, m_directionX ), dot( direction, m_directionY ), dot( direction, m_directionZ ) );
     p[ 0 ] /= m_scaling[ 0 ];
     p[ 1 ] /= m_scaling[ 1 ];
     p[ 2 ] /= m_scaling[ 2 ];
@@ -123,37 +123,37 @@ double WGridTransformOrtho::getOffsetZ() const
     return m_scaling[ 2 ];
 }
 
-WVector3D WGridTransformOrtho::getUnitDirectionX() const
+WVector3d_2 WGridTransformOrtho::getUnitDirectionX() const
 {
     return m_directionX;
 }
 
-WVector3D WGridTransformOrtho::getUnitDirectionY() const
+WVector3d_2 WGridTransformOrtho::getUnitDirectionY() const
 {
     return m_directionY;
 }
 
-WVector3D WGridTransformOrtho::getUnitDirectionZ() const
+WVector3d_2 WGridTransformOrtho::getUnitDirectionZ() const
 {
     return m_directionZ;
 }
 
-WVector3D WGridTransformOrtho::getDirectionX() const
+WVector3d_2 WGridTransformOrtho::getDirectionX() const
 {
     return m_directionX * m_scaling[ 0 ];
 }
 
-WVector3D WGridTransformOrtho::getDirectionY() const
+WVector3d_2 WGridTransformOrtho::getDirectionY() const
 {
     return m_directionY * m_scaling[ 1 ];
 }
 
-WVector3D WGridTransformOrtho::getDirectionZ() const
+WVector3d_2 WGridTransformOrtho::getDirectionZ() const
 {
     return m_directionZ * m_scaling[ 2 ];
 }
 
-WPosition WGridTransformOrtho::getOrigin() const
+WPosition_2 WGridTransformOrtho::getOrigin() const
 {
     return m_origin;
 }
@@ -179,9 +179,9 @@ WMatrix< double > WGridTransformOrtho::getTransformationMatrix() const
 
 bool WGridTransformOrtho::isNotRotated() const
 {
-    return m_directionX == WVector3D( 1.0, 0.0, 0.0 )
-        && m_directionY == WVector3D( 0.0, 1.0, 0.0 )
-        && m_directionZ == WVector3D( 0.0, 0.0, 1.0 );
+    return m_directionX == WVector3d_2( 1.0, 0.0, 0.0 )
+        && m_directionY == WVector3d_2( 0.0, 1.0, 0.0 )
+        && m_directionZ == WVector3d_2( 0.0, 0.0, 1.0 );
 }
 
 WGridTransformOrtho::operator WMatrix4d_2() const

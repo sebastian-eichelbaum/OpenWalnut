@@ -49,7 +49,7 @@ namespace
             // m[i] = new double[rsize];
             for( size_t j = 0; j < rsize; ++j )
             {
-                m[i][j] = q[i].distanceSquare( r[j] );
+                m[i][j] = length2( q[i] - r[j] );
             }
         }
         // compute dt(q,r)
@@ -85,7 +85,7 @@ namespace
     }
 }
 
-WFiber::WFiber( const std::vector< WPosition > &points )
+WFiber::WFiber( const std::vector< WPosition_2 > &points )
     : WLine( points )
 {
 }

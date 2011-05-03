@@ -26,7 +26,7 @@
 
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../common/math/WLine.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WBresenhamDBL.h"
 
 WBresenhamDBL::WBresenhamDBL( boost::shared_ptr< WGridRegular3D > grid, bool antialiased )
@@ -38,7 +38,7 @@ WBresenhamDBL::~WBresenhamDBL()
 {
 }
 
-void WBresenhamDBL::rasterSegment( const WPosition& start, const WPosition& end )
+void WBresenhamDBL::rasterSegment( const WPosition_2& start, const WPosition_2& end )
 {
     int i;
     WValue< int > gridStartPos = m_grid->getVoxelCoord( start );
@@ -57,7 +57,7 @@ void WBresenhamDBL::rasterSegment( const WPosition& start, const WPosition& end 
     int dy2 = m << 1;
     int dz2 = n << 1;
     WValue< int > voxel = gridStartPos;
-    WPosition gridOffset( 0, 0, 0 );
+    WPosition_2 gridOffset( 0, 0, 0 );
     gridOffset[0] = start[0] - gridStartPos[0];
     gridOffset[1] = start[1] - gridStartPos[1];
     gridOffset[2] = start[2] - gridStartPos[2];

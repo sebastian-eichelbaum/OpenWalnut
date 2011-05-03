@@ -211,13 +211,13 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readMesh()
     }
 
 
-    std::vector< WPosition > points;
+    std::vector< WPosition_2 > points;
     points.reserve( numPoints );
     float pointData[3];
     for( unsigned int i = 0; i < numPoints; ++i )
     {
         ifs >> pointData[0] >>  pointData[1] >>  pointData[2];
-        points.push_back( WPosition( pointData[0], pointData[1], pointData[2] ) );
+        points.push_back( WPosition_2( pointData[0], pointData[1], pointData[2] ) );
     }
 
     // ----- Vertex Ids For Cells---------

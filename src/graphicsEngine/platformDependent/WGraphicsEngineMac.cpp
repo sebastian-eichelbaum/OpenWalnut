@@ -43,7 +43,7 @@
 #include "../../common/WLogger.h"
 #include "../../common/WPathHelper.h"
 #include "../../common/WPreferences.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../exceptions/WGEInitFailed.h"
 #include "../exceptions/WGESignalSubscriptionFailed.h"
 #include "WGEViewerMac.h"

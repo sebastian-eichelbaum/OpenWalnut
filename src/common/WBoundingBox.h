@@ -30,7 +30,7 @@
 #include <osg/BoundingBox>
 
 #include "exceptions/WInvalidBoundingBox.h"
-#include "math/WVector3D.h"
+#include "math/linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Represents a \e axis \e parallel bounding box and provides some useful operations with them.
@@ -296,6 +296,6 @@ inline const typename WBoundingBoxImpl< VT >::vec_type& WBoundingBoxImpl< VT >::
     return  osg::BoundingBoxImpl< VT >::_max;
 }
 
-typedef WBoundingBoxImpl< WVector3D > WBoundingBox;
+typedef WBoundingBoxImpl< osg::Vec3 > WBoundingBox;
 
 #endif  // WBOUNDINGBOX_H

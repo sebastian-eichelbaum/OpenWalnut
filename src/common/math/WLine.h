@@ -32,15 +32,15 @@
 #include "../WBoundingBox.h"
 #include "../WExportCommon.h"
 #include "../WMixinVector.h"
-#include "WPosition.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 
 // forward declarations
 class WLineTest;
 
 /**
- * A line is an ordered sequence of WPositions.
+ * A line is an ordered sequence of WPosition_2s.
  */
-class OWCOMMON_EXPORT WLine : public WMixinVector< WPosition >
+class OWCOMMON_EXPORT WLine : public WMixinVector< WPosition_2 >
 {
 public:
     /**
@@ -48,7 +48,7 @@ public:
      *
      * \param points Point sequence
      */
-    explicit WLine( const std::vector< WPosition > &points );
+    explicit WLine( const std::vector< WPosition_2 > &points );
 
     /**
      * Creates an empty line.
@@ -114,7 +114,7 @@ OWCOMMON_EXPORT double pathLength( const WLine& line );
  *
  * \return Const reference to the midpoint element.
  */
-OWCOMMON_EXPORT const WPosition& midPoint( const WLine& line );
+OWCOMMON_EXPORT const WPosition_2& midPoint( const WLine& line );
 
 /**
  * Compares two lines with each other point wise upto a given delta.

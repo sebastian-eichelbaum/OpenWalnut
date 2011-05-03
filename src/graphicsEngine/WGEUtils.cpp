@@ -27,17 +27,17 @@
 
 #include <osg/Array>
 
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WGETexture.h"
 
 #include "WGEUtils.h"
 
-osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< WPosition >& posArray )
+osg::ref_ptr< osg::Vec3Array > wge::osgVec3Array( const std::vector< WPosition_2 >& posArray )
 {
     osg::ref_ptr< osg::Vec3Array > result = osg::ref_ptr< osg::Vec3Array >( new osg::Vec3Array );
     result->reserve( posArray.size() );
-    std::vector< WPosition >::const_iterator cit;
+    std::vector< WPosition_2 >::const_iterator cit;
     for( cit = posArray.begin(); cit != posArray.end(); ++cit )
     {
         result->push_back( *cit );

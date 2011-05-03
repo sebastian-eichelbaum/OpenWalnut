@@ -29,7 +29,7 @@
 
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../common/math/WLine.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WBresenham.h"
 
 /**
@@ -65,7 +65,7 @@ protected:
      * \param start Start point of the line segment
      * \param stop End point of the line segment
      */
-    void rasterSegment( const WPosition& start, const WPosition& stop );
+    void rasterSegment( const WPosition_2& start, const WPosition_2& stop );
 
 private:
 };

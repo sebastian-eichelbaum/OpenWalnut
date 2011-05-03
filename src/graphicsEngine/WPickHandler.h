@@ -46,7 +46,7 @@
 #include <osg/ShapeDrawable>
 #include <osgText/Text>
 
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WPickInfo.h"
 #include "WExportWGE.h"
 

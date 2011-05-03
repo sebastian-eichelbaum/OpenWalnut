@@ -31,7 +31,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../dataHandler/WEEG2.h"
 #include "WEEGEvent.h"
 
@@ -56,7 +56,7 @@ public:
      * \param event an event marking a time position
      * \return the calculated position
      */
-    WPosition calculate( const boost::shared_ptr< const WEEGEvent > event ) const;
+    WPosition_2 calculate( const boost::shared_ptr< const WEEGEvent > event ) const;
 
 protected:
 private:

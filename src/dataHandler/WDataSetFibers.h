@@ -32,7 +32,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/tuple/tuple.hpp>
 
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
 #include "WDataSet.h"
@@ -327,7 +327,7 @@ public:
      * \param fiber
      * \param vertex
      */
-    WPosition getPosition( size_t fiber, size_t vertex ) const;
+    WPosition_2 getPosition( size_t fiber, size_t vertex ) const;
 
     /**
      * calculates the tangent for a point on the fiber
@@ -335,7 +335,7 @@ public:
      * \param fiber
      * \param vertex
      */
-    WPosition getTangent( size_t fiber, size_t vertex ) const;
+    WPosition_2 getTangent( size_t fiber, size_t vertex ) const;
 
     /**
      * saves the selected fiber bundles to a file

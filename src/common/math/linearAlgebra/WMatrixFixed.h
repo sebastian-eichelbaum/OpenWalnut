@@ -33,6 +33,7 @@
 #include <boost/tokenizer.hpp>
 
 // Needed for conversion: OSG Types
+#include <osg/Vec3>
 #include <osg/Vec2d>
 #include <osg/Vec2f>
 #include <osg/Vec3d>
@@ -213,9 +214,9 @@ public:
     {
         BOOST_STATIC_ASSERT( Rows == 3 );
         // NOTE: The static Cols == 1 check is done by operator []
-        operator()[ 0 ] = x;
-        operator()[ 1 ] = y;
-        operator()[ 2 ] = z;
+        operator[]( 0 ) = x;
+        operator[]( 1 ) = y;
+        operator[]( 2 ) = z;
     }
 
     /**
@@ -230,10 +231,10 @@ public:
     {
         BOOST_STATIC_ASSERT( Rows == 4 );
         // NOTE: The static Cols == 1 check is done by operator []
-        operator()[ 0 ] = x;
-        operator()[ 1 ] = y;
-        operator()[ 2 ] = z;
-        operator()[ 3 ] = w;
+        operator[]( 0 ) = x;
+        operator[]( 1 ) = y;
+        operator[]( 2 ) = z;
+        operator[]( 3 ) = w;
     }
 
     /**
@@ -513,6 +514,68 @@ public:
         }
     }
 
+    /**
+     * Creates a WMatrix from a given OSG Vector. Will not compile if Rows != 3 or Cols != 1.
+     *
+     * \param m the OSG vector.
+     */
+    explicit WMatrixFixed( const osg::Vec3f& m )     // NOLINT - we do not want it explicit
+    {
+        BOOST_STATIC_ASSERT( Rows == 3 );
+        BOOST_STATIC_ASSERT( Cols == 1 );
+
+        operator[]( 0 ) = m.x();
+        operator[]( 1 ) = m.y();
+        operator[]( 2 ) = m.z();
+    }
+
+    /**
+     * Creates a WMatrix from a given OSG Vector. Will not compile if Rows != 3 or Cols != 1.
+     *
+     * \param m the OSG vector.
+     */
+    explicit WMatrixFixed( const osg::Vec3d& m )     // NOLINT - we do not want it explicit
+    {
+        BOOST_STATIC_ASSERT( Rows == 3 );
+        BOOST_STATIC_ASSERT( Cols == 1 );
+
+        operator[]( 0 ) = m.x();
+        operator[]( 1 ) = m.y();
+        operator[]( 2 ) = m.z();
+    }
+
+    /**
+     * Creates a WMatrix from a given OSG Vector. Will not compile if Rows != 4 or Cols != 1.
+     *
+     * \param m the OSG vector.
+     */
+    explicit WMatrixFixed( const osg::Vec4f& m )     // NOLINT - we do not want it explicit
+    {
+        BOOST_STATIC_ASSERT( Rows == 4 );
+        BOOST_STATIC_ASSERT( Cols == 1 );
+
+        operator[]( 0 ) = m[1];
+        operator[]( 1 ) = m[1];
+        operator[]( 2 ) = m[2];
+        operator[]( 3 ) = m[3];
+    }
+
+    /**
+     * Creates a WMatrix from a given OSG Vector. Will not compile if Rows != 4 or Cols != 1.
+     *
+     * \param m the OSG vector.
+     */
+    explicit WMatrixFixed( const osg::Vec4d& m )     // NOLINT - we do not want it explicit
+    {
+        BOOST_STATIC_ASSERT( Rows == 4 );
+        BOOST_STATIC_ASSERT( Cols == 1 );
+
+        operator[]( 0 ) = m[1];
+        operator[]( 1 ) = m[1];
+        operator[]( 2 ) = m[2];
+        operator[]( 3 ) = m[3];
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Copy and Assignment
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -609,6 +672,31 @@ public:
     void operator*=( const RHSValueT& rhs )
     {
         operator=( *this * rhs );
+    }
+
+    /**
+     * Matrix-Scalar division.
+     *
+     * \tparam RHSValueT the integral type of the given scalar
+     * \param rhs the scalar
+     */
+    template< typename RHSValueT >
+    WMatrixFixed< typename WTypeTraits::TypePromotion< ValueT, RHSValueT >::Result, Rows, Cols, ValueStoreT >
+    operator/( const RHSValueT& rhs ) const
+    {
+        return operator*( RHSValueT( 1 ) / rhs );
+    }
+
+    /**
+     * Matrix-Scalar division with self-assignmnet.
+     *
+     * \tparam RHSValueT the integral type of the given scalar
+     * \param rhs the scalar
+     */
+    template< typename RHSValueT >
+    void operator/=( const RHSValueT& rhs )
+    {
+        operator=( ( *this ) / rhs );
     }
 
     /**
@@ -769,12 +857,84 @@ public:
         return operator()( row, col );
     }
 
+    /**
+     * Access x element of vector. Works only for matrices with Cols == 1.
+     *
+     * \return x element
+     */
+    ValueT& x() throw()
+    {
+        BOOST_STATIC_ASSERT( Rows >= 1 );
+        BOOST_STATIC_ASSERT( Cols == 1 );
+        return operator[]( 0 );
+    }
+
+    /**
+     * Access x element of vector. Works only for matrices with Cols == 1.
+     *
+     * \return x element
+     */
+    const ValueT& x() const throw()
+    {
+        BOOST_STATIC_ASSERT( Rows >= 1 );
+        BOOST_STATIC_ASSERT( Cols == 1 );
+        return operator[]( 0 );
+    }
+
+    /**
+     * Access y element of vector. Works only for matrices with Cols == 1.
+     *
+     * \return y element
+     */
+    ValueT& y() throw()
+    {
+        BOOST_STATIC_ASSERT( Rows >= 2 );
+        BOOST_STATIC_ASSERT( Cols == 1 );
+        return operator[]( 1 );
+    }
+
+    /**
+     * Access y element of vector. Works only for matrices with Cols == 1.
+     *
+     * \return y element
+     */
+    const ValueT& y() const throw()
+    {
+        BOOST_STATIC_ASSERT( Rows >= 2 );
+        BOOST_STATIC_ASSERT( Cols == 1 );
+        return operator[]( 1 );
+    }
+
+    /**
+     * Access z element of vector. Works only for matrices with Cols == 1.
+     *
+     * \return z element
+     */
+    ValueT& z() throw()
+    {
+        BOOST_STATIC_ASSERT( Rows >= 3 );
+        BOOST_STATIC_ASSERT( Cols == 1 );
+        return operator[]( 2 );
+    }
+
+    /**
+     * Access z element of vector. Works only for matrices with Cols == 1.
+     *
+     * \return z element
+     */
+    const ValueT& z() const throw()
+    {
+        BOOST_STATIC_ASSERT( Rows >= 3 );
+        BOOST_STATIC_ASSERT( Cols == 1 );
+        return operator[]( 2 );
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Comparison
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Compares two matrices and returns true if they are equal.
+     * Compares two matrices and returns true if they are equal (component-wise).
      *
      * \tparam RHSValueT the value type of the argument
      * \param rhs The right hand side of the comparison
@@ -785,7 +945,6 @@ public:
     bool operator==( const WMatrixFixed< RHSValueT, Rows, Cols, RHSValueStoreT >& rhs ) const throw()
     {
         bool eq = true;
-        typedef typename WTypeTraits::TypePromotion< ValueT, RHSValueT >::Result BetterType;
         for ( size_t row = 0; row < Rows; ++row )
         {
             for ( size_t col = 0; col < Cols; ++col )
@@ -794,6 +953,28 @@ public:
             }
         }
         return eq;
+    }
+
+    /**
+     * Compares two matrices and returns true if this is smaller than the specified one (component-wise).
+     *
+     * \tparam RHSValueT the value type of the argument
+     * \param rhs The right hand side of the comparison
+     *
+     * \return true if this is less
+     */
+    template< typename RHSValueT, ValueStoreTemplate RHSValueStoreT >
+    bool operator<( const WMatrixFixed< RHSValueT, Rows, Cols, RHSValueStoreT >& rhs ) const throw()
+    {
+        bool less = true;
+        for ( size_t row = 0; row < Rows; ++row )
+        {
+            for ( size_t col = 0; col < Cols; ++col )
+            {
+                less &= ( operator()( row, col ) < rhs( row, col ) );
+            }
+        }
+        return less;
     }
 
     /**
@@ -807,6 +988,22 @@ public:
     bool operator!=( const WMatrixFixed< RHSValueT, Rows, Cols, RHSValueStoreT >& rhs ) const throw()
     {
         return !operator==( rhs );
+    }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // For compatibility to the old vec/matrix types. They are ALL deprecated and will be removed
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    double normalize()  // 28 files use this
+    {
+    }
+
+    MatrixType normalized() const  // 19 files use this
+    {
+    }
+
+    ValueType norm() const      // 32 files use this
+    {
     }
 
 private:
@@ -842,6 +1039,31 @@ typedef WMatrixFixed< double, 3, 3 > WMatrix3d_2;
 typedef WMatrixFixed< double, 4, 4 > WMatrix4d_2;
 typedef WMatrixFixed< float, 3, 3 > WMatrix3f_2;
 typedef WMatrixFixed< float, 4, 4 > WMatrix4f_2;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Commutative Operators
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Cale the given matrix by the value. This is needed for having * to be commutative. For more details, see  \ref WMatrixFixed::operator*.
+ *
+ * \tparam ScalarT Integral type of scaler
+ * \tparam MatrixValueT Value type of matrix
+ * \tparam MatrixRows Rows of matrix
+ * \tparam MatrixCols Columns of matrix
+ * \tparam MatrixValueStoreT matrix value store type
+ * \param n the scalar multiplier
+ * \param mat the matrix to scale
+ *
+ * \return scaled matrix.
+ */
+template < typename ScalarT,
+           typename MatrixValueT, size_t MatrixRows, size_t MatrixCols, ValueStoreTemplate MatrixValueStoreT >
+WMatrixFixed< MatrixValueT, MatrixRows, MatrixCols, MatrixValueStoreT >
+    operator*( const ScalarT n, const WMatrixFixed< MatrixValueT, MatrixRows, MatrixCols, MatrixValueStoreT >& mat )
+{
+    return mat * n;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Non-friend Non-Member functions
@@ -890,12 +1112,11 @@ typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result dot( const WMatr
  * \return cross product
  */
 template< typename AValueT, ValueStoreTemplate AValueStoreT,
-          typename BValueT, ValueStoreTemplate BValueStoreT,
-          ValueStoreTemplate ResultValueStoreT >
-WMatrixFixed< typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result, 3, 1, ResultValueStoreT >
+          typename BValueT, ValueStoreTemplate BValueStoreT >
+WMatrixFixed< typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result, 3, 1 >
     cross( const WMatrixFixed< AValueT, 3, 1, AValueStoreT >& a, const WMatrixFixed< BValueT, 3, 1, BValueStoreT >& b )
 {
-    typedef WMatrixFixed< typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result, 3, 1, ResultValueStoreT > ResultT;
+    typedef WMatrixFixed< typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result, 3, 1 > ResultT;
 
     // NOTE: to implement a general cross product for arbitrary row counts, the implementation is more complex and requires the implementation of
     // the Levi Civita symbol.
@@ -904,6 +1125,48 @@ WMatrixFixed< typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result, 3
     v[1] = a[2] * b[0] - a[0] * b[2];
     v[2] = a[0] * b[1] - a[1] * b[0];
     return v;
+}
+
+/**
+ * Calculates the <b>squared</b> length of a specified vector.
+ *
+ * \tparam ValueT Value type
+ * \tparam ValueStoreT Value store to use
+ * \tparam Rows number of rows in this colums-vector
+ * \param a the vector
+ *
+ * \return the length of the vector
+ */
+template< typename ValueT, ValueStoreTemplate ValueStoreT, size_t Rows >
+ValueT length2( const WMatrixFixed< ValueT, Rows, 1, ValueStoreT >& a )
+{
+    ValueT r = ValueT();
+    for ( size_t i = 0; i < Rows; ++i )
+    {
+        r += a( i, 0 ) * a( i, 0 );
+    }
+    return r;
+}
+
+/**
+ * Calculates the <b>squared</b> length of a specified vector.
+ *
+ * \tparam ValueT Value type
+ * \tparam ValueStoreT Value store to use
+ * \tparam Cols number of columns in this row-vector
+ * \param a the vector
+ *
+ * \return length of the vector
+ */
+template< typename ValueT, ValueStoreTemplate ValueStoreT, size_t Cols >
+ValueT length2( const WMatrixFixed< ValueT, 1, Cols, ValueStoreT >& a )
+{
+    ValueT r = ValueT();
+    for ( size_t i = 0; i < Cols; ++i )
+    {
+        r += a( 0, i ) * a( 0, i );
+    }
+    return r;
 }
 
 /**
@@ -919,12 +1182,7 @@ WMatrixFixed< typename WTypeTraits::TypePromotion< AValueT, BValueT >::Result, 3
 template< typename ValueT, ValueStoreTemplate ValueStoreT, size_t Rows >
 ValueT length( const WMatrixFixed< ValueT, Rows, 1, ValueStoreT >& a )
 {
-    ValueT r = ValueT();
-    for ( size_t i = 0; i < Rows; ++i )
-    {
-        r += a( i, 0 ) * a( i, 0 );
-    }
-    return sqrt( r );
+    return sqrt( length2( a ) );
 }
 
 /**
@@ -940,12 +1198,7 @@ ValueT length( const WMatrixFixed< ValueT, Rows, 1, ValueStoreT >& a )
 template< typename ValueT, ValueStoreTemplate ValueStoreT, size_t Cols >
 ValueT length( const WMatrixFixed< ValueT, 1, Cols, ValueStoreT >& a )
 {
-    ValueT r = ValueT();
-    for ( size_t i = 0; i < Cols; ++i )
-    {
-        r += a( 0, i ) * a( 0, i );
-    }
-    return sqrt( r );
+    return sqrt( length2( a ) );
 }
 
 /**

@@ -213,7 +213,7 @@ void WMTemplate::properties()
     m_aString          = m_properties->addProperty( "A string",                 "Something.", std::string( "hello" ), m_propCondition );
     m_aFile            = m_properties->addProperty( "A filename",              "Description.", WPathHelper::getAppPath(), m_propCondition );
     m_aColor           = m_properties->addProperty( "A color",                  "Description.", WColor( 1.0, 0.0, 0.0, 1.0 ) );
-    m_aPosition        = m_properties->addProperty( "Somewhere",                "Description.", WPosition( 0.0, 0.0, 0.0 ) );
+    m_aPosition        = m_properties->addProperty( "Somewhere",                "Description.", WPosition_2( 0.0, 0.0, 0.0 ) );
 
     // These lines create some new properties and add them to the property list of this module. The specific type to create is determined by the
     // initial value specified in the third argument. The first argument is the name of the property, which needs to be unique among all
@@ -694,7 +694,7 @@ void WMTemplate::TranslateCallback::operator()( osg::Node* node, osg::NodeVisito
         // The node to which this callback has been attached needs to be an osg::MatrixTransform:
         osg::ref_ptr< osg::MatrixTransform > transform = static_cast< osg::MatrixTransform* >( node );
 
-        // Build a translation matrix (to comfortably convert between WPosition and osg::Vec3 use the convenience methods in "wge::" namespace)
+        // Build a translation matrix (to comfortably convert between WPosition_2 and osg::Vec3 use the convenience methods in "wge::" namespace)
         osg::Matrixd translate = osg::Matrixd::translate( m_module->m_aPosition->get( true  ) );
 
         // and set the translation matrix

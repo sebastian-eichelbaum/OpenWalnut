@@ -37,7 +37,7 @@
 #include <osg/Group>
 #include <osg/LineWidth>
 
-#include "../../../common/math/WVector3D.h"
+#include "../../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../../common/WAssert.h"
 #include "../../../common/WLimits.h"
 #include "../../../dataHandler/WDataHandler.h"
@@ -144,7 +144,7 @@ void WMNavSlices::properties()
 
     // Print some nice output: the current nav slice position
     m_currentPosition = m_infoProperties->addProperty( "Position", "Current position of the navigation slices.",
-            WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
+            WPosition_2( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
 }
 
 void WMNavSlices::notifyDataChange( boost::shared_ptr<WModuleConnector> input,
@@ -492,7 +492,7 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
-        WVector3D normal = pickInfo.getPickNormal();
+        WVector3d_2 normal = pickInfo.getPickNormal();
 
         std::pair< float, float > newPixelPos( pickInfo.getPickPixelPosition() );
         if ( m_isPicked )
@@ -503,8 +503,8 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
             osg::Vec3 startPosWorld = wge::unprojectFromScreen( startPosScreen, m_viewer->getCamera() );
             osg::Vec3 endPosWorld = wge::unprojectFromScreen( endPosScreen, m_viewer->getCamera() );
 
-            osg::Vec3 moveDirWorld = endPosWorld - startPosWorld;
-            float diff = normal * moveDirWorld;
+            WVector3d_2 moveDirWorld( endPosWorld - startPosWorld );
+            float diff = dot( normal, moveDirWorld );
 
             // recognize also small values.
             if( diff < 0 && diff > -1 )
@@ -609,11 +609,11 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
         {
             case 0:
             {
-                std::vector< WPosition > vertices;
-                vertices.push_back( WPosition( xPos, m_bb.yMin(),  m_bb.zMin()   ) );
-                vertices.push_back( WPosition( xPos, m_bb.yMin(),  m_bb.zMax()  ) );
-                vertices.push_back( WPosition( xPos, m_bb.yMax(), m_bb.zMax()  ) );
-                vertices.push_back( WPosition( xPos, m_bb.yMax(), m_bb.zMin()   ) );
+                std::vector< WPosition_2 > vertices;
+                vertices.push_back( WPosition_2( xPos, m_bb.yMin(),  m_bb.zMin()   ) );
+                vertices.push_back( WPosition_2( xPos, m_bb.yMin(),  m_bb.zMax()  ) );
+                vertices.push_back( WPosition_2( xPos, m_bb.yMax(), m_bb.zMax()  ) );
+                vertices.push_back( WPosition_2( xPos, m_bb.yMax(), m_bb.zMin()   ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
                     sliceVertices->push_back( vertices[i] );
@@ -653,11 +653,11 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
             }
             case 1:
             {
-                std::vector< WPosition > vertices;
-                vertices.push_back( WPosition( m_bb.xMin(),   yPos, m_bb.zMin()  ) );
-                vertices.push_back( WPosition( m_bb.xMin(),   yPos, m_bb.zMax() ) );
-                vertices.push_back( WPosition( m_bb.xMax(),  yPos, m_bb.zMax() ) );
-                vertices.push_back( WPosition( m_bb.xMax(),  yPos, m_bb.zMin()  ) );
+                std::vector< WPosition_2 > vertices;
+                vertices.push_back( WPosition_2( m_bb.xMin(),   yPos, m_bb.zMin()  ) );
+                vertices.push_back( WPosition_2( m_bb.xMin(),   yPos, m_bb.zMax() ) );
+                vertices.push_back( WPosition_2( m_bb.xMax(),  yPos, m_bb.zMax() ) );
+                vertices.push_back( WPosition_2( m_bb.xMax(),  yPos, m_bb.zMin()  ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
                     sliceVertices->push_back( vertices[i] );
@@ -695,11 +695,11 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
             }
             case 2:
             {
-                std::vector< WPosition > vertices;
-                vertices.push_back( WPosition( m_bb.xMin(),  m_bb.yMin(),  zPos ) );
-                vertices.push_back( WPosition( m_bb.xMin(),  m_bb.yMax(), zPos ) );
-                vertices.push_back( WPosition( m_bb.xMax(), m_bb.yMax(), zPos ) );
-                vertices.push_back( WPosition( m_bb.xMax(), m_bb.yMin(),  zPos ) );
+                std::vector< WPosition_2 > vertices;
+                vertices.push_back( WPosition_2( m_bb.xMin(),  m_bb.yMin(),  zPos ) );
+                vertices.push_back( WPosition_2( m_bb.xMin(),  m_bb.yMax(), zPos ) );
+                vertices.push_back( WPosition_2( m_bb.xMax(), m_bb.yMax(), zPos ) );
+                vertices.push_back( WPosition_2( m_bb.xMax(), m_bb.yMin(),  zPos ) );
                 for( size_t i = 0; i < nbVerts; ++i )
                 {
                     sliceVertices->push_back( vertices[i] );
@@ -747,7 +747,7 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createGeometry( int slice )
         sliceGeometry->addPrimitiveSet( quad );
     }
     WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->setPosition(
-            WPosition( m_sagittalPos->get(), m_coronalPos->get(), m_axialPos->get() ) );
+            WPosition_2( m_sagittalPos->get(), m_coronalPos->get(), m_axialPos->get() ) );
 
     return sliceGeometry;
 }
@@ -774,45 +774,45 @@ osg::ref_ptr<osg::Geometry> WMNavSlices::createCrossGeometry( int slice )
     float maxy = m_bb.yMax();
     float maxz = m_bb.zMax();
 
-    std::vector< WPosition > vertices;
+    std::vector< WPosition_2 > vertices;
 
     switch ( slice )
     {
     case 0:
         {
-            vertices.push_back( WPosition( xPos - 1.0f, miny, zPos ) );
-            vertices.push_back( WPosition( xPos - 1.0f, maxy, zPos ) );
-            vertices.push_back( WPosition( xPos - 1.0f, yPos, minz ) );
-            vertices.push_back( WPosition( xPos - 1.0f, yPos, maxz ) );
+            vertices.push_back( WPosition_2( xPos - 1.0f, miny, zPos ) );
+            vertices.push_back( WPosition_2( xPos - 1.0f, maxy, zPos ) );
+            vertices.push_back( WPosition_2( xPos - 1.0f, yPos, minz ) );
+            vertices.push_back( WPosition_2( xPos - 1.0f, yPos, maxz ) );
             break;
         }
     case 1:
         {
 #if defined( __APPLE__ )
-            vertices.push_back( WPosition( minx, yPos - 1.0f, zPos ) );
-            vertices.push_back( WPosition( maxx, yPos - 1.0f, zPos ) );
-            vertices.push_back( WPosition( xPos, yPos - 1.0f, minz ) );
-            vertices.push_back( WPosition( xPos, yPos - 1.0f, maxz ) );
+            vertices.push_back( WPosition_2( minx, yPos - 1.0f, zPos ) );
+            vertices.push_back( WPosition_2( maxx, yPos - 1.0f, zPos ) );
+            vertices.push_back( WPosition_2( xPos, yPos - 1.0f, minz ) );
+            vertices.push_back( WPosition_2( xPos, yPos - 1.0f, maxz ) );
 #else
-            vertices.push_back( WPosition( minx, yPos + 1.0f, zPos ) );
-            vertices.push_back( WPosition( maxx, yPos + 1.0f, zPos ) );
-            vertices.push_back( WPosition( xPos, yPos + 1.0f, minz ) );
-            vertices.push_back( WPosition( xPos, yPos + 1.0f, maxz ) );
+            vertices.push_back( WPosition_2( minx, yPos + 1.0f, zPos ) );
+            vertices.push_back( WPosition_2( maxx, yPos + 1.0f, zPos ) );
+            vertices.push_back( WPosition_2( xPos, yPos + 1.0f, minz ) );
+            vertices.push_back( WPosition_2( xPos, yPos + 1.0f, maxz ) );
 #endif
             break;
         }
     case 2:
         {
 #if defined( __APPLE__ )
-            vertices.push_back( WPosition( minx, yPos, zPos + 1.0f ) );
-            vertices.push_back( WPosition( maxx, yPos, zPos + 1.0f ) );
-            vertices.push_back( WPosition( xPos, miny, zPos + 1.0f ) );
-            vertices.push_back( WPosition( xPos, maxy, zPos + 1.0f ) );
+            vertices.push_back( WPosition_2( minx, yPos, zPos + 1.0f ) );
+            vertices.push_back( WPosition_2( maxx, yPos, zPos + 1.0f ) );
+            vertices.push_back( WPosition_2( xPos, miny, zPos + 1.0f ) );
+            vertices.push_back( WPosition_2( xPos, maxy, zPos + 1.0f ) );
 #else
-            vertices.push_back( WPosition( minx, yPos, zPos - 1.0f ) );
-            vertices.push_back( WPosition( maxx, yPos, zPos - 1.0f ) );
-            vertices.push_back( WPosition( xPos, miny, zPos - 1.0f ) );
-            vertices.push_back( WPosition( xPos, maxy, zPos - 1.0f ) );
+            vertices.push_back( WPosition_2( minx, yPos, zPos - 1.0f ) );
+            vertices.push_back( WPosition_2( maxx, yPos, zPos - 1.0f ) );
+            vertices.push_back( WPosition_2( xPos, miny, zPos - 1.0f ) );
+            vertices.push_back( WPosition_2( xPos, maxy, zPos - 1.0f ) );
 #endif
             break;
         }
@@ -905,7 +905,7 @@ void WMNavSlices::updateGeometry()
         )
     {
         // update the information property
-        m_currentPosition->set( WPosition( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
+        m_currentPosition->set( WPosition_2( m_axialPos->get(), m_coronalPos->get(), m_sagittalPos->get() ) );
 
         // if the texture got changed we want to rearrange the scene Matrix for the SliceViewports to be centered
         updateViewportMatrix();

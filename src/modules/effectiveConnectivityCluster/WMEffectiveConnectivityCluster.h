@@ -33,7 +33,7 @@
 
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetScalar.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleContainer.h"
@@ -156,12 +156,12 @@ private:
     /**
      * The position of the first label showing m_voi1Name
      */
-    WPosition m_labelPos1;
+    WPosition_2 m_labelPos1;
 
     /**
      * The position of the second label showing m_voi2Name
      */
-    WPosition m_labelPos2;
+    WPosition_2 m_labelPos2;
 
     /////////////////////////////////////////////////////////////////////
     // The Properties

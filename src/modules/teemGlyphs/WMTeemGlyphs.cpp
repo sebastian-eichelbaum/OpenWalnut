@@ -406,7 +406,7 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
     double max = -1e15;
     for( size_t vertID = 0; vertID < glyph->xyzwNum; ++vertID )
     {
-        WPosition pos( glyph->xyzw[nbVertCoords*vertID], glyph->xyzw[nbVertCoords*vertID+1],  glyph->xyzw[nbVertCoords*vertID+2] );
+        WPosition_2 pos( glyph->xyzw[nbVertCoords*vertID], glyph->xyzw[nbVertCoords*vertID+1],  glyph->xyzw[nbVertCoords*vertID+2] );
         double norm = pos.norm();
 
         if( norm < min )
@@ -427,10 +427,10 @@ void WMTeemGlyphs::GlyphGeneration::minMaxNormalization( limnPolyData *glyph, co
          for( size_t i = 0; i < glyph->xyzwNum; ++i )
          {
              size_t coordIdBase = nbVertCoords * i;
-             WPosition pos( glyph->xyzw[coordIdBase], glyph->xyzw[coordIdBase+1],  glyph->xyzw[coordIdBase+2] );
+             WPosition_2 pos( glyph->xyzw[coordIdBase], glyph->xyzw[coordIdBase+1],  glyph->xyzw[coordIdBase+2] );
              double norm = pos.norm();
              const double epsilon = 1e-9;
-             WPosition newPos;
+             WPosition_2 newPos;
 //             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos.normalized();
             newPos = ( ( ( norm - min ) / dist ) + epsilon ) * pos / norm;
             glyph->xyzw[coordIdBase] = newPos[0];
@@ -726,7 +726,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             }
             estimateNormalsAntipodal( glyph, normalize );
 
-            WPosition glyphPos = m_grid->getPosition( posId );
+            WPosition_2 glyphPos = m_grid->getPosition( posId );
 
 
             for( unsigned int vertId = 0; vertId < glyph->xyzwNum; ++vertId )

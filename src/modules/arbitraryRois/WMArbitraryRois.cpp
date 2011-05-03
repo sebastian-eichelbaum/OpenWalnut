@@ -166,9 +166,9 @@ void WMArbitraryRois::moduleMain()
 
 void WMArbitraryRois::initSelectionRoi()
 {
-    WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    WPosition minROIPos = crossHairPos - WPosition( 10., 10., 10. );
-    WPosition maxROIPos = crossHairPos + WPosition( 10., 10., 10. );
+    WPosition_2 crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition_2 minROIPos = crossHairPos - WPosition_2( 10., 10., 10. );
+    WPosition_2 maxROIPos = crossHairPos + WPosition_2( 10., 10., 10. );
 
     m_selectionRoi = osg::ref_ptr< WROIBox >( new WROIBox( minROIPos, maxROIPos ) );
     m_selectionRoi->setColor( osg::Vec4( 0., 0., 1.0, 0.4 ) );

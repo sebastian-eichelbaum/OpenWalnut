@@ -30,7 +30,7 @@
 
 #include <boost/thread.hpp>
 
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WPickHandler.h"
 #include "WGEViewer.h"
 
@@ -48,19 +48,19 @@ public:
      * \param minPos Left, lower, front corner. Minimal x, y and z coordinates.
      * \param maxPos Right, upper, back corner. Maximal x, y and z coordinates.
      */
-    WROIBox(  WPosition minPos, WPosition maxPos );
+    WROIBox(  WPosition_2 minPos, WPosition_2 maxPos );
 
     virtual ~WROIBox();
 
     /**
      * Get the corner of the box that has minimal x, y and z values
      */
-    WPosition getMinPos() const;
+    WPosition_2 getMinPos() const;
 
     /**
      * Get the corner of the box that has maximal x, y and z values
      */
-    WPosition getMaxPos() const;
+    WPosition_2 getMaxPos() const;
 
     /**
      * Setter for standard color
@@ -79,11 +79,11 @@ private:
     static size_t maxBoxId; //!< Current maximum boxId over all boxes.
     size_t boxId; //!< Id of the current box.
 
-    WPosition m_minPos; //!< The minimum position of the box
-    WPosition m_maxPos; //!< The maximum position of the box
+    WPosition_2 m_minPos; //!< The minimum position of the box
+    WPosition_2 m_maxPos; //!< The maximum position of the box
     bool m_isPicked; //!< Indicates whether the box is currently picked or not.
-    WPosition m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
-    WVector3D m_pickNormal; //!< Store the normal that occured when the pick action was started.
+    WPosition_2 m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
+    WVector3d_2 m_pickNormal; //!< Store the normal that occured when the pick action was started.
     std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
     osg::ref_ptr< osg::Geometry > m_surfaceGeometry; //!< store this pointer for use in updates

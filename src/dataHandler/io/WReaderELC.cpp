@@ -32,7 +32,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WLogger.h"
 #include "../../common/WStringUtils.h"
 #include "../exceptions/WDHIOFailure.h"
@@ -79,7 +79,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
     }
 
     std::size_t posCounter = 0;
-    std::vector< WPosition > positions;
+    std::vector< WPosition_2 > positions;
     positions.reserve( numPositions );
     while( posCounter != numPositions && ifs.good() && line.substr( 0, 6 ) != "Labels" )  // run through all positions
     {
@@ -97,7 +97,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
             double posX = boost::lexical_cast< double >( posTokens.at( posTokens.size() - 3 ) );
             double posY = boost::lexical_cast< double >( posTokens.at( posTokens.size() - 2 ) );
             double posZ = boost::lexical_cast< double >( posTokens.at( posTokens.size() - 1 ) );
-            positions.push_back( WPosition( posX, posY, posZ ) );
+            positions.push_back( WPosition_2( posX, posY, posZ ) );
         }
     }
 
@@ -116,7 +116,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
     }
 
     std::size_t labelCounter = 0;
-    std::map< std::string, WPosition > positionsMap;
+    std::map< std::string, WPosition_2 > positionsMap;
     while( labelCounter != numPositions && ifs.good() ) // run through all labels
     {
         std::getline( ifs, line );
@@ -142,7 +142,7 @@ boost::shared_ptr< WEEGPositionsLibrary > WReaderELC::read()
 
     ifs.close();
 
-    for( std::map< std::string, WPosition >::const_iterator iter = positionsMap.begin(); iter != positionsMap.end(); ++iter )
+    for( std::map< std::string, WPosition_2 >::const_iterator iter = positionsMap.begin(); iter != positionsMap.end(); ++iter )
     {
         wlog::debug( "WReaderELC" ) << iter->first << ": " << iter->second;
     }

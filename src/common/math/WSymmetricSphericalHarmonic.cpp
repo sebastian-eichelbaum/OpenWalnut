@@ -34,7 +34,7 @@
 #include "WSymmetricSphericalHarmonic.h"
 #include "WTensorSym.h"
 #include "WUnitSphereCoordinates.h"
-#include "WVector3D.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 
 WSymmetricSphericalHarmonic::WSymmetricSphericalHarmonic() :
     m_order( 0 )
@@ -255,14 +255,14 @@ size_t WSymmetricSphericalHarmonic::getOrder() const
   return m_order;
 }
 
-WMatrix_2 WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< WVector3D >& orientations,
+WMatrix_2 WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< WVector3d_2 >& orientations,
                                                                         int order,
                                                                         double lambda,
                                                                         bool withFRT )
 {
   // convert euclid 3d orientations/gradients to sphere coordinates
   std::vector< WUnitSphereCoordinates > sphereCoordinates;
-  for ( std::vector< WVector3D >::const_iterator it = orientations.begin(); it != orientations.end(); it++ )
+  for ( std::vector< WVector3d_2 >::const_iterator it = orientations.begin(); it != orientations.end(); it++ )
   {
     sphereCoordinates.push_back( WUnitSphereCoordinates( *it ) );
   }
@@ -399,7 +399,7 @@ WMatrix_2 WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( std::size_t orde
     WPrecondLess( numElements, orientations.size() + 1 );
 
     // store first numElements orientations as 3d-vectors
-    std::vector< WVector3D > directions( numElements );
+    std::vector< WVector3d_2 > directions( numElements );
     for( std::size_t i = 0; i < numElements; ++i )
     {
         directions[ i ] = orientations[ i ].getEuclidean();

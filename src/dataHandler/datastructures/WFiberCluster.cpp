@@ -157,7 +157,7 @@ void WFiberCluster::generateCenterLine() const
     m_centerLine->reserve( avgFiberSize );
     for( size_t i = 0; i < avgFiberSize; ++i )
     {
-        WPosition avgPosition( 0, 0, 0 );
+        WPosition_2 avgPosition( 0, 0, 0 );
         for( WDataSetFiberVector::const_iterator cit = fibs->begin(); cit != fibs->end(); ++cit )
         {
             avgPosition += cit->at( i );
@@ -214,7 +214,7 @@ void WFiberCluster::elongateCenterLine() const
     assert( m_centerLine->size() > 1 );
     WFiber cL( *m_centerLine );
     WPlane p( cL[0] - cL[1], cL[0] + ( cL[0] - cL[1] ) );
-    boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
+    boost::shared_ptr< WPosition_2 > cutPoint( new WPosition_2( 0, 0, 0 ) );
     bool intersectionFound = true;
 
     // in the beginning all fibers participate
@@ -228,7 +228,7 @@ void WFiberCluster::elongateCenterLine() const
     {
         intersectionFound = false;
         size_t intersectingFibers = 0;
-//        WPosition avg( 0, 0, 0 );
+//        WPosition_2 avg( 0, 0, 0 );
         for( WDataSetFiberVector::iterator cit = fibs->begin(); cit != fibs->end(); )
         {
             if( intersectPlaneLineNearCP( p, *cit, cutPoint ) )
@@ -281,7 +281,7 @@ void WFiberCluster::elongateCenterLine() const
     {
         intersectionFound = false;
         size_t intersectingFibers = 0;
-//        WPosition avg( 0, 0, 0 );
+//        WPosition_2 avg( 0, 0, 0 );
         for( WDataSetFiberVector::iterator cit = fobs->begin(); cit != fobs->end(); )
         {
             if( intersectPlaneLineNearCP( q, *cit, cutPoint ) )
@@ -333,22 +333,22 @@ void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fib
 
     // first fiber defines direction
     const WFiber& firstFib = fibs->front();
-    const WPosition start = firstFib.front();
-    const WPosition m1    = firstFib.at( firstFib.size() * 1.0 / 3.0 );
-    const WPosition m2    = firstFib.at( firstFib.size() * 2.0 / 3.0 );
-    const WPosition end   = firstFib.back();
+    const WPosition_2 start = firstFib.front();
+    const WPosition_2 m1    = firstFib.at( firstFib.size() * 1.0 / 3.0 );
+    const WPosition_2 m2    = firstFib.at( firstFib.size() * 2.0 / 3.0 );
+    const WPosition_2 end   = firstFib.back();
 
     for( WDataSetFiberVector::iterator cit = fibs->begin() + 1; cit != fibs->end(); ++cit )
     {
         const WFiber& other = *cit;
-        double        distance = ( start - other.front() ).normSquare() +
-                                 ( m1 - other.at( other.size() * 1.0 / 3.0 ) ).normSquare() +
-                                 ( m2 - other.at( other.size() * 2.0 / 3.0 ) ).normSquare() +
-                                 ( end - other.back() ).normSquare();
-        double inverseDistance = ( start - other.back() ).normSquare() +
-                                 ( m1 - other.at( other.size() * 2.0 / 3.0 ) ).normSquare() +
-                                 ( m2 - other.at( other.size() * 1.0 / 3.0 ) ).normSquare() +
-                                 ( end - other.front() ).normSquare();
+        double        distance = length2( start - other.front() ) +
+                                 length2( m1 - other.at( other.size() * 1.0 / 3.0 ) ) +
+                                 length2( m2 - other.at( other.size() * 2.0 / 3.0 ) ) +
+                                 length2( end - other.back() );
+        double inverseDistance = length2( start - other.back() ) +
+                                 length2( m1 - other.at( other.size() * 2.0 / 3.0 ) ) +
+                                 length2( m2 - other.at( other.size() * 1.0 / 3.0 ) ) +
+                                 length2( end - other.front() );
         distance        /= 4.0;
         inverseDistance /= 4.0;
         if( inverseDistance < distance )

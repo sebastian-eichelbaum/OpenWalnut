@@ -113,7 +113,7 @@ private:
      *
      * \return a string containing the position in a nicely formatted way.
      */
-    std::string toString( const WPosition& value );
+    std::string toString( const WPosition_2& value );
 
     /**
      * Helper function converting a double into a nice formatted string.

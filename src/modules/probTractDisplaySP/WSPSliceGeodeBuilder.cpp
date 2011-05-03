@@ -27,7 +27,7 @@
 
 #include "../../common/datastructures/WFiber.h"
 #include "../../common/exceptions/WTypeMismatch.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WLogger.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "WSPSliceGeodeBuilder.h"
@@ -185,7 +185,7 @@ osg::ref_ptr< osg::Vec4Array > WSPSliceGeodeBuilder::colorVertices( osg::ref_ptr
 
     for( osg::Vec3Array::const_iterator cit = vertices->begin(); cit != vertices->end(); ++cit )
     {
-        const WPosition vertex( *cit );
+        const WPosition_2 vertex( *cit );
         vertexColorPerTract.clear();
 
         size_t probTractNum = 0;
@@ -275,7 +275,7 @@ WSPSliceGeodeBuilder::GeodePair WSPSliceGeodeBuilder::generateSlices( const unsi
             WBoundingBox cBB;
             while( ( k < len ) &&  std::abs( slicePos - fibVerts->at( ( 3 * k ) + sidx + sliceNum ) ) <= maxDistance )
             {
-                WPosition cv( fibVerts->at( ( 3 * k ) + sidx ),
+                WPosition_2 cv( fibVerts->at( ( 3 * k ) + sidx ),
                             fibVerts->at( ( 3 * k ) + sidx + 1 ),
                             fibVerts->at( ( 3 * k ) + sidx + 2 ) );
                 candidate->push_back( cv );

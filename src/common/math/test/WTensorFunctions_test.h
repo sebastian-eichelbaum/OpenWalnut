@@ -85,9 +85,9 @@ public:
         TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 3.0, 1e-6 );
         // eigenvectors should be perpendicular
-        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[0].second, sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[1].second, sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[2].second., sys[0].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
@@ -102,9 +102,9 @@ public:
         TS_ASSERT_DELTA( sys[0].first, -3.0, 1e-6 );
         TS_ASSERT_DELTA( sys[1].first, 1.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 2.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[0].second, sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[1].second, sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[2].second., sys[0].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
@@ -119,9 +119,9 @@ public:
         TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
         TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 2.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[0].second, sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[1].second, sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[2].second., sys[0].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
@@ -136,9 +136,9 @@ public:
         TS_ASSERT_DELTA( sys[0].first, -1.0, 1e-6 );
         TS_ASSERT_DELTA( sys[1].first, -1.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, -1.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[0].second, sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[1].second, sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[2].second., sys[0].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
@@ -153,9 +153,9 @@ public:
         TS_ASSERT_DELTA( sys[0].first, 0.0, 1e-6 );
         TS_ASSERT_DELTA( sys[1].first, 1.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 1.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[0].second, sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[1].second, sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[2].second., sys[0].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
@@ -170,9 +170,9 @@ public:
         TS_ASSERT_DELTA( sys[0].first, 0.0, 1e-6 );
         TS_ASSERT_DELTA( sys[1].first, 0.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 0.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[0].second, sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[1].second, sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[2].second., sys[0].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
@@ -188,9 +188,9 @@ public:
         TS_ASSERT_DELTA( sys[0].first, 0.0, 1e-6 );
         TS_ASSERT_DELTA( sys[1].first, 1.999998, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 2.000001, 1e-6 );
-        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[0].second, sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[1].second, sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[2].second., sys[0].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
@@ -206,9 +206,9 @@ public:
         TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
         TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 3.824572321236e30, 1e-6 );
-        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[0].second, sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[1].second, sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[2].second., sys[0].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
@@ -224,9 +224,9 @@ public:
         TS_ASSERT_DELTA( sys[0].first, 3.824572321236e-30, 1e-6 );
         TS_ASSERT_DELTA( sys[1].first, 1.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 2.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-9 );
-        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[0].second, sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[1].second, sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[2].second., sys[0].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
@@ -246,9 +246,9 @@ public:
         TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
         TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 3.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( dot( sys[0].second, sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[1].second, sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[2].second., sys[0].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
@@ -269,9 +269,9 @@ public:
         TS_ASSERT_DELTA( sys[0].first, 1.0, 1e-6 );
         TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 3.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( dot( sys[0].second, sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[1].second, sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[2].second., sys[0].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
@@ -292,9 +292,9 @@ public:
         TS_ASSERT_DELTA( sys[0].first, 2.0, 1e-6 );
         TS_ASSERT_DELTA( sys[1].first, 2.0, 1e-6 );
         TS_ASSERT_DELTA( sys[2].first, 2.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[0].second.dotProduct( sys[1].second ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[1].second.dotProduct( sys[2].second ), 0.0, 1e-6 );
-        TS_ASSERT_DELTA( sys[2].second.dotProduct( sys[0].second ), 0.0, 1e-6 );
+        TS_ASSERT_DELTA( dot( sys[0].second, sys[1].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[1].second, sys[2].second ), 0.0, 1e-9 );
+        TS_ASSERT_DELTA( dot( sys[2].second., sys[0].second ), 0.0, 1e-9 );
         TS_ASSERT_DELTA( sys[0].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[1].second.norm(), 1.0, 1e-9 );
         TS_ASSERT_DELTA( sys[2].second.norm(), 1.0, 1e-9 );
@@ -617,12 +617,12 @@ public:
         t( 1, 1, 2, 2 ) = 16.5476;
 
         // the gradients
-        std::vector< WVector3D > gradients;
-        gradients.push_back( WVector3D( 1.0, 0.0, 0.0 ) );
-        gradients.push_back( WVector3D( 0.0, 1.0, 0.0 ) );
-        gradients.push_back( WVector3D( 1.0, 1.0, 0.0 ).normalized() );
-        gradients.push_back( WVector3D( 0.3, 0.4, 0.5 ).normalized() );
-        gradients.push_back( WVector3D( -7.0, 3.0, -1.0 ).normalized() );
+        std::vector< WVector3d_2 > gradients;
+        gradients.push_back( WVector3d_2( 1.0, 0.0, 0.0 ) );
+        gradients.push_back( WVector3d_2( 0.0, 1.0, 0.0 ) );
+        gradients.push_back( WVector3d_2( 1.0, 1.0, 0.0 ).normalized() );
+        gradients.push_back( WVector3d_2( 0.3, 0.4, 0.5 ).normalized() );
+        gradients.push_back( WVector3d_2( -7.0, 3.0, -1.0 ).normalized() );
 
         for( int k = 0; k < 5; ++k )
         {
@@ -714,7 +714,7 @@ private:
      * \param t The tensor.
      * \param v The gradient.
      */
-    double calcTens( WTensorSym< 4, 3, double > const& t, WVector3D const& v )
+    double calcTens( WTensorSym< 4, 3, double > const& t, WVector3d_2 const& v )
     {
         double res = 0.0;
         for( int a = 0; a < 3; ++a )

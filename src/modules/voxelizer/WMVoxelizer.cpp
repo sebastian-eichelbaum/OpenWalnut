@@ -416,8 +416,8 @@ void WMVoxelizer::raster( boost::shared_ptr< WRasterAlgorithm > algo ) const
 
     // TODO(math): This is just a line for testing purposes
 //    WLine l;
-//    l.push_back( WPosition( 73, 38, 29 ) );
-//    l.push_back( WPosition( 120, 150, 130 ) );
+//    l.push_back( WPosition_2( 73, 38, 29 ) );
+//    l.push_back( WPosition_2( 120, 150, 130 ) );
 //    algo->raster( l );
 }
 
@@ -474,8 +474,8 @@ osg::ref_ptr< osg::Geode > WMVoxelizer::genDataSetGeode( boost::shared_ptr< WDat
     {
         if( values[i] != 0.0 )
         {
-            WPosition pos = grid->getPosition( i );
-            boost::shared_ptr< std::vector< WPosition > > voxelCornerVertices = grid->getVoxelVertices( pos, 0.01 );
+            WPosition_2 pos = grid->getPosition( i );
+            boost::shared_ptr< std::vector< WPosition_2 > > voxelCornerVertices = grid->getVoxelVertices( pos, 0.01 );
             osg::ref_ptr< osg::Vec3Array > ver = wge::generateCuboidQuads( *voxelCornerVertices );
             vertices->insert( vertices->end(), ver->begin(), ver->end() );
             osg::ref_ptr< osg::Vec3Array > nor = wge::generateCuboidQuadNormals( *voxelCornerVertices );

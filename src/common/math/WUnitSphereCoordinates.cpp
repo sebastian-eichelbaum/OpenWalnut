@@ -38,7 +38,7 @@ WUnitSphereCoordinates::WUnitSphereCoordinates( double theta, double phi )
 {
 }
 
-WUnitSphereCoordinates::WUnitSphereCoordinates( WVector3D vector )
+WUnitSphereCoordinates::WUnitSphereCoordinates( WVector3d_2 vector )
 {
     vector.normalize();
     // calculate angles
@@ -70,7 +70,7 @@ void WUnitSphereCoordinates::setPhi( double phi )
     m_phi = phi;
 }
 
-WVector3D WUnitSphereCoordinates::getEuclidean() const
+WVector3d_2 WUnitSphereCoordinates::getEuclidean() const
 {
-    return WVector3D( std::sin( m_theta )*std::cos( m_phi ), std::sin( m_theta )*std::sin( m_phi ), std::cos( m_theta ) );
+    return WVector3d_2( std::sin( m_theta )*std::cos( m_phi ), std::sin( m_theta )*std::sin( m_phi ), std::cos( m_theta ) );
 }

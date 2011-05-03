@@ -29,7 +29,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/math/WLine.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/math/WValue.h"
 #include "../../common/WAssert.h"
 #include "../../common/WLogger.h"
@@ -66,7 +66,7 @@ void WBresenham::raster( const WLine& line )
     lock.unlock();
 }
 
-void WBresenham::rasterSegment( const WPosition& start, const WPosition& end )
+void WBresenham::rasterSegment( const WPosition_2& start, const WPosition_2& end )
 {
     int i;
     WValue< int > gridStartPos = m_grid->getVoxelCoord( start );
@@ -157,13 +157,13 @@ void WBresenham::rasterSegment( const WPosition& start, const WPosition& end )
 }
 
 std::vector< double > WBresenham::computeDistances( const size_t voxelNum,
-                                                    const WPosition& start,
-                                                    const WPosition& end ) const
+                                                    const WPosition_2& start,
+                                                    const WPosition_2& end ) const
 {
-    WPosition u = end - start;
+    WPosition_2 u = end - start;
     u.normalize();
 
-    std::vector< WPosition > x;
+    std::vector< WPosition_2 > x;
     x.reserve( 7 );
     x.push_back( m_grid->getPosition( voxelNum ) - start );
     x.push_back( m_grid->getPosition( voxelNum + 1 ) - start );
@@ -179,7 +179,7 @@ std::vector< double > WBresenham::computeDistances( const size_t voxelNum,
     // now calculate distance from x to the line given via start and end
     for( size_t i = 0; i < x.size(); ++i )
     {
-        WPosition lot = u.dotProduct( x[i] ) * u; // lot == perpendicular
+        WPosition_2 lot = dot( u, x[i] ) * u; // lot == perpendicular
         result.push_back( std::abs( ( x[i] - lot ).norm() ) );
     }
     return result;
@@ -191,7 +191,7 @@ double WBresenham::composeValue( double newValue, double existingValue ) const
     // return newValue + existingValue;
 }
 
-void WBresenham::markVoxel( const WValue< int >& voxel, const int axis, const WPosition& start, const WPosition& end )
+void WBresenham::markVoxel( const WValue< int >& voxel, const int axis, const WPosition_2& start, const WPosition_2& end )
 {
     size_t nbX  = m_grid->getNbCoordsX();
     size_t nbXY = m_grid->getNbCoordsX() * m_grid->getNbCoordsY();

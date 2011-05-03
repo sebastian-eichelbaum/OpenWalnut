@@ -26,7 +26,7 @@
 #define WCROSSHAIR_H
 
 #include <boost/shared_ptr.hpp>
-#include "../common/math/WVector3D.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WExportKernel.h"
 
@@ -42,18 +42,18 @@ public:
     /**
      * Get the position of the corsshair.
      */
-    WPosition getPosition();
+    WPosition_2 getPosition();
 
     /**
      * Set the position of the crosshair for updating it.
      *
      * \param position The new position.
      */
-    void setPosition( WPosition position );
+    void setPosition( WPosition_2 position );
 
 protected:
 private:
-    WPosition m_position; //!< Stores the current position of the crosshair.
+    WPosition_2 m_position; //!< Stores the current position of the crosshair.
 };
 
 #endif  // WCROSSHAIR_H

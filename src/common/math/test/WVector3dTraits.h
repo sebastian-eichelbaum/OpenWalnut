@@ -22,5 +22,41 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WPosition.h"
+#ifndef WVECTOR3DTRAITS_H
+#define WVECTOR3DTRAITS_H
 
+#include <sstream>
+
+#include <cxxtest/TestSuite.h>
+#include <cxxtest/ValueTraits.h>
+
+#include "../../test/WTraitsBase.h"
+#include "../linearAlgebra/WLinearAlgebra.h"
+
+#ifdef CXXTEST_RUNNING
+namespace CxxTest
+{
+CXXTEST_TEMPLATE_INSTANTIATION
+/**
+ * Enables better UnitTest OutPut if something fails with WFibers, so you see
+ * immedeatly what is failing.
+ */
+class ValueTraits< WVector3d_2 > : public WTraitsBase
+{
+public:
+    /**
+     * Constructor for class allowing usable output of WVector3d_2 in tests
+     *
+     * \param m the WVector to print
+     */
+    explicit ValueTraits( const WVector3d_2 &m )
+    {
+        std::stringstream tmp;
+        tmp.precision( 16 );
+        tmp << "WVector3d_2( " << m[0] << " " << m[1] << " " << m[2] << " )";
+        m_s = tmp.str();
+    }
+};
+}
+#endif  // CXXTEST_RUNNING
+#endif  // WVECTOR3DTRAITS_H

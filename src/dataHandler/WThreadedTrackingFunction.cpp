@@ -40,7 +40,7 @@ namespace wtracking
         WAssert( g->encloses( job.first ), "" );
 
         // find matching direction
-        WVector3D dir = dirFunc( dataset, job );
+        WVector3d_2 dir = dirFunc( dataset, job );
 
         if( fabs( dir.norm() - 1.0 ) > TRACKING_EPS )
         {
@@ -83,14 +83,14 @@ namespace wtracking
         return true;
     }
 
-    bool WTrackingUtility::onBoundary( Grid3DPtr grid, WVector3D const& pos )
+    bool WTrackingUtility::onBoundary( Grid3DPtr grid, WVector3d_2 const& pos )
     {
-        WVector3D v = pos - grid->getOrigin();
+        WVector3d_2 v = pos - grid->getOrigin();
         double p;
         double z;
-        WVector3D d = grid->getDirectionX();
+        WVector3d_2 d = grid->getDirectionX();
         d.normalize();
-        double c = d.dotProduct( v ) / grid->getOffsetX() + 0.5;
+        double c = dot( d, v ) / grid->getOffsetX() + 0.5;
         p = c >= 0.0 ? modf( c, &z ) : 1.0 + modf( c, &z );
         if( fabs( p ) < TRACKING_EPS || fabs( p - 1 ) < TRACKING_EPS )
         {
@@ -98,7 +98,7 @@ namespace wtracking
         }
         d = grid->getDirectionY();
         d.normalize();
-        c = d.dotProduct( v ) / grid->getOffsetY() + 0.5;
+        c = dot( d,  v ) / grid->getOffsetY() + 0.5;
         p = c >= 0.0 ? modf( c, &z ) : 1.0 + modf( c, &z );
         if( fabs( p ) < TRACKING_EPS || fabs( p - 1 ) < TRACKING_EPS )
         {
@@ -106,7 +106,7 @@ namespace wtracking
         }
         d = grid->getDirectionZ();
         d.normalize();
-        c = d.dotProduct( v ) / grid->getOffsetZ() + 0.5;
+        c = dot( d, v ) / grid->getOffsetZ() + 0.5;
         p = c >= 0.0 ? modf( c, &z ) : 1.0 + modf( c, &z );
         if( fabs( p ) < TRACKING_EPS || fabs( p - 1 ) < TRACKING_EPS )
         {
@@ -115,7 +115,7 @@ namespace wtracking
         return false;
     }
 
-    double WTrackingUtility::getDistanceToBoundary( Grid3DPtr grid, WVector3D const& pos, WVector3D const& dir )
+    double WTrackingUtility::getDistanceToBoundary( Grid3DPtr grid, WVector3d_2 const& pos, WVector3d_2 const& dir )
     {
         // the input pos is at least TRACKING_EPS away from the boundary
         // so distance calculations don't get screwed
@@ -123,18 +123,18 @@ namespace wtracking
 
         double dist = std::numeric_limits< double >::infinity();
 
-        WVector3D v = pos - grid->getOrigin();
-        WVector3D p;
+        WVector3d_2 v = pos - grid->getOrigin();
+        WVector3d_2 p;
         double z;
-        WVector3D o( grid->getOffsetX(), grid->getOffsetY(), grid->getOffsetZ() );
-        WVector3D s[ 3 ] = { grid->getDirectionX() / o[ 0 ], grid->getDirectionY() / o[ 1 ], grid->getDirectionZ() / o[ 2 ] };
-        double c = s[ 0 ].dotProduct( v ) / o[ 0 ] + 0.5;
+        WVector3d_2 o( grid->getOffsetX(), grid->getOffsetY(), grid->getOffsetZ() );
+        WVector3d_2 s[ 3 ] = { grid->getDirectionX() / o[ 0 ], grid->getDirectionY() / o[ 1 ], grid->getDirectionZ() / o[ 2 ] };
+        double c = dot( s[ 0 ], v ) / o[ 0 ] + 0.5;
         p[ 0 ] = c >= 0.0 ? modf( c, &z ) : 1.0 + modf( c, &z );
-        c = s[ 1 ].dotProduct( v ) / o[ 1 ] + 0.5;
+        c = dot( s[ 1 ], v ) / o[ 1 ] + 0.5;
         p[ 1 ] = c >= 0.0 ? modf( c, &z ) : 1.0 + modf( c, &z );
-        c = s[ 2 ].dotProduct( v ) / o[ 2 ] + 0.5;
+        c = dot( s[ 2 ], v ) / o[ 2 ] + 0.5;
         p[ 2 ] = c >= 0.0 ? modf( c, &z ) : 1.0 + modf( c, &z );
-        WVector3D d( dir.dotProduct( s[ 0 ] ), dir.dotProduct( s[ 1 ] ), dir.dotProduct( s[ 2 ] ) );
+        WVector3d_2 d( dot( dir, s[ 0 ] ), dot( dir, s[ 1 ] ), dot( dir, s[ 2 ] ) );
 
         double t;
         for( int i = 0; i < 3; ++i )
@@ -205,11 +205,11 @@ namespace wtracking
 
     void WThreadedTrackingFunction::compute( DataSetPtr input, JobType const& job )
     {
-        WVector3D e = m_directionFunc( input, job );
+        WVector3d_2 e = m_directionFunc( input, job );
         JobType j = job;
         j.second = e;
 
-        std::vector< WVector3D > fiber;
+        std::vector< WVector3d_2 > fiber;
         if( fabs( e.norm() - 1.0 ) > TRACKING_EPS )
         {
             if( m_fiberVisitor )
@@ -351,7 +351,7 @@ namespace wtracking
     WThreadedTrackingFunction::JobType WThreadedTrackingFunction::IndexType::job()
     {
         JobType job;
-        job.second = WVector3D( 0.0, 0.0, 0.0 );
+        job.second = WVector3d_2( 0.0, 0.0, 0.0 );
         job.first = m_grid->getOrigin() + m_grid->getDirectionX() * ( m_offset * ( 0.5 + m_pos[ 0 ] ) - 0.5 )
             + m_grid->getDirectionY() * ( m_offset * ( 0.5 + m_pos[ 1 ] ) - 0.5 )
             + m_grid->getDirectionZ() * ( m_offset * ( 0.5 + m_pos[ 2 ] ) - 0.5 );

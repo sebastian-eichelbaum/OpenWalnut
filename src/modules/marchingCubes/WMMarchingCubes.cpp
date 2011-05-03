@@ -39,7 +39,7 @@
 
 #include "../../common/math/WLinearAlgebraFunctions.h"
 #include "../../common/math/WMath.h"
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WAssert.h"
 #include "../../common/WLimits.h"
 #include "../../common/WPathHelper.h"
@@ -618,7 +618,7 @@ void WMMarchingCubes::updateGraphicsCallback()
                 for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
                 {
                     osg::Vec3 vertPos = m_triMesh->getVertex( i );
-                    texCoords->push_back( grid->worldCoordToTexCoord( WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) );
+                    texCoords->push_back( grid->worldCoordToTexCoord( WPosition_2( vertPos[0], vertPos[1], vertPos[2] ) ) );
                 }
                 surfaceGeometry->setTexCoordArray( c, texCoords );
 
@@ -649,7 +649,7 @@ void WMMarchingCubes::updateGraphicsCallback()
                     for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
                     {
                         osg::Vec3 vertPos = m_triMesh->getVertex( i );
-                        texCoords->push_back( grid->worldCoordToTexCoord( WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) );
+                        texCoords->push_back( grid->worldCoordToTexCoord( WPosition_2( vertPos[0], vertPos[1], vertPos[2] ) ) );
                     }
                     surfaceGeometry->setTexCoordArray( c, texCoords );
                 }

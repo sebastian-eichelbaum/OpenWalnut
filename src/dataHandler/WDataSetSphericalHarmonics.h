@@ -105,7 +105,7 @@ public:
      *
      * \return Interpolated spherical harmonic.
      */
-    WSymmetricSphericalHarmonic interpolate( const WPosition &pos, bool *success ) const;
+    WSymmetricSphericalHarmonic interpolate( const WPosition_2 &pos, bool *success ) const;
 
     /**
      * Get the spherical harmonic on the given position in value set.

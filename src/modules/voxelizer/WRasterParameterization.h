@@ -25,7 +25,7 @@
 #ifndef WRASTERPARAMETERIZATION_H
 #define WRASTERPARAMETERIZATION_H
 
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/math/WValue.h"
 #include "../../common/math/WLine.h"
 #include "../../dataHandler/WGridRegular3D.h"
@@ -63,8 +63,8 @@ public:
      * \param end   End point of the line segment (used to computed the distance)
      */
     virtual void parameterizeVoxel( const WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
-                                    const WPosition& start,
-                                    const WPosition& end ) = 0;
+                                    const WPosition_2& start,
+                                    const WPosition_2& end ) = 0;
 
     /**
      * Gets the dataset representing the parameterization.
@@ -86,7 +86,7 @@ public:
      * \param start start point of the new line segment
      * \param end end point of the new line segment
      */
-    virtual void newSegment( const WPosition& start, const WPosition& end );
+    virtual void newSegment( const WPosition_2& start, const WPosition_2& end );
 
     /**
      * This method gets called whenever all lines got rasterized.

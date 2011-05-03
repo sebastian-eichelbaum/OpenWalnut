@@ -28,7 +28,7 @@
 #include <vector>
 
 #include "../math/WLine.h"
-#include "../math/WPosition.h"
+#include "../math/linearAlgebra/WLinearAlgebra.h"
 #include "../WExportCommon.h"
 
 class WFiberTest;
@@ -41,11 +41,11 @@ class OWCOMMON_EXPORT WFiber : public WLine
 friend class WFiberTest;
 public:
     /**
-     * Constructs a new fiber out of WPositions.
+     * Constructs a new fiber out of WPosition_2s.
      *
      * \param points Reference to the points which belong to this fiber
      */
-    explicit WFiber( const std::vector< WPosition > &points );
+    explicit WFiber( const std::vector< WPosition_2 > &points );
 
     /**
      * Creates an empty fiber.

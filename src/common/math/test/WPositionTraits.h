@@ -31,29 +31,29 @@
 #include <cxxtest/ValueTraits.h>
 
 #include "../../test/WTraitsBase.h"
-#include "../WPosition.h"
+#include "../linearAlgebra/WLinearAlgebra.h"
 
 #ifdef CXXTEST_RUNNING
 namespace CxxTest
 {
 CXXTEST_TEMPLATE_INSTANTIATION
 /**
- * Enables better UnitTest OutPut if something fails with WPositions, so you see
+ * Enables better UnitTest OutPut if something fails with WPosition_2s, so you see
  * immedeatly what is failing.
  */
-class ValueTraits< WPosition > : public WTraitsBase
+class ValueTraits< WPosition_2 > : public WTraitsBase
 {
 public:
     /**
-     * Constructor for class allowing usable output of WPosition in tests
+     * Constructor for class allowing usable output of WPosition_2 in tests
      *
      * \param m the WVector to print
      */
-    explicit ValueTraits( const WPosition &m )
+    explicit ValueTraits( const WPosition_2 &m )
     {
         std::stringstream tmp;
         tmp.precision( 16 );
-        tmp << "WPosition( " << m[0] << " " << m[1] << " " << m[2] << " )";
+        tmp << "WPosition_2( " << m[0] << " " << m[1] << " " << m[2] << " )";
         m_s = tmp.str();
     }
 };

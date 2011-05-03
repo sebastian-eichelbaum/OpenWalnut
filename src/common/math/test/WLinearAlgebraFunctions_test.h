@@ -33,8 +33,8 @@
 #include "../WLinearAlgebraFunctions.h"
 #include "../WMatrix.h"
 #include "../linearAlgebra/WLinearAlgebra.h"
-#include "../WVector3D.h"
-#include "WVector3DTraits.h"
+#include "../linearAlgebra/WLinearAlgebra.h"
+#include "WVector3dTraits.h"
 
 /**
  * Tests for WMatrix.
@@ -48,7 +48,7 @@ public:
      */
     void testMatrixVectorMultiply( void )
     {
-        WVector3D v( 9, 10, 11 );
+        WVector3d_2 v( 9, 10, 11 );
         WMatrix< double > m( 3, 3 );
         int i = 0;
         for( size_t r = 0; r < 3; ++r)
@@ -58,8 +58,8 @@ public:
                 m( r, c ) = i;
             }
         }
-        WVector3D result = multMatrixWithVector3D( m, v );
-        WVector3D expected( 32, 122, 212 );
+        WVector3d_2 result = multMatrixWithVector3D( m, v );
+        WVector3d_2 expected( 32, 122, 212 );
         TS_ASSERT_EQUALS( result, expected );
     }
 
@@ -141,8 +141,8 @@ public:
      */
     void testLinearIndependeceOfTwoVectors( void )
     {
-        WVector3D u( 1, 0, 0 );
-        WVector3D v( 0, 1, 0 );
+        WVector3d_2 u( 1, 0, 0 );
+        WVector3d_2 v( 0, 1, 0 );
         TS_ASSERT( linearIndependent( u, v ) );
         TS_ASSERT( linearIndependent( v, u ) );
         TS_ASSERT( !linearIndependent( v, v ) );
@@ -153,8 +153,8 @@ public:
      */
     void testLinearIndependeceOfTheNullVector( void )
     {
-        WVector3D u( 0, 0, 0 );
-        WVector3D v( 0, 0, 1 );
+        WVector3d_2 u( 0, 0, 0 );
+        WVector3d_2 v( 0, 0, 1 );
         TS_ASSERT( !linearIndependent( u, v ) );
         TS_ASSERT( !linearIndependent( v, u ) );
         TS_ASSERT( !linearIndependent( u, u ) );
@@ -165,8 +165,8 @@ public:
      */
     void testLinearIndependenceOnNumericalStability( void )
     {
-        WVector3D u( wlimits::DBL_EPS, wlimits::DBL_EPS, wlimits::DBL_EPS );
-        WVector3D v( wlimits::DBL_EPS, wlimits::DBL_EPS, 1 );
+        WVector3d_2 u( wlimits::DBL_EPS, wlimits::DBL_EPS, wlimits::DBL_EPS );
+        WVector3d_2 v( wlimits::DBL_EPS, wlimits::DBL_EPS, 1 );
         TS_ASSERT( !linearIndependent( u, v ) );
         TS_ASSERT( !linearIndependent( v, u ) );
         TS_ASSERT( !linearIndependent( u, u ) );

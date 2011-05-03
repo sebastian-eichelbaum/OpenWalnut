@@ -160,7 +160,7 @@ private:
      * adds a control knob
      * \param pos Position of the new knob
      */
-    void addKnob( WPosition pos );
+    void addKnob( WPosition_2 pos );
 
     /**
      * An input connector that accepts order 1 datasets.

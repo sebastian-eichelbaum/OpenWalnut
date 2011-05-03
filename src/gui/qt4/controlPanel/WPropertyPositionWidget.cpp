@@ -83,7 +83,7 @@ WPropertyPositionWidget::~WPropertyPositionWidget()
     // cleanup
 }
 
-std::string WPropertyPositionWidget::toString( const WPosition& value )
+std::string WPropertyPositionWidget::toString( const WPosition_2& value )
 {
     std::ostringstream o;
     // we output it manually as the << opersator of WValue does not set a nice precision
@@ -145,7 +145,7 @@ void WPropertyPositionWidget::setPropertyFromWidgets( bool validateOnly )
     }
 
     // create a new position
-    WPosition p = WPosition( valueX, valueY, valueZ );
+    WPosition_2 p = WPosition_2( valueX, valueY, valueZ );
 
     // set/validate to the property
     if ( validateOnly )

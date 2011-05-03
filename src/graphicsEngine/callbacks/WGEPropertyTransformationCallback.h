@@ -32,7 +32,6 @@
 
 #include "WGECallbackTraits.h"
 #include "../../common/WProperties.h"
-#include "../../common/math/WMatrix.h"
 #include "../WExportWGE.h"
 
 /**

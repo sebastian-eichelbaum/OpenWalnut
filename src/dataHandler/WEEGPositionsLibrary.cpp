@@ -27,22 +27,22 @@
 
 #include "../common/WStringUtils.h"
 #include "../common/exceptions/WOutOfBounds.h"
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WEEGPositionsLibrary.h"
 
 
-WEEGPositionsLibrary::WEEGPositionsLibrary( const std::map< std::string, WPosition >& positions )
+WEEGPositionsLibrary::WEEGPositionsLibrary( const std::map< std::string, WPosition_2 >& positions )
 {
     // put all the elements from positions in m_posititions, but convert the labels to uppercase
-    for( std::map< std::string, WPosition >::const_iterator iter = positions.begin(); iter != positions.end(); ++iter )
+    for( std::map< std::string, WPosition_2 >::const_iterator iter = positions.begin(); iter != positions.end(); ++iter )
     {
         m_positions[string_utils::toUpper( iter->first )] = iter->second;
     }
 }
 
-WPosition WEEGPositionsLibrary::getPosition( std::string label ) const throw( WOutOfBounds )
+WPosition_2 WEEGPositionsLibrary::getPosition( std::string label ) const throw( WOutOfBounds )
 {
-    std::map< std::string, WPosition >::const_iterator iter = m_positions.find( string_utils::toUpper( label ) );
+    std::map< std::string, WPosition_2 >::const_iterator iter = m_positions.find( string_utils::toUpper( label ) );
 
     if( iter == m_positions.end() )
     {

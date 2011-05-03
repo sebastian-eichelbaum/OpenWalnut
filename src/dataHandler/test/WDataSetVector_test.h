@@ -63,46 +63,46 @@ public:
 
         bool success = false;
 
-        TS_ASSERT_EQUALS( ds.interpolate( WPosition(), &success )[0], ( *data )[0] );
-        TS_ASSERT_EQUALS( ds.interpolate( WPosition(), &success )[1], ( *data )[1] );
-        TS_ASSERT_EQUALS( ds.interpolate( WPosition(), &success )[2], ( *data )[2] );
+        TS_ASSERT_EQUALS( ds.interpolate( WPosition_2(), &success )[0], ( *data )[0] );
+        TS_ASSERT_EQUALS( ds.interpolate( WPosition_2(), &success )[1], ( *data )[1] );
+        TS_ASSERT_EQUALS( ds.interpolate( WPosition_2(), &success )[2], ( *data )[2] );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 0, 0 ), &success )[0], ( *data )[3], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 0, 0 ), &success )[1], ( *data )[4], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 0, 0 ), &success )[2], ( *data )[5], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 1, 0, 0 ), &success )[0], ( *data )[3], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 1, 0, 0 ), &success )[1], ( *data )[4], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 1, 0, 0 ), &success )[2], ( *data )[5], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0, 1, 0 ), &success )[0], ( *data )[15], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0, 1, 0 ), &success )[1], ( *data )[16], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0, 1, 0 ), &success )[2], ( *data )[17], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0, 1, 0 ), &success )[0], ( *data )[15], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0, 1, 0 ), &success )[1], ( *data )[16], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0, 1, 0 ), &success )[2], ( *data )[17], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 1, 0 ), &success )[0], ( *data )[18], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 1, 0 ), &success )[1], ( *data )[19], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 1, 0 ), &success )[2], ( *data )[20], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 1, 1, 0 ), &success )[0], ( *data )[18], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 1, 1, 0 ), &success )[1], ( *data )[19], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 1, 1, 0 ), &success )[2], ( *data )[20], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0, 0, 1 ), &success )[0], ( *data )[45], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0, 0, 1 ), &success )[1], ( *data )[46], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0, 0, 1 ), &success )[2], ( *data )[47], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0, 0, 1 ), &success )[0], ( *data )[45], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0, 0, 1 ), &success )[1], ( *data )[46], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0, 0, 1 ), &success )[2], ( *data )[47], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 0, 1 ), &success )[0], ( *data )[48], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 0, 1 ), &success )[1], ( *data )[49], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 0, 1 ), &success )[2], ( *data )[50], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 1, 0, 1 ), &success )[0], ( *data )[48], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 1, 0, 1 ), &success )[1], ( *data )[49], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 1, 0, 1 ), &success )[2], ( *data )[50], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0, 1, 1 ), &success )[0], ( *data )[60], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0, 1, 1 ), &success )[1], ( *data )[61], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0, 1, 1 ), &success )[2], ( *data )[62], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0, 1, 1 ), &success )[0], ( *data )[60], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0, 1, 1 ), &success )[1], ( *data )[61], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0, 1, 1 ), &success )[2], ( *data )[62], 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 1, 1 ), &success )[0], ( *data )[63], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 1, 1 ), &success )[1], ( *data )[64], 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 1, 1 ), &success )[2], ( *data )[65], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 1, 1, 1 ), &success )[0], ( *data )[63], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 1, 1, 1 ), &success )[1], ( *data )[64], 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 1, 1, 1 ), &success )[2], ( *data )[65], 1e-9 );
         TS_ASSERT( success );
 
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0.3, 0.4, 0.5 ), &success )[0], 29.4, 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0.3, 0.4, 0.5 ), &success )[1], 30.4, 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0.3, 0.4, 0.5 ), &success )[2], 31.4, 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0.3, 0.4, 0.5 ), &success )[0], 29.4, 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0.3, 0.4, 0.5 ), &success )[1], 30.4, 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0.3, 0.4, 0.5 ), &success )[2], 31.4, 1e-9 );
         TS_ASSERT( success );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0.5, 0.5, 0.5 ), &success )[0], 31.5, 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0.5, 0.5, 0.5 ), &success )[1], 32.5, 1e-9 );
-        TS_ASSERT_DELTA( ds.interpolate( WPosition( 0.5, 0.5, 0.5 ), &success )[2], 33.5, 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0.5, 0.5, 0.5 ), &success )[0], 31.5, 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0.5, 0.5, 0.5 ), &success )[1], 32.5, 1e-9 );
+        TS_ASSERT_DELTA( ds.interpolate( WPosition_2( 0.5, 0.5, 0.5 ), &success )[2], 33.5, 1e-9 );
         TS_ASSERT( success );
     }
 
@@ -120,7 +120,7 @@ public:
         }
         boost::shared_ptr< WValueSet< double > > valueSet( new WValueSet< double >( 1, 3, data, W_DT_DOUBLE ) );
         WDataSetVector ds( valueSet, grid );
-        ds.interpolate( WPosition( 2.0, 3.0, 4.0 ), &success );
+        ds.interpolate( WPosition_2( 2.0, 3.0, 4.0 ), &success );
         TS_ASSERT( !success );
     }
 };

@@ -31,7 +31,7 @@
 
 #include <osg/Geode>
 
-#include "../common/math/WVector3D.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WAssert.h"
 #include "../common/WColor.h"
 #include "../common/WTransferable.h"
@@ -107,7 +107,7 @@ public:
      *
      * \param vert
      */
-    void addVertex( WPosition vert );
+    void addVertex( WPosition_2 vert );
 
     /**
      * Adds a texture coordinate for the vertex.
@@ -165,7 +165,7 @@ public:
      * \param index
      * \param normal
      */
-    void setVertexNormal( size_t index, WPosition normal );
+    void setVertexNormal( size_t index, WPosition_2 normal );
 
     /**
      * sets the color for a given vertex
@@ -280,7 +280,7 @@ public:
      * \param index
      * \return vertex
      */
-    WPosition getVertexAsPosition( size_t index ) const;
+    WPosition_2 getVertexAsPosition( size_t index ) const;
 
     /**
      * getter
@@ -289,7 +289,7 @@ public:
      * \param vertNum
      * \return vertex
      */
-    WPosition getVertexAsPosition( size_t triangleIndex, size_t vertNum );
+    WPosition_2 getVertexAsPosition( size_t triangleIndex, size_t vertNum );
 
     /**
      * getter

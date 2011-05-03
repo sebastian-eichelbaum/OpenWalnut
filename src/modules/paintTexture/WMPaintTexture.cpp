@@ -250,7 +250,7 @@ void WMPaintTexture::doPaint()
     while ( !m_paintQueue.empty() )
     {
         WPickInfo pickInfo = m_paintQueue.front();
-        WPosition paintPosition = pickInfo.getPickPosition();
+        WPosition_2 paintPosition = pickInfo.getPickPosition();
         m_paintQueue.pop();
 
         int voxelNum = m_grid->getVoxelNum( paintPosition );
@@ -391,7 +391,7 @@ void WMPaintTexture::queuePaint( WPickInfo pickInfo )
 
 void WMPaintTexture::setColorFromPick( WPickInfo pickInfo )
 {
-    WPosition paintPosition = pickInfo.getPickPosition();
+    WPosition_2 paintPosition = pickInfo.getPickPosition();
     int voxelNum = m_grid->getVoxelNum( paintPosition );
 
     if ( voxelNum != -1 )

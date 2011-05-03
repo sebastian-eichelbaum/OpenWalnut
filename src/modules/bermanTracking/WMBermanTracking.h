@@ -143,19 +143,19 @@ private:
      * \param j The job.
      * \return The direction in which to continue.
      */
-    WVector3D getDirFunc( boost::shared_ptr< WDataSetSingle const >, wtracking::WTrackingUtility::JobType const& j );
+    WVector3d_2 getDirFunc( boost::shared_ptr< WDataSetSingle const >, wtracking::WTrackingUtility::JobType const& j );
 
     /**
      * The fiber visitor. Gets called whenever the tracking function finishes integrating a fiber.
      *
      * \param fiber The fiber.
      */
-    void fiberVis( std::vector< WVector3D > const& fiber );
+    void fiberVis( std::vector< WVector3d_2 > const& fiber );
 
     /**
      * The point visitor. Gets called whenever the tracking function finds a new point for a fiber.
      */
-    void pointVis( WVector3D const& );
+    void pointVis( WVector3d_2 const& );
 
     /**
      * Handle an exception that was thrown by the tracking function in any worker thread.
@@ -177,7 +177,7 @@ private:
      * \param j The current job.
      * \return The best direction or a zero-vector, if no direction is of any use.
      */
-    WVector3D getBestDirectionFromSH( WSymmetricSphericalHarmonic const& h, wtracking::WTrackingUtility::JobType const& j );
+    WVector3d_2 getBestDirectionFromSH( WSymmetricSphericalHarmonic const& h, wtracking::WTrackingUtility::JobType const& j );
 
     /**
      * Use bootstrapping to create a random ODF for this voxel.

@@ -35,19 +35,19 @@
 #include "../WStringUtils.h"
 #include "WLine.h"
 #include "WPolynomialEquationSolvers.h"
-#include "WPosition.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 
-WLine::WLine( const std::vector< WPosition > &points )
-    : WMixinVector< WPosition >( points )
+WLine::WLine( const std::vector< WPosition_2 > &points )
+    : WMixinVector< WPosition_2 >( points )
 {
 }
 
 WLine::WLine()
-    : WMixinVector< WPosition >()
+    : WMixinVector< WPosition_2 >()
 {
 }
 
-const WPosition& midPoint( const WLine& line )
+const WPosition_2& midPoint( const WLine& line )
 {
     if( line.empty() )
     {
@@ -92,7 +92,7 @@ void WLine::resampleByNumberOfPoints( size_t numPoints )
                 // TODO(math): fix numerical issuses: newSegmentLength may be wrong => great offset by many intraSegment sample points
                 //                                    remainingLength may be wrong => ...
                 //                                    Take a look at the unit test testNumericalStabilityOfResampling
-                WPosition newPoint = at( i + 1 ) + remainingLength * ( at( i ) - at( i + 1 ) ).normalized();
+                WPosition_2 newPoint = at( i + 1 ) + remainingLength * ( at( i ) - at( i + 1 ) ).normalized();
                 newLine.push_back( newPoint );
                 // std::cout << "line size so far" << newLine.size() << " lenght so far: " << newLine.pathLength() << std::endl;
                 // std::cout << numPoints - newLine.size() << std::endl;
@@ -113,7 +113,7 @@ void WLine::resampleByNumberOfPoints( size_t numPoints )
     }
     if( size() != numPoints )
     {
-        this->WMixinVector< WPosition >::operator=( newLine );
+        this->WMixinVector< WPosition_2 >::operator=( newLine );
     }
     // Note if the size() == 0, then the resampled tract is also of length 0
 }
@@ -137,7 +137,7 @@ void WLine::removeAdjacentDuplicates()
             newLine.push_back( *cit );
         }
     }
-    this->WMixinVector< WPosition >::operator=( newLine );
+    this->WMixinVector< WPosition_2 >::operator=( newLine );
 }
 
 void WLine::resampleBySegmentLength( double newSegmentLength )
@@ -155,7 +155,7 @@ void WLine::resampleBySegmentLength( double newSegmentLength )
     {
         if( ( newLine.back() - ( *this )[i] ).norm() > newSegmentLength )
         {
-            const WVector3D& pred = ( *this )[i - 1];
+            const WVector3d_2& pred = ( *this )[i - 1];
             if( pred == newLine.back() )
             {
                 // Then there is no triangle and the old Segment Length is bigger as the new segment
@@ -185,7 +185,7 @@ void WLine::resampleBySegmentLength( double newSegmentLength )
                 // NOTE: if those asserts fire, then this algo is wrong and produces wrong results, and I've to search to bug!
                 WAssert( std::imag( solution.first ) == 0.0, "Invalid quadratic equation while computing resamplingBySegmentLength" );
                 WAssert( std::imag( solution.second ) == 0.0, "Invalid quadratic equation while computing resamplingBySegmentLength" );
-                WPosition pointOfIntersection;
+                WPosition_2 pointOfIntersection;
                 if( std::real( solution.first ) > 0.0 )
                 {
                     pointOfIntersection = pred + std::real( solution.first ) * ( ( *this )[i] - pred );
@@ -201,10 +201,10 @@ void WLine::resampleBySegmentLength( double newSegmentLength )
     }
     if( ( newLine.back() - ( *this )[size() - 1] ).norm() > newSegmentLength / 2.0 )
     {
-        WVector3D direction = ( ( *this )[size() - 1] - newLine.back() ).normalized();
+        WVector3d_2 direction = ( ( *this )[size() - 1] - newLine.back() ).normalized();
         newLine.push_back( newLine.back() + direction * newSegmentLength );
     }
-    this->WMixinVector< WPosition >::operator=( newLine );
+    this->WMixinVector< WPosition_2 >::operator=( newLine );
 }
 
 int equalsDelta( const WLine& line, const WLine& other, double delta )
@@ -214,7 +214,7 @@ int equalsDelta( const WLine& line, const WLine& other, double delta )
     bool sameLines = true;
     for( diffPos = 0; ( diffPos < pts ) && sameLines; ++diffPos )
     {
-        for( int x = 0; x < 3; ++x ) // since WLine uses WPosition as elements there are 3 components per position
+        for( int x = 0; x < 3; ++x ) // since WLine uses WPosition_2 as elements there are 3 components per position
         {
             sameLines = sameLines && ( std::abs( line[diffPos][x] - other[diffPos][x] ) <= delta );
         }

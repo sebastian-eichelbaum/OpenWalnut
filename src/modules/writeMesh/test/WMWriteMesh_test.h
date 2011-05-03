@@ -30,7 +30,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../../common/math/WPosition.h"
+#include "../../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../../common/WIOTools.h"
 #include "../../../common/WLogger.h"
 #include "../../../graphicsEngine/WTriangleMesh.h"
@@ -88,7 +88,7 @@ public:
         boost::shared_ptr< WTriangleMesh > triMesh( new WTriangleMesh( nbPos, 3 ) );
         mc.m_triMesh = triMesh;
 
-        std::vector< WPosition > vertices( 0 );
+        std::vector< WPosition_2 > vertices( 0 );
         for( unsigned int posId = 0; posId < nbPos; ++posId )
         {
             double x = posId * posId + 3.4;

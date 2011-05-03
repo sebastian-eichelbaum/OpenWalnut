@@ -26,7 +26,7 @@
 #include <vector>
 #include <utility>
 
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WAssert.h"
 #include "../../common/WLogger.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
@@ -194,7 +194,7 @@ void WMLineGuidedSlice::setSlicePosFromPick( WPickInfo pickInfo )
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
-        WVector3D normal = pickInfo.getPickNormal();
+        WVector3d_2 normal = pickInfo.getPickNormal();
 
         std::pair< float, float > newPixelPos( pickInfo.getPickPixelPosition() );
         if( m_isPicked )
@@ -231,10 +231,10 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
     }
 
     WAssert( m_centerLine->size() > 1, "To few positions in center line." );
-    WPosition startPos = ( *m_centerLine )[posOnLine];
-    WVector3D startSliceNormal = ( startPos - ( *m_centerLine )[posOnLine + 1] ).normalized();
-    WVector3D sliceVec1 = WVector3D( 1, 0, 0 ).crossProduct( startSliceNormal ).normalized();
-    WVector3D sliceVec2 =  sliceVec1.crossProduct( startSliceNormal ).normalized();
+    WPosition_2 startPos = ( *m_centerLine )[posOnLine];
+    WVector3d_2 startSliceNormal = normalize( startPos - ( *m_centerLine )[posOnLine + 1] );
+    WVector3d_2 sliceVec1 = normalize( cross( WVector3d_2( 1, 0, 0 ), startSliceNormal ) );
+    WVector3d_2 sliceVec2 = normalize( cross( sliceVec1, startSliceNormal ) );
 
     osg::ref_ptr<osg::Geometry> sliceGeometry = osg::ref_ptr<osg::Geometry>( new osg::Geometry() );
 
@@ -247,7 +247,7 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
     if( tex.size() > 0 )
     {
         const double radius = 100;
-        std::vector< WPosition > vertices;
+        std::vector< WPosition_2 > vertices;
         vertices.push_back( startPos + (      sliceVec1 + sliceVec2 ) * radius );
         vertices.push_back( startPos + ( -1 * sliceVec1 + sliceVec2 ) * radius );
         vertices.push_back( startPos + ( -1 * sliceVec1 - sliceVec2 ) * radius );
@@ -269,7 +269,7 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
             texCoords->clear();
             for( size_t i = 0; i < nbVerts; ++i )
             {
-                texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] + WVector3D( 0.5, 0.5, 0.5 ) ) );
+                texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] + WVector3d_2( 0.5, 0.5, 0.5 ) ) );
             }
             sliceGeometry->setTexCoordArray( counter, texCoords );
             ++counter;

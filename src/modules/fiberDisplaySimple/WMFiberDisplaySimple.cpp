@@ -102,8 +102,8 @@ void WMFiberDisplaySimple::properties()
     m_clipPlaneEnabled = m_clipPlaneGroup->addProperty( "Enabled", "If set, clipping of fibers is done using an arbitrary plane and plane distance.",
                                                         false );
     m_clipPlaneShowPlane = m_clipPlaneGroup->addProperty( "Show Clip Plane", "If set, the clipping plane will be shown.", false, m_propCondition );
-    m_clipPlanePoint = m_clipPlaneGroup->addProperty( "Plane point", "An point on the plane.", WPosition( 0.0, 0.0, 0.0 ) );
-    m_clipPlaneVector = m_clipPlaneGroup->addProperty( "Plane normal", "The normal of the plane.", WPosition( 1.0, 0.0, 0.0 ) );
+    m_clipPlanePoint = m_clipPlaneGroup->addProperty( "Plane point", "An point on the plane.", WPosition_2( 0.0, 0.0, 0.0 ) );
+    m_clipPlaneVector = m_clipPlaneGroup->addProperty( "Plane normal", "The normal of the plane.", WPosition_2( 1.0, 0.0, 0.0 ) );
     m_clipPlaneDistance= m_clipPlaneGroup->addProperty( "Clip distance", "The distance from the plane where fibers get clipped.",  10.0 );
     //m_clipPlaneDistance->removeConstraint( m_clipPlaneDistance->getMax() ); // there simply is no max.
     m_clipPlaneDistance->setMin( 0.0 );
@@ -311,8 +311,8 @@ void WMFiberDisplaySimple::clipPlaneCallback( osg::Node* node ) const
     // NOTE: this callback is only executed if the plane is enabled since the NodeMaskCallback ensures proper activation of the node
     osg::MatrixTransform* transform = static_cast< osg::MatrixTransform* >( node );
 
-    WPosition v = m_clipPlaneVector->get();
-    WPosition p = m_clipPlanePoint->get();
+    WPosition_2 v = m_clipPlaneVector->get();
+    WPosition_2 p = m_clipPlanePoint->get();
 
     // the point p can be interpreted as translation:
     osg::Matrix translation = osg::Matrix::translate( p );

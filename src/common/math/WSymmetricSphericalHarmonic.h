@@ -32,7 +32,7 @@
 #include "WMatrix.h"
 #include "linearAlgebra/WLinearAlgebra.h"
 #include "WUnitSphereCoordinates.h"
-#include "WVector3D.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Class for symmetric spherical harmonics
@@ -129,14 +129,14 @@ public:
     double calcGFA( const WMatrix_2& B ) const;
 
     /**
-    * This calculates the transformation/fitting matrix T like in the 2007 Descoteaux paper. The orientations are given as WVector3D.
+    * This calculates the transformation/fitting matrix T like in the 2007 Descoteaux paper. The orientations are given as WVector3d_2.
     * \param orientations The vector with the used orientation on the unit sphere (usually the gradients of the HARDI)
     * \param order The order of the spherical harmonics intended to create
     * \param lambda Regularization parameter for smoothing matrix
     * \param withFRT include the Funk-Radon-Transformation?
     * \return Transformation matrix
     */
-    static WMatrix_2 getSHFittingMatrix( const std::vector< WVector3D >& orientations,
+    static WMatrix_2 getSHFittingMatrix( const std::vector< WVector3d_2 >& orientations,
                                          int order,
                                          double lambda,
                                          bool withFRT );

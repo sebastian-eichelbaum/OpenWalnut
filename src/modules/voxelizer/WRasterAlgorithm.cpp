@@ -70,7 +70,7 @@ void WRasterAlgorithm::newLine( const WLine& line )
     }
 }
 
-void WRasterAlgorithm::newSegment( const WPosition& start, const WPosition& end )
+void WRasterAlgorithm::newSegment( const WPosition_2& start, const WPosition_2& end )
 {
     // NOTE: the list already is locked (in raster method, hopefully)
     for ( size_t i = 0; i < m_parameterizations.size(); ++i )
@@ -80,8 +80,8 @@ void WRasterAlgorithm::newSegment( const WPosition& start, const WPosition& end 
 }
 
 void WRasterAlgorithm::parameterizeVoxel( const WValue< int >& voxel, size_t voxelIdx, const int axis, const double value,
-                                    const WPosition& start,
-                                    const WPosition& end )
+                                    const WPosition_2& start,
+                                    const WPosition_2& end )
 {
     // NOTE: the list already is locked (in raster method, hopefully)
     for ( size_t i = 0; i < m_parameterizations.size(); ++i )

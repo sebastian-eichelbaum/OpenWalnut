@@ -38,7 +38,6 @@
 
 #include "shaders/WGEPropertyUniform.h"
 #include "callbacks/WGEPropertyTransformationCallback.h"
-#include "../common/math/WMatrix.h"
 
 #include "WExportWGE.h"
 

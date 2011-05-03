@@ -146,7 +146,7 @@ protected:
      *
      * \return center position
      */
-    WPosition getCenterPosition();
+    WPosition_2 getCenterPosition();
 
     /**
      * update function, called with each update pass of the osg render loop
@@ -206,9 +206,9 @@ private:
      */
     osg::ref_ptr< osg::Geode > m_geode;
 
-    WPosition m_p0; //!< stores the last position of the center manipulator
-    WPosition m_p1; //!< stores the last position of  manipulator 1
-    WPosition m_p2; //!< stores the last position of  manipulator 2
+    WPosition_2 m_p0; //!< stores the last position of the center manipulator
+    WPosition_2 m_p1; //!< stores the last position of  manipulator 1
+    WPosition_2 m_p2; //!< stores the last position of  manipulator 2
 
     osg::ref_ptr<WROISphere> m_s0; //!< stores pointer to the center manipulator
     osg::ref_ptr<WROISphere> m_s1; //!< stores pointer to manipulator 1

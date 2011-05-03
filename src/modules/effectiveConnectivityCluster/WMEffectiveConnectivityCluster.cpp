@@ -45,7 +45,7 @@
 
 #include "../../common/WProgress.h"
 #include "../../common/WPreferences.h"
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WDataTexture3D.h"
