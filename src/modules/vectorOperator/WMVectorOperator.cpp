@@ -116,7 +116,7 @@ T opLength( const WVector3d_2& vec,
             const WVector3d_2& /*my*/, const WVector3d_2& /*py*/,
             const WVector3d_2& /*mz*/, const WVector3d_2& /*pz*/ )
 {
-    return vec.length();
+    return length( vec );
 }
 
 template< typename T >

@@ -315,7 +315,7 @@ void WMFiberDisplaySimple::clipPlaneCallback( osg::Node* node ) const
     WPosition_2 p = m_clipPlanePoint->get();
 
     // the point p can be interpreted as translation:
-    osg::Matrix translation = osg::Matrix::translate( p );
+    osg::Matrix translation = osg::Matrix::translate( p.as< osg::Vec3d >() );
 
     // the geometry that was specified has the normal ( 1.0, 0.0, 0.0 ). So it is possible to interpret any other normal as a rotation
     osg::Matrix rotation = osg::Matrix::rotate( osg::Vec3d( 1.0, 0.0, 0.0 ), v );
@@ -430,7 +430,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
             osg::Vec3 tangent = osg::Vec3( fibTangents->at( ( 3 * k ) + sidx ),
                                            fibTangents->at( ( 3 * k ) + sidx + 1 ),
                                            fibTangents->at( ( 3 * k ) + sidx + 2 ) );
-            tangent = normalize( tangent );
+            tangent.normalize();
 
             vertices->push_back( vert );
             colors->push_back( color );

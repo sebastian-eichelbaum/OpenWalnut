@@ -314,7 +314,7 @@ void WMDirectVolumeRendering::moduleMain()
             cube->asTransform()->getChild( 0 )->setName( "_DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
                                                                               // because of the underscore in front it won't be picked
             // we also set the grid's transformation here
-            rootNode->setMatrix( wge::toOSGMatrix( grid->getTransformationMatrix() ) );
+            rootNode->setMatrix( static_cast< WMatrix4d_2 >( grid->getTransform() ) );
 
             m_shader->apply( cube );
 

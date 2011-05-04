@@ -126,13 +126,13 @@ void WMGpView::moduleMain()
 osg::Matrixd WMGpView::generateMatrix() const
 {
     osg::Matrixd trans;
-    trans.makeTranslate( m_pos->get() );
+    trans.makeTranslate( m_pos->get().as< osg::Vec3d >() );
 
     osg::Matrixd scale;
     scale.makeScale( m_scale->get(), m_scale->get(), m_scale->get() );
 
     osg::Matrixd rot;
-    rot.makeRotate( WVector3d_2( 0.0, 0.0, 1.0 ), m_normal->get() );
+    rot.makeRotate( osg::Vec3d( 0.0, 0.0, 1.0 ), m_normal->get().as< osg::Vec3d >() );
 
     return scale * rot * trans; // order is important: first scale, then rotate and finally translate, since matrix multiply
 }
