@@ -223,13 +223,13 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
         // not available in the shader
         osg::StateSet* ss = xSlice->getOrCreateStateSet();
         ss->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", m_xPos ) );
-        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionX() ) );  // the axis to move along
+        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionX().as< osg::Vec3f >() ) );  // the axis to move along
         ss = ySlice->getOrCreateStateSet();
         ss->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", m_yPos ) );
-        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionY() ) );  // the axis to move along
+        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionY().as< osg::Vec3f >() ) );  // the axis to move along
         ss = zSlice->getOrCreateStateSet();
         ss->addUniform( new WGEPropertyUniform< WPropInt >( "u_vertexShift", m_zPos ) );
-        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionZ() ) );  // the axis to move along
+        ss->addUniform( new osg::Uniform( "u_vertexShiftDirection", grid->getDirectionZ().as< osg::Vec3f >() ) );  // the axis to move along
 
         // set callbacks for en-/disabling the nodes
         xSlice->addUpdateCallback( new WGENodeMaskCallback( m_showonX ) );

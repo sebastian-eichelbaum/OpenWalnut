@@ -500,6 +500,22 @@ public:
     }
 
     /**
+     * A convenience function to cast the WMatrixFixed types to arbitrary other vector/matrix types that are supported by WMatrixFixed. This
+     * method is mainly needed for ambiguities during type resolution, if the target methods signature allows several different vec/matrix types.
+     * Example: you have void do( osg::Vec3f v ) and void do( osg::Vec3d v ). If you do WVector3d_2 myV; do( myV ); This is ambiguous since
+     * WVector3d_2 can be casted to either osg::Vec3d AND Vec3f implicitly.
+     *
+     * \tparam TargetType the type needed (to cast to)
+     *
+     * \return the required type
+     */
+    template< typename TargetType >
+    TargetType as() const
+    {
+        return operator TargetType();
+    }
+
+    /**
      * Cast to matrix of same size with different value type.
      *
      * \tparam ResultValueType resulting value type
@@ -536,7 +552,7 @@ public:
      *
      * \param m the OSG matrix.
      */
-    explicit WMatrixFixed( const osg::Matrixd& m )     // NOLINT - we do not want it explicit
+    WMatrixFixed( const osg::Matrixd& m )     // NOLINT - we do not want it explicit
     {
         BOOST_STATIC_ASSERT( Rows == 4 );
         BOOST_STATIC_ASSERT( Cols == 4 );
@@ -555,7 +571,7 @@ public:
      *
      * \param m the OSG vector.
      */
-    explicit WMatrixFixed( const osg::Vec3f& m )     // NOLINT - we do not want it explicit
+    WMatrixFixed( const osg::Vec3f& m )     // NOLINT - we do not want it explicit
     {
         BOOST_STATIC_ASSERT( Rows == 3 );
         BOOST_STATIC_ASSERT( Cols == 1 );
@@ -570,7 +586,7 @@ public:
      *
      * \param m the OSG vector.
      */
-    explicit WMatrixFixed( const osg::Vec3d& m )     // NOLINT - we do not want it explicit
+    WMatrixFixed( const osg::Vec3d& m )     // NOLINT - we do not want it explicit
     {
         BOOST_STATIC_ASSERT( Rows == 3 );
         BOOST_STATIC_ASSERT( Cols == 1 );
@@ -585,7 +601,7 @@ public:
      *
      * \param m the OSG vector.
      */
-    explicit WMatrixFixed( const osg::Vec4f& m )     // NOLINT - we do not want it explicit
+    WMatrixFixed( const osg::Vec4f& m )     // NOLINT - we do not want it explicit
     {
         BOOST_STATIC_ASSERT( Rows == 4 );
         BOOST_STATIC_ASSERT( Cols == 1 );
@@ -601,7 +617,7 @@ public:
      *
      * \param m the OSG vector.
      */
-    explicit WMatrixFixed( const osg::Vec4d& m )     // NOLINT - we do not want it explicit
+    WMatrixFixed( const osg::Vec4d& m )     // NOLINT - we do not want it explicit
     {
         BOOST_STATIC_ASSERT( Rows == 4 );
         BOOST_STATIC_ASSERT( Cols == 1 );
