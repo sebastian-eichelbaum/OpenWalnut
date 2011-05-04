@@ -46,8 +46,8 @@ WPlane::WPlane( const WVector3d_2& normal, const WPosition_2& pos, const WVector
       m_pos( pos )
 {
     setPlaneVectors( first, second );
-    m_first.normalize();
-    m_second.normalize();
+    m_first = normalize( m_first );
+    m_second = normalize( m_second );
 }
 
 WPlane::~WPlane()

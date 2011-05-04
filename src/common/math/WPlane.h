@@ -142,9 +142,9 @@ public:
             gen = WVector3d_2( 0, 1, 0 );
         }
         m_first = cross( normal, gen );
-        m_first.normalize();
+        m_first = normalize( m_first );
         m_second = cross( normal, m_first );
-        m_second.normalize();
+        m_second = normalize( m_second );
     }
 
 //    \cond

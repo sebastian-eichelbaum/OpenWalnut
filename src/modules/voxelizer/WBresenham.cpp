@@ -161,7 +161,7 @@ std::vector< double > WBresenham::computeDistances( const size_t voxelNum,
                                                     const WPosition_2& end ) const
 {
     WPosition_2 u = end - start;
-    u.normalize();
+    u = normalize( u );
 
     std::vector< WPosition_2 > x;
     x.reserve( 7 );

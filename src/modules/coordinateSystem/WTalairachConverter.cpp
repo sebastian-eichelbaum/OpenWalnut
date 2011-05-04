@@ -228,9 +228,9 @@ void WTalairachConverter::defineRotationMatrix()
 
     m_ihp_proj = ihp_proj;
     WVector3d_2 ex( m_ac - m_pc );
-    ex.normalize();
+    ex = normalize( ex );
     WVector3d_2 ez( ihp_proj - m_ac );
-    ez.normalize();
+    ez = normalize( ez );
     WVector3d_2 ey = cross( ez, ex );
 
     m_rotMat( 0, 0 ) = ex[0];

@@ -40,7 +40,7 @@ WUnitSphereCoordinates::WUnitSphereCoordinates( double theta, double phi )
 
 WUnitSphereCoordinates::WUnitSphereCoordinates( WVector3d_2 vector )
 {
-    vector.normalize();
+    vector = normalize( vector );
     // calculate angles
     m_theta = std::acos( vector[2] );
     m_phi = std::atan2( vector[1], vector[0] );

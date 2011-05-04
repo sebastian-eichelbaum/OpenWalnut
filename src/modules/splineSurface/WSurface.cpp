@@ -181,9 +181,9 @@ void WSurface::execute()
 
     jacobiEigenvector3D( myTensor, &eigenSys );
 
-    eigenSys[0].second.normalize();
-    eigenSys[1].second.normalize();
-    eigenSys[2].second.normalize();
+    eigenSys[0].second = normalize( eigenSys[0].second );
+    eigenSys[1].second = normalize( eigenSys[1].second );
+    eigenSys[2].second = normalize( eigenSys[2].second );
 
     // This sorts the entries automatically :-)
     std::map< double, WVector3d_2 > sortedEigenSystem;

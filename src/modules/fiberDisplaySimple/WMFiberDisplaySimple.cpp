@@ -430,7 +430,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
             osg::Vec3 tangent = osg::Vec3( fibTangents->at( ( 3 * k ) + sidx ),
                                            fibTangents->at( ( 3 * k ) + sidx + 1 ),
                                            fibTangents->at( ( 3 * k ) + sidx + 2 ) );
-            tangent.normalize();
+            tangent = normalize( tangent );
 
             vertices->push_back( vert );
             colors->push_back( color );

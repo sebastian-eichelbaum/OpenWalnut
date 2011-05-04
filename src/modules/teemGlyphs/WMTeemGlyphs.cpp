@@ -743,7 +743,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
                 ( *m_normals )[globalVertexId][0] = glyph->norm[3*vertId];
                 ( *m_normals )[globalVertexId][1] = glyph->norm[3*vertId+1];
                 ( *m_normals )[globalVertexId][2] = glyph->norm[3*vertId+2];
-                ( *m_normals )[globalVertexId].normalize();
+                ( *m_normals )[globalVertexId] = normalize( ( *m_normals )[globalVertexId] );
 
                 // ------------------------------------------------
                 // colors
