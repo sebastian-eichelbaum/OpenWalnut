@@ -29,7 +29,7 @@
 
 #include <osg/Array>
 
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WTriangleMesh.h"
 
 #include "WExportWGE.h"

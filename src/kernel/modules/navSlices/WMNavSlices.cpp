@@ -37,7 +37,7 @@
 #include <osg/Group>
 #include <osg/LineWidth>
 
-#include "../../../common/math/WVector3D.h"
+#include "../../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../../common/WAssert.h"
 #include "../../../common/WLimits.h"
 #include "../../../dataHandler/WDataHandler.h"
@@ -346,8 +346,8 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
-        double x = static_cast< double >( pickInfo.getPickPixelPosition().first );
-        double y = static_cast< double >( pickInfo.getPickPixelPosition().second );
+        double x = static_cast< double >( pickInfo.getPickPixel().x() );
+        double y = static_cast< double >( pickInfo.getPickPixel().y() );
         double xPos = 0.0;
         double yPos = 0.0;
         double width;
@@ -492,19 +492,19 @@ void WMNavSlices::setSlicePosFromPick( WPickInfo pickInfo )
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
-        WVector3D normal = pickInfo.getPickNormal();
+        WVector3d normal = pickInfo.getPickNormal();
 
-        std::pair< float, float > newPixelPos( pickInfo.getPickPixelPosition() );
+        WVector2d newPixelPos( pickInfo.getPickPixel() );
         if ( m_isPicked )
         {
-            osg::Vec3 startPosScreen( m_oldPixelPosition.first, m_oldPixelPosition.second, 0.0 );
-            osg::Vec3 endPosScreen( newPixelPos.first, newPixelPos.second, 0.0 );
+            osg::Vec3 startPosScreen( m_oldPixelPosition.x(), m_oldPixelPosition.y(), 0.0 );
+            osg::Vec3 endPosScreen( newPixelPos.x(), newPixelPos.y(), 0.0 );
 
             osg::Vec3 startPosWorld = wge::unprojectFromScreen( startPosScreen, m_viewer->getCamera() );
             osg::Vec3 endPosWorld = wge::unprojectFromScreen( endPosScreen, m_viewer->getCamera() );
 
-            osg::Vec3 moveDirWorld = endPosWorld - startPosWorld;
-            float diff = normal * moveDirWorld;
+            WVector3d moveDirWorld( endPosWorld - startPosWorld );
+            float diff = dot( normal, moveDirWorld );
 
             // recognize also small values.
             if( diff < 0 && diff > -1 )

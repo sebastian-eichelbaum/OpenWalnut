@@ -100,9 +100,9 @@ public:
         l.push_back( WPosition( 1.0, 1.0, 3.1415 ) );
         l.push_back( WPosition( 0.0, 0.0, 0.44 ) );
         l.push_back( WPosition( 1.0, 1.0, 1.0 ) );
-        std::string expected( "[[1.0000000000000000e+00, 1.0000000000000000e+00, 3.1415000000000002e+00], "
-                               "[0.0000000000000000e+00, 0.0000000000000000e+00, 4.4000000000000000e-01], "
-                               "[1.0000000000000000e+00, 1.0000000000000000e+00, 1.0000000000000000e+00]]" );
+        std::string expected( "[1.0000000000000000e+00;1.0000000000000000e+00;3.1415000000000002e+00;, "
+                               "0.0000000000000000e+00;0.0000000000000000e+00;4.4000000000000000e-01;, "
+                               "1.0000000000000000e+00;1.0000000000000000e+00;1.0000000000000000e+00;]" );
         std::stringstream ss;
         ss << l;
         TS_ASSERT_EQUALS( expected, ss.str() );
@@ -168,8 +168,8 @@ public:
         line.push_back( WPosition( 1, 2, 3 ) );
         line.push_back( WPosition( 4, 5, 6 ) );
         line.push_back( WPosition( 7, 8, 9 ) );
-        double expected = ( WPosition( 1, 2, 3 ) - WPosition( 4, 5, 6 ) ).norm() +
-                          ( WPosition( 4, 5, 6 ) - WPosition( 7, 8, 9 ) ).norm();
+        double expected = length( WPosition( 1, 2, 3 ) - WPosition( 4, 5, 6 ) ) +
+                          length( WPosition( 4, 5, 6 ) - WPosition( 7, 8, 9 ) );
         TS_ASSERT_EQUALS( expected, pathLength( line ) );
     }
 

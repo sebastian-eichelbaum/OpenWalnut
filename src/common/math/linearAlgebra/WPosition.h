@@ -25,14 +25,13 @@
 #ifndef WPOSITION_H
 #define WPOSITION_H
 
-#include "WVector3D.h"
+#include "WVectorFixed.h"
 
 /**
  * \class WPosition
- * The file %WPosition.h just includes %WVector3D.h.
- * There is "typedef WVector3D WPosition;" in %WVector3D.h.
- * WPosition such is just another name for WVector3D to indicate the specific use
- * for positions in some places.
+ * This only is a 3d double vector.
  */
+typedef WVector3d WPosition;
 
 #endif  // WPOSITION_H
+

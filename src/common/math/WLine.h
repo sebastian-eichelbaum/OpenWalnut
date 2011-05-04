@@ -32,7 +32,7 @@
 #include "../WBoundingBox.h"
 #include "../WExportCommon.h"
 #include "../WMixinVector.h"
-#include "WPosition.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 
 // forward declarations
 class WLineTest;

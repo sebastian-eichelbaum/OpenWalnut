@@ -30,7 +30,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../math/WPosition.h"
+#include "../../math/linearAlgebra/WLinearAlgebra.h"
 #include "../WFiber.h"
 #include "WFiberTraits.h"
 

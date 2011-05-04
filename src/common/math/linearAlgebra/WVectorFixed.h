@@ -22,41 +22,28 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WVECTOR3DTRAITS_H
-#define WVECTOR3DTRAITS_H
+#ifndef WVECTORFIXED_H
+#define WVECTORFIXED_H
 
-#include <sstream>
+// defined in WMatrixFixed
+#include "WMatrixFixed.h"
 
-#include <cxxtest/TestSuite.h>
-#include <cxxtest/ValueTraits.h>
+// Here: only some typedefs for vectors get defined
 
-#include "../../test/WTraitsBase.h"
-#include "../WVector3D.h"
+// Double vectors
+typedef WMatrixFixed< double, 2, 1 > WVector2d;
+typedef WMatrixFixed< double, 3, 1 > WVector3d;
+typedef WMatrixFixed< double, 4, 1 > WVector4d;
+typedef WMatrixFixed< double, 1, 2 > WVectorRow2d;
+typedef WMatrixFixed< double, 1, 3 > WVectorRow3d;
+typedef WMatrixFixed< double, 1, 4 > WVectorRow4d;
 
-#ifdef CXXTEST_RUNNING
-namespace CxxTest
-{
-CXXTEST_TEMPLATE_INSTANTIATION
-/**
- * Enables better UnitTest OutPut if something fails with WFibers, so you see
- * immedeatly what is failing.
- */
-class ValueTraits< WVector3D > : public WTraitsBase
-{
-public:
-    /**
-     * Constructor for class allowing usable output of WVector3D in tests
-     *
-     * \param m the WVector to print
-     */
-    explicit ValueTraits( const WVector3D &m )
-    {
-        std::stringstream tmp;
-        tmp.precision( 16 );
-        tmp << "WVector3D( " << m[0] << " " << m[1] << " " << m[2] << " )";
-        m_s = tmp.str();
-    }
-};
-}
-#endif  // CXXTEST_RUNNING
-#endif  // WVECTOR3DTRAITS_H
+// Float vectors
+typedef WMatrixFixed< float, 2, 1 > WVector2f;
+typedef WMatrixFixed< float, 3, 1 > WVector3f;
+typedef WMatrixFixed< float, 4, 1 > WVector4f;
+typedef WMatrixFixed< float, 1, 2 > WVectorRow2f;
+typedef WMatrixFixed< float, 1, 3 > WVectorRow3f;
+typedef WMatrixFixed< float, 1, 4 > WVectorRow4f;
+
+#endif  // WVECTORFIXED_H

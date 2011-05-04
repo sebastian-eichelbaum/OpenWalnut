@@ -366,7 +366,7 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
             else
             {
                 // read gradients, there should be 3 * vDim values in the file
-                typedef std::vector< WVector3D > GradVec;
+                typedef std::vector< WVector3d > GradVec;
                 boost::shared_ptr< GradVec > newGradients = boost::shared_ptr< GradVec >( new GradVec( vDim ) );
 
                 // the file should contain the x-coordinates in line 0, y-coordinates in line 1,

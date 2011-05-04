@@ -315,7 +315,7 @@ void WMFiberDisplaySimple::clipPlaneCallback( osg::Node* node ) const
     WPosition p = m_clipPlanePoint->get();
 
     // the point p can be interpreted as translation:
-    osg::Matrix translation = osg::Matrix::translate( p );
+    osg::Matrix translation = osg::Matrix::translate( p.as< osg::Vec3d >() );
 
     // the geometry that was specified has the normal ( 1.0, 0.0, 0.0 ). So it is possible to interpret any other normal as a rotation
     osg::Matrix rotation = osg::Matrix::rotate( osg::Vec3d( 1.0, 0.0, 0.0 ), v );

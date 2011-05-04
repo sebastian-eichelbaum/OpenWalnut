@@ -54,7 +54,7 @@ void WTransparentLinesDrawable::drawImplementation( osg::RenderInfo &renderInfo 
     viewer = ge->getViewerByName( "main" );
     WPosition endPos = WPosition( wge::unprojectFromScreen( WPosition( 0.0, 0.0, 1.0 ), viewer->getCamera() ) );
     WPosition startPos = WPosition( wge::unprojectFromScreen( WPosition(), viewer->getCamera() ) );
-    WPosition viewDir = ( endPos - startPos ).normalized();
+    WPosition viewDir = normalize( endPos - startPos );
 
     std::vector< std::pair< double, size_t > > depthVals( _vertexData.array->getNumElements() );
     for( size_t i = 0; i < _vertexData.array->getNumElements(); i += 2 )

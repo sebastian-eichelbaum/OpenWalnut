@@ -45,7 +45,7 @@
 #include "../../common/WPathHelper.h"
 #include "../../common/WProgress.h"
 #include "../../common/WPreferences.h"
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
@@ -119,7 +119,7 @@ void WMSplineSurface::moduleMain()
         WSurface surf;
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////
-        std::vector< WVector3D > givenPoints;
+        std::vector< WVector3d > givenPoints;
         for( int y = 0; y < 11; ++y )
         {
             for( int z = 0; z < 11; ++z )
@@ -129,7 +129,7 @@ void WMSplineSurface::moduleMain()
                 float yy = pi2 * y / 10.;
                 float zz = pi2 * z / 10.;
 
-                WVector3D p;
+                WVector3d p;
                 p[0] = 60. + sin( yy ) * 10 + cos( zz ) * 10;
                 p[1] = y * 20.;
                 p[2] = z * 16.;

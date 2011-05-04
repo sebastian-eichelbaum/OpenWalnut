@@ -36,7 +36,7 @@
 #include "../../kernel/WModuleInputData.h"
 #include "../../kernel/WModuleOutputData.h"
 
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Show an glyph plot (in this case the glyphs are arrows) of a vector data set.

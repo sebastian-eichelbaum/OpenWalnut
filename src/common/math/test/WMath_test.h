@@ -30,6 +30,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WMath.h"
+#include "../../WLimits.h"
 #include "WPositionTraits.h"
 
 
@@ -44,7 +45,7 @@ public:
      */
     void testTrianglePlaneIntersectionWithPointsInPlane( void )
     {
-        WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
+        WPlane p( WVector3d( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
         TS_ASSERT( testIntersectTriangle( WPosition( 0, 0, 0 ), WPosition( 0, 0, 1 ), WPosition( 1, 0, 1 ), p ) );
         TS_ASSERT( testIntersectTriangle( WPosition( 0, 0, 0 ), WPosition( 0, 1, 0 ), WPosition( 1, 0, 1 ), p ) );
         TS_ASSERT( testIntersectTriangle( WPosition( 0, 0, 0 ), WPosition( 0, 1, 0 ), WPosition( 1, 0, 0 ), p ) );
@@ -55,7 +56,7 @@ public:
      */
     void testTrianglePlaneIntersectionWithNoPointInPlane( void )
     {
-        WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
+        WPlane p( WVector3d( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
         TS_ASSERT( testIntersectTriangle( WPosition( 0, 0, -1 ), WPosition( 0, 0, 1 ), WPosition( 1, 0, 1 ), p ) );
     }
 
@@ -64,7 +65,7 @@ public:
      */
     void testTrianglePlaneIntersectionWithAllPointsOnOneSide( void )
     {
-        WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
+        WPlane p( WVector3d( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
         TS_ASSERT( !testIntersectTriangle( WPosition( 0, 0, -1 ), WPosition( 0, 1, -1 ), WPosition( 1, 0, -3 ), p ) );
     }
 
@@ -76,7 +77,7 @@ public:
      */
     void testIntersectionOfPlaneWithSegment( void )
     {
-        WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
+        WPlane p( WVector3d( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
         boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneSegment( p, WPosition( 3, 0, 1 ), WPosition( 1, 0, -1 ), cutPoint );
         TS_ASSERT_EQUALS( actual, true );
@@ -92,7 +93,7 @@ public:
      */
     void testNoIntersectionOfPlaneWithSegment( void )
     {
-        WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
+        WPlane p( WVector3d( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
         boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneSegment( p,
                                                     WPosition( 3, 0, 10 * wlimits::DBL_EPS ),
@@ -107,7 +108,7 @@ public:
      */
     void testIntersectionOfPlaneWithSegmentHavingOnePointInPlane( void )
     {
-        WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
+        WPlane p( WVector3d( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
         boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneSegment( p, WPosition( 3, 0, wlimits::DBL_EPS ), WPosition( 1, 0, 1 ), cutPoint );
         TS_ASSERT_EQUALS( actual, true );
@@ -128,7 +129,7 @@ public:
      */
     void testIntersectionOfPlaneWithSegmentInPlane( void )
     {
-        WPlane p( WVector3D( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
+        WPlane p( WVector3d( 0, 0, 1 ), WPosition( 0, 0, 0 ) );
         boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneSegment( p, WPosition( 3, 0, 0 ), WPosition( 1, 0, 0 ), cutPoint );
         TS_ASSERT_EQUALS( actual, true );
@@ -150,7 +151,7 @@ public:
         l.push_back( WPosition( 2, 0, 0 ) );
         l.push_back( WPosition( 5, 0, 0 ) );
         l.push_back( WPosition( 5, 4, 0 ) );
-        WPlane p( WVector3D( 1, 0, 0 ), WPosition( 3.5, 13, 23 ) );
+        WPlane p( WVector3d( 1, 0, 0 ), WPosition( 3.5, 13, 23 ) );
         boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneLineNearCP( p, l, cutPoint );
         TS_ASSERT( actual );
@@ -171,11 +172,11 @@ public:
         l.push_back( WPosition( 2, 0, 0 ) );
         l.push_back( WPosition( 5, 0, 0 ) );
         l.push_back( WPosition( 5, 4, 0 ) );
-        WPlane p( WVector3D( 1, 0, 0 ), WPosition( 5.0001, 13, 23 ) );
+        WPlane p( WVector3d( 1, 0, 0 ), WPosition( 5.0001, 13, 23 ) );
         boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneLineNearCP( p, l, cutPoint );
         TS_ASSERT( !actual );
-        WPlane q( WVector3D( -1.1, 0, 0 ), WPosition( 5.0001, 13, 23 ) );
+        WPlane q( WVector3d( -1.1, 0, 0 ), WPosition( 5.0001, 13, 23 ) );
         actual = intersectPlaneLineNearCP( q, l, cutPoint );
         TS_ASSERT( !actual );
     }
@@ -192,7 +193,7 @@ public:
         l.push_back( WPosition( 2, 0, 0 ) );
         l.push_back( WPosition( 5, 0, 0 ) );
         l.push_back( WPosition( 5, 4, 0 ) );
-        WPlane p( WVector3D( 1, 0, 0 ), WPosition( -1, 13, 23 ) );
+        WPlane p( WVector3d( 1, 0, 0 ), WPosition( -1, 13, 23 ) );
         boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneLineNearCP( p, l, cutPoint );
         TS_ASSERT( actual );
@@ -213,7 +214,7 @@ public:
         l.push_back( WPosition( 2, 0, 0 ) );
         l.push_back( WPosition( 5, 0, 0 ) );
         l.push_back( WPosition( 5, 4, 0 ) );
-        WPlane p( WVector3D( 1, 0, 0 ), WPosition( 5, 13, 23 ) );
+        WPlane p( WVector3d( 1, 0, 0 ), WPosition( 5, 13, 23 ) );
         boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneLineNearCP( p, l, cutPoint );
         TS_ASSERT( actual );
@@ -233,14 +234,14 @@ public:
         l.push_back( WPosition( 1, 0, 0 ) );
         l.push_back( WPosition( 2, 1, 0 ) );
         l.push_back( WPosition( -1, 1, 0 ) );
-        WPlane p( WVector3D( 1, 0, 0 ), WPosition( 0, 0, 0 ) );
+        WPlane p( WVector3d( 1, 0, 0 ), WPosition( 0, 0, 0 ) );
         boost::shared_ptr< WPosition > cutPoint( new WPosition( 0, 0, 0 ) );
         bool actual = intersectPlaneLineNearCP( p, l, cutPoint );
         TS_ASSERT( actual );
         TS_ASSERT( std::abs( ( *cutPoint )[0] - 0 ) <= 2*wlimits::DBL_EPS );
         TS_ASSERT( std::abs( ( *cutPoint )[1] - 0 ) <= 2*wlimits::DBL_EPS );
         TS_ASSERT( std::abs( ( *cutPoint )[2] - 0 ) <= 2*wlimits::DBL_EPS );
-        WPlane q( WVector3D( -1, 0, 0 ), WPosition( 0, 0.6, 0 ) );
+        WPlane q( WVector3d( -1, 0, 0 ), WPosition( 0, 0.6, 0 ) );
         actual = intersectPlaneLineNearCP( q, l, cutPoint );
         TS_ASSERT( actual );
         TS_ASSERT( std::abs( ( *cutPoint )[0] - 0 ) <= 2*wlimits::DBL_EPS );

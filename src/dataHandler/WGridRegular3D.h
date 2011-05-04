@@ -35,9 +35,7 @@
 #include <osg/Vec3>
 
 #include "../common/math/WMatrix.h"
-#include "../common/math/WMatrix.h"
-#include "../common/math/WPosition.h"
-#include "../common/math/WVector3D.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WCondition.h"
 #include "../common/WDefines.h"
@@ -117,36 +115,36 @@ public:
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) x-axis.
      */
-    WVector3D getDirectionX() const;
+    WVector3d getDirectionX() const;
 
     /**
      * Returns the vector determining the direction of samples in y direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) y-axis.
      */
-    WVector3D getDirectionY() const;
+    WVector3d getDirectionY() const;
 
     /**
      * Returns the vector determining the direction of samples in z direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) z-axis.
      */
-    WVector3D getDirectionZ() const;
+    WVector3d getDirectionZ() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in x direction.
      */
-    WVector3D getUnitDirectionX() const;
+    WVector3d getUnitDirectionX() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in y direction.
      */
-    WVector3D getUnitDirectionY() const;
+    WVector3d getUnitDirectionY() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in z direction.
      */
-    WVector3D getUnitDirectionZ() const;
+    WVector3d getUnitDirectionZ() const;
 
     /**
      * Returns the position of the origin of the grid.
@@ -183,13 +181,13 @@ public:
      * Transforms world coordinates to texture coordinates.
      * \param point The point with these coordinates will be transformed.
      */
-    WVector3D worldCoordToTexCoord( WPosition point );
+    WVector3d worldCoordToTexCoord( WPosition point );
 
     /**
      * Transforms texture coordinates to world coordinates.
      * \param coords The point with these coordinates will be transformed.
      */
-    WPosition texCoordToWorldCoord( WVector3D coords );
+    WPosition texCoordToWorldCoord( WVector3d coords );
 
     /**
      * The condition that fires on changes in this grid's transformation matrix.
@@ -532,9 +530,9 @@ inline boost::array< unsigned int, 3 > getNbCoords( boost::shared_ptr< const WGr
  * \note Implementing this as NonMemberNonFriend was intentional.
  * \return The direction of each axis as array
  */
-inline boost::array< WVector3D, 3 > getDirections( boost::shared_ptr< const WGridRegular3D > grid )
+inline boost::array< WVector3d, 3 > getDirections( boost::shared_ptr< const WGridRegular3D > grid )
 {
-    boost::array< WVector3D, 3 > result = { { grid->getDirectionX(), grid->getDirectionY(), grid->getDirectionZ() } }; // NOLINT curly braces
+    boost::array< WVector3d, 3 > result = { { grid->getDirectionX(), grid->getDirectionY(), grid->getDirectionZ() } }; // NOLINT curly braces
     return result;
 }
 
@@ -545,9 +543,9 @@ inline boost::array< WVector3D, 3 > getDirections( boost::shared_ptr< const WGri
  * \note Implementing this as NonMemberNonFriend was intentional.
  * \return The direction of each axis as array
  */
-inline boost::array< WVector3D, 3 > getUnitDirections( boost::shared_ptr< const WGridRegular3D > grid )
+inline boost::array< WVector3d, 3 > getUnitDirections( boost::shared_ptr< const WGridRegular3D > grid )
 {
-    boost::array< WVector3D, 3 > result = { { grid->getUnitDirectionX(), grid->getUnitDirectionY(), grid->getUnitDirectionZ() } }; // NOLINT curly braces
+    boost::array< WVector3d, 3 > result = { { grid->getUnitDirectionX(), grid->getUnitDirectionY(), grid->getUnitDirectionZ() } }; // NOLINT curly braces
     return result;
 }
 
@@ -581,32 +579,32 @@ inline double WGridRegular3D::getOffsetZ() const
     return m_transform.getOffsetZ();
 }
 
-inline WVector3D WGridRegular3D::getUnitDirectionX() const
+inline WVector3d WGridRegular3D::getUnitDirectionX() const
 {
     return m_transform.getUnitDirectionX();
 }
 
-inline WVector3D WGridRegular3D::getUnitDirectionY() const
+inline WVector3d WGridRegular3D::getUnitDirectionY() const
 {
     return m_transform.getUnitDirectionY();
 }
 
-inline WVector3D WGridRegular3D::getUnitDirectionZ() const
+inline WVector3d WGridRegular3D::getUnitDirectionZ() const
 {
     return m_transform.getUnitDirectionZ();
 }
 
-inline WVector3D WGridRegular3D::getDirectionX() const
+inline WVector3d WGridRegular3D::getDirectionX() const
 {
     return m_transform.getDirectionX();
 }
 
-inline WVector3D WGridRegular3D::getDirectionY() const
+inline WVector3d WGridRegular3D::getDirectionY() const
 {
     return m_transform.getDirectionY();
 }
 
-inline WVector3D WGridRegular3D::getDirectionZ() const
+inline WVector3d WGridRegular3D::getDirectionZ() const
 {
     return m_transform.getDirectionZ();
 }

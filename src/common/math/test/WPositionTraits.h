@@ -31,7 +31,7 @@
 #include <cxxtest/ValueTraits.h>
 
 #include "../../test/WTraitsBase.h"
-#include "../WPosition.h"
+#include "../linearAlgebra/WLinearAlgebra.h"
 
 #ifdef CXXTEST_RUNNING
 namespace CxxTest

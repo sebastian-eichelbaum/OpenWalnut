@@ -29,7 +29,7 @@
 #include <vector>
 
 #include "WDataSetSingle.h"
-#include "../common/math/WVector3D.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WExportDataHandler.h"
 
 /**
@@ -53,7 +53,7 @@ public:
      */
     WDataSetRawHARDI( boost::shared_ptr< WValueSetBase > newValueSet,
                       boost::shared_ptr< WGrid > newGrid,
-                      boost::shared_ptr< std::vector< WVector3D > > newGradients,
+                      boost::shared_ptr< std::vector< WVector3d > > newGradients,
                       double diffusionBValue = 1.0 );
 
     /**
@@ -108,7 +108,7 @@ public:
      *
      * \param index
      */
-    const WVector3D& getGradient( size_t index ) const;
+    const WVector3d& getGradient( size_t index ) const;
 
     /**
      * Returns the count of measurements per voxel, which is equal to the count of the used gradients.
@@ -136,7 +136,7 @@ public:
      *
      * \return A vector of orientations.
      */
-    std::vector< WVector3D > const& getOrientations() const;
+    std::vector< WVector3d > const& getOrientations() const;
 
     /**
      * Returns the \e b-value of the diffusion.
@@ -153,7 +153,7 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
-    boost::shared_ptr< std::vector< WVector3D > > m_gradients; //!< Gradients of measurements
+    boost::shared_ptr< std::vector< WVector3d > > m_gradients; //!< Gradients of measurements
     /**
      * Strength (b-value) of the so-called magnetic diffusion gradient.
      */

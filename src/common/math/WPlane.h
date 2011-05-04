@@ -31,8 +31,7 @@
 
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../WExportCommon.h"
-#include "WPosition.h"
-#include "WVector3D.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Represents a plane with a normal vector and a position in space.
@@ -48,7 +47,7 @@ public:
      *
      * \return
      */
-    WPlane( const WVector3D& normal, const WPosition& pos );
+    WPlane( const WVector3d& normal, const WPosition& pos );
 
     /**
      * Constructs a plane with its normal and its base point/origin as well as explicitly specifying its vectors in the plane.
@@ -61,7 +60,7 @@ public:
      * \note Due to numerical stability a comparison to 0.0 is not performed. Instead the absolute value of the dot product is checked to
      * be smaller than the FLT_EPS. FLT_EPS is used instead of DBL_EPS just numerical errors may sum up above DBL_EPS.
      */
-    WPlane( const WVector3D& normal, const WPosition& pos, const WVector3D& first, const WVector3D& second );
+    WPlane( const WVector3d& normal, const WPosition& pos, const WVector3d& first, const WVector3d& second );
 
     /**
      * Destructor.
@@ -117,7 +116,7 @@ public:
      *
      * \return Normalized normal vector.
      */
-    const WVector3D& getNormal() const;
+    const WVector3d& getNormal() const;
 
     /**
      * Resets the vector spanning the plane. Both must be linear independent and perpendicular to the already
@@ -126,25 +125,25 @@ public:
      * \param first First vector spanning the plane
      * \param second Second vector spanning the plane
      */
-    void setPlaneVectors( const WVector3D& first, const WVector3D& second );
+    void setPlaneVectors( const WVector3d& first, const WVector3d& second );
 
     /**
      * Resets the normal of this plane.
      *
      * \param normal New normal for this plane.
      */
-    void setNormal( const WVector3D& normal )
+    void setNormal( const WVector3d& normal )
     {
-        m_normal = normal.normalized();
-        WVector3D gen( 1, 0, 0 );
-        if( normal.crossProduct( gen ) ==  WVector3D( 0, 0, 0 ) )
+        m_normal = normalize( normal );
+        WVector3d gen( 1, 0, 0 );
+        if( cross( normal, gen ) ==  WVector3d( 0, 0, 0 ) )
         {
-            gen = WVector3D( 0, 1, 0 );
+            gen = WVector3d( 0, 1, 0 );
         }
-        m_first = normal.crossProduct( gen );
-        m_first.normalize();
-        m_second = normal.crossProduct( m_first );
-        m_second.normalize();
+        m_first = cross( normal, gen );
+        m_first = normalize( m_first );
+        m_second = cross( normal, m_first );
+        m_second = normalize( m_second );
     }
 
 //    \cond
@@ -171,10 +170,10 @@ public:
     boost::shared_ptr< std::set< WPosition > > samplePoints( double stepWidth, size_t numX, size_t numY ) const;
 
 protected:
-    WVector3D m_normal; //!< Direction of the plane
+    WVector3d m_normal; //!< Direction of the plane
     WPosition m_pos; //!< Position of the plane specifying the center
-    WVector3D m_first; //!< First vector in the plane
-    WVector3D m_second; //!< Second vector in the plane
+    WVector3d m_first; //!< First vector in the plane
+    WVector3d m_second; //!< Second vector in the plane
 
 private:
 };
@@ -184,7 +183,7 @@ inline const WPosition& WPlane::getPosition() const
     return m_pos;
 }
 
-inline const WVector3D& WPlane::getNormal() const
+inline const WVector3d& WPlane::getNormal() const
 {
     return m_normal;
 }

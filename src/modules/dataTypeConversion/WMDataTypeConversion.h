@@ -36,7 +36,7 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Provides a new field with the approximately the same data, but with another data type. E.g., it

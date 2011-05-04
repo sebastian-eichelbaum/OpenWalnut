@@ -29,7 +29,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/math/WLine.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/math/WValue.h"
 #include "../../common/WAssert.h"
 #include "../../common/WLogger.h"
@@ -161,7 +161,7 @@ std::vector< double > WBresenham::computeDistances( const size_t voxelNum,
                                                     const WPosition& end ) const
 {
     WPosition u = end - start;
-    u.normalize();
+    u = normalize( u );
 
     std::vector< WPosition > x;
     x.reserve( 7 );
@@ -179,8 +179,8 @@ std::vector< double > WBresenham::computeDistances( const size_t voxelNum,
     // now calculate distance from x to the line given via start and end
     for( size_t i = 0; i < x.size(); ++i )
     {
-        WPosition lot = u.dotProduct( x[i] ) * u; // lot == perpendicular
-        result.push_back( std::abs( ( x[i] - lot ).norm() ) );
+        WPosition lot = dot( u, x[i] ) * u; // lot == perpendicular
+        result.push_back( std::abs( length( x[i] - lot ) ) );
     }
     return result;
 }

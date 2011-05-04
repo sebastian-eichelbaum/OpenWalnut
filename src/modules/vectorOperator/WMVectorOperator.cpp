@@ -32,8 +32,7 @@
 
 #include <boost/variant.hpp>
 
-#include "../../common/math/WPosition.h"
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WAssert.h"
 #include "../../common/WProgress.h"
 #include "../../common/WStringUtils.h"
@@ -111,30 +110,30 @@ void WMVectorOperator::properties()
 }
 
 template< typename T >
-T opLength( const WVector3D& vec,
-            const WVector3D& /*mx*/, const WVector3D& /*px*/,
-            const WVector3D& /*my*/, const WVector3D& /*py*/,
-            const WVector3D& /*mz*/, const WVector3D& /*pz*/ )
+T opLength( const WVector3d& vec,
+            const WVector3d& /*mx*/, const WVector3d& /*px*/,
+            const WVector3d& /*my*/, const WVector3d& /*py*/,
+            const WVector3d& /*mz*/, const WVector3d& /*pz*/ )
 {
-    return vec.length();
+    return length( vec );
 }
 
 template< typename T >
-T opCurvature( const WVector3D& vec,
-               const WVector3D& mx, const WVector3D& px,
-               const WVector3D& my, const WVector3D& py,
-               const WVector3D& mz, const WVector3D& pz )
+T opCurvature( const WVector3d& vec,
+               const WVector3d& mx, const WVector3d& px,
+               const WVector3d& my, const WVector3d& py,
+               const WVector3d& mz, const WVector3d& pz )
 {
     // get partial differentiation in x direction:
-    WVector3D dx = ( px - mx ) / 2.0;    // NOTE: step size h=2
-    WVector3D dy = ( py - my ) / 2.0;
-    WVector3D dz = ( pz - mz ) / 2.0;
+    WVector3d dx = ( px - mx ) / 2.0;    // NOTE: step size h=2
+    WVector3d dy = ( py - my ) / 2.0;
+    WVector3d dz = ( pz - mz ) / 2.0;
 
     // get second derivative of tangent curve
-    WVector3D L2 = ( vec.x() * dx ) + ( vec.y() * dy ) + ( vec.z() * dz );
+    WVector3d L2 = ( vec.x() * dx ) + ( vec.y() * dy ) + ( vec.z() * dz );
 
-    WVector3D::value_type l = vec.length();
-    return ( vec.crossProduct( L2 ) ).length() / ( l * l * l );
+    WVector3d::ValueType l = length( vec );
+    return length( cross( vec, L2 ) ) / ( l * l * l );
 }
 
 /**
@@ -193,10 +192,10 @@ public:
         // discriminate the right operation with the correct type. It would be nicer to use some kind of strategy pattern here, but the template
         // character of the operators forbids it as template methods can't be virtual. Besides this, at some point in the module main the
         // selector needs to be queried and its index mapped to a pointer. This is what we do here.
-        boost::function< T( const WVector3D&,
-                            const WVector3D&, const WVector3D&,
-                            const WVector3D&, const WVector3D&,
-                            const WVector3D&, const WVector3D& ) > op;
+        boost::function< T( const WVector3d&,
+                            const WVector3d&, const WVector3d&,
+                            const WVector3d&, const WVector3d&,
+                            const WVector3d&, const WVector3d& ) > op;
         switch ( m_opIdx )
         {
             case 1:
@@ -223,15 +222,15 @@ public:
                 {
                     // this is ugly. We'll fix this crap with the upcoming new data handler
                     size_t idx = getId( nX, nY, nZ, x, y, z );
-                    WVector3D vec = vsetA->getVector3D( idx );
+                    WVector3d vec = vsetA->getVector3D( idx );
 
                     // also get the neighbours
-                    WVector3D mx = vsetA->getVector3D( getId( nX, nY, nZ, x - 1, y, z ) );
-                    WVector3D px = vsetA->getVector3D( getId( nX, nY, nZ, x + 1, y, z ) );
-                    WVector3D my = vsetA->getVector3D( getId( nX, nY, nZ, x, y - 1, z ) );
-                    WVector3D py = vsetA->getVector3D( getId( nX, nY, nZ, x, y + 1, z ) );
-                    WVector3D mz = vsetA->getVector3D( getId( nX, nY, nZ, x, y, z - 1 ) );
-                    WVector3D pz = vsetA->getVector3D( getId( nX, nY, nZ, x, y, z + 1 ) );
+                    WVector3d mx = vsetA->getVector3D( getId( nX, nY, nZ, x - 1, y, z ) );
+                    WVector3d px = vsetA->getVector3D( getId( nX, nY, nZ, x + 1, y, z ) );
+                    WVector3d my = vsetA->getVector3D( getId( nX, nY, nZ, x, y - 1, z ) );
+                    WVector3d py = vsetA->getVector3D( getId( nX, nY, nZ, x, y + 1, z ) );
+                    WVector3d mz = vsetA->getVector3D( getId( nX, nY, nZ, x, y, z - 1 ) );
+                    WVector3d pz = vsetA->getVector3D( getId( nX, nY, nZ, x, y, z + 1 ) );
 
                     data[ idx ] = op( vec, mx, px, my, py, mz, pz );
                 }

@@ -56,13 +56,13 @@ public:
             TS_ASSERT_EQUALS( v.getOffsetX(), 1.0 );
             TS_ASSERT_EQUALS( v.getOffsetY(), 1.0 );
             TS_ASSERT_EQUALS( v.getOffsetZ(), 1.0 );
-            TS_ASSERT_EQUALS( v.getUnitDirectionX(), WVector3D( 1.0, 0.0, 0.0 ) );
-            TS_ASSERT_EQUALS( v.getUnitDirectionY(), WVector3D( 0.0, 1.0, 0.0 ) );
-            TS_ASSERT_EQUALS( v.getUnitDirectionZ(), WVector3D( 0.0, 0.0, 1.0 ) );
-            TS_ASSERT_EQUALS( v.getDirectionX(), WVector3D( 1.0, 0.0, 0.0 ) );
-            TS_ASSERT_EQUALS( v.getDirectionY(), WVector3D( 0.0, 1.0, 0.0 ) );
-            TS_ASSERT_EQUALS( v.getDirectionZ(), WVector3D( 0.0, 0.0, 1.0 ) );
-            TS_ASSERT_EQUALS( v.getOrigin(), WVector3D( 0.0, 0.0, 0.0 ) );
+            TS_ASSERT_EQUALS( v.getUnitDirectionX(), WVector3d( 1.0, 0.0, 0.0 ) );
+            TS_ASSERT_EQUALS( v.getUnitDirectionY(), WVector3d( 0.0, 1.0, 0.0 ) );
+            TS_ASSERT_EQUALS( v.getUnitDirectionZ(), WVector3d( 0.0, 0.0, 1.0 ) );
+            TS_ASSERT_EQUALS( v.getDirectionX(), WVector3d( 1.0, 0.0, 0.0 ) );
+            TS_ASSERT_EQUALS( v.getDirectionY(), WVector3d( 0.0, 1.0, 0.0 ) );
+            TS_ASSERT_EQUALS( v.getDirectionZ(), WVector3d( 0.0, 0.0, 1.0 ) );
+            TS_ASSERT_EQUALS( v.getOrigin(), WVector3d( 0.0, 0.0, 0.0 ) );
         }
         {
             TS_ASSERT_THROWS_NOTHING( WGridTransformOrtho v( 2.2, 3.3, -1.0 ) );
@@ -75,13 +75,13 @@ public:
             TS_ASSERT_EQUALS( v.getOffsetX(), 2.2 );
             TS_ASSERT_EQUALS( v.getOffsetY(), 3.3 );
             TS_ASSERT_EQUALS( v.getOffsetZ(), 1.0 );
-            TS_ASSERT_EQUALS( v.getUnitDirectionX(), WVector3D( 1.0, 0.0, 0.0 ) );
-            TS_ASSERT_EQUALS( v.getUnitDirectionY(), WVector3D( 0.0, 1.0, 0.0 ) );
-            TS_ASSERT_EQUALS( v.getUnitDirectionZ(), WVector3D( 0.0, 0.0, -1.0 ) );
-            TS_ASSERT_EQUALS( v.getDirectionX(), WVector3D( 2.2, 0.0, 0.0 ) );
-            TS_ASSERT_EQUALS( v.getDirectionY(), WVector3D( 0.0, 3.3, 0.0 ) );
-            TS_ASSERT_EQUALS( v.getDirectionZ(), WVector3D( 0.0, 0.0, -1.0 ) );
-            TS_ASSERT_EQUALS( v.getOrigin(), WVector3D( 0.0, 0.0, 0.0 ) );
+            TS_ASSERT_EQUALS( v.getUnitDirectionX(), WVector3d( 1.0, 0.0, 0.0 ) );
+            TS_ASSERT_EQUALS( v.getUnitDirectionY(), WVector3d( 0.0, 1.0, 0.0 ) );
+            TS_ASSERT_EQUALS( v.getUnitDirectionZ(), WVector3d( 0.0, 0.0, -1.0 ) );
+            TS_ASSERT_EQUALS( v.getDirectionX(), WVector3d( 2.2, 0.0, 0.0 ) );
+            TS_ASSERT_EQUALS( v.getDirectionY(), WVector3d( 0.0, 3.3, 0.0 ) );
+            TS_ASSERT_EQUALS( v.getDirectionZ(), WVector3d( 0.0, 0.0, -1.0 ) );
+            TS_ASSERT_EQUALS( v.getOrigin(), WVector3d( 0.0, 0.0, 0.0 ) );
         }
         {
             WMatrix< double > mat( 4, 4 );
@@ -118,13 +118,13 @@ public:
             TS_ASSERT_EQUALS( v.getOffsetX(), sqrt( 8.0 ) );
             TS_ASSERT_EQUALS( v.getOffsetY(), sqrt( 18.0 ) );
             TS_ASSERT_EQUALS( v.getOffsetZ(), 4.4 );
-            TS_ASSERT_DELTA( ( v.getUnitDirectionX() - WVector3D( 0.5 * sqrt( 2.0 ), 0.5 * sqrt( 2.0 ), 0.0 ) ).norm(), 0.0, 1e-13 );
-            TS_ASSERT_DELTA( ( v.getUnitDirectionY() - WVector3D( -0.5 * sqrt( 2.0 ), 0.5 * sqrt( 2.0 ), 0.0 ) ).norm(), 0.0, 1e-13 );
-            TS_ASSERT_EQUALS( v.getUnitDirectionZ(), WVector3D( 0.0, 0.0, 1.0 ) );
-            TS_ASSERT_EQUALS( v.getDirectionX(), WVector3D( 2.0, 2.0, 0.0 ) );
-            TS_ASSERT_EQUALS( v.getDirectionY(), WVector3D( -3.0, 3.0, 0.0 ) );
-            TS_ASSERT_EQUALS( v.getDirectionZ(), WVector3D( 0.0, 0.0, 4.4 ) );
-            TS_ASSERT_EQUALS( v.getOrigin(), WVector3D( 1.0, 2.0, 0.5 ) );
+            TS_ASSERT_DELTA( length( v.getUnitDirectionX() - WVector3d( 0.5 * sqrt( 2.0 ), 0.5 * sqrt( 2.0 ), 0.0 ) ), 0.0, 1e-13 );
+            TS_ASSERT_DELTA( length( v.getUnitDirectionY() - WVector3d( -0.5 * sqrt( 2.0 ), 0.5 * sqrt( 2.0 ), 0.0 ) ), 0.0, 1e-13 );
+            TS_ASSERT_EQUALS( v.getUnitDirectionZ(), WVector3d( 0.0, 0.0, 1.0 ) );
+            TS_ASSERT_EQUALS( v.getDirectionX(), WVector3d( 2.0, 2.0, 0.0 ) );
+            TS_ASSERT_EQUALS( v.getDirectionY(), WVector3d( -3.0, 3.0, 0.0 ) );
+            TS_ASSERT_EQUALS( v.getDirectionZ(), WVector3d( 0.0, 0.0, 4.4 ) );
+            TS_ASSERT_EQUALS( v.getOrigin(), WVector3d( 1.0, 2.0, 0.5 ) );
         }
     }
 
@@ -161,7 +161,7 @@ public:
     {
         {
             // test identity transform
-            WVector3D v( -7.64, 8.73, -0.0063 );
+            WVector3d v( -7.64, 8.73, -0.0063 );
             WGridTransformOrtho t;
 
             TS_ASSERT_EQUALS( v, t.positionToWorldSpace( v ) );
@@ -170,10 +170,10 @@ public:
 
         {
             WGridTransformOrtho t( 2.2, 3.3, 4.4 );
-            WVector3D v( 1.0, 1.0, 1.0 );
+            WVector3d v( 1.0, 1.0, 1.0 );
 
-            TS_ASSERT_EQUALS( WVector3D( 2.2, 3.3, 4.4 ), t.positionToWorldSpace( v ) );
-            TS_ASSERT_EQUALS( WVector3D( 2.2, 3.3, 4.4 ), t.directionToWorldSpace( v ) );
+            TS_ASSERT_EQUALS( WVector3d( 2.2, 3.3, 4.4 ), t.positionToWorldSpace( v ) );
+            TS_ASSERT_EQUALS( WVector3d( 2.2, 3.3, 4.4 ), t.directionToWorldSpace( v ) );
         }
 
         {
@@ -187,10 +187,10 @@ public:
             mat( 2, 3 ) = 0.5;
 
             WGridTransformOrtho t( mat );
-            WVector3D v( 1.0, 1.0, 1.0 );
+            WVector3d v( 1.0, 1.0, 1.0 );
 
-            TS_ASSERT_EQUALS( WVector3D( 3.2, 5.3, 4.9 ), t.positionToWorldSpace( v ) );
-            TS_ASSERT_EQUALS( WVector3D( 2.2, 3.3, 4.4 ), t.directionToWorldSpace( v ) );
+            TS_ASSERT_EQUALS( WVector3d( 3.2, 5.3, 4.9 ), t.positionToWorldSpace( v ) );
+            TS_ASSERT_EQUALS( WVector3d( 2.2, 3.3, 4.4 ), t.directionToWorldSpace( v ) );
         }
         {
             WMatrix< double > mat( 4, 4 );
@@ -205,13 +205,13 @@ public:
             mat( 2, 3 ) = 0.5;
 
             WGridTransformOrtho t( mat );
-            WVector3D v( 1.0, 1.0, 1.0 );
+            WVector3d v( 1.0, 1.0, 1.0 );
 
-            WVector3D w = t.positionToWorldSpace( v );
+            WVector3d w = t.positionToWorldSpace( v );
             TS_ASSERT_DELTA( 0.0, w[ 0 ], 0.0001 );
             TS_ASSERT_DELTA( 7.0, w[ 1 ], 0.0001 );
             TS_ASSERT_DELTA( 4.9, w[ 2 ], 0.0001 );
-            TS_ASSERT_EQUALS( WVector3D( -1.0, 5.0, 4.4 ), t.directionToWorldSpace( v ) );
+            TS_ASSERT_EQUALS( WVector3d( -1.0, 5.0, 4.4 ), t.directionToWorldSpace( v ) );
         }
     }
 
@@ -222,7 +222,7 @@ public:
     {
         {
             // test identity transform
-            WVector3D v( -7.64, 8.73, -0.0063 );
+            WVector3d v( -7.64, 8.73, -0.0063 );
             WGridTransformOrtho t;
 
             TS_ASSERT_EQUALS( v, t.positionToGridSpace( v ) );
@@ -231,10 +231,10 @@ public:
 
         {
             WGridTransformOrtho t( 2.2, 3.3, 4.4 );
-            WVector3D v( 2.2, 3.3, 4.4 );
+            WVector3d v( 2.2, 3.3, 4.4 );
 
-            TS_ASSERT_EQUALS( WVector3D( 1.0, 1.0, 1.0 ), t.positionToGridSpace( v ) );
-            TS_ASSERT_EQUALS( WVector3D( 1.0, 1.0, 1.0 ), t.directionToGridSpace( v ) );
+            TS_ASSERT_EQUALS( WVector3d( 1.0, 1.0, 1.0 ), t.positionToGridSpace( v ) );
+            TS_ASSERT_EQUALS( WVector3d( 1.0, 1.0, 1.0 ), t.directionToGridSpace( v ) );
         }
 
         {
@@ -249,8 +249,8 @@ public:
 
             WGridTransformOrtho t( mat );
 
-            TS_ASSERT_EQUALS( WVector3D( 1.0, 1.0, 1.0 ), t.positionToGridSpace( WVector3D( 3.2, 5.3, 4.9 ) ) );
-            TS_ASSERT_EQUALS( WVector3D( 1.0, 1.0, 1.0 ), t.directionToGridSpace( WVector3D( 2.2, 3.3, 4.4 ) ) );
+            TS_ASSERT_EQUALS( WVector3d( 1.0, 1.0, 1.0 ), t.positionToGridSpace( WVector3d( 3.2, 5.3, 4.9 ) ) );
+            TS_ASSERT_EQUALS( WVector3d( 1.0, 1.0, 1.0 ), t.directionToGridSpace( WVector3d( 2.2, 3.3, 4.4 ) ) );
         }
         {
             WMatrix< double > mat( 4, 4 );
@@ -266,10 +266,10 @@ public:
 
             WGridTransformOrtho t( mat );
 
-            TS_ASSERT_DELTA( ( WVector3D( 1.0, 1.0, 1.0 )  // NOLINT
-                               - t.positionToGridSpace( WVector3D( 0.0, 7.0, 4.9 ) ) ).norm(), 0.0, 1e-13 );
-            TS_ASSERT_DELTA( ( WVector3D( 1.0, 1.0, 1.0 )  // NOLINT
-                               - t.directionToGridSpace( WVector3D( -1.0, 5.0, 4.4 ) ) ).norm(), 0.0, 1e-13 );
+            TS_ASSERT_DELTA( length( WVector3d( 1.0, 1.0, 1.0 )  // NOLINT
+                               - t.positionToGridSpace( WVector3d( 0.0, 7.0, 4.9 ) ) ), 0.0, 1e-13 );
+            TS_ASSERT_DELTA( length( WVector3d( 1.0, 1.0, 1.0 )  // NOLINT
+                               - t.directionToGridSpace( WVector3d( -1.0, 5.0, 4.4 ) ) ), 0.0, 1e-13 );
         }
     }
 };

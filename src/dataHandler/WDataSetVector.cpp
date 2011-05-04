@@ -133,11 +133,11 @@ namespace
     }
 }
 
-WVector3D WDataSetVector::interpolate( const WPosition& pos, bool *success ) const
+WVector3d WDataSetVector::interpolate( const WPosition& pos, bool *success ) const
 {
     boost::shared_ptr< std::vector< size_t > > vertexIds( new std::vector< size_t > );
     boost::array< double, 8 > h = computePrefactors( pos, m_grid, m_valueSet, success, vertexIds );
-    WVector3D result( 0.0, 0.0, 0.0 );
+    WVector3d result( 0.0, 0.0, 0.0 );
 
     if( *success ) // only if pos was iniside the grid, we proivde a result different to 0.0, 0.0, 0.0
     {
@@ -150,18 +150,18 @@ WVector3D WDataSetVector::interpolate( const WPosition& pos, bool *success ) con
     return result;
 }
 
-WVector3D WDataSetVector::eigenVectorInterpolate( const WPosition& pos, bool *success ) const
+WVector3d WDataSetVector::eigenVectorInterpolate( const WPosition& pos, bool *success ) const
 {
     boost::shared_ptr< std::vector< size_t > > vertexIds( new std::vector< size_t > );
     boost::array< double, 8 > h = computePrefactors( pos, m_grid, m_valueSet, success, vertexIds );
-    WVector3D result( 0.0, 0.0, 0.0 );
+    WVector3d result( 0.0, 0.0, 0.0 );
 
     if( *success ) // only if pos was iniside the grid, we proivde a result different to 0.0, 0.0, 0.0
     {
         for( size_t i = 0; i < 8; ++i )
         {
             double sign = 1.0;
-            if( getVectorAt( ( *vertexIds )[0] ).dotProduct( getVectorAt( ( *vertexIds )[i] ) ) < 0.0 )
+            if( dot( getVectorAt( ( *vertexIds )[0] ), getVectorAt( ( *vertexIds )[i] ) ) < 0.0 )
             {
                 sign = -1.0;
             }
@@ -172,7 +172,7 @@ WVector3D WDataSetVector::eigenVectorInterpolate( const WPosition& pos, bool *su
     return result;
 }
 
-WVector3D WDataSetVector::getVectorAt( size_t index ) const
+WVector3d WDataSetVector::getVectorAt( size_t index ) const
 {
     switch( getValueSet()->getDataType() )
     {
@@ -200,7 +200,7 @@ WVector3D WDataSetVector::getVectorAt( size_t index ) const
             WAssert( false, "Unknow data type in dataset." );
     }
 
-    return WVector3D( 0, 0, 0 );
+    return WVector3d( 0, 0, 0 );
 }
 
 bool WDataSetVector::isTexture() const

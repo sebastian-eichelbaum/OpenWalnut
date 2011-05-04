@@ -30,7 +30,7 @@
 
 #include <boost/thread.hpp>
 
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WPickHandler.h"
 #include "WGEViewer.h"
 
@@ -119,7 +119,7 @@ public:
      *
      * \param offset the distance to move
      */
-    void moveSphere( WVector3D offset );
+    void moveSphere( WVector3d offset );
 
     /**
      * setter
@@ -144,7 +144,7 @@ public:
      * \param vector together witht he current position this sets line in space to which the movement of the
      * sphere is restricted
      */
-    void  setLockVector( WVector3D vector );
+    void  setLockVector( WVector3d vector );
 
     /**
      * setter
@@ -168,9 +168,9 @@ private:
 
     WPosition m_pickedPosition; //!< Caches the old picked position to a allow for comparison
 
-    WVector3D m_pickNormal; //!< Store the normal that occured when the pick action was started.
+    WVector3d m_pickNormal; //!< Store the normal that occured when the pick action was started.
 
-    std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
+    WVector2d m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
 
     WPickInfo m_pickInfo; //!< Stores the pick information for potential redraw
 
@@ -180,9 +180,9 @@ private:
 
     osg::Vec4 m_notColor; //!< the color of the box when negated
 
-    WVector3D m_lockPoint; //!< stores to point of origin of the lock vector
+    WVector3d m_lockPoint; //!< stores to point of origin of the lock vector
 
-    WVector3D m_lockVector; //!< stores the lock vector
+    WVector3d m_lockVector; //!< stores the lock vector
 
     bool m_lockOnVector; //!< flag indicatin wether the movement of the sphere is restricted
 

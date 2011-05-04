@@ -35,7 +35,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../../common/exceptions/WOutOfBounds.h"
-#include "../../common/math/test/WVector3DTraits.h"
+#include "../../common/math/test/WVector3dTraits.h"
 #include "../../common/WLimits.h"
 #include "../WGridRegular3D.h"
 
@@ -82,7 +82,7 @@ public:
         TS_ASSERT_EQUALS( expectedNbCoords, getNbCoords( grid ) );
         boost::array< double, 3 > expectedOffsets = { { 1.0, 1.0, 1.0 } }; // NOLINT curly braces
         TS_ASSERT_EQUALS( expectedOffsets, getOffsets( grid ) );
-        boost::array< WVector3D, 3 > expectedDirections = { { WVector3D( 1.0, 0.0, 0.0 ), WVector3D( 0.0, 1.0, 0.0 ), WVector3D( 0.0, 0.0, 1.0 ) } }; // NOLINT curly braces line length
+        boost::array< WVector3d, 3 > expectedDirections = { { WVector3d( 1.0, 0.0, 0.0 ), WVector3d( 0.0, 1.0, 0.0 ), WVector3d( 0.0, 0.0, 1.0 ) } }; // NOLINT curly braces line length
         TS_ASSERT_EQUALS( expectedDirections, getDirections( grid ) );
         TS_ASSERT_EQUALS( expectedDirections, getUnitDirections( grid ) );
     }
@@ -102,9 +102,9 @@ public:
         WGridRegular3D grid( 3, 3, 3, t );
         TS_ASSERT_EQUALS( grid.size(), 27 );
         TS_ASSERT_EQUALS( grid.getOrigin(), WPosition( 0., 0., 0. ) );
-        TS_ASSERT_EQUALS( grid.getDirectionX(), WVector3D( 2.2, 0., 0. ) );
-        TS_ASSERT_EQUALS( grid.getDirectionY(), WVector3D( 0., 3.3, 0. ) );
-        TS_ASSERT_EQUALS( grid.getDirectionZ(), WVector3D( 0., 0., 4.4 ) );
+        TS_ASSERT_EQUALS( grid.getDirectionX(), WVector3d( 2.2, 0., 0. ) );
+        TS_ASSERT_EQUALS( grid.getDirectionY(), WVector3d( 0., 3.3, 0. ) );
+        TS_ASSERT_EQUALS( grid.getDirectionZ(), WVector3d( 0., 0., 4.4 ) );
     }
 
     /**
@@ -127,9 +127,9 @@ public:
      */
     void testGetVectorOffset( void )
     {
-        WVector3D x( 3., 1., 2. );
-        WVector3D y( 2., -6., 0. );
-        WVector3D z( 12., 4., -20 );
+        WVector3d x( 3., 1., 2. );
+        WVector3d y( 2., -6., 0. );
+        WVector3d z( 12., 4., -20 );
 
         WMatrix< double > mat( 4, 4 );
         mat.makeIdentity();
@@ -146,9 +146,9 @@ public:
         WGridTransformOrtho t( mat );
         WGridRegular3D grid( 3, 3, 3, t );
 
-        TS_ASSERT_DELTA( grid.getOffsetX(), x.norm(), m_delta );
-        TS_ASSERT_DELTA( grid.getOffsetY(), y.norm(), m_delta );
-        TS_ASSERT_DELTA( grid.getOffsetZ(), z.norm(), m_delta );
+        TS_ASSERT_DELTA( grid.getOffsetX(), length( x ), m_delta );
+        TS_ASSERT_DELTA( grid.getOffsetY(), length( y ), m_delta );
+        TS_ASSERT_DELTA( grid.getOffsetZ(), length( z ), m_delta );
     }
 
     /**
@@ -319,11 +319,11 @@ public:
      */
     void testRotatedVoxelNum()
     {
-        WVector3D x( 0.707, 0.707, 0.0 );
-        WVector3D y( -0.707, 0.707, 0.0 );
-        WVector3D z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        WVector3d x( 0.707, 0.707, 0.0 );
+        WVector3d y( -0.707, 0.707, 0.0 );
+        WVector3d z( 0.0, 0.0, 1.0 );
+        x = normalize( x );
+        y = normalize( y );
         y *= 2.0;
         z *= 1.5;
 
@@ -343,7 +343,7 @@ public:
         WGridTransformOrtho t( mat );
         WGridRegular3D g( 5, 5, 5, t );
 
-        WVector3D v = WVector3D( 1.0, 0.0, 0.0 ) + 0.3 * z + 2.4 * y + 2.9 * x;
+        WVector3d v = WVector3d( 1.0, 0.0, 0.0 ) + 0.3 * z + 2.4 * y + 2.9 * x;
 
         TS_ASSERT_EQUALS( g.getXVoxelCoord( v ), 3 );
         TS_ASSERT_EQUALS( g.getYVoxelCoord( v ), 2 );
@@ -355,11 +355,11 @@ public:
      */
     void testRotatedVoxelOutOfGrid()
     {
-        WVector3D x( 0.707, 0.707, 0.0 );
-        WVector3D y( -0.707, 0.707, 0.0 );
-        WVector3D z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        WVector3d x( 0.707, 0.707, 0.0 );
+        WVector3d y( -0.707, 0.707, 0.0 );
+        WVector3d z( 0.0, 0.0, 1.0 );
+        x = normalize( x );
+        y = normalize( y );
         y *= 2.0;
         z *= 1.5;
 
@@ -379,7 +379,7 @@ public:
         WGridTransformOrtho t( mat );
         WGridRegular3D g( 5, 5, 5, t );
 
-        WVector3D v( 1.0, 0.0, 0.0 );
+        WVector3d v( 1.0, 0.0, 0.0 );
         v -= wlimits::FLT_EPS * x;
 
         TS_ASSERT_EQUALS( g.getXVoxelCoord( v ), -1 );
@@ -392,7 +392,7 @@ public:
         TS_ASSERT_DIFFERS( g.getYVoxelCoord( v ), -1 );
         TS_ASSERT_EQUALS( g.getZVoxelCoord( v ), -1 );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + ( 4.0 + wlimits::FLT_EPS ) * y;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + ( 4.0 + wlimits::FLT_EPS ) * y;
 
         TS_ASSERT_DIFFERS( g.getXVoxelCoord( v ), -1 );
         TS_ASSERT_EQUALS( g.getYVoxelCoord( v ), -1 );
@@ -539,11 +539,11 @@ public:
      */
     void testEnclosesRotated()
     {
-        WVector3D x( 0.707, 0.707, 0.0 );
-        WVector3D y( -0.707, 0.707, 0.0 );
-        WVector3D z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        WVector3d x( 0.707, 0.707, 0.0 );
+        WVector3d y( -0.707, 0.707, 0.0 );
+        WVector3d z( 0.0, 0.0, 1.0 );
+        x = normalize( x );
+        y = normalize( y );
         y *= 2.0;
         z *= 1.5;
 
@@ -563,8 +563,8 @@ public:
         WGridTransformOrtho t( mat );
         WGridRegular3D g( 5, 5, 5, t );
 
-        WVector3D o = WVector3D( 1.0, 0.0, 0.0 ) + ( x + y + z ) * 2.0 * wlimits::FLT_EPS;
-        WVector3D v = o - 4.0 * wlimits::FLT_EPS * x;
+        WVector3d o = WVector3d( 1.0, 0.0, 0.0 ) + ( x + y + z ) * 2.0 * wlimits::FLT_EPS;
+        WVector3d v = o - 4.0 * wlimits::FLT_EPS * x;
         TS_ASSERT( !g.encloses( v ) );
         v = o;
         TS_ASSERT( g.encloses( v ) );

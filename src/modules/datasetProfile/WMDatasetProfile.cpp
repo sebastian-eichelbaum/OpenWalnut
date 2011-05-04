@@ -466,8 +466,8 @@ osg::ref_ptr< osg::Geode > WMDatasetProfile::createGraphGeode()
     for ( size_t k = 0; k < knobs.size() - 1 ; ++k )
     {
         WPosition p = ( knobs[k+1]->getPosition() - knobs[k]->getPosition() );
-        segmentLengths.push_back( p.length() );
-        overallLength += p.length();
+        segmentLengths.push_back( length( p ) );
+        overallLength += length( p );
     }
 
     float x = 12;

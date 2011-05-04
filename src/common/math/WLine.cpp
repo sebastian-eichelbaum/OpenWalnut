@@ -35,7 +35,7 @@
 #include "../WStringUtils.h"
 #include "WLine.h"
 #include "WPolynomialEquationSolvers.h"
-#include "WPosition.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 
 WLine::WLine( const std::vector< WPosition > &points )
     : WMixinVector< WPosition >( points )
@@ -63,13 +63,13 @@ void WLine::reverseOrder()
 
 double pathLength( const WLine& line )
 {
-    double length = 0;
+    double len = 0;
     // incase of size() <= 1 the for loop will not run!
     for( size_t i = 1; i < line.size(); ++i )
     {
-        length += ( line[i - 1] - line[i] ).norm();
+        len += length( line[i - 1] - line[i] );
     }
-    return length;
+    return len;
 }
 
 void WLine::resampleByNumberOfPoints( size_t numPoints )
@@ -85,14 +85,14 @@ void WLine::resampleByNumberOfPoints( size_t numPoints )
         newLine.push_back( front() );
         for( size_t i = 0; i < ( size() - 1 ); ++i )
         {
-            remainingLength += ( at( i ) - at( i + 1 ) ).norm();
+            remainingLength += length( at( i ) - at( i + 1 ) );
             while( ( remainingLength > newSegmentLength ) || std::abs( remainingLength - newSegmentLength ) < delta )
             {
                 remainingLength -= newSegmentLength;
                 // TODO(math): fix numerical issuses: newSegmentLength may be wrong => great offset by many intraSegment sample points
                 //                                    remainingLength may be wrong => ...
                 //                                    Take a look at the unit test testNumericalStabilityOfResampling
-                WPosition newPoint = at( i + 1 ) + remainingLength * ( at( i ) - at( i + 1 ) ).normalized();
+                WPosition newPoint = at( i + 1 ) + remainingLength * normalize( at( i ) - at( i + 1 ) );
                 newLine.push_back( newPoint );
                 // std::cout << "line size so far" << newLine.size() << " lenght so far: " << newLine.pathLength() << std::endl;
                 // std::cout << numPoints - newLine.size() << std::endl;
@@ -132,7 +132,7 @@ void WLine::removeAdjacentDuplicates()
     newLine.push_back( front() );
     for( const_iterator cit = begin()++; cit != end(); ++cit )
     {
-        if( ( *cit - newLine.back() ).norm() > wlimits::DBL_EPS )
+        if( length( *cit - newLine.back() ) > wlimits::DBL_EPS )
         {
             newLine.push_back( *cit );
         }
@@ -153,14 +153,14 @@ void WLine::resampleBySegmentLength( double newSegmentLength )
     newLine.push_back( front() );
     for( size_t i = 1; i < size(); )
     {
-        if( ( newLine.back() - ( *this )[i] ).norm() > newSegmentLength )
+        if( length( newLine.back() - ( *this )[i] ) > newSegmentLength )
         {
-            const WVector3D& pred = ( *this )[i - 1];
+            const WPosition& pred = ( *this )[i - 1];
             if( pred == newLine.back() )
             {
                 // Then there is no triangle and the old Segment Length is bigger as the new segment
                 // length
-                newLine.push_back( newLine.back() + ( ( *this )[i] - pred ).normalized() * newSegmentLength );
+                newLine.push_back( newLine.back() + normalize( ( *this )[i] - pred ) * newSegmentLength );
                 continue;
             }
             else // this is the general case, and the point we search is inbetween the pred and the current position
@@ -199,9 +199,9 @@ void WLine::resampleBySegmentLength( double newSegmentLength )
         }
         ++i;
     }
-    if( ( newLine.back() - ( *this )[size() - 1] ).norm() > newSegmentLength / 2.0 )
+    if( length( newLine.back() - ( *this )[size() - 1] ) > newSegmentLength / 2.0 )
     {
-        WVector3D direction = ( ( *this )[size() - 1] - newLine.back() ).normalized();
+        WVector3d direction = normalize( ( *this )[size() - 1] - newLine.back() );
         newLine.push_back( newLine.back() + direction * newSegmentLength );
     }
     this->WMixinVector< WPosition >::operator=( newLine );
@@ -239,7 +239,7 @@ double maxSegmentLength( const WLine& line )
     }
     for( size_t i = 0; i < line.size() - 1; ++i )
     {
-        result = std::max( result, ( line[i] - line[i+1] ).norm() );
+        result = std::max( result, static_cast< double >( length( line[i] - line[i+1] ) ) );
     }
     return result;
 }

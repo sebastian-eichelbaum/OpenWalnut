@@ -43,7 +43,7 @@ public:
 //     */
 //    void testSamplePointsFromCenter( void )
 //    {
-//        WPlane p( WVector3D( 0, 0, 1 ), WPosition( 1.5, 1.5, 1. ) );
+//        WPlane p( WVector3d( 0, 0, 1 ), WPosition( 1.5, 1.5, 1. ) );
 //        WGridRegular3D grid( 2, 2, 2, 1., 1., 1. );
 //        boost::shared_ptr< std::set< WPosition > > expected( new std::set< WPosition > );
 //        expected->insert( WPosition(   1,   1, 1 ) );
@@ -64,7 +64,7 @@ public:
      */
     void testFixedSampling( void )
     {
-        WPlane p( WVector3D( 0, 0, 1 ), WPosition( 1.5, 1.5, 1. ) );
+        WPlane p( WVector3d( 0, 0, 1 ), WPosition( 1.5, 1.5, 1. ) );
         boost::shared_ptr< std::set< WPosition > > expected( new std::set< WPosition > );
         expected->insert( WPosition(   1,   1, 1 ) );
         expected->insert( WPosition(   1, 1.5, 1 ) );

@@ -233,7 +233,7 @@ void WFiberCluster::elongateCenterLine() const
         {
             if( intersectPlaneLineNearCP( p, *cit, cutPoint ) )
             {
-                if( ( *cutPoint - p.getPosition() ).norm() < 20 )
+                if( length( *cutPoint - p.getPosition() ) < 20 )
                 {
 //                    avg += *cutPoint;
                     intersectingFibers++;
@@ -286,7 +286,7 @@ void WFiberCluster::elongateCenterLine() const
         {
             if( intersectPlaneLineNearCP( q, *cit, cutPoint ) )
             {
-                if( ( *cutPoint - q.getPosition() ).norm() < 20 )
+                if( length( *cutPoint - q.getPosition() ) < 20 )
                 {
 //                    avg += *cutPoint;
                     intersectingFibers++;
@@ -341,14 +341,14 @@ void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fib
     for( WDataSetFiberVector::iterator cit = fibs->begin() + 1; cit != fibs->end(); ++cit )
     {
         const WFiber& other = *cit;
-        double        distance = ( start - other.front() ).normSquare() +
-                                 ( m1 - other.at( other.size() * 1.0 / 3.0 ) ).normSquare() +
-                                 ( m2 - other.at( other.size() * 2.0 / 3.0 ) ).normSquare() +
-                                 ( end - other.back() ).normSquare();
-        double inverseDistance = ( start - other.back() ).normSquare() +
-                                 ( m1 - other.at( other.size() * 2.0 / 3.0 ) ).normSquare() +
-                                 ( m2 - other.at( other.size() * 1.0 / 3.0 ) ).normSquare() +
-                                 ( end - other.front() ).normSquare();
+        double        distance = length2( start - other.front() ) +
+                                 length2( m1 - other.at( other.size() * 1.0 / 3.0 ) ) +
+                                 length2( m2 - other.at( other.size() * 2.0 / 3.0 ) ) +
+                                 length2( end - other.back() );
+        double inverseDistance = length2( start - other.back() ) +
+                                 length2( m1 - other.at( other.size() * 2.0 / 3.0 ) ) +
+                                 length2( m2 - other.at( other.size() * 1.0 / 3.0 ) ) +
+                                 length2( end - other.front() );
         distance        /= 4.0;
         inverseDistance /= 4.0;
         if( inverseDistance < distance )

@@ -38,7 +38,6 @@
 
 #include "shaders/WGEPropertyUniform.h"
 #include "callbacks/WGEPropertyTransformationCallback.h"
-#include "../common/math/WMatrix.h"
 
 #include "WExportWGE.h"
 
@@ -172,7 +171,7 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture<
     wge::bindTexture< T >( node, osg::ref_ptr< T >( texture ), unit, prefix );
 
     // set the texture matrix to the stateset
-    osg::TexMat* texMat = new osg::TexMat( toOsgMatrixd( texture->transformation()->get() ) );
+    osg::TexMat* texMat = new osg::TexMat( texture->transformation()->get() );
     // use a callback to update the tex matrix if needed according to transformation property of texture
     texMat->setUpdateCallback( new WGEPropertyTransformationCallback< osg::StateAttribute, osg::TexMat >( texture->transformation() ) );
     node->getOrCreateStateSet()->setTextureAttributeAndModes( unit, texMat, osg::StateAttribute::ON );

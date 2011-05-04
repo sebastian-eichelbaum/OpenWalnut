@@ -37,7 +37,7 @@
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleInputData.h"
 
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
 class WPickHandler;
 

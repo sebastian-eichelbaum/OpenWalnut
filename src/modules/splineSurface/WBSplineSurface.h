@@ -27,7 +27,7 @@
 
 #include <vector>
 
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
 /**
  * A B-spline surface.
@@ -70,7 +70,7 @@ public:
      */
     WBSplineSurface( int order1,
                      int order2,
-                     std::vector< WVector3D > deBoorPoints,
+                     std::vector< WVector3d > deBoorPoints,
                      int numDeBoorPoints1,
                      int numDeBoorPoints2 );
     /**
@@ -86,7 +86,7 @@ public:
      */
     WBSplineSurface( int order1,
                      int order2,
-                     std::vector< WVector3D > deBoorPoints,
+                     std::vector< WVector3d > deBoorPoints,
                      int numDeBoorPoints1,
                      int numDeBoorPoints2,
                      std::vector<double> knots1,
@@ -100,7 +100,7 @@ public:
     /**
      * Returns the stored de Boor points.
      */
-    std::vector< WVector3D > getDeBoorPoints();
+    std::vector< WVector3d > getDeBoorPoints();
 
     /**
      * Returns the number of de Boor points in the first direction.
@@ -147,7 +147,7 @@ public:
      * \param numDeBoorPoints1 The number of de Boor points for the spline in the first direction.
      * \param numDeBoorPoints2 The number of de Boor points for the spline in the second direction.
      */
-    void setDeBoorPoints( std::vector< WVector3D > deBoorPoints, int numDeBoorPoints1, int numDeBoorPoints2 );
+    void setDeBoorPoints( std::vector< WVector3d > deBoorPoints, int numDeBoorPoints1, int numDeBoorPoints2 );
 
     /**
      * Sets new knots for the spline in the first direction.
@@ -180,7 +180,7 @@ public:
      * \param tResolution The resolution in the first direction.
      * \param uResolution The resolution in the second direction.
      */
-    void samplePoints( std::vector< WVector3D > *points, double tResolution, double uResolution );
+    void samplePoints( std::vector< WVector3d > *points, double tResolution, double uResolution );
 
 private:
     /**
@@ -188,7 +188,7 @@ private:
      * \param t parameter for first direction.
      * \param u parameter for second direction.
      */
-    WVector3D f( double t, double u );
+    WVector3d f( double t, double u );
 
     int m_order1; //!< order for the spline in the first direction.
     int m_order2; //!< order for the spline in the second direction.
@@ -197,7 +197,7 @@ private:
     int m_numSamplePointsT; //!< The number of sample points in the first direction that were used for the last call to samplePoints().
     int m_numSamplePointsU; //!< The number of sample points in the second direction that were used for the last call to samplePoints().
 
-    std::vector< WVector3D > m_deBoorPoints; //!< The de Boor points of the splines.
+    std::vector< WVector3d > m_deBoorPoints; //!< The de Boor points of the splines.
 
     std::vector<double> m_knots1; //!< The knots of the spline in the first direction.
     std::vector<double> m_knots2; //!< The knots of the spline in the second direction.

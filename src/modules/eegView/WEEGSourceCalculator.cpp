@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../common/WAssert.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../dataHandler/WEEG2.h"
 #include "../../dataHandler/WEEGChannelInfo.h"
 #include "../../dataHandler/exceptions/WDHException.h"

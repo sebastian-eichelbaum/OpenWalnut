@@ -64,7 +64,7 @@ public:
 
         bool success = false;
 
-        TS_ASSERT_EQUALS( ds.interpolate( WPosition(), &success ), ( *data )[0] );
+        TS_ASSERT_EQUALS( ds.interpolate( WPosition::zero(), &success ), ( *data )[0] );
         TS_ASSERT( success );
         TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 0, 0 ), &success ), ( *data )[1], 1e-9 );
         TS_ASSERT( success );

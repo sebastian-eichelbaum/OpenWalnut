@@ -24,6 +24,7 @@
 
 #include <string>
 #include <utility>
+#include <cmath>
 
 #include <osg/Geode>
 #include <osg/Group>
@@ -173,6 +174,50 @@ osg::ref_ptr< osg::Image > genWhiteNoise( size_t resX )
     return randImage;
 }
 
+/**
+ * Example TF generator. This will be extended with some strategy-pattern later.
+ *
+ * \return TF as image.
+ */
+osg::ref_ptr< osg::Image > genTF()
+{
+    const size_t resX = 256;
+    osg::ref_ptr< osg::Image > tfImage = new osg::Image();
+    tfImage->allocateImage( resX, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE );
+    unsigned char *tf = tfImage->data();
+    for( size_t x = 0; x < resX; ++x )
+    {
+        if ( x > 127 )
+        {
+            double i = ( static_cast< double >( x - 128 ) / 128.0 ) * 2.0 * 15.0;
+            size_t imod = fmod( i, 2 );
+            std::cout << imod << std::endl;
+            if ( imod == 0 )
+            {
+                tf[ 4 * x + 0 ] = 255;
+                tf[ 4 * x + 1 ] = 86;
+                tf[ 4 * x + 2 ] = 86;
+                tf[ 4 * x + 3 ] = 127;
+            }
+            else
+            {
+                tf[ 4 * x + 0 ] = 255;
+                tf[ 4 * x + 1 ] = 191;
+                tf[ 4 * x + 2 ] = 0;
+                tf[ 4 * x + 3 ] = 64;
+            }
+        }
+        if ( x <= 127 )
+        {
+            tf[ 4 * x + 0 ] = 0;
+            tf[ 4 * x + 1 ] = 94;
+            tf[ 4 * x + 2 ] = 255;
+            tf[ 4 * x + 3 ] = 2 * ( 127 - x );
+        }
+    }
+    return tfImage;
+}
+
 void WMDirectVolumeRendering::moduleMain()
 {
     m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMDirectVolumeRendering", m_localPath ) );
@@ -269,7 +314,7 @@ void WMDirectVolumeRendering::moduleMain()
             cube->asTransform()->getChild( 0 )->setName( "_DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
                                                                               // because of the underscore in front it won't be picked
             // we also set the grid's transformation here
-            rootNode->setMatrix( wge::toOSGMatrix( grid->getTransformationMatrix() ) );
+            rootNode->setMatrix( static_cast< WMatrix4d >( grid->getTransform() ) );
 
             m_shader->apply( cube );
 

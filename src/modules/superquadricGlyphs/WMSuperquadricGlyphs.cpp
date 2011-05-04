@@ -467,7 +467,7 @@ void WMSuperquadricGlyphs::moduleMain()
             m_zPos->setMax( m_maxZ );
             m_zPos->set( m_maxZ / 2 );
 
-            m_output->setMatrix( m_dataSetGrid->getTransform() );
+            m_output->setMatrix( static_cast< WMatrix4d >( m_dataSetGrid->getTransform() ) );
 
             // new data -> update OSG Stuff
             initOSG();

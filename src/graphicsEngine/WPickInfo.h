@@ -28,8 +28,7 @@
 #include <string>
 #include <utility>
 
-#include "../common/math/WPosition.h"
-#include "../common/math/WVector3D.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WDefines.h"
 #include "WExportWGE.h"
 
@@ -82,7 +81,7 @@ public:
                       std::pair< float, float > pixelCoords,
                       modifierKey modKey,
                       WMouseButton mButton = WPickInfo::MOUSE_LEFT,
-                      WVector3D pickNormal = WVector3D() );
+                      WVector3d pickNormal = WVector3d() );
 
     /**
      * Creates an object with the empty name, zero position and no modkey.
@@ -130,19 +129,14 @@ public:
     /**
      * Get normal at position where object was hit.
      */
-    inline WVector3D getPickNormal() const;
-
-    /**
-     * Get pixel coordinates where object was hit.
-     */
-    OW_API_DEPRECATED inline std::pair< float, float > getPickPixelPosition() const;
+    inline WVector3d getPickNormal() const;
 
     /**
      * Returns the picked pixel coordinates in screen-space.
      *
      * \return the coordinates
      */
-    inline WVector2D_2 getPickPixel() const;
+    inline WVector2d getPickPixel() const;
 
     /**
      * Tests two pick infos for equality
@@ -165,7 +159,7 @@ private:
     std::pair< float, float > m_pixelCoords; //!< Pixel coordinates of the mouse.
     modifierKey m_modKey; //!< modifier key associated with the pick
     WMouseButton m_mouseButton; //!< which mouse button was used for the pick
-    WVector3D m_pickNormal; //!< normal at position where object was hit.
+    WVector3d m_pickNormal; //!< normal at position where object was hit.
 };
 
 WPickInfo::WPickInfo( std::string name,
@@ -174,7 +168,7 @@ WPickInfo::WPickInfo( std::string name,
                       std::pair< float, float > pixelCoords,
                       modifierKey modKey,
                       WMouseButton mButton,
-                      WVector3D pickNormal ) :
+                      WVector3d pickNormal ) :
     m_name( name ),
     m_viewerName( viewerName ),
     m_pickPosition( pickPosition ),
@@ -230,14 +224,9 @@ WPosition WPickInfo::getPickPosition() const
     return m_pickPosition;
 }
 
-WVector3D WPickInfo::getPickNormal() const
+WVector3d WPickInfo::getPickNormal() const
 {
     return m_pickNormal;
-}
-
-std::pair< float, float > WPickInfo::getPickPixelPosition() const
-{
-    return m_pixelCoords;
 }
 
 inline bool WPickInfo::operator==( WPickInfo rhs ) const
@@ -252,9 +241,12 @@ inline bool WPickInfo::operator!=( WPickInfo rhs ) const
     return !( *this == rhs );
 }
 
-inline WVector2D_2 WPickInfo::getPickPixel() const
+inline WVector2d WPickInfo::getPickPixel() const
 {
-    return WVector2D_2( m_pixelCoords.first, m_pixelCoords.second );
+    WVector2d v;
+    v[0] = m_pixelCoords.first;
+    v[1] = m_pixelCoords.second;
+    return v;
 }
 
 #endif  // WPICKINFO_H

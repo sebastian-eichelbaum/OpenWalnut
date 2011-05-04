@@ -113,8 +113,8 @@ void setVertices( osg::Vec3Array* vertices, WPosition minPos, WPosition maxPos )
 WROIBox::WROIBox( WPosition minPos, WPosition maxPos ) :
     WROI(),
     boxId( maxBoxId++ ),
-    m_pickNormal( WVector3D() ),
-    m_oldPixelPosition( std::make_pair( 0, 0 ) ),
+    m_pickNormal( WVector3d() ),
+    m_oldPixelPosition( WVector2d::zero() ),
     m_color( osg::Vec4( 0.f, 1.f, 1.f, 0.4f ) ),
     m_notColor( osg::Vec4( 1.0f, 0.0f, 0.0f, 0.4f ) )
 {
@@ -222,26 +222,26 @@ void WROIBox::updateGFX()
     ss << "ROIBox" << boxId << "";
     if ( m_pickInfo.getName() == ss.str() )
     {
-        std::pair< float, float > newPixelPos( m_pickInfo.getPickPixelPosition() );
+        WVector2d newPixelPos( m_pickInfo.getPickPixel() );
         if ( m_isPicked )
         {
-            osg::Vec3 in( newPixelPos.first, newPixelPos.second, 0.0 );
+            osg::Vec3 in( newPixelPos.x(), newPixelPos.y(), 0.0 );
             osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
 
             WPosition newPixelWorldPos( world[0], world[1], world[2] );
             WPosition oldPixelWorldPos;
-            if(  m_oldPixelPosition.first == 0 && m_oldPixelPosition.second == 0 )
+            if(  m_oldPixelPosition.x() == 0 && m_oldPixelPosition.y() == 0 )
             {
                 oldPixelWorldPos = newPixelWorldPos;
             }
             else
             {
-                osg::Vec3 in( m_oldPixelPosition.first, m_oldPixelPosition.second, 0.0 );
+                osg::Vec3 in( m_oldPixelPosition.x(), m_oldPixelPosition.y(), 0.0 );
                 osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
                 oldPixelWorldPos = WPosition( world[0], world[1], world[2] );
             }
 
-            WVector3D moveVec = newPixelWorldPos - oldPixelWorldPos;
+            WVector3d moveVec = newPixelWorldPos - oldPixelWorldPos;
 
             osg::ref_ptr<osg::Vec3Array> vertices = osg::ref_ptr<osg::Vec3Array>( new osg::Vec3Array );
 
@@ -250,11 +250,11 @@ void WROIBox::updateGFX()
             {
                 if( m_pickNormal[0] <= 0 && m_pickNormal[1] <= 0 && m_pickNormal[2] <= 0 )
                 {
-                    m_maxPos += m_pickNormal * ( moveVec * m_pickNormal );
+                    m_maxPos += m_pickNormal * dot( moveVec, m_pickNormal );
                 }
                 if( m_pickNormal[0] >= 0 && m_pickNormal[1] >= 0 && m_pickNormal[2] >= 0 )
                 {
-                    m_minPos += m_pickNormal * ( moveVec * m_pickNormal );
+                    m_minPos += m_pickNormal * dot( moveVec, m_pickNormal );
                 }
 
                 setVertices( vertices, m_minPos, m_maxPos );
@@ -314,7 +314,7 @@ void WROIBox::updateGFX()
             colors->push_back( m_color );
         }
         m_surfaceGeometry->setColorArray( colors );
-        m_pickNormal = WVector3D();
+        m_pickNormal = WVector3d();
         m_isPicked = false;
     }
 

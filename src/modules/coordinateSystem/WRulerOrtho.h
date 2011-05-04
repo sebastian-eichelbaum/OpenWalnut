@@ -29,7 +29,7 @@
 
 #include <osgText/Text>
 
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WCoordConverter.h"
 #include "WRuler.h"
@@ -82,8 +82,8 @@ private:
 
     bool m_showNumbers; //!< flag to indicate wether to show number labels
 
-    WVector3D m_lb; //!< = m_coordConverter->getBoundingBox().first;
-    WVector3D m_ub; //!< = m_coordConverter->getBoundingBox().second;
+    WVector3d m_lb; //!< = m_coordConverter->getBoundingBox().first;
+    WVector3d m_ub; //!< = m_coordConverter->getBoundingBox().second;
 
 
     /**

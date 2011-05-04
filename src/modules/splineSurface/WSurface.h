@@ -60,7 +60,7 @@ public:
      *
      * \return points
      */
-    std::vector< WVector3D > getSplinePoints();
+    std::vector< WVector3d > getSplinePoints();
 
     /**
      * SEts the sample rate for the splines.
@@ -74,7 +74,7 @@ public:
      * \param supportPoints vector of support points
      * \param forceUpdate if true the surface will be updated with the new support points
      */
-    void setSupportPoints( std::vector< WVector3D> supportPoints, bool forceUpdate = false );
+    void setSupportPoints( std::vector< WVector3d> supportPoints, bool forceUpdate = false );
 
     /**
      * getter
@@ -89,7 +89,7 @@ private:
      * \param points vector of points
      * \return the matrix
      */
-    WTensorSym< 2, 3, double > getCovarianceMatrix( std::vector< WVector3D > points );
+    WTensorSym< 2, 3, double > getCovarianceMatrix( std::vector< WVector3d > points );
 
     /**
      * Calculates numRows*numCols deBoor points from given input points.
@@ -99,7 +99,7 @@ private:
      * \param numRows number of points in first direction of spline surface
      * \param numCols number of points in second direction of spline surface
      */
-    void getSplineSurfaceDeBoorPoints( std::vector< WVector3D > &givenPoints, std::vector< WVector3D > &deBoorPoints, int numRows, int numCols ); // NOLINT
+    void getSplineSurfaceDeBoorPoints( std::vector< WVector3d > &givenPoints, std::vector< WVector3d > &deBoorPoints, int numRows, int numCols ); // NOLINT
 
     boost::shared_ptr< WTriangleMesh > m_tMesh; //!< Triangle mesh of the surface
 
@@ -114,9 +114,9 @@ private:
     double m_yAverage; //!< global mean of y values for covariance matrix
     double m_zAverage; //!< global mean of z values for covariance matrix
 
-    std::vector< WVector3D > m_supportPoints; //!< stores the support points
+    std::vector< WVector3d > m_supportPoints; //!< stores the support points
 
-    std::vector< WVector3D > m_splinePoints; //!< stores the input points ????
+    std::vector< WVector3d > m_splinePoints; //!< stores the input points ????
 
     int m_renderpointsPerCol; //!< resolution of the output mesh
     int m_renderpointsPerRow; //!< resolution of the output mesh

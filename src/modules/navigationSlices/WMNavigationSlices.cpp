@@ -123,8 +123,8 @@ void WMNavigationSlices::initOSG()
 
     // grab the current bounding box
     WBoundingBox bb = WGEColormapping::instance()->getBoundingBox();
-    WVector3D minV = bb.getMin();
-    WVector3D maxV = bb.getMax();
+    WVector3d minV = bb.getMin();
+    WVector3d maxV = bb.getMax();
 
     // update the properties
     m_xPos->setMin( minV[0] );
@@ -235,19 +235,19 @@ void WMNavigationSlices::PickCallback::pick( WPickInfo pickInfo )
 {
     if ( pickInfo.getName() == m_node->getName() )
     {
-        WVector3D normal = pickInfo.getPickNormal();
-        WVector2D_2 newPixelPos = pickInfo.getPickPixel();
+        WVector3d normal = pickInfo.getPickNormal();
+        WVector2d newPixelPos = pickInfo.getPickPixel();
         // dragging was initialized earlier
         if ( m_isPicked )
         {
-            osg::Vec3 startPosScreen( m_oldPixelPosition( 0 ), m_oldPixelPosition( 1 ), 0.0 );
-            osg::Vec3 endPosScreen( newPixelPos( 0 ), newPixelPos( 1 ), 0.0 );
+            osg::Vec3 startPosScreen( m_oldPixelPosition[ 0 ], m_oldPixelPosition[ 1 ], 0.0 );
+            osg::Vec3 endPosScreen( newPixelPos[ 0 ], newPixelPos[ 1 ], 0.0 );
 
             osg::Vec3 startPosWorld = wge::unprojectFromScreen( startPosScreen, m_camera );
             osg::Vec3 endPosWorld = wge::unprojectFromScreen( endPosScreen, m_camera );
 
             osg::Vec3 moveDirWorld = endPosWorld - startPosWorld;
-            float diff = normal * moveDirWorld;
+            float diff = moveDirWorld * static_cast< osg::Vec3 >( normal );
 
             m_property->set( m_property->get() + m_dir * diff );
         }

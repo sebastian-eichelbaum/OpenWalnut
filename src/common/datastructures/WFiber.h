@@ -28,7 +28,7 @@
 #include <vector>
 
 #include "../math/WLine.h"
-#include "../math/WPosition.h"
+#include "../math/linearAlgebra/WLinearAlgebra.h"
 #include "../WExportCommon.h"
 
 class WFiberTest;

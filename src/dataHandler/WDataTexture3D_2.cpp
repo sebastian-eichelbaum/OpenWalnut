@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../common/math/WMatrix.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WValueSet.h"
 
@@ -49,19 +49,19 @@ WDataTexture3D_2::WDataTexture3D_2( boost::shared_ptr< WValueSetBase > valueSet,
     threshold()->set( valueSet->getMinimumValue() );
 
     // Scale according to bbox. This scaling is NOT included in the grid's transform, so we need to add it here
-    WMatrix4x4_2 scale = WMatrix4x4_2::Zero();
+    WMatrix4d scale = WMatrix4d::zero();
     scale( 0, 0 ) = 1.0 / grid->getNbCoordsX();
     scale( 1, 1 ) = 1.0 / grid->getNbCoordsY();
     scale( 2, 2 ) = 1.0 / grid->getNbCoordsZ();
     scale( 3, 3 ) = 1.0;
 
     // Move to voxel center. This scaling is NOT included in the grid's transform, so we need to add it here
-    WMatrix4x4_2 offset = WMatrix4x4_2::Identity();
+    WMatrix4d offset = WMatrix4d::identity();
     offset( 0, 3 ) = 0.5 / grid->getNbCoordsX();
     offset( 1, 3 ) = 0.5 / grid->getNbCoordsY();
     offset( 2, 3 ) = 0.5 / grid->getNbCoordsZ();
 
-    transformation()->set( offset * scale * static_cast< WMatrix4x4_2 >( grid->getTransform() ).inverse() );
+    transformation()->set( offset * scale * invert( static_cast< WMatrix4d >( grid->getTransform() ) ) );
 
     // set the size
     WGETexture3D::initTextureSize( this, grid->getNbCoordsX(), grid->getNbCoordsY(), grid->getNbCoordsZ() );

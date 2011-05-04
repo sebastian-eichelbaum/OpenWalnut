@@ -26,11 +26,11 @@
 #define WGEUNIFORMTYPETRAITS_H
 
 #include <osg/Vec3>
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "../WExportWGE.h"
 
 class WItemSelector;
-class WVector3D;
 
 namespace wge
 {
@@ -64,10 +64,10 @@ namespace wge
     };
 
     /**
-     * Maps WVector3D/WPosition to osg::Vec3.
+     * Maps WVector3d/WPosition to osg::Vec3.
      */
     template<>
-    class WGE_EXPORT UniformType< WVector3D >
+    class WGE_EXPORT UniformType< WVector3d >
     {
     public:
         /**

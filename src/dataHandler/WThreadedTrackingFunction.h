@@ -30,7 +30,7 @@
 
 #include <boost/array.hpp>
 
-#include "../common/math/WVector3D.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WSharedObject.h"
 #include "../common/WThreadedJobs.h"
 #include "WExportDataHandler.h"
@@ -57,7 +57,7 @@ namespace wtracking // note that this is not final
     public:
 
         //! define a job type for tracking algorithms
-        typedef std::pair< WVector3D, WVector3D > JobType;
+        typedef std::pair< WVector3d, WVector3d > JobType;
 
         //! the dataset type
         typedef WDataSetSingle DataSetType;
@@ -66,7 +66,7 @@ namespace wtracking // note that this is not final
         typedef boost::shared_ptr< DataSetType const > DataSetPtr;
 
         //! a function that calculates a direction to continue tracking
-        typedef boost::function< WVector3D ( DataSetPtr, JobType const& ) > DirFunc;
+        typedef boost::function< WVector3d ( DataSetPtr, JobType const& ) > DirFunc;
 
         //! a pointer to a regular 3d grid
         // other grid types are not supported at the moment
@@ -95,7 +95,7 @@ namespace wtracking // note that this is not final
          *
          * \return true, iff the position is on any voxel boundary
          */
-        static bool onBoundary( Grid3DPtr grid, WVector3D const& pos );
+        static bool onBoundary( Grid3DPtr grid, WVector3d const& pos );
 
         /**
          * Calculate the distance from a given position to the nearest voxel boundary
@@ -109,7 +109,7 @@ namespace wtracking // note that this is not final
          *
          * \note pos + getDistanceToBoundary( grid, pos, dir ) * dir will be a position on a voxel boundary
          */
-        static double getDistanceToBoundary( Grid3DPtr grid, WVector3D const& pos, WVector3D const& dir );
+        static double getDistanceToBoundary( Grid3DPtr grid, WVector3d const& pos, WVector3d const& dir );
     };
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -166,10 +166,10 @@ namespace wtracking // note that this is not final
     typedef boost::function< bool ( DataSetPtr, JobType&, DirFunc const& ) > NextPositionFunc;
 
     //! a visitor function for fibers
-    typedef boost::function< void ( std::vector< WVector3D > const& ) > FiberVisitorFunc;
+    typedef boost::function< void ( std::vector< WVector3d > const& ) > FiberVisitorFunc;
 
     //! a visitor function type for points
-    typedef boost::function< void ( WVector3D const& ) > PointVisitorFunc;
+    typedef boost::function< void ( WVector3d const& ) > PointVisitorFunc;
 
     //! the base class, a threaded job function
     typedef WThreadedJobs< DataSetType, JobType > Base;

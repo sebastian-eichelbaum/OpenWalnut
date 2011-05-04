@@ -311,13 +311,13 @@ void WMClusterSlicer::generateSlices()
     m_rootNode->remove( m_samplePointsGeode );
     m_samplePointsGeode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode ); // discard old geode
 
-    WVector3D generator = ( centerLine.front() - midPoint( centerLine ) );
-    generator = generator.crossProduct( centerLine.back() - midPoint( centerLine ) );
+    WVector3d generator = ( centerLine.front() - midPoint( centerLine ) );
+    generator = cross( generator, centerLine.back() - midPoint( centerLine ) );
     for( size_t i = 1; i < centerLine.size(); ++i )
     {
-        WVector3D tangent = centerLine[i] - centerLine[i-1];
-        WVector3D first = tangent.crossProduct( generator );
-        WVector3D second = tangent.crossProduct( first );
+        WVector3d tangent = centerLine[i] - centerLine[i-1];
+        WVector3d first = cross( tangent, generator );
+        WVector3d second = cross( tangent, first );
         boost::shared_ptr< WPlane > p = boost::shared_ptr< WPlane >( new WPlane( tangent, centerLine[i-1], first, second ) );
 
         boost::shared_ptr< std::set< WPosition > > samplePoints = p->samplePoints( stepWidth, nbX, nbY  );
@@ -469,8 +469,8 @@ bool WMClusterSlicer::isInBetween( const WPosition& vertex, const PlanePair& pp 
 {
     const WPlane& p = ( *m_slices )[ pp.first ].second;
     const WPlane& q = ( *m_slices )[ pp.second ].second;
-    double r = p.getNormal().dotProduct( vertex - p.getPosition() );
-    double s = q.getNormal().dotProduct( vertex - q.getPosition() );
+    double r = dot( p.getNormal(), vertex - p.getPosition() );
+    double s = dot( q.getNormal(), vertex - q.getPosition() );
     if( signum( r ) != signum( s ) )
     {
         return true;
@@ -500,7 +500,7 @@ WMClusterSlicer::PlanePair WMClusterSlicer::closestPlanePair( const std::vector<
     {
         const WPlane& p = ( *m_slices )[ pp->first ].second;
         const WPlane& q = ( *m_slices )[ pp->second ].second;
-        double sqDistance = std::min( ( vertex - p.getPosition() ).normSquare(),  ( vertex - q.getPosition() ).normSquare() );
+        double sqDistance = std::min( length2( vertex - p.getPosition() ),  length2( vertex - q.getPosition() ) );
         if( minDistance > sqDistance )
         {
             minDistance = sqDistance;
@@ -511,10 +511,10 @@ WMClusterSlicer::PlanePair WMClusterSlicer::closestPlanePair( const std::vector<
     const WPlane& firstPlane = m_slices->front().second;
     const WPlane& lastPlane =  m_slices->back().second;
 
-    double distanceToFirst = firstPlane.getNormal().dotProduct( vertex - firstPlane.getPosition() );
-    double distanceToLast  = lastPlane.getNormal().dotProduct( vertex - lastPlane.getPosition() );
-    if( ( distanceToFirst < 0 && ( vertex - firstPlane.getPosition() ).normSquare() < minDistance ) ||
-        ( distanceToLast > 0 && ( vertex - lastPlane.getPosition() ).normSquare() < minDistance ) )
+    double distanceToFirst = dot( firstPlane.getNormal(), vertex - firstPlane.getPosition() );
+    double distanceToLast  = dot( lastPlane.getNormal(), vertex - lastPlane.getPosition() );
+    if( ( distanceToFirst < 0 && length2( vertex - firstPlane.getPosition() ) < minDistance ) ||
+        ( distanceToLast > 0 && length2( vertex - lastPlane.getPosition() ) < minDistance ) )
     {
         return std::make_pair( 0, 0 );
     }
@@ -526,8 +526,8 @@ WColor WMClusterSlicer::colorFromPlanePair( const WPosition& vertex, const Plane
 {
     const WPlane& p = ( *m_slices )[ pp.first ].second;
     const WPlane& q = ( *m_slices )[ pp.second ].second;
-    double distanceToP = std::abs( p.getNormal().dotProduct( vertex - p.getPosition() ) );
-    double distanceToQ = std::abs( q.getNormal().dotProduct( vertex - q.getPosition() ) );
+    double distanceToP = std::abs( dot( p.getNormal(), vertex - p.getPosition() ) );
+    double distanceToQ = std::abs( dot( q.getNormal(), vertex - q.getPosition() ) );
     // std::cout << "distP, distQ: " << distanceToP << " " << distanceToQ << std::endl;
     double colorP = ( *m_slices )[ pp.first ].first;
     double colorQ = ( *m_slices )[ pp.second ].first;

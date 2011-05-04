@@ -11,7 +11,7 @@
 #include "TensorField.h"
 #include "../fantom/FVector.h"
 #include "../../../common/WAssert.h"
-#include "../../../common/math/WPosition.h"
+#include "../../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../../dataHandler/WDataSetVector.h"
 #include "../../../dataHandler/WGridRegular3D.h"
 

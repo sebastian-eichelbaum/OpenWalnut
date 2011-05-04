@@ -86,7 +86,7 @@ public:
       /**
         * Gradients of all measurements (including )
         */
-      std::vector< WVector3D > m_gradients;
+      std::vector< WVector3d > m_gradients;
 
       /**
         * Pointer to progess indicator

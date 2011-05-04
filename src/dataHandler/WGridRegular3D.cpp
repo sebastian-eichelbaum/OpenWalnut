@@ -31,8 +31,9 @@
 #include "../common/math/WLinearAlgebraFunctions.h"
 #include "../common/WBoundingBox.h"
 #include "../common/WProperties.h"
-#include "WGridRegular3D.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
+#include "WGridRegular3D.h"
 
 WGridRegular3D::WGridRegular3D( unsigned int nbPosX, unsigned int nbPosY, unsigned int nbPosZ,
                                 WGridTransformOrtho const transform )
@@ -52,13 +53,13 @@ WPosition WGridRegular3D::getPosition( unsigned int i ) const
 
 WPosition WGridRegular3D::getPosition( unsigned int iX, unsigned int iY, unsigned int iZ ) const
 {
-    WVector3D i( iX, iY, iZ );
+    WVector3d i( iX, iY, iZ );
     return m_transform.positionToWorldSpace( i );
 }
 
-WVector3D WGridRegular3D::worldCoordToTexCoord( WPosition point )
+WVector3d WGridRegular3D::worldCoordToTexCoord( WPosition point )
 {
-    WVector3D r( m_transform.positionToGridSpace( point ) );
+    WVector3d r( m_transform.positionToGridSpace( point ) );
 
     // Scale to [0,1]
     r[0] = r[0] / m_nbPosX;
@@ -118,7 +119,7 @@ void WGridRegular3D::initInformationProperties()
     WPropDouble yOffset = m_infoProperties->addProperty( "Y offset: ", "The distance between samples in y direction", getOffsetY() );
     WPropDouble zOffset = m_infoProperties->addProperty( "Z offset: ", "The distance between samples in z direction", getOffsetZ() );
     WPropMatrix4X4 transformation = m_infoProperties->addProperty( "Transformation", "The transformation of this grid.",
-        static_cast< WMatrix4x4_2 >( getTransform() ) );
+        static_cast< WMatrix4d >( getTransform() ) );
 }
 
 int WGridRegular3D::getXVoxelCoord( const WPosition& pos ) const
@@ -127,27 +128,30 @@ int WGridRegular3D::getXVoxelCoord( const WPosition& pos ) const
     WPosition v = m_transform.positionToGridSpace( pos );
 
     // this part could be refactored into an inline function
-    v[ 2 ] = modf( v[ 0 ] + 0.5, &v[ 1 ] );
+    double d;
+    v[ 2 ] = modf( v[ 0 ] + 0.5, &d );
     int i = static_cast< int >( v[ 0 ] >= 0.0 && v[ 0 ] < m_nbPosX - 1.0 );
-    return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
+    return -1 + i * static_cast< int >( 1.0 + d );
 }
 
 int WGridRegular3D::getYVoxelCoord( const WPosition& pos ) const
 {
     WPosition v = m_transform.positionToGridSpace( pos );
 
-    v[ 0 ] = modf( v[ 1 ] + 0.5, &v[ 2 ] );
+    double d;
+    v[ 0 ] = modf( v[ 1 ] + 0.5, &d );
     int i = static_cast< int >( v[ 1 ] >= 0.0 && v[ 1 ] < m_nbPosY - 1.0 );
-    return -1 + i * static_cast< int >( 1.0 + v[ 2 ] );
+    return -1 + i * static_cast< int >( 1.0 + d );
 }
 
 int WGridRegular3D::getZVoxelCoord( const WPosition& pos ) const
 {
     WPosition v = m_transform.positionToGridSpace( pos );
 
-    v[ 0 ] = modf( v[ 2 ] + 0.5, &v[ 1 ] );
+    double d;
+    v[ 0 ] = modf( v[ 2 ] + 0.5, &d );
     int i = static_cast< int >( v[ 2 ] >= 0.0 && v[ 2 ] < m_nbPosZ - 1.0 );
-    return -1 + i * static_cast< int >( 1.0 + v[ 1 ] );
+    return -1 + i * static_cast< int >( 1.0 + d );
 }
 
 WValue< int > WGridRegular3D::getVoxelCoord( const WPosition& pos ) const
@@ -512,7 +516,7 @@ std::vector< size_t > WGridRegular3D::getNeighbours9XZ( size_t id ) const
 
 bool WGridRegular3D::encloses( WPosition const& pos ) const
 {
-    WVector3D v = m_transform.positionToGridSpace( pos );
+    WVector3d v = m_transform.positionToGridSpace( pos );
 
     if( v[ 0 ] < 0.0 || v[ 0 ] >= m_nbPosX - 1 )
     {

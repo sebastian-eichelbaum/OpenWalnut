@@ -30,7 +30,7 @@
 
 #include <boost/thread.hpp>
 
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WPickHandler.h"
 #include "WGEViewer.h"
 
@@ -83,8 +83,8 @@ private:
     WPosition m_maxPos; //!< The maximum position of the box
     bool m_isPicked; //!< Indicates whether the box is currently picked or not.
     WPosition m_pickedPosition; //!< Caches the old picked position to a allow for cmoparison
-    WVector3D m_pickNormal; //!< Store the normal that occured when the pick action was started.
-    std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
+    WVector3d m_pickNormal; //!< Store the normal that occured when the pick action was started.
+    WVector2d m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node
     osg::ref_ptr< osg::Geometry > m_surfaceGeometry; //!< store this pointer for use in updates
 

@@ -36,8 +36,7 @@
 #include "../../common/WProgress.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../kernel/WKernel.h"
-#include "../../common/math/WPosition.h"
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WMDataTypeConversion.h"
 #include "WMDataTypeConversion.xpm"
 

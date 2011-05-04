@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../common/exceptions/WOutOfBounds.h"
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WEEGPositionsLibrary.h"
 #include "WEEGChannelInfo.h"
 #include "exceptions/WDHException.h"

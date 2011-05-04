@@ -36,8 +36,7 @@
 #include "../WExportCommon.h"
 #include "WLine.h"
 #include "WPlane.h"
-#include "WPosition.h"
-#include "WVector3D.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Classes and functions of math module of OpenWalnut.

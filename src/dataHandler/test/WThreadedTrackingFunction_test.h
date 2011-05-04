@@ -57,18 +57,18 @@ public:
      */
     void testBoundary()
     {
-        WVector3D x( 0.707, 0.707, 0.0 );
-        WVector3D y( -0.707, 0.707, 0.0 );
-        WVector3D z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        WVector3d x( 0.707, 0.707, 0.0 );
+        WVector3d y( -0.707, 0.707, 0.0 );
+        WVector3d z( 0.0, 0.0, 1.0 );
+        x = normalize( x );
+        y = normalize( y );
 
-        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3D( 0.0, 1.0, 0.0 ) );
+        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 0.0, 1.0, 0.0 ) );
         // test the test
         TS_ASSERT( ds );
         boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
 
-        WVector3D v( 1.0, 0.0, 0.0 );
+        WVector3d v( 1.0, 0.0, 0.0 );
         v += x * -0.5;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, v ) );
         v[ 0 ] += 0.5 * TRACKING_EPS;
@@ -77,7 +77,7 @@ public:
         v[ 1 ] += 1.6 * TRACKING_EPS;
         TS_ASSERT( !wtracking::WTrackingUtility::onBoundary( g, v ) );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + x * 0.5;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + x * 0.5;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, v ) );
         v[ 0 ] -= 0.6 * TRACKING_EPS;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, v ) );
@@ -85,28 +85,28 @@ public:
         v[ 1 ] += 2.6 * TRACKING_EPS;
         TS_ASSERT( !wtracking::WTrackingUtility::onBoundary( g, v ) );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + y * 1.77 + z * 0.65;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + y * 1.77 + z * 0.65;
         TS_ASSERT( !wtracking::WTrackingUtility::onBoundary( g, v ) );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + y * 1.0 + z * 0.65;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + y * 1.0 + z * 0.65;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, v ) );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + x * 3.5 + y * 1.77 + z * 0.65;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + x * 3.5 + y * 1.77 + z * 0.65;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, v ) );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + x * 1.5 + y * 1.77 + z * 0.65;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + x * 1.5 + y * 1.77 + z * 0.65;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, v ) );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + x * 3.9 + y * 5.0 + z * 0.65;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + x * 3.9 + y * 5.0 + z * 0.65;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, v ) );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + x * 2.3 + y * 7.73 + z * 3.75;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + x * 2.3 + y * 7.73 + z * 3.75;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, v ) );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + x * 3.4 + y * 1.77 + z * 6.75;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + x * 3.4 + y * 1.77 + z * 6.75;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, v ) );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + x * 3.5 + y * 5.0 + z * 0.65;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + x * 3.5 + y * 5.0 + z * 0.65;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, v ) );
         v[ 1 ] -= 0.7 * TRACKING_EPS;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, v ) );
@@ -114,7 +114,7 @@ public:
         v[ 1 ] += 0.7 * TRACKING_EPS;
         TS_ASSERT( !wtracking::WTrackingUtility::onBoundary( g, v ) );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + x * 1.2 + y * 7.9 + z * 5.3;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + x * 1.2 + y * 7.9 + z * 5.3;
         TS_ASSERT( !wtracking::WTrackingUtility::onBoundary( g, v ) );
     }
 
@@ -123,35 +123,35 @@ public:
      */
     void testGetDistanceToBoundary()
     {
-        WVector3D x( 0.707, 0.707, 0.0 );
-        WVector3D y( -0.707, 0.707, 0.0 );
-        WVector3D z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        WVector3d x( 0.707, 0.707, 0.0 );
+        WVector3d y( -0.707, 0.707, 0.0 );
+        WVector3d z( 0.0, 0.0, 1.0 );
+        x = normalize( x );
+        y = normalize( y );
 
-        WVector3D v( 1.0, 0.0, 0.0 );
+        WVector3d v( 1.0, 0.0, 0.0 );
 
-        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3D( 0.0, 1.0, 0.0 ) );
+        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 0.0, 1.0, 0.0 ) );
         boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
 
         TS_ASSERT_DELTA( wtracking::WTrackingUtility::getDistanceToBoundary( g, v, x ), 0.5, TRACKING_EPS );
         TS_ASSERT_DELTA( wtracking::WTrackingUtility::getDistanceToBoundary( g, v, y ), 1.0, TRACKING_EPS );
         TS_ASSERT_DELTA( wtracking::WTrackingUtility::getDistanceToBoundary( g, v, z ), 0.75, TRACKING_EPS );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + x * 0.5;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + x * 0.5;
         TS_ASSERT_THROWS( wtracking::WTrackingUtility::getDistanceToBoundary( g, v, x ), WException );
 
         v -= x * 2.0 * TRACKING_EPS;
         TS_ASSERT_DELTA( wtracking::WTrackingUtility::getDistanceToBoundary( g, v, x ), 2.0 * TRACKING_EPS, TRACKING_EPS );
 
-        v = WVector3D( 2.9741, 3.527, 1.992 );
-        WVector3D dir( 3, 4, -2.003 );
-        dir.normalize();
+        v = WVector3d( 2.9741, 3.527, 1.992 );
+        WVector3d dir( 3, 4, -2.003 );
+        dir = normalize( dir );
         double t = wtracking::WTrackingUtility::getDistanceToBoundary( g, v, dir );
-        WVector3D res = v + dir * t;
+        WVector3d res = v + dir * t;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, res ) );
 
-        v = WVector3D( 1.0, 0.0, 0.0 ) + x * 3.75 + y * 6.65 + z * 5.59;
+        v = WVector3d( 1.0, 0.0, 0.0 ) + x * 3.75 + y * 6.65 + z * 5.59;
         TS_ASSERT_DELTA( wtracking::WTrackingUtility::getDistanceToBoundary( g, v, y ), 0.35, TRACKING_EPS );
     }
 
@@ -162,28 +162,28 @@ public:
     void testFollowToNextVoxel()
     {
         {
-            WVector3D x( 0.707, 0.707, 0.0 );
-            WVector3D y( -0.707, 0.707, 0.0 );
-            WVector3D z( 0.0, 0.0, 1.0 );
-            x.normalize();
-            y.normalize();
+            WVector3d x( 0.707, 0.707, 0.0 );
+            WVector3d y( -0.707, 0.707, 0.0 );
+            WVector3d z( 0.0, 0.0, 1.0 );
+            x = normalize( x );
+            y = normalize( y );
 
-            boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3D( 0.0, 1.0, 0.0 ) );
+            boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 0.0, 1.0, 0.0 ) );
             boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
 
             wtracking::WTrackingUtility::JobType j;
             // TODO(wiebel): somehow changing the order of the last multiplication does not find the desired operator*
-            j.first = WVector3D( 1.0, 0.0, 0.0 ) + ( x + y + z ) * ( wlimits::FLT_EPS + 0.7 ); // the starting point
+            j.first = WVector3d( 1.0, 0.0, 0.0 ) + ( x + y + z ) * ( wlimits::FLT_EPS + 0.7 ); // the starting point
             j.second = x; // initial direction
             TS_ASSERT( g->encloses( j.first ) );
 
-            WVector3D v = j.first;
+            WVector3d v = j.first;
 
             TS_ASSERT( wtracking::WTrackingUtility::followToNextVoxel( ds, j, boost::bind( &This::simpleDirFunc, this, _1, _2 ) ) );
             TS_ASSERT( !wtracking::WTrackingUtility::onBoundary( g, j.first ) );
             TS_ASSERT( g->encloses( j.first ) );
             v += x * 0.8;
-            TS_ASSERT_DELTA( ( j.first - v ).norm(), 0.0, 2.0 * TRACKING_EPS );
+            TS_ASSERT_DELTA( length( j.first - v ), 0.0, 2.0 * TRACKING_EPS );
         }
     }
 
@@ -194,10 +194,10 @@ private:
      *
      * \return A direction.
      */
-    WVector3D simpleDirFunc( wtracking::WTrackingUtility::DataSetPtr, wtracking::WTrackingUtility::JobType const& )
+    WVector3d simpleDirFunc( wtracking::WTrackingUtility::DataSetPtr, wtracking::WTrackingUtility::JobType const& )
     {
-        WVector3D v( 1.0, 1.0, 0.0 );
-        v.normalize();
+        WVector3d v( 1.0, 1.0, 0.0 );
+        v = normalize( v );
         return v;
     }
 
@@ -206,14 +206,14 @@ private:
      *
      * \param data The vector for every voxel.
      */
-    boost::shared_ptr< WDataSetSingle > buildTestData( WVector3D data )
+    boost::shared_ptr< WDataSetSingle > buildTestData( WVector3d data )
     {
-        WVector3D x( 0.707, 0.707, 0.0 );
-        WVector3D y( -0.707, 0.707, 0.0 );
-        WVector3D z( 0.0, 0.0, 1.0 );
+        WVector3d x( 0.707, 0.707, 0.0 );
+        WVector3d y( -0.707, 0.707, 0.0 );
+        WVector3d z( 0.0, 0.0, 1.0 );
 
-        x.normalize();
-        y.normalize();
+        x = normalize( x );
+        y = normalize( y );
 
         y *= 2.0;
         z *= 1.5;
@@ -234,7 +234,7 @@ private:
         WGridTransformOrtho t( mat );
         boost::shared_ptr< WGrid > g( new WGridRegular3D( 5, 5, 5, t ) );
 
-        data.normalize();
+        data = normalize( data );
 
         boost::shared_ptr< std::vector< double > > v = boost::shared_ptr< std::vector< double > >( new  std::vector< double > ( 5 * 5 * 5 * 3 ) );
         for( std::size_t k = 0; k < 5 * 5 * 5; ++k )
@@ -270,7 +270,7 @@ public:
         std::size_t numSeeds = 1;
         std::size_t seedsPerPosition = 1;
 
-        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3D( 1.0, 0.0, 0.0 ), 5 );
+        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 1.0, 0.0, 0.0 ), 5 );
         boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
         TS_ASSERT( g );
 
@@ -346,7 +346,7 @@ public:
         std::size_t numSeeds = 1;
         std::size_t seedsPerPosition = 1;
 
-        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3D( 1.0, 0.0, 0.0 ), 5 );
+        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 1.0, 0.0, 0.0 ), 5 );
         boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
         TS_ASSERT( g );
 
@@ -408,11 +408,11 @@ public:
      */
     void testIndexToJob()
     {
-        WVector3D x( 0.707, 0.707, 0.0 );
-        WVector3D y( -0.707, 0.707, 0.0 );
-        WVector3D z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        WVector3d x( 0.707, 0.707, 0.0 );
+        WVector3d y( -0.707, 0.707, 0.0 );
+        WVector3d z( 0.0, 0.0, 1.0 );
+        x = normalize( x );
+        y = normalize( y );
         y *= 2.0;
         z *= 1.5;
 
@@ -421,7 +421,7 @@ public:
         std::size_t numSeeds = 2;
         std::size_t seedsPerPosition = 1;
 
-        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3D( 1.0, 0.0, 0.0 ), 5 );
+        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 1.0, 0.0, 0.0 ), 5 );
         boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
         TS_ASSERT( g );
 
@@ -430,7 +430,7 @@ public:
             TS_ASSERT_THROWS_NOTHING( i = wtracking::WThreadedTrackingFunction::IndexType( g, v0, v1, numSeeds, seedsPerPosition ) );
 
             wtracking::WThreadedTrackingFunction::JobType job = i.job();
-            WVector3D v = g->getOrigin() + 0.75 * x + 0.75 * y + 0.75 * z;
+            WVector3d v = g->getOrigin() + 0.75 * x + 0.75 * y + 0.75 * z;
 
             std::cout << g->getOrigin() << std::endl;
 
@@ -476,7 +476,7 @@ public:
             TS_ASSERT_THROWS_NOTHING( i = wtracking::WThreadedTrackingFunction::IndexType( g, v0, v1, numSeeds, seedsPerPosition ) );
 
             wtracking::WThreadedTrackingFunction::JobType job;
-            WVector3D v = g->getOrigin() + 0.625 * x + 0.625 * y + 0.625 * z;
+            WVector3d v = g->getOrigin() + 0.625 * x + 0.625 * y + 0.625 * z;
             for( int k = 0; k < 11; ++k )
             {
                 job = i.job();
@@ -493,13 +493,13 @@ public:
      */
     void testInstantiation()
     {
-        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3D( 1.0, 0.0, 0.0 ), 5 );
+        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 1.0, 0.0, 0.0 ), 5 );
         boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
         TS_ASSERT( g );
 
         TS_ASSERT_THROWS_NOTHING(
                 wtracking::WThreadedTrackingFunction w( ds,
-                                                        boost::bind( &This::dirFunc, this, _1, _2, WVector3D( 1.0, 0.0, 0.0 ) ),
+                                                        boost::bind( &This::dirFunc, this, _1, _2, WVector3d( 1.0, 0.0, 0.0 ) ),
                                                         boost::bind( &wtracking::WTrackingUtility::followToNextVoxel, _1, _2, _3 ),
                                                         boost::bind( &This::fibVis, this, _1 ),
                                                         boost::bind( &This::pntVis, this, _1 ) ) );
@@ -510,11 +510,11 @@ public:
      */
     void testGetJob()
     {
-        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3D( 1.0, 0.0, 0.0 ), 7 );
+        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 1.0, 0.0, 0.0 ), 7 );
         boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
         TS_ASSERT( g );
 
-        wtracking::WThreadedTrackingFunction w( ds, boost::bind( &This::dirFunc, this, _1, _2, WVector3D( 1.0, 0.0, 0.0 ) ),
+        wtracking::WThreadedTrackingFunction w( ds, boost::bind( &This::dirFunc, this, _1, _2, WVector3d( 1.0, 0.0, 0.0 ) ),
                                                     boost::bind( &wtracking::WTrackingUtility::followToNextVoxel, _1, _2, _3 ),
                                                     boost::bind( &This::fibVis, this, _1 ),
                                                     boost::bind( &This::pntVis, this, _1 ) );
@@ -531,13 +531,13 @@ public:
      */
     void testCompute()
     {
-        WVector3D x( 0.707, 0.707, 0.0 );
-        WVector3D y( -0.707, 0.707, 0.0 );
-        WVector3D z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        WVector3d x( 0.707, 0.707, 0.0 );
+        WVector3d y( -0.707, 0.707, 0.0 );
+        WVector3d z( 0.0, 0.0, 1.0 );
+        x = normalize( x );
+        y = normalize( y );
 
-        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3D( 1.0, 0.0, 0.0 ), 7 );
+        boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d( 1.0, 0.0, 0.0 ), 7 );
         boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
         TS_ASSERT( g );
         {
@@ -573,13 +573,13 @@ private:
      *
      * \return The dataset.
      */
-    boost::shared_ptr< WDataSetSingle > buildTestData( WVector3D data, int n )
+    boost::shared_ptr< WDataSetSingle > buildTestData( WVector3d data, int n )
     {
-        WVector3D x( 0.707, 0.707, 0.0 );
-        WVector3D y( -0.707, 0.707, 0.0 );
-        WVector3D z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        WVector3d x( 0.707, 0.707, 0.0 );
+        WVector3d y( -0.707, 0.707, 0.0 );
+        WVector3d z( 0.0, 0.0, 1.0 );
+        x = normalize( x );
+        y = normalize( y );
         y *= 2.0;
         z *= 1.5;
 
@@ -599,7 +599,7 @@ private:
         WGridTransformOrtho t( mat );
         boost::shared_ptr< WGrid > g( new WGridRegular3D( n, n, n, t ) );
 
-        data.normalize();
+        data = normalize( data );
 
         boost::shared_ptr< std::vector< double > > v = boost::shared_ptr< std::vector< double > >( new  std::vector< double >( n * n * n * 3 ) );
         for( std::size_t k = 0; k < static_cast< std::size_t >( n * n * n ); ++k )
@@ -621,11 +621,11 @@ private:
      *
      * \return d
      */
-    WVector3D dirFunc( wtracking::WThreadedTrackingFunction::DataSetPtr,
+    WVector3d dirFunc( wtracking::WThreadedTrackingFunction::DataSetPtr,
                               wtracking::WThreadedTrackingFunction::JobType const& j,
-                              WVector3D d )
+                              WVector3d d )
     {
-        if( j.second.dotProduct( d ) > 0.0 )
+        if( dot( j.second, d ) > 0.0 )
         {
             return d;
         }
@@ -638,14 +638,14 @@ private:
     /**
      * The fiber visitor. Does nothing.
      */
-    void fibVis( std::vector< WVector3D > const& )
+    void fibVis( std::vector< WVector3d > const& )
     {
     }
 
     /**
      * The point visitor. Counts the number of points found.
      */
-    void pntVis( WVector3D const& )
+    void pntVis( WVector3d const& )
     {
         ++m_points.getWriteTicket()->get();
     }

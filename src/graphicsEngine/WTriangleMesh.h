@@ -31,7 +31,7 @@
 
 #include <osg/Geode>
 
-#include "../common/math/WVector3D.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WAssert.h"
 #include "../common/WColor.h"
 #include "../common/WTransferable.h"

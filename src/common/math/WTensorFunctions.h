@@ -39,18 +39,18 @@
 #include "WCompileTimeFunctions.h"
 #include "WTensor.h"
 #include "WTensorSym.h"
-#include "WVector3D.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 
 /**
  * An eigensystem has all eigenvalues as well as its corresponding eigenvectors. A RealEigenSystem is an EigenSystem where all
  * eigenvalues are real and not complex.
  */
-typedef boost::array< std::pair< double, WVector3D >, 3 > RealEigenSystem;
+typedef boost::array< std::pair< double, WVector3d >, 3 > RealEigenSystem;
 
 /**
  * An eigensystem has all eigenvalues as well its corresponding eigenvectors.
  */
-typedef boost::array< std::pair< std::complex< double >, WVector3D >, 3 > EigenSystem;
+typedef boost::array< std::pair< std::complex< double >, WVector3d >, 3 > EigenSystem;
 
 std::ostream& operator<<( std::ostream& os, const RealEigenSystem& sys )
 {
@@ -247,7 +247,7 @@ WTensor< 2, dim, Data_T > operator * ( TensorType1< 2, dim, Data_T > const& one,
  * \note If the gradient is not normalized, the result is undefined.
  */
 template< typename Data_T >
-double evaluateSphericalFunction( WTensorSym< 4, 3, Data_T > const& tens, WVector3D const& gradient )
+double evaluateSphericalFunction( WTensorSym< 4, 3, Data_T > const& tens, WVector3d const& gradient )
 {
     // use symmetry to reduce computation overhead
     // temporaries for some of the gradient element multiplications could further reduce
@@ -283,7 +283,7 @@ double evaluateSphericalFunction( WTensorSym< 4, 3, Data_T > const& tens, WVecto
  * \note If the gradient is not normalized, the result is undefined.
  */
 template< typename Data_T >
-double evaluateSphericalFunction( WTensorSym< 2, 3, Data_T > const& tens, WVector3D const& gradient )
+double evaluateSphericalFunction( WTensorSym< 2, 3, Data_T > const& tens, WVector3d const& gradient )
 {
     return gradient[ 0 ] * gradient[ 0 ] * tens( 0, 0 )
          + gradient[ 1 ] * gradient[ 1 ] * tens( 1, 1 )

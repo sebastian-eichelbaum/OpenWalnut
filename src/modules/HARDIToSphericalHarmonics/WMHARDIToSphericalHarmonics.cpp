@@ -41,7 +41,7 @@
 #include "../../common/math/WUnitSphereCoordinates.h"
 #include "../../common/math/WMatrix.h"
 #include "../../common/math/WSymmetricSphericalHarmonic.h"
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
@@ -149,7 +149,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             std::vector< size_t > validIndices;
             for ( size_t i = 0; i < m_dataSet->getNumberOfMeasurements(); i++ )
             {
-              const WVector3D& grad = m_dataSet->getGradient( i );
+              const WVector3d& grad = m_dataSet->getGradient( i );
               if ( (grad[0] != 0.0) || (grad[1] != 0.0) || (grad[2] != 0.0) )
                 validIndices.push_back( i );
               else
@@ -161,7 +161,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
 //             WAssert( S0Index != -1, "No entry with zero gradient. Can't get S0 (basis) signal." );
 
             // build vector with gradients != 0
-            std::vector< WVector3D > gradients;
+            std::vector< WVector3d > gradients;
             for ( std::vector< size_t >::const_iterator it = validIndices.begin(); it != validIndices.end(); it++ )
               gradients.push_back( m_dataSet->getGradient( *it ) );
 
@@ -263,8 +263,8 @@ void WMHARDIToSphericalHarmonics::moduleMain()
 
                 boost::shared_ptr< WDataSetRawHARDI > newResidualData =
                           boost::shared_ptr< WDataSetRawHARDI >( new WDataSetRawHARDI( residualsData, m_dataSet->getGrid(),
-                                                                                       boost::shared_ptr< std::vector< WVector3D > >(
-                                                                                           new std::vector< WVector3D >( gradients ) ) ) );
+                                                                                       boost::shared_ptr< std::vector< WVector3d > >(
+                                                                                           new std::vector< WVector3d >( gradients ) ) ) );
                 m_outputResiduals->updateData( newResidualData );
             }
         }

@@ -32,7 +32,7 @@
 #include <boost/thread.hpp>
 
 #include "../../kernel/WModule.h"
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WThreadedFunction.h"
 #include "../../dataHandler/WThreadedPerVoxelOperation.h"
 #include "../../dataHandler/WThreadedTrackingFunction.h"
@@ -139,7 +139,7 @@ private:
     typedef WValueSet< double > FloatValueSetType;
 
     //! the fiber type
-    typedef std::vector< WVector3D > FiberType;
+    typedef std::vector< WVector3d > FiberType;
 
     //! the threaded tracking functor
     typedef wtracking::WThreadedTrackingFunction Tracking;
@@ -179,7 +179,7 @@ private:
      *
      * \return The direction to follow.
      */
-    WVector3D getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
+    WVector3d getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
                                         wtracking::WTrackingUtility::JobType const& j );
 
     /**
@@ -192,7 +192,7 @@ private:
     /**
      * The point visitor. Does nothing.
      */
-    void pointVis( WVector3D const& );
+    void pointVis( WVector3d const& );
 
     /**
      * Reset the tracking function and abort the current one, if there is a current one.

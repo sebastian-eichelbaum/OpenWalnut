@@ -39,7 +39,7 @@
 
 #include "../../common/math/WLinearAlgebraFunctions.h"
 #include "../../common/math/WMath.h"
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WAssert.h"
 #include "../../common/WLimits.h"
 #include "../../common/WPathHelper.h"

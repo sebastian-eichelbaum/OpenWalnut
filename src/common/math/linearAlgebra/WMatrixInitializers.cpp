@@ -22,26 +22,5 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPOSITION_TEST_H
-#define WPOSITION_TEST_H
+#include "WMatrixInitializers.h"
 
-#include <cxxtest/TestSuite.h>
-#include "../WPosition.h"
-
-/**
- * Testsuite for WPosition.
- */
-class WPositionTest : public CxxTest::TestSuite
-{
-public:
-    /**
-     * Tests nothing as WPosition is only an alias for WVector3D.
-     * See the tests for WVector3D for methods testing the behavior.
-     */
-    void testNothing( void )
-    {
-        TS_TRACE( "Nothing to test for WPosition. See the tests of WVector3D." );
-    }
-};
-
-#endif  // WPOSITION_TEST_H

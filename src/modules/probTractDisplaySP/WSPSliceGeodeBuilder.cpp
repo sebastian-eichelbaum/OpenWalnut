@@ -27,7 +27,7 @@
 
 #include "../../common/datastructures/WFiber.h"
 #include "../../common/exceptions/WTypeMismatch.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WLogger.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "WSPSliceGeodeBuilder.h"

@@ -29,7 +29,7 @@
 #include <osg/Array>
 #include <osgUtil/DelaunayTriangulator>
 
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WGEGeometryUtils.h"
 #include "WGEUtils.h"
 #include "WTriangleMesh.h"
@@ -76,11 +76,10 @@ osg::Vec3 wge::getQuadNormal( const WPosition& a,
                               const WPosition& b,
                               const WPosition& c )
 {
-    WPosition vec1 = a - b;
-    WPosition vec2 = c - b;
-    WPosition normal = vec2.crossProduct( vec1 );
-    normal.normalize();
-    return normal;
+    WVector3d vec1 = a - b;
+    WVector3d vec2 = c - b;
+    WVector3d normal = cross( vec2, vec1 );
+    return normalize( normal );
 }
 
 osg::ref_ptr< osg::Vec3Array > wge::generateCuboidQuadNormals( const std::vector< WPosition >& corners )

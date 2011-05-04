@@ -25,7 +25,7 @@
 #ifndef WRASTERPARAMETERIZATION_H
 #define WRASTERPARAMETERIZATION_H
 
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/math/WValue.h"
 #include "../../common/math/WLine.h"
 #include "../../dataHandler/WGridRegular3D.h"

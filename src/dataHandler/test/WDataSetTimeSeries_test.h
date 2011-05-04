@@ -442,7 +442,7 @@ public:
         double h;
 
         // test invalid times
-        WVector3D pos( 1.0, 0.5, 1.0 );
+        WVector3d pos( 1.0, 0.5, 1.0 );
 
         TS_ASSERT_THROWS( h = ts.interpolate< double >( pos, -inf, &success ), WException );
         TS_ASSERT( !success );

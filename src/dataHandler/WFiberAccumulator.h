@@ -30,7 +30,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../common/math/WVector3D.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WDataSetFiberVector.h"
 #include "WDataSetFibers.h"
 #include "WExportDataHandler.h"
@@ -59,7 +59,7 @@ public:
      *
      * This function is threadsafe.
      */
-    void add( std::vector< WVector3D > const& in );
+    void add( std::vector< WVector3d > const& in );
 
     /**
      * Return the dataset that has been accumulated to this point

@@ -72,28 +72,28 @@ int WSelectionManager::getFrontSector()
 
     std::vector<float> dots( 8 );
     WPosition v2( 1, 1, 1 );
-    dots[0] = v2.dotProduct( view );
+    dots[0] = dot( v2, view );
 
     v2[2] = -1;
-    dots[1] = v2.dotProduct( view );
+    dots[1] = dot( v2, view );
 
     v2[1] = -1;
-    dots[2] = v2.dotProduct( view );
+    dots[2] = dot( v2, view );
 
     v2[2] = 1;
-    dots[3] = v2.dotProduct( view );
+    dots[3] = dot( v2, view );
 
     v2[0] = -1;
-    dots[4] = v2.dotProduct( view );
+    dots[4] = dot( v2, view );
 
     v2[2] = -1;
-    dots[5] = v2.dotProduct( view );
+    dots[5] = dot( v2, view );
 
     v2[1] = 1;
-    dots[6] = v2.dotProduct( view );
+    dots[6] = dot( v2, view );
 
     v2[2] = 1;
-    dots[7] = v2.dotProduct( view );
+    dots[7] = dot( v2, view );
 
     float max = 0.0;
     int quadrant = 0;

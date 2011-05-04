@@ -47,13 +47,21 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
     WPreferences::getPreference( "modules.whiteList", &moduleWhiteListString );
     std::vector< std::string > moduleWhiteList = string_utils::tokenize( moduleWhiteListString, "," );
 
+    // These modules will be forbidden to be shown.
+    std::string moduleBlackListString;
+    WPreferences::getPreference( "modules.blackList", &moduleBlackListString );
+    std::vector< std::string > moduleBlackList = string_utils::tokenize( moduleBlackListString, "," );
+
     // create an action for each group:
     for ( WCombinerTypes::WCompatiblesList::iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
     {
-        // check current prototype against whitelist
-        if( !ignoreWhiteList &&                 // ignore the whitelist?
+        // check current prototype against whitelist and blacklist
+        if(
+            !ignoreWhiteList &&                 // ignore the whitelist?
             moduleWhiteList.size() &&           // whitelist empty?
-            std::find( moduleWhiteList.begin(), moduleWhiteList.end(), groups->first->getName() ) == moduleWhiteList.end() )
+            ( ( std::find( moduleWhiteList.begin(), moduleWhiteList.end(), groups->first->getName() ) == moduleWhiteList.end() ) ||
+            ( std::find( moduleBlackList.begin(), moduleBlackList.end(), groups->first->getName() ) != moduleBlackList.end() ) )
+          )
         {
             continue;
         }

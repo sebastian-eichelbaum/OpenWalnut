@@ -32,7 +32,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/Vec3>
 
-#include "../common/math/WPosition.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../common/WPathHelper.h"
 #include "WGESubdividedPlane.h"
 #include "WGEGeodeUtils.h"
@@ -42,8 +42,8 @@
 
 osg::ref_ptr< osg::Geode > wge::generateBoundingBoxGeode( const WBoundingBox& bb, const WColor& color )
 {
-    const WPosition& pos1 = bb.getMin();
-    const WPosition& pos2 = bb.getMax();
+    const WBoundingBox::vec_type& pos1 = bb.getMin();
+    const WBoundingBox::vec_type& pos2 = bb.getMax();
 
     WAssert( pos1[0] <= pos2[0] && pos1[1] <= pos2[1] && pos1[2] <= pos2[2], "pos1 does not seem to be the frontLowerLeft corner of the BB!" );
     using osg::ref_ptr;

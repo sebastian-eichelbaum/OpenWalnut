@@ -63,9 +63,9 @@ public:
 
         bool success = false;
 
-        TS_ASSERT_EQUALS( ds.interpolate( WPosition(), &success )[0], ( *data )[0] );
-        TS_ASSERT_EQUALS( ds.interpolate( WPosition(), &success )[1], ( *data )[1] );
-        TS_ASSERT_EQUALS( ds.interpolate( WPosition(), &success )[2], ( *data )[2] );
+        TS_ASSERT_EQUALS( ds.interpolate( WPosition( 0, 0, 0 ), &success )[0], ( *data )[0] );
+        TS_ASSERT_EQUALS( ds.interpolate( WPosition( 0, 0, 0 ), &success )[1], ( *data )[1] );
+        TS_ASSERT_EQUALS( ds.interpolate( WPosition( 0, 0, 0 ), &success )[2], ( *data )[2] );
         TS_ASSERT( success );
         TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 0, 0 ), &success )[0], ( *data )[3], 1e-9 );
         TS_ASSERT_DELTA( ds.interpolate( WPosition( 1, 0, 0 ), &success )[1], ( *data )[4], 1e-9 );

@@ -35,7 +35,7 @@
 #include "HARDIToSphericalHarmonics.xpm"
 #include "../../common/WLimits.h"
 #include "../../common/WAssert.h"
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/math/WMatrix.h"
 
 #include "WSphericalHarmonicsCoefficientsThread.h"

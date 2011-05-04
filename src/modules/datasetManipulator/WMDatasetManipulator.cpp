@@ -347,7 +347,7 @@ void WMDatasetManipulator::manipulatorRotMoved()
         WPosition p2 = ( m_posRotCenter - m_posRot );
 
         osg::Matrixf rot;
-        rot.makeRotate( p2, p1 );
+        rot.makeRotate( p2.as< osg::Vec3f >(), p1.as< osg::Vec3f >() );
 
         // m_transform->rotate( rot, m_posRotCenter );
     } // write lock goes out of scope and is released

@@ -31,7 +31,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../WTriangleMesh.h"
 #include "WTriangleMeshTraits.h"
 
@@ -160,7 +160,7 @@ public:
 //        mesh.resizeTriangles( 1 );
 //        mesh.fastAddTriangle( 0, 2, 4 );
 //
-//        WVector3D expectedNormal( -0.40824829, 0.816496581, -0.40824829 );
+//        WVector3d expectedNormal( -0.40824829, 0.816496581, -0.40824829 );
 //
 //        double delta = 1e-7;
 //        TS_ASSERT_DELTA( mesh.getTriangleNormal( 0 )[0], expectedNormal[0], delta );
@@ -205,14 +205,14 @@ public:
 //        TS_ASSERT_EQUALS( mesh.m_triNormals.size(), 2 );
 //
 //        double delta = 1e-7;
-//        WVector3D expectedNormal( -0.40824829, 0.816496581, -0.40824829 );
-//        TS_ASSERT_DELTA( expectedNormal.norm(), 1, delta ); // check ouu expectance :-)
+//        WVector3d expectedNormal( -0.40824829, 0.816496581, -0.40824829 );
+//        TS_ASSERT_DELTA( length( expectedNormal ), 1, delta ); // check ouu expectance :-)
 //
-//        TS_ASSERT_DELTA( mesh.m_triNormals[0].norm(), 1, delta );
+//        TS_ASSERT_DELTA( length( mesh.m_triNormals[0] ), 1, delta );
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0][0], expectedNormal[0], delta );
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0][1], expectedNormal[1], delta );
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0][2], expectedNormal[2], delta );
-//        TS_ASSERT_DELTA( mesh.m_triNormals[1].norm(), 1, delta );
+//        TS_ASSERT_DELTA( length( mesh.m_triNormals[1] ), 1, delta );
 //    };
 //
 //    /**
@@ -254,14 +254,14 @@ public:
 //        mesh.computeVertNormals();
 //
 //        // what we expect
-//        WVector3D expectedNormal0( -0.40824829, 0.816496581, -0.40824829 );
-//        WVector3D expectedNormal1( -0.452271958, 0.814852852, -0.362580895 );
+//        WVector3d expectedNormal0( -0.40824829, 0.816496581, -0.40824829 );
+//        WVector3d expectedNormal1( -0.452271958, 0.814852852, -0.362580895 );
 //        double delta = 1e-7;
 //
 //        // check this triangle stuff too. We need the tri normals for the vert normals
 //        TS_ASSERT_EQUALS( mesh.m_computedTriNormals, true );
 //        TS_ASSERT_EQUALS( mesh.m_triNormals.size(), 2 );
-//        TS_ASSERT_DELTA( mesh.m_triNormals[0].norm(), 1, delta );
+//        TS_ASSERT_DELTA( length( mesh.m_triNormals[0] ), 1, delta );
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0][0], expectedNormal0[0], delta );
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0][1], expectedNormal0[1], delta );
 //        TS_ASSERT_DELTA( mesh.m_triNormals[0][2], expectedNormal0[2], delta );
@@ -282,7 +282,7 @@ public:
 //        TS_ASSERT_DELTA( mesh.m_vertNormals[1][2], expectedNormal1[2], delta );
 //
 //        // vertex 0 belongs to two triangles so it should have the average normal of the two triangles
-//        WVector3D expectedVertNormal = 0.5 * ( expectedNormal0 + expectedNormal1 );
+//        WVector3d expectedVertNormal = 0.5 * ( expectedNormal0 + expectedNormal1 );
 //        expectedVertNormal.normalize();
 //        TS_ASSERT_DELTA( mesh.m_vertNormals[0][0], expectedVertNormal[0], delta );
 //        TS_ASSERT_DELTA( mesh.m_vertNormals[0][1], expectedVertNormal[1], delta );

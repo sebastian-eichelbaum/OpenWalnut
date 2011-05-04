@@ -29,9 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-// forward declarations
-class WVector3D;
-typedef WVector3D WPosition;
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Adapter

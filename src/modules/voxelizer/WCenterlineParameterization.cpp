@@ -152,8 +152,8 @@ void WCenterlineParameterization::newLine( const WLine& line )
 void WCenterlineParameterization::newSegment( const WPosition& start, const WPosition& end )
 {
     double curLength = 0.0;                     // the accumulated length along the centerline
-    double bestDistStart = ( m_centerline->at( 0 ) - start ).norm();       // the currently best distance to the start point
-    double bestDistEnd   = ( m_centerline->at( 0 ) - end   ).norm();       // the currently best distance to the end point
+    double bestDistStart = length( m_centerline->at( 0 ) - start );       // the currently best distance to the start point
+    double bestDistEnd   = length( m_centerline->at( 0 ) - end   );       // the currently best distance to the end point
 
     // the currently best parameter of the centerline for this line segment
     m_currentStartParameter = 0.0;
@@ -162,16 +162,16 @@ void WCenterlineParameterization::newSegment( const WPosition& start, const WPos
     // for this line segment, find the best matching vertex in the centerline
     for( size_t i = 1; i < m_centerline->size(); ++i )
     {
-        curLength += ( m_centerline->at( i ) - m_centerline->at( i - 1 ) ).norm();
+        curLength += length( m_centerline->at( i ) - m_centerline->at( i - 1 ) );
 
         // compare current distance
-        double curDist = ( m_centerline->at( i ) - start ).norm();
+        double curDist = length( m_centerline->at( i ) - start );
         if ( bestDistStart >= curDist )
         {
             bestDistStart = curDist;
             m_currentStartParameter = curLength;
         }
-        curDist = ( m_centerline->at( i ) - end ).norm();
+        curDist = length( m_centerline->at( i ) - end );
         if ( bestDistEnd >= curDist )
         {
             bestDistEnd = curDist;

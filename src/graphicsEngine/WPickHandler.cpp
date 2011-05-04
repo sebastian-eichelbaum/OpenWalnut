@@ -266,7 +266,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         if(  m_startPick.getName() == "" )
         {
             pickInfo = WPickInfo( "nothing", m_viewerName, WPosition( 0.0, 0.0, 0.0 ), std::make_pair( x, y ),
-                                  m_startPick.getModifierKey(), m_mouseButton, WVector3D( 0.0, 0.0, 0.0 ) );
+                                  m_startPick.getModifierKey(), m_mouseButton, WVector3d( 0.0, 0.0, 0.0 ) );
 
             m_hitResult = pickInfo;
             m_pickSignal( getHitResult() );
@@ -283,7 +283,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
         pickPos[1] = hitr->getWorldIntersectPoint()[1];
         pickPos[2] = hitr->getWorldIntersectPoint()[2];
 
-        WVector3D pickNormal;
+        WVector3d pickNormal;
         pickNormal[0] = hitr->getWorldIntersectNormal()[0];
         pickNormal[1] = hitr->getWorldIntersectNormal()[1];
         pickNormal[2] = hitr->getWorldIntersectNormal()[2];

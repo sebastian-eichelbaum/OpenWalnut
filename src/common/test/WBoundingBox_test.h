@@ -47,7 +47,7 @@ public:
         WBoundingBox bb( 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
         WBoundingBox bb1( bb );
         WBoundingBox bb2;
-        WBoundingBox bb3( WVector3D( 0.0, 0.0, 0.0 ), WVector3D( 1.0, 1.0, 1.0 ) );
+        WBoundingBox bb3( WVector3d( 0.0, 0.0, 0.0 ), WVector3d( 1.0, 1.0, 1.0 ) );
         WBoundingBox bb4( osg::Vec3d( 0.0, 0.0, 0.0 ), osg::Vec3d( 1.0, 1.0, 1.0 ) );
         bb4.expandBy( bb3 );
         TS_ASSERT( bb4.intersects( bb3 ) );

@@ -26,7 +26,7 @@
 #include <vector>
 
 #include "../../common/WAssert.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/datastructures/WFiber.h"
 
 #include "WSimpleResampler.h"

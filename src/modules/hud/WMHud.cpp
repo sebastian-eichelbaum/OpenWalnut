@@ -221,7 +221,7 @@ void WMHud::updatePickText( WPickInfo pickInfo )
     os << std::setprecision( 5 )
        << "Name: " << pickInfo.getName() << "\n"
        << "Position: [" << pickInfo.getPickPosition()[0] << ", " << pickInfo.getPickPosition()[1] << ", " << pickInfo.getPickPosition()[2] << "]\n"
-       << "Pixel coordinates: "  << pickInfo.getPickPixelPosition().first << " " << pickInfo.getPickPixelPosition().second << "\n"
+       << "Pixel coordinates: "  << pickInfo.getPickPixel().x() << " " << pickInfo.getPickPixel().y() << "\n"
        << "Object Normal: [" << pickInfo.getPickNormal()[0] << ", " << pickInfo.getPickNormal()[1] << ", " << pickInfo.getPickNormal()[2] << "]\n";
 
     m_pickText = os.str();

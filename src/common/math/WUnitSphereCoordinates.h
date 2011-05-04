@@ -27,7 +27,7 @@
 
 #include <vector>
 
-#include "../../common/math/WVector3D.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WExportCommon.h"
 
 
@@ -55,7 +55,7 @@ public:
      * Constructor for Euclidean coordinates.
      * \param vector Euclidean coordinates
      */
-    explicit WUnitSphereCoordinates( WVector3D vector );
+    explicit WUnitSphereCoordinates( WVector3d vector );
 
     /**
      * Destructor.
@@ -87,7 +87,7 @@ public:
     /**
      * Returns the stored sphere coordinates as Euclidean coordinates.
      */
-    WVector3D getEuclidean() const;
+    WVector3d getEuclidean() const;
 
 protected:
 

@@ -26,7 +26,7 @@
 #define WCROSSHAIR_H
 
 #include <boost/shared_ptr.hpp>
-#include "../common/math/WVector3D.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WExportKernel.h"
 

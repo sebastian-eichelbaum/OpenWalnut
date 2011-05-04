@@ -1,5 +1,7 @@
 FILE( GLOB MATH_SRC "*.cpp" "*.h" )
 
+ADD_SUBDIRECTORY( linearAlgebra )
+
 #remove OSSIM Helper files from list, if it isn't found
 IF ( NOT OSSIM_FOUND )
     LIST( REMOVE_ITEM MATH_SRC ${CMAKE_CURRENT_SOURCE_DIR}/WOSSIMHelper.h )

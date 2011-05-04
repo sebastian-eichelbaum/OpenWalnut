@@ -302,8 +302,8 @@ void WMEEGView::moduleMain()
             if(  m_sourceCalculator )
             {
                 WPosition position = m_sourceCalculator->calculate( event );
-                m_roi = new WROIBox( position - WVector3D( 5.0, 5.0, 5.0 ),
-                                     position + WVector3D( 5.0, 5.0, 5.0 ) );
+                m_roi = new WROIBox( position - WVector3d( 5.0, 5.0, 5.0 ),
+                                     position + WVector3d( 5.0, 5.0, 5.0 ) );
                 WKernel::getRunningKernel()->getRoiManager()->addRoi( m_roi );
             }
             else

@@ -268,7 +268,7 @@ void WMArbitraryPlane::updatePlane()
 
     if ( p0 != m_p0 )
     {
-        WVector3D offset = p0 - m_p0;
+        WVector3d offset = p0 - m_p0;
         m_p0 = p0;
         m_s1->setPosition( m_s1->getPosition() + offset );
         m_s2->setPosition( m_s2->getPosition() + offset );

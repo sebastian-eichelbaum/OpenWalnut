@@ -25,9 +25,8 @@
 #ifndef WGRIDTRANSFORMORTHO_H
 #define WGRIDTRANSFORMORTHO_H
 
-#include "../common/math/WVector3D.h"
 #include "../common/math/WMatrix.h"
-#include "../common/math/WMatrix.h"
+#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WExportDataHandler.h"
 
@@ -69,28 +68,28 @@ public:
      * \param position The position in grid space.
      * \return The same position in world space.
      */
-    WVector3D positionToWorldSpace( WVector3D const& position ) const;
+    WVector3d positionToWorldSpace( WVector3d const& position ) const;
 
     /**
      * Transforms a position from world space to grid space.
      * \param position The position in world space.
      * \return The same position in grid space.
      */
-    WVector3D positionToGridSpace( WVector3D const& position ) const;
+    WVector3d positionToGridSpace( WVector3d const& position ) const;
 
     /**
      * Transforms a direction from grid space to world space.
      * \param direction The direction in grid space.
      * \return The same direction in world space.
      */
-    WVector3D directionToWorldSpace( WVector3D const& direction ) const;
+    WVector3d directionToWorldSpace( WVector3d const& direction ) const;
 
     /**
      * Transforms a direction from world space to grid space.
      * \param direction The position in world space.
      * \return The same position in grid space.
      */
-    WVector3D directionToGridSpace( WVector3D const& direction ) const;
+    WVector3d directionToGridSpace( WVector3d const& direction ) const;
 
     /**
      * Returns the distance between samples in x direction.
@@ -112,36 +111,36 @@ public:
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) x-axis.
      */
-    WVector3D getDirectionX() const;
+    WVector3d getDirectionX() const;
 
     /**
      * Returns the vector determining the direction of samples in y direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) y-axis.
      */
-    WVector3D getDirectionY() const;
+    WVector3d getDirectionY() const;
 
     /**
      * Returns the vector determining the direction of samples in z direction.
      * Adding this vector to a grid position in world coordinates yields the position of the next sample
      * along the grids (world coordinate) z-axis.
      */
-    WVector3D getDirectionZ() const;
+    WVector3d getDirectionZ() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in x direction.
      */
-    WVector3D getUnitDirectionX() const;
+    WVector3d getUnitDirectionX() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in y direction.
      */
-    WVector3D getUnitDirectionY() const;
+    WVector3d getUnitDirectionY() const;
 
     /**
      * Returns the vector determining the unit (normalized) direction of samples in z direction.
      */
-    WVector3D getUnitDirectionZ() const;
+    WVector3d getUnitDirectionZ() const;
 
     /**
      * Returns the position of the origin of the grid.
@@ -160,7 +159,7 @@ public:
      *
      * \return the matrix representing the transform
      */
-    operator WMatrix4x4_2() const;
+    operator WMatrix4d() const;
 
     /**
      * Check if this transform does not include a rotation.
@@ -187,19 +186,19 @@ public:
 
 private:
     //! normalized direction of the grid's x-axis in world coordinates
-    WVector3D m_directionX;
+    WVector3d m_directionX;
 
     //! normalized direction of the grid's y-axis in world coordinates
-    WVector3D m_directionY;
+    WVector3d m_directionY;
 
     //! normalized direction of the grid's z-axis in world coordinates
-    WVector3D m_directionZ;
+    WVector3d m_directionZ;
 
     //! the scaling factors for the 3 axes, i.e. the distance between samples
-    WVector3D m_scaling;
+    WVector3d m_scaling;
 
     //! the origin of the grid in world coordinates
-    WVector3D m_origin;
+    WVector3d m_origin;
 };
 
 template< typename VecType >

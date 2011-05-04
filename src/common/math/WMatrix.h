@@ -27,87 +27,19 @@
 
 #include <iostream>
 
-#include "WMatrix4x4.h"
+#include <osg/Matrix>
+
 #include "WValue.h"
-#include "WVector3D.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 
 #include "../WDefines.h"
-#include "../../ext/Eigen/Core"
-#include "../../ext/Eigen/LU"
-
-/**
- * A double 3 times 3 matrix. Stack-allocated. Column Major!
- *
- * Column Major indexes:
- * [0 3 6
- *  1 4 7
- *  2 5 8]
- * If you want to access coefficients using the operator( size_t, size_t ), the first parameter is still the row index, starting with 0.
- *
- * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
- * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
- */
-typedef Eigen::Matrix< double, 3, 3 > WMatrix3x3_2;
-
-/**
- * A double 4 times 4 matrix. Stack-allocated. Column Major!
- *
- * Column Major indexes:
- * [0 4 8  12
- *  1 5 9  13
- *  2 6 10 14
- *  3 7 11 15]
- * If you want to access coefficients using the operator( size_t, size_t ), the first parameter is still the row index, starting with 0.
- *
- * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
- * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
- */
-typedef Eigen::Matrix< double, 4, 4 > WMatrix4x4_2;
-
-/**
- * A double matrix of dynamic size. Heap-allocated. Column Major!
- * If you want to access coefficients using the operator( size_t, size_t ), the first parameter is still the row index, starting with 0.
- *
- * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
- * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
- */
-typedef Eigen::MatrixXd WMatrix_2;
-
-/**
- * A complex double matrix of dynamic size. Heap-allocated.
- * If you want to access coefficients using the operator( size_t, size_t ), the first parameter is still the row index, starting with 0.
- *
- * \see http://eigen.tuxfamily.org/dox/classEigen_1_1Matrix.html
- * \see http://eigen.tuxfamily.org/dox/classEigen_1_1MatrixBase.html
- */
-typedef Eigen::MatrixXcd WMatrixComplex_2;
-
-/**
- * Converts a given WMatrix4x4_2 to an osg matrix.
- *
- * \param m the matrix to convert
- *
- * \return the converted matrix
- */
-inline osg::Matrixd toOsgMatrixd( WMatrix4x4_2 m )
-{
-    osg::Matrixd m2;
-    for ( size_t row = 0; row < 4; ++row )
-    {
-        for ( size_t col = 0; col < 4; ++col )
-        {
-            m2( row, col ) = m( row, col );
-        }
-    }
-    return m2;
-}
 
 /**
  * Matrix template class with variable number of rows and columns.
  * The access function are row-major, which means that the rows
  * are the first parameter or index.
  */
-template< typename T > class OW_API_DEPRECATED WMatrix : public WValue< T >
+template< typename T > class WMatrix : public WValue< T >
 {
 public:
     /**
@@ -138,7 +70,7 @@ public:
      *
      * \param newMatrix the matrix to copy
      */
-    WMatrix( const WMatrix4x4& newMatrix ); // NOLINT
+    WMatrix( const WMatrix4d& newMatrix ); // NOLINT
 
     /**
      * Makes the matrix contain the identity matrix, i.e. 1 on the diagonal.
@@ -176,7 +108,14 @@ public:
      *
      * \return casted matrix
      */
-    operator WMatrix4x4() const;
+    operator WMatrix4d() const;
+
+    /**
+     * Cast this matrix to an 4x4 osg matrix if it is a 4x4 matrix.
+     *
+     * \return casted matrix.
+     */
+    operator osg::Matrixd() const;
 
     /**
      * Compares two matrices and returns true if they are equal.
@@ -212,7 +151,7 @@ public:
      * Multiplication with a vector.
      * \param rhs The right hand side of the multiplication
      */
-    WVector3D operator*( const WVector3D& rhs ) const;
+    WVector3d operator*( const WVector3d& rhs ) const;
 
     /**
      * Returns the transposed matrix.
@@ -246,7 +185,7 @@ template< typename T > WMatrix< T >::WMatrix( const WMatrix& newMatrix )
     m_nbCols = newMatrix.m_nbCols;
 }
 
-template< typename T > WMatrix< T >::WMatrix( const WMatrix4x4& newMatrix )
+template< typename T > WMatrix< T >::WMatrix( const WMatrix4d& newMatrix )
     : WValue< T >( 4 * 4 )
 {
     m_nbCols = 4;
@@ -259,11 +198,11 @@ template< typename T > WMatrix< T >::WMatrix( const WMatrix4x4& newMatrix )
     }
 }
 
-template< typename T > WMatrix< T >::operator WMatrix4x4() const
+template< typename T > WMatrix< T >::operator WMatrix4d() const
 {
     size_t nbRows = this->size() / m_nbCols;
     WAssert( m_nbCols == 4 && nbRows == 4, "This is no 4x4 matrix." );
-    WMatrix4x4 m;
+    WMatrix4d m;
     for( size_t i = 0; i < nbRows; ++i )
     {
         for( size_t j = 0; j < m_nbCols; ++j )
@@ -272,6 +211,30 @@ template< typename T > WMatrix< T >::operator WMatrix4x4() const
         }
     }
     return m;
+}
+
+template< typename T > WMatrix< T >::operator osg::Matrixd() const
+{
+    WAssert( ( getNbRows() == 3 || getNbRows() == 4 ) && ( getNbCols() == 3 || getNbCols() == 4 ),
+             "Only 3x3 or 4x4 matrices allowed." );
+
+    // handle 4x4 and 3x3 separately
+    if ( getNbRows() == 4 )
+    {
+        return osg::Matrixd( ( *this )[ 0 ], ( *this )[ 4 ], ( *this )[ 8 ], ( *this )[ 12 ],
+                             ( *this )[ 1 ], ( *this )[ 5 ], ( *this )[ 9 ], ( *this )[ 13 ],
+                             ( *this )[ 2 ], ( *this )[ 6 ], ( *this )[ 10 ], ( *this )[ 14 ],
+                             ( *this )[ 3 ], ( *this )[ 7 ], ( *this )[ 11 ], ( *this )[ 15 ]
+                           );
+    }
+    else
+    {
+        return osg::Matrixd( ( *this )[ 0 ], ( *this )[ 1 ], ( *this )[ 2 ], 0.0,
+                             ( *this )[ 3 ], ( *this )[ 4 ], ( *this )[ 5 ], 0.0,
+                             ( *this )[ 6 ], ( *this )[ 7 ], ( *this )[ 8 ], 0.0,
+                             ( *this )[ 9 ], ( *this )[ 10 ], ( *this )[ 11 ], 1.0
+                           );
+    }
 }
 
 /**
@@ -412,10 +375,10 @@ template< typename T > WValue< T > WMatrix< T >::operator*( const WValue< T >& r
     return result;
 }
 
-template< typename T > WVector3D WMatrix< T >::operator*( const WVector3D& rhs ) const
+template< typename T > WVector3d WMatrix< T >::operator*( const WVector3d& rhs ) const
 {
-    WAssert( rhs.num_components == getNbCols(), "Incompatible number of rows of rhs and columns of lhs." );
-    WVector3D result;
+    WAssert( rhs.getRows() == getNbCols(), "Incompatible number of rows of rhs and columns of lhs." );
+    WVector3d result;
 
     for( size_t r = 0; r < getNbRows(); ++r)
     {

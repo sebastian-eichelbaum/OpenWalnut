@@ -32,7 +32,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WLogger.h"
 #include "../../common/WStringUtils.h"
 #include "../exceptions/WDHIOFailure.h"

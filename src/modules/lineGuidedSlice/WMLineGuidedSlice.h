@@ -151,7 +151,7 @@ private:
 
     WPropDouble m_pos; //!< Slice position along line.
 
-    std::pair< float, float > m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
+    WVector2d m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
     bool m_isPicked; //!< Indicates whether a slice is currently picked or not.
     boost::shared_ptr< WGEViewer > m_viewer; //!< Stores reference to the main viewer
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_input; //!< Input connector for a fiber cluster

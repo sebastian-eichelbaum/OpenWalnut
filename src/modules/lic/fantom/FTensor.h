@@ -16,7 +16,7 @@
 #include "FArray.h"
 #include "FMultiIndex.h"
 
-#include "../../../common/math/WVector3D.h"
+#include "../../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include <vector>
 
 class FRefTensor;
@@ -61,7 +61,7 @@ public:
    */
   FTensor(unsigned char dimension, unsigned char order, bool clear=false);
 
-  FTensor( const WVector3D& vec );
+  FTensor( const WVector3d& vec );
 
   /**
    *\par Description:

@@ -33,7 +33,7 @@
 
 #include "../../dataHandler/WDataSetFibers.h"
 #include "../../dataHandler/WDataSetScalar.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleContainer.h"

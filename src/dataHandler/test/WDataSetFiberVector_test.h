@@ -31,7 +31,7 @@
 #include <cxxtest/TestSuite.h>
 
 #include "../WDataSetFiberVector.h"
-#include "../../common/math/WPosition.h"
+#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Unit tests our fiber dataset class

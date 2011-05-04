@@ -31,7 +31,7 @@
 
 #include "../WAssert.h"
 #include "../WStringUtils.h"
-#include "WVector3D.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Base class for all higher level values like tensors, vectors, matrices and so on.
