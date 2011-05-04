@@ -31,6 +31,7 @@
 #include <osg/ShapeDrawable>
 #include <osg/StateAttribute>
 #include <osgDB/ReadFile>
+#include <osgDB/WriteFile>
 
 #include "../../common/WColor.h"
 #include "../../common/WPropertyHelper.h"
