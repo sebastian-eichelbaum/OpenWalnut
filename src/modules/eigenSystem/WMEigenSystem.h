@@ -31,6 +31,8 @@
 
 #include <osg/Geode>
 
+#include "../../ext/Eigen/Eigen"
+
 #include "../../common/math/WTensorFunctions.h"
 #include "../../common/WThreadedFunction.h"
 #include "../../dataHandler/WThreadedPerVoxelOperation.h"
@@ -157,7 +159,7 @@ private:
      * The function that computes the eigenvectors from the input tensor field.
      *
      * \param input A subarray of a valueset that consists of the 6 floats that make up the tensor.
-     * \return The components of the largest eigenvector and the fa value in a 4-double array.
+     * \return The complete eigen system as double array with 12 components.
      */
     TPVOFloat::OutTransmitType const eigenFuncFloat( TPVOFloat::TransmitType const& input );
 
@@ -165,9 +167,36 @@ private:
      * The function that computes the eigenvectors from the input tensor field.
      *
      * \param input A subarray of a valueset that consists of the 6 floats that make up the tensor.
-     * \return The components of the largest eigenvector and the fa value in a 4-double array.
+     * \return The complete eigen system as double array with 12 components.
      */
     TPVODouble::OutTransmitType const eigenFuncDouble( TPVODouble::TransmitType const& input );
+
+    /**
+     * Computes the eigen system for double input parameters via using applyEigenSolver.
+     *
+     * \param input A subarray of a valueset that consists of the 6 floats that make up the tensor.
+     *
+     * \return The complete eigen system as double array with 12 components.
+     */
+    TPVODouble::OutTransmitType const eigenSolverDouble( TPVODouble::TransmitType const& input );
+
+    /**
+     * Computes the eigen system for double input parameters via using applyEigenSolver.
+     *
+     * \param input A subarray of a valueset that consists of the 6 floats that make up the tensor.
+     *
+     * \return The complete eigen system as double array with 12 components.
+     */
+    TPVOFloat::OutTransmitType const eigenSolverFloat( TPVOFloat::TransmitType const& input );
+
+    /**
+     * Copies the eigenvalues and eigenvectors from the libEigen output format into the double array.
+     *
+     * \param m The symmetric input matrix where only the lower triangular part is considered.
+     *
+     * \return The 12 components of the eigen system.
+     */
+    boost::array< double, 12 > applyEigenSolver( const Eigen::Matrix3d& m ) const;
 
     /**
      * Is used by every thread to compute the eigensystem for the given tensor.
@@ -211,6 +240,11 @@ private:
      * Indicating current work progress.
      */
     boost::shared_ptr< WProgress > m_currentProgress;
+
+    /**
+     * List for selecting the strategy.
+     */
+    WPropSelection m_strategySelector;
 };
 
 #endif  // WMEIGENSYSTEM_H

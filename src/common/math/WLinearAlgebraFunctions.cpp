@@ -24,16 +24,15 @@
 
 #include <vector>
 
+#include "../../ext/Eigen/SVD"
+
 #include "../WAssert.h"
+
 #include "WLinearAlgebraFunctions.h"
 #include "WMatrix.h"
 #include "WMatrix4x4.h"
 #include "WValue.h"
 #include "WVector3D.h"
-
-#ifdef OW_USE_OSSIM
-    #include "WOSSIMHelper.h"
-#endif
 
 WVector3D multMatrixWithVector3D( WMatrix<double> mat, WVector3D vec )
 {
@@ -301,32 +300,32 @@ bool linearIndependent( const WVector3D& u, const WVector3D& v )
     return true;
 }
 
-void computeSVD( const WMatrix< double >& A,
-                        WMatrix< double >& U,
-                        WMatrix< double >& V,
-                        WValue< double >& S )
+void computeSVD( const WMatrix_2& A,
+                        WMatrix_2& U,
+                        WMatrix_2& V,
+                        WVector_2& S )
 {
-#ifdef OW_USE_OSSIM
-      WOSSIMHelper::computeSVD( A, U, V, S );
-#else
-      (void) A; (void) U; (void) V; (void) S; // NOLINT to prevent "unused variable" warnings
-      WAssert( false, "OpenWalnut must be compiled with OSSIM to support SVD." );
-#endif
+    Eigen::JacobiSVD<WMatrix_2> svd( A, Eigen::ComputeFullU | Eigen::ComputeFullV );
+    U = svd.matrixU();
+    V = svd.matrixV();
+    S = svd.singularValues();
 }
 
-WMatrix<double> pseudoInverse( const WMatrix<double>& input )
+WMatrix_2 pseudoInverse( const WMatrix_2& input )
 {
     // calc pseudo inverse
-    WMatrix< double > U( input.getNbRows(), input.getNbCols() );
-    WMatrix< double > V( input.getNbCols(), input.getNbCols() );
-    WValue< double > Svec( input.getNbCols() );
+    WMatrix_2 U( input.rows(), input.cols() );
+    WMatrix_2 V( input.cols(), input.cols() );
+    WVector_2 Svec( input.cols() );
     computeSVD( input, U, V, Svec );
 
     // create diagonal matrix S
-    WMatrix< double > S( input.getNbCols(), input.getNbCols() );
+    WMatrix_2 S( input.cols(), input.cols() );
+    S.setZero();
+    for ( int i = 0; i < Svec.size() && i < S.rows() && i < S.cols(); i++ )
+    {
+        S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
+    }
 
-    for ( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
-      S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
-
-    return WMatrix< double >( V*S*U.transposed() );
+    return WMatrix_2( V*S*U.transpose() );
 }

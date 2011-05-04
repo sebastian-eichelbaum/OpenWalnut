@@ -140,19 +140,19 @@ void main()
 #endif
 
     // MPI PAper Hack: {
-    /* vec4 cmap = colormapping();
-    gl_FragData[1] = vec4( vec3( cmap.r ), 1.0 );
-
-    if ( cmap.r < 0.15 )
-        discard;
-    if ( isZero( cmap.r - 0.2, 0.1 ) )
-        gl_FragData[1] = vec4( 0.25, 0.0, 0.0, 1.0 );
-    if ( isZero( cmap.r - 0.3, 0.1 ) )
-        gl_FragData[1] = vec4( 0.5, 0.0, 0.0, 1.0 );
-    if ( isZero( cmap.r - 1.0, 0.15 ) )
-        gl_FragData[1] = vec4( 1.0, 0.0, 0.0, 1.0 );
+    // vec4 cmap = colormapping();
+    // gl_FragData[1] = vec4( vec3( cmap.r ), 1.0 );
+    //
+    // if ( cmap.r < 0.15 )
+    //     discard;
+    // if ( isZero( cmap.r - 0.2, 0.1 ) )
+    //     gl_FragData[1] = vec4( 0.25, 0.0, 0.0, 1.0 );
+    // if ( isZero( cmap.r - 0.3, 0.1 ) )
+    //     gl_FragData[1] = vec4( 0.5, 0.0, 0.0, 1.0 );
+    // if ( isZero( cmap.r - 1.0, 0.15 ) )
+    //     gl_FragData[1] = vec4( 1.0, 0.0, 0.0, 1.0 );
     // }
-    */
+
     // is the vector very orthogonal to the surface?
 
     float dotS = dot( v_normal, vec.xyz );

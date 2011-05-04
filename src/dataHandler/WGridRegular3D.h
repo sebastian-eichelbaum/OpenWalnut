@@ -35,7 +35,7 @@
 #include <osg/Vec3>
 
 #include "../common/math/WMatrix.h"
-#include "../common/math/WMatrix4x4.h"
+#include "../common/math/WMatrix.h"
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
 #include "../common/WBoundingBox.h"
@@ -190,20 +190,6 @@ public:
      * \param coords The point with these coordinates will be transformed.
      */
     WPosition texCoordToWorldCoord( WVector3D coords );
-
-    /**
-     * Matrix converting a specified world coordinate to texture space according in this grid.
-     *
-     * \return the matrix.
-     */
-    const WMatrix4x4& getWorldToTexMatrix() const;
-
-    /**
-     * Matrix converting a specified texture coordinate to world space according to this grid.
-     *
-     * \return the matrix.
-     */
-    const WMatrix4x4& getTexToWorldMatrix() const;
 
     /**
      * The condition that fires on changes in this grid's transformation matrix.

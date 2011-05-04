@@ -83,10 +83,10 @@ void main()
     vec3 plainColor = u_cmapRatio * cmap + ( 1.0 - u_cmapRatio ) * vec3( u_contrastingS * pow( advected, u_contrastingP ) );
 
     // MPI Paper Hack: {
-    /*plainColor = u_cmapRatio * cmap;
-    plainColor += 1.5*( 1.0 - u_cmapRatio ) * vec3( u_contrastingS * pow( advected, u_contrastingP ), 0.0, 0.0 );
-    if ( isZero( cmap.r, 0.1 ) )
-        discard;*/
+    // plainColor = u_cmapRatio * cmap;
+    // plainColor += 1.5*( 1.0 - u_cmapRatio ) * vec3( u_contrastingS * pow( advected, u_contrastingP ), 0.0, 0.0 );
+    // if ( isZero( cmap.r, 0.1 ) )
+    //     discard;
     // }
 
     gl_FragColor = vec4(

@@ -209,9 +209,6 @@ void WMImageSpaceLIC::initOSG( boost::shared_ptr< WGridRegular3D > grid, boost::
     }
     else
     {
-        // we want the tex matrix for each slice to be modified too,
-        osg::ref_ptr< osg::TexMat > texMat;
-
         // create a new geode containing the slices
         osg::ref_ptr< osg::Node > xSlice = wge::genFinitePlane( grid->getOrigin(), grid->getNbCoordsY() * grid->getDirectionY(),
                                                                                    grid->getNbCoordsZ() * grid->getDirectionZ() );

@@ -32,6 +32,7 @@
 
 #include "WGECallbackTraits.h"
 #include "../../common/WProperties.h"
+#include "../../common/math/WMatrix.h"
 #include "../WExportWGE.h"
 
 /**
@@ -93,7 +94,7 @@ void WGEPropertyTransformationCallback< ParentType, TargetType >::operator()( ty
     TargetType* m = dynamic_cast< TargetType* >( handled );
     if ( m )
     {
-        m->setMatrix( m_prop->get() );
+        m->setMatrix( toOsgMatrixd( m_prop->get() ) );
     }
 
     WGECallbackTraits< ParentType >::traverse( this, handled, nv );

@@ -26,6 +26,7 @@
 #define WLINEARALGEBRAFUNCTIONS_H
 
 #include "../WExportCommon.h"
+#include "WMatrix.h"
 
 namespace osg
 {
@@ -115,8 +116,7 @@ bool OWCOMMON_EXPORT linearIndependent( const WVector3D& u, const WVector3D& v )
  *
  * \note This function needs the OSSIM library.
  */
-void OWCOMMON_EXPORT computeSVD( const WMatrix< double >& A, WMatrix< double >& U,
-        WMatrix< double >& V, WValue< double >& S );
+void OWCOMMON_EXPORT computeSVD( const WMatrix_2& A, WMatrix_2& U, WMatrix_2& V, WVector_2& S );
 
 /**
  * Calculates for a matrix the pseudo inverse.
@@ -126,6 +126,6 @@ void OWCOMMON_EXPORT computeSVD( const WMatrix< double >& A, WMatrix< double >& 
  * \return Inverted Matrix
  *
  */
-WMatrix< double > OWCOMMON_EXPORT pseudoInverse( const WMatrix<double>& input );
+WMatrix_2 OWCOMMON_EXPORT pseudoInverse( const WMatrix_2& input );
 
 #endif  // WLINEARALGEBRAFUNCTIONS_H

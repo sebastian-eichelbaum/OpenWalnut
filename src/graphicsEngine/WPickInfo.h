@@ -30,6 +30,7 @@
 
 #include "../common/math/WPosition.h"
 #include "../common/math/WVector3D.h"
+#include "../common/WDefines.h"
 #include "WExportWGE.h"
 
 
@@ -134,7 +135,14 @@ public:
     /**
      * Get pixel coordinates where object was hit.
      */
-    inline std::pair< float, float > getPickPixelPosition() const;
+    OW_API_DEPRECATED inline std::pair< float, float > getPickPixelPosition() const;
+
+    /**
+     * Returns the picked pixel coordinates in screen-space.
+     *
+     * \return the coordinates
+     */
+    inline WVector2D_2 getPickPixel() const;
 
     /**
      * Tests two pick infos for equality
@@ -242,6 +250,11 @@ inline bool WPickInfo::operator==( WPickInfo rhs ) const
 inline bool WPickInfo::operator!=( WPickInfo rhs ) const
 {
     return !( *this == rhs );
+}
+
+inline WVector2D_2 WPickInfo::getPickPixel() const
+{
+    return WVector2D_2( m_pixelCoords.first, m_pixelCoords.second );
 }
 
 #endif  // WPICKINFO_H

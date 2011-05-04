@@ -176,17 +176,57 @@ public:
     }
 
     /**
+     * Test SVD calculation
+     */
+    void testComputeSVD( void )
+    {
+            const size_t nbRows = 3, nbCols = 3;
+            const double a = 1.2, b = 2.3, c = 3.4,
+                         d = 4.5, e = 5.6, f = 6.7,
+                         g = 3.4, h = 1.2, i = 7.0;
+            WMatrix_2 A( nbRows, nbCols );
+            A( 0, 0 ) = a;
+            A( 0, 1 ) = b;
+            A( 0, 2 ) = c;
+            A( 1, 0 ) = d;
+            A( 1, 1 ) = e;
+            A( 1, 2 ) = f;
+            A( 2, 0 ) = g;
+            A( 2, 1 ) = h;
+            A( 2, 2 ) = i;
+            WMatrix_2 U( A.rows(), A.cols() );
+            WMatrix_2 V( A.cols(), A.cols() );
+            WVector_2 Svec( A.cols() );
+            computeSVD( A, U, V, Svec );
+            WMatrix_2 S( Svec.size(), Svec.size() );
+            S.setZero();
+            for ( int i = 0; i < Svec.size(); ++i )
+            {
+                S( i, i ) = Svec( i );
+            }
+
+            WMatrix_2 A2( U*S*V.transpose() );
+
+            for ( int row = 0; row < A.rows(); ++row )
+            {
+                for ( int col = 0; col < A.cols(); ++col )
+                {
+                    TS_ASSERT_DELTA( A( row, col ), A2( row, col ), 0.0001 );
+                }
+            }
+    }
+
+    /**
      * Test pseudoInverse calculation
      */
     void testPseudoInverse( void )
     {
-#ifdef OW_USE_OSSIM
         {
             const size_t nbRows = 3, nbCols = 3;
             const double a = 1.2, b = 2.3, c = 3.4,
                          d = 4.5, e = 5.6, f = 6.7,
                          g = 3.4, h = 1.2, i = 7.0;
-            WMatrix< double > A( nbRows, nbCols );
+            WMatrix_2 A( nbRows, nbCols );
 
             A( 0, 0 ) = a;
             A( 0, 1 ) = b;
@@ -197,12 +237,12 @@ public:
             A( 2, 0 ) = g;
             A( 2, 1 ) = h;
             A( 2, 2 ) = i;
-            WMatrix<double> Ainvers( pseudoInverse( A ) );
-            WMatrix<double> I( A*Ainvers );
+            WMatrix_2 Ainvers( pseudoInverse( A ) );
+            WMatrix_2 I( A*Ainvers );
 
-            for ( size_t row = 0; row < I.getNbRows(); row++ )
+            for ( size_t row = 0; row < I.rows(); row++ )
             {
-                for ( size_t col = 0; col < I.getNbCols(); col++ )
+                for ( size_t col = 0; col < I.cols(); col++ )
                 {
                     if ( row == col )
                     {
@@ -216,7 +256,7 @@ public:
             }
         }
         {
-            WMatrix< double > m( 6, 6 );
+            WMatrix_2 m( 6, 6 );
             for( int j = 0; j < 6; ++j )
             {
                 for( int i = 0; i < 6; ++i )
@@ -233,7 +273,6 @@ public:
                 }
             }
         }
-#endif
     }
 };
 

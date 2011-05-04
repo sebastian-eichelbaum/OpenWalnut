@@ -31,6 +31,7 @@
 
 #include "../WAssert.h"
 #include "../WStringUtils.h"
+#include "WVector3D.h"
 
 /**
  * Base class for all higher level values like tensors, vectors, matrices and so on.
@@ -74,6 +75,19 @@ public:
         for( size_t i = 0; i < m_components.size(); ++i )
         {
             m_components[i] = newValue.m_components[i];
+        }
+    }
+
+    /**
+     * Create a WValue from the given WVector_2.
+     * \param newValues The WVector_2 with the values..
+     */
+    explicit WValue( const WVector_2& newValues )
+        : m_components( static_cast< std::size_t >( newValues.size() ) )
+    {
+        for ( std::size_t i = 0; i < m_components.size(); ++i )
+        {
+            m_components[ i ] = static_cast< T >( newValues( i ) );
         }
     }
 
@@ -318,6 +332,19 @@ public:
     void resize( size_t size )
     {
         m_components.resize( size );
+    }
+
+    /**
+     * Returns this WValue as WVector_2.
+     */
+    WVector_2 toWVector()
+    {
+        WVector_2 result( m_components.size() );
+        for ( size_t i = 0; i < m_components.size(); ++i )
+        {
+            result( i ) = static_cast<double>( m_components[ i ] );
+        }
+        return result;
     }
 
 protected:

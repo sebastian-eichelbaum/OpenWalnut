@@ -27,10 +27,20 @@
 
 #include <vector>
 
+// the following block is only for the last termporarly test
+// #include <boost/nondet_random.hpp>
+// #include <boost/random.hpp>
+// #include <boost/random/normal_distribution.hpp>
+// #include <boost/random/uniform_real.hpp>
+// #include <boost/random/linear_congruential.hpp>
+// #include <boost/random/uniform_real.hpp>
+// #include <boost/random/variate_generator.hpp>
+
 #include <cxxtest/TestSuite.h>
 
 #include "../WMatrix.h"
 #include "../WValue.h"
+#include "../WVector3D.h"
 
 #include "../WGeometryFunctions.h"
 #include "../WSymmetricSphericalHarmonic.h"
@@ -51,8 +61,8 @@ public:
      */
     void testCalcFRTMatrix( void )
     {
-        WMatrix<double> result( WSymmetricSphericalHarmonic::calcFRTMatrix( 4 ) );
-        WMatrix<double> reference( 15, 15 );
+        WMatrix_2 result( WSymmetricSphericalHarmonic::calcFRTMatrix( 4 ) );
+        WMatrix_2 reference( 15, 15 );
         // j  01 02 03 04 05 06 07 08 09 10 11 12 13 14 15
         // lj  0  2  2  2  2  2  4  4  4  4  4  4  4  4  4
         reference( 0, 0 ) = 2.0 * piDouble;
@@ -73,8 +83,8 @@ public:
      */
     void testCalcSmoothingMatrix( void )
     {
-        WMatrix<double> result( WSymmetricSphericalHarmonic::calcSmoothingMatrix( 4 ) );
-        WMatrix<double> reference( 15, 15 );
+        WMatrix_2 result( WSymmetricSphericalHarmonic::calcSmoothingMatrix( 4 ) );
+        WMatrix_2 reference( 15, 15 );
         // j  01 02 03 04 05 06 07 08 09 10 11 12 13 14 15
         // lj  0  2  2  2  2  2  4  4  4  4  4  4  4  4  4
         reference( 0, 0 ) = 0.0;
@@ -95,8 +105,7 @@ public:
      */
     void testCalcSHtoTensorMatrix()
     {
-#ifdef OW_USE_OSSIM
-        WValue< double > w( 6 );
+        WVector_2 w( 6 );
         for( int i = 0; i < 6; ++i )
         {
             w[ i ] = exp( i / 6.0 );
@@ -114,15 +123,16 @@ public:
         orientations.push_back( WUnitSphereCoordinates( WVector3D( 0.0, 0.0, -4.0 ).normalized() ) );
         orientations.push_back( WUnitSphereCoordinates( WVector3D( 0.0, 4.0, 1.0 ).normalized() ) );
 
-        WMatrix< double > SHToTensor = WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( 2, orientations );
-        WTensorSym< 2, 3, double > t( SHToTensor * w );
+        WMatrix_2 SHToTensor = WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( 2, orientations );
+        // TODO(all): remove the WValue from the following line, when WTensorSym supports WVector_2
+        WTensorSym< 2, 3, double > t( WValue<double>( SHToTensor * w ) );
 
         for( std::vector< WUnitSphereCoordinates >::iterator it = orientations.begin();
-             it != orientations.end(); ++it )
+             it != orientations.end();
+             ++it )
         {
             TS_ASSERT_DELTA( i.getValue( *it ), evaluateSphericalFunction( t, it->getEuclidean() ), 0.001 );
         }
-#endif  // OW_USE_OSSIM
     }
 
     /**
@@ -146,18 +156,18 @@ public:
         }
         grad.clear();
 
-        WValue< double > values( 15 );
+        WVector_2 values( 15 );
         for( std::size_t i = 0; i < 15; ++i )
         {
             values[ i ] = i / 15.0;
         }
         WSymmetricSphericalHarmonic sh( values );
 
-        WValue< std::complex< double > > values2 = sh.getCoefficientsComplex();
+        WVectorComplex_2 values2 = sh.getCoefficientsComplex();
 
-        WMatrix< std::complex< double > > complexBaseMatrix = WSymmetricSphericalHarmonic::calcComplexBaseMatrix( orientations, 4 );
+        WMatrixComplex_2 complexBaseMatrix = WSymmetricSphericalHarmonic::calcComplexBaseMatrix( orientations, 4 );
 
-        WValue< std::complex< double > > res = complexBaseMatrix * values2;
+        WVectorComplex_2 res = complexBaseMatrix * values2;
 
         for( std::size_t k = 0; k < orientations.size(); ++k )
         {

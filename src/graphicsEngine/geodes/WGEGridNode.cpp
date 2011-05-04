@@ -27,6 +27,7 @@
 #include <osg/LineWidth>
 
 #include "../callbacks/WGEFunctorCallback.h"
+#include "../../common/math/WMatrix.h"
 #include "../WGEGeodeUtils.h"
 
 #include "WGEGridNode.h"
@@ -215,7 +216,7 @@ void WGEGridNode::callback( osg::Node* /*node*/ )
 
         // apply the grid transformation
         osg::Matrix m = osg::Matrix::scale( grid->getNbCoordsX() - 1, grid->getNbCoordsY() - 1, grid->getNbCoordsZ() - 1 ) *
-                        grid->getTransform();
+                        toOsgMatrixd( grid->getTransform() );
         setMatrix( m );
 
         // set the labels correspondingly
