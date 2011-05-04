@@ -81,14 +81,6 @@ void WGEBorderLayout::SafeUpdateCallback::operator()( osg::Node* node, osg::Node
     // the geometry for the lead lines
     osg::ref_ptr< osg::Vec3Array > v = new osg::Vec3Array;
 
-    bool rightBins[10];
-    bool leftBins[10];
-    for ( unsigned int i = 0; i< 10; ++i )
-    {
-        rightBins[i] = false;
-        leftBins[i] = false;
-    }
-
     for ( unsigned int i = 0; i < m_layouter->m_geode->getNumDrawables(); ++i )
     {
         // each drawable is a WGELabel:

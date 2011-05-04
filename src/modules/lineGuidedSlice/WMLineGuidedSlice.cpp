@@ -194,8 +194,6 @@ void WMLineGuidedSlice::setSlicePosFromPick( WPickInfo pickInfo )
         boost::unique_lock< boost::shared_mutex > lock;
         lock = boost::unique_lock< boost::shared_mutex >( m_updateLock );
 
-        WVector3d normal = pickInfo.getPickNormal();
-
         WVector2d newPixelPos( pickInfo.getPickPixel() );
         if( m_isPicked )
         {

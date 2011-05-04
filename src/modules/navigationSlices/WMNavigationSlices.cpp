@@ -152,7 +152,6 @@ void WMNavigationSlices::initOSG()
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     // create a new geode containing the slices
-    osg::Vec3f org = osg::Vec3( 0.0, 0.0, 0.0 );
 
     // X Slice
     osg::ref_ptr< osg::Node > xSlice = wge::genFinitePlane( minV, osg::Vec3( 0.0, maxV[1], 0.0 ),
