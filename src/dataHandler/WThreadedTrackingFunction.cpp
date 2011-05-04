@@ -89,7 +89,7 @@ namespace wtracking
         double p;
         double z;
         WVector3d_2 d = grid->getDirectionX();
-        d.normalize();
+        d = normalize( d );
         double c = dot( d, v ) / grid->getOffsetX() + 0.5;
         p = c >= 0.0 ? modf( c, &z ) : 1.0 + modf( c, &z );
         if( fabs( p ) < TRACKING_EPS || fabs( p - 1 ) < TRACKING_EPS )
@@ -97,7 +97,7 @@ namespace wtracking
             return true;
         }
         d = grid->getDirectionY();
-        d.normalize();
+        d = normalize( d );
         c = dot( d,  v ) / grid->getOffsetY() + 0.5;
         p = c >= 0.0 ? modf( c, &z ) : 1.0 + modf( c, &z );
         if( fabs( p ) < TRACKING_EPS || fabs( p - 1 ) < TRACKING_EPS )
@@ -105,7 +105,7 @@ namespace wtracking
             return true;
         }
         d = grid->getDirectionZ();
-        d.normalize();
+        d = normalize( d );
         c = dot( d, v ) / grid->getOffsetZ() + 0.5;
         p = c >= 0.0 ? modf( c, &z ) : 1.0 + modf( c, &z );
         if( fabs( p ) < TRACKING_EPS || fabs( p - 1 ) < TRACKING_EPS )

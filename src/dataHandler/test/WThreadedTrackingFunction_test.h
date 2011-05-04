@@ -60,8 +60,8 @@ public:
         WVector3d_2 x( 0.707, 0.707, 0.0 );
         WVector3d_2 y( -0.707, 0.707, 0.0 );
         WVector3d_2 z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        x = normalize( x );
+        y = normalize( y );
 
         boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d_2( 0.0, 1.0, 0.0 ) );
         // test the test
@@ -126,8 +126,8 @@ public:
         WVector3d_2 x( 0.707, 0.707, 0.0 );
         WVector3d_2 y( -0.707, 0.707, 0.0 );
         WVector3d_2 z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        x = normalize( x );
+        y = normalize( y );
 
         WVector3d_2 v( 1.0, 0.0, 0.0 );
 
@@ -146,7 +146,7 @@ public:
 
         v = WVector3d_2( 2.9741, 3.527, 1.992 );
         WVector3d_2 dir( 3, 4, -2.003 );
-        dir.normalize();
+        dir = normalize( dir );
         double t = wtracking::WTrackingUtility::getDistanceToBoundary( g, v, dir );
         WVector3d_2 res = v + dir * t;
         TS_ASSERT( wtracking::WTrackingUtility::onBoundary( g, res ) );
@@ -165,8 +165,8 @@ public:
             WVector3d_2 x( 0.707, 0.707, 0.0 );
             WVector3d_2 y( -0.707, 0.707, 0.0 );
             WVector3d_2 z( 0.0, 0.0, 1.0 );
-            x.normalize();
-            y.normalize();
+            x = normalize( x );
+            y = normalize( y );
 
             boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d_2( 0.0, 1.0, 0.0 ) );
             boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
@@ -197,7 +197,7 @@ private:
     WVector3d_2 simpleDirFunc( wtracking::WTrackingUtility::DataSetPtr, wtracking::WTrackingUtility::JobType const& )
     {
         WVector3d_2 v( 1.0, 1.0, 0.0 );
-        v.normalize();
+        v = normalize( v );
         return v;
     }
 
@@ -212,8 +212,8 @@ private:
         WVector3d_2 y( -0.707, 0.707, 0.0 );
         WVector3d_2 z( 0.0, 0.0, 1.0 );
 
-        x.normalize();
-        y.normalize();
+        x = normalize( x );
+        y = normalize( y );
 
         y *= 2.0;
         z *= 1.5;
@@ -234,7 +234,7 @@ private:
         WGridTransformOrtho t( mat );
         boost::shared_ptr< WGrid > g( new WGridRegular3D( 5, 5, 5, t ) );
 
-        data.normalize();
+        data = normalize( data );
 
         boost::shared_ptr< std::vector< double > > v = boost::shared_ptr< std::vector< double > >( new  std::vector< double > ( 5 * 5 * 5 * 3 ) );
         for( std::size_t k = 0; k < 5 * 5 * 5; ++k )
@@ -411,8 +411,8 @@ public:
         WVector3d_2 x( 0.707, 0.707, 0.0 );
         WVector3d_2 y( -0.707, 0.707, 0.0 );
         WVector3d_2 z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        x = normalize( x );
+        y = normalize( y );
         y *= 2.0;
         z *= 1.5;
 
@@ -534,8 +534,8 @@ public:
         WVector3d_2 x( 0.707, 0.707, 0.0 );
         WVector3d_2 y( -0.707, 0.707, 0.0 );
         WVector3d_2 z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        x = normalize( x );
+        y = normalize( y );
 
         boost::shared_ptr< WDataSetSingle > ds = buildTestData( WVector3d_2( 1.0, 0.0, 0.0 ), 7 );
         boost::shared_ptr< WGridRegular3D > g = boost::shared_dynamic_cast< WGridRegular3D >( ds->getGrid() );
@@ -578,8 +578,8 @@ private:
         WVector3d_2 x( 0.707, 0.707, 0.0 );
         WVector3d_2 y( -0.707, 0.707, 0.0 );
         WVector3d_2 z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        x = normalize( x );
+        y = normalize( y );
         y *= 2.0;
         z *= 1.5;
 
@@ -599,7 +599,7 @@ private:
         WGridTransformOrtho t( mat );
         boost::shared_ptr< WGrid > g( new WGridRegular3D( n, n, n, t ) );
 
-        data.normalize();
+        data = normalize( data );
 
         boost::shared_ptr< std::vector< double > > v = boost::shared_ptr< std::vector< double > >( new  std::vector< double >( n * n * n * 3 ) );
         for( std::size_t k = 0; k < static_cast< std::size_t >( n * n * n ); ++k )

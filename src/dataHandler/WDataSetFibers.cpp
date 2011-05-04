@@ -328,8 +328,7 @@ WPosition_2 WDataSetFibers::getTangent( size_t fiber, size_t vertex ) const
         tangent = pointBefore - pointNext;
     }
 
-    tangent.normalize();
-    return tangent;
+    return normalize( tangent );
 }
 
 /**

@@ -322,8 +322,8 @@ public:
         WVector3d_2 x( 0.707, 0.707, 0.0 );
         WVector3d_2 y( -0.707, 0.707, 0.0 );
         WVector3d_2 z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        x = normalize( x );
+        y = normalize( y );
         y *= 2.0;
         z *= 1.5;
 
@@ -358,8 +358,8 @@ public:
         WVector3d_2 x( 0.707, 0.707, 0.0 );
         WVector3d_2 y( -0.707, 0.707, 0.0 );
         WVector3d_2 z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        x = normalize( x );
+        y = normalize( y );
         y *= 2.0;
         z *= 1.5;
 
@@ -542,8 +542,8 @@ public:
         WVector3d_2 x( 0.707, 0.707, 0.0 );
         WVector3d_2 y( -0.707, 0.707, 0.0 );
         WVector3d_2 z( 0.0, 0.0, 1.0 );
-        x.normalize();
-        y.normalize();
+        x = normalize( x );
+        y = normalize( y );
         y *= 2.0;
         z *= 1.5;
 
