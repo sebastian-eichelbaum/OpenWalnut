@@ -29,7 +29,7 @@
 #endif
 
 // This is needed if the modulo operator % is required
-// #extension GL_EXT_gpu_shader4 : enable
+#extension GL_EXT_gpu_shader4 : enable
 
 #include "WGEUtils.glsl"
 
@@ -130,33 +130,25 @@ vec4 transferFunction( float value )
 #ifdef TRANSFERFUNCTION_ENABLED
     return texture1D( u_transferFunctionSampler, value );
 #else
-    if ( isZero( value - 0.5, 0.01 ) )   // if not TF has been specified, at least show something
+    // Example TF
+    if ( isZero( value - 0.5, 0.00005  ) )
+        return vec4( 0.0 );
+    vec4 c = vec4( 0.0 );
+    if ( value <= 0.5 )
     {
-        return vec4( 1.0, 0.0, 0.0, 0.1 );
+        c = vec4( 0.0, 0.37, 1.0, 2.0 * ( 0.5 - value ) );
     }
     else
     {
-        return vec4( 0.0 );
+        vec4 cols[2];
+        cols[0] = vec4( 1.0, 0.34, 0.34, 0.25 );
+        cols[1] = vec4( 1.0, 0.75, 0.0, 0.25 );
+
+        int i = int( 2.0 * ( value - 0.5 ) * 2.0 * 15.0);
+        int imod = i % 2;
+        c = cols[ imod ];
     }
-    // Example TF
-    // if ( isZero( value - 0.5, 0.005  ) )
-    //     return vec4( 0.0 );
-    // vec4 c = vec4( 0.0 );
-    // if ( value >= 0.5 )
-    // {
-    //     c = vec4( 1.0, 0.34, 0.34, 2.0 * ( value - 0.5 ) );
-    // }
-    // else
-    // {
-    //     vec4 cols[2];
-    //     cols[1] = vec4( 0.0, 0.37, 1.0, 0.1 );
-    //     cols[0] = vec4( 0.0, 1.0, 1.0, 0.1 );
-    //
-    //     int i = int(2.0 * value * 2.0 * 15.0);
-    //     int imod = i % 2;
-    //     c = cols[ imod ];
-    // }
-    // return c;
+    return c;
 #endif
 }
 
