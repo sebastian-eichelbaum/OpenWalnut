@@ -31,7 +31,6 @@
 #include <vector>
 
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WAssert.h"
 #include "../../common/WProgress.h"
 #include "../../common/WStringUtils.h"

@@ -37,7 +37,6 @@
 #include "WLine.h"
 #include "WPlane.h"
 #include "linearAlgebra/WLinearAlgebra.h"
-#include "linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Classes and functions of math module of OpenWalnut.
@@ -82,7 +81,7 @@ inline int myIsfinite( double number )
  *
  * \return True if both intersects otherwise false.
  */
-bool OWCOMMON_EXPORT testIntersectTriangle( const WPosition_2& p1, const WPosition_2& p2, const WPosition_2& p3, const WPlane& p );
+bool OWCOMMON_EXPORT testIntersectTriangle( const WPosition& p1, const WPosition& p2, const WPosition& p3, const WPlane& p );
 
 /**
  * Checks if the given segment intersects with the plane or not. Even if
@@ -99,9 +98,9 @@ bool OWCOMMON_EXPORT testIntersectTriangle( const WPosition_2& p1, const WPositi
  * \return True if an intersection was detected, false otherwise.
  */
 bool OWCOMMON_EXPORT intersectPlaneSegment( const WPlane& p,
-        const WPosition_2& p1,
-        const WPosition_2& p2,
-        boost::shared_ptr< WPosition_2 > pointOfIntersection );
+        const WPosition& p1,
+        const WPosition& p2,
+        boost::shared_ptr< WPosition > pointOfIntersection );
 
 /**
  * Checks a line (consecutive line segments) on intersection with a plane
@@ -114,7 +113,7 @@ bool OWCOMMON_EXPORT intersectPlaneSegment( const WPlane& p,
  *
  * \return True if an intersection was detected, false otherwise.
  */
-bool OWCOMMON_EXPORT intersectPlaneLineNearCP( const WPlane& p, const WLine& l, boost::shared_ptr< WPosition_2 > cutPoint );
+bool OWCOMMON_EXPORT intersectPlaneLineNearCP( const WPlane& p, const WLine& l, boost::shared_ptr< WPosition > cutPoint );
 
 /**
  * Computes the signum for the given value.

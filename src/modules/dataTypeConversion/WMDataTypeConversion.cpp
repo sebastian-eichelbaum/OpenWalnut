@@ -37,7 +37,6 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../kernel/WKernel.h"
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WMDataTypeConversion.h"
 #include "WMDataTypeConversion.xpm"
 

@@ -163,7 +163,7 @@ private:
         /**
          * The stored pixel position of a previous drag event.
          */
-        WVector2d_2 m_oldPixelPosition;
+        WVector2d m_oldPixelPosition;
 
         /**
          * The transformation direction. This is needed since the OSG coord system has a mirrored coronal direction.

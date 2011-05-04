@@ -121,7 +121,7 @@ public:
      *
      * \return Scalar value for that given position
      */
-    double interpolate( const WPosition_2& pos, bool* success ) const;
+    double interpolate( const WPosition& pos, bool* success ) const;
 
     /**
      * Get the value stored at a certain grid position of the data set

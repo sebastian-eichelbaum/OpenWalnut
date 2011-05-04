@@ -30,7 +30,6 @@
 
 #include "../common/WAssert.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WDataSetSingle.h"
 #include "WDataSetSphericalHarmonics.h"
 
@@ -80,7 +79,7 @@ boost::shared_ptr< WPrototyped > WDataSetSphericalHarmonics::getPrototype()
     return m_prototype;
 }
 
-WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( const WPosition_2& pos, bool* success ) const
+WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( const WPosition& pos, bool* success ) const
 {
     *success = m_gridRegular3D->encloses( pos );
 
@@ -96,7 +95,7 @@ WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( const WPosi
     // ids of vertices for interpolation
     std::vector< size_t > vertexIds = m_gridRegular3D->getCellVertexIds( cellId );
 
-    WPosition_2 localPos = pos - m_gridRegular3D->getPosition( vertexIds[0] );
+    WPosition localPos = pos - m_gridRegular3D->getPosition( vertexIds[0] );
 
     double lambdaX = localPos[0] / m_gridRegular3D->getOffsetX();
     double lambdaY = localPos[1] / m_gridRegular3D->getOffsetY();

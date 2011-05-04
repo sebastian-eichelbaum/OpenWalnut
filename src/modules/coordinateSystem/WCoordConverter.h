@@ -30,7 +30,6 @@
 #include "../../common/WBoundingBox.h"
 #include "../../common/math/WMatrix.h"
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WTalairachConverter.h"
 
@@ -56,7 +55,7 @@ public:
      * \param origin offset to point of origin
      * \param scale voxel size
      */
-    WCoordConverter( WMatrix<double> rotMat, WVector3d_2 origin = WVector3d_2( 0, 0 , 0 ), WVector3d_2 scale = WVector3d_2( 1.0, 1.0 , 1.0 ) );
+    WCoordConverter( WMatrix<double> rotMat, WVector3d origin = WVector3d( 0, 0 , 0 ), WVector3d scale = WVector3d( 1.0, 1.0 , 1.0 ) );
 
     /**
      * destructor
@@ -70,13 +69,13 @@ public:
      *
      * \return converted vector
      */
-    WVector3d_2 operator()( WVector3d_2 in );
+    WVector3d operator()( WVector3d in );
 
     /**
      * Transforms world coordinates.
      * \param point The point which will be transformed.
      */
-    WVector3d_2 worldCoordTransformed( WPosition_2 point );
+    WVector3d worldCoordTransformed( WPosition point );
 
     /**
      * Gets the bounding box
@@ -130,30 +129,30 @@ public:
     /**
      * transforms a vector from the world coordinate system to the canonical system
      * \param in vector to transform
-     * \return WVector3d_2 the transformed vector
+     * \return WVector3d the transformed vector
      */
-    WVector3d_2 w2c( WVector3d_2 in );
+    WVector3d w2c( WVector3d in );
 
     /**
      * transforms a vector from the  canonical to the world coordinate system system
      * \param in vector to transform
-     * \return WVector3d_2 the transformed vector
+     * \return WVector3d the transformed vector
      */
-    WVector3d_2 c2w( WVector3d_2 in );
+    WVector3d c2w( WVector3d in );
 
     /**
      * transforms a vector from the world coordinate system to the talairach system
      * \param in vector to transform
-     * \return WVector3d_2 the transformed vector
+     * \return WVector3d the transformed vector
      */
-    WVector3d_2 w2t( WVector3d_2 in );
+    WVector3d w2t( WVector3d in );
 
     /**
      * transforms a vector from the canonical system to the world coordinate system
      * \param in vector to transform
-     * \return WVector3d_2 the transformed vector
+     * \return WVector3d the transformed vector
      */
-    WVector3d_2 t2w( WVector3d_2 in );
+    WVector3d t2w( WVector3d in );
 
     /**
      * setter for the talairach converter pointer
@@ -171,9 +170,9 @@ protected:
 private:
     WMatrix<double> m_rotMat; //!< the rotation matrix to use
 
-    WVector3d_2 m_origin; //!< the offset to the point of origin
+    WVector3d m_origin; //!< the offset to the point of origin
 
-    WVector3d_2 m_scale; //!< scaling of voxels
+    WVector3d m_scale; //!< scaling of voxels
 
     WBoundingBox m_boundingBox; //!< bounding box of the wholy volume as provided by the dataset
 

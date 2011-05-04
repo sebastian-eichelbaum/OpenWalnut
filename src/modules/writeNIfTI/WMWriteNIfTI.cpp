@@ -39,7 +39,6 @@
 #include "../../dataHandler/WDataSetRawHARDI.h"
 #include "../../kernel/WKernel.h"
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../ext/nifti/nifti1_io.h"
 #include "WMWriteNIfTI.h"
 #include "../../kernel/WModule.h"

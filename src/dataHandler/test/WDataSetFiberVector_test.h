@@ -46,12 +46,12 @@ public:
     {
         using std::vector;
         m_somefibs = boost::shared_ptr< vector< WFiber > >( new vector< WFiber > );
-        vector< WPosition_2 > points;
-        points.push_back( WPosition_2( 0., 0., 1. ) );
+        vector< WPosition > points;
+        points.push_back( WPosition( 0., 0., 1. ) );
         m_somefibs->push_back( WFiber( points ) );
-        points.push_back( WPosition_2( 0., 0., 2. ) );
+        points.push_back( WPosition( 0., 0., 2. ) );
         m_somefibs->push_back( WFiber( points ) );
-        points.push_back( WPosition_2( 0., 0., 3. ) );
+        points.push_back( WPosition( 0., 0., 3. ) );
         m_somefibs->push_back( WFiber( points ) );
     }
 
@@ -60,10 +60,10 @@ public:
      */
     void testBasicAccessAndCreation( void )
     {
-        std::vector< WPosition_2 > points;
-        points.push_back( WPosition_2( 0., 0., 1. ) );
-        points.push_back( WPosition_2( 0., 0., 2. ) );
-        points.push_back( WPosition_2( 0., 0., 3. ) );
+        std::vector< WPosition > points;
+        points.push_back( WPosition( 0., 0., 1. ) );
+        points.push_back( WPosition( 0., 0., 2. ) );
+        points.push_back( WPosition( 0., 0., 3. ) );
         WFiber expected( points );
         WDataSetFiberVector d( m_somefibs );
         TS_ASSERT_EQUALS( d[2], expected );

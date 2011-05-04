@@ -41,7 +41,6 @@
 #include "../WMatrix.h"
 #include "../linearAlgebra/WLinearAlgebra.h"
 #include "../WValue.h"
-#include "../linearAlgebra/WLinearAlgebra.h"
 
 #include "../WGeometryFunctions.h"
 #include "../WSymmetricSphericalHarmonic.h"
@@ -51,7 +50,7 @@
 #include "WMatrixTraits.h"
 
 /**
- * Testsuite for WPosition_2.
+ * Testsuite for WPosition.
  */
 class WSymmetricSphericalHarmonicTest : public CxxTest::TestSuite
 {
@@ -117,14 +116,14 @@ public:
         WSymmetricSphericalHarmonic i( w );
 
         std::vector< WUnitSphereCoordinates > orientations;
-        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 1.0, 0.0, 0.0 ) ) ) );
-        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 0.6, -0.1, 0.2 ) ) ) );
-        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 1.0, 1.0, 1.0 ) ) ) );
-        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( -0.1, -0.3, 0.5 ) ) ) );
-        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 0.56347, 0.374, 0.676676 ) ) ) );
-        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 0.56347, 0.374, -0.676676 ) ) ) );
-        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 0.0, 0.0, -4.0 ) ) ) );
-        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 0.0, 4.0, 1.0 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 1.0, 0.0, 0.0 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 0.6, -0.1, 0.2 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 1.0, 1.0, 1.0 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( -0.1, -0.3, 0.5 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 0.56347, 0.374, 0.676676 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 0.56347, 0.374, -0.676676 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 0.0, 0.0, -4.0 ) ) ) );
+        orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 0.0, 4.0, 1.0 ) ) ) );
 
         WMatrix_2 SHToTensor = WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( 2, orientations );
         // TODO(all): remove the WValue from the following line, when WTensorSym supports WVector_2
@@ -144,7 +143,7 @@ public:
     // void testComplex()
     // {
     //     // calc a conversion matrix
-    //     std::vector< WVector3d_2 > grad;
+    //     std::vector< WVector3d > grad;
     //     std::vector< unsigned int > edges;
     //     tesselateIcosahedron( &grad, &edges, 3 );
     //     edges.clear();

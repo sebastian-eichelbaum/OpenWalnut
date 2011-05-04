@@ -28,20 +28,19 @@
 
 #include "../../common/math/WLinearAlgebraFunctions.h"
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WAssert.h"
 #include "../../common/WLimits.h"
 
 #include "WPlane.h"
 
-WPlane::WPlane( const WVector3d_2& normal, const WPosition_2& pos )
+WPlane::WPlane( const WVector3d& normal, const WPosition& pos )
     : m_normal( normal ),
       m_pos( pos )
 {
     setNormal( normal );
 }
 
-WPlane::WPlane( const WVector3d_2& normal, const WPosition_2& pos, const WVector3d_2& first, const WVector3d_2& second )
+WPlane::WPlane( const WVector3d& normal, const WPosition& pos, const WVector3d& first, const WVector3d& second )
     : m_normal( normal ),
       m_pos( pos )
 {
@@ -54,27 +53,27 @@ WPlane::~WPlane()
 {
 }
 
-bool WPlane::isInPlane( WPosition_2 /* point */ ) const
+bool WPlane::isInPlane( WPosition /* point */ ) const
 {
     // TODO(math): implement this: pos + first*m + second*n == point ??
     return false;
 }
 
-void WPlane::resetPosition( WPosition_2 newPos )
+void WPlane::resetPosition( WPosition newPos )
 {
     // TODO(math): check if pos is in plane first!
     m_pos = newPos;
 }
 
 
-boost::shared_ptr< std::set< WPosition_2 > > WPlane::samplePoints( double stepWidth, size_t numX, size_t numY ) const
+boost::shared_ptr< std::set< WPosition > > WPlane::samplePoints( double stepWidth, size_t numX, size_t numY ) const
 {
     // idea: start from m_pos in m_first direction until boundary reached, increment in m_second direction from m_pos and start again
-    boost::shared_ptr< std::set< WPosition_2 > > result( new std::set< WPosition_2 >() );
+    boost::shared_ptr< std::set< WPosition > > result( new std::set< WPosition >() );
 
     // the plane has two directions m_first and m_second
-    const WVector3d_2 ycrement = stepWidth * m_second;
-    const WVector3d_2 xcrement = stepWidth * m_first;
+    const WVector3d ycrement = stepWidth * m_second;
+    const WVector3d xcrement = stepWidth * m_first;
     result->insert( m_pos );
     for( size_t i = 0; i < numY; ++i )
     {
@@ -89,18 +88,18 @@ boost::shared_ptr< std::set< WPosition_2 > > WPlane::samplePoints( double stepWi
     return result;
 }
 
-// boost::shared_ptr< std::set< WPosition_2 > > WPlane::samplePoints( const WGridRegular3D& grid, double stepWidth )
+// boost::shared_ptr< std::set< WPosition > > WPlane::samplePoints( const WGridRegular3D& grid, double stepWidth )
 // {
 //     // idea: start from m_pos in m_first direction until boundary reached, increment in m_second direction from m_pos and start again
-//     boost::shared_ptr< std::set< WPosition_2 > > result( new std::set< WPosition_2 >() );
+//     boost::shared_ptr< std::set< WPosition > > result( new std::set< WPosition >() );
 //
 //     // the plane has two directions m_first and m_second
-//     const WVector3d_2 ycrement = stepWidth * m_second;
-//     const WVector3d_2 xcrement = stepWidth * m_first;
-//     WPosition_2 y_offset_up = m_pos;
-//     WPosition_2 y_offset_down = m_pos;
-//     WPosition_2 x_offset_right = m_pos;
-//     WPosition_2 x_offset_left = m_pos;
+//     const WVector3d ycrement = stepWidth * m_second;
+//     const WVector3d xcrement = stepWidth * m_first;
+//     WPosition y_offset_up = m_pos;
+//     WPosition y_offset_down = m_pos;
+//     WPosition x_offset_right = m_pos;
+//     WPosition x_offset_left = m_pos;
 //     // TODO(math): assert( grid.encloses( m_pos ) );
 //     while( grid.encloses( y_offset_up ) || grid.encloses( y_offset_down ) )
 //     {
@@ -147,16 +146,16 @@ boost::shared_ptr< std::set< WPosition_2 > > WPlane::samplePoints( double stepWi
 //     return result;
 // }
 
-WPosition_2 WPlane::getPointInPlane( double x, double y ) const
+WPosition WPlane::getPointInPlane( double x, double y ) const
 {
-    WVector3d_2 sd= m_pos +
+    WVector3d sd= m_pos +
                     x * m_first
                     +
                     y * m_second;
     return sd;
 }
 
-void WPlane::setPlaneVectors( const WVector3d_2& first, const WVector3d_2& second )
+void WPlane::setPlaneVectors( const WVector3d& first, const WVector3d& second )
 {
     std::stringstream msg;
     msg << "The give two vectors are not perpendicular to plane. First: " << first << " second: " << second << " for plane normal: " << m_normal;

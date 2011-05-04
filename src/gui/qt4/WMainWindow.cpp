@@ -1011,9 +1011,9 @@ void WMainWindow::closeCustomDockWidget( std::string title )
 void WMainWindow::newRoi()
 {
     // do nothing if we can not get
-    WPosition_2 crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
-    WPosition_2 minROIPos = crossHairPos - WPosition_2( 10., 10., 10. );
-    WPosition_2 maxROIPos = crossHairPos + WPosition_2( 10., 10., 10. );
+    WPosition crossHairPos = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
+    WPosition minROIPos = crossHairPos - WPosition( 10., 10., 10. );
+    WPosition maxROIPos = crossHairPos + WPosition( 10., 10., 10. );
 
     if( m_controlPanel->getFirstRoiInSelectedBranch().get() == NULL )
     {

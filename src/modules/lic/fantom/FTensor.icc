@@ -61,7 +61,7 @@ inline FTensor::FTensor(unsigned char dim, unsigned char order, bool clear)
     FArray::clear();
 }
 
-inline FTensor::FTensor( const WVector3d_2& vec )
+inline FTensor::FTensor( const WVector3d& vec )
     : FArray()
 {
   this->dimension = 3;

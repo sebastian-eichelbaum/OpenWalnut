@@ -43,11 +43,11 @@ public:
      */
     void testTriangulate( void )
     {
-        std::vector< WPosition_2 > points( 4 );
-        points[0] = WPosition_2( 0.0, 0.0, 0.0 );
-        points[1] = WPosition_2( 1.0, 0.0, 0.0 );
-        points[2] = WPosition_2( 1.0, 1.0, 0.0 );
-        points[3] = WPosition_2( 2.0, 1.0, 0.0 );
+        std::vector< WPosition > points( 4 );
+        points[0] = WPosition( 0.0, 0.0, 0.0 );
+        points[1] = WPosition( 1.0, 0.0, 0.0 );
+        points[2] = WPosition( 1.0, 1.0, 0.0 );
+        points[3] = WPosition( 2.0, 1.0, 0.0 );
 
         WTriangleMesh mesh = wge::triangulate( points );
 

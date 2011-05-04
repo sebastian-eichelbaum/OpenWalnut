@@ -65,7 +65,7 @@ protected:
      * \param start Start point of the line segment
      * \param stop End point of the line segment
      */
-    void rasterSegment( const WPosition_2& start, const WPosition_2& stop );
+    void rasterSegment( const WPosition& start, const WPosition& stop );
 
 private:
 };

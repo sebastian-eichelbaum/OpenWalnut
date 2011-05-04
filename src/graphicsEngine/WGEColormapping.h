@@ -112,7 +112,7 @@ public:
      * specify any kind of texture coordinates as long as you use this matrix to transform them to the right space.
      * \param startTexUnit the first texture unit allowed to be used
      */
-    static void apply( osg::ref_ptr< osg::Node > node, WMatrix4d_2 preTransform = WMatrix4d_2::identity(),
+    static void apply( osg::ref_ptr< osg::Node > node, WMatrix4d preTransform = WMatrix4d::identity(),
                        osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
 
     /**
@@ -266,7 +266,7 @@ protected:
      * specified, a default shader is used.
      * \param startTexUnit the first texture unit allowed to be used
      */
-    void applyInst( osg::ref_ptr< osg::Node > node, WMatrix4d_2 preTransform = WMatrix4d_2::identity(),
+    void applyInst( osg::ref_ptr< osg::Node > node, WMatrix4d preTransform = WMatrix4d::identity(),
                     osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >(), size_t startTexUnit = 0 );
 
     /**
@@ -331,7 +331,7 @@ private:
     {
         bool   m_rebind;        //!< true if the node has not been callback'ed before
         size_t m_texUnitStart;  //!< the start index of the texture unit to use
-        WMatrix4d_2 m_preTransform; //!< matrix used for transforming arbitrary texture coordinates to the proper space.
+        WMatrix4d m_preTransform; //!< matrix used for transforming arbitrary texture coordinates to the proper space.
     };
 
     /**

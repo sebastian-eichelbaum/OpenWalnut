@@ -98,7 +98,7 @@ void WMCalculateGFA::moduleMain()
     m_moduleState.add( m_exceptionCondition );
 
     std::vector< unsigned int > temp;
-    std::vector< WVector3d_2 > grad;
+    std::vector< WVector3d > grad;
 
     tesselateIcosahedron( &grad, &temp, 2 );
 

@@ -123,8 +123,8 @@ void WMNavigationSlices::initOSG()
 
     // grab the current bounding box
     WBoundingBox bb = WGEColormapping::instance()->getBoundingBox();
-    WVector3d_2 minV = bb.getMin();
-    WVector3d_2 maxV = bb.getMax();
+    WVector3d minV = bb.getMin();
+    WVector3d maxV = bb.getMax();
 
     // update the properties
     m_xPos->setMin( minV[0] );
@@ -235,8 +235,8 @@ void WMNavigationSlices::PickCallback::pick( WPickInfo pickInfo )
 {
     if ( pickInfo.getName() == m_node->getName() )
     {
-        WVector3d_2 normal = pickInfo.getPickNormal();
-        WVector2d_2 newPixelPos = pickInfo.getPickPixel();
+        WVector3d normal = pickInfo.getPickNormal();
+        WVector2d newPixelPos = pickInfo.getPickPixel();
         // dragging was initialized earlier
         if ( m_isPicked )
         {

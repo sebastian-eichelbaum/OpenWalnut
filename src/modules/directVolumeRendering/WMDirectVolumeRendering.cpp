@@ -308,13 +308,13 @@ void WMDirectVolumeRendering::moduleMain()
             }
 
             // use the OSG Shapes, create unit cube
-            WBoundingBox bb( WPosition_2( 0.0, 0.0, 0.0 ),
-                    WPosition_2( grid->getNbCoordsX() - 1, grid->getNbCoordsY() - 1, grid->getNbCoordsZ() - 1 ) );
+            WBoundingBox bb( WPosition( 0.0, 0.0, 0.0 ),
+                    WPosition( grid->getNbCoordsX() - 1, grid->getNbCoordsY() - 1, grid->getNbCoordsZ() - 1 ) );
             osg::ref_ptr< osg::Node > cube = wge::generateSolidBoundingBoxNode( bb, WColor( 1.0, 1.0, 1.0, 1.0 ) );
             cube->asTransform()->getChild( 0 )->setName( "_DVR Proxy Cube" ); // Be aware that this name is used in the pick handler.
                                                                               // because of the underscore in front it won't be picked
             // we also set the grid's transformation here
-            rootNode->setMatrix( static_cast< WMatrix4d_2 >( grid->getTransform() ) );
+            rootNode->setMatrix( static_cast< WMatrix4d >( grid->getTransform() ) );
 
             m_shader->apply( cube );
 

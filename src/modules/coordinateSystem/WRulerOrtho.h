@@ -82,8 +82,8 @@ private:
 
     bool m_showNumbers; //!< flag to indicate wether to show number labels
 
-    WVector3d_2 m_lb; //!< = m_coordConverter->getBoundingBox().first;
-    WVector3d_2 m_ub; //!< = m_coordConverter->getBoundingBox().second;
+    WVector3d m_lb; //!< = m_coordConverter->getBoundingBox().first;
+    WVector3d m_ub; //!< = m_coordConverter->getBoundingBox().second;
 
 
     /**

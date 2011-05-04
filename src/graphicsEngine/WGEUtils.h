@@ -49,16 +49,16 @@ namespace wge
      * \param pos1 First point
      * \param pos2 Second point
      */
-    WColor getRGBAColorFromDirection( const WPosition_2 &pos1, const WPosition_2 &pos2 );
+    WColor getRGBAColorFromDirection( const WPosition &pos1, const WPosition &pos2 );
 
     /**
-     * Converts a whole vector of WPosition_2s into an osg::Vec3Array.
+     * Converts a whole vector of WPositions into an osg::Vec3Array.
      *
      * \param posArray The given positions vector
      *
      * \return Refernce to the same vector but as osg::Vec3Array.
      */
-    osg::ref_ptr< osg::Vec3Array > WGE_EXPORT osgVec3Array( const std::vector< WPosition_2 >& posArray );
+    osg::ref_ptr< osg::Vec3Array > WGE_EXPORT osgVec3Array( const std::vector< WPosition >& posArray );
 
     /**
      * Converts screen coordinates into Camera coordinates.
@@ -94,9 +94,9 @@ namespace wge
     WColor WGE_EXPORT getNthHSVColor( int n );
 }
 
-inline WColor wge::getRGBAColorFromDirection( const WPosition_2 &pos1, const WPosition_2 &pos2 )
+inline WColor wge::getRGBAColorFromDirection( const WPosition &pos1, const WPosition &pos2 )
 {
-    WPosition_2 direction( normalize( pos2 - pos1 ) );
+    WPosition direction( normalize( pos2 - pos1 ) );
     return WColor( std::abs( direction[0] ), std::abs( direction[1] ), std::abs( direction[2] ), 1.0f );
 }
 

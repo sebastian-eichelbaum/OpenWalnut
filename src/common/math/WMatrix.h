@@ -70,7 +70,7 @@ public:
      *
      * \param newMatrix the matrix to copy
      */
-    WMatrix( const WMatrix4d_2& newMatrix ); // NOLINT
+    WMatrix( const WMatrix4d& newMatrix ); // NOLINT
 
     /**
      * Makes the matrix contain the identity matrix, i.e. 1 on the diagonal.
@@ -108,7 +108,7 @@ public:
      *
      * \return casted matrix
      */
-    operator WMatrix4d_2() const;
+    operator WMatrix4d() const;
 
     /**
      * Cast this matrix to an 4x4 osg matrix if it is a 4x4 matrix.
@@ -151,7 +151,7 @@ public:
      * Multiplication with a vector.
      * \param rhs The right hand side of the multiplication
      */
-    WVector3d_2 operator*( const WVector3d_2& rhs ) const;
+    WVector3d operator*( const WVector3d& rhs ) const;
 
     /**
      * Returns the transposed matrix.
@@ -185,7 +185,7 @@ template< typename T > WMatrix< T >::WMatrix( const WMatrix& newMatrix )
     m_nbCols = newMatrix.m_nbCols;
 }
 
-template< typename T > WMatrix< T >::WMatrix( const WMatrix4d_2& newMatrix )
+template< typename T > WMatrix< T >::WMatrix( const WMatrix4d& newMatrix )
     : WValue< T >( 4 * 4 )
 {
     m_nbCols = 4;
@@ -198,11 +198,11 @@ template< typename T > WMatrix< T >::WMatrix( const WMatrix4d_2& newMatrix )
     }
 }
 
-template< typename T > WMatrix< T >::operator WMatrix4d_2() const
+template< typename T > WMatrix< T >::operator WMatrix4d() const
 {
     size_t nbRows = this->size() / m_nbCols;
     WAssert( m_nbCols == 4 && nbRows == 4, "This is no 4x4 matrix." );
-    WMatrix4d_2 m;
+    WMatrix4d m;
     for( size_t i = 0; i < nbRows; ++i )
     {
         for( size_t j = 0; j < m_nbCols; ++j )
@@ -375,10 +375,10 @@ template< typename T > WValue< T > WMatrix< T >::operator*( const WValue< T >& r
     return result;
 }
 
-template< typename T > WVector3d_2 WMatrix< T >::operator*( const WVector3d_2& rhs ) const
+template< typename T > WVector3d WMatrix< T >::operator*( const WVector3d& rhs ) const
 {
     WAssert( rhs.getRows() == getNbCols(), "Incompatible number of rows of rhs and columns of lhs." );
-    WVector3d_2 result;
+    WVector3d result;
 
     for( size_t r = 0; r < getNbRows(); ++r)
     {

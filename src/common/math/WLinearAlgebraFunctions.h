@@ -37,7 +37,7 @@ template< typename > class WMatrix;
  * \param mat 3x3 matrix
  * \param vec vector
  */
-WVector3d_2 OWCOMMON_EXPORT multMatrixWithVector3D( WMatrix<double> mat, WVector3d_2 vec );
+WVector3d OWCOMMON_EXPORT multMatrixWithVector3D( WMatrix<double> mat, WVector3d vec );
 
 /**
  * Applies a coordinate transformation in homogenous coordinates to a vector.
@@ -46,7 +46,7 @@ WVector3d_2 OWCOMMON_EXPORT multMatrixWithVector3D( WMatrix<double> mat, WVector
  * \param mat 4x4 matrix
  * \param vec vector
  */
-WVector3d_2 OWCOMMON_EXPORT transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3d_2 vec );
+WVector3d OWCOMMON_EXPORT transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3d vec );
 
 /**
  * Applies a coordinate transformation in homogenous coordinates to a position.
@@ -55,7 +55,7 @@ WVector3d_2 OWCOMMON_EXPORT transformVector3DWithMatrix4D( WMatrix<double> mat, 
  * \param mat 4x4 matrix
  * \param vec vector
  */
-WPosition_2 OWCOMMON_EXPORT transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition_2 vec );
+WPosition OWCOMMON_EXPORT transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec );
 
 /**
  * helper routine to invert a 3x3 matrix
@@ -85,7 +85,7 @@ WMatrix<double> OWCOMMON_EXPORT invertMatrix4x4( WMatrix<double> mat );
  *
  * \note This check is performed with the cross product != (0,0,0) but in numerical stability with FLT_EPS.
  */
-bool OWCOMMON_EXPORT linearIndependent( const WVector3d_2& u, const WVector3d_2& v );
+bool OWCOMMON_EXPORT linearIndependent( const WVector3d& u, const WVector3d& v );
 
 /**
  * Computes the SVD for the Matrix \param A

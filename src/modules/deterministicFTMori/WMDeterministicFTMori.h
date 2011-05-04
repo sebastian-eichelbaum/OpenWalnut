@@ -139,7 +139,7 @@ private:
     typedef WValueSet< double > FloatValueSetType;
 
     //! the fiber type
-    typedef std::vector< WVector3d_2 > FiberType;
+    typedef std::vector< WVector3d > FiberType;
 
     //! the threaded tracking functor
     typedef wtracking::WThreadedTrackingFunction Tracking;
@@ -179,7 +179,7 @@ private:
      *
      * \return The direction to follow.
      */
-    WVector3d_2 getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
+    WVector3d getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
                                         wtracking::WTrackingUtility::JobType const& j );
 
     /**
@@ -192,7 +192,7 @@ private:
     /**
      * The point visitor. Does nothing.
      */
-    void pointVis( WVector3d_2 const& );
+    void pointVis( WVector3d const& );
 
     /**
      * Reset the tracking function and abort the current one, if there is a current one.

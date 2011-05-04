@@ -299,32 +299,32 @@ const WPropSelection WDataSetFibers::getColorSchemeProperty() const
     return m_colorProp;
 }
 
-WPosition_2 WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
+WPosition WDataSetFibers::getPosition( size_t fiber, size_t vertex ) const
 {
     size_t index = m_lineStartIndexes->at( fiber ) * 3;
     index += vertex * 3;
-    return WPosition_2( m_vertices->at( index ), m_vertices->at( index + 1 ), m_vertices->at( index + 2 ) );
+    return WPosition( m_vertices->at( index ), m_vertices->at( index + 1 ), m_vertices->at( index + 2 ) );
 }
 
-WPosition_2 WDataSetFibers::getTangent( size_t fiber, size_t vertex ) const
+WPosition WDataSetFibers::getTangent( size_t fiber, size_t vertex ) const
 {
-    WPosition_2 point = getPosition( fiber, vertex );
-    WPosition_2 tangent;
+    WPosition point = getPosition( fiber, vertex );
+    WPosition tangent;
 
     if ( vertex == 0 ) // first point
     {
-        WPosition_2 pointNext = getPosition( fiber, vertex + 1 );
+        WPosition pointNext = getPosition( fiber, vertex + 1 );
         tangent = point - pointNext;
     }
     else if ( vertex == m_lineLengths->at( fiber ) - 1 ) // last point
     {
-        WPosition_2 pointBefore = getPosition( fiber, vertex - 1 );
+        WPosition pointBefore = getPosition( fiber, vertex - 1 );
         tangent = pointBefore - point;
     }
     else // somewhere in between
     {
-        WPosition_2 pointBefore = getPosition( fiber, vertex - 1 );
-        WPosition_2 pointNext = getPosition( fiber, vertex + 1 );
+        WPosition pointBefore = getPosition( fiber, vertex - 1 );
+        WPosition pointNext = getPosition( fiber, vertex + 1 );
         tangent = pointBefore - pointNext;
     }
 
@@ -479,7 +479,7 @@ WFiber WDataSetFibers::operator[]( size_t numTract ) const
     size_t vIdx = ( *m_lineStartIndexes )[ numTract ] * 3;
     for( size_t vertexNum = 0; vertexNum < ( *m_lineLengths )[ numTract ]; ++vertexNum )
     {
-        result.push_back( WPosition_2( ( *m_vertices )[vIdx], ( *m_vertices )[vIdx + 1], ( *m_vertices )[vIdx + 2]  ) );
+        result.push_back( WPosition( ( *m_vertices )[vIdx], ( *m_vertices )[vIdx + 1], ( *m_vertices )[vIdx + 2]  ) );
         vIdx += 3;
     }
     return result;

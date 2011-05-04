@@ -66,7 +66,7 @@ void WBresenham::raster( const WLine& line )
     lock.unlock();
 }
 
-void WBresenham::rasterSegment( const WPosition_2& start, const WPosition_2& end )
+void WBresenham::rasterSegment( const WPosition& start, const WPosition& end )
 {
     int i;
     WValue< int > gridStartPos = m_grid->getVoxelCoord( start );
@@ -157,13 +157,13 @@ void WBresenham::rasterSegment( const WPosition_2& start, const WPosition_2& end
 }
 
 std::vector< double > WBresenham::computeDistances( const size_t voxelNum,
-                                                    const WPosition_2& start,
-                                                    const WPosition_2& end ) const
+                                                    const WPosition& start,
+                                                    const WPosition& end ) const
 {
-    WPosition_2 u = end - start;
+    WPosition u = end - start;
     u = normalize( u );
 
-    std::vector< WPosition_2 > x;
+    std::vector< WPosition > x;
     x.reserve( 7 );
     x.push_back( m_grid->getPosition( voxelNum ) - start );
     x.push_back( m_grid->getPosition( voxelNum + 1 ) - start );
@@ -179,7 +179,7 @@ std::vector< double > WBresenham::computeDistances( const size_t voxelNum,
     // now calculate distance from x to the line given via start and end
     for( size_t i = 0; i < x.size(); ++i )
     {
-        WPosition_2 lot = dot( u, x[i] ) * u; // lot == perpendicular
+        WPosition lot = dot( u, x[i] ) * u; // lot == perpendicular
         result.push_back( std::abs( length( x[i] - lot ) ) );
     }
     return result;
@@ -191,7 +191,7 @@ double WBresenham::composeValue( double newValue, double existingValue ) const
     // return newValue + existingValue;
 }
 
-void WBresenham::markVoxel( const WValue< int >& voxel, const int axis, const WPosition_2& start, const WPosition_2& end )
+void WBresenham::markVoxel( const WValue< int >& voxel, const int axis, const WPosition& start, const WPosition& end )
 {
     size_t nbX  = m_grid->getNbCoordsX();
     size_t nbXY = m_grid->getNbCoordsX() * m_grid->getNbCoordsY();

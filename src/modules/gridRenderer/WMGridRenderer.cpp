@@ -34,7 +34,6 @@
 #include <osgText/Text>
 
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../common/WAssert.h"
 #include "../../common/WBoundingBox.h"
 #include "../../common/WStringUtils.h"

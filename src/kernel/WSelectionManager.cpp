@@ -66,12 +66,12 @@ int WSelectionManager::getFrontSector()
             rotMat( i, j ) = rm( i, j );
         }
     }
-    WPosition_2 v1( 0, 0, 1 );
-    WPosition_2 view;
+    WPosition v1( 0, 0, 1 );
+    WPosition view;
     view = transformPosition3DWithMatrix4D( rotMat, v1 );
 
     std::vector<float> dots( 8 );
-    WPosition_2 v2( 1, 1, 1 );
+    WPosition v2( 1, 1, 1 );
     dots[0] = dot( v2, view );
 
     v2[2] = -1;

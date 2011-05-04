@@ -82,7 +82,7 @@ boost::shared_ptr< WPrototyped > WDataSetVector::getPrototype()
 
 namespace
 {
-    boost::array< double, 8 > computePrefactors( const WPosition_2& pos, boost::shared_ptr< const WGrid > i_grid,
+    boost::array< double, 8 > computePrefactors( const WPosition& pos, boost::shared_ptr< const WGrid > i_grid,
             boost::shared_ptr< const WValueSetBase > i_valueSet, bool *success, boost::shared_ptr< std::vector< size_t > > vertexIds )
     {
         boost::shared_ptr< const WGridRegular3D > grid = boost::shared_dynamic_cast< const WGridRegular3D >( i_grid );
@@ -105,7 +105,7 @@ namespace
 
         *vertexIds = grid->getCellVertexIds( cellId );
 
-        WPosition_2 localPos = pos - grid->getPosition( ( *vertexIds )[0] );
+        WPosition localPos = pos - grid->getPosition( ( *vertexIds )[0] );
 
         double lambdaX = localPos[0] / grid->getOffsetX();
         double lambdaY = localPos[1] / grid->getOffsetY();
@@ -133,11 +133,11 @@ namespace
     }
 }
 
-WVector3d_2 WDataSetVector::interpolate( const WPosition_2& pos, bool *success ) const
+WVector3d WDataSetVector::interpolate( const WPosition& pos, bool *success ) const
 {
     boost::shared_ptr< std::vector< size_t > > vertexIds( new std::vector< size_t > );
     boost::array< double, 8 > h = computePrefactors( pos, m_grid, m_valueSet, success, vertexIds );
-    WVector3d_2 result( 0.0, 0.0, 0.0 );
+    WVector3d result( 0.0, 0.0, 0.0 );
 
     if( *success ) // only if pos was iniside the grid, we proivde a result different to 0.0, 0.0, 0.0
     {
@@ -150,11 +150,11 @@ WVector3d_2 WDataSetVector::interpolate( const WPosition_2& pos, bool *success )
     return result;
 }
 
-WVector3d_2 WDataSetVector::eigenVectorInterpolate( const WPosition_2& pos, bool *success ) const
+WVector3d WDataSetVector::eigenVectorInterpolate( const WPosition& pos, bool *success ) const
 {
     boost::shared_ptr< std::vector< size_t > > vertexIds( new std::vector< size_t > );
     boost::array< double, 8 > h = computePrefactors( pos, m_grid, m_valueSet, success, vertexIds );
-    WVector3d_2 result( 0.0, 0.0, 0.0 );
+    WVector3d result( 0.0, 0.0, 0.0 );
 
     if( *success ) // only if pos was iniside the grid, we proivde a result different to 0.0, 0.0, 0.0
     {
@@ -172,7 +172,7 @@ WVector3d_2 WDataSetVector::eigenVectorInterpolate( const WPosition_2& pos, bool
     return result;
 }
 
-WVector3d_2 WDataSetVector::getVectorAt( size_t index ) const
+WVector3d WDataSetVector::getVectorAt( size_t index ) const
 {
     switch( getValueSet()->getDataType() )
     {
@@ -200,7 +200,7 @@ WVector3d_2 WDataSetVector::getVectorAt( size_t index ) const
             WAssert( false, "Unknow data type in dataset." );
     }
 
-    return WVector3d_2( 0, 0, 0 );
+    return WVector3d( 0, 0, 0 );
 }
 
 bool WDataSetVector::isTexture() const

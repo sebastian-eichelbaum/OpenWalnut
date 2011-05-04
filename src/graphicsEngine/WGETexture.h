@@ -428,7 +428,7 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
 
     m_active = m_properties->addProperty( "Active", "Can dis-enable a texture.", true );
 
-    WMatrix4d_2 m = WMatrix4d_2::identity();
+    WMatrix4d m = WMatrix4d::identity();
     m_texMatrix = m_properties->addProperty( "Texture Transformation", "Usable to transform the texture.", m );
     m_texMatrix->setPurpose( PV_PURPOSE_INFORMATION );
 

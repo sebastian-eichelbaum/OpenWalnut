@@ -22,19 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WPOSITION_2_H
-#define WPOSITION_2_H
+#ifndef WPOSITION_H
+#define WPOSITION_H
 
 #include "WVectorFixed.h"
 
 /**
- * \class WPosition_2
- * The file %linearAlgebra/WLinearAlgebra.h just includes %WVectorFixed.h.
- * There is "typedef WVector3d_2 WPosition_2;" in %WVectorFixed.h.
- * WPosition_2 such is just another name for WVector3d_2 to indicate the specific use
- * for positions in some places.
+ * \class WPosition
+ * This only is a 3d double vector.
  */
-typedef WVector3d_2 WPosition_2;
+typedef WVector3d WPosition;
 
 #endif  // WPOSITION_H
 

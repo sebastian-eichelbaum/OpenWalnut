@@ -98,7 +98,7 @@ public:
      *
      * \return Vector beeing the interpolate.
      */
-    WVector3d_2 interpolate( const WPosition_2 &pos, bool *success ) const;
+    WVector3d interpolate( const WPosition &pos, bool *success ) const;
 
     /**
      * Interpolates the very same way as \ref interpolate but it assures that all vecs are aligned to point into the same
@@ -109,17 +109,17 @@ public:
      *
      * \return The resulting interpolated vector.
      */
-    WVector3d_2 eigenVectorInterpolate( const WPosition_2 &pos, bool *success ) const;
+    WVector3d eigenVectorInterpolate( const WPosition &pos, bool *success ) const;
 
     /**
      * Get the vector on the given position in value set.
-     * \note currently only implmented for WVector3d_2
+     * \note currently only implmented for WVector3d
      *
      * \param index the position where to get the vector from
      *
      * \return the vector
      */
-    WVector3d_2 getVectorAt( size_t index ) const;
+    WVector3d getVectorAt( size_t index ) const;
 
     /**
      * Determines whether this dataset can be used as a texture.

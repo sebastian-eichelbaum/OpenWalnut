@@ -98,12 +98,12 @@ void WMCalculateTensors::moduleMain()
 
     // calc sh->tensor conversion matrix
     std::vector< WUnitSphereCoordinates > orientations;
-    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 1.0, 0.0, 0.0 ) ) ) );
-    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 0.6, -0.1, 0.2 ) ) ) );
-    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 1.0, 1.0, 1.0 ) ) ) );
-    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( -0.1, -0.3, 0.5 ) ) ) );
-    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( -0.56347, 0.374, -0.676676 ) ) ) );
-    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d_2( 0.0, 4.0, 1.0 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 1.0, 0.0, 0.0 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 0.6, -0.1, 0.2 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 1.0, 1.0, 1.0 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( -0.1, -0.3, 0.5 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( -0.56347, 0.374, -0.676676 ) ) ) );
+    orientations.push_back( WUnitSphereCoordinates( normalize( WVector3d( 0.0, 4.0, 1.0 ) ) ) );
 
     m_SHToTensorMat = WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( 2, orientations );
 

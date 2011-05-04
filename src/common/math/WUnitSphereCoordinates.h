@@ -55,7 +55,7 @@ public:
      * Constructor for Euclidean coordinates.
      * \param vector Euclidean coordinates
      */
-    explicit WUnitSphereCoordinates( WVector3d_2 vector );
+    explicit WUnitSphereCoordinates( WVector3d vector );
 
     /**
      * Destructor.
@@ -87,7 +87,7 @@ public:
     /**
      * Returns the stored sphere coordinates as Euclidean coordinates.
      */
-    WVector3d_2 getEuclidean() const;
+    WVector3d getEuclidean() const;
 
 protected:
 

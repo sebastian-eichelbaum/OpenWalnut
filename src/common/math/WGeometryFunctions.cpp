@@ -27,7 +27,7 @@
 
 #include "WGeometryFunctions.h"
 
-void tesselateIcosahedron( std::vector< WVector3d_2 >* vertices, std::vector< unsigned int >* triangles, unsigned int level )
+void tesselateIcosahedron( std::vector< WVector3d >* vertices, std::vector< unsigned int >* triangles, unsigned int level )
 {
     WAssert( vertices, "Missing input vector." );
     WAssert( triangles, "Missing input vector." );
@@ -47,24 +47,24 @@ void tesselateIcosahedron( std::vector< WVector3d_2 >* vertices, std::vector< un
     // add icosahedron vertices
     double phi = 0.5 * ( 1.0 + sqrt( 5.0 ) );
 
-    std::vector< WVector3d_2 > g;
+    std::vector< WVector3d > g;
 
-    vertices->push_back( WVector3d_2( phi, 1, 0 ) ); // 0
-    vertices->push_back( WVector3d_2( -phi, 1, 0 ) ); // 1
-    vertices->push_back( WVector3d_2( phi, -1, 0 ) ); // 2
-    vertices->push_back( WVector3d_2( -phi, -1, 0 ) ); // 3
+    vertices->push_back( WVector3d( phi, 1, 0 ) ); // 0
+    vertices->push_back( WVector3d( -phi, 1, 0 ) ); // 1
+    vertices->push_back( WVector3d( phi, -1, 0 ) ); // 2
+    vertices->push_back( WVector3d( -phi, -1, 0 ) ); // 3
 
-    vertices->push_back( WVector3d_2( 1, 0, phi ) ); // 4
-    vertices->push_back( WVector3d_2( -1, 0, phi ) ); // 5
-    vertices->push_back( WVector3d_2( 1, 0, -phi ) ); // 6
-    vertices->push_back( WVector3d_2( -1, 0, -phi ) ); // 7
+    vertices->push_back( WVector3d( 1, 0, phi ) ); // 4
+    vertices->push_back( WVector3d( -1, 0, phi ) ); // 5
+    vertices->push_back( WVector3d( 1, 0, -phi ) ); // 6
+    vertices->push_back( WVector3d( -1, 0, -phi ) ); // 7
 
-    vertices->push_back( WVector3d_2( 0, phi, 1 ) ); // 8
-    vertices->push_back( WVector3d_2( 0, -phi, 1 ) ); // 9
-    vertices->push_back( WVector3d_2( 0, phi, -1 ) ); // 10
-    vertices->push_back( WVector3d_2( 0, -phi, -1 ) ); // 11
+    vertices->push_back( WVector3d( 0, phi, 1 ) ); // 8
+    vertices->push_back( WVector3d( 0, -phi, 1 ) ); // 9
+    vertices->push_back( WVector3d( 0, phi, -1 ) ); // 10
+    vertices->push_back( WVector3d( 0, -phi, -1 ) ); // 11
 
-    for( std::vector< WVector3d_2 >::iterator it = vertices->begin(); it != vertices->end(); ++it )
+    for( std::vector< WVector3d >::iterator it = vertices->begin(); it != vertices->end(); ++it )
     {
         *it = normalize( *it );
     }
@@ -111,9 +111,9 @@ void tesselateIcosahedron( std::vector< WVector3d_2 >* vertices, std::vector< un
                 utility::Edge e( ( *triangles )[ 3 * k + i ], ( *triangles )[ 3 * k + ( i + 1 ) % 3 ] );
                 if( edgeVertices.find( e ) == edgeVertices.end() )
                 {
-                    WVector3d_2 v0 = vertices->at( e.first );
-                    WVector3d_2 v1 = vertices->at( e.second );
-                    WVector3d_2 v = v0 + v1;
+                    WVector3d v0 = vertices->at( e.first );
+                    WVector3d v1 = vertices->at( e.second );
+                    WVector3d v = v0 + v1;
                     v = normalize( v );
                     vertices->push_back( v );
                     edgeVertices[ e ] = vertices->size() - 1;

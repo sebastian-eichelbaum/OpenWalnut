@@ -49,7 +49,7 @@ WGaussProcess::~WGaussProcess()
 {
 }
 
-double WGaussProcess::mean( const WPosition_2& p ) const
+double WGaussProcess::mean( const WPosition& p ) const
 {
     Eigen::VectorXd Sf( m_Cff_1_l_product.size() );
 
@@ -104,7 +104,7 @@ double WGaussProcess::generateTauParameter()
     return result;
 }
 
-double WGaussProcess::cov_d( const WPosition_2& /* p1 */, const WPosition_2& /* p2 */ ) const
+double WGaussProcess::cov_d( const WPosition& /* p1 */, const WPosition& /* p2 */ ) const
 {
     // According to Demian this function is very complex, involing tensor interpolation (not
     // component wise) which is not trivial, but the out come does not contribute significantly to

@@ -174,7 +174,7 @@ namespace wge
      * \param points Center point of the cubes
      * \param size The size of the cubes
      * \param color The color of the cubes
-     * \tparam An STL container with WPosition_2s as elements ( don't try it with different than vector, set, list or queue )
+     * \tparam An STL container with WPositions as elements ( don't try it with different than vector, set, list or queue )
      *
      * \return Geode with as many cubes as points in the container where each cube is around a certain position.
      */
@@ -194,18 +194,18 @@ template< class Container > inline osg::ref_ptr< osg::Geode > wge::genPointBlobs
 
     for( typename Container::const_iterator point = points->begin(); point != points->end(); ++point )
     {
-        const WPosition_2& pos = *point;
-        std::vector< WPosition_2 > corners;
+        const WPosition& pos = *point;
+        std::vector< WPosition > corners;
         corners.reserve( 8 );
         double halfSize = size / 2.0;
-        corners.push_back( WPosition_2( pos[0] - halfSize, pos[1] - halfSize, pos[2] - halfSize ) );
-        corners.push_back( WPosition_2( pos[0] + halfSize, pos[1] - halfSize, pos[2] - halfSize ) );
-        corners.push_back( WPosition_2( pos[0] + halfSize, pos[1] - halfSize, pos[2] + halfSize ) );
-        corners.push_back( WPosition_2( pos[0] - halfSize, pos[1] - halfSize, pos[2] + halfSize ) );
-        corners.push_back( WPosition_2( pos[0] - halfSize, pos[1] + halfSize, pos[2] - halfSize ) );
-        corners.push_back( WPosition_2( pos[0] + halfSize, pos[1] + halfSize, pos[2] - halfSize ) );
-        corners.push_back( WPosition_2( pos[0] + halfSize, pos[1] + halfSize, pos[2] + halfSize ) );
-        corners.push_back( WPosition_2( pos[0] - halfSize, pos[1] + halfSize, pos[2] + halfSize ) );
+        corners.push_back( WPosition( pos[0] - halfSize, pos[1] - halfSize, pos[2] - halfSize ) );
+        corners.push_back( WPosition( pos[0] + halfSize, pos[1] - halfSize, pos[2] - halfSize ) );
+        corners.push_back( WPosition( pos[0] + halfSize, pos[1] - halfSize, pos[2] + halfSize ) );
+        corners.push_back( WPosition( pos[0] - halfSize, pos[1] - halfSize, pos[2] + halfSize ) );
+        corners.push_back( WPosition( pos[0] - halfSize, pos[1] + halfSize, pos[2] - halfSize ) );
+        corners.push_back( WPosition( pos[0] + halfSize, pos[1] + halfSize, pos[2] - halfSize ) );
+        corners.push_back( WPosition( pos[0] + halfSize, pos[1] + halfSize, pos[2] + halfSize ) );
+        corners.push_back( WPosition( pos[0] - halfSize, pos[1] + halfSize, pos[2] + halfSize ) );
 
         osg::ref_ptr< osg::Vec3Array > ver = generateCuboidQuads( corners );
         vertices->insert( vertices->end(), ver->begin(), ver->end() );

@@ -41,16 +41,16 @@ class WFiberTest : public CxxTest::TestSuite
 {
 public:
     /**
-     * Two fibers are equal if they have equal WPosition_2s in same order
+     * Two fibers are equal if they have equal WPositions in same order
      */
     void testEqualityOperator( void )
     {
         WFiber fib1;
         WFiber fib2;
-        fib1.push_back( WPosition_2( 1.2, 3.4, 5.6 ) );
-        fib1.push_back( WPosition_2( 7.8, 9.0, -1.2 ) );
-        fib2.push_back( WPosition_2( 1.2, 3.4, 5.6 ) );
-        fib2.push_back( WPosition_2( 7.8, 9.0, -1.2 ) );
+        fib1.push_back( WPosition( 1.2, 3.4, 5.6 ) );
+        fib1.push_back( WPosition( 7.8, 9.0, -1.2 ) );
+        fib2.push_back( WPosition( 1.2, 3.4, 5.6 ) );
+        fib2.push_back( WPosition( 7.8, 9.0, -1.2 ) );
         TS_ASSERT_EQUALS( fib1, fib2 );
     }
 
@@ -61,11 +61,11 @@ public:
     void testDLTisSymmetric( void )
     {
         WFiber q;
-        q.push_back( WPosition_2( 0, 1, 0 ) );
-        q.push_back( WPosition_2( 0, 0, 0 ) );
+        q.push_back( WPosition( 0, 1, 0 ) );
+        q.push_back( WPosition( 0, 0, 0 ) );
         WFiber r;
-        r.push_back( WPosition_2( 1, 1, 0 ) );
-        r.push_back( WPosition_2( 2, 2, 0 ) );
+        r.push_back( WPosition( 1, 1, 0 ) );
+        r.push_back( WPosition( 2, 2, 0 ) );
 
         TS_ASSERT_EQUALS( WFiber::distDLT( 1.0, q, r ), std::sqrt( 5.0 ) / 2.0 );
         TS_ASSERT_EQUALS( WFiber::distDLT( 1.0, r, q ), std::sqrt( 5.0 ) / 2.0 );
@@ -78,11 +78,11 @@ public:
     void testDSTisSymmetric( void )
     {
         WFiber q;
-        q.push_back( WPosition_2( 0, 1, 0 ) );
-        q.push_back( WPosition_2( 0, 0, 0 ) );
+        q.push_back( WPosition( 0, 1, 0 ) );
+        q.push_back( WPosition( 0, 0, 0 ) );
         WFiber r;
-        r.push_back( WPosition_2( 1, 1, 0 ) );
-        r.push_back( WPosition_2( 2, 2, 0 ) );
+        r.push_back( WPosition( 1, 1, 0 ) );
+        r.push_back( WPosition( 2, 2, 0 ) );
 
         TS_ASSERT_EQUALS( WFiber::distDST( 1.0, q, r ), std::sqrt( 2.0 ) / 2.0 );
         TS_ASSERT_EQUALS( WFiber::distDST( 1.0, r, q ), std::sqrt( 2.0 ) / 2.0 );
@@ -95,11 +95,11 @@ public:
     void testDTMeasure( void )
     {
         WFiber q;
-        q.push_back( WPosition_2( 0, 1, 0 ) );
-        q.push_back( WPosition_2( 0, 0, 0 ) );
+        q.push_back( WPosition( 0, 1, 0 ) );
+        q.push_back( WPosition( 0, 0, 0 ) );
         WFiber r;
-        r.push_back( WPosition_2( 1, 1, 0 ) );
-        r.push_back( WPosition_2( 2, 2, 0 ) );
+        r.push_back( WPosition( 1, 1, 0 ) );
+        r.push_back( WPosition( 2, 2, 0 ) );
 
         TS_ASSERT_EQUALS( WFiber::distDST( 1.0, q, r ), std::sqrt( 2.0 ) / 2.0 );
         TS_ASSERT_EQUALS( WFiber::distDLT( 1.0, q, r ), std::sqrt( 5.0 ) / 2.0 );

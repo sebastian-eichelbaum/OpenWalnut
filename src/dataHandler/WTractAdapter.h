@@ -53,14 +53,14 @@ public:
     size_t numPoints() const;
 
     /**
-     * Constructs and returns a \ref WPosition_2 out of the i'th position of this tract.
+     * Constructs and returns a \ref WPosition out of the i'th position of this tract.
      *
      * \param index The index of the position of this tract. It may start at \c 0 and is always
      * smaller than \ref numPoints().
      *
-     * \return The i'th position of this tract as \ref WPosition_2.
+     * \return The i'th position of this tract as \ref WPosition.
      */
-    WPosition_2 operator[]( size_t index ) const;
+    WPosition operator[]( size_t index ) const;
 
 //    void reset( boost::shared_ptr< const WTractData > tracts, size_t startIndex, size_t numPoints )
 
@@ -73,7 +73,7 @@ private:
     boost::shared_ptr< const std::vector< float > > m_pointComponents;
 
     /**
-     * How many \e points aka WPosition_2s this tract consists of.
+     * How many \e points aka WPositions this tract consists of.
      */
     size_t m_numPoints;
 

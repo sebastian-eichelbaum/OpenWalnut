@@ -50,10 +50,10 @@ public:
     void testEqualsDeltaDifferentLength( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0, 0, 0 ) );
-        line.push_back( WPosition_2( 1, 0, 0 ) );
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 0, 0 ) );
         WLine other;
-        other.push_back( WPosition_2( 0, 0, 0 ) );
+        other.push_back( WPosition( 0, 0, 0 ) );
         TS_ASSERT_EQUALS( equalsDelta( line, other, 0.0 ), 1 );
     }
 
@@ -65,11 +65,11 @@ public:
     void testEqualsDeltaOnRealDifferentLines( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0, 0, 0 ) );
-        line.push_back( WPosition_2( 1, 0, 0 ) );
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 0, 0 ) );
         WLine other;
-        other.push_back( WPosition_2( 0, 0, 0 ) );
-        other.push_back( WPosition_2( 1, 0, 0 + 2 * wlimits::DBL_EPS ) );
+        other.push_back( WPosition( 0, 0, 0 ) );
+        other.push_back( WPosition( 1, 0, 0 + 2 * wlimits::DBL_EPS ) );
         TS_ASSERT_EQUALS( equalsDelta( line, other, wlimits::DBL_EPS ), 1 );
     }
 
@@ -80,11 +80,11 @@ public:
     void testEqualsDeltaOnDifferentLinesButWithinDelta( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0, 0, 0 ) );
-        line.push_back( WPosition_2( 1, 0, 0 ) );
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 0, 0 ) );
         WLine other;
-        other.push_back( WPosition_2( 0, 0, 0 ) );
-        other.push_back( WPosition_2( 1, 0, 0 + 2 * wlimits::DBL_EPS ) );
+        other.push_back( WPosition( 0, 0, 0 ) );
+        other.push_back( WPosition( 1, 0, 0 + 2 * wlimits::DBL_EPS ) );
         TS_ASSERT_EQUALS( equalsDelta( line, other, 2 * wlimits::DBL_EPS ), -1 );
     }
 
@@ -97,9 +97,9 @@ public:
     void testOutputOperator( void )
     {
         WLine l;
-        l.push_back( WPosition_2( 1.0, 1.0, 3.1415 ) );
-        l.push_back( WPosition_2( 0.0, 0.0, 0.44 ) );
-        l.push_back( WPosition_2( 1.0, 1.0, 1.0 ) );
+        l.push_back( WPosition( 1.0, 1.0, 3.1415 ) );
+        l.push_back( WPosition( 0.0, 0.0, 0.44 ) );
+        l.push_back( WPosition( 1.0, 1.0, 1.0 ) );
         std::string expected( "[1.0000000000000000e+00;1.0000000000000000e+00;3.1415000000000002e+00;, "
                                "0.0000000000000000e+00;0.0000000000000000e+00;4.4000000000000000e-01;, "
                                "1.0000000000000000e+00;1.0000000000000000e+00;1.0000000000000000e+00;]" );
@@ -114,13 +114,13 @@ public:
     void testEqualityOperator( void )
     {
         WLine line1;
-        line1.push_back( WPosition_2( 1.0, 1.0, 3.1415 ) );
-        line1.push_back( WPosition_2( 0.0, 0.0, 0.44 ) );
-        line1.push_back( WPosition_2( 1.0, 1.0, 1.0 ) );
+        line1.push_back( WPosition( 1.0, 1.0, 3.1415 ) );
+        line1.push_back( WPosition( 0.0, 0.0, 0.44 ) );
+        line1.push_back( WPosition( 1.0, 1.0, 1.0 ) );
         WLine line2;
-        line2.push_back( WPosition_2( 1.0, 1.0, 3.1415 ) );
-        line2.push_back( WPosition_2( 0.0, 0.0, 0.44 ) );
-        line2.push_back( WPosition_2( 1.0, 1.0, 1.0 ) );
+        line2.push_back( WPosition( 1.0, 1.0, 3.1415 ) );
+        line2.push_back( WPosition( 0.0, 0.0, 0.44 ) );
+        line2.push_back( WPosition( 1.0, 1.0, 1.0 ) );
         TS_ASSERT_EQUALS( line1, line2 );
         line2.back()[1] += 0.0000000001;
         TS_ASSERT_DIFFERS( line1, line2 );
@@ -128,15 +128,15 @@ public:
 
     /**
      * When accessing an item within 0..length-1 a const reference to the
-     * WPosition_2 object should be returned.
+     * WPosition object should be returned.
      */
     void testAccessOperatorWithinValidBounds( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 1.0, 1.0, 3.1415 ) );
-        line.push_back( WPosition_2( 0.0, 0.0, 0.44 ) );
-        line.push_back( WPosition_2( 1.0, 1.0, 1.0 ) );
-        WPosition_2 expected( 1.0, 1.0, 1.0 );
+        line.push_back( WPosition( 1.0, 1.0, 3.1415 ) );
+        line.push_back( WPosition( 0.0, 0.0, 0.44 ) );
+        line.push_back( WPosition( 1.0, 1.0, 1.0 ) );
+        WPosition expected( 1.0, 1.0, 1.0 );
         TS_ASSERT_EQUALS( expected, line[2] );
     }
 
@@ -147,13 +147,13 @@ public:
     void testReverseOrdering( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 1, 2, 3 ) );
-        line.push_back( WPosition_2( 4, 5, 6 ) );
-        line.push_back( WPosition_2( 7, 8, 9 ) );
+        line.push_back( WPosition( 1, 2, 3 ) );
+        line.push_back( WPosition( 4, 5, 6 ) );
+        line.push_back( WPosition( 7, 8, 9 ) );
         WLine expected;
-        expected.push_back( WPosition_2( 7, 8, 9 ) );
-        expected.push_back( WPosition_2( 4, 5, 6 ) );
-        expected.push_back( WPosition_2( 1, 2, 3 ) );
+        expected.push_back( WPosition( 7, 8, 9 ) );
+        expected.push_back( WPosition( 4, 5, 6 ) );
+        expected.push_back( WPosition( 1, 2, 3 ) );
         line.reverseOrder();
         TS_ASSERT_EQUALS( line, expected );
     }
@@ -165,11 +165,11 @@ public:
     void testPathLength( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 1, 2, 3 ) );
-        line.push_back( WPosition_2( 4, 5, 6 ) );
-        line.push_back( WPosition_2( 7, 8, 9 ) );
-        double expected = length( WPosition_2( 1, 2, 3 ) - WPosition_2( 4, 5, 6 ) ) +
-                          length( WPosition_2( 4, 5, 6 ) - WPosition_2( 7, 8, 9 ) );
+        line.push_back( WPosition( 1, 2, 3 ) );
+        line.push_back( WPosition( 4, 5, 6 ) );
+        line.push_back( WPosition( 7, 8, 9 ) );
+        double expected = length( WPosition( 1, 2, 3 ) - WPosition( 4, 5, 6 ) ) +
+                          length( WPosition( 4, 5, 6 ) - WPosition( 7, 8, 9 ) );
         TS_ASSERT_EQUALS( expected, pathLength( line ) );
     }
 
@@ -182,15 +182,15 @@ public:
     void testDownSampleLine( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0, 0, 0 ) );
-        line.push_back( WPosition_2( 1, 1, 0 ) );
-        line.push_back( WPosition_2( 2, 0, 0 ) );
-        line.push_back( WPosition_2( 3, 1, 0 ) );
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
+        line.push_back( WPosition( 2, 0, 0 ) );
+        line.push_back( WPosition( 3, 1, 0 ) );
         line.resampleByNumberOfPoints( 3 );
         WLine expected;
-        expected.push_back( WPosition_2( 0, 0, 0 ) );
-        expected.push_back( WPosition_2( 1.5, 0.5, 0 ) );
-        expected.push_back( WPosition_2( 3, 1, 0 ) );
+        expected.push_back( WPosition( 0, 0, 0 ) );
+        expected.push_back( WPosition( 1.5, 0.5, 0 ) );
+        expected.push_back( WPosition( 3, 1, 0 ) );
         assert_equals_delta( line, expected, 2 * wlimits::DBL_EPS );
     }
 
@@ -203,7 +203,7 @@ public:
         WLine line;
         for( size_t i = 0; i < 10; ++i )
         {
-            line.push_back( WPosition_2( i, 3 * i, 10 - i ) );
+            line.push_back( WPosition( i, 3 * i, 10 - i ) );
         }
         TS_ASSERT( line.size() == 10 );
         WLine expected( line ); // make a copy of the original
@@ -220,9 +220,9 @@ public:
         WLine expected;
         for( int i = 0; i < 3; ++i )
         {
-            line.push_back( WPosition_2( i, std::pow( -1.0, i % 2 ), 0 ) );
-            expected.push_back( WPosition_2( i, std::pow( -1.0, i % 2 ), 0 ) );
-            expected.push_back( WPosition_2( i + 0.5, 0, 0 ) );
+            line.push_back( WPosition( i, std::pow( -1.0, i % 2 ), 0 ) );
+            expected.push_back( WPosition( i, std::pow( -1.0, i % 2 ), 0 ) );
+            expected.push_back( WPosition( i + 0.5, 0, 0 ) );
         }
         expected.pop_back();
         line.resampleByNumberOfPoints( 5 );
@@ -239,11 +239,11 @@ public:
         WLine expected;
         for( int i = 0; i < 100; ++i )
         {
-            line.push_back( WPosition_2( i, std::pow( -1.0, i % 2 ), 0 ) );
-            expected.push_back( WPosition_2( i, std::pow( -1.0, i % 2 ), 0 ) );
-            expected.push_back( WPosition_2( i + 0.25, std::pow( -1.0, i % 2 ) * 0.5, 0 ) );
-            expected.push_back( WPosition_2( i + 0.5,  0, 0 ) );
-            expected.push_back( WPosition_2( i + 0.75, std::pow( -1.0, ( i + 1 ) % 2 ) * 0.5, 0 ) );
+            line.push_back( WPosition( i, std::pow( -1.0, i % 2 ), 0 ) );
+            expected.push_back( WPosition( i, std::pow( -1.0, i % 2 ), 0 ) );
+            expected.push_back( WPosition( i + 0.25, std::pow( -1.0, i % 2 ) * 0.5, 0 ) );
+            expected.push_back( WPosition( i + 0.5,  0, 0 ) );
+            expected.push_back( WPosition( i + 0.75, std::pow( -1.0, ( i + 1 ) % 2 ) * 0.5, 0 ) );
         }
         expected.pop_back();
         expected.pop_back();
@@ -258,14 +258,14 @@ public:
     void testManySampelsInBetweenOfTwoOldPoints( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0, 0, 0 ) );
-        line.push_back( WPosition_2( 1, 1, 0 ) );
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
         line.resampleByNumberOfPoints( 1001 );
         WLine expected;
-        expected.push_back( WPosition_2( 0, 0, 0 ) );
+        expected.push_back( WPosition( 0, 0, 0 ) );
         for( size_t i = 1; i < 1001; ++i )
         {
-            expected.push_back( WPosition_2( i / 1000.0, i / 1000.0, 0 ) );
+            expected.push_back( WPosition( i / 1000.0, i / 1000.0, 0 ) );
         }
         assert_equals_delta( expected, line, 1.0 / 1001.0 * 1.0e-10 );
     }
@@ -278,12 +278,12 @@ public:
     void testMidPointOnEvenSize( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0, 0, 0 ) );
-        line.push_back( WPosition_2( 1, 1, 0 ) );
-        line.push_back( WPosition_2( 2, 0, 0 ) );
-        line.push_back( WPosition_2( 3, 1, 0 ) );
-        WPosition_2 expected( 1, 1, 0 );
-        TS_ASSERT_EQUALS( expected, WPosition_2( midPoint( line ) ) );
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
+        line.push_back( WPosition( 2, 0, 0 ) );
+        line.push_back( WPosition( 3, 1, 0 ) );
+        WPosition expected( 1, 1, 0 );
+        TS_ASSERT_EQUALS( expected, WPosition( midPoint( line ) ) );
     }
 
     /**
@@ -292,11 +292,11 @@ public:
     void testMidPointOnUnevenSize( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0, 0, 0 ) );
-        line.push_back( WPosition_2( 1, 1, 0 ) );
-        line.push_back( WPosition_2( 2, 0, 0 ) );
-        WPosition_2 expected( 1, 1, 0 );
-        TS_ASSERT_EQUALS( expected, WPosition_2( midPoint( line ) ) );
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
+        line.push_back( WPosition( 2, 0, 0 ) );
+        WPosition expected( 1, 1, 0 );
+        TS_ASSERT_EQUALS( expected, WPosition( midPoint( line ) ) );
     }
 
     /**
@@ -306,7 +306,7 @@ public:
     void testMidPointOnEmptyLine( void )
     {
         WLine line;
-        WPosition_2 expected( 1, 1, 0 );
+        WPosition expected( 1, 1, 0 );
         TS_ASSERT_THROWS_EQUALS( midPoint( line ), WOutOfBounds &e, std::string( e.what() ), "There is no midpoint for an empty line." );
     }
 
@@ -320,11 +320,11 @@ public:
     void testMaxSegementLength( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0, 0, 0 ) );
-        line.push_back( WPosition_2( 1, 1, 0 ) );
-        line.push_back( WPosition_2( 2, 0, 0 ) );
+        line.push_back( WPosition( 0, 0, 0 ) );
+        line.push_back( WPosition( 1, 1, 0 ) );
+        line.push_back( WPosition( 2, 0, 0 ) );
         TS_ASSERT_DELTA( maxSegmentLength( line ), std::sqrt( 2.0 ), wlimits::DBL_EPS );
-        line.push_back( WPosition_2( 0, 0, 0 ) );
+        line.push_back( WPosition( 0, 0, 0 ) );
         TS_ASSERT_DELTA( maxSegmentLength( line ), 2.0, wlimits::DBL_EPS );
     }
 
@@ -335,7 +335,7 @@ public:
     {
         WLine line;
         TS_ASSERT_EQUALS( maxSegmentLength( line ), 0.0 );
-        line.push_back( WPosition_2( 0, 3.1415, 0 ) );
+        line.push_back( WPosition( 0, 3.1415, 0 ) );
         TS_ASSERT_EQUALS( maxSegmentLength( line ), 0.0 );
     }
 
@@ -345,18 +345,18 @@ public:
     void testRemoveAdjacentDuplicates( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0.1, 3.4, 34254.5 ) );
-        line.push_back( WPosition_2( 0.1, 3.4, 34254.5 ) );
-        line.push_back( WPosition_2( 0.1, 3.4, 34254.5 ) );
-        line.push_back( WPosition_2( 0.1, 3.4, 34254.5 ) );
-        line.push_back( WPosition_2( 0.0, 0.0, 0.0 ) );
-        line.push_back( WPosition_2( 0.1, 3.4, 34254.5 ) );
-        line.push_back( WPosition_2( 0.1, 3.4, 34254.5 ) );
-        line.push_back( WPosition_2( 0.1, 3.4, 34254.5 ) );
+        line.push_back( WPosition( 0.1, 3.4, 34254.5 ) );
+        line.push_back( WPosition( 0.1, 3.4, 34254.5 ) );
+        line.push_back( WPosition( 0.1, 3.4, 34254.5 ) );
+        line.push_back( WPosition( 0.1, 3.4, 34254.5 ) );
+        line.push_back( WPosition( 0.0, 0.0, 0.0 ) );
+        line.push_back( WPosition( 0.1, 3.4, 34254.5 ) );
+        line.push_back( WPosition( 0.1, 3.4, 34254.5 ) );
+        line.push_back( WPosition( 0.1, 3.4, 34254.5 ) );
         WLine expected;
-        expected.push_back( WPosition_2( 0.1, 3.4, 34254.5 ) );
-        expected.push_back( WPosition_2( 0.0, 0.0, 0.0 ) );
-        expected.push_back( WPosition_2( 0.1, 3.4, 34254.5 ) );
+        expected.push_back( WPosition( 0.1, 3.4, 34254.5 ) );
+        expected.push_back( WPosition( 0.0, 0.0, 0.0 ) );
+        expected.push_back( WPosition( 0.1, 3.4, 34254.5 ) );
         line.removeAdjacentDuplicates();
         assert_equals_delta( line, expected );
     }
@@ -377,7 +377,7 @@ public:
     void testResamplingByNewSegementLengthWithLineHavingJustOnePoint( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0.1, 3.4, 34254.5 ) );
+        line.push_back( WPosition( 0.1, 3.4, 34254.5 ) );
         WLine expected( line );
         line.resampleBySegmentLength( 3.1415f );
         assert_equals_delta( line, expected );
@@ -390,12 +390,12 @@ public:
     void testResamplingByNewSegementLengthOldSegmentLengthBiggerAsNewSegmentLength( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0.0, 0.0, 0.0 ) );
-        line.push_back( WPosition_2( 1.1, 0.0, 0.0 ) );
+        line.push_back( WPosition( 0.0, 0.0, 0.0 ) );
+        line.push_back( WPosition( 1.1, 0.0, 0.0 ) );
         line.resampleBySegmentLength( 1.0 );
         WLine expected;
-        expected.push_back( WPosition_2( 0.0, 0.0, 0.0 ) );
-        expected.push_back( WPosition_2( 1.0, 0.0, 0.0 ) );
+        expected.push_back( WPosition( 0.0, 0.0, 0.0 ) );
+        expected.push_back( WPosition( 1.0, 0.0, 0.0 ) );
         assert_equals_delta( line, expected );
     }
 
@@ -406,13 +406,13 @@ public:
     void testResamplingByNewSegementLengthRemainderGreaterAsHalfOfNewSegmentLength( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0.0, 0.0, 0.0 ) );
-        line.push_back( WPosition_2( 1.1, 0.0, 0.0 ) );
+        line.push_back( WPosition( 0.0, 0.0, 0.0 ) );
+        line.push_back( WPosition( 1.1, 0.0, 0.0 ) );
         line.resampleBySegmentLength( 0.6 );
         WLine expected;
-        expected.push_back( WPosition_2( 0.0, 0.0, 0.0 ) );
-        expected.push_back( WPosition_2( 0.6, 0.0, 0.0 ) );
-        expected.push_back( WPosition_2( 1.2, 0.0, 0.0 ) );
+        expected.push_back( WPosition( 0.0, 0.0, 0.0 ) );
+        expected.push_back( WPosition( 0.6, 0.0, 0.0 ) );
+        expected.push_back( WPosition( 1.2, 0.0, 0.0 ) );
         assert_equals_delta( line, expected );
     }
 
@@ -423,22 +423,22 @@ public:
     void testResamplingByNewSegementLengthTravelingOutOfTheCircle( void )
     {
         WLine line;
-        line.push_back( WPosition_2( 0.0, 0.0, 0.0 ) );
-        line.push_back( WPosition_2( 1.0, 1.0, 0.0 ) );
-        line.push_back( WPosition_2( 0.0, 1.0, 0.0 ) );
-        line.push_back( WPosition_2( 1.0, 2.0, 0.0 ) );
-        line.push_back( WPosition_2( 0.0, 2.0, 0.0 ) );
-        line.push_back( WPosition_2( 1.0, 3.0, 0.0 ) );
+        line.push_back( WPosition( 0.0, 0.0, 0.0 ) );
+        line.push_back( WPosition( 1.0, 1.0, 0.0 ) );
+        line.push_back( WPosition( 0.0, 1.0, 0.0 ) );
+        line.push_back( WPosition( 1.0, 2.0, 0.0 ) );
+        line.push_back( WPosition( 0.0, 2.0, 0.0 ) );
+        line.push_back( WPosition( 1.0, 3.0, 0.0 ) );
         line.resampleBySegmentLength( 3.0 );
         WLine expected;
-        expected.push_back( WPosition_2( 0.0, 0.0, 0.0 ) );
-        expected.push_back( WPosition_2( 0.870829, 2.87083, 0.0 ) );
+        expected.push_back( WPosition( 0.0, 0.0, 0.0 ) );
+        expected.push_back( WPosition( 0.870829, 2.87083, 0.0 ) );
         assert_equals_delta( line, expected, 0.00001 );
     }
 
 private:
     /**
-     * TS_ASSERT_DELTA needs the operator+, operator- and operator< to be implemented especially for WPosition_2s the operator< and operator +
+     * TS_ASSERT_DELTA needs the operator+, operator- and operator< to be implemented especially for WPositions the operator< and operator +
      * makes not really sense. Hence I implemented an assert by my one, giving reasonable out put.
      *
      * \param first First line to compare with

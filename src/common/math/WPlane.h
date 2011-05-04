@@ -32,7 +32,6 @@
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../WExportCommon.h"
 #include "linearAlgebra/WLinearAlgebra.h"
-#include "linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Represents a plane with a normal vector and a position in space.
@@ -48,7 +47,7 @@ public:
      *
      * \return
      */
-    WPlane( const WVector3d_2& normal, const WPosition_2& pos );
+    WPlane( const WVector3d& normal, const WPosition& pos );
 
     /**
      * Constructs a plane with its normal and its base point/origin as well as explicitly specifying its vectors in the plane.
@@ -61,7 +60,7 @@ public:
      * \note Due to numerical stability a comparison to 0.0 is not performed. Instead the absolute value of the dot product is checked to
      * be smaller than the FLT_EPS. FLT_EPS is used instead of DBL_EPS just numerical errors may sum up above DBL_EPS.
      */
-    WPlane( const WVector3d_2& normal, const WPosition_2& pos, const WVector3d_2& first, const WVector3d_2& second );
+    WPlane( const WVector3d& normal, const WPosition& pos, const WVector3d& first, const WVector3d& second );
 
     /**
      * Destructor.
@@ -75,14 +74,14 @@ public:
      *
      * \return True if and only if the point is in this plane.
      */
-    bool isInPlane( WPosition_2 point ) const;
+    bool isInPlane( WPosition point ) const;
 
     /**
      * Reset the position of the plane, normal remains the same.
      *
      * \param newPos New Position (point in plane).
      */
-    void resetPosition( WPosition_2 newPos );
+    void resetPosition( WPosition newPos );
 
     /**
      * Computes sample points on that plane.
@@ -92,7 +91,7 @@ public:
      *
      * \return Set of positions on the plane
      */
-    boost::shared_ptr< std::set< WPosition_2 > > samplePoints( const WGridRegular3D& grid, double stepWidth );
+    boost::shared_ptr< std::set< WPosition > > samplePoints( const WGridRegular3D& grid, double stepWidth );
 
 
     /**
@@ -103,21 +102,21 @@ public:
      *
      * \return the new calculated position
      */
-    WPosition_2 getPointInPlane( double x, double y ) const;
+    WPosition getPointInPlane( double x, double y ) const;
 
     /**
      * Returns a point in that plane.
      *
      * \return The point in that plane describing its position
      */
-    const WPosition_2& getPosition() const;
+    const WPosition& getPosition() const;
 
     /**
      * Returns the normal of the plane.
      *
      * \return Normalized normal vector.
      */
-    const WVector3d_2& getNormal() const;
+    const WVector3d& getNormal() const;
 
     /**
      * Resets the vector spanning the plane. Both must be linear independent and perpendicular to the already
@@ -126,20 +125,20 @@ public:
      * \param first First vector spanning the plane
      * \param second Second vector spanning the plane
      */
-    void setPlaneVectors( const WVector3d_2& first, const WVector3d_2& second );
+    void setPlaneVectors( const WVector3d& first, const WVector3d& second );
 
     /**
      * Resets the normal of this plane.
      *
      * \param normal New normal for this plane.
      */
-    void setNormal( const WVector3d_2& normal )
+    void setNormal( const WVector3d& normal )
     {
         m_normal = normalize( normal );
-        WVector3d_2 gen( 1, 0, 0 );
-        if( cross( normal, gen ) ==  WVector3d_2( 0, 0, 0 ) )
+        WVector3d gen( 1, 0, 0 );
+        if( cross( normal, gen ) ==  WVector3d( 0, 0, 0 ) )
         {
-            gen = WVector3d_2( 0, 1, 0 );
+            gen = WVector3d( 0, 1, 0 );
         }
         m_first = cross( normal, gen );
         m_first = normalize( m_first );
@@ -156,7 +155,7 @@ public:
 //     *
 //     * \return Set of positions on the plane
 //     */
-//    boost::shared_ptr< std::set< WPosition_2 > > samplePoints( const WGridRegular3D& grid, double stepWidth );
+//    boost::shared_ptr< std::set< WPosition > > samplePoints( const WGridRegular3D& grid, double stepWidth );
 //    \endcond
 
     /**
@@ -168,23 +167,23 @@ public:
      *
      * \return Set of positions on the plane
      */
-    boost::shared_ptr< std::set< WPosition_2 > > samplePoints( double stepWidth, size_t numX, size_t numY ) const;
+    boost::shared_ptr< std::set< WPosition > > samplePoints( double stepWidth, size_t numX, size_t numY ) const;
 
 protected:
-    WVector3d_2 m_normal; //!< Direction of the plane
-    WPosition_2 m_pos; //!< Position of the plane specifying the center
-    WVector3d_2 m_first; //!< First vector in the plane
-    WVector3d_2 m_second; //!< Second vector in the plane
+    WVector3d m_normal; //!< Direction of the plane
+    WPosition m_pos; //!< Position of the plane specifying the center
+    WVector3d m_first; //!< First vector in the plane
+    WVector3d m_second; //!< Second vector in the plane
 
 private:
 };
 
-inline const WPosition_2& WPlane::getPosition() const
+inline const WPosition& WPlane::getPosition() const
 {
     return m_pos;
 }
 
-inline const WVector3d_2& WPlane::getNormal() const
+inline const WVector3d& WPlane::getNormal() const
 {
     return m_normal;
 }

@@ -41,7 +41,7 @@ void WRasterParameterization::newLine( const WLine& /*line*/ )
     // Overwrite in your class if you need to handle this.
 }
 
-void WRasterParameterization::newSegment( const WPosition_2& /*start*/, const WPosition_2& /*end*/ )
+void WRasterParameterization::newSegment( const WPosition& /*start*/, const WPosition& /*end*/ )
 {
     // do nothing here
     // Overwrite in your class if you need to handle this.

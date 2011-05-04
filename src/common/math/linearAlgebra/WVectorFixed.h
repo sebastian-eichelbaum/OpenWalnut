@@ -31,19 +31,19 @@
 // Here: only some typedefs for vectors get defined
 
 // Double vectors
-typedef WMatrixFixed< double, 2, 1 > WVector2d_2;
-typedef WMatrixFixed< double, 3, 1 > WVector3d_2;
-typedef WMatrixFixed< double, 4, 1 > WVector4d_2;
-typedef WMatrixFixed< double, 1, 2 > WVector2dRow_2;
-typedef WMatrixFixed< double, 1, 3 > WVector3dRow_2;
-typedef WMatrixFixed< double, 1, 4 > WVector4dRow_2;
+typedef WMatrixFixed< double, 2, 1 > WVector2d;
+typedef WMatrixFixed< double, 3, 1 > WVector3d;
+typedef WMatrixFixed< double, 4, 1 > WVector4d;
+typedef WMatrixFixed< double, 1, 2 > WVectorRow2d;
+typedef WMatrixFixed< double, 1, 3 > WVectorRow3d;
+typedef WMatrixFixed< double, 1, 4 > WVectorRow4d;
 
 // Float vectors
-typedef WMatrixFixed< float, 2, 1 > WVector2f_2;
-typedef WMatrixFixed< float, 3, 1 > WVector3f_2;
-typedef WMatrixFixed< float, 4, 1 > WVector4f_2;
-typedef WMatrixFixed< float, 1, 2 > WVector2fRow_2;
-typedef WMatrixFixed< float, 1, 3 > WVector3fRow_2;
-typedef WMatrixFixed< float, 1, 4 > WVector4fRow_2;
+typedef WMatrixFixed< float, 2, 1 > WVector2f;
+typedef WMatrixFixed< float, 3, 1 > WVector3f;
+typedef WMatrixFixed< float, 4, 1 > WVector4f;
+typedef WMatrixFixed< float, 1, 2 > WVectorRow2f;
+typedef WMatrixFixed< float, 1, 3 > WVectorRow3f;
+typedef WMatrixFixed< float, 1, 4 > WVectorRow4f;
 
 #endif  // WVECTORFIXED_H

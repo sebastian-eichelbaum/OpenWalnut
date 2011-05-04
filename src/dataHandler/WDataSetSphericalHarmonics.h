@@ -105,7 +105,7 @@ public:
      *
      * \return Interpolated spherical harmonic.
      */
-    WSymmetricSphericalHarmonic interpolate( const WPosition_2 &pos, bool *success ) const;
+    WSymmetricSphericalHarmonic interpolate( const WPosition &pos, bool *success ) const;
 
     /**
      * Get the spherical harmonic on the given position in value set.
@@ -145,7 +145,14 @@ protected:
     static boost::shared_ptr< WPrototyped > m_prototype;
 
 private:
+    /**
+     * The regular 3d grid of the data set.
+     */
     boost::shared_ptr< WGridRegular3D > m_gridRegular3D;
+
+    /**
+     * The valueset of the data set
+     */
     boost::shared_ptr< WValueSetBase > m_valueSet;
 };
 

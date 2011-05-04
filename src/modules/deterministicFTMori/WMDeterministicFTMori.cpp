@@ -311,7 +311,7 @@ void WMDeterministicFTMori::resetTracking()
     m_moduleState.add( m_trackingPool->getThreadsDoneCondition() );
 }
 
-WVector3d_2 WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
+WVector3d WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WDataSetSingle const > ds,
                                                            wtracking::WTrackingUtility::JobType const& j )
 {
     WAssert( ds, "" );
@@ -324,11 +324,11 @@ WVector3d_2 WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WDataSe
     WAssert( vs, "" );
     if( vs->rawData()[ 4 * i + 3 ] < m_currentMinFA )
     {
-        return WVector3d_2( 0.0, 0.0, 0.0 );
+        return WVector3d( 0.0, 0.0, 0.0 );
     }
     else
     {
-        WVector3d_2 v;
+        WVector3d v;
         v[ 0 ] = vs->rawData()[ 4 * i + 0 ];
         v[ 1 ] = vs->rawData()[ 4 * i + 1 ];
         v[ 2 ] = vs->rawData()[ 4 * i + 2 ];
@@ -347,7 +347,7 @@ WVector3d_2 WMDeterministicFTMori::getEigenDirection( boost::shared_ptr< WDataSe
         }
         else
         {
-            return WVector3d_2( 0.0, 0.0, 0.0 );
+            return WVector3d( 0.0, 0.0, 0.0 );
         }
     }
 }
@@ -361,7 +361,7 @@ void WMDeterministicFTMori::fiberVis( FiberType const& f )
     ++*m_currentProgress;
 }
 
-void WMDeterministicFTMori::pointVis( WVector3d_2 const& )
+void WMDeterministicFTMori::pointVis( WVector3d const& )
 {
 }
 
@@ -371,7 +371,7 @@ boost::array< double, 4 > const WMDeterministicFTMori::computeFaAndEigenVec( WTe
 
     RealEigenSystem eigenSys;
     std::vector< double > ev( 3 );
-    std::vector< WVector3d_2 > t( 3 );
+    std::vector< WVector3d > t( 3 );
 
     // calc eigenvectors
     jacobiEigenvector3D( m, &eigenSys );

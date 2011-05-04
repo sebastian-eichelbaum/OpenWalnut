@@ -169,7 +169,7 @@ void WMBermanTracking::moduleMain()
     m_frtMat = WSymmetricSphericalHarmonic::calcFRTMatrix( 4 );
     WAssert( m_frtMat.cols() == m_frtMat.rows(), "" );
 
-    m_seedROI = boost::shared_ptr< WROIBox >( new WROIBox( WVector3d_2( 0.0, 0.0, 0.0 ), WVector3d_2( 200.0, 200.0, 200.0 ) ) );
+    m_seedROI = boost::shared_ptr< WROIBox >( new WROIBox( WVector3d( 0.0, 0.0, 0.0 ), WVector3d( 200.0, 200.0, 200.0 ) ) );
 
     ready();
 
@@ -359,7 +359,7 @@ void WMBermanTracking::resetProgress( std::size_t todo )
     m_progress->addSubProgress( m_currentProgress );
 }
 
-WVector3d_2 WMBermanTracking::getDirFunc( boost::shared_ptr< WDataSetSingle const >, wtracking::WTrackingUtility::JobType const& j )
+WVector3d WMBermanTracking::getDirFunc( boost::shared_ptr< WDataSetSingle const >, wtracking::WTrackingUtility::JobType const& j )
 {
     boost::shared_ptr< WGridRegular3D > g( boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() ) );
     // extract fiber directions from odf
@@ -370,7 +370,7 @@ WVector3d_2 WMBermanTracking::getDirFunc( boost::shared_ptr< WDataSetSingle cons
 
     if( boost::shared_dynamic_cast< WDataSetSingle >( m_gfa )->getValueAt( v ) < m_currentMinFA )
     {
-        return WVector3d_2( 0.0, 0.0, 0.0 );
+        return WVector3d( 0.0, 0.0, 0.0 );
     }
 
     WSymmetricSphericalHarmonic h;
@@ -429,7 +429,7 @@ WSymmetricSphericalHarmonic WMBermanTracking::createRandomODF( std::size_t i )
     return WSymmetricSphericalHarmonic( m_SHFittingMat * q );
 }
 
-WVector3d_2 WMBermanTracking::getBestDirectionFromSH( WSymmetricSphericalHarmonic const& h,
+WVector3d WMBermanTracking::getBestDirectionFromSH( WSymmetricSphericalHarmonic const& h,
                                                     wtracking::WTrackingUtility::JobType const& j )
 {
     WVector_2 w = h.getCoefficients();
@@ -495,31 +495,31 @@ WVector3d_2 WMBermanTracking::getBestDirectionFromSH( WSymmetricSphericalHarmoni
 //    int k = tijk_approx_heur_3d_d( s, f, res, ten, type, 3, p );
     p = tijk_approx_heur_parm_nix( p );
 
-    //std::vector< WVector3d_2 > fb;
+    //std::vector< WVector3d > fb;
     //for( int i = 0; i < k; ++i )
     //{
-        //WVector3d_2 v( g->getXVoxelCoord( j.first ), g->getYVoxelCoord( j.first ), g->getZVoxelCoord( j.first ) );
+        //WVector3d v( g->getXVoxelCoord( j.first ), g->getYVoxelCoord( j.first ), g->getZVoxelCoord( j.first ) );
         //if( v[ 1 ] != 110 )
             //break;
         //fb.push_back( v );
-        //v += WVector3d_2( f[ 3 * i + 0 ] * 0.6, f[ 3 * i + 1 ] * 0.6, f[ 3 * i + 2 ] * 0.6 );
+        //v += WVector3d( f[ 3 * i + 0 ] * 0.6, f[ 3 * i + 1 ] * 0.6, f[ 3 * i + 2 ] * 0.6 );
         //fb.push_back( v );
     //}
     //m_fiberAccu.add( fb );
-    //return WVector3d_2();
+    //return WVector3d();
 
-    WVector3d_2 r;
+    WVector3d r;
 
     if( k == 0 )
     {
-        r = WVector3d_2( 0.0, 0.0, 0.0 );
+        r = WVector3d( 0.0, 0.0, 0.0 );
     }
     else if( length( j.second ) == 0.0 )
     {
         int i = static_cast< int >( static_cast< double >( ( *m_random )() ) / ( 1.0 + static_cast< double >( 0u - 1u ) ) * ( 2.0 * k ) );
         WAssert( i >= 0 && i <= 2 * k, "" );
 
-        r = WVector3d_2( f[ 3 * ( i % k ) ], f[ 3 * ( i % k ) + 1 ], f[ 3 * ( i % k ) + 2 ] );
+        r = WVector3d( f[ 3 * ( i % k ) ], f[ 3 * ( i % k ) + 1 ], f[ 3 * ( i % k ) + 2 ] );
         if( i >= k )
         {
             r *= -1.0;
@@ -533,7 +533,7 @@ WVector3d_2 WMBermanTracking::getBestDirectionFromSH( WSymmetricSphericalHarmoni
 
         for( int i = 0; i < k; ++i )
         {
-            r = WVector3d_2( f[ 3 * i ], f[ 3 * i + 1 ], f[ 3 * i + 2 ] );
+            r = WVector3d( f[ 3 * i ], f[ 3 * i + 1 ], f[ 3 * i + 2 ] );
             if( dot( r, j.second ) > a )
             {
                 z = i;
@@ -550,18 +550,18 @@ WVector3d_2 WMBermanTracking::getBestDirectionFromSH( WSymmetricSphericalHarmoni
 
         if( z == -1 )
         {
-            r = WVector3d_2( 0.0, 0.0, 0.0 );
+            r = WVector3d( 0.0, 0.0, 0.0 );
         }
         else
         {
-            r = WVector3d_2( f[ 3 * z ], f[ 3 * z + 1 ], f[ 3 * z + 2 ] );
+            r = WVector3d( f[ 3 * z ], f[ 3 * z + 1 ], f[ 3 * z + 2 ] );
             r *= m;
         }
     }
     return r;
 }
 
-void WMBermanTracking::fiberVis( std::vector< WVector3d_2 > const& fiber )
+void WMBermanTracking::fiberVis( std::vector< WVector3d > const& fiber )
 {
     // test!
     if( fiber.size() >= m_currentMinPoints )
@@ -580,6 +580,6 @@ void WMBermanTracking::fiberVis( std::vector< WVector3d_2 > const& fiber )
     ++*m_currentProgress;
 }
 
-void WMBermanTracking::pointVis( WVector3d_2 const& )
+void WMBermanTracking::pointVis( WVector3d const& )
 {
 }

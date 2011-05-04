@@ -502,8 +502,8 @@ public:
     /**
      * A convenience function to cast the WMatrixFixed types to arbitrary other vector/matrix types that are supported by WMatrixFixed. This
      * method is mainly needed for ambiguities during type resolution, if the target methods signature allows several different vec/matrix types.
-     * Example: you have void do( osg::Vec3f v ) and void do( osg::Vec3d v ). If you do WVector3d_2 myV; do( myV ); This is ambiguous since
-     * WVector3d_2 can be casted to either osg::Vec3d AND Vec3f implicitly.
+     * Example: you have void do( osg::Vec3f v ) and void do( osg::Vec3d v ). If you do WVector3d myV; do( myV ); This is ambiguous since
+     * WVector3d can be casted to either osg::Vec3d AND Vec3f implicitly.
      *
      * \tparam TargetType the type needed (to cast to)
      *
@@ -1071,10 +1071,10 @@ private:
 // Some standard matrices and vectors
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef WMatrixFixed< double, 3, 3 > WMatrix3d_2;
-typedef WMatrixFixed< double, 4, 4 > WMatrix4d_2;
-typedef WMatrixFixed< float, 3, 3 > WMatrix3f_2;
-typedef WMatrixFixed< float, 4, 4 > WMatrix4f_2;
+typedef WMatrixFixed< double, 3, 3 > WMatrix3d;
+typedef WMatrixFixed< double, 4, 4 > WMatrix4d;
+typedef WMatrixFixed< float, 3, 3 > WMatrix3f;
+typedef WMatrixFixed< float, 4, 4 > WMatrix4f;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Commutative Operators

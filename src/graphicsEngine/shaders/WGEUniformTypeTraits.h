@@ -64,10 +64,10 @@ namespace wge
     };
 
     /**
-     * Maps WVector3d_2/WPosition_2 to osg::Vec3.
+     * Maps WVector3d/WPosition to osg::Vec3.
      */
     template<>
-    class WGE_EXPORT UniformType< WVector3d_2 >
+    class WGE_EXPORT UniformType< WVector3d >
     {
     public:
         /**

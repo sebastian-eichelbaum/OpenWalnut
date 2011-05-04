@@ -54,7 +54,7 @@ public:
      */
     virtual WBoundingBox getBoundingBox() const
     {
-        return WBoundingBox( WPosition_2( 0, 0, 0 ), WPosition_2( 1, 1, 1 ) );
+        return WBoundingBox( WPosition( 0, 0, 0 ), WPosition( 1, 1, 1 ) );
     }
 };
 

@@ -617,12 +617,12 @@ public:
         t( 1, 1, 2, 2 ) = 16.5476;
 
         // the gradients
-        std::vector< WVector3d_2 > gradients;
-        gradients.push_back( WVector3d_2( 1.0, 0.0, 0.0 ) );
-        gradients.push_back( WVector3d_2( 0.0, 1.0, 0.0 ) );
-        gradients.push_back( normalize( WVector3d_2( 1.0, 1.0, 0.0 ) ) );
-        gradients.push_back( normalize( WVector3d_2( 0.3, 0.4, 0.5 ) ) );
-        gradients.push_back( normalize( WVector3d_2( -7.0, 3.0, -1.0 ) ) );
+        std::vector< WVector3d > gradients;
+        gradients.push_back( WVector3d( 1.0, 0.0, 0.0 ) );
+        gradients.push_back( WVector3d( 0.0, 1.0, 0.0 ) );
+        gradients.push_back( normalize( WVector3d( 1.0, 1.0, 0.0 ) ) );
+        gradients.push_back( normalize( WVector3d( 0.3, 0.4, 0.5 ) ) );
+        gradients.push_back( normalize( WVector3d( -7.0, 3.0, -1.0 ) ) );
 
         for( int k = 0; k < 5; ++k )
         {
@@ -714,7 +714,7 @@ private:
      * \param t The tensor.
      * \param v The gradient.
      */
-    double calcTens( WTensorSym< 4, 3, double > const& t, WVector3d_2 const& v )
+    double calcTens( WTensorSym< 4, 3, double > const& t, WVector3d const& v )
     {
         double res = 0.0;
         for( int a = 0; a < 3; ++a )

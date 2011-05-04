@@ -41,19 +41,19 @@ CXXTEST_TEMPLATE_INSTANTIATION
  * Enables better UnitTest OutPut if something fails with WFibers, so you see
  * immedeatly what is failing.
  */
-class ValueTraits< WVector3d_2 > : public WTraitsBase
+class ValueTraits< WVector3d > : public WTraitsBase
 {
 public:
     /**
-     * Constructor for class allowing usable output of WVector3d_2 in tests
+     * Constructor for class allowing usable output of WVector3d in tests
      *
      * \param m the WVector to print
      */
-    explicit ValueTraits( const WVector3d_2 &m )
+    explicit ValueTraits( const WVector3d &m )
     {
         std::stringstream tmp;
         tmp.precision( 16 );
-        tmp << "WVector3d_2( " << m[0] << " " << m[1] << " " << m[2] << " )";
+        tmp << "WVector3d( " << m[0] << " " << m[1] << " " << m[2] << " )";
         m_s = tmp.str();
     }
 };

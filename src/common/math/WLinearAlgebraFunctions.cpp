@@ -33,16 +33,16 @@
 #include "WMatrix.h"
 #include "linearAlgebra/WLinearAlgebra.h"
 
-WVector3d_2 multMatrixWithVector3D( WMatrix<double> mat, WVector3d_2 vec )
+WVector3d multMatrixWithVector3D( WMatrix<double> mat, WVector3d vec )
 {
-    WVector3d_2 result;
+    WVector3d result;
     result[0] = mat( 0, 0 ) * vec[0] + mat( 0, 1 ) * vec[1] + mat( 0, 2 ) * vec[2];
     result[1] = mat( 1, 0 ) * vec[0] + mat( 1, 1 ) * vec[1] + mat( 1, 2 ) * vec[2];
     result[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2];
     return result;
 }
 
-WVector3d_2 transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3d_2 vec )
+WVector3d transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3d vec )
 {
     WAssert( mat.getNbRows() == 4 && mat.getNbCols() == 4, "Matrix has wrong size." );
     std::vector< double > resultVec4D( 4 );
@@ -51,14 +51,14 @@ WVector3d_2 transformVector3DWithMatrix4D( WMatrix<double> mat, WVector3d_2 vec 
     resultVec4D[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2] /* + mat( 2, 3 ) * 0 */;
     resultVec4D[3] = mat( 3, 0 ) * vec[0] + mat( 3, 1 ) * vec[1] + mat( 3, 2 ) * vec[2] /* + mat( 3, 3 ) * 0 */;
 
-    WVector3d_2 result;
+    WVector3d result;
     result[0] = resultVec4D[0] / resultVec4D[3];
     result[1] = resultVec4D[1] / resultVec4D[3];
     result[2] = resultVec4D[2] / resultVec4D[3];
     return result;
 }
 
-WPosition_2 transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition_2 vec )
+WPosition transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition vec )
 {
     WAssert( mat.getNbRows() == 4 && mat.getNbCols() == 4, "Matrix has wrong size." );
     std::vector< double > resultVec4D( 4 );
@@ -67,7 +67,7 @@ WPosition_2 transformPosition3DWithMatrix4D( WMatrix<double> mat, WPosition_2 ve
     resultVec4D[2] = mat( 2, 0 ) * vec[0] + mat( 2, 1 ) * vec[1] + mat( 2, 2 ) * vec[2] + mat( 2, 3 ) * 1;
     resultVec4D[3] = mat( 3, 0 ) * vec[0] + mat( 3, 1 ) * vec[1] + mat( 3, 2 ) * vec[2] + mat( 3, 3 ) * 1;
 
-    WPosition_2 result;
+    WPosition result;
     result[0] = resultVec4D[0] / resultVec4D[3];
     result[1] = resultVec4D[1] / resultVec4D[3];
     result[2] = resultVec4D[2] / resultVec4D[3];
@@ -283,9 +283,9 @@ WMatrix<double> invertMatrix4x4( WMatrix<double> mat )
     return result;
 }
 
-bool linearIndependent( const WVector3d_2& u, const WVector3d_2& v )
+bool linearIndependent( const WVector3d& u, const WVector3d& v )
 {
-    WVector3d_2 cp = cross( u, v );
+    WVector3d cp = cross( u, v );
     if( std::fabs( cp[0] ) < wlimits::DBL_EPS && std::fabs( cp[1] ) < wlimits::DBL_EPS && std::fabs( cp[2] ) < wlimits::DBL_EPS )
     {
         return false;

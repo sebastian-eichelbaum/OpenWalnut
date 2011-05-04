@@ -85,7 +85,7 @@ namespace
     }
 }
 
-WFiber::WFiber( const std::vector< WPosition_2 > &points )
+WFiber::WFiber( const std::vector< WPosition > &points )
     : WLine( points )
 {
 }

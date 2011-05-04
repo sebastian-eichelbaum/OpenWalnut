@@ -71,8 +71,8 @@ void WMGpView::connectors()
 
 void WMGpView::properties()
 {
-    m_normal = m_properties->addProperty( "#Plane normal", "The normal of the plane", WPosition_2( 1.0, 0.0, 0.0 ) );
-    m_pos = m_properties->addProperty( "#Plane position", "The position of the plane", WPosition_2( 87, 20, 150 ) );
+    m_normal = m_properties->addProperty( "#Plane normal", "The normal of the plane", WPosition( 1.0, 0.0, 0.0 ) );
+    m_pos = m_properties->addProperty( "#Plane position", "The position of the plane", WPosition( 87, 20, 150 ) );
     m_scale = m_properties->addProperty( "Scaling factor", "How much the plane is streched", 91.0 );
 
     WModule::properties();
@@ -145,7 +145,7 @@ osg::ref_ptr< osg::Vec4Array > WMGpView::generateNewColors( const osg::Matrixd& 
     for( size_t i = 0; i < oldCenters->size(); ++i )
     {
         // ATTENTION: Matrix is in OSG post multiply
-        double mean = dataset->mean( WVector3d_2( ( *oldCenters )[i] * m ) );
+        double mean = dataset->mean( WVector3d( ( *oldCenters )[i] * m ) );
         newColors->push_back( osg::Vec4( mean, mean, mean, 1.0 ) );
     }
     return newColors;

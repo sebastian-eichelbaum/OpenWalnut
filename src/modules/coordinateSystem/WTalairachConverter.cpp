@@ -25,7 +25,7 @@
 #include "WTalairachConverter.h"
 #include "../../common/math/WLinearAlgebraFunctions.h"
 
-WTalairachConverter::WTalairachConverter( WVector3d_2 ac, WVector3d_2 pc, WVector3d_2 ihp ) :
+WTalairachConverter::WTalairachConverter( WVector3d ac, WVector3d pc, WVector3d ihp ) :
     m_rotMat( 3, 3 ),
     m_rotMatInvert( 3, 3 ),
     m_ac( ac ),
@@ -36,14 +36,14 @@ WTalairachConverter::WTalairachConverter( WVector3d_2 ac, WVector3d_2 pc, WVecto
     // before any coordinate conversion
     // the point of origin in the canonical system is the right inferior posterior corner
 
-    m_ap = WVector3d_2( 255, 0, 0 );
-    m_pp = WVector3d_2( 0, 0, 0 );
+    m_ap = WVector3d( 255, 0, 0 );
+    m_pp = WVector3d( 0, 0, 0 );
 
-    m_lp = WVector3d_2( 0, 255, 0 );
-    m_rp = WVector3d_2( 0, 0, 0 );
+    m_lp = WVector3d( 0, 255, 0 );
+    m_rp = WVector3d( 0, 0, 0 );
 
-    m_ip = WVector3d_2( 0, 0, 0 );
-    m_sp = WVector3d_2( 0, 0, 255 );
+    m_ip = WVector3d( 0, 0, 0 );
+    m_sp = WVector3d( 0, 0, 255 );
 
     defineRotationMatrix();
 }
@@ -52,29 +52,29 @@ WTalairachConverter::~WTalairachConverter()
 {
 }
 
-WVector3d_2 WTalairachConverter::Canonical2ACPC( const WVector3d_2 point )
+WVector3d WTalairachConverter::Canonical2ACPC( const WVector3d point )
 {
-    WVector3d_2 rpoint = point - m_ac;
+    WVector3d rpoint = point - m_ac;
     return multMatrixWithVector3D( m_rotMat, rpoint );
 }
 
-WVector3d_2 WTalairachConverter::ACPC2Canonical( const WVector3d_2 point )
+WVector3d WTalairachConverter::ACPC2Canonical( const WVector3d point )
 {
-    WVector3d_2 rpoint = multMatrixWithVector3D( m_rotMatInvert, point );
+    WVector3d rpoint = multMatrixWithVector3D( m_rotMatInvert, point );
     return rpoint + m_ac;
 }
 
-WVector3d_2 WTalairachConverter::Canonical2Talairach( const WVector3d_2 point )
+WVector3d WTalairachConverter::Canonical2Talairach( const WVector3d point )
 {
     return ACPC2Talairach( Canonical2ACPC( point ) );
 }
 
-WVector3d_2 WTalairachConverter::Talairach2Canonical( const WVector3d_2 point )
+WVector3d WTalairachConverter::Talairach2Canonical( const WVector3d point )
 {
     return ACPC2Canonical( Talairach2ACPC( point ) );
 }
 
-WVector3d_2 WTalairachConverter::ACPC2Talairach( const WVector3d_2 point )
+WVector3d WTalairachConverter::ACPC2Talairach( const WVector3d point )
 {
     // declare some variables for readability
     double x = point[0];
@@ -140,10 +140,10 @@ WVector3d_2 WTalairachConverter::ACPC2Talairach( const WVector3d_2 point )
         zt = ( Z2T / Z2 ) * z;
     }
 
-    return WVector3d_2( xt, yt, zt );
+    return WVector3d( xt, yt, zt );
 }
 
-WVector3d_2 WTalairachConverter::Talairach2ACPC( const WVector3d_2 point )
+WVector3d WTalairachConverter::Talairach2ACPC( const WVector3d point )
 {
     // declare some variables for readability
     double xt = point[0];
@@ -210,28 +210,28 @@ WVector3d_2 WTalairachConverter::Talairach2ACPC( const WVector3d_2 point )
         z = ( Z2 / Z2T ) * zt;
     }
 
-    return WVector3d_2( x, y, z );
+    return WVector3d( x, y, z );
 }
 
 
 void WTalairachConverter::defineRotationMatrix()
 {
-    //WVector3d_2 ihp_proj( ( ( ( m_ac - m_ihp ) * ( m_pc - m_ac ) ) * ( m_pc - m_ac ) / length2( m_pc - m_as ) ) + m_ihp );
-    WVector3d_2 v1 = m_pc - m_ac;
+    //WVector3d ihp_proj( ( ( ( m_ac - m_ihp ) * ( m_pc - m_ac ) ) * ( m_pc - m_ac ) / length2( m_pc - m_as ) ) + m_ihp );
+    WVector3d v1 = m_pc - m_ac;
     float apnorm = v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2];
 
-    WVector3d_2 v2 = m_ac - m_ihp;
+    WVector3d v2 = m_ac - m_ihp;
     float dist = v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
 
 
-    WVector3d_2 ihp_proj( dist * ( m_pc - m_ac ) / apnorm  + m_ihp );
+    WVector3d ihp_proj( dist * ( m_pc - m_ac ) / apnorm  + m_ihp );
 
     m_ihp_proj = ihp_proj;
-    WVector3d_2 ex( m_ac - m_pc );
+    WVector3d ex( m_ac - m_pc );
     ex = normalize( ex );
-    WVector3d_2 ez( ihp_proj - m_ac );
+    WVector3d ez( ihp_proj - m_ac );
     ez = normalize( ez );
-    WVector3d_2 ey = cross( ez, ex );
+    WVector3d ey = cross( ez, ex );
 
     m_rotMat( 0, 0 ) = ex[0];
     m_rotMat( 0, 1 ) = ex[1];
@@ -246,95 +246,95 @@ void WTalairachConverter::defineRotationMatrix()
     m_rotMatInvert = invertMatrix3x3( m_rotMat );
 }
 
-WVector3d_2 WTalairachConverter::getAc() const
+WVector3d WTalairachConverter::getAc() const
 {
     return m_ac;
 }
 
-void WTalairachConverter::setAc( WVector3d_2 ac )
+void WTalairachConverter::setAc( WVector3d ac )
 {
     m_ac = ac;
     defineRotationMatrix();
 }
 
-WVector3d_2 WTalairachConverter::getPc() const
+WVector3d WTalairachConverter::getPc() const
 {
     return m_pc;
 }
 
-void WTalairachConverter::setPc( WVector3d_2 pc )
+void WTalairachConverter::setPc( WVector3d pc )
 {
     m_pc = pc;
     defineRotationMatrix();
 }
 
-WVector3d_2 WTalairachConverter::getIhp() const
+WVector3d WTalairachConverter::getIhp() const
 {
     return m_ihp;
 }
 
-void WTalairachConverter::setIhp( WVector3d_2 ihp )
+void WTalairachConverter::setIhp( WVector3d ihp )
 {
     m_ihp = ihp;
     defineRotationMatrix();
 }
 
-WVector3d_2 WTalairachConverter::getAp() const
+WVector3d WTalairachConverter::getAp() const
 {
     return m_ap;
 }
 
-void WTalairachConverter::setAp( WVector3d_2 ap )
+void WTalairachConverter::setAp( WVector3d ap )
 {
     m_ap = ap;
 }
 
-WVector3d_2 WTalairachConverter::getPp() const
+WVector3d WTalairachConverter::getPp() const
 {
     return m_pp;
 }
 
-void WTalairachConverter::setPp( WVector3d_2 pp )
+void WTalairachConverter::setPp( WVector3d pp )
 {
     m_pp = pp;
 }
 
-WVector3d_2 WTalairachConverter::getSp() const
+WVector3d WTalairachConverter::getSp() const
 {
     return m_sp;
 }
 
-void WTalairachConverter::setSp( WVector3d_2 sp )
+void WTalairachConverter::setSp( WVector3d sp )
 {
     m_sp = sp;
 }
 
-WVector3d_2 WTalairachConverter::getIp() const
+WVector3d WTalairachConverter::getIp() const
 {
     return m_ip;
 }
 
-void WTalairachConverter::setIp( WVector3d_2 ip )
+void WTalairachConverter::setIp( WVector3d ip )
 {
     m_ip = ip;
 }
 
-WVector3d_2 WTalairachConverter::getRp() const
+WVector3d WTalairachConverter::getRp() const
 {
     return m_rp;
 }
 
-void WTalairachConverter::setRp( WVector3d_2 rp )
+void WTalairachConverter::setRp( WVector3d rp )
 {
     m_rp = rp;
 }
 
-WVector3d_2 WTalairachConverter::getLp() const
+WVector3d WTalairachConverter::getLp() const
 {
     return m_lp;
 }
 
-void WTalairachConverter::setLp( WVector3d_2 lp )
+void WTalairachConverter::setLp( WVector3d lp )
 {
     m_lp = lp;
 }

@@ -105,9 +105,9 @@ namespace WPVBaseTypes
     typedef std::string                                     PV_STRING;      //!< base type used for every WPVString
     typedef boost::filesystem::path                         PV_PATH;        //!< base type used for every WPVFilename
     typedef WItemSelector                                   PV_SELECTION;   //!< base type used for every WPVSelection
-    typedef WPosition_2                                     PV_POSITION;    //!< base type used for every WPVPosition
+    typedef WPosition                                     PV_POSITION;    //!< base type used for every WPVPosition
     typedef WColor                                          PV_COLOR;       //!< base type used for every WPVColor
-    typedef WMatrix4d_2                                     PV_MATRIX4X4;   //!< base type used for every WPVMatrix4X4
+    typedef WMatrix4d                                     PV_MATRIX4X4;   //!< base type used for every WPVMatrix4X4
 
     /**
      * Enum denoting the possible trigger states. It is used for trigger properties.
@@ -550,7 +550,7 @@ namespace PROPERTY_TYPE_HELPER
          */
         WPVBaseTypes::PV_MATRIX4X4 create( const WPVBaseTypes::PV_MATRIX4X4& /*old*/, const std::string str )
         {
-            WMatrix4d_2 c;
+            WMatrix4d c;
             std::vector< std::string > tokens;
             tokens = string_utils::tokenize( str, ";" );
             WAssert( tokens.size() >= 16, "There weren't 16 values for a 4x4 Matrix" );

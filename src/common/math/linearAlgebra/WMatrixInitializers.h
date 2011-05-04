@@ -41,9 +41,9 @@
  * \return created matrix.
  */
 template< typename ValueT >
-WMatrix4d_2 makeScale( ValueT sx, ValueT sy, ValueT sz )
+WMatrix4d makeScale( ValueT sx, ValueT sy, ValueT sz )
 {
-    WMatrix4d_2 m;
+    WMatrix4d m;
     m( 0, 0 ) = sx;
     m( 1, 1 ) = sy;
     m( 2, 2 ) = sz;
@@ -60,7 +60,7 @@ WMatrix4d_2 makeScale( ValueT sx, ValueT sy, ValueT sz )
  * \return the created matrix.
  */
 template< typename VectorT >
-WMatrix4d_2 makeScale( const VectorT& vec )
+WMatrix4d makeScale( const VectorT& vec )
 {
     return makeScale( vec[0], vec[1], vec[2] );
 }
@@ -76,9 +76,9 @@ WMatrix4d_2 makeScale( const VectorT& vec )
  * \return created matrix.
  */
 template< typename ValueT >
-WMatrix4d_2 makeTranslate( ValueT tx, ValueT ty, ValueT tz )
+WMatrix4d makeTranslate( ValueT tx, ValueT ty, ValueT tz )
 {
-    WMatrix4d_2 m;
+    WMatrix4d m;
     m( 0, 3 ) = tx;
     m( 1, 3 ) = ty;
     m( 2, 3 ) = tz;
@@ -95,7 +95,7 @@ WMatrix4d_2 makeTranslate( ValueT tx, ValueT ty, ValueT tz )
  * \return the created matrix.
  */
 template< typename VectorT >
-WMatrix4d_2 makeTranslate( const VectorT& vec )
+WMatrix4d makeTranslate( const VectorT& vec )
 {
     return makeTranslate( vec[0], vec[1], vec[2] );
 }
@@ -112,25 +112,25 @@ WMatrix4d_2 makeTranslate( const VectorT& vec )
  * \return created matrix.
  */
 template< typename ValueT >
-WMatrix4d_2 makeRotate( ValueT angle, ValueT x, ValueT y, ValueT z )
+WMatrix4d makeRotate( ValueT angle, ValueT x, ValueT y, ValueT z )
 {
     // This can be read in the OpenGL Red Book -- Appendix Homogeneous Coordinates and Transformation Matrices.
 
     // First: create some vectors and matrices we need.
     // Normalize axis
-    WVector3d_2 u( normalize( WVector3d_2( x, y, z ) ) );
+    WVector3d u( normalize( WVector3d( x, y, z ) ) );
     // The row vector of the axis
-    WVector3dRow_2 uT( transpose( u ) );
-    WMatrix3d_2 uuT = u * uT;
-    WMatrix3d_2 s;
+    WVectorRow3d uT( transpose( u ) );
+    WMatrix3d uuT = u * uT;
+    WMatrix3d s;
     s( 0, 0 ) = 0.0;   s( 0, 1 ) = -u[2]; s( 0, 2 ) = u[1];     // NOLINT - multiple commands on one line
     s( 1, 0 ) = u[2];  s( 1, 1 ) = 0.0;   s( 1, 2 ) = -u[0];    // NOLINT - multiple commands on one line
     s( 2, 0 ) = -u[1]; s( 2, 1 ) = u[0];  s( 2, 2 ) = 0.0;      // NOLINT - multiple commands on one line
 
     // Now we can formulate the rotation matrix:
-    return WMatrix4d_2::fromMatrices(
-        WMatrix4d_2::identity(),
-        uuT + cos( angle ) * ( WMatrix3d_2::identity() - uuT ) + sin( angle ) * s
+    return WMatrix4d::fromMatrices(
+        WMatrix4d::identity(),
+        uuT + cos( angle ) * ( WMatrix3d::identity() - uuT ) + sin( angle ) * s
     );
 }
 
@@ -144,7 +144,7 @@ WMatrix4d_2 makeRotate( ValueT angle, ValueT x, ValueT y, ValueT z )
  * \return created matrix.
  */
 template< typename VectorT >
-WMatrix4d_2 makeRotate( const VectorT& vec )
+WMatrix4d makeRotate( const VectorT& vec )
 {
     return makeRotate( vec[0], vec[1], vec[2] );
 }

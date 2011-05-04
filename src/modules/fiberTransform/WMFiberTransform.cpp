@@ -82,19 +82,19 @@ void WMFiberTransform::properties()
 
     m_translationProp = m_properties->addProperty( "Translation",
                                                    "Translation part of the transformation. You need to press enter to make the values effective.",
-                                                   WPosition_2( 0.0, 0.0, 0.0 ) );
+                                                   WPosition( 0.0, 0.0, 0.0 ) );
     m_matrix0Prop = m_properties->addProperty( "M Row 0",
                                                "Row 0 of matrix part of the transformation. You need to press enter to make the values effective.",
-                                               WPosition_2( 1.0, 0.0, 0.0 ) );
+                                               WPosition( 1.0, 0.0, 0.0 ) );
     m_matrix1Prop = m_properties->addProperty( "M Row 1",
                                                "Row 1 of matrix part of the transformation. You need to press enter to make the values effective.",
-                                               WPosition_2( 0.0, 1.0, 0.0 ) );
+                                               WPosition( 0.0, 1.0, 0.0 ) );
     m_matrix2Prop = m_properties->addProperty( "M Row 2",
                                                "Row 2 of matrix part of the transformation. You need to press enter to make the values effective.",
-                                               WPosition_2( 0.0, 0.0, 1.0 ) );
+                                               WPosition( 0.0, 0.0, 1.0 ) );
     m_matrix3Prop = m_properties->addProperty( "M Row 3",
                                                "Row 3 of matrix part of the transformation. You need to press enter to make the values effective.",
-                                               WPosition_2( 0.0, 0.0, 0.0 ) );
+                                               WPosition( 0.0, 0.0, 0.0 ) );
 
     WModule::properties();
 }
@@ -191,7 +191,7 @@ void WMFiberTransform::update()
             vec[3] = 1.0;
             vec_transformed = transformationMatrix * vec;
             vec_transformed = ( 1.0 / vec_transformed[3] ) * vec_transformed;
-            fiber[positionID] = WPosition_2( vec_transformed[0], vec_transformed[1], vec_transformed[2] );
+            fiber[positionID] = WPosition( vec_transformed[0], vec_transformed[1], vec_transformed[2] );
         }
     }
     ++*progress;

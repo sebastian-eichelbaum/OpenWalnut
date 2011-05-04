@@ -475,7 +475,7 @@ public:
      */
     void testMatrixTimesScalar()
     {
-        WMatrix3d_2 mat = m_matrix * 2.0;
+        WMatrix3d mat = m_matrix * 2.0;
 
         for( int i = 0; i < 3; i++ )
         {
@@ -555,7 +555,7 @@ public:
      */
     void testLength()
     {
-        WVector3d_2 vec;
+        WVector3d vec;
         vec[ 0 ] = 0.0;
         vec[ 1 ] = 4.0;
         vec[ 2 ] = 3.0;
@@ -576,7 +576,7 @@ public:
      */
     void testNormalize()
     {
-        WVector3d_2 vec;
+        WVector3d vec;
 
         vec[ 0 ] = 2.0;
         vec[ 1 ] = 0.0;
@@ -597,7 +597,7 @@ public:
      */
     void testMatrixInverse()
     {
-        WMatrix3d_2 matrix = invert( m_matrix );
+        WMatrix3d matrix = invert( m_matrix );
         matrix *= m_matrix;
         for( int i = 0; i < 3; i++ )
         {
@@ -605,11 +605,11 @@ public:
             {
                 if( i == j )
                 {
-                    TS_ASSERT_DELTA( WMatrix3d_2::identity()( i, j ), 1, 1e-10 );
+                    TS_ASSERT_DELTA( WMatrix3d::identity()( i, j ), 1, 1e-10 );
                 }
                 else
                 {
-                    TS_ASSERT_DELTA( WMatrix3d_2::identity()( i, j ), 0, 1e-10 );
+                    TS_ASSERT_DELTA( WMatrix3d::identity()( i, j ), 0, 1e-10 );
                 }
             }
         }

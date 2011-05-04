@@ -24,12 +24,12 @@
 
 #include "WCrosshair.h"
 
-WPosition_2 WCrosshair::getPosition()
+WPosition WCrosshair::getPosition()
 {
     return m_position;
 }
 
-void WCrosshair::setPosition( WPosition_2 position )
+void WCrosshair::setPosition( WPosition position )
 {
     m_position = position;
 }
