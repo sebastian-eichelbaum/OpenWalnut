@@ -1042,12 +1042,6 @@ public:
         return !operator==( rhs );
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // For compatibility to the old vec/matrix types. They are ALL deprecated and will be removed
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    double normalize();
-
 private:
     /**
      * The value array. Stored row-major. Never access this directly. Always use operator(). This allows us to later-on use another storing
@@ -1259,14 +1253,6 @@ WMatrixFixed< RHSValueT, Rows, Cols, RHSValueStoreT > normalize( const WMatrixFi
 {
     // NOTE: the static cast ensures that the returned matrix value type is the same as the input one.
     return m * static_cast< RHSValueT >( 1.0 / length( m ) );
-}
-
-template< typename ValueT, size_t Rows, size_t Cols, ValueStoreTemplate ValueStoreT >
-double WMatrixFixed< ValueT, Rows, Cols, ValueStoreT >::normalize()
-{
-    ValueT l = length( *this );
-    operator/=( l );
-    return l;
 }
 
 /**
