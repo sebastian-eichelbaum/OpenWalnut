@@ -724,7 +724,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
                     }
                 }
             }
-            estimateNormalsAntipodal( glyph, normalizer );
+            estimateNormalsAntipodal( glyph, normalize );
 
             WPosition glyphPos = m_grid->getPosition( posId );
 
