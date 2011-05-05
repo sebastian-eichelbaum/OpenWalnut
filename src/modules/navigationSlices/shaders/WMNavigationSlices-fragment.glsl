@@ -35,6 +35,9 @@ uniform float u_picked;
 // animation time. Used for pick-animation
 uniform int u_timer;
 
+// if true, no transparency should be used.
+uniform bool u_noTransparency;
+
 /**
  * Applies colormapping.
  */
@@ -47,9 +50,18 @@ void main()
     // NOTE: the 100.0 depends on the timer tick. We have a timer that counts one per a hundreth of a second.
     float pickColorIntensity = 0.5 * ( 1.0 + sin( 3.0 * 3.1472 * float( u_timer ) / 100.0 ) );
     // as we use this for blending, we want it to swing in [0.5-0.75]
-    pickColorIntensity = 0.5 + ( pickColorIntensity * 0.25 );
+    pickColorIntensity = ( pickColorIntensity * 0.25 ) + 0.5;
+
+    // remove transparency?
+    float removeTransparency = clamp( u_picked + float( u_noTransparency ), 0.0, 1.0 );
+    cmap.a = ( ( 1.0 - removeTransparency ) * cmap.a ) + removeTransparency;
 
     // mix colormapping and pick color
-    gl_FragColor = mix( pickColor, cmap, ( ( 1.0 - u_picked ) * 1.0 ) + ( u_picked * pickColorIntensity ) );
+    vec4 finalColor = mix( pickColor, cmap,
+                           ( 1.0 - u_picked ) + ( u_picked * pickColorIntensity ) // mix intensity. This is influenced by the pick-state.
+                         );
+
+    // set as fragColor and remove transparency if needed.
+    gl_FragColor = vec4( finalColor.rgba );
 }
 

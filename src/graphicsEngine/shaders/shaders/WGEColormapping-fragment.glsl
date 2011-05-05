@@ -57,7 +57,6 @@ void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, float minV
     // compositing:
     // associated colors needed
     src.rgb *= src.a;
-    //src.a = 1.0;
     // apply front-to-back compositing
     color = ( 1.0 - color.a ) * src + color;
 }

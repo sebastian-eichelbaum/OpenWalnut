@@ -31,6 +31,7 @@
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "../../graphicsEngine/callbacks/WGEPropertyUniformCallback.h"
 #include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 #include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
@@ -85,6 +86,9 @@ void WMNavigationSlices::connectors()
 
 void WMNavigationSlices::properties()
 {
+    m_noTransparency  = m_properties->addProperty( "No Transparency", "If checked, transparency is not used. This will show the complete slices.",
+                                                   false );
+
     m_sliceGroup      = m_properties->addPropertyGroup( "Slices",  "Slice Options." );
 
     // enable slices
@@ -221,6 +225,11 @@ void WMNavigationSlices::initOSG()
     osg::ref_ptr< osg::Uniform > animationUniform = new osg::Uniform( "u_timer", 0 );
     state->addUniform( animationUniform );
     animationUniform->setUpdateCallback( new WGEShaderAnimationCallback() );
+
+    // transparency property
+    osg::ref_ptr< osg::Uniform > transparencyUniform = new osg::Uniform( "u_noTransparency", false );
+    state->addUniform( transparencyUniform );
+    transparencyUniform->setUpdateCallback( new WGEPropertyUniformCallback< WPropBool >( m_noTransparency ) );
 
     // add the transformation nodes to the output group
     m_output->insert( mX );

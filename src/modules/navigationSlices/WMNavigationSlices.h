@@ -196,6 +196,8 @@ private:
      */
     osg::ref_ptr< WGEManagedGroupNode > m_output;
 
+    WPropBool    m_noTransparency;  //!< if true, the whole slices are shown.
+
     WPropGroup    m_sliceGroup; //!< the group contains several slice properties
 
     WPropDouble    m_xPos; //!< x position of the slice
