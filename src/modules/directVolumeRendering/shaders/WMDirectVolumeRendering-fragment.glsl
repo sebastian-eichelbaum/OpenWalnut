@@ -144,7 +144,7 @@ vec4 transferFunction( float value )
         cols[0] = vec4( 1.0, 0.34, 0.34, 0.25 );
         cols[1] = vec4( 1.0, 0.75, 0.0, 0.25 );
 
-        int i = int( 2.0 * ( value - 0.5 ) * 2.0 * 15.0);
+        int i = int( 2.0 * ( value - 0.5 ) * 2.0 * 15.0 );
         int imod = i % 2;
         c = cols[ imod ];
     }
