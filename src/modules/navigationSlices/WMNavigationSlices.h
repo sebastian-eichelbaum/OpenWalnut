@@ -161,6 +161,11 @@ private:
         bool m_isPicked;
 
         /**
+         * This uniform is used to inform the shader about current pick-state
+         */
+        osg::ref_ptr< osg::Uniform > m_pickUniform;
+
+        /**
          * The stored pixel position of a previous drag event.
          */
         WVector2d m_oldPixelPosition;

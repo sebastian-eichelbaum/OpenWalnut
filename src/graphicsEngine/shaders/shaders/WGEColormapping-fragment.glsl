@@ -27,14 +27,14 @@
 
 #version 120
 
-#include "WGEColorMaps.glsl"
+#include "WGEColorMapsImproved.glsl"
 
 #include "WGEColormapping-uniforms.glsl"
 #include "WGEColormapping-varyings.glsl"
 
 /**
- * This method applies a colormap to the specified value an mixes it with the specified color. It uses the proper colormap and is able to unscale
- * values if needed.
+ * This method applies a colormap to the specified value an mixes it with the specified color. It uses the proper colormap and is able to
+ * unscale values if needed. It uses real compositing.
  *
  * \param color this color gets mixed using alpha value with the new colormap color
  * \param sampler the texture sampler to use
@@ -48,9 +48,18 @@
 void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, float minV, float scaleV, float thresholdV, float alpha, int cmap,
                bool active )
 {
-    // get the value
-    vec4 value = texture3D( sampler, coord );
-    colormap( color, value, minV, scaleV, thresholdV, alpha, cmap, active );
+    // get the value and descale it
+    vec3 value = texture3D( sampler, coord ).rgb;
+
+    // let someone else apply the colormap
+    vec4 src = colormap( value, minV, scaleV, thresholdV, alpha, cmap, active );
+
+    // compositing:
+    // associated colors needed
+    src.rgb *= src.a;
+    //src.a = 1.0;
+    // apply front-to-back compositing
+    color = ( 1.0 - color.a ) * src + color;
 }
 
 /**
@@ -65,7 +74,7 @@ void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, float minV
  */
 vec4 colormapping( vec4 texcoord )
 {
-    vec4 finalColor = vec4( 0.0, 0.0, 0.0, 1.0 );
+    vec4 finalColor = vec4( 0.0, 0.0, 0.0, 0.0 );
 
     // ColormapPreTransform is a mat4 defined by OpenWalnut before compilation
     vec4 t = ColormapPreTransform * texcoord;
@@ -125,7 +134,7 @@ vec4 colormapping( vec4 texcoord )
  */
 vec4 colormapping()
 {
-    vec4 finalColor = vec4( 0.0, 0.0, 0.0, 1.0 );
+    vec4 finalColor = vec4( 0.0, 0.0, 0.0, 0.0 );
 
     // back to front compositing
 #ifdef Colormap7Enabled
