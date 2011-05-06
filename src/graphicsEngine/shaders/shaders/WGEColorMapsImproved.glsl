@@ -29,6 +29,45 @@
 
 #include "WGEUtils.glsl"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Functions to ease clipping.
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Clip pixel if it is the specified value. Use return-value as alpha.
+ *
+ * \param valueDescaled descaled value
+ * \param clipValue value to use for clipping.
+ *
+ * \return 0.0 if clip, 1.0 if not.
+ */
+float clipIfValue( in float valueDescaled, in float clipValue )
+{
+    return clamp( sign( abs( valueDescaled - clipValue ) - 0.0001 ), 0.0, 1.0 );
+}
+
+/**
+ * This function returns 0.0 if the pixel should be clipped. This could be used directly for alpha values. It therefore checks whether a descaled
+ * value is 0.0 and clips it if it is.
+ *
+ * \param valueDescaled the descaled value
+ * \param minV minimum
+ *
+ * \return 0.0 if clip, 1.0 if not.
+ */
+float clipZero( in float valueDescaled, in float minV )
+{
+    if ( minV > 0.0 )
+    {
+        return clipIfValue( valueDescaled, minV );
+    }
+    return clipIfValue( valueDescaled, 0.0 );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Colormaps. They need to handle clipping!
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * Grayscale colormap. Maps value directly to gray values.
  *
@@ -36,9 +75,9 @@
  *
  * \return color. Alpha == 0 if value.r == 0.
  */
-vec4 grayscale( in vec3 value )
+vec4 grayscale( in vec3 value, in vec3 valueDescaled, in float minV, in float scaleV )
 {
-    return vec4( value, -1.0 * sign( 0.0 - value.r ) );
+    return vec4( value, clipZero( valueDescaled.r, minV ) );
 }
 
 /**
@@ -60,15 +99,18 @@ vec4 negative2positive( in float valueDescaled, in float minV, in float scaleV )
     const vec3 posColor= vec3( 0.0, 1.0, 1.0 );
 
     // the descaled value can be in interval [minV,minV+Scale]. But as we want linear scaling where the pos and neg colors are scaled linearly
-    // agains each other, we need the absolut maximum:
-    float m = max( abs( minV ), abs( minV + scaleV ) );
+    // agains each other, and we want to handle real negative values correctly. For only positive values, use their interval mid-point.
+    float isNegative = ( -1.0 * clamp( sign( minV ), -1.0, 0.0 ) ); // this is 1.0 if minV is smaller than zero
+    float mid = ( 1.0 - isNegative ) * 0.5 * scaleV;    // if negative, the mid point always is 0.0
+    // the width of the interval is its original width/2 if there are no negative values in the dataset
+    float width = ( isNegative * max( abs( minV ), abs( minV + scaleV ) ) ) + ( ( 1.0 - isNegative ) * mid );
 
-    // find the relative share of the value in the new interval [-m,m]
-    float share = valueDescaled / m;
+    // pos-neg mix factor
+    float share = ( valueDescaled - mid ) / width;
 
     // use neg color for shares < 0.0 and pos color for the others
-    return vec4( zeroColor - ( ( clamp( share, -1.0 , 0.0 ) * negColor ) + ( clamp( share, 0.0 , 1.0 ) * posColor )
-                             ), 1.0 );
+    return vec4( zeroColor - ( abs( clamp( share, -1.0 , 0.0 ) * negColor ) + ( clamp( share, 0.0 , 1.0 ) * posColor ) ),
+                 clipIfValue( valueDescaled, mid ) ); // clip near mid-point
 }
 
 /**
@@ -104,9 +146,8 @@ float clipThreshold( in vec3 valueDescaled, in int colormap, in float thresholdV
     float isVec = float( colormap == 6 );
     return isVec * clamp( sign( length( valueDescaled ) - thresholdV ), 0.0, 1.0 )
                 +
-          ( 1.0 - isVec ) * clamp( sign( valueDescaled.r - thresholdV ), 0.0, 1.0 );
+          ( 1.0 - isVec ) * clamp( sign( valueDescaled.r - 1.001 * thresholdV ), 0.0, 1.0 );
 }
-
 
 /**
  * This method applies a colormap to the specified value an mixes it with the specified color. It uses the proper colormap and works on scaled
@@ -126,7 +167,7 @@ vec4 colormap( in vec3 value, float minV, float scaleV, float thresholdV, float 
     vec3 valueDescaled = vec3( minV ) + ( value * scaleV );
 
     // this is the final color returned by the colormapping algorithm. This is the correct value for the gray colormap
-    vec4 cmapped = grayscale( value );
+    vec4 cmapped = grayscale( value, valueDescaled, minV, scaleV );
 
     // negative to positive shading in red-blue
     if ( colormap == 3 )
