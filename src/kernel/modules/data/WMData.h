@@ -139,27 +139,6 @@ protected:
     virtual void properties();
 
     /**
-     * Gets called whenever a connector gets connected to the specified input.
-     *
-     * \param here the connector of THIS module that got connected to "there"
-     * \param there the connector that has been connected with the connector "here" of this module.
-     */
-    virtual void notifyConnectionEstablished( boost::shared_ptr< WModuleConnector > here,
-                                              boost::shared_ptr< WModuleConnector > there );
-    /**
-     * Gets called whenever a connection between a remote and local connector gets closed.
-     *
-     * \param here the connector of THIS module getting disconnected.
-     * \param there the connector of the other module getting disconnected.
-     */
-    virtual void notifyConnectionClosed( boost::shared_ptr< WModuleConnector > here, boost::shared_ptr< WModuleConnector > there );
-
-    /**
-     * Gets called when the module should quit. This is from WThreadedRunner.
-     */
-    virtual void notifyStop();
-
-    /**
      * The filename of the dataset to load.
      */
     boost::filesystem::path m_fileName;
@@ -179,28 +158,6 @@ protected:
      */
     WPropString m_dataType;
 
-    // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-    /**
-     * \deprecated Be aware that this will be replaced by WGEColormapping
-     * Grouping the texture display properties
-     */
-    WPropGroup    m_groupTex;
-
-    /**
-     * Interpolation?
-     */
-    WPropBool m_interpolation;
-
-    /**
-     * A list of color map selection types
-     */
-    boost::shared_ptr< WItemSelection > m_colorMapSelectionsList;
-
-    /**
-     * Selection property for color map
-     */
-    WPropSelection m_colorMapSelection;
-
     /**
      * A list of color map selection types
      */
@@ -210,18 +167,6 @@ protected:
      * Selection property for color map
      */
     WPropSelection m_matrixSelection;
-
-
-    /**
-     * Threshold value for this data.
-     */
-    WPropDouble m_threshold;
-
-    /**
-     * Opacity value for this data.
-     */
-    WPropInt m_opacity;
-    // }
 
     bool m_isTexture; //!< Indicates whether the loaded dataSet will be available as texture.
 

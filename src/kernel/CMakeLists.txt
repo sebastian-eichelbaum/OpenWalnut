@@ -48,6 +48,5 @@ IF( OW_COMPILE_TESTS )
                                "WModuleOutputData.cpp"
                                "WModuleContainer.cpp"
                                "WModuleFactory.cpp"
-                               "../modules/navSlices/WMNavSlices.cpp"
                              )
 ENDIF( OW_COMPILE_TESTS )

@@ -46,7 +46,6 @@
 #include "WQtRoiHeaderTreeItem.h"
 #include "WQtSubjectTreeItem.h"
 #include "WQtTreeWidget.h"
-#include "WQtTextureSorter.h"
 
 class WMainWindow;
 class WQtColormapper;
@@ -191,13 +190,6 @@ public:
     QDockWidget* getModuleDock() const;
 
     /**
-     * Gets the texture sorter dock
-     *
-     * \return the dock
-     */
-    QDockWidget* getTextureSorterDock() const;
-
-    /**
      * Gets the colormapper dock
      *
      * \return the dock
@@ -258,8 +250,6 @@ private:
     WQtTreeWidget* m_moduleTreeWidget; //!< pointer to the tree widget
 
     WQtTreeWidget* m_roiTreeWidget; //!< pointer to the tree widget
-
-    WQtTextureSorter* m_textureSorter; //!< pointer to the tree widget
 
     WQtColormapper* m_colormapper; //!< the colormapper control widget
 

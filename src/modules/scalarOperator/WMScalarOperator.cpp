@@ -42,7 +42,6 @@
 #include "../../dataHandler/WDataHandlerEnums.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/exceptions/WDHValueSetMismatch.h"
-#include "../../dataHandler/WDataTexture3D.h"
 #include "../../kernel/WKernel.h"
 #include "WMScalarOperator.xpm"
 #include "WMScalarOperator.h"

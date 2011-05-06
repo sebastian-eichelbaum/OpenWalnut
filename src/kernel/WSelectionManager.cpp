@@ -129,11 +129,6 @@ void WSelectionManager::setTexture( osg::ref_ptr< osg::Texture3D > texture, boos
 }
 
 
-osg::ref_ptr< osg::Texture3D > WSelectionManager::getTexture()
-{
-    return m_texture;
-}
-
 boost::shared_ptr< WGridRegular3D >WSelectionManager::getGrid()
 {
     return m_textureGrid;

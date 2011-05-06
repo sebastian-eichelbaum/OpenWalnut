@@ -29,7 +29,6 @@
 #include "../../common/WPropertyObserver.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
 #include "../../graphicsEngine/WGEColormapping.h"

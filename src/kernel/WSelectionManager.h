@@ -92,12 +92,6 @@ public:
 
     /**
      * getter
-     * \return texture
-     */
-    osg::ref_ptr< osg::Texture3D > getTexture();
-
-    /**
-     * getter
      * \return grid
      */
     boost::shared_ptr< WGridRegular3D >getGrid();

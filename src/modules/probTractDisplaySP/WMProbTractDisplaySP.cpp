@@ -38,7 +38,6 @@
 #include "../../common/WPropertyHelper.h"
 #include "../../kernel/WModuleConnectorSignals.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../graphicsEngine/callbacks/WGELinearTranslationCallback.h"
 #include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"

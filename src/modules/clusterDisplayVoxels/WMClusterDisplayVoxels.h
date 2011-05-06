@@ -34,7 +34,6 @@
 #include "../../common/WHierarchicalTreeVoxels.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/WGETexture.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"

@@ -34,7 +34,6 @@
 #include "exceptions/WPrototypeNotUnique.h"
 #include "exceptions/WPrototypeUnknown.h"
 #include "modules/data/WMData.h" // this is the ONLY module with a special meaning. Everyone knowing the factory also knows this
-#include "modules/navSlices/WMNavSlices.h"
 #include "WModule.h"
 #include "WModuleCombiner.h"
 #include "WModuleFactory.h"
@@ -64,7 +63,6 @@ void WModuleFactory::load()
 
     // These modules need to be added by hand. They are special, obviously.
     m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMData() ) );
-    m_prototypeAccess->get().insert( boost::shared_ptr< WModule >( new WMNavSlices() ) );
 
     // Load the dynamic modules here:
     m_moduleLoader.load( m_prototypeAccess );

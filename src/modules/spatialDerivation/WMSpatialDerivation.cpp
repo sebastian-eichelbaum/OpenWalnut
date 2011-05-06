@@ -28,7 +28,6 @@
 #include "../../kernel/WKernel.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
 
 #include "WMSpatialDerivation.h"
 #include "WMSpatialDerivation.xpm"

@@ -38,7 +38,6 @@
 #include "WDataTexture3D_2.h"
 #include "WExportDataHandler.h"
 
-class WDataTexture3D;
 class WCondition;
 class WDataSetVector;
 
@@ -98,15 +97,6 @@ public:
      * \return The texture.
      * \deprecated
      */
-    OW_API_DEPRECATED
-    virtual boost::shared_ptr< WDataTexture3D > getTexture();
-
-    /**
-     * Returns the texture- representation of the dataset. May throw an exception if no texture is available.
-     *
-     * \return The texture.
-     * \deprecated
-     */
     virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2() const;
 
     /**
@@ -129,14 +119,6 @@ public:
      * \return the prototype.
      */
     static boost::shared_ptr< WPrototyped > getPrototype();
-
-    /**
-     * Gets the condition which is fired whenever the dataset gets some kind of dirty (threshold, opacity, ...)
-     *
-     * \return the condition, or NULL if the dataset has no texture.
-     * \deprecated this is deprecated. Use dataset properties instead.
-     */
-    boost::shared_ptr< WCondition > getChangeCondition();
 
     /**
      * Return a pointer to the properties object of the dataset. Add all the modifiable settings here. This allows the user to modify several

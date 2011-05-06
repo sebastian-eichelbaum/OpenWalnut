@@ -56,7 +56,6 @@
 #include "../../graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "../../graphicsEngine/WROIBox.h"
 #include "../../kernel/modules/data/WMData.h"
-#include "../../kernel/modules/navSlices/WMNavSlices.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModule.h"
 #include "../../kernel/WModuleCombiner.h"
@@ -83,7 +82,8 @@
 WMainWindow::WMainWindow() :
     QMainWindow(),
     m_currentCompatiblesToolbar( NULL ),
-    m_iconManager()
+    m_iconManager(),
+    m_navSlicesAlreadyLoaded( false )
 {
 }
 
@@ -131,12 +131,8 @@ void WMainWindow::setupGUI()
     addDockWidget( Qt::RightDockWidgetArea, m_networkEditor );
     tabifyDockWidget( m_networkEditor, m_controlPanel->getModuleDock() );
 
-    // { TODO(all): deprecated. Replaced by WQtColormapper
-    addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getTextureSorterDock() );
-    // }
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getColormapperDock() );
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel->getRoiDock() );
-    tabifyDockWidget( m_controlPanel->getTextureSorterDock(), m_controlPanel->getColormapperDock() );
     tabifyDockWidget( m_controlPanel->getColormapperDock(), m_controlPanel->getRoiDock() );
 
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
@@ -429,11 +425,10 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             // it is a dataset single
             // load a nav slice module if a WDataSetSingle is available!?
-
-            // if it not already is running: add it
-            if( !WMNavSlices::isRunning() )
+            if ( !m_navSlicesAlreadyLoaded )
             {
                 autoAdd( module, "Navigation Slices" );
+                m_navSlicesAlreadyLoaded = true;
             }
         }
         else if( dataModule->getDataSet()->isA< WDataSetFibers >() )
@@ -451,11 +446,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
     // nav slices use separate buttons for slice on/off switching
     if( module->getName() == "Navigation Slices" )
     {
-        boost::shared_ptr< WPropertyBase > prop = module->getProperties()->findProperty( "showAxial" );
+        boost::shared_ptr< WPropertyBase > prop = module->getProperties()->findProperty( "Show Axial" );
         if( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slices module does not provide the property \"showAxial\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slices module does not provide the property \"Show Axial\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -468,11 +463,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             propertyActionMap[prop] = a;
         }
 
-        prop = module->getProperties()->findProperty( "showCoronal" );
+        prop = module->getProperties()->findProperty( "Show Coronal" );
         if( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slices module does not provide the property \"showCoronal\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slices module does not provide the property \"Show Coronal\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -485,11 +480,11 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             propertyActionMap[prop] = a;
         }
 
-        prop = module->getProperties()->findProperty( "showSagittal" );
+        prop = module->getProperties()->findProperty( "Show Sagittal" );
         if( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slices module does not provide the property \"showSagittal\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slices module does not provide the property \"Show Sagittal\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -503,48 +498,48 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
 
         // now setup the nav widget sliders
-        prop = module->getProperties()->findProperty( "Axial Slice" );
+        prop = module->getProperties()->findProperty( "Axial Position" );
         if( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slices module does not provide the property \"Axial Slice\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slices module does not provide the property \"Axial Position\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
         {
             if( m_navAxial )
             {
-                m_navAxial->setSliderProperty( prop );
+                //m_navAxial->setSliderProperty( prop );
             }
         }
 
-        prop = module->getProperties()->findProperty( "Coronal Slice" );
+        prop = module->getProperties()->findProperty( "Coronal Position" );
         if( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slices module does not provide the property \"Coronal Slice\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slices module does not provide the property \"Coronal Position\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
         {
             if( m_navCoronal )
             {
-                m_navCoronal->setSliderProperty( prop );
+                //m_navCoronal->setSliderProperty( prop );
             }
         }
 
-        prop = module->getProperties()->findProperty( "Sagittal Slice" );
+        prop = module->getProperties()->findProperty( "Sagittal Position" );
         if( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slices module does not provide the property \"Sagittal Slice\", which is required by the GUI.", "GUI",
+                   addLogMessage( "Navigation Slices module does not provide the property \"Sagittal Position\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
         {
             if( m_navSagittal )
             {
-               m_navSagittal->setSliderProperty( prop );
+               //m_navSagittal->setSliderProperty( prop );
             }
         }
     }

@@ -145,13 +145,3 @@ boost::shared_ptr< WSubject > WDataHandler::getDefaultSubject()
     return getDataHandler()->getSubjectByID( WSubject::SUBJECT_UNKNOWN );
 }
 
-void WDataHandler::registerDataSet( boost::shared_ptr< WDataSet > dataset )
-{
-    getDefaultSubject()->addDataSet( dataset );
-}
-
-void WDataHandler::deregisterDataSet( boost::shared_ptr< WDataSet > dataset )
-{
-    getDefaultSubject()->removeDataSet( dataset );
-}
-

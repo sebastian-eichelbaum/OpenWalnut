@@ -114,11 +114,6 @@ protected:
 private:
 
     /**
-     * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
-     */
-    void notifyTextureChange();
-
-    /**
      * Prepares and commits everything for rendering with the OSG
      */
     void renderMesh();
@@ -143,11 +138,6 @@ private:
     WPropBool m_useMarchingLego; //!< Property indicating whether to use interpolated or non interpolated triangulation
 
     /**
-     * True when textures haven changed.
-     */
-    bool m_textureChanged;
-
-    /**
      * This condition denotes whether we need to recompute the surface
      */
     boost::shared_ptr< WCondition > m_recompute;
@@ -164,25 +154,12 @@ private:
     boost::shared_ptr< const WDataSetScalar > m_dataSet; //!< pointer to dataSet to be able to access it throughout the whole module.
     boost::shared_ptr< WGridRegular3D > m_grid; //!< pointer to grid, because we need to access the grid for the dimensions of the texture.
 
-    bool m_shaderUseLighting; //!< shall the shader use lighting?
-    bool m_shaderUseTransparency; //!< shall the shader use transparency?
     bool m_firstDataProcessed; //!< Indicates if we already processed the first arrived data. This helps us to reset the isovalue only the first time.
 
     osg::ref_ptr< WGEManagedGroupNode > m_moduleNode; //!< Pointer to the module's group node. We need it to be able to update it for callback.
     bool m_moduleNodeInserted; //!< ensures that the above module node gets inserted once the first triangle mesh has been calculated.
 
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
-
-    /**
-     * The shader used for the iso surface in m_geode
-     */
-    osg::ref_ptr< WGEShader > m_shader;
-
-    std::vector< osg::ref_ptr< osg::Uniform > > m_typeUniforms; //!< uniforms for ...... ? for shader
-    std::vector< osg::ref_ptr< osg::Uniform > > m_alphaUniforms; //!< uniforms for opacities of textures in shader
-    std::vector< osg::ref_ptr< osg::Uniform > > m_thresholdUniforms; //!< uniforms for thresholds of textures in shader
-    std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< uniforms for ids of textures in shader
-    std::vector< osg::ref_ptr<osg::Uniform> > m_cmapUniforms; //!< uniforms for color maps per texture in shader
 };
 
 #endif  // WMMARCHINGCUBES_H

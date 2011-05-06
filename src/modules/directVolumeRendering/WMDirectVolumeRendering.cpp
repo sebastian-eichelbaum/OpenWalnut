@@ -37,7 +37,6 @@
 #include "../../common/WColor.h"
 #include "../../common/WPropertyHelper.h"
 #include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataTexture3D.h"
 #include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEManagedGroupNode.h"

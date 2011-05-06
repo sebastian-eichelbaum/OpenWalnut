@@ -119,11 +119,6 @@ protected:
     void create();
 
     /**
-     * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
-     */
-    void notifyTextureChange();
-
-    /**
     * switches between fiber display and tube representation,
     * texturing and box culling
     * activates the neccesary shaders
@@ -211,11 +206,6 @@ private:
     osg::ref_ptr<osg::Uniform> m_uniformTubeThickness; //!< tube thickness
 
     /**
-     * True when textures have changed.
-     */
-    bool m_textureChanged;
-
-    /**
      * boolean to notify the shader to use the texture instead of glColor
      */
     osg::ref_ptr<osg::Uniform> m_uniformUseTexture;
@@ -269,11 +259,6 @@ private:
      * \param rootState The uniforms will be applied to this state.
      */
     void initUniforms( osg::StateSet* rootState );
-
-    /**
-     *  updates textures and shader parameters
-     */
-    void updateTexture();
 
     /**
      * create a selection box to cull the fibers

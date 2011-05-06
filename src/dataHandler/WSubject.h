@@ -38,7 +38,6 @@
 #include "WExportDataHandler.h"
 
 class WDataSet;
-class WDataTexture3D;
 
 /**
  * Container for all WDataSets belonging to one subject or patient.
@@ -143,15 +142,6 @@ public:
      * \return the write ticket.
      */
     DatasetSharedContainerType::WriteTicket getDatasetsForWriting() const;
-
-    /**
-     * This gives a list of data textures from all supporting datasets in this subject.
-     *
-     * \param onlyActive true whenever only textures should be returned where isGloballyActive() == true.
-     * \return the list of textures.
-     * \deprecated
-     */
-    std::vector< boost::shared_ptr< WDataTexture3D > > getDataTextures( bool onlyActive = false );
 
     /**
      * This condition fires whenever the list of datasets changes, or one dataset got marked as "dirty" (threshold, opacity, ...).

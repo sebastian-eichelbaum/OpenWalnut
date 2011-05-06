@@ -22,31 +22,21 @@
 //
 //---------------------------------------------------------------------------
 
-varying vec4 VaryingTexCoord0;
-varying vec4 VaryingTexCoord1;
-varying vec4 VaryingTexCoord2;
-varying vec4 VaryingTexCoord3;
-varying vec4 VaryingTexCoord4;
-varying vec4 VaryingTexCoord5;
-varying vec4 VaryingTexCoord6;
-varying vec4 VaryingTexCoord7;
+#version 120
 
-#include "WGELighting-vertex.glsl"
+#include "WGEColormapping-vertex.glsl"
+
+// The surface normal
+varying vec3 v_normal;
 
 void main()
 {
-    VaryingTexCoord0 = gl_MultiTexCoord0;
-    VaryingTexCoord1 = gl_MultiTexCoord1;
-    VaryingTexCoord2 = gl_MultiTexCoord2;
-    VaryingTexCoord3 = gl_MultiTexCoord3;
-    VaryingTexCoord4 = gl_MultiTexCoord4;
-    VaryingTexCoord5 = gl_MultiTexCoord5;
-    VaryingTexCoord6 = gl_MultiTexCoord6;
-    VaryingTexCoord7 = gl_MultiTexCoord7;
+    // prepare colormapping
+    colormapping();
 
-    prepareLight();
+    // prepare light
+    v_normal = gl_NormalMatrix * gl_Normal;
 
     gl_FrontColor = gl_Color;
-
     gl_Position = ftransform();
 }

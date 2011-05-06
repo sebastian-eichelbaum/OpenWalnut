@@ -324,6 +324,8 @@ private:
      */
     void autoAdd( boost::shared_ptr< WModule > module, std::string proto );
 
+    bool m_navSlicesAlreadyLoaded; //!< if true, the navslices have been loaded already
+
     /**
      * Map holding the actions for module properties added automatically. So they can be removed again automatically
      * if the module is removed.

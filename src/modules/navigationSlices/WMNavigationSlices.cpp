@@ -69,7 +69,7 @@ const char** WMNavigationSlices::getXPMIcon() const
 
 const std::string WMNavigationSlices::getName() const
 {
-    return "Navigation Slices 2";
+    return "Navigation Slices";
 }
 
 const std::string WMNavigationSlices::getDescription() const

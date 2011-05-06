@@ -48,7 +48,6 @@
 #include "../../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WModuleFactory.h"

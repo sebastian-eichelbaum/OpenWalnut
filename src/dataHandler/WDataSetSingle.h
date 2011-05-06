@@ -38,7 +38,6 @@
 
 #include "WExportDataHandler.h"
 
-class WDataTexture3D;
 class WDataTexture3D_2;
 
 /**
@@ -142,14 +141,6 @@ public:
     virtual bool isTexture() const;
 
     /**
-     * Returns the texture- representation of the dataset. May throw an exception if no texture is available.
-     *
-     * \return The texture.
-     * \deprecated
-     */
-    virtual boost::shared_ptr< WDataTexture3D > getTexture();
-
-    /**
      * Returns the texture representation of the dataset. May throw an exception if no texture is available.
      *
      * \return the texture.
@@ -195,10 +186,6 @@ protected:
     boost::shared_ptr< WValueSetBase > m_valueSet;
 
 private:
-    /**
-     * The 3D texture representing this dataset.
-     */
-    boost::shared_ptr< WDataTexture3D > m_texture3D;
 
     /**
      * The 3D texture representing this dataset.
