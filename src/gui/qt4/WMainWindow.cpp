@@ -502,7 +502,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         if( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slices module does not provide the property \"Axial Position\", which is required by the GUI.", "GUI",
+               addLogMessage( "Navigation Slices module does not provide the property \"Axial Position\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -517,7 +517,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         if( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slices module does not provide the property \"Coronal Position\", which is required by the GUI.", "GUI",
+               addLogMessage( "Navigation Slices module does not provide the property \"Coronal Position\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
@@ -532,7 +532,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         if( !prop )
         {
                WLogger::getLogger()->
-                   addLogMessage( "Navigation Slices module does not provide the property \"Sagittal Position\", which is required by the GUI.", "GUI",
+               addLogMessage( "Navigation Slices module does not provide the property \"Sagittal Position\", which is required by the GUI.", "GUI",
                                   LL_ERROR );
         }
         else
