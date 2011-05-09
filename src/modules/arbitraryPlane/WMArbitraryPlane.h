@@ -126,22 +126,6 @@ protected:
     bool isDirty();
 
     /**
-     *  updates textures and shader parameters
-     */
-    void updateTextures();
-
-    /**
-     * creates and initializes the uniform parameters for the shader
-     * \param rootState The uniforms will be applied to this state.
-     */
-    void initUniforms( osg::StateSet* rootState );
-
-    /**
-     * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
-     */
-    void notifyTextureChange();
-
-    /**
      * getter for the position of the center manipulator
      *
      * \return center position
@@ -217,39 +201,9 @@ private:
     bool m_dirty; //!< dirty flag, used when manipulator positions change
 
     /**
-     * True when textures have changed.
-     */
-    bool m_textureChanged;
-
-    /**
      * the shader object for this module
      */
     osg::ref_ptr< WGEShader > m_shader;
-
-    /**
-     * vector of uniforms for type of texture
-     */
-    std::vector< osg::ref_ptr<osg::Uniform> > m_typeUniforms;
-
-    /**
-     * vector of alpha values per texture
-     */
-    std::vector< osg::ref_ptr<osg::Uniform> > m_alphaUniforms;
-
-    /**
-     * vector of thresholds per texture
-     */
-    std::vector< osg::ref_ptr<osg::Uniform> > m_thresholdUniforms;
-
-    /**
-     * vector of color maps per texture
-     */
-    std::vector< osg::ref_ptr<osg::Uniform> > m_cmapUniforms;
-
-    /**
-     * vector of samplers
-     */
-    std::vector< osg::ref_ptr<osg::Uniform> > m_samplerUniforms;
 
     osg::ref_ptr<osg::Uniform> m_showCompleteUniform; //!< Determines whether the slice should be drawn completely
 

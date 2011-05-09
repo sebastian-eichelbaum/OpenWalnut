@@ -29,12 +29,13 @@
 #include "../../dataHandler/WDataSet.h"
 #include "../../dataHandler/WDataSetScalar.h"
 #include "../../dataHandler/WDataSetSingle.h"
-#include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WGridRegular3D.h"
 #include "../../dataHandler/WSubject.h"
 #include "../../dataHandler/WValueSet.h"
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/WGEColormapping.h"
+#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
 #include "../../kernel/WKernel.h"
 #include "../../kernel/WSelectionManager.h"
 #include "WMArbitraryPlane.h"
@@ -45,8 +46,7 @@ W_LOADABLE_MODULE( WMArbitraryPlane )
 
 WMArbitraryPlane::WMArbitraryPlane():
     WModule(),
-    m_dirty( false ),
-    m_textureChanged( true )
+    m_dirty( false )
 {
     // initialize members
 }
@@ -106,23 +106,9 @@ void WMArbitraryPlane::properties()
 
 void WMArbitraryPlane::moduleMain()
 {
-    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMArbitraryPlane", m_localPath ) );
-
     initPlane();
 
     updatePlane();
-
-    osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
-
-    initUniforms( rootState );
-
-    updateTextures();
-
-    m_shader->apply( m_rootNode );
-
-
-    boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal(
-            boost::bind( &WMArbitraryPlane::notifyTextureChange, this ) );
 
     ready();
 
@@ -218,8 +204,6 @@ void WMArbitraryPlane::moduleMain()
     m_s1->removeROIChangeNotifier( m_changeRoiSignal );
     m_s2->removeROIChangeNotifier( m_changeRoiSignal );
 
-    con.disconnect();
-
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
 }
 
@@ -229,8 +213,22 @@ void WMArbitraryPlane::initPlane()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
     m_geode = new osg::Geode();
     m_geode->setName( "_arbitraryPlane" );
-    m_rootNode->insert( m_geode );
 
+    // create shader
+    m_shader = osg::ref_ptr< WGEShader > ( new WGEShader( "WMArbitraryPlane", m_localPath ) );
+    m_shader->apply( m_rootNode );
+
+    // Apply colormapping
+    WGEColormapping::apply( m_geode, m_shader );
+
+    // bind some uniforms with properties
+    m_geode->getOrCreateStateSet()->addUniform( new WGEPropertyUniform< WPropBool >( "u_showComplete", m_showComplete ) );
+
+    // we need transparency
+    m_geode->getOrCreateStateSet()->setMode( GL_BLEND, osg::StateAttribute::ON );
+    m_geode->getOrCreateStateSet()->setRenderingHint( osg::StateSet::TRANSPARENT_BIN );
+
+    m_rootNode->insert( m_geode );
     m_rootNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMArbitraryPlane::updateCallback, this ) ) );
 
     WPosition center = WKernel::getRunningKernel()->getSelectionManager()->getCrosshair()->getPosition();
@@ -297,42 +295,6 @@ void WMArbitraryPlane::updatePlane()
     quad->push_back( 0 );
     planeGeometry->addPrimitiveSet( quad );
 
-    // { TODO(all): this is deprecated.
-    // grab a list of data textures
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
-
-    int c = 0;
-    //////////////////////////////////////////////////////////////////////////////////////////////////
-    if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
-    {
-        boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
-        osg::Vec3Array* texCoords = new osg::Vec3Array;
-
-        texCoords->push_back( grid->worldCoordToTexCoord( v0 ) );
-        texCoords->push_back( grid->worldCoordToTexCoord( v1 ) );
-        texCoords->push_back( grid->worldCoordToTexCoord( v2 ) );
-        texCoords->push_back( grid->worldCoordToTexCoord( v3 ) );
-
-        planeGeometry->setTexCoordArray( c, texCoords );
-        ++c;
-    }
-    //////////////////////////////////////////////////////////////////////////////////////////////////
-    for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
-    {
-        boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
-
-        osg::Vec3Array* texCoords = new osg::Vec3Array;
-
-        texCoords->push_back( grid->worldCoordToTexCoord( v0 ) );
-        texCoords->push_back( grid->worldCoordToTexCoord( v1 ) );
-        texCoords->push_back( grid->worldCoordToTexCoord( v2 ) );
-        texCoords->push_back( grid->worldCoordToTexCoord( v3 ) );
-
-        planeGeometry->setTexCoordArray( c, texCoords );
-        ++c;
-    }
-    // }
-
     m_geode->addDrawable( planeGeometry );
 
     m_dirty = false;
@@ -350,7 +312,6 @@ void WMArbitraryPlane::updateCallback()
     if ( isDirty() )
     {
         updatePlane();
-        updateTextures();
     }
 }
 
@@ -362,165 +323,6 @@ void WMArbitraryPlane::setDirty()
 bool WMArbitraryPlane::isDirty()
 {
     return m_dirty;
-}
-
-void WMArbitraryPlane::notifyTextureChange()
-{
-    m_textureChanged = true;
-    m_dirty = true;
-}
-
-
-void WMArbitraryPlane::updateTextures()
-{
-    osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
-    if ( m_textureChanged )
-    {
-        m_textureChanged = false;
-
-        // { TODO(all): this is deprecated.
-        // grab a list of data textures
-        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
-
-        if ( tex.size() > 0 )
-        {
-            // reset all uniforms
-            for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
-            {
-                m_typeUniforms[i]->set( 0 );
-            }
-
-            // for each texture -> apply
-            size_t c = 0;
-            //////////////////////////////////////////////////////////////////////////////////////////////////
-            if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
-            {
-                osg::ref_ptr<osg::Texture3D> texture3D = WKernel::getRunningKernel()->getSelectionManager()->getTexture();
-
-
-                m_typeUniforms[c]->set( W_DT_UNSIGNED_CHAR  );
-                m_thresholdUniforms[c]->set( 0.0f );
-                m_alphaUniforms[c]->set( WKernel::getRunningKernel()->getSelectionManager()->getTextureOpacity() );
-                m_cmapUniforms[c]->set( 4 );
-
-                texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
-                texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
-
-                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
-                ++c;
-            }
-            //////////////////////////////////////////////////////////////////////////////////////////////////
-
-            for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
-            {
-                osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
-
-                if ( ( *iter )->isInterpolated() )
-                {
-                    texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
-                    texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
-                }
-                else
-                {
-                    texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::NEAREST );
-                    texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::NEAREST );
-                }
-                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
-
-                // set threshold/opacity as uniforms
-                float minValue = ( *iter )->getMinValue();
-                float maxValue = ( *iter )->getMaxValue();
-                float t = ( ( *iter )->getThreshold() - minValue ) / ( maxValue - minValue ); // rescale to [0,1]
-                float a = ( *iter )->getAlpha();
-                int cmap = ( *iter )->getSelectedColormap();
-
-                m_typeUniforms[c]->set( ( *iter )->getDataType() );
-                m_thresholdUniforms[c]->set( t );
-                m_alphaUniforms[c]->set( a );
-                m_cmapUniforms[c]->set( cmap );
-
-                ++c;
-                if( c == wlimits::MAX_NUMBER_OF_TEXTURES )
-                {
-                    break;
-                }
-            }
-        }
-        // }
-    }
-
-    m_showCompleteUniform->set( m_showComplete->get() );
-}
-
-void WMArbitraryPlane::initUniforms( osg::StateSet* rootState )
-{
-    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type0", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type1", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type2", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type3", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type4", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type5", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type6", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type7", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type8", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type9", 0 ) ) );
-
-    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha0", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha1", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha2", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha3", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha4", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha5", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha6", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha7", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha8", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha9", 1.0f ) ) );
-
-    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold0", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold1", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold2", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold3", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold4", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold5", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold6", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold7", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold8", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold9", 0.0f ) ) );
-
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex0", 0 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex1", 1 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex2", 2 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex3", 3 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex4", 4 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex5", 5 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex6", 6 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex7", 7 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex8", 8 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex9", 9 ) ) );
-
-    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap0", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap1", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap2", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap3", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap4", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap5", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap6", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap7", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
-
-    for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
-    {
-        rootState->addUniform( m_typeUniforms[i] );
-        rootState->addUniform( m_thresholdUniforms[i] );
-        rootState->addUniform( m_alphaUniforms[i] );
-        rootState->addUniform( m_samplerUniforms[i] );
-        rootState->addUniform( m_cmapUniforms[i] );
-    }
-
-    m_showCompleteUniform = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "showComplete", 0 ) );
-
-    rootState->addUniform( m_showCompleteUniform );
 }
 
 WPosition WMArbitraryPlane::getCenterPosition()
