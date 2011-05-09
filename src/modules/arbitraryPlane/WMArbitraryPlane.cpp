@@ -95,7 +95,7 @@ void WMArbitraryPlane::properties()
             false, m_propCondition );
     m_showManipulators = m_properties->addProperty( "Show manipulators", "Hide/Show manipulators.", true, m_propCondition );
 
-    m_attach2Crosshair = m_properties->addProperty( "Attach to crosshair", "Attach to Crosshair", false, m_propCondition );
+    m_attach2Crosshair = m_properties->addProperty( "Attach to crosshair", "Attach to Crosshair", true, m_propCondition );
 
     m_buttonReset2Axial = m_properties->addProperty( "Axial", "Resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );
     m_buttonReset2Coronal = m_properties->addProperty( "Coronal", "Resets and aligns the plane", WPVBaseTypes::PV_TRIGGER_READY, m_propCondition  );

@@ -446,7 +446,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
     // nav slices use separate buttons for slice on/off switching
     if( module->getName() == "Navigation Slices" )
     {
-        boost::shared_ptr< WPropertyBase > prop = module->getProperties()->findProperty( "Show Axial" );
+        boost::shared_ptr< WPropertyBase > prop = module->getProperties()->findProperty( "Slices/Show Axial" );
         if( !prop )
         {
                WLogger::getLogger()->
@@ -463,7 +463,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             propertyActionMap[prop] = a;
         }
 
-        prop = module->getProperties()->findProperty( "Show Coronal" );
+        prop = module->getProperties()->findProperty( "Slices/Show Coronal" );
         if( !prop )
         {
                WLogger::getLogger()->
@@ -480,7 +480,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             propertyActionMap[prop] = a;
         }
 
-        prop = module->getProperties()->findProperty( "Show Sagittal" );
+        prop = module->getProperties()->findProperty( "Slices/Show Sagittal" );
         if( !prop )
         {
                WLogger::getLogger()->
@@ -498,7 +498,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         }
 
         // now setup the nav widget sliders
-        prop = module->getProperties()->findProperty( "Axial Position" );
+        prop = module->getProperties()->findProperty( "Slices/Axial Position" );
         if( !prop )
         {
                WLogger::getLogger()->
@@ -513,7 +513,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             }
         }
 
-        prop = module->getProperties()->findProperty( "Coronal Position" );
+        prop = module->getProperties()->findProperty( "Slices/Coronal Position" );
         if( !prop )
         {
                WLogger::getLogger()->
@@ -528,7 +528,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             }
         }
 
-        prop = module->getProperties()->findProperty( "Sagittal Position" );
+        prop = module->getProperties()->findProperty( "Slices/Sagittal Position" );
         if( !prop )
         {
                WLogger::getLogger()->

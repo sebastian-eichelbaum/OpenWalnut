@@ -163,32 +163,44 @@ void WSelectionManager::setTextureOpacity( float value )
     m_textureOpacity = value;
 }
 
-void WSelectionManager::setPropAxialPos( WPropInt prop )
+void WSelectionManager::setPropAxialPos( WPropDouble prop )
 {
+    m_axialUpdateConnection.disconnect();
     m_axialPos = prop;
+    m_axialUpdateConnection = m_axialPos->getUpdateCondition()->subscribeSignal(
+        boost::bind( &WSelectionManager::updateCrosshairPosition, this )
+    );
 }
 
-void WSelectionManager::setPropCoronalPos( WPropInt prop )
+void WSelectionManager::setPropCoronalPos( WPropDouble prop )
 {
+    m_coronalUpdateConnection.disconnect();
     m_coronalPos = prop;
+    m_coronalUpdateConnection = m_coronalPos->getUpdateCondition()->subscribeSignal(
+        boost::bind( &WSelectionManager::updateCrosshairPosition, this )
+    );
 }
 
-void WSelectionManager::setPropSagittalPos( WPropInt prop )
+void WSelectionManager::setPropSagittalPos( WPropDouble prop )
 {
+    m_sagittalUpdateConnection.disconnect();
     m_sagittalPos = prop;
+    m_sagittalUpdateConnection = m_sagittalPos->getUpdateCondition()->subscribeSignal(
+        boost::bind( &WSelectionManager::updateCrosshairPosition, this )
+    );
 }
 
-WPropInt WSelectionManager::getPropAxialPos()
+WPropDouble WSelectionManager::getPropAxialPos()
 {
     return m_axialPos;
 }
 
-WPropInt WSelectionManager::getPropCoronalPos()
+WPropDouble WSelectionManager::getPropCoronalPos()
 {
     return m_coronalPos;
 }
 
-WPropInt WSelectionManager::getPropSagittalPos()
+WPropDouble WSelectionManager::getPropSagittalPos()
 {
     return m_sagittalPos;
 }
@@ -202,3 +214,9 @@ int WSelectionManager::getShader()
 {
     return m_shader;
 }
+
+void WSelectionManager::updateCrosshairPosition()
+{
+    m_crosshair->setPosition( WPosition( m_sagittalPos->get(), m_coronalPos->get(), m_axialPos->get()) );
+}
+

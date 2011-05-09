@@ -37,6 +37,7 @@
 #include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../graphicsEngine/shaders/WGEShaderDefineOptions.h"
 #include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "../../kernel/WSelectionManager.h"
 #include "../../graphicsEngine/WGraphicsEngine.h"
 #include "../../kernel/WKernel.h"
 
@@ -301,6 +302,11 @@ void WMNavigationSlices::moduleMain()
 
     // we need to be informed if the bounding box of the volume containing all the data changes.
     m_moduleState.add( WGEColormapping::instance()->getChangeCondition() );
+
+    // Forward position to selection manager.
+    WKernel::getRunningKernel()->getSelectionManager()->setPropSagittalPos( m_xPos );
+    WKernel::getRunningKernel()->getSelectionManager()->setPropCoronalPos( m_yPos );
+    WKernel::getRunningKernel()->getSelectionManager()->setPropAxialPos( m_zPos );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Main loop
