@@ -75,7 +75,14 @@ public:
         {
             reference( i, i ) = 2.0 * piDouble * 3.0 / 8.0;
         }
-        TS_ASSERT_EQUALS( result, reference );
+
+        for( size_t i = 0; i < 15; ++i )
+        {
+            for( size_t j = 0; j < 15; ++j )
+            {
+                TS_ASSERT_DELTA( result( i, j ), reference( i, j ), 1e-9 );
+            }
+        }
     }
 
     /**
@@ -98,7 +105,14 @@ public:
         {
             reference( i, i ) = 400.0;
         }
-        TS_ASSERT_EQUALS( result, reference );
+
+        for( size_t i = 0; i < 15; ++i )
+        {
+            for( size_t j = 0; j < 15; ++j )
+            {
+                TS_ASSERT_DELTA( result( i, j ), reference( i, j ), 1e-9 );
+            }
+        }
     }
 
     /**
