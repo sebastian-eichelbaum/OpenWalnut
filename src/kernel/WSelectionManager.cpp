@@ -217,6 +217,6 @@ int WSelectionManager::getShader()
 
 void WSelectionManager::updateCrosshairPosition()
 {
-    m_crosshair->setPosition( WPosition( m_sagittalPos->get(), m_coronalPos->get(), m_axialPos->get()) );
+    m_crosshair->setPosition( WPosition( m_sagittalPos->get(), m_coronalPos->get(), m_axialPos->get() ) );
 }
 
