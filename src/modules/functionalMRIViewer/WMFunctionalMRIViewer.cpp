@@ -113,41 +113,43 @@ void WMFunctionalMRIViewer::moduleMain()
             // remove old texture
             if( m_dataSetAtTime )
             {
-                WDataHandler::deregisterDataSet( m_dataSetAtTime );
-                m_dataSetAtTime = boost::shared_ptr< WDataSetScalar >();
+                m_properties->removeProperty( m_dataSetAtTime->getTexture2()->getProperties() );
+                m_infoProperties->removeProperty( m_dataSetAtTime->getTexture2()->getInformationProperties() );
+                WGEColormapping::deregisterTexture( m_dataSetAtTime->getTexture2() );
+                m_dataSetAtTime.reset();
             }
             m_dataSet = inData;
             m_time->setMin( m_dataSet->getMinTime() );
             m_time->setMax( m_dataSet->getMaxTime() );
             m_time->ensureValidity( m_dataSet->getMinTime() );
-
             float time = m_time->get( true );
-            if( m_dataSetAtTime )
-            {
-                WDataHandler::deregisterDataSet( m_dataSetAtTime );
-            }
+
             std::stringstream s;
             s << m_dataSet->getFileName() << "_time" << time;
             boost::shared_ptr< WDataSetScalar const > ds = m_dataSet->calcDataSetAtTime( time, s.str() );
             // get rid of the const
             m_dataSetAtTime = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( ds->getValueSet(), ds->getGrid() ) );
-            if( m_texScaleNormalized->get( true ) )
+
+            if( m_dataSetAtTime )
             {
-                // { TODO(ebaum): this is deprecated and will be replaced by WGEColormapping
-                m_dataSetAtTime->getTexture()->setMinValue( static_cast< float >( m_dataSet->getMinValue() ) );
-                m_dataSetAtTime->getTexture()->setMaxValue( static_cast< float >( m_dataSet->getMaxValue() ) );
-                // }
-                m_dataSetAtTime->getTexture2()->minimum()->set( static_cast< float >( m_dataSet->getMinValue() ) );
-                m_dataSetAtTime->getTexture2()->scale()->set( static_cast< float >( m_dataSet->getMaxValue() - m_dataSet->getMinValue() ) );
+                WGEColormapping::registerTexture( m_dataSetAtTime->getTexture2(), s.str() );
+                m_properties->addProperty( m_dataSetAtTime->getTexture2()->getProperties() );
+                m_infoProperties->addProperty( m_dataSetAtTime->getTexture2()->getInformationProperties() );
+                if( m_texScaleNormalized->get( true ) )
+                {
+                    m_dataSetAtTime->getTexture2()->minimum()->set( static_cast< float >( m_dataSet->getMinValue() ) );
+                    m_dataSetAtTime->getTexture2()->scale()->set( static_cast< float >( m_dataSet->getMaxValue() - m_dataSet->getMinValue() ) );
+                }
             }
-            WDataHandler::registerDataSet( m_dataSetAtTime );
             m_output->updateData( m_dataSetAtTime );
         }
     }
 
     if( m_dataSetAtTime )
     {
-        WDataHandler::deregisterDataSet( m_dataSetAtTime );
-        m_dataSetAtTime = boost::shared_ptr< WDataSetScalar >();
+        m_properties->removeProperty( m_dataSetAtTime->getTexture2()->getProperties() );
+        m_infoProperties->removeProperty( m_dataSetAtTime->getTexture2()->getInformationProperties() );
+        WGEColormapping::deregisterTexture( m_dataSetAtTime->getTexture2() );
+        m_dataSetAtTime.reset();
     }
 }
