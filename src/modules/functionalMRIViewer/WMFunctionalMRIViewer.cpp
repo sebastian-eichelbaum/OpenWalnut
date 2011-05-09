@@ -27,7 +27,7 @@
 
 #include "../../kernel/WKernel.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 
 #include "WMFunctionalMRIViewer.h"
 
