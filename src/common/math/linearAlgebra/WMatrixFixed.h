@@ -736,7 +736,8 @@ public:
     WMatrixFixed< typename WTypeTraits::TypePromotion< ValueT, RHSValueT >::Result, Rows, Cols, ValueStoreT >
     operator/( const RHSValueT& rhs ) const
     {
-        return operator*( ValueT( 1 ) / rhs );
+        typedef typename WTypeTraits::TypePromotion< ValueT, RHSValueT >::Result ResultT;
+        return operator*( ResultT( 1 ) / static_cast< ResultT >( rhs ) );
     }
 
     /**
