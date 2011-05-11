@@ -31,11 +31,11 @@
 #include "../../common/WLogger.h"
 #include "../../dataHandler/datastructures/WFiberCluster.h"
 #include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D.h"
 #include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEGeodeUtils.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/shaders/WGEShader.h"
 #include "../../kernel/WKernel.h"
 #include "WMLineGuidedSlice.h"
 #include "WMLineGuidedSlice.xpm"
@@ -44,10 +44,8 @@ W_LOADABLE_MODULE( WMLineGuidedSlice )
 
 WMLineGuidedSlice::WMLineGuidedSlice():
     WModule(),
-    m_textureChanged( true ),
     m_isPicked( false )
 {
-    m_shader = osg::ref_ptr< WGEShader >( new WGEShader( "WMLineGuidedSlice" ) );
 }
 
 WMLineGuidedSlice::~WMLineGuidedSlice()
@@ -109,11 +107,6 @@ void WMLineGuidedSlice::moduleMain()
     // signal ready state
     ready();
 
-    // now, to watch changing/new textures use WSubject's change condition
-    boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal(
-            boost::bind( &WMLineGuidedSlice::notifyTextureChange, this )
-    );
-
     m_rootNode = osg::ref_ptr< WGEGroupNode >( new WGEGroupNode() );
 
     while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
@@ -133,14 +126,6 @@ void WMLineGuidedSlice::moduleMain()
 
     // clean up stuff
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->remove( m_rootNode );
-
-    // deregister from WSubject's change condition
-    con.disconnect();
-}
-
-void WMLineGuidedSlice::notifyTextureChange()
-{
-    m_textureChanged = true;
 }
 
 void WMLineGuidedSlice::updateCenterLine()
@@ -174,11 +159,14 @@ void WMLineGuidedSlice::create()
     m_sliceNode->addDrawable( createGeometry() );
 
     m_rootNode->insert( m_sliceNode );
-    m_shader->apply( m_sliceNode );
+    osg::ref_ptr< WGEShader > shader;
+    shader = osg::ref_ptr< WGEShader >( new WGEShader( "WMLineGuidedSlice", m_localPath ) );
+    shader->apply( m_sliceNode );
+
+    // Colormapping
+    WGEColormapping::apply( m_sliceNode, shader );
 
     osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
-    initUniforms( sliceState );
-
     sliceState->setMode( GL_BLEND, osg::StateAttribute::ON );
 
     m_sliceNode->setUserData( this );
@@ -238,42 +226,19 @@ osg::ref_ptr<osg::Geometry> WMLineGuidedSlice::createGeometry()
 
     osg::Vec3Array* sliceVertices = new osg::Vec3Array;
 
-    // { TODO(all): this is deprecated.
-    // grab a list of data textures
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
+    const double radius = 100;
+    std::vector< WPosition > vertices;
+    vertices.push_back( startPos + (      sliceVec1 + sliceVec2 ) * radius );
+    vertices.push_back( startPos + ( -1 * sliceVec1 + sliceVec2 ) * radius );
+    vertices.push_back( startPos + ( -1 * sliceVec1 - sliceVec2 ) * radius );
+    vertices.push_back( startPos + (      sliceVec1 - sliceVec2 ) * radius );
 
-    if( tex.size() > 0 )
+    const size_t nbVerts = 4;
+    for( size_t i = 0; i < nbVerts; ++i )
     {
-        const double radius = 100;
-        std::vector< WPosition > vertices;
-        vertices.push_back( startPos + (      sliceVec1 + sliceVec2 ) * radius );
-        vertices.push_back( startPos + ( -1 * sliceVec1 + sliceVec2 ) * radius );
-        vertices.push_back( startPos + ( -1 * sliceVec1 - sliceVec2 ) * radius );
-        vertices.push_back( startPos + (      sliceVec1 - sliceVec2 ) * radius );
-
-        const size_t nbVerts = 4;
-        for( size_t i = 0; i < nbVerts; ++i )
-        {
-            sliceVertices->push_back( vertices[i] );
-        }
-        sliceGeometry->setVertexArray( sliceVertices );
-
-        int counter = 0;
-        for( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
-        {
-            boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
-
-            osg::Vec3Array* texCoords = new osg::Vec3Array;
-            texCoords->clear();
-            for( size_t i = 0; i < nbVerts; ++i )
-            {
-                texCoords->push_back( grid->worldCoordToTexCoord( vertices[i] + WVector3d( 0.5, 0.5, 0.5 ) ) );
-            }
-            sliceGeometry->setTexCoordArray( counter, texCoords );
-            ++counter;
-        }
+        sliceVertices->push_back( vertices[i] );
     }
-    // }
+    sliceGeometry->setVertexArray( sliceVertices );
 
     osg::DrawElementsUInt* quad = new osg::DrawElementsUInt( osg::PrimitiveSet::QUADS, 0 );
     quad->push_back( 3 );
@@ -295,89 +260,6 @@ void WMLineGuidedSlice::updateGeometry()
     osg::ref_ptr<osg::Drawable> old = osg::ref_ptr<osg::Drawable>( m_sliceNode->getDrawable( 0 ) );
     m_sliceNode->replaceDrawable( old, sliceGeometry );
 
-    // { TODO(all): this is deprecated.
-    std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
-    // }
-
     slock.unlock();
 }
 
-
-void WMLineGuidedSlice::updateTextures()
-{
-    osg::StateSet* sliceState = m_sliceNode->getOrCreateStateSet();
-    if( m_textureChanged )
-    {
-        m_textureChanged = false;
-        // { TODO(all): this is deprecated.
-        // grab a list of data textures
-        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
-
-        if( tex.size() > 0 )
-        {
-            // reset all uniforms
-            for( int i = 0; i < 2; ++i )
-            {
-                m_typeUniforms[i]->set( 0 );
-            }
-
-            // for each texture -> apply
-            int c = 0;
-            for( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
-            {
-                osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
-                sliceState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
-
-                // set threshold/opacity as uniforms
-                float t = ( *iter )->getThreshold() / 255.0;
-                float a = ( *iter )->getAlpha();
-
-                m_typeUniforms[c]->set( ( *iter )->getDataType() );
-                m_thresholdUniforms[c]->set( t );
-                m_alphaUniforms[c]->set( a );
-
-                ++c;
-            }
-
-            bool useTexture = m_properties->getProperty( "Use texture" )->toPropBool()->get();
-            sliceState->addUniform( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useTexture", useTexture ) ) );
-        }
-        // }
-    }
-
-    m_highlightUniform->set( m_isPicked );
-
-    m_sliceNode->getOrCreateStateSet()->merge( *sliceState );
-}
-
-void WMLineGuidedSlice::initUniforms( osg::StateSet* sliceState )
-{
-    boost::shared_lock<boost::shared_mutex> slock;
-    slock = boost::shared_lock<boost::shared_mutex>( m_updateLock );
-
-    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type0", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "type1", 0 ) ) );
-
-    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha0", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "alpha1", 1.0f ) ) );
-
-    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold0", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "threshold1", 0.0f ) ) );
-
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex0", 0 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "tex1", 1 ) ) );
-
-    for( int i = 0; i < 2; ++i )
-    {
-        sliceState->addUniform( m_typeUniforms[i] );
-        sliceState->addUniform( m_thresholdUniforms[i] );
-        sliceState->addUniform( m_alphaUniforms[i] );
-        sliceState->addUniform( m_samplerUniforms[i] );
-    }
-
-    m_highlightUniform = osg::ref_ptr<osg::Uniform>( new osg::Uniform( "highlighted", 0 ) );
-
-    m_sliceNode->getOrCreateStateSet()->addUniform( m_highlightUniform );
-
-    slock.unlock();
-}

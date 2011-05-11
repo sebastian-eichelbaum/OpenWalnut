@@ -103,24 +103,9 @@ protected:
 private:
 
     /**
-     * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
-     */
-    void notifyTextureChange();
-
-    /**
-     * True when textures have changed.
-     */
-    bool m_textureChanged;
-
-    /**
      * Updates the positions of the slice
      */
     void updateGeometry();
-
-    /**
-     * Uppdates textures and shader parameters
-     */
-    void updateTextures();
 
     /**
      * Creates the inital geometry.
@@ -143,12 +128,6 @@ private:
      */
     osg::ref_ptr< osg::Geometry > createGeometry();
 
-    /**
-     * Creates and initializes the uniform parameters for the shader
-     * \param rootState The uniforms will be applied to this state.
-     */
-    void initUniforms( osg::StateSet* rootState );
-
     WPropDouble m_pos; //!< Slice position along line.
 
     WVector2d m_oldPixelPosition; //!< Caches the old picked position to a allow for cmoparison
@@ -159,13 +138,7 @@ private:
     osg::ref_ptr< WGEGroupNode > m_rootNode; //!< The root node for this module.
     osg::ref_ptr< osg::Geode > m_sliceNode; //!< OSG node for slice.
     osg::ref_ptr< osg::Geode > m_centerLineGeode; //!< OSG center line of the current cluster geode.
-    osg::ref_ptr< WGEShader > m_shader; //!< The shader object for this module.
     boost::shared_mutex m_updateLock; //!< Lock to prevent concurrent threads trying to update the osg node.
-    std::vector< osg::ref_ptr< osg::Uniform > > m_typeUniforms; //!< Vector of uniforms for type of texture.
-    std::vector< osg::ref_ptr< osg::Uniform > > m_alphaUniforms; //!< Vector of alpha values per texture.
-    std::vector< osg::ref_ptr< osg::Uniform > > m_thresholdUniforms; //!< Vector of thresholds per texture.
-    std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< Vector of samplers.
-    osg::ref_ptr< osg::Uniform > m_highlightUniform; //!< Determines whether the slice is highlighted.
 
     boost::shared_ptr< WFiber > m_centerLine; //!< The line that guides the slice.
 
@@ -188,7 +161,6 @@ private:
             if( module )
             {
                 module->updateGeometry();
-                module->updateTextures();
             }
             traverse( node, nv );
         }
