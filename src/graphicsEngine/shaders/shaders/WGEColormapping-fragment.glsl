@@ -66,7 +66,7 @@ void colormap( inout vec4 color, in sampler3D sampler, in vec3 coord, float minV
  * Be aware that this only works with the WGEColormapping class. If you are using real geometry use the other colormapping call. This version
  * takes a unit-cube texture coordinate which gets translated to the right coordinate space of the texture.
  *
- * \note if your are using this method, the call to colormapping() inside your vertex shader is NOT needed.
+ * \note If your are using this method, the call to colormapping() inside your vertex shader is NOT needed.
  *
  * \param texcoord the texture coordinate in the bounding box space of the data
  * \return the final color determined by the user defined colormapping
@@ -127,7 +127,7 @@ vec4 colormapping( vec4 texcoord )
  * Calculates the final colormapping. Call this from your fragment shader. A call to colormapping() from within the vertex shader is also needed.
  * Be aware that this only works with the WGEColormapping class. This version uses the interpolated texture coordinate from the vertex shader. Be
  * yourself aware that this should be used only for geometry based data. If you are using raytracing-like techniques where only texture
- * coordinates of the proxy geometry is available, use the colormapping( vec3 ) call instead.
+ * coordinates of the proxy geometry are available, use the colormapping( vec3 ) call instead.
  *
  * \return the final color determined by the user defined colormapping
  */
