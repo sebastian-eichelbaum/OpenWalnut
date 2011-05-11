@@ -997,11 +997,11 @@ public:
     bool operator==( const WMatrixFixed< RHSValueT, Rows, Cols, RHSValueStoreT >& rhs ) const throw()
     {
         bool eq = true;
-        for ( size_t row = 0; row < Rows; ++row )
+        for ( size_t row = 0; eq && ( row < Rows ); ++row )
         {
-            for ( size_t col = 0; col < Cols; ++col )
+            for ( size_t col = 0; eq && ( col < Cols ); ++col )
             {
-                eq &= ( operator()( row, col ) == rhs( row, col ) );
+                eq = eq && ( operator()( row, col ) == rhs( row, col ) );
             }
         }
         return eq;
@@ -1018,15 +1018,17 @@ public:
     template< typename RHSValueT, ValueStoreTemplate RHSValueStoreT >
     bool operator<( const WMatrixFixed< RHSValueT, Rows, Cols, RHSValueStoreT >& rhs ) const throw()
     {
-        bool less = true;
-        for ( size_t row = 0; row < Rows; ++row )
+        bool eq = true;
+        bool result = true;
+        for ( size_t row = 0; eq && ( row < Rows ); ++row )
         {
-            for ( size_t col = 0; col < Cols; ++col )
+            for ( size_t col = 0; eq && ( col < Cols ); ++col )
             {
-                less &= ( operator()( row, col ) < rhs( row, col ) );
+                eq = eq && ( operator()( row, col ) == rhs( row, col ) );
+                result = ( operator()( row, col ) < rhs( row, col ) );
             }
         }
-        return less;
+        return result;
     }
 
     /**
