@@ -1,0 +1,52 @@
+//---------------------------------------------------------------------------
+//
+// Project: OpenWalnut ( http://www.openwalnut.org )
+//
+// Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+// For more information see http://www.openwalnut.org/copying
+//
+// This file is part of OpenWalnut.
+//
+// OpenWalnut is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// OpenWalnut is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------------
+
+#version 120
+
+#include "WGEColormapping-fragment.glsl"
+
+#include "WGEShadingTools.glsl"
+
+// opacity in percent
+uniform int u_opacity;
+
+// The surface normal
+varying vec3 v_normal;
+
+void main()
+{
+    vec4 col = gl_Color;
+
+#ifdef COLORMAPPING_ENABLED
+    col = colormapping();
+#endif
+
+    // do light
+    float light = blinnPhongIlluminationIntensity( normalize( -v_normal ) );
+
+    // opacity of the surface
+    //col.rgb = light * col.rgb; // TODO(wiebel): reenable lighting here
+    col.a = float( u_opacity ) * 0.01;
+    gl_FragColor = col;
+}

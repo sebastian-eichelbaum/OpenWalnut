@@ -49,8 +49,9 @@
 #include "../../common/math/WLinearAlgebraFunctions.h"
 #include "../../dataHandler/WDataHandler.h"
 #include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WDataTexture3D.h"
+#include "../../graphicsEngine/WGEColormapping.h"
 #include "../../graphicsEngine/WGEUtils.h"
+#include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
 #include "../../kernel/WKernel.h"
 
 #include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
@@ -61,7 +62,7 @@
 W_LOADABLE_MODULE( WMSplineSurface )
 
 WMSplineSurface::WMSplineSurface() :
-    WModule(), m_recompute( boost::shared_ptr< WCondition >( new WCondition() ) ), m_shaderUseLighting( false ), m_shaderUseTransparency( false ),
+    WModule(), m_recompute( boost::shared_ptr< WCondition >( new WCondition() ) ),
             m_moduleNode( new WGEGroupNode() ), m_surfaceGeode( 0 )
 {
     // WARNING: initializing connectors inside the constructor will lead to an exception.
@@ -91,7 +92,7 @@ const std::string WMSplineSurface::getName() const
 
 const std::string WMSplineSurface::getDescription() const
 {
-    return "This module implements the marching cubes"
+    return "<font color=\"#0000ff\"><b>[Unfinished Status]</b></font> This module implements the marching cubes"
         " algorithm with a consistent triangulation. It allows to compute isosurfaces"
         " for a given isovalue on data given on a grid only consisting of cubes. It yields"
         " the surface as triangle soup.";
@@ -105,10 +106,6 @@ void WMSplineSurface::moduleMain()
 
     // signal ready state
     ready();
-
-    // now, to watch changing/new textures use WSubject's change condition
-    boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal( boost::bind(
-            &WMSplineSurface::notifyTextureChange, this ) );
 
     // loop until the module container requests the module to quit
     while ( !m_shutdownFlag() )
@@ -144,10 +141,6 @@ void WMSplineSurface::moduleMain()
 
         debugLog() << "Rendering surface ...";
 
-        // settings for normal isosurface
-        m_shaderUseLighting = true;
-        m_shaderUseTransparency = true;
-
         renderMesh();
         m_output->updateData( m_triMesh );
 
@@ -157,8 +150,6 @@ void WMSplineSurface::moduleMain()
         // NOTE: you can add your own conditions to m_moduleState using m_moduleState.add( ... )
         m_moduleState.wait();
     }
-
-    con.disconnect();
 
     WKernel::getRunningKernel()->getGraphicsEngine()->getViewer()->getScene()->remove( m_moduleNode );
 }
@@ -186,7 +177,7 @@ void WMSplineSurface::properties()
     m_opacityProp->setMin( 0 );
     m_opacityProp->setMax( 100 );
 
-    m_useTextureProp = m_properties->addProperty( "Use texture", "Use texturing of the surface?", false );
+    m_useTextureProp = m_properties->addProperty( "Use texture", "Use texturing of the surface?", true );
 
     m_surfaceColor = m_properties->addProperty( "Surface color", "Description.", WColor( 0.5, 0.5, 0.5, 1.0 ) );
 
@@ -243,109 +234,20 @@ void WMSplineSurface::renderMesh()
     state->setAttributeAndModes( lightModel.get(), osg::StateAttribute::ON );
     state->setMode( GL_BLEND, osg::StateAttribute::ON );
 
-    {
-        osg::ref_ptr< osg::Material > material = new osg::Material();
-        material->setDiffuse( osg::Material::FRONT_AND_BACK, osg::Vec4( 1.0, 1.0, 1.0, 1.0 ) );
-        material->setSpecular( osg::Material::FRONT_AND_BACK, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
-        material->setAmbient( osg::Material::FRONT_AND_BACK, osg::Vec4( 0.1, 0.1, 0.1, 1.0 ) );
-        material->setEmission( osg::Material::FRONT_AND_BACK, osg::Vec4( 0.0, 0.0, 0.0, 1.0 ) );
-        material->setShininess( osg::Material::FRONT_AND_BACK, 25.0 );
-        state->setAttribute( material );
-    }
+    osg::ref_ptr< WGEShader > shader = osg::ref_ptr< WGEShader >( new WGEShader( "WMSplineSurface", m_localPath ) );
+    shader->addPreprocessor( WGEShaderPreprocessor::SPtr(
+        new WGEShaderPropertyDefineOptions< WPropBool >( m_useTextureProp, "COLORMAPPING_DISABLED", "COLORMAPPING_ENABLED" ) )
+    );
+    state->addUniform( new WGEPropertyUniform< WPropInt >( "u_opacity", m_opacityProp ) );
+    shader->apply( m_surfaceGeode );
 
-    // ------------------------------------------------
-    // Shader stuff
-
-    m_typeUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "type0", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "type1", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "type2", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "type3", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "type4", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "type5", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "type6", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "type7", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "type8", 0 ) ) );
-    m_typeUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "type9", 0 ) ) );
-
-    m_alphaUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "alpha0", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "alpha1", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "alpha2", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "alpha3", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "alpha4", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "alpha5", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "alpha6", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "alpha7", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "alpha8", 1.0f ) ) );
-    m_alphaUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "alpha9", 1.0f ) ) );
-
-    m_thresholdUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "threshold0", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "threshold1", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "threshold2", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "threshold3", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "threshold4", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "threshold5", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "threshold6", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "threshold7", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "threshold8", 0.0f ) ) );
-    m_thresholdUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "threshold9", 0.0f ) ) );
-
-    m_samplerUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "tex0", 0 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "tex1", 1 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "tex2", 2 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "tex3", 3 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "tex4", 4 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "tex5", 5 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "tex6", 6 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "tex7", 7 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "tex8", 8 ) ) );
-    m_samplerUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "tex9", 9 ) ) );
-
-    m_cmapUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useCmap0", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useCmap1", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useCmap2", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useCmap3", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useCmap4", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useCmap5", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useCmap6", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useCmap7", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useCmap8", 0 ) ) );
-    m_cmapUniforms.push_back( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useCmap9", 0 ) ) );
-
-    for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
-    {
-        state->addUniform( m_typeUniforms[i] );
-        state->addUniform( m_thresholdUniforms[i] );
-        state->addUniform( m_alphaUniforms[i] );
-        state->addUniform( m_samplerUniforms[i] );
-        state->addUniform( m_cmapUniforms[i] );
-    }
-
-    state->addUniform( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
-    if ( m_shaderUseTransparency )
-    {
-        state->addUniform( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "opacity", m_opacityProp->get( true ) ) ) );
-    }
-    else
-    {
-        state->addUniform( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "opacity", 100 ) ) );
-    }
-
-    // NOTE: the following code should not be necessary. The update callback does this job just before the mesh is rendered
-    // initially. Just set the texture changed flag to true. If this however might be needed use WSubject::getDataTextures.
-    m_textureChanged = true;
-
-    m_shader = osg::ref_ptr< WGEShader >( new WGEShader( "surface", m_localPath ) );
-    m_shader->apply( m_surfaceGeode );
+    // Colormapping
+    WGEColormapping::apply( m_surfaceGeode, shader );
 
     m_moduleNode->insert( m_surfaceGeode );
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_moduleNode );
 
     m_moduleNode->addUpdateCallback( new SplineSurfaceNodeCallback( this ) );
-}
-
-void WMSplineSurface::notifyTextureChange()
-{
-    m_textureChanged = true;
 }
 
 bool WMSplineSurface::save() const
@@ -440,80 +342,5 @@ void WMSplineSurface::updateGraphics()
         osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
         surfaceGeometry->setColorArray( colors );
         surfaceGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
-    }
-
-    if ( m_textureChanged || m_opacityProp->changed() || m_useTextureProp->changed() )
-    {
-        bool localTextureChangedFlag = m_textureChanged;
-        m_textureChanged = false;
-        m_opacityProp->get( true );
-        m_useTextureProp->get( true );
-
-        // { TODO(all): this is deprecated.
-        // grab a list of data textures
-        std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
-
-        if ( tex.size() > 0 )
-        {
-            osg::StateSet* rootState = m_surfaceGeode->getOrCreateStateSet();
-
-            // reset all uniforms
-            for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
-            {
-                m_typeUniforms[i]->set( 0 );
-            }
-
-            rootState->addUniform( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useTexture", m_useTextureProp->get( true ) ) ) );
-            rootState->addUniform( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "useLighting", m_shaderUseLighting ) ) );
-
-            if ( m_shaderUseTransparency )
-            {
-                rootState->addUniform( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "opacity", m_opacityProp->get( true ) ) ) );
-            }
-            else
-            {
-                rootState->addUniform( osg::ref_ptr< osg::Uniform >( new osg::Uniform( "opacity", 100 ) ) );
-            }
-
-            // for each texture -> apply
-            size_t c = 0;
-            for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
-            {
-                if ( localTextureChangedFlag )
-                {
-                    osg::ref_ptr< osg::Geometry > surfaceGeometry = m_surfaceGeode->getDrawable( 0 )->asGeometry();
-                    osg::Vec3Array* texCoords = new osg::Vec3Array;
-                    boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
-                    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
-                    {
-                        osg::Vec3 vertPos = m_triMesh->getVertex( i );
-                        texCoords->push_back( grid->worldCoordToTexCoord( WPosition( vertPos[0], vertPos[1], vertPos[2] ) ) );
-                    }
-                    surfaceGeometry->setTexCoordArray( c, texCoords );
-                }
-
-                osg::ref_ptr< osg::Texture3D > texture3D = ( *iter )->getTexture();
-                rootState->setTextureAttributeAndModes( c, texture3D, osg::StateAttribute::ON );
-
-                // set threshold/opacity as uniforms
-                float minValue = ( *iter )->getMinValue();
-                float maxValue = ( *iter )->getMaxValue();
-                float t = ( ( *iter )->getThreshold() - minValue ) / ( maxValue - minValue ); // rescale to [0,1]
-                float a = ( *iter )->getAlpha();
-                int cmap = ( *iter )->getSelectedColormap();
-
-                m_typeUniforms[c]->set( ( *iter )->getDataType() );
-                m_thresholdUniforms[c]->set( t );
-                m_alphaUniforms[c]->set( a );
-                m_cmapUniforms[c]->set( cmap );
-
-                ++c;
-                if ( c == wlimits::MAX_NUMBER_OF_TEXTURES )
-                {
-                    break;
-                }
-            }
-        }
-        // }
     }
 }

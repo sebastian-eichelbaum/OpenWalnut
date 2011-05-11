@@ -108,12 +108,6 @@ protected:
     virtual void properties();
 
 private:
-
-    /**
-     * Used as callback which simply sets m_textureChanged to true. Called by WSubject whenever the datasets change.
-     */
-    void notifyTextureChange();
-
     /**
      * Prepares and commits everything for rendering with the OSG
      */
@@ -133,11 +127,6 @@ private:
     WPropFilename m_meshFile; //!< The mesh will be written to this file.
 
     /**
-     * True when textures have changed.
-     */
-    bool m_textureChanged;
-
-    /**
      * This condition denotes whether we need to recompute the surface
      */
     boost::shared_ptr< WCondition > m_recompute;
@@ -147,23 +136,9 @@ private:
 
     boost::shared_ptr< WTriangleMesh > m_triMesh; //!< This triangle mesh is provided as output through the connector.
 
-    bool m_shaderUseLighting; //!< shall the shader use lighting?
-    bool m_shaderUseTransparency; //!< shall the shader use transparency?
-
     osg::ref_ptr< WGEGroupNode > m_moduleNode; //!< Pointer to the modules group node. We need it to be able to update it when callback is invoked.
 
     osg::ref_ptr< osg::Geode > m_surfaceGeode; //!< Pointer to geode containing the surface.
-
-    /**
-     * The shader used for the iso surface in m_geode
-     */
-    osg::ref_ptr< WGEShader > m_shader;
-
-    std::vector< osg::ref_ptr< osg::Uniform > > m_typeUniforms; //!< uniforms for ...... ? for shader
-    std::vector< osg::ref_ptr< osg::Uniform > > m_alphaUniforms; //!< uniforms for opacities of textures in shader
-    std::vector< osg::ref_ptr< osg::Uniform > > m_thresholdUniforms; //!< uniforms for thresholds of textures in shader
-    std::vector< osg::ref_ptr< osg::Uniform > > m_samplerUniforms; //!< uniforms for ids of textures in shader
-    std::vector< osg::ref_ptr< osg::Uniform > > m_cmapUniforms; //!< uniforms for color maps per texture in shader
 };
 
 /**
