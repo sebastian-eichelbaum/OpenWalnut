@@ -43,7 +43,7 @@ void main()
 #endif
 
     // do light
-    float light = blinnPhongIlluminationIntensity( normalize( -v_normal ) );
+    float light = blinnPhongIlluminationIntensity( normalize( viewAlign( v_normal ) ) );
 
     // opacity of the surface
     col.rgb = light * col.rgb;

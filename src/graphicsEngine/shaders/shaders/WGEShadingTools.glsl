@@ -259,5 +259,17 @@ vec3 getGradientViewAligned( in sampler3D sampler, in vec3 pos, in vec3 viewDir 
     return getGradientViewAligned( sampler, pos, viewDir, 0.005 );
 }
 
+/**
+ * Re-orient the specified vector to point towards the camera. This should be done AFTER modelview transformation.
+ *
+ * \param v the vector to re-orient
+ *
+ * \return the new vector. Only normalized if v was normalized.
+ */
+vec3 viewAlign( vec3 v )
+{
+    return sign( dot( v, vec3( 0.0, 0.0, 1.0 ) ) ) * v;
+}
+
 #endif // WGESHADINGTOOLS_GLSL
 
