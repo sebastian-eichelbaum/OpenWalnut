@@ -44,7 +44,7 @@
  * you need the first behavior, use WGEShaderDefineOptions or WGEShaderPropertyDefineOptions.
  */
 template< typename PropertyType = WPropBool >
-class WGE_EXPORT WGEShaderPropertyDefine: public WGEShaderDefine< typename PropertyType::element_type::ValueType >
+class WGEShaderPropertyDefine: public WGEShaderDefine< typename PropertyType::element_type::ValueType >
 {
 public:
     /**
