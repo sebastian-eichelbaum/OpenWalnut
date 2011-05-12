@@ -252,7 +252,7 @@ public:
      * \param m the matrix to copy
      */
     template< typename RHSValueT, ValueStoreTemplate RHSValueStoreT >
-    explicit WMatrixFixed( const WMatrixFixed< RHSValueT, Rows, Cols, RHSValueStoreT >& m )     // NOLINT - we do not want it explicit
+    WMatrixFixed( const WMatrixFixed< RHSValueT, Rows, Cols, RHSValueStoreT >& m )     // NOLINT - we do not want it explicit
     {
         setValues( m.m_values );
     }

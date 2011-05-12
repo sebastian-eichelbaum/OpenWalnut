@@ -392,6 +392,21 @@ public:
         }
     }
 
+    void testCoversion()
+    {
+        WMatrixFixed< double, 2, 2 > md;
+        md( 0, 0 ) = 0.0;
+        md( 1, 0 ) = 1.0;
+        md( 0, 1 ) = 2.0;
+        md( 1, 1 ) = 3.0;
+        WMatrixFixed< int, 2, 2 > mi( md );
+
+        TS_ASSERT( mi( 0, 0 ) == 0 );
+        TS_ASSERT( mi( 1, 0 ) == 1 );
+        TS_ASSERT( mi( 0, 1 ) == 2 );
+        TS_ASSERT( mi( 1, 1 ) == 3 );
+    }
+
     /**
      * Test matrix multiplication.
      */
