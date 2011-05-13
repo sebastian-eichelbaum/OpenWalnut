@@ -43,10 +43,10 @@ void main()
 #endif
 
     // do light
-    float light = blinnPhongIlluminationIntensity( normalize( -v_normal ) );
+    float light = blinnPhongIlluminationIntensity( normalize( viewAlign( v_normal ) ) );
 
     // opacity of the surface
-    //col.rgb = light * col.rgb; // TODO(wiebel): reenable lighting here
+    col.rgb = light * col.rgb;
     col.a = float( u_opacity ) * 0.01;
     gl_FragColor = col;
 }
