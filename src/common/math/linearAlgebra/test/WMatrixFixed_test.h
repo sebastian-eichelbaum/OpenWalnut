@@ -392,7 +392,7 @@ public:
         }
     }
 
-    void testCoversion()
+    void testConversion()
     {
         WMatrixFixed< double, 2, 2 > md;
         md( 0, 0 ) = 0.0;
