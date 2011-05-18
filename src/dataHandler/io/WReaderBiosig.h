@@ -32,9 +32,9 @@
 
 #include "WReaderEEG.h"
 #ifdef _MSC_VER
-#include "biosigWin/biosig.h"
+#include "../../ext/biosigWin/biosig.h"
 #else
-#include "biosig/biosig.h"
+#include "../../ext/biosig/biosig.h"
 #endif
 
 #include "../WExportDataHandler.h"

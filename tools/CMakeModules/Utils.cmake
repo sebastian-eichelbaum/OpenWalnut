@@ -29,3 +29,24 @@ FUNCTION( ASSERT_GE_VERSION _PackageName _ActualVersion _MinimumVersion )
   ENDIF()
 ENDFUNCTION( ASSERT_GE_VERSION )
 
+# Recursively searches compile files (headers, sources). 
+# _DirString: where to search
+# _CPPFiles contains the cpp files afterwards
+# _HFiles contains the h files afterwards, without tests
+# _TestFiles contains only the test headers
+FUNCTION( COLLECT_COMPILE_FILES _DirString _CPPFiles _HFiles _TestFiles )
+    # recursively get all files
+    FILE( GLOB_RECURSE CPP_FILES ${_DirString}/*.cpp )
+    FILE( GLOB_RECURSE H_FILES   ${_DirString}/*.h )
+    FILE( GLOB_RECURSE TEST_FILES   ${_DirString}/*_test.h )
+
+    # Unfortunately, this will contain the tests -> remove them explicitly
+    FOREACH( file ${TEST_FILES} )
+        LIST( REMOVE_ITEM H_FILES ${file} )
+    ENDFOREACH( file )
+
+    SET( ${_CPPFiles} "${CPP_FILES}" PARENT_SCOPE )
+    SET( ${_HFiles} "${H_FILES}" PARENT_SCOPE )
+    SET( ${_TestFiles} "${TEST_FILES}" PARENT_SCOPE )
+ENDFUNCTION( COLLECT_COMPILE_FILES )
+
