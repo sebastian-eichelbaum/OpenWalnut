@@ -32,7 +32,7 @@
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"
 
-#include "../../../common/WProperties.h"
+#include "core/common/WProperties.h"
 
 #include "../WGuiConsts.h"
 

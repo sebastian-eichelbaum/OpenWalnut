@@ -28,7 +28,7 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
 
-#include "../../graphicsEngine/WGECamera.h"
+#include "core/graphicsEngine/WGECamera.h"
 
 #include "WQtGLWidget.h"
 

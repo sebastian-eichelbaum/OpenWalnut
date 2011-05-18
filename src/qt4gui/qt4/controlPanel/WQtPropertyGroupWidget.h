@@ -41,7 +41,7 @@
 #include "WPropertyPositionWidget.h"
 #include "WPropertyMatrix4X4Widget.h"
 
-#include "../../../common/WPropertyVariable.h"
+#include "core/common/WPropertyVariable.h"
 
 /**
  * Container widget to contain a number of properties for the module context in the control panel.

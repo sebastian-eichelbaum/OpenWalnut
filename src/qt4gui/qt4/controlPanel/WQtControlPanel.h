@@ -36,8 +36,8 @@
 #include <QtGui/QWidget>
 #include <QtGui/QListWidget>
 
-#include "../../../dataHandler/WDataSet.h"
-#include "../../../graphicsEngine/WROI.h"
+#include "core/dataHandler/WDataSet.h"
+#include "core/graphicsEngine/WROI.h"
 
 #include "../WQtCombinerToolbar.h"
 #include "WQtPropertyGroupWidget.h"

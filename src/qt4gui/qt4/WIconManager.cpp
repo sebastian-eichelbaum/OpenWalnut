@@ -25,8 +25,8 @@
 #include <cassert>
 #include <string>
 
-#include "../../common/WAssert.h"
-#include "../../kernel/WModuleFactory.h"
+#include "core/common/WAssert.h"
+#include "core/kernel/WModuleFactory.h"
 #include "WIconManager.h"
 
 void WIconManager::addIcon( std::string name, const char* const xpm[] )

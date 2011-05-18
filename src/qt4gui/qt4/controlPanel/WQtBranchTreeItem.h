@@ -29,9 +29,9 @@
 #include <QtGui/QProgressBar>
 #include <QtGui/QTreeWidgetItem>
 
-#include "../../../graphicsEngine/WROI.h"
+#include "core/graphicsEngine/WROI.h"
 
-#include "../../../kernel/WRMBranch.h"
+#include "core/kernel/WRMBranch.h"
 
 #include "WQtTreeItem.h"
 

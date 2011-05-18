@@ -392,6 +392,9 @@ public:
         }
     }
 
+    /**
+     * Test conversion between several matrix types
+     */
     void testConversion()
     {
         WMatrixFixed< double, 2, 2 > md;

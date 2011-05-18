@@ -29,11 +29,11 @@
 
 #include <QtGui/QMenu>
 
-#include "../../common/WPreferences.h"
-#include "../../kernel/combiner/WApplyCombiner.h"
-#include "../../kernel/combiner/WModuleOneToOneCombiner.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleCombiner.h"
+#include "core/common/WPreferences.h"
+#include "core/kernel/combiner/WApplyCombiner.h"
+#include "core/kernel/combiner/WModuleOneToOneCombiner.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleCombiner.h"
 #include "guiElements/WQtModuleOneToOneCombinerAction.h"
 #include "WMainWindow.h"
 #include "WQtCombinerActionList.h"

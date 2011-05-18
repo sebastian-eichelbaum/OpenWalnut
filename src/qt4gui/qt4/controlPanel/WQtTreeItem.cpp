@@ -27,13 +27,13 @@
 
 #include <QtGui/QApplication>
 
-#include "../../../kernel/WKernel.h"
+#include "core/kernel/WKernel.h"
 
-#include "../../../common/WProgressCombiner.h"
-#include "../../../common/WProgress.h"
+#include "core/common/WProgressCombiner.h"
+#include "core/common/WProgress.h"
 
-#include "../../../kernel/WModuleInputConnector.h"
-#include "../../../kernel/WModuleOutputConnector.h"
+#include "core/kernel/WModuleInputConnector.h"
+#include "core/kernel/WModuleOutputConnector.h"
 
 #include "../events/WModuleDeleteEvent.h"
 #include "../events/WEventTypes.h"

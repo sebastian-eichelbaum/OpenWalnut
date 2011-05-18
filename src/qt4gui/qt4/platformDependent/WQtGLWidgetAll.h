@@ -35,8 +35,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
 
-#include "../../../graphicsEngine/WGECamera.h"
-#include "../../../graphicsEngine/WGEViewer.h"
+#include "core/graphicsEngine/WGECamera.h"
+#include "core/graphicsEngine/WGEViewer.h"
 
 namespace osg
 {

@@ -29,8 +29,8 @@
 
 #include <QtGui/QColorDialog>
 
-#include "../../../common/WLogger.h"
-#include "../../../common/WPropertyVariable.h"
+#include "core/common/WLogger.h"
+#include "core/common/WPropertyVariable.h"
 #include "../WGuiConsts.h"
 
 #include "WPropertyColorWidget.h"

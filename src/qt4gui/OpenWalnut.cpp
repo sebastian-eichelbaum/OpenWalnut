@@ -24,10 +24,10 @@
 
 #include <iostream>
 
-#include "common/WSegmentationFault.h"
-#include "common/WLogger.h"
+#include "core/common/WSegmentationFault.h"
+#include "core/common/WLogger.h"
 
-#include "gui/qt4/WQt4Gui.h"
+#include "qt4/WQt4Gui.h"
 
 #include "version.h"    // this header gets created by our build system.
 

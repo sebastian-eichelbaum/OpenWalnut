@@ -30,10 +30,10 @@
 
 #include <boost/program_options.hpp>
 
-#include "../../graphicsEngine/WROI.h"
-#include "../../graphicsEngine/WGraphicsEngine.h"
+#include "core/graphicsEngine/WROI.h"
+#include "core/graphicsEngine/WGraphicsEngine.h"
 
-#include "../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 #include "core/gui/WGUI.h"
 

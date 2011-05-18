@@ -25,7 +25,7 @@
 #ifndef WQTNETWORKINPUTPORT_H
 #define WQTNETWORKINPUTPORT_H
 
-#include "../../../kernel/WModuleInputConnector.h"
+#include "core/kernel/WModuleInputConnector.h"
 #include "WQtNetworkPort.h"
 
 // forward declaration

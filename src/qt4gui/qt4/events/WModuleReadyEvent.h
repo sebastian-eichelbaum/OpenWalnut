@@ -29,7 +29,7 @@
 
 #include <QtCore/QEvent>
 
-#include "../../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 /**
  * Event signalling a new module has been associated with the root container in the kernel. Please note that it is possible that

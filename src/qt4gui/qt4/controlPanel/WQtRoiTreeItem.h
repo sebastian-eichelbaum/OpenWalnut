@@ -29,7 +29,7 @@
 #include <QtGui/QProgressBar>
 #include <QtGui/QTreeWidgetItem>
 
-#include "../../../graphicsEngine/WROI.h"
+#include "core/graphicsEngine/WROI.h"
 
 #include "WQtTreeItem.h"
 

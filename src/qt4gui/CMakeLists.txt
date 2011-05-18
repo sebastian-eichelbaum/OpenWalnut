@@ -1,2 +1,12 @@
 ADD_SUBDIRECTORY( qt4 )
 
+# finally, build walnut
+ADD_EXECUTABLE( walnut OpenWalnut.cpp ../version.h )
+TARGET_LINK_LIBRARIES( walnut ${OWKernelName} ${OWDatahandlerName} ${OWguiName} ${OWguiqt4Name} ${OWCommonName} ${OWgeName} ${Boost_LIBRARIES} )
+
+IF(MSVC_IDE)
+    ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
+    SET_TARGET_PROPERTIES( walnut PROPERTIES DEBUG_POSTFIX "d")
+    SET_TARGET_PROPERTIES( walnut PROPERTIES PREFIX "../")
+ENDIF(MSVC_IDE)
+

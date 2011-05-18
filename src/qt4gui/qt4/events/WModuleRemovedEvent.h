@@ -29,7 +29,7 @@
 
 #include <QtCore/QEvent>
 
-#include "../../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 /**
  * Event signalling a module was removed from the kernel root container.

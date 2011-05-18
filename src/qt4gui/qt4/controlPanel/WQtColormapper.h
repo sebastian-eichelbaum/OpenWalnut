@@ -35,9 +35,9 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QListWidgetItem>
 
-#include "../../../common/WSharedSequenceContainer.h"
-#include "../../../common/WSharedObject.h"
-#include "../../../graphicsEngine/WGETexture.h"
+#include "core/common/WSharedSequenceContainer.h"
+#include "core/common/WSharedObject.h"
+#include "core/graphicsEngine/WGETexture.h"
 
 class WDataSet;
 

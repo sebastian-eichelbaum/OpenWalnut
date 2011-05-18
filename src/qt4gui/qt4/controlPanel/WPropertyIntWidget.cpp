@@ -30,8 +30,8 @@
 #include <boost/lexical_cast.hpp>
 
 #include "../WGuiConsts.h"
-#include "../../../common/WLogger.h"
-#include "../../../common/WPropertyVariable.h"
+#include "core/common/WLogger.h"
+#include "core/common/WPropertyVariable.h"
 
 #include "WPropertyIntWidget.h"
 

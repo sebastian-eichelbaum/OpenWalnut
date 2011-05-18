@@ -55,7 +55,7 @@ IF( OW_COMPILE_TESTS )
     # Copy fixtures if existend
     IF( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures )
         ADD_CUSTOM_TARGET( ${LIB_NAME}_CopyFixtures
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures ${CMAKE_BINARY_DIR}/common/fixtures/
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures ${CMAKE_BINARY_DIR}/core/common/fixtures/
             COMMENT "Copy fixtures of ${LIB_NAME}"
             )
         ADD_DEPENDENCIES( ${LIB_NAME} ${LIB_NAME}_CopyFixtures )

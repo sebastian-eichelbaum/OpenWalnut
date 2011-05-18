@@ -29,7 +29,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QWidget>
 
-#include "../../kernel/WModuleCombinerTypes.h"
+#include "core/kernel/WModuleCombinerTypes.h"
 
 #include "WIconManager.h"
 

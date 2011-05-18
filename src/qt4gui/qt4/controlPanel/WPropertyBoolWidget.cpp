@@ -25,7 +25,7 @@
 #include "WPropertyBoolWidget.h"
 
 #include "../WGuiConsts.h"
-#include "../../../common/WPropertyVariable.h"
+#include "core/common/WPropertyVariable.h"
 
 WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),

@@ -34,7 +34,7 @@
 #include <QtGui/QPainter>
 #include <boost/shared_ptr.hpp>
 
-#include "../../../kernel/WModuleConnector.h"
+#include "core/kernel/WModuleConnector.h"
 
 // forward declaration
 class WQtNetworkOutputPort;

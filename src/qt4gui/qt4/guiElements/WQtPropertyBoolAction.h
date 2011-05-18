@@ -27,7 +27,7 @@
 
 #include <QtGui/QAction>
 
-#include "../../../common/WPropertyVariable.h"
+#include "core/common/WPropertyVariable.h"
 
 /**
  * Implements a property action for WPropBool.

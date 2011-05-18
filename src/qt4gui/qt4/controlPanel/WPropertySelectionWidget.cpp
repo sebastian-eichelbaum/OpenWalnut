@@ -31,10 +31,10 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "../../../common/WLogger.h"
-#include "../../../common/WPropertyVariable.h"
-#include "../../../common/WItemSelector.h"
-#include "../../../common/WItemSelection.h"
+#include "core/common/WLogger.h"
+#include "core/common/WPropertyVariable.h"
+#include "core/common/WItemSelector.h"
+#include "core/common/WItemSelection.h"
 
 #include "../WGuiConsts.h"
 

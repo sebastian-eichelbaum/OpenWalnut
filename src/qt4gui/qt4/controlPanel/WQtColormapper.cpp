@@ -37,12 +37,12 @@
 #include <QtGui/QListWidgetItem>
 #include <QtGui/QApplication>
 
-#include "../../../common/WLimits.h"
-#include "../../../dataHandler/WDataSet.h"
-#include "../../../dataHandler/WDataHandler.h"
-#include "../../../dataHandler/exceptions/WDHNoSuchSubject.h"
-#include "../../../graphicsEngine/WGEColormapping.h"
-#include "../../../graphicsEngine/WGETexture.h"
+#include "core/common/WLimits.h"
+#include "core/dataHandler/WDataSet.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/exceptions/WDHNoSuchSubject.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGETexture.h"
 #include "../events/WUpdateTextureSorterEvent.h"
 #include "../events/WEventTypes.h"
 

@@ -30,7 +30,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QColor>
 
-#include "../../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 #include "layout/WNetworkLayoutItem.h"
 #include "WQtNetworkInputPort.h"

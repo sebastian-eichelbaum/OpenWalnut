@@ -34,9 +34,9 @@
 #include <QtGui/QWidget>
 #include <QtOpenGL/QGLWidget>
 
-#include "../../../common/WColor.h" // not forwarded due to duplicated typedef
-#include "../../../graphicsEngine/WGECamera.h"
-#include "../../../graphicsEngine/WGEViewer.h"
+#include "core/common/WColor.h" // not forwarded due to duplicated typedef
+#include "core/graphicsEngine/WGECamera.h"
+#include "core/graphicsEngine/WGEViewer.h"
 
 /**
  * A widget containing an open gl display area. This initializes OpenGL context and adds a view to the

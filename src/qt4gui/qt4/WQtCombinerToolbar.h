@@ -27,7 +27,7 @@
 
 #include <QtGui/QToolBar>
 
-#include "../../kernel/WModuleCombinerTypes.h"
+#include "core/kernel/WModuleCombinerTypes.h"
 
 #include "WQtCombinerActionList.h"
 

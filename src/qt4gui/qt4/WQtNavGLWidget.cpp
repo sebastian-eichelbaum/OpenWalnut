@@ -30,9 +30,9 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QApplication>
 
-#include "../../graphicsEngine/WGECamera.h"
-#include "../../graphicsEngine/WGEViewer.h"
-#include "../../graphicsEngine/WGEScene.h"
+#include "core/graphicsEngine/WGECamera.h"
+#include "core/graphicsEngine/WGEViewer.h"
+#include "core/graphicsEngine/WGEScene.h"
 #include "events/WPropertyChangedEvent.h"
 #include "events/WEventTypes.h"
 

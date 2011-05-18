@@ -27,7 +27,7 @@
 #include <QtGui/QCloseEvent>
 
 #include "WQtCustomDockWidget.h"
-#include "../../graphicsEngine/WGEViewer.h"
+#include "core/graphicsEngine/WGEViewer.h"
 
 WQtCustomDockWidget::WQtCustomDockWidget( std::string title, QWidget* parent, WGECamera::ProjectionMode projectionMode )
     : WQtGLDockWidget( QString::fromStdString( title ), QString::fromStdString( title ), parent, projectionMode ),

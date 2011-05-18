@@ -28,8 +28,8 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "../../../common/WLogger.h"
-#include "../../../common/WPropertyVariable.h"
+#include "core/common/WLogger.h"
+#include "core/common/WPropertyVariable.h"
 #include "../WGuiConsts.h"
 #include "WPropertyDoubleWidget.h"
 

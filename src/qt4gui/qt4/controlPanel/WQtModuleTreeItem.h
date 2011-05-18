@@ -30,7 +30,7 @@
 #include <QtCore/QTimer>
 
 #include "WQtTreeItem.h"
-#include "../../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 /**
  * Tree widget item to represent a module in the control panel tree widget. This class is currently empty as all the functionality has been

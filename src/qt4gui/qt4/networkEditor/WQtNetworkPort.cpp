@@ -29,7 +29,7 @@
 #include "WQtNetworkPort.h"
 #include "WQtNetworkOutputPort.h"
 #include "WQtNetworkInputPort.h"
-#include "../../../kernel/combiner/WApplyCombiner.h"
+#include "core/kernel/combiner/WApplyCombiner.h"
 
 WQtNetworkPort::WQtNetworkPort()
 {

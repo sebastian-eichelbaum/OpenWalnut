@@ -29,14 +29,14 @@
 
 #include "WQtGLWidgetMac.h"
 
-#include "../../../graphicsEngine/WGE2DManipulator.h"
-#include "../../../graphicsEngine/platformDependent/WGEViewerMac.h"
-#include "../../../graphicsEngine/platformDependent/WGraphicsEngineMac.h"
-#include "../../../graphicsEngine/WGEZoomTrackballManipulator.h"
-#include "../../../common/WFlag.h"
-#include "../../../common/WLogger.h"
-#include "../../../common/WConditionOneShot.h"
-#include "../../../kernel/WKernel.h"
+#include "core/graphicsEngine/WGE2DManipulator.h"
+#include "core/graphicsEngine/platformDependent/WGEViewerMac.h"
+#include "core/graphicsEngine/platformDependent/WGraphicsEngineMac.h"
+#include "core/graphicsEngine/WGEZoomTrackballManipulator.h"
+#include "core/common/WFlag.h"
+#include "core/common/WLogger.h"
+#include "core/common/WConditionOneShot.h"
+#include "core/kernel/WKernel.h"
 
 
 WQtGLWidgetMac::WQtGLWidgetMac( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QGLWidget * shareWidget )

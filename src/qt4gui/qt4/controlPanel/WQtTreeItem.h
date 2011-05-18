@@ -32,7 +32,7 @@
 #include <QtCore/QTimer>
 
 #include "WTreeItemTypes.h"
-#include "../../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 /**
  * Base class for all items in the control panel tree.

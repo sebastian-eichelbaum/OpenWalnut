@@ -29,7 +29,7 @@
 
 #include <QtCore/QEvent>
 
-#include "../../../graphicsEngine/WROI.h"
+#include "core/graphicsEngine/WROI.h"
 
 /**
  * Event signalling a roi has been removed from the roi manager in the kernel.

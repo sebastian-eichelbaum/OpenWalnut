@@ -27,7 +27,7 @@
 
 #include <QtGui/QTreeWidgetItem>
 
-#include "../../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 #include "WQtTreeItem.h"
 
 /**

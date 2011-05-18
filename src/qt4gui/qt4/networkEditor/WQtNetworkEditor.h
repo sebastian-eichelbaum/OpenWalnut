@@ -35,7 +35,7 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QVBoxLayout>
 
-#include "../../../kernel/modules/data/WMData.h"
+#include "core/kernel/modules/data/WMData.h"
 #include "../WQtCombinerToolbar.h"
 #include "layout/WNetworkLayout.h"
 #include "WQtNetworkItem.h"

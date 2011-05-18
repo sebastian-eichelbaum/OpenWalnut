@@ -29,9 +29,9 @@
 #include <QtGui/QLabel>
 #include <QtGui/QMenu>
 
-#include "../../common/WPreferences.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleCombiner.h"
+#include "core/common/WPreferences.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleCombiner.h"
 
 #include "WMainWindow.h"
 #include "WQtToolBar.h"

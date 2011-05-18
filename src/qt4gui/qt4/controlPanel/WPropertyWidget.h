@@ -34,8 +34,8 @@
 #include <QtGui/QLabel>
 #include <QtGui/QGridLayout>
 
-#include "../../../common/WPropertyBase.h"
-#include "../../../common/WPropertyTypes.h"
+#include "core/common/WPropertyBase.h"
+#include "core/common/WPropertyTypes.h"
 
 #include "../guiElements/WScaleLabel.h"
 

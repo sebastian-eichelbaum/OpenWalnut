@@ -53,14 +53,14 @@ IF( OW_COMPILE_TESTS )
     # Copy fixtures if existend
     IF( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures )
         ADD_CUSTOM_TARGET( ${LIB_NAME}_CopyFixtures
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures ${CMAKE_BINARY_DIR}/dataHandler/fixtures/
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures ${CMAKE_BINARY_DIR}/core/dataHandler/fixtures/
             COMMENT "Copy fixtures of ${LIB_NAME}"
         )
         ADD_DEPENDENCIES( ${LIB_NAME} ${LIB_NAME}_CopyFixtures )
     ENDIF( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures )
     IF( EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/io/test/fixtures )
         ADD_CUSTOM_TARGET( ${LIB_NAME}IO_CopyFixtures
-            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/io/test/fixtures ${CMAKE_BINARY_DIR}/dataHandler/io/fixtures/
+            COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/io/test/fixtures ${CMAKE_BINARY_DIR}/core/dataHandler/io/fixtures/
             COMMENT "Copy fixtures of ${LIB_NAME} IO"
         )
         ADD_DEPENDENCIES( ${LIB_NAME} ${LIB_NAME}IO_CopyFixtures )

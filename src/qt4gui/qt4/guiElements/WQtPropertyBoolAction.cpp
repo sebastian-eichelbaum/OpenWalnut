@@ -29,7 +29,7 @@
 
 #include "WQtPropertyBoolAction.h"
 
-#include "../../../common/WPropertyVariable.h"
+#include "core/common/WPropertyVariable.h"
 
 WQtPropertyBoolAction::WQtPropertyBoolAction( WPropBool property, QWidget* parent ):
     QAction( parent ),

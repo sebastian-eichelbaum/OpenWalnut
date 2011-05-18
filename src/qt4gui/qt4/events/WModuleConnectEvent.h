@@ -29,7 +29,7 @@
 
 #include <QtCore/QEvent>
 
-#include "../../../kernel/WModuleConnector.h"
+#include "core/kernel/WModuleConnector.h"
 
 /**
  * Event signalling a module connection was established.

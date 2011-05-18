@@ -29,9 +29,9 @@
 
 #include <QtCore/QEvent>
 
-#include "../../../graphicsEngine/WGECamera.h"
-#include "../../../common/WFlag.h"
-#include "../../WCustomWidget.h"
+#include "core/graphicsEngine/WGECamera.h"
+#include "core/common/WFlag.h"
+#include "core/gui/WCustomWidget.h"
 
 /**
  * A Qt event to open a new custom dock widget if posted to the WMainWindow.

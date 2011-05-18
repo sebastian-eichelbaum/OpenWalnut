@@ -27,13 +27,13 @@
 
 #include <string>
 
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
 
 #include <QtGui/QDockWidget>
 
 #include "WQtGLDockWidget.h"
 
-#include "../WCustomWidget.h"
+#include "core/gui/WCustomWidget.h"
 
 /**
  * Dock Widget which is created by a module to display custom information.

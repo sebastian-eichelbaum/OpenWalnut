@@ -29,9 +29,9 @@
 
 #include <QtGui/QFileDialog>
 
-#include "../../../common/WLogger.h"
-#include "../../../common/WPropertyVariable.h"
-#include "../../../common/constraints/WPropertyConstraintTypes.h"
+#include "core/common/WLogger.h"
+#include "core/common/WPropertyVariable.h"
+#include "core/common/constraints/WPropertyConstraintTypes.h"
 #include "../WGuiConsts.h"
 
 #include "WPropertyFilenameWidget.h"

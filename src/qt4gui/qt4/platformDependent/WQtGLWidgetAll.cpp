@@ -29,13 +29,13 @@
 
 #include "WQtGLWidgetAll.h"
 
-#include "../../../common/WConditionOneShot.h"
-#include "../../../common/WFlag.h"
-#include "../../../common/WLogger.h"
-#include "../../../graphicsEngine/WGE2DManipulator.h"
-#include "../../../graphicsEngine/WGEViewer.h"
-#include "../../../graphicsEngine/WGEZoomTrackballManipulator.h"
-#include "../../../kernel/WKernel.h"
+#include "core/common/WConditionOneShot.h"
+#include "core/common/WFlag.h"
+#include "core/common/WLogger.h"
+#include "core/graphicsEngine/WGE2DManipulator.h"
+#include "core/graphicsEngine/WGEViewer.h"
+#include "core/graphicsEngine/WGEZoomTrackballManipulator.h"
+#include "core/kernel/WKernel.h"
 
 #ifndef _MSC_VER
 #include <osgViewer/api/X11/GraphicsWindowX11>

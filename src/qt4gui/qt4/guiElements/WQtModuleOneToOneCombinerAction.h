@@ -31,8 +31,8 @@
 
 #include <QtGui/QAction>
 
-#include "../../../kernel/WModule.h"
-#include "../../../kernel/combiner/WModuleOneToOneCombiner.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/combiner/WModuleOneToOneCombiner.h"
 
 #include "../WIconManager.h"
 

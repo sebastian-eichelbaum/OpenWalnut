@@ -248,7 +248,7 @@ SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/" )
 
 ADD_SUBDIRECTORY( core )
-#ADD_SUBDIRECTORY( qt4gui )
+ADD_SUBDIRECTORY( qt4gui )
 #ADD_SUBDIRECTORY( modules )
 ADD_SUBDIRECTORY( ext ) # The needed external libraries
 
@@ -269,16 +269,6 @@ ELSE()
                         COMMENT "Creating version.h"
                      )
 ENDIF()
-
-# finally, build walnut
-#ADD_EXECUTABLE( walnut OpenWalnut.cpp version.h )
-#TARGET_LINK_LIBRARIES( walnut ${OWKernelName} ${OWDatahandlerName} ${OWguiName} ${OWguiqt4Name} ${OWCommonName} ${OWgeName} ${Boost_LIBRARIES} )
-
-IF(MSVC_IDE)
-#    ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
-#    SET_TARGET_PROPERTIES( walnut PROPERTIES DEBUG_POSTFIX "d")
-#    SET_TARGET_PROPERTIES( walnut PROPERTIES PREFIX "../")
-ENDIF(MSVC_IDE)
 
 #---------- Shaders -------------
 option( OW_COPY_SHADERS "This enables copying shaders with every make call." ON )
@@ -405,14 +395,14 @@ FOREACH( file ${EXT_SOURCES} )
 ENDFOREACH( file )
 
 # Set dirs to exclude from stylecheck
-LIST( APPEND EXCLUDE_DIRS "/dataHandler/io/biosig" )
-LIST( APPEND EXCLUDE_DIRS "/dataHandler/io/biosigWin" )
-LIST( APPEND EXCLUDE_DIRS "/dataHandler/io/biosig/XMLParser" )
-LIST( APPEND EXCLUDE_DIRS "/dataHandler/io/biosigWin/XMLParser" )
-LIST( APPEND EXCLUDE_DIRS "/common/platformDependent/visualStudio" )
+LIST( APPEND EXCLUDE_DIRS "/core/dataHandler/io/biosig" )
+LIST( APPEND EXCLUDE_DIRS "/core/dataHandler/io/biosigWin" )
+LIST( APPEND EXCLUDE_DIRS "/core/dataHandler/io/biosig/XMLParser" )
+LIST( APPEND EXCLUDE_DIRS "/core/dataHandler/io/biosigWin/XMLParser" )
+LIST( APPEND EXCLUDE_DIRS "/core/common/platformDependent/visualStudio" )
 LIST( APPEND EXCLUDE_DIRS "/modules/lic/fibernavigator" )
 LIST( APPEND EXCLUDE_DIRS "/modules/lic/fantom" )
-LIST( APPEND EXCLUDE_DIRS "/dataHandler/io/biosigWin" )
+LIST( APPEND EXCLUDE_DIRS "/ext" )
 
 FOREACH( dirname ${EXCLUDE_DIRS} )
     FILE( GLOB EXCLUDE_H   ${PROJECT_SOURCE_DIR}${dirname}/*.h )

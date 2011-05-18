@@ -31,8 +31,8 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QSlider>
 
-#include "../../common/WPropertyVariable.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "core/common/WPropertyVariable.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
 #include "controlPanel/WPropertyIntWidget.h"
 
 #include "WQtGLDockWidget.h"
