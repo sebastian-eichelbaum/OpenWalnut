@@ -244,12 +244,12 @@ ENDIF()
 
 SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 
-ADD_SUBDIRECTORY( dataHandler )
-ADD_SUBDIRECTORY( graphicsEngine )
-ADD_SUBDIRECTORY( gui )
-ADD_SUBDIRECTORY( kernel )
-ADD_SUBDIRECTORY( common )
-ADD_SUBDIRECTORY( modules )
+# EXT and CORE are known directories
+INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/" )
+
+ADD_SUBDIRECTORY( core )
+#ADD_SUBDIRECTORY( qt4gui )
+#ADD_SUBDIRECTORY( modules )
 ADD_SUBDIRECTORY( ext ) # The needed external libraries
 
 #-------------------------------------------------------------------------------------------------------------
@@ -271,13 +271,13 @@ ELSE()
 ENDIF()
 
 # finally, build walnut
-ADD_EXECUTABLE( walnut OpenWalnut.cpp version.h )
-TARGET_LINK_LIBRARIES( walnut ${OWKernelName} ${OWDatahandlerName} ${OWguiName} ${OWguiqt4Name} ${OWCommonName} ${OWgeName} ${Boost_LIBRARIES} )
+#ADD_EXECUTABLE( walnut OpenWalnut.cpp version.h )
+#TARGET_LINK_LIBRARIES( walnut ${OWKernelName} ${OWDatahandlerName} ${OWguiName} ${OWguiqt4Name} ${OWCommonName} ${OWgeName} ${Boost_LIBRARIES} )
 
 IF(MSVC_IDE)
-    ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
-    SET_TARGET_PROPERTIES( walnut PROPERTIES DEBUG_POSTFIX "d")
-    SET_TARGET_PROPERTIES( walnut PROPERTIES PREFIX "../")
+#    ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
+#    SET_TARGET_PROPERTIES( walnut PROPERTIES DEBUG_POSTFIX "d")
+#    SET_TARGET_PROPERTIES( walnut PROPERTIES PREFIX "../")
 ENDIF(MSVC_IDE)
 
 #---------- Shaders -------------
@@ -310,7 +310,7 @@ ADD_CUSTOM_TARGET( onlineHelp
 #---------- About OpenWalnut -------------
 ADD_CUSTOM_TARGET( aboutOpenWalnut
     ALL
-    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/gui/qt4/OpenWalnutAbout.html ${PROJECT_BINARY_DIR}/share/OpenWalnut
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/qt4gui/qt4/OpenWalnutAbout.html ${PROJECT_BINARY_DIR}/share/OpenWalnut
     COMMENT "Copy about page"
 )
 

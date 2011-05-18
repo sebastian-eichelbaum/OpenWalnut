@@ -27,8 +27,8 @@
 
 #define EIGEN_DONT_ALIGN_STATICALLY
 
-#include "../../../ext/Eigen/Core"
-#include "../../../ext/Eigen/LU"
+#include "ext/Eigen/Core"
+#include "ext/Eigen/LU"
 
 /**
  * A double matrix of dynamic size. Heap-allocated.

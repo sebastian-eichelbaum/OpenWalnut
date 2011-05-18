@@ -1,0 +1,6 @@
+ADD_SUBDIRECTORY( dataHandler )
+ADD_SUBDIRECTORY( graphicsEngine )
+ADD_SUBDIRECTORY( gui )
+ADD_SUBDIRECTORY( kernel )
+ADD_SUBDIRECTORY( common )
+

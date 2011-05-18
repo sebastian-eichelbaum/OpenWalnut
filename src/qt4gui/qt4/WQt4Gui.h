@@ -35,7 +35,7 @@
 
 #include "../../kernel/WModule.h"
 
-#include "../WGUI.h"
+#include "core/gui/WGUI.h"
 
 class WMainWindow;
 class WKernel;

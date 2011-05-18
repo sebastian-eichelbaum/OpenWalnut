@@ -39,8 +39,6 @@
 #include "WModule.h"
 #include "WModuleLoader.h"
 
-#include "../modules/fiberDisplay/WMFiberDisplay.h"
-
 #include "WExportKernel.h"
 
 /**

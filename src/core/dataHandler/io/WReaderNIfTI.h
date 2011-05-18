@@ -33,7 +33,7 @@
 #include "../WDataSet.h"
 #include "../../common/math/WMatrix.h"
 
-#include "../../ext/nifti/nifti1_io.h"
+#include "ext/nifti/nifti1_io.h"
 #include "../WExportDataHandler.h"
 
 /**

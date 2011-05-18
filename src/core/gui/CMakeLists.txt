@@ -1,5 +1,3 @@
-ADD_SUBDIRECTORY( qt4 )
-
 FILE( GLOB GUI_SRC "*.cpp" "*.h" )
 
 SET( LIB_NAME "${OWguiName}" )

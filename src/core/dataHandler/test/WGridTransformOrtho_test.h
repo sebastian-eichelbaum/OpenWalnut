@@ -34,7 +34,7 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../common/exceptions/WPreconditionNotMet.h"
+#include "../../common/exceptions/WPreconditionNotMet.h"
 
 #include "../WGridTransformOrtho.h"
 
