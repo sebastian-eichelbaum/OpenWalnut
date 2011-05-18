@@ -1,6 +1,0 @@
-IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-    ADD_SUBDIRECTORY( biosig )
-ELSE ()
-    ADD_SUBDIRECTORY( biosigWin )
-ENDIF()
-

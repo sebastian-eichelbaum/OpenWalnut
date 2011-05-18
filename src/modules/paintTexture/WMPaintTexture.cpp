@@ -26,13 +26,13 @@
 #include <sstream>
 #include <vector>
 
-#include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WROIArbitrary.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WROIManager.h"
-#include "../../kernel/WSelectionManager.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/WROIArbitrary.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WROIManager.h"
+#include "core/kernel/WSelectionManager.h"
 #include "WMPaintTexture.h"
 #include "WMPaintTexture.xpm"
 

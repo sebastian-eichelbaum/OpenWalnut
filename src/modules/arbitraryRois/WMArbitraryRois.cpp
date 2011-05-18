@@ -33,14 +33,14 @@
 #include <osg/StateAttribute>
 #include <osg/StateSet>
 
-#include "../../common/WAssert.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
-#include "../../graphicsEngine/WROIArbitrary.h"
-#include "../../graphicsEngine/WROIBox.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WROIManager.h"
-#include "../../kernel/WSelectionManager.h"
+#include "core/common/WAssert.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
+#include "core/graphicsEngine/WROIArbitrary.h"
+#include "core/graphicsEngine/WROIBox.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WROIManager.h"
+#include "core/kernel/WSelectionManager.h"
 #include "WMArbitraryRois.h"
 #include "WMArbitraryRois.xpm"
 

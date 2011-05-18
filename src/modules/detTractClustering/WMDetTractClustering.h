@@ -32,13 +32,13 @@
 
 #include <osg/Geode>
 
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/math/WMatrixSym.h"
-#include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/common/datastructures/WFiber.h"
+#include "core/common/math/WMatrixSym.h"
+#include "core/dataHandler/datastructures/WFiberCluster.h"
+#include "core/dataHandler/WDataSetFiberVector.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 
 /**
  * Clusters deterministic tractograms ala Zhang: http://dx.doi.org/10.1109/TVCG.2008.52 .

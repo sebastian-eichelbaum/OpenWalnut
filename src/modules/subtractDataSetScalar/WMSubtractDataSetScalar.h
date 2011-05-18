@@ -29,11 +29,11 @@
 #include <vector>
 #include <algorithm>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../common/WThreadedFunction.h"
-#include "../../dataHandler/WDataSetScalar.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/common/WThreadedFunction.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
 /**
  * \class WMSubtractDataSetScalar

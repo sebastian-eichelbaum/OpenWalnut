@@ -14,9 +14,9 @@
 
 #include "../fantom/FIndex.h"
 #include "../fantom/FArray.h"
-#include "../../../graphicsEngine/WTriangleMesh.h"
-#include "../../../common/WColor.h"
-#include "../../../dataHandler/WGridRegular3D.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+#include "core/common/WColor.h"
+#include "core/dataHandler/WGridRegular3D.h"
 
 #define PI 3.14159
 

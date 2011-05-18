@@ -33,21 +33,21 @@
 #include <boost/thread/thread.hpp>
 
 #include "HARDIToSphericalHarmonics.xpm"
-#include "../../common/WLimits.h"
-#include "../../common/WAssert.h"
+#include "core/common/WLimits.h"
+#include "core/common/WAssert.h"
 
-#include "../../common/WProgress.h"
-#include "../../common/WPreferences.h"
-#include "../../common/math/WUnitSphereCoordinates.h"
-#include "../../common/math/WMatrix.h"
-#include "../../common/math/WSymmetricSphericalHarmonic.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/WLinearAlgebraFunctions.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WProgress.h"
+#include "core/common/WPreferences.h"
+#include "core/common/math/WUnitSphereCoordinates.h"
+#include "core/common/math/WMatrix.h"
+#include "core/common/math/WSymmetricSphericalHarmonic.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/WLinearAlgebraFunctions.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/kernel/WKernel.h"
 
-#include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
+#include "core/graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 
 #include "WSphericalHarmonicsCoefficientsThread.h"
 

@@ -30,8 +30,8 @@
 #include <cmath>
 
 #include "WMSplineSurface.xpm"
-#include "../../common/WLimits.h"
-#include "../../common/WAssert.h"
+#include "core/common/WLimits.h"
+#include "core/common/WAssert.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -42,19 +42,19 @@
 #include <osg/LightModel>
 #include <osgDB/WriteFile>
 
-#include "../../common/WPathHelper.h"
-#include "../../common/WProgress.h"
-#include "../../common/WPreferences.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/WLinearAlgebraFunctions.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WProgress.h"
+#include "core/common/WPreferences.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/WLinearAlgebraFunctions.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/shaders/WGEShaderPropertyDefineOptions.h"
+#include "core/kernel/WKernel.h"
 
-#include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
+#include "core/graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 #include "WSurface.h"
 #include "WMSplineSurface.h"
 

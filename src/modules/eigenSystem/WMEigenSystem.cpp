@@ -24,11 +24,11 @@
 
 #include <string>
 
-#include "../../dataHandler/WDataSetDTI.h"
-#include "../../dataHandler/WDataSetVector.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/dataHandler/WDataSetDTI.h"
+#include "core/dataHandler/WDataSetVector.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 #include "WMEigenSystem.xpm"
 #include "WMEigenSystem.h"
 

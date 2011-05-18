@@ -29,13 +29,13 @@
 #include <string>
 #include <vector>
 
-#include "../../common/WBoundingBox.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/common/WBoundingBox.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 
 class WSPSliceGeodeBuilder;
 

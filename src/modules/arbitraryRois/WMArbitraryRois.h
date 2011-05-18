@@ -30,13 +30,13 @@
 
 #include <osg/Geode>
 
-#include "../../graphicsEngine/WROI.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
+#include "core/graphicsEngine/WROI.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 class WROIArbitrary;
 class WROIBox;

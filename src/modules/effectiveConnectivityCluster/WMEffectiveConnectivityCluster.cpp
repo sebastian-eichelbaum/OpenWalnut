@@ -43,19 +43,19 @@
 #include <osg/LightModel>
 #include <osgDB/WriteFile>
 
-#include "../../common/WProgress.h"
-#include "../../common/WPreferences.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WModuleFactory.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../graphicsEngine/widgets/labeling/WGEBorderLayout.h"
-#include "../../graphicsEngine/widgets/labeling/WGELabel.h"
-#include "../../graphicsEngine/WGraphicsEngine.h"
-#include "../../graphicsEngine/WGEUtils.h"
+#include "core/common/WProgress.h"
+#include "core/common/WPreferences.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/datastructures/WFiberCluster.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WModuleFactory.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/graphicsEngine/widgets/labeling/WGEBorderLayout.h"
+#include "core/graphicsEngine/widgets/labeling/WGELabel.h"
+#include "core/graphicsEngine/WGraphicsEngine.h"
+#include "core/graphicsEngine/WGEUtils.h"
 
 #include "WMEffectiveConnectivityCluster.xpm"
 

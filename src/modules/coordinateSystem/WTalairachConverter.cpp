@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "WTalairachConverter.h"
-#include "../../common/math/WLinearAlgebraFunctions.h"
+#include "core/common/math/WLinearAlgebraFunctions.h"
 
 WTalairachConverter::WTalairachConverter( WVector3d ac, WVector3d pc, WVector3d ihp ) :
     m_rotMat( 3, 3 ),

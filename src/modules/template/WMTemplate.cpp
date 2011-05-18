@@ -58,12 +58,12 @@
 #include <osg/Material>
 #include <osg/StateAttribute>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WColor.h"
-#include "../../common/WPathHelper.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WGERequirement.h"
+#include "core/kernel/WKernel.h"
+#include "core/common/WColor.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/WGERequirement.h"
 
 #include "WMTemplate.xpm"
 #include "icons/bier.xpm"

@@ -33,11 +33,11 @@
 
 #include "../../ext/Eigen/Eigen"
 
-#include "../../common/math/WTensorFunctions.h"
-#include "../../common/WThreadedFunction.h"
-#include "../../dataHandler/WThreadedPerVoxelOperation.h"
-#include "../../dataHandler/WThreadedTrackingFunction.h"
-#include "../../kernel/WModule.h"
+#include "core/common/math/WTensorFunctions.h"
+#include "core/common/WThreadedFunction.h"
+#include "core/dataHandler/WThreadedPerVoxelOperation.h"
+#include "core/dataHandler/WThreadedTrackingFunction.h"
+#include "core/kernel/WModule.h"
 
 // forward declaration
 class WDataSetDTI;

@@ -34,7 +34,7 @@
 #include <osg/Texture3D>
 #include <osgDB/ReadFile>
 
-#include "../../kernel/WKernel.h"
+#include "core/kernel/WKernel.h"
 #include "WMAtlasCreator.xpm"
 
 #include "WMAtlasCreator.h"

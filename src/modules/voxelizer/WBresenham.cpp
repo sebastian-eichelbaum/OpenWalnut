@@ -28,12 +28,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/math/WLine.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/WValue.h"
-#include "../../common/WAssert.h"
-#include "../../common/WLogger.h"
-#include "../../dataHandler/WGridRegular3D.h"
+#include "core/common/math/WLine.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/WValue.h"
+#include "core/common/WAssert.h"
+#include "core/common/WLogger.h"
+#include "core/dataHandler/WGridRegular3D.h"
 #include "WBresenham.h"
 
 WBresenham::WBresenham( boost::shared_ptr< WGridRegular3D > grid, bool antialiased )

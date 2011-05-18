@@ -25,7 +25,7 @@
 #include <iostream>
 #include <string>
 
-#include "../../common/WLogger.h"
+#include "core/common/WLogger.h"
 
 #include "WAtlasSlice.h"
 

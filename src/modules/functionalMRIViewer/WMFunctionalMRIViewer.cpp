@@ -25,9 +25,9 @@
 #include <string>
 #include <sstream>
 
-#include "../../kernel/WKernel.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../graphicsEngine/WGEColormapping.h"
+#include "core/kernel/WKernel.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/graphicsEngine/WGEColormapping.h"
 
 #include "WMFunctionalMRIViewer.h"
 

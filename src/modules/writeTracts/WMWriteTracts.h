@@ -29,11 +29,11 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/datastructures/WFiberCluster.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/dataHandler/datastructures/WFiberCluster.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * This module writes the tracts of either a fiber cluster or directly out of a

@@ -30,10 +30,10 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../../common/WIOTools.h"
-#include "../../../common/WLogger.h"
-#include "../../../graphicsEngine/WTriangleMesh.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WIOTools.h"
+#include "core/common/WLogger.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
 #include "../WMWriteMesh.h"
 
 /**

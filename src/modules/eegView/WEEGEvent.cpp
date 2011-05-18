@@ -37,11 +37,11 @@
 #include <osg/Vec4>
 #include <osg/ref_ptr>
 
-#include "../../common/exceptions/WOutOfBounds.h"
-#include "../../dataHandler/WEEG2.h"
-#include "../../dataHandler/WEEG2Segment.h"
-#include "../../dataHandler/WEEGValueMatrix.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "core/common/exceptions/WOutOfBounds.h"
+#include "core/dataHandler/WEEG2.h"
+#include "core/dataHandler/WEEG2Segment.h"
+#include "core/dataHandler/WEEGValueMatrix.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
 #include "WEEGEvent.h"
 
 

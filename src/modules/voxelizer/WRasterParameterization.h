@@ -25,11 +25,11 @@
 #ifndef WRASTERPARAMETERIZATION_H
 #define WRASTERPARAMETERIZATION_H
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/WValue.h"
-#include "../../common/math/WLine.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WDataSetScalar.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/WValue.h"
+#include "core/common/math/WLine.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
 /**
  * This class is the base for all specific parameterization algorithms. Derive from it to write your own class, which is able to create a new

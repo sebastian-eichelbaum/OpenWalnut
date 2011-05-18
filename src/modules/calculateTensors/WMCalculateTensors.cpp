@@ -25,11 +25,11 @@
 #include <string>
 #include <vector>
 
-#include "../../common/math/WSymmetricSphericalHarmonic.h"
-#include "../../common/math/WMatrix.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/WLimits.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/math/WSymmetricSphericalHarmonic.h"
+#include "core/common/math/WMatrix.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WLimits.h"
+#include "core/kernel/WKernel.h"
 
 #include "WMCalculateTensors.h"
 

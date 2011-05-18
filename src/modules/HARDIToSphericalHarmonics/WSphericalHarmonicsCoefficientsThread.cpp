@@ -33,10 +33,10 @@
 #include <boost/thread/thread.hpp>
 
 #include "HARDIToSphericalHarmonics.xpm"
-#include "../../common/WLimits.h"
-#include "../../common/WAssert.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/WMatrix.h"
+#include "core/common/WLimits.h"
+#include "core/common/WAssert.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/WMatrix.h"
 
 #include "WSphericalHarmonicsCoefficientsThread.h"
 

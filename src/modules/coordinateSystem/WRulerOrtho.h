@@ -29,7 +29,7 @@
 
 #include <osgText/Text>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 
 #include "WCoordConverter.h"
 #include "WRuler.h"

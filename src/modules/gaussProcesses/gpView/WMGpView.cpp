@@ -26,9 +26,9 @@
 
 #include <boost/bind.hpp>
 
-#include "../../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../../graphicsEngine/callbacks/WGEFunctorCallback.h"
-#include "../../../kernel/WKernel.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/callbacks/WGEFunctorCallback.h"
+#include "core/kernel/WKernel.h"
 #include "../../emptyIcon.xpm" // Please put a real icon here.
 
 #include "WMGpView.h"

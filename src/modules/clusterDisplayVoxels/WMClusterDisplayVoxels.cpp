@@ -34,13 +34,13 @@
 #include <osgWidget/WindowManager> //NOLINT
 #include <osg/LightModel>
 
-#include "../../common/WPathHelper.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WSelectionManager.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/algorithms/WMarchingLegoAlgorithm.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WSelectionManager.h"
 #include "WFileParser.h"
 #include "WMClusterDisplayVoxels.h"
 #include "WMClusterDisplayVoxels.xpm"

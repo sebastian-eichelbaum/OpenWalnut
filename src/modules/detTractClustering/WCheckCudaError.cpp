@@ -25,7 +25,7 @@
 #include <cuda.h>
 #include <cuda_runtime_api.h>
 
-#include "../../common/WLogger.h"
+#include "core/common/WLogger.h"
 
 bool checkCudaError( bool *success, cudaError_t err, const char *msg = NULL )
 {

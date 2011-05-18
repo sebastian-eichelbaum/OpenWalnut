@@ -12,7 +12,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../fantom/FTensor.h"
-#include "../../../dataHandler/WDataSetVector.h"
+#include "core/dataHandler/WDataSetVector.h"
 
 class TensorField
 {

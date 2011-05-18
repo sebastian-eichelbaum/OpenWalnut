@@ -33,11 +33,11 @@
 
 #include <osg/Geode>
 
-#include "../../common/WBoundingBox.h"
-#include "../../common/WProperties.h"
-#include "../../common/WPropertyTypes.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/WDataSetScalar.h"
+#include "core/common/WBoundingBox.h"
+#include "core/common/WProperties.h"
+#include "core/common/WPropertyTypes.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
 /**
  * This Builder is used to generate views of probabilistic tractograms ala Schmahmann and Pandya. After creating a builder instance

@@ -32,17 +32,17 @@
 
 #include <boost/variant.hpp>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/WAssert.h"
-#include "../../common/WProgress.h"
-#include "../../common/WStringUtils.h"
-#include "../../common/WTypeTraits.h"
-#include "../../common/exceptions/WTypeMismatch.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WDataHandlerEnums.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/exceptions/WDHValueSetMismatch.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WAssert.h"
+#include "core/common/WProgress.h"
+#include "core/common/WStringUtils.h"
+#include "core/common/WTypeTraits.h"
+#include "core/common/exceptions/WTypeMismatch.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/WDataHandlerEnums.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/exceptions/WDHValueSetMismatch.h"
+#include "core/kernel/WKernel.h"
 #include "WMVectorOperator.xpm"
 #include "WMVectorOperator.h"
 

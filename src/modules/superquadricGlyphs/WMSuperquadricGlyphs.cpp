@@ -32,10 +32,10 @@
 #include <osg/PolygonMode>
 #include <osg/LightModel>
 
-#include "../../kernel/WKernel.h"
+#include "core/kernel/WKernel.h"
 
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/shaders/WGEPropertyUniform.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/shaders/WGEPropertyUniform.h"
 
 #include "WMSuperquadricGlyphs.h"
 #include "WMSuperquadricGlyphs.xpm"

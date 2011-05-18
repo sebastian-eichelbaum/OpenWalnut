@@ -30,7 +30,7 @@
 #include <osg/Texture1D>
 #include <osgSim/ScalarsToColors>
 
-#include "../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 // forward declarations
 class WCustomWidget;

@@ -28,15 +28,15 @@
 #include <string>
 #include <vector>
 
-#include "../../common/WItemSelection.h"
-#include "../../common/WItemSelector.h"
+#include "core/common/WItemSelection.h"
+#include "core/common/WItemSelector.h"
 
-#include "../../dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataHandler.h"
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../dataHandler/WDataSetScalar.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
 #include "WSegmentationAlgoThreshold.h"
 

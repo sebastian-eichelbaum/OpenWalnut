@@ -33,10 +33,10 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 
 
 class WPickHandler;

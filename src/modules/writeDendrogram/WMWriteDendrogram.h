@@ -29,10 +29,10 @@
 
 #include <osg/Geode>
 
-#include "../../common/datastructures/WDendrogram.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/common/datastructures/WDendrogram.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * This module writes the Dendrogram.

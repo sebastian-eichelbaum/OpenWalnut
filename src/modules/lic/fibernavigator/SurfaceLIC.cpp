@@ -9,7 +9,7 @@
 
 #include "SurfaceLIC.h"
 #include "../fantom/FTensor.h"
-#include "../../../common/WLogger.h"
+#include "core/common/WLogger.h"
 
 SurfaceLIC::SurfaceLIC( boost::shared_ptr< WDataSetVector > vectors, boost::shared_ptr< WTriangleMesh > mesh )
     : m_vectors( vectors )

@@ -24,9 +24,9 @@
 
 #include <string>
 
-#include "../../common/math/WMath.h"
-#include "../../common/WPathHelper.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/math/WMath.h"
+#include "core/common/WPathHelper.h"
+#include "core/kernel/WKernel.h"
 #include "../emptyIcon.xpm" // Please put a real icon here.
 #include "WMWriteMesh.h"
 

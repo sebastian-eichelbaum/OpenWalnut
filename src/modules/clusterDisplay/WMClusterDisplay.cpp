@@ -35,11 +35,11 @@
 #include <osgWidget/ViewerEventHandlers> //NOLINT
 #include <osgWidget/WindowManager> //NOLINT
 
-#include "../../common/WPathHelper.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WROIManager.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WROIManager.h"
 #include "WMClusterDisplay.h"
 #include "WMClusterDisplay.xpm" // Please put a real icon here.
 

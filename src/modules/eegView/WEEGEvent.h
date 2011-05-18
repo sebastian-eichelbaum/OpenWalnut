@@ -34,9 +34,9 @@
 #include <osg/Node>
 #include <osg/ref_ptr>
 
-#include "../../common/exceptions/WOutOfBounds.h"
-#include "../../dataHandler/WEEG2.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "core/common/exceptions/WOutOfBounds.h"
+#include "core/dataHandler/WEEG2.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
 
 
 /**

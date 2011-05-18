@@ -23,8 +23,8 @@
 //---------------------------------------------------------------------------
 
 
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/WAssert.h"
+#include "core/common/datastructures/WFiber.h"
+#include "core/common/WAssert.h"
 #include "../../ext/Eigen/QR"
 #include "WGaussProcess.h"
 

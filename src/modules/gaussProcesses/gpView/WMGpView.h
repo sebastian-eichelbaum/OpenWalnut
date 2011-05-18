@@ -29,10 +29,10 @@
 
 #include <osg/Geode>
 
-#include "../../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../../graphicsEngine/WGESubdividedPlane.h"
-#include "../../../kernel/WModule.h"
-#include "../../../kernel/WModuleInputData.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/WGESubdividedPlane.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 #include "../WDataSetGP.h"
 
 /**

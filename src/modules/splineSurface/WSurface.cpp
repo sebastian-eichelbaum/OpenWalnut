@@ -27,9 +27,9 @@
 #include <map>
 #include <vector>
 
-#include "../../common/math/WLinearAlgebraFunctions.h"
-#include "../../common/math/WMatrix.h"
-#include "../../common/math/WTensorFunctions.h"
+#include "core/common/math/WLinearAlgebraFunctions.h"
+#include "core/common/math/WMatrix.h"
+#include "core/common/math/WTensorFunctions.h"
 #include "WSurface.h"
 
 WSurface::WSurface()

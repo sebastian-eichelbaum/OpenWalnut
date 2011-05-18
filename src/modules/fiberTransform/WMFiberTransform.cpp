@@ -24,8 +24,8 @@
 
 #include <string>
 
-#include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/io/WWriterFiberVTK.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/dataHandler/io/WWriterFiberVTK.h"
 #include "WMFiberTransform.h"
 #include "WMFiberTransform.xpm"
 

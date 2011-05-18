@@ -29,10 +29,10 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetSphericalHarmonics.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/dataHandler/WDataSetSphericalHarmonics.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * This module loads spherical harmonics data given as vectors of coefficients from NIfTI files.

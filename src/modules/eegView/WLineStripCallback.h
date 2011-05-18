@@ -32,8 +32,8 @@
 #include <osg/Drawable>
 #include <osg/NodeVisitor>
 
-#include "../../common/WPropertyTypes.h"
-#include "../../dataHandler/WEEG2Segment.h"
+#include "core/common/WPropertyTypes.h"
+#include "core/dataHandler/WEEG2Segment.h"
 
 
 /**

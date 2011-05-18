@@ -27,11 +27,11 @@
 #include <sstream>
 #include <vector>
 
-#include "../../kernel/WKernel.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D_2.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../common/WPropertyHelper.h"
+#include "core/kernel/WKernel.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataTexture3D_2.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/common/WPropertyHelper.h"
 
 #include "WMImageExtractor.xpm"
 #include "WMImageExtractor.h"

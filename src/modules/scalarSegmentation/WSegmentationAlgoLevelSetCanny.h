@@ -34,7 +34,7 @@
 #include "itkGradientAnisotropicDiffusionImageFilter.h"
 #include "itkCastImageFilter.h"
 
-#include "../../dataHandler/WITKImageConversion.h"
+#include "core/dataHandler/WITKImageConversion.h"
 
 #include "WSegmentationAlgo.h"
 

@@ -32,7 +32,7 @@
 #include <osg/PositionAttitudeTransform>
 #include <osgText/Text>
 
-#include "../../common/WPathHelper.h"
+#include "core/common/WPathHelper.h"
 
 #include "WRulerOrtho.h"
 

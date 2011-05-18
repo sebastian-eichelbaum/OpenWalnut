@@ -27,15 +27,15 @@
 
 #include <vector>
 
-#include "../../common/WProgress.h"
-#include "../../common/WSharedObject.h"
-#include "../../common/WThreadedJobs.h"
+#include "core/common/WProgress.h"
+#include "core/common/WSharedObject.h"
+#include "core/common/WThreadedJobs.h"
 
-#include "../../dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetScalar.h"
 
-#include "../../graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
+#include "core/graphicsEngine/algorithms/WMarchingCubesAlgorithm.h"
 
-#include "../../graphicsEngine/WTriangleMesh.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
 /**
  * TODO(schurade): Document this!
  */

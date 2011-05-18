@@ -19,7 +19,7 @@
 #include "FMatrix.h"
 
 #include "FtQLiAlgorithm.h"
-#include "../../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 
 #ifdef OUTLINE
 #define inline

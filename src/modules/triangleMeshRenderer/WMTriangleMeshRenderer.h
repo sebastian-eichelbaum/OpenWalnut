@@ -29,13 +29,13 @@
 
 #include <osg/Geode>
 
-#include "../../common/datastructures/WColoredVertices.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/common/datastructures/WColoredVertices.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 class WTriangleMesh;
 

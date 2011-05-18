@@ -32,8 +32,8 @@
 #include <osgWidget/WindowManager> //NOLINT
 #include <osg/LightModel>
 
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WSelectionManager.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WSelectionManager.h"
 
 #include "WMDatasetProfile.xpm" // Please put a real icon here.
 

@@ -25,7 +25,7 @@
 
 #include "TensorField.h"
 #include "triangleMesh.h"
-#include "../../../dataHandler/WDataSetVector.h"
+#include "core/dataHandler/WDataSetVector.h"
 
 class FDataSet;
 class FGrid;

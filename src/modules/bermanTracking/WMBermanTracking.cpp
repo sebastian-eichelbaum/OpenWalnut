@@ -29,12 +29,12 @@
 
 #include <teem/elf.h> // NOLINT: the stylechecker interprets this as c-header which is not true!
 
-#include "../../common/math/WSymmetricSphericalHarmonic.h"
-#include "../../common/WLimits.h"
-#include "../../common/exceptions/WPreconditionNotMet.h"
-#include "../../graphicsEngine/WROIBox.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WROIManager.h"
+#include "core/common/math/WSymmetricSphericalHarmonic.h"
+#include "core/common/WLimits.h"
+#include "core/common/exceptions/WPreconditionNotMet.h"
+#include "core/graphicsEngine/WROIBox.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WROIManager.h"
 #include "WMBermanTracking.xpm"
 #include "WMBermanTracking.h"
 

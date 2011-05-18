@@ -24,9 +24,9 @@
 
 #include <string>
 
-#include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/io/WWriterFiberVTK.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/dataHandler/io/WWriterFiberVTK.h"
+#include "core/kernel/WKernel.h"
 #include "WMWriteTracts.h"
 #include "WMWriteTracts.xpm"
 
