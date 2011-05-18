@@ -25,9 +25,9 @@
 #include <string>
 #include <sstream>
 
-#include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+#include "core/kernel/WKernel.h"
 #include "../emptyIcon.xpm" // Please put a real icon here.
 
 #include "WMExportGeometry.h"

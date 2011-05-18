@@ -22,10 +22,10 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../common/WItemSelector.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/OpenCL/WGEManagedRenderNodeCL.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WItemSelector.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/OpenCL/WGEManagedRenderNodeCL.h"
+#include "core/kernel/WKernel.h"
 #include "WGlyphModule.h"
 #include "WMTensorGlyphs.xpm"
 #include "WMTensorGlyphs.h"

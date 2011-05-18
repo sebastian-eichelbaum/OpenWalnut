@@ -31,9 +31,9 @@
 #include <osg/ref_ptr>
 #include <osgSim/ScalarsToColors>
 
-#include "../../common/WFlag.h"
-#include "../../common/WPropertyTypes.h"
-#include "../../common/WPropertyVariable.h"
+#include "core/common/WFlag.h"
+#include "core/common/WPropertyTypes.h"
+#include "core/common/WPropertyVariable.h"
 #include "WEEGEvent.h"
 #include "WElectrodePositionCallback.h"
 

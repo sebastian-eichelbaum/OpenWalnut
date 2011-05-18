@@ -31,10 +31,10 @@
 
 #include <osg/Geode>
 
-#include "../../../common/math/WMatrixSym.h"
-#include "../../../kernel/WModule.h"
-#include "../../../kernel/WModuleInputData.h"
-#include "../../../kernel/WModuleOutputData.h"
+#include "core/common/math/WMatrixSym.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 #include "../WDataSetGP.h"
 
 class WDendrogram;

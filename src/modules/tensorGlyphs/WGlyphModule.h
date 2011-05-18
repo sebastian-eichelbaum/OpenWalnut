@@ -35,10 +35,10 @@
 #include <boost/shared_array.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "../../dataHandler/WDataSetSingle.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../graphicsEngine/OpenCL/WGEModuleCL.h"
-#include "../../graphicsEngine/OpenCL/WGERenderNodeCL.h"
+#include "core/dataHandler/WDataSetSingle.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/graphicsEngine/OpenCL/WGEModuleCL.h"
+#include "core/graphicsEngine/OpenCL/WGERenderNodeCL.h"
 
 /**
  * WGlyphModule renders high order tensor glyphs.

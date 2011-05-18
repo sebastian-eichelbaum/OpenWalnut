@@ -30,14 +30,14 @@
 #include <osg/Geode>
 #include <osg/Geometry>
 
-#include "../../common/WColor.h"
-#include "../../common/WLogger.h"
-#include "../../common/WPathHelper.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WSelectionManager.h"
+#include "core/common/WColor.h"
+#include "core/common/WLogger.h"
+#include "core/common/WPathHelper.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WSelectionManager.h"
 #include "fiberdisplay2.xpm"
 #include "WMFiberDisplay.h"
 

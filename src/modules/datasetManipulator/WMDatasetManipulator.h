@@ -29,11 +29,11 @@
 
 #include <osg/Geode>
 
-#include "../../graphicsEngine/WROISphere.h"
+#include "core/graphicsEngine/WROISphere.h"
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 /**
  * Someone should add some documentation here.

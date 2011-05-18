@@ -36,10 +36,10 @@
 #include <osg/PrimitiveSet>
 #include <osg/Vec3>
 
-#include "../../common/WPropertyTypes.h"
-#include "../../common/WPropertyVariable.h"
-#include "../../dataHandler/WEEG2Segment.h"
-#include "../../dataHandler/WEEGValueMatrix.h"
+#include "core/common/WPropertyTypes.h"
+#include "core/common/WPropertyVariable.h"
+#include "core/dataHandler/WEEG2Segment.h"
+#include "core/dataHandler/WEEGValueMatrix.h"
 #include "WLineStripCallback.h"
 
 

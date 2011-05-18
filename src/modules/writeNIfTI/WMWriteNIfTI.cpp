@@ -32,16 +32,16 @@
 
 #include <cmath>
 
-#include "../../common/WAssert.h"
-#include "../../common/WPathHelper.h"
-#include "../../common/WStringUtils.h"
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WDataSetRawHARDI.h"
-#include "../../kernel/WKernel.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WAssert.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WStringUtils.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/WDataSetRawHARDI.h"
+#include "core/kernel/WKernel.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 #include "../../ext/nifti/nifti1_io.h"
 #include "WMWriteNIfTI.h"
-#include "../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMWriteNIfTI )

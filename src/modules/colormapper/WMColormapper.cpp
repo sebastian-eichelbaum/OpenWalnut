@@ -29,14 +29,14 @@
 #include <osg/Projection>
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataTexture3D_2.h"
-#include "../../graphicsEngine/WGEColormapping.h"
-#include "../../graphicsEngine/callbacks/WGENodeMaskCallback.h"
-#include "../../graphicsEngine/callbacks/WGEFunctorCallback.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/widgets/labeling/WGELabel.h"
-#include "../../kernel/WKernel.h"
+#include "core/dataHandler/WDataTexture3D_2.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/graphicsEngine/callbacks/WGENodeMaskCallback.h"
+#include "core/graphicsEngine/callbacks/WGEFunctorCallback.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/widgets/labeling/WGELabel.h"
+#include "core/kernel/WKernel.h"
 
 #include "WMColormapper.xpm"
 #include "WMColormapper.h"

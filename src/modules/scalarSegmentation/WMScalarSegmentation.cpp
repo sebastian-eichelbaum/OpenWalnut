@@ -25,10 +25,10 @@
 #include <string>
 #include <vector>
 
-#include "../../kernel/WKernel.h"
+#include "core/kernel/WKernel.h"
 
-#include "../../common/WColor.h"
-#include "../../common/WPropertyHelper.h"
+#include "core/common/WColor.h"
+#include "core/common/WPropertyHelper.h"
 
 #include "WMScalarSegmentation.xpm"
 #include "WMScalarSegmentation.h"

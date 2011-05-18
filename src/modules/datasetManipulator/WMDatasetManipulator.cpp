@@ -26,12 +26,12 @@
 #include <string>
 #include <utility>
 
-#include "../../kernel/WKernel.h"
+#include "core/kernel/WKernel.h"
 
-#include "../../common/WBoundingBox.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataTexture3D_2.h"
-#include "../../dataHandler/WSubject.h"
+#include "core/common/WBoundingBox.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataTexture3D_2.h"
+#include "core/dataHandler/WSubject.h"
 #include "WMDatasetManipulator.xpm"
 
 #include "WMDatasetManipulator.h"

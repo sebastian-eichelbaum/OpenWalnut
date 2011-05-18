@@ -33,7 +33,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 
-#include "../../common/WLogger.h"
+#include "core/common/WLogger.h"
 
 #include "WFileParser.h"
 

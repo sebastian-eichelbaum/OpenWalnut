@@ -25,11 +25,11 @@
 #ifndef WGAUSSPROCESS_H
 #define WGAUSSPROCESS_H
 
-#include "../../common/math/WMatrix.h"
-#include "../../common/math/WValue.h"
-#include "../../common/WBoundingBox.h"
-#include "../../dataHandler/WDataSetDTI.h"
-#include "../../dataHandler/WDataSetFibers.h"
+#include "core/common/math/WMatrix.h"
+#include "core/common/math/WValue.h"
+#include "core/common/WBoundingBox.h"
+#include "core/dataHandler/WDataSetDTI.h"
+#include "core/dataHandler/WDataSetFibers.h"
 #include "../../ext/Eigen/Core"
 
 class WFiber;

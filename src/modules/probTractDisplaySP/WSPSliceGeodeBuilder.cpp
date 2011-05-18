@@ -25,11 +25,11 @@
 
 #include <osg/Geometry>
 
-#include "../../common/datastructures/WFiber.h"
-#include "../../common/exceptions/WTypeMismatch.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/WLogger.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
+#include "core/common/datastructures/WFiber.h"
+#include "core/common/exceptions/WTypeMismatch.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WLogger.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "WSPSliceGeodeBuilder.h"
 
 WSPSliceGeodeBuilder::WSPSliceGeodeBuilder( ProbTractList probTracts, boost::shared_ptr< const WDataSetFibers > detTracts, WPropGroup sliceGroup,

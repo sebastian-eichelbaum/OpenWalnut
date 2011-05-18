@@ -30,13 +30,13 @@
 
 #include <osg/Geode>
 
-#include "../../dataHandler/WDataSetVector.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/dataHandler/WDataSetVector.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Show an glyph plot (in this case the glyphs are arrows) of a vector data set.

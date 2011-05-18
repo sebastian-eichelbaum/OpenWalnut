@@ -25,9 +25,9 @@
 #include <iostream>
 #include <vector>
 
-#include "../../common/WAssert.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/datastructures/WFiber.h"
+#include "core/common/WAssert.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/datastructures/WFiber.h"
 
 #include "WSimpleResampler.h"
 

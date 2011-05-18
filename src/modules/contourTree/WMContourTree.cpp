@@ -30,10 +30,10 @@
 #include <osg/Material>
 #include <osg/StateAttribute>
 
-#include "../../common/WColor.h"
-#include "../../dataHandler/WDataSetSingle.h"
-#include "../../dataHandler/datastructures/WJoinContourTree.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WColor.h"
+#include "core/dataHandler/WDataSetSingle.h"
+#include "core/dataHandler/datastructures/WJoinContourTree.h"
+#include "core/kernel/WKernel.h"
 #include "WMContourTree.h"
 #include "WMContourTree.xpm"
 

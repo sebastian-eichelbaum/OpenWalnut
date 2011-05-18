@@ -249,7 +249,7 @@ INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/" )
 
 ADD_SUBDIRECTORY( core )
 ADD_SUBDIRECTORY( qt4gui )
-#ADD_SUBDIRECTORY( modules )
+ADD_SUBDIRECTORY( modules )
 ADD_SUBDIRECTORY( ext ) # The needed external libraries
 
 #-------------------------------------------------------------------------------------------------------------

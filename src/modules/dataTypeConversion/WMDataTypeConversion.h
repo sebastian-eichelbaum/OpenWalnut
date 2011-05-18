@@ -33,10 +33,10 @@
 #include <osg/Geode>
 #include <osg/Uniform>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 
 /**
  * Provides a new field with the approximately the same data, but with another data type. E.g., it

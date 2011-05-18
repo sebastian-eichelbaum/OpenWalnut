@@ -37,16 +37,16 @@
 #include <osg/Geode>
 #include <osg/LightModel>
 
-#include "../../common/math/WMath.h"
-#include "../../common/math/WPlane.h"
-#include "../../common/WAssert.h"
-#include "../../common/WColor.h"
-#include "../../common/WHistogramBasic.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/WGEGeometryUtils.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/math/WMath.h"
+#include "core/common/math/WPlane.h"
+#include "core/common/WAssert.h"
+#include "core/common/WColor.h"
+#include "core/common/WHistogramBasic.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/WGEGeometryUtils.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+#include "core/kernel/WKernel.h"
 #include "WMClusterSlicer.h"
 #include "WMClusterSlicer.xpm"
 

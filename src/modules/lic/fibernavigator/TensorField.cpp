@@ -10,10 +10,10 @@
 
 #include "TensorField.h"
 #include "../fantom/FVector.h"
-#include "../../../common/WAssert.h"
-#include "../../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../../dataHandler/WDataSetVector.h"
-#include "../../../dataHandler/WGridRegular3D.h"
+#include "core/common/WAssert.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/dataHandler/WDataSetVector.h"
+#include "core/dataHandler/WGridRegular3D.h"
 
 TensorField::TensorField( boost::shared_ptr< WDataSetVector > vectors )
     : m_cells( vectors->getGrid()->size() ),

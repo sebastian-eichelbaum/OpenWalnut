@@ -31,7 +31,7 @@
 #include <osg/Texture3D>
 #include <osgDB/ReadFile>
 
-#include "../../dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/WGridRegular3D.h"
 
 typedef enum
 {

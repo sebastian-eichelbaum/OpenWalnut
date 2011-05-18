@@ -27,7 +27,7 @@
 
 #include <vector>
 
-#include "../../common/datastructures/WFiber.h"
+#include "core/common/datastructures/WFiber.h"
 
 #include "WRasterParameterization.h"
 

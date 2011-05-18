@@ -34,10 +34,10 @@
 #include <osgGA/GUIEventAdapter>
 #include <osgGA/GUIEventHandler>
 
-#include "../../common/WFlag.h"
-#include "../../common/WPropertyTypes.h"
-#include "../../dataHandler/WEEG2.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
+#include "core/common/WFlag.h"
+#include "core/common/WPropertyTypes.h"
+#include "core/dataHandler/WEEG2.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
 #include "WEEGEvent.h"
 
 

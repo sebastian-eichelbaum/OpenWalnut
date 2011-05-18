@@ -26,11 +26,11 @@
 #include <string>
 #include <vector>
 
-#include "../../common/math/WMath.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataSetFiberVector.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/math/WMath.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataSetFiberVector.h"
+#include "core/kernel/WKernel.h"
 #include "WMFiberResampling.h"
 #include "WMFiberResampling.xpm"
 #include "WSimpleResampler.h"

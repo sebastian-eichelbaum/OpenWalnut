@@ -27,12 +27,12 @@
 
 #include <string>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WDataSetRawHARDI.h"
-#include "../../dataHandler/WValueSet.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetRawHARDI.h"
+#include "core/dataHandler/WValueSet.h"
 
 /**
  * This module extracts single images from a dataset.

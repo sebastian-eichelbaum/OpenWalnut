@@ -29,12 +29,12 @@
 
 #include <osg/LightModel>
 
-#include "../../common/WAssert.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../common/WLimits.h"
-#include "../../common/WThreadedFunction.h"
-#include "../../common/WConditionOneShot.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WAssert.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/common/WLimits.h"
+#include "core/common/WThreadedFunction.h"
+#include "core/common/WConditionOneShot.h"
+#include "core/kernel/WKernel.h"
 #include "WMTeemGlyphs.xpm"
 
 #include "WMTeemGlyphs.h"

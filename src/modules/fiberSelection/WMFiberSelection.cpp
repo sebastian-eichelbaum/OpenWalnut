@@ -34,8 +34,8 @@
 #include <osg/Material>
 #include <osg/StateAttribute>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WColor.h"
+#include "core/kernel/WKernel.h"
+#include "core/common/WColor.h"
 
 #include "WMFiberSelection.h"
 #include "WMFiberSelection.xpm"

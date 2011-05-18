@@ -11,8 +11,8 @@
 #define SURFACELIC_H_
 
 #include "FStreamlineOnSurfaceEuler.h"
-#include "../../../graphicsEngine/WTriangleMesh.h"
-#include "../../../dataHandler/WDataSetVector.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+#include "core/dataHandler/WDataSetVector.h"
 #include "triangleMesh.h"
 
 class SurfaceLIC

@@ -32,9 +32,9 @@
 #include <osg/ShapeDrawable>
 #include <osg/StateAttribute>
 
-#include "../../common/WColor.h"
-#include "../../kernel/WKernel.h"
-#include "../../kernel/WSelectionManager.h"
+#include "core/common/WColor.h"
+#include "core/kernel/WKernel.h"
+#include "core/kernel/WSelectionManager.h"
 #include "WMVectorPlot.h"
 #include "WMVectorPlot.xpm"
 

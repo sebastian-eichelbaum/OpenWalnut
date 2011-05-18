@@ -29,10 +29,10 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../../common/datastructures/WFiber.h"
-#include "../../../common/WLogger.h"
-#include "../../../dataHandler/WDataSetDTI.h"
-#include "../../../dataHandler/WDataSetFiberVector.h"
+#include "core/common/datastructures/WFiber.h"
+#include "core/common/WLogger.h"
+#include "core/dataHandler/WDataSetDTI.h"
+#include "core/dataHandler/WDataSetFiberVector.h"
 #include "../WGaussProcess.h"
 
 /**

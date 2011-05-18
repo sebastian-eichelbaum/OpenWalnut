@@ -25,12 +25,12 @@
 #include <string>
 #include <vector>
 
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/exceptions/WDHNoSuchSubject.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../kernel/WKernel.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/dataHandler/exceptions/WDHNoSuchSubject.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/kernel/WKernel.h"
 #include "WMSliceContext.h"
 #include "WTransparentLinesDrawable.h"
 #include "slicecontext.xpm"

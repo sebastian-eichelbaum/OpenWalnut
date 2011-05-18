@@ -31,18 +31,18 @@
 
 #include <osg/Geode>
 
-#include "../../common/WHierarchicalTreeVoxels.h"
-#include "../../dataHandler/WDataHandler.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../graphicsEngine/WGETexture.h"
-#include "../../dataHandler/WSubject.h"
-#include "../../dataHandler/WValueSet.h"
-#include "../../graphicsEngine/geodes/WDendrogramGeode.h"
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../graphicsEngine/widgets/WOSGButton.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
+#include "core/common/WHierarchicalTreeVoxels.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/graphicsEngine/WGETexture.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/dataHandler/WValueSet.h"
+#include "core/graphicsEngine/geodes/WDendrogramGeode.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/graphicsEngine/widgets/WOSGButton.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
 
 const unsigned int MASK_2D = 0xF0000000; //!< used for osgWidget stuff
 const unsigned int MASK_3D = 0x0F000000; //!< used for osgWidget stuff

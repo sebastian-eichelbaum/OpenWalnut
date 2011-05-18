@@ -16,7 +16,7 @@
 #include "FArray.h"
 #include "FMultiIndex.h"
 
-#include "../../../common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
 #include <vector>
 
 class FRefTensor;

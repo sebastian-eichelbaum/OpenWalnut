@@ -27,8 +27,8 @@
 
 #include <vector>
 
-#include "../../common/math/WTensorSym.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
+#include "core/common/math/WTensorSym.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
 #include "WBSplineSurface.h"
 
 /**

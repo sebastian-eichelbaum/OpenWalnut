@@ -27,13 +27,13 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/WCondition.h"
-#include "../../common/WFlag.h"
-#include "../../common/WMixinVector.h"
-#include "../../common/WProgress.h"
-#include "../../dataHandler/WDataSet.h"
-#include "../../dataHandler/WDataSetDTI.h"
-#include "../../dataHandler/WDataSetFibers.h"
+#include "core/common/WCondition.h"
+#include "core/common/WFlag.h"
+#include "core/common/WMixinVector.h"
+#include "core/common/WProgress.h"
+#include "core/dataHandler/WDataSet.h"
+#include "core/dataHandler/WDataSetDTI.h"
+#include "core/dataHandler/WDataSetFibers.h"
 #include "WGaussProcess.h"
 
 /**

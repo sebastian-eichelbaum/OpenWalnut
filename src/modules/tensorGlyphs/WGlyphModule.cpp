@@ -28,8 +28,8 @@
 
 #include <osg/Notify>
 
-#include "../../dataHandler/WGridRegular3D.h"
-#include "../../dataHandler/WValueSet.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/WValueSet.h"
 
 #include "WGlyphModule.h"
 

@@ -30,11 +30,11 @@
 #include <osg/Geode>
 #include <osg/Node>
 
-#include "../../dataHandler/WDataSet.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleConnector.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/dataHandler/WDataSet.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleConnector.h"
+#include "core/kernel/WModuleInputData.h"
 
 #include "WCoordConverter.h"
 #include "WRulerOrtho.h"

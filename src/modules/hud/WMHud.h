@@ -33,9 +33,9 @@
 #include <osg/Node>
 #include <osgText/Text>
 
-#include "../../kernel/WModule.h"
-#include "../../graphicsEngine/WGEGroupNode.h"
-#include "../../graphicsEngine/WPickInfo.h"
+#include "core/kernel/WModule.h"
+#include "core/graphicsEngine/WGEGroupNode.h"
+#include "core/graphicsEngine/WPickInfo.h"
 
 /**
  * This module implements several onscreen status displays

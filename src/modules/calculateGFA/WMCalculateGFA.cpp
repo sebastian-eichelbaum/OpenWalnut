@@ -25,11 +25,11 @@
 #include <string>
 #include <vector>
 
-#include "../../common/math/WSymmetricSphericalHarmonic.h"
-#include "../../common/WLimits.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/math/WGeometryFunctions.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/math/WSymmetricSphericalHarmonic.h"
+#include "core/common/WLimits.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/math/WGeometryFunctions.h"
+#include "core/kernel/WKernel.h"
 #include "WMCalculateGFA.xpm"
 
 #include "WMCalculateGFA.h"

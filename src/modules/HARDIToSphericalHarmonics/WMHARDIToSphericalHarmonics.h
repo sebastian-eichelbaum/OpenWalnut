@@ -30,14 +30,14 @@
 #include <vector>
 
 
-#include "../../common/WThreadedRunner.h"
-#include "../../common/math/WMatrix.h"
-#include "../../dataHandler/WDataSetRawHARDI.h"
-#include "../../dataHandler/WDataSetSphericalHarmonics.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../dataHandler/WGridRegular3D.h"
+#include "core/common/WThreadedRunner.h"
+#include "core/common/math/WMatrix.h"
+#include "core/dataHandler/WDataSetRawHARDI.h"
+#include "core/dataHandler/WDataSetSphericalHarmonics.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/dataHandler/WGridRegular3D.h"
 
 #include "WSphericalHarmonicsCoefficientsThread.h"
 

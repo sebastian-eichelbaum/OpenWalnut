@@ -32,9 +32,9 @@
 
 #include <cmath>
 
-#include "../../common/WProgress.h"
-#include "../../common/WAssert.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WProgress.h"
+#include "core/common/WAssert.h"
+#include "core/kernel/WKernel.h"
 #include "WMApplyMask.h"
 #include "WMApplyMask.xpm"
 

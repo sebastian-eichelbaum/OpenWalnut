@@ -26,9 +26,9 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/WLogger.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WGridRegular3D.h"
+#include "core/common/WLogger.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WGridRegular3D.h"
 #include "WRasterAlgorithm.h"
 
 WRasterAlgorithm::WRasterAlgorithm( boost::shared_ptr< WGridRegular3D > grid )

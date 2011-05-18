@@ -31,8 +31,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../dataHandler/WEEG2.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/dataHandler/WEEG2.h"
 #include "WEEGEvent.h"
 
 

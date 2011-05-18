@@ -34,10 +34,10 @@
 #include <osg/Vec3>
 #include <osg/Geometry>
 
-#include "../../kernel/WKernel.h"
-#include "../../common/WColor.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../graphicsEngine/WGEUtils.h"
+#include "core/kernel/WKernel.h"
+#include "core/common/WColor.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/graphicsEngine/WGEUtils.h"
 
 #include "WMCoordinateHUD.h"
 #include "WMCoordinateHUD.xpm"

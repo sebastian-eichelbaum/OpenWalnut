@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include "../../kernel/WModuleContainer.h"
+#include "core/kernel/WModuleContainer.h"
 
 // forward declarations
 class WModule;

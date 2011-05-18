@@ -29,9 +29,9 @@
 
 #include <osg/LightModel>
 
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
-#include "../../kernel/WKernel.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
+#include "core/kernel/WKernel.h"
 #include "WMTriangleMeshRenderer.xpm"
 #include "WMTriangleMeshRenderer.h"
 

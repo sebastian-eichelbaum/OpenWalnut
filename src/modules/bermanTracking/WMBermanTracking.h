@@ -30,16 +30,16 @@
 
 #include <boost/random/mersenne_twister.hpp>
 
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
-#include "../../kernel/WModuleOutputData.h"
-#include "../../common/WThreadedFunction.h"
-#include "../../dataHandler/WDataSetSphericalHarmonics.h"
-#include "../../dataHandler/WDataSetFibers.h"
-#include "../../dataHandler/WDataSetRawHARDI.h"
-#include "../../dataHandler/WDataSetScalar.h"
-#include "../../dataHandler/WThreadedTrackingFunction.h"
-#include "../../dataHandler/WFiberAccumulator.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
+#include "core/kernel/WModuleOutputData.h"
+#include "core/common/WThreadedFunction.h"
+#include "core/dataHandler/WDataSetSphericalHarmonics.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/WDataSetRawHARDI.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WThreadedTrackingFunction.h"
+#include "core/dataHandler/WFiberAccumulator.h"
 
 // forward declarations
 class WROIBox;

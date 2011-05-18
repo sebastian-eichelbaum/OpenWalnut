@@ -24,11 +24,11 @@
 
 #include <string>
 
-#include "../../common/WPathHelper.h"
-#include "../../dataHandler/io/WReaderNIfTI.h"
-#include "../../dataHandler/WDataHandlerEnums.h"
-#include "../../graphicsEngine/WGERequirement.h"
-#include "../../kernel/WKernel.h"
+#include "core/common/WPathHelper.h"
+#include "core/dataHandler/io/WReaderNIfTI.h"
+#include "core/dataHandler/WDataHandlerEnums.h"
+#include "core/graphicsEngine/WGERequirement.h"
+#include "core/kernel/WKernel.h"
 #include "WMReadSphericalHarmonics.h"
 #include "WMReadSphericalHarmonics.xpm"
 

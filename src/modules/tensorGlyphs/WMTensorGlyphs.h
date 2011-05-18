@@ -29,12 +29,12 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/WCondition.h"
-#include "../../common/WItemSelection.h"
-#include "../../common/WPropertyTypes.h"
-#include "../../dataHandler/WDataSetSingle.h"
-#include "../../kernel/WModule.h"
-#include "../../kernel/WModuleInputData.h"
+#include "core/common/WCondition.h"
+#include "core/common/WItemSelection.h"
+#include "core/common/WPropertyTypes.h"
+#include "core/dataHandler/WDataSetSingle.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleInputData.h"
 
 /**
  * Module for rendering of high order tensor glyphs.

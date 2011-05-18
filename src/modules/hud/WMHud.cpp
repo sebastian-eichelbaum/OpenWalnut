@@ -28,10 +28,10 @@
 #include <osg/Projection>
 #include <osgDB/WriteFile>
 
-#include "../../common/WAssert.h"
-#include "../../common/WPathHelper.h"
-#include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WGEViewer.h"
+#include "core/common/WAssert.h"
+#include "core/common/WPathHelper.h"
+#include "core/kernel/WKernel.h"
+#include "core/graphicsEngine/WGEViewer.h"
 
 #include "WMHud.h"
 #include "WMHud.xpm"

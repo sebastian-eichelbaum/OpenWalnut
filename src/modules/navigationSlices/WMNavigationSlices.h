@@ -32,12 +32,12 @@
 
 #include <boost/signals2.hpp>
 
-#include "../../graphicsEngine/WGEManagedGroupNode.h"
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/WPropertyTypes.h"
-#include "../../graphicsEngine/WPickInfo.h"
+#include "core/graphicsEngine/WGEManagedGroupNode.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WPropertyTypes.h"
+#include "core/graphicsEngine/WPickInfo.h"
 
-#include "../../kernel/WModule.h"
+#include "core/kernel/WModule.h"
 
 /**
  * This module provides simple slices that can be color-mapped. It is the default navigation tool for three-dimensional datasets.

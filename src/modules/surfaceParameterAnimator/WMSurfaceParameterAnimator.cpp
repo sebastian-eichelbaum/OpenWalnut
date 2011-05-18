@@ -33,14 +33,14 @@
 #include <osg/MatrixTransform>
 #include <osg/Projection>
 
-#include "../../kernel/WKernel.h"
-#include "../../dataHandler/WDataTexture3D_2.h"
-#include "../../common/WColor.h"
-#include "../../common/WBoundingBox.h"
-#include "../../graphicsEngine/WGEUtils.h"
-#include "../../graphicsEngine/WGEGeodeUtils.h"
-#include "../../graphicsEngine/shaders/WGEShader.h"
-#include "../../graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
+#include "core/kernel/WKernel.h"
+#include "core/dataHandler/WDataTexture3D_2.h"
+#include "core/common/WColor.h"
+#include "core/common/WBoundingBox.h"
+#include "core/graphicsEngine/WGEUtils.h"
+#include "core/graphicsEngine/WGEGeodeUtils.h"
+#include "core/graphicsEngine/shaders/WGEShader.h"
+#include "core/graphicsEngine/callbacks/WGEShaderAnimationCallback.h"
 
 #include "WMSurfaceParameterAnimator.h"
 #include "WMSurfaceParameterAnimator.xpm"

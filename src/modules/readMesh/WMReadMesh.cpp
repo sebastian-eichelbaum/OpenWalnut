@@ -25,10 +25,10 @@
 #include <string>
 #include <vector>
 
-#include "../../common/WPathHelper.h"
-#include "../../common/WPropertyHelper.h"
-#include "../../kernel/WKernel.h"
-#include "../../graphicsEngine/WTriangleMesh.h"
+#include "core/common/WPathHelper.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/kernel/WKernel.h"
+#include "core/graphicsEngine/WTriangleMesh.h"
 
 #include "WMReadMesh.h"
 #include "WMReadMesh.xpm"

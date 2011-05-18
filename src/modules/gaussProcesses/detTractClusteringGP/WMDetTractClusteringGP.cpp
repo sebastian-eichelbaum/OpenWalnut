@@ -26,10 +26,10 @@
 #include <utility>
 #include <vector>
 
-#include "../../../common/WLimits.h"
-#include "../../../common/datastructures/WDendrogram.h"
-#include "../../../common/datastructures/WUnionFind.h"
-#include "../../../kernel/WKernel.h"
+#include "core/common/WLimits.h"
+#include "core/common/datastructures/WDendrogram.h"
+#include "core/common/datastructures/WUnionFind.h"
+#include "core/kernel/WKernel.h"
 #include "../../emptyIcon.xpm" // Please put a real icon here.
 #include "WMDetTractClusteringGP.h"
 
