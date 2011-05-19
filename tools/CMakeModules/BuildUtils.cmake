@@ -155,3 +155,54 @@ FUNCTION( SETUP_SHADERS _Shaders _TargetDir )
     ENDIF( OW_HANDLE_SHADERS )
 ENDFUNCTION( SETUP_SHADERS )
 
+# Sets up the stylecheck mechanism. Use this to add your codes to the stylecheck mechanism.
+# _TargetName the name of the target which gets added here
+# _CheckFiles the list of files to check
+# _Excludes a list of exclusion rules. These are regular expressions.
+FUNCTION( SETUP_STYLECHECKER _TargetName _CheckFiles _Excludes )
+
+    # to exlude some files, check each file against each exlusion rule
+    FOREACH( filename ${_CheckFiles} )
+        FOREACH( excludeRule ${_Excludes} )
+            STRING( REGEX MATCH "${excludeRule}" IsExcluded "${filename}" )
+            IF( IsExcluded )
+                LIST( REMOVE_ITEM _CheckFiles ${filename} )
+            ENDIF( IsExcluded )
+        ENDFOREACH( excludeRule )
+    ENDFOREACH( filename )
+    
+    # the stylechecker allows coloring the output. Enable if color make is active   
+    IF( CMAKE_COLOR_MAKEFILE )
+        SET( STYLECHECK_OPTIONS "--color" )
+    ELSE()
+        SET( STYLECHECK_OPTIONS "" )
+    ENDIF()
+
+    # Further system specific options
+    IF( CMAKE_HOST_WIN32 )
+        SET( XARGS_OPTIONS "-n 128" )
+    ELSEIF( CMAKE_HOST_UNIX )
+        SET( XARGS_OPTIONS -P \$\$\(${NUM_CORES_BINARY}\) -n 64 )
+    ELSE()
+        SET( XARGS_OPTIONS "" )
+    ENDIF()
+
+    # Export our filtered file list to a file in build dir
+    SET( BrainLinterListFile "${PROJECT_BINARY_DIR}/brainlintlist_${_TargetName}" )
+    FILE( WRITE ${BrainLinterListFile} "" )
+    FOREACH( filename ${_CheckFiles} )
+        FILE( APPEND ${BrainLinterListFile} "${filename}\n" )
+    ENDFOREACH( filename )
+
+    # add a new target for this lib
+    ADD_CUSTOM_TARGET( stylecheck_${_TargetName}
+                       COMMAND  cat ${BrainLinterListFile} | xargs ${XARGS_OPTIONS} ${PROJECT_SOURCE_DIR}/../tools/brainlint.py ${STYLECHECK_OPTIONS} 2>&1 | grep -iv 'Total errors found: 0$$' | cat
+                       DEPENDS numCores
+                       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                       COMMENT "Check if ${_TargetName} complies to CodingStandard"
+    )
+
+    # make the stylecheck taret depend upon this
+   ADD_DEPENDENCIES( stylecheck "stylecheck_${_TargetName}" )
+ENDFUNCTION( SETUP_STYLECHECKER )
+

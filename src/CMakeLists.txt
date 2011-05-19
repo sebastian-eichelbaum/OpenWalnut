@@ -232,6 +232,113 @@ ADD_CUSTOM_TARGET( vtest
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # 
+# Resource Copy
+#  - This simply copies the structure from ../resources to the build directory
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# as all the resources with the correct directory structure reside in ../resources, this target is very easy to handle
+SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources" )
+ADD_CUSTOM_TARGET( ResourceConfiguration
+    ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${ResourcesPath}" "${PROJECT_BINARY_DIR}/"
+    COMMENT "Copying resources to build directory"
+)
+
+# this is done once -> create one default walnut.cfg
+IF( NOT EXISTS ${OW_CONFIG_DIR}/walnut.cfg )
+    CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/../resources/etc/OpenWalnut/walnut.cfg.official ${OW_CONFIG_DIR}/walnut.cfg COPYONLY )
+    MESSAGE( STATUS "Copied walnut.cfg.official to ${OW_CONFIG_DIR}/walnut.cfg" )
+ENDIF()
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# 
+# Num Cores 
+#  - Number of paralelle operations on this machine
+#  - Needed by several of our following targets
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Determines the number of cores available on this machine
+IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
+    SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
+    SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
+    SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
+    ADD_CUSTOM_TARGET( numCores
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
+                   COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
+                   COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
+                   COMMENT "Determines the number of cores available on this machine"
+                 )
+ENDIF()
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# 
+# Documentation
+#  - Call doxygen here
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+#let doxygen do the work
+ADD_CUSTOM_TARGET( doc
+                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfig
+                   COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/html
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
+                   COMMENT "Build doxygen documentation"
+                   VERBATIM
+                 )
+
+# NOTE: this full documentation also includes call/caller graphs, colaboration graphs and nicer inheritance graphs
+# but needs "dot" from graphviz to render them.
+ADD_CUSTOM_TARGET( fulldoc
+                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfigFull
+                   COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/htmlFull
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
+                   COMMENT "Build verbose doxygen documentation"
+                   VERBATIM
+                 )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# 
+# Style
+#  - We use brainlint for this
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# SETUP_STYLECHECKER adds targets for each lib which then add theirself to this target
+ADD_CUSTOM_TARGET( stylecheck DEPENDS numCores )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# 
+# Convenience targets
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Removes nasty windows line endings
+ADD_CUSTOM_TARGET( removewinlineendings
+                   COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/../tools/removeWinLineEnding.py ${PROJECT_BINARY_DIR}/brainlintlist
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                   COMMENT "Removes Windows Line endings"
+                 )
+
+# Checks if all is well to commit (aka commitCheck, cicheck)
+ADD_CUSTOM_TARGET( cicheck
+                   COMMAND $(MAKE) stylecheck && $(MAKE) test && $(MAKE) doc
+                   COMMENT "Checks if all is well to commit"
+                 )
+
+# Makes many special make targets in combination. Default number of cores is 1.
+ADD_CUSTOM_TARGET( many
+                   COMMAND echo Using \$\$\(${NUM_CORES_BINARY}\) cores.\; $(MAKE) all -j\$\$\(${NUM_CORES_BINARY}\)
+                   COMMAND $(MAKE) test
+                   COMMAND $(MAKE) stylecheck
+                   COMMAND $(MAKE) doc
+                   DEPENDS numCores
+                   COMMENT "Make many special make targets in combination."
+                 )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# 
 # Compilation Targets
 #  - The GUI + OpenWalnut.cpp ==> walnut binary
 #  - Ext ==> libOWext_*
@@ -272,91 +379,4 @@ ADD_SUBDIRECTORY( core )
 
 # build core
 # ADD_SUBDIRECTORY( qt4gui )
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
-# Resource Copy
-#  - This simply copies the structure from ../resources to the build directory
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# as all the resources with the correct directory structure reside in ../resources, this target is very easy to handle
-SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources" )
-ADD_CUSTOM_TARGET( ResourceConfiguration
-    ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${ResourcesPath}" "${PROJECT_BINARY_DIR}/"
-    COMMENT "Copying resources to build directory"
-)
-
-# this is done once -> create one default walnut.cfg
-IF( NOT EXISTS ${OW_CONFIG_DIR}/walnut.cfg )
-    CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/../resources/etc/OpenWalnut/walnut.cfg.official ${OW_CONFIG_DIR}/walnut.cfg COPYONLY )
-    MESSAGE( STATUS "Copied walnut.cfg.official to ${OW_CONFIG_DIR}/walnut.cfg" )
-ENDIF()
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
-# Documentation
-#  - Call doxygen here
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-#let doxygen do the work
-ADD_CUSTOM_TARGET( doc
-                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfig
-                   COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/html
-                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
-                   COMMENT "Build doxygen documentation"
-                   VERBATIM
-                 )
-
-# NOTE: this full documentation also includes call/caller graphs, colaboration graphs and nicer inheritance graphs
-# but needs "dot" from graphviz to render them.
-ADD_CUSTOM_TARGET( fulldoc
-                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfigFull
-                   COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/htmlFull
-                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
-                   COMMENT "Build verbose doxygen documentation"
-                   VERBATIM
-                 )
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
-# Style
-#  - We use brainlint for this
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
-# Convenience targets
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Removes nasty windows line endings
-ADD_CUSTOM_TARGET( removewinlineendings
-                   COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/../tools/removeWinLineEnding.py ${PROJECT_BINARY_DIR}/brainlintlist
-                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                   COMMENT "Removes Windows Line endings"
-                 )
-
-# Checks if all is well to commit (aka commitCheck, cicheck)
-ADD_CUSTOM_TARGET( cicheck
-                   COMMAND $(MAKE) stylecheck && $(MAKE) test && $(MAKE) doc
-                   COMMENT "Checks if all is well to commit"
-                 )
-
-# Determines the number of cores available on this machine
-IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-    SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
-    SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
-    SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
-    ADD_CUSTOM_TARGET( numCores
-                   COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
-                   COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
-                   COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
-                   COMMENT "Determines the number of cores available on this machine"
-                 )
-ENDIF()
 
