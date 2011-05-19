@@ -22,6 +22,8 @@
 #
 #---------------------------------------------------------------------------
 
+SET( LibName ${OWCoreName} )
+
 # Set the prefix and suffix of dynamically loadable modules to match
 # CMAKEs naming of them. The quotes are necessary so the shell doesn't mess
 # with these defines. Unfortunately, the Visual Studio has problems handling
@@ -37,13 +39,13 @@ ENDIF()
 # Add sources as target
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Collect the compile-files for OWCore
-COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" CORE_CPP_FILES CORE_H_FILES CORE_TEST_FILES )
+# Collect the compile-files for this target
+COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_FILES TARGET_TEST_FILES )
 
-# Setup the OWCore target
-ADD_LIBRARY( ${OWCoreName} SHARED ${CORE_CPP_FILES} ${CORE_H_FILES} )
-TARGET_LINK_LIBRARIES( ${OWCoreName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNiftiName}
-                                     ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} 
+# Setup the target
+ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
+TARGET_LINK_LIBRARIES( ${LibName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNiftiName}
+                                  ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} 
                      )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -51,11 +53,12 @@ TARGET_LINK_LIBRARIES( ${OWCoreName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtN
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Setup tests of this target
-SETUP_TESTS( "${CORE_TEST_FILES}" "${OWCoreName}" "" )
+SETUP_TESTS( "${TARGET_TEST_FILES}" "${LibName}" "" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Copy Shaders
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-
+COLLECT_SHADER_FILES( ${CMAKE_CURRENT_SOURCE_DIR} GLSL_FILES )
+SETUP_SHADERS( "${GLSL_FILES}" "${CMAKE_BINARY_DIR}/share/shaders" )
 

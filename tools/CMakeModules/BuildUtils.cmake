@@ -45,6 +45,15 @@ FUNCTION( COLLECT_COMPILE_FILES _DirString _CPPFiles _HFiles _TestFiles )
     SET( ${_TestFiles} "${TEST_FILES}" PARENT_SCOPE )
 ENDFUNCTION( COLLECT_COMPILE_FILES )
 
+# Recursively searches shader files with extension glsl.
+# _DirString where to search
+# _GLSLFiles the list of files found
+FUNCTION( COLLECT_SHADER_FILES _DirString _GLSLFiles )
+    # recursively get all files
+    FILE( GLOB_RECURSE GLSL_FILES ${_DirString}/*.glsl )
+    SET( ${_GLSLFiles} "${GLSL_FILES}" PARENT_SCOPE )
+ENDFUNCTION( COLLECT_SHADER_FILES )
+
 # Add tests and copy their fixtures by specifiying the test headers. This is completely automatic and is done recusrively (fixtures). The test
 # filenames need to be absolute. The fixtures are searched in CMAKE_CURRENT_SOURCE_DIR.
 # _TEST_FILES the list of test header files.
@@ -120,4 +129,29 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
         ENDFOREACH( FixtureDir )
     ENDIF( OW_COMPILE_TESTS )
 ENDFUNCTION( SETUP_TESTS )
+
+# This function sets up the build system to ensure that the specified list of shaders is available after build in the target directory.
+# _Shaders list of shaders
+# _TargetDir the directory where to put the shaders
+FUNCTION( SETUP_SHADERS _Shaders _TargetDir )
+    # only if we are allowed to
+    IF( OW_HANDLE_SHADERS )
+        EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory ${_TargetDir} )
+
+        # should we copy or link them?
+        SET( ShaderOperation "copy_if_different" )
+        IF ( OW_LINK_SHADERS ) # link
+             SET( ShaderOperation "create_symlink" )
+        ENDIF( OW_LINK_SHADERS )
+
+        # now do the operation for each shader
+        FOREACH( fname ${_Shaders} )
+            # We need the plain filename (create_symlink needs it)
+            STRING( REGEX REPLACE "^.*/" "" StrippedFileName "${fname}" )
+
+            # let cmake do it
+            EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E ${ShaderOperation} ${fname} "${_TargetDir}/${StrippedFileName}" ) 
+        ENDFOREACH( fname )
+    ENDIF( OW_HANDLE_SHADERS )
+ENDFUNCTION( SETUP_SHADERS )
 

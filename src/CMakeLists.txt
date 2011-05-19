@@ -45,8 +45,6 @@ INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/Utils.cmake )
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )
 SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
 SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
-# We additionally want to place common shared files to this path:
-SET( SHARED_FILES_RELATIVE "../share/${CMAKE_PROJECT_NAME}" CACHE INTERNAL "Relative path to bin/ denoting the destination for shaders and cfg files." )
 
 # CMAKE automatism to select static vs. shared building:
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
@@ -113,6 +111,10 @@ ELSE()
     SET( CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG -O0" CACHE STRING "" FORCE )
 ENDIF()
 SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
+
+# other options 
+OPTION( OW_HANDLE_SHADERS "This ensures that shaders are available in build directory after build." ON )
+OPTION( OW_LINK_SHADERS "If turned on, shaders do not get copied. They get linked. This is a nice option for developers." OFF )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # 
