@@ -174,11 +174,12 @@ INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
+# TODO(all): is this needed?
+INCLUDE( FindPythonInterp )
+
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # CXX Test
 # See http://cxxtest.tigris.org
-
-INCLUDE( FindPythonInterp )
 
 # Try to find it
 FIND_PACKAGE( CxxTest QUIET )
@@ -253,4 +254,45 @@ ADD_SUBDIRECTORY( core )
 
 # build core
 # ADD_SUBDIRECTORY( qt4gui )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# 
+# Resource Copy
+#  - This simply copies the structure from ../resources to the build directory
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# as all the resources with the correct directory structure reside in ../resources, this target is very easy to handle
+SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources" )
+ADD_CUSTOM_TARGET( ResourceConfiguration
+    ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${ResourcesPath}" "${PROJECT_BINARY_DIR}/"
+    COMMENT "Copying resources to build directory"
+)
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# 
+# Documentation
+#  - Call doxygen here
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+#let doxygen do the work
+ADD_CUSTOM_TARGET( doc
+                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfig
+                   COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/html
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
+                   COMMENT "Build doxygen documentation"
+                   VERBATIM
+                 )
+
+# NOTE: this full documentation also includes call/caller graphs, colaboration graphs and nicer inheritance graphs
+# but needs "dot" from graphviz to render them.
+ADD_CUSTOM_TARGET( fulldoc
+                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfigFull
+                   COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/htmlFull
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
+                   COMMENT "Build verbose doxygen documentation"
+                   VERBATIM
+                 )
 

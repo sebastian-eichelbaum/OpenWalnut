@@ -613,9 +613,6 @@ RECURSIVE              = YES
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
 EXCLUDE                = src/ext \
-                         src/core/dataHandler/io/nifti \
-                         src/core/dataHandler/io/biosig \
-                         src/core/dataHandler/io/biosigWin \
                          src/core/common/platformDependent/visualStudio/inttypes.h \
                          src/modules/lic/fibernavigator \
                          src/modules/lic/fantom
