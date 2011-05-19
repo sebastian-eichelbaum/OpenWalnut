@@ -154,6 +154,8 @@ INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 # CXX Test
 # See http://cxxtest.tigris.org
 
+INCLUDE( FindPythonInterp )
+
 # Try to find it
 FIND_PACKAGE( CxxTest QUIET )
 MARK_AS_ADVANCED( CXXTEST_PERL_TESTGEN_EXECUTABLE )
@@ -194,16 +196,16 @@ ENDIF()
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
+INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext/libeep )
+INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext )
+INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR} )
+
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # OWext
 
 SET( OWExtNiftiName "OWext_niftiio" )
 SET( OWExtEEPName "OWext_eep" )
 SET( OWExtBioSigName "OWext_biosig" )
-
-# Needed because libeep has includes of form #include <cnt/cnt.h>
-INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext/libeep )
-INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext )
 
 # build external libs in ext/
 ADD_SUBDIRECTORY( ext ) # The needed external libraries
@@ -213,33 +215,12 @@ ADD_SUBDIRECTORY( ext ) # The needed external libraries
 
 SET( OWCoreName "OWcore" )
 
-# Set the prefix and suffix of dynamically loadable modules to match
-# CMAKEs naming of them. The quotes are necessary so the shell doesn't mess
-# with these defines. Unfortunately, the Visual Studio has problems handling
-# the quotes on the command line. WSharedLib::getSystemPrefix and
-# getSystemSuffix hard codes the right strings for VC.
-# Maybe you have to spend another 500 bucks to have your VC support quotes.
-IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-    ADD_DEFINITIONS( '-DW_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"' )
-    ADD_DEFINITIONS( '-DW_LIB_SUFFIX="${CMAKE_SHARED_LIBRARY_SUFFIX}"' )
-ENDIF()
+# build core
+ADD_SUBDIRECTORY( core )
 
-# Collect the compile-files for OWCore
-# Kernel
-COLLECT_COMPILE_FILES( "${PROJECT_SOURCE_DIR}/kernel" CORE_KERNEL_CPP_FILES CORE_KERNEL_H_FILES CORE_KERNEL_TEST_FILES )
-# Common
-COLLECT_COMPILE_FILES( "${PROJECT_SOURCE_DIR}/common" CORE_COMMON_CPP_FILES CORE_COMMON_H_FILES CORE_COMMON_TEST_FILES )
-# DataHandler
-COLLECT_COMPILE_FILES( "${PROJECT_SOURCE_DIR}/dataHandler" CORE_DATAHANDLER_CPP_FILES CORE_DATAHANDLER_H_FILES CORE_DATAHANDLER_TEST_FILES )
-# GraphicsEngine
-COLLECT_COMPILE_FILES( "${PROJECT_SOURCE_DIR}/graphicsEngine" CORE_GRAPHICSENGINE_CPP_FILES CORE_GRAPHICSENGINE_H_FILES CORE_GRAPHICSENGINE_TEST_FILES )
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# QT4 Walnut binary
 
-# Merge them into one big list
-SET( CORE_CPP_FILES ${CORE_KERNEL_CPP_FILES} ${CORE_COMMON_CPP_FILES} ${CORE_DATAHANDLER_CPP_FILES} ${CORE_GRAPHICSENGINE_CPP_FILES} )
-SET( CORE_H_FILES ${CORE_KERNEL_H_FILES} ${CORE_COMMON_H_FILES} ${CORE_DATAHANDLER_H_FILES} ${CORE_GRAPHICSENGINE_H_FILES} )
-SET( CORE_TEST_FILES ${CORE_KERNEL_TEST_FILES} ${CORE_COMMON_TEST_FILES} ${CORE_DATAHANDLER_TEST_FILES} ${CORE_GRAPHICSENGINE_TEST_FILES} )
-
-# Setup the OWCore target
-ADD_LIBRARY( ${OWCoreName} SHARED ${CORE_CPP_FILES} ${CORE_H_FILES} )
-TARGET_LINK_LIBRARIES( ${OWCoreName} ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNiftiName} )
+# build core
+# ADD_SUBDIRECTORY( qt4gui )
 
