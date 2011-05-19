@@ -60,5 +60,5 @@ SETUP_TESTS( "${TARGET_TEST_FILES}" "${LibName}" "" )
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 COLLECT_SHADER_FILES( ${CMAKE_CURRENT_SOURCE_DIR} GLSL_FILES )
-SETUP_SHADERS( "${GLSL_FILES}" "${CMAKE_BINARY_DIR}/share/shaders" )
+SETUP_SHADERS( "${GLSL_FILES}" "${OW_SHARE_DIR}/shaders" )
 

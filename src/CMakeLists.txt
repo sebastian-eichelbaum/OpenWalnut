@@ -45,6 +45,8 @@ INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/Utils.cmake )
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )
 SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
 SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
+SET( OW_CONFIG_DIR ${PROJECT_BINARY_DIR}/etc/OpenWalnut )
+SET( OW_SHARE_DIR ${PROJECT_BINARY_DIR}/share/OpenWalnut )
 
 # CMAKE automatism to select static vs. shared building:
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
@@ -112,6 +114,20 @@ ELSE()
 ENDIF()
 SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# Eigen3 specifics
+
+# NOTE: this is included in ext. But we need to set several definitions to make (who else?) Visual Studio work
+IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
+    ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
+ENDIF()
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# 
+# OpenWalnut specific options
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
 # other options 
 OPTION( OW_HANDLE_SHADERS "This ensures that shaders are available in build directory after build." ON )
 OPTION( OW_LINK_SHADERS "If turned on, shaders do not get copied. They get linked. This is a nice option for developers." OFF )
@@ -176,12 +192,15 @@ INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# TODO(all): is this needed?
-INCLUDE( FindPythonInterp )
+# NOTE: please add only libs which are used in core! If you need a third party lib for your module, include it in your module's CMakeLists!
 
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# CXX Test
-# See http://cxxtest.tigris.org
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# 
+# Unit Testing
+#
+#  - We use cxxtest. See http://cxxtest.tigris.org
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Try to find it
 FIND_PACKAGE( CxxTest QUIET )
@@ -205,14 +224,11 @@ ELSE()
   SET( OW_COMPILE_TESTS OFF )
 ENDIF()
 
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# Eigen3
-# See http://eigen.tuxfamily.org
-
-# NOTE: this is included in ext. But we need to set several definitions to make (who else?) Visual Studio work
-IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
-    ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
-ENDIF()
+# we want a more verbose testing too.
+ADD_CUSTOM_TARGET( vtest
+                   COMMAND $(MAKE) test ARGS="-V"
+                   COMMENT "Runs the test in verboseness to see what actually went wrong"
+                 )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # 
@@ -272,6 +288,12 @@ ADD_CUSTOM_TARGET( ResourceConfiguration
     COMMENT "Copying resources to build directory"
 )
 
+# this is done once -> create one default walnut.cfg
+IF( NOT EXISTS ${OW_CONFIG_DIR}/walnut.cfg )
+    CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/../resources/etc/OpenWalnut/walnut.cfg.official ${OW_CONFIG_DIR}/walnut.cfg COPYONLY )
+    MESSAGE( STATUS "Copied walnut.cfg.official to ${OW_CONFIG_DIR}/walnut.cfg" )
+ENDIF()
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # 
 # Documentation
@@ -297,4 +319,44 @@ ADD_CUSTOM_TARGET( fulldoc
                    COMMENT "Build verbose doxygen documentation"
                    VERBATIM
                  )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# 
+# Style
+#  - We use brainlint for this
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# 
+# Convenience targets
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Removes nasty windows line endings
+ADD_CUSTOM_TARGET( removewinlineendings
+                   COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/../tools/removeWinLineEnding.py ${PROJECT_BINARY_DIR}/brainlintlist
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                   COMMENT "Removes Windows Line endings"
+                 )
+
+# Checks if all is well to commit (aka commitCheck, cicheck)
+ADD_CUSTOM_TARGET( cicheck
+                   COMMAND $(MAKE) stylecheck && $(MAKE) test && $(MAKE) doc
+                   COMMENT "Checks if all is well to commit"
+                 )
+
+# Determines the number of cores available on this machine
+IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
+    SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
+    SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
+    SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
+    ADD_CUSTOM_TARGET( numCores
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ${NUM_CORES_BINARY_DIR}
+                   COMMAND cd ${NUM_CORES_BINARY_DIR} && ${CMAKE_COMMAND} ${NUM_CORES_SOURCE_DIR} > /dev/null
+                   COMMAND $(MAKE) -C ${NUM_CORES_BINARY_DIR} > /dev/null
+                   COMMENT "Determines the number of cores available on this machine"
+                 )
+ENDIF()
 

@@ -59,6 +59,7 @@ void WPathHelper::setAppPath( boost::filesystem::path appPath )
 {
     m_appPath    = appPath;
     m_sharePath  = m_appPath / "../share/OpenWalnut";
+    m_configPath = m_appPath / "../etc/OpenWalnut";
     m_libPath    = m_appPath / "../lib";
     m_modulePath = m_libPath / "modules";
 }
@@ -83,7 +84,7 @@ boost::filesystem::path WPathHelper::getConfigFile()
     }
     else
     {
-        configFile = getPathHelper()->m_sharePath / "walnut.cfg";
+        configFile = getPathHelper()->m_configPath / "walnut.cfg";
     }
     return configFile;
 }
@@ -122,6 +123,11 @@ boost::filesystem::path WPathHelper::getLibPath()
 boost::filesystem::path WPathHelper::getSharePath()
 {
     return getPathHelper()->m_sharePath;
+}
+
+boost::filesystem::path WPathHelper::getConfigPath()
+{
+    return getPathHelper()->m_configPath;
 }
 
 std::vector< boost::filesystem::path > WPathHelper::getAllModulePaths()
