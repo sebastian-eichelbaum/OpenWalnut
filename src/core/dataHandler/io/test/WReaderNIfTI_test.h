@@ -70,12 +70,12 @@ public:
      */
     void testInstantiation( void )
     {
-        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( "../fixtures/scalar_signed_short.nii.gz" ) );
-        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( "../fixtures/scalar_unsigned_char.nii.gz" ) );
-        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( "../fixtures/scalar_float.nii.gz" ) );
-        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( "../fixtures/vector_float.nii.gz" ) );
-        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( "../fixtures/symmetric_2nd_order_tensor_float.nii.gz" ) );
-        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( "../fixtures/vector_unsigned_char.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( W_FIXTURE_PATH + "scalar_signed_short.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( W_FIXTURE_PATH + "scalar_unsigned_char.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( W_FIXTURE_PATH + "scalar_float.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( W_FIXTURE_PATH + "vector_float.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( W_FIXTURE_PATH + "symmetric_2nd_order_tensor_float.nii.gz" ) );
+        TS_ASSERT_THROWS_NOTHING( WReaderNIfTI( W_FIXTURE_PATH + "vector_unsigned_char.nii.gz" ) );
     }
 
     /**
@@ -83,7 +83,7 @@ public:
      */
     void testLoading1( void )
     {
-        WReaderNIfTI reader1( "../fixtures/scalar_signed_short.nii.gz" );
+        WReaderNIfTI reader1( W_FIXTURE_PATH + "scalar_signed_short.nii.gz" );
         TS_ASSERT( reader1.load() );
     }
 
@@ -92,7 +92,7 @@ public:
      */
     void testLoading2( void )
     {
-        WReaderNIfTI reader2( "../fixtures/scalar_unsigned_char.nii.gz" );
+        WReaderNIfTI reader2( W_FIXTURE_PATH + "scalar_unsigned_char.nii.gz" );
         TS_ASSERT( reader2.load() );
     }
 
@@ -101,7 +101,7 @@ public:
      */
     void testLoading3( void )
     {
-        WReaderNIfTI reader3( "../fixtures/scalar_float.nii.gz" );
+        WReaderNIfTI reader3( W_FIXTURE_PATH + "scalar_float.nii.gz" );
         TS_ASSERT( reader3.load() );
     }
 
@@ -110,7 +110,7 @@ public:
      */
     void testLoading4( void )
     {
-        WReaderNIfTI reader4( "../fixtures/vector_float.nii.gz" );
+        WReaderNIfTI reader4( W_FIXTURE_PATH + "vector_float.nii.gz" );
         TS_ASSERT( reader4.load() );
     }
 
@@ -119,7 +119,7 @@ public:
      */
     void testLoading5( void )
     {
-        WReaderNIfTI reader5( "../fixtures/symmetric_2nd_order_tensor_float.nii.gz" );
+        WReaderNIfTI reader5( W_FIXTURE_PATH + "symmetric_2nd_order_tensor_float.nii.gz" );
         TS_ASSERT( reader5.load() );
     }
 
@@ -128,7 +128,7 @@ public:
      */
     void testLoading6( void )
     {
-        WReaderNIfTI reader6( "../fixtures/vector_unsigned_char.nii.gz" );
+        WReaderNIfTI reader6( W_FIXTURE_PATH + "vector_unsigned_char.nii.gz" );
         TS_ASSERT( reader6.load() );
     }
 
@@ -156,7 +156,7 @@ public:
         dummy.m[3][3] = 1.17;
 
         // need this for calling the function
-        WReaderNIfTI reader1( "../fixtures/scalar_signed_short.nii.gz" );
+        WReaderNIfTI reader1( W_FIXTURE_PATH + "scalar_signed_short.nii.gz" );
 
         WMatrix< double >  result = reader1.convertMatrix( dummy );
 
@@ -188,7 +188,7 @@ public:
     void testCopyArray( void )
     {
         // need this for calling the function
-        WReaderNIfTI reader1( "../fixtures/scalar_signed_short.nii.gz" );
+        WReaderNIfTI reader1( W_FIXTURE_PATH + "scalar_signed_short.nii.gz" );
 
         const size_t nbVoxels = 10;
         const size_t vDim = 3;

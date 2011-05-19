@@ -43,7 +43,7 @@ public:
      */
     void testLoading( void )
     {
-        std::string fileName = "../fixtures/eeg_testData.asc";
+        std::string fileName = W_FIXTURE_PATH + "eeg_testData.asc";
         std::cout << std::endl << "Test loading of " << fileName << "." << std::endl;
 
         WReaderEEGASCII eegASCIIReader( fileName );
