@@ -33,9 +33,11 @@
 #include <QtGui/QGraphicsItemGroup>
 #include <QtGui/QGraphicsSceneMouseEvent>
 
-#include "WQtNetworkScene.h"
 #include "WQtNetworkItem.h"
 #include "WQtNetworkPort.h"
+
+#include "WQtNetworkScene.h"
+#include "WQtNetworkScene.moc"
 
 WQtNetworkScene::WQtNetworkScene()
     : QGraphicsScene()

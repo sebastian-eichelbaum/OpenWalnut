@@ -25,6 +25,7 @@
 #include <string>
 
 #include "WQtModuleOneToOneCombinerAction.h"
+#include "WQtModuleOneToOneCombinerAction.moc"
 
 WQtModuleOneToOneCombinerAction::WQtModuleOneToOneCombinerAction( QWidget* parent, WIconManager* iconManager,
                                                                   boost::shared_ptr< WModuleOneToOneCombiner > combiner,

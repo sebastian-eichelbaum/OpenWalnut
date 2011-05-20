@@ -25,6 +25,7 @@
 #include <string>
 
 #include "WQtPushButton.h"
+#include "WQtPushButton.moc"
 
 WQtPushButton::WQtPushButton( QIcon icon, QString name, QWidget* parent, QString label )
     : QToolButton( parent )

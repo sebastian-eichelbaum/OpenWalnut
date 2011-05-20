@@ -30,6 +30,7 @@
 #include "../events/WPropertyChangedEvent.h"
 
 #include "WPropertyWidget.h"
+#include "WPropertyWidget.moc"
 
 WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, QGridLayout* propertyGrid, QWidget* parent ):
     QStackedWidget( parent ),

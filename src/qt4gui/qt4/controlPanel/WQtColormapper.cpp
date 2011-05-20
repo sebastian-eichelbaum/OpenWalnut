@@ -47,6 +47,7 @@
 #include "../events/WEventTypes.h"
 
 #include "WQtColormapper.h"
+#include "WQtColormapper.moc"
 
 WQtColormapper::WQtColormapper( QWidget* parent )
     : QDockWidget( "Colormaps", parent )

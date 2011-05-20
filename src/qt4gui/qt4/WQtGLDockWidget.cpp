@@ -26,6 +26,7 @@
 #include <QtGui/QVBoxLayout>
 
 #include "WQtGLDockWidget.h"
+#include "WQtGLDockWidget.moc"
 
 WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget* parent, WGECamera::ProjectionMode projectionMode,
                                   const QGLWidget* shareWidget )

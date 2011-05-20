@@ -24,12 +24,13 @@
 
 #include <QtGui/QApplication>
 
+#include "core/common/WPropertyVariable.h"
+
 #include "../events/WEventTypes.h"
 #include "../events/WPropertyChangedEvent.h"
 
 #include "WQtPropertyBoolAction.h"
-
-#include "core/common/WPropertyVariable.h"
+#include "WQtPropertyBoolAction.moc"
 
 WQtPropertyBoolAction::WQtPropertyBoolAction( WPropBool property, QWidget* parent ):
     QAction( parent ),

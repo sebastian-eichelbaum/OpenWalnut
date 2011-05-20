@@ -57,8 +57,10 @@
 #include "../WQt4Gui.h"
 #include "../WQtCombinerActionList.h"
 #include "WQtBranchTreeItem.h"
-#include "WQtControlPanel.h"
 #include "WQtColormapper.h"
+
+#include "WQtControlPanel.h"
+#include "WQtControlPanel.moc"
 
 WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     : QDockWidget( "Control Panel", parent ),

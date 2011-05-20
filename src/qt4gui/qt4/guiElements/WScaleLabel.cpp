@@ -25,7 +25,7 @@
 #include "../WGuiConsts.h"
 
 #include "WScaleLabel.h"
-
+#include "WScaleLabel.moc"
 
 WScaleLabel::WScaleLabel( QWidget *parent /*= NULL */ ):
     QLabel( parent )

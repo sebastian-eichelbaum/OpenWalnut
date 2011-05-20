@@ -33,6 +33,7 @@
 #include "../WGuiConsts.h"
 
 #include "WPropertyPositionWidget.h"
+#include "WPropertyPositionWidget.moc"
 
 WPropertyPositionWidget::WPropertyPositionWidget( WPropPosition property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),

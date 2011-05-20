@@ -42,8 +42,10 @@
 #include "../WMainWindow.h"
 
 #include "WQtControlPanel.h"
-#include "WQtTreeItem.h"
 #include "WTreeItemTypes.h"
+
+#include "WQtTreeItem.h"
+#include "WQtTreeItem.moc"
 
 WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::shared_ptr< WModule > module ) :
     QTreeWidgetItem( parent, type ),

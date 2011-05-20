@@ -28,6 +28,7 @@
 #include <QtGui/QKeyEvent>
 
 #include "WQtGLWidget.h"
+#include "WQtGLWidget.moc"
 
 #include "core/common/WConditionOneShot.h"
 #include "core/common/WFlag.h"
@@ -74,13 +75,12 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     // create viewer
     m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
         m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
-
-    // connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
-    // m_Timer.start( 10 );
 #else
+    osg::ref_ptr<osg::Referenced> wdata; // NULL pointer since not used on Mac
+
     // create viewer
     m_Viewer = WKernel::getRunningKernel()->getGraphicsEngine()->createViewer(
-        m_nameOfViewer, x(), y(), width(), height(), m_initialProjectionMode );
+        m_nameOfViewer, wdata, x(), y(), width(), height(), m_initialProjectionMode );
 
     connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
     m_Timer.start( 10 );

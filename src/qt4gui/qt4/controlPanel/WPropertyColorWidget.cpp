@@ -34,6 +34,7 @@
 #include "../WGuiConsts.h"
 
 #include "WPropertyColorWidget.h"
+#include "WPropertyColorWidget.moc"
 
 WPropertyColorWidget::WPropertyColorWidget( WPropColor property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),

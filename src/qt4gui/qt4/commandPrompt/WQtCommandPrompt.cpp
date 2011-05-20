@@ -31,6 +31,7 @@
 #include "../WMainWindow.h"
 
 #include "WQtCommandPrompt.h"
+#include "WQtCommandPrompt.moc"
 
 WQtCommandPrompt::WQtCommandPrompt( QWidget* parent ):
     QLineEdit( parent )

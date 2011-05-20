@@ -31,7 +31,9 @@
 #include "core/common/WLogger.h"
 #include "core/common/WPropertyVariable.h"
 #include "../WGuiConsts.h"
+
 #include "WPropertyDoubleWidget.h"
+#include "WPropertyDoubleWidget.moc"
 
 WPropertyDoubleWidget::WPropertyDoubleWidget( WPropDouble property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),

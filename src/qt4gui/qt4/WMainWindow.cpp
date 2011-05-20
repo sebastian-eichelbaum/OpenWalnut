@@ -78,6 +78,7 @@
 #include "WQtGLDockWidget.h"
 
 #include "WMainWindow.h"
+#include "WMainWindow.moc"
 
 WMainWindow::WMainWindow() :
     QMainWindow(),

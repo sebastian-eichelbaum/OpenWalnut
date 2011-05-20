@@ -98,9 +98,8 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
 ELSE()
     # Unfortunately libstdc++'s header files don't work with mingw in ansi mode (basically libstdc++'s fault)
     IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
-        SET( CMAKE_CXX_FLAGS "-frtti -pedantic       -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
+        SET( CMAKE_CXX_FLAGS "-frtti -pedantic -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
     ELSE()
-        # SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra -Wold-style-cast" CACHE STRING "" FORCE )
         SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
     ENDIF()
 
@@ -117,10 +116,8 @@ SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Eigen3 specifics
 
-# NOTE: this is included in ext. But we need to set several definitions to make (who else?) Visual Studio work
-IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
-    ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
-ENDIF()
+# NOTE: this is included in ext. But we need to set several definitions to make this work on 32 Bit machines due to alignment problems
+ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # 

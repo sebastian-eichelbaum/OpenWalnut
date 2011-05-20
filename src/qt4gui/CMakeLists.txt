@@ -72,12 +72,14 @@ ENDIF()
 # Collect the compile-files for this target
 COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_FILES TARGET_TEST_FILES )
 
-# Qt4 Requires all classes with a QWidget stuff inside to be put into the MOC mechanism. We add all of them. Moc only does something if needed.
+# Qt4 Requires all classes with a QWidget stuff inside to be put into the MOC mechanism. We utilize the automoc mechanism here.
 SET( GUI_QT4_MOC_HDRS ${TARGET_H_FILES} )
-QT4_WRAP_CPP( GUI_QT4_MOC_SRCS ${GUI_QT4_MOC_HDRS} )
+QT4_AUTOMOC( ${TARGET_CPP_FILES} )
+# This is needed since the mocs will be generated there
+INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
 # Setup the target
-ADD_EXECUTABLE( ${LibName} ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${GUI_QT4_MOC_SRCS} "version.h" )
+ADD_EXECUTABLE( ${LibName} ${TARGET_CPP_FILES} ${TARGET_H_FILES} "version.h" )
 TARGET_LINK_LIBRARIES( ${LibName} ${OWCoreName} ${QT_LIBS} ${Boost_LIBRARIES} )
 
 # TODO(all): comment this stuff. I do not know what the purpose is
