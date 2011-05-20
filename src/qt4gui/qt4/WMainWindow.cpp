@@ -63,7 +63,7 @@
 #include "core/kernel/WProjectFile.h"
 #include "core/kernel/WROIManager.h"
 #include "core/kernel/WSelectionManager.h"
-#include "../icons/WIcons.h"
+#include "../icons/WIcons.xpm"
 #include "controlPanel/WPropertyBoolWidget.h"
 #include "controlPanel/WQtControlPanel.h"
 #include "events/WEventTypes.h"

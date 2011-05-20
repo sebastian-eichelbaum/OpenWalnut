@@ -25,7 +25,7 @@ syntax: regexp
 ^src/cscope.out
 
 # files geneterated by build system
-^src/version.h
+^src/qt4gui/version.h
 
 # local vim rc
 ^lvimrc

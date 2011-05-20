@@ -98,7 +98,7 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
 ELSE()
     # Unfortunately libstdc++'s header files don't work with mingw in ansi mode (basically libstdc++'s fault)
     IF( CMAKE_HOST_SYSTEM MATCHES "Windows" )
-        SET( CMAKE_CXX_FLAGS "-frtti -pedantic -Wall -Wno-long-long -Wextra -Wold-style-cast" CACHE STRING "" FORCE )
+        SET( CMAKE_CXX_FLAGS "-frtti -pedantic       -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
     ELSE()
         # SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra -Wold-style-cast" CACHE STRING "" FORCE )
         SET( CMAKE_CXX_FLAGS "-frtti -pedantic -ansi -Wall -Wno-long-long -Wextra " CACHE STRING "" FORCE )
@@ -377,6 +377,8 @@ ADD_SUBDIRECTORY( core )
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # QT4 Walnut binary
 
+SET( OWQt4GuiName "walnut" )
+
 # build core
-# ADD_SUBDIRECTORY( qt4gui )
+ADD_SUBDIRECTORY( qt4gui )
 

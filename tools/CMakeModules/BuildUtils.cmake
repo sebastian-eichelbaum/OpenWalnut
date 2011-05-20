@@ -62,6 +62,13 @@ ENDFUNCTION( COLLECT_SHADER_FILES )
 FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
     # Only do something if needed
     IF( OW_COMPILE_TESTS )
+        # Abort if no tests are present
+        LIST( LENGTH _TEST_FILES TestFileListLength )
+        IF( ${TestFileListLength} STREQUAL "0" )
+            MESSAGE( STATUS "No tests for target ${_TEST_TARGET}. You should always consider unit testing!" )
+            RETURN()
+        ENDIF()
+
         # the optional parameter is an additional dependencies list
         SET( _DEPENDENCIES ${ARGV2} )
 
