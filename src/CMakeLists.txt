@@ -345,6 +345,7 @@ ADD_CUSTOM_TARGET( many
 
 # This script contains all the needed tools to setup the build
 INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/BuildUtils.cmake )
+INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/BuildModuleUtils.cmake )
 
 # libcnt needs absolute inclusion somewhere
 INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext/libeep )
@@ -379,4 +380,13 @@ SET( OWBinaryName "walnut" )
 
 # build core
 ADD_SUBDIRECTORY( qt4gui )
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# Modules
+
+# where to put the modules by default?
+SET( OWModuleTargetDir ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/OpenWalnut )
+
+# build modules
+ADD_SUBDIRECTORY( modules )
 

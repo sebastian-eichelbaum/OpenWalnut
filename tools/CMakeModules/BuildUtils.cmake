@@ -65,7 +65,7 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
         # Abort if no tests are present
         LIST( LENGTH _TEST_FILES TestFileListLength )
         IF( ${TestFileListLength} STREQUAL "0" )
-            MESSAGE( STATUS "No tests for target ${_TEST_TARGET}. You should always consider unit testing!" )
+            # MESSAGE( STATUS "No tests for target ${_TEST_TARGET}. You should always consider unit testing!" )
             RETURN()
         ENDIF()
 
@@ -116,24 +116,28 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
             ENDIF( IsFixture )
         ENDFOREACH( fixture )
 
-        # the list may contain duplicates
-        LIST( REMOVE_DUPLICATES FixturePaths )
-       
-        # -------------------------------------------------------------------------------------------------------------------------------------------
-        # Create copy target for each fixture directory
-        # -------------------------------------------------------------------------------------------------------------------------------------------
+        # REMOVE_DUPLICATES throws an error if list is empty. So we check this here
+        LIST( LENGTH FixturePaths ListLength )
+        IF( NOT ${ListLength} STREQUAL "0" )
+            # the list may contain duplicates
+            LIST( REMOVE_DUPLICATES FixturePaths )
+           
+            # ---------------------------------------------------------------------------------------------------------------------------------------
+            # Create copy target for each fixture directory
+            # ---------------------------------------------------------------------------------------------------------------------------------------
 
-        # for each fixture, copy to build dir
-        FOREACH( FixtureDir ${FixturePaths} )
-            # we need a unique name for each fixture dir as target
-            STRING( REGEX REPLACE "[^A-Za-z0-9]" "" FixtureDirEscaped "${FixtureDir}" )
-            # finally, create the copy target
-            ADD_CUSTOM_TARGET( ${_TEST_TARGET}_CopyFixtures_${FixtureDirEscaped}
-                COMMAND ${CMAKE_COMMAND} -E copy_directory "${FixtureDir}" "${FixtureTargetDirectory}"
-                COMMENT "Copy fixtures of ${_TEST_TARGET} from ${FixtureDir}."
-            )
-            ADD_DEPENDENCIES( ${_TEST_TARGET} ${_TEST_TARGET}_CopyFixtures_${FixtureDirEscaped} )
-        ENDFOREACH( FixtureDir )
+            # for each fixture, copy to build dir
+            FOREACH( FixtureDir ${FixturePaths} )
+                # we need a unique name for each fixture dir as target
+                STRING( REGEX REPLACE "[^A-Za-z0-9]" "" FixtureDirEscaped "${FixtureDir}" )
+                # finally, create the copy target
+                ADD_CUSTOM_TARGET( ${_TEST_TARGET}_CopyFixtures_${FixtureDirEscaped}
+                    COMMAND ${CMAKE_COMMAND} -E copy_directory "${FixtureDir}" "${FixtureTargetDirectory}"
+                    COMMENT "Copy fixtures of ${_TEST_TARGET} from ${FixtureDir}."
+                )
+                ADD_DEPENDENCIES( ${_TEST_TARGET} ${_TEST_TARGET}_CopyFixtures_${FixtureDirEscaped} )
+            ENDFOREACH( FixtureDir )
+        ENDIF()
     ENDIF( OW_COMPILE_TESTS )
 ENDFUNCTION( SETUP_TESTS )
 

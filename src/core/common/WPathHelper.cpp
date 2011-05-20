@@ -61,7 +61,7 @@ void WPathHelper::setAppPath( boost::filesystem::path appPath )
     m_sharePath  = m_appPath / "../share/OpenWalnut";
     m_configPath = m_appPath / "../etc/OpenWalnut";
     m_libPath    = m_appPath / "../lib";
-    m_modulePath = m_libPath / "modules";
+    m_modulePath = m_libPath / "OpenWalnut";
 }
 
 boost::filesystem::path WPathHelper::getAppPath()
