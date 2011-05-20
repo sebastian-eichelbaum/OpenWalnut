@@ -27,6 +27,7 @@
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 SET( LibName ${OWQt4GuiName} )
+SET( BinName ${OWBinaryName} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Setup QT4
@@ -79,13 +80,13 @@ QT4_AUTOMOC( ${TARGET_CPP_FILES} )
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
 # Setup the target
-ADD_EXECUTABLE( ${LibName} ${TARGET_CPP_FILES} ${TARGET_H_FILES} "version.h" )
-TARGET_LINK_LIBRARIES( ${LibName} ${OWCoreName} ${QT_LIBS} ${Boost_LIBRARIES} )
+ADD_EXECUTABLE( ${BinName} ${TARGET_CPP_FILES} ${TARGET_H_FILES} "version.h" )
+TARGET_LINK_LIBRARIES( ${BinName} ${OWCoreName} ${QT_LIBS} ${Boost_LIBRARIES} )
 
 # TODO(all): comment this stuff. I do not know what the purpose is
 IF( MSVC_IDE )
-    SET_TARGET_PROPERTIES( ${LibName} PROPERTIES DEBUG_POSTFIX "d")
-    SET_TARGET_PROPERTIES( ${LibName} PROPERTIES PREFIX "../")
+    SET_TARGET_PROPERTIES( ${BinName} PROPERTIES DEBUG_POSTFIX "d")
+    SET_TARGET_PROPERTIES( ${BinName} PROPERTIES PREFIX "../")
 ENDIF( MSVC_IDE )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -93,17 +94,31 @@ ENDIF( MSVC_IDE )
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Setup tests of this target
-SETUP_TESTS( "${TARGET_TEST_FILES}" "${LibName}" "" )
+SETUP_TESTS( "${TARGET_TEST_FILES}" "${BinName}" "" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# Copy the documentation
+# Copy local resources
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Copy the help documents. This is not in the resource directory since it is qt4gui specific, so we need to copy it.
+ADD_CUSTOM_TARGET( help
+    ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../doc/user/help/ ${OW_SHARE_DIR}/${LibName}/
+    COMMENT "Copy the GUI help"
+)
+
+# Copy the icons of the GUI. They might be needed in the help system
+ADD_CUSTOM_TARGET( icons
+    ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/icons/ ${OW_SHARE_DIR}/${LibName}/icons
+    COMMENT "Copy the GUI icons"
+)
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Style Checker
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # setup the stylechecker. Ignore the platform specific stuff.
-SETUP_STYLECHECKER( "${LibName}"
+SETUP_STYLECHECKER( "${BinName}"
                     "${TARGET_CPP_FILES};${TARGET_H_FILES};${TARGET_TEST_FILES};${TARGET_GLSL_FILES}"  # add all these files to the stylechecker
-                    "" )                                                                               # exlude some ugly files
+                    ".*/version\\.h" )                                                                 # exlude some ugly files

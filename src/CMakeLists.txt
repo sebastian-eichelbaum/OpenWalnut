@@ -374,7 +374,8 @@ ADD_SUBDIRECTORY( core )
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # QT4 Walnut binary
 
-SET( OWQt4GuiName "walnut" )
+SET( OWQt4GuiName "qt4gui" )
+SET( OWBinaryName "walnut" )
 
 # build core
 ADD_SUBDIRECTORY( qt4gui )
