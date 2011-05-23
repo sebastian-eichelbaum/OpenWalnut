@@ -199,7 +199,7 @@ FUNCTION( SETUP_STYLECHECKER _TargetName _CheckFiles _Excludes )
     ENDIF()
 
     # Export our filtered file list to a file in build dir
-    SET( BrainLinterListFile "${PROJECT_BINARY_DIR}/brainlintlist_${_TargetName}" )
+    SET( BrainLinterListFile "${PROJECT_BINARY_DIR}/brainlint/brainlintlist_${_TargetName}" )
     FILE( WRITE ${BrainLinterListFile} "" )
     FOREACH( filename ${_CheckFiles} )
         FILE( APPEND ${BrainLinterListFile} "${filename}\n" )
