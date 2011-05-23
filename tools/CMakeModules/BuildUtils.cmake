@@ -35,11 +35,14 @@ FUNCTION( COLLECT_COMPILE_FILES _DirString _CPPFiles _HFiles _TestFiles )
     FILE( GLOB_RECURSE H_FILES   ${_DirString}/*.h )
     FILE( GLOB_RECURSE TEST_FILES   ${_DirString}/*_test.h )
 
-    # Unfortunately, this will contain the tests -> remove them explicitly
-    FOREACH( file ${TEST_FILES} )
-        LIST( REMOVE_ITEM H_FILES ${file} )
+    # the test directories should be excluded from normal compilation completely
+    FOREACH( file ${H_FILES} )
+        STRING( REGEX MATCH "^.*\\/test\\/.*" IsTest "${file}" )
+        IF( IsTest ) 
+            LIST( REMOVE_ITEM H_FILES ${file} )
+        ENDIF( IsTest )
     ENDFOREACH( file )
-
+    
     SET( ${_CPPFiles} "${CPP_FILES}" PARENT_SCOPE )
     SET( ${_HFiles} "${H_FILES}" PARENT_SCOPE )
     SET( ${_TestFiles} "${TEST_FILES}" PARENT_SCOPE )
