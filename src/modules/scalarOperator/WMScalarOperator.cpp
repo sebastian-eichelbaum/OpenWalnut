@@ -105,6 +105,7 @@ void WMScalarOperator::properties()
     m_operations->addItem( "abs( A - B )", "Absolute value of A - B." );
     m_operations->addItem( "abs( A )", "Absolute value of A." );
     m_operations->addItem( "clamp( lower, upper, A )", "Clamp A between lower and upper so that l <= A <= u." );
+    m_operations->addItem( "A * upper", "Scale data by factor." );
 
     m_opSelection = m_properties->addProperty( "Operation", "The operation to apply on A and B.", m_operations->getSelectorFirst(),
                                                m_propCondition );
@@ -308,6 +309,22 @@ inline T opClamp( T a, T l, T u )
 }
 
 /**
+ * Operator applying some op to argument.
+ *
+ * \tparam T Type of each parameter and the result
+ * \param v the first operant
+ * \param l ignored
+ * \param u scaler
+ *
+ * \return result
+ */
+template< typename T >
+inline T opScaleByA( T v, T /* l */, T u )
+{
+    return v * u;
+}
+
+/**
  * The second visitor which got applied to the second value set. It discriminates the integral type and applies the operator in a per value
  * style.
  *
@@ -500,6 +517,9 @@ public:
             case 6:
                 op = &opClamp< ResultT >;
                 break;
+            case 7:
+                op = &opScaleByA< ResultT >;
+                break;
             default:
                 op = &opAbs< ResultT >;
                 break;
@@ -608,7 +628,7 @@ void WMScalarOperator::moduleMain()
             boost::shared_ptr< WValueSetBase > newValueSet;
 
             // single operator operation?
-            if ( ( s == 5 ) || ( s == 6 ) )
+            if ( ( s == 5 ) || ( s == 6 ) || ( s == 7 ) )
             {
                 VisitorVSetSingleArgument visitor( s );    // the visitor cascades to the second value set
                 visitor.setBorder( m_lowerBorder->get( true ), m_upperBorder->get( true ) );
