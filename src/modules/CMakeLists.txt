@@ -4,6 +4,15 @@
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
+# NOTE: for every third party lib you add here: search it -> if found: add option! Not: Add option -> if option -> search
+# FIND_PACKAGE( Blah )
+# IF( BLAH_FOUND )
+#     OPTION( OW_USE_BLAH "Enable Blah support." )
+#     IF( OW_USE_BLAH ) 
+#           # do something
+#     ENDIF( OW_USE_BLAH )
+# ENDIF( BLAH_FOUND )
+
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Teem: http://teem.sourceforge.org
 #  - NOTE: you need the SVN version
@@ -17,12 +26,11 @@ ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Cuda: http://www.nvidia.com
-#  - NOTE: you need the SVN version
 
-OPTION( OW_USE_CUDA "Enable CUDA if available. Minimum version required is 2.3" )
-IF( OW_USE_CUDA )
-    FIND_PACKAGE( CUDA QUIET )
-    IF( CUDA_FOUND )
+FIND_PACKAGE( CUDA QUIET )
+IF( CUDA_FOUND )
+    OPTION( OW_USE_CUDA "Enable Cuda support." )
+    IF( OW_USE_CUDA )
         # BugFix: Subsequent calls don't set CUDA_VERSION_MAJOR or .._MINOR variables, so we have to extract them from CUDA_VERSION variable
         STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\1" CUDA_VERSION_MAJOR ${CUDA_VERSION})
         STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\2" CUDA_VERSION_MINOR ${CUDA_VERSION})
@@ -53,9 +61,23 @@ IF( OW_USE_CUDA )
         set( CUDA_PROPAGATE_HOST_FLAGS OFF )
         INCLUDE_DIRECTORIES( ${CUDA_TOOLKIT_INCLUDE} )
         INCLUDE_DIRECTORIES( "${CUDA_SDK_ROOT_DIR}/common/inc" )
-    ENDIF( CUDA_FOUND )
-ENDIF( OW_USE_CUDA )
+    ENDIF( OW_USE_CUDA )
+ENDIF( CUDA_FOUND )
 
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# OpenCL: http://www.khronos.org/opencl
+
+FIND_PACKAGE( OpenCL QUIET )
+IF( OPENCL_FOUND )
+    OPTION( OW_USE_OPENCL "Enable OpenCL support." )
+    IF( OW_USE_OPENCL )
+        # add the include directories
+        INCLUDE_DIRECTORIES( ${OPENCL_INCLUDE_DIR} )
+        INCLUDE_DIRECTORIES( ${OPENCL_CPP_INCLUDE_DIR} )
+
+        # do not forget to add the libs as dependency to your module!
+    ENDIF( OW_USE_OPENCL )
+ENDIF( OPENCL_FOUND )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # 
