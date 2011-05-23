@@ -34,7 +34,6 @@
 #include <QtGui/QGraphicsItemGroup>
 
 #include "../WMainWindow.h"
-#include "WQtNetworkEditor.h"
 #include "WQtNetworkPort.h"
 
 #include "core/kernel/combiner/WDisconnectCombiner.h"
@@ -49,6 +48,9 @@
 #include "../events/WModuleDisconnectEvent.h"
 #include "../events/WModuleReadyEvent.h"
 #include "../events/WModuleRemovedEvent.h"
+
+#include "WQtNetworkEditor.h"
+#include "WQtNetworkEditor.moc"
 
 WQtNetworkEditor::WQtNetworkEditor( WMainWindow* parent )
     : QDockWidget( "Module Graph", parent ),

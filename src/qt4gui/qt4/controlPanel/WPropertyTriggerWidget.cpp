@@ -22,10 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WPropertyTriggerWidget.h"
-
 #include "../WGuiConsts.h"
 #include "core/common/WPropertyVariable.h"
+
+#include "WPropertyTriggerWidget.h"
+#include "WPropertyTriggerWidget.moc"
 
 WPropertyTriggerWidget::WPropertyTriggerWidget( WPropTrigger property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),

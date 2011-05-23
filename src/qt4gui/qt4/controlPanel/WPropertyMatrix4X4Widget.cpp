@@ -34,6 +34,7 @@
 #include "../guiElements/WScaleLabel.h"
 
 #include "WPropertyMatrix4X4Widget.h"
+#include "WPropertyMatrix4X4Widget.moc"
 
 WPropertyMatrix4X4Widget::WPropertyMatrix4X4Widget( WPropMatrix4X4 property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),

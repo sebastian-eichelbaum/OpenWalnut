@@ -37,6 +37,7 @@
 #include "../WGuiConsts.h"
 
 #include "WQtPropertyGroupWidget.h"
+#include "WQtPropertyGroupWidget.moc"
 
 WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropGroup group, QWidget* parent )
     : QWidget( parent ),

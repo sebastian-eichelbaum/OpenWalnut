@@ -1,3 +1,27 @@
+#---------------------------------------------------------------------------
+#
+# Project: OpenWalnut ( http://www.openwalnut.org )
+#
+# Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+# For more information see http:#www.openwalnut.org/copying
+#
+# This file is part of OpenWalnut.
+#
+# OpenWalnut is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# OpenWalnut is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with OpenWalnut. If not, see <http:#www.gnu.org/licenses/>.
+#
+#---------------------------------------------------------------------------
+
 FUNCTION( SPLIT_VERSION_STRING _VersionString _Major _Minor _Patch )
   STRING( STRIP _VersionString ${_VersionString} )
   STRING( REGEX MATCH "^[0-9]+" _MajorProxy "${_VersionString}" )
@@ -9,7 +33,10 @@ FUNCTION( SPLIT_VERSION_STRING _VersionString _Major _Minor _Patch )
   SET( ${_Patch} "${_PatchProxy}" PARENT_SCOPE )
 ENDFUNCTION( SPLIT_VERSION_STRING )
 
-
+# Ensures a minimal version for a given package name.
+# _PackageName The package name. Needed for the message
+# _ActualVersion The version that was found
+# _MinimumVersion The minimum version
 FUNCTION( ASSERT_GE_VERSION _PackageName _ActualVersion _MinimumVersion )
   SPLIT_VERSION_STRING( ${_ActualVersion} _ActualMajor _ActualMinor _ActualPatch )
   SPLIT_VERSION_STRING( ${_MinimumVersion} _MinimumMajor _MinimumMinor _MinimumPatch )

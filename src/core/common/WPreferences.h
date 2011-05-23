@@ -112,10 +112,6 @@ template< typename T > bool WPreferences::getPreference( std::string prefName, T
             return false;
         }
     }
-    else
-    {
-        wlog::info( "WPreferences" ) << "No Config file: " << m_preferenceFile.file_string() << " found";
-    }
 
     po::notify( configuration );
     if( configuration.count( prefName ) )

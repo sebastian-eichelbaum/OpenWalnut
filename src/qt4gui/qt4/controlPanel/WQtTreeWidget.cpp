@@ -22,9 +22,12 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WQtTreeWidget.h"
-#include "WQtSubjectTreeItem.h"
 #include <QtGui/QKeyEvent>
+
+#include "WQtSubjectTreeItem.h"
+
+#include "WQtTreeWidget.h"
+#include "WQtTreeWidget.moc"
 
 WQtTreeWidget::WQtTreeWidget( QWidget* parent )
     : QTreeWidget( parent )

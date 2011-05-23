@@ -92,7 +92,7 @@ public:
     void testReadFileIntoString( void )
     {
         std::string expected = "Hello Pansen!\r\n";
-        std::string actual = readFileIntoString( boost::filesystem::path( "fixtures/hello.world" ) );
+        std::string actual = readFileIntoString( boost::filesystem::path( W_FIXTURE_PATH + "hello.world" ) );
         TS_ASSERT_EQUALS( expected, actual );
     }
 

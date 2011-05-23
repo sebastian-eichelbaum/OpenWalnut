@@ -28,7 +28,9 @@
 #include "../WMainWindow.h"
 
 #include "WQtCommandPrompt.h"
+
 #include "WQtCommandPromptToolbar.h"
+#include "WQtCommandPromptToolbar.moc"
 
 WQtCommandPromptToolbar::WQtCommandPromptToolbar( const QString& title, WMainWindow* parent ):
     QToolBar( title, parent ),

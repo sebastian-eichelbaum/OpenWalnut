@@ -25,8 +25,9 @@
 #ifndef WLINEARALGEBRA_H
 #define WLINEARALGEBRA_H
 
-#include "WMatrixFixed.h"
 #include "WMatrixEigen.h"
+
+#include "WMatrixFixed.h"
 #include "WVectorFixed.h"
 #include "WPosition.h"
 

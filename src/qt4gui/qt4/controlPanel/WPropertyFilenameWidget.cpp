@@ -35,6 +35,7 @@
 #include "../WGuiConsts.h"
 
 #include "WPropertyFilenameWidget.h"
+#include "WPropertyFilenameWidget.moc"
 
 WPropertyFilenameWidget::WPropertyFilenameWidget( WPropFilename property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),

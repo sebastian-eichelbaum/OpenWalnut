@@ -39,6 +39,7 @@
 #include "../WGuiConsts.h"
 
 #include "WPropertySelectionWidget.h"
+#include "WPropertySelectionWidget.moc"
 
 /**
  * This function ensure a maximum icon site by scaling large pixmaps. Pixmaps smaller than the maximum size are not scaled.

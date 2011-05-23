@@ -97,7 +97,6 @@ bool OWCOMMON_EXPORT linearIndependent( const WVector3d& u, const WVector3d& v )
  * \param S Output of the entries in the diagonal matrix
  * \param V Output Matrix
  *
- * \note This function needs the OSSIM library.
  */
 void OWCOMMON_EXPORT computeSVD( const WMatrix_2& A, WMatrix_2& U, WMatrix_2& V, WVector_2& S );
 

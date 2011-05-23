@@ -32,6 +32,7 @@
 #include "../WGuiConsts.h"
 
 #include "WPropertyStringWidget.h"
+#include "WPropertyStringWidget.moc"
 
 WPropertyStringWidget::WPropertyStringWidget( WPropString property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),

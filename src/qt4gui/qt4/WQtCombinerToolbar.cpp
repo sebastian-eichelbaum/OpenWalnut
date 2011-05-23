@@ -37,6 +37,7 @@
 #include "WQtToolBar.h"
 
 #include "WQtCombinerToolbar.h"
+#include "WQtCombinerToolbar.moc"
 
 WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerActionList& compatibles )
     : QToolBar( "Compatible Modules", parent ),

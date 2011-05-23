@@ -34,6 +34,7 @@
 #include "core/common/WPropertyVariable.h"
 
 #include "WPropertyIntWidget.h"
+#include "WPropertyIntWidget.moc"
 
 WPropertyIntWidget::WPropertyIntWidget( WPropInt property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),

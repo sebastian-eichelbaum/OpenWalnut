@@ -22,10 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-#include "WPropertyBoolWidget.h"
-
 #include "../WGuiConsts.h"
 #include "core/common/WPropertyVariable.h"
+
+#include "WPropertyBoolWidget.h"
+#include "WPropertyBoolWidget.moc"
 
 WPropertyBoolWidget::WPropertyBoolWidget( WPropBool property, QGridLayout* propertyGrid, QWidget* parent ):
     WPropertyWidget( property, propertyGrid, parent ),

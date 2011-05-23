@@ -154,6 +154,13 @@ public:
      */
     static boost::filesystem::path getSharePath();
 
+    /**
+     * The path where the config files reside in.
+     *
+     * \return the config file path.
+     */
+    static boost::filesystem::path getConfigPath();
+
 protected:
 
     /**
@@ -172,6 +179,11 @@ private:
      * The path where all the shared files reside in.
      */
     boost::filesystem::path m_sharePath;
+
+    /**
+     * The path where all the config files reside in.
+     */
+    boost::filesystem::path m_configPath;
 
     /**
      * The path to the globally installed modules.
