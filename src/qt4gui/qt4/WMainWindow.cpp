@@ -752,7 +752,7 @@ void WMainWindow::openAboutQtDialog()
 
 void WMainWindow::openAboutDialog()
 {
-    std::string filename( WPathHelper::getDocPath().file_string() + "/OpenWalnutAbout.html" );
+    std::string filename( WPathHelper::getDocPath().file_string() + "/qt4gui/OpenWalnutAbout.html" );
     std::string content = readFileIntoString( filename );
     QMessageBox::about( this, "About OpenWalnut", content.c_str() );
 }
