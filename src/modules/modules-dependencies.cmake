@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
+#
 # Some modules need third party libraries. We provide them if they are available
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -8,7 +8,7 @@
 # FIND_PACKAGE( Blah )
 # IF( BLAH_FOUND )
 #     OPTION( OW_USE_BLAH "Enable Blah support." )
-#     IF( OW_USE_BLAH ) 
+#     IF( OW_USE_BLAH )
 #           # do something
 #     ENDIF( OW_USE_BLAH )
 # ENDIF( BLAH_FOUND )

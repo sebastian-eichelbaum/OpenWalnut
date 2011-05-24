@@ -24,7 +24,7 @@
 
 # Unlike Utils.cmake, this file contains only build related utilities.
 
-# Recursively searches compile files (headers, sources). 
+# Recursively searches compile files (headers, sources).
 # _DirString: where to search
 # _CPPFiles contains the cpp files afterwards
 # _HFiles contains the h files afterwards, without tests
@@ -38,11 +38,11 @@ FUNCTION( COLLECT_COMPILE_FILES _DirString _CPPFiles _HFiles _TestFiles )
     # the test directories should be excluded from normal compilation completely
     FOREACH( file ${H_FILES} )
         STRING( REGEX MATCH "^.*\\/test\\/.*" IsTest "${file}" )
-        IF( IsTest ) 
+        IF( IsTest )
             LIST( REMOVE_ITEM H_FILES ${file} )
         ENDIF( IsTest )
     ENDFOREACH( file )
-    
+
     SET( ${_CPPFiles} "${CPP_FILES}" PARENT_SCOPE )
     SET( ${_HFiles} "${H_FILES}" PARENT_SCOPE )
     SET( ${_TestFiles} "${TEST_FILES}" PARENT_SCOPE )
@@ -124,7 +124,7 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
         IF( NOT ${ListLength} STREQUAL "0" )
             # the list may contain duplicates
             LIST( REMOVE_DUPLICATES FixturePaths )
-           
+
             # ---------------------------------------------------------------------------------------------------------------------------------------
             # Create copy target for each fixture directory
             # ---------------------------------------------------------------------------------------------------------------------------------------
@@ -164,7 +164,7 @@ FUNCTION( SETUP_SHADERS _Shaders _TargetDir )
             STRING( REGEX REPLACE "^.*/" "" StrippedFileName "${fname}" )
 
             # let cmake do it
-            EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E ${ShaderOperation} ${fname} "${_TargetDir}/${StrippedFileName}" ) 
+            EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E ${ShaderOperation} ${fname} "${_TargetDir}/${StrippedFileName}" )
         ENDFOREACH( fname )
     ENDIF( OW_HANDLE_SHADERS )
 ENDFUNCTION( SETUP_SHADERS )
@@ -184,8 +184,8 @@ FUNCTION( SETUP_STYLECHECKER _TargetName _CheckFiles _Excludes )
             ENDIF( IsExcluded )
         ENDFOREACH( excludeRule )
     ENDFOREACH( filename )
-    
-    # the stylechecker allows coloring the output. Enable if color make is active   
+
+    # the stylechecker allows coloring the output. Enable if color make is active
     IF( CMAKE_COLOR_MAKEFILE )
         SET( STYLECHECK_OPTIONS "--color" )
     ELSE()

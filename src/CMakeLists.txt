@@ -23,7 +23,7 @@
 #---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
+#
 # General CMake Setup
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ IF( NOT cmake_build_type_tolower STREQUAL "debug" AND
 ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
+#
 # Compilation Options
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -120,17 +120,17 @@ SET( CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -DDEBUG -O2" CACHE STRING "" FORCE )
 ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
+#
 # OpenWalnut specific options
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# other options 
+# other options
 OPTION( OW_HANDLE_SHADERS "This ensures that shaders are available in build directory after build." ON )
 OPTION( OW_LINK_SHADERS "If turned on, shaders do not get copied. They get linked. This is a nice option for developers." OFF )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
+#
 # REQUIRED third party libs
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgDB osgUtil osgGA osg
 INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
+#
 # OPTIONAL third party libs
 #  - include only libs you need in the OW framework
 #
@@ -192,7 +192,7 @@ INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 # NOTE: please add only libs which are used in core! If you need a third party lib for your module, include it in your module's CMakeLists!
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
+#
 # Unit Testing
 #
 #  - We use cxxtest. See http://cxxtest.tigris.org
@@ -202,7 +202,7 @@ INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 # Try to find it
 FIND_PACKAGE( CxxTest QUIET )
 MARK_AS_ADVANCED( CXXTEST_PERL_TESTGEN_EXECUTABLE )
-   
+
 # If it is found, and OW_USE_TESTS is on, build the tests and activate CMake's test mechanisms
 IF( CXXTEST_FOUND )
   # To enable testing
@@ -228,7 +228,7 @@ ADD_CUSTOM_TARGET( vtest
                  )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
+#
 # Resource Copy
 #  - This simply copies the structure from ../resources to the build directory
 #
@@ -249,8 +249,8 @@ IF( NOT EXISTS ${OW_CONFIG_DIR}/walnut.cfg )
 ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
-# Num Cores 
+#
+# Num Cores
 #  - Number of paralelle operations on this machine
 #  - Needed by several of our following targets
 #
@@ -270,7 +270,7 @@ IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
 ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
+#
 # Documentation
 #  - Call doxygen here
 #
@@ -296,7 +296,7 @@ ADD_CUSTOM_TARGET( fulldoc
                  )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
+#
 # Style
 #  - We use brainlint for this
 #
@@ -306,7 +306,7 @@ ADD_CUSTOM_TARGET( fulldoc
 ADD_CUSTOM_TARGET( stylecheck DEPENDS numCores )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
+#
 # Convenience targets
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -335,7 +335,7 @@ ADD_CUSTOM_TARGET( many
                  )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# 
+#
 # Compilation Targets
 #  - The GUI + OpenWalnut.cpp ==> walnut binary
 #  - Ext ==> libOWext_*
@@ -343,7 +343,7 @@ ADD_CUSTOM_TARGET( many
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# This script contains all the needed tools to setup the build
+# These scripts contains all the needed tools to setup the build
 INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/BuildUtils.cmake )
 INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/BuildModuleUtils.cmake )
 
@@ -389,4 +389,10 @@ SET( OWModuleTargetDir ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/OpenWalnut )
 
 # build modules
 ADD_SUBDIRECTORY( modules )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+# Installation Targets
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
 

@@ -49,7 +49,7 @@ COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_F
 # Setup the target
 ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
 TARGET_LINK_LIBRARIES( ${LibName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNiftiName}
-                                  ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} 
+                                  ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES}
                      )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
