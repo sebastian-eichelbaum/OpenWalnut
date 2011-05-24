@@ -2179,7 +2179,7 @@ public:
             std::size_t* idx = NULL;
             s[ idx ] = 5.0;
 
-            TS_ASSERT_THROWS_NOTHING( T04 t = T04( s ) );
+            TS_ASSERT_THROWS_NOTHING( T04( s ) );
             T04 t = T04( s );
 
             TS_ASSERT_EQUALS( t[ idx ], 5.0 );
