@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# get path of this script
+BINDIR=`dirname "$0"`
+cd "$BINDIR/.."
+
+# We want to avoid that multiple system installations of OpenWalnut cause some weird loading of libs. We want ours to be loaded:
+export LD_PRELOAD="lib/libOWcore.so:lib/libOWext_biosig.so:lib/libOWext_eep.so:lib/libOWext_niftiio.so:lib/libOWext_znz.so"
+
+# Run OpenWalnut
+bin/walnut $@
+

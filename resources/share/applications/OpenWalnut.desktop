@@ -1,0 +1,9 @@
+[Desktop Entry]
+Categories=Sciene;
+Exec=/usr/bin/OpenWalnut
+Name=OpenWalnut
+Icon=OpenWalnut.png
+X-KDE-StartupNotify=true
+Terminal=true
+Type=Application
+

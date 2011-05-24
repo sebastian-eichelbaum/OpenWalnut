@@ -1,18 +1,64 @@
-------------------------------------------------------
+We keep this README short, since we have many documentation and information
+online. So, for detailed information have a look at http://www.openwalnut.org.
 
-     See the "doc" directory for more information.
+CONTACT
+=======
 
-------------------------------------------------------
+If you have questions, comments, problems or find Bugs, contact us using:
+ 
+* Mailing list: openwalnut@lists.informatik.uni-leipzig.de
+ * Very low traffic at the moment ( < 1 mail per month), you might want to try
+   the developer mailing list below.
+ * To join the list visit 
+   http://lists.informatik.uni-leipzig.de/mailman/listinfo/openwalnut and follow
+   the instructions.
+* Developer Mailing list: openwalnut-dev@lists.informatik.uni-leipzig.de
+ * Medium traffic ( < 10 mails per week).
+ * To join the list visit
+   http://lists.informatik.uni-leipzig.de/mailman/listinfo/openwalnut-dev and
+   follow the instructions.
+* IRC: Occasionally you can contact us at irc.freenode.net #ow.
 
-Directory Structure:
-  -build
-     The place where the code from "src" will be built
-  -doc
-     Documentation for users and devlopers
-  -scripts
-     helper scripts, e.g. startup script for OpenWalnut
-  -src
-     The sources, i.e. code, icons, ...
-  -tools
-     Tools used during development and building 
-     (e.g. style checker)
+BUILDING
+========
+
+Required Dependencies:
+----------------------
+
+* Qt4 (>= 4.3)
+* OpenSceneGraph (>= 2.8.0)
+* Boost (>= 1.39.0)
+
+Compilation on Unix:
+--------------------
+
+If you have installed all required third party libs, you can compile OpenWalnut
+by using the common routine:
+
+cd build
+cmake ../src
+make
+make install -- this is optional
+
+After that, OpenWalnut can be used inside the build directory.
+
+Compilation on Windows:
+-----------------------
+
+This is a little bit more complicated. We give you a step-by-step explanation
+on http://www.openwalnut.org.
+
+USING
+=====
+
+After starting OpenWalnut, press F1 to get an introductory help. More 
+information is available online at http://www.openwalnut.org
+
+DEVELOPING
+==========
+
+If you want to develop modules for OpenWalnut, have a look at 
+src/modules/template, which contains an extensively documented example module.
+More information is available online. The WIKI, especially the development
+section is very helpful. Besides this, an online API documentation is available
+at  http://api.openwalnut.org.
