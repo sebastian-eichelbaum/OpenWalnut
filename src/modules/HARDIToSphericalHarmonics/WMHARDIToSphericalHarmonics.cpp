@@ -32,7 +32,6 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <boost/thread/thread.hpp>
 
-#include "HARDIToSphericalHarmonics.xpm"
 #include "core/common/WLimits.h"
 #include "core/common/WAssert.h"
 
@@ -52,6 +51,7 @@
 #include "WSphericalHarmonicsCoefficientsThread.h"
 
 #include "WMHARDIToSphericalHarmonics.h"
+#include "HARDIToSphericalHarmonics.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMHARDIToSphericalHarmonics )

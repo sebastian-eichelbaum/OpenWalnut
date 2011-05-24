@@ -67,7 +67,8 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
 
     # setup the target directories and names
     SET( MODULE_NAME ${_MODULE_NAME} )
-    SET( MODULE_TARGET_DIR ${OWModuleTargetDir}/${MODULE_NAME} )
+    SET( MODULE_TARGET_DIR_RELATIVE ${OW_MODULE_DIR_RELATIVE}/${MODULE_NAME} )
+    SET( MODULE_TARGET_DIR ${OW_MODULE_DIR}/${OW_MODULE_DIR_RELATIVE} )
     SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
     SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${MODULE_TARGET_DIR} )
     SET( MODULE_SOURCE_DIR ${_MODULE_SOURCE_DIR} )
@@ -100,7 +101,7 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
     # -----------------------------------------------------------------------------------------------------------------------------------------------
 
     COLLECT_SHADER_FILES( ${MODULE_SOURCE_DIR} TARGET_GLSL_FILES )
-    SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${MODULE_TARGET_DIR}/shaders" )
+    SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${MODULE_TARGET_DIR_RELATIVE}/shaders" )
 
     # -----------------------------------------------------------------------------------------------------------------------------------------------
     # Style Checker

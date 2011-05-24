@@ -64,7 +64,7 @@ SETUP_TESTS( "${TARGET_TEST_FILES}" "${LibName}" "" )
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 COLLECT_SHADER_FILES( ${CMAKE_CURRENT_SOURCE_DIR} TARGET_GLSL_FILES )
-SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${OW_SHARE_DIR}/shaders" )
+SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${OW_SHARE_DIR_RELATIVE}/shaders" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Style Checker
@@ -74,3 +74,4 @@ SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${OW_SHARE_DIR}/shaders" )
 SETUP_STYLECHECKER( "${LibName}"
                     "${TARGET_CPP_FILES};${TARGET_H_FILES};${TARGET_TEST_FILES};${TARGET_GLSL_FILES}"  # add all these files to the stylechecker
                     ".*platformDependent\\/visualStudio\\/.*" )                                        # exlude some ugly files
+

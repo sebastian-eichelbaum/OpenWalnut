@@ -41,12 +41,9 @@ LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/CMakeModules )
 # here, we have certain utilities. For example ASSERT_GE_VERSION which ensures a specific minimum version
 INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/Utils.cmake )
 
-# mimic layout of install dir for build:
-SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin )
-SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
-SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib )
-SET( OW_CONFIG_DIR ${PROJECT_BINARY_DIR}/etc/OpenWalnut )
-SET( OW_SHARE_DIR ${PROJECT_BINARY_DIR}/share/OpenWalnut )
+# These scripts contains all the needed tools to setup the build
+INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/BuildUtils.cmake )
+INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/BuildModuleUtils.cmake )
 
 # CMAKE automatism to select static vs. shared building:
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
@@ -76,6 +73,32 @@ IF( NOT cmake_build_type_tolower STREQUAL "debug" AND
     NOT cmake_build_type_tolower STREQUAL "")
   MESSAGE( SEND_ERROR "Unknown build type \"${CMAKE_BUILD_TYPE}\". Allowed values are Debug, Release, RelWithDebInfo  and \"\" (case-insensitive).")
 ENDIF()
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+# Install/Target-dir Options
+#  - NOTE: in our setup, build dir structure and install structure are the same
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# mimic layout of install dir for build:
+SET( OW_CONFIG_DIR_RELATIVE "etc/OpenWalnut" )
+SET( OW_CONFIG_DIR ${PROJECT_BINARY_DIR}/${OW_CONFIG_DIR_RELATIVE} )
+SET( OW_SHARE_DIR_RELATIVE "share/OpenWalnut" )
+SET( OW_SHARE_DIR ${PROJECT_BINARY_DIR}/${OW_SHARE_DIR_RELATIVE} )
+SET( OW_RUNTIME_DIR_RELATIVE "bin" )
+SET( OW_RUNTIME_DIR ${PROJECT_BINARY_DIR}/${OW_RUNTIME_DIR_RELATIVE} )
+SET( OW_LIBRARY_DIR_RELATIVE "lib" )
+SET( OW_LIBRARY_DIR ${PROJECT_BINARY_DIR}/${OW_LIBRARY_DIR_RELATIVE} )
+SET( OW_ARCHIVE_DIR_RELATIVE "lib" )
+SET( OW_ARCHIVE_DIR ${PROJECT_BINARY_DIR}/${OW_ARCHIVE_DIR_RELATIVE} )
+SET( OW_MODULE_DIR_RELATIVE "lib/OpenWalnut" )
+SET( OW_MODULE_DIR ${PROJECT_BINARY_DIR}/${OW_MODULE_DIR_RELATIVE} )
+
+# set our paths for install targets
+SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OW_RUNTIME_DIR} )
+SET( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OW_LIBRARY_DIR} )
+SET( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OW_ARCHIVE_DIR} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
@@ -234,13 +257,8 @@ ADD_CUSTOM_TARGET( vtest
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# as all the resources with the correct directory structure reside in ../resources, this target is very easy to handle
-SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources" )
-ADD_CUSTOM_TARGET( ResourceConfiguration
-    ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${ResourcesPath}" "${PROJECT_BINARY_DIR}/"
-    COMMENT "Copying resources to build directory"
-)
+# Setup everything in ../resources
+SETUP_RESOURCES()
 
 # this is done once -> create one default walnut.cfg
 IF( NOT EXISTS ${OW_CONFIG_DIR}/walnut.cfg )
@@ -343,10 +361,6 @@ ADD_CUSTOM_TARGET( many
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# These scripts contains all the needed tools to setup the build
-INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/BuildUtils.cmake )
-INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/BuildModuleUtils.cmake )
-
 # libcnt needs absolute inclusion somewhere
 INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext/libeep )
 INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext )
@@ -384,9 +398,6 @@ ADD_SUBDIRECTORY( qt4gui )
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Modules
 
-# where to put the modules by default?
-SET( OWModuleTargetDir ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/OpenWalnut )
-
 # build modules
 ADD_SUBDIRECTORY( modules )
 
@@ -395,4 +406,5 @@ ADD_SUBDIRECTORY( modules )
 # Installation Targets
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
+
 

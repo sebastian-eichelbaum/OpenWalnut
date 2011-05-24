@@ -144,9 +144,12 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
     ENDIF( OW_COMPILE_TESTS )
 ENDFUNCTION( SETUP_TESTS )
 
-# This function sets up the build system to ensure that the specified list of shaders is available after build in the target directory.
+# This function sets up the build system to ensure that the specified list of shaders is available after build in the target directory. It
+# additionally setups the install targets. Since build and install structure are the same, specify only relative targets here which are used for
+# both.
 # _Shaders list of shaders
-# _TargetDir the directory where to put the shaders
+# _TargetDir the directory where to put the shaders. Relative to ${PROJECT_BINARY_DIR} and install dir. You should avoid ".." stuff. This can
+# break the install targets
 FUNCTION( SETUP_SHADERS _Shaders _TargetDir )
     # only if we are allowed to
     IF( OW_HANDLE_SHADERS )
@@ -158,13 +161,18 @@ FUNCTION( SETUP_SHADERS _Shaders _TargetDir )
              SET( ShaderOperation "create_symlink" )
         ENDIF( OW_LINK_SHADERS )
 
-        # now do the operation for each shader
+        # now do the operation for each shader into build dir
         FOREACH( fname ${_Shaders} )
             # We need the plain filename (create_symlink needs it)
             STRING( REGEX REPLACE "^.*/" "" StrippedFileName "${fname}" )
 
             # let cmake do it
-            EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E ${ShaderOperation} ${fname} "${_TargetDir}/${StrippedFileName}" )
+            EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E ${ShaderOperation} ${fname} "${PROJECT_BINARY_DIR}/${_TargetDir}/${StrippedFileName}" )
+        ENDFOREACH( fname )
+
+        # now add install targets for each shader. All paths are relative to the current source dir.
+        FOREACH( fname ${_Shaders} )
+            INSTALL( FILES ${fname} DESTINATION ${_TargetDir} )
         ENDFOREACH( fname )
     ENDIF( OW_HANDLE_SHADERS )
 ENDFUNCTION( SETUP_SHADERS )
@@ -219,4 +227,19 @@ FUNCTION( SETUP_STYLECHECKER _TargetName _CheckFiles _Excludes )
     # make the stylecheck taret depend upon this
    ADD_DEPENDENCIES( stylecheck "stylecheck_${_TargetName}" )
 ENDFUNCTION( SETUP_STYLECHECKER )
+
+# This function handles local resources needed for program execution. Place your resources in "${CMAKE_CURRENT_SOURCE_DIR}/../resources/". They
+# get copied to the build directory and a proper install target is provided too
+FUNCTION( SETUP_RESOURCES )
+    # as all the resources with the correct directory structure reside in ../resources, this target is very easy to handle
+    SET( ResourcesPath "${CMAKE_CURRENT_SOURCE_DIR}/../resources/" )
+    ADD_CUSTOM_TARGET( ResourceConfiguration
+        ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${ResourcesPath}" "${PROJECT_BINARY_DIR}/"
+        COMMENT "Copying resources to build directory"
+    )
+
+    # Also specify install target
+    INSTALL( DIRECTORY ${ResourcesPath} DESTINATION "." )
+ENDFUNCTION( SETUP_RESOURCES )
 
