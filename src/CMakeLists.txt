@@ -86,6 +86,8 @@ SET( OW_CONFIG_DIR_RELATIVE "etc/OpenWalnut" )
 SET( OW_CONFIG_DIR ${PROJECT_BINARY_DIR}/${OW_CONFIG_DIR_RELATIVE} )
 SET( OW_SHARE_DIR_RELATIVE "share/OpenWalnut" )
 SET( OW_SHARE_DIR ${PROJECT_BINARY_DIR}/${OW_SHARE_DIR_RELATIVE} )
+SET( OW_DOC_DIR_RELATIVE "share/doc/OpenWalnut" )
+SET( OW_DOC_DIR ${PROJECT_BINARY_DIR}/${OW_DOC_DIR_RELATIVE} )
 SET( OW_RUNTIME_DIR_RELATIVE "bin" )
 SET( OW_RUNTIME_DIR ${PROJECT_BINARY_DIR}/${OW_RUNTIME_DIR_RELATIVE} )
 SET( OW_LIBRARY_DIR_RELATIVE "lib" )
@@ -265,6 +267,7 @@ IF( NOT EXISTS ${OW_CONFIG_DIR}/walnut.cfg )
     CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/../resources/etc/OpenWalnut/walnut.cfg.official ${OW_CONFIG_DIR}/walnut.cfg COPYONLY )
     MESSAGE( STATUS "Copied walnut.cfg.official to ${OW_CONFIG_DIR}/walnut.cfg" )
 ENDIF()
+INSTALL( FILES ${PROJECT_SOURCE_DIR}/../resources/etc/OpenWalnut/walnut.cfg.official DESTINATION ${OW_CONFIG_DIR_RELATIVE} RENAME walnut.cfg ) 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
@@ -400,11 +403,4 @@ ADD_SUBDIRECTORY( qt4gui )
 
 # build modules
 ADD_SUBDIRECTORY( modules )
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-#
-# Installation Targets
-#
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
 

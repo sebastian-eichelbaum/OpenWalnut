@@ -752,14 +752,14 @@ void WMainWindow::openAboutQtDialog()
 
 void WMainWindow::openAboutDialog()
 {
-    std::string filename( WPathHelper::getSharePath().file_string() + "/OpenWalnutAbout.html" );
+    std::string filename( WPathHelper::getDocPath().file_string() + "/OpenWalnutAbout.html" );
     std::string content = readFileIntoString( filename );
     QMessageBox::about( this, "About OpenWalnut", content.c_str() );
 }
 
 void WMainWindow::openOpenWalnutHelpDialog()
 {
-    std::string filename( WPathHelper::getSharePath().file_string() + "/qt4gui/OpenWalnutHelp.html" );
+    std::string filename( WPathHelper::getDocPath().file_string() + "/qt4gui/OpenWalnutHelp.html" );
     std::string content = readFileIntoString( filename );
 
     QWidget* window = new QWidget( this, Qt::Window );
@@ -772,7 +772,7 @@ void WMainWindow::openOpenWalnutHelpDialog()
     window->show();
 
     QWebView *view = new QWebView( this );
-    QString location( QString( "file://" ) + WPathHelper::getSharePath().file_string().c_str() + "/qt4gui/" );
+    QString location( QString( "file://" ) + WPathHelper::getDocPath().file_string().c_str() + "/qt4gui/" );
     view->setHtml( content.c_str(), QUrl( location  ) );
     view->show();
     layout->addWidget( view );

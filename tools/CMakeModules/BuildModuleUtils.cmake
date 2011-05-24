@@ -84,6 +84,16 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
     ADD_LIBRARY( ${MODULE_NAME} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
     TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWCoreName} ${Boost_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${_MODULE_DEPENDENCIES} )
 
+    # Do not forget the install targets
+    # NOTE: do we really need to set all permissions explicitely?
+    INSTALL( TARGETS ${MODULE_NAME} 
+                LIBRARY 
+                    DESTINATION ${MODULE_TARGET_DIR_RELATIVE} 
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+                                GROUP_READ GROUP_EXECUTE  
+                                WORLD_READ WORLD_EXECUTE
+    )
+
     # TODO(all): someone needs to explain this
     IF(MSVC_IDE)
         SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES PREFIX "../")

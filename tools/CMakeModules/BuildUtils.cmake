@@ -240,6 +240,12 @@ FUNCTION( SETUP_RESOURCES )
     )
 
     # Also specify install target
-    INSTALL( DIRECTORY ${ResourcesPath} DESTINATION "." )
+    INSTALL( DIRECTORY ${ResourcesPath}
+             DESTINATION "."
+             PATTERN "bin/*"            # binaries need to be executable
+                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                             GROUP_READ GROUP_EXECUTE
+                             WORLD_READ WORLD_EXECUTE
+             )
 ENDFUNCTION( SETUP_RESOURCES )
 
