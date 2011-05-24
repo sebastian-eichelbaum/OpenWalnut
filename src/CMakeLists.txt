@@ -267,7 +267,7 @@ IF( NOT EXISTS ${OW_CONFIG_DIR}/walnut.cfg )
     CONFIGURE_FILE( ${PROJECT_SOURCE_DIR}/../resources/etc/OpenWalnut/walnut.cfg.official ${OW_CONFIG_DIR}/walnut.cfg COPYONLY )
     MESSAGE( STATUS "Copied walnut.cfg.official to ${OW_CONFIG_DIR}/walnut.cfg" )
 ENDIF()
-INSTALL( FILES ${PROJECT_SOURCE_DIR}/../resources/etc/OpenWalnut/walnut.cfg.official DESTINATION ${OW_CONFIG_DIR_RELATIVE} RENAME walnut.cfg ) 
+INSTALL( FILES ${PROJECT_SOURCE_DIR}/../resources/etc/OpenWalnut/walnut.cfg.official DESTINATION ${OW_CONFIG_DIR_RELATIVE} RENAME walnut.cfg )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #

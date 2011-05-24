@@ -20,3 +20,12 @@ ENDIF()
 IF(MSVC_IDE)
     SET_TARGET_PROPERTIES( OWext_eep PROPERTIES PREFIX "../")
 ENDIF(MSVC_IDE)
+
+# install target
+INSTALL( TARGETS OWext_eep
+            LIBRARY
+                DESTINATION ${OW_LIBRARY_DIR_RELATIVE}
+                PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                            GROUP_READ GROUP_EXECUTE
+                            WORLD_READ WORLD_EXECUTE
+        )

@@ -53,11 +53,11 @@ TARGET_LINK_LIBRARIES( ${LibName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNift
                      )
 
 # Do not forget the install targets
-INSTALL( TARGETS ${LibName} 
+INSTALL( TARGETS ${LibName}
             LIBRARY
                 DESTINATION ${OW_LIBRARY_DIR_RELATIVE}
-                PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
-                            GROUP_READ GROUP_EXECUTE  
+                PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                            GROUP_READ GROUP_EXECUTE
                             WORLD_READ WORLD_EXECUTE
         )
 

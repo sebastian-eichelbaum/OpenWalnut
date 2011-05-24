@@ -17,3 +17,13 @@ ADD_LIBRARY( OWext_biosig ${BIOSIG_SRC} )
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )
     TARGET_LINK_LIBRARIES( OWext_biosig ws2_32 )
 ENDIF()
+
+# install target
+INSTALL( TARGETS OWext_biosig
+            LIBRARY
+                DESTINATION ${OW_LIBRARY_DIR_RELATIVE}
+                PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                            GROUP_READ GROUP_EXECUTE
+                            WORLD_READ WORLD_EXECUTE
+        )
+
