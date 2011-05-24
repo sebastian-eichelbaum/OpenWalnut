@@ -1,0 +1,8 @@
+OpenWalnut is an open source tool for multi-modal medical and brain data
+visualization. Its universality allows it to be easily extended and used in a
+large variety of application cases. It is both, a tool for the scientific user
+and a powerful framework for the visualization researcher.  OpenWalnut is
+licensed under the terms of the GNU Lesser General Public License. Written
+entirely in Standard C++ and using a number of portable libraries (e.g.
+OpenSceneGraph and  Qt), it runs on all Windows platforms, OSX, and
+GNU/Linux operating systems.

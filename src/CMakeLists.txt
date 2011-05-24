@@ -37,13 +37,13 @@ IF( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
 ENDIF()
 
 # append search path for FindModules:
-LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/CMakeModules )
+LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/../tools/cmake )
 # here, we have certain utilities. For example ASSERT_GE_VERSION which ensures a specific minimum version
-INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/Utils.cmake )
+INCLUDE( ${CMAKE_MODULE_PATH}/Utils.cmake )
 
 # These scripts contains all the needed tools to setup the build
-INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/BuildUtils.cmake )
-INCLUDE( ${PROJECT_SOURCE_DIR}/../tools/CMakeModules/BuildModuleUtils.cmake )
+INCLUDE( ${CMAKE_MODULE_PATH}/BuildUtils.cmake )
+INCLUDE( ${CMAKE_MODULE_PATH}/BuildModuleUtils.cmake )
 
 # CMAKE automatism to select static vs. shared building:
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
@@ -226,13 +226,13 @@ INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
 
 # Try to find it
 FIND_PACKAGE( CxxTest QUIET )
-MARK_AS_ADVANCED( CXXTEST_PERL_TESTGEN_EXECUTABLE )
 
 # If it is found, and OW_USE_TESTS is on, build the tests and activate CMake's test mechanisms
 IF( CXXTEST_FOUND )
   # To enable testing
   OPTION( OW_USE_TESTS "This enables compilation of tests" ON )
-  INCLUDE_DIRECTORIES( ${CXXTEST_INCLUDE_DIR} )
+  INCLUDE_DIRECTORIES( ${CXXTEST_INCLUDE_DIRS} )
+  INCLUDE_DIRECTORIES( ${CXXTEST_INCLUDE_DIR} ) # NOTE: old FindCXXTest versions used this name
   IF( OW_USE_TESTS )
     SET( OW_COMPILE_TESTS ON ) #We need this variable because this is tested more often.
     # Package settings:
@@ -277,9 +277,10 @@ INSTALL( FILES ${PROJECT_SOURCE_DIR}/../resources/etc/OpenWalnut/walnut.cfg.offi
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
+# TODO(ebaum): use try_run for this
 # Determines the number of cores available on this machine
 IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-    SET( NUM_CORES_SOURCE_DIR ${PROJECT_SOURCE_DIR}/../tools/numCores )
+    SET( NUM_CORES_SOURCE_DIR ${CMAKE_MODULE_PATH}/numCores )
     SET( NUM_CORES_BINARY_DIR ${PROJECT_BINARY_DIR}/numCores )
     SET( NUM_CORES_BINARY ${NUM_CORES_BINARY_DIR}/numCores )
     ADD_CUSTOM_TARGET( numCores
@@ -404,3 +405,42 @@ ADD_SUBDIRECTORY( qt4gui )
 # build modules
 ADD_SUBDIRECTORY( modules )
 
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+# CPack - Packaging
+#  - TGZ, Deb, RPM
+#  NOTE: Not yet production ready!
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# For a list of possible generators, see http://www.vtk.org/Wiki/CMake:CPackPackageGenerators
+SET( CPACK_GENERATOR DEB TGZ )
+
+# For a list of possible settings for CPack, see  http://www.cmake.org/Wiki/CMake:CPackConfiguration
+
+# Disallow CPack to create an top-level directory?
+# SET( CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0 )
+SET( CPACK_PACKAGE_DESCRIPTION_FILE ${PROJECT_SOURCE_DIR}/../resources/share/doc/OpenWalnut/ABOUT )
+SET( CPACK_PACKAGE_VENDOR "OpenWalnut Community" )
+SET( CPACK_PACKAGE_CONTACT "Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>" )
+SET( CPACK_RESOURCE_FILE_LICENSE ${PROJECT_SOURCE_DIR}/../resources/share/doc/OpenWalnut/COPYING )
+SET( CPACK_RESOURCE_FILE_README ${PROJECT_SOURCE_DIR}/../resources/share/doc/OpenWalnut/README )
+
+# Version
+# TODO(all): we should somehot automate this (using hg for example)
+SET( CPACK_PACKAGE_VERSION_MAJOR "1" )
+SET( CPACK_PACKAGE_VERSION_MINOR "2" )
+SET( CPACK_PACKAGE_VERSION_PATCH "0" )
+
+# TODO(all): how to determine this? Maybe dpkg --print-architecture Hm Seems to be set (correct) automatically, unlike the docu wants me to
+# believe#
+# SET( CPACK_DEBIAN_PACKAGE_ARCHITECTURE  )
+# TODO(ebaum): this might be automated using objdunp -p walnut | grep -i needed or similar stuff
+#SET( CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12)")
+# TODO(ebaum): find some nice value
+# SET( CPACK_DEBIAN_PACKAGE_SECTION "what" )
+# TODO(ebaum): maybe cuda and this stuff can be added here
+# SET( CPACK_DEBIAN_PACKAGE_RECOMMENDS "" )
+SET( CPACK_PACKAGE_FILE_NAME ${PROJECT_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE} )
+
+INCLUDE(CPack)
