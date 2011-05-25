@@ -123,7 +123,7 @@ struct WSharedLib::data
         FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 0, GetLastError(), 0,
                        reinterpret_cast< LPTSTR >( &lpMsgBuf ), 0, 0 );
         LPTSTR p = lpMsgBuf;
-        while ( *p )
+        while( *p )
         {
             msg.push_back( *p++ );
         }

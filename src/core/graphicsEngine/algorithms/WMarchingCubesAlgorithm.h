@@ -340,7 +340,7 @@ template<typename T> boost::shared_ptr<WTriangleMesh> WMarchingCubesAlgorithm::g
 
     // Rename vertices.
     ID2WPointXYZId::iterator mapIterator = m_idToVertices.begin();
-    while ( mapIterator != m_idToVertices.end() )
+    while( mapIterator != m_idToVertices.end() )
     {
         WPosition texCoord = WPosition( mapIterator->second.x / nbCoordsX,
                                                       mapIterator->second.y / nbCoordsY,
@@ -364,7 +364,7 @@ template<typename T> boost::shared_ptr<WTriangleMesh> WMarchingCubesAlgorithm::g
 
     // Now rename triangles.
     WMCTriangleVECTOR::iterator vecIterator = m_trivecTriangles.begin();
-    while ( vecIterator != m_trivecTriangles.end() )
+    while( vecIterator != m_trivecTriangles.end() )
     {
         for( unsigned int i = 0; i < 3; i++ )
         {

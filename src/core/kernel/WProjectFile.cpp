@@ -135,7 +135,7 @@ void WProjectFile::threadMain()
         bool match = false;     // true of a parser successfully parsed the line
         boost::smatch matches;  // the list of matches
 
-        while ( std::getline( input, line ) )
+        while( std::getline( input, line ) )
         {
             ++i;    // line number
             match = false;

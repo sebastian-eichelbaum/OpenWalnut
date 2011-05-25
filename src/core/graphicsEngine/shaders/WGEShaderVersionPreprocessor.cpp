@@ -63,7 +63,7 @@ std::string WGEShaderVersionPreprocessor::process( const std::string& file, cons
     unsigned int version = 120;     // our default version
     std::stringstream completeCode( code );
     std::ostringstream cleanedCode;
-    while ( std::getline( completeCode, line ) )
+    while( std::getline( completeCode, line ) )
     {
         if( boost::regex_match( line, matches, versionRegexp ) ) // look for the #version statement
         {

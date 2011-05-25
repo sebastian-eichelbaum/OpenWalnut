@@ -115,7 +115,7 @@ std::vector< size_t > WHierarchicalTreeVoxels::findClustersForValue( float value
         worklist.push_back( m_clusterCount - 1 );
     }
 
-    while ( !worklist.empty() )
+    while( !worklist.empty() )
     {
         size_t current = worklist.front();
         worklist.pop_front();
@@ -175,7 +175,7 @@ std::vector< size_t >WHierarchicalTreeVoxels::findXClusters( size_t root, size_t
     std::list<size_t>worklist;
     worklist.push_back( root );
 
-    while ( worklist.size() < number )
+    while( worklist.size() < number )
     {
         size_t current = worklist.front();
         worklist.pop_front();

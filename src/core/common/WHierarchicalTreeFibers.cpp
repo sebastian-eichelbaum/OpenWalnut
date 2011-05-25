@@ -141,7 +141,7 @@ std::vector<size_t> WHierarchicalTreeFibers::getBestClustersFittingRoi( float ra
     std::queue<size_t>worklist;
     worklist.push( getClusterCount() - 1 );
 
-    while ( !worklist.empty() )
+    while( !worklist.empty() )
     {
         size_t current = worklist.front();
         worklist.pop();

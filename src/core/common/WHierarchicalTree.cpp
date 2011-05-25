@@ -49,7 +49,7 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
     std::list<size_t>worklist;
     worklist.push_back( cluster );
 
-    while ( worklist.size() < number )
+    while( worklist.size() < number )
     {
         size_t current = worklist.front();
         worklist.pop_front();
@@ -70,7 +70,7 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
 
     bool newSplit = true;
 
-    while ( newSplit )
+    while( newSplit )
     {
         newSplit = false;
         size_t current = worklist.front();
@@ -134,7 +134,7 @@ std::vector< size_t > WHierarchicalTree::downXLevelsFromTop( size_t level, bool 
     for( size_t i = 0; i < level; ++i )
     {
         std::list<size_t>newChildList;
-        while ( !worklist.empty() )
+        while( !worklist.empty() )
         {
             size_t current = worklist.front();
             worklist.pop_front();

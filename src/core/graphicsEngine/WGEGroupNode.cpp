@@ -98,7 +98,7 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
     {
         lock = boost::unique_lock<boost::shared_mutex>( rootNode->m_childOperationQueueLock );
         // insert/remove children which requested it
-        while ( !rootNode->m_childOperationQueue.empty() )
+        while( !rootNode->m_childOperationQueue.empty() )
         {
             // remove or insert or remove all?
             if( rootNode->m_childOperationQueue.front()->m_operation == INSERT )

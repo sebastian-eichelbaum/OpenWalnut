@@ -240,7 +240,7 @@ size_t WValueSetHistogram::accumulate( size_t startIndex, size_t endIndex ) cons
 
     // unfortunately, shared_array can't be used for std::accumulate
     size_t acc = 0;
-    while ( startIndex != endIndex )
+    while( startIndex != endIndex )
     {
         acc += m_mappedBuckets[ startIndex++ ];
     }

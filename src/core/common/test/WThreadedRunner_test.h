@@ -45,7 +45,7 @@ protected:
     virtual void threadMain()
     {
         // Since the modules run in a separate thread: such loops are possible
-        while ( !m_shutdownFlag() )
+        while( !m_shutdownFlag() )
         {
             // do fancy stuff
             sleep( 1 );

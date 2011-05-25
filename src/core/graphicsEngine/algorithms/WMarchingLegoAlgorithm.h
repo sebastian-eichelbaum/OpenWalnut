@@ -237,7 +237,7 @@ template<typename T> boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::ge
 
     // Rename vertices.
     ID2WMLPointXYZId::iterator mapIterator = m_idToVertices.begin();
-    while ( mapIterator != m_idToVertices.end() )
+    while( mapIterator != m_idToVertices.end() )
     {
         WPosition texCoord = WPosition( mapIterator->second.x / nbCoordsX,
                                                       mapIterator->second.y / nbCoordsY,
@@ -263,7 +263,7 @@ template<typename T> boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::ge
 
     // Now rename triangles.
     WMLTriangleVECTOR::iterator vecIterator = m_trivecTriangles.begin();
-    while ( vecIterator != m_trivecTriangles.end() )
+    while( vecIterator != m_trivecTriangles.end() )
     {
         for( unsigned int i = 0; i < 3; i++ )
         {

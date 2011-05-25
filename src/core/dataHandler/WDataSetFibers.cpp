@@ -242,7 +242,7 @@ void WDataSetFibers::removeColorScheme( WDataSetFibers::ColorArray colors )
     WItemSelection::WriteTicket l = m_colors->getWriteTicket();
 
     WItemSelection::Iterator i = l->get().begin();
-    while ( i != l->get().end() )
+    while( i != l->get().end() )
     {
         if( boost::shared_static_cast< const ColorScheme >( *i )->getColor() == colors )
         {

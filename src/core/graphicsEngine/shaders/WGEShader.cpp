@@ -301,7 +301,7 @@ std::string WGEShader::processShaderRecursive( const std::string filename, bool 
     std::string line;               // the current line
     boost::smatch matches;          // the list of matches
 
-    while ( std::getline( input, line ) )
+    while( std::getline( input, line ) )
     {
         if( boost::regex_search( line, matches, includeRegexp ) )
         {
