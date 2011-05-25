@@ -179,6 +179,8 @@ void WGraphicsEngine::threadMain()
     WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_INFO );
 
 #ifndef __APPLE__
+    // NOTE: this is needed here since the viewer might start without any widgets being initialized properly.
+    m_startThreadingCondition.wait();
     m_running = true;
     m_viewer->startThreading();
     m_viewer->run();
@@ -193,6 +195,11 @@ void WGraphicsEngine::notifyStop()
 #ifndef __APPLE__
     m_viewer->setDone( true );
 #endif
+}
+
+void WGraphicsEngine::finalizeStartup()
+{
+    m_startThreadingCondition.notify();
 }
 
 void WGraphicsEngine::requestShaderReload()
