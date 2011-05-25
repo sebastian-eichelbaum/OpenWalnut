@@ -79,10 +79,14 @@ boost::shared_ptr< std::set< WPosition > > WPlane::samplePoints( double stepWidt
     {
         for( size_t j = 0; j < numX; ++j )
         {
-            result->insert( m_pos - i * ycrement - j * xcrement );
-            result->insert( m_pos + i * ycrement - j * xcrement );
-            result->insert( m_pos - i * ycrement + j * xcrement );
-            result->insert( m_pos + i * ycrement + j * xcrement );
+            // NOTE: on some machines with older compilers, the size_t is not mapped to uint32_t or uint64_t. This
+            // breaks our WMatrixFixed type promotion. So we use doubles directly.
+            double id = i;
+            double jd = j;
+            result->insert( m_pos - id * ycrement - jd * xcrement );
+            result->insert( m_pos + id * ycrement - jd * xcrement );
+            result->insert( m_pos - id * ycrement + jd * xcrement );
+            result->insert( m_pos + id * ycrement + jd * xcrement );
         }
     }
     return result;
