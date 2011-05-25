@@ -70,9 +70,9 @@ public:
 
         WMatrix<double> svd( U*Sm*V.transposed() );
 
-        for ( size_t row = 0; row < svd.getNbRows(); row++ )
+        for( size_t row = 0; row < svd.getNbRows(); row++ )
         {
-          for ( size_t col = 0; col < svd.getNbCols(); col++ )
+          for( size_t col = 0; col < svd.getNbCols(); col++ )
           {
             TS_ASSERT_DELTA( svd( row, col ), A( row, col ), 0.0001 );
           }
@@ -103,11 +103,11 @@ public:
 //         WMatrix<double> Ainvers( WOSSIMHelper::pseudoInverse( A ) );
 //         WMatrix<double> I( A*Ainvers );
 //
-//         for ( size_t row = 0; row < I.getNbRows(); row++ )
+//         for( size_t row = 0; row < I.getNbRows(); row++ )
 //         {
-//           for ( size_t col = 0; col < I.getNbCols(); col++ )
+//           for( size_t col = 0; col < I.getNbCols(); col++ )
 //           {
-//             if ( row == col )
+//             if( row == col )
 //             {
 //               TS_ASSERT_DELTA( I( row, col ), 1.0, 0.0001 );
 //             }

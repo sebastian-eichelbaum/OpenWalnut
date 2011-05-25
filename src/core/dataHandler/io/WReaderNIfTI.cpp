@@ -63,7 +63,7 @@ template< typename T >  boost::shared_ptr< std::vector< T > > WReaderNIfTI::copy
     boost::shared_ptr< std::vector< T > > data =  boost::shared_ptr< std::vector< T > >( new std::vector< T >( countVoxels * vDim ) );
     for( unsigned int i = 0; i < countVoxels; ++i )
     {
-        for ( unsigned int j = 0; j < vDim; ++j )
+        for( unsigned int j = 0; j < vDim; ++j )
         {
             (*data)[i * vDim + j] = dataArray[( j * countVoxels ) + i];
         }
@@ -188,14 +188,14 @@ boost::shared_ptr< WDataSet > WReaderNIfTI::load( DataSetType dataSetType )
     // known description
     std::string description( header->descrip );
     // TODO(philips): polish WDataSetSegmentation for check in
-    //     if ( !description.compare( "WDataSetSegmentation" ) )
+    //     if( !description.compare( "WDataSetSegmentation" ) )
     //     {
     //         wlog::debug( "WReaderNIfTI" ) << "Load as segmentation" << std::endl;
     //         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSegmentation( newValueSet, newGrid ) );
     //     }
     //     else
 
-    if ( description.compare( "WDataSetSphericalHarmonics" ) == 0 || dataSetType == W_DATASET_SPHERICALHARMONICS )
+    if( description.compare( "WDataSetSphericalHarmonics" ) == 0 || dataSetType == W_DATASET_SPHERICALHARMONICS )
     {
         wlog::debug( "WReaderNIfTI" ) << "Load as spherical harmonics" << std::endl;
         newDataSet = boost::shared_ptr< WDataSet >( new WDataSetSphericalHarmonics( newValueSet, newGrid ) );

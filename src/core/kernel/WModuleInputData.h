@@ -133,13 +133,13 @@ public:
         boost::shared_lock<boost::shared_mutex> lock = boost::shared_lock<boost::shared_mutex>( m_connectionListLock );
 
         // Only reset change flag of requested
-        if ( reset )
+        if( reset )
         {
             handledUpdate();
         }
 
         // is there something in the list?
-        if ( m_disconnecting || m_connected.empty() )
+        if( m_disconnecting || m_connected.empty() )
         {
             lock.unlock();
             return boost::shared_ptr< T >();
@@ -168,7 +168,7 @@ public:
         // NOTE: please consider the following: the input only accepts data which is of type T or higher. So only up casts from
         // con's type T2 to T are needed/allowed what ever
 
-        if ( !WModuleInputConnector::connectable( con ) )
+        if( !WModuleInputConnector::connectable( con ) )
         {
             return false;
         }

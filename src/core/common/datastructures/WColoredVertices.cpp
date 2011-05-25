@@ -33,7 +33,7 @@ boost::shared_ptr< WPrototyped > WColoredVertices::m_prototype = boost::shared_p
 
 boost::shared_ptr< WPrototyped > WColoredVertices::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
          m_prototype = boost::shared_ptr< WPrototyped >( new WColoredVertices() );
     }

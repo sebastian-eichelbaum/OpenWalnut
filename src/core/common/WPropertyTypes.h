@@ -556,9 +556,9 @@ namespace PROPERTY_TYPE_HELPER
             WAssert( tokens.size() >= 16, "There weren't 16 values for a 4x4 Matrix" );
 
             size_t idx = 0;
-            for ( size_t row = 0; row < 4; ++row )
+            for( size_t row = 0; row < 4; ++row )
             {
-                for ( size_t col = 0; col < 4; ++col )
+                for( size_t col = 0; col < 4; ++col )
                 {
                     c( row, col ) = boost::lexical_cast< double >( tokens[ idx ] );
                     idx++;
@@ -578,9 +578,9 @@ namespace PROPERTY_TYPE_HELPER
         std::string asString( const WPVBaseTypes::PV_MATRIX4X4& v )
         {
             std::ostringstream out;
-            for ( size_t row = 0; row < 4; ++row )
+            for( size_t row = 0; row < 4; ++row )
             {
-                for ( size_t col = 0; col < 4; ++col )
+                for( size_t col = 0; col < 4; ++col )
                 {
                     out << v( row, col ) << ";";
                 }
@@ -612,7 +612,7 @@ namespace PROPERTY_TYPE_HELPER
             WAssert( tokens.size() >= 3, "There weren't 3 values for a 3D vector" );
 
             size_t idx = 0;
-            for ( size_t col = 0; col < 3; ++col )
+            for( size_t col = 0; col < 3; ++col )
             {
                 c[ col ] = boost::lexical_cast< double >( tokens[ idx ] );
                 idx++;
@@ -630,7 +630,7 @@ namespace PROPERTY_TYPE_HELPER
         std::string asString( const WPVBaseTypes::PV_POSITION& v )
         {
             std::ostringstream out;
-            for ( size_t col = 0; col < 3; ++col )
+            for( size_t col = 0; col < 3; ++col )
             {
                 out << v[ col ] << ";";
             }

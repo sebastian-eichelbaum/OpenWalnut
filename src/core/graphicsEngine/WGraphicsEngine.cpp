@@ -103,7 +103,7 @@ WGraphicsEngine::~WGraphicsEngine()
 
 boost::shared_ptr< WGraphicsEngine > WGraphicsEngine::getGraphicsEngine()
 {
-    if ( !m_instance )
+    if( !m_instance )
     {
         m_instance = boost::shared_ptr< WGraphicsEngine >( new WGraphicsEngine() );
     }
@@ -166,7 +166,7 @@ boost::shared_ptr< WGEViewer > WGraphicsEngine::getViewer()
 
 bool WGraphicsEngine::isRunning()
 {
-    if ( !m_instance )
+    if( !m_instance )
     {
         return false;
     }

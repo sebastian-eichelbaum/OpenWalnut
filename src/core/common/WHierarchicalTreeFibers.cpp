@@ -43,7 +43,7 @@ WHierarchicalTreeFibers::~WHierarchicalTreeFibers()
 void WHierarchicalTreeFibers::addLeaf()
 {
     // after a cluster was added no more leafes may be inserted
-    if ( m_leafesLocked )
+    if( m_leafesLocked )
     {
         return;
     }
@@ -86,14 +86,14 @@ boost::shared_ptr< std::vector<bool> > WHierarchicalTreeFibers::getOutputBitfiel
 {
     boost::shared_ptr< std::vector< bool > > bf;
     // only a single fiber selected
-    if ( cluster < m_leafCount )
+    if( cluster < m_leafCount )
     {
         bf = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_leafCount, false ) );
         ( *bf )[cluster] = true;
     }
     else
     {
-        if ( cluster >= m_clusterCount )
+        if( cluster >= m_clusterCount )
         {
             return bf;
         }
@@ -101,7 +101,7 @@ boost::shared_ptr< std::vector<bool> > WHierarchicalTreeFibers::getOutputBitfiel
         bf = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_leafCount, false ) );
 
         std::vector<size_t> fibers = m_containsLeafes[cluster];
-        for ( size_t i = 0; i < fibers.size(); ++i )
+        for( size_t i = 0; i < fibers.size(); ++i )
         {
             ( *bf )[fibers[i]] = true;
         }
@@ -118,11 +118,11 @@ boost::shared_ptr< std::vector<bool> >WHierarchicalTreeFibers::getOutputBitfield
 
     bf = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_leafCount, false ) );
 
-    for ( size_t k = 0; k < clusters.size(); ++k )
+    for( size_t k = 0; k < clusters.size(); ++k )
     {
         size_t cluster = clusters[k];
         std::vector<size_t> fibers = m_containsLeafes[cluster];
-        for ( size_t i = 0; i < fibers.size(); ++i )
+        for( size_t i = 0; i < fibers.size(); ++i )
         {
             ( *bf )[fibers[i]] = true;
         }
@@ -132,7 +132,7 @@ boost::shared_ptr< std::vector<bool> >WHierarchicalTreeFibers::getOutputBitfield
 
 std::vector<size_t> WHierarchicalTreeFibers::getBestClustersFittingRoi( float ratio, size_t number )
 {
-    if ( number == 0 )
+    if( number == 0 )
     {
         number = 1;
     }
@@ -146,20 +146,20 @@ std::vector<size_t> WHierarchicalTreeFibers::getBestClustersFittingRoi( float ra
         size_t current = worklist.front();
         worklist.pop();
 
-        if ( getRatio( current ) >= ratio )
+        if( getRatio( current ) >= ratio )
         {
             candidateList.push_back( current );
         }
         else
         {
-            if ( getLevel( current ) > 1 )
+            if( getLevel( current ) > 1 )
             {
                 std::pair<size_t, size_t> children = getChildren( current );
-                if ( getLevel( children.first ) > 0 )
+                if( getLevel( children.first ) > 0 )
                 {
                     worklist.push( children.first );
                 }
-                if ( getLevel( children.second ) > 0 )
+                if( getLevel( children.second ) > 0 )
                 {
                     worklist.push( children.second );
                 }
@@ -171,12 +171,12 @@ std::vector<size_t> WHierarchicalTreeFibers::getBestClustersFittingRoi( float ra
     std::vector<size_t>returnList;
 
     std::list<size_t>::iterator it;
-    for ( it = candidateList.begin(); it != candidateList.end(); ++it )
+    for( it = candidateList.begin(); it != candidateList.end(); ++it )
     {
         size_t current = *it;
         returnList.push_back( current );
         --number;
-        if ( number == 0 )
+        if( number == 0 )
         {
             break;
         }
@@ -193,9 +193,9 @@ float WHierarchicalTreeFibers::getRatio( size_t cluster )
     size_t countFibersInCluster = fibersInCluster.size();
     size_t fibersFromClusterActive = 0;
 
-    for ( size_t i = 0; i < countFibersInCluster; ++i )
+    for( size_t i = 0; i < countFibersInCluster; ++i )
     {
-        if ( ( *m_roiSelection )[fibersInCluster[i]] )
+        if( ( *m_roiSelection )[fibersInCluster[i]] )
         {
             ++fibersFromClusterActive;
         }

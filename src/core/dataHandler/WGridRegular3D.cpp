@@ -102,7 +102,7 @@ int WGridRegular3D::getVoxelNum( const WPosition& pos ) const
 int WGridRegular3D::getVoxelNum( const size_t x, const size_t y, const size_t z ) const
 {
     // since we use size_t here only a check for the upper bounds is needed
-    if ( x > m_nbPosX || y > m_nbPosY || z > m_nbPosZ )
+    if( x > m_nbPosX || y > m_nbPosY || z > m_nbPosZ )
     {
         return -1;
     }
@@ -316,9 +316,9 @@ std::vector< size_t > WGridRegular3D::getNeighbours27( size_t id ) const
     tempResult.push_back( getVoxelNum( x + 1, y - 1, z + 1 ) );
     tempResult.push_back( getVoxelNum( x + 1, y + 1, z + 1 ) );
 
-    for ( size_t k = 0; k < tempResult.size(); ++k )
+    for( size_t k = 0; k < tempResult.size(); ++k )
     {
-        if ( tempResult[k] != -1 )
+        if( tempResult[k] != -1 )
         {
             neighbours.push_back( tempResult[k] );
         }
@@ -346,42 +346,42 @@ std::vector< size_t > WGridRegular3D::getNeighbours9XY( size_t id ) const
     int vNum;
 
     vNum = getVoxelNum( x - 1, y, z );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x - 1, y - 1, z );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x, y - 1, z );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x + 1, y - 1, z );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x + 1, y, z );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x + 1, y + 1, z );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x, y + 1, z );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x - 1, y + 1, z );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
@@ -408,42 +408,42 @@ std::vector< size_t > WGridRegular3D::getNeighbours9YZ( size_t id ) const
     int vNum;
 
     vNum = getVoxelNum( x, y, z - 1 );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x, y - 1, z - 1 );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x, y - 1, z );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x, y - 1, z + 1 );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x, y, z + 1 );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x, y + 1, z + 1 );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x, y + 1, z );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x, y + 1, z - 1 );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
@@ -471,42 +471,42 @@ std::vector< size_t > WGridRegular3D::getNeighbours9XZ( size_t id ) const
     int vNum;
 
     vNum = getVoxelNum( x, y, z - 1 );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x - 1, y, z - 1 );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x - 1, y, z );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x - 1, y, z + 1 );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x, y, z + 1 );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x + 1, y, z + 1 );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x + 1, y, z );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }
     vNum = getVoxelNum( x + 1, y, z - 1 );
-    if ( vNum != -1 )
+    if( vNum != -1 )
     {
         neighbours.push_back( vNum );
     }

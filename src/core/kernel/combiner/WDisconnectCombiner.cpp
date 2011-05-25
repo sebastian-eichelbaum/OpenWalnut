@@ -57,7 +57,7 @@ void WDisconnectCombiner::apply()
     boost::shared_ptr< WModuleConnector > c2 = m_targetModule->findConnector( m_targetConnector );
 
     // check if they really existed
-    if ( !c1 || !c2 )
+    if( !c1 || !c2 )
     {
         return;
     }

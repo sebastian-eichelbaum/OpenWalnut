@@ -70,11 +70,11 @@ WFiberCluster::WFiberCluster( const WFiberCluster& other )
     m_longestLine()
 {
     // copy them only if they exist
-    if ( other.m_centerLine )
+    if( other.m_centerLine )
     {
         m_centerLine = boost::shared_ptr< WFiber >( new WFiber( *other.m_centerLine.get() ) );
     }
-    if ( other.m_longestLine )
+    if( other.m_longestLine )
     {
         m_longestLine = boost::shared_ptr< WFiber >( new WFiber( *other.m_longestLine.get() ) );
     }
@@ -117,7 +117,7 @@ boost::shared_ptr< const WDataSetFiberVector > WFiberCluster::getDataSetReferenc
 // InputConnectors we must agglomerate those into one object. Please remove this.
 boost::shared_ptr< WPrototyped > WFiberCluster::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
         m_prototype = boost::shared_ptr< WPrototyped >( new WFiberCluster() );
     }
@@ -130,7 +130,7 @@ void WFiberCluster::generateCenterLine() const
     // ensure nobody changes the mutable m_centerline
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( *m_centerLineCreationLock );
     // has the line been calculated while we waited?
-    if ( m_centerLine )
+    if( m_centerLine )
     {
         lock.unlock();
         return;
@@ -175,7 +175,7 @@ void WFiberCluster::generateLongestLine() const
     // ensure nobody changes the mutable m_longestline
     boost::unique_lock< boost::shared_mutex > lock = boost::unique_lock< boost::shared_mutex >( *m_longestLineCreationLock );
     // has the line been calculated while we waited?
-    if ( m_longestLine )
+    if( m_longestLine )
     {
         lock.unlock();
         return;
@@ -184,7 +184,7 @@ void WFiberCluster::generateLongestLine() const
     m_longestLine = boost::shared_ptr< WFiber >( new WFiber() );
 
     // empty datasets can be ignored
-    if ( m_fibs->size() == 0 )
+    if( m_fibs->size() == 0 )
     {
         return;
     }
@@ -193,14 +193,14 @@ void WFiberCluster::generateLongestLine() const
     size_t longestID = 0;
     for( size_t cit = 0; cit < m_fibs->size(); ++cit )
     {
-        if ( m_fibs->at( cit ).size() > longest )
+        if( m_fibs->at( cit ).size() > longest )
         {
             longest = m_fibs->at( cit ).size();
             longestID = cit;
         }
     }
 
-    for ( WFiber::const_iterator cit = m_fibs->at( longestID ).begin(); cit != m_fibs->at( longestID ).end(); ++cit )
+    for( WFiber::const_iterator cit = m_fibs->at( longestID ).begin(); cit != m_fibs->at( longestID ).end(); ++cit )
     {
         m_longestLine->push_back( *cit );
     }
@@ -360,7 +360,7 @@ void WFiberCluster::unifyDirection( boost::shared_ptr< WDataSetFiberVector > fib
 
 boost::shared_ptr< WFiber > WFiberCluster::getCenterLine() const
 {
-    if ( !m_centerLine )
+    if( !m_centerLine )
     {
         generateCenterLine();
     }
@@ -369,7 +369,7 @@ boost::shared_ptr< WFiber > WFiberCluster::getCenterLine() const
 
 boost::shared_ptr< WFiber > WFiberCluster::getLongestLine() const
 {
-    if ( !m_longestLine )
+    if( !m_longestLine )
     {
         generateLongestLine();
     }

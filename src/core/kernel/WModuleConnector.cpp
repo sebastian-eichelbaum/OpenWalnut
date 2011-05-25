@@ -94,7 +94,7 @@ bool WModuleConnector::isConnectedTo( boost::shared_ptr<WModuleConnector> con )
     slock.unlock();
 
     // if the count is different the connection is invalid
-    if ( c1 != c2 )
+    if( c1 != c2 )
     {
         std::ostringstream s;
         s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
@@ -116,7 +116,7 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
 {
     boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
     std::string containerName = "Unknown";
-    if ( module )
+    if( module )
     {
         boost::shared_ptr< WModuleContainer > container;
         container = module->getAssociatedContainer();
@@ -126,7 +126,7 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
                                          "ModuleContainer (" + containerName + ")", LL_INFO );
 
     // are both partners compatible to each other?
-    if ( !( con->connectable( shared_from_this() ) && connectable( con ) ) )
+    if( !( con->connectable( shared_from_this() ) && connectable( con ) ) )
     {
         std::ostringstream s;
         s << "Connection between " << getCanonicalName() << " and " << con->getCanonicalName() << " failed.";
@@ -134,7 +134,7 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
     }
 
     // check whether they are already connected
-    if ( isConnectedTo( con ) )
+    if( isConnectedTo( con ) )
     {
         WLogger::getLogger()->addLogMessage( con->getCanonicalName() + " and " + getCanonicalName() + " are already connected.",
                                              "ModuleContainer (" + containerName + ")", LL_INFO );
@@ -150,7 +150,7 @@ void WModuleConnector::connect( boost::shared_ptr<WModuleConnector> con )
         lockRemote = boost::unique_lock<boost::shared_mutex>( con->m_connectionListLock );
 
         // is the input connected already?
-        if ( ( isInputConnector() && m_connected.size() ) || ( con->isInputConnector() && con->m_connected.size() ) )
+        if( ( isInputConnector() && m_connected.size() ) || ( con->isInputConnector() && con->m_connected.size() ) )
         {
             throw WModuleConnectionFailed( std::string( "Input connector already connected. Disconnect it first." ) );
         }
@@ -242,7 +242,7 @@ const t_GenericSignalHandlerType WModuleConnector::getSignalHandler( MODULE_CONN
 {
     // the module instance knows that
     boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
-    if ( !module )
+    if( !module )
     {
         throw WModuleConnectorModuleLockFailed();
     }
@@ -258,14 +258,14 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
 {
     boost::shared_ptr< WModule > module = m_module.lock();    // it is "unlocked" at the end of this function as "module" looses its scope
     std::string containerName = "Unknown";
-    if ( module )
+    if( module )
     {
         boost::shared_ptr< WModuleContainer > container;
         container = module->getAssociatedContainer();
         containerName = container.get() ? container->getName() : "Unknown";
     }
 
-    if ( !isConnectedTo( con ) )
+    if( !isConnectedTo( con ) )
     {
         WLogger::getLogger()->addLogMessage( "Could not disconnect " + con->getCanonicalName() + " from " + getCanonicalName() + " as they are"+
                                              " not connected.", "ModuleContainer (" + containerName + ")", LL_INFO );
@@ -284,7 +284,7 @@ void WModuleConnector::disconnect( boost::shared_ptr<WModuleConnector> con, bool
         disconnectSignals( con );
 
         // remove from list
-        if ( removeFromOwnList )
+        if( removeFromOwnList )
         {
             lock = boost::unique_lock<boost::shared_mutex>( m_connectionListLock );
             // since we use shared pointers, erasing the item should be enough

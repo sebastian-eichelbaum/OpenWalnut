@@ -36,7 +36,7 @@ WGEOffscreenFinalPass::WGEOffscreenFinalPass( size_t textureWidth, size_t textur
     setRenderOrder( osg::Camera::NESTED_RENDER, 0 );
 
     // render before the hud
-    if ( m_hud )
+    if( m_hud )
     {
         getOrCreateStateSet()->setRenderBinDetails( m_hud->getRenderBin() - 1, "RenderBin" );
     }
@@ -61,7 +61,7 @@ WGEOffscreenFinalPass::WGEOffscreenFinalPass( size_t textureWidth, size_t textur
     setRenderOrder( osg::Camera::NESTED_RENDER, 0 );
 
     // render before the hud
-    if ( m_hud )
+    if( m_hud )
     {
         getOrCreateStateSet()->setRenderBinDetails( m_hud->getRenderBin() - 1, "RenderBin" );
     }

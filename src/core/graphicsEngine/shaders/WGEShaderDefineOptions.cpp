@@ -39,39 +39,39 @@ WGEShaderDefineOptions::WGEShaderDefineOptions( std::string first,
     m_idx( 1, 0 )
 {
     // init
-    if ( !option2.empty() )
+    if( !option2.empty() )
     {
         m_options.push_back( option2 );
     }
-    if ( !option3.empty() )
+    if( !option3.empty() )
     {
         m_options.push_back( option3 );
     }
-    if ( !option4.empty() )
+    if( !option4.empty() )
     {
         m_options.push_back( option4 );
     }
-    if ( !option5.empty() )
+    if( !option5.empty() )
     {
         m_options.push_back( option5 );
     }
-    if ( !option6.empty() )
+    if( !option6.empty() )
     {
         m_options.push_back( option6 );
     }
-    if ( !option7.empty() )
+    if( !option7.empty() )
     {
         m_options.push_back( option7 );
     }
-    if ( !option8.empty() )
+    if( !option8.empty() )
     {
         m_options.push_back( option8 );
     }
-    if ( !option9.empty() )
+    if( !option9.empty() )
     {
         m_options.push_back( option9 );
     }
-    if ( !option10.empty() )
+    if( !option10.empty() )
     {
         m_options.push_back( option10 );
     }
@@ -92,14 +92,14 @@ WGEShaderDefineOptions::~WGEShaderDefineOptions()
 
 std::string WGEShaderDefineOptions::process( const std::string& /*file*/, const std::string& code ) const
 {
-    if ( !getActive() )
+    if( !getActive() )
     {
         return code;
     }
 
     // add a define for every active option
     std::stringstream ss;
-    for ( IdxList::const_iterator iter = m_idx.begin(); iter != m_idx.end(); ++iter )
+    for( IdxList::const_iterator iter = m_idx.begin(); iter != m_idx.end(); ++iter )
     {
         ss << "#define " + getOptionName( *iter ) << std::endl;
     }
@@ -124,13 +124,13 @@ void WGEShaderDefineOptions::activateOption( size_t idx, bool exclusive )
 {
     WPrecond( idx < m_options.size(), "Index invalid." );
 
-    if ( exclusive )
+    if( exclusive )
     {
         m_idx.clear();
     }
 
     // is the option already active?
-    if ( std::find( m_idx.begin(), m_idx.end(), idx ) == m_idx.end() )
+    if( std::find( m_idx.begin(), m_idx.end(), idx ) == m_idx.end() )
     {
         m_idx.push_back( idx );
         updated();
@@ -140,7 +140,7 @@ void WGEShaderDefineOptions::activateOption( size_t idx, bool exclusive )
 void WGEShaderDefineOptions::dactivateOption( size_t idx )
 {
     IdxList::iterator iter = std::find( m_idx.begin(), m_idx.end(), idx );
-    if ( iter != m_idx.end() )
+    if( iter != m_idx.end() )
     {
         m_idx.erase( iter );
         updated();
@@ -150,7 +150,7 @@ void WGEShaderDefineOptions::dactivateOption( size_t idx )
 void WGEShaderDefineOptions::activateAllOptions()
 {
     // simply add all
-    for ( size_t i = 0; i < m_options.size(); ++i )
+    for( size_t i = 0; i < m_options.size(); ++i )
     {
         m_idx.push_back( i );
     }
@@ -168,7 +168,7 @@ void WGEShaderDefineOptions::deactivateAllOptions()
 void WGEShaderDefineOptions::addOption( std::string opt )
 {
     WPrecond( !opt.empty(), "Options need to have a non-empty name." );
-    if ( std::find( m_options.begin(), m_options.end(), opt ) == m_options.end() )
+    if( std::find( m_options.begin(), m_options.end(), opt ) == m_options.end() )
     {
         m_options.push_back( opt );
 
@@ -179,7 +179,7 @@ void WGEShaderDefineOptions::addOption( std::string opt )
 
 void WGEShaderDefineOptions::setActivationList( const IdxList& newList )
 {
-    if ( m_idx != newList )
+    if( m_idx != newList )
     {
         m_idx = newList;
         updated();

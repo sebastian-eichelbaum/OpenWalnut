@@ -74,7 +74,7 @@ WGEViewer::WGEViewer( std::string name, osg::ref_ptr<osg::Referenced> wdata, int
             case( WGECamera::ORTHOGRAPHIC ):
                 m_pickHandler = new WPickHandler( name );
                 m_View->addEventHandler( m_pickHandler );
-                if ( name != std::string( "main" ) )
+                if( name != std::string( "main" ) )
                     break;
             case( WGECamera::PERSPECTIVE ):
                 // camera manipulator

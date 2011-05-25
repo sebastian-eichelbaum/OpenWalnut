@@ -39,7 +39,7 @@ WKdTree::WKdTree( int size, float *pointArray ) :
 
     wlog::debug( "KdTree" ) << " Start building KdTree";
 
-    for ( int i = 0; i < size; ++i )
+    for( int i = 0; i < size; ++i )
         m_tree[i] = i;
 
     int root = ( size - 1 ) / 2;
@@ -84,7 +84,7 @@ WKdTree::~WKdTree()
 
 void WKdTree::buildTree( int left, int right, int axis )
 {
-    if ( left >= right )
+    if( left >= right )
         return;
 
     int div = ( left + right ) / 2;
@@ -107,7 +107,7 @@ void WKdTreeThread::threadMain()
 
 void WKdTreeThread::buildTree( int left, int right, int axis )
 {
-    if ( left >= right )
+    if( left >= right )
         return;
 
     int div = ( left + right ) / 2;

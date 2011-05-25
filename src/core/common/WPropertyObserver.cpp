@@ -66,7 +66,7 @@ WPropertyObserver::PropertyNameMap WPropertyObserver::handled()
 void WPropertyObserver::observe( boost::shared_ptr< WProperties > properties, std::set< std::string > names )
 {
     // something to do?
-    if ( m_properties == properties )
+    if( m_properties == properties )
     {
         return;
     }
@@ -100,7 +100,7 @@ void WPropertyObserver::cancelSubscriptions()
     // scoped_connections. So we need to iterate by hand and disconnect
 
     Subscriptions::WriteTicket subs = m_subscriptions.getWriteTicket();
-    for ( Subscriptions::Iterator i = subs->get().begin(); i != subs->get().end(); ++i )
+    for( Subscriptions::Iterator i = subs->get().begin(); i != subs->get().end(); ++i )
     {
         ( *i ).second.disconnect();
     }
@@ -114,10 +114,10 @@ void WPropertyObserver::updateSubscriptions()
 
     // iterate the properties
     WProperties::PropertySharedContainerType::ReadTicket props = m_properties->getReadTicket();
-    for ( WProperties::PropertyConstIterator i = props->get().begin(); i != props->get().end(); ++i )
+    for( WProperties::PropertyConstIterator i = props->get().begin(); i != props->get().end(); ++i )
     {
         // should the property be handled? (empty container ensures handling of all props)
-        if ( !m_propNames.size() || ( m_propNames.find( ( *i )->getName() ) != m_propNames.end() ) )
+        if( !m_propNames.size() || ( m_propNames.find( ( *i )->getName() ) != m_propNames.end() ) )
         {
             // subscribe to each update signal of the properties
             subs->get().insert( std::make_pair( *i,

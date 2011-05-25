@@ -48,7 +48,7 @@ size_t WUnionFind::find( size_t x )
     {
         throw WOutOfBounds( std::string( "Element index in UnionFind greater than overall elements!" ) );
     }
-    if ( m_component[x] == x ) // we are the root
+    if( m_component[x] == x ) // we are the root
     {
         return x;
     }

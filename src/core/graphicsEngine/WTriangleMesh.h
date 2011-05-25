@@ -628,11 +628,11 @@ inline void WTriangleMesh::addTextureCoordinate( float x, float y, float z )
 
 inline void WTriangleMesh::addVertex( osg::Vec3 vert )
 {
-    if ( ( *m_verts ).size() == m_countVerts )
+    if( ( *m_verts ).size() == m_countVerts )
     {
         ( *m_verts ).resize( m_countVerts + 1 );
     }
-    if ( ( *m_textureCoordinates ).size() == m_countVerts )
+    if( ( *m_textureCoordinates ).size() == m_countVerts )
     {
         ( *m_textureCoordinates ).resize( m_countVerts + 1 );
     }

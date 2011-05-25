@@ -44,7 +44,7 @@ WGEShaderVersionPreprocessor::~WGEShaderVersionPreprocessor()
 
 std::string WGEShaderVersionPreprocessor::process( const std::string& file, const std::string& code ) const
 {
-    if ( !getActive() )
+    if( !getActive() )
     {
         return code;
     }

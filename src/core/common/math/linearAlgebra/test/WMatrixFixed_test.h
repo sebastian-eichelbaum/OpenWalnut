@@ -306,9 +306,9 @@ public:
         template < typename RHSValueT, ValueStoreTemplate RHSValueStoreT >
         ValueStore< ValueT, Rows, Cols >& operator=( RHSValueStoreT< RHSValueT, Rows, Cols > const& rhs )
         {
-            for ( size_t row = 0; row < Rows; ++row )
+            for( size_t row = 0; row < Rows; ++row )
             {
-                for ( size_t col = 0; col < Cols; ++col )
+                for( size_t col = 0; col < Cols; ++col )
                 {
                     ( row, col ) = rhs( row, col );
                 }

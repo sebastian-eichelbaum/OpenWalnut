@@ -47,7 +47,7 @@ WPathHelper::~WPathHelper()
 
 boost::shared_ptr< WPathHelper > WPathHelper::getPathHelper()
 {
-    if ( !m_instance )
+    if( !m_instance )
     {
         m_instance = boost::shared_ptr< WPathHelper >( new WPathHelper() );
     }
@@ -144,7 +144,7 @@ std::vector< boost::filesystem::path > WPathHelper::getAllModulePaths()
     paths.push_back( getModulePath() );
 
     std::string additionalPaths = "";
-    if ( !WPreferences::getPreference< std::string >( "modules.path", &additionalPaths ) )
+    if( !WPreferences::getPreference< std::string >( "modules.path", &additionalPaths ) )
     {
         // no config option found.
         return paths;
@@ -154,7 +154,7 @@ std::vector< boost::filesystem::path > WPathHelper::getAllModulePaths()
     typedef boost::tokenizer< boost::char_separator< char > > tokenizer;
     boost::char_separator< char > sep( ";" );
     tokenizer tok( additionalPaths, sep );
-    for ( tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
+    for( tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
     {
         paths.push_back( boost::filesystem::path( *it ) );
     }

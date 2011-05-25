@@ -37,7 +37,7 @@ WProgress::WProgress( std::string name, unsigned int count )
       m_pending( true ),
      m_determined( true )
 {
-    if ( count == 0 )
+    if( count == 0 )
     {
         m_max = 0;
         m_determined = false;

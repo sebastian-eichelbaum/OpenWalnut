@@ -56,7 +56,7 @@ WDataSetFiberVector::WDataSetFiberVector( boost::shared_ptr< const WDataSetFiber
         return;
     }
 
-    if ( fiberDS->getFileName() != "" )
+    if( fiberDS->getFileName() != "" )
     {
         setFileName( fiberDS->getFileName() );
     }
@@ -132,7 +132,7 @@ const std::string WDataSetFiberVector::getDescription() const
 
 boost::shared_ptr< WPrototyped > WDataSetFiberVector::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
         m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetFiberVector() );
     }

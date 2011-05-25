@@ -100,7 +100,7 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                 else
                 {
                     // yes, add it to the list of prototypes
-                    for ( WModuleList::const_iterator iter = m.begin(); iter != m.end(); ++iter )
+                    for( WModuleList::const_iterator iter = m.begin(); iter != m.end(); ++iter )
                     {
                         ( *iter )->setLocalPath( i->path().parent_path() );
                         ticket->get().insert( *iter );
@@ -118,7 +118,7 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                                                      "Module Loader", LL_ERROR );
             }
         }
-        else if ( ( level == 0 ) && boost::filesystem::is_directory( *i ) )     // this only traverses down one level
+        else if( ( level == 0 ) && boost::filesystem::is_directory( *i ) )     // this only traverses down one level
         {
             // if it a dir -> traverse down
             load( ticket, *i, level + 1 );
@@ -131,12 +131,12 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
     std::vector< boost::filesystem::path > allPaths = WPathHelper::getAllModulePaths();
 
     // go through each of the paths
-    for ( std::vector< boost::filesystem::path >::const_iterator path = allPaths.begin(); path != allPaths.end(); ++path )
+    for( std::vector< boost::filesystem::path >::const_iterator path = allPaths.begin(); path != allPaths.end(); ++path )
     {
         WLogger::getLogger()->addLogMessage( "Searching modules in \"" + ( *path ).file_string() + "\".", "Module Loader", LL_INFO );
 
         // does the directory exist?
-        if ( !boost::filesystem::is_directory( *path ) || !boost::filesystem::exists( *path ) )
+        if( !boost::filesystem::is_directory( *path ) || !boost::filesystem::exists( *path ) )
         {
             WLogger::getLogger()->addLogMessage( "Searching modules in \"" + ( *path ).file_string() +
                                                  "\" failed. It is not a directory or does not exist." +

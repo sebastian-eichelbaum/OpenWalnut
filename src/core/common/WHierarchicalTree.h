@@ -240,7 +240,7 @@ inline size_t WHierarchicalTree::getLevel( size_t cluster )
 
 inline size_t WHierarchicalTree::getParent( size_t cluster )
 {
-    if ( m_level[cluster] < m_maxLevel )
+    if( m_level[cluster] < m_maxLevel )
     {
         return m_parents[cluster];
     }
@@ -253,7 +253,7 @@ inline size_t WHierarchicalTree::getParent( size_t cluster )
 
 inline std::pair<size_t, size_t>WHierarchicalTree::getChildren( size_t cluster )
 {
-    if ( m_level[cluster] > 0 )
+    if( m_level[cluster] > 0 )
     {
         return m_children[cluster];
     }

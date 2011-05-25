@@ -141,7 +141,7 @@ void WGEPostprocessingNode::remove( osg::ref_ptr< osg::Node > node )
     // remove the item from our map
     NodeShaderAssociation::Iterator item = w->get().find( node );
 
-    if ( item != w->get().end() )
+    if( item != w->get().end() )
     {
         // we need to remove the preprocessor from the shader.
         ( *item ).second.first->removePreprocessor( ( *item ).second.second );
@@ -158,7 +158,7 @@ void WGEPostprocessingNode::clear()
     NodeShaderAssociation::WriteTicket w = m_nodeShaderAssociation.getWriteTicket();
 
     // remove from node-shader association list
-    for ( NodeShaderAssociation::Iterator iter = w->get().begin(); iter != w->get().end(); ++iter )
+    for( NodeShaderAssociation::Iterator iter = w->get().begin(); iter != w->get().end(); ++iter )
     {
         ( *iter ).second.first->removePreprocessor( ( *iter ).second.second );
     }

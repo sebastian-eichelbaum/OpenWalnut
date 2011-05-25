@@ -40,7 +40,7 @@ WLogger* logger = NULL;
 
 void WLogger::startup( std::ostream& output, LogLevel level )  // NOLINT - we need this non-const ref here
 {
-    if ( !logger )
+    if( !logger )
     {
         logger = new WLogger( output, level );
     }
@@ -63,7 +63,7 @@ WLogger::~WLogger()
 
 WLogger* WLogger::getLogger()
 {
-    if ( !logger )
+    if( !logger )
     {
         throw new WPreconditionNotMet( std::string( "Logger not yet initialized." ) );
     }
@@ -92,7 +92,7 @@ void WLogger::addLogMessage( std::string message, std::string source, LogLevel l
 
     // output
     Outputs::ReadTicket r = m_outputs.getReadTicket();
-    for ( Outputs::ConstIterator i = r->get().begin(); i != r->get().end(); ++i )
+    for( Outputs::ConstIterator i = r->get().begin(); i != r->get().end(); ++i )
     {
         ( *i )->printEntry( entry );
     }

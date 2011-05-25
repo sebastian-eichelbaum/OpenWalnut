@@ -97,9 +97,9 @@ int WSelectionManager::getFrontSector()
 
     float max = 0.0;
     int quadrant = 0;
-    for ( int i = 0; i < 8; ++i )
+    for( int i = 0; i < 8; ++i )
     {
-        if ( dots[i] > max )
+        if( dots[i] > max )
         {
             max = dots[i];
             quadrant = i;
@@ -152,11 +152,11 @@ float WSelectionManager::getTextureOpacity()
 
 void WSelectionManager::setTextureOpacity( float value )
 {
-    if ( value < 0.0 )
+    if( value < 0.0 )
     {
         value = 0.0;
     }
-    if ( value > 1.0 )
+    if( value > 1.0 )
     {
         value = 1.0;
     }

@@ -47,7 +47,7 @@ std::istream& WPVBaseTypes::operator>>( std::istream& in, WPVBaseTypes::PV_TRIGG
     in >> s;
 
     // interpret string
-    if ( s == "PV_TRIGGER_TRIGGERED" )
+    if( s == "PV_TRIGGER_TRIGGERED" )
     {
         c = PV_TRIGGER_TRIGGERED;
     }

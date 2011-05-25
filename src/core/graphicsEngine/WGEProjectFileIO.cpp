@@ -66,7 +66,7 @@ double* parseDoubleSequence( std::string seq, unsigned int size )
     // each value must be stored at the proper position
     double* values = new double[ size ];
     unsigned int i = 0;
-    for ( tokenizer::iterator it = tok.begin(); ( it != tok.end() ) && ( i < size ); ++it )
+    for( tokenizer::iterator it = tok.begin(); ( it != tok.end() ) && ( i < size ); ++it )
     {
         values[ i ] = boost::lexical_cast< double >( ( *it ) );
         ++i;
@@ -111,7 +111,7 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
 
     // use regex to parse it
     boost::smatch matches;  // the list of matches
-    if ( boost::regex_match( line, matches, camRe ) )
+    if( boost::regex_match( line, matches, camRe ) )
     {
         // it is a camera line
         // matches[1] is the ID
@@ -123,7 +123,7 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
 
         return true;
     }
-    else if ( boost::regex_match( line, matches, matrixRe ) )
+    else if( boost::regex_match( line, matches, matrixRe ) )
     {
         // it is a camera modelview matrix line
         // matches[1] is the ID of the camera
@@ -136,7 +136,7 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
 
         return true;
     }
-    else if ( boost::regex_match( line, matches, homeEyeRe ) )
+    else if( boost::regex_match( line, matches, homeEyeRe ) )
     {
         // it is a eye point of the manipulator
 
@@ -150,7 +150,7 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
 
         return true;
     }
-    else if ( boost::regex_match( line, matches, homeCenterRe ) )
+    else if( boost::regex_match( line, matches, homeCenterRe ) )
     {
         // it is a center point of the manipulator
 
@@ -164,7 +164,7 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
 
         return true;
     }
-    else if ( boost::regex_match( line, matches, homeUpRe ) )
+    else if( boost::regex_match( line, matches, homeUpRe ) )
     {
         // it is a up vector of the manipulator
 
@@ -185,18 +185,18 @@ bool WGEProjectFileIO::parse( std::string line, unsigned int lineNumber )
 void WGEProjectFileIO::done()
 {
     // apply camera here
-    for ( CameraList::const_iterator iter = m_cameras.begin(); iter != m_cameras.end(); ++iter )
+    for( CameraList::const_iterator iter = m_cameras.begin(); iter != m_cameras.end(); ++iter )
     {
         // does the corresponding view exists?
         boost::shared_ptr< WGEViewer > view = WGraphicsEngine::getGraphicsEngine()->getViewerByName( ( *iter ).second );
-        if ( !view )
+        if( !view )
         {
             wlog::warn( "Project Loader" ) << "Project file contained a camera \"" << ( *iter ).second << "\" but the corresponding view does " <<
                                               "not exist. Ignoring.";
         }
 
         // did we have a matrix?
-        if ( !m_manipulatorMatrices.count( ( *iter ).first ) )
+        if( !m_manipulatorMatrices.count( ( *iter ).first ) )
         {
             wlog::warn( "Project Loader" ) << "Project file contained a camera \"" << ( *iter ).second << "\" but no proper manipulator matrix. " <<
                                               "Leaving current matrix untouched.";
@@ -207,7 +207,7 @@ void WGEProjectFileIO::done()
         }
 
         // home position found?
-        if ( ( !m_homeEyeVectors.count( ( *iter ).first ) ) ||
+        if( ( !m_homeEyeVectors.count( ( *iter ).first ) ) ||
              ( !m_homeCenterVectors.count( ( *iter ).first ) ) ||
              ( !m_homeUpVectors.count( ( *iter ).first ) )
            )
@@ -246,10 +246,10 @@ void WGEProjectFileIO::save( std::ostream& output ) // NOLINT
 
     output << "//Camera Matrices: \"" << name << "\"" << std::endl;
     output << "    MANIPULATOR:(0,Matrix)=";
-    for ( unsigned int i = 0; i < 16; ++i )
+    for( unsigned int i = 0; i < 16; ++i )
     {
         output << view.ptr()[i];
-        if ( i < 15 )
+        if( i < 15 )
         {
             output << ";";
         }

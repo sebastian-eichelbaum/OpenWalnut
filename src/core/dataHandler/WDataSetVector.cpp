@@ -72,7 +72,7 @@ WDataSetSingle::SPtr WDataSetVector::clone() const
 
 boost::shared_ptr< WPrototyped > WDataSetVector::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
         m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetVector() );
     }

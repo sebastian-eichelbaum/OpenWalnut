@@ -132,7 +132,7 @@ template< typename T > int signum( const T& value );
 inline unsigned int OWCOMMON_EXPORT oddFactorial( unsigned int border )
 {
     unsigned int result = 1;
-    for ( unsigned int i = 3; i <= border; i+=2 )
+    for( unsigned int i = 3; i <= border; i+=2 )
     {
         result *= i;
     }
@@ -146,7 +146,7 @@ inline unsigned int OWCOMMON_EXPORT oddFactorial( unsigned int border )
 inline unsigned int OWCOMMON_EXPORT evenFactorial( unsigned int border )
 {
     unsigned int result = 1;
-    for ( unsigned int i = 2; i <= border; i+=2 )
+    for( unsigned int i = 2; i <= border; i+=2 )
     {
         result *= i;
     }

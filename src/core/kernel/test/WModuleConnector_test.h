@@ -315,13 +315,13 @@ protected:
         // just copy the data and add one
         boost::shared_ptr< WModuleOutputData< WTestTransferableBase > > o =
             boost::shared_dynamic_cast< WModuleOutputData< WTestTransferableBase > >( output );
-        if ( !o.get() )
+        if( !o.get() )
         {
             return;
         }
 
         boost::shared_ptr< WTestTransferableBase > ds = o->getData();
-        if ( ds.get() )
+        if( ds.get() )
         {
             data = ds->get() + 1;
         }

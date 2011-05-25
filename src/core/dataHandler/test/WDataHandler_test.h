@@ -85,7 +85,7 @@ public:
 
         // iterate the list and find all textures
         int count = 0;
-        for ( WDataHandler::SubjectContainerType::const_iterator iter = a->get().begin(); iter != a->get().end(); ++iter )
+        for( WDataHandler::SubjectContainerType::const_iterator iter = a->get().begin(); iter != a->get().end(); ++iter )
         {
             count++;
 

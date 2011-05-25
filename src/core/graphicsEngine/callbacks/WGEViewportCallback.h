@@ -88,7 +88,7 @@ template < typename T, typename Source >
 void WGEViewportCallback< T, Source >::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     osg::ref_ptr< T > t = dynamic_cast< T* >( node );
-    if ( t )
+    if( t )
     {
         t->setViewport( m_reference->getViewport() );
     }

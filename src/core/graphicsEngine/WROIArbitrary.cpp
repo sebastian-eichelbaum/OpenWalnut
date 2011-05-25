@@ -146,7 +146,7 @@ float WROIArbitrary::getValue( size_t i )
 
 void WROIArbitrary::updateGFX()
 {
-    if ( m_dirty->get() )
+    if( m_dirty->get() )
     {
         WMarchingLegoAlgorithm mlAlgo;
         m_triMesh = mlAlgo.generateSurface( m_nbCoordsVec[0], m_nbCoordsVec[1], m_nbCoordsVec[2],

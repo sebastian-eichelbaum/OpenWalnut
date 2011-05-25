@@ -62,7 +62,7 @@ WProperties::WProperties( const WProperties& from ):
     PropertySharedContainerType::ReadTicket l = from.m_properties.getReadTicket();
 
     // we need to make a deep copy here.
-    for ( PropertyConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
+    for( PropertyConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
     {
         // clone them to keep dynamic type
         addProperty( ( *iter )->clone() );
@@ -187,7 +187,7 @@ WPropFilename _addDefaultConstraints( WPropFilename prop )
 template< typename T >
 T addDefaultConstraints( T prop )
 {
-    if ( prop->getPurpose() == PV_PURPOSE_INFORMATION )
+    if( prop->getPurpose() == PV_PURPOSE_INFORMATION )
     {
         return prop;
     }
@@ -213,14 +213,14 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
     // NOTE: WPropertyBase already prohibits invalid property names -> no check needed here
 
     // check uniqueness:
-    if ( std::count_if( l->get().begin(), l->get().end(),
+    if( std::count_if( l->get().begin(), l->get().end(),
             boost::bind( boost::mem_fn( &WProperties::propNamePredicate ), this, prop, _1 ) ) )
     {
         // unlock explicitly
         l.reset();
 
         // oh oh, this property name is not unique in this group
-        if ( !getName().empty() )
+        if( !getName().empty() )
         {
             throw WPropertyNotUnique( std::string( "Property \"" + prop->getName() + "\" is not unique in this group (\"" + getName() + "\")." ) );
         }
@@ -231,7 +231,7 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
     }
 
     // PV_PURPOSE_INFORMATION groups do not allow PV_PURPOSE_PARAMETER properties but vice versa.
-    if ( getPurpose() == PV_PURPOSE_INFORMATION )
+    if( getPurpose() == PV_PURPOSE_INFORMATION )
     {
         prop->setPurpose( PV_PURPOSE_INFORMATION );
     }
@@ -245,7 +245,7 @@ void WProperties::addProperty( boost::shared_ptr< WPropertyBase > prop )
 
 void WProperties::removeProperty( boost::shared_ptr< WPropertyBase > prop )
 {
-    if ( !prop )
+    if( !prop )
     {
         return;
     }
@@ -264,9 +264,9 @@ boost::shared_ptr< WPropertyBase > WProperties::findProperty( const WProperties*
     PropertySharedContainerType::ReadTicket l = props->m_properties.getReadTicket();
 
     // iterate over the items
-    for ( PropertyContainerType::const_iterator it = l->get().begin(); it != l->get().end(); ++it )
+    for( PropertyContainerType::const_iterator it = l->get().begin(); it != l->get().end(); ++it )
     {
-        if ( ( *it )->getName() == name )
+        if( ( *it )->getName() == name )
         {
             result = ( *it );
             break;
@@ -288,10 +288,10 @@ boost::shared_ptr< WPropertyBase > WProperties::findProperty( std::string name )
 
     // iterate along the path
     const WProperties* curProps = this;       // the group currently in while traversing the path
-    for ( tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
+    for( tokenizer::iterator it = tok.begin(); it != tok.end(); ++it )
     {
         // was the last token not a group?
-        if ( result && ( result->getType() != PV_GROUP ) )
+        if( result && ( result->getType() != PV_GROUP ) )
         {
             // no it wasn't. This means that one token inside the path is no group, but it needs to be one
             return boost::shared_ptr< WPropertyBase >();
@@ -299,12 +299,12 @@ boost::shared_ptr< WPropertyBase > WProperties::findProperty( std::string name )
 
         // get the properties along the path
         result = findProperty( curProps, boost::lexical_cast< std::string >( *it ) );
-        if ( !result )
+        if( !result )
         {
             // not found? Return NULL.
             return boost::shared_ptr< WPropertyBase >();
         }
-        else if ( result && ( result->getType() == PV_GROUP ) )
+        else if( result && ( result->getType() == PV_GROUP ) )
         {
             // it is a group. Go down
             curProps = result->toPropGroup().get();
@@ -322,7 +322,7 @@ bool WProperties::existsProperty( std::string name )
 boost::shared_ptr< WPropertyBase > WProperties::getProperty( std::string name )
 {
     boost::shared_ptr< WPropertyBase > p = findProperty( name );
-    if ( p == boost::shared_ptr< WPropertyBase >() )
+    if( p == boost::shared_ptr< WPropertyBase >() )
     {
         throw WPropertyUnknown( std::string( "Property \"" + name + "\" can't be found." ) );
     }

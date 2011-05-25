@@ -102,7 +102,7 @@ void WGEShader::applyDirect( osg::State& state ) // NOLINT <- ensure this matche
 
 void WGEShader::deactivate( osg::ref_ptr< osg::Node > node )
 {
-    if ( !node )
+    if( !node )
     {
         return;
     }
@@ -137,7 +137,7 @@ void WGEShader::reloadShader()
         // vertex shader
         WLogger::getLogger()->addLogMessage( "Reloading vertex shader \"" + m_name + "-vertex.glsl\"", "WGEShader", LL_DEBUG );
         std::string source = processShader( m_name + "-vertex.glsl" );
-        if ( source != "" )
+        if( source != "" )
         {
             m_vertexShader->setShaderSource( source );
             addShader( m_vertexShader );
@@ -146,7 +146,7 @@ void WGEShader::reloadShader()
         // fragment shader
         WLogger::getLogger()->addLogMessage( "Reloading fragment shader \"" + m_name + "-fragment.glsl\"", "WGEShader", LL_DEBUG );
         source = processShader( m_name + "-fragment.glsl" );
-        if ( source != "" )
+        if( source != "" )
         {
             m_fragmentShader->setShaderSource( source );
             addShader( m_fragmentShader );
@@ -155,7 +155,7 @@ void WGEShader::reloadShader()
         // Geometry Shader
         WLogger::getLogger()->addLogMessage( "Reloading geometry shader \"" + m_name + "-geometry.glsl\"", "WGEShader", LL_DEBUG );
         source = processShader( m_name + "-geometry.glsl", true );
-        if ( source != "" )
+        if( source != "" )
         {
             m_geometryShader->setShaderSource( source );
             addShader( m_geometryShader );
@@ -182,14 +182,14 @@ void WGEShader::reloadShader()
 void WGEShader::updatePrograms()
 {
     // is it needed to do something here?
-    if ( m_deactivated )
+    if( m_deactivated )
     {
         // remove the shaders
         removeShader( m_vertexShader );
         removeShader( m_fragmentShader );
         removeShader( m_geometryShader );
     }
-    else if ( m_reload )
+    else if( m_reload )
     {
         reloadShader();
     }
@@ -219,7 +219,7 @@ std::string WGEShader::processShaderRecursive( const std::string filename, bool 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // we encountered an endless loop
-    if ( level > 32 )
+    if( level > 32 )
     {
         // reached a certain level. This normally denotes a inclusion cycle.
         // We do not throw an exception here to avoid OSG to crash.
@@ -246,19 +246,19 @@ std::string WGEShader::processShaderRecursive( const std::string filename, bool 
     std::string fnLocalShaders = ( m_shaderPath / "shaders" / filename ).file_string();
     std::string fnGlobal = ( WPathHelper::getShaderPath() / filename ).file_string();
 
-    if ( boost::filesystem::exists( m_shaderPath / filename ) )
+    if( boost::filesystem::exists( m_shaderPath / filename ) )
     {
         fn = fnLocal;
     }
-    else if ( boost::filesystem::exists( m_shaderPath / "shaders" / filename ) )
+    else if( boost::filesystem::exists( m_shaderPath / "shaders" / filename ) )
     {
         fn = fnLocalShaders;
     }
-    else if ( boost::filesystem::exists( WPathHelper::getShaderPath() / filename ) )
+    else if( boost::filesystem::exists( WPathHelper::getShaderPath() / filename ) )
     {
         fn = fnGlobal;
     }
-    else if ( !optional )
+    else if( !optional )
     {
         WLogger::getLogger()->addLogMessage( "The requested shader \"" + filename + "\" does not exist in \"" +
                                              m_shaderPath.file_string() + "\", \"" + ( m_shaderPath / "shaders" ).file_string() + "\" or \"" +
@@ -273,15 +273,15 @@ std::string WGEShader::processShaderRecursive( const std::string filename, bool 
     }
 
     std::ifstream input( fn.c_str() );
-    if ( !input.is_open() )
+    if( !input.is_open() )
     {
-        if ( optional )
+        if( optional )
         {
             return "";
         }
 
         // file does not exist. Do not throw an exception to avoid OSG crash
-        if ( level == 0 )
+        if( level == 0 )
         {
             WLogger::getLogger()->addLogMessage( "Can't open shader file \"" + filename + "\".",
                     "WGEShader (" + filename + ")", LL_ERROR
@@ -303,7 +303,7 @@ std::string WGEShader::processShaderRecursive( const std::string filename, bool 
 
     while ( std::getline( input, line ) )
     {
-        if ( boost::regex_search( line, matches, includeRegexp ) )
+        if( boost::regex_search( line, matches, includeRegexp ) )
         {
             output << processShaderRecursive( matches[1], false, level + 1 );
         }
@@ -332,7 +332,7 @@ std::string WGEShader::processShader( const std::string filename, bool optional 
 {
     // load all the code
     std::string code = processShaderRecursive( filename, optional );
-    if ( code.empty() )
+    if( code.empty() )
     {
         return "";
     }
@@ -343,7 +343,7 @@ std::string WGEShader::processShader( const std::string filename, bool optional 
 
     // apply all preprocessors
     PreprocessorsList::ReadTicket r = m_preprocessors.getReadTicket();
-    for ( PreprocessorsList::ConstIterator pp = r->get().begin(); pp != r->get().end(); ++pp )
+    for( PreprocessorsList::ConstIterator pp = r->get().begin(); pp != r->get().end(); ++pp )
     {
         code = ( *pp ).first->process( filename, code );
     }
@@ -356,7 +356,7 @@ std::string WGEShader::processShader( const std::string filename, bool optional 
 void WGEShader::addPreprocessor( WGEShaderPreprocessor::SPtr preproc )
 {
     PreprocessorsList::WriteTicket w = m_preprocessors.getWriteTicket();
-    if ( !w->get().count( preproc ) )   // if already exists, no connection needed
+    if( !w->get().count( preproc ) )   // if already exists, no connection needed
     {
         // subscribe the preprocessors update condition
         boost::signals2::connection con = preproc->getChangeCondition()->subscribeSignal( boost::bind( &WGEShader::reload, this ) );
@@ -369,7 +369,7 @@ void WGEShader::addPreprocessor( WGEShaderPreprocessor::SPtr preproc )
 void WGEShader::removePreprocessor( WGEShaderPreprocessor::SPtr preproc )
 {
     PreprocessorsList::WriteTicket w = m_preprocessors.getWriteTicket();
-    if ( w->get().count( preproc ) )   // is it in our list?
+    if( w->get().count( preproc ) )   // is it in our list?
     {
         w->get().operator[]( preproc ).disconnect();
         w->get().erase( preproc );
@@ -383,7 +383,7 @@ void WGEShader::clearPreprocessors()
     PreprocessorsList::WriteTicket w = m_preprocessors.getWriteTicket();
 
     // we need to disconnect each signal subscription
-    for ( PreprocessorsList::Iterator pp = w->get().begin(); pp != w->get().end(); ++pp )
+    for( PreprocessorsList::Iterator pp = w->get().begin(); pp != w->get().end(); ++pp )
     {
         ( *pp ).second.disconnect();
     }

@@ -53,13 +53,13 @@ void WApplyCombiner::apply()
     boost::shared_ptr< WModule > targetModule = m_targetModule;
 
     // create module instance if src is a prototype
-    if ( srcModule && WModuleFactory::isPrototype( srcModule ) )
+    if( srcModule && WModuleFactory::isPrototype( srcModule ) )
     {
         srcModule = WModuleFactory::getModuleFactory()->create( m_srcModule );
     }
 
     // create module instance if target is a prototype
-    if ( targetModule && WModuleFactory::isPrototype( targetModule ) )
+    if( targetModule && WModuleFactory::isPrototype( targetModule ) )
     {
         targetModule = WModuleFactory::getModuleFactory()->create( m_targetModule );
     }
@@ -71,10 +71,10 @@ void WApplyCombiner::apply()
     m_container->add( targetModule );
 
     // wait for the source module if there is any
-    if ( srcModule )
+    if( srcModule )
     {
         srcModule->isReadyOrCrashed().wait();
-        if ( srcModule->isCrashed()() )
+        if( srcModule->isCrashed()() )
         {
             // NOTE: throwing an exception here should not be needed as the module container already has forwarded the exception
             wlog::error( "Prototype Combiner" ) << "The source module \"" << srcModule->getName() << "\" has crashed. Abort.";
@@ -83,10 +83,10 @@ void WApplyCombiner::apply()
     }
 
     // wait for the source module if there is any
-    if ( targetModule )
+    if( targetModule )
     {
         targetModule->isReadyOrCrashed().wait();
-        if ( targetModule->isCrashed()() )
+        if( targetModule->isCrashed()() )
         {
             // NOTE: throwing an exception here should not be needed as the module container already has forwarded the exception
             wlog::error( "Prototype Combiner" ) << "The target module \"" << targetModule->getName() << "\" has crashed. Abort.";
@@ -95,13 +95,13 @@ void WApplyCombiner::apply()
     }
 
     // if the connector is an empty string -> do not connect, just add
-    if ( ( m_srcConnector.empty() ) || ( m_targetConnector.empty() ) )
+    if( ( m_srcConnector.empty() ) || ( m_targetConnector.empty() ) )
     {
         return;
     }
 
     // and connect them finally:
-    if ( srcModule && targetModule )
+    if( srcModule && targetModule )
     {
         targetModule->getInputConnector( m_targetConnector )->disconnectAll(); // before connecting, remove existing connection on input
         targetModule->getInputConnector( m_targetConnector )->connect( srcModule->getOutputConnector( m_srcConnector ) );

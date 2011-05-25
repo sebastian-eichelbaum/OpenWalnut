@@ -94,7 +94,7 @@ public:
         // iterate the list and find all textures
         WSubject::DatasetSharedContainerType::ReadTicket a = dummySubject.getDatasets();
         int count = 0;
-        for ( WSubject::DatasetConstIterator iter = a->get().begin(); iter != a->get().end(); ++iter )
+        for( WSubject::DatasetConstIterator iter = a->get().begin(); iter != a->get().end(); ++iter )
         {
             count++;
             TS_ASSERT_EQUALS( fileName, ( *iter )->getFileName() );

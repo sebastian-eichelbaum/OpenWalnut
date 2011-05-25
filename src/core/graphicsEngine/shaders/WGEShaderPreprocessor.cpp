@@ -50,7 +50,7 @@ void WGEShaderPreprocessor::setActive( bool active )
 {
     bool update = m_active != active;
     m_active = active;
-    if ( update )
+    if( update )
     {
         updated();
     }

@@ -147,7 +147,7 @@ WValueSetHistogram::WValueSetHistogram( const WValueSetHistogram& histogram, siz
 
 WValueSetHistogram& WValueSetHistogram::operator=( const WValueSetHistogram& other )
 {
-    if ( this != &other ) // protect against invalid self-assignment
+    if( this != &other ) // protect against invalid self-assignment
     {
         m_minimum = other.m_minimum;
         m_maximum = other.m_maximum;
@@ -227,13 +227,13 @@ std::pair< double, double > WValueSetHistogram::getIntervalForIndex( size_t inde
 
 size_t WValueSetHistogram::accumulate( size_t startIndex, size_t endIndex ) const
 {
-    if ( startIndex > endIndex )
+    if( startIndex > endIndex )
     {
         std::swap( startIndex, endIndex );
     }
 
     // valid index?
-    if ( endIndex > size() )    // as endIndex is exclusive, it is allowed to equal size()
+    if( endIndex > size() )    // as endIndex is exclusive, it is allowed to equal size()
     {
         throw WOutOfBounds( std::string( "The specified endIndex is out of bounds." ) );
     }
@@ -250,7 +250,7 @@ size_t WValueSetHistogram::accumulate( size_t startIndex, size_t endIndex ) cons
 
 std::ostream& operator<<( std::ostream& out, const WValueSetHistogram& h )
 {
-    for ( size_t i = 0; i < h.size() - 1; ++i )
+    for( size_t i = 0; i < h.size() - 1; ++i )
     {
         std::pair< double, double > interval = h.getIntervalForIndex( i );
         // NOTE: the notation for open intervals is [a,b) or alternatively [a,b[.

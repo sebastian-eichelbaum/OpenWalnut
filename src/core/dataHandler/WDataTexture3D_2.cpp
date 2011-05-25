@@ -76,49 +76,49 @@ void WDataTexture3D_2::create()
 {
     osg::ref_ptr< osg::Image > ima;
 
-    if ( m_valueSet->getDataType() == W_DT_UINT8 )
+    if( m_valueSet->getDataType() == W_DT_UINT8 )
     {
         wlog::debug( "WDataTexture3D_2" ) << "Creating Texture of type W_DT_UINT8";
         boost::shared_ptr< WValueSet< uint8_t > > vs = boost::shared_dynamic_cast< WValueSet< uint8_t > >( m_valueSet );
         uint8_t* source = const_cast< uint8_t* > ( vs->rawData() );
         ima = createTexture( source, m_valueSet->dimension() );
     }
-    else if ( m_valueSet->getDataType() == W_DT_INT8 )
+    else if( m_valueSet->getDataType() == W_DT_INT8 )
     {
         wlog::debug( "WDataTexture3D_2" ) << "Creating Texture of type W_DT_INT8";
         boost::shared_ptr< WValueSet< int8_t > > vs = boost::shared_dynamic_cast< WValueSet< int8_t > >( m_valueSet );
         int8_t* source = const_cast< int8_t* > ( vs->rawData() );
         ima = createTexture( source, m_valueSet->dimension() );
     }
-    else if ( m_valueSet->getDataType() == W_DT_INT16 )
+    else if( m_valueSet->getDataType() == W_DT_INT16 )
     {
         wlog::debug( "WDataTexture3D_2" ) << "Creating Texture of type W_DT_INT16";
         boost::shared_ptr< WValueSet< int16_t > > vs = boost::shared_dynamic_cast< WValueSet< int16_t > >( m_valueSet );
         int16_t* source = const_cast< int16_t* > ( vs->rawData() );
         ima = createTexture( source, m_valueSet->dimension() );
     }
-    else if ( m_valueSet->getDataType() == W_DT_UINT16 )
+    else if( m_valueSet->getDataType() == W_DT_UINT16 )
     {
         wlog::debug( "WDataTexture3D_2" ) << "Creating Texture of type W_DT_UINT16";
         boost::shared_ptr< WValueSet< uint16_t > > vs = boost::shared_dynamic_cast< WValueSet< uint16_t > >( m_valueSet );
         uint16_t* source = const_cast< uint16_t* > ( vs->rawData() );
         ima = createTexture( source, m_valueSet->dimension() );
     }
-    else if ( m_valueSet->getDataType() == W_DT_SIGNED_INT )
+    else if( m_valueSet->getDataType() == W_DT_SIGNED_INT )
     {
         wlog::debug( "WDataTexture3D_2" ) << "Creating Texture of type W_DT_SIGNED_INT";
         boost::shared_ptr< WValueSet< int32_t > > vs = boost::shared_dynamic_cast< WValueSet< int32_t > >( m_valueSet );
         int* source = const_cast< int* > ( vs->rawData() );
         ima = createTexture( source, m_valueSet->dimension() );
     }
-    else if ( m_valueSet->getDataType() == W_DT_FLOAT )
+    else if( m_valueSet->getDataType() == W_DT_FLOAT )
     {
         wlog::debug( "WDataTexture3D_2" ) << "Creating Texture of type W_DT_FLOAT";
         boost::shared_ptr< WValueSet< float > > vs = boost::shared_dynamic_cast< WValueSet< float > >( m_valueSet );
         float* source = const_cast< float* > ( vs->rawData() );
         ima = createTexture( source, m_valueSet->dimension() );
     }
-    else if ( m_valueSet->getDataType() == W_DT_DOUBLE )
+    else if( m_valueSet->getDataType() == W_DT_DOUBLE )
     {
         wlog::debug( "WDataTexture3D_2" ) << "Creating Texture of type W_DT_DOUBLE";
         boost::shared_ptr< WValueSet< double > > vs = boost::shared_dynamic_cast< WValueSet< double > >( m_valueSet );

@@ -39,7 +39,7 @@ boost::shared_ptr< WPrototyped > WTriangleMesh::m_prototype = boost::shared_ptr<
 
 boost::shared_ptr< WPrototyped > WTriangleMesh::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
          m_prototype = boost::shared_ptr< WPrototyped >( new WTriangleMesh( 0, 0 ) );
     }
@@ -97,7 +97,7 @@ void WTriangleMesh::addVertex( WPosition vert )
 
 void WTriangleMesh::addTriangle( size_t vert0, size_t vert1, size_t vert2 )
 {
-    if ( m_triangles.size() == m_countTriangles * 3 )
+    if( m_triangles.size() == m_countTriangles * 3 )
     {
         m_triangles.resize( m_countTriangles * 3 + 3 );
     }
@@ -161,7 +161,7 @@ osg::ref_ptr< const osg::Vec3Array > WTriangleMesh::getTextureCoordinateArray() 
 
 osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getVertexNormalArray( bool forceRecalc )
 {
-    if ( forceRecalc || m_meshDirty )
+    if( forceRecalc || m_meshDirty )
     {
         recalcVertNormals();
     }
@@ -170,7 +170,7 @@ osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getVertexNormalArray( bool forceRec
 
 osg::ref_ptr< osg::Vec3Array >WTriangleMesh::getTriangleNormalArray( bool forceRecalc )
 {
-    if ( forceRecalc || m_meshDirty )
+    if( forceRecalc || m_meshDirty )
     {
         recalcVertNormals();
     }
@@ -216,15 +216,15 @@ WPosition WTriangleMesh::getVertexAsPosition( size_t triangleIndex, size_t vertN
 void WTriangleMesh::removeVertex( size_t index )
 {
     WAssert( index < m_countVerts, "remove vertex: index out of range" );
-    if ( m_vertexIsInTriangle[ index ].size() > 0 )
+    if( m_vertexIsInTriangle[ index ].size() > 0 )
     {
         return;
     }
     ( *m_verts ).erase( ( *m_verts ).begin() + index );
 
-    for ( size_t i = 0; i < m_countTriangles * 3; ++i )
+    for( size_t i = 0; i < m_countTriangles * 3; ++i )
     {
-        if ( m_triangles[ i ] > index )
+        if( m_triangles[ i ] > index )
         {
             --m_triangles[ i ];
         }
@@ -251,15 +251,15 @@ void WTriangleMesh::recalcVertNormals()
     ( *m_vertNormals ).resize( m_countVerts );
     ( *m_triangleNormals ).resize( m_countTriangles );
 
-    for ( size_t i = 0; i < m_countTriangles; ++i )
+    for( size_t i = 0; i < m_countTriangles; ++i )
     {
         ( *m_triangleNormals )[i] = calcTriangleNormal( i );
     }
 
-    for ( size_t vertId = 0; vertId < m_countVerts; ++vertId )
+    for( size_t vertId = 0; vertId < m_countVerts; ++vertId )
     {
         osg::Vec3 tempNormal( 0.0, 0.0, 0.0 );
-        for ( size_t neighbour = 0; neighbour < m_vertexIsInTriangle[vertId].size(); ++neighbour )
+        for( size_t neighbour = 0; neighbour < m_vertexIsInTriangle[vertId].size(); ++neighbour )
         {
             tempNormal += ( *m_triangleNormals )[ m_vertexIsInTriangle[vertId][neighbour] ];
         }
@@ -278,7 +278,7 @@ void WTriangleMesh::updateVertsInTriangles()
     std::vector< size_t >v;
     m_vertexIsInTriangle.resize( ( *m_verts ).size(), v );
 
-    for ( size_t i = 0; i < m_countTriangles; ++i )
+    for( size_t i = 0; i < m_countTriangles; ++i )
     {
         m_vertexIsInTriangle[ getTriVertId0( i ) ].push_back( i );
         m_vertexIsInTriangle[ getTriVertId1( i ) ].push_back( i );
@@ -333,7 +333,7 @@ void WTriangleMesh::calcNeighbors()
     std::vector<size_t> v( 3, -1 );
     m_triangleNeighbors.resize( ( *m_triangleNormals ).size(), v );
 
-    for ( size_t triId = 0; triId < m_countTriangles; ++triId )
+    for( size_t triId = 0; triId < m_countTriangles; ++triId )
     {
         size_t coVert0 = getTriVertId0( triId );
         size_t coVert1 = getTriVertId1( triId );
@@ -351,11 +351,11 @@ size_t WTriangleMesh::getNeighbor( const size_t coVert1, const size_t coVert2, c
     std::vector< size_t > candidates = m_vertexIsInTriangle[coVert1];
     std::vector< size_t > compares = m_vertexIsInTriangle[coVert2];
 
-    for ( size_t i = 0; i < candidates.size(); ++i )
+    for( size_t i = 0; i < candidates.size(); ++i )
     {
-        for ( size_t k = 0; k < compares.size(); ++k )
+        for( size_t k = 0; k < compares.size(); ++k )
         {
-            if ( ( candidates[i] != triangleNum ) && ( candidates[i] == compares[k] ) )
+            if( ( candidates[i] != triangleNum ) && ( candidates[i] == compares[k] ) )
             {
                 return candidates[i];
             }
@@ -377,13 +377,13 @@ void WTriangleMesh::doLoopSubD()
     osg::Vec3* newVertexPositions = new osg::Vec3[m_numTriVerts];
 
     //std::cout << "loop subdivision pass 1" << std::endl;
-    for ( size_t i = 0; i < m_numTriVerts; ++i )
+    for( size_t i = 0; i < m_numTriVerts; ++i )
     {
         newVertexPositions[i] = loopCalcNewPosition( i );
     }
 
     //std::cout << "loop subdivision pass 2" << std::endl;
-    for ( size_t i = 0; i < m_numTriFaces; ++i )
+    for( size_t i = 0; i < m_numTriFaces; ++i )
     {
         loopInsertCenterTriangle( i );
     }
@@ -392,13 +392,13 @@ void WTriangleMesh::doLoopSubD()
     m_vertexIsInTriangle.resize( ( *m_verts ).size(), v );
 
     //std::cout << "loop subdivision pass 3" << std::endl;
-    for ( size_t i = 0; i < m_numTriFaces; ++i )
+    for( size_t i = 0; i < m_numTriFaces; ++i )
     {
         loopInsertCornerTriangles( i );
     }
 
     //std::cout << "loop subdivision pass 4" << std::endl;
-    for ( size_t i = 0; i < m_numTriVerts; ++i )
+    for( size_t i = 0; i < m_numTriVerts; ++i )
     {
         ( *m_verts )[i] = newVertexPositions[i];
     }
@@ -426,7 +426,7 @@ osg::Vec3 WTriangleMesh::loopCalcNewPosition( size_t vertId )
 
     osg::Vec3 newPos;
     int edgeV = 0;
-    for ( int i = 0; i < starSize; i++ )
+    for( int i = 0; i < starSize; i++ )
     {
         edgeV = loopGetNextVertex( starP[i], vertId );
         osg::Vec3 translate = getVertex( edgeV );
@@ -457,7 +457,7 @@ size_t WTriangleMesh::loopCalcEdgeVert( size_t triId, size_t edgeV1, size_t edge
 
     neighborFaceNum = getNeighbor( edgeV1, edgeV2, triId );
 
-    if ( neighborFaceNum == triId )
+    if( neighborFaceNum == triId )
     {
         osg::Vec3 edgeVert = ( ( *m_verts )[edgeV1] + ( *m_verts )[edgeV2] ) / 2.0;
         size_t vertId = m_countVerts;
@@ -465,7 +465,7 @@ size_t WTriangleMesh::loopCalcEdgeVert( size_t triId, size_t edgeV1, size_t edge
         return vertId;
     }
 
-    else if ( neighborFaceNum > triId )
+    else if( neighborFaceNum > triId )
     {
         neighborVert = loopGetThirdVert( edgeV1, edgeV2, neighborFaceNum );
 
@@ -482,11 +482,11 @@ size_t WTriangleMesh::loopCalcEdgeVert( size_t triId, size_t edgeV1, size_t edge
         size_t neighborCenterP = neighborFaceNum + m_numTriFaces;
         size_t neighborP = neighborFaceNum;
 
-        if ( getTriVertId0( neighborP ) == edgeV2 )
+        if( getTriVertId0( neighborP ) == edgeV2 )
         {
             return getTriVertId0( neighborCenterP );
         }
-        else if ( getTriVertId1( neighborP ) == edgeV2 )
+        else if( getTriVertId1( neighborP ) == edgeV2 )
         {
             return getTriVertId1( neighborCenterP );
         }
@@ -536,9 +536,9 @@ void WTriangleMesh::loopSetTriangle( size_t triId, size_t vertId1, size_t vertId
 void WTriangleMesh::loopEraseTriangleFromVertex( size_t triId, size_t vertId )
 {
     std::vector< size_t > temp;
-    for ( size_t i = 0; i < m_vertexIsInTriangle[vertId].size(); ++i )
+    for( size_t i = 0; i < m_vertexIsInTriangle[vertId].size(); ++i )
     {
-        if ( triId != m_vertexIsInTriangle[vertId][i] )
+        if( triId != m_vertexIsInTriangle[vertId][i] )
             temp.push_back( m_vertexIsInTriangle[vertId][i] );
     }
     m_vertexIsInTriangle[vertId] = temp;
@@ -547,7 +547,7 @@ void WTriangleMesh::loopEraseTriangleFromVertex( size_t triId, size_t vertId )
 double WTriangleMesh::loopGetAlpha( int n )
 {
     double answer;
-    if ( n > 3 )
+    if( n > 3 )
     {
         double center = ( 0.375 + ( 0.25 * cos( ( 2.0 * 3.14159265358979 ) / static_cast<double>( n ) ) ) );
         answer = ( 0.625 - ( center * center ) ) / static_cast<double>( n );
@@ -561,11 +561,11 @@ double WTriangleMesh::loopGetAlpha( int n )
 
 size_t WTriangleMesh::loopGetNextVertex( size_t triNum, size_t vertNum )
 {
-    if ( getTriVertId0( triNum ) == vertNum )
+    if( getTriVertId0( triNum ) == vertNum )
     {
         return getTriVertId1( triNum );
     }
-    else if ( getTriVertId1( triNum ) == vertNum )
+    else if( getTriVertId1( triNum ) == vertNum )
     {
         return getTriVertId2( triNum );
     }
@@ -574,11 +574,11 @@ size_t WTriangleMesh::loopGetNextVertex( size_t triNum, size_t vertNum )
 
 size_t WTriangleMesh::loopGetThirdVert( size_t coVert1, size_t coVert2, size_t triangleNum )
 {
-    if ( !( getTriVertId0( triangleNum ) == coVert1 ) && !( getTriVertId0( triangleNum ) == coVert2 ) )
+    if( !( getTriVertId0( triangleNum ) == coVert1 ) && !( getTriVertId0( triangleNum ) == coVert2 ) )
     {
         return getTriVertId0( triangleNum );
     }
-    else if ( !( getTriVertId1( triangleNum ) == coVert1 ) && !( getTriVertId1( triangleNum ) == coVert2 ) )
+    else if( !( getTriVertId1( triangleNum ) == coVert1 ) && !( getTriVertId1( triangleNum ) == coVert2 ) )
     {
         return getTriVertId1( triangleNum );
     }
@@ -590,7 +590,7 @@ void WTriangleMesh::addMesh( boost::shared_ptr<WTriangleMesh> mesh, float xOff, 
     size_t oldVertSize = m_countVerts;
 
     ( *m_vertColors ).resize( oldVertSize + mesh->vertSize() );
-    for ( size_t i = 0; i < mesh->vertSize(); ++i )
+    for( size_t i = 0; i < mesh->vertSize(); ++i )
     {
         osg::Vec3 v( mesh->getVertex( i ) );
         v[0] += xOff;
@@ -599,7 +599,7 @@ void WTriangleMesh::addMesh( boost::shared_ptr<WTriangleMesh> mesh, float xOff, 
         addVertex( v );
         setVertexColor( oldVertSize + i, mesh->getVertColor( i ) );
     }
-    for ( size_t i = 0; i < mesh->triangleSize(); ++i )
+    for( size_t i = 0; i < mesh->triangleSize(); ++i )
     {
         addTriangle( mesh->getTriVertId0( i ) + oldVertSize, mesh->getTriVertId1( i ) + oldVertSize, mesh->getTriVertId2( i ) + oldVertSize );
     }
@@ -609,7 +609,7 @@ void WTriangleMesh::addMesh( boost::shared_ptr<WTriangleMesh> mesh, float xOff, 
 void WTriangleMesh::translateMesh( float xOff, float yOff, float zOff )
 {
     osg::Vec3 t( xOff, yOff, zOff );
-    for ( size_t i = 0; i < ( *m_verts ).size(); ++i )
+    for( size_t i = 0; i < ( *m_verts ).size(); ++i )
     {
         ( *m_verts )[i] += t;
     }
@@ -617,7 +617,7 @@ void WTriangleMesh::translateMesh( float xOff, float yOff, float zOff )
 
 void WTriangleMesh::zoomMesh( float zoom )
 {
-    for ( size_t i = 0; i < ( *m_verts ).size(); ++i )
+    for( size_t i = 0; i < ( *m_verts ).size(); ++i )
     {
         ( *m_verts )[i] *= zoom;
     }

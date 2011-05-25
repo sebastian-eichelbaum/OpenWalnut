@@ -71,7 +71,7 @@ osg::Object* WFiberDrawable::clone( const osg::CopyOp& copyop ) const
 // *Change the OpenGL state only if strictly necessary*.
 void WFiberDrawable::drawImplementation( osg::RenderInfo& renderInfo ) const //NOLINT
 {
-    if ( m_useTubes )
+    if( m_useTubes )
     {
         drawTubes();
     }
@@ -89,9 +89,9 @@ void WFiberDrawable::drawFibers( osg::RenderInfo& renderInfo ) const //NOLINT
     state.setVertexPointer( 3, GL_FLOAT , 0, &( *m_verts )[0] );
     state.setColorPointer( 3 , GL_FLOAT , 0, &( *m_colors )[0] );
     //state.setNormalPointer( GL_FLOAT , 0, &( *m_tangents )[0] );
-    for ( size_t i = 0; i < m_active->size(); ++i )
+    for( size_t i = 0; i < m_active->size(); ++i )
     {
-        if ( (*m_active)[i] )
+        if( (*m_active)[i] )
         {
             state.glDrawArraysInstanced( GL_LINE_STRIP, (*m_startIndexes)[i], (*m_pointsPerLine)[i], 1);
         }
@@ -105,11 +105,11 @@ void WFiberDrawable::drawTubes() const
 {
     for( size_t i = 0; i < m_active->size(); ++i )
     {
-        if ( (*m_active)[i] )
+        if( (*m_active)[i] )
         {
             glBegin( GL_QUAD_STRIP );
             int idx = m_startIndexes->at( i ) * 3;
-            for ( size_t k = 0; k < m_pointsPerLine->at( i ); ++k )
+            for( size_t k = 0; k < m_pointsPerLine->at( i ); ++k )
             {
                 glNormal3f( m_tangents->at( idx ), m_tangents->at( idx + 1 ), m_tangents->at( idx + 2 ) );
                 glColor3f( m_colors->at( idx ), m_colors->at( idx + 1 ), m_colors->at( idx + 2 ) );

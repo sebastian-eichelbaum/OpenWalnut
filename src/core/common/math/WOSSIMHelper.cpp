@@ -34,9 +34,9 @@
 boost::shared_ptr< NEWMAT::Matrix > WOSSIMHelper::OWMatrixToOSSIMMatrix( const WMatrix<double> &input )
 {
   boost::shared_ptr< NEWMAT::Matrix > result( new NEWMAT::Matrix( input.getNbRows(), input.getNbCols() ) );
-  for ( size_t row = 0; row < input.getNbRows(); row++ )
+  for( size_t row = 0; row < input.getNbRows(); row++ )
   {
-    for ( size_t col = 0; col < input.getNbCols(); col++ )
+    for( size_t col = 0; col < input.getNbCols(); col++ )
     {
       ( *result )( static_cast<int>( row+1 ), static_cast<int>( col+1 ) ) = input( row, col );
     }
@@ -48,9 +48,9 @@ WMatrix<double> WOSSIMHelper::OSSIMMatrixToOWMatrix( const NEWMAT::Matrix& input
 {
   WMatrix<double> result( static_cast<size_t>( input.Nrows() ), static_cast<size_t>( input.Ncols() ) );
 
-  for ( size_t row = 0; row < result.getNbRows(); row++ )
+  for( size_t row = 0; row < result.getNbRows(); row++ )
   {
-    for ( size_t col = 0; col < result.getNbCols(); col++ )
+    for( size_t col = 0; col < result.getNbCols(); col++ )
     {
       result( row, col ) = input( static_cast<int>( row+1 ), static_cast<int>( col+1 ) );
     }
@@ -62,7 +62,7 @@ WMatrix<double> WOSSIMHelper::OSSIMDiagonalMatrixToOWMatrix( const NEWMAT::Diago
 {
   WMatrix<double> result( static_cast<size_t>( input.Nrows() ), static_cast<size_t>( input.Ncols() ) );
 
-  for ( size_t i = 0; i < result.getNbRows(); i++ )
+  for( size_t i = 0; i < result.getNbRows(); i++ )
   {
     result( i, i ) = input( static_cast<int>( i+1 ) );
   }
@@ -73,7 +73,7 @@ WValue<double> WOSSIMHelper::OSSIMDiagonalMatrixToOWVector( const NEWMAT::Diagon
 {
   WValue<double> result( static_cast<size_t>( input.Nrows() ) );
 
-  for ( size_t i = 0; i < result.size(); i++ )
+  for( size_t i = 0; i < result.size(); i++ )
   {
     result[ i ] = input( static_cast<int>( i+1 ) );
   }
@@ -118,7 +118,7 @@ void WOSSIMHelper::computeSVD( const WMatrix< double >& A,
 //             // create diagonal matrix S
 //             WMatrix< double > S( input.getNbCols(), input.getNbCols() );
 //
-//             for ( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
+//             for( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
 //               S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
 //
 //             return WMatrix< double >( V*S*U.transposed() );

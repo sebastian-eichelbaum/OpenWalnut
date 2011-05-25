@@ -49,7 +49,7 @@ WItemSelector WItemSelection::getSelectorAll()
     WItemSelector::IndexList l;
     ReadTicket r = getReadTicket();
 
-    for ( size_t i = 0; i < r->get().size(); ++i )
+    for( size_t i = 0; i < r->get().size(); ++i )
     {
         l.push_back( i );
     }
@@ -68,7 +68,7 @@ WItemSelector WItemSelection::getSelectorFirst()
     WItemSelector::IndexList l;
     ReadTicket r = getReadTicket();
 
-    if ( r->get().size() >= 1 )
+    if( r->get().size() >= 1 )
     {
         l.push_back( 0 );
     }
@@ -80,7 +80,7 @@ WItemSelector WItemSelection::getSelectorLast()
     WItemSelector::IndexList l;
     ReadTicket r = getReadTicket();
 
-    if ( r->get().size() >= 1 )
+    if( r->get().size() >= 1 )
     {
         l.push_back( r->get().size() - 1 );
     }
@@ -92,7 +92,7 @@ WItemSelector WItemSelection::getSelector( size_t item )
     WItemSelector::IndexList l;
     ReadTicket r = getReadTicket();
 
-    if ( r->get().size() <= item )
+    if( r->get().size() <= item )
     {
         throw WOutOfBounds( std::string( "The specified item does not exist." ) );
     }

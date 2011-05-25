@@ -91,7 +91,7 @@ std::string const WDataSetTimeSeries::getDescription() const
 
 boost::shared_ptr< WPrototyped > WDataSetTimeSeries::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
         m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetTimeSeries() );
     }

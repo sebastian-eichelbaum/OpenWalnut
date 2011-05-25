@@ -62,7 +62,7 @@ void WSelectorRoi::recalculate()
 {
     m_workerBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, false ) );
 
-    if ( osg::dynamic_pointer_cast<WROIBox>( m_roi ).get() )
+    if( osg::dynamic_pointer_cast<WROIBox>( m_roi ).get() )
     {
         m_boxMin.resize( 3 );
         m_boxMax.resize( 3 );
@@ -79,7 +79,7 @@ void WSelectorRoi::recalculate()
         boxTest( 0, m_currentArray->size() / 3 - 1, 0 );
     }
 
-    if ( osg::dynamic_pointer_cast<WROIArbitrary>( m_roi ).get() )
+    if( osg::dynamic_pointer_cast<WROIArbitrary>( m_roi ).get() )
     {
         osg::ref_ptr<WROIArbitrary>roi = osg::dynamic_pointer_cast<WROIArbitrary>( m_roi );
 
@@ -92,14 +92,14 @@ void WSelectorRoi::recalculate()
         double dy = roi->getCoordOffsets()[1];
         double dz = roi->getCoordOffsets()[2];
 
-        for ( size_t i = 0; i < m_currentArray->size()/3; ++i )
+        for( size_t i = 0; i < m_currentArray->size()/3; ++i )
         {
             size_t x = static_cast<size_t>( ( *m_currentArray )[i * 3 ] / dx );
             size_t y = static_cast<size_t>( ( *m_currentArray )[i * 3 + 1] / dy );
             size_t z = static_cast<size_t>( ( *m_currentArray )[i * 3 + 2] / dz );
             int index = x + y * nx + z * nx * ny;
 
-            if ( static_cast<float>( roi->getValue( index ) ) - threshold > 0.1 )
+            if( static_cast<float>( roi->getValue( index ) ) - threshold > 0.1 )
             {
                 ( *m_workerBitfield )[getLineForPoint( i )] = 1;
             }
@@ -112,25 +112,25 @@ void WSelectorRoi::recalculate()
 void WSelectorRoi::boxTest( int left, int right, int axis )
 {
     // abort condition
-    if ( left > right )
+    if( left > right )
         return;
 
     int root = left + ( ( right - left ) / 2 );
     int axis1 = ( axis + 1 ) % 3;
     int pointIndex = m_kdTree->m_tree[root] * 3;
 
-    if ( ( *m_currentArray )[pointIndex + axis]  < m_boxMin[axis] )
+    if( ( *m_currentArray )[pointIndex + axis]  < m_boxMin[axis] )
     {
         boxTest( root + 1, right, axis1 );
     }
-    else if ( ( *m_currentArray )[pointIndex + axis] > m_boxMax[axis] )
+    else if( ( *m_currentArray )[pointIndex + axis] > m_boxMax[axis] )
     {
         boxTest( left, root - 1, axis1 );
     }
     else
     {
         int axis2 = ( axis + 2 ) % 3;
-        if ( ( *m_currentArray )[pointIndex + axis1] <= m_boxMax[axis1] && ( *m_currentArray )[pointIndex + axis1]
+        if( ( *m_currentArray )[pointIndex + axis1] <= m_boxMax[axis1] && ( *m_currentArray )[pointIndex + axis1]
                 >= m_boxMin[axis1] && ( *m_currentArray )[pointIndex + axis2] <= m_boxMax[axis2]
                 && ( *m_currentArray )[pointIndex + axis2] >= m_boxMin[axis2] )
         {

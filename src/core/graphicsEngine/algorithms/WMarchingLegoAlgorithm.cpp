@@ -318,60 +318,60 @@ boost::shared_ptr<WTriangleMesh> WMarchingLegoAlgorithm::genSurfaceOneValue( siz
                     continue;
                 }
 
-                if ( x > 0 && ( ( *vals )[ z * nPointsInSlice + y * nX + x - 1 ] != isoValue ) )
+                if( x > 0 && ( ( *vals )[ z * nPointsInSlice + y * nX + x - 1 ] != isoValue ) )
                 {
                     addSurface( x, y, z, 1 );
                 }
-                if ( x < m_nCellsX - 1 && ( ( *vals )[ z * nPointsInSlice + y * nX + x + 1 ] != isoValue ) )
+                if( x < m_nCellsX - 1 && ( ( *vals )[ z * nPointsInSlice + y * nX + x + 1 ] != isoValue ) )
                 {
                     addSurface( x, y, z, 2 );
                 }
 
-                if ( y > 0 && ( ( *vals )[ z * nPointsInSlice + ( y - 1 ) * nX + x ] != isoValue ) )
+                if( y > 0 && ( ( *vals )[ z * nPointsInSlice + ( y - 1 ) * nX + x ] != isoValue ) )
                 {
                     addSurface( x, y, z, 3 );
                 }
 
-                if ( y < m_nCellsY - 1 && ( ( *vals )[ z * nPointsInSlice + ( y + 1 ) * nX + x ] != isoValue ) )
+                if( y < m_nCellsY - 1 && ( ( *vals )[ z * nPointsInSlice + ( y + 1 ) * nX + x ] != isoValue ) )
                 {
                     addSurface( x, y, z, 4 );
                 }
 
-                if ( z > 0 && ( ( *vals )[ ( z - 1 ) * nPointsInSlice + y * nX + x ] != isoValue ) )
+                if( z > 0 && ( ( *vals )[ ( z - 1 ) * nPointsInSlice + y * nX + x ] != isoValue ) )
                 {
                     addSurface( x, y, z, 5 );
                 }
 
-                if ( z < m_nCellsZ - 1 && ( ( *vals )[ ( z + 1 ) * nPointsInSlice + y * nX + x ] != isoValue ) )
+                if( z < m_nCellsZ - 1 && ( ( *vals )[ ( z + 1 ) * nPointsInSlice + y * nX + x ] != isoValue ) )
                 {
                     addSurface( x, y, z, 6 );
                 }
 
-                if ( x == 0 )
+                if( x == 0 )
                 {
                     addSurface( x, y, z, 1 );
                 }
-                if ( x == m_nCellsX - 1 )
+                if( x == m_nCellsX - 1 )
                 {
                     addSurface( x, y, z, 2 );
                 }
 
-                if ( y == 0 )
+                if( y == 0 )
                 {
                     addSurface( x, y, z, 3 );
                 }
 
-                if ( y == m_nCellsY - 1 )
+                if( y == m_nCellsY - 1 )
                 {
                     addSurface( x, y, z, 4 );
                 }
 
-                if ( z == 0 )
+                if( z == 0 )
                 {
                     addSurface( x, y, z, 5 );
                 }
 
-                if ( z == m_nCellsZ - 1 )
+                if( z == m_nCellsZ - 1 )
                 {
                     addSurface( x, y, z, 6 );
                 }

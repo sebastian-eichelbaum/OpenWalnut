@@ -147,7 +147,7 @@ private:
 
 inline boost::shared_ptr< std::vector<bool> > WSelectorRoi::getBitField()
 {
-    if ( m_dirty )
+    if( m_dirty )
     {
         recalculate();
     }

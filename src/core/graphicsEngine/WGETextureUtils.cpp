@@ -30,7 +30,7 @@
 
 void wge::unbindTexture( osg::ref_ptr< osg::Node > node, size_t unit, size_t count )
 {
-    for ( size_t i = unit; i < unit + count; ++i )
+    for( size_t i = unit; i < unit + count; ++i )
     {
         node->getOrCreateStateSet()->removeTextureAttribute( i, osg::StateAttribute::TEXTURE );
         node->getOrCreateStateSet()->removeTextureAttribute( i, osg::StateAttribute::TEXMAT );
@@ -94,11 +94,11 @@ osg::ref_ptr< osg::Image > wge::genWhiteNoiseImage( size_t sizeX, size_t sizeY, 
     std::srand( time( 0 ) );
     osg::ref_ptr< osg::Image > randImage = new osg::Image();
     GLenum type = GL_LUMINANCE;
-    if ( channels == 3 )
+    if( channels == 3 )
     {
         type = GL_RGB;
     }
-    else if ( channels == 4 )
+    else if( channels == 4 )
     {
         type = GL_RGBA;
     }

@@ -326,7 +326,7 @@ public:
         WProperties::PropertySharedContainerType::ReadTicket t = clone->getProperties();
 
         // iterate the original and check that there exists a cloned property in the cloned one
-        for ( WProperties::PropertyConstIterator iter = t->get().begin(); iter != t->get().end(); ++iter )
+        for( WProperties::PropertyConstIterator iter = t->get().begin(); iter != t->get().end(); ++iter )
         {
             // ensure there is a corresponding property in cloneClone
             boost::shared_ptr< WPropertyBase > p = cloneClone->findProperty( ( *iter )->getName() );

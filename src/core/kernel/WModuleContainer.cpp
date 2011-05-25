@@ -78,7 +78,7 @@ boost::shared_ptr< WModule > WModuleContainer::factory() const
 
 void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 {
-    if ( !module )
+    if( !module )
     {
         // just ignore NULL Pointer
         return;
@@ -87,7 +87,7 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     WLogger::getLogger()->addLogMessage( "Adding module \"" + module->getName() + "\" to container." ,
             "ModuleContainer (" + getName() + ")", LL_INFO );
 
-    if ( !module->isInitialized()() )
+    if( !module->isInitialized()() )
     {
         std::ostringstream s;
         s << "Could not add module \"" << module->getName() << "\" to container \"" + getName() + "\". Reason: module not initialized.";
@@ -96,7 +96,7 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     }
 
     // already associated with this container?
-    if ( module->getAssociatedContainer() == shared_from_this() )
+    if( module->getAssociatedContainer() == shared_from_this() )
     {
         WLogger::getLogger()->addLogMessage( "Adding module \"" + module->getName() + "\" to container not needed. Its already inside." ,
             "ModuleContainer (" + getName() + ")", LL_INFO );
@@ -104,7 +104,7 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     }
 
     // is this module already associated?
-    if ( module->isAssociated()() )
+    if( module->isAssociated()() )
     {
         module->getAssociatedContainer()->remove( module );
     }
@@ -130,40 +130,40 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
 
     // connect default notifiers:
     boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_errorNotifiersLock );
-    for ( std::list< t_ModuleErrorSignalHandlerType >::iterator iter = m_errorNotifiers.begin(); iter != m_errorNotifiers.end(); ++iter)
+    for( std::list< t_ModuleErrorSignalHandlerType >::iterator iter = m_errorNotifiers.begin(); iter != m_errorNotifiers.end(); ++iter)
     {
         signalCon = module->subscribeSignal( WM_ERROR, ( *iter ) );
         subscriptionsLock->get().insert( ModuleSubscription( module, signalCon ) );
     }
     slock = boost::shared_lock<boost::shared_mutex>( m_associatedNotifiersLock );
-    for ( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_associatedNotifiers.begin(); iter != m_associatedNotifiers.end(); ++iter)
+    for( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_associatedNotifiers.begin(); iter != m_associatedNotifiers.end(); ++iter)
     {
         // call associated notifier
         ( *iter )( module );
     }
     slock = boost::shared_lock<boost::shared_mutex>( m_connectorNotifiersLock );
-    for ( std::list< t_GenericSignalHandlerType >::iterator iter = m_connectorEstablishedNotifiers.begin();
+    for( std::list< t_GenericSignalHandlerType >::iterator iter = m_connectorEstablishedNotifiers.begin();
                                                             iter != m_connectorEstablishedNotifiers.end(); ++iter )
     {
         // subscribe on each input
-        for ( InputConnectorList::const_iterator ins = module->getInputConnectors().begin(); ins != module->getInputConnectors().end(); ++ins )
+        for( InputConnectorList::const_iterator ins = module->getInputConnectors().begin(); ins != module->getInputConnectors().end(); ++ins )
         {
             signalCon = ( *ins )->subscribeSignal( CONNECTION_ESTABLISHED, ( *iter ) );
             subscriptionsLock->get().insert( ModuleSubscription( module, signalCon ) );
         }
     }
-    for ( std::list< t_GenericSignalHandlerType >::iterator iter = m_connectorClosedNotifiers.begin();
+    for( std::list< t_GenericSignalHandlerType >::iterator iter = m_connectorClosedNotifiers.begin();
                                                             iter != m_connectorClosedNotifiers.end(); ++iter )
     {
         // subscribe on each input
-        for ( InputConnectorList::const_iterator ins = module->getInputConnectors().begin(); ins != module->getInputConnectors().end(); ++ins )
+        for( InputConnectorList::const_iterator ins = module->getInputConnectors().begin(); ins != module->getInputConnectors().end(); ++ins )
         {
             signalCon = ( *ins )->subscribeSignal( CONNECTION_CLOSED, ( *iter ) );
             subscriptionsLock->get().insert( ModuleSubscription( module, signalCon ) );
         }
     }
     slock = boost::shared_lock<boost::shared_mutex>( m_readyNotifiersLock );
-    for ( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_readyNotifiers.begin(); iter != m_readyNotifiers.end(); ++iter)
+    for( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_readyNotifiers.begin(); iter != m_readyNotifiers.end(); ++iter)
     {
         signalCon = module->subscribeSignal( WM_READY, ( *iter ) );
         subscriptionsLock->get().insert( ModuleSubscription( module, signalCon ) );
@@ -177,7 +177,7 @@ void WModuleContainer::add( boost::shared_ptr< WModule > module, bool run )
     m_progress->addSubProgress( module->getRootProgressCombiner() );
 
     // run it
-    if ( run )
+    if( run )
     {
         module->run();
     }
@@ -190,7 +190,7 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
     WLogger::getLogger()->addLogMessage( "Removing module \"" + module->getName() + "\" from container." , "ModuleContainer (" + getName() + ")",
             LL_DEBUG );
 
-    if ( module->getAssociatedContainer() != shared_from_this() )
+    if( module->getAssociatedContainer() != shared_from_this() )
     {
         return;
     }
@@ -224,7 +224,7 @@ void WModuleContainer::remove( boost::shared_ptr< WModule > module )
 
     // tell all interested about removal
     boost::shared_lock<boost::shared_mutex> slock = boost::shared_lock<boost::shared_mutex>( m_removedNotifiersLock );
-    for ( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_removedNotifiers.begin(); iter != m_removedNotifiers.end(); ++iter)
+    for( std::list< t_ModuleGenericSignalHandlerType >::iterator iter = m_removedNotifiers.begin(); iter != m_removedNotifiers.end(); ++iter)
     {
         // call associated notifier
         ( *iter )( module );
@@ -251,12 +251,12 @@ WModuleContainer::DataModuleListType WModuleContainer::getDataModules()
     for( ModuleConstIterator iter = lock->get().begin(); iter != lock->get().end(); ++iter )
     {
         // is this module a data module?
-        if ( ( *iter )->getType() == MODULE_DATA )
+        if( ( *iter )->getType() == MODULE_DATA )
         {
             boost::shared_ptr< WMData > dm = boost::shared_static_cast< WMData >( *iter );
 
             // now check the contained dataset ( isTexture and whether it is ready )
-            if ( dm->isReady()() )
+            if( dm->isReady()() )
             {
                 l.insert( dm );
             }
@@ -381,7 +381,7 @@ void WModuleContainer::addDefaultNotifier( MODULE_CONNECTOR_SIGNAL signal, t_Gen
 boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< WModule > applyOn, std::string what, bool tryOnly )
 {
     boost::shared_ptr< WModule >prototype = boost::shared_ptr< WModule >();
-    if ( tryOnly )
+    if( tryOnly )
     {
         // isPrototypeAvailable returns the prototype or NULL if not found, but does not throw an exception
         prototype = WModuleFactory::getModuleFactory()->isPrototypeAvailable( what );
@@ -402,7 +402,7 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
                                                                          boost::shared_ptr< WModule > prototype )
 {
     // is this module already associated with another container?
-    if ( applyOn->isAssociated()() && ( applyOn->getAssociatedContainer() != shared_from_this() ) )
+    if( applyOn->isAssociated()() && ( applyOn->getAssociatedContainer() != shared_from_this() ) )
     {
         throw WModuleAlreadyAssociated( std::string( "The specified module \"" ) + applyOn->getName() +
                                         std::string( "\" is associated with another container." ) );
@@ -425,7 +425,7 @@ boost::shared_ptr< WModule > WModuleContainer::applyModule( boost::shared_ptr< W
     WModule::OutputConnectorList outs = applyOn->getOutputConnectors();
 
     // connect the first connectors. For a more sophisticated way of connecting modules, use ModuleCombiners.
-    if ( !ins.empty() && !outs.empty() )
+    if( !ins.empty() && !outs.empty() )
     {
         ( *ins.begin() )->connect( ( *outs.begin() ) );
     }
@@ -474,7 +474,7 @@ void WModuleContainer::moduleError( boost::shared_ptr< WModule > module, const W
     // simply forward it to the other signal handler
     signal_error( module, exception );
 
-    if ( m_crashIfModuleCrashes )
+    if( m_crashIfModuleCrashes )
     {
         infoLog() << "Crash caused this container to shutdown.";
         requestStop();
@@ -496,7 +496,7 @@ WCombinerTypes::WCompatiblesList WModuleContainer::getPossibleConnections( boost
 {
     WCombinerTypes::WCompatiblesList complist;
 
-    if ( !module )
+    if( !module )
     {
         // be nice in case of a null pointer
         return complist;
@@ -510,7 +510,7 @@ WCombinerTypes::WCompatiblesList WModuleContainer::getPossibleConnections( boost
     {
         WCombinerTypes::WOneToOneCombiners lComp = WApplyCombiner::createCombinerList< WApplyCombiner>( module, ( *listIter ) );
 
-        if ( lComp.size() != 0 )
+        if( lComp.size() != 0 )
         {
             complist.push_back( WCombinerTypes::WCompatiblesGroup( ( *listIter ), lComp ) );
         }

@@ -219,7 +219,7 @@ template< typename T > WMatrix< T >::operator osg::Matrixd() const
              "Only 3x3 or 4x4 matrices allowed." );
 
     // handle 4x4 and 3x3 separately
-    if ( getNbRows() == 4 )
+    if( getNbRows() == 4 )
     {
         return osg::Matrixd( ( *this )[ 0 ], ( *this )[ 4 ], ( *this )[ 8 ], ( *this )[ 12 ],
                              ( *this )[ 1 ], ( *this )[ 5 ], ( *this )[ 9 ], ( *this )[ 13 ],
@@ -336,8 +336,8 @@ template< typename T > WMatrix< T > WMatrix< T >::transposed() const
 {
   WMatrix result( m_nbCols, getNbRows() );
 
-  for ( std::size_t i = 0; i < getNbRows(); i++ )
-    for ( std::size_t j = 0; j < m_nbCols; j++ )
+  for( std::size_t i = 0; i < getNbRows(); i++ )
+    for( std::size_t j = 0; j < m_nbCols; j++ )
       result( j, i ) = (*this)( i, j);
   return result;
 }

@@ -113,13 +113,13 @@ public:
         }
 
         // iterate connector list, first find all matches of the output connectors with all inputs
-        for ( WModule::OutputConnectorList::const_iterator outIter = cons.begin(); outIter != cons.end(); ++outIter )
+        for( WModule::OutputConnectorList::const_iterator outIter = cons.begin(); outIter != cons.end(); ++outIter )
         {
             // now go through each input iterator of the current prototype
-            for ( WModule::InputConnectorList::const_iterator inIter = pcons.begin(); inIter != pcons.end(); ++inIter )
+            for( WModule::InputConnectorList::const_iterator inIter = pcons.begin(); inIter != pcons.end(); ++inIter )
             {
                 // compatible?
-                if ( ( *outIter )->connectable( *inIter ) &&  ( *inIter )->connectable( *outIter ) )
+                if( ( *outIter )->connectable( *inIter ) &&  ( *inIter )->connectable( *outIter ) )
                 {
                     // create a apply-prototype combiner
                     lComp.push_back( boost::shared_ptr< WApplyCombiner >(

@@ -42,7 +42,7 @@ WGENodeMaskCallback::~WGENodeMaskCallback()
 
 void WGENodeMaskCallback::activate()
 {
-    if ( m_flag->get() ) // only handle activation here
+    if( m_flag->get() ) // only handle activation here
     {
         m_reactivateSignal();
     }
@@ -51,7 +51,7 @@ void WGENodeMaskCallback::activate()
 void WGENodeMaskCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     // Deactivate the node
-    if ( !m_flag->get() ) // only handle deactivation here
+    if( !m_flag->get() ) // only handle deactivation here
     {
         node->setNodeMask( 0x0 );
 

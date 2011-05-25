@@ -90,14 +90,14 @@ void WProjectFile::save( const std::vector< boost::shared_ptr< WProjectFileIO > 
 
     // open the file for write
     std::ofstream output( m_project.file_string().c_str() );
-    if ( !output.is_open() )
+    if( !output.is_open() )
     {
         throw WFileOpenFailed( std::string( "The project file \"" ) + m_project.file_string() +
                                std::string( "\" could not be opened for write access." ) );
     }
 
     // allow each parser to handle save request
-    for ( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = writer.begin(); iter != writer.end(); ++iter )
+    for( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = writer.begin(); iter != writer.end(); ++iter )
     {
         ( *iter )->save( output );
         output << std::endl;
@@ -120,7 +120,7 @@ void WProjectFile::threadMain()
 
         // read the file
         std::ifstream input( m_project.file_string().c_str() );
-        if ( !input.is_open() )
+        if( !input.is_open() )
         {
             throw WFileNotFound( std::string( "The project file \"" ) + m_project.file_string() +
                                  std::string( "\" does not exist." ) );
@@ -141,11 +141,11 @@ void WProjectFile::threadMain()
             match = false;
 
             // allow each parser to handle the line.
-            for ( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+            for( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
             {
                 try
                 {
-                    if ( ( *iter )->parse( line, i ) )
+                    if( ( *iter )->parse( line, i ) )
                     {
                         match = true;
                         // the first parser matching this line -> next line
@@ -159,7 +159,7 @@ void WProjectFile::threadMain()
             }
 
             // did someone match this line? Or is it empty or a comment?
-            if ( !match && !line.empty() && !boost::regex_match( line, matches, commentRe ) )
+            if( !match && !line.empty() && !boost::regex_match( line, matches, commentRe ) )
             {
                 // no it is something else -> warning!
                 wlog::warn( "Project Loader" ) << "Line " << i << ": Malformed. Skipping.";
@@ -169,7 +169,7 @@ void WProjectFile::threadMain()
         input.close();
 
         // finally, let every one know that we have finished
-        for ( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
+        for( std::vector< boost::shared_ptr< WProjectFileIO > >::const_iterator iter = m_parsers.begin(); iter != m_parsers.end(); ++iter )
         {
             ( *iter )->done();
         }

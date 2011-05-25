@@ -34,7 +34,7 @@ WGEShaderPropertyDefineOptions< WPropSelection >::SPtr WGEShaderPropertyDefineOp
     std::vector< std::string > definesOnly;
 
     // add to the properties possible selection items list and option list
-    for ( std::vector< WGEShaderPropertyDefineOptionsTools::NameDescriptionDefineTuple >::const_iterator i = defines.begin(); i != defines.end();
+    for( std::vector< WGEShaderPropertyDefineOptionsTools::NameDescriptionDefineTuple >::const_iterator i = defines.begin(); i != defines.end();
           ++i )
     {
         selection->addItem( ( *i ).get< 0 >(), ( *i ).get< 1 >() );

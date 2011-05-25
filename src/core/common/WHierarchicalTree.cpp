@@ -40,7 +40,7 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
 {
     //std::cout << number << " largest clusters for cluster: " << cluster << std::endl;
 
-    if ( number > m_containsLeafes[cluster].size() )
+    if( number > m_containsLeafes[cluster].size() )
     {
         number = m_containsLeafes[cluster].size();
     }
@@ -53,7 +53,7 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
     {
         size_t current = worklist.front();
         worklist.pop_front();
-        if ( m_containsLeafes[current].size() > 1 )
+        if( m_containsLeafes[current].size() > 1 )
         {
             size_t left = m_children[current].first;
             size_t right = m_children[current].second;
@@ -75,13 +75,13 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
         newSplit = false;
         size_t current = worklist.front();
 
-        if ( m_containsLeafes[current].size() > 1 )
+        if( m_containsLeafes[current].size() > 1 )
         {
             size_t left = m_children[current].first;
             size_t right = m_children[current].second;
             size_t last = worklist.back();
 
-            if ( m_containsLeafes[left].size() > m_containsLeafes[last].size() )
+            if( m_containsLeafes[left].size() > m_containsLeafes[last].size() )
             {
                 worklist.pop_front();
                 worklist.push_back( left );
@@ -90,13 +90,13 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
             }
 
             last = worklist.back();
-            if ( m_containsLeafes[right].size() > m_containsLeafes[last].size() )
+            if( m_containsLeafes[right].size() > m_containsLeafes[last].size() )
             {
-                if ( !newSplit )
+                if( !newSplit )
                 {
                     worklist.pop_front();
                 }
-                if ( worklist.size() == number )
+                if( worklist.size() == number )
                 {
                     worklist.pop_back();
                 }
@@ -109,7 +109,7 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
 
     std::vector<size_t>returnVector;
     std::list<size_t>::iterator it;
-    for ( it = worklist.begin(); it != worklist.end(); ++it )
+    for( it = worklist.begin(); it != worklist.end(); ++it )
     {
         size_t current = *it;
         //std::cout << "cluster:" << current << "  size:" << m_containsLeafes[current].size() << std::endl;
@@ -121,7 +121,7 @@ std::vector< size_t > WHierarchicalTree::findXBiggestClusters( size_t cluster, s
 
 std::vector< size_t > WHierarchicalTree::downXLevelsFromTop( size_t level, bool hideOutliers )
 {
-    if ( level > m_maxLevel )
+    if( level > m_maxLevel )
     {
         level = m_maxLevel -1;
     }
@@ -131,25 +131,25 @@ std::vector< size_t > WHierarchicalTree::downXLevelsFromTop( size_t level, bool 
     std::list<size_t>worklist;
     worklist.push_back( m_clusterCount - 1 );
 
-    for ( size_t i = 0; i < level; ++i )
+    for( size_t i = 0; i < level; ++i )
     {
         std::list<size_t>newChildList;
         while ( !worklist.empty() )
         {
             size_t current = worklist.front();
             worklist.pop_front();
-            if ( m_containsLeafes[current].size() > 1 )
+            if( m_containsLeafes[current].size() > 1 )
             {
                 size_t left = m_children[current].first;
                 size_t right = m_children[current].second;
 
-                if ( hideOutliers )
+                if( hideOutliers )
                 {
-                    if ( m_containsLeafes[left].size() > 1 )
+                    if( m_containsLeafes[left].size() > 1 )
                     {
                         newChildList.push_back( left );
                     }
-                    if ( m_containsLeafes[right].size() > 1 )
+                    if( m_containsLeafes[right].size() > 1 )
                     {
                         newChildList.push_back( right );
                     }
@@ -167,7 +167,7 @@ std::vector< size_t > WHierarchicalTree::downXLevelsFromTop( size_t level, bool 
     worklist.sort( compSize( this ) );
 
     std::list<size_t>::iterator it;
-    for ( it = worklist.begin(); it != worklist.end(); ++it )
+    for( it = worklist.begin(); it != worklist.end(); ++it )
     {
         size_t current = *it;
         returnVector.push_back( current );
@@ -179,7 +179,7 @@ std::vector< size_t > WHierarchicalTree::downXLevelsFromTop( size_t level, bool 
 void WHierarchicalTree::colorCluster( size_t cluster, WColor color )
 {
     m_colors[cluster] = color;
-    if ( m_containsLeafes[cluster].size() > 1 )
+    if( m_containsLeafes[cluster].size() > 1 )
     {
         colorCluster( m_children[cluster].first, color );
         colorCluster( m_children[cluster].second, color );

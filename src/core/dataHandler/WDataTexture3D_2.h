@@ -203,20 +203,20 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
 
     size_t nbVoxels = getTextureWidth() * getTextureHeight() * getTextureDepth();
 
-    if ( components == 1)
+    if( components == 1)
     {
         // OpenGL just supports float textures
         ima->allocateImage( getTextureWidth(), getTextureHeight(), getTextureDepth(), GL_LUMINANCE_ALPHA, type );
         TexType* data = reinterpret_cast< TexType* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
-        for ( unsigned int i = 0; i < nbVoxels; ++i )
+        for( unsigned int i = 0; i < nbVoxels; ++i )
         {
             data[ 2 * i ] = WDataTexture3D_2Scalers::scaleInterval( source[i], min, max, scaler );
             data[ ( 2 * i ) + 1] = source[i] != min;
         }
     }
-    else if ( components == 2)
+    else if( components == 2)
     {
         // OpenGL just supports float textures
         ima->allocateImage( getTextureWidth(), getTextureHeight(), getTextureDepth(), GL_RGBA, type );
@@ -224,7 +224,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
         TexType* data = reinterpret_cast< TexType* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
-        for ( unsigned int i = 0; i < nbVoxels; ++i )
+        for( unsigned int i = 0; i < nbVoxels; ++i )
         {
             data[ ( 4 * i ) ]     = WDataTexture3D_2Scalers::scaleInterval( source[ ( 2 * i ) ], min, max, scaler );
             data[ ( 4 * i ) + 1 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 2 * i ) + 1 ], min, max, scaler );
@@ -232,7 +232,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
             data[ ( 4 * i ) + 3 ] = 1.0;
         }
     }
-    else if ( components == 3)
+    else if( components == 3)
     {
         // OpenGL just supports float textures
         ima->allocateImage( getTextureWidth(), getTextureHeight(), getTextureDepth(), GL_RGBA, type );
@@ -240,7 +240,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
         TexType* data = reinterpret_cast< TexType* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
-        for ( unsigned int i = 0; i < nbVoxels; ++i )
+        for( unsigned int i = 0; i < nbVoxels; ++i )
         {
             data[ ( 4 * i ) ]     = WDataTexture3D_2Scalers::scaleInterval( source[ ( 3 * i ) ], min, max, scaler );
             data[ ( 4 * i ) + 1 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 3 * i ) + 1 ], min, max, scaler );
@@ -248,7 +248,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
             data[ ( 4 * i ) + 3 ] = 1.0;
         }
     }
-    else if ( components == 4)
+    else if( components == 4)
     {
         // OpenGL just supports float textures
         ima->allocateImage( getTextureWidth(), getTextureHeight(), getTextureDepth(), GL_RGBA, type );
@@ -256,7 +256,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
         TexType* data = reinterpret_cast< TexType* >( ima->data() );
 
         // Copy the data pixel wise and convert to float
-        for ( unsigned int i = 0; i < nbVoxels; ++i )
+        for( unsigned int i = 0; i < nbVoxels; ++i )
         {
             data[ ( 4 * i ) ]     = WDataTexture3D_2Scalers::scaleInterval( source[ ( 4 * i ) ], min, max, scaler );
             data[ ( 4 * i ) + 1 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 4 * i ) + 1 ], min, max, scaler );

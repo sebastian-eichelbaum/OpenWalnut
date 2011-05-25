@@ -256,7 +256,7 @@ const T WFlag< T >::operator()() const
 template < typename T >
 const T WFlag< T >::get( bool resetChangeState )
 {
-    if ( resetChangeState )
+    if( resetChangeState )
     {
         m_changed = false;
     }
@@ -291,13 +291,13 @@ template < typename T >
 bool WFlag< T >::set( T value, bool suppressNotification )
 {
     // if the value is the same as the current one -> do not notify but let the caller know "all ok"
-    if ( m_flag == value )
+    if( m_flag == value )
     {
         return true;
     }
 
     // let the caller know whether the value was acceptable.
-    if ( !accept( value ) )
+    if( !accept( value ) )
     {
         return false;
     }
@@ -306,7 +306,7 @@ bool WFlag< T >::set( T value, bool suppressNotification )
     m_changed = true;
 
     // is the notification suppressed ?
-    if ( !suppressNotification )
+    if( !suppressNotification )
     {
         m_condition->notify();
     }
@@ -344,7 +344,7 @@ template < typename T >
 bool WFlag< T >::changed( bool reset )
 {
     bool tmp = m_changed;
-    if ( reset )
+    if( reset )
     {
         m_changed = false;
     }

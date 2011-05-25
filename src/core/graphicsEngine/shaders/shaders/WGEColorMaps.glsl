@@ -73,23 +73,23 @@ vec4 rainbowColorMap( in float value )
 
     int iq = int( mod( i, 6.0 ) );
 
-    if ( ( iq == 0 ) || ( iq == 6 ) )
+    if( ( iq == 0 ) || ( iq == 6 ) )
     {
         return vec4( 1.0, f, 0.0, 1.0 );
     }
-    else if ( iq == 1 )
+    else if( iq == 1 )
     {
         return vec4( q, 1.0, 0.0, 1.0 );
     }
-    else if ( iq == 2 )
+    else if( iq == 2 )
     {
         return vec4( 0.0, 1.0, f, 1.0 );
     }
-    else if ( iq == 3 )
+    else if( iq == 3 )
     {
         return vec4( 0.0, q, 1.0, 1.0 );
     }
-    else if ( iq == 4 )
+    else if( iq == 4 )
     {
         return vec4( f, 0.0, 1.0, 1.0 );
     }
@@ -114,11 +114,11 @@ vec4 hotIronColorMap( in float value )
     float colorValue = value * 8.0;
     int sel = int( floor( colorValue ) );
 
-    if ( sel >= 8 )
+    if( sel >= 8 )
     {
         return color0;
     }
-    else if ( sel < 0 )
+    else if( sel < 0 )
     {
         return color0;
     }
@@ -126,35 +126,35 @@ vec4 hotIronColorMap( in float value )
     {
         colorValue -= float( sel );
 
-        if ( sel < 1 )
+        if( sel < 1 )
         {
             return ( color1 * colorValue + color0 * ( 1.0 - colorValue ) );
         }
-        else if ( sel < 2 )
+        else if( sel < 2 )
         {
             return ( color2 * colorValue + color1 * ( 1.0 - colorValue ) );
         }
-        else if ( sel < 3 )
+        else if( sel < 3 )
         {
             return ( color3 * colorValue + color2 * ( 1.0 - colorValue ) );
         }
-        else if ( sel < 4 )
+        else if( sel < 4 )
         {
             return ( color4 * colorValue + color3 * ( 1.0 - colorValue ) );
         }
-        else if ( sel < 5 )
+        else if( sel < 5 )
         {
             return ( color5 * colorValue + color4 * ( 1.0 - colorValue ) );
         }
-        else if ( sel < 6 )
+        else if( sel < 6 )
         {
             return ( color6 * colorValue + color5 * ( 1.0 - colorValue ) );
         }
-        else if ( sel < 7 )
+        else if( sel < 7 )
         {
             return ( color7 * colorValue + color6 * ( 1.0 - colorValue ) );
         }
-        else if ( sel < 8 )
+        else if( sel < 8 )
         {
             return ( color8 * colorValue + color7 * ( 1.0 - colorValue ) );
         }
@@ -202,11 +202,11 @@ vec4 negative2positive( in float value )
     vec4 zeroColor = vec4( 1.0, 1.0, 1.0, 1.0 );
     vec4 negColor = vec4( 1.0, 1.0, 0.0, 1.0 );
     vec4 posColor= vec4( 0.0, 1.0, 1.0, 1.0 );
-    if ( val < 0.0 )
+    if( val < 0.0 )
     {
         return ( zeroColor + negColor * val );
     }
-    else if ( val >= 0.0 )
+    else if( val >= 0.0 )
     {
         return ( zeroColor - posColor * val );
     }
@@ -233,62 +233,62 @@ vec4 atlasColorMap( in float value )
     float b = 0.0;
     float mult = 1.0;
 
-    if ( val == 0.0 )
+    if( val == 0.0 )
     {
         return vec4( vec3( 0.0 ), 1.0 );
     }
 
-    if ( isBitSet( val, 0.0 ) )
+    if( isBitSet( val, 0.0 ) )
     {
         b = 1.0;
     }
-    if ( isBitSet( val, 1.0 ) )
+    if( isBitSet( val, 1.0 ) )
     {
         g = 1.0;
     }
-    if ( isBitSet( val, 2.0 ) )
+    if( isBitSet( val, 2.0 ) )
     {
         r = 1.0;
     }
-    if ( isBitSet( val, 3.0 ) )
+    if( isBitSet( val, 3.0 ) )
     {
         mult -= 0.15;
-        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        if( r < 1.0 && g < 1.0 && b < 1.0 )
         {
             r = 1.0;
             g = 1.0;
         }
     }
-    if ( isBitSet( val, 4.0 ) )
+    if( isBitSet( val, 4.0 ) )
     {
         mult -= 0.15;
-        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        if( r < 1.0 && g < 1.0 && b < 1.0 )
         {
             b = 1.0;
             g = 1.0;
         }
     }
-    if ( isBitSet( val, 5.0 ) )
+    if( isBitSet( val, 5.0 ) )
     {
         mult -= 0.15;
-        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        if( r < 1.0 && g < 1.0 && b < 1.0 )
         {
             r = 1.0;
             b = 1.0;
         }
     }
-    if ( isBitSet( val, 6.0 ) )
+    if( isBitSet( val, 6.0 ) )
     {
         mult -= 0.15;
-        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        if( r < 1.0 && g < 1.0 && b < 1.0 )
         {
             g = 1.0;
         }
     }
-    if ( isBitSet( val, 7.0 ) )
+    if( isBitSet( val, 7.0 ) )
     {
         mult -= 0.15;
-        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        if( r < 1.0 && g < 1.0 && b < 1.0 )
         {
             r = 1.0;
         }
@@ -320,11 +320,11 @@ vec4 colorMap5( in float value )
     float colorValue = value * 8.0;
     int sel = int( floor( colorValue ) );
 
-    if ( sel >= 8 )
+    if( sel >= 8 )
     {
         return color0;
     }
-    else if ( sel < 0 )
+    else if( sel < 0 )
     {
         return color0;
     }
@@ -336,31 +336,31 @@ vec4 colorMap5( in float value )
         {
             return ( color1 * colorValue + color0 * ( 1. - colorValue ) );
         }
-        else if ( sel < 2 )
+        else if( sel < 2 )
         {
             return ( color2 * colorValue + color1 * ( 1. - colorValue ) );
         }
-        else if ( sel < 3 )
+        else if( sel < 3 )
         {
             return ( color3 * colorValue + color2 * ( 1. - colorValue ) );
         }
-        else if ( sel < 4 )
+        else if( sel < 4 )
         {
             return ( color4 * colorValue + color3 * ( 1. - colorValue ) );
         }
-        else if ( sel < 5 )
+        else if( sel < 5 )
         {
             return ( color5 * colorValue + color4 * ( 1. - colorValue ) );
         }
-        else if ( sel < 6 )
+        else if( sel < 6 )
         {
             return ( color6 * colorValue + color5 * ( 1. - colorValue ) );
         }
-        else if ( sel < 7 )
+        else if( sel < 7 )
         {
             return ( color7 * colorValue + color6 * ( 1. - colorValue ) );
         }
-        else if ( sel < 8 )
+        else if( sel < 8 )
         {
             return ( color8 * colorValue + color7 * ( 1. - colorValue ) );
         }
@@ -395,27 +395,27 @@ vec4 colorMap6( in float value )
 
 void colorMap( inout vec3 col, in float value, int cmap )
 {
-    if ( cmap == 1 )
+    if( cmap == 1 )
     {
         col = rainbowColorMap( value ).rgb;
     }
-    else if ( cmap == 2 )
+    else if( cmap == 2 )
     {
         col = hotIronColorMap( value ).rgb;
     }
-    else if ( cmap == 3 )
+    else if( cmap == 3 )
     {
         col = negative2positive( value ).rgb;
     }
-    else if ( cmap == 4 )
+    else if( cmap == 4 )
     {
         col = atlasColorMap( value ).rgb;
     }
-    else if ( cmap == 5 )
+    else if( cmap == 5 )
     {
         col = blueGreenPurpleColorMap( value ).rgb;
     }
-    else if ( cmap == 6 )
+    else if( cmap == 6 )
     {
         col = vectorColorMap( col ).rgb;
     }
@@ -438,37 +438,37 @@ void colormap( inout vec4 color, in vec4 value, float minV, float scaleV, float 
 {
     // below threshold?
     bool clip = ( value.r + value.g + value.b ) / 3.0 < ( ( minV + thresholdV ) / scaleV );
-    if ( clip )
+    if( clip )
     {
         return;
     }
 
     vec4 col;
-    if ( colormap == 0 )
+    if( colormap == 0 )
     {
         col = value;
     }
-    else if ( colormap == 1 )
+    else if( colormap == 1 )
     {
         col = rainbowColorMap( value.r );
     }
-    else if ( colormap == 2 )
+    else if( colormap == 2 )
     {
         col = hotIronColorMap( value.r );
     }
-    else if ( colormap == 3 )
+    else if( colormap == 3 )
     {
         col = negative2positive( value.r );
     }
-    else if ( colormap == 4 )
+    else if( colormap == 4 )
     {
         col = atlasColorMap( value.r );
     }
-    else if ( colormap == 5 )
+    else if( colormap == 5 )
     {
         col = blueGreenPurpleColorMap( value.r );
     }
-    else if ( colormap == 6 )
+    else if( colormap == 6 )
     {
         col = vectorColorMap( value.rgb );
     }

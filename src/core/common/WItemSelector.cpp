@@ -52,7 +52,7 @@ WItemSelector::WItemSelector( const WItemSelector& other ):
 
 WItemSelector& WItemSelector::operator=( const WItemSelector & other )
 {
-    if ( this != &other ) // protect against invalid self-assignment
+    if( this != &other ) // protect against invalid self-assignment
     {
         m_selection = other.m_selection;
         m_selected = other.m_selected;
@@ -89,7 +89,7 @@ WItemSelector WItemSelector::newSelector( const std::string asString ) const
     tokens = string_utils::tokenize( asString, ";" );
 
     IndexList l;
-    for ( size_t i = 0; i < tokens.size(); ++i )
+    for( size_t i = 0; i < tokens.size(); ++i )
     {
         l.push_back( boost::lexical_cast< size_t >( tokens[i] ) );
     }
@@ -102,9 +102,9 @@ WItemSelector WItemSelector::newSelector() const
     WItemSelector s( *this );
     s.m_valid = true;
     // iterate selected items to remove items with invalid index
-    for ( IndexList::iterator i = s.m_selected.begin(); i != s.m_selected.end(); ++i )
+    for( IndexList::iterator i = s.m_selected.begin(); i != s.m_selected.end(); ++i )
     {
-        if ( ( *i ) >= m_selection->size() )
+        if( ( *i ) >= m_selection->size() )
         {
             s.m_selected.erase( i );
         }
@@ -114,10 +114,10 @@ WItemSelector WItemSelector::newSelector() const
 
 std::ostream& WItemSelector::operator<<( std::ostream& out ) const
 {
-    for ( WItemSelector::IndexList::const_iterator iter = m_selected.begin(); iter != m_selected.end(); ++iter )
+    for( WItemSelector::IndexList::const_iterator iter = m_selected.begin(); iter != m_selected.end(); ++iter )
     {
         out << ( *iter );
-        if ( ( iter + 1 ) != m_selected.end() )
+        if( ( iter + 1 ) != m_selected.end() )
         {
             out << ";";
         }

@@ -149,10 +149,10 @@ void WROISphere::updateGFX()
     ss << "ROISphere" << sphereId << "";
     bool mouseMove = false;
 
-    if ( m_pickInfo.getName() == ss.str() )
+    if( m_pickInfo.getName() == ss.str() )
     {
         WVector2d newPixelPos( m_pickInfo.getPickPixel() );
-        if ( m_isPicked )
+        if( m_isPicked )
         {
             osg::Vec3 in( newPixelPos.x(), newPixelPos.y(), 0.0 );
             osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
@@ -186,20 +186,20 @@ void WROISphere::updateGFX()
         m_dirty->set( true );
         m_isPicked = true;
     }
-    if ( m_isPicked && m_pickInfo.getName() == "unpick" )
+    if( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
         // Perform all actions necessary for finishing a pick
         m_pickNormal = WVector3d();
         m_isPicked = false;
     }
 
-    if ( m_dirty->get() )
+    if( m_dirty->get() )
     {
         redrawSphere();
         m_dirty->set( false );
     }
 
-    if ( mouseMove )
+    if( mouseMove )
     {
         signalRoiChange();
     }
@@ -209,22 +209,22 @@ void WROISphere::moveSphere( WVector3d offset )
 {
     m_position += offset;
 
-    if ( m_lockX )
+    if( m_lockX )
     {
         m_position[0] = m_lockPoint[0];
     }
 
-    if ( m_lockY )
+    if( m_lockY )
     {
         m_position[1] = m_lockPoint[1];
     }
 
-    if ( m_lockZ )
+    if( m_lockZ )
     {
         m_position[2] = m_lockPoint[2];
     }
 
-    if ( m_lockOnVector )
+    if( m_lockOnVector )
     {
         float k = ( ( m_lockPoint[0] * m_lockVector[0] ) - ( m_position.x() * m_lockVector[0] ) +
                     ( m_lockPoint[1] * m_lockVector[1] ) - ( m_position.y() * m_lockVector[1] ) +

@@ -201,16 +201,16 @@ public:
             computeSVD( A, U, V, Svec );
             WMatrix_2 S( Svec.size(), Svec.size() );
             S.setZero();
-            for ( int i = 0; i < Svec.size(); ++i )
+            for( int i = 0; i < Svec.size(); ++i )
             {
                 S( i, i ) = Svec( i );
             }
 
             WMatrix_2 A2( U*S*V.transpose() );
 
-            for ( int row = 0; row < A.rows(); ++row )
+            for( int row = 0; row < A.rows(); ++row )
             {
-                for ( int col = 0; col < A.cols(); ++col )
+                for( int col = 0; col < A.cols(); ++col )
                 {
                     TS_ASSERT_DELTA( A( row, col ), A2( row, col ), 0.0001 );
                 }
@@ -241,11 +241,11 @@ public:
             WMatrix_2 Ainvers( pseudoInverse( A ) );
             WMatrix_2 I( A*Ainvers );
 
-            for ( int row = 0; row < I.rows(); row++ )
+            for( int row = 0; row < I.rows(); row++ )
             {
-                for ( int col = 0; col < I.cols(); col++ )
+                for( int col = 0; col < I.cols(); col++ )
                 {
-                    if ( row == col )
+                    if( row == col )
                     {
                         TS_ASSERT_DELTA( I( row, col ), 1.0, 0.0001 );
                     }

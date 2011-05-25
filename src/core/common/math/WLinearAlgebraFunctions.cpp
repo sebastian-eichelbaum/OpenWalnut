@@ -315,7 +315,7 @@ WMatrix_2 pseudoInverse( const WMatrix_2& input )
     // create diagonal matrix S
     WMatrix_2 S( input.cols(), input.cols() );
     S.setZero();
-    for ( int i = 0; i < Svec.size() && i < S.rows() && i < S.cols(); i++ )
+    for( int i = 0; i < Svec.size() && i < S.rows() && i < S.cols(); i++ )
     {
         S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
     }

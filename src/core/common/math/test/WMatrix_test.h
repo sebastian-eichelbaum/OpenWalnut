@@ -232,8 +232,8 @@ public:
         const size_t nbRows = 3, nbCols = 2;
         WMatrix< int > matrix( nbRows, nbCols );
 
-        for ( size_t row = 0; row < nbRows; row++ )
-          for ( size_t col = 0; col < nbCols; col++ )
+        for( size_t row = 0; row < nbRows; row++ )
+          for( size_t col = 0; col < nbCols; col++ )
             matrix( row, col ) = ( row+1 )*10 + col+1;
 
         WMatrix< int > matrixTransposed( matrix.transposed() );
@@ -243,8 +243,8 @@ public:
         TS_ASSERT_EQUALS( matrixTransposed.getNbRows(), matrix.getNbCols() );
 
         // test values
-        for ( size_t row = 0; row < nbRows; row++ )
-          for ( size_t col = 0; col < nbCols; col++ )
+        for( size_t row = 0; row < nbRows; row++ )
+          for( size_t col = 0; col < nbCols; col++ )
             TS_ASSERT_EQUALS( matrixTransposed( col, row ), ( row+1 )*10 + col + 1 );
     }
 };

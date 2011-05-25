@@ -93,7 +93,7 @@ boost::shared_ptr< WDataSet > WMData::getDataSet()
 
 void WMData::setFilename( boost::filesystem::path fname )
 {
-    if ( !m_fileNameSet )
+    if( !m_fileNameSet )
     {
         m_fileNameSet = true;
         m_fileName = fname;
@@ -149,7 +149,7 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
 {
     if( m_isTexture )
     {
-        if ( property == m_active )
+        if( property == m_active )
         {
             // forward to texture
             m_dataSet->getTexture2()->active()->set( m_active->get( true ) );
@@ -157,7 +157,7 @@ void WMData::propertyChanged( boost::shared_ptr< WPropertyBase > property )
     }
     else
     {
-        if ( property == m_active )
+        if( property == m_active )
         {
             if( m_active->get() )
             {
@@ -188,7 +188,7 @@ void WMData::moduleMain()
     m_dataName->set( fileName );
 
     // remove the path up to the file name and set it as a convenient name for this module instance
-    if ( fileName != "" )
+    if( fileName != "" )
     {
         m_runtimeName->set( string_utils::tokenize( fileName, "/" ).back() );
     }
@@ -291,7 +291,7 @@ void WMData::moduleMain()
     m_active->getCondition()->subscribeSignal( boost::bind( &WMData::propertyChanged, this, m_active ) );
 
     // textures also provide properties
-    if ( m_dataSet->isTexture() )
+    if( m_dataSet->isTexture() )
     {
         WGEColormapping::registerTexture( m_dataSet->getTexture2(), m_runtimeName->get() );
         m_properties->addProperty( m_dataSet->getTexture2()->getProperties() );
@@ -318,7 +318,7 @@ void WMData::moduleMain()
             if( m_dataSet && m_isTexture )
             {
                 // remove dataset from datahandler
-                if ( m_dataSet->isTexture() )
+                if( m_dataSet->isTexture() )
                 {
                     m_properties->removeProperty( m_dataSet->getTexture2()->getProperties() );
                     m_infoProperties->removeProperty( m_dataSet->getTexture2()->getInformationProperties() );
@@ -365,7 +365,7 @@ void WMData::moduleMain()
     }
 
     // remove dataset from datahandler
-    if ( m_dataSet->isTexture() )
+    if( m_dataSet->isTexture() )
     {
         m_properties->removeProperty( m_dataSet->getTexture2()->getProperties() );
         m_infoProperties->removeProperty( m_dataSet->getTexture2()->getInformationProperties() );

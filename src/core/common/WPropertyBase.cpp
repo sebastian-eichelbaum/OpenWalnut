@@ -47,7 +47,7 @@ WPropertyBase::WPropertyBase( std::string name, std::string description ):
     m_updateCondition( new WConditionSet() )
 {
     // check name validity
-    if ( ( m_name.find( std::string( "/" ) ) != std::string::npos ) || m_name.empty() )
+    if( ( m_name.find( std::string( "/" ) ) != std::string::npos ) || m_name.empty() )
     {
         throw WPropertyNameMalformed( std::string( "Property name \"" + name +
                                       "\" is malformed. Do not use slashes (\"/\") or empty strings in property names." ) );
@@ -108,7 +108,7 @@ bool WPropertyBase::isHidden() const
 
 void WPropertyBase::setHidden( bool hidden )
 {
-    if ( m_hidden != hidden )
+    if( m_hidden != hidden )
     {
         m_hidden = hidden;
         m_updateCondition->notify();

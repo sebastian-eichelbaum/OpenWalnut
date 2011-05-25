@@ -116,7 +116,7 @@ void WModule::addConnector( boost::shared_ptr< WModuleInputConnector > con )
     );
 
     // if there already is one ... exception
-    if ( c )
+    if( c )
     {
         throw WNameNotUnique( std::string( "Could not add the connector " + con->getCanonicalName() + " since names must be unique." ) );
     }
@@ -135,7 +135,7 @@ void WModule::addConnector( boost::shared_ptr< WModuleOutputConnector > con )
     );
 
     // if there already is one ... exception
-    if ( c )
+    if( c )
     {
         throw WNameNotUnique( std::string( "Could not add the connector " + con->getCanonicalName() + " since names must be unique." ) );
     }
@@ -169,7 +169,7 @@ WCombinerTypes::WDisconnectList WModule::getPossibleDisconnections()
         WCombinerTypes::WDisconnectGroup g = WCombinerTypes::WDisconnectGroup( ( *listIter )->getName(),
                                                                                ( *listIter )->getPossibleDisconnections() );
 
-        if ( g.second.size() )
+        if( g.second.size() )
         {
             discons.push_back( g );
         }
@@ -182,7 +182,7 @@ WCombinerTypes::WDisconnectList WModule::getPossibleDisconnections()
         WCombinerTypes::WDisconnectGroup g = WCombinerTypes::WDisconnectGroup( ( *listIter )->getName(),
                                                                                ( *listIter )->getPossibleDisconnections() );
 
-        if ( g.second.size() )
+        if( g.second.size() )
         {
             discons.push_back( g );
         }
@@ -224,7 +224,7 @@ void WModule::activate()
 void WModule::initialize()
 {
     // doing it twice is not allowed
-    if ( isInitialized()() )
+    if( isInitialized()() )
     {
         throw WModuleConnectorInitFailed( std::string( "Could not initialize connectors for Module " ) + getName() +
                                           std::string( ". Reason: already initialized." ) );
@@ -285,7 +285,7 @@ boost::shared_ptr< WModuleInputConnector > WModule::findInputConnector( std::str
          listIter != m_inputConnectors.end(); ++listIter )
     {
         // try the canonical name
-        if ( ( name == ( *listIter )->getCanonicalName() ) || ( name == ( *listIter )->getName() ) )
+        if( ( name == ( *listIter )->getCanonicalName() ) || ( name == ( *listIter )->getName() ) )
         {
             return ( *listIter );
         }
@@ -298,7 +298,7 @@ boost::shared_ptr< WModuleInputConnector > WModule::getInputConnector( std::stri
 {
     boost::shared_ptr< WModuleInputConnector > p = findInputConnector( name );
 
-    if ( !p )
+    if( !p )
     {
         throw WModuleConnectorNotFound( std::string( "The connector \"" ) + name +
                                         std::string( "\" does not exist in the module \"" ) + getName() + std::string( "\"." ) );
@@ -314,7 +314,7 @@ boost::shared_ptr< WModuleOutputConnector > WModule::findOutputConnector( std::s
          listIter != m_outputConnectors.end(); ++listIter )
     {
         // try the canonical name
-        if ( ( name == ( *listIter )->getCanonicalName() ) || ( name == ( *listIter )->getName() ) )
+        if( ( name == ( *listIter )->getCanonicalName() ) || ( name == ( *listIter )->getName() ) )
         {
             return ( *listIter );
         }
@@ -327,7 +327,7 @@ boost::shared_ptr< WModuleOutputConnector > WModule::getOutputConnector( std::st
 {
     boost::shared_ptr< WModuleOutputConnector > p = findOutputConnector( name );
 
-    if ( !p )
+    if( !p )
     {
         throw WModuleConnectorNotFound( std::string( "The connector \"" ) + name +
                                         std::string( "\" does not exist in the module \"" ) + getName() +
@@ -341,7 +341,7 @@ boost::shared_ptr< WModuleConnector > WModule::findConnector( std::string name )
 {
     // simply search both
     boost::shared_ptr< WModuleConnector > p = findInputConnector( name );
-    if ( p ) // found?
+    if( p ) // found?
     {
         return p;
     }
@@ -354,7 +354,7 @@ boost::shared_ptr< WModuleConnector > WModule::getConnector( std::string name )
 {
     boost::shared_ptr< WModuleConnector > p = findConnector( name );
 
-    if ( !p )
+    if( !p )
     {
         throw WModuleConnectorNotFound( std::string( "The connector \"" ) + name +
                                         std::string( "\" does not exist in the module \"" ) + getName() +
@@ -501,9 +501,9 @@ void WModule::ready()
 const WRequirement* WModule::checkRequirements() const
 {
     // simply iterate all requirements and return the first found that is not fulfilled
-    for ( Requirements::const_iterator i = m_requirements.begin(); i != m_requirements.end(); ++i )
+    for( Requirements::const_iterator i = m_requirements.begin(); i != m_requirements.end(); ++i )
     {
-        if ( !( *i )->isComplied() )
+        if( !( *i )->isComplied() )
         {
             return *i;
         }
@@ -525,7 +525,7 @@ void WModule::threadMain()
 
         // check requirements
         const WRequirement* failedReq = checkRequirements();
-        if ( failedReq )
+        if( failedReq )
         {
             throw WModuleRequirementNotMet( failedReq );
         }

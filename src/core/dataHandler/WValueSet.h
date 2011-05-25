@@ -122,7 +122,7 @@ public:
         // Calculating this once simply ensures that it does not need to be recalculated in textures, histograms ...
         m_minimum = wlimits::MAX_DOUBLE;
         m_maximum = wlimits::MIN_DOUBLE;
-        for ( typename std::vector< T >::const_iterator iter = data->begin(); iter != data->end(); ++iter )
+        for( typename std::vector< T >::const_iterator iter = data->begin(); iter != data->end(); ++iter )
         {
             m_minimum = m_minimum > *iter ? *iter : m_minimum;
             m_maximum = m_maximum < *iter ? *iter : m_maximum;
@@ -315,7 +315,7 @@ template< typename T > WValue< T > WValueSet< T >::getWValue( size_t index ) con
     WValue< T > result( m_dimension );
 
     // copying values
-    for ( std::size_t i = 0; i < m_dimension; i++ )
+    for( std::size_t i = 0; i < m_dimension; i++ )
         result[i] = ( *m_data )[offset+i];
 
     return result;

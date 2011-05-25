@@ -138,7 +138,7 @@ typename WSharedObject< T >::ReadTicket WSharedObject< T >::getReadTicket() cons
 template < typename T >
 typename WSharedObject< T >::WriteTicket WSharedObject< T >::getWriteTicket( bool suppressNotify ) const
 {
-    if ( suppressNotify )
+    if( suppressNotify )
     {
         return boost::shared_ptr< WSharedObjectTicketWrite< T > >(
                 new WSharedObjectTicketWrite< T >( m_object, m_lock, boost::shared_ptr< WCondition >() )

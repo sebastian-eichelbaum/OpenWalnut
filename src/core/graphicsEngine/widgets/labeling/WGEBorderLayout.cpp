@@ -81,7 +81,7 @@ void WGEBorderLayout::SafeUpdateCallback::operator()( osg::Node* node, osg::Node
     // the geometry for the lead lines
     osg::ref_ptr< osg::Vec3Array > v = new osg::Vec3Array;
 
-    for ( unsigned int i = 0; i < m_layouter->m_geode->getNumDrawables(); ++i )
+    for( unsigned int i = 0; i < m_layouter->m_geode->getNumDrawables(); ++i )
     {
         // each drawable is a WGELabel:
         osg::ref_ptr< WGELabel > t = static_cast< WGELabel* >( m_layouter->m_geode->getDrawable( i ) );
@@ -99,7 +99,7 @@ void WGEBorderLayout::SafeUpdateCallback::operator()( osg::Node* node, osg::Node
         // draw a line
         osg::Vec3 leadPos;
 
-        if ( anchorScreen.x() >= vwidth / 2 )
+        if( anchorScreen.x() >= vwidth / 2 )
         {
             leadPos = osg::Vec3( vwidth - 10.0, anchorScreen.y(), 0.0 );
 

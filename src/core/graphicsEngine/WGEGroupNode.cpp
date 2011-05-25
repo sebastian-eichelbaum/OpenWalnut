@@ -94,31 +94,31 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
     boost::unique_lock<boost::shared_mutex> lock;
 
     // write lock the removal list
-    if ( rootNode->m_childOperationQueueDirty )
+    if( rootNode->m_childOperationQueueDirty )
     {
         lock = boost::unique_lock<boost::shared_mutex>( rootNode->m_childOperationQueueLock );
         // insert/remove children which requested it
         while ( !rootNode->m_childOperationQueue.empty() )
         {
             // remove or insert or remove all?
-            if ( rootNode->m_childOperationQueue.front()->m_operation == INSERT )
+            if( rootNode->m_childOperationQueue.front()->m_operation == INSERT )
             {
                 // add specified child
                 rootNode->addChild( rootNode->m_childOperationQueue.front()->m_item );
             }
 
-            if ( rootNode->m_childOperationQueue.front()->m_operation == REMOVE )
+            if( rootNode->m_childOperationQueue.front()->m_operation == REMOVE )
             {
                 // remove specified child
                 rootNode->removeChild( rootNode->m_childOperationQueue.front()->m_item );
             }
 
-            if ( rootNode->m_childOperationQueue.front()->m_operation == REMOVE_IF )
+            if( rootNode->m_childOperationQueue.front()->m_operation == REMOVE_IF )
             {
                 // remove children where m_predicate is true
-                for ( size_t i = 0; i < rootNode->getNumChildren(); )
+                for( size_t i = 0; i < rootNode->getNumChildren(); )
                 {
-                    if ( ( *rootNode->m_childOperationQueue.front()->m_predicate )( rootNode->getChild( i ) ) )
+                    if( ( *rootNode->m_childOperationQueue.front()->m_predicate )( rootNode->getChild( i ) ) )
                     {
                         // remove item but do not increment index
                         rootNode->removeChild( i );
@@ -129,7 +129,7 @@ void WGEGroupNode::SafeUpdaterCallback::operator()( osg::Node* node, osg::NodeVi
                 }
             }
 
-            if ( rootNode->m_childOperationQueue.front()->m_operation == CLEAR )
+            if( rootNode->m_childOperationQueue.front()->m_operation == CLEAR )
             {
                 // remove all
                 rootNode->removeChild( 0, rootNode->getNumChildren() );

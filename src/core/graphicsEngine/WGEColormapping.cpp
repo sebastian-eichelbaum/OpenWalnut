@@ -45,10 +45,10 @@ boost::shared_ptr< WGEColormapping > WGEColormapping::m_instance = boost::shared
 void setDefines( osg::ref_ptr< WGEShader > shader, size_t start = 0 )
 {
     // simply set some proper defines for each colormap -> the unit and multitex coords
-    for ( size_t unit = 0; unit < wge::getMaxTexUnits(); ++unit )
+    for( size_t unit = 0; unit < wge::getMaxTexUnits(); ++unit )
     {
         // disable textures with invalid unit numbers
-        if ( unit < wge::getMaxTexUnits() - start )
+        if( unit < wge::getMaxTexUnits() - start )
         {
             shader->setDefine( "Colormap" + boost::lexical_cast< std::string >( unit ) + "Enabled", true );
             shader->setDefine( "Colormap" + boost::lexical_cast< std::string >( unit ) + "Unit", start + unit );
@@ -73,7 +73,7 @@ void setPreTransform( osg::ref_ptr< WGEShader > shader, osg::Matrixd preTransfor
     out.setf( std::ios::fixed, std::ios::floatfield );
 
     // print all 16 values
-    for ( size_t i = 0; i < 15; ++i )
+    for( size_t i = 0; i < 15; ++i )
     {
         out << m[ i ] << ", ";
     }
@@ -98,7 +98,7 @@ WGEColormapping::~WGEColormapping()
 
 boost::shared_ptr< WGEColormapping > WGEColormapping::instance()
 {
-    if ( !m_instance )
+    if( !m_instance )
     {
         m_instance = boost::shared_ptr< WGEColormapping >( new WGEColormapping() );
     }
@@ -146,7 +146,7 @@ void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, WMatrix4d preTr
     node->addUpdateCallback( m_callback );
 
     // add the default shader if no other shader has been specified.
-    if ( !shader )
+    if( !shader )
     {
         // we use a new instance of the default shader here because the preTransform is varying between several nodes.
         osg::ref_ptr< WGEShader > s = new WGEShader( "WGEDefaultColormapper" );
@@ -165,9 +165,9 @@ void WGEColormapping::applyInst( osg::ref_ptr< osg::Node > node, WMatrix4d preTr
 void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture, std::string name )
 {
     wlog::debug( "WGEColormapping" ) << "Registering texture.";
-    if ( !m_textures.count( texture ) )
+    if( !m_textures.count( texture ) )
     {
-        if ( !name.empty() )
+        if( !name.empty() )
         {
             texture->name()->set( name );
         }
@@ -180,7 +180,7 @@ void WGEColormapping::registerTextureInst( osg::ref_ptr< WGETexture3D > texture,
 void WGEColormapping::deregisterTextureInst( osg::ref_ptr< WGETexture3D > texture )
 {
     wlog::debug( "WGEColormapping" ) << "De-registering texture.";
-    if ( m_textures.count( texture ) )
+    if( m_textures.count( texture ) )
     {
         m_textures.remove( texture );
         updateBounds();
@@ -191,13 +191,13 @@ void WGEColormapping::deregisterTextureInst( osg::ref_ptr< WGETexture3D > textur
 void WGEColormapping::replaceTextureInst( osg::ref_ptr< WGETexture3D > old, osg::ref_ptr< WGETexture3D > newTex, std::string name )
 {
     wlog::debug( "WGEColormapping" ) << "Replacing texture.";
-    if ( !name.empty() )
+    if( !name.empty() )
     {
         newTex->name()->set( name );
     }
 
     // if it exists, replace it
-    if ( m_textures.count( old ) )
+    if( m_textures.count( old ) )
     {
         m_textures.replace( old, newTex );
         updateBounds();
@@ -217,7 +217,7 @@ void WGEColormapping::updateBounds()
     bool first = true;
     for( TextureContainerType::ConstIterator iter = r->get().begin(); iter != r->get().end(); ++iter )
     {
-        if ( first )
+        if( first )
         {
             bbw->get() = ( *iter )->getBoundingBox();
             first = false;
@@ -248,7 +248,7 @@ void WGEColormapping::callback( osg::Node* node )
     // get node info
     NodeInfoContainerType::ReadTicket r = m_nodeInfo.getReadTicket();
     NodeInfoContainerType::ConstIterator infoItem = r->get().find( node );
-    if ( infoItem == r->get().end() )
+    if( infoItem == r->get().end() )
     {
         return;
     }
@@ -257,7 +257,7 @@ void WGEColormapping::callback( osg::Node* node )
     NodeInfo* info = infoItem->second;
 
     // need (re-)binding?
-    if ( info->m_rebind )
+    if( info->m_rebind )
     {
         info->m_rebind = false;
 
@@ -286,13 +286,13 @@ bool WGEColormapping::moveDown( osg::ref_ptr< WGETexture3D > texture )
 
     // does the texture exist?
     TextureContainerType::Iterator iter = std::find( w->get().begin(), w->get().end(), texture );
-    if ( iter == w->get().end() )
+    if( iter == w->get().end() )
     {
         return false;
     }
 
     // is it already the last item?
-    if ( iter + 1 == w->get().end() )
+    if( iter + 1 == w->get().end() )
     {
         return false;
     }
@@ -313,13 +313,13 @@ bool WGEColormapping::moveUp( osg::ref_ptr< WGETexture3D > texture )
 
     // does the texture exist?
     TextureContainerType::Iterator iter = std::find( w->get().begin(), w->get().end(), texture );
-    if ( iter == w->get().end() )
+    if( iter == w->get().end() )
     {
         return false;
     }
 
     // is it already the first item?
-    if ( iter == w->get().begin() )
+    if( iter == w->get().begin() )
     {
         return false;
     }

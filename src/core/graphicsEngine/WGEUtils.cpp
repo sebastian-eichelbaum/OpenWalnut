@@ -57,62 +57,62 @@ WColor wge::createColorFromIndex( int index )
     float b = 0.0;
     float mult = 1.0;
 
-    if ( index == 0 )
+    if( index == 0 )
     {
         return WColor( 0.0, 0.0, 0.0, 1.0 );
     }
 
-    if ( ( index & 1 ) == 1 )
+    if( ( index & 1 ) == 1 )
     {
         b = 1.0;
     }
-    if ( ( index & 2 ) == 2 )
+    if( ( index & 2 ) == 2 )
     {
         g = 1.0;
     }
-    if ( ( index & 4 ) == 4 )
+    if( ( index & 4 ) == 4 )
     {
         r = 1.0;
     }
-    if ( ( index & 8 ) == 8 )
+    if( ( index & 8 ) == 8 )
     {
         mult -= 0.15;
-        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        if( r < 1.0 && g < 1.0 && b < 1.0 )
         {
             r = 1.0;
             g = 1.0;
         }
     }
-    if ( ( index & 16 ) == 16 )
+    if( ( index & 16 ) == 16 )
     {
         mult -= 0.15;
-        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        if( r < 1.0 && g < 1.0 && b < 1.0 )
         {
             b = 1.0;
             g = 1.0;
         }
     }
-    if ( ( index & 32 ) == 32 )
+    if( ( index & 32 ) == 32 )
     {
         mult -= 0.15;
-        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        if( r < 1.0 && g < 1.0 && b < 1.0 )
         {
             r = 1.0;
             b = 1.0;
         }
     }
-    if ( ( index & 64 ) == 64 )
+    if( ( index & 64 ) == 64 )
     {
         mult -= 0.15;
-        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        if( r < 1.0 && g < 1.0 && b < 1.0 )
         {
             g = 1.0;
         }
     }
-    if ( ( index & 128 ) == 128 )
+    if( ( index & 128 ) == 128 )
     {
         mult -= 0.15;
-        if ( r < 1.0 && g < 1.0 && b < 1.0 )
+        if( r < 1.0 && g < 1.0 && b < 1.0 )
         {
             r = 1.0;
         }
@@ -162,40 +162,40 @@ WColor wge::getNthHSVColor( int n )
     float s = 1.0;
     float v = 1.0;
 
-    if ( ( n & 1 ) == 1 )
+    if( ( n & 1 ) == 1 )
     {
         h += 180;
     }
-    if ( ( n & 2 ) == 2 )
+    if( ( n & 2 ) == 2 )
     {
         h += 90;
     }
-    if ( ( n & 4 ) == 4 )
+    if( ( n & 4 ) == 4 )
     {
         h += 45;
     }
-    if ( ( n & 8 ) == 8 )
+    if( ( n & 8 ) == 8 )
     {
         h += 202;
         h = h % 360;
     }
-    if ( ( n & 16 ) == 16 )
+    if( ( n & 16 ) == 16 )
     {
         v -= .25;
     }
-    if ( ( n & 32 ) == 32 )
+    if( ( n & 32 ) == 32 )
     {
         s -= .25;
     }
-    if ( ( n & 64 ) == 64 )
+    if( ( n & 64 ) == 64 )
     {
         v -= .25;
     }
-    if ( ( n & 128 ) == 128 )
+    if( ( n & 128 ) == 128 )
     {
         s -= 0.25;
     }
-    if ( ( n & 256 ) == 256 )
+    if( ( n & 256 ) == 256 )
     {
         v -= 0.25;
     }

@@ -77,7 +77,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
     static const boost::regex propRe( "^ *PROPERTY:\\(([0-9]*),(.*)\\)=(.*)$" );
 
     boost::smatch matches;  // the list of matches
-    if ( boost::regex_match( line, matches, modRe ) )
+    if( boost::regex_match( line, matches, modRe ) )
     {
         // it is a module line
         // matches[1] is the ID
@@ -89,11 +89,11 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( matches[2] );
 
         // data modules are not allowed here
-        if ( !proto )
+        if( !proto )
         {
             wlog::error( "Project Loader" ) << "There is no prototype available for module \"" << matches[2] << "\". Skipping.";
         }
-        else if ( proto->getType() == MODULE_DATA )
+        else if( proto->getType() == MODULE_DATA )
         {
             wlog::error( "Project Loader" ) << "Data modules are not allowed to be specified in a \"MODULE\" Statement." <<
                                                " Use the \"DATA\" statement instead. Skipping.";
@@ -104,7 +104,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
             m_modules.insert( ModuleID( boost::lexical_cast< unsigned int >( matches[1] ), module ) );
         }
     }
-    else if ( boost::regex_match( line, matches, dataRe ) )
+    else if( boost::regex_match( line, matches, dataRe ) )
     {
         // it is a dataset line
         // matches[1] is the ID
@@ -113,7 +113,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
 
         // create a module instance
         boost::shared_ptr< WModule > proto = WModuleFactory::getModuleFactory()-> isPrototypeAvailable( "Data Module" );
-        if ( !proto )
+        if( !proto )
         {
             wlog::error( "Project Loader" ) << "There is no prototype available for module \"" << "Data Module" << "\"."
                                             << " This should not happen!. Skipping.";
@@ -122,7 +122,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         {
             std::string parameter = std::string( matches[2] );
             boost::shared_ptr< WModule > module = WModuleFactory::getModuleFactory()->create( proto );
-            if ( parameter.empty() )
+            if( parameter.empty() )
             {
                 wlog::error( "Project Loader" ) << "Data modules need an additional filename parameter. Skipping.";
             }
@@ -133,7 +133,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
             }
         }
     }
-    else if ( boost::regex_match( line, matches, conRe ) )
+    else if( boost::regex_match( line, matches, conRe ) )
     {
         // it is a connector line
         // matches[1] and [2] are the module ID and connector name of the output connector
@@ -146,7 +146,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
         m_connections.push_back( Connection( Connector( boost::lexical_cast< unsigned int >( matches[1] ), matches[2] ),
                                            Connector( boost::lexical_cast< unsigned int >( matches[3] ), matches[4] ) ) );
     }
-    else if ( boost::regex_match( line, matches, propRe ) )
+    else if( boost::regex_match( line, matches, propRe ) )
     {
         // it is a property line
         // matches[1] is the module ID
@@ -169,19 +169,19 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
 void WModuleProjectFileCombiner::apply()
 {
     // now add each module to the target container
-    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::const_iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
+    for( std::map< unsigned int, boost::shared_ptr< WModule > >::const_iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
     {
         m_container->add( ( *iter ).second );
     }
 
     // now wait for the modules to get ready. We could have waited for this in the previous loop, but a long loading module would block others.
     // -> so we wait after adding and starting them
-    for ( std::map< unsigned int, boost::shared_ptr< WModule > >::iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
+    for( std::map< unsigned int, boost::shared_ptr< WModule > >::iterator iter = m_modules.begin(); iter != m_modules.end(); ++iter )
     {
         ( *iter ).second->isReadyOrCrashed().wait();
 
         // if isReady now is false, the module has crashed before it got ready -> remove the module from the list
-        if ( ( *iter ).second->isCrashed()() )
+        if( ( *iter ).second->isCrashed()() )
         {
             wlog::warn( "Project Loader" ) << "In the module with ID "
                                            << ( *iter ).first
@@ -192,10 +192,10 @@ void WModuleProjectFileCombiner::apply()
     }
 
     // now, as we have created the modules, we need to set the properties for each of it.
-    for ( std::list< PropertyValue >::const_iterator iter = m_properties.begin(); iter != m_properties.end(); ++iter )
+    for( std::list< PropertyValue >::const_iterator iter = m_properties.begin(); iter != m_properties.end(); ++iter )
     {
         // grab corresponding module
-        if ( !m_modules.count( ( *iter ).first.first ) )
+        if( !m_modules.count( ( *iter ).first.first ) )
         {
             wlog::error( "Project Loader" ) << "There is no module with ID \"" << ( *iter ).first.first <<  "\" to set the property \"" <<
                                                ( *iter ).first.second << "\" for. Skipping.";
@@ -205,7 +205,7 @@ void WModuleProjectFileCombiner::apply()
 
         // has this module the specified property?
         boost::shared_ptr< WPropertyBase > prop = m->getProperties()->findProperty( ( *iter ).first.second );
-        if ( !prop )
+        if( !prop )
         {
             wlog::error( "Project Loader" ) << "The module \"" << m->getName() << "\" has no property named \"" <<
                          ( *iter ).first.second << "\". Skipping.";
@@ -213,11 +213,11 @@ void WModuleProjectFileCombiner::apply()
         }
         else
         {
-            if ( prop->getPurpose() != PV_PURPOSE_INFORMATION )
+            if( prop->getPurpose() != PV_PURPOSE_INFORMATION )
             {
                 // set the property here
                 bool result = prop->setAsString( ( *iter ).second );
-                if ( !result )
+                if( !result )
                 {
                     wlog::error( "Project Loader" ) << "Failed to set property " << ( *iter ).first.second << " in module \"" <<
                                                        m->getName() << "\".";
@@ -232,7 +232,7 @@ void WModuleProjectFileCombiner::apply()
     }
 
     // and finally, connect them all together
-    for ( std::list< Connection >::const_iterator iter = m_connections.begin(); iter != m_connections.end(); ++iter )
+    for( std::list< Connection >::const_iterator iter = m_connections.begin(); iter != m_connections.end(); ++iter )
     {
         // each connection contains two connectors
         Connector c1 = ( *iter ).first;
@@ -241,7 +241,7 @@ void WModuleProjectFileCombiner::apply()
         // each of these connectors contains the module ID and the connector name
         // grab corresponding module 1
         boost::shared_ptr< WModule > m1;
-        if ( !m_modules.count( c1.first ) )
+        if( !m_modules.count( c1.first ) )
         {
             wlog::error( "Project Loader" ) << "There is no module with ID \"" << c1.first <<  "\" for the connection "
                                             << "(" << c1.first << "," << c1.second << ")->(" << c2.first << "," << c2.second << "). Skipping.";
@@ -251,7 +251,7 @@ void WModuleProjectFileCombiner::apply()
         m1 = m_modules[ c1.first ];
 
         boost::shared_ptr< WModule > m2;
-        if ( !m_modules.count( c2.first ) )
+        if( !m_modules.count( c2.first ) )
         {
             wlog::error( "Project Loader" ) << "There is no module with ID \"" << c2.first <<  "\" for the connection "
                                             << "(" << c1.first << "," << c1.second << ")->(" << c2.first << "," << c2.second << "). Skipping.";
@@ -317,14 +317,14 @@ void WModuleProjectFileCombiner::printProperties( std::ostream& output, boost::s
     output << indent << "// Property Group: " << props->getName() << std::endl;
 
     // iterate of them and print them to output
-    for ( WProperties::PropertyConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
+    for( WProperties::PropertyConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
     {
         // information properties do not get written
-        if ( ( *iter )->getPurpose () == PV_PURPOSE_INFORMATION )
+        if( ( *iter )->getPurpose () == PV_PURPOSE_INFORMATION )
         {
             continue;
         }
-        if ( ( *iter )->getType() != PV_GROUP )
+        if( ( *iter )->getType() != PV_GROUP )
         {
             output << indent + "    " << "PROPERTY:(" << module << "," << prefix + ( *iter )->getName() << ")="
                    << ( *iter )->getAsString() << std::endl;
@@ -332,7 +332,7 @@ void WModuleProjectFileCombiner::printProperties( std::ostream& output, boost::s
         else
         {
             // it is a group -> recursively print it
-            if ( prefix.empty() )
+            if( prefix.empty() )
             {
                 printProperties( output, ( *iter )->toPropGroup(), indent + "    ", ( *iter )->getName() + "/", module );
             }
@@ -360,13 +360,13 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
 
     // iterate all modules:
     unsigned int i = 0;
-    for ( WModuleContainer::ModuleConstIterator iter = container->get().begin(); iter != container->get().end(); ++iter )
+    for( WModuleContainer::ModuleConstIterator iter = container->get().begin(); iter != container->get().end(); ++iter )
     {
         // store the mapping of ptr to ID
         moduleToIDMap[ ( *iter ) ] = i;
 
         // handle data modules separately
-        if ( ( *iter )->getType() == MODULE_DATA )
+        if( ( *iter )->getType() == MODULE_DATA )
         {
             output << "DATA:" << i << ":" <<  boost::shared_static_cast< WMData >( ( *iter ) )->getFilename() << std::endl;
         }
@@ -391,16 +391,16 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
 
 
     // iterate over all modules
-    for ( WModuleContainer::ModuleConstIterator iter = container->get().begin(); iter != container->get().end(); ++iter )
+    for( WModuleContainer::ModuleConstIterator iter = container->get().begin(); iter != container->get().end(); ++iter )
     {
         // iterate over all outputs
         const WModule::OutputConnectorList& outs = ( *iter )->getOutputConnectors();
-        for ( WModule::OutputConnectorList::const_iterator citer = outs.begin(); citer != outs.end(); ++citer )
+        for( WModule::OutputConnectorList::const_iterator citer = outs.begin(); citer != outs.end(); ++citer )
         {
             // iterate over all connections:
             // TODO(ebaum): iterating over a protected member variable? Thats ugly. This should be adopted to WSharedObject
             boost::unique_lock<boost::shared_mutex> lock( ( *citer )->m_connectionListLock );
-            for ( std::set<boost::shared_ptr<WModuleConnector> >::const_iterator iciter = ( *citer )->m_connected.begin();
+            for( std::set<boost::shared_ptr<WModuleConnector> >::const_iterator iciter = ( *citer )->m_connected.begin();
                   iciter != ( *citer )->m_connected.end(); ++iciter )
             {
                 // as the module is a weak_ptr -> lock and get access to it

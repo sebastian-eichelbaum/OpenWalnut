@@ -38,7 +38,7 @@ WGEOffscreenRenderNode::WGEOffscreenRenderNode( osg::ref_ptr< osg::Camera > refe
 {
     // initialize members
     m_hud = new WGETextureHud();
-    if ( !noHud )
+    if( !noHud )
     {
         m_hud->addUpdateCallback( new WGEViewportCallback< WGETextureHud >( m_referenceCamera ) );
         m_hud->coupleViewportWithTextureViewport();

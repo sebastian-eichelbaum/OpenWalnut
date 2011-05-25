@@ -202,7 +202,7 @@ inline bool WRMBranch::empty()
 inline bool WRMBranch::dirty( bool reset )
 {
     bool ret = m_dirty->get();
-    if ( reset )
+    if( reset )
     {
         m_dirty->set( false );
     }

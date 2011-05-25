@@ -48,7 +48,7 @@ WSelectorBranch::~WSelectorBranch()
     m_branch->removeChangeNotifier( m_changeSignal );
 
     // We need the following because not all ROIs are removed per slot below
-    for ( std::list< boost::shared_ptr< WSelectorRoi > >::iterator roiIter = m_rois.begin(); roiIter != m_rois.end(); ++roiIter )
+    for( std::list< boost::shared_ptr< WSelectorRoi > >::iterator roiIter = m_rois.begin(); roiIter != m_rois.end(); ++roiIter )
     {
         ( *roiIter )->getRoi()->removeROIChangeNotifier( m_changeRoiSignal );
     }
@@ -78,7 +78,7 @@ void WSelectorBranch::removeRoi( osg::ref_ptr< WROI > roi )
 {
     for( std::list< boost::shared_ptr< WSelectorRoi > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
-        if ( ( *iter )->getRoi() == roi )
+        if( ( *iter )->getRoi() == roi )
         {
             ( *iter )->getRoi()->removeROIChangeNotifier( m_changeRoiSignal );
             m_rois.erase( iter );
@@ -93,32 +93,32 @@ void WSelectorBranch::recalculate()
 
     for( std::list< boost::shared_ptr< WSelectorRoi > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
-        if ( ( *iter )->getRoi()->active() )
+        if( ( *iter )->getRoi()->active() )
         {
             atLeastOneActive = true;
         }
     }
 
-    if ( atLeastOneActive )
+    if( atLeastOneActive )
     {
         m_workerBitfield = boost::shared_ptr< std::vector< bool > >( new std::vector< bool >( m_size, true ) );
 
         for( std::list< boost::shared_ptr< WSelectorRoi > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
         {
-            if ( ( *iter )->getRoi()->active() )
+            if( ( *iter )->getRoi()->active() )
             {
                 boost::shared_ptr< std::vector<bool> > bf = ( *iter )->getBitField();
                 bool isnot = ( *iter )->getRoi()->isNot();
-                if ( !isnot )
+                if( !isnot )
                 {
-                    for ( size_t i = 0 ; i < m_size ; ++i )
+                    for( size_t i = 0 ; i < m_size ; ++i )
                     {
                         ( *m_workerBitfield )[i] = ( *m_workerBitfield )[i] & ( *bf )[i];
                     }
                 }
                 else
                 {
-                    for ( size_t i = 0 ; i < m_size ; ++i )
+                    for( size_t i = 0 ; i < m_size ; ++i )
                     {
                         ( *m_workerBitfield )[i] = ( *m_workerBitfield )[i] & !( *bf )[i];
                     }
@@ -126,9 +126,9 @@ void WSelectorBranch::recalculate()
             }
         }
 
-        if ( m_branch->isNot() )
+        if( m_branch->isNot() )
         {
-           for ( size_t i = 0 ; i < m_size ; ++i )
+           for( size_t i = 0 ; i < m_size ; ++i )
             {
                 ( *m_workerBitfield )[i] = !( *m_workerBitfield )[i];
             }
@@ -151,12 +151,12 @@ void WSelectorBranch::colorChanged()
     boost::shared_ptr< std::vector< size_t > > startIndexes = m_fibers->getLineStartIndexes();
     boost::shared_ptr< std::vector< size_t > > pointsPerLine = m_fibers->getLineLengths();
 
-    for ( size_t i = 0; i < m_size; ++i )
+    for( size_t i = 0; i < m_size; ++i )
     {
-        if ( ( *m_bitField )[i] )
+        if( ( *m_bitField )[i] )
         {
             size_t idx = ( *startIndexes )[i] * 3;
-            for ( size_t k = 0; k < ( *pointsPerLine )[i]; ++k )
+            for( size_t k = 0; k < ( *pointsPerLine )[i]; ++k )
             {
                 ( *array )[idx++] = color[0];
                 ( *array )[idx++] = color[1];

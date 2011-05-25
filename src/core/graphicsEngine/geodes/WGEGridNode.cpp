@@ -209,7 +209,7 @@ std::string vec2str( osg::Vec3 vec )
 
 void WGEGridNode::callback( osg::Node* /*node*/ )
 {
-    if ( m_gridUpdate )
+    if( m_gridUpdate )
     {
         // grab the grid
         WGridRegular3D::ConstSPtr grid = m_grid.getReadTicket()->get();
@@ -220,7 +220,7 @@ void WGEGridNode::callback( osg::Node* /*node*/ )
         setMatrix( m );
 
         // set the labels correspondingly
-        for ( size_t i = 0; i < 8; ++i )
+        for( size_t i = 0; i < 8; ++i )
         {
             m_borderLabels[i]->setText( vec2str( m_borderLabels[i]->getPosition() * m ) );
         }
@@ -236,7 +236,7 @@ void WGEGridNode::callback( osg::Node* /*node*/ )
         m_boundaryGeode->getDrawable( 0 )->asGeometry()->setColorArray( colors );
 
         // set color for grid too
-        if ( m_innerGridGeode->getNumDrawables() )
+        if( m_innerGridGeode->getNumDrawables() )
         {
             osg::ref_ptr< osg::Vec4Array > colors = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
             colors->push_back( m_gridColor );
@@ -247,7 +247,7 @@ void WGEGridNode::callback( osg::Node* /*node*/ )
     }
 
     // recreate grid?
-    if ( m_gridGeometryUpdate && m_showGrid )
+    if( m_gridGeometryUpdate && m_showGrid )
     {
         // grab the grid
         WGridRegular3D::ConstSPtr grid = m_grid.getReadTicket()->get();
@@ -304,7 +304,7 @@ void WGEGridNode::callback( osg::Node* /*node*/ )
         gridGeometry->setColorArray( colors );
         gridGeometry->setColorBinding( osg::Geometry::BIND_OVERALL );
 
-        if ( m_innerGridGeode->getNumDrawables() )
+        if( m_innerGridGeode->getNumDrawables() )
         {
             m_innerGridGeode->setDrawable( 0, gridGeometry );
         }

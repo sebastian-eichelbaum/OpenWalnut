@@ -41,7 +41,7 @@ boost::shared_ptr< WPrototyped > WDendrogram::m_prototype = boost::shared_ptr< W
 
 boost::shared_ptr< WPrototyped > WDendrogram::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
          m_prototype = boost::shared_ptr< WPrototyped >( new WDendrogram() );
     }

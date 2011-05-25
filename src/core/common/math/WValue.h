@@ -85,7 +85,7 @@ public:
     explicit WValue( const WVector_2& newValues )
         : m_components( static_cast< std::size_t >( newValues.size() ) )
     {
-        for ( std::size_t i = 0; i < m_components.size(); ++i )
+        for( std::size_t i = 0; i < m_components.size(); ++i )
         {
             m_components[ i ] = static_cast< T >( newValues( i ) );
         }
@@ -307,7 +307,7 @@ public:
     {
         WAssert( !m_components.empty(), "WValue has no entries." );
         T sum = 0;
-        for ( typename std::vector< T >::const_iterator it = m_components.begin(); it != m_components.end(); it++  )
+        for( typename std::vector< T >::const_iterator it = m_components.begin(); it != m_components.end(); it++  )
         {
             sum += ( *it );
         }
@@ -340,7 +340,7 @@ public:
     WVector_2 toWVector()
     {
         WVector_2 result( m_components.size() );
-        for ( size_t i = 0; i < m_components.size(); ++i )
+        for( size_t i = 0; i < m_components.size(); ++i )
         {
             result( i ) = static_cast<double>( m_components[ i ] );
         }

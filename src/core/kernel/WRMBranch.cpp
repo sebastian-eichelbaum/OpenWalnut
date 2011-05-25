@@ -71,7 +71,7 @@ bool WRMBranch::contains( osg::ref_ptr< WROI > roi )
 {
     for( std::list< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
-        if ( ( *iter ) == roi )
+        if( ( *iter ) == roi )
         {
             return true;
         }
@@ -84,7 +84,7 @@ void WRMBranch::removeRoi( osg::ref_ptr< WROI > roi )
     roi->removeROIChangeNotifier( m_changeRoiSignal );
     for( std::list< osg::ref_ptr< WROI > >::iterator iter = m_rois.begin(); iter != m_rois.end(); ++iter )
     {
-        if ( ( *iter ) == roi )
+        if( ( *iter ) == roi )
         {
             m_rois.erase( iter );
             setDirty();
@@ -116,7 +116,7 @@ void WRMBranch::setDirty()
     m_dirty->set( true );
     m_roiManager->setDirty();
 
-    for ( std::list< boost::shared_ptr< boost::function< void() > > >::iterator iter = m_changeNotifiers.begin();
+    for( std::list< boost::shared_ptr< boost::function< void() > > >::iterator iter = m_changeNotifiers.begin();
                 iter != m_changeNotifiers.end(); ++iter )
     {
         ( **iter )();

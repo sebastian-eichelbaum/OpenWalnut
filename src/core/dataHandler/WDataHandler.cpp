@@ -70,10 +70,10 @@ void WDataHandler::removeSubject( boost::shared_ptr< WSubject > subject )
                                          "Data Handler", LL_DEBUG );
 
     // iterate and find, remove
-    for ( SubjectContainerType::iterator iter = l->get().begin(); iter != l->get().end();
+    for( SubjectContainerType::iterator iter = l->get().begin(); iter != l->get().end();
             ++iter )
     {
-        if ( ( *iter ) ==  subject )
+        if( ( *iter ) ==  subject )
         {
             l->get().erase( iter );
             break;
@@ -87,7 +87,7 @@ void WDataHandler::clear()
 
     WLogger::getLogger()->addLogMessage( "Removing all subjects.", "Data Handler", LL_INFO );
 
-    for ( SubjectContainerType::const_iterator iter = l->get().begin(); iter != l->get().end();
+    for( SubjectContainerType::const_iterator iter = l->get().begin(); iter != l->get().end();
             ++iter )
     {
         WLogger::getLogger()->addLogMessage( "Removing subject \"" +
@@ -113,7 +113,7 @@ boost::shared_ptr< WSubject > WDataHandler::getSubjectByID( size_t subjectID )
     boost::shared_ptr< WSubject > result;
     try
     {
-        if ( subjectID < l->get().size() )
+        if( subjectID < l->get().size() )
         {
             result = l->get().at( subjectID );
         }
@@ -132,7 +132,7 @@ boost::shared_ptr< WSubject > WDataHandler::getSubjectByID( size_t subjectID )
 
 boost::shared_ptr< WDataHandler > WDataHandler::getDataHandler()
 {
-    if ( !m_instance )
+    if( !m_instance )
     {
         m_instance = boost::shared_ptr< WDataHandler >( new WDataHandler() );
     }

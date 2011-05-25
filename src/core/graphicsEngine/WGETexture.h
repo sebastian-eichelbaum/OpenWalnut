@@ -517,7 +517,7 @@ inline WPropMatrix4X4 WGETexture< TextureType >::transformation() const
 template < typename TextureType >
 void  WGETexture< TextureType >::handleUpdate()
 {
-    if ( m_interpolation->changed() )
+    if( m_interpolation->changed() )
     {
         TextureType::setFilter( osg::Texture::MIN_FILTER, m_interpolation->get( true ) ? osg::Texture::LINEAR : osg::Texture::NEAREST );
         TextureType::setFilter( osg::Texture::MAG_FILTER, m_interpolation->get( true ) ? osg::Texture::LINEAR : osg::Texture::NEAREST );
@@ -552,7 +552,7 @@ template < typename TextureType >
 void WGETexture< TextureType >::updateCallback( osg::StateAttribute* /*state*/ )
 {
     // create if not done yet
-    if ( m_needCreate )
+    if( m_needCreate )
     {
         m_needCreate = false;
         create();

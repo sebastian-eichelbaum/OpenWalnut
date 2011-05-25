@@ -55,7 +55,7 @@ WException::WException( const std::string& msg ):
 
     // print stacktrace and message
     // no backtrace?
-    if ( !noBacktrace )
+    if( !noBacktrace )
     {
         std::cerr << m_headlineColor( std::string( "Exception thrown! Callstack's backtrace:" ) ) << std::endl << getBacktrace() << std::endl;
     }
@@ -72,7 +72,7 @@ WException::WException( const std::exception& e ):
 
     // print stacktrace and message
     // no backtrace?
-    if ( !noBacktrace )
+    if( !noBacktrace )
     {
         std::cerr << m_headlineColor( std::string( "Exception thrown! Callstack's backtrace:" ) ) << std::endl << getBacktrace() << std::endl;
     }
@@ -119,7 +119,7 @@ std::string WException::getBacktrace() const
     stackSymbols = backtrace_symbols( stackAddrs, stackDepth );
 
     // for each stack element -> demangle and print
-    for ( size_t i = 1; i < stackDepth; ++i )
+    for( size_t i = 1; i < stackDepth; ++i )
     {
         // need some space for function name
         // just a guess, especially template names might be even longer
@@ -131,20 +131,20 @@ std::string WException::getBacktrace() const
         char* end = 0;
 
         // find the parentheses and address offset surrounding the mangled name
-        for ( char* j = stackSymbols[i]; *j; ++j )
+        for( char* j = stackSymbols[i]; *j; ++j )
         {
-            if ( *j == '(' )
+            if( *j == '(' )
             {
                 begin = j;
             }
-            else if ( *j == '+' )
+            else if( *j == '+' )
             {
                 end = j;
             }
         }
 
         // found?
-        if ( begin && end )
+        if( begin && end )
         {
             *begin++ = '(';
             *end = '\0';    // temporarily end string there (since \0 is string delimiter)
@@ -153,7 +153,7 @@ std::string WException::getBacktrace() const
             int status;
             char* ret = abi::__cxa_demangle( begin, function, &functionLength, &status );
 
-            if ( ret )
+            if( ret )
             {
                 // return value may be a realloc() of the input
                 function = ret;

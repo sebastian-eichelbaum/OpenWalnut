@@ -456,7 +456,7 @@ void main()
     // don't do this stuff for background pixel
     float depth = getDepth();
     gl_FragDepth = depth;
-    if ( depth > 0.99 )
+    if( depth > 0.99 )
     {
         discard;
     }

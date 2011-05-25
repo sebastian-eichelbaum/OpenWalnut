@@ -82,7 +82,7 @@ void WGESwitchCallback< PropType >::operator()( osg::Node* node, osg::NodeVisito
 {
     // is it a switch?
     osg::Switch* s = node->asSwitch();
-    if ( !s )
+    if( !s )
     {
         traverse( node, nv );
         return;

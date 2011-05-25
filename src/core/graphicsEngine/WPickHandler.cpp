@@ -80,7 +80,7 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
             {
                 m_mouseButton = WPickInfo::MOUSE_RIGHT;
                 osgViewer::View* view = static_cast< osgViewer::View* >( &aa );
-                if ( view )
+                if( view )
                 {
                     pick( view, ea );
                 }
@@ -89,7 +89,7 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
             {
                 m_mouseButton = WPickInfo::MOUSE_LEFT;
                 osgViewer::View* view = static_cast< osgViewer::View* >( &aa );
-                if ( view )
+                if( view )
                 {
                     pick( view, ea );
                 }
@@ -100,7 +100,7 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
         {
             m_mouseButton = WPickInfo::NOMOUSE;
             osgViewer::View* view = static_cast< osgViewer::View* >( &aa );
-            if ( view )
+            if( view )
             {
                 unpick();
             }
@@ -114,22 +114,22 @@ bool WPickHandler::handle( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAda
         }
         case osgGA::GUIEventAdapter::KEYDOWN : // Key on keyboard pushed.
         {
-            if ( ea.getKey() == 'c' )
+            if( ea.getKey() == 'c' )
             {
                 osgViewer::View* view = static_cast< osgViewer::View* >( &aa );
                 osg::ref_ptr< osgGA::GUIEventAdapter > event = new osgGA::GUIEventAdapter( ea );
                 event->setX( ( ea.getXmin() + ea.getXmax() ) * 0.5 );
                 event->setY( ( ea.getYmin() + ea.getYmax() ) * 0.5 );
-                if ( view )
+                if( view )
                 {
                     pick( view, *event );
                 }
             }
-            if ( ea.getKey() == osgGA::GUIEventAdapter::KEY_Shift_L )
+            if( ea.getKey() == osgGA::GUIEventAdapter::KEY_Shift_L )
             {
                 m_shift = true;
             }
-            if ( ea.getKey() == osgGA::GUIEventAdapter::KEY_Control_L ||  ea.getKey() == osgGA::GUIEventAdapter::KEY_Control_R )
+            if( ea.getKey() == osgGA::GUIEventAdapter::KEY_Control_L ||  ea.getKey() == osgGA::GUIEventAdapter::KEY_Control_R )
             {
                 m_ctrl = true;
             }
@@ -156,7 +156,7 @@ std::string extractSuitableName( osgUtil::LineSegmentIntersector::Intersections:
     {
         return hitr->nodePath.back()->getName();
     }
-    else if ( hitr->drawable.valid() )
+    else if( hitr->drawable.valid() )
     {
         return  hitr->drawable->className();
     }
@@ -171,7 +171,7 @@ void WPickHandler::updatePickInfoModifierKeys( WPickInfo* pickInfo )
         pickInfo->setModifierKey( WPickInfo::SHIFT );
     }
 
-    if ( m_ctrl )
+    if( m_ctrl )
     {
         pickInfo->setModifierKey( WPickInfo::STRG );
     }
@@ -189,7 +189,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
     updatePickInfoModifierKeys( &pickInfo );
 
     // if we are in another viewer than the main view we just need the pixel position
-    if ( m_viewerName != "" && m_viewerName != "main" )
+    if( m_viewerName != "" && m_viewerName != "main" )
     {
         pickInfo = WPickInfo( "", m_viewerName, m_startPick.getPickPosition(), std::make_pair( x, y ),
                               m_startPick.getModifierKey(), m_mouseButton, m_startPick.getPickNormal() );
@@ -224,7 +224,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
                 ++hitr;
             }
             // if ctrl is pressed we skip the first thing that gets hit by the pick
-            else if ( ignoreFirst )
+            else if( ignoreFirst )
             {
                 ++hitr;
                 ignoreFirst = false;
@@ -235,7 +235,7 @@ void WPickHandler::pick( osgViewer::View* view, const osgGA::GUIEventAdapter& ea
             }
         }
 
-        if ( hitr == intersections.end() )
+        if( hitr == intersections.end() )
         {
             // after everything was ignored nothing pickable remained and we have noting picked before
             // we just stop further processing.

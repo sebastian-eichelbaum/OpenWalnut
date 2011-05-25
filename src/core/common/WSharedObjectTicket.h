@@ -52,7 +52,7 @@ public:
     virtual ~WSharedObjectTicket()
     {
         // NOTE: the derived destructor already unlocks.
-        if ( m_condition )
+        if( m_condition )
         {
             m_condition->notify();
         }

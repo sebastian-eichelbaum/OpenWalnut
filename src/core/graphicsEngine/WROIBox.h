@@ -122,7 +122,7 @@ private:
         virtual void operator()( osg::Node* node, osg::NodeVisitor* nv )
         {
             osg::ref_ptr< WROIBox > module = static_cast< WROIBox* > ( node->getUserData() );
-            if ( module )
+            if( module )
             {
                 module->updateGFX();
             }

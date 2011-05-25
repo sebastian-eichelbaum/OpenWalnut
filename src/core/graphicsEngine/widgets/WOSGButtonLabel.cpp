@@ -45,11 +45,11 @@ WOSGButtonLabel::~WOSGButtonLabel()
 bool WOSGButtonLabel::mousePush( double, double, osgWidget::WindowManager* )
 {
     m_clicked = true;
-    if ( m_pushable )
+    if( m_pushable )
     {
         m_pushed = !m_pushed;
 
-        if ( m_pushed )
+        if( m_pushed )
         {
             setFontColor( 0.0f, 0.0f, 0.0f, 1.0f );
         }

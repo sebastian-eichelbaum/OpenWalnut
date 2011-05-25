@@ -527,7 +527,7 @@ WPropertyVariable< T >::WPropertyVariable( const WPropertyVariable< T >& from ):
     typename WPropertyVariable< T >::ConstraintContainerType::WriteTicket w = m_constraints->getWriteTicket();
 
     // we need to make a deep copy here.
-    for ( typename ConstraintContainerType::ConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
+    for( typename ConstraintContainerType::ConstIterator iter = l->get().begin(); iter != l->get().end(); ++iter )
     {
         // clone them to keep dynamic type
         w->get().insert( ( *iter )->clone() );
@@ -573,7 +573,7 @@ bool WPropertyVariable< T >::accept( T newValue )
 
     // iterate through the set
     bool acceptable = WFlag< T >::accept( newValue );
-    for ( typename ConstraintContainerType::ConstIterator it = l->get().begin(); it !=  l->get().end(); ++it )
+    for( typename ConstraintContainerType::ConstIterator it = l->get().begin(); it !=  l->get().end(); ++it )
     {
         acceptable &= ( *it )->accept( boost::shared_static_cast< WPropertyVariable< T > >( shared_from_this() ), newValue );
     }
@@ -612,7 +612,7 @@ bool WPropertyVariable< T >::set( boost::shared_ptr< WPropertyBase > value )
 {
     // try to cast the given property to a WPropertyVariable of right type:
     boost::shared_ptr< WPropertyVariable< T > > v = boost::shared_dynamic_cast< WPropertyVariable< T > >( value );
-    if ( v )
+    if( v )
     {
         return WFlag< T >::set( v->get() );
     }
@@ -631,7 +631,7 @@ bool WPropertyVariable< T >::set( T value, bool suppressNotification )
 template < typename T >
 bool WPropertyVariable< T >::ensureValidity( T newValidValue, bool suppressNotification )
 {
-    if ( !accept( WFlag< T >::get() ) )
+    if( !accept( WFlag< T >::get() ) )
     {
         // the currently set constraints forbid the current value.
         // reset it to the new value
@@ -720,9 +720,9 @@ WPropertyVariable< T >::getFirstConstraint( PROPERTYCONSTRAINT_TYPE type )
     typename WPropertyVariable< T >::ConstraintContainerType::ReadTicket l = m_constraints->getReadTicket();
 
     // search first appearance of a constraint of the specified type
-    for ( typename ConstraintContainerType::ConstIterator it = l->get().begin(); it != l->get().end(); ++it )
+    for( typename ConstraintContainerType::ConstIterator it = l->get().begin(); it != l->get().end(); ++it )
     {
-        if ( ( *it )->getType() == type )
+        if( ( *it )->getType() == type )
         {
             return ( *it );
         }
@@ -739,9 +739,9 @@ int WPropertyVariable< T >::countConstraint( PROPERTYCONSTRAINT_TYPE type )
 
     int i = 0;
     // search first appearance of a constraint of the specified type
-    for ( typename ConstraintContainerType::ConstIterator it =  l->get().begin(); it != l->get().end(); ++it )
+    for( typename ConstraintContainerType::ConstIterator it =  l->get().begin(); it != l->get().end(); ++it )
     {
-        if ( ( *it )->getType() == type )
+        if( ( *it )->getType() == type )
         {
             i++;
         }
@@ -755,7 +755,7 @@ boost::shared_ptr< WPropertyConstraintMin< T > > WPropertyVariable< T >::getMin(
 {
     // get min
     boost::shared_ptr< PropertyConstraint > c = getFirstConstraint( PC_MIN );
-    if ( !c.get() )
+    if( !c.get() )
     {
         // return NULL if not found
         return boost::shared_ptr< WPropertyConstraintMin< T > >();
@@ -770,7 +770,7 @@ boost::shared_ptr< WPropertyConstraintMax< T > > WPropertyVariable< T >::getMax(
 {
     // get min
     boost::shared_ptr< PropertyConstraint > c = getFirstConstraint( PC_MAX );
-    if ( !c.get() )
+    if( !c.get() )
     {
         // return NULL if not found
         return boost::shared_ptr< WPropertyConstraintMax< T > >();
@@ -795,16 +795,16 @@ void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type,
     bool useLock = !ticket;
 
     // lock the constraints set
-    if ( useLock )
+    if( useLock )
     {
         // lock, unlocked if l looses focus
         l = m_constraints->getWriteTicket();
     }
 
     size_t nbErased = 0;    // count how much items have been removed
-    for ( typename ConstraintContainerType::ConstIterator it = l->get().begin(); it != l->get().end(); )
+    for( typename ConstraintContainerType::ConstIterator it = l->get().begin(); it != l->get().end(); )
     {
-        if ( ( *it )->getType() == type )
+        if( ( *it )->getType() == type )
         {
             l->get().erase( it++ );
             ++nbErased;
@@ -816,10 +816,10 @@ void WPropertyVariable< T >::removeConstraints( PROPERTYCONSTRAINT_TYPE type,
     }
 
     // only notify and unlock if locked earlier.
-    if ( useLock )
+    if( useLock )
     {
         // no operations done? No condition fired
-        if ( nbErased == 0 )
+        if( nbErased == 0 )
         {
             l->suppressUnlockCondition();
         }
@@ -842,7 +842,7 @@ void WPropertyVariable< T >::removeConstraint( boost::shared_ptr< PropertyConstr
     // lock released automatically
     typename WPropertyVariable< T >::ConstraintContainerType::WriteTicket l = m_constraints->getWriteTicket();
 
-    if ( l->get().erase( constraint ) == 0 )
+    if( l->get().erase( constraint ) == 0 )
     {
         // nothing changed. Suppress update condition to fire
         l->suppressUnlockCondition();

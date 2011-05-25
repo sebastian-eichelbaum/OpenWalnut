@@ -96,7 +96,7 @@ public:
         unsigned int nbVertsInXDir = ( mc.m_nCellsX + 1 );
         unsigned int nbVertsInSlice = nbVertsInXDir * ( mc.m_nCellsY + 1 );
 
-        // test edge numbers for (0,0,0) case
+        // test edge numbers for(0,0,0) case
         TS_ASSERT_EQUALS( 1 , mc.getEdgeID( 0, 0, 0, 0 ) );
         TS_ASSERT_EQUALS( 3 * nbVertsInXDir , mc.getEdgeID( 0, 0, 0, 1 ) );
         TS_ASSERT_EQUALS( 3 * 1 + 1 , mc.getEdgeID( 0, 0, 0, 2 ) );

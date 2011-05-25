@@ -83,7 +83,7 @@ std::vector< std::string > string_utils::tokenize( const std::string& source,
         // NOTE: moved the back() command to another if as if compiled on Windows, OW crashes since the compiler does not stop evaluation of the
         // condition after the first statement evaluates to false.
 
-        if ( result.back() == "" )
+        if( result.back() == "" )
         {
             result.pop_back();
         }

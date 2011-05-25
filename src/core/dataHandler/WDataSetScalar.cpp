@@ -82,7 +82,7 @@ double WDataSetScalar::getMin() const
 
 boost::shared_ptr< WPrototyped > WDataSetScalar::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
         m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetScalar() );
     }
@@ -156,7 +156,7 @@ boost::shared_ptr< const WValueSetHistogram > WDataSetScalar::getHistogram( size
 {
     boost::lock_guard<boost::mutex> lock( m_histogramLock );
 
-    if ( m_histograms.count( buckets ) != 0 )
+    if( m_histograms.count( buckets ) != 0 )
     {
         return m_histograms[ buckets ];
     }

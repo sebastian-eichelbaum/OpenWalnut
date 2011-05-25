@@ -91,7 +91,7 @@ void WGEPropertyTransformationCallback< ParentType, TargetType >::operator()( ty
                                                                               osg::NodeVisitor* nv )
 {
     TargetType* m = dynamic_cast< TargetType* >( handled );
-    if ( m )
+    if( m )
     {
         m->setMatrix( m_prop->get() );
     }

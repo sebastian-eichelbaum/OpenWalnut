@@ -77,7 +77,7 @@ const std::string WDataSet::getDescription() const
 
 boost::shared_ptr< WPrototyped > WDataSet::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
         m_prototype = boost::shared_ptr< WPrototyped >( new WDataSet() );
     }

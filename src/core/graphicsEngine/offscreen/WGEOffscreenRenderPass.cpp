@@ -74,7 +74,7 @@ void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::
 {
     m_fbo->setAttachment( buffer, osg::FrameBufferAttachment( texture ) );
 
-    if ( m_hud )
+    if( m_hud )
     {
         m_hud->addTexture( new WGETextureHud::WGETextureHudEntry( texture, m_name + " - " + getBufferName( buffer ) ) );
     }
@@ -85,7 +85,7 @@ void WGEOffscreenRenderPass::attach( BufferComponent buffer, osg::ref_ptr< osg::
 osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::attach( BufferComponent buffer, GLint internalFormat )
 {
     osg::ref_ptr< osg::Texture2D > tex;
-    if ( buffer == DEPTH_BUFFER )   // depth buffers need a special texture type (else: FBO status = 0x8cd6 (FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT))
+    if( buffer == DEPTH_BUFFER )   // depth buffers need a special texture type (else: FBO status = 0x8cd6 (FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT))
     {
         tex = createTexture( GL_DEPTH_COMPONENT );
     }
@@ -104,7 +104,7 @@ osg::ref_ptr< osg::Texture2D > WGEOffscreenRenderPass::attach( BufferComponent b
 void WGEOffscreenRenderPass::detach( BufferComponent buffer )
 {
     // remove the texture from HUD if existing
-    if ( m_hud && osg::Camera::getBufferAttachmentMap().count( buffer ) )
+    if( m_hud && osg::Camera::getBufferAttachmentMap().count( buffer ) )
     {
         m_hud->removeTexture( osg::Camera::getBufferAttachmentMap()[ buffer ]._texture );
     }

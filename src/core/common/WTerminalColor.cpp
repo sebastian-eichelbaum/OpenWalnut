@@ -63,14 +63,14 @@ void WTerminalColor::generateControlStrings()
     m_colorResetString = "";
 
 #ifdef __linux__
-    if ( m_enabled && ( m_attrib != Default ) )
+    if( m_enabled && ( m_attrib != Default ) )
     {
         std::ostringstream ss;
         char cStart = 0x1B;
         ss << cStart << "[" << m_attrib << ";" << m_foreground;
 
         // handle an unset background specially
-        if ( m_background == BGNone )
+        if( m_background == BGNone )
         {
             ss << "m";
         }

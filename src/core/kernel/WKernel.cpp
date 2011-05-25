@@ -160,13 +160,13 @@ void WKernel::threadMain()
         std::string stdModules = "";
         WPreferences::getPreference( "modules.default", &stdModules );
         std::vector< std::string > defMods = string_utils::tokenize( stdModules, "," );
-        for ( std::vector< std::string >::iterator iter = defMods.begin(); iter != defMods.end(); ++iter )
+        for( std::vector< std::string >::iterator iter = defMods.begin(); iter != defMods.end(); ++iter )
         {
             std::string moduleName = string_utils::trim( ( *iter ) );
             boost::shared_ptr< WModule> proto = m_moduleFactory->isPrototypeAvailable( moduleName );
 
             // try to find a prototype
-            if ( proto.get() )
+            if( proto.get() )
             {
                 // the module exists
                 m_moduleContainer->add( m_moduleFactory->create( proto ) , true );

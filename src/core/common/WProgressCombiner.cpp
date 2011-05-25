@@ -58,13 +58,13 @@ void WProgressCombiner::update()
     unsigned int numPendingChildren = 0;
 
     // as the children define this progress' state -> iterate children
-    for ( std::set< boost::shared_ptr< WProgress > >::iterator i = m_children.begin(); i != m_children.end(); ++i )
+    for( std::set< boost::shared_ptr< WProgress > >::iterator i = m_children.begin(); i != m_children.end(); ++i )
     {
         // enforce child to update
         ( *i )->update();
 
         // update own state basing on child states.
-        if ( ( *i )->isPending() )
+        if( ( *i )->isPending() )
         {
             // This actually builds the mean value. This might cause backstepping in progress, which is not wanted.
             m_pending = true;
@@ -73,7 +73,7 @@ void WProgressCombiner::update()
             numPendingChildren++;
         }
     }
-    if ( numPendingChildren )
+    if( numPendingChildren )
     {
         m_progress /= static_cast< float >( numPendingChildren );
     }
@@ -126,7 +126,7 @@ void WProgressCombiner::finish()
     boost::unique_lock<boost::shared_mutex> lock = boost::unique_lock<boost::shared_mutex>( m_updateLock );
 
     // as the children define this progress' state -> iterate children
-    for ( std::set< boost::shared_ptr< WProgress > >::iterator i = m_children.begin(); i != m_children.end(); ++i )
+    for( std::set< boost::shared_ptr< WProgress > >::iterator i = m_children.begin(); i != m_children.end(); ++i )
     {
         // enforce child to update
         ( *i )->finish();

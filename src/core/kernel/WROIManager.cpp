@@ -50,7 +50,7 @@ void WROIManager::addRoi( osg::ref_ptr< WROI > newRoi )
     // add roi to branch
     newBranch->addRoi( newRoi );
 
-    for ( std::list< boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > >::iterator iter = m_addNotifiers.begin();
+    for( std::list< boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > >::iterator iter = m_addNotifiers.begin();
             iter != m_addNotifiers.end(); ++iter )
     {
         ( **iter )( newRoi );
@@ -61,9 +61,9 @@ void WROIManager::addRoi( osg::ref_ptr< WROI > newRoi, osg::ref_ptr< WROI > pare
 {
     // find branch
     boost::shared_ptr< WRMBranch > branch;
-    for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
+    for( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
-        if ( ( *iter ).get()->contains( parentRoi ) )
+        if( ( *iter ).get()->contains( parentRoi ) )
         {
             branch = ( *iter );
         }
@@ -71,7 +71,7 @@ void WROIManager::addRoi( osg::ref_ptr< WROI > newRoi, osg::ref_ptr< WROI > pare
     // add roi to branch
     branch->addRoi( newRoi );
 
-    for ( std::list< boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > >::iterator iter = m_addNotifiers.begin();
+    for( std::list< boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > >::iterator iter = m_addNotifiers.begin();
             iter != m_addNotifiers.end(); ++iter )
     {
         ( **iter )( newRoi );
@@ -82,13 +82,13 @@ void WROIManager::removeRoi( osg::ref_ptr< WROI > roi )
 {
     WGraphicsEngine::getGraphicsEngine()->getScene()->remove( roi );
 
-    for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
+    for( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
         ( *iter )->removeRoi( roi );
 
-        if ( ( *iter )->empty() )
+        if( ( *iter )->empty() )
         {
-            for ( std::list< boost::shared_ptr< boost::function< void( boost::shared_ptr< WRMBranch > ) > > >::iterator iter2
+            for( std::list< boost::shared_ptr< boost::function< void( boost::shared_ptr< WRMBranch > ) > > >::iterator iter2
                       = m_removeBranchNotifiers.begin();
                   iter2 != m_removeBranchNotifiers.end();
                   ++iter2 )
@@ -101,7 +101,7 @@ void WROIManager::removeRoi( osg::ref_ptr< WROI > roi )
     }
     setDirty();
 
-    for ( std::list< boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > >::iterator iter
+    for( std::list< boost::shared_ptr< boost::function< void( osg::ref_ptr< WROI > ) > > >::iterator iter
               = m_removeNotifiers.begin();
           iter != m_removeNotifiers.end();
           ++iter )
@@ -112,16 +112,16 @@ void WROIManager::removeRoi( osg::ref_ptr< WROI > roi )
 
 void WROIManager::removeBranch( osg::ref_ptr< WROI > roi )
 {
-    for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
+    for( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
-        if ( roi == ( *iter )->getFirstRoi() )
+        if( roi == ( *iter )->getFirstRoi() )
         {
             ( *iter )->removeAllRois();
         }
 
-        if ( ( *iter )->empty() )
+        if( ( *iter )->empty() )
         {
-            for ( std::list< boost::shared_ptr< boost::function< void( boost::shared_ptr< WRMBranch > ) > > >::iterator iter2
+            for( std::list< boost::shared_ptr< boost::function< void( boost::shared_ptr< WRMBranch > ) > > >::iterator iter2
                       = m_removeBranchNotifiers.begin();
                   iter2 != m_removeBranchNotifiers.end();
                   ++iter2 )
@@ -139,9 +139,9 @@ boost::shared_ptr< WRMBranch> WROIManager::getBranch( osg::ref_ptr< WROI > roi )
 {
     boost::shared_ptr< WRMBranch> branch;
 
-    for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
+    for( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
-        if ( ( *iter )->contains( roi ) )
+        if( ( *iter )->contains( roi ) )
         {
             branch = ( *iter );
         }
@@ -231,7 +231,7 @@ std::vector< osg::ref_ptr< WROI > > WROIManager::getRois()
 {
     std::vector< osg::ref_ptr< WROI > > returnVec;
 
-    for ( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
+    for( std::list< boost::shared_ptr< WRMBranch > >::iterator iter = m_branches.begin(); iter != m_branches.end(); ++iter )
     {
         ( *iter )->getRois( returnVec );
     }

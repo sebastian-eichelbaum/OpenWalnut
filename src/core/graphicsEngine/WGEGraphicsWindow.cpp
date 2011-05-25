@@ -71,7 +71,7 @@ void WGEGraphicsWindow::createContext( int x, int y, int width, int height )
 
     // ensure correct $DISPLAY variable
     traits->readDISPLAY();
-    if ( traits->displayNum < 0 )
+    if( traits->displayNum < 0 )
     {
         traits->displayNum = 0;
     }

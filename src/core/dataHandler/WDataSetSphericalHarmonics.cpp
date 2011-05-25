@@ -71,7 +71,7 @@ WDataSetSingle::SPtr WDataSetSphericalHarmonics::clone() const
 
 boost::shared_ptr< WPrototyped > WDataSetSphericalHarmonics::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
         m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetSphericalHarmonics() );
     }
@@ -133,7 +133,7 @@ WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( const WPosi
 
 WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::getSphericalHarmonicAt( size_t index ) const
 {
-    if ( index < m_valueSet->size() ) return WSymmetricSphericalHarmonic( m_valueSet->getWVector( index ) );
+    if( index < m_valueSet->size() ) return WSymmetricSphericalHarmonic( m_valueSet->getWVector( index ) );
     return WSymmetricSphericalHarmonic();
 }
 

@@ -279,10 +279,10 @@ typename WGEShaderDefine< T >::SPtr WGEShader::setDefine( std::string key, T val
 
     // try to find the define. If it exists, set it. If not, add it.
     PreprocessorsList::ReadTicket r = m_preprocessors.getReadTicket();
-    for ( PreprocessorsList::ConstIterator pp = r->get().begin(); pp != r->get().end(); ++pp )
+    for( PreprocessorsList::ConstIterator pp = r->get().begin(); pp != r->get().end(); ++pp )
     {
         typename WGEShaderDefine< T >::SPtr define = boost::shared_dynamic_cast< WGEShaderDefine< T > >( ( *pp ).first );
-        if ( define && ( define->getName() == key ) )
+        if( define && ( define->getName() == key ) )
         {
             define->setValue( value );
             def = define;
@@ -292,7 +292,7 @@ typename WGEShaderDefine< T >::SPtr WGEShader::setDefine( std::string key, T val
     r.reset();
 
     // did not find it. Add.
-    if ( !def )
+    if( !def )
     {
         def = typename WGEShaderDefine< T >::SPtr( new WGEShaderDefine< T >( key, value ) );
         addPreprocessor( def );

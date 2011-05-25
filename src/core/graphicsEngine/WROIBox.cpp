@@ -220,10 +220,10 @@ void WROIBox::updateGFX()
 
     std::stringstream ss;
     ss << "ROIBox" << boxId << "";
-    if ( m_pickInfo.getName() == ss.str() )
+    if( m_pickInfo.getName() == ss.str() )
     {
         WVector2d newPixelPos( m_pickInfo.getPickPixel() );
-        if ( m_isPicked )
+        if( m_isPicked )
         {
             osg::Vec3 in( newPixelPos.x(), newPixelPos.y(), 0.0 );
             osg::Vec3 world = wge::unprojectFromScreen( in, m_viewer->getCamera() );
@@ -277,7 +277,7 @@ void WROIBox::updateGFX()
             if( m_pickInfo.getModifierKey() == WPickInfo::NONE )
             {
                 osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-                if ( m_not->get() )
+                if( m_not->get() )
                 {
                     colors->push_back( m_notColor );
                 }
@@ -300,12 +300,12 @@ void WROIBox::updateGFX()
 
         signalRoiChange();
     }
-    if ( m_isPicked && m_pickInfo.getName() == "unpick" )
+    if( m_isPicked && m_pickInfo.getName() == "unpick" )
     {
         // Perform all actions necessary for finishing a pick
 
         osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-        if ( m_not->get() )
+        if( m_not->get() )
         {
             colors->push_back( m_notColor );
         }
@@ -318,10 +318,10 @@ void WROIBox::updateGFX()
         m_isPicked = false;
     }
 
-    if ( m_dirty->get() )
+    if( m_dirty->get() )
     {
         osg::ref_ptr<osg::Vec4Array> colors = osg::ref_ptr<osg::Vec4Array>( new osg::Vec4Array );
-        if ( m_not->get() )
+        if( m_not->get() )
         {
             colors->push_back( m_notColor );
         }

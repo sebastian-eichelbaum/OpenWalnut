@@ -171,11 +171,11 @@ public:
         m_centerLineCreationLock = new boost::shared_mutex();
         m_longestLineCreationLock = new boost::shared_mutex();
         // copy them only if they exist
-        if ( other.m_centerLine )
+        if( other.m_centerLine )
         {
             m_centerLine = boost::shared_ptr< WFiber >( new WFiber( *other.m_centerLine.get() ) );
         }
-        if ( other.m_longestLine )
+        if( other.m_longestLine )
         {
             m_longestLine = boost::shared_ptr< WFiber >( new WFiber( *other.m_longestLine.get() ) );
         }

@@ -64,7 +64,7 @@ struct WSharedLib::data
         m_path( path ),
         m_hDLL( LoadLibrary( path.c_str() ) )
     {
-        if ( !m_hDLL )
+        if( !m_hDLL )
         {
             throw WLibraryLoadFailed( std::string( "Could not load library \"" + m_path + "\" due to the error: " + errmsg() ) );
         }
@@ -90,7 +90,7 @@ struct WSharedLib::data
     func_ptr_type findFunction( const std::string& name )
     {
         func_ptr_type func_ptr = reinterpret_cast< func_ptr_type >( GetProcAddress( m_hDLL, name.c_str() ) );
-        if ( !func_ptr )
+        if( !func_ptr )
         {
             throw WLibraryFetchFailed( std::string( "Could not fetch symbol \"" + name + "\"" + " due to the error: " + errmsg() ) );
         }
@@ -186,7 +186,7 @@ struct WSharedLib::data
     {
         auto_lock lock();
         m_dl = dlopen( m_path.c_str(), RTLD_LAZY );
-        if ( !m_dl )
+        if( !m_dl )
         {
             throw WLibraryLoadFailed( std::string( "Could not load library \"" + m_path + "\" due to the error: " + dlerror() ) );
         }
@@ -222,7 +222,7 @@ struct WSharedLib::data
         dlerror();
         void* variable_ptr = dlsym( m_dl, name.c_str() );
         const char *err = dlerror();
-        if ( err )
+        if( err )
         {
             throw WLibraryFetchFailed( std::string( "Could not fetch symbol \"" + name + "\"" + " due to the error: " + err ) );
         }

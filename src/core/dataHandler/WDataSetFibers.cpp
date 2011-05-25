@@ -133,7 +133,7 @@ void WDataSetFibers::init()
         )
     );
 
-    for ( size_t i = 0; i < size; ++i )
+    for( size_t i = 0; i < size; ++i )
     {
         ( *customColors )[i] = ( *globalColors )[i];
     }
@@ -171,7 +171,7 @@ const std::string WDataSetFibers::getDescription() const
 
 boost::shared_ptr< WPrototyped > WDataSetFibers::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
         m_prototype = boost::shared_ptr< WPrototyped >( new WDataSetFibers() );
     }
@@ -221,11 +221,11 @@ void WDataSetFibers::addColorScheme( WDataSetFibers::ColorArray colors, std::str
     // number of verts is needed to distinguish color mode.
     size_t verts = m_vertices->size() / 3;
     size_t cols  = colors->size();
-    if ( cols / verts == 3 )
+    if( cols / verts == 3 )
     {
         mode = ColorScheme::RGB;
     }
-    else if ( cols / verts == 4 )
+    else if( cols / verts == 4 )
     {
         mode = ColorScheme::RGBA;
     }
@@ -244,7 +244,7 @@ void WDataSetFibers::removeColorScheme( WDataSetFibers::ColorArray colors )
     WItemSelection::Iterator i = l->get().begin();
     while ( i != l->get().end() )
     {
-        if ( boost::shared_static_cast< const ColorScheme >( *i )->getColor() == colors )
+        if( boost::shared_static_cast< const ColorScheme >( *i )->getColor() == colors )
         {
             i = l->get().erase( i );
         }
@@ -259,10 +259,10 @@ void WDataSetFibers::replaceColorScheme( WDataSetFibers::ColorArray oldColors, W
 {
     // this is nearly the same as std::replace_if
     WItemSelection::WriteTicket l = m_colors->getWriteTicket();
-    for ( WItemSelection::Iterator i = l->get().begin(); i != l->get().end(); ++i )
+    for( WItemSelection::Iterator i = l->get().begin(); i != l->get().end(); ++i )
     {
         boost::shared_ptr< ColorScheme > ci = boost::shared_static_cast< ColorScheme >( *i );
-        if (ci->getColor() == oldColors )
+        if(ci->getColor() == oldColors )
         {
             ci->setColor( newColors );
         }
@@ -275,7 +275,7 @@ const boost::shared_ptr< WDataSetFibers::ColorScheme > WDataSetFibers::getColorS
     WItemSelection::ConstIterator i = std::find_if( l->get().begin(), l->get().end(),
             WPredicateHelper::Name< boost::shared_ptr< WItemSelectionItem > >( name )
     );
-    if ( i == l->get().end() )
+    if( i == l->get().end() )
     {
         throw WDHNoSuchDataSet( std::string( "Color scheme with specified name could not be found." ) );
     }
@@ -311,12 +311,12 @@ WPosition WDataSetFibers::getTangent( size_t fiber, size_t vertex ) const
     WPosition point = getPosition( fiber, vertex );
     WPosition tangent;
 
-    if ( vertex == 0 ) // first point
+    if( vertex == 0 ) // first point
     {
         WPosition pointNext = getPosition( fiber, vertex + 1 );
         tangent = point - pointNext;
     }
-    else if ( vertex == m_lineLengths->at( fiber ) - 1 ) // last point
+    else if( vertex == m_lineLengths->at( fiber ) - 1 ) // last point
     {
         WPosition pointBefore = getPosition( fiber, vertex - 1 );
         tangent = pointBefore - point;
@@ -364,9 +364,9 @@ void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std:
     int pointIndex = 0;
     int countLines = 0;
 
-    for ( size_t l = 0; l < m_lineLengths->size(); ++l )
+    for( size_t l = 0; l < m_lineLengths->size(); ++l )
     {
-        if ( ( *active )[l] )
+        if( ( *active )[l] )
         {
             unsigned int pc = ( *m_lineStartIndexes )[l] * 3;
 
@@ -375,7 +375,7 @@ void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std:
             boost::shared_ptr< std::vector< float > > localColors =
                 boost::shared_static_cast< const ColorScheme >( ( *m_colors )[1] )->getColor();
 
-            for ( size_t j = 0; j < ( *m_lineLengths )[l]; ++j )
+            for( size_t j = 0; j < ( *m_lineLengths )[l]; ++j )
             {
                 // TODO(schurade): replace this with a permanent solution
                 pointsToSave.push_back( 160 - ( *m_vertices )[pc] );
@@ -403,12 +403,12 @@ void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std:
     header1 += boost::lexical_cast<std::string>( pointsToSave.size() / 3 );
     header1 += " float\n";
 
-    for ( unsigned int i = 0; i < header1.size(); ++i )
+    for( unsigned int i = 0; i < header1.size(); ++i )
     {
         vBuffer.push_back( header1[i] );
     }
 
-    for ( unsigned int i = 0; i < pointsToSave.size(); ++i )
+    for( unsigned int i = 0; i < pointsToSave.size(); ++i )
     {
         f.f = pointsToSave[i];
         vBuffer.push_back( f.b[3] );
@@ -422,12 +422,12 @@ void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std:
     std::string header2 = "LINES " + boost::lexical_cast<std::string>( countLines ) + " " +
             boost::lexical_cast<std::string>( linesToSave.size() ) + "\n";
 
-    for ( unsigned int i = 0; i < header2.size(); ++i )
+    for( unsigned int i = 0; i < header2.size(); ++i )
     {
         vBuffer.push_back( header2[i] );
     }
 
-    for ( unsigned int i = 0; i < linesToSave.size(); ++i )
+    for( unsigned int i = 0; i < linesToSave.size(); ++i )
     {
         c.i = linesToSave[i];
         vBuffer.push_back( c.b[3] );
@@ -445,12 +445,12 @@ void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std:
     header3 += "COLOR_SCALARS scalars 3\n";
 
 
-    for ( unsigned int i = 0; i < header3.size(); ++i )
+    for( unsigned int i = 0; i < header3.size(); ++i )
     {
         vBuffer.push_back( header3[i] );
     }
 
-    for ( unsigned int i = 0; i < colorsToSave.size(); ++i )
+    for( unsigned int i = 0; i < colorsToSave.size(); ++i )
     {
         vBuffer.push_back( colorsToSave[i] );
     }
@@ -460,7 +460,7 @@ void WDataSetFibers::saveSelected( std::string filename, boost::shared_ptr< std:
     boost::filesystem::path p( filename );
     boost::filesystem::ofstream ofs( p, std::ios_base::binary );
 
-    for ( unsigned int i = 0; i < vBuffer.size(); ++i )
+    for( unsigned int i = 0; i < vBuffer.size(); ++i )
     {
         ofs << vBuffer[i];
     }

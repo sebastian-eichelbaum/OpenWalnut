@@ -54,9 +54,9 @@ public:
         std::stringstream tmp;
         tmp.precision( 5 );
         tmp << std::endl;
-        for ( size_t row = 0; row < m.getNbRows(); row++ )
+        for( size_t row = 0; row < m.getNbRows(); row++ )
         {
-          for ( size_t col = 0; col < m.getNbCols(); col++ )
+          for( size_t col = 0; col < m.getNbCols(); col++ )
           {
               tmp << m( row, col ) << "\t";
           }

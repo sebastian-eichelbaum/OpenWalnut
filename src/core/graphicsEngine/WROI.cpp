@@ -53,9 +53,9 @@ void WROI::properties()
 
 void WROI::propertyChanged()
 {
-    if ( m_show->changed() )
+    if( m_show->changed() )
     {
-        if ( m_show->get( true ) )
+        if( m_show->get( true ) )
         {
             unhide();
         }
@@ -118,7 +118,7 @@ void WROI::unhide()
 
 void WROI::signalRoiChange()
 {
-    for ( std::list< boost::shared_ptr< boost::function< void() > > >::iterator iter = m_changeNotifiers.begin();
+    for( std::list< boost::shared_ptr< boost::function< void() > > >::iterator iter = m_changeNotifiers.begin();
                 iter != m_changeNotifiers.end(); ++iter )
     {
         ( **iter )();

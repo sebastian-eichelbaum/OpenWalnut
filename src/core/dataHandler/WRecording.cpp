@@ -48,7 +48,7 @@ const std::string WRecording::getDescription() const
 
 boost::shared_ptr< WPrototyped > WRecording::getPrototype()
 {
-    if ( !m_prototype )
+    if( !m_prototype )
     {
         m_prototype = boost::shared_ptr< WPrototyped >( new WRecording() );
     }

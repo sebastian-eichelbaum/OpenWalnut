@@ -84,7 +84,7 @@ void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
         float height = static_cast< float >( m_hud->getMaxElementWidth() * tex->getRealHeight() ) / static_cast< float >( tex->getRealWidth() );
 
         // scale texture if needed
-        if ( m_hud->m_coupleTexViewport )
+        if( m_hud->m_coupleTexViewport )
         {
             osg::ref_ptr< osg::TexMat > texMat = tex->getTextureMatrix();
             texMat->setMatrix( osg::Matrixd::scale( static_cast< float >( screenWidth ) / static_cast< float >( tex->getRealWidth() ),
@@ -98,7 +98,7 @@ void WGETextureHud::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVi
         osg::Matrixd scale = osg::Matrixd::scale( m_hud->getMaxElementWidth(), height, 1.0 );
 
         // need to add a "line-break"?
-        if ( nextY + height + border > screenHeight )
+        if( nextY + height + border > screenHeight )
         {
             nextX += m_hud->getMaxElementWidth() + border;
             nextY = border;
@@ -139,7 +139,7 @@ bool hudEntryPredicate( osg::ref_ptr< osg::Texture > tex, osg::ref_ptr< osg::Nod
 {
     // is the node an WGETextureHudEntry?
     WGETextureHud::WGETextureHudEntry const* e = dynamic_cast< WGETextureHud::WGETextureHudEntry const* >( node.get() );
-    if ( !e )
+    if( !e )
     {
         return false;
     }
@@ -239,7 +239,7 @@ WGETextureHud::WGETextureHudEntry::WGETextureHudEntry( osg::ref_ptr< osg::Textur
     // state->setTextureAttribute( 0, decalState, osg::StateAttribute::ON );
 
     // en/disable blending
-    if ( !transparency )
+    if( !transparency )
     {
         state->setMode( GL_BLEND, osg::StateAttribute::PROTECTED );
         state->setMode( GL_BLEND, osg::StateAttribute::OFF );

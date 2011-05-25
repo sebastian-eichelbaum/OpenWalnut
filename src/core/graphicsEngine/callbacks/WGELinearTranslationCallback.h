@@ -156,21 +156,21 @@ void WGELinearTranslationCallback< T >::operator()( osg::Node* node, osg::NodeVi
 {
     // this node is a MatrixTransform
     float newPos = m_pos->get();
-    if ( newPos != m_oldPos )
+    if( newPos != m_oldPos )
     {
         m_oldPos = newPos;
         osg::MatrixTransform* m = static_cast< osg::MatrixTransform* >( node );
-        if ( m )
+        if( m )
         {
             osg::Vec3 translation = m_axe * static_cast< float >( m_oldPos );
             float axeLen = m_axe.length();
 
             // set both matrices
-            if ( m_texMat )
+            if( m_texMat )
             {
                 m_texMat->setMatrix( osg::Matrix::translate( translation / static_cast< float >( m_pos->getMax()->getMax() ) / axeLen ) );
             }
-            if ( m_uniform )
+            if( m_uniform )
             {
                 m_uniform->set( osg::Matrix::translate( translation ) );
             }

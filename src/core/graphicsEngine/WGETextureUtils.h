@@ -146,7 +146,7 @@ namespace wge
 template < typename T >
 void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture, size_t unit, std::string prefix )
 {
-    if ( prefix == "" )
+    if( prefix == "" )
     {
         prefix = "u_texture" + boost::lexical_cast< std::string >( unit );
     }
@@ -163,7 +163,7 @@ void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< T > texture
 template < typename T >
 void wge::bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WGETexture< T > > texture, size_t unit, std::string prefix )
 {
-    if ( prefix == "" )
+    if( prefix == "" )
     {
         prefix = "u_texture" + boost::lexical_cast< std::string >( unit );
     }
