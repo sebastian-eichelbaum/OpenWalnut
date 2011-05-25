@@ -1,4 +1,4 @@
-We keep this README short, since we have many documentation and information
+We keep this README short, since we have much documentation and information
 online. So, for detailed information have a look at http://www.openwalnut.org.
 
 CONTACT
@@ -29,8 +29,8 @@ Required Dependencies:
 * OpenSceneGraph (>= 2.8.0)
 * Boost (>= 1.39.0)
 
-Compilation on Unix:
---------------------
+Compilation on Unix-like systems:
+---------------------------------
 
 If you have installed all required third party libs, you can compile OpenWalnut
 by using the common routine:
@@ -59,6 +59,6 @@ DEVELOPING
 
 If you want to develop modules for OpenWalnut, have a look at 
 src/modules/template, which contains an extensively documented example module.
-More information is available online. The WIKI, especially the development
-section is very helpful. Besides this, an online API documentation is available
-at  http://api.openwalnut.org.
+More information is available online. The wiki, especially the development
+section, is very helpful. Besides this, an online API documentation is available
+at http://api.openwalnut.org.
