@@ -152,7 +152,12 @@ ADD_DEFINITIONS( -DEIGEN_DONT_VECTORIZE -DEIGEN_DONT_ALIGN -DEIGEN_DISABLE_UNALI
 
 # other options
 OPTION( OW_HANDLE_SHADERS "This ensures that shaders are available in build directory after build." ON )
-OPTION( OW_LINK_SHADERS "If turned on, shaders do not get copied. They get linked. This is a nice option for developers." OFF )
+
+# sorry, linking not available properly on windows, Cygwin supports this but we do not want special rules for thousands of environments.
+# ==> keep it clean
+IF( NOT CMAKE_HOST_SYSTEM MATCHES "Windows" )
+    OPTION( OW_LINK_SHADERS "If turned on, shaders do not get copied. They get linked. This is a nice option for developers." OFF )
+ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
