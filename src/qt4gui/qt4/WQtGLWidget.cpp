@@ -56,7 +56,8 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     QWidget( parent ),
 #endif
       m_nameOfViewer( nameOfViewer ),
-      m_recommendedSize()
+      m_recommendedSize(),
+      m_firstPaint( true )
 {
     m_recommendedSize.setWidth( 200 );
     m_recommendedSize.setHeight( 200 );
@@ -138,7 +139,13 @@ boost::shared_ptr< WGEViewer > WQtGLWidget::getViewer() const
 
 void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
 {
-    // m_Viewer->paint();
+    if ( m_firstPaint )
+    {
+        // it is important to let the GE know that there now is an completely initialized widget -> allowing GE startup to complete
+        // This is needed as on some machines, the OSG crashes if the GL widget is not fully initialized.
+        m_firstPaint = false;
+        WKernel::getRunningKernel()->getGraphicsEngine()->finalizeStartup();
+    }
 }
 
 #ifdef __APPLE__

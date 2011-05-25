@@ -244,6 +244,11 @@ private:
      * Holds the recommended size for the widget
      */
     QSize m_recommendedSize;
+
+    /**
+     * This flag is set to true if the first paint call occured. See the paint method for details.
+     */
+    bool m_firstPaint;
 };
 
 #endif  // WQTGLWIDGET_H
