@@ -89,9 +89,9 @@ FTensor TensorField::getInterpolatedVector(float x, float y, float z)
 
     matResult.getEigenSystem(vals, evecs);
 
-    if (vals[0] >= vals[1] && vals[0] > vals[2])      return FTensor(evecs[0]);
-    else if (vals[1] > vals[0] && vals[1] >= vals[2]) return FTensor(evecs[1]);
-    else if (vals[2] >= vals[0] && vals[2] > vals[1]) return FTensor(evecs[2]);
+    if(vals[0] >= vals[1] && vals[0] > vals[2])      return FTensor(evecs[0]);
+    else if(vals[1] > vals[0] && vals[1] >= vals[2]) return FTensor(evecs[1]);
+    else if(vals[2] >= vals[0] && vals[2] > vals[1]) return FTensor(evecs[2]);
     else return FTensor(evecs[0]);
 }
 

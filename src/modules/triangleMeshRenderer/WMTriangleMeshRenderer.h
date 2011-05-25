@@ -169,7 +169,7 @@ inline TriangleMeshRendererCallback::TriangleMeshRendererCallback( boost::shared
 
 inline void TriangleMeshRendererCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
-    if ( m_module )
+    if( m_module )
     {
         m_module->update();
     }

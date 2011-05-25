@@ -218,12 +218,12 @@ void WMSurfaceParameterAnimator::moduleMain()
     WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( m_rootNode );
 
     // Now wait for data
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
         // woke up since the module is requested to finish
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -236,7 +236,7 @@ void WMSurfaceParameterAnimator::moduleMain()
         bool dataValid =   ( newDataSet && newTracesDataSet );
 
         // valid data available?
-        if ( !dataValid )
+        if( !dataValid )
         {
             debugLog() << "Resetting.";
 
@@ -249,7 +249,7 @@ void WMSurfaceParameterAnimator::moduleMain()
         }
 
         // As the data has changed, we need to recreate the texture.
-        if ( dataChanged && dataValid )
+        if( dataChanged && dataValid )
         {
             m_dataSet = newDataSet;
             m_tracesDataSet = newTracesDataSet;
@@ -258,7 +258,7 @@ void WMSurfaceParameterAnimator::moduleMain()
 
             // First, grab the grid
             boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( m_dataSet->getGrid() );
-            if ( !grid )
+            if( !grid )
             {
                 errorLog() << "The dataset does not provide a regular grid. Ignoring dataset.";
                 continue;
@@ -286,7 +286,7 @@ void WMSurfaceParameterAnimator::moduleMain()
 void WMSurfaceParameterAnimator::SafeUpdateCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
     // update material info
-    if ( m_module->m_isoColor->changed() || m_initialUpdate )
+    if( m_module->m_isoColor->changed() || m_initialUpdate )
     {
         // Set the diffuse color and material:
         osg::ref_ptr< osg::Material > mat = new osg::Material();
@@ -302,43 +302,43 @@ void WMSurfaceParameterAnimator::SafeUpdateCallback::operator()( osg::Node* node
 void WMSurfaceParameterAnimator::SafeUniformCallback::operator()( osg::Uniform* uniform, osg::NodeVisitor* /* nv */ )
 {
     // update some uniforms:
-    if ( m_module->m_isoValue->changed()  && ( uniform->getName() == "u_isovalue" ) )
+    if( m_module->m_isoValue->changed()  && ( uniform->getName() == "u_isovalue" ) )
     {
         uniform->set( static_cast< float >( m_module->m_isoValue->get( true ) ) / 100.0f );
     }
-    if ( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
+    if( m_module->m_stepCount->changed() && ( uniform->getName() == "u_steps" ) )
     {
         uniform->set( m_module->m_stepCount->get( true ) );
     }
-    if ( m_module->m_alpha->changed() && ( uniform->getName() == "u_alpha" ) )
+    if( m_module->m_alpha->changed() && ( uniform->getName() == "u_alpha" ) )
     {
         uniform->set( static_cast< float >( m_module->m_alpha->get( true ) / 100.0 ) );
     }
-    if ( m_module->m_alpha->changed() && ( uniform->getName() == "u_size1" ) )
+    if( m_module->m_alpha->changed() && ( uniform->getName() == "u_size1" ) )
     {
         uniform->set( static_cast< float >( m_module->m_alpha->get( true ) / 100.0 ) );
     }
-    if ( m_module->m_size1->changed() && ( uniform->getName() == "u_size1" ) )
+    if( m_module->m_size1->changed() && ( uniform->getName() == "u_size1" ) )
     {
         uniform->set( m_module->m_size1->get( true ) );
     }
-    if ( m_module->m_size2->changed() && ( uniform->getName() == "u_size2" ) )
+    if( m_module->m_size2->changed() && ( uniform->getName() == "u_size2" ) )
     {
         uniform->set( m_module->m_size2->get( true ) );
     }
-    if ( m_module->m_speed1->changed() && ( uniform->getName() == "u_speed1" ) )
+    if( m_module->m_speed1->changed() && ( uniform->getName() == "u_speed1" ) )
     {
         uniform->set( m_module->m_speed1->get( true ) );
     }
-    if ( m_module->m_speed2->changed() && ( uniform->getName() == "u_speed2" ) )
+    if( m_module->m_speed2->changed() && ( uniform->getName() == "u_speed2" ) )
     {
         uniform->set( m_module->m_speed2->get( true ) );
     }
-    if ( m_module->m_parameterScale->changed() && ( uniform->getName() == "u_parameterScale" ) )
+    if( m_module->m_parameterScale->changed() && ( uniform->getName() == "u_parameterScale" ) )
     {
         uniform->set( static_cast< float >( m_module->m_parameterScale->get( true ) ) );
     }
-    if ( m_module->m_saturation->changed() && ( uniform->getName() == "u_saturation" ) )
+    if( m_module->m_saturation->changed() && ( uniform->getName() == "u_saturation" ) )
     {
         uniform->set( static_cast< float >( m_module->m_saturation->get( true ) ) / 100.0f );
     }
@@ -347,9 +347,9 @@ void WMSurfaceParameterAnimator::SafeUniformCallback::operator()( osg::Uniform* 
 void WMSurfaceParameterAnimator::activate()
 {
     // Activate/Deactivate the rendering
-    if ( m_rootNode )
+    if( m_rootNode )
     {
-        if ( m_active->get() )
+        if( m_active->get() )
         {
             m_rootNode->setNodeMask( 0xFFFFFFFF );
         }

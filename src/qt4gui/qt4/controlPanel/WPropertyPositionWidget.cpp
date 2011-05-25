@@ -127,19 +127,19 @@ void WPropertyPositionWidget::setPropertyFromWidgets( bool validateOnly )
     // grab all the values
     bool valid;
     double valueX = m_editX.text().toDouble( &valid );
-    if ( !valid )
+    if( !valid )
     {
         invalidate();
         return;
     }
     double valueY = m_editY.text().toDouble( &valid );
-    if ( !valid )
+    if( !valid )
     {
         invalidate();
         return;
     }
     double valueZ = m_editZ.text().toDouble( &valid );
-    if ( !valid )
+    if( !valid )
     {
         invalidate();
         return;
@@ -149,7 +149,7 @@ void WPropertyPositionWidget::setPropertyFromWidgets( bool validateOnly )
     WPosition p = WPosition( valueX, valueY, valueZ );
 
     // set/validate to the property
-    if ( validateOnly )
+    if( validateOnly )
     {
         invalidate( !m_posProperty->accept( p ) );
     }

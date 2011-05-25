@@ -197,13 +197,13 @@ Vector TriangleMesh::calcTriangleNormal(const int triNum)
 
 Vector TriangleMesh::getVertex (const int triNum, int pos)
 {
-    if (pos < 0 || pos > 2) pos = 0;
+    if(pos < 0 || pos > 2) pos = 0;
     return vertices[triangles[triNum].pointID[pos]];
 }
 
 Vector TriangleMesh::getVertNormal(const int vertNum)
 {
-    if ( !m_vertNormalsCalculated )
+    if( !m_vertNormalsCalculated )
         calcVertNormals();
     return vertNormals[vertNum];
 }
@@ -234,7 +234,7 @@ void TriangleMesh::calcVertNormals()
 {
     vertNormals.clear();
     vertNormals.resize(numVerts);
-    for ( int i = 0 ; i < numVerts ; ++i)
+    for( int i = 0 ; i < numVerts ; ++i)
         vertNormals[i] = calcVertNormal(i);
     m_vertNormalsCalculated = true;
 }
@@ -244,10 +244,10 @@ int TriangleMesh::getNeighbor(const unsigned int coVert1, const unsigned int coV
     std::vector<unsigned int>candidates = vIsInTriangle[coVert1];
     std::vector<unsigned int>compares   = vIsInTriangle[coVert2];
 
-    for (size_t i = 0 ; i < candidates.size() ; ++i)
-        for (size_t k = 0 ; k < compares.size() ; ++k)
+    for(size_t i = 0 ; i < candidates.size() ; ++i)
+        for(size_t k = 0 ; k < compares.size() ; ++k)
         {
-            if ( (candidates[i] != triangleNum) && (candidates[i] == compares[k]))
+            if( (candidates[i] != triangleNum) && (candidates[i] == compares[k]))
                 return candidates[i];
         }
     return triangleNum;
@@ -281,7 +281,7 @@ void TriangleMesh::calcNeighbor(const int triangleNum)
 
 void TriangleMesh::getEdgeNeighbor( const FIndex& triNum, int pos, std::vector< FIndex >& neigh )
 {
-    if ( !m_neighborsCalculated )
+    if( !m_neighborsCalculated )
         calcNeighbors();
     neigh.clear();
     neigh.push_back(FIndex((int)neighbors[triNum][pos]));
@@ -289,11 +289,11 @@ void TriangleMesh::getEdgeNeighbor( const FIndex& triNum, int pos, std::vector< 
 
 void TriangleMesh::getNeighbors( const FIndex& vertId, std::vector< FIndex >& neighs )
 {
-    if ( !m_neighborsCalculated )
+    if( !m_neighborsCalculated )
         calcNeighbors();
     neighs.clear();
     std::vector<unsigned int>neighbors = vIsInTriangle[vertId];
-    for (size_t i = 0 ; i < neighbors.size() ; ++i)
+    for(size_t i = 0 ; i < neighbors.size() ; ++i)
     {
         neighs.push_back(FIndex(neighbors[i]));
     }
@@ -301,7 +301,7 @@ void TriangleMesh::getNeighbors( const FIndex& vertId, std::vector< FIndex >& ne
 
 int TriangleMesh::getTriangleTensor(const int triNum)
 {
-    if (!m_triangleTensorsCalculated)
+    if(!m_triangleTensorsCalculated)
         calcTriangleTensors();
     return triangleTensor[triNum];
 }
@@ -384,9 +384,9 @@ void TriangleMesh::setTriangle(const unsigned int triNum, const unsigned int ver
 void TriangleMesh::eraseTriFromVert(const unsigned int triNum, const unsigned int vertNum)
 {
     std::vector<unsigned int>temp;
-    for ( size_t i = 0 ; i < vIsInTriangle[vertNum].size() ; ++i)
+    for( size_t i = 0 ; i < vIsInTriangle[vertNum].size() ; ++i)
     {
-        if ( triNum != vIsInTriangle[vertNum][i])
+        if( triNum != vIsInTriangle[vertNum][i])
             temp.push_back(vIsInTriangle[vertNum][i]);
     }
     vIsInTriangle[vertNum] = temp;
@@ -409,9 +409,9 @@ int TriangleMesh::getNextVertex(const unsigned int triNum, const unsigned int ve
 
 void TriangleMesh::cleanUp()
 {
-    if ( isCleaned ) return;
+    if( isCleaned ) return;
 
-    if ( !m_neighborsCalculated )
+    if( !m_neighborsCalculated )
         calcNeighbors();
 
     std::vector<int> queue;
@@ -420,27 +420,27 @@ void TriangleMesh::cleanUp()
     queue.push_back(0);
     std::vector<int>n;
 
-    while (!queue.empty())
+    while(!queue.empty())
     {
         std::vector<int>newObject;
         newObject.clear();
-        while (!queue.empty())
+        while(!queue.empty())
         {
             int index = queue.back();
             visited[index] = true;
             queue.pop_back();
             newObject.push_back(index);
             n = neighbors[index];
-            for ( int i = 0 ; i < 3 ; ++i)
+            for( int i = 0 ; i < 3 ; ++i)
             {
-                if ( (n[i] != -1) && !visited[n[i]])
+                if( (n[i] != -1) && !visited[n[i]])
                     queue.push_back(n[i]);
             }
         }
 
-        for (int i = 0 ; i < numTris ; ++i)
+        for(int i = 0 ; i < numTris ; ++i)
         {
-            if (!visited[i])
+            if(!visited[i])
             {
                 queue.push_back(i);
                 break;
@@ -448,12 +448,12 @@ void TriangleMesh::cleanUp()
         }
         objects.push_back(newObject);
     }
-    if (objects.size() == 1) return;
+    if(objects.size() == 1) return;
     size_t biggest = 0;
     size_t sizeBiggest = objects[0].size();
-    for ( size_t i = 0 ; i < objects.size() ; ++i)
+    for( size_t i = 0 ; i < objects.size() ; ++i)
     {
-        if (sizeBiggest < objects[i].size() )
+        if(sizeBiggest < objects[i].size() )
         {
             biggest = i;
             sizeBiggest = objects[i].size();
@@ -462,7 +462,7 @@ void TriangleMesh::cleanUp()
 
     std::vector<int>obj = objects[biggest];
     std::vector<Triangle>tempTriangles;
-    for (size_t i = 0 ; i < obj.size() ; ++i)
+    for(size_t i = 0 ; i < obj.size() ; ++i)
     {
         tempTriangles.push_back(triangles[obj[i]]);
     }
@@ -475,12 +475,12 @@ void TriangleMesh::cleanUp()
     numTris = 0;
 
     std::vector<unsigned int> v;
-    for (int i = 0 ; i < numVerts ; ++i)
+    for(int i = 0 ; i < numVerts ; ++i)
     {
         vIsInTriangle.push_back( v );
     }
 
-    for (size_t i = 0 ; i < tempTriangles.size() ; ++i)
+    for(size_t i = 0 ; i < tempTriangles.size() ; ++i)
     {
         Triangle t = tempTriangles[i];
         addTriangle(t.pointID[0], t.pointID[1], t.pointID[2]);
@@ -493,10 +493,10 @@ void TriangleMesh::cleanUp()
 
 void TriangleMesh::doLoopSubD()
 {
-    if ( !m_neighborsCalculated )
+    if( !m_neighborsCalculated )
         calcNeighbors();
 
-    if ( !m_triangleTensorsCalculated )
+    if( !m_triangleTensorsCalculated )
         calcTriangleTensors();
 
     loopSubD loop(this);
@@ -540,12 +540,12 @@ void TriangleMesh::printInfo()
 //    printf("[%02d:%02d:%02d] ", dt1.GetHour(), dt1.GetMinute(), dt1.GetSecond());
     printf("Triangle Mesh contains %d Vertices and %d Triangles.\n", numVerts, numTris);
     bytes += ( 6 * sizeof(float) * numVerts ) + ( 12 * sizeof(float) * numTris );
-        for ( size_t i = 0 ; i < vIsInTriangle.size() ; ++i)
+        for( size_t i = 0 ; i < vIsInTriangle.size() ; ++i)
     {
         bytes += (int)(vIsInTriangle[i].size()) * sizeof(int);
     }
 
-    for ( size_t i = 0 ; i < neighbors.size() ; ++i)
+    for( size_t i = 0 ; i < neighbors.size() ; ++i)
     {
         bytes += (int)(neighbors[i].size()) * sizeof(int);
     }

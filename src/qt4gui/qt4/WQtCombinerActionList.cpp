@@ -53,7 +53,7 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
     std::vector< std::string > moduleBlackList = string_utils::tokenize( moduleBlackListString, "," );
 
     // create an action for each group:
-    for ( WCombinerTypes::WCompatiblesList::iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
+    for( WCombinerTypes::WCompatiblesList::iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
     {
         // check current prototype against whitelist and blacklist
         if(
@@ -72,11 +72,11 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
         push_back( group );
 
         // only add a sub menu if there are more than 1 items in the group
-        if ( ( *groups ).second.size() > 1 )
+        if( ( *groups ).second.size() > 1 )
         {
             QMenu* groupMenu = new QMenu( parent );
             // iterate all the children
-            for ( WCombinerTypes::WOneToOneCombiners::iterator combiner = ( *groups ).second.begin();
+            for( WCombinerTypes::WOneToOneCombiners::iterator combiner = ( *groups ).second.begin();
                                                                combiner != ( *groups ).second.end(); ++combiner )
             {
                 WQtModuleOneToOneCombinerAction* a = new WQtModuleOneToOneCombinerAction( parent, icons, *combiner, true );
@@ -93,7 +93,7 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
     QList< QAction* >()
 {
     // create an action for each group:
-    for ( WCombinerTypes::WDisconnectList::iterator groups = disconnects.begin(); groups != disconnects.end(); ++groups )
+    for( WCombinerTypes::WDisconnectList::iterator groups = disconnects.begin(); groups != disconnects.end(); ++groups )
     {
         // create a new action for this group
         WQtModuleOneToOneCombinerAction* group = new WQtModuleOneToOneCombinerAction( parent, icons, *groups->second.begin(), true );
@@ -102,11 +102,11 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
         push_back( group );
 
         // only add a sub menu if there are more than 1 items in the group
-        if ( ( *groups ).second.size() > 1 )
+        if( ( *groups ).second.size() > 1 )
         {
             QMenu* groupMenu = new QMenu( parent );
             // iterate all the children
-            for ( WCombinerTypes::WOneToOneCombiners::iterator combiner = ( *groups ).second.begin();
+            for( WCombinerTypes::WOneToOneCombiners::iterator combiner = ( *groups ).second.begin();
                                                                combiner != ( *groups ).second.end(); ++combiner )
             {
                 WQtModuleOneToOneCombinerAction* a = new WQtModuleOneToOneCombinerAction( parent, icons, *combiner, true );

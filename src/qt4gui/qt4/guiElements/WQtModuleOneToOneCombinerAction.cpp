@@ -43,19 +43,19 @@ WQtModuleOneToOneCombinerAction::WQtModuleOneToOneCombinerAction( QWidget* paren
     std::string targetName = m_combiner->getTargetModule()->getProperties()->getProperty( "Name" )->toPropString()->get();
 
     // might be null ( for example if a module should be added that does not require an input)
-    if ( m_combiner->getSrcModule() )
+    if( m_combiner->getSrcModule() )
     {
         srcName = m_combiner->getSrcModule()->getProperties()->getProperty( "Name" )->toPropString()->get();
 
         // append real module name if it is different from user specified name
-        if ( srcName != m_combiner->getSrcModule()->getName() )
+        if( srcName != m_combiner->getSrcModule()->getName() )
         {
             srcName += " (" + m_combiner->getSrcModule()->getName() + ")";
         }
     }
 
     // append real module name if it is different from user specified name
-    if ( targetName != m_combiner->getTargetModule()->getName() )
+    if( targetName != m_combiner->getTargetModule()->getName() )
     {
         targetName += " (" + m_combiner->getTargetModule()->getName() + ")";
     }

@@ -101,7 +101,7 @@ void WMFunctionalMRIViewer::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting.";
         m_moduleState.wait();

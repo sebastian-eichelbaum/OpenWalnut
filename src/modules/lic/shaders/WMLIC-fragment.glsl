@@ -107,7 +107,7 @@ void lookupTex( inout vec4 col, in int type, in sampler3D tex,  in float thresho
 
     if( cmap != 0 )
     {
-        if ( threshold < 1.0 )
+        if( threshold < 1.0 )
         {
             col1.r = ( col1.r - threshold ) / ( 1.0 - threshold );
         }
@@ -126,23 +126,23 @@ void main()
     vec4 diffuse = vec4( 0.0 );
     vec4 specular = vec4( 0.0 );
 
-    if ( useLighting )
+    if( useLighting )
         calculateLighting( -normal, gl_FrontMaterial.shininess, ambient, diffuse, specular );
 
     if( useTexture )
     {
-        if ( type9 > 0 ) lookupTex( col, type9, tex9, threshold9, VaryingTexCoord9.xyz, alpha9, useCmap9 );
-        if ( type8 > 0 ) lookupTex( col, type8, tex8, threshold8, VaryingTexCoord8.xyz, alpha8, useCmap8 );
-        if ( type7 > 0 ) lookupTex( col, type7, tex7, threshold7, VaryingTexCoord7.xyz, alpha7, useCmap7 );
-        if ( type6 > 0 ) lookupTex( col, type6, tex6, threshold6, VaryingTexCoord6.xyz, alpha6, useCmap6 );
-        if ( type5 > 0 ) lookupTex( col, type5, tex5, threshold5, VaryingTexCoord5.xyz, alpha5, useCmap5 );
-        if ( type4 > 0 ) lookupTex( col, type4, tex4, threshold4, VaryingTexCoord4.xyz, alpha4, useCmap4 );
-        if ( type3 > 0 ) lookupTex( col, type3, tex3, threshold3, VaryingTexCoord3.xyz, alpha3, useCmap3 );
-        if ( type2 > 0 ) lookupTex( col, type2, tex2, threshold2, VaryingTexCoord2.xyz, alpha2, useCmap2 );
-        if ( type1 > 0 ) lookupTex( col, type1, tex1, threshold1, VaryingTexCoord1.xyz, alpha1, useCmap1 );
-        if ( type0 > 0 ) lookupTex( col, type0, tex0, threshold0, VaryingTexCoord0.xyz, alpha0, useCmap0 );
+        if( type9 > 0 ) lookupTex( col, type9, tex9, threshold9, VaryingTexCoord9.xyz, alpha9, useCmap9 );
+        if( type8 > 0 ) lookupTex( col, type8, tex8, threshold8, VaryingTexCoord8.xyz, alpha8, useCmap8 );
+        if( type7 > 0 ) lookupTex( col, type7, tex7, threshold7, VaryingTexCoord7.xyz, alpha7, useCmap7 );
+        if( type6 > 0 ) lookupTex( col, type6, tex6, threshold6, VaryingTexCoord6.xyz, alpha6, useCmap6 );
+        if( type5 > 0 ) lookupTex( col, type5, tex5, threshold5, VaryingTexCoord5.xyz, alpha5, useCmap5 );
+        if( type4 > 0 ) lookupTex( col, type4, tex4, threshold4, VaryingTexCoord4.xyz, alpha4, useCmap4 );
+        if( type3 > 0 ) lookupTex( col, type3, tex3, threshold3, VaryingTexCoord3.xyz, alpha3, useCmap3 );
+        if( type2 > 0 ) lookupTex( col, type2, tex2, threshold2, VaryingTexCoord2.xyz, alpha2, useCmap2 );
+        if( type1 > 0 ) lookupTex( col, type1, tex1, threshold1, VaryingTexCoord1.xyz, alpha1, useCmap1 );
+        if( type0 > 0 ) lookupTex( col, type0, tex0, threshold0, VaryingTexCoord0.xyz, alpha0, useCmap0 );
     }
-    if ( useLighting )
+    if( useLighting )
     {
         col = ( ambient * col / 2.0 ) + ( diffuse * col ) + ( specular * col / 2.0 );
     }

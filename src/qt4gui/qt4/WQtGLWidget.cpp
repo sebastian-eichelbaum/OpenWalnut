@@ -139,7 +139,7 @@ boost::shared_ptr< WGEViewer > WQtGLWidget::getViewer() const
 
 void WQtGLWidget::paintEvent( QPaintEvent* /*event*/ )
 {
-    if ( m_firstPaint )
+    if( m_firstPaint )
     {
         // it is important to let the GE know that there now is an completely initialized widget -> allowing GE startup to complete
         // This is needed as on some machines, the OSG crashes if the GL widget is not fully initialized.

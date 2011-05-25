@@ -173,11 +173,11 @@ void WMLIC::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -191,7 +191,7 @@ void WMLIC::moduleMain()
         bool dataChanged = ( m_inMesh != newMesh );
         bool dataValid   = newMesh.get();
 
-        if ( dataChanged && dataValid )
+        if( dataChanged && dataValid )
         {
             boost::shared_ptr< WProgress > progress = boost::shared_ptr< WProgress >( new WProgress( "LIC", 5 ) );
             m_progress->addSubProgress( progress );
@@ -254,7 +254,7 @@ void WMLIC::activate()
 {
     if( m_moduleNode )
     {
-        if ( m_active->get() )
+        if( m_active->get() )
         {
             m_moduleNode->setNodeMask( 0xFFFFFFFF );
         }

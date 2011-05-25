@@ -14,7 +14,7 @@ namespace FMath
     double absa,absb;
     absa=fabs(a);
     absb=fabs(b);
-    if (absa > absb) return absa*sqrt(1.0+SQR(absb/absa));
+    if(absa > absb) return absa*sqrt(1.0+SQR(absb/absa));
     else return (absb == 0.0 ? 0.0 : absb*sqrt(1.0+SQR(absa/absb)));
   }
 #undef SQR
@@ -64,9 +64,9 @@ namespace FMath
             double temp = (double)(fabs(e[m-1])+dd);
             if( fabs( temp - dd ) <= std::numeric_limits<double>::epsilon()) break;
           }
-        if (m != l)
+        if(m != l)
           {
-            if (iter++ == 30)
+            if(iter++ == 30)
                 THROW_DEFAULT_EXCEPTION( FTooManyIterationsException );
 
             g=(d[l]-d[l-1])/(2.0*e[l-1]);
@@ -74,12 +74,12 @@ namespace FMath
             g=d[m-1]-d[l-1]+e[l-1]/(g+SIGN(r,g));
             s=c=1.0;
             p=0.0;
-            for (i=m-1;i>=l;i--)
+            for(i=m-1;i>=l;i--)
           {
             f=s*e[i-1];
             b=c*e[i-1];
             e[i]=(r=pythag(f,g));
-            if (r == 0.0)
+            if(r == 0.0)
               {
                 d[i] -= p;
                 e[m-1]=0.0;
@@ -99,12 +99,12 @@ namespace FMath
                 access( k-1, i-1 ) = c*access( k-1,i-1 )-s*f;
               }
           }
-            if (r == 0.0 && i >= l) continue;
+            if(r == 0.0 && i >= l) continue;
             d[l-1] -= p;
             e[l-1]=g;
             e[m-1]=0.0;
           }
-      } while (m != l);
+      } while(m != l);
       }
 #undef SIGN
   }

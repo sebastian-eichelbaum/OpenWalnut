@@ -117,7 +117,7 @@ std::string format( std::string str, size_t maxLen = 45 )
     std::ostringstream ss;
 
     // cut away some stuff
-    if ( str.length() > maxLen )
+    if( str.length() > maxLen )
     {
         size_t keep = maxLen - 3;   // how much chars to keep?
         size_t keepFront = keep / 2;
@@ -184,7 +184,7 @@ void WMColormapper::moduleMain()
             boost::shared_ptr< WDataSetSingle > dataSet = m_input->getData();
 
             // add a colorbar (HACK!)
-            if ( dataSet && dataSet->isTexture() )
+            if( dataSet && dataSet->isTexture() )
             {
                 // TODO(ebaum): this is not the best possible solution. Actually, its a hack.
                 //              A nice solution would be some more abstract "widget" system
@@ -253,7 +253,7 @@ void WMColormapper::moduleMain()
             }
 
             // replace texture instead of removing it?
-            if ( dataSet && dataSet->isTexture() && m_lastDataSet && m_replace->get( true ) )
+            if( dataSet && dataSet->isTexture() && m_lastDataSet && m_replace->get( true ) )
             {
                 debugLog() << "Replacing texture \"" << m_lastDataSet->getTexture2()->name()->get() << "\" with \"" <<
                                                         dataSet->getTexture2()->name()->get() << "\".";
@@ -267,7 +267,7 @@ void WMColormapper::moduleMain()
             else
             {
                 // de-register last input
-                if ( m_lastDataSet )
+                if( m_lastDataSet )
                 {
                     debugLog() << "Removing previous texture \"" << m_lastDataSet->getTexture2()->name()->get() << "\".";
                     m_properties->removeProperty( m_lastDataSet->getTexture2()->getProperties() );
@@ -292,7 +292,7 @@ void WMColormapper::moduleMain()
     }
 
     // remove if module is removed
-    if ( m_lastDataSet )
+    if( m_lastDataSet )
     {
         debugLog() << "Removing previous texture \"" << m_lastDataSet->getTexture2()->name()->get() << "\".";
         WGEColormapping::deregisterTexture( m_lastDataSet->getTexture2() );
@@ -306,7 +306,7 @@ void WMColormapper::moduleMain()
 void WMColormapper::activate()
 {
     // deactivate the output if wanted
-    if ( m_lastDataSet )
+    if( m_lastDataSet )
     {
         m_lastDataSet->getTexture2()->active()->set( m_active->get( true ) );
     }
@@ -317,7 +317,7 @@ void WMColormapper::activate()
 
 void WMColormapper::updateColorbarName( osg::Drawable* label )
 {
-    if ( m_lastDataSet )
+    if( m_lastDataSet )
     {
         dynamic_cast< WGELabel* >( label )->setText( format( m_lastDataSet->getTexture2()->name()->get() ) );
     }
@@ -325,7 +325,7 @@ void WMColormapper::updateColorbarName( osg::Drawable* label )
 
 void WMColormapper::updateColorbarScale( osg::Node* scaleLabels )
 {
-    if ( m_colorBarLabels->changed( true ) )
+    if( m_colorBarLabels->changed( true ) )
     {
         const double labelXPos = 0.060;
         osg::Geode* g = scaleLabels->asGeode();
@@ -336,7 +336,7 @@ void WMColormapper::updateColorbarScale( osg::Node* scaleLabels )
         double valueStep = m_valueScale / static_cast< double >( num - 1 );
 
         // less than 2 labels is useless
-        if ( num < 2 )
+        if( num < 2 )
         {
             return;
         }
@@ -344,7 +344,7 @@ void WMColormapper::updateColorbarScale( osg::Node* scaleLabels )
         osg::Vec3Array* lineVerts = new osg::Vec3Array();
 
         // create enough labels.
-        for ( size_t i = 0; i < num; ++i )
+        for( size_t i = 0; i < num; ++i )
         {
             double value = m_valueMin + ( valueStep * i );
 

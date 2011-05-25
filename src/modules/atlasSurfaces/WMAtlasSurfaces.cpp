@@ -128,11 +128,11 @@ void WMAtlasSurfaces::moduleMain()
     ready();
 
     // loop until the module container requests the module to quit
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -161,9 +161,9 @@ void WMAtlasSurfaces::moduleMain()
             }
         }
 
-        if ( m_active->changed() )
+        if( m_active->changed() )
         {
-            if ( m_active->get( true ) )
+            if( m_active->get( true ) )
             {
                 m_moduleNode->setNodeMask( 0xFFFFFFFF );
             }
@@ -173,7 +173,7 @@ void WMAtlasSurfaces::moduleMain()
             }
         }
 
-        if ( m_propCreateRoiTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_propCreateRoiTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
              m_propCreateRoiTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, false );
              createRoi();
@@ -225,7 +225,7 @@ void WMAtlasSurfaces::createSurfaces()
 
     m_possibleSelections = boost::shared_ptr< WItemSelection >( new WItemSelection() );
 
-    for (size_t i = 1; i < m_dataSet->getMax() + 1; ++i )
+    for(size_t i = 1; i < m_dataSet->getMax() + 1; ++i )
     {
         std::string label = boost::lexical_cast<std::string>( i ) + std::string( " " ) + m_labels[i].second;
         m_possibleSelections->addItem( label, "" );
@@ -237,7 +237,7 @@ void WMAtlasSurfaces::createSurfaces()
 
 void WMAtlasSurfaces::createOSGNode()
 {
-    for ( size_t i = 1; i < m_regionMeshes2->size(); ++i )
+    for( size_t i = 1; i < m_regionMeshes2->size(); ++i )
     {
         osg::Geometry* surfaceGeometry = new osg::Geometry();
         osg::ref_ptr< osg::Geode > outputGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
@@ -295,19 +295,19 @@ void WMAtlasSurfaces::propertyChanged()
 
 void WMAtlasSurfaces::updateGraphics()
 {
-    if ( !m_dirty && !m_aMultiSelection->changed() )
+    if( !m_dirty && !m_aMultiSelection->changed() )
     {
         return;
     }
 
     WItemSelector s = m_aMultiSelection->get( true );
-    for ( size_t i = 0; i < m_moduleNode->getNumChildren(); ++i )
+    for( size_t i = 0; i < m_moduleNode->getNumChildren(); ++i )
     {
         m_moduleNode->getChild( i )->setNodeMask( 0x0 );
 
-        for ( size_t j = 0; j < s.size(); ++j )
+        for( size_t j = 0; j < s.size(); ++j )
         {
-            if ( s.getItemIndexOfSelected(j) == i )
+            if( s.getItemIndexOfSelected(j) == i )
             {
                 m_moduleNode->getChild( i )->setNodeMask( 0xFFFFFFFF );
             }
@@ -325,7 +325,7 @@ std::vector< std::string > WMAtlasSurfaces::readFile( const std::string fileName
 
     std::string line;
 
-    while ( !ifs.eof() )
+    while( !ifs.eof() )
     {
         getline( ifs, line );
 
@@ -343,7 +343,7 @@ void WMAtlasSurfaces::loadLabels( std::string fileName )
 
     lines = readFile( fileName );
 
-    if ( lines.size() == 0 )
+    if( lines.size() == 0 )
     {
         m_labelsLoaded = false;
         return;
@@ -351,17 +351,17 @@ void WMAtlasSurfaces::loadLabels( std::string fileName )
 
     std::vector<std::string>svec;
 
-    for ( size_t i = 0; i < lines.size(); ++i )
+    for( size_t i = 0; i < lines.size(); ++i )
     {
         svec.clear();
         boost::regex reg( "," );
         boost::sregex_token_iterator it( lines[i].begin(), lines[i].end(), reg, -1 );
         boost::sregex_token_iterator end;
-        while ( it != end )
+        while( it != end )
         {
             svec.push_back( *it++ );
         }
-        if ( svec.size() == 3 )
+        if( svec.size() == 3 )
         {
             std::pair< std::string, std::string >newLabel( svec[1], svec[2] );
             m_labels[boost::lexical_cast<size_t>( svec[0] )] = newLabel;
@@ -373,11 +373,11 @@ void WMAtlasSurfaces::loadLabels( std::string fileName )
 void WMAtlasSurfaces::createRoi()
 {
     WItemSelector s = m_aMultiSelection->get( true );
-    for ( size_t i = 0; i < m_moduleNode->getNumChildren(); ++i )
+    for( size_t i = 0; i < m_moduleNode->getNumChildren(); ++i )
     {
-        for ( size_t j = 0; j < s.size(); ++j )
+        for( size_t j = 0; j < s.size(); ++j )
         {
-            if ( s.getItemIndexOfSelected(j) == i )
+            if( s.getItemIndexOfSelected(j) == i )
             {
                 debugLog() << i << " selected";
                 cutArea( i + 1 );
@@ -398,9 +398,9 @@ void WMAtlasSurfaces::cutArea( int index )
 
     boost::shared_ptr< std::vector< float > > newVals = boost::shared_ptr< std::vector< float > >( new std::vector< float >( grid->size(), 0 ) );
 
-    for ( size_t i = 0; i < newVals->size(); ++i )
+    for( size_t i = 0; i < newVals->size(); ++i )
     {
-         if ( static_cast<int>( vals->getScalar( i ) ) == index )
+         if( static_cast<int>( vals->getScalar( i ) ) == index )
          {
              ( *newVals )[i] = 1.0;
          }
@@ -414,7 +414,7 @@ void WMAtlasSurfaces::cutArea( int index )
                                                                             grid->getTransformationMatrix(),
                                                                             *newValueSet->rawDataVectorPointer(),
                                                                             1.0, wge::createColorFromIndex( index ) ) );
-    if ( m_labelsLoaded )
+    if( m_labelsLoaded )
     {
         newRoi->setName( m_labels[index].second );
     }
@@ -423,7 +423,7 @@ void WMAtlasSurfaces::cutArea( int index )
         newRoi->setName( std::string( "region " ) + boost::lexical_cast<std::string>( index ) );
     }
 
-    if ( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
+    if( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
     {
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
     }

@@ -257,7 +257,7 @@ void Vector::rotateAxis(const Vector& axis, double degrees)
 	// normalized.
 	if (!(fabs(this->Dot(rz)) == this->getLength())) {
 	    // If we're not already rotating around the Z, transform to Z
-	    if (axis.x == 0 && axis.y == 0) {
+	    if(axis.x == 0 && axis.y == 0) {
             // In this case, the axis is along Z already, so we
 			// wont bother rotating our axis of rotation to Z.
 			// Since we're checking directly for 0, this is going
@@ -279,7 +279,7 @@ void Vector::rotateAxis(const Vector& axis, double degrees)
 	    // Rotate this vector around Z
 		rotator.rotateZ(degrees);
 
-	    if (axis.x == 0 && axis.y == 0) {
+	    if(axis.x == 0 && axis.y == 0) {
 		    *this = rotator;
 		} else {
     	    // Move back so axis is in original location.

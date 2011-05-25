@@ -145,13 +145,13 @@ void WMTriangleMeshRenderer::moduleMain()
         m_moduleState.wait();
 
         // woke up since the module is requested to finish
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
         // invalid data
         boost::shared_ptr< WTriangleMesh > mesh = m_meshInput->getData();
-        if ( !mesh )
+        if( !mesh )
         {
             debugLog() << "Invalid Data. Disabling.";
             continue;
@@ -208,7 +208,7 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
     osg::ref_ptr< osg::Vec4Array > colors   = osg::ref_ptr< osg::Vec4Array >( new osg::Vec4Array );
     boost::shared_ptr< WColoredVertices > colorMap = m_colorMapInput->getData();
 
-    if ( !m_usePerVertexColor->get( true ) )
+    if( !m_usePerVertexColor->get( true ) )
     {
         if( !colorMap.get() || m_meshColor->changed() )
         {
@@ -274,9 +274,9 @@ void WMTriangleMeshRenderer::renderMesh( boost::shared_ptr< WTriangleMesh > mesh
 void WMTriangleMeshRenderer::activate()
 {
     // Draw/hide the surface
-    if ( m_moduleNode )
+    if( m_moduleNode )
     {
-        if ( m_active->get() )
+        if( m_active->get() )
         {
             m_moduleNode->setNodeMask( 0xFFFFFFFF );
         }

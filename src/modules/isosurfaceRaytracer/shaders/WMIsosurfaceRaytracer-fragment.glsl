@@ -165,13 +165,13 @@ void main()
 
     // the step counter
     int i = 1;
-    while ( i < u_steps )
+    while( i < u_steps )
     {
         // get current value
         value = texture3D( u_texture0Sampler, curPoint ).r;
 
         // is it the isovalue?
-        if ( ( abs( value - v_isovalue ) < ISO_EPSILON )
+        if( ( abs( value - v_isovalue ) < ISO_EPSILON )
 #ifdef BORDERCLIP_ENABLED
                 &&
             !( length( curPoint - rayStart ) < u_borderClipDistance )
@@ -220,7 +220,7 @@ void main()
 
             float w = dot( normalize( vec3( 0.5 ) - curPoint ), normalize( v_ray ) );
             w = ( w + 0.5 );
-            if ( w > 0.8 ) w = 0.8;
+            if( w > 0.8 ) w = 0.8;
 
             float d2 = w * d * d * d * d * d;
             light = light * 11.0 * d2;

@@ -121,11 +121,11 @@ void WMArbitraryRois::moduleMain()
     ready();
 
     // loop until the module container requests the module to quit
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait(); // waits for firing of m_moduleState ( dataChanged, shutdown, etc. )
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -142,7 +142,7 @@ void WMArbitraryRois::moduleMain()
             initSelectionRoi();
         }
 
-        if ( m_threshold->changed() )
+        if( m_threshold->changed() )
         {
             m_threshold->get( true );
             m_showSelector = true;
@@ -150,7 +150,7 @@ void WMArbitraryRois::moduleMain()
             renderMesh();
         }
 
-        if ( m_finalizeTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_finalizeTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             m_showSelector = false;
             createCutDataset();
@@ -269,13 +269,13 @@ boost::shared_ptr< std::vector< float > > WMArbitraryRois::cutArea( boost::share
     boost::shared_ptr< std::vector< float > > newVals = boost::shared_ptr< std::vector< float > >( new std::vector< float >( nx * ny * nz, 0 ) );
 
     size_t x, y, z;
-    for ( z = 0; z < nz; ++z )
+    for( z = 0; z < nz; ++z )
     {
-        for ( y = 0 ; y < ny; ++y )
+        for( y = 0 ; y < ny; ++y )
         {
-            for ( x = 0 ; x < nx; ++x )
+            for( x = 0 ; x < nx; ++x )
             {
-                 if ( ( x > xMin ) && ( x < xMax ) && ( y > yMin ) && ( y < yMax ) && ( z > zMin ) && ( z < zMax ) )
+                 if( ( x > xMin ) && ( x < xMax ) && ( y > yMin ) && ( y < yMax ) && ( z > zMin ) && ( z < zMax ) )
                  {
                      ( *newVals )[ x + nx * y + nx * ny * z ] = static_cast< float >( vals->getScalar( x + nx * y + nx * ny * z ) );
                  }
@@ -289,7 +289,7 @@ void WMArbitraryRois::renderMesh()
 {
     m_moduleNode->remove( m_outputGeode );
 
-    if ( m_showSelector )
+    if( m_showSelector )
     {
         osg::Geometry* surfaceGeometry = new osg::Geometry();
         m_outputGeode = osg::ref_ptr< osg::Geode >( new osg::Geode );
@@ -358,7 +358,7 @@ void WMArbitraryRois::finalizeRoi()
                                                                             m_threshold->get(),
                                                                             m_dataSet->getMax(), m_surfaceColor->get( true ) ) );
 
-    if ( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
+    if( WKernel::getRunningKernel()->getRoiManager()->getSelectedRoi() == NULL )
     {
         WKernel::getRunningKernel()->getRoiManager()->addRoi( newRoi );
     }

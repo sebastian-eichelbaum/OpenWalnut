@@ -222,13 +222,13 @@ void WMFiberDisplaySimple::moduleMain()
     m_plane = createClipPlane();
 
     // main loop
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
         // woke up since the module is requested to finish?
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -245,7 +245,7 @@ void WMFiberDisplaySimple::moduleMain()
         bool propertiesUpdated = m_clipPlaneShowPlane->changed();
 
         // reset graphics if noting is on the input
-        if ( !dataValid )
+        if( !dataValid )
         {
             debugLog() << "Resetting.";
             // remove geode if no valid data is available
@@ -257,7 +257,7 @@ void WMFiberDisplaySimple::moduleMain()
         }
 
         // something happened we are interested in?
-        if ( !( dataValid && ( propertiesUpdated || dataPropertiesUpdated || dataUpdated ) ) )
+        if( !( dataValid && ( propertiesUpdated || dataPropertiesUpdated || dataUpdated ) ) )
         {
             continue;
         }
@@ -288,7 +288,7 @@ void WMFiberDisplaySimple::moduleMain()
 
         // Add geometry
         // Add geometry
-        if ( m_clipPlaneShowPlane->get() )
+        if( m_clipPlaneShowPlane->get() )
         {
             rootNode->insert( m_plane );
         }
@@ -388,7 +388,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
     WDataSetFibers::ColorArray  fibColors = fibers->getColorScheme()->getColor();
 
     // enable blending, select transparent bin
-    if ( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
+    if( fibColorMode == WDataSetFibers::ColorScheme::RGBA )
     {
         enableTransparency( state );
     }
@@ -416,7 +416,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
         size_t len = fibLen->at( fidx );
 
         // walk along the fiber
-        for ( size_t k = 0; k < len; ++k )
+        for( size_t k = 0; k < len; ++k )
         {
             osg::Vec3 vert = osg::Vec3( fibVerts->at( ( 3 * k ) + sidx ),
                                         fibVerts->at( ( 3 * k ) + sidx + 1 ),
@@ -435,7 +435,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
             colors->push_back( color );
             tangents->push_back( tangent );
 
-            if ( m_tubeEnable->get() )
+            if( m_tubeEnable->get() )
             {
                 vertices->push_back( vert );
                 colors->push_back( color );
@@ -450,7 +450,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
         }
 
         // add the above line-strip
-        if ( m_tubeEnable->get() )
+        if( m_tubeEnable->get() )
         {
             geometry->addPrimitiveSet( new osg::DrawArrays( osg::PrimitiveSet::QUAD_STRIP, 2 * currentStart, 2 * len ) );
         }
@@ -468,7 +468,7 @@ osg::ref_ptr< osg::Node > WMFiberDisplaySimple::createFiberGeode( boost::shared_
     geometry->setColorBinding( osg::Geometry::BIND_PER_VERTEX );
     geometry->setNormalArray( tangents );
     geometry->setNormalBinding( osg::Geometry::BIND_PER_VERTEX );
-    if ( m_tubeEnable->get() )    // tex coords are only needed for fake-tubes
+    if( m_tubeEnable->get() )    // tex coords are only needed for fake-tubes
     {
         geometry->setTexCoordArray( 0, texcoords );
     }

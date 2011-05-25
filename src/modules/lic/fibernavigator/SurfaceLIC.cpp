@@ -66,7 +66,7 @@ void SurfaceLIC::execute()
 #else
         srand48(time(0));
 #endif
-        for (int i = 0; i < m_mesh->getNumTriangles(); ++i)
+        for(int i = 0; i < m_mesh->getNumTriangles(); ++i)
         {
 #ifdef _WIN32
             input_texture[i] = (float) rand()/ (RAND_MAX + 1);
@@ -88,14 +88,14 @@ void SurfaceLIC::execute()
         m = (m_mesh->getNumTriangles() - 1) / modulo;
         q = (m_mesh->getNumTriangles() - 1) % modulo;
 
-        for (positive i = 0; i <= q; ++i)
-            for (positive j = 0; j <= m; ++j, ++n)
+        for(positive i = 0; i <= q; ++i)
+            for(positive j = 0; j <= m; ++j, ++n)
             {
                 calculatePixelLuminance(FIndex(modulo * j + i));
             }
 
-        for (positive i = q + 1; i < modulo; ++i)
-            for (positive j = 0; j < m; ++j, ++n)
+        for(positive i = q + 1; i < modulo; ++i)
+            for(positive j = 0; j < m; ++j, ++n)
             {
                 calculatePixelLuminance(FIndex(modulo * j + i));
             }
@@ -104,7 +104,7 @@ void SurfaceLIC::execute()
 
     } catch (FException& e)
     {
-        if (streamline)
+        if(streamline)
             delete streamline;
 
         e.addTraceMessage("void SurfaceLIC::execute ()");
@@ -113,7 +113,7 @@ void SurfaceLIC::execute()
 
     displayTexture();
 
-    if ( streamline ) delete streamline;
+    if( streamline ) delete streamline;
 }
 
 //---------------------------------------------------------------------------
@@ -122,14 +122,14 @@ void SurfaceLIC::calculatePixelLuminance(const FIndex& cellId)
 {
     //   cout << "calculatePixelLuminance: cell #" << cellId << " ";
     // already calculated ?
-    if (hit_texture[cellId.getIndex()])
+    if(hit_texture[cellId.getIndex()])
     {
         return;
     }
 
     // compute mean point
     m_mesh->getCellVerticesIndices(cellId, ids);
-    for (positive j = 0; j < ids.size(); j++)
+    for(positive j = 0; j < ids.size(); j++)
     {
         m_mesh->getPosition(pos[j], ids[j]);
     }
@@ -142,7 +142,7 @@ void SurfaceLIC::calculatePixelLuminance(const FIndex& cellId)
     std::vector<float>line;
     std::vector< FArray > steps = streamline->getIntermediateSteps();
     line.reserve(steps.size() *3);
-    for ( positive i=0; i<steps.size(); ++i )
+    for( positive i=0; i<steps.size(); ++i )
     {
         line.push_back(steps[i](0));
         line.push_back(steps[i](1));
@@ -156,7 +156,7 @@ void SurfaceLIC::calculatePixelLuminance(const FIndex& cellId)
     line.clear();
     steps = streamline->getIntermediateSteps();
     line.reserve(steps.size() *3);
-    for ( positive i=0; i<steps.size(); ++i )
+    for( positive i=0; i<steps.size(); ++i )
     {
         line.push_back(steps[i](0));
         line.push_back(steps[i](1));
@@ -169,9 +169,9 @@ void SurfaceLIC::calculatePixelLuminance(const FIndex& cellId)
 
     // adjust kernel size to streamline length
     positive kernel_sz = nbFold;
-    while (total_sz < 2 * kernel_sz)
+    while(total_sz < 2 * kernel_sz)
         kernel_sz /= 2;
-    if (kernel_sz < 2)
+    if(kernel_sz < 2)
     {
         return;
     }
@@ -182,7 +182,7 @@ void SurfaceLIC::calculatePixelLuminance(const FIndex& cellId)
     fifo.clear();
     double sum = 0.;
     // initialize convolution kernel
-    for (positive i = 0; i < kernel_sz; i++)
+    for(positive i = 0; i < kernel_sz; i++)
     {
         fifo.push_back(input_texture[getId(i, visitedBwd, visitedFwd)]);
         sum += fifo.back();
@@ -190,13 +190,13 @@ void SurfaceLIC::calculatePixelLuminance(const FIndex& cellId)
     // loop over streamline
     positive front = kernel_sz, curr = 0;
     double mult = div;
-    for (; curr < total_sz; curr++, front++)
+    for(; curr < total_sz; curr++, front++)
     {
-        if (!black)
+        if(!black)
         {
-            if (front < 2 * kernel_sz)
+            if(front < 2 * kernel_sz)
                 mult = 1. / (double) front;
-            else if (front < total_sz)
+            else if(front < total_sz)
                 mult = div;
             else
                 mult = 1. / (double) (kernel_sz - curr + total_sz);
@@ -205,16 +205,16 @@ void SurfaceLIC::calculatePixelLuminance(const FIndex& cellId)
         positive id = getId(curr, visitedBwd, visitedFwd);
         output_texture[id] += sum * mult;
 
-        if (!hit_texture[id])
+        if(!hit_texture[id])
             ++nbVisited;
 
         ++hit_texture[id];
-        if (front >= 2 * kernel_sz)
+        if(front >= 2 * kernel_sz)
         {
             sum -= fifo.front();
             fifo.pop_front();
         }
-        if (front < total_sz)
+        if(front < total_sz)
         {
             fifo.push_back(input_texture[getId(front, visitedBwd, visitedFwd)]);
             sum += fifo.back();
@@ -226,10 +226,10 @@ void SurfaceLIC::calculatePixelLuminance(const FIndex& cellId)
 
 positive SurfaceLIC::getId(positive i, const std::vector<FIndex>& bwd, const std::vector<FIndex>& fwd)
 {
-    //   if ( i > bwd.size()+fwd.size() )
+    //   if( i > bwd.size()+fwd.size() )
     //     return ( positive )-1;
 
-    if (i < bwd.size())
+    if(i < bwd.size())
         return bwd[bwd.size() - i - 1].getIndex();
     else
         return fwd[i - bwd.size()].getIndex();
@@ -252,9 +252,9 @@ void SurfaceLIC::displayTexture()
 {
     double gray;
 
-    for (int i = 0; i < nbTriangles; ++i)
+    for(int i = 0; i < nbTriangles; ++i)
     {
-        if (hit_texture[i])
+        if(hit_texture[i])
             gray = output_texture[i] / (double) hit_texture[i];
         else
         {

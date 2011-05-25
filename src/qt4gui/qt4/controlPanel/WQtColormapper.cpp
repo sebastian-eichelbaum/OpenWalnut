@@ -140,7 +140,7 @@ void WQtColormapper::pushUpdateEvent()
 bool WQtColormapper::event( QEvent* event )
 {
     // a texture added/removed/sorted/moved
-    if ( event->type() == WQT_UPDATE_TEXTURE_SORTER_EVENT )
+    if( event->type() == WQT_UPDATE_TEXTURE_SORTER_EVENT )
     {
         update();
         return true;
@@ -158,20 +158,20 @@ void WQtColormapper::update()
     // we need to store the last selected texture if there was any
     osg::ref_ptr< WGETexture3D > lastSelected;
     WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) );
-    if ( item )
+    if( item )
     {
         lastSelected = item->getTexture();
     }
 
     // remove all items and rebuild list.
     m_textureListWidget->clear();
-    for ( WGEColormapping::TextureConstIterator iter = r->get().begin(); iter != r->get().end(); ++iter )
+    for( WGEColormapping::TextureConstIterator iter = r->get().begin(); iter != r->get().end(); ++iter )
     {
         WQtTextureListItem* item = new WQtTextureListItem( *iter, this, m_textureListWidget );
         m_textureListWidget->addItem( item );    // the list widget removes the item (and frees the reference to the texture pointer).
 
         // is the item the texture that has been selected previously?
-        if ( item->getTexture() == lastSelected )
+        if( item->getTexture() == lastSelected )
         {
             m_textureListWidget->setCurrentItem( item );
         }
@@ -190,7 +190,7 @@ void WQtColormapper::moveItemDown()
 {
     boost::shared_ptr< WGEColormapping > cm = WGEColormapping::instance();
     WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) );
-    if ( item )
+    if( item )
     {
         cm->moveDown( item->getTexture() );
     }
@@ -200,7 +200,7 @@ void WQtColormapper::moveItemUp()
 {
     boost::shared_ptr< WGEColormapping > cm = WGEColormapping::instance();
     WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( m_textureListWidget->currentIndex().row() ) );
-    if ( item )
+    if( item )
     {
         cm->moveUp( item->getTexture() );
     }
@@ -209,10 +209,10 @@ void WQtColormapper::moveItemUp()
 void WQtColormapper::selectTexture( boost::shared_ptr< WDataSet > dataSet )
 {
     // simply check each item against the texture in the specified dataset
-    for ( int i = 0; i < m_textureListWidget->count(); ++i )
+    for( int i = 0; i < m_textureListWidget->count(); ++i )
     {
         WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( i ) );
-        if (item && dataSet->isTexture() && ( item->getTexture() == dataSet->getTexture2() ) )
+        if(item && dataSet->isTexture() && ( item->getTexture() == dataSet->getTexture2() ) )
         {
             m_textureListWidget->setCurrentItem( item );
         }

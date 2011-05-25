@@ -143,7 +143,7 @@ bool WMWriteMesh::save() const
     const char* c_file = m_meshFile->get().file_string().c_str();
     std::ofstream dataFile( c_file, std::ios_base::binary );
 
-    if ( dataFile )
+    if( dataFile )
     {
         WLogger::getLogger()->addLogMessage( "opening file", "Marching Cubes", LL_DEBUG );
     }
@@ -163,7 +163,7 @@ bool WMWriteMesh::save() const
 
     WPosition point;
     dataFile << "POINTS " << m_triMesh->vertSize() << " float\n";
-    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
+    for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         point = m_triMesh->getVertexAsPosition( i );
         if( !( myIsfinite( point[0] ) && myIsfinite( point[1] ) && myIsfinite( point[2] ) ) )
@@ -175,21 +175,21 @@ bool WMWriteMesh::save() const
     }
 
     dataFile << "CELLS " << m_triMesh->triangleSize() << " " << m_triMesh->triangleSize() * 4 << "\n";
-    for ( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
+    for( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
     {
         dataFile << "3 " << m_triMesh->getTriVertId0( i ) << " "
                  <<  m_triMesh->getTriVertId1( i ) << " "
                  <<  m_triMesh->getTriVertId2( i ) << "\n";
     }
     dataFile << "CELL_TYPES "<< m_triMesh->triangleSize() <<"\n";
-    for ( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
+    for( size_t i = 0; i < m_triMesh->triangleSize(); ++i )
     {
         dataFile << "5\n";
     }
     dataFile << "POINT_DATA " << m_triMesh->vertSize() << "\n";
     dataFile << "SCALARS scalars float\n";
     dataFile << "LOOKUP_TABLE default\n";
-    for ( size_t i = 0; i < m_triMesh->vertSize(); ++i )
+    for( size_t i = 0; i < m_triMesh->vertSize(); ++i )
     {
         dataFile << "0\n";
     }

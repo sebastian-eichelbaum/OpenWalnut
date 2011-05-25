@@ -109,18 +109,18 @@ void main()
 {
     vec4 col = vec4( 0.0, 0.0, 0.0, 1.0 );
 
-    if ( type7 > 0 ) lookupTex( col, type7, tex7, threshold7, VaryingTexCoord7.xyz, alpha7, useCmap7 );
-    if ( type6 > 0 ) lookupTex( col, type6, tex6, threshold6, VaryingTexCoord6.xyz, alpha6, useCmap6 );
-    if ( type5 > 0 ) lookupTex( col, type5, tex5, threshold5, VaryingTexCoord5.xyz, alpha5, useCmap5 );
-    if ( type4 > 0 ) lookupTex( col, type4, tex4, threshold4, VaryingTexCoord4.xyz, alpha4, useCmap4 );
-    if ( type3 > 0 ) lookupTex( col, type3, tex3, threshold3, VaryingTexCoord3.xyz, alpha3, useCmap3 );
-    if ( type2 > 0 ) lookupTex( col, type2, tex2, threshold2, VaryingTexCoord2.xyz, alpha2, useCmap2 );
-    if ( type1 > 0 ) lookupTex( col, type1, tex1, threshold1, VaryingTexCoord1.xyz, alpha1, useCmap1 );
-    if ( type0 > 0 ) lookupTex( col, type0, tex0, threshold0, VaryingTexCoord0.xyz, alpha0, useCmap0 );
+    if( type7 > 0 ) lookupTex( col, type7, tex7, threshold7, VaryingTexCoord7.xyz, alpha7, useCmap7 );
+    if( type6 > 0 ) lookupTex( col, type6, tex6, threshold6, VaryingTexCoord6.xyz, alpha6, useCmap6 );
+    if( type5 > 0 ) lookupTex( col, type5, tex5, threshold5, VaryingTexCoord5.xyz, alpha5, useCmap5 );
+    if( type4 > 0 ) lookupTex( col, type4, tex4, threshold4, VaryingTexCoord4.xyz, alpha4, useCmap4 );
+    if( type3 > 0 ) lookupTex( col, type3, tex3, threshold3, VaryingTexCoord3.xyz, alpha3, useCmap3 );
+    if( type2 > 0 ) lookupTex( col, type2, tex2, threshold2, VaryingTexCoord2.xyz, alpha2, useCmap2 );
+    if( type1 > 0 ) lookupTex( col, type1, tex1, threshold1, VaryingTexCoord1.xyz, alpha1, useCmap1 );
+    if( type0 > 0 ) lookupTex( col, type0, tex0, threshold0, VaryingTexCoord0.xyz, alpha0, useCmap0 );
 
     col = clamp( col, 0.0, 1.0 );
 
-    if ( ( col.r + col.g + col.b ) < 0.01 )
+    if( ( col.r + col.g + col.b ) < 0.01 )
     {
         if( highlighted )
         {
@@ -129,7 +129,7 @@ void main()
         }
         else
         {
-            if ( !showComplete )
+            if( !showComplete )
             discard;
         }
     }

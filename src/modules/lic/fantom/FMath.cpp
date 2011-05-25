@@ -43,13 +43,13 @@ void FMath::FGaussJ( FMatrix &a, FMatrix &b )
     double big;
     double dum, pivinv, c;
 
-    if (a.getDimensionX() != a.getDimensionY()) {
+    if(a.getDimensionX() != a.getDimensionY()) {
       FException e("ERROR: first argument is not a square matrix!");
       e.addTraceMessage("void FMath::FGaussJ( FMatrix &a, FMatrix &b )");
       throw e;
     }
 
-    if (a.getDimensionX() != b.getDimensionY()) {
+    if(a.getDimensionX() != b.getDimensionY()) {
       FException e("ERROR: incompatible dimensions!");
       e.addTraceMessage("void FMath::FGaussJ( FMatrix &a, FMatrix &b )");
       throw e;
@@ -63,19 +63,19 @@ void FMath::FGaussJ( FMatrix &a, FMatrix &b )
     ipiv=new int[m];
 
     // IPIV preloaden
-    for (j=0;j<m;j++) ipiv[j]=0;
+    for(j=0;j<m;j++) ipiv[j]=0;
 
   //
-  for (i=0; i<m; i++)
+  for(i=0; i<m; i++)
   {
     big=0.0;
-    for (j=0;j<m;j++)
-      if (ipiv[j] != 1)
-        for (k=0;k<m;k++)
+    for(j=0;j<m;j++)
+      if(ipiv[j] != 1)
+        for(k=0;k<m;k++)
           {
-            if (ipiv[k] == 0)
+            if(ipiv[k] == 0)
               {
-                if (fabs(a(j,k))>=big)
+                if(fabs(a(j,k))>=big)
                   {
                     big=fabs(a(j,k));
                     irow=j;
@@ -93,10 +93,10 @@ void FMath::FGaussJ( FMatrix &a, FMatrix &b )
           }
     ++(ipiv[icol]);
     // pivot found, interchange rows if necessary
-    if (irow != icol)
+    if(irow != icol)
       {
-        for (l=0;l<m;l++) SWAP(a(irow,l), a(icol,l), c);
-        for (l=0;l<n;l++) SWAP(b(irow,l), b(icol,l), c);
+        for(l=0;l<m;l++) SWAP(a(irow,l), a(icol,l), c);
+        for(l=0;l<n;l++) SWAP(b(irow,l), b(icol,l), c);
       }
 
     indxr[i]=irow;
@@ -105,22 +105,22 @@ void FMath::FGaussJ( FMatrix &a, FMatrix &b )
 
     pivinv=1.0/a(icol,icol);
     a(icol,icol)=1.0;
-    for (l=0;l<m;l++) a(icol,l) *= pivinv;
-    for (l=0;l<n;l++) b(icol,l) *= pivinv;
-    for (ll=0;ll<m;ll++)
-      if (ll!=icol)
+    for(l=0;l<m;l++) a(icol,l) *= pivinv;
+    for(l=0;l<n;l++) b(icol,l) *= pivinv;
+    for(ll=0;ll<m;ll++)
+      if(ll!=icol)
         {
           dum=a(ll,icol);
           a(ll,icol)=0.0;
-          for (l=0;l<m;l++) a(ll,l) -= a(icol,l)*dum;
-          for (l=0;l<n;l++) b(ll,l) -= b(icol,l)*dum;
+          for(l=0;l<m;l++) a(ll,l) -= a(icol,l)*dum;
+          for(l=0;l<n;l++) b(ll,l) -= b(icol,l)*dum;
         }
   }
   // system solved, interchange pairs of columns back in original order :
-  for (l=m-1;l>=0;l--)
+  for(l=m-1;l>=0;l--)
     {
-      if (indxr[l] != indxc[l])
-        for (k=0;k<m;k++)
+      if(indxr[l] != indxc[l])
+        for(k=0;k<m;k++)
           SWAP(a(k,indxr[l]), a(k,indxc[l]), c);
     }
   delete[] ipiv;
@@ -149,23 +149,23 @@ int FMath::QuadraticEquation(double a, double b, double c,
     }
   // end mario
     double d=b*b-4*a*c;
-    if (d>0.0)
+    if(d>0.0)
     {
         double q= b>=0.0 ? -0.5*(b+sqrt(d)) : -0.5*(b-sqrt(d));
         x[0]=(q/a);     // x[0]=q/a+i*0
         x[1]=(c/q);     // x[1]=c/q+i*0
         return 2;
     }
-    if (d==0.0)
+    if(d==0.0)
     {
-      if (a != 0.0) {
+      if(a != 0.0) {
         x[0]=complex<double>(-0.5*b/a);
 	//although there is only one solution
 	//set x[1] for convenience to the same value as x[0]
         x[1]=x[0];
         return 1;
       }
-      else if (c == 0.0)
+      else if(c == 0.0)
 	return -1;
       else
 	return 0;
@@ -189,7 +189,7 @@ int FMath::CubicEquation(double a3, double a2, double a1, double a0, complex<dou
 //         (-1,0,1,2,3) -1 stands for infinite many!
 // REMARK:  ideas taken from "Numerical Recipes in C", p.184/185
 {
-  if (a3==0.0)
+  if(a3==0.0)
     {
       int n=QuadraticEquation(a2, a1, a0, x);
       x[2]=x[1];
@@ -201,7 +201,7 @@ int FMath::CubicEquation(double a3, double a2, double a1, double a0, complex<dou
   double Q = (a2*a2-3.0*a1)/9.0;
   double R = (2.0*a2*a2*a2-9.0*a2*a1+27.0*a0)/54.0;
   double comp=R*R-Q*Q*Q;
-  if (comp>=0.0)
+  if(comp>=0.0)
     {
     double sgn_R = (R>=0.0) ? 1.0 : -1.0;
     double A = fabs(R) + sqrt(comp);
@@ -233,10 +233,10 @@ void FMath::Eigensystem(const FMatrix& A, std::complex<double> e[2], double* EV0
     double sp=A(0,0)+A(1,1) ;
     double det=A(0,0)*A(1,1) - A(1,0)*A(0,1) ;
     FMath::QuadraticEquation(1, -sp, det, e);
-    if ( e[0].imag()==0.0 )
+    if( e[0].imag()==0.0 )
     {
       double tmp = e[0].real()-A(0,0);
-      if (tmp)
+      if(tmp)
         {
 	  EV0[0] = A(0,1) / tmp;
 	  EV0[1] = 1.0 ;
@@ -248,7 +248,7 @@ void FMath::Eigensystem(const FMatrix& A, std::complex<double> e[2], double* EV0
 	}
 
       tmp = e[1].real()-A(0,0);
-      if (tmp)
+      if(tmp)
         {
 	  EV1[0] = A(0,1) / tmp;
 	  EV1[1] = 1.0 ;
@@ -278,25 +278,25 @@ void FMath::mnewt(int ntrial, F::FVector& x, double tolx, double tolf,
   F::FVector p(N);
 
   indx = new positive [3] ;
-  for (k=0 ; k<ntrial ; k++) {
+  for(k=0 ; k<ntrial ; k++) {
     usrfun(x, fvec, fjac) ;
     errf = 0.0 ;
-    for (i=0 ; i<2 ; i++)
+    for(i=0 ; i<2 ; i++)
       errf += fabs(fvec[i]) ;
-    if (errf <= tolf) {
+    if(errf <= tolf) {
       delete indx ;
       return ;
     }
-    for (i=0 ; i<2 ; i++)
+    for(i=0 ; i<2 ; i++)
       p[i] = -fvec[i] ;
     Ludecomp (fjac, indx, d);
     Lubacksb (fjac, p, indx);
     errx = 0.0 ;
-    for (i=0 ; i<2 ; i++) {
+    for(i=0 ; i<2 ; i++) {
       errx += fabs(p[i]) ;
       x[i] += p[i] ;
     }
-    if (errx <= tolx) {
+    if(errx <= tolx) {
       delete indx ;
       return ;
     }
@@ -329,11 +329,11 @@ void FMath::Ludecomp(FMatrix& a, positive* indx, double& d)
   F::FVector vv(N);
 
   d = 1.0;
-  for (i=0;i<N;i++) // nachsehen ob eine zeile leer (0) ist
+  for(i=0;i<N;i++) // nachsehen ob eine zeile leer (0) ist
     {
       big=(double) 0;
-      for (j=0;j<N;j++)
-        if ((temp=fabs(a(i,j))) > big) big=temp;
+      for(j=0;j<N;j++)
+        if((temp=fabs(a(i,j))) > big) big=temp;
       if(big==0) {
         throw new FMatrixSingularException;
       }
@@ -342,29 +342,29 @@ void FMath::Ludecomp(FMatrix& a, positive* indx, double& d)
       vv[i]=(1.0)/big;
     }
 
-  for (j=0;j<N;j++) // alle Zeilen abarbeiten
+  for(j=0;j<N;j++) // alle Zeilen abarbeiten
     {
-      for (i=0;i<j;i++) // bis 1 unter j laufen
+      for(i=0;i<j;i++) // bis 1 unter j laufen
         {
           sum=a(i,j);
-          for (k=0;k<i;k++) sum -=a(i,k)*a(k,j);
+          for(k=0;k<i;k++) sum -=a(i,k)*a(k,j);
           a(i,j)=sum;
         }
       big=0.0;
-      for (i=j;i<N;i++)
+      for(i=j;i<N;i++)
         {
           sum=a(i,j);
-          for (k=0;k<j;k++) sum -=a(i,k)*a(k,j);
+          for(k=0;k<j;k++) sum -=a(i,k)*a(k,j);
           a(i,j)=sum;
-          if ( (dum=vv[i]*fabs(sum)) >= big)
+          if( (dum=vv[i]*fabs(sum)) >= big)
             {
               big=dum;
               imax=i;
             }
         }
-      if (j!=imax)
+      if(j!=imax)
         {
-          for (k=0;k<N;k++)
+          for(k=0;k<N;k++)
             {
               dum=a(imax,k);
               a(imax,k)=a(j,k);
@@ -374,12 +374,12 @@ void FMath::Ludecomp(FMatrix& a, positive* indx, double& d)
           vv[imax]=vv[j];
         }
       indx[j]=imax;
-      if (a(j,j) == 0) a(j,j)=TINY; // pivot==0 => singular matrix!
+      if(a(j,j) == 0) a(j,j)=TINY; // pivot==0 => singular matrix!
       // try with TINY, sometimes desirable
-      if (j!=N-1)
+      if(j!=N-1)
         {
           dum=(1.0)/(a(j,j));
-          for (i=j+1;i<N;i++) a(i,j) *= dum;
+          for(i=j+1;i<N;i++) a(i,j) *= dum;
         }
     }
 }
@@ -407,22 +407,22 @@ void FMath::Lubacksb(const FMatrix& a, F::FVector& b, positive * indx)
 
   int i, ii=-1, ip, j;
   double sum;
-  for (i=0;i<N;i++)
+  for(i=0;i<N;i++)
     {
       ip=indx[i];
       sum=b[ip];
       b[ip]=b[i];
 
-      if (ii!=-1)
-        for (j=ii;j<i;j++) sum -= a(i,j) * b[j];
+      if(ii!=-1)
+        for(j=ii;j<i;j++) sum -= a(i,j) * b[j];
       else
-        if (sum) ii=i;
+        if(sum) ii=i;
       b[i]=sum;
     }
-  for (i=N-1;i>=0;i--)
+  for(i=N-1;i>=0;i--)
     {
       sum=b[i];
-      for (j=i+1;j<N;j++) sum -=a(i,j)*b[j];
+      for(j=i+1;j<N;j++) sum -=a(i,j)*b[j];
       b[i]=sum/a(i,i);
     }
 }
@@ -443,10 +443,10 @@ void FMath::jordanCanonicalForm( const FMatrix& m, FMatrix& d, vector< complex <
 
 
   // make very small values zero
-  for (i=0; i<eValues.size(); i++) {
-    if (fabs(eValues[i].real()) < zeroTolerance)
+  for(i=0; i<eValues.size(); i++) {
+    if(fabs(eValues[i].real()) < zeroTolerance)
       eValues[i] = complex<double> (0.0, eValues[i].imag());
-    if (fabs(eValues[i].imag()) < zeroTolerance)
+    if(fabs(eValues[i].imag()) < zeroTolerance)
       eValues[i] = complex<double> (eValues[i].real(), 0.0);
   }
 
@@ -455,36 +455,36 @@ void FMath::jordanCanonicalForm( const FMatrix& m, FMatrix& d, vector< complex <
 
   // sort out EV's that occur more than once
   bool flag;
-  for (i=0; i<eValues.size(); i++) {
+  for(i=0; i<eValues.size(); i++) {
 
     // first only the real eigenvalues
-    if (eValues[i].imag() != 0.0)
+    if(eValues[i].imag() != 0.0)
       continue;
 
     flag = true; // if true the ev is not in our list yet
 
-    for (j=0; j<evSorted.size(); j++){
-      if (fabs(eValues[i].real()-evSorted[j]) < zeroTolerance)
+    for(j=0; j<evSorted.size(); j++){
+      if(fabs(eValues[i].real()-evSorted[j]) < zeroTolerance)
         flag=false;
     }
 
-    if (flag)
+    if(flag)
       evSorted.push_back(eValues[i].real());
   }
   //  evSorted.sort();
 
-  for (i=0; i<eValues.size(); i++) {
+  for(i=0; i<eValues.size(); i++) {
 
     // now only the complex eigenvalues
-    if (eValues[i].imag()==0.0)
+    if(eValues[i].imag()==0.0)
       continue;
 
     flag = true; // if true the ev is not in our list yet
-    for (j=0; j<evSortedComplex.size(); j++)
-      if ((fabs(eValues[i].real()-evSortedComplex[j].real()) < zeroTolerance) &&
+    for(j=0; j<evSortedComplex.size(); j++)
+      if((fabs(eValues[i].real()-evSortedComplex[j].real()) < zeroTolerance) &&
           (fabs(fabs(eValues[i].imag())-fabs(evSortedComplex[j].imag())) < zeroTolerance))
         flag=false;
-    if (flag)
+    if(flag)
       evSortedComplex.push_back(eValues[i]);
   }
 
@@ -508,13 +508,13 @@ void FMath::jordanCanonicalForm( const FMatrix& m, FMatrix& d, vector< complex <
   F::FVector dmy1(n), dmy2(n);
 
 
-  for (i=0; i<s; i++) {
+  for(i=0; i<s; i++) {
     mExp=I;
     mMinusLambdaI=m-(evSorted[i]*I);
-    for (j=0; j<n+1; j++) {
+    for(j=0; j<n+1; j++) {
       mExp *= mMinusLambdaI;
-      if (j>1)
-        if (r(i,j-2) == r(i,j-1))
+      if(j>1)
+        if(r(i,j-2) == r(i,j-1))
           r(i,j)=r(i,j-1);
         else {
           mExp.solveSingularSystem(dmy1, dmy2, nullSpace, range, zeroTolerance);
@@ -530,7 +530,7 @@ void FMath::jordanCanonicalForm( const FMatrix& m, FMatrix& d, vector< complex <
 
     b(i,0) = n-2*r(i,0) + r(i,1);
 
-    for (j=1;j<n;j++) {
+    for(j=1;j<n;j++) {
       b(i,j) = r(i,j+1) - 2*r(i,j) + r(i,j-1);
     }
   }
@@ -540,20 +540,20 @@ void FMath::jordanCanonicalForm( const FMatrix& m, FMatrix& d, vector< complex <
   positive x,y;
 
   k=0;
-  for (i=0; i<s; i++) {
-    for (j=0; j<n; j++) {
-      if (b(i,j) != 0)
-        for ( x=0; x<b(i,j); x++) {
-          for (y=0; y<=j;y++) {
+  for(i=0; i<s; i++) {
+    for(j=0; j<n; j++) {
+      if(b(i,j) != 0)
+        for( x=0; x<b(i,j); x++) {
+          for(y=0; y<=j;y++) {
             J(k+y, k+y)=evSorted[i];
-            if (y<j) J(k+y, k+y+1) = 1.0;
+            if(y<j) J(k+y, k+y+1) = 1.0;
           }
           k+=j+1;
         }
     }
   }
 
-  for (i=0; i<evSortedComplex.size(); i++) {
+  for(i=0; i<evSortedComplex.size(); i++) {
     J(k, k)=J(k+1, k+1)=evSortedComplex[i].real();
     J(k+1, k)=evSortedComplex[i].imag();
     J(k, k+1)=-1.0*evSortedComplex[i].imag();
@@ -573,7 +573,7 @@ static void mix( FArray& result,
                  const FArray& v1,
                  double a, double b)
 {
-  if (fabs(b-a) < 1.0e-9)
+  if(fabs(b-a) < 1.0e-9)
     cout << "warning : VERY SMALL DIVISOR" << endl;
 
   a=b/(b-a);
@@ -616,7 +616,7 @@ void FMath::intersectTetrahedronToPlane( const FPosition& tet0,
     int setAsize=0;
     int setBsize=0;
 
-    if ((n*n) < 1.0e-9)
+    if((n*n) < 1.0e-9)
       cout << "warning : VERY SMALL DIVISOR AAA" << endl;
     double nn_inv=1.0 / (n*n);
     double np=n*p;
@@ -626,13 +626,13 @@ void FMath::intersectTetrahedronToPlane( const FPosition& tet0,
     lamda[2]=(n*tet2 - np)*nn_inv;
     lamda[3]=(n*tet3 - np)*nn_inv;
 
-    for (positive i=0; i<4; i++)
-      if (lamda[i]>0)
+    for(positive i=0; i<4; i++)
+      if(lamda[i]>0)
 	set[0][setAsize++]=i;
       else
 	set[1][setBsize++]=i;
 
-    if (setAsize-setBsize == 0){
+    if(setAsize-setBsize == 0){
       result.resize(4);
       mix( result[0], (*vecs)[set[0][0]], (*vecs)[set[1][0]],
 	   lamda[set[0][0]], lamda[set[1][0]]);
@@ -646,7 +646,7 @@ void FMath::intersectTetrahedronToPlane( const FPosition& tet0,
       mix( result[3], (*vecs)[set[0][0]], (*vecs)[set[1][1]],
 	   lamda[set[0][0]], lamda[set[1][1]]);
     }
-    else if (abs(setAsize-setBsize) == 2){
+    else if(abs(setAsize-setBsize) == 2){
       // mix 0 - 1, 0 - 2, 0 - 3 if set 1 is {0} and set 2 is {1 2 3}
 
       // when setAsize > setBsize (setAsize == 3, setBsize == 1)
@@ -703,15 +703,15 @@ void FMath::FFT(vector<double> &x, vector<double> &y, unsigned int offset, unsig
 
     // Calculate the number of points
     //      n = 1;
-    //          for (i = 0; i < m; i++)
+    //          for(i = 0; i < m; i++)
     //                  n *= 2;
     n = size;
 
     // Do the bit reversal
     i2 = n >> 1;
     j = 0;
-    for (i = 0; i < n - 1; i++) {
-        if (i < j) {
+    for(i = 0; i < n - 1; i++) {
+        if(i < j) {
             tx = x[cc(i)];
             ty = y[cc(i)];
             x[cc(i)] = x[cc(j)];
@@ -720,7 +720,7 @@ void FMath::FFT(vector<double> &x, vector<double> &y, unsigned int offset, unsig
             y[cc(j)] = ty;
         }
         k = i2;
-        while (k <= j) {
+        while(k <= j) {
             j -= k;
             k >>= 1;
         }
@@ -730,13 +730,13 @@ void FMath::FFT(vector<double> &x, vector<double> &y, unsigned int offset, unsig
     c1 = -1.0;
     c2 = 0.0;
     l2 = 1;
-    for (l = 0; l < m; l++) {
+    for(l = 0; l < m; l++) {
         l1 = l2;
         l2 <<= 1;
         u1 = 1.0;
         u2 = 0.0;
-        for (j = 0; j < l1; j++) {
-            for (i = j; i < n; i += l2) {
+        for(j = 0; j < l1; j++) {
+            for(i = j; i < n; i += l2) {
                 i1 = i + l1;
                 t1 = u1 * x[cc(i1)] - u2 * y[cc(i1)];
                 t2 = u1 * y[cc(i1)] + u2 * x[cc(i1)];
@@ -750,15 +750,15 @@ void FMath::FFT(vector<double> &x, vector<double> &y, unsigned int offset, unsig
             u1 = z;
         }
         c2 = sqrt((1.0 - c1) / 2.0);
-        if (dir == 1)
+        if(dir == 1)
             c2 = -c2;
         c1 = sqrt((1.0 + c1) / 2.0);
     }
 
     // Scaling for forward transform
 
-    //    if (dir == 1) {
-    for (i = 0; i < n; i++) {
+    //    if(dir == 1) {
+    for(i = 0; i < n; i++) {
         x[cc(i)] /= sqrt((double)n);
         y[cc(i)] /= sqrt((double)n);
     }
@@ -791,17 +791,17 @@ void FMath::inPlaceRadix2DitDft(unsigned int n, unsigned int m, vector<double>& 
 
     j = 0; /* bit-reverse */
     n2 = n/2;
-    for (i=1; i < n - 1; i++)
+    for(i=1; i < n - 1; i++)
     {
         n1 = n2;
-        while ( j >= n1 )
+        while( j >= n1 )
         {
             j = j - n1;
             n1 = n1/2;
         }
         j = j + n1;
 
-        if (i < j)
+        if(i < j)
         {
             t1 = x[i];
             x[i] = x[j];
@@ -816,20 +816,20 @@ void FMath::inPlaceRadix2DitDft(unsigned int n, unsigned int m, vector<double>& 
     n1 = 0; /* FFT */
     n2 = 1;
 
-    for (i=0; i < m; i++)
+    for(i=0; i < m; i++)
     {
         n1 = n2;
         n2 = n2 + n2;
         e = -2.*M_PI/n2;
         a = 0.0;
 
-        for (j=0; j < n1; j++)
+        for(j=0; j < n1; j++)
         {
             c = cos(a);
             s = sin(a);
             a = a + e;
 
-            for (k=j; k < n; k=k+n2)
+            for(k=j; k < n; k=k+n2)
             {
                 t1 = c*x[k+n1] - s*y[k+n1];
                 t2 = s*x[k+n1] + c*y[k+n1];

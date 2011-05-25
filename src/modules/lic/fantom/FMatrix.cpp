@@ -40,7 +40,7 @@ static int iminarg1,iminarg2;
 FMatrix& FMatrix::resize(unsigned int m, unsigned int n, bool keepvalues)
 {
 #ifndef NODEBUG
-  if (!m || !n)
+  if(!m || !n)
     {
       FInvalidDimensionException e;
       e.addTraceMessage("FMatrix& FMatrix::resize(unsigned int m, unsigned int n, bool keepvalues)");
@@ -51,16 +51,16 @@ FMatrix& FMatrix::resize(unsigned int m, unsigned int n, bool keepvalues)
 
 //   keepvalues=true;
 
-//   if (!keepvalues)
+//   if(!keepvalues)
 //     {
-//       if (sizeOfArray != tmpsize)
+//       if(sizeOfArray != tmpsize)
 //         {
 //           delete[]comp;
 //           comp=new double[tmpsize];
 //         }
 //     }
 //   else
-//     if ((dimx != n) || (dimy!=m))
+//     if((dimx != n) || (dimy!=m))
 //     {
 //       positive copysize = (n<dimx)?n:dimx;
 //       // should be greater or equal to zero
@@ -70,10 +70,10 @@ FMatrix& FMatrix::resize(unsigned int m, unsigned int n, bool keepvalues)
 
 //       double *comp2=new double[tmpsize];
 
-//       for ( positive i=0;i<m; i++)
+//       for( positive i=0;i<m; i++)
 //         {
 //           memcpy(&comp2[i*n], &comp[i*dimx], copysize);
-//           if (clearsize)
+//           if(clearsize)
 //             memset(&comp2[i*n+copysize], 0, clearsize);
 //         }
 //       delete[] comp;
@@ -87,15 +87,15 @@ FMatrix& FMatrix::resize(unsigned int m, unsigned int n, bool keepvalues)
   FMatrix tmp(*this);
 
   sizeOfArray=m*n;
-  if (comp) delete[] comp;
+  if(comp) delete[] comp;
   comp=new double[sizeOfArray];
   memset(comp, 0, sizeOfArray*sizeof(double));
 
   if(keepvalues)
   {
-    for (positive j = 0; j<m; j++)
-      for (positive i = 0; i<n; i++)
-        if ( (i<dimx) && (j<dimy) )
+    for(positive j = 0; j<m; j++)
+      for(positive i = 0; i<n; i++)
+        if( (i<dimx) && (j<dimy) )
           comp[j*n+i]=tmp(j,i);
   }
   dimy=m; dimx=n;
@@ -109,14 +109,14 @@ FMatrix invert(const FMatrix& A) {
   FMatrix result(A.dimx, A.dimx);
 
   try {
-    if (A.dimx != A.dimy)
+    if(A.dimx != A.dimy)
       THROW_EXCEPTION( FInvalidDimensionException, "Matrix must be square !!!" ) ;
 
     switch (A.dimx)
       {
       case 1:
 	{
-	  if (A.comp[0] == 0.)
+	  if(A.comp[0] == 0.)
 	    THROW_DEFAULT_EXCEPTION(FMatrixSingularException);
 
 	  result.comp[0] = 1. / A.comp[0];
@@ -130,7 +130,7 @@ FMatrix invert(const FMatrix& A) {
 	  a12 = A.comp[2];
 	  a22 = A.comp[3];
 	  denom = (a11*a22-a12*a21);
-	  if (denom == 0.)
+	  if(denom == 0.)
 	    THROW_DEFAULT_EXCEPTION( FMatrixSingularException );
 
 	  double invdenom=1.0/denom;
@@ -169,7 +169,7 @@ FMatrix invert(const FMatrix& A) {
 
 	  denom= result.comp[0]*a11+result.comp[1]*a12+result.comp[2]*a13;
 
-	  if (denom == 0.) {
+	  if(denom == 0.) {
 	    THROW_DEFAULT_EXCEPTION( FMatrixSingularException );
 	  }
 
@@ -213,7 +213,7 @@ FMatrix invert(const FMatrix& A) {
 double FMatrix::invert (void )
 {
 #ifndef NODEBUG
-  if (dimy!=dimx)
+  if(dimy!=dimx)
     THROW_EXCEPTION( FException, "Matrix must be square !!!" );
 #endif
 
@@ -222,7 +222,7 @@ double FMatrix::invert (void )
     {
     case 1:
       {
-        if (comp[0] == 0.)
+        if(comp[0] == 0.)
           THROW_DEFAULT_EXCEPTION( FMatrixSingularException );
         double denom=comp[0];
         comp[0] = 1. / denom;
@@ -236,7 +236,7 @@ double FMatrix::invert (void )
         a12 = comp[2];
         a22 = comp[3];
         denom = (a11*a22-a12*a21);
-        if (denom == 0.)
+        if(denom == 0.)
           THROW_DEFAULT_EXCEPTION( FMatrixSingularException );
 
 	double invdenom=1.0/denom;
@@ -275,7 +275,7 @@ double FMatrix::invert (void )
 
 	denom= comp[0]*a11+comp[1]*a12+comp[2]*a13;
 
-        if (denom == 0.) {
+        if(denom == 0.) {
           THROW_DEFAULT_EXCEPTION( FMatrixSingularException );
 	}
 
@@ -353,7 +353,7 @@ void FMatrix::getEigenSystem( std::vector< std::complex< double > >& evals,
     positive *col, *row;
     positive maxi(0);
     double maxdet;
-    for ( positive i=0 ; i<evals.size() ; ++i )
+    for( positive i=0 ; i<evals.size() ; ++i )
     {
 	if ( !evals[i].imag() )
 	{
@@ -361,12 +361,12 @@ void FMatrix::getEigenSystem( std::vector< std::complex< double > >& evals,
 
 	    // A-\lambda I_3
 	    matrix = *this;
-	    for ( positive j=0 ; j<3 ; ++j )
+	    for( positive j=0 ; j<3 ; ++j )
 		matrix(j,j) -= evals[i].real();
 
 	    // loop over scalar components of the eigenvector to
 	    // find one that is not zero
-	    for ( positive j=0 ; j<3 ; ++j )
+	    for( positive j=0 ; j<3 ; ++j )
 	    {
 		col = indices[j];
 
@@ -382,7 +382,7 @@ void FMatrix::getEigenSystem( std::vector< std::complex< double > >& evals,
 		// get maximum
 		maxdet = 0;
 		for ( positive k=0 ; k<3 ; ++k )
-		    if ( fabs(det[k]) > maxdet )
+		    if( fabs(det[k]) > maxdet )
 		    {
 			maxi = k;
 			maxdet = fabs(det[k]);
@@ -404,7 +404,7 @@ void FMatrix::getEigenSystem( std::vector< std::complex< double > >& evals,
 		      matrix( row[1], col[0] )*matrix( row[0], j ) );
 		evecs[i]( j ) = 1.;
 	    }
-	    if ( !evecs[i].size() )
+	    if( !evecs[i].size() )
 	    {
 #ifndef NODEBUG
 	      std::cout << "degenerate eigensystem: can't solve it!" << std::endl;
@@ -423,10 +423,10 @@ void FMatrix::getEigenSystem( std::vector< std::complex< double > >& evals,
 			     matrix(0,0)*matrix(1,1)-matrix(0,1)*matrix(1,0),
 			     &(evals[0]) );
 
-    if ( evals.size() != 2 || evals[0].imag() || evals[1].imag() )
+    if( evals.size() != 2 || evals[0].imag() || evals[1].imag() )
       THROW_DEFAULT_EXCEPTION( FNotImplementedException );
 
-    if ( evals[0].real() < evals[1].real() ) {
+    if( evals[0].real() < evals[1].real() ) {
       complex<double> q = evals[0];
       evals[0] = evals[1];
       evals[1] = q;
@@ -439,7 +439,7 @@ void FMatrix::getEigenSystem( std::vector< std::complex< double > >& evals,
     evecs[0](0) = -matrix(0,1)/(matrix(0,0)-evals[0].real());
     evecs[0](1) = 1;
 
-    if (fabs(fabs(evecs[0](0)) -
+    if(fabs(fabs(evecs[0](0)) -
 	     fabs((matrix(1,1) - evals[0].real())/matrix(1,0))) > epsilon)
       throw FException("Cannot solve eigensystem.");
 
@@ -449,7 +449,7 @@ void FMatrix::getEigenSystem( std::vector< std::complex< double > >& evals,
     evecs[1](0) = -matrix(0,1)/(matrix(0,0)-evals[1].real());
     evecs[1](1) = 1;
 
-    if (fabs(fabs(evecs[1](0)) -
+    if(fabs(fabs(evecs[1](0)) -
 	     fabs((matrix(1,1)-evals[1].real())/matrix(1,0))) > epsilon)
       throw FException("Cannot solve eigensystem.");
 
@@ -504,10 +504,10 @@ FMatrix& FMatrix::gaussJ( FMatrix &b )
     double dum, pivinv, c;
 
 #ifndef NODEBUG
-    if (dimx != dimy)
+    if(dimx != dimy)
       THROW_EXCEPTION( FException, "ERROR: not a square matrix!");
 
-    if (dimx != b.dimy)
+    if(dimx != b.dimy)
       THROW_EXCEPTION( FInvalidDimensionException, "ERROR: incompatible dimensions!");
 #endif
 
@@ -518,19 +518,19 @@ FMatrix& FMatrix::gaussJ( FMatrix &b )
     ipiv=new int[dimx];
 
     // IPIV preloaden
-    for (j=0;j<(int)dimx;j++) ipiv[j]=0;
+    for(j=0;j<(int)dimx;j++) ipiv[j]=0;
 
   //
-  for (i=0; i<(int)dimx; i++)
+  for(i=0; i<(int)dimx; i++)
   {
     big=0.0;
-    for (j=0;j<(int)dimx;j++)
-      if (ipiv[j] != 1)
-        for (k=0;k<(int)dimx;k++)
+    for(j=0;j<(int)dimx;j++)
+      if(ipiv[j] != 1)
+        for(k=0;k<(int)dimx;k++)
           {
-            if (ipiv[k] == 0)
+            if(ipiv[k] == 0)
               {
-                if (fabs((*this)(j,k))>=big)
+                if(fabs((*this)(j,k))>=big)
                   {
                     big=fabs((*this)(j,k));
                     irow=j;
@@ -551,10 +551,10 @@ FMatrix& FMatrix::gaussJ( FMatrix &b )
           }
     ++(ipiv[icol]);
     // pivot found, interchange rows if necessary
-    if (irow != icol)
+    if(irow != icol)
       {
-        for (l=0;l<(int)dimx;l++) SWAP((*this)(irow,l), (*this)(icol,l), c);
-        for (l=0;l<n;l++) SWAP(b(irow,l), b(icol,l), c);
+        for(l=0;l<(int)dimx;l++) SWAP((*this)(irow,l), (*this)(icol,l), c);
+        for(l=0;l<n;l++) SWAP(b(irow,l), b(icol,l), c);
       }
 
     indxr[i]=irow;
@@ -563,22 +563,22 @@ FMatrix& FMatrix::gaussJ( FMatrix &b )
 
     pivinv=1.0/(*this)(icol,icol);
     (*this)(icol,icol)=1.0;
-    for (l=0;l<(int)dimx;l++) (*this)(icol,l) *= pivinv;
-    for (l=0;l<n;l++) b(icol,l) *= pivinv;
-    for (ll=0;ll<(int)dimx;ll++)
-      if (ll!=icol)
+    for(l=0;l<(int)dimx;l++) (*this)(icol,l) *= pivinv;
+    for(l=0;l<n;l++) b(icol,l) *= pivinv;
+    for(ll=0;ll<(int)dimx;ll++)
+      if(ll!=icol)
         {
           dum=(*this)(ll,icol);
           (*this)(ll,icol)=0.0;
-          for (l=0;l<(int)dimx;l++) (*this)(ll,l) -= (*this)(icol,l)*dum;
-          for (l=0;l<n;l++) b(ll,l) -= b(icol,l)*dum;
+          for(l=0;l<(int)dimx;l++) (*this)(ll,l) -= (*this)(icol,l)*dum;
+          for(l=0;l<n;l++) b(ll,l) -= b(icol,l)*dum;
         }
   }
   // system solved, interchange pairs of columns back in original order :
-  for (l=(int)dimx-1;l>=0;l--)
+  for(l=(int)dimx-1;l>=0;l--)
     {
-      if (indxr[l] != indxc[l])
-        for (k=0;k<(int)dimx;k++)
+      if(indxr[l] != indxc[l])
+        for(k=0;k<(int)dimx;k++)
           SWAP((*this)(k,indxr[l]), (*this)(k,indxc[l]), c);
     }
   delete[] ipiv;
@@ -603,10 +603,10 @@ F::FVector& FMatrix::gaussJ( F::FVector &v )
     double big;
     double dum, pivinv, c;
 #ifndef NODEBUG
-    if (dimx != dimy)
+    if(dimx != dimy)
       THROW_EXCEPTION( FException, "ERROR: not a square matrix!");
 
-    if (dimx != v.sizeOfArray)
+    if(dimx != v.sizeOfArray)
       THROW_EXCEPTION( FException, "ERROR: incompatible dimensions!");
 #endif
 
@@ -615,19 +615,19 @@ F::FVector& FMatrix::gaussJ( F::FVector &v )
     ipiv=new int[dimx];
 
     // IPIV preloaden
-    for (j=0;j<(int)dimx;j++) ipiv[j]=0;
+    for(j=0;j<(int)dimx;j++) ipiv[j]=0;
 
   //
-  for (i=0; i<(int)dimx; i++)
+  for(i=0; i<(int)dimx; i++)
   {
     big=0.0;
-    for (j=0;j<(int)dimx;j++)
-      if (ipiv[j] != 1)
-        for (k=0;k<(int)dimx;k++)
+    for(j=0;j<(int)dimx;j++)
+      if(ipiv[j] != 1)
+        for(k=0;k<(int)dimx;k++)
           {
-            if (ipiv[k] == 0)
+            if(ipiv[k] == 0)
               {
-                if (fabs((*this)(j,k))>=big)
+                if(fabs((*this)(j,k))>=big)
                   {
                     big=fabs((*this)(j,k));
                     irow=j;
@@ -649,9 +649,9 @@ F::FVector& FMatrix::gaussJ( F::FVector &v )
           }
     ++(ipiv[icol]);
     // pivot found, interchange rows if necessary
-    if (irow != icol)
+    if(irow != icol)
       {
-        for (l=0;l<(int)dimx;l++) SWAP((*this)(irow,l), (*this)(icol,l), c);
+        for(l=0;l<(int)dimx;l++) SWAP((*this)(irow,l), (*this)(icol,l), c);
         SWAP(v(irow), v(icol), c);
       }
 
@@ -661,22 +661,22 @@ F::FVector& FMatrix::gaussJ( F::FVector &v )
 
     pivinv=1.0/(*this)(icol,icol);
     (*this)(icol,icol)=1.0;
-    for (l=0;l<(int)dimx;l++) (*this)(icol,l) *= pivinv;
+    for(l=0;l<(int)dimx;l++) (*this)(icol,l) *= pivinv;
     v(icol) *= pivinv;
-    for (ll=0;ll<(int)dimx;ll++)
-      if (ll!=icol)
+    for(ll=0;ll<(int)dimx;ll++)
+      if(ll!=icol)
         {
           dum=(*this)(ll,icol);
           (*this)(ll,icol)=0.0;
-          for (l=0;l<(int)dimx;l++) (*this)(ll,l) -= (*this)(icol,l)*dum;
+          for(l=0;l<(int)dimx;l++) (*this)(ll,l) -= (*this)(icol,l)*dum;
           v(ll) -= v(icol)*dum;
         }
   }
   // system solved, interchange pairs of columns back in original order :
-  for (l=(int)dimx-1;l>=0;l--)
+  for(l=(int)dimx-1;l>=0;l--)
     {
-      if (indxr[l] != indxc[l])
-        for (k=0;k<(int)dimx;k++)
+      if(indxr[l] != indxc[l])
+        for(k=0;k<(int)dimx;k++)
           SWAP((*this)(k,indxr[l]), (*this)(k,indxc[l]), c);
     }
   delete[] ipiv;
@@ -691,15 +691,15 @@ F::FVector& FMatrix::gaussJ( F::FVector &v )
 void FMatrix::swapCols (positive a, positive b)
 {
 #ifndef NODEBUG
-  if ((a>= dimx)||(b>=dimx))
+  if((a>= dimx)||(b>=dimx))
     THROW_DEFAULT_EXCEPTION( FIndexOutOfBoundsException );
 #endif
 
-  if (a==b) return;
+  if(a==b) return;
   double *j, *k, tmp;
   j = &comp[a];
   k = &comp[b];
-  for ( positive i=0;i<dimy;i++ )
+  for( positive i=0;i<dimy;i++ )
     { tmp=*j; *j=*k; *k=tmp;
       j+=dimx*sizeof(double);
       k+=dimx*sizeof(double);
@@ -710,11 +710,11 @@ void FMatrix::swapCols (positive a, positive b)
 void FMatrix::swapRows (positive a, positive b)
 {
 #ifndef NODEBUG
-  if ((a>= dimy)||(b>=dimy))
+  if((a>= dimy)||(b>=dimy))
     THROW_DEFAULT_EXCEPTION( FIndexOutOfBoundsException );
 #endif
 
-  if (a==b) return;
+  if(a==b) return;
 
   double *j = new double[dimx];
   memcpy( j, &comp[a*dimx], dimx*sizeof(double) );
@@ -731,9 +731,9 @@ ostream& operator<< ( ostream& os, const FMatrix& matrix )
   for( i=0; i<matrix.dimy; i++ )
   {
       os << (i?" [":"[[");
-      for (j=0; j< matrix.dimx; j++)
+      for(j=0; j< matrix.dimx; j++)
       {
-	  if (j<matrix.dimx-1)
+	  if(j<matrix.dimx-1)
 	      os << matrix[i*matrix.dimx+j] << ",\t";
 	  else
 	      os << matrix[i*matrix.dimx+j] << ((i<matrix.dimy-1) ? "]":"]]") << "\n";
@@ -754,59 +754,59 @@ istream& operator>> ( istream& is , FMatrix& a)
   vector<double> tmp;
   double tmpdouble;
 
-  while (isspace(c) && (is >> c)) {};
-  if (c != '[')
+  while(isspace(c) && (is >> c)) {};
+  if(c != '[')
     { is.putback(c);
     THROW_EXCEPTION( FSyntaxErrorException, "no matrix definition found");
     }
 
   c=' ';
 
-  while (1)
+  while(1)
     {
 
       // If the Matrix definition has ended there should appear
       // a character different from '['
-      while (isspace(c) && (is >> c)) {};
-      if (c == ']')
+      while(isspace(c) && (is >> c)) {};
+      if(c == ']')
         { break;}
 
-      if ((c != '[')|| (!is))
+      if((c != '[')|| (!is))
         THROW_EXCEPTION( FSyntaxErrorException, "Matrix input did not finish correctly");
 
       olddimx = dimx;
       dimx=0;
-      while ( is >> tmpdouble >> c )
+      while( is >> tmpdouble >> c )
         {
           dimx++;
           tmp.push_back ( tmpdouble );
 
           // finished !
-          if (c==']') break;
+          if(c==']') break;
 
           // if operation did not succeed
-          if (c!=',')
+          if(c!=',')
             {
               is.clear(ios::badbit);
               break;
             }
         }
-      if (olddimx)
-        if (olddimx!=dimx)
+      if(olddimx)
+        if(olddimx!=dimx)
           THROW_EXCEPTION( FSyntaxErrorException, "Matrix width is not constant");
 
       dimy++;
       c = ' ';
     }
 
-  if ((dimx == 0) || (dimy == 0))
+  if((dimx == 0) || (dimy == 0))
     THROW_EXCEPTION( FSyntaxErrorException, "No Matrix Definition Found");
 
-  if (!is)
+  if(!is)
     THROW_EXCEPTION( FSyntaxErrorException, "Matrix input did not finish correctly");
 
   a.resize(dimy, dimx);
-  for (i=0; i<a.sizeOfArray; i++)
+  for(i=0; i<a.sizeOfArray; i++)
     a.comp[i]=tmp[i];
 
   return is;
@@ -817,7 +817,7 @@ istream& operator>> ( istream& is , FMatrix& a)
 void FMatrix::makeDiagonal(const F::FVector& v)
 {
   dimx = dimy = v.sizeOfArray;
-  if (sizeOfArray != dimx*dimy)
+  if(sizeOfArray != dimx*dimy)
     {
       sizeOfArray=dimx*dimy;
       delete[] comp;
@@ -825,7 +825,7 @@ void FMatrix::makeDiagonal(const F::FVector& v)
     }
 
   memset(comp, 0, sizeOfArray*sizeof(double));
-  for (positive j=0, i=0;i<sizeOfArray;i+=dimx+1, j++)
+  for(positive j=0, i=0;i<sizeOfArray;i+=dimx+1, j++)
     {
       comp[i]=v[j];
     }
@@ -836,15 +836,15 @@ void FMatrix::makeDiagonal(const F::FVector& v)
 void FMatrix::makeDiagonal(const double& d, positive dim)
 {
   // Matrix taken as is if no dimension is given explicitly
-  if (!dim)
+  if(!dim)
     {
-      if (dimx != dimy)
+      if(dimx != dimy)
         THROW_EXCEPTION( FException, "Matrix is not square");
     }
   else
     dimx = dimy = dim;
 
-  if (sizeOfArray != dimx*dimy)
+  if(sizeOfArray != dimx*dimy)
     {
       sizeOfArray=dimx*dimy;
       delete[] comp;
@@ -852,7 +852,7 @@ void FMatrix::makeDiagonal(const double& d, positive dim)
     }
 
   memset(comp, 0, sizeOfArray*sizeof(double));
-  for (positive i=0;i<sizeOfArray;i+=(dimx+1))
+  for(positive i=0;i<sizeOfArray;i+=(dimx+1))
     {
       comp[i]=d;
     }
@@ -870,10 +870,10 @@ void FMatrix::makeIdendity( )
 void FMatrix::makeScaling(double d)
 {
   // Matrix taken as is if no dimension is given explicitly
-  if (dimx != dimy)
+  if(dimx != dimy)
     THROW_EXCEPTION( FException, "Matrix is not square");
 
-  if (sizeOfArray != dimx*dimy)
+  if(sizeOfArray != dimx*dimy)
     {
       sizeOfArray=dimx*dimy;
       delete[] comp;
@@ -881,7 +881,7 @@ void FMatrix::makeScaling(double d)
     }
 
   memset(comp, 0, sizeOfArray*sizeof(double));
-  for (positive i=0;i<sizeOfArray;i+=(dimx+1))
+  for(positive i=0;i<sizeOfArray;i+=(dimx+1))
     {
       comp[i]=d;
     }
@@ -907,10 +907,10 @@ FMatrix FMatrix::operator *(const FMatrix &m) const
   double *src1, *src2, *dst;
 
 #ifndef NODEBUG
-  if (m.dimy != dimx)
-      THROW_EXCEPTION( FInvalidDimensionException, "MatrixMultiplication only permittet for (NxM) * (MxK)");
+  if(m.dimy != dimx)
+      THROW_EXCEPTION( FInvalidDimensionException, "MatrixMultiplication only permittet for(NxM) * (MxK)");
 
-  if ((dimx==0)||(dimy==0)||(m.dimx==0))
+  if((dimx==0)||(dimy==0)||(m.dimx==0))
       THROW_EXCEPTION( FInvalidDimensionException, "Sorry Matrices must have Dimension != Zero !");
 
 #endif
@@ -950,9 +950,9 @@ FMatrix& FMatrix::operator *=(const FMatrix &m)
   double * src1, *src2, *dst, *comp2;
 
 #ifndef NODEBUG
-  if (m.dimy != dimx)
-      THROW_EXCEPTION( FInvalidDimensionException, "MatrixMultiplication only permittet for (NxM) * (MxK)");
-  if ((dimx==0)||(dimy==0)||(m.dimx==0))
+  if(m.dimy != dimx)
+      THROW_EXCEPTION( FInvalidDimensionException, "MatrixMultiplication only permittet for(NxM) * (MxK)");
+  if((dimx==0)||(dimy==0)||(m.dimx==0))
       THROW_DEFAULT_EXCEPTION( FEmptyObjectException );
 #endif
 
@@ -1002,9 +1002,9 @@ FMatrix& FMatrix::mult(const FMatrix &m, FMatrix &d) const
   double *src1, *src2, *dst;
 
 #ifndef NODEBUG
-  if (m.dimy != dimx)
-      THROW_EXCEPTION( FInvalidDimensionException, "MatrixMultiplication only permittet for (NxM) * (MxK)");
-  if ((dimx==0)||(dimy==0)||(m.dimx==0))
+  if(m.dimy != dimx)
+      THROW_EXCEPTION( FInvalidDimensionException, "MatrixMultiplication only permittet for(NxM) * (MxK)");
+  if((dimx==0)||(dimy==0)||(m.dimx==0))
       THROW_EXCEPTION( FInvalidDimensionException, "Sorry Matrices must have Dimension != Zero !");
 #endif
 
@@ -1012,7 +1012,7 @@ FMatrix& FMatrix::mult(const FMatrix &m, FMatrix &d) const
   d.dimy = dimy;
   d.dimx = m.dimx;
 
-  if ( d.sizeOfArray != m.dimx*dimy )
+  if( d.sizeOfArray != m.dimx*dimy )
     {
       // make the new array...
       d.sizeOfArray = dimy*m.dimx;
@@ -1056,7 +1056,7 @@ F::FVector FMatrix::operator*(const F::FVector &v) const
   double *src, *dst;
 
 #ifndef NODEBUG
-  if (dimx != v.sizeOfArray)
+  if(dimx != v.sizeOfArray)
     {
 		cout << dimx << " " << v.sizeOfArray << endl;
 		THROW_EXCEPTION(FInvalidDimensionException, "Vector has to be same size as width of Matrix");
@@ -1084,11 +1084,11 @@ F::FVector& FMatrix::mult(const F::FVector &v, F::FVector &d) const
   positive i, j;
   double *src, *dst;
 
-  if (d.sizeOfArray != dimy)
+  if(d.sizeOfArray != dimy)
     d.resize(dimy);
 
 #ifndef NODEBUG
-  if (dimx != v.sizeOfArray)
+  if(dimx != v.sizeOfArray)
       THROW_EXCEPTION( FInvalidDimensionException, "Vector has to be same size as width of Matrix");
 #endif
 
@@ -1114,11 +1114,11 @@ F::FVector& FMatrix::mult(const FTensor &v, F::FVector &d) const
   unsigned char i, j;
   double *src, *dst;
 
-  if (d.getDimension() != dimy)
+  if(d.getDimension() != dimy)
     d.resize(dimy);
 
 #ifndef NODEBUG
-  if (dimx != v.sizeOfArray)
+  if(dimx != v.sizeOfArray)
       THROW_EXCEPTION( FInvalidDimensionException, "Vector has to be same size as width of Matrix");
 #endif
 
@@ -1145,13 +1145,13 @@ FTensor& FMatrix::mult(const FTensor &v, FTensor &d) const
   double *src, *dst;
 
 #ifndef NODEBUG
-  if (dimx != v.sizeOfArray)
+  if(dimx != v.sizeOfArray)
     THROW_EXCEPTION( FInvalidDimensionException, "Tensor has to be same size as width of Matrix");
-  if (v.getOrder() != 1)
+  if(v.getOrder() != 1)
     THROW_EXCEPTION( FInvalidDimensionException, "Tensor order has to be 1, i.e. a vector");
 #endif
 
-  if (d.getDimension() != dimy || d.getOrder() != 1)
+  if(d.getDimension() != dimy || d.getOrder() != 1)
     d.resizeTensor((unsigned char)dimy,1);
 
   dst= &d.comp[0];
@@ -1188,17 +1188,17 @@ void FMatrix::svdcmp(F::FVector& w, FMatrix& v)
   F::FVector rv1(n);
 
   g=scale=anorm=0.0; // Householder reduction to bidiagonal form.
-  for (i=1;i<=n;i++)
+  for(i=1;i<=n;i++)
     {
       l=i+1;
       rv1[i-1]=scale*g;
       g=s=scale=0.0;
-      if (i <= m)
+      if(i <= m)
 	{
-	  for (k=i;k<=m;k++) scale += fabs((*this)(k-1,i-1));
-	  if (scale)
+	  for(k=i;k<=m;k++) scale += fabs((*this)(k-1,i-1));
+	  if(scale)
 	    {
-	      for (k=i;k<=m;k++)
+	      for(k=i;k<=m;k++)
 		{
 		  (*this)(k-1,i-1) /= scale;
 		  s += (*this)(k-1,i-1)*(*this)(k-1,i-1);
@@ -1207,23 +1207,23 @@ void FMatrix::svdcmp(F::FVector& w, FMatrix& v)
 	      g = -SIGN(sqrt(s),f);
 	      h=f*g-s;
 	      (*this)(i-1,i-1)=f-g;
-	      for (j=l;j<=n;j++)
+	      for(j=l;j<=n;j++)
 		{
-		  for (s=0.0,k=i;k<=m;k++) s += (*this)(k-1,i-1)*(*this)(k-1,j-1);
+		  for(s=0.0,k=i;k<=m;k++) s += (*this)(k-1,i-1)*(*this)(k-1,j-1);
 		  f=s/h;
-		  for (k=i;k<=m;k++) (*this)(k-1,j-1) += f*(*this)(k-1,i-1);
+		  for(k=i;k<=m;k++) (*this)(k-1,j-1) += f*(*this)(k-1,i-1);
 		}
-	      for (k=i;k<=m;k++) (*this)(k-1,i-1) *= scale;
+	      for(k=i;k<=m;k++) (*this)(k-1,i-1) *= scale;
 	    }
 	}
       w[i-1]=scale *g;
       g=s=scale=0.0;
-      if (i <= m && i != n)
+      if(i <= m && i != n)
 	{
-	  for (k=l;k<=n;k++) scale += fabs((*this)(i-1,k-1));
-	  if (scale)
+	  for(k=l;k<=n;k++) scale += fabs((*this)(i-1,k-1));
+	  if(scale)
 	    {
-	      for (k=l;k<=n;k++)
+	      for(k=l;k<=n;k++)
 		{
 		  (*this)(i-1,k-1) /= scale;
 		  s += (*this)(i-1,k-1)*(*this)(i-1,k-1);
@@ -1232,86 +1232,86 @@ void FMatrix::svdcmp(F::FVector& w, FMatrix& v)
 	      g = -SIGN(sqrt(s),f);
 	      h=f*g-s;
 	      (*this)(i-1,l-1)=f-g;
-	      for (k=l;k<=n;k++) rv1[k-1]=(*this)(i-1,k-1)/h;
-	      for (j=l;j<=m;j++)
+	      for(k=l;k<=n;k++) rv1[k-1]=(*this)(i-1,k-1)/h;
+	      for(j=l;j<=m;j++)
 		{
-		  for (s=0.0,k=l;k<=n;k++) s += (*this)(j-1,k-1)*(*this)(i-1,k-1);
-		  for (k=l;k<=n;k++) (*this)(j-1,k-1) += s*rv1[k-1];
+		  for(s=0.0,k=l;k<=n;k++) s += (*this)(j-1,k-1)*(*this)(i-1,k-1);
+		  for(k=l;k<=n;k++) (*this)(j-1,k-1) += s*rv1[k-1];
 		}
-	      for (k=l;k<=n;k++) (*this)(i-1,k-1) *= scale;
+	      for(k=l;k<=n;k++) (*this)(i-1,k-1) *= scale;
 	    }
 	}
       anorm=FMAX(anorm,(fabs(w[i-1])+fabs(rv1[i-1])));
     }
-  for (i=n;i>=1;i--) //  Accumulation of right-hand transformations.
+  for(i=n;i>=1;i--) //  Accumulation of right-hand transformations.
     {
-      if (i < n)
+      if(i < n)
 	{
-	  if (g)
+	  if(g)
 	    {
-	      for (j=l;j<=n;j++) // Double division to avoid possible under ow.
+	      for(j=l;j<=n;j++) // Double division to avoid possible under ow.
 		v(j-1,i-1)=((*this)(i-1,j-1)/(*this)(i-1,l-1))/g;
-	      for (j=l;j<=n;j++)
+	      for(j=l;j<=n;j++)
 		{
-		  for (s=0.0,k=l;k<=n;k++) s += (*this)(i-1,k-1)*v(k-1,j-1);
-		  for (k=l;k<=n;k++) v(k-1,j-1) += s*v(k-1,i-1);
+		  for(s=0.0,k=l;k<=n;k++) s += (*this)(i-1,k-1)*v(k-1,j-1);
+		  for(k=l;k<=n;k++) v(k-1,j-1) += s*v(k-1,i-1);
 		}
 	    }
-	  for (j=l;j<=n;j++) v(i-1,j-1)=v(j-1,i-1)=0.0;
+	  for(j=l;j<=n;j++) v(i-1,j-1)=v(j-1,i-1)=0.0;
 	}
       v(i-1,i-1)=1.0;
       g=rv1[i-1];
       l=i;
     }
-  for (i=IMIN(m,n);i>=1;i--) // Accumulation of left-hand transformations.
+  for(i=IMIN(m,n);i>=1;i--) // Accumulation of left-hand transformations.
     {
       l=i+1;
       g=w[i-1];
-      for (j=l;j<=n;j++) (*this)(i-1,j-1)=0.0;
-      if (g)
+      for(j=l;j<=n;j++) (*this)(i-1,j-1)=0.0;
+      if(g)
 	{
 	  g=1.0/g;
-	  for (j=l;j<=n;j++)
+	  for(j=l;j<=n;j++)
 	    {
-	      for (s=0.0,k=l;k<=m;k++) s += (*this)(k-1,i-1)*(*this)(k-1,j-1);
+	      for(s=0.0,k=l;k<=m;k++) s += (*this)(k-1,i-1)*(*this)(k-1,j-1);
 	      f=(s/(*this)(i-1,i-1))*g;
-	      for (k=i;k<=m;k++) (*this)(k-1,j-1) += f*(*this)(k-1,i-1);
+	      for(k=i;k<=m;k++) (*this)(k-1,j-1) += f*(*this)(k-1,i-1);
 	    }
-	  for (j=i;j<=m;j++) (*this)(j-1,i-1) *= g;
-	} else for (j=i;j<=m;j++) (*this)(j-1,i-1)=0.0;
+	  for(j=i;j<=m;j++) (*this)(j-1,i-1) *= g;
+	} else for(j=i;j<=m;j++) (*this)(j-1,i-1)=0.0;
       ++(*this)(i-1,i-1);
     }
-  for (k=n;k>=1;k--) // Diagonalization of the bidiagonal form: Loop over
+  for(k=n;k>=1;k--) // Diagonalization of the bidiagonal form: Loop over
     {                // singular values, and over allowed iterations.
-      for (its=1;its<=30;its++)
+      for(its=1;its<=30;its++)
 	{
 	  flag=1;
-	  for (l=k;l>=1;l--) // Test for splitting.
+	  for(l=k;l>=1;l--) // Test for splitting.
 	    {		     // Note that rv1[0] is always zero.
 	      nm=l-1;
-	      if ((double)(fabs(rv1[l-1])+anorm) == anorm)
+	      if((double)(fabs(rv1[l-1])+anorm) == anorm)
 		{
 		  flag=0;
 		  break;
 		}
-	      if ((double)(fabs(w[nm-1])+anorm) == anorm) break;
+	      if((double)(fabs(w[nm-1])+anorm) == anorm) break;
 	    }
-	  if (flag)
+	  if(flag)
 	    {
 	      c=0.0; // Cancellation of rv1[0], if l > 1.
 	      s=1.0;
-	      for (i=l;i<=k;i++)
+	      for(i=l;i<=k;i++)
 		{
 		  f=s*rv1[i-1];
 		  rv1[i-1]=c*rv1[i-1];
-		  if ((double)(fabs(f)+anorm) == anorm) break;
+		  if((double)(fabs(f)+anorm) == anorm) break;
 		  g=w[i-1];
 		  h=FMath::pythag(f,g);
 		  w[i-1]=h;
 		  h=1.0/h;
 		  c=g*h;
 		  s = -f*h;
-		  for (j=1;j<=m;j++)
+		  for(j=1;j<=m;j++)
 		    {
 		      y=(*this)(j-1,nm-1);
 		      z=(*this)(j-1,i-1);
@@ -1321,16 +1321,16 @@ void FMatrix::svdcmp(F::FVector& w, FMatrix& v)
 		}
 	    }
 	  z=w[k-1];
-	  if (l == k) // Convergence.
+	  if(l == k) // Convergence.
 	    {
-	      if (z < 0.0) // Singular value is made nonnegative.
+	      if(z < 0.0) // Singular value is made nonnegative.
 		{
 		  w[k-1] = -z;
-		  for (j=1;j<=n;j++) v(j-1,k-1) = -v(j-1,k-1);
+		  for(j=1;j<=n;j++) v(j-1,k-1) = -v(j-1,k-1);
 		}
 	      break;
 	    }
-	  if (its == 30)
+	  if(its == 30)
 	      THROW_EXCEPTION(FTooManyIterationsException, "No convergence in 30 svdcmp iterations");
 
 	  x=w[l-1]; // Shift from bottom 2-by-2 minor.
@@ -1342,7 +1342,7 @@ void FMatrix::svdcmp(F::FVector& w, FMatrix& v)
 	  g=FMath::pythag(f,1.0);
 	  f=((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x;
 	  c=s=1.0; // Next QR transformation:
-	  for (j=l;j<=nm;j++)
+	  for(j=l;j<=nm;j++)
 	    {
 	      i=j+1;
 	      g=rv1[i-1];
@@ -1357,7 +1357,7 @@ void FMatrix::svdcmp(F::FVector& w, FMatrix& v)
 	      g = g*c-x*s;
 	      h=y*s;
 	      y *= c;
-	      for (jj=1;jj<=n;jj++)
+	      for(jj=1;jj<=n;jj++)
 		{
 		  x=v(jj-1,j-1);
 		  z=v(jj-1,i-1);
@@ -1366,7 +1366,7 @@ void FMatrix::svdcmp(F::FVector& w, FMatrix& v)
 		}
 	      z=FMath::pythag(f,h);
 	      w[j-1]=z;  // Rotation can be arbitrary if z = 0.
-	      if (z)
+	      if(z)
 		{
 		  z=1.0/z;
 		  c=f*z;
@@ -1375,7 +1375,7 @@ void FMatrix::svdcmp(F::FVector& w, FMatrix& v)
 	      f=c*g+s*y;
 	      x=c*y-s*g;
 
-	      for (jj=1;jj<=m;jj++)
+	      for(jj=1;jj<=m;jj++)
 		{
 		  y=(*this)(jj-1,j-1);
 		  z=(*this)(jj-1,i-1);
@@ -1415,20 +1415,20 @@ void FMatrix::svDecomp(const FMatrix& u, const F::FVector& w, const FMatrix& v, 
   double s;
   F::FVector tmp(n);
 
-  for (j=1;j<=n;j++) // Calculate U T B.
+  for(j=1;j<=n;j++) // Calculate U T B.
     {
       s=0.0;
-      if (w[j-1]) // Nonzero result only if wj is nonzero.
+      if(w[j-1]) // Nonzero result only if wj is nonzero.
 	{
-	  for (i=1;i<=m;i++) s += u(i-1,j-1)*b[i-1];
+	  for(i=1;i<=m;i++) s += u(i-1,j-1)*b[i-1];
 	  s /= w[j-1];  // This is the divide by wj .
 	}
       tmp[j-1]=s;
     }
-  for (j=1;j<=n;j++) // Matrix multiply by V to get answer.
+  for(j=1;j<=n;j++) // Matrix multiply by V to get answer.
     {
       s=0.0;
-      for (jj=1;jj<=n;jj++) s += v(j-1,jj-1)*tmp[jj-1];
+      for(jj=1;jj<=n;jj++) s += v(j-1,jj-1)*tmp[jj-1];
       x[j-1]=s;
     }
 }
@@ -1450,13 +1450,13 @@ bool FMatrix::solveSingularSystem(F::FVector& b, F::FVector& x,
   // ---- following sequence taken from NR example:
 
   wmax=0.0; // Will be the maximum singular value obtained.
-  for(unsigned int j=0;j<w.getDimension();j++) if (fabs(w[j]) > wmax) wmax=w[j];
+  for(unsigned int j=0;j<w.getDimension();j++) if(fabs(w[j]) > wmax) wmax=w[j];
 
   // This is where we set the threshold for singular values allowed
   // to be nonzero. The constant is typical, but not universal.
   // You have to experiment with your own application.
   wmin=wmax*zeroTresholdEpsilon;
-  for(unsigned int j=0;j<w.getDimension();j++) if (fabs(w[j]) < wmin) w[j]=0.0;
+  for(unsigned int j=0;j<w.getDimension();j++) if(fabs(w[j]) < wmin) w[j]=0.0;
 
   // ----
 
@@ -1512,7 +1512,7 @@ void FMatrix::getEigenValues( std::vector< std::complex<double> >& values ) cons
 {
 
 #ifndef NODEBUG
-  if (((dimx != 3) || (dimy != 3)) && ((dimx != 2) || (dimy != 2))){
+  if(((dimx != 3) || (dimy != 3)) && ((dimx != 2) || (dimy != 2))){
     THROW_EXCEPTION( FInvalidDimensionException, "Matrix has to be 2x2 or 3x3");
   }
 #endif
@@ -1579,7 +1579,7 @@ double FMatrix::discriminant(void) const
 
   return result;
  }
- else if (dimx == 2 && dimy == 2 )
+ else if(dimx == 2 && dimy == 2 )
  {
    double b = (*this)(0,0)+(*this)(1,1);
    double c = (*this)(0,0)*(*this)(1,1)-(*this)(0,1)*(*this)(1,0);
@@ -1596,7 +1596,7 @@ double FMatrix::discriminant(void) const
 double FMatrix::trace(void) const
 {
 #ifndef NODEBUG
-  if ( dimx != dimy )
+  if( dimx != dimy )
     THROW_EXCEPTION( FInvalidDimensionException, "Matrix is not square.");
 #endif
 
@@ -1747,9 +1747,9 @@ FMatrix FMatrix::rot4LH( const F::FVector& axis, double angle )
 FMatrix& FMatrix::pow(int n)
 {
 #ifndef NODEBUG
-  if ( (dimx != dimy))
+  if( (dimx != dimy))
     THROW_EXCEPTION( FInvalidDimensionException, "The Matrix is not square !!");
-  if ( n < 0 )
+  if( n < 0 )
     THROW_EXCEPTION( FException, "pow(n), n must not be less than zero" );
 #endif
 
@@ -1773,7 +1773,7 @@ FMatrix& FMatrix::pow(int n)
 FMatrix& FMatrix::makeSymmetric()
 {
 #ifndef NODEBUG
-  if ( (dimx != dimy))
+  if( (dimx != dimy))
     THROW_EXCEPTION( FInvalidDimensionException, "The Matrix is not square !!");
 #endif
 
@@ -1793,7 +1793,7 @@ FMatrix& FMatrix::makeSymmetric()
 FMatrix& FMatrix::makeAntisymmetric()
 {
 #ifndef NODEBUG
-  if ( (dimx != dimy))
+  if( (dimx != dimy))
     THROW_EXCEPTION( FInvalidDimensionException, "The Matrix is not square !!");
 #endif
 

@@ -103,7 +103,7 @@ void WQtNetworkArrow::paint( QPainter* painter, const QStyleOptionGraphicsItem* 
 
     qreal arrowSize = 10;
     double angle = ::acos( line().dx() / line().length() );
-    if ( line().dy() >= 0 )
+    if( line().dy() >= 0 )
         angle = ( Pi * 2 ) - angle;
 
     QPointF arrowP1 = line().p2() - QPointF( sin( angle + Pi / 3 ) * arrowSize,

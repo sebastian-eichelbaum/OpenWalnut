@@ -118,22 +118,22 @@ void WMOverlayAtlas::moduleMain()
     bool atlasLoaded = false;
 
     // wait for the user to manually load an atlas file
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
 
         m_moduleState.wait();
 
-        if ( m_propReadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+        if( m_propReadTrigger->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
         {
             std::string fileName = m_propMetaFile->get().file_string().c_str();
 
             atlasLoaded = loadAtlas( fileName );
             m_propReadTrigger->set( WPVBaseTypes::PV_TRIGGER_READY, true );
-            if ( atlasLoaded )
+            if( atlasLoaded )
             {
                 break;
             }
@@ -165,16 +165,16 @@ void WMOverlayAtlas::moduleMain()
     boost::signals2::connection con = WDataHandler::getDefaultSubject()->getChangeCondition()->subscribeSignal(
             boost::bind( &WMOverlayAtlas::notifyTextureChange, this ) );
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
 
-        if ( m_active->changed() )
+        if( m_active->changed() )
         {
-            if ( !m_active->get( true ) )
+            if( !m_active->get( true ) )
             {
             }
             else
@@ -183,18 +183,18 @@ void WMOverlayAtlas::moduleMain()
             }
         }
 
-        if ( m_active->get() )
+        if( m_active->get() )
         {
-            if ( m_propCoronalSlicePos->changed() )
+            if( m_propCoronalSlicePos->changed() )
             {
-                if ( !m_coronalSlices.empty() )
+                if( !m_coronalSlices.empty() )
                 {
                     m_textureChanged = true;
                     manipulatorMoved();
                 }
             }
 
-            if ( m_showManipulators->changed() )
+            if( m_showManipulators->changed() )
             {
                 toggleManipulators();
             }
@@ -291,7 +291,7 @@ void WMOverlayAtlas::manipulatorMoved()
     m_p3 = m_s3->getPosition();
     m_p4 = m_s4->getPosition();
 
-    for ( size_t i = 0; i < m_coronalSlices.size(); ++i )
+    for( size_t i = 0; i < m_coronalSlices.size(); ++i )
     {
         m_coronalSlices[i].setLeft(   m_p1[0] );
         m_coronalSlices[i].setTop(    m_p2[2] );
@@ -305,7 +305,7 @@ void WMOverlayAtlas::manipulatorMoved()
 
 void WMOverlayAtlas::updateCoronalSlice()
 {
-    if ( m_coronalSlices.empty() )
+    if( m_coronalSlices.empty() )
     {
         return;
     }
@@ -356,7 +356,7 @@ void WMOverlayAtlas::updatePlane()
 
     size_t c = 0;
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    if ( m_active->get() )
+    if( m_active->get() )
     {
         size_t i = m_propCoronalSlicePos->get();
         boost::shared_ptr< WGridRegular3D > grid = m_coronalSlices[i].getGrid();
@@ -371,7 +371,7 @@ void WMOverlayAtlas::updatePlane()
         ++c;
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+    if( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
     {
         boost::shared_ptr< WGridRegular3D > grid = WKernel::getRunningKernel()->getSelectionManager()->getGrid();
         osg::Vec3Array* texCoords = new osg::Vec3Array;
@@ -385,7 +385,7 @@ void WMOverlayAtlas::updatePlane()
         ++c;
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
-    for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
+    for( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
     {
         boost::shared_ptr< WGridRegular3D > grid = ( *iter )->getGrid();
 
@@ -413,7 +413,7 @@ void WMOverlayAtlas::updatePlane()
 void WMOverlayAtlas::updateTextures()
 {
     osg::StateSet* rootState = m_rootNode->getOrCreateStateSet();
-    if ( m_textureChanged )
+    if( m_textureChanged )
     {
         m_textureChanged = false;
 
@@ -421,10 +421,10 @@ void WMOverlayAtlas::updateTextures()
         // grab a list of data textures
         std::vector< boost::shared_ptr< WDataTexture3D > > tex = WDataHandler::getDefaultSubject()->getDataTextures( true );
 
-        if ( tex.size() > 0 )
+        if( tex.size() > 0 )
         {
             // reset all uniforms
-            for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
+            for( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
             {
                 m_typeUniforms[i]->set( 0 );
             }
@@ -432,7 +432,7 @@ void WMOverlayAtlas::updateTextures()
             // for each texture -> apply
             size_t c = 0;
             //////////////////////////////////////////////////////////////////////////////////////////////////
-            if ( m_active->get() )
+            if( m_active->get() )
             {
                 size_t i = m_propCoronalSlicePos->get();
                 osg::ref_ptr<osg::Texture3D> texture3D = m_coronalSlices[i].getImage();
@@ -449,7 +449,7 @@ void WMOverlayAtlas::updateTextures()
                 ++c;
             }
             //////////////////////////////////////////////////////////////////////////////////////////////////
-            if ( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
+            if( WKernel::getRunningKernel()->getSelectionManager()->getUseTexture() )
             {
                 osg::ref_ptr<osg::Texture3D> texture3D = WKernel::getRunningKernel()->getSelectionManager()->getTexture();
 
@@ -467,11 +467,11 @@ void WMOverlayAtlas::updateTextures()
             }
             //////////////////////////////////////////////////////////////////////////////////////////////////
 
-            for ( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
+            for( std::vector< boost::shared_ptr< WDataTexture3D > >::const_iterator iter = tex.begin(); iter != tex.end(); ++iter )
             {
                 osg::ref_ptr<osg::Texture3D> texture3D = ( *iter )->getTexture();
 
-                if ( ( *iter )->isInterpolated() )
+                if( ( *iter )->isInterpolated() )
                 {
                     texture3D->setFilter( osg::Texture::MIN_FILTER, osg::Texture::LINEAR );
                     texture3D->setFilter( osg::Texture::MAG_FILTER, osg::Texture::LINEAR );
@@ -565,7 +565,7 @@ void WMOverlayAtlas::initUniforms( osg::StateSet* rootState )
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap8", 0 ) ) );
     m_cmapUniforms.push_back( osg::ref_ptr<osg::Uniform>( new osg::Uniform( "useCmap9", 0 ) ) );
 
-    for ( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
+    for( size_t i = 0; i < wlimits::MAX_NUMBER_OF_TEXTURES; ++i )
     {
         rootState->addUniform( m_typeUniforms[i] );
         rootState->addUniform( m_thresholdUniforms[i] );
@@ -593,7 +593,7 @@ std::vector< std::string > WMOverlayAtlas::readFile( const std::string fileName 
 
     std::string line;
 
-    if ( ifs.is_open() )
+    if( ifs.is_open() )
     {
         debugLog() << "trying to load " << fileName;
         debugLog() << "file exists";
@@ -606,7 +606,7 @@ std::vector< std::string > WMOverlayAtlas::readFile( const std::string fileName 
         return lines;
     }
 
-    while ( !ifs.eof() )
+    while( !ifs.eof() )
     {
         getline( ifs, line );
 
@@ -633,13 +633,13 @@ bool WMOverlayAtlas::loadAtlas( boost::filesystem::path path )
 
     lines = readFile( path.file_string().c_str() );
 
-    if ( lines.size() == 0 )
+    if( lines.size() == 0 )
     {
         debugLog() << "empty file";
         return false;
     }
     size_t i = 0;
-    if ( lines[i] != "openwalnut overlay atlas meta file" )
+    if( lines[i] != "openwalnut overlay atlas meta file" )
     {
         debugLog() << "not an atlas meta file";
         return false;
@@ -652,7 +652,7 @@ bool WMOverlayAtlas::loadAtlas( boost::filesystem::path path )
 
     m_progress->addSubProgress( pro );
 
-    while ( i < lines.size() )
+    while( i < lines.size() )
     {
         std::string currentLine = lines[i];
 
@@ -662,12 +662,12 @@ bool WMOverlayAtlas::loadAtlas( boost::filesystem::path path )
         boost::regex reg( " " );
         boost::sregex_token_iterator it( lines[i].begin(), lines[i].end(), reg, -1 );
         boost::sregex_token_iterator end;
-        while ( it != end )
+        while( it != end )
         {
             lineVec.push_back( *it++ );
         }
 
-        if ( lineVec.size() != 7 )
+        if( lineVec.size() != 7 )
         {
             parseError = true;
             break;
@@ -679,11 +679,11 @@ bool WMOverlayAtlas::loadAtlas( boost::filesystem::path path )
 
         WOASliceOrientation so = OA_SAGITTAL;
 
-        if ( lineVec[1] == "a" )
+        if( lineVec[1] == "a" )
         {
             so = OA_AXIAL;
         }
-        else if ( lineVec[1] == "c" )
+        else if( lineVec[1] == "c" )
         {
             so = OA_CORONAL;
         }
@@ -696,11 +696,11 @@ bool WMOverlayAtlas::loadAtlas( boost::filesystem::path path )
 
         WAtlasSlice as( slicePath, so, pos, left, bottom, right, top );
 
-        if ( so == OA_AXIAL )
+        if( so == OA_AXIAL )
         {
             m_axialSlices.push_back( as );
         }
-        else if ( so == OA_CORONAL )
+        else if( so == OA_CORONAL )
         {
             m_coronalSlices.push_back( as );
         }
@@ -714,7 +714,7 @@ bool WMOverlayAtlas::loadAtlas( boost::filesystem::path path )
 
     pro->finish();
 
-    if ( parseError )
+    if( parseError )
     {
         debugLog() << "parse errors";
         return false;
@@ -727,7 +727,7 @@ bool WMOverlayAtlas::loadAtlas( boost::filesystem::path path )
 
 void WMOverlayAtlas::toggleManipulators()
 {
-    if ( m_showManipulators->get( true ) )
+    if( m_showManipulators->get( true ) )
     {
         m_s0->unhide();
         m_s1->unhide();
@@ -747,7 +747,7 @@ void WMOverlayAtlas::toggleManipulators()
 
 void WMOverlayAtlas::updateCallback()
 {
-    if ( isDirty() )
+    if( isDirty() )
     {
         updatePlane();
         updateTextures();

@@ -52,9 +52,9 @@ void WSphericalHarmonicsCoefficientsThread::threadMain()
 {
   m_errorCount = 0;
   m_overallError = 0.0;
-  for ( size_t i = m_range.first; i < m_range.second; i++ )
+  for( size_t i = m_range.first; i < m_range.second; i++ )
   {
-    if ( m_shutdownFlag.get( true ) ) break;
+    if( m_shutdownFlag.get( true ) ) break;
     // get measure vector
     WValue< int16_t > allMeasures( m_parameter.m_valueSet->getWValue( i ) );
 
@@ -64,7 +64,7 @@ void WSphericalHarmonicsCoefficientsThread::threadMain()
 
     // find max S0 value
     double S0avg = 0.0;
-    for ( std::vector< size_t >::const_iterator it = m_parameter.m_S0Indexes.begin(); it != m_parameter.m_S0Indexes.end(); it++ )
+    for( std::vector< size_t >::const_iterator it = m_parameter.m_S0Indexes.begin(); it != m_parameter.m_S0Indexes.end(); it++ )
     {
         S0avg += allMeasures[ *it ];
     }
@@ -72,21 +72,21 @@ void WSphericalHarmonicsCoefficientsThread::threadMain()
 
     double minVal = 1e99;
     double maxVal = -1e99;
-    for ( std::vector< size_t >::const_iterator it = m_parameter.m_validIndices.begin(); it != m_parameter.m_validIndices.end(); it++, idx++ )
+    for( std::vector< size_t >::const_iterator it = m_parameter.m_validIndices.begin(); it != m_parameter.m_validIndices.end(); it++, idx++ )
     {
         measures[ idx ] = S0avg <= 0.0 ? 0.0 :
             static_cast<double>( allMeasures[ *it ] ) / S0avg;
 
-        if ( measures[ idx ] < minVal ) minVal = measures[ idx ];
-        if ( measures[ idx ] > maxVal ) maxVal = measures[ idx ];
+        if( measures[ idx ] < minVal ) minVal = measures[ idx ];
+        if( measures[ idx ] > maxVal ) maxVal = measures[ idx ];
     }
 
     WVector_2 coefficients( ( *m_parameter.m_TransformMatrix ) * measures );
 
-    if ( m_parameter.m_doResidualCalculation || m_parameter.m_doErrorCalculation )
+    if( m_parameter.m_doResidualCalculation || m_parameter.m_doErrorCalculation )
     {
         WSymmetricSphericalHarmonic currentSphericalHarmonic( coefficients );
-        for ( idx = 0; idx < m_parameter.m_validIndices.size(); idx++ )
+        for( idx = 0; idx < m_parameter.m_validIndices.size(); idx++ )
         {
             double error = static_cast< double >( measures[ idx ] )
                           - currentSphericalHarmonic.getValue( WUnitSphereCoordinates( m_parameter.m_gradients[ idx ] ) );
@@ -116,7 +116,7 @@ void WSphericalHarmonicsCoefficientsThread::threadMain()
         scale *= std::sqrt( 4.0 * piDouble ) / coefficients[ 0 ];
     }
 
-    for ( size_t j = 0; j < l; j++ )
+    for( size_t j = 0; j < l; j++ )
     {
         m_parameter.m_data->operator[]( l*i + j ) = coefficients[ j ];
     }
@@ -125,6 +125,6 @@ void WSphericalHarmonicsCoefficientsThread::threadMain()
 
 double WSphericalHarmonicsCoefficientsThread::getError() const
 {
-  if ( m_errorCount == 0 ) return 0.0;
+  if( m_errorCount == 0 ) return 0.0;
   return m_overallError / static_cast<double>( m_errorCount );
 }

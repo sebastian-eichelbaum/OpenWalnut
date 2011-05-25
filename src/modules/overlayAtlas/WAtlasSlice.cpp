@@ -39,7 +39,7 @@ WAtlasSlice::WAtlasSlice( std::string path, WOASliceOrientation orientation, flo
     m_top( top ),
     m_dirty( true )
 {
-    if ( loadImage() )
+    if( loadImage() )
     {
         switch( orientation )
         {
@@ -62,7 +62,7 @@ bool WAtlasSlice::loadImage()
 {
     m_image = osgDB::readImageFile( m_path );
 
-    if ( !m_image )
+    if( !m_image )
     {
         WLogger::getLogger()->addLogMessage( "Could't find image", "WAtlasSlice", LL_ERROR );
         return false;
@@ -77,7 +77,7 @@ osg::ref_ptr<osg::Texture3D> WAtlasSlice::getImage()
 
 boost::shared_ptr<WGridRegular3D> WAtlasSlice::getGrid()
 {
-    if ( m_dirty )
+    if( m_dirty )
     {
         createGridCoronal();
     }
@@ -93,7 +93,7 @@ void WAtlasSlice::createTextureCoronal()
     unsigned char* data = m_image->data();
     unsigned char* newData = m_newImage->data();
 
-    for ( unsigned int i = 0; i < m_image->getTotalSizeInBytes(); ++i )
+    for( unsigned int i = 0; i < m_image->getTotalSizeInBytes(); ++i )
     {
         newData[i] = data[i];
     }

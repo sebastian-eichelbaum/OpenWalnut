@@ -92,9 +92,9 @@ void WMVoxelizer::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        if ( !m_input->getData() ) // ok, the output has not yet sent data
+        if( !m_input->getData() ) // ok, the output has not yet sent data
         {
             // since there is no data yet we will eat property changes
             m_drawVoxels->get( true );
@@ -103,7 +103,7 @@ void WMVoxelizer::moduleMain()
             m_drawfibers->get( true );
             continue;
         }
-        if ( m_input->getData()->size() == 0 )
+        if( m_input->getData()->size() == 0 )
         {
             infoLog() << "Got empty fiber dataset. Ignoring.";
             m_moduleState.wait();
@@ -343,32 +343,32 @@ void WMVoxelizer::update()
     // decide which param algo to use:
     size_t algo = m_parameterAlgo->get( true ).getItemIndexOfSelected( 0 );
     boost::shared_ptr< WRasterParameterization > paramAlgo;
-    if ( algo == 0 )
+    if( algo == 0 )
     {
         debugLog() << "No parameterization algorithm selected.";
     }
-    else if ( algo == 1 )
+    else if( algo == 1 )
     {
         debugLog() << "Parameterization algorithm: by longest line.";
         paramAlgo = boost::shared_ptr< WRasterParameterization >(
             new WCenterlineParameterization( grid, m_clusters->getLongestLine() )
         );
     }
-    else if ( algo == 2 )
+    else if( algo == 2 )
     {
         debugLog() << "Parameterization algorithm: by centerline.";
         paramAlgo = boost::shared_ptr< WRasterParameterization >(
             new WCenterlineParameterization( grid, m_clusters->getCenterLine() )
         );
     }
-    else if ( algo == 3 )
+    else if( algo == 3 )
     {
         debugLog() << "Parameterization algorithm: by integration.";
         paramAlgo = boost::shared_ptr< WRasterParameterization >(
             new WIntegrationParameterization( grid )
         );
     }
-    if ( paramAlgo )
+    if( paramAlgo )
     {
         rasterAlgo->addParameterizationAlgorithm( paramAlgo );
     }
@@ -378,7 +378,7 @@ void WMVoxelizer::update()
     // update both outputs
     boost::shared_ptr< WDataSetScalar > outputDataSet = rasterAlgo->generateDataSet();
     m_output->updateData( outputDataSet );
-    if ( paramAlgo )
+    if( paramAlgo )
     {
         boost::shared_ptr< WDataSetScalar > outputDataSetIntegration = paramAlgo->getDataSet();
         m_parameterizationOutput->updateData( outputDataSetIntegration );
@@ -523,7 +523,7 @@ void WMVoxelizer::OSGCB_HideUnhideBB::operator()( osg::Node* node, osg::NodeVisi
 {
     if( m_module->m_boundingBoxGeode )
     {
-        if ( m_module->m_drawBoundingBox->get() )
+        if( m_module->m_drawBoundingBox->get() )
         {
             m_module->m_boundingBoxGeode->setNodeMask( 0xFFFFFFFF );
         }
@@ -537,7 +537,7 @@ void WMVoxelizer::OSGCB_HideUnhideBB::operator()( osg::Node* node, osg::NodeVisi
 
 void WMVoxelizer::OSGCB_ChangeLighting::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
-    if ( m_module->m_lighting->get() )
+    if( m_module->m_lighting->get() )
     {
         m_module->m_osgNode->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::ON );
     }

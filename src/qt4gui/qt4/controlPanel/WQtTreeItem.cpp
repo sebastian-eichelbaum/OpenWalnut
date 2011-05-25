@@ -56,7 +56,7 @@ WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::s
     m_module = module;
     m_name = module->getName();
 
-    if ( module->getProperties()->getProperty( "active" )->toPropBool()->get() )
+    if( module->getProperties()->getProperty( "active" )->toPropBool()->get() )
     {
         this->setCheckState( 0, Qt::Checked );
     }
@@ -72,13 +72,13 @@ WQtTreeItem::WQtTreeItem( QTreeWidgetItem * parent, WTreeItemType type, boost::s
     boost::shared_ptr< WPropertyBase > p = module->getProperties()->findProperty( "Name" );
 
     // always ensure that findProperty really found something
-    if ( p )
+    if( p )
     {
         m_nameProp = p->toPropString();
     }
 
     // was it a string prop?
-    if ( m_nameProp )
+    if( m_nameProp )
     {
         m_name = m_nameProp->get( true );
         m_nameProp->getUpdateCondition()->subscribeSignal( boost::bind( &WQtTreeItem::nameChanged, this ) );
@@ -106,7 +106,7 @@ std::string WQtTreeItem::getName()
 void WQtTreeItem::updateTooltip( std::string progress )
 {
     std::string tooltip = "";
-    if ( m_module->isCrashed()() )
+    if( m_module->isCrashed()() )
     {
         tooltip += "<b>A problem occured. The module has been stopped. </b><br/><br/>";
     }
@@ -120,7 +120,7 @@ void WQtTreeItem::updateTooltip( std::string progress )
     WModule::OutputConnectorList consOut = m_module->getOutputConnectors();
     conList += "<table><tr><th>Name</th><th>Description</th><th>Type (I/O)</th><th>Connected</th></tr>";
     int conCount = 0;
-    for ( WModule::InputConnectorList::const_iterator it = consIn.begin(); it != consIn.end(); ++it )
+    for( WModule::InputConnectorList::const_iterator it = consIn.begin(); it != consIn.end(); ++it )
     {
         ++conCount;
         conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>" + ( *it )->getDescription() + "&nbsp;</td>";
@@ -128,7 +128,7 @@ void WQtTreeItem::updateTooltip( std::string progress )
         conList += ( *it )->isConnected() ? "<td><center>Yes</center></td>" : "<td><center>No</center></td>";
         conList += "</tr>";
     }
-    for ( WModule::OutputConnectorList::const_iterator it = consOut.begin(); it != consOut.end(); ++it )
+    for( WModule::OutputConnectorList::const_iterator it = consOut.begin(); it != consOut.end(); ++it )
     {
         ++conCount;
         conList += "<tr><td><b>" + ( *it )->getName() + "&nbsp;</b></td><td>" + ( *it )->getDescription() + "&nbsp;</td>";
@@ -157,14 +157,14 @@ void WQtTreeItem::updateState()
     p->update();
 
     std::string connInfo = "";
-    if ( ( m_handledOutput != "" ) && ( m_handledInput != "" ) )
+    if( ( m_handledOutput != "" ) && ( m_handledInput != "" ) )
     {
         connInfo = " (" + m_handledOutput + "->" + m_handledInput + ") ";
     }
 
     // is it pending?
     std::string progress = "Waiting";
-    if ( m_module->isCrashed()() )
+    if( m_module->isCrashed()() )
     {
         progress = "Problem occurred";
         setText( 0, ( m_name + " (problem occurred)"  + connInfo ).c_str() );
@@ -178,7 +178,7 @@ void WQtTreeItem::updateState()
         // this ensures that crashed modules can be deleted
         setDisabled( false );
     }
-    else if ( p->isPending() )
+    else if( p->isPending() )
     {
         progress = "Busy " + p->getCombinedNames();
         setIcon( 0, WQt4Gui::getMainWindow()->getIconManager()->getIcon( "moduleBusy" ) );
@@ -186,12 +186,12 @@ void WQtTreeItem::updateState()
 
         // construct a name for the progress indicator
         std::string name = p->getName();
-        if ( !name.empty() )
+        if( !name.empty() )
         {
             name = " [" + name + "]";
         }
 
-        if ( p->isDetermined() )
+        if( p->isDetermined() )
         {
             title.setf( std::ios::fixed );
             title.precision( 0 );
@@ -211,14 +211,14 @@ void WQtTreeItem::updateState()
     }
 
     // if the user requested it to be deleted: disable and color it
-    if ( m_deleteInProgress )
+    if( m_deleteInProgress )
     {
         setForeground( 0, QBrush( QColor::fromRgb( 255, 0, 0 ) ) );
         setDisabled( true );
     }
 
     // is finished?
-    if ( m_deleteInProgress && !m_module->isRunning().get() && m_needPostDeleteEvent )
+    if( m_deleteInProgress && !m_module->isRunning().get() && m_needPostDeleteEvent )
     {
         m_needPostDeleteEvent = false;  // this ensures the event is only posted once
         QCoreApplication::postEvent( WQt4Gui::getMainWindow()->getNetworkEditor(), new WModuleDeleteEvent( this ) );
@@ -226,7 +226,7 @@ void WQtTreeItem::updateState()
     }
 
     // active ?
-    if ( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
+    if( m_module->getProperties()->getProperty( "active" )->toPropBool()->get() )
     {
         setCheckState( 0, Qt::Checked );
     }
@@ -276,7 +276,7 @@ void WQtTreeItem::setHandledOutput( std::string out )
 void WQtTreeItem::handleCheckStateChange()
 {
     // active ?
-    if ( checkState( 0 ) == Qt::Checked )
+    if( checkState( 0 ) == Qt::Checked )
     {
         m_module->getProperties()->getProperty( "active" )->toPropBool()->set( true );
     }

@@ -149,7 +149,7 @@ void WCreateSurfaceJob< T >::compute( boost::shared_ptr< WDataSetScalar const > 
                                             newValueSet->rawDataVectorPointer(),
                                             0.9,
                                             m_progressCombiner );
-    if ( triMesh->vertSize() != 0 )
+    if( triMesh->vertSize() != 0 )
     {
         ( *m_regionMeshes )[job] = triMesh;
     }
@@ -166,7 +166,7 @@ template< typename T > void WCreateSurfaceJob<T>::cutArea( boost::shared_ptr< WV
 {
     for( size_t k = 0; k < m_grid->size(); ++k )
     {
-        if ( static_cast< size_t >( vals->getScalar( k ) ) == number )
+        if( static_cast< size_t >( vals->getScalar( k ) ) == number )
         {
             tempData[ k ] = 1.0;
         }

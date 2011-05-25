@@ -310,7 +310,7 @@ void WQt4Gui::slotRemoveDatasetOrModuleInTree( boost::shared_ptr< WModule > modu
 void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )
 {
     // create a new event for this and insert it into event queue
-    if ( in->isInputConnector() )
+    if( in->isInputConnector() )
     {
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleConnectEvent( in, out ) );
         QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleConnectEvent( in, out ) );
@@ -325,7 +325,7 @@ void WQt4Gui::slotConnectionEstablished( boost::shared_ptr<WModuleConnector> in,
 void WQt4Gui::slotConnectionClosed( boost::shared_ptr<WModuleConnector> in, boost::shared_ptr<WModuleConnector> out )
 {
     // create a new event for this and insert it into event queue
-    if ( in->isInputConnector() )
+    if( in->isInputConnector() )
     {
         QCoreApplication::postEvent( m_mainWindow->getNetworkEditor(), new WModuleDisconnectEvent( in, out ) );
         QCoreApplication::postEvent( m_mainWindow->getControlPanel(), new WModuleDisconnectEvent( in, out ) );

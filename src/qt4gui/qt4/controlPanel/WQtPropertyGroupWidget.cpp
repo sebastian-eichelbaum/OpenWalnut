@@ -64,7 +64,7 @@ WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropGroup group, QWidget* paren
     r.reset();
     // NOTE: a simple setHidden( group->isHidden() ) causes the QWidgets to popup if hidden is false. This is why we set hidden only if it really
     // is needed
-    if ( hide )
+    if( hide )
     {
         setHidden( true );
     }
@@ -104,7 +104,7 @@ void WQtPropertyGroupWidget::propertyChangeNotifier()
 bool WQtPropertyGroupWidget::event( QEvent* event )
 {
     // a property changed
-    if ( event->type() == WQT_PROPERTY_CHANGED_EVENT )
+    if( event->type() == WQT_PROPERTY_CHANGED_EVENT )
     {
         WProperties::PropertySharedContainerType::ReadTicket r = m_group->getReadTicket();
         setHidden( r->get().empty() | m_group->isHidden() );
@@ -199,7 +199,7 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     grid->setSpacing( WGLOBAL_SPACING );
 
     group->setLayout( grid );
-    if ( asScrollArea )
+    if( asScrollArea )
     {
         scrollArea = new QScrollArea();
         scrollArea->setWidget( group );
@@ -235,7 +235,7 @@ void WQtPropertyGroupWidget::addGroup( WQtPropertyGroupWidget* widget, bool asSc
     connect( boxTitle, SIGNAL( toggled( bool ) ), group, SLOT( setVisible( bool ) ) );
 
     // create a body widget
-    if ( asScrollArea )
+    if( asScrollArea )
     {
         boxLayout->addWidget( scrollArea, 1, 0 );
     }

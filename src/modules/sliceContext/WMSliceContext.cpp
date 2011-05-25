@@ -115,13 +115,13 @@ void WMSliceContext::moduleMain()
     m_shaderFibers = osg::ref_ptr< WGEShader > ( new WGEShader( "WMSliceContext", m_localPath ) );
 
     // main loop
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
         // woke up since the module is requested to finish?
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -131,7 +131,7 @@ void WMSliceContext::moduleMain()
         boost::shared_ptr< const WDataSetFibers > fibers( m_fiberInput->getData() );
         bool dataValid = fibers;
 
-        if ( !( dataValid && dataUpdated ) )
+        if( !( dataValid && dataUpdated ) )
         {
             continue;
         }

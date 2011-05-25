@@ -125,15 +125,15 @@ void WMCoordinateHUD::moduleMain()
         WItemSelector s = m_aSingleSelection->get( true );
         debugLog() << "New mode selected: " << s.at( 0 )->getName();
 
-        if ( s.at( 0 )->getName() == "colored axis" )
+        if( s.at( 0 )->getName() == "colored axis" )
         {
             buildColorAxis();
         }
-        else if ( s.at( 0 )->getName() == "b/w axis" )
+        else if( s.at( 0 )->getName() == "b/w axis" )
         {
             buildBWAxis();
         }
-        else if ( s.at( 0 )->getName() == "colored cube" )
+        else if( s.at( 0 )->getName() == "colored cube" )
         {
             buildColorCube();
         }
@@ -148,7 +148,7 @@ void WMCoordinateHUD::moduleMain()
         m_moduleState.wait();
 
         // quit if requested
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }

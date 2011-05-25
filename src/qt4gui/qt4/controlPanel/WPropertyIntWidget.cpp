@@ -87,7 +87,7 @@ void WPropertyIntWidget::update()
     WPVInt::PropertyConstraintMin minC = m_intProperty->getMin();
     WPVInt::PropertyConstraintMax maxC = m_intProperty->getMax();
     bool minMaxConstrained = minC && maxC;
-    if ( minMaxConstrained )
+    if( minMaxConstrained )
     {
         m_slider.setHidden( false );
         m_slider.setMinimum( minC->getMin() );
@@ -107,7 +107,7 @@ void WPropertyIntWidget::update()
 
 void WPropertyIntWidget::sliderChanged( int value )
 {
-    if ( !m_slider.isHidden() )
+    if( !m_slider.isHidden() )
     {
         // set the value in the line edit
         m_edit.setText( QString::number( value ) );
@@ -122,7 +122,7 @@ void WPropertyIntWidget::editChanged()
     // set the value in the line edit
     bool valid;
     int value = m_edit.text().toInt( &valid );
-    if ( !valid )
+    if( !valid )
     {
         invalidate();
         return;
@@ -140,7 +140,7 @@ void WPropertyIntWidget::textEdited( const QString& text )
     // this method does NOT set the property actually, but tries to validate it
     bool valid;
     int value = text.toInt( &valid );
-    if ( !valid )
+    if( !valid )
     {
         invalidate();
         return;

@@ -750,7 +750,7 @@ void WMTemplate::hideButtonPressed()
     // thread for certain operations.
 
     // If the button was triggered, switch the hide-state of m_aColor and m_aHiddenInt.
-    if ( m_hideButton->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
+    if( m_hideButton->get( true ) == WPVBaseTypes::PV_TRIGGER_TRIGGERED )
     {
         // switch the hide flag of the color prop.
         m_aColor->setHidden( !m_aColor->isHidden() );

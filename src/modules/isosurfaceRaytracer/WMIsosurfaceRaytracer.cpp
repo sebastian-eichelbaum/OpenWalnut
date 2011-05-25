@@ -207,7 +207,7 @@ void WMIsosurfaceRaytracer::moduleMain()
     // Normally, you will have a loop which runs as long as the module should not shutdown. In this loop you can react on changing data on input
     // connectors or on changed in your properties.
     debugLog() << "Entering main loop";
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         // Now, the moduleState variable comes into play. The module can wait for the condition, which gets fired whenever the input receives data
         // or an property changes. The main loop now waits until something happens.
@@ -215,7 +215,7 @@ void WMIsosurfaceRaytracer::moduleMain()
         m_moduleState.wait();
 
         // quit if requested
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -226,21 +226,21 @@ void WMIsosurfaceRaytracer::moduleMain()
         bool dataValid   = ( dataSet );
 
         // valid data available?
-        if ( !dataValid )
+        if( !dataValid )
         {
             // remove renderings if no data is available anymore
             rootNode->clear();
         }
 
         // m_isoColor or shading changed
-        if ( m_isoColor->changed() )
+        if( m_isoColor->changed() )
         {
             // a new color requires the proxy geometry to be rebuild as we store it as color in this geometry
             dataUpdated = true;
         }
 
         // As the data has changed, we need to recreate the texture.
-        if ( dataUpdated && dataValid )
+        if( dataUpdated && dataValid )
         {
             debugLog() << "Data changed. Uploading new data as texture.";
 
@@ -250,7 +250,7 @@ void WMIsosurfaceRaytracer::moduleMain()
 
             // First, grab the grid
             boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
-            if ( !grid )
+            if( !grid )
             {
                 errorLog() << "The dataset does not provide a regular grid. Ignoring dataset.";
                 continue;
@@ -286,7 +286,7 @@ void WMIsosurfaceRaytracer::moduleMain()
 
             // if there is a gradient field available -> apply as texture too
             boost::shared_ptr< WDataSetVector > gradients = m_gradients->getData();
-            if ( gradients )
+            if( gradients )
             {
                 debugLog() << "Uploading specified gradient field.";
 
@@ -307,7 +307,7 @@ void WMIsosurfaceRaytracer::moduleMain()
             rootNode->insert( cube );
             // insert root node if needed. This way, we ensure that the root node gets added only if the proxy cube has been added AND the bbox
             // can be calculated properly by the OSG to ensure the proxy cube is centered in the scene if no other item has been added earlier.
-            if ( !postNodeInserted )
+            if( !postNodeInserted )
             {
                 postNodeInserted = true;
                 WKernel::getRunningKernel()->getGraphicsEngine()->getScene()->insert( postNode );

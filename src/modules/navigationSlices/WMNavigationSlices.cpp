@@ -118,7 +118,7 @@ void WMNavigationSlices::initOSG()
 
     // no colormaps -> no slices
     bool empty = !WGEColormapping::instance()->size();
-    if ( empty )
+    if( empty )
     {
         // hide the slider properties.
         m_xPos->setHidden();
@@ -145,7 +145,7 @@ void WMNavigationSlices::initOSG()
     m_zPos->setHidden( false );
 
     // if this is done the first time, set the slices to the center of the dataset
-    if ( m_first )
+    if( m_first )
     {
         m_first = false;
         m_xPos->set( ( maxV[0] - minV[0] ) / 2.0 );
@@ -254,12 +254,12 @@ WMNavigationSlices::PickCallback::PickCallback( osg::ref_ptr< osg::Node > node, 
 
 void WMNavigationSlices::PickCallback::pick( WPickInfo pickInfo )
 {
-    if ( pickInfo.getName() == m_node->getName() )
+    if( pickInfo.getName() == m_node->getName() )
     {
         WVector3d normal = pickInfo.getPickNormal();
         WVector2d newPixelPos = pickInfo.getPickPixel();
         // dragging was initialized earlier
-        if ( m_isPicked )
+        if( m_isPicked )
         {
             osg::Vec3 startPosScreen( m_oldPixelPosition[ 0 ], m_oldPixelPosition[ 1 ], 0.0 );
             osg::Vec3 endPosScreen( newPixelPos[ 0 ], newPixelPos[ 1 ], 0.0 );
@@ -313,10 +313,10 @@ void WMNavigationSlices::moduleMain()
     /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // main loop
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         // woke up since the module is requested to finish?
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }

@@ -395,7 +395,7 @@ public:
         // apply op to each value
         const VSetAType* a = m_vsetA->rawData();
         const VSetBType* b =   vsetB->rawData();
-        for ( size_t i = 0; i < m_vsetA->rawSize(); ++i )
+        for( size_t i = 0; i < m_vsetA->rawSize(); ++i )
         {
             data[ i ] = op( static_cast< ResultT >( a[ i ] ), static_cast< ResultT >( b[ i ] ) );
         }
@@ -527,7 +527,7 @@ public:
 
         // apply op to each value
         const T* a = vsetA->rawData();
-        for ( size_t i = 0; i < vsetA->rawSize(); ++i )
+        for( size_t i = 0; i < vsetA->rawSize(); ++i )
         {
             data[ i ] = op( a[ i ], m_lowerBorder, m_upperBorder );
         }
@@ -602,7 +602,7 @@ void WMScalarOperator::moduleMain()
         {
             boost::shared_ptr< WDataSetScalar > dataSetA = m_inputA->getData();
             boost::shared_ptr< WDataSetScalar > dataSetB = m_inputB->getData();
-            if ( !dataSetA )
+            if( !dataSetA )
             {
                 // reset output if input was reset/disconnected
                 debugLog() << "Resetting output.";
@@ -628,7 +628,7 @@ void WMScalarOperator::moduleMain()
             boost::shared_ptr< WValueSetBase > newValueSet;
 
             // single operator operation?
-            if ( ( s == 5 ) || ( s == 6 ) || ( s == 7 ) )
+            if( ( s == 5 ) || ( s == 6 ) || ( s == 7 ) )
             {
                 VisitorVSetSingleArgument visitor( s );    // the visitor cascades to the second value set
                 visitor.setBorder( m_lowerBorder->get( true ), m_upperBorder->get( true ) );
@@ -645,7 +645,7 @@ void WMScalarOperator::moduleMain()
                     bool match = ( valueSetA->dimension() == valueSetB->dimension() ) &&
                                  ( valueSetA->order() == valueSetB->order() ) &&
                                  ( valueSetA->rawSize() == valueSetB->rawSize() );
-                    if ( !match )
+                    if( !match )
                     {
                         throw WDHValueSetMismatch( std::string( "The both value sets are not of equal size, dimension and order." ) );
                     }
@@ -671,7 +671,7 @@ void WMScalarOperator::moduleMain()
             }
 
             // Create the new dataset and export it
-            if ( newValueSet )
+            if( newValueSet )
             {
                 m_output->updateData( boost::shared_ptr<WDataSetScalar>( new WDataSetScalar( newValueSet, dataSetA->getGrid() ) ) );
             }

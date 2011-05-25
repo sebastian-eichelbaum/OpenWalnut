@@ -34,7 +34,7 @@ std::ostream& operator<< (std::ostream& os, const FTensor& t)
   if( t.comp == 0 )
       os << " empty ";
   else
-  for (unsigned char i=0; i<(unsigned char)FTensor::pow (t.dimension,
+  for(unsigned char i=0; i<(unsigned char)FTensor::pow (t.dimension,
 							 t.order); i++)
     os << t.comp[i] << " ";
 
@@ -95,10 +95,10 @@ std::ostream& binwrite( std::ostream& out, const FTensor& t )
 void FTensor::getEigenvalues3DS(F::FVector& vals) const
 {
 #ifndef NODEBUG
-  if (order != 2)
+  if(order != 2)
     THROW_EXCEPTION( FInvalidDimensionException, "ERROR: invalid order (has to be 2)!");
 
-  if (dimension != 3)
+  if(dimension != 3)
     THROW_EXCEPTION( FInvalidDimensionException, "ERROR: invalid dimension (has to be 3)!");
 #endif
 #define T ( *this )
@@ -146,7 +146,7 @@ void FTensor::getEigenvector3DS(F::FVector &ev, const double lambda ) const
   const double yz = T( 0,2 )*T( 0,1 );
   const double yx = T( 0,2 )*T( 1,2 );
 
-  for ( int i=0; i<2; ++i )
+  for( int i=0; i<2; ++i )
   {
     const double A = T( 0,0 ) - lambda;
     const double B = T( 1,1 ) - lambda;
@@ -174,7 +174,7 @@ void FTensor::getEigenSystem3DS(F::FVector& vals, F::FVector v[3]) const
   const double yz = T( 0,2 )*T( 0,1 );
   const double yx = T( 0,2 )*T( 1,2 );
 
-  for ( int i=0; i<2; ++i )
+  for( int i=0; i<2; ++i )
   {
     const double A = T( 0,0 ) - vals[ i ];
     const double B = T( 1,1 ) - vals[ i ];

@@ -156,7 +156,7 @@ template< typename T > void WMWriteNIfTI::castData( void*& returnData )
     T* data = new T[vals->rawSize()];
     for( size_t i = 0; i < countVoxels; ++i )
     {
-        for ( size_t j = 0; j < vDim; ++j )
+        for( size_t j = 0; j < vDim; ++j )
         {
             data[( j * countVoxels ) + i] = static_cast< T > ( vals->getScalar( i * vDim + j ) );
         }

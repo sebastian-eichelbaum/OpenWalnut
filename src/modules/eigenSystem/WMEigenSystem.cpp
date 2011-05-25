@@ -114,7 +114,7 @@ void WMEigenSystem::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         infoLog() << "Waiting.";
         m_moduleState.wait();

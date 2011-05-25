@@ -54,7 +54,7 @@ QPixmap ensureSize( QPixmap pix )
     int maxW = 32;
     int maxH = 32;
 
-    if ( ( pix.width() > maxW ) || ( pix.height() > maxH ) )
+    if( ( pix.width() > maxW ) || ( pix.height() > maxH ) )
     {
         return pix.scaled( maxW, maxH, Qt::KeepAspectRatio );
     }
@@ -77,7 +77,7 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
 
     // initialize the proper widget
     // Lists are used if the selection of multiple elements is allowed
-    if ( m_selectionProperty->countConstraint( PC_SELECTONLYONE ) != 0 )
+    if( m_selectionProperty->countConstraint( PC_SELECTONLYONE ) != 0 )
     {
         m_combo = new QComboBox( &m_parameterWidgets );
 
@@ -106,11 +106,11 @@ WPropertySelectionWidget::WPropertySelectionWidget( WPropSelection property, QGr
 
     // Information Output ( Property Purpose = PV_PURPOSE_INFORMATION )
     // In this case -> use some disabled lists/combos here
-    if ( m_property->getPurpose() == PV_PURPOSE_INFORMATION )
+    if( m_property->getPurpose() == PV_PURPOSE_INFORMATION )
     {
         m_informationWidgets.setLayout( &m_layout );
 
-        if ( m_list )
+        if( m_list )
         {
             m_list->setEnabled( false );
         }
@@ -148,18 +148,18 @@ void WPropertySelectionWidget::update()
     WItemSelector sValid = m_selectionProperty->get();
 
     //apply selection
-    if ( m_combo )
+    if( m_combo )
     {
         disconnect( m_combo, SIGNAL( currentIndexChanged( int ) ), this, SLOT( comboSelectionChanged( int ) ) );
 
         m_combo->clear();
 
         // add all items from the selection set:
-        for ( size_t i = 0; i < sValid.sizeAll(); ++i )
+        for( size_t i = 0; i < sValid.sizeAll(); ++i )
         {
             m_combo->addItem( QString::fromStdString( sValid.atAll( i )->getName() ) );
             // if there is an icon -> show it
-            if ( sValid.atAll( i )->getIcon() )
+            if( sValid.atAll( i )->getIcon() )
             {
                 // scale the pixmap to a maximum size if larger
                 QPixmap pix = ensureSize( QPixmap( sValid.atAll( i )->getIcon() ) );
@@ -171,7 +171,7 @@ void WPropertySelectionWidget::update()
         }
 
         // mark the currently selected item. Just take care that there might be no item selected.
-        if ( sValid.size() == 0 )
+        if( sValid.size() == 0 )
         {
             m_combo->setCurrentIndex( -1 );
         }
@@ -191,7 +191,7 @@ void WPropertySelectionWidget::update()
         m_list->clear();
 
         // add all items from the selection set:
-        for ( size_t i = 0; i < sValid.sizeAll(); ++i )
+        for( size_t i = 0; i < sValid.sizeAll(); ++i )
         {
             // Create a custom widget which contains the name and description
             QWidget* widget = new QWidget( m_list );
@@ -199,7 +199,7 @@ void WPropertySelectionWidget::update()
 
             int column = 0;
             // if there is an icon -> show it
-            if ( sValid.atAll( i )->getIcon() )
+            if( sValid.atAll( i )->getIcon() )
             {
                 QLabel* icon = new QLabel();
                 QSizePolicy sizePolicy( QSizePolicy::Maximum, QSizePolicy::Preferred ); // <-- scale it down
@@ -213,7 +213,7 @@ void WPropertySelectionWidget::update()
             // Add Name and Description
             layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( sValid.atAll( i )->getName() )+ "</b>" ), 0, column );
             // if there is no description -> no widget added to save space
-            if ( !sValid.atAll( i )->getDescription().empty() )
+            if( !sValid.atAll( i )->getDescription().empty() )
             {
                 layoutWidget->addWidget(  new QLabel( QString::fromStdString( sValid.atAll( i )->getDescription() ) ), 1, column );
             }
@@ -230,7 +230,7 @@ void WPropertySelectionWidget::update()
         }
 
         // select all items
-        for ( size_t i = 0; i < sValid.size(); ++i )
+        for( size_t i = 0; i < sValid.size(); ++i )
         {
             m_list->item( sValid.getItemIndexOfSelected( i ) )->setSelected( true );
         }
@@ -258,7 +258,7 @@ void WPropertySelectionWidget::comboSelectionChanged( int index )
 void WPropertySelectionWidget::listSelectionChanged()
 {
     // unfortunately this slot is also called if the selection gets changed by the program. We are not interested in this case.
-    if ( m_update )
+    if( m_update )
     {
         return;
     }
@@ -267,9 +267,9 @@ void WPropertySelectionWidget::listSelectionChanged()
     WItemSelector::IndexList l;
 
     // go through the item list
-    for ( int i = 0; i < m_list->count(); ++i )
+    for( int i = 0; i < m_list->count(); ++i )
     {
-        if ( m_list->item( i )->isSelected() )
+        if( m_list->item( i )->isSelected() )
         {
             l.push_back( i );
         }

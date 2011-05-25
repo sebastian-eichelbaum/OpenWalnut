@@ -98,7 +98,7 @@ void main()
     vec3 vec = texture3DUnscaled( u_texture0Sampler, gl_TexCoord[0].xyz, u_texture0Min, u_texture0Scale ).rgb;
 
     // zero length vectors are uninteresting. discard them
-    if ( isZero( length( vec ), 0.01 ) )
+    if( isZero( length( vec ), 0.01 ) )
     {
         discard;
     }
@@ -126,7 +126,7 @@ void main()
 
     // zero length vectors are uninteresting. discard them
     vecProjected = projectVector( dir ).xy;
-    if ( isZero( length( dir ), 0.01 ) )
+    if( isZero( length( dir ), 0.01 ) )
     {
         discard;
     }
@@ -152,27 +152,27 @@ void main()
     // TODO(ebaum): this belongs to some central place
     vec4 col = vec4( 0.0, 0.0, 0.0, 1.0 );
 
-    if ( type5 > 0 )
+    if( type5 > 0 )
     {
         lookupTex( col, type5, tex5, threshold5, VaryingTexCoord5.xyz, alpha5, useCmap5 );
     }
-    if ( type4 > 0 )
+    if( type4 > 0 )
     {
         lookupTex( col, type4, tex4, threshold4, VaryingTexCoord4.xyz, alpha4, useCmap4 );
     }
-    if ( type3 > 0 )
+    if( type3 > 0 )
     {
         lookupTex( col, type3, tex3, threshold3, VaryingTexCoord3.xyz, alpha3, useCmap3 );
     }
-    if ( type2 > 0 )
+    if( type2 > 0 )
     {
         lookupTex( col, type2, tex2, threshold2, VaryingTexCoord2.xyz, alpha2, useCmap2 );
     }
-    if ( type1 > 0 )
+    if( type1 > 0 )
     {
         lookupTex( col, type1, tex1, threshold1, VaryingTexCoord1.xyz, alpha1, useCmap1 );
     }
-    if ( type0 > 0 )
+    if( type0 > 0 )
     {
         lookupTex( col, type0, tex0, threshold0, VaryingTexCoord0.xyz, alpha0, useCmap0 );
     }

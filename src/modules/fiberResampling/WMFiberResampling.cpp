@@ -104,12 +104,12 @@ void WMFiberResampling::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -122,7 +122,7 @@ void WMFiberResampling::moduleMain()
         {
             warnLog() << "Resampling lines to have only 1 or less points is not supported, skipping this action";
         }
-        if ( !dataValid || ( m_newSamples->get() <= 1 ) ) // resampling with just one vertex will lead to points not to lines
+        if( !dataValid || ( m_newSamples->get() <= 1 ) ) // resampling with just one vertex will lead to points not to lines
         {
             continue;
         }
@@ -144,7 +144,7 @@ boost::shared_ptr< WDataSetFibers > WMFiberResampling::resample( boost::shared_p
 
     boost::shared_ptr< WDataSetFiberVector > newDS( new WDataSetFiberVector() );
 
-    for ( size_t fidx = 0; fidx < dataSet->getLineStartIndexes()->size() ; ++fidx )
+    for( size_t fidx = 0; fidx < dataSet->getLineStartIndexes()->size() ; ++fidx )
     {
         WFiber tract( ( *dataSet )[ fidx ] );
         tract.resampleByNumberOfPoints( m_newSamples->get( true ) );

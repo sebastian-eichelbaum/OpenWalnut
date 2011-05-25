@@ -100,12 +100,12 @@ void WMHARDIToSphericalHarmonics::moduleMain()
     debugLog() << "Module is now ready.";
 
     debugLog() << "Entering main loop";
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         debugLog() << "Waiting ...";
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -114,7 +114,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
         bool dataChanged = ( m_dataSet != newDataSet );
         bool dataValid   = ( newDataSet );
 
-        if ( dataChanged && dataValid )
+        if( dataChanged && dataValid )
         // this condition will become true whenever the new data is different from the current one or our actual data is NULL. This handles all
         // cases.
         {
@@ -131,8 +131,8 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             m_order->set( 2 );
         }
 
-//         if ( dataChanged && dataValid )
-        if ( dataValid )
+//         if( dataChanged && dataValid )
+        if( dataValid )
         {
             debugLog() << "Data changed. Recalculating output.";
 
@@ -147,10 +147,10 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             // determine a set of indices of which the gradient is not zero
             debugLog() << "Determine usable gradients." << std::endl;
             std::vector< size_t > validIndices;
-            for ( size_t i = 0; i < m_dataSet->getNumberOfMeasurements(); i++ )
+            for( size_t i = 0; i < m_dataSet->getNumberOfMeasurements(); i++ )
             {
               const WVector3d& grad = m_dataSet->getGradient( i );
-              if ( (grad[0] != 0.0) || (grad[1] != 0.0) || (grad[2] != 0.0) )
+              if( (grad[0] != 0.0) || (grad[1] != 0.0) || (grad[2] != 0.0) )
                 validIndices.push_back( i );
               else
                 S0Indexes.push_back( i );
@@ -162,7 +162,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
 
             // build vector with gradients != 0
             std::vector< WVector3d > gradients;
-            for ( std::vector< size_t >::const_iterator it = validIndices.begin(); it != validIndices.end(); it++ )
+            for( std::vector< size_t >::const_iterator it = validIndices.begin(); it != validIndices.end(); it++ )
               gradients.push_back( m_dataSet->getGradient( *it ) );
 
             int order  = m_order->get( true );
@@ -213,7 +213,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             parameter.m_normalize = m_doNormalisation->get( true );
 
             // data vector to store reprojection residuals
-            if ( parameter.m_doResidualCalculation )
+            if( parameter.m_doResidualCalculation )
             {
               parameter.m_dataResiduals = boost::shared_ptr< std::vector<double> >(
                                 new std::vector<double>( m_dataSet->getValueSet()->size() * parameter.m_validIndices.size() ) );
@@ -222,7 +222,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
 //             const unsigned int threadCount = 1;
             std::pair< size_t, size_t > range;
             // create Threads
-            for ( unsigned int i = 0; i < threadCount; i++ )
+            for( unsigned int i = 0; i < threadCount; i++ )
             {
               range.first = ( voxelCount / threadCount ) * i;
               range.second = ( i == ( threadCount-1 ) ) ? voxelCount : ( voxelCount / threadCount ) * ( i+1 );
@@ -231,7 +231,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             }
 
             debugLog() << "Calculation started ... waiting for finish";
-            for ( unsigned int i = 0; i < m_threads.size(); i++ )
+            for( unsigned int i = 0; i < m_threads.size(); i++ )
             {
               m_threads[ i ]->wait();
               overallError += m_threads[ i ]->getError();
@@ -256,7 +256,7 @@ void WMHARDIToSphericalHarmonics::moduleMain()
             m_output->updateData( newData );
 
             // create final output data
-            if ( parameter.m_doResidualCalculation )
+            if( parameter.m_doResidualCalculation )
             {
                 boost::shared_ptr< WValueSet<double> > residualsData = boost::shared_ptr< WValueSet<double> >(
                         new WValueSet<double>( 1, parameter.m_validIndices.size(), parameter.m_dataResiduals, W_DT_DOUBLE ) );
@@ -362,7 +362,7 @@ void WMHARDIToSphericalHarmonics::properties()
 
 void WMHARDIToSphericalHarmonics::stopThreads()
 {
-  for ( std::vector< WSphericalHarmonicsCoefficientsThread* >::iterator it = m_threads.begin(); it != m_threads.end(); it++ )
+  for( std::vector< WSphericalHarmonicsCoefficientsThread* >::iterator it = m_threads.begin(); it != m_threads.end(); it++ )
   {
     ( *it )->requestStop();
   }

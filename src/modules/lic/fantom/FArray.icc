@@ -32,7 +32,7 @@ inline unsigned int FArray::size(void) const
 inline double& FArray::operator() (unsigned int i)
 {
 #ifndef NODEBUG
-  if (i>=sizeOfArray)
+  if(i>=sizeOfArray)
     THROW_DEFAULT_EXCEPTION( FIndexOutOfBoundsException );
 #endif
   return comp[i];
@@ -43,7 +43,7 @@ inline double& FArray::operator() (unsigned int i)
 inline const double& FArray::operator() (unsigned int i) const
 {
 #ifndef NODEBUG
-  if (i>=sizeOfArray)
+  if(i>=sizeOfArray)
     THROW_DEFAULT_EXCEPTION( FIndexOutOfBoundsException );
 #endif
   return comp[i];
@@ -54,7 +54,7 @@ inline const double& FArray::operator() (unsigned int i) const
 inline double& FArray::operator[] (unsigned int i)
 {
 #ifndef NODEBUG
-  if (i>=sizeOfArray)
+  if(i>=sizeOfArray)
     THROW_DEFAULT_EXCEPTION( FIndexOutOfBoundsException );
 #endif
   return comp[i];
@@ -65,7 +65,7 @@ inline double& FArray::operator[] (unsigned int i)
 inline const double& FArray::operator[] (unsigned int i) const
 {
 #ifndef NODEBUG
-  if (i>=sizeOfArray)
+  if(i>=sizeOfArray)
     THROW_DEFAULT_EXCEPTION( FIndexOutOfBoundsException );
 #endif
   return comp[i];
@@ -75,7 +75,7 @@ inline const double& FArray::operator[] (unsigned int i) const
 
 inline FArray& FArray::operator=(const std::vector<double>& a)
 {
-  if (a.size() != sizeOfArray)
+  if(a.size() != sizeOfArray)
     {
       sizeOfArray=a.size();
       delete[] comp;
@@ -85,7 +85,7 @@ inline FArray& FArray::operator=(const std::vector<double>& a)
   std::vector<double>::const_iterator coords = a.begin();
   
   // copy the elements
-  for (unsigned int j=0; j<sizeOfArray; j++)
+  for(unsigned int j=0; j<sizeOfArray; j++)
     comp[j]= *coords++;
   return *this;
 }
@@ -94,8 +94,8 @@ inline FArray& FArray::operator=(const std::vector<double>& a)
 
 inline FArray& FArray::operator=(const FArray& a)
 {
-  if (&a == this) return *this;
-  if (a.sizeOfArray != sizeOfArray)
+  if(&a == this) return *this;
+  if(a.sizeOfArray != sizeOfArray)
     {
       sizeOfArray=a.sizeOfArray;
       delete[] comp;
@@ -109,7 +109,7 @@ inline FArray& FArray::operator=(const FArray& a)
 inline bool FArray::operator==(const FArray& a) const
 {
 #ifndef NODEBUG
-  if (a.sizeOfArray!=sizeOfArray)
+  if(a.sizeOfArray!=sizeOfArray)
     THROW_EXCEPTION( FInvalidDimensionException, "FArrays have different size!!");
 #endif
   return ((a.sizeOfArray == sizeOfArray) && (memcmp(comp, a.comp, sizeOfArray*sizeof(double)) == 0));
@@ -119,7 +119,7 @@ inline bool FArray::operator==(const FArray& a) const
 inline bool FArray::operator!=(const FArray& a) const
 {
 #ifndef NODEBUG
-  if (a.sizeOfArray!=sizeOfArray)
+  if(a.sizeOfArray!=sizeOfArray)
     THROW_EXCEPTION( FInvalidDimensionException, "FArrays have different size!!");
 #endif
   return ((a.sizeOfArray != sizeOfArray) || memcmp(comp, a.comp, sizeOfArray*sizeof(double)) != 0);
@@ -128,13 +128,13 @@ inline bool FArray::operator!=(const FArray& a) const
 inline bool FArray::operator<(const FArray& a) const
 {
 #ifndef NODEBUG
-  if (a.sizeOfArray!=sizeOfArray)
+  if(a.sizeOfArray!=sizeOfArray)
     THROW_EXCEPTION( FInvalidDimensionException, "FArrays have different size!!");
 #endif
-  for (positive i=0; i<sizeOfArray; i++)
-    if (comp[i] < a.comp[i])
+  for(positive i=0; i<sizeOfArray; i++)
+    if(comp[i] < a.comp[i])
       return true;
-    else if (comp[i] > a.comp[i])
+    else if(comp[i] > a.comp[i])
       return false;
 
   return false;
@@ -143,13 +143,13 @@ inline bool FArray::operator<(const FArray& a) const
 inline bool FArray::operator>(const FArray& a) const
 {
 #ifndef NODEBUG
-  if (a.sizeOfArray!=sizeOfArray)
+  if(a.sizeOfArray!=sizeOfArray)
     THROW_EXCEPTION( FInvalidDimensionException, "FArrays have different size!!");
 #endif
-  for (positive i=0; i<sizeOfArray; i++)
-    if (comp[i] < a.comp[i])
+  for(positive i=0; i<sizeOfArray; i++)
+    if(comp[i] < a.comp[i])
       return false;
-    else if (comp[i] > a.comp[i])
+    else if(comp[i] > a.comp[i])
       return true;
 
   return false;
@@ -160,11 +160,11 @@ inline bool FArray::operator>(const FArray& a) const
 inline void FArray::operator+=(const FArray& a)
 {
 #ifndef NODEBUG
-  if (a.sizeOfArray!=sizeOfArray)
+  if(a.sizeOfArray!=sizeOfArray)
     THROW_EXCEPTION( FInvalidDimensionException, "FArrays have different size!!");
 #endif
   // Add...
-  for (unsigned int i=0;i<sizeOfArray;i++)
+  for(unsigned int i=0;i<sizeOfArray;i++)
    comp[i]+=a.comp[i];
 }
 
@@ -173,10 +173,10 @@ inline void FArray::operator+=(const FArray& a)
 inline void FArray::operator-=(const FArray& a)
 {
 #ifndef NODEBUG
-  if (a.sizeOfArray!=sizeOfArray)
+  if(a.sizeOfArray!=sizeOfArray)
     THROW_EXCEPTION( FInvalidDimensionException, "FArrays have different size!!");
 #endif
-  for (unsigned int i=0;i<sizeOfArray;i++)
+  for(unsigned int i=0;i<sizeOfArray;i++)
     comp[i]-=a.comp[i];
 }
 
@@ -184,7 +184,7 @@ inline void FArray::operator-=(const FArray& a)
 
 inline void FArray::operator*=(double d)
 {
-  for (unsigned int i=0;i<sizeOfArray;i++)
+  for(unsigned int i=0;i<sizeOfArray;i++)
     comp[i]*=d;
 }
 
@@ -193,7 +193,7 @@ inline void FArray::operator*=(double d)
 inline FArray FArray::operator+(const FArray& a) const
 {
 #ifndef NODEBUG
-  if (a.sizeOfArray!=sizeOfArray)
+  if(a.sizeOfArray!=sizeOfArray)
     THROW_EXCEPTION( FInvalidDimensionException, "FArrays have different size!!");
 #endif
   FArray result(*this);
@@ -206,7 +206,7 @@ inline FArray FArray::operator+(const FArray& a) const
 inline FArray FArray::operator-(const FArray& a) const
 {
 #ifndef NODEBUG
-  if (a.sizeOfArray!=sizeOfArray)
+  if(a.sizeOfArray!=sizeOfArray)
     THROW_EXCEPTION( FInvalidDimensionException, "FArrays have different size!!");
 #endif
   FArray result(*this);
@@ -237,7 +237,7 @@ inline FArray FArray::operator*(double d) const
 inline FArray operator*(double d,const FArray& a)
 {
   FArray result(a.sizeOfArray);
-  for (unsigned int i=0;i<a.sizeOfArray;i++)
+  for(unsigned int i=0;i<a.sizeOfArray;i++)
     result.comp[i]=a.comp[i]*d;
   return result;
 }
@@ -247,10 +247,10 @@ inline FArray operator*(double d,const FArray& a)
 inline void FArray::plus(const FArray& arg, FArray& dst) const
 {
 #ifndef NODEBUG
-  if ((arg.sizeOfArray!=sizeOfArray) || (dst.sizeOfArray!=sizeOfArray))
+  if((arg.sizeOfArray!=sizeOfArray) || (dst.sizeOfArray!=sizeOfArray))
     THROW_EXCEPTION( FInvalidDimensionException, "FArrays have different size!!");
 #endif
-  for (unsigned int i=0;i<sizeOfArray;i++)
+  for(unsigned int i=0;i<sizeOfArray;i++)
     dst.comp[i]=arg.comp[i]+comp[i];
 }
 
@@ -259,10 +259,10 @@ inline void FArray::plus(const FArray& arg, FArray& dst) const
 inline void FArray::minus(const FArray& arg, FArray& dst) const
 {
 #ifndef NODEBUG
-  if ((arg.sizeOfArray!=sizeOfArray) || (dst.sizeOfArray!=sizeOfArray))
+  if((arg.sizeOfArray!=sizeOfArray) || (dst.sizeOfArray!=sizeOfArray))
     THROW_EXCEPTION( FInvalidDimensionException, "FArrays have different size!!");
 #endif
-  for (unsigned int i=0;i<sizeOfArray;i++)
+  for(unsigned int i=0;i<sizeOfArray;i++)
     dst.comp[i]=comp[i]-arg.comp[i];
 }
 
@@ -271,10 +271,10 @@ inline void FArray::minus(const FArray& arg, FArray& dst) const
 inline void FArray::mult(double arg, FArray& dst) const
 {
 #ifndef NODEBUG
-  if (dst.sizeOfArray!=sizeOfArray)
+  if(dst.sizeOfArray!=sizeOfArray)
     THROW_EXCEPTION( FInvalidDimensionException, "FArrays have different size!!");
 #endif
-  for (unsigned int i=0;i<sizeOfArray;i++)
+  for(unsigned int i=0;i<sizeOfArray;i++)
     dst.comp[i]=comp[i]*arg;
 }
 
@@ -292,7 +292,7 @@ inline double FArray::operator*(const FArray &v) const
   unsigned int i;
   double result = 0.0;
   
-  for (i=0; i<sizeOfArray; i++)
+  for(i=0; i<sizeOfArray; i++)
     result += comp[i] * v.comp[i];
 
   return result;
@@ -304,7 +304,7 @@ inline double FArray::norm() const
   unsigned int i;
   double normSquared = 0.0;
   
-  for (i=0; i<sizeOfArray; i++)
+  for(i=0; i<sizeOfArray; i++)
     normSquared += comp[i] * comp[i];
 
   return sqrt( normSquared );
@@ -317,7 +317,7 @@ inline double FArray::normSquare() const
   unsigned int i;
   double normSquared = 0.0;
   
-  for (i=0; i<sizeOfArray; i++)
+  for(i=0; i<sizeOfArray; i++)
     normSquared += comp[i] * comp[i];
 
   return  normSquared ;
@@ -328,7 +328,7 @@ inline double FArray::normSquare() const
 inline void FArray::getCoordinates(std::vector<double>& coords) const
 {
   coords.resize(sizeOfArray);
-  for (unsigned int i=0 ; i<sizeOfArray ; i++)
+  for(unsigned int i=0 ; i<sizeOfArray ; i++)
     coords[i] = comp[i];
 }
 
@@ -336,7 +336,7 @@ inline void FArray::getCoordinates(std::vector<double>& coords) const
 
 inline void FArray::getCoordinates(double* coords) const
 {
-  for (unsigned int i=0 ; i<sizeOfArray ; i++)
+  for(unsigned int i=0 ; i<sizeOfArray ; i++)
     coords[i] = comp[i];
 }
 
@@ -345,11 +345,11 @@ inline void FArray::getCoordinates(double* coords) const
 inline void FArray::crossProduct(const FArray &b, FArray &dest) const
 {
 #ifndef NODEBUG
-  if (dest.sizeOfArray!=3)
+  if(dest.sizeOfArray!=3)
     THROW_EXCEPTION( FInvalidDimensionException, "dimension of destination FArray not 3!!" );
-  if (b.sizeOfArray!=3)
+  if(b.sizeOfArray!=3)
     THROW_EXCEPTION( FInvalidDimensionException, "dimension of second FArray not 3!!" );
-  if (sizeOfArray!=3)
+  if(sizeOfArray!=3)
     THROW_EXCEPTION( FInvalidDimensionException, "dimension of first FArray not 3!!" );
 #endif
   
@@ -363,7 +363,7 @@ inline void FArray::crossProduct(const FArray &b, FArray &dest) const
 inline FArray& FArray::crossProduct(const FArray &b)
 {
 #ifndef NODEBUG
-  if ((sizeOfArray!=3) || (b.sizeOfArray!=3))
+  if((sizeOfArray!=3) || (b.sizeOfArray!=3))
       THROW_EXCEPTION( FInvalidDimensionException, "dimension != 3" );
 #endif
   double x = comp[1]*b[2] - comp[2]*b[1];
@@ -378,7 +378,7 @@ inline FArray& FArray::crossProduct(const FArray &b)
 inline FArray FArray::crossProductConst(const FArray &b) const
 {
 #ifndef NODEBUG
-  if ((sizeOfArray!=3) || (b.sizeOfArray!=3))
+  if((sizeOfArray!=3) || (b.sizeOfArray!=3))
       THROW_EXCEPTION( FInvalidDimensionException, "dimension != 3" );
 #endif
   return FArray(
@@ -392,7 +392,7 @@ inline FArray FArray::crossProductConst(const FArray &b) const
 inline FArray crossProduct(const FArray &a, const FArray &b) 
 {
 #ifndef NODEBUG
-  if ( ( a.sizeOfArray != 3 ) || ( b.sizeOfArray != 3 ) )
+  if( ( a.sizeOfArray != 3 ) || ( b.sizeOfArray != 3 ) )
     THROW_EXCEPTION( FInvalidDimensionException, "dimension != 3" );
 #endif
   
@@ -408,7 +408,7 @@ inline FArray crossProduct(const FArray &a, const FArray &b)
 inline double crossProduct2D(const FArray &a, const FArray &b) 
 {
 #ifndef NODEBUG
-  if ( ( a.sizeOfArray != 2 ) || ( b.sizeOfArray != 2 ) )
+  if( ( a.sizeOfArray != 2 ) || ( b.sizeOfArray != 2 ) )
     THROW_EXCEPTION( FInvalidDimensionException, "dimension != 2" );
 #endif
   
@@ -419,7 +419,7 @@ inline double crossProduct2D(const FArray &a, const FArray &b)
 inline void FArray::clear()
 {
   unsigned int i;
-  for (i=0 ; i<sizeOfArray ; i++)
+  for(i=0 ; i<sizeOfArray ; i++)
     {
       comp[i] = 0.;
     }
@@ -497,13 +497,13 @@ inline FArray FArray::normalized() const
 inline double FArray::distanceSquare(const FArray& pos2) const
 {
 #ifndef NODEBUG
-  if (sizeOfArray != pos2.sizeOfArray)
+  if(sizeOfArray != pos2.sizeOfArray)
     THROW_EXCEPTION( FInvalidDimensionException, "FArrays have different size!!");
 #endif
   double dist = 0.0, tmp;
 
   unsigned int i;
-  for (i=0 ; i<sizeOfArray ; i++)
+  for(i=0 ; i<sizeOfArray ; i++)
     {  tmp=(comp[i]-pos2.comp[i]);
     dist += tmp*tmp; }
   
@@ -529,11 +529,11 @@ inline FArray::operator std::vector<double>() const
 inline bool FArray::isLessThan( const FArray &b ) const
 {
 #ifndef NODEBUG
-    if (sizeOfArray != b.sizeOfArray)
+    if(sizeOfArray != b.sizeOfArray)
         THROW_EXCEPTION(FInvalidDimensionException, "FArrays have different size!!");
 #endif
     unsigned int i;
-    for (i=0; i<sizeOfArray; ++i)
+    for(i=0; i<sizeOfArray; ++i)
         if(comp[i] >= b.comp[i]) return false;
     return true;
 }

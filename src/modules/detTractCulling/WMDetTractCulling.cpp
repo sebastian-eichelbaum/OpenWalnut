@@ -77,9 +77,9 @@ void WMDetTractCulling::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
-        if ( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
+        if( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
         {
             m_moduleState.wait();
             continue;

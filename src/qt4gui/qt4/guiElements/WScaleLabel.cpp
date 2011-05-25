@@ -68,10 +68,10 @@ void WScaleLabel::fitTextToSize()
 {
     int newwidth = width();
     QFontMetrics fn = fontMetrics();
-    if ( newwidth < fn.width( m_orgText ) )
+    if( newwidth < fn.width( m_orgText ) )
     {
         QString useText = m_orgText.left( m_orgText.length() - 1 );
-        while ( fn.width( useText + tr( ".." ) ) > newwidth || useText.length() == 0 )
+        while( fn.width( useText + tr( ".." ) ) > newwidth || useText.length() == 0 )
         {
             useText = useText.left( useText.length() - 1 );
         }

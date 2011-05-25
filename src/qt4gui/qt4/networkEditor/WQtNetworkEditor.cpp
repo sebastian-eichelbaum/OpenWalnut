@@ -105,16 +105,16 @@ void WQtNetworkEditor::selectItem()
 {
     boost::shared_ptr< WModule > module;
 
-    if ( m_scene->selectedItems().size() != 0 &&
+    if( m_scene->selectedItems().size() != 0 &&
          m_scene->selectedItems().at( 0 )->type() == WQtNetworkItem::Type )
     {
-        if ( m_scene->selectedItems().at(0)->type() == WQtNetworkItem::Type )
+        if( m_scene->selectedItems().at(0)->type() == WQtNetworkItem::Type )
         {
             module = ( static_cast< WQtNetworkItem* >( m_scene->selectedItems().at( 0 ) ) )->getModule();
         }
 
         // crashed modules should not provide any props
-        if ( module->isCrashed()() )
+        if( module->isCrashed()() )
         {
              return;
         }
@@ -133,7 +133,7 @@ void WQtNetworkEditor::deleteSelectedItems()
     QList< WQtNetworkArrow *> arrowList;
     foreach( QGraphicsItem *item, m_scene->selectedItems() )
     {
-        if ( item->type() == WQtNetworkItem::Type )
+        if( item->type() == WQtNetworkItem::Type )
         {
             WQtNetworkItem *netItem = qgraphicsitem_cast<WQtNetworkItem *>( item );
             itemList.append( netItem );
@@ -189,11 +189,11 @@ void WQtNetworkEditor::addModule( boost::shared_ptr< WModule > module )
 bool WQtNetworkEditor::event( QEvent* event )
 {
     // a module got associated with the root container -> add it to the list
-    if ( event->type() == WQT_ASSOC_EVENT )
+    if( event->type() == WQT_ASSOC_EVENT )
     {
         // convert event to assoc event
         WModuleAssocEvent* e1 = dynamic_cast< WModuleAssocEvent* >( event );     // NOLINT
-        if ( e1 )
+        if( e1 )
         {
             WLogger::getLogger()->addLogMessage( "Inserting \"" + e1->getModule()->getName() + "\".",
                                                 "NetworkEditor", LL_DEBUG );
@@ -209,11 +209,11 @@ bool WQtNetworkEditor::event( QEvent* event )
     }
 
     // a module changed its state to "ready" -> activate it in dataset browser
-    if ( event->type() == WQT_READY_EVENT )
+    if( event->type() == WQT_READY_EVENT )
     {
         // convert event to ready event
         WModuleReadyEvent* e = dynamic_cast< WModuleReadyEvent* >( event );     // NOLINT
-        if ( !e )
+        if( !e )
         {
             // this should never happen, since the type is set to WQT_READY_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModueReadyEvent although its type claims it. Ignoring event.",
@@ -236,10 +236,10 @@ bool WQtNetworkEditor::event( QEvent* event )
     }
 
     // a module tree item was connected to another one
-    if ( event->type() == WQT_MODULE_CONNECT_EVENT )
+    if( event->type() == WQT_MODULE_CONNECT_EVENT )
     {
         WModuleConnectEvent* e = dynamic_cast< WModuleConnectEvent* >( event );     // NOLINT
-        if ( !e )
+        if( !e )
         {
             // this should never happen, since the type is set to WQT_MODULE_CONNECT_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleConnectEvent although its type claims it. Ignoring event.",
@@ -259,7 +259,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             mIn = e->getInput()->getModule();
             mOut = e->getOutput()->getModule();
         }
-        else if ( e->getInput()->isOutputConnector() == true &&
+        else if( e->getInput()->isOutputConnector() == true &&
                     e->getOutput()->isInputConnector() == true )
         {
             mIn = e->getOutput()->getModule();
@@ -277,7 +277,7 @@ bool WQtNetworkEditor::event( QEvent* event )
         WQtNetworkInputPort *ip = NULL;
         WQtNetworkOutputPort *op = NULL;
 
-        for ( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
+        for( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
                 iter != inItem->getInPorts().end();
                 ++iter )
         {
@@ -288,7 +288,7 @@ bool WQtNetworkEditor::event( QEvent* event )
             }
         }
 
-        for ( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
+        for( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
                 iter != outItem->getOutPorts().end();
                 ++iter )
         {
@@ -317,10 +317,10 @@ bool WQtNetworkEditor::event( QEvent* event )
 
 
     // a module tree item was disconnected from another one
-    if ( event->type() == WQT_MODULE_DISCONNECT_EVENT )
+    if( event->type() == WQT_MODULE_DISCONNECT_EVENT )
     {
         WModuleDisconnectEvent* e = dynamic_cast< WModuleDisconnectEvent* >( event );     // NOLINT
-        if ( !e )
+        if( !e )
         {
             // this should never happen, since the type is set to WQT_MODULE_DISCONNECT_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleDisconnectEvent although its type claims it. Ignoring event.",
@@ -360,7 +360,7 @@ bool WQtNetworkEditor::event( QEvent* event )
         WQtNetworkInputPort *ip = NULL;
         WQtNetworkOutputPort *op = NULL;
 
-        for ( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
+        for( QList< WQtNetworkInputPort* >::const_iterator iter = inItem->getInPorts().begin();
             iter != inItem->getInPorts().end();
             ++iter )
         {
@@ -370,7 +370,7 @@ bool WQtNetworkEditor::event( QEvent* event )
                ip = inP;
            }
         }
-            for ( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
+            for( QList< WQtNetworkOutputPort* >::const_iterator iter = outItem->getOutPorts().begin();
                     iter != outItem->getOutPorts().end();
                     ++iter )
             {
@@ -383,7 +383,7 @@ bool WQtNetworkEditor::event( QEvent* event )
 
         WQtNetworkArrow *ar = NULL;
 
-        for ( QList< QGraphicsItem * >::const_iterator iter = m_scene->items().begin();
+        for( QList< QGraphicsItem * >::const_iterator iter = m_scene->items().begin();
                 iter != m_scene->items().end();
                 ++iter )
         {
@@ -395,7 +395,7 @@ bool WQtNetworkEditor::event( QEvent* event )
                 break;
             }
         }
-        if ( ar )
+        if( ar )
         {
             m_layout->disconnectItem( inItem );
 
@@ -416,10 +416,10 @@ bool WQtNetworkEditor::event( QEvent* event )
     }
 
     // a module was removed from the container
-    if ( event->type() == WQT_MODULE_REMOVE_EVENT )
+    if( event->type() == WQT_MODULE_REMOVE_EVENT )
     {
         WModuleRemovedEvent* e = dynamic_cast< WModuleRemovedEvent* >( event );
-        if ( !e )
+        if( !e )
         {
             // this should never happen, since the type is set to WQT_MODULE_REMOVE_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleRemovedEvent although its type claims it. Ignoring event.",
@@ -442,10 +442,10 @@ bool WQtNetworkEditor::event( QEvent* event )
     }
 
     // a module tree item should be deleted
-    if ( event->type() == WQT_MODULE_DELETE_EVENT )
+    if( event->type() == WQT_MODULE_DELETE_EVENT )
     {
         WModuleDeleteEvent* e = dynamic_cast< WModuleDeleteEvent* >( event );
-        if ( !e )
+        if( !e )
         {
             // this should never happen, since the type is set to WQT_MODULE_REMOVE_EVENT.
             WLogger::getLogger()->addLogMessage( "Event is not an WModuleRemovedEvent although"
@@ -492,7 +492,7 @@ WQtNetworkItem* WQtNetworkEditor::findItemByModule( boost::shared_ptr< WModule >
 
 void WQtNetworkEditor::itemMoved()
 {
-    if ( !timerId )
+    if( !timerId )
         timerId = startTimer( 1000 / 25 );
 }
 
@@ -503,7 +503,7 @@ void WQtNetworkEditor::timerEvent( QTimerEvent* /*event*/ )
     //QList< WQtNetworkItem *> items;
     //foreach( QGraphicsItem *item, m_scene->items() )
     //{
-    //    if ( WQtNetworkItem *netItem = dynamic_cast< WQtNetworkItem  *>( item ) )
+    //    if( WQtNetworkItem *netItem = dynamic_cast< WQtNetworkItem  *>( item ) )
     //        items << netItem;
     //}
 
@@ -513,7 +513,7 @@ void WQtNetworkEditor::timerEvent( QTimerEvent* /*event*/ )
     //bool itemsMoved = false;
     //foreach( WQtNetworkItem *netItem, items )
     //{
-    //    if ( netItem->advance() )
+    //    if( netItem->advance() )
     //        itemsMoved = true;
     //}
 

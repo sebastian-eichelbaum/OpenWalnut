@@ -236,7 +236,7 @@ void WMTeemGlyphs::moduleMain()
     ready();
 
     // loop until the module container requests the module to quit
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         if( !m_input->getData().get() )
         {
@@ -653,15 +653,15 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
             // Descoteaux basis: see his PhD thesis page 66
             // Schultz basis: see PDF "Real Spherical Harmonic basis" - Luke Bloy 9. December 2009
             size_t k = 0;
-            for ( int l = 0; l <= useOrder; l += 2 )
+            for( int l = 0; l <= useOrder; l += 2 )
             {
-                for ( int m = -l; m <= l; ++m )
+                for( int m = -l; m <= l; ++m )
                 {
-                    if ( m < 0 && ( ( -m ) % 2 == 1 ) )
+                    if( m < 0 && ( ( -m ) % 2 == 1 ) )
                     {
                         esh[k] *= -1.0;
                     }
-                    else if ( m > 0 && ( m % 2 == 0 ) )
+                    else if( m > 0 && ( m % 2 == 0 ) )
                     {
                         esh[k] *= -1.0;
                     }

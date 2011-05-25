@@ -83,7 +83,7 @@ void WPropertyFilenameWidget::buttonReleased()
     QString path;
 
     // if there is a "IsDirectory" constraint -> set a special option in the dialog
-    if ( m_fnProperty->countConstraint( PC_ISDIRECTORY ) != 0 )
+    if( m_fnProperty->countConstraint( PC_ISDIRECTORY ) != 0 )
     {
         // OK there should only be directories allowed
         path = QFileDialog::getExistingDirectory( this,
@@ -91,7 +91,7 @@ void WPropertyFilenameWidget::buttonReleased()
                 QString::fromStdString( m_fnProperty->get().file_string() ),
                 QFileDialog::DontConfirmOverwrite );
     }
-    else if ( m_fnProperty->countConstraint( PC_PATHEXISTS ) != 0 )
+    else if( m_fnProperty->countConstraint( PC_PATHEXISTS ) != 0 )
     {
         path = QFileDialog::getOpenFileName( this,
                 QString::fromStdString( "Select existing file for " + m_fnProperty->getName() ),

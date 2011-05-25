@@ -429,7 +429,7 @@ void WMClusterSlicer::sliceAndColorMesh( boost::shared_ptr< WTriangleMesh > mesh
             if( !planePairs.empty() )
             {
                 PlanePair closestPlanes = closestPlanePair( planePairs, vertex );
-                if( closestPlanes.first != 0 || closestPlanes.second != 0 ) // if (0,0) then it may be a boundary vertex
+                if( closestPlanes.first != 0 || closestPlanes.second != 0 ) // if(0,0) then it may be a boundary vertex
                 {
                     cmData[ i ] = colorFromPlanePair( vertex, closestPlanes );
                 }

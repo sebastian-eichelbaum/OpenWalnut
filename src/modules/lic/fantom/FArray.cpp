@@ -64,7 +64,7 @@ FArray::FArray(const std::vector<double>& a)
   comp=new double[sizeOfArray];
   // copy the elements
   unsigned int j;
-  for (j=0;j<sizeOfArray; j++)
+  for(j=0;j<sizeOfArray; j++)
     comp[j]=a[j];
 }
 
@@ -158,7 +158,7 @@ FArray::FArray(unsigned int /*c*/, double /*v*/)
 
 FArray::~FArray()
 {
-  if (comp) delete[] comp;
+  if(comp) delete[] comp;
 }
 
 //---------------------------------------------------------------------------
@@ -166,10 +166,10 @@ FArray::~FArray()
 void FArray::resize(unsigned int s, bool keepContent)
 {
   // nothing to be done;
-  if (sizeOfArray == s)
+  if(sizeOfArray == s)
     return;
 
-  if (s==0)
+  if(s==0)
     {
       delete[] comp;
       sizeOfArray=0;
@@ -177,13 +177,13 @@ void FArray::resize(unsigned int s, bool keepContent)
       return;
     }
 
-  if (comp) {
+  if(comp) {
 
-    if (keepContent) { //(keepContent)
+    if(keepContent) { //(keepContent)
       double* dmy = new double[s];
-      if (sizeOfArray > s) sizeOfArray = s;
+      if(sizeOfArray > s) sizeOfArray = s;
       memcpy(dmy, comp, sizeOfArray * sizeof(double));
-      if ( s > sizeOfArray )
+      if( s > sizeOfArray )
         memset( dmy+sizeOfArray, ( s-sizeOfArray ) * sizeof( double ), 0 );
       sizeOfArray = s;
       delete [] comp;
@@ -210,7 +210,7 @@ ostream& operator<< ( ostream& os, const FArray& a )
   for(i=0; i<a.size(); i++)
     {
         os << setw(16) << setprecision(16) << a.comp[i];
-        if (i<a.size()-1)
+        if(i<a.size()-1)
         os << ",";
     }
   os << " ]";
@@ -224,34 +224,34 @@ istream& operator>> ( istream& is , FArray& a)
   char c=' ';
   //  unsigned int length, i;
   // jump the first character
-  while (isspace(c) && (is >> c)) {};
+  while(isspace(c) && (is >> c)) {};
 
-  if (c != '[')
+  if(c != '[')
     { is.putback(c);
     THROW_EXCEPTION( FSyntaxErrorException, "no definition of an array found"); }
 
-  if (!is)
+  if(!is)
     THROW_EXCEPTION( FSyntaxErrorException, "reached end of file while while looking for array definition");
 
   vector<double> tmp;
   double tmpdouble;
 
-  while ( is >> tmpdouble >> c )
+  while( is >> tmpdouble >> c )
     {
       tmp.push_back ( tmpdouble );
 
       // finished !
-      if (c==']') break;
+      if(c==']') break;
 
       // if operation did not succeed
-      if (c!=',')
+      if(c!=',')
         {
           is.clear(ios::badbit);
           break;
         }
     }
 
-  if (!is) THROW_EXCEPTION( FSyntaxErrorException, "end of file encountered before end of array !");
+  if(!is) THROW_EXCEPTION( FSyntaxErrorException, "end of file encountered before end of array !");
 
   a=tmp;
 

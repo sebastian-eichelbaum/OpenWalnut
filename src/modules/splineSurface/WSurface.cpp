@@ -291,7 +291,7 @@ void WSurface::setSetSampleRate( float r )
 void WSurface::setSupportPoints( std::vector< WVector3d> supportPoints, bool forceUpdate )
 {
     m_supportPoints = supportPoints;
-    if ( forceUpdate )
+    if( forceUpdate )
     {
         execute();
     }

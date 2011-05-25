@@ -42,7 +42,7 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     m_informationWidgets(),       // parent gets set by the QStackWidget
     m_invalid( false )
 {
-    if ( m_useLabel )
+    if( m_useLabel )
     {
         // initialize members
         m_label.setText( property->getName().c_str() );
@@ -63,7 +63,7 @@ WPropertyWidget::WPropertyWidget(  boost::shared_ptr< WPropertyBase > property, 
     addWidget( &m_informationWidgets );
 
     // if the purpose of the property is INFORMTION -> activate the information widget
-    if ( m_property->getPurpose() == PV_PURPOSE_INFORMATION )
+    if( m_property->getPurpose() == PV_PURPOSE_INFORMATION )
     {
         setCurrentIndex( 1 );
     }
@@ -90,7 +90,7 @@ void WPropertyWidget::propertyChangeNotifier()
 bool WPropertyWidget::event( QEvent* event )
 {
     // a property changed
-    if ( event->type() == WQT_PROPERTY_CHANGED_EVENT )
+    if( event->type() == WQT_PROPERTY_CHANGED_EVENT )
     {
         setHidden( m_property->isHidden() );
         m_label.setHidden( m_property->isHidden() );
@@ -119,13 +119,13 @@ void WPropertyWidget::invalidate( bool invalid )
 {
     m_invalid = invalid;
 
-    if ( m_useLabel )
+    if( m_useLabel )
     {
         // update tooltip
         m_label.setToolTip( getTooltip().c_str() );
         setToolTip( m_label.toolTip() );
 
-        if ( invalid )
+        if( invalid )
         {
             m_label.setText( ( "<font color=#FF0000><b>" + m_property->getName() + "</b></font>" ).c_str() );
         }

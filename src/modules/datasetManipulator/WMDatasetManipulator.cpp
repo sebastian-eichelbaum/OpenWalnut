@@ -250,7 +250,7 @@ void WMDatasetManipulator::setManipulatorMode()
     m_knobz2->setLockY( true );
     m_knobz2->setLockX( true );
 
-    if ( m_rotationMode->get( true ) )
+    if( m_rotationMode->get( true ) )
     {
         m_knobCenter->hide();
         m_knobx1->hide();
@@ -405,11 +405,11 @@ void WMDatasetManipulator::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }
@@ -447,9 +447,9 @@ void WMDatasetManipulator::moduleMain()
             }
         }
 
-        if ( m_active->changed() || m_showManipulators->changed() )
+        if( m_active->changed() || m_showManipulators->changed() )
         {
-            if ( m_active->get( true ) && m_showManipulators->get( true ) )
+            if( m_active->get( true ) && m_showManipulators->get( true ) )
             {
                 boost::unique_lock< boost::mutex > lock( m_updateMutex );
                 setManipulatorMode();
@@ -468,13 +468,13 @@ void WMDatasetManipulator::moduleMain()
             }
         }
 
-        if ( m_rotationMode->changed() )
+        if( m_rotationMode->changed() )
         {
             boost::unique_lock< boost::mutex > lock( m_updateMutex );
             setManipulatorMode();
         }
 
-        if ( m_translationX->changed() || m_translationY->changed() || m_translationZ->changed() )
+        if( m_translationX->changed() || m_translationY->changed() || m_translationZ->changed() )
         {
             {
                 boost::unique_lock< boost::mutex > lock( m_updateMutex );
@@ -484,7 +484,7 @@ void WMDatasetManipulator::moduleMain()
             }
             notifyChanged();
         }
-        if ( m_stretchX->changed() || m_stretchY->changed() || m_stretchZ->changed() )
+        if( m_stretchX->changed() || m_stretchY->changed() || m_stretchZ->changed() )
         {
             {
                 boost::unique_lock< boost::mutex > lock( m_updateMutex );
@@ -494,7 +494,7 @@ void WMDatasetManipulator::moduleMain()
             }
             notifyChanged();
         }
-        if ( m_rotationX->changed() || m_rotationY->changed() || m_rotationZ->changed() )
+        if( m_rotationX->changed() || m_rotationY->changed() || m_rotationZ->changed() )
         {
             //float pi = 3.14159265;
             //float rotx = static_cast<float>( m_rotationX->get( true ) ) / 180. * pi;

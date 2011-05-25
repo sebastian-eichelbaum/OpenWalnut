@@ -91,16 +91,16 @@ void WMDetTractClustering::moduleMain()
 
     ready();
 
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         m_moduleState.wait();
 
-        if ( m_shutdownFlag() ) // in case of shutdown => abort
+        if( m_shutdownFlag() ) // in case of shutdown => abort
         {
             break;
         }
 
-        if ( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
+        if( !m_tractInput->getData().get() ) // ok, the output has not yet sent data
         {
             continue;
         }

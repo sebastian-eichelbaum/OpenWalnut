@@ -82,13 +82,13 @@ void main()
     vec2 lastPos2 = gl_TexCoord[0].st;
     float sum = 0.0;
     int m = 2 * u_numIter;
-    for ( int i = 0; i < u_numIter; ++i )
+    for( int i = 0; i < u_numIter; ++i )
     {
         vec2 newPos1 = lastPos1 + vec2( lastVec1.x / ( 2.0 * u_texture0SizeX ), lastVec1.y / ( 2.0 * u_texture0SizeY ) );
         vec2 newPos2 = lastPos2 - vec2( lastVec2.x / ( 2.0 * u_texture0SizeX ), lastVec2.y / ( 2.0 * u_texture0SizeY ) );
         vec2 newVec1 = ( 2.0 * ( texture2D( u_texture0Sampler, newPos1 ).rg - vec2( 0.5, 0.5 ) ) );
         vec2 newVec2 = ( 2.0 * ( texture2D( u_texture0Sampler, newPos2 ).rg - vec2( 0.5, 0.5 ) ) );
-        if ( ( length( newVec1 ) < 0.01 ) || ( length( newVec2 )  < 0.01 ) )
+        if( ( length( newVec1 ) < 0.01 ) || ( length( newVec2 )  < 0.01 ) )
         {
             m = 2 * i;
             break;
@@ -106,7 +106,7 @@ void main()
 
     // the sum needs to be scaled to [0,1] again
     float n = sum / float( m );
-    if ( depth > 0.99 )
+    if( depth > 0.99 )
     {
         n = noise;
     }

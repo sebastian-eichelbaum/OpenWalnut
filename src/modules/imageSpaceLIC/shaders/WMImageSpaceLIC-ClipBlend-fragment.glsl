@@ -85,7 +85,7 @@ void main()
     // MPI Paper Hack: {
     // plainColor = u_cmapRatio * cmap;
     // plainColor += 1.5*( 1.0 - u_cmapRatio ) * vec3( u_contrastingS * pow( advected, u_contrastingP ), 0.0, 0.0 );
-    // if ( isZero( cmap.r, 0.1 ) )
+    // if( isZero( cmap.r, 0.1 ) )
     //     discard;
     // }
 

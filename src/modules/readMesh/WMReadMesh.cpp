@@ -395,7 +395,7 @@ boost::shared_ptr< WTriangleMesh > WMReadMesh::readDip()
         progress->finish();
         return boost::shared_ptr< WTriangleMesh >();
     }
-    if ( boost::lexical_cast< size_t >( tokens.at( 1 ) ) != 3 )
+    if( boost::lexical_cast< size_t >( tokens.at( 1 ) ) != 3 )
     {
         WLogger::getLogger()->addLogMessage( "Invalid polygon type, only supporting triangles for now.", "Read Mesh", LL_ERROR );
         progress->finish();

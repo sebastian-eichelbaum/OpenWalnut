@@ -54,7 +54,7 @@ void WQtToolBar::clearButtons()
     clear();
 
     // iterate all items and delete them
-    for ( std::list< QAction* >::iterator it = m_actions.begin(); it != m_actions.end(); ++it )
+    for( std::list< QAction* >::iterator it = m_actions.begin(); it != m_actions.end(); ++it )
     {
         delete ( *it );
     }

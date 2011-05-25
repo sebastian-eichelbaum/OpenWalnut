@@ -72,7 +72,7 @@ void WQtPropertyBoolAction::propertyChangeNotifier()
 bool WQtPropertyBoolAction::event( QEvent* event )
 {
     // a property changed
-    if ( event->type() == WQT_PROPERTY_CHANGED_EVENT )
+    if( event->type() == WQT_PROPERTY_CHANGED_EVENT )
     {
         update();
         return true;

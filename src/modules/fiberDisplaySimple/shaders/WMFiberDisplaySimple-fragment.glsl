@@ -65,7 +65,7 @@ void main()
 {
 #ifdef CLIPPLANE_ENABLED
     // discard fragment if too far from plane
-    if ( abs( dist ) >= u_distance )
+    if( abs( dist ) >= u_distance )
     {
         discard;
     }

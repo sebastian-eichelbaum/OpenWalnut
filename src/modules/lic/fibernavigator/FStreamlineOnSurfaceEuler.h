@@ -86,7 +86,7 @@ public:
 	// normalized vector between both segment vertices
 	F::FVector dist;
 
-	// values required for (numerically stable) crossing check
+	// values required for(numerically stable) crossing check
 	double delta[3];
 	FPosition coord;
     };

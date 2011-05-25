@@ -146,7 +146,7 @@ public:
    * FMultiIndex i;
    * do{
    *    do_something_with(i);
-   * } while (i.increment( max ) );
+   * } while(i.increment( max ) );
    */
   bool increment( const FMultiIndex& max )
   {

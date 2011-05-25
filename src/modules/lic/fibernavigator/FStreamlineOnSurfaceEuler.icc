@@ -13,9 +13,9 @@ inline FStreamlineOnSurfaceEuler::EdgeIndex::EdgeIndex()
 inline FStreamlineOnSurfaceEuler::EdgeIndex::
 EdgeIndex( FIndex anId1, FIndex anId2 )
 {
-    if ( !anId2.isValid() )
+    if( !anId2.isValid() )
 	id1 = anId1;
-    else if ( anId1 < anId2 )
+    else if( anId1 < anId2 )
     {
 	id1 = anId1; id2 = anId2;
     }
@@ -31,7 +31,7 @@ inline FStreamlineOnSurfaceEuler::EdgeIndex::
 EdgeIndex( const EdgeIndex& a )
 {
     id1 = a.id1;
-    if ( a.id2.isValid() )
+    if( a.id2.isValid() )
 	id2 = a.id2;
 }
 
@@ -41,15 +41,15 @@ inline bool FStreamlineOnSurfaceEuler::EdgeIndex::
 operator==( const EdgeIndex& a ) const
 {
     // Remark: id1 is always valid
-    if ( !id1.isValid() || !a.id1.isValid() )
+    if( !id1.isValid() || !a.id1.isValid() )
     {
 	//cerr << "ERROR: invalid first index in FaceIndex::operator<()" << endl;
 	return false;
     }
 
-    if ( id1 != a.id1 )
+    if( id1 != a.id1 )
 	return false;
-    else if ( id2.isValid() )
+    else if( id2.isValid() )
 	if ( a.id2.isValid() )
 	    return ( id2 == a.id2 );
 	else
@@ -63,17 +63,17 @@ operator==( const EdgeIndex& a ) const
 inline bool FStreamlineOnSurfaceEuler::EdgeIndex::
 operator<( const EdgeIndex& a ) const
 {
-    if ( !id1.isValid() || !a.id1.isValid() )
+    if( !id1.isValid() || !a.id1.isValid() )
     {
 	//cerr << "ERROR: invalid first index in FaceIndex::operator<()"
 	  //   << endl;
 	return false;
     }
 
-    if ( id1 != a.id1 )
+    if( id1 != a.id1 )
 	return ( id1 < a.id1 );
 
-    if ( id2.isValid() && a.id2.isValid() )
+    if( id2.isValid() && a.id2.isValid() )
 	return ( id2 < a.id2 );
     else
 	return ( id2.isValid() );

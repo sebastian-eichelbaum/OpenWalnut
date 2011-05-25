@@ -53,7 +53,7 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerAc
     // this sets the toolbar style
     int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
     WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );
-    if ( ( compToolBarStyle < 0 ) || ( compToolBarStyle > 3 ) ) // ensure a valid value
+    if( ( compToolBarStyle < 0 ) || ( compToolBarStyle > 3 ) ) // ensure a valid value
     {
         compToolBarStyle = 0;
     }
@@ -75,7 +75,7 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent )
     // this sets the toolbar style
     int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
     WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );
-    if ( ( compToolBarStyle < 0 ) || ( compToolBarStyle > 3 ) ) // ensure a valid value
+    if( ( compToolBarStyle < 0 ) || ( compToolBarStyle > 3 ) ) // ensure a valid value
     {
         compToolBarStyle = 0;
     }

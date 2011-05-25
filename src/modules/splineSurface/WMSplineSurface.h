@@ -171,7 +171,7 @@ inline SplineSurfaceNodeCallback::SplineSurfaceNodeCallback( WMSplineSurface* mo
 
 inline void SplineSurfaceNodeCallback::operator()( osg::Node* node, osg::NodeVisitor* nv )
 {
-    if ( m_module )
+    if( m_module )
     {
         m_module->updateGraphics();
     }

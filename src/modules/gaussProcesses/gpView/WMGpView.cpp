@@ -94,11 +94,11 @@ void WMGpView::moduleMain()
     m_planeNode->addUpdateCallback( new WGEFunctorCallback< osg::Node >( boost::bind( &WMGpView::updatePlaneColors, this, _1 ) ) );
     m_rootNode->insert( m_planeNode );
 
-    while ( !m_shutdownFlag() ) // loop until the module container requests the module to quit
+    while( !m_shutdownFlag() ) // loop until the module container requests the module to quit
     {
         debugLog() << "Waiting..";
         m_moduleState.wait();
-        if ( !m_gpIC->getData().get() ) // ok, the output has not yet sent data
+        if( !m_gpIC->getData().get() ) // ok, the output has not yet sent data
         {
             continue;
         }

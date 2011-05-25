@@ -239,13 +239,13 @@ void WMProbTractDisplaySP::moduleMain()
     std::list< boost::shared_ptr< const WDataSetScalar > > probTracts;
 
     // main loop
-    while ( !m_shutdownFlag() )
+    while( !m_shutdownFlag() )
     {
         infoLog() << "Waiting ...";
         m_moduleState.wait();
 
         // woke up since the module is requested to finish?
-        if ( m_shutdownFlag() )
+        if( m_shutdownFlag() )
         {
             break;
         }

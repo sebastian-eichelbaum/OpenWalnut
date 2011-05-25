@@ -75,12 +75,12 @@ void WQtCommandPrompt::keyPressEvent( QKeyEvent* event )
 bool WQtCommandPrompt::event( QEvent* event )
 {
     // we need to override this to be able to grab the escape key
-    if ( event->type() == QEvent::KeyRelease )
+    if( event->type() == QEvent::KeyRelease )
     {
         QKeyEvent* keyEvent = dynamic_cast< QKeyEvent* >( event );
 
         // escape quits the prompt
-        if ( keyEvent && ( keyEvent->key() == Qt::Key_Escape ) )
+        if( keyEvent && ( keyEvent->key() == Qt::Key_Escape ) )
         {
             abort();
             event->accept();

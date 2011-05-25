@@ -426,7 +426,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
         {
             // it is a dataset single
             // load a nav slice module if a WDataSetSingle is available!?
-            if ( !m_navSlicesAlreadyLoaded )
+            if( !m_navSlicesAlreadyLoaded )
             {
                 autoAdd( module, "Navigation Slices" );
                 m_navSlicesAlreadyLoaded = true;
@@ -616,7 +616,7 @@ void WMainWindow::projectSave( const std::vector< boost::shared_ptr< WProjectFil
     {
         std::string filename = ( *constIterator ).toStdString();
         // append owp if not existent
-        if ( filename.rfind( ".owp" ) == std::string::npos )
+        if( filename.rfind( ".owp" ) == std::string::npos )
         {
             filename += ".owp";
         }
@@ -1038,14 +1038,14 @@ void WMainWindow::restoreSavedState()
     // should we do it?
     bool saveStateEnabled = true;
     WPreferences::getPreference( "qt4gui.saveState", &saveStateEnabled );
-    if ( !saveStateEnabled )
+    if( !saveStateEnabled )
     {
         return;
     }
 
     // the state name postfix allows especially developers to have multiple OW with different GUI settings.
     std::string stateName = "";
-    if ( WPreferences::getPreference( "qt4gui.stateNamePostfix", &stateName ) )
+    if( WPreferences::getPreference( "qt4gui.stateNamePostfix", &stateName ) )
     {
         stateName = "-" + stateName;
     }
@@ -1065,13 +1065,13 @@ void WMainWindow::saveWindowState()
     // should we do it?
     bool saveStateEnabled = true;
     WPreferences::getPreference( "qt4gui.saveState", &saveStateEnabled );
-    if ( !saveStateEnabled )
+    if( !saveStateEnabled )
     {
         return;
     }
 
     std::string stateName = "";
-    if ( WPreferences::getPreference( "qt4gui.stateNamePostfix", &stateName ) )
+    if( WPreferences::getPreference( "qt4gui.stateNamePostfix", &stateName ) )
     {
         stateName = "-" + stateName;
     }

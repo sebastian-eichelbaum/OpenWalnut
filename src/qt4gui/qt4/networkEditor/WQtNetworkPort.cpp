@@ -186,7 +186,7 @@ void WQtNetworkPort::removeArrow( WQtNetworkArrow *arrow )
 {
     int index = m_arrows.indexOf( arrow );
 
-    if (index != -1)
+    if(index != -1)
         m_arrows.removeAt( index );
 }
 
@@ -195,7 +195,7 @@ void WQtNetworkPort::removeArrows()
     foreach( WQtNetworkArrow *arrow, m_arrows )
     {
         int index = m_arrows.indexOf( arrow );
-        if ( index != -1 )
+        if( index != -1 )
         {
             m_arrows.removeAt( index );
         }

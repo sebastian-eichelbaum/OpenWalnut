@@ -85,7 +85,7 @@ void WPropertyDoubleWidget::update()
     WPVDouble::PropertyConstraintMin minC = m_doubleProperty->getMin();
     WPVDouble::PropertyConstraintMax maxC = m_doubleProperty->getMax();
     bool minMaxConstrained = minC && maxC;
-    if ( minMaxConstrained )
+    if( minMaxConstrained )
     {
         // setup the slider
         m_slider.setMinimum( 0 );
@@ -117,7 +117,7 @@ double WPropertyDoubleWidget::fromPercent( int perc )
 
 void WPropertyDoubleWidget::sliderChanged( int value )
 {
-    if ( !m_slider.isHidden() && toPercent( m_doubleProperty->get() ) != value )
+    if( !m_slider.isHidden() && toPercent( m_doubleProperty->get() ) != value )
     {
         // set to the property
         invalidate( !m_doubleProperty->set( fromPercent( value ) ) );    // NOTE: set automatically checks the validity of the value
@@ -133,7 +133,7 @@ void WPropertyDoubleWidget::editChanged()
     bool valid;
     double value = m_edit.text().toDouble( &valid );
 
-    if ( !valid )
+    if( !valid )
     {
         invalidate();
         return;
@@ -151,7 +151,7 @@ void WPropertyDoubleWidget::textEdited( const QString& text )
     bool valid;
 
     double value = text.toDouble( &valid );
-    if ( !valid )
+    if( !valid )
     {
         invalidate();
         return;

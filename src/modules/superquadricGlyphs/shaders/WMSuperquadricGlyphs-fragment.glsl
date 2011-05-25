@@ -182,7 +182,7 @@ void main( void )
 
     // the iteration loop (NOTE: due to the fact that the shaders do not support an at compile time unknown loop count we set it to
     // this quite empiric value (which works well (for at least the squadrics with beta<=alpha<=1.0))
-    for ( int i = 0; i < numNewtonLoops; i++ )
+    for( int i = 0; i < numNewtonLoops; i++ )
     {
         // calculate all needed values
         float sqd = 0.0;
@@ -193,7 +193,7 @@ void main( void )
 
         // near enough?
         // or has t not changed much since last iteration?
-        if ( !hit && ( ( abs( sq ) <= zeroTollerance ) || ( abs( newT - lastT ) < zeroTollerance ) ) )
+        if( !hit && ( ( abs( sq ) <= zeroTollerance ) || ( abs( newT - lastT ) < zeroTollerance ) ) )
         {
             hit = true;
             break;
@@ -201,7 +201,7 @@ void main( void )
 
         // if the ray parameter starts to jump around (it should get smaller step by step (because lastT is negative))
         // NOTE: this speeds up rendering at rays that will miss the glyph (round about 50% faster!)
-        if ( newT > lastT )
+        if( newT > lastT )
             break;
 
         // not near enough -> another newton step
@@ -239,7 +239,7 @@ void main( void )
     float t2 = ( -B - root ) * twoAinv;
 
     lastT = min( t1, t2 );
-    if ( lastT < 0.0 )
+    if( lastT < 0.0 )
     {
         discard;
     }
@@ -254,7 +254,7 @@ void main( void )
     // 3: draw or discard the pixel
     /////////////////////////////////////////////////////////////////////////////////////////////
 
-    if ( hit )
+    if( hit )
     {
         // draw shaded pixel
         gl_FragColor = blinnPhongIllumination(

@@ -50,7 +50,7 @@ float lookupTex()
     vec3 col1;
     col1.r = clamp( texture3D( tex, v ).r, 0.0, 1.0 );
 
-    if ( col1.r < threshold )
+    if( col1.r < threshold )
     {
         discard;
     }
@@ -67,7 +67,7 @@ void main()
 {
     vec3 color;
 
-    if ( useTexture )
+    if( useTexture )
     {
         float value = lookupTex();
         colorMap( color.rgb, value, cMap );

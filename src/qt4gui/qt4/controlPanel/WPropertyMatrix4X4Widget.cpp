@@ -44,11 +44,11 @@ WPropertyMatrix4X4Widget::WPropertyMatrix4X4Widget( WPropMatrix4X4 property, QGr
     m_infoLayout( &m_informationWidgets )
 {
     // initialize members
-    for ( size_t row = 0; row < 4; ++row )
+    for( size_t row = 0; row < 4; ++row )
     {
         QHBoxLayout* h = new QHBoxLayout();
 
-        for ( size_t col = 0; col < 4; ++col )
+        for( size_t col = 0; col < 4; ++col )
         {
             size_t i = row * 4 + col;
             m_edits[ i ].setParent( &m_parameterWidgets );
@@ -86,9 +86,9 @@ void WPropertyMatrix4X4Widget::update()
     // set the values
     WPVBaseTypes::PV_MATRIX4X4 m = m_matrixProperty->get();
 
-    for ( size_t row = 0; row < 4; ++row )
+    for( size_t row = 0; row < 4; ++row )
     {
-        for ( size_t col = 0; col < 4; ++col )
+        for( size_t col = 0; col < 4; ++col )
         {
             size_t i = row * 4 + col;
             m_edits[ i ].setText( QString::fromStdString( boost::lexical_cast< std::string >( m( row, col ) ) ) );
@@ -116,9 +116,9 @@ void WPropertyMatrix4X4Widget::setPropertyFromWidgets( bool validateOnly )
     // create a new matrix
     WPVBaseTypes::PV_MATRIX4X4 m;
 
-    for ( size_t row = 0; row < 4; ++row )
+    for( size_t row = 0; row < 4; ++row )
     {
-        for ( size_t col = 0; col < 4; ++col )
+        for( size_t col = 0; col < 4; ++col )
         {
             size_t i = row * 4 + col;
 
@@ -130,14 +130,14 @@ void WPropertyMatrix4X4Widget::setPropertyFromWidgets( bool validateOnly )
         }
     }
 
-    if ( !valid )
+    if( !valid )
     {
         invalidate();
         return;
     }
 
     // set/validate to the property
-    if ( validateOnly )
+    if( validateOnly )
     {
         invalidate( !m_matrixProperty->accept( m ) );
     }
