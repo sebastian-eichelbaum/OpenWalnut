@@ -139,6 +139,7 @@ void WMainWindow::setupGUI()
     addDockWidget( Qt::RightDockWidgetArea, m_controlPanel );
 
     m_glDock = new QMainWindow();
+    m_glDock->setObjectName( "GLDock" );
     m_glDock->setDockOptions( QMainWindow::AnimatedDocks |  QMainWindow::AllowNestedDocks | QMainWindow::AllowTabbedDocks );
     m_glDock->setDocumentMode( true );
     setCentralWidget( m_glDock );
@@ -148,6 +149,7 @@ void WMainWindow::setupGUI()
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
 
     m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
+    addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
 
     // Set the style of the toolbar
     // NOTE: this only works if the toolbar is used with QActions instead of buttons and other widgets
@@ -334,8 +336,6 @@ void WMainWindow::setupGUI()
     m_permanentToolBar->addAction( resetButton );
     m_permanentToolBar->addAction( roiButton );
     m_permanentToolBar->addSeparator();
-
-    addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
 
     // after creating the GUI, restore its saved state
     restoreSavedState();
