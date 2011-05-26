@@ -162,7 +162,7 @@ void WFiberCluster::generateCenterLine() const
         {
             avgPosition += cit->at( i );
         }
-        avgPosition /= fibs->size();
+        avgPosition /= static_cast< double >( fibs->size() );
         m_centerLine->push_back( avgPosition );
     }
 
