@@ -50,7 +50,7 @@ public:
      * \param shareWidget this widget will share OpenGL display lists and texture objects with shareWidget
      */
     WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget* parent, WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC,
-                                                                            const QGLWidget* shareWidget = 0 );
+                                                                            const QWidget* shareWidget = 0 );
 
     /**
      * destructor.

@@ -87,7 +87,12 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
     # Do not forget the install targets
     # NOTE: do we really need to set all permissions explicitely?
     INSTALL( TARGETS ${MODULE_NAME} 
-                LIBRARY 
+                ARCHIVE # NOTE: this is needed on windows
+                    DESTINATION ${MODULE_TARGET_DIR_RELATIVE} 
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+                                GROUP_READ GROUP_EXECUTE  
+                                WORLD_READ WORLD_EXECUTE
+                LIBRARY # NOTE: this is needed for all the others
                     DESTINATION ${MODULE_TARGET_DIR_RELATIVE} 
                     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
                                 GROUP_READ GROUP_EXECUTE  

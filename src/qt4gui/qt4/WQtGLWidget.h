@@ -46,7 +46,7 @@
  */
 // NOTE: to make this work with MOC, the defines must be set before MOC runs (ensured in Build system)
 class WQtGLWidget: public
-#ifndef _MSC_VER
+#ifndef _WIN32
     QGLWidget
 #else
     QWidget
@@ -66,7 +66,7 @@ public:
      * \return
      */
     explicit WQtGLWidget( std::string nameOfViewer, QWidget* parent = 0,
-        WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC, const QGLWidget * shareWidget = 0 );
+        WGECamera::ProjectionMode projectionMode = WGECamera::ORTHOGRAPHIC, const QWidget * shareWidget = 0 );
 
     /**
      * Destructor.

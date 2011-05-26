@@ -29,7 +29,7 @@
 #include "WQtGLDockWidget.moc"
 
 WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget* parent, WGECamera::ProjectionMode projectionMode,
-                                  const QGLWidget* shareWidget )
+                                  const QWidget* shareWidget )
     : QDockWidget( dockTitle, parent )
 {
     setObjectName( QString( "GL - " ) + dockTitle );
@@ -42,11 +42,7 @@ WQtGLDockWidget::WQtGLDockWidget( QString viewTitle, QString dockTitle, QWidget*
     m_panel = new QWidget( this );
     m_layout = new QVBoxLayout();
 
-#ifndef _MSC_VER
     m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( viewTitle.toStdString(), m_panel, projectionMode, shareWidget ) );
-#else
-    m_glWidget = boost::shared_ptr<WQtGLWidget>( new WQtGLWidget( viewTitle.toStdString(), m_panel, projectionMode ) );
-#endif
 
     setMinimumSize( 240, 240 );
     //setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );

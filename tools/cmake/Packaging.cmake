@@ -97,6 +97,6 @@ SET( CPACK_PACKAGE_CONTACT "Mathias Goldau <goldau@informatik.uni-leipzig.de>" )
 # Let CPack do its work
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-
+    
 INCLUDE( CPack )
 

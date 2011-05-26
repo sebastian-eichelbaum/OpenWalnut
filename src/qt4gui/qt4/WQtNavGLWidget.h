@@ -54,7 +54,7 @@ public:
      * \param sliderTitle Name of the slider corresponding to the property it manipulates
      * \param shareWidget this widget will share OpenGL display lists and texture objects with shareWidget
      */
-    WQtNavGLWidget( QString viewTitle, QString dockTitle, QWidget* parent, std::string sliderTitle="pos", const QGLWidget * shareWidget = 0 );
+    WQtNavGLWidget( QString viewTitle, QString dockTitle, QWidget* parent, std::string sliderTitle="pos", const QWidget * shareWidget = 0 );
 
     /**
      * destructor.

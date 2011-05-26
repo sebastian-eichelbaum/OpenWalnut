@@ -20,10 +20,14 @@ ENDIF()
 
 # install target
 INSTALL( TARGETS OWext_biosig
-            LIBRARY
+            ARCHIVE # NOTE: this is needed on windows
                 DESTINATION ${OW_LIBRARY_DIR_RELATIVE}
                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                             GROUP_READ GROUP_EXECUTE
                             WORLD_READ WORLD_EXECUTE
-        )
-
+            LIBRARY # NOTE: this is needed for all the others
+                DESTINATION ${OW_LIBRARY_DIR_RELATIVE}
+                PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                            GROUP_READ GROUP_EXECUTE
+                            WORLD_READ WORLD_EXECUTE
+)
