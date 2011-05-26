@@ -46,27 +46,6 @@ SET( QT_LIBS ${QT_QTCORE_LIBRARY}
              ${QT_QTWEBKIT_LIBRARY} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# The walnut executable should print the revision/tag
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# We use mercurial to get current version information. This is stored in version.h, included by OpenWalnut.cpp
-IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
-    add_custom_command( OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/version.h
-                        MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/../../.hg/dirstate
-                        COMMAND hg parents --template '\#define W_VERSION \"{node|short} {rev} {branches} {tags}\" //' > ${CMAKE_CURRENT_SOURCE_DIR}/version.h
-                        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-                        COMMENT "Creating version.h"
-                     )
-ELSE()
-    add_custom_command( OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/version.h
-                        MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/../../.hg/dirstate
-                        COMMAND hg parents --template "\"#define W_VERSION \"\"{node|short} {rev} {branches} {tags}\"\"\"" > ${CMAKE_CURRENT_SOURCE_DIR}/version.h
-                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                        COMMENT "Creating version.h"
-                     )
-ENDIF()
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Add sources as target
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -80,7 +59,7 @@ QT4_AUTOMOC( ${TARGET_CPP_FILES} )
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
 
 # Setup the target
-ADD_EXECUTABLE( ${BinName} ${TARGET_CPP_FILES} ${TARGET_H_FILES} "version.h" )
+ADD_EXECUTABLE( ${BinName} ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
 TARGET_LINK_LIBRARIES( ${BinName} ${OWCoreName} ${QT_LIBS} ${Boost_LIBRARIES} )
 
 # Do not forget the install targets

@@ -249,3 +249,47 @@ FUNCTION( SETUP_RESOURCES )
              )
 ENDFUNCTION( SETUP_RESOURCES )
 
+# This function tries to find a proper version string. It therefore uses the file src/../VERSION and mercurial. If the file exists and is not
+# empty, the contents of it get combined with the mercurial results if mercurial is installed. If not, only the file content will be used. If
+# both methods fail, a default string is used.
+# _version the returned version string
+# _default a default string you specify if all version check methods fail
+FUNCTION( GET_VERSION_STRING _version _default )
+    # Undef the OW_VERSION variable
+    UNSET( OW_VERSION_HG )
+    UNSET( OW_VERSION_FILE )
+
+    # Grab version file.
+    SET( OW_VERSION_FILENAME ${PROJECT_SOURCE_DIR}/../VERSION )
+    IF( EXISTS ${OW_VERSION_FILENAME} )
+        # Read the version file
+        FILE( READ ${OW_VERSION_FILENAME} OW_VERSION_FILE )
+        # this wil contain an line-break. Remove it.
+        STRING( REGEX REPLACE "\n" "" OW_VERSION_FILE "${OW_VERSION_FILE}" )
+        
+        # this is ugly because, if the version file is empty, the OW_VERSION_FILE content is "". Unfortunately, this is not UNDEFINED as it would be
+        # by SET( VAR "" ) ... so set it manually
+        IF( OW_VERSION_FILE STREQUAL "" )
+            UNSET( OW_VERSION_FILE )
+        ENDIF()
+    ENDIF()
+
+    # Use hg to query version information.
+    # -> the nice thing is: if hg is not available, no compilation errors anymore
+    execute_process( COMMAND hg parents --template "{rev}:{node|short} {branches} {tags}" OUTPUT_VARIABLE OW_VERSION_HG RESULT_VARIABLE hgParentsRetVar )
+    IF( NOT ${hgParentsRetVar} STREQUAL 0 )
+        UNSET( OW_VERSION_HG )
+    ENDIF()
+
+    # Use the version strings and set them as #define
+    IF( DEFINED OW_VERSION_HG AND DEFINED OW_VERSION_FILE )
+        SET( ${_version} "${OW_VERSION_FILE} - ${OW_VERSION_HG}" PARENT_SCOPE )
+    ELSEIF( DEFINED OW_VERSION_FILE )
+        SET( ${_version} "${OW_VERSION_FILE}" PARENT_SCOPE )
+    ELSEIF( DEFINED OW_VERSION_HG )
+        SET( ${_version} "${OW_VERSION_HG}" PARENT_SCOPE )
+    ELSE()
+        SET( ${_version} ${_default} PARENT_SCOPE )
+    ENDIF()
+ENDFUNCTION( GET_VERSION_STRING )
+

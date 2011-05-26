@@ -29,8 +29,6 @@
 
 #include "qt4/WQt4Gui.h"
 
-#include "version.h"    // this header gets created by our build system.
-
 /**
  * \mainpage OpenWalnut Inline Documentation
  * \par
