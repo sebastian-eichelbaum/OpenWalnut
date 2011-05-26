@@ -180,9 +180,7 @@ ADD_DEFINITIONS( -DW_VERSION="${OW_VERSION}" )
 # grep -i include `find . -type f` | grep boost | awk '{print $2}' | sort | uniq
 
 # find the boost packages
-FIND_PACKAGE( Boost REQUIRED program_options thread filesystem date_time system signals regex )
-# we need at least 1.39
-ASSERT_GE_VERSION( "Boost" "${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}" 1.39.0 )
+FIND_PACKAGE( Boost 1.39.0 REQUIRED program_options thread filesystem date_time system signals regex )
 
 # Setup boost options
 SET( Boost_USE_MULTITHREAD ON )
@@ -419,40 +417,52 @@ ADD_SUBDIRECTORY( modules )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
-# CPack - Packaging
-#  - TGZ, Deb, RPM
-#  NOTE: Not yet production ready!
+# Advanced variables
+#  - Here, we mark all variables advanced which are from mandatory dependencies.
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# For a list of possible generators, see http://www.vtk.org/Wiki/CMake:CPackPackageGenerators
-SET( CPACK_GENERATOR DEB TGZ )
+# NOTE: sorry but this is needed since those vars spam the ccmake. The user should find the important options fast!
 
-# For a list of possible settings for CPack, see  http://www.cmake.org/Wiki/CMake:CPackConfiguration
+# Remove all of them
+MARK_AS_ADVANCED( FORCE QT_QMAKE_EXECUTABLE )
+   
+MARK_AS_ADVANCED( FORCE OSG_INCLUDE_DIR )
+MARK_AS_ADVANCED( FORCE OSG_LIBRARY )
+MARK_AS_ADVANCED( FORCE OSG_LIBRARY_DEBUG )
+MARK_AS_ADVANCED( FORCE OSGDB_INCLUDE_DIR )
+MARK_AS_ADVANCED( FORCE OSGDB_LIBRARY )
+MARK_AS_ADVANCED( FORCE OSGDB_LIBRARY_DEBUG )
+MARK_AS_ADVANCED( FORCE OSGGA_INCLUDE_DIR )
+MARK_AS_ADVANCED( FORCE OSGGA_LIBRARY )
+MARK_AS_ADVANCED( FORCE OSGGA_LIBRARY_DEBUG )
+MARK_AS_ADVANCED( FORCE OSGSIM_INCLUDE_DIR )
+MARK_AS_ADVANCED( FORCE OSGSIM_LIBRARY )
+MARK_AS_ADVANCED( FORCE OSGSIM_LIBRARY_DEBUG )
+MARK_AS_ADVANCED( FORCE OSGUTIL_INCLUDE_DIR )
+MARK_AS_ADVANCED( FORCE OSGUTIL_LIBRARY )
+MARK_AS_ADVANCED( FORCE OSGUTIL_LIBRARY_DEBUG )
+MARK_AS_ADVANCED( FORCE OSGTEXT_INCLUDE_DIR )
+MARK_AS_ADVANCED( FORCE OSGTEXT_LIBRARY )
+MARK_AS_ADVANCED( FORCE OSGTEXT_LIBRARY_DEBUG )
+MARK_AS_ADVANCED( FORCE OSGWIDGET_INCLUDE_DIR )
+MARK_AS_ADVANCED( FORCE OSGWIDGET_LIBRARY )
+MARK_AS_ADVANCED( FORCE OSGWIDGET_LIBRARY_DEBUG )
+MARK_AS_ADVANCED( FORCE OSGVIEWER_INCLUDE_DIR )
+MARK_AS_ADVANCED( FORCE OSGVIEWER_LIBRARY )
+MARK_AS_ADVANCED( FORCE OSGVIEWER_LIBRARY_DEBUG )
 
-# Disallow CPack to create an top-level directory?
-# SET( CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0 )
-SET( CPACK_PACKAGE_DESCRIPTION_FILE ${PROJECT_SOURCE_DIR}/../resources/share/doc/OpenWalnut/ABOUT )
-SET( CPACK_PACKAGE_VENDOR "OpenWalnut Community" )
-SET( CPACK_PACKAGE_CONTACT "Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>" )
-SET( CPACK_RESOURCE_FILE_LICENSE ${PROJECT_SOURCE_DIR}/../resources/share/doc/OpenWalnut/COPYING )
-SET( CPACK_RESOURCE_FILE_README ${PROJECT_SOURCE_DIR}/../resources/share/doc/OpenWalnut/README )
+MARK_AS_ADVANCED( FORCE OPENTHREADS_INCLUDE_DIR )
+MARK_AS_ADVANCED( FORCE OPENTHREADS_LIBRARY )
+MARK_AS_ADVANCED( FORCE OPENTHREADS_LIBRARY_DEBUG )
 
-# Version
-# TODO(all): we should somehot automate this (using hg for example)
-SET( CPACK_PACKAGE_VERSION_MAJOR "1" )
-SET( CPACK_PACKAGE_VERSION_MINOR "2" )
-SET( CPACK_PACKAGE_VERSION_PATCH "0" )
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+#
+# CPack - Packaging
+#  - TGZ, Deb, RPM
+#
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# TODO(all): how to determine this? Maybe dpkg --print-architecture Hm Seems to be set (correct) automatically, unlike the docu wants me to
-# believe#
-# SET( CPACK_DEBIAN_PACKAGE_ARCHITECTURE  )
-# TODO(ebaum): this might be automated using objdunp -p walnut | grep -i needed or similar stuff
-#SET( CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.3.1-6), libgcc1 (>= 1:3.4.2-12)")
-# TODO(ebaum): find some nice value
-# SET( CPACK_DEBIAN_PACKAGE_SECTION "what" )
-# TODO(ebaum): maybe cuda and this stuff can be added here
-# SET( CPACK_DEBIAN_PACKAGE_RECOMMENDS "" )
-SET( CPACK_PACKAGE_FILE_NAME ${PROJECT_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE} )
+# for package setup:
+INCLUDE( ${CMAKE_MODULE_PATH}/Packaging.cmake )
 
-INCLUDE(CPack)
