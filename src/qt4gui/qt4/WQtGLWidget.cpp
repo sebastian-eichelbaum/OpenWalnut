@@ -43,17 +43,18 @@
     #ifndef _WIN32
         #include <osgViewer/api/X11/GraphicsWindowX11>
         typedef osgViewer::GraphicsWindowX11::WindowData WindowData;
-	#else
-		#include <osgViewer/api/Win32/GraphicsWindowWin32>
-		typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
-	#endif
+    #else
+        #include <osgViewer/api/Win32/GraphicsWindowWin32>
+        typedef osgViewer::GraphicsWindowWin32::WindowData WindowData;
+    #endif
 #endif
 
-WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QWidget*
 #ifndef _WIN32
-	shareWidget ): QGLWidget( getDefaultFormat(), parent, dynamic_cast< const QGLWidget* >( shareWidget ) ),
+WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QWidget* shareWidget ):
+    QGLWidget( getDefaultFormat(), parent, dynamic_cast< const QGLWidget* >( shareWidget ) ),
 #else
-	): QWidget( parent ),
+WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::ProjectionMode projectionMode, const QWidget* ):
+    QWidget( parent ),
 #endif
       m_nameOfViewer( nameOfViewer ),
       m_recommendedSize(),
