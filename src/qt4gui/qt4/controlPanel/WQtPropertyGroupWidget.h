@@ -59,13 +59,6 @@ public:
     WQtPropertyGroupWidget( WPropGroup group, QWidget* parent = 0 );
 
     /**
-     * Creates new widget for a property group
-     * \param name Name of the widget
-     * \param parent The widget managing this widget
-     */
-    WQtPropertyGroupWidget( std::string name, QWidget* parent = 0 );
-
-    /**
      * destructor
      */
     virtual ~WQtPropertyGroupWidget();

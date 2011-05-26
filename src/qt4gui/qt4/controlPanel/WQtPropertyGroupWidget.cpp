@@ -72,24 +72,6 @@ WQtPropertyGroupWidget::WQtPropertyGroupWidget( WPropGroup group, QWidget* paren
     m_connection = m_group->getUpdateCondition()->subscribeSignal( boost::bind( &WQtPropertyGroupWidget::propertyChangeNotifier, this ) );
 }
 
-WQtPropertyGroupWidget::WQtPropertyGroupWidget( std::string name, QWidget* parent  )
-    : QWidget( parent ),
-    m_name( name.c_str() ),
-    m_numberOfWidgets( 0 ),
-    m_group()
-{
-    // note: never do layouts as none pointers
-    // on destruction of a widget it will try to delete them which will cause crashes
-    m_pageLayout = new QVBoxLayout();
-    m_pageLayout->setMargin( WGLOBAL_MARGIN );
-    m_pageLayout->setSpacing( WGLOBAL_SPACING );
-
-    m_controlLayout = new QGridLayout();
-    m_controlLayout->setMargin( WGLOBAL_MARGIN );
-    m_controlLayout->setSpacing( WGLOBAL_SPACING );
-    m_pageLayout->addLayout( m_controlLayout );
-}
-
 WQtPropertyGroupWidget::~WQtPropertyGroupWidget()
 {
     // cleanup
