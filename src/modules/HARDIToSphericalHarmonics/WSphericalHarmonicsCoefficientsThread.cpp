@@ -32,7 +32,6 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <boost/thread/thread.hpp>
 
-#include "HARDIToSphericalHarmonics.xpm"
 #include "core/common/WLimits.h"
 #include "core/common/WAssert.h"
 #include "core/common/math/linearAlgebra/WLinearAlgebra.h"

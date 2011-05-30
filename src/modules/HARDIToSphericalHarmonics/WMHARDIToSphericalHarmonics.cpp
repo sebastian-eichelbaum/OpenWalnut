@@ -51,7 +51,7 @@
 #include "WSphericalHarmonicsCoefficientsThread.h"
 
 #include "WMHARDIToSphericalHarmonics.h"
-#include "HARDIToSphericalHarmonics.xpm"
+#include "WMHARDIToSphericalHarmonics.xpm"
 
 // This line is needed by the module loader to actually find your module.
 W_LOADABLE_MODULE( WMHARDIToSphericalHarmonics )
@@ -76,7 +76,7 @@ boost::shared_ptr< WModule > WMHARDIToSphericalHarmonics::factory() const
 
 const char** WMHARDIToSphericalHarmonics::getXPMIcon() const
 {
-    return HARDIToSphericalHarmonics_xpm;
+    return WMHARDIToSphericalHarmonics_xpm;
 }
 
 const std::string WMHARDIToSphericalHarmonics::getName() const
