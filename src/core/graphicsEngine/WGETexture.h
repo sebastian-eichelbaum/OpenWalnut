@@ -122,6 +122,13 @@ public:
     WPropDouble threshold() const;
 
     /**
+     * Returns the property responsible for enabling threshold based clipping. If this is false, the threshold is ignored.
+     *
+     * \return threshold-enable property.
+     */
+    WPropBool thresholdEnabled() const;
+
+    /**
      * Returns the interpolation property. The property can be changed. A change affects all colormaps using this texture.
      *
      * \return interpolation property
@@ -323,6 +330,11 @@ private:
     WPropDouble m_threshold;
 
     /**
+     * Threshold-enable flag.
+     */
+    WPropBool m_thresholdEnabled;
+
+    /**
      * True if interpolation should be used.
      */
     WPropBool m_interpolation;
@@ -408,6 +420,9 @@ void WGETexture< TextureType >::setupProperties( double scale, double min )
     m_alpha->setMin( 0.0 );
     m_alpha->setMax( 1.0 );
 
+    m_thresholdEnabled = m_properties->addProperty( "Enable Threshold",
+                                                    "If enabled, threshold based clipping is used. If not, threshold is ignored.", false );
+
     m_threshold = m_properties->addProperty( "Threshold", "The threshold used to clip areas.", 0.0 );
     m_threshold->setMin( min );
     m_threshold->setMax( min + scale );
@@ -491,6 +506,12 @@ inline WPropDouble WGETexture< TextureType >::threshold() const
 }
 
 template < typename TextureType >
+inline WPropBool WGETexture< TextureType >::thresholdEnabled() const
+{
+    return m_thresholdEnabled;
+}
+
+template < typename TextureType >
 inline WPropBool WGETexture< TextureType >::interpolation() const
 {
     return m_interpolation;
@@ -530,6 +551,7 @@ void  WGETexture< TextureType >::applyUniforms( std::string prefix, osg::StateSe
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Min", minimum() ) );
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Scale", scale() ) );
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Alpha", alpha() ) );
+    states->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "ThresholdEnabled", thresholdEnabled() ) );
     states->addUniform( new WGEPropertyUniform< WPropDouble >( prefix + "Threshold", threshold() ) );
     states->addUniform( new WGEPropertyUniform< WPropSelection >( prefix + "Colormap", colormap() ) );
     states->addUniform( new WGEPropertyUniform< WPropBool >( prefix + "Active", active() ) );

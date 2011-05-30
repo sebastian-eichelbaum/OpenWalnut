@@ -82,15 +82,19 @@ float clipZero( in vec3 valueDescaled )
  *
  * \param valueDescaled the descaled data. Scalar or vector.
  * \param colormap if this is a vector colormap, thresholding is done using vector length.
+ * \param thresholdV the descaled threshold value
+ * \param thresholdEnabled flag denoting whether to use thresholding or not
  *
  * \return 0.0 if clipped
  */
-float clipThreshold( in vec3 valueDescaled, in int colormap, in float thresholdV )
+float clipThreshold( in vec3 valueDescaled, in int colormap, in float thresholdV, in bool thresholdEnabled )
 {
     float isVec = float( colormap == 6 );
-    return isVec * clamp( sign( length( valueDescaled ) - thresholdV ), 0.0, 1.0 )
+
+    return max( 1.0 - float( thresholdEnabled ),
+            isVec * clamp( sign( length( valueDescaled ) - thresholdV ), 0.0, 1.0 )
                 +
-          ( 1.0 - isVec ) * clamp( sign( valueDescaled.r - ( thresholdV - 0.001 ) ), 0.0, 1.0 );
+          ( 1.0 - isVec ) * clamp( sign( valueDescaled.r - ( thresholdV - 0.001 ) ), 0.0, 1.0 ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -428,10 +432,11 @@ vec4 atlas( in float value )
  * \param minV the minimum of the original value
  * \param scaleV the scaler used to downscale the original value to [0-1]
  * \param thresholdV a threshold in original space (you need to downscale it to [0-1] if you want to use it to scaled values.
+ * \param thresholdEnabled a flag denoting whether threshold-based clipping should be done or not
  * \param alpha the alpha blending value
  * \param colormap the colormap index to use
  */
-vec4 colormap( in vec3 value, float minV, float scaleV, float thresholdV, float alpha, int colormap, bool active )
+vec4 colormap( in vec3 value, float minV, float scaleV, float thresholdV, bool thresholdEnabled, float alpha, int colormap, bool active )
 {
     // descale value
     vec3 valueDescaled = vec3( minV ) + ( value * scaleV );
@@ -471,7 +476,7 @@ vec4 colormap( in vec3 value, float minV, float scaleV, float thresholdV, float 
     return vec4( cmapped.rgb, cmapped.a *           // did the colormap use a alpha value?
                               alpha *               // did the user specified an alpha?
                               clip *                // value clip?
-                              clipThreshold( valueDescaled, colormap, thresholdV ) * // clip due to threshold?
+                              clipThreshold( valueDescaled, colormap, thresholdV, thresholdEnabled ) * // clip due to threshold?
                               float( active ) );    // is it active?
 }
 
