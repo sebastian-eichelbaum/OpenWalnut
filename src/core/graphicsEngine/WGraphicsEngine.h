@@ -146,6 +146,13 @@ public:
     static bool isRunning();
 
     /**
+     * Waits for the GE to come up. Fails if engine is not started.
+     *
+     * \return true if engine now running
+     */
+    static bool waitForStartupComplete();
+
+    /**
      * Function notifies the viewer threads (if any) to start. This should only be called AFTER the OpenGL widgets/windows have been initialized.
      */
     void finalizeStartup();

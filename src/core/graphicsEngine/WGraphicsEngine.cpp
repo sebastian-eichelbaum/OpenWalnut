@@ -174,6 +174,20 @@ bool WGraphicsEngine::isRunning()
     return m_instance->m_running;
 }
 
+bool WGraphicsEngine::waitForStartupComplete()
+{
+    if( !m_instance )
+    {
+        return false;
+    }
+
+    // this ensures that the startup is completed if returning.
+    m_instance->m_startThreadingCondition.wait();
+
+    // did something went wrong? Ensure by checking if really running.
+    return isRunning();
+}
+
 void WGraphicsEngine::threadMain()
 {
     WLogger::getLogger()->addLogMessage( "Starting Graphics Engine", "GE", LL_INFO );

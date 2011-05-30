@@ -41,7 +41,10 @@ WGERequirement::~WGERequirement()
 
 bool WGERequirement::isComplied() const
 {
-    return WGraphicsEngine::isRunning();
+    // simply using isRunning() is not sufficient. It is possible that a module starts before the GE has completed startup.
+    // We use the wait function. It returns immediately if the engine already runs. It returns false if engine is not running and will not be
+    // running.
+    return WGraphicsEngine::waitForStartupComplete();
 }
 
 std::string WGERequirement::getDescription() const
