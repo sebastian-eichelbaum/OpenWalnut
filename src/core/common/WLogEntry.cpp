@@ -31,6 +31,30 @@
 
 #include "WLogEntry.h"
 
+LogLevel logLevelFromString( const std::string& str )
+{
+    // get lower-case version
+    std::string strLower = str; // NOTE: this reserves the needed space
+    std::transform( str.begin(), str.end(), strLower.begin(), tolower );
+    if ( !strLower.compare( "debug" ) )
+    {
+        return LL_DEBUG;
+    }
+    else if ( !strLower.compare( "info" ) )
+    {
+        return LL_INFO;
+    }
+    else if ( !strLower.compare( "warning" ) )
+    {
+        return LL_WARNING;
+    }
+    else if( !strLower.compare( "error" ) )
+    {
+        return LL_ERROR;
+    }
+    return LL_DEBUG;
+}
+
 WLogEntry::WLogEntry( std::string logTime, std::string message, LogLevel level, std::string source )
     : m_time( logTime ),
       m_message( message ),

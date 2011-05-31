@@ -24,6 +24,7 @@
 
 #include <iostream>
 
+#include "core/common/WPreferences.h"
 #include "core/common/WSegmentationFault.h"
 #include "core/common/WLogger.h"
 
@@ -63,7 +64,7 @@ int main( int argc, char** argv )
     // install signal handler as early as possible
     WSegmentationFault::installSignalHandler();
 
-    // initialize logger here. It will be started by the GUI.
+    // initialize logger here. It will be started by the GUI with one default console stream
     WLogger::startup();
 
     // initialize GUI

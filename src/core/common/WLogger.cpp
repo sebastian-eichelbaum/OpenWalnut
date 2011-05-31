@@ -103,6 +103,11 @@ void WLogger::setDefaultFormat( std::string format )
     m_outputs[0]->setFormat( format );
 }
 
+void WLogger::setDefaultLogLevel( const LogLevel& level )
+{
+    m_outputs[0]->setLogLevel( level );
+}
+
 std::string WLogger::getDefaultFormat()
 {
     return m_outputs[0]->getFormat();

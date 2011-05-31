@@ -43,6 +43,14 @@ typedef enum
 LogLevel;
 
 /**
+ * Simple function to convert a given string to an log level. If the string is invalid, LL_DEBUG is returned.
+ *
+ * \param str the string containing the log level string-representation
+ * \return the loglevel
+ */
+LogLevel logLevelFromString( const std::string& str );
+
+/**
  * Represents a simple log message with some attributes.
  */
 class OWCOMMON_EXPORT WLogEntry // NOLINT

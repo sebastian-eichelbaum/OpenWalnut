@@ -82,6 +82,13 @@ public:
     void setDefaultFormat( std::string format );
 
     /**
+     * Set the default log-level used for log entries in default console-output
+     *
+     * \param level the log-level
+     */
+    void setDefaultLogLevel( const LogLevel& level );
+
+    /**
      * Gets the default format used for log entries. This actually returns the format of the first log stream.
      *
      * \return format string. See WLogEntry for details.

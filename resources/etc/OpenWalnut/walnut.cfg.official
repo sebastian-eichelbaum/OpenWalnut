@@ -23,6 +23,13 @@ blackList = Data Module
 
 [qt4gui]
 ####################################################################
+# General options
+
+# Set the minimum log-level shown on console. You can specify Debug, Info, Warning, Error here. Messages below the specified level won't be
+# printed.
+logLevel = Info
+
+####################################################################
 # Views
 
 # hideAxial = yes # hide the axial view widget

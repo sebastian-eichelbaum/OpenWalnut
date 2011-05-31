@@ -141,21 +141,28 @@ int WQt4Gui::run()
 
     // init logger
     m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQt4Gui::slotAddLog, this, _1 ) );
-    wlog::info( "GUI" ) << "Bringing up GUI";
 
     // make qapp instance before using the applicationDirPath() function
     QApplication appl( m_argc, m_argv, true );
 
-    // the call path of the application
+    // the call path of the application, this uses QApplication which needs to be instantiated.
     boost::filesystem::path walnutBin = boost::filesystem::path( QApplication::applicationDirPath().toStdString() );
-    wlog::debug( "WQt4GUI" ) << "Walnut binary path: " << walnutBin;
 
-    // setup path helper which provides several paths to others
+    // setup path helper which provides several paths to others^
     WPathHelper::getPathHelper()->setAppPath( walnutBin );
 
     // init preference system
     WPreferences::setPreferenceFile( WPathHelper::getConfigFile() );
 
+    // get the minimum log level from preferences
+    std::string logLevel;
+    WPreferences::getPreference( "qt4gui.logLevel", &logLevel );
+    // convert to log-level. If the preference is not defined, the empty string causes logLevelFromString to return LL_DEBUG as default.
+    WLogger::getLogger()->setDefaultLogLevel( logLevelFromString( logLevel ) );
+
+    // print the first output
+    wlog::debug( "Walnut" ) << "Walnut binary path: " << walnutBin;
+    wlog::info( "GUI" ) << "Bringing up GUI";
 
     // startup graphics engine
     m_ge = WGraphicsEngine::getGraphicsEngine();
