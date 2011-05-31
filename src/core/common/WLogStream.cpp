@@ -45,6 +45,7 @@ void WLogStream::printEntry( const WLogEntry& entry )
     }
 
     m_output << entry.getLogString( m_format, m_color );
+    m_output.flush();
 }
 
 void WLogStream::setLogLevel( LogLevel logLevel )
