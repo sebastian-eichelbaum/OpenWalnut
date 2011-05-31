@@ -276,7 +276,10 @@ FUNCTION( GET_VERSION_STRING _version _default )
 
     # Use hg to query version information.
     # -> the nice thing is: if hg is not available, no compilation errors anymore
-    execute_process( COMMAND hg parents --template "{rev}:{node|short} {branches} {tags}" OUTPUT_VARIABLE OW_VERSION_HG RESULT_VARIABLE hgParentsRetVar )
+    # NOTE: it is run insde the project source directory
+    EXECUTE_PROCESS( COMMAND hg parents --template "{rev}:{node|short} {branches} {tags}" OUTPUT_VARIABLE OW_VERSION_HG RESULT_VARIABLE hgParentsRetVar 
+                     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                    )
     IF( NOT ${hgParentsRetVar} STREQUAL 0 )
         UNSET( OW_VERSION_HG )
     ENDIF()
@@ -293,3 +296,36 @@ FUNCTION( GET_VERSION_STRING _version _default )
     ENDIF()
 ENDFUNCTION( GET_VERSION_STRING )
 
+# This functions adds a custom target for generating the specified version header. This is very useful if you want to include build-time version
+# information in your code. If your executable or lib is created in the same CMakeLists as this function is called, just add the
+# _OW_VERSION_Header filename you specified here to your compile files. If you call this and add target XYZ in a subdirectory, you NEED to add
+# the lines: 
+#  ADD_DEPENDENCIES( XYZ OW_generate_version_header )
+#  SET_SOURCE_FILES_PROPERTIES( ${OW_VERSION_HEADER} PROPERTIES GENERATED ON )
+# This is needed since CMake can only use the ADD_CUSTOM_COMMAND output as dependency if the custom command was called inside the SAME directory
+# as the target is. If not, an additional target needs to be defined and CMake needs information about generated files.
+#
+# _OW_VERSION_HEADER the filename where to store the header. Should be absolute.
+FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER )
+
+    # The file WVersion.* needs the version definition.
+    ADD_CUSTOM_COMMAND( OUTPUT ${_OW_VERSION_HEADER}
+                        DEPENDS ${PROJECT_SOURCE_DIR}/../VERSION ${PROJECT_SOURCE_DIR}/../.hg/dirstate
+                        COMMAND ${CMAKE_COMMAND} -D PROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D HEADER_FILENAME:STRING=${_OW_VERSION_HEADER} -P BuildVersionHeader.cmake
+                        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../tools/cmake/
+                        COMMENT "Creating Version Header ${_OW_VERSION_HEADER}."
+    )
+
+    # this is needed if the file is also a dependency of an target XYZ in a CMakeLists file in some subdirectory. Then, you should add 
+    # ADD_DEPENDENCIES( XYZ OW_generate_version_header )
+    ADD_CUSTOM_TARGET( OW_generate_version_header DEPENDS ${_OW_VERSION_HEADER} )
+ENDFUNCTION( SETUP_VERSION_HEADER )
+
+# Comvenience function which does what SETUP_VERSION_HEADER requests from you if you need the version header in some CMakeLists different from
+# the one which called SETUP_VERSION_HEADER. It uses ${OW_VERSION_HEADER} automatically. So it needs to be set.
+#
+# _target: the target name which needs the header
+FUNCTION( SETUP_USE_VERSION_HEADER _target )
+    SET_SOURCE_FILES_PROPERTIES( ${OW_VERSION_HEADER} PROPERTIES GENERATED ON )
+    ADD_DEPENDENCIES( ${_target} OW_generate_version_header )
+ENDFUNCTION( SETUP_USE_VERSION_HEADER )

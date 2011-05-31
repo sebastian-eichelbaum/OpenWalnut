@@ -163,8 +163,10 @@ ENDIF()
 # The walnut executable should print the revision/tag
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-GET_VERSION_STRING( OW_VERSION "Unknown Tarball Version" )
-ADD_DEFINITIONS( -DW_VERSION="${OW_VERSION}" )
+# Generate needed headers
+# NOTE: add a line ADD_DEPENDENCIES( XYZ OW_generate_version_header ) to your target XYZ if you need the header!
+SET( OW_VERSION_HEADER ${PROJECT_SOURCE_DIR}/WVersion.h )
+SETUP_VERSION_HEADER( ${OW_VERSION_HEADER} )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
