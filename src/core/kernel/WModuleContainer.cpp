@@ -54,7 +54,7 @@ WModuleContainer::WModuleContainer( std::string name, std::string description ):
     m_description( description ),
     m_crashIfModuleCrashes( true )
 {
-    WLogger::getLogger()->addLogMessage( "Constructing module container." , "ModuleContainer (" + getName() + ")", LL_INFO );
+    WLogger::getLogger()->addLogMessage( "Constructing module container." , "ModuleContainer (" + getName() + ")", LL_DEBUG );
     // initialize members
 }
 

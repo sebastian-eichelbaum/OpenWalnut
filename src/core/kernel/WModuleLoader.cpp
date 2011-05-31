@@ -107,7 +107,7 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
                         m_libs.push_back( l );
                     }
 
-                    wlog::info( "Module Loader" ) << "Loaded " << m.size() << " modules from " << relPath;
+                    wlog::debug( "Module Loader" ) << "Loaded " << m.size() << " modules from " << relPath;
                 }
 
                 // lib gets closed if l looses focus

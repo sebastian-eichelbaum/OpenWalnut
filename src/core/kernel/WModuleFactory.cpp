@@ -78,7 +78,7 @@ void WModuleFactory::load()
     for( PrototypeContainerConstIteratorType listIter = l->get().begin(); listIter != l->get().end();
             ++listIter )
     {
-        WLogger::getLogger()->addLogMessage( "Initializing module prototype: \"" + ( *listIter )->getName() + "\"", "ModuleFactory", LL_INFO );
+        WLogger::getLogger()->addLogMessage( "Initializing module prototype: \"" + ( *listIter )->getName() + "\"", "ModuleFactory", LL_DEBUG );
 
         // that should not happen. Names should not occur multiple times since they are unique
         if( names.count( ( *listIter )->getName() ) )
