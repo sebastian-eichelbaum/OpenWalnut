@@ -186,7 +186,7 @@ uniform float u_colormap5Alpha;
 uniform float u_colormap5Threshold;
 
 //!< Flag denoting whether to use the threshold value for clipping or not.
-uniform bool u_colormap05ThresholdEnabled;
+uniform bool u_colormap5ThresholdEnabled;
 
 //!< The index of the colormap to use
 uniform int u_colormap5Colormap;
