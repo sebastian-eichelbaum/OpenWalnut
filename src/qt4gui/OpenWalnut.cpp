@@ -72,10 +72,17 @@ int main( int argc, char** argv )
     // add a crash-log.
     // TODO(all): we should think about the location of this file.
     std::ofstream crashLogFile( "openwalnut.log" );
-    // create the logstream. Set special format and DISABLE colors
-    // NOTE: the stream flushes after each entry. This is needed if a crash occurs.
-    WLogStream::SharedPtr crashLog = WLogStream::SharedPtr( new WLogStream( crashLogFile, LL_DEBUG, "%t %l %s: %m\n", false ) );
-    WLogger::getLogger()->addStream( crashLog );
+    if( !crashLogFile.is_open() )
+    {
+        wlog::warn( "Walnut" ) << "Could not open openwalnut.log for writing. You will have no log-file.";
+    }
+    else
+    {
+        // create the WLogStream. Set special format and DISABLE colors.
+        // NOTE: the stream flushes after each entry. This is needed if a crash occurs.
+        WLogStream::SharedPtr crashLog = WLogStream::SharedPtr( new WLogStream( crashLogFile, LL_DEBUG, "%t %l %s: %m\n", false ) );
+        WLogger::getLogger()->addStream( crashLog );
+    }
 
     // the kernel, and the gui should print their version info. This helps processing crashlogs from users.
     wlog::debug( "Walnut" ) << "Version: " << W_VERSION;
