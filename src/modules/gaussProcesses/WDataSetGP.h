@@ -43,6 +43,11 @@ class WDataSetGP : public WMixinVector< WGaussProcess >, public WDataSet
 {
 public:
     /**
+     * Default constructor for WPrototype.
+     */
+    WDataSetGP();
+
+    /**
      * Assembles a dataset of gaussian processes out of the deterministic tracts as well the
      * underlying tensor field.
      *
@@ -79,8 +84,44 @@ public:
      */
     virtual bool isTexture() const;
 
+    /**
+     * Gets the name of this prototype.
+     *
+     * \return the name.
+     */
+    virtual const std::string getName() const;
+
+    /**
+     * Gets the description for this prototype.
+     *
+     * \return the description
+     */
+    virtual const std::string getDescription() const;
+
+    /**
+     * Returns a prototype instantiated with the true type of the deriving class.
+     *
+     * \return the prototype.
+     */
+    static boost::shared_ptr< WPrototyped > getPrototype();
+
 protected:
+    static boost::shared_ptr< WPrototyped > m_prototype; //!< The prototype as singleton.
+
 private:
+    /**
+     * Inits members to the specified values.
+     *
+     * \param tracts Reference to the deterministic tracts
+     * \param tensors Reference to the tensor dataset
+     * \param shutdownFlag In case of shutdown/abort construction should be stopped too!
+     * \param progress Reference to the progress bar since initialization is a long running task.
+     */
+    void init( boost::shared_ptr< const WDataSetFibers > tracts,
+               boost::shared_ptr< const WDataSetDTI > tensors,
+               const WBoolFlag& shutdownFlag,
+               boost::shared_ptr< WProgress > progress );
+
 };
 
 inline bool WDataSetGP::isTexture() const
