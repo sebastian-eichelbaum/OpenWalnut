@@ -28,16 +28,12 @@
 
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
-#include "stdint.h"
-
 #include "../exceptions/WPreconditionNotMet.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 #include "WLinearAlgebraFunctions.h"
 #include "WMatrix.h"
-#include "WSymmetricSphericalHarmonic.h"
 #include "WTensorSym.h"
 #include "WUnitSphereCoordinates.h"
-#include "linearAlgebra/WLinearAlgebra.h"
-#include "WTensorSym.h"
 
 #include "WSymmetricSphericalHarmonic.h"
 

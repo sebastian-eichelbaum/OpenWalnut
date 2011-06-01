@@ -28,13 +28,11 @@
 #include <vector>
 
 #include "../WExportCommon.h"
-#include "WMath.h"
-#include "WMatrix.h"
 #include "linearAlgebra/WLinearAlgebra.h"
+#include "WMath.h"
 #include "WUnitSphereCoordinates.h"
 #include "WMatrix.h"
 #include "WValue.h"
-#include "../WExportCommon.h"
 
 /**
  * Class for symmetric spherical harmonics

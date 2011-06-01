@@ -77,7 +77,7 @@ public:
      *
      * \param newMatrix the Eigen::MatrixXd matrix to copy
      */
-    WMatrix( const Eigen::MatrixXd& newMatrix );
+    WMatrix( const Eigen::MatrixXd& newMatrix ); // NOLINT
 
     /**
      * Makes the matrix contain the identity matrix, i.e. 1 on the diagonal.
