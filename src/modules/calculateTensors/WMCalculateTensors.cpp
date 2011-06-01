@@ -213,7 +213,7 @@ boost::array< double, 6 > WMCalculateTensors::perVoxelTensorFunc( WValueSet< dou
 {
     ++*m_currentProgress;
     boost::array< double, 6 > a;
-    WVector_2 v( 6 );
+    WValue<double> v( 6 );
 
     // calculation
     for( std::size_t k = 0; k < 6; ++k )

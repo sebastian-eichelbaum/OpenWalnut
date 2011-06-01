@@ -241,9 +241,9 @@ public:
             WMatrix<double> Ainvers( pseudoInverse( A ) );
             WMatrix<double> I( A*Ainvers );
 
-            for( int row = 0; row < I.rows(); row++ )
+            for( size_t row = 0; row < I.getNbRows(); row++ )
             {
-                for( int col = 0; col < I.cols(); col++ )
+                for( size_t col = 0; col < I.getNbCols(); col++ )
                 {
                     if( row == col )
                     {
