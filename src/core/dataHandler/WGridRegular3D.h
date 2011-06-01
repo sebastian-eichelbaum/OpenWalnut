@@ -190,19 +190,6 @@ public:
     WPosition texCoordToWorldCoord( WVector3d coords );
 
     /**
-     * The condition that fires on changes in this grid's transformation matrix.
-     *
-     * \warning This is ugly and should not be used since, technically, we want const grids. For WDataTexture_2, this is needed
-     * right now because we have a module which allows modification of the grid transformation (dataManipulator). Remove this if
-     * the grid really is const as it is not needed anymore.
-     *
-     * \return \copybrief WGridRegular3D::getTransformationUpdateCondition()
-     * \deprecated
-     */
-    OW_API_DEPRECATED
-    WCondition::SPtr getTransformationUpdateCondition() const;
-
-    /**
      * Returns the i'th voxel where the given position belongs too.
      *
      * A voxel is a cuboid which surrounds a point on the grid.
