@@ -113,9 +113,9 @@ void WMFunctionalMRIViewer::moduleMain()
             // remove old texture
             if( m_dataSetAtTime )
             {
-                m_properties->removeProperty( m_dataSetAtTime->getTexture2()->getProperties() );
-                m_infoProperties->removeProperty( m_dataSetAtTime->getTexture2()->getInformationProperties() );
-                WGEColormapping::deregisterTexture( m_dataSetAtTime->getTexture2() );
+                m_properties->removeProperty( m_dataSetAtTime->getTexture()->getProperties() );
+                m_infoProperties->removeProperty( m_dataSetAtTime->getTexture()->getInformationProperties() );
+                WGEColormapping::deregisterTexture( m_dataSetAtTime->getTexture() );
                 m_dataSetAtTime.reset();
             }
             m_dataSet = inData;
@@ -132,13 +132,13 @@ void WMFunctionalMRIViewer::moduleMain()
 
             if( m_dataSetAtTime )
             {
-                WGEColormapping::registerTexture( m_dataSetAtTime->getTexture2(), s.str() );
-                m_properties->addProperty( m_dataSetAtTime->getTexture2()->getProperties() );
-                m_infoProperties->addProperty( m_dataSetAtTime->getTexture2()->getInformationProperties() );
+                WGEColormapping::registerTexture( m_dataSetAtTime->getTexture(), s.str() );
+                m_properties->addProperty( m_dataSetAtTime->getTexture()->getProperties() );
+                m_infoProperties->addProperty( m_dataSetAtTime->getTexture()->getInformationProperties() );
                 if( m_texScaleNormalized->get( true ) )
                 {
-                    m_dataSetAtTime->getTexture2()->minimum()->set( static_cast< float >( m_dataSet->getMinValue() ) );
-                    m_dataSetAtTime->getTexture2()->scale()->set( static_cast< float >( m_dataSet->getMaxValue() - m_dataSet->getMinValue() ) );
+                    m_dataSetAtTime->getTexture()->minimum()->set( static_cast< float >( m_dataSet->getMinValue() ) );
+                    m_dataSetAtTime->getTexture()->scale()->set( static_cast< float >( m_dataSet->getMaxValue() - m_dataSet->getMinValue() ) );
                 }
             }
             m_output->updateData( m_dataSetAtTime );
@@ -147,9 +147,9 @@ void WMFunctionalMRIViewer::moduleMain()
 
     if( m_dataSetAtTime )
     {
-        m_properties->removeProperty( m_dataSetAtTime->getTexture2()->getProperties() );
-        m_infoProperties->removeProperty( m_dataSetAtTime->getTexture2()->getInformationProperties() );
-        WGEColormapping::deregisterTexture( m_dataSetAtTime->getTexture2() );
+        m_properties->removeProperty( m_dataSetAtTime->getTexture()->getProperties() );
+        m_infoProperties->removeProperty( m_dataSetAtTime->getTexture()->getInformationProperties() );
+        WGEColormapping::deregisterTexture( m_dataSetAtTime->getTexture() );
         m_dataSetAtTime.reset();
     }
 }

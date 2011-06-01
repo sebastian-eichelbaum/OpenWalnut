@@ -35,7 +35,7 @@
 #include "core/common/WPropertyHelper.h"
 #include "core/dataHandler/WDataSetScalar.h"
 #include "core/dataHandler/WDataSetVector.h"
-#include "core/dataHandler/WDataTexture3D_2.h"
+#include "core/dataHandler/WDataTexture3D.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
 #include "core/graphicsEngine/WGEManagedGroupNode.h"
@@ -244,9 +244,9 @@ void WMIsosurfaceRaytracer::moduleMain()
         {
             debugLog() << "Data changed. Uploading new data as texture.";
 
-            m_isoValue->setMin( dataSet->getTexture2()->minimum()->get() );
-            m_isoValue->setMax( dataSet->getTexture2()->scale()->get() + dataSet->getTexture2()->minimum()->get() );
-            m_isoValue->set( dataSet->getTexture2()->minimum()->get() + ( 0.5 * dataSet->getTexture2()->scale()->get() ) );
+            m_isoValue->setMin( dataSet->getTexture()->minimum()->get() );
+            m_isoValue->setMax( dataSet->getTexture()->scale()->get() + dataSet->getTexture()->minimum()->get() );
+            m_isoValue->set( dataSet->getTexture()->minimum()->get() + ( 0.5 * dataSet->getTexture()->scale()->get() ) );
 
             // First, grab the grid
             boost::shared_ptr< WGridRegular3D > grid = boost::shared_dynamic_cast< WGridRegular3D >( dataSet->getGrid() );
@@ -267,7 +267,7 @@ void WMIsosurfaceRaytracer::moduleMain()
 
             // bind the texture to the node
             osg::StateSet* rootState = cube->getOrCreateStateSet();
-            osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture2();
+            osg::ref_ptr< WGETexture3D > texture3D = dataSet->getTexture();
             texture3D->bind( cube );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -291,7 +291,7 @@ void WMIsosurfaceRaytracer::moduleMain()
                 debugLog() << "Uploading specified gradient field.";
 
                 // bind the texture to the node
-                osg::ref_ptr< WDataTexture3D_2 > gradTexture3D = gradients->getTexture2();
+                osg::ref_ptr< WDataTexture3D > gradTexture3D = gradients->getTexture();
                 wge::bindTexture( cube, gradTexture3D, 2, "u_gradients" );
                 gradTexEnableDefine->setActive( true );
             }

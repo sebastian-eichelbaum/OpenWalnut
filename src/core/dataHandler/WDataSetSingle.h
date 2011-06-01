@@ -38,7 +38,7 @@
 
 #include "WExportDataHandler.h"
 
-class WDataTexture3D_2;
+class WDataTexture3D;
 
 /**
  * A data set consisting of a set of values based on a grid.
@@ -145,7 +145,7 @@ public:
      *
      * \return the texture.
      */
-    virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2() const;
+    virtual osg::ref_ptr< WDataTexture3D > getTexture() const;
 
     /**
      * Gets the name of this prototype.
@@ -190,7 +190,7 @@ private:
     /**
      * The 3D texture representing this dataset.
      */
-    osg::ref_ptr< WDataTexture3D_2 > m_texture;
+    osg::ref_ptr< WDataTexture3D > m_texture;
 };
 
 template< typename T > T WDataSetSingle::getValueAt( size_t id )

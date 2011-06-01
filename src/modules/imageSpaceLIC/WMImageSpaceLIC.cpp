@@ -37,7 +37,7 @@
 #include "core/common/math/WMath.h"
 #include "core/common/math/WPlane.h"
 #include "core/dataHandler/WDataHandler.h"
-#include "core/dataHandler/WDataTexture3D_2.h"
+#include "core/dataHandler/WDataTexture3D.h"
 #include "core/dataHandler/WGridRegular3D.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/graphicsEngine/WGEGeodeUtils.h"
@@ -431,7 +431,7 @@ void WMImageSpaceLIC::moduleMain()
 
             // prepare offscreen render chain
             availableDataDefines->activateOption( 1 );  // vector input
-            transformation->bind( dataSetVec->getTexture2(), 0 );
+            transformation->bind( dataSetVec->getTexture(), 0 );
         }
         else if( dataSetScal )
         {
@@ -446,7 +446,7 @@ void WMImageSpaceLIC::moduleMain()
 
             // prepare offscreen render chain
             availableDataDefines->activateOption( 0 );  // scalar input
-            transformation->bind( dataSetScal->getTexture2(), 0 );
+            transformation->bind( dataSetScal->getTexture(), 0 );
         }
 
         debugLog() << "Done";

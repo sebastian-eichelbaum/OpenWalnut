@@ -252,9 +252,9 @@ void WMBermanTracking::moduleMain()
             m_result = boost::shared_ptr< WDataSetScalar >( new WDataSetScalar( vs, m_dataSet->getGrid() ) );
             m_result->setFileName( "Berman_prob_tracking_result" );
 
-            m_result->getTexture2()->threshold()->set( 0.05f );
-            m_result->getTexture2()->colormap()->set( m_result->getTexture2()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 2 ) ) );
-            m_result->getTexture2()->interpolation()->set( false );
+            m_result->getTexture()->threshold()->set( 0.05f );
+            m_result->getTexture()->colormap()->set( m_result->getTexture()->colormap()->get().newSelector( WItemSelector::IndexList( 1, 2 ) ) );
+            m_result->getTexture()->interpolation()->set( false );
             m_output->updateData( m_result );
 
             m_hits = boost::shared_ptr< std::vector< float > >();

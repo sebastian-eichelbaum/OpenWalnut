@@ -30,7 +30,7 @@
 
 #include "core/common/WBoundingBox.h"
 #include "core/dataHandler/WDataHandler.h"
-#include "core/dataHandler/WDataTexture3D_2.h"
+#include "core/dataHandler/WDataTexture3D.h"
 #include "core/dataHandler/WSubject.h"
 #include "WMDatasetManipulator.xpm"
 

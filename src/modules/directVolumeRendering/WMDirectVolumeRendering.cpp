@@ -318,7 +318,7 @@ void WMDirectVolumeRendering::moduleMain()
             m_shader->apply( cube );
 
             // bind the texture to the node
-            osg::ref_ptr< WDataTexture3D_2 > texture3D = dataSet->getTexture2();
+            osg::ref_ptr< WDataTexture3D > texture3D = dataSet->getTexture();
             wge::bindTexture( cube, texture3D, 0, "u_volume" );
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -339,7 +339,7 @@ void WMDirectVolumeRendering::moduleMain()
                 debugLog() << "Uploading specified gradient field.";
 
                 // bind the texture to the node
-                osg::ref_ptr< WDataTexture3D_2 > gradTexture3D = gradients->getTexture2();
+                osg::ref_ptr< WDataTexture3D > gradTexture3D = gradients->getTexture();
                 wge::bindTexture( cube, gradTexture3D, 1, "u_gradients" );
                 gradTexEnableDefine->setActive( true );
             }
