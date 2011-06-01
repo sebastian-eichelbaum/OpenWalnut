@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATATEXTURE3D_2_H
-#define WDATATEXTURE3D_2_H
+#ifndef WDATATEXTURE3D_H
+#define WDATATEXTURE3D_H
 
 #include <algorithm>
 #include <limits>
@@ -275,5 +275,5 @@ osg::ref_ptr< osg::Image > WDataTexture3D::createTexture( T* source, int compone
     return ima;
 }
 
-#endif  // WDATATEXTURE3D_2_H
+#endif  // WDATATEXTURE3D_H
 
