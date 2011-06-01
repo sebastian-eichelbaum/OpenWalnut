@@ -15,7 +15,6 @@ ADD_MODULE( isosurfaceRaytracer )
 ADD_MODULE( lic "" ".*fibernavigator.*;.*fantom.*;" ) # lic uses some third party code
 ADD_MODULE( marchingCubes )
 ADD_MODULE( navigationSlices )
-# ADD_MODULE( overlayAtlas )
 ADD_MODULE( paintTexture )
 ADD_MODULE( superquadricGlyphs )
 ADD_MODULE( template )    # template has its own CMakeLists for demonstration purpose
