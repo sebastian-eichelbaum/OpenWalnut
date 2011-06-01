@@ -248,7 +248,7 @@ void WSymmetricSphericalHarmonic::applyFunkRadonTransformation( WMatrix< double 
     WAssert( frtMat.getNbCols() == m_SHCoefficients.size(), "" );
     WAssert( frtMat.getNbRows() == m_SHCoefficients.size(), "" );
     // Funk-Radon-Transformation as in Descoteaux's thesis
-    for ( int j = 0; j < m_SHCoefficients.size(); j++ )
+    for ( size_t j = 0; j < m_SHCoefficients.size(); j++ )
     {
         m_SHCoefficients[ j ] *= frtMat( j, j );
     }
@@ -452,7 +452,7 @@ void WSymmetricSphericalHarmonic::normalize()
   double scale = 0.0;
   if( m_SHCoefficients.size() > 0 )
     scale = std::sqrt( 4.0 * piDouble ) * m_SHCoefficients[0];
-  for ( int i = 0; i < m_SHCoefficients.size(); i++ )
+  for ( size_t i = 0; i < m_SHCoefficients.size(); i++ )
   {
     m_SHCoefficients[ i ] /= scale;
   }
