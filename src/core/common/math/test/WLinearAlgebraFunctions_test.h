@@ -185,7 +185,7 @@ public:
             const double a = 1.2, b = 2.3, c = 3.4,
                          d = 4.5, e = 5.6, f = 6.7,
                          g = 3.4, h = 1.2, i = 7.0;
-            WMatrix_2 A( nbRows, nbCols );
+            WMatrix<double> A( nbRows, nbCols );
             A( 0, 0 ) = a;
             A( 0, 1 ) = b;
             A( 0, 2 ) = c;
@@ -195,22 +195,22 @@ public:
             A( 2, 0 ) = g;
             A( 2, 1 ) = h;
             A( 2, 2 ) = i;
-            WMatrix_2 U( A.rows(), A.cols() );
-            WMatrix_2 V( A.cols(), A.cols() );
-            WVector_2 Svec( A.cols() );
+            WMatrix<double> U( A.getNbRows(), A.getNbCols() );
+            WMatrix<double> V( A.getNbCols(), A.getNbCols() );
+            WValue<double> Svec( A.getNbCols() );
             computeSVD( A, U, V, Svec );
-            WMatrix_2 S( Svec.size(), Svec.size() );
+            WMatrix<double> S( Svec.size(), Svec.size() );
             S.setZero();
-            for( int i = 0; i < Svec.size(); ++i )
+            for( size_t i = 0; i < Svec.size(); ++i )
             {
-                S( i, i ) = Svec( i );
+                S( i, i ) = Svec[ i ];
             }
 
-            WMatrix_2 A2( U*S*V.transpose() );
+            WMatrix<double> A2( U*S*V.transposed() );
 
-            for( int row = 0; row < A.rows(); ++row )
+            for ( size_t row = 0; row < A.getNbRows(); ++row )
             {
-                for( int col = 0; col < A.cols(); ++col )
+                for ( size_t col = 0; col < A.getNbCols(); ++col )
                 {
                     TS_ASSERT_DELTA( A( row, col ), A2( row, col ), 0.0001 );
                 }
@@ -257,7 +257,7 @@ public:
             }
         }
         {
-            WMatrix_2 m( 6, 6 );
+            WMatrix<double> m( 6, 6 );
             for( int j = 0; j < 6; ++j )
             {
                 for( int i = 0; i < 6; ++i )
