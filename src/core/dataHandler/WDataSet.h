@@ -35,7 +35,7 @@
 #include "../common/WDefines.h"
 #include "../common/WProperties.h"
 #include "../common/WTransferable.h"
-#include "WDataTexture3D_2.h"
+#include "WDataTexture3D.h"
 #include "WExportDataHandler.h"
 
 class WCondition;
@@ -81,7 +81,6 @@ public:
      *
      * \return true if usable as texture.
      */
-    // TODO(schurade): pure virtual? Are WDataSet instances useful?
     virtual bool isTexture() const;
 
     /**
@@ -97,7 +96,7 @@ public:
      * \return The texture.
      * \deprecated
      */
-    virtual osg::ref_ptr< WDataTexture3D_2 > getTexture2() const;
+    virtual osg::ref_ptr< WDataTexture3D > getTexture() const;
 
     /**
      * Gets the name of this prototype.

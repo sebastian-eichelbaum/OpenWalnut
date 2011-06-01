@@ -34,7 +34,7 @@
 #include <osg/Projection>
 
 #include "core/kernel/WKernel.h"
-#include "core/dataHandler/WDataTexture3D_2.h"
+#include "core/dataHandler/WDataTexture3D.h"
 #include "core/common/WColor.h"
 #include "core/common/WBoundingBox.h"
 #include "core/graphicsEngine/WGEUtils.h"
@@ -146,8 +146,8 @@ osg::ref_ptr< osg::Node > WMSurfaceParameterAnimator::renderSurface( const WBoun
     // bind the texture to the node
     osg::StateSet* rootState = cube->getOrCreateStateSet();
 
-    osg::ref_ptr< WGETexture3D > texture3D = m_dataSet->getTexture2();
-    osg::ref_ptr< WGETexture3D > tracesTexture3D = m_tracesDataSet->getTexture2();
+    osg::ref_ptr< WGETexture3D > texture3D = m_dataSet->getTexture();
+    osg::ref_ptr< WGETexture3D > tracesTexture3D = m_tracesDataSet->getTexture();
     texture3D->bind( cube, 0 );
     tracesTexture3D->bind( cube, 1 );
 

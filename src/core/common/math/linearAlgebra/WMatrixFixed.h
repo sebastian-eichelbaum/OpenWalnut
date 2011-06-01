@@ -273,17 +273,6 @@ public:
     }
 
     /**
-     * Returns an identity matrix.
-     * \deprecated just for compatibility with eigen3 types.
-     *
-     * \return identity
-     */
-    OW_API_DEPRECATED static MatrixType Identity()
-    {
-        return identity();
-    }
-
-    /**
      * Returns a zero-initialized matrix.
      *
      * \return the matrix.
@@ -299,17 +288,6 @@ public:
             }
         }
         return m;
-    }
-
-    /**
-     * Returns an zero-initialized matrix.
-     * \deprecated just for compatibility with eigen3 types.
-     *
-     * \return zero initialized matrix.
-     */
-    OW_API_DEPRECATED static MatrixType Zero()
-    {
-        return zero();
     }
 
     /**

@@ -42,7 +42,7 @@
 #include "WExportWGE.h"
 
 template < typename T > class WGETexture;
-class WDataTexture3D_2;
+class WDataTexture3D;
 
 namespace wge
 {

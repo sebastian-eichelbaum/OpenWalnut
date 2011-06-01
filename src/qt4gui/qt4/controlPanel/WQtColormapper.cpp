@@ -212,7 +212,7 @@ void WQtColormapper::selectTexture( boost::shared_ptr< WDataSet > dataSet )
     for( int i = 0; i < m_textureListWidget->count(); ++i )
     {
         WQtTextureListItem* item = dynamic_cast< WQtTextureListItem* >( m_textureListWidget->item( i ) );
-        if(item && dataSet->isTexture() && ( item->getTexture() == dataSet->getTexture2() ) )
+        if(item && dataSet->isTexture() && ( item->getTexture() == dataSet->getTexture() ) )
         {
             m_textureListWidget->setCurrentItem( item );
         }

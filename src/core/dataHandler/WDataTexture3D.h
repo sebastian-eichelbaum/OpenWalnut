@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WDATATEXTURE3D_2_H
-#define WDATATEXTURE3D_2_H
+#ifndef WDATATEXTURE3D_H
+#define WDATATEXTURE3D_H
 
 #include <algorithm>
 #include <limits>
@@ -44,7 +44,7 @@
 /**
  * Namespace provides some scaling functions for scaling data values to meet the OpenGL requirements.
  */
-namespace WDataTexture3D_2Scalers
+namespace WDataTexture3DScalers
 {
     /**
      * Scales the specified value to the interval [0,1] using m_min and m_scale. As the method is inline, the additional parameters are no
@@ -94,7 +94,7 @@ namespace WDataTexture3D_2Scalers
  * This class allows simple creation of WGETexture3D by using a specified grid and value-set. One advantage: the
  * first call to the texture's update callback ensures texture creation. It is not created earlier.
  */
-class OWDATAHANDLER_EXPORT WDataTexture3D_2: public WGETexture3D
+class OWDATAHANDLER_EXPORT WDataTexture3D: public WGETexture3D
 {
 public:
 
@@ -104,12 +104,12 @@ public:
      * \param valueSet  the value set to use
      * \param grid the grid to use
      */
-     WDataTexture3D_2( boost::shared_ptr< WValueSetBase > valueSet, boost::shared_ptr< WGridRegular3D > grid );
+     WDataTexture3D( boost::shared_ptr< WValueSetBase > valueSet, boost::shared_ptr< WGridRegular3D > grid );
 
     /**
      * Destructor.
      */
-    virtual ~WDataTexture3D_2();
+    virtual ~WDataTexture3D();
 
     /**
      * Returns the texture's bounding box. This is const. Although there exists the transformation() property, it is an information property and
@@ -157,7 +157,7 @@ private:
 };
 
 /**
- * Extend the wge utils namespace with additional methods relating WDataTexture3D_2.
+ * Extend the wge utils namespace with additional methods relating WDataTexture3D.
  */
 namespace wge
 {
@@ -176,12 +176,12 @@ namespace wge
      * \param prefix if specified, defines the uniform name prefix. (Sampler, Unit, Sizes, ...)
      * \tparam T the type of texture. Usually osg::Texture3D or osg::Texture2D.
      */
-    void OWDATAHANDLER_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WDataTexture3D_2 > texture,
+    void OWDATAHANDLER_EXPORT bindTexture( osg::ref_ptr< osg::Node > node, osg::ref_ptr< WDataTexture3D > texture,
                                            size_t unit = 0, std::string prefix = ""  );
 }
 
 template < typename T >
-osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int components )
+osg::ref_ptr< osg::Image > WDataTexture3D::createTexture( T* source, int components )
 {
     // get lock
     boost::unique_lock< boost::shared_mutex > lock( m_creationLock );
@@ -194,10 +194,10 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
     typedef typename wge::GLType< T >::Type TexType;
     GLenum type = wge::GLType< T >::TypeEnum;
 
-    wlog::debug( "WDataTexture3D_2" ) << "Resolution: " << getTextureWidth() << "x" << getTextureHeight() << "x" << getTextureDepth();
-    wlog::debug( "WDataTexture3D_2" ) << "Channels: " << components;
+    wlog::debug( "WDataTexture3D" ) << "Resolution: " << getTextureWidth() << "x" << getTextureHeight() << "x" << getTextureDepth();
+    wlog::debug( "WDataTexture3D" ) << "Channels: " << components;
     // NOTE: the casting is needed as if T == uint8_t -> it will be interpreted as ASCII code -> bad.
-    wlog::debug( "WDataTexture3D_2" ) << "Value Range: [" << static_cast< float >( min ) << "," << static_cast< float >( max ) <<
+    wlog::debug( "WDataTexture3D" ) << "Value Range: [" << static_cast< float >( min ) << "," << static_cast< float >( max ) <<
                                                        "] - Scaler: " << scaler;
     osg::ref_ptr< osg::Image > ima = new osg::Image;
 
@@ -212,7 +212,7 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
         // Copy the data pixel wise and convert to float
         for( unsigned int i = 0; i < nbVoxels; ++i )
         {
-            data[ 2 * i ] = WDataTexture3D_2Scalers::scaleInterval( source[i], min, max, scaler );
+            data[ 2 * i ] = WDataTexture3DScalers::scaleInterval( source[i], min, max, scaler );
             data[ ( 2 * i ) + 1] = source[i] != min;
         }
     }
@@ -226,8 +226,8 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
         // Copy the data pixel wise and convert to float
         for( unsigned int i = 0; i < nbVoxels; ++i )
         {
-            data[ ( 4 * i ) ]     = WDataTexture3D_2Scalers::scaleInterval( source[ ( 2 * i ) ], min, max, scaler );
-            data[ ( 4 * i ) + 1 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 2 * i ) + 1 ], min, max, scaler );
+            data[ ( 4 * i ) ]     = WDataTexture3DScalers::scaleInterval( source[ ( 2 * i ) ], min, max, scaler );
+            data[ ( 4 * i ) + 1 ] = WDataTexture3DScalers::scaleInterval( source[ ( 2 * i ) + 1 ], min, max, scaler );
             data[ ( 4 * i ) + 2 ] = 0.0;
             data[ ( 4 * i ) + 3 ] = 1.0;
         }
@@ -242,9 +242,9 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
         // Copy the data pixel wise and convert to float
         for( unsigned int i = 0; i < nbVoxels; ++i )
         {
-            data[ ( 4 * i ) ]     = WDataTexture3D_2Scalers::scaleInterval( source[ ( 3 * i ) ], min, max, scaler );
-            data[ ( 4 * i ) + 1 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 3 * i ) + 1 ], min, max, scaler );
-            data[ ( 4 * i ) + 2 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 3 * i ) + 2 ], min, max, scaler );
+            data[ ( 4 * i ) ]     = WDataTexture3DScalers::scaleInterval( source[ ( 3 * i ) ], min, max, scaler );
+            data[ ( 4 * i ) + 1 ] = WDataTexture3DScalers::scaleInterval( source[ ( 3 * i ) + 1 ], min, max, scaler );
+            data[ ( 4 * i ) + 2 ] = WDataTexture3DScalers::scaleInterval( source[ ( 3 * i ) + 2 ], min, max, scaler );
             data[ ( 4 * i ) + 3 ] = 1.0;
         }
     }
@@ -258,10 +258,10 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
         // Copy the data pixel wise and convert to float
         for( unsigned int i = 0; i < nbVoxels; ++i )
         {
-            data[ ( 4 * i ) ]     = WDataTexture3D_2Scalers::scaleInterval( source[ ( 4 * i ) ], min, max, scaler );
-            data[ ( 4 * i ) + 1 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 4 * i ) + 1 ], min, max, scaler );
-            data[ ( 4 * i ) + 2 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 4 * i ) + 2 ], min, max, scaler );
-            data[ ( 4 * i ) + 3 ] = WDataTexture3D_2Scalers::scaleInterval( source[ ( 4 * i ) + 3 ], min, max, scaler );
+            data[ ( 4 * i ) ]     = WDataTexture3DScalers::scaleInterval( source[ ( 4 * i ) ], min, max, scaler );
+            data[ ( 4 * i ) + 1 ] = WDataTexture3DScalers::scaleInterval( source[ ( 4 * i ) + 1 ], min, max, scaler );
+            data[ ( 4 * i ) + 2 ] = WDataTexture3DScalers::scaleInterval( source[ ( 4 * i ) + 2 ], min, max, scaler );
+            data[ ( 4 * i ) + 3 ] = WDataTexture3DScalers::scaleInterval( source[ ( 4 * i ) + 3 ], min, max, scaler );
         }
     }
     else
@@ -275,5 +275,5 @@ osg::ref_ptr< osg::Image > WDataTexture3D_2::createTexture( T* source, int compo
     return ima;
 }
 
-#endif  // WDATATEXTURE3D_2_H
+#endif  // WDATATEXTURE3D_H
 
