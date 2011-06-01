@@ -227,7 +227,7 @@ public:
             const double a = 1.2, b = 2.3, c = 3.4,
                          d = 4.5, e = 5.6, f = 6.7,
                          g = 3.4, h = 1.2, i = 7.0;
-            WMatrix_2 A( nbRows, nbCols );
+            WMatrix<double> A( nbRows, nbCols );
 
             A( 0, 0 ) = a;
             A( 0, 1 ) = b;
@@ -238,8 +238,8 @@ public:
             A( 2, 0 ) = g;
             A( 2, 1 ) = h;
             A( 2, 2 ) = i;
-            WMatrix_2 Ainvers( pseudoInverse( A ) );
-            WMatrix_2 I( A*Ainvers );
+            WMatrix<double> Ainvers( pseudoInverse( A ) );
+            WMatrix<double> I( A*Ainvers );
 
             for( int row = 0; row < I.rows(); row++ )
             {
