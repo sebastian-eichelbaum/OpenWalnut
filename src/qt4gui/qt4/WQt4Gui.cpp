@@ -167,6 +167,13 @@ int WQt4Gui::run()
     // startup graphics engine
     m_ge = WGraphicsEngine::getGraphicsEngine();
 
+    // enable multithreading if wanted
+    bool multiThreadedViewers = true;
+    if( WPreferences::getPreference( "ge.multiThreadedViewers", &multiThreadedViewers ) && !multiThreadedViewers )
+    {
+        m_ge->setMultiThreadedViews( true );
+    }
+
     // and startup kernel
     m_kernel = boost::shared_ptr< WKernel >( WKernel::instance( m_ge, shared_from_this() ) );
     m_kernel->run();

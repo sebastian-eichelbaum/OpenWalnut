@@ -2,11 +2,6 @@
 ## Uncomment the options you are interested in.
 
 [modules]
-## use this to specify the default module to add during load.
-## It is a comma seperated list. If this is not specified the 
-## default empty is assumed. Be sure to NOT add "" around the list.
-## An example could be
-# default=HUD
 ## A list of modules that will be provided through the GUI. 
 ## If the list is empty all available modules are provided.
 whiteList = Arbitrary Plane,Coordinate System,Image Extractor,Paint Texture,Arbitrary Rois,Bounding Box,Distance Map Isosurface,Gauss Filtering,HUD,Isosurface,Isosurface Raytracer,LIC,Read Mesh,Voxelizer,Superquadric Glyphs,Triangle Mesh Renderer,Vector Plot,Write NIfTI,Fiber Display,Read Spherical Harmonics,Navigation Slices,Deterministic Tract Clustering using Gaussian Processes,Deterministic Tract to Gaussian Process Converter,Cluster Param Display,Write Tracts,Fiber Resampling,Teem Glyphs

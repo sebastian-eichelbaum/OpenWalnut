@@ -31,6 +31,7 @@
 #include "WQtGLWidget.moc"
 
 #include "core/common/WConditionOneShot.h"
+#include "core/common/WPreferences.h"
 #include "core/common/WFlag.h"
 #include "core/common/WLogger.h"
 #include "core/graphicsEngine/WGE2DManipulator.h"
@@ -87,6 +88,15 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
     m_Timer.start( 10 );
 #endif
+
+    // enable throwing of wanted
+    bool allowThrow = false;
+    WPreferences::getPreference( "ge.zoomTrackballManipulator.allowThrow", &allowThrow );
+    WGEZoomTrackballManipulator* manipulator = dynamic_cast< WGEZoomTrackballManipulator* >( m_Viewer->getCameraManipulator().get() );
+    if( manipulator )
+    {
+        manipulator->setThrow( allowThrow );
+    }
 }
 
 WQtGLWidget::~WQtGLWidget()

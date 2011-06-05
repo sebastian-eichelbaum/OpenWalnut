@@ -157,6 +157,20 @@ public:
      */
     void finalizeStartup();
 
+    /**
+     * Enables multithreaded view. This MUST be called before run(). On Mac, this has no function.
+     *
+     * \param enable true if multithreaded
+     */
+    void setMultiThreadedViews( bool enable = true );
+
+    /**
+     * Checks whether the viewers work multithreaded.
+     *
+     * \return true if multithreaded
+     */
+    bool isMultiThreadedViews() const;
+
 protected:
 
     /**
