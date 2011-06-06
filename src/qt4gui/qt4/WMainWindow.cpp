@@ -322,10 +322,11 @@ void WMainWindow::setupGUI()
         }
     }
 
+    // Temporarily disabled. We need a proper command prompt implementation first.
     // create command prompt toolbar
-    m_commandPrompt = new WQtCommandPromptToolbar( "Command Prompt", this );
-    addToolBar( Qt::TopToolBarArea, m_commandPrompt );
-    this->addAction( m_commandPrompt->toggleViewAction() );  // this enables the action even if the menu bar is invisible
+    // m_commandPrompt = new WQtCommandPromptToolbar( "Command Prompt", this );
+    // addToolBar( Qt::TopToolBarArea, m_commandPrompt );
+    // this->addAction( m_commandPrompt->toggleViewAction() );  // this enables the action even if the menu bar is invisible
 
     // setup permanent toolbar
     m_permanentToolBar->addAction( m_loadButton );
