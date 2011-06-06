@@ -73,6 +73,13 @@ public:
     WMatrix( const WMatrix4d& newMatrix ); // NOLINT
 
     /**
+     * Copies the specified Eigen::MatrixXd.
+     *
+     * \param newMatrix the Eigen::MatrixXd matrix to copy
+     */
+    WMatrix( const Eigen::MatrixXd& newMatrix ); // NOLINT
+
+    /**
      * Makes the matrix contain the identity matrix, i.e. 1 on the diagonal.
      */
     WMatrix& makeIdentity();
@@ -118,6 +125,13 @@ public:
     operator osg::Matrixd() const;
 
     /**
+     * Cast this matrix to an Eigen::MatrixXd matrix.
+     *
+     * \return casted matrix.
+     */
+    operator Eigen::MatrixXd() const;
+
+    /**
      * Compares two matrices and returns true if they are equal.
      * \param rhs The right hand side of the comparison
      */
@@ -157,6 +171,14 @@ public:
      * Returns the transposed matrix.
      */
     WMatrix transposed() const;
+
+    void setZero()
+    {
+        for ( size_t i = 0; i < this->size(); ++i )
+        {
+            ( *this )[ i ] = 0.0;
+        }
+    }
 
 protected:
 private:
@@ -198,6 +220,20 @@ template< typename T > WMatrix< T >::WMatrix( const WMatrix4d& newMatrix )
     }
 }
 
+template< typename T > WMatrix< T >::WMatrix( const Eigen::MatrixXd& newMatrix )
+    : WValue< T >( newMatrix.cols() * newMatrix.rows() )
+{
+    m_nbCols = static_cast< size_t >( newMatrix.cols() );
+    for ( int row = 0; row < newMatrix.rows(); ++row )
+    {
+        for ( int col = 0; col < newMatrix.cols(); ++col )
+        {
+            ( *this )( row, col ) = static_cast< T >( newMatrix( row, col ) );
+        }
+    }
+}
+
+
 template< typename T > WMatrix< T >::operator WMatrix4d() const
 {
     size_t nbRows = this->size() / m_nbCols;
@@ -235,6 +271,19 @@ template< typename T > WMatrix< T >::operator osg::Matrixd() const
                              ( *this )[ 9 ], ( *this )[ 10 ], ( *this )[ 11 ], 1.0
                            );
     }
+}
+
+template< typename T > WMatrix< T >::operator Eigen::MatrixXd() const
+{
+    Eigen::MatrixXd matrix( this->getNbRows(), this->getNbCols() );
+    for ( int row = 0; row < matrix.rows(); ++row )
+    {
+        for ( int col = 0; col < matrix.cols(); ++col )
+        {
+            matrix( row, col ) = ( *this )( row, col );
+        }
+    }
+    return matrix;
 }
 
 /**

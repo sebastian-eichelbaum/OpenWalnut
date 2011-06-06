@@ -29,21 +29,21 @@
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 
 #include "../exceptions/WPreconditionNotMet.h"
+#include "linearAlgebra/WLinearAlgebra.h"
 #include "WLinearAlgebraFunctions.h"
 #include "WMatrix.h"
-#include "WSymmetricSphericalHarmonic.h"
 #include "WTensorSym.h"
 #include "WUnitSphereCoordinates.h"
-#include "linearAlgebra/WLinearAlgebra.h"
+
+#include "WSymmetricSphericalHarmonic.h"
 
 WSymmetricSphericalHarmonic::WSymmetricSphericalHarmonic() :
-    m_order( 0 )
-    // ,
-  // m_SHCoefficients( 0 )
+    m_order( 0 ),
+    m_SHCoefficients( 0 )
 {
 }
 
-WSymmetricSphericalHarmonic::WSymmetricSphericalHarmonic( const WVector_2& SHCoefficients ) :
+WSymmetricSphericalHarmonic::WSymmetricSphericalHarmonic( const WValue<double>& SHCoefficients ) :
   m_SHCoefficients( SHCoefficients )
 {
   // calculate order from SHCoefficients.size:
@@ -58,28 +58,28 @@ WSymmetricSphericalHarmonic::~WSymmetricSphericalHarmonic()
 
 double WSymmetricSphericalHarmonic::getValue( double theta, double phi ) const
 {
-    double result = 0.0;
-    int j = 0;
-    const double rootOf2 = std::sqrt( 2.0 );
-    for( int k = 0; k <= static_cast<int>( m_order ); k+=2 )
+  double result = 0.0;
+  int j = 0;
+  const double rootOf2 = std::sqrt( 2.0 );
+  for ( int k = 0; k <= static_cast<int>( m_order ); k+=2 )
+  {
+    // m = 1 .. k
+    for ( int m = 1; m <= k; m++ )
     {
-        // m = 1 .. k
-        for( int m = 1; m <= k; m++ )
-        {
-            j = ( k*k+k+2 ) / 2 + m;
-            result += m_SHCoefficients[ j-1 ] * rootOf2 *
-                static_cast<double>( std::pow( -1.0, m+1 ) ) * boost::math::spherical_harmonic_i( k, m, theta, phi );
-        }
-        // m = 0
-        result += m_SHCoefficients[ ( k*k+k+2 ) / 2 - 1 ] * boost::math::spherical_harmonic_r( k, 0, theta, phi );
-        // m = -k .. -1
-        for( int m = -k; m < 0; m++ )
-        {
-            j = ( k*k+k+2 ) / 2 + m;
-            result += m_SHCoefficients[ j-1 ] * rootOf2 * boost::math::spherical_harmonic_r( k, -m, theta, phi );
-        }
+      j = ( k*k+k+2 ) / 2 + m;
+      result += m_SHCoefficients[ j-1 ] * rootOf2 *
+                  static_cast<double>( std::pow( -1.0, m+1 ) ) * boost::math::spherical_harmonic_i( k, m, theta, phi );
     }
-    return result;
+    // m = 0
+    result += m_SHCoefficients[ ( k*k+k+2 ) / 2 - 1 ] * boost::math::spherical_harmonic_r( k, 0, theta, phi );
+    // m = -k .. -1
+    for ( int m = -k; m < 0; m++ )
+    {
+      j = ( k*k+k+2 ) / 2 + m;
+      result += m_SHCoefficients[ j-1 ] * rootOf2 * boost::math::spherical_harmonic_r( k, -m, theta, phi );
+    }
+  }
+  return result;
 }
 
 double WSymmetricSphericalHarmonic::getValue( const WUnitSphereCoordinates& coordinates ) const
@@ -87,14 +87,14 @@ double WSymmetricSphericalHarmonic::getValue( const WUnitSphereCoordinates& coor
   return getValue( coordinates.getTheta(), coordinates.getPhi() );
 }
 
-const WVector_2& WSymmetricSphericalHarmonic::getCoefficients() const
+const WValue<double>& WSymmetricSphericalHarmonic::getCoefficients() const
 {
   return m_SHCoefficients;
 }
 
-WVector_2 WSymmetricSphericalHarmonic::getCoefficientsSchultz() const
+WValue< double > WSymmetricSphericalHarmonic::getCoefficientsSchultz() const
 {
-    WVector_2 res( m_SHCoefficients.size() );
+    WValue< double > res( m_SHCoefficients.size() );
     size_t k = 0;
     for( int l = 0; l <= static_cast< int >( m_order ); l += 2 )
     {
@@ -115,9 +115,9 @@ WVector_2 WSymmetricSphericalHarmonic::getCoefficientsSchultz() const
     return res;
 }
 
-WVectorComplex_2 WSymmetricSphericalHarmonic::getCoefficientsComplex() const
+WValue< std::complex< double > > WSymmetricSphericalHarmonic::getCoefficientsComplex() const
 {
-    WVectorComplex_2 res( m_SHCoefficients.size() );
+    WValue< std::complex< double > > res( m_SHCoefficients.size() );
     size_t k = 0;
     double r = 1.0 / sqrt( 2.0 );
     std::complex< double > i( 0.0, -1.0 );
@@ -188,30 +188,30 @@ double WSymmetricSphericalHarmonic::calcGFA( std::vector< WUnitSphereCoordinates
     return gfa;
 }
 
-double WSymmetricSphericalHarmonic::calcGFA( const WMatrix_2& B ) const
+double WSymmetricSphericalHarmonic::calcGFA( WMatrix< double > const& B ) const
 {
     // sh coeffs
-    WMatrix_2 s( B.cols(), 1 );
-    WAssert( B.cols() == m_SHCoefficients.size(), "" );
-    for( int k = 0; k < B.cols(); ++k )
+    WMatrix< double > s( B.getNbCols(), 1 );
+    WAssert( B.getNbCols() == m_SHCoefficients.size(), "" );
+    for( std::size_t k = 0; k < B.getNbCols(); ++k )
     {
         s( k, 0 ) = m_SHCoefficients[ k ];
     }
     s = B * s;
-    WAssert( s.rows() == B.rows(), "" );
-    WAssert( s.cols() == 1u, "" );
+    WAssert( s.getNbRows() == B.getNbRows(), "" );
+    WAssert( s.getNbCols() == 1u, "" );
 
-    double n = static_cast< double >( s.rows() );
+    double n = static_cast< double >( s.getNbRows() );
     double d = 0.0;
     double gfa = 0.0;
     double mean = 0.0;
-    for( int i = 0; i < s.rows(); ++i )
+    for( std::size_t i = 0; i < s.getNbRows(); ++i )
     {
         mean += s( i, 0 );
     }
     mean /= n;
 
-    for( int i = 0; i < s.rows(); ++i )
+    for( std::size_t i = 0; i < s.getNbRows(); ++i )
     {
         double f = s( i, 0 );
         // we use gfa as a temporary here
@@ -239,12 +239,12 @@ double WSymmetricSphericalHarmonic::calcGFA( const WMatrix_2& B ) const
     return gfa;
 }
 
-void WSymmetricSphericalHarmonic::applyFunkRadonTransformation( const WMatrix_2& frtMat )
+void WSymmetricSphericalHarmonic::applyFunkRadonTransformation( WMatrix< double > const& frtMat )
 {
-    WAssert( frtMat.cols() == m_SHCoefficients.size(), "" );
-    WAssert( frtMat.rows() == m_SHCoefficients.size(), "" );
+    WAssert( frtMat.getNbCols() == m_SHCoefficients.size(), "" );
+    WAssert( frtMat.getNbRows() == m_SHCoefficients.size(), "" );
     // Funk-Radon-Transformation as in Descoteaux's thesis
-    for( int j = 0; j < m_SHCoefficients.size(); j++ )
+    for ( size_t j = 0; j < m_SHCoefficients.size(); j++ )
     {
         m_SHCoefficients[ j ] *= frtMat( j, j );
     }
@@ -255,7 +255,7 @@ size_t WSymmetricSphericalHarmonic::getOrder() const
   return m_order;
 }
 
-WMatrix_2 WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< WVector3d >& orientations,
+WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< WVector3d >& orientations,
                                                                         int order,
                                                                         double lambda,
                                                                         bool withFRT )
@@ -269,34 +269,34 @@ WMatrix_2 WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< WV
   return WSymmetricSphericalHarmonic::getSHFittingMatrix( sphereCoordinates, order, lambda, withFRT );
 }
 
-WMatrix_2 WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< WUnitSphereCoordinates >& orientations,
-                                                           int order,
-                                                           double lambda,
-                                                           bool withFRT )
+WMatrix<double> WSymmetricSphericalHarmonic::getSHFittingMatrix( const std::vector< WUnitSphereCoordinates >& orientations,
+                                                                        int order,
+                                                                        double lambda,
+                                                                        bool withFRT )
 {
-  WMatrix_2 B( WSymmetricSphericalHarmonic::calcBaseMatrix( orientations, order ) );
-  WMatrix_2 Bt( B.transpose() );
-  WMatrix_2 result( Bt*B );
+  WMatrix<double> B( WSymmetricSphericalHarmonic::calcBaseMatrix( orientations, order ) );
+  WMatrix<double> Bt( B.transposed() );
+  WMatrix<double> result( Bt*B );
   if( lambda != 0.0 )
   {
-    WMatrix_2 L( WSymmetricSphericalHarmonic::calcSmoothingMatrix( order ) );
+    WMatrix<double> L( WSymmetricSphericalHarmonic::calcSmoothingMatrix( order ) );
     result += lambda*L;
   }
 
   result = pseudoInverse( result )*Bt;
-
+//   result *= Bt;
   if( withFRT )
   {
-    WMatrix_2 P( WSymmetricSphericalHarmonic::calcFRTMatrix( order ) );
+    WMatrix<double> P( WSymmetricSphericalHarmonic::calcFRTMatrix( order ) );
     return ( P * result );
   }
   return result;
 }
 
-WMatrix_2 WSymmetricSphericalHarmonic::calcBaseMatrix( const std::vector< WUnitSphereCoordinates >& orientations,
+WMatrix<double> WSymmetricSphericalHarmonic::calcBaseMatrix( const std::vector< WUnitSphereCoordinates >& orientations,
                                                                     int order )
 {
-  WMatrix_2 B( orientations.size(), ( ( order + 1 ) * ( order + 2 ) ) / 2 );
+  WMatrix<double> B( orientations.size(), ( ( order + 1 ) * ( order + 2 ) ) / 2 );
 
   // calc B Matrix like in the 2007 Descoteaux paper ("Regularized, Fast, and Robust Analytical Q-Ball Imaging")
   int j = 0;
@@ -327,10 +327,10 @@ WMatrix_2 WSymmetricSphericalHarmonic::calcBaseMatrix( const std::vector< WUnitS
   return B;
 }
 
-WMatrixComplex_2
+WMatrix< std::complex< double > >
 WSymmetricSphericalHarmonic::calcComplexBaseMatrix( std::vector< WUnitSphereCoordinates > const& orientations, int order )
 {
-    WMatrixComplex_2 B( orientations.size(), ( ( order + 1 ) * ( order + 2 ) ) / 2 );
+    WMatrix< std::complex< double > > B( orientations.size(), ( ( order + 1 ) * ( order + 2 ) ) / 2 );
 
     for( std::size_t row = 0; row < orientations.size(); row++ )
     {
@@ -357,11 +357,11 @@ WSymmetricSphericalHarmonic::calcComplexBaseMatrix( std::vector< WUnitSphereCoor
     return B;
 }
 
-WMatrix_2 WSymmetricSphericalHarmonic::calcSmoothingMatrix( size_t order )
+WMatrix<double> WSymmetricSphericalHarmonic::calcSmoothingMatrix( size_t order )
 {
     size_t R = ( ( order + 1 ) * ( order + 2 ) ) / 2;
     std::size_t i = 0;
-    WMatrix_2 L( R, R );
+    WMatrix<double> L( R, R );
     for( size_t k = 0; k <= order; k += 2 )
     {
         for( int m = -static_cast< int >( k ); m <= static_cast< int >( k ); ++m )
@@ -373,11 +373,11 @@ WMatrix_2 WSymmetricSphericalHarmonic::calcSmoothingMatrix( size_t order )
     return L;
 }
 
-WMatrix_2 WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order )
+WMatrix<double> WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order )
 {
     size_t R = ( ( order + 1 ) * ( order + 2 ) ) / 2;
     std::size_t i = 0;
-    WMatrix_2 result( R, R );
+    WMatrix< double > result( R, R );
     for( size_t k = 0; k <= order; k += 2 )
     {
         double h = 2.0 * piDouble * static_cast< double >( std::pow( static_cast< double >( -1 ), static_cast< double >( k / 2 ) ) ) *
@@ -391,8 +391,8 @@ WMatrix_2 WSymmetricSphericalHarmonic::calcFRTMatrix( size_t order )
     return result;
 }
 
-WMatrix_2 WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( std::size_t order,
-                                                                const std::vector< WUnitSphereCoordinates >& orientations )
+WMatrix< double > WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( std::size_t order,
+                                                                               const std::vector< WUnitSphereCoordinates >& orientations )
 {
     std::size_t numElements = ( order + 1 ) * ( order + 2 ) / 2;
     WPrecondEquals( order % 2, 0u );
@@ -409,7 +409,7 @@ WMatrix_2 WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( std::size_t orde
     std::vector< std::size_t > indices( order, 0 );
 
     // calc tensor evaluation matrix
-    WMatrix_2 TEMat( numElements, numElements );
+    WMatrix< double > TEMat( numElements, numElements );
     for( std::size_t j = 0; j < numElements; ++j ) // j is the 'permutation index'
     {
         // stores how often each value is represented in the index array
@@ -438,7 +438,7 @@ WMatrix_2 WSymmetricSphericalHarmonic::calcSHToTensorSymMatrix( std::size_t orde
     // we do not want more orientations than nessessary
     std::vector< WUnitSphereCoordinates > ori2( orientations.begin(), orientations.begin() + numElements );
 
-    WMatrix_2 p = pseudoInverse( TEMat );
+    WMatrix< double > p = pseudoInverse( TEMat );
 
     return p * calcBaseMatrix( ori2, order );
 }
@@ -448,8 +448,9 @@ void WSymmetricSphericalHarmonic::normalize()
   double scale = 0.0;
   if( m_SHCoefficients.size() > 0 )
     scale = std::sqrt( 4.0 * piDouble ) * m_SHCoefficients[0];
-  for( int i = 0; i < m_SHCoefficients.size(); i++ )
+  for ( size_t i = 0; i < m_SHCoefficients.size(); i++ )
   {
     m_SHCoefficients[ i ] /= scale;
   }
 }
+// NOLINT

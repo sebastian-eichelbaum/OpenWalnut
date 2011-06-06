@@ -28,10 +28,11 @@
 #include <vector>
 
 #include "../WExportCommon.h"
-#include "WMath.h"
-#include "WMatrix.h"
 #include "linearAlgebra/WLinearAlgebra.h"
+#include "WMath.h"
 #include "WUnitSphereCoordinates.h"
+#include "WMatrix.h"
+#include "WValue.h"
 
 /**
  * Class for symmetric spherical harmonics
@@ -50,7 +51,7 @@ public:
      * Constructor.
      * \param SHCoefficients the initial coefficients (stored like in the mentioned Descoteaux paper).
      */
-    explicit WSymmetricSphericalHarmonic( const WVector_2& SHCoefficients );
+    explicit WSymmetricSphericalHarmonic( const WValue<double>& SHCoefficients );
 
     /**
      * Destructor.
@@ -73,17 +74,17 @@ public:
     /**
      * Returns the used coefficients (stored like in the mentioned 2007 Descoteaux paper).
      */
-    const WVector_2& getCoefficients() const;
+    const WValue<double>& getCoefficients() const;
 
     /**
      * Returns the coefficients for Schultz' SH base.
      */
-    WVector_2 getCoefficientsSchultz() const;
+    WValue< double > getCoefficientsSchultz() const;
 
     /**
      * Returns the coefficients for the complex base.
      */
-    WVectorComplex_2 getCoefficientsComplex() const;
+    WValue< std::complex< double > > getCoefficientsComplex() const;
 
     /**
      * Applies the Funk-Radon-Transformation. This is faster than matrix multiplication.
@@ -91,7 +92,7 @@ public:
      *
      * \param frtMat the frt matrix as calculated by calcFRTMatrix()
      */
-    void applyFunkRadonTransformation( const WMatrix_2& frtMat );
+    void applyFunkRadonTransformation( WMatrix< double > const& frtMat );
 
     /**
      * Return the order of the spherical harmonic.
@@ -125,7 +126,7 @@ public:
      *
      * \return The generalized fractional anisotropy.
      */
-    double calcGFA( const WMatrix_2& B ) const;
+    double calcGFA( WMatrix< double > const& B ) const;
 
     /**
     * This calculates the transformation/fitting matrix T like in the 2007 Descoteaux paper. The orientations are given as WVector3d.
@@ -135,10 +136,10 @@ public:
     * \param withFRT include the Funk-Radon-Transformation?
     * \return Transformation matrix
     */
-    static WMatrix_2 getSHFittingMatrix( const std::vector< WVector3d >& orientations,
-                                         int order,
-                                         double lambda,
-                                         bool withFRT );
+    static WMatrix<double> getSHFittingMatrix( const std::vector< WVector3d >& orientations,
+                                                      int order,
+                                                      double lambda,
+                                                      bool withFRT );
 
     /**
     * This calculates the transformation/fitting matrix T like in the 2007 Descoteaux paper. The orientations are given as WUnitSphereCoordinates .
@@ -148,7 +149,7 @@ public:
     * \param withFRT include the Funk-Radon-Transformation?
     * \return Transformation matrix
     */
-    static WMatrix_2 getSHFittingMatrix( const std::vector< WUnitSphereCoordinates >& orientations,
+    static WMatrix<double> getSHFittingMatrix( const std::vector< WUnitSphereCoordinates >& orientations,
                                                       int order,
                                                       double lambda,
                                                       bool withFRT );
@@ -159,7 +160,7 @@ public:
     * \param order The order of the spherical harmonics intended to create
     * \return The base Matrix B
     */
-    static WMatrix_2 calcBaseMatrix( const std::vector< WUnitSphereCoordinates >& orientations, int order );
+    static WMatrix<double> calcBaseMatrix( const std::vector< WUnitSphereCoordinates >& orientations, int order );
 
     /**
     * Calculates the base matrix B for the complex spherical harmonics.
@@ -167,7 +168,7 @@ public:
     * \param order The order of the spherical harmonics intended to create
     * \return The base Matrix B
     */
-    static WMatrixComplex_2 calcComplexBaseMatrix( std::vector< WUnitSphereCoordinates > const& orientations,
+    static WMatrix< std::complex< double > > calcComplexBaseMatrix( std::vector< WUnitSphereCoordinates > const& orientations,
                                                                            int order );
 
     /**
@@ -175,22 +176,22 @@ public:
     * \param order The order of the spherical harmonic
     * \return The smoothing matrix L
     */
-    static WMatrix_2 calcSmoothingMatrix( size_t order );
+    static WMatrix<double> calcSmoothingMatrix( size_t order );
 
     /**
     * Calculates the Funk-Radon-Transformation-Matrix P from the 2007 Descoteaux Paper "Regularized, Fast, and Robust Analytical Q-Ball Imaging"
     * \param order The order of the spherical harmonic
     * \return The Funk-Radon-Matrix P
     */
-    static WMatrix_2 calcFRTMatrix( size_t order );
+    static WMatrix<double> calcFRTMatrix( size_t order );
 
-    /**
+   /**
      * Calculates a matrix that converts spherical harmonics to symmetric tensors of equal or lower order.
      *
      * \param order The order of the symmetric tensor.
      * \param orientations A vector of at least (orderTensor+1) * (orderTensor+2) / 2 orientations.
      */
-    static WMatrix_2 calcSHToTensorSymMatrix( std::size_t order, const std::vector< WUnitSphereCoordinates >& orientations );
+    static WMatrix< double > calcSHToTensorSymMatrix( std::size_t order, const std::vector< WUnitSphereCoordinates >& orientations );
 
     /**
      * Normalize this SH in place.
@@ -204,7 +205,7 @@ private:
     size_t m_order;
 
     /** coefficients of the spherical harmonic */
-    WVector_2 m_SHCoefficients;
+    WValue<double> m_SHCoefficients;
 };
 
 #endif  // WSYMMETRICSPHERICALHARMONIC_H

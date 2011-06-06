@@ -100,7 +100,7 @@ WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( const WPosi
     double lambdaX = localPos[0] / m_gridRegular3D->getOffsetX();
     double lambdaY = localPos[1] / m_gridRegular3D->getOffsetY();
     double lambdaZ = localPos[2] / m_gridRegular3D->getOffsetZ();
-    std::vector< double > h( 8 );
+    WValue< double > h( 8 );
 //         lZ     lY
 //         |      /
 //         | 6___/_7
@@ -120,10 +120,10 @@ WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( const WPosi
     h[7] = (     lambdaX ) * (     lambdaY ) * (     lambdaZ );
 
     // take
-    WVector_2 interpolatedCoefficients( m_valueSet->dimension() );
+    WValue<double> interpolatedCoefficients( m_valueSet->dimension() );
     for( size_t i = 0; i < 8; ++i )
     {
-        interpolatedCoefficients += h[i] * m_valueSet->getWVector( vertexIds[i] );
+        interpolatedCoefficients += h[i] * m_valueSet->getWValueDouble( vertexIds[i] );
     }
 
     *success = true;
@@ -133,7 +133,7 @@ WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::interpolate( const WPosi
 
 WSymmetricSphericalHarmonic WDataSetSphericalHarmonics::getSphericalHarmonicAt( size_t index ) const
 {
-    if( index < m_valueSet->size() ) return WSymmetricSphericalHarmonic( m_valueSet->getWVector( index ) );
+    if( index < m_valueSet->size() ) return WSymmetricSphericalHarmonic( m_valueSet->getWValueDouble( index ) );
     return WSymmetricSphericalHarmonic();
 }
 
