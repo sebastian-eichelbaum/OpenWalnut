@@ -155,7 +155,7 @@ int WQt4Gui::run()
     WPreferences::setPreferenceFile( WPathHelper::getConfigFile() );
 
     // get the minimum log level from preferences
-    std::string logLevel;
+    std::string logLevel = "Info";
     WPreferences::getPreference( "qt4gui.logLevel", &logLevel );
     // convert to log-level. If the preference is not defined, the empty string causes logLevelFromString to return LL_DEBUG as default.
     WLogger::getLogger()->setDefaultLogLevel( logLevelFromString( logLevel ) );

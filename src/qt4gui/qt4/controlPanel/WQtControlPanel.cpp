@@ -101,12 +101,8 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
 
     {
         // Set the key for removing modules
-        std::string deleteKey = "";
+        std::string deleteKey = "Backspace";
         WPreferences::getPreference( "qt4gui.deleteModuleKey", &deleteKey );
-        if( deleteKey == "" )
-        {
-            deleteKey = "Backspace";
-        }
         m_deleteModuleAction->setShortcut( QKeySequence( QString::fromStdString( deleteKey ) ) );
     }
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
@@ -162,12 +158,8 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
 
     {
         // Set the key for removing ROIs and connect the event
-        std::string deleteKey = "";
+        std::string deleteKey = "Delete";
         WPreferences::getPreference( "qt4gui.deleteROIKey", &deleteKey );
-        if( deleteKey == "" )
-        {
-            deleteKey = "Delete";
-        }
         QShortcut* shortcut = new QShortcut( QKeySequence( QString::fromStdString( deleteKey ) ), m_roiTreeWidget );
         connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
     }
