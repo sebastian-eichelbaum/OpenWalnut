@@ -28,6 +28,8 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QMenu>
 
+class WMainWindow;
+
 /**
  * Base class for toolbars.
  */
@@ -39,7 +41,7 @@ public:
      * \param title name of the toolbar.
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
      */
-    WQtToolBarBase( const QString & title, QWidget* parent );
+    WQtToolBarBase( const QString & title, WMainWindow* parent );
 
     /**
      * Destructor.
@@ -56,6 +58,11 @@ public:
 protected:
 
 private:
+
+    /**
+     * The main window parent.
+     */
+    WMainWindow* m_mainWindow;
 };
 
 #endif  // WQTTOOLBARBASE_H

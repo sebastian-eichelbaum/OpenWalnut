@@ -43,17 +43,6 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerAc
     : WQtToolBarBase( "Compatible Modules", parent ),
       m_parent( parent )
 {
-    // this sets the toolbar style
-    int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
-    WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );
-    if( ( compToolBarStyle < 0 ) || ( compToolBarStyle > 3 ) ) // ensure a valid value
-    {
-        compToolBarStyle = 0;
-    }
-
-    // cast and set
-    setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
-
     // create the list of actions possible
     addActions( compatibles );
 }
@@ -62,16 +51,6 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent )
     : WQtToolBarBase( "Compatible Modules", parent ),
       m_parent( parent )
 {
-    // this sets the toolbar style
-    int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
-    WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );
-    if( ( compToolBarStyle < 0 ) || ( compToolBarStyle > 3 ) ) // ensure a valid value
-    {
-        compToolBarStyle = 0;
-    }
-
-    // cast and set
-    setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
 }
 
 WQtCombinerToolbar::~WQtCombinerToolbar()

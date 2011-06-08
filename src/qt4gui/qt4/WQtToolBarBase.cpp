@@ -22,10 +22,13 @@
 //
 //---------------------------------------------------------------------------
 
+#include "WMainWindow.h"
+
 #include "WQtToolBarBase.h"
 
-WQtToolBarBase::WQtToolBarBase( const QString & title, QWidget* parent ):
-    QToolBar( title, parent )
+WQtToolBarBase::WQtToolBarBase( const QString & title, WMainWindow* parent ):
+    QToolBar( title, parent ),
+    m_mainWindow( parent )
 {
     setObjectName( title );
 
@@ -33,6 +36,10 @@ WQtToolBarBase::WQtToolBarBase( const QString & title, QWidget* parent ):
 
     setMinimumWidth( 60 );
     setMinimumHeight( 40 );
+
+    // Set the style of the toolbar
+    setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( m_mainWindow->getSettings().value( "qt4gui/toolbarStyle",
+                                                                                         Qt::ToolButtonIconOnly ).toInt() ) );
 }
 
 WQtToolBarBase::~WQtToolBarBase()
@@ -50,23 +57,46 @@ QMenu* WQtToolBarBase::getStyleMenu( QString title ) const
     QAction* tbStyleMenuActionTextOnly = new QAction( "Text Only", tbStyleMenuGroup );
     QAction* tbStyleMenuActionTextBesidesIcon = new QAction( "Text besides Icon", tbStyleMenuGroup );
     QAction* tbStyleMenuActionTextUnderIcon = new QAction( "Text under Icon", tbStyleMenuGroup );
+    QAction* tbStyleMenuActionStyle = new QAction( "Follow Style", tbStyleMenuGroup );
 
     tbStyleMenuActionIconOnly->setCheckable( true );
     tbStyleMenuActionTextOnly->setCheckable( true );
     tbStyleMenuActionTextBesidesIcon->setCheckable( true );
     tbStyleMenuActionTextUnderIcon->setCheckable( true );
+    tbStyleMenuActionStyle->setCheckable( true );
 
     tbStyleMenuActionIconOnly->setActionGroup( tbStyleMenuGroup );
     tbStyleMenuActionTextOnly->setActionGroup( tbStyleMenuGroup );
     tbStyleMenuActionTextBesidesIcon->setActionGroup( tbStyleMenuGroup );
     tbStyleMenuActionTextUnderIcon->setActionGroup( tbStyleMenuGroup );
+    tbStyleMenuActionStyle->setActionGroup( tbStyleMenuGroup );
 
-    tbStyleMenuActionIconOnly->setChecked( true );
+    // set stored default
+    int style = m_mainWindow->getSettings().value( "qt4gui/toolbarStyle", Qt::ToolButtonIconOnly ).toInt();
+    switch( style )
+    {
+        case Qt::ToolButtonIconOnly:
+            tbStyleMenuActionIconOnly->setChecked( true );
+            break;
+        case Qt::ToolButtonTextOnly:
+            tbStyleMenuActionTextOnly->setChecked( true );
+            break;
+        case Qt::ToolButtonTextBesideIcon:
+            tbStyleMenuActionTextBesidesIcon->setChecked( true );
+            break;
+        case Qt::ToolButtonTextUnderIcon:
+            tbStyleMenuActionTextUnderIcon->setChecked( true );
+            break;
+        case Qt::ToolButtonFollowStyle:
+            tbStyleMenuActionStyle->setChecked( true );
+            break;
+    }
 
     tbStyleMenu->addAction( tbStyleMenuActionIconOnly );
     tbStyleMenu->addAction( tbStyleMenuActionTextOnly );
     tbStyleMenu->addAction( tbStyleMenuActionTextBesidesIcon );
     tbStyleMenu->addAction( tbStyleMenuActionTextUnderIcon );
+    tbStyleMenu->addAction( tbStyleMenuActionStyle );
 
     return tbStyleMenu;
 }

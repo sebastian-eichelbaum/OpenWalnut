@@ -46,7 +46,6 @@
 #include <QtCore/QSettings>
 
 #include "core/common/WColor.h"
-#include "core/common/WPreferences.h"
 #include "core/common/WIOTools.h"
 #include "core/common/WProjectFileIO.h"
 #include "core/common/WPathHelper.h"
@@ -76,12 +75,14 @@
 #include "WQtCustomDockWidget.h"
 #include "WQtNavGLWidget.h"
 #include "WQtGLDockWidget.h"
+#include "WQt4Gui.h"
 
 #include "WMainWindow.h"
 #include "WMainWindow.moc"
 
-WMainWindow::WMainWindow() :
+WMainWindow::WMainWindow():
     QMainWindow(),
+    m_settings( "OpenWalnut.org", "OpenWalnut" ),
     m_currentCompatiblesToolbar( NULL ),
     m_iconManager(),
     m_navSlicesAlreadyLoaded( false )
@@ -151,10 +152,6 @@ void WMainWindow::setupGUI()
     m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
 
-    // Set the style of the toolbar
-    // NOTE: this only works if the toolbar is used with QActions instead of buttons and other widgets
-    m_permanentToolBar->setToolButtonStyle( getToolbarStyle() );
-
     m_iconManager.addIcon( std::string( "ROI icon" ), box_xpm );
     m_iconManager.addIcon( std::string( "Reset icon" ), o_xpm );
     m_iconManager.addIcon( std::string( "axial icon" ), axial_xpm );
@@ -191,8 +188,7 @@ void WMainWindow::setupGUI()
     m_menuBar = new QMenuBar( this );
 
     // hide menu?
-    bool hideMenu = false;
-    WPreferences::getPreference( "qt4gui.hideMenuBar", &hideMenu );
+    bool hideMenu = m_settings.value( "qt4gui/hideMenu", false ).toBool();
     m_menuBar->setVisible( !hideMenu );
 
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
@@ -286,54 +282,24 @@ void WMainWindow::setupGUI()
 
     // initially 3 navigation views
     {
-        bool hideWidget;
-        if( !( WPreferences::getPreference( "qt4gui.hideAxial", &hideWidget ) && hideWidget) )
+        bool hideNavWidget = m_settings.value( "qt4gui/hideNavigationWidgets", false ).toBool();
+        if( !hideNavWidget )
         {
             m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", "Axial View", this, "Axial Slice",
                                                                                   m_mainGLWidget.get() ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
-        }
-        if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
-        {
+
             m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", "Coronal View", this, "Coronal Slice",
                                                                                     m_mainGLWidget.get() ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
-        }
-        if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
-        {
+
             m_navSagittal =
                 boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", "Sagittal View", this, "Sagittal Slice",
                                                                          m_mainGLWidget.get() ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
-        }
-    }
-
-    // Default background color from config file
-    WColor bgColor( 1.0, 1.0, 1.0, 1.0 );
-    double r;
-    double g;
-    double b;
-    if( WPreferences::getPreference( "ge.bgColor.r", &r )
-        && WPreferences::getPreference( "ge.bgColor.g", &g )
-        && WPreferences::getPreference( "ge.bgColor.b", &b ) )
-    {
-        bgColor.set( r, g, b, 1.0 );
-        m_mainGLWidget->setBgColor( bgColor );
-
-        if( m_navAxial )
-        {
-            m_navAxial->getGLWidget()->setBgColor( bgColor );
-        }
-        if( m_navCoronal )
-        {
-            m_navCoronal->getGLWidget()->setBgColor( bgColor );
-        }
-        if( m_navSagittal )
-        {
-            m_navSagittal->getGLWidget()->setBgColor( bgColor );
         }
     }
 
@@ -413,8 +379,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
     // load certain modules for datasets and so on.
 
     // The Data Modules also play an special role. To have modules being activated when certain data got loaded, we need to hook it up here.
-    bool useAutoDisplay = true;
-    WPreferences::getPreference( "qt4gui.useAutoDisplay", &useAutoDisplay );
+    bool useAutoDisplay = m_settings.value( "qt4gui/useAutoDisplay", true ).toBool();
     if( useAutoDisplay && module->getType() == MODULE_DATA )
     {
         WLogger::getLogger()->addLogMessage( "Auto Display active and Data module added. The proper module will be added.",
@@ -547,20 +512,6 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
             }
         }
     }
-}
-
-Qt::ToolButtonStyle WMainWindow::getToolbarStyle() const
-{
-    // this sets the toolbar style
-    int toolBarStyle = 0;
-    WPreferences::getPreference( "qt4gui.toolBarStyle", &toolBarStyle );
-    if( ( toolBarStyle < 0 ) || ( toolBarStyle > 3 ) ) // ensure a valid value
-    {
-        toolBarStyle = 0;
-    }
-
-    // cast and return
-    return static_cast< Qt::ToolButtonStyle >( toolBarStyle );
 }
 
 void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
@@ -1028,32 +979,30 @@ void WMainWindow::newRoi()
 
 void WMainWindow::restoreSavedState()
 {
-    // the state name postfix allows especially developers to have multiple OW with different GUI settings.
-    std::string stateName = "";
-    stateName = "OpenWalnut";
-    wlog::info( "MainWindow" ) << "Restoring window state from \"" << stateName << "\"";
+    wlog::info( "MainWindow" ) << "Restoring window state.";
 
-    QSettings setting( "OpenWalnut.org", QString::fromStdString( stateName ) );
-    restoreGeometry( setting.value( "MainWindowGeometry", "" ).toByteArray() );
-    restoreState( setting.value( "MainWindowState", "" ).toByteArray() );
+    restoreGeometry( m_settings.value( "MainWindowGeometry", "" ).toByteArray() );
+    restoreState( m_settings.value( "MainWindowState", "" ).toByteArray() );
 
-    m_glDock->restoreGeometry( setting.value( "GLDockWindowGeometry", "" ).toByteArray() );
-    m_glDock->restoreState( setting.value( "GLDockWindowState", "" ).toByteArray() );
+    m_glDock->restoreGeometry( m_settings.value( "GLDockWindowGeometry", "" ).toByteArray() );
+    m_glDock->restoreState( m_settings.value( "GLDockWindowState", "" ).toByteArray() );
 }
 
 void WMainWindow::saveWindowState()
 {
-    std::string stateName = "";
-    stateName = "OpenWalnut";
-    wlog::info( "MainWindow" ) << "Saving window state for \"" << stateName << "\"";
+    wlog::info( "MainWindow" ) << "Saving window state.";
 
     // this saves the window state to some common location on the target OS in user scope.
-    QSettings setting( "OpenWalnut.org", QString::fromStdString( stateName ) );
-    setting.setValue( "MainWindowState", saveState() );
-    setting.setValue( "GLDockWindowState", m_glDock->saveState() );
+    m_settings.setValue( "MainWindowState", saveState() );
+    m_settings.setValue( "GLDockWindowState", m_glDock->saveState() );
 
     // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
-    setting.setValue( "MainWindowGeometry", saveGeometry() );
-    setting.setValue( "GLDockWindowGeometry", m_glDock->saveGeometry() );
+    m_settings.setValue( "MainWindowGeometry", saveGeometry() );
+    m_settings.setValue( "GLDockWindowGeometry", m_glDock->saveGeometry() );
+}
+
+QSettings& WMainWindow::getSettings()
+{
+    return WQt4Gui::getMainWindow()->m_settings;
 }
 

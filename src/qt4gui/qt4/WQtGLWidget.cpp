@@ -33,11 +33,14 @@
 #include "core/common/WConditionOneShot.h"
 #include "core/common/WFlag.h"
 #include "core/common/WLogger.h"
+#include "core/common/WColor.h"
 #include "core/graphicsEngine/WGE2DManipulator.h"
 #include "core/graphicsEngine/WGEViewer.h"
 #include "core/graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
 #include "core/kernel/WKernel.h"
+
+#include "WMainWindow.h"
 
 #ifndef __APPLE__
     #ifndef _WIN32
@@ -87,6 +90,12 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     connect( &m_Timer, SIGNAL( timeout() ), this, SLOT( updateGL() ) );
     m_Timer.start( 10 );
 #endif
+
+    // set bg color
+    double bgR = WMainWindow::getSettings().value( "qt4gui/glBGColor/r", 1.0 ).toDouble();
+    double bgG = WMainWindow::getSettings().value( "qt4gui/glBGColor/g", 1.0 ).toDouble();
+    double bgB = WMainWindow::getSettings().value( "qt4gui/glBGColor/b", 1.0 ).toDouble();
+    m_Viewer->setBgColor( WColor( bgR, bgG, bgB, 1.0 ) );
 }
 
 WQtGLWidget::~WQtGLWidget()
@@ -121,11 +130,6 @@ void WQtGLWidget::setCameraManipulator( WQtGLWidget::CameraManipulators manipula
             m_Viewer->setCameraManipulator( new( WGEZoomTrackballManipulator ) );
             break;
     }
-}
-
-void WQtGLWidget::setBgColor( const WColor& bgColor )
-{
-    m_Viewer->setBgColor( bgColor );
 }
 
 WQtGLWidget::CameraManipulators WQtGLWidget::getCameraManipulators()

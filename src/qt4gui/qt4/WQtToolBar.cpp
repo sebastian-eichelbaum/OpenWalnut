@@ -26,9 +26,11 @@
 
 #include <QtGui/QAction>
 
+#include "WMainWindow.h"
+
 #include "WQtToolBar.h"
 
-WQtToolBar::WQtToolBar( const QString & title, QWidget* parent )
+WQtToolBar::WQtToolBar( const QString & title, WMainWindow* parent )
     : WQtToolBarBase( title, parent )
 {
 }

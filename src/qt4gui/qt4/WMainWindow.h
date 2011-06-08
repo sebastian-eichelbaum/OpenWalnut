@@ -35,6 +35,7 @@
 #include <boost/thread.hpp>
 
 #include <QtGui/QMainWindow>
+#include <QtCore/QSettings>
 
 #include "WIconManager.h"
 #include "WQtToolBar.h"
@@ -118,13 +119,6 @@ public:
     void closeCustomDockWidget( std::string title );
 
     /**
-     * This method returns the default style for ALL toolbars.
-     *
-     * \return the toolbar style
-     */
-    Qt::ToolButtonStyle getToolbarStyle() const;
-
-    /**
      * This method removes the old compatibles toolbar and sets the specified one.
      *
      * \param toolbar the toolbar to set. If NULL, the toolbar gets reset.
@@ -138,6 +132,12 @@ public:
      */
     WQtCombinerToolbar* getCompatiblesToolbar();
 
+    /**
+     * Returns the settings object.
+     *
+     * \return settings object.
+     */
+    static QSettings& getSettings();
 protected:
 
     /**
@@ -273,6 +273,11 @@ public slots:
     void projectSaveModuleOnly();
 
 private:
+    /**
+     * Object storing certain persistent application settings.
+     */
+    QSettings m_settings;
+
     /**
      * The currently set compatibles toolbar
      */

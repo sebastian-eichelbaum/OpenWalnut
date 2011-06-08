@@ -95,12 +95,6 @@ public:
     void setCameraManipulator( CameraManipulators manipulator );
 
     /**
-     * Sets the background color of the widget.
-     * \param bgColor the new backgorund color
-     */
-    void setBgColor( const WColor& bgColor );
-
-    /**
      * Returns the actually set camera manipulator.
      *
      * \return the manipulator.

@@ -25,7 +25,6 @@
 #include <iostream>
 #include <fstream>
 
-#include "core/common/WPreferences.h"
 #include "core/common/WSegmentationFault.h"
 #include "core/common/WLogger.h"
 #include "core/common/WLogStream.h"

@@ -43,7 +43,6 @@
 #include "core/common/WAssert.h"
 #include "core/common/WLimits.h"
 #include "core/common/WPathHelper.h"
-#include "core/common/WPreferences.h"
 #include "core/common/WProgress.h"
 #include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WSubject.h"
@@ -212,14 +211,6 @@ void WMMarchingCubes::properties()
     m_isoValueProp = m_properties->addProperty( "Iso value", "The surface will show the area that has this value.", 100., m_recompute );
     m_isoValueProp->setMin( wlimits::MIN_DOUBLE );
     m_isoValueProp->setMax( wlimits::MAX_DOUBLE );
-    {
-        // If set in config file use standard isovalue from config file
-        double tmpIsoValue;
-        if( WPreferences::getPreference( "modules.MC.isoValue", &tmpIsoValue ) )
-        {
-            m_isoValueProp->set( tmpIsoValue );
-        }
-    }
 
     m_opacityProp = m_properties->addProperty( "Opacity %", "Opaqueness of surface.", 100 );
     m_opacityProp->setMin( 0 );

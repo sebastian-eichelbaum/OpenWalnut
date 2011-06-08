@@ -30,6 +30,8 @@
 #include "guiElements/WQtPushButton.h"
 #include "WQtToolBarBase.h"
 
+class WMainWindow;
+
 /**
  * This is a toolbar. Its main usage for now is the "compatible modules" toolbar
  */
@@ -41,7 +43,7 @@ public:
      * \param title name of the toolbar.
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
      */
-    WQtToolBar( const QString & title, QWidget* parent );
+    WQtToolBar( const QString & title, WMainWindow* parent );
 
     /**
      * destructor
