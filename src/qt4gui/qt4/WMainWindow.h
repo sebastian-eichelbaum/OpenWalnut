@@ -274,11 +274,6 @@ public slots:
 
 private:
     /**
-     * Object storing certain persistent application settings.
-     */
-    QSettings m_settings;
-
-    /**
      * The currently set compatibles toolbar
      */
     WQtCombinerToolbar* m_currentCompatiblesToolbar;

@@ -37,6 +37,8 @@
 
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
+#include <QtCore/QSettings>
+
 
 #include "WMainWindow.h" // this has to be included before any other includes
 #include "core/common/WConditionOneShot.h"
@@ -66,13 +68,17 @@
 
 WMainWindow* WQt4Gui::m_mainWindow = NULL;
 
+QSettings* WQt4Gui::m_settings = NULL;
+
 WQt4Gui::WQt4Gui( int argc, char** argv )
     : WGUI( argc, argv )
 {
+    m_settings = new QSettings( "OpenWalnut.org", "OpenWalnut" );
 }
 
 WQt4Gui::~WQt4Gui()
 {
+    delete m_settings;
 }
 
 bool WQt4Gui::parseOptions()
@@ -375,3 +381,9 @@ void WQt4Gui::closeCustomWidget( std::string title )
 {
     m_mainWindow->closeCustomDockWidget( title );
 }
+
+QSettings& WQt4Gui::getSettings()
+{
+    return *m_settings;
+}
+

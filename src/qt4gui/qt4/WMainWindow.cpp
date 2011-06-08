@@ -82,7 +82,6 @@
 
 WMainWindow::WMainWindow():
     QMainWindow(),
-    m_settings( "OpenWalnut.org", "OpenWalnut" ),
     m_currentCompatiblesToolbar( NULL ),
     m_iconManager(),
     m_navSlicesAlreadyLoaded( false )
@@ -188,7 +187,7 @@ void WMainWindow::setupGUI()
     m_menuBar = new QMenuBar( this );
 
     // hide menu?
-    bool hideMenu = m_settings.value( "qt4gui/hideMenu", false ).toBool();
+    bool hideMenu = WQt4Gui::getSettings().value( "qt4gui/hideMenu", false ).toBool();
     m_menuBar->setVisible( !hideMenu );
 
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
@@ -282,7 +281,7 @@ void WMainWindow::setupGUI()
 
     // initially 3 navigation views
     {
-        bool hideNavWidget = m_settings.value( "qt4gui/hideNavigationWidgets", false ).toBool();
+        bool hideNavWidget = WQt4Gui::getSettings().value( "qt4gui/hideNavigationWidgets", false ).toBool();
         if( !hideNavWidget )
         {
             m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", "Axial View", this, "Axial Slice",
@@ -379,7 +378,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
     // load certain modules for datasets and so on.
 
     // The Data Modules also play an special role. To have modules being activated when certain data got loaded, we need to hook it up here.
-    bool useAutoDisplay = m_settings.value( "qt4gui/useAutoDisplay", true ).toBool();
+    bool useAutoDisplay = WQt4Gui::getSettings().value( "qt4gui/useAutoDisplay", true ).toBool();
     if( useAutoDisplay && module->getType() == MODULE_DATA )
     {
         WLogger::getLogger()->addLogMessage( "Auto Display active and Data module added. The proper module will be added.",
@@ -981,11 +980,11 @@ void WMainWindow::restoreSavedState()
 {
     wlog::info( "MainWindow" ) << "Restoring window state.";
 
-    restoreGeometry( m_settings.value( "MainWindowGeometry", "" ).toByteArray() );
-    restoreState( m_settings.value( "MainWindowState", "" ).toByteArray() );
+    restoreGeometry( WQt4Gui::getSettings().value( "MainWindowGeometry", "" ).toByteArray() );
+    restoreState( WQt4Gui::getSettings().value( "MainWindowState", "" ).toByteArray() );
 
-    m_glDock->restoreGeometry( m_settings.value( "GLDockWindowGeometry", "" ).toByteArray() );
-    m_glDock->restoreState( m_settings.value( "GLDockWindowState", "" ).toByteArray() );
+    m_glDock->restoreGeometry( WQt4Gui::getSettings().value( "GLDockWindowGeometry", "" ).toByteArray() );
+    m_glDock->restoreState( WQt4Gui::getSettings().value( "GLDockWindowState", "" ).toByteArray() );
 }
 
 void WMainWindow::saveWindowState()
@@ -993,16 +992,16 @@ void WMainWindow::saveWindowState()
     wlog::info( "MainWindow" ) << "Saving window state.";
 
     // this saves the window state to some common location on the target OS in user scope.
-    m_settings.setValue( "MainWindowState", saveState() );
-    m_settings.setValue( "GLDockWindowState", m_glDock->saveState() );
+    WQt4Gui::getSettings().setValue( "MainWindowState", saveState() );
+    WQt4Gui::getSettings().setValue( "GLDockWindowState", m_glDock->saveState() );
 
     // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
-    m_settings.setValue( "MainWindowGeometry", saveGeometry() );
-    m_settings.setValue( "GLDockWindowGeometry", m_glDock->saveGeometry() );
+    WQt4Gui::getSettings().setValue( "MainWindowGeometry", saveGeometry() );
+    WQt4Gui::getSettings().setValue( "GLDockWindowGeometry", m_glDock->saveGeometry() );
 }
 
 QSettings& WMainWindow::getSettings()
 {
-    return WQt4Gui::getMainWindow()->m_settings;
+    return WQt4Gui::getSettings();
 }
 
