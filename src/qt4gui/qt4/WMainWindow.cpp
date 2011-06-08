@@ -207,9 +207,6 @@ void WMainWindow::setupGUI()
     saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
     projectSaveButton->setMenu( saveMenu );
 
-    fileMenu->addSeparator();
-    fileMenu->addAction( m_iconManager.getIcon( "config" ), "Config", this, SLOT( openConfigDialog() ) );
-    fileMenu->addSeparator();
     // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
     //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
@@ -217,6 +214,24 @@ void WMainWindow::setupGUI()
     // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
     QMenu* viewMenu = m_menuBar->addMenu( "View" );
+    viewMenu->addAction( "Show Menubar", this, SLOT( showMenuBar() ) );
+    viewMenu->addAction( "Show Statusbar", this, SLOT( showStatusBar() ) );
+    viewMenu->addSeparator();
+    viewMenu->addAction( "Show Navigation Views", this, SLOT( showNavViews() ) );
+    viewMenu->addSeparator();
+    viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
+
+    // Camera menu
+    QMenu* cameraMenu = m_menuBar->addMenu( "Camera" );
+    cameraMenu->addAction( "Set Background Color", this, SLOT( setBGColor() ) );
+    cameraMenu->addAction( "Allow Camera Throwing", this, SLOT( setAllowThrow() ) );
+    cameraMenu->addSeparator();
+
+    QMenu* settingsMenu = m_menuBar->addMenu( "Settings" );
+    settingsMenu->addAction( "Enable Auto-Display", this, SLOT( setAutoDisplay() ) );
+
+    // a separate menu for some presets
+    QMenu* cameraPresetMenu = cameraMenu->addMenu( "Presets" );
 
     QAction* controlPanelTrigger = m_controlPanel->toggleViewAction();
     QList< QKeySequence > controlPanelShortcut;
@@ -228,37 +243,37 @@ void WMainWindow::setupGUI()
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
     // statistics ).
     // By additionally adding the action to the main window, we ensure the action can be triggered even if the menu bar is hidden.
-    QAction* tmpAction = viewMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Left", this, SLOT( setPresetViewLeft() ),
+    QAction* tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Left", this, SLOT( setPresetViewLeft() ),
                                              QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
     tmpAction->setIconVisibleInMenu( true );
     this->addAction( tmpAction );
 
-    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Right", this, SLOT( setPresetViewRight() ),
-                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
+    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Right", this, SLOT( setPresetViewRight() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
     tmpAction->setIconVisibleInMenu( true );
     this->addAction( tmpAction );
 
-    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Superior", this, SLOT( setPresetViewSuperior() ),
-                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
+    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Superior", this, SLOT( setPresetViewSuperior() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
     tmpAction->setIconVisibleInMenu( true );
     this->addAction( tmpAction );
 
-    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Inferior", this, SLOT( setPresetViewInferior() ),
-                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
+    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Inferior", this, SLOT( setPresetViewInferior() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
     tmpAction->setIconVisibleInMenu( true );
     this->addAction( tmpAction );
 
-    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Anterior", this, SLOT( setPresetViewAnterior() ),
-                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
+    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Anterior", this, SLOT( setPresetViewAnterior() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
     tmpAction->setIconVisibleInMenu( true );
     this->addAction( tmpAction );
 
-    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Posterior", this, SLOT( setPresetViewPosterior() ),
-                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
+    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Posterior", this, SLOT( setPresetViewPosterior() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
     tmpAction->setIconVisibleInMenu( true );
     this->addAction( tmpAction );
 
-    resetButton->setMenu( viewMenu );
+    resetButton->setMenu( cameraPresetMenu );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
     helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
@@ -1011,33 +1026,11 @@ void WMainWindow::newRoi()
     }
 }
 
-void WMainWindow::openConfigDialog()
-{
-    // TODO(all): we need a nice dialog box here.
-    QString msg = "OpenWalnut allows you to configure several features. Most of these options are only useful to advanced users. "
-                  "You can have a user-scope configuration in your HOME directory as \".walnut.cfg\". "
-                  "If this file exists, OpenWalnut loads this file. You can also specify a \"walnut.cfg\" in your OpenWalnut directory under "
-                  "\"share/OpenWalnut/\". A default file will be there after installation. The default file is very well documented.";
-    QMessageBox::information( this, "OpenWalnut - Configuration", msg );
-}
-
 void WMainWindow::restoreSavedState()
 {
-    // should we do it?
-    bool saveStateEnabled = true;
-    WPreferences::getPreference( "qt4gui.saveState", &saveStateEnabled );
-    if( !saveStateEnabled )
-    {
-        return;
-    }
-
     // the state name postfix allows especially developers to have multiple OW with different GUI settings.
     std::string stateName = "";
-    if( WPreferences::getPreference( "qt4gui.stateNamePostfix", &stateName ) )
-    {
-        stateName = "-" + stateName;
-    }
-    stateName = "OpenWalnut" + stateName;
+    stateName = "OpenWalnut";
     wlog::info( "MainWindow" ) << "Restoring window state from \"" << stateName << "\"";
 
     QSettings setting( "OpenWalnut.org", QString::fromStdString( stateName ) );
@@ -1050,20 +1043,8 @@ void WMainWindow::restoreSavedState()
 
 void WMainWindow::saveWindowState()
 {
-    // should we do it?
-    bool saveStateEnabled = true;
-    WPreferences::getPreference( "qt4gui.saveState", &saveStateEnabled );
-    if( !saveStateEnabled )
-    {
-        return;
-    }
-
     std::string stateName = "";
-    if( WPreferences::getPreference( "qt4gui.stateNamePostfix", &stateName ) )
-    {
-        stateName = "-" + stateName;
-    }
-    stateName = "OpenWalnut" + stateName;
+    stateName = "OpenWalnut";
     wlog::info( "MainWindow" ) << "Saving window state for \"" << stateName << "\"";
 
     // this saves the window state to some common location on the target OS in user scope.

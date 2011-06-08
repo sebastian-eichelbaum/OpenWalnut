@@ -29,14 +29,8 @@
 #include "WQtToolBar.h"
 
 WQtToolBar::WQtToolBar( const QString & title, QWidget* parent )
-    : QToolBar( title, parent )
+    : WQtToolBarBase( title, parent )
 {
-    setObjectName( title );
-
-    this->setAllowedAreas( Qt::AllToolBarAreas );
-
-    setMinimumWidth( 60 );
-    setMinimumHeight( 40 );
 }
 
 WQtToolBar::~WQtToolBar()

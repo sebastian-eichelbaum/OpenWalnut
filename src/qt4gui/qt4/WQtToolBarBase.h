@@ -22,18 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTTOOLBAR_H
-#define WQTTOOLBAR_H
+#ifndef WQTTOOLBARBASE_H
+#define WQTTOOLBARBASE_H
 
-#include <list>
-
-#include "guiElements/WQtPushButton.h"
-#include "WQtToolBarBase.h"
+#include <QtGui/QToolBar>
+#include <QtGui/QMenu>
 
 /**
- * This is a toolbar. Its main usage for now is the "compatible modules" toolbar
+ * Base class for toolbars.
  */
-class WQtToolBar : public WQtToolBarBase
+class WQtToolBarBase: public QToolBar
 {
 public:
     /**
@@ -41,34 +39,24 @@ public:
      * \param title name of the toolbar.
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
      */
-    WQtToolBar( const QString & title, QWidget* parent );
+    WQtToolBarBase( const QString & title, QWidget* parent );
 
     /**
-     * destructor
+     * Destructor.
      */
-    virtual ~WQtToolBar();
+    virtual ~WQtToolBarBase();
 
     /**
-     * Allows addition of new actions to the toolbar. See the Qt Doc of QToolBar for details. Actions have the advantage that they build a
-     * uniform interface for menus, toolbars, buttons and menued toolbuttons.
+     * Returns a menu for styling the menu items. All the handling is done internally. Just use the menu.
      *
-     * \param action the action to add.
+     * \return
      */
-    void addAction( QAction* action );
-
-    /**
-     * Removes all buttons,
-     */
-    void clearButtons();
+    QMenu* getStyleMenu( QString title = QString( "Toolbar Style" ) ) const;
 
 protected:
-
-    /**
-     * The list of widgets in this toolbar.
-     */
-    std::list< QAction* > m_actions;
 
 private:
 };
 
-#endif  // WQTTOOLBAR_H
+#endif  // WQTTOOLBARBASE_H
+

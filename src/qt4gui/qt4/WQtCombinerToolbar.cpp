@@ -40,16 +40,9 @@
 #include "WQtCombinerToolbar.moc"
 
 WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerActionList& compatibles )
-    : QToolBar( "Compatible Modules", parent ),
+    : WQtToolBarBase( "Compatible Modules", parent ),
       m_parent( parent )
 {
-    // setup toolbar
-    setAllowedAreas( Qt::AllToolBarAreas );
-    setObjectName( QString( "Compatible Modules" ) );
-
-    setMinimumWidth( 60 );
-    setMinimumHeight( 40 );
-
     // this sets the toolbar style
     int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
     WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );
@@ -66,12 +59,9 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerAc
 }
 
 WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent )
-    : QToolBar( "Compatible Modules", parent ),
+    : WQtToolBarBase( "Compatible Modules", parent ),
       m_parent( parent )
 {
-    // setup toolbar
-    setAllowedAreas( Qt::AllToolBarAreas );
-
     // this sets the toolbar style
     int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
     WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );

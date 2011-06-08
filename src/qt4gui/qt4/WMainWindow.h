@@ -272,11 +272,6 @@ public slots:
      */
     void projectSaveModuleOnly();
 
-    /**
-     * Gets called when menu option or toolbar button load is activated
-     */
-    void openConfigDialog();
-
 private:
     /**
      * The currently set compatibles toolbar
