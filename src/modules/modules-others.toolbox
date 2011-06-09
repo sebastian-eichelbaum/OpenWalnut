@@ -38,6 +38,6 @@ ADD_MODULE( vectorOperator )
    
 IF( Teem_FOUND )
     ADD_MODULE( teemGlyphs ${Teem_LIBRARIES} )
-    ADD_MODULE( bermanTracking ${Teem_LIBRARIES} )
+#    ADD_MODULE( bermanTracking ${Teem_LIBRARIES} )
 ENDIF( Teem_FOUND )
 

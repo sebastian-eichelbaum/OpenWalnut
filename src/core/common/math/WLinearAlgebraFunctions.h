@@ -98,7 +98,7 @@ bool OWCOMMON_EXPORT linearIndependent( const WVector3d& u, const WVector3d& v )
  * \param V Output Matrix
  *
  */
-void OWCOMMON_EXPORT computeSVD( const WMatrix_2& A, WMatrix_2& U, WMatrix_2& V, WVector_2& S );
+void OWCOMMON_EXPORT computeSVD( const WMatrix<double>& A, WMatrix<double>& U, WMatrix<double>& V, WValue<double>& S );
 
 /**
  * Calculates for a matrix the pseudo inverse.
@@ -108,6 +108,6 @@ void OWCOMMON_EXPORT computeSVD( const WMatrix_2& A, WMatrix_2& U, WMatrix_2& V,
  * \return Inverted Matrix
  *
  */
-WMatrix_2 OWCOMMON_EXPORT pseudoInverse( const WMatrix_2& input );
+WMatrix<double> OWCOMMON_EXPORT pseudoInverse( const WMatrix<double>& input );
 
 #endif  // WLINEARALGEBRAFUNCTIONS_H

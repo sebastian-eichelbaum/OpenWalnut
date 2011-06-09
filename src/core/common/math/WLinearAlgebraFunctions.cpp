@@ -293,32 +293,33 @@ bool linearIndependent( const WVector3d& u, const WVector3d& v )
     return true;
 }
 
-void computeSVD( const WMatrix_2& A,
-                        WMatrix_2& U,
-                        WMatrix_2& V,
-                        WVector_2& S )
+void computeSVD( const WMatrix<double>& A,
+                        WMatrix<double>& U,
+                        WMatrix<double>& V,
+                        WValue<double>& S )
 {
-    Eigen::JacobiSVD<WMatrix_2> svd( A, Eigen::ComputeFullU | Eigen::ComputeFullV );
-    U = svd.matrixU();
-    V = svd.matrixV();
-    S = svd.singularValues();
+    Eigen::MatrixXd eigenA( A );
+    Eigen::JacobiSVD<Eigen::MatrixXd> svd( eigenA, Eigen::ComputeFullU | Eigen::ComputeFullV );
+    U = WMatrix<double>( svd.matrixU() );
+    V = WMatrix<double>( svd.matrixV() );
+    S = WValue<double>( svd.singularValues() );
 }
 
-WMatrix_2 pseudoInverse( const WMatrix_2& input )
+WMatrix<double> pseudoInverse( const WMatrix<double>& input )
 {
     // calc pseudo inverse
-    WMatrix_2 U( input.rows(), input.cols() );
-    WMatrix_2 V( input.cols(), input.cols() );
-    WVector_2 Svec( input.cols() );
+    WMatrix<double> U( input.getNbRows(), input.getNbCols() );
+    WMatrix<double> V( input.getNbCols(), input.getNbCols() );
+    WValue<double> Svec( input.size() );
     computeSVD( input, U, V, Svec );
 
     // create diagonal matrix S
-    WMatrix_2 S( input.cols(), input.cols() );
+    WMatrix<double> S( input.getNbCols(), input.getNbCols() );
     S.setZero();
-    for( int i = 0; i < Svec.size() && i < S.rows() && i < S.cols(); i++ )
+    for ( size_t i = 0; i < Svec.size() && i < S.getNbRows() && i < S.getNbCols(); i++ )
     {
         S( i, i ) = ( Svec[ i ] == 0.0 ) ? 0.0 : 1.0 / Svec[ i ];
     }
 
-    return WMatrix_2( V*S*U.transpose() );
+    return WMatrix<double>( V*S*U.transposed() );
 }

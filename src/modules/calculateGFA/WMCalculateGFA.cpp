@@ -212,7 +212,7 @@ boost::array< double, 1 > WMCalculateGFA::perVoxelGFAFunc( WValueSet< double >::
 {
     ++*m_currentProgress;
     boost::array< double, 1 > a;
-    WVector_2 w( 15 );
+    WValue<double> w( 15 );
     for( int i = 0; i < 15; ++i )
     {
         w[ i ] = s[ i ];

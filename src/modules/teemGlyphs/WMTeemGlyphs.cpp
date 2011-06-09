@@ -606,7 +606,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
                 continue;
             }
 
-            WVector_2 coeffs = m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients();
+            WValue<double> coeffs( m_dataSet->getSphericalHarmonicAt( posId ).getCoefficients() );
             int countOfCoeffsToUse = 0;
             switch( m_order )
             {
@@ -646,7 +646,7 @@ void WMTeemGlyphs::GlyphGeneration::operator()( size_t id, size_t numThreads, WB
 
             for( int coeffId = 0; coeffId < countOfCoeffsToUse; ++coeffId )
             {
-                esh[ coeffId ] = coeffs( coeffId );
+                esh[ coeffId ] = coeffs[ coeffId ];
             }
 
             // change Descoteaux basis to Schulz/teem basis

@@ -362,6 +362,80 @@ public:
         return result;
     }
 
+    /**
+      * Set a row to a specific vector.
+      *
+      * \tparam RHSValueT Value type of the given matrix
+      * \tparam ValueStoreT Value store of the given matrix
+      *
+      * \param index the index of the row you want to set
+      * \param vec the values to set for the row
+      *
+      */
+    template< typename RHSValueT, ValueStoreTemplate RHSValueStoreT >
+    void  setRowVector( size_t index, const WMatrixFixed< RHSValueT, Rows, 1, RHSValueStoreT >& vec )
+    {
+        for( size_t col = 0; col < Cols; col++ )
+        {
+            at( index, col ) = vec( col, 0 );
+        }
+    }
+
+    /**
+      * Get a vector containing a specific row
+      *
+      * \param index the index of the row
+      *
+      * \return the row as a vector
+      */
+    const WMatrixFixed< ValueT, Cols, 1, ValueStoreT > getRowVector( size_t index )
+    {
+        WMatrixFixed< ValueT, Cols, 1 > result;
+        for( size_t col = 0; col < Cols; col++ )
+        {
+            result( col, 0 ) = at( index, col );
+        }
+
+        return result;
+    }
+
+    /**
+      * Set a column to a specific vector.
+      *
+      * \tparam RHSValueT Value type of the given matrix
+      * \tparam ValueStoreT Value store of the given matrix
+      *
+      * \param index the index of the column you want to set
+      * \param vec the values to set for the column
+      *
+      */
+    template< typename RHSValueT, ValueStoreTemplate RHSValueStoreT >
+    void  setColumnVector( size_t index, const WMatrixFixed< RHSValueT, Rows, 1, RHSValueStoreT >& vec )
+    {
+        for( size_t row = 0; row < Rows; row++ )
+        {
+            at( row, index ) = vec( row, 0 );
+        }
+    }
+
+    /**
+      * Get a vector containing a specific column
+      *
+      * \param index the index of the column
+      *
+      * \return the column as a vector
+      */
+    const WMatrixFixed< ValueT, Rows, 1 > getColumnVector( size_t index )
+    {
+        WMatrixFixed< ValueT, Rows, 1 > result;
+        for( size_t row = 0; row < Rows; row++ )
+        {
+            result( row, 0 ) = at( row, index );
+        }
+
+        return result;
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Conversion
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
