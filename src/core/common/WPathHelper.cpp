@@ -28,8 +28,6 @@
 
 #include <boost/tokenizer.hpp>
 
-#include "WPreferences.h"
-
 #include "WPathHelper.h"
 
 // path helper instance as singleton
@@ -143,12 +141,8 @@ std::vector< boost::filesystem::path > WPathHelper::getAllModulePaths()
     // the first element always is the global search path
     paths.push_back( getModulePath() );
 
-    std::string additionalPaths = "";
-    if( !WPreferences::getPreference< std::string >( "modules.path", &additionalPaths ) )
-    {
-        // no config option found.
-        return paths;
-    }
+    // the environment variable stores the additional paths
+    std::string additionalPaths( getenv( "OW_MODULE_PATH" ) );
 
     // separate list of additional paths:
     typedef boost::tokenizer< boost::char_separator< char > > tokenizer;

@@ -96,6 +96,20 @@ public:
      */
     void setPaintMode( int mode );
 
+    /**
+     * En-/Disables throwing.
+     *
+     * \param allowThrow if true, throwing is enabled.
+     */
+    void setThrow( bool allowThrow = true );
+
+    /**
+     * Checks whether throwing is active.
+     *
+     * \return true if active
+     */
+    bool getThrow() const;
+
 protected:
 private:
 

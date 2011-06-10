@@ -167,6 +167,10 @@ int WQt4Gui::run()
     // startup graphics engine
     m_ge = WGraphicsEngine::getGraphicsEngine();
 
+    // enable multithreading if wanted
+    bool multiThreadedViewers = WQt4Gui::getSettings().value( "qt4gui/ge/multiThreadedViewer", false ).toBool();
+    m_ge->setMultiThreadedViews( multiThreadedViewers );
+
     // and startup kernel
     m_kernel = boost::shared_ptr< WKernel >( WKernel::instance( m_ge, shared_from_this() ) );
     m_kernel->run();

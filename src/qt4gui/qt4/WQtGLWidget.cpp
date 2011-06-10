@@ -96,6 +96,14 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     double bgG = WMainWindow::getSettings().value( "qt4gui/glBGColor/g", 1.0 ).toDouble();
     double bgB = WMainWindow::getSettings().value( "qt4gui/glBGColor/b", 1.0 ).toDouble();
     m_Viewer->setBgColor( WColor( bgR, bgG, bgB, 1.0 ) );
+
+    // enable throwing of wanted
+    bool allowThrow = WMainWindow::getSettings().value( "qt4gui/ge/allowThrow", false ).toBool();
+    WGEZoomTrackballManipulator* manipulator = dynamic_cast< WGEZoomTrackballManipulator* >( m_Viewer->getCameraManipulator().get() );
+    if( manipulator )
+    {
+        manipulator->setThrow( allowThrow );
+    }
 }
 
 WQtGLWidget::~WQtGLWidget()
