@@ -53,7 +53,9 @@ public:
     /**
      * Returns a menu for styling the menu items. All the handling is done internally. Just use the menu.
      *
-     * \return
+     * \param title the title of the menu.
+     *
+     * \return the menu
      */
     QMenu* getStyleMenu( QString title = QString( "Toolbar Style" ) ) const;
 

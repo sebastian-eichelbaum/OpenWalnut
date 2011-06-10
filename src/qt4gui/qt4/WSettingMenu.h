@@ -36,7 +36,15 @@ class WSettingMenu: public QMenu
 public:
 
     /**
-     * Default constructor.
+     * Constructs a menu with the specified options and automatically handles updates.
+     *
+     * \param parent the parent widget owning this menu
+     * \param settingName the name of the setting tohandle
+     * \param menuName the menu's name
+     * \param tooltip the tooltip for the menu
+     * \param defaultValue a initial default item
+     * \param options a list of exclusive options
+     * \param showRestartInfo if true, show an info dialog that changes get applied on next start.
      */
     WSettingMenu( QWidget* parent, std::string settingName, std::string menuName, std::string tooltip, unsigned int defaultValue,
                   const QList< QString >& options, bool showRestartInfo = false );
