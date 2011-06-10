@@ -40,6 +40,7 @@
 #include "WIconManager.h"
 #include "WQtToolBar.h"
 #include "WQtGLWidget.h"
+#include "WSettingAction.h"
 #include "networkEditor/WQtNetworkEditor.h"
 #include "commandPrompt/WQtCommandPromptToolbar.h"
 
@@ -336,6 +337,11 @@ private:
      * Saves the current window states and geometries to a file.
      */
     void saveWindowState();
+
+    /**
+     * The action controlling the auto-display feature.
+     */
+    WSettingAction* m_autoDisplaySetting;
 };
 
 #endif  // WMAINWINDOW_H

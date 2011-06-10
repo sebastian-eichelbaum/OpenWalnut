@@ -76,6 +76,7 @@
 #include "WQtNavGLWidget.h"
 #include "WQtGLDockWidget.h"
 #include "WQt4Gui.h"
+#include "WSettingAction.h"
 
 #include "WMainWindow.h"
 #include "WMainWindow.moc"
@@ -95,6 +96,43 @@ WMainWindow::~WMainWindow()
 
 void WMainWindow::setupGUI()
 {
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Setting setup
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    WSettingAction* hideMenuAction = new WSettingAction( this, "qt4gui/showMenu",
+                                                               "Show Menubar",
+                                                               "Allows you to hide the menu. Can be restored using CTRL-M.",
+                                                               true,
+                                                               false,
+                                                               QKeySequence( Qt::CTRL + Qt::Key_M ) );
+
+    WSettingAction* showNavWidgets = new WSettingAction( this, "qt4gui/showNavigationWidgets",
+                                                               "Show Navigation Views",
+                                                               "Disables the navigation views completely. This can lead to a speed-up and is "
+                                                               "recommended for those who do not need them.",
+                                                               true,
+                                                               true    // this requires a restart
+                                                       );
+    m_autoDisplaySetting = new WSettingAction( this, "qt4gui/useAutoDisplay",
+                                                     "Auto-Display",
+                                                     "If enabled, the best matching module is automatically added if some data was loaded.",
+                                                     true );
+
+    WSettingAction* mtViews = new WSettingAction( this, "qt4gui/ge/multiThreadedViewer",
+                                                        "Multi-threaded Views",
+                                                        "If enabled, the graphic windows are rendered in different threads. This can speed-up "
+                                                        "rendering on machines with multiple cores.",
+                                                        false,
+                                                        true // require restart
+                                                );
+    // NOTE: the multi-threading feature needs to be activated BEFORE the first viewer is created. To ensure this we do it here.
+    WGraphicsEngine::getGraphicsEngine()->setMultiThreadedViews( mtViews->get() );
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // GUI setup
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
     m_iconManager.addIcon( std::string( "loadProject" ), projOpen_xpm );
     m_iconManager.addIcon( std::string( "saveProject" ), projSave_xpm );
@@ -187,8 +225,9 @@ void WMainWindow::setupGUI()
     m_menuBar = new QMenuBar( this );
 
     // hide menu?
-    bool hideMenu = WQt4Gui::getSettings().value( "qt4gui/hideMenu", false ).toBool();
-    m_menuBar->setVisible( !hideMenu );
+    m_menuBar->setVisible( hideMenuAction->get() );
+    connect( hideMenuAction, SIGNAL( change( bool ) ), m_menuBar, SLOT( setVisible( bool ) ) );
+    addAction( hideMenuAction );
 
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
 
@@ -209,21 +248,25 @@ void WMainWindow::setupGUI()
     // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
     QMenu* viewMenu = m_menuBar->addMenu( "View" );
-    viewMenu->addAction( "Show Menubar", this, SLOT( showMenuBar() ), QKeySequence( Qt::CTRL + Qt::Key_M ) );
-    viewMenu->addAction( "Show Statusbar", this, SLOT( showStatusBar() ) );
+    viewMenu->addAction( hideMenuAction );
     viewMenu->addSeparator();
-    viewMenu->addAction( "Show Navigation Views", this, SLOT( showNavViews() ) );
+    viewMenu->addAction( showNavWidgets );
     viewMenu->addSeparator();
     viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
 
     // Camera menu
+    QMenu* bgColorMenu = new QMenu( "Background Colors" );
+    bgColorMenu->addAction( mainGLDock->getGLWidget()->getBackgroundColorAction() );
+
     QMenu* cameraMenu = m_menuBar->addMenu( "Camera" );
-    cameraMenu->addAction( "Set Background Color", this, SLOT( setBGColor() ) );
-    cameraMenu->addAction( "Allow Camera Throwing", this, SLOT( setAllowThrow() ) );
+    cameraMenu->addAction( mainGLDock->getGLWidget()->getThrowingSetting() );
+    cameraMenu->addMenu( bgColorMenu );
     cameraMenu->addSeparator();
 
     QMenu* settingsMenu = m_menuBar->addMenu( "Settings" );
-    settingsMenu->addAction( "Enable Auto-Display", this, SLOT( setAutoDisplay() ) );
+    settingsMenu->addAction( m_autoDisplaySetting );
+    settingsMenu->addAction( mtViews );
+    settingsMenu->addAction( "Log Level", this, SLOT( setLogLevel() ) );
 
     // a separate menu for some presets
     QMenu* cameraPresetMenu = cameraMenu->addMenu( "Presets" );
@@ -281,8 +324,7 @@ void WMainWindow::setupGUI()
 
     // initially 3 navigation views
     {
-        bool hideNavWidget = WQt4Gui::getSettings().value( "qt4gui/hideNavigationWidgets", false ).toBool();
-        if( !hideNavWidget )
+        if( showNavWidgets->get() )
         {
             m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", "Axial View", this, "Axial Slice",
                                                                                   m_mainGLWidget.get() ) );
@@ -299,6 +341,10 @@ void WMainWindow::setupGUI()
                                                                          m_mainGLWidget.get() ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
+
+            bgColorMenu->addAction( m_navAxial->getGLWidget()->getBackgroundColorAction() );
+            bgColorMenu->addAction( m_navCoronal->getGLWidget()->getBackgroundColorAction() );
+            bgColorMenu->addAction( m_navSagittal->getGLWidget()->getBackgroundColorAction() );
         }
     }
 
@@ -378,7 +424,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
     // load certain modules for datasets and so on.
 
     // The Data Modules also play an special role. To have modules being activated when certain data got loaded, we need to hook it up here.
-    bool useAutoDisplay = WQt4Gui::getSettings().value( "qt4gui/useAutoDisplay", true ).toBool();
+    bool useAutoDisplay = m_autoDisplaySetting->get();
     if( useAutoDisplay && module->getType() == MODULE_DATA )
     {
         WLogger::getLogger()->addLogMessage( "Auto Display active and Data module added. The proper module will be added.",

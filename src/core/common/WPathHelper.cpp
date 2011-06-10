@@ -142,7 +142,7 @@ std::vector< boost::filesystem::path > WPathHelper::getAllModulePaths()
     paths.push_back( getModulePath() );
 
     // the environment variable stores the additional paths
-    std::string additionalPaths( getenv( "OW_MODULE_PATH" ) );
+    std::string additionalPaths( getenv( "OW_MODULE_PATH" ) ? getenv( "OW_MODULE_PATH" ) : "" );
 
     // separate list of additional paths:
     typedef boost::tokenizer< boost::char_separator< char > > tokenizer;
