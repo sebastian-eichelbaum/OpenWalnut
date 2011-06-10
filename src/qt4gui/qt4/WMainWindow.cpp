@@ -209,7 +209,7 @@ void WMainWindow::setupGUI()
     // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
     QMenu* viewMenu = m_menuBar->addMenu( "View" );
-    viewMenu->addAction( "Show Menubar", this, SLOT( showMenuBar() ) );
+    viewMenu->addAction( "Show Menubar", this, SLOT( showMenuBar() ), QKeySequence( Qt::CTRL + Qt::Key_M ) );
     viewMenu->addAction( "Show Statusbar", this, SLOT( showStatusBar() ) );
     viewMenu->addSeparator();
     viewMenu->addAction( "Show Navigation Views", this, SLOT( showNavViews() ) );
