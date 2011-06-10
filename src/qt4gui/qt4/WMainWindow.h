@@ -273,6 +273,12 @@ public slots:
      */
     void projectSaveModuleOnly();
 
+    /**
+     * Is able to handle updates in the log-level setting.
+     *
+     * \param logLevel the new loglevel to set
+     */
+    void handleLogLevelUpdate( unsigned int logLevel );
 private:
     /**
      * The currently set compatibles toolbar

@@ -24,9 +24,12 @@
 
 #include "WMainWindow.h"
 
-#include "WQtToolBarBase.h"
+#include "WSettingMenu.h"
 
-WQtToolBarBase::WQtToolBarBase( const QString & title, WMainWindow* parent ):
+#include "WQtToolBarBase.h"
+#include "WQtToolBarBase.moc"
+
+WQtToolBarBase::WQtToolBarBase( const QString& title, WMainWindow* parent ):
     QToolBar( title, parent ),
     m_mainWindow( parent )
 {
@@ -37,67 +40,36 @@ WQtToolBarBase::WQtToolBarBase( const QString & title, WMainWindow* parent ):
     setMinimumWidth( 60 );
     setMinimumHeight( 40 );
 
-    // Set the style of the toolbar
-    setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( m_mainWindow->getSettings().value( "qt4gui/toolbarStyle",
-                                                                                         Qt::ToolButtonIconOnly ).toInt() ) );
+    // automatism for toolbar style
+    QList< QString > styleOptions;
+    styleOptions.push_back( "Icon Only" );
+    styleOptions.push_back( "Text Only" );
+    styleOptions.push_back( "Text besides Icon" );
+    styleOptions.push_back( "Text under Icon" );
+    styleOptions.push_back( "Follow Style" );
+    m_styleOptionMenu = new WSettingMenu( parent, "qt4gui/" + windowTitle().toStdString() + "toolbarStyle",
+                                                  title.toStdString(),
+                                                  "Allows to change the style of toolbars..",
+                                                  0,
+                                                  styleOptions );
+    connect( m_styleOptionMenu, SIGNAL( change( unsigned int ) ), this, SLOT( handleStyleUpdate( unsigned int ) ) );
+    handleStyleUpdate( m_styleOptionMenu->get() );
 }
 
 WQtToolBarBase::~WQtToolBarBase()
 {
     // cleanup
+    delete m_styleOptionMenu;
 }
 
 QMenu* WQtToolBarBase::getStyleMenu( QString title ) const
 {
-    QMenu* tbStyleMenu = new QMenu( title );
+    m_styleOptionMenu->setTitle( title );
+    return m_styleOptionMenu;
+}
 
-    // create radio-button like behaviour
-    QActionGroup* tbStyleMenuGroup = new QActionGroup( tbStyleMenu );
-    QAction* tbStyleMenuActionIconOnly = new QAction( "Icon Only", tbStyleMenuGroup );
-    QAction* tbStyleMenuActionTextOnly = new QAction( "Text Only", tbStyleMenuGroup );
-    QAction* tbStyleMenuActionTextBesidesIcon = new QAction( "Text besides Icon", tbStyleMenuGroup );
-    QAction* tbStyleMenuActionTextUnderIcon = new QAction( "Text under Icon", tbStyleMenuGroup );
-    QAction* tbStyleMenuActionStyle = new QAction( "Follow Style", tbStyleMenuGroup );
-
-    tbStyleMenuActionIconOnly->setCheckable( true );
-    tbStyleMenuActionTextOnly->setCheckable( true );
-    tbStyleMenuActionTextBesidesIcon->setCheckable( true );
-    tbStyleMenuActionTextUnderIcon->setCheckable( true );
-    tbStyleMenuActionStyle->setCheckable( true );
-
-    tbStyleMenuActionIconOnly->setActionGroup( tbStyleMenuGroup );
-    tbStyleMenuActionTextOnly->setActionGroup( tbStyleMenuGroup );
-    tbStyleMenuActionTextBesidesIcon->setActionGroup( tbStyleMenuGroup );
-    tbStyleMenuActionTextUnderIcon->setActionGroup( tbStyleMenuGroup );
-    tbStyleMenuActionStyle->setActionGroup( tbStyleMenuGroup );
-
-    // set stored default
-    int style = m_mainWindow->getSettings().value( "qt4gui/toolbarStyle", Qt::ToolButtonIconOnly ).toInt();
-    switch( style )
-    {
-        case Qt::ToolButtonIconOnly:
-            tbStyleMenuActionIconOnly->setChecked( true );
-            break;
-        case Qt::ToolButtonTextOnly:
-            tbStyleMenuActionTextOnly->setChecked( true );
-            break;
-        case Qt::ToolButtonTextBesideIcon:
-            tbStyleMenuActionTextBesidesIcon->setChecked( true );
-            break;
-        case Qt::ToolButtonTextUnderIcon:
-            tbStyleMenuActionTextUnderIcon->setChecked( true );
-            break;
-        case Qt::ToolButtonFollowStyle:
-            tbStyleMenuActionStyle->setChecked( true );
-            break;
-    }
-
-    tbStyleMenu->addAction( tbStyleMenuActionIconOnly );
-    tbStyleMenu->addAction( tbStyleMenuActionTextOnly );
-    tbStyleMenu->addAction( tbStyleMenuActionTextBesidesIcon );
-    tbStyleMenu->addAction( tbStyleMenuActionTextUnderIcon );
-    tbStyleMenu->addAction( tbStyleMenuActionStyle );
-
-    return tbStyleMenu;
+void WQtToolBarBase::handleStyleUpdate( unsigned int index )
+{
+    setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( index ) );
 }
 

@@ -77,6 +77,7 @@
 #include "WQtGLDockWidget.h"
 #include "WQt4Gui.h"
 #include "WSettingAction.h"
+#include "WSettingMenu.h"
 
 #include "WMainWindow.h"
 #include "WMainWindow.moc"
@@ -128,6 +129,21 @@ void WMainWindow::setupGUI()
                                                 );
     // NOTE: the multi-threading feature needs to be activated BEFORE the first viewer is created. To ensure this we do it here.
     WGraphicsEngine::getGraphicsEngine()->setMultiThreadedViews( mtViews->get() );
+
+    // set the log-level setting.
+    // NOTE: see WQt4Gui which reads the setting.
+    QList< QString > logOptions;
+    logOptions.push_back( "Debug" );
+    logOptions.push_back( "Info" );
+    logOptions.push_back( "Warning" );
+    logOptions.push_back( "Error" );
+    WSettingMenu* logLevels = new WSettingMenu( this, "qt4gui/logLevel",
+                                                      "Log-Level",
+                                                      "Allows to set the log verbosity.",
+                                                      1,    // info is the default
+                                                      logOptions
+                                              );
+    connect( logLevels, SIGNAL( change( unsigned int ) ), this, SLOT( handleLogLevelUpdate( unsigned int ) ) );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // GUI setup
@@ -186,7 +202,7 @@ void WMainWindow::setupGUI()
     m_mainGLWidget = mainGLDock->getGLWidget();
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
 
-    m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
+    m_permanentToolBar = new WQtToolBar( "Standard Toolbar", this );
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
 
     m_iconManager.addIcon( std::string( "ROI icon" ), box_xpm );
@@ -195,12 +211,12 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
     m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
 
-    m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
+    m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "Load", m_permanentToolBar );
     QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
     QAction* resetButton = new QAction( m_iconManager.getIcon( "view" ), "Reset", m_permanentToolBar );
     resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
-    QAction* projectLoadButton = new QAction( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
-    QAction* projectSaveButton = new QAction( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
+    QAction* projectLoadButton = new QAction( m_iconManager.getIcon( "loadProject" ), "Load Project", m_permanentToolBar );
+    QAction* projectSaveButton = new QAction( m_iconManager.getIcon( "saveProject" ), "Save Project", m_permanentToolBar );
 
     connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
     connect( resetButton, SIGNAL(  triggered( bool ) ), m_mainGLWidget.get(), SLOT( reset() ) );
@@ -266,7 +282,7 @@ void WMainWindow::setupGUI()
     QMenu* settingsMenu = m_menuBar->addMenu( "Settings" );
     settingsMenu->addAction( m_autoDisplaySetting );
     settingsMenu->addAction( mtViews );
-    settingsMenu->addAction( "Log Level", this, SLOT( setLogLevel() ) );
+    settingsMenu->addMenu( logLevels );
 
     // a separate menu for some presets
     QMenu* cameraPresetMenu = cameraMenu->addMenu( "Presets" );
@@ -573,6 +589,11 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
         // So create a dummy to permanently reserve the space
         m_currentCompatiblesToolbar = new WQtCombinerToolbar( this );
     }
+
+    // we want to keep the tool-button styles in sync
+    m_currentCompatiblesToolbar->setToolButtonStyle( m_permanentToolBar->toolButtonStyle() );
+    connect( m_permanentToolBar, SIGNAL( toolButtonStyleChanged( Qt::ToolButtonStyle ) ),
+             m_currentCompatiblesToolbar, SLOT( setToolButtonStyle( Qt::ToolButtonStyle ) ) );
 
     // and the position of the toolbar
     addToolBar( Qt::TopToolBarArea, m_currentCompatiblesToolbar );
@@ -1051,3 +1072,7 @@ QSettings& WMainWindow::getSettings()
     return WQt4Gui::getSettings();
 }
 
+void WMainWindow::handleLogLevelUpdate( unsigned int logLevel )
+{
+    WLogger::getLogger()->setDefaultLogLevel( static_cast< LogLevel >( logLevel ) );
+}

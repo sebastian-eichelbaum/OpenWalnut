@@ -22,64 +22,73 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTTOOLBARBASE_H
-#define WQTTOOLBARBASE_H
+#ifndef WSETTINGMENU_H
+#define WSETTINGMENU_H
 
-#include <QtGui/QToolBar>
 #include <QtGui/QMenu>
 
-class WMainWindow;
-class WSettingMenu;
-
 /**
- * Base class for toolbars.
+ * Similar to WSettingAction, this can handle a multi-option setting as QMenu.
  */
-class WQtToolBarBase: public QToolBar
+class WSettingMenu: public QMenu
 {
     Q_OBJECT
 public:
+
     /**
-     * Constructs the toolbar.
-     * \param title name of the toolbar.
-     * \param parent the parent widget of this widget, i.e. the widget that manages it.
+     * Default constructor.
      */
-    WQtToolBarBase( const QString & title, WMainWindow* parent );
+    WSettingMenu( QWidget* parent, std::string settingName, std::string menuName, std::string tooltip, unsigned int defaultValue,
+                  const QList< QString >& options, bool showRestartInfo = false );
 
     /**
      * Destructor.
      */
-    virtual ~WQtToolBarBase();
+    virtual ~WSettingMenu();
 
     /**
-     * Returns a menu for styling the menu items. All the handling is done internally. Just use the menu.
+     * Returns the current setting.
      *
-     * \return
+     * \return current setting
      */
-    QMenu* getStyleMenu( QString title = QString( "Toolbar Style" ) ) const;
+    unsigned int get() const;
+
+signals:
+
+    /**
+     * Signal getting emitted if the selected option changes.
+     *
+     * \param index the new index.
+     */
+    void change( unsigned int index );
 
 protected:
 
 private:
+    /**
+     * The name of the setting handled here.
+     */
+    QString m_settingName;
 
     /**
-     * The main window parent.
+     * If true, a change of the setting causes an restart notification dialog.
      */
-    WMainWindow* m_mainWindow;
+    bool m_showRestartInfo;
 
     /**
-     * The options for toolbar style.
+     * Tracks the currently selected option.
      */
-    WSettingMenu* m_styleOptionMenu;
+    unsigned int m_currentItem;
 
 private slots:
 
     /**
-     * Used to update the style of this toolbar.
+     * Handles updates in the option.
      *
-     * \param index the new index in the option list.
+     * \param action the triggered action.
      */
-    void handleStyleUpdate( unsigned int index );
+    void handleUpdate( QAction* action );
 };
 
-#endif  // WQTTOOLBARBASE_H
+#endif  // WSETTINGMENU_H
 
