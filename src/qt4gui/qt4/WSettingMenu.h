@@ -25,6 +25,8 @@
 #ifndef WSETTINGMENU_H
 #define WSETTINGMENU_H
 
+#include <string>
+
 #include <QtGui/QMenu>
 
 /**

@@ -102,8 +102,8 @@ WQtGLWidget::WQtGLWidget( std::string nameOfViewer, QWidget* parent, WGECamera::
     // enable throwing of wanted
     m_allowThrowSetting = new WSettingAction( parent, std::string( "qt4gui/" ) + nameOfViewer + std::string( "/allowThrow" ),
                                                       "Camera Throwing",
-                                                      "If enabled, the camera can be thrown. Try it by dragging the camera. The camera then continues "
-                                                      "the movement.",
+                                                      "If enabled, the camera can be thrown. Try it by dragging the camera. "
+                                                      "The camera then continues the movement.",
                                                       false );
     connect( m_allowThrowSetting, SIGNAL( change( bool ) ), this, SLOT( updateThrowing() ) );
     updateThrowing();

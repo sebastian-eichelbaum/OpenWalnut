@@ -25,6 +25,8 @@
 #ifndef WSETTINGACTION_H
 #define WSETTINGACTION_H
 
+#include <string>
+
 #include <QtGui/QAction>
 #include <QtGui/QMessageBox>
 

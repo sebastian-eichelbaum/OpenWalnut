@@ -44,7 +44,7 @@ WSettingAction::WSettingAction( QObject* parent, std::string settingName, std::s
     setToolTip( QString::fromStdString( tooltip ) );
 
     // set with current value
-    setChecked( WQt4Gui::getSettings().value( QString::fromStdString( settingName), defaultValue ).toBool() );
+    setChecked( WQt4Gui::getSettings().value( QString::fromStdString( settingName ), defaultValue ).toBool() );
 
     // handle the change
     connect( this, SIGNAL( toggled( bool ) ), this, SLOT( stateChange( bool ) ) );
