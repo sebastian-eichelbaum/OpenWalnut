@@ -281,7 +281,11 @@ void WMainWindow::setupGUI()
 
     QMenu* settingsMenu = m_menuBar->addMenu( "Settings" );
     settingsMenu->addAction( m_autoDisplaySetting );
+    settingsMenu->addAction( "Configure Whitelist", this, SLOT( configureWhiteList() ) );
+    settingsMenu->addAction( "Configure Blacklist", this, SLOT( configureBlackList() ) );
+    settingsMenu->addSeparator();
     settingsMenu->addAction( mtViews );
+    settingsMenu->addSeparator();
     settingsMenu->addMenu( logLevels );
 
     // a separate menu for some presets
@@ -1076,3 +1080,16 @@ void WMainWindow::handleLogLevelUpdate( unsigned int logLevel )
 {
     WLogger::getLogger()->setDefaultLogLevel( static_cast< LogLevel >( logLevel ) );
 }
+
+void WMainWindow::configureBlackList()
+{
+    // WQt4Gui::getSettings().setValue( "qt4gui/modules/whiteList", QString() );
+    // TODO(ebaum): implement me
+}
+
+void WMainWindow::configureWhiteList()
+{
+    // WQt4Gui::getSettings().setValue( "qt4gui/modules/blackList", QString() );
+    // TODO(ebaum): implement me
+}
+

@@ -29,13 +29,12 @@
 
 #include <QtGui/QMenu>
 
-#include "core/common/WPreferences.h"
 #include "core/kernel/combiner/WApplyCombiner.h"
 #include "core/kernel/combiner/WModuleOneToOneCombiner.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleCombiner.h"
 #include "guiElements/WQtModuleOneToOneCombinerAction.h"
-#include "WMainWindow.h"
+#include "WQt4Gui.h"
 #include "WQtCombinerActionList.h"
 
 WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles,
@@ -43,13 +42,11 @@ WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* ico
     QList< QAction* >()
 {
     // These modules will be allowed to be shown.
-    std::string moduleWhiteListString;
-    WPreferences::getPreference( "modules.whiteList", &moduleWhiteListString );
+    std::string moduleWhiteListString = WQt4Gui::getSettings().value( "qt4gui/modules/whiteList", "" ).toString().toStdString();
     std::vector< std::string > moduleWhiteList = string_utils::tokenize( moduleWhiteListString, "," );
 
     // These modules will be forbidden to be shown.
-    std::string moduleBlackListString;
-    WPreferences::getPreference( "modules.blackList", &moduleBlackListString );
+    std::string moduleBlackListString = WQt4Gui::getSettings().value( "qt4gui/modules/blackList", "" ).toString().toStdString();
     std::vector< std::string > moduleBlackList = string_utils::tokenize( moduleBlackListString, "," );
 
     // create an action for each group:

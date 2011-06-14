@@ -279,6 +279,17 @@ public slots:
      * \param logLevel the new loglevel to set
      */
     void handleLogLevelUpdate( unsigned int logLevel );
+
+    /**
+     * Uses a modal dialog to allow the user modifying its module black.
+     */
+    void configureBlackList();
+
+    /**
+     * Uses a modal dialog to allow the user modifying its module whitelist.
+     */
+    void configureWhiteList();
+
 private:
     /**
      * The currently set compatibles toolbar
