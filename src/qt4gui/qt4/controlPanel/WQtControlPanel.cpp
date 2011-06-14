@@ -170,6 +170,10 @@ WQtControlPanel::~WQtControlPanel()
 
 void WQtControlPanel::connectSlots()
 {
+    // if the user changes some white/blacklist setting: update.
+    connect( m_mainWindow, SIGNAL( whiteListChanged() ), this, SLOT( selectTreeItem() ) );
+    connect( m_mainWindow, SIGNAL( blackListChanged() ), this, SLOT( selectTreeItem() ) );
+
     connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem( QTreeWidgetItem*, int ) ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );

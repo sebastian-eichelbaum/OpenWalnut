@@ -139,6 +139,18 @@ public:
      * \return settings object.
      */
     static QSettings& getSettings();
+
+signals:
+    /**
+     * Signal, which is emitted if the module whitelist has changed.
+     */
+    void whiteListChanged();
+
+    /**
+     * Signal, which is emitted if the module blacklist has changed.
+     */
+    void blackListChanged();
+
 protected:
 
     /**

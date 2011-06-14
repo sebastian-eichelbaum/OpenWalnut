@@ -44,6 +44,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 #include <QtCore/QSettings>
+#include <QtGui/QInputDialog>
 
 #include "core/common/WColor.h"
 #include "core/common/WIOTools.h"
@@ -1083,13 +1084,41 @@ void WMainWindow::handleLogLevelUpdate( unsigned int logLevel )
 
 void WMainWindow::configureBlackList()
 {
-    // WQt4Gui::getSettings().setValue( "qt4gui/modules/whiteList", QString() );
-    // TODO(ebaum): implement me
+    bool ok;
+    QString currentList = WQt4Gui::getSettings().value( "qt4gui/modules/blackList", "" ).toString();
+    QString nexList = QInputDialog::getText( this, "Edit Blacklist",
+            "<b>Blacklist</b> - exclude modules from all the module lists in OpenWalnut. <br> This can be useful to exclude modules explicitly, "
+            "which are not needed."
+            "<ul>"
+                "<li> Comma-separated"
+                "<li> Regular expressions allowed"
+            "</ul>"
+            , QLineEdit::Normal, currentList, &ok );
+    if ( ok )
+    {
+        WQt4Gui::getSettings().setValue( "qt4gui/modules/blackList", nexList );
+
+        emit blackListChanged();
+    }
 }
 
 void WMainWindow::configureWhiteList()
 {
-    // WQt4Gui::getSettings().setValue( "qt4gui/modules/blackList", QString() );
-    // TODO(ebaum): implement me
+    bool ok;
+    QString currentList = WQt4Gui::getSettings().value( "qt4gui/modules/whiteList", "" ).toString();
+    QString nexList = QInputDialog::getText( this, "Edit Whitelist",
+            "<b>Whitelist</b> - exclude modules from all the module lists in OpenWalnut, which are not listed here. <br>"
+            "This can be useful to exclude modules implicitly by only listing modules which are needed."
+            "<ul>"
+                "<li> Comma-separated"
+                "<li> Regular expressions allowed"
+            "</ul>"
+            , QLineEdit::Normal, currentList, &ok );
+    if ( ok )
+    {
+        WQt4Gui::getSettings().setValue( "qt4gui/modules/whiteList", nexList );
+
+        emit whiteListChanged();
+    }
 }
 
