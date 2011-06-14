@@ -42,7 +42,6 @@
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
 #include "../common/WPathHelper.h"
-#include "../common/WPreferences.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WGEViewer.h"
 #include "exceptions/WGEInitFailed.h"

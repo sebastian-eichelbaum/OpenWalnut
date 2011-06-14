@@ -22,7 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../common/WPreferences.h"
 #include "WGEZoomTrackballManipulator.h"
 #include "WGraphicsEngine.h"
 
