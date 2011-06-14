@@ -36,7 +36,6 @@
 #include <QtGui/QSplitter>
 
 #include "core/common/WLogger.h"
-#include "core/common/WPreferences.h"
 #include "core/dataHandler/WDataSet.h"
 #include "core/kernel/modules/data/WMData.h"
 #include "core/kernel/WKernel.h"
@@ -98,12 +97,10 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_moduleTreeWidget->addAction( separator );
 
     m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
-
     {
         // Set the key for removing modules
-        std::string deleteKey = "Backspace";
-        WPreferences::getPreference( "qt4gui.deleteModuleKey", &deleteKey );
-        m_deleteModuleAction->setShortcut( QKeySequence( QString::fromStdString( deleteKey ) ) );
+        m_deleteModuleAction->setShortcutContext( Qt::WidgetShortcut );
+        m_deleteModuleAction->setShortcut( QKeySequence( "Delete" ) );
     }
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
@@ -156,13 +153,15 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
 
     connectSlots();
 
+    // similar to the module delete action: a ROI delete action
+    m_deleteRoiAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove ROI", m_roiTreeWidget );
     {
-        // Set the key for removing ROIs and connect the event
-        std::string deleteKey = "Delete";
-        WPreferences::getPreference( "qt4gui.deleteROIKey", &deleteKey );
-        QShortcut* shortcut = new QShortcut( QKeySequence( QString::fromStdString( deleteKey ) ), m_roiTreeWidget );
-        connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
+        // Set the key for removing modules
+        m_deleteRoiAction->setShortcutContext( Qt::WidgetShortcut );
+        m_deleteRoiAction->setShortcut( QKeySequence( "Delete" ) );
     }
+    connect( m_deleteRoiAction, SIGNAL( triggered() ), this, SLOT( deleteROITreeItem() ) );
+    m_roiTreeWidget->addAction( m_deleteModuleAction );
 }
 
 WQtControlPanel::~WQtControlPanel()

@@ -29,7 +29,6 @@
 #include <QtGui/QLabel>
 #include <QtGui/QMenu>
 
-#include "core/common/WPreferences.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleCombiner.h"
 

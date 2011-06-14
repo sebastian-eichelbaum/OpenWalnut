@@ -278,6 +278,11 @@ private:
     QAction* m_deleteModuleAction;
 
     /**
+     * The action to remove a ROI from the tree.
+     */
+    QAction* m_deleteRoiAction;
+
+    /**
      * Action which uses a compatibles list (submenu) to connect a selected item with other existing modules.
      */
     QAction* m_connectWithModuleAction;
