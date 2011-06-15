@@ -39,6 +39,7 @@
 #include "core/common/WPathHelper.h"
 
 #include "WQt4Gui.h"
+#include "WMainWindow.h"
 
 #include "WQtModuleExcluder.h"
 #include "WQtModuleExcluder.moc"
@@ -167,6 +168,9 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
     layout->addWidget( m_list );
     setLayout( layout );
 
+    // for modules without icon, use this
+    QIcon noIcon = WQt4Gui::getMainWindow()->getIconManager()->getIcon( "DefaultModuleIcon" );
+
     // fill the list item
     for( std::vector< WModule::ConstSPtr >::const_iterator iter = m_moduleList.begin(); iter != m_moduleList.end(); ++iter )
     {
@@ -190,21 +194,26 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
             m_moduleItemMap[ ( *iter )->getName() ] = check;
 
             ++column;
+
+            // now, an icon
+            QLabel* icon = new QLabel();
+            icon->setSizePolicy( sizePolicy );
+
             // if there is an icon -> show it
             if( ( *iter )->getXPMIcon() )
             {
-                QLabel* icon = new QLabel();
-                icon->setSizePolicy( sizePolicy );
-
                 // we need to enforce some size
                 QPixmap qicon( ( *iter )->getXPMIcon() );
                 qicon = qicon.scaled( 32, 32, Qt::KeepAspectRatio );
-
                 icon->setPixmap( qicon );
-                layoutWidget->addWidget( icon, 0, column, 2, 1 );
-
-                ++column;
             }
+            else
+            {
+                icon->setPixmap( noIcon.pixmap( 32, 32 ) );
+            }
+
+            layoutWidget->addWidget( icon, 0, column, 2, 1 );
+            ++column;
 
             // Add Name and Description
             layoutWidget->addWidget( new QLabel( "<b>" + QString::fromStdString( ( *iter )->getName() )+ "</b>" ), 0, column );

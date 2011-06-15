@@ -51,4 +51,9 @@
 #include "tango/preferences-system.xpm"
 
 #include "QuestionMarks.xpm"
+
+#include "empty.xpm"
+
+#include "moduleDefault.xpm"
+
 #endif  // WICONS_H
