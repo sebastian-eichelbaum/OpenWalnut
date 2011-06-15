@@ -161,6 +161,7 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
     m_iconManager.addIcon( std::string( "config" ), preferences_system_xpm );
     m_iconManager.addIcon( std::string( "view" ), camera_xpm );
+    m_iconManager.addIcon( std::string( "missingModule" ), QuestionMarks_xpm );
 
     if( objectName().isEmpty() )
     {

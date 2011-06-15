@@ -138,7 +138,8 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
     // initialize members
     QVBoxLayout* layout = new QVBoxLayout;
 
-    QString helpText = "This dialog allows you to modify the list of modules used everywhere in OpenWalnut. Select the modules you want "
+    QString helpText = "This dialog allows you to modify the list of modules used everywhere in OpenWalnut. The list contains all loaded modules."
+                       " Select the modules you want "
                        "to use and disable those you won't use. This way, the module toolbar and the context menu stays clean. The "
                        "OpenWalnut-Team provides a list of recommended modules. This list is always active, unless you turn it off. Recommended "
                        "modules are visually marked by being partially checked.";

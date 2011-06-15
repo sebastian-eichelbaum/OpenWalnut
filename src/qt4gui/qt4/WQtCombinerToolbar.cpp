@@ -34,6 +34,7 @@
 
 #include "WMainWindow.h"
 #include "WQtToolBar.h"
+#include "controlPanel/WQtControlPanel.h"
 
 #include "WQtCombinerToolbar.h"
 #include "WQtCombinerToolbar.moc"
@@ -42,6 +43,9 @@ WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerAc
     : WQtToolBarBase( "Compatible Modules", parent ),
       m_parent( parent )
 {
+    QAction* m = parent->getControlPanel()->getMissingModuleAction();
+    addAction( m );
+
     // create the list of actions possible
     addActions( compatibles );
 }
@@ -64,6 +68,11 @@ void WQtCombinerToolbar::makeEmpty()
 void WQtCombinerToolbar::updateButtons( const WQtCombinerActionList& compatibles )
 {
     clear();
+
+    // help action
+    QAction* m = m_parent->getControlPanel()->getMissingModuleAction();
+    addAction( m );
+
     addActions( compatibles );
 }
 

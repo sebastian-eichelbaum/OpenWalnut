@@ -205,6 +205,13 @@ public:
      */
     WQtModuleExcluder& getModuleExcluder() const;
 
+    /**
+     * Returns an action which can be triggered by the user if some module are missing.
+     *
+     * \return the action.
+     */
+    QAction* getMissingModuleAction() const;
+
 protected:
 
     /**
@@ -341,6 +348,11 @@ private:
      * predicate here. It is configured internally using a white and blacklist.
      */
     WQtModuleExcluder* m_moduleExcluder;
+
+    /**
+     * Action giving the user fast access to the module config dialog.
+     */
+    QAction* m_missingModuleAction;
 
 private slots:
     /**
