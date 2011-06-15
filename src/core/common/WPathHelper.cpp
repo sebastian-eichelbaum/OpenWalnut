@@ -58,7 +58,7 @@ void WPathHelper::setAppPath( boost::filesystem::path appPath )
     m_appPath    = appPath;
     m_sharePath  = m_appPath / "../share/OpenWalnut";
     m_docPath    = m_appPath / "../share/doc/OpenWalnut";
-    m_configPath = m_appPath / "../etc/OpenWalnut";
+    m_configPath = m_appPath / "../share/OpenWalnut";
     m_libPath    = m_appPath / "../lib";
     m_modulePath = m_libPath / "OpenWalnut";
 }
@@ -66,26 +66,6 @@ void WPathHelper::setAppPath( boost::filesystem::path appPath )
 boost::filesystem::path WPathHelper::getAppPath()
 {
     return getPathHelper()->m_appPath;
-}
-
-boost::filesystem::path WPathHelper::getConfigFile()
-{
-    namespace fs = boost::filesystem;
-
-    // I know that this work only for linux, but it should not break anything elsewhere.
-    // Thus, we prefer the file in the home directory now.
-    std::string homeDir = getenv( "HOME" ) ? getenv( "HOME" ) : "";
-    std::string linuxDefault= homeDir + "/.walnut.cfg";
-    boost::filesystem::path configFile;
-    if( fs::exists( linuxDefault ) )
-    {
-        configFile = boost::filesystem::path( linuxDefault );
-    }
-    else
-    {
-        configFile = getPathHelper()->m_configPath / "walnut.cfg";
-    }
-    return configFile;
 }
 
 boost::filesystem::path WPathHelper::getFontPath()

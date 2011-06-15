@@ -58,7 +58,7 @@ public:
      * \param icons the icon manager holding the right icons for all the prototypes
      * \param compatibles the list of combiners
      * \param advancedText if true, the complete connector/module name is displayed in all actions
-     * \param excludePredicate a predicate which checks for each module whether to exclude it or not. If 0, nothing is excluded.
+     * \param exclusionPredicate a predicate which checks for each module whether to exclude it or not. If 0, nothing is excluded.
      *
      * \tparam PredicateT the predicate used for excluding modules
      */

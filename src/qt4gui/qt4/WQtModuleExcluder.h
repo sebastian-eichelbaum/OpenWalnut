@@ -25,6 +25,10 @@
 #ifndef WQTMODULEEXCLUDER_H
 #define WQTMODULEEXCLUDER_H
 
+#include <map>
+#include <vector>
+#include <string>
+
 #include <QtGui/QAction>
 #include <QtGui/QDialog>
 #include <QtGui/QListWidget>
@@ -41,9 +45,12 @@ class WQtModuleExcluder: public QDialog
     Q_OBJECT
 public:
     /**
-     * Default constructor.
+     * Constructs excluder dialog and loads needed settings.
+     *
+     * \param parent parent widget
+     * \param f window flags
      */
- 	WQtModuleExcluder( QWidget* parent = 0, Qt::WindowFlags f = 0 );
+    WQtModuleExcluder( QWidget* parent = 0, Qt::WindowFlags f = 0 );
 
     /**
      * Destructor.
@@ -126,6 +133,11 @@ private:
     AllowedModuleList m_allowedModules;
 
     /**
+     * List of modules we recommend in external config file.
+     */
+    AllowedModuleList m_recommendedModules;
+
+    /**
      * Reloads the whitelist and the blacklist from the QSettings.
      */
     void loadListsFromSettings();
@@ -136,9 +148,36 @@ private:
     void saveListToSettings();
 
     /**
+     * Load recommended modules.
+     */
+    void loadRecommends();
+
+    /**
      * This widget contains the allowed module list
      */
     QListWidget* m_list;
+
+    /**
+     * Checkbox controlling whether all modules should be shown all the time.
+     */
+    QCheckBox* m_showThemAll;
+
+    /**
+     * Allows turning recommends on and off
+     */
+    QCheckBox* m_ignoreRecommends;
+
+    /**
+     * Enforces, that all modules should be shown. This is used as fallback if no recommends file was found.
+     */
+    void enforceAllModules();
+
+private slots:
+
+    /**
+     * Triggered by the m_showThemAll checkbox.
+     */
+    void showThemAllUpdated();
 };
 
 #endif  // WQTMODULEEXCLUDER_H

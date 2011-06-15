@@ -70,13 +70,6 @@ public:
     static boost::filesystem::path getAppPath();
 
     /**
-     * The path of the configuration file walnut.cfg. Always use this file to parse configurations.
-     *
-     * \return the config file.
-     */
-    static boost::filesystem::path getConfigFile();
-
-    /**
      * The path where font files reside in.
      *
      * \return the font path.

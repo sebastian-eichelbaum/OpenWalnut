@@ -25,6 +25,9 @@
 #include <string>
 #include <vector>
 
+#include <boost/filesystem.hpp>
+#include <boost/program_options.hpp>
+
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
@@ -32,33 +35,19 @@
 #include <QtGui/QDialogButtonBox>
 
 #include "core/kernel/WModuleFactory.h"
+#include "core/common/WPathHelper.h"
 
 #include "WQt4Gui.h"
 
 #include "WQtModuleExcluder.h"
 #include "WQtModuleExcluder.moc"
 
-namespace{
-    /**
-     * This function ensure a maximum icon site by scaling large pixmaps. Pixmaps smaller than the maximum size are not scaled.
-     *
-     * \param pix the pixmap to scale if needed.
-     *
-     * \return the maybe scaled pixmap.
-     */
-    QPixmap ensureSize( QPixmap pix )
-    {
-        // maximum size
-        int maxW = 32;
-        int maxH = 32;
-
-        return pix.scaled( maxW, maxH, Qt::KeepAspectRatio );
-    }
-}
-
 WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
     QDialog( parent, f )
 {
+    // configure the dialog
+    setModal( true );
+
     // get a list of all the modules available
     WModuleFactory::PrototypeSharedContainerType::ReadTicket r = WModuleFactory::getModuleFactory()->getPrototypes();
     typedef WModuleFactory::PrototypeContainerConstIteratorType ProtoIter;
@@ -69,6 +58,23 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
 
     // initialize members
     QVBoxLayout* layout = new QVBoxLayout;
+
+    // always show all modules?
+    m_showThemAll = new QCheckBox( "Always show all modules.", this );
+    m_showThemAll->setToolTip(
+        "Recommended option for developer. This ensures that all modules get shown all them time, regardless of the list below."
+    );
+    connect( m_showThemAll, SIGNAL( stateChanged( int ) ), this, SLOT( showThemAllUpdated() ) );
+    layout->addWidget( m_showThemAll );
+
+    m_ignoreRecommends = new QCheckBox( "Ignore recommended modules.", this );
+    m_ignoreRecommends->setToolTip(
+        "By default, OpenWalnut provides a list of recommended modules. This list overrides your custom selection. To disable this, activate this "
+        "option."
+    );
+    layout->addWidget( m_ignoreRecommends );
+
+    // create the module list
     m_list = new QListWidget( this );
     layout->addWidget( m_list );
     setLayout( layout );
@@ -86,6 +92,7 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
             int column = 0;
 
             QCheckBox* check = new QCheckBox();
+            check->setTristate( true );
             check->setSizePolicy( sizePolicy );
             layoutWidget->addWidget( check, 0, 0, 2, 1 );
 
@@ -98,7 +105,12 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
             {
                 QLabel* icon = new QLabel();
                 icon->setSizePolicy( sizePolicy );
-                icon->setPixmap( ensureSize( QPixmap( ( *iter )->getXPMIcon() ) ) );
+
+                // we need to enforce some size
+                QPixmap qicon( ( *iter )->getXPMIcon() );
+                qicon = qicon.scaled( 32, 32, Qt::KeepAspectRatio );
+
+                icon->setPixmap( qicon );
                 layoutWidget->addWidget( icon, 0, column, 2, 1 );
 
                 ++column;
@@ -125,16 +137,17 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
     }
 
     // provide some default buttons here
-    QDialogButtonBox* defButtons = new QDialogButtonBox( QDialogButtonBox::Save | QDialogButtonBox::Cancel, Qt::Horizontal, this );
+    QDialogButtonBox* defButtons = new QDialogButtonBox( QDialogButtonBox::Save | QDialogButtonBox::Cancel | QDialogButtonBox::RestoreDefaults,
+                                                         Qt::Horizontal, this );
     connect( defButtons, SIGNAL( accepted() ), this, SLOT( accept() ) );
     connect( defButtons, SIGNAL( rejected() ), this, SLOT( reject() ) );
     layout->addWidget( defButtons );
 
+    // load recommended modules
+    loadRecommends();
+
     // initialize the widgets
     loadListsFromSettings();
-
-    // configure the dialog
-    setModal( true );
 }
 
 WQtModuleExcluder::~WQtModuleExcluder()
@@ -144,9 +157,30 @@ WQtModuleExcluder::~WQtModuleExcluder()
 
 void WQtModuleExcluder::loadListsFromSettings()
 {
+    // update checkbox too
+    bool ignoreAllowedList = WQt4Gui::getSettings().value( "qt4gui/modules/IgnoreAllowedList", false ).toBool();
+    m_showThemAll->setCheckState( ignoreAllowedList ? Qt::Checked : Qt::Unchecked );
+    bool ignoreRecommendsList = WQt4Gui::getSettings().value( "qt4gui/modules/IgnoreRecommendedList", false ).toBool();
+    m_ignoreRecommends->setCheckState( ignoreRecommendsList ? Qt::Checked : Qt::Unchecked );
+
     // read settings
     std::string allowedModules = WQt4Gui::getSettings().value( "qt4gui/modules/allowedList", "" ).toString().toStdString();
     m_allowedModules = string_utils::tokenize( allowedModules, "," );
+
+    // only if wanted:
+    if( !m_ignoreRecommends )
+    {
+        std::copy( m_recommendedModules.begin(), m_recommendedModules.end(), m_allowedModules.begin() );
+    }
+
+    // also set the recommended modules explicitly
+    for( AllowedModuleList::const_iterator iter = m_recommendedModules.begin(); iter != m_recommendedModules.end(); ++iter )
+    {
+        if( m_moduleItemMap.count( *iter ) )
+        {
+            m_moduleItemMap[ *iter ]->setCheckState( Qt::PartiallyChecked );
+        }
+    }
 
     // set dialog according to the settings
     for( AllowedModuleList::const_iterator iter = m_allowedModules.begin(); iter != m_allowedModules.end(); ++iter )
@@ -168,7 +202,7 @@ void WQtModuleExcluder::saveListToSettings()
     for( ModuleItemMapType::const_iterator iter = m_moduleItemMap.begin(); iter != m_moduleItemMap.end(); ++iter )
     {
         // if it is checked, use.
-        if( iter->second->checkState() == Qt::Checked )
+        if( iter->second->checkState() == Qt::Checked ) // save only checked items, since partially checked ones are recommended modules.
         {
             m_allowedModules.push_back( iter->first );
             allowedAsString += iter->first + ",";
@@ -177,11 +211,73 @@ void WQtModuleExcluder::saveListToSettings()
 
     // store this list in settings
     WQt4Gui::getSettings().setValue( "qt4gui/modules/allowedList", QString::fromStdString( allowedAsString ) );
+    WQt4Gui::getSettings().setValue( "qt4gui/modules/IgnoreAllowedList", ( m_showThemAll->checkState() == Qt::Checked ) );
+    WQt4Gui::getSettings().setValue( "qt4gui/modules/IgnoreRecommendedList", ( m_ignoreRecommends->checkState() == Qt::Checked ) );
+}
+
+void WQtModuleExcluder::enforceAllModules()
+{
+    WQt4Gui::getSettings().setValue( "qt4gui/modules/IgnoreAllowedList", true  );
+}
+
+void WQtModuleExcluder::loadRecommends()
+{
+    m_recommendedModules.clear();
+
+    // where to find the config?
+    boost::filesystem::path confFile = WPathHelper::getConfigPath() / "qt4gui" / "RecommendedModules.conf";
+    // the preference we search
+    std::string prefName = "modules.recommended";
+
+    // before loading the settings, load the recommended modules list
+    namespace po = boost::program_options; // since the namespace is far to big we use a shortcut here
+
+    po::options_description configurationDescription( "OpenWalnut Recommended Modules" );
+
+    configurationDescription.add_options()( prefName.c_str(), po::value< std::string >() );
+
+    boost::program_options::variables_map configuration;
+    if( boost::filesystem::exists( confFile ) )
+    {
+        try
+        {
+            // since overloaded function "const char*" dont work in boost 1.42.0
+            std::ifstream ifs( confFile.string().c_str(), std::ifstream::in );
+            po::store( po::parse_config_file( ifs, configurationDescription, true ), configuration );
+
+            po::notify( configuration );
+            if( configuration.count( prefName ) )
+            {
+                std::string recommended = configuration[ prefName ].as< std::string >();
+
+                // tokenize the list:
+                m_recommendedModules = string_utils::tokenize( recommended, "," );
+            }
+            else
+            {
+                wlog::error( "WQtModuleExcluder" ) << "No recommended modules specified in \"" << confFile.string() <<
+                                                      "\". Enabling all modules as fall-back.";
+                enforceAllModules();
+            }
+        }
+        catch( const po::error &e )
+        {
+            wlog::error( "WQtModuleExcluder" ) << "Invalid configuration file \"" << confFile.string() <<
+                                                   "\". Enabling all modules as fall-back. Error was: " << e.what();
+            enforceAllModules();
+        }
+    }
+    else
+    {
+        wlog::error( "WQtModuleExcluder" ) << "No \"" << confFile.string() << "\" found. Enabling all modules as fall-back.";
+        enforceAllModules();
+    }
 }
 
 bool WQtModuleExcluder::operator()( std::string const& name ) const
 {
-    return ( std::find( m_allowedModules.begin(), m_allowedModules.end(), name ) == m_allowedModules.end() );
+    return ( m_showThemAll->checkState() != Qt::Checked ) &&
+           ( std::find( m_allowedModules.begin(), m_allowedModules.end(), name ) == m_allowedModules.end() );
 }
 
 bool WQtModuleExcluder::operator()( WModule::ConstSPtr module ) const
@@ -217,3 +313,14 @@ void WQtModuleExcluder::reject()
     QDialog::reject();
 }
 
+void WQtModuleExcluder::showThemAllUpdated()
+{
+    if( m_showThemAll->checkState() == Qt::Checked )
+    {
+        m_list->setDisabled( true );
+    }
+    else
+    {
+        m_list->setDisabled( false );
+    }
+}
