@@ -42,11 +42,86 @@
 #include "WQtModuleExcluder.h"
 #include "WQtModuleExcluder.moc"
 
+/**
+ * Simple modified checkbox which is two-state by using an additional flag but tristate under the hood. See nextCheckState.
+ */
+class WQtItemCheckbox: public QCheckBox
+{
+public:
+    /**
+     * Constructs checkbox with the specified flag.
+     *
+     * \param recommended if true, this checkbox cannot be unchecked.
+     */
+    explicit WQtItemCheckbox( bool recommended ):
+        QCheckBox(),
+        m_isRecommended( recommended )
+    {
+        setTristate( true );
+        if( m_isRecommended )
+        {
+            setCheckState( Qt::PartiallyChecked );
+        }
+        else
+        {
+            setCheckState( Qt::Unchecked );
+        }
+    }
+
+    /**
+     * Destruction.
+     */
+    virtual ~WQtItemCheckbox()
+    {
+        // cleanup
+    }
+
+protected:
+    /**
+     * Called by several QCheckBox slots when the next state needs to be set. This modifies the standard behaviour in a certain way: If
+     * recommended flag was set, this allows switching between Check and Partial Check. If the flag was false, it allows switching between check
+     * and unchecked.
+     */
+    virtual void nextCheckState()
+    {
+        if( m_isRecommended )
+        {
+            if( checkState() == Qt::Checked )
+            {
+                setCheckState( Qt::PartiallyChecked );
+            }
+            else if( checkState() == Qt::PartiallyChecked )
+            {
+                setCheckState( Qt::Checked );
+            }
+        }
+        else
+        {
+            if( checkState() == Qt::Checked )
+            {
+                setCheckState( Qt::Unchecked );
+            }
+            else if( checkState() == Qt::Unchecked )
+            {
+                setCheckState( Qt::Checked );
+            }
+        }
+    }
+private:
+    /**
+     * If true, the checkbox cannot be unchecked.
+     */
+    bool m_isRecommended;
+};
+
 WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
     QDialog( parent, f )
 {
     // configure the dialog
     setModal( true );
+
+    // load recommended modules
+    loadRecommends();
 
     // get a list of all the modules available
     WModuleFactory::PrototypeSharedContainerType::ReadTicket r = WModuleFactory::getModuleFactory()->getPrototypes();
@@ -67,7 +142,7 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
     connect( m_showThemAll, SIGNAL( stateChanged( int ) ), this, SLOT( showThemAllUpdated() ) );
     layout->addWidget( m_showThemAll );
 
-    m_ignoreRecommends = new QCheckBox( "Ignore recommended modules.", this );
+    m_ignoreRecommends = new QCheckBox( "Ignore official recommendation.", this );
     m_ignoreRecommends->setToolTip(
         "By default, OpenWalnut provides a list of recommended modules. This list overrides your custom selection. To disable this, activate this "
         "option."
@@ -91,8 +166,10 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
 
             int column = 0;
 
-            QCheckBox* check = new QCheckBox();
-            check->setTristate( true );
+            // create a checkbox for this module, use the recommends list
+            bool isRecommended = ( std::find( m_recommendedModules.begin(), m_recommendedModules.end(),
+                                              ( *iter )->getName() ) != m_recommendedModules.end() );
+            WQtItemCheckbox* check = new WQtItemCheckbox( isRecommended );
             check->setSizePolicy( sizePolicy );
             layoutWidget->addWidget( check, 0, 0, 2, 1 );
 
@@ -142,9 +219,6 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
     connect( defButtons, SIGNAL( accepted() ), this, SLOT( accept() ) );
     connect( defButtons, SIGNAL( rejected() ), this, SLOT( reject() ) );
     layout->addWidget( defButtons );
-
-    // load recommended modules
-    loadRecommends();
 
     // initialize the widgets
     loadListsFromSettings();
@@ -324,3 +398,4 @@ void WQtModuleExcluder::showThemAllUpdated()
         m_list->setDisabled( false );
     }
 }
+
