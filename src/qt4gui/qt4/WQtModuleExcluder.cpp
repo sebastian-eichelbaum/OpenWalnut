@@ -121,6 +121,9 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
     // configure the dialog
     setModal( true );
 
+    // some minimum size
+    resize( 600, 400 );
+
     // load recommended modules
     loadRecommends();
 
@@ -134,6 +137,14 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
 
     // initialize members
     QVBoxLayout* layout = new QVBoxLayout;
+
+    QString helpText = "This dialog allows you to modify the list of modules used everywhere in OpenWalnut. Select the modules you want "
+                       "to use and disable those you won't use. This way, the module toolbar and the context menu stays clean. The "
+                       "OpenWalnut-Team provides a list of recommended modules. This list is always active, unless you turn it off. Recommended "
+                       "modules are visually marked by being partially checked.";
+    QLabel* hint = new QLabel( helpText, this);
+    hint->setWordWrap( true );
+    layout->addWidget( hint );
 
     // always show all modules?
     m_showThemAll = new QCheckBox( "Always show all modules.", this );
