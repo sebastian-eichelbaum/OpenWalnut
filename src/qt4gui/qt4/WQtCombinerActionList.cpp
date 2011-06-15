@@ -22,43 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#include <iostream>
-
-#include <string>
-#include <vector>
-
-#include <QtGui/QMenu>
-
-#include "core/kernel/combiner/WApplyCombiner.h"
-#include "core/kernel/combiner/WModuleOneToOneCombiner.h"
-#include "core/kernel/WModule.h"
-#include "core/kernel/WModuleCombiner.h"
-#include "guiElements/WQtModuleOneToOneCombinerAction.h"
-#include "WQt4Gui.h"
 #include "WQtCombinerActionList.h"
 
 WQtCombinerActionList::WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles,
-                                              bool advancedText, bool ignoreWhiteList ):
+                                                              const WQtModuleExcluder* exclusionPredicate, bool advancedText ):
     QList< QAction* >()
 {
-    // These modules will be allowed to be shown.
-    std::string moduleWhiteListString = WQt4Gui::getSettings().value( "qt4gui/modules/whiteList", "" ).toString().toStdString();
-    std::vector< std::string > moduleWhiteList = string_utils::tokenize( moduleWhiteListString, "," );
-
-    // These modules will be forbidden to be shown.
-    std::string moduleBlackListString = WQt4Gui::getSettings().value( "qt4gui/modules/blackList", "" ).toString().toStdString();
-    std::vector< std::string > moduleBlackList = string_utils::tokenize( moduleBlackListString, "," );
-
     // create an action for each group:
     for( WCombinerTypes::WCompatiblesList::iterator groups = compatibles.begin(); groups != compatibles.end(); ++groups )
     {
         // check current prototype against whitelist and blacklist
-        if(
-            !ignoreWhiteList &&                 // ignore the whitelist?
-            moduleWhiteList.size() &&           // whitelist empty?
-            ( ( std::find( moduleWhiteList.begin(), moduleWhiteList.end(), groups->first->getName() ) == moduleWhiteList.end() ) ||
-            ( std::find( moduleBlackList.begin(), moduleBlackList.end(), groups->first->getName() ) != moduleBlackList.end() ) )
-          )
+        if( exclusionPredicate && exclusionPredicate->operator()( groups->first ) )
         {
             continue;
         }

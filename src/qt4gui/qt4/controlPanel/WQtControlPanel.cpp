@@ -36,6 +36,7 @@
 #include <QtGui/QSplitter>
 
 #include "core/common/WLogger.h"
+#include "core/common/WPredicateHelper.h"
 #include "core/dataHandler/WDataSet.h"
 #include "core/kernel/modules/data/WMData.h"
 #include "core/kernel/WKernel.h"
@@ -55,6 +56,7 @@
 #include "../WMainWindow.h"
 #include "../WQt4Gui.h"
 #include "../WQtCombinerActionList.h"
+#include "../WQtModuleExcluder.h"
 #include "WQtBranchTreeItem.h"
 #include "WQtColormapper.h"
 
@@ -136,6 +138,8 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_roiTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
     m_roiDock->setWidget( m_roiTreeWidget );
 
+    m_moduleExcluder = new WQtModuleExcluder( parent );
+
     m_layout = new QVBoxLayout();
     m_layout->addWidget( m_tabWidget );
 
@@ -171,9 +175,7 @@ WQtControlPanel::~WQtControlPanel()
 void WQtControlPanel::connectSlots()
 {
     // if the user changes some white/blacklist setting: update.
-    connect( m_mainWindow, SIGNAL( whiteListChanged() ), this, SLOT( selectTreeItem() ) );
-    connect( m_mainWindow, SIGNAL( blackListChanged() ), this, SLOT( selectTreeItem() ) );
-
+    connect( m_moduleExcluder, SIGNAL( updated() ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem( QTreeWidgetItem*, int ) ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
@@ -923,10 +925,11 @@ void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > modu
 
     // acquire new action lists
     m_connectWithPrototypeActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
-                                                              WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module ) );
+                                                              WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module ),
+                                                              m_moduleExcluder );
     m_connectWithModuleActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
                                                            WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module ),
-                                                           true, true );
+                                                           0, true );
     if( module )
     {
         m_disconnectActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(), module->getPossibleDisconnections() );
@@ -1133,5 +1136,10 @@ QDockWidget* WQtControlPanel::getModuleDock() const
 QDockWidget* WQtControlPanel::getColormapperDock() const
 {
     return m_colormapper;
+}
+
+WQtModuleExcluder& WQtControlPanel::getModuleExcluder() const
+{
+    return *m_moduleExcluder;
 }
 

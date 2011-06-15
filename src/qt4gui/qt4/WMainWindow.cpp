@@ -282,8 +282,7 @@ void WMainWindow::setupGUI()
 
     QMenu* settingsMenu = m_menuBar->addMenu( "Settings" );
     settingsMenu->addAction( m_autoDisplaySetting );
-    settingsMenu->addAction( "Configure Whitelist", this, SLOT( configureWhiteList() ) );
-    settingsMenu->addAction( "Configure Blacklist", this, SLOT( configureBlackList() ) );
+    settingsMenu->addAction( m_controlPanel->getModuleExcluder().getConfigureAction() );
     settingsMenu->addSeparator();
     settingsMenu->addAction( mtViews );
     settingsMenu->addSeparator();
@@ -1080,45 +1079,5 @@ QSettings& WMainWindow::getSettings()
 void WMainWindow::handleLogLevelUpdate( unsigned int logLevel )
 {
     WLogger::getLogger()->setDefaultLogLevel( static_cast< LogLevel >( logLevel ) );
-}
-
-void WMainWindow::configureBlackList()
-{
-    bool ok;
-    QString currentList = WQt4Gui::getSettings().value( "qt4gui/modules/blackList", "" ).toString();
-    QString nexList = QInputDialog::getText( this, "Edit Blacklist",
-            "<b>Blacklist</b> - exclude modules from all the module lists in OpenWalnut. <br> This can be useful to exclude modules explicitly, "
-            "which are not needed."
-            "<ul>"
-                "<li> Comma-separated"
-                "<li> Regular expressions allowed"
-            "</ul>"
-            , QLineEdit::Normal, currentList, &ok );
-    if ( ok )
-    {
-        WQt4Gui::getSettings().setValue( "qt4gui/modules/blackList", nexList );
-
-        emit blackListChanged();
-    }
-}
-
-void WMainWindow::configureWhiteList()
-{
-    bool ok;
-    QString currentList = WQt4Gui::getSettings().value( "qt4gui/modules/whiteList", "" ).toString();
-    QString nexList = QInputDialog::getText( this, "Edit Whitelist",
-            "<b>Whitelist</b> - exclude modules from all the module lists in OpenWalnut, which are not listed here. <br>"
-            "This can be useful to exclude modules implicitly by only listing modules which are needed."
-            "<ul>"
-                "<li> Comma-separated"
-                "<li> Regular expressions allowed"
-            "</ul>"
-            , QLineEdit::Normal, currentList, &ok );
-    if ( ok )
-    {
-        WQt4Gui::getSettings().setValue( "qt4gui/modules/whiteList", nexList );
-
-        emit whiteListChanged();
-    }
 }
 

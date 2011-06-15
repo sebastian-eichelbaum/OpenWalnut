@@ -37,6 +37,32 @@
 namespace WPredicateHelper
 {
     /**
+     * Predicate which is always true. Useful if you want to ignore something all the time.
+     *
+     * @tparam T the value type to check
+     *
+     * \return always true.
+     */
+    template< typename T >
+    bool alwaysTrue( const T& /* obj */ )
+    {
+        return true;
+    }
+
+    /**
+     * Predicate which is always false. Useful if you want to ignore something all the time.
+     *
+     * @tparam T the value type to check
+     *
+     * \return always false.
+     */
+    template< typename T >
+    bool alwaysFalse( const T& /* obj */ )
+    {
+        return false;
+    }
+
+    /**
      * This class tests against the getName() method of the instances of type T. Many, many, many many many classes in OpenWalnut provide a getName()
      * method. This predicate can check against a defined name. Useful for searching.
      */

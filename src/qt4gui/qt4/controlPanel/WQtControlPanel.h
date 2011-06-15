@@ -39,6 +39,8 @@
 #include "core/dataHandler/WDataSet.h"
 #include "core/graphicsEngine/WROI.h"
 
+#include "../WQtModuleExcluder.h"
+
 #include "../WQtCombinerToolbar.h"
 #include "WQtPropertyGroupWidget.h"
 #include "WQtModuleHeaderTreeItem.h"
@@ -196,6 +198,13 @@ public:
      */
     QDockWidget* getColormapperDock() const;
 
+    /**
+     * Returns the module excluder. It then can be used for configuration.
+     *
+     * \return the module excluder.
+     */
+    WQtModuleExcluder& getModuleExcluder() const;
+
 protected:
 
     /**
@@ -326,6 +335,12 @@ private:
      * programatically.
      */
     bool m_ignoreSelectionChange;
+
+    /**
+     * The WQtCombinerActionList needs some predicate which decides whether to exclude a certain module from the list or not. We use this
+     * predicate here. It is configured internally using a white and blacklist.
+     */
+    WQtModuleExcluder* m_moduleExcluder;
 
 private slots:
     /**

@@ -140,17 +140,6 @@ public:
      */
     static QSettings& getSettings();
 
-signals:
-    /**
-     * Signal, which is emitted if the module whitelist has changed.
-     */
-    void whiteListChanged();
-
-    /**
-     * Signal, which is emitted if the module blacklist has changed.
-     */
-    void blackListChanged();
-
 protected:
 
     /**
@@ -291,16 +280,6 @@ public slots:
      * \param logLevel the new loglevel to set
      */
     void handleLogLevelUpdate( unsigned int logLevel );
-
-    /**
-     * Uses a modal dialog to allow the user modifying its module black.
-     */
-    void configureBlackList();
-
-    /**
-     * Uses a modal dialog to allow the user modifying its module whitelist.
-     */
-    void configureWhiteList();
 
 private:
     /**
