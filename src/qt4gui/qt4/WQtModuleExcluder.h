@@ -139,8 +139,10 @@ private:
 
     /**
      * Reloads the whitelist and the blacklist from the QSettings.
+     *
+     * \param recommendsOnly if true, only the recommended modules are set
      */
-    void loadListsFromSettings();
+    void loadListsFromSettings( bool recommendsOnly = false );
 
     /**
      * Saves the whitelist and the blacklist to the settings.
@@ -178,6 +180,11 @@ private slots:
      * Triggered by the m_showThemAll checkbox.
      */
     void showThemAllUpdated();
+
+    /**
+     * called by the reset button
+     */
+    void reset();
 };
 
 #endif  // WQTMODULEEXCLUDER_H

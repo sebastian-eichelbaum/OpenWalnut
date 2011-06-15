@@ -32,6 +32,7 @@
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QCheckBox>
+#include <QtGui/QPushButton>
 #include <QtGui/QDialogButtonBox>
 
 #include "core/kernel/WModuleFactory.h"
@@ -218,6 +219,7 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
                                                          Qt::Horizontal, this );
     connect( defButtons, SIGNAL( accepted() ), this, SLOT( accept() ) );
     connect( defButtons, SIGNAL( rejected() ), this, SLOT( reject() ) );
+    connect( defButtons->button( QDialogButtonBox::RestoreDefaults ), SIGNAL( clicked() ), this, SLOT( reset() ) );
     layout->addWidget( defButtons );
 
     // initialize the widgets
@@ -229,7 +231,7 @@ WQtModuleExcluder::~WQtModuleExcluder()
     // cleanup
 }
 
-void WQtModuleExcluder::loadListsFromSettings()
+void WQtModuleExcluder::loadListsFromSettings( bool recommendsOnly )
 {
     // update checkbox too
     bool ignoreAllowedList = WQt4Gui::getSettings().value( "qt4gui/modules/IgnoreAllowedList", false ).toBool();
@@ -241,12 +243,6 @@ void WQtModuleExcluder::loadListsFromSettings()
     std::string allowedModules = WQt4Gui::getSettings().value( "qt4gui/modules/allowedList", "" ).toString().toStdString();
     m_allowedModules = string_utils::tokenize( allowedModules, "," );
 
-    // only if wanted:
-    if( !m_ignoreRecommends )
-    {
-        std::copy( m_recommendedModules.begin(), m_recommendedModules.end(), m_allowedModules.begin() );
-    }
-
     // also set the recommended modules explicitly
     for( AllowedModuleList::const_iterator iter = m_recommendedModules.begin(); iter != m_recommendedModules.end(); ++iter )
     {
@@ -256,13 +252,22 @@ void WQtModuleExcluder::loadListsFromSettings()
         }
     }
 
-    // set dialog according to the settings
-    for( AllowedModuleList::const_iterator iter = m_allowedModules.begin(); iter != m_allowedModules.end(); ++iter )
+    if( !recommendsOnly )
     {
-        if( m_moduleItemMap.count( *iter ) )
+        // set dialog according to the settings
+        for( AllowedModuleList::const_iterator iter = m_allowedModules.begin(); iter != m_allowedModules.end(); ++iter )
         {
-            m_moduleItemMap[ *iter ]->setCheckState( Qt::Checked );
+            if( m_moduleItemMap.count( *iter ) )
+            {
+                m_moduleItemMap[ *iter ]->setCheckState( Qt::Checked );
+            }
         }
+    }
+
+    // only if wanted:
+    if( !m_ignoreRecommends )
+    {
+        std::copy( m_recommendedModules.begin(), m_recommendedModules.end(), m_allowedModules.begin() );
     }
 }
 
@@ -399,3 +404,17 @@ void WQtModuleExcluder::showThemAllUpdated()
     }
 }
 
+void WQtModuleExcluder::reset()
+{
+    // reset all checkboxes
+    for( std::vector< WModule::ConstSPtr >::const_iterator iter = m_moduleList.begin(); iter != m_moduleList.end(); ++iter )
+    {
+        // we later need to find the checkbox for one module easily:
+        m_moduleItemMap[ ( *iter )->getName() ]->setCheckState( Qt::Unchecked );
+    }
+    loadListsFromSettings( true );
+
+    m_showThemAll->setCheckState( Qt::Unchecked );
+    m_ignoreRecommends->setCheckState( Qt::Unchecked );
+    m_list->setDisabled( false );
+}
