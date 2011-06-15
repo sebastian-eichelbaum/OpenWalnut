@@ -69,7 +69,9 @@ WQtModuleOneToOneCombinerAction::WQtModuleOneToOneCombinerAction( QWidget* paren
     setToolTip( tooltip.c_str() );
     setText( advancedText ? advancedTextString.c_str() : targetName.c_str() );
     setIconText( advancedText ? tooltip.c_str() : targetName.c_str() );
-    setIcon( iconManager->getIcon( m_combiner->getTargetModule()->getName().c_str() ) );
+
+    // get an icon for this module
+    setIcon( iconManager->getIcon( m_combiner->getTargetModule()->getName().c_str(), iconManager->getIcon( "DefaultModuleIcon" ) ) );
 
     // we need to use released signal here, as the pushed signal also gets emitted on newly created buttons which are under the mouse pointer with
     // pressed left button.
