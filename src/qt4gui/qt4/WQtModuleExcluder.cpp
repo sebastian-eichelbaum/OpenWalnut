@@ -143,7 +143,7 @@ WQtModuleExcluder::WQtModuleExcluder( QWidget* parent, Qt::WindowFlags f ):
                        "to use and disable those you won't use. This way, the module toolbar and the context menu stays clean. The "
                        "OpenWalnut-Team provides a list of recommended modules. This list is always active, unless you turn it off. Recommended "
                        "modules are visually marked by being partially checked.";
-    QLabel* hint = new QLabel( helpText, this);
+    QLabel* hint = new QLabel( helpText, this );
     hint->setWordWrap( true );
     layout->addWidget( hint );
 
