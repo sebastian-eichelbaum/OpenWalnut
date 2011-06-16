@@ -263,7 +263,9 @@ void WMainWindow::setupGUI()
     saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
     projectSaveButton->setMenu( saveMenu );
 
-    fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
+    // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
+    //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
+    fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
 
     // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
