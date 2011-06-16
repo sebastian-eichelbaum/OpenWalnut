@@ -22,6 +22,11 @@
 #
 #---------------------------------------------------------------------------
 
+# Gets the major, minor and patch number from a version string.
+# _VersionString the string to split
+# _Major the major version number - result
+# _Minor the minor version number - result
+# _Patch the patch number - result
 FUNCTION( SPLIT_VERSION_STRING _VersionString _Major _Minor _Patch )
   STRING( STRIP _VersionString ${_VersionString} )
   STRING( REGEX MATCH "^[0-9]+" _MajorProxy "${_VersionString}" )
