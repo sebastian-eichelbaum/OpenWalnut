@@ -169,8 +169,9 @@ void WMainWindow::setupGUI()
     {
         setObjectName( QString::fromUtf8( "MainWindow" ) );
     }
-    // TODO(all): what is this?
-    resize( 946, 632 );
+
+    // NOTE: this only is an initial size. The state reloaded from QSettings will set it to the value the user had last session.
+    resize( 800, 600 );
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
