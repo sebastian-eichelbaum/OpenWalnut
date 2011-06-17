@@ -56,6 +56,9 @@ TARGET_LINK_LIBRARIES( ${LibName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNift
 # NOTE: this needs to be placed AFTER ADD_EXECUTABLE or ADD_LIBRARY
 SETUP_USE_VERSION_HEADER( ${LibName} )
 
+# Set the version of the library.
+SET_TARGET_PROPERTIES( ${LibName} PROPERTIES VERSION ${OW_VERSION} )
+
 # Do not forget the install targets
 INSTALL( TARGETS ${LibName}
 			ARCHIVE # NOTE: this is needed on windows

@@ -29,7 +29,6 @@
 # Optional second Parameter: list of additional dependencies
 # Optional third Parameter: list of style-excludes as regexp.
 FUNCTION( ADD_MODULE _MODULE_NAME )
-
     SET( MODULE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${_MODULE_NAME} )
 
     # is there a CMakeLists.txt? If yes, use it.
@@ -83,6 +82,9 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
     # Setup the target
     ADD_LIBRARY( ${MODULE_NAME} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
     TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWCoreName} ${Boost_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${_MODULE_DEPENDENCIES} )
+
+    # Set the version of the library.
+    SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES VERSION ${OW_VERSION} )
 
     # Do not forget the install targets
     # NOTE: do we really need to set all permissions explicitely?

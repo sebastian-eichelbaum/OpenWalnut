@@ -168,6 +168,13 @@ ENDIF()
 SET( OW_VERSION_HEADER ${PROJECT_SOURCE_DIR}/WVersion.h )
 SETUP_VERSION_HEADER( ${OW_VERSION_HEADER} )
 
+# Set the OW version string. This can be used by others for setting target versions during compilation.
+GET_VERSION_STRING( dummy OW_VERSION "0.0.0 " )
+IF( NOT DEFINED OW_VERSION )
+    # CMake does not like unset variables for target properties.
+    SET( OW_VERSION "0.0.0" )
+ENDIF()
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
 # REQUIRED third party libs

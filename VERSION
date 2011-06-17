@@ -1,1 +1,9 @@
-CHECKOUT
+# OW Version File. This file specifies the version. The line VERSION=X.Y.Z is
+# used and parsed. If you do not want a version, comment it out.
+#
+# IMPORTANT: If you modify the file, cmake re-creates the version header. But
+#            it is not able to set all library version. Please re-run cmake if
+#            you change something here.
+#
+# NOTE: do not add a space after #. The current CMake script will fail.
+#VERSION=1.3.0
