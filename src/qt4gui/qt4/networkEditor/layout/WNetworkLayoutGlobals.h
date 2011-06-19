@@ -26,7 +26,12 @@
 #define WNETWORKLAYOUTGLOBALS_H
 
 // The size of the grid
-#define WNETWORKLAYOUT_GRIDSIZE 240
+#define WNETWORKLAYOUT_GRID_X 500
+#define WNETWORKLAYOUT_GRID_Y 30
+
+// distance between neighbouring grid positions
+#define WNETWORKLAYOUT_GRID_DISTANCE_X 220
+#define WNETWORKLAYOUT_GRID_DISTANCE_Y 100
 
 #endif  // WNETWORKLAYOUTGLOBALS_H
 

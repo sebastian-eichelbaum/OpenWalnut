@@ -44,9 +44,9 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 #include <QtCore/QSettings>
+#include <QtGui/QInputDialog>
 
 #include "core/common/WColor.h"
-#include "core/common/WPreferences.h"
 #include "core/common/WIOTools.h"
 #include "core/common/WProjectFileIO.h"
 #include "core/common/WPathHelper.h"
@@ -76,11 +76,14 @@
 #include "WQtCustomDockWidget.h"
 #include "WQtNavGLWidget.h"
 #include "WQtGLDockWidget.h"
+#include "WQt4Gui.h"
+#include "WSettingAction.h"
+#include "WSettingMenu.h"
 
 #include "WMainWindow.h"
 #include "WMainWindow.moc"
 
-WMainWindow::WMainWindow() :
+WMainWindow::WMainWindow():
     QMainWindow(),
     m_currentCompatiblesToolbar( NULL ),
     m_iconManager(),
@@ -95,6 +98,58 @@ WMainWindow::~WMainWindow()
 
 void WMainWindow::setupGUI()
 {
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Setting setup
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    WSettingAction* hideMenuAction = new WSettingAction( this, "qt4gui/showMenu",
+                                                               "Show Menubar",
+                                                               "Allows you to hide the menu. Can be restored using CTRL-M.",
+                                                               true,
+                                                               false,
+                                                               QKeySequence( Qt::CTRL + Qt::Key_M ) );
+
+    WSettingAction* showNavWidgets = new WSettingAction( this, "qt4gui/showNavigationWidgets",
+                                                               "Show Navigation Views",
+                                                               "Disables the navigation views completely. This can lead to a speed-up and is "
+                                                               "recommended for those who do not need them.",
+                                                               true,
+                                                               true    // this requires a restart
+                                                       );
+    m_autoDisplaySetting = new WSettingAction( this, "qt4gui/useAutoDisplay",
+                                                     "Auto-Display",
+                                                     "If enabled, the best matching module is automatically added if some data was loaded.",
+                                                     true );
+
+    WSettingAction* mtViews = new WSettingAction( this, "qt4gui/ge/multiThreadedViewer",
+                                                        "Multi-threaded Views",
+                                                        "If enabled, the graphic windows are rendered in different threads. This can speed-up "
+                                                        "rendering on machines with multiple cores.",
+                                                        false,
+                                                        true // require restart
+                                                );
+    // NOTE: the multi-threading feature needs to be activated BEFORE the first viewer is created. To ensure this we do it here.
+    WGraphicsEngine::getGraphicsEngine()->setMultiThreadedViews( mtViews->get() );
+
+    // set the log-level setting.
+    // NOTE: see WQt4Gui which reads the setting.
+    QList< QString > logOptions;
+    logOptions.push_back( "Debug" );
+    logOptions.push_back( "Info" );
+    logOptions.push_back( "Warning" );
+    logOptions.push_back( "Error" );
+    WSettingMenu* logLevels = new WSettingMenu( this, "qt4gui/logLevel",
+                                                      "Log-Level",
+                                                      "Allows to set the log verbosity.",
+                                                      1,    // info is the default
+                                                      logOptions
+                                              );
+    connect( logLevels, SIGNAL( change( unsigned int ) ), this, SLOT( handleLogLevelUpdate( unsigned int ) ) );
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // GUI setup
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     m_iconManager.addIcon( std::string( "load" ), fileopen_xpm );
     m_iconManager.addIcon( std::string( "loadProject" ), projOpen_xpm );
     m_iconManager.addIcon( std::string( "saveProject" ), projSave_xpm );
@@ -106,13 +161,17 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "remove" ), remove_xpm );
     m_iconManager.addIcon( std::string( "config" ), preferences_system_xpm );
     m_iconManager.addIcon( std::string( "view" ), camera_xpm );
+    m_iconManager.addIcon( std::string( "missingModule" ), QuestionMarks_xpm );
+    m_iconManager.addIcon( std::string( "none" ), empty_xpm );
+    m_iconManager.addIcon( std::string( "DefaultModuleIcon" ), moduleDefault_xpm );
 
     if( objectName().isEmpty() )
     {
         setObjectName( QString::fromUtf8( "MainWindow" ) );
     }
-    // TODO(all): what is this?
-    resize( 946, 632 );
+
+    // NOTE: this only is an initial size. The state reloaded from QSettings will set it to the value the user had last session.
+    resize( 800, 600 );
     setWindowIcon( m_iconManager.getIcon( "logo" ) );
     setWindowTitle( QApplication::translate( "MainWindow", "OpenWalnut (development version)", 0, QApplication::UnicodeUTF8 ) );
 
@@ -148,12 +207,8 @@ void WMainWindow::setupGUI()
     m_mainGLWidget = mainGLDock->getGLWidget();
     m_glDock->addDockWidget( Qt::RightDockWidgetArea, mainGLDock );
 
-    m_permanentToolBar = new WQtToolBar( "Permanent Toolbar", this );
+    m_permanentToolBar = new WQtToolBar( "Standard Toolbar", this );
     addToolBar( Qt::TopToolBarArea, m_permanentToolBar );
-
-    // Set the style of the toolbar
-    // NOTE: this only works if the toolbar is used with QActions instead of buttons and other widgets
-    m_permanentToolBar->setToolButtonStyle( getToolbarStyle() );
 
     m_iconManager.addIcon( std::string( "ROI icon" ), box_xpm );
     m_iconManager.addIcon( std::string( "Reset icon" ), o_xpm );
@@ -161,12 +216,14 @@ void WMainWindow::setupGUI()
     m_iconManager.addIcon( std::string( "coronal icon" ), cor_xpm );
     m_iconManager.addIcon( std::string( "sagittal icon" ), sag_xpm );
 
-    m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "load", m_permanentToolBar );
+    m_loadButton = new QAction( m_iconManager.getIcon( "load" ), "Load Dataset", m_permanentToolBar );
+    m_loadButton->setShortcut( QKeySequence(  QKeySequence::Open ) );
     QAction* roiButton = new QAction( m_iconManager.getIcon( "ROI icon" ), "ROI", m_permanentToolBar );
     QAction* resetButton = new QAction( m_iconManager.getIcon( "view" ), "Reset", m_permanentToolBar );
     resetButton->setShortcut( QKeySequence( Qt::Key_Escape ) );
-    QAction* projectLoadButton = new QAction( m_iconManager.getIcon( "loadProject" ), "loadProject", m_permanentToolBar );
-    QAction* projectSaveButton = new QAction( m_iconManager.getIcon( "saveProject" ), "saveProject", m_permanentToolBar );
+    QAction* projectLoadButton = new QAction( m_iconManager.getIcon( "loadProject" ), "Load Project", m_permanentToolBar );
+    QAction* projectSaveButton = new QAction( m_iconManager.getIcon( "saveProject" ), "Save Project", m_permanentToolBar );
+    projectLoadButton->setShortcut( QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_O ) );
 
     connect( m_loadButton, SIGNAL(  triggered( bool ) ), this, SLOT( openLoadDialog() ) );
     connect( resetButton, SIGNAL(  triggered( bool ) ), m_mainGLWidget.get(), SLOT( reset() ) );
@@ -191,15 +248,15 @@ void WMainWindow::setupGUI()
     m_menuBar = new QMenuBar( this );
 
     // hide menu?
-    bool hideMenu = false;
-    WPreferences::getPreference( "qt4gui.hideMenuBar", &hideMenu );
-    m_menuBar->setVisible( !hideMenu );
+    m_menuBar->setVisible( hideMenuAction->get() );
+    connect( hideMenuAction, SIGNAL( change( bool ) ), m_menuBar, SLOT( setVisible( bool ) ) );
+    addAction( hideMenuAction );
 
     QMenu* fileMenu = m_menuBar->addMenu( "File" );
 
-    fileMenu->addAction( m_iconManager.getIcon( "load" ), "Load Dataset", this, SLOT( openLoadDialog() ), QKeySequence(  QKeySequence::Open ) );
+    fileMenu->addAction( m_loadButton );
     fileMenu->addSeparator();
-    fileMenu->addAction( m_iconManager.getIcon( "loadProject" ), "Load Project", this, SLOT( projectLoad() ) );
+    fileMenu->addAction( projectLoadButton );
     QMenu* saveMenu = fileMenu->addMenu( m_iconManager.getIcon( "saveProject" ), "Save Project" );
     saveMenu->addAction( "Save Project", this, SLOT( projectSaveAll() ), QKeySequence::Save );
     saveMenu->addAction( "Save Modules Only", this, SLOT( projectSaveModuleOnly() ) );
@@ -207,9 +264,6 @@ void WMainWindow::setupGUI()
     saveMenu->addAction( "Save ROIs Only", this, SLOT( projectSaveROIOnly() ) );
     projectSaveButton->setMenu( saveMenu );
 
-    fileMenu->addSeparator();
-    fileMenu->addAction( m_iconManager.getIcon( "config" ), "Config", this, SLOT( openConfigDialog() ) );
-    fileMenu->addSeparator();
     // TODO(all): If all distributions provide a newer QT version we should use QKeySequence::Quit here
     //fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ), QKeySequence( QKeySequence::Quit ) );
     fileMenu->addAction( m_iconManager.getIcon( "quit" ), "Quit", this, SLOT( close() ),  QKeySequence( Qt::CTRL + Qt::Key_Q ) );
@@ -217,6 +271,31 @@ void WMainWindow::setupGUI()
     // This QAction stuff is quite ugly and complicated some times ... There is no nice constructor which takes name, slot keysequence and so on
     // directly -> set shortcuts, and some further properties using QAction's interface
     QMenu* viewMenu = m_menuBar->addMenu( "View" );
+    viewMenu->addAction( hideMenuAction );
+    viewMenu->addSeparator();
+    viewMenu->addAction( showNavWidgets );
+    viewMenu->addSeparator();
+    viewMenu->addMenu( m_permanentToolBar->getStyleMenu() );
+
+    // Camera menu
+    QMenu* bgColorMenu = new QMenu( "Background Colors" );
+    bgColorMenu->addAction( mainGLDock->getGLWidget()->getBackgroundColorAction() );
+
+    QMenu* cameraMenu = m_menuBar->addMenu( "Camera" );
+    cameraMenu->addAction( mainGLDock->getGLWidget()->getThrowingSetting() );
+    cameraMenu->addMenu( bgColorMenu );
+    cameraMenu->addSeparator();
+
+    QMenu* settingsMenu = m_menuBar->addMenu( "Settings" );
+    settingsMenu->addAction( m_autoDisplaySetting );
+    settingsMenu->addAction( m_controlPanel->getModuleExcluder().getConfigureAction() );
+    settingsMenu->addSeparator();
+    settingsMenu->addAction( mtViews );
+    settingsMenu->addSeparator();
+    settingsMenu->addMenu( logLevels );
+
+    // a separate menu for some presets
+    QMenu* cameraPresetMenu = cameraMenu->addMenu( "Presets" );
 
     QAction* controlPanelTrigger = m_controlPanel->toggleViewAction();
     QList< QKeySequence > controlPanelShortcut;
@@ -228,37 +307,37 @@ void WMainWindow::setupGUI()
     // so the user may get confused. It is also not a good idea to take letters as they might be used by OpenSceneGraph widget ( like "S" for
     // statistics ).
     // By additionally adding the action to the main window, we ensure the action can be triggered even if the menu bar is hidden.
-    QAction* tmpAction = viewMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Left", this, SLOT( setPresetViewLeft() ),
+    QAction* tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Left", this, SLOT( setPresetViewLeft() ),
                                              QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_L ) );
     tmpAction->setIconVisibleInMenu( true );
     this->addAction( tmpAction );
 
-    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Right", this, SLOT( setPresetViewRight() ),
-                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
+    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "sagittal icon" ), "Right", this, SLOT( setPresetViewRight() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_R ) );
     tmpAction->setIconVisibleInMenu( true );
     this->addAction( tmpAction );
 
-    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Superior", this, SLOT( setPresetViewSuperior() ),
-                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
+    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Superior", this, SLOT( setPresetViewSuperior() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_S ) );
     tmpAction->setIconVisibleInMenu( true );
     this->addAction( tmpAction );
 
-    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Inferior", this, SLOT( setPresetViewInferior() ),
-                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
+    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "axial icon" ), "Inferior", this, SLOT( setPresetViewInferior() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_I ) );
     tmpAction->setIconVisibleInMenu( true );
     this->addAction( tmpAction );
 
-    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Anterior", this, SLOT( setPresetViewAnterior() ),
-                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
+    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Anterior", this, SLOT( setPresetViewAnterior() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_A ) );
     tmpAction->setIconVisibleInMenu( true );
     this->addAction( tmpAction );
 
-    tmpAction = viewMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Posterior", this, SLOT( setPresetViewPosterior() ),
-                                     QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
+    tmpAction = cameraPresetMenu->addAction( m_iconManager.getIcon( "coronal icon" ), "Posterior", this, SLOT( setPresetViewPosterior() ),
+                                       QKeySequence( Qt::CTRL + Qt::SHIFT + Qt::Key_P ) );
     tmpAction->setIconVisibleInMenu( true );
     this->addAction( tmpAction );
 
-    resetButton->setMenu( viewMenu );
+    resetButton->setMenu( cameraPresetMenu );
 
     QMenu* helpMenu = m_menuBar->addMenu( "Help" );
     helpMenu->addAction( m_iconManager.getIcon( "help" ), "OpenWalnut Help", this, SLOT( openOpenWalnutHelpDialog() ),
@@ -271,54 +350,27 @@ void WMainWindow::setupGUI()
 
     // initially 3 navigation views
     {
-        bool hideWidget;
-        if( !( WPreferences::getPreference( "qt4gui.hideAxial", &hideWidget ) && hideWidget) )
+        if( showNavWidgets->get() )
         {
             m_navAxial = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Axial View", "Axial View", this, "Axial Slice",
                                                                                   m_mainGLWidget.get() ) );
             m_navAxial->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navAxial.get() );
-        }
-        if( !( WPreferences::getPreference( "qt4gui.hideCoronal", &hideWidget ) && hideWidget) )
-        {
+
             m_navCoronal = boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Coronal View", "Coronal View", this, "Coronal Slice",
                                                                                     m_mainGLWidget.get() ) );
             m_navCoronal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navCoronal.get() );
-        }
-        if( !( WPreferences::getPreference( "qt4gui.hideSagittal", &hideWidget ) && hideWidget) )
-        {
+
             m_navSagittal =
                 boost::shared_ptr< WQtNavGLWidget >( new WQtNavGLWidget( "Sagittal View", "Sagittal View", this, "Sagittal Slice",
                                                                          m_mainGLWidget.get() ) );
             m_navSagittal->setFeatures( QDockWidget::AllDockWidgetFeatures );
             m_glDock->addDockWidget( Qt::LeftDockWidgetArea, m_navSagittal.get() );
-        }
-    }
 
-    // Default background color from config file
-    WColor bgColor( 1.0, 1.0, 1.0, 1.0 );
-    double r;
-    double g;
-    double b;
-    if( WPreferences::getPreference( "ge.bgColor.r", &r )
-        && WPreferences::getPreference( "ge.bgColor.g", &g )
-        && WPreferences::getPreference( "ge.bgColor.b", &b ) )
-    {
-        bgColor.set( r, g, b, 1.0 );
-        m_mainGLWidget->setBgColor( bgColor );
-
-        if( m_navAxial )
-        {
-            m_navAxial->getGLWidget()->setBgColor( bgColor );
-        }
-        if( m_navCoronal )
-        {
-            m_navCoronal->getGLWidget()->setBgColor( bgColor );
-        }
-        if( m_navSagittal )
-        {
-            m_navSagittal->getGLWidget()->setBgColor( bgColor );
+            bgColorMenu->addAction( m_navAxial->getGLWidget()->getBackgroundColorAction() );
+            bgColorMenu->addAction( m_navCoronal->getGLWidget()->getBackgroundColorAction() );
+            bgColorMenu->addAction( m_navSagittal->getGLWidget()->getBackgroundColorAction() );
         }
     }
 
@@ -398,8 +450,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
     // load certain modules for datasets and so on.
 
     // The Data Modules also play an special role. To have modules being activated when certain data got loaded, we need to hook it up here.
-    bool useAutoDisplay = true;
-    WPreferences::getPreference( "qt4gui.useAutoDisplay", &useAutoDisplay );
+    bool useAutoDisplay = m_autoDisplaySetting->get();
     if( useAutoDisplay && module->getType() == MODULE_DATA )
     {
         WLogger::getLogger()->addLogMessage( "Auto Display active and Data module added. The proper module will be added.",
@@ -534,20 +585,6 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
     }
 }
 
-Qt::ToolButtonStyle WMainWindow::getToolbarStyle() const
-{
-    // this sets the toolbar style
-    int toolBarStyle = 0;
-    WPreferences::getPreference( "qt4gui.toolBarStyle", &toolBarStyle );
-    if( ( toolBarStyle < 0 ) || ( toolBarStyle > 3 ) ) // ensure a valid value
-    {
-        toolBarStyle = 0;
-    }
-
-    // cast and return
-    return static_cast< Qt::ToolButtonStyle >( toolBarStyle );
-}
-
 void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
 {
     if( m_currentCompatiblesToolbar )
@@ -562,6 +599,11 @@ void WMainWindow::setCompatiblesToolbar( WQtCombinerToolbar* toolbar )
         // So create a dummy to permanently reserve the space
         m_currentCompatiblesToolbar = new WQtCombinerToolbar( this );
     }
+
+    // we want to keep the tool-button styles in sync
+    m_currentCompatiblesToolbar->setToolButtonStyle( m_permanentToolBar->toolButtonStyle() );
+    connect( m_permanentToolBar, SIGNAL( toolButtonStyleChanged( Qt::ToolButtonStyle ) ),
+             m_currentCompatiblesToolbar, SLOT( setToolButtonStyle( Qt::ToolButtonStyle ) ) );
 
     // and the position of the toolbar
     addToolBar( Qt::TopToolBarArea, m_currentCompatiblesToolbar );
@@ -1011,68 +1053,37 @@ void WMainWindow::newRoi()
     }
 }
 
-void WMainWindow::openConfigDialog()
-{
-    // TODO(all): we need a nice dialog box here.
-    QString msg = "OpenWalnut allows you to configure several features. Most of these options are only useful to advanced users. "
-                  "You can have a user-scope configuration in your HOME directory as \".walnut.cfg\". "
-                  "If this file exists, OpenWalnut loads this file. You can also specify a \"walnut.cfg\" in your OpenWalnut directory under "
-                  "\"share/OpenWalnut/\". A default file will be there after installation. The default file is very well documented.";
-    QMessageBox::information( this, "OpenWalnut - Configuration", msg );
-}
-
 void WMainWindow::restoreSavedState()
 {
-    // should we do it?
-    bool saveStateEnabled = true;
-    WPreferences::getPreference( "qt4gui.saveState", &saveStateEnabled );
-    if( !saveStateEnabled )
-    {
-        return;
-    }
+    wlog::info( "MainWindow" ) << "Restoring window state.";
 
-    // the state name postfix allows especially developers to have multiple OW with different GUI settings.
-    std::string stateName = "";
-    if( WPreferences::getPreference( "qt4gui.stateNamePostfix", &stateName ) )
-    {
-        stateName = "-" + stateName;
-    }
-    stateName = "OpenWalnut" + stateName;
-    wlog::info( "MainWindow" ) << "Restoring window state from \"" << stateName << "\"";
+    restoreGeometry( WQt4Gui::getSettings().value( "MainWindowGeometry", "" ).toByteArray() );
+    restoreState( WQt4Gui::getSettings().value( "MainWindowState", "" ).toByteArray() );
 
-    QSettings setting( "OpenWalnut.org", QString::fromStdString( stateName ) );
-    restoreGeometry( setting.value( "MainWindowGeometry", "" ).toByteArray() );
-    restoreState( setting.value( "MainWindowState", "" ).toByteArray() );
-
-    m_glDock->restoreGeometry( setting.value( "GLDockWindowGeometry", "" ).toByteArray() );
-    m_glDock->restoreState( setting.value( "GLDockWindowState", "" ).toByteArray() );
+    m_glDock->restoreGeometry( WQt4Gui::getSettings().value( "GLDockWindowGeometry", "" ).toByteArray() );
+    m_glDock->restoreState( WQt4Gui::getSettings().value( "GLDockWindowState", "" ).toByteArray() );
 }
 
 void WMainWindow::saveWindowState()
 {
-    // should we do it?
-    bool saveStateEnabled = true;
-    WPreferences::getPreference( "qt4gui.saveState", &saveStateEnabled );
-    if( !saveStateEnabled )
-    {
-        return;
-    }
-
-    std::string stateName = "";
-    if( WPreferences::getPreference( "qt4gui.stateNamePostfix", &stateName ) )
-    {
-        stateName = "-" + stateName;
-    }
-    stateName = "OpenWalnut" + stateName;
-    wlog::info( "MainWindow" ) << "Saving window state for \"" << stateName << "\"";
+    wlog::info( "MainWindow" ) << "Saving window state.";
 
     // this saves the window state to some common location on the target OS in user scope.
-    QSettings setting( "OpenWalnut.org", QString::fromStdString( stateName ) );
-    setting.setValue( "MainWindowState", saveState() );
-    setting.setValue( "GLDockWindowState", m_glDock->saveState() );
+    WQt4Gui::getSettings().setValue( "MainWindowState", saveState() );
+    WQt4Gui::getSettings().setValue( "GLDockWindowState", m_glDock->saveState() );
 
     // NOTE: Qt Doc says that saveState also saves geometry. But this somehow is wrong (at least for 4.6.3)
-    setting.setValue( "MainWindowGeometry", saveGeometry() );
-    setting.setValue( "GLDockWindowGeometry", m_glDock->saveGeometry() );
+    WQt4Gui::getSettings().setValue( "MainWindowGeometry", saveGeometry() );
+    WQt4Gui::getSettings().setValue( "GLDockWindowGeometry", m_glDock->saveGeometry() );
+}
+
+QSettings& WMainWindow::getSettings()
+{
+    return WQt4Gui::getSettings();
+}
+
+void WMainWindow::handleLogLevelUpdate( unsigned int logLevel )
+{
+    WLogger::getLogger()->setDefaultLogLevel( static_cast< LogLevel >( logLevel ) );
 }
 

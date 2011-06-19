@@ -42,7 +42,6 @@
 #include "../common/WColor.h"
 #include "../common/WLogger.h"
 #include "../common/WPathHelper.h"
-#include "../common/WPreferences.h"
 #include "../common/math/linearAlgebra/WLinearAlgebra.h"
 #include "WGEViewer.h"
 #include "exceptions/WGEInitFailed.h"
@@ -69,25 +68,6 @@ WGraphicsEngine::WGraphicsEngine():
 #ifndef __APPLE__
     // initialize OSG render window
     m_viewer = osg::ref_ptr<osgViewer::CompositeViewer>( new osgViewer::CompositeViewer() );
-
-    // ThreadingModel: enum with the following possibilities
-    //
-    //  SingleThreaded
-    //  CullDrawThreadPerContext
-    //  ThreadPerContext
-    //  DrawThreadPerContext
-    //  CullThreadPerCameraDrawThreadPerContext
-    //  ThreadPerCamera
-    //  AutomaticSelection
-    bool multiThreadedViewers = true;
-    if( WPreferences::getPreference( "ge.multiThreadedViewers", &multiThreadedViewers ) && !multiThreadedViewers )
-    {
-        m_viewer->setThreadingModel( osgViewer::Viewer::SingleThreaded );
-    }
-    else
-    {
-        m_viewer->setThreadingModel( osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext );
-    }
 #endif
 
     // initialize members
@@ -100,6 +80,37 @@ WGraphicsEngine::~WGraphicsEngine()
     WLogger::getLogger()->addLogMessage( "Shutting down Graphics Engine", "GE", LL_INFO );
 }
 
+void WGraphicsEngine::setMultiThreadedViews( bool enable )
+{
+#ifndef __APPLE__
+    // ThreadingModel: enum with the following possibilities
+    //
+    //  SingleThreaded
+    //  CullDrawThreadPerContext
+    //  ThreadPerContext
+    //  DrawThreadPerContext
+    //  CullThreadPerCameraDrawThreadPerContext
+    //  ThreadPerCamera
+    //  AutomaticSelection
+    if( !enable )
+    {
+        m_viewer->setThreadingModel( osgViewer::Viewer::SingleThreaded );
+    }
+    else
+    {
+        m_viewer->setThreadingModel( osgViewer::Viewer::CullThreadPerCameraDrawThreadPerContext );
+    }
+#endif
+}
+
+bool WGraphicsEngine::isMultiThreadedViews() const
+{
+#ifndef __APPLE__
+    return ( osgViewer::Viewer::SingleThreaded != m_viewer->getThreadingModel() );
+#endif
+    // on mac, this always is false currently
+    return false;
+}
 
 boost::shared_ptr< WGraphicsEngine > WGraphicsEngine::getGraphicsEngine()
 {

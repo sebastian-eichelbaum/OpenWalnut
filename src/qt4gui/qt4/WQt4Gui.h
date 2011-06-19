@@ -30,6 +30,8 @@
 
 #include <boost/program_options.hpp>
 
+#include <QtCore/QSettings>
+
 #include "core/graphicsEngine/WROI.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
 
@@ -162,6 +164,13 @@ public:
      */
     static WMainWindow* getMainWindow();
 
+    /**
+     * Returns the settings object.
+     *
+     * \return settings object.
+     */
+    static QSettings& getSettings();
+
 protected:
 
     /**
@@ -173,6 +182,10 @@ protected:
     void moduleError( boost::shared_ptr< WModule > module, const WException& exception );
 
 private:
+    /**
+     * Object storing certain persistent application settings.
+     */
+    static QSettings* m_settings;
 
     /**
      * Main window containing all needed widgets.

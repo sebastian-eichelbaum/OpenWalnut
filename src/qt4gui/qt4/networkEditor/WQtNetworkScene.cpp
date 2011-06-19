@@ -53,11 +53,8 @@ WQtNetworkScene::~WQtNetworkScene()
 
 void WQtNetworkScene::mousePressEvent( QGraphicsSceneMouseEvent *mouseEvent )
 {
-    QList<QGraphicsItem *> item = this->items( mouseEvent->scenePos() );
-    if( item.isEmpty() )
-    {
-        emit selectionChanged();
-    }
+    clearSelection();
+    //emit selectionChanged();
 
     QGraphicsScene::mousePressEvent( mouseEvent );
 }

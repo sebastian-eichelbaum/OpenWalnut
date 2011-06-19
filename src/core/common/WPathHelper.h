@@ -70,13 +70,6 @@ public:
     static boost::filesystem::path getAppPath();
 
     /**
-     * The path of the configuration file walnut.cfg. Always use this file to parse configurations.
-     *
-     * \return the config file.
-     */
-    static boost::filesystem::path getConfigFile();
-
-    /**
      * The path where font files reside in.
      *
      * \return the font path.
@@ -133,7 +126,7 @@ public:
     static boost::filesystem::path getModulePath();
 
     /**
-     * This returns a list of search paths for modules. This list is defined by the "modules.path" - option in walnut.cfg. All of these
+     * This returns a list of search paths for modules. This list is defined by the environment variable "OW_MODULE_PATH". All of these
      * directories CAN contain modules. On startup, they get searched in the specified order.
      *
      * \return list of search paths for modules

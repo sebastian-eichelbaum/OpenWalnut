@@ -28,7 +28,6 @@
 
 #include "../common/WIOTools.h"
 #include "../common/WPathHelper.h"
-#include "../common/WPreferences.h"
 #include "../common/WSharedLib.h"
 
 #include "WKernel.h"

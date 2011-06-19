@@ -21,6 +21,9 @@ IF(MSVC_IDE)
     SET_TARGET_PROPERTIES( OWext_eep PROPERTIES PREFIX "../")
 ENDIF(MSVC_IDE)
 
+# Set the version of the library.
+SET_TARGET_PROPERTIES( OWext_eep PROPERTIES VERSION ${OW_VERSION} )
+
 # install target
 INSTALL( TARGETS OWext_eep
             ARCHIVE # NOTE: this is needed on windows

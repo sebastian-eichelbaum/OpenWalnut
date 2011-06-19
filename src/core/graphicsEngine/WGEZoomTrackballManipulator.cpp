@@ -22,7 +22,6 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../common/WPreferences.h"
 #include "WGEZoomTrackballManipulator.h"
 #include "WGraphicsEngine.h"
 
@@ -33,7 +32,6 @@ WGEZoomTrackballManipulator::WGEZoomTrackballManipulator():
     m_paintMode( 0 )
 {
     setTrackballSize( .3 ); // changes the effect of a mouse move for rotation
-    WPreferences::getPreference( "ge.zoomTrackballManipulator.allowThrow", &m_allowThrow );
 }
 
 void WGEZoomTrackballManipulator::setByMatrix( const osg::Matrixd& matrix )
@@ -161,3 +159,14 @@ void WGEZoomTrackballManipulator::setPaintMode( int mode )
 {
     m_paintMode = mode;
 }
+
+void WGEZoomTrackballManipulator::setThrow( bool allowThrow )
+{
+    m_allowThrow = allowThrow;
+}
+
+bool WGEZoomTrackballManipulator::getThrow() const
+{
+    return m_allowThrow;
+}
+

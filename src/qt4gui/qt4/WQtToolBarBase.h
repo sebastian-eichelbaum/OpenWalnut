@@ -22,55 +22,66 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WQTTOOLBAR_H
-#define WQTTOOLBAR_H
+#ifndef WQTTOOLBARBASE_H
+#define WQTTOOLBARBASE_H
 
-#include <list>
-
-#include "guiElements/WQtPushButton.h"
-#include "WQtToolBarBase.h"
+#include <QtGui/QToolBar>
+#include <QtGui/QMenu>
 
 class WMainWindow;
+class WSettingMenu;
 
 /**
- * This is a toolbar. Its main usage for now is the "compatible modules" toolbar
+ * Base class for toolbars.
  */
-class WQtToolBar : public WQtToolBarBase
+class WQtToolBarBase: public QToolBar
 {
+    Q_OBJECT
 public:
     /**
      * Constructs the toolbar.
      * \param title name of the toolbar.
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
      */
-    WQtToolBar( const QString & title, WMainWindow* parent );
+    WQtToolBarBase( const QString & title, WMainWindow* parent );
 
     /**
-     * destructor
+     * Destructor.
      */
-    virtual ~WQtToolBar();
+    virtual ~WQtToolBarBase();
 
     /**
-     * Allows addition of new actions to the toolbar. See the Qt Doc of QToolBar for details. Actions have the advantage that they build a
-     * uniform interface for menus, toolbars, buttons and menued toolbuttons.
+     * Returns a menu for styling the menu items. All the handling is done internally. Just use the menu.
      *
-     * \param action the action to add.
+     * \param title the title of the menu.
+     *
+     * \return the menu
      */
-    void addAction( QAction* action );
-
-    /**
-     * Removes all buttons,
-     */
-    void clearButtons();
+    QMenu* getStyleMenu( QString title = QString( "Toolbar Style" ) ) const;
 
 protected:
 
-    /**
-     * The list of widgets in this toolbar.
-     */
-    std::list< QAction* > m_actions;
-
 private:
+
+    /**
+     * The main window parent.
+     */
+    WMainWindow* m_mainWindow;
+
+    /**
+     * The options for toolbar style.
+     */
+    WSettingMenu* m_styleOptionMenu;
+
+private slots:
+
+    /**
+     * Used to update the style of this toolbar.
+     *
+     * \param index the new index in the option list.
+     */
+    void handleStyleUpdate( unsigned int index );
 };
 
-#endif  // WQTTOOLBAR_H
+#endif  // WQTTOOLBARBASE_H
+

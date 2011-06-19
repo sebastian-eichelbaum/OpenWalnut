@@ -37,12 +37,13 @@
 
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
+#include <QtCore/QSettings>
+
 
 #include "WMainWindow.h" // this has to be included before any other includes
 #include "core/common/WConditionOneShot.h"
 #include "core/common/WIOTools.h"
 #include "core/common/WPathHelper.h"
-#include "core/common/WPreferences.h"
 #include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WSubject.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
@@ -66,13 +67,17 @@
 
 WMainWindow* WQt4Gui::m_mainWindow = NULL;
 
+QSettings* WQt4Gui::m_settings = NULL;
+
 WQt4Gui::WQt4Gui( int argc, char** argv )
     : WGUI( argc, argv )
 {
+    m_settings = new QSettings( "OpenWalnut.org", "OpenWalnut" );
 }
 
 WQt4Gui::~WQt4Gui()
 {
+    delete m_settings;
 }
 
 bool WQt4Gui::parseOptions()
@@ -151,14 +156,9 @@ int WQt4Gui::run()
     // setup path helper which provides several paths to others^
     WPathHelper::getPathHelper()->setAppPath( walnutBin );
 
-    // init preference system
-    WPreferences::setPreferenceFile( WPathHelper::getConfigFile() );
-
     // get the minimum log level from preferences
-    std::string logLevel = "Info";
-    WPreferences::getPreference( "qt4gui.logLevel", &logLevel );
-    // convert to log-level. If the preference is not defined, the empty string causes logLevelFromString to return LL_DEBUG as default.
-    WLogger::getLogger()->setDefaultLogLevel( logLevelFromString( logLevel ) );
+    LogLevel logLevel = static_cast< LogLevel >( WQt4Gui::getSettings().value( "qt4gui/logLevel", LL_INFO ).toInt() );
+    WLogger::getLogger()->setDefaultLogLevel( logLevel );
 
     // print the first output
     wlog::debug( "Walnut" ) << "Walnut binary path: " << walnutBin;
@@ -375,3 +375,9 @@ void WQt4Gui::closeCustomWidget( std::string title )
 {
     m_mainWindow->closeCustomDockWidget( title );
 }
+
+QSettings& WQt4Gui::getSettings()
+{
+    return *m_settings;
+}
+

@@ -18,6 +18,9 @@ IF( CMAKE_HOST_SYSTEM MATCHES Windows )
     TARGET_LINK_LIBRARIES( OWext_biosig ws2_32 )
 ENDIF()
 
+# Set the version of the library.
+SET_TARGET_PROPERTIES( OWext_biosig PROPERTIES VERSION ${OW_VERSION} )
+
 # install target
 INSTALL( TARGETS OWext_biosig
             ARCHIVE # NOTE: this is needed on windows

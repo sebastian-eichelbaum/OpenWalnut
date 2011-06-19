@@ -253,8 +253,9 @@ ENDFUNCTION( SETUP_RESOURCES )
 # empty, the contents of it get combined with the mercurial results if mercurial is installed. If not, only the file content will be used. If
 # both methods fail, a default string is used.
 # _version the returned version string
+# _file_version returns only the version loaded from the version file. This is useful to set CMake version info for release compilation
 # _default a default string you specify if all version check methods fail
-FUNCTION( GET_VERSION_STRING _version _default )
+FUNCTION( GET_VERSION_STRING _version _file_version _default )
     # Undef the OW_VERSION variable
     UNSET( OW_VERSION_HG )
     UNSET( OW_VERSION_FILE )
@@ -263,15 +264,22 @@ FUNCTION( GET_VERSION_STRING _version _default )
     SET( OW_VERSION_FILENAME ${PROJECT_SOURCE_DIR}/../VERSION )
     IF( EXISTS ${OW_VERSION_FILENAME} )
         # Read the version file
-        FILE( READ ${OW_VERSION_FILENAME} OW_VERSION_FILE )
-        # this wil contain an line-break. Remove it.
-        STRING( REGEX REPLACE "\n" "" OW_VERSION_FILE "${OW_VERSION_FILE}" )
-        
+        FILE( READ ${OW_VERSION_FILENAME} OW_VERSION_FILE_CONTENT )
+        # The first regex will mathc 
+        STRING(REGEX REPLACE ".*[^#]VERSION=([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1"  OW_VERSION_FILE  ${OW_VERSION_FILE_CONTENT} ) 
+        STRING( COMPARE EQUAL ${OW_VERSION_FILE} ${OW_VERSION_FILE_CONTENT}  OW_VERSION_FILE_INVALID )
+        IF( OW_VERSION_FILE_INVALID )
+            UNSET( OW_VERSION_FILE )
+        ENDIF()
+
         # this is ugly because, if the version file is empty, the OW_VERSION_FILE content is "". Unfortunately, this is not UNDEFINED as it would be
         # by SET( VAR "" ) ... so set it manually
         IF( OW_VERSION_FILE STREQUAL "" )
             UNSET( OW_VERSION_FILE )
         ENDIF()
+
+        # set the return parameter too
+        SET( ${_file_version} ${OW_VERSION_FILE} PARENT_SCOPE )
     ENDIF()
 
     # Use hg to query version information.

@@ -172,6 +172,9 @@ public:
      */
     WMatrix transposed() const;
 
+    /**
+     * Resets the matrix components to zero.
+     */
     void setZero()
     {
         for ( size_t i = 0; i < this->size(); ++i )
