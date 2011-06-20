@@ -126,10 +126,10 @@ void WMWriteTracts::moduleMain()
                 case 1:
                     saveJson();
                     break;
-                case 1:
-                    saveJson2();
-                    break2;
                 case 2:
+                    saveJson2();
+                    break;
+                case 3:
                     saveJsonTriangles();
                     break;
                 default:
