@@ -285,6 +285,14 @@ public:
     /**
      * getter
      *
+     * \param index
+     * \return normal
+     */
+    WPosition getNormalAsPosition( size_t index ) const;
+
+    /**
+     * getter
+     *
      * \param triangleIndex
      * \param vertNum
      * \return vertex

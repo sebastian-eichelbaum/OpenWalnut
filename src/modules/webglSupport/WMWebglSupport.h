@@ -22,22 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WMWRITEMESH_H
-#define WMWRITEMESH_H
+#ifndef WMWEBGLSUPPORT_H
+#define WMWEBGLSUPPORT_H
 
 #include <string>
 
 #include <osg/Geode>
 
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetVector.h"
 #include "core/graphicsEngine/WTriangleMesh.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleInputData.h"
 #include "core/kernel/WModuleOutputData.h"
 
-/**
+/** 
  * Someone should add some documentation here.
  * Probably the best person would be the module's
- * creator, i.e. "wiebel".
+ * creator, i.e. "ralph".
  *
  * This is only an empty template for a new module. For
  * an example module containing many interesting concepts
@@ -45,24 +47,19 @@
  *
  * \ingroup modules
  */
-class WMWriteMesh: public WModule
+class WMWebglSupport: public WModule
 {
-/**
- * Only UnitTests may be friends.
- */
-friend class WMWriteMeshTest;
-
 public:
 
     /**
-     *
+     * constructor
      */
-    WMWriteMesh();
+    WMWebglSupport();
 
     /**
-     *
+     * destructor
      */
-    virtual ~WMWriteMesh();
+    virtual ~WMWebglSupport();
 
     /**
      * Gives back the name of this module.
@@ -90,6 +87,7 @@ public:
     virtual const char** getXPMIcon() const;
 
 protected:
+
     /**
      * Entry point after loading the module. Runs in separate thread.
      */
@@ -105,26 +103,52 @@ protected:
      */
     virtual void properties();
 
+    /**
+     * Initialize requirements for this module.
+     */
+    virtual void requirements();
+
 
 private:
     /**
-     * Store the mesh in legacy vtk file format.
+     * colors a connected triangle mesh with the connected gray scale texture
      */
-    bool saveVTKASCII() const;
+    void colorTriMeshGray();
 
     /**
-     * Store the mesh in a json (javascript object notation) file
-     */
-    bool saveJson() const;
+	 * colors a connected triangle mesh with the connected rgb texture
+	 */
+    void colorTriMeshRGB();
 
+    /**
+     * saves a connected gray scale 3D texture as set of 2D textures
+     */
+    void saveSlicesGray();
+
+    /**
+	 * saves a connected rgb 3D texture as set of 2D textures
+	 */
+    void saveSlicesRGB();
+
+    boost::shared_ptr< WModuleInputData< WDataSetScalar > > m_datasetInputScalar;  //!< Input connector required by this module.
+    boost::shared_ptr< WModuleInputData< WDataSetVector > > m_datasetInputVector;  //!< Input connector required by this module.
 
     boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshInput; //!< Input connector for a mesh
+    boost::shared_ptr< WModuleOutputData< WTriangleMesh > > m_meshOutput;  //!< Input connector required by this module.
+
     boost::shared_ptr< WTriangleMesh > m_triMesh; //!< A pointer to the currently processed tri mesh
+    boost::shared_ptr< WDataSetScalar > m_datasetScalar; //!< A pointer to the currently processed dataset
+    boost::shared_ptr< WDataSetVector > m_datasetVector; //!< A pointer to the currently processed dataset
 
     boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
-    WPropGroup    m_savePropGroup; //!< Property group containing properties needed for saving the mesh.
-    WPropTrigger  m_saveTriggerProp; //!< This property triggers the actual writing,
+
+    WPropTrigger  m_propTriggerSaveGray; //!< This property triggers the actual writing,
+    WPropTrigger  m_propTriggerSaveRGB; //!< This property triggers the actual writing,
+    WPropFilename m_fileName; //!< The mesh will be written to this file.
     WPropFilename m_meshFile; //!< The mesh will be written to this file.
+
+    WPropTrigger  m_propTriggerUpdateOutputGray; //!< This property triggers the actual writing,
+    WPropTrigger  m_propTriggerUpdateOutputRGB; //!< This property triggers the actual writing,
 
     /**
      * A list of file type selection types
@@ -135,8 +159,6 @@ private:
      * Selection property for file types
      */
     WPropSelection m_fileTypeSelection;
-
-    WPropBool m_writeColors;
 };
 
-#endif  // WMWRITEMESH_H
+#endif  // WMWEBGLSUPPORT_H
