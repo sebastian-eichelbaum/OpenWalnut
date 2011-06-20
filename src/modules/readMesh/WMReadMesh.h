@@ -111,11 +111,26 @@ private:
     virtual boost::shared_ptr< WTriangleMesh > readMesh();
 
     /**
+     * Reads a mesh file and creates a WTriangleMesh out of it.
+     *
+     * \return Reference to the dataset.
+     */
+    virtual boost::shared_ptr< WTriangleMesh > readMeshFnav();
+
+
+    /**
      * Reads a dip file and creates a WTriangleMesh out of it.
      *
      * \return Reference to the dataset.
      */
     virtual boost::shared_ptr< WTriangleMesh > readDip();
+
+    /**
+     * Reads a BrainVISA (.mesh) file and creates a WTriangleMesh out of it.
+     *
+     * \return Reference to the dataset.
+     */
+    virtual boost::shared_ptr< WTriangleMesh > readBrainVISA();
 
     /**
      * creates a color map for loaded dip file
