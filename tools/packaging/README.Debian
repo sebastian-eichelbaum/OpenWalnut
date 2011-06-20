@@ -1,0 +1,30 @@
+How I did the Debian Config
+***************************
+
+1. Set these values:
+$ export DEBEMAIL="eichelbaum@informatik.uni-leipzig.de"
+$ export DEBFULLNAME="Sebastian Eichelbaum"
+
+2. In Debian, the source tar needs some special name:
+$ ln -s openwalnut-$VERSION.tar.gz openwalnut_$VERSION.orig.tar.gz
+
+3. Setup Debhelper:
+$ cd openwalnut-$VERSION
+$ dh_make --single --copyright gpl3
+
+4. Configure the files in the newly created debian directory.
+- Please have a look at debian/rules, which is the most important part.
+- The nice thing is: we have all the installation stuff done in CMake.
+  -> there is no further need for file-copying and similar.
+- For all the details:
+    * http://www.debian.org/doc/manuals/maint-guide/index.en.html
+    * http://wiki.debian.org/IntroDebianPackaging
+    * http://lists.debian.org/debian-mentors/2011/05/msg00121.html                   
+
+How to build the Debian package
+*******************************
+
+You can use owpack for this. If not, cd to openwalnut-$VERSION and
+call debuild -us -uc. This will build the code and might print several
+warnings and errors (lintian - the checking utility)
+

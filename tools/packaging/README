@@ -1,0 +1,39 @@
+OpenWalnut Packaging - README
+*****************************
+
+This directory contains several helpers and configurations for building
+OpenWalnut source and binary pckages. These scripts/configs ease the release-
+management and reduce the manual overhead.
+
+owpack:
+*******
+
+General:
+********
+
+This is an über-script for managing creation of source packages and binary
+packages. Each operation with this script checks out a fresh copy to ensure
+an absolutely clean source directory. This is very important, especially for
+the debian packages.
+
+To use it follow these steps:
+
+$ mkdir ReleaseOpenWalnut
+$ cd ReleaseOpenWalnut
+$ cp somewhere/owpack .
+
+You then need to edit the script. The top lines are self-explaining. Fill in
+certain information, like package maintainer and so on, as well as version 
+and revision. Then you have several options:
+
+$ owpack src_archive    <- creates an tar.gz and zip archive with the source
+$ owpack cpack          <- builds OW and uses our CPack Setup to create binary
+                           archives (like a binary tar.gz or a  self-extracting
+                           archive)
+$ owpack deb            <- uses our debian configuration to build an debian
+                           source package and builds it
+
+Cross Compilation:
+******************
+
+TODO: write

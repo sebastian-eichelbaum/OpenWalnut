@@ -1,0 +1,149 @@
+#!/bin/bash
+
+#############################################################################################################
+# User Variables
+#############################################################################################################
+
+# The version. This is used multiple times. Please set before going on.
+VERSION=1.3.0
+REVISION=default
+
+# Where to find the code
+REPOSITORY="ssh://ebaum@berkeley.informatik.uni-leipzig.de//srv/hg/OpenWalnut"
+
+#############################################################################################################
+# Internal Variables
+#############################################################################################################
+
+# Ensure english warning/error text (easier googling)
+export LC_ALL=C
+
+# The name common to all archives and directories
+ARCHIVE_PREFIX=openwalnut-$VERSION
+
+#############################################################################################################
+# Functions
+#############################################################################################################
+
+#########################################################################################################
+# Get the code.
+SetupCleanCheckout()
+{
+    echo "* Checking out fresh source copy."
+
+    # Get the source
+    echo " * Checking out OpenWalnut with revision \"$REVISION\""
+    hg clone -u $REVISION $REPOSITORY $ARCHIVE_PREFIX
+    [ $? -ne 0 ] && exit 1
+
+    # Let our build-system know the version
+    echo " * Setting version information to \"$VERSION\"."
+    echo "# dummy\nVERSION=$VERSION" > $ARCHIVE_PREFIX/VERSION
+}
+
+#########################################################################################################
+# Remove created files and directories
+CleanUp()
+{
+    echo "* Cleaning up."
+    echo " * Removing directory \"$ARCHIVE_PREFIX\""
+    rm -rf $ARCHIVE_PREFIX
+
+    echo " * Removing source archives"
+    rm -f $ARCHIVE_PREFIX.zip $ARCHIVE_PREFIX.tar.gz
+}
+
+#########################################################################################################
+# Package the code to archive files.
+#
+# PRECONDITION: PWD must be the directory with the checkout directory to package ($ARCHIVE_PREFIX)
+CreateSrcArchive()
+{
+    echo "* Archiving directory \"$ARCHIVE_PREFIX\""
+
+    # Give usage hint if sources are missing
+    if [ ! -d $ARCHIVE_PREFIX ]; then
+        echo " * Failed to find source. You should call \"$0 init\" first."
+        exit 1
+    fi
+
+    # Create the original source tar:
+    tar cvzf $ARCHIVE_PREFIX.tar.gz $ARCHIVE_PREFIX --exclude=.hg\*
+    [ $? -ne 0 ] && exit 1
+    echo " * Created \"$ARCHIVE_PREFIX.tar.gz\""
+
+    # Create the zip archive
+    zip -r $ARCHIVE_PREFIX.zip $ARCHIVE_PREFIX -x $ARCHIVE_PREFIX/.hg\*
+    [ $? -ne 0 ] && exit 1
+    echo " * Created \"$ARCHIVE_PREFIX.zip\""
+}
+
+#########################################################################################################
+# Package using cpack. This includes building.
+#
+# PRECONDITION: PWD must be the directory with the checkout directory to package ($ARCHIVE_PREFIX)
+CreateCPack()
+{
+    echo "* Creating all CPack based binary packages."
+
+    # Give usage hint if sources are missing
+    if [ ! -d $ARCHIVE_PREFIX ]; then
+        echo " * Failed to find source. You should call \"$0 init\" first."
+        exit 1
+    fi
+
+    echo " * Copy source to working directory."
+
+}
+
+#########################################################################################################
+# Something went wrong. Quit.
+Exit()
+{
+    echo "*** Failed. Exiting."
+    exit $1
+}
+
+#########################################################################################################
+# Main
+
+# Handle user command
+case "$1" in
+    clean)
+        CleanUp
+        ;;
+    init)
+        CleanUp
+        SetupCleanCheckout || Exit $?
+        ;;
+    src_archive)
+        CreateSrcArchive || Exit $?
+        ;;
+    cpack)
+        CreateCPack || Exit $?
+        ;;
+    deb)
+        ;;
+    *)
+        echo "Usage: $0 {clean|init|src_archive|cpack|deb}"
+        echo "  Ensure that you call \"$0 init\" before creating packages."
+        Exit 2
+        ;;
+esac
+
+
+#############################################################################################################
+# DH setup
+#############################################################################################################
+
+# Who is creating/maintaining the package?
+#export DEBEMAIL=$MAINTAINER_NAME
+#export DEBFULLNAME=$MAINTAINER_EMAIL
+
+# For debian, the Tar needs a special name:
+#ln -s openwalnut-$VERSION.tar.gz openwalnut_$VERSION.orig.tar.gz
+
+# run dh_make to create initial settings
+#cd openwalnut-$VERSION
+#dh_make --single --copyright gpl3
+
