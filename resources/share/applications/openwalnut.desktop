@@ -1,8 +1,8 @@
 [Desktop Entry]
-Categories=Sciene;
-Exec=/usr/bin/OpenWalnut
+Categories=Science;
+Exec=/usr/bin/openwalnut
 Name=OpenWalnut
-Icon=OpenWalnut.png
+Icon=openwalnut.png
 X-KDE-StartupNotify=true
 Terminal=true
 Type=Application

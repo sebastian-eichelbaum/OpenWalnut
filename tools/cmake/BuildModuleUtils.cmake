@@ -99,6 +99,7 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
                     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
                                 GROUP_READ GROUP_EXECUTE  
                                 WORLD_READ WORLD_EXECUTE
+            COMPONENT "RUNTIME"
     )
 
     # TODO(all): someone needs to explain this

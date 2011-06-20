@@ -172,7 +172,9 @@ FUNCTION( SETUP_SHADERS _Shaders _TargetDir )
 
         # now add install targets for each shader. All paths are relative to the current source dir.
         FOREACH( fname ${_Shaders} )
-            INSTALL( FILES ${fname} DESTINATION ${_TargetDir} )
+            INSTALL( FILES ${fname} DESTINATION ${_TargetDir} 
+                                    COMPONENT "RUNTIME"
+                   )
         ENDFOREACH( fname )
     ENDIF( OW_HANDLE_SHADERS )
 ENDFUNCTION( SETUP_SHADERS )
@@ -242,6 +244,7 @@ FUNCTION( SETUP_RESOURCES )
     # Also specify install target
     INSTALL( DIRECTORY ${ResourcesPath}
              DESTINATION "."
+             COMPONENT "RUNTIME"
              PATTERN "bin/*"            # binaries need to be executable
                  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                              GROUP_READ GROUP_EXECUTE

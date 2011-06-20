@@ -82,11 +82,11 @@ ENDIF()
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # mimic layout of install dir for build:
-SET( OW_CONFIG_DIR_RELATIVE "etc/OpenWalnut" )
+SET( OW_CONFIG_DIR_RELATIVE "share/openwalnut" )
 SET( OW_CONFIG_DIR ${PROJECT_BINARY_DIR}/${OW_CONFIG_DIR_RELATIVE} )
-SET( OW_SHARE_DIR_RELATIVE "share/OpenWalnut" )
+SET( OW_SHARE_DIR_RELATIVE "share/openwalnut" )
 SET( OW_SHARE_DIR ${PROJECT_BINARY_DIR}/${OW_SHARE_DIR_RELATIVE} )
-SET( OW_DOC_DIR_RELATIVE "share/doc/OpenWalnut" )
+SET( OW_DOC_DIR_RELATIVE "share/doc/openwalnut" )
 SET( OW_DOC_DIR ${PROJECT_BINARY_DIR}/${OW_DOC_DIR_RELATIVE} )
 SET( OW_RUNTIME_DIR_RELATIVE "bin" )
 SET( OW_RUNTIME_DIR ${PROJECT_BINARY_DIR}/${OW_RUNTIME_DIR_RELATIVE} )
@@ -94,7 +94,7 @@ SET( OW_LIBRARY_DIR_RELATIVE "lib" )
 SET( OW_LIBRARY_DIR ${PROJECT_BINARY_DIR}/${OW_LIBRARY_DIR_RELATIVE} )
 SET( OW_ARCHIVE_DIR_RELATIVE "lib" )
 SET( OW_ARCHIVE_DIR ${PROJECT_BINARY_DIR}/${OW_ARCHIVE_DIR_RELATIVE} )
-SET( OW_MODULE_DIR_RELATIVE "lib/OpenWalnut" )
+SET( OW_MODULE_DIR_RELATIVE "lib/openwalnut" )
 SET( OW_MODULE_DIR ${PROJECT_BINARY_DIR}/${OW_MODULE_DIR_RELATIVE} )
 
 # set our paths for install targets
@@ -165,7 +165,11 @@ ENDIF()
 
 # Generate needed headers
 # NOTE: add a line ADD_DEPENDENCIES( XYZ OW_generate_version_header ) to your target XYZ if you need the header!
-SET( OW_VERSION_HEADER ${PROJECT_SOURCE_DIR}/WVersion.h )
+SET( OW_VERSION_HEADER_DIRECTORY ${PROJECT_BINARY_DIR}/versionHeader )
+SET( OW_VERSION_HEADER ${OW_VERSION_HEADER_DIRECTORY}/WVersion.h )
+# to allow all those targets to find the header:
+INCLUDE_DIRECTORIES( ${OW_VERSION_HEADER_DIRECTORY} )
+# Setup the target
 SETUP_VERSION_HEADER( ${OW_VERSION_HEADER} )
 
 # Set the OW version string. This can be used by others for setting target versions during compilation.
@@ -385,19 +389,20 @@ INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext )
 INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR} )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# OWext
+# external libs
 
-SET( OWExtNiftiName "OWext_niftiio" )
-SET( OWExtEEPName "OWext_eep" )
-SET( OWExtBioSigName "OWext_biosig" )
+SET( OWExtNiftiIOName  "openwalnut_niftiio" )
+SET( OWExtNiftiZNZName  "openwalnut_niftiznz" )
+SET( OWExtEEPName    "openwalnut_eep" )
+SET( OWExtBioSigName "openwalnut_biosig" )
 
 # build external libs in ext/
 ADD_SUBDIRECTORY( ext ) # The needed external libraries
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# OWcore
+# openwalnut core library
 
-SET( OWCoreName "OWcore" )
+SET( OWCoreName "openwalnut" )
 
 # build core
 ADD_SUBDIRECTORY( core )
@@ -406,7 +411,7 @@ ADD_SUBDIRECTORY( core )
 # QT4 Walnut binary
 
 SET( OWQt4GuiName "qt4gui" )
-SET( OWBinaryName "walnut" )
+SET( OWBinaryName "openwalnut-qt4" )
 
 # build core
 ADD_SUBDIRECTORY( qt4gui )

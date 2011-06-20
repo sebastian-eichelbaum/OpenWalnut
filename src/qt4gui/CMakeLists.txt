@@ -73,6 +73,7 @@ INSTALL( TARGETS ${BinName}
                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                             GROUP_READ GROUP_EXECUTE
                             WORLD_READ WORLD_EXECUTE
+         COMPONENT "RUNTIME"
         )
 
 # TODO(all): comment this stuff. I do not know what the purpose is
@@ -100,8 +101,14 @@ ADD_CUSTOM_TARGET( help
     COMMENT "Copy the GUI Documentation"
 )
 # Also create an install target for this
-INSTALL( DIRECTORY ${PROJECT_SOURCE_DIR}/../doc/user/help/ DESTINATION ${OW_DOC_DIR_RELATIVE}/${LibName} )
-INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icons DESTINATION ${OW_DOC_DIR_RELATIVE}/${LibName} )
+INSTALL( DIRECTORY ${PROJECT_SOURCE_DIR}/../doc/user/help/
+         DESTINATION ${OW_DOC_DIR_RELATIVE}/${LibName} 
+         COMPONENT "RUNTIME"
+       )
+INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/icons 
+         DESTINATION ${OW_DOC_DIR_RELATIVE}/${LibName}
+         COMPONENT "RUNTIME"
+       )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Style Checker

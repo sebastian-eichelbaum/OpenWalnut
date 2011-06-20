@@ -12,17 +12,17 @@ ENDIF()
 
 FILE( GLOB BIOSIG_SRC "*.c" "*.cpp" "*.h" "XMLParser/*.cpp" "XMLParser/*.h" )
 
-ADD_LIBRARY( OWext_biosig ${BIOSIG_SRC} )
+ADD_LIBRARY( ${OWExtBioSigName} ${BIOSIG_SRC} )
 
 IF( CMAKE_HOST_SYSTEM MATCHES Windows )
-    TARGET_LINK_LIBRARIES( OWext_biosig ws2_32 )
+    TARGET_LINK_LIBRARIES( ${OWExtBioSigName} ws2_32 )
 ENDIF()
 
 # Set the version of the library.
-SET_TARGET_PROPERTIES( OWext_biosig PROPERTIES VERSION ${OW_VERSION} )
+SET_TARGET_PROPERTIES( ${OWExtBioSigName} PROPERTIES VERSION ${OW_VERSION} )
 
 # install target
-INSTALL( TARGETS OWext_biosig
+INSTALL( TARGETS ${OWExtBioSigName}
             ARCHIVE # NOTE: this is needed on windows
                 DESTINATION ${OW_LIBRARY_DIR_RELATIVE}
                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE

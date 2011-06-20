@@ -1,0 +1,5 @@
+Due to a bug in OpenSceneGraph, we had to add some fonts here.
+Especially arial.ttf. It is needed by the OSG Stat Display, where
+the font filename cannot be changed. The file arial.ttf is a copy
+of liberationSans-Bold.ttf. Sorry for that. Maybe this is fixed
+some day.

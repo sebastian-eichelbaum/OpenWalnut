@@ -48,7 +48,7 @@ COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_F
 
 # Setup the target
 ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
-TARGET_LINK_LIBRARIES( ${LibName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNiftiName}
+TARGET_LINK_LIBRARIES( ${LibName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNiftiIOName}
                                   ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES}
                      )
 
@@ -71,6 +71,7 @@ INSTALL( TARGETS ${LibName}
                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                             GROUP_READ GROUP_EXECUTE
                             WORLD_READ WORLD_EXECUTE
+         COMPONENT "RUNTIME"
 )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------

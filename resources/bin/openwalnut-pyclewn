@@ -19,5 +19,5 @@ else
 fi
 
 # run walnut
-pyclewn -c "-c \"cd $SRCDIR\"" -a $BINDIR/walnut "$*"
+pyclewn -c "-c \"cd $SRCDIR\"" -a $BINDIR/openwalnut-qt4 "$*"
 
