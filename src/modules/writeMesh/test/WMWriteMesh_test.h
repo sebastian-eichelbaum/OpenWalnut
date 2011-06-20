@@ -73,7 +73,7 @@ public:
         mc.m_meshFile = mc.m_savePropGroup->addProperty( "Mesh file", "", boost::filesystem::path( fileName.c_str() ) );
         mc.m_saveTriggerProp = mc.m_savePropGroup->addProperty( "Do save",  "Press!", WPVBaseTypes::PV_TRIGGER_READY );
 
-        bool result = mc.save();
+        bool result = mc.saveVTKASCII();
         TS_ASSERT_EQUALS( result, false ); // should return false as we did not have any vertices or triangles.
         TS_ASSERT( !fileExists( fileName ) );
     }
@@ -103,9 +103,9 @@ public:
         mc.m_meshFile = mc.m_savePropGroup->addProperty( "Mesh file", "", boost::filesystem::path( fileName.c_str() ) );
         mc.m_saveTriggerProp = mc.m_savePropGroup->addProperty( "Do save",  "Press!", WPVBaseTypes::PV_TRIGGER_READY );
 
-        mc.save();
+        mc.saveVTKASCII();
 
-        bool result = mc.save();
+        bool result = mc.saveVTKASCII();
         TS_ASSERT_EQUALS( result, false ); // should return false as we did not have all coordinates values finite.
         TS_ASSERT( !fileExists( fileName ) );
     }
