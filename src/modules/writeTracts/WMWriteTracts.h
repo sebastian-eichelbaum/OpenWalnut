@@ -97,6 +97,22 @@ protected:
 
 private:
     /**
+     * Store the mesh in a json (javascript object notation) file
+     */
+    bool saveJson() const;
+
+    /**
+     * Store the mesh in a json (javascript object notation) file
+     * using only every other vertex
+     */
+    bool saveJson2() const;
+
+    /**
+     * Store the mesh in a json (javascript object notation) file
+     */
+    bool saveJsonTriangles() const;
+
+    /**
      * Input connector for writing the tracts out of a WFiberCluster to a file.
      */
     boost::shared_ptr< WModuleInputData< const WFiberCluster > > m_clusterIC;
@@ -108,6 +124,16 @@ private:
 
     WPropTrigger m_run; //!< Button to start saving
     WPropFilename m_savePath; //!< Path where tracts should be stored
+
+    /**
+     * A list of file type selection types
+     */
+    boost::shared_ptr< WItemSelection > m_fileTypeSelectionsList;
+
+    /**
+     * Selection property for file types
+     */
+    WPropSelection m_fileTypeSelection;
 };
 
 #endif  // WMWRITETRACTS_H
