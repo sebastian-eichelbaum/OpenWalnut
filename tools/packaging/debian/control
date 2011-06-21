@@ -2,7 +2,7 @@ Source: openwalnut
 Section: science
 Priority: optional
 Maintainer: Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>
-Build-Depends: debhelper (>= 8.0.0), cmake (>= 2.8.0)
+Build-Depends: debhelper (>= 8.0.0), cmake (>= 2.8.0), libgl1-mesa-dev (>= 7.10.3-3), libopenscenegraph-dev (>= 2.8.3-7), libopenthreads-dev (>= 2.8.3-7), libqt4-dev (>= 4:4.7.3-2), libqtwebkit-dev (>= 2.1.0~2011week13-1), zlib1g-dev (>= 1:1.2.3.4.dfsg-3), libboost-dev (>= 1.46.1.1)
 Standards-Version: 3.9.2
 Homepage: http://www.openwalnut.org
 
