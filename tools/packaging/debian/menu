@@ -1,4 +1,4 @@
-?package(openwalnut):needs="X11|text|vc|wm"\
+?package(openwalnut):needs="X11"\
   section="Applications/Science/Medicine"\
   title="OpenWalnut"\
   icon="/usr/share/pixmaps/openwalnut.png"\

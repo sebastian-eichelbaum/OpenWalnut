@@ -14,9 +14,14 @@ How I did the Debian Config
 
 4. Configure the files in the newly created debian directory.
 	edit debian/rules
-		- This basically is a Makefile
-		- Modified auto_build and auto_configure as well as target %
-		- Have a look at our files in debian directory
+		- this basically is a Makefile
+		- modified auto_build and auto_configure as well as target %
+		- have a look at our files in debian directory
+	edit debian/control
+		- this describes our package(s)
+		- set correct section, depends, homepage, description
+			- http://www.debian.org/doc/manuals/maint-guide/dreq.en.html#control
+			-> this URL describes everything needed
 	edit debian/copyright
 		- Setup for dual licensing
 			- added LGPL3
@@ -94,6 +99,9 @@ debian/changelog
 		- but keep correct syntax!
 debian/rules
 	- allows setting certain CMake options
+debian/control
+	- defines some short description-text and dependnecies
+		-> for new dependencies, modify this file!
 debian/openwalnut.doc-base
 	- lists additional documentation we provide
 debian/openwalnut.manpages
@@ -102,13 +110,15 @@ debian/openwalnut.manpages
 How to build the Debian package
 *******************************
 
-You can use owpack for this. If not, cd to openwalnut-$VERSION and ensure
-you copied our debian config directory from tools/packaging there.
-Call debuild -us -uc. This will build the code and might print several
-warnings and errors (lintian - the checking utility). Ensure that
-lintian does not print errors and warnings. Fix them or if they can't be fixed,
-use lintian-overrides (http://lintian.debian.org/manual/index.html). After this
-you end up with two archives: openwalnut_VERSION.orig.tar.gz and
+You can use owpack for this. If not, cd to openwalnut-VERSION and ensure you
+copied our debian config directory from tools/packaging there. Ensure to remove
+the .hg files inside the directory since they somehow interfere with debuild.
+
+Call debuild -us -uc (see man dpkg-buildpackage). This will build the code
+and might print several warnings and errors (lintian - the checking utility).
+Ensure lintian does not print errors and warnings. Fix them or if they can't be
+fixed, use lintian-overrides (http://lintian.debian.org/manual/index.html).
+After this you end up with two archives: openwalnut_VERSION.orig.tar.gz and
 openwalnut_VERSION.debian.tar.gz and a description and changes file. They
 represent a Debian source package.
 
