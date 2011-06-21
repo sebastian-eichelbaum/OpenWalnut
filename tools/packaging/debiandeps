@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# get the linked libs
+
+# NOTE: certain libs are already available on every system with deb-helper (libc, libdl, libgcc, libm, libstdc++, libpthread)
+linklibs=`objdump -p bin/openwalnut-qt4\
+                     \`find lib -name "*.so"\` | grep NEEDED | \
+                     grep -v "libopenwalnut" | grep -v "libc\.so" | grep -v "libdl\.so" | \
+                     grep -v "libgcc.*" | grep -v "libm\.so" | grep -v "libstdc++\.so" | \
+                     grep -v "libpthread\.so" | \
+                     awk '{print $2}' | sort | uniq`
+
+# use dpkg -S to find the corresponding packages. Several libs can be contained in multiple packages.
+# We only filter out ia32 and lib32 packages.
+paks=`dpkg -S $linklibs | awk '{print $1}' | sed 's/://' | grep -v "^ia32-" | grep -v "^lib32" | sort | uniq`
+
+# find a package for each of them
+for pak in $paks
+do
+    dpkg -l | grep ".*$pak "
+    # this one is of limited use as we actually search the dev packages. But unfortunately, they do not necessarily follow the
+    # name of the binary package.
+    # dpkg -l | grep ".*$pak " | awk '{printf "%s (>= %s), ",$2,$3}'
+done
+
