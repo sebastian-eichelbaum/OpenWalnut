@@ -284,6 +284,18 @@ ADD_CUSTOM_TARGET( vtest
 
 # Setup everything in ../resources
 SETUP_RESOURCES()
+SETUP_ADDITIONAL_FILES( ${OW_DOC_DIR_RELATIVE} 
+                        "${PROJECT_SOURCE_DIR}/../README"
+                        "${PROJECT_SOURCE_DIR}/../AUTHORS"
+                        "${PROJECT_SOURCE_DIR}/../CONTRIBUTORS"
+                        "${PROJECT_SOURCE_DIR}/../COPYING"
+                        "${PROJECT_SOURCE_DIR}/../COPYING.LESSER"
+                      )
+# also copy all the user documentation we have
+SETUP_ADDITIONAL_DIRECTORY( ${OW_DOC_DIR_RELATIVE}
+                            ${PROJECT_SOURCE_DIR}/../doc/user/
+                            TRUE    # this denotes that the contents of doc/user should be copied instead of user directly
+                          )  
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #

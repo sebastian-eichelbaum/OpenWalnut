@@ -132,7 +132,8 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
             # for each fixture, copy to build dir
             FOREACH( FixtureDir ${FixturePaths} )
                 # we need a unique name for each fixture dir as target
-                STRING( REGEX REPLACE "[^A-Za-z0-9]" "" FixtureDirEscaped "${FixtureDir}" )
+                FILE_TO_TARGETSTRING( ${FixtureDir} FixtureDirEscaped )
+
                 # finally, create the copy target
                 ADD_CUSTOM_TARGET( ${_TEST_TARGET}_CopyFixtures_${FixtureDirEscaped}
                     COMMAND ${CMAKE_COMMAND} -E copy_directory "${FixtureDir}" "${FixtureTargetDirectory}"
@@ -250,7 +251,68 @@ FUNCTION( SETUP_RESOURCES )
                              GROUP_READ GROUP_EXECUTE
                              WORLD_READ WORLD_EXECUTE
              )
+
 ENDFUNCTION( SETUP_RESOURCES )
+
+# This function eases the process of copying and installing additional files which not reside in the resource path.
+# It creates a target (ALL is depending on it) AND the INSTALL operation.
+# _destination where to put them. This MUST be relative to the build dir and install dir.
+# _OTHERS you can add an arbitrary list of additional arguments which represent the files to copy.
+FUNCTION( SETUP_ADDITIONAL_FILES _destination )
+    FOREACH( _file ${ARGN} )
+        FILE_TO_TARGETSTRING( ${_file} fileTarget )
+
+        # add a copy target
+        ADD_CUSTOM_TARGET( CopyAdditionalFile_${fileTarget}
+            ALL
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${_destination}/"
+            COMMAND ${CMAKE_COMMAND} -E copy "${_file}" "${PROJECT_BINARY_DIR}/${_destination}/"
+            COMMENT "Copying file ${_file}"
+        )
+
+        # add a INSTALL operation for this file
+        INSTALL( FILES ${_file} DESTINATION ${_destination}
+                                COMPONENT "RUNTIME"
+               )
+    ENDFOREACH() 
+ENDFUNCTION( SETUP_ADDITIONAL_FILES )
+
+# This function copies a given directory or its contents to the specified destination. Since cmake is quite strange in handling directories
+# somehow, we needed to trick here. 
+# _destination where to put the directory/its contents. Realtive to build dir and install dir.
+# _directory the directory to copy
+# _contents if TRUE, the contents of _directory are copied into _destination. If FALSE, _destination as-is is copied to _destination/.. (sorry
+#           for this weird stuff. Complain at cmake mailing list ;-))
+FUNCTION( SETUP_ADDITIONAL_DIRECTORY _destination _directory _contents )
+    # create a nice target name
+    FILE_TO_TARGETSTRING( ${_directory} directoryTarget )
+
+    # add a copy target
+    # this copies the CONTENTS of the specified directory into the specified destination dir.
+    # NOTE: cmake -E says, that copying a directory with the copy command is pssible. But on my system it isn't.
+    ADD_CUSTOM_TARGET( CopyAdditionalDirectory_${directoryTarget}
+        ALL
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${_destination}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${_directory}" "${PROJECT_BINARY_DIR}/${_destination}"
+        COMMENT "Copying directory ${_directory}"
+    )
+
+    # we need to distinquish here whether the user wants to copy the contents of the specified directory or the whole directory.
+    # NOTE: unfortunately, the semantics of cmake -E and INSTALL are different. We need to fix this with this hack.
+    IF( _contents )
+        # OK, the user wants us to copy the contents of the specified _directory INTO the dpecified destination
+        SET(  InstallDestination "${_destination}" )
+    ELSE()
+        # see "cmake -E " for help. The copy_directory copies its contents and copy copies the directory as is.
+        SET(  InstallDestination "${_destination}/../" )
+    ENDIF()
+
+    # add a INSTALL operation for this file
+    INSTALL( DIRECTORY ${_directory}
+             DESTINATION ${InstallDestination}
+             COMPONENT "RUNTIME"
+           )
+ENDFUNCTION( SETUP_ADDITIONAL_DIRECTORY )
 
 # This function tries to find a proper version string. It therefore uses the file src/../VERSION and mercurial. If the file exists and is not
 # empty, the contents of it get combined with the mercurial results if mercurial is installed. If not, only the file content will be used. If

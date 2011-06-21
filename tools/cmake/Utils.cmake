@@ -61,3 +61,17 @@ FUNCTION( ASSERT_GE_VERSION _PackageName _ActualVersion _MinimumVersion )
   ENDIF()
 ENDFUNCTION( ASSERT_GE_VERSION )
 
+# This function converts a given filename to a proper target name. This is very useful if you want to define custom targets for
+# files and need a unique name.
+# _filename the filename to convert
+# _target returns the proper target string
+FUNCTION( FILE_TO_TARGETSTRING _filename _target )
+    # strip the whole path up to src
+    STRING( REGEX REPLACE "^.*/src" "src" fileExcaped "${_filename}" ) 
+
+    # remove all those ugly chars
+    STRING( REGEX REPLACE "[^A-Za-z0-9]" "X" fileExcaped "${fileExcaped}" )
+
+    # done. Return value
+    SET( ${_target} "${fileExcaped}" PARENT_SCOPE )
+ENDFUNCTION( FILE_TO_TARGETSTRING )
