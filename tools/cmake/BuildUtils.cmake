@@ -318,6 +318,7 @@ ENDFUNCTION( GET_VERSION_STRING )
 #
 # _OW_VERSION_HEADER the filename where to store the header. Should be absolute.
 FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER )
+    # This ensures that an unexisting .hg/dirstate file won't cause an compile error (do not know how to make target)
     SET( HG_DEP "" )
     IF( EXISTS ${PROJECT_SOURCE_DIR}/../.hg/dirstate )
         SET( HG_DEP ${PROJECT_SOURCE_DIR}/../.hg/dirstate )
