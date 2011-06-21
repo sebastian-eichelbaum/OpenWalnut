@@ -318,10 +318,14 @@ ENDFUNCTION( GET_VERSION_STRING )
 #
 # _OW_VERSION_HEADER the filename where to store the header. Should be absolute.
 FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER )
+    SET( HG_DEP "" )
+    IF( EXISTS ${PROJECT_SOURCE_DIR}/../.hg/dirstate )
+        SET( HG_DEP ${PROJECT_SOURCE_DIR}/../.hg/dirstate )
+    ENDIF()
 
     # The file WVersion.* needs the version definition.
     ADD_CUSTOM_COMMAND( OUTPUT ${_OW_VERSION_HEADER}
-                        DEPENDS ${PROJECT_SOURCE_DIR}/../VERSION ${PROJECT_SOURCE_DIR}/../.hg/dirstate
+                        DEPENDS ${PROJECT_SOURCE_DIR}/../VERSION ${HG_DEP}
                         COMMAND ${CMAKE_COMMAND} -D PROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D HEADER_FILENAME:STRING=${_OW_VERSION_HEADER} -P BuildVersionHeader.cmake
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../tools/cmake/
                         COMMENT "Creating Version Header ${_OW_VERSION_HEADER}."
