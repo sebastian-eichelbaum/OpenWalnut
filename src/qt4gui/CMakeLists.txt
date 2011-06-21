@@ -96,12 +96,12 @@ SETUP_TESTS( "${TARGET_TEST_FILES}" "${BinName}" "" )
 # Copy the help documents. This is not in the resource directory since it is qt4gui specific, so we need to copy it.
 ADD_CUSTOM_TARGET( help
     ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../doc/user/help/ ${OW_DOC_DIR}/${LibName}/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/../doc/user/${LibName}/ ${OW_DOC_DIR}/${LibName}/
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/icons/ ${OW_DOC_DIR}/${LibName}/icons
     COMMENT "Copy the GUI Documentation"
 )
 # Also create an install target for this
-INSTALL( DIRECTORY ${PROJECT_SOURCE_DIR}/../doc/user/help/
+INSTALL( DIRECTORY ${PROJECT_SOURCE_DIR}/../doc/user/${LibName}/
          DESTINATION ${OW_DOC_DIR_RELATIVE}/${LibName} 
          COMPONENT "RUNTIME"
        )

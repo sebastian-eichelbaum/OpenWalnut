@@ -1,5 +1,27 @@
-We keep this README short, since we have much documentation and information
-online. So, for detailed information have a look at http://www.openwalnut.org.
+OpenWalnut
+----------
+
+OpenWalnut is an open source tool for multi-modal medical and brain data
+visualization. Its universality allows it to be easily extended and used in a
+large variety of application cases. It is both, a tool for the scientific user
+and a powerful framework for the visualization researcher.  OpenWalnut is
+licensed under the terms of the GNU Lesser General Public License. Written
+entirely in Standard C++ and using a number of portable libraries (e.g.
+OpenSceneGraph and  Qt), it runs on all Windows platforms, OSX, and
+GNU/Linux operating systems.
+
+- please refer to http://www.openwalnut.org for extensive documentation and information.
+
+AUTHORS AND CONTRIBUTORS
+========================
+
+See the files "AUTHORS" and "CONTRIBUTORS".
+
+LICENSE
+=======
+
+We provide dual licensing. You can choose to use either GPLv3 or LGPLv3.
+See "COPYING" and "COPYING.LESSER".
 
 CONTACT
 =======
@@ -42,8 +64,8 @@ make install -- this is optional
 
 After that, OpenWalnut can be used inside the build directory.
 
-Compilation on Windows:
------------------------
+Compilation on Windows and Mac:
+-------------------------------
 
 This is a little bit more complicated. We give you a step-by-step explanation
 on http://www.openwalnut.org.
