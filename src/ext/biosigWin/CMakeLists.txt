@@ -19,7 +19,10 @@ IF( CMAKE_HOST_SYSTEM MATCHES Windows )
 ENDIF()
 
 # Set the version of the library.
-SET_TARGET_PROPERTIES( ${OWExtBioSigName} PROPERTIES VERSION ${OW_VERSION} )
+SET_TARGET_PROPERTIES( ${OWExtBioSigName} PROPERTIES
+        VERSION ${OW_VERSION} 
+        SOVERSION ${OW_SOVERSION}
+)
 
 # install target
 INSTALL( TARGETS ${OWExtBioSigName}
