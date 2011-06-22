@@ -52,10 +52,11 @@ public:
     /**
      * Constructor.
      *
+     * \param options the option-variable map
      * \param argc number of arguments given on command line.
      * \param argv arguments given on command line.
      */
-    WQt4Gui( int argc, char** argv );
+    WQt4Gui( const boost::program_options::variables_map& options, int argc, char** argv );
 
     /**
      * Default destructor.
@@ -207,18 +208,7 @@ private:
      */
     boost::shared_ptr< WKernel > m_kernel;
 
-    boost::program_options::variables_map m_optionsMap; //!< Map storing the program options.
-
-    /**
-     * This function defines and parses the valid command line options.
-     * This might once be put in a separate class like WOptionHandler.
-     * At the moment it seems reasonable that different GUIs might have
-     * different command line options, thus we implement their parsing
-     * in the GUI implemntation itself, i.e. here.
-     *
-     * \return True if and only if the parsing was successful.
-     */
-    bool parseOptions();
+    const boost::program_options::variables_map& m_optionsMap; //!< Map storing the program options.
 
     /**
      * New log item added. Pushing event to QT's event queue.
