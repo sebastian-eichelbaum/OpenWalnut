@@ -110,7 +110,7 @@ int main( int argc, char** argv )
     {
         // NOTE: if you modify this, check that help2man still works properly! (http://www.gnu.org/software/help2man) But be careful. There need
         // to be several manual changes to be done in the manual after help2man has done its job.
-        std::cout << "OpenWalnut is an highly expansible visualization system with focus on brain- and neurological data." << std::endl
+        std::cout << "OpenWalnut is a highly expansible visualization system with focus on brain- and neurological data." << std::endl
                   << std::endl
                   << "Usage: openwalnut [OPTION]... [FILE]..." << std::endl
                   << std::endl
