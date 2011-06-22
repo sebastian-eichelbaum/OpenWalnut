@@ -285,15 +285,29 @@ ADD_CUSTOM_TARGET( vtest
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
+# Provide several options to control some aspects of resource copy.
+OPTION( OW_PACKAGE_BUILD "Enable this to get fine-grained control over several resources and files getting installed. This is very handy for package building." OFF )
+IF( OW_PACKAGE_BUILD )
+    OPTION( OW_PACKAGE_NOCOPY_LICENSE "Disable to copy our licensing information. Enabling this can be useful for package maintainer since several packaging systems have their own licence mechanism (i.e. Debian)." OFF )
+ENDIF()
+
 # Setup everything in ../resources
 SETUP_RESOURCES()
 SETUP_ADDITIONAL_FILES( ${OW_DOC_DIR_RELATIVE} 
                         "${PROJECT_SOURCE_DIR}/../README"
                         "${PROJECT_SOURCE_DIR}/../AUTHORS"
                         "${PROJECT_SOURCE_DIR}/../CONTRIBUTORS"
-                        "${PROJECT_SOURCE_DIR}/../COPYING"
-                        "${PROJECT_SOURCE_DIR}/../COPYING.LESSER"
                       )
+
+# If the user did not disable license-copying, do it
+# NOTE: use this "double-negative" to use the fact that undefined variables yield FALSE.
+IF( NOT OW_PACKAGE_NOCOPY_LICENSE )
+    SETUP_ADDITIONAL_FILES( ${OW_DOC_DIR_RELATIVE} 
+                            "${PROJECT_SOURCE_DIR}/../COPYING"
+                            "${PROJECT_SOURCE_DIR}/../COPYING.LESSER"
+                          )
+ENDIF()
+
 # also copy all the user documentation we have
 SETUP_ADDITIONAL_DIRECTORY( ${OW_DOC_DIR_RELATIVE}
                             ${PROJECT_SOURCE_DIR}/../doc/user/
