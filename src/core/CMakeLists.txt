@@ -57,7 +57,10 @@ TARGET_LINK_LIBRARIES( ${LibName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNift
 SETUP_USE_VERSION_HEADER( ${LibName} )
 
 # Set the version of the library.
-SET_TARGET_PROPERTIES( ${LibName} PROPERTIES VERSION ${OW_VERSION} )
+SET_TARGET_PROPERTIES( ${LibName} PROPERTIES 
+        VERSION ${OW_VERSION} 
+        SOVERSION ${OW_SOVERSION}
+)
 
 # Do not forget the install targets
 INSTALL( TARGETS ${LibName}
