@@ -35,7 +35,7 @@ How I did the Debian Config
 	remove debian/init.d.ex
 		- for files that should be put to /etc/init.d
 		- removed since not needed
-	edit debian/docs
+	remove debian/docs
 		- list of files handled by the doc installer.
 		- usually automatically contains a list of files in our top-level dir
 			- README and stuff
@@ -71,6 +71,9 @@ How I did the Debian Config
 	remove debian/manpage.*
 		- for manual pages created with nroff, SGML and XML.
 		- remove since not needed
+	edit debian/openwalnut.lintian-overrides
+		- this file can suppress certain warnings and errors thrown by lintian
+		- added all lintian tags but commented them
 
 The nice thing is: we have all the installation stuff done in CMake.
 	- there is no further need for file-copying and similar.
