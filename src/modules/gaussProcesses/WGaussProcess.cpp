@@ -22,10 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#include <Eigen/QR>
 
 #include "core/common/datastructures/WFiber.h"
 #include "core/common/WAssert.h"
-#include "../../ext/Eigen/QR"
+
 #include "WGaussProcess.h"
 
 WGaussProcess::WGaussProcess( const size_t tractID,

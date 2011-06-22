@@ -31,7 +31,7 @@
 
 #include <osg/Geode>
 
-#include "../../ext/Eigen/Eigen"
+#include <Eigen/Eigen>
 
 #include "core/common/math/WTensorFunctions.h"
 #include "core/common/WThreadedFunction.h"

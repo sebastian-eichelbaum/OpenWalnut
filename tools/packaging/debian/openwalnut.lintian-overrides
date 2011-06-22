@@ -5,13 +5,3 @@ openwalnut: package-name-doesnt-match-sonames
 openwalnut: extra-license-file usr/share/openwalnut/fonts/License.txt
 openwalnut: extra-license-file usr/share/openwalnut/fonts/COPYING
 
-# This is an external we compile into OpenWalnut. It internally uses TinyXML.
-openwalnut: embedded-library usr/lib/libopenwalnut_biosig.so.1.3.0: tinyxml
-
-# How to turn this off in CMake?
-openwalnut: non-dev-pkg-with-shlib-symlink usr/lib/libopenwalnut_niftiio.so.1.3.0 usr/lib/libopenwalnut_niftiio.so
-openwalnut: non-dev-pkg-with-shlib-symlink usr/lib/libopenwalnut_niftiznz.so.1.3.0 usr/lib/libopenwalnut_niftiznz.so
-openwalnut: non-dev-pkg-with-shlib-symlink usr/lib/libopenwalnut_eep.so.1.3.0 usr/lib/libopenwalnut_eep.so
-openwalnut: non-dev-pkg-with-shlib-symlink usr/lib/libopenwalnut_biosig.so.1.3.0 usr/lib/libopenwalnut_biosig.so
-openwalnut: non-dev-pkg-with-shlib-symlink usr/lib/libopenwalnut.so.1.3.0 usr/lib/libopenwalnut.so
-

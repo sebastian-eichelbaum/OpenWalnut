@@ -24,7 +24,7 @@
 
 #include <vector>
 
-#include "ext/Eigen/SVD"
+#include <Eigen/SVD>
 
 #include "../WAssert.h"
 #include "../WLimits.h"

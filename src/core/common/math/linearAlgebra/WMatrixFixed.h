@@ -43,8 +43,8 @@
 #include <osg/Matrixd>
 
 // Needed for conversion: Eigen3 Types
-#include "ext/Eigen/Core"
-#include "ext/Eigen/LU" // needed for the inverse() function
+#include <Eigen/Core>
+#include <Eigen/LU>  // needed for the inverse() function
 
 #include "../../WDefines.h"
 #include "../../WStringUtils.h"
