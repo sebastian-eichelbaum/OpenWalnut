@@ -79,6 +79,8 @@ int main( int argc, char** argv )
     namespace po = boost::program_options; // since the namespace is far to big we use a shortcut here
     po::options_description desc( "Options:" );
 
+    // NOTE: if you modify this, also modify the manual pages! (use help2man or do it manually) But be careful. There need
+    // to be several manual changes to be done in the manual after help2man has done its job.
     desc.add_options()
         ( "help,h", "Prints this help message" )
         ( "version,v", "Prints the version information" )
@@ -106,7 +108,8 @@ int main( int argc, char** argv )
     // print usage information if command line asks for help.
     if( optionsMap.count( "help" ) )
     {
-        // NOTE: if you modify this, check that help2man still works properly! (http://www.gnu.org/software/help2man)
+        // NOTE: if you modify this, check that help2man still works properly! (http://www.gnu.org/software/help2man) But be careful. There need
+        // to be several manual changes to be done in the manual after help2man has done its job.
         std::cout << "OpenWalnut is an highly expansible visualization system with focus on brain- and neurological data." << std::endl
                   << std::endl
                   << "Usage: openwalnut [OPTION]... [FILE]..." << std::endl

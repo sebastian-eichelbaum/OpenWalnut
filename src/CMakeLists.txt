@@ -86,6 +86,8 @@ SET( OW_CONFIG_DIR_RELATIVE "share/openwalnut" )
 SET( OW_CONFIG_DIR ${PROJECT_BINARY_DIR}/${OW_CONFIG_DIR_RELATIVE} )
 SET( OW_SHARE_DIR_RELATIVE "share/openwalnut" )
 SET( OW_SHARE_DIR ${PROJECT_BINARY_DIR}/${OW_SHARE_DIR_RELATIVE} )
+SET( OW_MAN_DIR_RELATIVE "share/man" )
+SET( OW_MAN_DIR "${PROJECT_BINARY_DIR}/share/man" )
 SET( OW_DOC_DIR_RELATIVE "share/doc/openwalnut" )
 SET( OW_DOC_DIR ${PROJECT_BINARY_DIR}/${OW_DOC_DIR_RELATIVE} )
 SET( OW_RUNTIME_DIR_RELATIVE "bin" )
@@ -277,8 +279,9 @@ ADD_CUSTOM_TARGET( vtest
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
-# Resource Copy
+# Resource/Doc Copy
 #  - This simply copies the structure from ../resources to the build directory
+#  - Additonaly takes care that the user doc and manual pages get placed where they belong.
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -295,6 +298,10 @@ SETUP_ADDITIONAL_FILES( ${OW_DOC_DIR_RELATIVE}
 SETUP_ADDITIONAL_DIRECTORY( ${OW_DOC_DIR_RELATIVE}
                             ${PROJECT_SOURCE_DIR}/../doc/user/
                             TRUE    # this denotes that the contents of doc/user should be copied instead of user directly
+                          )  
+SETUP_ADDITIONAL_DIRECTORY( ${OW_MAN_DIR_RELATIVE}
+                            ${PROJECT_SOURCE_DIR}/../doc/man/
+                            TRUE    # this denotes that the contents of doc/man should be copied instead of user directly
                           )  
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
