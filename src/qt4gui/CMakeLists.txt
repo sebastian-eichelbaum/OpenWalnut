@@ -96,6 +96,7 @@ SETUP_TESTS( "${TARGET_TEST_FILES}" "${BinName}" "" )
 # Our user-help needs the icons too. Copy them.
 SETUP_ADDITIONAL_DIRECTORY( "${OW_DOC_DIR_RELATIVE}/${LibName}/icons"
                             "${CMAKE_CURRENT_SOURCE_DIR}/icons"
+                            "SHARE"
                             FALSE   # this denoted that the whole directory icons should be copied instead of its contents
                           )
 

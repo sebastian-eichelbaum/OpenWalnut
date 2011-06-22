@@ -151,7 +151,8 @@ ENDFUNCTION( SETUP_TESTS )
 # _Shaders list of shaders
 # _TargetDir the directory where to put the shaders. Relative to ${PROJECT_BINARY_DIR} and install dir. You should avoid ".." stuff. This can
 # break the install targets
-FUNCTION( SETUP_SHADERS _Shaders _TargetDir )
+# _Component the name of the install component
+FUNCTION( SETUP_SHADERS _Shaders _TargetDir _Component )
     # only if we are allowed to
     IF( OW_HANDLE_SHADERS )
         EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory ${_TargetDir} )
@@ -174,7 +175,7 @@ FUNCTION( SETUP_SHADERS _Shaders _TargetDir )
         # now add install targets for each shader. All paths are relative to the current source dir.
         FOREACH( fname ${_Shaders} )
             INSTALL( FILES ${fname} DESTINATION ${_TargetDir} 
-                                    COMPONENT "RUNTIME"
+                                    COMPONENT ${_Component}
                    )
         ENDFOREACH( fname )
     ENDIF( OW_HANDLE_SHADERS )
@@ -245,7 +246,7 @@ FUNCTION( SETUP_RESOURCES )
     # Also specify install target
     INSTALL( DIRECTORY ${ResourcesPath}
              DESTINATION "."
-             COMPONENT "RUNTIME"
+             COMPONENT "SHARE"
              PATTERN "bin/*"            # binaries need to be executable
                  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                              GROUP_READ GROUP_EXECUTE
@@ -257,8 +258,9 @@ ENDFUNCTION( SETUP_RESOURCES )
 # This function eases the process of copying and installing additional files which not reside in the resource path.
 # It creates a target (ALL is depending on it) AND the INSTALL operation.
 # _destination where to put them. This MUST be relative to the build dir and install dir.
+# _component the name of the component for these files
 # _OTHERS you can add an arbitrary list of additional arguments which represent the files to copy.
-FUNCTION( SETUP_ADDITIONAL_FILES _destination )
+FUNCTION( SETUP_ADDITIONAL_FILES _destination _component )
     FOREACH( _file ${ARGN} )
         FILE_TO_TARGETSTRING( ${_file} fileTarget )
 
@@ -272,7 +274,7 @@ FUNCTION( SETUP_ADDITIONAL_FILES _destination )
 
         # add a INSTALL operation for this file
         INSTALL( FILES ${_file} DESTINATION ${_destination}
-                                COMPONENT "RUNTIME"
+                                COMPONENT ${_component}
                )
     ENDFOREACH() 
 ENDFUNCTION( SETUP_ADDITIONAL_FILES )
@@ -281,9 +283,10 @@ ENDFUNCTION( SETUP_ADDITIONAL_FILES )
 # somehow, we needed to trick here. 
 # _destination where to put the directory/its contents. Realtive to build dir and install dir.
 # _directory the directory to copy
+# _component the name of the component for these files
 # _contents if TRUE, the contents of _directory are copied into _destination. If FALSE, _destination as-is is copied to _destination/.. (sorry
 #           for this weird stuff. Complain at cmake mailing list ;-))
-FUNCTION( SETUP_ADDITIONAL_DIRECTORY _destination _directory _contents )
+FUNCTION( SETUP_ADDITIONAL_DIRECTORY _destination _directory _component _contents )
     # create a nice target name
     FILE_TO_TARGETSTRING( ${_directory} directoryTarget )
 
@@ -310,7 +313,7 @@ FUNCTION( SETUP_ADDITIONAL_DIRECTORY _destination _directory _contents )
     # add a INSTALL operation for this file
     INSTALL( DIRECTORY ${_directory}
              DESTINATION ${InstallDestination}
-             COMPONENT "RUNTIME"
+             COMPONENT ${_component}
            )
 ENDFUNCTION( SETUP_ADDITIONAL_DIRECTORY )
 

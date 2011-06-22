@@ -102,7 +102,8 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
                     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
                                 GROUP_READ GROUP_EXECUTE  
                                 WORLD_READ WORLD_EXECUTE
-            COMPONENT "RUNTIME"
+                NAMELINK_SKIP
+            COMPONENT "MODULES"
     )
 
     # TODO(all): someone needs to explain this
@@ -122,7 +123,7 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
     # -----------------------------------------------------------------------------------------------------------------------------------------------
 
     COLLECT_SHADER_FILES( ${MODULE_SOURCE_DIR} TARGET_GLSL_FILES )
-    SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${MODULE_TARGET_DIR_RELATIVE}/shaders" )
+    SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${MODULE_TARGET_DIR_RELATIVE}/shaders" "MODULES" )
 
     # -----------------------------------------------------------------------------------------------------------------------------------------------
     # Style Checker

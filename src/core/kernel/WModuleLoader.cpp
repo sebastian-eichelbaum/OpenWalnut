@@ -26,6 +26,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/regex.hpp>
+
 #include "../common/WIOTools.h"
 #include "../common/WPathHelper.h"
 #include "../common/WSharedLib.h"
@@ -68,8 +70,12 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         std::string relPath = i->path().file_string();
         relPath.erase( 0, dir.file_string().length() + 1 ); // NOTE: +1 because we want to remove the "/" too
 
-        // is it a lib?
-        if( !boost::filesystem::is_directory( *i ) && ( suffix == WSharedLib::getSystemSuffix() ) &&
+        // is it a lib? Use a regular expression to check this
+        static const boost::regex CheckLibMMP( "^.*\\.so\\.[0-9]+\\.[0-9]+\\.[0-9]+$" );
+        boost::smatch matches;
+
+        if( !boost::filesystem::is_directory( *i ) &&
+            ( boost::regex_match( i->path().string(), matches, CheckLibMMP ) ) &&
             ( stem.compare( 0, getModulePrefix().length(), getModulePrefix() ) == 0 )
 #ifdef _MSC_VER
             && supposedFilename == isFileName

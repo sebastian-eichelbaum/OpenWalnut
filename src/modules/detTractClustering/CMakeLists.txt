@@ -78,7 +78,7 @@ SETUP_TESTS( "${TARGET_TEST_FILES}" "${MODULE_NAME}" "${_MODULE_DEPENDENCIES}" )
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 
 COLLECT_SHADER_FILES( ${MODULE_SOURCE_DIR} TARGET_GLSL_FILES )
-SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${MODULE_TARGET_DIR_RELATIVE}/shaders" )
+SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${MODULE_TARGET_DIR_RELATIVE}/shaders" "MODULES" )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # Style Checker

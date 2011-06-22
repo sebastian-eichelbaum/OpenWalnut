@@ -298,6 +298,7 @@ ENDIF()
 # Setup everything in ../resources
 SETUP_RESOURCES()
 SETUP_ADDITIONAL_FILES( ${OW_DOC_DIR_RELATIVE} 
+                        "SHARE"
                         "${PROJECT_SOURCE_DIR}/../README"
                         "${PROJECT_SOURCE_DIR}/../AUTHORS"
                         "${PROJECT_SOURCE_DIR}/../CONTRIBUTORS"
@@ -307,6 +308,7 @@ SETUP_ADDITIONAL_FILES( ${OW_DOC_DIR_RELATIVE}
 # NOTE: use this "double-negative" to use the fact that undefined variables yield FALSE.
 IF( NOT OW_PACKAGE_NOCOPY_LICENSE )
     SETUP_ADDITIONAL_FILES( ${OW_DOC_DIR_RELATIVE} 
+                            "SHARE"
                             "${PROJECT_SOURCE_DIR}/../COPYING"
                             "${PROJECT_SOURCE_DIR}/../COPYING.LESSER"
                           )
@@ -315,10 +317,12 @@ ENDIF()
 # also copy all the user documentation we have
 SETUP_ADDITIONAL_DIRECTORY( ${OW_DOC_DIR_RELATIVE}
                             ${PROJECT_SOURCE_DIR}/../doc/user/
+                            "SHARE"
                             TRUE    # this denotes that the contents of doc/user should be copied instead of user directly
                           )  
 SETUP_ADDITIONAL_DIRECTORY( ${OW_MAN_DIR_RELATIVE}
                             ${PROJECT_SOURCE_DIR}/../doc/man/
+                            "SHARE"
                             TRUE    # this denotes that the contents of doc/man should be copied instead of user directly
                           )
 

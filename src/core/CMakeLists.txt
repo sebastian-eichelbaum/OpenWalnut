@@ -74,7 +74,8 @@ INSTALL( TARGETS ${LibName}
                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                             GROUP_READ GROUP_EXECUTE
                             WORLD_READ WORLD_EXECUTE
-         COMPONENT "RUNTIME"
+                NAMELINK_SKIP
+         COMPONENT "LIB"
 )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -89,7 +90,7 @@ SETUP_TESTS( "${TARGET_TEST_FILES}" "${LibName}" "" )
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 COLLECT_SHADER_FILES( ${CMAKE_CURRENT_SOURCE_DIR} TARGET_GLSL_FILES )
-SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${OW_SHARE_DIR_RELATIVE}/shaders" )
+SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${OW_SHARE_DIR_RELATIVE}/shaders" "LIB" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Style Checker

@@ -36,5 +36,6 @@ INSTALL( TARGETS ${OWExtBioSigName}
                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                             GROUP_READ GROUP_EXECUTE
                             WORLD_READ WORLD_EXECUTE
+                NAMELINK_SKIP
+         COMPONENT "LIB"
 )
-
