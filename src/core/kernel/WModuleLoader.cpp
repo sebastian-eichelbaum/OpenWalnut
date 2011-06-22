@@ -71,7 +71,12 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         relPath.erase( 0, dir.file_string().length() + 1 ); // NOTE: +1 because we want to remove the "/" too
 
         // is it a lib? Use a regular expression to check this
-        static const boost::regex CheckLibMMP( "^.*\\.so\\.[0-9]+\\.[0-9]+\\.[0-9]+$" );
+        // NOTE:: the double \\ is needed to escape the escape char
+        #ifdef __linux__
+            static const boost::regex CheckLibMMP( "^.*\\" + WSharedLib::getSystemSuffix() + "\\.[0-9]+\\.[0-9]+\\.[0-9]+$" );
+        #else
+            static const boost::regex CheckLibMMP( "^.*\\" + WSharedLib::getSystemSuffix() +"$" );
+        #endif
         boost::smatch matches;
 
         if( !boost::filesystem::is_directory( *i ) &&
