@@ -81,9 +81,9 @@ boost::filesystem::path WPathHelper::getShaderPath()
 WPathHelper::Fonts WPathHelper::getAllFonts()
 {
     Fonts fonts;
-    fonts.Regular   = getFontPath() / "LiberationMono-Regular.ttf";
-    fonts.Bold      = getFontPath() / "LiberationMono-Bold.ttf";
-    fonts.Italic    = getFontPath() / "LiberationMono-Italic.ttf";
+    fonts.Regular   = getFontPath() / "Regular.ttf";
+    fonts.Bold      = getFontPath() / "Bold.ttf";
+    fonts.Italic    = getFontPath() / "Italic.ttf";
     fonts.Default   = fonts.Bold;
 
     return fonts;
