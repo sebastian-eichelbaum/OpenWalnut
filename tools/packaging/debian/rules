@@ -10,6 +10,10 @@
 #export DH_VERBOSE=1
 
 override_dh_auto_build:
+	# Invoke standard build mechanism.
+	#dh_auto_build
+	
+	# Enable this if you have a multi-core machine. Compiles faster (of course costs more CPU)
 	dh_auto_build -- -j10
 
 override_dh_auto_configure:
@@ -19,9 +23,11 @@ override_dh_auto_configure:
 							-DOW_USE_OPENCL=OFF\
 							-DOW_USE_TESTS=OFF\
 							-DOW_PACKAGE_BUILD=ON\
-								-DOW_PACKAGE_NOCOPY_LICENSE=ON\
-							-DOW_MODULE_TOOLBOX_BASE=OFF -DOW_MODULE_TOOLBOX_EEG=OFF -DOW_MODULE_TOOLBOX_OTHERS=OFF -DOW_MODULE_TOOLBOX_IO=OFF -DOW_MODULE_TOOLBOX_IMAGEPROCESSING=OFF
+								-DOW_PACKAGE_NOCOPY_LICENSE=ON
+	# Also specify these options if you do not want to build all the modules. Useful for debugging the debian package
+	#						-DOW_MODULE_TOOLBOX_BASE=OFF -DOW_MODULE_TOOLBOX_EEG=OFF -DOW_MODULE_TOOLBOX_OTHERS=OFF -DOW_MODULE_TOOLBOX_IO=OFF -DOW_MODULE_TOOLBOX_IMAGEPROCESSING=OFF
 
 %:
+	# Ensure that dh finds our source and detects that this is made with cmake
 	dh $@ --sourcedirectory=src --builddirectory=build
 
