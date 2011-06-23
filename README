@@ -1,5 +1,5 @@
 OpenWalnut
-----------
+==========
 
 OpenWalnut is an open source tool for multi-modal medical and brain data
 visualization. Its universality allows it to be easily extended and used in a
@@ -10,7 +10,8 @@ entirely in Standard C++ and using a number of portable libraries (e.g.
 OpenSceneGraph and  Qt), it runs on all Windows platforms, OSX, and
 GNU/Linux operating systems.
 
-- please refer to http://www.openwalnut.org for extensive documentation and information.
+- please refer to http://www.openwalnut.org for extensive documentation 
+  and information.
 
 AUTHORS AND CONTRIBUTORS
 ========================
@@ -41,8 +42,24 @@ If you have questions, comments, problems or find Bugs, contact us using:
    follow the instructions.
 * IRC: Occasionally you can contact us at irc.freenode.net #ow.
 
+INSTALLING
+==========
+
+You have several options for installing OpenWalnut.
+ * Build it -> see next section
+ * Download a binary archive from our website and extract it
+    * Inside the extracted directory, run bin/openwalnut
+ * Download one of our binary packages for your distribution
+ * Check the NeuroDebian repository
+    * We are currently working on a OpenWalnut package which is intended to be
+      released in NeuroDebian (http://neuro.debian.net/)
+
 BUILDING
 ========
+
+As you currently read this README, we presume that you already have the source.
+If not, check http://www.openwalnut.org. There, you can download source archives
+and get the URL to our mercurial repository.
 
 Required Dependencies:
 ----------------------
