@@ -61,7 +61,7 @@ SetupCleanCheckout()
     echo "* Checking out fresh source copy."
 
     # Get the source
-    echo " * Checking out OpenWalnut with revision \"$REVISION\""
+    echo " * Checking out OpenWalnut with revision \"$REVISION\"."
     hg clone -u $REVISION $REPOSITORY $SRC_DIR
     [ $? -ne 0 ] && exit 1
 
@@ -75,11 +75,14 @@ SetupCleanCheckout()
 CleanUp()
 {
     echo "* Cleaning up."
-    echo " * Removing directory \"$SRC_DIR\""
+    echo " * Removing directory \"$SRC_DIR\"."
     rm -rf $SRC_DIR
 
-    echo " * Removing source archives"
+    echo " * Removing source archives."
     rm -f $SRC_DIR.zip $SRC_DIR.tar.gz
+
+    echo " * Removing working directories."
+    rm -rf ${SRC_DIR}_*
 }
 
 #########################################################################################################
