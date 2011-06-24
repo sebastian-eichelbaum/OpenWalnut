@@ -4,6 +4,6 @@ Exec=/usr/bin/openwalnut
 Name=OpenWalnut
 Icon=openwalnut.png
 X-KDE-StartupNotify=true
-Terminal=true
+Terminal=false
 Type=Application
 
