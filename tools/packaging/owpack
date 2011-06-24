@@ -220,12 +220,13 @@ BuildDeb()
     do
         echo " * Starting pdebuild for $arch."
         cd $SRC_DIR
-        pdebuild --debbuildopts "-uc -us" --architecture $arch --buildresult ..
+        #pdebuild --debbuildopts "-uc -us" --architecture $arch --buildresult ..
         if [ $? -ne 0 ]; then
             echo "  * pdebuild for amd64 failed. You probably missed dependencies or have errors in the package config files."
             cd ..
             exit 1
         fi
+        cd ..
     done
 
     echo " * Created source and binary package in \"$DEB_WORKDIR\"."
