@@ -176,7 +176,7 @@ chroot_build()
 
         echo " * Running debootstrap."
         mkdir -p $CHROOTPREFIX-$ARCH
-        debootstrap --include=vim,debhelper,devscripts,mercurial,fakeroot --variant=buildd --arch=$ARCH $SUITE ./$CHROOTPREFIX-$ARCH/ http://ftp.de.debian.org/debian
+        debootstrap --include=vim,debhelper,devscripts,mercurial,fakeroot,lintian --variant=buildd --arch=$ARCH $SUITE ./$CHROOTPREFIX-$ARCH/ http://ftp.de.debian.org/debian
         if [ $? -ne 0 ]; then
             echo "  * Failed to debootstrap."
             exit 1
