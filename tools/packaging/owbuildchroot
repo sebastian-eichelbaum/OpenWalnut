@@ -1,0 +1,322 @@
+#!/bin/bash
+
+#---------------------------------------------------------------------------
+#
+# Project: OpenWalnut ( http://www.openwalnut.org )
+#
+# Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+# For more information see http://www.openwalnut.org/copying
+#
+# This file is part of OpenWalnut.
+#
+# OpenWalnut is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# OpenWalnut is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+#
+#---------------------------------------------------------------------------
+
+#############################################################################################################
+# Internal Variables
+#############################################################################################################
+
+# the architecture to use for the commands
+ARCH=amd64
+
+# which kind of debian do we want?
+SUITE=sid
+
+# the prefix-name of each build chroot dir
+CHROOTPREFIX=owbuildchroot
+
+#############################################################################################################
+# Functions
+#############################################################################################################
+
+#########################################################################################################
+# Tries to unmount everything. Use this if you encounter an error.
+chroot_umount()
+{
+    FAILED=0
+
+    # unmount proc if mounted
+    mountpoint -q $CHROOTPREFIX-$ARCH/proc
+    if [ $? -eq 0 ]; then
+        echo " * Unounting \"./$CHROOTPREFIX-$ARCH/proc\""
+        umount -f $CHROOTPREFIX-$ARCH/proc
+        if [ $? -ne 0 ]; then
+            echo "  * Unmount failed. You need to umount $CHROOTPREFIX-$ARCH/proc manually."
+            FAILED=1
+        fi
+    fi
+
+    # unmount proc if mounted
+    # NOTE: mountpoint -q $CHROOTPREFIX-$ARCH/build does not work ... why?
+    if grep -q "$CHROOTPREFIX-$ARCH/build" /proc/mounts; then
+        echo " * Unounting \"./$CHROOTPREFIX-$ARCH/build\""
+        umount -f $CHROOTPREFIX-$ARCH/build
+        if [ $? -ne 0 ]; then
+            echo "  * Unmount failed. You need to umount $CHROOTPREFIX-$ARCH/build manually."
+            FAILED=1
+        fi
+    fi
+
+    # we failed ... hopefully the user unmounts the stuff before he deletes the chroot dir
+    if [ $FAILED -ne 0 ]; then
+        echo "  * Failed to unmount properly. Ensure you unmount manually."
+        exit 1
+    fi
+}
+
+#########################################################################################################
+# Tries to mount everything.
+chroot_mount()
+{
+    FAILED=0
+
+    # check existence
+    if [ ! -d $CHROOTPREFIX-$ARCH ]; then
+        echo "  * Chroot environment \"$CHROOTPREFIX-$ARCH\" does not exist. Use \"$0 $ARCH create\" to build it."
+        exit 1
+    fi
+
+    # enforce that everything is un-mounted before continuing
+    chroot_umount
+    if [ $? -ne 0 ]; then
+        echo "  * Cleanup: umount failed."
+        exit 1
+    fi
+
+    # mount
+    echo " * Mounting \"./$CHROOTPREFIX-$ARCH/build\""
+    mount -o bind . ./$CHROOTPREFIX-$ARCH/build
+    if [ $? -ne 0 ]; then
+        echo "  * Mount failed."
+        chroot_umount
+        exit 1
+    fi
+
+    echo " * Mounting \"./$CHROOTPREFIX-$ARCH/proc\""
+    mount -t proc none ./$CHROOTPREFIX-$ARCH/proc
+    if [ $? -ne 0 ]; then
+        echo "  * Mount failed."
+        chroot_umount
+        exit 1
+    fi
+
+    # we failed ...
+    if [ $FAILED -ne 0 ]; then
+        echo "  * Failed to mount properly."
+        exit 1
+    fi
+}
+
+#########################################################################################################
+# Execute the specified parameters in the chroot
+chroot_do()
+{
+    echo "* Executing \"$*\"."
+    chroot $CHROOTPREFIX-$ARCH $*
+    if [ $? -ne 0 ]; then
+        echo " * Failed to chroot. Does the chroot envirnoment exist?"
+        chroot_umount
+        exit 1
+    fi
+}
+
+#########################################################################################################
+# Execute the specified parameters in the chroot, but unlike chroot_do, this starts and stops the
+# environment properly
+chroot_do_once()
+{
+    echo "* Starting chroot environment \"./$CHROOTPREFIX-$ARCH\""
+    chroot_mount
+    if [ $? -ne 0 ]; then
+        echo " * Failed to start chroot."
+        chroot_umount
+        exit 1
+    fi
+
+    echo "* Executing \"$*\"."
+    chroot $CHROOTPREFIX-$ARCH $*
+    if [ $? -ne 0 ]; then
+        echo " * Failed to chroot. Does the chroot envirnoment exist?"
+        chroot_umount
+        exit 1
+    fi
+
+    echo "* Stopping chroot environment \"./$CHROOTPREFIX-$ARCH\""
+    chroot_umount
+    if [ $? -ne 0 ]; then
+        # lets hope the user knows what to do
+        exit 1
+    fi
+}
+
+#########################################################################################################
+# Build the chroot jail. Use existing $CHROOTPREFIX-$ARCH.tar.gz if existing.
+chroot_build()
+{
+    echo "* Creating chroot environment \"./$CHROOTPREFIX-$ARCH\""
+
+    # is there already some chroot available?
+    if [ -f $CHROOTPREFIX-$ARCH.tar.gz ]; then
+        echo " * Using archived chroot: \"$CHROOTPREFIX-$ARCH.tar.gz\"."
+        tar xzf $CHROOTPREFIX-$ARCH.tar.gz
+    else
+        echo " * No archived chroot found: \"$CHROOTPREFIX-$ARCH.tar.gz\". Building one."
+
+        echo " * Running debootstrap."
+        mkdir -p $CHROOTPREFIX-$ARCH
+        debootstrap --include=vim,debhelper,devscripts,mercurial --variant=buildd --arch=$ARCH $SUITE ./$CHROOTPREFIX-$ARCH/ http://ftp.de.debian.org/debian
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to debootstrap."
+            exit 1
+        fi
+
+        # we use the dir /build as mountpoint:
+        echo " * Configure build mountpoint."
+        mkdir -p ./$CHROOTPREFIX-$ARCH/build
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to create build mountpoint."
+            exit 1
+        fi
+
+        # we are ready to go here
+        echo " * Starting chroot environment \"./$CHROOTPREFIX-$ARCH\""
+        chroot_mount
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to start chroot."
+            chroot_umount
+            exit 1
+        fi
+
+        # some commands might interfere with the system. We re-link them (the debian way of course)
+        echo " * Re-linking /sbin/insserv."
+        chroot_do dpkg-divert --local --rename --add /sbin/insserv
+        if [ $? -ne 0 ]; then
+            echo "  * Failed. Could not use chroot."
+            chroot_umount
+            exit 1
+        fi
+        chroot_do ln -s /bin/true /sbin/insserv
+        if [ $? -ne 0 ]; then
+            echo "  * Failed. Could not use chroot."
+            chroot_umount
+            exit 1
+        fi
+        echo " * Re-linking /usr/bin/mkfifo."
+        chroot_do dpkg-divert --local --rename --add /usr/bin/mkfifo
+        if [ $? -ne 0 ]; then
+            echo "  * Failed. Could not use chroot."
+            chroot_umount
+            exit 1
+        fi
+        chroot_do ln -s /bin/true /usr/bin/mkfifo
+        if [ $? -ne 0 ]; then
+            echo "  * Failed. Could not use chroot."
+            chroot_umount
+            exit 1
+        fi
+
+        echo " * Configure proper locale settings."
+        # do locale configuration
+        echo "en_US.UTF-8 UTF-8"    >  ./$CHROOTPREFIX-$ARCH/etc/locale.gen
+        echo "de_DE.UTF-8 UTF-8"    >> ./$CHROOTPREFIX-$ARCH/etc/locale.gen
+        echo "LANG=en_US.UTF-8"     >  ./$CHROOTPREFIX-$ARCH/etc/default/locale
+        echo "LC_ALL=en_US.UTF-8"   >> ./$CHROOTPREFIX-$ARCH/etc/default/locale
+        echo "LANGUAGE=en_US.UTF-8" >> ./$CHROOTPREFIX-$ARCH/etc/default/locale
+        chroot_do apt-get install locales
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to install locales."
+            chroot_umount
+            exit 1
+        fi
+
+        echo " * Installing our build-dependencies."
+        # technically, it is possible to give debootstrap the list of packs it should install. But this somehow causes it to fail on my system.
+        chroot_do apt-get -y install cmake libgl1-mesa-dev libopenscenegraph-dev libopenthreads-dev libqt4-dev libqtwebkit-dev zlib1g-dev libboost-dev libboost-program-options-dev libboost-thread-dev libboost-filesystem-dev libboost-date-time-dev libboost-system-dev libboost-signals-dev libboost-regex-dev libeigen3-dev libbiosig-dev libnifti-dev
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to install build dependencies. Maybe you need to add further package sources."
+            chroot_umount
+            exit 1
+        fi
+
+        # finalize before archiving
+        echo " * Stopping chroot environment \"./$CHROOTPREFIX-$ARCH\""
+        chroot_umount
+        if [ $? -ne 0 ]; then
+            # lets hope the user knows what to do
+            exit 1
+        fi
+
+        echo " * Archiving chroot."
+        tar czf $CHROOTPREFIX-$ARCH.tar.gz ./$CHROOTPREFIX-$ARCH
+    fi
+}
+
+#########################################################################################################
+# Something went wrong. Quit.
+Exit()
+{
+    echo "*** Failed. Exiting."
+    exit $1
+}
+
+#########################################################################################################
+# Quit and print usage info.
+UsageExit()
+{
+    echo "Usage: $0 ARCHITECTURE {create|sh|do} [PARAMETERS]"
+    echo "  Parameter:"
+    echo "    ARCHITECTURE: is the debian compatible architecture sting. I.e. amd64 or i386."
+    echo ""
+    echo "  Commands:"
+    echo "    create: creates a new chroot environment. If $CHROOTPREFIX-ARCHITECTURE.tar.gz exists, it uses it as chroot. If not, the chroot gets created using debootstrap."
+    echo "    sh: Starts an interactive shell in the chroot environment."
+    echo "    do: Executes the specified command. I.e. $0 amd64 do /bin/ls /build"
+    Exit 2
+}
+
+#########################################################################################################
+# Main
+
+# chroot works only for root user. fakechroot is an alternative but it currently does not work on my system,
+# so I can't test it now.
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 1>&2
+   Exit 1
+fi
+
+if [ $# -lt 2 ]; then
+    UsageExit
+fi
+
+# set architecture
+ARCH=$1
+
+# Handle user command
+case "$2" in
+    create)
+        chroot_build || Exit $?
+        ;;
+    sh)
+        chroot_do_once /bin/bash || Exit $?
+        ;;
+    do)
+        shift 2
+        chroot_do_once $* || Exit $?
+        ;;
+    *)
+        UsageExit
+        ;;
+esac
+
