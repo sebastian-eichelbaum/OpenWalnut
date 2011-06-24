@@ -42,8 +42,6 @@ REPOSITORY="ssh://ebaum@berkeley.informatik.uni-leipzig.de//srv/hg/OpenWalnut"
 # Ensure english warning/error text (easier googling)
 export LC_ALL=C
 
-ARCHITECTURES="amd64 i386"
-
 # The name common to all archives and directories
 ARCHIVE_PREFIX=openwalnut
 
@@ -216,18 +214,16 @@ BuildDeb()
     fi
 
     # run (p)debuild
-    for arch in $ARCHITECTURES
-    do
-        echo " * Starting pdebuild for $arch."
-        cd $SRC_DIR
-        #pdebuild --debbuildopts "-uc -us" --architecture $arch --buildresult ..
-        if [ $? -ne 0 ]; then
-            echo "  * pdebuild for amd64 failed. You probably missed dependencies or have errors in the package config files."
-            cd ..
-            exit 1
-        fi
+    cd $SRC_DIR
+    echo " * Starting debuild in `pwd`."
+    #pdebuild --debbuildopts "-uc -us" --architecture $arch --buildresult ..
+    debuild -uc -us
+    if [ $? -ne 0 ]; then
+        echo "  * debuild for failed. You probably missed dependencies or have errors in the package config files."
         cd ..
-    done
+        exit 1
+    fi
+    cd ..
 
     echo " * Created source and binary package in \"$DEB_WORKDIR\"."
 }
@@ -242,6 +238,16 @@ Exit()
 
 #########################################################################################################
 # Main
+
+# The user specified some directory where to find the build root-dir. This can come in handy if you use this
+# script from within a chroot jail.
+if [ $# -eq 2 ]; then
+    cd $2
+    if [ $? -ne 0 ]; then
+        echo "* Could not change to directory \"$2\"."
+        Exit 1
+    fi
+fi
 
 # Handle user command
 case "$1" in
@@ -262,8 +268,19 @@ case "$1" in
         BuildDeb || Exit $?
         ;;
     *)
-        echo "Usage: $0 {clean|init|src_archive|cpack|deb}"
-        echo "  Ensure that you call \"$0 init\" before creating packages."
+        echo "Usage: $0 {clean|init|src_archive|cpack|deb} [WORKING_DIR]"
+        echo "  COMMANDS:"
+        echo "    clean: removes downloaded source and the created build sub-directories."
+        echo "    init:  loads the fresh source using hg."
+        echo "    src_Archive: creates source archives from the downloaded code. Use this before any build command."
+        echo "    cpack: build binary packages as configured in our build system."
+        echo "    deb: build source and binary packages for debian systems."
+        echo ""
+        echo "  PARAMETER:"
+        echo "    WORKING_DIR: $0 changes to this directory if specified."
+        echo ""
+        echo "  IMPORTANT:"
+        echo "    Always do a \"$0 init\" and \"$0 src_archive\" before issuing the other commands. They rely on it."
         Exit 2
         ;;
 esac
