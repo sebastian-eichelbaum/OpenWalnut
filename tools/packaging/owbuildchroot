@@ -289,6 +289,9 @@ UsageExit()
 #########################################################################################################
 # Main
 
+# for error-reports, english messages are the better choice
+export LC_ALL=C
+
 # chroot works only for root user. fakechroot is an alternative but it currently does not work on my system,
 # so I can't test it now.
 if [[ $EUID -ne 0 ]]; then
