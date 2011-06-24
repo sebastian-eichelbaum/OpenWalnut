@@ -107,8 +107,6 @@ debian/control
 		-> for new dependencies, modify this file!
 debian/openwalnut.doc-base
 	- lists additional documentation we provide
-debian/openwalnut.manpages
-	- lists man-pages (if any)
 
 How to build the Debian package
 *******************************
@@ -125,3 +123,6 @@ After this you end up with two archives: openwalnut_VERSION.orig.tar.gz and
 openwalnut_VERSION.debian.tar.gz and a description and changes file. They
 represent a Debian source package.
 
+HINT: you should definitely use some chroot jail to build the packages.
+      PBuilder is a good option. You can also use your own jail or use 
+      our build envirnoment created with owbuildchroot.
