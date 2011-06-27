@@ -236,13 +236,13 @@ ENDIF()
 FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgDB osgUtil osgGA osgViewer osgSim osgWidget osgText )
 
 # NOTE: this is a hack to remove the openthread lib from the list of OSG libs. It gets automatically added by the current
-#       find script but it is not really needed.
-FOREACH( osglib ${OPENSCENEGRAPH_LIBRARIES} )
-    STRING( REGEX MATCH ".*OpenThreads.*" IsExcluded "${osglib}" )
-    IF( IsExcluded )
-        LIST( REMOVE_ITEM OPENSCENEGRAPH_LIBRARIES ${osglib} )
-    ENDIF( IsExcluded )
-ENDFOREACH()
+#       find script but it is not really needed on some systems (since they provide an osg lib which already is linked against this.).
+#FOREACH( osglib ${OPENSCENEGRAPH_LIBRARIES} )
+#    STRING( REGEX MATCH ".*OpenThreads.*" IsExcluded "${osglib}" )
+#    IF( IsExcluded )
+#        LIST( REMOVE_ITEM OPENSCENEGRAPH_LIBRARIES ${osglib} )
+#    ENDIF( IsExcluded )
+#ENDFOREACH()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # NiftiLib, at least 2.0.0
