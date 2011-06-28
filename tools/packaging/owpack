@@ -65,7 +65,8 @@ SetupCleanCheckout()
 
     # Let our build-system know the version
     echo " * Setting version information to \"$VERSION\"."
-    echo "# dummy\nVERSION=$VERSION" > $SRC_DIR/VERSION
+    echo "# this was set by OWPACK" > $SRC_DIR/VERSION
+    echo "VERSION=$VERSION" >> $SRC_DIR/VERSION
 }
 
 #########################################################################################################
