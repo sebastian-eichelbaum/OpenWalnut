@@ -23,7 +23,8 @@ override_dh_auto_configure:
 							-DOW_USE_OPENCL=OFF\
 							-DOW_USE_TESTS=OFF\
 							-DOW_PACKAGE_BUILD=ON\
-								-DOW_PACKAGE_NOCOPY_LICENSE=ON
+								-DOW_PACKAGE_NOCOPY_LICENSE=ON\
+								-DOW_PACKAGE_NOLINK_OPENTHREADS=ON\	
 	# Also specify these options if you do not want to build all the modules. Useful for debugging the debian package
 	#						-DOW_MODULE_TOOLBOX_BASE=OFF -DOW_MODULE_TOOLBOX_EEG=OFF -DOW_MODULE_TOOLBOX_OTHERS=OFF -DOW_MODULE_TOOLBOX_IO=OFF -DOW_MODULE_TOOLBOX_IMAGEPROCESSING=OFF
 

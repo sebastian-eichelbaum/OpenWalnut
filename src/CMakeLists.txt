@@ -161,6 +161,13 @@ IF( NOT CMAKE_HOST_SYSTEM MATCHES "Windows" )
     OPTION( OW_LINK_SHADERS "If turned on, shaders do not get copied. They get linked. This is a nice option for developers." OFF )
 ENDIF()
 
+# Provide several options to control some aspects of resource copy.
+OPTION( OW_PACKAGE_BUILD "Enable this to get fine-grained control over several resources and files getting installed. This is very handy for package building." OFF )
+IF( OW_PACKAGE_BUILD )
+    OPTION( OW_PACKAGE_NOCOPY_LICENSE "Disable to copy our licensing information. Enabling this can be useful for package maintainer since several packaging systems have their own licence mechanism (i.e. Debian)." OFF )
+    OPTION( OW_PACKAGE_NOLINK_OPENTHREADS "Enable this to avoid linking OpenThreads. On some systems, OpenSceneGraph already is linked against it and thus linking OpenThreads to OW is not needed (Debian and Ubuntu for example)." OFF )
+ENDIF()
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # The walnut executable should print the revision/tag
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -235,14 +242,18 @@ IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
 ENDIF()
 FIND_PACKAGE( OpenSceneGraph ${MIN_OSG_VERSION} REQUIRED osgDB osgUtil osgGA osgViewer osgSim osgWidget osgText )
 
-# NOTE: this is a hack to remove the openthread lib from the list of OSG libs. It gets automatically added by the current
-#       find script but it is not really needed on some systems (since they provide an osg lib which already is linked against this.).
-#FOREACH( osglib ${OPENSCENEGRAPH_LIBRARIES} )
-#    STRING( REGEX MATCH ".*OpenThreads.*" IsExcluded "${osglib}" )
-#    IF( IsExcluded )
-#        LIST( REMOVE_ITEM OPENSCENEGRAPH_LIBRARIES ${osglib} )
-#    ENDIF( IsExcluded )
-#ENDFOREACH()
+# If the user did not disable license-copying, do it
+# NOTE: use this "double-negative" to use the fact that undefined variables yield FALSE.
+IF( OW_PACKAGE_NOLINK_OPENTHREADS )
+    # NOTE: this is a hack to remove the openthread lib from the list of OSG libs. It gets automatically added by the current
+    #       find script but it is not really needed on some systems (since they provide an osg lib which already is linked against this.).
+    FOREACH( osglib ${OPENSCENEGRAPH_LIBRARIES} )
+        STRING( REGEX MATCH ".*OpenThreads.*" IsExcluded "${osglib}" )
+        IF( IsExcluded )
+            LIST( REMOVE_ITEM OPENSCENEGRAPH_LIBRARIES ${osglib} )
+        ENDIF( IsExcluded )
+    ENDFOREACH()
+ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # NiftiLib, at least 2.0.0
@@ -348,12 +359,6 @@ ADD_CUSTOM_TARGET( vtest
 #  - Additonaly takes care that the user doc and manual pages get placed where they belong.
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Provide several options to control some aspects of resource copy.
-OPTION( OW_PACKAGE_BUILD "Enable this to get fine-grained control over several resources and files getting installed. This is very handy for package building." OFF )
-IF( OW_PACKAGE_BUILD )
-    OPTION( OW_PACKAGE_NOCOPY_LICENSE "Disable to copy our licensing information. Enabling this can be useful for package maintainer since several packaging systems have their own licence mechanism (i.e. Debian)." OFF )
-ENDIF()
 
 # Setup everything in ../resources
 SETUP_RESOURCES()
