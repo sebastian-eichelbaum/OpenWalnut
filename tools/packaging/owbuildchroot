@@ -311,6 +311,8 @@ chroot_build()
         fi
 
         # finalize before archiving
+        # ubuntu hack: kill this xapian-index stuff.
+        chroot_do killall update-apt-xapian-index
         echo " * Stopping chroot environment \"./$CHROOTDIR\""
         chroot_umount
         if [ $? -ne 0 ]; then
