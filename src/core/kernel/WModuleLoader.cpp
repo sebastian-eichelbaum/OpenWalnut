@@ -72,10 +72,10 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
 
         // is it a lib? Use a regular expression to check this
         // NOTE:: the double \\ is needed to escape the escape char
-        #ifdef __linux__
-            static const boost::regex CheckLibMMP( "^.*\\" + WSharedLib::getSystemSuffix() + "\\.[0-9]+\\.[0-9]+\\.[0-9]+$" );
-        #else
+        #ifdef __WIN32__
             static const boost::regex CheckLibMMP( "^.*\\" + WSharedLib::getSystemSuffix() +"$" );
+        #else
+            static const boost::regex CheckLibMMP( "^.*\\" + WSharedLib::getSystemSuffix() + "\\.[0-9]+\\.[0-9]+\\.[0-9]+$" );
         #endif
         boost::smatch matches;
 
