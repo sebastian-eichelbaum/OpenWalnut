@@ -126,6 +126,15 @@ public:
     const boost::shared_ptr< WModule > getPrototypeByInstance( boost::shared_ptr< WModule > instance );
 
     /**
+     * Finds a prototype using an type.
+     *
+     * \param type the type of module.
+     *
+     * \return the prototypes as list.
+     */
+    std::vector< WModule::ConstSPtr > getPrototypesByType( MODULE_TYPE type );
+
+    /**
      * This method gives read access to the list of all prototypes.
      *
      * \return the read ticket for the prototype list
