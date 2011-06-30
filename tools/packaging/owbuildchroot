@@ -183,7 +183,7 @@ chroot_setup_suite()
             # the eigen3 ppa
             chroot_do add-apt-repository ppa:gaschler/rl/eigen3
             # multiverse and universe needed for several packs
-            echo "deb http://de.archive.ubuntu.com/ubuntu natty restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
+            echo "deb http://de.archive.ubuntu.com/ubuntu $SUITE restricted universe multiverse" > ./$CHROOTDIR/etc/apt/sources.list.d/universeMultiverse.sources.list
             # This is very important: the pinning prohibits an update to some new boost version which is NOT available in
             # neurodeb or ubunut now, but at ppa:gaschler
             echo "Package: *
