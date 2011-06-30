@@ -317,6 +317,64 @@ FUNCTION( SETUP_ADDITIONAL_DIRECTORY _destination _directory _component _content
            )
 ENDFUNCTION( SETUP_ADDITIONAL_DIRECTORY )
 
+# Function to setup and library install target. It contains all the permission and namelink magic needed.
+# _libName the library to install (needs to be a targed added with ADD_LIBRARY).
+# _targetRelative the relative target dir. You should use OW_LIBRARY_DIR_RELATIVE in most cases
+# _component the name of the component to which the lib belongs. If you use some strange things here, consider updating the package configuration
+#            too as it uses these components
+FUNCTION( SETUP_LIB_INSTALL _libName _targetRelative _component )
+    # NOTE: we need two separate install targets here since the namelink to the lib (libopenwalnut.so -> linopenwalnut.so.1.2.3) is only needed
+    # in the DEV release. Have a look at NAMELINK_SKIP and NAMELINK_ONLY
+    INSTALL( TARGETS ${_libName}
+                ARCHIVE # NOTE: this is needed on windows
+                    DESTINATION ${_targetRelative} 
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+                                GROUP_READ GROUP_EXECUTE  
+                                WORLD_READ WORLD_EXECUTE
+                LIBRARY # NOTE: this is needed for all the others
+                    DESTINATION ${_targetRelative}
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                                GROUP_READ GROUP_EXECUTE
+                                WORLD_READ WORLD_EXECUTE
+                    NAMELINK_SKIP
+             COMPONENT ${_component}
+    )
+ENDFUNCTION( SETUP_LIB_INSTALL )
+
+# Function which handles typical "developer" install targets. It creates the symlink (namelink) for the lib and copies the headers to some
+# include directory.
+# _libName the devel target for this lib (needs to be a target name created with ADD_LIBRARY)
+# _targetRelative the relative path to the lib
+# _headers a list of headers. (Lists are ;-separated). This function strips CMAKE_CURRENT_SOURCE_DIR from each path!
+# _headerTargetRelative relative target dir for the includes
+# _component the name of the component.
+FUNCTION( SETUP_DEV_INSTALL _libName _targetRelative _headers _headerTargetRelative _component )
+    INSTALL( TARGETS ${_libName}
+                ARCHIVE # NOTE: this is needed on windows
+                    DESTINATION ${_targetRelative} 
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+                                GROUP_READ GROUP_EXECUTE  
+                                WORLD_READ WORLD_EXECUTE
+                LIBRARY # NOTE: this is needed for all the others
+                    DESTINATION ${_targetRelative}
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                                GROUP_READ GROUP_EXECUTE
+                                WORLD_READ WORLD_EXECUTE
+                    NAMELINK_ONLY
+             COMPONENT ${_component}
+    )
+
+    # we want to copy the headers to. Unfortunately, cmake's install command does not preserver the directory structure.
+    FOREACH( _header ${${_headers}} )
+        STRING( REGEX MATCH "(.*)[/\\]" directory ${_header} )
+        STRING( REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" directoryRelative ${directory} )
+        INSTALL( FILES ${_header} 
+                    DESTINATION ${_headerTargetRelative}/${directoryRelative}
+                    COMPONENT ${_component}
+               )
+    ENDFOREACH()
+ENDFUNCTION( SETUP_DEV_INSTALL )
+
 # This function tries to find a proper version string. It therefore uses the file src/../VERSION and mercurial. If the file exists and is not
 # empty, the contents of it get combined with the mercurial results if mercurial is installed. If not, only the file content will be used. If
 # both methods fail, a default string is used.

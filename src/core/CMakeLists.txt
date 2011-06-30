@@ -63,20 +63,11 @@ SET_TARGET_PROPERTIES( ${LibName} PROPERTIES
 )
 
 # Do not forget the install targets
-INSTALL( TARGETS ${LibName}
-			ARCHIVE # NOTE: this is needed on windows
-				DESTINATION ${OW_LIBRARY_DIR_RELATIVE} 
-				PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
-							GROUP_READ GROUP_EXECUTE  
-							WORLD_READ WORLD_EXECUTE
-			LIBRARY # NOTE: this is needed for all the others
-                DESTINATION ${OW_LIBRARY_DIR_RELATIVE}
-                PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                            GROUP_READ GROUP_EXECUTE
-                            WORLD_READ WORLD_EXECUTE
-                NAMELINK_SKIP
-         COMPONENT "LIB"
-)
+SETUP_LIB_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} "LIB" )
+
+# Core contains the headers which are needed for any developer release. Install them.
+# NOTE: do not use ${TARGET_H_FILES}. The command requires a list
+SETUP_DEV_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} TARGET_H_FILES "include/openwalnut/core" "DEV" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Test Setup
