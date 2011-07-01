@@ -255,11 +255,9 @@ case "$1" in
     clean)
         CleanUp
         ;;
-    init)
+    src)
         CleanUp
         SetupCleanCheckout || Exit $?
-        ;;
-    src_archive)
         CreateSrcArchive || Exit $?
         ;;
     cpack)
