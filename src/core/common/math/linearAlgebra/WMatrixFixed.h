@@ -658,7 +658,7 @@ public:
         BOOST_STATIC_ASSERT( Rows == 4 );
         BOOST_STATIC_ASSERT( Cols == 1 );
 
-        operator[]( 0 ) = m[1];
+        operator[]( 0 ) = m[0];
         operator[]( 1 ) = m[1];
         operator[]( 2 ) = m[2];
         operator[]( 3 ) = m[3];
@@ -674,7 +674,7 @@ public:
         BOOST_STATIC_ASSERT( Rows == 4 );
         BOOST_STATIC_ASSERT( Cols == 1 );
 
-        operator[]( 0 ) = m[1];
+        operator[]( 0 ) = m[0];
         operator[]( 1 ) = m[1];
         operator[]( 2 ) = m[2];
         operator[]( 3 ) = m[3];
