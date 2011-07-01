@@ -84,7 +84,9 @@ SETUP_TESTS( "${TARGET_TEST_FILES}" "${LibName}" "" )
 SETUP_RESOURCES( "core" "CORE" )
 
 # where to put doc files?
-SET( OW_DOC_DIR_RELATIVE "share/doc/libopenwalnut" )
+# NOTE: the doc path should match the SONAME of lib. Use this command to query a proper name:
+# objdump -p libopenwalnut.so | sed -n -e's/^[[:space:]]*SONAME[[:space:]]*//p' | sed -e's/\([0-9]\)\.so\./\1-/; s/\.so\.//'
+SET( OW_DOC_DIR_RELATIVE "share/doc/libopenwalnut1" )
 SETUP_COMMON_DOC( ${OW_DOC_DIR_RELATIVE} "CORE" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
