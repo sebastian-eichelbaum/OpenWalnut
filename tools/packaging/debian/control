@@ -8,7 +8,7 @@ Build-Depends: debhelper (>= 8.0.0), cmake (>= 2.8.0), libgl1-mesa-dev (>= 7.7.0
                libboost-filesystem-dev (>= 1.42.0), libboost-date-time-dev (>= 1.42.0), libboost-system-dev (>= 1.42.0),
                libboost-signals-dev (>= 1.42.0), libboost-regex-dev (>= 1.42.0), libeigen3-dev (>= 3.0.0), libbiosig-dev (>= 0.85.0),
                libnifti-dev (>= 2.0.0), doxygen (>= 1.6.3), graphviz (>= 2.26.3)
-Standards-Version: 3.9.2
+Standards-Version: 3.9.1
 Homepage: http://www.openwalnut.org
 
 
@@ -47,8 +47,8 @@ Description: Multi-modal medical and brain data visualization tool.
 
 
 Package: libopenwalnut1-doc
-Section: libdevel
-Architecture: i386 amd64
+Section: doc
+Architecture: any
 Depends: ${misc:Depends}
 Description: Multi-modal medical and brain data visualization tool.
  OpenWalnut is an open source tool for multi-modal medical and brain data
