@@ -1,0 +1,4 @@
+# These licenses belong to the liberation fonts we need to embedd.
+openwalnut: extra-license-file usr/share/openwalnut/fonts/License.txt
+openwalnut: extra-license-file usr/share/openwalnut/fonts/COPYING
+
