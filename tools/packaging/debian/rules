@@ -24,9 +24,19 @@ override_dh_auto_configure:
 							-DOW_USE_TESTS=OFF\
 							-DOW_PACKAGE_BUILD=ON\
 								-DOW_PACKAGE_NOCOPY_LICENSE=ON\
-								-DOW_PACKAGE_NOLINK_OPENTHREADS=ON\	
-	# Also specify these options if you do not want to build all the modules. Useful for debugging the debian package
-	#						-DOW_MODULE_TOOLBOX_BASE=OFF -DOW_MODULE_TOOLBOX_EEG=OFF -DOW_MODULE_TOOLBOX_OTHERS=OFF -DOW_MODULE_TOOLBOX_IO=OFF -DOW_MODULE_TOOLBOX_IMAGEPROCESSING=OFF
+								-DOW_PACKAGE_NOLINK_OPENTHREADS=ON\
+							-DOW_MODULE_TOOLBOX_BASE=OFF -DOW_MODULE_TOOLBOX_EEG=OFF -DOW_MODULE_TOOLBOX_OTHERS=OFF -DOW_MODULE_TOOLBOX_IO=OFF -DOW_MODULE_TOOLBOX_IMAGEPROCESSING=OFF
+
+override_dh_auto_install:
+	# libopenwalnut1
+	cmake -DCOMPONENT=CORE -DCMAKE_INSTALL_PREFIX=debian/libopenwalnut1 -P build/cmake_install.cmake
+	cmake -DCOMPONENT=EXT -DCMAKE_INSTALL_PREFIX=debian/libopenwalnut1 -P build/cmake_install.cmake
+	# libopenwalnut1-dev
+	cmake -DCOMPONENT=CORE_DEV -DCMAKE_INSTALL_PREFIX=debian/libopenwalnut1-dev -P build/cmake_install.cmake
+	# openwalnut-qt4
+	cmake -DCOMPONENT=RUNTIME -DCMAKE_INSTALL_PREFIX=debian/openwalnut-qt4 -P build/cmake_install.cmake
+	# openwalnut-modules
+	cmake -DCOMPONENT=MODULES -DCMAKE_INSTALL_PREFIX=debian/openwalnut-modules -P build/cmake_install.cmake
 
 %:
 	# Ensure that dh finds our source and detects that this is made with cmake
