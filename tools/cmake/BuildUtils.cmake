@@ -234,10 +234,12 @@ ENDFUNCTION( SETUP_STYLECHECKER )
 
 # This function handles local resources needed for program execution. Place your resources in "${CMAKE_CURRENT_SOURCE_DIR}/../resources/". They
 # get copied to the build directory and a proper install target is provided too
-FUNCTION( SETUP_RESOURCES )
+# _component the component to which the resources belong
+# _resource the exact resource under resources-directory
+FUNCTION( SETUP_RESOURCES _resource _component )
     # as all the resources with the correct directory structure reside in ../resources, this target is very easy to handle
-    SET( ResourcesPath "${CMAKE_CURRENT_SOURCE_DIR}/../resources/" )
-    ADD_CUSTOM_TARGET( ResourceConfiguration
+    SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources/${_resource}/" )
+    ADD_CUSTOM_TARGET( ResourceConfiguration_${_component}
         ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${ResourcesPath}" "${PROJECT_BINARY_DIR}/"
         COMMENT "Copying resources to build directory"
@@ -246,7 +248,7 @@ FUNCTION( SETUP_RESOURCES )
     # Also specify install target
     INSTALL( DIRECTORY ${ResourcesPath}
              DESTINATION "."
-             COMPONENT "SHARE"
+             COMPONENT ${_component}
              PATTERN "bin/*"            # binaries need to be executable
                  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                              GROUP_READ GROUP_EXECUTE
@@ -254,6 +256,28 @@ FUNCTION( SETUP_RESOURCES )
              )
 
 ENDFUNCTION( SETUP_RESOURCES )
+
+# This function copies the typical source docs (README, AUTHORS, CONTRIBUTORS and Licence files to the specified directory.
+# _component the component to which the resources belong
+# _targetDirRelative the relative target dir.
+FUNCTION( SETUP_COMMON_DOC _target _component )
+    SETUP_ADDITIONAL_FILES( ${_target} 
+                            ${_component}
+                            "${PROJECT_SOURCE_DIR}/../README"
+                            "${PROJECT_SOURCE_DIR}/../AUTHORS"
+                            "${PROJECT_SOURCE_DIR}/../CONTRIBUTORS"
+                          )
+
+    # If the user did not disable license-copying, do it
+    # NOTE: use this "double-negative" to use the fact that undefined variables yield FALSE.
+    IF( NOT OW_PACKAGE_NOCOPY_LICENSE )
+        SETUP_ADDITIONAL_FILES( ${_target} 
+                                ${_component}
+                                "${PROJECT_SOURCE_DIR}/../COPYING"
+                                "${PROJECT_SOURCE_DIR}/../COPYING.LESSER"
+                              )
+    ENDIF()
+ENDFUNCTION( SETUP_COMMON_DOC )
 
 # This function eases the process of copying and installing additional files which not reside in the resource path.
 # It creates a target (ALL is depending on it) AND the INSTALL operation.
@@ -265,7 +289,7 @@ FUNCTION( SETUP_ADDITIONAL_FILES _destination _component )
         FILE_TO_TARGETSTRING( ${_file} fileTarget )
 
         # add a copy target
-        ADD_CUSTOM_TARGET( CopyAdditionalFile_${fileTarget}
+        ADD_CUSTOM_TARGET( CopyAdditionalFile_${fileTarget}_${_component}
             ALL
             COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${_destination}/"
             COMMAND ${CMAKE_COMMAND} -E copy "${_file}" "${PROJECT_BINARY_DIR}/${_destination}/"
@@ -293,7 +317,7 @@ FUNCTION( SETUP_ADDITIONAL_DIRECTORY _destination _directory _component _content
     # add a copy target
     # this copies the CONTENTS of the specified directory into the specified destination dir.
     # NOTE: cmake -E says, that copying a directory with the copy command is pssible. But on my system it isn't.
-    ADD_CUSTOM_TARGET( CopyAdditionalDirectory_${directoryTarget}
+    ADD_CUSTOM_TARGET( CopyAdditionalDirectory_${directoryTarget}_${_component}
         ALL
         COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${_destination}/"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${_directory}" "${PROJECT_BINARY_DIR}/${_destination}"

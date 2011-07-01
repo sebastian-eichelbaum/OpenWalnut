@@ -77,9 +77,15 @@ by using the common routine:
 cd build
 cmake ../src
 make
-make install -- this is optional
+make install -- this is optional and installs everything.
 
 After that, OpenWalnut can be used inside the build directory.
+
+If you want to install only a part of OpenWalnut, you can issue
+
+make list_install_tarets
+
+The listed targets will then only install the specified part.
 
 Compilation on Windows and Mac:
 -------------------------------

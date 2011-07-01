@@ -82,14 +82,8 @@ ENDIF()
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # mimic layout of install dir for build:
-SET( OW_CONFIG_DIR_RELATIVE "share/openwalnut" )
-SET( OW_CONFIG_DIR ${PROJECT_BINARY_DIR}/${OW_CONFIG_DIR_RELATIVE} )
-SET( OW_SHARE_DIR_RELATIVE "share/openwalnut" )
-SET( OW_SHARE_DIR ${PROJECT_BINARY_DIR}/${OW_SHARE_DIR_RELATIVE} )
-SET( OW_MAN_DIR_RELATIVE "share/man" )
-SET( OW_MAN_DIR "${PROJECT_BINARY_DIR}/share/man" )
-SET( OW_DOC_DIR_RELATIVE "share/doc/openwalnut" )
-SET( OW_DOC_DIR ${PROJECT_BINARY_DIR}/${OW_DOC_DIR_RELATIVE} )
+
+# these dirs are the same for all parts of OW
 SET( OW_RUNTIME_DIR_RELATIVE "bin" )
 SET( OW_RUNTIME_DIR ${PROJECT_BINARY_DIR}/${OW_RUNTIME_DIR_RELATIVE} )
 SET( OW_LIBRARY_DIR_RELATIVE "lib" )
@@ -98,6 +92,12 @@ SET( OW_ARCHIVE_DIR_RELATIVE "lib" )
 SET( OW_ARCHIVE_DIR ${PROJECT_BINARY_DIR}/${OW_ARCHIVE_DIR_RELATIVE} )
 SET( OW_MODULE_DIR_RELATIVE "lib/openwalnut" )
 SET( OW_MODULE_DIR ${PROJECT_BINARY_DIR}/${OW_MODULE_DIR_RELATIVE} )
+SET( OW_MAN_DIR_RELATIVE "share/man" )
+SET( OW_MAN_DIR "${PROJECT_BINARY_DIR}/share/man" )
+
+# One could also define this for every part of OW, but it does not make sense. It is "share" because it is shared among the different parts
+SET( OW_SHARE_DIR_RELATIVE "share/openwalnut" )
+SET( OW_SHARE_DIR ${PROJECT_BINARY_DIR}/${OW_SHARE_DIR_RELATIVE} )
 
 # set our paths for install targets
 SET( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OW_RUNTIME_DIR} )
@@ -355,41 +355,9 @@ ADD_CUSTOM_TARGET( vtest
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
 # Resource/Doc Copy
-#  - This simply copies the structure from ../resources to the build directory
-#  - Additonaly takes care that the user doc and manual pages get placed where they belong.
+#  - Resource copy is done by the OW parts. This just copies additional helpers
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Setup everything in ../resources
-SETUP_RESOURCES()
-SETUP_ADDITIONAL_FILES( ${OW_DOC_DIR_RELATIVE} 
-                        "SHARE"
-                        "${PROJECT_SOURCE_DIR}/../README"
-                        "${PROJECT_SOURCE_DIR}/../AUTHORS"
-                        "${PROJECT_SOURCE_DIR}/../CONTRIBUTORS"
-                      )
-
-# If the user did not disable license-copying, do it
-# NOTE: use this "double-negative" to use the fact that undefined variables yield FALSE.
-IF( NOT OW_PACKAGE_NOCOPY_LICENSE )
-    SETUP_ADDITIONAL_FILES( ${OW_DOC_DIR_RELATIVE} 
-                            "SHARE"
-                            "${PROJECT_SOURCE_DIR}/../COPYING"
-                            "${PROJECT_SOURCE_DIR}/../COPYING.LESSER"
-                          )
-ENDIF()
-
-# also copy all the user documentation we have
-SETUP_ADDITIONAL_DIRECTORY( ${OW_DOC_DIR_RELATIVE}
-                            ${PROJECT_SOURCE_DIR}/../doc/user/
-                            "SHARE"
-                            TRUE    # this denotes that the contents of doc/user should be copied instead of user directly
-                          )  
-SETUP_ADDITIONAL_DIRECTORY( ${OW_MAN_DIR_RELATIVE}
-                            ${PROJECT_SOURCE_DIR}/../doc/man/
-                            "SHARE"
-                            TRUE    # this denotes that the contents of doc/man should be copied instead of user directly
-                          )
 
 # copy our debug utilities. This is only useful if compiled debug or RelWithDebInfo
 IF( NOT cmake_build_type_tolower STREQUAL "release" )
@@ -486,6 +454,42 @@ ADD_CUSTOM_TARGET( many
                    COMMAND $(MAKE) doc
                    DEPENDS numCores
                    COMMENT "Make many special make targets in combination."
+                 )
+
+# some convenience install targets:
+ADD_CUSTOM_TARGET( list_install_tarets
+                   COMMAND echo The following components can be installed:
+                   COMMAND echo " * install - install everything."
+                   COMMAND echo " * install_runtime - install only openwalnut-qt4."
+                   COMMAND echo " * install_lib - install only libopenwalnut."
+                   COMMAND echo " * install_modules - install only the compiled modules."
+                   COMMAND echo " * install_dev - install the development headers for libopenwalnut."
+                   COMMENT "List installation targets."
+                 )
+
+# install targets for different parts
+ADD_CUSTOM_TARGET( install_runtime
+                    ${CMAKE_COMMAND}
+                        -DCOMPONENT=QT4GUI
+                        -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
+                 )
+ADD_CUSTOM_TARGET( install_lib
+                    ${CMAKE_COMMAND}
+                        -DCOMPONENT=CORE
+                        -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
+                    ${CMAKE_COMMAND}
+                        -DCOMPONENT=EXT
+                        -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
+                 )
+ADD_CUSTOM_TARGET( install_modules
+                    ${CMAKE_COMMAND}
+                        -DCOMPONENT=MODULES
+                        -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
+                 )
+ADD_CUSTOM_TARGET( install_dev
+                    ${CMAKE_COMMAND}
+                        -DCOMPONENT=CORE_DEV
+                        -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
                  )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------

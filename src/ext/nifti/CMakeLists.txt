@@ -73,5 +73,5 @@ INSTALL( TARGETS ${NIFTI_NIFTILIB_NAME} ${NIFTI_ZNZLIB_NAME}
                             GROUP_READ GROUP_EXECUTE
                             WORLD_READ WORLD_EXECUTE
                 NAMELINK_SKIP
-         COMPONENT "LIB"
+         COMPONENT "EXT"
 )

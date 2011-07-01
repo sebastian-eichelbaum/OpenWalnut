@@ -58,16 +58,16 @@ SETUP_USE_VERSION_HEADER( ${LibName} )
 
 # Set the version of the library.
 SET_TARGET_PROPERTIES( ${LibName} PROPERTIES 
-        VERSION ${OW_VERSION} 
-        SOVERSION ${OW_SOVERSION}
+                       VERSION ${OW_VERSION} 
+                       SOVERSION ${OW_SOVERSION}
 )
 
 # Do not forget the install targets
-SETUP_LIB_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} "LIB" )
+SETUP_LIB_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} "CORE" )
 
 # Core contains the headers which are needed for any developer release. Install them.
 # NOTE: do not use ${TARGET_H_FILES}. The command requires a list
-SETUP_DEV_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} TARGET_H_FILES "include/openwalnut/core" "DEV" )
+SETUP_DEV_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} TARGET_H_FILES "include/openwalnut/core" "CORE_DEV" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Test Setup
@@ -77,11 +77,22 @@ SETUP_DEV_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} TARGET_H_FILES "include
 SETUP_TESTS( "${TARGET_TEST_FILES}" "${LibName}" "" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Copy local resources
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# copy our own resources
+SETUP_RESOURCES( "core" "CORE" )
+
+# where to put doc files?
+SET( OW_DOC_DIR_RELATIVE "share/doc/libopenwalnut" )
+SETUP_COMMON_DOC( ${OW_DOC_DIR_RELATIVE} "CORE" )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Copy Shaders
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 COLLECT_SHADER_FILES( ${CMAKE_CURRENT_SOURCE_DIR} TARGET_GLSL_FILES )
-SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${OW_SHARE_DIR_RELATIVE}/shaders" "LIB" )
+SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${OW_SHARE_DIR_RELATIVE}/shaders" "CORE" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Style Checker
