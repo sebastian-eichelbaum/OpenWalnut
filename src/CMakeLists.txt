@@ -407,16 +407,6 @@ ADD_CUSTOM_TARGET( doc
                    VERBATIM
                  )
 
-# NOTE: this full documentation also includes call/caller graphs, colaboration graphs and nicer inheritance graphs
-# but needs "dot" from graphviz to render them.
-ADD_CUSTOM_TARGET( fulldoc
-                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/developer/doxygenConfigFull
-                   COMMAND chmod -R g+r ${PROJECT_SOURCE_DIR}/../doc/developer/htmlFull
-                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
-                   COMMENT "Build verbose doxygen documentation"
-                   VERBATIM
-                 )
-
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
 # Style
@@ -464,6 +454,7 @@ ADD_CUSTOM_TARGET( list_install_tarets
                    COMMAND echo " * install_lib - install only libopenwalnut."
                    COMMAND echo " * install_modules - install only the compiled modules."
                    COMMAND echo " * install_dev - install the development headers for libopenwalnut."
+                   COMMAND echo " * install_devdoc - install the development documentation for libopenwalnut."
                    COMMENT "List installation targets."
                  )
 
@@ -490,6 +481,12 @@ ADD_CUSTOM_TARGET( install_dev
                     ${CMAKE_COMMAND}
                         -DCOMPONENT=CORE_DEV
                         -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
+                 )
+ADD_CUSTOM_TARGET( install_devdoc
+                    ${CMAKE_COMMAND}
+                        -DCOMPONENT=CORE_DOC
+                        -P ${CMAKE_BINARY_DIR}/cmake_install.cmake
+                    DEPENDS core_devdoc
                  )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------

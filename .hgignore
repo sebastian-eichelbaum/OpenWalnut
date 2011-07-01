@@ -7,6 +7,7 @@ syntax: glob
 # switch to regexp syntax.
 syntax: regexp
 
+^doc/core/html
 ^doc/developer/html
 ^doc/developer/man
 ^doc/developer/doxyerror.log

@@ -77,6 +77,21 @@ SETUP_DEV_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} TARGET_H_FILES "include
 SETUP_TESTS( "${TARGET_TEST_FILES}" "${LibName}" "" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Doxygen Release documentation
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# NOTE: this full documentation also includes call/caller graphs, colaboration graphs and nicer inheritance graphs
+# but needs "dot" from graphviz to render them.
+SET( DEVDOC_DIR "${PROJECT_SOURCE_DIR}/../doc/core/html" )
+ADD_CUSTOM_TARGET( core_devdoc
+                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/core/doxygenConfig
+                   COMMAND chmod -R g+r ${DEVDOC_DIR}
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
+                   COMMENT "Build verbose doxygen documentation for core"
+                   VERBATIM
+                 )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Copy local resources
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -88,6 +103,12 @@ SETUP_RESOURCES( "core" "CORE" )
 # objdump -p libopenwalnut.so | sed -n -e's/^[[:space:]]*SONAME[[:space:]]*//p' | sed -e's/\([0-9]\)\.so\./\1-/; s/\.so\.//'
 SET( OW_DOC_DIR_RELATIVE "share/doc/libopenwalnut1" )
 SETUP_COMMON_DOC( ${OW_DOC_DIR_RELATIVE} "CORE" )
+
+# Also add an install target for this
+INSTALL( DIRECTORY ${DEVDOC_DIR} 
+         DESTINATION ${OW_DOC_DIR_RELATIVE}
+         COMPONENT "CORE_DOC"
+       )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Copy Shaders
