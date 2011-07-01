@@ -16,7 +16,7 @@ override_dh_auto_build:
 	# Enable this if you have a multi-core machine and are debugging the debian packages. Disable again for upload.
 	dh_auto_build -- -j10
 	# build the core api documentation too
-	dh_auto_build -- coredoc
+	dh_auto_build -- core_devdoc
 
 override_dh_auto_configure:
 	# We turn of several build options here to reduce dependencies. Later, several modules are moved to an extra package which then uses cuda/opencl and stuff.
