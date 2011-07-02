@@ -110,14 +110,33 @@ private:
     /**
      * Store the mesh in legacy vtk file format.
      */
-    bool save() const;
+    bool saveVTKASCII() const;
+
+    /**
+     * Store the mesh in a json (javascript object notation) file
+     */
+    bool saveJson() const;
+
 
     boost::shared_ptr< WModuleInputData< WTriangleMesh > > m_meshInput; //!< Input connector for a mesh
     boost::shared_ptr< WTriangleMesh > m_triMesh; //!< A pointer to the currently processed tri mesh
 
+    boost::shared_ptr< WCondition > m_propCondition;  //!< A condition used to notify about changes in several properties.
     WPropGroup    m_savePropGroup; //!< Property group containing properties needed for saving the mesh.
     WPropTrigger  m_saveTriggerProp; //!< This property triggers the actual writing,
     WPropFilename m_meshFile; //!< The mesh will be written to this file.
+
+    /**
+     * A list of file type selection types
+     */
+    boost::shared_ptr< WItemSelection > m_fileTypeSelectionsList;
+
+    /**
+     * Selection property for file types
+     */
+    WPropSelection m_fileTypeSelection;
+
+    WPropBool m_writeColors;
 };
 
 #endif  // WMWRITEMESH_H

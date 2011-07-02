@@ -36,7 +36,7 @@
 #include <QtGui/QSplitter>
 
 #include "core/common/WLogger.h"
-#include "core/common/WPreferences.h"
+#include "core/common/WPredicateHelper.h"
 #include "core/dataHandler/WDataSet.h"
 #include "core/kernel/modules/data/WMData.h"
 #include "core/kernel/WKernel.h"
@@ -56,6 +56,7 @@
 #include "../WMainWindow.h"
 #include "../WQt4Gui.h"
 #include "../WQtCombinerActionList.h"
+#include "../WQtModuleExcluder.h"
 #include "WQtBranchTreeItem.h"
 #include "WQtColormapper.h"
 
@@ -98,15 +99,25 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_moduleTreeWidget->addAction( separator );
 
     m_deleteModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove Module", m_moduleTreeWidget );
-
     {
         // Set the key for removing modules
-        std::string deleteKey = "Backspace";
-        WPreferences::getPreference( "qt4gui.deleteModuleKey", &deleteKey );
-        m_deleteModuleAction->setShortcut( QKeySequence( QString::fromStdString( deleteKey ) ) );
+        m_deleteModuleAction->setShortcutContext( Qt::WidgetShortcut );
+        m_deleteModuleAction->setShortcut( QKeySequence( "Delete" ) );
+        m_deleteModuleAction->setIconVisibleInMenu( true );
     }
     connect( m_deleteModuleAction, SIGNAL( triggered() ), this, SLOT( deleteModuleTreeItem() ) );
     m_moduleTreeWidget->addAction( m_deleteModuleAction );
+
+    // a separator to clean up the tree widget's context menu
+    m_moduleTreeWidget->addAction( separator );
+
+    // add an entry for those who search their module without luck
+    m_missingModuleAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "missingModule" ), "Missing Module?",
+                                          m_moduleTreeWidget );
+    m_missingModuleAction->setToolTip( "Having trouble finding your module? This opens the module configuration, which allows you to define the "
+                                       "modules that should be shown or hidden." );
+    m_missingModuleAction->setIconVisibleInMenu( true );
+    m_moduleTreeWidget->addAction( m_missingModuleAction );
 
     // the network editor also needs the context menu
     // TODO(rfrohl): context menu gets not opened if a graphicitem is clicked. This should be fixed.
@@ -114,7 +125,10 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_mainWindow->getNetworkEditor()->addAction( m_connectWithPrototypeAction );
     m_mainWindow->getNetworkEditor()->addAction( m_connectWithModuleAction );
     m_mainWindow->getNetworkEditor()->addAction( m_disconnectAction );
+    m_mainWindow->getNetworkEditor()->addAction( separator );
     m_mainWindow->getNetworkEditor()->addAction( m_deleteModuleAction );
+    m_mainWindow->getNetworkEditor()->addAction( separator );
+    m_mainWindow->getNetworkEditor()->addAction( m_missingModuleAction );
 
     m_colormapper = new WQtColormapper( m_mainWindow );
     m_colormapper->setToolTip( "Reorder the textures." );
@@ -130,7 +144,7 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_roiDock->setObjectName( "ROI Dock" );
     m_roiTreeWidget = new WQtTreeWidget();
     m_roiTreeWidget->setToolTip( "Regions of intrest (ROIs) for selecting fiber  clusters. Branches are combined using logic <b>or</b>, "
-"inside the branches the ROIs are combined using logic <b>and</b>." );
+                                 "inside the branches the ROIs are combined using logic <b>and</b>." );
     m_roiTreeWidget->setHeaderLabel( QString( "ROIs" ) );
     m_roiTreeWidget->setHeaderHidden( true );
     m_roiTreeWidget->setDragEnabled( true );
@@ -138,6 +152,9 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
     m_roiTreeWidget->setDropIndicatorShown( true );
     m_roiTreeWidget->setDragDropMode( QAbstractItemView::InternalMove );
     m_roiDock->setWidget( m_roiTreeWidget );
+
+    m_moduleExcluder = new WQtModuleExcluder( parent );
+    connect( m_missingModuleAction, SIGNAL( triggered( bool ) ), m_moduleExcluder, SLOT( configure() ) );
 
     m_layout = new QVBoxLayout();
     m_layout->addWidget( m_tabWidget );
@@ -156,13 +173,16 @@ WQtControlPanel::WQtControlPanel( WMainWindow* parent )
 
     connectSlots();
 
+    // similar to the module delete action: a ROI delete action
+    m_deleteRoiAction = new QAction( WQt4Gui::getMainWindow()->getIconManager()->getIcon( "remove" ), "Remove ROI", m_roiTreeWidget );
     {
-        // Set the key for removing ROIs and connect the event
-        std::string deleteKey = "Delete";
-        WPreferences::getPreference( "qt4gui.deleteROIKey", &deleteKey );
-        QShortcut* shortcut = new QShortcut( QKeySequence( QString::fromStdString( deleteKey ) ), m_roiTreeWidget );
-        connect( shortcut, SIGNAL( activated() ), this, SLOT( deleteROITreeItem() ) );
+        // Set the key for removing modules
+        m_deleteRoiAction->setShortcutContext( Qt::WidgetShortcut );
+        m_deleteRoiAction->setShortcut( QKeySequence( "Delete" ) );
+        m_deleteRoiAction->setIconVisibleInMenu( true );
     }
+    connect( m_deleteRoiAction, SIGNAL( triggered() ), this, SLOT( deleteROITreeItem() ) );
+    m_roiTreeWidget->addAction( m_deleteModuleAction );
 }
 
 WQtControlPanel::~WQtControlPanel()
@@ -171,6 +191,8 @@ WQtControlPanel::~WQtControlPanel()
 
 void WQtControlPanel::connectSlots()
 {
+    // if the user changes some white/blacklist setting: update.
+    connect( m_moduleExcluder, SIGNAL( updated() ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemSelectionChanged() ), this, SLOT( selectTreeItem() ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ), this, SLOT( changeTreeItem( QTreeWidgetItem*, int ) ) );
     connect( m_moduleTreeWidget, SIGNAL( itemClicked( QTreeWidgetItem*, int ) ),  m_roiTreeWidget, SLOT( clearSelection() ) );
@@ -920,10 +942,11 @@ void WQtControlPanel::createCompatibleButtons( boost::shared_ptr< WModule > modu
 
     // acquire new action lists
     m_connectWithPrototypeActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
-                                                              WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module ) );
+                                                              WModuleFactory::getModuleFactory()->getCompatiblePrototypes( module ),
+                                                              m_moduleExcluder );
     m_connectWithModuleActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(),
                                                            WKernel::getRunningKernel()->getRootContainer()->getPossibleConnections( module ),
-                                                           true, true );
+                                                           0, true );
     if( module )
     {
         m_disconnectActionList = WQtCombinerActionList( this, m_mainWindow->getIconManager(), module->getPossibleDisconnections() );
@@ -1132,3 +1155,12 @@ QDockWidget* WQtControlPanel::getColormapperDock() const
     return m_colormapper;
 }
 
+WQtModuleExcluder& WQtControlPanel::getModuleExcluder() const
+{
+    return *m_moduleExcluder;
+}
+
+QAction* WQtControlPanel::getMissingModuleAction() const
+{
+    return m_missingModuleAction;
+}

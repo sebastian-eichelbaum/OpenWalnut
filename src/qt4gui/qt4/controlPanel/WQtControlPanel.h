@@ -39,6 +39,8 @@
 #include "core/dataHandler/WDataSet.h"
 #include "core/graphicsEngine/WROI.h"
 
+#include "../WQtModuleExcluder.h"
+
 #include "../WQtCombinerToolbar.h"
 #include "WQtPropertyGroupWidget.h"
 #include "WQtModuleHeaderTreeItem.h"
@@ -196,6 +198,20 @@ public:
      */
     QDockWidget* getColormapperDock() const;
 
+    /**
+     * Returns the module excluder. It then can be used for configuration.
+     *
+     * \return the module excluder.
+     */
+    WQtModuleExcluder& getModuleExcluder() const;
+
+    /**
+     * Returns an action which can be triggered by the user if some module are missing.
+     *
+     * \return the action.
+     */
+    QAction* getMissingModuleAction() const;
+
 protected:
 
     /**
@@ -278,6 +294,11 @@ private:
     QAction* m_deleteModuleAction;
 
     /**
+     * The action to remove a ROI from the tree.
+     */
+    QAction* m_deleteRoiAction;
+
+    /**
      * Action which uses a compatibles list (submenu) to connect a selected item with other existing modules.
      */
     QAction* m_connectWithModuleAction;
@@ -321,6 +342,17 @@ private:
      * programatically.
      */
     bool m_ignoreSelectionChange;
+
+    /**
+     * The WQtCombinerActionList needs some predicate which decides whether to exclude a certain module from the list or not. We use this
+     * predicate here. It is configured internally using a white and blacklist.
+     */
+    WQtModuleExcluder* m_moduleExcluder;
+
+    /**
+     * Action giving the user fast access to the module config dialog.
+     */
+    QAction* m_missingModuleAction;
 
 private slots:
     /**

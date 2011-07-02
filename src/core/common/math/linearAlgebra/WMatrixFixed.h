@@ -43,8 +43,8 @@
 #include <osg/Matrixd>
 
 // Needed for conversion: Eigen3 Types
-#include "ext/Eigen/Core"
-#include "ext/Eigen/LU" // needed for the inverse() function
+#include <Eigen/Core>
+#include <Eigen/LU>  // needed for the inverse() function
 
 #include "../../WDefines.h"
 #include "../../WStringUtils.h"
@@ -362,6 +362,80 @@ public:
         return result;
     }
 
+    /**
+      * Set a row to a specific vector.
+      *
+      * \tparam RHSValueT Value type of the given matrix
+      * \tparam ValueStoreT Value store of the given matrix
+      *
+      * \param index the index of the row you want to set
+      * \param vec the values to set for the row
+      *
+      */
+    template< typename RHSValueT, ValueStoreTemplate RHSValueStoreT >
+    void  setRowVector( size_t index, const WMatrixFixed< RHSValueT, Rows, 1, RHSValueStoreT >& vec )
+    {
+        for( size_t col = 0; col < Cols; col++ )
+        {
+            at( index, col ) = vec( col, 0 );
+        }
+    }
+
+    /**
+      * Get a vector containing a specific row
+      *
+      * \param index the index of the row
+      *
+      * \return the row as a vector
+      */
+    WMatrixFixed< ValueT, Cols, 1, ValueStoreT > getRowVector( size_t index ) const
+    {
+        WMatrixFixed< ValueT, Cols, 1 > result;
+        for( size_t col = 0; col < Cols; col++ )
+        {
+            result( col, 0 ) = at( index, col );
+        }
+
+        return result;
+    }
+
+    /**
+      * Set a column to a specific vector.
+      *
+      * \tparam RHSValueT Value type of the given matrix
+      * \tparam ValueStoreT Value store of the given matrix
+      *
+      * \param index the index of the column you want to set
+      * \param vec the values to set for the column
+      *
+      */
+    template< typename RHSValueT, ValueStoreTemplate RHSValueStoreT >
+    void  setColumnVector( size_t index, const WMatrixFixed< RHSValueT, Rows, 1, RHSValueStoreT >& vec )
+    {
+        for( size_t row = 0; row < Rows; row++ )
+        {
+            at( row, index ) = vec( row, 0 );
+        }
+    }
+
+    /**
+      * Get a vector containing a specific column
+      *
+      * \param index the index of the column
+      *
+      * \return the column as a vector
+      */
+    WMatrixFixed< ValueT, Rows, 1 > getColumnVector( size_t index ) const
+    {
+        WMatrixFixed< ValueT, Rows, 1 > result;
+        for( size_t row = 0; row < Rows; row++ )
+        {
+            result( row, 0 ) = at( row, index );
+        }
+
+        return result;
+    }
+
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Conversion
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -584,7 +658,7 @@ public:
         BOOST_STATIC_ASSERT( Rows == 4 );
         BOOST_STATIC_ASSERT( Cols == 1 );
 
-        operator[]( 0 ) = m[1];
+        operator[]( 0 ) = m[0];
         operator[]( 1 ) = m[1];
         operator[]( 2 ) = m[2];
         operator[]( 3 ) = m[3];
@@ -600,7 +674,7 @@ public:
         BOOST_STATIC_ASSERT( Rows == 4 );
         BOOST_STATIC_ASSERT( Cols == 1 );
 
-        operator[]( 0 ) = m[1];
+        operator[]( 0 ) = m[0];
         operator[]( 1 ) = m[1];
         operator[]( 2 ) = m[2];
         operator[]( 3 ) = m[3];

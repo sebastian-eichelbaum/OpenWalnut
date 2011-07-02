@@ -27,14 +27,15 @@
 
 #include <list>
 
-#include <QtGui/QToolBar>
-
 #include "guiElements/WQtPushButton.h"
+#include "WQtToolBarBase.h"
+
+class WMainWindow;
 
 /**
  * This is a toolbar. Its main usage for now is the "compatible modules" toolbar
  */
-class WQtToolBar : public QToolBar
+class WQtToolBar : public WQtToolBarBase
 {
 public:
     /**
@@ -42,7 +43,7 @@ public:
      * \param title name of the toolbar.
      * \param parent the parent widget of this widget, i.e. the widget that manages it.
      */
-    explicit WQtToolBar( const QString & title, QWidget* parent );
+    WQtToolBar( const QString & title, WMainWindow* parent );
 
     /**
      * destructor

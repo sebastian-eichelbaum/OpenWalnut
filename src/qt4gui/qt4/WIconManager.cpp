@@ -46,7 +46,7 @@ QIcon WIconManager::getIcon( const std::string name )
     }
     else if( WModuleFactory::getModuleFactory()->getPrototypeByName( name ) )
     {
-        icon =  QIcon( QPixmap( WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getXPMIcon() ) );
+        icon = QIcon( QPixmap( WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getXPMIcon() ) );
     }
     else
     {
@@ -54,4 +54,20 @@ QIcon WIconManager::getIcon( const std::string name )
     }
 
     return icon;
+}
+
+QIcon WIconManager::getIcon( const std::string name, const QIcon& defaultIcon )
+{
+    if( m_iconList.count( name ) != 0 )
+    {
+        return *m_iconList[name];
+    }
+    else if( WModuleFactory::getModuleFactory()->getPrototypeByName( name ) )
+    {
+        return QIcon( QPixmap( WModuleFactory::getModuleFactory()->getPrototypeByName( name )->getXPMIcon() ) );
+    }
+    else
+    {
+        return QIcon( defaultIcon );
+    }
 }

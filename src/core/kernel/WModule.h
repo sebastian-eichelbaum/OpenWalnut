@@ -108,6 +108,16 @@ public:
     typedef std::vector< boost::shared_ptr< WModuleOutputConnector > > OutputConnectorList;
 
     /**
+     * Shared pointer to a WModule.
+     */
+    typedef boost::shared_ptr< WModule > SPtr;
+
+    /**
+     * Shared pointer to a const WModule.
+     */
+    typedef boost::shared_ptr< const WModule > ConstSPtr;
+
+    /**
      * Gives back input connectors.
      *
      * \return the input connectors.

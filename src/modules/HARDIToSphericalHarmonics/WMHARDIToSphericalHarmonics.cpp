@@ -36,7 +36,6 @@
 #include "core/common/WAssert.h"
 
 #include "core/common/WProgress.h"
-#include "core/common/WPreferences.h"
 #include "core/common/math/WUnitSphereCoordinates.h"
 #include "core/common/math/WMatrix.h"
 #include "core/common/math/WSymmetricSphericalHarmonic.h"

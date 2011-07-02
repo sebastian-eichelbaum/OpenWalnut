@@ -30,6 +30,8 @@
 
 #include <boost/program_options.hpp>
 
+#include <QtCore/QSettings>
+
 #include "core/graphicsEngine/WROI.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
 
@@ -50,10 +52,11 @@ public:
     /**
      * Constructor.
      *
+     * \param options the option-variable map
      * \param argc number of arguments given on command line.
      * \param argv arguments given on command line.
      */
-    WQt4Gui( int argc, char** argv );
+    WQt4Gui( const boost::program_options::variables_map& options, int argc, char** argv );
 
     /**
      * Default destructor.
@@ -162,6 +165,13 @@ public:
      */
     static WMainWindow* getMainWindow();
 
+    /**
+     * Returns the settings object.
+     *
+     * \return settings object.
+     */
+    static QSettings& getSettings();
+
 protected:
 
     /**
@@ -173,6 +183,10 @@ protected:
     void moduleError( boost::shared_ptr< WModule > module, const WException& exception );
 
 private:
+    /**
+     * Object storing certain persistent application settings.
+     */
+    static QSettings* m_settings;
 
     /**
      * Main window containing all needed widgets.
@@ -194,18 +208,7 @@ private:
      */
     boost::shared_ptr< WKernel > m_kernel;
 
-    boost::program_options::variables_map m_optionsMap; //!< Map storing the program options.
-
-    /**
-     * This function defines and parses the valid command line options.
-     * This might once be put in a separate class like WOptionHandler.
-     * At the moment it seems reasonable that different GUIs might have
-     * different command line options, thus we implement their parsing
-     * in the GUI implemntation itself, i.e. here.
-     *
-     * \return True if and only if the parsing was successful.
-     */
-    bool parseOptions();
+    const boost::program_options::variables_map& m_optionsMap; //!< Map storing the program options.
 
     /**
      * New log item added. Pushing event to QT's event queue.

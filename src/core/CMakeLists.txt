@@ -48,7 +48,7 @@ COLLECT_COMPILE_FILES( "${CMAKE_CURRENT_SOURCE_DIR}" TARGET_CPP_FILES TARGET_H_F
 
 # Setup the target
 ADD_LIBRARY( ${LibName} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} ${OW_VERSION_HEADER} )
-TARGET_LINK_LIBRARIES( ${LibName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNiftiName}
+TARGET_LINK_LIBRARIES( ${LibName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNiftiIOName}
                                   ${Boost_LIBRARIES} ${CMAKE_DL_LIBS} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES}
                      )
 
@@ -56,19 +56,18 @@ TARGET_LINK_LIBRARIES( ${LibName} ${OWExtBioSigName} ${OWExtEEPName} ${OWExtNift
 # NOTE: this needs to be placed AFTER ADD_EXECUTABLE or ADD_LIBRARY
 SETUP_USE_VERSION_HEADER( ${LibName} )
 
-# Do not forget the install targets
-INSTALL( TARGETS ${LibName}
-			ARCHIVE # NOTE: this is needed on windows
-				DESTINATION ${OW_LIBRARY_DIR_RELATIVE} 
-				PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
-							GROUP_READ GROUP_EXECUTE  
-							WORLD_READ WORLD_EXECUTE
-			LIBRARY # NOTE: this is needed for all the others
-                DESTINATION ${OW_LIBRARY_DIR_RELATIVE}
-                PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                            GROUP_READ GROUP_EXECUTE
-                            WORLD_READ WORLD_EXECUTE
+# Set the version of the library.
+SET_TARGET_PROPERTIES( ${LibName} PROPERTIES 
+                       VERSION ${OW_VERSION} 
+                       SOVERSION ${OW_SOVERSION}
 )
+
+# Do not forget the install targets
+SETUP_LIB_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} "CORE" )
+
+# Core contains the headers which are needed for any developer release. Install them.
+# NOTE: do not use ${TARGET_H_FILES}. The command requires a list
+SETUP_DEV_INSTALL( ${LibName} ${OW_LIBRARY_DIR_RELATIVE} TARGET_H_FILES "include/openwalnut/core" "CORE_DEV" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Test Setup
@@ -78,11 +77,45 @@ INSTALL( TARGETS ${LibName}
 SETUP_TESTS( "${TARGET_TEST_FILES}" "${LibName}" "" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Doxygen Release documentation
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# NOTE: this full documentation also includes call/caller graphs, colaboration graphs and nicer inheritance graphs
+# but needs "dot" from graphviz to render them.
+SET( DEVDOC_DIR "${PROJECT_SOURCE_DIR}/../doc/core/html" )
+ADD_CUSTOM_TARGET( core_devdoc
+                   COMMAND doxygen ${PROJECT_SOURCE_DIR}/../doc/core/doxygenConfig
+                   COMMAND chmod -R g+r ${DEVDOC_DIR}
+                   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/..
+                   COMMENT "Build verbose doxygen documentation for core"
+                   VERBATIM
+                 )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+# Copy local resources
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+# copy our own resources
+SETUP_RESOURCES( "core" "CORE" )
+
+# where to put doc files?
+# NOTE: the doc path should match the SONAME of lib. Use this command to query a proper name:
+# objdump -p libopenwalnut.so | sed -n -e's/^[[:space:]]*SONAME[[:space:]]*//p' | sed -e's/\([0-9]\)\.so\./\1-/; s/\.so\.//'
+SET( OW_DOC_DIR_RELATIVE "share/doc/libopenwalnut1" )
+SETUP_COMMON_DOC( ${OW_DOC_DIR_RELATIVE} "CORE" )
+
+# Also add an install target for this
+INSTALL( DIRECTORY ${DEVDOC_DIR} 
+         DESTINATION ${OW_DOC_DIR_RELATIVE}
+         COMPONENT "CORE_DOC"
+       )
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Copy Shaders
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 COLLECT_SHADER_FILES( ${CMAKE_CURRENT_SOURCE_DIR} TARGET_GLSL_FILES )
-SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${OW_SHARE_DIR_RELATIVE}/shaders" )
+SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${OW_SHARE_DIR_RELATIVE}/shaders" "CORE" )
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Style Checker

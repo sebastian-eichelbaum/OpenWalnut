@@ -27,13 +27,15 @@
 
 #include <string>
 #include <vector>
+
 #include <boost/shared_ptr.hpp>
+
+#include <nifti1_io.h>
 
 #include "WReader.h"
 #include "../WDataSet.h"
 #include "../../common/math/WMatrix.h"
 
-#include "ext/nifti/nifti1_io.h"
 #include "../WExportDataHandler.h"
 
 /**

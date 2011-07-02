@@ -182,6 +182,26 @@ const boost::shared_ptr< WModule > WModuleFactory::getPrototypeByInstance( boost
     return getPrototypeByName( instance->getName() );
 }
 
+std::vector< WModule::ConstSPtr > WModuleFactory::getPrototypesByType( MODULE_TYPE type )
+{
+    std::vector< WModule::ConstSPtr > ret;
+
+    // for this a read lock is sufficient, gets unlocked if it looses scope
+    PrototypeSharedContainerType::ReadTicket l = m_prototypes.getReadTicket();
+
+    // find first and only prototype (ensured during load())
+    for( std::set< boost::shared_ptr< WModule > >::const_iterator listIter = l->get().begin(); listIter != l->get().end();
+            ++listIter )
+    {
+        if( ( *listIter )->getType() == type )
+        {
+            ret.push_back( *listIter );
+        }
+    }
+
+    return ret;
+}
+
 WModuleFactory::PrototypeSharedContainerType::ReadTicket WModuleFactory::getPrototypes() const
 {
     return m_prototypes.getReadTicket();

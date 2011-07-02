@@ -206,6 +206,12 @@ WPosition WTriangleMesh::getVertexAsPosition( size_t index ) const
     return WPosition( ( *m_verts )[index][0], ( *m_verts )[index][1], ( *m_verts )[index][2] );
 }
 
+WPosition WTriangleMesh::getNormalAsPosition( size_t index ) const
+{
+    WAssert( index < m_countVerts, "get vertex as position: index out of range" );
+    return WPosition( ( *m_vertNormals )[index][0], ( *m_vertNormals )[index][1], ( *m_vertNormals )[index][2] );
+}
+
 WPosition WTriangleMesh::getVertexAsPosition( size_t triangleIndex, size_t vertNum )
 {
     WAssert( triangleIndex < m_countTriangles, "get vertex as position: index out of range" );

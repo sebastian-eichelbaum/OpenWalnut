@@ -172,6 +172,94 @@ public:
     }
 
     /**
+     * Check if getRowVector() returns the correct contents.
+     */
+    void testGetRowVector()
+    {
+        WMatrixFixed< int, 3, 3 > matrix;
+        matrix( 0, 0 ) = 1;
+        matrix( 0, 1 ) = 2;
+        matrix( 0, 2 ) = 3;
+        matrix( 1, 0 ) = 4;
+        matrix( 1, 1 ) = 5;
+        matrix( 1, 2 ) = 6;
+        matrix( 2, 0 ) = 7;
+        matrix( 2, 1 ) = 8;
+        matrix( 2, 2 ) = 9;
+
+        WMatrixFixed< int, 3, 1 > rowVector;
+        rowVector( 0, 0 ) = matrix( 0, 0 );
+        rowVector( 1, 0 ) = matrix( 0, 1 );
+        rowVector( 2, 0 ) = matrix( 0, 2 );
+
+        TS_ASSERT_EQUALS( matrix.getRowVector( 0 )( 0, 0 ),  rowVector( 0, 0 ) );
+        TS_ASSERT_EQUALS( matrix.getRowVector( 0 )( 0, 1 ),  rowVector( 1, 0 ) );
+        TS_ASSERT_EQUALS( matrix.getRowVector( 0 )( 0, 2 ),  rowVector( 2, 0 ) );
+    }
+
+    /**
+     * Check if getColumnVector() returns the correct contents.
+     */
+    void testGetColVector()
+    {
+        WMatrixFixed< int, 3, 3 > matrix;
+        matrix( 0, 0 ) = 1;
+        matrix( 0, 1 ) = 2;
+        matrix( 0, 2 ) = 3;
+        matrix( 1, 0 ) = 4;
+        matrix( 1, 1 ) = 5;
+        matrix( 1, 2 ) = 6;
+        matrix( 2, 0 ) = 7;
+        matrix( 2, 1 ) = 8;
+        matrix( 2, 2 ) = 9;
+
+        WMatrixFixed< int, 3, 1 > colVector;
+        colVector( 0, 0 ) = matrix( 0, 1 );
+        colVector( 1, 0 ) = matrix( 1, 1 );
+        colVector( 2, 0 ) = matrix( 2, 1 );
+
+        TS_ASSERT_EQUALS( matrix.getColumnVector( 1 )( 0, 0 ), colVector.at( 0, 0 ) );
+        TS_ASSERT_EQUALS( matrix.getColumnVector( 1 )( 1, 0 ), colVector.at( 1, 0 ) );
+        TS_ASSERT_EQUALS( matrix.getColumnVector( 1 )( 2, 0 ), colVector.at( 2, 0 ) );
+    }
+
+    /**
+     * Check if setRowVector() sets the matrix contents correctly.
+     */
+    void testSetRowVector()
+    {
+        WMatrixFixed< int, 3, 1 > rowVector;
+        rowVector( 0, 0 ) = 1;
+        rowVector( 1, 0 ) = 2;
+        rowVector( 2, 0 ) = 3;
+
+        WMatrixFixed< int, 3, 3 > matrix;
+        matrix.setRowVector( 0, rowVector );
+
+        TS_ASSERT_EQUALS( matrix( 0, 0 ), rowVector( 0, 0 ) );
+        TS_ASSERT_EQUALS( matrix( 0, 1 ), rowVector( 1, 0 ) );
+        TS_ASSERT_EQUALS( matrix( 0, 2 ), rowVector( 2, 0 ) );
+    }
+
+    /**
+     * Check if setColumnVector() sets the matrix contents correctly.
+     */
+    void testSetColVector()
+    {
+        WMatrixFixed< int, 3, 1 > colVector;
+        colVector( 0, 0 ) = 2;
+        colVector( 1, 0 ) = 5;
+        colVector( 2, 0 ) = 8;
+
+        WMatrixFixed< int, 3, 3 > matrix;
+        matrix.setColumnVector( 1, colVector );
+
+        TS_ASSERT_EQUALS( matrix( 0, 1 ), colVector( 0, 0 ) );
+        TS_ASSERT_EQUALS( matrix( 1, 1 ), colVector( 1, 0 ) );
+        TS_ASSERT_EQUALS( matrix( 2, 1 ), colVector( 2, 0 ) );
+    }
+
+    /**
      * The zero function should return a matrix that contains only zeros.
      */
     void testZero()

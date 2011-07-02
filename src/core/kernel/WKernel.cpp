@@ -42,7 +42,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread/xtime.hpp>
 
-#include "../common/WPreferences.h"
 #include "../common/WStringUtils.h"
 #include "../common/WThreadedRunner.h"
 #include "../dataHandler/WDataHandler.h"
@@ -157,31 +156,6 @@ void WKernel::threadMain()
 
     // start GE
     m_graphicsEngine->run();
-
-    // default modules
-    {
-        std::string stdModules = "";
-        WPreferences::getPreference( "modules.default", &stdModules );
-        std::vector< std::string > defMods = string_utils::tokenize( stdModules, "," );
-        for( std::vector< std::string >::iterator iter = defMods.begin(); iter != defMods.end(); ++iter )
-        {
-            std::string moduleName = string_utils::trim( ( *iter ) );
-            boost::shared_ptr< WModule> proto = m_moduleFactory->isPrototypeAvailable( moduleName );
-
-            // try to find a prototype
-            if( proto.get() )
-            {
-                // the module exists
-                m_moduleContainer->add( m_moduleFactory->create( proto ) , true );
-            }
-            else
-            {
-                WLogger::getLogger()->addLogMessage( "Specified default module \"" + moduleName + "\" does not exist. Ignoring.",
-                                                     "Kernel",
-                                                     LL_WARNING );
-            }
-        }
-    }
 
     // actually there is nothing more to do here
     waitForStop();

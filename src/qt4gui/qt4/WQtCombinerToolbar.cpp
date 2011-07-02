@@ -29,59 +29,31 @@
 #include <QtGui/QLabel>
 #include <QtGui/QMenu>
 
-#include "core/common/WPreferences.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleCombiner.h"
 
 #include "WMainWindow.h"
 #include "WQtToolBar.h"
+#include "controlPanel/WQtControlPanel.h"
 
 #include "WQtCombinerToolbar.h"
 #include "WQtCombinerToolbar.moc"
 
 WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent, const WQtCombinerActionList& compatibles )
-    : QToolBar( "Compatible Modules", parent ),
+    : WQtToolBarBase( "Compatible Modules", parent ),
       m_parent( parent )
 {
-    // setup toolbar
-    setAllowedAreas( Qt::AllToolBarAreas );
-    setObjectName( QString( "Compatible Modules" ) );
-
-    setMinimumWidth( 60 );
-    setMinimumHeight( 40 );
-
-    // this sets the toolbar style
-    int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
-    WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );
-    if( ( compToolBarStyle < 0 ) || ( compToolBarStyle > 3 ) ) // ensure a valid value
-    {
-        compToolBarStyle = 0;
-    }
-
-    // cast and set
-    setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
+    QAction* m = parent->getControlPanel()->getMissingModuleAction();
+    addAction( m );
 
     // create the list of actions possible
     addActions( compatibles );
 }
 
 WQtCombinerToolbar::WQtCombinerToolbar( WMainWindow* parent )
-    : QToolBar( "Compatible Modules", parent ),
+    : WQtToolBarBase( "Compatible Modules", parent ),
       m_parent( parent )
 {
-    // setup toolbar
-    setAllowedAreas( Qt::AllToolBarAreas );
-
-    // this sets the toolbar style
-    int compToolBarStyle = parent->getToolbarStyle(); // this defaults to the global toolbar style
-    WPreferences::getPreference( "qt4gui.compatiblesToolBarStyle", &compToolBarStyle );
-    if( ( compToolBarStyle < 0 ) || ( compToolBarStyle > 3 ) ) // ensure a valid value
-    {
-        compToolBarStyle = 0;
-    }
-
-    // cast and set
-    setToolButtonStyle( static_cast< Qt::ToolButtonStyle >( compToolBarStyle ) );
 }
 
 WQtCombinerToolbar::~WQtCombinerToolbar()
@@ -96,6 +68,11 @@ void WQtCombinerToolbar::makeEmpty()
 void WQtCombinerToolbar::updateButtons( const WQtCombinerActionList& compatibles )
 {
     clear();
+
+    // help action
+    QAction* m = m_parent->getControlPanel()->getMissingModuleAction();
+    addAction( m );
+
     addActions( compatibles );
 }
 

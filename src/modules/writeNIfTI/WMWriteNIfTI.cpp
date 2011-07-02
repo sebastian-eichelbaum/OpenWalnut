@@ -32,6 +32,8 @@
 
 #include <cmath>
 
+#include <nifti1_io.h>
+
 #include "core/common/WAssert.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WStringUtils.h"
@@ -39,7 +41,7 @@
 #include "core/dataHandler/WDataSetRawHARDI.h"
 #include "core/kernel/WKernel.h"
 #include "core/common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../ext/nifti/nifti1_io.h"
+
 #include "WMWriteNIfTI.h"
 #include "core/kernel/WModule.h"
 

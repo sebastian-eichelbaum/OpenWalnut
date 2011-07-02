@@ -25,11 +25,22 @@
 #ifndef WQTCOMBINERACTIONLIST_H
 #define WQTCOMBINERACTIONLIST_H
 
+#include <string>
+#include <vector>
+
+#include <QtGui/QMenu>
 #include <QtCore/QList>
 #include <QtGui/QAction>
 #include <QtGui/QWidget>
 
+#include "core/kernel/combiner/WApplyCombiner.h"
+#include "core/kernel/combiner/WModuleOneToOneCombiner.h"
 #include "core/kernel/WModuleCombinerTypes.h"
+#include "core/kernel/WModule.h"
+#include "core/kernel/WModuleCombiner.h"
+#include "guiElements/WQtModuleOneToOneCombinerAction.h"
+#include "WQt4Gui.h"
+#include "WQtModuleExcluder.h"
 
 #include "WIconManager.h"
 
@@ -47,10 +58,12 @@ public:
      * \param icons the icon manager holding the right icons for all the prototypes
      * \param compatibles the list of combiners
      * \param advancedText if true, the complete connector/module name is displayed in all actions
-     * \param ignoreWhiteList if true, the list won't be filtered using the whitelist
+     * \param exclusionPredicate a predicate which checks for each module whether to exclude it or not. If 0, nothing is excluded.
+     *
+     * \tparam PredicateT the predicate used for excluding modules
      */
-    WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles, bool advancedText = false,
-                                                                                                               bool ignoreWhiteList = false );
+    WQtCombinerActionList( QWidget* parent, WIconManager* icons, WCombinerTypes::WCompatiblesList compatibles,
+                           const WQtModuleExcluder* exclusionPredicate = 0, bool advancedText = false );
     /**
      * This constructor creates a list of actions recursively from the specified disconnects list.
      * \param parent the parent widget of this widget, i.e. the widget that manages it.

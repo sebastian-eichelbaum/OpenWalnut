@@ -32,17 +32,17 @@
     #define BOOST_FILESYSTEM_VERSION 2
 #endif
 #include <boost/filesystem.hpp>
-#include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <QtGui/QApplication>
 #include <QtGui/QFileDialog>
+#include <QtCore/QSettings>
+
 
 #include "WMainWindow.h" // this has to be included before any other includes
 #include "core/common/WConditionOneShot.h"
 #include "core/common/WIOTools.h"
 #include "core/common/WPathHelper.h"
-#include "core/common/WPreferences.h"
 #include "core/dataHandler/WDataHandler.h"
 #include "core/dataHandler/WSubject.h"
 #include "core/graphicsEngine/WGraphicsEngine.h"
@@ -66,52 +66,18 @@
 
 WMainWindow* WQt4Gui::m_mainWindow = NULL;
 
-WQt4Gui::WQt4Gui( int argc, char** argv )
-    : WGUI( argc, argv )
+QSettings* WQt4Gui::m_settings = NULL;
+
+WQt4Gui::WQt4Gui( const boost::program_options::variables_map& options, int argc, char** argv )
+    : WGUI( argc, argv ),
+    m_optionsMap( options )
 {
+    m_settings = new QSettings( "OpenWalnut.org", "OpenWalnut" );
 }
 
 WQt4Gui::~WQt4Gui()
 {
-}
-
-bool WQt4Gui::parseOptions()
-{
-    namespace po = boost::program_options; // since the namespace is far to big we use a shortcut here
-    po::options_description desc( "Allowed options" );
-
-    desc.add_options()
-        ( "help,h", "Prints this help message" )
-        ( "project,p", po::value< std::string >(), "Project file to be loaded on startup." )
-        ( "input,i", po::value< std::vector< std::string > >(), "Input data files that should be loaded automatically" )
-        ( "timed-output,t", "Flag indicating if all log strings should have a time string preceding" );
-
-    po::positional_options_description p;
-    p.add( "input", -1 );
-
-    try
-    {
-        po::store( po::command_line_parser( m_argc, m_argv ).options( desc ).positional( p ).run(), m_optionsMap );
-    }
-    catch( const po::error &e )
-    {
-        std::cerr << e.what() << std::endl;
-        return false;
-    }
-
-    po::notify( m_optionsMap );
-
-    // print usage information if command line asks for help.
-    if( m_optionsMap.count( "help" ) )
-    {
-        std::cout << desc << std::endl;
-    }
-    else if( m_optionsMap.count( "timed-output" ) )
-    {
-        WLogger::getLogger()->setDefaultFormat( "[%t] *%l [%s] %m \n" );
-        wlog::info( "GUI" ) << "Timed output enabled";
-    }
-    return true;
+    delete m_settings;
 }
 
 void WQt4Gui::moduleError( boost::shared_ptr< WModule > module, const WException& exception )
@@ -126,19 +92,6 @@ WMainWindow* WQt4Gui::getMainWindow()
 
 int WQt4Gui::run()
 {
-    bool parsingSuccessful = parseOptions();
-
-    if( !parsingSuccessful )
-    {
-        return 1;
-    }
-
-    // exit as fast as possible if command line asked for help. The ,essage has been printed by parseOptions().
-    if( m_optionsMap.count( "help" ) )
-    {
-        return 1;
-    }
-
     // init logger
     m_loggerConnection = WLogger::getLogger()->subscribeSignal( WLogger::AddLog, boost::bind( &WQt4Gui::slotAddLog, this, _1 ) );
 
@@ -151,17 +104,12 @@ int WQt4Gui::run()
     // setup path helper which provides several paths to others^
     WPathHelper::getPathHelper()->setAppPath( walnutBin );
 
-    // init preference system
-    WPreferences::setPreferenceFile( WPathHelper::getConfigFile() );
-
     // get the minimum log level from preferences
-    std::string logLevel = "Info";
-    WPreferences::getPreference( "qt4gui.logLevel", &logLevel );
-    // convert to log-level. If the preference is not defined, the empty string causes logLevelFromString to return LL_DEBUG as default.
-    WLogger::getLogger()->setDefaultLogLevel( logLevelFromString( logLevel ) );
+    LogLevel logLevel = static_cast< LogLevel >( WQt4Gui::getSettings().value( "qt4gui/logLevel", LL_INFO ).toInt() );
+    WLogger::getLogger()->setDefaultLogLevel( logLevel );
 
     // print the first output
-    wlog::debug( "Walnut" ) << "Walnut binary path: " << walnutBin;
+    wlog::debug( "OpenWalnut" ) << "OpenWalnut binary path: " << walnutBin;
     wlog::info( "GUI" ) << "Bringing up GUI";
 
     // startup graphics engine
@@ -375,3 +323,9 @@ void WQt4Gui::closeCustomWidget( std::string title )
 {
     m_mainWindow->closeCustomDockWidget( title );
 }
+
+QSettings& WQt4Gui::getSettings()
+{
+    return *m_settings;
+}
+

@@ -26,9 +26,10 @@
 #include <string>
 #include <vector>
 
+#include <boost/regex.hpp>
+
 #include "../common/WIOTools.h"
 #include "../common/WPathHelper.h"
-#include "../common/WPreferences.h"
 #include "../common/WSharedLib.h"
 
 #include "WKernel.h"
@@ -69,8 +70,19 @@ void WModuleLoader::load( WSharedAssociativeContainer< std::set< boost::shared_p
         std::string relPath = i->path().file_string();
         relPath.erase( 0, dir.file_string().length() + 1 ); // NOTE: +1 because we want to remove the "/" too
 
-        // is it a lib?
-        if( !boost::filesystem::is_directory( *i ) && ( suffix == WSharedLib::getSystemSuffix() ) &&
+        // is it a lib? Use a regular expression to check this
+        // NOTE:: the double \\ is needed to escape the escape char
+        #ifdef __WIN32__
+            static const boost::regex CheckLibMMP( "^.*\\" + WSharedLib::getSystemSuffix() +"$" );
+        #elif __APPLE__
+            static const boost::regex CheckLibMMP( "^.*\\.[0-9]+\\.[0-9]+\\.[0-9]+\\" + WSharedLib::getSystemSuffix() + "$" );
+        #else
+            static const boost::regex CheckLibMMP( "^.*\\" + WSharedLib::getSystemSuffix() + "\\.[0-9]+\\.[0-9]+\\.[0-9]+$" );
+        #endif
+        boost::smatch matches;
+
+        if( !boost::filesystem::is_directory( *i ) &&
+            ( boost::regex_match( i->path().string(), matches, CheckLibMMP ) ) &&
             ( stem.compare( 0, getModulePrefix().length(), getModulePrefix() ) == 0 )
 #ifdef _MSC_VER
             && supposedFilename == isFileName

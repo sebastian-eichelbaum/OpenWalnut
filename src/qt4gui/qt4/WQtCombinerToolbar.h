@@ -30,13 +30,14 @@
 #include "core/kernel/WModuleCombinerTypes.h"
 
 #include "WQtCombinerActionList.h"
+#include "WQtToolBarBase.h"
 
 class WMainWindow;
 
 /**
  * This is a toolbar. Its main usage for now is the "compatible modules" toolbar.
  */
-class WQtCombinerToolbar : public QToolBar
+class WQtCombinerToolbar : public WQtToolBarBase
 {
     Q_OBJECT
 

@@ -50,6 +50,14 @@ public:
      */
     QIcon getIcon( const std::string name );
 
+    /**
+     * Searches icons in the internal map and all modules for the given icon name. In contrast to the single argument getIcon, this does not throw
+     * an exception if the icon is not found. It returns a default.
+     * \param name Name of the requested icon
+     * \param defaultIcon the default icon to return if no other icon was found.
+     * \return A QIcon copy if the icon name was found otherwise, the default is returned
+     */
+    QIcon getIcon( const std::string name, const QIcon& defaultIcon );
 protected:
 private:
     std::map< std::string, QIcon* > m_iconList; //!< A map storing icons and the names used to identify them

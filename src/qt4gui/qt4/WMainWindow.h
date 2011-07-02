@@ -35,10 +35,12 @@
 #include <boost/thread.hpp>
 
 #include <QtGui/QMainWindow>
+#include <QtCore/QSettings>
 
 #include "WIconManager.h"
 #include "WQtToolBar.h"
 #include "WQtGLWidget.h"
+#include "WSettingAction.h"
 #include "networkEditor/WQtNetworkEditor.h"
 #include "commandPrompt/WQtCommandPromptToolbar.h"
 
@@ -118,13 +120,6 @@ public:
     void closeCustomDockWidget( std::string title );
 
     /**
-     * This method returns the default style for ALL toolbars.
-     *
-     * \return the toolbar style
-     */
-    Qt::ToolButtonStyle getToolbarStyle() const;
-
-    /**
      * This method removes the old compatibles toolbar and sets the specified one.
      *
      * \param toolbar the toolbar to set. If NULL, the toolbar gets reset.
@@ -137,6 +132,13 @@ public:
      * \return a pointer to the current compatibles toolbar.
      */
     WQtCombinerToolbar* getCompatiblesToolbar();
+
+    /**
+     * Returns the settings object.
+     *
+     * \return settings object.
+     */
+    static QSettings& getSettings();
 
 protected:
 
@@ -273,9 +275,11 @@ public slots:
     void projectSaveModuleOnly();
 
     /**
-     * Gets called when menu option or toolbar button load is activated
+     * Is able to handle updates in the log-level setting.
+     *
+     * \param logLevel the new loglevel to set
      */
-    void openConfigDialog();
+    void handleLogLevelUpdate( unsigned int logLevel );
 
 private:
     /**
@@ -341,6 +345,11 @@ private:
      * Saves the current window states and geometries to a file.
      */
     void saveWindowState();
+
+    /**
+     * The action controlling the auto-display feature.
+     */
+    WSettingAction* m_autoDisplaySetting;
 };
 
 #endif  // WMAINWINDOW_H
