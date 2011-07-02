@@ -22,67 +22,67 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WNETWORKLAYOUTSUBGRAPH_H
-#define WNETWORKLAYOUTSUBGRAPH_H
+#ifndef WNETWORKLAYOUTGRAPH_H
+#define WNETWORKLAYOUTGRAPH_H
 
 #include <list>
 
-#include "WNetworkLayoutItem.h"
+#include "WNetworkLayoutNode.h"
 
 /**
  * TODO
  **/
-class WNetworkLayoutSubgraph
+class WNetworkLayoutGraph
 {
     public:
         /**
          * constructor
          **/
-        explicit WNetworkLayoutSubgraph( unsigned char id, WNetworkLayoutItem *item = NULL );
+        explicit WNetworkLayoutGraph( unsigned char id, WNetworkLayoutItem *item = NULL );
 
         /**
          * destructor
          **/
-        ~WNetworkLayoutSubgraph();
+        ~WNetworkLayoutGraph();
 
         /**
          * add a node to this subgraph, the node needs its grid position set befor adding it
          **/
-        void add( WNetworkLayoutItem *item );
+        void add( WNetworkLayoutItem *parent, WNetworkLayoutItem *child );
 
         /**
          * allows access to the list of layout items TODO
          **/
-        std::list< WNetworkLayoutItem * > * data();
+        //std::list< WNetworkLayoutItem * > * data();
 
         /**
          * is a item in this subgraph ?
          * returns true if item is in this subgraph
          **/
-        bool find( WNetworkLayoutItem *item );
+        //bool find( WNetworkLayoutItem *item );
 
         /**
          * Gives access to the id of the graph.
          *
          * \return id of the subgraph
          **/
-        unsigned char getId();
+        //unsigned char getId();
 
         /**
          * returns the rightmost item in this subgraph, NULL if graph is empty
          **/
-        WNetworkLayoutItem * getRightmostItem();
+        //WNetworkLayoutItem * getRightmostItem();
 
         /**
          * manipulates the position of the subgraph
          **/
-        void manipulate( int x, int y = 0 );
+        //void manipulate( int x, int y = 0 );
 
         /**
          * merge the subgraph into this one TODO
          * keep position,
          **/
-        void merge( WNetworkLayoutSubgraph *subgraph );
+        //void merge( WNetworkLayoutSubgraph *subgraph );
 
         /**
          * remove a node from the subgraph
@@ -95,19 +95,26 @@ class WNetworkLayoutSubgraph
         unsigned int size();
 
         /**
+         * traverses the graph, creates layout
+         * TODO
+         **/
+        void traverse();
+        /**
          * swap the two items TODO
          **/
-        void swap( const QPointF &first, const QPointF &second );
+        //void swap( const QPointF &first, const QPointF &second );
 
     protected:
 
     private:
-        unsigned char m_id; //<! identifies the subgraph
+        WNetworkLayoutNode *m_root; //<! root-node of this graph
 
-        std::list< WNetworkLayoutItem * > m_nodes; //<! every node in this subgraph, not ordered
+        //unsigned char m_id; //<! identifies the subgraph
 
-        WNetworkLayoutItem *m_rightmostItem; //<! the right most item of the subgraph
+        //std::list< WNetworkLayoutItem * > m_nodes; //<! every node in this subgraph, not ordered
+
+        //WNetworkLayoutItem *m_rightmostItem; //<! the right most item of the subgraph
 };
 
-#endif  // WNETWORKLAYOUTSUBGRAPH_H
+#endif  // WNETWORKLAYOUTGRAPH_H
 

@@ -28,8 +28,8 @@
 #include <list>
 
 #include "WNetworkLayoutGlobals.h"
-#include "WNetworkLayoutItem.h"
-#include "WNetworkLayoutSubgraph.h"
+#include "WNetworkLayoutGraph.h"
+#include "WNetworkLayoutNode.h"
 
 /**
  * TODO
@@ -91,12 +91,14 @@ class WNetworkLayout
          * merges two connection components, using only one node from each component
          * TODO: additional information
          **/
-        void merge( WQtNetworkItem *first, WQtNetworkItem *second );
+        //void merge( WQtNetworkItem *first, WQtNetworkItem *second );
 
         //std::pair< WNetworkLayoutItem *, WNetworkLayoutItem * > laneList; //<! list allows iteration over lanes
-        unsigned char m_array[ WNETWORKLAYOUT_GRID_X ][ WNETWORKLAYOUT_GRID_Y ];
+        //unsigned char m_array[ WNETWORKLAYOUT_GRID_X ][ WNETWORKLAYOUT_GRID_Y ];
 
-        std::list< WNetworkLayoutSubgraph > m_subgraphList; //<! list allows iteration over lanes
+        //std::list< WNetworkLayoutSubgraph > m_subgraphList; //<! list allows iteration over lanes
+
+        WNetworkLayoutGraph *m_layoutGraph; //<! the layout graph
 };
 
 #endif  // WNETWORKLAYOUT_H

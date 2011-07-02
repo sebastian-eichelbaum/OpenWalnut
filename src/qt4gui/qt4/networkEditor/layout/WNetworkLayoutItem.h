@@ -125,7 +125,7 @@ class WNetworkLayoutItem
 //         **/
 //        void updateWidth();
 
-        // DEVELOPMENT
+        // DEVELOPMEN<F2>T
         /**
          * Sets the position within the grid, updates the position of the corresponding
          * WQtNetworkItem
@@ -155,13 +155,13 @@ class WNetworkLayoutItem
 //
 //        WNetworkLayoutItem *m_neighbour; //<! neighbour to the right of this item, only the source
 
-        WNetworkLayoutItem *m_source; //<! the source of this subgraph, the initial element
+        //WNetworkLayoutItem *m_source; //<! the source of this subgraph, the initial element
 
         WQtNetworkItem *m_item; //<! the corresponding NetworkItem in the scene, which is manipulated by this LayoutItem
 
-        std::list< WNetworkLayoutItem * > m_children; //<! the children of this item;
+        //std::list< WNetworkLayoutItem * > m_children; //<! the children of this item;
 
-        std::list< WNetworkLayoutItem * > m_parents; //<! the parents of this item;
+        //std::list< WNetworkLayoutItem * > m_parents; //<! the parents of this item;
 
         QPointF m_gridPos; //<! abstract pos, within the matrix
 };

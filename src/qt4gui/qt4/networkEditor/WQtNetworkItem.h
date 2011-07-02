@@ -46,7 +46,7 @@ class QGraphicsWidget;
  */
 class WQtNetworkItem : public QGraphicsRectItem
 {
-    friend class WNetworkLayoutItem;
+    friend class WNetworkLayoutNode;
 public:
     /**
      * Constructs new item in the network scene.
