@@ -132,7 +132,8 @@ FUNCTION( SETUP_TESTS _TEST_FILES _TEST_TARGET )
             # for each fixture, copy to build dir
             FOREACH( FixtureDir ${FixturePaths} )
                 # we need a unique name for each fixture dir as target
-                STRING( REGEX REPLACE "[^A-Za-z0-9]" "" FixtureDirEscaped "${FixtureDir}" )
+                FILE_TO_TARGETSTRING( ${FixtureDir} FixtureDirEscaped )
+
                 # finally, create the copy target
                 ADD_CUSTOM_TARGET( ${_TEST_TARGET}_CopyFixtures_${FixtureDirEscaped}
                     COMMAND ${CMAKE_COMMAND} -E copy_directory "${FixtureDir}" "${FixtureTargetDirectory}"
@@ -150,7 +151,8 @@ ENDFUNCTION( SETUP_TESTS )
 # _Shaders list of shaders
 # _TargetDir the directory where to put the shaders. Relative to ${PROJECT_BINARY_DIR} and install dir. You should avoid ".." stuff. This can
 # break the install targets
-FUNCTION( SETUP_SHADERS _Shaders _TargetDir )
+# _Component the name of the install component
+FUNCTION( SETUP_SHADERS _Shaders _TargetDir _Component )
     # only if we are allowed to
     IF( OW_HANDLE_SHADERS )
         EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory ${_TargetDir} )
@@ -172,7 +174,9 @@ FUNCTION( SETUP_SHADERS _Shaders _TargetDir )
 
         # now add install targets for each shader. All paths are relative to the current source dir.
         FOREACH( fname ${_Shaders} )
-            INSTALL( FILES ${fname} DESTINATION ${_TargetDir} )
+            INSTALL( FILES ${fname} DESTINATION ${_TargetDir} 
+                                    COMPONENT ${_Component}
+                   )
         ENDFOREACH( fname )
     ENDIF( OW_HANDLE_SHADERS )
 ENDFUNCTION( SETUP_SHADERS )
@@ -230,10 +234,12 @@ ENDFUNCTION( SETUP_STYLECHECKER )
 
 # This function handles local resources needed for program execution. Place your resources in "${CMAKE_CURRENT_SOURCE_DIR}/../resources/". They
 # get copied to the build directory and a proper install target is provided too
-FUNCTION( SETUP_RESOURCES )
+# _component the component to which the resources belong
+# _resource the exact resource under resources-directory
+FUNCTION( SETUP_RESOURCES _resource _component )
     # as all the resources with the correct directory structure reside in ../resources, this target is very easy to handle
-    SET( ResourcesPath "${CMAKE_CURRENT_SOURCE_DIR}/../resources/" )
-    ADD_CUSTOM_TARGET( ResourceConfiguration
+    SET( ResourcesPath "${PROJECT_SOURCE_DIR}/../resources/${_resource}/" )
+    ADD_CUSTOM_TARGET( ResourceConfiguration_${_component}
         ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${ResourcesPath}" "${PROJECT_BINARY_DIR}/"
         COMMENT "Copying resources to build directory"
@@ -242,19 +248,164 @@ FUNCTION( SETUP_RESOURCES )
     # Also specify install target
     INSTALL( DIRECTORY ${ResourcesPath}
              DESTINATION "."
+             COMPONENT ${_component}
              PATTERN "bin/*"            # binaries need to be executable
                  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
                              GROUP_READ GROUP_EXECUTE
                              WORLD_READ WORLD_EXECUTE
              )
+
 ENDFUNCTION( SETUP_RESOURCES )
+
+# This function copies the typical source docs (README, AUTHORS, CONTRIBUTORS and Licence files to the specified directory.
+# _component the component to which the resources belong
+# _targetDirRelative the relative target dir.
+FUNCTION( SETUP_COMMON_DOC _target _component )
+    SETUP_ADDITIONAL_FILES( ${_target} 
+                            ${_component}
+                            "${PROJECT_SOURCE_DIR}/../README"
+                            "${PROJECT_SOURCE_DIR}/../AUTHORS"
+                            "${PROJECT_SOURCE_DIR}/../CONTRIBUTORS"
+                          )
+
+    # If the user did not disable license-copying, do it
+    # NOTE: use this "double-negative" to use the fact that undefined variables yield FALSE.
+    IF( NOT OW_PACKAGE_NOCOPY_LICENSE )
+        SETUP_ADDITIONAL_FILES( ${_target} 
+                                ${_component}
+                                "${PROJECT_SOURCE_DIR}/../COPYING"
+                                "${PROJECT_SOURCE_DIR}/../COPYING.LESSER"
+                              )
+    ENDIF()
+ENDFUNCTION( SETUP_COMMON_DOC )
+
+# This function eases the process of copying and installing additional files which not reside in the resource path.
+# It creates a target (ALL is depending on it) AND the INSTALL operation.
+# _destination where to put them. This MUST be relative to the build dir and install dir.
+# _component the name of the component for these files
+# _OTHERS you can add an arbitrary list of additional arguments which represent the files to copy.
+FUNCTION( SETUP_ADDITIONAL_FILES _destination _component )
+    FOREACH( _file ${ARGN} )
+        FILE_TO_TARGETSTRING( ${_file} fileTarget )
+
+        # add a copy target
+        ADD_CUSTOM_TARGET( CopyAdditionalFile_${fileTarget}_${_component}
+            ALL
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${_destination}/"
+            COMMAND ${CMAKE_COMMAND} -E copy "${_file}" "${PROJECT_BINARY_DIR}/${_destination}/"
+            COMMENT "Copying file ${_file}"
+        )
+
+        # add a INSTALL operation for this file
+        INSTALL( FILES ${_file} DESTINATION ${_destination}
+                                COMPONENT ${_component}
+               )
+    ENDFOREACH() 
+ENDFUNCTION( SETUP_ADDITIONAL_FILES )
+
+# This function copies a given directory or its contents to the specified destination. Since cmake is quite strange in handling directories
+# somehow, we needed to trick here. 
+# _destination where to put the directory/its contents. Realtive to build dir and install dir.
+# _directory the directory to copy
+# _component the name of the component for these files
+# _contents if TRUE, the contents of _directory are copied into _destination. If FALSE, _destination as-is is copied to _destination/.. (sorry
+#           for this weird stuff. Complain at cmake mailing list ;-))
+FUNCTION( SETUP_ADDITIONAL_DIRECTORY _destination _directory _component _contents )
+    # create a nice target name
+    FILE_TO_TARGETSTRING( ${_directory} directoryTarget )
+
+    # add a copy target
+    # this copies the CONTENTS of the specified directory into the specified destination dir.
+    # NOTE: cmake -E says, that copying a directory with the copy command is pssible. But on my system it isn't.
+    ADD_CUSTOM_TARGET( CopyAdditionalDirectory_${directoryTarget}_${_component}
+        ALL
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${_destination}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${_directory}" "${PROJECT_BINARY_DIR}/${_destination}"
+        COMMENT "Copying directory ${_directory}"
+    )
+
+    # we need to distinquish here whether the user wants to copy the contents of the specified directory or the whole directory.
+    # NOTE: unfortunately, the semantics of cmake -E and INSTALL are different. We need to fix this with this hack.
+    IF( _contents )
+        # OK, the user wants us to copy the contents of the specified _directory INTO the dpecified destination
+        SET(  InstallDestination "${_destination}" )
+    ELSE()
+        # see "cmake -E " for help. The copy_directory copies its contents and copy copies the directory as is.
+        SET(  InstallDestination "${_destination}/../" )
+    ENDIF()
+
+    # add a INSTALL operation for this file
+    INSTALL( DIRECTORY ${_directory}
+             DESTINATION ${InstallDestination}
+             COMPONENT ${_component}
+           )
+ENDFUNCTION( SETUP_ADDITIONAL_DIRECTORY )
+
+# Function to setup and library install target. It contains all the permission and namelink magic needed.
+# _libName the library to install (needs to be a targed added with ADD_LIBRARY).
+# _targetRelative the relative target dir. You should use OW_LIBRARY_DIR_RELATIVE in most cases
+# _component the name of the component to which the lib belongs. If you use some strange things here, consider updating the package configuration
+#            too as it uses these components
+FUNCTION( SETUP_LIB_INSTALL _libName _targetRelative _component )
+    # NOTE: we need two separate install targets here since the namelink to the lib (libopenwalnut.so -> linopenwalnut.so.1.2.3) is only needed
+    # in the DEV release. Have a look at NAMELINK_SKIP and NAMELINK_ONLY
+    INSTALL( TARGETS ${_libName}
+                ARCHIVE # NOTE: this is needed on windows
+                    DESTINATION ${_targetRelative} 
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+                                GROUP_READ GROUP_EXECUTE  
+                                WORLD_READ WORLD_EXECUTE
+                LIBRARY # NOTE: this is needed for all the others
+                    DESTINATION ${_targetRelative}
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                                GROUP_READ GROUP_EXECUTE
+                                WORLD_READ WORLD_EXECUTE
+                    NAMELINK_SKIP
+             COMPONENT ${_component}
+    )
+ENDFUNCTION( SETUP_LIB_INSTALL )
+
+# Function which handles typical "developer" install targets. It creates the symlink (namelink) for the lib and copies the headers to some
+# include directory.
+# _libName the devel target for this lib (needs to be a target name created with ADD_LIBRARY)
+# _targetRelative the relative path to the lib
+# _headers a list of headers. (Lists are ;-separated). This function strips CMAKE_CURRENT_SOURCE_DIR from each path!
+# _headerTargetRelative relative target dir for the includes
+# _component the name of the component.
+FUNCTION( SETUP_DEV_INSTALL _libName _targetRelative _headers _headerTargetRelative _component )
+    INSTALL( TARGETS ${_libName}
+                ARCHIVE # NOTE: this is needed on windows
+                    DESTINATION ${_targetRelative} 
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+                                GROUP_READ GROUP_EXECUTE  
+                                WORLD_READ WORLD_EXECUTE
+                LIBRARY # NOTE: this is needed for all the others
+                    DESTINATION ${_targetRelative}
+                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                                GROUP_READ GROUP_EXECUTE
+                                WORLD_READ WORLD_EXECUTE
+                    NAMELINK_ONLY
+             COMPONENT ${_component}
+    )
+
+    # we want to copy the headers to. Unfortunately, cmake's install command does not preserver the directory structure.
+    FOREACH( _header ${${_headers}} )
+        STRING( REGEX MATCH "(.*)[/\\]" directory ${_header} )
+        STRING( REPLACE "${CMAKE_CURRENT_SOURCE_DIR}" "" directoryRelative ${directory} )
+        INSTALL( FILES ${_header} 
+                    DESTINATION ${_headerTargetRelative}/${directoryRelative}
+                    COMPONENT ${_component}
+               )
+    ENDFOREACH()
+ENDFUNCTION( SETUP_DEV_INSTALL )
 
 # This function tries to find a proper version string. It therefore uses the file src/../VERSION and mercurial. If the file exists and is not
 # empty, the contents of it get combined with the mercurial results if mercurial is installed. If not, only the file content will be used. If
 # both methods fail, a default string is used.
 # _version the returned version string
+# _file_version returns only the version loaded from the version file. This is useful to set CMake version info for release compilation
 # _default a default string you specify if all version check methods fail
-FUNCTION( GET_VERSION_STRING _version _default )
+FUNCTION( GET_VERSION_STRING _version _file_version _default )
     # Undef the OW_VERSION variable
     UNSET( OW_VERSION_HG )
     UNSET( OW_VERSION_FILE )
@@ -263,15 +414,22 @@ FUNCTION( GET_VERSION_STRING _version _default )
     SET( OW_VERSION_FILENAME ${PROJECT_SOURCE_DIR}/../VERSION )
     IF( EXISTS ${OW_VERSION_FILENAME} )
         # Read the version file
-        FILE( READ ${OW_VERSION_FILENAME} OW_VERSION_FILE )
-        # this wil contain an line-break. Remove it.
-        STRING( REGEX REPLACE "\n" "" OW_VERSION_FILE "${OW_VERSION_FILE}" )
-        
+        FILE( READ ${OW_VERSION_FILENAME} OW_VERSION_FILE_CONTENT )
+        # The first regex will mathc 
+        STRING(REGEX REPLACE ".*[^#]VERSION=([0-9]+\\.[0-9]+\\.[0-9]+).*" "\\1"  OW_VERSION_FILE  ${OW_VERSION_FILE_CONTENT} ) 
+        STRING( COMPARE EQUAL ${OW_VERSION_FILE} ${OW_VERSION_FILE_CONTENT}  OW_VERSION_FILE_INVALID )
+        IF( OW_VERSION_FILE_INVALID )
+            UNSET( OW_VERSION_FILE )
+        ENDIF()
+
         # this is ugly because, if the version file is empty, the OW_VERSION_FILE content is "". Unfortunately, this is not UNDEFINED as it would be
         # by SET( VAR "" ) ... so set it manually
         IF( OW_VERSION_FILE STREQUAL "" )
             UNSET( OW_VERSION_FILE )
         ENDIF()
+
+        # set the return parameter too
+        SET( ${_file_version} ${OW_VERSION_FILE} PARENT_SCOPE )
     ENDIF()
 
     # Use hg to query version information.
@@ -307,10 +465,15 @@ ENDFUNCTION( GET_VERSION_STRING )
 #
 # _OW_VERSION_HEADER the filename where to store the header. Should be absolute.
 FUNCTION( SETUP_VERSION_HEADER _OW_VERSION_HEADER )
+    # This ensures that an nonexisting .hg/dirstate file won't cause a compile error (do not know how to make target)
+    SET( HG_DEP "" )
+    IF( EXISTS ${PROJECT_SOURCE_DIR}/../.hg/dirstate )
+        SET( HG_DEP ${PROJECT_SOURCE_DIR}/../.hg/dirstate )
+    ENDIF()
 
     # The file WVersion.* needs the version definition.
     ADD_CUSTOM_COMMAND( OUTPUT ${_OW_VERSION_HEADER}
-                        DEPENDS ${PROJECT_SOURCE_DIR}/../VERSION ${PROJECT_SOURCE_DIR}/../.hg/dirstate
+                        DEPENDS ${PROJECT_SOURCE_DIR}/../VERSION ${HG_DEP}
                         COMMAND ${CMAKE_COMMAND} -D PROJECT_SOURCE_DIR:STRING=${PROJECT_SOURCE_DIR} -D HEADER_FILENAME:STRING=${_OW_VERSION_HEADER} -P BuildVersionHeader.cmake
                         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../tools/cmake/
                         COMMENT "Creating Version Header ${_OW_VERSION_HEADER}."

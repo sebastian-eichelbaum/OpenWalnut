@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# get path of this script
+BINDIR=`dirname "$0"`
+cd "$BINDIR/.."
+
+# We want to avoid that multiple system installations of OpenWalnut cause some weird loading of libs. We want ours (relative to our executable) to be loaded:
+export LD_PRELOAD="lib/libopenwalnut.so.1:lib/libopenwalnut_biosig.so.1:lib/libopenwalnut_eep.so.1:lib/libopenwalnut_niftiio.so.1:lib/libopenwalnut_niftiznz.so.1"
+
+# Run OpenWalnut
+bin/openwalnut-qt4 $@
+

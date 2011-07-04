@@ -37,11 +37,11 @@ SET( CPACK_GENERATOR TGZ STGZ )
 
 # Disallow CPack to create an top-level directory?
 # SET( CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0 )
-SET( CPACK_PACKAGE_DESCRIPTION_FILE ${PROJECT_SOURCE_DIR}/../resources/share/doc/OpenWalnut/ABOUT )
+SET( CPACK_PACKAGE_DESCRIPTION_FILE ${PROJECT_SOURCE_DIR}/../README )
 SET( CPACK_PACKAGE_VENDOR "OpenWalnut Community" )
 SET( CPACK_PACKAGE_CONTACT "Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>" )
-SET( CPACK_RESOURCE_FILE_LICENSE ${PROJECT_SOURCE_DIR}/../resources/share/doc/OpenWalnut/COPYING )
-SET( CPACK_RESOURCE_FILE_README ${PROJECT_SOURCE_DIR}/../resources/share/doc/OpenWalnut/README )
+SET( CPACK_RESOURCE_FILE_LICENSE ${PROJECT_SOURCE_DIR}/../COPYING )
+SET( CPACK_RESOURCE_FILE_README ${PROJECT_SOURCE_DIR}/../README )
 
 # Version
 # TODO(all): we should somehot automate this (using hg or our VERSION file for example)

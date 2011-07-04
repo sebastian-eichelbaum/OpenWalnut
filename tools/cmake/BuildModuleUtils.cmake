@@ -29,7 +29,6 @@
 # Optional second Parameter: list of additional dependencies
 # Optional third Parameter: list of style-excludes as regexp.
 FUNCTION( ADD_MODULE _MODULE_NAME )
-
     SET( MODULE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${_MODULE_NAME} )
 
     # is there a CMakeLists.txt? If yes, use it.
@@ -58,7 +57,7 @@ ENDFUNCTION( ADD_MODULE )
 # Comfortably setup a module for compilation. This automatically handles the target creation, stylecheck and tests (with fixtures).
 # _MODULE_NAME the name of the module
 # _MODULE_SOURCE_DIR where to finx the code for the module
-# _MODULE_DEPENDENCIES additional dependencies can be added here
+# _MODULE_DEPENDENCIES additional dependencies can be added here. This is a list. Use ";" to add multiple additional dependencies
 # _MODULE_STYLE_EXCLUDES exclude files from stylecheck matching these regular expressions (list)
 FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MODULE_STYLE_EXCLUDES )
     # -----------------------------------------------------------------------------------------------------------------------------------------------
@@ -84,20 +83,14 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
     ADD_LIBRARY( ${MODULE_NAME} SHARED ${TARGET_CPP_FILES} ${TARGET_H_FILES} )
     TARGET_LINK_LIBRARIES( ${MODULE_NAME} ${OWCoreName} ${Boost_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENSCENEGRAPH_LIBRARIES} ${_MODULE_DEPENDENCIES} )
 
-    # Do not forget the install targets
-    # NOTE: do we really need to set all permissions explicitely?
-    INSTALL( TARGETS ${MODULE_NAME} 
-                ARCHIVE # NOTE: this is needed on windows
-                    DESTINATION ${MODULE_TARGET_DIR_RELATIVE} 
-                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
-                                GROUP_READ GROUP_EXECUTE  
-                                WORLD_READ WORLD_EXECUTE
-                LIBRARY # NOTE: this is needed for all the others
-                    DESTINATION ${MODULE_TARGET_DIR_RELATIVE} 
-                    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
-                                GROUP_READ GROUP_EXECUTE  
-                                WORLD_READ WORLD_EXECUTE
+    # Set the version of the library.
+    SET_TARGET_PROPERTIES( ${MODULE_NAME} PROPERTIES
+        VERSION ${OW_VERSION} 
+        SOVERSION ${OW_SOVERSION}
     )
+
+    # Do not forget the install targets
+    SETUP_LIB_INSTALL( ${MODULE_NAME} ${MODULE_TARGET_DIR_RELATIVE} "MODULES" )
 
     # TODO(all): someone needs to explain this
     IF(MSVC_IDE)
@@ -116,7 +109,7 @@ FUNCTION( SETUP_MODULE _MODULE_NAME _MODULE_SOURCE_DIR _MODULE_DEPENDENCIES _MOD
     # -----------------------------------------------------------------------------------------------------------------------------------------------
 
     COLLECT_SHADER_FILES( ${MODULE_SOURCE_DIR} TARGET_GLSL_FILES )
-    SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${MODULE_TARGET_DIR_RELATIVE}/shaders" )
+    SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${MODULE_TARGET_DIR_RELATIVE}/shaders" "MODULES" )
 
     # -----------------------------------------------------------------------------------------------------------------------------------------------
     # Style Checker

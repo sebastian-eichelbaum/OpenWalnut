@@ -1,0 +1,286 @@
+#!/bin/bash
+
+#---------------------------------------------------------------------------
+#
+# Project: OpenWalnut ( http://www.openwalnut.org )
+#
+# Copyright 2009 OpenWalnut Community, BSV@Uni-Leipzig and CNCF@MPI-CBS
+# For more information see http://www.openwalnut.org/copying
+#
+# This file is part of OpenWalnut.
+#
+# OpenWalnut is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# OpenWalnut is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with OpenWalnut. If not, see <http://www.gnu.org/licenses/>.
+#
+#---------------------------------------------------------------------------
+
+#############################################################################################################
+# User Variables
+#############################################################################################################
+
+# The version. This is used multiple times. Please set before going on.
+VERSION=1.2.1
+REVISION=default
+
+# Where to find the code
+REPOSITORY="ssh://ebaum@berkeley.informatik.uni-leipzig.de//srv/hg/OpenWalnut"
+
+#############################################################################################################
+# Internal Variables
+#############################################################################################################
+
+# Ensure english warning/error text (easier googling)
+export LC_ALL=C
+
+# The name common to all archives and directories
+ARCHIVE_PREFIX=openwalnut
+
+# The name of the directory where to put the checked out src
+SRC_DIR=$ARCHIVE_PREFIX-$VERSION
+
+#############################################################################################################
+# Functions
+#############################################################################################################
+
+#########################################################################################################
+# Get the code.
+SetupCleanCheckout()
+{
+    echo "* Checking out fresh source copy."
+
+    # Get the source
+    echo " * Checking out OpenWalnut with revision \"$REVISION\"."
+    hg clone -u $REVISION $REPOSITORY $SRC_DIR
+    [ $? -ne 0 ] && exit 1
+
+    # Let our build-system know the version
+    echo " * Setting version information to \"$VERSION\"."
+    echo "# this was set by OWPACK" > $SRC_DIR/VERSION
+    echo "VERSION=$VERSION" >> $SRC_DIR/VERSION
+}
+
+#########################################################################################################
+# Remove created files and directories
+CleanUp()
+{
+    echo "* Cleaning up."
+    echo " * Removing directory \"$SRC_DIR\"."
+    rm -rf $SRC_DIR
+
+    echo " * Removing source archives."
+    rm -f $SRC_DIR.zip $SRC_DIR.tar.gz
+
+    echo " * Removing working directories."
+    rm -rf ${SRC_DIR}_*
+}
+
+#########################################################################################################
+# Package the code to archive files.
+#
+# PRECONDITION: PWD must be the directory with the checkout directory to package ($SRC_DIR)
+CreateSrcArchive()
+{
+    echo "* Archiving directory \"$SRC_DIR\""
+
+    # Give usage hint if sources are missing
+    if [ ! -d $SRC_DIR ]; then
+        echo " * Failed to find source. You should call \"$0 init\" first."
+        exit 1
+    fi
+
+    # Create the original source tar:
+    tar cvzf $SRC_DIR.tar.gz $SRC_DIR --exclude=.hg\*
+    [ $? -ne 0 ] && exit 1
+    echo " * Created \"$SRC_DIR.tar.gz\""
+
+    # Create the zip archive
+    zip -r $SRC_DIR.zip $SRC_DIR -x $SRC_DIR/.hg\*
+    [ $? -ne 0 ] && exit 1
+    echo " * Created \"$SRC_DIR.zip\""
+}
+
+#########################################################################################################
+# Create a directory and copy the source tar into it and extract it.
+#
+# Param $1 the directory to create
+# Param $2 the optional alternative name for the source archive. Some package mechanism need this to work
+#          properly
+#
+# POSTCONDITION the PWD is not changed
+CreateWorkingDir()
+{
+    # Give usage hint if sources are missing
+    echo " * Checking source archive."
+    if [ ! -f $SRC_DIR.tar.gz ]; then
+        echo "  * Failed to find source archive. You should call \"owpack src_archive\" first."
+        exit 1
+    fi
+
+    # Create a working dir
+    echo " * Creating working directory \"$1\"."
+    mkdir -p $1
+    if [ $? -ne 0 ]; then
+        echo "  * Failed to create working directory \"$1\"."
+        exit 1
+    fi
+
+    # go in there
+    cd $1
+    if [ $? -ne 0 ]; then
+        echo "  * Failed to change into \"$1\". Permission problem?"
+        exit 1
+    fi
+
+    # Copy src archive
+    echo " * Copy and extract source archive."
+    cp ../$SRC_DIR.tar.gz .
+    if [ $? -ne 0 ]; then
+        echo "  * Failed to copy source archive to \"$1\"."
+        cd ..
+        exit 1
+    fi
+
+    # Extract it
+    tar xzf $SRC_DIR.tar.gz
+    if [ $? -ne 0 ]; then
+        echo "  * Failed to extract source archive to \"$1\"."
+        cd ..
+        exit 1
+    fi
+
+    # did the user specify some new name for the tar?
+    if [ $# -eq 2 ]; then
+        mv $SRC_DIR.tar.gz $2
+        if [ $? -ne 0 ]; then
+            echo "  * Failed to move \"$SRC_DIR.tar.gz\" to \"$2\"."
+            exit 1
+        fi
+    fi
+
+    # get back
+    cd ..
+}
+
+#########################################################################################################
+# Package using cpack. This includes building.
+#
+# PRECONDITION: PWD must be the directory with the checkout directory to package ($SRC_DIR)
+BuildCPack()
+{
+    echo "* Creating all CPack based binary packages."
+
+    # Give usage hint if sources are missing
+    if [ ! -d $SRC_DIR ]; then
+        echo " * Failed to find source. You should call \"$0 init\" first."
+        exit 1
+    fi
+
+    echo " * SORRY. Not yet implemented. Exit."
+}
+
+#########################################################################################################
+# Package using debuild/pbuilder. This creates the .
+#
+# PRECONDITION: PWD must be the directory with the checkout directory to package ($SRC_DIR)
+BuildDeb()
+{
+    echo "* Creating all deb binary packages."
+    DEB_WORKDIR=${SRC_DIR}_deb
+
+    # Create a working dir
+    CreateWorkingDir $DEB_WORKDIR ${ARCHIVE_PREFIX}_${VERSION}.orig.tar.gz
+    if [ $? -ne 0 ]; then
+        echo " * Failed to creating working diretory."
+        exit 1
+    fi
+    cd $DEB_WORKDIR
+
+    # Place the debian package config in the right place
+    echo " * Setup debian package config."
+    cp -r $SRC_DIR/tools/packaging/debian $SRC_DIR/
+    if [ $? -ne 0 ]; then
+        echo "  * Failed to copy debian package config \"$SRC_DIR/tools/packaging/debian\"."
+        cd ..
+        exit 1
+    fi
+
+    # run (p)debuild
+    cd $SRC_DIR
+    echo " * Starting debuild in `pwd`."
+    #pdebuild --debbuildopts "-uc -us" --architecture $arch --buildresult ..
+    debuild -uc -us
+    if [ $? -ne 0 ]; then
+        echo "  * debuild for failed. You probably missed dependencies or have errors in the package config files."
+        cd ..
+        exit 1
+    fi
+    cd ..
+
+    echo " * Created source and binary package in \"$DEB_WORKDIR\"."
+}
+
+#########################################################################################################
+# Something went wrong. Quit.
+Exit()
+{
+    echo "*** Failed. Exiting."
+    exit $1
+}
+
+#########################################################################################################
+# Main
+
+# The user specified some directory where to find the build root-dir. This can come in handy if you use this
+# script from within a chroot jail.
+if [ $# -eq 2 ]; then
+    cd $2
+    if [ $? -ne 0 ]; then
+        echo "* Could not change to directory \"$2\"."
+        Exit 1
+    fi
+fi
+
+# Handle user command
+case "$1" in
+    clean)
+        CleanUp
+        ;;
+    src)
+        CleanUp
+        SetupCleanCheckout || Exit $?
+        CreateSrcArchive || Exit $?
+        ;;
+    cpack)
+        BuildCPack || Exit $?
+        ;;
+    deb)
+        BuildDeb || Exit $?
+        ;;
+    *)
+        echo "Usage: $0 {clean|init|src_archive|cpack|deb} [WORKING_DIR]"
+        echo "  COMMANDS:"
+        echo "    clean: removes downloaded source and the created build sub-directories."
+        echo "    init:  loads the fresh source using hg."
+        echo "    src_Archive: creates source archives from the downloaded code. Use this before any build command."
+        echo "    cpack: build binary packages as configured in our build system."
+        echo "    deb: build source and binary packages for debian systems."
+        echo ""
+        echo "  PARAMETER:"
+        echo "    WORKING_DIR: $0 changes to this directory if specified."
+        echo ""
+        echo "  IMPORTANT:"
+        echo "    Always do a \"$0 init\" and \"$0 src_archive\" before issuing the other commands. They rely on it."
+        Exit 2
+        ;;
+esac
+
