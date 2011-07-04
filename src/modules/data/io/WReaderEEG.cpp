@@ -28,10 +28,10 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "../../common/WAssert.h"
-#include "../../common/WLogger.h"
-#include "WReaderEEG.h"
+#include "core/common/WAssert.h"
+#include "core/common/WLogger.h"
 
+#include "WReaderEEG.h"
 
 WReaderEEG::WReaderEEG( std::string fileName ) throw( WDHIOFailure )
     : WReader( fileName )

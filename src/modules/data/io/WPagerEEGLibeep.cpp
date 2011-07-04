@@ -34,13 +34,13 @@
 
 extern "C"
 {
-    #include "ext/libeep/cnt/cnt.h"
+    #include <libeep/cnt/cnt.h>
 }
 
-#include "../../common/exceptions/WOutOfBounds.h"
-#include "../exceptions/WDHIOFailure.h"
-#include "../exceptions/WDHNoSuchFile.h"
-#include "../WEEGValueMatrix.h"
+#include "core/common/exceptions/WOutOfBounds.h"
+#include "core/dataHandler/exceptions/WDHIOFailure.h"
+#include "core/dataHandler/exceptions/WDHNoSuchFile.h"
+#include "core/dataHandler/WEEGValueMatrix.h"
 #include "WPagerEEGLibeep.h"
 
 

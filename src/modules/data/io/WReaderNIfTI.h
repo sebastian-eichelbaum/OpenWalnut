@@ -25,24 +25,22 @@
 #ifndef WREADERNIFTI_H
 #define WREADERNIFTI_H
 
+#include <nifti1_io.h>
+
 #include <string>
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 
-#include <nifti1_io.h>
-
-#include "WReader.h"
-#include "../WDataSet.h"
-#include "../../common/math/WMatrix.h"
-
-#include "../WExportDataHandler.h"
+#include "core/dataHandler/io/WReader.h"
+#include "core/dataHandler/WDataSet.h"
+#include "core/common/math/WMatrix.h"
 
 /**
  * Reader for the NIfTI file format. For NIfTI just see http://nifti.nimh.nih.gov/.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WReaderNIfTI : public WReader // NOLINT
+class WReaderNIfTI : public WReader // NOLINT
 {
 /**
  * Only UnitTests may be friends.

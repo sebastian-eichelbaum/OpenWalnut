@@ -32,15 +32,15 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/math/linearAlgebra/WLinearAlgebra.h"
-#include "../../common/WLogger.h"
-#include "../../common/WStringUtils.h"
-#include "../exceptions/WDHIOFailure.h"
-#include "../exceptions/WDHNoSuchFile.h"
-#include "../exceptions/WDHParseError.h"
-#include "../WEEGPositionsLibrary.h"
-#include "WReaderELC.h"
+#include "core/common/math/linearAlgebra/WLinearAlgebra.h"
+#include "core/common/WLogger.h"
+#include "core/common/WStringUtils.h"
+#include "core/dataHandler/exceptions/WDHIOFailure.h"
+#include "core/dataHandler/exceptions/WDHNoSuchFile.h"
+#include "core/dataHandler/exceptions/WDHParseError.h"
+#include "core/dataHandler/WEEGPositionsLibrary.h"
 
+#include "WReaderELC.h"
 
 WReaderELC::WReaderELC( std::string fname )
     : WReader( fname )

@@ -28,14 +28,14 @@
 
 extern "C"
 {
-    #include "ext/libeep/cnt/cnt.h"
+    #include <libeep/cnt/cnt.h>
 }
 
-#include "../../common/WLogger.h"
-#include "../WEEG.h"
-#include "../exceptions/WDHNoSuchFile.h"
-#include "WReaderLibeep.h"
+#include "core/common/WLogger.h"
+#include "core/dataHandler/WEEG.h"
+#include "core/dataHandler/exceptions/WDHNoSuchFile.h"
 
+#include "WReaderLibeep.h"
 
 WReaderLibeep::WReaderLibeep( std::string fileName )
     : WReaderEEG( fileName )

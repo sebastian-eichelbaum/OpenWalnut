@@ -29,15 +29,16 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/WIOTools.h"
-#include "../../common/WLimits.h"
-#include "../../common/WAssert.h"
-#include "../../common/WLogger.h"
-#include "../../common/WStringUtils.h"
-#include "../WDataSetFibers.h"
-#include "../exceptions/WDHIOFailure.h"
-#include "../exceptions/WDHNoSuchFile.h"
-#include "../exceptions/WDHParseError.h"
+#include "core/common/WIOTools.h"
+#include "core/common/WLimits.h"
+#include "core/common/WAssert.h"
+#include "core/common/WLogger.h"
+#include "core/common/WStringUtils.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/exceptions/WDHIOFailure.h"
+#include "core/dataHandler/exceptions/WDHNoSuchFile.h"
+#include "core/dataHandler/exceptions/WDHParseError.h"
+
 #include "WReaderFiberVTK.h"
 
 WReaderFiberVTK::WReaderFiberVTK( std::string fname )

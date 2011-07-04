@@ -35,12 +35,30 @@ FUNCTION( COLLECT_COMPILE_FILES _DirString _CPPFiles _HFiles _TestFiles )
     FILE( GLOB_RECURSE H_FILES   ${_DirString}/*.h )
     FILE( GLOB_RECURSE TEST_FILES   ${_DirString}/*_test.h )
 
-    # the test directories should be excluded from normal compilation completely
+    # exclude some special dirs
     FOREACH( file ${H_FILES} )
+        # the test directories should be excluded from normal compilation completely
         STRING( REGEX MATCH "^.*\\/test\\/.*" IsTest "${file}" )
+        # ext sources should be build seperatly 
+        STRING( REGEX MATCH "^.*\\/ext\\/.*" IsExternal "${file}" )
         IF( IsTest )
             LIST( REMOVE_ITEM H_FILES ${file} )
-        ENDIF( IsTest )
+        ENDIF()
+        IF( IsExternal )
+            LIST( REMOVE_ITEM H_FILES ${file} )
+        ENDIF()
+    ENDFOREACH( file )
+    FOREACH( file ${CPP_FILES} )
+        # the test directories should be excluded from normal compilation completely
+        STRING( REGEX MATCH "^.*\\/test\\/.*" IsTest "${file}" )
+        # ext sources should be build seperatly 
+        STRING( REGEX MATCH "^.*\\/ext\\/.*" IsExternal "${file}" )
+        IF( IsTest )
+            LIST( REMOVE_ITEM CPP_FILES ${file} )
+        ENDIF()
+        IF( IsExternal )
+            LIST( REMOVE_ITEM CPP_FILES ${file} )
+        ENDIF()
     ENDFOREACH( file )
 
     SET( ${_CPPFiles} "${CPP_FILES}" PARENT_SCOPE )

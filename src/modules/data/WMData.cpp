@@ -38,20 +38,19 @@
 #include "core/dataHandler/WDataTexture3D.h"
 #include "core/dataHandler/WEEG2.h"
 #include "core/dataHandler/exceptions/WDHException.h"
-#include "core/dataHandler/io/WReaderBiosig.h"
-#include "core/dataHandler/io/WReaderEEGASCII.h"
-#include "core/dataHandler/io/WReaderLibeep.h"
-#include "core/dataHandler/io/WReaderNIfTI.h"
-#include "core/dataHandler/io/WPagerEEGLibeep.h"
-#include "core/dataHandler/io/WReaderELC.h"
-#include "core/dataHandler/io/WReaderFiberVTK.h"
 #include "core/graphicsEngine/WGEColormapping.h"
 #include "core/kernel/WModuleOutputData.h"
-#include "WMData.h"
-#include "data.xpm"
 
-// This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
-W_LOADABLE_MODULE( WMData )
+#include "io/WReaderBiosig.h"
+#include "io/WReaderEEGASCII.h"
+#include "io/WReaderNIfTI.h"
+#include "io/WReaderELC.h"
+#include "io/WReaderFiberVTK.h"
+#include "io/WReaderLibeep.h"
+#include "io/WPagerEEGLibeep.h"
+
+#include "WMData.h"
+#include "WMData.xpm"
 
 WMData::WMData():
     WDataModule(),
@@ -76,7 +75,7 @@ boost::shared_ptr< WModule > WMData::factory() const
 
 const char** WMData::getXPMIcon() const
 {
-    return data_xpm;
+    return WMData_xpm;
 }
 
 const std::string WMData::getName() const

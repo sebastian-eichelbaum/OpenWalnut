@@ -32,12 +32,12 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "../WDataSetFibers.h"
-#include "../exceptions/WDHIOFailure.h"
-#include "../exceptions/WDHNoSuchFile.h"
-#include "../exceptions/WDHParseError.h"
-#include "WReader.h"
-#include "../WExportDataHandler.h"
+#include "core/dataHandler/WDataSetFibers.h"
+#include "core/dataHandler/exceptions/WDHIOFailure.h"
+#include "core/dataHandler/exceptions/WDHNoSuchFile.h"
+#include "core/dataHandler/exceptions/WDHParseError.h"
+
+#include "core/dataHandler/io/WReader.h"
 
 /**
  * Reads fibers from a VTK file. For VTK just see http://www.vtk.org.
@@ -47,7 +47,7 @@
  *
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WReaderFiberVTK : public WReader // NOLINT
+class WReaderFiberVTK : public WReader // NOLINT
 {
 friend class WReaderFiberVTKTest;
 public:

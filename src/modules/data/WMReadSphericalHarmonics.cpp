@@ -25,15 +25,14 @@
 #include <string>
 
 #include "core/common/WPathHelper.h"
-#include "core/dataHandler/io/WReaderNIfTI.h"
 #include "core/dataHandler/WDataHandlerEnums.h"
 #include "core/graphicsEngine/WGERequirement.h"
 #include "core/kernel/WKernel.h"
+
+#include "io/WReaderNIfTI.h"
+
 #include "WMReadSphericalHarmonics.h"
 #include "WMReadSphericalHarmonics.xpm"
-
-// This line is needed by the module loader to actually find your module. Do not remove. Do NOT add a ";" here.
-W_LOADABLE_MODULE( WMReadSphericalHarmonics )
 
 WMReadSphericalHarmonics::WMReadSphericalHarmonics():
     WModule()

@@ -250,41 +250,6 @@ IF( OW_PACKAGE_NOLINK_OPENTHREADS )
 ENDIF()
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# NiftiLib, at least 2.0.0
-# See  http://niftilib.sourceforge.net
-
-# we provide the niftilib in ext. If it is found on the system, the system version is used
-SET( OWExtNiftiIOName  "openwalnut_niftiio" )
-SET( OWExtNiftiZNZName  "openwalnut_niftiznz" )
-
-FIND_PACKAGE( niftilib QUIET )
-IF( NIFTILIB_FOUND )
-    MESSAGE( STATUS "Using system installed nifitlib." )
-    INCLUDE_DIRECTORIES( ${NIFTILIB_INCLUDE_DIR} )
-    SET( OWExtNiftiIOName  ${NIFTILIB_LIBRARY} )
-ELSE()
-    INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext/nifti )
-    ADD_SUBDIRECTORY( ext/nifti )
-ENDIF()
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# BioSig, at least 0.84
-# See http://biosig.sourceforge.net
-
-# we provide the biosig in ext. If it is found on the system, the system version is used
-SET( OWExtBioSigName "openwalnut_biosig" )
-
-FIND_PACKAGE( biosig QUIET )
-IF( BIOSIG_FOUND )
-    MESSAGE( STATUS "Using system installed biosig." )
-    INCLUDE_DIRECTORIES( ${BIOSIG_INCLUDE_DIR} )
-    SET( OWExtBioSigName  ${BIOSIG_LIBRARY} )
-ELSE()
-    INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext/biosig )
-    ADD_SUBDIRECTORY( ext/biosig )
-ENDIF()
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
 # Eigen3, at least 3.0.0
 # See http://eigen.tuxfamily.org
 
@@ -484,20 +449,8 @@ ADD_CUSTOM_TARGET( install_devdoc
 #
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-# libcnt needs absolute inclusion somewhere
-INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext/libeep )
-INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR}/ext )
-
 # to allow non-core code to access core and ext absolutely
 INCLUDE_DIRECTORIES( ${PROJECT_SOURCE_DIR} )
-
-# -----------------------------------------------------------------------------------------------------------------------------------------------
-# external libs
-
-SET( OWExtEEPName    "openwalnut_eep" )
-
-# build external libs in ext/
-ADD_SUBDIRECTORY( ext ) # The needed external libraries
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
 # openwalnut core library

@@ -22,22 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADEREEGASCII_H
-#define WREADEREEGASCII_H
+#ifndef WREADERBIOSIG_H
+#define WREADERBIOSIG_H
+
+#include <biosig.h>
 
 #include <string>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
 #include "WReaderEEG.h"
-#include "../WExportDataHandler.h"
-
 
 /**
- * Reader for EEG data in ASCII fromat.
+ * Reader for several formats for biological signal.
+ * Uses BiosigC++ 4.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WReaderEEGASCII : public WReaderEEG // NOLINT
+class WReaderBiosig : public WReaderEEG
 {
 public:
     /**
@@ -45,7 +47,7 @@ public:
      * for the loader when executed in its own thread.
      * \param fileName this file will be loaded
      */
-    explicit WReaderEEGASCII( std::string fileName );
+    explicit WReaderBiosig( std::string fileName );
 
     /**
      * Loads the dataset.
@@ -54,13 +56,27 @@ public:
      */
     virtual boost::shared_ptr< WDataSet > load();
 
-    /**
-     * Function that is automatically executed as new thread.
-     */
-    void operator()();
-
 protected:
 private:
+    /**
+     * Fill the data into the segment doing the needed conversions, assuming
+     * column based channels
+     * \param segment the segment to be filled
+     * \param data the data to be filled into the segment
+     */
+    void fillSegmentColumnBased( std::vector<std::vector<double> >* segment, biosig_data_type* data );
+
+    /**
+     * Fill the data into the segment doing the needed conversions, assuming
+     * row based channels
+     * \param segment the segment to be filled
+     * \param data the data to be filled into the segment
+     */
+    void fillSegmentRowBased( std::vector<std::vector<double> >* segment, biosig_data_type* data );
+
+    HDRTYPE* hd; //!< Header of file
+    size_t m_columns; //!< columns of the storage in the file
+    size_t m_rows; //!< rows of the storage in the file
 };
 
-#endif  // WREADEREEGASCII_H
+#endif  // WREADERBIOSIG_H

@@ -38,6 +38,54 @@ GET_FILENAME_COMPONENT( MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
 # 3: LINK_DIRECTORIES( ${LIBYOUNEED_LIBRARY_DIRS} )
 # 4: Add ${LIBYOUNEED_LIBRARY} as _MODULE_DEPENDENCIES parameter to SETUP_MODULE
 
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# NiftiLib, at least 2.0.0
+# See  http://niftilib.sourceforge.net
+
+# we provide the niftilib in ext. If it is found on the system, the system version is used
+SET( OWExtNiftiIOName  "openwalnut_niftiio" )
+SET( OWExtNiftiZNZName  "openwalnut_niftiznz" )
+
+FIND_PACKAGE( niftilib QUIET )
+IF( NIFTILIB_FOUND )
+    MESSAGE( STATUS "Using system installed nifitlib." )
+    INCLUDE_DIRECTORIES( ${NIFTILIB_INCLUDE_DIR} )
+    SET( OWExtNiftiIOName  ${NIFTILIB_LIBRARY} )
+ELSE()
+    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext/nifti )
+    ADD_SUBDIRECTORY( ext/nifti )
+ENDIF()
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# BioSig, at least 0.84
+# See http://biosig.sourceforge.net
+
+# we provide the biosig in ext. If it is found on the system, the system version is used
+SET( OWExtBioSigName "openwalnut_biosig" )
+
+FIND_PACKAGE( biosig QUIET )
+IF( BIOSIG_FOUND )
+    MESSAGE( STATUS "Using system installed biosig." )
+    INCLUDE_DIRECTORIES( ${BIOSIG_INCLUDE_DIR} )
+    SET( OWExtBioSigName  ${BIOSIG_LIBRARY} )
+ELSE()
+    INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext/biosig )
+    ADD_SUBDIRECTORY( ext/biosig )
+ENDIF()
+
+# -----------------------------------------------------------------------------------------------------------------------------------------------
+# other external libs
+
+SET( OWExtEEPName    "openwalnut_eep" )
+
+# libcnt needs absolute inclusion somewhere
+INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext/libeep )
+INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/ext )
+
+# build external libs in ext/
+ADD_SUBDIRECTORY( ext/libeep) # The needed external libraries
+
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 # Setup for compilation
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -46,7 +94,7 @@ GET_FILENAME_COMPONENT( MODULE_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME )
 # module.
 SETUP_MODULE( ${MODULE_NAME}                # name of the module
              "${CMAKE_CURRENT_SOURCE_DIR}"  # where to find the source ${CMAKE_CURRENT_SOURCE_DIR} is a good idea here mostly
-             ""                             # does your module need additional libs to compile?
-             ""                             # do you want to exclude files from stylechecking? (externals for example)
+             "${OWExtBioSigName};${OWExtEEPName};${OWExtNiftiIOName}" # does your module need additional libs to compile?
+             "ext"                             # do you want to exclude files from stylechecking? (externals for example)
 )
 

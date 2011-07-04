@@ -28,14 +28,14 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "WReaderBiosig.h"
-#include "../WEEG.h"
-#include "../WSubject.h"
-#include "../../common/WAssert.h"
-#include "../../common/WException.h"
-#include "../../common/WLogger.h"
-#include "../../common/WStringUtils.h"
+#include "core/dataHandler/WEEG.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/common/WAssert.h"
+#include "core/common/WException.h"
+#include "core/common/WLogger.h"
+#include "core/common/WStringUtils.h"
 
+#include "WReaderBiosig.h"
 
 WReaderBiosig::WReaderBiosig( std::string fileName )
     : WReaderEEG( fileName ),

@@ -612,7 +612,7 @@ RECURSIVE              = YES
 # excluded from the INPUT source files. This way you can easily exclude a
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
-EXCLUDE                = src/ext \
+EXCLUDE                = src/modules/data/ext \
                          src/core/common/platformDependent/visualStudio/inttypes.h \
                          src/modules/lic/fibernavigator \
                          src/modules/lic/fantom

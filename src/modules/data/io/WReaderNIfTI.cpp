@@ -31,23 +31,23 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../common/WIOTools.h"
-#include "../../common/WLogger.h"
-#include "../WDataHandlerEnums.h"
-#include "../WDataSet.h"
-#include "../WDataSetDTI.h"
-#include "../WDataSetRawHARDI.h"
-#include "../WDataSetScalar.h"
-// #include "../WDataSetSegmentation.h"  // TODO(philips): polish WDataSetSegmentation for check in
-#include "../WDataSetSingle.h"
-#include "../WDataSetSphericalHarmonics.h"
-#include "../WDataSetTimeSeries.h"
-#include "../WDataSetVector.h"
-#include "../WGrid.h"
-#include "../WGridRegular3D.h"
-#include "../WSubject.h"
-#include "../WValueSet.h"
-#include "../WValueSetBase.h"
+#include "core/common/WIOTools.h"
+#include "core/common/WLogger.h"
+#include "core/dataHandler/WDataHandlerEnums.h"
+#include "core/dataHandler/WDataSet.h"
+#include "core/dataHandler/WDataSetDTI.h"
+#include "core/dataHandler/WDataSetRawHARDI.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetSingle.h"
+#include "core/dataHandler/WDataSetSphericalHarmonics.h"
+#include "core/dataHandler/WDataSetTimeSeries.h"
+#include "core/dataHandler/WDataSetVector.h"
+#include "core/dataHandler/WGrid.h"
+#include "core/dataHandler/WGridRegular3D.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/dataHandler/WValueSet.h"
+#include "core/dataHandler/WValueSetBase.h"
+
 #include "WReaderNIfTI.h"
 
 WReaderNIfTI::WReaderNIfTI( std::string fileName )

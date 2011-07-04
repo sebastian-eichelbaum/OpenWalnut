@@ -22,41 +22,38 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADERELC_H
-#define WREADERELC_H
+#ifndef WREADEREEG_H
+#define WREADEREEG_H
 
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
-#include "WReader.h"
-#include "../WEEGPositionsLibrary.h"
-#include "../WExportDataHandler.h"
-
+#include "core/dataHandler/WEEG.h"
+#include "core/dataHandler/exceptions/WDHIOFailure.h"
+#include "core/dataHandler/io/WReader.h"
 
 /**
- * Read electrode positions from an ELC file.
+ * Abstract base class for all Readers who handle with EEG data
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WReaderELC : public WReader // NOLINT
+class WReaderEEG : public WReader // NOLINT
 {
 public:
-    /**
-     * Constructs a reader object.
-     *
-     * \param fname path to file which should be loaded
-     */
-    explicit WReaderELC( std::string fname );
-
-    /**
-     * Read the file and create a dataset out of it.
-     *
-     * \return reference to the dataset
-     */
-    boost::shared_ptr< WEEGPositionsLibrary > read();
-
 protected:
+    /**
+     * Constructs basic eeg Reader with a file name.
+     *
+     * \param fileName Path to be loaded
+     * \throw WDHIOFailure in case of an error
+     */
+    explicit WReaderEEG( std::string fileName ) throw( WDHIOFailure );
+
+    /**
+     * Load electrode positions from ELC file with same name
+     *
+     * \return electrode library containig the loaded positions
+     */
+    WEEGElectrodeLibrary extractElectrodePositions();
 private:
 };
 
-#endif  // WREADERELC_H
+#endif  // WREADEREEG_H

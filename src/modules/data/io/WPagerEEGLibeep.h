@@ -32,19 +32,17 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../WEEGValueMatrix.h"
-#include "WPagerEEG.h"
-#include "../WExportDataHandler.h"
+#include "core/dataHandler/WEEGValueMatrix.h"
+#include "core/dataHandler/io/WPagerEEG.h"
 
 typedef struct eeg_dummy_t eeg_t;
-
 
 /**
  * Class to load an EEG file and keep it open to support paging.
  * Uses the libeep library to read the CNT format.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WPagerEEGLibeep : public WPagerEEG // NOLINT
+class WPagerEEGLibeep : public WPagerEEG // NOLINT
 {
 public:
     /**

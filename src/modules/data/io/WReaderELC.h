@@ -22,38 +22,39 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADERLIBEEP_H
-#define WREADERLIBEEP_H
+#ifndef WREADERELC_H
+#define WREADERELC_H
 
 #include <string>
 
-#include "WReaderEEG.h"
-#include "../WExportDataHandler.h"
+#include <boost/shared_ptr.hpp>
 
+#include "core/dataHandler/io/WReader.h"
+#include "core/dataHandler/WEEGPositionsLibrary.h"
 
 /**
- * Reader for the CNT format supported by the libeep library.
+ * Read electrode positions from an ELC file.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WReaderLibeep : public WReaderEEG // NOLINT
+class WReaderELC : public WReader // NOLINT
 {
 public:
     /**
-     * Constructs a loader to be executed in its own thread and sets the data
-     * needed for the loader when executed in its own thread.
+     * Constructs a reader object.
      *
-     * \param fileName this file will be loaded
+     * \param fname path to file which should be loaded
      */
-    explicit WReaderLibeep( std::string fileName );
+    explicit WReaderELC( std::string fname );
 
     /**
-     * Loads the dataset.
+     * Read the file and create a dataset out of it.
      *
-     * \return the dataset loaded.
+     * \return reference to the dataset
      */
-    virtual boost::shared_ptr< WDataSet > load();
+    boost::shared_ptr< WEEGPositionsLibrary > read();
+
 protected:
 private:
 };
 
-#endif  // WREADERLIBEEP_H
+#endif  // WREADERELC_H

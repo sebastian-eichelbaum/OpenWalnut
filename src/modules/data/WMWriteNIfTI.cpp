@@ -22,6 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <nifti1_io.h>
+
 #include <stdint.h>
 
 #include <iostream>
@@ -32,8 +34,6 @@
 
 #include <cmath>
 
-#include <nifti1_io.h>
-
 #include "core/common/WAssert.h"
 #include "core/common/WPathHelper.h"
 #include "core/common/WStringUtils.h"
@@ -41,12 +41,9 @@
 #include "core/dataHandler/WDataSetRawHARDI.h"
 #include "core/kernel/WKernel.h"
 #include "core/common/math/linearAlgebra/WLinearAlgebra.h"
-
-#include "WMWriteNIfTI.h"
 #include "core/kernel/WModule.h"
 
-// This line is needed by the module loader to actually find your module.
-W_LOADABLE_MODULE( WMWriteNIfTI )
+#include "WMWriteNIfTI.h"
 
 WMWriteNIfTI::WMWriteNIfTI() :
     WModule()

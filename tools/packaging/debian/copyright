@@ -2,22 +2,29 @@ Format: http://dep.debian.net/deps/dep5
 Upstream-Name: openwalnut
 Source: <http://www.openwalnut.org>
 
-# NOTE(OpenWalnut): you can add further authors here. Please ensure the correct
-# format! Also take care that the years in which some author worked on the project
-# is correct.
 Files: *
-Copyright: 2009-2011 Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>
-           2009-2011 Mathias Goldau <goldau@informatik.uni-leipzig.de>
-           2009-2011 Ralph Schurade
-           2009-2011 Alexander Wiebel <wiebel@zib.de>
+Copyright: 2009-2011 Abteilung für Bild- und Signalverarbeitung, Universität Leipzig
+           2009-2011 Max-Planck-Institut für Kognitions- und Neurowissenschaften
 License: GPL-3.0+ or LGPL-3.0+
 
 Files: debian/*
-Copyright: 2011 Sebastian Eichelbaum <eichelbaum@informatik.uni-leipzig.de>
+Copyright: 2011 Abteilung für Bild- und Signalverarbeitung, Universität Leipzig
 License: GPL-3.0+
 
 Files: tools/style/brainlint/*
 Copyright: 2009 Google Inc.
+License: GPL-3.0+
+
+Files: src/modules/data/ext/biosig
+Copyright: XXX
+License: GPL-3.0+
+
+Files: src/modules/data/ext/nifti
+Copyright: XXX
+License: GPL-3.0+
+
+Files: src/modules/data/ext/libeep
+Copyright: XXX
 License: GPL-3.0+
 
 License: GPL-3.0+

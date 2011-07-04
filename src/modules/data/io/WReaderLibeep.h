@@ -22,40 +22,36 @@
 //
 //---------------------------------------------------------------------------
 
-#ifndef WREADEREEG_H
-#define WREADEREEG_H
+#ifndef WREADERLIBEEP_H
+#define WREADERLIBEEP_H
 
 #include <string>
 
-#include "../WEEG.h"
-#include "../exceptions/WDHIOFailure.h"
-#include "WReader.h"
-#include "../WExportDataHandler.h"
-
+#include "WReaderEEG.h"
 
 /**
- * Abstract base class for all Readers who handle with EEG data
+ * Reader for the CNT format supported by the libeep library.
  * \ingroup dataHandler
  */
-class OWDATAHANDLER_EXPORT WReaderEEG : public WReader // NOLINT
+class WReaderLibeep : public WReaderEEG // NOLINT
 {
 public:
-protected:
     /**
-     * Constructs basic eeg Reader with a file name.
+     * Constructs a loader to be executed in its own thread and sets the data
+     * needed for the loader when executed in its own thread.
      *
-     * \param fileName Path to be loaded
-     * \throw WDHIOFailure in case of an error
+     * \param fileName this file will be loaded
      */
-    explicit WReaderEEG( std::string fileName ) throw( WDHIOFailure );
+    explicit WReaderLibeep( std::string fileName );
 
     /**
-     * Load electrode positions from ELC file with same name
+     * Loads the dataset.
      *
-     * \return electrode library containig the loaded positions
+     * \return the dataset loaded.
      */
-    WEEGElectrodeLibrary extractElectrodePositions();
+    virtual boost::shared_ptr< WDataSet > load();
+protected:
 private:
 };
 
-#endif  // WREADEREEG_H
+#endif  // WREADERLIBEEP_H

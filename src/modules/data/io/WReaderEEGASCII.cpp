@@ -29,13 +29,13 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "../../common/WAssert.h"
-#include "../../common/WException.h"
-#include "../../common/WStringUtils.h"
-#include "../WEEG.h"
-#include "../WSubject.h"
-#include "WReaderEEGASCII.h"
+#include "core/common/WAssert.h"
+#include "core/common/WException.h"
+#include "core/common/WStringUtils.h"
+#include "core/dataHandler/WEEG.h"
+#include "core/dataHandler/WSubject.h"
 
+#include "WReaderEEGASCII.h"
 
 WReaderEEGASCII::WReaderEEGASCII( std::string fileName )
     : WReaderEEG( fileName )
