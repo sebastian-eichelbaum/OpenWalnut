@@ -124,5 +124,5 @@ SETUP_SHADERS( "${TARGET_GLSL_FILES}" "${OW_SHARE_DIR_RELATIVE}/shaders" "CORE" 
 # setup the stylechecker. Ignore the platform specific stuff.
 SETUP_STYLECHECKER( "${LibName}"
                     "${TARGET_CPP_FILES};${TARGET_H_FILES};${TARGET_TEST_FILES};${TARGET_GLSL_FILES}"  # add all these files to the stylechecker
-                    ".*platformDependent\\/visualStudio\\/.*" )                                        # exlude some ugly files
+                    "" )                                        # exlude some ugly files
 

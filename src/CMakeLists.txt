@@ -51,12 +51,6 @@ IF( NOT CMAKE_GENERATOR MATCHES "Visual Studio" )
   MARK_AS_ADVANCED( BUILD_SHARED_LIBS )
 ENDIF()
 
-# Visual Studio version prior to 2010 do not provide stdint.h and inttypes.h
-# TODO(all): WTF!?
-IF( CMAKE_GENERATOR MATCHES "Visual Studio" )
-  INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/common/platformDependent/visualStudio/" )
-ENDIF()
-
 # The build types
 IF( NOT CMAKE_BUILD_TYPE )
     SET( CMAKE_BUILD_TYPE Release

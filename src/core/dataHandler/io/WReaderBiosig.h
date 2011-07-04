@@ -30,12 +30,9 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <biosig.h>
+
 #include "WReaderEEG.h"
-#ifdef _MSC_VER
-#include "ext/biosigWin/biosig.h"
-#else
-#include "ext/biosig/biosig.h"
-#endif
 
 #include "../WExportDataHandler.h"
 
