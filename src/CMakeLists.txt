@@ -169,7 +169,7 @@ IF( OW_PACKAGE_BUILD )
 ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
-# The walnut executable should print the revision/tag
+# The openwalnut executable should print the revision/tag
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Generate needed headers
@@ -492,7 +492,7 @@ ADD_CUSTOM_TARGET( install_devdoc
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 #
 # Compilation Targets
-#  - The GUI + OpenWalnut.cpp ==> walnut binary
+#  - The GUI + OpenWalnut.cpp ==> openwalnut binary
 #  - Ext ==> libOWext_*
 #  - All the others ==> libOWcore
 #
@@ -522,7 +522,7 @@ SET( OWCoreName "openwalnut" )
 ADD_SUBDIRECTORY( core )
 
 # -----------------------------------------------------------------------------------------------------------------------------------------------
-# QT4 Walnut binary
+# QT4 OpenWalnut binary
 
 SET( OWQt4GuiName "qt4gui" )
 SET( OWBinaryName "openwalnut-qt4" )

@@ -206,7 +206,7 @@ protected:
 private:
 
     /**
-     * Loader class managing dynamically loaded modules in open walnut.
+     * Loader class managing dynamically loaded modules in OpenWalnut.
      */
     WModuleLoader m_moduleLoader;
 

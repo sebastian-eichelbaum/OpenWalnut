@@ -109,7 +109,7 @@ int WQt4Gui::run()
     WLogger::getLogger()->setDefaultLogLevel( logLevel );
 
     // print the first output
-    wlog::debug( "Walnut" ) << "Walnut binary path: " << walnutBin;
+    wlog::debug( "OpenWalnut" ) << "OpenWalnut binary path: " << walnutBin;
     wlog::info( "GUI" ) << "Bringing up GUI";
 
     // startup graphics engine
