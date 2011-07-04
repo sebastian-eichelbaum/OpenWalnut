@@ -158,8 +158,11 @@ ENDIF()
 # Provide several options to control some aspects of resource copy.
 OPTION( OW_PACKAGE_BUILD "Enable this to get fine-grained control over several resources and files getting installed. This is very handy for package building." OFF )
 IF( OW_PACKAGE_BUILD )
+    SET( OW_PACKAGE_PACKAGER "cpack" CACHE STRING "Package builder. Set this to enable packager-specific options during install." )
+
     OPTION( OW_PACKAGE_NOCOPY_LICENSE "Disable to copy our licensing information. Enabling this can be useful for package maintainer since several packaging systems have their own licence mechanism (i.e. Debian)." OFF )
     OPTION( OW_PACKAGE_NOLINK_OPENTHREADS "Enable this to avoid linking OpenThreads. On some systems, OpenSceneGraph already is linked against it and thus linking OpenThreads to OW is not needed (Debian and Ubuntu for example)." OFF )
+    OPTION( OW_PACKAGE_NOCOPY_COREFONTS "Enable this if you have liberation fonts installed on your system. They will be linked. If disabled, our fonts are copied." OFF )
 ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------

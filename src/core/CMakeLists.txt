@@ -95,7 +95,29 @@ ADD_CUSTOM_TARGET( core_devdoc
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
 
 # copy our own resources
-SETUP_RESOURCES( "core" "CORE" )
+IF( NOT OW_PACKAGE_NOCOPY_COREFONTS )
+    SETUP_RESOURCES( "core" "CORE" )
+ELSE()
+    # This is a hack which is quite debian specific. We do this here to avoid font duplicates since the ttf-liberation fonts are already
+    # available on Debian. If you need to modify this for another packaging thingy, please let me know (ebaum@informatik.uni-leipzig.d). We then
+    # should find a generic solution.
+    IF( OW_PACKAGE_PACKAGER STREQUAL "deb" )
+        INSTALL( CODE "MESSAGE( \"INSTALL: Symlinking fonts.\" )"
+                COMPONENT "CORE" )
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts )"
+                COMPONENT "CORE" ) 
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Bold.ttf ${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/arial.ttf )"
+                COMPONENT "CORE" )
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Bold.ttf ${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Bold.ttf )"
+                COMPONENT "CORE" )
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Italic.ttf ${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Italic.ttf )"
+                COMPONENT "CORE" )
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Regular.ttf ${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Regular.ttf )"
+                COMPONENT "CORE" )
+    ELSE()
+        MESSAGE( STATUS "Warning: You enabled \"OW_PACKAGE_NOCOPY_COREFONTS\" but packager unknown." ) 
+    ENDIF()
+ENDIF()
 
 # where to put doc files?
 # NOTE: the doc path should match the SONAME of lib. Use this command to query a proper name:
