@@ -37,6 +37,7 @@
 #include "../WModuleFactory.h"
 #include "../WModuleConnector.h"
 #include "../WModule.h"
+#include "../WDataModule.h"
 #include "../WModuleInputConnector.h"
 #include "../WModuleOutputConnector.h"
 #include "../exceptions/WModuleConnectorNotFound.h"
@@ -128,7 +129,7 @@ bool WModuleProjectFileCombiner::parse( std::string line, unsigned int lineNumbe
             }
             else
             {
-                boost::shared_static_cast< WMData >( module )->setFilename( parameter );
+                boost::shared_static_cast< WDataModule >( module )->setFilename( parameter );
                 m_modules.insert( ModuleID( boost::lexical_cast< unsigned int >( matches[1] ), module ) );
             }
         }
@@ -368,7 +369,7 @@ void WModuleProjectFileCombiner::save( std::ostream& output )   // NOLINT
         // handle data modules separately
         if( ( *iter )->getType() == MODULE_DATA )
         {
-            output << "DATA:" << i << ":" <<  boost::shared_static_cast< WMData >( ( *iter ) )->getFilename() << std::endl;
+            output << "DATA:" << i << ":" <<  boost::shared_static_cast< WDataModule >( ( *iter ) )->getFilename() << std::endl;
         }
         else
         {

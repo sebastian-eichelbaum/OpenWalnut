@@ -33,7 +33,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "modules/data/WMData.h" // this is the ONLY module with a special meaning. Every one knowing the factory also knows this
 #include "../common/WSharedAssociativeContainer.h"
 #include "WModuleCombinerTypes.h"
 #include "WModule.h"

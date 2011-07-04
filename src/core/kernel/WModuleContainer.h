@@ -45,7 +45,7 @@
 class WThreadedRunner;
 class WBatchLoader;
 class WModule;
-class WMData;
+class WDataModule;
 
 #include "WExportKernel.h"
 
@@ -243,9 +243,9 @@ public:
     virtual boost::shared_ptr< WModule > factory() const;
 
     /**
-     * Simple type for WMData pointer lists.
+     * Simple type for WDataModule pointer lists.
      */
-    typedef std::set< boost::shared_ptr< WMData > > DataModuleListType;
+    typedef std::set< boost::shared_ptr< WDataModule > > DataModuleListType;
 
     /**
      * Returns a vector of pointers to the loaded data modules in the container.

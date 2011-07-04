@@ -55,7 +55,7 @@
 #include "core/dataHandler/WEEG2.h"
 #include "core/graphicsEngine/WGEZoomTrackballManipulator.h"
 #include "core/graphicsEngine/WROIBox.h"
-#include "core/kernel/modules/data/WMData.h"
+#include "core/kernel/WDataModule.h"
 #include "core/kernel/WKernel.h"
 #include "core/kernel/WModule.h"
 #include "core/kernel/WModuleCombiner.h"
@@ -458,7 +458,7 @@ void WMainWindow::moduleSpecificSetup( boost::shared_ptr< WModule > module )
 
         // data modules contain an member denoting the real data type. Currently we only have one data module and a not very modulated data
         // structures.
-        boost::shared_ptr< WMData > dataModule = boost::shared_static_cast< WMData >( module );
+        boost::shared_ptr< WDataModule > dataModule = boost::shared_static_cast< WDataModule >( module );
 
         // grab data and identify type
         if( dataModule->getDataSet()->isA< WDataSetSingle >() && dataModule->getDataSet()->isTexture() )

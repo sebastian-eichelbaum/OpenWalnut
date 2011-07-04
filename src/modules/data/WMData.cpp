@@ -25,33 +25,36 @@
 #include <string>
 #include <vector>
 
-#include "../../../common/WAssert.h"
-#include "../../../common/WIOTools.h"
-#include "../../../common/WPropertyHelper.h"
-#include "../../../dataHandler/WDataSet.h"
-#include "../../../dataHandler/WDataSetSingle.h"
-#include "../../../dataHandler/WDataSetScalar.h"
-#include "../../../dataHandler/WDataSetTimeSeries.h"
-#include "../../../dataHandler/WDataSetVector.h"
-#include "../../../dataHandler/WSubject.h"
-#include "../../../dataHandler/WDataHandler.h"
-#include "../../../dataHandler/WDataTexture3D.h"
-#include "../../../dataHandler/WEEG2.h"
-#include "../../../dataHandler/exceptions/WDHException.h"
-#include "../../../dataHandler/io/WReaderBiosig.h"
-#include "../../../dataHandler/io/WReaderEEGASCII.h"
-#include "../../../dataHandler/io/WReaderLibeep.h"
-#include "../../../dataHandler/io/WReaderNIfTI.h"
-#include "../../../dataHandler/io/WPagerEEGLibeep.h"
-#include "../../../dataHandler/io/WReaderELC.h"
-#include "../../../dataHandler/io/WReaderFiberVTK.h"
-#include "../../../graphicsEngine/WGEColormapping.h"
-#include "../../../kernel/WModuleOutputData.h"
+#include "core/common/WAssert.h"
+#include "core/common/WIOTools.h"
+#include "core/common/WPropertyHelper.h"
+#include "core/dataHandler/WDataSet.h"
+#include "core/dataHandler/WDataSetSingle.h"
+#include "core/dataHandler/WDataSetScalar.h"
+#include "core/dataHandler/WDataSetTimeSeries.h"
+#include "core/dataHandler/WDataSetVector.h"
+#include "core/dataHandler/WSubject.h"
+#include "core/dataHandler/WDataHandler.h"
+#include "core/dataHandler/WDataTexture3D.h"
+#include "core/dataHandler/WEEG2.h"
+#include "core/dataHandler/exceptions/WDHException.h"
+#include "core/dataHandler/io/WReaderBiosig.h"
+#include "core/dataHandler/io/WReaderEEGASCII.h"
+#include "core/dataHandler/io/WReaderLibeep.h"
+#include "core/dataHandler/io/WReaderNIfTI.h"
+#include "core/dataHandler/io/WPagerEEGLibeep.h"
+#include "core/dataHandler/io/WReaderELC.h"
+#include "core/dataHandler/io/WReaderFiberVTK.h"
+#include "core/graphicsEngine/WGEColormapping.h"
+#include "core/kernel/WModuleOutputData.h"
 #include "WMData.h"
 #include "data.xpm"
 
+// This line is needed by the module loader to actually find your module. You need to add this to your module too. Do NOT add a ";" here.
+W_LOADABLE_MODULE( WMData )
+
 WMData::WMData():
-    WModule(),
+    WDataModule(),
     m_fileNameSet( false ),
     m_isTexture(),
     m_transformNoMatrix( 4, 4 ),
@@ -105,11 +108,6 @@ boost::filesystem::path WMData::getFilename() const
     return m_fileName;
 }
 
-MODULE_TYPE WMData::getType() const
-{
-    return MODULE_DATA;
-}
-
 void WMData::connectors()
 {
     // initialize connectors
@@ -121,7 +119,7 @@ void WMData::connectors()
     addConnector( m_output );
 
     // call WModules initialization
-    WModule::connectors();
+    WDataModule::connectors();
 }
 
 void WMData::properties()

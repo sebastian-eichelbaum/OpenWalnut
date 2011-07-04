@@ -30,10 +30,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-// #include "../../WKernel.h"
-#include "../../WModule.h"
-
-#include "../../WExportKernel.h"
+#include "core/kernel/WDataModule.h"
 
 // forward declarations
 class WDataSet;
@@ -46,7 +43,7 @@ template< class T > class WModuleOutputData;
  * inherited classes. This class builds a "source" in OpenWalnut's DataFlow Network.
  * \ingroup modules
  */
-class OWKERNEL_EXPORT WMData: public WModule
+class WMData: public WDataModule
 {
 public:
 
@@ -91,14 +88,6 @@ public:
      * Get the icon for this module in XPM format.
      */
     virtual const char** getXPMIcon() const;
-
-    /**
-     * Gets the type of the module. This is useful for FAST differentiation between several modules like standard modules and data
-     * modules which play a special role in OpenWalnut/Kernel.
-     *
-     * \return the Type. This will return MODULE_DATA.
-     */
-    virtual MODULE_TYPE getType() const;
 
     /**
      * Sets the filename of the file to load. If this method is called multiple times it has no effect. It has to be called right after
