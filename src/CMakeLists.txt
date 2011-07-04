@@ -288,12 +288,9 @@ ENDIF()
 # Eigen3, at least 3.0.0
 # See http://eigen.tuxfamily.org
 
-FIND_PACKAGE( eigen3 QUIET )
+FIND_PACKAGE( eigen3 REQUIRED )
 IF( EIGEN3_FOUND )
-    MESSAGE( STATUS "Using system installed eigen3." )
     INCLUDE_DIRECTORIES( ${EIGEN3_INCLUDE_DIR} )
-ELSE()
-    INCLUDE_DIRECTORIES( "${PROJECT_SOURCE_DIR}/ext/eigen3" )
 ENDIF()
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------
