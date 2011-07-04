@@ -171,7 +171,8 @@ protected:
 private:
 
     /**
-     * Application path. NOT the path of the binary. The binary path is m_appPath+"/walnut".
+     * Application path. NOT the path of the binary. The application path is the directory in which the binary is placed.
+     * The binary path is m_appPath+"/openwalnut".
      */
     boost::filesystem::path m_appPath;
 
