@@ -31,8 +31,8 @@
 
 #include <cxxtest/TestSuite.h>
 
-#include "../../../common/WLogger.h"
-#include "../../exceptions/WDHNoSuchFile.h"
+#include "core/common/WLogger.h"
+#include "core/dataHandler/exceptions/WDHNoSuchFile.h"
 #include "../WReaderNIfTI.h"
 #include "../WReaderNIfTI.cpp" //need this to be able instatiate template function
 

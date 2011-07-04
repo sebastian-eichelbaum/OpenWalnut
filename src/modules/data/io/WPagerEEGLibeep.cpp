@@ -22,6 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+extern "C"
+{
+    #include <libeep/cnt/cnt.h>
+}
+
 #include <clocale>
 #include <cstddef>
 #include <cstdio>
@@ -31,11 +36,6 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-
-extern "C"
-{
-    #include <libeep/cnt/cnt.h>
-}
 
 #include "core/common/exceptions/WOutOfBounds.h"
 #include "core/dataHandler/exceptions/WDHIOFailure.h"

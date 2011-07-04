@@ -22,14 +22,14 @@
 //
 //---------------------------------------------------------------------------
 
-#include <locale.h>
-
-#include <string>
-
 extern "C"
 {
     #include <libeep/cnt/cnt.h>
 }
+
+#include <locale.h>
+
+#include <string>
 
 #include "core/common/WLogger.h"
 #include "core/dataHandler/WEEG.h"
