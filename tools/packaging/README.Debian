@@ -26,6 +26,8 @@ How I did the Debian Config
 		- Setup for dual licensing
 			- added LGPL3
 		- added several authors there
+        - Also added all the external code we use!
+        -> check with "licensecheck -r --copyright"
 	edit debian/changelog
 		- added our ITP: 613419
 			- http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=613419#5
