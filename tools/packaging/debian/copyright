@@ -2,30 +2,80 @@ Format: http://dep.debian.net/deps/dep5
 Upstream-Name: openwalnut
 Source: <http://www.openwalnut.org>
 
+###############################################################################
+# Our own code:
+###############################################################################
+
 Files: *
 Copyright: 2009-2011 Abteilung für Bild- und Signalverarbeitung, Universität Leipzig
-           2009-2011 Max-Planck-Institut für Kognitions- und Neurowissenschaften
+           2009-2011 Max-Planck Institute of Cognitive Neuroscience, Leipzig, Germany
 License: GPL-3.0+ or LGPL-3.0+
 
 Files: debian/*
 Copyright: 2011 Abteilung für Bild- und Signalverarbeitung, Universität Leipzig
 License: GPL-3.0+
 
+###############################################################################
+# External code we provide:
+###############################################################################
+
+############################################################################
+# Stylechecker
+
 Files: tools/style/brainlint/*
 Copyright: 2009 Google Inc.
 License: GPL-3.0+
 
-Files: src/modules/data/ext/biosig
-Copyright: XXX
+############################################################################
+# BioSig
+
+# this is copied from the libbiosig0 copyright file
+Files: src/modules/data/ext/biosig/*
+Copyright: 2003-2007, Lev Walkin <vlm@lionet.info>
+           2003,2004, Giorgio De Odorico
+           2003,2004, X/IO Labs (xiolabs.com)
+           2003,2004,2006, Eugenio Cervesato
+           2005,2006, Franco Chiarugi
+           2005-2011, Alois Schloegl <a.schloegl@ieee.org>
+           2007, Elias Apostolopoulos
 License: GPL-3.0+
 
-Files: src/modules/data/ext/nifti
-Copyright: XXX
-License: GPL-3.0+
+Files: src/modules/data/ext/biosig/XMLParser/tiny*
+Copyright: 2000-2007, Lee Thomason <leethomason@mindspring.com>
+           2002-2004, Yves Berquin <yvesb@users.sourceforge.net>
+           2005, Tyge Lovset
+           2007-2010, Alois Schloegl <a.schloegl@ieee.org>
+License: ZLIB
 
-Files: src/modules/data/ext/libeep
-Copyright: XXX
-License: GPL-3.0+
+############################################################################
+# NIfTI
+
+# this was copied from libnifti2 copyright file
+Files: src/modules/data/ext/nifti/*
+Copyright: none
+License: other
+  nifticlib was written by the NIfTI Data Format Working Group (DFWG,
+  http://nifti.nimh.nih.gov/). The NIFTI DFWG disclaims all
+  copyright in nifticlib and places it in the public domain.
+
+############################################################################
+# LibEEP
+
+# This information was taken from libeep-3.3.163, available at sourceforge. The code is 
+Files: src/modules/data/ext/libeep/*
+Copyright: 2003-2009 Max-Planck Institute of Cognitive Neuroscience, Leipzig, Germany
+           2003-2009 Advanced Neuro Technology (ANT) B.V., Enschede, The Netherlands
+License: LGPL-3.0+
+
+Files: src/modules/data/ext/libeep/libeep/val.*
+Copyright: 2002-2004 Ralf S. Engelschall <rse@engelschall.com>
+           2002-2004 The OSSP Project <http://www.ossp.org/>
+           2002-2004 Cable & Wireless <http://www.cw.com/>
+License: OSSPValueAccessLicense
+
+###############################################################################
+# Licenses:
+###############################################################################
 
 License: GPL-3.0+
  This program is free software: you can redistribute it and/or modify
@@ -60,3 +110,42 @@ License: LGPL-3.0+
  .
  On Debian systems, the complete text of the GNU Lesser General
  Public License can be found in "/usr/share/common-licenses/LGPL-3".
+
+License: ZLIB
+ This software is provided 'as-is', without any express or implied
+ warranty. In no event will the authors be held liable for any
+ damages arising from the use of this software.
+ .
+ Permission is granted to anyone to use this software for any
+ purpose, including commercial applications, and to alter it and
+ redistribute it freely, subject to the following restrictions:
+ .
+ 1. The origin of this software must not be misrepresented; you must
+ not claim that you wrote the original software. If you use this
+ software in a product, an acknowledgment in the product documentation
+ would be appreciated but is not required.
+ .
+ 2. Altered source versions must be plainly marked as such, and
+ must not be misrepresented as being the original software.
+ .
+ 3. This notice may not be removed or altered from any source
+ distribution.
+
+License: OSSPValueAccessLicense
+ Permission to use, copy, modify, and distribute this software for
+ any purpose with or without fee is hereby granted, provided that
+ the above copyright notice and this permission notice appear in all
+ copies.
+ .
+ THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE AUTHORS AND COPYRIGHT HOLDERS AND THEIR
+ CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+ USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ SUCH DAMAGE.
