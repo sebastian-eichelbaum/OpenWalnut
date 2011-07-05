@@ -102,17 +102,17 @@ ELSE()
     # available on Debian. If you need to modify this for another packaging thingy, please let me know (ebaum@informatik.uni-leipzig.d). We then
     # should find a generic solution.
     IF( OW_PACKAGE_PACKAGER STREQUAL "deb" )
-        INSTALL( CODE "MESSAGE( \"INSTALL: Symlinking fonts.\" )"
+        INSTALL( CODE "MESSAGE( \"INSTALL: Symlinking fonts to \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts.\" )"
                 COMPONENT "CORE" )
-        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts )"
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E make_directory \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts )"
                 COMPONENT "CORE" ) 
-        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Bold.ttf ${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/arial.ttf )"
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Bold.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/arial.ttf )"
                 COMPONENT "CORE" )
-        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Bold.ttf ${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Bold.ttf )"
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Bold.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Bold.ttf )"
                 COMPONENT "CORE" )
-        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Italic.ttf ${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Italic.ttf )"
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Italic.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Italic.ttf )"
                 COMPONENT "CORE" )
-        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Regular.ttf ${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Regular.ttf )"
+        INSTALL( CODE "EXECUTE_PROCESS( COMMAND ${CMAKE_COMMAND} -E create_symlink /usr/share/fonts/truetype/ttf-liberation/LiberationMono-Regular.ttf \${CMAKE_INSTALL_PREFIX}/share/openwalnut/fonts/Regular.ttf )"
                 COMPONENT "CORE" )
     ELSE()
         MESSAGE( STATUS "Warning: You enabled \"OW_PACKAGE_NOCOPY_COREFONTS\" but packager unknown." ) 
